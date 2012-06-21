@@ -1,2 +1,9 @@
+VERSION = $(shell git describe)
+
 all:
+	#Using sed update PRJECT_NUMBER in Doxyfile
+	#	.* = anything, any number of times
+	#	$ = end of line
+	#The $ needs to be doubled for escaping make
+	sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile;\
 	doxygen Doxyfile

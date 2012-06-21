@@ -49,12 +49,23 @@ div#stencila-header {
     padding: 10px;
     float: left;
 }
-div#stencila-header * {
-    display: inline;
+div#stencila-header a,
+div#stencila-header img{
+	display: inline;
+	vertical-align: middle;
+}
+div#stencila-header div.stencila-details {
+    margin-left: 10px;
+	display: inline-block;
     vertical-align: middle;
 }
-div#stencila-header h1 {
-    margin-left: 10px;
+div#stencila-header div.stencila-details h1 {
+    margin: 0px;
+}
+div#stencila-header div.stencila-details h2 {
+    margin: 0px;
+	color: grey;
+	font-size: 16px;
 }
 
 div#navrow1.tabs,
