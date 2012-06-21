@@ -1149,7 +1149,7 @@ div.groupText p {
 .mdescLeft, .mdescRight, .memItemLeft, .memItemRight, .memTemplItemLeft, .memTemplItemRight, .memTemplParams {
     background-color: white;
 }
-.memItemLeft, .memItemRight, .memTemplItemLeft, .memTemplItemRight {
+.memdescLeft, .memdescRight {
     padding-bottom: 10px;
 }
 .memTemplParams {
@@ -1179,10 +1179,25 @@ div.memitem div.memproto {
     color: white;
     text-shadow: none;
 }
+div.memitem div.memproto div.memtemplate,
 div.memitem div.memproto table.memname {  
     font-family: CoreHumanistSans, Helvetica, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
     font-size: 17px;
+	font-weight: bold;
 } 
+div.memitem div.memproto div.memtemplate {
+	color: #367A24;
+}
+div.memitem div.memproto table.memname { 
+	border-spacing: 0px;
+	color: black;
+}
+div.memitem div.memproto table.memname td.memname { 
+	color: rgb(24, 24, 173);
+}
+div.memitem div.memproto table.memname td.paramtype { 
+	color: white;
+}
 div.memitem div.memdoc {
     box-shadow: none;
     border:none;
