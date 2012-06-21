@@ -1,6 +1,6 @@
-all: api
+all: cxx
 
-api:
-	make -C api all
+cxx:
+	make -C cxx all
 	
-.PHONY: all api
+.PHONY: all cxx
