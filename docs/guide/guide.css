@@ -1,0 +1,70 @@
+@import url('stencila.css');
+@import url('code.css');
+
+body {
+	padding: 15px;
+
+    font-family: TitilliumTextRegular, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+    font-size: 16px;
+}
+
+p {
+	margin : 1px;
+}
+
+div.header {
+    padding: 0px;
+	margin-bottom: 20px;
+    float: left;
+}
+div.header a,
+div.header img{
+	display: inline;
+	vertical-align: middle;
+}
+div.header div.details {
+    margin-left: 10px;
+	display: inline-block;
+    vertical-align: middle;
+}
+div.header div.details h1 {
+    margin: 0px;
+}
+div.header div.details h2 {
+    margin: 0px;
+	color: grey;
+	font-size: 16px;
+}
+
+div.page {
+	clear: both;
+}
+
+div.code {
+	background: white;
+	padding: 10px;
+}
+
+div.code div.cpp,
+div.code div.py,
+div.code div.r {
+	padding: 10px;
+}
+
+div.code div.source pre{
+	margin: 0px;
+	background: #DDD;
+	font-family: TitilliumTextRegular;
+	padding: 10px;
+}
+
+div.code div.output {
+	background: #EEE;
+	color: green;
+	font-family: TitilliumTextRegular;
+	padding: 10px;
+}
+
+div.code div.output span.splat {
+	color: red;
+}

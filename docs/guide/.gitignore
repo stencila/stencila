@@ -1,0 +1,6 @@
+#Ignore all language working directories
+cpp
+py
+r
+#Ignore the output directory
+html
