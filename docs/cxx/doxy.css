@@ -1,5 +1,5 @@
 /* 
-Copyright (c) 2012, Nokome Bentley, nokome.bentley@stenci.la
+Copyright (c) 2012, Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -19,17 +19,7 @@ we use a completely different style for those elements.
 
 */
 
-@font-face {
-	font-family: CoreHumanistSans;
-    /* A font by Alex Scholing, www.fontsbyalex.com */ 
-	src: url('CoreHumanistSans-Regular.otf');
-}
-
-@font-face {
-	font-family: TitilliumTextRegular;
-    /* A font by Campivisivi, http://www.campivisivi.net/titillium/text/ */ 
-	src: url('TitilliumText25L003.otf');
-}
+@import url('stencila.css');
 
 body {
 	padding: 15px;
@@ -70,14 +60,23 @@ div#stencila-header div.stencila-details h2 {
 
 div#navrow1.tabs,
 div#navrow2.tabs2,
-div#navrow3.tabs2 {
+div#navrow3.tabs2{
     float: left;
     margin-top: 6px;
 }
 
+div#navrow4.tabs3{
+	clear: both;
+}
+div#navrow4.tabs3 ul.tablist {
+	margin-left: 10px;
+	padding: 0px;
+}
+
 div#navrow1.tabs ul.tablist li,
 div#navrow2.tabs2 ul.tablist li,
-div#navrow3.tabs2 ul.tablist li {
+div#navrow3.tabs2 ul.tablist li,
+div#navrow4.tabs3 ul.tablist li{
     display: inline-block;
     padding: 3px 7px 3px 7px;
 	border-radius: 4px;
@@ -93,6 +92,9 @@ div#navrow2.tabs2 ul.tablist li {
     background: #BBB;
 }
 div#navrow3.tabs2 ul.tablist li {
+    background: #BBB;
+}
+div#navrow4.tabs3 ul.tablist li {
     background: #BBB;
 }
 
@@ -276,7 +278,36 @@ div.memitem div.memdoc dl {
    margin-top: 5px;
 }
 
+/* Todo List  */
+div.textblock dl.reflist dt {    
+    border: 1px solid #666;
+    border-bottom: none;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+	
+	box-shadow: none;
+	
+	background: #BBB;
+	
+    padding: 5px;
+	text-shadow: none;
+}
 
+div.textblock dl.reflist dd {    
+    border: 1px solid #666;
+    border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+	
+	box-shadow: none;
+	
+    padding: 5px;
+}
 
 
 
