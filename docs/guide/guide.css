@@ -12,6 +12,10 @@ p {
 	margin : 1px;
 }
 
+a {
+	text-decoration: none;
+}
+
 div.header {
     padding: 0px;
 	margin-bottom: 20px;
@@ -34,6 +38,20 @@ div.header div.details h2 {
     margin: 0px;
 	color: grey;
 	font-size: 16px;
+}
+
+div.header ul.links {
+	display: inline;
+}
+div.header ul.links li {
+	display: inline;
+	margin-left: 5px;
+	border: 1px solid black;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	padding: 3px 7px 3px 7px;
+	background: #DDD;
 }
 
 div.page {

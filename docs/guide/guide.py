@@ -151,13 +151,17 @@ class Processor(HTMLParser.HTMLParser):
         '''%opts
         
     @staticmethod
-    def init():
+    def init(pages):
         #Copy files from docs/style
         distutils.dir_util.copy_tree("../style","html/")
         #Copy in guide CSS
         shutil.copyfile("guide.css","html/guide.css")
         #Create pygments CSS
         file("html/code.css","w").write(HtmlFormatter().get_style_defs('.code'))
+        #Create a list of links to pages
+        Processor.links = ''
+        for page in pages:
+            Processor.links += '''<li><a href="%s.html">%s</a></li>'''%(page,page.title())
         
     def process(self):
         
@@ -225,6 +229,9 @@ class Processor(HTMLParser.HTMLParser):
 		<h1>User guide</h1>
 		<h2>Version %(version)s</h2>
 	</div>
+        <ul class="links">
+            %(links)s
+        </ul>
     </div>
     
     <div class="page">
@@ -236,17 +243,20 @@ class Processor(HTMLParser.HTMLParser):
 </html>
 '''%{
             'version': version,
+            'links' : self.links,
             'page': self.html
         }
         
         #Print to output file
-        print>>file("html/%s.html"%name,"w"), html
+        print>>file("html/%s.html"%self.name,"w"), html
 
 if __name__=='__main__':
-                
-    Processor.init()
-    for name in ('datatable','dataset',):
-        p = Processor(name)
+          
+    pages = ('datatable','dataset')
+    
+    Processor.init(pages)
+    for page in pages:
+        p = Processor(page)
         p.process()
 
 
