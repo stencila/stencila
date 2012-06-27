@@ -1,6 +1,9 @@
-all: cxx
+all: cxx guide
 
 cxx:
 	make -C cxx all
 	
-.PHONY: all cxx
+guide:
+	make -C guide all
+	
+.PHONY: all cxx guide

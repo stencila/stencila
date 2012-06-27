@@ -33,7 +33,7 @@ PROJECT_NAME           = Stencila
 # if some version control system is used.
 
 # Inplace edited by sed during build. See Makefile
-PROJECT_NUMBER = 0.1.0-1-g0bb180d
+PROJECT_NUMBER = 0.1.0-2-g1864c07
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
@@ -329,17 +329,17 @@ SYMBOL_CACHE_SIZE      = 0
 # Private class members and static file members will be hidden unless
 # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
 
-EXTRACT_ALL            = NO
+EXTRACT_ALL            = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
 
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 
 # If the EXTRACT_STATIC tag is set to YES all static members of a file
 # will be included in the documentation.
 
-EXTRACT_STATIC         = NO
+EXTRACT_STATIC         = YES
 
 # If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs)
 # defined locally in source files will be included in the documentation.
@@ -882,7 +882,7 @@ HTML_STYLESHEET        =
 # files. In the HTML_STYLESHEET file, use the file name only. Also note that
 # the files will be copied as-is; there are no commands or markers available.
 
-HTML_EXTRA_FILES       = doxy.css stencila.png CoreHumanistSans-Regular.otf TitilliumText25L003.otf
+HTML_EXTRA_FILES       = doxy.css ../style/stencila.css ../style/stencila.png ../style/CoreHumanistSans-Regular.otf ../style/TitilliumText25L003.otf
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output.
 # Doxygen will adjust the colors in the stylesheet and background images

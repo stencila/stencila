@@ -1,0 +1,12 @@
+@font-face {
+	font-family: CoreHumanistSans;
+    /* A font by Alex Scholing, www.fontsbyalex.com */ 
+	src: url('CoreHumanistSans-Regular.otf');
+}
+
+@font-face {
+	font-family: TitilliumTextRegular;
+    /* A font by Campivisivi, http://www.campivisivi.net/titillium/text/ */ 
+	src: url('TitilliumText25L003.otf');
+}
+

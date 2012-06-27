@@ -1,7 +1,8 @@
+#Get version number from git
 VERSION = $(shell git describe)
 
 all:
-	#Using sed update PRJECT_NUMBER in Doxyfile
+	#Using sed update PROJECT_NUMBER in Doxyfile
 	#	.* = anything, any number of times
 	#	$ = end of line
 	#The $ needs to be doubled for escaping make
