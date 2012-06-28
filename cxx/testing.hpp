@@ -12,7 +12,12 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+//!	@file testing.hpp
+//!	@brief Convienience functions and others used for testing
+
 #pragma once
+
+#include <vector>
 
 namespace Stencila {
 	

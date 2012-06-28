@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012, Nokome Bentley, nokome.bentley@stenci.la
+Copyright (c) 2012 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -11,6 +11,9 @@ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
 OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, 
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
+
+//!	@file datacursor.hpp
+//!	@brief Definition of class Datacursor
 
 #pragma once
 
@@ -36,20 +39,25 @@ public:
 		db_(db),
 		executed_(false),
 		more_(false){
-		int prepare = sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt_, 0);
-		if(prepare!=SQLITE_OK){
+		if(sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt_, 0)!=SQLITE_OK){
 			sqlite3_finalize(stmt_);
-			throw Exception(sqlite3_errmsg(db_));
+			throw Exception("sqlite3_prepare_v2(\""+sql+"\") failed : "+sqlite3_errmsg(db_));
 		}
 	}
 	
 	~Datacursor(void){
-		int finalize = sqlite3_finalize(stmt_);
-		if(finalize!=SQLITE_OK) throw Exception(sqlite3_errmsg(db_));
+		if(sqlite3_finalize(stmt_)!=SQLITE_OK) throw Exception(std::string("sqlite3_finalize failed : ")+sqlite3_errmsg(db_));
 	}
 	
 	bool more(void) const {
 		return more_;
+	}
+	
+	Datacursor& bind(unsigned int index,const std::string& value){
+		if(sqlite3_bind_text(stmt_,index+1,value.c_str(),value.length(),SQLITE_STATIC)!=SQLITE_OK) {
+			throw Exception("sqlite3_bind_text(\""+value+"\") failed : "+sqlite3_errmsg(db_));
+		}
+		return *this;
 	}
 	
 	void next(void){
@@ -57,7 +65,7 @@ public:
 		if(step==SQLITE_ROW) more_ =  true;
 		else if(step==SQLITE_DONE) more_ = false;
 		else{
-			throw Exception(sqlite3_errmsg(db_));
+			throw Exception(std::string("sqlite3_step failed : ")+sqlite3_errmsg(db_));
 		}
 	}
 	
@@ -66,6 +74,12 @@ public:
 			next();
 			executed_ = true;
 		}
+	}
+	
+	void reset(void){
+		if(sqlite3_clear_bindings(stmt_)!=SQLITE_OK)  Exception(std::string("sqlite3_clear_bindings failed : ")+sqlite3_errmsg(db_));
+		if(sqlite3_reset(stmt_)!=SQLITE_OK)  Exception(std::string("sqlite3_reset failed : ")+sqlite3_errmsg(db_));
+		executed_ = false;
 	}
 	
 	unsigned int columns(void){
@@ -84,7 +98,7 @@ public:
 		return result;
 	}
 	
-	Datatype type(unsigned int column){
+	const Datatype& type(unsigned int column){
 		execute();
 		switch(sqlite3_column_type(stmt_,column)){
 			case SQLITE_NULL:
@@ -100,7 +114,7 @@ public:
 				return Text;
 			break;
 		}
-		return Undefined;
+		throw Exception("Undefined column type");
 	}
 	
 	std::vector<Datatype> types(void) {

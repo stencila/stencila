@@ -1,6 +1,0 @@
-
-#Ignore test executables and coverage output files
-cxx/tests/*.exe
-cxx/tests/*.gcov
-cxx/tests/*.gcno
-cxx/tests/*.gcda

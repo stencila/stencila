@@ -1,6 +1,5 @@
 /*
-Copyright (c) 2012, Nokome Bentley, nokome.bentley@stenci.la
-
+Copyright (c) 2012, Stencila Ltd
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 
@@ -86,7 +85,7 @@ BOOST_AUTO_TEST_CASE(sql){
 	Datatable t1 = dataset.table("t1");
 	t1.execute("INSERT INTO t1 VALUES(6,6.6,'zeta')");
 	check_equal(
-		t1.query("SELECT * FROM t1 ORDER BY c1 DESC LIMIT 1;").row<std::vector<std::string>>(),
+		t1.cursor("SELECT * FROM t1 ORDER BY c1 DESC LIMIT 1;").row<std::vector<std::string>>(),
 		std::vector<std::string>{"6","6.6","zeta"}
 	);
 	check_equal(

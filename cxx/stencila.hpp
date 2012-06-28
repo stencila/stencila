@@ -12,12 +12,44 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! Used when all test suites are compiled into a single executable
+//!	@file stencila.hpp
+//! 	@brief Includes all Stencila header files. Also container for Doxygen mainpage command.
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE tests
-#include <boost/test/unit_test.hpp>
+#pragma once
+
+#include <vector>
+
+#include "exception.hpp"
+#include "printing.hpp"
+#include "testing.hpp"
+
+#include "datatypes.hpp"
+#include "dataset.hpp"
+#include "datacursor.hpp"
+#include "datatable.hpp"
 
 #include "dataset.cpp"
-#include "datatable.cpp"
-#include "dataquery.cpp"
+
+//!	@namespace Stencila
+//!	@brief The namespace for all Stencila classes and functions
+namespace Stencila {};
+
+/*! 
+
+@mainpage Main Page
+
+@section introduction Introduction
+
+The Stencila C++ library is the bas
+  
+@section requirements Requirements
+ 
+@subsection boost Boost
+
+Stencila makes extensive use of the <a href="http://www.boost.org/">Boost C++ libraries</a>.
+
+@subsection sqlite SQLite
+
+Stencila uses <a href="http://www.sqlite.org/">SQLite</a>.
+
+*/

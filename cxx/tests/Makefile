@@ -2,10 +2,10 @@ all: tests.out
 
 # Compile options include -O0 (no optimizations) and --coverage so that coverage statistics are valid
 compile := g++ -std=c++0x -Wall -O0 --coverage
-libs := -lsqlite3 -lboost_unit_test_framework -lgcov
+libs := -lsqlite3 -lboost_system -lboost_filesystem -lboost_unit_test_framework -lgcov
 
 # Compile and run all test suites together
-tests.exe: tests.cpp
+tests.exe: tests.cpp dataset.cpp datatable.cpp dataquery.cpp
 	$(compile) -o tests.exe tests.cpp $(libs)
 
 # Compile and run an individual test suit

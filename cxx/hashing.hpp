@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012, Nokome Bentley, nokome.bentley@stenci.la
+Copyright (c) 2012 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -12,12 +12,22 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! Used when all test suites are compiled into a single executable
+//!	@file hashing.hpp
+//! 	@brief Definition of a hash function
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE tests
-#include <boost/test/unit_test.hpp>
+#pragma once
 
-#include "dataset.cpp"
-#include "datatable.cpp"
-#include "dataquery.cpp"
+#include <smhasher/MurmurHash3.cpp>
+
+namespace Stencila {
+	
+inline
+unsigned int Hash(const std::string& string){
+	// Create a has of string using MurmurHash3
+	// (See http://en.wikipedia.org/wiki/MurmurHash, http://code.google.com/p/smhasher/wiki/MurmurHash3)
+	unsigned int hash;
+	MurmurHash3_x86_32(string.c_str(),string.length(),0,&hash);
+	return hash;
+}
+
+}

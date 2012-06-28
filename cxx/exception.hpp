@@ -12,6 +12,9 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+//!	@file exception.hpp
+//!	@brief Definition of class Exception
+
 #pragma once
 
 #include <string>

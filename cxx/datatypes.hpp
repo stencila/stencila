@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012, Nokome Bentley, nokome.bentley@stenci.la
+Copyright (c) 2012 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -12,27 +12,68 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+//! @file datatypes.hpp
+//! @brief Definition of data types
+
 #pragma once
+
+#include "printing.hpp"
 
 namespace Stencila {
 	
-enum Datatype {
-	Undefined = 0,
-	Null = 1,
-	Integer = 2,
-	Real = 3,
-	Text = 4,
+//! @class Datatype
+//! @todo Document fully
+class Datatype {
+	
+public:
+	char code;
+
+	Datatype(char value=0):
+		code(value){
+	}
+	
+	bool operator==(const Datatype& other) const {
+		return code==other.code;
+	}
+	
+	bool operator!=(const Datatype& other) const {
+		return code!=other.code;
+	}
+		
+	std::string name(void) const {
+		switch(code){
+			case 'n': return "Null";
+			case 'i': return "Integer";
+			case 'r': return "Real";
+			case 't': return "Text";
+		}
+		return "Undefined";
+	}
+	
+	std::string sql(void) const {
+		switch(code){
+			case 'n': return "NULL";
+			case 'i': return "INTEGER";
+			case 'r': return "REAL";
+			case 't': return "TEXT";
+		}
+		return "NULL";
+	}
 };
 
-std::string DatatypeName(Datatype type){
-	switch(type){
-		case Undefined: return "Undefined";
-		case Null: return "Null";
-		case Integer: return "Integer";
-		case Real: return "Real";
-		case Text: return "Text";
-	}
-	return "Undefined";
+const Datatype Null('n');
+const Datatype Integer('i');
+const Datatype Real('r');
+const Datatype Text('t');
+
+template<>
+void print_format(const Datatype& datatype){
+	print_raw(datatype.name());
+}
+
+std::ostream& operator<<(std::ostream& stream, const Datatype& datatype){
+	stream<<datatype.name();
+	return stream;
 }
 
 }
