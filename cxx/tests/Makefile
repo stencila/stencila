@@ -1,7 +1,7 @@
 all: tests.out
 
-# Compile options include -O0 (no optimizations) and --coverage so that coverage statistics are valid
-compile := g++ -std=c++0x -Wall -O0 --coverage
+# Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid) 
+compile := g++ -std=c++0x -Wall -g --coverage -O0
 libs := -lsqlite3 -lboost_system -lboost_filesystem -lboost_unit_test_framework -lgcov
 
 # Compile and run all test suites together

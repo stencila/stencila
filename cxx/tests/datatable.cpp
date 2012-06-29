@@ -31,13 +31,11 @@ struct datatableFixture {
 			"	c2 REAL,"
 			"	c3 TEXT"
 			");"
-		
 			"INSERT INTO t1 VALUES(1,1.1,'alpha');"
 			"INSERT INTO t1 VALUES(2,2.2,'beta');"
 			"INSERT INTO t1 VALUES(3,3.3,'gamma');"
 			"INSERT INTO t1 VALUES(4,4.4,'delta');"
 			"INSERT INTO t1 VALUES(5,5.5,'epsilon');"
-		
 			"CREATE INDEX t1_c1 ON t1(c1);"
 		);
 	}
@@ -49,8 +47,8 @@ BOOST_AUTO_TEST_CASE(constructors){
 	//! @class Stencila:Datatable
 	//! @test Test constructors
 	Datatable t1 = dataset.table("t1");
-	check_equal(&t1.dataset(),&dataset);
-	check_equal(t1.name(),"t1");
+	BOOST_CHECK_EQUAL(&t1.dataset(),&dataset);
+	BOOST_CHECK_EQUAL(t1.name(),"t1");
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
@@ -58,22 +56,23 @@ BOOST_AUTO_TEST_CASE(attributes){
 	//! @test Test attributes (e.g. rows, columns, names etc)
 	Datatable t1 = dataset.table("t1");
 	
-	check_equal(t1.rows(),5);
-	check_equal(t1.columns(),3);
+	BOOST_CHECK_EQUAL(t1.rows(),5);
+	BOOST_CHECK_EQUAL(t1.columns(),3);
 	
 	std::vector<unsigned int> dims = t1.dimensions();
-	check_equal(dims.size(),2);
-	check_equal(dims[0],t1.rows());
-	check_equal(dims[1],t1.columns());
+	BOOST_CHECK_EQUAL(dims.size(),2);
+	BOOST_CHECK_EQUAL(dims[0],t1.rows());
+	BOOST_CHECK_EQUAL(dims[1],t1.columns());
 	
-	check_equal(t1.name(0),"c1");
-	check_equal(t1.name(1),"c2");
-	check_equal(t1.name(2),"c3");
+	BOOST_CHECK_EQUAL(t1.name(0),"c1");
+	BOOST_CHECK_EQUAL(t1.name(1),"c2");
+	BOOST_CHECK_EQUAL(t1.name(2),"c3");
+
 	check_equal(t1.names(),std::vector<std::string>{"c1","c2","c3"});
-	
-	check_equal(t1.type(0),Integer);
-	check_equal(t1.type(1),Real);
-	check_equal(t1.type(2),Text);
+		
+	BOOST_CHECK_EQUAL(t1.type(0),Integer);
+	BOOST_CHECK_EQUAL(t1.type(1),Real);
+	BOOST_CHECK_EQUAL(t1.type(2),Text);
 	check_equal(t1.types(),std::vector<Datatype>{Integer,Real,Text});
 	
 	check_equal(t1.indices(),std::vector<std::string>{"t1_c1"});
@@ -88,11 +87,11 @@ BOOST_AUTO_TEST_CASE(sql){
 		t1.cursor("SELECT * FROM t1 ORDER BY c1 DESC LIMIT 1;").row<std::vector<std::string>>(),
 		std::vector<std::string>{"6","6.6","zeta"}
 	);
-	check_equal(
+	BOOST_CHECK_EQUAL(
 		t1.fetch("SELECT * FROM t1 WHERE c1<=2;").size(),
 		2
 	);	
-	check_equal(
+	BOOST_CHECK_EQUAL(
 		t1.fetch("SELECT * FROM t1 WHERE c1>900;").size(),
 		0
 	);	

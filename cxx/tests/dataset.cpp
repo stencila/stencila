@@ -28,8 +28,18 @@ struct datasetFixture {
 	
 	datasetFixture(){
 		dataset.execute(
-			"CREATE TABLE t1(c1 TEXT, c2 REAL);"
-			"INSERT INTO t1 VALUES('a',1.1);"
+			//Caution: do not put empty lines in this SQL otherwise it breaks it 
+			//into several strings of which only the first is passed as an argument!
+			"CREATE TABLE t1 ("
+			"	c1 INTEGER,"
+			"	c2 REAL,"
+			"	c3 TEXT"
+			");"
+			"INSERT INTO t1 VALUES(1,1.1,'alpha');"
+			"INSERT INTO t1 VALUES(2,2.2,'beta');"
+			"INSERT INTO t1 VALUES(3,3.3,'gamma');"
+			"INSERT INTO t1 VALUES(4,4.4,'delta');"
+			"INSERT INTO t1 VALUES(5,5.5,'epsilon');"
 			"CREATE TABLE t2(c1 TEXT);"
 			"CREATE INDEX t1_c1 ON t1(c1);"
 			"CREATE INDEX t2_c1 ON t2(c1);"
@@ -39,15 +49,26 @@ struct datasetFixture {
 
 BOOST_FIXTURE_TEST_SUITE(dataset,datasetFixture)
 
-BOOST_AUTO_TEST_CASE(tables){
-	check_equal(dataset.tables(),std::vector<std::string>{"t1","t2"});
+BOOST_AUTO_TEST_CASE(cursor){ 
+	auto cursor = dataset.cursor("SELECT max(c1) FROM t1");
+	BOOST_CHECK_EQUAL(cursor.value<int>(),5);
+}
+
+BOOST_AUTO_TEST_CASE(tables){ 
+	auto tables = dataset.tables();
+	BOOST_CHECK_EQUAL(tables.size(),2);
+	BOOST_CHECK_EQUAL(tables[0],"t1");
+	BOOST_CHECK_EQUAL(tables[1],"t2");
 	
 	Datatable table1 = dataset.table("t1"); 
-	check_equal(table1.name(),"t1");
+	BOOST_CHECK_EQUAL(table1.name(),"t1");
 }
 
 BOOST_AUTO_TEST_CASE(indices){
-	check_equal(dataset.indices(),std::vector<std::string>{"t1_c1","t2_c1"});
+	auto indices = dataset.indices();
+	BOOST_CHECK_EQUAL(indices.size(),2);
+	BOOST_CHECK_EQUAL(indices[0],"t1_c1");
+	BOOST_CHECK_EQUAL(indices[1],"t2_c1");
 }
 
 BOOST_AUTO_TEST_CASE(caching){

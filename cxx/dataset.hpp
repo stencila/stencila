@@ -25,8 +25,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <sqlite3.h>
-
+#include "sqlite.hpp"
 #include "datacursor.hpp"
 #include "exception.hpp"
 #include "printing.hpp"
@@ -189,54 +188,74 @@ public:
 	//! @brief Execute SQL or query the Dataset to extract data
 	//! @{
 	
-	//! @brief Execute any SQL on the Dataset
-	//! @param sql A SQL statement
-	//! @throws Exception If the SQL fails to execute
-	void execute(const std::string& sql) {
-		if(sqlite3_exec(db_,sql.c_str(),0,0,0)!=SQLITE_OK) throw Exception("sqlite3_exec(\""+sql+"\") failed : "+sqlite3_errmsg(db_));
+	//! @brief Get a Datacursor for an SQL statement to be executed on this Dataset
+	//! @param sql An SQL statement
+	//! @return A Datacursor
+	//! @see Dataset::execute
+	Datacursor cursor(const std::string& sql) {
+		return Datacursor(db_,sql);
 	}
 	
-	//! @brief Execute a SQL SELECT statement on the Dataset and return a Datacursor
-	//! @param sql A SQL SELECT statement
-	//! @return Datacursor
-	Datacursor cursor(const std::string& sql){
-		return Datacursor(db_,sql);
+	//! @brief Execute SQL on the Dataset
+	//! @param sql A SQL statement
+	//! @return This Dataset
+	//Dataset& execute(const std::string& sql) {
+	//	cursor(sql).execute();
+	//	return *this;
+	//}
+	
+	template<typename... Parameters>
+	Dataset& execute(const std::string& sql, const Parameters&... pars) {
+		cursor(sql).execute(pars...);
+		return *this;
 	}
 	
 	//! @brief Execute a SQL SELECT statement on the Dataset and return a vector of rows
 	//! @see Datacursor::fetch
 	//! @param sql A SQL SELECT statement
 	//! @return A vector with each item containing a row
-	template<typename Type = std::vector<std::string>>
-	std::vector<Type> fetch(const std::string& sql) {
-		return Datacursor(db_,sql).fetch<Type>();
+	template<
+		typename Type = std::vector<std::string>,
+		typename... Parameters
+	>
+	std::vector<Type> fetch(const std::string& sql, const Parameters&... pars) {
+		return cursor(sql).fetch<Type>(pars...);
 	}
 
 	//! @brief Execute a SQL SELECT statement on the Dataset and return a single value.
 	//! @see Datacursor::value
 	//! @param sql A SQL SELECT statement
 	//! @return A single value of type Type
-	template<typename Type = std::string>
-	Type value(const std::string& sql) {
-		return Datacursor(db_,sql).value<Type>();
+	template<
+		typename Type = std::string,
+		typename... Parameters
+	>
+	Type value(const std::string& sql, const Parameters&... pars) {
+		return cursor(sql).value<Type>(pars...);
 	}
 	
 	//! @brief Execute a SQL SELECT statement on the Dataset and return the first column.
 	//! @see Datacursor::column
 	//! @param sql A SQL SELECT statement
 	//! @return A vector representing the column
-	template<typename Type = std::string>
-	std::vector<Type> column(const std::string& sql) {
-		return Datacursor(db_,sql).column<Type>();
+	template<
+		typename Type = std::string,
+		typename... Parameters		
+	>
+	std::vector<Type> column(const std::string& sql, const Parameters&... pars) {
+		return cursor(sql).column<Type>(pars...);
 	}
 	
 	//! @brief Execute a SQL SELECT statement on the Dataset and return the first row.
 	//! @see Datacursor::row
 	//! @param sql A SQL SELECT statement
 	//! @return A vector representing the row
-	template<typename Type = std::vector<std::string>>
-	Type row(const std::string& sql) {
-		return Datacursor(db_,sql).row<Type>();
+	template<
+		typename Type = std::vector<std::string>,
+		typename... Parameters
+	>
+	Type row(const std::string& sql, const Parameters&... pars) {
+		return cursor(sql).row<Type>(pars...);
 	}
 	
 	//! @}

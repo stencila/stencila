@@ -13,22 +13,11 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 //!	@file testing.hpp
-//!	@brief Convienience functions and others used for testing
+//!	@brief Convienience macros and others used for testing
 
 #pragma once
-
-#include <vector>
-
-namespace Stencila {
-	
-template<class TypeA,class TypeB> 
-void check_equal(TypeA a,TypeB b){
-	BOOST_CHECK_EQUAL(a,b);
-}
 
 template<class Type> 
 void check_equal(std::vector<Type> a,std::vector<Type> b){
 	BOOST_CHECK_EQUAL_COLLECTIONS(a.begin(),a.end(),b.begin(),b.end());
-}
-
 }

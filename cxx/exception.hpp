@@ -18,25 +18,31 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <ostream>
 
 namespace Stencila {
 	
 class Exception : public std::exception {
 	
-private:
+protected:
 	
-	const char* message;
+	const char* message_;
+	const char* file_;
+	int line_;
 
 public:
 	
-	Exception(std::string message_=""):
-		message(message_.c_str()){		
+	Exception(std::string message="",const char* file=0, int line=0):
+		message_(message.c_str()),
+		file_(file),
+		line_(line){		
 	}
 	
 	const char* what(void)  const throw() {
-		std::string what = message;
-		return what.c_str();
+		std::ostringstream stream;
+        stream << file_ << ":" << line_ << ": " << message_;
+		return stream.str().c_str();
 	}
 };
 
@@ -46,3 +52,5 @@ std::ostream& operator<<(std::ostream& stream,const Exception& exception){
 }
 
 }
+
+#define STENCILA_THROW(exception,message) throw exception(message,__FILE__,__LINE__);

@@ -13,7 +13,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 //!	@file dataset.cpp
-//! 	@brief Definition of Dataset methods which are unable to go into dataset.hpp
+//! @brief Definition of Dataset methods which are unable to go into dataset.hpp
 
 #include "dataset.hpp"
 #include "datatable.hpp"
@@ -33,12 +33,7 @@ inline Datatable Dataset::select(const std::string& sql){
 	int exists = value<int>("SELECT count(*) FROM stencila_cache WHERE id=="+id);
 	if(!exists){
 		execute("CREATE TEMPORARY TABLE \""+name+"\" AS "+sql);
-		
-		Datacursor insert = cursor("INSERT INTO stencila_cache(id,name,status,sql) VALUES(?,?,0,?)");
-		insert.bind(0,id);
-		insert.bind(1,name);
-		insert.bind(2,sql);
-		insert.execute();
+		execute("INSERT INTO stencila_cache(id,name,status,sql) VALUES(?,?,0,?)",id,name,sql);
 	}
 	
 	return table(name);

@@ -17,8 +17,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #pragma once
 
-#include <sqlite3.h>
-
+#include "sqlite.hpp"
 #include "datatypes.hpp"
 #include "exception.hpp"
 
@@ -29,66 +28,150 @@ class Datacursor {
 private:
 	
 	sqlite3* db_;
+	std::string sql_;
 	sqlite3_stmt* stmt_;
-	bool executed_;
+	bool begun_;
 	bool more_;
 
 public:
 	
-	Datacursor(sqlite3* db, std::string sql):
+	Datacursor(sqlite3* db, const std::string& sql):
 		db_(db),
-		executed_(false),
+		sql_(sql),
+		stmt_(0),
+		begun_(false),
 		more_(false){
-		if(sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt_, 0)!=SQLITE_OK){
-			sqlite3_finalize(stmt_);
-			throw Exception("sqlite3_prepare_v2(\""+sql+"\") failed : "+sqlite3_errmsg(db_));
-		}
+	}
+	
+	template<typename... Parameters>
+	Datacursor(sqlite3* db, const std::string& sql, Parameters&... pars):
+		db_(db),
+		sql_(sql),
+		stmt_(0),
+		begun_(false),
+		more_(false){
+		prepare();
+		use(pars...);
 	}
 	
 	~Datacursor(void){
-		if(sqlite3_finalize(stmt_)!=SQLITE_OK) throw Exception(std::string("sqlite3_finalize failed : ")+sqlite3_errmsg(db_));
+		if(stmt_){
+			STENCILA_SQLITE_TRY(db_,sqlite3_finalize(stmt_));
+		}
+	}
+	
+	const std::string& sql(void) const {
+		return sql_;
 	}
 	
 	bool more(void) const {
 		return more_;
 	}
 	
-	Datacursor& bind(unsigned int index,const std::string& value){
-		if(sqlite3_bind_text(stmt_,index+1,value.c_str(),value.length(),SQLITE_STATIC)!=SQLITE_OK) {
-			throw Exception("sqlite3_bind_text(\""+value+"\") failed : "+sqlite3_errmsg(db_));
-		}
+	Datacursor& prepare(void){
+		STENCILA_SQLITE_TRY(db_,sqlite3_prepare_v2(db_, sql_.c_str(), -1, &stmt_, 0));
 		return *this;
 	}
 	
-	void next(void){
-		int step = sqlite3_step(stmt_);
-		if(step==SQLITE_ROW) more_ =  true;
-		else if(step==SQLITE_DONE) more_ = false;
-		else{
-			throw Exception(std::string("sqlite3_step failed : ")+sqlite3_errmsg(db_));
+	//! @name Parameter binding methods
+	//! @brief Bind values to parameters in SQL
+	//! @{
+	//! @warning Calls to Datacursor::bind methods must be preceded by a call to Datacursor::prepare
+		
+	Datacursor& bind(unsigned int index){
+		STENCILA_SQLITE_TRY(db_,sqlite3_bind_null(stmt_,index));
+		return *this;
+	}
+	
+	Datacursor& bind(unsigned int index,const int& value){
+		STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value));
+		return *this;
+	}
+	
+	Datacursor& bind(unsigned int index,const double& value){
+		STENCILA_SQLITE_TRY(db_,sqlite3_bind_double(stmt_,index,value));
+		return *this;
+	}
+	
+	Datacursor& bind(unsigned int index,const std::string& value){
+		STENCILA_SQLITE_TRY(db_,sqlite3_bind_text(stmt_,index,value.c_str(),value.length(),SQLITE_STATIC));
+		return *this;
+	}
+	
+	template<
+		typename Parameter,
+		typename... Parameters
+	>
+	Datacursor& use(const Parameter& par, const Parameters&... pars){
+		int count = sqlite3_bind_parameter_count(stmt_);
+		int index = count - sizeof...(Parameters);
+		bind(index,par);
+		use(pars...);
+		return *this;
+	}
+	
+	Datacursor& use(void){
+		return *this;
+	}
+	
+	//! @}
+	
+	void reset(void){
+		STENCILA_SQLITE_TRY(db_,sqlite3_clear_bindings(stmt_));
+		STENCILA_SQLITE_TRY(db_,sqlite3_reset(stmt_));
+		begun_ = false;
+	}
+	
+	void begin(void){
+		if(not begun_) {
+			prepare();
+			next();
+			begun_ = true;
 		}
 	}
 	
 	void execute(void){
-		if(not executed_) {
-			next();
-			executed_ = true;
+		//If a statement has already been prepared then sqlite3_step that...
+		//sqlite3_step does not always return SQLITE_OK on success so do not wrap it in STENCILA_SQLITE_TRY
+		if(stmt_){
+			sqlite3_step(stmt_);
+		}
+		//Otherwise use the sqlite3_exec shortcut function to prepare, step and finalise in one
+		else {
+			STENCILA_SQLITE_TRY(db_,sqlite3_exec(db_,sql_.c_str(),0,0,0));
 		}
 	}
 	
-	void reset(void){
-		if(sqlite3_clear_bindings(stmt_)!=SQLITE_OK)  Exception(std::string("sqlite3_clear_bindings failed : ")+sqlite3_errmsg(db_));
-		if(sqlite3_reset(stmt_)!=SQLITE_OK)  Exception(std::string("sqlite3_reset failed : ")+sqlite3_errmsg(db_));
-		executed_ = false;
+	template<typename... Parameters>
+	void execute(const Parameters... pars){
+		prepare();
+		use(pars...);
+		execute();
+	}
+	
+	//! @warning Must be preceded by a call to Datacursor::prepare
+	void next(void){
+		int code = sqlite3_step(stmt_);
+		if(code==SQLITE_ROW) {
+			// sqlite3_step() has another row ready
+			more_ =  true;
+		}
+		else if(code==SQLITE_DONE) {
+			// sqlite3_step() has finished executing
+			more_ = false; 
+		}
+		else{
+			STENCILA_SQLITE_THROW(db_,code);
+		}
 	}
 	
 	unsigned int columns(void){
-		execute();
+		begin();
 		return sqlite3_column_count(stmt_);
 	}
 	
 	std::string name(unsigned int column){
-		execute();
+		begin();
 		return sqlite3_column_name(stmt_,column);
 	}
 	
@@ -99,7 +182,7 @@ public:
 	}
 	
 	const Datatype& type(unsigned int column){
-		execute();
+		begin();
 		switch(sqlite3_column_type(stmt_,column)){
 			case SQLITE_NULL:
 				return Null;
@@ -126,10 +209,15 @@ public:
 	template<typename Type>
 	Type get(unsigned int column);
 	
-	template<typename Type = std::vector<std::string>>
-	std::vector<Type> fetch(void) {
+	template<
+		typename Type = std::vector<std::string>,
+		typename... Parameters
+	>
+	std::vector<Type> fetch(const Parameters&... pars) {
 		std::vector<Type> rows;
-		execute();
+		prepare();
+		use(pars...);
+		begin();
 		while(more()) {
 			Type row;
 			for(unsigned int col=0;col<columns();col++) row.push_back(get<std::string>(col));
@@ -139,17 +227,27 @@ public:
 		return rows;
 	}
 
-	template<typename Type = std::string>
-	Type value(void) {
-		execute();
+	template<
+		typename Type = std::string,
+		typename... Parameters
+	>
+	Type value(const Parameters&... pars) {
+		prepare();
+		use(pars...);
+		begin();
 		if(more()) return get<Type>(0);
 		else throw Exception("No rows selected");
 	}
 	
-	template<typename Type = std::string>
-	std::vector<Type> column(void) {
+	template<
+		typename Type = std::string,
+		typename... Parameters
+	>
+	std::vector<Type> column(const Parameters&... pars) {
 		std::vector<Type> column;
-		execute();
+		prepare();
+		use(pars...);
+		begin();
 		while(more()){
 			column.push_back(get<Type>(0));
 			next();
@@ -157,10 +255,15 @@ public:
 		return column;
 	}
 	
-	template<typename Type = std::vector<std::string>>
-	Type row(void) {
+	template<
+		typename Type = std::vector<std::string>,
+		typename... Parameters
+	>
+	Type row(const Parameters&... pars) {
 		Type row;
-		execute();
+		prepare();
+		use(pars...);
+		begin();
 		if(more()){
 			for(unsigned int col=0;col<columns();col++) row.push_back(get<std::string>(col));
 		}

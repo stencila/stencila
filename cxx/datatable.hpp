@@ -269,7 +269,8 @@ public:
 		for(unsigned int i=1;i<names.size();i++) insert += ",?";
 		insert += ")";
 		Datacursor insert_cursor = cursor(insert);
-			
+		insert_cursor.prepare();
+		
 		count = 0;
 		while(file.good()){
 			
