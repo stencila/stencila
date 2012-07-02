@@ -3,3 +3,6 @@
 *.gcov
 *.gcno
 *.gcda
+
+#Ignore CodeLite C++ IDE project files
+*.project
