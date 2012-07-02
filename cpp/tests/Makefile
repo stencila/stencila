@@ -1,12 +1,13 @@
+include ../Makefile.inc
+
 all: tests.out
 
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid) 
-compile := g++ -std=c++0x -Wall -g --coverage -O0
-libs := -lsqlite3 -lboost_system -lboost_filesystem -lboost_unit_test_framework -lgcov
+CPP_TEST_COMPILE := g++ -std=c++0x -Wall -g --coverage -O0
 
 # Compile and run all test suites together
 tests.exe: tests.cpp dataset.cpp datatable.cpp dataquery.cpp
-	$(compile) -o tests.exe tests.cpp $(libs)
+	$(CPP_TEST_COMPILE) -o tests.exe tests.cpp $(CPP_LIBS)
 
 # Compile and run an individual test suit
 #   Assumed that only dependency is the corresponding header file in the parent directory.
@@ -14,7 +15,7 @@ tests.exe: tests.cpp dataset.cpp datatable.cpp dataquery.cpp
 #   More recent versions of gcov have "--relative-only" which "Only output information about source files with a relative pathname (after source prefix elision). 
 #      Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
 %.exe : %.cpp ../%.hpp
-	$(compile) -DSTENCILA_TEST_SINGLE -o $@ $< $(libs)
+	$(CPP_TEST_COMPILE) -DSTENCILA_TEST_SINGLE -o $@ $< $(libs)
 	
 # Run the test
 %.out : %.exe
