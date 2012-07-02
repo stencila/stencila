@@ -1,9 +1,9 @@
-all: cxx docs
+all: cpp docs
 
-cxx:
-	make -C cxx all
+cpp:
+	make -C cpp all
 	
 docs:
 	make -C docs all
 	
-.PHONY: all cxx docs
+.PHONY: all cpp docs

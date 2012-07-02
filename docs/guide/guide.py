@@ -16,7 +16,7 @@ This is use for both syntax highlighting and for compiling/running. Valid langua
     py: Python
     r: R
 
-Copyright (c) 2012, Stencila Ltd
+Copyright (c) 2012 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -100,7 +100,7 @@ class Processor(HTMLParser.HTMLParser):
     def cpp_start(self):
         return '''
             #include <iostream>
-            #include "../../../cxx/stencila.hpp"
+            #include "../../../cpp/stencila.hpp"
 
             int main(void){
             using namespace Stencila;
@@ -122,7 +122,7 @@ class Processor(HTMLParser.HTMLParser):
     def cpp_run(self,opts):
         return '''
             rm -f %(name)s.exe %(name)s.*.out;
-            g++ -std=c++0x -Wall -O2 -o %(name)s.exe %(name)s.cpp -lsqlite3;
+            g++ -std=c++0x -Wall -O2 -o %(name)s.exe %(name)s.cpp -lboost_system -lboost_filesystem -lsqlite3;
             ./%(name)s.exe;
         '''%opts
 
