@@ -44,6 +44,8 @@ struct datasetFixture {
 			"CREATE INDEX t1_c1 ON t1(c1);"
 			"CREATE INDEX t2_c1 ON t2(c1);"
 		);
+		dataset.import("t1");
+		dataset.import("t2");
 	} 
 };
 

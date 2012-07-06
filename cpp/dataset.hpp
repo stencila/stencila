@@ -66,12 +66,18 @@ public:
 		int code_open = sqlite3_open(uri_.c_str(), &db_);
 		if(code_open!=SQLITE_OK) throw Exception("sqlite3_open ("+uri_+") failed : "+sqlite3_errmsg(db_));
 			
-		execute("CREATE TABLE IF NOT EXISTS stencila_cache ("
-			" id INTEGER,"
-			" name TEXT,"
-			" status INTEGER,"
-			" sql TEXT"
-		")");
+		execute(
+			"CREATE TABLE IF NOT EXISTS stencila_datatables ("
+				"name TEXT,"
+				"source INTEGER,"
+				"sql TEXT,"
+				"signature INTEGER,"
+				"status INTEGER"
+			");"
+			"CREATE INDEX IF NOT EXISTS stencila_datatables_name ON stencila_datatables(name);"
+			"CREATE INDEX IF NOT EXISTS stencila_datatables_signature ON stencila_datatables(signature);"
+			"CREATE INDEX IF NOT EXISTS stencila_datatables_status ON stencila_datatables(status);"
+		);
 	}
 	
 	//! @brief Destroys the memory held by the Dataset
@@ -118,9 +124,9 @@ public:
 	Dataset& save(const std::string& uri="",bool backup=false){
 		
 		//Make any cached query tables permanent
-		BOOST_FOREACH(std::string table,column("SELECT name FROM stencila_cache WHERE status==0")){
+		BOOST_FOREACH(std::string table,column("SELECT name FROM stencila_datatables WHERE status==0")){
 			execute("CREATE TABLE "+table+" AS SELECT * FROM "+table);
-			execute("UPDATE stencila_cache SET status=1 WHERE name=='"+table+"'");
+			execute("UPDATE stencila_datatables SET status=1 WHERE name=='"+table+"'");
 		}
 		
 		if(uri.length()>0 and uri!=uri_){
@@ -165,19 +171,20 @@ public:
 	//! @return Number of queries
 	int cached(const std::string& sql = "") {
 		if(sql.length()==0){
-			return value<int>("SELECT count(*) FROM stencila_cache"); 
+			return value<int>("SELECT count(*) FROM stencila_datatables WHERE status<2"); 
 		}
 		else {
-			std::string id = boost::lexical_cast<std::string>(Hash(sql));
-			return value<int>("SELECT count(*) FROM stencila_cache WHERE id=="+id);
+			std::string signature = boost::lexical_cast<std::string>(Hash(sql));
+			return value<int>("SELECT count(*) FROM stencila_datatables WHERE signature=="+signature);
 		}
 	}
 	
 	Dataset& vacuum(void) {
-		BOOST_FOREACH(std::string table,column("SELECT name FROM stencila_cache")){
-			execute("DROP TABLE "+table);
+		BOOST_FOREACH(std::string name,column("SELECT name FROM stencila_datatables WHERE status<2")){
+			execute("DROP TABLE "+name);
+			execute("DELETE FROM stencila_datatables WHERE name==?",name);
 		}
-		execute("DELETE FROM stencila_cache");
+		execute("VACUUM");
 		return *this;
 	}	
 	
@@ -260,11 +267,17 @@ public:
 	
 	//! @}
 	
+	//! @brief Import a database table to a Datatable
+	//! @param name The name of the table
+	//! @return A Datatable
+	Datatable import(const std::string& name);
+	
 	//! @brief Get a Datatable in the Dataset
 	//! @param name The name of the table
 	//! @return A Datatable
 	// Need to be defined in datatable.hpp
 	Datatable table(const std::string& name);
+	
 	Datatable select(const std::string& sql);
 	
 };

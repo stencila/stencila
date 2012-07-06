@@ -25,15 +25,23 @@ inline Datatable Dataset::table(const std::string& name){
 	return Datatable(name,this);
 }
 
+inline Datatable Dataset::import(const std::string& name){
+	//Check to see if this Datatable is already registered
+	if(not value<int>("SELECT count(*) FROM stencila_datatables WHERE name==?",name)){
+		execute("INSERT INTO stencila_datatables(name,source,status) VALUES(?,'table',2)",name);
+	}
+	return Datatable(name,this);
+}
+
 inline Datatable Dataset::select(const std::string& sql){
-	std::string id = boost::lexical_cast<std::string>(Hash(sql));
-	std::string name = "stencila_"+id;
+	std::string signature = boost::lexical_cast<std::string>(Hash(sql));
+	std::string name = "stencila_"+signature;
 	
 	// Check whether id is already in cache and only execute SQL if it is not
-	int exists = value<int>("SELECT count(*) FROM stencila_cache WHERE id=="+id);
+	int exists = value<int>("SELECT count(*) FROM stencila_datatables WHERE signature==?",signature);
 	if(!exists){
 		execute("CREATE TEMPORARY TABLE \""+name+"\" AS "+sql);
-		execute("INSERT INTO stencila_cache(id,name,status,sql) VALUES(?,?,0,?)",id,name,sql);
+		execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
 	}
 	
 	return table(name);
