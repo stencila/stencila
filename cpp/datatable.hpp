@@ -32,7 +32,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "dataquery.hpp"
 
 namespace Stencila {
-
+	
 //! @class Datatable
 //! @brief A table of data in a dataset
 class Datatable {
@@ -120,10 +120,10 @@ public:
 		return {rows(),columns()};
 	}
 	
-	Datatable& add(const std::string& column, const Datatype& type){
+	Datacolumn add(const std::string& column, const Datatype& type){
 		//! @todo Add checking of type
 		execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column+"\" "+type.sql());
-		return *this;
+		return Datacolumn(column,this);
 	}
 
 	template<typename... Args>
@@ -353,8 +353,9 @@ public:
 		return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
 	}
 	
-	Datatable operator[](const Dataquery& dataquery) {
-		std::string sql = dataquery.sql(name());
+	Datatable operator[](Dataquery dataquery) {
+		dataquery.from(name());
+		std::string sql = dataquery.sql();
 		return dataset().select(sql);
 	}
 	
