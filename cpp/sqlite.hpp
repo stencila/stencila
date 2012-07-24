@@ -12,7 +12,7 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//!	@file sqlite3.hpp
+//!	@file sqlite.hpp
 //!	@brief Some convienience functions for using SQLite
 
 #pragma once
