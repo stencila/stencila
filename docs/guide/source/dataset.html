@@ -1,0 +1,68 @@
+<h1>Datasets</h1>
+
+<p>
+When you create an empty dataset it lives in memory:
+<p>
+
+<div class="code">
+	<script class="cpp">
+Dataset dataset;
+print(dataset);
+	</script>
+</div>
+
+<p>
+You can save a Dataset to file
+<p>
+
+<div class="code">
+	<script class="cpp">
+dataset.save("my_dataset.ds");
+print(dataset.uri());
+	</script>
+</div>
+
+<p>
+You can create a tabe using SQL
+<p>
+
+<div class="code">
+	<script class="cpp">
+dataset.execute("CREATE TABLE pets(name TEXT, age INTEGER)");
+print(dataset.tables());
+	</script>
+</div>
+
+<p>
+insert...
+<p>
+
+<div class="code">
+	<script class="cpp">
+dataset.execute("INSERT INTO pets VALUES('bob',10)");
+dataset.execute("INSERT INTO pets VALUES('alice',12)");
+	</script>
+</div>
+
+<p>
+The <strong>value</strong> method executes an SQL statement and returns the first column from the first row
+<p>
+
+<div class="code">
+	<script class="cpp">
+print(dataset.value("SELECT name FROM pets WHERE age==(SELECT max(age) FROM pets)"));
+	</script>
+</div>
+
+<div class="code">
+	<script class="cpp">
+print(dataset.row("SELECT * FROM pets WHERE name=='bob'"));
+	</script>
+</div>
+
+<div class="code">
+	<script class="cpp">
+print(dataset.column("SELECT age FROM pets"));
+	</script>
+</div>
+

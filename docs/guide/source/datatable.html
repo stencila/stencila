@@ -1,0 +1,113 @@
+<h1>Datatables</h1>
+
+<h2>Creating</h2>
+
+<p>
+In this example we will be using some example data on flags of the world.
+</p>
+
+<p>
+When you create a Datatable using the default constructor it resides in its own Dataset and is unnamed...
+</p>
+<div class="code">
+	<script class="cpp">
+Datatable flags;
+print(flags);
+	</script>
+</div>
+
+<h2>Importing data</h2>
+
+<p>
+An empty table is not much use. Lets put some data into it using the <strong>load</strong> method:
+</p>
+<div class="code">
+	<script class="cpp">
+flags.load("flags.csv");
+	</script>
+</div>
+
+<h2>Getting and setting attributes</h2>
+
+<p>
+To give a name to a Datatable either supply the optional name argument to the constructor or changed it at any time using the <strong>name</strong> setter method:
+</p>
+<div class="code">
+	<script class="cpp">
+flags.name("flags");
+	</script>
+</div>
+
+<div class="code">
+	<script class="cpp">
+print(flags.dimensions());
+print(flags.names());
+print(flags.types());
+	</script>
+</div>
+
+<h2>Saving</h2>
+
+<div class="code">
+	<script class="cpp">
+flags.save("flags.sdt");
+	</script>
+</div>
+
+<h2>Extracting</h2>
+
+<div class="code">
+	<script class="cpp">
+print(flags.column("name"));
+print(flags.column<int>("stripes"));
+print(flags.row(2));
+//print(flags.fetch());
+	</script>
+</div>
+
+<h2>Querying</h2>
+
+<div class="code">
+	<script class="cpp">
+Datatable max_ages = flags[get("name","sunstars").order("sunstars",-1).limit(10)];
+print(max_ages);
+	</script>
+</div>
+
+<div class="code">
+	<script class="cpp">
+print(max_ages.fetch());
+print(flags.dataset().cached());
+flags.dataset().backup("flags.2.sdt");
+flags.save();
+	</script>
+</div>
+
+<h2>Appending data</h2>
+
+<div class="code">
+	<script class="cpp">
+//datatable.append('bob',10);
+	</script>
+</div>
+
+<div class="code">
+	<script class="cpp">
+//datatable.append(
+//	'alice',12,
+//	'mary',15
+//);
+	</script>
+</div>
+
+<h2>Adding columns</h2>
+
+<div class="code">
+	<script class="cpp">
+//datatable	.add("name","TEXT")
+//		.add("age","INTEGER");
+//print(datatable.names());
+	</script>
+</div>
+
+
