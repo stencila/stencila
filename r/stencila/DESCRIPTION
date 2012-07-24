@@ -1,0 +1,11 @@
+Package: stencila
+Type: Package
+Title: What the package does (short line)
+Version: 1.0
+Date: 2012-07-24
+Author: Who wrote it
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What Licence is it under ?
+Depends: Rcpp (>= 0.9.10)
+LinkingTo: Rcpp

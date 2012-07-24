@@ -1,0 +1,5 @@
+#Ignore files created by R build and check process
+stencila.Rcheck
+
+#Ignore codelite IDE project file
+stencila_r.project
