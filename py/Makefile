@@ -1,6 +1,6 @@
 .PHONY: all dist build install tests
 
-all: dist build install tests
+all: clean dist build install tests
 
 #Create binary distribtion for the platform
 dist:

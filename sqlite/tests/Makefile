@@ -1,3 +1,3 @@
 all:
 	sqlite3 test.db3 < tests.sql;\
-	rm test.db3
+	rm -f test.db3

@@ -1,8 +1,8 @@
 include ../cpp/Makefile.inc
 
-.PHONY: compile buiild check test
+.PHONY: compile buiild check
 
-all:  compile build check test
+all:  clean compile build check
 
 #Requires:
 #	sudo R
@@ -10,14 +10,14 @@ all:  compile build check test
 #/usr/local/lib/R/site-library is used so that other uses (e.g. build bots can use Rcpp)
 #For some of these compiler flags see
 #Rcpp:::LdFlags()
-R_RCPP_HOME := /usr/local/lib/R/site-library/Rcpp
+RCPP_HOME := /usr/local/lib/R/site-library/Rcpp
 compile:
 	cd stencila/src; \
-	g++ -I/usr/share/R/include  -I$(R_RCPP_HOME)/include -std=c++0x -fpic  -O3 -pipe  -g -c stencila.cpp -o stencila.o ; \
+	g++ -I/usr/share/R/include  -I$(RCPP_HOME)/include $(STENCILA_CPP_FLAGS) -fpic  -O3 -pipe  -g -c stencila.cpp -o stencila.o ; \
 	g++ -shared -o stencila.so stencila.o \
 		-L /usr/lib/R/lib -lR \
-		-L$(R_RCPP_HOME)//lib -lRcpp -Wl,-rpath,$(R_RCPP_HOME)/lib \
-		$(CPP_LIBS)
+		-L$(RCPP_HOME)//lib -lRcpp -Wl,-rpath,$(RCPP_HOME)/lib \
+		$(STENCILA_CPP_LIBS)
 		
 build:
 	R CMD build stencila
@@ -25,9 +25,5 @@ build:
 check:
 	R CMD check stencila
 
-test:
-	cd tests;\
-	R --vanilla < tests.R
-
 clean:
-	rm -f stencila_*.tar.gz stencila.Rcheck
+	rm -rf stencila_*.tar.gz stencila.Rcheck
