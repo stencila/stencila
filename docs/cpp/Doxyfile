@@ -33,7 +33,7 @@ PROJECT_NAME           = Stencila
 # if some version control system is used.
 
 # Inplace edited by sed during build. See Makefile
-PROJECT_NUMBER = 0.1.0-25-g8de4f35
+PROJECT_NUMBER = 0.1.0-27-g2f1d029
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer

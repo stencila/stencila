@@ -69,7 +69,10 @@ print(flags.row(2));
 
 <div class="code">
 	<script class="cpp">
-Datatable max_ages = flags[get("name","sunstars").order("sunstars",-1).limit(10)];
+using namespace EQL;
+Column name("name");
+Column sunstars("sunstars");
+Datatable max_ages = flags[get(name,sunstars,order(sunstars,-1),limit(10))];
 print(max_ages);
 	</script>
 </div>

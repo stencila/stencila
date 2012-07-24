@@ -40,6 +40,23 @@ from pygments.formatters import HtmlFormatter
 
 class Processor(HTMLParser.HTMLParser):
     
+    @staticmethod
+    def startup():
+        #Copy files from docs/style
+        distutils.dir_util.copy_tree("../style","html/")
+        #Copy in guide CSS
+        shutil.copyfile("guide.css","html/guide.css")
+        #Create pygments CSS
+        file("html/code.css","w").write(HtmlFormatter().get_style_defs('.code'))
+        #Read in template
+        Processor.template = file("template.html").read()
+        #Read in ordered list of pages
+        Processor.pages = file("source/pages.txt").read().split()
+        #Create a list of links to pages
+        Processor.links = ''
+        for page in Processor.pages:
+            Processor.links += '''<li><a href="%s.html">%s</a></li>'''%(page,page.title())
+    
     def __init__(self,name):
         HTMLParser.HTMLParser.__init__(self)
         
@@ -101,6 +118,7 @@ class Processor(HTMLParser.HTMLParser):
         return '''
             #include <iostream>
             #include "../../../cpp/stencila.hpp"
+            #include "../../../cpp/eql.hpp"
 
             int main(void){
             using namespace Stencila;
@@ -149,19 +167,6 @@ class Processor(HTMLParser.HTMLParser):
             rm -f %(name)s.*.out;
             R --interactive --no-save < %(name)s.r;
         '''%opts
-        
-    @staticmethod
-    def init(pages):
-        #Copy files from docs/style
-        distutils.dir_util.copy_tree("../style","html/")
-        #Copy in guide CSS
-        shutil.copyfile("guide.css","html/guide.css")
-        #Create pygments CSS
-        file("html/code.css","w").write(HtmlFormatter().get_style_defs('.code'))
-        #Create a list of links to pages
-        Processor.links = ''
-        for page in pages:
-            Processor.links += '''<li><a href="%s.html">%s</a></li>'''%(page,page.title())
         
     def process(self):
         
@@ -213,49 +218,7 @@ class Processor(HTMLParser.HTMLParser):
         version, stderr = p.communicate()
         
         #Wrap html
-        html = '''<!DOCTYPE html>
-<html>
-
-    <head>
-        <link rel="stylesheet" href="guide.css">
-        <link rel="stylesheet" href="guide.js">
-	<script type="text/javascript">
-
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-32781842-1']);
-	  _gaq.push(['_setDomainName', 'stenci.la']);
-	  _gaq.push(['_trackPageview']);
-
-	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-
-	</script>
-    </head>
-    
-    <body>
-    
-    <div class="header">
-        <a href="http://stenci.la"><img alt="Stencila" src="stencila.png"></a>
-	<div class="details">
-		<h1>User guide</h1>
-		<h2>Version %(version)s</h2>
-	</div>
-        <ul class="links">
-            %(links)s
-        </ul>
-    </div>
-    
-    <div class="page">
-        %(page)s
-    </div
-    
-    </body>
-    
-</html>
-'''%{
+        html = self.template%{
             'version': version,
             'links' : self.links,
             'page': self.html
@@ -265,11 +228,8 @@ class Processor(HTMLParser.HTMLParser):
         print>>file("html/%s.html"%self.name,"w"), html
 
 if __name__=='__main__':
-          
-    pages = ('datatable','dataset')
-    
-    Processor.init(pages)
-    for page in pages:
+    Processor.startup()
+    for page in Processor.pages:
         p = Processor(page)
         p.process()
 

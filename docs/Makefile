@@ -6,7 +6,8 @@ deploy:
 	ghp-import -p build
 
 build: cpp guide
-	mkdir -p build
+	rm -rf build
+	mkdir build
 	cp -f index.html build
 	cp -fr style build
 	cp -fr cpp/html build/cpp
