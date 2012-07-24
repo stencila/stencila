@@ -1,0 +1,6 @@
+#Ignore distutils build directories
+build
+dist
+
+#Ignore codelite IDE project file
+stencila_py.project
