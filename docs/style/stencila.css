@@ -10,3 +10,17 @@
 	src: url('TitilliumText25L003.otf');
 }
 
+body {
+	padding: 15px;
+
+    font-family: TitilliumTextRegular, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+    font-size: 16px;
+}
+
+p {
+	margin : 1px;
+}
+
+a {
+	text-decoration: none;
+}

@@ -1,9 +1,21 @@
-all: cpp guide
+.PHONY: upload build cpp guide
+
+all: build
+
+deploy:
+	ghp-import -p build
+
+build: cpp guide
+	mkdir -p build
+	cp -f index.html build
+	cp -fr style build
+	cp -fr cpp/html build/cpp
+	cp -fr guide/html build/guide
+	cp -f CNAME build
 
 cpp:
 	make -C cpp all
-	
+
 guide:
 	make -C guide all
-	
-.PHONY: all cpp guide
+
