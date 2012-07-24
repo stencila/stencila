@@ -1,3 +1,5 @@
+.PHONY: all cpp docs
+
 all: cpp docs
 
 cpp:
@@ -5,5 +7,4 @@ cpp:
 	
 docs:
 	make -C docs all
-	
-.PHONY: all cpp docs
+

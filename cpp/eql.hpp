@@ -47,18 +47,18 @@ Constant<float> wrap(const float& value){
 Constant<std::string> wrap(const std::string& value){
 	return Constant<std::string>(value);
 }
-template<class Directive>
-const Directive& wrap(const Directive& directive){
-	return directive;
+template<class Element>
+const Element& wrap(const Element& element){
+	return element;
 }
 
-template<class Directive>
-void append(Directive& dir){
+template<class Element>
+void append(Element& element){
 } 
-template<class Directive,class Expression,class... Expressions>
-void append(Directive& dir,const Expression& expr,const Expressions&... exprs){
-	dir.append(wrap(expr));
-	append(dir,exprs...);
+template<class Element,class Expression,class... Expressions>
+void append(Element& element,const Expression& expr,const Expressions&... exprs){
+	element.append(wrap(expr));
+	append(element,exprs...);
 } 
 
 //! @}
@@ -99,15 +99,15 @@ UNOP(Not,!)
 
 BINOP(Multiply,*)
 BINOP(Divide,/)
-BINOP(Plus,+)
+BINOP(Add,+)
 BINOP(Subtract,-)
 
 BINOP(Equal,==)
 BINOP(NotEqual,!=)
 BINOP(LessThan,<)
-BINOP(LessThanEqual,<=)
+BINOP(LessEqual,<=)
 BINOP(GreaterThan,>)
-BINOP(GreaterThanEqual,>=)
+BINOP(GreaterEqual,>=)
 
 BINOP(And,&&)
 BINOP(Or,||)

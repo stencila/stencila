@@ -114,7 +114,11 @@ BOOST_AUTO_TEST_CASE(eql){
 		"SELECT * FROM \"data\" WHERE (\"month\"<=10 OR \"sales\">10) AND \"sales\">100",
 		"data[where((month<=10 or sales>10) and sales>100)]"
 	);
-	
+	eql_check(
+		get(where(year+month+10>sales+10)),
+		"SELECT * FROM \"data\" WHERE \"year\"+\"month\"+10>\"sales\"+10",
+		"data[where(year+month+10>sales+10)]"
+	);
 	eql_check(
 		get(by(year),sum(sales)),
 		"SELECT \"year\", sum(\"sales\") FROM \"data\" GROUP BY \"year\"",

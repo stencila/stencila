@@ -119,17 +119,16 @@ public:
 	std::vector<unsigned int> dimensions(void) {
 		return {rows(),columns()};
 	}
-	
-	Datacolumn add(const std::string& column, const Datatype& type){
-		//! @todo Add checking of type
-		execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column+"\" "+type.sql());
-		return Datacolumn(column,this);
-	}
 
 	template<typename... Args>
 	Datatable& add(const std::string& column, const Datatype& type, Args... args){
-		add(column,type);
+		//! @todo Add checking of type
+		execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column+"\" "+type.sql());
 		add(args...);
+		return *this;
+	}
+	
+	Datatable& add(void){
 		return *this;
 	}
 	
@@ -334,6 +333,11 @@ public:
 	template<typename Type = std::vector<std::string>>
 	std::vector<Type> fetch(std::string sql) {
 		return dataset().fetch<Type>(sql);
+	}
+	
+	template<typename Type = std::string>
+	Datatable operator()(unsigned int row, unsigned int col) {
+		return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));;
 	}
 	
 	template<typename Type = std::string>

@@ -1,0 +1,49 @@
+all: boost sqlite smhasher
+
+.PHONY: boost sqlite smhasher
+
+####################################################
+
+BOOST_VERSION = 1_50_0
+
+boost_$(BOOST_VERSION).tar.bz2:
+	wget http://prdownloads.sourceforge.net/boost/boost_$(BOOST_VERSION).tar.bz2
+	
+boost_$(BOOST_VERSION): boost_$(BOOST_VERSION).tar.bz2
+	tar --bzip2 -xf boost_$(BOOST_VERSION).tar.bz2
+
+boost: boost_$(BOOST_VERSION)
+	cd boost_$(BOOST_VERSION); \
+	./bootstrap.sh; \
+	sudo ./b2 install; \
+
+####################################################
+
+SQLITE_VERSION = 3071300
+
+sqlite-amalgamation-$(SQLITE_VERSION).zip:
+	wget http://www.sqlite.org/sqlite-amalgamation-$(SQLITE_VERSION).zip;
+	
+sqlite-amalgamation-$(SQLITE_VERSION): sqlite-amalgamation-$(SQLITE_VERSION).zip
+	unzip -q sqlite-amalgamation-$(SQLITE_VERSION).zip
+
+sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite.a: sqlite-amalgamation-$(SQLITE_VERSION)
+	cd sqlite-amalgamation-$(SQLITE_VERSION); \
+	gcc -c sqlite3.c; \
+	ar rcs libsqlite3.a sqlite3.o; \
+	
+sqlite: 
+	sudo mv sqlite-amalgamation-$(SQLITE_VERSION)/sqlite3.h /usr/local/include; \
+	sudo mv sqlite-amalgamation-$(SQLITE_VERSION)/sqlite3ext.h /usr/local/include; \
+	sudo mv sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a /usr/local/lib; \
+	
+####################################################
+
+SMHASHER_VERSION = 147
+
+smhasher-$(SMHASHER_VERSION):
+	svn checkout http://smhasher.googlecode.com/svn/trunk/@$(SMHASHER_VERSION) smhasher-$(SMHASHER_VERSION)
+
+smhasher:
+	sudo mv smhasher-$(SMHASHER_VERSION) /usr/local/include/smhasher/
+
