@@ -48,6 +48,8 @@ extern "C" SEXP tag(SEXP self){
 #define BEGIN BEGIN_RCPP
 #define END END_RCPP
 
-#include "datacursor.cpp"
-#include "datatable.cpp"
-#include "dataset.cpp"
+#include "datacursor.hpp"
+#include "datatable.hpp"
+#include "dataset.hpp"
+
+#include "../../../cpp/dataset.cpp"

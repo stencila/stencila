@@ -3,6 +3,7 @@
 \alias{stencila}
 \docType{package}
 \title{
+Stencila
 }
 \description{
 }
