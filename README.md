@@ -10,7 +10,7 @@ It is still early days so the API will change frequently. We are using [sematic 
 
 ##Installation
 
-Right now all that is available is a C++ code library. You can download that and play with that if you like. We'll be releasing packages for [Python](http://python.org), [R](http://r-project.org) and other languages soon.
+Right now all that is available is a C++ code library. You can download that and play with that if you like. We are currenly working on packages for [Python](http://python.org), [R](http://r-project.org) and other languages soon.
 
 ##Licence
 
