@@ -10,7 +10,7 @@ all:  clean compile build check
 #/usr/local/lib/R/site-library is used so that other uses (e.g. build bots can use Rcpp)
 #For some of these compiler flags see
 #Rcpp:::LdFlags()
-RCPP_HOME := /usr/local/lib/R/site-library/Rcpp
+RCPP_HOME := /usr/lib/R/site-library/Rcpp
 compile:
 	cd stencila/src; \
 	g++ -I/usr/share/R/include  -I$(RCPP_HOME)/include $(STENCILA_CPP_FLAGS) -fpic  -O3 -pipe  -g -c stencila.cpp -o stencila.o ; \

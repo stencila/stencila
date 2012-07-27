@@ -1,2 +1,2 @@
-PKG_CXXFLAGS := $(shell ${R_HOME}/bin/Rscript -e "Rcpp:::CxxFlags()") -std=c++0x
+PKG_CXXFLAGS := $(shell $(R_HOME)/bin/Rscript -e "Rcpp:::CxxFlags()") -std=c++0x
 PKG_LIBS :=  $(shell $(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()") -ldl -lsqlite3 -lboost_system -lboost_filesystem 
