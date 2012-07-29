@@ -8,3 +8,6 @@ all:
 	#The $ needs to be doubled for escaping make
 	sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile;\
 	doxygen Doxyfile
+	
+clean:
+	rm -rf html

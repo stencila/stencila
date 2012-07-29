@@ -19,4 +19,8 @@ cpp:
 
 guide:
 	make -C guide all
+	
+clean:
+	make -C cpp clean
+	make -C guide clean
 
