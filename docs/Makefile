@@ -3,7 +3,7 @@
 all: build
 
 deploy:
-	ghp-import -p build
+	ghp-import -m "Updated documentation" -p build
 
 build: cpp guide
 	rm -rf build
