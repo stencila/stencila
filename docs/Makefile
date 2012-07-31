@@ -11,6 +11,7 @@ build: cpp r guide
 	cp -f index.html build
 	cp -fr style build
 	cp -fr cpp/html build/cpp
+	cp -fr r/html build/r
 	cp -fr guide/html build/guide
 	cp -f CNAME build
 
