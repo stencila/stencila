@@ -1,11 +1,11 @@
-.PHONY: upload build cpp guide
+.PHONY: upload build cpp r guide
 
 all: build
 
 deploy:
 	ghp-import -m "Updated documentation" -p build
 
-build: cpp guide
+build: cpp r guide
 	rm -rf build
 	mkdir build
 	cp -f index.html build
@@ -16,6 +16,9 @@ build: cpp guide
 
 cpp:
 	make -C cpp all
+	
+r:
+	make -C r all
 
 guide:
 	make -C guide all
