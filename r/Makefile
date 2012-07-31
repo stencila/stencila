@@ -1,23 +1,16 @@
 include ../cpp/Makefile.inc
 
-.PHONY: compile buiild check
+.PHONY: compile build check
 
-all:  clean compile build check
+all:  build check
 
-#Requires:
-#	sudo R
-#	install.packages('Rcpp','/usr/local/lib/R/site-library')
-#/usr/local/lib/R/site-library is used so that other uses (e.g. build bots can use Rcpp)
-#For some of these compiler flags see
-#Rcpp:::LdFlags()
-RCPP_HOME := /usr/lib/R/site-library/Rcpp
+# The compile job is for testing compilation without doing the full "R CMD check"
+RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
+RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
 compile:
-	cd stencila/src; \
-	g++ -I/usr/share/R/include  -I$(RCPP_HOME)/include $(STENCILA_CPP_FLAGS) -fpic  -O3 -pipe  -g -c stencila.cpp -o stencila.o ; \
-	g++ -shared -o stencila.so stencila.o \
-		-L /usr/lib/R/lib -lR \
-		-L$(RCPP_HOME)//lib -lRcpp -Wl,-rpath,$(RCPP_HOME)/lib \
-		$(STENCILA_CPP_LIBS)
+	cd stencila/src;\
+	g++ -I/usr/share/R/include $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -g -c stencila.cpp -o stencila.o;\
+	g++ -shared -o stencila.so stencila.o -L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) $(STENCILA_CPP_LIBS);\
 		
 build:
 	R CMD build stencila
