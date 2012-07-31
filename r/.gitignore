@@ -1,9 +1,10 @@
 #Ignore files created by R build and check process
-stencila_*.tar.gz
+builds
 stencila.Rcheck
-stencila/src/stencila.o
-stencila/src/stencila.so
+*.o
+*.so
 stencila/src/symbols.rds
+stencila/man/*.Rd
 
 #Ignore IDE files
 .Rhistory

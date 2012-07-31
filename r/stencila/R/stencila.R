@@ -1,17 +1,29 @@
-#' A convienience function for calling C++ functions
+#' Stencila R package
+#'
+#' @docType package
+#' @name stencila
+#' @aliases stencila stencila-package
+#' @author Nokome Bentley <nokome.bentley@@stenci.la>
+#' @useDynLib stencila_
+NULL
+
+# A convienience function for calling C++ functions
+# in the extension module stencila.so
 call_ = function(symbol,...){
 	.Call(symbol,...,package='stencila')
 }
 
+# A convienience function for converting an object
 object_ = function(object){
-      if(typeof(object)=='externalptr'){
-        tag = call_('tag',object)
-        object = new(tag,created=TRUE,pointer=object)
-        return(object)
-      }
-      return(object)
+  if(typeof(object)=='externalptr'){
+    tag = call_('tag',object)
+    object = new(tag,created=TRUE,pointer=object)
+    return(object)
+  }
+  return(object)
 }
 
+# A convienience function for creating an S4 class
 class_ = function(class_name){
   
   setClass(
@@ -25,14 +37,6 @@ class_ = function(class_name){
       )     
   )
 
-#A constructor object which allows for syntax like
-#	instance = Class()
-#in addition to the usual
-#	instance = new("Class")
-  assign(class_name,function(...){
-	return(new(class_name,...))
-  },pos=1)
-  
   setMethod('initialize',class_name,eval(substitute(function(.Object,created=FALSE,pointer=NULL,...){
     if(!created){
       .Object@pointer = call_(paste(class_name,'new',sep='_'),...)
@@ -54,18 +58,52 @@ class_ = function(class_name){
   NULL
 }
 
+#' Stencila version
+#'
+#' @export
+#' @examples
+#'   stencila::version()
+version <- function(){
+  call_('stencila_version')
+}
+
+#' Datacursor
+#'
+#' @name Datacursor-class
+#' @rdname Datacursor-class
+#' @exportClass Datacursor
 class_('Datacursor')
 
+#' Dataset
+#'
+#' @name Dataset-class
+#' @rdname Dataset-class
+#' @exportClass Dataset
 class_('Dataset')
 
-
-#Column class allows for converting operators in following
-# method. BUT that might not be necessary
-setClass('Column',contains='character')
-"==.Column" = function(a,b)paste(a,"==",b)
-"<.Column" = function(a,b)paste(a,"<",b)
-
+#' The Datatable class
+#'
+#' @name Datatable-class
+#' @rdname Datatable-class
+#' @exportClass Datatable
 class_('Datatable')
+
+#' Create a datatable
+#'
+#' @name Datatable
+#' @export
+#' @examples
+#' # Create a Datatable...
+#' dt = Datatable()
+#' # which is equivalent to, but a bit quicker than...
+#' dt = new("Datatable")
+Datatable = function(...) new("Datatable",...)
+
+#' Datatable subscript
+#'
+#' @name Datatable-subscript
+#' @aliases [,Datatable-method
+#' @rdname subscript-methods
 setMethod('[',
 	signature(x='Datatable'),
 	function(x,i,j,...){
@@ -138,8 +176,8 @@ setMethod('[',
 #	subset
 #	merge
 #	summary
-dim.Datatable = function(self) self$dimensions()
-plot.Datatable = function(self) plot(self$dataframe())
-as.data.frame.Datatable = function(self) self$dataframe()
+#dim.Datatable = function(self) self$dimensions()
+#plot.Datatable = function(self) plot(self$dataframe())
+#as.data.frame.Datatable = function(self) self$dataframe()
 
 

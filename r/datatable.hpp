@@ -1,5 +1,11 @@
-#include "../../../cpp/datatable.hpp"
+#include "../cpp/datatable.hpp"
 using namespace Stencila;
+
+EXPORT SEXP Datatable_new(void){
+	BEGIN
+		return TO(Datatable,new Datatable);
+	END
+}
 
 EXPORT SEXP Datatable_rows(SEXP self){
 	BEGIN

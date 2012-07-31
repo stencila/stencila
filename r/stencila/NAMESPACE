@@ -1,2 +1,6 @@
-useDynLib(stencila)
-exportPattern("^[[:alpha:]]+")
+exportClasses(Datacursor)
+exportClasses(Dataset)
+exportClasses(Datatable)
+export(Datatable)
+export(version)
+useDynLib(stencila_)

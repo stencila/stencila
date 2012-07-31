@@ -48,8 +48,15 @@ extern "C" SEXP tag(SEXP self){
 #define BEGIN BEGIN_RCPP
 #define END END_RCPP
 
+#include "version.hpp"
+EXPORT SEXP stencila_version(void){
+	BEGIN
+		return wrap(Stencila::version);
+	END
+}
+
 #include "datacursor.hpp"
 #include "datatable.hpp"
 #include "dataset.hpp"
 
-#include "../../../cpp/dataset.cpp"
+#include "../cpp/dataset.cpp"
