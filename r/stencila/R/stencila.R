@@ -90,20 +90,19 @@ class_('Datatable')
 
 #' Create a datatable
 #'
-#' @name Datatable
-#' @export
 #' @examples
 #' # Create a Datatable...
 #' dt = Datatable()
 #' # which is equivalent to, but a bit quicker than...
 #' dt = new("Datatable")
-Datatable = function(...) new("Datatable",...)
+#' @export
+Datatable = function() new("Datatable")
 
 #' Datatable subscript
 #'
 #' @name Datatable-subscript
 #' @aliases [,Datatable-method
-#' @rdname subscript-methods
+#' @rdname Datatable-subscript
 setMethod('[',
 	signature(x='Datatable'),
 	function(x,i,j,...){
@@ -171,13 +170,22 @@ setMethod('[',
 	}
 )
 
+# S3 methods
 #methods(class='data.frame')
 #	head & tail
 #	subset
 #	merge
 #	summary
-#dim.Datatable = function(self) self$dimensions()
-#plot.Datatable = function(self) plot(self$dataframe())
-#as.data.frame.Datatable = function(self) self$dataframe()
+
+#' Get the dimensions of a Datatable
+#'
+#' @method dim Datatable
+dim.Datatable = function(x) x$dimensions()
+
+#' Convert a Datatable to a data.frame
+#'
+#' @method as.data.frame Datatable
+as.data.frame.Datatable = function(x) x$dataframe()
+
 
 
