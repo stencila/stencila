@@ -5,9 +5,9 @@ include ../cpp/Makefile.inc
 TAG := $(shell git describe --abbrev=0)
 VERSION :=  $(shell git describe)
 
-.PHONY: compile docs build check
+.PHONY: compile docs desc test install
 
-all:  check
+all:  build test
 
 # The compile job is for testing compilation without doing the full "R CMD check"
 # The files stencila.so and stencila.o are remove to prevent R CMD check from complaining later
@@ -18,7 +18,8 @@ compile:
 	g++ -I/usr/share/R/include $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -g -c stencila.cpp -o stencila.o;\
 	g++ -shared -o stencila.so stencila.o -L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) $(STENCILA_CPP_LIBS);\
 	rm stencila.o
-	
+
+#Generate Rd files using roxygen
 docs:
 	rm -f stencila/man/*.Rd
 	Rscript -e "library(roxygen2);roxygenize('stencila');"
@@ -33,7 +34,8 @@ DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
 desc:
 	sed -i 's!Version: .*$$!Version: $(TAG)!' stencila/DESCRIPTION
 	sed -i 's!Date: .*$$!Date: $(DATE)!' stencila/DESCRIPTION
-	
+
+# Build the package
 # When you run 
 #   R CMD build stencila
 # it creates a tar.gz file but that file does not include stencila_.so
@@ -45,11 +47,11 @@ build: compile docs desc
 	mkdir -p builds
 	mv stencila_$(TAG).tar.gz builds
 	
-check:
+test:
 	R CMD check builds/stencila_$(TAG).tar.gz
 	
 install:
 	R CMD INSTALL builds/stencila_$(TAG).tar.gz
 	
 clean:
-	rm -rf builds stencila.Rcheck
+	rm -rf stencila.Rcheck

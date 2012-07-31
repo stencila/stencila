@@ -1,8 +1,8 @@
 Package: stencila
 Type: Package
 Title: Tools for working with data
-Version: 0.2.0
-Date: 2012-07-31T06:23:34Z
+Version: 0.1.0
+Date: 2012-07-31T09:26:05Z
 Author: Nokome Bentley <nokome.bentley@stenci.la>
 Maintainer: Nokome Bentley <nokome.bentley@stenci.la>
 Description: More about what it does (maybe more than one line)
