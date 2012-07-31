@@ -1,6 +1,6 @@
-.PHONY: all dist build install tests
+.PHONY: dist build test clean
 
-all: clean dist build install tests
+all: dist build test
 
 #Create binary distribtion for the platform
 dist:
@@ -12,11 +12,9 @@ build:
 	
 #Install in tests virtual environment.
 #Create a virtual environment first and then specify it as install prefix
-install:
+test:
 	virtualenv tests/env; \
 	python2.7 setup.py install --prefix=tests/env; \
-	
-tests:
 	make -C tests all
 	
 clean:

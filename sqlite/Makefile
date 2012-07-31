@@ -1,6 +1,8 @@
-all: clean stencila.so test
+.PHONY: build test clean
+
+all: build test
 	
-stencila.so: stencila.c
+build:
 	gcc -shared -fPIC -lm -I../../../.. -ostencila.so stencila.c
 	
 test:
