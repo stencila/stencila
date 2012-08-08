@@ -33,13 +33,13 @@ boost_$(BOOST_VERSION): boost_$(BOOST_VERSION).tar.bz2
 # Boost is made with some options to overide defaults
 #  --prefix=.  - so that boost installs into its own directory  (boost_$(BOOST_VERSION))
 # link=static - so that get statically compiled instead of dynamically compile libraries
-boost/lib/libboost_system.a: boost_$(BOOST_VERSION)
+boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
 	cd boost_$(BOOST_VERSION); \
 	./bootstrap.sh; \
 	./b2 --prefix=. link=static install;
 	
 # Link to boost include directory and each of the statically compiled libraries
-boost: include lib
+boost: boost_$(BOOST_VERSION)/lib/libboost_system.a include lib
 	ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
 	for file in $$(ls boost_$(BOOST_VERSION)/lib/*.a); do ln -sf ../$$file lib; done
 
@@ -55,7 +55,7 @@ cpp-netlib-$(CPP_NETLIB_VERSION): cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
 	
 cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile: cpp-netlib-$(CPP_NETLIB_VERSION)
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
-	BOOST_ROOT=../boost_$(BOOST_VERSION); cmake -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .
+	export BOOST_ROOT=../boost_1_50_0 ; cmake -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .
 
 cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
@@ -64,7 +64,7 @@ cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connection
 # Link to cpp-netlib include directory and each of the statically compiled libraries
 # cpp-netlib is going through process of inclusion in boost
 # Until cpp-netlib is fully integrated into boost we use "cpp-netlib/network' instead of "boost/network"
-cpp-netlib: cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a
+cpp-netlib: cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a include lib
 	ln -sfT ../cpp-netlib-$(CPP_NETLIB_VERSION)/boost/ include/cpp-netlib
 	for file in $$(ls cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/*.a); do ln -sf ../$$file lib; done
 	
@@ -77,7 +77,7 @@ rapidjson-$(RAPIDJSON_VERSION): rapidjson-$(RAPIDJSON_VERSION).zip
 	unzip -qo rapidjson-$(RAPIDJSON_VERSION).zip
 	mv rapidjson rapidjson-$(RAPIDJSON_VERSION)
 
-rapidjson: rapidjson-$(RAPIDJSON_VERSION)
+rapidjson: rapidjson-$(RAPIDJSON_VERSION) include
 	ln -sfT ../rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson include/rapidjson
 
 ####################################################
@@ -98,7 +98,7 @@ sqlite-amalgamation-$(SQLITE_VERSION): sqlite-amalgamation-$(SQLITE_VERSION).zip
 
 sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a: sqlite-amalgamation-$(SQLITE_VERSION)
 	cd sqlite-amalgamation-$(SQLITE_VERSION); \
-	gcc -c sqlite3.c; \
+	gcc -fpic -c sqlite3.c; \
 	ar rcs libsqlite3.a sqlite3.o; \
 	
 sqlite: sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a include lib

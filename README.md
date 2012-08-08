@@ -2,15 +2,22 @@
  
 ##About
  
-[Stencila](http://stenci.la) is a platform for doing stuff with data and this is an open source software library for the platform. We're too busy coding to write much more about it than that. But hopefully, as the library matures, what we mean by "doing stuff" should become clear.
-
-##Versioning
-
-It is still early days so the API will change frequently. We are using [sematic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in intitial develpment phase. Don't rely on API stability until the release of version 1.0.0.
+[Stencila](http://stenci.la) is a platform for doing stuff with data. 
+This is an open source library for the platform. 
+We're too busy coding to write much more about it than that. 
+But hopefully, as the library matures, what we mean by "doing stuff" should become clear.
 
 ##Installation
 
-Right now all that is available is a C++ code library. You can download that and play with that if you like. We are currenly working on packages for [Python](http://python.org), [R](http://r-project.org) and other languages soon.
+Right now, the library is in a very preliminary state. 
+You can download that and play with that if you like, but we don't recommend it quite yet!
+If you do want to give it a try see some of the [prerequisites](https://github.com/stencila/stencila/tree/master/cpp/requirements)
+
+##Versioning
+
+It is still early days so the API will change frequently. 
+We are using [sematic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial develpment phase. 
+Don't rely on API stability until the release of version 1.0.0.
 
 ##Licence
 

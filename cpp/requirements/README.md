@@ -12,14 +12,15 @@ This directory provides a `Makefile` for making it easier to install these prere
 The Makefile downloads and builds each requirement and so itself has some prerequisites:
 
 * wget - for downloading files
+* svn - for getting smhasher
 * tar, unzip - for unpacking tar and zip files
 * cmake - for building cpp-netlib
-* make and gcc - for building cpp-netlib, sqlite
+* make and gcc - for building boost, cpp-netlib, sqlite etc
 
 If you are on Ubuntu, or another Linux with apt-get, you can get all these files with:
 
 ```sh
-sudo apt-get install wget tar unzip cmake make gcc
+sudo apt-get install wget svn tar unzip cmake make gcc
 ```
 
 Example usage:
