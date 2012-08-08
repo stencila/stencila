@@ -1,0 +1,15 @@
+#Get the Stencila cpp directory path. Done by obtaining the directory of this
+# Makefile, not by using $(shell pwd) which depends upon where make is called from
+STENCILA_CPP_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
+
+#Define compiler flags required
+STENCILA_CPP_FLAGS := -std=c++0x
+
+#Define directories for includes and libs
+STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME)requirements/include
+STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)requirements/lib
+
+#Define libraries required
+STENCILA_CPP_LIBS := 	-ldl -pthread \
+					-lboost_system -lboost_filesystem \
+					-lsqlite3

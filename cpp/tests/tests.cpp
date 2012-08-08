@@ -14,7 +14,6 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! Used when all test suites are compiled into a single executable
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE tests
 #include <boost/test/unit_test.hpp>
 

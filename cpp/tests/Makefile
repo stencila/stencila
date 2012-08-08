@@ -1,13 +1,13 @@
-include ../Makefile.inc
+include ../Makefile.common
 
 all: clean tests.out
 
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid) 
-COMPILE := g++ $(STENCILA_CPP_FLAGS) -Wall -g --coverage -O0
+COMPILE := g++ $(STENCILA_CPP_FLAGS) -Wall -g --coverage -O0 $(STENCILA_CPP_INCLUDE_DIRS)
 
 # Compile and run all test suites together
 tests.exe: tests.cpp dataset.cpp datatable.cpp dataquery.cpp
-	$(COMPILE) -o tests.exe tests.cpp $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
+	$(COMPILE) -o tests.exe tests.cpp $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
 
 # Compile and run an individual test suit
 #   Assumed that only dependency is the corresponding header file in the parent directory.
