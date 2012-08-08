@@ -1,4 +1,4 @@
-include ../cpp/Makefile.inc
+include ../cpp/Makefile.common
 
 # R does not like version numbers which are not in like X.Y.Z (or use a - instead of a .)
 # So in some place use the latest tag instead of the full git generated version string
@@ -15,9 +15,11 @@ RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
 RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
 compile:
 	sed -i 's!version = .*;$$!version = "$(VERSION)";!' version.hpp
-	g++ -I/usr/share/R/include $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -g -c stencila.cpp -o stencila.o;\
-	g++ -shared -o stencila.so stencila.o -L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) $(STENCILA_CPP_LIBS);\
-	rm stencila.o
+	g++ $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -shared \
+		-I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) \
+		-o stencila.so stencila.cpp \
+		-L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) \
+		$(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
 
 #Generate Rd files using roxygen
 docs:
