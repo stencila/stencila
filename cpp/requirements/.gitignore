@@ -3,6 +3,7 @@ lib
 
 boost*
 cpp-netlib*
+pugixml*
 rapidjson*
 smhasher*
 sqlite*

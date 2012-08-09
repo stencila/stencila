@@ -4,7 +4,8 @@ The Stencila C++ library has a number of required dependencies. At present these
 
 * [Boost](http://www.boost.org/) libraries
 * [cpp-netlib](http://cpp-netlib.github.com/) networking library
-* [rapidjson](http://code.google.com/p/rapidjson/) JSON parser/generator
+* [pugixml](http://pugixml.org/) XML processing library
+* [rapidjson](http://code.google.com/p/rapidjson/) JSON library
 * [smhasher](http://code.google.com/p/smhasher/) hashing library
 * [sqlite] (http://www.sqlite.org/) SQL database engine
 

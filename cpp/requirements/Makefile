@@ -1,13 +1,14 @@
 
 BOOST_VERSION = 1_50_0
 CPP_NETLIB_VERSION = 0.9.4
+PUGIXML_VERSION = 1.2
 RAPIDJSON_VERSION = 0.1
 SMHASHER_VERSION = 147
 SQLITE_VERSION = 3071300
 
-all: boost cpp-netlib rapidjson smhasher sqlite
+all: boost cpp-netlib pugixml rapidjson smhasher sqlite
 
-.PHONY: boost cpp-netlib rapidjson smhasher sqlite
+.PHONY: boost cpp-netlib pugixml rapidjson smhasher sqlite
 
 ####################################################
 # include and lib directories 
@@ -69,9 +70,31 @@ cpp-netlib: cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-clien
 	for file in $$(ls cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/*.a); do ln -sf ../$$file lib; done
 	
 ####################################################
+# pugixml
+#
+# Installation instructions: http://pugixml.googlecode.com/svn/tags/latest/docs/manual/install.html
+
+pugixml-$(PUGIXML_VERSION).tar.gz:
+	wget http://pugixml.googlecode.com/files/pugixml-$(PUGIXML_VERSION).tar.gz
+	
+pugixml-$(PUGIXML_VERSION): pugixml-$(PUGIXML_VERSION).tar.gz
+	mkdir -p pugixml-$(PUGIXML_VERSION)
+	cd pugixml-$(PUGIXML_VERSION) && tar xzf ../pugixml-$(PUGIXML_VERSION).tar.gz
+
+pugixml-$(PUGIXML_VERSION)/src/libpugixml.a: pugixml-$(PUGIXML_VERSION)
+	cd pugixml-$(PUGIXML_VERSION)/src; \
+	g++ -fpic -c pugixml.cpp; \
+	ar rcs libpugixml.a pugixml.o
+
+pugixml: pugixml-$(PUGIXML_VERSION)/src/libpugixml.a include lib
+	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/pugixml.hpp include/pugixml.hpp
+	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/pugiconfig.hpp include/pugiconfig.hpp
+	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/libpugixml.a lib/libpugixml.a 
+	
+####################################################
 
 rapidjson-$(RAPIDJSON_VERSION).zip:
-	wget http://rapidjson.googlecode.com/files/rapidjson-0.1.zip
+	wget http://rapidjson.googlecode.com/files/rapidjson-$(RAPIDJSON_VERSION).zip
 	
 rapidjson-$(RAPIDJSON_VERSION): rapidjson-$(RAPIDJSON_VERSION).zip
 	unzip -qo rapidjson-$(RAPIDJSON_VERSION).zip
