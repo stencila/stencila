@@ -6,7 +6,8 @@ all:
 	#	.* = anything, any number of times
 	#	$ = end of line
 	#The $ needs to be doubled for escaping make
-	sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile;\
+	cp Doxyfile.template Doxyfile
+	sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile
 	doxygen Doxyfile
 	
 clean:
