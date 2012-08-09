@@ -21,15 +21,7 @@ compile:
 		-o stencila.so stencila.cpp \
 		-L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) \
 		$(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
-
-#Generate Rd files using roxygen
-# At some point Rscript -e "library(roxygen2);roxygenize('stencila');" stopped
-# working so echoing into R is used
-# See http://stackoverflow.com/questions/8964515/cannot-call-roxygenize-function-from-rscript-batch-file
-docs:
-	rm -f stencila/man/*.Rd
-	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
-	
+		
 # Update the description file with the correct version and date
 # The DESCRIPTION.template file is copied so that there is not a
 # change in the repository just when a build is done
@@ -44,13 +36,21 @@ desc:
 	sed -i 's!Version: .*$$!Version: $(TAG)!' stencila/DESCRIPTION
 	sed -i 's!Date: .*$$!Date: $(DATE)!' stencila/DESCRIPTION
 
+#Generate Rd files using roxygen
+# At some point Rscript -e "library(roxygen2);roxygenize('stencila');" stopped
+# working so echoing into R is used
+# See http://stackoverflow.com/questions/8964515/cannot-call-roxygenize-function-from-rscript-batch-file
+docs: desc
+	rm -f stencila/man/*.Rd
+	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
+
 # Build the package
 # When you run 
 #   R CMD build stencila
 # it creates a tar.gz file but that file does not include stencila_.so
 # So, the folowing line replaces it
 #   tar cfz stencila_$(TAG).tar.gz stencila
-build: compile docs desc
+build: compile docs
 	mv stencila.so stencila/src/stencila_.so
 	tar cfz stencila_$(TAG).tar.gz stencila
 	mkdir -p builds
