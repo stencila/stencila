@@ -14,6 +14,7 @@ all:  build test
 RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
 RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
 compile:
+	cp version.hpp.template version.hpp
 	sed -i 's!version = .*;$$!version = "$(VERSION)";!' version.hpp
 	g++ $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -shared \
 		-I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) \
@@ -22,11 +23,16 @@ compile:
 		$(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
 
 #Generate Rd files using roxygen
+# At some point Rscript -e "library(roxygen2);roxygenize('stencila');" stopped
+# working so echoing into R is used
+# See http://stackoverflow.com/questions/8964515/cannot-call-roxygenize-function-from-rscript-batch-file
 docs:
 	rm -f stencila/man/*.Rd
-	Rscript -e "library(roxygen2);roxygenize('stencila');"
+	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
 	
 # Update the description file with the correct version and date
+# The DESCRIPTION.template file is copied so that there is not a
+# change in the repository just when a build is done
 # Using sed:
 #	.* = anything, any number of times
 #	$ = end of line
@@ -34,6 +40,7 @@ docs:
 # ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
 DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
 desc:
+	cp DESCRIPTION.template stencila/DESCRIPTION
 	sed -i 's!Version: .*$$!Version: $(TAG)!' stencila/DESCRIPTION
 	sed -i 's!Date: .*$$!Date: $(DATE)!' stencila/DESCRIPTION
 

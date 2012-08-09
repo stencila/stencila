@@ -1,3 +1,7 @@
+#Ignore version.hpp and stencila/DESCRIPTION files (Which get generated during build. See Makefile)
+version.hpp
+stencila/DESCRIPTION
+
 #Ignore files created by R build and check process
 builds
 stencila.Rcheck
