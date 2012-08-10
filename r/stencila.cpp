@@ -59,4 +59,4 @@ EXPORT SEXP stencila_version(void){
 #include "datatable.hpp"
 #include "dataset.hpp"
 
-#include "../cpp/dataset.cpp"
+#include <stencila/dataset.cpp>

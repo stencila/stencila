@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../cpp/datatypes.hpp"
+#include <stencila/datatypes.hpp>
 
 namespace Stencila {
 namespace Python {

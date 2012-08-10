@@ -1,0 +1,6 @@
+include ../../../cpp/Makefile.common
+
+%.exe: %.cpp
+	rm -f $@
+	g++ $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -o $@ $< $(STENCILA_CPP_LIBS)
+	./$@

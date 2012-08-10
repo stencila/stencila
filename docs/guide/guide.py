@@ -124,8 +124,9 @@ class Processor(HTMLParser.HTMLParser):
     def cpp_start(self):
         return '''
             #include <iostream>
-            #include "../../../cpp/stencila.hpp"
-            #include "../../../cpp/eql.hpp"
+            
+            #include <stencila/stencila.hpp>
+            #include <stencila/eql.hpp>
 
             int main(void){
             using namespace Stencila;
@@ -146,9 +147,8 @@ class Processor(HTMLParser.HTMLParser):
         
     def cpp_run(self,opts):
         return '''
-            rm -f %(name)s.exe %(name)s.*.out;
-            g++ -std=c++0x -Wall -O2 -o %(name)s.exe %(name)s.cpp -lboost_system -lboost_filesystem -lsqlite3;
-            ./%(name)s.exe;
+            cp ../Makefile.cplusplus Makefile; 
+            make -B %(name)s.exe
         '''%opts
 
     def py_start(self):

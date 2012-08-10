@@ -1,4 +1,4 @@
-#include "../cpp/datatable.hpp"
+#include <stencila/datatable.hpp>
 using namespace Stencila;
 
 EXPORT SEXP Datatable_new(void){

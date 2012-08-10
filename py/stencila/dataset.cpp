@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../cpp/dataset.hpp"
-#include "../../cpp/dataset.cpp"
+#include <stencila/dataset.hpp>
+#include <stencila/dataset.cpp>
 
 namespace Stencila {
 namespace Python {

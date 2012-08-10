@@ -1,3 +1,2 @@
-#Ignore object files and precompiled headers
-*.o
-*.gch
+#Ignore the sandbox!
+sandbox

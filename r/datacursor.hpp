@@ -1,4 +1,5 @@
-#include "../cpp/datacursor.hpp"
+#include <stencila/datacursor.hpp>
+
 using namespace Stencila;
 
 EXPORT SEXP Datacursor_fetch(SEXP self){

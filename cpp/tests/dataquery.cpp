@@ -18,10 +18,10 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include "../testing.hpp"
-#include "../datatable.hpp"
-#include "../dataquery.hpp"
-#include "../eql.hpp"
+#include <stencila/testing.hpp>
+#include <stencila/datatable.hpp>
+#include <stencila/dataquery.hpp>
+#include <stencila/eql.hpp>
 using namespace Stencila;
 
 struct dataqueryFixture { 

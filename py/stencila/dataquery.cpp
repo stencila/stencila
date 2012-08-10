@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../cpp/dataquery.hpp"
+#include <stencila/dataquery.hpp>
 
 namespace Dataquery_ {
 

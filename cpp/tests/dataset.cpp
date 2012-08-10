@@ -17,9 +17,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include "../testing.hpp"
-#include "../dataset.hpp"
-#include "../dataset.cpp"
+#include <stencila/testing.hpp>
+#include <stencila/dataset.hpp>
+#include <stencila/dataset.cpp>
 using namespace Stencila;
 
 struct datasetFixture { 

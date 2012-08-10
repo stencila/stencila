@@ -1,4 +1,4 @@
-#include "../cpp/dataset.hpp"
+#include <stencila/dataset.hpp>
 using namespace Stencila;
 
 EXPORT SEXP Dataset_new(void){

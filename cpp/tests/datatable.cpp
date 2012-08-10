@@ -16,8 +16,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include "../testing.hpp"
-#include "../datatable.hpp"
+#include <stencila/testing.hpp>
+#include <stencila/datatable.hpp>
 using namespace Stencila;
 
 struct datatableFixture {

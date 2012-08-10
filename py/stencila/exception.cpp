@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../cpp/exception.hpp"
+#include <stencila/exception.hpp>
 
 namespace Stencila {
 namespace Python {

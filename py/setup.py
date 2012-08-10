@@ -27,9 +27,9 @@ setup(
         Extension(
             'stencila.extension',
             ['stencila/extension.cpp'],
-            include_dirs = ['../../..',],
+            include_dirs = ['../cpp/','../cpp/requirements/include'],
             extra_compile_args = ['-std=c++0x'],
-            library_dirs = ['/usr/local/lib'],
+            library_dirs = ['../cpp/requirements/lib'],
             libraries = ['boost_python','sqlite3','boost_system','boost_filesystem']
         )
     ]
