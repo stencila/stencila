@@ -80,7 +80,7 @@ class Array{};
  @class Document
  @brief A JSON document
 	
- @include formats/json_example.cpp
+ @include_test{formats_json.cpp,example}
 */
 class Document : public rapidjson::Document {
 public:
@@ -137,19 +137,14 @@ public:
 	//! @param to Value to which the member will be added
 	//! @param name Name of the member
 	//! @param value Value of the member
-	Document& add(Value& to,const std::string& name,const std::string& value) {
-		AllocatorType& allocator = GetAllocator();
-		Value name_value(name.c_str(),name.length(),allocator);
-		Value item_value(value.c_str(),value.length(),allocator);
-		to.AddMember(name_value,item_value,allocator);
-		return *this;
-	}
+	template<typename Type>
+	Document& add(Value& to,const std::string& name,const Type& value);
 	
 	//! @brief Add a member to the document
 	//! @param name Name of the member
 	//! @param value Value of the member
-	template<typename Value>
-	Document& add(const std::string& name,const Value& value) {
+	template<typename Type>
+	Document& add(const std::string& name,const Type& value) {
 		return add(*this, name, value);
 	}
 	
@@ -187,8 +182,8 @@ IS(bool,IsBool)
 IS(int,IsInt)
 IS(double,IsDouble)
 IS(std::string,IsString)
-IS(Stencila::Json::Object,IsObject)
-IS(Stencila::Json::Array,IsArray)
+IS(Stencila::Formats::Json::Object,IsObject)
+IS(Stencila::Formats::Json::Array,IsArray)
 
 #undef IS
 
@@ -209,6 +204,7 @@ AS(std::string,GetString)
 
 #undef AS
 
+//! @class Document
 template<>
 inline
 std::vector<int> Document::as<std::vector<int>>(const Value& value) const {
@@ -217,6 +213,25 @@ std::vector<int> Document::as<std::vector<int>>(const Value& value) const {
 		vec.push_back(i->GetInt());
 	}
 	return vec;
+}
+
+//! @class Document
+template<typename Type>
+Document& Document::add(Value& to,const std::string& name,const Type& value) {
+	AllocatorType& allocator = GetAllocator();
+	Value name_value(name.c_str(),name.length(),allocator);
+	Value item_value(value);
+	to.AddMember(name_value,item_value,allocator);
+	return *this;
+}
+
+template<>
+Document& Document::add(Value& to,const std::string& name,const std::string& value) {
+	AllocatorType& allocator = GetAllocator();
+	Value name_value(name.c_str(),name.length(),allocator);
+	Value item_value(value.c_str(),value.length(),allocator);
+	to.AddMember(name_value,item_value,allocator);
+	return *this;
 }
 
 }
