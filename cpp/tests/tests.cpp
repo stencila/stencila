@@ -17,6 +17,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #define BOOST_TEST_MODULE tests
 #include <boost/test/unit_test.hpp>
 
+#include "traits.cpp"
 #include "print.cpp"
 
 #include "dataquery.cpp"

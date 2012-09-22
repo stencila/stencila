@@ -130,12 +130,12 @@ public:
 	}
 	
 	template<typename Type>
-	static std::string print(const std::true_type& is_a_container, Type container){
-		return print(is_a_container,IsMap<Type>(),container);
+	static std::string print(const std::true_type& is_container, Type container){
+		return print_container(IsAssociative<Type>(),IsPaired<Type>(),container);
 	}
 
 	template<typename Type>
-	static std::string print(const std::true_type& is_a_container, const std::false_type& is_a_map, Type container){
+	static std::string print_container(const std::false_type& is_set, const std::false_type& is_map, Type container){
 		std::ostringstream stream;
 		stream << '[';
 		auto i = container.begin();
@@ -150,9 +150,27 @@ public:
 		stream << ']';
 		return stream.str();
 	}
+    
+	template<typename Type>
+	static std::string print_container(const std::true_type& is_assoc, const std::false_type& is_paired, Type container){
+		
+		std::ostringstream stream;
+		stream << '{';
+		auto i = container.begin();
+		auto e = container.end();
+		if(i!=e){
+			while(true){
+				stream<<print(*i);
+				if(++i==e) break;
+				stream<<",";
+			}
+		}
+		stream << '}';
+		return stream.str();
+	}
 
 	template<typename Type>
-	static std::string print(const std::true_type& is_a_container, const std::true_type& is_a_map, Type container){
+	static std::string print_container(const std::true_type& is_assoc, const std::true_type& is_paired, Type container){
 		
 		std::ostringstream stream;
 		stream << '{';

@@ -93,14 +93,20 @@ BOOST_AUTO_TEST_CASE(printing){
     CHECK((std::make_tuple("foo",3.14,'a')),"(\"foo\",3.14,'a')")
     
     CHECK((std::array<int,3>{1,2,3}),"[1,2,3]")
+    
+    CHECK((std::list<int>{1,2,3}),"[1,2,3]")
+    
     CHECK((std::vector<int>{1,2,3}),"[1,2,3]")
 	CHECK((std::vector<std::string>{"foo","bar"}),"[\"foo\",\"bar\"]")
 	CHECK((std::vector<std::vector<int>>{{1,2,3},{4,5,6},{7,8,9}}),"[[1,2,3],[4,5,6],[7,8,9]]")
     CHECK((std::vector<int*>{&_42,0,&_42}),"[&42,&null,&42]")
     
+    CHECK((std::set<int>{1,2,3}),"{1,2,3}")
+    CHECK((std::multiset<int>{1,2,3,3,2,1}),"{1,1,2,2,3,3}")
+	
     CHECK((std::map<int,std::string>{{1,"a"},{2,"b"}}),"{1:\"a\",2:\"b\"}")
-    //CHECK((std::set<int>{1,2,3}),"{1,2,3}")
-		
+    CHECK((std::multimap<int,std::string>{{1,"a"},{2,"b"},{2,"b"}}),"{1:\"a\",2:\"b\",2:\"b\"}")
+    	
 	#undef CHECK
 }
 

@@ -27,16 +27,24 @@ struct Has {
 template <typename Type>
 struct HasBeginEnd : Has {
     template<typename A, A, A> struct Match;
-    template <typename A> static yes test(Match<typename A::iterator (A::*)(),&A::begin,&A::end>*);
+    // This must use const_iterator so that it is true for std::set<>
+    template <typename A> static yes test(Match<typename A::const_iterator (A::*)() const,&A::begin,&A::end>*);
     template <typename A> static no test(...);
     enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 template <typename Type>
-struct HasKeyTypeMappedType : Has {
-    template <typename A> static yes test(typename A::key_type*,typename A::mapped_type*);
+struct HasKeyTypeValueType : Has {
+    template <typename A> static yes test(typename A::key_type*,typename A::value_type*);
     template <typename A> static no test(...);
     enum {value = (sizeof(test<Type>(0,0)) == sizeof(yes))};
+};
+
+template <typename Type>
+struct HasMappedType : Has {
+    template <typename A> static yes test(typename A::mapped_type*);
+    template <typename A> static no test(...);
+    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 template <typename Type>
@@ -46,9 +54,15 @@ struct IsContainer : std::integral_constant<bool,
 >{};
 
 template <typename Type>
-struct IsMap : std::integral_constant<bool,
+struct IsAssociative : std::integral_constant<bool,
     IsContainer<Type>::value and 
-    HasKeyTypeMappedType<Type>::value
+    HasKeyTypeValueType<Type>::value
+>{};
+
+template <typename Type>
+struct IsPaired : std::integral_constant<bool,
+    IsAssociative<Type>::value and 
+    HasMappedType<Type>::value
 >{};
 
 }
