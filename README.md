@@ -7,11 +7,22 @@ This is an open source library for the platform.
 We're too busy coding to write much more about it than that. 
 But hopefully, as the library matures, what we mean by "doing stuff" should become clear.
 
+##Documentation
+
+Various forms of [documentation are available](http://docs.stenci.la).
+The auto-generated [documentation for the C++ library](http://docs.stenci.la/cpp/) is currently the most up to date.
+The [user guide](http://docs.stenci.la/guide/intro.html) is still in a very early draft.
+
 ##Installation
 
 Right now, the library is in a very preliminary state. 
 You can download that and play with that if you like, but we don't recommend it quite yet!
-If you do want to give it a try see some of the [prerequisites](https://github.com/stencila/stencila/tree/master/cpp/requirements)
+If you really do want to give it a try see some of the [prerequisites](https://github.com/stencila/stencila/tree/master/cpp/requirements)
+
+## Testing
+
+The Stencila [continuous integration server](http://ci.stenci.la) builds packages and run tests when commits are made to this repository.
+See the C++ job for [test results](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/testReport/(root)/) and [coverage reports](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/cobertura/stencila/).
 
 ##Versioning
 
