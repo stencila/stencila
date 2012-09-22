@@ -28,7 +28,6 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "sqlite.hpp"
 #include "datacursor.hpp"
 #include "exception.hpp"
-#include "printing.hpp"
 #include "hashing.hpp"
 
 namespace Stencila {
@@ -281,12 +280,5 @@ public:
 	Datatable select(const std::string& sql);
 	
 };
-
-template<>
-void print_format(const Dataset& dataset){
-	print_object("Dataset",dataset,
-		"uri",dataset.uri()
-	);
-}	
 	
 } 

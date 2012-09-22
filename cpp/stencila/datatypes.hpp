@@ -17,8 +17,6 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #pragma once
 
-#include "printing.hpp"
-
 namespace Stencila {
 	
 //! @class Datatype
@@ -65,15 +63,5 @@ const Datatype Null('n');
 const Datatype Integer('i');
 const Datatype Real('r');
 const Datatype Text('t');
-
-template<>
-void print_format(const Datatype& datatype){
-	print_raw(datatype.name());
-}
-
-std::ostream& operator<<(std::ostream& stream, const Datatype& datatype){
-	stream<<datatype.name();
-	return stream;
-}
 
 }

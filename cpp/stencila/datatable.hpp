@@ -365,13 +365,4 @@ public:
 	
 };
 
-template<>
-void print_format(const Datatable& datatable){
-	print_object("Datatable",datatable,
-		"name",datatable.name(),
-		"contained",datatable.contained(),
-		"dataset",datatable.dataset()
-	);
-}
-
 }
