@@ -25,6 +25,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <sstream>
 #include <fstream>
 
+#include <tuple>
+
 /*
 There are several ways to convert fundamental types to string e.g.
 
