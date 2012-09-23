@@ -22,7 +22,7 @@ If you really do want to give it a try see some of the [prerequisites](https://g
 ## Testing
 
 The Stencila [continuous integration server](http://ci.stenci.la) builds packages and run tests when commits are made to this repository.
-See the C++ job for [test results](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/testReport/(root)/) and [coverage reports](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/cobertura/stencila/).
+See the C++ job for [test results](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/testReport/%28root%29/) and [coverage reports](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/cobertura/stencila/).
 
 ##Versioning
 
