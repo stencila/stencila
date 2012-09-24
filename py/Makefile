@@ -1,21 +1,22 @@
-.PHONY: dist build test clean
+.PHONY: build dist test clean
 
-all: dist build test
-
-#Create binary distribtion for the platform
-dist:
-	python2.7 setup.py bdist_egg
+all: build dist test
 
 #Separate build step
 build:
 	python2.7 setup.py build
 	
+#Create binary distribtion for the platform
+dist: build
+	python2.7 setup.py bdist_egg
+	
 #Install in tests virtual environment.
-#Create a virtual environment first and then specify it as install prefix
-test:
+#Create a virtual environment first, activate it and then install, then run tests
+test: dist
 	virtualenv tests/env; \
-	python2.7 setup.py install --prefix=tests/env; \
-	make -C tests all
+	. tests/env/bin/activate ;\
+	python setup.py install ;\
+	make -C tests all ;
 	
 install:
 	sudo python2.7 setup.py install
