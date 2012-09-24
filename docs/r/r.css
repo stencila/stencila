@@ -54,6 +54,15 @@ div.header ul.links li {
 	background: #DDD;
 }
 
+div.warning {
+	margin:10px;
+	clear: both;
+	border: solid 1px red;
+	padding: 5px;
+	background: lightyellow;
+	font-size: 14px;
+}
+
 div.content {
 	clear: both;
 }
