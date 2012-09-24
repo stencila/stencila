@@ -81,6 +81,16 @@ class_('Datacursor')
 #' @exportClass Dataset
 class_('Dataset')
 
+#' Create a dataset
+#'
+#' @examples
+#' # Create a Dataset...
+#' ds = Dataset()
+#' # which is equivalent to, but a bit quicker to type than...
+#' ds = new("Dataset")
+#' @export
+Dataset = function() new("Dataset")
+
 #' The Datatable class
 #'
 #' @name Datatable-class
@@ -93,7 +103,7 @@ class_('Datatable')
 #' @examples
 #' # Create a Datatable...
 #' dt = Datatable()
-#' # which is equivalent to, but a bit quicker than...
+#' # which is equivalent to, but a bit quicker type than...
 #' dt = new("Datatable")
 #' @export
 Datatable = function() new("Datatable")
