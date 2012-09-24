@@ -35,6 +35,15 @@ a:hover {
     text-decoration: none;
 }
 
+div#stencila-warning {
+	margin:10px;
+	clear: both;
+	border: solid 1px red;
+	padding: 5px;
+	background: lightyellow;
+	font-size: 14px;
+}
+
 div#stencila-header {
     padding: 10px;
     float: left;
