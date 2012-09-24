@@ -8,7 +8,7 @@ prepare_py:
 	
 prepare_r:
 	#Install R package globally. Not ideal but does the job for now
-	cd ../../r ; make compile install
+	cd ../../r ; make build install
 	
 output: prepare_py prepare_r
 	python guide.py
