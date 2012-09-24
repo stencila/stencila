@@ -4,7 +4,7 @@ all: dist build test
 
 #Create binary distribtion for the platform
 dist:
-	python2.7 setup.py bdist
+	python2.7 setup.py bdist_egg
 
 #Separate build step
 build:
