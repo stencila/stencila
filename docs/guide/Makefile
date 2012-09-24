@@ -7,8 +7,10 @@ prepare_py:
 	cd ../../py ; python setup.py install
 	
 prepare_r:
-	#Install R package globally. Not ideal but does the job for now
-	cd ../../r ; make build install
+	#Install R package in local directory
+	#library(stencila,lib.loc='.') is then used later used inside R scripts
+	cd ../../r ; make build
+	cd working/r ; R CMD INSTALL -l . ../../../../r/builds/stencila_0.2.0.tar.gz
 	
 output: prepare_py prepare_r
 	python guide.py

@@ -187,7 +187,7 @@ from stencila import *
             make install
         '''
         return '''
-library(stencila)
+library(stencila,lib.loc='.')
 '''
 
     def r_finish(self):
