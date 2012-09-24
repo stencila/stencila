@@ -108,6 +108,7 @@ class Processor(HTMLParser.HTMLParser):
             # Get the code file...
             code = self.code[self.language]
             # Create a redict for standard output
+            #TODO catch exceptions and redirect to output
             output = '%s.%i.out'%(self.name,self.counter)
             print>>code,{
                 'cpp' : 'if(!std::freopen("%s","w",stdout)) throw Exception("Unable to redirect output to %s");'%(output,output),
@@ -160,10 +161,7 @@ class Processor(HTMLParser.HTMLParser):
 
     def py_start(self):
         '''
-        Requires Stencila Python package is installed globally.
-        To do that you can
-            cd stencila/py
-            make install
+        Requires Stencila Python package is installed.
         '''
         return '''
 from stencila import *
@@ -174,8 +172,9 @@ from stencila import *
 
     def py_run(self,opts):
         return '''
-            rm -f %(name)s.*.out;
-            python2.7 %(name)s.py;
+            rm -f %(name)s.*.out; #Remove existing output
+            . env/bin/activate; #Activate virtualenv
+            python %(name)s.py; #Run script
         '''%opts
         
     ############################
@@ -226,9 +225,12 @@ library(stencila)
             working = os.path.join('working',lang)
             distutils.dir_util.copy_tree('data',working)
             os.chdir(working)
+            
+            #TODO caputure output so that 
             os.system(getattr(self,lang+'_run')({
                 'name':self.name
             }))
+            
             os.chdir("../../")
         
         #Parse HTML and replace output with the generated output
@@ -239,7 +241,7 @@ library(stencila)
             try:
                 output = file(filename).read().strip()
             except IOError:
-                output = '<span class="splat">Arrrgh, splat!</span>'
+                output = '<span class="splat">Arrrgh, splat! Ummm, something went wrong.</span>'
                 
             if len(output)>0:
                 output = output.replace("\n",'<br>')
