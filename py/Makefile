@@ -17,5 +17,8 @@ test:
 	python2.7 setup.py install --prefix=tests/env; \
 	make -C tests all
 	
+install:
+	sudo python2.7 setup.py install
+	
 clean:
 	rm -rf build dist tests/env
