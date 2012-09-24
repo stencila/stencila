@@ -10,7 +10,7 @@ prepare_r:
 	#Install R package in local directory
 	#library(stencila,lib.loc='.') is then used later used inside R scripts
 	cd ../../r ; make build
-	cd working/r ; R CMD INSTALL -l . ../../../../r/builds/stencila_0.2.0.tar.gz
+	cd working/r ; R CMD INSTALL -l . ../../../../r/builds/stencila_latest.tar.gz
 	
 output: prepare_py prepare_r
 	python guide.py

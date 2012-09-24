@@ -55,6 +55,7 @@ build: compile docs
 	tar cfz stencila_$(TAG).tar.gz stencila
 	mkdir -p builds
 	mv stencila_$(TAG).tar.gz builds
+	ln -sf stencila_$(TAG).tar.gz builds/stencila_latest.tar.gz 
 	
 test:
 	R CMD check builds/stencila_$(TAG).tar.gz
