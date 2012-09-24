@@ -42,10 +42,10 @@ class Processor(HTMLParser.HTMLParser):
     
     @staticmethod
     def startup():
-        #Copy files from docs/style
+        #Copy files from docs/style to output html folder
         distutils.dir_util.copy_tree("../style","html/")
-        #Copy in guide CSS
-        shutil.copyfile("guide.css","html/guide.css")
+        #Copy files from css to output html folder
+        distutils.dir_util.copy_tree("css","html/")
         #Create pygments CSS
         file("html/code.css","w").write(HtmlFormatter().get_style_defs('.code'))
         #Read in template
@@ -56,10 +56,13 @@ class Processor(HTMLParser.HTMLParser):
         Processor.links = ''
         for page in Processor.pages:
             Processor.links += '''<li><a href="%s.html">%s</a></li>'''%(page,page.title())
-        #Create directories for code files and temporaries
+        #Create working directories for code files and temporaries
+        try: os.mkdir('working')
+        except OSError, e:
+            if 'File exists' in str(e): pass
         #Done using a catch around os.mkdir rather than os.system('mkdir -p..) for portability
         for lang in 'cpp','py','r': 
-            try: os.mkdir(lang)
+            try: os.mkdir(os.path.join('working',lang))
             except OSError, e:
                 if 'File exists' in str(e): pass
                 else: raise e
@@ -72,9 +75,9 @@ class Processor(HTMLParser.HTMLParser):
         self.language = None
         
         self.code = {
-            'cpp': file('cpp/%s.cpp'%self.name,'w'),
-            'py': file('py/%s.py'%self.name,'w'),
-            'r': file('r/%s.r'%self.name,'w'),
+            'cpp': file('working/cpp/%s.cpp'%self.name,'w'),
+            'py': file('working/py/%s.py'%self.name,'w'),
+            'r': file('working/r/%s.r'%self.name,'w'),
         }
         
         self.html = ''
@@ -118,15 +121,17 @@ class Processor(HTMLParser.HTMLParser):
             formatter = HtmlFormatter(linenos=False, cssclass="source")
             data = highlight(data, lexer, formatter)
             # Create a place holder for output. The trailing space after the filename is important!
-            data += '''<div class="output">%s/%s </div>'''%(self.language,output)
+            data += '''<div class="output">working/%s/%s </div>'''%(self.language,output)
         self.html += data
+        
+    ############################
         
     def cpp_start(self):
         return '''
             #include <iostream>
+            #include <map>
             
             #include <stencila/stencila.hpp>
-            #include <stencila/eql.hpp>
 
             int main(void){
             using namespace Stencila;
@@ -147,12 +152,22 @@ class Processor(HTMLParser.HTMLParser):
         
     def cpp_run(self,opts):
         return '''
-            cp ../Makefile.cplusplus Makefile; 
+            cp ../../Makefile.cplusplus Makefile; 
             make -B %(name)s.exe
         '''%opts
+        
+    ############################
 
     def py_start(self):
-        return '''import sys'''
+        '''
+        Requires Stencila Python package is installed globally.
+        To do that you can
+            cd stencila/py
+            make install
+        '''
+        return '''
+from stencila import *
+'''
 
     def py_finish(self):
         return ''''''
@@ -160,11 +175,21 @@ class Processor(HTMLParser.HTMLParser):
     def py_run(self,opts):
         return '''
             rm -f %(name)s.*.out;
-            python %(name)s.py;
+            python2.7 %(name)s.py;
         '''%opts
+        
+    ############################
 
     def r_start(self):
-        return ''''''
+        '''
+        Requires Stencila R package is installed globally.
+        To do that you can
+            cd stencila/r
+            make install
+        '''
+        return '''
+library(stencila)
+'''
 
     def r_finish(self):
         return ''''''
@@ -175,6 +200,8 @@ class Processor(HTMLParser.HTMLParser):
             R --interactive --no-save < %(name)s.r;
         '''%opts
         
+    ############################
+    
     def process(self):
         
         #Read in source file
@@ -196,12 +223,13 @@ class Processor(HTMLParser.HTMLParser):
             
         #Copy data to language directory, clean and run code
         for lang in self.code.keys():
-            distutils.dir_util.copy_tree("data",lang)
-            os.chdir(lang)
+            working = os.path.join('working',lang)
+            distutils.dir_util.copy_tree('data',working)
+            os.chdir(working)
             os.system(getattr(self,lang+'_run')({
                 'name':self.name
             }))
-            os.chdir("..")
+            os.chdir("../../")
         
         #Parse HTML and replace output with the generated output
         matches = re.compile('<div class="output">(.*)\s</div>').finditer(self.html)

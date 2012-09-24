@@ -16,6 +16,20 @@ a {
 	text-decoration: none;
 }
 
+h1 {
+	font-size: 1.3em;
+}
+
+h2 {
+	font-size: 1.2em;
+	color: grey;
+}
+
+h3 {
+	font-size: 1.1em;
+	color: grey20;
+}
+
 div.header {
     padding: 0px;
 	margin-bottom: 20px;
@@ -58,6 +72,14 @@ div.page {
 	clear: both;
 }
 
+div.warning {
+	clear: both;
+	border: solid 1px red;
+	padding: 5px;
+	background: lightyellow;
+	font-size: 14px;
+}
+
 div.code {
 	background: white;
 	padding: 10px;
@@ -85,4 +107,16 @@ div.code div.output {
 
 div.code div.output span.splat {
 	color: red;
+}
+
+div.code .cpp {
+	background: url('cpp-icon.png') no-repeat top left;
+}
+
+div.code .py {
+	background: url('py-icon.png') no-repeat top left;
+}
+
+div.code .r {
+	background: url('r-icon.png') no-repeat top left;
 }

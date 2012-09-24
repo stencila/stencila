@@ -1,1 +1,61 @@
-<h1>Mmmm, still working on it!</h1>
+<div class="warning">
+This guide really is "under construction". As the Stencila library's API stabilises down we'll be adding more. But at the moment, as you can see, it's pretty minimal. 
+</div>
+
+<h1>About this guide</h1>
+
+<p>
+This guide is part of the suite of Stencila documentation
+Other documentation for the platform includes:
+<ul>
+	<li><a href="">the C++ API (application programming interface)</a></li>
+	<li><a href="">the R package description</a></li>
+</ul>
+This guide aims to provide a more gentle introduction to the Stencila platform.
+It makes liberal use of code examples and, usually, each code example is given for each of the languages supported by the platform.
+For example, here is code snipped that simply creates and saves a Stencila Dataset:
+</p>
+
+<div class="code">
+	<script class="cpp">
+Dataset ds;
+ds.save("test.sds");
+	</script>
+	<script class="py">
+ds = Dataset()
+ds.save("test.sds")
+	</script>
+	<script class="r">
+ds = Dataset()
+ds$save("test.sds")
+	</script>
+</div>
+
+This documentation is generated for every commit to the repository and those code snippets are run against the latest version of the
+language package. 
+
+When a snippet of code produces output, for example using a "print" statement, the output appears below the
+code. e.g.
+
+<div class="code">
+	<script class="py">
+tuple = ('a',42)
+list = ["alpha","beta"]
+dict = {}
+print tuple, list, dict;
+	</script>
+</div>
+
+The C++ equivaluent of "print" is "std::cout". But std::cout does not by default providfe for output of standard library
+classes likes vectors and maps. To provide for "pretty printing" these classes Stencila provides its own "print" for C++
+which allows for Python like output.
+<div class="code">
+	<script class="cpp">
+auto tuple = std::make_tuple('a',42);
+std::vector<std::string> vector = {"alpha","beta"};
+std::map<std::string,int> map = {};
+print<<tuple<<vector<<map<<$;
+	</script>
+</div>
+
+

@@ -1,6 +1,4 @@
 #Ignore all language working directories
-cpp
-py
-r
+working
 #Ignore the output directory
 html
