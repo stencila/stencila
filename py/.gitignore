@@ -1,6 +1,7 @@
-#Ignore distutils build directories
+#Ignore build directories
 build
 dist
+stencila.egg-info
 
 #Ignore codelite IDE project file
 stencila_py.project
