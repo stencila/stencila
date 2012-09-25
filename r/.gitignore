@@ -1,6 +1,7 @@
-#Ignore version.hpp and stencila/DESCRIPTION files (Which get generated during build. See Makefile)
+#Ignore version.hpp and stencila/DESCRIPTION and NAMESPACE files (Which get generated during build. See Makefile)
 version.hpp
 stencila/DESCRIPTION
+stencila/NAMESPACE
 
 #Ignore files created by R build and check process
 builds
