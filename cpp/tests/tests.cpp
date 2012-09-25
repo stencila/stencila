@@ -19,6 +19,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "traits.cpp"
 #include "print.cpp"
+#include "reflect.cpp"
 
 #include "dataquery.cpp"
 #include "dataset.cpp"
