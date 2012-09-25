@@ -193,8 +193,7 @@ TAB_SIZE               = 8
 # will result in a user-defined paragraph with heading "Side Effects:".
 # You can put \n's in the value part of an alias to insert newlines.
 
-# An alias for including a test from a file. Must use "//start xxxx" and "//end xxxx"
-ALIASES               = include_test{2}="\dontinclude \1 \n \skipline //start \2 \n \until //end \2"
+ALIASES               = 
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C
 # sources only. Doxygen will then generate output that is more tailored for C.
