@@ -79,8 +79,6 @@ class Array{};
 /*! 
  @class Document
  @brief A JSON document
-	
- @include_test{formats_json.cpp,example}
 */
 class Document : public rapidjson::Document {
 public:

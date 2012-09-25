@@ -54,35 +54,6 @@ BOOST_AUTO_TEST_CASE(general){
 	doc.as<std::string>(a["a"]);
 	doc.add(a,"b","a_b");
 	doc.has(a,"b");
-	
-	std::cout<<doc.print();
-	std::cout<<doc.pretty();
-	
-}
-
-BOOST_AUTO_TEST_CASE(example){
-	//start example
-	
-	using namespace Stencila::Formats::Json;
-	
-	// Create a document (note backslahes to escape quotes in string)...
-	Document doc("{\"name\":\"pi\"}");
-	
-	// Add a member ...
-	doc.add("value",3.14159);
-	// check the member got added...
-	doc.has("value");
-	// check the member is a double...
-	doc.is<double>(doc["value"]);
-	// get the member as a double..
-	double pi = doc.as<double>(doc["value"]);
-	
-	// Print it out, as one long string...
-	std::cout<<doc.print();
-	// ,or with indentation...
-	std::cout<<doc.pretty();
-	
-	//end example
 }
 
 BOOST_AUTO_TEST_SUITE_END()
