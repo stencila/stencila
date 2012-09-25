@@ -5,3 +5,6 @@ stencila.egg-info
 
 #Ignore codelite IDE project file
 stencila_py.project
+
+#Ignore the sandbox!
+sandbox
