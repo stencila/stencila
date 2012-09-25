@@ -55,8 +55,6 @@ are used for expediency...
 #include <stencila/traits.hpp>
 
 namespace Stencila {
-    
-using namespace Traits;
 	
 template<typename Type>
 class Printer;
@@ -117,7 +115,7 @@ public:
 
 	template<typename Type>
 	static std::string print(Type value){
-		return print(IsContainer<Type>(),value);
+		return print(Traits::IsContainer<Type>(),value);
 	}
 
 	template<typename Type>
@@ -133,7 +131,7 @@ public:
 	
 	template<typename Type>
 	static std::string print(const std::true_type& is_container, Type container){
-		return print_container(IsAssociative<Type>(),IsPaired<Type>(),container);
+		return print_container(Traits::IsAssociative<Type>(),Traits::IsPaired<Type>(),container);
 	}
 
 	template<typename Type>
