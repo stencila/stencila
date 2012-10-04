@@ -9,11 +9,15 @@ VERSION :=  $(shell git describe)
 
 all:  build test
 
+# Requires everything that C++ library requires
+requirements:
+	make -C ../cpp/requirements all
+
 # The compile job is for testing compilation without doing the full "R CMD check"
 # The files stencila.so and stencila.o are remove to prevent R CMD check from complaining later
 RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
 RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
-compile:
+compile: requirements
 	cp version.hpp.template version.hpp
 	sed -i 's!version = .*;$$!version = "$(VERSION)";!' version.hpp
 	g++ $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -shared \
