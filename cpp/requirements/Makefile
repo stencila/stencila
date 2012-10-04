@@ -6,7 +6,7 @@ RAPIDJSON_VERSION = 0.1
 SMHASHER_VERSION = 147
 SQLITE_VERSION = 3071300
 
-all: boost cpp-netlib pugixml rapidjson smhasher sqlite
+all: boost pugixml rapidjson smhasher sqlite
 
 .PHONY: boost cpp-netlib pugixml rapidjson smhasher sqlite
 
