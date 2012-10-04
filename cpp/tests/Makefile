@@ -1,6 +1,6 @@
 include ../Makefile.common
 
-all: clean tests.out
+all: clean tests.test
 
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid) 
 STENCILA_CPP_TEST_COMPILE := g++ $(STENCILA_CPP_FLAGS) -g --coverage -O0 $(STENCILA_CPP_INCLUDE_DIRS)
@@ -16,11 +16,10 @@ tests.exe: *.cpp
 #      Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
 %.exe: %.cpp
 	$(STENCILA_CPP_TEST_COMPILE) -DSTENCILA_TEST_SINGLE -o $@ $< $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
-	
+
 # Run the test
-%.out : %.exe
+%.test : %.exe
 	./$<
-	
+
 clean:
-	rm -f *.o *.exe *.out *.gcno *.gcda *.gcov *.cov
-	
+	rm -f *.o *.exe *.test *.gcno *.gcda *.gcov *.cov

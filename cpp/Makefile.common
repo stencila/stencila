@@ -12,4 +12,5 @@ STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)requirements/lib
 #Define libraries required
 # Note that -ldl -pthread should come after -lsqlite
 STENCILA_CPP_LIBS := 	-lboost_system -lboost_filesystem \
-					-lsqlite3 -ldl -pthread
+					-lsqlite3 -ldl -pthread \
+                    -lpugixml
