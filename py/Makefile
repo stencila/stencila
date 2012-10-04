@@ -1,9 +1,25 @@
+include ../cpp/Makefile.common
+
 .PHONY: build dist test clean
 
 all: build dist test
 
+# Requires everything that C++ library requires
+requirements:
+	make -C ../cpp/requirements all
+	
+# So that
+cpp_flags:
+	@echo $(STENCILA_CPP_FLAGS)
+cpp_include_dirs:
+	@echo $(STENCILA_CPP_INCLUDE_DIRS)
+cpp_library_dirs:
+	@echo $(STENCILA_CPP_LIB_DIRS)
+cpp_libs:
+	@echo $(STENCILA_CPP_LIBS)
+
 #Separate build step
-build:
+build: requirements
 	python2.7 setup.py build
 	
 #Create binary distribtion for the platform

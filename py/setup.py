@@ -19,10 +19,23 @@ from setuptools import setup,Extension
 
 from subprocess import Popen, PIPE
 
+#A function to return output of shell commands
+def shell(command):
+    return Popen(command, shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip()
+
+#Get repository version
+version = shell('git describe')
+
+#Get Makefile variables. --quiet is needed to prevent make from echoing which directory it is in
+cpp_flags = shell('make --quiet cpp_flags').split()
+cpp_incl_dirs = shell('make --quiet cpp_include_dirs').replace('-I','').split()
+cpp_lib_dirs = shell('make --quiet cpp_library_dirs').replace('-L','').split()
+cpp_libs = shell('make --quiet cpp_libs').replace('-l','').split()
+
 setup(
     #See http://docs.python.org/distutils/apiref.html for a full list of optional arguments
     name = 'stencila',
-    version = Popen('git describe', shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip(),
+    version = version,
     keywords = [],
     author = 'Nokome Bentley',
     author_email = 'nokome.bentley@stenci.la',
@@ -35,10 +48,10 @@ setup(
         Extension(
             'stencila.extension',
             ['stencila/extension.cpp'],
-            include_dirs = ['../cpp/','../cpp/requirements/include'],
-            extra_compile_args = ['-std=c++0x'],
-            library_dirs = ['../cpp/requirements/lib'],
-            libraries = ['boost_python','sqlite3','boost_system','boost_filesystem']
+            extra_compile_args = cpp_flags,
+            include_dirs = cpp_incl_dirs,
+            library_dirs = cpp_lib_dirs,
+            libraries = ['boost_python']+cpp_libs
         )
     ]
 )
