@@ -27,21 +27,24 @@ class Exception : public std::exception {
 	
 protected:
 	
-	const char* message_;
+	std::string message_;
 	const char* file_;
 	int line_;
 
 public:
 	
 	Exception(std::string message="",const char* file=0, int line=0):
-		message_(message.c_str()),
+		message_(message),
 		file_(file),
 		line_(line){		
 	}
+    
+    ~Exception(void) throw() {
+    }
 	
 	const char* what(void)  const throw() {
 		std::ostringstream stream;
-        stream << file_ << ":" << line_ << ": " << message_;
+        stream << file_ << ":" << line_ << ":" << message_;
 		return stream.str().c_str();
 	}
 };
