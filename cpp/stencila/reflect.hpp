@@ -24,6 +24,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <map>
 
 #include <stencila/exception.hpp>
+#include <stencila/print.hpp>
 
 namespace Stencila {
 namespace Reflect {
@@ -107,13 +108,61 @@ public:
 	std::string type(void) const {
 		return type_;
 	}
+    
+    template<typename Object>
+    static std::string type(Object& object){
+        Type type;
+        type.mirror(object);
+        return type.type();
+    }   
 };
-template<typename Object>
-std::string Type_(Object& object = 0){
-    Type type;
-    type.mirror(object);
-    return type.type();
-}
+
+class Repr : public Reflection<Repr> {
+private:
+	std::string repr_;
+
+public:
+
+    Repr(void):
+        repr_(""){
+    }
+    
+	template<typename Value>
+    Repr& data(const char* name, Value* value, const char* desc = 0){
+		repr_ += std::string(name) + ":";
+        mirror(*value);
+        repr_ += ",";
+		return *this;
+	}
+        
+    using Reflection<Repr>::mirror;
+    
+    template<typename Object>
+    Repr& mirror(const std::true_type& is_reflector,Object& object){
+        repr_ += Type::type(object) + "{";
+        object.reflect(*this);
+        repr_ += "}";
+        return *this;
+    }
+    
+    template<typename Object>
+    Repr& mirror(const std::false_type& is_reflector,Object& object){
+        std::string printed = print()<<object;
+        repr_ += printed;
+        return *this;
+    }
+    
+	std::string repr(void) const {
+		return repr_;
+	}
+    
+    template<typename Object>
+    static std::string repr(Object& object){
+        Repr repr;
+        repr.mirror(object);
+        return repr.repr();
+    }
+};
 
 class Keys : public Reflection<Keys> {
 private:
@@ -136,6 +185,13 @@ public:
 	std::vector<std::string> keys(void) const {
 		return keys_;
 	}
+    
+    template<typename Object>
+    static std::vector<std::string> keys(Object& object){
+        Keys keys;
+        keys.mirror(object);
+        return keys.keys();
+    }
 };
 
 class Has : public Reflection<Has> {
@@ -165,6 +221,13 @@ public:
 	bool has(void) const {
 		return has_;
 	}
+    
+    template<typename Object>
+    static bool has(Object& object,const std::string& name){
+        Has has(name);
+        has.mirror(object);
+        return has.has();
+    }
 };
 
 class Get : public Reflection<Get> {
@@ -177,24 +240,31 @@ public:
 
     Get(const std::string& name):
         name_(name),
-        object_(0){
+        object_(0),
+        type_(""){
     }
 
 	template<typename Value>
     Get& data(const char* name, Value* value, const char* desc = 0){
         if(name==name_){
             object_ = value;
-            type_ = Type_(*value);
+            type_ = Type::type(*value);
         }
 		return *this;
 	}
-	
+    
+    void exception(void) const {
+        STENCILA_THROW(Exception,"object does not have key:"+name_);
+    }
+    
 	void* object(void) const {
-		return object_;
+        if(object_) return object_;
+        else exception();
 	}
     
 	std::string type(void) const {
-		return type_;
+        if(object_) return type_;
+        else exception();
 	}
 };
 
@@ -206,39 +276,57 @@ template<class Class> class Dispatch;
 template<>
 class Dispatch<void>{
 public:	
-	virtual std::string type(void) = 0;
-	virtual std::vector<std::string> keys(void) = 0;
-    virtual bool has(const std::string& name) = 0;
-    virtual Proxy get(void* object, const std::string& name) = 0;
-	virtual Proxy create(void) = 0;
+	virtual Proxy create(void);
+    
+    virtual std::string type(void* object){
+        return "void";
+    };
+    
+	virtual std::vector<std::string> keys(void* object){
+        return {};
+    };
+    
+    virtual bool has(void* object, const std::string& name){
+            return false;
+    };
+    
+    virtual Proxy get(void* object, const std::string& name);
+    
+	virtual std::string repr(void* object){
+        return "";
+    };
 };
 
 template<class Class>
 class Dispatch : public Dispatch<void>{
 public:	
-
-	std::string type(void){
-		return Type().mirror<Class>().type();
-	};
-	
-	std::vector<std::string> keys(void){
-		return Keys().mirror<Class>().keys();
+    
+	Proxy create(void);
+    
+	std::string type(void* object){
+		return Type::type(*static_cast<Class*>(object));
 	};
     
-	bool has(const std::string& name){
-		return Has(name).mirror<Class>().has();
+	std::vector<std::string> keys(void* object){
+		return Keys::keys(*static_cast<Class*>(object));
+	};
+    
+	bool has(void* object, const std::string& name){
+		return Has::has(*static_cast<Class*>(object),name);
 	};
     
 	Proxy get(void* object, const std::string& name);
     
-	Proxy create(void);
+    std::string repr(void* object){
+		return Repr::repr(*static_cast<Class*>(object));
+	};
 };
 
 class Registry {
 private:
 	bool inited_;
 	std::map<std::string,Dispatch<void>*>* classes_;
-
+    static Dispatch<void> dispatch_void_;
 
 	void init_(void){
 		if(not inited_){
@@ -265,8 +353,8 @@ public:
 	Dispatch<void>* get(const std::string& name){
 		init_();
 		auto i = classes_->find(name);
-		if(i==classes_->end()) STENCILA_THROW(Exception,"type has not been registered: "+name)
-		return i->second;
+		if(i==classes_->end()) return &dispatch_void_;
+		else return i->second;
 	}
     
     std::vector<std::string> types(void){
@@ -276,6 +364,8 @@ public:
     }
 	
 } Registry ;
+
+Dispatch<void> Registry::dispatch_void_;
 
 template<class Type>
 struct Register{
@@ -303,20 +393,20 @@ public:
 		dispatcher_(dispatcher){		
 	}
     
-    void* pointer(void){
+    void* object(void){
         return object_;
     }
     
 	std::string type(void) const {
-		return dispatcher_->type();
+		return dispatcher_->type(object_);
 	}
-	
+    
 	std::vector<std::string> keys(void) const {
-		return dispatcher_->keys();
+		return dispatcher_->keys(object_);
 	}
     
 	bool has(const std::string& name){
-		return dispatcher_->has(name);
+		return dispatcher_->has(object_,name);
 	};
 	
 	Proxy get(const std::string& name){
@@ -326,6 +416,28 @@ public:
 	Proxy operator[](const std::string& name){
 		return get(name);
 	}
+    
+    std::string repr(void) const {
+		return dispatcher_->repr(object_);
+	}
+};
+
+//! @{
+//! Definitions for Dispatch<void> methods involving Proxy
+inline Proxy Dispatch<void>::create(void){
+    STENCILA_THROW(Exception,"unable to create Proxy for Dispatch<void>");
+};
+
+inline Proxy Dispatch<void>::get(void* object, const std::string& name){
+    STENCILA_THROW(Exception,"no keys");
+};
+//! @}
+
+//! @{
+//! Definitions for Dispatch<Class> methods involving Proxy
+template<class Class>
+Proxy Dispatch<Class>::create(void){
+    return Proxy(new Class,this);
 };
 
 template<class Class>
@@ -334,16 +446,13 @@ Proxy Dispatch<Class>::get(void* object, const std::string& name){
     get.mirror(*static_cast<Class*>(object));
     return Proxy(get.object(),Registry.get(get.type()));
 };
+//! @}
 
-template<class Class>
-Proxy Dispatch<Class>::create(void){
-    return Proxy(new Class,this);
-};
-
+// Convienience function for creating objects
 Proxy Create(const std::string& name){
 	return Registry.get(name)->create();
 }
-    
+
 template<class Derived>
 class Reflector {
 public:
@@ -352,7 +461,7 @@ public:
 
 	template<typename... Args>
 	static Derived& create(Args... args) {
-		//Use a shared pointer for carbage collection?
+		//Use a shared pointer for garbage collection?
 		Derived* o = new Derived(args...);
 		return *o;
 	}
@@ -360,6 +469,10 @@ public:
 	template<class Reflection>
 	void reflect(Reflection& r){
 		static_cast<Derived*>(this)->reflect(r);
+	}
+    
+	Proxy proxy(void) {
+		return Proxy(this,Registry.get(type()));
 	}
     
 	std::string type(void) {
@@ -385,6 +498,12 @@ public:
 		get.mirror(*static_cast<Derived*>(this));
 		return Proxy(get.object(),Registry.get(get.type()));
 	}
+    
+	std::string repr(void) const{
+		Repr repr();
+		repr.mirror(*static_cast<Derived*>(this));
+		return repr.repr();
+	}
 };
 
 /*
@@ -397,8 +516,6 @@ template<class Reflection> \
 void reflect(Reflection& r){\
     _ATTRS \
 }
-
-#define TYPE(_NAME,...) r.type(#_NAME,##__VA_ARGS__);
 
 #define DATA(_NAME,...) r.data(#_NAME,&_NAME,##__VA_ARGS__);
 
