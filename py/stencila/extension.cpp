@@ -15,6 +15,7 @@ namespace python {
 }
 
 using namespace boost::python;
+namespace bp = boost::python;
 
 #include "standard_library.cpp"
 #include "exception.cpp"
@@ -22,6 +23,8 @@ using namespace boost::python;
 #include "dataset.cpp"
 #include "datatable.cpp"
 #include "dataquery.cpp"
+
+#include "stencil.cpp"
 
 BOOST_PYTHON_MODULE(extension){
 	using namespace Stencila::Python;
@@ -33,4 +36,6 @@ BOOST_PYTHON_MODULE(extension){
 	DatatableBindings::bind();
 	
 	Dataquery_::bind();
+    
+    Stencil_::bind();
 }

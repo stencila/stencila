@@ -60,3 +60,17 @@ EXPORT SEXP stencila_version(void){
 #include "dataset.hpp"
 
 #include <stencila/dataset.cpp>
+
+#include <string>
+
+inline std::string call(std::string handler,){
+/*
+ * Call handler function using Rcpp::Language which provides a much
+ * easier interface to using the 'eval' R API function e.g. eval(name,R_GlobalEnv)
+ */
+	BEGIN
+        Rcpp::Language call(handler,"attr","value");
+        return as<std::string>(call.eval());
+	END
+}
+
