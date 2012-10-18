@@ -26,4 +26,4 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "datatable.cpp"
 
 #include "formats_json.cpp"
-
+#include "formats_xml.cpp"

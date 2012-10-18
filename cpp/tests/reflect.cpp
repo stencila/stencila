@@ -53,12 +53,12 @@ Register<Person> Person_;
 
 class Couple : public Reflector<Couple> {
 public:
-	Person A;
-	Person B;	
+	Person a;
+	Person b;	
 
 	REFLECT(
-		DATA(A)
-		DATA(B)
+		DATA(a)
+		DATA(b)
 	)
 };
 Register<Couple> Couple_;
@@ -98,9 +98,9 @@ BOOST_AUTO_TEST_CASE(type_introspection_macros){
     BOOST_CHECK_EQUAL(type,"reflect::Couple");
     
     std::vector<std::string> keys = Keys().mirror<Couple>().keys();
-    check_equal(keys,std::vector<std::string>{"A","B"});
+    check_equal(keys,std::vector<std::string>{"a","b"});
     
-	bool has = Has("A").mirror<Couple>().has();
+	bool has = Has("a").mirror<Couple>().has();
     BOOST_CHECK(has);
 }
 
@@ -118,13 +118,13 @@ BOOST_AUTO_TEST_CASE(instance_introspection){
     
     auto name = john.get("name");
     BOOST_CHECK_EQUAL(name.type(),"std::string");
-    BOOST_CHECK(name.pointer()!=0);
-    BOOST_CHECK_EQUAL(*static_cast<std::string*>(name.pointer()),"John");
+    BOOST_CHECK(name.object()!=0);
+    BOOST_CHECK_EQUAL(*static_cast<std::string*>(name.object()),"John");
     
     auto age = john.get("age");
     BOOST_CHECK_EQUAL(age.type(),"int");
-    BOOST_CHECK(age.pointer()!=0);
-    BOOST_CHECK_EQUAL(*static_cast<unsigned short int*>(age.pointer()),29);
+    BOOST_CHECK(age.object()!=0);
+    BOOST_CHECK_EQUAL(*static_cast<unsigned short int*>(age.object()),29);
 }
 
 BOOST_AUTO_TEST_CASE(instance_introspection_dynamic){

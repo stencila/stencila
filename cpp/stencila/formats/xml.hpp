@@ -44,6 +44,9 @@ namespace Xml {
  There is a very guide for the choice of XML libraries <a href="http://stackoverflow.com/questions/9387610/what-xml-parser-should-i-use-in-c">here</a>.
 */
 
+typedef pugi::xml_node Node;
+typedef pugi::xml_tree_walker Walker;
+
 class Document : public pugi::xml_document {
 public:
 	Document(void){}
