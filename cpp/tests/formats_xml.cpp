@@ -29,9 +29,9 @@ struct formatsXmlFixture {
     
     formatsXmlFixture(void){
         doc.load(
-            "<div class='class-a'>"
-            "   <div class='class-a-a'/>"
-            "   <div class='class-a-b' data-print='x'>text</div>"
+            "<div class='a'>"
+            "   <div class='aa'/>"
+            "   <div class='ab' data-print='x'>text</div>"
             "</div>"
         );
     }    
@@ -48,9 +48,48 @@ BOOST_AUTO_TEST_CASE(select_next_sibling){
 
 BOOST_AUTO_TEST_CASE(select_xpath){
     //Selects node using Xpath
-    auto node = doc.select_single_node("//div[@class='class-a-b']").node();
+    auto node = doc.select_single_node("//div[@class='ab']").node();
     BOOST_CHECK_EQUAL(node.child_value(),"text");
     BOOST_CHECK_EQUAL(node.attribute("data-print").value(),"x");
+}
+
+BOOST_AUTO_TEST_CASE(select_css_translate){
+    //Translate CSS selector to XPath selector
+    using namespace CssToXPath;
+    
+    /*!
+    @todo Generate a large number of test cases using a Python script with cssselet
+    */
+    #define CHECK(css,xpath) std::cerr<<CssToXPath::print(parse(css)); BOOST_CHECK_EQUAL(translate(css),xpath);
+    /*
+    CHECK("div","")
+    CHECK("div.a","")
+    CHECK("div#a","")
+    CHECK("div[class]","")
+    CHECK("div[class=a]","")
+    CHECK("div[class~=a]","")
+    CHECK("div[class|=a]","")
+    CHECK("div[class=a].b#c","")
+    CHECK("div p","")
+    CHECK("div>p","")
+    CHECK("div > p","")
+    CHECK("div>p a","")
+    CHECK("div+a","")
+    CHECK("div+a+i","")
+    CHECK("div~a","")
+    CHECK("div, p,a","")
+    */
+    #undef CHECK
+}
+
+BOOST_AUTO_TEST_CASE(select_css){
+    //Selects node using CSS selector syntax
+    auto node = doc.one("div.ab");
+    BOOST_CHECK_EQUAL(node.child_value(),"text");
+    BOOST_CHECK_EQUAL(node.attribute("data-print").value(),"x");
+    
+    auto nodes = doc.all("div");
+    BOOST_CHECK_EQUAL(nodes.size(),3);
 }
 
 BOOST_AUTO_TEST_CASE(append_to){
@@ -60,9 +99,9 @@ BOOST_AUTO_TEST_CASE(append_to){
     //An element with some text
     doc.append_to(doc,"div","hello");
     //An element with some attributes
-    doc.append_to(doc,"div",{{"class","b-a"},{"data-overidden","false"}});
+    doc.append_to(doc,"div",{{"class","ba"},{"data-overidden","false"}});
     //An element with some attributes and some text
-    doc.append_to(doc,"div",{{"class","b-b"}},"hello");
+    doc.append_to(doc,"div",{{"class","bb"}},"hello");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
