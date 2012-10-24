@@ -21,7 +21,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "exception.hpp"
 #include "print.hpp"
-#include "testing.hpp"
+#include "test.hpp"
 
 #include "datatypes.hpp"
 #include "dataset.hpp"

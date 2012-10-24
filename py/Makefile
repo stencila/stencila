@@ -35,7 +35,7 @@ test: dist
 	make -C tests all ;
 	
 install:
-	sudo python2.7 setup.py install
+	python2.7 setup.py install
 	
 clean:
 	rm -rf build dist tests/env

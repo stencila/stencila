@@ -56,16 +56,6 @@ class Processor(HTMLParser.HTMLParser):
         Processor.links = ''
         for page in Processor.pages:
             Processor.links += '''<li><a href="%s.html">%s</a></li>'''%(page,page.title())
-        #Create working directories for code files and temporaries
-        try: os.mkdir('working')
-        except OSError, e:
-            if 'File exists' in str(e): pass
-        #Done using a catch around os.mkdir rather than os.system('mkdir -p..) for portability
-        for lang in 'cpp','py','r': 
-            try: os.mkdir(os.path.join('working',lang))
-            except OSError, e:
-                if 'File exists' in str(e): pass
-                else: raise e
             
     def __init__(self,name):
         HTMLParser.HTMLParser.__init__(self)
