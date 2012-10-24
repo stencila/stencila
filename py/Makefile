@@ -7,7 +7,7 @@ all: build dist test
 # Requires everything that C++ library requires
 requirements:
 	make -C ../cpp/requirements all
-	
+
 # So that
 cpp_flags:
 	@echo $(STENCILA_CPP_FLAGS)

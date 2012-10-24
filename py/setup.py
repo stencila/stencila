@@ -27,10 +27,10 @@ def shell(command):
 version = shell('git describe')
 
 #Get Makefile variables. --quiet is needed to prevent make from echoing which directory it is in
-cpp_flags = shell('make --quiet cpp_flags').split()
-cpp_incl_dirs = shell('make --quiet cpp_include_dirs').replace('-I','').split()
-cpp_lib_dirs = shell('make --quiet cpp_library_dirs').replace('-L','').split()
-cpp_libs = shell('make --quiet cpp_libs').replace('-l','').split()
+cpp_flags = shell('make --no-print-directory --quiet cpp_flags').split()
+cpp_incl_dirs = shell('make --no-print-directory --quiet cpp_include_dirs').replace('-I','').split()
+cpp_lib_dirs = shell('make --no-print-directory --quiet cpp_library_dirs').replace('-L','').split()
+cpp_libs = shell('make --no-print-directory --quiet cpp_libs').replace('-l','').split()
 
 setup(
     #See http://docs.python.org/distutils/apiref.html for a full list of optional arguments
