@@ -34,43 +34,56 @@ Type& from(SEXP self){
 	return *static_cast<Type*>(R_ExternalPtrAddr(self));
 }
 
-//Function exported to R for obtaining tag from an "externalpointer"
-extern "C" SEXP tag(SEXP self){
-	return R_ExternalPtrTag(self);
-}
+///////////////////////////////
 
-//Some macros for brevity.
-//Defined after all includes to prevent conflicts
-#define TO(TYPE,POINTER) \
+const decltype(R_NilValue) nil = R_NilValue;
+
+//Some macros for consistency.
+
+#define STENCILA_R_TO(TYPE,POINTER) \
 	to<TYPE>(POINTER,#TYPE)
-#define NIL R_NilValue;
-#define EXPORT extern "C"
-#define BEGIN BEGIN_RCPP
-#define END END_RCPP
+
+#define STENCILA_R_FUNC extern "C" SEXP
+
+//The following are based on BEGIN_RCPP and END_RCPP macros
+#define STENCILA_R_TRY \
+    try {
+        
+#define STENCILA_R_CATCH \
+    } catch(std::exception& __ex__ ){ \
+        forward_exception_to_r( __ex__ ); \
+    } catch(...){ \
+        ::Rf_error( "c++ exception (unknown reason)" ); \
+    } \
+
+#define STENCILA_R_BEGIN \
+    try {
+
+#define STENCILA_R_END \
+    STENCILA_R_CATCH \
+    return nil;
+
+////////////////////////////////////////////////////
 
 #include "version.hpp"
-EXPORT SEXP stencila_version(void){
-	BEGIN
+STENCILA_R_FUNC stencila_version(void){
+	STENCILA_R_BEGIN
 		return wrap(Stencila::version);
-	END
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC tag(SEXP self){
+	//! Obtain tag from an "externalpointer"
+    STENCILA_R_BEGIN
+        return R_ExternalPtrTag(self);
+    STENCILA_R_END
 }
 
 #include "datacursor.hpp"
 #include "datatable.hpp"
 #include "dataset.hpp"
+#include "stencil.hpp"
 
 #include <stencila/dataset.cpp>
 
-#include <string>
-
-inline std::string call(std::string handler,){
-/*
- * Call handler function using Rcpp::Language which provides a much
- * easier interface to using the 'eval' R API function e.g. eval(name,R_GlobalEnv)
- */
-	BEGIN
-        Rcpp::Language call(handler,"attr","value");
-        return as<std::string>(call.eval());
-	END
-}
 

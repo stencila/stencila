@@ -2,10 +2,10 @@
 
 using namespace Stencila;
 
-EXPORT SEXP Datacursor_fetch(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datacursor_fetch(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Datacursor>(self).fetch()
 		);
-	END
+	STENCILA_R_END
 }

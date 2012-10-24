@@ -1,3 +1,5 @@
+#include <string>
+
 namespace Stencila {
 namespace Python {
 namespace Stencil_ {
@@ -20,7 +22,7 @@ void call_callback(void){
     //Obtain the Python Global Interpreter Lock (GIL)
     PyGILState_STATE state = PyGILState_Ensure();
     //Call the Python callback function which should return a string
-    std:string result = bp::call<std::string>(callback,"attr","value");
+    std::string result = bp::call<std::string>(callback,"attr","value");
     //Release the GIL
     PyGILState_Release(state);
 }

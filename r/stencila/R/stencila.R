@@ -58,6 +58,8 @@ class_ = function(class_name){
   NULL
 }
 
+#####################################
+
 #' Stencila version
 #'
 #' @export
@@ -67,12 +69,16 @@ version <- function(){
   call_('stencila_version')
 }
 
+#####################################
+
 #' Datacursor
 #'
 #' @name Datacursor-class
 #' @rdname Datacursor-class
 #' @exportClass Datacursor
 class_('Datacursor')
+
+#####################################
 
 #' Dataset
 #'
@@ -83,13 +89,16 @@ class_('Dataset')
 
 #' Create a dataset
 #'
+#' @export
+#'
 #' @examples
 #' # Create a Dataset...
 #' ds = Dataset()
-#' # which is equivalent to, but a bit quicker to type than...
+#' # which is equivalent to, but a bit quicker to type than,...
 #' ds = new("Dataset")
-#' @export
 Dataset = function() new("Dataset")
+
+#####################################
 
 #' The Datatable class
 #'
@@ -100,12 +109,13 @@ class_('Datatable')
 
 #' Create a datatable
 #'
+#' @export
+#'
 #' @examples
 #' # Create a Datatable...
 #' dt = Datatable()
-#' # which is equivalent to, but a bit quicker type than...
+#' # which is equivalent to, but a bit quicker to type than,...
 #' dt = new("Datatable")
-#' @export
 Datatable = function() new("Datatable")
 
 #' Datatable subscript
@@ -197,5 +207,27 @@ dim.Datatable = function(x) x$dimensions()
 #' @method as.data.frame Datatable
 as.data.frame.Datatable = function(x) x$dataframe()
 
+#####################################
 
+#' The Stencil class
+#'
+#' @name Stencil-class
+#' @rdname Stencil-class
+#' @exportClass Stencil
+class_('Stencil')
 
+#' Create a stencil
+#'
+#' @export
+#'
+#' @examples
+#' # Create a Stencil...
+#' dt = Stencil()
+#' # which is equivalent to, but a bit quicker to type than,
+#' dt = new("Stencil")
+Stencil = function() new("Stencil")
+
+#' @export
+context_text <- function(expression){
+  return(eval(parse(expression)))
+}

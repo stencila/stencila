@@ -1,54 +1,54 @@
 #include <stencila/dataset.hpp>
 using namespace Stencila;
 
-EXPORT SEXP Dataset_new(void){
-	BEGIN
-		return TO(Dataset,new Dataset);
-	END
+STENCILA_R_FUNC Dataset_new(void){
+	STENCILA_R_BEGIN
+		return STENCILA_R_TO(Dataset,new Dataset);
+	STENCILA_R_END
 }
 
-EXPORT SEXP Dataset_save(SEXP self, SEXP uri){
-	BEGIN
+STENCILA_R_FUNC Dataset_save(SEXP self, SEXP uri){
+	STENCILA_R_BEGIN
 		from<Dataset>(self).save(as<std::string>(uri));
-		return NIL;
-	END
+		return nil;
+	STENCILA_R_END
 }
 
-EXPORT SEXP Dataset_tables(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Dataset_tables(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Dataset>(self).tables()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Dataset_indices(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Dataset_indices(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Dataset>(self).indices()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Dataset_execute(SEXP self, SEXP sql){
-	BEGIN
+STENCILA_R_FUNC Dataset_execute(SEXP self, SEXP sql){
+	STENCILA_R_BEGIN
 		from<Dataset>(self).execute(as<std::string>(sql));
-		return NIL;
-	END
+		return nil;
+	STENCILA_R_END
 }
 
-EXPORT SEXP Dataset_cursor(SEXP self, SEXP sql){
-	BEGIN
-		return TO(Datacursor,new Datacursor(
+STENCILA_R_FUNC Dataset_cursor(SEXP self, SEXP sql){
+	STENCILA_R_BEGIN
+		return STENCILA_R_TO(Datacursor,new Datacursor(
 			from<Dataset>(self).cursor(as<std::string>(sql))
 		));
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Dataset_table(SEXP self, SEXP table){
-	BEGIN
-		return TO(Datatable,new Datatable(
+STENCILA_R_FUNC Dataset_table(SEXP self, SEXP table){
+	STENCILA_R_BEGIN
+		return STENCILA_R_TO(Datatable,new Datatable(
 			from<Dataset>(self).table(as<std::string>(table))
 		));
-	END
+	STENCILA_R_END
 }

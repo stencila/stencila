@@ -1,62 +1,62 @@
 #include <stencila/datatable.hpp>
 using namespace Stencila;
 
-EXPORT SEXP Datatable_new(void){
-	BEGIN
-		return TO(Datatable,new Datatable);
-	END
+STENCILA_R_FUNC Datatable_new(void){
+	STENCILA_R_BEGIN
+		return STENCILA_R_TO(Datatable,new Datatable);
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_rows(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datatable_rows(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Datatable>(self).rows()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_columns(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datatable_columns(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Datatable>(self).columns()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_dimensions(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datatable_dimensions(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Datatable>(self).dimensions()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_names(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datatable_names(SEXP self){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Datatable>(self).names()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_type(SEXP self, SEXP column){
-	BEGIN
+STENCILA_R_FUNC Datatable_type(SEXP self, SEXP column){
+	STENCILA_R_BEGIN
 		return wrap(
 			from<Datatable>(self).type(as<unsigned int>(column)).name()
 		);
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_types(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datatable_types(SEXP self){
+	STENCILA_R_BEGIN
 		Rcpp::StringVector vec;
 		BOOST_FOREACH(Datatype type,from<Datatable>(self).types()) vec.push_back(type.name());
 		return vec;
-	END
+	STENCILA_R_END
 }
 
-EXPORT SEXP Datatable_dataframe(SEXP self){
-	BEGIN
+STENCILA_R_FUNC Datatable_dataframe(SEXP self){
+	STENCILA_R_BEGIN
 		Datatable& dt = from<Datatable>(self);
 		/*
 		** See http://stackoverflow.com/questions/8631197/constructing-a-data-frame-in-rcpp
@@ -99,5 +99,5 @@ EXPORT SEXP Datatable_dataframe(SEXP self){
 		}
 		list.attr("names") = dt.names();
 		return Rcpp::DataFrame(list);
-	END
+	STENCILA_R_END
 }

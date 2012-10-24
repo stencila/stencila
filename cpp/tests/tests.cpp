@@ -21,9 +21,10 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "print.cpp"
 #include "reflect.cpp"
 
+#include "formats_json.cpp"
+#include "formats_xml.cpp"
+
 #include "dataquery.cpp"
 #include "dataset.cpp"
 #include "datatable.cpp"
-
-#include "formats_json.cpp"
-#include "formats_xml.cpp"
+#include "stencil.cpp"

@@ -14,7 +14,7 @@ object select_tuple(tuple args, dict kwargs){
     object rows = rowsCols[0];
     extract<unsigned int> rows_is_int(rows);
     if(rows_is_int.check()){
-        int row = rows_is_int();
+        //int row = rows_is_int();
     } else {
         extract<slice> rows_is_slice(rows);
     }
