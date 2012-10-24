@@ -110,7 +110,7 @@ include/pugiconfig.hpp: pugixml-$(PUGIXML_VERSION)
 lib/libpugixml.a: pugixml-$(PUGIXML_VERSION)/src/libpugixml.a
 	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/libpugixml.a lib/libpugixml.a
 
-pugixml: include lib include/pugixml.hpp include/pugixml.hpp lib/libpugixml.a
+pugixml: include lib include/pugixml.hpp include/pugiconfig.hpp lib/libpugixml.a
 
 ####################################################
 
