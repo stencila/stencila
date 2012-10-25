@@ -60,12 +60,20 @@ build: compile docs
 	mkdir -p builds
 	mv stencila_$(TAG).tar.gz builds
 	ln -sf stencila_$(TAG).tar.gz builds/stencila_latest.tar.gz 
-	
-test:
+
+check:
 	R CMD check builds/stencila_$(TAG).tar.gz
-	
+
+# Test the package by running unit tests
+# Install package in a testing directory and run unit tests from there
+# This is better than installing package in the users R library location
+test:
+	mkdir -p testing
+	R CMD INSTALL -l testing builds/stencila_latest.tar.gz
+	echo "setwd('testing'); library(stencila,lib.loc='.'); source('stencila/unitTests/do.svUnit.R')" | R --vanilla
+
 install:
 	R CMD INSTALL builds/stencila_$(TAG).tar.gz
-	
+
 clean:
-	rm -rf stencila.Rcheck
+	rm -rf stencila.Rcheck testing

@@ -11,6 +11,9 @@ stencila.Rcheck
 stencila/src/symbols.rds
 stencila/man/*.Rd
 
+#Ignore testing directory
+testing
+
 #Ignore IDE files
 .Rhistory
 stencila_r.project
