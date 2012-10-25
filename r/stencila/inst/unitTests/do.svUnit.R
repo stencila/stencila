@@ -7,7 +7,7 @@
 library(svUnit)
 
 # Create a test suite from all runit.*.R files in the unitTests directory
-suite <- svSuite("dir:.")
+suite <- svSuite("package:stencila")
 # Clear the test log 
 clearLog()
 # Run the test suite
