@@ -53,8 +53,8 @@ const decltype(R_NilValue) nil = R_NilValue;
     } catch(std::exception& __ex__ ){ \
         forward_exception_to_r( __ex__ ); \
     } catch(...){ \
-        ::Rf_error( "c++ exception (unknown reason)" ); \
-    } \
+        ::Rf_error( "Unknown C++ exception" ); \
+    }
 
 #define STENCILA_R_BEGIN \
     try {

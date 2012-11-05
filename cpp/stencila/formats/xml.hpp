@@ -372,9 +372,102 @@ std::string translate(const std::string& css) {
 
 }
 
+////////////////////////////////////////////
+
+typedef pugi::xml_attribute Attribute;
+
+struct AttributeHasName{
+    std::string name;
+    bool operator()(Attribute attr) const {
+        return attr.name()==name;
+    }
+};
+
+////////////////////////////////////////////
+
 typedef pugi::xml_node Node;
 typedef pugi::xpath_node_set Nodes;
+
+/*!
+Returns true is the node is an element.
+
+Useful for find_child() and find_node() methods of Node which take a boolean predicate function
+*/
+inline
+bool NodeIsElement(Node node){
+    return node.type()==pugi::node_element;
+}
+
+inline
+bool NodeHasAttribute(Node node,const std::string& name){
+    return node.find_attribute(AttributeHasName{name});
+}
+
+inline
+Attribute NodeGetAttribute(Node node,const std::string& name){
+    return node.find_attribute(AttributeHasName{name});
+}
+
+inline
+void NodeSetAttribute(Node node,const std::string& name, const std::string& value){
+    // Check whether attribute already exists 
+    Attribute attr = node.find_attribute(AttributeHasName{name});
+    // and set its value if it does,
+    if(attr){
+        attr.set_value(value.c_str());
+    }
+    // or add attribute and set its value if it does not.
+    else {
+        node.append_attribute(name.c_str()) = value.c_str();
+    }
+}
+
+inline
+void NodeSetAttribute(Node node,const std::string& name){
+    //Check whether attribute already exists and add it if it does not
+    Attribute attr = node.find_attribute(AttributeHasName{name});
+    if(not attr) node.append_attribute(name.c_str());
+}
+
+Node NodeAppend(Node node,const std::string& tag) {
+    Node child = node.append_child(tag.c_str());
+    return child;
+}
+
+Node NodeAppend(Node node,const std::string& tag, const std::string& text) {
+    Node child = NodeAppend(node,tag);
+    child.append_child(pugi::node_pcdata).set_value(text.c_str());
+    return child;
+}
+
+Node NodeAppend(Node node,const std::string& tag, const std::vector<std::pair<std::string,std::string>>& attributes, const std::string& text = "") {
+    Node child = NodeAppend(node,tag);
+    typedef std::pair<std::string,std::string> Attribute;
+    BOOST_FOREACH(Attribute attribute,attributes){
+        child.append_attribute(attribute.first.c_str()) = attribute.second.c_str();
+    }
+    if(text.length()>0) child.append_child(pugi::node_pcdata).set_value(text.c_str());
+    return child;
+}
+
+void NodeAppendXml(Node node,const std::string& xml){
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load(xml.c_str());
+    if(not result){
+        STENCILA_THROW(Exception,result.description());
+    }
+    //It is necessary to copy each child of the document to the node.
+    //The document itself can not be copied over
+    for(Node child : doc.children()){
+        node.append_copy(child);
+    }
+}
+
+////////////////////////////////////////////
+
 typedef pugi::xml_tree_walker Walker;
+
+////////////////////////////////////////////
 
 class Document : public pugi::xml_document {
 public:
@@ -394,7 +487,13 @@ public:
     
 	std::string dump(void) const {
 		std::ostringstream out;
-		save(out);
+		save(out,"\t",pugi::format_raw | pugi::format_no_declaration);
+		return out.str();
+	}
+    
+	std::string print(void) const {
+		std::ostringstream out;
+		save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
 		return out.str();
 	}
     
@@ -404,27 +503,6 @@ public:
 			STENCILA_THROW(Exception,result.description());
 		}
         return *this;
-    }
-    
-    Node append_to(Node& node,const std::string& tag) const {
-        Node child = node.append_child(tag.c_str());
-        return child;
-    }
-    
-    Node append_to(Node& node,const std::string& tag, const std::string& text) const {
-        Node child = append_to(node,tag);
-        child.append_child(pugi::node_pcdata).set_value(text.c_str());
-        return child;
-    }
-    
-    Node append_to(Node& node,const std::string& tag, const std::vector<std::pair<std::string,std::string>>& attributes, const std::string& text = "") const {
-        Node child = append_to(node,tag);
-        typedef std::pair<std::string,std::string> Attribute;
-        BOOST_FOREACH(Attribute attribute,attributes){
-            child.append_attribute(attribute.first.c_str()) = attribute.second.c_str();
-        }
-        if(text.length()>0) child.append_child(pugi::node_pcdata).set_value(text.c_str());
-        return child;
     }
     
     Node one(const std::string& css_selector){

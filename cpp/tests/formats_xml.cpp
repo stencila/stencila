@@ -92,16 +92,16 @@ BOOST_AUTO_TEST_CASE(select_css){
     BOOST_CHECK_EQUAL(nodes.size(),3);
 }
 
-BOOST_AUTO_TEST_CASE(append_to){
+BOOST_AUTO_TEST_CASE(node_append){
     //Adds a node with text child
     //Just an element
-    doc.append_to(doc,"div");
+    NodeAppend(doc,"div");
     //An element with some text
-    doc.append_to(doc,"div","hello");
+    NodeAppend(doc,"div","hello");
     //An element with some attributes
-    doc.append_to(doc,"div",{{"class","ba"},{"data-overidden","false"}});
+    NodeAppend(doc,"div",{{"class","ba"},{"data-overidden","false"}});
     //An element with some attributes and some text
-    doc.append_to(doc,"div",{{"class","bb"}},"hello");
+    NodeAppend(doc,"div",{{"class","bb"}},"hello");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
