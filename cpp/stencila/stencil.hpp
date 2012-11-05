@@ -26,7 +26,10 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <stencila/registry.hpp>
+//Temporarily don't use because bombs build on CI server. Reinstate once 
+//better tested
+//#include <stencila/registry.hpp>
+
 #include <stencila/dataset.hpp>
 #include <stencila/formats/xml.hpp>
 namespace Xml = Stencila::Formats::Xml;
@@ -280,7 +283,7 @@ public:
 
     Stencil& save(void) {
         if(id_.length()==0) id_ = boost::uuids::to_string(boost::uuids::random_generator()());
-        Registry.execute("INSERT INTO \"stencils\" VALUES(?,?)",id(),dump());
+        //Registry.execute("INSERT INTO \"stencils\" VALUES(?,?)",id(),dump());
         return *this;
     }
 
