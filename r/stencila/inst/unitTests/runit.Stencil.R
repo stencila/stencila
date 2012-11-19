@@ -82,17 +82,17 @@ test.Stencil.render.text.container <- function(){
        render('<span data-text="items">previous</span>',list(items=1:5)))
 }
 
-test.Stencil.render.text.each <- function(){
+test.Stencil.render.for <- function(){
   checkEquals(
     paste(
-      '<ul data-each="item:items">',
+      '<ul data-for="item:items">',
         '<li data-text="item">42</li>',
         '<li data-text="item">3.14</li>',
         '<li data-text="item">a</li>',
         '<li data-text="item">string</li>',
       '</ul>',sep=''),
     render(paste(
-      '<ul data-each="item:items">',
+      '<ul data-for="item:items">',
         '<li data-text="item"></li>',
         '<li>previous</li>',
         '<li>previous</li>',
