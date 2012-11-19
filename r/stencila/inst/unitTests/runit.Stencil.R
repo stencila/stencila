@@ -7,19 +7,19 @@ test.Stencil.render <- function(){
   s <- Stencil()
   s$load('
 
-    <div data-import="some_stencil_id"/>
+    <div data-include="id://some_stencil_id"/>
 
-    <div data-import="some_stencil_id">
+    <div data-include="id://stencil_id">
       <span data-imported="">This should be removed</span>
     </div>
 
-    <div data-import="some_stencil_id" data-select="div.a">
+    <div data-include="id://stencil_id" data-select="div.a">
     </div>
 
-    <div data-import="some_stencil_id" data-select="span">
+    <div data-include="id://stencil_id" data-select="span">
     </div>
 
-    <div data-import="some_stencil_id">
+    <div data-include="id://stencil_id">
       <span data-replace="#elem">Yo!</span>
       <span data-before="#elem">Before</span>
       <span data-after="#elem">After</span>
@@ -27,7 +27,7 @@ test.Stencil.render <- function(){
       <span data-append="#elem">Append</span>
     </div>
 
-    <div data-import="some_stencil_id" data-param="greeting:greeting_france"/>
+    <div data-include="id://stencil_id" data-param="greeting:greeting_france"/>
 
   ')
   
