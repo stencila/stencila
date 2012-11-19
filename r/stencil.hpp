@@ -58,9 +58,9 @@ public:
         context = Rcpp::Environment(sexp);
     }
 
-    std::string set(const std::string& name, const std::string& expression){
+    void set(const std::string& name, const std::string& expression){
         Rcpp::Language call(context.get("set"),name,expression);
-        return as<std::string>(call.eval());
+        call.eval();
     }
 
     void script(const std::string& code){

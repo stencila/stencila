@@ -260,11 +260,13 @@ public:
 	void* object(void) const {
         if(object_) return object_;
         else exception();
+        return 0;
 	}
     
 	std::string type(void) const {
         if(object_) return type_;
         else exception();
+        return "";
 	}
 };
 

@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(select_css){
     BOOST_CHECK_EQUAL(node.attribute("data-print").value(),"x");
     
     auto nodes = doc.all("div");
-    BOOST_CHECK_EQUAL(nodes.size(),3);
+    BOOST_CHECK_EQUAL(nodes.size(),(unsigned int)3);
 }
 
 BOOST_AUTO_TEST_CASE(node_append){

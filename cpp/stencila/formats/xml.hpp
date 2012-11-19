@@ -24,7 +24,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <boost/foreach.hpp>
 #include <boost/xpressive/xpressive_static.hpp>
-#include <boost/xpressive/regex_actions.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <pugixml.hpp>
 
@@ -423,6 +423,24 @@ void NodeSetAttribute(Node node,const std::string& name, const std::string& valu
 }
 
 inline
+void NodeAppendAttribute(Node node,const std::string& name, const std::string& value){
+    // Check whether attribute already exists 
+    Attribute attr = node.find_attribute(AttributeHasName{name});
+    // and append its value if it does,
+    if(attr){
+        std::string current = attr.as_string();
+        std::string future;
+        if(current.length()>0) future = current + " " + value;
+        else future = value;
+        attr.set_value(future.c_str());
+    }
+    // or add attribute and set its value if it does not.
+    else {
+        node.append_attribute(name.c_str()) = value.c_str();
+    }
+}
+
+inline
 void NodeSetAttribute(Node node,const std::string& name){
     //Check whether attribute already exists and add it if it does not
     Attribute attr = node.find_attribute(AttributeHasName{name});
@@ -447,6 +465,24 @@ Node NodeAppend(Node node,const std::string& tag, const std::vector<std::pair<st
         child.append_attribute(attribute.first.c_str()) = attribute.second.c_str();
     }
     if(text.length()>0) child.append_child(pugi::node_pcdata).set_value(text.c_str());
+    return child;
+}
+
+Node NodeAppendText(Node node,const std::string& text){
+    Node child = node.append_child(pugi::node_pcdata);
+    child.text().set(text.c_str());
+    return child;
+}
+
+Node NodeAppendCData(Node node,const std::string& text){
+    Node child = node.append_child(pugi::node_cdata);
+    child.text().set(text.c_str());
+    return child;
+}
+
+Node NodeAppendComment(Node node,const std::string& text){
+    Node child = node.append_child(pugi::node_comment);
+    child.set_value(text.c_str());
     return child;
 }
 
@@ -497,8 +533,8 @@ public:
 		return out.str();
 	}
     
-    Document& read(const char* filename){
-        pugi::xml_parse_result result = pugi::xml_document::load_file(filename);
+    Document& read(const std::string& filename){
+        pugi::xml_parse_result result = pugi::xml_document::load_file(filename.c_str());
 		if(not result){
 			STENCILA_THROW(Exception,result.description());
 		}

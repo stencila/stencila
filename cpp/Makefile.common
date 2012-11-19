@@ -3,7 +3,7 @@
 STENCILA_CPP_HOME := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 #Define compiler flags required
-STENCILA_CPP_FLAGS := -std=c++0x
+STENCILA_CPP_FLAGS := -std=c++0x -Wall
 
 #Define directories for includes and libs
 STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requirements/include

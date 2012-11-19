@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(type_introspection_fund){
     BOOST_CHECK_EQUAL(type,"bool");
     
     std::vector<std::string> keys = Keys().mirror(v).keys();
-    BOOST_CHECK_EQUAL(keys.size(),0);
+    BOOST_CHECK_EQUAL(keys.size(),(unsigned int)0);
 }
 
 BOOST_AUTO_TEST_CASE(type_introspection){
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(instance_introspection_dynamic){
     
     check_equal(john.keys(),std::vector<std::string>{"name","age","greet"});
     
-    auto name = john["name"];
+    //auto name = john["name"];
     //print<<name.type()<<" "<<name.keys()<<" "<<name.has("p");
 }
 
