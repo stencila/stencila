@@ -10,6 +10,7 @@ INSERT INTO test VALUES (1);
 INSERT INTO test VALUES (2);
 INSERT INTO test VALUES (3);
 
+SELECT stencila_version();
 SELECT sqrt(log(a)) FROM test;
 
 

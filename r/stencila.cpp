@@ -65,7 +65,7 @@ const decltype(R_NilValue) nil = R_NilValue;
 
 ////////////////////////////////////////////////////
 
-#include "version.hpp"
+#include <stencila/version.hpp>
 STENCILA_R_FUNC stencila_version(void){
 	STENCILA_R_BEGIN
 		return wrap(Stencila::version);

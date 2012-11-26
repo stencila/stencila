@@ -27,6 +27,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "sqlite.hpp"
 #include "datacursor.hpp"
+#include "dataset-math-functions.hpp"
+#include "dataset-math-aggregators.hpp"
 #include "exception.hpp"
 #include "hashing.hpp"
 
@@ -48,7 +50,7 @@ private:
 
 	//! SQLite database engine connection
 	sqlite3* db_;
-
+	
 public:
 	
 	//! @name Constructors & destructors
@@ -65,6 +67,7 @@ public:
 		int code_open = sqlite3_open(uri_.c_str(), &db_);
 		if(code_open!=SQLITE_OK) throw Exception("sqlite3_open ("+uri_+") failed : "+sqlite3_errmsg(db_));
 			
+		//Create special Stencila tables and associated indices
 		execute(
 			"CREATE TABLE IF NOT EXISTS stencila_datatables ("
 				"name TEXT,"
@@ -77,6 +80,10 @@ public:
 			"CREATE INDEX IF NOT EXISTS stencila_datatables_signature ON stencila_datatables(signature);"
 			"CREATE INDEX IF NOT EXISTS stencila_datatables_status ON stencila_datatables(status);"
 		);
+		
+		//Register functions
+		MathFunctions::create(db_);
+        MathAggregators::create(db_);
 	}
 	
 	//! @brief Destroys the memory held by the Dataset
@@ -85,7 +92,7 @@ public:
 	}
 	
 	//! @}
-	
+
 	//! @name Attribute methods
 	//! @brief Get attributes of the Dataset
 	//! @{
@@ -271,10 +278,17 @@ public:
 	//! @return A Datatable
 	Datatable import(const std::string& name);
 	
+	//! @brief Create a Datatable in the Dataset
+	//! @param name The name of the table
+	//! @return The new Datatable
+	// Needs to be defined in datatable.hpp
+	template<typename... Args>
+	Datatable create(const std::string& name, Args... args);
+	
 	//! @brief Get a Datatable in the Dataset
 	//! @param name The name of the table
 	//! @return A Datatable
-	// Need to be defined in datatable.hpp
+	// Needs to be defined in datatable.hpp
 	Datatable table(const std::string& name);
 	
 	Datatable select(const std::string& sql);

@@ -3,7 +3,6 @@ include ../cpp/Makefile.common
 # R does not like version numbers which are not in like X.Y.Z (or use a - instead of a .)
 # So in some place use the latest tag instead of the full git generated version string
 TAG := $(shell git describe --abbrev=0)
-VERSION :=  $(shell git describe)
 
 .PHONY: compile docs desc test install
 
@@ -17,9 +16,7 @@ requirements:
 # The files stencila.so and stencila.o are remove to prevent R CMD check from complaining later
 RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
 RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
-compile: requirements
-	cp version.hpp.template version.hpp
-	sed -i 's!version = .*;$$!version = "$(VERSION)";!' version.hpp
+compile: requirements version.hpp
 	g++ $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -shared \
 		-I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) \
 		-o stencila.so stencila.cpp \

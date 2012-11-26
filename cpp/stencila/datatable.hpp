@@ -169,6 +169,26 @@ public:
 		return *this;
 	}
 	
+	std::string append_sql(unsigned int columns){
+		// Prepare an insert statement with bindings
+		std::string sql = "INSERT INTO \""+name()+"\" VALUES (?";
+		for(unsigned int i=1;i<columns;i++) sql += ",?";
+		sql += ")";
+		return sql;
+	}
+
+	template<typename Container = std::vector<std::string>>
+	Datatable& append(const Container& row){
+		Datacursor insert_cursor = cursor(append_sql(row.size()));
+		insert_cursor.prepare();
+		for(unsigned int i=0;i<row.size();i++){
+			//SQLite uses 1-based indexing for statement parameters
+			insert_cursor.bind(i+1,row[i]);
+		}
+		insert_cursor.execute();
+		return *this;
+	}
+	
 	//! @name Data import/export methods
 	//! @brief Methods for importing or exporting data to/from the Datatable
 	//! @{
@@ -336,8 +356,13 @@ public:
 	}
 	
 	template<typename Type = std::string>
-	Datatable operator()(unsigned int row, unsigned int col) {
-		return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));;
+	Type value(unsigned int row, unsigned int col) {
+		return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
+	}
+	
+	template<typename Type = std::string>
+	Type value(const std::string& columns,const std::string& where="1") {
+		return dataset().value<Type>("SELECT "+columns+" FROM \""+name()+"\" WHERE "+where+" LIMIT 1;");
 	}
 	
 	template<typename Type = std::string>

@@ -17,8 +17,8 @@ SELECT load_extension('./stencila.so');
 and start using using the functions:
 
 ```
-SELECT stencila_sqlite_version();
-SELECT sqrt(stdev(cos(x))) FROM my_table;
+SELECT stencila_version();
+SELECT sqrt(sd(cos(x))) FROM my_table;
 ```
 ## Development
 
@@ -31,17 +31,13 @@ SQLite extensions can be of three types:
 * Aggegators e.g. sum(), avg()
 * Collations (used in ODER BY)
 
-Currently, `stencila.sqlite` only provides the functions provided by Liam Healy's ["extension-functions.c"](http://www.sqlite.org/contrib/download/extension-functions.c?get=25):
+Currently, `stencila.sqlite` provides a limited set of math functions
 
-* Math: acos, asin, atan, atn2, atan2, acosh, asinh, atanh, difference,
-degrees, radians, cos, sin, tan, cot, cosh, sinh, tanh, coth, exp,
+* Math: acos, asin, atan, atan2,degrees, radians, cos, sin, tan, cot, cosh, sinh, tanh, coth, exp,
 log, log10, power, sign, sqrt, square, ceil, floor, pi.
 
-* String: replicate, charindex, leftstr, rightstr, ltrim, rtrim, trim,
-replace, reverse, proper, padl, padr, padc, strfilter.
 
-* Aggregate: stdev, variance, mode, median, lower_quartile,
-upper_quartile.
+* Aggregate: mean, geomean, harmean, sd, variance
 
 Our intension is to add more functions over time by levering existing C/C++ libaries
 

@@ -73,22 +73,39 @@ BOOST_AUTO_TEST_CASE(indices){
 }
 
 BOOST_AUTO_TEST_CASE(caching){
-	dataset.select("SELECT max(c2) FROM t1");
-	std::string sql = "SELECT sum(c2) FROM t1";
-	dataset.select(sql);
-	BOOST_CHECK_EQUAL(dataset.cached(),2); 
-	BOOST_CHECK_EQUAL(dataset.cached(sql),1); 
-	
-	//Save a copy of the dataset and make sure that
-	//the copy has the right cached number
-	dataset.backup("dataset.caching.sds");
-	Dataset dataset_copy("dataset.caching.sds");
-	BOOST_CHECK_EQUAL(dataset_copy.cached(),2);
-	
-	//Vacuum the dataset
-	dataset.vacuum();
-	BOOST_CHECK_EQUAL(dataset.cached(),0);	
-	BOOST_CHECK_EQUAL(dataset.cached(sql),0);	
+    dataset.select("SELECT max(c2) FROM t1");
+    std::string sql = "SELECT sum(c2) FROM t1";
+    dataset.select(sql);
+    BOOST_CHECK_EQUAL(dataset.cached(),2); 
+    BOOST_CHECK_EQUAL(dataset.cached(sql),1); 
+
+    //Save a copy of the dataset and make sure that
+    //the copy has the right cached number
+    dataset.backup("dataset.caching.sds");
+    Dataset dataset_copy("dataset.caching.sds");
+    BOOST_CHECK_EQUAL(dataset_copy.cached(),2);
+
+    //Vacuum the dataset
+    dataset.vacuum();
+    BOOST_CHECK_EQUAL(dataset.cached(),0);
+    BOOST_CHECK_EQUAL(dataset.cached(sql),0);
+}
+
+BOOST_AUTO_TEST_CASE(functions){
+}
+
+BOOST_AUTO_TEST_CASE(aggregators){
+    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT mean(c2) FROM t1"),3.3,0.0001); //mean(c2)
+    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT geomean(c2) FROM t1"),2.865688,0.0001); //exp(mean(log(c2)))
+    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT harmean(c2) FROM t1"),2.408759,0.0001); //length(c2)/sum(1/c2)
+    
+    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT var(c2) FROM t1"),3.025,0.0001); //var(c2)
+    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT sd(c2) FROM t1"),1.739253,0.0001); //sd(c2)
+}
+
+BOOST_AUTO_TEST_CASE(aggregators_2step){
+    Datatable first = dataset.select("SELECT mean__1(c2) AS mean__1_ FROM t1");
+    BOOST_CHECK_CLOSE(first.value<float>("mean__2(mean__1_)"),3.3,0.0001);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

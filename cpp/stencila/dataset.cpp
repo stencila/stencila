@@ -21,6 +21,22 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 namespace Stencila {
 
+inline std::string Dataset_create_helper(const std::string& column, const Datatype& type){
+	return column + " " + type.sql();
+}
+
+template<typename... Columns>
+inline std::string Dataset_create_helper(const std::string& column, const Datatype& type, Columns... columns){
+	return Dataset_create_helper(column,type) + "," + Dataset_create_helper(columns...);
+}
+
+template<typename... Columns>
+inline Datatable Dataset::create(const std::string& name, Columns... columns){
+	std::string sql = "CREATE TABLE " + name + "(" + Dataset_create_helper(columns...) + ");";
+	execute(sql);
+	return Datatable(name,this);
+}
+	
 inline Datatable Dataset::table(const std::string& name){
 	return Datatable(name,this);
 }

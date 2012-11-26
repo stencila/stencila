@@ -280,6 +280,12 @@ int Datacursor::get<int>(unsigned int column){
 
 template<>
 inline
+float Datacursor::get<float>(unsigned int column){
+	return sqlite3_column_double(stmt_, column);
+}
+
+template<>
+inline
 double Datacursor::get<double>(unsigned int column){
 	return sqlite3_column_double(stmt_, column);
 }

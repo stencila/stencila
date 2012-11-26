@@ -73,7 +73,7 @@ public:
 	
 	const char* what(void)  const throw() {		
 		std::ostringstream stream;
-        stream << file_ << ":" << line_ << ": " << description() << "(" << code_ << "): " << message_;
+        stream << file_ << ":" << line_ << ": " << description() << " (code " << code_ << "): " << message_;
 		return stream.str().c_str();
 	}
 };
