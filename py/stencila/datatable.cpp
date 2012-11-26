@@ -19,7 +19,7 @@ object select_tuple(tuple args, dict kwargs){
         extract<slice> rows_is_slice(rows);
     }
     
-    return object(self(0,0));
+    return object(self.value<>(0,0));
 }
 
 void bind(void){
