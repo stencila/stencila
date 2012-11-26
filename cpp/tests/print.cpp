@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(printing){
     CHECK((std::make_pair("foo",3.14)),"(\"foo\",3.14)")
     CHECK((std::make_tuple("foo",3.14,'a')),"(\"foo\",3.14,'a')")
     
-    CHECK((std::array<int,3>{1,2,3}),"[1,2,3]")
+    CHECK((std::array<int,3>{{1,2,3}}),"[1,2,3]")
     
     CHECK((std::list<int>{1,2,3}),"[1,2,3]")
     

@@ -55,11 +55,11 @@ BOOST_AUTO_TEST_CASE(attributes){
 	//! @test Test attributes (e.g. rows, columns, names etc)
 	Datatable t1 = dataset.table("t1");
 	
-	BOOST_CHECK_EQUAL(t1.rows(),5);
-	BOOST_CHECK_EQUAL(t1.columns(),3);
+	BOOST_CHECK_EQUAL(t1.rows(),(unsigned int)5);
+	BOOST_CHECK_EQUAL(t1.columns(),(unsigned int)3);
 	
 	std::vector<unsigned int> dims = t1.dimensions();
-	BOOST_CHECK_EQUAL(dims.size(),2);
+	BOOST_CHECK_EQUAL(dims.size(),(unsigned int)2);
 	BOOST_CHECK_EQUAL(dims[0],t1.rows());
 	BOOST_CHECK_EQUAL(dims[1],t1.columns());
 	
@@ -89,11 +89,11 @@ BOOST_AUTO_TEST_CASE(sql){
 	);
 	BOOST_CHECK_EQUAL(
 		t1.fetch("SELECT * FROM t1 WHERE c1<=2;").size(),
-		2
+		(unsigned int)2
 	);	
 	BOOST_CHECK_EQUAL(
 		t1.fetch("SELECT * FROM t1 WHERE c1>900;").size(),
-		0
+		(unsigned int)0
 	);	
 }
 

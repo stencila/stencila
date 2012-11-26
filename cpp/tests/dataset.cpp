@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(cursor){
 
 BOOST_AUTO_TEST_CASE(tables){ 
 	auto tables = dataset.tables();
-	BOOST_CHECK_EQUAL(tables.size(),2);
+	BOOST_CHECK_EQUAL(tables.size(),(unsigned int)2);
 	BOOST_CHECK_EQUAL(tables[0],"t1");
 	BOOST_CHECK_EQUAL(tables[1],"t2");
 	
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(tables){
 
 BOOST_AUTO_TEST_CASE(indices){
 	auto indices = dataset.indices();
-	BOOST_CHECK_EQUAL(indices.size(),2);
+	BOOST_CHECK_EQUAL(indices.size(),(unsigned int)2);
 	BOOST_CHECK_EQUAL(indices[0],"t1_c1");
 	BOOST_CHECK_EQUAL(indices[1],"t2_c1");
 }
