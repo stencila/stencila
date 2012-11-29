@@ -1,3 +1,4 @@
+#include "stencila.hpp"
 #include <stencila/dataquery.hpp>
 using namespace Stencila;
 
@@ -146,6 +147,12 @@ STENCILA_R_FUNC Dataquery_new(SEXP elements){
 	STENCILA_R_END
 }
 
+STENCILA_R_FUNC Dataquery_new_noargs(void){
+	STENCILA_R_BEGIN
+		return to(new Dataquery,"Dataquery");
+	STENCILA_R_END
+}
+
 STENCILA_R_FUNC Dataquery_dql(SEXP self){
 	STENCILA_R_BEGIN
 		return wrap(
@@ -161,6 +168,3 @@ STENCILA_R_FUNC Dataquery_sql(SEXP self){
         );
 	STENCILA_R_END
 }
-
-
-

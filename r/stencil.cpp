@@ -1,3 +1,4 @@
+#include "stencila.hpp"
 #include <stencila/stencil.hpp>
 using namespace Stencila;
 

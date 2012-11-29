@@ -1,6 +1,10 @@
+#include "stencila.hpp"
 #include <stencila/dataset.hpp>
-using namespace Stencila;
+#include <stencila/datatable.hpp>
 
+#include <stencila/dataset.cpp>
+#include <stencila/hashing.cpp>
+using namespace Stencila;
 
 STENCILA_R_FUNC Dataset_new(SEXP uri){
 	STENCILA_R_BEGIN

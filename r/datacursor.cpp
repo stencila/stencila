@@ -1,5 +1,5 @@
+#include "stencila.hpp"
 #include <stencila/datacursor.hpp>
-
 using namespace Stencila;
 
 STENCILA_R_FUNC Datacursor_fetch(SEXP self){

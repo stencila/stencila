@@ -25,6 +25,7 @@ object_ = function(object){
 }
 
 # A convienience function for creating an instance of a Stencila R class
+# from a function other than "<class>_new"
 create_ = function(class,func,...){
   new(class,created=TRUE,pointer=call_(func,...))
 }
@@ -266,7 +267,7 @@ wrap_all_ <- function(...){
   #Create a list from arguments
   args <- list(...)
   #Create a vector of Dataquery expressions by wrapping each argument
-  expressions <- NULL
+  expressions <- vector()
   n <- length(args)
   if(n>0){
     for(index in 1:n) expressions <- c(expressions,wrap_(args[[index]])@pointer)
@@ -370,7 +371,15 @@ class_('Dataquery')
 #'
 #' @export
 Dataquery = function(...) {
-  new("Dataquery",elements=wrap_all_(...))
+  # The C++ function Dataquery_new causes a segfault when compiled with g++ -O2
+  # and called with no elements. This method dispatches to alternative versions of 
+  # of a Dataquery constructor which does not expect arguments. But even that does not
+  # work. That code is retained but now this function stops is there are no arguments
+  if(length(list(...))==0) {
+    stop("a Dataquery must be constructed with at least one argument")
+    create_("Dataquery","Dataquery_new_noargs")
+  }
+  else new("Dataquery",elements=wrap_all_(...))
 }
 
 #########################################

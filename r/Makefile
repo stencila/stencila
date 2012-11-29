@@ -12,17 +12,19 @@ all:  build test
 requirements:
 	make -C ../cpp/requirements all
 
-# The compile job is for testing compilation without doing the full "R CMD check"
-# The files stencila.so and stencila.o are remove to prevent R CMD check from complaining later
+# Compilation
+
+STENCILA_R_CPPS := $(wildcard *.cpp)
+STENCILA_R_OS := $(patsubst %.cpp,%.o,$(STENCILA_R_CPPS))
 RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
 RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
-compile: requirements version.hpp
-	g++ $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -fpic -shared \
-		-I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) \
-		-o stencila.so stencila.cpp \
-		-L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) \
-		$(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
-		
+
+%.o : %.cpp
+	g++ -c -O2 -fPIC $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
+
+compile: requirements $(STENCILA_R_OS)
+	g++ -shared $(STENCILA_R_OS) -ostencila.so -L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
+
 # Update the description file with the correct version and date
 # The DESCRIPTION.template file is copied so that there is not a
 # change in the repository just when a build is done
@@ -75,4 +77,4 @@ install:
 	R CMD INSTALL builds/stencila_$(TAG).tar.gz
 
 clean:
-	rm -rf stencila.Rcheck testing
+	rm -rf *.o *.so stencila.Rcheck testing

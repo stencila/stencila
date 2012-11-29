@@ -57,11 +57,13 @@ test.Dataquery <- function(){
     checkEquals(dql,q$dql())
     checkEquals(sql,q$sql())
   }
+  
+  checkException(Dataquery(),"a Dataquery must be constructed with at least one argument")
 
   check(
-    Dataquery(),
-    '<from>[]',
-    'SELECT * FROM \"<from>\"'
+    Dataquery(x),
+    '<from>[x]',
+    'SELECT \"x\" FROM \"<from>\"'
   )
   
   check(
