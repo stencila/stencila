@@ -44,19 +44,21 @@ desc:
 docs: desc
 	rm -f stencila/man/*.Rd
 	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
-
-# Build the package
+    
+# Create the package
 # When you run 
 #   R CMD build stencila
 # it creates a tar.gz file but that file does not include stencila_.so
-# So, the folowing line replaces it
+# So, the folowing line replaces R CMD build:
 #   tar cfz stencila_$(TAG).tar.gz stencila
-build: compile docs
-	mv stencila.so stencila/src/stencila_.so
+package: docs
+	cp stencila.so stencila/src/stencila_.so
 	tar cfz stencila_$(TAG).tar.gz stencila
 	mkdir -p builds
 	mv stencila_$(TAG).tar.gz builds
 	ln -sf stencila_$(TAG).tar.gz builds/stencila_latest.tar.gz 
+
+build: compile package
 
 check:
 	R CMD check builds/stencila_$(TAG).tar.gz

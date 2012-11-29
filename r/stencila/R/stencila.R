@@ -7,23 +7,47 @@
 #' @useDynLib stencila_
 NULL
 
-# A convienience function for calling C++ functions
-# in the extension module stencila.so
+# A convienience function for calling C++ functions in 
+# the Stencila R extension module
 call_ = function(symbol,...){
-	.Call(symbol,...,package='stencila')
+    .Call(symbol,...,package='stencila')
 }
 
-# A convienience function for converting an object
+# A convienience function for converting an externalptr object
+# into an instance of a Stencila R class
 object_ = function(object){
   if(typeof(object)=='externalptr'){
-    tag = call_('tag',object)
-    object = new(tag,created=TRUE,pointer=object)
+    class = call_("Stencila_class",object)
+    object = new(class,created=TRUE,pointer=object)
     return(object)
   }
   return(object)
 }
 
-# A convienience function for creating an S4 class
+# A convienience function for creating an instance of a Stencila R class
+create_ = function(class,func,...){
+  new(class,created=TRUE,pointer=call_(func,...))
+}
+
+# A convienience function for calling C++ functions which 
+# represent Stencila R class methods
+method_ = function(class_name,method_name,...){
+    symbol = paste(class_name,method_name,sep='_')
+    result = tryCatch(
+        call_(symbol,...),
+        error = function(error) error
+    )
+    if(inherits(result,'error')){
+        if(result$message==paste('C symbol name "',symbol,'" not in load table',sep='')){
+            stop(paste('Class ',class_name,' does not have a method named "',method_name,'"',sep=''),call.=FALSE)
+        } else {
+            stop(result$message,call.=FALSE)
+        }
+    }
+    result
+}
+
+# A convienience function for creating a Stencila R class
 class_ = function(class_name){
   
   setClass(
@@ -39,7 +63,7 @@ class_ = function(class_name){
 
   setMethod('initialize',class_name,eval(substitute(function(.Object,created=FALSE,pointer=NULL,...){
     if(!created){
-      .Object@pointer = call_(paste(class_name,'new',sep='_'),...)
+      .Object@pointer = method_(class_name,'new',...)
       .Object@created = TRUE
     } else {
       .Object@pointer = pointer
@@ -50,8 +74,8 @@ class_ = function(class_name){
   
   setMethod('$',class_name,eval(substitute(function(x,name){
     function(...) {
-      result = call_(paste(class_name,name,sep='_'),x@pointer,...)
-      return(object_(result))
+      result = method_(class_name,name,x@pointer,...)
+      if(!is.null(result)) return(object_(result))
     }
   },list(class_name=class_name))))
   
@@ -66,7 +90,7 @@ class_ = function(class_name){
 #' @examples
 #'   stencila::version()
 version <- function(){
-  call_('stencila_version')
+  call_('Stencila_version')
 }
 
 #####################################
@@ -96,7 +120,7 @@ class_('Dataset')
 #' ds = Dataset()
 #' # which is equivalent to, but a bit quicker to type than,...
 #' ds = new("Dataset")
-Dataset = function() new("Dataset")
+Dataset = function(uri="") new("Dataset",uri=uri)
 
 #####################################
 
@@ -118,81 +142,77 @@ class_('Datatable')
 #' dt = new("Datatable")
 Datatable = function() new("Datatable")
 
+
 #' Datatable subscript
 #'
 #' @name Datatable-subscript
 #' @aliases [,Datatable-method
 #' @rdname Datatable-subscript
 setMethod('[',
-	signature(x='Datatable'),
-	function(x,i,j,...){
-		#Dispatch needs to be done here rather than using several alternative
-		#signatures in setMethod dispatch. That is because if the latter is used
-		#then evaluation of arguments is done in the parent frame and expressions
-		#such as "by(year)" fail
-		#	i='missing',j='numeric': get column(s)
-		#	i='missing',j='character' : get column(s)
-		#	i='numeric',j='missing' : get row(s)
-		#	i='numeric',j='numeric' : get values(s)
-		#	i='numeric',j='character' : get values(s)
-		
-		#Record the call, removing first (name of function ('[')) and second ('x') arguments which are
-		#not needed
-		args = as.list(match.call()[-c(1,2)])
-		
-		#Iterate through args to determine type and what to do next. This needs to 
-		#be done with substitute with parent frame
-		
-		#If arg[1] is numeric then restrict the result to that set of rows, regardless of the other arguments
-		#If an arg is character then select that column
-		rows = -1
-		cols = -1
-		directives = NULL
-		
-		names = names(args)
-		for(index in 1:length(args)){
-			name = names[[index]]
-			arg = args[[name]]
-			arg = substitute(arg)
-			directive = paste(name,":",mode(arg),sep='')
-			if(mode(arg)=='numeric'){
-				if(name=='i') rows = eval(arg)
-				else if(name=='j') cols = eval(arg)
-				else {
-					directive = paste(directive," const(",arg,")",sep='')
-				}
-			}
-			else if(mode(arg)=='call'){
-				func = arg[[1]]
-				directive = paste(directive,":",func,sep='')
-			}
-			
-			#See subset.data.frame for how we can evaluate each argument
-			#with the parent frame as a "fallback" for symbols not in the database
-      dataset_names = list(
-        #Needs to initialise for each of the names in the database
-        year = new("Column","year"),
-        region = new("Column","region"),
-        sales = new("Column","sales"),
-        
-        by = function(.) paste("by(",.,")",sep=""),
-        sum = function(.) paste("sum(",.,")",sep=""),
-        where = function(.) paste("where(",.,")",sep="")
-      )
-			directive = eval(arg,dataset_names,parent.frame())
+  signature(x='Datatable'),
+  function(x,i,j,...){
+    #Dispatch needs to be done here rather than using several alternative
+    #signatures in setMethod dispatch. That is because if the latter is used
+    #then evaluation of arguments is done in the parent frame and expressions
+    #such as "by(year)" fail
+    #	i='missing',j='numeric': get column(s)
+    #	i='missing',j='character' : get column(s)
+    #	i='numeric',j='missing' : get row(s)
+    #	i='numeric',j='numeric' : get values(s)
+    #	i='numeric',j='character' : get values(s)
+    
+    #Record the call, removing first (name of function ('[')) and second ('x') arguments which are
+    #not needed
+    args = as.list(match.call()[-c(1,2)])
+    
+    #If arg[1] is numeric then restrict the result to that set of rows, regardless of the other arguments
+    #If an arg is character then select that column
+    #directive = paste(name,":",mode(arg),sep='')
+    #if(mode(arg)=='numeric'){
+    #  if(name=='i') rows = eval(arg)
+    #  else if(name=='j') cols = eval(arg)
+    #  else {
+    #    directive = paste(directive," const(",arg,")",sep='')
+    #  }
+    #}
+    #else if(mode(arg)=='call'){
+    #  func = arg[[1]]
+    #  directive = paste(directive,":",func,sep='')
+    #}
+    
+    rows = -1
+    cols = -1
+    directives = NULL
+    
+    # Intialise a list of names that refer to column in the Datatable
+    # or functions in the dataset. Other names will be searched for in the 
+    # R parent frame
+    datatable_names = dataquery_directives_
+    for(name in x$names()){
+      datatable_names[[name]] = Column(name)
+    }
+    
+    for(index in 1:length(args)){
+      arg = args[[index]]
+      arg = substitute(arg)
       
-			directives = c(directives,directive)
-		}
-		
-
-		
-		list(args=args,rows=rows,cols=cols,directives=directives)
-	}
+      # Evaluate each argument with the parent frame as a "fallback" for symbols not in the database
+      # See subset.data.frame for an example of this
+      directive = tryCatch(eval(arg,datatable_names,parent.frame()),error=function(error) error)
+      if(inherits(directive,'error')){
+        stop(paste("in query :",directive$message,sep=''),call.=FALSE)
+      }
+      
+      directives = c(directives,directive)
+    }
+    
+    q = do.call(Dataquery,directives)
+    q$sql()
+  }
 )
 
 # S3 methods
 #methods(class='data.frame')
-#	head & tail
 #	subset
 #	merge
 #	summary
@@ -200,12 +220,158 @@ setMethod('[',
 #' Get the dimensions of a Datatable
 #'
 #' @method dim Datatable
+#' @export
+# Implementing dim also provides for nrow and ncol
 dim.Datatable = function(x) x$dimensions()
+
+#' Get the first n rows of a Datatable
+#'
+#' @method head Datatable
+#' @export
+head.Datatable = function(x,n=10) as.data.frame(x$head(n))
+
+#' Get the last n rows of a Datatable
+#'
+#' @method tail Datatable
+#' @export
+tail.Datatable = function(x,n=10) as.data.frame(x$tail(n))
 
 #' Convert a Datatable to a data.frame
 #'
 #' @method as.data.frame Datatable
+#' @export
 as.data.frame.Datatable = function(x) x$dataframe()
+
+#######################################################################
+
+class_('Expression')
+
+# Create an expression element
+expr_ <- function(class,...){
+  create_('Expression',paste('Expression_',class,sep=''),...)
+}
+
+wrap_ <- function(object){
+  if(inherits(object,'Expression'))  return(object)
+  # Convert fundamental types
+  if(inherits(object,'logical')) return(expr_('Logical',object))
+  if(inherits(object,'integer')) return(expr_('Integer',object))
+  if(inherits(object,'numeric')) return(expr_('Numeric',object))
+  if(inherits(object,'character')) return(expr_('String',object))
+  
+  # If got to here then raise an error
+  stop(paste("Object of class",paste(class(object),collapse=","),"is not wrappable"),call.=FALSE)
+}
+wrap_all_ <- function(...){
+  #Create a list from arguments
+  args <- list(...)
+  #Create a vector of Dataquery expressions by wrapping each argument
+  expressions <- NULL
+  n <- length(args)
+  if(n>0){
+    for(index in 1:n) expressions <- c(expressions,wrap_(args[[index]])@pointer)
+  }
+  expressions
+}
+
+#' Create a data query constant
+#' 
+#' This function is exported mainly for use in testing data queries
+#' @export
+Constant <- function(object) wrap_(object)
+
+#' Create a Datatable column identifier
+#' 
+#' This function is exported mainly for use in testing data queries
+#' @export
+Column <- function(name) expr_('Column',name)
+
+###########################################################################
+# Operators
+#
+# Use getMethod() to obtain the correct function argument names e.g.
+#   getMethod("==")
+
+# Unary operator
+unop_ <- function(class,expr){
+  expr_(class,wrap_(expr)@pointer)
+}
+setMethod("+",signature(e1='Expression',e2='missing'),function(e1,e2) unop_('Positive',e1))
+setMethod("-",signature(e1='Expression',e2='missing'),function(e1,e2) unop_('Negative',e1))
+setMethod("!",signature(x='Expression'),function(x) unop_('Not',x))
+
+# Binary operators
+# For each binary operator, set a method with an Expression on both sides          
+binop_ <- function(class,left,right){
+  expr_(class,wrap_(left)@pointer,wrap_(right)@pointer)
+}
+binop_methods_ <- function(op,name){
+  setMethod(op,signature(e1='Expression'),function(e1,e2) binop_(name,e1,e2))
+  setMethod(op,signature(e2='Expression'),function(e1,e2) binop_(name,e1,e2))
+  setMethod(op,signature(e1='Expression',e2='Expression'),function(e1,e2) binop_(name,e1,e2))
+}
+binop_methods_('*','Multiply')
+binop_methods_('/','Divide')
+binop_methods_('+','Add')
+binop_methods_('-','Subtract')
+
+binop_methods_('==','Equal')
+binop_methods_('!=','NotEqual')
+binop_methods_('<','LessThan')
+binop_methods_('<=','LessEqual')
+binop_methods_('>','GreaterThan')
+binop_methods_('>=','GreaterEqual')
+
+binop_methods_('&','And')
+binop_methods_('|','Or')
+
+#' @export
+Call = function(name,...) {
+  expr_('Call',name,wrap_all_(...))
+}
+
+#' @export
+Distinct <- function(expr) expr_('Distinct')
+
+#' @export
+All <- function(expr) expr_('All')
+
+#' @export
+Where <- function(expr) expr_('Where',wrap_(expr)@pointer)
+
+#' @export
+By <- function(expr) expr_('By',wrap_(expr)@pointer)
+
+func_ <- function(name){
+  function(...) Call(name,...)
+}
+dataquery_directives_ <- list(
+  distinct = Distinct,
+  all = All,
+  where = Where,
+  by = By,
+  
+  abs = func_('abs'),
+  min = func_('min'),
+  max = func_('max'),
+  
+  sum = func_('sum')
+  #' @todo etc
+)
+
+#' The Dataquery class
+#'
+#' @name Dataquery-class
+#' @rdname Dataquery-class
+#' @exportClass Dataquery
+class_('Dataquery')
+
+#' Create a Dataquery
+#'
+#' @export
+Dataquery = function(...) {
+  new("Dataquery",elements=wrap_all_(...))
+}
 
 #########################################
 

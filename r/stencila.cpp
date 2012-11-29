@@ -9,29 +9,33 @@ using Rcpp::wrap;
 //but with the addition of externalptr's "tag" member. this allows
 //type information to be stored on the R side for appropriate conversion to an R class
 
+//Conversion of Stencila objects between C++ and R
+//Uses Rcpp::XPtr
+//An alternative here would be to use the R API functions
+//	R_MakeExternalPtr
+//  R_SetExternalPtrTag
+//  R_SetExternalPtrProtected
+//	R_RegisterCFinalizerEx
+//See the following
+//	http://dirk.eddelbuettel.com/code/rcpp/html/XPtr_8h_source.html
+//	http://stackoverflow.com/questions/7032617/storing-c-objects-in-r
+//However, there appears to be no benefit of dealing with complexity of that,
+//so just use Rcpp's constructor
+
 //Conversion from C++ to R
 template<typename Type>
-SEXP to(Type* object, std::string type){
-	//An alternative here would be to use the R API functions
-	//	R_MakeExternalPtr
-	//	R_RegisterCFinalizerEx
-	//See the following
-	//	http://dirk.eddelbuettel.com/code/rcpp/html/XPtr_8h_source.html
-	//	http://stackoverflow.com/questions/7032617/storing-c-objects-in-r
-	//Appears to be no benefit of dealing with complexity of that though,
-	//so just use Rcpp's constructor
-	return Rcpp::XPtr<Type>(object,true,wrap(type));
+SEXP to(Type* object, const char* clazz){
+	return Rcpp::XPtr<Type>(object,true,wrap(clazz));
 }
-
 //Conversion from R to C++
 template<typename Type>
 Type& from(SEXP self){
-	//An alternative here would be to use 
-	//	Rcpp::XPtr<Alpha::Dataset>(self)
-	//and get the tag from it.
-	//But when I tried that it seemed to cause the loss of tag information.
-	//So, just use the standard R API function
-	return *static_cast<Type*>(R_ExternalPtrAddr(self));
+    // An alternative is to use 
+    //  return *static_cast<Type*>(R_ExternalPtrAddr(self))
+    // however that does not protect the pointer from R garbage collection
+    // using Rcpp::XPtr does. Note though that we need to provide the exisiting tag
+    // because otherwise the XPtr constructor sets it with a default R_NilValue
+    return *Rcpp::XPtr<Type>(self,R_ExternalPtrTag(self));
 }
 
 ///////////////////////////////
@@ -66,20 +70,22 @@ const decltype(R_NilValue) nil = R_NilValue;
 ////////////////////////////////////////////////////
 
 #include <stencila/version.hpp>
-STENCILA_R_FUNC stencila_version(void){
+STENCILA_R_FUNC Stencila_version(void){
+    //! Return the version of the Stencila library
 	STENCILA_R_BEGIN
 		return wrap(Stencila::version);
 	STENCILA_R_END
 }
 
-STENCILA_R_FUNC tag(SEXP self){
-	//! Obtain tag from an "externalpointer"
+STENCILA_R_FUNC Stencila_class(SEXP self){
+	//! Obtain the class name from the tag of an "externalpointer"
     STENCILA_R_BEGIN
         return R_ExternalPtrTag(self);
     STENCILA_R_END
 }
 
 #include "datacursor.hpp"
+#include "dataquery.hpp"
 #include "datatable.hpp"
 #include "dataset.hpp"
 #include "stencil.hpp"

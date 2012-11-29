@@ -55,13 +55,32 @@ STENCILA_R_FUNC Datatable_types(SEXP self){
 	STENCILA_R_END
 }
 
+STENCILA_R_FUNC Datatable_index(SEXP self, SEXP columns){
+	STENCILA_R_BEGIN
+		from<Datatable>(self).index(
+            as<std::vector<std::string>>(columns)
+        );
+		return nil;
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC Datatable_head(SEXP self, SEXP rows){
+	STENCILA_R_BEGIN
+		Datatable dt = from<Datatable>(self);
+        Datatable result;
+        if(Rcpp::RObject(rows).isNULL()) result = dt.head();
+        else result = dt.head(as<int>(rows));
+        return STENCILA_R_TO(Datatable,new Datatable(result));
+	STENCILA_R_END
+}
+
 STENCILA_R_FUNC Datatable_dataframe(SEXP self){
 	STENCILA_R_BEGIN
 		Datatable& dt = from<Datatable>(self);
 		/*
 		** See http://stackoverflow.com/questions/8631197/constructing-a-data-frame-in-rcpp
 		*/
-		//! @todo turn off stringsToFactors in creartion of dataframe
+		//! @todo turn off stringsToFactors in creation of dataframe
 		//! @todo create factors for ordinal and nominal mode columns
 		Rcpp::List list;
 		auto names = dt.names();
