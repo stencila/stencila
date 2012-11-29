@@ -12,12 +12,12 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//!	@file dataset.cpp
-//! @brief Definition of Dataset methods which are unable to go into dataset.hpp
+//! @file dataset.cpp
+//! @brief Implmentations of Dataset methods which are unable to go into dataset.hpp
 
-#include "dataset.hpp"
-#include "datatable.hpp"
-#include "hashing.hpp"
+#include <stencila/dataset.hpp>
+#include <stencila/datatable.hpp>
+#include <stencila/hashing.hpp>
 
 namespace Stencila {
 
@@ -31,17 +31,17 @@ inline std::string Dataset_create_helper(const std::string& column, const Dataty
 }
 
 template<typename... Columns>
-inline Datatable Dataset::create(const std::string& name, Columns... columns){
+Datatable Dataset::create(const std::string& name, Columns... columns){
 	std::string sql = "CREATE TABLE " + name + "(" + Dataset_create_helper(columns...) + ");";
 	execute(sql);
 	return Datatable(name,this);
 }
 	
-inline Datatable Dataset::table(const std::string& name){
+Datatable Dataset::table(const std::string& name){
 	return Datatable(name,this);
 }
 
-inline Datatable Dataset::import(const std::string& name){
+Datatable Dataset::import(const std::string& name){
 	//Check to see if this Datatable is already registered
 	if(not value<int>("SELECT count(*) FROM stencila_datatables WHERE name==?",name)){
 		execute("INSERT INTO stencila_datatables(name,source,status) VALUES(?,'table',2)",name);
@@ -49,7 +49,26 @@ inline Datatable Dataset::import(const std::string& name){
 	return Datatable(name,this);
 }
 
-inline Datatable Dataset::select(const std::string& sql){
+Datatable Dataset::load(const std::string& name,const std::string& path){
+	return Datatable(name,this).load(path);
+}
+
+inline std::string Dataset_index_helper(const std::string& column){
+	return column;
+}
+
+template<typename... Columns>
+inline std::string Dataset_index_helper(const std::string& separator, const std::string& column, Columns... columns){
+	return Dataset_index_helper(column) + separator + Dataset_index_helper(separator,columns...);
+}
+
+template<typename... Columns>
+void Dataset::index(const std::string& table, Columns... columns){
+	std::string sql = "CREATE INDEX " + table + Dataset_index_helper("_",columns...) + "_index ON " + table + "(" + Dataset_index_helper(",",columns...) + ");";
+	execute(sql);
+}
+
+Datatable Dataset::select(const std::string& sql){
 	std::string signature = boost::lexical_cast<std::string>(Hash(sql));
 	std::string name = "stencila_"+signature;
 	

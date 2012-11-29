@@ -21,6 +21,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <vector>
 
 #include <boost/format.hpp>
+#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/join.hpp>
 
@@ -103,15 +104,25 @@ private:
     std::string name_;
     std::vector<const Expression*> args_;
 public:
+
+    Call(const std::string& name):
+        name_(name){
+    }
+    
     template<
         typename... Expressions
     >
     Call(const std::string& name,const Expressions&... exprs):
         name_(name){
-        append(exprs...);
+        append_all(exprs...);
     }
     
-    Call& append(void){
+    Call& append(Expression* expr){
+        args_.push_back(expr);
+        return *this;
+    }
+    
+    Call& append_all(void){
         return *this;
     }
     
@@ -119,10 +130,9 @@ public:
         typename Expression,
         typename... Expressions
     >
-    Call& append(const Expression& expr,const Expressions&... exprs){
-        args_.push_back(new Expression(expr));
-        append(exprs...);
-        return *this;
+    Call& append_all(const Expression& expr,const Expressions&... exprs){
+        append(new Expression(expr));
+        return append_all(exprs...);
     }
     
     virtual std::string dql(void) const {
@@ -161,8 +171,11 @@ public:
     }
 };
 
+class Operator : public Expression {
+};
+
 template<int Code>
-class UnaryOperator : public Expression {
+class UnaryOperator : public Operator {
 protected:
     const Expression* expr_;
 
@@ -172,7 +185,7 @@ public:
         expr_(0){
     }
 
-    UnaryOperator(const Expression* expr):
+    UnaryOperator(Expression* expr):
         expr_(expr){
     }
 
@@ -182,21 +195,21 @@ public:
     }
 
     virtual std::string dql(void) const {
-        return dql_symbol+expr_->dql();
+        return dql_symbol() + expr_->dql();
     }
     
     virtual std::string sql(void) const {
-        return sql_symbol+expr_->sql();
+        return sql_symbol() + expr_->sql();
     }
     
-    static const char* dql_symbol;
-    static const char* sql_symbol;
+    const char* dql_symbol(void) const;
+    const char* sql_symbol(void) const;
 };
 
 #define UNOP(code,name,dql,sql) \
     typedef UnaryOperator<code> name; \
-    template<> const char* name::dql_symbol = dql; \
-    template<> const char* name::sql_symbol = sql; 
+    template<> inline const char* name::dql_symbol(void) const {return dql;} \
+    template<> inline const char* name::sql_symbol(void) const {return sql;}
 
 UNOP(5,Positive,"+","+")
 UNOP(6,Negative,"-","-")
@@ -206,7 +219,7 @@ UNOP(7,Not,"!","not")
 
 
 template<int Code>
-class BinaryOperator : public Expression {
+class BinaryOperator : public Operator {
 protected:
     const Expression* left_;
     const Expression* right_;
@@ -218,7 +231,7 @@ public:
         right_(0){
     }
 
-    BinaryOperator(const Expression* left, const Expression* right):
+    BinaryOperator(Expression* left, Expression* right):
         left_(left),
         right_(right){
     }
@@ -230,21 +243,45 @@ public:
     }
 
     virtual std::string dql(void) const {
-        return left_->dql() + dql_symbol + right_->dql();
+        std::string dql;
+        
+        std::string left = left_->dql();
+        if(dynamic_cast<const Operator* const>(left_)) dql += "(" + left + ")";
+        else dql += left;
+        
+        dql += dql_symbol();
+        
+        std::string right = right_->dql();
+        if(dynamic_cast<const Operator* const>(right_)) dql += "(" + right + ")";
+        else dql += right;
+        
+        return dql;
     }
     
     virtual std::string sql(void) const {
-        return left_->sql() + sql_symbol + right_->sql();
+        std::string sql;
+        
+        std::string left = left_->sql();
+        if(dynamic_cast<const Operator* const>(left_)) sql += "(" + left + ")";
+        else sql += left;
+        
+        sql += sql_symbol();
+        
+        std::string right = right_->sql();
+        if(dynamic_cast<const Operator* const>(right_)) sql += "(" + right + ")";
+        else sql += right;
+        
+        return sql;
     }
     
-    static const char* dql_symbol;
-    static const char* sql_symbol;
+    const char* dql_symbol(void) const;
+    const char* sql_symbol(void) const;
 };
 
 #define BINOP(code,name,dql,sql) \
     typedef BinaryOperator<code> name; \
-    template<> const char* name::dql_symbol = dql; \
-    template<> const char* name::sql_symbol = sql;
+    template<> inline const char* name::dql_symbol(void) const {return dql;} \
+    template<> inline const char* name::sql_symbol(void) const {return sql;}
 
 BINOP(10,Multiply,"*","*")
 BINOP(11,Divide,"/","/")
@@ -276,6 +313,10 @@ protected:
     const Expression* expr_;
     
 public:
+    Clause(Expression* expr):
+        expr_(expr){
+    }
+    
     template<class Expression>
     Clause(const Expression& expr):
         expr_(new Expression(expr)){
@@ -296,6 +337,11 @@ public:
 
 class Where : public Clause {
 public:
+
+    Where(Expression* expr):
+        Clause(expr){
+    }
+    
     template<class Expression>
     Where(const Expression& expr):
         Clause(expr){
@@ -308,6 +354,11 @@ public:
 
 class By : public Clause {
 public:
+
+    By(Expression* expr):
+        Clause(expr){
+    }
+    
     template<class Expression>
     By(const Expression& expr):
         Clause(expr){
@@ -320,6 +371,10 @@ public:
 
 class Having : public Clause {
 public:
+    Having(Expression* expr):
+        Clause(expr){
+    }
+    
     template<class Expression>
     Having(const Expression& expr):
         Clause(expr){
@@ -382,7 +437,7 @@ class Dataquery : public Element {
 
 private:
     std::vector<const Element*> elements_;
-    std::string table_;
+    std::string from_;
     
     bool compiled_;
 
@@ -397,11 +452,27 @@ private:
 
 public:
 
+    Dataquery(void):
+        from_("<from>"){
+    }
+    
+    template<class... Elements>
+    Dataquery(const Elements&... elements):
+        from_("<from>"){
+        append_all(elements...);
+    }
+
     //! @name Append elements
     //! @brief Append elements to the dataquery
     //! @{
     
-    Dataquery& append(void){
+    Dataquery& append(Element* ele){
+        elements_.push_back(ele);
+        compiled_ = false;
+        return *this;
+    }
+
+    Dataquery& append_all(void){
         return *this;
     }
     
@@ -409,17 +480,15 @@ public:
         typename Element,
         typename... Elements
     >
-    Dataquery& append(const Element& ele,const Elements&... eles){
-        elements_.push_back(new Element(ele));
-        compiled_ = false;
-        append(eles...);
-        return *this;
+    Dataquery& append_all(const Element& ele,const Elements&... eles){
+        append(new Element(ele));
+        return append_all(eles...);
     }
     
     //! @}
     
-    Dataquery& from(const std::string& name){
-        table_ = name;
+    Dataquery& from(const std::string& from){
+        from_ = from;
         return *this;
     }
     
@@ -476,7 +545,7 @@ public:
     
     std::string dql(void) {
         compile();
-        std::string dql = table_ + "[";
+        std::string dql = from_ + "[";
         
         for(auto i=elements_.begin();i!=elements_.end();i++){
             dql += (*i)->dql();
@@ -503,7 +572,7 @@ public:
             }
         }
         
-        sql += " FROM \"" + table_ + "\"";
+        sql += " FROM \"" + from_ + "\"";
         
         if(wheres_.size()>0){
             sql += " WHERE ";

@@ -221,7 +221,7 @@ static void calc(sqlite3_context* context){
 	sqlite3_create_function(db, #NAME"__1", 1, SQLITE_UTF8, 0, 0, append<AGGREGATOR>, store<AGGREGATOR>); \
 	sqlite3_create_function(db, #NAME"__2", 1, SQLITE_UTF8, 0, 0, combine<AGGREGATOR>, calc<AGGREGATOR>); \
 
-void create(sqlite3* db) {
+inline void create(sqlite3* db) {
     STENCILA_LOCAL(mean,Mean)
     STENCILA_LOCAL(geomean,GeometricMean)
     STENCILA_LOCAL(harmean,HarmonicMean)

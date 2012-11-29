@@ -12,17 +12,20 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file hashing.hpp
-//! @brief Declaration of a hash function
+//! @file hashing.cpp
+//! @brief Implementation of a hash function
+//! This file exists primarily because MurmurHash3.cpp cannot be included in hashing.hpp without "multiple definition" compiler errors
 
 #pragma once
 
-#include <smhasher/MurmurHash3.h>
+#include <smhasher/MurmurHash3.cpp>
 
 namespace Stencila {
 
-//! Create a hash of string using MurmurHash3
-//! (See http://en.wikipedia.org/wiki/MurmurHash, http://code.google.com/p/smhasher/wiki/MurmurHash3)
-unsigned int Hash(const std::string& string);
+unsigned int Hash(const std::string& string){
+    unsigned int hash;
+    MurmurHash3_x86_32(string.c_str(),string.length(),0,&hash);
+    return hash;
+}
 
 }

@@ -155,6 +155,16 @@ public:
 	std::vector<Datatype> types(void) {
 		return dataset().cursor("SELECT * FROM "+name()).types();
 	}
+    
+
+    template<typename... Columns>
+	void index(Columns... columns){
+        dataset().index(name(),columns...);
+    }
+    
+	void index(const std::vector<std::string>& columns){
+        dataset().index(name(),columns);
+    }
 	
 	std::vector<std::string> indices(void) {
 		return dataset().indices(name());
@@ -200,7 +210,7 @@ public:
 	Datatable& load(const std::string& path, const bool& header=true){
 		// Check the file at path exists
 		std::ifstream file(path);
-		if(not file.is_open()) throw Exception("Unable to open file \""+path+"\"");
+		if(not file.is_open()) STENCILA_THROW(Exception,"Unable to open file \""+path+"\"");
 		
 		std::string line;
 		unsigned int count = 0;
@@ -212,7 +222,7 @@ public:
 		std::string extension = boost::filesystem::path(path).extension().string();
 		if(extension==".csv") filetype = csv;
 		else if(extension==".tsv") filetype = tsv;
-		else throw Exception("Unrecognised file type");
+		else STENCILA_THROW(Exception,"Unrecognised file type");
 		
 		// Create a separator
 		boost::escaped_list_separator<char> separator;
@@ -275,6 +285,7 @@ public:
 		
 		// Create temporary table
 		std::string temp_name = "stencila_"+name()+"_temp";
+        execute("DROP TABLE IF EXISTS \""+temp_name+"\"");
 		std::string create = "CREATE TABLE \""+temp_name+"\" (";
 		for(unsigned int i=0;i<names.size();i++) {
 			create += names[i] + " " + types[i];
@@ -295,21 +306,22 @@ public:
 			
 			std::getline(file,line);
 			count++;
-			boost::trim(line);
 			if(line.length()==0) break;
 			
 			std::vector<std::string> row;
 			boost::tokenizer<boost::escaped_list_separator<char> > tokenizer(line,separator);
 			for(auto i=tokenizer.begin();i!=tokenizer.end();++i){
-				row.push_back(*i);
+				std::string item = *i;
+                boost::trim(item);
+                row.push_back(item);
 			}
 			
 			//Check that row is the correct size
 			if(row.size()!=names.size()) 
-				throw Exception(boost::str(boost::format("Line %i has %i items but expected %i items")%count%row.size()%names.size()));
+				STENCILA_THROW(Exception,boost::str(boost::format("Line %i has %i items but expected %i items")%(count+1)%row.size()%names.size()));
 			
-			for(unsigned int i=0;i<row.size();i++){
-				insert_cursor.bind(i,row[i]);
+			for(unsigned int i=0;i<names.size();i++){
+				insert_cursor.bind(i+1,row[i]);
 			}
 			
 			insert_cursor.execute();
@@ -382,10 +394,18 @@ public:
 		return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
 	}
 	
-	Datatable operator[](Dataquery dataquery) {
+	Datatable select(Dataquery dataquery) {
 		dataquery.from(name());
 		std::string sql = dataquery.sql();
 		return dataset().select(sql);
+	}
+    
+    Datatable operator[](Dataquery dataquery){
+        return select(dataquery);
+    }
+    
+	Datatable head(const unsigned int rows = 10) {
+		return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
 	}
 	
 };

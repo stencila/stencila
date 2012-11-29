@@ -159,7 +159,7 @@ STENCILA_LOCAL_1(degrees, degreesFunc)
 #define STENCILA_LOCAL(NAME,ARGS) \
     sqlite3_create_function(db, #NAME, ARGS, SQLITE_UTF8, 0, NAME, 0, 0);
 
-void create(sqlite3* db) {
+inline void create(sqlite3* db) {
 
     STENCILA_LOCAL(cos,1)
     STENCILA_LOCAL(sin,1)

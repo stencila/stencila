@@ -70,12 +70,6 @@ public:
 		}
 		return "Unknown error";
 	}
-	
-	const char* what(void)  const throw() {		
-		std::ostringstream stream;
-        stream << file_ << ":" << line_ << ": " << description() << " (code " << code_ << "): " << message_;
-		return stream.str().c_str();
-	}
 };
 	
 #define STENCILA_SQLITE_THROW(db,code)\

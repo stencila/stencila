@@ -21,6 +21,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <sstream>
 #include <ostream>
 
+#include <boost/filesystem.hpp>
+
 namespace Stencila {
 	
 class Exception : public std::exception {
@@ -44,12 +46,12 @@ public:
 	
 	const char* what(void)  const throw() {
 		std::ostringstream stream;
-        stream << file_ << ":" << line_ << ":" << message_;
+        stream << boost::filesystem::path(file_).filename().string() << ":" << line_ << ":" << message_;
 		return stream.str().c_str();
 	}
 };
 
-std::ostream& operator<<(std::ostream& stream,const Exception& exception){
+inline std::ostream& operator<<(std::ostream& stream,const Exception& exception){
 	stream<<exception.what();
 	return stream;
 }

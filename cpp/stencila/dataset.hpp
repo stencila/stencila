@@ -24,6 +24,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 #include "sqlite.hpp"
 #include "datacursor.hpp"
@@ -93,6 +94,7 @@ public:
 	
 	//! @}
 
+
 	//! @name Attribute methods
 	//! @brief Get attributes of the Dataset
 	//! @{
@@ -102,6 +104,37 @@ public:
 	std::string uri(void) const {
 		return uri_;
 	}
+    
+    //! @}
+    
+    
+	//! @name Datatable methods
+	//! @brief Create and get Datatables
+	//! @{
+
+	//! @brief Import a database table to a Datatable
+	//! @param name The name of the table
+	//! @return A Datatable
+	Datatable import(const std::string& name);
+	
+	//! @brief Create a Datatable in the Dataset
+	//! @param name The name of the table
+	//! @return The new Datatable
+	// Needs to be defined in datatable.hpp
+	template<typename... Args>
+	Datatable create(const std::string& name, Args... args);
+    
+	//! @brief Load a file to a Datatable
+	//! @param name Name of the new Datatable
+    //! @param path Path of the file to be loaded
+	//! @return A Datatable
+	Datatable load(const std::string& name,const std::string& path);
+	
+	//! @brief Get a Datatable in the Dataset
+	//! @param name The name of the table
+	//! @return A Datatable
+	// Needs to be defined in datatable.hpp
+	Datatable table(const std::string& name);
 	
 	//! @brief Get a list of the Datatables in the Dataset.
 	//! @return A vector of names of tables
@@ -109,18 +142,33 @@ public:
 		return column("SELECT name FROM sqlite_master WHERE type=='table' AND name NOT LIKE 'stencila_%'");
 	}
 		
+    //! @}
+    
+    
+	//! @name Index related methods
+	//! @brief Create and get indices
+	//! @{
+    
+    template<typename... Columns>
+	void index(const std::string& table, Columns... columns);
+    
+	void index(const std::string& table, const std::vector<std::string>& columns){
+        std::string sql = "CREATE INDEX " + table + "_" + boost::algorithm::join(columns, "_") + "_index ON " + table + "(" + boost::algorithm::join(columns, ",") + ");";
+        execute(sql);
+    }
+    
 	//! @brief Get a list of the indices in the entire Dataset or for a particular table.
 	//! @param table The name of the table for which the lists of indices is wanted
 	//! @return A vector of names of indices
 	std::vector<std::string> indices(const std::string& table="") {
 		std::string sql = "SELECT name FROM sqlite_master WHERE type=='index' AND name NOT LIKE 'stencila_%'";
 		if(table.length()==0) return column(sql);
-		else  return column(sql+"AND tbl_name=='"+table+"'");
+		else return column(sql+"AND tbl_name=='"+table+"'");
 	}
 	
 	//! @}
-	
-	
+    
+    
 	//! @name Saving methods
 	//! @brief Save a Dataset
 	//! @{
@@ -272,24 +320,6 @@ public:
 	}
 	
 	//! @}
-	
-	//! @brief Import a database table to a Datatable
-	//! @param name The name of the table
-	//! @return A Datatable
-	Datatable import(const std::string& name);
-	
-	//! @brief Create a Datatable in the Dataset
-	//! @param name The name of the table
-	//! @return The new Datatable
-	// Needs to be defined in datatable.hpp
-	template<typename... Args>
-	Datatable create(const std::string& name, Args... args);
-	
-	//! @brief Get a Datatable in the Dataset
-	//! @param name The name of the table
-	//! @return A Datatable
-	// Needs to be defined in datatable.hpp
-	Datatable table(const std::string& name);
 	
 	Datatable select(const std::string& sql);
 	

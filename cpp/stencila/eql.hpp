@@ -219,12 +219,5 @@ Offset offset(const Expression& expr){
 	return Offset(wrap(expr));
 }
 
-template<class... Directives>
-Dataquery get(const Directives&... dirs){
-	Dataquery dataquery;
-	append(dataquery,dirs...);
-	return dataquery;
-}
-
 }
 }
