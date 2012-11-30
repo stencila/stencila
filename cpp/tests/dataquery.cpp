@@ -21,7 +21,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/test.hpp>
 #include <stencila/datatable.hpp>
 #include <stencila/dataquery.hpp>
-#include <stencila/eql.hpp>
+#include <stencila/dataquery-cxx.hpp>
 using namespace Stencila;
 
 struct dataqueryFixture { 
@@ -42,7 +42,7 @@ struct dataqueryFixture {
 		data.add("sales",Real);
 	} 
 	
-	void eql_check(Dataquery query, const std::string& sql_, const std::string& dql="") { 
+	void dql_check(Dataquery query, const std::string& sql_, const std::string& dql="") { 
 		query.from("data");
 		
 		std::string sql = query.sql();
@@ -64,110 +64,109 @@ BOOST_AUTO_TEST_CASE(directives){
 	LessThan sales_lessthan_42(sales,_42);
 }
 
- 
-BOOST_AUTO_TEST_CASE(eql){
-	using namespace EQL;
-	
-	eql_check(
+BOOST_AUTO_TEST_CASE(dql){
+    using namespace DQL;
+    
+	dql_check(
 		Dataquery(),
 		"SELECT * FROM \"data\"",
 		"data[]"
 	);
 	
-	eql_check(
+	dql_check(
 		Dataquery(sales),
 		"SELECT \"sales\" FROM \"data\"",
 		"data[sales]"
 	);
 		
-	eql_check(
+	dql_check(
 		Dataquery(sales,year,month),
 		"SELECT \"sales\", \"year\", \"month\" FROM \"data\"",
 		"data[sales,year,month]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(distinct),
 		"SELECT DISTINCT * FROM \"data\""
 	);
-	eql_check(
+	dql_check(
 		Dataquery(all),
 		"SELECT * FROM \"data\""
 	);
-	eql_check(
+	dql_check(
 		Dataquery(distinct,all),
 		"SELECT * FROM \"data\""
 	);
 	
-	eql_check(
+	dql_check(
 		Dataquery(where(1)),
 		"SELECT * FROM \"data\" WHERE 1",
 		"data[where(1)]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(where(sales<10)),
 		"SELECT * FROM \"data\" WHERE \"sales\"<10",
 		"data[where(sales<10)]"
 	);
-	eql_check(
-		Dataquery(where(_(month<=10 or sales>10) and sales>100)),
-		"SELECT * FROM \"data\" WHERE (\"month\"<=10 OR \"sales\">10) AND \"sales\">100",
-		"data[where((month<=10 or sales>10) and sales>100)]"
+	dql_check(
+		Dataquery(where((month<=10 or sales>10) and sales>100)),
+		R"(SELECT * FROM "data" WHERE (("month"<=10) OR ("sales">10)) AND ("sales">100))",
+		"data[where(((month<=10) or (sales>10)) and (sales>100))]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(where(year+month+10>sales+10)),
-		"SELECT * FROM \"data\" WHERE \"year\"+\"month\"+10>\"sales\"+10",
-		"data[where(year+month+10>sales+10)]"
+		R"(SELECT * FROM "data" WHERE (("year"+"month")+10)>("sales"+10))",
+		"data[where(((year+month)+10)>(sales+10))]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(by(year),sum(sales)),
-		"SELECT \"year\", sum(\"sales\") FROM \"data\" GROUP BY \"year\"",
+		R"(SELECT "year", sum("sales") FROM "data" GROUP BY "year")",
 		"data[by(year),sum(sales)]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(by(year),by(month),max(sales)),
-		"SELECT \"year\", \"month\", max(\"sales\") FROM \"data\" GROUP BY \"year\", \"month\"",
+		R"(SELECT "year", "month", max("sales") FROM "data" GROUP BY "year", "month")",
 		"data[by(year),by(month),max(sales)]"
 	);
 	
-	eql_check(
+	dql_check(
 		Dataquery(by(year),having(sum(sales)>1000)),
 		"SELECT \"year\" FROM \"data\" GROUP BY \"year\" HAVING sum(\"sales\")>1000",
 		"data[by(year),having(sum(sales)>1000)]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(by(year),having(sum(sales)>1000 and year<2000)),
-		"SELECT \"year\" FROM \"data\" GROUP BY \"year\" HAVING sum(\"sales\")>1000 AND \"year\"<2000",
-		"data[by(year),having(sum(sales)>1000 and year<2000)]"
+		"SELECT \"year\" FROM \"data\" GROUP BY \"year\" HAVING (sum(\"sales\")>1000) AND (\"year\"<2000)",
+		"data[by(year),having((sum(sales)>1000) and (year<2000))]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(by(year),having(sum(sales)>1000),having(year<2000)),
 		"SELECT \"year\" FROM \"data\" GROUP BY \"year\" HAVING (sum(\"sales\")>1000) AND (\"year\"<2000)",
 		"data[by(year),having(sum(sales)>1000),having(year<2000)]"
 	);
 	
-	eql_check(
+	dql_check(
 		Dataquery(order(year),order(sales,-1)),
 		"SELECT * FROM \"data\" ORDER BY \"year\" ASC, \"sales\" DESC",
 		"data[order(year),order(sales,-1)]"
 	);
-	eql_check(
+	dql_check(
 		Dataquery(by(year),by(month),order(max(sales),-1)),
 		"SELECT \"year\", \"month\" FROM \"data\" GROUP BY \"year\", \"month\" ORDER BY max(\"sales\") DESC"
 	);
 
-	eql_check(
+	dql_check(
 		Dataquery(limit(10)),
 		"SELECT * FROM \"data\" LIMIT 10"
 	);
 	
-	eql_check(
+	dql_check(
 		Dataquery(offset(10)),
 		"SELECT * FROM \"data\" LIMIT 9223372036854775807 OFFSET 10"
 	);
 	
-	eql_check(
+	dql_check(
 		Dataquery(by(year),by(month),sum(sales),where(month>6 and year>2000),having(sum(sales)>1000),offset(10),limit(1000)), 
-		"SELECT \"year\", \"month\", sum(\"sales\") FROM \"data\" WHERE \"month\">6 AND \"year\">2000 GROUP BY \"year\", \"month\" HAVING sum(\"sales\")>1000 LIMIT 1000 OFFSET 10"
+		"SELECT \"year\", \"month\", sum(\"sales\") FROM \"data\" WHERE (\"month\">6) AND (\"year\">2000) GROUP BY \"year\", \"month\" HAVING sum(\"sales\")>1000 LIMIT 1000 OFFSET 10"
 	);
 } 
 

@@ -12,7 +12,7 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file eql.hpp
+//! @file dataquery-cxx.hpp
 //! @brief Function definitions for C++ embedded query language
 
 #pragma once
@@ -21,14 +21,14 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 namespace Stencila {
 	
-//! @namespace EQL
-//! @brief Embedded Query Langauge for C++
+//! @namespace DQL
+//! @brief Data Query Langauge for C++
 //!
 //! Includes several functions for convieniently defining Dataqueries within C++
 //! Instead of creating and linking Dataquery elements individually, these functions
 //! provide useful shortcuts. For example...
 //! @todo Finish this documentation
-namespace EQL {
+namespace DQL {
 	
 //! @{
 //! @brief Expressions
@@ -62,14 +62,6 @@ void append(Element& element,const Expression& expr,const Expressions&... exprs)
 } 
 
 //! @}
-
-struct Grouper{
-	template<class Expression>
-	Group operator()(const Expression& expr){
-		return Group(expr);
-	}
-};
-Grouper _;
 
 //! @{
 //! @brief Unary operators
