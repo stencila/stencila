@@ -22,7 +22,7 @@ RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
 %.o : %.cpp
 	g++ -c -O2 -fPIC $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
 
-compile: requirements $(STENCILA_R_OS)
+compile: version.hpp requirements $(STENCILA_R_OS)
 	g++ -shared $(STENCILA_R_OS) -ostencila.so -L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
 
 # Update the description file with the correct version and date
