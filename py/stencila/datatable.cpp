@@ -1,11 +1,10 @@
-#pragma once
-
 #include <stencila/datatable.hpp>
 
-namespace Stencila {
-namespace Python {
-namespace DatatableBindings {
+#include "extension.hpp"
 
+using namespace Stencila;
+
+/*
 object select_tuple(tuple args, dict kwargs){
     //!@todo Need to test if this is a slice or not
     Datatable& self = extract<Datatable&>(args[0]);
@@ -21,8 +20,9 @@ object select_tuple(tuple args, dict kwargs){
     
     return object(self.value<>(0,0));
 }
+*/
 
-void bind(void){
+void Datatable_define(void){
     class_<Datatable,bases<>>("DatatableBase")
         .def(init<std::string>())
         .def(init<std::string,Dataset*>())
@@ -40,5 +40,3 @@ void bind(void){
         //.def("__getitem__",raw_function(select_tuple))
     ;
 }
-
-}}}

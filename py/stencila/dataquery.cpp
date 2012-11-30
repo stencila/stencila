@@ -1,8 +1,6 @@
-#pragma once
-
 #include <stencila/dataquery.hpp>
 
-namespace Dataquery_ {
+#include "extension.hpp"
 
 using namespace Stencila;
 
@@ -11,7 +9,7 @@ using namespace Stencila;
 //! This function is a "raw_function" which recieves Python objects.
 //! Its job is to convert those Python objects into Stencila Dataquery elements
 //! For example, a Python integer is converted into a Constant<int>
-const Expression* wrap(const object& o){
+Expression* Dataquery_wrap(const object& o){
     //Boost.python's extract<float>(o).check() returns true even if o is an integer.
     //So have to use the Python PyXXX_Check functions to determine type
     const PyObject* p = o.ptr();
@@ -21,7 +19,7 @@ const Expression* wrap(const object& o){
     if(PyString_Check(p)) return new Constant<std::string>(extract<std::string>(o));
     
     //If the object is a Dataquery element then just return it
-    extract<const Expression*> e(o);
+    extract<Expression*> e(o);
     if(e.check()) return e();
     
     //Any othe object type is converted to a string
@@ -30,7 +28,7 @@ const Expression* wrap(const object& o){
 }
 
 #define UNOP(name,type) \
-    type name(const Expression& self){ \
+    type Dataquery_##name(Expression& self){ \
         return type(&self); \
     }
 
@@ -40,8 +38,8 @@ UNOP(__pos__,Positive)
 #undef UNOP
 
 #define BINOP(name,type) \
-    type name(const Expression& self, const object& other){ \
-        return type(&self,wrap(other)); \
+    type Dataquery_##name(Expression& self, object& other){ \
+        return type(&self,Dataquery_wrap(other)); \
     }
 
 BINOP(__eq__,Equal)
@@ -61,7 +59,7 @@ BINOP(__or__,Or)
 
 #undef BINOP
 
-void bind(void){
+void Dataquery_define(void){
 
     class_<Element>("Element")
         .def("dql",&Element::dql)
@@ -70,7 +68,7 @@ void bind(void){
     
     class_<Expression,bases<Element>>("Expression")
         
-        #define OP(name) .def(#name,name)
+        #define OP(name) .def(#name,Dataquery_##name)
         
         OP(__pos__)
         OP(__neg__)
@@ -122,6 +120,4 @@ void bind(void){
     BINOP(Or)
     
     #undef BINOP
-}
-
 }

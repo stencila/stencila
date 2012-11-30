@@ -47,7 +47,15 @@ setup(
     ext_modules = [
         Extension(
             'stencila.extension',
-            ['stencila/extension.cpp'],
+            [
+                'stencila/dataquery.cpp',
+                'stencila/dataset.cpp',
+                'stencila/datatable.cpp',
+                'stencila/datatype.cpp',
+                'stencila/exception.cpp',
+                'stencila/extension.cpp',
+                'stencila/stencil.cpp',
+            ],
             extra_compile_args = cpp_flags,
             include_dirs = cpp_incl_dirs,
             library_dirs = cpp_lib_dirs,

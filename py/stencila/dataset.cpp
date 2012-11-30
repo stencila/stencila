@@ -1,12 +1,12 @@
-#pragma once
-
 #include <stencila/dataset.hpp>
-#include <stencila/dataset.cpp>
 
-namespace Stencila {
-namespace Python {
-namespace DatasetBindings {
-    
+#include <stencila/dataset.cpp>
+#include <stencila/hashing.cpp>
+
+#include "extension.hpp"
+
+using namespace Stencila;
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
     save_overloads,
     Dataset::save, 
@@ -18,10 +18,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
     Dataset::indices, 
     0, 1
 )
-    
-typedef Dataset& (Dataset::* execute_method)(const std::string& sql);
-    
-object value_to_object(Datacursor& cursor, unsigned int column){
+
+object Datacursor_get(Datacursor& cursor, unsigned int column){
     const char type = cursor.type(column).code;
     switch(type){
         case 'n': return object();
@@ -32,7 +30,7 @@ object value_to_object(Datacursor& cursor, unsigned int column){
     return object();
 }
 
-object fetch(tuple args, dict kwargs){
+object Dataset_fetch(tuple args, dict kwargs){
     Dataset& self = extract<Dataset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
@@ -44,7 +42,7 @@ object fetch(tuple args, dict kwargs){
     while(cursor.more()){
         list row;
         for(unsigned int column=0;column<cursor.columns();column++){
-            row.append(value_to_object(cursor,column));
+            row.append(Datacursor_get(cursor,column));
         }
         rows.append(row);
         cursor.next();
@@ -52,7 +50,7 @@ object fetch(tuple args, dict kwargs){
     return rows;
 }
 
-object value(tuple args, dict kwargs){
+object Dataset_value(tuple args, dict kwargs){
     Dataset& self = extract<Dataset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
@@ -60,11 +58,11 @@ object value(tuple args, dict kwargs){
     cursor.prepare();
     cursor.begin();
     
-    if(cursor.more()) return value_to_object(cursor,0);
+    if(cursor.more()) return Datacursor_get(cursor,0);
     else throw Exception("No rows returned");
 }
 
-object column(tuple args, dict kwargs){
+object Dataset_column(tuple args, dict kwargs){
     Dataset& self = extract<Dataset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
@@ -74,13 +72,13 @@ object column(tuple args, dict kwargs){
     
     list column;
     while(cursor.more()){
-        column.append(value_to_object(cursor,0));
+        column.append(Datacursor_get(cursor,0));
         cursor.next();
     }
     return column;
 }
 
-object row(tuple args, dict kwargs){
+object Dataset_row(tuple args, dict kwargs){
     Dataset& self = extract<Dataset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
@@ -91,14 +89,14 @@ object row(tuple args, dict kwargs){
     list row;
     if(cursor.more()){
         for(unsigned int column=0;column<cursor.columns();column++){
-            row.append(value_to_object(cursor,column));
+            row.append(Datacursor_get(cursor,column));
         }
         cursor.next();
     }
     return row;
 }
 
-void bind(void){
+void Dataset_define(void){
     
     class_<Dataset,bases<>>("Dataset")
         .def(init<std::string>())
@@ -121,15 +119,11 @@ void bind(void){
             return_value_policy<reference_existing_object>()
         )
 
-        .def("fetch", raw_function(fetch))
-        .def("value", raw_function(value))
-        .def("column",  raw_function(column))
-        .def("row",raw_function(row))
+        .def("fetch", raw_function(Dataset_fetch))
+        .def("value", raw_function(Dataset_value))
+        .def("column",  raw_function(Dataset_column))
+        .def("row",raw_function(Dataset_row))
 
         .def("table", &Dataset::table)
     ;
 }
-
-}}}
-
-

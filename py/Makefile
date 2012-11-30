@@ -8,7 +8,7 @@ all: build dist test
 requirements:
 	make -C ../cpp/requirements all
 
-# So that
+# Make taks then get called by setup.py
 cpp_flags:
 	@echo $(STENCILA_CPP_FLAGS)
 cpp_include_dirs:

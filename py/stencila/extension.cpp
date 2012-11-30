@@ -1,41 +1,31 @@
-/*
-**
-**	http://www.boost.org/doc/libs/1_50_0/libs/python/doc/tutorial/doc/html/python/exposing.html
+#include <vector>
 
-*/
+#include "extension.hpp"
 
-#include <boost/python.hpp>
-#include <boost/python/slice.hpp>
-#include <boost/python/raw_function.hpp>
+extern void Exception_define(void);
+extern void Datatype_define(void);
+extern void Dataset_define(void);
+extern void Datatable_define(void);
+extern void Dataquery_define(void);
+extern void Stencil_define(void);
 
-namespace boost {
-namespace python {
-	using self_ns::str;
-}
-}
-
-using namespace boost::python;
-namespace bp = boost::python;
-
-#include "standard_library.cpp"
-#include "exception.cpp"
-#include "datatype.cpp"
-#include "dataset.cpp"
-#include "datatable.cpp"
-#include "dataquery.cpp"
-
-#include "stencil.cpp"
+template<typename Type>
+struct vector_to_list {
+	static PyObject* convert(const std::vector<Type>& vec) {
+		list* l = new list();
+		for(size_t i = 0; i < vec.size(); i++) (*l).append(vec[i]);
+		return l->ptr();
+	}
+};
 
 BOOST_PYTHON_MODULE(extension){
-	using namespace Stencila::Python;
-	
-	StandardLibraryBindings::bind();
-	ExceptionBindings::bind();
-	DatatypeBindings::bind();
-	DatasetBindings::bind();
-	DatatableBindings::bind();
-	
-	Dataquery_::bind();
     
-    Stencil_::bind();
+    to_python_converter<std::vector<std::string>, vector_to_list<std::string>>();
+
+    Exception_define();
+    Datatype_define();
+    Dataset_define();
+    Datatable_define();
+    Dataquery_define();
+    Stencil_define();
 }
