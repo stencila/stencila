@@ -1,6 +1,7 @@
-#include "stencila.hpp"
 #include <stencila/datatable.hpp>
 using namespace Stencila;
+
+#include "stencila.hpp"
 
 STENCILA_R_FUNC Datatable_new(void){
 	STENCILA_R_BEGIN

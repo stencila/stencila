@@ -1,6 +1,7 @@
-#include "stencila.hpp"
 #include <stencila/dataquery.hpp>
 using namespace Stencila;
+
+#include "stencila.hpp"
 
 STENCILA_R_FUNC Expression_dql(SEXP self){
 	STENCILA_R_BEGIN

@@ -1,6 +1,7 @@
-#include "stencila.hpp"
 #include <stencila/datacursor.hpp>
 using namespace Stencila;
+
+#include "stencila.hpp"
 
 STENCILA_R_FUNC Datacursor_fetch(SEXP self){
 	STENCILA_R_BEGIN

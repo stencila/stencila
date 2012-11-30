@@ -1,6 +1,7 @@
-#include "stencila.hpp"
 #include <stencila/stencil.hpp>
 using namespace Stencila;
+
+#include "stencila.hpp"
 
 /*!
 A specialisation of the Context class for R.
