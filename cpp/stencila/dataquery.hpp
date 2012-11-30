@@ -102,7 +102,7 @@ public:
 class Call : public Expression {
 private:
     std::string name_;
-    std::vector<const Expression*> args_;
+    std::vector<Expression*> args_;
 public:
 
     Call(const std::string& name):
@@ -145,29 +145,10 @@ public:
     
     virtual std::string sql(void) const {
         std::vector<std::string> args;
-        BOOST_FOREACH(const Element* arg, args_){
+        BOOST_FOREACH(Element* arg, args_){
             args.push_back(arg->sql());
         }
         return name_+"("+boost::algorithm::join(args, ", ")+")";
-    }
-};
-
-class Group : public Expression {
-protected:
-    const Expression* expr_;
-    
-public:
-    template<class Expression>
-    Group(const Expression& expr):
-        expr_(new Expression(expr)){
-    }
-    
-    virtual std::string dql(void) const {
-        return "("+expr_->dql()+")";
-    }
-    
-    virtual std::string sql(void) const {
-        return "("+expr_->sql()+")";
     }
 };
 
@@ -177,7 +158,7 @@ class Operator : public Expression {
 template<int Code>
 class UnaryOperator : public Operator {
 protected:
-    const Expression* expr_;
+    Expression* expr_;
 
 public:
 
@@ -221,8 +202,8 @@ UNOP(7,Not,"!","not")
 template<int Code>
 class BinaryOperator : public Operator {
 protected:
-    const Expression* left_;
-    const Expression* right_;
+    Expression* left_;
+    Expression* right_;
 
 public:
 
@@ -246,13 +227,13 @@ public:
         std::string dql;
         
         std::string left = left_->dql();
-        if(dynamic_cast<const Operator* const>(left_)) dql += "(" + left + ")";
+        if(dynamic_cast<Operator* const>(left_)) dql += "(" + left + ")";
         else dql += left;
         
         dql += dql_symbol();
         
         std::string right = right_->dql();
-        if(dynamic_cast<const Operator* const>(right_)) dql += "(" + right + ")";
+        if(dynamic_cast<Operator* const>(right_)) dql += "(" + right + ")";
         else dql += right;
         
         return dql;
@@ -262,13 +243,13 @@ public:
         std::string sql;
         
         std::string left = left_->sql();
-        if(dynamic_cast<const Operator* const>(left_)) sql += "(" + left + ")";
+        if(dynamic_cast<Operator* const>(left_)) sql += "(" + left + ")";
         else sql += left;
         
         sql += sql_symbol();
         
         std::string right = right_->sql();
-        if(dynamic_cast<const Operator* const>(right_)) sql += "(" + right + ")";
+        if(dynamic_cast<Operator* const>(right_)) sql += "(" + right + ")";
         else sql += right;
         
         return sql;
@@ -310,7 +291,7 @@ public:
 
 class Clause : public Element {
 protected:
-    const Expression* expr_;
+    Expression* expr_;
     
 public:
     Clause(Expression* expr):
@@ -436,7 +417,7 @@ public:
 class Dataquery : public Element {
 
 private:
-    std::vector<const Element*> elements_;
+    std::vector<Element*> elements_;
     std::string from_;
     
     bool compiled_;
@@ -504,7 +485,7 @@ public:
             limit_ = 0;
             offset_ = 0;
             
-            BOOST_FOREACH(const Element* element, elements_){
+            BOOST_FOREACH(Element* element, elements_){
                 if(dynamic_cast<const Distinct*>(element)){
                     distinct_ = true;
                 }
