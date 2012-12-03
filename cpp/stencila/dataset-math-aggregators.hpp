@@ -222,6 +222,15 @@ static void calc(sqlite3_context* context){
 	sqlite3_create_function(db, #NAME"__2", 1, SQLITE_UTF8, 0, 0, combine<AGGREGATOR>, calc<AGGREGATOR>); \
 
 inline void create(sqlite3* db) {
+    //This list includes commented lines for builtin SQLite functions at http://www.sqlite.org/lang_aggfunc.html
+    //That is so this list can be used to constuct Dataquery call elements in R, Python etc packages
+
+    //count
+    //min
+    //max
+    //sum
+    
+    //avg
     STENCILA_LOCAL(mean,Mean)
     STENCILA_LOCAL(geomean,GeometricMean)
     STENCILA_LOCAL(harmean,HarmonicMean)

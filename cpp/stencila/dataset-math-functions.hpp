@@ -95,6 +95,7 @@ STENCILA_LOCAL_1(tanh, std::tanh)
 //! Exponential and logarithmic functions
 
 STENCILA_LOCAL_1(exp, std::exp)
+STENCILA_LOCAL_1(ln, std::log)
 STENCILA_LOCAL_1(log, std::log)
 STENCILA_LOCAL_1(log10, std::log10)
 
@@ -160,6 +161,8 @@ STENCILA_LOCAL_1(degrees, degreesFunc)
     sqlite3_create_function(db, #NAME, ARGS, SQLITE_UTF8, 0, NAME, 0, 0);
 
 inline void create(sqlite3* db) {
+    //This list includes commented lines for builtin SQLite functions at http://www.sqlite.org/lang_corefunc.html
+    //That is so this list can be used to constuct Dataquery call elements in R, Python etc packages
 
     STENCILA_LOCAL(cos,1)
     STENCILA_LOCAL(sin,1)
@@ -178,6 +181,7 @@ inline void create(sqlite3* db) {
     STENCILA_LOCAL(radians,1)
 
     STENCILA_LOCAL(exp,1)
+    STENCILA_LOCAL(ln,1)
     STENCILA_LOCAL(log,1)
     STENCILA_LOCAL(log10,1)
 
@@ -185,11 +189,13 @@ inline void create(sqlite3* db) {
     STENCILA_LOCAL(square,1)
     STENCILA_LOCAL(sqrt,1)
 
+    //abs
+    //round
     STENCILA_LOCAL(sign,1)
-    STENCILA_LOCAL(fabs,1)
     STENCILA_LOCAL(ceil,1)
     STENCILA_LOCAL(floor,1)
-
+    
+    //random
 }
 
 #undef STENCILA_LOCAL
