@@ -29,6 +29,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stencila/exception.hpp>
 #include <stencila/dataset.hpp>
+#include <stencila/hashing.hpp>
 
 namespace Stencila {
 	
@@ -40,10 +41,13 @@ private:
 	
 	//! @brief Name of the Datatable
 	std::string name_;
+    
+	//! @brief Whether the Datatable has been created in the Dataset yet
+	bool created_;
 
 	//! @brief Whether the Datatable is contained in a Dataset (true) or maintains its own Dataset (false)
 	bool contained_;
-	
+
 	//! @brief Dataset where the Datatable resides
 	Dataset* dataset_;
 
@@ -53,21 +57,31 @@ public:
 	//! @brief Create and destroy a Datatable
 	//! @{
 
-	//! @brief Create a Datatable object
-	template<typename... Columns>
+    //! @brief Create a Datatable object
+    Datatable(void):
+        name_("stencila_"+boost::lexical_cast<std::string>(Hash())),
+        created_(false),
+        contained_(false),
+        dataset_(new Dataset()){
+    }
+
+    //! @brief Create a Datatable object
+    template<typename... Columns>
     Datatable(const std::string& name,Columns... columns):
-		name_(name),
-		contained_(false),
-		dataset_(new Dataset()){
+        name_(name),
+        created_(true),
+        contained_(false),
+        dataset_(new Dataset()){
         dataset().create(name,columns...);
-	}
+    }
 
 	//! @brief Create a Datatable object from an existing table in a Dataset
 	//! @param dataset Dataset where this Datatable resides
 	//! @param name Name of the table. This must be an existing database table.
-	Datatable(const std::string& name, Dataset* dataset):
+	Datatable(const std::string& name, Dataset* dataset, bool created = true):
 		name_(name),
-		contained_(true),
+		created_(created),
+        contained_(true),
 		dataset_(dataset){
 	}
 	
@@ -93,6 +107,10 @@ public:
 		return *this;
 	}
 	
+	bool created(void) const {
+		return created_;
+	}
+
 	bool contained(void) const {
 		return contained_;
 	}
@@ -104,13 +122,13 @@ public:
 	//! @brief Get the number of rows in the datatable
 	//! @return Number of rows
 	unsigned int rows(void) {
-		return dataset().value<int>("SELECT count(*) FROM "+name());
+		return created_?(dataset().value<int>("SELECT count(*) FROM "+name())):0;
 	}
 	
 	//! @brief Get the number of columns in the datatable
 	//! @return Number of columns
 	unsigned int columns(void) {
-		return dataset().cursor("SELECT * FROM "+name()).columns();
+		return created_?(dataset().cursor("SELECT * FROM "+name()).columns()):0;
 	}
 	
 	//! @brief Get the dimensions(rows x columns) of the datatable
@@ -119,15 +137,21 @@ public:
 		return {rows(),columns()};
 	}
 
-	template<typename... Args>
-	Datatable& column(const std::string& column_name, const Datatype& type, Args... args){
-		//! @todo Add checking of type
-		execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column_name+"\" "+type.sql());
-		column(args...);
-		return *this;
-	}
+    template<typename... Args>
+    Datatable& add(const std::string& column_name, const Datatype& type, Args... args){
+        //! @todo Add checking of type
+        if(created_) {
+            execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column_name+"\" "+type.sql());
+        }
+        else {
+            execute("CREATE TABLE \""+name()+"\" (\""+column_name+"\" "+type.sql()+")");
+            created_ = true;
+        }
+        add(args...);
+        return *this;
+    }
 	
-	Datatable& column(void){
+	Datatable& add(void){
 		return *this;
 	}
 	
@@ -141,7 +165,7 @@ public:
 	//! @brief Get the names of all columns in the datatable
 	//! @return Vector of column names
 	std::vector<std::string> names(void) {
-		return dataset().cursor("SELECT * FROM "+name()).names();
+		return created_?(dataset().cursor("SELECT * FROM "+name()).names()):(std::vector<std::string>{});
 	}
 	
 	//! @brief Get the type name of a column in a datatable
@@ -152,9 +176,9 @@ public:
 	}
 	
 	std::vector<Datatype> types(void) {
-		return dataset().cursor("SELECT * FROM "+name()).types();
+		return created_?(dataset().cursor("SELECT * FROM "+name()).types()):(std::vector<Datatype>{});
 	}
-    
+
 
     template<typename... Columns>
 	void index(Columns... columns){

@@ -15,14 +15,21 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //! @file dataset.cpp
 //! @brief Implmentations of Dataset methods which are unable to go into dataset.hpp
 
-#ifndef STENCILA_DATASET_IMPLEMENTATIONS
-#define STENCILA_DATASET_IMPLEMENTATIONS
+#pragma once
 
 #include <stencila/dataset.hpp>
 #include <stencila/datatable.hpp>
 #include <stencila/hashing.hpp>
 
 namespace Stencila {
+
+Datatable Dataset::create(const std::string& name){
+	return Datatable(name,this,false);
+}
+
+inline std::string Dataset_create_helper(void){
+	return "";
+}
 
 inline std::string Dataset_create_helper(const std::string& column, const Datatype& type){
 	return column + " " + type.sql();
@@ -39,7 +46,7 @@ Datatable Dataset::create(const std::string& name, Columns... columns){
 	execute(sql);
 	return Datatable(name,this);
 }
-	
+
 Datatable Dataset::table(const std::string& name){
 	return Datatable(name,this);
 }
@@ -104,5 +111,3 @@ Datatable Dataset::clone(const std::string& orignal){
 }
 
 }
-
-#endif

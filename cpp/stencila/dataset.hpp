@@ -116,7 +116,9 @@ public:
 	//! @param name The name of the table
 	//! @return A Datatable
 	Datatable import(const std::string& name);
-	
+    
+    Datatable create(const std::string& name);
+        
 	//! @brief Create a Datatable in the Dataset
 	//! @param name The name of the table
 	//! @return The new Datatable

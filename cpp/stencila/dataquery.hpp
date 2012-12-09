@@ -805,12 +805,12 @@ public:
 				" FROM \"" + table.name() + "\"" +
 				where + by + having + order + limit_offset;
 	}
-	
+
 	static std::string sql_distinct(bool distinct){
 		if(distinct) return " DISTINCT";
 		else return "";
 	}
-	
+
 	static std::string sql_columns(const Columns columns, unsigned short which = 0){
 		std::string sql = "";
 		if(columns.size()==0){
@@ -824,7 +824,7 @@ public:
 		}
 		return sql;
 	}
-	
+
 	static std::string sql_where(const std::vector<const Where*>& wheres){
 		std::string sql = "";
 		if(wheres.size()>0){
@@ -838,7 +838,7 @@ public:
 		}
 		return sql;
 	}
-	
+
 	static std::string sql_by(const std::vector<const By*>& bys){
 		std::string sql = "";
 		if(bys.size()>0){
@@ -850,7 +850,7 @@ public:
 		}
 		return sql;
 	}
-       
+
 	static std::string sql_having(const std::vector<const Having*>& havings){
 		std::string sql = "";
 		if(havings.size()>0){
@@ -864,7 +864,7 @@ public:
 		}
 		return sql;
 	}
-	
+
 	static std::string sql_order(const std::vector<const Order*>& orders){
 		std::string sql = "";
 		if(orders.size()>0){
@@ -896,7 +896,7 @@ public:
 		}
 		return sql;
 	}
-	
+
 	Datatable execute(Datatable& table){
 		Columns columns;
 		
