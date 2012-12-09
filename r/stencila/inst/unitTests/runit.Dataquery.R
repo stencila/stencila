@@ -42,6 +42,11 @@ test.Dataquery.binary <- function(){
   checkEquals("'banana'!=y",('banana'!=y)$dql())
 }
 
+test.Dataquery.as <- function(){
+  x = Column('x')
+  checkEquals('as(sum(x),"sum_of_x")',As(Call("sum",x),"sum_of_x")$dql())
+}
+
 test.Dataquery.where <- function(){
   x = Column('x')
   
@@ -76,6 +81,12 @@ test.Dataquery <- function(){
     Dataquery(Call('sum',x),Where(x<2)),
     '<from>[sum(x),where(x<2)]',
     'SELECT sum(\"x\") FROM \"<from>\" WHERE \"x\"<2'
+  )  
+  
+  check(
+    Dataquery(As(Call('sum',x),"sum_x"),Where(x<2)),
+    '<from>[as(sum(x),"sum_x"),where(x<2)]',
+    'SELECT sum(\"x\") AS "sum_x" FROM \"<from>\" WHERE \"x\"<2'
   )  
 }
 

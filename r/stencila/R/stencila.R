@@ -143,7 +143,6 @@ class_('Datatable')
 #' dt = new("Datatable")
 Datatable = function() new("Datatable")
 
-
 #' Datatable subscript
 #'
 #' @name Datatable-subscript
@@ -188,7 +187,7 @@ setMethod('[',
     # Intialise a list of names that refer to column in the Datatable
     # or functions in the dataset. Other names will be searched for in the 
     # R parent frame
-    datatable_names = dataquery_directives_
+    datatable_names = dataquery_elements_
     for(name in x$names()){
       datatable_names[[name]] = Column(name)
     }
@@ -332,6 +331,14 @@ Call = function(name,...) {
 }
 
 #' @export
+Aggregate = function(name,element) {
+  expr_('Aggregate',name,wrap_(element)@pointer)
+}
+
+#' @export
+As <- function(element,name) expr_('As',wrap_(element)@pointer,name)
+
+#' @export
 Distinct <- function(expr) expr_('Distinct')
 
 #' @export
@@ -341,24 +348,54 @@ All <- function(expr) expr_('All')
 Where <- function(expr) expr_('Where',wrap_(expr)@pointer)
 
 #' @export
-By <- function(expr) expr_('By',wrap_(expr)@pointer)
+By <- function(element) expr_('By',wrap_(element)@pointer)
 
-func_ <- function(name){
-  function(...) Call(name,...)
-}
-dataquery_directives_ <- list(
+#' @export
+Having <- function(expr) expr_('Having',wrap_(expr)@pointer)
+
+#' @export
+Order <- function(expr) expr_('Order',wrap_(expr)@pointer)
+
+#' @export
+Limit <- function(expr) expr_('Limit',wrap_(expr)@pointer)
+
+#' @export
+Offset <- function(expr) expr_('Offset',wrap_(expr)@pointer)
+
+# Dataquery elements
+# This list is used in Datable subscript operator to provide
+# a list of available names
+dataquery_elements_ <- list(
   distinct = Distinct,
   all = All,
   where = Where,
   by = By,
-  
-  abs = func_('abs'),
-  min = func_('min'),
-  max = func_('max'),
-  
-  sum = func_('sum')
-  #' @todo etc
+  having = Having,
+  order = Order,
+  limit = Limit,
+  offset = Offset
 )
+#Fuction calls
+func_ <- function(name) eval(substitute(function(...) Call(name,...),list(name=name)))
+for(name in c(
+  #Math functions
+  'cos','sin','tan',
+  'acos','asin','atan',  
+  'cosh','sinh','tanh',
+  'pi','degrees','radians',
+  'exp','log','log10',
+  'pow','square','sqrt',
+  'abs','round','sign','ceil','floor',
+  'random'
+)) dataquery_elements_[[name]] <- func_(name)
+
+#Aggregators
+agg_ <- function(name) eval(substitute(function(...) Aggregate(name,...),list(name=name)))
+for(name in c(
+  'count','sum','min','max',
+  'avg','mean','geomean','harmean',
+  'var','sd'
+)) dataquery_elements_[[name]] <- agg_(name)
 
 #' The Dataquery class
 #'

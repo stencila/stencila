@@ -94,9 +94,6 @@ STENCILA_LOCAL(Or)
 
 #undef STENCILA_LOCAL
 
-//////////////////
-// Clauses
-
 STENCILA_R_FUNC Expression_Call(SEXP name, SEXP arguments){
 	STENCILA_R_BEGIN
         Call* c = new Call(as<std::string>(name));
@@ -108,8 +105,23 @@ STENCILA_R_FUNC Expression_Call(SEXP name, SEXP arguments){
 	STENCILA_R_END
 }
 
-//////////////////
-// Clauses
+STENCILA_R_FUNC Expression_Aggregate(SEXP name, SEXP expr){
+	STENCILA_R_BEGIN
+        return to(new Aggregate(
+            as<std::string>(name),
+            &from<Expression>(expr)
+        ),"Expression");
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC Expression_As(SEXP element,SEXP name){
+	STENCILA_R_BEGIN
+		return to(new As(
+            &from<Element>(element),
+            as<std::string>(name)
+        ),"Expression");
+	STENCILA_R_END
+}
 
 STENCILA_R_FUNC Expression_Distinct(void){
 	STENCILA_R_BEGIN
@@ -131,7 +143,31 @@ STENCILA_R_FUNC Expression_Where(SEXP expr){
 
 STENCILA_R_FUNC Expression_By(SEXP expr){
 	STENCILA_R_BEGIN
-		return to(new By(&from<Expression>(expr)),"Expression");
+		return to(new By(&from<Element>(expr)),"Expression");
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC Expression_Having(SEXP expr){
+	STENCILA_R_BEGIN
+		return to(new Having(&from<Expression>(expr)),"Expression");
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC Expression_Order(SEXP expr){
+	STENCILA_R_BEGIN
+		return to(new Order(&from<Expression>(expr)),"Expression");
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC Expression_Limit(SEXP expr){
+	STENCILA_R_BEGIN
+		return to(new Limit(&from<Expression>(expr)),"Expression");
+	STENCILA_R_END
+}
+
+STENCILA_R_FUNC Expression_Offset(SEXP expr){
+	STENCILA_R_BEGIN
+		return to(new Offset(&from<Expression>(expr)),"Expression");
 	STENCILA_R_END
 }
 
