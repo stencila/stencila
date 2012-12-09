@@ -650,12 +650,12 @@ public:
 class Proportion : public Adjuster {
 public:
 	void adjust(Datatable& table) const {
+        //! @todo
 		//Calculate sums for each by
-		Call* sum = Aggregate("sum");
-		Columns cols = {sum};
+		//Call* sum = Aggregate("sum");
+		//Columns cols = {sum};
 		//sql(table,,bys_);
-		
-	};	
+	};
 };
 
 class Reshaper : public Element {
@@ -787,17 +787,14 @@ public:
     
     std::string dql(void) {
         compile();
-        std::string dql = from_ + "[";
-        
+        std::string dql;
         for(auto i=elements_.begin();i!=elements_.end();i++){
             dql += (*i)->dql();
             if(i!=elements_.end()-1) dql += ",";
         }
-        
-        dql += "]";
         return dql;
     }
-	
+
 	static std::string sql(const Datatable& table, 
 		const std::string& distinct, const std::string& columns,
 		const std::string& where = "", const std::string& by = "",

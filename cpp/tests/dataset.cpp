@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(aggregators){
 }
 
 BOOST_AUTO_TEST_CASE(aggregators_2step){
-    Datatable first = dataset.select("SELECT mean__1(c2) AS mean__1_ FROM t1");
-    BOOST_CHECK_CLOSE(first.value<float>("mean__2(mean__1_)"),3.3,0.0001);
+    Datatable first = dataset.select("SELECT mean1(c2) AS mean1_ FROM t1");
+    BOOST_CHECK_CLOSE(first.value<float>("mean2(mean1_)"),3.3,0.0001);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

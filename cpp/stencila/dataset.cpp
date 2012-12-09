@@ -15,6 +15,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //! @file dataset.cpp
 //! @brief Implmentations of Dataset methods which are unable to go into dataset.hpp
 
+#ifndef STENCILA_DATASET_IMPLEMENTATIONS
+#define STENCILA_DATASET_IMPLEMENTATIONS
+
 #include <stencila/dataset.hpp>
 #include <stencila/datatable.hpp>
 #include <stencila/hashing.hpp>
@@ -101,3 +104,5 @@ Datatable Dataset::clone(const std::string& orignal){
 }
 
 }
+
+#endif
