@@ -27,9 +27,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "exception.hpp"
-#include "dataset.hpp"
-#include "dataquery.hpp"
+#include <stencila/exception.hpp>
+#include <stencila/dataset.hpp>
 
 namespace Stencila {
 	
@@ -55,12 +54,12 @@ public:
 	//! @{
 
 	//! @brief Create a Datatable object
-	Datatable(const std::string& name="unnamed"):
+	template<typename... Columns>
+    Datatable(const std::string& name,Columns... columns):
 		name_(name),
 		contained_(false),
 		dataset_(new Dataset()){
-			
-		execute("CREATE TABLE \""+name_+"\"(id INTEGER)");
+        dataset().create(name,columns...);
 	}
 
 	//! @brief Create a Datatable object from an existing table in a Dataset
@@ -121,14 +120,14 @@ public:
 	}
 
 	template<typename... Args>
-	Datatable& add(const std::string& column, const Datatype& type, Args... args){
+	Datatable& column(const std::string& column_name, const Datatype& type, Args... args){
 		//! @todo Add checking of type
-		execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column+"\" "+type.sql());
-		add(args...);
+		execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column_name+"\" "+type.sql());
+		column(args...);
 		return *this;
 	}
 	
-	Datatable& add(void){
+	Datatable& column(void){
 		return *this;
 	}
 	
@@ -196,6 +195,11 @@ public:
 			insert_cursor.bind(i+1,row[i]);
 		}
 		insert_cursor.execute();
+		return *this;
+	}
+	
+	Datatable& append(const Datatable& table){
+		//! @todo Can this be done as a plain SQL ie. INSERT INTO ... SEECT * FROM ...
 		return *this;
 	}
 	
@@ -394,20 +398,17 @@ public:
 		return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
 	}
 	
-	Datatable select(Dataquery dataquery) {
-		dataquery.from(name());
-		std::string sql = dataquery.sql();
-		return dataset().select(sql);
+	Datatable select(const std::string& sql, bool reuse = true, bool cache = true) {
+		return dataset().select(sql,reuse,cache);
 	}
-    
-    Datatable operator[](Dataquery dataquery){
-        return select(dataquery);
-    }
-    
+
 	Datatable head(const unsigned int rows = 10) {
 		return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
 	}
-	
+
+    Datatable clone(void){
+        return dataset().clone(name());
+    }
 };
 
 }

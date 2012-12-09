@@ -321,8 +321,9 @@ public:
 	
 	//! @}
 	
-	Datatable select(const std::string& sql);
+	Datatable select(const std::string& sql, bool reuse = true, bool cache = true);
 	
+    Datatable clone(const std::string& table);
 };
-	
+
 } 

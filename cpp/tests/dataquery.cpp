@@ -11,6 +11,7 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#include <vector>
 #include <tuple>
 
 #ifdef STENCILA_TEST_SINGLE
@@ -22,6 +23,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/datatable.hpp>
 #include <stencila/dataquery.hpp>
 #include <stencila/dataquery-cxx.hpp>
+#include <stencila/dataset.cpp>
+#include <stencila/hashing.cpp>
+#include <stencila/print.hpp>
 using namespace Stencila;
 
 struct dataqueryFixture { 
@@ -32,23 +36,30 @@ struct dataqueryFixture {
 	Column sales;
 	
 	dataqueryFixture(void):
-		year("year"),
+		data("data",
+            "year",Integer,
+            "month",Integer,
+            "sales",Real
+        ),
+        year("year"),
 		month("month"),
 		sales("sales")
 	{
-		data.name("data");
-		data.add("year",Integer);
-		data.add("month",Integer);
-		data.add("sales",Real);
+        for(int year=2000;year<=2012;year++){
+            for(int month=1;month<=12;month++){
+                data.append(std::vector<int>{year,month,year*100+month});
+            }
+        }
 	} 
 	
 	void dql_check(Dataquery query, const std::string& sql_, const std::string& dql="") { 
-		query.from("data");
 		
-		std::string sql = query.sql();
-		BOOST_CHECK_EQUAL(sql, sql_);
+		//! @todo Create another way of testing SQL - perhaps by running SQL
+		//! as a separate query
+		//std::string sql = query.sql(data);
+		//BOOST_CHECK_EQUAL(sql, sql_);
 		
-		data.dataset().execute(sql);
+		//data.dataset().execute(sql);
 		
 		if(dql.length()>0){
 			BOOST_CHECK_EQUAL(query.dql(), dql);
@@ -79,6 +90,12 @@ BOOST_AUTO_TEST_CASE(dql){
 		"data[sales]"
 	);
 		
+	dql_check(
+		Dataquery(As(sales,"Sales")),
+		"SELECT \"sales\" AS \"Sales\" FROM \"data\"",
+		"data[as(sales,\"Sales\")]"
+	);
+
 	dql_check(
 		Dataquery(sales,year,month),
 		"SELECT \"sales\", \"year\", \"month\" FROM \"data\"",
@@ -168,6 +185,14 @@ BOOST_AUTO_TEST_CASE(dql){
 		Dataquery(by(year),by(month),sum(sales),where(month>6 and year>2000),having(sum(sales)>1000),offset(10),limit(1000)), 
 		"SELECT \"year\", \"month\", sum(\"sales\") FROM \"data\" WHERE (\"month\">6) AND (\"year\">2000) GROUP BY \"year\", \"month\" HAVING sum(\"sales\")>1000 LIMIT 1000 OFFSET 10"
 	);
+}
+
+BOOST_AUTO_TEST_CASE(combiners){
+    using namespace DQL;
+
+    Dataquery q1(top(by(year),mean(sales),5));
+    q1.execute(data);
+    data.save("temp.sds");
 } 
 
 BOOST_AUTO_TEST_SUITE_END()

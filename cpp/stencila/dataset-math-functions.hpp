@@ -134,8 +134,6 @@ static void sign(sqlite3_context *context, int argc, sqlite3_value **argv){
   }
 }
 
-STENCILA_LOCAL_1(fabs, std::fabs)
-
 STENCILA_LOCAL_1(ceil, std::ceil)
 STENCILA_LOCAL_1(floor, std::floor)
 

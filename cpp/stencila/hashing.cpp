@@ -18,13 +18,23 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #pragma once
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include <smhasher/MurmurHash3.cpp>
 
 namespace Stencila {
 
+//! Create a hash from a string key. If no key is supplied then create a hash from a randomly generated UUID
 unsigned int Hash(const std::string& string){
     unsigned int hash;
-    MurmurHash3_x86_32(string.c_str(),string.length(),0,&hash);
+    std::string key = string;
+    if(key.length()==0){
+        boost::uuids::uuid uuid = boost::uuids::random_generator()();
+        key = boost::lexical_cast<std::string>(uuid);
+    }
+    MurmurHash3_x86_32(key.c_str(),key.length(),0,&hash);
     return hash;
 }
 

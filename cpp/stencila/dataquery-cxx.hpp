@@ -138,6 +138,12 @@ BINOP(Or,||)
 		append(call,exprs...); \
 		return call; \
 	} 
+    
+#define AGG_1(name) \
+	template<class Expression> \
+	Aggregate name(const Expression& expr){ \
+		return Aggregate(#name,wrap(expr)); \
+	} 
 
 //! Number functions
 //! See http://www.sqlite.org/lang_corefunc.html
@@ -149,11 +155,14 @@ CALL_1(round)
 
 // Number aggregate functions
 //! See http://www.sqlite.org/lang_aggfunc.html
-CALL_1(avg)
-CALL_1(count)
-CALL_1(max)
-CALL_1(min)
-CALL_1(sum)
+AGG_1(avg)
+AGG_1(count)
+AGG_1(max)
+AGG_1(min)
+AGG_1(sum)
+AGG_1(mean)
+AGG_1(geomean)
+AGG_1(harmean)
 
 // Text functions
 //! See http://www.sqlite.org/lang_corefunc.html
@@ -209,6 +218,11 @@ Limit limit(const Expression& expr){
 template<class Expression>
 Offset offset(const Expression& expr){
 	return Offset(wrap(expr));
+}
+
+template<class Element,class Expression>
+Top top(const Element& element,const Expression& expression,unsigned int num){
+	return Top(wrap(element),wrap(expression),num);
 }
 
 }

@@ -68,18 +68,36 @@ void Dataset::index(const std::string& table, Columns... columns){
 	execute(sql);
 }
 
-Datatable Dataset::select(const std::string& sql){
-	std::string signature = boost::lexical_cast<std::string>(Hash(sql));
-	std::string name = "stencila_"+signature;
-	
-	// Check whether id is already in cache and only execute SQL if it is not
+Datatable Dataset::select(const std::string& sql, bool reuse, bool cache){
+    std::string signature = boost::lexical_cast<std::string>(Hash(sql));
+    std::string name = "stencila_"+signature;
+    
+	// Check whether signature is already in cache
 	int exists = value<int>("SELECT count(*) FROM stencila_datatables WHERE signature==?",signature);
-	if(!exists){
-		execute("CREATE TEMPORARY TABLE \""+name+"\" AS "+sql);
-		execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
-	}
-	
-	return table(name);
+    // If not reusing cached table then drop existing table if it does exist
+    if(!reuse and exists) {
+        execute("DROP TABLE \""+name+"\"");
+        execute("DELETE stencila_datatables WHERE signature==?",signature);
+    }
+    if(!reuse or !exists){
+        //The extra "SELECT * FROM" in the following SQL is necessary for the correct interpretation of quoted
+        //field names in the original SQL. If you don't treat the orginal SQL as a subquery then statements like
+        // "SELECT "year",..." get treated as a string "year".
+        execute("CREATE TEMPORARY TABLE \""+name+"\" AS SELECT * FROM ("+sql+ ")");
+        if(cache) execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
+    }
+    return table(name);
+}
+
+Datatable Dataset::clone(const std::string& orignal){
+    std::string signature = boost::lexical_cast<std::string>(Hash());
+    std::string name = "stencila_"+signature;
+    
+    execute("DROP TABLE IF EXISTS \""+name+"\"");
+    execute("CREATE TEMPORARY TABLE \""+name+"\" AS SELECT * FROM \""+orignal+"\"");
+    execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'clone',?,?,0)",name,orignal,signature);
+    
+    return table(name);
 }
 
 }
