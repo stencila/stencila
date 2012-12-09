@@ -28,6 +28,43 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 namespace Stencila {
 namespace MathAggregators {
 
+class Sum {
+protected:
+    double sum_;
+
+public:
+	Sum(void):
+		sum_(0){
+	}
+
+	double sum(void) const {
+		return sum_;
+	}
+	
+	void append(const double& value){
+		sum_ += value;
+	}
+	
+	std::string dump(void){
+		char value[1000];
+		std::sprintf(value, "%lf", sum());
+		return value;
+	}
+	
+	void load(const std::string& value){
+		std::sscanf(value.c_str(), "%lf", &sum_);
+	}
+	
+	void combine(const Sum& other){
+		sum_ += other.sum();
+	}
+	
+	double calc(void) const {
+		return sum();
+	}
+};
+
+
 //! @{
 //! @brief Location descriptive statistics
 
@@ -58,12 +95,12 @@ public:
 	
 	std::string dump(void){
 		char value[1000];
-		std::sprintf(value, "%li,%lf", count(), sum());
+		std::sprintf(value, "%li %lf", count(), sum());
 		return value;
 	}
 	
 	void load(const std::string& value){
-		std::sscanf(value.c_str(), "%li,%lf", &count_, &sum_);
+		std::sscanf(value.c_str(), "%li %lf", &count_, &sum_);
 	}
 	
 	void combine(const Mean& other){
@@ -151,12 +188,12 @@ public:
 	
 	std::string dump(void){
 		char value[1000];
-		std::sprintf(value, "%li,%lf,%lf", count(), mean(), m2());
+		std::sprintf(value, "%li %lf %lf", count(), mean(), m2());
 		return value;
 	}
 	
 	void load(const std::string& value){
-		std::sscanf(value.c_str(), "%li,%lf,%lf", &count_, &mean_, &m2_);
+		std::sscanf(value.c_str(), "%li %lf %lf", &count_, &mean_, &m2_);
 	}
 	
 	void combine(const Variance& other){
@@ -216,30 +253,37 @@ static void calc(sqlite3_context* context){
 	sqlite3_result_double(context,agg->calc());
 }
 
-#define STENCILA_LOCAL(NAME,AGGREGATOR) \
-	sqlite3_create_function(db, #NAME, 1, SQLITE_UTF8, 0, 0, append<AGGREGATOR>, calc<AGGREGATOR>); \
-	sqlite3_create_function(db, #NAME"__1", 1, SQLITE_UTF8, 0, 0, append<AGGREGATOR>, store<AGGREGATOR>); \
-	sqlite3_create_function(db, #NAME"__2", 1, SQLITE_UTF8, 0, 0, combine<AGGREGATOR>, calc<AGGREGATOR>); \
-
 inline void create(sqlite3* db) {
     //This list includes commented lines for builtin SQLite functions at http://www.sqlite.org/lang_aggfunc.html
     //That is so this list can be used to constuct Dataquery call elements in R, Python etc packages
 
+#define STENCILA_LOCAL(NAME,AGGREGATOR) \
+	sqlite3_create_function(db, #NAME"1", 1, SQLITE_UTF8, 0, 0, append<AGGREGATOR>, store<AGGREGATOR>); \
+	sqlite3_create_function(db, #NAME"2", 1, SQLITE_UTF8, 0, 0, combine<AGGREGATOR>, calc<AGGREGATOR>);
+
     //count
     //min
     //max
-    //sum
+    STENCILA_LOCAL(sum,Sum)
     
     //avg
+    
+#undef STENCILA_LOCAL
+    
+#define STENCILA_LOCAL(NAME,AGGREGATOR) \
+	sqlite3_create_function(db, #NAME, 1, SQLITE_UTF8, 0, 0, append<AGGREGATOR>, calc<AGGREGATOR>); \
+	sqlite3_create_function(db, #NAME"1", 1, SQLITE_UTF8, 0, 0, append<AGGREGATOR>, store<AGGREGATOR>); \
+	sqlite3_create_function(db, #NAME"2", 1, SQLITE_UTF8, 0, 0, combine<AGGREGATOR>, calc<AGGREGATOR>);
+
     STENCILA_LOCAL(mean,Mean)
     STENCILA_LOCAL(geomean,GeometricMean)
     STENCILA_LOCAL(harmean,HarmonicMean)
 
     STENCILA_LOCAL(var,Variance)
     STENCILA_LOCAL(sd,StandardDeviation)
-}
-
+    
 #undef STENCILA_LOCAL
+}
 
 }
 }
