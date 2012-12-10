@@ -60,32 +60,31 @@ test.Dataquery <- function(){
     
   check <- function(q,dql,sql){
     checkEquals(dql,q$dql())
-    checkEquals(sql,q$sql())
   }
   
   checkException(Dataquery(),"a Dataquery must be constructed with at least one argument")
 
   check(
     Dataquery(x),
-    '<from>[x]',
+    'x',
     'SELECT \"x\" FROM \"<from>\"'
   )
   
   check(
     Dataquery(Where(x<2)),
-    '<from>[where(x<2)]',
+    'where(x<2)',
     'SELECT * FROM \"<from>\" WHERE \"x\"<2'
   )  
   
   check(
     Dataquery(Call('sum',x),Where(x<2)),
-    '<from>[sum(x),where(x<2)]',
+    'sum(x),where(x<2)',
     'SELECT sum(\"x\") FROM \"<from>\" WHERE \"x\"<2'
   )  
   
   check(
     Dataquery(As(Call('sum',x),"sum_x"),Where(x<2)),
-    '<from>[as(sum(x),"sum_x"),where(x<2)]',
+    'as(sum(x),"sum_x"),where(x<2)',
     'SELECT sum(\"x\") AS "sum_x" FROM \"<from>\" WHERE \"x\"<2'
   )  
 }

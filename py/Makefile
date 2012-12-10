@@ -2,7 +2,7 @@ include ../cpp/Makefile.common
 
 .PHONY: build dist test clean
 
-all: build dist test
+all: clean test
 
 # Requires everything that C++ library requires
 requirements:

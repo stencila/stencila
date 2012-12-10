@@ -1,5 +1,3 @@
-#include <stencila/dataset.hpp>
-
 #include <stencila/dataset.cpp>
 #include <stencila/hashing.cpp>
 

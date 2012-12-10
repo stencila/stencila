@@ -198,10 +198,11 @@ STENCILA_R_FUNC Dataquery_dql(SEXP self){
 	STENCILA_R_END
 }
 
-STENCILA_R_FUNC Dataquery_sql(SEXP self){
-	STENCILA_R_BEGIN
-		return wrap(
-            from<Dataquery>(self).sql()
+STENCILA_R_FUNC Dataquery_execute(SEXP self, SEXP datatable){
+    STENCILA_R_BEGIN
+        Datatable result = from<Dataquery>(self).execute(
+            from<Datatable>(datatable)
         );
+        return to(new Datatable(result),"Datatable");
 	STENCILA_R_END
 }

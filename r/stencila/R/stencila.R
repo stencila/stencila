@@ -206,8 +206,8 @@ setMethod('[',
       directives = c(directives,directive)
     }
     
-    q = do.call(Dataquery,directives)
-    q$sql()
+    query = do.call(Dataquery,directives)
+    return(query$execute(x))
   }
 )
 

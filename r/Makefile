@@ -6,7 +6,7 @@ TAG := $(shell git describe --abbrev=0)
 
 .PHONY: compile docs desc test install
 
-all:  build test
+all:  clean test
 
 # Requires everything that C++ library requires
 requirements:
@@ -68,7 +68,7 @@ check:
 # Test the package by running unit tests
 # Install package in a testing directory and run unit tests from there
 # This is better than installing package in the users R library location
-test:
+test: build
 	mkdir -p testing
 	R CMD INSTALL -l testing builds/stencila_latest.tar.gz
 	echo "setwd('testing'); library(stencila,lib.loc='.'); source('stencila/unitTests/do.svUnit.R')" | R --vanilla

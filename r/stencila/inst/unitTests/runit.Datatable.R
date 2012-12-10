@@ -5,7 +5,7 @@ test.Datatable <- function(){
   ")
   dt = ds$table('t1')
   
-  print(dt[a<1])
-  print(dt[2,"hello",sum(a),where(a>2),by(c)])
-  print(dt[sum(abs(a)),where(a>2),by(c),having(a>3),order(b),limit(1),offset(2)])
+  #print(dt[a<1])
+  #print(dt[2,"hello",sum(a),where(a>2),by(c)])
+  #print(dt[sum(abs(a)),where(a>2),by(c),having(a>3),order(b),limit(1),offset(2)])
 }
