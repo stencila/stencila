@@ -1,6 +1,7 @@
 #include <stencila/version.hpp>
+using namespace Stencila;
 
-#include "stencila.hpp"
+#include "r-extension.hpp"
 
 //! Get the version number of the Stencila library
 STENCILA_R_FUNC Stencila_version(void){
