@@ -1,9 +1,7 @@
-#include <stencila/dataset.cpp>
-#include <stencila/hashing.cpp>
-
-#include "extension.hpp"
-
+#include <stencila/dataset>
 using namespace Stencila;
+
+#include "py-extension.hpp"
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
     save_overloads,

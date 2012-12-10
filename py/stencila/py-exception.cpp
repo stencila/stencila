@@ -1,8 +1,7 @@
 #include <stencila/exception.hpp>
-
-#include "extension.hpp"
-
 using namespace Stencila;
+
+#include "py-extension.hpp"
 
 template<typename Class>
 struct ExceptionTranslator {

@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "extension.hpp"
+#include "py-extension.hpp"
 
 extern void Exception_define(void);
 extern void Datatype_define(void);

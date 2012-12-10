@@ -1,8 +1,7 @@
 #include <stencila/datatable.hpp>
-
-#include "extension.hpp"
-
 using namespace Stencila;
+
+#include "py-extension.hpp"
 
 /*
 object select_tuple(tuple args, dict kwargs){

@@ -1,8 +1,7 @@
 #include <stencila/dataquery.hpp>
-
-#include "extension.hpp"
-
 using namespace Stencila;
+
+#include "py-extension.hpp"
 
 //! @brief Convert a Python object into a Dataquery element
 //!
