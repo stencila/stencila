@@ -1,6 +1,6 @@
 include ../Makefile.common
 
-all: clean tests.test
+all: tests.test
 
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid) 
 STENCILA_CPP_TEST_COMPILE := g++ $(STENCILA_CPP_FLAGS) -g --coverage -O0 $(STENCILA_CPP_INCLUDE_DIRS)

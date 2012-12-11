@@ -5,6 +5,8 @@ prepare_cpp:
 	mkdir -p working/cpp
 	#Make C++ requirements
 	make -C ../../cpp/requirements all
+	#Make C++ library
+	make -C ../../cpp/lib all
 
 prepare_py:
 	#Create working directory
