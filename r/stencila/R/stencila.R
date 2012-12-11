@@ -9,16 +9,16 @@ NULL
 
 # A convienience function for calling C++ functions in 
 # the Stencila R extension module
-call_ = function(symbol,...){
+call_ <- function(symbol,...){
     .Call(symbol,...,package='stencila')
 }
 
 # A convienience function for converting an externalptr object
 # into an instance of a Stencila R class
-object_ = function(object){
+object_ <- function(object){
   if(typeof(object)=='externalptr'){
-    class = call_("Stencila_class",object)
-    object = new(class,created=TRUE,pointer=object)
+    class <- call_("Stencila_class",object)
+    object <- new(class,created=TRUE,pointer=object)
     return(object)
   }
   return(object)
@@ -26,15 +26,15 @@ object_ = function(object){
 
 # A convienience function for creating an instance of a Stencila R class
 # from a function other than "<class>_new"
-create_ = function(class,func,...){
+create_ <- function(class,func,...){
   new(class,created=TRUE,pointer=call_(func,...))
 }
 
 # A convienience function for calling C++ functions which 
 # represent Stencila R class methods
-method_ = function(class_name,method_name,...){
-    symbol = paste(class_name,method_name,sep='_')
-    result = tryCatch(
+method_ <- function(class_name,method_name,...){
+    symbol <- paste(class_name,method_name,sep='_')
+    result <- tryCatch(
         call_(symbol,...),
         error = function(error) error
     )
@@ -49,7 +49,7 @@ method_ = function(class_name,method_name,...){
 }
 
 # A convienience function for creating a Stencila R class
-class_ = function(class_name){
+class_ <- function(class_name){
   
   setClass(
       class_name,
@@ -75,7 +75,7 @@ class_ = function(class_name){
   
   setMethod('$',class_name,eval(substitute(function(x,name){
     function(...) {
-      result = method_(class_name,name,x@pointer,...)
+      result <- method_(class_name,name,x@pointer,...)
       if(!is.null(result)) return(object_(result))
     }
   },list(class_name=class_name))))
@@ -118,10 +118,10 @@ class_('Dataset')
 #'
 #' @examples
 #' # Create a Dataset...
-#' ds = Dataset()
+#' ds <- Dataset()
 #' # which is equivalent to, but a bit quicker to type than,...
-#' ds = new("Dataset")
-Dataset = function(uri="") new("Dataset",uri=uri)
+#' ds <- new("Dataset")
+Dataset <- function(uri="") new("Dataset",uri=uri)
 
 #####################################
 
@@ -138,10 +138,10 @@ class_('Datatable')
 #'
 #' @examples
 #' # Create a Datatable...
-#' dt = Datatable()
+#' dt <- Datatable()
 #' # which is equivalent to, but a bit quicker to type than,...
-#' dt = new("Datatable")
-Datatable = function() new("Datatable")
+#' dt <- new("Datatable")
+Datatable <- function() new("Datatable")
 
 #' Datatable subscript
 #'
@@ -163,7 +163,7 @@ setMethod('[',
     
     #Record the call, removing first (name of function ('[')) and second ('x') arguments which are
     #not needed
-    args = as.list(match.call()[-c(1,2)])
+    args <- as.list(match.call()[-c(1,2)])
     
     #If arg[1] is numeric then restrict the result to that set of rows, regardless of the other arguments
     #If an arg is character then select that column
@@ -180,33 +180,33 @@ setMethod('[',
     #  directive = paste(directive,":",func,sep='')
     #}
     
-    rows = -1
-    cols = -1
-    directives = NULL
+    rows <- -1
+    cols <- -1
+    directives <- NULL
     
     # Intialise a list of names that refer to column in the Datatable
     # or functions in the dataset. Other names will be searched for in the 
     # R parent frame
-    datatable_names = dataquery_elements_
+    datatable_names <- dataquery_elements_
     for(name in x$names()){
-      datatable_names[[name]] = Column(name)
+      datatable_names[[name]] <- Column(name)
     }
     
     for(index in 1:length(args)){
-      arg = args[[index]]
-      arg = substitute(arg)
+      arg <- args[[index]]
+      arg <- substitute(arg)
       
       # Evaluate each argument with the parent frame as a "fallback" for symbols not in the database
       # See subset.data.frame for an example of this
-      directive = tryCatch(eval(arg,datatable_names,parent.frame()),error=function(error) error)
+      directive <- tryCatch(eval(arg,datatable_names,parent.frame()),error=function(error) error)
       if(inherits(directive,'error')){
         stop(paste("in query :",directive$message,sep=''),call.=FALSE)
       }
       
-      directives = c(directives,directive)
+      directives <- c(directives,directive)
     }
     
-    query = do.call(Dataquery,directives)
+    query <- do.call(Dataquery,directives)
     return(query$execute(x))
   }
 )
@@ -222,25 +222,25 @@ setMethod('[',
 #' @method dim Datatable
 #' @export
 # Implementing dim also provides for nrow and ncol
-dim.Datatable = function(x) x$dimensions()
+dim.Datatable <- function(x) x$dimensions()
 
 #' Get the first n rows of a Datatable
 #'
 #' @method head Datatable
 #' @export
-head.Datatable = function(x,n=10) as.data.frame(x$head(n))
+head.Datatable <- function(x,n=10) as.data.frame(x$head(n))
 
 #' Get the last n rows of a Datatable
 #'
 #' @method tail Datatable
 #' @export
-tail.Datatable = function(x,n=10) as.data.frame(x$tail(n))
+tail.Datatable <- function(x,n=10) as.data.frame(x$tail(n))
 
 #' Convert a Datatable to a data.frame
 #'
 #' @method as.data.frame Datatable
 #' @export
-as.data.frame.Datatable = function(x) x$dataframe()
+as.data.frame.Datatable <- function(x) x$dataframe()
 
 #######################################################################
 
@@ -326,14 +326,12 @@ binop_methods_('&','And')
 binop_methods_('|','Or')
 
 #' @export
-Call = function(name,...) {
+Call <- function(name,...) {
   expr_('Call',name,wrap_all_(...))
 }
 
 #' @export
-Aggregate = function(name,element) {
-  expr_('Aggregate',name,wrap_(element)@pointer)
-}
+Aggregate <- function(name,element) expr_('Aggregate',name,wrap_(element)@pointer)
 
 #' @export
 As <- function(element,name) expr_('As',wrap_(element)@pointer,name)
@@ -407,7 +405,7 @@ class_('Dataquery')
 #' Create a Dataquery
 #'
 #' @export
-Dataquery = function(...) {
+Dataquery <- function(...) {
   # The C++ function Dataquery_new causes a segfault when compiled with g++ -O2
   # and called with no elements. This method dispatches to alternative versions of 
   # of a Dataquery constructor which does not expect arguments. But even that does not
@@ -501,7 +499,7 @@ Context <- function(envir){
   }
   
   self$set <- function(name,expression){
-    env = self$top()
+    env <- self$top()
     value <- eval(parse(text=expression),envir=env)
     assign(name,value,envir=env)
   }
@@ -582,7 +580,7 @@ Context <- function(envir){
   
   self$begin <- function(item,items){
     # Enter a new anonymous block that forms the namespace for the loop
-    loop = self$enter()
+    loop <- self$enter()
     # Create an iterator for items
     items <- eval(parse(text=items),envir=loop)
     iterator <- iterate(items)
@@ -597,7 +595,7 @@ Context <- function(envir){
   }
   
   self$step <- function(){
-    loop = self$top()
+    loop <- self$top()
     # Get _items_
     items <- base::get('_items_',envir=loop)
     # Go to next item
@@ -660,16 +658,16 @@ DefaultIterator <- function(container){
   self <- new.env()
   class(self) <- "DefaultIterator"
   
-  self$container = container
-  self$index = 0
-  self$size = length(self$container)
+  self$container <- container
+  self$index <- 0
+  self$size <- length(self$container)
   
   self$more <- function(){
     return(self$index<self$size)
   }
   
   self$step <- function(){
-    self$index = self$index +1
+    self$index <- self$index +1
     return(self$container[[self$index]])
   }
   

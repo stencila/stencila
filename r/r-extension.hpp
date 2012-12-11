@@ -60,21 +60,40 @@ However, there appears to be no benefit of dealing with complexity of that,
 so just use Rcpp's constructor
 */
 
+//! R finaliser for R_RegisterCFinalizerEx
+template<typename Type>
+static void finalizer(SEXP pointer){
+    delete static_cast<Type*>(R_ExternalPtrAddr(pointer));
+    R_ClearExternalPtr(pointer);
+}
+
 //! Conversion from C++ to R
 template<typename Type>
-SEXP to(Type* object, const char* clazz){
-	return Rcpp::XPtr<Type>(object,true,wrap(clazz));
+SEXP to(Type* object, const char* classs){
+    #if 1
+        // The signature for this XPtr constructor is:
+        //    Rcpp::XPtr(T* p, bool set_delete_finalizer = true, SEXP tag = R_NilValue, SEXP prot = R_NilValue)
+        return Rcpp::XPtr<Type>(object,true,wrap(classs));
+    #else
+        SEXP pointer = PROTECT(R_MakeExternalPtr(object, wrap(classs), R_NilValue));
+        R_RegisterCFinalizerEx(pointer, finalizer<Type>, TRUE);
+        UNPROTECT(1);
+        return pointer;
+    #endif
 }
 
 //! Conversion from R to C++
 template<typename Type>
 Type& from(SEXP self){
-    // An alternative is to use 
-    //  return *static_cast<Type*>(R_ExternalPtrAddr(self))
-    // however that does not protect the pointer from R garbage collection
-    // using Rcpp::XPtr does. Note though that we need to provide the exisiting tag
-    // because otherwise the XPtr constructor sets it with a default R_NilValue
-    return *Rcpp::XPtr<Type>(self,R_ExternalPtrTag(self));
+    #if 1
+        // The signature for this XPtr constructor is:
+        //    Rcpp::XPtr(SEXP m_sexp, SEXP tag = R_NilValue, SEXP prot = R_NilValue)
+        // Note though that we need to provide the exisiting tag
+        // because otherwise the XPtr constructor sets it with a default R_NilValue
+        return *Rcpp::XPtr<Type>(self,R_ExternalPtrTag(self));
+    #else
+        return *static_cast<Type*>(R_ExternalPtrAddr(self));
+    #endif
 }
 
 //! @}
