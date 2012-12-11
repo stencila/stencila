@@ -20,11 +20,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/test.hpp>
-#include <stencila/datatable.hpp>
 #include <stencila/dataquery.hpp>
 #include <stencila/dataquery-cxx.hpp>
-#include <stencila/dataset.cpp>
-#include <stencila/hashing.cpp>
+#include <stencila/dataset.hpp>
 #include <stencila/print.hpp>
 using namespace Stencila;
 

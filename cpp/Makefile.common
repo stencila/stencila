@@ -7,11 +7,11 @@ STENCILA_CPP_FLAGS := -std=c++0x -Wall
 
 #Define directories for includes and libs
 STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requirements/include
-STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/requirements/lib
+STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requirements/lib
 
 #Define libraries required
 # Note that -ldl -pthread should come after -lsqlite
-STENCILA_CPP_LIBS := -lboost_system -lboost_filesystem -lboost_date_time \
+STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time \
                     -lsqlite3 -ldl -lpthread \
                     -lpugixml
 

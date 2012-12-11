@@ -17,9 +17,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #pragma once
 
-#include "sqlite.hpp"
-#include "datatypes.hpp"
-#include "exception.hpp"
+#include <stencila/exception.hpp>
+#include <stencila/sqlite.hpp>
+#include <stencila/datatypes.hpp>
 
 namespace Stencila {
 

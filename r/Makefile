@@ -8,9 +8,10 @@ TAG := $(shell git describe --abbrev=0)
 
 all:  clean test
 
-# Requires everything that C++ library requires
+# Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requirements:
 	make -C ../cpp/requirements all
+	make -C ../cpp/lib all
 
 # Compilation
 

@@ -19,22 +19,25 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <vector>
 
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/filesystem.hpp>
 
-#include "sqlite.hpp"
-#include "datacursor.hpp"
-#include "dataset-math-functions.hpp"
-#include "dataset-math-aggregators.hpp"
-#include "exception.hpp"
-#include "hashing.hpp"
+#include <stencila/exception.hpp>
+#include <stencila/hashing.hpp>
+#include <stencila/datacursor.hpp>
+#include <stencila/dataset-math-functions.hpp>
+#include <stencila/dataset-math-aggregators.hpp>
 
 namespace Stencila {
-	
+
 class Datatable;
 	
 //! @class Dataset
@@ -116,9 +119,9 @@ public:
 	//! @param name The name of the table
 	//! @return A Datatable
 	Datatable import(const std::string& name);
-    
+
     Datatable create(const std::string& name);
-        
+
 	//! @brief Create a Datatable in the Dataset
 	//! @param name The name of the table
 	//! @return The new Datatable
@@ -151,10 +154,26 @@ public:
 	//! @brief Create and get indices
 	//! @{
     
+private:
+
+    std::string index_helper(const std::string& column){
+        return column;
+    }
+
     template<typename... Columns>
-	void index(const std::string& table, Columns... columns);
+    std::string index_helper(const std::string& separator, const std::string& column, Columns... columns){
+        return index_helper(column) + separator + index_helper(separator,columns...);
+    }
+
+public:
+
+    template<typename... Columns>
+    void index(const std::string& table, Columns... columns){
+        std::string sql = "CREATE INDEX " + table + "_" + index_helper("_",columns...) + "_index ON " + table + "(" + index_helper(",",columns...) + ");";
+        execute(sql);
+    }
     
-	void index(const std::string& table, const std::vector<std::string>& columns){
+    void index(const std::string& table, const std::vector<std::string>& columns){
         std::string sql = "CREATE INDEX " + table + "_" + boost::algorithm::join(columns, "_") + "_index ON " + table + "(" + boost::algorithm::join(columns, ",") + ");";
         execute(sql);
     }
@@ -308,24 +327,40 @@ public:
 	std::vector<Type> column(const std::string& sql, const Parameters&... pars) {
 		return cursor(sql).column<Type>(pars...);
 	}
-	
-	//! @brief Execute a SQL SELECT statement on the Dataset and return the first row.
-	//! @see Datacursor::row
-	//! @param sql A SQL SELECT statement
-	//! @return A vector representing the row
-	template<
-		typename Type = std::vector<std::string>,
-		typename... Parameters
-	>
-	Type row(const std::string& sql, const Parameters&... pars) {
-		return cursor(sql).row<Type>(pars...);
-	}
-	
-	//! @}
-	
-	Datatable select(const std::string& sql, bool reuse = true, bool cache = true);
-	
-    Datatable clone(const std::string& table);
+
+    //! @brief Execute a SQL SELECT statement on the Dataset and return the first row.
+    //! @see Datacursor::row
+    //! @param sql A SQL SELECT statement
+    //! @return A vector representing the row
+    template<
+        typename Type = std::vector<std::string>,
+        typename... Parameters
+    >
+    Type row(const std::string& sql, const Parameters&... pars) {
+        return cursor(sql).row<Type>(pars...);
+    }
+
+    //! @}
+
+    Datatable select(const std::string& sql, bool reuse = true, bool cache = true);
+
+    Datatable clone(const std::string& original);
 };
+
+inline
+std::string Dataset_create_helper(void){
+	return "";
+}
+
+inline
+std::string Dataset_create_helper(const std::string& column, const Datatype& type){
+	return column + " " + type.sql();
+}
+
+template<typename... Columns>
+inline
+std::string Dataset_create_helper(const std::string& column, const Datatype& type, Columns... columns){
+	return Dataset_create_helper(column,type) + "," + Dataset_create_helper(columns...);
+}
 
 } 

@@ -1,3 +1,4 @@
+#include <stencila/dataset.hpp>
 #include <stencila/datatable.hpp>
 using namespace Stencila;
 

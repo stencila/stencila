@@ -73,10 +73,9 @@ BOOST_AUTO_TEST_CASE(render_include){
 }
 
 void stem_html(std::string stem,std::string html) {
-    std::string got = Stem::html(stem);
+    std::string got = Stencil::stem_to_html(stem);
     if(got!=html){
-        Stem::Line doc = Stem::parse(stem);
-        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+doc.print("\t\t"));
+        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stencil::stem_to_string(stem));
     }
 }
 

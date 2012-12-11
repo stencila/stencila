@@ -19,13 +19,11 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/formats/xml.hpp>
-
-using namespace Stencila::Formats::Xml;
+#include <stencila/xml.hpp>
 
 struct formatsXmlFixture {
 
-    Document doc;
+    Stencila::Xml::Document doc;
     
     formatsXmlFixture(void){
         doc.load(
@@ -38,6 +36,8 @@ struct formatsXmlFixture {
 };
 
 BOOST_FIXTURE_TEST_SUITE(formats_xml,formatsXmlFixture)
+
+using namespace Stencila::Xml;
 
 BOOST_AUTO_TEST_CASE(select_next_sibling){
     //Selects node using next_sibling
@@ -55,31 +55,30 @@ BOOST_AUTO_TEST_CASE(select_xpath){
 
 BOOST_AUTO_TEST_CASE(select_css_translate){
     //Translate CSS selector to XPath selector
-    using namespace CssToXPath;
     
     /*!
     @todo Generate a large number of test cases using a Python script with cssselet
     */
-    #define CHECK(css,xpath) std::cerr<<CssToXPath::print(parse(css)); BOOST_CHECK_EQUAL(translate(css),xpath);
-    /*
-    CHECK("div","")
-    CHECK("div.a","")
-    CHECK("div#a","")
-    CHECK("div[class]","")
-    CHECK("div[class=a]","")
-    CHECK("div[class~=a]","")
-    CHECK("div[class|=a]","")
-    CHECK("div[class=a].b#c","")
-    CHECK("div p","")
-    CHECK("div>p","")
-    CHECK("div > p","")
-    CHECK("div>p a","")
-    CHECK("div+a","")
-    CHECK("div+a+i","")
-    CHECK("div~a","")
-    CHECK("div, p,a","")
-    */
-    #undef CHECK
+    #define STENCILA_LOCAL(css,xpath) BOOST_CHECK_EQUAL(CssToXPath(css),xpath);
+/*
+    STENCILA_LOCAL("div","")
+    STENCILA_LOCAL("div.a","")
+    STENCILA_LOCAL("div#a","")
+    STENCILA_LOCAL("div[class]","")
+    STENCILA_LOCAL("div[class=a]","")
+    STENCILA_LOCAL("div[class~=a]","")
+    STENCILA_LOCAL("div[class|=a]","")
+    STENCILA_LOCAL("div[class=a].b#c","")
+    STENCILA_LOCAL("div p","")
+    STENCILA_LOCAL("div>p","")
+    STENCILA_LOCAL("div > p","")
+    STENCILA_LOCAL("div>p a","")
+    STENCILA_LOCAL("div+a","")
+    STENCILA_LOCAL("div+a+i","")
+    STENCILA_LOCAL("div~a","")
+    STENCILA_LOCAL("div, p,a","")
+*/
+    #undef STENCILA_LOCAL
 }
 
 BOOST_AUTO_TEST_CASE(select_css){

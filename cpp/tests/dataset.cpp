@@ -19,9 +19,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stencila/test.hpp>
 #include <stencila/dataset.hpp>
+#include <stencila/datatable.hpp>
 
-#include <stencila/dataset.cpp>
-#include <stencila/hashing.cpp>
 using namespace Stencila;
 
 struct datasetFixture { 

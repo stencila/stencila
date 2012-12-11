@@ -18,12 +18,13 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include <stencila/formats/json.hpp>
+#include <stencila/json.hpp>
 
 BOOST_AUTO_TEST_SUITE(formats_json)
 
+using namespace Stencila::Json;
+
 BOOST_AUTO_TEST_CASE(general){
-	using namespace Stencila::Formats::Json;
 	
 	Document doc("{"
 	"	\"answer\" : 42,		"

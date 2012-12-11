@@ -25,10 +25,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <rapidjson/filestream.h>
 #include <rapidjson/stringbuffer.h>
 
-#include "../exception.hpp"
+#include <stencila/exception.hpp>
 
 namespace Stencila {
-namespace Formats {
 namespace Json {
 	
 /*! 
@@ -180,8 +179,8 @@ IS(bool,IsBool)
 IS(int,IsInt)
 IS(double,IsDouble)
 IS(std::string,IsString)
-IS(Stencila::Formats::Json::Object,IsObject)
-IS(Stencila::Formats::Json::Array,IsArray)
+IS(Stencila::Json::Object,IsObject)
+IS(Stencila::Json::Array,IsArray)
 
 #undef IS
 
@@ -232,6 +231,5 @@ Document& Document::add(Value& to,const std::string& name,const std::string& val
 	return *this;
 }
 
-}
 }
 }

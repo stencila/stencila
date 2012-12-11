@@ -26,6 +26,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/algorithm/string/join.hpp>
 
 #include <stencila/exception.hpp>
+#include <stencila/dataset.hpp>
 #include <stencila/datatable.hpp>
 
 namespace Stencila {
