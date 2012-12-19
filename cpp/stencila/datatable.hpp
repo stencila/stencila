@@ -7,26 +7,26 @@ namespace Stencila {
 //! @class Datatable
 //! @brief A table of data in a dataset
 class Datatable {
-	
+
 private:
-	
-	//! @brief Name of the Datatable
-	std::string name_;
+
+    //! @brief Name of the Datatable
+    std::string name_;
     
-	//! @brief Whether the Datatable has been created in the Dataset yet
-	bool created_;
+    //! @brief Whether the Datatable has been created in the Dataset yet
+    bool created_;
 
-	//! @brief Whether the Datatable is contained in a Dataset (true) or maintains its own Dataset (false)
-	bool contained_;
+    //! @brief Whether the Datatable is contained in a Dataset (true) or maintains its own Dataset (false)
+    bool contained_;
 
-	//! @brief Dataset where the Datatable resides
-	Dataset* dataset_;
+    //! @brief Dataset where the Datatable resides
+    Dataset* dataset_;
 
 public:
-	
-	//! @name Constructor & destructors
-	//! @brief Create and destroy a Datatable
-	//! @{
+    
+    //! @name Constructor & destructors
+    //! @brief Create and destroy a Datatable
+    //! @{
 
     //! @brief Create a Datatable object
     Datatable(void):
@@ -46,68 +46,84 @@ public:
         dataset().create(name,columns...);
     }
 
-	//! @brief Create a Datatable object from an existing table in a Dataset
-	//! @param dataset Dataset where this Datatable resides
-	//! @param name Name of the table. This must be an existing database table.
-	Datatable(const std::string& name, Dataset* dataset, bool created = true):
-		name_(name),
-		created_(created),
+    //! @brief Create a Datatable object from an existing table in a Dataset
+    //! @param dataset Dataset where this Datatable resides
+    //! @param name Name of the table. This must be an existing database table.
+    Datatable(const std::string& name, Dataset* dataset, bool created = true):
+        name_(name),
+        created_(created),
         contained_(true),
-		dataset_(dataset){
-	}
-	
-	//! @brief Destroys the memory held by the Datatable
-	~Datatable(void){
-		if(not contained_) delete dataset_;
-	}
-	
-	//! @}
-	
-	//! @name Attribute methods
-	//! @brief Get attributes of the datatable
-	//! @{
+        dataset_(dataset){
+    }
+    
+    //! @brief Destroys the memory held by the Datatable
+    ~Datatable(void){
+        if(not contained_) delete dataset_;
+    }
+    
+    //! @}
+    
+    //! @name Attribute methods
+    //! @brief Get attributes of the datatable
+    //! @{
 
-	
-	std::string name(void) const {
-		return name_;
-	}
-	Datatable& name(const std::string& value) {
-		//! @todo Catch an attempt to set an invalid name
-		execute("ALTER TABLE \""+name()+"\" RENAME TO \""+value+"\"");
-		name_ = value;
-		return *this;
-	}
-	
-	bool created(void) const {
-		return created_;
-	}
+    //! @brief
+    //! @return
+    std::string name(void) const {
+        return name_;
+    }
 
-	bool contained(void) const {
-		return contained_;
-	}
-	
-	Dataset& dataset(void) const {
-		return *dataset_;
-	}
-	
-	//! @brief Get the number of rows in the datatable
-	//! @return Number of rows
-	unsigned int rows(void) {
-		return created_?(dataset().value<int>("SELECT count(*) FROM "+name())):0;
-	}
-	
-	//! @brief Get the number of columns in the datatable
-	//! @return Number of columns
-	unsigned int columns(void) {
-		return created_?(dataset().cursor("SELECT * FROM "+name()).columns()):0;
-	}
-	
-	//! @brief Get the dimensions(rows x columns) of the datatable
-	//! @return A vector with first item the number of rows and the second item the number of columns
-	std::vector<unsigned int> dimensions(void) {
-		return {rows(),columns()};
-	}
+    //! @brief
+    //! @param value
+    //! @return
+    Datatable& name(const std::string& value) {
+        //! @todo Catch an attempt to set an invalid name
+        execute("ALTER TABLE \""+name()+"\" RENAME TO \""+value+"\"");
+        name_ = value;
+        return *this;
+    }
 
+    //! @brief 
+    //! @return Whether the datatable has been created or not
+    bool created(void) const {
+        return created_;
+    }
+
+    //! @brief
+    //! @return
+    bool contained(void) const {
+        return contained_;
+    }
+
+    //! @brief
+    //! @return
+    Dataset& dataset(void) const {
+        return *dataset_;
+    }
+    
+    //! @brief Get the number of rows in the datatable
+    //! @return Number of rows
+    unsigned int rows(void) {
+        return created_?(dataset().value<int>("SELECT count(*) FROM "+name())):0;
+    }
+    
+    //! @brief Get the number of columns in the datatable
+    //! @return Number of columns
+    unsigned int columns(void) {
+        return created_?(dataset().cursor("SELECT * FROM "+name()).columns()):0;
+    }
+    
+    //! @brief Get the dimensions(rows x columns) of the datatable
+    //! @return A vector with first item the number of rows and the second item the number of columns
+    std::vector<unsigned int> dimensions(void) {
+        return {rows(),columns()};
+    }
+
+    //! @brief
+    //! @param column_name
+    //! @param type
+    //! @param args
+    //! @return
     template<typename... Args>
     Datatable& add(const std::string& column_name, const Datatype& type, Args... args){
         //! @todo Add checking of type
@@ -121,285 +137,295 @@ public:
         add(args...);
         return *this;
     }
-	
-	Datatable& add(void){
-		return *this;
-	}
-	
-	//! @brief Get the name of a column in a datatable
-	//! @param column The column index
-	//! @return Column name
-	std::string name(unsigned int column) {
-		return dataset().cursor("SELECT * FROM "+name()).name(column);
-	}
-	
-	//! @brief Get the names of all columns in the datatable
-	//! @return Vector of column names
-	std::vector<std::string> names(void) {
-		return created_?(dataset().cursor("SELECT * FROM "+name()).names()):(std::vector<std::string>{});
-	}
-	
-	//! @brief Get the type name of a column in a datatable
-	//! @param column The column index
-	//! @return Column type
-	Datatype type(unsigned int column) {
-		return dataset().cursor("SELECT * FROM "+name()).type(column);
-	}
-	
-	std::vector<Datatype> types(void) {
-		return created_?(dataset().cursor("SELECT * FROM "+name()).types()):(std::vector<Datatype>{});
-	}
 
-
-    template<typename... Columns>
-	void index(Columns... columns){
-        dataset().index(name(),columns...);
+    //! @brief
+    //! @return
+    Datatable& add(void){
+        return *this;
     }
     
-	void index(const std::vector<std::string>& columns){
+    //! @brief Get the name of a column in a datatable
+    //! @param column The column index
+    //! @return Column name
+    std::string name(unsigned int column) {
+        return dataset().cursor("SELECT * FROM "+name()).name(column);
+    }
+    
+    //! @brief Get the names of all columns in the datatable
+    //! @return Vector of column names
+    std::vector<std::string> names(void) {
+        return created_?(dataset().cursor("SELECT * FROM "+name()).names()):(std::vector<std::string>{});
+    }
+    
+    //! @brief Get the type name of a column in a datatable
+    //! @param column The column index
+    //! @return Column type
+    Datatype type(unsigned int column) {
+        return dataset().cursor("SELECT * FROM "+name()).type(column);
+    }
+
+    //! @brief
+    //! @return
+    std::vector<Datatype> types(void) {
+        return created_?(dataset().cursor("SELECT * FROM "+name()).types()):(std::vector<Datatype>{});
+    }
+
+    //! @brief
+    //! @param columns
+    //! @return
+    template<typename... Columns>
+    void index(Columns... columns){
+        dataset().index(name(),columns...);
+    }
+
+    //! @brief
+    //! @param columns
+    //! @return
+    void index(const std::vector<std::string>& columns){
         dataset().index(name(),columns);
     }
-	
-	std::vector<std::string> indices(void) {
-		return dataset().indices(name());
-	}
-	
-	//! @}
-	
-	
-	Datatable& save(const std::string& path=""){
-		if(not contained()) dataset().save(path);
-		else throw Exception("TODO: Extract this table to a separate file");
-		return *this;
-	}
-	
-	std::string append_sql(unsigned int columns){
-		// Prepare an insert statement with bindings
-		std::string sql = "INSERT INTO \""+name()+"\" VALUES (?";
-		for(unsigned int i=1;i<columns;i++) sql += ",?";
-		sql += ")";
-		return sql;
-	}
 
-	template<typename Container = std::vector<std::string>>
-	Datatable& append(const Container& row){
-		Datacursor insert_cursor = cursor(append_sql(row.size()));
-		insert_cursor.prepare();
-		for(unsigned int i=0;i<row.size();i++){
-			//SQLite uses 1-based indexing for statement parameters
-			insert_cursor.bind(i+1,row[i]);
-		}
-		insert_cursor.execute();
-		return *this;
-	}
-	
-	Datatable& append(const Datatable& table){
-		//! @todo Can this be done as a plain SQL ie. INSERT INTO ... SEECT * FROM ...
-		return *this;
-	}
-	
-	//! @name Data import/export methods
-	//! @brief Methods for importing or exporting data to/from the Datatable
-	//! @{
-	
-	//! @brief 
-	//! @param path Path of the file to load
-	//! @param header Whether or not the file has an initial header line of column names
-	//! @return This Datatable
-	Datatable& load(const std::string& path, const bool& header=true){
-		// Check the file at path exists
-		std::ifstream file(path);
-		if(not file.is_open()) STENCILA_THROW(Exception,"Unable to open file \""+path+"\"");
-		
-		std::string line;
-		unsigned int count = 0;
-		
-		// Determine the type of file, CSV, TSV, fixed-width etc
-		enum {csv,tsv} filetype;
-		//! @todo Allow for more file types
-		//! @todo Sniff the file to see if the filetype can be verified
-		std::string extension = boost::filesystem::path(path).extension().string();
-		if(extension==".csv") filetype = csv;
-		else if(extension==".tsv") filetype = tsv;
-		else STENCILA_THROW(Exception,"Unrecognised file type");
-		
-		// Create a separator
-		boost::escaped_list_separator<char> separator;
-		if(filetype==csv) separator = boost::escaped_list_separator<char>('\\', ',', '\"');
-		else if(filetype==tsv) separator = boost::escaped_list_separator<char>('\\', '\t', '\"');
-		typedef boost::tokenizer<boost::escaped_list_separator<char> > Tokenizer;
-		
-		// Create column names
-		std::vector<std::string> names;
-		if(header){
-			std::getline(file,line);
-			Tokenizer tokenizer(line,separator);
-			for(auto i=tokenizer.begin();i!=tokenizer.end();++i) names.push_back(*i);
-		} else {
-			//Detemine the number of columns in the first line
-			std::getline(file,line);
-			Tokenizer tokenizer(line,separator);
-			//Create column names
-			int count = 1;
-			for(auto i=tokenizer.begin();i!=tokenizer.end();++i) {
-				names.push_back("_"+boost::lexical_cast<std::string>(count));
-			}
-			//Go back to start of the file
-			file.seekg(0);
-		}
-		
-		// Create column types by reading a number of rows and attempting to convert 
-		// to different types
-		//! @todo Determine field types
-		//! @todo Finish this off. Should read in the first 1000 rows into a vector so that these can be used below when doing actual inserts
-		std::vector<std::string> types(names.size());
-		auto position = file.tellg();
-		count = 0;
-		while(file.good() and count<100){
-			std::getline(file,line);
-			count++;
-			boost::trim(line);
-			if(line.length()==0) break;
-			
-			for(unsigned int i=0;i<names.size();i++){
-				std::string value = "";
-				try{
-					boost::lexical_cast<double>(value);
-					//successes[column][0]++;
-				}
-				catch(boost::bad_lexical_cast){
-					try{
-						boost::lexical_cast<int>(value);
-						//successes[column][0]++;
-					}
-					catch(boost::bad_lexical_cast){
-						
-					}
-				}
-				types[i] = "TEXT";
-			}
-		}
-		//Go back to start of data
-		file.seekg(position);
-		
-		// Create temporary table
-		std::string temp_name = "stencila_"+name()+"_temp";
+    //! @brief
+    //! @return
+    std::vector<std::string> indices(void) {
+        return dataset().indices(name());
+    }
+
+    //! @}
+
+    Datatable& save(const std::string& path=""){
+        if(not contained()) dataset().save(path);
+        else throw Exception("TODO: Extract this table to a separate file");
+        return *this;
+    }
+    
+    std::string append_sql(unsigned int columns){
+        // Prepare an insert statement with bindings
+        std::string sql = "INSERT INTO \""+name()+"\" VALUES (?";
+        for(unsigned int i=1;i<columns;i++) sql += ",?";
+        sql += ")";
+        return sql;
+    }
+
+    template<typename Container = std::vector<std::string>>
+    Datatable& append(const Container& row){
+        Datacursor insert_cursor = cursor(append_sql(row.size()));
+        insert_cursor.prepare();
+        for(unsigned int i=0;i<row.size();i++){
+            //SQLite uses 1-based indexing for statement parameters
+            insert_cursor.bind(i+1,row[i]);
+        }
+        insert_cursor.execute();
+        return *this;
+    }
+    
+    Datatable& append(const Datatable& table){
+        //! @todo Can this be done as a plain SQL ie. INSERT INTO ... SEECT * FROM ...
+        return *this;
+    }
+    
+    //! @name Data import/export methods
+    //! @brief Methods for importing or exporting data to/from the Datatable
+    //! @{
+    
+    //! @brief 
+    //! @param path Path of the file to load
+    //! @param header Whether or not the file has an initial header line of column names
+    //! @return This Datatable
+    Datatable& load(const std::string& path, const bool& header=true){
+        // Check the file at path exists
+        std::ifstream file(path);
+        if(not file.is_open()) STENCILA_THROW(Exception,"Unable to open file \""+path+"\"");
+        
+        std::string line;
+        unsigned int count = 0;
+        
+        // Determine the type of file, CSV, TSV, fixed-width etc
+        enum {csv,tsv} filetype;
+        //! @todo Allow for more file types
+        //! @todo Sniff the file to see if the filetype can be verified
+        std::string extension = boost::filesystem::path(path).extension().string();
+        if(extension==".csv") filetype = csv;
+        else if(extension==".tsv") filetype = tsv;
+        else STENCILA_THROW(Exception,"Unrecognised file type");
+        
+        // Create a separator
+        boost::escaped_list_separator<char> separator;
+        if(filetype==csv) separator = boost::escaped_list_separator<char>('\\', ',', '\"');
+        else if(filetype==tsv) separator = boost::escaped_list_separator<char>('\\', '\t', '\"');
+        typedef boost::tokenizer<boost::escaped_list_separator<char> > Tokenizer;
+        
+        // Create column names
+        std::vector<std::string> names;
+        if(header){
+            std::getline(file,line);
+            Tokenizer tokenizer(line,separator);
+            for(auto i=tokenizer.begin();i!=tokenizer.end();++i) names.push_back(*i);
+        } else {
+            //Detemine the number of columns in the first line
+            std::getline(file,line);
+            Tokenizer tokenizer(line,separator);
+            //Create column names
+            int count = 1;
+            for(auto i=tokenizer.begin();i!=tokenizer.end();++i) {
+                names.push_back("_"+boost::lexical_cast<std::string>(count));
+            }
+            //Go back to start of the file
+            file.seekg(0);
+        }
+        
+        // Create column types by reading a number of rows and attempting to convert 
+        // to different types
+        //! @todo Determine field types
+        //! @todo Finish this off. Should read in the first 1000 rows into a vector so that these can be used below when doing actual inserts
+        std::vector<std::string> types(names.size());
+        auto position = file.tellg();
+        count = 0;
+        while(file.good() and count<100){
+            std::getline(file,line);
+            count++;
+            boost::trim(line);
+            if(line.length()==0) break;
+            
+            for(unsigned int i=0;i<names.size();i++){
+                std::string value = "";
+                try{
+                    boost::lexical_cast<double>(value);
+                    //successes[column][0]++;
+                }
+                catch(boost::bad_lexical_cast){
+                    try{
+                        boost::lexical_cast<int>(value);
+                        //successes[column][0]++;
+                    }
+                    catch(boost::bad_lexical_cast){
+                        
+                    }
+                }
+                types[i] = "TEXT";
+            }
+        }
+        //Go back to start of data
+        file.seekg(position);
+        
+        // Create temporary table
+        std::string temp_name = "stencila_"+name()+"_temp";
         execute("DROP TABLE IF EXISTS \""+temp_name+"\"");
-		std::string create = "CREATE TABLE \""+temp_name+"\" (";
-		for(unsigned int i=0;i<names.size();i++) {
-			create += names[i] + " " + types[i];
-			if(i!=names.size()-1) create += ",";
-		}
-		create += ")";
-		execute(create);
-		
-		// Prepare an insert statement
-		std::string insert = "INSERT INTO \""+temp_name+"\" VALUES (?";
-		for(unsigned int i=1;i<names.size();i++) insert += ",?";
-		insert += ")";
-		Datacursor insert_cursor = cursor(insert);
-		insert_cursor.prepare();
-		
-		count = 0;
-		while(file.good()){
-			
-			std::getline(file,line);
-			count++;
-			if(line.length()==0) break;
-			
-			std::vector<std::string> row;
-			boost::tokenizer<boost::escaped_list_separator<char> > tokenizer(line,separator);
-			for(auto i=tokenizer.begin();i!=tokenizer.end();++i){
-				std::string item = *i;
+        std::string create = "CREATE TABLE \""+temp_name+"\" (";
+        for(unsigned int i=0;i<names.size();i++) {
+            create += names[i] + " " + types[i];
+            if(i!=names.size()-1) create += ",";
+        }
+        create += ")";
+        execute(create);
+        
+        // Prepare an insert statement
+        std::string insert = "INSERT INTO \""+temp_name+"\" VALUES (?";
+        for(unsigned int i=1;i<names.size();i++) insert += ",?";
+        insert += ")";
+        Datacursor insert_cursor = cursor(insert);
+        insert_cursor.prepare();
+        
+        count = 0;
+        while(file.good()){
+            
+            std::getline(file,line);
+            count++;
+            if(line.length()==0) break;
+            
+            std::vector<std::string> row;
+            boost::tokenizer<boost::escaped_list_separator<char> > tokenizer(line,separator);
+            for(auto i=tokenizer.begin();i!=tokenizer.end();++i){
+                std::string item = *i;
                 boost::trim(item);
                 row.push_back(item);
-			}
-			
-			//Check that row is the correct size
-			if(row.size()!=names.size()) 
-				STENCILA_THROW(Exception,boost::str(boost::format("Line %i has %i items but expected %i items")%(count+1)%row.size()%names.size()));
-			
-			for(unsigned int i=0;i<names.size();i++){
-				insert_cursor.bind(i+1,row[i]);
-			}
-			
-			insert_cursor.execute();
-			insert_cursor.reset();
-		}
-		file.close();
-		
-		//! Replace the existing table with the new one
-		execute("DROP TABLE IF EXISTS \""+name()+"\"");
-		execute("ALTER TABLE \"stencila_"+name()+"_temp\" RENAME TO \""+name()+"\"");
-		
-		return *this;
-	}
-	
-	//! @brief 
-	//! @param filename Path of the file to create
-	//! @return This Datatable
-	Datatable& dump(const std::string& path){
-		return *this;
-	}
-	
-	//! @}
-	
-	//! @name SQL methods
-	//! @brief Convienience methods for executing SQL on dataset
-	//! @{
-	
-	//! @brief Execute SQL but do not return anything. Used for UPDATE, INSERT etc SQL statements
-	//! @param sql An SQL string
-	//! @return This datatable
-	Datatable& execute(const std::string& sql){
-		dataset().execute(sql);
-		return *this;
-	}
-	
-	//!
-	Datacursor cursor(const std::string& sql){
-		return dataset().cursor(sql);
-	}
-	
-	template<typename Type = std::vector<std::string>>
-	std::vector<Type> fetch(std::string sql) {
-		return dataset().fetch<Type>(sql);
-	}
-	
-	template<typename Type = std::string>
-	Type value(unsigned int row, unsigned int col) {
-		return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
-	}
-	
-	template<typename Type = std::string>
-	Type value(const std::string& columns,const std::string& where="1") {
-		return dataset().value<Type>("SELECT "+columns+" FROM \""+name()+"\" WHERE "+where+" LIMIT 1;");
-	}
-	
-	template<typename Type = std::string>
-	std::vector<Type> column(std::string column){
-		return dataset().column<Type>("SELECT \""+column+"\" FROM \""+name()+"\"");
-	}
-	
-	template<typename Type = std::vector<std::string>>
-	Type row(unsigned int row) {
-		return dataset().row<Type>("SELECT * FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));
-	}
-	
-	//! @}
-	
-	template<typename Type = std::vector<std::string>>
-	std::vector<Type> fetch() {
-		return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
-	}
-	
-	Datatable select(const std::string& sql, bool reuse = true, bool cache = true) {
-		return dataset().select(sql,reuse,cache);
-	}
+            }
+            
+            //Check that row is the correct size
+            if(row.size()!=names.size()) 
+                STENCILA_THROW(Exception,boost::str(boost::format("Line %i has %i items but expected %i items")%(count+1)%row.size()%names.size()));
+            
+            for(unsigned int i=0;i<names.size();i++){
+                insert_cursor.bind(i+1,row[i]);
+            }
+            
+            insert_cursor.execute();
+            insert_cursor.reset();
+        }
+        file.close();
+        
+        //! Replace the existing table with the new one
+        execute("DROP TABLE IF EXISTS \""+name()+"\"");
+        execute("ALTER TABLE \"stencila_"+name()+"_temp\" RENAME TO \""+name()+"\"");
+        
+        return *this;
+    }
+    
+    //! @brief 
+    //! @param filename Path of the file to create
+    //! @return This Datatable
+    Datatable& dump(const std::string& path){
+        return *this;
+    }
+    
+    //! @}
+    
+    //! @name SQL methods
+    //! @brief Convienience methods for executing SQL on dataset
+    //! @{
+    
+    //! @brief Execute SQL but do not return anything. Used for UPDATE, INSERT etc SQL statements
+    //! @param sql An SQL string
+    //! @return This datatable
+    Datatable& execute(const std::string& sql){
+        dataset().execute(sql);
+        return *this;
+    }
+    
+    //!
+    Datacursor cursor(const std::string& sql){
+        return dataset().cursor(sql);
+    }
+    
+    template<typename Type = std::vector<std::string>>
+    std::vector<Type> fetch(std::string sql) {
+        return dataset().fetch<Type>(sql);
+    }
+    
+    template<typename Type = std::string>
+    Type value(unsigned int row, unsigned int col) {
+        return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
+    }
+    
+    template<typename Type = std::string>
+    Type value(const std::string& columns,const std::string& where="1") {
+        return dataset().value<Type>("SELECT "+columns+" FROM \""+name()+"\" WHERE "+where+" LIMIT 1;");
+    }
+    
+    template<typename Type = std::string>
+    std::vector<Type> column(std::string column){
+        return dataset().column<Type>("SELECT \""+column+"\" FROM \""+name()+"\"");
+    }
+    
+    template<typename Type = std::vector<std::string>>
+    Type row(unsigned int row) {
+        return dataset().row<Type>("SELECT * FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));
+    }
+    
+    //! @}
+    
+    template<typename Type = std::vector<std::string>>
+    std::vector<Type> fetch() {
+        return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
+    }
+    
+    Datatable select(const std::string& sql, bool reuse = true, bool cache = true) {
+        return dataset().select(sql,reuse,cache);
+    }
 
-	Datatable head(const unsigned int rows = 10) {
-		return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
-	}
+    Datatable head(const unsigned int rows = 10) {
+        return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
+    }
 
     Datatable clone(void){
         return dataset().clone(name());
@@ -408,9 +434,9 @@ public:
 
 template<typename... Columns>
 Datatable Dataset::create(const std::string& name, Columns... columns){
-	std::string sql = "CREATE TABLE " + name + "(" + Dataset_create_helper(columns...) + ");";
-	execute(sql);
-	return table(name);
+    std::string sql = "CREATE TABLE " + name + "(" + Dataset_create_helper(columns...) + ");";
+    execute(sql);
+    return table(name);
 }
 
 }
