@@ -32,9 +32,12 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 namespace Stencila {
 
+//! @class Element
+//! @brief An element of a Dataquery
 class Element {
 public:
-    //! @brief Column name for this expression
+
+    //! @brief Get the column name for this Element
     //!
     //! Expressions can be used to create columns in the resultant Datatable.
     //! Those columns need a name, and this method provides that name.
@@ -42,90 +45,92 @@ public:
         return "";
     }
 
-    //! @brief
-    //! @return
+    //! @brief Get the Data Query Language (DQL) representation of this Dataquery element
+    //! @return The DQL for this query element
     virtual std::string dql(void) const {
         return "";
     }
 
-    //! @brief
-    //! @param sql
-    //! @return
+    //! @brief Get the Structured Query Language (SQL) for this Dataquery element
+    //! @param which Which version of SQL to produce
+    //! @return The SQL for this query element
     virtual std::string sql(unsigned short which=0) const {
         return "";
     }
 };
 
+//! @class Expression
+//! @brief An expression used in a Dataquery
 class Expression : public Element {
 public:
 
 };
 
+//! @class Column
+//! @brief A Dataquery element which represents the column of a Datatable
 class Column : public Expression {
 private:
 
-    //! @brief
+    //! @brief Name of the column
     std::string name_;
+
 public:
 
-    //! @brief
-    //! @param name
-    //! @return
+    //! @brief Construct a column element
+    //! @param name Name of the column
     Column(const std::string& name):
         name_(name){
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         return name_;
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return name_;
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return '"' + name_ + '"';
     }
 };
 
+//! @class Constant
+//! @brief A constant used in a Dataquery expression
 template<typename Type> class Constant;
 
+//! @class Constant<void>
+//! @brief Base class for other class specialisations of templated class Constant
 template<>
 class Constant<void> : public Expression {
-    
+
 };
 
+//! @class template<typename Type> Constant<Type>
+//! @brief Specialisation for builtin types e.g. int, float
 template<typename Type>
 class Constant : public Constant<void> {
 private:
+
+    //! @brief Value of the constant
     Type value_;
 
 public:
+
+    //! @brief Construct a Constant
+    //! @param value Value of the constant
     Constant(const Type& value):
         value_(value){
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         return boost::lexical_cast<std::string>(value_);
     }
-    //! @brief
-    //! @return
+
     virtual std::string dql(void) const {
         return boost::lexical_cast<std::string>(value_);
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return boost::lexical_cast<std::string>(value_);
     }
@@ -134,18 +139,27 @@ public:
 template<>
 class Constant<std::string> : public Constant<void> {
 private:
+
+    //! @brief
     std::string value_;
 
 public:
+
+    //! @brief
+    //! @param
+    //! @return
     Constant(const std::string& value):
         value_(value){
     }
+
     virtual std::string name(void) const {
         return value_;
     }
+
     virtual std::string dql(void) const {
         return "'"+value_+"'";
     }
+
     virtual std::string sql(unsigned short which=0) const {
         return "'"+value_+"'";
     }
@@ -153,10 +167,16 @@ public:
 
 class Call : public Expression {
 private:
+
+    //! @brief
     std::string name_;
+
+    //! @brief
     std::vector<Expression*> args_;
+
 public:
 
+    //! @brief
     Call(const std::string& name):
         name_(name){
     }
@@ -187,6 +207,10 @@ public:
         return *this;
     }
 
+    //! @brief
+    //! @param expr
+    //! @param exprs
+    //! @return
     template<
         typename Expression,
         typename... Expressions
@@ -196,8 +220,6 @@ public:
         return append_all(exprs...);
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         std::vector<std::string> args;
         BOOST_FOREACH(const Expression* arg, args_){
@@ -206,8 +228,6 @@ public:
         return name_+"("+boost::algorithm::join(args, ", ")+")";
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         std::vector<std::string> args;
         BOOST_FOREACH(const Expression* arg, args_){
@@ -216,9 +236,6 @@ public:
         return name_+"("+boost::algorithm::join(args, ", ")+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         std::vector<std::string> args;
         BOOST_FOREACH(Element* arg, args_){
@@ -231,11 +248,18 @@ public:
 class Aggregate : public Expression {
 
 private:
+
+    //! @brief
     std::string name_;
+    
+    //! @brief
     Expression* expr_;
 
 public:
 
+    //! @brief
+    //! @param name
+    //! @param expr
     Aggregate(const std::string& name, Expression* expr):
         name_(name),
         expr_(expr){
@@ -251,29 +275,19 @@ public:
         expr_(new Expression(expr)){
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         return name_+"("+expr_->name()+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     std::string name(unsigned short which) const {
         if(which==1) return name_+"1_";
         else if(which==2) return name_+"2_";
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return name_+"("+expr_->dql()+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         if(which==0) return name_ + "(" + expr_->sql(which) + ")";
         else if(which==1) return name_ + "1(" + expr_->sql(which) + ") AS "+name_+"1_";
@@ -287,15 +301,20 @@ class Operator : public Expression {
 
 template<int Code>
 class UnaryOperator : public Operator {
+
 protected:
+
+    //! @brief
     Expression* expr_;
 
 public:
 
+    //! @brief
     UnaryOperator(void):
         expr_(0){
     }
 
+    //! @brief
     UnaryOperator(Expression* expr):
         expr_(expr){
     }
@@ -308,21 +327,14 @@ public:
         expr_(new Expression(expr)){
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         return dql_symbol() + expr_->name();
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return dql_symbol() + expr_->dql();
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return sql_symbol() + expr_->sql(which);
     }
@@ -346,11 +358,16 @@ UNOP(7,Not,"!","not")
 template<int Code>
 class BinaryOperator : public Operator {
 protected:
+
+    //! @brief
     Expression* left_;
+    
+    //! @brief
     Expression* right_;
 
 public:
 
+    //! @brief
     BinaryOperator(void):
         left_(0),
         right_(0){
@@ -360,7 +377,6 @@ public:
     //! @param left
     //! @param right
     //! @return
-    
     BinaryOperator(Expression* left, Expression* right):
         left_(left),
         right_(right){
@@ -376,14 +392,10 @@ public:
         right_(new Right(right)){
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         return left_->name() + dql_symbol() + right_->name();
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         std::string dql;
         
@@ -400,9 +412,6 @@ public:
         return dql;
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         std::string sql;
         
@@ -418,9 +427,13 @@ public:
         
         return sql;
     }
+    
     //! @brief
     //! @return
     const char* dql_symbol(void) const;
+    
+    //! @brief
+    //! @return
     const char* sql_symbol(void) const;
 };
 
@@ -476,21 +489,14 @@ public:
         name_(name){
     }
 
-    //! @brief
-    //! @ return
     virtual std::string name(void) const {
         return name_;
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return "as(" + ele_->dql() + ",\"" + name_ + "\")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return ele_->sql(which) + " AS \"" + name_ + "\"";
     }
@@ -511,6 +517,8 @@ private:
 
 public:
 
+    //! @brief
+    //! @param expr
     Where(Expression* expr):
         expr_(expr){
     }
@@ -523,21 +531,14 @@ public:
         expr_(new Expression(expr)){
     }
 
-    //! @brief
-    //! @return
     Expression& expression(void) const {
         return *expr_;
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return "where("+expr_->dql()+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return expr_->sql(which);
     }
@@ -546,10 +547,14 @@ public:
 class By : public Element {
 
 private:
+
+    //! @brief
     Element* ele_;
 
 public:
 
+    //! @brief
+    //! @param ele
     By(Element* ele):
         ele_(ele){
     }
@@ -568,21 +573,14 @@ public:
         return ele_;
     }
 
-    //! @brief
-    //! @return
     virtual std::string name(void) const {
         return ele_->name();
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return "by("+ele_->dql()+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return ele_->sql(which);
     }
@@ -591,9 +589,14 @@ public:
 class Having : public Element {
 
 private:
+
+    //! @brief
     Expression* expr_;
 
 public:
+
+    //! @brief
+    //! @param expr
     Having(Expression* expr):
         expr_(expr){
     }
@@ -606,15 +609,10 @@ public:
         expr_(new Expression(expr)){
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return "having("+expr_->dql()+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return expr_->sql(which);
     }
@@ -623,11 +621,18 @@ public:
 class Order : public Element {
 
 private:
+
+    //! @brief
     Expression* expr_;
+    
+    //! @brief
     float dir_;
 
 public:
 
+    //! @brief
+    //! @param expr
+    //! @param dir
     Order(Expression* expr,const float& dir=1):
         expr_(expr),
         dir_(dir){
@@ -648,17 +653,12 @@ public:
         return dir_;
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         std::string dql = "order(" + expr_->dql();
         if(dir_!=1) dql += "," + boost::lexical_cast<std::string>(dir_);
         return dql + ")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return expr_->sql(which);
     }
@@ -666,9 +666,14 @@ public:
 
 class Limit : public Element {
 private:
+
+    //! @brief
     Expression* expr_;
     
 public:
+
+    //! @brief
+    //! @param expr
     Limit(Expression* expr):
         expr_(expr){
     }
@@ -681,15 +686,10 @@ public:
         expr_(new Expression(expr)){
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return "limit("+expr_->dql()+")";
     }
 
-    //! @brief
-    //! @param which
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return expr_->sql(which);
     }
@@ -697,6 +697,8 @@ public:
 
 class Offset : public Element {
 private:
+
+    //! @brief
     Expression* expr_;
 
 public:
@@ -712,14 +714,10 @@ public:
         expr_(new Expression(expr)){
     }
 
-    //! @brief
-    //! @return
     virtual std::string dql(void) const {
         return "offset("+expr_->dql()+")";
     }
 
-    //! @brief
-    //! @return
     virtual std::string sql(unsigned short which=0) const {
         return expr_->sql(which);
     }
@@ -727,11 +725,14 @@ public:
 
 class Combiner : public Element {
 protected:
-    //! Element that is the subject of this combiner.
-    //! Usually this will be a By element but if it is not then will be replaced by one in Dataquery::compile()
+    
+    //! @brief Element that is the subject of this combiner.
+    //! @note Usually this will be a By element but if it is not then will be replaced by one in Dataquery::compile()
     Element* subject_;
 
 public:
+
+    //! @brief
     Combiner(Element* subject):
         subject_(subject){
     }
@@ -742,20 +743,34 @@ public:
         return subject_;
     }
     
+    //! @brief
+    //! @param subject
+    //! @return
     Combiner& subject(Element* subject) {
         subject_ = subject;
         return *this;
     }
 
+    //! @brief
+    //! @param datatable
     virtual void combine(Datatable& datatable) const = 0;
 };
 
 class Top : public Combiner {
 protected:
+
+    //! @brief
     Aggregate* aggregate_;
+    
+    //! @brief
     unsigned int number_;
 
 public:
+
+    //! @brief
+    //! @param subject
+    //! @param aggregate
+    //! @param num
     Top(Element* subject,Aggregate* aggregate,const unsigned int& num=10):
         Combiner(subject),
         aggregate_(aggregate),
@@ -780,9 +795,6 @@ public:
         return aggregate_;
     }
 
-    //! @brief
-    //! @param datatable
-    //! @return
     virtual void combine(Datatable& datatable) const {
         //Determine the top levels
         std::stringstream sql;
@@ -800,13 +812,20 @@ public:
 
 class Margin : public Element {
 protected:
+
+    //! @brief  
     Element* subject_;
 
 public:
+
+    //! @brief 
+    //! @param subject
     Margin(Element* subject):
         subject_(subject){
     }
 
+    //! @brief 
+    //! @return 
     Element* subject(void) const {
         return subject_;
     }
@@ -814,14 +833,21 @@ public:
 
 class Adjuster : public Element {
 protected:
+
+    //! @brief 
     std::vector<By*> bys_;
 
 public:
+
+    //! @brief 
     virtual void adjust(Datatable& table) const = 0;
 };
 
 class Proportion : public Adjuster {
 public:
+
+    //! @brief 
+    //! @param table
     void adjust(Datatable& table) const {
         //! @todo
         //Calculate sums for each by
@@ -838,32 +864,58 @@ class Reshaper : public Element {
 //! @class Dataquery
 //! @todo Document fully
 class Dataquery : public Element {
-
 private:
+
+    //! @brief 
     std::vector<Element*> elements_;
+    
+    //! @brief 
     std::string from_;
 
+    //! @brief 
     bool compiled_;
 
     typedef std::vector<std::pair<std::string,const Element*>> Columns;
 
-
+    //! @brief 
     bool distinct_;
+    
+    //! @brief 
     std::vector<const Element*> values_;
+    
+    //! @brief 
     std::vector<const Where*> wheres_;
+    
+    //! @brief 
     std::vector<const By*> bys_;
+    
+    //! @brief 
     std::vector<const Having*> havings_;
+    
+    //! @brief 
     std::vector<const Order*> orders_;
+    
+    //! @brief 
     const Limit* limit_;
+    
+    //! @brief 
     const Offset* offset_;
 
+    //! @brief 
     std::vector<const Combiner*> combiners_;
+    
+    //! @brief 
     std::vector<const Margin*> margins_;
+    
+    //! @brief 
     std::vector<const Adjuster*> adjusters_;
+    
+    //! @brief 
     std::vector<const Reshaper*> reshapers_;
 
 public:
 
+    //! @brief
     Dataquery(void):
         from_("<from>"){
     }
@@ -881,6 +933,8 @@ public:
     //! @brief Append elements to the dataquery
     //! @{
     
+    //! @brief 
+    //! @param ele
     Dataquery& append(Element* ele){
         elements_.push_back(ele);
         compiled_ = false;
@@ -907,6 +961,8 @@ public:
 
     //! @}
 
+    //! @brief 
+    //! @param from
     Dataquery& from(const std::string& from){
         from_ = from;
         return *this;
@@ -968,8 +1024,6 @@ public:
         return *this;
     }
 
-    //! @brief
-    //! @return
     std::string dql(void) {
         compile();
         std::string dql;
@@ -981,10 +1035,14 @@ public:
     }
 
     //! @brief
-    //! @ param table
+    //! @param table
     //! @param distinct
     //! @param columns
-    //!
+    //! @param where
+    //! @param by
+    //! @param having
+    //! @param order
+    //! @param limit_offset
     //! @return
     static std::string sql(const Datatable& table, 
         const std::string& distinct, const std::string& columns,
@@ -1040,6 +1098,9 @@ public:
         return sql;
     }
 
+    //! @brief 
+    //! @param bys
+    //! @return 
     static std::string sql_by(const std::vector<const By*>& bys){
         std::string sql = "";
         if(bys.size()>0){
@@ -1052,6 +1113,9 @@ public:
         return sql;
     }
 
+    //! @brief 
+    //! @param havings
+    //! @return 
     static std::string sql_having(const std::vector<const Having*>& havings){
         std::string sql = "";
         if(havings.size()>0){
@@ -1066,6 +1130,9 @@ public:
         return sql;
     }
 
+    //! @brief 
+    //! @param orders
+    //! @return 
     static std::string sql_order(const std::vector<const Order*>& orders){
         std::string sql = "";
         if(orders.size()>0){
@@ -1081,6 +1148,10 @@ public:
         return sql;
     }
 
+    //! @brief 
+    //! @param limit
+    //! @param offset
+    //! @return 
     static std::string sql_limit_offset(const Limit* limit, const Offset* offset){
         std::string sql = "";
         if(limit){
@@ -1098,9 +1169,11 @@ public:
         return sql;
     }
 
+    //! @brief Execute this Dataquery on a Datatable
+    //! @param table The table to execute this query on
+    //! @return A datatable produced by this query
     Datatable execute(Datatable& table){
         Columns columns;
-        
         
         if(combiners_.size()==0 and margins_.size()==0 and adjusters_.size()==0){
             // Select data

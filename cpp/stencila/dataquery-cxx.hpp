@@ -30,9 +30,9 @@ namespace Stencila {
 //! provide useful shortcuts. For example...
 //! @todo Finish this documentation
 namespace DQL {
-      
+
+//! @name Expressions
 //! @{
-//! @brief Expressions
 
 Column column(const std::string& name){
       return Column(name);
@@ -64,8 +64,8 @@ void append(Element& element,const Expression& expr,const Expressions&... exprs)
 
 //! @}
 
+//! @name Unary operators
 //! @{
-//! @brief Unary operators
 
 #define UNOP(name,symbol) \
       template<class Expression> \
@@ -81,8 +81,8 @@ UNOP(Not,!)
 
 //! @}
 
+//! @name Binary operators
 //! @{
-//! @brief Binary operators
 
 #define BINOP(name,symbol) \
       template<class Left,class Right> \
@@ -109,8 +109,8 @@ BINOP(Or,||)
 
 //! @}
 
+//! @name Function calls
 //! @{
-//! @brief Function calls
 
 #define CALL(name) \
       template<class... Expressions> \
