@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file datacursor.hpp
 //! @brief Definition of class Datacursor
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -43,6 +44,11 @@ public:
         more_(false){
     }
 
+    //! @brief
+    //! @param db
+    //! @param sql
+    //! @param pars
+    //! @return
     template<typename... Parameters>
     Datacursor(sqlite3* db, const std::string& sql, Parameters&... pars):
         db_(db),
@@ -54,20 +60,28 @@ public:
         use(pars...);
     }
 
+    //! @brief
+    //! @return
     ~Datacursor(void){
         if(stmt_){
             STENCILA_SQLITE_TRY(db_,sqlite3_finalize(stmt_));
         }
     }
-    
+
+    //! @brief
+    //! @return
     const std::string& sql(void) const {
         return sql_;
     }
-    
+
+    //! @brief
+    //! @return
     bool more(void) const {
         return more_;
     }
 
+    //! @brief
+    //! @return
     Datacursor& prepare(void){
         STENCILA_SQLITE_TRY(db_,sqlite3_prepare_v2(db_, sql_.c_str(), -1, &stmt_, 0));
         return *this;
@@ -83,21 +97,34 @@ public:
         return *this;
     }
 
+    //! @brief
+    //! @param value
+    //! @return
     Datacursor& bind(unsigned int index,const int& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value));
         return *this;
     }
 
+    //! @brief
+    //! param value
+    //! @return
     Datacursor& bind(unsigned int index,const double& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_double(stmt_,index,value));
         return *this;
     }
 
+    //! @brief
+    //! @param index
+    //! @param std
+    //! @param value
+    //! @return
     Datacursor& bind(unsigned int index,const std::string& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_text(stmt_,index,value.c_str(),value.length(),SQLITE_STATIC));
         return *this;
     }
 
+    //! @brief
+    //! @return
     template<
         typename Parameter,
         typename... Parameters
@@ -110,6 +137,8 @@ public:
         return *this;
     }
 
+    //! @brief
+    //! @return
     Datacursor& use(void){
         return *this;
     }
@@ -122,6 +151,8 @@ public:
         begun_ = false;
     }
 
+    //! @brief
+    //! @return
     void begin(void){
         if(not begun_) {
             prepare();
@@ -142,6 +173,9 @@ public:
         }
     }
 
+    //! @brief
+    //! @param pars
+    //! @return
     template<typename... Parameters>
     void execute(const Parameters... pars){
         prepare();
@@ -165,22 +199,32 @@ public:
         }
     }
 
+    //! @brief
+    //! @return
     unsigned int columns(void){
         begin();
         return sqlite3_column_count(stmt_);
     }
 
+    //! @brief
+    //! @param column
+    //! @return
     std::string name(unsigned int column){
         begin();
         return sqlite3_column_name(stmt_,column);
     }
 
+    //! @brief
+    //! @return
     std::vector<std::string> names(void) {
         std::vector<std::string> result;
         for(unsigned int i=0;i<columns();i++) result.push_back(name(i));
         return result;
     }
 
+    //! @brief
+    //! @param column
+    //! @return
     const Datatype& type(unsigned int column){
         begin();
         switch(sqlite3_column_type(stmt_,column)){
@@ -200,12 +244,17 @@ public:
         throw Exception("Undefined column type");
     }
 
+    //! @brief
+    //! @return
     std::vector<Datatype> types(void) {
         std::vector<Datatype> result;
         for(unsigned int i=0;i<columns();i++) result.push_back(type(i));
         return result;
     }
 
+    //! @brief
+    //! @param column
+    //! @return
     template<typename Type>
     Type get(unsigned int column);
     
@@ -227,6 +276,9 @@ public:
         return rows;
     }
 
+    //! @brief
+    //! @param pars
+    //! @return
     template<
         typename Type = std::string,
         typename... Parameters
@@ -239,6 +291,9 @@ public:
         else throw Exception("No rows selected");
     }
 
+    //! @brief
+    //! @param pars
+    //! @return
     template<
         typename Type = std::string,
         typename... Parameters
@@ -255,6 +310,9 @@ public:
         return column;
     }
 
+    //! @brief
+    //! @param pars
+    //! @return
     template<
         typename Type = std::vector<std::string>,
         typename... Parameters
