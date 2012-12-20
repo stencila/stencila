@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file dataquery-cxx.hpp
 //! @brief Function definitions for C++ embedded query language
+//! @author Nokome Bentley
 
 #pragma once
 
