@@ -1,3 +1,21 @@
+/*
+Copyright (c) 2012 Stencila Ltd
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
+hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD 
+TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR 
+CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
+OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, 
+ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+
+//! @file datatable.hpp
+//! @brief Definition of Datatable class
+//! @author Nokome Bentley
+
 #pragma once
 
 #include <stencila/dataset.hpp>
@@ -193,12 +211,18 @@ public:
 
     //! @}
 
+    //! @brief
+    //! @param path
+    //! @return
     Datatable& save(const std::string& path=""){
         if(not contained()) dataset().save(path);
         else throw Exception("TODO: Extract this table to a separate file");
         return *this;
     }
-    
+
+    //! @brief
+    //! @param columns
+    //! @return    
     std::string append_sql(unsigned int columns){
         // Prepare an insert statement with bindings
         std::string sql = "INSERT INTO \""+name()+"\" VALUES (?";
@@ -207,6 +231,9 @@ public:
         return sql;
     }
 
+    //! @brief
+    //! @param row
+    //! @return
     template<typename Container = std::vector<std::string>>
     Datatable& append(const Container& row){
         Datacursor insert_cursor = cursor(append_sql(row.size()));
@@ -218,7 +245,10 @@ public:
         insert_cursor.execute();
         return *this;
     }
-    
+
+    //! @brief
+    //! @param table
+    //! @return
     Datatable& append(const Datatable& table){
         //! @todo Can this be done as a plain SQL ie. INSERT INTO ... SEECT * FROM ...
         return *this;
@@ -273,7 +303,7 @@ public:
             //Go back to start of the file
             file.seekg(0);
         }
-        
+
         // Create column types by reading a number of rows and attempting to convert 
         // to different types
         //! @todo Determine field types
@@ -362,7 +392,7 @@ public:
     }
     
     //! @brief 
-    //! @param filename Path of the file to create
+    //! @param path Path of the file to create
     //! @return This Datatable
     Datatable& dump(const std::string& path){
         return *this;
@@ -381,32 +411,49 @@ public:
         dataset().execute(sql);
         return *this;
     }
-    
-    //!
+
+    //! @brief
+    //! @param sql
+    //! @return
     Datacursor cursor(const std::string& sql){
         return dataset().cursor(sql);
     }
-    
+
+    //! @brief
+    //! @param sql
+    //! @return
     template<typename Type = std::vector<std::string>>
     std::vector<Type> fetch(std::string sql) {
         return dataset().fetch<Type>(sql);
     }
-    
-    template<typename Type = std::string>
+
+    //! @brief
+    //! @param col
+    //! @return
+     template<typename Type = std::string>
     Type value(unsigned int row, unsigned int col) {
         return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
     }
-    
+
+    //! @brief
+    //! @param where
+    //! @return    
     template<typename Type = std::string>
     Type value(const std::string& columns,const std::string& where="1") {
         return dataset().value<Type>("SELECT "+columns+" FROM \""+name()+"\" WHERE "+where+" LIMIT 1;");
     }
-    
-    template<typename Type = std::string>
+
+    //! @brief
+    //! @param column
+    //! @return    
+        template<typename Type = std::string>
     std::vector<Type> column(std::string column){
         return dataset().column<Type>("SELECT \""+column+"\" FROM \""+name()+"\"");
     }
-    
+
+    //! @brief
+    //! @param row
+    //! @return
     template<typename Type = std::vector<std::string>>
     Type row(unsigned int row) {
         return dataset().row<Type>("SELECT * FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));
@@ -418,15 +465,25 @@ public:
     std::vector<Type> fetch() {
         return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
     }
-    
+
+    //! @brief
+    //! @param sql
+    //! @param reuse
+    //! @param cache
+    //! @return
     Datatable select(const std::string& sql, bool reuse = true, bool cache = true) {
         return dataset().select(sql,reuse,cache);
     }
 
+    //! @brief
+    //! @param rows
+    //! @return
     Datatable head(const unsigned int rows = 10) {
         return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
     }
 
+    //! @brief
+    //! return
     Datatable clone(void){
         return dataset().clone(name());
     }
