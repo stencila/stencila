@@ -21,7 +21,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "dataquery.hpp"
 
 namespace Stencila {
-	
+      
 //! @namespace DQL
 //! @brief Data Query Langauge for C++
 //!
@@ -30,27 +30,27 @@ namespace Stencila {
 //! provide useful shortcuts. For example...
 //! @todo Finish this documentation
 namespace DQL {
-	
+      
 //! @{
 //! @brief Expressions
 
 Column column(const std::string& name){
-	return Column(name);
+      return Column(name);
 }
 
 
 Constant<int> wrap(const int& value){
-	return Constant<int>(value);
+      return Constant<int>(value);
 }
 Constant<float> wrap(const float& value){
-	return Constant<float>(value);
+      return Constant<float>(value);
 }
 Constant<std::string> wrap(const std::string& value){
-	return Constant<std::string>(value);
+      return Constant<std::string>(value);
 }
 template<class Element>
 const Element& wrap(const Element& element){
-	return element;
+      return element;
 }
 
 template<class Element>
@@ -58,8 +58,8 @@ void append(Element& element){
 } 
 template<class Element,class Expression,class... Expressions>
 void append(Element& element,const Expression& expr,const Expressions&... exprs){
-	element.append(wrap(expr));
-	append(element,exprs...);
+      element.append(wrap(expr));
+      append(element,exprs...);
 } 
 
 //! @}
@@ -68,10 +68,10 @@ void append(Element& element,const Expression& expr,const Expressions&... exprs)
 //! @brief Unary operators
 
 #define UNOP(name,symbol) \
-	template<class Expression> \
-	name operator symbol(const Expression& expr){ \
-		return name(wrap(expr)); \
-	}
+      template<class Expression> \
+      name operator symbol(const Expression& expr){ \
+            return name(wrap(expr)); \
+      }
 
 UNOP(Positive,+)
 UNOP(Negative,-)
@@ -85,10 +85,10 @@ UNOP(Not,!)
 //! @brief Binary operators
 
 #define BINOP(name,symbol) \
-	template<class Left,class Right> \
-	name operator symbol(const Left& left,const Right& right){ \
-		return name(wrap(left),wrap(right)); \
-	}
+      template<class Left,class Right> \
+      name operator symbol(const Left& left,const Right& right){ \
+            return name(wrap(left),wrap(right)); \
+      }
 
 BINOP(Multiply,*)
 BINOP(Divide,/)
@@ -113,38 +113,38 @@ BINOP(Or,||)
 //! @brief Function calls
 
 #define CALL(name) \
-	template<class... Expressions> \
-	Call name(const Expressions&... exprs){ \
-		Call call(#name); \
-		append(call,exprs...); \
-		return call; \
-	} 
+      template<class... Expressions> \
+      Call name(const Expressions&... exprs){ \
+            Call call(#name); \
+            append(call,exprs...); \
+            return call; \
+      } 
 
 #define CALL_0(name) \
-	template<class Expression> \
-	Call name(void){ \
-		return Call(#name); \
-	} 
+      template<class Expression> \
+      Call name(void){ \
+            return Call(#name); \
+      } 
 
 #define CALL_1(name) \
-	template<class Expression> \
-	Call name(const Expression& expr){ \
-		return Call(#name,wrap(expr)); \
-	} 
-	
+      template<class Expression> \
+      Call name(const Expression& expr){ \
+            return Call(#name,wrap(expr)); \
+      } 
+      
 #define CALL_2_M(name) \
-	template<class Expression1,class Expression2,class... Expressions> \
-	Call name(const Expression1& expr1,const Expression2& expr2,const Expressions&... exprs){ \
-		Call call(#name,wrap(expr1),wrap(expr2)); \
-		append(call,exprs...); \
-		return call; \
-	} 
+      template<class Expression1,class Expression2,class... Expressions> \
+      Call name(const Expression1& expr1,const Expression2& expr2,const Expressions&... exprs){ \
+            Call call(#name,wrap(expr1),wrap(expr2)); \
+            append(call,exprs...); \
+            return call; \
+      } 
     
 #define AGG_1(name) \
-	template<class Expression> \
-	Aggregate name(const Expression& expr){ \
-		return Aggregate(#name,wrap(expr)); \
-	} 
+      template<class Expression> \
+      Aggregate name(const Expression& expr){ \
+            return Aggregate(#name,wrap(expr)); \
+      } 
 
 //! Number functions
 //! See http://www.sqlite.org/lang_corefunc.html
@@ -180,7 +180,7 @@ CALL(substr)
 //! See http://www.sqlite.org/lang_datefunc.html
 template<class Format, class Expression, class Modifier>
 Call strftime(const Format& format,const Expression& expr, const Modifier& modifier){
-	return Call("strftime",wrap(format),wrap(expr),wrap(modifier));
+      return Call("strftime",wrap(format),wrap(expr),wrap(modifier));
 } 
 
 #undef CALL_0
@@ -193,37 +193,37 @@ const All all;
 
 template<class Expression>
 Where where(const Expression& expr){
-	return Where(wrap(expr));
+      return Where(wrap(expr));
 }
 
 template<class Expression>
 By by(const Expression& expr){
-	return By(wrap(expr));
+      return By(wrap(expr));
 }
 
 template<class Expression>
 Having having(const Expression& expr){
-	return Having(wrap(expr));
+      return Having(wrap(expr));
 }
 
 template<class Expression>
 Order order(const Expression& expr, float direction = 1){
-	return Order(wrap(expr),direction);
+      return Order(wrap(expr),direction);
 }
 
 template<class Expression>
 Limit limit(const Expression& expr){
-	return Limit(wrap(expr));
+      return Limit(wrap(expr));
 }
 
 template<class Expression>
 Offset offset(const Expression& expr){
-	return Offset(wrap(expr));
+      return Offset(wrap(expr));
 }
 
 template<class Element,class Expression>
 Top top(const Element& element,const Expression& expression,unsigned int num){
-	return Top(wrap(element),wrap(expression),num);
+      return Top(wrap(element),wrap(expression),num);
 }
 
 }
