@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file hashing.hpp
 //! @brief Declaration of a hash function
+//! @author Nokome Bentley
 
 #pragma once
 
