@@ -30,7 +30,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 namespace Stencila {
 namespace Json {
-                                   
+
 /*! 
  @namespace  Json
 
@@ -42,9 +42,9 @@ namespace Json {
  and there is an example of usage <a href="https://code.google.com/p/rapidjson/source/browse/trunk/example/tutorial/tutorial.cpp">here</a>
 
  There are a large number of other C/C++JSON libraries including:
-                                    - <a href="http://jsoncpp.sourceforge.net/">JsonCpp</a>
-                                    - <a href="http://www.codeproject.com/KB/recipes/JSON_Spirit.aspx">JSON Spirit</a>
-                                    - <a href="http://lloyd.github.com/yajl/">YAJL</a>
+    - <a href="http://jsoncpp.sourceforge.net/">JsonCpp</a>
+    - <a href="http://www.codeproject.com/KB/recipes/JSON_Spirit.aspx">JSON Spirit</a>
+    - <a href="http://lloyd.github.com/yajl/">YAJL</a>
  which, if there is good reason to do so, we might switch to one day.
 */
                                    
@@ -56,7 +56,7 @@ namespace Json {
  For that reason Stencila just uses that class as is.
 */
 typedef rapidjson::Value Value;
-                                   
+
 /*! 
  @class Object
  
@@ -66,7 +66,7 @@ typedef rapidjson::Value Value;
 */
 
 class Object{};
-                                   
+
 /*! 
  @class Array
  
@@ -82,98 +82,98 @@ class Array{};
 */
 class Document : public rapidjson::Document {
 public:
-                                   
-                                   Document(void){
-                                   }
 
-                                   Document(const std::string& json){
-                                                                      parse(json);
-                                   }
+    Document(void){
+    }
 
-                                   //! @brief Parse a JSON string into the Document
-                                   //! @param json a std::string of JSON
-                                   //! @return the Document
-                                   Document& parse(const std::string& json){
-                                                                      Parse<0>(json.c_str());
-                                                                      if(HasParseError()) {
-                                                                                                         STENCILA_THROW(Exception,std::string("JSON parsing error: ")+GetParseError()+": "+json);
-                                                                      }
-                                                                      return *this;
-                                   }
-                                   
-                                   //! @brief Is a value an instance of Type?
-                                   //! @param value The value to be tested
-                                   template<typename Type>
-                                   bool is(const Value& value) const;
-                                   
-                                   //! @brief Is the document an instance of Type?
-                                   template<typename Type>
-                                   bool is(void) const;
-                                   
-                                   //! @brief Return an object of Type from the value
-                                   template<typename Type>
-                                   Type as(const Value& value) const ;
-                                   
-                                   //! @brief Return an object of Type from the document
-                                   template<typename Type>
-                                   Type as(void) const;
-                                   
-                                   //! @brief Does the value have a member called ...?
-                                   //! @param value Value being searched
-                                   //! @param name Name being searched for
-                                   bool has(const Value& value,const std::string& name) const {
-                                                                      return value.HasMember(name.c_str());
-                                   }
-                                   
-                                   //! @brief Does the document have a member called ...?
-                                   //! @param name Name being searched for
-                                   bool has(const std::string& name) const {
-                                                                      return has(*this,name);
-                                   }
-                                   
-                                   //! @brief Add a member to a value
-                                   //! @param to Value to which the member will be added
-                                   //! @param name Name of the member
-                                   //! @param value Value of the member
-                                   template<typename Type>
-                                   Document& add(Value& to,const std::string& name,const Type& value);
-                                   
-                                   //! @brief Add a member to the document
-                                   //! @param name Name of the member
-                                   //! @param value Value of the member
-                                   template<typename Type>
-                                   Document& add(const std::string& name,const Type& value) {
-                                                                      return add(*this, name, value);
-                                   }
-                                   
-                                   //! @brief Print document to a string
-                                   //! @return JSON string of document
-                                   std::string print(void) {
-                                                                      rapidjson::StringBuffer buffer;
-                                                                      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-                                                                      Accept(writer);
-                                                                      return buffer.GetString();
-                                   }
-                                   
-                                   //! @brief Pretty print document to a string
-                                   //! @return JSON string of document with indentation
-                                   std::string pretty(void) {
-                                                                      rapidjson::StringBuffer buffer;
-                                                                      rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-                                                                      Accept(writer);
-                                                                      return buffer.GetString();
-                                   }
+    Document(const std::string& json){
+          parse(json);
+    }
+
+    //! @brief Parse a JSON string into the Document
+    //! @param json a std::string of JSON
+    //! @return the Document
+    Document& parse(const std::string& json){
+        Parse<0>(json.c_str());
+        if(HasParseError()) {
+            STENCILA_THROW(Exception,std::string("JSON parsing error: ")+GetParseError()+": "+json);
+        }
+        return *this;
+    }
+
+    //! @brief Is a value an instance of Type?
+    //! @param value The value to be tested
+    template<typename Type>
+    bool is(const Value& value) const;
+
+    //! @brief Is the document an instance of Type?
+    template<typename Type>
+    bool is(void) const;
+
+    //! @brief Return an object of Type from the value
+    template<typename Type>
+    Type as(const Value& value) const ;
+
+    //! @brief Return an object of Type from the document
+    template<typename Type>
+    Type as(void) const;
+
+    //! @brief Does the value have a member called ...?
+    //! @param value Value being searched
+    //! @param name Name being searched for
+    bool has(const Value& value,const std::string& name) const {
+          return value.HasMember(name.c_str());
+    }
+
+    //! @brief Does the document have a member called ...?
+    //! @param name Name being searched for
+    bool has(const std::string& name) const {
+          return has(*this,name);
+    }
+
+    //! @brief Add a member to a value
+    //! @param to Value to which the member will be added
+    //! @param name Name of the member
+    //! @param value Value of the member
+    template<typename Type>
+    Document& add(Value& to,const std::string& name,const Type& value);
+
+    //! @brief Add a member to the document
+    //! @param name Name of the member
+    //! @param value Value of the member
+    template<typename Type>
+    Document& add(const std::string& name,const Type& value) {
+          return add(*this, name, value);
+    }
+
+    //! @brief Print document to a string
+    //! @return JSON string of document
+    std::string print(void) {
+          rapidjson::StringBuffer buffer;
+          rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+          Accept(writer);
+          return buffer.GetString();
+    }
+
+    //! @brief Pretty print document to a string
+    //! @return JSON string of document with indentation
+    std::string pretty(void) {
+          rapidjson::StringBuffer buffer;
+          rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+          Accept(writer);
+          return buffer.GetString();
+    }
 };
 
 #define IS(type,method)\
-                                   template<> inline \
-                                   bool Document::is<type>(const Value& value) const{ \
-                                                                      return value.method(); \
-                                   } \
-                                   template<> inline \
-                                   bool Document::is<type>(void) const{ \
-                                                                      return is<type>(*this); \
-                                   }
+template<> inline \
+bool Document::is<type>(const Value& value) const{ \
+    return value.method(); \
+} \
+template<> inline \
+bool Document::is<type>(void) const{ \
+    return is<type>(*this); \
+}
 
 IS(void,IsNull)
 IS(bool,IsBool)
@@ -186,14 +186,14 @@ IS(Stencila::Json::Array,IsArray)
 #undef IS
 
 #define AS(type,method)\
-                                   template<> inline \
-                                   type Document::as<type>(const Value& value) const{ \
-                                                                      return value.method(); \
-                                   } \
-                                   template<> inline \
-                                   type Document::as<type>(void) const{ \
-                                                                      return as<type>(*this); \
-                                   } \
+template<> inline \
+type Document::as<type>(const Value& value) const{ \
+    return value.method(); \
+} \
+template<> inline \
+type Document::as<type>(void) const{ \
+    return as<type>(*this); \
+} \
 
 AS(bool,GetBool)
 AS(int,GetInt)
@@ -206,30 +206,30 @@ AS(std::string,GetString)
 template<>
 inline
 std::vector<int> Document::as<std::vector<int>>(const Value& value) const {
-                                   std::vector<int> vec;
-                                   for(auto i = value.Begin();i != value.End();i++){
-                                                                      vec.push_back(i->GetInt());
-                                   }
-                                   return vec;
+    std::vector<int> vec;
+    for(auto i = value.Begin();i != value.End();i++){
+        vec.push_back(i->GetInt());
+    }
+    return vec;
 }
 
 //! @class Document
 template<typename Type>
 Document& Document::add(Value& to,const std::string& name,const Type& value) {
-                                   AllocatorType& allocator = GetAllocator();
-                                   Value name_value(name.c_str(),name.length(),allocator);
-                                   Value item_value(value);
-                                   to.AddMember(name_value,item_value,allocator);
-                                   return *this;
+    AllocatorType& allocator = GetAllocator();
+    Value name_value(name.c_str(),name.length(),allocator);
+    Value item_value(value);
+    to.AddMember(name_value,item_value,allocator);
+    return *this;
 }
 
 template<>
 Document& Document::add(Value& to,const std::string& name,const std::string& value) {
-                                   AllocatorType& allocator = GetAllocator();
-                                   Value name_value(name.c_str(),name.length(),allocator);
-                                   Value item_value(value.c_str(),value.length(),allocator);
-                                   to.AddMember(name_value,item_value,allocator);
-                                   return *this;
+    AllocatorType& allocator = GetAllocator();
+    Value name_value(name.c_str(),name.length(),allocator);
+    Value item_value(value.c_str(),value.length(),allocator);
+    to.AddMember(name_value,item_value,allocator);
+    return *this;
 }
 
 }

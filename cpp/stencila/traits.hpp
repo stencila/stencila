@@ -15,13 +15,13 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #pragma once
 
 #include <type_traits>
-    
+
 namespace Stencila {
 namespace Traits {
 
 struct Has {
-                                                                 typedef char (&yes)[1];
-                                                                 typedef char (&no)[2];
+    typedef char (&yes)[1];
+    typedef char (&no)[2];
 };
 
 template <typename Type>
