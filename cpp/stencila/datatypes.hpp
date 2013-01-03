@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file datatypes.hpp
 //! @brief Definition of data types
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -31,15 +32,21 @@ public:
                     Datatype(char value=0):
                                         code(value){
                     }
-                    
+                    //! @brief 
+                    //! @param other
+                    //! @return 
                     bool operator==(const Datatype& other) const {
                                         return code==other.code;
                     }
-                    
+                    //! @brief 
+                    //! @param other
+                    //! @return 
                     bool operator!=(const Datatype& other) const {
                                         return code!=other.code;
                     }
                                         
+                    //! @brief 
+                    //! @return 
                     std::string name(void) const {
                                         switch(code){
                                                             case 'n': return "Null";
@@ -50,6 +57,8 @@ public:
                                         return "Undefined";
                     }
                     
+                    //! @brief 
+                    //! @return 
                     std::string sql(void) const {
                                         switch(code){
                                                             case 'n': return "NULL";
