@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file hashing.cpp
 //! @brief Implementation of a hash function
+//! @author Nokome Bentley
 //! This file exists primarily because MurmurHash3.cpp cannot be included in hashing.hpp without "multiple definition" compiler errors
 
 #include <boost/uuid/uuid.hpp>
