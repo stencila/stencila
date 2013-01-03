@@ -38,28 +38,40 @@ public:
         sum_(0){
     }
 
+    //! @brief 
+    //! @return 
     double sum(void) const {
         return sum_;
     }
     
+    //! @brief 
+    //! @param value
     void append(const double& value){
         sum_ += value;
     }
     
+    //! @brief 
+    //! @return 
     std::string dump(void){
         char value[1000];
         std::sprintf(value, "%lf", sum());
         return value;
     }
     
+    //! @brief 
+    //! @param value
     void load(const std::string& value){
         std::sscanf(value.c_str(), "%lf", &sum_);
     }
     
+    //! @brief 
+    //! @param other
     void combine(const Sum& other){
         sum_ += other.sum();
     }
     
+    //! @brief 
+    //! @return 
     double calc(void) const {
         return sum();
     }
@@ -81,34 +93,48 @@ public:
     }
         
         
+        //! @brief 
+        //! @return 
     unsigned long int count(void) const {
         return count_;
     }
     
+    //! @brief 
+    //! @return 
     double sum(void) const {
         return sum_;
     }
     
+    //! @brief 
+    //! @param value
     void append(const double& value){
         count_++;
         sum_ += value;
     }
     
+    //! @brief 
+    //! @return 
     std::string dump(void){
         char value[1000];
         std::sprintf(value, "%li %lf", count(), sum());
         return value;
     }
     
+    //! @brief 
+    //! @param value
     void load(const std::string& value){
         std::sscanf(value.c_str(), "%li %lf", &count_, &sum_);
     }
     
+    //! @brief 
+    //! @param other
     void combine(const Mean& other){
         count_ += other.count();
         sum_ += other.sum();
     }    
     
+    //! @brief 
+    //! @return 
     double calc(void) const {
         return sum()/count();
     }
@@ -120,6 +146,8 @@ public:
         Mean::append(std::log(value));
     }
     
+    //! @brief 
+    //! @return 
     double calc(void) const {
         return std::exp(Mean::calc());
     }
@@ -131,6 +159,8 @@ public:
         Mean::append(1/value);
     }
     
+    //! @brief 
+    //! @return 
     double calc(void) const {
         return count()/sum();
     }
@@ -168,18 +198,25 @@ public:
     }
         
         
+        //! @param 
+        //! @return 
     unsigned long int count(void) const {
         return count_;
     }
     
+    //! @brief 
+    //! @return 
     double mean(void) const {
         return mean_;
     }
     
+    //! @brief 
+    //! @return 
     double m2(void) const {
         return m2_;
     }
-    
+    //! @brief 
+    //! @param value
     void append(const double& value){
         count_++;
         double delta = value - mean_;
@@ -187,22 +224,30 @@ public:
         m2_ += delta*(value-mean_);
     }
     
+    //! @brief 
+    //! @return 
     std::string dump(void){
         char value[1000];
         std::sprintf(value, "%li %lf %lf", count(), mean(), m2());
         return value;
     }
     
+    //! @brief 
+    //! @param value
     void load(const std::string& value){
         std::sscanf(value.c_str(), "%li %lf %lf", &count_, &mean_, &m2_);
     }
     
+    //! @brief 
+    //! @param other
     void combine(const Variance& other){
         count_ += other.count();
         mean_ += other.mean();
         m2_ += other.m2();
     }    
     
+    //! @brief 
+    //! @return 
     double calc(void) const {
         return m2()/(count() - 1);
     }
