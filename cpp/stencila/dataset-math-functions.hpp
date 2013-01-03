@@ -15,6 +15,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //! @file dataset-math-functions.hpp
 //! @brief Definition of math functions
 //! Development influenced by Liam Healy's sqlite extension module at http://www.sqlite.org/contrib/download/extension-functions.c?get=25
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -105,6 +106,9 @@ STENCILA_LOCAL_1(log10, std::log10)
 
 STENCILA_LOCAL_2(pow, std::pow)
 
+//! @brief 
+//! @param double
+//! @return 
 static inline double squareFunc(double x){ return x*x;}
 STENCILA_LOCAL_1(square, squareFunc)
 
@@ -142,12 +146,20 @@ STENCILA_LOCAL_1(floor, std::floor)
 
 const double Pi = 3.14159265358979323846;
 
+//! @brief 
+//! @return 
 static inline double piFunc(void){ return Pi;}
 STENCILA_LOCAL_0(pi,piFunc)
 
+//! @brief 
+//! @param double
+//! @return 
 static inline double radiansFunc(double x){ return x*Pi/180.0;}
 STENCILA_LOCAL_1(radians, radiansFunc)
 
+//! @brief 
+//! @param double
+//! @return 
 static inline double degreesFunc(double x){ return 180.0*x/Pi; }
 STENCILA_LOCAL_1(degrees, degreesFunc)
 
@@ -158,6 +170,8 @@ STENCILA_LOCAL_1(degrees, degreesFunc)
 #define STENCILA_LOCAL(NAME,ARGS) \
     sqlite3_create_function(db, #NAME, ARGS, SQLITE_UTF8, 0, NAME, 0, 0);
 
+//! @brief 
+//! @param sqlite3
 inline void create(sqlite3* db) {
     //This list includes commented lines for builtin SQLite functions at http://www.sqlite.org/lang_corefunc.html
     //That is so this list can be used to constuct Dataquery call elements in R, Python etc packages
