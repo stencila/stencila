@@ -22,11 +22,11 @@ namespace Stencila {
 
 
 Datatable Dataset::create(const std::string& name){
-	return Datatable(name,this,false);
+         return Datatable(name,this,false);
 }
 
 Datatable Dataset::table(const std::string& name){
-	return Datatable(name,this);
+         return Datatable(name,this);
 }
 
 Datatable Dataset::rename(const std::string& name, const std::string& value){

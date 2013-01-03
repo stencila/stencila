@@ -12,8 +12,8 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//!	@file exception.hpp
-//!	@brief Definition of class Exception
+//!                        @file exception.hpp
+//!                        @brief Definition of class Exception
 
 #pragma once
 
@@ -24,36 +24,36 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/filesystem.hpp>
 
 namespace Stencila {
-	
+                        
 class Exception : public std::exception {
-	
+                        
 protected:
-	
-	std::string message_;
-	const char* file_;
-	int line_;
+                        
+                        std::string message_;
+                        const char* file_;
+                        int line_;
 
 public:
-	
-	Exception(std::string message="",const char* file=0, int line=0):
-		message_(message),
-		file_(file),
-		line_(line){		
-	}
+                        
+                        Exception(std::string message="",const char* file=0, int line=0):
+                                                message_(message),
+                                                file_(file),
+                                                line_(line){                                                
+                        }
     
     ~Exception(void) throw() {
     }
-	
-	const char* what(void)  const throw() {
-		std::ostringstream stream;
+                        
+                        const char* what(void)  const throw() {
+                                                std::ostringstream stream;
         stream << boost::filesystem::path(file_).filename().string() << ":" << line_ << ":" << message_;
-		return stream.str().c_str();
-	}
+                                                return stream.str().c_str();
+                        }
 };
 
 inline std::ostream& operator<<(std::ostream& stream,const Exception& exception){
-	stream<<exception.what();
-	return stream;
+                        stream<<exception.what();
+                        return stream;
 }
 
 }

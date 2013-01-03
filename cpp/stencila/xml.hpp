@@ -188,37 +188,37 @@ std::string CssToXpath(const std::string& css);
 
 class Document : public pugi::xml_document {
 public:
-	Document(void){}
+                                                                       Document(void){}
 
-	Document(const std::string& xml){
+                                                                       Document(const std::string& xml){
         load(xml);
-	}
+                                                                       }
     
     Document& load(const std::string& xml){
         pugi::xml_parse_result result = pugi::xml_document::load(xml.c_str());
-		if(not result){
-			STENCILA_THROW(Exception,result.description());
-		}
+                                                                                                                                              if(not result){
+                                                                                                                                                                                                                     STENCILA_THROW(Exception,result.description());
+                                                                                                                                              }
         return *this;
     }
     
-	std::string dump(void) const {
-		std::ostringstream out;
-		save(out,"\t",pugi::format_raw | pugi::format_no_declaration);
-		return out.str();
-	}
+                                                                       std::string dump(void) const {
+                                                                                                                                              std::ostringstream out;
+                                                                                                                                              save(out,"\t",pugi::format_raw | pugi::format_no_declaration);
+                                                                                                                                              return out.str();
+                                                                       }
     
-	std::string print(void) const {
-		std::ostringstream out;
-		save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
-		return out.str();
-	}
+                                                                       std::string print(void) const {
+                                                                                                                                              std::ostringstream out;
+                                                                                                                                              save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
+                                                                                                                                              return out.str();
+                                                                       }
     
     Document& read(const std::string& filename){
         pugi::xml_parse_result result = pugi::xml_document::load_file(filename.c_str());
-		if(not result){
-			STENCILA_THROW(Exception,result.description());
-		}
+                                                                                                                                              if(not result){
+                                                                                                                                                                                                                     STENCILA_THROW(Exception,result.description());
+                                                                                                                                              }
         return *this;
     }
     
