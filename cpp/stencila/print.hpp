@@ -14,10 +14,12 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //!                                       @file print.hpp
 //!                                       @brief Classes for printing Stencila, builtin and standard library objects
-//!
+//!                                       @author Nokome Bentley
+
 //!                                       These classes aim to provide a simple, consitent output interface for use within Stencila.
 //!                                       Objects such as std::strings, std::vectors and std::maps are represented in similar ways as in Python and JSON
 //!                                       There are other C++ libraries that offer similar functionality e.g. http://louisdx.github.com/cxx-prettyprint/
+
 
 #pragma once
 
@@ -74,14 +76,23 @@ public:
                                                                               }
                                        }
                                        
+                                       //! @brief 
+                                       //! @param value
+                                       //! @return 
                                        static std::string print(const char& value){
                                                                               return std::string("\'")+value+"\'";
                                        }
-
+        
+                                        //! @brief 
+                                        //! @param value
+                                        //! @return 
                                        static std::string print(const char* value){
                                                                               return std::string("\"")+value+"\"";
                                        }
 
+                                        //! @brief 
+                                        //! @param value
+                                        //! @return 
                                        static std::string print(const std::string& value){
                                                                               return "\""+value+"\"";
                                        }
