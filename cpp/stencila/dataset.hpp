@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file dataset.hpp
 //! @brief Definition of class Dataset
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -167,6 +168,9 @@ public:
     
 private:
 
+    //! @brief 
+    //! @param column
+    //! @return 
     std::string index_helper(const std::string& column){
         return column;
     }
@@ -184,6 +188,9 @@ public:
         execute(sql);
     }
     
+    //! @brief 
+    //! @param table
+    //! @param columns
     void index(const std::string& table, const std::vector<std::string>& columns){
         std::string sql = "CREATE INDEX " + table + "_" + boost::algorithm::join(columns, "_") + "_index ON " + table + "(" + boost::algorithm::join(columns, ",") + ");";
         execute(sql);
@@ -243,6 +250,9 @@ public:
                           return *this;
              }
              
+             //! @brief 
+             //! @param path
+             //! @return 
              Dataset& backup(const std::string& path){
                           return save(path,true);
              }
@@ -265,6 +275,8 @@ public:
                           }
              }
     
+            //! @brief 
+            //! @param table
              void modified(const std::string& table) {
                           execute("UPDATE stencila_datatables SET signature=NULL WHERE name==\"" + table + "\"");
              }
@@ -339,6 +351,10 @@ public:
                           typename Type = std::string,
                           typename... Parameters                          
              >
+             //! @brief 
+             //! @param sql
+             //! @param pars
+             //! @return 
              std::vector<Type> column(const std::string& sql, const Parameters&... pars) {
                           return cursor(sql).column<Type>(pars...);
              }
