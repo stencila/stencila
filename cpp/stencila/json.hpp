@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file json.hpp
 //! @brief Classes and functions for working with JSON
+//! @author Nokome Bentley
 
 #pragma once
 #include <string>
