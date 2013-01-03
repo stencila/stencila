@@ -1,3 +1,6 @@
+x = Column('x')
+y = Column('y')
+
 test.Dataquery.constants <- function(){
   checkEquals('1',Constant(TRUE)$dql())
   checkEquals('42',Constant(42)$dql())
@@ -6,21 +9,16 @@ test.Dataquery.constants <- function(){
 }
 
 test.Dataquery.column <- function(){
-  x = Column('x')
   checkEquals('x',x$dql())
 }
 
 test.Dataquery.unary <- function(){
-  x = Column('x')
   checkEquals('-x',(-x)$dql())
   checkEquals('+x',(+x)$dql())
   checkEquals('!x',(!x)$dql())
 }
 
 test.Dataquery.binary <- function(){
-  x = Column('x')
-  y = Column('y')
-  
   checkEquals('x*y',(x*y)$dql())
   checkEquals('x/y',(x/y)$dql())
   checkEquals('x+y',(x+y)$dql())
@@ -43,49 +41,72 @@ test.Dataquery.binary <- function(){
 }
 
 test.Dataquery.as <- function(){
-  x = Column('x')
   checkEquals('as(sum(x),"sum_of_x")',As(Call("sum",x),"sum_of_x")$dql())
 }
 
+test.Dataquery.distinct.all <- function(){
+  checkEquals('distinct()',Distinct()$dql())
+  checkEquals('all()',All()$dql())
+}
+
 test.Dataquery.where <- function(){
-  x = Column('x')
-  
   checkEquals('where(x<2)',Where(x<2)$dql())
   checkEquals('where((x>2) and (x<2))',Where((x>2)&(x<2))$dql())
 }
 
-test.Dataquery <- function(){
-  x = Column('x')
-  y = Column('y')
-    
-  check <- function(q,dql,sql){
-    checkEquals(dql,q$dql())
-  }
-  
-  checkException(Dataquery(),"a Dataquery must be constructed with at least one argument")
+test.Dataquery.by <- function(){
+  checkEquals('by(x)',By(x)$dql())
+}
 
-  check(
-    Dataquery(x),
+test.Dataquery.having <- function(){
+  checkEquals('having(x>2)',Having(x>2)$dql())
+}
+
+test.Dataquery.order <- function(){
+  checkEquals('order(x)',Order(x)$dql())
+}
+
+test.Dataquery.limit <- function(){
+  checkEquals('limit(100)',Limit(100)$dql())
+}
+
+test.Dataquery.offset <- function(){
+  checkEquals('offset(100)',Offset(100)$dql())
+}
+
+test.Dataquery.combiners <- function(){  
+  checkEquals('top(by(x),sum(y),100)',Top(By(x),Aggregate('sum',y),100)$dql())
+  checkEquals('top(by(x),sum(y),100)',Top(x,y,100)$dql())
+}
+
+test.Dataquery.margins <- function(){  
+  checkEquals('margin()',Margin()$dql())
+  checkEquals('margin(by(x))',Margin(x)$dql())
+}
+
+test.Dataquery.adjusters <- function(){  
+  checkEquals('prop(y)',Proportion(y)$dql())
+  checkEquals('prop(y,by(x))',Proportion(y,x)$dql())
+  checkEquals('prop(sum(y),by(x))',Proportion(Aggregate('sum',y),By(x))$dql()) 
+}
+
+test.Dataquery.combos <- function(){
+  checkException(Dataquery(),"a Dataquery must be constructed with at least one argument")
+  checkEquals(
     'x',
-    'SELECT \"x\" FROM \"<from>\"'
+    Dataquery(x)$dql()
   )
-  
-  check(
-    Dataquery(Where(x<2)),
+  checkEquals(
     'where(x<2)',
-    'SELECT * FROM \"<from>\" WHERE \"x\"<2'
+    Dataquery(Where(x<2))$dql()
   )  
-  
-  check(
-    Dataquery(Call('sum',x),Where(x<2)),
+  checkEquals(
     'sum(x),where(x<2)',
-    'SELECT sum(\"x\") FROM \"<from>\" WHERE \"x\"<2'
+    Dataquery(Call('sum',x),Where(x<2))$dql()
   )  
-  
-  check(
-    Dataquery(As(Call('sum',x),"sum_x"),Where(x<2)),
+  checkEquals(
     'as(sum(x),"sum_x"),where(x<2)',
-    'SELECT sum(\"x\") AS "sum_x" FROM \"<from>\" WHERE \"x\"<2'
+    Dataquery(As(Call('sum',x),"sum_x"),Where(x<2))$dql()
   )  
 }
 

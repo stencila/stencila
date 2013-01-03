@@ -31,36 +31,45 @@ namespace Stencila {
 //! @todo Finish this documentation
 namespace DQL {
 
-//! @name Expressions
+//! @name Local convieience functions
 //! @{
 
-Column column(const std::string& name){
-      return Column(name);
+Constant<int>* convert(const int& value){
+    return new Constant<int>(value);
 }
-
-
-Constant<int> wrap(const int& value){
-      return Constant<int>(value);
+Constant<float>* convert(const float& value){
+    return new Constant<float>(value);
 }
-Constant<float> wrap(const float& value){
-      return Constant<float>(value);
-}
-Constant<std::string> wrap(const std::string& value){
-      return Constant<std::string>(value);
+Constant<std::string>* convert(const std::string& value){
+    return new Constant<std::string>(value);
 }
 template<class Element>
-const Element& wrap(const Element& element){
-      return element;
+Element* convert(const Element& element){
+    return new Element(element);
 }
 
 template<class Element>
 void append(Element& element){
 } 
-template<class Element,class Expression,class... Expressions>
-void append(Element& element,const Expression& expr,const Expressions&... exprs){
-      element.append(wrap(expr));
-      append(element,exprs...);
+template<class Element1,class Element2,class... Elements>
+void append(Element1& element1,const Element2& element2,const Elements&... elements){
+      element1.append(convert(element2));
+      append(element1,elements...);
 } 
+
+//! @}
+
+//! @name Column and As
+//! @{
+
+Column column(const std::string& name){
+    return Column(name);
+}
+
+template<class Element>
+As as(const Element& element, const std::string& name){
+    return As(convert(element),name);
+}
 
 //! @}
 
@@ -68,9 +77,9 @@ void append(Element& element,const Expression& expr,const Expressions&... exprs)
 //! @{
 
 #define UNOP(name,symbol) \
-      template<class Expression> \
-      name operator symbol(const Expression& expr){ \
-            return name(wrap(expr)); \
+      template<class Element> \
+      name operator symbol(const Element& expr){ \
+            return name(convert(expr)); \
       }
 
 UNOP(Positive,+)
@@ -87,7 +96,7 @@ UNOP(Not,!)
 #define BINOP(name,symbol) \
       template<class Left,class Right> \
       name operator symbol(const Left& left,const Right& right){ \
-            return name(wrap(left),wrap(right)); \
+            return name(convert(left),convert(right)); \
       }
 
 BINOP(Multiply,*)
@@ -113,37 +122,37 @@ BINOP(Or,||)
 //! @{
 
 #define CALL(name) \
-      template<class... Expressions> \
-      Call name(const Expressions&... exprs){ \
+      template<class... Elements> \
+      Call name(const Elements&... exprs){ \
             Call call(#name); \
             append(call,exprs...); \
             return call; \
       } 
 
 #define CALL_0(name) \
-      template<class Expression> \
+      template<class Element> \
       Call name(void){ \
             return Call(#name); \
       } 
 
 #define CALL_1(name) \
-      template<class Expression> \
-      Call name(const Expression& expr){ \
-            return Call(#name,wrap(expr)); \
+      template<class Element> \
+      Call name(const Element& expr){ \
+            return Call(#name,convert(expr)); \
       } 
       
 #define CALL_2_M(name) \
-      template<class Expression1,class Expression2,class... Expressions> \
-      Call name(const Expression1& expr1,const Expression2& expr2,const Expressions&... exprs){ \
-            Call call(#name,wrap(expr1),wrap(expr2)); \
+      template<class Element1,class Element2,class... Elements> \
+      Call name(const Element1& expr1,const Element2& expr2,const Elements&... exprs){ \
+            Call call(#name,convert(expr1),convert(expr2)); \
             append(call,exprs...); \
             return call; \
       } 
     
 #define AGG_1(name) \
-      template<class Expression> \
-      Aggregate name(const Expression& expr){ \
-            return Aggregate(#name,wrap(expr)); \
+      template<class Element> \
+      Aggregate name(const Element& expr){ \
+            return Aggregate(#name,convert(expr)); \
       } 
 
 //! Number functions
@@ -178,8 +187,8 @@ CALL(substr)
 
 // Date and time functions
 //! See http://www.sqlite.org/lang_datefunc.html
-template<class Format, class Expression, class Modifier>
-Call strftime(const Format& format,const Expression& expr, const Modifier& modifier){
+template<class Format, class Element, class Modifier>
+Call strftime(const Format& format,const Element& expr, const Modifier& modifier){
       return Call("strftime",wrap(format),wrap(expr),wrap(modifier));
 } 
 
@@ -191,39 +200,80 @@ Call strftime(const Format& format,const Expression& expr, const Modifier& modif
 const Distinct distinct;
 const All all;
 
-template<class Expression>
-Where where(const Expression& expr){
-      return Where(wrap(expr));
+template<class Element>
+Where where(const Element& element){
+      return Where(convert(element));
 }
 
-template<class Expression>
-By by(const Expression& expr){
-      return By(wrap(expr));
+template<class Element>
+By by(const Element& element){
+      return By(convert(element));
 }
 
-template<class Expression>
-Having having(const Expression& expr){
-      return Having(wrap(expr));
+template<class Element>
+Having having(const Element& element){
+      return Having(convert(element));
 }
 
-template<class Expression>
-Order order(const Expression& expr, float direction = 1){
-      return Order(wrap(expr),direction);
+template<class Element>
+Order order(const Element& element, float direction = 1){
+      return Order(convert(element),direction);
 }
 
-template<class Expression>
-Limit limit(const Expression& expr){
-      return Limit(wrap(expr));
+Limit limit(unsigned int number){
+      return Limit(number);
 }
 
-template<class Expression>
-Offset offset(const Expression& expr){
-      return Offset(wrap(expr));
+Offset offset(unsigned int number){
+      return Offset(number);
 }
 
-template<class Element,class Expression>
-Top top(const Element& element,const Expression& expression,unsigned int num){
-      return Top(wrap(element),wrap(expression),num);
+template<class Element1,class Element2>
+Top top(const Element1& element1,const Element2& element2,unsigned int num){
+      return Top(convert(element1),convert(element2),num);
+}
+
+Margin margin(void){
+      return Margin();
+}
+
+template<class Element>
+Margin margin(const Element& element){
+      return Margin(convert(element));
+}
+
+//! @name Adjusters
+//! @{
+
+
+template<class Value>
+Proportion prop(const Value& value){
+    return Proportion(convert(value));
+}
+
+template<class Value, class By>
+Proportion prop(const Value& value, const By& by){
+    Proportion prop(convert(value));
+    prop.bys_append(convert(by));
+    return prop;
+}
+
+//! @}
+
+void query_append(Dataquery& query){
+}
+
+template<class Element,class... Elements>
+void query_append(Dataquery& query,const Element& element, const Elements&... elements){
+    query.append(convert(element));
+    query_append(query,elements...);
+}
+
+template<class... Elements>
+Dataquery query(const Elements&... elements){
+    Dataquery query;
+    query_append(query,elements...);
+    return query;
 }
 
 }

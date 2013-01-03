@@ -31,19 +31,14 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/datatable.hpp>
 
 namespace Stencila {
+    
+class Element;
+typedef std::vector<const Element*> Elements;
 
 //! @class Element
 //! @brief An element of a Dataquery
 class Element {
 public:
-
-    //! @brief Get the column name for this Element
-    //!
-    //! Expressions can be used to create columns in the resultant Datatable.
-    //! Those columns need a name, and this method provides that name.
-    virtual std::string name(void) const {
-        return "";
-    }
 
     //! @brief Get the Data Query Language (DQL) representation of this Dataquery element
     //! @return The DQL for this query element
@@ -51,24 +46,47 @@ public:
         return "";
     }
 
+    //! @brief Get the column name for this Element
+    //!
+    //! Elements can be used to create columns in the resultant Datatable.
+    //! Those columns need a name, and this method provides that name.
+    virtual std::string label(void) const {
+        return "";
+    };
+    
+    virtual std::string id(void) const {
+        return boost::lexical_cast<std::string>(this);
+    }
+
     //! @brief Get the Structured Query Language (SQL) for this Dataquery element
     //! @param which Which version of SQL to produce
     //! @return The SQL for this query element
-    virtual std::string sql(unsigned short which=0) const {
+    virtual std::string sql(unsigned short phase) const {
         return "";
     }
-};
-
-//! @class Expression
-//! @brief An expression used in a Dataquery
-class Expression : public Element {
-public:
-
+    
+    //! @brief
+    //! @param values
+    //! @param which
+    //! @return
+    static std::string sql(const Elements& elements, unsigned short phase){
+        std::string sql = "";
+        if(elements.size()==0){
+            sql += " *";
+        } else {
+            sql += " ";
+            for(const Element* element : elements){
+                sql += element->sql(phase) + " AS \"" + ((phase==0 or phase==10)?(element->label()):(element->id())) + "\"";
+                if(element!=*(elements.end()-1)) sql += ", ";
+            }
+        }
+        return sql;
+    }
 };
 
 //! @class Column
 //! @brief A Dataquery element which represents the column of a Datatable
-class Column : public Expression {
+class Column : public Element {
 private:
 
     //! @brief Name of the column
@@ -82,27 +100,27 @@ public:
         name_(name){
     }
 
-    virtual std::string name(void) const {
-        return name_;
-    }
-
     virtual std::string dql(void) const {
         return name_;
     }
 
-    virtual std::string sql(unsigned short which=0) const {
+    virtual std::string label(void) const {
+        return name_;
+    }
+
+    virtual std::string sql(unsigned short phase) const {
         return '"' + name_ + '"';
     }
 };
 
 //! @class Constant
-//! @brief A constant used in a Dataquery expression
+//! @brief A constant used in a Dataquery element
 template<typename Type> class Constant;
 
 //! @class Constant<void>
 //! @brief Base class for other class specialisations of templated class Constant
 template<>
-class Constant<void> : public Expression {
+class Constant<void> : public Element {
 
 };
 
@@ -123,15 +141,15 @@ public:
         value_(value){
     }
 
-    virtual std::string name(void) const {
-        return boost::lexical_cast<std::string>(value_);
-    }
-
     virtual std::string dql(void) const {
         return boost::lexical_cast<std::string>(value_);
     }
 
-    virtual std::string sql(unsigned short which=0) const {
+    virtual std::string label(void) const {
+        return boost::lexical_cast<std::string>(value_);
+    }
+
+    virtual std::string sql(unsigned short phase) const {
         return boost::lexical_cast<std::string>(value_);
     }
 };
@@ -152,27 +170,27 @@ public:
         value_(value){
     }
 
-    virtual std::string name(void) const {
-        return value_;
-    }
-
     virtual std::string dql(void) const {
         return "'"+value_+"'";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
+    virtual std::string label(void) const {
+        return value_;
+    }
+
+    virtual std::string sql(unsigned short phase) const {
         return "'"+value_+"'";
     }
 };
 
-class Call : public Expression {
+class Call : public Element {
 private:
 
     //! @brief
     std::string name_;
 
     //! @brief
-    std::vector<Expression*> args_;
+    std::vector<Element*> args_;
 
 public:
 
@@ -183,21 +201,21 @@ public:
 
     //! @brief
     //! @param name
-    //! @param exprs
+    //! @param elements
     //! @return
     template<
-        typename... Expressions
+        typename... Elements
     >
-    Call(const std::string& name,const Expressions&... exprs):
+    Call(const std::string& name,const Elements&... elements):
         name_(name){
-        append_all(exprs...);
+        append_all(elements...);
     }
 
     //! @brief
     //! @param expr
     //! @return
-    Call& append(Expression* expr){
-        args_.push_back(expr);
+    Call& append(Element* element){
+        args_.push_back(element);
         return *this;
     }
 
@@ -212,40 +230,40 @@ public:
     //! @param exprs
     //! @return
     template<
-        typename Expression,
-        typename... Expressions
+        typename Element,
+        typename... Elements
     >
-    Call& append_all(const Expression& expr,const Expressions&... exprs){
-        append(new Expression(expr));
-        return append_all(exprs...);
-    }
-
-    virtual std::string name(void) const {
-        std::vector<std::string> args;
-        BOOST_FOREACH(const Expression* arg, args_){
-            args.push_back(arg->name());
-        }
-        return name_+"("+boost::algorithm::join(args, ", ")+")";
+    Call& append_all(const Element& element,const Elements&... elements){
+        append(new Element(element));
+        return append_all(elements...);
     }
 
     virtual std::string dql(void) const {
         std::vector<std::string> args;
-        BOOST_FOREACH(const Expression* arg, args_){
+        for(const Element* arg : args_){
             args.push_back(arg->dql());
         }
         return name_+"("+boost::algorithm::join(args, ", ")+")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
+    virtual std::string label(void) const {
         std::vector<std::string> args;
-        BOOST_FOREACH(Element* arg, args_){
-            args.push_back(arg->sql(which));
+        for(const Element* arg : args_){
+            args.push_back(arg->label());
+        }
+        return name_+"("+boost::algorithm::join(args, ", ")+")";
+    }
+
+    virtual std::string sql(unsigned short phase) const {
+        std::vector<std::string> args;
+        for(Element* arg : args_){
+            args.push_back(arg->sql(phase));
         }
         return name_+"("+boost::algorithm::join(args, ", ")+")";
     }
 };
 
-class Aggregate : public Expression {
+class Aggregate : public Element {
 
 private:
 
@@ -253,50 +271,39 @@ private:
     std::string name_;
     
     //! @brief
-    Expression* expr_;
+    Element* element_;
 
 public:
 
     //! @brief
     //! @param name
     //! @param expr
-    Aggregate(const std::string& name, Expression* expr):
+    Aggregate(const std::string& name, Element* element):
         name_(name),
-        expr_(expr){
-    }
-
-    //! @brief
-    //! @param name
-    //! @param expr
-    //! @return
-    template<class Expression>
-    Aggregate(const std::string& name, const Expression& expr):
-        name_(name),
-        expr_(new Expression(expr)){
-    }
-
-    virtual std::string name(void) const {
-        return name_+"("+expr_->name()+")";
-    }
-
-    std::string name(unsigned short which) const {
-        if(which==1) return name_+"1_";
-        else if(which==2) return name_+"2_";
+        element_(element){
     }
 
     virtual std::string dql(void) const {
-        return name_+"("+expr_->dql()+")";
+        return name_+"("+element_->dql()+")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        if(which==0) return name_ + "(" + expr_->sql(which) + ")";
-        else if(which==1) return name_ + "1(" + expr_->sql(which) + ") AS "+name_+"1_";
-        else if(which==2) return name_ + "2("+name_+"1_)";
+    virtual std::string label(void) const {
+        return name_+"("+element_->label()+")";
+    }
+
+    virtual std::string sql(unsigned short phase) const {
+        switch(phase){
+            case 0: return name_ + "(" + element_->sql(phase) + ")"; break;
+            case 1: return name_ + "1(" + element_->sql(phase) + ")"; break;
+            case 2: return name_ + "2(\"" + id() + "\")"; break;
+            case 3: return name_ + "(\"" + element_->id() + "\")"; break;
+            case 10: return "\"" + id() + "\""; break;
+        }
         return "";
     }
 };
 
-class Operator : public Expression {
+class Operator : public Element {
 };
 
 template<int Code>
@@ -305,38 +312,25 @@ class UnaryOperator : public Operator {
 protected:
 
     //! @brief
-    Expression* expr_;
+    Element* element_;
 
 public:
 
     //! @brief
-    UnaryOperator(void):
-        expr_(0){
-    }
-
-    //! @brief
-    UnaryOperator(Expression* expr):
-        expr_(expr){
-    }
-
-    //! @brief
-    //! @param expr
-    //! @return
-    template<class Expression>
-    UnaryOperator(const Expression& expr):
-        expr_(new Expression(expr)){
-    }
-
-    virtual std::string name(void) const {
-        return dql_symbol() + expr_->name();
+    UnaryOperator(Element* element = 0):
+        element_(element){
     }
 
     virtual std::string dql(void) const {
-        return dql_symbol() + expr_->dql();
+        return dql_symbol() + element_->dql();
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        return sql_symbol() + expr_->sql(which);
+    virtual std::string label(void) const {
+        return dql_symbol() + element_->label();
+    }
+
+    virtual std::string sql(unsigned short phase) const {
+        return sql_symbol() + element_->sql(phase);
     }
     
     const char* dql_symbol(void) const;
@@ -360,40 +354,20 @@ class BinaryOperator : public Operator {
 protected:
 
     //! @brief
-    Expression* left_;
+    Element* left_;
     
     //! @brief
-    Expression* right_;
+    Element* right_;
 
 public:
 
     //! @brief
-    BinaryOperator(void):
-        left_(0),
-        right_(0){
-    }
-
-    //! @brief
     //! @param left
     //! @param right
     //! @return
-    BinaryOperator(Expression* left, Expression* right):
+    BinaryOperator(Element* left=0, Element* right=0):
         left_(left),
         right_(right){
-    }
-
-    //! @brief
-    //! @param left
-    //! @param right
-    //! @return
-    template<class Left, class Right>
-    BinaryOperator(const Left& left, const Right& right):
-        left_(new Left(left)),
-        right_(new Right(right)){
-    }
-
-    virtual std::string name(void) const {
-        return left_->name() + dql_symbol() + right_->name();
     }
 
     virtual std::string dql(void) const {
@@ -412,16 +386,20 @@ public:
         return dql;
     }
 
-    virtual std::string sql(unsigned short which=0) const {
+    virtual std::string label(void) const {
+        return left_->label() + dql_symbol() + right_->label();
+    }
+
+    virtual std::string sql(unsigned short phase) const {
         std::string sql;
         
-        std::string left = left_->sql(which);
+        std::string left = left_->sql(phase);
         if(dynamic_cast<Operator* const>(left_)) sql += "(" + left + ")";
         else sql += left;
         
         sql += sql_symbol();
         
-        std::string right = right_->sql(which);
+        std::string right = right_->sql(phase);
         if(dynamic_cast<Operator* const>(right_)) sql += "(" + right + ")";
         else sql += right;
         
@@ -464,7 +442,7 @@ class As : public Element {
 private:
 
     //! @brief
-    Element* ele_;
+    Element* element_;
 
     //! @brief
     std::string name_;
@@ -472,288 +450,431 @@ private:
 public:
 
     //! @brief
-    //! @param ele
+    //! @param element
     //! @param name
     //! @return
-    As(Element* ele,const std::string& name):
-        ele_(ele),
+    As(Element* element,const std::string& name):
+        element_(element),
         name_(name){
-    }
-
-    //! @brief
-    //! @param name
-    //! @return
-    template<class Element>
-    As(const Element& ele,const std::string& name):
-        ele_(new Element(ele)),
-        name_(name){
-    }
-
-    virtual std::string name(void) const {
-        return name_;
     }
 
     virtual std::string dql(void) const {
-        return "as(" + ele_->dql() + ",\"" + name_ + "\")";
+        return "as(" + element_->dql() + ",\"" + name_ + "\")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        return ele_->sql(which) + " AS \"" + name_ + "\"";
+    virtual std::string label(void) const {
+        return name_;
+    }
+
+    virtual std::string sql(unsigned short phase) const {
+        return element_->sql(phase);
     }
 };
 
 class Distinct : public Element {
 public:
+
+    virtual std::string dql(void) const {
+        return "distinct()";
+    }
+
+    //! @brief Generate a SQL DISTINCT clause
+    //! @param distinct Whether or not the select is DISTINCT
+    //! @return SQL
+    static std::string sql(bool distinct,unsigned short phase){
+        if(distinct) return " DISTINCT";
+        else return "";
+    }
 };
 
 class All : public Element {
 public:
+
+    virtual std::string dql(void) const {
+        return "all()";
+    }
 };
+
+
+class Where;
+typedef std::vector<const Where*> Wheres;
 
 class Where : public Element {
 
 private:
-    Expression* expr_;
+    Element* element_;
 
 public:
 
     //! @brief
     //! @param expr
-    Where(Expression* expr):
-        expr_(expr){
-    }
-
-    //! @brief
-    //! @param expr
-    //! @return
-    template<class Expression>
-    Where(const Expression& expr):
-        expr_(new Expression(expr)){
-    }
-
-    Expression& expression(void) const {
-        return *expr_;
+    Where(Element* element):
+        element_(element){
     }
 
     virtual std::string dql(void) const {
-        return "where("+expr_->dql()+")";
+        return "where("+element_->dql()+")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        return expr_->sql(which);
+    virtual std::string sql(unsigned short phase) const {
+        return element_->sql(phase);
+    }
+    
+    //! @brief Generate a WHERE clause for a set of Wheres
+    //! @param wheres
+    //! @return
+    static std::string sql(const Wheres& wheres, unsigned short phase){
+        std::string sql = "";
+        if(wheres.size()>0){
+            sql += " WHERE ";
+            if(wheres.size()>1) sql += "(";
+            for(auto i=wheres.begin();i!=wheres.end();i++){
+                sql += (*i)->sql(phase);
+                if(i!=wheres.end()-1) sql += ") AND (";
+            }
+            if(wheres.size()>1) sql += ")";
+        }
+        return sql;
     }
 };
+
+class By;
+typedef std::vector<const By*> Bys;
 
 class By : public Element {
 
 private:
 
     //! @brief
-    Element* ele_;
+    const Element* element_;
 
 public:
 
     //! @brief
     //! @param ele
-    By(Element* ele):
-        ele_(ele){
-    }
-
-    //! @brief
-    //! @param ele
-    //! @return
-    template<class Element>
-    By(const Element& ele):
-        ele_(new Element(ele)){
-    }
-
-    //! @brief
-    //! @return
-    Element* element(void) const {
-        return ele_;
-    }
-
-    virtual std::string name(void) const {
-        return ele_->name();
+    By(const Element* element):
+        element_(element){
     }
 
     virtual std::string dql(void) const {
-        return "by("+ele_->dql()+")";
+        return "by("+element_->dql()+")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        return ele_->sql(which);
+    virtual std::string label(void) const {
+        return element_->label();
+    }
+
+    virtual std::string sql(unsigned short phase) const {
+        if(phase<2) return element_->sql(phase);
+        else return '"'+id()+'"';
+    }
+    
+    //! @brief Generate a GROUP BY clause for a set of Bys
+    //! @param bys
+    //! @return 
+    static std::string sql(const Bys& bys, unsigned short phase){
+        std::string sql = "";
+        if(bys.size()>0){
+            sql += " GROUP BY ";
+            for(auto i=bys.begin();i!=bys.end();i++){
+                sql += (*i)->sql(phase);
+                if(i!=bys.end()-1) sql += ", ";
+            }
+        }
+        return sql;
     }
 };
+
+class Having;
+typedef std::vector<const Having*> Havings;
 
 class Having : public Element {
 
 private:
 
     //! @brief
-    Expression* expr_;
+    Element* element_;
 
 public:
 
     //! @brief
     //! @param expr
-    Having(Expression* expr):
-        expr_(expr){
-    }
-
-    //! @brief
-    //! @param expr
-    //! @return
-    template<class Expression>
-    Having(const Expression& expr):
-        expr_(new Expression(expr)){
+    Having(Element* element):
+        element_(element){
     }
 
     virtual std::string dql(void) const {
-        return "having("+expr_->dql()+")";
+        return "having("+element_->dql()+")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        return expr_->sql(which);
+    virtual std::string sql(unsigned short phase) const {
+        return element_->sql(phase);
+    }
+    
+    //! @brief 
+    //! @param havings
+    //! @return 
+    static std::string sql(const Havings& havings,unsigned short phase){
+        std::string sql = "";
+        if(havings.size()>0){
+            sql += " HAVING ";
+            if(havings.size()>1) sql += "(";
+            for(auto i=havings.begin();i!=havings.end();i++){
+                sql += (*i)->sql(phase);
+                if(i!=havings.end()-1) sql += ") AND (";
+            }
+            if(havings.size()>1) sql += ")";
+        }
+        return sql;
     }
 };
+
+class Order;
+typedef std::vector<const Order*> Orders;
 
 class Order : public Element {
 
 private:
 
     //! @brief
-    Expression* expr_;
+    Element* element_;
     
     //! @brief
-    float dir_;
+    float direction_;
 
 public:
 
     //! @brief
     //! @param expr
     //! @param dir
-    Order(Expression* expr,const float& dir=1):
-        expr_(expr),
-        dir_(dir){
+    Order(Element* element,const float& direction=1):
+        element_(element),
+        direction_(direction){
     }
-
-    //! @brief
-    //! @param dir
-    //! @return
-    template<class Expression>
-    Order(const Expression& expr,const float& dir=1):
-        expr_(new Expression(expr)),
-        dir_(dir){
-    }
-
-    //! @brief
-    //! @return
+    
     float direction(void) const {
-        return dir_;
+        return direction_;
     }
 
     virtual std::string dql(void) const {
-        std::string dql = "order(" + expr_->dql();
-        if(dir_!=1) dql += "," + boost::lexical_cast<std::string>(dir_);
+        std::string dql = "order(" + element_->dql();
+        if(direction_!=1) dql += "," + boost::lexical_cast<std::string>(direction_);
         return dql + ")";
     }
 
-    virtual std::string sql(unsigned short which=0) const {
-        return expr_->sql(which);
+    virtual std::string sql(unsigned short phase) const {
+        return element_->sql(phase);
     }
-};
-
-class Limit : public Element {
-private:
-
-    //! @brief
-    Expression* expr_;
     
-public:
 
-    //! @brief
-    //! @param expr
-    Limit(Expression* expr):
-        expr_(expr){
-    }
-
-    //! @brief
-    //! @param expr
-    //! @return
-    template<class Expression>
-    Limit(const Expression& expr):
-        expr_(new Expression(expr)){
-    }
-
-    virtual std::string dql(void) const {
-        return "limit("+expr_->dql()+")";
-    }
-
-    virtual std::string sql(unsigned short which=0) const {
-        return expr_->sql(which);
+    //! @brief 
+    //! @param orders
+    //! @return 
+    static std::string sql(const Orders& orders,unsigned short phase){
+        std::string sql = "";
+        if(orders.size()>0){
+            sql += " ORDER BY ";
+            for(auto i=orders.begin();i!=orders.end();i++){
+                const Order* order = *i;
+                sql += order->sql(phase);
+                if(order->direction()>0) sql += " ASC";
+                else if(order->direction()<0) sql += " DESC";
+                if(i!=orders.end()-1) sql += ", ";
+            }
+        }
+        return sql;
     }
 };
 
-class Offset : public Element {
-private:
+class Limit;
+class Offset;
 
-    //! @brief
-    Expression* expr_;
-
-public:
-    Offset(Expression* expr):
-        expr_(expr){
-    }
-
-    //! @brief
-    //! @param expr
-    //! @return
-    template<class Expression>
-    Offset(const Expression& expr):
-        expr_(new Expression(expr)){
-    }
-
-    virtual std::string dql(void) const {
-        return "offset("+expr_->dql()+")";
-    }
-
-    virtual std::string sql(unsigned short which=0) const {
-        return expr_->sql(which);
-    }
-};
-
-class Combiner : public Element {
+class LimitOffset : public Element {
 protected:
-    
-    //! @brief Element that is the subject of this combiner.
-    //! @note Usually this will be a By element but if it is not then will be replaced by one in Dataquery::compile()
-    Element* subject_;
+
+    //! @brief
+    unsigned int number_;
 
 public:
 
-    //! @brief
-    Combiner(Element* subject):
-        subject_(subject){
+    LimitOffset(unsigned int number):
+        number_(number){
     }
 
-    //! @brief
-    //! @return
-    Element* subject(void) const {
-        return subject_;
+    unsigned int number(void) const {
+        return number_;
     }
     
-    //! @brief
-    //! @param subject
-    //! @return
-    Combiner& subject(Element* subject) {
-        subject_ = subject;
+    std::string number_string(void) const {
+        return boost::lexical_cast<std::string>(number_);
+    }
+
+    //! @brief 
+    //! @param limit
+    //! @param offset
+    //! @return 
+    static std::string sql(const Limit* limit, const Offset* offset);
+};
+
+class Limit : public LimitOffset {
+public:
+
+    Limit(unsigned int number):
+        LimitOffset(number){
+    }
+
+    virtual std::string dql(void) const {
+        return "limit("+number_string()+")";
+    }
+};
+
+class Offset : public LimitOffset {
+public:
+
+    Offset(unsigned int number):
+        LimitOffset(number){
+    }
+    
+    virtual std::string dql(void) const {
+        return "offset("+number_string()+")";
+    }
+};
+
+std::string LimitOffset::sql(const Limit* limit, const Offset* offset){
+    std::string sql = "";
+    if(limit){
+        sql += " LIMIT " + limit->number_string();
+    }
+    if(offset){
+        //Offset can only come after a limit clause. So add one if not present.
+        //The theoretical maximum number of rows in an SQLite database
+        //is 2^64 = 18446744073709551616 (see http://www.sqlite.org/limits.html)
+        //However SQLite baulks at such a large integer in an limit clause so instead
+        //we have to use the maximum value for an integer: 2^64/2
+        if(not limit) sql += " LIMIT 9223372036854775807";
+        sql += " OFFSET " + offset->number_string();
+    }
+    return sql;
+}
+
+
+class Select {
+private:
+
+    bool distinct_;
+    Elements columns_; 
+    Wheres wheres_; 
+    Bys bys_; 
+    Havings havings_; 
+    Orders orders_; 
+    const Limit* limit_;
+    const Offset* offset_;
+
+public:
+
+    Select& distinct(bool distinct){
+        distinct_ = distinct;
+        return *this;
+    }
+    
+    Select& columns(const Elements& elements){
+        columns_ = elements;
+        return *this;
+    }
+    
+    Select& where(const Wheres& wheres){
+        wheres_ = wheres;
+        return *this;
+    }
+    
+    Select& by(const Bys& bys){
+        bys_ = bys;
+        return *this;
+    }
+    
+    Select& having(const Havings& havings){
+        havings_ = havings;
+        return *this;
+    }
+    
+    Select& order(const Orders& orders){
+        orders_ = orders;
         return *this;
     }
 
+    Select& limit(const Limit* limit){
+        limit_ = limit;
+        return *this;
+    }
+    
+    Select& offset(const Offset* offset){
+        offset_ = offset;
+        return *this;
+    }
+
+    std::string sql(const Datatable& table, unsigned short int phase) const {
+        return "SELECT " + 
+                Distinct::sql(distinct_,phase) + 
+                Element::sql(columns_,phase) + 
+                " FROM \"" + table.name() + "\"" +
+                Where::sql(wheres_,phase) + 
+                By::sql(bys_,phase) + 
+                Having::sql(havings_,phase) + 
+                Order::sql(orders_,phase) + 
+                LimitOffset::sql(limit_,offset_);
+    }
+    
+    Datatable execute(const Datatable& table, unsigned short int phase){
+        std::string s = sql(table,phase);
+        return table.select(s);
+    }
+};
+
+
+class Modifier : public Element {
+public:
+
+    virtual Elements values(void) const {
+        return {};
+    };
+
+    virtual Bys bys(void) const {
+        return {};
+    };
+};
+
+//! @name Combiners
+//! @brief Classes that combine levels of a categorical variable
+//!
+//! Often it is useful to combine categories of a categorical variable for a data summary.
+//! A common instance is creating an "other" category. For example, you might want to obtain
+//! sums for the top 10 levels and for all other categories combined. This is what Combiners do.
+//! @{
+
+class Combiner : public Modifier {
+protected:
+    
+    //! @brief Element that is the subject of this combiner.
+    By* by_;
+
+public:
+
+    //! @brief
+    Combiner(Element* element){
+        By* by = dynamic_cast<By*>(element);
+        if(by) by_ = by;
+        else by_ = new By(element);
+    }
+    
+    virtual Bys bys(void) const {
+        return {by_};
+    };
+
     //! @brief
     //! @param datatable
-    virtual void combine(Datatable& datatable) const = 0;
+    //!
+    //! Combiners set values in corresponding columns to "<other>"
+    virtual void combine(const Datatable& datatable) const = 0;
 };
 
 class Top : public Combiner {
@@ -768,102 +889,210 @@ protected:
 public:
 
     //! @brief
-    //! @param subject
-    //! @param aggregate
+    //! @param by
+    //! @param element
     //! @param num
-    Top(Element* subject,Aggregate* aggregate,const unsigned int& num=10):
-        Combiner(subject),
-        aggregate_(aggregate),
-        number_(num){
+    Top(Element* by, Element* element,const unsigned int& number=10):
+        Combiner(by),
+        number_(number){
+        Aggregate* aggregate = dynamic_cast<Aggregate*>(element);
+        if(aggregate) aggregate_ = aggregate;
+        else aggregate_ = new Aggregate("sum",element);
     }
 
-    //! @brief
-    //! @param subject
-    //! @param aggregate
-    //! @param num
-    //! @return
-    template<class Element, class Aggregate>
-    Top(const Element& subject,const Aggregate& aggregate,const unsigned int& num=10):
-        Combiner(new Element(subject)),
-        aggregate_(new Aggregate(aggregate)),
-        number_(num){
-    }
-
-    //! @brief
-    //! @return
-    Expression* aggregate(void) const {
-        return aggregate_;
-    }
-
-    virtual void combine(Datatable& datatable) const {
-        //Determine the top levels
-        std::stringstream sql;
-        std::string subject = '"'+subject_->name()+'"';
-        std::string aggregate = '"'+aggregate_->name(2)+'"';
-        std::string table = '"'+datatable.name()+'"';
-        sql <<"UPDATE "<<table<<" SET "<<subject<<" = '<other>' WHERE "<<subject<<" IN ("
-                <<"SELECT "<<subject<<" FROM "<<table<<" ORDER BY "<<aggregate_->sql(2)<<" DESC LIMIT "<<number_
-            <<")";
-        std::string sql_str = sql.str();
-        datatable.execute(sql_str);
+    virtual std::string dql(void) const {
+        return "top(" + by_->dql() + "," + aggregate_->dql() + "," + boost::lexical_cast<std::string>(number_) + ")";
     }
     
+    virtual Elements values(void) const {
+        return {
+            aggregate_
+        };
+    }
+
+    virtual void combine(const Datatable& datatable) const {
+        //Determine the top levels
+        std::stringstream sql;
+        std::string subject = '"'+by_->id()+'"';
+        std::string table = '"'+datatable.name()+'"';
+        sql <<"UPDATE "<<table<<" SET "<<subject<<" = '<other>' WHERE "<<subject<<" NOT IN ("
+                <<"SELECT "<<subject<<" FROM "<<table<<" GROUP BY "<<subject<<" ORDER BY "<<aggregate_->sql(2)<<" DESC LIMIT "<<number_
+            <<")";
+        datatable.execute(sql.str());
+    }
+
 };
 
-class Margin : public Element {
+class Margin : public Modifier {
 protected:
 
-    //! @brief  
-    Element* subject_;
+    //! @brief The subject of this margin
+    //!
+    //! The summary will be repeated for each category in this Element
+    By* by_;
 
 public:
 
-    //! @brief 
-    //! @param subject
-    Margin(Element* subject):
-        subject_(subject){
+    //! @brief Construct a Margin
+    //! @param subject The subject Element
+    //!
+    //! The subject element can be omitted in which case the margin is calculated over all
+    //! rows in the supplied Datatable (see calculate())
+    Margin(Element* element = 0){
+        if(element){
+            By* by = dynamic_cast<By*>(element);
+            if(by) by_ = by;
+            else by_ = new By(element);
+        } else {
+            by_ = 0;
+        }
+    }
+    
+    virtual std::string dql(void) const {
+        std::string dql = "margin(";
+        if(by_) dql += by_->dql();
+        return dql + ")";
     }
 
-    //! @brief 
-    //! @return 
-    Element* subject(void) const {
-        return subject_;
+    virtual Bys bys(void) const {
+        if(by_) return {by_};
+        else return {};
+    }
+
+    void calculate(const Datatable& from, const Datatable& to, const Elements& values, const Bys& bys) const {
+        //Create a list of columns for a SQL select statement
+        //It is necessary to have the same number of colums as in the to table but "fill in" some of those columns
+        //with "<all>"
+        Elements columns;
+        for(const By* by : bys){
+            if(by==by_) columns.push_back(by);
+            else columns.push_back(new Constant<std::string>("<all>"));
+        };
+        //Append the list of values to the end of the columns list
+        columns.insert(columns.end(),values.begin(),values.end());
+        
+        // Execute the SQL select
+        Datatable alls = Select().columns(columns).by(this->bys()).execute(from,2);
+        // Append the alls to the "to" table
+        to.append(alls);
     }
 };
 
-class Adjuster : public Element {
+
+//! @name Adjusters
+//! @{
+
+class Adjuster : public Modifier {
 protected:
 
-    //! @brief 
-    std::vector<By*> bys_;
+    //! @brief Value for which a proportion will be calculated 
+    Element* value_;
+    
+    //! @brief Categorical variables for which a proportion will be calculated for each category
+    Bys bys_;
 
 public:
 
+    Adjuster(Element* value):
+        value_(value){
+    }
+
+    virtual std::string dql_name(void) const = 0;
+    
+    virtual std::string dql(void) const {
+        std::string dql = dql_name() + "(" + value_->dql();
+        for(const By* by : bys_) dql += "," + by->dql();
+        return dql + ")";
+    }
+
+    virtual Elements values(void) const {
+        return {value_};
+    }
+
+    virtual Bys bys(void) const {
+        return bys_;
+    }
+    
+    Adjuster& bys_append(const Element* element){
+        const By* by = dynamic_cast<const By*>(element);
+        if(!by) by = new By(element);
+        bys_.push_back(by);
+        return *this;
+    }
+
+    template<class... Elements>
+    Adjuster& bys_append(const Element* element, const Elements*... elements){
+        bys_append(element);
+        bys_append(elements...);
+        return *this;
+    }
+
     //! @brief 
-    virtual void adjust(Datatable& table) const = 0;
+    //! @param final
+    virtual void adjust(const Datatable& final) const = 0;
 };
 
 class Proportion : public Adjuster {
 public:
 
-    //! @brief 
-    //! @param table
-    void adjust(Datatable& table) const {
-        //! @todo
-        //Calculate sums for each by
-        //Call* sum = Aggregate("sum");
-        //Columns cols = {sum};
-        //sql(table,,bys_);
+    Proportion(Element* value):
+        Adjuster(value){
+    }
+
+    virtual std::string dql_name(void) const {
+        return "prop";
+    }
+
+    virtual void adjust(const Datatable& final) const {
+        //Create
+        Aggregate* sum = new Aggregate("sum",value_);
+        
+        // Calculate sums of values
+        Elements columns;
+        columns.insert(columns.begin(),bys_.begin(),bys_.end());
+        columns.push_back(sum);
+        //Execute with which==3 so that correct column names are used
+        Datatable sums = Select()
+            .columns(columns)
+            .by(bys_)
+            .execute(final,3);
+            
+        // Create ids for referencing columns in tables
+        std::string value_id = value_->id();
+        std::string sum_id = sum->id();
+        // Create a list of Bys for join
+        std::string bys;
+        for(const By* by : bys_) bys += "\"" + by->id() + "\",";
+        bys.erase(bys.end()-1,bys.end());
+        // Create a name for the temporary table
+        std::string temp_name = "stencila_"+boost::lexical_cast<std::string>(Hash())+"_temp";
+        
+        // Create a temporary table of calculated values, one value for each row in final table
+        final.execute("CREATE TEMPORARY TABLE \"" + temp_name + "\" AS SELECT * FROM (SELECT \"" +
+            value_id + "\"/\"" + sum_id + "\" AS \"_calc_\" FROM \"" + final.name() + "\" LEFT JOIN \"" + sums.name() + "\" USING(" + bys + "))");
+        // Update values in final table using rowids in a subquery to join
+        final.execute("UPDATE \"" + final.name() +"\" SET \"" + value_id +
+            "\"=(SELECT \"_calc_\" FROM \"" + temp_name +"\" WHERE \"" + final.name() +"\".rowid==\"" + temp_name + "\".rowid)");
+        
+        //Cleanup
+        delete sum;
     };
 };
 
-class Reshaper : public Element {
+//! @}
 
+//! @name Reshapers
+//! @{
+
+class Reshaper : public Element {
 };
+
+//! @}
+
 
 //! @class Dataquery
 //! @todo Document fully
-class Dataquery : public Element {
+class Dataquery {
 private:
 
     //! @brief 
@@ -875,25 +1104,23 @@ private:
     //! @brief 
     bool compiled_;
 
-    typedef std::vector<std::pair<std::string,const Element*>> Columns;
-
     //! @brief 
     bool distinct_;
     
     //! @brief 
-    std::vector<const Element*> values_;
+    Elements values_;
     
     //! @brief 
-    std::vector<const Where*> wheres_;
+    Wheres wheres_;
     
     //! @brief 
-    std::vector<const By*> bys_;
+    Bys bys_;
     
     //! @brief 
-    std::vector<const Having*> havings_;
+    Havings havings_;
     
     //! @brief 
-    std::vector<const Order*> orders_;
+    Orders orders_;
     
     //! @brief 
     const Limit* limit_;
@@ -920,15 +1147,6 @@ public:
         from_("<from>"){
     }
 
-    //! @brief
-    //! @param elements
-    //! @return
-    template<class... Elements>
-    Dataquery(const Elements&... elements):
-        from_("<from>"){
-        append_all(elements...);
-    }
-
     //! @name Append elements
     //! @brief Append elements to the dataquery
     //! @{
@@ -939,24 +1157,6 @@ public:
         elements_.push_back(ele);
         compiled_ = false;
         return *this;
-    }
-
-    //! @brief
-    //! @return
-    Dataquery& append_all(void){
-        return *this;
-    }
-
-    //! @brief
-    //! @param eles
-    //! @return
-    template<
-        typename Element,
-        typename... Elements
-    >
-    Dataquery& append_all(const Element& ele,const Elements&... eles){
-        append(new Element(ele));
-        return append_all(eles...);
     }
 
     //! @}
@@ -982,7 +1182,7 @@ public:
             limit_ = 0;
             offset_ = 0;
             
-            BOOST_FOREACH(Element* element, elements_){
+            for(Element* element: elements_){
                 if(dynamic_cast<const Distinct*>(element)){
                     distinct_ = true;
                 }
@@ -1008,17 +1208,29 @@ public:
                     offset_ = offset;
                 }
                 else if(Combiner* combiner = dynamic_cast<Combiner*>(element)){
-                    Element* subject = combiner->subject();
-                    By* by = dynamic_cast<By*>(subject);
-                    if(!by) combiner->subject(new By(subject));
-                    
                     combiners_.push_back(combiner);
+                    Elements values = combiner->values();
+                    values_.insert(values_.end(),values.begin(),values.end());
+                    Bys bys = combiner->bys();
+                    bys_.insert(bys_.end(),bys.begin(),bys.end());
+                }
+                else if(Margin* margin = dynamic_cast<Margin*>(element)){
+                    margins_.push_back(margin);
+                    Bys bys = margin->bys();
+                    bys_.insert(bys_.end(),bys.begin(),bys.end());
+                }
+                else if(Adjuster* adjuster = dynamic_cast<Adjuster*>(element)){
+                    adjusters_.push_back(adjuster);
+                    Elements values = adjuster->values();
+                    values_.insert(values_.end(),values.begin(),values.end());
+                    Bys bys = adjuster->bys();
+                    bys_.insert(bys_.end(),bys.begin(),bys.end());
                 }
                 else {
                     values_.push_back(element);
                 }
             }
-            
+
             compiled_ = true;
         }
         return *this;
@@ -1033,217 +1245,63 @@ public:
         }
         return dql;
     }
-
-    //! @brief
-    //! @param table
-    //! @param distinct
-    //! @param columns
-    //! @param where
-    //! @param by
-    //! @param having
-    //! @param order
-    //! @param limit_offset
-    //! @return
-    static std::string sql(const Datatable& table, 
-        const std::string& distinct, const std::string& columns,
-        const std::string& where = "", const std::string& by = "",
-        const std::string& having = "", const std::string& order = "",
-        const std::string& limit_offset = ""
-    ){
-        return "SELECT " +  distinct + columns + 
-                " FROM \"" + table.name() + "\"" +
-                where + by + having + order + limit_offset;
-    }
-
-    //! @brief
-    //! @param distinct
-    //! @return
-    static std::string sql_distinct(bool distinct){
-        if(distinct) return " DISTINCT";
-        else return "";
-    }
-
-    //! @brief
-    //! @param columns
-    //! @param which
-    //! @return
-    static std::string sql_columns(const Columns columns, unsigned short which = 0){
-        std::string sql = "";
-        if(columns.size()==0){
-            sql += " *";
-        } else {
-            sql += " ";
-            for(auto i=columns.begin();i!=columns.end();i++){
-                sql += i->second->sql(which) + " AS " + i->first;
-                if(i!=columns.end()-1) sql += ", ";
-            }
-        }
-        return sql;
-    }
-
-    //! @brief
-    //! @param wheres
-    //! @return
-    static std::string sql_where(const std::vector<const Where*>& wheres){
-        std::string sql = "";
-        if(wheres.size()>0){
-            sql += " WHERE ";
-            if(wheres.size()>1) sql += "(";
-            for(auto i=wheres.begin();i!=wheres.end();i++){
-                sql += (*i)->sql();
-                if(i!=wheres.end()-1) sql += ") AND (";
-            }
-            if(wheres.size()>1) sql += ")";
-        }
-        return sql;
-    }
-
-    //! @brief 
-    //! @param bys
-    //! @return 
-    static std::string sql_by(const std::vector<const By*>& bys){
-        std::string sql = "";
-        if(bys.size()>0){
-            sql += " GROUP BY ";
-            for(auto i=bys.begin();i!=bys.end();i++){
-                sql += (*i)->sql();
-                if(i!=bys.end()-1) sql += ", ";
-            }
-        }
-        return sql;
-    }
-
-    //! @brief 
-    //! @param havings
-    //! @return 
-    static std::string sql_having(const std::vector<const Having*>& havings){
-        std::string sql = "";
-        if(havings.size()>0){
-            sql += " HAVING ";
-            if(havings.size()>1) sql += "(";
-            for(auto i=havings.begin();i!=havings.end();i++){
-                sql += (*i)->sql();
-                if(i!=havings.end()-1) sql += ") AND (";
-            }
-            if(havings.size()>1) sql += ")";
-        }
-        return sql;
-    }
-
-    //! @brief 
-    //! @param orders
-    //! @return 
-    static std::string sql_order(const std::vector<const Order*>& orders){
-        std::string sql = "";
-        if(orders.size()>0){
-            sql += " ORDER BY ";
-            for(auto i=orders.begin();i!=orders.end();i++){
-                const Order* order = *i;
-                sql += order->sql();
-                if(order->direction()>0) sql += " ASC";
-                else if(order->direction()<0) sql += " DESC";
-                if(i!=orders.end()-1) sql += ", ";
-            }
-        }
-        return sql;
-    }
-
-    //! @brief 
-    //! @param limit
-    //! @param offset
-    //! @return 
-    static std::string sql_limit_offset(const Limit* limit, const Offset* offset){
-        std::string sql = "";
-        if(limit){
-            sql += " LIMIT " + limit->sql();
-        }
-        if(offset){
-            //Offset can only come after a limit clause. So add one if not present.
-            //The theoretical maximum number of rows in an SQLite database
-            //is 2^64 = 18446744073709551616 (see http://www.sqlite.org/limits.html)
-            //However SQLite baulks at such a large integer in an limit clause so instead
-            //we have to use the maximum value for an integer: 2^64/2
-            if(not limit) sql += " LIMIT 9223372036854775807";
-            sql += " OFFSET " + offset->sql();
-        }
-        return sql;
-    }
+    
+public:
 
     //! @brief Execute this Dataquery on a Datatable
     //! @param table The table to execute this query on
     //! @return A datatable produced by this query
-    Datatable execute(Datatable& table){
-        Columns columns;
+    Datatable execute(const Datatable& table){
+        // Compile this query
+        compile();
         
+        Datatable result;
+        
+        // Define a list of columns for result which will have any Bys prepended
+        Elements columns = values_;
+        columns.insert(columns.begin(),bys_.begin(),bys_.end());
+
         if(combiners_.size()==0 and margins_.size()==0 and adjusters_.size()==0){
             // Select data
             // Since their are no modifiers do a single pass
-            return table.select(sql(table,
-                sql_distinct(distinct_), sql_columns(columns,0), 
-                sql_where(wheres_), sql_by(bys_),
-                sql_having(havings_), sql_order(orders_),
-                sql_limit_offset(limit_,offset_)
-            ));
+            result = Select().distinct(distinct_).columns(columns).where(wheres_)
+                .by(bys_).having(havings_).order(orders_).limit(limit_).offset(offset_)
+                .execute(table,0);
         } else {
-            // Select data
-            // As as a first pass, obtain the necessary columns applying any wheres
-            // Note that which==1
-            std::string first_sql = sql(table,
-                "",sql_columns(columns,1),
-                sql_where(wheres_)
-            );
-            // Execute first_sql with cache reuse, but no caching
-            Datatable first = table.select(first_sql,true,false);
+            // 1. Select data
+            // As as a first pass, obtain the necessary columns applying any wheres and bys and using which==1
+            // Execute with cache reuse, but no caching because combiners will modify the data in it
+            Datatable first = Select().columns(columns).where(wheres_).by(bys_).execute(table,1);
             
-            // Apply combiners
-            // Combiners set values in corresponding columns to <other>
-            for(const Combiner* combiner : combiners_){
+            // 2. Apply combiners
+            for(const Combiner* combiner : combiners_) {
                 combiner->combine(first);
             }
+            if(combiners_.size()) first.modified();
             
-            // Value calculations
-            // Calculate values using which==2
-            std::string second_sql = sql(first,
-                "",sql_columns(columns,2)
-            );
-            Datatable second = first.select(second_sql,true,false);
-                
-            // Margin calculations
-            // Each margin needs to be calculated by dropping "its" By from bys_
+            // 3. Value calculations
+            Datatable second = Select().columns(columns).by(bys_).execute(first,2);
+            
+            // 4. Margin calculations
             for(const Margin* margin : margins_){
-                std::vector<const By*> bys;
-                Columns columns;
-                for(const By* by : bys_){
-                    std::string name = margin->subject()->name();
-                    if(by->name()==name) {
-                        Constant<std::string>* label = new Constant<std::string>("<all>");
-                        columns.push_back(std::make_pair(name,label));
-                    }
-                    else {
-                        bys.push_back(by);
-                        columns.push_back(std::make_pair(name,by->element()));
-                    }
-                }
-                for(const Element* column : values_) {
-                    columns.push_back(std::make_pair(column->name(),column));
-                }
-                std::string alls_sql = sql(second,
-                    "",sql_columns(columns,2),
-                    "",sql_by(bys)
-                );
-                // Execute the SQL and insert the resultant table
-                Datatable alls = first.select(alls_sql);
-                // Append the alls to the values
-                second.append(alls);
+                margin->calculate(first,second,values_,bys_);
             }
+            if(margins_.size()) second.modified();
             
-            // Apply adjusters
+            // 5. Apply adjusters
             for(const Adjuster* adjuster : adjusters_){
-                // Each adjuster needs to calculate an overall value(s)
-                // and then do adjustment
                 adjuster->adjust(second);
             }
+            if(adjusters_.size()) second.modified();
+            
+            // 6. Reshape
+            //! @todo Implement Reshapers
+            
+            // 7. Execute phase 10 select to obtain the desired column names for the table
+            result = Select().columns(columns).execute(second,10);
         }
+        
+        return result;
     }
 };
 

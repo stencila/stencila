@@ -8,7 +8,7 @@ using namespace Stencila;
 //! This function is a "raw_function" which recieves Python objects.
 //! Its job is to convert those Python objects into Stencila Dataquery elements
 //! For example, a Python integer is converted into a Constant<int>
-Expression* Dataquery_wrap(const object& o){
+Element* Dataquery_wrap(const object& o){
     //Boost.python's extract<float>(o).check() returns true even if o is an integer.
     //So have to use the Python PyXXX_Check functions to determine type
     const PyObject* p = o.ptr();
@@ -18,7 +18,7 @@ Expression* Dataquery_wrap(const object& o){
     if(PyString_Check(p)) return new Constant<std::string>(extract<std::string>(o));
     
     //If the object is a Dataquery element then just return it
-    extract<Expression*> e(o);
+    extract<Element*> e(o);
     if(e.check()) return e();
     
     //Any othe object type is converted to a string
@@ -27,7 +27,7 @@ Expression* Dataquery_wrap(const object& o){
 }
 
 #define UNOP(name,type) \
-    type Dataquery_##name(Expression& self){ \
+    type Dataquery_##name(Element& self){ \
         return type(&self); \
     }
 
@@ -37,7 +37,7 @@ UNOP(__pos__,Positive)
 #undef UNOP
 
 #define BINOP(name,type) \
-    type Dataquery_##name(Expression& self, object& other){ \
+    type Dataquery_##name(Element& self, object& other){ \
         return type(&self,Dataquery_wrap(other)); \
     }
 
@@ -59,13 +59,14 @@ BINOP(__or__,Or)
 #undef BINOP
 
 void Dataquery_define(void){
-
-    class_<Element>("Element")
-        .def("dql",&Element::dql)
-        .def("sql",&Element::sql)
-    ;
     
-    class_<Expression,bases<Element>>("Expression")
+    // Because class Element has two "sql" methods use a typedef to remove ambiguity
+    typedef std::string (Element::* Element_sql_type)(unsigned short phase) const;
+    
+    class_<Element>("Element")
+
+        .def("dql",&Element::dql)
+        .def("sql",Element_sql_type(&Element::sql))
         
         #define OP(name) .def(#name,Dataquery_##name)
         
@@ -90,10 +91,10 @@ void Dataquery_define(void){
         #undef OP
     ;
     
-    class_<Column,bases<Expression>>("Column",init<std::string>());
+    class_<Column,bases<Element>>("Column",init<std::string>());
     
     //Define Python classes for each unary operator
-    #define UNOP(name) class_<name,bases<Expression>>(#name);
+    #define UNOP(name) class_<name,bases<Element>>(#name);
 
     UNOP(Negative)
     UNOP(Positive)
@@ -101,7 +102,7 @@ void Dataquery_define(void){
     #undef UNOP
     
     //Define Python classes for each binary operator
-    #define BINOP(name) class_<name,bases<Expression>>(#name);
+    #define BINOP(name) class_<name,bases<Element>>(#name);
 
     BINOP(Multiply)
     BINOP(Divide)

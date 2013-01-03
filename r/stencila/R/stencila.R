@@ -244,20 +244,30 @@ as.data.frame.Datatable <- function(x) x$dataframe()
 
 #######################################################################
 
-class_('Expression')
+class_('Element')
 
 # Create an expression element
-expr_ <- function(class,...){
-  create_('Expression',paste('Expression_',class,sep=''),...)
+elem_ <- function(class,...){
+  create_('Element',paste('Element_',class,sep=''),...)
+}
+
+# Convert fundamental types
+const_ <- function(object){
+  if(inherits(object,'logical')) return(elem_('Logical',object))
+  if(inherits(object,'integer')) return(elem_('Integer',object))
+  if(inherits(object,'numeric')) return(elem_('Numeric',object))
+  if(inherits(object,'character')) return(elem_('String',object))
+  stop(paste("Object of class",paste(class(object),collapse=","),"is not a convertable to a Constant"),call.=FALSE)
 }
 
 wrap_ <- function(object){
-  if(inherits(object,'Expression'))  return(object)
-  # Convert fundamental types
-  if(inherits(object,'logical')) return(expr_('Logical',object))
-  if(inherits(object,'integer')) return(expr_('Integer',object))
-  if(inherits(object,'numeric')) return(expr_('Numeric',object))
-  if(inherits(object,'character')) return(expr_('String',object))
+  if(is.null(object)) return(call_("Element_null"))
+  
+  if(inherits(object,'Element'))  return(object@pointer)
+  
+  # Attempt a conversion to a Constant
+  const = tryCatch(const_(object),error=function(error)error)
+  if(!inherits(const,'error')) return(const@pointer)
   
   # If got to here then raise an error
   stop(paste("Object of class",paste(class(object),collapse=","),"is not wrappable"),call.=FALSE)
@@ -265,26 +275,26 @@ wrap_ <- function(object){
 wrap_all_ <- function(...){
   #Create a list from arguments
   args <- list(...)
-  #Create a vector of Dataquery expressions by wrapping each argument
-  expressions <- vector()
+  #Create a vector of Dataquery elements by wrapping each argument
+  elements <- vector()
   n <- length(args)
   if(n>0){
-    for(index in 1:n) expressions <- c(expressions,wrap_(args[[index]])@pointer)
+    for(index in 1:n) elements <- c(elements,wrap_(args[[index]]))
   }
-  expressions
+  elements
 }
 
 #' Create a data query constant
 #' 
 #' This function is exported mainly for use in testing data queries
 #' @export
-Constant <- function(object) wrap_(object)
+Constant <- function(object) const_(object)
 
 #' Create a Datatable column identifier
 #' 
 #' This function is exported mainly for use in testing data queries
 #' @export
-Column <- function(name) expr_('Column',name)
+Column <- function(name) elem_('Column',name)
 
 ###########################################################################
 # Operators
@@ -294,21 +304,21 @@ Column <- function(name) expr_('Column',name)
 
 # Unary operator
 unop_ <- function(class,expr){
-  expr_(class,wrap_(expr)@pointer)
+  elem_(class,wrap_(expr))
 }
-setMethod("+",signature(e1='Expression',e2='missing'),function(e1,e2) unop_('Positive',e1))
-setMethod("-",signature(e1='Expression',e2='missing'),function(e1,e2) unop_('Negative',e1))
-setMethod("!",signature(x='Expression'),function(x) unop_('Not',x))
+setMethod("+",signature(e1='Element',e2='missing'),function(e1,e2) unop_('Positive',e1))
+setMethod("-",signature(e1='Element',e2='missing'),function(e1,e2) unop_('Negative',e1))
+setMethod("!",signature(x='Element'),function(x) unop_('Not',x))
 
 # Binary operators
-# For each binary operator, set a method with an Expression on both sides          
+# For each binary operator, set a method with an Element on both sides          
 binop_ <- function(class,left,right){
-  expr_(class,wrap_(left)@pointer,wrap_(right)@pointer)
+  elem_(class,wrap_(left),wrap_(right))
 }
 binop_methods_ <- function(op,name){
-  setMethod(op,signature(e1='Expression'),function(e1,e2) binop_(name,e1,e2))
-  setMethod(op,signature(e2='Expression'),function(e1,e2) binop_(name,e1,e2))
-  setMethod(op,signature(e1='Expression',e2='Expression'),function(e1,e2) binop_(name,e1,e2))
+  setMethod(op,signature(e1='Element'),function(e1,e2) binop_(name,e1,e2))
+  setMethod(op,signature(e2='Element'),function(e1,e2) binop_(name,e1,e2))
+  setMethod(op,signature(e1='Element',e2='Element'),function(e1,e2) binop_(name,e1,e2))
 }
 binop_methods_('*','Multiply')
 binop_methods_('/','Divide')
@@ -326,39 +336,46 @@ binop_methods_('&','And')
 binop_methods_('|','Or')
 
 #' @export
-Call <- function(name,...) {
-  expr_('Call',name,wrap_all_(...))
-}
+Call <- function(name,...) elem_('Call',name,wrap_all_(...))
 
 #' @export
-Aggregate <- function(name,element) expr_('Aggregate',name,wrap_(element)@pointer)
+Aggregate <- function(name,element) elem_('Aggregate',name,wrap_(element))
 
 #' @export
-As <- function(element,name) expr_('As',wrap_(element)@pointer,name)
+As <- function(element,name) elem_('As',wrap_(element),name)
 
 #' @export
-Distinct <- function(expr) expr_('Distinct')
+Distinct <- function() elem_('Distinct')
 
 #' @export
-All <- function(expr) expr_('All')
+All <- function() elem_('All')
 
 #' @export
-Where <- function(expr) expr_('Where',wrap_(expr)@pointer)
+Where <- function(element) elem_('Where',wrap_(element))
 
 #' @export
-By <- function(element) expr_('By',wrap_(element)@pointer)
+By <- function(element) elem_('By',wrap_(element))
 
 #' @export
-Having <- function(expr) expr_('Having',wrap_(expr)@pointer)
+Having <- function(element) elem_('Having',wrap_(element))
 
 #' @export
-Order <- function(expr) expr_('Order',wrap_(expr)@pointer)
+Order <- function(element) elem_('Order',wrap_(element))
 
 #' @export
-Limit <- function(expr) expr_('Limit',wrap_(expr)@pointer)
+Limit <- function(number) elem_('Limit',number)
 
 #' @export
-Offset <- function(expr) expr_('Offset',wrap_(expr)@pointer)
+Offset <- function(number) elem_('Offset',number)
+
+#' @export
+Top <- function(by,element,number) elem_('Top',wrap_(by),wrap_(element),number)
+
+#' @export
+Margin <- function(by=NULL) elem_('Margin',wrap_(by))
+
+#' @export
+Proportion <- function(value,by=NULL) elem_('Proportion',wrap_(value),wrap_(by))
 
 # Dataquery elements
 # This list is used in Datable subscript operator to provide
@@ -371,7 +388,13 @@ dataquery_elements_ <- list(
   having = Having,
   order = Order,
   limit = Limit,
-  offset = Offset
+  offset = Offset,
+  
+  top = Top,
+  
+  margin = Margin,
+  
+  prop = Proportion
 )
 #Fuction calls
 func_ <- function(name) eval(substitute(function(...) Call(name,...),list(name=name)))

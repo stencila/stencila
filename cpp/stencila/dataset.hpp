@@ -110,45 +110,56 @@ public:
     
     //! @}
     
-    
 	//! @name Datatable methods
 	//! @brief Create and get Datatables
 	//! @{
-
-	//! @brief Import a database table to a Datatable
-	//! @param name The name of the table
-	//! @return A Datatable
-	Datatable import(const std::string& name);
 
     Datatable create(const std::string& name);
 
 	//! @brief Create a Datatable in the Dataset
 	//! @param name The name of the table
 	//! @return The new Datatable
-	// Needs to be defined in datatable.hpp
 	template<typename... Args>
 	Datatable create(const std::string& name, Args... args);
+    
+	//! @brief Import a database table to a Datatable
+	//! @param name The name of the table
+	//! @return A Datatable
+	Datatable import(const std::string& name);
     
 	//! @brief Load a file to a Datatable
 	//! @param name Name of the new Datatable
     //! @param path Path of the file to be loaded
 	//! @return A Datatable
-	Datatable load(const std::string& name,const std::string& path);
-	
-	//! @brief Get a Datatable in the Dataset
-	//! @param name The name of the table
-	//! @return A Datatable
-	// Needs to be defined in datatable.hpp
-	Datatable table(const std::string& name);
-	
+	Datatable load(const std::string& name,const std::string& path,bool header=true);
+    
 	//! @brief Get a list of the Datatables in the Dataset.
 	//! @return A vector of names of tables
 	std::vector<std::string> tables(void) {
 		return column("SELECT name FROM sqlite_master WHERE type=='table' AND name NOT LIKE 'stencila_%'");
 	}
-		
+
+	//! @brief Get a Datatable in the Dataset
+	//! @param name The name of the table
+	//! @return A Datatable
+	Datatable table(const std::string& name);
+
+    //! @brief Rename a Datatable
+    //! @param name The name of the table
+    //! @return A Datatable
+    //!
+    //! This method is provided to encapsulate the implementation of caching within Datasets
+    //! Instead of calling this method directly you would normally call `Datatable::name()`
+    Datatable rename(const std::string& name, const std::string& value);
+
+    //! @brief Drop a Datatable
+    //! @param name The name of the table
+    void drop(const std::string& name){
+        execute("DROP TABLE IF EXISTS \"" + name + "\"");
+        execute("DELETE FROM stencila_datatables WHERE name==\"" + name + "\"");
+    }
+
     //! @}
-    
     
 	//! @name Index related methods
 	//! @brief Create and get indices
@@ -253,6 +264,10 @@ public:
 			return value<int>("SELECT count(*) FROM stencila_datatables WHERE signature=="+signature);
 		}
 	}
+    
+	void modified(const std::string& table) {
+		execute("UPDATE stencila_datatables SET signature=NULL WHERE name==\"" + table + "\"");
+	}
 	
 	Dataset& vacuum(void) {
 		BOOST_FOREACH(std::string name,column("SELECT name FROM stencila_datatables WHERE status<2")){
@@ -342,7 +357,7 @@ public:
 
     //! @}
 
-    Datatable select(const std::string& sql, bool reuse = true, bool cache = true);
+    Datatable select(const std::string& sql, bool reuse = true);
 
     Datatable clone(const std::string& original);
 };

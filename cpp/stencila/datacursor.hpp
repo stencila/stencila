@@ -106,6 +106,14 @@ public:
     }
 
     //! @brief
+    //! @param value
+    //! @return
+    Datacursor& bind(unsigned int index,const unsigned int& value){
+        STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value));
+        return *this;
+    }
+
+    //! @brief
     //! param value
     //! @return
     Datacursor& bind(unsigned int index,const double& value){

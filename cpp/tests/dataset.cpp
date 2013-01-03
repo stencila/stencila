@@ -78,7 +78,8 @@ BOOST_AUTO_TEST_CASE(caching){
     std::string sql = "SELECT sum(c2) FROM t1";
     dataset.select(sql);
     BOOST_CHECK_EQUAL(dataset.cached(),2); 
-    BOOST_CHECK_EQUAL(dataset.cached(sql),1); 
+    BOOST_CHECK_EQUAL(dataset.cached(sql),1);
+    dataset.select(sql);
 
     //Save a copy of the dataset and make sure that
     //the copy has the right cached number
