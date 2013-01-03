@@ -14,21 +14,30 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file dataset.cpp
 //! @brief Implmentations of Dataset methods which are unable to go into dataset.hpp because they return a Datatable
+//! @author Nokome Bentley
 
 #include <stencila/dataset.hpp>
 #include <stencila/datatable.hpp>
 
 namespace Stencila {
 
-
+//! @brief 
+//! @param name
+//! @return 
 Datatable Dataset::create(const std::string& name){
          return Datatable(name,this,false);
 }
 
+//! @brief 
+//! @param name
+//! @return 
 Datatable Dataset::table(const std::string& name){
          return Datatable(name,this);
 }
-
+//! @brief 
+//! @param name
+//! @param value
+//! @return 
 Datatable Dataset::rename(const std::string& name, const std::string& value){
     //! @todo Catch an attempt to set an invalid name
     execute("ALTER TABLE \"" + name + "\" RENAME TO \"" + value + "\"");
@@ -36,6 +45,11 @@ Datatable Dataset::rename(const std::string& name, const std::string& value){
     return table(name);
 }
 
+//! @brief 
+//! @param name 
+//! @param path
+//! @param header
+//! @return 
 Datatable Dataset::load(const std::string& name, const std::string& path, bool header){
     // Check the file at path exists
     std::ifstream file(path);
@@ -91,6 +105,9 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
         boost::trim(line);
         if(line.length()==0) break;
         
+        //! @brief 
+        //! @param size
+        //! @return 
         for(unsigned int i=0;i<names.size();i++){
             std::string value = "";
             try{
@@ -165,14 +182,25 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
     return table(name);
 }
 
+//! @brief 
+//! @param name
+//! @return 
 Datatable Dataset::import(const std::string& name){
     //Check to see if this Datatable is already registered
     if(not value<int>("SELECT count(*) FROM stencila_datatables WHERE name==?",name)){
         execute("INSERT INTO stencila_datatables(name,source,status) VALUES(?,'table',2)",name);
     }
+    
+    //! @brief 
+    //! @param name
+    //! @return 
     return table(name);
 }
 
+//! @brief 
+//! @param sql
+//! @param reuse
+//! @return 
 Datatable Dataset::select(const std::string& sql, bool reuse){
     std::string signature = boost::lexical_cast<std::string>(Hash(sql));
     
@@ -201,6 +229,9 @@ Datatable Dataset::select(const std::string& sql, bool reuse){
     STENCILA_THROW(Exception,"This line should never be reached");
 }
 
+//! @brief 
+//! @param original
+//! @return 
 Datatable Dataset::clone(const std::string& original){
     std::string signature = boost::lexical_cast<std::string>(Hash());
     std::string name = "stencila_"+signature;
