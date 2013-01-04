@@ -12,6 +12,10 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+//! @file datacursor.hpp
+//! @brief Definition of class Datacursor
+//! @author Nokome Bentley
+
 #pragma once
 
 #include <type_traits>
