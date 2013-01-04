@@ -13,7 +13,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 //! @file sqlite.hpp
-//!  @brief Some convienience functions for using SQLite
+//! @brief Some convienience functions for using SQLite
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -30,6 +31,11 @@ protected:
 
 public:
 
+    //! @brief 
+    //! @param message
+    //! @param file
+    //! @param line
+    //! @return 
     SqliteException(int code,std::string message,const char* file=0, int line=0):
         Exception(message,file,line),
         code_(code){
