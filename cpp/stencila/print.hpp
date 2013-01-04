@@ -122,7 +122,7 @@ class Printer<void> {
         static std::string help(const std::tuple<Types...>&  tuple) {
             return Printer<void>::print(std::get<0>(tuple));
         }
-    }
+    };
 
     template<typename Type>
     static std::string print(Type value){
