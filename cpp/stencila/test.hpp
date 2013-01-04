@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file test.hpp
 //! @brief Convienience macros and others used for testing
+//! @author Nokome Bentley
 
 #pragma once
 
