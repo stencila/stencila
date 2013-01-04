@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file stencil.hpp
 //! @brief Definition of class Stencil
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -41,40 +42,66 @@ public:
 class EchoContext : public Context<EchoContext> {
 public:
 
+    //! @brief 
+    //! @param name
+    //! @param expression
     void set(const std::string& name, const std::string& expression){
     }
 
+    //! @brief 
+    //! @param code
     void script(const std::string& code){
     }
 
+    //! @brief 
+    //! @param expression
+    //! @return 
     std::string text(const std::string& expression){
         return "text("+expression+")";
     }
 
+    //! brief   
+    //! @param expression
+    //! @return 
     bool test(const std::string& expression){
         return false;
     }
 
+    //! @brief 
+    //! @param expression
     void subject(const std::string& expression){
     }
 
+    //! @brief 
+    //! @param expression
+    //! @return 
     bool match(const std::string& expression){
         return false;
     }
 
+    //! @brief 
     void enter(void){
     }
-
+    
+    //! @brief 
+    //! @param expression
     void enter(const std::string& expression){
     }
 
+    //! @brief 
     void exit(void){
     }
 
+    //! @brief 
+    //! @param item
+    //! @param items
+    //! @return 
     bool begin(const std::string& item,const std::string& items){
         return false;
     }
 
+    //! @brief 
+    //! @return 
     bool step(void){
         return false;
     }
@@ -86,6 +113,10 @@ private:
     std::string id_;
     std::string uri_;
 
+    //! @brief 
+    //! @param node
+    //! @param context
+    //! @return 
     template<typename Context>
     void render_element(Xml::Node node, Context& context){
         try {
@@ -111,6 +142,9 @@ private:
             //If return not yet hit then process children of this element
             render_children(node,context);
         }
+        //! @brief 
+        //! @param exc
+        //! @return 
         catch(std::exception& exc){
             Xml::NodeSetAttribute(node,"data-error",exc.what());
         }
@@ -119,6 +153,8 @@ private:
         }
     }
     
+    //! @brief 
+    //! @param context
     template<typename Context>
     void render_children(Xml::Node node, Context& context){
         for(Xml::Node child:node.children()){
@@ -126,11 +162,17 @@ private:
         }
     }
 
+    //! @brief 
+    //! @param context
+    //! @param code
     template<typename Context>
     void render_script(Xml::Node node, Context& context, const std::string& code){
          context.script(code);
     }
 
+    //! @brief 
+    //! @param context
+    //! @param expression
     template<typename Context>
     void render_text(Xml::Node node, Context& context, const std::string& expression){
         try {
@@ -145,6 +187,9 @@ private:
         }
     }
 
+    //! @brief 
+    //! @param context
+    //! @param expression    
     template<typename Context>
     void render_with(Xml::Node node, Context& context, const std::string& expression){
         //Enter a new block in the context
@@ -155,6 +200,9 @@ private:
         context.exit();
     }
 
+    //! @brief 
+    //! @param context
+    //! @param expression
     template<typename Context>
     void render_if(Xml::Node node, Context& context, const std::string& expression){
         //Test the expression
@@ -170,6 +218,9 @@ private:
         }
     }
 
+    //! @brief 
+    //! @param context
+    //! @param expression
     template<typename Context>
     void render_switch(Xml::Node node, Context& context, const std::string& expression){
         //Evaluate the expression in the context
@@ -199,6 +250,9 @@ private:
         }
     }
 
+    //! @brief 
+    //! @param context
+    //! @param value
     template<typename Context>
     void render_for(Xml::Node node, Context& context, const std::string& value){
         // Get the name of item and items
@@ -231,6 +285,9 @@ private:
         }
     }
 
+    //! @brief 
+    //! @param context
+    //! @param identifier
     template<typename Context>
     void render_include(Xml::Node node, Context& context, const std::string& identifier){
 
@@ -338,9 +395,14 @@ private:
 
 public:
 
+    //! @brief 
+    //! @return 
     Stencil(void){
     }
-
+    
+    //! @brief 
+    //! @param content
+    //! @return 
     Stencil(const std::string& content){
         /*
         html://
@@ -363,15 +425,24 @@ public:
         else STENCILA_THROW(Exception,"Unrecognised type: " + type)
     }
 
+    //! @brief 
+    //! @param html
+    //! @return 
     Stencil& html(const std::string& html){
         load(html);
         return *this;
     }
 
+    //! @brief 
+    //! @param stem
+    //! @return 
     Stencil& stem(const std::string& stem);
     static std::string stem_to_html(const std::string& stem);
     static std::string stem_to_string(const std::string& stem);
 
+    //! @brief 
+    //! @param path
+    //! @return 
     Stencil& file(const std::string& path){
         std::ifstream file(path);
         std::stringstream buffer;
@@ -390,6 +461,9 @@ public:
         return *this;
     }
 
+    //! @brief 
+    //! @param id
+    //! @return 
     Stencil& id(const std::string& id){
         return *this;
     }
@@ -399,14 +473,21 @@ public:
         if(id_.length()==0) id_ = boost::uuids::to_string(boost::uuids::random_generator()());
     }
 
+    //! @brief 
+    //! @return 
     std::string id(void) const {
         return id_;
     }
 
+    //! @brief 
+    //! @return 
     std::string uri(void) const {
         return uri_;
     }
 
+    //! @brief 
+    //! @param context
+    //! @return 
     template<typename Context>
     Stencil& render(Context& context){
         render_element(*this,context);
