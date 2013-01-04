@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file registry.hpp
 //! @brief Definition of Registry which holds information on local stencila objects
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -40,16 +41,25 @@ public:
         http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
         http://stackoverflow.com/questions/2910377/get-home-directory-in-linux-c
     */
+    
+    //! @brief 
+    //! @return 
     std::string home(void) const {
         std::string home = std::getenv("HOME");
         if(not home.length()) {
             home = std::getenv("USERPROFILE");
         }
+        //! @brief 
+        //! @param length
+        //! @return 
         if(not home.length()) {
             std::string home_drive = std::getenv("HOMEDRIVE");
             std::string home_path = std::getenv("HOMEPATH");
             home = home_drive+home_path;
         }
+        //! @brief 
+        //! @param length
+        //! @return 
         if(not home.length()) {
             home = boost::filesystem::current_path().string();
         }
