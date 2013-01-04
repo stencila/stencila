@@ -14,6 +14,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 //! @file xml.hpp
 //! @brief Classes and functions for working with XML
+//! @author Nokome Bentley
 
 #pragma once
 
@@ -188,40 +189,46 @@ std::string CssToXpath(const std::string& css);
 
 class Document : public pugi::xml_document {
 public:
-                                                                       Document(void){}
+Document(void){}
 
-                                                                       Document(const std::string& xml){
-        load(xml);
-                                                                       }
-    
-    Document& load(const std::string& xml){
-        pugi::xml_parse_result result = pugi::xml_document::load(xml.c_str());
-                                                                                                                                              if(not result){
-                                                                                                                                                                                                                     STENCILA_THROW(Exception,result.description());
-                                                                                                                                              }
-        return *this;
-    }
-    
-                                                                       std::string dump(void) const {
-                                                                                                                                              std::ostringstream out;
-                                                                                                                                              save(out,"\t",pugi::format_raw | pugi::format_no_declaration);
-                                                                                                                                              return out.str();
-                                                                       }
-    
-                                                                       std::string print(void) const {
-                                                                                                                                              std::ostringstream out;
-                                                                                                                                              save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
-                                                                                                                                              return out.str();
-                                                                       }
-    
+Document(const std::string& xml){
+load(xml);
+}
+
+Document& load(const std::string& xml){
+pugi::xml_parse_result result = pugi::xml_document::load(xml.c_str());
+if(not result){
+STENCILA_THROW(Exception,result.description());
+}
+return *this;
+}
+
+std::string dump(void) const {
+std::ostringstream out;
+save(out,"\t",pugi::format_raw | pugi::format_no_declaration);
+return out.str();
+}
+
+std::string print(void) const {
+std::ostringstream out;
+save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
+return out.str();
+}
+
+    //! @brief 
+    //! @param filename
+    //! @return 
     Document& read(const std::string& filename){
-        pugi::xml_parse_result result = pugi::xml_document::load_file(filename.c_str());
-                                                                                                                                              if(not result){
-                                                                                                                                                                                                                     STENCILA_THROW(Exception,result.description());
-                                                                                                                                              }
-        return *this;
+pugi::xml_parse_result result = pugi::xml_document::load_file(filename.c_str());
+if(not result){
+STENCILA_THROW(Exception,result.description());
+}
+return *this;
     }
     
+    //! @brief 
+    //! @param selector
+    //! @return 
     Node one(const std::string& css_selector){
         std::string xpath = CssToXpath(css_selector);
         try {
@@ -231,6 +238,9 @@ public:
         }
     }
     
+    //! @brief 
+    //! @param selector
+    //! @return 
     Nodes all(const std::string& css_selector){
         std::string xpath = CssToXpath(css_selector);
         try {
@@ -240,6 +250,9 @@ public:
         }
     }
     
+    //! @brief 
+    //! @param selector
+    //! @return 
     Nodes operator[](const std::string& css_selector){
         return all(css_selector);
     }
