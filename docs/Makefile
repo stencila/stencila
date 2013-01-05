@@ -1,4 +1,4 @@
-.PHONY: upload build cpp r guide
+.PHONY: upload build cpp guide
 
 all: build
 
@@ -11,15 +11,11 @@ build: cpp r guide
 	cp -f index.html build
 	cp -fr style build
 	cp -fr cpp/html build/cpp
-	cp -fr r/html build/r
 	cp -fr guide/html build/guide
 	cp -f CNAME build
 
 cpp:
 	make -C cpp all
-	
-r:
-	make -C r all
 
 guide:
 	make -C guide all
