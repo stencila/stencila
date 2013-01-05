@@ -4,7 +4,7 @@ include ../cpp/Makefile.common
 # So in some place use the latest tag instead of the full git generated version string
 TAG := $(shell git describe --abbrev=0)
 
-.PHONY: compile docs desc test install
+.PHONY: compile rds docs desc test install
 
 all:  clean test
 
@@ -44,10 +44,9 @@ desc:
 # At some point Rscript -e "library(roxygen2);roxygenize('stencila');" stopped
 # working so echoing into R is used
 # See http://stackoverflow.com/questions/8964515/cannot-call-roxygenize-function-from-rscript-batch-file
-docs: desc
+rds: desc
 	rm -f stencila/man/*.Rd
 	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
-	$(MAKE) -C docs
     
 # Create the package
 # When you run 
@@ -55,12 +54,16 @@ docs: desc
 # it creates a tar.gz file but that file does not include stencila_.so
 # So, the folowing line replaces R CMD build:
 #   tar cfz stencila_$(TAG).tar.gz stencila
-package: docs
+package: rds
 	cp stencila.so stencila/src/stencila_.so
 	tar cfz stencila_$(TAG).tar.gz stencila
 	mkdir -p builds
 	mv stencila_$(TAG).tar.gz builds
 	ln -sf stencila_$(TAG).tar.gz builds/stencila_latest.tar.gz 
+
+# Generate Stencila custom HTML documentation
+docs: rds
+	$(MAKE) -C docs
 
 build: compile package
 
