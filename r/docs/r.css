@@ -1,10 +1,11 @@
-@import url('stencila.css');
+@import url("http://fonts.googleapis.com/css?family=Titillium+Web");
+
 @import url('code.css');
 
 body {
 	padding: 15px;
 
-    font-family: TitilliumTextRegular, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+    font-family: "Titillium Web", Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 16px;
 }
 
@@ -70,7 +71,7 @@ div.content {
 div.rd pre{
 	margin: 0px;
 	background: #DDD;
-	font-family: TitilliumTextRegular;
+	font-family: "Lucida Console", mono;
 	padding: 10px;
 	border: 1px solid grey;
 }

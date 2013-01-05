@@ -2,7 +2,7 @@
 Module for generating Stencila R documentation.
 Converts Rd files in the stencila R package to html.
 
-Copyright (c) 2012 Stencila Ltd
+Copyright (c) 2012-2013 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -26,7 +26,7 @@ import pygments
 import pygments.lexers
 import pygments.formatters
 
-rds_dir = "../../r/stencila/man/"
+rds_dir = "../stencila/man/"
 template = None
 pre_lexer = None
 pre_formatter = None
@@ -35,10 +35,7 @@ def startup():
     # Read in template
     global template
     template = file('template.html').read()
-    # Copy files from docs/style
-    # This creates the html directory if it does not exist
-    distutils.dir_util.copy_tree("../style","html")
-    # Copy in guide CSS
+    # Copy in R specific CSS
     shutil.copyfile("r.css","html/r.css")
     # Set up syntax highlighting
     global pre_lexer, pre_formatter

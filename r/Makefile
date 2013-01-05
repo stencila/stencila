@@ -47,6 +47,7 @@ desc:
 docs: desc
 	rm -f stencila/man/*.Rd
 	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
+	$(MAKE) -C docs
     
 # Create the package
 # When you run 
