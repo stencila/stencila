@@ -19,14 +19,14 @@ we use a completely different style for those elements.
 
 */
 
-@import url('stencila.css');
+@import url('http://static.stenci.la/stencila.css');
 
 body {
 	padding: 15px;
 }
 
 body, div, table, p, dl {
-    font-family: TitilliumTextRegular, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+    font-family: "Titillium Web", Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 16px;
 }
 
@@ -50,7 +50,7 @@ div#stencila-header {
 }
 div#stencila-header a,
 div#stencila-header img{
-	display: inline;
+	display: inline-block;
 	vertical-align: middle;
 }
 div#stencila-header div.stencila-details {
@@ -60,6 +60,7 @@ div#stencila-header div.stencila-details {
 }
 div#stencila-header div.stencila-details h1 {
     margin: 0px;
+    margin-bottom: 5px;
 }
 div#stencila-header div.stencila-details h2 {
     margin: 0px;
@@ -254,7 +255,7 @@ div.memitem div.memproto {
 }
 div.memitem div.memproto div.memtemplate,
 div.memitem div.memproto table.memname {  
-    font-family: CoreHumanistSans, Helvetica, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+    font-family: Helvetica, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
     font-size: 17px;
 	font-weight: bold;
 } 
