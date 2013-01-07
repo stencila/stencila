@@ -31,6 +31,35 @@ template = None
 pre_lexer = None
 pre_formatter = None
 
+sections = [
+    ['Dataset',[
+        'Dataset-class.Rd','Dataset.Rd'
+    ]],
+    ['Datatable',[
+        'Datatable-class.Rd','Datatable.Rd',
+        'Datatable-subscript.Rd',
+        'head.Datatable.Rd','tail.Datatable.Rd','dim.Datatable.Rd',
+        'as.data.frame.Datatable.Rd'
+    ]],
+    ['Datacursor',[
+        'Datacursor-class.Rd'
+    ]],
+    ['Dataquery',[
+        'Dataquery-class.Rd','Dataquery.Rd'
+    ]],
+    ['Stencil',[
+        'Stencil-class.Rd','Stencil.Rd',
+        'load.Stencil.Rd','render.Rd'
+    ]],
+    ['Utility',[
+        'version.Rd', 'iterate.Rd','iterate.default.Rd'
+    ]],
+    ['Other',[]] #Gets filled in by startup()
+]
+
+# A list of Rds that should NOT be included
+exclude = ['stencila.Rd','Colum,n','Constant']
+
 def startup():
     # Read in template
     global template
@@ -40,8 +69,16 @@ def startup():
     # Set up syntax highlighting
     global pre_lexer, pre_formatter
     pre_lexer = pygments.lexers.SLexer()
-    pre_formatter = pygments.formatters.HtmlFormatter(linenos=False, cssclass="code")
+    pre_formatter = pygments.formatters.HtmlFormatter(style="native",linenos=False, cssclass="code")
     file("html/code.css","w").write(pre_formatter.get_style_defs())
+    # Add additional Rds to the sections list
+    #Get a list of Rd files in the R packages
+    included = []
+    for section,rds in sections: included += rds
+    rds = os.listdir(rds_dir)
+    for rd in rds:
+        if not rd in exclude and not rd in included:
+            sections[len(sections)-1][1].append(rd)
 
 def version():
     return subprocess.Popen(
@@ -50,12 +87,6 @@ def version():
         shell=True
     ).communicate()[0]
 
-def rds():
-    '''
-    Get a list of Rd files in the R packages
-    '''
-    return os.listdir(rds_dir)
-    
 def convert(rd):
     return subprocess.Popen(
         '''R CMD Rdconv --type=html %s%s'''%(rds_dir,rd),
@@ -65,25 +96,33 @@ def convert(rd):
 
 def combine():
     all = ''
-    for rd in rds():
-        print rd
-        html = convert(rd)
-        soup = BeautifulSoup(html)
-        # Extract the name of the Rd from the first table and then delete the table
-        name = soup.body.table.tr.td.string
-        soup.body.table.decompose()
-        # Replace <body> with a <div>
-        soup.body.wrap(soup.new_tag('div',**{'class':'rd'}))
-        soup.div.body.unwrap()
-        # Add name to title h2
-        soup.div.h2.insert(0,name+":")
-        # Find any <pre> elements and highlight them
-        for pre in soup.find_all('pre'):
-            div = BeautifulSoup(pygments.highlight(pre.string, pre_lexer, pre_formatter))
-            pre.replace_with(div)
-        # Append to output by converting to string
-        # Do not use .prettify() becausee that makes up formatting in code blocks
-        all += str(soup.div)
+    for name,rds in sections:
+        print name
+        all += "<section><h1>%s</h1>"%name
+        for rd in rds:
+            print rd
+            html = convert(rd)
+            soup = BeautifulSoup(html)
+            # Extract the name of the Rd from the first table and then delete the table
+            name = soup.body.table.tr.td.string
+            soup.body.table.decompose()
+            # Extract the brief description and then delete it
+            brief = soup.body.h2.string
+            soup.body.h2.decompose()
+            # Replace <body> with a <div>
+            soup.body.wrap(soup.new_tag('div',**{'class':'details'}))
+            soup.div.body.unwrap()
+            # Find any <pre> elements and highlight them
+            for pre in soup.find_all('pre'):
+                div = BeautifulSoup(pygments.highlight(pre.string, pre_lexer, pre_formatter))
+                pre.replace_with(div)
+            # Append to output by converting to string
+            # Do not use .prettify() because that mucks up formatting in code blocks
+            all += '''<div class="rd">
+                <div class="brief"><h1>%s : %s</h1></div>
+                %s
+            </div>'''%(name,brief,str(soup.div))
+        all += "</section>"
     return all
 
 def generate():

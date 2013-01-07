@@ -1,11 +1,9 @@
-@import url("http://fonts.googleapis.com/css?family=Titillium+Web");
+@import url("http://static.stenci.la/stencila.css");
 
 @import url('code.css');
 
-body {
-	padding: 15px;
-
-    font-family: "Titillium Web", Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+body.stencila-r-docs {
+	padding: 10px;
     font-size: 16px;
 }
 
@@ -22,9 +20,8 @@ div.header {
 	margin-bottom: 20px;
     float: left;
 }
-div.header a,
-div.header img{
-	display: inline;
+div.header a {
+	display: inline-block;
 	vertical-align: middle;
 }
 div.header div.details {
@@ -34,6 +31,7 @@ div.header div.details {
 }
 div.header div.details h1 {
     margin: 0px;
+    margin-bottom: 5px;
 }
 div.header div.details h2 {
     margin: 0px;
@@ -68,10 +66,46 @@ div.content {
 	clear: both;
 }
 
-div.rd pre{
+section {
+    margin-bottom: 10px;
+    border: 1px solid lightgrey;
+    padding: 10px;
+}
+
+div.rd {
+    padding: 0px;
+    margin-bottom: 10px;
+    border: 1px solid lightgrey;
+}
+
+div.rd .brief {
+    margin: 0px;
+    background: #DDD;
+    height: 100%;
+    padding: 5px;
+}
+
+div.rd .brief h1 {
+    font-size: 130%;
+    margin: 0px;
+}
+
+div.rd .details {
+    padding: 10px;
+}
+
+div.rd .details h3 {
+    font-size: 110%;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+div.rd .details pre {
 	margin: 0px;
-	background: #DDD;
+	background: #222;
 	font-family: "Lucida Console", mono;
+    font-size: 14px;
+    line-height: 18px;
 	padding: 10px;
 	border: 1px solid grey;
 }

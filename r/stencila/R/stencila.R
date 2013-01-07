@@ -85,7 +85,7 @@ class_ <- function(class_name){
 
 #####################################
 
-#' Stencila version
+#' Get the version of the Stencila R package
 #'
 #' @export
 #' @examples
@@ -96,7 +96,7 @@ version <- function(){
 
 #####################################
 
-#' Datacursor
+#' The Datacursor class
 #'
 #' @name Datacursor-class
 #' @rdname Datacursor-class
@@ -105,7 +105,7 @@ class_('Datacursor')
 
 #####################################
 
-#' Dataset
+#' The Dataset class
 #'
 #' @name Dataset-class
 #' @rdname Dataset-class
@@ -114,6 +114,7 @@ class_('Dataset')
 
 #' Create a dataset
 #'
+#' @param uri The unique resource identifier (URI) for the Dataset
 #' @export
 #'
 #' @examples
@@ -427,6 +428,7 @@ class_('Dataquery')
 
 #' Create a Dataquery
 #'
+#' @param ... A set of dataquery elements
 #' @export
 Dataquery <- function(...) {
   # The C++ function Dataquery_new causes a segfault when compiled with g++ -O2
@@ -451,6 +453,10 @@ class_('Stencil')
 
 #' Create a stencil
 #'
+#' Use this function to create a stencil, optionally
+#' including any initial content.
+#'
+#' @param content Initial HTML content of the stencil
 #' @export
 #'
 #' @examples
@@ -471,10 +477,24 @@ Stencil <- function(content) {
   return(stencil)
 }
 
+#' Load content into a stencil
+#'
+#' @examples
+#' # Create a stencil...
+#' stencil <- Stencil()
+#' # ... and load some HTML into this stencil
+#' stencil$load("<p>Hello world!</p>")
+#' # ... or, equivalently
+#' load(stencil,"<p>Hello world!</p>")
+load.Stencil <- function(stencil,content) stencil$load(content)
+
 #' Render a stencil object or a stencil string 
 #'
-#' @export
+#' This is a convienience function for creating, rendering and then
+#' dumping a stencil.
+#' It is useful for quickly executing these three common tasks in stencil usage.
 #'
+#' @export
 render <- function(stencil,context){
   if(!('Stencil' %in% class(stencil))){
     stencil <- Stencil(stencil)
