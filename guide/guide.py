@@ -42,12 +42,10 @@ class Processor(HTMLParser.HTMLParser):
     
     @staticmethod
     def startup():
-        #Copy files from docs/style to output html folder
-        distutils.dir_util.copy_tree("../style","html/")
         #Copy files from css to output html folder
         distutils.dir_util.copy_tree("css","html/")
         #Create pygments CSS
-        file("html/code.css","w").write(HtmlFormatter().get_style_defs('.code'))
+        file("html/code.css","w").write(HtmlFormatter(style="native").get_style_defs('.code'))
         #Read in template
         Processor.template = file("template.html").read()
         #Read in ordered list of pages
