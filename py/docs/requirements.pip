@@ -1,0 +1,4 @@
+# Requirements for Python documentation. Usage:
+# sudo pip install -r requirements.pip
+#http://sphinx-doc.org/
+sphinx
