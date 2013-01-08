@@ -7,6 +7,11 @@
 #' @useDynLib stencila_
 NULL
 
+########################################################################
+# Convienience functions used internally in the Stencila package and
+# not exported
+########################################################################
+
 # A convienience function for calling C++ functions in 
 # the Stencila R extension module
 call_ <- function(symbol,...){
@@ -83,7 +88,9 @@ class_ <- function(class_name){
   NULL
 }
 
-#####################################
+########################################################################
+# Utility functions
+########################################################################
 
 #' Get the version of the Stencila R package
 #'
@@ -94,16 +101,65 @@ version <- function(){
   call_('Stencila_version')
 }
 
-#####################################
-
-#' The Datacursor class
+#' Create an iterator for an R object
 #'
-#' @name Datacursor-class
-#' @rdname Datacursor-class
-#' @exportClass Datacursor
-class_('Datacursor')
+#' An iterator is a "helper" object for traversing a container object.
+#' Iterators are commonly used in languages such as C++ and Java.
+#' Stencila requires iterators for rendering stencils.
+#' Specifically, when rendering "each" elements, iterators allow for looping over item in a container
+#' using a consistent interface: one which exposes the $step() and $more() methods.
+#' There is already an 'iterator' package for R.
+#' We have not used that package here because Stencila requires fairly simple iterator functionality and
+#' it would introduce another dependency.
+#' However, users looking for more advanced and comprehensive iterators
+#' should consider using the 'iterator' package.
+#'
+#' @export
+#'
+#' @examples
+#' i <- iterate(c(1,2,3))
+#' i$step() # -> 1
+#' i$step() # -> 2
+#' i$more() # -> TRUE
+#' i$step() # -> 3
+#' i$more() # -> FALSE
+iterate <- function(container){
+  UseMethod('iterate')
+}
 
-#####################################
+# A default iterator for vectors and lists
+DefaultIterator <- function(container){
+  self <- new.env()
+  class(self) <- "DefaultIterator"
+  
+  self$container <- container
+  self$index <- 0
+  self$size <- length(self$container)
+  
+  self$more <- function(){
+    return(self$index<self$size)
+  }
+  
+  self$step <- function(){
+    self$index <- self$index +1
+    return(self$container[[self$index]])
+  }
+  
+  self
+}
+
+#' Default iterate method
+#' @export
+iterate.default <- function(container){
+  return(DefaultIterator(container))
+}
+
+# Other iterate methods will be added when
+# other iterator classes are written (e.g. DataframeIterator, MatrixIterator)
+
+########################################################################
+# Dataset
+########################################################################
 
 #' The Dataset class
 #'
@@ -124,7 +180,32 @@ class_('Dataset')
 #' ds <- new("Dataset")
 Dataset <- function(uri="") new("Dataset",uri=uri)
 
-#####################################
+#' Get the unique resource identifier (URI) for the Dataset
+#'
+#' @method uri Dataset
+#' @export
+uri.Dataset <- function(self) self$uri()
+
+#' List the tables in the dataset
+#'
+#' @method tables Dataset
+#' @export
+tables.Dataset <- function(self) self$tables()
+
+########################################################################
+# Datacursor
+########################################################################
+
+#' The Datacursor class
+#'
+#' @name Datacursor-class
+#' @rdname Datacursor-class
+#' @exportClass Datacursor
+class_('Datacursor')
+
+########################################################################
+# Datatable
+########################################################################
 
 #' The Datatable class
 #'
@@ -243,7 +324,9 @@ tail.Datatable <- function(x,n=10) as.data.frame(x$tail(n))
 #' @export
 as.data.frame.Datatable <- function(x) x$dataframe()
 
-#######################################################################
+########################################################################
+# Dataquery and elements
+########################################################################
 
 class_('Element')
 
@@ -252,7 +335,13 @@ elem_ <- function(class,...){
   create_('Element',paste('Element_',class,sep=''),...)
 }
 
-# Convert fundamental types
+#' Create a data query constant
+#' 
+#' This function is exported mainly for use in testing data queries
+#' @export
+Constant <- function(object) const_(object)
+
+# Convert fundamental types to a
 const_ <- function(object){
   if(inherits(object,'logical')) return(elem_('Logical',object))
   if(inherits(object,'integer')) return(elem_('Integer',object))
@@ -273,6 +362,7 @@ wrap_ <- function(object){
   # If got to here then raise an error
   stop(paste("Object of class",paste(class(object),collapse=","),"is not wrappable"),call.=FALSE)
 }
+
 wrap_all_ <- function(...){
   #Create a list from arguments
   args <- list(...)
@@ -285,42 +375,39 @@ wrap_all_ <- function(...){
   elements
 }
 
-#' Create a data query constant
-#' 
-#' This function is exported mainly for use in testing data queries
-#' @export
-Constant <- function(object) const_(object)
-
 #' Create a Datatable column identifier
 #' 
 #' This function is exported mainly for use in testing data queries
 #' @export
 Column <- function(name) elem_('Column',name)
 
-###########################################################################
-# Operators
-#
-# Use getMethod() to obtain the correct function argument names e.g.
+# Unary operators
+# When writing these, use getMethod() to obtain the correct function argument names e.g.
 #   getMethod("==")
-
-# Unary operator
 unop_ <- function(class,expr){
   elem_(class,wrap_(expr))
 }
+
 setMethod("+",signature(e1='Element',e2='missing'),function(e1,e2) unop_('Positive',e1))
 setMethod("-",signature(e1='Element',e2='missing'),function(e1,e2) unop_('Negative',e1))
 setMethod("!",signature(x='Element'),function(x) unop_('Not',x))
 
+
 # Binary operators
+# When writing these, use getMethod() to obtain the correct function argument names e.g.
+#   getMethod("==")
+
 # For each binary operator, set a method with an Element on both sides          
 binop_ <- function(class,left,right){
   elem_(class,wrap_(left),wrap_(right))
 }
+
 binop_methods_ <- function(op,name){
   setMethod(op,signature(e1='Element'),function(e1,e2) binop_(name,e1,e2))
   setMethod(op,signature(e2='Element'),function(e1,e2) binop_(name,e1,e2))
   setMethod(op,signature(e1='Element',e2='Element'),function(e1,e2) binop_(name,e1,e2))
 }
+
 binop_methods_('*','Multiply')
 binop_methods_('/','Divide')
 binop_methods_('+','Add')
@@ -442,7 +529,9 @@ Dataquery <- function(...) {
   else new("Dataquery",elements=wrap_all_(...))
 }
 
-#########################################
+########################################################################
+# Stencil
+########################################################################
 
 #' The Stencil class
 #'
@@ -486,7 +575,7 @@ Stencil <- function(content) {
 #' stencil$load("<p>Hello world!</p>")
 #' # ... or, equivalently
 #' load(stencil,"<p>Hello world!</p>")
-load.Stencil <- function(stencil,content) stencil$load(content)
+load.Stencil <- function(self,content) self$load(content)
 
 #' Render a stencil object or a stencil string 
 #'
@@ -659,62 +748,3 @@ Context <- function(envir){
   
   return(self)
 }
-
-#########################################
-
-#' Create an iterator for an R object
-#'
-#' An iterator is a "helper" object for traversing a container object.
-#' Iterators are commonly used in languages such as C++ and Java.
-#' Stencila requires iterators for rendering stencils.
-#' Specifically, when rendering "each" elements, iterators allow for looping over item in a container
-#' using a consistent interface: one which exposes the $step() and $more() methods.
-#' There is already an 'iterator' package for R.
-#' We have not used that package here because Stencila requires fairly simple iterator functionality and
-#' it would introduce another dependency.
-#' However, users looking for more advanced and comprehensive iterators
-#' should consider using the 'iterator' package.
-#'
-#' @export
-#'
-#' @examples
-#' i <- iterate(c(1,2,3))
-#' i$step() # -> 1
-#' i$step() # -> 2
-#' i$more() # -> TRUE
-#' i$step() # -> 3
-#' i$more() # -> FALSE
-iterate <- function(container){
-  UseMethod('iterate')
-}
-#' Default iterate method
-#' @export
-iterate.default <- function(container){
-  return(DefaultIterator(container))
-}
-
-# Other iterate methods will be added when
-# other iterator classes are written (e.g. DataframeIterator, MatrixIterator)
-
-# A default iterator for vectors and lists
-DefaultIterator <- function(container){
-  self <- new.env()
-  class(self) <- "DefaultIterator"
-  
-  self$container <- container
-  self$index <- 0
-  self$size <- length(self$container)
-  
-  self$more <- function(){
-    return(self$index<self$size)
-  }
-  
-  self$step <- function(){
-    self$index <- self$index +1
-    return(self$container[[self$index]])
-  }
-  
-  self
-}
-
-#########################################
