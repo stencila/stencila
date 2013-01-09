@@ -55,7 +55,8 @@ rds: desc
 # So, the folowing line replaces R CMD build:
 #   tar cfz stencila_$(TAG).tar.gz stencila
 package: rds
-	cp stencila.so stencila/src/stencila_.so
+	rm -f stencila/src/*.o stencila/src/stencila.so stencila/src/symbols.rds #Remove any old build artifacts
+	cp stencila.so stencila/src/stencila_.so #Copy in C++ library
 	tar cfz stencila_$(TAG).tar.gz stencila
 	mkdir -p builds
 	mv stencila_$(TAG).tar.gz builds

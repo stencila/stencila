@@ -33,32 +33,33 @@ pre_formatter = None
 
 sections = [
     ['Dataset',[
-        'Dataset-class.Rd','Dataset.Rd'
+        'Dataset',
+        'Dataset-uri','Dataset-tables','Dataset-indices',
     ]],
     ['Datatable',[
-        'Datatable-class.Rd','Datatable.Rd',
-        'Datatable-subscript.Rd',
-        'head.Datatable.Rd','tail.Datatable.Rd','dim.Datatable.Rd',
-        'as.data.frame.Datatable.Rd'
+        'Datatable',
+        'Datatable-subscript',
+        'Datatable-head','Datatable-tail','Datatable-dim',
+        'Datatable-as.data.frame'
     ]],
     ['Datacursor',[
-        'Datacursor-class.Rd'
+        'Datacursor'
     ]],
     ['Dataquery',[
-        'Dataquery-class.Rd','Dataquery.Rd'
+        'Dataquery'
     ]],
     ['Stencil',[
-        'Stencil-class.Rd','Stencil.Rd',
-        'load.Stencil.Rd','render.Rd'
+        'Stencil',
+        'Stencil-load','Stencil-render'
     ]],
     ['Utility',[
-        'version.Rd', 'iterate.Rd','iterate.default.Rd'
+        'version', 'iterate'
     ]],
     ['Other',[]] #Gets filled in by startup()
 ]
 
 # A list of Rds that should NOT be included
-exclude = ['stencila.Rd','Colum,n','Constant']
+exclude = ['stencila','Column','Constant']
 
 def startup():
     # Read in template
@@ -76,6 +77,7 @@ def startup():
     included = []
     for section,rds in sections: included += rds
     rds = os.listdir(rds_dir)
+    rds = [rd[:-3] for rd in rds]
     for rd in rds:
         if not rd in exclude and not rd in included:
             sections[len(sections)-1][1].append(rd)
@@ -101,7 +103,7 @@ def combine():
         all += "<section><h1>%s</h1>"%name
         for rd in rds:
             print rd
-            html = convert(rd)
+            html = convert(rd+".Rd")
             soup = BeautifulSoup(html)
             # Extract the name of the Rd from the first table and then delete the table
             name = soup.body.table.tr.td.string

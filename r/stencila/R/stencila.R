@@ -5,6 +5,7 @@
 #' @aliases stencila stencila-package
 #' @author Nokome Bentley <nokome.bentley@@stenci.la>
 #' @useDynLib stencila_
+#' @import utils
 NULL
 
 ########################################################################
@@ -114,6 +115,8 @@ version <- function(){
 #' However, users looking for more advanced and comprehensive iterators
 #' should consider using the 'iterator' package.
 #'
+#' @param container The container object to iterate over
+#' 
 #' @export
 #'
 #' @examples
@@ -147,8 +150,6 @@ DefaultIterator <- function(container){
   
   self
 }
-
-#' Default iterate method
 #' @export
 iterate.default <- function(container){
   return(DefaultIterator(container))
@@ -163,34 +164,45 @@ iterate.default <- function(container){
 
 #' The Dataset class
 #'
-#' @name Dataset-class
-#' @rdname Dataset-class
-#' @exportClass Dataset
-class_('Dataset')
-
-#' Create a dataset
-#'
 #' @param uri The unique resource identifier (URI) for the Dataset
+#' 
+#' @name Dataset
+#' @aliases Dataset-class
+#' @seealso Dataset-uri Dataset-table Dataset-indices
+#' @exportClass Dataset
 #' @export
 #'
 #' @examples
-#' # Create a Dataset...
+#' # Create a Dataset in memory...
 #' ds <- Dataset()
-#' # which is equivalent to, but a bit quicker to type than,...
-#' ds <- new("Dataset")
+#' # ... or on disk
+#' ds <- Dataset("mydataset.sds")
+class_('Dataset')
 Dataset <- function(uri="") new("Dataset",uri=uri)
 
 #' Get the unique resource identifier (URI) for the Dataset
 #'
-#' @method uri Dataset
+#' @name Dataset-uri
+#' @aliases uri,Dataset-method
 #' @export
-uri.Dataset <- function(self) self$uri()
+setGeneric("uri",function(object) standardGeneric("uri"))
+setMethod("uri","Dataset",function(object) object$uri())
 
 #' List the tables in the dataset
 #'
-#' @method tables Dataset
+#' @name Dataset-tables
+#' @aliases tables,Dataset-method
 #' @export
-tables.Dataset <- function(self) self$tables()
+setGeneric("tables",function(object) standardGeneric("tables"))
+setMethod("tables","Dataset",function(object) object$tables())
+
+#' List the indices in the dataset
+#'
+#' @name Dataset-indices
+#' @aliases indices,Dataset-method
+#' @export
+setGeneric("indices",function(object,table) standardGeneric("indices"))
+setMethod("indices","Dataset",function(object) object$indices())
 
 ########################################################################
 # Datacursor
@@ -198,8 +210,8 @@ tables.Dataset <- function(self) self$tables()
 
 #' The Datacursor class
 #'
-#' @name Datacursor-class
-#' @rdname Datacursor-class
+#' @name Datacursor
+#' @aliases Datacursor-class
 #' @exportClass Datacursor
 class_('Datacursor')
 
@@ -209,13 +221,9 @@ class_('Datacursor')
 
 #' The Datatable class
 #'
-#' @name Datatable-class
-#' @rdname Datatable-class
+#' @name Datatable
+#' @aliases Datatable-class
 #' @exportClass Datatable
-class_('Datatable')
-
-#' Create a datatable
-#'
 #' @export
 #'
 #' @examples
@@ -223,6 +231,7 @@ class_('Datatable')
 #' dt <- Datatable()
 #' # which is equivalent to, but a bit quicker to type than,...
 #' dt <- new("Datatable")
+class_('Datatable')
 Datatable <- function() new("Datatable")
 
 #' Datatable subscript
@@ -301,28 +310,53 @@ setMethod('[',
 
 #' Get the dimensions of a Datatable
 #'
+#' @param x The datatable
+#' 
 #' @method dim Datatable
+#' @name Datatable-dim
+#' @aliases dim.Datatable
 #' @export
-# Implementing dim also provides for nrow and ncol
+#' 
+#' @examples
+#' # Create a datatable and get it's dimensions
+#' dt <- Datatable()
+#' dim(dt)
+#' # Implementing dim also provides for nrow and ncol
+#' nrow(dt)
+#' ncol(dt)
 dim.Datatable <- function(x) x$dimensions()
 
 #' Get the first n rows of a Datatable
 #'
+#' @param x The datatable
+#' @param n The number of rows to get
+#' 
 #' @method head Datatable
+#' @name Datatable-head
+#' @aliases head.Datatable
 #' @export
 head.Datatable <- function(x,n=10) as.data.frame(x$head(n))
 
 #' Get the last n rows of a Datatable
 #'
+#' @param x The datatable
+#' @param n The number of rows to get
+#' 
 #' @method tail Datatable
+#' @name Datatable-tail
+#' @aliases tail.Datatable
 #' @export
 tail.Datatable <- function(x,n=10) as.data.frame(x$tail(n))
 
 #' Convert a Datatable to a data.frame
 #'
+#' @param x The datatable
+#' 
 #' @method as.data.frame Datatable
+#' @name Datatable-as.data.frame
+#' @aliases as.data.frame.Datatable
 #' @export
-as.data.frame.Datatable <- function(x) x$dataframe()
+as.data.frame.Datatable <- function(x, row.names, optional, ...) x$dataframe()
 
 ########################################################################
 # Dataquery and elements
@@ -337,9 +371,12 @@ elem_ <- function(class,...){
 
 #' Create a data query constant
 #' 
-#' This function is exported mainly for use in testing data queries
+#' This function is exported mainly for use in testing data queries and is unlikely to be
+#' used directly by the user
+#' 
+#' @param value The value of the constant
 #' @export
-Constant <- function(object) const_(object)
+Constant <- function(value) const_(value)
 
 # Convert fundamental types to a
 const_ <- function(object){
@@ -377,21 +414,28 @@ wrap_all_ <- function(...){
 
 #' Create a Datatable column identifier
 #' 
-#' This function is exported mainly for use in testing data queries
+#' This function is exported mainly for use in testing data queries and is unlikely to be
+#' used directly by the user
+#' 
+#' @param name Name of the column
 #' @export
 Column <- function(name) elem_('Column',name)
 
 # Unary operators
 # When writing these, use getMethod() to obtain the correct function argument names e.g.
 #   getMethod("==")
+# Note that S4 method aliases are provided to prevent warning from R CMD check
 unop_ <- function(class,expr){
   elem_(class,wrap_(expr))
 }
 
+#' Operators for Dataquery elements
+#'
+#' @name Element-operators
+#' @aliases +,Element,missing-method -,Element,missing-method !,Element-method
 setMethod("+",signature(e1='Element',e2='missing'),function(e1,e2) unop_('Positive',e1))
 setMethod("-",signature(e1='Element',e2='missing'),function(e1,e2) unop_('Negative',e1))
 setMethod("!",signature(x='Element'),function(x) unop_('Not',x))
-
 
 # Binary operators
 # When writing these, use getMethod() to obtain the correct function argument names e.g.
@@ -508,15 +552,13 @@ for(name in c(
 
 #' The Dataquery class
 #'
-#' @name Dataquery-class
-#' @rdname Dataquery-class
-#' @exportClass Dataquery
-class_('Dataquery')
-
-#' Create a Dataquery
-#'
 #' @param ... A set of dataquery elements
+#'
+#' @name Dataquery
+#' @aliases Dataquery-class
+#' @exportClass Dataquery
 #' @export
+class_('Dataquery')
 Dataquery <- function(...) {
   # The C++ function Dataquery_new causes a segfault when compiled with g++ -O2
   # and called with no elements. This method dispatches to alternative versions of 
@@ -535,17 +577,14 @@ Dataquery <- function(...) {
 
 #' The Stencil class
 #'
-#' @name Stencil-class
-#' @rdname Stencil-class
-#' @exportClass Stencil
-class_('Stencil')
-
-#' Create a stencil
-#'
 #' Use this function to create a stencil, optionally
 #' including any initial content.
 #'
 #' @param content Initial HTML content of the stencil
+#'
+#' @name Stencil
+#' @aliases Stencil-class
+#' @exportClass Stencil
 #' @export
 #'
 #' @examples
@@ -558,6 +597,7 @@ class_('Stencil')
 #' # ... which is equivalent to
 #' stencil <- Stencil()
 #' stencil$load('Pi has a value of: <span data-text="pi"/>')
+class_('Stencil')
 Stencil <- function(content) {
   stencil <- new("Stencil")
   if(!missing(content)){
@@ -568,6 +608,10 @@ Stencil <- function(content) {
 
 #' Load content into a stencil
 #'
+#' @name Stencil-load
+#' @aliases load,Stencil-method
+#' @export
+#' 
 #' @examples
 #' # Create a stencil...
 #' stencil <- Stencil()
@@ -575,7 +619,8 @@ Stencil <- function(content) {
 #' stencil$load("<p>Hello world!</p>")
 #' # ... or, equivalently
 #' load(stencil,"<p>Hello world!</p>")
-load.Stencil <- function(self,content) self$load(content)
+setGeneric("load",function(object,content) standardGeneric("load"))
+setMethod("load",c("Stencil","ANY"),function(object,content) object$load(content))
 
 #' Render a stencil object or a stencil string 
 #'
@@ -583,22 +628,32 @@ load.Stencil <- function(self,content) self$load(content)
 #' dumping a stencil.
 #' It is useful for quickly executing these three common tasks in stencil usage.
 #'
+#' @name Stencil-render
+#' @aliases render,Stencil-method render,ANY-method
 #' @export
-render <- function(stencil,context){
+setGeneric("render",function(stencil,context) standardGeneric("render"))
+setMethod("render",c("ANY","ANY"),function(stencil,context){
   if(!('Stencil' %in% class(stencil))){
     stencil <- Stencil(stencil)
   }
+  
   if(missing(context)) context <- Context(parent.frame())
   else {
     if(!('Context' %in% class(context))) context <- Context(context)
   }
+  
   stencil$render(context)
   return(stencil$dump())
-}
+})
 
 #' Create a stencil rendering context
 #' 
 #' Stencils are rendered within a context. 
+#' The context determines the variables that are available to the stencil.
+#' Often, stencils will be rendered within the context of the R global environment.
+#' However, if you want to create a different context then use this function
+#' 
+#' @param envir The environment for the context. Optional.
 #'
 #' @export
 Context <- function(envir){

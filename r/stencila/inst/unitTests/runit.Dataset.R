@@ -16,8 +16,14 @@ test.Dataset.attributes <- function(){
       CREATE INDEX t2i1 ON t2(a);
   ")
   
-  checkEquals(ds$tables(),c("t1","t2"))
-  checkEquals(ds$indices(),c("t1i1","t1i2","t2i1"))
+  checkEquals(":memory:",ds$uri())
+  checkEquals(ds$uri(),uri(ds))
+  
+  checkEquals(c("t1","t2"),ds$tables())
+  checkEquals(ds$tables(),tables(ds))
+  
+  checkEquals(c("t1i1","t1i2","t2i1"),ds$indices())
+  checkEquals(ds$indices(),indices(ds))
 }
 
 
