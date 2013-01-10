@@ -25,14 +25,14 @@ namespace Stencila {
 //! @param name
 //! @return 
 Datatable Dataset::create(const std::string& name){
-         return Datatable(name,this,false);
+     return Datatable(name,this,false);
 }
 
 //! @brief 
 //! @param name
 //! @return 
 Datatable Dataset::table(const std::string& name){
-         return Datatable(name,this);
+     return Datatable(name,this);
 }
 //! @brief 
 //! @param name

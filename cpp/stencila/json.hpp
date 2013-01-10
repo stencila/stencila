@@ -47,7 +47,7 @@ namespace Json {
     - <a href="http://lloyd.github.com/yajl/">YAJL</a>
  which, if there is good reason to do so, we might switch to one day.
 */
-                                   
+
 /*! 
  @typedef Value
  

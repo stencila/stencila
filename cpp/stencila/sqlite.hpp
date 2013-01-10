@@ -77,7 +77,7 @@ public:
         return "Unknown error";
     }
 };
-                                                   
+
 #define STENCILA_SQLITE_THROW(db,code)\
     throw SqliteException(code,sqlite3_errmsg(db),__FILE__,__LINE__);
 
