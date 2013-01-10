@@ -5,9 +5,9 @@ using namespace Stencila;
 
 //! Get the version number of the Stencila library
 STENCILA_R_FUNC Stencila_version(void){
-	STENCILA_R_BEGIN
-		return wrap(Stencila::version);
-	STENCILA_R_END
+    STENCILA_R_BEGIN
+        return wrap(Stencila::version);
+    STENCILA_R_END
 }
 
 //! Get the Stencila class name from the tag of an "externalpointer" in R
