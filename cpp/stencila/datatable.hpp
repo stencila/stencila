@@ -169,26 +169,26 @@ public:
     //! @param column The column index
     //! @return Column name
     std::string name(unsigned int column) const{
-        return dataset().cursor("SELECT * FROM "+name()).name(column);
+        return dataset().cursor("SELECT * FROM \""+name()+"\"").name(column);
     }
     
     //! @brief Get the names of all columns in the datatable
     //! @return Vector of column names
     std::vector<std::string> names(void)  const{
-        return created_?(dataset().cursor("SELECT * FROM "+name()).names()):(std::vector<std::string>{});
+        return created_?(dataset().cursor("SELECT * FROM \""+name()+"\"").names()):(std::vector<std::string>{});
     }
     
     //! @brief Get the type name of a column in a datatable
     //! @param column The column index
     //! @return Column type
     Datatype type(unsigned int column) const {
-        return dataset().cursor("SELECT * FROM "+name()).type(column);
+        return dataset().cursor("SELECT * FROM \""+name()+"\"").type(column);
     }
 
     //! @brief
     //! @return
     std::vector<Datatype> types(void) const {
-        return created_?(dataset().cursor("SELECT * FROM "+name()).types()):(std::vector<Datatype>{});
+        return created_?(dataset().cursor("SELECT * FROM \""+name()+"\"").types()):(std::vector<Datatype>{});
     }
 
     //! @brief
@@ -311,7 +311,7 @@ public:
     //! @return
      template<typename Type = std::string>
     Type value(unsigned int row, unsigned int col) const {
-        return dataset().value<Type>("SELECT "+name(col)+" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
+        return dataset().value<Type>("SELECT \""+name(col)+"\" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
     }
 
     //! @brief
@@ -359,6 +359,13 @@ public:
     //! @return
     Datatable head(const unsigned int rows = 10) const {
         return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
+    }
+    
+    //! @brief
+    //! @param rows
+    //! @return
+    Datatable tail(const unsigned int rows = 10) const {
+        return dataset().select("SELECT * FROM \""+name()+"\" ORDER BY rowid DESC LIMIT "+boost::lexical_cast<std::string>(rows));
     }
 
     //! @brief

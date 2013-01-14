@@ -23,7 +23,7 @@ test.Dataset.attributes <- function(){
   checkEquals(ds$tables(),tables(ds))
   
   checkEquals(c("t1i1","t1i2","t2i1"),ds$indices())
-  checkEquals(ds$indices(),indices(ds))
+  #checkEquals(ds$indices(),indices(ds))
 }
 
 

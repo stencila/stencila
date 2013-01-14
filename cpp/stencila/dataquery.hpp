@@ -1079,13 +1079,22 @@ public:
     };
 };
 
+//! @todo class Centre : subtract mean
+//! @todo class Scale : divide by geometric mean
+//! @todo class Norm : adjust so mean is equal to zero and standard deviation is equal to 1
+
 //! @}
 
 //! @name Reshapers
 //! @{
 
 class Reshaper : public Element {
+    //! @todo Implement
 };
+
+//! @todo class Column : specify column for cross-table
+//! @todo class Row : specify row for cross-table
+//! @todo claa Melt : puts column names into a row so that there is just one "value" column
 
 //! @}
 

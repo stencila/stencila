@@ -1,6 +1,6 @@
-.PHONY: all cpp py r sqlite docs
+.PHONY: cpp py r sqlite guide
 
-all: cpp py r sqlite docs
+all: cpp py r sqlite guide
 
 cpp:
 	make -C cpp all
@@ -14,6 +14,6 @@ r:
 sqlite:
 	make -C sqlite all
 	
-docs:
-	make -C docs all
+guide:
+	make -C guide all
 

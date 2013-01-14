@@ -40,16 +40,22 @@ create_ <- function(class,func,...){
 # represent Stencila R class methods
 method_ <- function(class_name,method_name,...){
     symbol <- paste(class_name,method_name,sep='_')
-    result <- tryCatch(
-        call_(symbol,...),
-        error = function(error) error
-    )
-    if(inherits(result,'error')){
-        if(result$message==paste('C symbol name "',symbol,'" not in load table',sep='')){
-            stop(paste('Class ',class_name,' does not have a method named "',method_name,'"',sep=''),call.=FALSE)
-        } else {
-            stop(result$message,call.=FALSE)
-        }
+    # Look for a R version of symbol and call it, otherwise
+    # try to get it from C++ symbols 
+    if(exists(symbol)){
+      return(get(symbol)(...))
+    } else {
+      result <- tryCatch(
+          call_(symbol,...),
+          error = function(error) error
+      )
+      if(inherits(result,'error')){
+          if(result$message==paste('C symbol name "',symbol,'" not in load table',sep='')){
+              stop(paste('Class ',class_name,' does not have a method named "',method_name,'"',sep=''),call.=FALSE)
+          } else {
+              stop(result$message,call.=FALSE)
+          }
+      }
     }
     result
 }
@@ -201,7 +207,7 @@ setMethod("tables","Dataset",function(object) object$tables())
 #' @name Dataset-indices
 #' @aliases indices,Dataset-method
 #' @export
-setGeneric("indices",function(object,table) standardGeneric("indices"))
+setGeneric("indices",function(object) standardGeneric("indices"))
 setMethod("indices","Dataset",function(object) object$indices())
 
 ########################################################################
@@ -232,7 +238,100 @@ class_('Datacursor')
 #' # which is equivalent to, but a bit quicker to type than,...
 #' dt <- new("Datatable")
 class_('Datatable')
-Datatable <- function() new("Datatable")
+Datatable <- function(from) {
+  if(!missing(from)) return(as.Datatable(from))
+  else return(new("Datatable"))
+}
+
+#' Get the number of rows in a datatable
+#'
+#' @name Datatable-rows
+#' @aliases rows,Datatable-method
+#' @export
+setGeneric("rows",function(object) standardGeneric("rows"))
+setMethod("rows","Datatable",function(object) object$rows())
+
+#' Get the number of columns in a datatable
+#'
+#' @name Datatable-columns
+#' @aliases columns,Datatable-method
+#' @export
+setGeneric("columns",function(object) standardGeneric("columns"))
+setMethod("columns","Datatable",function(object) object$columns())
+
+#' Get the dimensions (rows x columns) of a datatable
+#'
+#' @name Datatable-dimensions
+#' @aliases dimensions,Datatable-method
+#' @export
+setGeneric("dimensions",function(object) standardGeneric("dimensions"))
+setMethod("dimensions","Datatable",function(object) object$dimensions())
+
+#' Get the name of a column of a datatable
+#'
+#' Note that this method corresponds to the "name" method in the Stencila C++ package.
+#' However, that name for a method appear to cause problems in R so for the R package we have used "colname"
+#'
+#' @name Datatable-colname
+#' @aliases colname,Datatable,integer-method
+#' @export
+setGeneric("colname",function(object,column) standardGeneric("colname"))
+setMethod("colname",c("Datatable","integer"),function(object,column) object$colname(column))
+
+#' Get the names of the columns of a datatable
+#'
+#' @name Datatable-colnames
+#' @aliases colnames,Datatable-method
+#' @export
+setGeneric("colnames",function(x) standardGeneric("colnames"))
+setMethod("colnames","Datatable",function(x) x$colnames())
+
+#' Get the type of a column of a datatable
+#'
+#' @name Datatable-type
+#' @aliases type,Datatable,integer-method
+#' @export
+setGeneric("type",function(object,column) standardGeneric("type"))
+setMethod("type",c("Datatable","integer"),function(object,column) object$type(column))
+
+#' Get the types of the columns of a datatable
+#'
+#' @name Datatable-types
+#' @aliases types,Datatable-method
+#' @export
+setGeneric("types",function(object) standardGeneric("types"))
+setMethod("types","Datatable",function(object) object$types())
+
+#' Create an index for a datatable based on one or more columns
+#'
+#' @name Datatable-index
+#' @aliases index,Datatable-method
+#' @export
+setGeneric("index",function(object,columns) standardGeneric("index"))
+setMethod("index","Datatable",function(object,columns) object$types(columns))
+
+#' Get a list of indices created on a datatable
+#'
+#' @name Datatable-indices
+#' @aliases indices,Datatable-method
+#' @export
+setGeneric("indices",function(object) standardGeneric("indices"))
+setMethod("indices","Datatable",function(object) object$indices())
+
+Datatable_head <- function(self,rows=10) return(object_(call_('Datatable_head',self,rows)))
+Datatable_tail <- function(self,rows=10) return(object_(call_('Datatable_tail',self,rows)))
+Datatable_value <- function(self,row=0,col=0) return(object_(call_('Datatable_value',self,row,col)))
+
+# Replicating S3 methods for data.frames
+# See
+#   methods(class='data.frame')
+# for a full list
+
+setMethod("show", "Datatable", function(object){
+  cat("Datatable (rows:",object$rows(),", columns:",object$columns(),")\n",sep="")
+  print(as.data.frame(object))
+  cat('...')
+})
 
 #' Datatable subscript
 #'
@@ -256,57 +355,49 @@ setMethod('[',
     #not needed
     args <- as.list(match.call()[-c(1,2)])
     
-    #If arg[1] is numeric then restrict the result to that set of rows, regardless of the other arguments
-    #If an arg is character then select that column
-    #directive = paste(name,":",mode(arg),sep='')
-    #if(mode(arg)=='numeric'){
-    #  if(name=='i') rows = eval(arg)
-    #  else if(name=='j') cols = eval(arg)
-    #  else {
-    #    directive = paste(directive," const(",arg,")",sep='')
-    #  }
-    #}
-    #else if(mode(arg)=='call'){
-    #  func = arg[[1]]
-    #  directive = paste(directive,":",func,sep='')
-    #}
-    
-    rows <- -1
-    cols <- -1
+    rows <- NULL
+    cols <- NULL
     directives <- NULL
     
     # Intialise a list of names that refer to column in the Datatable
     # or functions in the dataset. Other names will be searched for in the 
     # R parent frame
     datatable_names <- dataquery_elements_
-    for(name in x$names()){
+    for(name in x$colnames()){
       datatable_names[[name]] <- Column(name)
     }
     
     for(index in 1:length(args)){
       arg <- args[[index]]
       arg <- substitute(arg)
+      name <- names(args)[[index]]
       
-      # Evaluate each argument with the parent frame as a "fallback" for symbols not in the database
-      # See subset.data.frame for an example of this
-      directive <- tryCatch(eval(arg,datatable_names,parent.frame()),error=function(error) error)
-      if(inherits(directive,'error')){
-        stop(paste("in query :",directive$message,sep=''),call.=FALSE)
+      directive <- NULL
+      
+      if(mode(arg)=='numeric'){
+        if(name=='i') rows = eval(arg)
+        else if(name=='j') cols = eval(arg)
+        else {
+          directive = paste(directive," const(",arg,")",sep='')
+        }
       }
-      
-      directives <- c(directives,directive)
+      else if(mode(arg)=='call'){
+        # Evaluate each argument with the parent frame as a "fallback" for symbols not in the database
+        # See subset.data.frame for an example of this
+        directive <- tryCatch(eval(arg,datatable_names,parent.frame()),error=function(error) error)
+        if(inherits(directive,'error')){
+          stop(paste("in query :",directive$message,sep=''),call.=FALSE)
+        }
+      }
+      if(!is.null(directive)) directives <- c(directives,directive)
     }
     
+    if(!is.null(rows) & !is.null(cols)) return(x$value(rows,cols))
+    
     query <- do.call(Dataquery,directives)
-    return(query$execute(x))
+    return(query$execute(x@pointer))
   }
 )
-
-# S3 methods
-#methods(class='data.frame')
-#	subset
-#	merge
-#	summary
 
 #' Get the dimensions of a Datatable
 #'
@@ -356,7 +447,20 @@ tail.Datatable <- function(x,n=10) as.data.frame(x$tail(n))
 #' @name Datatable-as.data.frame
 #' @aliases as.data.frame.Datatable
 #' @export
-as.data.frame.Datatable <- function(x, row.names, optional, ...) x$dataframe()
+as.data.frame.Datatable <- function(x, row.names, optional, ...) x$to_dataframe()
+
+#' Convert a data.frame to a Datatable
+#'
+#'
+#' @name Datatable-from-data.frame
+#' @aliases as.Datatable,data.frame-method
+#' @export
+setGeneric("as.Datatable",function(object) standardGeneric("as.Datatable"))
+setMethod("as.Datatable","data.frame",function(object){
+  # Currently it is necessary to convert all columns to string type before calling C++ function
+  for(name in names(object)) object[,name] = as.character(object[,name])
+  create_("Datatable","Datatable_from_dataframe",object)
+})
 
 ########################################################################
 # Dataquery and elements
