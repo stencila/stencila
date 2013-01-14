@@ -56,11 +56,11 @@ rds: desc
 #   tar cfz stencila_$(TAG).tar.gz stencila
 package: rds
 	rm -f stencila/src/*.o stencila/src/stencila.so stencila/src/symbols.rds #Remove any old build artifacts
-	cp stencila.so stencila/src/stencila_.so #Copy in C++ library
-	tar cfz stencila_$(TAG).tar.gz stencila
-	mkdir -p builds
-	mv stencila_$(TAG).tar.gz builds
-	ln -sf stencila_$(TAG).tar.gz builds/stencila_latest.tar.gz 
+	cp stencila.so stencila/src/stencila_.so #Copy in the compiles extension
+	tar cfz stencila_$(TAG).tar.gz stencila #Tarball it up
+	mkdir -p repo/src/contrib #Make an R repository source package directory
+	mv stencila_$(TAG).tar.gz repo/src/contrib #Move it there
+	echo "tools::write_PACKAGES('repo/src/contrib',type='source')" | R --vanilla #Generate the PACKAGE file for the repo
 
 # Generate Stencila custom HTML documentation
 docs: rds
@@ -68,19 +68,22 @@ docs: rds
 
 build: compile package
 
-check:
-	R CMD check builds/stencila_$(TAG).tar.gz
+# Check the package by running R CMD check
+r_check: build
+	R CMD check repo/src/contrib/stencila_$(TAG).tar.gz
 
 # Test the package by running unit tests
 # Install package in a testing directory and run unit tests from there
 # This is better than installing package in the users R library location
-test: build
+unit_tests: build
 	mkdir -p testing
-	R CMD INSTALL -l testing builds/stencila_latest.tar.gz
+	R CMD INSTALL -l testing repo/src/contrib/stencila_$(TAG).tar.gz
 	echo "setwd('testing'); library(stencila,lib.loc='.'); source('stencila/unitTests/do.svUnit.R')" | R --vanilla
 
+test: r_check unit_tests
+
 install:
-	R CMD INSTALL builds/stencila_$(TAG).tar.gz
+	R CMD INSTALL repo/src/contrib/stencila_$(TAG).tar.gz
 
 clean:
 	rm -rf *.o *.so stencila.Rcheck testing

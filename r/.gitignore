@@ -4,7 +4,7 @@ stencila/DESCRIPTION
 stencila/NAMESPACE
 
 #Ignore files created by R build and check process
-builds
+repo
 stencila.Rcheck
 *.o
 *.so
