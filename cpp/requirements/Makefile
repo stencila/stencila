@@ -1,3 +1,4 @@
+include ../Makefile.common
 
 BOOST_VERSION = 1_50_0
 CPP_NETLIB_VERSION = 0.9.4
@@ -43,31 +44,31 @@ boost_$(BOOST_VERSION): boost_$(BOOST_VERSION).tar.bz2
 #  --prefix=.  - so that boost installs into its own directory  (boost_$(BOOST_VERSION))
 # link=static - so that get statically compiled instead of dynamically compile libraries
 boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
-	ifeq ($(OS), linux)
-		cd boost_$(BOOST_VERSION); \
-		./bootstrap.sh; \
-		./b2 --prefix=. link=static install
-	endif
-	ifeq ($(OS), win)
-		cd boost_$(BOOST_VERSION); \
-		#It is necessary to build with mingw specified as toolset otherwise errors occur
-		./bootstrap.sh --with-toolset=mingw; \
-		#Fix the [error](http://stackoverflow.com/a/5244844/1583041) in the `project-config.jam` produced by the above command
-		sed -i "s/mingw/gcc/g" project-config.jam; \
-		#Invoke Boost.Build (b2)
-		#Specify "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
-		#Specify "release" build otherwise defaults to debug and release, which with "system" causes an error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
-		./b2 --prefix=. --layout=system release toolset=gcc link=static install
-	endif
+ifeq ($(STENCILA_PLATFORM), linux)
+	cd boost_$(BOOST_VERSION); \
+	./bootstrap.sh; \
+	./b2 --prefix=. link=static install
+endif
+ifeq ($(STENCILA_PLATFORM), win)
+	cd boost_$(BOOST_VERSION); \
+	#It is necessary to build with mingw specified as toolset otherwise errors occur
+	./bootstrap.sh --with-toolset=mingw; \
+	#Fix the [error](http://stackoverflow.com/a/5244844/1583041) in the `project-config.jam` produced by the above command
+	sed -i "s/mingw/gcc/g" project-config.jam; \
+	#Invoke Boost.Build (b2)
+	#Specify "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
+	#Specify "release" build otherwise defaults to debug and release, which with "system" causes an error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
+	./b2 --prefix=. --layout=system release toolset=gcc link=static install
+endif
 
 include/boost: boost_$(BOOST_VERSION)
-	ifeq ($(OS), linux)
-		ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
-	endif
-	ifeq ($(OS), msys)
-		mkdir include/boost
-		junction include/boost boost_$(BOOST_VERSION)/include/boost
-	endif
+ifeq ($(STENCILA_PLATFORM), linux)
+	ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
+endif
+ifeq ($(STENCILA_PLATFORM), msys)
+	junction include/boost boost_$(BOOST_VERSION)/include/boost
+	touch include/boost
+endif
 
 # Link to each of the statically compiled libraries
 lib/libboost_system.a: boost_$(BOOST_VERSION)/lib/libboost_system.a
@@ -142,13 +143,13 @@ rapidjson-$(RAPIDJSON_VERSION): rapidjson-$(RAPIDJSON_VERSION).zip
 	mv rapidjson rapidjson-$(RAPIDJSON_VERSION)
 
 include/rapidjson: rapidjson-$(RAPIDJSON_VERSION)
-	ifeq ($(OS), linux)
-		ln -sfT ../rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson include/rapidjson
-	endif
-	ifeq ($(OS), msys)
-		mkdir include/rapidjson
-		junction include/rapidjson rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson
-	endif
+ifeq ($(STENCILA_PLATFORM), linux)
+	ln -sfT ../rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson include/rapidjson
+endif
+ifeq ($(STENCILA_PLATFORM), msys)
+	junction include/rapidjson rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson
+	touch include/rapidjson
+endif
 	
 rapidjson: include include/rapidjson
 
@@ -161,13 +162,13 @@ smhasher-$(SMHASHER_VERSION):
 	git clone git://github.com/haberman/smhasher.git smhasher-$(SMHASHER_VERSION)
 
 include/smhasher: smhasher-$(SMHASHER_VERSION)
-	ifeq ($(OS), linux)
-		ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher
-	endif
-	ifeq ($(OS), msys)
-		mkdir include/smhasher
-		junction include/smhasher smhasher-$(SMHASHER_VERSION)
-	endif
+ifeq ($(STENCILA_PLATFORM), linux)
+	ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher
+endif
+ifeq ($(STENCILA_PLATFORM), msys)
+	junction include/smhasher smhasher-$(SMHASHER_VERSION)
+	touch include/smhasher
+endif
 
 smhasher: include include/smhasher
 

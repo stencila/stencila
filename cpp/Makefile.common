@@ -1,28 +1,29 @@
-#Define an operating system variable. 
-# This can be overidden by passing the variable from the command line e.g. make OS=win all
+#Define a platform variable. 
+# This can be overidden by passing the variable from the command line e.g. make STENCILA_PLATFORM=win all
 # See alternatives for doing this
 #   http://stackoverflow.com/questions/714100/os-detecting-makefile
 #   http://stackoverflow.com/questions/4058840/makefile-that-distincts-between-windows-and-unix-like-systems
-ifndef OS
+# The name STENCILA_PLATFORM is used because OS may be already defined as an environment variable
+ifndef STENCILA_PLATFORM
 	ifeq ($(shell uname -o), GNU/Linux)
-		OS := linux
+		STENCILA_PLATFORM := linux
 	endif
 	ifeq ($(shell uname -o), Msys)
-		OS := msys
+		STENCILA_PLATFORM := msys
 	endif
-	ifndef OS
+	ifndef STENCILA_PLATFORM
 		$(error Unhandled operating system $(shell uname -o))
 	endif
 endif
 
 #Define variables for compilation tools using the standard make implicit variables 
 #  http://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-ifeq ($(OS), linux)
+ifeq ($(STENCILA_PLATFORM), linux)
 	CC := gcc
 	CXX := g++
 	AR := ar
 endif
-ifeq ($(OS), msys)
+ifeq ($(STENCILA_PLATFORM), msys)
 	CC := gcc
 	CXX := g++
 	AR := ar
