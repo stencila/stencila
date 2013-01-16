@@ -38,13 +38,29 @@ boost_$(BOOST_VERSION).tar.bz2:
 boost_$(BOOST_VERSION): boost_$(BOOST_VERSION).tar.bz2
 	tar --bzip2 -xf boost_$(BOOST_VERSION).tar.bz2
 
-# Boost is made with some options to overide defaults
+# Boost is made with some options to override defaults
 #  --prefix=.  - so that boost installs into its own directory  (boost_$(BOOST_VERSION))
 # link=static - so that get statically compiled instead of dynamically compile libraries
-boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
-	cd boost_$(BOOST_VERSION); \
-	./bootstrap.sh; \
-	./b2 --prefix=. link=static install;
+ifeq ($(OS), linux)
+	boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
+		cd boost_$(BOOST_VERSION); \
+		./bootstrap.sh; \
+		./b2 --prefix=. link=static install;
+endif
+ifeq ($(OS), win)
+	boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
+		cd boost_$(BOOST_VERSION); \
+		./bootstrap.sh --with-toolset=mingw; \
+		#Fix the [error](http://stackoverflow.com/a/5244844/1583041) in the `project-config.jam` produced by bootstrap
+		sed -i "s/mingw/gcc/g" project-config.jam; \
+		#Tell boost that you want it to use `x86_64-w64-mingw32-g++` for `gcc`.
+		#This has to be done by specifying the full path in `user-config.jam` otherwise `b2` does not seem to be able to find it.
+		#(I tried several ways of setting the path to include the relevant bin directories but nothing worked).
+		echo 'using gcc : : "C:/MinGW/mingw64/bin/x86_64-w64-mingw32-g++"' > tools/build/v2/user-config.jam ;\
+		#Specify "gcc" toolset (as defined above) and "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
+		./b2 --prefix=. --layout=system toolset=gcc link=static install;
+endif
+
 
 include/boost: boost_$(BOOST_VERSION)
 	ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
@@ -98,8 +114,8 @@ pugixml-$(PUGIXML_VERSION): pugixml-$(PUGIXML_VERSION).tar.gz
 
 pugixml-$(PUGIXML_VERSION)/src/libpugixml.a: pugixml-$(PUGIXML_VERSION)
 	cd pugixml-$(PUGIXML_VERSION)/src; \
-	g++ -fpic -c pugixml.cpp; \
-	ar rcs libpugixml.a pugixml.o
+	$(CXX) -fpic -c pugixml.cpp; \
+	$(AR) rcs libpugixml.a pugixml.o
 
 include/pugixml.hpp: pugixml-$(PUGIXML_VERSION)
 	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/pugixml.hpp include/pugixml.hpp
@@ -129,7 +145,10 @@ rapidjson: include include/rapidjson
 ####################################################
 
 smhasher-$(SMHASHER_VERSION):
-	svn checkout http://smhasher.googlecode.com/svn/trunk/@$(SMHASHER_VERSION) smhasher-$(SMHASHER_VERSION)
+	#Instead of having to install Subversion to do
+	#	svn checkout http://smhasher.googlecode.com/svn/trunk/@$(SMHASHER_VERSION) smhasher-$(SMHASHER_VERSION)
+	#Use the github mirror
+	git clone git://github.com/haberman/smhasher.git
 
 include/smhasher: smhasher-$(SMHASHER_VERSION)
 	ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher
@@ -146,8 +165,8 @@ sqlite-amalgamation-$(SQLITE_VERSION): sqlite-amalgamation-$(SQLITE_VERSION).zip
 
 sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a: sqlite-amalgamation-$(SQLITE_VERSION)
 	cd sqlite-amalgamation-$(SQLITE_VERSION); \
-	gcc -fpic -c sqlite3.c; \
-	ar rcs libsqlite3.a sqlite3.o
+	$(CC) -fpic -c sqlite3.c; \
+	$(AR) rcs libsqlite3.a sqlite3.o
 
 include/sqlite3.h: sqlite-amalgamation-$(SQLITE_VERSION)
 	ln -sf ../sqlite-amalgamation-$(SQLITE_VERSION)/sqlite3.h include/sqlite3.h

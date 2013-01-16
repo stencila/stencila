@@ -1,3 +1,28 @@
+#Define an operating system variable. 
+# This can be overidden by passing the variable from the command line e.g. make OS=win all
+# See alternatives for doing this
+#   http://stackoverflow.com/questions/714100/os-detecting-makefile
+#   http://stackoverflow.com/questions/4058840/makefile-that-distincts-between-windows-and-unix-like-systems
+ifndef OS
+	ifeq ($(shell uname -o), GNU/Linux)
+		OS := linux
+	endif
+	ifeq ($(shell uname -o), Msys)
+		OS := win
+	endif
+	ifndef OS
+		$(error Unhandled operating system $(shell uname -o))
+	endif
+endif
+
+#Define variables for compilation tools using the standard make implicit variables 
+#  http://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+ifeq ($(OS), linux)
+	CC := gcc
+	CXX := g++
+	AR := ar
+endif
+
 #Get the Stencila cpp directory path. Done by obtaining the directory of this
 # Makefile, not by using $(shell pwd) which depends upon where make is called from
 STENCILA_CPP_HOME := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
