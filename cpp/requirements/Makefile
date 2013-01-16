@@ -37,33 +37,36 @@ boost_$(BOOST_VERSION).tar.bz2:
 
 boost_$(BOOST_VERSION): boost_$(BOOST_VERSION).tar.bz2
 	tar --bzip2 -xf boost_$(BOOST_VERSION).tar.bz2
+	touch boost_$(BOOST_VERSION)
 
 # Boost is made with some options to override defaults
 #  --prefix=.  - so that boost installs into its own directory  (boost_$(BOOST_VERSION))
 # link=static - so that get statically compiled instead of dynamically compile libraries
-ifeq ($(OS), linux)
-	boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
+boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
+	ifeq ($(OS), linux)
 		cd boost_$(BOOST_VERSION); \
 		./bootstrap.sh; \
-		./b2 --prefix=. link=static install;
-endif
-ifeq ($(OS), win)
-	boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
+		./b2 --prefix=. link=static install
+	endif
+	ifeq ($(OS), win)
 		cd boost_$(BOOST_VERSION); \
+		#It is necessary to build with mingw specified as toolset otherwise errors occur
 		./bootstrap.sh --with-toolset=mingw; \
-		#Fix the [error](http://stackoverflow.com/a/5244844/1583041) in the `project-config.jam` produced by bootstrap
+		#Fix the [error](http://stackoverflow.com/a/5244844/1583041) in the `project-config.jam` produced by the above command
 		sed -i "s/mingw/gcc/g" project-config.jam; \
-		#Tell boost that you want it to use `x86_64-w64-mingw32-g++` for `gcc`.
-		#This has to be done by specifying the full path in `user-config.jam` otherwise `b2` does not seem to be able to find it.
-		#(I tried several ways of setting the path to include the relevant bin directories but nothing worked).
-		echo 'using gcc : : "C:/MinGW/mingw64/bin/x86_64-w64-mingw32-g++"' > tools/build/v2/user-config.jam ;\
-		#Specify "gcc" toolset (as defined above) and "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
-		./b2 --prefix=. --layout=system toolset=gcc link=static install;
-endif
-
+		#Invoke Boost.Build (b2)
+		#Specify "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
+		#Specify "release" build otherwise defaults to debug and release, which with "system" causes an error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
+		./b2 --prefix=. --layout=system release toolset=gcc link=static install
+	endif
 
 include/boost: boost_$(BOOST_VERSION)
-	ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
+	ifeq ($(PLATFORM), linux)
+		ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
+	endif
+	ifeq ($(PLATFORM), msys)
+		ln -sfT ../boost_$(BOOST_VERSION)/include/boost-$(BOOST_VERSION_TAG) include/boost
+	endif
 
 # Link to each of the statically compiled libraries
 lib/libboost_system.a: boost_$(BOOST_VERSION)/lib/libboost_system.a
@@ -83,7 +86,7 @@ cpp-netlib-$(CPP_NETLIB_VERSION): cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
 
 cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile: cpp-netlib-$(CPP_NETLIB_VERSION)
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
-	export BOOST_ROOT=../boost_1_50_0 ; cmake -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .
+	export BOOST_ROOT=../$(BOOST_VERSION) ; cmake -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) .
 
 cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
@@ -148,7 +151,7 @@ smhasher-$(SMHASHER_VERSION):
 	#Instead of having to install Subversion to do
 	#	svn checkout http://smhasher.googlecode.com/svn/trunk/@$(SMHASHER_VERSION) smhasher-$(SMHASHER_VERSION)
 	#Use the github mirror
-	git clone git://github.com/haberman/smhasher.git
+	git clone git://github.com/haberman/smhasher.git smhasher-$(SMHASHER_VERSION)
 
 include/smhasher: smhasher-$(SMHASHER_VERSION)
 	ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher

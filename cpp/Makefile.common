@@ -8,7 +8,7 @@ ifndef OS
 		OS := linux
 	endif
 	ifeq ($(shell uname -o), Msys)
-		OS := win
+		OS := msys
 	endif
 	ifndef OS
 		$(error Unhandled operating system $(shell uname -o))
@@ -18,6 +18,11 @@ endif
 #Define variables for compilation tools using the standard make implicit variables 
 #  http://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 ifeq ($(OS), linux)
+	CC := gcc
+	CXX := g++
+	AR := ar
+endif
+ifeq ($(OS), msys)
 	CC := gcc
 	CXX := g++
 	AR := ar
