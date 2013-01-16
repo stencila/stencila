@@ -61,11 +61,12 @@ boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
 	endif
 
 include/boost: boost_$(BOOST_VERSION)
-	ifeq ($(PLATFORM), linux)
+	ifeq ($(OS), linux)
 		ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
 	endif
-	ifeq ($(PLATFORM), msys)
-		ln -sfT ../boost_$(BOOST_VERSION)/include/boost-$(BOOST_VERSION_TAG) include/boost
+	ifeq ($(OS), msys)
+		mkdir include/boost
+		junction include/boost boost_$(BOOST_VERSION)/include/boost
 	endif
 
 # Link to each of the statically compiled libraries
@@ -141,8 +142,14 @@ rapidjson-$(RAPIDJSON_VERSION): rapidjson-$(RAPIDJSON_VERSION).zip
 	mv rapidjson rapidjson-$(RAPIDJSON_VERSION)
 
 include/rapidjson: rapidjson-$(RAPIDJSON_VERSION)
-	ln -sfT ../rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson include/rapidjson
-
+	ifeq ($(OS), linux)
+		ln -sfT ../rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson include/rapidjson
+	endif
+	ifeq ($(OS), msys)
+		mkdir include/rapidjson
+		junction include/rapidjson rapidjson-$(RAPIDJSON_VERSION)/include/rapidjson
+	endif
+	
 rapidjson: include include/rapidjson
 
 ####################################################
@@ -154,7 +161,13 @@ smhasher-$(SMHASHER_VERSION):
 	git clone git://github.com/haberman/smhasher.git smhasher-$(SMHASHER_VERSION)
 
 include/smhasher: smhasher-$(SMHASHER_VERSION)
-	ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher
+	ifeq ($(OS), linux)
+		ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher
+	endif
+	ifeq ($(OS), msys)
+		mkdir include/smhasher
+		junction include/smhasher smhasher-$(SMHASHER_VERSION)
+	endif
 
 smhasher: include include/smhasher
 
