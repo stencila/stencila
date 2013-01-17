@@ -34,11 +34,22 @@ RCPP_CXXFLAGS := $(shell echo "$(RCPP_CXXFLAGS)" | sed "s/c:/\/c/g")
 RCPP_LDFLAGS := $(shell echo "$(RCPP_LDFLAGS)" | sed "s/c:/\/c/g")
 endif
 
-%.o : %.cpp
-	g++ -c -O2 -fPIC $(R_CPPFLAGS) $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
+#Define the outputs
+ifeq ($(STENCILA_PLATFORM),linux)
+STENCILA_R_EXT := stencila_.so
+STENCILA_R_PACKAGE := stencila_$(TAG).tar.gz
+endif
+ifeq ($(STENCILA_PLATFORM),msys)
+STENCILA_R_EXT := stencila_.dll
+STENCILA_R_PACKAGE := stencila_$(TAG).zip
+endif
 
-compile: version.hpp requirements $(STENCILA_R_OS)
-	g++ -shared $(STENCILA_R_OS) -ostencila.so $(R_LDFLAGS) $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
+
+%.o : %.cpp
+	$(CXX) -c -O2 -fPIC $(R_CPPFLAGS) $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
+
+$(STENCILA_R_EXT): version.hpp requirements $(STENCILA_R_OS)
+	$(CXX) -shared $(STENCILA_R_OS) -o$(STENCILA_R_EXT) $(R_LDFLAGS) $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
 
 # Update the description file with the correct version and date
 # The DESCRIPTION.template file is copied so that there is not a
@@ -65,39 +76,55 @@ rds: desc
 # Create the package
 # When you run 
 #   R CMD build stencila
-# it creates a tar.gz file but that file does not include stencila_.so
+# it creates a tar.gz file but that file does not include precomiled extensions (ie .so and .dll files)
 # So, the folowing line replaces R CMD build:
 #   tar cfz stencila_$(TAG).tar.gz stencila
-package: rds
-	rm -f stencila/src/*.o stencila/src/stencila.so stencila/src/symbols.rds #Remove any old build artifacts
-	cp stencila.so stencila/src/stencila_.so #Copy in the compiles extension
+$(STENCILA_R_PACKAGE): $(STENCILA_R_EXT) rds
+	rm -f stencila/src/*.o stencila/src/stencila.so stencila/src/stencila.dll #Remove any old build artifacts
+	cp $(STENCILA_R_EXT) stencila/src/$(STENCILA_R_EXT) #Copy in the compiled extension
+ifeq ($(STENCILA_PLATFORM),linux)
 	tar cfz stencila_$(TAG).tar.gz stencila #Tarball it up
-	mkdir -p repo/src/contrib #Make an R repository source package directory
-	mv stencila_$(TAG).tar.gz repo/src/contrib #Move it there
-	echo "tools::write_PACKAGES('repo/src/contrib',type='source')" | R --vanilla #Generate the PACKAGE file for the repo
+endif
+ifeq ($(STENCILA_PLATFORM),msys)
+	R CMD INSTALL --build stencila #Build it as per usual for windows
+endif
+
+
+# Deposit package into local repository
+ifeq ($(STENCILA_PLATFORM),linux)
+STENCILA_REPO_DIR := repo/src/contrib
+STENCILA_REPO_TYPE := source
+endif
+ifeq ($(STENCILA_PLATFORM),msys)
+STENCILA_REPO_DIR := repo/bin/windows/contrib/2.15
+STENCILA_REPO_TYPE := win.binary
+endif
+deposit: $(STENCILA_R_PACKAGE)
+	mkdir -p  $(STENCILA_REPO_DIR) #Make R package repository sub directory
+	cp $(STENCILA_R_PACKAGE) $(STENCILA_REPO_DIR) #Copy package there
+	Rscript -e "tools::write_PACKAGES('$(STENCILA_REPO_DIR)',type='$(STENCILA_REPO_TYPE)')" #Generate the PACKAGE file for the repo
+
 
 # Generate Stencila custom HTML documentation
 docs: rds
 	$(MAKE) -C docs
 
-build: compile package
-
 # Check the package by running R CMD check
-r_check: build
-	R CMD check repo/src/contrib/stencila_$(TAG).tar.gz
+r_check:
+	R CMD check stencila
 
 # Test the package by running unit tests
 # Install package in a testing directory and run unit tests from there
 # This is better than installing package in the users R library location
-unit_tests: build
+unit_tests: $(STENCILA_R_PACKAGE)
 	mkdir -p testing
-	R CMD INSTALL -l testing repo/src/contrib/stencila_$(TAG).tar.gz
+	R CMD INSTALL -l testing $(STENCILA_R_PACKAGE)
 	echo "setwd('testing'); library(stencila,lib.loc='.'); source('stencila/unitTests/do.svUnit.R')" | R --vanilla
 
 test: r_check unit_tests
 
 install:
-	R CMD INSTALL repo/src/contrib/stencila_$(TAG).tar.gz
+	R CMD INSTALL $(STENCILA_R_PACKAGE)
 
 clean:
-	rm -rf *.o *.so stencila.Rcheck testing
+	rm -rf *.o *.so *.dll stencila.Rcheck testing

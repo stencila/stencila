@@ -3,15 +3,18 @@ version.hpp
 stencila/DESCRIPTION
 stencila/NAMESPACE
 
-#Ignore files created by R build and check process
-repo
-stencila.Rcheck
+#Ignore files created by build
 *.o
 *.so
+*.dll
 stencila/src/symbols.rds
 stencila/man/*.Rd
+stencila*.tar.gz
+stencila*.zip
+repo
 
-#Ignore testing directory
+#Ignore testing files and directory
+*.Rcheck
 testing
 
 #Ignore IDE files

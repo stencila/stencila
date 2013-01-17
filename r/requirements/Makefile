@@ -39,8 +39,8 @@ roxygen2_$(ROXYGEN2_VERSION).tar.gz:
 	
 roxygen2_$(ROXYGEN2_VERSION): roxygen2_$(ROXYGEN2_VERSION).tar.gz
 	tar -xf roxygen2_$(ROXYGEN2_VERSION).tar.gz
-	mv roxygen2 
-	toruch roxygen2_$(ROXYGEN2_VERSION)
+	mv roxygen2 roxygen2_$(ROXYGEN2_VERSION)
+	touch roxygen2_$(ROXYGEN2_VERSION)
 
 roxygen2: roxygen2_$(ROXYGEN2_VERSION)
 ifeq ($(shell Rscript -e "cat(length(grep('roxygen2',installed.packages()))>0)"), FALSE)
