@@ -24,9 +24,13 @@ Rcpp_$(RCPP_VERSION).tar.gz:
 	
 Rcpp_$(RCPP_VERSION): Rcpp_$(RCPP_VERSION).tar.gz
 	tar -xf Rcpp_$(RCPP_VERSION).tar.gz
+	mv Rcpp Rcpp_$(RCPP_VERSION)
+	touch Rcpp_$(RCPP_VERSION)
 
 Rcpp: Rcpp_$(RCPP_VERSION)
-	R CMD INSTALL Rcpp
+ifeq ($(shell Rscript -e "cat(length(grep('Rcpp',installed.packages()))>0)"), FALSE)
+	R CMD INSTALL Rcpp_$(RCPP_VERSION)
+endif
 	
 ####################################################
 	
@@ -34,7 +38,11 @@ roxygen2_$(ROXYGEN2_VERSION).tar.gz:
 	wget http://cran.r-project.org/src/contrib/roxygen2_$(ROXYGEN2_VERSION).tar.gz
 	
 roxygen2_$(ROXYGEN2_VERSION): roxygen2_$(ROXYGEN2_VERSION).tar.gz
-	tar -xf roxygen2_0.10.2.tar.gz
+	tar -xf roxygen2_$(ROXYGEN2_VERSION).tar.gz
+	mv roxygen2 
+	toruch roxygen2_$(ROXYGEN2_VERSION)
 
 roxygen2: roxygen2_$(ROXYGEN2_VERSION)
-	R CMD INSTALL roxygen2
+ifeq ($(shell Rscript -e "cat(length(grep('roxygen2',installed.packages()))>0)"), FALSE)
+	R CMD INSTALL roxygen2_$(ROXYGEN2_VERSION)
+endif
