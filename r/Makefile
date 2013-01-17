@@ -4,27 +4,41 @@ include ../cpp/Makefile.common
 # So in some place use the latest tag instead of the full git generated version string
 TAG := $(shell git describe --abbrev=0)
 
-.PHONY: compile rds docs desc test install
+.PHONY: requirements compile rds docs desc test install
 
-all:  clean test
+all:  test
 
 # Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requirements:
-	make -C ../cpp/requirements all
-	make -C ../cpp/lib all
+	$(MAKE) -C ../cpp/requirements all
+	$(MAKE) -C ../cpp/lib all
+	$(MAKE) -C requirements all
 
-# Compilation
-
+# Get list of C++ files and corresponding .o files
 STENCILA_R_CPPS := $(wildcard *.cpp)
 STENCILA_R_OS := $(patsubst %.cpp,%.o,$(STENCILA_R_CPPS))
+
+# Get R and Rcpp compile flags
+R_CPPFLAGS := $(shell R CMD config --cppflags)
+R_LDFLAGS := $(shell R CMD config --ldflags)
 RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
 RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
 
+# Under MSYS it is necessary to change "c:" in paths to "/c/"
+# Obviously this will fail if R is not install on C drive
+# Compilation will also fail later if there are any space in the R home path
+ifeq ($(STENCILA_PLATFORM),msys)
+R_CPPFLAGS := $(shell echo "$(R_CPPFLAGS)" | sed "s/c:/\/c/g")
+R_LDFLAGS := $(shell echo "$(R_LDFLAGS)" | sed "s/c:/\/c/g")
+RCPP_CXXFLAGS := $(shell echo "$(RCPP_CXXFLAGS)" | sed "s/c:/\/c/g")
+RCPP_LDFLAGS := $(shell echo "$(RCPP_LDFLAGS)" | sed "s/c:/\/c/g")
+endif
+
 %.o : %.cpp
-	g++ -c -O2 -fPIC $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) -I/usr/share/R/include $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
+	g++ -c -O2 -fPIC $(R_CPPFLAGS) $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
 
 compile: version.hpp requirements $(STENCILA_R_OS)
-	g++ -shared $(STENCILA_R_OS) -ostencila.so -L/usr/lib/R/lib -lR $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
+	g++ -shared $(STENCILA_R_OS) -ostencila.so $(R_LDFLAGS) $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
 
 # Update the description file with the correct version and date
 # The DESCRIPTION.template file is copied so that there is not a

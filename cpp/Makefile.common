@@ -42,9 +42,10 @@ STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requi
 
 #Define libraries required
 # Note that -ldl -pthread should come after -lsqlite
-STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time \
-                    -lsqlite3 -ldl -lpthread \
-                    -lpugixml
+STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time -lsqlite3 -lpugixml
+ifeq ($(STENCILA_PLATFORM), linux)
+STENCILA_CPP_LIBS := $(STENCILA_CPP_LIBS) -ldl -lpthread
+endif
 
 #Get Stencila library version number
 STENCILA_VERSION :=  $(shell git describe)

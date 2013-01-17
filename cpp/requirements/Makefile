@@ -40,24 +40,24 @@ boost_$(BOOST_VERSION): boost_$(BOOST_VERSION).tar.bz2
 	tar --bzip2 -xf boost_$(BOOST_VERSION).tar.bz2
 	touch boost_$(BOOST_VERSION)
 
-# Boost is made with some options to override defaults
-#  --prefix=.  - so that boost installs into its own directory  (boost_$(BOOST_VERSION))
-# link=static - so that get statically compiled instead of dynamically compile libraries
+# Boost is built with some options to override defaults
+#  	--prefix=.  - so that boost installs into its own directory  (boost_$(BOOST_VERSION))
+# 	link=static - so that get statically compiled instead of dynamically compile libraries
 boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
 ifeq ($(STENCILA_PLATFORM), linux)
 	cd boost_$(BOOST_VERSION); \
 	./bootstrap.sh; \
 	./b2 --prefix=. link=static install
 endif
-ifeq ($(STENCILA_PLATFORM), win)
+# Under MSYS some differences are required
+#	- bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
+#	- project-config.jam must be edited to fix the [error](http://stackoverflow.com/a/5244844/1583041) produced by the above command
+#	- b2 must be called with "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
+#	- b2 must be called with "release" build otherwise defaults to debug AND release, which with "system" causes an error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
+ifeq ($(STENCILA_PLATFORM), msys)
 	cd boost_$(BOOST_VERSION); \
-	#It is necessary to build with mingw specified as toolset otherwise errors occur
 	./bootstrap.sh --with-toolset=mingw; \
-	#Fix the [error](http://stackoverflow.com/a/5244844/1583041) in the `project-config.jam` produced by the above command
 	sed -i "s/mingw/gcc/g" project-config.jam; \
-	#Invoke Boost.Build (b2)
-	#Specify "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
-	#Specify "release" build otherwise defaults to debug and release, which with "system" causes an error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
 	./b2 --prefix=. --layout=system release toolset=gcc link=static install
 endif
 
