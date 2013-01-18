@@ -104,7 +104,7 @@ deposit: $(STENCILA_R_PACKAGE)
 
 # Generate Stencila custom HTML documentation
 docs: rds
-	$(MAKE) -C docs
+	$(MAKE) -C docs all
 
 # Check the package by running R CMD check
 r_check:
