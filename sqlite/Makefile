@@ -1,11 +1,11 @@
-include ../cpp/Makefile.common
+include ../cpp/cpp.mk
 
 .PHONY: build test clean
 
 all: build test
 	
 build: version.hpp
-	g++ $(STENCILA_CPP_FLAGS) -shared -fPIC -O2 $(STENCILA_CPP_INCLUDE_DIRS) -ostencila.so stencila.cpp \
+	$(CXX) $(STENCILA_CPP_FLAGS) -shared -fPIC -O2 $(STENCILA_CPP_INCLUDE_DIRS) -ostencila.so stencila.cpp \
 		$(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
 
 test:

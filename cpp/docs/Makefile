@@ -1,5 +1,4 @@
-#Get version number from git
-VERSION = $(shell git describe)
+include $(dir $(lastword $(MAKEFILE_LIST)))/../../stencila.mk
 
 all:
 	#Using sed update PROJECT_NUMBER in Doxyfile
@@ -7,7 +6,7 @@ all:
 	#	$ = end of line
 	#The $ needs to be doubled for escaping make
 	cp Doxyfile.template Doxyfile
-	sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile
+	sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(STENCILA_VERSION)!' Doxyfile
 	doxygen Doxyfile
 	
 clean:

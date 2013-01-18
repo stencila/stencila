@@ -23,10 +23,8 @@ from subprocess import Popen, PIPE
 def shell(command):
     return Popen(command, shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip()
 
-#Get repository version
-version = shell('git describe')
-
 #Get Makefile variables. --quiet is needed to prevent make from echoing which directory it is in
+version = shell('make --no-print-directory --quiet version')
 cpp_flags = shell('make --no-print-directory --quiet cpp_flags').split()
 cpp_incl_dirs = shell('make --no-print-directory --quiet cpp_include_dirs').replace('-I','').split()
 cpp_lib_dirs = shell('make --no-print-directory --quiet cpp_library_dirs').replace('-L','').split()

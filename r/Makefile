@@ -1,8 +1,4 @@
-include ../cpp/Makefile.common
-
-# R does not like version numbers which are not in like X.Y.Z (or use a - instead of a .)
-# So in some place use the latest tag instead of the full git generated version string
-TAG := $(shell git describe --abbrev=0)
+include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/cpp.mk
 
 .PHONY: requirements compile rds docs desc test install
 
@@ -37,11 +33,11 @@ endif
 #Define the outputs
 ifeq ($(STENCILA_PLATFORM),linux)
 STENCILA_R_EXT := stencila_.so
-STENCILA_R_PACKAGE := stencila_$(TAG).tar.gz
+STENCILA_R_PACKAGE := stencila_$(STENCILA_VERSION).tar.gz
 endif
 ifeq ($(STENCILA_PLATFORM),msys)
 STENCILA_R_EXT := stencila_.dll
-STENCILA_R_PACKAGE := stencila_$(TAG).zip
+STENCILA_R_PACKAGE := stencila_$(STENCILA_VERSION).zip
 endif
 
 
@@ -62,7 +58,7 @@ $(STENCILA_R_EXT): version.hpp requirements $(STENCILA_R_OS)
 DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
 desc:
 	cp DESCRIPTION.template stencila/DESCRIPTION
-	sed -i 's!Version: .*$$!Version: $(TAG)!' stencila/DESCRIPTION
+	sed -i 's!Version: .*$$!Version: $(STENCILA_VERSION)!' stencila/DESCRIPTION
 	sed -i 's!Date: .*$$!Date: $(DATE)!' stencila/DESCRIPTION
 
 #Generate Rd files using roxygen
@@ -78,17 +74,18 @@ rds: desc
 #   R CMD build stencila
 # it creates a tar.gz file but that file does not include precomiled extensions (ie .so and .dll files)
 # So, the folowing line replaces R CMD build:
-#   tar cfz stencila_$(TAG).tar.gz stencila
+#   tar cfz stencila_$(STENCILA_VERSION).tar.gz stencila
 $(STENCILA_R_PACKAGE): $(STENCILA_R_EXT) rds
 	rm -f stencila/src/*.o stencila/src/stencila.so stencila/src/stencila.dll #Remove any old build artifacts
 	cp $(STENCILA_R_EXT) stencila/src/$(STENCILA_R_EXT) #Copy in the compiled extension
 ifeq ($(STENCILA_PLATFORM),linux)
-	tar cfz stencila_$(TAG).tar.gz stencila #Tarball it up
+	tar cfz stencila_$(STENCILA_VERSION).tar.gz stencila #Tarball it up
 endif
 ifeq ($(STENCILA_PLATFORM),msys)
 	R CMD INSTALL --build stencila #Build it as per usual for windows
 endif
 
+package : $(STENCILA_R_PACKAGE)
 
 # Deposit package into local repository
 ifeq ($(STENCILA_PLATFORM),linux)

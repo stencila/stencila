@@ -143,10 +143,17 @@ STENCILA_R_FUNC Stencil_dump(SEXP self){
 
 STENCILA_R_FUNC Stencil_render(SEXP self,SEXP context){
     STENCILA_R_BEGIN
-        //Convert the R-side context into a C++ RContext
         RContext rcontext(context);
-        //Render the stencil in the context
         from<Stencil>(self).render(rcontext);
         return nil;
+    STENCILA_R_END
+}
+
+STENCILA_R_FUNC Stencil_show(SEXP self,SEXP context){
+    STENCILA_R_BEGIN
+        RContext rcontext(context);
+        return wrap(
+            from<Stencil>(self).show(rcontext)
+        );
     STENCILA_R_END
 }

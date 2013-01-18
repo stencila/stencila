@@ -83,11 +83,14 @@ def startup():
             sections[len(sections)-1][1].append(rd)
 
 def version():
+    '''
+    Get the version of Stencila from the Makefile
+    '''
     return subprocess.Popen(
-        'git describe', 
+        'make --no-print-directory --quiet version', 
         stdout=subprocess.PIPE,
         shell=True
-    ).communicate()[0]
+    ).communicate()[0].strip()
 
 def convert(rd):
     return subprocess.Popen(

@@ -1,4 +1,4 @@
-include ../cpp/Makefile.common
+include ../cpp/cpp.mk
 
 .PHONY: build dist test clean
 
@@ -9,7 +9,9 @@ requirements:
 	make -C ../cpp/requirements all
 	make -C ../cpp/lib all
 
-# Make taks then get called by setup.py
+# Tasks that get called by setup.py to return variables
+version:
+	@echo $(STENCILA_VERSION)
 cpp_flags:
 	@echo $(STENCILA_CPP_FLAGS)
 cpp_include_dirs:
@@ -21,11 +23,11 @@ cpp_libs:
 
 #Separate build step
 build: requirements
-	python2.7 setup.py build
+	python setup.py build
 	
 #Create binary distribtion for the platform
 dist: build
-	python2.7 setup.py bdist_egg
+	python setup.py bdist_egg
 	
 #Install in tests virtual environment.
 #Create a virtual environment first, activate it and then install, then run tests
@@ -36,7 +38,7 @@ test: dist
 	make -C tests all ;
 	
 install:
-	python2.7 setup.py install
+	python setup.py install
 	
 clean:
 	rm -rf build dist tests/env

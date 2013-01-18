@@ -30,6 +30,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/filesystem.hpp>
 
 #include <stencila/xml.hpp>
+#include <stencila/json.hpp>
+#include <stencila/http.hpp>
 
 namespace Stencila {
 
@@ -146,10 +148,10 @@ private:
         //! @param exc
         //! @return 
         catch(std::exception& exc){
-            Xml::NodeSetAttribute(node,"data-error",exc.what());
+            Xml::Document::set(node,"data-error",exc.what());
         }
         catch(...){
-            Xml::NodeSetAttribute(node,"data-error","unknown error");
+            Xml::Document::set(node,"data-error","unknown error");
         }
     }
     
@@ -180,10 +182,10 @@ private:
             node.text().set(text.c_str());
         }
         catch(std::exception& exc){
-            Xml::NodeSetAttribute(node,"data-error",exc.what());
+            Xml::Document::set(node,"data-error",exc.what());
         }
         catch(...){
-            Xml::NodeSetAttribute(node,"data-error","unknown error");
+            Xml::Document::set(node,"data-error","unknown error");
         }
     }
 
@@ -210,7 +212,7 @@ private:
         //If test passes, render all children
         if(result){
             render_children(node,context);
-            Xml::NodeSetAttribute(node,"data-active","true");
+            Xml::Document::set(node,"data-active","true");
         }
         //If test fails, remove the data-active attribute (if it exists)
         else {
@@ -231,20 +233,20 @@ private:
         Xml::Node active;
         for(Xml::Node child : node.children()){
             child.remove_attribute("data-active");
-            Xml::Attribute when = Xml::NodeGetAttribute(child,"data-value");
+            Xml::Attribute when = Xml::Document::get(child,"data-value");
             if(when){
                 bool equal = context.match(when.value());
                 if(equal){
                     active = child;
                     break;
                 }
-            } else if(Xml::NodeGetAttribute(child,"data-default")){
+            } else if(Xml::Document::get(child,"data-default")){
                 active = child;
             }
         }
         if(active){
             //Set as active
-            Xml::NodeSetAttribute(active,"data-active","true");
+            Xml::Document::set(active,"data-active","true");
             //Render it
             render_element(active,context);
         }
@@ -263,7 +265,7 @@ private:
         // Initialise the loop
         bool more = context.begin(item,items);
         // Get the first child element of this node for replication
-        Xml::Node first = node.find_child(Xml::NodeIsElement);
+        Xml::Node first = node.find_child(Xml::Document::is_element);
         // Delete all other nodes
         for(Xml::Node child : node.children()){
             if(child!=first) node.remove_child(child);
@@ -293,7 +295,7 @@ private:
 
         //Remove any existing children that have been included previously
         for(Xml::Node child : node.children()){
-            if(Xml::NodeHasAttribute(child,"data-included")){
+            if(Xml::Document::has(child,"data-included")){
                 node.remove_child(child);
             }
         }
@@ -302,7 +304,7 @@ private:
         Stencil source(identifier);
         Xml::Document sink;
         // Check to see if a subselection of modes is to be included
-        Xml::Attribute select = Xml::NodeGetAttribute(node,"data-select");
+        Xml::Attribute select = Xml::Document::get(node,"data-select");
         if(select){
             Xml::Nodes included = source.all(select.value());
             for(auto i=included.begin();i!=included.end();i++) sink.append_copy(i->node());
@@ -318,7 +320,7 @@ private:
         for(Xml::Node child : node.children()){
             for(unsigned int modifier=0;modifier<5;modifier++){
                 std::string attr_name = "data-" + modifiers[modifier];
-                Xml::Attribute attr = Xml::NodeGetAttribute(child,attr_name);
+                Xml::Attribute attr = Xml::Document::get(child,attr_name);
                 if(attr){
                     Xml::Nodes targets = sink.all(attr.value());
                     for(auto i=targets.begin();i!=targets.end();i++){
@@ -355,13 +357,13 @@ private:
 
         //Append new, included children
         for(Xml::Node child : sink.children()){
-            Xml::NodeSetAttribute(child,"data-included","true");
+            Xml::Document::set(child,"data-included","true");
             node.append_copy(child);
         }
 
         //Create a new context with parameters
         //Determine if there are any node parameters so that we don't create a new context block unecessarily
-        bool params = Xml::NodeHasAttribute(node,"data-param");
+        bool params = Xml::Document::has(node,"data-param");
         if(params){
             //Enter a new anonymous block
             context.enter();
@@ -484,15 +486,103 @@ public:
     std::string uri(void) const {
         return uri_;
     }
+    
+    //! @name RESTful interface
+    //! @{
+    
+    Json::Document rest(const Http::Method& method, const Json::Document& json){
+        switch(method.type){
+            case Http::Method::POST: return post(json);
+            case Http::Method::GET: return get();
+            case Http::Method::PUT: return put(json);
+            case Http::Method::PATCH: return patch(json);
+            case Http::Method::DELETE: return del();
+            default: STENCILA_THROW(Exception,"Unhandled HTTP method: "+method.string())
+        }
+    }
+    
+    std::string rest(const std::string& method, const std::string& json){
+        return rest(Http::Method(method),Json::Document(json)).dump();
+    }
+    
+    Json::Document post(const Json::Document& json){
+        Json::Document out;
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document get(void){
+        Json::Document out;
+        out.add("content",dump());
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document put(const Json::Document& in){
+        Json::Document out;
+        if(in.has("content")) load(in.as<std::string>("content"));
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document patch(const Json::Document& in){
+        Json::Document out;
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document del(void){
+        Json::Document out;
+        out.add("status","ok");
+        return out;
+    }
+    
+    //! @}
+    
+    //! @name Rendering and display methods
+    //! These methods provide alternative ways of rendering a stencil
+    //! @{
 
-    //! @brief 
-    //! @param context
-    //! @return 
+    //! @brief Render a stencil into an HTML fragment
+    //! @param context The context in which the stencil will be rendered
+    //! @return The stencil
     template<typename Context>
     Stencil& render(Context& context){
         render_element(*this,context);
         return *this;
     }
+    
+    //! @brief Render a stencil and wrap it a complete HTML page for display as a single web page
+    //! @return A HTML page
+    template<typename Context>
+    std::string show(Context& context){
+        using namespace Xml;
+        Document xml;
+        Node html = xml.append("html");
+        
+        Node head = xml.append(html,"head");
+        xml.append(head,"title",id());
+        xml.append(head,"meta",{
+            {"charset","utf-8"}
+        },"");
+        xml.append(head,"link",{
+            {"rel","stylesheet"},
+            {"type","text/css"},
+            {"href","stencil.css"},
+        },"");
+        xml.append(head,"script",{
+            {"type","text/javascript"},
+            {"href","stencil.js"},
+        },"");
+        
+        Node body = xml.append(html,"body");
+        render(context);
+        xml.append(body,*this);
+        
+        return xml.dump();
+    }
+    
+    //! @}
 };
 
 }

@@ -750,6 +750,8 @@ setMethod("render",c("ANY","ANY"),function(stencil,context){
   return(stencil$dump())
 })
 
+
+
 #' Create a stencil rendering context
 #' 
 #' Stencils are rendered within a context. 

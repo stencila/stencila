@@ -1,4 +1,10 @@
+include ../stencila.mk
+
 all: output
+
+# Required by r.py for getting Stencila version
+version:
+	@echo $(STENCILA_VERSION)
 
 prepare_cpp:
 	#Create working directory
@@ -20,8 +26,8 @@ prepare_r:
 	mkdir -p working/r
 	#Install R package in local directory
 	#library(stencila,lib.loc='.') is then used later used inside R scripts
-	cd ../r ; make build
-	cd working/r ; R CMD INSTALL -l . ../../../r/builds/stencila_latest.tar.gz
+	cd ../r ; make package deposit
+	cd working/r ; R CMD INSTALL -l . ../../../r/repo/contrib/src
 
 output: prepare_cpp prepare_py prepare_r
 	python guide.py

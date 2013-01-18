@@ -1,4 +1,4 @@
-include ../Makefile.common
+include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
 all: tests.test
 

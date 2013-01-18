@@ -1,4 +1,4 @@
-include ../Makefile.common
+include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
 STENCILA_CPPS := $(shell find ../stencila -name *.cpp)
 STENCILA_OS := $(patsubst ../stencila/%.cpp,%.o,$(STENCILA_CPPS))

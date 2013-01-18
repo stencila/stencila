@@ -148,7 +148,7 @@ public:
 
     //! @brief Print document to a string
     //! @return JSON string of document
-    std::string print(void) {
+    std::string dump(void) {
           rapidjson::StringBuffer buffer;
           rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
           Accept(writer);

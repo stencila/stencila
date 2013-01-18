@@ -239,8 +239,7 @@ library(stencila,lib.loc='.')
         
         #Obtain repository version number
         from subprocess import Popen, PIPE
-        p = Popen('git describe', shell=True,stdout=PIPE, stderr=PIPE)
-        version, stderr = p.communicate()
+        p = Popen('make --no-print-directory --quiet version', shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip()
         
         #Wrap html
         html = self.template%{

@@ -1,4 +1,4 @@
-include ../Makefile.common
+include  $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
 BOOST_VERSION = 1_50_0
 CPP_NETLIB_VERSION = 0.9.4

@@ -69,7 +69,15 @@ BOOST_AUTO_TEST_CASE(render_include){
     )");
     EchoContext context;
     stencil.render(context);
-    std::cout<<stencil.dump();
+    std::cout<<stencil.dump()<<"\n\n";
+}
+
+BOOST_AUTO_TEST_CASE(show){
+    Stencil stencil(R"(html://
+        <p>Hello world</p>
+    )");
+    EchoContext context;
+    std::cout<<stencil.show(context)<<"\n\n";
 }
 
 void stem_html(std::string stem,std::string html) {
