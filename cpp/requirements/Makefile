@@ -14,9 +14,9 @@ SQLITE_VERSION = 3071300
 # change the times of those directories
 MAKEFLAGS += --check-symlink-times
 
-all: boost pugixml rapidjson smhasher sqlite
+all: boost cpp-netlib pugixml rapidjson smhasher sqlite tidy-html5
 
-.PHONY: boost cpp-netlib pugixml rapidjson smhasher sqlite
+.PHONY: boost cpp-netlib pugixml rapidjson smhasher sqlite tidy-html5
 
 ####################################################
 # include and lib directories 
@@ -81,29 +81,45 @@ boost: include lib include/boost lib/libboost_system.a
 #
 
 cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz:
-	wget https://github.com/downloads/cpp-netlib/cpp-netlib/cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
+	wget --no-check-certificate https://github.com/downloads/cpp-netlib/cpp-netlib/cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
 
 cpp-netlib-$(CPP_NETLIB_VERSION): cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
 	tar xzf cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
 
+# cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
+# some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
+CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_CXX_FLAGS=-DOPENSSL_NO_SSL2
+# Under MSYS some additional CMake flags need to be specified
+# The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
+ifeq ($(STENCILA_PLATFORM), msys)
+CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -I/usr/include"
+endif
 cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile: cpp-netlib-$(CPP_NETLIB_VERSION)
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
-	export BOOST_ROOT=../$(BOOST_VERSION) ; cmake -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) .
+	export BOOST_ROOT=../boost_$(BOOST_VERSION) ; \
+	cmake $(CPP_NETLIB_CMAKE_FLAGS)
 
 cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
-	make
+	make cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri
 
 # Link to cpp-netlib include directory and each of the statically compiled libraries
 # cpp-netlib is going through process of inclusion in boost
 # Until cpp-netlib is fully integrated into boost we use "cpp-netlib/network' instead of "boost/network"
 include/cpp-netlib: cpp-netlib-$(CPP_NETLIB_VERSION)
+ifeq ($(STENCILA_PLATFORM), linux)
 	ln -sfT ../cpp-netlib-$(CPP_NETLIB_VERSION)/boost/ include/cpp-netlib
+endif
+ifeq ($(STENCILA_PLATFORM), msys)
+	junction include/cpp-netlib cpp-netlib-$(CPP_NETLIB_VERSION)/boost/include/cpp-netlib
+	touch include/cpp-netlib
+endif
 
 lib/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a
 	for file in $$(ls cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/*.a); do ln -sf ../$$file lib; done
 
-cpp-netlib: include lib include/cpp-netlib
+cpp-netlib: include lib include/cpp-netlib lib/libcppnetlib-client-connections.a
+
 
 ####################################################
 # pugixml
@@ -195,3 +211,30 @@ lib/libsqlite3.a: sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a
 	ln -sf ../sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a lib/libsqlite3.a
 
 sqlite: include lib include/sqlite3.h include/sqlite3ext.h lib/libsqlite3.a
+
+###################################################
+# tidy-html5
+# http://w3c.github.com/tidy-html5/
+
+tidy-html5.zip:
+	wget -Otidy-html5.zip  https://github.com/w3c/tidy-html5/archive/master.zip
+
+tidy-html5-master: tidy-html5.zip
+	unzip tidy-html5.zip
+
+tidy-html5-master/lib/libtidy.a:
+	cd tidy-html5-master/build/gmake && make all;
+
+include/tidy-html5: tidy-html5-master
+ifeq ($(STENCILA_PLATFORM), linux)
+	ln -sfT ../tidy-html5-master/include include/tidy-html5
+endif
+ifeq ($(STENCILA_PLATFORM), msys)
+	junction ../tidy-html5-master/include include/tidy-html5
+	touch include/tidy-html5
+endif
+
+lib/libtidy-html5.a: tidy-html5-master/lib/libtidy.a
+	ln -sf ../tidy-html5-master/lib/libtidy.a lib/libtidy-html5.a
+
+tidy-html5: include include/tidy-html5 lib lib/libtidy-html5.a

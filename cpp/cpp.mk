@@ -4,7 +4,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))/../stencila.mk
 STENCILA_CPP_HOME := $(STENCILA_HOME)/cpp
 
 #Define compiler flags required
-STENCILA_CPP_FLAGS := -std=c++0x -Wall
+STENCILA_CPP_FLAGS := -std=c++0x -Wall -DSTENCILA_HOME='"$(STENCILA_HOME)"'
 
 #Define directories for includes and libs
 STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requirements/include
@@ -12,7 +12,7 @@ STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requi
 
 #Define libraries required
 # Note that -ldl -pthread should come after -lsqlite
-STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time -lsqlite3 -lpugixml
+STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time -lboost_thread -lcppnetlib-client-connections -lcppnetlib-server-parsers -lcppnetlib-uri -lsqlite3 -lpugixml -ltidy-html5 -lssl -lcrypto
 ifeq ($(STENCILA_PLATFORM), linux)
 STENCILA_CPP_LIBS := $(STENCILA_CPP_LIBS) -ldl -lpthread
 endif

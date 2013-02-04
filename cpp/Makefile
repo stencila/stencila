@@ -1,11 +1,11 @@
-.PHONY : requirements library docs tests
+.PHONY : requirements lib docs tests
 
-all: requirements library docs tests
+all: requirements lib docs tests
 
 requirements:
 	$(MAKE) -C requirements all
 	
-library:
+lib:
 	$(MAKE) -C lib all
 	
 docs:
