@@ -165,6 +165,25 @@ iterate.default <- function(container){
 # other iterator classes are written (e.g. DataframeIterator, MatrixIterator)
 
 ########################################################################
+# Server
+########################################################################
+
+#' The Server class
+#'
+#' @name Server
+#' @aliases Server-class
+#' @seealso Server-start Server-stop
+#' @exportClass Server
+#' @export
+#'
+#' @examples
+#' # Create a Server...
+#' server <- Server()
+class_('Server')
+Server <- function() new("Server")
+
+
+########################################################################
 # Dataset
 ########################################################################
 
