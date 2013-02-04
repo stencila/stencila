@@ -5,7 +5,7 @@
 [Stencila](http://stenci.la) is a platform for doing stuff with data. 
 This is an open source library for the platform. 
 We're too busy coding to write much more about it than that. 
-But hopefully, as the library matures, what we mean by "doing stuff" should become clear.
+But, as the library matures, what we mean by "doing stuff" should become clear.
 
 ##Documentation
 
@@ -15,9 +15,37 @@ The [user guide](http://docs.stenci.la/guide/intro.html) is still in a very earl
 
 ##Installation
 
-Right now, the library is in a very preliminary state. 
-You can download that and play with that if you like, but we don't recommend it quite yet!
-If you really do want to give it a try see some of the [prerequisites](https://github.com/stencila/stencila/tree/master/cpp/requirements)
+Right now the Stencila library is in a very preliminary state.
+We don't recommend actually using it quite yet!
+But, if you really, really want to, then...
+
+### C++ library
+
+The Stencila C++ library is available for [download](http://get.stenci.la/cpp/stencila.cpp.tar.gz):
+
+```sh
+wget http://get.stenci.la/cpp/stencila.cpp.tar.gz | tar xvf
+```
+
+### R package
+
+The Stencila R package is available from our R package repository:
+
+```r
+install.packages('stencila',repo='http://get.stenci.la/r')
+'''
+
+## Building
+
+On Linux, if you have the normal build tools like g++ and make install, then building the Stencila library should be
+fairly easy. For a start, try:
+
+```sh
+make all
+```
+
+On Windows, our Makefiles are configured to work using [MSYS](http://www.mingw.org/wiki/MSYS). We have written some [instructions for setting up a 
+MSYS environment](https://github.com/stencila/stencila/tree/master/building-on-windows.md) suitable for building Stencila.
 
 ## Testing
 
