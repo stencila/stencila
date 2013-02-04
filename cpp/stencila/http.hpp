@@ -55,7 +55,7 @@ public:
         else if(method=="CONNECT") type = CONNECT;
         else if(method=="PATCH") type = PATCH;
         else {
-            STENCILA_THROW(Exception,"Unknown HTTP method: "+type);
+            STENCILA_THROW(Exception,"Unknown HTTP method: "+method);
         }
     }
     

@@ -94,13 +94,10 @@ CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DC
 ifeq ($(STENCILA_PLATFORM), msys)
 CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -I/usr/include"
 endif
-cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile: cpp-netlib-$(CPP_NETLIB_VERSION)
+cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
 	export BOOST_ROOT=../boost_$(BOOST_VERSION) ; \
-	cmake $(CPP_NETLIB_CMAKE_FLAGS)
-
-cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/Makefile
-	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
+	cmake $(CPP_NETLIB_CMAKE_FLAGS); \
 	make cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri
 
 # Link to cpp-netlib include directory and each of the statically compiled libraries
