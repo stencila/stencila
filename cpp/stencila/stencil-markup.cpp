@@ -234,9 +234,9 @@ struct Line {
         return text;
     }
     
-    void load(Stencil& stencil){
+    void make_top(Xml::Node node){
         for(auto child=children.begin();child!=children.end();child++){
-            (*child)->make(stencil.root());
+            (*child)->make(node);
         }
     }
     
@@ -264,22 +264,22 @@ struct Line {
         if(decendents.length()>0 and comment.length()>0) comment += "\n";
         comment += decendents;
         comment += " ";
-        Xml::NodeAppendComment(node,comment);
+        Xml::Document::append_comment(node,comment);
     }
     
     void make_code(Xml::Node node,const smatch& tree){
-        Xml::Node self = Xml::NodeAppend(node,"script");
+        Xml::Node self = Xml::Document::append(node,"script");
         std::string lang = tree.str();
         //Add the type attribute
-        Xml::NodeSetAttribute(self,"type","text/"+lang);
+        Xml::Document::set(self,"type","text/"+lang);
         //Add a comment token to escape "<![CDATA[" for HTML parsers
-        if(lang=="r" or lang=="py") Xml::NodeAppendText(self,"#");
+        if(lang=="r" or lang=="py") Xml::Document::append_text(self,"#");
         //Concatenate the code
         // A starting newline is required to escape the commented "<![CDATA[" line
         std::string code = "\n" + descendent_content();
         //Add a comment token to escape "]]>". This needs to be added to the code string!
         if(lang=="r" or lang=="py") code += "#";
-        Xml::NodeAppendCData(self,code);
+        Xml::Document::append_cdata(self,code);
     }
     
     void make_element(Xml::Node node,const smatch& tree){
@@ -293,38 +293,38 @@ struct Line {
         } else {
             element_name = "div";
         }
-        Xml::Node self = Xml::NodeAppend(node,element_name);
+        Xml::Node self = Xml::Document::append(node,element_name);
         for(auto branch = tree.nested_results().begin();branch!=tree.nested_results().end();branch++){
             const void* id = branch->regex_id();
             auto nested = branch->nested_results().begin();
             if(id==directive_include_) {
                 auto identifier = nested;
-                Xml::NodeSetAttribute(self,"data-include",identifier->str());
+                Xml::Document::set(self,"data-include",identifier->str());
                 if(branch->nested_results().size()>1){
                     auto selector = ++nested;
-                    Xml::NodeSetAttribute(self,"data-select",selector->str());
+                    Xml::Document::set(self,"data-select",selector->str());
                 }
             }
             else if(id==directive_for_) {
                 auto item = nested;
                 auto expr = ++nested;
-                Xml::NodeSetAttribute(self,"data-for",item->str()+":"+expr->str());
+                Xml::Document::set(self,"data-for",item->str()+":"+expr->str());
             }
             else if(id==directive_arg_ or id==directive_modifier_) {
                 auto name = nested;
                 auto arg = ++nested;
-                Xml::NodeSetAttribute(self,"data-"+name->str(),arg->str());
+                Xml::Document::set(self,"data-"+name->str(),arg->str());
             }
             else if(id==directive_noarg_){
-                Xml::NodeSetAttribute(self,"data-"+branch->str(),"");
+                Xml::Document::set(self,"data-"+branch->str(),"");
             }
             else if(id==attr_id_) {
                 //Remove leading "#"
-                Xml::NodeSetAttribute(self,"id",branch->str(0).erase(0,1));
+                Xml::Document::set(self,"id",branch->str(0).erase(0,1));
             }
             else if(id==attr_class_){
                 //Remove leading "."
-                Xml::NodeAppendAttribute(self,"class",branch->str(0).erase(0,1));
+                Xml::Document::add(self,"class",branch->str(0).erase(0,1));
             }
             else if(id==attr_assign_){
                 auto nested = branch->nested_results().begin();
@@ -334,7 +334,7 @@ struct Line {
                 std::string string = value->str();
                 string.erase(0,1);
                 string.erase(string.length()-1,1);
-                Xml::NodeSetAttribute(self,name->str(),string);
+                Xml::Document::set(self,name->str(),string);
             }
             else if(id==text_) make_text(self,*branch);
         };
@@ -347,7 +347,7 @@ struct Line {
     void make_text(Xml::Node node,const smatch& tree){
         for(auto branch = tree.nested_results().begin();branch!=tree.nested_results().end();branch++){
             const void* id = branch->regex_id();
-            if(id==chars_) Xml::NodeAppendText(node,branch->str());
+            if(id==chars_) Xml::Document::append_text(node,branch->str());
             if(id==inlinee_) make_inline(node,*branch);
         }
     }
@@ -360,8 +360,8 @@ struct Line {
             element_name = branch->str();
             expression = ++branch;
         }
-        Xml::Node self = Xml::NodeAppend(node,element_name);
-        Xml::NodeSetAttribute(self,"data-text",expression->str());
+        Xml::Node self = Xml::Document::append(node,element_name);
+        Xml::Document::set(self,"data-text",expression->str());
     }
     
     std::string print(std::string indent=""){
@@ -433,19 +433,14 @@ Line parse(const std::string& stem) {
 
 } // namespace
 
-Stencil& Stencil::stem(const std::string& stem){
-    parse(stem).load(*this);
+Stencil& Stencil::from_stem(const std::string& stem){
+    from_scratch();
+    parse(stem).make_top(body());
     return *this;
 }
 
-std::string Stencil::stem_to_string(const std::string& stem){
+std::string Stencil::stem_print(const std::string& stem){
     return parse(stem).print();
-}
-
-std::string Stencil::stem_to_html(const std::string& stem){
-    Stencil stencil;
-    parse(stem).load(stencil);
-    return stencil.dump();
 }
 
 } //namespace Stencila

@@ -83,10 +83,7 @@ class Array{};
 class Document : public rapidjson::Document {
 public:
 
-    Document(void){
-    }
-
-    Document(const std::string& json){
+    Document(const std::string& json="{}"){
           parse(json);
     }
 
@@ -202,7 +199,6 @@ AS(std::string,GetString)
 
 #undef AS
 
-//! @class Document
 template<>
 inline
 std::vector<int> Document::as<std::vector<int>>(const Value& value) const {
@@ -213,8 +209,8 @@ std::vector<int> Document::as<std::vector<int>>(const Value& value) const {
     return vec;
 }
 
-//! @class Document
 template<typename Type>
+inline
 Document& Document::add(Value& to,const std::string& name,const Type& value) {
     AllocatorType& allocator = GetAllocator();
     Value name_value(name.c_str(),name.length(),allocator);
@@ -224,6 +220,7 @@ Document& Document::add(Value& to,const std::string& name,const Type& value) {
 }
 
 template<>
+inline
 Document& Document::add(Value& to,const std::string& name,const std::string& value) {
     AllocatorType& allocator = GetAllocator();
     Value name_value(name.c_str(),name.length(),allocator);

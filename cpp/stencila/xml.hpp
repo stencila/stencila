@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012 Stencila Ltd
+Copyright (c) 2012-2013 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -144,7 +144,16 @@ public:
     
     //! @}
     
-    Node append(Node node, Node child){
+    //! @brief Prepend a HTML5 document type declaration to the document
+    //!
+    //! DOCTYPE nodes must be the first in the document
+    Node prepend_doctype_html5(void){
+        Node doctype = prepend_child(pugi::node_doctype);
+        doctype.set_value("html");
+        return doctype;
+    }
+    
+    static Node append(Node node, Node child){
         node.append_copy(child);
         return child;
     }
@@ -152,7 +161,7 @@ public:
         return append(*this,child);
     }
 
-    void append(Node node, const Document& doc){
+    static void append(Node node, const Document& doc){
         //Note that the children of document, not the document itself, must be appended
         for(Node child : doc.children()) node.append_copy(child);
     }
@@ -160,7 +169,7 @@ public:
         return append(*this,doc);
     }
 
-    Node append(Node node,const std::string& tag) {
+    static Node append(Node node,const std::string& tag) {
         Node child = node.append_child(tag.c_str());
         return child;
     }
@@ -168,7 +177,7 @@ public:
         return append(*this,tag);
     }
 
-    Node append(Node node,const std::string& tag, const std::string& text) {
+    static Node append(Node node,const std::string& tag, const std::string& text) {
         Node child = append(node,tag);
         child.append_child(pugi::node_pcdata).set_value(text.c_str());
         return child;
@@ -177,7 +186,7 @@ public:
         return append(*this,tag,text);
     }
     
-    Node append(Node node,const std::string& tag, const std::vector<std::pair<std::string,std::string>>& attributes, const std::string& text = "") {
+    static Node append(Node node,const std::string& tag, const std::vector<std::pair<std::string,std::string>>& attributes, const std::string& text = "") {
         Node child = append(node,tag);
         typedef std::pair<std::string,std::string> Attribute;
         for(Attribute attribute : attributes){
@@ -190,7 +199,7 @@ public:
         return append(*this,tag,attributes,text);
     }
 
-    Node append_text(Node node,const std::string& text){
+    static Node append_text(Node node,const std::string& text){
         Node child = node.append_child(pugi::node_pcdata);
         child.text().set(text.c_str());
         return child;
@@ -199,7 +208,7 @@ public:
         return append_text(*this,text);
     }
 
-    Node append_cdata(Node node,const std::string& text){
+    static Node append_cdata(Node node,const std::string& text){
         Node child = node.append_child(pugi::node_cdata);
         child.text().set(text.c_str());
         return child;
@@ -208,7 +217,7 @@ public:
         return append_cdata(*this,text);
     }
 
-    Node append_comment(Node node,const std::string& text){
+    static Node append_comment(Node node,const std::string& text){
         Node child = node.append_child(pugi::node_comment);
         child.set_value(text.c_str());
         return child;
@@ -216,8 +225,8 @@ public:
     Node append_comment(const std::string& text){
         return append_comment(*this,text);
     }
-
-    Node append_xml(Node node,const std::string& xml){
+    
+    static Node append_xml(Node node,const std::string& xml){
         pugi::xml_document doc;
         pugi::xml_parse_result result = doc.load(xml.c_str());
         if(not result){
@@ -228,6 +237,13 @@ public:
     Node append_xml(const std::string& xml){
         return append_xml(*this,xml);
     }
+    
+    static void remove(Node node, Node child){
+        node.remove_child(node);
+    }
+    void remove(Node child){
+        remove(*this,child);
+    }
 
     Document& load(const std::string& xml){
         pugi::xml_parse_result result = pugi::xml_document::load(xml.c_str());
@@ -236,35 +252,68 @@ public:
         }
         return *this;
     }
-
-    std::string dump(void) const {
-        std::ostringstream out;
-        save(out,"\t",pugi::format_raw | pugi::format_no_declaration);
-        return out.str();
-    }
-
-    std::string print(void) const {
-        std::ostringstream out;
-        save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
-        return out.str();
-    }
-
+    
     //! @brief 
     //! @param filename
     //! @return 
     Document& read(const std::string& filename){
-    pugi::xml_parse_result result = pugi::xml_document::load_file(filename.c_str());
+        pugi::xml_parse_result result = pugi::xml_document::load_file(filename.c_str());
         if(not result){
             STENCILA_THROW(Exception,result.description());
         }
         return *this;
     }
     
+    std::string dump(Node node,bool indent=false) const {
+        std::ostringstream out;
+        if(!indent){
+            node.print(out,"",pugi::format_raw);
+        } else {
+            node.print(out,"\t",pugi::format_indent);
+        }
+        return out.str();
+    }
+    
+    std::string dump(bool indent=false, bool declaration=false) const {
+        //Defaults are indent ON and declaration OFF
+        //pugi::format_indent = no indentation and no line breaks
+        std::ostringstream out;
+        if(!indent){
+            if(!declaration) save(out,"",pugi::format_raw | pugi::format_no_declaration);
+            else save(out,"",pugi::format_raw);
+        } else {
+            if(!declaration) save(out,"\t",pugi::format_indent | pugi::format_no_declaration);
+            else save(out,"\t",pugi::format_indent);
+        }
+        return out.str();
+    }
+    
+    void write(const std::string& filename, bool indent=false, bool declaration=false) const {
+        std::ofstream file(filename);
+        file<<dump(indent,declaration);
+    }
+    
+ 
+    static Node find(Node node, const std::string& name) {
+        return node.find_node([&name](Node node){return node.name()==name;});
+    }
+    Node find(const std::string& name) const {
+        return find(*this,name);
+    }
+
+    static Node find(Node node, const std::string& name,const std::string& attr,const std::string& value) {
+        return node.find_node([&name,&attr,&value](Node node){return node.name()==name and node.attribute(attr.c_str()).value()==value;});
+    }
+    Node find(const std::string& name,const std::string& attr,const std::string& value) const {
+        return find(*this,name,attr,value);
+    }
+
+    
     //! @brief 
     //! @param selector
     //! @return 
-    Node one(const std::string& css_selector){
-        std::string xpath = CssToXpath(css_selector);
+    Node one(const std::string& selector){
+        std::string xpath = CssToXpath(selector);
         try {
             return select_single_node(xpath.c_str()).node();
         } catch (const pugi::xpath_exception& e){
@@ -275,8 +324,8 @@ public:
     //! @brief 
     //! @param selector
     //! @return 
-    Nodes all(const std::string& css_selector){
-        std::string xpath = CssToXpath(css_selector);
+    Nodes all(const std::string& selector){
+        std::string xpath = CssToXpath(selector);
         try {
             return select_nodes(xpath.c_str());
         } catch (const pugi::xpath_exception& e){
@@ -287,8 +336,8 @@ public:
     //! @brief 
     //! @param selector
     //! @return 
-    Nodes operator[](const std::string& css_selector){
-        return all(css_selector);
+    Nodes operator[](const std::string& selector){
+        return all(selector);
     }
 
 };

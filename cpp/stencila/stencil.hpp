@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012 Stencila Ltd
+Copyright (c) 2012-2013 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -23,97 +23,210 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 
-#include <stencila/xml.hpp>
-#include <stencila/json.hpp>
+#include <stencila/registry.hpp>
 #include <stencila/http.hpp>
+#include <stencila/html.hpp>
+#include <stencila/json.hpp>
+#include <stencila/rest-resource.hpp>
+#include <stencila/context.hpp>
 
 namespace Stencila {
 
-template<class Derived>
-class Context {
+//! [Polyglot markup](http://www.w3.org/TR/html-polyglot/) is both HTML5 and XML. Some people call it XHTML5
+//! There is a good summary of what XHTML5 requires [here](http://blog.whatwg.org/xhtml5-in-a-nutshell).
+//! Note that this page should be served with the right MIME type i.e. "Content-Type: application/xhtml+xml" (although this is 
+//! not supported by older versions of Microsoft IE (< 8.0?))
+class Stencil : public Html::Document, public Rest::Resource<Stencil> {
+private:
+
+    Id id_;
+    std::vector<std::string> keywords_;
+
 public:
 
-};
-
-class EchoContext : public Context<EchoContext> {
-public:
-
     //! @brief 
-    //! @param name
-    //! @param expression
-    void set(const std::string& name, const std::string& expression){
-    }
-
-    //! @brief 
-    //! @param code
-    void script(const std::string& code){
-    }
-
-    //! @brief 
-    //! @param expression
+    //! @param content
     //! @return 
-    std::string text(const std::string& expression){
-        return "text("+expression+")";
+    Stencil(const std::string& content=""){
+        /*
+        html://
+        stem://
+        
+        file://
+        http://
+        
+        id://
+        find://
+        */
+        if(content.length()==0){
+            from_scratch();
+        } else {
+            std::size_t found = content.find("://");
+            if(found==std::string::npos) STENCILA_THROW(Exception,"Type separator (://) not found")
+            std::string type = content.substr(0,found);
+            std::string rest = content.substr(found+3);
+            if(type=="html") from_html(rest);
+            else if(type=="stem") from_stem(rest);
+            else if(type=="file") from_file(rest);
+            else if(type=="id") from_id(rest);
+            else STENCILA_THROW(Exception,"Unrecognised type: " + type)
+        }
+        Registry.set("stencil",id(),this);
     }
+    
 
-    //! brief   
-    //! @param expression
+    //! @brief 
     //! @return 
-    bool test(const std::string& expression){
-        return false;
-    }
-
-    //! @brief 
-    //! @param expression
-    void subject(const std::string& expression){
-    }
-
-    //! @brief 
-    //! @param expression
-    //! @return 
-    bool match(const std::string& expression){
-        return false;
-    }
-
-    //! @brief 
-    void enter(void){
+    const Id id(void) const {
+        return id_;
     }
     
     //! @brief 
-    //! @param expression
-    void enter(const std::string& expression){
-    }
-
-    //! @brief 
-    void exit(void){
-    }
-
-    //! @brief 
-    //! @param item
-    //! @param items
     //! @return 
-    bool begin(const std::string& item,const std::string& items){
-        return false;
+    const std::vector<std::string> keywords(void) const {
+        return keywords_;
+    }
+    
+    //! @brief Create a stencil from scratch
+    //!
+    //! A XHTML5 document is created with a empty head and body
+    //! Not that elements are added to the head element when the stencil is saved (see Stencil::dump)
+    //!
+    //! @return This stencil
+    Stencil& from_scratch(void){
+        id_ = Registry::id();
+        
+        prepend_doctype_html5();
+        Node html = append("html",{{"xmlns","http://www.w3.org/1999/xhtml"}});
+        append(html,"head");
+        append(html,"body");
+        return *this;
     }
 
     //! @brief 
-    //! @return 
-    bool step(void){
-        return false;
+    //!
+    //! Certain elements within the head are parsed into stencil meta-data attributes e.g. meta name="keywords"
+    //! Any other elements within the head will be ignored e.g. script, link
+    //!
+    //! @param html
+    //! @return This stencil
+    Stencil& from_html(const std::string& html){
+        // Tidy HTML and load it into this stencil
+        std::string html_tidy = tidy(html);
+        load(html_tidy);
+        
+        //! @todo Extract metadata
+        Node head = find("head");
+        
+        Node keywords = find(head,"meta","name","keywords");
+        if(keywords){
+            std::string content = Xml::Document::get(keywords,"content").value();
+            boost::split(keywords_,content,boost::is_any_of(","));
+            for(std::string& keyword : keywords_) boost::trim(keyword);
+        }
+        
+        Node id = find(head,"meta","name","id");
+        if(id){
+            id_ = Xml::Document::get(id,"content").value();
+        } else {
+            id_ = Registry::id();
+        }
+        
+        // Now remove the extisting head and replace it with a new one
+        remove(head);
+        append(find("html"),"head");
+        return *this;
     }
-};
 
-class Stencil : public Xml::Document {
+    //! @brief 
+    //! @param stem
+    //! @return 
+    Stencil& from_stem(const std::string& stem);
+    
+    
+    static std::string stem_print(const std::string& stem);
+
+    //! @brief 
+    //! @param path
+    //! @return 
+    Stencil& from_file(const std::string& path){
+        std::ifstream file(path);
+        std::stringstream buffer;
+        buffer<<file.rdbuf();
+        std::string ext = boost::filesystem::path(path).extension().string();
+        if(ext==".html") {
+            from_html(buffer.str());
+        }
+        else if(ext==".stem") {
+            from_stem(buffer.str());
+        } 
+        else {
+            STENCILA_THROW(Exception,"File extension not interpreted as a stencil:"+ext)
+        }
+        
+        return *this;
+    }
+
+    //! @brief 
+    //! @param id
+    //! @return 
+    Stencil& from_id(const std::string& id){
+        return *this;
+    }
+    
+    //! @name RESTful interface
+    //! @{
+
+    static Json::Document post(const Json::Document& json){
+        Json::Document out;
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document get(void){
+        Json::Document out;
+        out.add("content",dump());
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document put(const Json::Document& in){
+        Json::Document out;
+        if(in.has("content")) load(in.as<std::string>("content"));
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document patch(const Json::Document& in){
+        Json::Document out;
+        out.add("status","ok");
+        return out;
+    }
+    
+    Json::Document del(void){
+        Json::Document out;
+        out.add("status","ok");
+        return out;
+    }
+    
+    //! @}
+    
+    //! @name Rendering and display methods
+    //! These methods provide alternative ways of rendering a stencil
+    //! @{
+
+    //! @brief Render a stencil into an HTML fragment
+    //! @param context The context in which the stencil will be rendered
+    //! @return The stencil
+    template<typename Context>
+    Stencil& render(Context& context){
+        render_element(*this,context);
+        return *this;
+    }
+    
 private:
-
-    std::string id_;
-    std::string uri_;
 
     //! @brief 
     //! @param node
@@ -397,192 +510,37 @@ private:
 
 public:
 
-    //! @brief 
-    //! @return 
-    Stencil(void){
-    }
-    
-    //! @brief 
-    //! @param content
-    //! @return 
-    Stencil(const std::string& content){
-        /*
-        html://
-        stem://
+    //! @brief Dump the stencil into a string
+    //!
+    //! Serialise meta-data into head
+    //! @return String representation of stencil
+    std::string dump(void){
+        Node head = this->head();
+        append(head,"title","Stencil "+id());
         
-        file://
-        http://
-        
-        id://
-        find://
-        */
-        std::size_t found = content.find("://");
-        if(found==std::string::npos) STENCILA_THROW(Exception,"Type separator (://) not found")
-        std::string type = content.substr(0,found);
-        std::string rest = content.substr(found+3);
-        if(type=="html") html(rest);
-        else if(type=="stem") stem(rest);
-        else if(type=="file") file(rest);
-        else if(type=="id") id(rest);
-        else STENCILA_THROW(Exception,"Unrecognised type: " + type)
-    }
-
-    //! @brief 
-    //! @param html
-    //! @return 
-    Stencil& html(const std::string& html){
-        load(html);
-        return *this;
-    }
-
-    //! @brief 
-    //! @param stem
-    //! @return 
-    Stencil& stem(const std::string& stem);
-    static std::string stem_to_html(const std::string& stem);
-    static std::string stem_to_string(const std::string& stem);
-
-    //! @brief 
-    //! @param path
-    //! @return 
-    Stencil& file(const std::string& path){
-        std::ifstream file(path);
-        std::stringstream buffer;
-        buffer<<file.rdbuf();
-        std::string ext = boost::filesystem::path(path).extension().string();
-        if(ext==".html") {
-            load(buffer.str());
-        }
-        else if(ext==".stem") {
-            stem(buffer.str());
-        } 
-        else {
-            STENCILA_THROW(Exception,"File extension not interpreted as a stencil:"+ext)
-        }
-        
-        return *this;
-    }
-
-    //! @brief 
-    //! @param id
-    //! @return 
-    Stencil& id(const std::string& id){
-        return *this;
-    }
-
-    void identify(void){
-        //Add an id if one does not yet exist
-        if(id_.length()==0) id_ = boost::uuids::to_string(boost::uuids::random_generator()());
-    }
-
-    //! @brief 
-    //! @return 
-    std::string id(void) const {
-        return id_;
-    }
-
-    //! @brief 
-    //! @return 
-    std::string uri(void) const {
-        return uri_;
-    }
-    
-    //! @name RESTful interface
-    //! @{
-    
-    Json::Document rest(const Http::Method& method, const Json::Document& json){
-        switch(method.type){
-            case Http::Method::POST: return post(json);
-            case Http::Method::GET: return get();
-            case Http::Method::PUT: return put(json);
-            case Http::Method::PATCH: return patch(json);
-            case Http::Method::DELETE: return del();
-            default: STENCILA_THROW(Exception,"Unhandled HTTP method: "+method.string())
-        }
-    }
-    
-    std::string rest(const std::string& method, const std::string& json){
-        return rest(Http::Method(method),Json::Document(json)).dump();
-    }
-    
-    Json::Document post(const Json::Document& json){
-        Json::Document out;
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document get(void){
-        Json::Document out;
-        out.add("content",dump());
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document put(const Json::Document& in){
-        Json::Document out;
-        if(in.has("content")) load(in.as<std::string>("content"));
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document patch(const Json::Document& in){
-        Json::Document out;
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document del(void){
-        Json::Document out;
-        out.add("status","ok");
-        return out;
-    }
-    
-    //! @}
-    
-    //! @name Rendering and display methods
-    //! These methods provide alternative ways of rendering a stencil
-    //! @{
-
-    //! @brief Render a stencil into an HTML fragment
-    //! @param context The context in which the stencil will be rendered
-    //! @return The stencil
-    template<typename Context>
-    Stencil& render(Context& context){
-        render_element(*this,context);
-        return *this;
-    }
-    
-    //! @brief Render a stencil and wrap it a complete HTML page for display as a single web page
-    //! @return A HTML page
-    template<typename Context>
-    std::string show(Context& context){
-        using namespace Xml;
-        Document xml;
-        Node html = xml.append("html");
-        
-        Node head = xml.append(html,"head");
-        xml.append(head,"title",id());
-        xml.append(head,"meta",{
+        append(head,"meta",{
             {"charset","utf-8"}
         },"");
-        xml.append(head,"link",{
-            {"rel","stylesheet"},
-            {"type","text/css"},
-            {"href","stencil.css"},
-        },"");
-        xml.append(head,"script",{
+        append(head,"meta",{
+            {"name","generator"},
+            {"content","Stencila"}
+        });
+        append(head,"meta",{
+            {"name","id"},
+            {"content",id()}
+        });
+        append(head,"script",{
             {"type","text/javascript"},
-            {"href","stencil.js"},
+            {"src","stencila-boot.js"},
         },"");
-        
-        Node body = xml.append(html,"body");
-        render(context);
-        xml.append(body,*this);
-        
-        return xml.dump();
+        return Html::Document::dump();
     }
     
-    //! @}
+    std::string dump_content(void){
+        std::ostringstream out;
+        for(Node child : body().children()) child.print(out,"",pugi::format_raw);
+        return out.str();
+    }
 };
 
 }

@@ -17,6 +17,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //! @author Nokome Bentley
 
 #pragma once
+
 #include <string>
 #include <stencila/exception.hpp>
 
@@ -46,9 +47,30 @@ public:
     Method(const std::string& method) {
         if(method=="GET") type = GET;
         else if(method=="HEAD") type = HEAD;
+        else if(method=="POST") type = POST;
+        else if(method=="PUT") type = PUT;
+        else if(method=="DELETE") type = DELETE;
+        else if(method=="TRACE") type = TRACE;
+        else if(method=="OPTIONS") type = OPTIONS;
+        else if(method=="CONNECT") type = CONNECT;
+        else if(method=="PATCH") type = PATCH;
         else {
             STENCILA_THROW(Exception,"Unknown HTTP method: "+type);
         }
+    }
+    
+    //! @brief 
+    //! @param other
+    //! @return 
+    bool operator==(const Method& other) const {
+        return type==other.type;
+    }
+
+    //! @brief 
+    //! @param other
+    //! @return 
+    bool operator!=(const Method& other) const {
+        return type!=other.type;
     }
     
     std::string string(void) const {
@@ -63,6 +85,7 @@ public:
             case CONNECT: return "CONNECT";
             case PATCH: return "PATCH";
         }
+        return "";
     }
 };
 
@@ -75,6 +98,26 @@ const Method Trace(Method::TRACE);
 const Method Options(Method::OPTIONS);
 const Method Connect(Method::CONNECT);
 const Method Patch(Method::PATCH);
+
+//! @brief Get the Internet media type (MIME type) for a file extension
+//!
+//! See [Wikipedia](http://en.wikipedia.org/wiki/MIME_type) for more details
+//! This only handles a limited number of file extensions
+//! Python has a [mimetypes module](http://docs.python.org/2/library/mimetypes.html) with a mapping between extensions and MIME types
+static std::string ContentType(const std::string& ext){
+    if(ext==".txt") return "text/plain";
+    if(ext==".css") return "text/css";
+    if(ext==".html") return "text/html";
+    
+    if(ext==".png") return "image/png";
+    if(ext==".svg") return "image/svg+xml";
+    
+    if(ext==".js") return "application/javascript";
+    if(ext==".woff") return "application/font-wof";
+    if(ext==".tff") return "application/font-ttf";
+    
+    return "";
+}
 
 }
 }

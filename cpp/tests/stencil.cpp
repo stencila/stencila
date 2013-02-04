@@ -29,12 +29,12 @@ struct stencil1Fixture {
     
     stencil1Fixture(void){
         
-        stencil1.html(
+        stencil1.from_html(
             "<div data-alias='stencil1'/>"
         );
-        stencil1.identify();
+        stencil1.id();
         
-        stencil2.html(
+        stencil2.from_html(
             "<div data-include='id://"+stencil1.id()+"'/>"
         );
     }    
@@ -44,16 +44,46 @@ BOOST_FIXTURE_TEST_SUITE(stencil1,stencil1Fixture)
 
 BOOST_AUTO_TEST_CASE(create_empty){
     Stencil s;
-    BOOST_CHECK_EQUAL(s.dump(),"");
+    BOOST_CHECK_EQUAL(s.dump_content(),"");
+    std::cout<<s.dump()<<"\n";
 }
 
-BOOST_AUTO_TEST_CASE(create_html){
-    Stencil s("html://<span />");
-    BOOST_CHECK_EQUAL(s.dump(),"<span />");
+BOOST_AUTO_TEST_CASE(id){
+    Stencil s1;
+    Stencil* s2 = Registry.get<Stencil>("stencil",s1.id());
+    BOOST_CHECK(s2!=0);
+    BOOST_CHECK_EQUAL(s1.id(),s2->id());
+}
+
+BOOST_AUTO_TEST_CASE(create_html_fragment){
+    Stencil s("html://<p>Hello world</p>");
+    BOOST_CHECK_EQUAL(s.dump_content(),"<p>Hello world</p>");
+    std::cout<<s.dump()<<"\n";
+}
+
+BOOST_AUTO_TEST_CASE(create_html_page){
+    Stencil s(R"(html://
+    <html>
+        <head>
+            <meta name="description" content="Says hello to the world">
+            <meta name="keywords" content="greeting, salutation">
+        </head>
+        <body>
+            <p>Hello world!</p>
+        </body>
+    </html>
+    )");
+    
+    {
+        std::vector<std::string> got = s.keywords();
+        std::vector<std::string> exp = {"greeting","salutation"};
+        BOOST_CHECK_EQUAL_COLLECTIONS(got.begin(),got.end(),exp.begin(),exp.end());
+    }
+    BOOST_CHECK_EQUAL(s.dump_content(),"<p>Hello world!</p>");
 }
 
 BOOST_AUTO_TEST_CASE(render){
-    EchoContext context;
+    Context<void> context;
     stencil2.render(context);
 }
 
@@ -67,23 +97,17 @@ BOOST_AUTO_TEST_CASE(render_include){
             <div data-append="#an-id"/>
         </div>
     )");
-    EchoContext context;
+    Context<void> context;
     stencil.render(context);
-    std::cout<<stencil.dump()<<"\n\n";
-}
-
-BOOST_AUTO_TEST_CASE(show){
-    Stencil stencil(R"(html://
-        <p>Hello world</p>
-    )");
-    EchoContext context;
-    std::cout<<stencil.show(context)<<"\n\n";
+    //std::cout<<stencil.dump()<<"\n\n";
 }
 
 void stem_html(std::string stem,std::string html) {
-    std::string got = Stencil::stem_to_html(stem);
+    Stencil s;
+    s.from_stem(stem);
+    std::string got = s.dump_content();
     if(got!=html){
-        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stencil::stem_to_string(stem));
+        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stencil::stem_print(stem));
     }
 }
 
@@ -238,11 +262,11 @@ R"(<!-- start
 
 BOOST_AUTO_TEST_CASE(create_stem_string){
     Stencil s("stem://.klass#ident");
-    BOOST_CHECK_EQUAL(s.dump(),"<div class=\"klass\" id=\"ident\" />");
+    BOOST_CHECK_EQUAL(s.dump_content(),"<div class=\"klass\" id=\"ident\" />");
 }
 BOOST_AUTO_TEST_CASE(create_stem_file){
     Stencil s("file://stencil-a.stem");
-    BOOST_CHECK_EQUAL(s.dump(),"<div><ul><li /></ul></div>");
+    BOOST_CHECK_EQUAL(s.dump_content(),"<div><ul><li /></ul></div>");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
