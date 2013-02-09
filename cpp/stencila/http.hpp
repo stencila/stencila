@@ -19,6 +19,11 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #pragma once
 
 #include <string>
+
+#include <boost/algorithm/string.hpp>
+
+#include <cpp-netlib/network/uri.hpp>
+
 #include <stencila/exception.hpp>
 
 namespace Stencila {
@@ -99,25 +104,74 @@ const Method Options(Method::OPTIONS);
 const Method Connect(Method::CONNECT);
 const Method Patch(Method::PATCH);
 
+
+//! http://cpp-netlib.org/0.9.4/in_depth/uri.html
+class Uri {
+private:
+
+    std::vector<std::string> path_;
+    std::vector<std::vector<std::string>> fields_;
+    std::string fragment_;
+
+public:
+    
+    Uri(const std::string& url){
+        // Using cpp-netlib uri class for parsing, although
+        // the functionality used here should be fairly straightforward to implement
+        boost::network::uri::uri uri(url);
+        // Split the path up
+        // Since the first part of the path is always "/" the first element
+        // of bits is always empty so erase it
+        std::string path = uri.path();
+        boost::split(path_,path,boost::is_any_of("/"));
+        path_.erase(path_.begin());
+        // Split the query into name=value pairs
+        std::string query = uri.query();
+        std::vector<std::string> pairs;
+        boost::split(pairs,query,boost::is_any_of("&"));
+        for(std::string pair : pairs){
+            std::vector<std::string> field;
+            boost::split(field,pair,boost::is_any_of("="));
+            fields_.push_back(field);
+        }
+        // Assign fragment
+        fragment_ = uri.fragment();
+    }
+    
+    std::string path(unsigned int index,const std::string& defaul="") const {
+        return path_.size()>index?path_[index]:defaul;
+    }
+    
+     std::vector<std::vector<std::string>> fields(void) const {
+        return fields_;
+    }
+    
+    std::string fragment(void) const {
+        return fragment_;
+    }
+    
+};
+
 //! @brief Get the Internet media type (MIME type) for a file extension
 //!
 //! See [Wikipedia](http://en.wikipedia.org/wiki/MIME_type) for more details
 //! This only handles a limited number of file extensions
 //! Python has a [mimetypes module](http://docs.python.org/2/library/mimetypes.html) with a mapping between extensions and MIME types
-static std::string ContentType(const std::string& ext){
-    if(ext==".txt") return "text/plain";
-    if(ext==".css") return "text/css";
-    if(ext==".html") return "text/html";
-    
-    if(ext==".png") return "image/png";
-    if(ext==".svg") return "image/svg+xml";
-    
-    if(ext==".js") return "application/javascript";
-    if(ext==".woff") return "application/font-wof";
-    if(ext==".tff") return "application/font-ttf";
-    
-    return "";
-}
+class ContentType : public std::string {
+public:
+    ContentType(const std::string& ext){
+        if(ext==".txt") assign("text/plain");
+        if(ext==".css") assign("text/css");
+        if(ext==".html") assign("text/html");
+        
+        if(ext==".png") assign("image/png");
+        if(ext==".svg") assign("image/svg+xml");
+        
+        if(ext==".js") assign("application/javascript");
+        if(ext==".woff") assign("application/font-wof");
+        if(ext==".tff") assign("application/font-ttf");
+    }
+};
 
 }
 }

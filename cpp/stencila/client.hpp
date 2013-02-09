@@ -12,7 +12,7 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file rest-client.hpp
+//! @file client.hpp
 //! @brief Class for a RESTful HTTP client
 //! @author Nokome Bentley
 
@@ -27,7 +27,6 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/json.hpp>
 
 namespace Stencila {
-namespace Rest {
 
 using namespace boost::network;
 using namespace boost::network::http;
@@ -91,5 +90,4 @@ public:
 
 };
 
-}
 }

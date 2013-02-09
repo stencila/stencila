@@ -1,10 +1,9 @@
 #include <iostream>
 
-#include <stencila/rest-server.hpp>
-#include <stencila/exception.hpp>
+#include <stencila/server.hpp>
 
 int main(void) {
-    using namespace Stencila::Rest;
+    using namespace Stencila;
     try {
         Server server;
         server.run();

@@ -1,2 +1,6 @@
+#Ignore temporary files
 *.o
 *.a
+
+#Ignore CodeLite C++ IDE project files
+*.project

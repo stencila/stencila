@@ -25,11 +25,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include <stencila/registry.hpp>
-#include <stencila/http.hpp>
+#include <stencila/component.hpp>
 #include <stencila/html.hpp>
 #include <stencila/json.hpp>
-#include <stencila/rest-resource.hpp>
 #include <stencila/context.hpp>
 
 namespace Stencila {
@@ -38,18 +36,32 @@ namespace Stencila {
 //! There is a good summary of what XHTML5 requires [here](http://blog.whatwg.org/xhtml5-in-a-nutshell).
 //! Note that this page should be served with the right MIME type i.e. "Content-Type: application/xhtml+xml" (although this is 
 //! not supported by older versions of Microsoft IE (< 8.0?))
-class Stencil : public Html::Document, public Rest::Resource<Stencil> {
+class Stencil : public Component<Stencil>, public Html::Document {
 private:
 
-    Id id_;
     std::vector<std::string> keywords_;
 
 public:
 
+    static std::string type(void){
+        return "stencil";
+    };
+    
+    Stencil(void):
+        Component<Stencil>(){
+        from_scratch();
+    }
+    
+    Stencil(const Id& id):
+        Component<Stencil>(id){
+        read();
+    }
+
     //! @brief 
     //! @param content
     //! @return 
-    Stencil(const std::string& content=""){
+    Stencil(const std::string& content):
+        Component<Stencil>(){
         /*
         html://
         stem://
@@ -60,27 +72,15 @@ public:
         id://
         find://
         */
-        if(content.length()==0){
-            from_scratch();
-        } else {
-            std::size_t found = content.find("://");
-            if(found==std::string::npos) STENCILA_THROW(Exception,"Type separator (://) not found")
-            std::string type = content.substr(0,found);
-            std::string rest = content.substr(found+3);
-            if(type=="html") from_html(rest);
-            else if(type=="stem") from_stem(rest);
-            else if(type=="file") from_file(rest);
-            else if(type=="id") from_id(rest);
-            else STENCILA_THROW(Exception,"Unrecognised type: " + type)
-        }
-        Registry.set("stencil",id(),this);
-    }
-    
-
-    //! @brief 
-    //! @return 
-    const Id id(void) const {
-        return id_;
+        std::size_t found = content.find("://");
+        if(found==std::string::npos) STENCILA_THROW(Exception,"Type separator (://) not found")
+        std::string type = content.substr(0,found);
+        std::string rest = content.substr(found+3);
+        if(type=="html") from_html(rest);
+        else if(type=="stem") from_stem(rest);
+        else if(type=="file") from_file(rest);
+        else if(type=="id") from_id(rest);
+        else STENCILA_THROW(Exception,"Unrecognised type: " + type)
     }
     
     //! @brief 
@@ -96,8 +96,6 @@ public:
     //!
     //! @return This stencil
     Stencil& from_scratch(void){
-        id_ = Registry::id();
-        
         prepend_doctype_html5();
         Node html = append("html",{{"xmlns","http://www.w3.org/1999/xhtml"}});
         append(html,"head");
@@ -130,8 +128,6 @@ public:
         Node id = find(head,"meta","name","id");
         if(id){
             id_ = Xml::Document::get(id,"content").value();
-        } else {
-            id_ = Registry::id();
         }
         
         // Now remove the extisting head and replace it with a new one
@@ -176,42 +172,61 @@ public:
         return *this;
     }
     
-    //! @name RESTful interface
+    std::string body(void) {
+        std::ostringstream out;
+        for(Node child : find("body").children()) child.print(out,"",pugi::format_raw);
+        return out.str();
+    }
+    
+    Stencil& body(const std::string& html) {
+        Html::Document html_doc(html);
+        copy(find("body"),html_doc.find("body"));
+        return *this;
+    }
+    
+    //! @name Persistence methods
     //! @{
-
-    static Json::Document post(const Json::Document& json){
-        Json::Document out;
-        out.add("status","ok");
-        return out;
+    
+    Stencil& read(void){
+        std::string dir = directory();
+        if(boost::filesystem::exists(dir)){
+            std::ifstream file(dir+"/index.html");
+            std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
+            body(value);
+        }
+        return *this;
     }
     
-    Json::Document get(void){
-        Json::Document out;
-        out.add("content",dump());
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document put(const Json::Document& in){
-        Json::Document out;
-        if(in.has("content")) load(in.as<std::string>("content"));
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document patch(const Json::Document& in){
-        Json::Document out;
-        out.add("status","ok");
-        return out;
-    }
-    
-    Json::Document del(void){
-        Json::Document out;
-        out.add("status","ok");
-        return out;
+    Stencil& write(void) {
+        std::string dir = directory();
+        boost::filesystem::create_directories(dir);
+        std::ofstream file(dir+"/index.html");
+        file<<body();
+        return *this;
     }
     
     //! @}
+    
+    
+    //! @name REST interface methods
+    //! @{
+    
+    std::string get(void){
+        read();
+        Json::Document out;
+        out.add("body",body());
+        return out.dump();
+    }
+    
+    std::string put(const std::string& data){
+        Json::Document json(data);
+        if(json.has("body")) body(json.as<std::string>(json.get("body")));
+        write();
+        return "{}";
+    }
+    
+    //! @}
+    
     
     //! @name Rendering and display methods
     //! These methods provide alternative ways of rendering a stencil
@@ -515,7 +530,7 @@ public:
     //! Serialise meta-data into head
     //! @return String representation of stencil
     std::string dump(void){
-        Node head = this->head();
+        Node head = find("head");
         append(head,"title","Stencil "+id());
         
         append(head,"meta",{
@@ -534,12 +549,6 @@ public:
             {"src","stencila-boot.js"},
         },"");
         return Html::Document::dump();
-    }
-    
-    std::string dump_content(void){
-        std::ostringstream out;
-        for(Node child : body().children()) child.print(out,"",pugi::format_raw);
-        return out.str();
     }
 };
 

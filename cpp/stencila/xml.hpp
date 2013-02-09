@@ -244,6 +244,25 @@ public:
     void remove(Node child){
         remove(*this,child);
     }
+    
+    static Node clear(Node node){
+        while(node.first_child()) node.remove_child(node.first_child());
+        return node;
+    }
+    Document& clear(void){
+        clear(*this);
+        return *this;
+    }
+    
+    static Node copy(Node node,Node other){
+        clear(node);
+        for(Node child : other.children()) node.append_copy(child);
+        return node;
+    }
+    Document& copy(Node other){
+        copy(*this,other);
+        return *this;
+    }
 
     Document& load(const std::string& xml){
         pugi::xml_parse_result result = pugi::xml_document::load(xml.c_str());

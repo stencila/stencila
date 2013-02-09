@@ -20,13 +20,17 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <string>
 
-#include <stencila/rest-resource.hpp>
+#include <stencila/component.hpp>
 
 namespace Stencila {
 
 template<class Derived=void>
-class Context : public Rest::Resource<Context<Derived>> {
+class Context : public Component<Context<Derived>> {
 public:
+
+    static std::string type(void){
+        return "context";
+    };
 
     //! @brief 
     //! @param name

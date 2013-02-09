@@ -435,7 +435,7 @@ Line parse(const std::string& stem) {
 
 Stencil& Stencil::from_stem(const std::string& stem){
     from_scratch();
-    parse(stem).make_top(body());
+    parse(stem).make_top(find("body"));
     return *this;
 }
 

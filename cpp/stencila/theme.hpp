@@ -13,17 +13,94 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 //! @file theme.hpp
-//! @brief Class for a Stencil themes
+//! @brief Definition of class Theme
 //! @author Nokome Bentley
 
 #pragma once
 
-#include <stencila/registry.hpp>
+#include <string>
+#include <fstream>
+
+#include <boost/filesystem.hpp>
+
+#include <stencila/component.hpp>
+#include <stencila/json.hpp>
 
 namespace Stencila {
 
-class Theme {
-public:    
+class Theme : public Component<Theme> {
+private:
+
+    std::string style_;
+
+public:
+
+    static std::string type(void){
+        return "theme";
+    }
+    
+    Theme(void):
+        Component<Theme>(){
+    }
+    
+    Theme(const Id& id):
+        Component<Theme>(id){
+        read();
+    }
+    
+    std::string style(void) const {
+        return style_;
+    }
+    
+    Theme& style(const std::string& style){
+        style_ = style;
+        return *this;
+    }
+
+    //! @name Persistence methods
+    //! @{
+    
+    Theme& read(void){
+        std::string dir = directory();
+        if(boost::filesystem::exists(dir)){
+            std::ifstream file(dir+"/style.less");
+            std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
+            style(value);
+        }
+        return *this;
+    }
+    
+    Theme& write(void) {
+        std::string dir = directory();
+        boost::filesystem::create_directories(dir);
+        std::ofstream file(dir+"/style.less");
+        file<<style();
+        return *this;
+    }
+    
+    //! @}
+    
+    //! @name REST interface methods
+    //! @{
+    
+    std::string get(void){
+        read();
+        Json::Document out;
+        out.add("style",style_);
+        return out.dump();
+    }
+    
+    std::string put(const std::string& data){
+        Json::Document json(data);
+        if(json.has("style")){
+            style_ = json.as<std::string>(json.get("style"));
+        }
+        write();
+        return "{}";
+    }
+    
+    //! @}
+    
 };
 
 }

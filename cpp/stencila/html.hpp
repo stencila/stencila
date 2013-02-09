@@ -69,14 +69,9 @@ public:
         STENCILA_THROW(Exception,"An error occurred");
     }
     
-    Node head() const {
-        return find_node([](Node node){return std::strcmp(node.name(),"head")==0;});
+    Document(const std::string& html=""){
+        load(tidy(html));
     }
-    
-    Node body() const {
-        return find_node([](Node node){return std::strcmp(node.name(),"body")==0;});
-    }
-
 };
 
 }

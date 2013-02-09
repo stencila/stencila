@@ -241,7 +241,7 @@ public:
     }
 
     operator const char*(void){
-    
+        return stream_->str().c_str();
     }
 
     operator std::string(void){
