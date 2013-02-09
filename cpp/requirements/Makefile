@@ -60,6 +60,7 @@ ifeq ($(STENCILA_PLATFORM), msys)
 	sed -i "s/mingw/gcc/g" project-config.jam; \
 	./b2 --prefix=. --layout=system release toolset=gcc link=static install
 endif
+	touch boost_$(BOOST_VERSION)/lib/libboost_system.a
 
 include/boost: boost_$(BOOST_VERSION)
 ifeq ($(STENCILA_PLATFORM), linux)
@@ -67,8 +68,8 @@ ifeq ($(STENCILA_PLATFORM), linux)
 endif
 ifeq ($(STENCILA_PLATFORM), msys)
 	junction include/boost boost_$(BOOST_VERSION)/include/boost
-	touch include/boost
 endif
+	touch include/boost
 
 # Link to each of the statically compiled libraries
 lib/libboost_system.a: boost_$(BOOST_VERSION)/lib/libboost_system.a
@@ -94,28 +95,27 @@ CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DC
 ifeq ($(STENCILA_PLATFORM), msys)
 CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -I/usr/include"
 endif
-cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)
+cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: boost_$(BOOST_VERSION) cpp-netlib-$(CPP_NETLIB_VERSION)
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
 	export BOOST_ROOT=../boost_$(BOOST_VERSION) ; \
 	cmake $(CPP_NETLIB_CMAKE_FLAGS); \
 	make cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri
 
 # Link to cpp-netlib include directory and each of the statically compiled libraries
-# cpp-netlib is going through process of inclusion in boost
-# Until cpp-netlib is fully integrated into boost we use "cpp-netlib/network' instead of "boost/network"
-include/cpp-netlib: cpp-netlib-$(CPP_NETLIB_VERSION)
+# cpp-netlib is going through process of inclusion in boost and needs to be available in the include path "boost/network"
+include/boost/network: boost_$(BOOST_VERSION) cpp-netlib-$(CPP_NETLIB_VERSION)
 ifeq ($(STENCILA_PLATFORM), linux)
-	ln -sfT ../cpp-netlib-$(CPP_NETLIB_VERSION)/boost/ include/cpp-netlib
+	ln -sfT ../../../cpp-netlib-$(CPP_NETLIB_VERSION)/boost/network boost_$(BOOST_VERSION)/include/boost/network
 endif
 ifeq ($(STENCILA_PLATFORM), msys)
-	junction include/cpp-netlib cpp-netlib-$(CPP_NETLIB_VERSION)/boost/include/cpp-netlib
-	touch include/cpp-netlib
+	junction include/boost/network cpp-netlib-$(CPP_NETLIB_VERSION)/boost/include/cpp-netlib
 endif
+	touch include/boost/network
 
 lib/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a
 	for file in $$(ls cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/*.a); do ln -sf ../$$file lib; done
 
-cpp-netlib: include lib include/cpp-netlib lib/libcppnetlib-client-connections.a
+cpp-netlib: include lib include/boost/network lib/libcppnetlib-client-connections.a
 
 
 ####################################################

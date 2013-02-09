@@ -21,7 +21,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <string>
 
 #define BOOST_NETWORK_ENABLE_HTTPS
-#include <cpp-netlib/network/protocol/http/client.hpp>
+#include <boost/network/protocol/http/client.hpp>
 
 #include <stencila/http.hpp>
 #include <stencila/json.hpp>

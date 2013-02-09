@@ -21,8 +21,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-
-#include <cpp-netlib/network/uri.hpp>
+#include <boost/network/uri.hpp>
 
 #include <stencila/exception.hpp>
 

@@ -25,9 +25,8 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <algorithm>
 #include <thread>
 
-#include <cpp-netlib/network/uri.hpp>
-//#include <cpp-netlib/network/uri/uri_io.hpp>
-#include <cpp-netlib/network/protocol/http/server.hpp>
+#include <boost/network/uri.hpp>
+#include <boost/network/protocol/http/server.hpp>
 
 #include <stencila/component.hpp>
 
