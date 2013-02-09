@@ -1,5 +1,5 @@
-#include <stencila/rest-server.hpp>
-using Stencila::Rest::Server;
+#include <stencila/server.hpp>
+using Stencila::Server;
 
 #include "r-extension.hpp"
 
