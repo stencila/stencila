@@ -26,7 +26,7 @@ using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(construct){
     Theme theme;
-    BOOST_CHECK(theme.id().length()>0);
+    BOOST_CHECK_EQUAL(theme.id().length(),37);
     BOOST_CHECK_EQUAL(theme.obtain<Theme>(theme.id()),&theme);
 }
 
@@ -34,27 +34,6 @@ BOOST_AUTO_TEST_CASE(unique_ids){
     Theme theme1;
     Theme theme2;
     BOOST_CHECK(theme1.id()!=theme2.id());
-}
-
-BOOST_AUTO_TEST_CASE(post){
-    Json::Document json(R"({
-        "style":"p{color:pink;}"
-    })");
-    Theme::post(json);
-}
-
-BOOST_AUTO_TEST_CASE(get){
-    using namespace Json;
-    Theme theme;
-    Document json = theme.get();
-    BOOST_CHECK(json.has("style"));
-    BOOST_CHECK(json.is<std::string>(json["style"]));
-}
-
-BOOST_AUTO_TEST_CASE(put){
-}
-
-BOOST_AUTO_TEST_CASE(del){
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -24,7 +24,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "json.cpp"
 #include "xml.cpp"
 
+#include "component.cpp"
 #include "dataset.cpp"
 #include "datatable.cpp"
 #include "dataquery.cpp"
 #include "stencil.cpp"
+#include "theme.cpp"

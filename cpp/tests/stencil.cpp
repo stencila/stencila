@@ -45,7 +45,6 @@ BOOST_FIXTURE_TEST_SUITE(stencil1,stencil1Fixture)
 BOOST_AUTO_TEST_CASE(create_empty){
     Stencil s;
     BOOST_CHECK_EQUAL(s.body(),"");
-    std::cout<<s.dump()<<"\n";
 }
 
 BOOST_AUTO_TEST_CASE(id){
@@ -58,7 +57,6 @@ BOOST_AUTO_TEST_CASE(id){
 BOOST_AUTO_TEST_CASE(create_html_fragment){
     Stencil s("html://<p>Hello world</p>");
     BOOST_CHECK_EQUAL(s.body(),"<p>Hello world</p>");
-    std::cout<<s.dump()<<"\n";
 }
 
 BOOST_AUTO_TEST_CASE(create_html_page){
