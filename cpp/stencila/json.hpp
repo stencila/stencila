@@ -95,16 +95,6 @@ public:
     Document(const std::string& json=""){
         load(json);
     }
-    
-private:
-    //! rapidjson does not allow copy constructor.
-    //! So in order to be able to return Documents from functions
-    //! we resort to this hackery (rapidjson does allow assignment)
-    //! Note that when using this be careful since the copied from
-    //! document will be made into a null document;
-    Document(const Document& other){
-        doc_ = const_cast<Document&>(other).doc_;
-    }
 
 public:
     //! @brief Load a JSON string into the Document

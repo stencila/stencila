@@ -90,13 +90,11 @@ std::string Component<>::rest(const Http::Method& verb, const Http::Uri& uri, co
 
 template<class Class>
 std::string Component<>::rest_type(const Http::Method& verb, const Http::Uri& uri, const std::string& json){
-    switch(verb.type){
-        case Http::Method::POST:return post<Class>(uri,json);
-        case Http::Method::GET: return get<Class>(uri);
-        case Http::Method::PUT: return put<Class>(uri,json);
-        case Http::Method::DELETE: return del<Class>(uri);
-        default: return Format(R"({"error":"unsupported method: %s"})")<<verb.string();
-    }
+    if(verb==Http::Post) return post<Class>(uri,json);
+    else if(verb==Http::Get) return get<Class>(uri);
+    else if(verb==Http::Put) return put<Class>(uri,json);
+    else if(verb==Http::Delete) return del<Class>(uri);
+    else return Format(R"({"error":"unsupported method: %s"})")<<verb;
 }
 
 template<class Class>

@@ -1,11 +1,11 @@
 include  $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
-BOOST_VERSION = 1_50_0
+BOOST_VERSION = 1_53_0
 CPP_NETLIB_VERSION = 0.9.4
 PUGIXML_VERSION = 1.2
-RAPIDJSON_VERSION = 0.1
+RAPIDJSON_VERSION = 0.11
 SMHASHER_VERSION = 147
-SQLITE_VERSION = 3071300
+SQLITE_VERSION = 3071502
 
 # Specify that symlinks time should be checked, not the target file time.
 # If this option is not specified then symlinks get remade
@@ -62,7 +62,7 @@ ifeq ($(STENCILA_PLATFORM), msys)
 endif
 	touch boost_$(BOOST_VERSION)/lib/libboost_system.a
 
-include/boost: boost_$(BOOST_VERSION)
+include/boost: boost_$(BOOST_VERSION)/lib/libboost_system.a include boost_$(BOOST_VERSION)
 ifeq ($(STENCILA_PLATFORM), linux)
 	ln -sfT ../boost_$(BOOST_VERSION)/include/boost include/boost
 endif
@@ -72,10 +72,10 @@ endif
 	touch include/boost
 
 # Link to each of the statically compiled libraries
-lib/libboost_system.a: boost_$(BOOST_VERSION)/lib/libboost_system.a
+lib/libboost_system.a: lib boost_$(BOOST_VERSION)/lib/libboost_system.a
 	for file in $$(ls boost_$(BOOST_VERSION)/lib/*.a); do ln -sf ../$$file lib; done
 
-boost: include lib include/boost lib/libboost_system.a
+boost: include/boost lib/libboost_system.a
 
 ####################################################
 # cpp-netlib
@@ -108,7 +108,7 @@ ifeq ($(STENCILA_PLATFORM), linux)
 	ln -sfT ../../../cpp-netlib-$(CPP_NETLIB_VERSION)/boost/network boost_$(BOOST_VERSION)/include/boost/network
 endif
 ifeq ($(STENCILA_PLATFORM), msys)
-	junction include/boost/network cpp-netlib-$(CPP_NETLIB_VERSION)/boost/include/cpp-netlib
+	junction boost_$(BOOST_VERSION)/include/boost/network cpp-netlib-$(CPP_NETLIB_VERSION)/boost/network
 endif
 	touch include/boost/network
 
@@ -137,9 +137,11 @@ pugixml-$(PUGIXML_VERSION)/src/libpugixml.a: pugixml-$(PUGIXML_VERSION)
 
 include/pugixml.hpp: pugixml-$(PUGIXML_VERSION)
 	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/pugixml.hpp include/pugixml.hpp
+	touch include/pugixml.hpp
 
 include/pugiconfig.hpp: pugixml-$(PUGIXML_VERSION)
 	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/pugiconfig.hpp include/pugiconfig.hpp
+	touch include/pugiconfig.hpp
 
 lib/libpugixml.a: pugixml-$(PUGIXML_VERSION)/src/libpugixml.a
 	ln -sfT ../pugixml-$(PUGIXML_VERSION)/src/libpugixml.a lib/libpugixml.a
@@ -200,9 +202,11 @@ sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a: sqlite-amalgamation-$(SQLITE
 
 include/sqlite3.h: sqlite-amalgamation-$(SQLITE_VERSION)
 	ln -sf ../sqlite-amalgamation-$(SQLITE_VERSION)/sqlite3.h include/sqlite3.h
+	touch include/sqlite3.h
 
 include/sqlite3ext.h: sqlite-amalgamation-$(SQLITE_VERSION)
 	ln -sf ../sqlite-amalgamation-$(SQLITE_VERSION)/sqlite3ext.h include/sqlite3ext.h
+	touch include/sqlite3ext.h
 
 lib/libsqlite3.a: sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a
 	ln -sf ../sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a lib/libsqlite3.a
@@ -212,22 +216,28 @@ sqlite: include lib include/sqlite3.h include/sqlite3ext.h lib/libsqlite3.a
 ###################################################
 # tidy-html5
 # http://w3c.github.com/tidy-html5/
+#
+# Note that we only "make ../../lib/libtidy.a" and not "make all" because the latter is not required
+# On MSYS apply path to prevent linker error asscoiated with "GetFileSizeEx"
 
 tidy-html5.zip:
-	wget -Otidy-html5.zip  https://github.com/w3c/tidy-html5/archive/master.zip
+	wget --no-check-certificate -Otidy-html5.zip  https://github.com/w3c/tidy-html5/archive/master.zip
 
 tidy-html5-master: tidy-html5.zip
 	unzip tidy-html5.zip
+ifeq ($(STENCILA_PLATFORM), msys)
+	patch tidy-html5-master/src/mappedio.c tidy-html5-src-mappedio.c-patch.diff
+endif
 
 tidy-html5-master/lib/libtidy.a:
-	cd tidy-html5-master/build/gmake && make all;
+	cd tidy-html5-master/build/gmake && make ../../lib/libtidy.a
 
 include/tidy-html5: tidy-html5-master
 ifeq ($(STENCILA_PLATFORM), linux)
 	ln -sfT ../tidy-html5-master/include include/tidy-html5
 endif
 ifeq ($(STENCILA_PLATFORM), msys)
-	junction ../tidy-html5-master/include include/tidy-html5
+	junction include/tidy-html5 tidy-html5-master/include
 	touch include/tidy-html5
 endif
 

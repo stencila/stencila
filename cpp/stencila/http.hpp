@@ -35,73 +35,6 @@ namespace Http {
 
 */
 
-/*! 
- @class Method
-*/
-class Method {
-public:
-    enum Type {GET,HEAD,POST,PUT,DELETE,TRACE,OPTIONS,CONNECT,PATCH};
-    
-    Type type;
-    
-    Method(const Type method):
-        type(method){
-    }
-    
-    Method(const std::string& method) {
-        if(method=="GET") type = GET;
-        else if(method=="HEAD") type = HEAD;
-        else if(method=="POST") type = POST;
-        else if(method=="PUT") type = PUT;
-        else if(method=="DELETE") type = DELETE;
-        else if(method=="TRACE") type = TRACE;
-        else if(method=="OPTIONS") type = OPTIONS;
-        else if(method=="CONNECT") type = CONNECT;
-        else if(method=="PATCH") type = PATCH;
-        else {
-            STENCILA_THROW(Exception,"Unknown HTTP method: "+method);
-        }
-    }
-    
-    //! @brief 
-    //! @param other
-    //! @return 
-    bool operator==(const Method& other) const {
-        return type==other.type;
-    }
-
-    //! @brief 
-    //! @param other
-    //! @return 
-    bool operator!=(const Method& other) const {
-        return type!=other.type;
-    }
-    
-    std::string string(void) const {
-        switch(type){
-            case GET: return "GET";
-            case HEAD: return "HEAD";
-            case POST: return "POST";
-            case PUT: return "PUT";
-            case DELETE: return "DELETE";
-            case TRACE: return "TRACE";
-            case OPTIONS: return "OPTIONS";
-            case CONNECT: return "CONNECT";
-            case PATCH: return "PATCH";
-        }
-        return "";
-    }
-};
-
-const Method Get(Method::GET);
-const Method Head(Method::HEAD);
-const Method Post(Method::POST);
-const Method Put(Method::PUT);
-const Method Delete(Method::DELETE);
-const Method Trace(Method::TRACE);
-const Method Options(Method::OPTIONS);
-const Method Connect(Method::CONNECT);
-const Method Patch(Method::PATCH);
 
 
 //! http://cpp-netlib.org/0.9.4/in_depth/uri.html
@@ -150,6 +83,32 @@ public:
     }
     
 };
+
+/*! 
+ @class Method
+*/
+class Method : public std::string {
+public:
+    
+    Method(const std::string& method) {
+        if(method!="GET" and method!="HEAD" and method!="POST"
+            and method!="PUT" and method!="DELETE" and method!="TRACE"
+            and method!="OPTIONS" and method!="CONNECT" and method!="PATCH"){
+            STENCILA_THROW(Exception,"unknown HTTP method: "+method);
+        }
+        else assign(method);
+    }
+};
+
+const Method Get("GET");
+const Method Head("HEAD");
+const Method Post("POST");
+const Method Put("PUT");
+const Method Delete("DELETE");
+const Method Trace("TRACE");
+const Method Options("OPTIONS");
+const Method Connect("CONNECT");
+const Method Patch("PATCH");
 
 //! @brief Get the Internet media type (MIME type) for a file extension
 //!

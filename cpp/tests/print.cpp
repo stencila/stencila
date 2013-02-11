@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(ofstream){
     //! @class Printer<std::ofstream>
     //! Test that print("filename")>>"Hello World!" prints to a new file
 
-    const char* filename = boost::filesystem::unique_path().native().c_str();
+    const char* filename = boost::filesystem::unique_path().string().c_str();
     print(filename)<<"Hello World!"<<$$;
     //Read in output
     std::ifstream file(filename);
