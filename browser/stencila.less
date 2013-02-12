@@ -2,7 +2,7 @@
 @FontAwesomePath:   "components/font-awesome/font";
 
 body {
-    background: #333333;
+    background: #252525;
 }
 
 .icon {
@@ -16,10 +16,13 @@ body {
     content: "\f00a"; //icon-th
 }
 
-.stencil {
+
+.stencil,
+.theme {
     margin: 10px;
     
     width: 21cm;
+    height: 27cm;
     
     background: #EEEEEE;
     
@@ -30,5 +33,24 @@ body {
     padding: 10px;
     
     font-family: Helvetica, Ariel, sans-serif;
+}
+
+
+.stencil {
+    
+}
+
+.theme {
+
+    position: relative;
+
+    .style {
+        position: absolute;
+        top: 30px;
+        bottom: 5px;
+        left: 5px;
+        right: 5px;
+        font-size: 16px;
+    }
 }
 

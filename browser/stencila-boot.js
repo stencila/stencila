@@ -44,22 +44,28 @@ var StencilaBoot = (function(){
     var dev = window.location.hash=="#!dev";
     if(dev){
         if(document.documentElement.className.indexOf('lt-ie9')!=-1){
-            js('/components/IE9/index.js');
+            js('/file/components/IE9/index.js');
         }
-        js('/components/modernizr/modernizr.js');
-        css('/components/normalize-css/normalize.css');
-        less('/stencila.less',function(){
-            js('/components/less.js/dist/less-1.3.3.js');
+        js('/file/components/modernizr/modernizr.js');
+        css('/file/components/normalize-css/normalize.css');
+        less('/file/stencila.less',function(){
+            js('/file/components/less.js/dist/less-1.3.3.js');
         });
-        js('/components/jquery/jquery.min.js',function(){
-            js('/components/transparency/dist/transparency.min.js');
-            js('/components/Base.js-Module/Base.js',function(){
-                js('/stencila.js');
-            });
+        js('/file/components/json3/lib/json3.min.js');
+        js('/file/components/jquery/jquery.min.js',function(){
+            js('/file/components/transparency/dist/transparency.min.js');
+        });
+        js('/file/components/ace/build/src/ace.js',function(){
+            js('/file/components/ace/build/src/theme-twilight.js');
+            js('/file/components/ace/build/src/mode-css.js');
+            js('/file/components/ace/build/src/mode-javascript.js');
+        });
+        js('/file/components/Base.js-Module/Base.js',function(){
+            js('/file/stencila.js');
         });
     } else {
-        css('/stencila.min.css');
-        js('/stencila.min.comb.js');
+        css('/file/stencila.min.css');
+        js('/file/stencila.min.comb.js');
     }
     
     return {
