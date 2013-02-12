@@ -4,7 +4,17 @@
 * Define a Stencila (module)[http://briancray.com/posts/javascript-module-pattern)
 */
 var Stencila = (function(){
-        
+
+    /*
+     Sets up an ACE editor instance on the element with the id
+    */
+    var Editor = function(id,mode){
+        var editor = ace.edit(id);
+        editor.setTheme("ace/theme/twilight");
+        editor.getSession().setMode(new (require("ace/mode/"+mode).Mode)());
+        return editor;
+    }
+
     var Component = Base.extend({
         constructor:function(type,id){
             this.type = type;
@@ -20,7 +30,7 @@ var Stencila = (function(){
                     url:this.type,
                     data:JSON.stringify(data),
                     dataType:'json',
-                    async: true,
+                    async: false,
                     context: this
                 }).done(function(data){
                    if(data.error) throw data.error;
@@ -37,7 +47,7 @@ var Stencila = (function(){
                 type:'GET',
                 url:this.type+'/'+this.id,
                 dataType:'json',
-                async: true,
+                async: false,
                 context: this
             }).done(function(data){
                if(data.error) throw data.error;
@@ -70,6 +80,7 @@ var Stencila = (function(){
 
     var Stencil = Component.extend({
         constructor:function(id){
+            this.body = "";
             this.theme = null;
             this.base('stencil',id);
         },   
@@ -89,30 +100,49 @@ var Stencila = (function(){
         },
         
         show:function(){
+            var bodyEditorHandle = this.handle()+'-body-editor';
+
             this.view = $(
             '<div class="stencil">\
                 Stencil <span class="id"></span>\
                 <i class="icon-save"></i>\
                 <i class="icon-edit"></i>\
-            </div>');
-            this.view.render(this);
-            this.view.append('<div class="body">'+this.body+'</div>');
-            $('body').append(this.view);
+                <div class="body"></div>\
+                <div class="body-editor" id="'+bodyEditorHandle+'"></div>\
+            </div>').appendTo('body');
+
+            this.bodyEditor = Editor(bodyEditorHandle,'html');
             
             var self = this;
             this.view.on('click','.icon-save',function(event){
-                self.body = self.view.find('.body').html();
                 self.put();
             });
             this.view.on('click','.icon-edit',function(event){
                 self.view.find('.body')
                     .attr('contenteditable',true);
+                //self.body = self.view.find('.body').html();
             });
+            this.bodyEditor.getSession().on('change',function(event){
+                self.body = self.bodyEditor.getSession().getValue();
+                self.view.find('.body').html(self.body);
+                console.log(self.body);
+            })
             
+            this.render();
             return this;
         },
+
         render:function(){
-            this.view.render(this);
+            //Rendering stencil body using Transparency causes HTML to be escaped
+            //so ask it to ignore body and add it in 'manually'
+            this.view.render(this,{
+                body:{
+                    text: function(){
+                        return "";
+                    }
+                }
+            });
+            this.bodyEditor.getSession().setValue(this.body || "");
             return this;
         },
         /*
@@ -172,29 +202,32 @@ var Stencila = (function(){
         },
         
         show: function(){
-            
             var styleHandle = this.handle()+"-style";
+
             this.view = $('<div class="theme">\
                 <i class="icon-save"></i>\
                 <div class="style" id="'+styleHandle+'"></div>\
-            </div>')
-            this.view.render(this);
-            $('body').append(this.view);
+            </div>').appendTo('body');
             
-            //Set up the editor
-            var styleEditor = ace.edit(styleHandle);
-            styleEditor.setTheme("ace/theme/twilight");
-            styleEditor.getSession().setMode(new (require("ace/mode/css").Mode)());
+            this.styleEditor = Editor(styleHandle,'css');            
             
             var self = this;
             this.view.on('click','.icon-save',function(event){
-                self.style = styleEditor.getSession().getValue();
+                self.style = this.styleEditor.getSession().getValue();
                 self.put();
                 self.load();
             });
             
+            this.render();
             return this;
-        }
+        },
+
+        render:function(){
+            this.view.render(this);
+            this.styleEditor.getSession().setValue(this.style);
+            return this;
+        },
+
     });
     
     var Dataset = Component.extend({

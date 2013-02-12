@@ -57,6 +57,7 @@ var StencilaBoot = (function(){
         });
         js('/file/components/ace/build/src/ace.js',function(){
             js('/file/components/ace/build/src/theme-twilight.js');
+            js('/file/components/ace/build/src/mode-html.js');
             js('/file/components/ace/build/src/mode-css.js');
             js('/file/components/ace/build/src/mode-javascript.js');
         });
