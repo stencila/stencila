@@ -20,6 +20,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/algorithm/string.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/simple-context.hpp>
 
 using namespace Stencila;
 
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE(create_html_page){
 }
 
 BOOST_AUTO_TEST_CASE(render){
-    Context<void> context;
+    SimpleContext context;
     stencil2.render(context);
 }
 
@@ -95,7 +96,7 @@ BOOST_AUTO_TEST_CASE(render_include){
             <div data-append="#an-id"/>
         </div>
     )");
-    Context<void> context;
+    SimpleContext context;
     stencil.render(context);
     //std::cout<<stencil.dump()<<"\n\n";
 }

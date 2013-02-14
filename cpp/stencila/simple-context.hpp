@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012-2013 Stencila Ltd
+Copyright (c) 2013 Stencila Ltd
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is 
 hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
@@ -12,34 +12,40 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file context.hpp
-//! @brief Definition of class Context
+//! @file simple-context.hpp
+//! @brief Definition of class SimpleContext
 //! @author Nokome Bentley
 
 #pragma once
 
-#include <string>
-
-#include <stencila/component.hpp>
+#include <stencila/context.hpp>
 
 namespace Stencila {
 
-template<class Derived=void>
-class Context : public Component<Derived> {
-protected:
-
+class SimpleContext : public Context<SimpleContext> {
+private:
 	typedef std::string String;
-
+	typedef std::map<String,String> Map;
+	
+	Map map_;
+	
 public:
 
     static String type(void){
-        return "context";
+        return "simple-context";
     };
+	
+    SimpleContext(void){
+    }
+    
+    SimpleContext(const Id& id){
+    }
 
     //! @brief 
     //! @param name
     //! @param expression
     void set(const String& name, const String& expression){
+		map_[name] = expression;
     }
 
     //! @brief 
@@ -51,7 +57,9 @@ public:
     //! @param expression
     //! @return 
     String text(const String& expression){
-        return "";
+		auto i = map_.find(expression);
+		if(i!=map_.end()) return i->second;
+        else return "";
     }
 
     //! brief   
@@ -99,29 +107,6 @@ public:
     bool step(void){
         return false;
     }
-    
-    //! @name REST interface methods
-    //! @{
-	
-    String post(const String& method, const Http::Uri& uri){
-		if(method=="set"){
-			String name = uri.field("name");
-			String expression = uri.field("expression");
-			if(name.length()==0) return R"({"error":"required field missing:'name'"})";
-			if(expression.length()==0) return R"({"error":"required field missing:'expression'"})";
-			static_cast<Derived*>(this)->set(name,expression);
-			return "{}";
-		} else if(method=="text"){
-			String expression = uri.field("expression");
-			if(expression.length()==0) return R"({"error":"required field missing:'expression'"})";
-			String text = static_cast<Derived*>(this)->text(expression);
-			return Format(R"({"return":"%s"})")<<text;
-		} else {
-			return Format(R"({"error":"unknown method: %s"})")<<method;
-		}
-    }
-    
-    //! @}
     
 };
 

@@ -35,15 +35,25 @@ namespace Http {
 
 */
 
-
-
 //! http://cpp-netlib.org/0.9.4/in_depth/uri.html
 class Uri {
+public:
+	typedef std::string Segment;
+	typedef std::vector<Segment> Segments;
+
+	struct Field {
+		std::string name;
+		std::string value;
+	};
+	typedef std::vector<Field> Fields;
+	
+	typedef std::string Fragment;
+	
 private:
 
-    std::vector<std::string> path_;
-    std::vector<std::vector<std::string>> fields_;
-    std::string fragment_;
+    Segments segments_;
+    Fields fields_;
+    Fragment fragment_;
 
 public:
     
@@ -55,33 +65,42 @@ public:
         // Since the first part of the path is always "/" the first element
         // of bits is always empty so erase it
         std::string path = uri.path();
-        boost::split(path_,path,boost::is_any_of("/"));
-        path_.erase(path_.begin());
+        boost::split(segments_,path,boost::is_any_of("/"));
+        segments_.erase(segments_.begin());
         // Split the query into name=value pairs
         std::string query = uri.query();
         std::vector<std::string> pairs;
         boost::split(pairs,query,boost::is_any_of("&"));
         for(std::string pair : pairs){
-            std::vector<std::string> field;
-            boost::split(field,pair,boost::is_any_of("="));
+            std::vector<std::string> parts;
+            boost::split(parts,pair,boost::is_any_of("="));
+			Field field;
+			field.name = parts[0];
+			field.value = parts[1];
             fields_.push_back(field);
         }
         // Assign fragment
         fragment_ = uri.fragment();
     }
     
-    std::string path(unsigned int index,const std::string& defaul="") const {
-        return path_.size()>index?path_[index]:defaul;
+    Segment segment(unsigned int index,const std::string& defaul="") const {
+        return segments_.size()>index?segments_[index]:defaul;
     }
-    
-     std::vector<std::vector<std::string>> fields(void) const {
+	
+	Fields fields(void) const {
         return fields_;
     }
-    
-    std::string fragment(void) const {
-        return fragment_;
+	
+	std::string field(const std::string& name,const std::string& defaul="") const {
+		for(Field field : fields_){
+			if(field.name==name) return field.value;
+		}
+        return defaul;
     }
     
+    Fragment fragment(void) const {
+        return fragment_;
+    }
 };
 
 /*! 
@@ -99,7 +118,6 @@ public:
         else assign(method);
     }
 };
-
 const Method Get("GET");
 const Method Head("HEAD");
 const Method Post("POST");

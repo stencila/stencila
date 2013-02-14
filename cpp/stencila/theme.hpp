@@ -82,8 +82,8 @@ public:
     
     //! @name REST interface methods
     //! @{
-    
-    std::string get(void){
+    	
+    std::string get(void) {
         read();
         Json::Document out;
         out.add("style",style_);
