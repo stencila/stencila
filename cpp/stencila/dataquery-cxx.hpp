@@ -67,8 +67,8 @@ Column column(const std::string& name){
 }
 
 template<class Element>
-As as(const Element& element, const std::string& name){
-    return As(convert(element),name);
+As as(const std::string& name,const Element& element){
+    return As(name,convert(element));
 }
 
 //! @}

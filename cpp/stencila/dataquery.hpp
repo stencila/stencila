@@ -453,13 +453,13 @@ public:
     //! @param element
     //! @param name
     //! @return
-    As(Element* element,const std::string& name):
-        element_(element),
-        name_(name){
+    As(const std::string& name,Element* element):
+        name_(name),
+        element_(element){
     }
 
     virtual std::string dql(void) const {
-        return "as(" + element_->dql() + ",\"" + name_ + "\")";
+        return "as(\"" + name_ + "\"," + element_->dql() + ")";
     }
 
     virtual std::string label(void) const {

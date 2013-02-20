@@ -182,11 +182,11 @@ STENCILA_R_FUNC Element_Aggregate(SEXP name, SEXP element){
 //! @name Standard directives
 //! @{
 
-STENCILA_R_FUNC Element_As(SEXP element,SEXP name){
+STENCILA_R_FUNC Element_As(SEXP name,SEXP element){
     STENCILA_R_BEGIN
         return to(new As(
-            clone(element),
-            as<std::string>(name)
+            as<std::string>(name),
+            clone(element)
         ),"Element");
     STENCILA_R_END
 }

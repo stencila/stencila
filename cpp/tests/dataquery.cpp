@@ -87,9 +87,9 @@ BOOST_AUTO_TEST_CASE(dql){
     );
         
     dql_check(
-        query(as(sales,"Sales")),
+        query(as("Sales",sales)),
         "SELECT \"sales\" AS \"Sales\" FROM \"data\"",
-        "as(sales,\"Sales\")"
+        "as(\"Sales\",sales)"
     );
 
     dql_check(

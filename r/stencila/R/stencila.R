@@ -348,8 +348,8 @@ Datatable_value <- function(self,row=0,col=0) return(object_(call_('Datatable_va
 
 setMethod("show", "Datatable", function(object){
   cat("Datatable (rows:",object$rows(),", columns:",object$columns(),")\n",sep="")
-  print(as.data.frame(object))
-  cat('...')
+  print(as.data.frame(object$head(100)))
+  if(object$rows()>100) cat('...<truncated>...\n')
 })
 
 #' Datatable subscript
@@ -597,7 +597,7 @@ Call <- function(name,...) elem_('Call',name,wrap_all_(...))
 Aggregate <- function(name,element) elem_('Aggregate',name,wrap_(element))
 
 #' @export
-As <- function(element,name) elem_('As',wrap_(element),name)
+As <- function(name,element) elem_('As',name,wrap_(element))
 
 #' @export
 Distinct <- function() elem_('Distinct')
@@ -638,6 +638,7 @@ Proportion <- function(value,by=NULL) elem_('Proportion',wrap_(value),wrap_(by))
 dataquery_elements_ <- list(
   distinct = Distinct,
   all = All,
+  as = As,
   where = Where,
   by = By,
   having = Having,
