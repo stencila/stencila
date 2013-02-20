@@ -147,6 +147,7 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
     Datacursor insert_cursor = cursor(insert);
     insert_cursor.prepare();
     
+    execute("BEGIN TRANSACTION");
     count = 0;
     while(file.good()){
         
@@ -174,6 +175,7 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
         insert_cursor.reset();
     }
     file.close();
+    execute("END TRANSACTION");
     
     //! Replace the existing table with the new one
     execute("DROP TABLE IF EXISTS \""+name+"\"");
