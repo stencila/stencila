@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(create_stem_string){
     BOOST_CHECK_EQUAL(s.body(),"<div class=\"klass\" id=\"ident\" />");
 }
 BOOST_AUTO_TEST_CASE(create_stem_file){
-    Stencil s("file://stencil-a.stem");
+    Stencil s("file://inputs/a.stem");
     BOOST_CHECK_EQUAL(s.body(),"<div><ul><li /></ul></div>");
 }
 

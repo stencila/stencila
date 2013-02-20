@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE(caching){
 
     //Save a copy of the dataset and make sure that
     //the copy has the right cached number
-    dataset.backup("dataset.caching.sds");
-    Dataset dataset_copy("dataset.caching.sds");
+    dataset.backup("outputs/dataset-caching.sted");
+    Dataset dataset_copy("outputs/dataset-caching.sted");
     BOOST_CHECK_EQUAL(dataset_copy.cached(),2);
 
     //Vacuum the dataset

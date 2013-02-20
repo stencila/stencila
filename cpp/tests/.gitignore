@@ -1,3 +1,6 @@
+#Ignore outpus
+outputs
+
 #Ignore test executables and coverage output files
 *.exe
 *.gcov

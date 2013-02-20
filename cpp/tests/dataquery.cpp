@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(combiners){
 
     query(prop(sum(sales),year),by(month)).execute(data).name("q5");
 
-    data.save("temp.sds");
+    data.save("outputs/dataquery-combiners.sted");
 } 
 
 BOOST_AUTO_TEST_SUITE_END()
