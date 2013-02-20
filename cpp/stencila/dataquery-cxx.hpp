@@ -116,6 +116,11 @@ BINOP(Or,||)
 
 #undef BINOP
 
+template<class Element>
+In in(const Element& element,const std::vector<std::string> set){
+    return In(convert(element),set);
+}
+
 //! @}
 
 //! @name Function calls

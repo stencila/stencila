@@ -1,3 +1,4 @@
+#include <stencila/format.hpp>
 #include <stencila/dataquery.hpp>
 using namespace Stencila;
 
@@ -42,6 +43,8 @@ Element* clone(SEXP element){
 
     STENCILA_LOCAL(And)
     STENCILA_LOCAL(Or)
+    
+    STENCILA_LOCAL(In)
     
     STENCILA_LOCAL(Call)
     STENCILA_LOCAL(Aggregate)
@@ -156,6 +159,21 @@ STENCILA_LOCAL(And)
 STENCILA_LOCAL(Or)
 
 #undef STENCILA_LOCAL
+
+STENCILA_R_FUNC Element_In(SEXP element, SEXP set){
+    STENCILA_R_BEGIN
+        std::vector<std::string> vector;
+        Rcpp::List items(set);
+        for(int i=0;i!=items.length();i++) {
+            SEXP item = items[i];
+            if(Rf_isInteger(item)) vector.push_back(Format("%i")<<as<int>(item));
+            else if(Rf_isNumeric(item)) vector.push_back(Format("%g")<<as<double>(item));
+            else if(Rf_isString(item)) vector.push_back("'"+as<std::string>(item)+"'");
+            else vector.push_back(as<std::string>(item));
+        }
+        return to(new In(clone(element),vector),"Element");
+    STENCILA_R_END
+}
 
 //! @}
 

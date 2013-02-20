@@ -591,6 +591,11 @@ binop_methods_('&','And')
 binop_methods_('|','Or')
 
 #' @export
+setMethod('%in%',signature(x='Element',table='ANY'),function(x,table){
+  elem_('In',wrap_(x),table)
+})
+
+#' @export
 Call <- function(name,...) elem_('Call',name,wrap_all_(...))
 
 #' @export

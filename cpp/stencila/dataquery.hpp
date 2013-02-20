@@ -437,15 +437,52 @@ BINOP(31,Or," or "," OR ")
 
 #undef BINOP
 
+class In : public Operator {
+protected:
+
+    //! @brief
+    Element* element_;
+    
+    //! @brief
+    std::vector<std::string> set_;
+
+public:
+
+    //! @brief
+    //! @param element
+    //! @param set
+    In(Element* element, const std::vector<std::string>& set):
+        element_(element),
+        set_(set){
+    }
+
+    virtual std::string dql(void) const {
+        return element_->dql()+" in ["+boost::algorithm::join(set_, ",")+"]";
+    }
+
+    virtual std::string label(void) const {
+        return dql();
+    }
+
+    virtual std::string sql(unsigned short phase) const {
+        std::string sql;
+        std::string left = element_->sql(phase);
+        if(dynamic_cast<Operator* const>(element_)) sql += "(" + left + ")";
+        else sql += left;
+        sql += "IN ("+boost::algorithm::join(set_, ",")+")";
+        return sql;
+    }
+};
+
 class As : public Element {
 
 private:
 
     //! @brief
-    Element* element_;
-
-    //! @brief
     std::string name_;
+    
+    //! @brief
+    Element* element_;
 
 public:
 

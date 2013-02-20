@@ -131,6 +131,11 @@ BOOST_AUTO_TEST_CASE(dql){
         "where(((year+month)+10)>(sales+10))"
     );
     dql_check(
+        query(where(in(month,{"10","11","12"}))),
+        R"(SELECT * FROM "data" WHERE month IN (10,11,12)",
+        "where(month in [10,11,12])"
+    );
+    dql_check(
         query(by(year),sum(sales)),
         R"(SELECT "year", sum("sales") FROM "data" GROUP BY "year")",
         "by(year),sum(sales)"

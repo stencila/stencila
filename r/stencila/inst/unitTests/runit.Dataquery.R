@@ -34,6 +34,9 @@ test.Dataquery.binary <- function(){
   checkEquals('x and y',(x&y)$dql())
   checkEquals('x or y',(x|y)$dql())
   
+  checkEquals("x in [1,2,3]",(x %in% c(1,2,3))$dql())
+  checkEquals("x in ['a','b','c']",(x %in% c('a','b','c'))$dql())
+  
   checkEquals('x*42',(x*42)$dql())
   checkEquals('42/y',(42/y)$dql())
   checkEquals("x=='banana'",(x=='banana')$dql())
@@ -41,7 +44,7 @@ test.Dataquery.binary <- function(){
 }
 
 test.Dataquery.as <- function(){
-  checkEquals('as(sum(x),"sum_of_x")',As(Call("sum",x),"sum_of_x")$dql())
+  checkEquals('as("sum_of_x",sum(x))',As("sum_of_x",Call("sum",x))$dql())
 }
 
 test.Dataquery.distinct.all <- function(){
@@ -105,8 +108,8 @@ test.Dataquery.combos <- function(){
     Dataquery(Call('sum',x),Where(x<2))$dql()
   )  
   checkEquals(
-    'as(sum(x),"sum_x"),where(x<2)',
-    Dataquery(As(Call('sum',x),"sum_x"),Where(x<2))$dql()
+    'as("sum_x",sum(x)),where(x<2)',
+    Dataquery(As("sum_x",Call('sum',x)),Where(x<2))$dql()
   )  
 }
 
