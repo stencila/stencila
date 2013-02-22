@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stencila/context.hpp>
 using namespace Stencila;
 
@@ -40,23 +42,24 @@ private:
 
 public:
 
+    static String type(void){
+        return "r-context";
+    };
+    
+    RContext(void){
+        Rcpp::Environment stencila("package:stencila");
+        Rcpp::Function func = stencila.get("Context");
+        Rcpp::Language call(func);
+        context = Rcpp::Environment(call.eval());
+    }
+    
+    RContext(const Id& id){
+    }
+
     /*!
     Constructor which takes a SEXP representing the R-side Context.
     */
     RContext(SEXP sexp){
-        // Currently, requires an R-side context, but old code
-        // which creates a new one is retained below, but is not active.
-        #if 0
-        STENCILA_R_TRY
-            // Get and call the "Context" function from the stencila package
-            Rcpp::Environment stencila("package:stencila");
-            Rcpp::Function func = stencila.get("Context");
-            Rcpp::Language call(func);
-            SEXP sexp = call.eval();
-        STENCILA_R_CATCH
-        #endif
-        // Convert the R context into a Rcpp Environment so that the [] operator can be used
-        // to call its methods
         context = Rcpp::Environment(sexp);
     }
 
@@ -68,6 +71,11 @@ public:
     void script(const std::string& code){
         Rcpp::Language call(context.get("script"),code);
         call.eval();
+    }
+    
+    std::string interact(const std::string& code){
+        Rcpp::Language call(context.get("interact"),code);
+        return as<std::string>(call.eval());
     }
 
     std::string text(const std::string& expression){

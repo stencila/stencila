@@ -28,7 +28,7 @@ template<class Derived=void>
 class Context : public Component<Derived> {
 protected:
 
-	typedef std::string String;
+    typedef std::string String;
 
 public:
 
@@ -45,6 +45,13 @@ public:
     //! @brief 
     //! @param code
     void script(const String& code){
+    }
+    
+    //! @brief 
+    //! @param code
+    //! @return 
+    String interact(const String& code){
+        return "";
     }
 
     //! @brief 
@@ -102,23 +109,43 @@ public:
     
     //! @name REST interface methods
     //! @{
-	
-    String post(const String& method, const Http::Uri& uri){
-		if(method=="set"){
-			String name = uri.field("name");
-			String expression = uri.field("expression");
-			if(name.length()==0) return R"({"error":"required field missing:'name'"})";
-			if(expression.length()==0) return R"({"error":"required field missing:'expression'"})";
-			static_cast<Derived*>(this)->set(name,expression);
-			return "{}";
-		} else if(method=="text"){
-			String expression = uri.field("expression");
-			if(expression.length()==0) return R"({"error":"required field missing:'expression'"})";
-			String text = static_cast<Derived*>(this)->text(expression);
-			return Format(R"({"return":"%s"})")<<text;
-		} else {
-			return Format(R"({"error":"unknown method: %s"})")<<method;
-		}
+
+    String post(const String& method, const Http::Uri& uri, const std::string& data){
+        Derived* self = static_cast<Derived*>(this);
+        if(method=="interact"){
+            Json::Document json(data);
+            if(json.has("code")) {
+                String code = json.as<String>(json.get("code"));
+                String result = self->interact(code);
+                return Format(R"({"return":"%s"})")<<result;
+            }
+            else return R"({"error":"required field missing:'code'"})";
+        }
+        else if(method=="set"){
+            String name = uri.field("name");
+            String expression = uri.field("expression");
+            if(name.length()==0) return R"({"error":"required field missing:'name'"})";
+            if(expression.length()==0) return R"({"error":"required field missing:'expression'"})";
+            self->set(name,expression);
+            return "{}";
+        } else if(method=="text"){
+            String expression = uri.field("expression");
+            if(expression.length()==0) return R"({"error":"required field missing:'expression'"})";
+            String text = self->text(expression);
+            return Format(R"({"return":"%s"})")<<text;
+        } else {
+            return Format(R"({"error":"unknown method: %s"})")<<method;
+        }
+    }
+    
+    std::string get(void) {
+        Json::Document out;
+        return out.dump();
+    }
+    
+    std::string put(const std::string& data){
+        Json::Document json(data);
+        return "{}";
     }
     
     //! @}

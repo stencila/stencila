@@ -92,42 +92,59 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
         file.seekg(0);
     }
 
-    // Create column types by reading a number of rows and attempting to convert 
-    // to different types
-    //! @todo Determine field types
-    //! @todo Finish this off. Should read in the first 1000 rows into a vector so that these can be used below when doing actual inserts
-    std::vector<std::string> types(names.size());
+    // Determine the type of each column by reading a number of rows and attempting to convert 
+    //! @todo Perhaps this should read in the first 1000 rows into a vector so that these can be used below when doing actual inserts
+    //! rather than re-reading the file.
+    //! @todo Count the number of unique levels of integer and text columns and if under a cetain number then make columns nominal/ordinal.
+    std::vector<int> flags(names.size(),0);
     auto position = file.tellg();
     count = 0;
-    while(file.good() and count<100){
+    while(file.good() and count<1000){
         std::getline(file,line);
         count++;
-        boost::trim(line);
         if(line.length()==0) break;
         
-        //! @brief 
-        //! @param size
-        //! @return 
+        std::vector<std::string> row;
+        boost::tokenizer<boost::escaped_list_separator<char> > tokenizer(line,separator);
+        for(auto i=tokenizer.begin();i!=tokenizer.end();++i){
+            std::string item = *i;
+            boost::trim(item);
+            row.push_back(item);
+        }
+        
         for(unsigned int i=0;i<names.size();i++){
-            std::string value = "";
+            if(row.size()<=i) break;
+            std::string value = row[i];
+            //Don't attempt to lexical cast empty strings
+            if(value.length()==0) continue;
             try{
-                boost::lexical_cast<double>(value);
-                //successes[column][0]++;
+                boost::lexical_cast<int>(value);
             }
             catch(boost::bad_lexical_cast){
+                flags[i] = 1;
                 try{
-                    boost::lexical_cast<int>(value);
-                    //successes[column][0]++;
+                    boost::lexical_cast<double>(value);
                 }
                 catch(boost::bad_lexical_cast){
-                    
+                    flags[i] = 2;
                 }
             }
-            types[i] = "TEXT";
         }
     }
-    //Go back to start of data
+    // Clear flags on file (e.g. in case we got to end of file) and go back to start of data
+    file.clear();
     file.seekg(position);
+    
+    //Determine types based on lexical cast flags
+    std::vector<std::string> types(names.size());
+    for(unsigned int i=0;i<names.size();i++){
+        switch(flags[i]){
+            case 0: types[i] = "INTEGER"; break;
+            case 1: types[i] = "REAL"; break;
+            case 2: types[i] = "TEXT"; break;
+            default: types[i] = "TEXT"; break;
+        }
+    }
     
     // Create temporary table
     std::string temp_name = "stencila_"+name+"_temp";

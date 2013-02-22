@@ -1,9 +1,10 @@
 #include "r-context.hpp"
 
-/*
-STENCILA_R_FUNC Context_new(SEXP sexp){
+STENCILA_R_FUNC Context_test(void){
     STENCILA_R_BEGIN
-        return STENCILA_R_TO(Context,new RContext(sexp));
+        RContext context;
+        context.set("foo","'bar'");
+        return wrap(context.text("foo"));
     STENCILA_R_END
 }
-*/
+

@@ -88,11 +88,30 @@ class_ <- function(class_name){
   setMethod('$',class_name,eval(substitute(function(x,name){
     function(...) {
       result <- method_(class_name,name,x@pointer,...)
-      if(!is.null(result)) return(object_(result))
+      #If the return is NULL (in C++ nil) then return self
+      #so method chaining can be used...
+      if(is.null(result)) return(x)
+      #...otherwise return the object after wrapping it
+      else return(object_(result))
+      #We could just get C++ functions to return self
+      #and wrap the return regardless of type but that creates a new object
+      #and would seem to be wateful (and perhaps dangerous?)
     }
   },list(class_name=class_name))))
   
   NULL
+}
+
+########################################################################
+# Package startup/shutdown functions
+#
+# See ?.onLoad
+########################################################################
+.onLoad <- function(libname, pkgname){
+  call_('Stencila_startup')
+}
+
+.onUnload <- function(libpath){
 }
 
 ########################################################################
@@ -775,8 +794,6 @@ setMethod("render",c("ANY","ANY"),function(stencil,context){
   return(stencil$dump())
 })
 
-
-
 #' Create a stencil rendering context
 #' 
 #' Stencils are rendered within a context. 
@@ -793,17 +810,25 @@ Context <- function(envir){
   class(self) <- "Context"
   
   if(missing(envir)) envir <- new.env(parent=baseenv())
+  else if(inherits(envir,'environment')) envir <- envir
   else if(is.list(envir)) envir <- list2env(envir,parent=baseenv())
+  else if(is.atomic(envir) & inherits(envir,'character')){
+    if(envir==".") envir <- parent.frame()
+    else stop(paste('unrecognised environment flag:',envir))
+  }
+  else stop(paste('unrecognised environment class:',paste(class(envir),collapse=",")))
   self$stack <- list(envir)
   
   ##################################
   
   self$push <- function(item){
     self$stack[[length(self$stack)+1]] <- item
+    return(self)
   }
   
   self$pop  <- function() {
     self$stack[[length(self$stack)]] <- NULL
+    return(self)
   }
   
   self$top  <- function() {
@@ -820,15 +845,45 @@ Context <- function(envir){
     env <- self$top()
     value <- eval(parse(text=expression),envir=env)
     assign(name,value,envir=env)
+    return(self)
   }
   
   ##################################
   # "script" elements
   # 
   # Executes the script
-  
   self$script <- function(code){
     eval(parse(text=code),envir=self$top())
+    return(self)
+  }
+  
+  ##################################
+  # "interact" method
+  
+  self$interact_code <- ""
+  
+  self$interact <- function(code){
+    self$interact_code <- paste(self$interact_code,code,sep="")
+    expr <- tryCatch(parse(text=self$interact_code),error=function(error)error)
+    if(inherits(expr,'error')){
+      if(grepl('unexpected end of input',expr$message)){
+        return(paste("C",self$interact_code,sep=""))
+      } else {
+        self$interact_code <- ""
+        return(paste("S",expr$message,sep=""))
+      }
+    } else {
+      self$interact_code <- ""
+      result <- tryCatch(eval(expr,envir=self$top()),error=function(error)error)
+      if(inherits(expr,'result')){
+        return(paste("E",result$message,sep=""))
+      } else {
+        # show() and capture.output() actually return vectors of strings for each line
+        # so they need to be collapsed...
+        string <- paste(capture.output(show(result)),collapse='\n')
+        return(paste("R",string,sep=""))
+      }
+    }
   }
   
   ##################################
@@ -860,6 +915,7 @@ Context <- function(envir){
   self$subject <- function(expression){
     value <- self$get(expression)
     assign('_subject_',value,envir=self$top())
+    return(self)
   }
   
   self$match <- function(expression){
@@ -883,11 +939,12 @@ Context <- function(envir){
     if(is.null(expression)) env <- new.env(parent=parent)
     else env <- list2env(self$get(expression),parent=parent) #Use list2env rather than as.enviroment because it allows use to define parent
     self$push(env)
-    return(env)
+    return(self)
   }
   
   self$exit <- function(){
     self$pop()
+    return(self)
   }
   
   ##################################
@@ -898,7 +955,7 @@ Context <- function(envir){
   
   self$begin <- function(item,items){
     # Enter a new anonymous block that forms the namespace for the loop
-    loop <- self$enter()
+    loop <- self$enter()$top()
     # Create an iterator for items
     items <- eval(parse(text=items),envir=loop)
     iterator <- iterate(items)

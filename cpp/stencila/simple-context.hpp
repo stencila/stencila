@@ -24,17 +24,17 @@ namespace Stencila {
 
 class SimpleContext : public Context<SimpleContext> {
 private:
-	typedef std::string String;
-	typedef std::map<String,String> Map;
-	
-	Map map_;
-	
+    typedef std::string String;
+    typedef std::map<String,String> Map;
+    
+    Map map_;
+    
 public:
 
     static String type(void){
         return "simple-context";
     };
-	
+    
     SimpleContext(void){
     }
     
@@ -45,7 +45,7 @@ public:
     //! @param name
     //! @param expression
     void set(const String& name, const String& expression){
-		map_[name] = expression;
+        map_[name] = expression;
     }
 
     //! @brief 
@@ -57,8 +57,8 @@ public:
     //! @param expression
     //! @return 
     String text(const String& expression){
-		auto i = map_.find(expression);
-		if(i!=map_.end()) return i->second;
+        auto i = map_.find(expression);
+        if(i!=map_.end()) return i->second;
         else return "";
     }
 

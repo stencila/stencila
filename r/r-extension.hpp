@@ -97,3 +97,4 @@ Type& from(SEXP self){
 }
 
 //! @}
+

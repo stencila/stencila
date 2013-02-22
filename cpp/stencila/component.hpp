@@ -71,52 +71,54 @@ template<>
 class Component<void> {
 protected:
 
-	typedef std::string String;
+    typedef std::string String;
 
     //! @name Component type declaration and definition methods
     //! @{
-	
+    
 protected:
 
-	struct Type {
-		typedef std::string (*RestMethod)(const Http::Method& verb, const Http::Uri& uri, const std::string& json);
-		RestMethod rest;
-	};
-	static std::map<std::string,Type> types_;
-	
-public:
+    struct Type {
+        bool defined;
+        typedef std::string (*RestMethod)(const Http::Method& verb, const Http::Uri& uri, const std::string& json);
+        RestMethod rest;
+    };
+    static std::map<std::string,Type> types_;
     
+public:
+
     template<class Class>
     static void declare(void){
-		Type type {
-			static_cast<Type::RestMethod>(&rest_type<Class>)
-		};
-		types_[Class::type()] = type;
-	}
-	
-	static void declarations(void);
-	
-	static Type* definition(std::string type){ 
-		auto i = types_.find(type);
-		if(i!=types_.end()) return &i->second;
-		else return 0;
-	}
-	
-	//! @}
-	
+        Type type {
+            true,
+            static_cast<Type::RestMethod>(&rest_type<Class>)
+        };
+        types_[Class::type()] = type;
+    }
+
+    static void declarations(void);
+
+    static Type definition(std::string type){ 
+        auto i = types_.find(type);
+        if(i!=types_.end()) return i->second;
+        else return Type {false};
+    }
+
+    //! @}
+
 protected:
-	
+    
     //! @name Component retrieval methods
     //! @{
 
-	Id id_;	
-	
+    Id id_;    
+    
     struct Pointer {
         std::string type;
         Component<void>* pointer;
     };
     static std::map<Id,Pointer> pointers_;
-	
+    
 public:
     
     static void record(const std::string& type,Component<void>* instance){
@@ -125,31 +127,31 @@ public:
     
     template<class Class>
     static Class* obtain(const Id& id){
-		std::string type = Class::type();
-		auto i = pointers_.find(id);
-		if(i!=pointers_.end()){
-			if(i->second.type==type) return static_cast<Class*>(i->second.pointer);
-			else return 0;
-		} else {
-			std::string dir = directory(id);
-			if(boost::filesystem::exists(dir)){
-				Class* component = static_cast<Class*>(create<Class>(id));
-				return component;
-			} else {
-				return 0;
-			}
-		}
-	}
+        std::string type = Class::type();
+        auto i = pointers_.find(id);
+        if(i!=pointers_.end()){
+            if(i->second.type==type) return static_cast<Class*>(i->second.pointer);
+            else return 0;
+        } else {
+            std::string dir = directory(id);
+            if(boost::filesystem::exists(dir)){
+                Class* component = static_cast<Class*>(create<Class>(id));
+                return component;
+            } else {
+                return 0;
+            }
+        }
+    }
     
     template<class Class>
     static std::vector<Class*> filter(void){
-		std::string type = Class::type();
-		std::vector<Class*> filtered;
-		for(const std::map<Id,Pointer>::value_type& i : pointers_){
-			if(i.second.type==type) filtered.push_back(static_cast<Class*>(i.second.pointer));
-		}
-		return filtered;
-	}
+        std::string type = Class::type();
+        std::vector<Class*> filtered;
+        for(const std::map<Id,Pointer>::value_type& i : pointers_){
+            if(i.second.type==type) filtered.push_back(static_cast<Class*>(i.second.pointer));
+        }
+        return filtered;
+    }
     
     //! @}
 
@@ -212,13 +214,13 @@ public:
     
     template<class Class>
     static Component<>* create(void){
-		return new Class;
-	}
+        return new Class;
+    }
     
     template<class Class>
     static Component<>* create(const Id& id){
-		return new Class(id);
-	}
+        return new Class(id);
+    }
     
     //! @}
     
@@ -226,97 +228,97 @@ public:
     //! @{
     
     static std::string rest(const std::string& method, const std::string& uri, const std::string& json){
-		return rest(Http::Method(method),Http::Uri(uri),json);
-	}
+        return rest(Http::Method(method),Http::Uri(uri),json);
+    }
     
     static std::string rest(const Http::Method& verb, const Http::Uri& uri, const std::string& json){
-		try{
-			std::string type_name = uri.segment(0);
-			if(type_name.length()==0) return R"({"error":"type not specified"})";
-			Type* type = definition(type_name);
-			if(type) return type->rest(verb,uri,json);
-			else return Format(R"({"error":"unsupported type: %s"})")<<type_name;
-		} catch (std::exception &e) {
-			return Format(R"({"error":"%s"})")<<e.what();
-		} catch (...) {
-			return R"({error:unknown})";
-		}
-	}
+        try{
+            std::string type_name = uri.segment(0);
+            if(type_name.length()==0) return R"({"error":"type not specified"})";
+            Type type = definition(type_name);
+            if(type.defined) return type.rest(verb,uri,json);
+            else return Format(R"({"error":"undefined type: %s"})")<<type_name;
+        } catch (std::exception &e) {
+            return Format(R"({"error":"%s"})")<<e.what();
+        } catch (...) {
+            return R"({error:unknown})";
+        }
+    }
 
-	template<class Class>
-	static std::string rest_type(const Http::Method& verb, const Http::Uri& uri, const std::string& json){
-		if(verb==Http::Post) return post<Class>(uri,json);
-		else if(verb==Http::Get) return get<Class>(uri);
-		else if(verb==Http::Put) return put<Class>(uri,json);
-		else if(verb==Http::Delete) return del<Class>(uri);
-		else return Format(R"({"error":"unsupported method: %s"})")<<verb;
-	}
+    template<class Class>
+    static std::string rest_type(const Http::Method& verb, const Http::Uri& uri, const std::string& json){
+        if(verb==Http::Post) return post<Class>(uri,json);
+        else if(verb==Http::Get) return get<Class>(uri);
+        else if(verb==Http::Put) return put<Class>(uri,json);
+        else if(verb==Http::Delete) return del<Class>(uri);
+        else return Format(R"({"error":"unsupported method: %s"})")<<verb;
+    }
 
-	template<class Class>
-	static std::string post(const Http::Uri& uri, const std::string& json){
-		Id id = uri.segment(1);
-		if(id.length()==0){
-			Class* component = static_cast<Class*>(create<Class>());
-			component->put(json);
-			return Format(R"({"id":"%s"})")<<component->id();
-		} else {
-			Class* component = obtain<Class>(id);
-			if(component){
-				std::string method = uri.segment(2);
-				if(method.length()>0) return component->post(method,uri);
-				else return Format(R"({"error":"method must be given when POSTing with id"})");
-			} else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
-		}
-	}
-	
-	std::string post(const std::string& method, const Http::Uri& uri){
-		return "{}";
-	}
-
-	template<class Class>
-	static std::string get(const Http::Uri& uri){
-		Id id = uri.segment(1);
-		if(id.length()>0){
-			Class* component = obtain<Class>(id);
-			if(component) return component->get();
-			else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
-		} else {
-			std::string list = R"({"items":[)";
-			for(auto component : filter<Class>()){
-				list += Format(R"({"id":"%s"},)")<<component->id();
-			}
-			if(list.at(list.length()-1)==',') list.erase(list.end()-1);
-			return list+"]}";
-		}
-	}
-	
-	std::string get(void) {
-		return "{}";
-	}
-
-	template<class Class>
-	static std::string put(const Http::Uri& uri, const std::string& in){
-		Id id = uri.segment(1);
-		Class* component = obtain<Class>(id);
-		if(component) return component->put(in);
-		else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
-	}
-	
-	std::string put(const std::string& data){
+    template<class Class>
+    static std::string post(const Http::Uri& uri, const std::string& json){
+        Id id = uri.segment(1);
+        if(id.length()==0){
+            Class* component = static_cast<Class*>(create<Class>());
+            component->put(json);
+            return Format(R"({"id":"%s"})")<<component->id();
+        } else {
+            Class* component = obtain<Class>(id);
+            if(component){
+                std::string method = uri.segment(2);
+                if(method.length()>0) return component->post(method,uri,json);
+                else return Format(R"({"error":"method must be given when POSTing with id"})");
+            } else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
+        }
+    }
+    
+    std::string post(const std::string& method, const Http::Uri& uri, const std::string& data){
         return "{}";
     }
 
-	template<class Class>
-	static std::string del(const Http::Uri& uri){
-		return R"({"error":"DELETE not yet implemented"})";
-	}
+    template<class Class>
+    static std::string get(const Http::Uri& uri){
+        Id id = uri.segment(1);
+        if(id.length()>0){
+            Class* component = obtain<Class>(id);
+            if(component) return component->get();
+            else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
+        } else {
+            std::string list = R"({"items":[)";
+            for(auto component : filter<Class>()){
+                list += Format(R"({"id":"%s"},)")<<component->id();
+            }
+            if(list.at(list.length()-1)==',') list.erase(list.end()-1);
+            return list+"]}";
+        }
+    }
+    
+    std::string get(void) {
+        return "{}";
+    }
+
+    template<class Class>
+    static std::string put(const Http::Uri& uri, const std::string& in){
+        Id id = uri.segment(1);
+        Class* component = obtain<Class>(id);
+        if(component) return component->put(in);
+        else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
+    }
+    
+    std::string put(const std::string& data){
+        return "{}";
+    }
+
+    template<class Class>
+    static std::string del(const Http::Uri& uri){
+        return R"({"error":"DELETE not yet implemented"})";
+    }
 
     //! @}
 };
 
 template<class Class>
 class Component : public Component<> {
-	public:
+    public:
 
     Component<Class>(void):
         Component<>(Class::type()){

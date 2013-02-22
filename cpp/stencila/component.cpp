@@ -28,9 +28,9 @@ std::map<Id,Component<>::Pointer> Component<>::pointers_;
 std::map<std::string,Component<>::Type> Component<>::types_;
 
 void Component<>::declarations(void){
-	Component<>::declare<Theme>();
-	Component<>::declare<Stencil>();
-	Component<>::declare<SimpleContext>();
+    Component<>::declare<Theme>();
+    Component<>::declare<Stencil>();
+    Component<>::declare<SimpleContext>();
 }
 
 }

@@ -39,7 +39,7 @@ test.Stencil.render <- function(){
     colour = c('red','green','brown','orange')
   )
   
-  c <- Context(environment())
+  c <- Context('.')
   s$render(c)
   cat(s$dump(),file="Stencil.out")
   #checkEquals(s$dump(),'<span data-text="greeting">Hello world!</span>')

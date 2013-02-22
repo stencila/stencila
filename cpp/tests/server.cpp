@@ -4,7 +4,7 @@
 
 int main(void) {
     using namespace Stencila;
-	Component<>::declarations();
+    Component<>::declarations();
     try {
         Server server;
         server.run();

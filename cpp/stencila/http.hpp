@@ -60,7 +60,8 @@ public:
     Uri(const std::string& url){
         // Using cpp-netlib uri class for parsing, although
         // the functionality used here should be fairly straightforward to implement
-        boost::network::uri::uri uri(url);
+        boost::network::uri::uri decoded = boost::network::uri::decoded(url);
+        boost::network::uri::uri uri(decoded);
         // Split the path up
         // Since the first part of the path is always "/" the first element
         // of bits is always empty so erase it
@@ -69,15 +70,19 @@ public:
         segments_.erase(segments_.begin());
         // Split the query into name=value pairs
         std::string query = uri.query();
-        std::vector<std::string> pairs;
-        boost::split(pairs,query,boost::is_any_of("&"));
-        for(std::string pair : pairs){
-            std::vector<std::string> parts;
-            boost::split(parts,pair,boost::is_any_of("="));
-			Field field;
-			field.name = parts[0];
-			field.value = parts[1];
-            fields_.push_back(field);
+        if(query.length()>0){
+            std::vector<std::string> pairs;
+            boost::split(pairs,query,boost::is_any_of("&"));
+            for(std::string pair : pairs){
+                std::vector<std::string> parts;
+                boost::split(parts,pair,boost::is_any_of("="));
+                if(parts.size()==2){
+                    Field field;
+                    field.name = parts[0];
+                    field.value = parts[1];
+                    fields_.push_back(field);
+                }
+            }
         }
         // Assign fragment
         fragment_ = uri.fragment();

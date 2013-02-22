@@ -1,6 +1,6 @@
 test.Context.set_get <- function(){
   #Check that set and get are properly scoped
-  co <- Context(environment())
+  co <- Context()
   #Enter an anonymous block, set and get a variable
   co$enter()
   co$set('x','2')
@@ -23,7 +23,7 @@ test.Context.text <- function(){
   b <- "b"
   c <- c(1,2,3)
   d <- c("a","b","c")
-  co <- Context(environment())
+  co <- Context('.')
   checkEquals(co$text('a'),'1')
   checkEquals(co$text('b'),'b')
   checkEquals(co$text('c'),'1, 2, 3')
@@ -45,7 +45,7 @@ test.Context.enter_exit <- function(){
     d = 'D3'
   )
   
-  co <- Context(environment())
+  co <- Context('.')
   
   checkEquals(co$get('a'),"A1")
   
@@ -75,7 +75,7 @@ test.Context.begin_step <- function(){
   # Test looping over items in a container
   items <- c('a','b','c')
   
-  co <- Context(environment())
+  co <- Context('.')
   
   co$begin('item','items')
   checkEquals(co$get('item'),'a')
