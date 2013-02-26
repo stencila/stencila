@@ -21,7 +21,7 @@ endif
 
 #Define libraries required
 # Note that -ldl -pthread should come after -lsqlite
-STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time -lboost_thread -lcppnetlib-client-connections -lcppnetlib-server-parsers -lcppnetlib-uri -lsqlite3 -lpugixml -ltidy-html5 -lssl -lcrypto
+STENCILA_CPP_LIBS := -lstencila -lboost_system -lboost_filesystem -lboost_date_time -lboost_thread -lcppnetlib-client-connections -lcppnetlib-server-parsers -lcppnetlib-uri -lsqlite3 -lpugixml -ltidy-html5 -lssl -lcrypto -larchive -lz
 ifeq ($(STENCILA_PLATFORM), linux)
 STENCILA_CPP_LIBS += -ldl -lpthread
 endif

@@ -2,6 +2,7 @@ include  $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
 BOOST_VERSION = 1_53_0
 CPP_NETLIB_VERSION = 0.9.4
+LIBARCHIVE_VERSION = 3.1.2
 PUGIXML_VERSION = 1.2
 RAPIDJSON_VERSION = 0.11
 SMHASHER_VERSION = 147
@@ -117,6 +118,37 @@ lib/libcppnetlib-client-connections.a: cpp-netlib-$(CPP_NETLIB_VERSION)/libs/net
 
 cpp-netlib: include lib include/boost/network lib/libcppnetlib-client-connections.a
 
+####################################################
+# libarchive
+#
+# Build instructions: https://github.com/libarchive/libarchive/wiki/BuildInstructions
+
+libarchive-$(LIBARCHIVE_VERSION).tar.gz:
+	wget http://www.libarchive.org/downloads/libarchive-$(LIBARCHIVE_VERSION).tar.gz
+
+libarchive-$(LIBARCHIVE_VERSION): libarchive-$(LIBARCHIVE_VERSION).tar.gz
+	tar xzf libarchive-$(LIBARCHIVE_VERSION).tar.gz
+
+libarchive-$(LIBARCHIVE_VERSION)/.libs/libarchive.a:
+	cd libarchive-$(LIBARCHIVE_VERSION);\
+	./configure;\
+	make;\
+	make check;
+
+include/libarchive: include libarchive-$(LIBARCHIVE_VERSION)/libarchive
+ifeq ($(STENCILA_PLATFORM), linux)
+	ln -sfT ../libarchive-$(LIBARCHIVE_VERSION)/libarchive include/libarchive
+endif
+ifeq ($(STENCILA_PLATFORM), msys)
+	junction include/libarchive ../libarchive-$(LIBARCHIVE_VERSION)/libarchive
+endif
+	touch include/libarchive
+
+lib/libarchive.a: lib libarchive-$(LIBARCHIVE_VERSION)/.libs/libarchive.a
+	ln -sfT ../libarchive-$(LIBARCHIVE_VERSION)/.libs/libarchive.a lib/libarchive.a
+	touch lib/libarchive.a
+
+libarchive: include/libarchive lib/libarchive.a
 
 ####################################################
 # pugixml

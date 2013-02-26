@@ -32,6 +32,7 @@ BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #include "json.cpp"
 #include "xml.cpp"
+#include "compress.cpp"
 
 #include "component.cpp"
 #include "dataset.cpp"
