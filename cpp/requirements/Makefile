@@ -135,7 +135,7 @@ libarchive-$(LIBARCHIVE_VERSION)/.libs/libarchive.a:
 	make;\
 	make check;
 
-include/libarchive: include libarchive-$(LIBARCHIVE_VERSION)/libarchive
+include/libarchive: include libarchive-$(LIBARCHIVE_VERSION)
 ifeq ($(STENCILA_PLATFORM), linux)
 	ln -sfT ../libarchive-$(LIBARCHIVE_VERSION)/libarchive include/libarchive
 endif
