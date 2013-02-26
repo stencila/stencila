@@ -15,9 +15,9 @@ SQLITE_VERSION = 3071502
 # change the times of those directories
 MAKEFLAGS += --check-symlink-times
 
-all: boost cpp-netlib pugixml rapidjson smhasher sqlite tidy-html5
+all: boost cpp-netlib libarchive pugixml rapidjson smhasher sqlite tidy-html5
 
-.PHONY: boost cpp-netlib pugixml rapidjson smhasher sqlite tidy-html5
+.PHONY: boost cpp-netlib libarchive pugixml rapidjson smhasher sqlite tidy-html5
 
 ####################################################
 # include and lib directories 
