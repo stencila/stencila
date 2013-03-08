@@ -183,6 +183,7 @@ public:
     std::string directory(void) const {
         return directory(id());
     }
+    
 
     //! @brief Get the path to the user's Stencila directory which holds Stencila data.
     //!
@@ -270,10 +271,6 @@ public:
             } else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
         }
     }
-    
-    std::string post(const std::string& method, const Http::Uri& uri, const std::string& data){
-        return "{}";
-    }
 
     template<class Class>
     static std::string get(const Http::Uri& uri){
@@ -291,10 +288,6 @@ public:
             return list+"]}";
         }
     }
-    
-    std::string get(void) {
-        return "{}";
-    }
 
     template<class Class>
     static std::string put(const Http::Uri& uri, const std::string& in){
@@ -302,10 +295,6 @@ public:
         Class* component = obtain<Class>(id);
         if(component) return component->put(in);
         else return Format(R"({"error":"id not found for type: %s, %s"})")<<Class::type()<<id;
-    }
-    
-    std::string put(const std::string& data){
-        return "{}";
     }
 
     template<class Class>
@@ -327,6 +316,47 @@ class Component : public Component<> {
     Component<Class>(const Id& id):
         Component<>(Class::type(),id){
     }
+    
+    //! @name Persistence methods
+    //! @{
+    
+    void read(void){
+        std::string dir = directory();
+        if(boost::filesystem::exists(dir)){
+            static_cast<Class*>(this)->read_from(dir);
+        }
+    }
+    
+    void read_from(const String& directory){
+    }
+    
+    void write(void) {
+        std::string dir = directory();
+        boost::filesystem::create_directories(dir);
+        static_cast<Class*>(this)->write_to(dir);
+    }
+    
+    void write_to(const String& directory){
+    }
+    
+    //! @}
+    
+    //! @name REST methods
+    //! @{
+    
+    std::string post(const std::string& method, const Http::Uri& uri, const std::string& data){
+        return "{}";
+    }
+    
+    std::string get(void) {
+        return "{}";
+    }
+    
+    std::string put(const std::string& data){
+        return "{}";
+    }
+    
+    //! @}
 };
 
 }

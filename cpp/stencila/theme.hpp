@@ -60,29 +60,22 @@ public:
     //! @name Persistence methods
     //! @{
     
-    Theme& read(void){
-        std::string dir = directory();
-        if(boost::filesystem::exists(dir)){
-            std::ifstream file(dir+"/style.less");
-            std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
-            style(value);
-        }
-        return *this;
+    void read_from(const String& directory){
+        std::ifstream file(directory+"/style.less");
+        std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
+        style(value);
     }
     
-    Theme& write(void) {
-        std::string dir = directory();
-        boost::filesystem::create_directories(dir);
-        std::ofstream file(dir+"/style.less");
+    void write_to(const String& directory) {
+        std::ofstream file(directory+"/style.less");
         file<<style();
-        return *this;
     }
     
     //! @}
     
     //! @name REST interface methods
     //! @{
-    	
+
     std::string get(void) {
         read();
         Json::Document out;

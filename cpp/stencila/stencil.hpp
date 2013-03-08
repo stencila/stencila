@@ -54,7 +54,7 @@ public:
     
     Stencil(const Id& id):
         Component<Stencil>(id){
-        read();
+        Component<Stencil>::read();
     }
 
     //! @brief 
@@ -186,23 +186,16 @@ public:
     
     //! @name Persistence methods
     //! @{
-    
-    Stencil& read(void){
-        std::string dir = directory();
-        if(boost::filesystem::exists(dir)){
-            std::ifstream file(dir+"/index.html");
-            std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
-            body(value);
-        }
-        return *this;
+
+    void read_from(const String& directory){
+        std::ifstream file(directory+"/index.html");
+        std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
+        body(value);
     }
-    
-    Stencil& write(void) {
-        std::string dir = directory();
-        boost::filesystem::create_directories(dir);
-        std::ofstream file(dir+"/index.html");
+
+    void write_to(const String& directory) {
+        std::ofstream file(directory+"/index.html");
         file<<body();
-        return *this;
     }
     
     //! @}
@@ -212,7 +205,7 @@ public:
     //! @{
     
     std::string get(void){
-        read();
+        Component<Stencil>::read();
         Json::Document out;
         out.add("body",body());
         return out.dump();
@@ -221,7 +214,7 @@ public:
     std::string put(const std::string& data){
         Json::Document json(data);
         if(json.has("body")) body(json.as<std::string>(json.get("body")));
-        write();
+        Component<Stencil>::write();
         return "{}";
     }
     
