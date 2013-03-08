@@ -1,6 +1,6 @@
-test.Context.set_get <- function(){
+test.Workspace.set_get <- function(){
   #Check that set and get are properly scoped
-  co <- Context()
+  co <- Workspace()
   #Enter an anonymous block, set and get a variable
   co$enter()
   co$set('x','2')
@@ -17,20 +17,20 @@ test.Context.set_get <- function(){
   checkException(co$get('x'),"object 'x' not found")
 }
 
-test.Context.text <- function(){
+test.Workspace.text <- function(){
   #Check text method
   a <- 1
   b <- "b"
   c <- c(1,2,3)
   d <- c("a","b","c")
-  co <- Context('.')
+  co <- Workspace('.')
   checkEquals(co$text('a'),'1')
   checkEquals(co$text('b'),'b')
   checkEquals(co$text('c'),'1, 2, 3')
   checkEquals(co$text('d'),'a, b, c')
 }
 
-test.Context.enter_exit <- function(){
+test.Workspace.enter_exit <- function(){
   #Check nested entry into environments, data.frames and lists
   
   #Set up some object that will be entered
@@ -45,7 +45,7 @@ test.Context.enter_exit <- function(){
     d = 'D3'
   )
   
-  co <- Context('.')
+  co <- Workspace('.')
   
   checkEquals(co$get('a'),"A1")
   
@@ -71,11 +71,11 @@ test.Context.enter_exit <- function(){
   checkException(co$get('d'),"object 'd' not found")
 }
 
-test.Context.begin_step <- function(){
+test.Workspace.begin_step <- function(){
   # Test looping over items in a container
   items <- c('a','b','c')
   
-  co <- Context('.')
+  co <- Workspace('.')
   
   co$begin('item','items')
   checkEquals(co$get('item'),'a')

@@ -1,14 +1,14 @@
 #include <stencila/version.hpp>
 using namespace Stencila;
 
-#include "r-context.hpp"
+#include "r-workspace.hpp"
 #include "r-extension.hpp"
 
 //! @brief Start up function for the Stencila R module
 STENCILA_R_FUNC Stencila_startup(void){
     //Declare component types
     Component<>::declarations();
-    Component<>::declare<RContext>();
+    Component<>::declare<RWorkspace>();
     return nil;
 }
 

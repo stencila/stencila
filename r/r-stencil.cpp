@@ -2,7 +2,7 @@
 using namespace Stencila;
 
 #include "r-extension.hpp"
-#include "r-context.hpp"
+#include "r-workspace.hpp"
 
 STENCILA_R_FUNC Stencil_new(void){
     STENCILA_R_BEGIN
@@ -29,10 +29,10 @@ STENCILA_R_FUNC Stencil_dump(SEXP self){
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Stencil_render(SEXP self,SEXP context){
+STENCILA_R_FUNC Stencil_render(SEXP self,SEXP workspace){
     STENCILA_R_BEGIN
-        RContext rcontext(context);
-        from<Stencil>(self).render(rcontext);
+        RWorkspace rworkspace(workspace);
+        from<Stencil>(self).render(rworkspace);
         return nil;
     STENCILA_R_END
 }

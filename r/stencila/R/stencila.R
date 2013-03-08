@@ -779,35 +779,35 @@ setMethod("load",c("Stencil","ANY"),function(object,content) object$load(content
 #' @name Stencil-render
 #' @aliases render,Stencil-method render,ANY-method
 #' @export
-setGeneric("render",function(stencil,context) standardGeneric("render"))
-setMethod("render",c("ANY","ANY"),function(stencil,context){
+setGeneric("render",function(stencil,workspace) standardGeneric("render"))
+setMethod("render",c("ANY","ANY"),function(stencil,workspace){
   if(!('Stencil' %in% class(stencil))){
     stencil <- Stencil(stencil)
   }
   
-  if(missing(context)) context <- Context(parent.frame())
+  if(missing(workspace)) workspace <- Workspace(parent.frame())
   else {
-    if(!('Context' %in% class(context))) context <- Context(context)
+    if(!('Workspace' %in% class(workspace))) workspace <- Workspace(workspace)
   }
   
-  stencil$render(context)
+  stencil$render(workspace)
   return(stencil$dump())
 })
 
-#' Create a stencil rendering context
+#' Create a stencil rendering workspace
 #' 
-#' Stencils are rendered within a context. 
-#' The context determines the variables that are available to the stencil.
-#' Often, stencils will be rendered within the context of the R global environment.
-#' However, if you want to create a different context then use this function
+#' Stencils are rendered within a workspace. 
+#' The workspace determines the variables that are available to the stencil.
+#' Often, stencils will be rendered within the workspace of the R global environment.
+#' However, if you want to create a different workspace then use this function
 #' 
-#' @param envir The environment for the context. Optional.
+#' @param envir The environment for the workspace. Optional.
 #'
 #' @export
-Context <- function(envir){
+Workspace <- function(envir){
   
   self <- new.env()
-  class(self) <- "Context"
+  class(self) <- "Workspace"
   
   if(missing(envir)) envir <- new.env(parent=baseenv())
   else if(inherits(envir,'environment')) envir <- envir

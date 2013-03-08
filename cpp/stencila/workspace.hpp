@@ -12,8 +12,8 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file context.hpp
-//! @brief Definition of class Context
+//! @file workspace.hpp
+//! @brief Definition of class Workspace
 //! @author Nokome Bentley
 
 #pragma once
@@ -25,7 +25,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 namespace Stencila {
 
 template<class Class>
-class Context : public Component<Class> {
+class Workspace : public Component<Class> {
 protected:
 
     typedef std::string String;
@@ -33,7 +33,7 @@ protected:
 public:
 
     static String type(void){
-        return "context";
+        return "workspace";
     };
     
     //! @name Persistence methods

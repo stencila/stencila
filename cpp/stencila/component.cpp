@@ -19,7 +19,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/component.hpp>
 #include <stencila/stencil.hpp>
 #include <stencila/theme.hpp>
-#include <stencila/simple-context.hpp>
+#include <stencila/simple-workspace.hpp>
 
 namespace Stencila {
 
@@ -30,7 +30,7 @@ std::map<std::string,Component<>::Type> Component<>::types_;
 void Component<>::declarations(void){
     Component<>::declare<Theme>();
     Component<>::declare<Stencil>();
-    Component<>::declare<SimpleContext>();
+    Component<>::declare<SimpleWorkspace>();
 }
 
 }

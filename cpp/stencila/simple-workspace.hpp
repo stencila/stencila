@@ -12,17 +12,17 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file simple-context.hpp
-//! @brief Definition of class SimpleContext
+//! @file simple-workspace.hpp
+//! @brief Definition of class SimpleWorkspace
 //! @author Nokome Bentley
 
 #pragma once
 
-#include <stencila/context.hpp>
+#include <stencila/workspace.hpp>
 
 namespace Stencila {
 
-class SimpleContext : public Context<SimpleContext> {
+class SimpleWorkspace : public Workspace<SimpleWorkspace> {
 private:
     typedef std::string String;
     typedef std::map<String,String> Map;
@@ -32,13 +32,13 @@ private:
 public:
 
     static String type(void){
-        return "simple-context";
+        return "simple-workspace";
     };
     
-    SimpleContext(void){
+    SimpleWorkspace(void){
     }
     
-    SimpleContext(const Id& id){
+    SimpleWorkspace(const Id& id){
     }
 
     //! @brief 

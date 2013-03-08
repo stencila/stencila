@@ -28,7 +28,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/component.hpp>
 #include <stencila/html.hpp>
 #include <stencila/json.hpp>
-#include <stencila/context.hpp>
+#include <stencila/workspace.hpp>
 
 namespace Stencila {
 
@@ -226,11 +226,11 @@ public:
     //! @{
 
     //! @brief Render a stencil into an HTML fragment
-    //! @param context The context in which the stencil will be rendered
+    //! @param workspace The workspace in which the stencil will be rendered
     //! @return The stencil
-    template<typename Context>
-    Stencil& render(Context& context){
-        render_element(*this,context);
+    template<typename Workspace>
+    Stencil& render(Workspace& workspace){
+        render_element(*this,workspace);
         return *this;
     }
     
@@ -238,14 +238,14 @@ private:
 
     //! @brief 
     //! @param node
-    //! @param context
+    //! @param workspace
     //! @return 
-    template<typename Context>
-    void render_element(Xml::Node node, Context& context){
+    template<typename Workspace>
+    void render_element(Xml::Node node, Workspace& workspace){
         try {
             //Check for handled element tag names
             std::string tag = node.name();
-            if(tag=="script") return render_script(node,context,node.text().as_string());
+            if(tag=="script") return render_script(node,workspace,node.text().as_string());
             //For each attribute in this node...
             auto attrs = node.attributes();
             for(auto attr=attrs.begin();attr!=attrs.end();attr++){
@@ -255,15 +255,15 @@ private:
                 //...use the name of the attribute to dispatch to another method
                 //   Note that return is used so that only the first Stencila "data-xxx" will be 
                 //   considered and that directive will determin how/if children nodes are processed
-                if(name=="data-text") return render_text(node,context,value);
-                else if(name=="data-if") return render_if(node,context,value);
-                else if(name=="data-switch") return render_switch(node,context,value);
-                else if(name=="data-for") return render_for(node,context,value);
-                else if(name=="data-with") return render_with(node,context,value);
-                else if(name=="data-include") return render_include(node,context,value);
+                if(name=="data-text") return render_text(node,workspace,value);
+                else if(name=="data-if") return render_if(node,workspace,value);
+                else if(name=="data-switch") return render_switch(node,workspace,value);
+                else if(name=="data-for") return render_for(node,workspace,value);
+                else if(name=="data-with") return render_with(node,workspace,value);
+                else if(name=="data-include") return render_include(node,workspace,value);
             }
             //If return not yet hit then process children of this element
-            render_children(node,context);
+            render_children(node,workspace);
         }
         //! @brief 
         //! @param exc
@@ -277,29 +277,29 @@ private:
     }
     
     //! @brief 
-    //! @param context
-    template<typename Context>
-    void render_children(Xml::Node node, Context& context){
+    //! @param workspace
+    template<typename Workspace>
+    void render_children(Xml::Node node, Workspace& workspace){
         for(Xml::Node child:node.children()){
-            render_element(child,context);
+            render_element(child,workspace);
         }
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param code
-    template<typename Context>
-    void render_script(Xml::Node node, Context& context, const std::string& code){
-         context.script(code);
+    template<typename Workspace>
+    void render_script(Xml::Node node, Workspace& workspace, const std::string& code){
+         workspace.script(code);
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param expression
-    template<typename Context>
-    void render_text(Xml::Node node, Context& context, const std::string& expression){
+    template<typename Workspace>
+    void render_text(Xml::Node node, Workspace& workspace, const std::string& expression){
         try {
-            std::string text = context.text(expression);
+            std::string text = workspace.text(expression);
             node.text().set(text.c_str());
         }
         catch(std::exception& exc){
@@ -311,28 +311,28 @@ private:
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param expression    
-    template<typename Context>
-    void render_with(Xml::Node node, Context& context, const std::string& expression){
-        //Enter a new block in the context
-        context.enter(expression);
+    template<typename Workspace>
+    void render_with(Xml::Node node, Workspace& workspace, const std::string& expression){
+        //Enter a new block in the workspace
+        workspace.enter(expression);
         //Render all children of node within that new blockŔ
-        render_children(node,context);
+        render_children(node,workspace);
         //Exit the block
-        context.exit();
+        workspace.exit();
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param expression
-    template<typename Context>
-    void render_if(Xml::Node node, Context& context, const std::string& expression){
+    template<typename Workspace>
+    void render_if(Xml::Node node, Workspace& workspace, const std::string& expression){
         //Test the expression
-        bool result = context.test(expression);
+        bool result = workspace.test(expression);
         //If test passes, render all children
         if(result){
-            render_children(node,context);
+            render_children(node,workspace);
             Xml::Document::set(node,"data-active","true");
         }
         //If test fails, remove the data-active attribute (if it exists)
@@ -342,12 +342,12 @@ private:
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param expression
-    template<typename Context>
-    void render_switch(Xml::Node node, Context& context, const std::string& expression){
-        //Evaluate the expression in the context
-        context.subject(expression);
+    template<typename Workspace>
+    void render_switch(Xml::Node node, Workspace& workspace, const std::string& expression){
+        //Evaluate the expression in the workspace
+        workspace.subject(expression);
         //Iterate through children to
         // (a) find first child that has an equal when
         // (b) remove data-active attribute
@@ -356,7 +356,7 @@ private:
             child.remove_attribute("data-active");
             Xml::Attribute when = Xml::Document::get(child,"data-value");
             if(when){
-                bool equal = context.match(when.value());
+                bool equal = workspace.match(when.value());
                 if(equal){
                     active = child;
                     break;
@@ -369,22 +369,22 @@ private:
             //Set as active
             Xml::Document::set(active,"data-active","true");
             //Render it
-            render_element(active,context);
+            render_element(active,workspace);
         }
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param value
-    template<typename Context>
-    void render_for(Xml::Node node, Context& context, const std::string& value){
+    template<typename Workspace>
+    void render_for(Xml::Node node, Workspace& workspace, const std::string& value){
         // Get the name of item and items
         std::vector<std::string> bits;
         boost::split(bits,value,boost::is_any_of(":"));
         std::string item = bits[0];
         std::string items = bits[1];
         // Initialise the loop
-        bool more = context.begin(item,items);
+        bool more = workspace.begin(item,items);
         // Get the first child element of this node for replication
         Xml::Node first = node.find_child(Xml::Document::is_element);
         // Delete all other nodes
@@ -395,24 +395,24 @@ private:
         while(more){
             if(count==1){
                 //Render the first child
-                render_element(first,context);
+                render_element(first,workspace);
             } else {
                 //Create a copy of the first child node
                 Xml::Node copy = node.append_copy(first);
                 //Render the copy
-                render_element(copy,context);
+                render_element(copy,workspace);
             }
-            //Ask context to step
-            more = context.step();
+            //Ask workspace to step
+            more = workspace.step();
             count++;
         }
     }
 
     //! @brief 
-    //! @param context
+    //! @param workspace
     //! @param identifier
-    template<typename Context>
-    void render_include(Xml::Node node, Context& context, const std::string& identifier){
+    template<typename Workspace>
+    void render_include(Xml::Node node, Workspace& workspace, const std::string& identifier){
 
         //Remove any existing children that have been included previously
         for(Xml::Node child : node.children()){
@@ -482,13 +482,13 @@ private:
             node.append_copy(child);
         }
 
-        //Create a new context with parameters
-        //Determine if there are any node parameters so that we don't create a new context block unecessarily
+        //Create a new workspace with parameters
+        //Determine if there are any node parameters so that we don't create a new workspace block unecessarily
         bool params = Xml::Document::has(node,"data-param");
         if(params){
             //Enter a new anonymous block
-            context.enter();
-            //Map the "data-param" attributes into the context...
+            workspace.enter();
+            //Map the "data-param" attributes into the workspace...
             auto attrs = node.attributes();
             for(auto attr=attrs.begin();attr!=attrs.end();attr++){
                 // Don't try to factor out this string for name. If its not there the 
@@ -504,16 +504,16 @@ private:
                     std::string parameter = bits[0];
                     std::string expression = bits[1];
                     //Set the parameter in the new block
-                    context.set(parameter,expression);
+                    workspace.set(parameter,expression);
                 }
             }
         }
 
         //Render the new children of this node (within the new block)
-        render_children(node,context);
+        render_children(node,workspace);
         
         //Exit the anonymous block if created
-        if(params) context.exit();
+        if(params) workspace.exit();
     }
 
 public:
