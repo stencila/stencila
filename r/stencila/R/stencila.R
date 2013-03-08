@@ -821,6 +821,18 @@ Context <- function(envir){
   
   ##################################
   
+  self$read_from <- function(dir){
+    base::load(paste(dir,'.RData',sep='/'),envir=self$bottom())
+  }
+  
+  self$write_to <- function(dir){
+    envir <- self$bottom()
+    objs <-ls(envir)
+    save(list=objs,envir=envir,file=paste(dir,'.RData',sep='/'))
+  }
+  
+  ##################################
+  
   self$push <- function(item){
     self$stack[[length(self$stack)+1]] <- item
     return(self)
@@ -829,6 +841,10 @@ Context <- function(envir){
   self$pop  <- function() {
     self$stack[[length(self$stack)]] <- NULL
     return(self)
+  }
+  
+  self$bottom  <- function() {
+    return(self$stack[[1]])
   }
   
   self$top  <- function() {

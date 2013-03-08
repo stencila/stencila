@@ -62,6 +62,16 @@ public:
     RContext(SEXP sexp){
         context = Rcpp::Environment(sexp);
     }
+    
+    void read_from(const String& directory){
+        Rcpp::Language call(Rcpp::Function(context.get("read_from")),directory);
+        call.eval();
+    }
+    
+    void write_to(const String& directory){
+        Rcpp::Language call(Rcpp::Function(context.get("write_to")),directory);
+        call.eval();
+    }
 
     void set(const std::string& name, const std::string& expression){
         Rcpp::Language call(context.get("set"),name,expression);
