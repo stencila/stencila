@@ -184,22 +184,22 @@ iterate.default <- function(container){
 # other iterator classes are written (e.g. DataframeIterator, MatrixIterator)
 
 ########################################################################
-# Server
+# HttpServer
 ########################################################################
 
-#' The Server class
+#' The HttpServer class
 #'
-#' @name Server
-#' @aliases Server-class
-#' @seealso Server-start Server-stop
-#' @exportClass Server
+#' @name HttpServer
+#' @aliases HttpServer-class
+#' @seealso HttpServer-start HttpServer-stop HttpServer-run
+#' @exportClass HttpServer
 #' @export
 #'
 #' @examples
-#' # Create a Server...
-#' server <- Server()
-class_('Server')
-Server <- function() new("Server")
+#' # Create a HTTP server...
+#' server <- HttpServer()
+class_('HttpServer')
+HttpServer <- function() new("HttpServer")
 
 
 ########################################################################

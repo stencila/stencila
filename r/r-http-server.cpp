@@ -1,5 +1,5 @@
-#include <stencila/server.hpp>
-using Stencila::Server;
+#include <stencila/http-server.hpp>
+using Stencila::Http::Server;
 
 #include "r-extension.hpp"
 
@@ -10,13 +10,13 @@ using Stencila::Server;
 //For restoring stack limit checking (see Server_start() below)
 uintptr_t RStackLimit;
 
-STENCILA_R_FUNC Server_new(void){
+STENCILA_R_FUNC HttpServer_new(void){
     STENCILA_R_BEGIN
         return STENCILA_R_TO(Server,new Server);
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Server_start(SEXP self){
+STENCILA_R_FUNC HttpServer_start(SEXP self){
     STENCILA_R_BEGIN
         //Turn off R stack limit checking
         //This is the only workaround I could find to "Error: C stack usage is too close to the limit"
@@ -32,7 +32,7 @@ STENCILA_R_FUNC Server_start(SEXP self){
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Server_stop(SEXP self){
+STENCILA_R_FUNC HttpServer_stop(SEXP self){
     STENCILA_R_BEGIN
         from<Server>(self).stop();
         R_CStackLimit = RStackLimit;
@@ -40,7 +40,7 @@ STENCILA_R_FUNC Server_stop(SEXP self){
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Server_run(SEXP self){
+STENCILA_R_FUNC HttpServer_run(SEXP self){
     STENCILA_R_BEGIN
         from<Server>(self).run();
         return nil;

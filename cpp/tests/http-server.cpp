@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include <stencila/server.hpp>
+#include <stencila/http-server.hpp>
 
 int main(void) {
-    using namespace Stencila;
+    using namespace Stencila::Http;
     Component<>::declarations();
     try {
         Server server;

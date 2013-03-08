@@ -31,11 +31,10 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stencila/component.hpp>
 
 namespace Stencila {
+namespace Http {
 
 using namespace boost::network;
 using namespace boost::network::http;
-
-using namespace Http;
 
 #ifndef STENCILA_BROWSER_HOME
     #define STENCILA_BROWSER_HOME STENCILA_HOME "/browser"
@@ -185,4 +184,5 @@ public:
     }
 };
 
+}
 }
