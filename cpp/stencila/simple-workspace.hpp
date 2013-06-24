@@ -62,17 +62,18 @@ public:
         else return "";
     }
 
+    void image_begin(const String& type){
+    }
+
+    String image_end(void){
+        return "";
+    }
+
     //! brief   
     //! @param expression
     //! @return 
     bool test(const String& expression){
         return false;
-    }
-    
-    void image_begin(const String& type){
-    }
-    
-    String image_end(voif){
     }
 
     //! @brief 
