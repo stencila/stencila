@@ -245,7 +245,9 @@ private:
         try {
             //Check for handled element tag names
             std::string tag = node.name();
-            if(tag=="script") return render_script(node,workspace,node.text().as_string());
+            if(tag=="script") {
+                return render_script(node,workspace);
+            }
             //For each attribute in this node...
             auto attrs = node.attributes();
             for(auto attr=attrs.begin();attr!=attrs.end();attr++){
@@ -256,6 +258,7 @@ private:
                 //   Note that return is used so that only the first Stencila "data-xxx" will be 
                 //   considered and that directive will determin how/if children nodes are processed
                 if(name=="data-text") return render_text(node,workspace,value);
+                else if(name=="data-image") return render_image(node,workspace,value);
                 else if(name=="data-if") return render_if(node,workspace,value);
                 else if(name=="data-switch") return render_switch(node,workspace,value);
                 else if(name=="data-for") return render_for(node,workspace,value);
@@ -265,9 +268,6 @@ private:
             //If return not yet hit then process children of this element
             render_children(node,workspace);
         }
-        //! @brief 
-        //! @param exc
-        //! @return 
         catch(std::exception& exc){
             Xml::Document::set(node,"data-error",exc.what());
         }
@@ -285,11 +285,12 @@ private:
         }
     }
 
-    //! @brief 
-    //! @param workspace
-    //! @param code
+    //! @brief Execute a script in the workspace
+    //! @param node HTML node being rendered
+    //! @param workspace Workspace that the node is being rendered in
     template<typename Workspace>
-    void render_script(Xml::Node node, Workspace& workspace, const std::string& code){
+    void render_script(Xml::Node node, Workspace& workspace){
+         std::string code = node.text().as_string();
          workspace.script(code);
     }
 
@@ -298,15 +299,24 @@ private:
     //! @param expression
     template<typename Workspace>
     void render_text(Xml::Node node, Workspace& workspace, const std::string& expression){
-        try {
-            std::string text = workspace.text(expression);
-            node.text().set(text.c_str());
-        }
-        catch(std::exception& exc){
-            Xml::Document::set(node,"data-error",exc.what());
-        }
-        catch(...){
-            Xml::Document::set(node,"data-error","unknown error");
+        std::string text = workspace.text(expression);
+        node.text().set(text.c_str());
+    }
+    
+    //! @brief Render an image in the workspace
+    //! @param node HTML node being rendered
+    //! @param workspace Workspace that the node is being rendered in
+    template<typename Workspace>
+    void render_image(Xml::Node node, Workspace& workspace, const std::string& type){
+        workspace.image_begin(type);
+        render_children(node,workspace);
+        std::string result = workspace.image_end();
+        
+        if(type=="svg"){
+            Xml::Node svg = Xml::Document(result);
+            for(Xml::Node child : svg.children()){
+                node.append_copy(child);
+            }
         }
     }
 
@@ -317,7 +327,7 @@ private:
     void render_with(Xml::Node node, Workspace& workspace, const std::string& expression){
         //Enter a new block in the workspace
         workspace.enter(expression);
-        //Render all children of node within that new blockŔ
+        //Render all children of node within that new block
         render_children(node,workspace);
         //Exit the block
         workspace.exit();
@@ -537,10 +547,12 @@ public:
             {"name","id"},
             {"content",id()}
         });
+        /*
         append(head,"script",{
             {"type","text/javascript"},
             {"src","stencila-boot.js"},
-        },"");
+        },"0;");
+        */
         return Html::Document::dump();
     }
 };

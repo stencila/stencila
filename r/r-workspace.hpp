@@ -92,6 +92,16 @@ public:
         Rcpp::Language call(environment_.get("text"),expression);
         return as<std::string>(call.eval());
     }
+    
+    void image_begin(const std::string& type){
+        Rcpp::Language call(environment_.get("image_begin"),type);
+        call.eval();
+    }
+    
+    std::string image_end(){
+        Rcpp::Language call(Rcpp::Function(environment_.get("image_end")));
+        return as<std::string>(call.eval());
+    }
 
     bool test(const std::string& expression){
         Rcpp::Language call(environment_.get("test"),expression);

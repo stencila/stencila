@@ -17,6 +17,19 @@ test.Workspace.set_get <- function(){
   checkException(co$get('x'),"object 'x' not found")
 }
 
+test.Workspace.script <- function(){
+    w <- Workspace('.')
+    w$script('x <- 3.14; y <- 42')
+    checkEquals(w$get('x'),3.14)
+    checkEquals(w$get('y'),42)
+}
+
+test.Workspace.figure <- function(){
+    w <- Workspace('.')
+    svg = w$figure('plot(1,1)')
+    checkEquals(substr(svg,1,5),"<?xml")
+}
+
 test.Workspace.text <- function(){
   #Check text method
   a <- 1

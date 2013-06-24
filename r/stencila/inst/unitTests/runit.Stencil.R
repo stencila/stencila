@@ -63,6 +63,14 @@ test.Stencil.render.script.error <- function(){
   checkEquals("<script data-error=\"object 'b' not found\">a = b</script>",render("<script>a = b</script>"))
 }
 
+test.Stencil.render.image <- function(){
+    render('<script data-image="svg">plot(1,1)</script>')
+}
+
+test.Stencil.stencil.1 <- function(){
+    writeChar(render(readChar('inputs/stencil-1.html',10000)),'outputs/stencil-1.html')
+}
+
 test.Stencil.render.text.numeric <- function(){
   checkEquals('<span data-text="number">42</span>',
        render('<span data-text="number">previous</span>',list(number=42)))

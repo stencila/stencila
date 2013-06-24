@@ -3,6 +3,9 @@ version.hpp
 stencila/DESCRIPTION
 stencila/NAMESPACE
 
+#Ignore unit test outputs
+stencila/inst/unitTests/outputs
+
 #Ignore files created by build
 *.o
 *.so

@@ -872,7 +872,7 @@ Workspace <- function(envir){
     eval(parse(text=code),envir=self$top())
     return(self)
   }
-  
+   
   ##################################
   # "interact" method
   
@@ -913,6 +913,35 @@ Workspace <- function(envir){
     cat(paste(value,collapse=", "),file=stream)
     close(stream)
     return(text)
+  }
+  
+  ##################################
+  # "image" elements
+  # 
+  # Creates a new graphics device then executes the code
+  # (which is expected to write to the device) and then 
+  # returns the additional nodes.
+  self$image_begin <- function(type){
+      if(type!='svg') stop(paste('Image type not supported:',type))
+      # Create a temporary filename
+      filename = tempfile()
+      # Create an SVG graphics device
+      svg(filename)
+      # Store that filename for later
+      assign('_svg_',filename,envir=self$top())
+  }
+  
+  self$image_end  <- function(){
+      # Get filename
+      filename <- base::get('_svg_',envir=self$top())
+      # Close all graphics devices. In case the
+      # code opened new ones, we really need to closethem all
+      graphics.off()
+      # Determine file size so we know how many bytes to read in
+      bytes = file.info(filename)$size
+      # Read in the SVG file and return it
+      svg = readChar(filename,nchars=bytes)
+      return(svg)
   }
   
   ##################################
