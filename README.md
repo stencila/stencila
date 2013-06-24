@@ -1,10 +1,10 @@
 ![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
- 
+
 ##About
- 
-[Stencila](http://stenci.la) is a platform for doing stuff with data. 
-This is an open source library for the platform. 
-We're too busy coding to write much more about it than that. 
+
+[Stencila](http://stenci.la) is a platform for doing stuff with data.
+This is an open source library for the platform.
+We're too busy coding to write much more about it than that.
 But, as the library matures, what we mean by "doing stuff" should become clear.
 
 ##Documentation
@@ -17,7 +17,7 @@ The [user guide](http://docs.stenci.la/guide/intro.html) is still in a very earl
 
 Right now the Stencila library is in a very preliminary state.
 We don't recommend actually using it quite yet!
-But, if you really, really want to, then...
+But, if you really, really want to, then here are some tips to get started...
 
 ### C++ library
 
@@ -33,7 +33,7 @@ The Stencila R package is available from our R package repository:
 
 ```r
 install.packages('stencila',repo='http://get.stenci.la/r')
-'''
+```
 
 ## Building
 
@@ -54,8 +54,8 @@ See the C++ job for [test results](http://ci.stenci.la/job/stencila.cpp/lastComp
 
 ##Versioning
 
-It is still early days so the API will change frequently. 
-We are using [sematic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial develpment phase. 
+It is still early days so the API will change frequently.
+We are using [sematic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial develpment phase.
 Don't rely on API stability until the release of version 1.0.0.
 
 ##Licence
