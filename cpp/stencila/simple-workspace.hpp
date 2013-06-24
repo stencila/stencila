@@ -68,6 +68,12 @@ public:
     bool test(const String& expression){
         return false;
     }
+    
+    void image_begin(const String& type){
+    }
+    
+    String image_end(voif){
+    }
 
     //! @brief 
     //! @param expression
