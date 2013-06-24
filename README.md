@@ -1,4 +1,4 @@
-![Stencila](http://static.stenci.la/logo-name-400x88.png)
+![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
  
 ##About
  
