@@ -67,6 +67,14 @@ STENCILA_R_FUNC Dataset_execute(SEXP self, SEXP sql){
     STENCILA_R_END
 }
 
+STENCILA_R_FUNC Dataset_select(SEXP self, SEXP sql){
+    STENCILA_R_BEGIN
+        return STENCILA_R_TO(Datatable,new Datatable(
+            from<Dataset>(self).select(as<std::string>(sql))
+        ));
+    STENCILA_R_END
+}
+
 STENCILA_R_FUNC Dataset_cursor(SEXP self, SEXP sql){
     STENCILA_R_BEGIN
         return STENCILA_R_TO(Datacursor,new Datacursor(
@@ -82,3 +90,5 @@ STENCILA_R_FUNC Dataset_table(SEXP self, SEXP table){
         ));
     STENCILA_R_END
 }
+
+

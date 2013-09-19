@@ -248,6 +248,14 @@ setMethod("tables","Dataset",function(object) object$tables())
 setGeneric("indices",function(object) standardGeneric("indices"))
 setMethod("indices","Dataset",function(object) object$indices())
 
+#' Execute an SQL select statement and returnthe resulting Datatable
+#'
+#' @name Dataset-select
+#' @aliases select,Dataset-method
+#' @export
+setGeneric("select",function(object,sql) standardGeneric("select"))
+setMethod("select","Dataset",function(object,sql) object$select(sql))
+
 ########################################################################
 # Datacursor
 ########################################################################

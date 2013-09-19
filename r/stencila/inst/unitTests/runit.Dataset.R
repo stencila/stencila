@@ -26,8 +26,6 @@ test.Dataset.attributes <- function(){
   #checkEquals(ds$indices(),indices(ds))
 }
 
-
-
 if(0){
   
   q = ds$cursor("SELECT * FROM t1")
