@@ -1,5 +1,9 @@
-# Convienience functions used internally in the Stencila package and
-# not exported
+# Convienience functions used internally in the Stencila package and not exported
+#
+# This file has to be 'sourced' before other files in the package.
+# Whilst the roxygen2 directive @include shortcuts.R is meant to do that
+# it seemed not to work as intended when roxygenising the package
+# So this file is specified first in the Collate section of the DESCRIPTION.template (which roxygen checks first)
 
 # A convienience function for calling C++ functions in 
 # the Stencila R extension module
@@ -24,30 +28,6 @@ create_ <- function(class,func,...){
     new(class,created=TRUE,pointer=call_(func,...))
 }
 
-# A convienience function for calling C++ functions which 
-# represent Stencila R class methods
-method_ <- function(class_name,method_name,...){
-    symbol <- paste(class_name,method_name,sep='_')
-    # Look for a R version of symbol and call it, otherwise
-    # try to get it from C++ symbols 
-    if(exists(symbol)){
-        return(get(symbol)(...))
-    } else {
-        result <- tryCatch(
-            call_(symbol,...),
-            error = function(error) error
-        )
-        if(inherits(result,'error')){
-            if(result$message==paste('C symbol name "',symbol,'" not in load table',sep='')){
-                stop(paste('Class ',class_name,' does not have a method named "',method_name,'"',sep=''),call.=FALSE)
-            } else {
-                stop(result$message,call.=FALSE)
-            }
-        }
-    }
-    result
-}
-
 # A convienience function for creating a Stencila R class
 class_ <- function(class_name){
     
@@ -64,7 +44,7 @@ class_ <- function(class_name){
     
     setMethod('initialize',class_name,eval(substitute(function(.Object,created=FALSE,pointer=NULL,...){
         if(!created){
-            .Object@pointer = method_(class_name,'new',...)
+            .Object@pointer = call_(paste(class_name,'new',sep='_'),...)
             .Object@created = TRUE
         } else {
             .Object@pointer = pointer
@@ -75,10 +55,27 @@ class_ <- function(class_name){
     
     setMethod('$',class_name,eval(substitute(function(x,name){
         function(...) {
-            result <- method_(class_name,name,x@pointer,...)
+            symbol <- paste(class_name,name,sep='_')
+            # Look for a R version of symbol and call it, otherwise
+            # try to get it from C++ symbols 
+            if(exists(symbol)){
+                result <- get(symbol)(x,...)
+            } else {
+                result <- tryCatch(
+                    call_(symbol,x@pointer,...),
+                    error = function(error) error
+                )
+                if(inherits(result,'error')){
+                    if(result$message==paste('C symbol name "',symbol,'" not in load table',sep='')){
+                        stop(paste('Class ',class_name,' does not have a method named "',name,'"',sep=''),call.=FALSE)
+                    } else {
+                        stop(result$message,call.=FALSE)
+                    }
+                }
+            }
             #If the return is NULL (in C++ nil) then return self
             #so method chaining can be used...
-            if(is.null(result)) return(x)
+            if(is.null(result)) return(invisible(x))
             #...otherwise return the object after wrapping it
             else return(object_(result))
             #We could just get C++ functions to return self

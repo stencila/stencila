@@ -72,6 +72,14 @@ public:
     Document(const std::string& html=""){
         load(tidy(html));
     }
+    
+    //! @brief Append HTML to the document
+    //!
+    //! Provides an analogue to the append_xml method.
+    //! @see Xml::Document::append_xml 
+    Node append_html(const std::string& html){
+        return append_xml(tidy(html));
+    }
 };
 
 }

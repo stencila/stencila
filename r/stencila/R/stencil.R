@@ -71,3 +71,8 @@ setMethod("render",c("ANY","ANY"),function(stencil,workspace){
     stencil$render(workspace)
     return(stencil$dump())
 })
+
+
+
+
+

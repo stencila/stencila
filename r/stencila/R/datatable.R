@@ -94,9 +94,9 @@ setMethod("index","Datatable",function(object,columns) object$types(columns))
 setGeneric("indices",function(object) standardGeneric("indices"))
 setMethod("indices","Datatable",function(object) object$indices())
 
-Datatable_head <- function(self,rows=10) return(object_(call_('Datatable_head',self,rows)))
-Datatable_tail <- function(self,rows=10) return(object_(call_('Datatable_tail',self,rows)))
-Datatable_value <- function(self,row=0,col=0) return(object_(call_('Datatable_value',self,row,col)))
+Datatable_head <- function(self,rows=10) return(object_(call_('Datatable_head',self@pointer,rows)))
+Datatable_tail <- function(self,rows=10) return(object_(call_('Datatable_tail',self@pointer,rows)))
+Datatable_value <- function(self,row=0,col=0) return(object_(call_('Datatable_value',self@pointer,row,col)))
 
 # Replicating S3 methods for data.frames
 # See

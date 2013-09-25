@@ -184,6 +184,11 @@ public:
         return *this;
     }
     
+    Node append_html(const std::string& html){
+        Html::Document html_doc(html);
+        return append(find("body"),html_doc.find("body"));
+    }
+    
     //! @name Persistence methods
     //! @{
 
@@ -533,6 +538,7 @@ public:
     //! Serialise meta-data into head
     //! @return String representation of stencil
     std::string dump(void){
+        /*
         Node head = find("head");
         append(head,"title","Stencil "+id());
         
@@ -547,7 +553,7 @@ public:
             {"name","id"},
             {"content",id()}
         });
-        /*
+        
         append(head,"script",{
             {"type","text/javascript"},
             {"src","stencila-boot.js"},

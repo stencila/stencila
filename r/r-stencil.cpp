@@ -23,6 +23,13 @@ STENCILA_R_FUNC Stencil_load(SEXP self, SEXP content){
     STENCILA_R_END
 }
 
+STENCILA_R_FUNC Stencil_append_html(SEXP self, SEXP html){
+    STENCILA_R_BEGIN
+        from<Stencil>(self).append_html(as<std::string>(html));
+        return nil;
+    STENCILA_R_END
+}
+
 STENCILA_R_FUNC Stencil_dump(SEXP self){
     STENCILA_R_BEGIN
         return wrap(from<Stencil>(self).dump());
