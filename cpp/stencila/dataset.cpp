@@ -223,12 +223,26 @@ Datatable Dataset::import(const std::string& name){
 Datatable Dataset::select(const std::string& sql, bool reuse){
     std::string signature = boost::lexical_cast<std::string>(Hash(sql));
     
-    bool exists = value<int>("SELECT count(*) FROM stencila_datatables WHERE signature=="+signature);
-
-    // If not reusing cached table then drop existing table if it exists
-    if(exists and !reuse) {
+    int count = value<int>("SELECT count(*) FROM stencila_datatables WHERE signature=="+signature);
+    
+    // Confirm that the table exists (it may not be if the database was not saved)
+    bool exists = false;
+    if(count>0){
+        
         std::string name = value<std::string>("SELECT name FROM stencila_datatables WHERE signature=="+signature);
-        drop(name);
+        
+        try{
+            execute("SELECT * FROM \"" + name + "\" LIMIT 1;");
+            exists = true;
+        } catch(...) {
+            exists = false;
+        };
+        
+        // If not reusing a cached table then drop existing table if it exists
+        if(exists and !reuse) {
+            drop(name);
+            exists = false;
+        }
     }
     
     // If does not yet exist then create the table
@@ -237,15 +251,13 @@ Datatable Dataset::select(const std::string& sql, bool reuse){
         //field names in the original SQL. If you don't treat the orginal SQL as a subquery then statements like
         // "SELECT "year",..." get treated as a string "year".
         std::string name = "stencila_"+boost::lexical_cast<std::string>(Hash());
-        execute("CREATE TEMPORARY TABLE \""+name+"\" AS SELECT * FROM ("+sql+ ")");
+        execute("CREATE TEMPORARY TABLE \"" + name + "\" AS SELECT * FROM (" + sql + ")");
         execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
         return table(name);
     } else {
         std::string name = value<std::string>("SELECT name FROM stencila_datatables WHERE signature=="+signature);
         return table(name);
     }
-    
-    STENCILA_THROW(Exception,"This line should never be reached");
 }
 
 //! @brief 
