@@ -1,12 +1,12 @@
 include  $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
-BOOST_VERSION = 1_53_0
-CPP_NETLIB_VERSION = 0.9.4
+BOOST_VERSION = 1_54_0
+CPP_NETLIB_VERSION = 0.10.1
 LIBARCHIVE_VERSION = 3.1.2
 PUGIXML_VERSION = 1.2
 RAPIDJSON_VERSION = 0.11
 SMHASHER_VERSION = 147
-SQLITE_VERSION = 3071502
+SQLITE_VERSION = 3080002
 
 # Specify that symlinks time should be checked, not the target file time.
 # If this option is not specified then symlinks get remade
@@ -82,11 +82,11 @@ boost: include/boost lib/libboost_system.a
 # cpp-netlib
 #
 
-cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz:
-	wget --no-check-certificate https://github.com/downloads/cpp-netlib/cpp-netlib/cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
-
-cpp-netlib-$(CPP_NETLIB_VERSION): cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
-	tar xzf cpp-netlib-$(CPP_NETLIB_VERSION).tar.gz
+cpp-netlib-$(CPP_NETLIB_VERSION).tar.bz2:
+	wget --no-check-certificate http://commondatastorage.googleapis.com/cpp-netlib-downloads/0.10.1/cpp-netlib-$(CPP_NETLIB_VERSION).tar.bz2
+	
+cpp-netlib-$(CPP_NETLIB_VERSION): cpp-netlib-$(CPP_NETLIB_VERSION).tar.bz2
+	tar --bzip2 -xf cpp-netlib-$(CPP_NETLIB_VERSION).tar.bz2
 
 # cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
 # some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
@@ -222,7 +222,7 @@ smhasher: include include/smhasher
 ####################################################
 
 sqlite-amalgamation-$(SQLITE_VERSION).zip:
-	wget http://www.sqlite.org/sqlite-amalgamation-$(SQLITE_VERSION).zip;
+	wget http://www.sqlite.org/2013/sqlite-amalgamation-$(SQLITE_VERSION).zip
 
 sqlite-amalgamation-$(SQLITE_VERSION): sqlite-amalgamation-$(SQLITE_VERSION).zip
 	unzip -qo sqlite-amalgamation-$(SQLITE_VERSION).zip
