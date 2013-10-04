@@ -4,7 +4,7 @@
 #include <stencila/stencil.hpp>
 
 namespace Stencila {
-namespace {
+namespace Stem {
 
 /*!
  Stencila markup language : a Jade/Slim/Scaml/Haml-like language for Stencil templates
@@ -70,12 +70,11 @@ sregex inlinee_expr      = *(~(set='|'));
 sregex inlinee           = *element_name >> "|" >> inlinee_expr >> "|";
     ID(inlinee)
     
-sregex chars            = *space>>+(~(set='|',' ','\t'))>>*space;
+sregex chars            = *space>>+(~(set='|'))>>*space;
     ID(chars)
 
 sregex text             = +(inlinee|chars);
     ID(text)
-
 
 sregex code = sregex::compile("py|r");
     ID(code)
@@ -135,8 +134,10 @@ sregex attr_string            = ('\"' >> *(~(set='\r','\n','\"')) >> '\"') |
 
 sregex attr_class       = '.' >> attr_identifier;
     ID(attr_class)
-sregex attr_id          = '#' >> attr_identifier;
+
+sregex attr_id          = as_xpr("#") >> attr_identifier;
     ID(attr_id)
+
 sregex attr_assign      = attr_identifier >> '=' >> attr_string;
     ID(attr_assign)
 
@@ -431,16 +432,9 @@ Line parse(const std::string& stem) {
     return root;
 }
 
-} // namespace
-
-Stencil& Stencil::from_stem(const std::string& stem){
-    from_scratch();
-    parse(stem).make_top(find("body"));
-    return *this;
+void parse(const std::string& stem, Xml::Node node){
+    parse(stem).make_top(node);
 }
 
-std::string Stencil::stem_print(const std::string& stem){
-    return parse(stem).print();
-}
-
-} //namespace Stencila
+} // namespace Stem
+} // namespace Stencila

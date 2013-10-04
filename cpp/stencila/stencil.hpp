@@ -32,14 +32,20 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 namespace Stencila {
 
+namespace Stem {
+    void parse(const std::string&, Xml::Node);
+}
+
 //! [Polyglot markup](http://www.w3.org/TR/html-polyglot/) is both HTML5 and XML. Some people call it XHTML5
 //! There is a good summary of what XHTML5 requires [here](http://blog.whatwg.org/xhtml5-in-a-nutshell).
 //! Note that this page should be served with the right MIME type i.e. "Content-Type: application/xhtml+xml" (although this is 
 //! not supported by older versions of Microsoft IE (< 8.0?))
-class Stencil : public Component<Stencil>, public Html::Document {
+class Stencil : public Component<Stencil> {
 private:
 
     std::vector<std::string> keywords_;
+
+    Html::Document html_;
 
 public:
 
@@ -96,10 +102,25 @@ public:
     //!
     //! @return This stencil
     Stencil& from_scratch(void){
-        prepend_doctype_html5();
-        Node html = append("html",{{"xmlns","http://www.w3.org/1999/xhtml"}});
-        append(html,"head");
-        append(html,"body");
+        html().prepend_doctype_html5();
+        Html::Node html = html_.append("html",{{"xmlns","http://www.w3.org/1999/xhtml"}});
+        
+        Html::Node head = Html::Document::append(html,"head");
+       
+        Html::Document::append(head,"link",{
+            {"rel","stylesheet"},
+            {"type","text/css"},
+            {"href","http://static.stenci.la/css/stencil-default.css"},
+        }); 
+
+        // Note that script elements can not be empty (ie not <script .../> but <script ...></script>)
+        // hence the empty content added below
+        Html::Document::append(head,"script",{
+            {"type","text/javascript"},
+            {"src","http://static.stenci.la/js/stencil-default.js"},
+        }," ");
+
+        html_.append(html,"body");
         return *this;
     }
 
@@ -112,37 +133,38 @@ public:
     //! @return This stencil
     Stencil& from_html(const std::string& html){
         // Tidy HTML and load it into this stencil
-        std::string html_tidy = tidy(html);
-        load(html_tidy);
+        std::string html_tidy = Html::tidy(html);
+        html_.load(html_tidy);
         
         //! @todo Extract metadata
-        Node head = find("head");
+        Html::Node head = html_.find("head");
         
-        Node keywords = find(head,"meta","name","keywords");
+        Html::Node keywords = html_.find(head,"meta","name","keywords");
         if(keywords){
             std::string content = Xml::Document::get(keywords,"content").value();
             boost::split(keywords_,content,boost::is_any_of(","));
             for(std::string& keyword : keywords_) boost::trim(keyword);
         }
         
-        Node id = find(head,"meta","name","id");
+        Html::Node id = html_.find(head,"meta","name","id");
         if(id){
             id_ = Xml::Document::get(id,"content").value();
         }
         
         // Now remove the extisting head and replace it with a new one
-        remove(head);
-        append(find("html"),"head");
+        html_.remove(head);
+        html_.append(html_.find("html"),"head");
         return *this;
     }
 
     //! @brief 
     //! @param stem
     //! @return 
-    Stencil& from_stem(const std::string& stem);
-    
-    
-    static std::string stem_print(const std::string& stem);
+    Stencil& from_stem(const std::string& stem){
+        from_scratch();
+        Stem::parse(stem,html().find("body"));
+        return *this;
+    }
 
     //! @brief 
     //! @param path
@@ -171,22 +193,26 @@ public:
     Stencil& from_id(const std::string& id){
         return *this;
     }
+
+    Html::Document& html(void){
+        return html_;
+    }
     
     std::string body(void) {
         std::ostringstream out;
-        for(Node child : find("body").children()) child.print(out,"",pugi::format_raw);
+        for(Html::Node child : html_.find("body").children()) child.print(out,"",pugi::format_raw);
         return out.str();
     }
     
     Stencil& body(const std::string& html) {
         Html::Document html_doc(html);
-        copy(find("body"),html_doc.find("body"));
+        html_.copy(html_.find("body"),html_doc.find("body"));
         return *this;
     }
     
-    Node append_html(const std::string& html){
+    Html::Node append_html(const std::string& html){
         Html::Document html_doc(html);
-        return append(find("body"),html_doc.find("body"));
+        return html_.append(html_.find("body"),html_doc.find("body"));
     }
     
     //! @name Persistence methods
@@ -235,7 +261,7 @@ public:
     //! @return The stencil
     template<typename Workspace>
     Stencil& render(Workspace& workspace){
-        render_element(*this,workspace);
+        render_element(html_,workspace);
         return *this;
     }
     
@@ -442,12 +468,12 @@ private:
         // Check to see if a subselection of modes is to be included
         Xml::Attribute select = Xml::Document::get(node,"data-select");
         if(select){
-            Xml::Nodes included = source.all(select.value());
+            Xml::Nodes included = source.html().all(select.value());
             for(auto i=included.begin();i!=included.end();i++) sink.append_copy(i->node());
         }
         //Otherwise include all children
         else {
-            for(auto i=source.children().begin();i!=source.children().end();i++) sink.append_copy(*i);
+            for(auto i=source.html().children().begin();i!=source.html().children().end();i++) sink.append_copy(*i);
         }
         
         //Apply child modifiers
@@ -539,28 +565,28 @@ public:
     //! @return String representation of stencil
     std::string dump(void){
         /*
-        Node head = find("head");
-        append(head,"title","Stencil "+id());
+        Html::Node head = html().find("head");
+        Html::Document::append(head,"title","Stencil "+id());
         
-        append(head,"meta",{
+        Html::Document::append(head,"meta",{
             {"charset","utf-8"}
         },"");
-        append(head,"meta",{
+        Html::Document::append(head,"meta",{
             {"name","generator"},
             {"content","Stencila"}
         });
-        append(head,"meta",{
+        Html::Document::append(head,"meta",{
             {"name","id"},
             {"content",id()}
         });
-        
-        append(head,"script",{
+        Html::Document::append(head,"script",{
             {"type","text/javascript"},
             {"src","stencila-boot.js"},
         },"0;");
         */
-        return Html::Document::dump();
+        return html_.dump();
     }
+
 };
 
 }
