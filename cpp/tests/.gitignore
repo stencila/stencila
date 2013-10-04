@@ -9,3 +9,7 @@ outputs
 
 #Ignore CodeLite C++ IDE project files
 *.project
+
+#Ignore Sublime Test project and workspace files
+*.sublime-project
+*.sublime-workspace
