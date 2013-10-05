@@ -149,7 +149,9 @@ sregex element          = (
 ) >> *(+space >> *text);
     ID(element)
 
-///////////////////
+/**
+ * A comment is a line beggining with two forward slashes "//"
+ */
 
 sregex comment_text = *_;
     ID(comment_text)
@@ -157,13 +159,24 @@ sregex comment_text = *_;
 sregex comment = as_xpr("//") >> comment_text;
     ID(comment)
 
-///////////////////
+/**
+ * An equation is a line beggining with a back tick "`"
+ */
+
+sregex equation_text = *_; 
+ID(equation_text)
+
+sregex equation = as_xpr("`") >> equation_text >> as_xpr("`");
+ID(equation)
+
+
 
 sregex indent = *space;
     ID(indent)
 
-sregex line = indent >> (comment|code|element|text);
+sregex line = indent >> (comment|equation|code|element|text);
     ID(line)
+
 
 #undef ID
 //! @}
@@ -181,7 +194,6 @@ void initialise(void) {
     MAP(text)
     
     MAP(code)
-    
     
     MAP(css_selector)
     MAP(stencil_identifier)
@@ -204,6 +216,8 @@ void initialise(void) {
     MAP(element)
     
     MAP(comment)
+
+    MAP(equation)
     
     MAP(indent)
     
@@ -247,6 +261,7 @@ struct Line {
         branch++; //Skip the indent
         const void* id = branch->regex_id();
         if(id==comment_) make_comment(node,*branch);
+        else if(id==equation_) make_equation(node,*branch);
         else if(id==code_) make_code(node,*branch);
         else if(id==element_) make_element(node,*branch);
         else if(id==text_) make_text(node,*branch);
@@ -266,6 +281,17 @@ struct Line {
         comment += decendents;
         comment += " ";
         Xml::Document::append_comment(node,comment);
+    }
+
+    void make_equation(Xml::Node node,const smatch& tree){
+        // Create self node, a <p class="equation">
+        Xml::Node self = Xml::Document::append(node,"p",{{"class","equation"}});
+        // Get equation_text
+        std::string equation_text;
+        auto text = tree.nested_results().begin();
+        if(text != tree.nested_results().end()) equation_text = text->str();
+        // Append equation text to self node with surrounding backticks
+        Xml::Document::append_text(self,"`"+equation_text+"`");
     }
     
     void make_code(Xml::Node node,const smatch& tree){
@@ -434,6 +460,10 @@ Line parse(const std::string& stem) {
 
 void parse(const std::string& stem, Xml::Node node){
     parse(stem).make_top(node);
+}
+
+std::string print(const std::string& stem){
+    return parse(stem).print();
 }
 
 } // namespace Stem

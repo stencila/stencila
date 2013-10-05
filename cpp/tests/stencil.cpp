@@ -106,7 +106,7 @@ void stem_html(std::string stem,std::string html) {
     s.from_stem(stem);
     std::string got = s.body();
     if(got!=html){
-        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stencil::stem_print(stem));
+        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stem::print(stem));
     }
 }
 
@@ -153,6 +153,12 @@ div
   p
     span Hello world!
 )","<div><p><span>Hello world!</span></p></div>");
+
+    // Equations
+    stem_html("`E=mc^2`",R"(<p class="equation">`E=mc^2`</p>)");
+    stem_html("    `E=mc^2`",R"(<p class="equation">`E=mc^2`</p>)");
+    //...inline math should not be affected, only lines starting with a backtick
+    stem_html("p where `c` is the speed of light",R"(<p>where `c` is the speed of light</p>)");
 
     //Directives
     

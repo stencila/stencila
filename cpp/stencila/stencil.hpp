@@ -34,6 +34,7 @@ namespace Stencila {
 
 namespace Stem {
     void parse(const std::string&, Xml::Node);
+    std::string print(const std::string& stem);
 }
 
 //! [Polyglot markup](http://www.w3.org/TR/html-polyglot/) is both HTML5 and XML. Some people call it XHTML5
