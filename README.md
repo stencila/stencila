@@ -50,7 +50,7 @@ MSYS environment](https://github.com/stencila/stencila/tree/master/building-on-w
 ## Testing
 
 The Stencila [continuous integration server](http://ci.stenci.la) builds packages and run tests when commits are made to this repository.
-See the C++ job for [test results](http://ci.stenci.la/job/stencila.cpp.test/lastCompletedBuild/testReport/%28root%29/) and [coverage reports](http://ci.stenci.la/job/stencila.cpp.test/lastCompletedBuild/cobertura/stencila/).
+See the [C++ tests job]((http://ci.stenci.la/job/stencila.cpp.test/) for examples of test results and coverage reports.
 
 ##Versioning
 
