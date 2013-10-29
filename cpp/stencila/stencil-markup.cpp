@@ -76,9 +76,6 @@ sregex chars            = *space>>+(~(set='|'))>>*space;
 sregex text             = +(inlinee|chars);
     ID(text)
 
-sregex code = sregex::compile("py|r");
-    ID(code)
-
 ///////////////////
 
 sregex expr = +_;
@@ -150,32 +147,42 @@ sregex element          = (
     ID(element)
 
 /**
- * A comment is a line beggining with two forward slashes "//"
+ * @name code
+ * A line starting with "py" or "r"
  */
 
-sregex comment_text = *_;
-    ID(comment_text)
-    
-sregex comment = as_xpr("//") >> comment_text;
-    ID(comment)
+sregex code = sregex::compile("py|r");
+ID(code)
 
 /**
- * An equation is a line beggining with a back tick "`"
+ * @name equation
+ * A line starting and ending with a back tick "`"
  */
 
-sregex equation_text = *_; 
+sregex equation_text = *(~(set='`')); 
 ID(equation_text)
 
 sregex equation = as_xpr("`") >> equation_text >> as_xpr("`");
 ID(equation)
 
+/**
+ * @name comment
+ * A comment is a line beggining with two forward slashes "//"
+ */
+
+sregex comment_text = *_;
+ID(comment_text)
+    
+sregex comment = as_xpr("//") >> comment_text;
+ID(comment)
+
 
 
 sregex indent = *space;
-    ID(indent)
+ID(indent)
 
 sregex line = indent >> (comment|equation|code|element|text);
-    ID(line)
+ID(line)
 
 
 #undef ID
@@ -313,13 +320,15 @@ struct Line {
         auto branch = tree.nested_results().begin();
         //First branch is a element_name or an attr
         auto element_name_or_attr = branch;
-        //If its an element name get it, otherwise make it div
+
+        //If its an element name get it, otherwise make it a <div>
         std::string element_name;
         if(element_name_or_attr->regex_id()==element_name_){
             element_name = element_name_or_attr->str();
         } else {
             element_name = "div";
         }
+
         Xml::Node self = Xml::Document::append(node,element_name);
         for(auto branch = tree.nested_results().begin();branch!=tree.nested_results().end();branch++){
             const void* id = branch->regex_id();

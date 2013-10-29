@@ -69,6 +69,16 @@ public:
     //! @return 
     Stencil(const std::string& content):
         Component<Stencil>(){
+        load(content);
+    }
+    
+    //! @brief 
+    //! @return 
+    const std::vector<std::string> keywords(void) const {
+        return keywords_;
+    }
+
+    Stencil& load(const std::string& content){
         /*
         html://
         stem://
@@ -88,14 +98,10 @@ public:
         else if(type=="file") from_file(rest);
         else if(type=="id") from_id(rest);
         else STENCILA_THROW(Exception,"Unrecognised type: " + type)
+
+        return *this;
     }
-    
-    //! @brief 
-    //! @return 
-    const std::vector<std::string> keywords(void) const {
-        return keywords_;
-    }
-    
+
     //! @brief Create a stencil from scratch
     //!
     //! A XHTML5 document is created with a empty head and body
