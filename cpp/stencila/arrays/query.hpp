@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Stencila {
-namespace Arraybase {
+namespace Arrays {
 
 template<
 	class Derived

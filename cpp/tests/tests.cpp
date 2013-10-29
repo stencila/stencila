@@ -35,6 +35,9 @@ BOOST_GLOBAL_FIXTURE(GlobalFixture);
 #include "compress.cpp"
 
 #include "component.cpp"
+
+#include "arrays.cpp"
+
 #include "dataset.cpp"
 #include "datatable.cpp"
 #include "dataquery.cpp"

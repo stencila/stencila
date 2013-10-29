@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Stencila {
-namespace Arraybase {
+namespace Arrays {
 
 class Singular1;
 class Singular2;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "arraybase-forwards.hpp"
+#include "forwards.hpp"
 
 namespace Stencila {
-namespace Arraybase {
+namespace Arrays {
 
 template<
 	class Derived,

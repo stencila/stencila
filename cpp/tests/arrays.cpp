@@ -17,11 +17,11 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include <stencila/arrayspace/arrayspace.hpp>
+#include <stencila/arrays.hpp>
 
-BOOST_AUTO_TEST_SUITE(arrayspace)
+BOOST_AUTO_TEST_SUITE(arraybase)
 
-using namespace Stencila::Arrayspace;
+using namespace Stencila::Arrays;
 
 STENCILA_ARRAY_DIM(Area,areas,area,3)
 STENCILA_ARRAY_DIM(Age,ages,age,3)
@@ -93,12 +93,9 @@ BOOST_AUTO_TEST_CASE(array_ranks){
 
 	Array<double,Age,Area> array;
 
-	BOOST_CHECK_EQUAL(array.rank(ages).order,1);
-	BOOST_CHECK_EQUAL(array.rank(areas).order,2);
-	BOOST_CHECK_EQUAL(array.rank(sexes).order,0);
-
-	Rank<1> rank = array.rank(ages);
-	
+	BOOST_CHECK_EQUAL(array.rank(ages).order(),1);
+	BOOST_CHECK_EQUAL(array.rank(areas).order(),2);
+	BOOST_CHECK_EQUAL(array.rank(sexes).order(),0);
 }
 
 BOOST_AUTO_TEST_CASE(queries){

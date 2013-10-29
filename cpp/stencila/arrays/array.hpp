@@ -5,11 +5,11 @@
 #include <vector>
 #include <iostream>
 
-#include "arraybase-dimension.hpp"
-#include "arraybase-query.hpp"
+#include "dimension.hpp"
+#include "query.hpp"
 
 namespace Stencila {
-namespace Arraybase {
+namespace Arrays {
 
 template<
 	class Type,
