@@ -10,38 +10,24 @@
 namespace Stencila {
 namespace Arrayspace {
 
-
-template<
-	unsigned int Order
->
-class Rank {
-public:
-	static const unsigned int order;
-};
-
-template<
-	unsigned int Order
->
-const unsigned int Rank<Order>::order = Order;
-
 template<
 	class Type,
-	class Dimension1,
-	class Dimension2,
-	class Dimension3,
-	class Dimension4,
-	class Dimension5,
-	class Dimension6
+	class Dim1,
+	class Dim2,
+	class Dim3,
+	class Dim4,
+	class Dim5,
+	class Dim6
 >
 class Array {
 private:
-	static const unsigned int size_ = 
-		Dimension1::size * 
-		Dimension2::size *
-		Dimension3::size *
-		Dimension4::size *
-		Dimension5::size *
-		Dimension6::size
+	static const uint size_ = 
+		Dim1::size * 
+		Dim2::size *
+		Dim3::size *
+		Dim4::size *
+		Dim5::size *
+		Dim6::size
 	;
 
 	Type values_[size_];
@@ -59,7 +45,7 @@ public:
 		class Other
 	>
     Array(const std::initializer_list<Other>& others){
-        unsigned int index = 0;
+        uint index = 0;
         for(auto& item : others){
             values_[index] = item;
             index++;
@@ -72,7 +58,7 @@ public:
 		unsigned long Size
 	>
     Array(const std::array<Other,Size>& array){
-        unsigned int index = 0;
+        uint index = 0;
         for(auto& item : array){
             values_[index] = item;
             index++;
@@ -84,7 +70,7 @@ public:
 		class Other
 	>
     Array(const std::vector<Other>& vector){
-        unsigned int index = 0;
+        uint index = 0;
         for(auto& item : vector){
             values_[index] = item;
             index++;
@@ -92,161 +78,240 @@ public:
         }
     }
 
-	unsigned int size(void) const {
+	void operator=(Type (*func)(uint)){
+		for(uint index=0;index<size();index++) values_[index] = func(index);
+	}
+
+	void operator=(Type (*func)(uint,uint)){
+		for(uint index=0;index<size();index++){
+			values_[index] = func(level(Dim1(),index),level(Dim2(),index));
+		}
+	}
+
+	uint size(void) const {
 		return size_;
 	}
 
-	unsigned int index(unsigned int level1,unsigned int level2=0,unsigned int level3=0,unsigned int level4=0,unsigned int level5=0,unsigned int level6=0) const {
+	//! @{
+	
+	template<
+		uint Order
+	>
+	class Rank {
+	public:
+		static const uint order = Order;
+	};
+
+	static const Rank<0> rank0;
+	static const Rank<1> rank1;
+	static const Rank<2> rank2;
+	static const Rank<3> rank3;
+	static const Rank<4> rank4;
+	static const Rank<5> rank5;
+	static const Rank<6> rank6;
+
+	Rank<1> rank(Dim1) const { return rank1; }
+	Rank<2> rank(Dim2) const { return rank2; }
+	Rank<3> rank(Dim3) const { return rank3; }
+	Rank<4> rank(Dim4) const { return rank4; }
+	Rank<5> rank(Dim5) const { return rank5; }
+	Rank<6> rank(Dim6) const { return rank6; }
+	
+	template<class Dim>
+	Rank<0> rank(Dim) const { return rank0; }
+
+	//! @}
+	
+	//! @{
+
+	uint base(Rank<1>) const { 
+		return Dim2::size * Dim3::size * Dim4::size * Dim5::size * Dim6::size;
+	}
+	uint base(Rank<2>) const { 
+		return Dim3::size * Dim4::size * Dim5::size * Dim6::size;
+	}
+	uint base(Rank<3>) const { 
+		return Dim4::size * Dim5::size * Dim6::size;
+	}
+	uint base(Rank<4>) const { 
+		return Dim5::size * Dim6::size;
+	}
+	uint base(Rank<5>) const { 
+		return Dim6::size;
+	}
+	uint base(Rank<6>) const { 
+		return 1;
+	}
+	template<uint Order>
+	uint base(Rank<Order>) const { 
+		return 0;
+	}
+
+	//! @}
+
+	uint index(
+		uint level1,
+		uint level2 = 0,
+		uint level3 = 0,
+		uint level4 = 0,
+		uint level5 = 0,
+		uint level6 = 0
+	) const {
 		return 
-			level1 * (Dimension2::size * Dimension3::size * Dimension4::size * Dimension5::size * Dimension6::size) +
-			level2 * (                   Dimension3::size * Dimension4::size * Dimension5::size * Dimension6::size) +
-			level3 * (                                      Dimension4::size * Dimension5::size * Dimension6::size) +
-			level4 * (                                                         Dimension5::size * Dimension6::size) +
-			level5 * (                                                                            Dimension6::size) +
+			level1 * base(rank1) +
+			level2 * base(rank2) +
+			level3 * base(rank3) +
+			level4 * base(rank4) +
+			level5 * base(rank5) +
 			level6
 		;
 	}
 
-	/*
-	translate(index,rank(dimA),dimA,dimB,dimC,dimD,dimE,dimF) +
-	translate(index,rank(dimB),dimA,dimB,dimC,dimD,dimE,dimF) +
-	translate(index,rank(dimC),dimA,dimB,dimC,dimD,dimE,dimF) +
-	translate(index,rank(dimD),dimA,dimB,dimC,dimD,dimE,dimF) +
-	translate(index,rank(dimE),dimA,dimB,dimC,dimD,dimE,dimF) +
-	translate(index,rank(dimF),dimA,dimB,dimC,dimD,dimE,dimF);
-	*/
-
-	unsigned int level(Dimension1,unsigned int index) const {
-		return index/(
-			Dimension2::size *
-			Dimension3::size *
-			Dimension4::size *
-			Dimension5::size *
-			Dimension6::size
-		);
+	uint level(Dim1,uint index) const {
+		return index/base(rank1);
+	}
+	uint level(Dim2,uint index) const {
+		return index/base(rank2)%Dim2::size;
+	}
+	uint level(Dim3,uint index) const {
+		return index/base(rank3)%Dim3::size;
+	}
+	uint level(Dim4,uint index) const {
+		return index/base(rank4)%Dim4::size;
+	}
+	uint level(Dim5,uint index) const {
+		return index/base(rank5)%Dim5::size;
+	}
+	uint level(Dim6,uint index) const {
+		return index/base(rank6)%Dim6::size;
 	}
 
-	unsigned int level(Dimension2,unsigned int index) const {
-		return index/(
-			Dimension3::size *
-			Dimension4::size *
-			Dimension5::size *
-			Dimension6::size
-		)%Dimension2::size;
-	}
-
-	unsigned int level(Dimension3,unsigned int index) const {
-		return index/(
-			Dimension4::size *
-			Dimension5::size *
-			Dimension6::size
-		)%Dimension3::size;
-	}
-
-	unsigned int level(Dimension4,unsigned int index) const {
-		return index/(
-			Dimension5::size *
-			Dimension6::size
-		)%Dimension4::size;
-	}
-
-	unsigned int level(Dimension5,unsigned int index) const {
-		return index/(
-			Dimension6::size
-		)%Dimension5::size;
-	}
-
-	unsigned int level(Dimension6,unsigned int index) const {
-		return index%Dimension6::size;
-	}
-
-	template<
-		class Dim
-	>
-	unsigned int level(Dim,unsigned int index) const {
+	template<class Dim>
+	uint level(Dim,uint index) const {
 		return 0;
+	}
+
+	uint level(uint dim,uint index) const {
+		switch(dim){
+			case 0: return level(Dim1(),index); break;
+			case 1: return level(Dim2(),index); break;
+			case 2: return level(Dim3(),index); break;
+			case 3: return level(Dim4(),index); break;
+			case 4: return level(Dim5(),index); break;
+			case 5: return level(Dim6(),index); break;
+			default:
+				return 0;
+			break;
+		}
 	}
 
 	//!@}
 	
-	Rank<1> rank(Dimension1) const { return Rank<1>(); }
-	Rank<2> rank(Dimension2) const { return Rank<2>(); }
-	Rank<3> rank(Dimension3) const { return Rank<3>(); }
-	Rank<4> rank(Dimension4) const { return Rank<4>(); }
-	Rank<5> rank(Dimension5) const { return Rank<5>(); }
-	Rank<6> rank(Dimension6) const { return Rank<6>(); }
-	
 	template<
-		class Dim
+		typename Value
 	>
-	Rank<0> rank(Dim) const { return Rank<0>(); }
+	class Iterator {
+	public:
 
+		const Iterator& operator++() {
+			++index_;
+			return *this;
+		}
 
-	Type* begin(void) {
-		return values_;
+		Iterator operator++(int){
+			Iterator copy(*this);
+			++index_;
+			return copy;
+		}
+
+		bool operator==(const Iterator& other) const {
+			return index_ == other.index_;
+		}
+
+		bool operator!=(const Iterator& other) const {
+			return index_ != other.index_;
+		}
+
+		Value& operator*() const{ 
+			return value();
+		}
+
+		uint index(void) const {
+			return index_;
+		}
+
+		uint level(uint dim) const {
+			return array_->level(dim,index_);
+		}
+
+		Value& value(void) const{ 
+			return values_[index_];
+		}
+
+	protected:
+		Iterator(uint start,Value* values,const Array* array):
+			index_(start),
+			values_(values),
+			array_(array){
+		}
+
+		friend class Array;
+
+	private:
+		uint index_;
+		Value* values_;
+		const Array* array_;
+	};
+
+	Iterator<Type> begin(void) {
+		return Iterator<Type>(0,values_,this);
 	}
 
-	const Type* begin(void) const {
-		return values_;
+	Iterator<const Type> begin(void) const {
+		return Iterator<const Type>(0,values_,this);
 	}
 
-	Type* end(void) {
-		return values_+size_;
+	Iterator<Type> end(void) {
+		return Iterator<Type>(size_,values_,this);
 	}
 
-	const Type* end(void) const {
-		return values_+size_;
+	Iterator<const Type> end(void) const {
+		return Iterator<const Type>(size_,values_,this);
 	}
 
 	//!@{
 	
-	Type& operator[](unsigned int index){
+	Type& operator[](uint index){
 		return values_[index];
 	}
 
-	const Type& operator[](unsigned int index) const {
+	const Type& operator[](uint index) const {
 		return values_[index];
-	}
-
-	//!@}
-
-	void set(Type (*func)(void)){
-		for(Type& value : values_) value = func();
-	}
-
-	void set(Type (*func)(unsigned int)){
-		for(unsigned int index=0;index<size();index++) values_[index] = func(index);
 	}
 
 	Type& operator()(
-		unsigned int level1 = 0,
-		unsigned int level2 = 0,
-		unsigned int level3 = 0,
-		unsigned int level4 = 0,
-		unsigned int level5 = 0,
-		unsigned int level6 = 0
+		uint level1 = 0,
+		uint level2 = 0,
+		uint level3 = 0,
+		uint level4 = 0,
+		uint level5 = 0,
+		uint level6 = 0
 	){
 		return values_[index(level1,level2,level3,level4,level5,level6)];
 	}
 
 	const Type& operator()(
-		unsigned int level1 = 0,
-		unsigned int level2 = 0,
-		unsigned int level3 = 0,
-		unsigned int level4 = 0,
-		unsigned int level5 = 0,
-		unsigned int level6 = 0
+		uint level1 = 0,
+		uint level2 = 0,
+		uint level3 = 0,
+		uint level4 = 0,
+		uint level5 = 0,
+		uint level6 = 0
 	) const {
 		return values_[index(level1,level2,level3,level4,level5,level6)];
 	}
 
-	void operator()(Type (*func)(void)){
-		set(func);
-	}
-
-	void operator()(Type (*func)(unsigned int)){
-		set(func);
-	}
+	//!@}
 
 	double operator()(Count count) const {
 		return count.aggregate(*this);
@@ -297,7 +362,9 @@ public:
 	template<
 		class DimA,class DimB,class DimC,class DimD,class DimE,class DimF
 	>
-	Array<double,DimA,DimB,DimC,DimD,DimE,DimF> operator()(const By<DimA,DimB,DimC,DimD,DimE,DimF>& by){
+	Array<double,DimA,DimB,DimC,DimD,DimE,DimF> operator()(
+		const By<DimA,DimB,DimC,DimD,DimE,DimF>& by
+	){
 		return operator()(by,sum());
 	}
 
@@ -305,12 +372,14 @@ public:
 		class Other,
 		class DimA,class DimB,class DimC,class DimD,class DimE,class DimF
 	>
-	Array<double,Dimension1,Dimension2,Dimension3,Dimension4,Dimension5,Dimension6> operator*(const Array<Other,DimA,DimB,DimC,DimD,DimE,DimF>& other) const {
-		Array<double,Dimension1,Dimension2,Dimension3,Dimension4,Dimension5,Dimension6> result;
+	Array<double,Dim1,Dim2,Dim3,Dim4,Dim5,Dim6> operator*(
+		const Array<Other,DimA,DimB,DimC,DimD,DimE,DimF>& other
+	) const {
+		Array<double,Dim1,Dim2,Dim3,Dim4,Dim5,Dim6> result;
 		for(int index=0;index<size();index++) {
 			result[index] = (*this)[index] * other.correlate(
 				index,
-				Dimension1(),Dimension2(),Dimension3(),Dimension4(),Dimension5(),Dimension6()
+				Dim1(),Dim2(),Dim3(),Dim4(),Dim5(),Dim6()
 			);
 		}
 		return result;
@@ -318,23 +387,28 @@ public:
 
 	void write(std::ostream& stream) const {
 		// Write header row
-		if(Dimension1::size>1) stream<<Dimension1::label<<"\t";
-		if(Dimension2::size>1) stream<<Dimension2::label<<"\t";
-		if(Dimension3::size>1) stream<<Dimension3::label<<"\t";
-		if(Dimension4::size>1) stream<<Dimension4::label<<"\t";
-		if(Dimension5::size>1) stream<<Dimension5::label<<"\t";
-		if(Dimension6::size>1) stream<<Dimension6::label<<"\t";
+		if(Dim1::size>1) stream<<Dim1::label<<"\t";
+		if(Dim2::size>1) stream<<Dim2::label<<"\t";
+		if(Dim3::size>1) stream<<Dim3::label<<"\t";
+		if(Dim4::size>1) stream<<Dim4::label<<"\t";
+		if(Dim5::size>1) stream<<Dim5::label<<"\t";
+		if(Dim6::size>1) stream<<Dim6::label<<"\t";
 		stream<<"value"<<std::endl;
 
-		for(unsigned int index = 0; index<size(); index++){
-			if(Dimension1::size>1) stream<<level(Dimension1(),index)<<"\t";
-			if(Dimension2::size>1) stream<<level(Dimension2(),index)<<"\t";
-			if(Dimension3::size>1) stream<<level(Dimension3(),index)<<"\t";
-			if(Dimension4::size>1) stream<<level(Dimension4(),index)<<"\t";
-			if(Dimension5::size>1) stream<<level(Dimension5(),index)<<"\t";
-			if(Dimension6::size>1) stream<<level(Dimension6(),index)<<"\t";
+		for(uint index = 0; index<size(); index++){
+			if(Dim1::size>1) stream<<level(Dim1(),index)<<"\t";
+			if(Dim2::size>1) stream<<level(Dim2(),index)<<"\t";
+			if(Dim3::size>1) stream<<level(Dim3(),index)<<"\t";
+			if(Dim4::size>1) stream<<level(Dim4(),index)<<"\t";
+			if(Dim5::size>1) stream<<level(Dim5(),index)<<"\t";
+			if(Dim6::size>1) stream<<level(Dim6(),index)<<"\t";
 			stream<<values_[index]<<std::endl;
 		}
+	}
+
+	void write(const std::string& filename) const {
+		std::ofstream file(filename);
+		write(file);
 	}
 
 };

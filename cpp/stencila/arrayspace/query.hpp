@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dimension.hpp"
+
 namespace Stencila {
 namespace Arrayspace {
 
@@ -37,11 +39,20 @@ public:
 		return 0;
 	}
 
-	template<
-		class Array
-	>
+	template<class Array>
 	double aggregate(const Array& array) {
 		for(auto& value : array) derived().append(value);
+		return derived().finalise();
+	}
+
+	template<
+		typename Type,
+		class... Dims,
+		typename Return,
+		typename Arg
+	>
+	double aggregate(const Array<Type,Dims...>& array, Return (*function)(Arg)) {
+		for(auto& value : array) derived().append(function(value));
 		return derived().finalise();
 	}
 };
@@ -104,6 +115,60 @@ template<
 double sum(const Array<Type,Dims...>& array){
 	return Sum().aggregate(array);
 }
+
+template<
+	typename Return,
+	typename Arg
+>
+double sum(Return(*function)(Arg)){
+	return Sum().aggregate(function);
+}
+
+/*
+template<
+	class Dims...,
+	typename Return,
+	typename Args...
+>
+class Product {
+private:
+
+	Return (*function_)(Args...);
+	double product_;
+	
+public:
+
+	Product(Return (*function)(Args...)):
+		function_(function),
+		product_(1){
+	}
+
+	operator double(void){
+		return aggregate();
+	}
+
+	template<class Type>
+	void append(const Type& value){
+		product_ *= value;
+	}
+
+	double finalise(void){
+		return product_;
+	}
+};
+
+template<
+	class... Dims,
+	typename Return,
+	typename... Args
+>
+Product product(
+	Dims...,
+	Return (*function)(Args...)
+){
+	return Product<Dims...,Return,Args...>(function);
+}
+*/
 
 /*
 class Mean : public Aggregator<Mean> {
@@ -173,8 +238,6 @@ template<
 Func<Function> func(Function func){
 	return Func<Function>(func);
 }
-
-
 
 template<
 	class Dim1 = Singular1,

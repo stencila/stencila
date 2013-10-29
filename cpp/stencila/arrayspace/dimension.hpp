@@ -43,7 +43,7 @@ public:
 	 */
 
 	/**
-	 * Iterator class which provides for convieient looping
+	 * Iterator class which provides for convenient looping
 	 * over levels in a dimension.
 	 *
 	 * Based on http://stackoverflow.com/a/7185723
