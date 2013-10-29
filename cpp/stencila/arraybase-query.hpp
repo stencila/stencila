@@ -1,21 +1,7 @@
 #pragma once
 
-#include "dimension.hpp"
-
 namespace Stencila {
-namespace Arrayspace {
-
-template<
-	class Type = double,
-	class Dimension1 = Singular1,
-	class Dimension2 = Singular2,
-	class Dimension3 = Singular3,
-	class Dimension4 = Singular4,
-	class Dimension5 = Singular5,
-	class Dimension6 = Singular6
->
-class Array;
-
+namespace Arraybase {
 
 template<
 	class Derived

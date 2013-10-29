@@ -1,26 +1,9 @@
 #pragma once
 
+#include "arraybase-forwards.hpp"
+
 namespace Stencila {
-namespace Arrayspace {
-
-template<
-	class Derived
-> 
-class DimensionCompare {
-private:
-	unsigned int level_;
-	
-public:
-	DimensionCompare(unsigned int level):level_(level){}
-};
-
-template<
-	class Derived
-> 
-class DimensionEquals : public DimensionCompare<Derived> {
-public:
-	DimensionEquals(unsigned int level):DimensionCompare<Derived>(level){}
-};
+namespace Arraybase {
 
 template<
 	class Derived,
@@ -90,14 +73,10 @@ public:
 	}
 
 	//!@}
-	
-	DimensionEquals<Derived> operator==(unsigned int level) const { 
-		return DimensionEquals<Derived>(level);
-	}
-
 };
 
-// Template static label definition;
+// Templated static size and label definitions
+
 template<
 	class Derived,
 	unsigned int Size
@@ -133,7 +112,7 @@ const char* Dimension<Derived,Size>::label;
 
 /**
  * Singular dimensions are Dimensions with only one level.
- * They are used as default dimensions fo Arrays
+ * They are used as default dimensions for Arrays
  */
 class Singular1 : public Dimension<Singular1,1>{};
 class Singular2 : public Dimension<Singular2,1>{};
@@ -141,8 +120,6 @@ class Singular3 : public Dimension<Singular3,1>{};
 class Singular4 : public Dimension<Singular4,1>{};
 class Singular5 : public Dimension<Singular5,1>{};
 class Singular6 : public Dimension<Singular6,1>{};
-
-
 
 }
 }

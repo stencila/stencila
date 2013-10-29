@@ -5,10 +5,11 @@
 #include <vector>
 #include <iostream>
 
-#include "query.hpp"
+#include "arraybase-dimension.hpp"
+#include "arraybase-query.hpp"
 
 namespace Stencila {
-namespace Arrayspace {
+namespace Arraybase {
 
 template<
 	class Type,
@@ -99,7 +100,9 @@ public:
 	>
 	class Rank {
 	public:
-		static const uint order = Order;
+		static const uint order(void){
+			return Order;
+		};
 	};
 
 	static const Rank<0> rank0;
