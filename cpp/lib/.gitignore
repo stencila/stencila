@@ -1,6 +1,11 @@
-#Ignore temporary files
+#Ignore built files
 *.o
+*.so
 *.a
 
 #Ignore CodeLite C++ IDE project files
 *.project
+
+#Ignore Sublime Text project and workspace files
+*.sublime-project
+*.sublime-workspace
