@@ -18,16 +18,16 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/test.hpp>
-#include <stencila/dataset.hpp>
-#include <stencila/datatable.hpp>
+#include <stencila/tables/tableset.hpp>
+#include <stencila/tables/table.hpp>
 
-using namespace Stencila;
+using namespace Stencila::Tables;
 
 struct datasetFixture { 
-	Dataset dataset;
+	Tableset tableset;
 	
 	datasetFixture(){
-		dataset.execute(
+		tableset.execute(
 			//Caution: do not put empty lines in this SQL otherwise it breaks it 
 			//into several strings of which only the first is passed as an argument!
 			"CREATE TABLE t1 ("
@@ -44,69 +44,69 @@ struct datasetFixture {
 			"CREATE INDEX t1_c1 ON t1(c1);"
 			"CREATE INDEX t2_c1 ON t2(c1);"
 		);
-		dataset.import("t1");
-		dataset.import("t2");
+		tableset.import("t1");
+		tableset.import("t2");
 	} 
 };
 
-BOOST_FIXTURE_TEST_SUITE(dataset,datasetFixture)
+BOOST_FIXTURE_TEST_SUITE(tableset,datasetFixture)
 
 BOOST_AUTO_TEST_CASE(cursor){ 
-	auto cursor = dataset.cursor("SELECT max(c1) FROM t1");
+	auto cursor = tableset.cursor("SELECT max(c1) FROM t1");
 	BOOST_CHECK_EQUAL(cursor.value<int>(),5);
 }
 
 BOOST_AUTO_TEST_CASE(tables){ 
-	auto tables = dataset.tables();
+	auto tables = tableset.tables();
 	BOOST_CHECK_EQUAL(tables.size(),(unsigned int)2);
 	BOOST_CHECK_EQUAL(tables[0],"t1");
 	BOOST_CHECK_EQUAL(tables[1],"t2");
 	
-	Datatable table1 = dataset.table("t1"); 
+	Table table1 = tableset.table("t1"); 
 	BOOST_CHECK_EQUAL(table1.name(),"t1");
 }
 
 BOOST_AUTO_TEST_CASE(indices){
-	auto indices = dataset.indices();
+	auto indices = tableset.indices();
 	BOOST_CHECK_EQUAL(indices.size(),(unsigned int)2);
 	BOOST_CHECK_EQUAL(indices[0],"t1_c1");
 	BOOST_CHECK_EQUAL(indices[1],"t2_c1");
 }
 
 BOOST_AUTO_TEST_CASE(caching){
-    dataset.select("SELECT max(c2) FROM t1");
+    tableset.select("SELECT max(c2) FROM t1");
     std::string sql = "SELECT sum(c2) FROM t1";
-    dataset.select(sql);
-    BOOST_CHECK_EQUAL(dataset.cached(),2); 
-    BOOST_CHECK_EQUAL(dataset.cached(sql),1);
-    dataset.select(sql);
+    tableset.select(sql);
+    BOOST_CHECK_EQUAL(tableset.cached(),2); 
+    BOOST_CHECK_EQUAL(tableset.cached(sql),1);
+    tableset.select(sql);
 
-    //Save a copy of the dataset and make sure that
+    //Save a copy of the tableset and make sure that
     //the copy has the right cached number
-    dataset.backup("outputs/dataset-caching.sted");
-    Dataset dataset_copy("outputs/dataset-caching.sted");
+    tableset.backup("outputs/tableset-caching.sted");
+    Tableset dataset_copy("outputs/tableset-caching.sted");
     BOOST_CHECK_EQUAL(dataset_copy.cached(),2);
 
-    //Vacuum the dataset
-    dataset.vacuum();
-    BOOST_CHECK_EQUAL(dataset.cached(),0);
-    BOOST_CHECK_EQUAL(dataset.cached(sql),0);
+    //Vacuum the tableset
+    tableset.vacuum();
+    BOOST_CHECK_EQUAL(tableset.cached(),0);
+    BOOST_CHECK_EQUAL(tableset.cached(sql),0);
 }
 
 BOOST_AUTO_TEST_CASE(functions){
 }
 
 BOOST_AUTO_TEST_CASE(aggregators){
-    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT mean(c2) FROM t1"),3.3,0.0001); //mean(c2)
-    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT geomean(c2) FROM t1"),2.865688,0.0001); //exp(mean(log(c2)))
-    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT harmean(c2) FROM t1"),2.408759,0.0001); //length(c2)/sum(1/c2)
+    BOOST_CHECK_CLOSE(tableset.value<float>("SELECT mean(c2) FROM t1"),3.3,0.0001); //mean(c2)
+    BOOST_CHECK_CLOSE(tableset.value<float>("SELECT geomean(c2) FROM t1"),2.865688,0.0001); //exp(mean(log(c2)))
+    BOOST_CHECK_CLOSE(tableset.value<float>("SELECT harmean(c2) FROM t1"),2.408759,0.0001); //length(c2)/sum(1/c2)
     
-    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT var(c2) FROM t1"),3.025,0.0001); //var(c2)
-    BOOST_CHECK_CLOSE(dataset.value<float>("SELECT sd(c2) FROM t1"),1.739253,0.0001); //sd(c2)
+    BOOST_CHECK_CLOSE(tableset.value<float>("SELECT var(c2) FROM t1"),3.025,0.0001); //var(c2)
+    BOOST_CHECK_CLOSE(tableset.value<float>("SELECT sd(c2) FROM t1"),1.739253,0.0001); //sd(c2)
 }
 
 BOOST_AUTO_TEST_CASE(aggregators_2step){
-    Datatable first = dataset.select("SELECT mean1(c2) AS mean1_ FROM t1");
+    Table first = tableset.select("SELECT mean1(c2) AS mean1_ FROM t1");
     BOOST_CHECK_CLOSE(first.value<float>("mean2(mean1_)"),3.3,0.0001);
 }
 

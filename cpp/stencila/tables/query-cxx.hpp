@@ -12,21 +12,22 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file dataquery-cxx.hpp
+//! @file query-cxx.hpp
 //! @brief Function definitions for C++ embedded query language
 //! @author Nokome Bentley
 
 #pragma once
 
-#include "dataquery.hpp"
+#include <stencila/tables/query.hpp>
 
 namespace Stencila {
-      
+namespace Tables {
+
 //! @namespace DQL
 //! @brief Data Query Langauge for C++
 //!
 //! Includes several functions for convieniently defining Dataqueries within C++
-//! Instead of creating and linking Dataquery elements individually, these functions
+//! Instead of creating and linking Query elements individually, these functions
 //! provide useful shortcuts. For example...
 //! @todo Finish this documentation
 namespace DQL {
@@ -265,21 +266,22 @@ Proportion prop(const Value& value, const By& by){
 
 //! @}
 
-void query_append(Dataquery& query){
+void query_append(Query& query){
 }
 
 template<class Element,class... Elements>
-void query_append(Dataquery& query,const Element& element, const Elements&... elements){
+void query_append(Query& query,const Element& element, const Elements&... elements){
     query.append(convert(element));
     query_append(query,elements...);
 }
 
 template<class... Elements>
-Dataquery query(const Elements&... elements){
-    Dataquery query;
+Query query(const Elements&... elements){
+    Query query;
     query_append(query,elements...);
     return query;
 }
 
+}
 }
 }

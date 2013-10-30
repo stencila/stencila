@@ -38,8 +38,9 @@ BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #include "arrays.cpp"
 
-#include "dataset.cpp"
-#include "datatable.cpp"
-#include "dataquery.cpp"
+#include "tables-tableset.cpp"
+#include "tables-table.cpp"
+#include "tables-query.cpp"
+
 #include "stencil.cpp"
 #include "theme.cpp"

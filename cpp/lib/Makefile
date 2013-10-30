@@ -2,14 +2,14 @@ all: libstencila.a
 
 include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
-STENCILA_CPPS := $(shell find ../stencila -name *.cpp)
-STENCILA_OS := $(patsubst ../stencila/%.cpp,%.o,$(STENCILA_CPPS))
+STENCILA_CPPS := $(shell find ../stencila -name "*.cpp")
+STENCILA_OS := $(patsubst %.cpp,%.o,$(STENCILA_CPPS))
 
-%.o : ../stencila/%.cpp
-	$(CXX) $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -c -O2 -o $@ $<
+%.o : %.cpp
+	$(CXX) $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -fPIC -c -O2 -o $@ $<
 
 libstencila.a: $(STENCILA_OS)
-	$(AR) rc $@ *.o
+	$(AR) rc $@ $(STENCILA_OS)
 
 clean:
-	rm -f *.o *.a
+	rm -f *.a

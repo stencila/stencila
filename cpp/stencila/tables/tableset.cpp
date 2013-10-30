@@ -12,36 +12,38 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file dataset.cpp
-//! @brief Implmentations of Dataset methods which are unable to go into dataset.hpp because they return a Datatable
+//! @file engine.cpp
+//! @brief Implmentations of Tableset methods which are unable to go into dataset.hpp 
+//!     because they return a Table
 //! @author Nokome Bentley
 
-#include <stencila/dataset.hpp>
-#include <stencila/datatable.hpp>
+#include <stencila/tables/tableset.hpp>
+#include <stencila/tables/table.hpp>
 
 namespace Stencila {
+namespace Tables {
 
 //! @brief 
 //! @param name
 //! @return 
-Datatable Dataset::create(const std::string& name){
-     return Datatable(name,this,false);
+Table Tableset::create(const std::string& name){
+     return Table(name,this,false);
 }
 
 //! @brief 
 //! @param name
 //! @return 
-Datatable Dataset::table(const std::string& name){
-     return Datatable(name,this);
+Table Tableset::table(const std::string& name){
+     return Table(name,this);
 }
 //! @brief 
 //! @param name
 //! @param value
 //! @return 
-Datatable Dataset::rename(const std::string& name, const std::string& value){
+Table Tableset::rename(const std::string& name, const std::string& value){
     //! @todo Catch an attempt to set an invalid name
     execute("ALTER TABLE \"" + name + "\" RENAME TO \"" + value + "\"");
-    execute("UPDATE stencila_datatables SET name=\"" + value + "\" WHERE name==\"" + name + "\"");
+    execute("UPDATE stencila_tables SET name=\"" + value + "\" WHERE name==\"" + name + "\"");
     return table(name);
 }
 
@@ -50,7 +52,7 @@ Datatable Dataset::rename(const std::string& name, const std::string& value){
 //! @param path
 //! @param header
 //! @return 
-Datatable Dataset::load(const std::string& name, const std::string& path, bool header){
+Table Tableset::load(const std::string& name, const std::string& path, bool header){
     // Check the file at path exists
     std::ifstream file(path);
     if(not file.is_open()) STENCILA_THROW(Exception,"Unable to open file \""+path+"\"");
@@ -161,7 +163,7 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
     std::string insert = "INSERT INTO \""+temp_name+"\" VALUES (?";
     for(unsigned int i=1;i<names.size();i++) insert += ",?";
     insert += ")";
-    Datacursor insert_cursor = cursor(insert);
+    Cursor insert_cursor = cursor(insert);
     insert_cursor.prepare();
     
     execute("BEGIN TRANSACTION");
@@ -204,10 +206,10 @@ Datatable Dataset::load(const std::string& name, const std::string& path, bool h
 //! @brief 
 //! @param name
 //! @return 
-Datatable Dataset::import(const std::string& name){
-    //Check to see if this Datatable is already registered
-    if(not value<int>("SELECT count(*) FROM stencila_datatables WHERE name==?",name)){
-        execute("INSERT INTO stencila_datatables(name,source,status) VALUES(?,'table',2)",name);
+Table Tableset::import(const std::string& name){
+    //Check to see if this Table is already registered
+    if(not value<int>("SELECT count(*) FROM stencila_tables WHERE name==?",name)){
+        execute("INSERT INTO stencila_tables(name,source,status) VALUES(?,'table',2)",name);
     }
     
     //! @brief 
@@ -220,16 +222,16 @@ Datatable Dataset::import(const std::string& name){
 //! @param sql
 //! @param reuse
 //! @return 
-Datatable Dataset::select(const std::string& sql, bool reuse){
+Table Tableset::select(const std::string& sql, bool reuse){
     std::string signature = boost::lexical_cast<std::string>(Hash(sql));
     
-    int count = value<int>("SELECT count(*) FROM stencila_datatables WHERE signature=="+signature);
+    int count = value<int>("SELECT count(*) FROM stencila_tables WHERE signature=="+signature);
     
     // Confirm that the table exists (it may not be if the database was not saved)
     bool exists = false;
     if(count>0){
         
-        std::string name = value<std::string>("SELECT name FROM stencila_datatables WHERE signature=="+signature);
+        std::string name = value<std::string>("SELECT name FROM stencila_tables WHERE signature=="+signature);
         
         try{
             execute("SELECT * FROM \"" + name + "\" LIMIT 1;");
@@ -252,10 +254,10 @@ Datatable Dataset::select(const std::string& sql, bool reuse){
         // "SELECT "year",..." get treated as a string "year".
         std::string name = "stencila_"+boost::lexical_cast<std::string>(Hash());
         execute("CREATE TEMPORARY TABLE \"" + name + "\" AS SELECT * FROM (" + sql + ")");
-        execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
+        execute("INSERT INTO stencila_tables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
         return table(name);
     } else {
-        std::string name = value<std::string>("SELECT name FROM stencila_datatables WHERE signature=="+signature);
+        std::string name = value<std::string>("SELECT name FROM stencila_tables WHERE signature=="+signature);
         return table(name);
     }
 }
@@ -263,15 +265,16 @@ Datatable Dataset::select(const std::string& sql, bool reuse){
 //! @brief 
 //! @param original
 //! @return 
-Datatable Dataset::clone(const std::string& original){
+Table Tableset::clone(const std::string& original){
     std::string signature = boost::lexical_cast<std::string>(Hash());
     std::string name = "stencila_"+signature;
     
     execute("DROP TABLE IF EXISTS \""+name+"\"");
     execute("CREATE TEMPORARY TABLE \""+name+"\" AS SELECT * FROM \""+original+"\"");
-    execute("INSERT INTO stencila_datatables(name,source,sql,signature,status) VALUES(?,'clone',?,?,0)",name,original,signature);
+    execute("INSERT INTO stencila_tables(name,source,sql,signature,status) VALUES(?,'clone',?,?,0)",name,original,signature);
     
     return table(name);
 }
 
+}
 }

@@ -19,17 +19,19 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include <stencila/test.hpp>
-#include <stencila/dataquery.hpp>
-#include <stencila/dataquery-cxx.hpp>
-#include <stencila/dataset.hpp>
 #include <stencila/print.hpp>
+#include <stencila/test.hpp>
 using namespace Stencila;
 
-struct dataqueryFixture { 
-    Datatable data;
+#include <stencila/tables/query.hpp>
+#include <stencila/tables/query-cxx.hpp>
+#include <stencila/tables/tableset.hpp>
+using namespace Stencila::Tables;
 
-    dataqueryFixture(void):
+struct queryFixture { 
+    Table data;
+
+    queryFixture(void):
         data("data",
             "year",Integer,
             "month",Integer,
@@ -43,7 +45,7 @@ struct dataqueryFixture {
         }
     } 
     
-    void dql_check(Dataquery query, const std::string& sql_, const std::string& dql="") { 
+    void dql_check(Query query, const std::string& sql_, const std::string& dql="") { 
         
         //! @todo Create another way of testing SQL - perhaps by running SQL
         //! as a separate query
@@ -59,7 +61,7 @@ struct dataqueryFixture {
    
 };
 
-BOOST_FIXTURE_TEST_SUITE(dataquery,dataqueryFixture)
+BOOST_FIXTURE_TEST_SUITE(queryTests,queryFixture)
 
 BOOST_AUTO_TEST_CASE(directives){
     Constant<int>* _42 = new Constant<int>(42) ;

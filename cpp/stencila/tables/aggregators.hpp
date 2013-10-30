@@ -12,8 +12,8 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file dataset-math-aggregators.hpp
-//! @brief Definition of aggregate functions for a Dataset
+//! @file aggregators.hpp
+//! @brief Definition of aggregate functions for a Tableset
 //! @author Nokome Bentley
 
 #pragma once
@@ -24,10 +24,11 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <stencila/sqlite.hpp>
+#include <stencila/tables/sqlite.hpp>
 
 namespace Stencila {
-namespace MathAggregators {
+namespace Tables {
+namespace Aggregators {
 
 class Sum {
 protected:
@@ -331,5 +332,6 @@ inline void create(sqlite3* db) {
 #undef STENCILA_LOCAL
 }
 
+}
 }
 }

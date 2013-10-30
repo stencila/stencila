@@ -12,77 +12,78 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file datatable.hpp
-//! @brief Definition of Datatable class
+//! @file table.hpp
+//! @brief Definition of Table class
 //! @author Nokome Bentley
 
 #pragma once
 
-#include <stencila/dataset.hpp>
+#include <stencila/tables/tableset.hpp>
 
 namespace Stencila {
+namespace Tables {
 
-//! @class Datatable
-//! @brief A table of data in a dataset
-class Datatable {
+//! @class Table
+//! @brief A table of data in a Tableset
+class Table {
 
 private:
 
-    //! @brief Name of the Datatable
+    //! @brief Name of the Table
     std::string name_;
     
-    //! @brief Whether the Datatable has been created in the Dataset yet
+    //! @brief Whether the Table has been created in the Tableset yet
     bool created_;
 
-    //! @brief Whether the Datatable is contained in a Dataset (true) or maintains its own Dataset (false)
+    //! @brief Whether the Table is contained in a Tableset (true) or maintains its own Tableset (false)
     bool contained_;
 
-    //! @brief Dataset where the Datatable resides
-    Dataset* dataset_;
+    //! @brief Tableset where the Table resides
+    Tableset* tableset_;
 
 public:
     
     //! @name Constructor & destructors
-    //! @brief Create and destroy a Datatable
+    //! @brief Create and destroy a Table
     //! @{
 
-    //! @brief Create a Datatable object
-    Datatable(void):
+    //! @brief Create a Table object
+    Table(void):
         name_("stencila_"+boost::lexical_cast<std::string>(Hash())),
         created_(false),
         contained_(false),
-        dataset_(new Dataset()){
+        tableset_(new Tableset()){
     }
 
-    //! @brief Create a Datatable object
+    //! @brief Create a Table object
     template<typename... Columns>
-    Datatable(const std::string& name,Columns... columns):
+    Table(const std::string& name,Columns... columns):
         name_(name),
         created_(true),
         contained_(false),
-        dataset_(new Dataset()){
-        dataset().create(name,columns...);
+        tableset_(new Tableset()){
+        tableset().create(name,columns...);
     }
 
-    //! @brief Create a Datatable object from an existing table in a Dataset
-    //! @param dataset Dataset where this Datatable resides
+    //! @brief Create a Table object from an existing table in a Tableset
+    //! @param tableset Tableset where this Table resides
     //! @param name Name of the table. This must be an existing database table.
-    Datatable(const std::string& name, Dataset* dataset, bool created = true):
+    Table(const std::string& name, Tableset* tableset, bool created = true):
         name_(name),
         created_(created),
         contained_(true),
-        dataset_(dataset){
+        tableset_(tableset){
     }
     
-    //! @brief Destroys the memory held by the Datatable
-    ~Datatable(void){
-        if(not contained_) delete dataset_;
+    //! @brief Destroys the memory held by the Table
+    ~Table(void){
+        if(not contained_) delete tableset_;
     }
     
     //! @}
     
     //! @name Attribute methods
-    //! @brief Get attributes of the datatable
+    //! @brief Get attributes of the table
     //! @{
 
     //! @brief
@@ -94,20 +95,20 @@ public:
     //! @brief
     //! @param value
     //! @return
-    Datatable& name(const std::string& value) {
-        dataset().rename(name(),value);
+    Table& name(const std::string& value) {
+        tableset().rename(name(),value);
         name_ = value;
         return *this;
     }
 
     //! @brief 
-    //! @return Whether the datatable has been created or not
+    //! @return Whether the table has been created or not
     bool created(void) const {
         return created_;
     }
     
     void modified(void) const {
-        return dataset().modified(name());
+        return tableset().modified(name());
     }
 
     //! @brief
@@ -118,23 +119,23 @@ public:
 
     //! @brief
     //! @return
-    Dataset& dataset(void) const {
-        return *dataset_;
+    Tableset& tableset(void) const {
+        return *tableset_;
     }
     
-    //! @brief Get the number of rows in the datatable
+    //! @brief Get the number of rows in the table
     //! @return Number of rows
     unsigned int rows(void) const {
-        return created_?(dataset().value<int>("SELECT count(*) FROM "+name())):0;
+        return created_?(tableset().value<int>("SELECT count(*) FROM "+name())):0;
     }
     
-    //! @brief Get the number of columns in the datatable
+    //! @brief Get the number of columns in the table
     //! @return Number of columns
     unsigned int columns(void) const {
-        return created_?(dataset().cursor("SELECT * FROM "+name()).columns()):0;
+        return created_?(tableset().cursor("SELECT * FROM "+name()).columns()):0;
     }
     
-    //! @brief Get the dimensions(rows x columns) of the datatable
+    //! @brief Get the dimensions(rows x columns) of the table
     //! @return A vector with first item the number of rows and the second item the number of columns
     std::vector<unsigned int> dimensions(void) const {
         return {rows(),columns()};
@@ -146,7 +147,7 @@ public:
     //! @param args
     //! @return
     template<typename... Args>
-    Datatable& add(const std::string& column_name, const Datatype& type, Args... args){
+    Table& add(const std::string& column_name, const Datatype& type, Args... args){
         //! @todo Add checking of type
         if(created_) {
             execute("ALTER TABLE \""+name()+"\" ADD COLUMN \""+column_name+"\" "+type.sql());
@@ -161,34 +162,34 @@ public:
 
     //! @brief
     //! @return
-    Datatable& add(void){
+    Table& add(void){
         return *this;
     }
     
-    //! @brief Get the name of a column in a datatable
+    //! @brief Get the name of a column in a table
     //! @param column The column index
     //! @return Column name
     std::string name(unsigned int column) const{
-        return dataset().cursor("SELECT * FROM \""+name()+"\"").name(column);
+        return tableset().cursor("SELECT * FROM \""+name()+"\"").name(column);
     }
     
-    //! @brief Get the names of all columns in the datatable
+    //! @brief Get the names of all columns in the table
     //! @return Vector of column names
     std::vector<std::string> names(void)  const{
-        return created_?(dataset().cursor("SELECT * FROM \""+name()+"\"").names()):(std::vector<std::string>{});
+        return created_?(tableset().cursor("SELECT * FROM \""+name()+"\"").names()):(std::vector<std::string>{});
     }
     
-    //! @brief Get the type name of a column in a datatable
+    //! @brief Get the type name of a column in a table
     //! @param column The column index
     //! @return Column type
     Datatype type(unsigned int column) const {
-        return dataset().cursor("SELECT * FROM \""+name()+"\"").type(column);
+        return tableset().cursor("SELECT * FROM \""+name()+"\"").type(column);
     }
 
     //! @brief
     //! @return
     std::vector<Datatype> types(void) const {
-        return created_?(dataset().cursor("SELECT * FROM \""+name()+"\"").types()):(std::vector<Datatype>{});
+        return created_?(tableset().cursor("SELECT * FROM \""+name()+"\"").types()):(std::vector<Datatype>{});
     }
 
     //! @brief
@@ -196,20 +197,20 @@ public:
     //! @return
     template<typename... Columns>
     void index(Columns... columns) const {
-        dataset().index(name(),columns...);
+        tableset().index(name(),columns...);
     }
 
     //! @brief
     //! @param columns
     //! @return
     void index(const std::vector<std::string>& columns) const {
-        dataset().index(name(),columns);
+        tableset().index(name(),columns);
     }
 
     //! @brief
     //! @return
     std::vector<std::string> indices(void) const {
-        return dataset().indices(name());
+        return tableset().indices(name());
     }
 
     //! @}
@@ -217,8 +218,8 @@ public:
     //! @brief
     //! @param path
     //! @return
-    Datatable& save(const std::string& path="") {
-        if(not contained()) dataset().save(path);
+    Table& save(const std::string& path="") {
+        if(not contained()) tableset().save(path);
         else throw Exception("TODO: Extract this table to a separate file");
         return *this;
     }
@@ -238,8 +239,8 @@ public:
     //! @param row
     //! @return
     template<typename Container = std::vector<std::string>>
-    Datatable& append(const Container& row){
-        Datacursor insert_cursor = cursor(append_sql(row.size()));
+    Table& append(const Container& row){
+        Cursor insert_cursor = cursor(append_sql(row.size()));
         insert_cursor.prepare();
         for(unsigned int i=0;i<row.size();i++){
             //SQLite uses 1-based indexing for statement parameters
@@ -252,50 +253,50 @@ public:
     //! @brief
     //! @param table
     //! @return
-    const Datatable& append(const Datatable& table) const {
+    const Table& append(const Table& table) const {
         execute("INSERT INTO \"" + name() + "\" SELECT * FROM \"" + table.name() + "\"");
         return *this;
     }
     
     //! @name Data import/export methods
-    //! @brief Methods for importing or exporting data to/from the Datatable
+    //! @brief Methods for importing or exporting data to/from the Table
     //! @{
     
     //! @brief 
     //! @param path Path of the file to load
     //! @param header Whether or not the file has an initial header line of column names
-    //! @return This Datatable
-    Datatable& load(const std::string& path, bool header=true){
-        dataset().load(name(),path,header);
+    //! @return This Table
+    Table& load(const std::string& path, bool header=true){
+        tableset().load(name(),path,header);
         return *this;
     }
     
     //! @brief 
     //! @param path Path of the file to create
-    //! @return This Datatable
-    Datatable& dump(const std::string& path){
+    //! @return This Table
+    Table& dump(const std::string& path){
         return *this;
     }
     
     //! @}
     
     //! @name SQL methods
-    //! @brief Convienience methods for executing SQL on dataset
+    //! @brief Convienience methods for executing SQL on tableset
     //! @{
     
     //! @brief Execute SQL but do not return anything. Used for UPDATE, INSERT etc SQL statements
     //! @param sql An SQL string
-    //! @return This datatable
-    const Datatable& execute(const std::string& sql) const {
-        dataset().execute(sql);
+    //! @return This table
+    const Table& execute(const std::string& sql) const {
+        tableset().execute(sql);
         return *this;
     }
 
     //! @brief
     //! @param sql
     //! @return
-    Datacursor cursor(const std::string& sql) const {
-        return dataset().cursor(sql);
+    Cursor cursor(const std::string& sql) const {
+        return tableset().cursor(sql);
     }
 
     //! @brief
@@ -303,7 +304,7 @@ public:
     //! @return
     template<typename Type = std::vector<std::string>>
     std::vector<Type> fetch(std::string sql) const {
-        return dataset().fetch<Type>(sql);
+        return tableset().fetch<Type>(sql);
     }
 
     //! @brief
@@ -311,7 +312,7 @@ public:
     //! @return
      template<typename Type = std::string>
     Type value(unsigned int row, unsigned int col) const {
-        return dataset().value<Type>("SELECT \""+name(col)+"\" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
+        return tableset().value<Type>("SELECT \""+name(col)+"\" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
     }
 
     //! @brief
@@ -319,7 +320,7 @@ public:
     //! @return    
     template<typename Type = std::string>
     Type value(const std::string& columns,const std::string& where="1") const {
-        return dataset().value<Type>("SELECT "+columns+" FROM \""+name()+"\" WHERE "+where+" LIMIT 1;");
+        return tableset().value<Type>("SELECT "+columns+" FROM \""+name()+"\" WHERE "+where+" LIMIT 1;");
     }
 
     //! @brief
@@ -327,7 +328,7 @@ public:
     //! @return 
     template<typename Type = std::string>
     std::vector<Type> column(std::string column) const {
-        return dataset().column<Type>("SELECT \""+column+"\" FROM \""+name()+"\"");
+        return tableset().column<Type>("SELECT \""+column+"\" FROM \""+name()+"\"");
     }
 
     //! @brief
@@ -335,14 +336,14 @@ public:
     //! @return
     template<typename Type = std::vector<std::string>>
     Type row(unsigned int row) const {
-        return dataset().row<Type>("SELECT * FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));
+        return tableset().row<Type>("SELECT * FROM \""+name()+"\" LIMIT 1 OFFSET "+ boost::lexical_cast<std::string>(row));
     }
     
     //! @}
     
     template<typename Type = std::vector<std::string>>
     std::vector<Type> fetch() const {
-        return dataset().fetch<Type>("SELECT * FROM \""+name()+"\"");
+        return tableset().fetch<Type>("SELECT * FROM \""+name()+"\"");
     }
 
     //! @brief
@@ -350,36 +351,37 @@ public:
     //! @param reuse
     //! @param cache
     //! @return
-    Datatable select(const std::string& sql, bool reuse = true) const {
-        return dataset().select(sql,reuse);
+    Table select(const std::string& sql, bool reuse = true) const {
+        return tableset().select(sql,reuse);
     }
 
     //! @brief
     //! @param rows
     //! @return
-    Datatable head(const unsigned int rows = 10) const {
-        return dataset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
+    Table head(const unsigned int rows = 10) const {
+        return tableset().select("SELECT * FROM \""+name()+"\" LIMIT "+boost::lexical_cast<std::string>(rows));
     }
     
     //! @brief
     //! @param rows
     //! @return
-    Datatable tail(const unsigned int rows = 10) const {
-        return dataset().select("SELECT * FROM \""+name()+"\" ORDER BY rowid DESC LIMIT "+boost::lexical_cast<std::string>(rows));
+    Table tail(const unsigned int rows = 10) const {
+        return tableset().select("SELECT * FROM \""+name()+"\" ORDER BY rowid DESC LIMIT "+boost::lexical_cast<std::string>(rows));
     }
 
     //! @brief
     //! return
-    Datatable clone(void) const {
-        return dataset().clone(name());
+    Table clone(void) const {
+        return tableset().clone(name());
     }
 };
 
 template<typename... Columns>
-Datatable Dataset::create(const std::string& name, Columns... columns){
-    std::string sql = "CREATE TABLE " + name + "(" + Dataset_create_helper(columns...) + ");";
+Table Tableset::create(const std::string& name, Columns... columns){
+    std::string sql = "CREATE TABLE " + name + "(" + Tableset_create_helper(columns...) + ");";
     execute(sql);
     return table(name);
 }
 
+}
 }

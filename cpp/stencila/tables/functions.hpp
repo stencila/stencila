@@ -12,7 +12,7 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file dataset-math-functions.hpp
+//! @file functions.hpp
 //! @brief Definition of math functions
 //! Development influenced by Liam Healy's sqlite extension module at http://www.sqlite.org/contrib/download/extension-functions.c?get=25
 //! @author Nokome Bentley
@@ -24,10 +24,11 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <cerrno>
 #include <cstring>
 
-#include <stencila/sqlite.hpp>
+#include <stencila/tables/sqlite.hpp>
 
 namespace Stencila {
-namespace MathFunctions {
+namespace Tables {
+namespace Functions {
 
 #define STENCILA_LOCAL_0(name, function) \
 static void name(sqlite3_context *context, int argc, sqlite3_value **argv){\
@@ -212,5 +213,6 @@ inline void create(sqlite3* db) {
 
 #undef STENCILA_LOCAL
 
+}
 }
 }

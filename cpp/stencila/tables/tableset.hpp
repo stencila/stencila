@@ -12,8 +12,8 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file dataset.hpp
-//! @brief Definition of class Dataset
+//! @file engine.hpp
+//! @brief Definition of class Tableset::Tableset
 //! @author Nokome Bentley
 
 #pragma once
@@ -33,24 +33,28 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <stencila/exception.hpp>
 #include <stencila/hashing.hpp>
-#include <stencila/datacursor.hpp>
-#include <stencila/dataset-math-functions.hpp>
-#include <stencila/dataset-math-aggregators.hpp>
+
+#include <stencila/datatypes.hpp>
+
+#include <stencila/tables/cursor.hpp>
+#include <stencila/tables/functions.hpp>
+#include <stencila/tables/aggregators.hpp>
 
 namespace Stencila {
+namespace Tables {
 
-class Datatable;
+class Table;
 
-//! @class Dataset
-//! @brief A set of related data
+//! @class Tableset
+//! @brief A set of related tables
 //! 
-//! Datasets are a collection of related data residing in one or more Datatables.
-//! A Dataset is just a database but has some additional features which make them easier to work with.
-//! Currently SQLite is used as the Dataset database engine. Additional database engines may be added later.
-class Dataset {
+//! Tableset are a collection of related data residing in one or more Table.
+//! A Tableset is just a database but has some additional features which make them easier to work with.
+//! Currently SQLite is used as the Tableset database engine. Additional database engines may be added later.
+class Tableset {
 
 private:
-     //! Unique resource identifier (URI) for this Dataset
+     //! Unique resource identifier (URI) for this Tableset
      std::string uri_;
 
      //! SQLite database engine connection
@@ -59,12 +63,12 @@ private:
 public:
 
     //! @name Constructors & destructors
-    //! @brief Create and destroy a Dataset
+    //! @brief Create and destroy a Tableset
     //! @{
 
-    //! @brief Create a Dataset by optionally passing its URI
-    //! @param uri The URI of the dataset. Currently can only be a local filename or ":memory:"
-    Dataset(std::string uri = ""):
+    //! @brief Create a Tableset by optionally passing its URI
+    //! @param uri The URI of the Tableset. Currently can only be a local filename or ":memory:"
+    Tableset(std::string uri = ""):
         uri_(uri){
 
         if(uri.length()==0) uri_ = ":memory:";
@@ -74,25 +78,25 @@ public:
 
         //Create special Stencila tables and associated indices
         execute(
-        "CREATE TABLE IF NOT EXISTS stencila_datatables ("
+        "CREATE TABLE IF NOT EXISTS stencila_tables ("
             "name TEXT,"
             "source INTEGER,"
             "sql TEXT,"
             "signature INTEGER,"
             "status INTEGER"
         ");"
-        "CREATE INDEX IF NOT EXISTS stencila_datatables_name ON stencila_datatables(name);"
-        "CREATE INDEX IF NOT EXISTS stencila_datatables_signature ON stencila_datatables(signature);"
-        "CREATE INDEX IF NOT EXISTS stencila_datatables_status ON stencila_datatables(status);"
+        "CREATE INDEX IF NOT EXISTS stencila_tables_name ON stencila_tables(name);"
+        "CREATE INDEX IF NOT EXISTS stencila_tables_signature ON stencila_tables(signature);"
+        "CREATE INDEX IF NOT EXISTS stencila_tables_status ON stencila_tables(status);"
         );
 
         //Register functions
-        MathFunctions::create(db_);
-        MathAggregators::create(db_);
+        Functions::create(db_);
+        Aggregators::create(db_);
     }
 
-    //! @brief Destroys the memory held by the Dataset
-    ~Dataset(void){
+    //! @brief Destroys the memory held by the Tableset
+    ~Tableset(void){
         if(db_) sqlite3_close(db_);
     }
 
@@ -100,10 +104,10 @@ public:
 
 
     //! @name Attribute methods
-    //! @brief Get attributes of the Dataset
+    //! @brief Get attributes of the Tableset
     //! @{
 
-    //! @brief Get the URI of the Dataset.
+    //! @brief Get the URI of the Tableset.
     //! @return A URI
     std::string uri(void) const {
         return uri_;
@@ -111,53 +115,53 @@ public:
 
     //! @}
 
-    //! @name Datatable methods
-    //! @brief Create and get Datatables
+    //! @name Table methods
+    //! @brief Create and get Tableset
     //! @{
 
-    Datatable create(const std::string& name);
+    Table create(const std::string& name);
 
-    //! @brief Create a Datatable in the Dataset
+    //! @brief Create a Table in the Tableset
     //! @param name The name of the table
-    //! @return The new Datatable
+    //! @return The new Table
     template<typename... Args>
-    Datatable create(const std::string& name, Args... args);
+    Table create(const std::string& name, Args... args);
 
-    //! @brief Import a database table to a Datatable
+    //! @brief Import a database table to a Table
     //! @param name The name of the table
-    //! @return A Datatable
-    Datatable import(const std::string& name);
+    //! @return A Table
+    Table import(const std::string& name);
 
-    //! @brief Load a file to a Datatable
-    //! @param name Name of the new Datatable
+    //! @brief Load a file to a Table
+    //! @param name Name of the new Table
     //! @param path Path of the file to be loaded
-    //! @return A Datatable
-    Datatable load(const std::string& name,const std::string& path,bool header=true);
+    //! @return A Table
+    Table load(const std::string& name,const std::string& path,bool header=true);
 
-    //! @brief Get a list of the Datatables in the Dataset.
+    //! @brief Get a list of the Tableset in the Tableset.
     //! @return A vector of names of tables
     std::vector<std::string> tables(void) {
         return column("SELECT name FROM sqlite_master WHERE type=='table' AND name NOT LIKE 'stencila_%'");
     }
 
-    //! @brief Get a Datatable in the Dataset
+    //! @brief Get a Table in the Tableset
     //! @param name The name of the table
-    //! @return A Datatable
-    Datatable table(const std::string& name);
+    //! @return A Table
+    Table table(const std::string& name);
 
-    //! @brief Rename a Datatable
+    //! @brief Rename a Table
     //! @param name The name of the table
-    //! @return A Datatable
+    //! @return A Table
     //!
-    //! This method is provided to encapsulate the implementation of caching within Datasets
-    //! Instead of calling this method directly you would normally call `Datatable::name()`
-    Datatable rename(const std::string& name, const std::string& value);
+    //! This method is provided to encapsulate the implementation of caching within Tablesets
+    //! Instead of calling this method directly you would normally call `Table::name()`
+    Table rename(const std::string& name, const std::string& value);
 
-    //! @brief Drop a Datatable
+    //! @brief Drop a Table
     //! @param name The name of the table
     void drop(const std::string& name){
         execute("DROP TABLE IF EXISTS \"" + name + "\"");
-        execute("DELETE FROM stencila_datatables WHERE name==\"" + name + "\"");
+        execute("DELETE FROM stencila_tables WHERE name==\"" + name + "\"");
     }
 
     //! @}
@@ -196,7 +200,7 @@ public:
         execute(sql);
     }
 
-    //! @brief Get a list of the indices in the entire Dataset or for a particular table.
+    //! @brief Get a list of the indices in the entire Tableset or for a particular table.
     //! @param table The name of the table for which the lists of indices is wanted
     //! @return A vector of names of indices
     std::vector<std::string> indices(const std::string& table="") {
@@ -208,17 +212,17 @@ public:
     //! @}
 
     //! @name Saving methods
-    //! @brief Save a Dataset
+    //! @brief Save a Tableset
     //! @{
 
-    //! @brief Save the dataset to a local file
-    //! @param uri The URI filename to save the Dataset to.
-    Dataset& save(const std::string& uri="",bool backup=false){
+    //! @brief Save the Tableset to a local file
+    //! @param uri The URI filename to save the Tableset to.
+    Tableset& save(const std::string& uri="",bool backup=false){
 
         //Make any cached query tables permanent
-        BOOST_FOREACH(std::string table,column("SELECT name FROM stencila_datatables WHERE status==0")){
+        BOOST_FOREACH(std::string table,column("SELECT name FROM stencila_tables WHERE status==0")){
            execute("CREATE TABLE "+table+" AS SELECT * FROM "+table);
-           execute("UPDATE stencila_datatables SET status=1 WHERE name=='"+table+"'");
+           execute("UPDATE stencila_tables SET status=1 WHERE name=='"+table+"'");
         }
 
         if(uri.length()>0 and uri!=uri_){
@@ -252,7 +256,7 @@ public:
      //! @brief 
      //! @param path
      //! @return 
-     Dataset& backup(const std::string& path){
+     Tableset& backup(const std::string& path){
         return save(path,true);
      }
 
@@ -266,24 +270,24 @@ public:
      //! @return Number of queries
      int cached(const std::string& sql = "") {
           if(sql.length()==0){
-                return value<int>("SELECT count(*) FROM stencila_datatables WHERE status<2"); 
+                return value<int>("SELECT count(*) FROM stencila_tables WHERE status<2"); 
           }
           else {
                std::string signature = boost::lexical_cast<std::string>(Hash(sql));
-               return value<int>("SELECT count(*) FROM stencila_datatables WHERE signature=="+signature);
+               return value<int>("SELECT count(*) FROM stencila_tables WHERE signature=="+signature);
           }
      }
 
     //! @brief 
     //! @param table
      void modified(const std::string& table) {
-          execute("UPDATE stencila_datatables SET signature=NULL WHERE name==\"" + table + "\"");
+          execute("UPDATE stencila_tables SET signature=NULL WHERE name==\"" + table + "\"");
      }
      
-     Dataset& vacuum(void) {
-          BOOST_FOREACH(std::string name,column("SELECT name FROM stencila_datatables WHERE status<2")){
+     Tableset& vacuum(void) {
+          BOOST_FOREACH(std::string name,column("SELECT name FROM stencila_tables WHERE status<2")){
                execute("DROP TABLE "+name);
-               execute("DELETE FROM stencila_datatables WHERE name==?",name);
+               execute("DELETE FROM stencila_tables WHERE name==?",name);
           }
           execute("VACUUM");
           return *this;
@@ -292,32 +296,32 @@ public:
     //! @}
 
     //! @name SQL execution and query methods
-    //! @brief Execute SQL or query the Dataset to extract data
+    //! @brief Execute SQL or query the Tableset to extract data
     //! @{
 
-    //! @brief Get a Datacursor for an SQL statement to be executed on this Dataset
+    //! @brief Get a Cursor for an SQL statement to be executed on this Tableset
     //! @param sql An SQL statement
-    //! @return A Datacursor
-    //! @see Dataset::execute
-    Datacursor cursor(const std::string& sql) {
-        return Datacursor(db_,sql);
+    //! @return A Cursor
+    //! @see Tableset::execute
+    Cursor cursor(const std::string& sql) {
+        return Cursor(db_,sql);
     }
 
-    //! @brief Execute SQL on the Dataset
+    //! @brief Execute SQL on the Tableset
     //! @param sql A SQL statement
-    //! @return This Dataset
-    //Dataset& execute(const std::string& sql) {
+    //! @return This Tableset
+    //Tableset& execute(const std::string& sql) {
     //             cursor(sql).execute();
     //             return *this;
     //}
 
     template<typename... Parameters>
-        Dataset& execute(const std::string& sql, const Parameters&... pars) {
+        Tableset& execute(const std::string& sql, const Parameters&... pars) {
         cursor(sql).execute(pars...);
         return *this;
     }
 
-    //! @brief Execute a SQL SELECT statement on the Dataset and return a vector of rows
+    //! @brief Execute a SQL SELECT statement on the Tableset and return a vector of rows
     //! @see Datacursor::fetch
     //! @param sql A SQL SELECT statement
     //! @return A vector with each item containing a row
@@ -329,7 +333,7 @@ public:
         return cursor(sql).fetch<Type>(pars...);
     }
 
-    //! @brief Execute a SQL SELECT statement on the Dataset and return a single value.
+    //! @brief Execute a SQL SELECT statement on the Tableset and return a single value.
     //! @see Datacursor::value
     //! @param sql A SQL SELECT statement
     //! @return A single value of type Type
@@ -341,7 +345,7 @@ public:
         return cursor(sql).value<Type>(pars...);
     }
 
-    //! @brief Execute a SQL SELECT statement on the Dataset and return the first column.
+    //! @brief Execute a SQL SELECT statement on the Tableset and return the first column.
     //! @see Datacursor::column
     //! @param sql A SQL SELECT statement
     //! @return A vector representing the column
@@ -357,7 +361,7 @@ public:
         return cursor(sql).column<Type>(pars...);
     }
 
-    //! @brief Execute a SQL SELECT statement on the Dataset and return the first row.
+    //! @brief Execute a SQL SELECT statement on the Tableset and return the first row.
     //! @see Datacursor::row
     //! @param sql A SQL SELECT statement
     //! @return A vector representing the row
@@ -371,25 +375,26 @@ public:
 
     //! @}
 
-    Datatable select(const std::string& sql, bool reuse = true);
+    Table select(const std::string& sql, bool reuse = true);
 
-    Datatable clone(const std::string& original);
+    Table clone(const std::string& original);
 };
 
 inline
-std::string Dataset_create_helper(void){
+std::string Tableset_create_helper(void){
     return "";
 }
 
 inline
-std::string Dataset_create_helper(const std::string& column, const Datatype& type){
+std::string Tableset_create_helper(const std::string& column, const Datatype& type){
     return column + " " + type.sql();
 }
 
 template<typename... Columns>
 inline
-std::string Dataset_create_helper(const std::string& column, const Datatype& type, Columns... columns){
-    return Dataset_create_helper(column,type) + "," + Dataset_create_helper(columns...);
+std::string Tableset_create_helper(const std::string& column, const Datatype& type, Columns... columns){
+    return Tableset_create_helper(column,type) + "," + Tableset_create_helper(columns...);
 }
 
 } 
+}

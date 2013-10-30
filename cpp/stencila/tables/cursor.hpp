@@ -12,19 +12,20 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file datacursor.hpp
-//! @brief Definition of class Datacursor
+//! @file cursor.hpp
+//! @brief Definition of class Cursor
 //! @author Nokome Bentley
 
 #pragma once
 
 #include <stencila/exception.hpp>
-#include <stencila/sqlite.hpp>
+#include <stencila/tables/sqlite.hpp>
 #include <stencila/datatypes.hpp>
 
 namespace Stencila {
+namespace Tables {
 
-class Datacursor {
+class Cursor {
 
 private:
     
@@ -36,7 +37,7 @@ private:
 
 public:
 
-    Datacursor(sqlite3* db, const std::string& sql):
+    Cursor(sqlite3* db, const std::string& sql):
         db_(db),
         sql_(sql),
         stmt_(0),
@@ -50,7 +51,7 @@ public:
     //! @param pars
     //! @return
     template<typename... Parameters>
-    Datacursor(sqlite3* db, const std::string& sql, Parameters&... pars):
+    Cursor(sqlite3* db, const std::string& sql, Parameters&... pars):
         db_(db),
         sql_(sql),
         stmt_(0),
@@ -62,7 +63,7 @@ public:
 
     //! @brief
     //! @return
-    ~Datacursor(void){
+    ~Cursor(void){
         if(stmt_){
             STENCILA_SQLITE_TRY(db_,sqlite3_finalize(stmt_));
         }
@@ -82,7 +83,7 @@ public:
 
     //! @brief
     //! @return
-    Datacursor& prepare(void){
+    Cursor& prepare(void){
         STENCILA_SQLITE_TRY(db_,sqlite3_prepare_v2(db_, sql_.c_str(), -1, &stmt_, 0));
         return *this;
     }
@@ -90,9 +91,9 @@ public:
     //! @name Parameter binding methods
     //! @brief Bind values to parameters in SQL
     //! @{
-    //! @warning Calls to Datacursor::bind methods must be preceded by a call to Datacursor::prepare
+    //! @warning Calls to Cursor::bind methods must be preceded by a call to Cursor::prepare
 
-    Datacursor& bind(unsigned int index){
+    Cursor& bind(unsigned int index){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_null(stmt_,index));
         return *this;
     }
@@ -100,7 +101,7 @@ public:
     //! @brief
     //! @param value
     //! @return
-    Datacursor& bind(unsigned int index,const int& value){
+    Cursor& bind(unsigned int index,const int& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value));
         return *this;
     }
@@ -108,7 +109,7 @@ public:
     //! @brief
     //! @param value
     //! @return
-    Datacursor& bind(unsigned int index,const unsigned int& value){
+    Cursor& bind(unsigned int index,const unsigned int& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value));
         return *this;
     }
@@ -116,7 +117,7 @@ public:
     //! @brief
     //! param value
     //! @return
-    Datacursor& bind(unsigned int index,const double& value){
+    Cursor& bind(unsigned int index,const double& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_double(stmt_,index,value));
         return *this;
     }
@@ -126,7 +127,7 @@ public:
     //! @param std
     //! @param value
     //! @return
-    Datacursor& bind(unsigned int index,const std::string& value){
+    Cursor& bind(unsigned int index,const std::string& value){
         STENCILA_SQLITE_TRY(db_,sqlite3_bind_text(stmt_,index,value.c_str(),value.length(),SQLITE_STATIC));
         return *this;
     }
@@ -137,7 +138,7 @@ public:
         typename Parameter,
         typename... Parameters
     >
-    Datacursor& use(const Parameter& par, const Parameters&... pars){
+    Cursor& use(const Parameter& par, const Parameters&... pars){
         int count = sqlite3_bind_parameter_count(stmt_);
         int index = count - sizeof...(Parameters);
         bind(index,par);
@@ -147,7 +148,7 @@ public:
 
     //! @brief
     //! @return
-    Datacursor& use(void){
+    Cursor& use(void){
         return *this;
     }
 
@@ -191,7 +192,7 @@ public:
         execute();
     }
 
-    //! @warning Must be preceded by a call to Datacursor::prepare
+    //! @warning Must be preceded by a call to Cursor::prepare
     void next(void){
         int code = sqlite3_step(stmt_);
         if(code==SQLITE_ROW) {
@@ -340,26 +341,27 @@ public:
 
 template<>
 inline
-int Datacursor::get<int>(unsigned int column){
+int Cursor::get<int>(unsigned int column){
     return sqlite3_column_int(stmt_, column);
 }
 
 template<>
 inline
-float Datacursor::get<float>(unsigned int column){
+float Cursor::get<float>(unsigned int column){
     return sqlite3_column_double(stmt_, column);
 }
 
 template<>
 inline
-double Datacursor::get<double>(unsigned int column){
+double Cursor::get<double>(unsigned int column){
     return sqlite3_column_double(stmt_, column);
 }
 
 template<>
 inline
-std::string Datacursor::get<std::string>(unsigned int column){
+std::string Cursor::get<std::string>(unsigned int column){
     return reinterpret_cast<const char *>(sqlite3_column_text(stmt_, column));
 }
 
+}
 }

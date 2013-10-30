@@ -17,14 +17,14 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/test.hpp>
-#include <stencila/datatable.hpp>
-using namespace Stencila;
+#include <stencila/tables/table.hpp>
+using namespace Stencila::Tables;
 
-struct datatableFixture {
-	Dataset dataset;
+struct tableFixture {
+	Tableset tableset;
 	
-	datatableFixture(){
-		dataset.execute(
+	tableFixture(){
+		tableset.execute(
 			"CREATE TABLE t1 ("
 			"	c1 INTEGER,"
 			"	c2 REAL,"
@@ -40,20 +40,20 @@ struct datatableFixture {
 	}
 };
 
-BOOST_FIXTURE_TEST_SUITE(datatable,datatableFixture)
+BOOST_FIXTURE_TEST_SUITE(tableTests,tableFixture)
 
 BOOST_AUTO_TEST_CASE(constructors){
 	//! @class Stencila:Datatable
 	//! @test Test constructors
-	Datatable t1 = dataset.table("t1");
-	BOOST_CHECK_EQUAL(&t1.dataset(),&dataset);
+	Table t1 = tableset.table("t1");
+	BOOST_CHECK_EQUAL(&t1.tableset(),&tableset);
 	BOOST_CHECK_EQUAL(t1.name(),"t1");
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
 	//! @class Stencila:Datatable
 	//! @test Test attributes (e.g. rows, columns, names etc)
-	Datatable t1 = dataset.table("t1");
+	Table t1 = tableset.table("t1");
 	
 	BOOST_CHECK_EQUAL(t1.rows(),(unsigned int)5);
 	BOOST_CHECK_EQUAL(t1.columns(),(unsigned int)3);
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(attributes){
 BOOST_AUTO_TEST_CASE(sql){
 	//! @class Stencila:Datatable
 	//! @test Test the execution of SQL
-	Datatable t1 = dataset.table("t1");
+	Table t1 = tableset.table("t1");
 	t1.execute("INSERT INTO t1 VALUES(6,6.6,'zeta')");
 	check_equal(
 		t1.cursor("SELECT * FROM t1 ORDER BY c1 DESC LIMIT 1;").row<std::vector<std::string>>(),

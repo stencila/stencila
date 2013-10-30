@@ -20,7 +20,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <sqlite3.h>
 
-#include "exception.hpp"
+#include <stencila/exception.hpp>
 
 namespace Stencila {
 

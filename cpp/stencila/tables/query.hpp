@@ -12,8 +12,8 @@ OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTIO
 ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-//! @file dataquery.hpp
-//! @brief Definition of class Dataquery
+//! @file query.hpp
+//! @brief Definition of class Query
 //! @author Nokome Bentley
 
 #pragma once
@@ -27,20 +27,21 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <boost/algorithm/string/join.hpp>
 
 #include <stencila/exception.hpp>
-#include <stencila/dataset.hpp>
-#include <stencila/datatable.hpp>
+#include <stencila/tables/tableset.hpp>
+#include <stencila/tables/table.hpp>
 
 namespace Stencila {
-    
+namespace Tables {
+
 class Element;
 typedef std::vector<const Element*> Elements;
 
 //! @class Element
-//! @brief An element of a Dataquery
+//! @brief An element of a Query
 class Element {
 public:
 
-    //! @brief Get the Data Query Language (DQL) representation of this Dataquery element
+    //! @brief Get the Data Query Language (DQL) representation of this Query element
     //! @return The DQL for this query element
     virtual std::string dql(void) const {
         return "";
@@ -48,7 +49,7 @@ public:
 
     //! @brief Get the column name for this Element
     //!
-    //! Elements can be used to create columns in the resultant Datatable.
+    //! Elements can be used to create columns in the resultant Table.
     //! Those columns need a name, and this method provides that name.
     virtual std::string label(void) const {
         return "";
@@ -58,7 +59,7 @@ public:
         return boost::lexical_cast<std::string>(this);
     }
 
-    //! @brief Get the Structured Query Language (SQL) for this Dataquery element
+    //! @brief Get the Structured Query Language (SQL) for this Query element
     //! @param which Which version of SQL to produce
     //! @return The SQL for this query element
     virtual std::string sql(unsigned short phase) const {
@@ -85,7 +86,7 @@ public:
 };
 
 //! @class Column
-//! @brief A Dataquery element which represents the column of a Datatable
+//! @brief A Query element which represents the column of a Table
 class Column : public Element {
 private:
 
@@ -114,7 +115,7 @@ public:
 };
 
 //! @class Constant
-//! @brief A constant used in a Dataquery element
+//! @brief A constant used in a Query element
 template<typename Type> class Constant;
 
 //! @class Constant<void>
@@ -849,7 +850,7 @@ public:
         return *this;
     }
 
-    std::string sql(const Datatable& table, unsigned short int phase) const {
+    std::string sql(const Table& table, unsigned short int phase) const {
         return "SELECT " + 
                 Distinct::sql(distinct_,phase) + 
                 Element::sql(columns_,phase) + 
@@ -861,7 +862,7 @@ public:
                 LimitOffset::sql(limit_,offset_);
     }
     
-    Datatable execute(const Datatable& table, unsigned short int phase){
+    Table execute(const Table& table, unsigned short int phase){
         std::string s = sql(table,phase);
         return table.select(s);
     }
@@ -908,10 +909,10 @@ public:
     };
 
     //! @brief
-    //! @param datatable
+    //! @param table
     //!
     //! Combiners set values in corresponding columns to "<other>"
-    virtual void combine(const Datatable& datatable) const = 0;
+    virtual void combine(const Table& table) const = 0;
 };
 
 class Top : public Combiner {
@@ -947,15 +948,15 @@ public:
         };
     }
 
-    virtual void combine(const Datatable& datatable) const {
+    virtual void combine(const Table& table) const {
         //Determine the top levels
         std::stringstream sql;
         std::string subject = '"'+by_->id()+'"';
-        std::string table = '"'+datatable.name()+'"';
-        sql <<"UPDATE "<<table<<" SET "<<subject<<" = '<other>' WHERE "<<subject<<" NOT IN ("
-                <<"SELECT "<<subject<<" FROM "<<table<<" GROUP BY "<<subject<<" ORDER BY "<<aggregate_->sql(2)<<" DESC LIMIT "<<number_
+        std::string table_name = '"'+table.name()+'"';
+        sql <<"UPDATE "<<table_name<<" SET "<<subject<<" = '<other>' WHERE "<<subject<<" NOT IN ("
+                <<"SELECT "<<subject<<" FROM "<<table_name<<" GROUP BY "<<subject<<" ORDER BY "<<aggregate_->sql(2)<<" DESC LIMIT "<<number_
             <<")";
-        datatable.execute(sql.str());
+        table.execute(sql.str());
     }
 
 };
@@ -974,7 +975,7 @@ public:
     //! @param subject The subject Element
     //!
     //! The subject element can be omitted in which case the margin is calculated over all
-    //! rows in the supplied Datatable (see calculate())
+    //! rows in the supplied Table (see calculate())
     Margin(Element* element = 0){
         if(element){
             By* by = dynamic_cast<By*>(element);
@@ -996,7 +997,7 @@ public:
         else return {};
     }
 
-    void calculate(const Datatable& from, const Datatable& to, const Elements& values, const Bys& bys) const {
+    void calculate(const Table& from, const Table& to, const Elements& values, const Bys& bys) const {
         //Create a list of columns for a SQL select statement
         //It is necessary to have the same number of colums as in the to table but "fill in" some of those columns
         //with "<all>"
@@ -1009,7 +1010,7 @@ public:
         columns.insert(columns.end(),values.begin(),values.end());
         
         // Execute the SQL select
-        Datatable alls = Select().columns(columns).by(this->bys()).execute(from,2);
+        Table alls = Select().columns(columns).by(this->bys()).execute(from,2);
         // Append the alls to the "to" table
         to.append(alls);
     }
@@ -1066,7 +1067,7 @@ public:
 
     //! @brief 
     //! @param final
-    virtual void adjust(const Datatable& final) const = 0;
+    virtual void adjust(const Table& final) const = 0;
 };
 
 class Proportion : public Adjuster {
@@ -1080,7 +1081,7 @@ public:
         return "prop";
     }
 
-    virtual void adjust(const Datatable& final) const {
+    virtual void adjust(const Table& final) const {
         //Create
         Aggregate* sum = new Aggregate("sum",value_);
         
@@ -1089,7 +1090,7 @@ public:
         columns.insert(columns.begin(),bys_.begin(),bys_.end());
         columns.push_back(sum);
         //Execute with which==3 so that correct column names are used
-        Datatable sums = Select()
+        Table sums = Select()
             .columns(columns)
             .by(bys_)
             .execute(final,3);
@@ -1136,9 +1137,9 @@ class Reshaper : public Element {
 //! @}
 
 
-//! @class Dataquery
+//! @class Query
 //! @todo Document fully
-class Dataquery {
+class Query {
 private:
 
     //! @brief 
@@ -1189,7 +1190,7 @@ private:
 public:
 
     //! @brief
-    Dataquery(void):
+    Query(void):
         from_("<from>"){
     }
 
@@ -1199,7 +1200,7 @@ public:
     
     //! @brief 
     //! @param ele
-    Dataquery& append(Element* ele){
+    Query& append(Element* ele){
         elements_.push_back(ele);
         compiled_ = false;
         return *this;
@@ -1209,14 +1210,14 @@ public:
 
     //! @brief 
     //! @param from
-    Dataquery& from(const std::string& from){
+    Query& from(const std::string& from){
         from_ = from;
         return *this;
     }
 
     //! @brief
     //! @return
-    Dataquery& compile(void){
+    Query& compile(void){
         if(not compiled_){
             //Reset members
             distinct_ = false;
@@ -1294,14 +1295,14 @@ public:
     
 public:
 
-    //! @brief Execute this Dataquery on a Datatable
+    //! @brief Execute this Query on a Table
     //! @param table The table to execute this query on
-    //! @return A datatable produced by this query
-    Datatable execute(const Datatable& table){
+    //! @return A table produced by this query
+    Table execute(const Table& table){
         // Compile this query
         compile();
         
-        Datatable result;
+        Table result;
         
         // Define a list of columns for result which will have any Bys prepended
         Elements columns = values_;
@@ -1317,7 +1318,7 @@ public:
             // 1. Select data
             // As as a first pass, obtain the necessary columns applying any wheres and bys and using which==1
             // Execute with cache reuse, but no caching because combiners will modify the data in it
-            Datatable first = Select().columns(columns).where(wheres_).by(bys_).execute(table,1);
+            Table first = Select().columns(columns).where(wheres_).by(bys_).execute(table,1);
             
             // 2. Apply combiners
             for(const Combiner* combiner : combiners_) {
@@ -1326,7 +1327,7 @@ public:
             if(combiners_.size()) first.modified();
             
             // 3. Value calculations
-            Datatable second = Select().columns(columns).by(bys_).execute(first,2);
+            Table second = Select().columns(columns).by(bys_).execute(first,2);
             
             // 4. Margin calculations
             for(const Margin* margin : margins_){
@@ -1351,4 +1352,5 @@ public:
     }
 };
 
+}
 }
