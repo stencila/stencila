@@ -4,7 +4,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))/../stencila.mk
 STENCILA_CPP_HOME := $(STENCILA_HOME)/cpp
 
 #Define compiler flags required
-STENCILA_CPP_FLAGS := -std=c++11 -Wall -DSTENCILA_HOME='"$(STENCILA_HOME)"'
+STENCILA_CPP_FLAGS := -std=c++0x -Wall -DSTENCILA_HOME='"$(STENCILA_HOME)"'
 ifeq ($(STENCILA_PLATFORM), msys)
 #On MSYS define _WIN32_WINNT to prevent boost::asio from complaining that it is not defined
 #0x0501 is the default value that boost::asio uses if it is missing so it assumed to be OK to use in most(?) situations
