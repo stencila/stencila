@@ -11,7 +11,6 @@ But, as the library matures, what we mean by "doing stuff" should become clear.
 
 Various forms of [documentation are available](http://docs.stenci.la).
 The auto-generated [documentation for the C++ library](http://docs.stenci.la/cpp/) is currently the most up to date.
-The [user guide](http://docs.stenci.la/guide/intro.html) is still in a very early draft.
 
 ##Installation
 
@@ -19,21 +18,6 @@ Right now the Stencila library is in a very preliminary state.
 We don't recommend actually using it quite yet!
 But, if you really, really want to, then here are some tips to get started...
 
-### C++ library
-
-The Stencila C++ library is available for [download](http://get.stenci.la/cpp/stencila.cpp.tar.gz):
-
-```sh
-wget http://get.stenci.la/cpp/stencila.cpp.tar.gz | tar xvf
-```
-
-### R package
-
-The Stencila R package is available from our R package repository:
-
-```r
-install.packages('stencila',repo='http://get.stenci.la/r')
-```
 
 ## Building
 
@@ -50,7 +34,7 @@ MSYS environment](https://github.com/stencila/stencila/tree/master/building-on-w
 ## Testing
 
 The Stencila [continuous integration server](http://ci.stenci.la) builds packages and run tests when commits are made to this repository.
-See the C++ job for [test results](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/testReport/%28root%29/) and [coverage reports](http://ci.stenci.la/job/stencila.cpp/lastCompletedBuild/cobertura/stencila/).
+See the [C++ tests job]((http://ci.stenci.la/job/stencila.cpp.test/) for examples of test results and coverage reports.
 
 ##Versioning
 
