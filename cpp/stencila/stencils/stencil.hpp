@@ -17,6 +17,7 @@
 #include <stencila/workspace.hpp>
 
 namespace Stencila {
+namespace Stencils {
 
 namespace Stem {
     void parse(const std::string&, Xml::Node);
@@ -582,4 +583,5 @@ public:
 
 };
 
+}
 }

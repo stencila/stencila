@@ -1,9 +1,10 @@
 #include <boost/xpressive/xpressive_static.hpp>
 #include <boost/xpressive/regex_compiler.hpp>
 
-#include <stencila/stencil.hpp>
+#include <stencila/stencils/stencil.hpp>
 
 namespace Stencila {
+namespace Stencils {
 namespace Stem {
 
 /*!
@@ -476,4 +477,5 @@ std::string print(const std::string& stem){
 }
 
 } // namespace Stem
+} // namespace Sstencils
 } // namespace Stencila

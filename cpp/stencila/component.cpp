@@ -3,7 +3,7 @@
 //! @author Nokome Bentley
 
 #include <stencila/component.hpp>
-#include <stencila/stencil.hpp>
+#include <stencila/stencils.hpp>
 #include <stencila/theme.hpp>
 #include <stencila/simple-workspace.hpp>
 
@@ -15,7 +15,7 @@ std::map<std::string,Component<>::Type> Component<>::types_;
 
 void Component<>::declarations(void){
     Component<>::declare<Theme>();
-    Component<>::declare<Stencil>();
+    Component<>::declare<Stencils::Stencil>();
     Component<>::declare<SimpleWorkspace>();
 }
 
