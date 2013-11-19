@@ -96,7 +96,17 @@ public:
     //! @param value
     //! @return
     Cursor& bind(unsigned int index,const unsigned int& value){
-        STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value));
+        int value_int = boost::numeric_cast<int>(value);
+        STENCILA_SQLITE_TRY(db_,sqlite3_bind_int(stmt_,index,value_int));
+        return *this;
+    }
+
+    //! @brief
+    //! @param value
+    //! @return
+    Cursor& bind(unsigned int index,const long int& value){
+        uint64_t value_int = boost::numeric_cast<uint64_t>(value);
+        STENCILA_SQLITE_TRY(db_,sqlite3_bind_int64(stmt_,index,value_int));
         return *this;
     }
 
@@ -114,7 +124,9 @@ public:
     //! @param value
     //! @return
     Cursor& bind(unsigned int index,const std::string& value){
-        STENCILA_SQLITE_TRY(db_,sqlite3_bind_text(stmt_,index,value.c_str(),value.length(),SQLITE_STATIC));
+        // SQLITE_TRANSIENT is used so that SQLite makes a copy of the string data
+        // See http://stackoverflow.com/a/10132955
+        STENCILA_SQLITE_TRY(db_,sqlite3_bind_text(stmt_,index,value.data(),value.length(),SQLITE_TRANSIENT));
         return *this;
     }
 
@@ -324,6 +336,12 @@ public:
     }
 
 };
+
+template<>
+inline
+bool Cursor::get<bool>(unsigned int column){
+    return sqlite3_column_int(stmt_, column);
+}
 
 template<>
 inline

@@ -209,41 +209,37 @@ Table Tableset::import(const std::string& name){
 //! @param reuse
 //! @return 
 Table Tableset::select(const std::string& sql, bool reuse){
-    std::string signature = boost::lexical_cast<std::string>(Hash(sql));
-    
-    int count = value<int>("SELECT count(*) FROM stencila_tables WHERE signature=="+signature);
-    
-    // Confirm that the table exists (it may not be if the database was not saved)
-    bool exists = false;
+    // Note that in this funtion it is necessary to paste signature into SQL strings
+    // used to find matching tables and using bindings (? marks) does not work for some reason.
+    std::string signature = Tableset::signature(sql);
+
+    // Check is a record of this query being cached as a table
+    bool already = false;
+    std::string name = "";
+    int count = value<int>("SELECT count(*) FROM stencila_tables WHERE signature=='"+signature+"'");
+
     if(count>0){
-        
-        std::string name = value<std::string>("SELECT name FROM stencila_tables WHERE signature=="+signature);
-        
-        try{
-            execute("SELECT * FROM \"" + name + "\" LIMIT 1;");
-            exists = true;
-        } catch(...) {
-            exists = false;
-        };
-        
-        // If not reusing a cached table then drop existing table if it exists
-        if(exists and !reuse) {
+        // Get name
+        name = value<std::string>("SELECT name FROM stencila_tables WHERE signature=='"+signature+"'");
+        // Confirm that the table actually exists (even though it is in stencila_tables it may not exist if the database was not saved)
+        already = exists("table",name);
+        // If not reusing cached tables then drop the existing table
+        if(already and !reuse) {
             drop(name);
-            exists = false;
+            already = false;
         }
     }
-    
-    // If does not yet exist then create the table
-    if(!exists){
+
+    // If it does exist just return the cached table...
+    if(already) return table(name);
+    // If does not yet exist then create the table...
+    else {
         //The extra "SELECT * FROM" in the following SQL is necessary for the correct interpretation of quoted
         //field names in the original SQL. If you don't treat the orginal SQL as a subquery then statements like
         // "SELECT "year",..." get treated as a string "year".
-        std::string name = "stencila_"+boost::lexical_cast<std::string>(Hash());
+        std::string name = Tableset::name(signature);
         execute("CREATE TEMPORARY TABLE \"" + name + "\" AS SELECT * FROM (" + sql + ")");
         execute("INSERT INTO stencila_tables(name,source,sql,signature,status) VALUES(?,'select',?,?,0)",name,sql,signature);
-        return table(name);
-    } else {
-        std::string name = value<std::string>("SELECT name FROM stencila_tables WHERE signature=="+signature);
         return table(name);
     }
 }
@@ -252,13 +248,11 @@ Table Tableset::select(const std::string& sql, bool reuse){
 //! @param original
 //! @return 
 Table Tableset::clone(const std::string& original){
-    std::string signature = boost::lexical_cast<std::string>(Hash());
-    std::string name = "stencila_"+signature;
-    
-    execute("DROP TABLE IF EXISTS \""+name+"\"");
+    std::string signature = Tableset::signature();
+    std::string name = Tableset::name(signature);
+    drop(name);
     execute("CREATE TEMPORARY TABLE \""+name+"\" AS SELECT * FROM \""+original+"\"");
     execute("INSERT INTO stencila_tables(name,source,sql,signature,status) VALUES(?,'clone',?,?,0)",name,original,signature);
-    
     return table(name);
 }
 

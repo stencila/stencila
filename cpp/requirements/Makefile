@@ -1,3 +1,7 @@
+all: boost cpp-netlib libarchive pugixml rapidjson sqlite tidy-html5
+
+.PHONY: boost cpp-netlib libarchive pugixml rapidjson sqlite tidy-html5
+
 include  $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
 BOOST_VERSION = 1_54_0
@@ -5,7 +9,6 @@ CPP_NETLIB_VERSION = 0.10.1
 LIBARCHIVE_VERSION = 3.1.2
 PUGIXML_VERSION = 1.2
 RAPIDJSON_VERSION = 0.11
-SMHASHER_VERSION = 147
 SQLITE_VERSION = 3080002
 
 # Specify that symlinks time should be checked, not the target file time.
@@ -14,10 +17,6 @@ SQLITE_VERSION = 3080002
 # the 'include' and 'lib' rules : if they do then you get cyclic updating because the symlinks
 # change the times of those directories
 MAKEFLAGS += --check-symlink-times
-
-all: boost cpp-netlib libarchive pugixml rapidjson smhasher sqlite tidy-html5
-
-.PHONY: boost cpp-netlib libarchive pugixml rapidjson smhasher sqlite tidy-html5
 
 ####################################################
 # include and lib directories 
@@ -199,25 +198,6 @@ ifeq ($(STENCILA_PLATFORM), msys)
 endif
 	
 rapidjson: include include/rapidjson
-
-####################################################
-
-smhasher-$(SMHASHER_VERSION):
-	#Instead of having to install Subversion to do
-	#	svn checkout http://smhasher.googlecode.com/svn/trunk/@$(SMHASHER_VERSION) smhasher-$(SMHASHER_VERSION)
-	#Use the github mirror
-	git clone git://github.com/haberman/smhasher.git smhasher-$(SMHASHER_VERSION)
-
-include/smhasher: smhasher-$(SMHASHER_VERSION)
-ifeq ($(STENCILA_PLATFORM), linux)
-	ln -sfT ../smhasher-$(SMHASHER_VERSION) include/smhasher
-endif
-ifeq ($(STENCILA_PLATFORM), msys)
-	junction include/smhasher smhasher-$(SMHASHER_VERSION)
-	touch include/smhasher
-endif
-
-smhasher: include include/smhasher
 
 ####################################################
 

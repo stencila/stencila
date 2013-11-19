@@ -8,6 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <functional>
 
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
@@ -16,12 +17,12 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <stencila/exception.hpp>
-#include <stencila/hashing.hpp>
-
 #include <stencila/datatypes.hpp>
-
 #include <stencila/tables/cursor.hpp>
 #include <stencila/tables/functions.hpp>
 #include <stencila/tables/aggregators.hpp>
@@ -64,16 +65,16 @@ public:
 
         //Create special Stencila tables and associated indices
         execute(
-        "CREATE TABLE IF NOT EXISTS stencila_tables ("
-            "name TEXT,"
-            "source INTEGER,"
-            "sql TEXT,"
-            "signature INTEGER,"
-            "status INTEGER"
-        ");"
-        "CREATE INDEX IF NOT EXISTS stencila_tables_name ON stencila_tables(name);"
-        "CREATE INDEX IF NOT EXISTS stencila_tables_signature ON stencila_tables(signature);"
-        "CREATE INDEX IF NOT EXISTS stencila_tables_status ON stencila_tables(status);"
+            "CREATE TABLE IF NOT EXISTS stencila_tables ("
+                "name TEXT,"
+                "source TEXT,"
+                "sql TEXT,"
+                "signature TEXT,"
+                "status INTEGER"
+            ");"
+            "CREATE INDEX IF NOT EXISTS stencila_tables_name ON stencila_tables(name);"
+            "CREATE INDEX IF NOT EXISTS stencila_tables_signature ON stencila_tables(signature);"
+            "CREATE INDEX IF NOT EXISTS stencila_tables_status ON stencila_tables(status);"
         );
 
         //Register functions
@@ -100,6 +101,53 @@ public:
     }
 
     //! @}
+
+    /**
+     * Generate a signature for an SQL string
+     *
+     * Rather than attempting to deal with the handling of long unsigned ints
+     * by SQLite the hash is cast to a string
+     * 
+     * @param  sql SQL string used to generate the object, usually a table
+     * @return     A string representing a long integer
+     */
+    static std::string signature(const std::string& sql = ""){
+        std::string key = string;
+        if(key.length()==0){
+            boost::uuids::uuid uuid = boost::uuids::random_generator()();
+            key = boost::lexical_cast<std::string>(uuid);
+        }
+        std::hash<std::string> hasher;
+        return boost::lexical_cast<std::string>(hasher(key));
+    }
+
+    /**
+     * Generate a datbase object name given the signature
+     * @return  A databae object name
+     */
+    static std::string name(const std::string signature){
+        return "stencila_"+signature;
+    }
+
+    /**
+     * Generate a random database object name
+     * @return  A databae object name
+     */
+    static std::string name(void){
+        return name(signature());
+    }
+
+    /**
+     * Check that an object of given type and name exists in the database
+     * @param  type Type of object (table or index)
+     * @param  name Name of object
+     * @return      True or false
+     **/
+    bool exists(const std::string& type, const std::string& name){
+        return value<bool>(
+            "SELECT count(*) FROM (SELECT type,name FROM sqlite_master UNION SELECT type,name FROM sqlite_temp_master) WHERE type=='" + type + "' AND name=='" + name + "'"
+        );
+    }
 
     //! @name Table methods
     //! @brief Create and get Tableset
@@ -255,13 +303,12 @@ public:
      //! @brief Get the number of queries stored in the cache
      //! @return Number of queries
      int cached(const std::string& sql = "") {
-          if(sql.length()==0){
-                return value<int>("SELECT count(*) FROM stencila_tables WHERE status<2"); 
-          }
-          else {
-               std::string signature = boost::lexical_cast<std::string>(Hash(sql));
-               return value<int>("SELECT count(*) FROM stencila_tables WHERE signature=="+signature);
-          }
+        if(sql.length()==0){
+            return value<int>("SELECT count(*) FROM stencila_tables WHERE status<2"); 
+        }
+        else {
+            return value<int>("SELECT count(*) FROM stencila_tables WHERE signature=='"+signature(sql)+"'");
+        }
      }
 
     //! @brief 
@@ -302,7 +349,7 @@ public:
     //}
 
     template<typename... Parameters>
-        Tableset& execute(const std::string& sql, const Parameters&... pars) {
+    Tableset& execute(const std::string& sql, const Parameters&... pars) {
         cursor(sql).execute(pars...);
         return *this;
     }

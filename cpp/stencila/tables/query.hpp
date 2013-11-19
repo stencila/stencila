@@ -1088,15 +1088,14 @@ public:
         std::string bys;
         for(const By* by : bys_) bys += "\"" + by->id() + "\",";
         bys.erase(bys.end()-1,bys.end());
-        // Create a name for the temporary table
-        std::string temp_name = "stencila_"+boost::lexical_cast<std::string>(Hash())+"_temp";
-        
+
+        final.execute("DROP TABLE IF EXISTS stencila_temp;");
         // Create a temporary table of calculated values, one value for each row in final table
-        final.execute("CREATE TEMPORARY TABLE \"" + temp_name + "\" AS SELECT * FROM (SELECT \"" +
+        final.execute("CREATE TEMPORARY TABLE \"stencila_temp\" AS SELECT * FROM (SELECT \"" +
             value_id + "\"/\"" + sum_id + "\" AS \"_calc_\" FROM \"" + final.name() + "\" LEFT JOIN \"" + sums.name() + "\" USING(" + bys + "))");
         // Update values in final table using rowids in a subquery to join
         final.execute("UPDATE \"" + final.name() +"\" SET \"" + value_id +
-            "\"=(SELECT \"_calc_\" FROM \"" + temp_name +"\" WHERE \"" + final.name() +"\".rowid==\"" + temp_name + "\".rowid)");
+            "\"=(SELECT \"_calc_\" FROM \"stencila_temp\" WHERE \"" + final.name() +"\".rowid==\"stencila_temp\".rowid)");
         
         //Cleanup
         delete sum;

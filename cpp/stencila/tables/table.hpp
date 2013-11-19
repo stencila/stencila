@@ -35,7 +35,7 @@ public:
 
     //! @brief Create a Table object
     Table(void):
-        name_("stencila_"+boost::lexical_cast<std::string>(Hash())),
+        name_(Tableset::name()),
         created_(false),
         contained_(false),
         tableset_(new Tableset()){

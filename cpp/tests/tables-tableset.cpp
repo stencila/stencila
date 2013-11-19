@@ -44,10 +44,15 @@ BOOST_AUTO_TEST_CASE(cursor){
 
 BOOST_AUTO_TEST_CASE(tables){ 
 	auto tables = tableset.tables();
+
 	BOOST_CHECK_EQUAL(tables.size(),(unsigned int)2);
+
 	BOOST_CHECK_EQUAL(tables[0],"t1");
 	BOOST_CHECK_EQUAL(tables[1],"t2");
-	
+
+	BOOST_CHECK_EQUAL(tableset.exists("table","t1"),true);
+	BOOST_CHECK_EQUAL(tableset.exists("table","foo"),false);
+
 	Table table1 = tableset.table("t1"); 
 	BOOST_CHECK_EQUAL(table1.name(),"t1");
 }
