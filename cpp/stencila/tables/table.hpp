@@ -155,13 +155,13 @@ public:
     //! @brief Get the name of a column in a table
     //! @param column The column index
     //! @return Column name
-    std::string name(unsigned int column) const{
+    std::string label(unsigned int column) const{
         return tableset().cursor("SELECT * FROM \""+name()+"\"").name(column);
     }
     
     //! @brief Get the names of all columns in the table
     //! @return Vector of column names
-    std::vector<std::string> names(void)  const{
+    std::vector<std::string> labels(void)  const{
         return created_?(tableset().cursor("SELECT * FROM \""+name()+"\"").names()):(std::vector<std::string>{});
     }
     
@@ -298,7 +298,7 @@ public:
     //! @return
      template<typename Type = std::string>
     Type value(unsigned int row, unsigned int col) const {
-        return tableset().value<Type>("SELECT \""+name(col)+"\" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
+        return tableset().value<Type>("SELECT \""+label(col)+"\" FROM \""+name()+"\" LIMIT 1 OFFSET " + boost::lexical_cast<std::string>(row));
     }
 
     //! @brief

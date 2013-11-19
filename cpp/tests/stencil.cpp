@@ -156,11 +156,9 @@ div
     //text
     stem_html("text variable",R"(<div data-text="variable" />)");
     stem_html("span!text variable",R"(<span data-text="variable" />)");
-    
     stem_html("|variable|",R"(<span data-text="variable" />)");
     stem_html("Ab cdefg |variable| hijk",R"(Ab cdefg <span data-text="variable" /> hijk)");
     stem_html("Ab cdefg |variable1| hijk |variable2|",R"(Ab cdefg <span data-text="variable1" /> hijk <span data-text="variable2" />)");
-    stem_html("Ab cdefg a|variable1| hijk b|variable2|",R"(Ab cdefg <a data-text="variable1" /> hijk <b data-text="variable2" />)");
     
     //r , py
     stem_html(R"(

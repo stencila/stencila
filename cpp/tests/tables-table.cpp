@@ -50,11 +50,11 @@ BOOST_AUTO_TEST_CASE(attributes){
 	BOOST_CHECK_EQUAL(dims[0],t1.rows());
 	BOOST_CHECK_EQUAL(dims[1],t1.columns());
 	
-	BOOST_CHECK_EQUAL(t1.name(0),"c1");
-	BOOST_CHECK_EQUAL(t1.name(1),"c2");
-	BOOST_CHECK_EQUAL(t1.name(2),"c3");
+	BOOST_CHECK_EQUAL(t1.label(0),"c1");
+	BOOST_CHECK_EQUAL(t1.label(1),"c2");
+	BOOST_CHECK_EQUAL(t1.label(2),"c3");
 
-	check_equal(t1.names(),std::vector<std::string>{"c1","c2","c3"});
+	check_equal(t1.labels(),std::vector<std::string>{"c1","c2","c3"});
 		
 	// Require operator<< to be defined for Datatype, so commented out for now...
 	//BOOST_CHECK_EQUAL(t1.type(0),Integer);
