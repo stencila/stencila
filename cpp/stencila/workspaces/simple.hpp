@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <stencila/workspace.hpp>
+#include <stencila/workspaces/workspace.hpp>
 
 namespace Stencila {
+namespace Workspaces {
 
-class SimpleWorkspace : public Workspace<SimpleWorkspace> {
+class Simple : public Workspace<Simple> {
 private:
     typedef std::string String;
     typedef std::map<String,String> Map;
@@ -21,10 +22,10 @@ public:
         return "simple-workspace";
     };
     
-    SimpleWorkspace(void){
+    Simple(void){
     }
     
-    SimpleWorkspace(const Id& id){
+    Simple(const Id& id){
     }
 
     //! @brief 
@@ -103,4 +104,5 @@ public:
     
 };
 
+}
 }

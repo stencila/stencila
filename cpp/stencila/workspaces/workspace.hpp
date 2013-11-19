@@ -9,6 +9,7 @@
 #include <stencila/component.hpp>
 
 namespace Stencila {
+namespace Workspaces {
 
 template<class Class>
 class Workspace : public Component<Class> {
@@ -144,4 +145,5 @@ public:
     }
 };
 
+}
 }

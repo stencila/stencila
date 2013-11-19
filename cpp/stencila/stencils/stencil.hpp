@@ -14,7 +14,6 @@
 #include <stencila/component.hpp>
 #include <stencila/html.hpp>
 #include <stencila/json.hpp>
-#include <stencila/workspace.hpp>
 
 namespace Stencila {
 namespace Stencils {

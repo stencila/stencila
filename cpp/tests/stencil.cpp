@@ -6,10 +6,14 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/stencil.hpp>
-#include <stencila/simple-workspace.hpp>
+#include <stencila/component.hpp>
+using Stencila::Component;
 
-using namespace Stencila;
+#include <stencila/stencils.hpp>
+using Stencila::Stencils::Stencil;
+
+#include <stencila/workspaces/simple.hpp>
+using Stencila::Workspaces::Simple;
 
 struct stencil1Fixture {
     
@@ -69,7 +73,7 @@ BOOST_AUTO_TEST_CASE(create_html_page){
 }
 
 BOOST_AUTO_TEST_CASE(render){
-    SimpleWorkspace workspace;
+    Simple workspace;
     stencil2.render(workspace);
 }
 
@@ -83,7 +87,7 @@ BOOST_AUTO_TEST_CASE(render_include){
             <div data-append="#an-id"/>
         </div>
     )");
-    SimpleWorkspace workspace;
+    Simple workspace;
     stencil.render(workspace);
     //std::cout<<stencil.dump()<<"\n\n";
 }
@@ -93,7 +97,7 @@ void stem_html(std::string stem,std::string html) {
     s.from_stem(stem);
     std::string got = s.body();
     if(got!=html){
-        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stem::print(stem));
+        BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stencila::Stencils::Stem::print(stem));
     }
 }
 
