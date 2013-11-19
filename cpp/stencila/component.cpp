@@ -1,11 +1,11 @@
 //! @file component.cpp
-//! @brief Implementation of a component static members
+//! @brief Implementation of component static members
 //! @author Nokome Bentley
 
 #include <stencila/component.hpp>
 #include <stencila/stencils.hpp>
+#include <stencila/workspaces.hpp>
 #include <stencila/theme.hpp>
-#include <stencila/simple-workspace.hpp>
 
 namespace Stencila {
 
@@ -14,9 +14,9 @@ std::map<Id,Component<>::Pointer> Component<>::pointers_;
 std::map<std::string,Component<>::Type> Component<>::types_;
 
 void Component<>::declarations(void){
-    Component<>::declare<Theme>();
     Component<>::declare<Stencils::Stencil>();
-    Component<>::declare<SimpleWorkspace>();
+    Component<>::declare<Workspaces::Simple>();
+    Component<>::declare<Theme>();
 }
 
 }
