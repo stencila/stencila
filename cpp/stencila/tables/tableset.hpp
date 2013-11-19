@@ -112,7 +112,7 @@ public:
      * @return     A string representing a long integer
      */
     static std::string signature(const std::string& sql = ""){
-        std::string key = string;
+        std::string key = sql;
         if(key.length()==0){
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             key = boost::lexical_cast<std::string>(uuid);
