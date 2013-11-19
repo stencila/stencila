@@ -12,6 +12,59 @@ namespace Stencila {
 namespace Arrays {
 
 template<
+	class Type
+>
+class Array<Type> {
+private:
+
+	std::vector<Type> values_;
+
+public:
+    
+    Array(unsigned int size=0){
+        resize(size);
+    }
+    
+    Array(std::initializer_list<Type> values){
+        unsigned int index = 0;
+        for(auto iter=values.begin();iter!=values.end();iter++){
+            if(index<size()) values_[index] = *iter;
+            else values_.push_back(*iter);
+            index++;
+        }
+    }
+    
+    unsigned int size(void) const {
+        return values_.size();
+    }
+    
+    void resize(unsigned int size) {
+        return values_.resize(size);
+    }
+    
+    void append(const Type& item) {
+        return values_.push_back(item);
+    }
+    
+    Type& operator()(int index){
+        return values_[index];
+    }
+    
+    const Type& operator()(int index) const {
+        return values_[index];
+    }
+    
+    Type& operator[](int index) {
+        return values_[index];
+    }
+
+    const Type& operator[](int index) const {
+        return values_[index];
+    }
+    
+};
+
+template<
 	class Type,
 	class Dim1,
 	class Dim2,

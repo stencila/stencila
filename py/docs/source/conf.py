@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Stencila'
-copyright = u'2013, Stencila Ltd'
+copyright = u'2012-2013, The authors of Stencila'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -188,7 +188,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'Stencila.tex', u'Stencila Documentation',
-   u'Stencila Ltd', 'manual'),
+   u'Stencila Authors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -218,7 +218,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'stencila', u'Stencila Documentation',
-     [u'Stencila Ltd'], 1)
+     [u'Stencila Authors'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -232,7 +232,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'Stencila', u'Stencila Documentation',
-   u'Stencila Ltd', 'Stencila', 'One line description of project.',
+   u'Stencila Authors', 'Stencila', 'One line description of project.',
    'Miscellaneous'),
 ]
 
