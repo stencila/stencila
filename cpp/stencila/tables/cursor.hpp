@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include <stencila/exception.hpp>
 #include <stencila/tables/sqlite.hpp>
 #include <stencila/datatypes.hpp>

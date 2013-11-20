@@ -27,6 +27,11 @@ typedef std::vector<const Element*> Elements;
 class Element {
 public:
 
+    // Since this is a virtual base class it is safest to define a virtual destuctor
+    // See http://stackoverflow.com/questions/8764353/what-does-has-virtual-method-but-non-virtual-destructor-warning-mean-durin
+    virtual ~Element(void){
+    }
+
     //! @brief Get the Data Query Language (DQL) representation of this Query element
     //! @return The DQL for this query element
     virtual std::string dql(void) const {
