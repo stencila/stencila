@@ -1,8 +1,8 @@
-include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/cpp.mk
+all: package test
 
 .PHONY: requirements compile rds docs desc test install
 
-all:  test
+include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/cpp.mk
 
 # Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requirements:

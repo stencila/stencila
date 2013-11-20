@@ -1,5 +1,5 @@
-#include <stencila/stencil.hpp>
-using namespace Stencila;
+#include <stencila/stencils/stencil.hpp>
+using namespace Stencila::Stencils;
 
 #include "r-extension.hpp"
 #include "r-workspace.hpp"

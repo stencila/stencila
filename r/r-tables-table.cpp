@@ -1,115 +1,117 @@
-#include <stencila/datatable.hpp>
+#include <stencila/datatypes.hpp>
 using namespace Stencila;
+#include <stencila/tables/table.hpp>
+using namespace Stencila::Tables;
 
 #include "r-extension.hpp"
 
-STENCILA_R_FUNC Datatable_new(void){
+STENCILA_R_FUNC Table_new(void){
     STENCILA_R_BEGIN
-        return STENCILA_R_TO(Datatable,new Datatable);
+        return STENCILA_R_TO(Table,new Table);
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_name(SEXP self){
+STENCILA_R_FUNC Table_name(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).name()
+            from<Table>(self).name()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_rows(SEXP self){
+STENCILA_R_FUNC Table_rows(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).rows()
+            from<Table>(self).rows()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_columns(SEXP self){
+STENCILA_R_FUNC Table_columns(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).columns()
+            from<Table>(self).columns()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_dimensions(SEXP self){
+STENCILA_R_FUNC Table_dimensions(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).dimensions()
+            from<Table>(self).dimensions()
         );
     STENCILA_R_END
 }
 
 
-STENCILA_R_FUNC Datatable_colname(SEXP self, SEXP column){
+STENCILA_R_FUNC Table_label(SEXP self, SEXP column){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).name(as<unsigned int>(column))
+            from<Table>(self).label(as<unsigned int>(column))
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_colnames(SEXP self){
+STENCILA_R_FUNC Table_labels(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).names()
+            from<Table>(self).labels()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_type(SEXP self, SEXP column){
+STENCILA_R_FUNC Table_type(SEXP self, SEXP column){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).type(as<unsigned int>(column)).name()
+            from<Table>(self).type(as<unsigned int>(column)).name()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_types(SEXP self){
+STENCILA_R_FUNC Table_types(SEXP self){
     STENCILA_R_BEGIN
         Rcpp::StringVector vec;
-        BOOST_FOREACH(Datatype type,from<Datatable>(self).types()) vec.push_back(type.name());
+        BOOST_FOREACH(Datatype type,from<Table>(self).types()) vec.push_back(type.name());
         return vec;
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_index(SEXP self, SEXP columns){
+STENCILA_R_FUNC Table_index(SEXP self, SEXP columns){
     STENCILA_R_BEGIN
-        from<Datatable>(self).index(
+        from<Table>(self).index(
             as<std::vector<std::string>>(columns)
         );
         return nil;
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_indices(SEXP self){
+STENCILA_R_FUNC Table_indices(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Datatable>(self).indices()
+            from<Table>(self).indices()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_head(SEXP self, SEXP rows){
+STENCILA_R_FUNC Table_head(SEXP self, SEXP rows){
     STENCILA_R_BEGIN
-        return STENCILA_R_TO(Datatable,new Datatable(
-            from<Datatable>(self).head(as<int>(rows))
+        return STENCILA_R_TO(Table,new Table(
+            from<Table>(self).head(as<int>(rows))
         ));
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_tail(SEXP self, SEXP rows){
+STENCILA_R_FUNC Table_tail(SEXP self, SEXP rows){
     STENCILA_R_BEGIN
-        return STENCILA_R_TO(Datatable,new Datatable(
-            from<Datatable>(self).tail(as<int>(rows))
+        return STENCILA_R_TO(Table,new Table(
+            from<Table>(self).tail(as<int>(rows))
         ));
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_value(SEXP self, SEXP row, SEXP col){
+STENCILA_R_FUNC Table_value(SEXP self, SEXP row, SEXP col){
     STENCILA_R_BEGIN
-        Datatable dt = from<Datatable>(self);
+        Table dt = from<Table>(self);
         int r = as<int>(row);
         int c = as<int>(col);
         switch(dt.type(c).code){
@@ -121,21 +123,21 @@ STENCILA_R_FUNC Datatable_value(SEXP self, SEXP row, SEXP col){
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_to_dataframe(SEXP self){
+STENCILA_R_FUNC Table_to_dataframe(SEXP self){
     STENCILA_R_BEGIN
-        Datatable& dt = from<Datatable>(self);
+        Table& table = from<Table>(self);
         /*
         ** See http://stackoverflow.com/questions/8631197/constructing-a-data-frame-in-rcpp
         */
         //! @todo turn off stringsToFactors in creation of dataframe
         //! @todo create factors for ordinal and nominal mode columns
         Rcpp::List list;
-        auto names = dt.names();
-        auto types = dt.types();
-        for(unsigned int column=0;column<dt.columns();column++){
-            auto name = names[column];
+        auto labels = table.labels();
+        auto types = table.types();
+        for(unsigned int column=0;column<table.columns();column++){
+            auto label = labels[column];
             auto type = types[column];
-            auto query = dt.dataset().cursor("SELECT \""+name+"\" FROM \""+dt.name()+"\"");
+            auto query = table.cursor("SELECT \""+label+"\" FROM \""+table.name()+"\"");
             query.prepare();
             query.begin();
             if(type==Integer){
@@ -163,15 +165,15 @@ STENCILA_R_FUNC Datatable_to_dataframe(SEXP self){
                 list.push_back(vec);
             }
         }
-        list.attr("names") = dt.names();
+        list.attr("names") = table.labels();
         return Rcpp::DataFrame(list);
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Datatable_from_dataframe(SEXP dataframe){
+STENCILA_R_FUNC Table_from_dataframe(SEXP dataframe){
     STENCILA_R_BEGIN
         Rcpp::DataFrame df(dataframe);
-        Datatable& dt = *new Datatable;
+        Table& dt = *new Table;
         
         // Get the column names and types of the data.frame
         //! @todo How to get the df column types? Does it matter?
@@ -199,6 +201,6 @@ STENCILA_R_FUNC Datatable_from_dataframe(SEXP dataframe){
             dt.append(values);
         }
         
-        return STENCILA_R_TO(Datatable,&dt);
+        return STENCILA_R_TO(Table,&dt);
     STENCILA_R_END
 }

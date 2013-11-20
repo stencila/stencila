@@ -23,3 +23,5 @@ testing
 #Ignore IDE files
 .Rhistory
 stencila_r.project
+stencila-r.sublime-project
+stencila-r.sublime-workspace

@@ -1,6 +1,7 @@
 #include <stencila/format.hpp>
-#include <stencila/dataquery.hpp>
 using namespace Stencila;
+#include <stencila/tables/query.hpp>
+using namespace Stencila::Tables;
 
 #include "r-extension.hpp"
 
@@ -306,37 +307,37 @@ STENCILA_R_FUNC Element_Proportion(SEXP value, SEXP by){
 //! @name Dataquery
 //! @{
 
-STENCILA_R_FUNC Dataquery_new(SEXP elements){
+STENCILA_R_FUNC Query_new(SEXP elements){
     STENCILA_R_BEGIN
-        Dataquery* q = new Dataquery;
+        Query* q = new Query;
         Rcpp::List pointers(elements);
         for(Rcpp::List::iterator i=pointers.begin();i!=pointers.end();i++){
             q->append(clone(*i));
         }
-        return to(q,"Dataquery");
+        return to(q,"Query");
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Dataquery_new_noargs(void){
+STENCILA_R_FUNC Query_new_noargs(void){
     STENCILA_R_BEGIN
-        return to(new Dataquery,"Dataquery");
+        return to(new Query,"Query");
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Dataquery_dql(SEXP self){
+STENCILA_R_FUNC Query_dql(SEXP self){
     STENCILA_R_BEGIN
         return wrap(
-            from<Dataquery>(self).dql()
+            from<Query>(self).dql()
         );
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Dataquery_execute(SEXP self, SEXP datatable){
+STENCILA_R_FUNC Query_execute(SEXP self, SEXP datatable){
     STENCILA_R_BEGIN
-        Datatable result = from<Dataquery>(self).execute(
-            from<Datatable>(datatable)
+        Table result = from<Query>(self).execute(
+            from<Table>(datatable)
         );
-        return to(new Datatable(result),"Datatable");
+        return to(new Table(result),"Datatable");
     STENCILA_R_END
 }
 
