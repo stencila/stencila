@@ -1,13 +1,12 @@
-include ../cpp/cpp.mk
-
+all: build test
+	
 .PHONY: build test clean
 
-all: build test
+include ../cpp/cpp.mk
 	
 build: version.hpp
 	$(CXX) $(STENCILA_CPP_FLAGS) -shared -fPIC -O2 $(STENCILA_CPP_INCLUDE_DIRS) -ostencila.so stencila.cpp \
 		$(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
-
 test:
 	make -C tests all
 	

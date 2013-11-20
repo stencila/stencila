@@ -1,2 +1,6 @@
 #Ignore build artifacts
 stencila.so
+
+#Ignore IDE files
+*.sublime-project
+*.sublime-workspace

@@ -3,8 +3,8 @@
 SQLITE_EXTENSION_INIT1
 
 #include <stencila/version.hpp>
-#include <stencila/dataset-math-functions.hpp>
-#include <stencila/dataset-math-aggregators.hpp>
+#include <stencila/tables/functions.hpp>
+#include <stencila/tables/aggregators.hpp>
 
 /*
 The version number of the Stencila library
@@ -21,8 +21,8 @@ int sqlite3_extension_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routi
     SQLITE_EXTENSION_INIT2(pApi)
 
     sqlite3_create_function(db, "stencila_version", 0, SQLITE_ANY, 0, stencila_version, 0, 0);
-    Stencila::MathFunctions::create(db);
-    Stencila::MathAggregators::create(db);
+    Stencila::Tables::Functions::create(db);
+    Stencila::Tables::Aggregators::create(db);
 
     return 0;
 }
