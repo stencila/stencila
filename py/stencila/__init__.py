@@ -8,7 +8,7 @@ Integer = Datatype('i')
 Real = Datatype('r')
 Text = Datatype('t')
 
-class Datatable(DatatableBase):
+class Table(TableBase):
     
     def enter(self,names=None,frame=None):
         '''

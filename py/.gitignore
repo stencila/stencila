@@ -3,8 +3,10 @@ build
 dist
 stencila.egg-info
 
-#Ignore codelite IDE project file
+#Ignore IDE file
 stencila_py.project
+*.sublime-project
+*.sublime-workspace
 
 #Ignore the sandbox!
 sandbox

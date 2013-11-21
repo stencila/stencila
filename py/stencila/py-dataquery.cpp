@@ -1,14 +1,14 @@
-#include <stencila/dataquery.hpp>
-using namespace Stencila;
+#include <stencila/tables/query.hpp>
+using namespace Stencila::Tables;
 
 #include "py-extension.hpp"
 
-//! @brief Convert a Python object into a Dataquery element
+//! @brief Convert a Python object into a Query element
 //!
 //! This function is a "raw_function" which recieves Python objects.
-//! Its job is to convert those Python objects into Stencila Dataquery elements
+//! Its job is to convert those Python objects into Stencila Query elements
 //! For example, a Python integer is converted into a Constant<int>
-Element* Dataquery_wrap(const object& o){
+Element* Query_wrap(const object& o){
     //Boost.python's extract<float>(o).check() returns true even if o is an integer.
     //So have to use the Python PyXXX_Check functions to determine type
     const PyObject* p = o.ptr();
@@ -17,7 +17,7 @@ Element* Dataquery_wrap(const object& o){
     if(PyFloat_Check(p)) return new Constant<float>(extract<float>(o));
     if(PyString_Check(p)) return new Constant<std::string>(extract<std::string>(o));
     
-    //If the object is a Dataquery element then just return it
+    //If the object is a Query element then just return it
     extract<Element*> e(o);
     if(e.check()) return e();
     
@@ -27,7 +27,7 @@ Element* Dataquery_wrap(const object& o){
 }
 
 #define UNOP(name,type) \
-    type Dataquery_##name(Element& self){ \
+    type Query_##name(Element& self){ \
         return type(&self); \
     }
 
@@ -37,8 +37,8 @@ UNOP(__pos__,Positive)
 #undef UNOP
 
 #define BINOP(name,type) \
-    type Dataquery_##name(Element& self, object& other){ \
-        return type(&self,Dataquery_wrap(other)); \
+    type Query_##name(Element& self, object& other){ \
+        return type(&self,Query_wrap(other)); \
     }
 
 BINOP(__eq__,Equal)
@@ -58,7 +58,7 @@ BINOP(__or__,Or)
 
 #undef BINOP
 
-void Dataquery_define(void){
+void Query_define(void){
     
     // Because class Element has two "sql" methods use a typedef to remove ambiguity
     typedef std::string (Element::* Element_sql_type)(unsigned short phase) const;
@@ -68,7 +68,7 @@ void Dataquery_define(void){
         .def("dql",&Element::dql)
         .def("sql",Element_sql_type(&Element::sql))
         
-        #define OP(name) .def(#name,Dataquery_##name)
+        #define OP(name) .def(#name,Query_##name)
         
         OP(__pos__)
         OP(__neg__)

@@ -1,13 +1,13 @@
-#include <stencila/dataset.hpp>
-#include <stencila/datatable.hpp>
+#include <stencila/tables/table.hpp>
 using namespace Stencila;
+using namespace Stencila::Tables;
 
 #include "py-extension.hpp"
 
 /*
 object select_tuple(tuple args, dict kwargs){
     //!@todo Need to test if this is a slice or not
-    Datatable& self = extract<Datatable&>(args[0]);
+    Table& self = extract<Table&>(args[0]);
     tuple rowsCols = extract<tuple>(args[1]);
     
     object rows = rowsCols[0];
@@ -22,18 +22,18 @@ object select_tuple(tuple args, dict kwargs){
 }
 */
 
-void Datatable_define(void){
-    class_<Datatable,bases<>>("DatatableBase")
+void Table_define(void){
+    class_<Table,bases<>>("TableBase")
         .def(init<std::string>())
-        .def(init<std::string,Dataset*>())
+        .def(init<std::string,Tableset*>())
     
-        .def("rows", &Datatable::rows) 
-        .def("columns", &Datatable::columns)
-        .def("names", &Datatable::names)
-        .def("indices", &Datatable::indices)
+        .def("rows", &Table::rows) 
+        .def("columns", &Table::columns)
+        .def("labels", &Table::labels)
+        .def("indices", &Table::indices)
     
         .def("add",
-            static_cast<Datatable& (Datatable::*)(const std::string& column, const Datatype& type)>(&Datatable::add),
+            static_cast<Table& (Table::*)(const std::string& column, const Datatype& type)>(&Table::add),
             return_value_policy<reference_existing_object>()
         )
 

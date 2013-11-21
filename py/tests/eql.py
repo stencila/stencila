@@ -3,7 +3,7 @@ import unittest
 from stencila import *
 
 
-class DatatableBasics(unittest.TestCase):
+class TableBasics(unittest.TestCase):
     
     def nest_eql(self):
         
@@ -69,22 +69,22 @@ class DatatableBasics(unittest.TestCase):
 
 def EnterExitWith():
     '''
-    Test enter, exit methods and context manager functionality of Datatables
+    Test enter, exit methods and context manager functionality of Tables
     
     This is not run using the unittest module as that module
     seems to break the enter() method.
     '''
 
     #Create a Databale with a single column
-    dt = Datatable()
+    dt = Table()
     dt.add("c1",Text)
 
-    #Enter the Datatable and check that column has been imported into the local namespace
+    #Enter the Table and check that column has been imported into the local namespace
     dt.enter()
     assert locals().has_key('c1')
     assert isinstance(c1,Column)
     
-    #Exit the Datatable and check that the colun is NOT in the local namespace
+    #Exit the Table and check that the colun is NOT in the local namespace
     dt.exit()
     assert not locals().has_key('c1')
     try:

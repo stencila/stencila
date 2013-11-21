@@ -1,22 +1,23 @@
-#include <stencila/dataset.hpp>
-#include <stencila/datatable.hpp>
+#include <stencila/tables/tableset.hpp>
+#include <stencila/tables/table.hpp>
 using namespace Stencila;
+using namespace Stencila::Tables;
 
 #include "py-extension.hpp"
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
     save_overloads,
-    Dataset::save, 
+    Tableset::save, 
     0, 1
 )    
     
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
     indices_overloads,
-    Dataset::indices, 
+    Tableset::indices, 
     0, 1
 )
 
-object Datacursor_get(Datacursor& cursor, unsigned int column){
+object Cursor_get(Cursor& cursor, unsigned int column){
     const char type = cursor.type(column).code;
     switch(type){
         case 'n': return object();
@@ -27,11 +28,11 @@ object Datacursor_get(Datacursor& cursor, unsigned int column){
     return object();
 }
 
-object Dataset_fetch(tuple args, dict kwargs){
-    Dataset& self = extract<Dataset&>(args[0]);
+object Tableset_fetch(tuple args, dict kwargs){
+    Tableset& self = extract<Tableset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
-    Datacursor cursor = self.cursor(sql);
+    Cursor cursor = self.cursor(sql);
     cursor.prepare();
     cursor.begin();
     
@@ -39,7 +40,7 @@ object Dataset_fetch(tuple args, dict kwargs){
     while(cursor.more()){
         list row;
         for(unsigned int column=0;column<cursor.columns();column++){
-            row.append(Datacursor_get(cursor,column));
+            row.append(Cursor_get(cursor,column));
         }
         rows.append(row);
         cursor.next();
@@ -47,80 +48,80 @@ object Dataset_fetch(tuple args, dict kwargs){
     return rows;
 }
 
-object Dataset_value(tuple args, dict kwargs){
-    Dataset& self = extract<Dataset&>(args[0]);
+object Tableset_value(tuple args, dict kwargs){
+    Tableset& self = extract<Tableset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
-    Datacursor cursor = self.cursor(sql);
+    Cursor cursor = self.cursor(sql);
     cursor.prepare();
     cursor.begin();
     
-    if(cursor.more()) return Datacursor_get(cursor,0);
+    if(cursor.more()) return Cursor_get(cursor,0);
     else throw Exception("No rows returned");
 }
 
-object Dataset_column(tuple args, dict kwargs){
-    Dataset& self = extract<Dataset&>(args[0]);
+object Tableset_column(tuple args, dict kwargs){
+    Tableset& self = extract<Tableset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
-    Datacursor  cursor = self.cursor(sql);
+    Cursor  cursor = self.cursor(sql);
     cursor.prepare();
     cursor.begin();
     
     list column;
     while(cursor.more()){
-        column.append(Datacursor_get(cursor,0));
+        column.append(Cursor_get(cursor,0));
         cursor.next();
     }
     return column;
 }
 
-object Dataset_row(tuple args, dict kwargs){
-    Dataset& self = extract<Dataset&>(args[0]);
+object Tableset_row(tuple args, dict kwargs){
+    Tableset& self = extract<Tableset&>(args[0]);
     std::string sql = extract<std::string>(args[1]);
     
-    Datacursor cursor= self.cursor(sql);
+    Cursor cursor= self.cursor(sql);
     cursor.prepare();
     cursor.begin();
     
     list row;
     if(cursor.more()){
         for(unsigned int column=0;column<cursor.columns();column++){
-            row.append(Datacursor_get(cursor,column));
+            row.append(Cursor_get(cursor,column));
         }
         cursor.next();
     }
     return row;
 }
 
-void Dataset_define(void){
+void Tableset_define(void){
     
-    class_<Dataset,bases<>>("Dataset")
+    class_<Tableset,bases<>>("Tableset")
         .def(init<std::string>())
 
-        .def("save",&Dataset::save,
+        .def("save",&Tableset::save,
             save_overloads(
                 args("path","backup"),
                 "Save the dataset to path"
             )[return_value_policy<reference_existing_object>()]
         )
 
-        .def("tables", &Dataset::tables)
+        .def("tables", &Tableset::tables)
         .def("indices",
-            &Dataset::indices,
+            &Tableset::indices,
             indices_overloads(args("table"))
         )
 
         .def("execute",
-            static_cast<Dataset& (Dataset::*)(const std::string& sql)>(&Dataset::execute),
+            static_cast<Tableset& (Tableset::*)(const std::string& sql)>(&Tableset::execute),
             return_value_policy<reference_existing_object>()
         )
 
-        .def("fetch", raw_function(Dataset_fetch))
-        .def("value", raw_function(Dataset_value))
-        .def("column",  raw_function(Dataset_column))
-        .def("row",raw_function(Dataset_row))
+        .def("fetch", raw_function(Tableset_fetch))
+        .def("value", raw_function(Tableset_value))
+        .def("column",  raw_function(Tableset_column))
+        .def("row",raw_function(Tableset_row))
 
-        .def("table", &Dataset::table)
+        .def("table", &Tableset::table)
     ;
 }

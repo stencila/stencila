@@ -1,8 +1,9 @@
-include ../cpp/cpp.mk
+
+all: test
 
 .PHONY: build dist test clean
 
-all: clean test
+include ../cpp/cpp.mk
 
 # Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requirements:

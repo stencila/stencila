@@ -3,7 +3,7 @@ import os
 
 import stencila
 
-dataset_sql = '''
+tableset_sql = '''
     CREATE TABLE t1 (a INTEGER, b REAL, c TEXT);
     CREATE INDEX t1i1 ON t1(a);
     CREATE INDEX t1i2 ON t1(b);
@@ -18,11 +18,11 @@ dataset_sql = '''
     CREATE INDEX t2i1 ON t2(a);
 '''
 
-class DatasetBasics(unittest.TestCase):
+class TablesetBasics(unittest.TestCase):
     
     def setUp(self):
-        self.ds = stencila.Dataset()
-        self.ds.execute(dataset_sql)
+        self.ds = stencila.Tableset()
+        self.ds.execute(tableset_sql)
 
     def test_tables(self):
         self.assertEqual(self.ds.tables(),['t1','t2'])
@@ -51,20 +51,20 @@ class DatasetBasics(unittest.TestCase):
         self.assertEqual(row,[3,3.4,'gamma'])
 
 
-class DatasetPermanant(unittest.TestCase):
+class TablesetPermanant(unittest.TestCase):
     
     def setUp(self):
-        self.ds = stencila.Dataset('test.sds')
+        self.ds = stencila.Tableset('test.stet')
         
     def tearDown(self):
-        os.remove('test.sds')
+        os.remove('test.stet')
         
         
-class DatatableBasics(unittest.TestCase):
+class TableBasics(unittest.TestCase):
 
     def setUp(self):
-        self.ds = stencila.Dataset()
-        self.ds.execute(dataset_sql)
+        self.ds = stencila.Tableset()
+        self.ds.execute(tableset_sql)
         self.dt = self.ds.table('t1')
         
     def test_rows(self):
@@ -74,7 +74,7 @@ class DatatableBasics(unittest.TestCase):
         self.assertEqual(self.dt.columns(),3)
         
     def test_names(self):
-        self.assertEqual(self.dt.names(),['a','b','c'])
+        self.assertEqual(self.dt.labels(),['a','b','c'])
         
     def test_indices(self):
         self.assertEqual(self.dt.indices(),['t1i1','t1i2'])

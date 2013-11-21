@@ -38,7 +38,7 @@ setup(
     author = 'Nokome Bentley',
     author_email = 'nokome.bentley@stenci.la',
     url = 'http://stenci.la',
-    license = 'ISC Licence',
+    license = 'BSD 3-clause Licence',
     packages = [
         'stencila'
     ],

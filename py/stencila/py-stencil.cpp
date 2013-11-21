@@ -1,7 +1,8 @@
 #include <string>
 
-#include <stencila/stencil.hpp>
+#include <stencila/stencils/stencil.hpp>
 using namespace Stencila;
+using namespace Stencila::Stencils;
 
 #include "py-extension.hpp"
 

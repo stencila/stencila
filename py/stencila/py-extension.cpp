@@ -4,9 +4,9 @@
 
 extern void Exception_define(void);
 extern void Datatype_define(void);
-extern void Dataset_define(void);
-extern void Datatable_define(void);
-extern void Dataquery_define(void);
+extern void Tableset_define(void);
+extern void Table_define(void);
+extern void Query_define(void);
 extern void Stencil_define(void);
 
 template<typename Type>
@@ -24,8 +24,8 @@ BOOST_PYTHON_MODULE(extension){
 
     Exception_define();
     Datatype_define();
-    Dataset_define();
-    Datatable_define();
-    Dataquery_define();
+    Tableset_define();
+    Table_define();
+    Query_define();
     Stencil_define();
 }
