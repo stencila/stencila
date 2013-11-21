@@ -5,6 +5,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
+using boost::algorithm::trim;
 
 #include <stencila/component.hpp>
 using Stencila::Component;
@@ -70,6 +71,21 @@ BOOST_AUTO_TEST_CASE(create_html_page){
         BOOST_CHECK_EQUAL_COLLECTIONS(got.begin(),got.end(),exp.begin(),exp.end());
     }
     BOOST_CHECK_EQUAL(s.content(),"<p>Hello world!</p>");
+}
+
+BOOST_AUTO_TEST_CASE(content_set_get){
+    for(std::string content: {
+        "some text",
+        "<p>a paragraph</p>",
+        "<code>1+1</code>",
+        "<ul data-for=\"item:items\"><li data-text=\"item\" /></ul>"
+    }){
+        Stencil s;
+        s.content(content);
+        std::string got = s.content();
+        trim(got);
+        BOOST_CHECK_EQUAL(got,content);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(render){

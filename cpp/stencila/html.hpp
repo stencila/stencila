@@ -17,18 +17,29 @@ typedef Xml::Node Node;
 typedef Xml::Attribute Attribute;
 
 static std::string tidy(const std::string& html){
+    // Create a tidyhtml5 document
     TidyDoc document = tidyCreate();
-    bool ok = tidyOptSetBool(document,TidyXhtmlOut,yes);
+    // Set processing options.
+    // For a list of options see http://w3c.github.io/tidy-html5/quickref.html
+    // For C names of options see tidy-html5-master/src/config.c
+    bool ok = false;
+    // Do not drop attributes or elements (otherwise elems that have meaning in
+    // an unrendered stencil get lost)
+    ok = tidyOptSetBool(document,TidyDropPropAttrs,no);
+    ok = tidyOptSetBool(document,TidyDropFontTags,no);
+    ok = tidyOptSetBool(document,TidyDropEmptyElems,no);
+    ok = tidyOptSetBool(document,TidyDropEmptyParas,no);
+    // Ouput XHTML
+    ok = tidyOptSetBool(document,TidyXhtmlOut,yes);
     if(ok){
         TidyBuffer error_buffer = {0};
-        int rc = tidySetErrorBuffer(document, &error_buffer);
-        if(rc >= 0) rc = tidyParseString(document,html.c_str());
-        if(rc >= 0) rc = tidyCleanAndRepair(document);
-        if(rc >= 0) rc = tidyRunDiagnostics(document);
-        if(rc > 1) rc = (tidyOptSetBool(document, TidyForceOutput, yes)?rc:-1);
-        
+        int status = tidySetErrorBuffer(document, &error_buffer);
+        if(status >= 0) status = tidyParseString(document,html.c_str());
+        if(status >= 0) status = tidyCleanAndRepair(document);
+        if(status >= 0) status = tidyRunDiagnostics(document);
+
         TidyBuffer output_buffer = {0};
-        if(rc>=0) rc = tidySaveBuffer(document, &output_buffer);
+        if(status>=0) status = tidySaveBuffer(document, &output_buffer);
         
         std::stringstream output_stream;
         output_stream<<output_buffer.bp;
@@ -42,11 +53,14 @@ static std::string tidy(const std::string& html){
         
         tidyRelease(document);
         
-        if(rc >= 0){
-            //if(rc > 0) std::cout<<error<<"\n";//STENCILA_THROW(Exception,error);
-            return output;
+        if(status>=0){
+            int errors = tidyErrorCount(document);
+            if(errors>0) {
+                STENCILA_THROW(Exception,error);
+            }
+            else return output;
         } else {
-            STENCILA_THROW(Exception,"A severe error occurred");
+            STENCILA_THROW(Exception,"An error occurred");
         }
     }
     STENCILA_THROW(Exception,"An error occurred");
