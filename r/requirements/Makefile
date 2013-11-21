@@ -10,7 +10,8 @@
 # Note that the these will install the particular version of these R packages on your system
 # If you want a newer version then update the version numbers
 
-RCPP_VERSION = 0.10.2
+# Version numbers updated to latest on 2013-11-21
+RCPP_VERSION = 0.10.6
 ROXYGEN2_VERSION = 2.2.2
 
 all : Rcpp roxygen2
