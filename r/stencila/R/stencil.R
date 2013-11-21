@@ -72,7 +72,176 @@ setMethod("render",c("ANY","ANY"),function(stencil,workspace){
     return(stencil$dump())
 })
 
+# Stencil creation using code
 
+# A sink for sending HTML nodes
+# sink_ is an environment so these things can be refered to by reference (see http://www.stat.berkeley.edu/~paciorek/computingTips/Pointers_passing_reference_.html)
+sink_ <- new.env()
 
+#' Set a stencil as the destination (the 'sink') for markup code
+#'
+#' @name Stencil-sink
+#' @aliases sink,Stencil-method
+#' @export
+#' 
+#' @examples
+#' # Create a stencil...
+#' stencil <- Stencil()
+#' # ... specify it as the sink for Stencila R "markcode"
+#' stencil$sink()
+#' # ... or, equivalently
+#' sink(stencil)
+setGeneric("sink",function(stencil) standardGeneric("sink"))
+setMethod("sink",c("Stencil"),function(stencil) stencil$sink())
 
+Stencil_sink <- function(stencil){
+  sink_$stencil <- stencil
+  sink_$stack <- list()
+  sink_$id <- 0
+  NULL
+}
 
+#' Unset a stencil as the destination (the 'sink')
+#'
+#' @name Stencil-unsink
+#' @aliases unsink,Stencil-method
+#' @export
+#' 
+setGeneric("unsink",function(stencil) standardGeneric("unsink"))
+setMethod("unsink",c("Stencil"),function(stencil) stencil$unsink())
+
+Stencil_unsink <- function(stencil){
+  #' @todo Check that this stencil is currently the sink
+  if(length(sink_$stack)>0){
+    # Convert the stack of HTML nodes into a HTMl string
+    connection <-  textConnection("html_string", "w",local=T)
+    stream <- function(...) cat(...,sep='',file=connection)
+    for(index in 1:length(sink_$stack)) html(sink_$stack[[index]],stream)
+    close(connection)
+    html_string <- paste(html_string,collapse='\n')
+    # Load html into the stencil
+    print(html_string)
+    #stencil$load(html_string)
+  }
+  # This stencil is no longer the sink...
+  sink_$stencil <- NULL
+  # Clear the stack and reset ids ...
+  sink_$stack <- list()
+  sink_$id <- 0
+}
+
+# A HTML node class
+Node <- setClass(
+  'Node' 
+)
+
+TextNode <- setClass(
+  'TextNode',
+  representation = representation(
+    text = 'character'
+  ),
+  contains = 'Node'
+)
+
+ElementNode <- setClass(
+  'ElementNode',
+  representation = representation(
+    id = 'character',
+    name = 'character',
+    attributes = 'list',
+    children = 'list'
+  ),
+  contains = 'Node'
+)
+
+#' Convert a HTML node into a HTML string
+#'
+#' @name Stencil-html
+#' @aliases html,Node,function-method html,Node,missing-method
+#' @export
+#' 
+setGeneric('html',function(node,stream) standardGeneric('html'))
+
+setMethod('html',c('TextNode','function'),function(node,stream){
+  stream(node@text)
+})
+  
+setMethod('html',c('ElementNode','function'),function(node,stream){
+  stream('<',node@name)
+  if(length(node@attributes)>0){
+    for(index in 1:length(node@attributes)){
+      name <- names(node@attributes)[index]
+      value <- node@attributes[[index]]
+      stream(' ',name,'="',value,'"')
+    }
+  }
+  stream('>')
+  
+  for(child in node@children) stream(html(child,stream))
+  
+  stream('</',node@name,'>')
+})
+
+setMethod('html',c('ElementNode','missing'),function(node,stream){
+  connection <-  textConnection("html_string", "w",local=T)
+  stream <- function(...) cat(...,sep='',file=connection)
+  
+  html(node,stream)
+  
+  close(connection)
+  paste(html_string,collapse='\n')
+})
+
+# Function for creating a node from arbitrary arguments
+node <- function(name,...){
+  # Increment the global id and create a new Element
+  sink_$id <<- sink_$id + 1
+  node <- ElementNode(
+    id = paste(name,sink_$id,sep="#"),
+    name = name
+  )
+  # Grab arguments and iterate over them
+  args <- list(...)
+  if(length(args)>0){
+    for(index in 1:length(args)){
+      # Extract name and value
+      # If none of the args are names then names(args) is NULL
+      name <- ifelse(is.null(names(args)),'',names(args)[index])
+      value <- args[[index]]
+      if (inherits(value,'ElementNode')){
+        # A node is added as a child, even if it is named (the name is ignored)
+        node@children <- c(node@children,value)
+        # Pop the child node off the stack
+        sink_$stack[[value@id]] <<- NULL
+      }
+      else if(nchar(name)>0){
+        # A named argument is made into an attribute
+        attribute = list()
+        attribute[[name]] = as.character(value)
+        node@attributes = c(node@attributes,attribute)
+      } else {
+        # Anything else is added as a test node child 
+        node@children = c(node@children,TextNode(text=as.character(value)))
+      }
+    }
+  }
+  # Add this node to the stack
+  sink_$stack[[node@id]] <<- node
+  # Return this node
+  invisible(node)
+}
+
+#' Create a HTML paragraph <p>
+#'
+#' @export
+p <- function(...) node('p',...)
+
+#' Create a HTML document division <div>
+#'
+#' @export
+div <- function(...) node('div',...)
+
+#' Create a HTML anchor <a>
+#'
+#' @export
+a <- function(...) node('a',...)
