@@ -26,9 +26,7 @@ NULL
 class_('Stencil')
 Stencil <- function(content) {
     stencil <- new("Stencil")
-    if(!missing(content)){
-        stencil$content(content)
-    }
+    if(!missing(content)) stencil$content(content)
     return(stencil)
 }
 
@@ -50,7 +48,7 @@ setMethod("content",c("Stencil","ANY"),function(object,content) object$content(c
 
 Stencil_content <- function(stencil,content){
   if(missing(content)) return(call_('Stencil_content_get',stencil@pointer))
-  else call('Stencil_content_set',stencil@pointer,content)
+  else call_('Stencil_content_set',stencil@pointer,content)
 }
 
 #' Render a stencil object or a stencil string 
