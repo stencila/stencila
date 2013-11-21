@@ -36,7 +36,7 @@ BOOST_FIXTURE_TEST_SUITE(stencil1,stencil1Fixture)
 
 BOOST_AUTO_TEST_CASE(create_empty){
     Stencil s;
-    BOOST_CHECK_EQUAL(s.body(),"");
+    BOOST_CHECK_EQUAL(s.content(),"");
 }
 
 BOOST_AUTO_TEST_CASE(id){
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(id){
 
 BOOST_AUTO_TEST_CASE(create_html_fragment){
     Stencil s("html://<p>Hello world</p>");
-    BOOST_CHECK_EQUAL(s.body(),"<p>Hello world</p>");
+    BOOST_CHECK_EQUAL(s.content(),"<p>Hello world</p>");
 }
 
 BOOST_AUTO_TEST_CASE(create_html_page){
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(create_html_page){
         std::vector<std::string> exp = {"greeting","salutation"};
         BOOST_CHECK_EQUAL_COLLECTIONS(got.begin(),got.end(),exp.begin(),exp.end());
     }
-    BOOST_CHECK_EQUAL(s.body(),"<p>Hello world!</p>");
+    BOOST_CHECK_EQUAL(s.content(),"<p>Hello world!</p>");
 }
 
 BOOST_AUTO_TEST_CASE(render){
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(render_include){
 void stem_html(std::string stem,std::string html) {
     Stencil s;
     s.from_stem(stem);
-    std::string got = s.body();
+    std::string got = s.content();
     if(got!=html){
         BOOST_ERROR("\n\tstem: "+stem+"\n\texpected: "+html+"\n\tgot     : "+got+"\n\ttree:\n"+Stencila::Stencils::Stem::print(stem));
     }
@@ -256,11 +256,11 @@ R"(<!-- start
 
 BOOST_AUTO_TEST_CASE(create_stem_string){
     Stencil s("stem://.klass#ident");
-    BOOST_CHECK_EQUAL(s.body(),"<div class=\"klass\" id=\"ident\" />");
+    BOOST_CHECK_EQUAL(s.content(),"<div class=\"klass\" id=\"ident\" />");
 }
 BOOST_AUTO_TEST_CASE(create_stem_file){
     Stencil s("file://inputs/a.stem");
-    BOOST_CHECK_EQUAL(s.body(),"<div><ul><li /></ul></div>");
+    BOOST_CHECK_EQUAL(s.content(),"<div><ul><li /></ul></div>");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

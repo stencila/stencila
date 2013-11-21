@@ -191,13 +191,13 @@ public:
         return html_;
     }
     
-    std::string body(void) {
+    std::string content(void) {
         std::ostringstream out;
         for(Html::Node child : html_.find("body").children()) child.print(out,"",pugi::format_raw);
         return out.str();
     }
     
-    Stencil& body(const std::string& html) {
+    Stencil& content(const std::string& html) {
         Html::Document html_doc(html);
         html_.copy(html_.find("body"),html_doc.find("body"));
         return *this;
@@ -214,12 +214,12 @@ public:
     void read_from(const String& directory){
         std::ifstream file(directory+"/index.html");
         std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
-        body(value);
+        content(value);
     }
 
     void write_to(const String& directory) {
         std::ofstream file(directory+"/index.html");
-        file<<body();
+        file<<content();
     }
     
     //! @}
@@ -231,13 +231,13 @@ public:
     std::string get(void){
         Component<Stencil>::read();
         Json::Document out;
-        out.add("body",body());
+        out.add("content",content());
         return out.dump();
     }
     
     std::string put(const std::string& data){
         Json::Document json(data);
-        if(json.has("body")) body(json.as<std::string>(json.get("body")));
+        if(json.has("content")) content(json.as<std::string>(json.get("content")));
         Component<Stencil>::write();
         return "{}";
     }
