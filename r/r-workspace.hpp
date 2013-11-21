@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stencila/workspaces/workspace.hpp>
+using Stencila::Id;
 using namespace Stencila::Workspaces;
 
 #include "r-extension.hpp"
@@ -51,6 +52,9 @@ public:
         Rcpp::Function func = stencila.get("Workspace");
         Rcpp::Language call(func);
         environment_ = Rcpp::Environment(call.eval());
+    }
+
+    RWorkspace(const Id& id){
     }
 
     /*!
