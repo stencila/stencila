@@ -20,25 +20,25 @@ pre_lexer = None
 pre_formatter = None
 
 sections = [
-    ['Dataset',[
-        'Dataset',
-        'Dataset-uri','Dataset-tables','Dataset-indices',
+    ['Tableset',[
+        'Tableset',
+        'Tableset-uri','Tableset-tables','Tableset-indices',
     ]],
-    ['Datatable',[
-        'Datatable',
-        'Datatable-subscript',
-        'Datatable-head','Datatable-tail','Datatable-dim',
-        'Datatable-as.data.frame'
+    ['Table',[
+        'Table',
+        'Table-subscript',
+        'Table-head','Table-tail','Table-dim',
+        'Table-as.data.frame'
     ]],
-    ['Datacursor',[
-        'Datacursor'
+    ['Cursor',[
+        'Cursor'
     ]],
-    ['Dataquery',[
-        'Dataquery'
+    ['Query',[
+        'Query'
     ]],
     ['Stencil',[
         'Stencil',
-        'Stencil-load','Stencil-render'
+        'Stencil-content','Stencil-render'
     ]],
     ['Utility',[
         'version', 'iterate'
