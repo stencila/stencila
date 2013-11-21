@@ -26,13 +26,13 @@ test.StencilMarkcode.sink <- function(){
     s <- Stencil()
     s$sink()
     
-    !p()
+    p()
     
     s$unsink()
 
     checkEquals(
         '<p></p>',
-        s$dump()
+        s$content()
     )
     
 }

@@ -1,9 +1,9 @@
 #' @include shortcuts.R
 NULL
 
-#' The Datacursor class
+#' The Cursor class
 #'
-#' @name Datacursor
-#' @aliases Datacursor-class
-#' @exportClass Datacursor
-class_('Datacursor')
+#' @name Cursor
+#' @aliases Cursor-class
+#' @exportClass Cursor
+class_('Cursor')

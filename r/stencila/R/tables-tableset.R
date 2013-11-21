@@ -1,52 +1,52 @@
 #' @include shortcuts.R
 NULL
 
-#' The Dataset class
+#' The Tableset class
 #'
-#' @param uri The unique resource identifier (URI) for the Dataset
+#' @param uri The unique resource identifier (URI) for the Tableset
 #' 
-#' @name Dataset
-#' @aliases Dataset-class
-#' @seealso Dataset-uri Dataset-table Dataset-indices
-#' @exportClass Dataset
+#' @name Tableset
+#' @aliases Tableset-class
+#' @seealso Tableset-uri Tableset-table Tableset-indices
+#' @exportClass Tableset
 #' @export
 #'
 #' @examples
-#' # Create a Dataset in memory...
-#' ds <- Dataset()
+#' # Create a Tableset in memory...
+#' ds <- Tableset()
 #' # ... or on disk
-#' ds <- Dataset("mydataset.sds")
-class_('Dataset')
-Dataset <- function(uri="") new("Dataset",uri=uri)
+#' ds <- Tableset("mytableset.sds")
+class_('Tableset')
+Tableset <- function(uri="") new("Tableset",uri=uri)
 
-#' Get the unique resource identifier (URI) for the Dataset
+#' Get the unique resource identifier (URI) for the Tableset
 #'
-#' @name Dataset-uri
-#' @aliases uri,Dataset-method
+#' @name Tableset-uri
+#' @aliases uri,Tableset-method
 #' @export
 setGeneric("uri",function(object) standardGeneric("uri"))
-setMethod("uri","Dataset",function(object) object$uri())
+setMethod("uri","Tableset",function(object) object$uri())
 
-#' List the tables in the dataset
+#' List the tables in the tableset
 #'
-#' @name Dataset-tables
-#' @aliases tables,Dataset-method
+#' @name Tableset-tables
+#' @aliases tables,Tableset-method
 #' @export
 setGeneric("tables",function(object) standardGeneric("tables"))
-setMethod("tables","Dataset",function(object) object$tables())
+setMethod("tables","Tableset",function(object) object$tables())
 
-#' List the indices in the dataset
+#' List the indices in the tableset
 #'
-#' @name Dataset-indices
-#' @aliases indices,Dataset-method
+#' @name Tableset-indices
+#' @aliases indices,Tableset-method
 #' @export
 setGeneric("indices",function(object) standardGeneric("indices"))
-setMethod("indices","Dataset",function(object) object$indices())
+setMethod("indices","Tableset",function(object) object$indices())
 
 #' Execute an SQL select statement and returnthe resulting Datatable
 #'
-#' @name Dataset-select
-#' @aliases select,Dataset-method
+#' @name Tableset-select
+#' @aliases select,Tableset-method
 #' @export
 setGeneric("select",function(object,sql) standardGeneric("select"))
-setMethod("select","Dataset",function(object,sql) object$select(sql))
+setMethod("select","Tableset",function(object,sql) object$select(sql))

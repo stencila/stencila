@@ -16,10 +16,16 @@ STENCILA_R_FUNC Stencil_id(SEXP self){
     STENCILA_R_END
 }
 
-STENCILA_R_FUNC Stencil_load(SEXP self, SEXP content){
+STENCILA_R_FUNC Stencil_content_set(SEXP self, SEXP content){
     STENCILA_R_BEGIN
-        from<Stencil>(self).load(as<std::string>(content));
+        from<Stencil>(self).content(as<std::string>(content));
         return nil;
+    STENCILA_R_END
+}
+
+STENCILA_R_FUNC Stencil_content_get(SEXP self){
+    STENCILA_R_BEGIN
+        return wrap(from<Stencil>(self).content());
     STENCILA_R_END
 }
 

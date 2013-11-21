@@ -4,8 +4,7 @@ test.Stencil.create <- function(){
 
 test.Stencil.render <- function(){
 
-  s <- Stencil()
-  s$load('
+  s <- Stencil('
 
     <div data-include="id://some_stencil_id"/>
 

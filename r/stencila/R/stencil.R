@@ -22,31 +22,36 @@ NULL
 #' stencil <- Stencil('Pi has a value of: <span data-text="pi"/>')
 #' # ... which is equivalent to
 #' stencil <- Stencil()
-#' stencil$load('Pi has a value of: <span data-text="pi"/>')
+#' stencil$content('Pi has a value of: <span data-text="pi"/>')
 class_('Stencil')
 Stencil <- function(content) {
     stencil <- new("Stencil")
     if(!missing(content)){
-        stencil$load(content)
+        stencil$content(content)
     }
     return(stencil)
 }
 
 #' Load content into a stencil
 #'
-#' @name Stencil-load
-#' @aliases load,Stencil-method
+#' @name Stencil-content
+#' @aliases content,Stencil-method
 #' @export
 #' 
 #' @examples
 #' # Create a stencil...
 #' stencil <- Stencil()
-#' # ... and load some HTML into this stencil
-#' stencil$load("<p>Hello world!</p>")
+#' # ... and set the HTML content of this stencil
+#' stencil$content("<p>Hello world!</p>")
 #' # ... or, equivalently
-#' load(stencil,"<p>Hello world!</p>")
-setGeneric("load",function(object,content) standardGeneric("load"))
-setMethod("load",c("Stencil","ANY"),function(object,content) object$load(content))
+#' content(stencil,"<p>Hello world!</p>")
+setGeneric("content",function(object,content) standardGeneric("content"))
+setMethod("content",c("Stencil","ANY"),function(object,content) object$content(content))
+
+Stencil_content <- function(stencil,content){
+  if(missing(content)) return(call_('Stencil_content_get',stencil@pointer))
+  else call('Stencil_content_set',stencil@pointer,content)
+}
 
 #' Render a stencil object or a stencil string 
 #'
@@ -69,7 +74,7 @@ setMethod("render",c("ANY","ANY"),function(stencil,workspace){
     }
     
     stencil$render(workspace)
-    return(stencil$dump())
+    return(stencil$content())
 })
 
 # Stencil creation using code
@@ -77,6 +82,9 @@ setMethod("render",c("ANY","ANY"),function(stencil,workspace){
 # A sink for sending HTML nodes
 # sink_ is an environment so these things can be refered to by reference (see http://www.stat.berkeley.edu/~paciorek/computingTips/Pointers_passing_reference_.html)
 sink_ <- new.env()
+sink_$stencil <- NULL
+sink_$stack <- list()
+sink_$id <- 0
 
 #' Set a stencil as the destination (the 'sink') for markup code
 #'
@@ -195,7 +203,7 @@ setMethod('html',c('ElementNode','missing'),function(node,stream){
 # Function for creating a node from arbitrary arguments
 node <- function(name,...){
   # Increment the global id and create a new Element
-  sink_$id <<- sink_$id + 1
+  sink_$id <- sink_$id + 1
   node <- ElementNode(
     id = paste(name,sink_$id,sep="#"),
     name = name
@@ -212,7 +220,7 @@ node <- function(name,...){
         # A node is added as a child, even if it is named (the name is ignored)
         node@children <- c(node@children,value)
         # Pop the child node off the stack
-        sink_$stack[[value@id]] <<- NULL
+        sink_$stack[[value@id]] <- NULL
       }
       else if(nchar(name)>0){
         # A named argument is made into an attribute
@@ -226,7 +234,7 @@ node <- function(name,...){
     }
   }
   # Add this node to the stack
-  sink_$stack[[node@id]] <<- node
+  sink_$stack[[node@id]] <- node
   # Return this node
   invisible(node)
 }

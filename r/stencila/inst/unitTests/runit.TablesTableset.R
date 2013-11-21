@@ -1,5 +1,5 @@
-test.Dataset.attributes <- function(){
-  ds = Dataset()
+test.Tableset.attributes <- function(){
+  ds = Tableset()
   
   ds$execute("
       CREATE TABLE t1 (a INTEGER, b REAL, c TEXT);

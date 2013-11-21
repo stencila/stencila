@@ -153,10 +153,10 @@ Margin <- function(by=NULL) elem_('Margin',wrap_(by))
 #' @export
 Proportion <- function(value,by=NULL) elem_('Proportion',wrap_(value),wrap_(by))
 
-# Dataquery elements
+# Query elements
 # This list is used in Datable subscript operator to provide
 # a list of available names
-dataquery_elements_ <- list(
+query_elements_ <- list(
     distinct = Distinct,
     all = All,
     as = As,
@@ -185,7 +185,7 @@ for(name in c(
     'pow','square','sqrt',
     'abs','round','sign','ceil','floor',
     'random'
-)) dataquery_elements_[[name]] <- func_(name)
+)) query_elements_[[name]] <- func_(name)
 
 #Aggregators
 agg_ <- function(name) eval(substitute(function(...) Aggregate(name,...),list(name=name)))
@@ -193,25 +193,25 @@ for(name in c(
     'count','sum','min','max',
     'avg','mean','geomean','harmean',
     'var','sd'
-)) dataquery_elements_[[name]] <- agg_(name)
+)) query_elements_[[name]] <- agg_(name)
 
-#' The Dataquery class
+#' The Query class
 #'
 #' @param ... A set of dataquery elements
 #'
-#' @name Dataquery
-#' @aliases Dataquery-class
-#' @exportClass Dataquery
+#' @name Query
+#' @aliases Query-class
+#' @exportClass Query
 #' @export
-class_('Dataquery')
-Dataquery <- function(...) {
+class_('Query')
+Query <- function(...) {
     # The C++ function Dataquery_new causes a segfault when compiled with g++ -O2
     # and called with no elements. This method dispatches to alternative versions of 
     # of a Dataquery constructor which does not expect arguments. But even that does not
     # work. That code is retained but now this function stops is there are no arguments
     if(length(list(...))==0) {
-        stop("a Dataquery must be constructed with at least one argument")
-        create_("Dataquery","Dataquery_new_noargs")
+        stop("a Query must be constructed with at least one argument")
+        create_("Query","Query_new_noargs")
     }
-    else new("Dataquery",elements=wrap_all_(...))
+    else new("Query",elements=wrap_all_(...))
 }
