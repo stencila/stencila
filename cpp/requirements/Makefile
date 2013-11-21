@@ -4,12 +4,13 @@ all: boost cpp-netlib libarchive pugixml rapidjson sqlite tidy-html5
 
 include  $(dir $(lastword $(MAKEFILE_LIST)))/../cpp.mk
 
-BOOST_VERSION = 1_54_0
+# Most recent versions as of 2013-11-21
+BOOST_VERSION = 1_55_0
 CPP_NETLIB_VERSION = 0.10.1
 LIBARCHIVE_VERSION = 3.1.2
 PUGIXML_VERSION = 1.2
 RAPIDJSON_VERSION = 0.11
-SQLITE_VERSION = 3080002
+SQLITE_VERSION = 3080100
 
 # Specify that symlinks time should be checked, not the target file time.
 # If this option is not specified then symlinks get remade
@@ -47,7 +48,7 @@ boost_$(BOOST_VERSION)/lib/libboost_system.a: boost_$(BOOST_VERSION)
 ifeq ($(STENCILA_PLATFORM), linux)
 	cd boost_$(BOOST_VERSION); \
 	./bootstrap.sh; \
-	./b2 --prefix=. link=static install
+	./b2 --prefix=. cxxflags=-fPIC link=static install
 endif
 # Under MSYS some differences are required
 #	- bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
@@ -58,7 +59,7 @@ ifeq ($(STENCILA_PLATFORM), msys)
 	cd boost_$(BOOST_VERSION); \
 	./bootstrap.sh --with-toolset=mingw; \
 	sed -i "s/mingw/gcc/g" project-config.jam; \
-	./b2 --prefix=. --layout=system release toolset=gcc link=static install
+	./b2 --prefix=. --layout=system release toolset=gcc cxxflags=-fPIC link=static install
 endif
 	touch boost_$(BOOST_VERSION)/lib/libboost_system.a
 
@@ -89,11 +90,11 @@ cpp-netlib-$(CPP_NETLIB_VERSION): cpp-netlib-$(CPP_NETLIB_VERSION).tar.bz2
 
 # cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
 # some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
-CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_CXX_FLAGS=-DOPENSSL_NO_SSL2
+CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
 # Under MSYS some additional CMake flags need to be specified
 # The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
 ifeq ($(STENCILA_PLATFORM), msys)
-CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -I/usr/include"
+CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
 endif
 cpp-netlib-$(CPP_NETLIB_VERSION)/libs/network/src/libcppnetlib-client-connections.a: boost_$(BOOST_VERSION) cpp-netlib-$(CPP_NETLIB_VERSION)
 	cd cpp-netlib-$(CPP_NETLIB_VERSION); \
@@ -131,7 +132,7 @@ libarchive-$(LIBARCHIVE_VERSION): libarchive-$(LIBARCHIVE_VERSION).tar.gz
 libarchive-$(LIBARCHIVE_VERSION)/.libs/libarchive.a:
 	cd libarchive-$(LIBARCHIVE_VERSION);\
 	./configure;\
-	make;\
+	make CXXFLAGS="-O2 -fPIC";\
 	make check;
 
 include/libarchive: include libarchive-$(LIBARCHIVE_VERSION)
@@ -163,7 +164,7 @@ pugixml-$(PUGIXML_VERSION): pugixml-$(PUGIXML_VERSION).tar.gz
 
 pugixml-$(PUGIXML_VERSION)/src/libpugixml.a: pugixml-$(PUGIXML_VERSION)
 	cd pugixml-$(PUGIXML_VERSION)/src; \
-	$(CXX) -fpic -c pugixml.cpp; \
+	$(CXX) -O2 -fPIC -c pugixml.cpp; \
 	$(AR) rcs libpugixml.a pugixml.o
 
 include/pugixml.hpp: pugixml-$(PUGIXML_VERSION)
@@ -209,7 +210,7 @@ sqlite-amalgamation-$(SQLITE_VERSION): sqlite-amalgamation-$(SQLITE_VERSION).zip
 
 sqlite-amalgamation-$(SQLITE_VERSION)/libsqlite3.a: sqlite-amalgamation-$(SQLITE_VERSION)
 	cd sqlite-amalgamation-$(SQLITE_VERSION); \
-	$(CC) -fpic -c sqlite3.c; \
+	$(CC) -O2 -fPIC -c sqlite3.c; \
 	$(AR) rcs libsqlite3.a sqlite3.o
 
 include/sqlite3.h: sqlite-amalgamation-$(SQLITE_VERSION)
@@ -230,19 +231,22 @@ sqlite: include lib include/sqlite3.h include/sqlite3ext.h lib/libsqlite3.a
 # http://w3c.github.com/tidy-html5/
 #
 # Note that we only "make ../../lib/libtidy.a" and not "make all" because the latter is not required
-# On MSYS apply path to prevent linker error asscoiated with "GetFileSizeEx"
+# Apply patch to Makefile to add -O2 -fPIC options
+# On MSYS apply patch to prevent linker error asscoiated with "GetFileSizeEx"
 
 tidy-html5.zip:
 	wget --no-check-certificate -Otidy-html5.zip  https://github.com/w3c/tidy-html5/archive/master.zip
 
 tidy-html5-master: tidy-html5.zip
 	unzip tidy-html5.zip
+	patch tidy-html5-master/build/gmake/Makefile tidy-html5-build-gmake-Makefile-patch.diff
 ifeq ($(STENCILA_PLATFORM), msys)
 	patch tidy-html5-master/src/mappedio.c tidy-html5-src-mappedio.c-patch.diff
 endif
 
 tidy-html5-master/lib/libtidy.a:
-	cd tidy-html5-master/build/gmake && make ../../lib/libtidy.a
+	cd tidy-html5-master/build/gmake; \
+	make ../../lib/libtidy.a
 
 include/tidy-html5: tidy-html5-master
 ifeq ($(STENCILA_PLATFORM), linux)

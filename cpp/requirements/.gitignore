@@ -6,6 +6,5 @@ cpp-netlib*
 libarchive*
 pugixml*
 rapidjson*
-smhasher*
 sqlite*
 tidy-html*
