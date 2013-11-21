@@ -46,9 +46,9 @@ setup(
         Extension(
             'stencila.extension',
             [
-                'stencila/py-dataquery.cpp',
-                'stencila/py-dataset.cpp',
-                'stencila/py-datatable.cpp',
+                'stencila/py-query.cpp',
+                'stencila/py-tableset.cpp',
+                'stencila/py-table.cpp',
                 'stencila/py-datatype.cpp',
                 'stencila/py-exception.cpp',
                 'stencila/py-extension.cpp',
