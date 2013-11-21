@@ -126,8 +126,7 @@ Stencil_unsink <- function(stencil){
     close(connection)
     html_string <- paste(html_string,collapse='\n')
     # Load html into the stencil
-    print(html_string)
-    #stencil$load(html_string)
+    stencil$content(html_string)
   }
   # This stencil is no longer the sink...
   sink_$stencil <- NULL

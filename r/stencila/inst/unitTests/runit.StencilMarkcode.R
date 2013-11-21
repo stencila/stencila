@@ -26,12 +26,12 @@ test.StencilMarkcode.sink <- function(){
     s <- Stencil()
     s$sink()
     
-    p()
+    p('Hello world!')
     
     s$unsink()
 
     checkEquals(
-        '<p></p>',
+        '<p>Hello world!</p>',
         s$content()
     )
     

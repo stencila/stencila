@@ -67,7 +67,7 @@ desc:
 # See http://stackoverflow.com/questions/8964515/cannot-call-roxygenize-function-from-rscript-batch-file
 rds: desc
 	rm -f stencila/man/*.Rd
-	echo "library(roxygen2);roxygenize('stencila')" | R --vanilla
+	Rscript -e "library(roxygen2);roxygenize('stencila')"
     
 # Create the package
 # When you run 
@@ -101,7 +101,6 @@ deposit: $(STENCILA_R_PACKAGE)
 	cp $(STENCILA_R_PACKAGE) $(STENCILA_REPO_DIR) #Copy package there
 	Rscript -e "tools::write_PACKAGES('$(STENCILA_REPO_DIR)',type='$(STENCILA_REPO_TYPE)')" #Generate the PACKAGE file for the repo
 
-
 # Generate Stencila custom HTML documentation
 docs: rds
 	$(MAKE) -C docs all
@@ -116,7 +115,7 @@ r_check:
 unit_tests: $(STENCILA_R_PACKAGE)
 	mkdir -p testing
 	R CMD INSTALL -l testing $(STENCILA_R_PACKAGE)
-	echo "setwd('testing'); library(stencila,lib.loc='.'); source('stencila/unitTests/do.svUnit.R')" | R --vanilla
+	cd testing; Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do.svUnit.R')"
 
 test: r_check unit_tests
 

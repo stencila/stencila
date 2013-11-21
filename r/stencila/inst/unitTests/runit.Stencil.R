@@ -40,26 +40,29 @@ test.Stencil.render <- function(){
   
   c <- Workspace('.')
   s$render(c)
-  cat(s$dump(),file="Stencil.out")
+  cat(s$dump(),file="outputs/stencil.render.html")
   #checkEquals(s$dump(),'<span data-text="greeting">Hello world!</span>')
 }
 
 test.Stencil.render.script <- function(){
   stencil <- Stencil(paste(
-    '<script><![CDATA[',
+    '<p /><script><![CDATA[',
       'a <- 1',
     ']]></script>',
     '<span data-text="a"></span>',sep=''))
   
   checkEquals(paste(
-    '<script><![CDATA[',
+    '<p /><script><![CDATA[',
       'a <- 1',
     ']]></script>',
     '<span data-text="a">1</span>',sep=''),render(stencil))
 }
 
 test.Stencil.render.script.error <- function(){
-  checkEquals("<script data-error=\"object 'b' not found\">a = b</script>",render("<script>a = b</script>"))
+  checkEquals(
+    "<p /><script data-error=\"object 'b' not found\"><![CDATA[\na = b\n]]></script>",render(
+    "<p /><script>a = b</script>"
+  ))
 }
 
 test.Stencil.render.image <- function(){
@@ -67,7 +70,7 @@ test.Stencil.render.image <- function(){
 }
 
 test.Stencil.stencil.1 <- function(){
-    writeChar(render(readChar('inputs/stencil-1.html',10000)),'outputs/stencil-1.html')
+    #writeChar(render(readChar('inputs/stencil.1.html',10000)),'outputs/stencil.1.html')
 }
 
 test.Stencil.render.text.numeric <- function(){
@@ -101,8 +104,6 @@ test.Stencil.render.for <- function(){
     render(paste(
       '<ul data-for="item:items">',
         '<li data-text="item"></li>',
-        '<li>previous</li>',
-        '<li>previous</li>',
       '</ul>',sep=''),
       list(items=list(42, 3.14, 'a', 'string'))
     )
