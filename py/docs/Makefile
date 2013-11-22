@@ -14,7 +14,7 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) sou
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: help clean version html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -41,7 +41,15 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html:
+# Include stencila.mk fro STENCILA_VERSION
+include $(dir $(lastword $(MAKEFILE_LIST)))/../../stencila.mk
+
+version:
+	cp source/conf.py.template source/conf.py
+	sed -i 's!version = .*$$!version = "$(STENCILA_VERSION)"!' source/conf.py
+	sed -i 's!release = .*$$!release = "$(STENCILA_VERSION)"!' source/conf.py
+
+html: version
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

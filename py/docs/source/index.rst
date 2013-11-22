@@ -11,8 +11,7 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    datasets
-    datatables
+    tablesets
 
 Indices and tables
 ==================
