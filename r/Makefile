@@ -30,22 +30,39 @@ RCPP_CXXFLAGS := $(shell echo "$(RCPP_CXXFLAGS)" | sed "s/c:/\/c/g")
 RCPP_LDFLAGS := $(shell echo "$(RCPP_LDFLAGS)" | sed "s/c:/\/c/g")
 endif
 
-#Define the outputs
+# Generate R platform and version stringa including the R major version
+# Note in the below the double $ is to escape make's treatment of $
+# and the \$ is to escape the shell's treatment of $
+STENCILA_R_PLATFORM := $(shell Rscript -e "cat(R.version\$$platform)" )
+# Version number excludes any patch number
+STENCILA_R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'\\\\.')[[1]][1],sep='.')" )
+# Other platform specifics...
 ifeq ($(STENCILA_PLATFORM),linux)
-STENCILA_R_EXT := stencila_.so
 STENCILA_R_PACKAGE := stencila_$(STENCILA_VERSION).tar.gz
+STENCILA_R_REPO_DIR := repo/src/contrib
+STENCILA_R_REPO_TYPE := source
+STENCILA_R_LIB_EXT := so
 endif
 ifeq ($(STENCILA_PLATFORM),msys)
-STENCILA_R_EXT := stencila_.dll
 STENCILA_R_PACKAGE := stencila_$(STENCILA_VERSION).zip
+STENCILA_R_REPO_DIR := repo/bin/windows/contrib/$(STENCILA_R_VERSION)
+STENCILA_R_REPO_TYPE := win.binary
+STENCILA_R_LIB_EXT := dll
 endif
-
+# Where the shared library gets put
+STENCILA_R_LIB_DIR := lib/$(STENCILA_R_PLATFORM)/$(STENCILA_R_VERSION)
+STENCILA_R_LIB_NAME := stencila_$(STENCILA_VERSION)
+STENCILA_R_LIB_FILE := $(STENCILA_R_LIB_NAME).$(STENCILA_R_LIB_EXT)
+STENCILA_R_LIB_ZIPFILE := $(STENCILA_R_LIB_FILE).zip
 
 %.o : %.cpp
 	$(CXX) -c -O2 -fPIC $(R_CPPFLAGS) $(RCPP_CXXFLAGS) $(STENCILA_CPP_FLAGS) $(STENCILA_CPP_INCLUDE_DIRS) -o$@ $<
 
-$(STENCILA_R_EXT): version.hpp requirements $(STENCILA_R_OS)
-	$(CXX) -shared $(STENCILA_R_OS) -o$(STENCILA_R_EXT) $(R_LDFLAGS) $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
+$(STENCILA_R_LIB_FILE): version.hpp requirements $(STENCILA_R_OS)
+	$(CXX) -shared $(STENCILA_R_OS) -o$(STENCILA_R_LIB_FILE) $(R_LDFLAGS) $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
+
+$(STENCILA_R_LIB_ZIPFILE): $(STENCILA_R_LIB_FILE)
+	zip $(STENCILA_R_LIB_ZIPFILE) $(STENCILA_R_LIB_FILE)
 
 # Update the description file with the correct version and date
 # The DESCRIPTION.template file is copied so that there is not a
@@ -61,25 +78,24 @@ desc:
 	sed -i 's!Version: .*$$!Version: $(STENCILA_VERSION)!' stencila/DESCRIPTION
 	sed -i 's!Date: .*$$!Date: $(DATE)!' stencila/DESCRIPTION
 
-#Generate Rd files using roxygen
-# At some point Rscript -e "library(roxygen2);roxygenize('stencila');" stopped
-# working so echoing into R is used
-# See http://stackoverflow.com/questions/8964515/cannot-call-roxygenize-function-from-rscript-batch-file
+# Generate Rd files using roxygen
 rds: desc
 	rm -f stencila/man/*.Rd
-	Rscript -e "library(roxygen2);roxygenize('stencila')"
+	Rscript -e "library(roxygen2);roxygenize('stencila');"
+
+# Add useDynLib to the NAMESPACE file
+namespace:
+	echo "useDynLib($(STENCILA_R_LIB_NAME))" >> stencila/NAMESPACE
     
 # Create the package
-# When you run 
-#   R CMD build stencila
-# it creates a tar.gz file but that file does not include precomiled extensions (ie .so and .dll files)
-# So, the folowing line replaces R CMD build:
-#   tar cfz stencila_$(STENCILA_VERSION).tar.gz stencila
-$(STENCILA_R_PACKAGE): $(STENCILA_R_EXT) rds
-	rm -f stencila/src/*.o stencila/src/stencila.so stencila/src/stencila.dll #Remove any old build artifacts
-	cp $(STENCILA_R_EXT) stencila/src/$(STENCILA_R_EXT) #Copy in the compiled extension
+$(STENCILA_R_PACKAGE): $(STENCILA_R_LIB_ZIPFILE) rds namespace
+	# Get rid of unwanted files from package
+	rm -rf stencila/*.Rhistory stencil/*.o stencil/*.so stencil/*.dll
+	# Copy the library into inst so it can be installed locally for testing
+	mkdir -p stencila/inst/$(STENCILA_R_LIB_DIR)
+	cp $(STENCILA_R_LIB_ZIPFILE) stencila/inst/$(STENCILA_R_LIB_DIR)
 ifeq ($(STENCILA_PLATFORM),linux)
-	tar cfz stencila_$(STENCILA_VERSION).tar.gz stencila #Tarball it up
+	R CMD build stencila
 endif
 ifeq ($(STENCILA_PLATFORM),msys)
 	R CMD INSTALL --build stencila #Build it as per usual for windows
@@ -88,18 +104,18 @@ endif
 package : $(STENCILA_R_PACKAGE)
 
 # Deposit package into local repository
-ifeq ($(STENCILA_PLATFORM),linux)
-STENCILA_REPO_DIR := repo/src/contrib
-STENCILA_REPO_TYPE := source
-endif
-ifeq ($(STENCILA_PLATFORM),msys)
-STENCILA_REPO_DIR := repo/bin/windows/contrib/2.15
-STENCILA_REPO_TYPE := win.binary
-endif
+# See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
 deposit: $(STENCILA_R_PACKAGE)
-	mkdir -p  $(STENCILA_REPO_DIR) #Make R package repository sub directory
-	cp $(STENCILA_R_PACKAGE) $(STENCILA_REPO_DIR) #Copy package there
-	Rscript -e "tools::write_PACKAGES('$(STENCILA_REPO_DIR)',type='$(STENCILA_REPO_TYPE)')" #Generate the PACKAGE file for the repo
+	# Make R package repository sub directory
+	mkdir -p  $(STENCILA_R_REPO_DIR)
+	# Copy package there
+	cp $(STENCILA_R_PACKAGE) $(STENCILA_R_REPO_DIR)
+	# Generate the PACKAGE file for the repo
+	Rscript -e "tools::write_PACKAGES('$(STENCILA_R_REPO_DIR)',type='$(STENCILA_R_REPO_TYPE)')"
+	# Make the directory for the shared library
+	mkdir -p repo/$(STENCILA_R_LIB_DIR)
+	# Copy the library zip file there
+	cp $(STENCILA_R_LIB_ZIPFILE) repo/$(STENCILA_R_LIB_FILE)
 
 # Generate Stencila custom HTML documentation
 docs: rds

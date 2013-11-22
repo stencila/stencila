@@ -4,7 +4,6 @@
 #' @name stencila
 #' @aliases stencila stencila-package
 #' @author Nokome Bentley <nokome.bentley@@stenci.la>
-#' @useDynLib stencila_
 #' @import utils
 #' @include shortcuts.R
 NULL
@@ -22,9 +21,8 @@ NULL
 
 #' Get the version of the Stencila R package
 #'
-#' @export
 #' @examples
-#'   stencila::version()
+#'   stencila:::version()
 version <- function(){
   call_('Stencila_version')
 }
