@@ -115,7 +115,7 @@ deposit: $(STENCILA_R_PACKAGE)
 	# Make the directory for the shared library
 	mkdir -p repo/$(STENCILA_R_LIB_DIR)
 	# Copy the library zip file there
-	cp $(STENCILA_R_LIB_ZIPFILE) repo/$(STENCILA_R_LIB_FILE)
+	cp $(STENCILA_R_LIB_ZIPFILE) repo/$(STENCILA_R_LIB_DIR)
 
 # Generate Stencila custom HTML documentation
 docs: rds
