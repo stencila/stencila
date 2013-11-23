@@ -1,6 +1,6 @@
 all: package test
 
-.PHONY: requirements compile rds docs desc test install
+.PHONY: requirements compile rds desc repo_update repo_sync docs_make docs_sync test install
 
 include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/cpp.mk
 
@@ -105,7 +105,7 @@ package : $(STENCILA_R_PACKAGE)
 
 # Deposit package into local repository
 # See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
-deposit: $(STENCILA_R_PACKAGE)
+repo_update: $(STENCILA_R_PACKAGE)
 	# Make R package repository sub directory
 	mkdir -p  $(STENCILA_R_REPO_DIR)
 	# Copy package there
@@ -117,9 +117,17 @@ deposit: $(STENCILA_R_PACKAGE)
 	# Copy the library zip file there
 	cp $(STENCILA_R_LIB_ZIPFILE) repo/$(STENCILA_R_LIB_DIR)
 
+# Sync the local repository with the global repository
+repo_sync:
+	aws s3 sync repo s3://get.stenci.la/r
+
 # Generate Stencila custom HTML documentation
-docs: rds
+docs_update: rds
 	$(MAKE) -C docs all
+
+# Sync the docs to the docs site
+docs_sync:
+	aws s3 sync docs/html s3://docs.stenci.la/r
 
 # Check the package by running R CMD check
 r_check:
