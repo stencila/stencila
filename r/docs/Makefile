@@ -1,10 +1,15 @@
-include ../../stencila.mk
+include $(dir $(lastword $(MAKEFILE_LIST)))/../../stencila.mk
 
-.PHONY: all
+.PHONY: html
 
-all:
+all: html
+
+html:
 	mkdir -p html
 	python r.py
+
+publish:
+	aws s3 sync html s3://docs.stenci.la/r
 
 # Required by r.py for getting Stencila version
 version:

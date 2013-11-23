@@ -1,2 +1,4 @@
-#Ignore the sandbox!
+# Ignore the sandbox!
 sandbox
+# Ignore distributions
+dist

@@ -1,6 +1,6 @@
 all: package test
 
-.PHONY: requirements compile rds desc repo_update repo_sync docs_make docs_sync test install
+.PHONY: requirements compile rds desc repo repo_publish test install
 
 include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/cpp.mk
 
@@ -103,32 +103,6 @@ endif
 
 package : $(STENCILA_R_PACKAGE)
 
-# Deposit package into local repository
-# See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
-repo_update: $(STENCILA_R_PACKAGE)
-	# Make R package repository sub directory
-	mkdir -p  $(STENCILA_R_REPO_DIR)
-	# Copy package there
-	cp $(STENCILA_R_PACKAGE) $(STENCILA_R_REPO_DIR)
-	# Generate the PACKAGE file for the repo
-	Rscript -e "tools::write_PACKAGES('$(STENCILA_R_REPO_DIR)',type='$(STENCILA_R_REPO_TYPE)')"
-	# Make the directory for the shared library
-	mkdir -p repo/$(STENCILA_R_LIB_DIR)
-	# Copy the library zip file there
-	cp $(STENCILA_R_LIB_ZIPFILE) repo/$(STENCILA_R_LIB_DIR)
-
-# Sync the local repository with the global repository
-repo_sync:
-	aws s3 sync repo s3://get.stenci.la/r
-
-# Generate Stencila custom HTML documentation
-docs_update: rds
-	$(MAKE) -C docs all
-
-# Sync the docs to the docs site
-docs_sync:
-	aws s3 sync docs/html s3://docs.stenci.la/r
-
 # Check the package by running R CMD check
 r_check:
 	R CMD check stencila
@@ -142,6 +116,24 @@ unit_tests: $(STENCILA_R_PACKAGE)
 	cd testing; Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do.svUnit.R')"
 
 test: r_check unit_tests
+
+# Deposit package into local repository
+# See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
+repo: $(STENCILA_R_PACKAGE)
+	# Make R package repository sub directory
+	mkdir -p  $(STENCILA_R_REPO_DIR)
+	# Copy package there
+	cp $(STENCILA_R_PACKAGE) $(STENCILA_R_REPO_DIR)
+	# Generate the PACKAGE file for the repo
+	Rscript -e "tools::write_PACKAGES('$(STENCILA_R_REPO_DIR)',type='$(STENCILA_R_REPO_TYPE)')"
+	# Make the directory for the shared library
+	mkdir -p repo/$(STENCILA_R_LIB_DIR)
+	# Copy the library zip file there
+	cp $(STENCILA_R_LIB_ZIPFILE) repo/$(STENCILA_R_LIB_DIR)
+
+# Sync the local repository with the global repository
+publish:
+	aws s3 sync repo s3://get.stenci.la/r
 
 install:
 	R CMD INSTALL $(STENCILA_R_PACKAGE)

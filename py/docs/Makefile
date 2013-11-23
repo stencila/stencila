@@ -54,6 +54,9 @@ html: version
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+publish:
+	aws s3 sync $(BUILDDIR)/html s3://docs.stenci.la/py
+
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo

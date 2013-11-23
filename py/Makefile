@@ -26,9 +26,13 @@ cpp_libs:
 build: requirements
 	python setup.py build
 	
-#Create binary distribtion for the platform
+#Create binary distribution for the platform
 dist: build
 	python setup.py bdist_egg
+
+#Publish distribution
+publish:
+	aws s3 sync dist s3://get.stenci.la/py
 	
 #Install in tests virtual environment.
 #Create a virtual environment first, activate it and then install, then run tests
