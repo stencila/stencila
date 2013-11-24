@@ -1,4 +1,7 @@
-all: stencil-default.min.css stencil-default.min.js
+all: defaults
+
+# Build the default, minified JS and CSS for integration into Stencila components
+defaults: stencil-default.min.css stencil-default.min.js
 
 clean:
 	rm -rf *.min.js *.min.css
