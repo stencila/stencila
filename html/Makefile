@@ -1,7 +1,10 @@
 all: defaults
 
+requirements:
+	bower update
+
 # Build the default, minified JS and CSS for integration into Stencila components
-defaults: stencil-default.min.css stencil-default.min.js
+defaults: requirements stencil-default.min.css stencil-default.min.js
 
 clean:
 	rm -rf *.min.js *.min.css
