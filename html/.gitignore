@@ -1,0 +1,8 @@
+bower_components
+
+*.min.css
+*.min.js
+
+# Ignore IDE files
+*.sublime-project
+*.sublime-workspace

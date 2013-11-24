@@ -1,0 +1,21 @@
+{
+  "name": "html",
+  "version": "0.0.0",
+  "homepage": "https://github.com/stencila/stencila",
+  "authors": [
+    "Nokome Bentley <nokome.bentley@bigsaltyblue.net>"
+  ],
+  "license": "BSD-3-clause",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "uglify-js": "~1.3.5",
+    "UglifyCSS": "https://github.com/fmarcia/UglifyCSS.git"
+  }
+}

@@ -1,0 +1,42 @@
+/* Default CSS for for Stencila stencils */
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+table {
+	width: 90%;
+	margin-top: 2em;
+}
+
+table caption {
+	text-align: left;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+
+p.equation {
+    text-align:center;
+}
+
+.note {
+    margin-top: 0.5em;
+    border: 1px solid grey;
+    background: lightyellow;
+    padding: 0.5em;
+}
+
+.todo {
+    margin-top: 0.5em;
+    border: 1px solid grey;
+    background: orange;
+    padding: 0.5em;
+}
