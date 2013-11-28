@@ -113,6 +113,11 @@ setMethod("render",c("ANY","ANY"),function(stencil,workspace){
 
 #' Set a stencil as the target destination for in-code HTML functions
 #'
+#' This \code{\link{attach}}es the Stencil-inlines to the \code{\link{search}} path
+#' but does not give any warnings regarding function name conflicts. 
+#' Some of the inline functions do mask functions in \code{package::base} (e.g. \code{\link{table}})
+#' and others.
+#'
 #' @name Stencil-target
 #' @aliases target,Stencil-method
 #' @export
@@ -127,7 +132,7 @@ setMethod("render",c("ANY","ANY"),function(stencil,workspace){
 setGeneric("target",function(stencil) standardGeneric("target"))
 setMethod("target",c("Stencil"),function(stencil) stencil$target())
 Stencil_target <- function(stencil){
-  sink_start_(stencil)
+  inlines_start_()
   NULL
 }
 
@@ -140,6 +145,6 @@ Stencil_target <- function(stencil){
 setGeneric("untarget",function(stencil) standardGeneric("untarget"))
 setMethod("untarget",c("Stencil"),function(stencil) stencil$untarget())
 Stencil_untarget <- function(stencil){
-  stencil$html(sink_finish_(stencil))
+  stencil$html(inlines_finish_())
   NULL
 }
