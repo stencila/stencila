@@ -1,0 +1,6 @@
+#' %(name)s: %(desc)s
+#' 
+#' @name %(name)s
+#' @usage %(name)s(...)
+#' @rdname Stencil-inline
+inlines_$%(name)s <- function(...) node_('%(name)s',...)
