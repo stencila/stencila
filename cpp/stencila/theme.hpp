@@ -46,13 +46,13 @@ public:
     //! @name Persistence methods
     //! @{
     
-    void read_from(const String& directory){
+    void read_from(const std::string& directory){
         std::ifstream file(directory+"/style.less");
         std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
         style(value);
     }
     
-    void write_to(const String& directory) {
+    void write_to(const std::string& directory) {
         std::ofstream file(directory+"/style.less");
         file<<style();
     }
