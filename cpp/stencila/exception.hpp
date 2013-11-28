@@ -22,10 +22,6 @@ protected:
 
 public:
 
-    //! @brief 
-    //! @param file
-    //! @param line
-    //! @return 
     Exception(std::string message="",const char* file=0, int line=0):
         message_(message),
         file_(file),
@@ -35,22 +31,34 @@ public:
     ~Exception(void) throw() {
     }
 
-    //! @brief 
-    //! @return 
     const char* what(void)  const throw() {
         std::ostringstream stream;
         stream << boost::filesystem::path(file_).filename().string() << ":" << line_ << ":" << message_;
         return stream.str().c_str();
     }
 };
-//! @brief 
-//! @param exception
-//! @return 
+
 inline std::ostream& operator<<(std::ostream& stream,const Exception& exception){
     stream<<exception.what();
     return stream;
 }
 
-}
+class Unimplemented : public Exception {
+
+public:
+
+    Unimplemented(std::string what="",const char* file=0, int line=0):
+        Exception("Unimplemented: "+what,file,line){
+    }
+
+    ~Unimplemented(void) throw() {
+    }
+
+};
+
 
 #define STENCILA_THROW(exception,message) throw exception(message,__FILE__,__LINE__);
+
+}
+
+

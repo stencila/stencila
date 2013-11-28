@@ -31,6 +31,7 @@ class Stencil : public Component<Stencil> {
 private:
 
     std::vector<std::string> keywords_;
+    std::vector<std::string> authors_;
 
     Html::Document html_;
 
@@ -39,32 +40,35 @@ public:
     static std::string type(void){
         return "stencil";
     };
+
+    /**
+     * @name Constructors
+     * @{
+     */
     
-    Stencil(void):
-        Component<Stencil>(){
+    Stencil(void){
         from_scratch();
     }
     
-    Stencil(const Id& id):
-        Component<Stencil>(id){
-        Component<Stencil>::read();
+    Stencil(const Id& id){
+        from_id(id);
     }
 
-    //! @brief 
-    //! @param content
-    //! @return 
-    Stencil(const std::string& content):
-        Component<Stencil>(){
-        load(content);
+    Stencil(const std::string& content){
+        from(content);
     }
+
+    /**
+     * @}
+     */
     
-    //! @brief 
-    //! @return 
-    const std::vector<std::string> keywords(void) const {
-        return keywords_;
-    }
+    /**
+     * @name Initialisation methods
+     *
+     * Methods for initialising a Stencil from alternative sources
+     */
 
-    Stencil& load(const std::string& content){
+    Stencil& from(const std::string& content){
         /*
         html://
         stem://
@@ -95,7 +99,7 @@ public:
     //!
     //! @return This stencil
     Stencil& from_scratch(void){
-        html().prepend_doctype_html5();
+        html_.prepend_doctype_html5();
         Html::Node html = html_.append("html",{{"xmlns","http://www.w3.org/1999/xhtml"}});
         
         Html::Node head = Html::Document::append(html,"head");
@@ -155,7 +159,7 @@ public:
     //! @return 
     Stencil& from_stem(const std::string& stem){
         from_scratch();
-        Stem::parse(stem,html().find("body"));
+        Stem::parse(stem,html_.find("body"));
         return *this;
     }
 
@@ -180,46 +184,162 @@ public:
         return *this;
     }
 
-    //! @brief 
-    //! @param id
-    //! @return 
-    Stencil& from_id(const std::string& id){
+    Stencil& from_id(const Id& id){
+        STENCILA_THROW(Unimplemented,"Stencil::from_id");
         return *this;
     }
 
-    Html::Document& html(void){
-        return html_;
-    }
+    /**
+     * @}
+     */
+
+    /**
+     * @name Attribute getters and setters
+     * @{
+     */
     
-    std::string content(void) {
+    const std::vector<std::string> keywords(void) const {
+        return keywords_;
+    }
+
+    Stencil& keywords(const std::vector<std::string>& values) {
+        keywords_ = values;
+        return *this;
+    }
+
+    /**
+     * @}
+     */
+    
+    /**
+     * @name Content getters and setters
+     *
+     * Methods for getting and setting a Stencil's content using strings
+     * 
+     * @{
+     */
+    
+    std::string content(const std::string& language="html") const {
+        if(language=="html") return html();
+        else if(language=="stem") return stem();
+        else if(language=="inline") return inlin();
+        else STENCILA_THROW(Exception,"Unrecognised language code: "+language)
+    }
+
+    Stencil& content(const std::string& content, const std::string& language) {
+        if(language=="html") return html(content);
+        else if(language=="stem") return stem(content);
+        else if(language=="inline") return inlin(content);
+        else STENCILA_THROW(Exception,"Unrecognised language code: "+language)
+    }
+
+    std::string html(void) const {
         std::ostringstream out;
         for(Html::Node child : html_.find("body").children()) child.print(out,"",pugi::format_raw);
         return out.str();
     }
     
-    Stencil& content(const std::string& html) {
+    Stencil& html(const std::string& html) {
         Html::Document html_doc(html);
         html_.copy(html_.find("body"),html_doc.find("body"));
         return *this;
     }
     
-    Html::Node append_html(const std::string& html){
+    Stencil& html_append(const std::string& html){
         Html::Document html_doc(html);
-        return html_.append(html_.find("body"),html_doc.find("body"));
+        html_.append(html_.find("body"),html_doc.find("body"));
+        return *this;
     }
+
+    std::string stem(void) const {
+        STENCILA_THROW(Unimplemented,"Stencil::stem");
+        return "";
+    }
+    
+    Stencil& stem(const std::string& stem) {
+        STENCILA_THROW(Unimplemented,"Stencil::stem");
+        return *this;
+    }
+
+    std::string inlin(void) const {
+        STENCILA_THROW(Unimplemented,"Stencil::inlin");
+        return "";
+    }
+    
+    Stencil& inlin(const std::string& native) {
+        STENCILA_THROW(Unimplemented,"Stencil::inlin");
+        return *this;
+    }
+
+    /**
+     * @}
+     */
+    
+    //! @name Serialisation methods
+    //! 
+    //! Methods for loading from, or dumping to, a string
+    //! 
+    //! @{
+    
+    Stencil& load(std::string& html){
+        STENCILA_THROW(Unimplemented,"Stencil::load");
+        return *this;
+    }
+
+    //! @brief Dump the stencil into a string
+    //!
+    //! Serialise meta-data into head
+    //! @return std::string representation of stencil
+    std::string dump(void){
+        /*
+        Html::Node head = html().find("head");
+        Html::Document::append(head,"title","Stencil "+id());
+        
+        Html::Document::append(head,"meta",{
+            {"charset","utf-8"}
+        },"");
+        Html::Document::append(head,"meta",{
+            {"name","generator"},
+            {"content","Stencila"}
+        });
+        Html::Document::append(head,"meta",{
+            {"name","id"},
+            {"content",id()}
+        });
+        Html::Document::append(head,"script",{
+            {"type","text/javascript"},
+            {"src","stencila-boot.js"},
+        },"0;");
+        */
+        return html_.dump();
+    }
+
+    //! @}
     
     //! @name Persistence methods
     //! @{
 
-    void read_from(const String& directory){
+    /**
+     * Read the Stencil from a directory
+     * 
+     * @param directory Filesystem path to directory
+     */
+    Stencil& read(const std::string& directory){
         std::ifstream file(directory+"/index.html");
         std::string value((std::istreambuf_iterator<char>(file)),(std::istreambuf_iterator<char>()));
-        content(value);
+        load(value);
+        return *this;
     }
 
-    void write_to(const String& directory) {
-        std::ofstream file(directory+"/index.html");
-        file<<content();
+    /**
+     * Write the Component to a directory
+     * 
+     * @param directory Filesystem path to directory
+     */
+    Stencil& write(const std::string& directory) {
+        std::ofstream index(directory+"/index.html");
+        index<<dump();
+        return *this;
     }
     
     //! @}
@@ -231,13 +351,13 @@ public:
     std::string get(void){
         Component<Stencil>::read();
         Json::Document out;
-        out.add("content",content());
+        out.add("content",html());
         return out.dump();
     }
     
     std::string put(const std::string& data){
         Json::Document json(data);
-        if(json.has("content")) content(json.as<std::string>(json.get("content")));
+        if(json.has("content")) html(json.as<std::string>(json.get("content")));
         Component<Stencil>::write();
         return "{}";
     }
@@ -248,6 +368,8 @@ public:
     //! @name Rendering and display methods
     //! These methods provide alternative ways of rendering a stencil
     //! @{
+
+public:
 
     //! @brief Render a stencil into an HTML fragment
     //! @param workspace The workspace in which the stencil will be rendered
@@ -461,12 +583,12 @@ private:
         // Check to see if a subselection of modes is to be included
         Xml::Attribute select = Xml::Document::get(node,"data-select");
         if(select){
-            Xml::Nodes included = source.html().all(select.value());
+            Xml::Nodes included = source.html_.all(select.value());
             for(auto i=included.begin();i!=included.end();i++) sink.append_copy(i->node());
         }
         //Otherwise include all children
         else {
-            for(auto i=source.html().children().begin();i!=source.html().children().end();i++) sink.append_copy(*i);
+            for(auto i=source.html_.children().begin();i!=source.html_.children().end();i++) sink.append_copy(*i);
         }
         
         //Apply child modifiers
@@ -549,37 +671,6 @@ private:
         //Exit the anonymous block if created
         if(params) workspace.exit();
     }
-
-public:
-
-    //! @brief Dump the stencil into a string
-    //!
-    //! Serialise meta-data into head
-    //! @return String representation of stencil
-    std::string dump(void){
-        /*
-        Html::Node head = html().find("head");
-        Html::Document::append(head,"title","Stencil "+id());
-        
-        Html::Document::append(head,"meta",{
-            {"charset","utf-8"}
-        },"");
-        Html::Document::append(head,"meta",{
-            {"name","generator"},
-            {"content","Stencila"}
-        });
-        Html::Document::append(head,"meta",{
-            {"name","id"},
-            {"content",id()}
-        });
-        Html::Document::append(head,"script",{
-            {"type","text/javascript"},
-            {"src","stencila-boot.js"},
-        },"0;");
-        */
-        return html_.dump();
-    }
-
 };
 
 }

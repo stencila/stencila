@@ -40,8 +40,8 @@ test.Stencil.render <- function(){
   
   c <- Workspace('.')
   s$render(c)
-  cat(s$dump(),file="outputs/stencil.render.html")
-  #checkEquals(s$dump(),'<span data-text="greeting">Hello world!</span>')
+  cat(s$html(),file="outputs/stencil.render.html")
+
 }
 
 test.Stencil.render.script <- function(){

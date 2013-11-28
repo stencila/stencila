@@ -50,20 +50,20 @@ test.Table.subscript.int.int <- function(){
 
 test.Table.from_dataframe <- function(){
   df = data.frame(
-    a = 1:5,
-    b = c('a','b','c','d','e'),
-    c = c(1.1,2.2,3.3,4.4,5.5)
+    aa = 1:5,
+    bb = c('a','b','c','d','e'),
+    cc = c(1.1,2.2,3.3,4.4,5.5)
   )
   dt = Table(df)
   
   show(dt)
   
   checkEquals(c(5,3),dt$dimensions())
-  checkEquals(c('a','b','c'),dt$labels())
+  checkEquals(c('aa','bb','cc'),dt$labels())
   checkEquals(c('Text','Text','Text'),dt$types())
   
-  checkEquals(
-      sum(df$a),
-      dt[sum(a)]$value()
-  )
+  #checkEquals(
+  #    sum(df$aa),
+  #    dt[sum(aa)]$value()
+  #)
 }

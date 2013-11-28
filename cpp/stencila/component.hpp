@@ -57,8 +57,6 @@ template<>
 class Component<void> {
 protected:
 
-    typedef std::string String;
-
     //! @name Component type declaration and definition methods
     //! @{
     
@@ -306,23 +304,51 @@ class Component : public Component<> {
     //! @name Persistence methods
     //! @{
     
-    void read(void){
+    /**
+     * Read the component from the it's default directory
+     */
+    Class& read(void){
         std::string dir = directory();
         if(boost::filesystem::exists(dir)){
-            static_cast<Class*>(this)->read_from(dir);
+            static_cast<Class*>(this)->read(dir);
+        } else {
+            STENCILA_THROW(Exception,"Directory does not exist: "+dir);
         }
+        return static_cast<Class&>(*this);
     }
     
-    void read_from(const String& directory){
+    /**
+     * Read the Component from a directory
+     *
+     * This method should be overidden by component classes
+     * 
+     * @param directory Filesystem path to directory
+     */
+    Class& read(const std::string& directory){
+        STENCILA_THROW(Unimplemented,"Component<Class>::read");
+        return static_cast<Class&>(*this);
     }
     
-    void write(void) {
+    /**
+     * Write the Component to it's default directory
+     */
+    Class& write(void) {
         std::string dir = directory();
         boost::filesystem::create_directories(dir);
-        static_cast<Class*>(this)->write_to(dir);
+        static_cast<Class*>(this)->write(dir);
+        return static_cast<Class&>(*this);
     }
     
-    void write_to(const String& directory){
+    /**
+     * Write the Component to a directory
+     *
+     * This method should be overidden by component classes
+     * 
+     * @param directory Filesystem path to directory
+     */
+    Class& write(const std::string& directory){
+        STENCILA_THROW(Unimplemented,"Component<Class>::write");
+        return static_cast<Class&>(*this);
     }
     
     //! @}

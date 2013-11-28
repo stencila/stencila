@@ -24,11 +24,11 @@ test.Workspace.script <- function(){
     checkEquals(w$get('y'),42)
 }
 
-test.Workspace.figure <- function(){
-    w <- Workspace('.')
-    svg = w$figure('plot(1,1)')
-    checkEquals(substr(svg,1,5),"<?xml")
-}
+#test.Workspace.figure <- function(){
+#    w <- Workspace('.')
+#    svg = w$figure('plot(1,1)')
+#    checkEquals(substr(svg,1,5),"<?xml")
+#}
 
 test.Workspace.text <- function(){
   #Check text method
