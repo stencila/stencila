@@ -39,14 +39,15 @@ Stencil <- function(content,language="html") {
 #' @examples
 #' # Create a stencil...
 #' stencil <- Stencil()
-#' # ... and set the HTML content of this stencil
+#' # ... and set the it's content
 #' stencil$content("Hello world!")
 #' # ... or, equivalently
 #' content(stencil,"Hello world!")
 setGeneric("content",function(stencil,content,language) standardGeneric("content"))
-setMethod("content",c("Stencil","ANY","ANY"),function(stencil,content,language) stencil$content(content,language))
+setMethod("content",c("Stencil","ANY","character"),function(stencil,content,language) stencil$content(content,language))
+setMethod("content",c("Stencil","ANY","missing"),function(stencil,content) stencil$content(content,"html"))
 Stencil_content <- function(stencil,content,language){
-  if(missing(language)) language = "html"
+  if(missing(language)) language <- "html"
   if(missing(content)) return(call_('Stencil_content_get',stencil@pointer,language))
   else call_('Stencil_content_set',stencil@pointer,toString(content),language)
 }
