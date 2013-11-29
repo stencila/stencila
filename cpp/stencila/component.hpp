@@ -75,6 +75,11 @@ template<>
 class Component<void> {
 protected:
 
+    Id id_;
+    std::string desc_;  
+    std::vector<std::string> tags_;
+    std::vector<std::string> authors_;
+
     //! @name Component type declaration and definition methods
     //! @{
     
@@ -115,9 +120,7 @@ public:
 protected:
     
     //! @name Component retrieval methods
-    //! @{
-
-    Id id_;    
+    //! @{ 
     
     struct Pointer {
         std::string type;
@@ -164,13 +167,10 @@ public:
 public:
 
     /**
-     * @note A default construtor which calls record("component",this)
+     * @name Constructors
+     * @{
      */
-    explicit Component(void):
-        id_(){
-        record("component",this);
-    }
-
+    
     Component(const std::string& type):
         id_(){
         record(type,this);
@@ -181,10 +181,17 @@ public:
         record(type,this);
     }
     
+    /**
+     * @}
+     */
+
+    /**
+     * Get component id
+     */
     const Id id(void) const {
         return id_;
     }
-    
+
     static std::string directory(const Id& id) {
         boost::filesystem::path dir(home());
         dir /= "components";
@@ -330,6 +337,71 @@ class Component : public Component<> {
     Component<Class>(const Id& id):
         Component<>(Class::type(),id){
     }
+
+
+    /**
+     * @name Attribute getters and setters
+     */
+
+    /**
+     * Get component description
+     */
+    const std::string desc(void) const {
+        return desc;
+    }
+
+    /**
+     * Set component description
+     */
+    Class& desc(const std::string& value) {
+        desc_ = value;
+        return static_cast<Class&>(*this);
+    }
+    
+    /**
+     * Get component tags
+     */
+    const std::vector<std::string> tags(void) const {
+        return tags_;
+    }
+
+    /**
+     * Get component tags
+     */
+    std::vector<std::string>& tags(void) {
+        return tags_;
+    }
+
+    /**
+     * Set component tags
+     */
+    Class& tags(const std::vector<std::string>& values) {
+        tags_ = values;
+        return static_cast<Class&>(*this);
+    }
+
+    /**
+     * Get component authors
+     */
+    const std::vector<std::string> authors(void) const {
+        return authors_;
+    }
+
+    /**
+     * Get component authors
+     */
+    std::vector<std::string>& authors(void) {
+        return authors_;
+    }
+
+    /**
+     * Set component authors
+     */
+    Class& authors(const std::vector<std::string>& values) {
+        authors_ = values;
+        return static_cast<Class&>(*this);
+    }
+
     
     //! @name Persistence methods
     //! @{

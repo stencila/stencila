@@ -30,9 +30,7 @@ namespace Stem {
 class Stencil : public Component<Stencil> {
 private:
 
-    std::vector<std::string> keywords_;
-    std::vector<std::string> authors_;
-
+    std::vector<std::string> langs_;
     Html::Document html_;
 
 public:
@@ -193,23 +191,38 @@ public:
      * @}
      */
 
+
     /**
      * @name Attribute getters and setters
      * @{
      */
     
-    const std::vector<std::string> keywords(void) const {
-        return keywords_;
+    /**
+     * Get the languages that are supported by the stencil
+     */
+    const std::vector<std::string> langs(void) const {
+        return langs_;
     }
 
-    Stencil& keywords(const std::vector<std::string>& values) {
-        keywords_ = values;
+    /**
+     * Get the languages that are supported by the stencil
+     */
+    std::vector<std::string> langs(void) {
+        return langs_;
+    }
+
+    /**
+     * Set the languages that are supported by the stencil
+     */
+    Stencil& langs(const std::vector<std::string>& values) {
+        langs_ = values;
         return *this;
     }
 
     /**
      * @}
      */
+    
     
     /**
      * @name Content getters and setters
