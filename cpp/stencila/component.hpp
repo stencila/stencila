@@ -5,12 +5,17 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <map>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
+#include <boost/archive/iterators/ostream_iterator.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include <stencila/http.hpp>
 #include <stencila/json.hpp>
@@ -26,21 +31,34 @@ private:
 
 public:
     Id(void){
-        // Generate a UUID
-        // Convert from chars to hex based on http://stackoverflow.com/a/69197/1583041
-        // There may be better way to do this.
+        // Generate a UUID using boost::uuids
         boost::uuids::uuid uuid = generator_();
         unsigned char chars[16];
         std::memcpy(chars,&uuid,16);
-        static char const* digits = "0123456789abcdef";
-        std::string hex(32,0);
-        std::string::iterator pos = hex.begin();
-        for(int i=0;i<16;i++){
-            unsigned char character = chars[i];
-            *pos++ = digits[character>>4];
-            *pos++ = digits[character&15];
-        }
-        assign("anon."+hex);
+
+        // Transform characters to Base^4 encoding
+        // Based on http://stackoverflow.com/a/7053808
+        using namespace boost::archive::iterators;
+        std::stringstream stringstream;
+        typedef base64_from_binary<
+                    transform_width<const char*,6,8>
+                >  base64_text;
+        std::copy(
+            base64_text(chars),
+            base64_text(chars+16),
+            ostream_iterator<char>(stringstream)
+        );
+        std::string base64 = stringstream.str();
+
+        // Replace the two Base64 characters which are unsafe or reserved in URL encoding
+        // See for example http://perishablepress.com/stop-using-unsafe-characters-in-urls/
+        // Replace '+' which is a 'safe' but 'reserved' character
+        boost::replace_all(base64,"+",".");
+        // Replace '/' which is 'reserved'
+        boost::replace_all(base64,"/","_");
+
+        //Assign to self
+        assign(base64);
     }
     
     Id(const std::string& id):
@@ -70,6 +88,10 @@ protected:
     static std::map<std::string,Type> types_;
     
 public:
+
+    static std::string type(void){
+        return "component";
+    };
 
     template<class Class>
     static void declare(void){
@@ -140,6 +162,14 @@ public:
     //! @}
 
 public:
+
+    /**
+     * @note A default construtor which calls record("component",this)
+     */
+    explicit Component(void):
+        id_(){
+        record("component",this);
+    }
 
     Component(const std::string& type):
         id_(){

@@ -13,7 +13,7 @@ using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(construct){
     Theme theme;
-    BOOST_CHECK_EQUAL(theme.id().length(),(unsigned int)37);
+    BOOST_CHECK_EQUAL(theme.id().length(),(unsigned int)22);
     BOOST_CHECK_EQUAL(theme.obtain<Theme>(theme.id()),&theme);
 }
 
