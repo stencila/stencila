@@ -1,5 +1,7 @@
 bower_components
 
+*.cat.js
+
 *.min.css
 *.min.js
 

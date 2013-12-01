@@ -1,11 +1,24 @@
 /* Default CSS for for Stencila stencils */
 
 body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    width: 800px;
+    background: #444;
+}
+
+div#content {
     margin-left: auto;
     margin-right: auto;
+
+    max-width: 800px;
+    min-height: 800px;
+    
+    border-radius: 3px;
+
+    padding: 20px;
+
+    background: #FEFEFE;
+
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
 }
 
 a {
@@ -39,4 +52,66 @@ p.equation {
     border: 1px solid grey;
     background: orange;
     padding: 0.5em;
+}
+
+#toolbar {
+    position: fixed;
+    top: 5%;
+    right: 0;
+    z-index:1000;
+    width: 300px;    
+}
+
+#toolbar .slider {
+    position:relative;
+    z-index:1001;
+    margin-left: 275px;
+
+    width: 300px;
+    height: 100px;
+
+    border-radius: 5px 0 0 5px;
+
+    background: #8be63f;
+    opacity: 0.5;
+
+    transition: margin-left 1s, opacity 1s;
+}
+
+#toolbar .slider:hover,
+#toolbar .slider:focus {
+  margin-left: 0;
+  opacity: 1;
+}
+
+#toolbar .handle {
+    float: left;
+    width: 25px;
+    height: 100%;
+}
+
+#toolbar .tools {
+    margin-left:25px;
+    width: 300px;
+    height: 100%;
+    background: #555;
+    padding-left: 10px;
+}
+
+#toolbar .tools a {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: white;
+}
+
+#connection.on {
+    display:none;
+    height: 0;
+    width: 0;
+}
+
+#connection.off {
+    display:block;
+    width:100px;
+    height:60px;
 }

@@ -1,9 +1,6 @@
-//Default Javascript for Stencila stencils
+// Load MathJAX. This should really only be done if there is math in the stencil
+_.js('http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML');
 
-(function() {
-    var e = document.createElement('script');
-    e.type = 'text/javascript';
-    e.async = true;
-    e.src = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML';
-    document.getElementsByTagName("head")[0].appendChild(e);
-})();
+// Setup toolbar
+_.connect();
+_.toolbar("stencil");
