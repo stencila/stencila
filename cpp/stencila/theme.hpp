@@ -63,7 +63,6 @@ public:
     //! @{
 
     std::string get(void) {
-        read();
         Json::Document out;
         out.add("style",style_);
         return out.dump();
@@ -74,7 +73,6 @@ public:
         if(json.has("style")){
             style_ = json.as<std::string>(json.get("style"));
         }
-        write();
         return "{}";
     }
     

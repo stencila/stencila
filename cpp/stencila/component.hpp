@@ -17,6 +17,7 @@
 #include <boost/archive/iterators/ostream_iterator.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
+#include <stencila/system.hpp>
 #include <stencila/http.hpp>
 #include <stencila/json.hpp>
 #include <stencila/format.hpp>
@@ -76,9 +77,50 @@ class Component<void> {
 protected:
 
     Id id_;
-    std::string desc_;  
-    std::vector<std::string> tags_;
-    std::vector<std::string> authors_;
+
+public:
+
+    /**
+     * @name Constructors
+     * @{
+     */
+    
+    Component(const std::string& type):
+        id_(){
+        record(type,this);
+    }
+    
+    Component(const std::string& type,const Id& id):
+        id_(id){
+        record(type,this);
+    }
+    
+    /**
+     * @}
+     */
+    
+    //! @name Component creation methods
+    //! @{
+    
+    template<class Class>
+    static Component<>* create(void){
+        return new Class;
+    }
+    
+    template<class Class>
+    static Component<>* create(const Id& id){
+        return new Class(id);
+    }
+    
+    //! @}
+
+    /**
+     * Get component id
+     */
+    const Id id(void) const {
+        return id_;
+    }
+
 
     //! @name Component type declaration and definition methods
     //! @{
@@ -120,6 +162,10 @@ public:
 protected:
     
     //! @name Component retrieval methods
+    //! 
+    //! These methods allow the registration and retreival of those components
+    //! that have been consturcted in memory
+    //! 
     //! @{ 
     
     struct Pointer {
@@ -128,12 +174,21 @@ protected:
     };
     static std::map<Id,Pointer> pointers_;
     
-public:
-    
+    /**
+     * Register a component instance
+     * @param type     String representing type of component
+     * @param instance Component pointer
+     */
     static void record(const std::string& type,Component<void>* instance){
         pointers_[instance->id()] = {type,instance};
     }
     
+public:
+
+    /**
+     * Get a pointer to the component with a given id
+     * @param id Identifier
+     */
     template<class Class>
     static Class* obtain(const Id& id){
         std::string type = Class::type();
@@ -141,17 +196,12 @@ public:
         if(i!=pointers_.end()){
             if(i->second.type==type) return static_cast<Class*>(i->second.pointer);
             else return 0;
-        } else {
-            std::string dir = directory(id);
-            if(boost::filesystem::exists(dir)){
-                Class* component = static_cast<Class*>(create<Class>(id));
-                return component;
-            } else {
-                return 0;
-            }
         }
     }
     
+    /**
+     * Get a vector of pointers to all components of a particular class
+     */
     template<class Class>
     static std::vector<Class*> filter(void){
         std::string type = Class::type();
@@ -164,87 +214,15 @@ public:
     
     //! @}
 
-public:
+    //! @name Component loading methods
+    //! 
+    //! These methods are for finding component on the disk or the network
+    //! 
+    //! @{ 
 
-    /**
-     * @name Constructors
-     * @{
-     */
-    
-    Component(const std::string& type):
-        id_(){
-        record(type,this);
-    }
-    
-    Component(const std::string& type,const Id& id):
-        id_(id){
-        record(type,this);
-    }
-    
-    /**
-     * @}
-     */
 
-    /**
-     * Get component id
-     */
-    const Id id(void) const {
-        return id_;
-    }
-
-    static std::string directory(const Id& id) {
-        boost::filesystem::path dir(home());
-        dir /= "components";
-        std::vector<std::string> list;
-        boost::algorithm::split(list,id,boost::is_any_of("."));
-        for(auto item : list) dir /= item;
-        return dir.string();
-    }
-    
-    std::string directory(void) const {
-        return directory(id());
-    }
-    
-
-    //! @brief Get the path to the user's Stencila directory which holds Stencila data.
-    //!
-    //! This is a first attempt at generating a cross platform home directory path. Note that on Windows
-    //! and Mac, aplication data usually goes in specific directories, not the ".stencila" directory as is *nix convention
-    //! See:
-    //!     http://stackoverflow.com/questions/4891006/how-to-create-a-folder-in-the-home-directory
-    //!     http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
-    //!     http://stackoverflow.com/questions/2910377/get-home-directory-in-linux-c
-    //! @return Path to the user's Stencila directory
-    static std::string home(void) {
-        std::string home = std::getenv("HOME");
-        if(not home.length()) {
-            home = std::getenv("USERPROFILE");
-        }
-        if(not home.length()) {
-            std::string home_drive = std::getenv("HOMEDRIVE");
-            std::string home_path = std::getenv("HOMEPATH");
-            home = home_drive+home_path;
-        }
-        if(not home.length()) {
-            home = boost::filesystem::current_path().string();
-        }
-        return home + "/.stencila/";
-    }
-    
-    //! @name Component creation methods
-    //! @{
-    
-    template<class Class>
-    static Component<>* create(void){
-        return new Class;
-    }
-    
-    template<class Class>
-    static Component<>* create(const Id& id){
-        return new Class(id);
-    }
-    
     //! @}
+
     
     //! @name REST methods
     //! @{
@@ -328,7 +306,12 @@ public:
 
 template<class Class>
 class Component : public Component<> {
-    public:
+protected:
+    std::string desc_;  
+    std::vector<std::string> keywords_;
+    std::vector<std::string> authors_;
+
+public:
 
     Component<Class>(void):
         Component<>(Class::type()){
@@ -359,24 +342,24 @@ class Component : public Component<> {
     }
     
     /**
-     * Get component tags
+     * Get component keywords
      */
-    const std::vector<std::string> tags(void) const {
-        return tags_;
+    const std::vector<std::string> keywords(void) const {
+        return keywords_;
     }
 
     /**
-     * Get component tags
+     * Get component keywords
      */
-    std::vector<std::string>& tags(void) {
-        return tags_;
+    std::vector<std::string>& keywords(void) {
+        return keywords_;
     }
 
     /**
-     * Set component tags
+     * Set component keywords
      */
-    Class& tags(const std::vector<std::string>& values) {
-        tags_ = values;
+    Class& keywords(const std::vector<std::string>& values) {
+        keywords_ = values;
         return static_cast<Class&>(*this);
     }
 
@@ -407,15 +390,21 @@ class Component : public Component<> {
     //! @{
     
     /**
-     * Read the component from the it's default directory
+     * Find the location of a Component matching name
+     * @param  name Name of directory or file root to search for
+     * @return      Path to the component
      */
-    Class& read(void){
-        std::string dir = directory();
-        if(boost::filesystem::exists(dir)){
-            static_cast<Class*>(this)->read(dir);
-        } else {
-            STENCILA_THROW(Exception,"Directory does not exist: "+dir);
-        }
+    std::string find(const std::string& name){
+
+    }
+    
+    /**
+     * Read the component
+     */
+    Class& read(std::string name=""){
+        if(name.length()==0) name = id();
+        std::string location = find(name);
+        static_cast<Class*>(this)->read(location,name);
         return static_cast<Class&>(*this);
     }
     
@@ -425,19 +414,18 @@ class Component : public Component<> {
      * This method should be overidden by component classes
      * 
      * @param directory Filesystem path to directory
+     * @param name Name for component files
      */
-    Class& read(const std::string& directory){
+    Class& read(const std::string& directory,const std::string& name){
         STENCILA_THROW(Unimplemented,"Component<Class>::read");
         return static_cast<Class&>(*this);
     }
     
     /**
-     * Write the Component to it's default directory
+     * Write the Component to the default directory
      */
     Class& write(void) {
-        std::string dir = directory();
-        boost::filesystem::create_directories(dir);
-        static_cast<Class*>(this)->write(dir);
+        static_cast<Class*>(this)->write(home()+"/components",id);
         return static_cast<Class&>(*this);
     }
     
@@ -447,8 +435,9 @@ class Component : public Component<> {
      * This method should be overidden by component classes
      * 
      * @param directory Filesystem path to directory
+     * @param name Name for component files
      */
-    Class& write(const std::string& directory){
+    Class& write(const std::string& directory,const std::string& name){
         STENCILA_THROW(Unimplemented,"Component<Class>::write");
         return static_cast<Class&>(*this);
     }

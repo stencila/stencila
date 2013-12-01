@@ -137,8 +137,10 @@ public:
         Html::Node keywords = html_.find(head,"meta","name","keywords");
         if(keywords){
             std::string content = Xml::Document::get(keywords,"content").value();
-            boost::split(keywords_,content,boost::is_any_of(","));
-            for(std::string& keyword : keywords_) boost::trim(keyword);
+            std::vector<std::string> keywords_items;
+            boost::split(keywords_items,content,boost::is_any_of(","));
+            for(std::string& keyword : keywords_items) boost::trim(keyword);
+            keywords_ = keywords_items;
         }
         
         Html::Node id = html_.find(head,"meta","name","id");
@@ -362,7 +364,6 @@ public:
     //! @{
     
     std::string get(void){
-        Component<Stencil>::read();
         Json::Document out;
         out.add("content",html());
         return out.dump();
@@ -371,7 +372,6 @@ public:
     std::string put(const std::string& data){
         Json::Document json(data);
         if(json.has("content")) html(json.as<std::string>(json.get("content")));
-        Component<Stencil>::write();
         return "{}";
     }
     

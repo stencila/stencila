@@ -31,22 +31,22 @@ BOOST_AUTO_TEST_CASE(id){
     BOOST_CHECK_EQUAL(c1.id(),c1p->id());
 }
 
-BOOST_AUTO_TEST_CASE(tags){
+BOOST_AUTO_TEST_CASE(keywords){
     Test c1;
-    BOOST_CHECK_EQUAL(c1.tags().size(),0);
+    BOOST_CHECK_EQUAL(c1.keywords().size(),0);
 
-    std::vector<std::string> tags = {"great","fantastic"};
-    c1.tags().insert(c1.tags().end(),tags.begin(),tags.end());
-    BOOST_CHECK_EQUAL(c1.tags().size(),tags.size());
+    std::vector<std::string> keywords = {"great","fantastic"};
+    c1.keywords().insert(c1.keywords().end(),keywords.begin(),keywords.end());
+    BOOST_CHECK_EQUAL(c1.keywords().size(),keywords.size());
 }
 
 BOOST_AUTO_TEST_CASE(authors){
     Test c1;
-    BOOST_CHECK_EQUAL(c1.tags().size(),0);
+    BOOST_CHECK_EQUAL(c1.authors().size(),0);
 
-    c1.tags({"Peter Pan","Marry Poppins"});
-    c1.tags().push_back("Joe Bloggs");
-    BOOST_CHECK_EQUAL(c1.tags().size(),3);
+    c1.authors({"Peter Pan","Marry Poppins"});
+    c1.authors().push_back("Joe Bloggs");
+    BOOST_CHECK_EQUAL(c1.authors().size(),3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
