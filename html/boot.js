@@ -7,7 +7,7 @@
 * The Stencila (module)[http://briancray.com/posts/javascript-module-pattern)
 * for encapsulating functions.
 */
-var _  = Stencila = (function(){
+window.Stencila = _ = (function(){
 
 	/************************************************************************************
 	 * DOM manipulation
@@ -77,31 +77,39 @@ var _  = Stencila = (function(){
      * Load a resource
      */
     var load = function(tag,rel,type,source,callback){
-        var e = document.createElement(tag)
-        e.type = type;
-        if(rel) e.rel = rel;
         if(tag=='link'){
-            e.href = source;
-            document.getElementsByTagName("head")[0].appendChild(e);
-            if(callback) callback();
+        	if(!select('link[href="'+source+'"]')){
+	        	var e = create(tag,{
+	        		rel: rel,
+	        		type: type,
+	        		href: source
+	        	});
+	        	append(e,select("head"));
+	            if(callback) callback();
+        	}
         }
         else if(tag=='script'){
-            e.src = source;
-           if(callback){
-                if (e.readyState){  //IE
-                    e.onreadystatechange = function(){
-                        if (e.readyState == "loaded" ||e.readyState == "complete"){
-                            e.onreadystatechange = null;
-                            callback();
-                        }
-                    };
-                } else {  //Others
-                    e.onload = function(){
-                        callback();
-                    };
-                }
-            }
-            document.getElementsByTagName("head")[0].appendChild(e);
+        	if(!select('script[src="'+source+'"]')){
+	            var e = create(tag,{
+	        		type: type,
+	        		src: source
+	        	});
+	            if(callback){
+	                if (e.readyState){  //IE
+	                    e.onreadystatechange = function(){
+	                        if (e.readyState == "loaded" ||e.readyState == "complete"){
+	                            e.onreadystatechange = null;
+	                            callback();
+	                        }
+	                    };
+	                } else {  //Others
+	                    e.onload = function(){
+	                        callback();
+	                    };
+	                }
+	            }
+	            append(e,select("head"));
+        	}
         }
     }
     /**
@@ -249,7 +257,8 @@ var _  = Stencila = (function(){
 
     // Functions exported by the Stencila module
     return {
-        load:load,css:css,less:less,js:js,
+        select:select,
+        load:load,css:css,js:js,
         connect:connect,send:send,receive:receive,
         toolbar:toolbar
     };

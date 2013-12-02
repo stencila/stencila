@@ -1,9 +1,12 @@
+# Ignore requirements
 bower_components
 
-*.cat.js
+# Ignore build directory
 
-*.min.css
+# Ignore compiled and minified files
+*.cat.js
 *.min.js
+*.min.css
 
 # Ignore IDE files
 *.sublime-project
