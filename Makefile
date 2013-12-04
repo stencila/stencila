@@ -1,19 +1,22 @@
-.PHONY: cpp py r sqlite guide
+.PHONY: bin cpp py r sqlite guide
 
-all: cpp py r sqlite guide
+all: bin cpp py r sqlite guide
+
+bin:
+	$(MAKE) -C bin all
 
 cpp:
-	make -C cpp all
+	$(MAKE) -C cpp all
 	
 py:
-	make -C py all
+	$(MAKE) -C py all
 	
 r:
-	make -C r all
+	$(MAKE) -C r all
 	
 sqlite:
-	make -C sqlite all
+	$(MAKE) -C sqlite all
 	
 guide:
-	make -C guide all
+	$(MAKE) -C guide all
 
