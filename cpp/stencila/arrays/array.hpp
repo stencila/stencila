@@ -4,15 +4,16 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
-#include "dimension.hpp"
-#include "query.hpp"
+#include <stencila/arrays/dimension.hpp>
+#include <stencila/arrays/query.hpp>
 
 namespace Stencila {
 namespace Arrays {
 
 template<
-	class Type
+	typename Type
 >
 class Array<Type> {
 private:
@@ -45,6 +46,29 @@ public:
     void append(const Type& item) {
         return values_.push_back(item);
     }
+
+    size_t find(const Type& value){
+		typename std::vector<Type>::iterator iter = std::find(values_.begin(), values_.end(), value);
+		size_t index = std::distance(values_.begin(), iter);
+		if(index == values_.size()) return ((size_t)-1);
+		else return index;
+    }
+
+   	typename std::vector<Type>::iterator begin(void) {
+		return values_.begin();
+	}
+
+	typename std::vector<Type>::const_iterator begin(void) const {
+		return values_.begin();
+	}
+
+	typename std::vector<Type>::iterator end(void) {
+		return values_.end();
+	}
+
+	typename std::vector<Type>::const_iterator end(void) const {
+		return values_.end();
+	}
     
     Type& operator()(int index){
         return values_[index];
@@ -65,7 +89,7 @@ public:
 };
 
 template<
-	class Type,
+	typename Type,
 	class Dim1,
 	class Dim2,
 	class Dim3,
@@ -443,12 +467,12 @@ public:
 
 	void write(std::ostream& stream) const {
 		// Write header row
-		if(Dim1::size>1) stream<<Dim1::label<<"\t";
-		if(Dim2::size>1) stream<<Dim2::label<<"\t";
-		if(Dim3::size>1) stream<<Dim3::label<<"\t";
-		if(Dim4::size>1) stream<<Dim4::label<<"\t";
-		if(Dim5::size>1) stream<<Dim5::label<<"\t";
-		if(Dim6::size>1) stream<<Dim6::label<<"\t";
+		if(Dim1::size>1) stream<<Dim1::label()<<"\t";
+		if(Dim2::size>1) stream<<Dim2::label()<<"\t";
+		if(Dim3::size>1) stream<<Dim3::label()<<"\t";
+		if(Dim4::size>1) stream<<Dim4::label()<<"\t";
+		if(Dim5::size>1) stream<<Dim5::label()<<"\t";
+		if(Dim6::size>1) stream<<Dim6::label()<<"\t";
 		stream<<"value"<<std::endl;
 
 		for(uint index = 0; index<size(); index++){
@@ -458,13 +482,14 @@ public:
 			if(Dim4::size>1) stream<<level(Dim4(),index)<<"\t";
 			if(Dim5::size>1) stream<<level(Dim5(),index)<<"\t";
 			if(Dim6::size>1) stream<<level(Dim6(),index)<<"\t";
-			stream<<values_[index]<<std::endl;
+			stream<<operator[](index)<<std::endl;
 		}
 	}
 
 	void write(const std::string& filename) const {
 		std::ofstream file(filename);
 		write(file);
+		file.close();
 	}
 
 };

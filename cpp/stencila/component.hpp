@@ -307,7 +307,8 @@ public:
 template<class Class>
 class Component : public Component<> {
 protected:
-    std::string desc_;  
+    std::string title_;
+    std::string description_;  
     std::vector<std::string> keywords_;
     std::vector<std::string> authors_;
 
@@ -327,17 +328,46 @@ public:
      */
 
     /**
+     * Get component title
+     */
+    const std::string& title(void) const {
+        return title_;
+    }
+
+    /**
+     * Get component title
+     */
+    std::string& title(void) {
+        return title_;
+    }
+
+    /**
+     * Set component title
+     */
+    Class& title(const std::string& value) {
+        title_ = value;
+        return static_cast<Class&>(*this);
+    }
+
+    /**
      * Get component description
      */
-    const std::string desc(void) const {
-        return desc;
+    const std::string& description(void) const {
+        return description_;
+    }
+
+    /**
+     * Get component description
+     */
+    std::string& description(void) {
+        return description_;
     }
 
     /**
      * Set component description
      */
-    Class& desc(const std::string& value) {
-        desc_ = value;
+    Class& descriptionc(const std::string& value) {
+        description_ = value;
         return static_cast<Class&>(*this);
     }
     

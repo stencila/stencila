@@ -18,8 +18,12 @@ public:
 
 	/**
 	 * Text label used for outputting
+	 *
+	 * Should be overidden by Derived class
 	 */
-	static const char* label;
+	static const char* label(void) {
+		return "dim";
+	}
 
 	/**@{
 	 * Iteration over a dimension
@@ -83,12 +87,6 @@ template<
 >
 const unsigned int Dimension<Derived,Size>::size = Size;
 
-template<
-	class Derived,
-	unsigned int Size
->
-const char* Dimension<Derived,Size>::label;
-
 /**
  * A macro to create an Arrayspace Dimension class.
  *
@@ -104,11 +102,13 @@ const char* Dimension<Derived,Size>::label;
  * @param  name   	Name of dimension (e.g. Region)
  * @param  instance	Name of dimenstion instance (e.g. regions)
  * @param  lab 		Label for dimension (e.g. region)
- * @param  Size 	Number of levels in the dimension (e.g. 32)
+ * @param  size 	Number of levels in the dimension (e.g. 32)
  */
 #define STENCILA_ARRAY_DIM(name,instance,lab,size) \
-	class name : public Dimension<name,size>{} instance; \
-	template<> const char* Dimension<name,size>::label = #lab;
+	class name : public Dimension<name,size>{ \
+	public: \
+		static const char* label(void) { return #lab; } \
+	} instance;
 
 /**
  * Singular dimensions are Dimensions with only one level.

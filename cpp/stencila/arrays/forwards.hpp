@@ -11,7 +11,7 @@ class Singular5;
 class Singular6;
 
 template<
-	class Type = double,
+	typename Type = double,
 	class Dimension1 = Singular1,
 	class Dimension2 = Singular2,
 	class Dimension3 = Singular3,
@@ -20,6 +20,18 @@ template<
 	class Dimension6 = Singular6
 >
 class Array;
+
+template<
+	typename Type,
+	class DimensionF,
+	class Functor,
+	class Dimension1 = Singular1,
+	class Dimension2 = Singular2,
+	class Dimension3 = Singular3,
+	class Dimension4 = Singular4,
+	class Dimension5 = Singular5
+>
+class Funray;
 
 }
 }

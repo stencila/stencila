@@ -19,7 +19,7 @@ Array<double,Area,Age> numbers;
 BOOST_AUTO_TEST_CASE(dimensions){
 
 	BOOST_CHECK_EQUAL(Area::size,3);
-	BOOST_CHECK_EQUAL(Area::label,"area");
+	BOOST_CHECK_EQUAL(Area::label(),"area");
 
 }
 

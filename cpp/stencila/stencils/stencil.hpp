@@ -9,6 +9,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/filesystem.hpp>
 
 #include <stencila/component.hpp>
@@ -30,7 +31,7 @@ namespace Stem {
 class Stencil : public Component<Stencil> {
 private:
 
-    std::vector<std::string> langs_;
+    std::vector<std::string> languages_;
     Html::Document html_;
 
 public:
@@ -198,26 +199,26 @@ public:
      * @name Attribute getters and setters
      * @{
      */
-    
+
     /**
      * Get the languages that are supported by the stencil
      */
-    const std::vector<std::string> langs(void) const {
-        return langs_;
+    const std::vector<std::string> languages(void) const {
+        return languages_;
     }
 
     /**
      * Get the languages that are supported by the stencil
      */
-    std::vector<std::string> langs(void) {
-        return langs_;
+    std::vector<std::string> languages(void) {
+        return languages_;
     }
 
     /**
      * Set the languages that are supported by the stencil
      */
-    Stencil& langs(const std::vector<std::string>& values) {
-        langs_ = values;
+    Stencil& languages(const std::vector<std::string>& values) {
+        languages_ = values;
         return *this;
     }
 
@@ -306,27 +307,127 @@ public:
     //! Serialise meta-data into head
     //! @return std::string representation of stencil
     std::string dump(void){
+
+        // Construct a XHTML5 document
+        Html::Document doc;
+
+        doc.prepend_doctype_html5();
+
+        /**
+         * @todo Consider implementing conditional classes on the <html> element
+         *
+         * See [this](http://htmlcssjavascript.com/html/how-did-the-ie-conditional-classes-get-on-the-html-element-in-html5-boilerplate/)
+         * they may not be necessary. HTML5BoilerPlate has removed them
+         *
+         * 
+            <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+            <!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+            <!--[if IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]-->
+            <!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+                <head>
+                    <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+         */
+        auto html = doc.append("html",{
+            // The page language should be specified for screen readers since no default language is defined in the spec.
+            {"lang","en"},
+            // Application cache for offline use
+            {"manifest","http://get.stenci.la/stencil.appcache"}
+        });
+
+        auto head = doc.append("head");
+
         /*
-        Html::Node head = html().find("head");
-        Html::Document::append(head,"title","Stencil "+id());
-        
-        Html::Document::append(head,"meta",{
+        Although it is not technically required to define the character set, failing to do so can leave the page vulnerable to cross-site scripting attacks in older versions of IE. Note that even in old browsers this short version is equivalent to:
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        (http://www.coreservlets.com/html5-tutorial/basic-html5-document.html)
+        */
+        doc.append(head,"meta",{
             {"charset","utf-8"}
         },"");
-        Html::Document::append(head,"meta",{
-            {"name","generator"},
-            {"content","Stencila"}
-        });
-        Html::Document::append(head,"meta",{
+
+        doc.append(head,"title",title());
+        
+        doc.append(head,"meta",{
             {"name","id"},
             {"content",id()}
-        });
-        Html::Document::append(head,"script",{
-            {"type","text/javascript"},
-            {"src","stencila-boot.js"},
+        },"");
+
+        doc.append(head,"meta",{
+            {"name","keywords"},
+            {"content",boost::algorithm::join(keywords(),", ")}
+        },"");
+
+        doc.append(head,"meta",{
+            {"name","description"},
+            {"content",description()}
+        },"");
+
+        /**
+         * <link rel="stylesheet" ...
+         *
+         * Links to CSS stylesheets ate [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top)
+         */
+        doc.append(head,"link",{
+            {"rel","stylesheet"},
+            {"type","text/css"},
+            {"href","http://get.stenci.la/core/themes/default/base.min.css"}
         },"0;");
-        */
-        return html_.dump();
+
+        auto body = doc.append(html,"body");
+
+        /**
+         * #languages
+         */
+        auto langs = doc.append(body,"ul",{
+            {"id","languages"}
+        });
+        for(auto lang : languages()){
+            doc.append(langs,"li",{
+                {"class",lang}
+            },lang);
+        }
+
+        /**
+         * #authors
+         *
+         * Use both <address> and <a rel="author" ...> as suggested at http://stackoverflow.com/a/7295013 .
+         * The placement of <address> as a child of <body> should mean that this authors list applies to the whole document.
+         * See:
+            http://html5doctor.com/the-address-element/
+            http://www.w3.org/TR/html5/sections.html#the-address-element
+            http://stackoverflow.com/questions/7290504/which-html5-tag-should-i-use-to-mark-up-an-authors-name
+         */
+        auto address = doc.append(body,"address",{
+            {"id","authors"}
+        });
+        for(auto author : authors()){
+            doc.append(address,"a",{
+                {"rel","author"},
+                {"href","#"}
+            },author);
+        }
+
+        /**
+         * #content
+         *
+         * This placed in a <div> rather than just using the <body> so that extra HTML elements can be added by the 
+         * theme without affecting the stencil's content
+         */
+        auto content = doc.append(body,"main",{
+            {"id","content"}
+        });
+        content.append_copy(html_);
+
+        /**
+         * <script>
+         *
+         * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
+         */
+        doc.append(body,"script",{
+            {"src":"http://get.stenci.la/core/themes/default/base.min.js"}
+        },"0;");
+
+        return doc.dump();
     }
 
     //! @}
