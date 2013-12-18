@@ -29,12 +29,12 @@ make all
 ```
 
 On Windows, our Makefiles are configured to work using [MSYS](http://www.mingw.org/wiki/MSYS). We have written some [instructions for setting up a 
-MSYS environment](https://github.com/stencila/stencila/tree/master/building-on-windows.md) suitable for building Stencila.
+MSYS environment](https://github.com/stencila/stencila/tree/master/guide/building-on-windows.md) suitable for building Stencila.
 
 ## Testing
 
 The Stencila [continuous integration server](http://ci.stenci.la) builds packages and run tests when commits are made to this repository.
-See the [C++ tests job]((http://ci.stenci.la/job/stencila.cpp.test/) for examples of test results and coverage reports.
+See the [C++ tests job](http://ci.stenci.la/job/stencila.cpp.test/) for examples of test results and coverage reports.
 
 ##Versioning
 
