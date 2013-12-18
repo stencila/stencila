@@ -26,7 +26,7 @@ prepare_r:
 	mkdir -p working/r
 	#Install R package in local directory
 	#library(stencila,lib.loc='.') is then used later used inside R scripts
-	cd ../r ; make package deposit
+	cd ../r ; make package
 	cd working/r ; R CMD INSTALL -l . ../../../r/stencila_$(STENCILA_VERSION).tar.gz
 
 output: prepare_cpp prepare_py prepare_r
