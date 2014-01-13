@@ -14,7 +14,7 @@ STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requi
 STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requires/lib
 
 # Define libraries required
-STENCILA_CPP_LIBS := -lstencila
+STENCILA_CPP_LIBS := -lboost_filesystem -lboost_system
 ifeq ($(STENCILA_PLATFORM), linux)
 STENCILA_CPP_LIBS +=
 endif

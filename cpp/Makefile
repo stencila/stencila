@@ -1,6 +1,6 @@
-all: version.hpp requires
+all: version.hpp requires tests
 
-.PHONY: version.hpp requires
+.PHONY: version.hpp requires tests
 
 # Include for various STENCILA_XXX and STENCILA_CPP_XXX variables
 include $(dir $(lastword $(MAKEFILE_LIST)))/variables.make
@@ -12,3 +12,6 @@ version.hpp:
 
 requires:
 	$(MAKE) -C requires all
+
+tests:
+	$(MAKE) -C tests all
