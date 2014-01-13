@@ -11,10 +11,4 @@ struct GlobalFixture {
 };
 BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
-// A dummy test suite simply to make tests run in absense of any other tests
-BOOST_AUTO_TEST_SUITE(dummy)
-
-BOOST_AUTO_TEST_CASE(dummy){
-}
-
-BOOST_AUTO_TEST_SUITE_END()
+#include "component.cpp"
