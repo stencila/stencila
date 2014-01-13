@@ -45,7 +45,7 @@ setup(
         Extension(
             'stencila.extension',
             [
-                'stencila/stencila.cpp'
+                'stencila/extension.cpp'
             ],
             extra_compile_args = cpp_flags,
             include_dirs = cpp_incl_dirs,

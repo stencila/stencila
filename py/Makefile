@@ -18,7 +18,8 @@ cpp_libs:
 
 # Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requires:
-	$(MAKE) -C ../cpp/lib all
+	$(MAKE) -C ../cpp/requires all
+	$(MAKE) -C ../cpp version.hpp
 
 # Create binary distribution for the platform
 dist:

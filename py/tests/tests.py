@@ -2,10 +2,10 @@ import unittest
 
 import stencila
 
-class StencilaPackage(unittest.TestCase):
+class Stencila(unittest.TestCase):
     
-    def test_dummy(self):
-        pass
+    def test_version(self):
+        stencila.version()
 
 if __name__ == '__main__':
     unittest.main()
