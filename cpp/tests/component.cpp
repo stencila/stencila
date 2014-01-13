@@ -12,6 +12,10 @@ using namespace Stencila;
 //Define a class so we can derive from Component<> for testing
 class Test : public Component<Test> {};
 
+BOOST_AUTO_TEST_CASE(size){
+    BOOST_CHECK_EQUAL(sizeof(Test),sizeof(void*));
+}
+
 BOOST_AUTO_TEST_CASE(title){
     Test c1;
     

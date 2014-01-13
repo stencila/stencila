@@ -5,34 +5,77 @@
 
 namespace Stencila {
 
+/**
+ * Component
+ */
 template<class Class>
 class Component {
     
 private:
-    std::string title_;
-    std::string description_;  
-    std::vector<std::string> keywords_;
-    std::vector<std::string> authors_;
+
+    /**
+     * Component information
+     *
+     * Encapsulated as a separate class to reduce the minimum size of a 
+     * Component object to the sizeof(void*). 
+     */
+    class Info {
+    public:
+        std::string title;
+        std::string description;  
+        std::vector<std::string> keywords;
+        std::vector<std::string> authors;
+    };
+
+    /**
+     * Information on the component
+     *
+     * Only created if an Info attribute is accessed
+     * for this component.
+     */
+    Info* info_;
 
 public:
 
+    Component(void):
+        info_(nullptr){
+    }
+
+    ~Component(void){
+        if(info_) delete info_;
+    }
+
     /**
      * @{
-     * @name Attribute getters and setters
+     * @name Info attribute getters and setters
      */
+
+    //Define some local get and set macros
+    
+    #define _GET(attr,value) \
+        if(not info_){ \
+            info_ = new Info; \
+            info_->attr = value; \
+        } \
+        return info_->attr;
+
+    #define _SET(attr,value) \
+        if(not info_) info_ = new Info; \
+        info_->attr = value; \
+        return static_cast<Class&>(*this);
 
     /**
      * Get component title
      */
-    const std::string& title(void) const {
-        return title_;
+    const std::string title(void) const {
+        _GET(title,"")
     }
 
     /**
      * Get component title
      */
     std::string& title(void) {
-        return title_;
+        _GET(title,"")
     }
 
     /**
@@ -40,22 +83,21 @@ public:
      * @param title Title of the component
      */
     Class& title(const std::string& title) {
-        title_ = title;
-        return static_cast<Class&>(*this);
+        _SET(title,title)
     }
 
     /**
      * Get component description
      */
     const std::string& description(void) const {
-        return description_;
+        _GET(description,"")
     }
 
     /**
      * Get component description
      */
     std::string& description(void) {
-        return description_;
+        _GET(description,"")
     }
 
     /**
@@ -63,22 +105,21 @@ public:
      * @param description Description for the component
      */
     Class& description(const std::string& description) {
-        description_ = description;
-        return static_cast<Class&>(*this);
+        _SET(description,description)
     }
     
     /**
      * Get component keywords
      */
     const std::vector<std::string>& keywords(void) const {
-        return keywords_;
+        _GET(keywords,std::vector<std::string>(0))
     }
 
     /**
      * Get component keywords
      */
     std::vector<std::string>& keywords(void) {
-        return keywords_;
+        _GET(keywords,std::vector<std::string>(0))
     }
 
     /**
@@ -86,22 +127,21 @@ public:
      * @param keywords Keywords for the component
      */
     Class& keywords(const std::vector<std::string>& keywords) {
-        keywords_ = keywords;
-        return static_cast<Class&>(*this);
+        _SET(keywords,keywords)
     }
 
     /**
      * Get component authors
      */
-    const std::vector<std::string> authors(void) const {
-        return authors_;
+    const std::vector<std::string>& authors(void) const {
+        _GET(authors,std::vector<std::string>(0))
     }
 
     /**
      * Get component authors
      */
     std::vector<std::string>& authors(void) {
-        return authors_;
+        _GET(authors,std::vector<std::string>(0))
     }
 
     /**
@@ -109,9 +149,12 @@ public:
      * @param authors Authors of the component
      */
     Class& authors(const std::vector<std::string>& authors) {
-        authors_ = authors;
-        return static_cast<Class&>(*this);
+        _SET(authors,authors)
     }
+
+    // Undefine local macros
+    #undef _GET
+    #undef _SET
 
     /**
      * @}
