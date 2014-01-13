@@ -1,0 +1,15 @@
+Package: stencila
+Type: Package
+Title: Tools for working with data
+Version: %(inserted by Makefile)%
+Date: %(inserted by Makefile)%
+Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/master/AUTHORS
+Maintainer: Nokome Bentley <nokome.bentley@stenci.la>
+Description: A package for doing stuff with data
+License: BSD_3_clause + file LICENSE
+Depends:
+    Rcpp (>= 0.9.10),
+    methods
+LinkingTo: Rcpp
+Collate:
+    'shortcuts.R'
