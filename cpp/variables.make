@@ -15,6 +15,8 @@ STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requi
 
 # Define libraries required
 STENCILA_CPP_LIBS := -lboost_filesystem -lboost_system
+# libgit2 requires libcrypto, libssl and librt
+STENCILA_CPP_LIBS += -lgit2 -lcrypto -lssl -lrt
 ifeq ($(STENCILA_PLATFORM), linux)
 STENCILA_CPP_LIBS +=
 endif

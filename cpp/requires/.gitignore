@@ -3,3 +3,6 @@ lib
 
 boost*
 !boost.make
+
+libgit2*
+!libgit2.make
