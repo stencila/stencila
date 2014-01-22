@@ -13,7 +13,7 @@ libgit2-$(LIBGIT2_VERSION)/build/libgit2.a: libgit2-$(LIBGIT2_VERSION)
 	cd libgit2-$(LIBGIT2_VERSION);\
 	mkdir -p build;\
 	cd build;\
-	cmake .. -DBUILD_SHARED_LIBS=OFF;\
+	cmake .. -DCMAKE_C_FLAGS=-fPIC -DBUILD_SHARED_LIBS=OFF;\
 	cmake --build .
 
 include/git2.h: libgit2-$(LIBGIT2_VERSION)

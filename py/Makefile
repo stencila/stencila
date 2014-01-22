@@ -22,8 +22,11 @@ requires:
 	$(MAKE) -C ../cpp version.hpp
 
 # Create binary distribution for the platform
+# Create a text file with name of latest wheel for testing (using a symlink to latest wheel instead
+# failed when installing using pip install)
 dist:
-	python setup.py bdist_egg
+	python setup.py bdist_wheel
+	cd dist; echo `ls -rt *.whl | tail -n1` > latest_wheel.txt
 
 # Publish distribution
 publish:
@@ -32,11 +35,11 @@ publish:
 # Create a virtual environment, activate it, install package into it and then run tests
 test: dist testing
 	. testing/bin/activate ;\
-	python setup.py install ;\
+	pip install --upgrade --force-reinstall dist/`cat dist/latest_wheel.txt`;\
 	python tests/tests.py;
 
 testing:
-	virtualenv testing
+	virtualenv --no-site-packages testing
 
 # Clean up
 clean:

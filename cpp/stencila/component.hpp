@@ -252,7 +252,51 @@ public:
         }
         return self();
     }
-    
+
+    /**
+     * Create a file within the component's working directory
+     * 
+     * @param path Filesystem path within the working directory
+     */
+    Class& create(const std::string& path,const std::string& content="\n"){
+        boost::filesystem::path path_full(this->path("").path());
+        path_full /= path;
+        if(!boost::filesystem::exists(path_full)){
+            std::ofstream file(path_full.string());
+            file<<content;
+            file.close();
+        }
+        return self();
+    }
+
+    /**
+     * Destroy a file within the component's working directory
+     */
+    Class& destroy(const std::string& path){
+        if(this->path().length()>0){
+            boost::filesystem::path path_full(this->path());
+            path_full /= path;
+            if(boost::filesystem::exists(path_full)){
+                boost::filesystem::remove_all(path_full);
+            }
+        }
+        return self();
+    }
+
+    /**
+     * Destroy the component's entire working directory
+     */
+    Class& destroy(void){
+        std::string path = this->path();
+        if(path.length()>0){
+            if(boost::filesystem::exists(path)){
+                boost::filesystem::remove_all(path);
+            }
+            meta_->path = "";
+        }
+        return self();
+    }
+
     /**
      * Read the Component from a directory
      *
@@ -275,22 +319,6 @@ public:
     Class& write(const std::string& to=""){
         path(to);
         self().write_();
-        return self();
-    }
-
-    /**
-     * Destroy the component directory
-     */
-    Class& destroy(void){
-        if(meta_){
-            std::string current_path = meta_->path;
-            if(current_path.length()>0){
-                if(boost::filesystem::exists(current_path)){
-                    boost::filesystem::remove_all(current_path);
-                }
-                meta_->path = "";
-            }
-        }
         return self();
     }
     

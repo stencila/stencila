@@ -178,33 +178,6 @@ public:
 		return log;
 	}
 
-
-	/**
-	 * Create a file within the repository's working directory
-	 * @param path Filesystem path within the working directory
-	 */
-	void make(const std::string& path){
-		std::string root = git_repository_workdir(repo_);
-		boost::filesystem::path path_full(root);
-		path_full /= path;
-		if(!exists(path_full)){
-			std::ofstream file(path_full.string());
-			file<<"\n";
-			file.close();
-		}
-	}
-
-	/**
-	 * Create several files within the repository's working directory
-	 * @param path Filesystem path within the working directory
-	 * @param others More paths
-	 */
-	template<typename... Others>
-	void make(const std::string& path, Others... others){
-		make(path);
-		make(others...);
-	}
-
 	/**
 	 * Commit all the files in the working directory
 	 * @param message Message for the commit
