@@ -1,0 +1,8 @@
+88c88
+< CFLAGS= -g -pedantic -Wall -I $(INCDIR)
+---
+> CFLAGS= -O3 -fPIC -Wall -I $(INCDIR)
+93c93
+< OTHERCFLAGS+= -D_DEBUG=1 -D_MSC_VER=1400
+---
+> OTHERCFLAGS+= -D_MSC_VER=1400
