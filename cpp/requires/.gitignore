@@ -6,3 +6,6 @@ boost*
 
 libgit2*
 !libgit2.make
+
+pugixml*
+!pugixml.make

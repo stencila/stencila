@@ -1,6 +1,4 @@
-all: include lib boost libgit2
-
-.PHONY: boost libgit2
+all: include lib boost libgit2 pugixml
 
 # Specify that symlinks time should be checked, not the target file time.
 # If this option is not specified then symlinks get remade
@@ -21,3 +19,4 @@ lib:
 
 include boost.make
 include libgit2.make
+include pugixml.make
