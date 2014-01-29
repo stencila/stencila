@@ -1,0 +1,7 @@
+#Ignore compiled files
+*.o
+*.pyc
+
+# Ignore Sublime Text project and workspace files
+*.sublime-project
+*.sublime-workspace
