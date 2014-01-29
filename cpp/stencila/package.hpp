@@ -9,6 +9,10 @@ private:
 
     friend class Component<Package>;
 
+    const char* type_(void) const {
+    	return "package";
+    }
+
     void read_(void){
     }
     

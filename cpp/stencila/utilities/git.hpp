@@ -28,15 +28,27 @@ namespace Git {
 class GitError : public Exception {
 public:
 
-    GitError(int code,const char* file=0, int line=0):
-        Exception("",file,line){
-    	const git_error* error = giterr_last();
-		const char* message = (error && error->message) ? error->message : "unknown";
-		message_ = message;
+    GitError(int code,std::string message="",const char* file=0, int line=0):
+        Exception(message,file,line){
+    	if(code>0){
+    		const git_error* error = giterr_last();
+			const char* message = (error && error->message) ? error->message : "unknown";
+			message_ += message;
+		}
 	}
 
 };
-#define STENCILA_GIT_THROW(code) throw GitError(code,__FILE__,__LINE__);
+
+class GitNoRepoError : public GitError {
+public:
+
+	GitNoRepoError(std::string message="",const char* file=0, int line=0): 
+		GitError(-1,message,file,line){
+	}
+
+};
+
+#define STENCILA_GIT_THROW(code) throw GitError(code,"",__FILE__,__LINE__);
 #define STENCILA_GIT_TRY(call) { int code = call; if(code) STENCILA_GIT_THROW(code); }
 
 /**
@@ -69,13 +81,11 @@ class Repository {
 private:
 
 	git_repository* repo_;
-	bool open_;
 
 public:
 
 	Repository(void):
-		repo_(nullptr),
-		open_(false){
+		repo_(nullptr){
 	}
 
 	~Repository(void){
@@ -89,7 +99,6 @@ public:
 	 */
 	void init(const std::string& path,bool commit=false){
 		STENCILA_GIT_TRY(git_repository_init(&repo_,path.c_str(),false));
-		open_ = true;
 
 		if(commit){
 		    git_signature *sig;
@@ -115,18 +124,12 @@ public:
 	 * @param path Filesystem path to the repository
 	 */
 	bool open(const std::string& path){
-		if(not open_){
-			char path_chars[1024];
-			if(git_repository_discover(path_chars,1024,path.c_str(),true,"/")==0){
-				STENCILA_GIT_TRY(git_repository_open(&repo_,path_chars));
-				open_ = true;
-			}
+		char path_chars[1024];
+		if(git_repository_discover(path_chars,1024,path.c_str(),true,"/")==0){
+			STENCILA_GIT_TRY(git_repository_open(&repo_,path_chars));
+		} else {
+			STENCILA_THROW(GitNoRepoError,"No repository found at: "+path);
 		}
-		return open_;
-	}
-
-	void open_or_init(const std::string& path,bool commit=false){
-		if(not open(path)) init(path,commit);
 	}
 
 
@@ -185,25 +188,22 @@ public:
 	 * @param email   Email of the commit author
 	 */
 	void commit(const std::string& message,const std::string& name,const std::string& email){
-		// Get index file for repository 
+		// See https://github.com/libgit2/libgit2/blob/master/tests/clar_libgit2.c#L350
+		// for an example of how to do a commit. Much of the below is taken from there
+		
+		// Get index for repository 
 		git_index* index;
 		STENCILA_GIT_TRY(git_repository_index(&index, repo_));
-		// Add or update an index entry for each file in the working directory
-		std::string root = git_repository_workdir(repo_);
-		for(boost::filesystem::recursive_directory_iterator end, dir(root); dir != end; ++dir) {
-		    // Convert path to a relative path
-		    std::string path = boost::filesystem::path(*dir).string();
-		    boost::erase_first(path,root);
-		    // Don't include .git directory
-		    if(path.substr(0,4)==".git") continue;
-		    if(is_regular_file(dir->status())){
-		     	git_index_add_bypath(index, path.c_str());
-		    }
-		}
-		// Build a tree from the index
+		// Update index based on the working directory
+		char* paths[] = {"*"};
+		git_strarray paths_array = {paths, 1};
+		STENCILA_GIT_TRY(git_index_add_all(index,&paths_array, GIT_INDEX_ADD_DEFAULT, nullptr,nullptr));
+		STENCILA_GIT_TRY(git_index_update_all(index,&paths_array,nullptr,nullptr));
+		// Write the index content as a tree
 		git_oid tree_oid;
 		git_tree* tree;
 		STENCILA_GIT_TRY(git_index_write_tree(&tree_oid, index));
+		STENCILA_GIT_TRY(git_index_write(index));
 		STENCILA_GIT_TRY(git_tree_lookup(&tree, repo_, &tree_oid));
 		// Create an author signatue
 		git_signature* author;
@@ -211,45 +211,40 @@ public:
 			name.length()==0?"Anonymous":name.c_str(), //name of the person; fails if zero length
 			email.length()==0?"none":email.c_str() //email of the person; fails if zero length
 		));
-		// Determine parent commit (if any)
-		git_reference* ref;
-		git_reference_lookup(&ref, repo_, "refs/heads/master");
-		if(!ref){
-			// No parent, so just create the commit
-			git_oid commit_oid;
-			STENCILA_GIT_TRY(git_commit_create_v(
-				&commit_oid,
-				repo_,
-				"refs/heads/master",
-				author,
-				author,
-				"UTF-8",
-				message.c_str(),
-				tree,
-				0
-			));
-		} else {
-			// Get the parent
-			const git_oid* parent_oid = git_reference_target(ref);
-			git_commit* parent;
-			git_commit_lookup(&parent,repo_,parent_oid);
-			// Create the commit
-			git_oid commit_oid;
-			STENCILA_GIT_TRY(git_commit_create_v(&commit_oid,repo_,
-				"refs/heads/master",
-				author,
-				author,
-				"UTF-8",
-				message.c_str(),
-				tree,
-				1,parent
-			));
-		}
+		// Determine parent commit
+		// If there are none then `parent` and `ref` will remain null
+		// so we ignore any errors from git_revparse_ext
+		git_object* parent = nullptr;
+		git_reference* ref = nullptr;
+		git_revparse_ext(&parent, &ref, repo_, "HEAD");
+		// Do the commit
+		git_oid commit_oid;
+		STENCILA_GIT_TRY(git_commit_create_v(
+			&commit_oid,
+			repo_,
+			ref ? git_reference_name(ref) : "HEAD",
+			author,
+			author,
+			"UTF-8",
+			message.c_str(),
+			tree,
+			parent ? 1 : 0, 
+			parent
+		));
 		// Free memory
 		git_signature_free(author);
 		git_tree_free(tree);
 		git_index_free(index);
 		git_reference_free(ref);
+	}
+
+	std::vector<std::string> tags(void){
+		git_strarray tags;
+		STENCILA_GIT_TRY(git_tag_list(&tags, repo_));
+		std::vector<std::string> tags_v(tags.count);
+		for(int i=0;i<tags.count;i++) tags_v[i] = tags.strings[i];
+		git_strarray_free(&tags);
+		return tags_v;
 	}
 
 	std::string tag(void){
@@ -285,6 +280,21 @@ public:
 
 		git_object_free(target);
 		git_signature_free(tagger);
+	}
+
+	void checkout_tag(const std::string& tag){
+		git_object* commit = nullptr;
+		// Get the commit from the tag
+		STENCILA_GIT_TRY(git_revparse_single(&commit, repo_, tag.c_str()));
+		// Set options
+		// There are plenty of options
+		// See https://github.com/libgit2/libgit2/blob/HEAD/include/git2/checkout.h
+		// opts.checkout_strategy is really important!
+		git_checkout_opts opts = GIT_CHECKOUT_OPTS_INIT;
+		opts.checkout_strategy = GIT_CHECKOUT_FORCE;
+		// Do the commit
+		STENCILA_GIT_TRY(git_checkout_tree(repo_,commit,&opts));
+		git_object_free(commit);
 	}
 
 }; // end class Repository

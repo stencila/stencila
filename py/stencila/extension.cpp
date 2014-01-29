@@ -13,6 +13,11 @@ struct vector_to_list {
 	}
 };
 
+
+std::string Stencila_version(void){
+	return Stencila::version;
+}
+
 BOOST_PYTHON_MODULE(extension){
 	using namespace bp;
 

@@ -37,13 +37,13 @@ class ComponentTests:
 
 
     def test_path(self):
-        self.assertRegexpMatches(self.component.path("").path(),"transient")
+        self.assertRegexpMatches(self.component.path("").path(),"~")
 
     def test_create(self):
         self.component.create("README.txt")
 
     def test_destroy(self):
-        self.component.destroy("README.txt")
+        self.component.delete("README.txt")
 
     def test_read(self):
         self.component.read()

@@ -13,8 +13,6 @@ BOOST_AUTO_TEST_CASE(foo1){
 	Repository repo;
 	repo.init("outputs/components/1/");
 	repo.open("outputs/components/1/");
-	repo.make("1.html");
-	repo.make("2.html","3.html");
 	repo.commit("Nokome Bentley","nokome.bentley@stenci.la","The commit message");
 	std::cout<<repo.head()<<std::endl;
 	repo.log();

@@ -14,6 +14,9 @@ using namespace Stencila;
 class Test : public Component<Test> {
 private:
     friend class Component<Test>;
+    const char* type_(void) const {
+        return "test";
+    }
     void read_(void){
 
     }
@@ -22,7 +25,7 @@ private:
     }
 };
 
-boost::regex transient_path_pattern("^"+Stencila::library_user()+"transient/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
+boost::regex transient_path_pattern("^"+Stencila::Host::user_dir()+"/~[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
 
 BOOST_AUTO_TEST_CASE(title){
     Test c;
@@ -106,11 +109,12 @@ BOOST_AUTO_TEST_CASE(path_set_empty_twice){
 BOOST_AUTO_TEST_CASE(path_change){
     Test c;
     
-    std::string first = c.path("").path();
-    std::string second = c.path(Stencila::library_user()+"trash/temp").path();
+    std::string first = c.read().path();
+    std::string second = c.path(Stencila::Host::user_dir()+"/~temp").path();
     BOOST_CHECK(first!=second);
     BOOST_CHECK(not boost::filesystem::exists(first));
     BOOST_CHECK(boost::filesystem::exists(second));
+    BOOST_CHECK_EQUAL(c.address(),"~temp");
 
     c.destroy();
     BOOST_CHECK(not boost::filesystem::exists(second));
@@ -162,7 +166,8 @@ BOOST_AUTO_TEST_CASE(destroy_empty){
  */
 BOOST_AUTO_TEST_CASE(destroy_transient){
     Test c;
-    std::string path = c.path("").path();
+    c.create("foo.txt");
+    std::string path = c.path();
     c.destroy();
     BOOST_CHECK(not boost::filesystem::exists(path));
 }
@@ -182,7 +187,7 @@ BOOST_AUTO_TEST_CASE(commit){
 
 BOOST_AUTO_TEST_CASE(version){
     Test c;
-    BOOST_CHECK_EQUAL(c.version(),"0.0.0");
+    BOOST_CHECK_EQUAL(c.version(),"");
     c.commit();
     
     BOOST_CHECK_EQUAL(c.version("0.0.1").version(),"0.0.1");
@@ -194,11 +199,50 @@ BOOST_AUTO_TEST_CASE(version){
     BOOST_CHECK_EQUAL(c.version("1.0.0").version(),"1.0.0");
     BOOST_CHECK_THROW(c.version("0.1.0"),Exception);
 
+    c.destroy();
 }
 
-BOOST_AUTO_TEST_CASE(fork){
+BOOST_AUTO_TEST_CASE(provide){
     Test c;
-    Test f = c.fork();
+    
+    c.create("version-0.0.1.txt","0.0.1");
+    c.commit();
+    c.version("0.0.1");
+
+    c.delete_("version-0.0.1.txt");
+    c.create("version-0.0.2.txt","0.0.2");
+    c.commit();
+    c.version("0.0.2");
+    
+    c.provide("0.0.1");
+    BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.1/version-0.0.1.txt"));
+    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.1/version-0.0.2.txt"));
+    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.1/.git"));
+
+    c.provide("0.0.2");
+    BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.2/version-0.0.2.txt"));
+    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.2/version-0.0.1.txt"));
+    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.2/.git"));
+
+    c.destroy();
+}
+
+BOOST_AUTO_TEST_CASE(obtain){
+    Test c;
+    
+    c.commit();
+    c.version("0.0.1");
+    c.version("0.0.2");
+    
+    Test& c1 = Stencila::obtain<Test>(c.address(),"0.0.1");
+    BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.1"));
+
+    Test& c2 = Stencila::obtain<Test>(c.address(),"0.0.2");
+    BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.2"));
+
+    BOOST_CHECK_EQUAL(c1.address(),c2.address());
+
+    c.destroy();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
