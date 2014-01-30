@@ -28,38 +28,72 @@ BOOST_AUTO_TEST_CASE(attributes){
     BOOST_CHECK_EQUAL(div.attr("class"),"");
 }
 
+BOOST_AUTO_TEST_CASE(text){
+    Document doc;
+    doc.text("42");
+    BOOST_CHECK_EQUAL(doc.text(),"42");
+    doc.text("");
+    BOOST_CHECK_EQUAL(doc.text(),"");
+}
+
 BOOST_AUTO_TEST_CASE(append){
     Document doc;
 
-    //Just an element
     doc.append("div");
     BOOST_CHECK(doc.find("div"));
 
-    //An element with some text
-    doc.append("div","hello");
+    doc.append("span","Don't panic");
+    BOOST_CHECK_EQUAL(doc.find("span").text(),"Don't panic");
+
+    doc.append("div",{{"class","a"},{"data-ford","prefect"}});
+    BOOST_CHECK(doc.find("div","class","a"));
+    BOOST_CHECK(doc.find("div","data-ford","prefect"));
     
-    //An element with some attributes
-    doc.append("div",{{"class","ba"},{"data-foo","false"}});
-    BOOST_CHECK(doc.find("div","class","ba"));
-    BOOST_CHECK(doc.find("div","data-foo","false"));
+    doc.append("div",{{"class","b"}},"Don't panic");
+    BOOST_CHECK_EQUAL(doc.find("div","class","b").text(),"Don't panic");
+
+    doc.append("div",{{"class","c"}}).append_text("How many roads must a man walk down?");
+    BOOST_CHECK_EQUAL(doc.find("div","class","c").text(),"How many roads must a man walk down?");
+
+    {
+        Node node = doc.append("div");
+        node.append_cdata("answer = (1<2)*42");
+        BOOST_CHECK_EQUAL(node.dump(),"<div><![CDATA[answer = (1<2)*42]]></div>");
+    }
+
+    {
+        Node node = doc.append("div");
+        node.append_comment("Isn't it enough to see that a garden is beautiful without having to believe that there are fairies at the bottom of it too?");
+        BOOST_CHECK_EQUAL(node.dump(),"<div><!--Isn't it enough to see that a garden is beautiful without having to believe that there are fairies at the bottom of it too?--></div>");
+    }
+
+    doc.append_xml("<div class=\"d\"><div class=\"e\">E</div></div>");
+    BOOST_CHECK_EQUAL(doc.find("div","class","d").find("div","class","e").text(),"E");
     
-    //An element with some attributes and some text
-    doc.append("div",{{"class","bb"}},"hello");
-    BOOST_CHECK(doc.find("div","class","bb"));
 }
 
 BOOST_AUTO_TEST_CASE(remove){
+    Document doc;
 
+    Node node = doc.append("div");
+    BOOST_CHECK(doc.find("div"));
+    doc.remove(node);
+    BOOST_CHECK(not doc.find("div"));
 }
 
 BOOST_AUTO_TEST_CASE(clear){
-
+    Document doc;
+    doc.load("<body id=\"universe\"><p id=\"slartybarfast\"></p></body>");
+    BOOST_CHECK(doc.find("body","id","universe"));
+    BOOST_CHECK(doc.find("p","id","slartybarfast"));
+    doc.clear();
+    BOOST_CHECK(not doc.find("body","id","universe"));
+    BOOST_CHECK(not doc.find("p","id","slartybarfast"));
 }
 
-/**
- * @class Node
- * 
+/*
  * Test the translation of CSS selectors to XPath
+ * 
  * These tests are based on those in Python's [cssselect](https://pypi.python.org/pypi/cssselect) package
  * See the [test_translation function](https://github.com/SimonSapin/cssselect/blob/master/cssselect/tests.py#L314)
  */
@@ -95,6 +129,9 @@ BOOST_AUTO_TEST_CASE(xpath){
     #undef CHECK
 }
 
+/*
+ * Test CSS selectors
+ */
 BOOST_AUTO_TEST_CASE(one){
     Document doc;
     doc.load(R"(
@@ -130,7 +167,7 @@ BOOST_AUTO_TEST_CASE(one){
 
 BOOST_AUTO_TEST_CASE(dump){
     Document doc;
-    std::string content = "<div class=\"foo\">Hello world</div>";
+    std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";
     doc.load(content);
     BOOST_CHECK_EQUAL(doc.dump(),content);
 }

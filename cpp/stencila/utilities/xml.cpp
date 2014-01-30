@@ -8,35 +8,20 @@ namespace Stencila {
 namespace Utilities {
 namespace Xml {
 
+// Anonymous namespace to keep things local to this compilation unit
 namespace {
 
-/*! @{
-
+/*
 CSS selector grammar
 
 This is a partial implementation of the grammar described in the [W3C Recommendation](http://www.w3.org/TR/css3-selectors/#w3cselgrammar)
 
-Some of the things that are not implemented or not fully implemented
+Some of the things that are not implemented or not fully implemented:
   * identifiers and strings (unicode, escape characters etc not dealt with)
   * pseudo-element ('::') 
   * pseudo-class (':')
   * negation ('not(..)')
   * namespaces ('foo|bar')
-
-Translate a single node of a CSS selector syntax tree into an XPath selector
-
-There are several resources that describe how to convert CSS selectors to XPath selectors (
- [e.g.1](http://www.a-basketful-of-papayas.net/2010/04/css-selectors-and-xpath-expressions.html)
- [e.g.2](http://hakre.wordpress.com/2012/03/18/css-selector-to-xpath-conversion/)
- [e.g.3](http://plasmasturm.org/log/444/)
-). An actively developed implementation is the [`cssselect` module for Python](http://packages.python.org/cssselect)
-and that has been used here as the primary source for how to do conversion. 
-In particular, the [web app of cssselect)[http://css2xpath.appspot.com/] is a useful place for checking how to do translations.
-
-@todo Performance could be improved by writing specific translate functions
-when it is know what type a child node is. This would prevent having to
-navigate the if else tree below for many cases.
-
 */
 
 using namespace boost::xpressive;
@@ -83,7 +68,17 @@ smatch parse(const std::string& selector){
     return tree;
 }
 
-// Translate the CSS syteax tree into XPath
+/*
+Translate the CSS syteax tree into XPath
+
+There are several resources that describe how to convert CSS selectors to XPath selectors (
+ [e.g.1](http://www.a-basketful-of-papayas.net/2010/04/css-selectors-and-xpath-expressions.html)
+ [e.g.2](http://hakre.wordpress.com/2012/03/18/css-selector-to-xpath-conversion/)
+ [e.g.3](http://plasmasturm.org/log/444/)
+). An actively developed implementation is the [`cssselect` module for Python](http://packages.python.org/cssselect)
+and that has been used here as the primary source for how to do conversion. In particular, 
+the [web app of cssselect)[http://css2xpath.appspot.com/] is a useful place for checking how to do translations.
+*/
 std::string translate(const smatch& node,bool adjacent=false) {
     const void* id = node.regex_id();
     if(id==attr_id.regex_id()){
