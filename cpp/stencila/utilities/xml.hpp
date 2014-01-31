@@ -331,6 +331,16 @@ public:
     }
 
     /**
+     * Find the first element with tag and an attribute
+     * 
+     * @param  tag    Tag name
+     * @param  name   Name of attribute
+     */
+    Node find(const std::string& tag,const std::string& name) const {
+        return find_node([&tag,&name](Node node){return node.name()==tag and not node.attribute(name.c_str()).empty();});
+    }
+
+    /**
      * Find the first element with tag and attribute value
      * 
      * @param  tag    Tag name
@@ -403,9 +413,24 @@ public:
         }
         return out.str();
     }
+    
+    /**
+     * Dump the node's children to a string
+     * 
+     * @param  indent Turn on indentation?
+     */
+    std::string dump_children(bool indent=false) const {
+        std::ostringstream out; 
+        if(!indent){
+            for(auto child : children()) child.print(out,"",pugi::format_raw);
+        } else {
+            for(auto child : children()) child.print(out,"\t",pugi::format_indent);
+        }
+        return out.str();
+    }
 
     /**
-     * Wrtie the node to a file
+     * Write the node to a file
      * 
      * @param filename Filename to write
      * @param indent   Turn on indentation?
@@ -446,6 +471,17 @@ public:
 
     ~Document(void){
     	delete doc_;
+    }
+
+    /**
+     * Prepend a document type declaration to the document
+     * 
+     * @param  type Document type
+     */
+    Node doctype(const std::string& type){
+        pugi::xml_node doctype = prepend_child(pugi::node_doctype);
+        doctype.set_value(type.c_str());
+        return doctype;
     }
 
     /**

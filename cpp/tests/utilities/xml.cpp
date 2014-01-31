@@ -8,7 +8,7 @@
 
 #include <stencila/utilities/xml.hpp>
 
-BOOST_AUTO_TEST_SUITE(formats_xml)
+BOOST_AUTO_TEST_SUITE(xml)
 
 using namespace Stencila::Utilities::Xml;
 
