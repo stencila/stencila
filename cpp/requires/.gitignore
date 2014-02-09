@@ -9,3 +9,6 @@ tidy-html5*
 
 !*.make
 !*.patch
+
+# Ignore this downloaded patch
+tidy-html5-pull-98.patch
