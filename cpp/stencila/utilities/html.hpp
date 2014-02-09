@@ -17,6 +17,7 @@ namespace Html {
 **/
 
 typedef Xml::Attribute Attribute;
+typedef Xml::AttributeList AttributeList;
 typedef Xml::Node Node;
 
 /**
@@ -52,6 +53,8 @@ private:
 	    // Do processing and output
 	    if(ok){
 	        TidyBuffer error_buffer = {0};
+	        // `status` will be greater than 1 if there are errors
+	        // in the `tidyParseString`
 	        int status = tidySetErrorBuffer(document, &error_buffer);
 	        if(status >= 0) status = tidyParseString(document,html.c_str());
 	        if(status >= 0) status = tidyCleanAndRepair(document);
@@ -59,23 +62,28 @@ private:
 
 	        TidyBuffer output_buffer = {0};
 	        if(status>=0) status = tidySaveBuffer(document, &output_buffer);
-	        
-	        std::stringstream output_stream;
-	        output_stream<<output_buffer.bp;
-	        std::string output = output_stream.str();
-	        tidyBufFree(&output_buffer);
-	        
+
 	        std::stringstream error_stream;
 	        error_stream<<error_buffer.bp;
 	        std::string error = error_stream.str();
 	        tidyBufFree(&error_buffer);
 	        
+	        std::string output;
+	        // Do not attempt to obtain output if there has been an 
+	        // error in parsing
+	        if(status==1){
+	        	std::stringstream output_stream;
+		        output_stream<<output_buffer.bp;
+		        output = output_stream.str();
+		        tidyBufFree(&output_buffer);
+	        }
+
 	        tidyRelease(document);
 	        
 	        if(status>=0){
 	            int errors = tidyErrorCount(document);
 	            if(errors>0) {
-	                STENCILA_THROW(Exception,error);
+	                STENCILA_THROW(Exception,"Parsing error: "+error);
 	            }
 	            return output;
 	        } else {
@@ -101,7 +109,7 @@ public:
 	}
 
     /**
-     * Load the document from an XML string
+     * Load the document from a HTML string
      * 
      * @param  xml 
      */
@@ -114,9 +122,24 @@ public:
         // So add one here..
         doctype("html");
 
-        // Add charset if it does not yet exist
         Node head = find("head");
-        if(not head.find("meta","charset")) head.append("meta",{{"charset","UTF-8"}});
+
+        /// Set Content-Type to help chances that document is treated as XHTML5
+        if(not head.find("meta","http-equiv")) {
+        	head.append("meta",{
+	        	{"http-equiv","Content-Type"},
+	        	{"content","application/xhtml+xml"}
+	        });
+	    }
+
+        // Set charset
+        // Although it is not technically required to define the character set, failing to do so can leave the page vulnerable to 
+        // cross-site scripting attacks in older versions of IE. Note that even in old browsers this short version is equivalent to:
+        //   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        ///(http://www.coreservlets.com/html5-tutorial/basic-html5-document.html)
+        if(not head.find("meta","charset")) {
+        	head.append("meta",{{"charset","UTF-8"}});
+        }
 
         return *this;
     }
