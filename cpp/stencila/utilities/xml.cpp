@@ -8,6 +8,13 @@ namespace Stencila {
 namespace Utilities {
 namespace Xml {
 
+Node Node::append(const Document& doc) {
+    // To append a document it is necessary to append each of
+    // it children (instead of just the document root) like this...
+    for(Node child : doc.children()) append_copy(child);
+    return *this;
+}
+
 // Anonymous namespace to keep things local to this compilation unit
 namespace {
 

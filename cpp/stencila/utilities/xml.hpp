@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <vector>
 
 #include <pugixml.hpp>
 
@@ -24,6 +25,7 @@ namespace Xml {
 **/
 
 class Node;
+class Document;
 
 /**
  * XML node attribute
@@ -54,8 +56,10 @@ public:
 
 };
 
-typedef pugi::xpath_node_set Nodes;
+typedef std::vector<std::pair<std::string,std::string>> AttributeList;
 
+
+typedef std::vector<Node> Nodes;
 
 /**
  * XML node
@@ -197,11 +201,18 @@ public:
     /**
      * Append a node
      * 
-     * @param  node A node
+     * @param  node A XML node
      */
 	Node append(const Node& node) {
         return append_copy(node);
     }
+
+    /**
+     * Append a document
+     * 
+     * @param  doc A XML document
+     */
+    Node append(const Document& doc);
 
     /**
      * Append an element node
@@ -231,7 +242,7 @@ public:
      * @param  attributes List of attributes
      * @param  text       Text content
      */
-	Node append(const std::string& tag, const std::vector<std::pair<std::string,std::string>>& attributes, const std::string& text = "") {
+	Node append(const std::string& tag, const AttributeList& attributes, const std::string& text = "") {
         Node child = append(tag);
         typedef std::pair<std::string,std::string> Attribute;
         for(Attribute attribute : attributes){
@@ -287,9 +298,7 @@ public:
         if(not result){
             STENCILA_THROW(Exception,result.description());
         }
-        // To append a document it is necessary to append each of
-        // it children (instead of just the document root) like this...
-        for(Node child : doc.children()) append_copy(child);
+        append(doc);
         return doc;
     }   
 
@@ -380,7 +389,13 @@ public:
     Nodes all(const std::string& selector) const {
         std::string xpat = xpath(selector);
         try {
-            return select_nodes(xpat.c_str());
+            // Select nodes
+            pugi::xpath_node_set selected = select_nodes(xpat.c_str());
+            // Construct Nodes from pugi::xpath_node_set
+            Nodes nodes(selected.size());
+            int index = 0;
+            for (pugi::xpath_node_set::const_iterator it = selected.begin(); it != selected.end(); ++it) nodes[index++] = it->node();
+            return nodes;
         } catch (const pugi::xpath_exception& e){
             STENCILA_THROW(Exception,e.what());
         }
@@ -448,6 +463,7 @@ public:
      * @}
      */ 
 };
+
 
 /**
  * XML document
