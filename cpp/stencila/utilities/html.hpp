@@ -19,6 +19,7 @@ namespace Html {
 typedef Xml::Attribute Attribute;
 typedef Xml::AttributeList AttributeList;
 typedef Xml::Node Node;
+typedef Xml::Whitelist Whitelist;
 
 /**
  * HTML document

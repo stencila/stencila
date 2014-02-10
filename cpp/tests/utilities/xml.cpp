@@ -165,6 +165,43 @@ BOOST_AUTO_TEST_CASE(one){
     #undef CHECK
 }
 
+BOOST_AUTO_TEST_CASE(sanitize){
+
+    Document doc(R"(
+        <p class="a">Foo</p>
+        <script class="b" id="gives-bad-advice">alert("Panic!")</script>
+        <div class="c" foo="bar" />
+        <div>
+            <div>
+                <div>
+                    <div>
+                        <p>42</p>
+                        <br />
+                        <img class="d" href="javascript:alert('Nested badness');" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )");
+
+    BOOST_CHECK(doc.one("p.a"));
+    BOOST_CHECK(doc.one("script.b"));
+    BOOST_CHECK(doc.one("div.c[foo]"));
+    BOOST_CHECK(doc.one("img.d"));
+
+    doc.sanitize({
+        {"p",{"class"}},
+        {"div",{"class"}}
+    });
+
+    BOOST_CHECK(doc.one("p.a"));
+    BOOST_CHECK(!doc.one("script"));
+    BOOST_CHECK(doc.one("div.c"));
+    BOOST_CHECK(!doc.one("div.c[foo]"));
+    BOOST_CHECK(!doc.one("img.d"));
+}
+
+
 BOOST_AUTO_TEST_CASE(dump){
     Document doc;
     std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";

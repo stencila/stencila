@@ -58,8 +58,9 @@ public:
 
 typedef std::vector<std::pair<std::string,std::string>> AttributeList;
 
-
 typedef std::vector<Node> Nodes;
+
+typedef std::vector<std::pair<std::string,std::vector<std::string>>> Whitelist;
 
 /**
  * XML node
@@ -129,6 +130,15 @@ public:
         else append_attribute(name.c_str()) = value.c_str();
 		return *this;
 	}
+
+
+    std::vector<std::string> attrs(void) const {
+        std::vector<std::string> attrs;
+        for(pugi::xml_attribute attr = first_attribute(); attr; attr = attr.next_attribute()){
+            attrs.push_back(attr.name());
+        }
+        return attrs;
+    }
 
     /**
      * Add a string to an attribute
@@ -298,7 +308,9 @@ public:
         if(not result){
             STENCILA_THROW(Exception,result.description());
         }
-        append(doc);
+        // To append a pugi::xml_document it is necessary to append each of
+        // it children (instead of just the document root) like this...
+        for(pugi::xml_node child : doc.children()) append_copy(child);
         return doc;
     }   
 
@@ -407,6 +419,53 @@ public:
     
 
     /**
+     * Sanitize the Node using a whitelist of tag names and attributes
+     *
+     * Only elements with names in the whitelist are allowed. Other elements are removed.
+     * Those elements can only have attributes in the whitelist of the coressponding tag name. Other attributes are erased.
+     */
+    Node& sanitize(const Whitelist& whitelist){
+        // Element nodes get checked
+        if(type()==pugi::node_element){
+            // Is tag name allowed?
+            bool ok = false;
+            std::string tag = name();
+            for(auto item : whitelist){
+                if(tag==item.first){
+                    ok = true;
+                    // Are attribute names allowed?
+                    for(auto attr : attrs()){
+                        bool ok = false;
+                        for(auto allowed : item.second){
+                            if(attr==allowed){
+                                ok = true;
+                                break;
+                            }
+                        }
+                        // Attribute is not allowed...erase it
+                        if(not ok) erase(attr);
+                    }
+                    break;
+                }
+            }
+            if(not ok) {
+                // Tag name is not allowed... remove it from parent
+                parent().remove_child(*this);
+            }
+            else {
+                // Tag name is allowed...check children
+                for(Node child : children()) child.sanitize(whitelist);
+            }
+        }
+        // Document and text nodes are not checked, only their children (if any)
+        else {
+            for(Node child : children()) child.sanitize(whitelist);
+        }
+        return *this;
+    }
+
+
+    /**
      * @name Serialisation
      *
      * See `Document` for loading and reading of XML files
@@ -484,6 +543,12 @@ public:
 		doc_ = new pugi::xml_document;
 		static_cast<pugi::xml_node&>(*this) = *doc_;
 	}
+    
+    Document(const std::string& html){
+        doc_ = new pugi::xml_document;
+        static_cast<pugi::xml_node&>(*this) = *doc_;
+        load(html);
+    }
 
     ~Document(void){
     	delete doc_;
