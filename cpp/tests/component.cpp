@@ -12,17 +12,12 @@ using namespace Stencila;
 
 //Define a class so we can derive from Component<> for testing
 class Test : public Component<Test> {
-private:
-    friend class Component<Test>;
-    const char* type_(void) const {
+public:
+
+    std::string type(void) const {
         return "test";
     }
-    void read_(void){
-
-    }
-    void write_(void){
-        
-    }
+    
 };
 
 boost::regex transient_path_pattern("^"+Stencila::Host::user_dir()+"/~[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
