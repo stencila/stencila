@@ -36,6 +36,28 @@ BOOST_AUTO_TEST_CASE(load){
 }
 
 /**
+ * Test escaping of text in attributes and nodes
+ *
+ * Without proper escaping a user could insert text that you be used in a 
+ * XSS attack
+ */
+BOOST_AUTO_TEST_CASE(escaping){
+    Document doc;
+
+    // Element text
+    BOOST_CHECK_EQUAL(
+        doc.append("div","<script>alert('xss')</script>").dump(),
+        "<div>&lt;script&gt;alert('xss')&lt;/script&gt;</div>"
+    );
+
+    // Element attributes
+    BOOST_CHECK_EQUAL(
+        doc.append("div",{{"class","foo\" onmouseover=\"alert('xss')"}}).dump(),
+        "<div class=\"foo&quot; onmousover=&quot;alert('xss')\" />"
+    );
+}
+
+/**
  * Test common Cross Site Scripting (XSS) attack vectors
  * 
  * These tests simply "quantify" how our HTML implementation (ie. tidy-html5) parses
