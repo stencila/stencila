@@ -315,6 +315,16 @@ public:
     }   
 
     /**
+     * Append the children of another node
+     * 
+     * @param  child Child node
+     */
+    Node& append_children(const Node& other){
+        for(pugi::xml_node child : other.children()) append_copy(child);
+        return *this;
+    }
+
+    /**
      * Remove a child node
      * 
      * @param  child Child node
