@@ -330,7 +330,18 @@ public:
     Node& clear(void){
         while(first_child()) remove_child(first_child());
         return *this;
-    }    
+    }  
+
+    /**
+     * Append this node to a different parent
+     * 
+     * @param  to New parent of this node
+     */
+    Node& move(Node& to) {
+        to.append_copy(*this);
+        parent().remove_child(*this);
+        return *this;
+    }  
 
     /**
      * @}
