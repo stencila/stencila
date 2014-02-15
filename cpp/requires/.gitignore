@@ -4,7 +4,6 @@ lib
 boost*
 libgit2*
 pugixml*
-pugixml*
 tidy-html5*
 
 !*.make
