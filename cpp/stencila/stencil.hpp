@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/lexical_cast.hpp>
+
 #include <stencila/component.hpp>
 #include <stencila/utilities/html.hpp>
 using namespace Stencila::Utilities;
@@ -12,12 +14,29 @@ public:
     // Avoid ambiguities by defining which inherited method to use
     // when the base classes use the same name
     using Stencila::Component<Stencil>::path;
+    using Stencila::Component<Stencil>::destroy;
 
 	typedef Xml::Attribute Attribute;
     typedef Xml::AttributeList AttributeList;
     typedef Xml::Node Node;
+    typedef Xml::Nodes Nodes;
 
 public:
+
+    Stencil(void){
+
+    }
+
+    Stencil(const std::string& content){
+        std::size_t found = content.find("://");
+        if(found==std::string::npos) STENCILA_THROW(Exception,"Content type (e.g. html://, file://) not specified in supplied string")
+        std::string type = content.substr(0,found);
+        std::string rest = content.substr(found+3);
+        if(type=="xml") append_xml(rest);
+        else if(type=="html") append_html(rest);
+        else if(type=="file") read(rest);
+        else STENCILA_THROW(Exception,"Unrecognised type: " + type)
+    }
 
     std::string type(void) const {
     	return "stencil";
@@ -62,6 +81,341 @@ public:
         }
         contexts_ = values;
         return *this;
+    }
+
+    /**
+     * @}
+     */
+
+    /**
+     * Append HTML
+     *
+     * Parse the supplied HTML, tidying it up, and append the resulting node tree
+     * to the stencil's XML tree
+     * 
+     * @param html A HTML string
+     */
+    Stencil& append_html(const std::string& html){
+        Html::Document doc(html);
+        append_children(doc.find("body"));
+        return *this;
+    }
+
+    /**
+     * @name Rendering and display methods
+     * @{
+     */
+
+public:
+
+    template<typename Context>
+    Stencil& render(Context& context){
+        render_element_(*this,context);
+        return *this;
+    }
+    
+private:
+
+    template<typename Context>
+    void render_element_(Node node, Context& context){
+        try {
+            //Check for handled element tag names
+            //For each attribute in this node...
+            //...use the name of the attribute to dispatch to another rendering method
+            //   Note that return is used so that only the first Stencila "data-xxx" will be 
+            //   considered and that directive will determine how/if children nodes are processed
+            std::string tag = node.name();
+            for(std::string attr : node.attrs()){
+                if(attr=="data-code" and tag=="code") return render_code_(node,context);
+                else if(attr=="data-text") return render_text_(node,context);
+                else if(attr=="data-image") return render_image_(node,context);
+                else if(attr=="data-with") return render_with_(node,context);
+                else if(attr=="data-if") return render_if_(node,context);
+                // Ignore `elif` and `else` elements as these are processed by `render_if_`
+                else if(attr=="data-elif" or attr=="data-else") return;
+                else if(attr=="data-switch") return render_switch_(node,context);
+                else if(attr=="data-for") return render_for_(node,context);
+            }
+            //If return not yet hit then process children of this element
+            render_children_(node,context);
+        }
+        catch(std::exception& exc){
+            node.attr("data-error",exc.what());
+        }
+        catch(...){
+            node.attr("data-error","Unknown error");
+        }
+    }
+
+    template<typename Context>
+    void render_children_(Node node, Context& context){
+        for(Node child : node.children()) render_element_(child,context);
+    }
+
+    /**
+     * Render a `code` element (e.g. `<code data-code="r,py">`)
+     *
+     * The text of the element is executed in the context if the context's type
+     * is listed in the `data-code` attribute. If the context's type is not listed
+     * then the element will not be rendered (i.e. will not be executed). 
+     * 
+     * This behaviour allows for polyglot stencils which have both `code` elements that
+     * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
+     * as required by similarities/differences in the language syntax e.g.
+     *
+     *    <code data-code="r,py">
+     *        m = 1
+     *        c = 299792458
+     *    </code>
+     * 
+     *    <code data-code="r"> e = m * c^2 </code>
+     *    <code data-code="py"> e = m * pow(c,2) </code>
+     *    
+     * 
+     * `code` elements must have both the `code` tag and the `data-code` attribute.
+     * Elements having just one of these will not be rendered.
+     */
+    template<typename Context>
+    void render_code_(Node node, Context& context){
+        // Get the list of contexts and ensure this context is in the list
+        std::string contexts = node.attr("data-code");
+        std::vector<std::string> items;
+        boost::split(items,contexts,boost::is_any_of(","));
+        bool ok = false;
+        for(std::string& item : items){
+            boost::trim(item);
+            if(item+"-context"==context.type()){
+                ok = true;
+                break;
+            }
+        }
+        // If ok, execute the code, otherwise just ignore
+        if(ok){
+            std::string code = node.text();
+            context.execute(code);
+        }
+    }
+
+    /**
+     * Render a `text` element (e.g. `<span data-text="result"></span>`)
+     *
+     * The expression in the `data-text` attribute is converted to a 
+     * character string by the context and used as the element's text.
+     * If the element has a `data-off="true"` attribute then the element will not
+     * be rendered and its text will remain unchanged.
+     */
+    template<typename Context>
+    void render_text_(Node node, Context& context){
+        if(node.attr("data-lock")!="true"){
+            std::string expression = node.attr("data-text");
+            std::string text = context.text(expression);
+            node.text(text);
+        }
+    }
+
+    /** 
+     * Render a `image` element (e.g `<code data-image="svg">plot(x,y)</code>`)
+     *
+     * `image` elements capture any images produced by executing the enclosed code
+     * in the context. `image` elements can be of alternative graphic formats e.g `svg`,`png`
+     * When the code of a `image` element is sucessfully executed a child node is appended
+     * which contains the resulting image and has the `data-data="true"` attribute.
+     *
+     * @todo Finalise the protocol for inserion of bitmap formats: file in stencil directory or data uri?
+     */
+    template<typename Context>
+    void render_image_(Xml::Node node, Context& context){
+        std::string format = node.attr("data-image");
+        std::string code = node.text();
+        std::string image = context.image(format,code);
+        if(format=="svg"){
+            Node svg = node.append_xml(image);
+            svg.attr("data-data","true");
+        } 
+        else if(format=="png"){
+            node.append("img",{
+                {"src",""},
+                {"data-data","true"}
+            });
+        }
+        else {
+            node.attr("data-error","Image format not recognised: "+format);
+        }
+    }
+
+    /**
+     * Render a `with` element (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
+     *
+     * The expression in the `data-with` attribute is evaluated and made the subject of a new context frame.
+     * All child nodes are rendered within the new frame. The frame is then exited.
+     */
+    template<typename Context>
+    void render_with_(Node node, Context& context){
+        std::string expression = node.attr("data-with");
+        context.enter(expression);
+        render_children_(node,context);
+        context.exit();
+    } 
+
+    /**
+     * Render a `if` element (e.g. `<div data-if="answer==42">...</div>` )
+     *
+     * The expression in the `data-if` attribute is evaluated in the context.
+     */
+    template<typename Context>
+    void render_if_(Node node, Context& context){
+        std::string expression = node.attr("data-if");
+        bool hit = context.test(expression);
+        if(hit){
+            node.erase("data-off");
+            render_children_(node,context);
+        } else {
+            node.attr("data-off","true");
+        }
+        // Iterate through sibling elements to turn them on or off
+        // if they are elif or else elements; break otherwise.
+        Node next = node.next_sibling_element();
+        while(next){
+            if(next.has("data-elif")){
+                if(hit){
+                    next.attr("data-off","true");
+                } else {
+                    std::string expression = next.attr("data-elif");
+                    hit = context.test(expression);
+                    if(hit){
+                        next.erase("data-off");
+                        render_children_(next,context);
+                    } else {
+                        next.attr("data-off","true");
+                    }
+                }
+            }
+            else if(next.has("data-else")){
+                if(hit){
+                    next.attr("data-off","true");
+                } else {
+                    next.erase("data-off");
+                    render_children_(next,context);
+                }
+                break;
+            }
+            else break;
+            next = next.next_sibling_element();
+        }
+    }
+
+    /**
+     * Render a `switch` element
+     *
+     * The first `case` element (i.e. having a `data-case` attribute) that matches
+     * the `switch` expression is activated. All other `case` and `default` elements
+     * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
+     */
+    template<typename Context>
+    void render_switch_(Node node, Context& context){
+        std::string expression = node.attr("data-switch");
+        context.subject(expression);
+
+        bool matched = false;
+        for(Node child : node.children()){
+            if(child.has("data-case")){
+                if(matched){
+                    child.attr("data-off","true");
+                } else {
+                    std::string match = child.attr("data-case");
+                    matched = context.match(match);
+                    if(matched){
+                        child.erase("data-off");
+                        render_element_(child,context);
+                    } else {
+                        child.attr("data-off","true");
+                    }
+                }
+            }
+            else if(child.has("data-default")){
+                if(matched){
+                    child.attr("data-off","true");
+                } else {
+                    child.erase("data-off");
+                    render_element_(child,context);
+                }
+            } else {
+                render_element_(child,context);
+            }
+        }
+    }
+
+    /**
+     * Render a `for` element `<ul data-for="planet:planets"><li data-each data-text="planet" /></ul>`
+     *
+     * A `for` element has a `data-for` attribute which specifies the variable name given to each item and 
+     * an expression providing the items to iterate over e.g. `planet:planets`. The variable name is optional
+     * and defaults to "item".
+     *
+     * The child element having a `data-each` attribute is rendered for each item and given a `data-index="<index>"`
+     * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
+     * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
+     * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
+     * Any child elements with a `data-index` greater than the number of items is removed unless it has a 
+     * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
+     */
+    template<typename Context>
+    void render_for_(Node node, Context& context){
+        std::string parts = node.attr("data-for");
+        // Get the name of item and items
+        std::string item = "item";
+        std::string items;
+        std::vector<std::string> bits;
+        boost::split(bits,parts,boost::is_any_of(":"));
+        if(bits.size()==1){
+            items = bits[0];
+        } else if(bits.size()==2){
+            item = bits[0];
+            items = bits[1];
+        } else {
+            throw Exception("Error in parsing for item and items; more than one semicolon (:).");
+        }
+
+        // Initialise the loop
+        bool more = context.begin(item,items);
+        // Get the `data-each` node
+        Node each = node.one("[data-each]");
+        // Iterate
+        int count = 0;
+        while(each and more){
+            // See if there is an existing child with a corresponding `data-index`
+            // - if there is use it, if not then append a copy of each
+            std::string index = boost::lexical_cast<std::string>(count);
+            Node item = node.one("[data-index=\""+index+"\"]");
+            if(not item){
+                item = node.append(each);
+                item.erase("data-each");
+                item.attr("data-index",index);
+            }
+            // Render the element
+            render_element_(item,context);
+            // Ask context to step to next item
+            more = context.next();
+            count++;
+        }
+        // Deactivate the each object
+        if(each) each.attr("data-off","true");
+        // Remove any children having a `data-index` attribute greater than the 
+        // number of items, unless it has a `data-lock` decendent
+        Nodes indexeds = node.all("[data-index]");
+        for(Node indexed : indexeds){
+            std::string index_string = indexed.attr("data-index");
+            int index = boost::lexical_cast<int>(index_string);
+            if(index>count-1){
+                Node locked = indexed.one("[data-lock]");
+                if(locked){
+                    indexed.attr("data-extra","true");
+                    // Move the end of the `for` element
+                    indexed.move(node);
+                }
+                else indexed.destroy();
+            }
+        }
     }
 
     /**
@@ -162,6 +516,8 @@ public:
         }
 
         // Content
+        // Clear content before appending new content from Html::Document
+        clear();
         if(Node elem = body.find("main","id","content")){
             append_children(elem);
         }  

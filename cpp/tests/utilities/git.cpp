@@ -2,6 +2,7 @@
 	#define BOOST_TEST_MODULE tests
 #endif
 #include <boost/test/unit_test.hpp>
+#include <boost/filesystem.hpp>
 
 #include <stencila/utilities/git.hpp>
 
@@ -9,19 +10,15 @@ BOOST_AUTO_TEST_SUITE(git)
 
 using namespace Stencila::Utilities::Git;
 
-BOOST_AUTO_TEST_CASE(foo1){
+BOOST_AUTO_TEST_CASE(basic){
 	Repository repo;
-	repo.init("outputs/components/1/");
-	repo.open("outputs/components/1/");
+	std::string path = boost::filesystem::unique_path("/tmp/%%%%-%%%%-%%%%-%%%%").string();
+	repo.init(path);
+	repo.open(path);
 	repo.commit("Nokome Bentley","nokome.bentley@stenci.la","The commit message");
-	std::cout<<repo.head()<<std::endl;
+	repo.head();
 	repo.log();
 	repo.destroy();
-}
-
-BOOST_AUTO_TEST_CASE(foo2){
-	Repository repo;
-	repo.clone("https://github.com/nokome/ubuntu-bits.git","outputs/components/2/");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -88,6 +88,14 @@ public:
         return "map-context";
     }
 
+    Map& execute(const std::string& code){
+        unsupported();
+    }
+    
+    std::string interact(const std::string& code){
+        unsupported();
+    }
+
     Map& assign(const std::string& name, const std::string& expression){
         set_(name,expression);
         return *this;
@@ -96,7 +104,11 @@ public:
     std::string text(const std::string& expression){
         return get_(expression)->value();
     }
- 
+
+    std::string image(const std::string& format,const std::string& code){
+        unsupported();
+    }
+
     bool test(const std::string& expression){
         std::string value = text(expression);
         return value.length()>0;

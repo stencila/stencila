@@ -15,12 +15,19 @@ public:
         return "context";
     }
 
+protected:
+
+    void unsupported(void){
+        throw Exception("Not supported by context type: "+static_cast<Class&>(*this).type());
+    }
+
     /**
      * Execute code within the context
      * 
      * @param code String of code
      */
-    void execute(const std::string& code){
+    Context& execute(const std::string& code){
+        unsupported();
     }
     
     /**
@@ -33,16 +40,19 @@ public:
      * @return      String representation of the result of executing the code
      */
     std::string interact(const std::string& code){
-        return "";
+        unsupported();
     }
 
     /**
-     * Assign an expression to a name
+     * Assign an expression to a name.
+     * Used by stencil `import` and `include` elements to assign values
+     * to the context of the transcluded stencils.
      * 
      * @param name       Name to be assigned
      * @param expression Expression to be assigned to name
      */
-    void assign(const std::string& name, const std::string& expression){
+    Context& assign(const std::string& name, const std::string& expression){\
+        unsupported();
     }
 
     /**
@@ -52,7 +62,17 @@ public:
      * @param  expression Expression to convert to text
      */
     std::string text(const std::string& expression){
-        return "";
+        unsupported();
+    }
+
+    /**
+     * Create an image from the code
+     * Used by stencil `image` elements e.g. `<code data-image="png">plot(x,y)</code>`
+     * 
+     * @param format A support image format e.g. svg, png
+     */
+    std::string image(const std::string& format,const std::string& code){
+        unsupported();
     }
  
     /**
@@ -62,7 +82,7 @@ public:
      * @param  expression Expression to evaluate
      */
     bool test(const std::string& expression){
-        return false;
+        unsupported();
     }
 
     /**
@@ -71,7 +91,8 @@ public:
      * 
      * @param expression Expression to evaluate
      */
-    void subject(const std::string& expression){
+    Context& subject(const std::string& expression){
+        unsupported();
     }
 
     /**
@@ -81,24 +102,25 @@ public:
      * @param  expression Expression to evaluate
      */
     bool match(const std::string& expression){
-        return false;
+        unsupported();
     }
 
     /**
      * End the current subject
      */
-    void unsubject(void){
+    Context& unsubject(void){
+        unsupported();
     }
     
     /**
      * Begin a loop.
-     * Used by stencil `for` elements e.g. `<ul data-for="planet:planets"><li data-text="planet" /></ul>`
+     * Used by stencil `for` elements e.g. `<ul data-for="planet:planets"><li data-each data-text="planet" /></ul>`
      * 
      * @param  item  Name given to each item
      * @param  expression Expression giveing an iterable list of items
      */
     bool begin(const std::string& item,const std::string& expression){
-        return false;
+        unsupported();
     }
 
     /**
@@ -106,7 +128,7 @@ public:
      * Used by stencil `for` elements. See stencil `render`ing methods.
      */
     bool next(void){
-        return false;
+        unsupported();
     }
 
     /**
@@ -114,7 +136,7 @@ public:
      * Used by stencil `end` elements e.g. `<div data-if="x<-3"><div data-end /></div>`
      */
     bool end(void){
-        return false;
+        unsupported();
     }
 
     /**
@@ -123,13 +145,15 @@ public:
      *  
      * @param expression Expression that will be the scope of the new context
      */
-    void enter(const std::string& expression=""){
+    Context& enter(const std::string& expression=""){
+        unsupported();
     }
 
     /**
      * Exit the current child context
      */
-    void exit(void){
+    Context& exit(void){
+        unsupported();
     }
 
 };

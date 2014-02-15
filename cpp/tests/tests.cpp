@@ -6,10 +6,16 @@
 //! @brief Global fixture for one off setup and teardown at start and end of testing
 struct GlobalFixture {
     GlobalFixture(void){
-        boost::filesystem::create_directories("outputs");
+        
     }
 };
 BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #include "component.cpp"
+#include "stencil.cpp"
+
+#include "contexts/map.cpp"
+
 #include "utilities/git.cpp"
+#include "utilities/html.cpp"
+#include "utilities/xml.cpp"

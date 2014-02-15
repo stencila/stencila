@@ -108,6 +108,22 @@ private:
 public:
 
     /**
+     * Get the tag name of this node e.g. 'div'
+     */
+    std::string name(void) const {
+        return pugi::xml_node::name();
+    }
+
+    /**
+     * Has an attribute?
+     */
+    bool has(const std::string& name) const {
+        Attribute attr = attr_get_(name);
+        if(attr) return true;
+        else return false;
+    }
+
+    /**
      * Get an attribute
      *
      * Returns an empty string if the attribute does not exist
@@ -201,7 +217,6 @@ public:
     /**
      * @}
      */
-
 
     /**
      * @name Node manipulation
@@ -300,7 +315,7 @@ public:
      *
      * Parse the supplied XML and append the resulting node tree
      * 
-     * @param  xml A XML string
+     * @param xml A XML string
      */
     Node append_xml(const std::string& xml){
         pugi::xml_document doc;
@@ -352,6 +367,45 @@ public:
         parent().remove_child(*this);
         return *this;
     }  
+
+    /**
+     * Remove this node from its parent
+     */
+    void destroy(void) {
+        parent().remove_child(*this);
+    }  
+
+    /**
+     * @}
+     */ 
+    
+    /**
+     * @name Node traversal
+     * @{
+     */
+
+    // The following methods are made public for use elsewhere in Stencila code
+    // At this stage it is not certain if these will made 'offically' public method
+    // that return a Node
+    using pugi::xml_node::children;
+    using pugi::xml_node::next_sibling;
+
+    Node first_child_element(void){
+        return find_child([](pugi::xml_node node){
+            return node.type()==pugi::node_element;
+        });
+    }
+
+    Node next_sibling_element(void){
+        pugi::xml_node sibling = next_sibling();
+        while(sibling){
+            if(sibling.type()==pugi::node_element){
+                return sibling;
+            }
+            sibling = next_sibling();
+        }
+        return pugi::xml_node();
+    }
 
     /**
      * @}

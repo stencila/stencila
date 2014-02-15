@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(escaping){
     // Element attributes
     BOOST_CHECK_EQUAL(
         doc.append("div",{{"class","foo\" onmouseover=\"alert('xss')"}}).dump(),
-        "<div class=\"foo&quot; onmousover=&quot;alert('xss')\" />"
+        "<div class=\"foo&quot; onmouseover=&quot;alert('xss')\" />"
     );
 }
 
