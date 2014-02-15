@@ -80,8 +80,7 @@ BOOST_AUTO_TEST_CASE(append){
 BOOST_AUTO_TEST_CASE(embed){
     Stencil s;
     s.embed();
-    using namespace Embed;
-
+    
     // Empty element
     div();
     BOOST_CHECK(s.find("div"));

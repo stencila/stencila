@@ -728,14 +728,16 @@ public:
 
 };
 
+/**
+ * @todo Complete this list making sure all stencil attributes e.g. 'data-switch', `data-case`
+ * are allowed for.
+ */
 Xml::Whitelist Stencil::whitelist = {
     {"p",{"class","data-text"}},
     {"div",{"class"}}
 };
 
 std::stack<Stencil::Node> Stencil::embed_parents_;
-
-namespace Embed {
 
 #define _(tag)\
     Html::Node tag(void){                                                                              return Stencil::element(#tag);                                 } \
@@ -745,6 +747,9 @@ namespace Embed {
     template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args){  return Stencil::element(#tag,attributes,args...);              } \
     template<typename... Args> Html::Node tag(Args... args){                                           return Stencil::element(#tag,args...);                         } \
 
+/**
+ * @todo This list of embedding functions should be made consistent with `Stencil::whitelist`
+ */
 _(section)
 _(nav)
 _(article)
@@ -812,7 +817,5 @@ _(td)
 _(th)
 
 #undef _
-
-}
 
 }
