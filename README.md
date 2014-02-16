@@ -15,4 +15,4 @@ Don't rely on API stability until the release of version 1.0.0.
 
 ### Contributing
 
-We appreciate any help with Stencila development! There's a [Kanban board](https://huboard.com/stencila/stencila/beta) over at [Huboard](https://huboard.com/stencila/stencila/beta). It's agod place to sart for ideas.
+We appreciate any help with Stencila development! There's a [Kanban board](https://huboard.com/stencila/stencila/beta) over at [Huboard](https://huboard.com/stencila/stencila/beta). It's a good place for ideas with where to start out contributing. Or just see [issues](https://github.com/stencila/stencila/issues) for those that are [ready](https://github.com/stencila/stencila/issues?labels=1+-+Ready&page=1&state=open) to be tackled.
