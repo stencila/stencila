@@ -4,6 +4,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/array.hpp>
+#include <stencila/query.hpp>
 
 BOOST_AUTO_TEST_SUITE(array)
 
@@ -135,6 +136,24 @@ BOOST_AUTO_TEST_CASE(static_array_subscript){
     //   b(Level<One>(0));
     //   c(Level<Three>(0),Level<Two>(0));
     //(that's a feature, not a bug!)
+}
+
+BOOST_AUTO_TEST_CASE(static_array_query){
+    Array<int,Two,Five,Seven> a = 3;
+    BOOST_CHECK_EQUAL(count(a),a.size());
+    BOOST_CHECK_EQUAL(sum(a),a.size()*3);
+
+    Array<char,Four> b = {'f','o','r','d'};
+    std::string word;
+    each(b,[&word](char item){
+        word += item;
+    });
+    BOOST_CHECK_EQUAL(word,"ford");
+}
+
+BOOST_AUTO_TEST_CASE(dynamic_array_query){
+    Array<> a(42);
+    BOOST_CHECK_EQUAL(count(a),a.size());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -188,6 +188,68 @@ STENCILA_DIM_SINGULAR(Single10)
 #undef STENCILA_DIM_SINGULAR
 
 
+/**
+ * A cell of an array.
+ * 
+ * Implements an iterator interface for convenient looping
+ * over levels in a dimension (based on [this](http://stackoverflow.com/a/7185723))
+ */
+template<class Type>
+class Cell {
+private:
+	const Type* value_;
+
+public:
+	Cell(const Type* value):
+		value_(value){
+	}
+
+	/**
+	 * Dereference.
+	 */
+	const Type& operator*() const { 
+		return *value_;
+	}
+
+	/**
+	 * @name Increment operators
+	 * @{
+	 */
+
+	Cell& operator++() {
+		++value_;
+		return *this;
+	}
+
+	Cell operator++(int){
+		Cell copy(*this);
+		++value_;
+		return copy;
+	}
+
+	/**
+	 * @}
+	 */
+
+
+	/**
+	 * @name Comparison operators
+	 * @{
+	 */
+
+	bool operator==(const Cell<Type>& other) const {
+		return value_ == other.value_;
+	}
+
+	bool operator!=(const Cell<Type>& other) const {
+		return value_ != other.value_;
+	}
+
+	/**
+	 * @}
+	 */
+};
+
 template<
 	typename Type = double,
 	class D1 = Single1,
@@ -286,6 +348,25 @@ public:
     static unsigned int size(void) {
 		return size_;
 	}
+
+ 	/**
+	 * @name Iterator interface
+	 *
+	 * @{
+	 */
+
+	Cell<Type> begin(void) const {
+		return Cell<Type>(&values_[0]);
+	}
+
+	Cell<Type> end(void) const {
+		return Cell<Type>(&values_[size_]);
+	}    
+
+    /**
+     * @}
+     */
+    
 
 	/**
 	 * Does the array have a dimension?
