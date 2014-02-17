@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/preprocessor/seq/for_each.hpp>
+
 #include <stencila/traits.hpp>
 
 namespace Stencila {
@@ -215,6 +217,10 @@ template<
 class Array {
 private:
 
+	// A sequence of dimension numbers used below for application
+	// of [BOOST_PP_SEQ_FOR_EACH](http://www.boost.org/doc/libs/1_55_0/libs/preprocessor/doc/ref/seq_for_each.html)
+	#define STENCILA_ARRAY_DIMENSIONS (D1)(D2)(D3)(D4)(D5)(D6)(D7)(D8)(D9)(D10)
+
 	static const unsigned int size_ =
 		D1::size_ * D2::size_ * D3::size_ * D4::size_ * D5::size_ *
 		D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
@@ -282,6 +288,87 @@ public:
 	}
 
 	/**
+	 * Does the array have a dimension?
+	 */
+	template<class Dimension>
+	static bool dimensioned(const Dimension&) {
+		return false;
+	}
+
+	#define STENCILA_ARRAY_DIMENSIONED(r,data,elem)\
+		static bool dimensioned(const elem&) { return true; }
+	BOOST_PP_SEQ_FOR_EACH(STENCILA_ARRAY_DIMENSIONED, , STENCILA_ARRAY_DIMENSIONS)
+
+	#undef STENCILA_ARRAY_DIMENSIONED
+
+
+	template<class Dimension>
+	static unsigned int base(const Dimension&) { 
+		return 0;
+	}
+
+	static unsigned int base(const D1&) { 
+		return D2::size_ * D3::size_ * D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D2&) { 
+		return D3::size_ * D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D3&) { 
+		return D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D4&) { 
+		return D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D5&) { 
+		return D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D6&) { 
+		return D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D7&) { 
+		return D8::size_ * D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D8&) { 
+		return D9::size_ * D10::size_;
+	}
+	static unsigned int base(const D9&) { 
+		return D10::size_;
+	}
+	static unsigned int base(const D10&) { 
+		return 1;
+	}
+
+	/**
+	 * Get the linear index corresponding to particular levels of each 
+	 * of the array's dimensions
+	 */
+	static unsigned int index(
+		const Level<D1>& l1,
+		const Level<D2>& l2 = Level<Single2>(0),
+		const Level<D3>& l3 = Level<Single3>(0),
+		const Level<D4>& l4 = Level<Single4>(0),
+		const Level<D5>& l5 = Level<Single5>(0),
+		const Level<D6>& l6 = Level<Single6>(0),
+		const Level<D7>& l7 = Level<Single7>(0),
+		const Level<D8>& l8 = Level<Single8>(0),
+		const Level<D9>& l9 = Level<Single9>(0),
+		const Level<D10>& l10 = Level<Single10>(0)
+	) {
+		return 
+			l1 * base(D1()) + 
+			l2 * base(D2()) +
+			l3 * base(D3()) +
+			l4 * base(D4()) +
+			l5 * base(D5()) +
+			l6 * base(D6()) +
+			l7 * base(D7()) +
+			l8 * base(D8()) +
+			l9 * base(D9()) +
+			l10
+		;
+	}
+
+	/**
 	 * @name Subscript operators
 	 *
 	 * Return the value at the linear index
@@ -295,6 +382,36 @@ public:
 
 	const Type& operator[](unsigned int index) const {
 		return values_[index];
+	}
+
+	Type& operator()(
+		const Level<D1>& l1,
+		const Level<D2>& l2 = Level<Single2>(0),
+		const Level<D3>& l3 = Level<Single3>(0),
+		const Level<D4>& l4 = Level<Single4>(0),
+		const Level<D5>& l5 = Level<Single5>(0),
+		const Level<D6>& l6 = Level<Single6>(0),
+		const Level<D7>& l7 = Level<Single7>(0),
+		const Level<D8>& l8 = Level<Single8>(0),
+		const Level<D9>& l9 = Level<Single9>(0),
+		const Level<D10>& l10 = Level<Single10>(0)
+	){
+		return values_[index(l1,l2,l3,l4,l5,l6,l7,l8,l9,l10)];
+	}
+
+	const Type& operator()(
+		const Level<D1>& l1,
+		const Level<D2>& l2 = Level<Single2>(0),
+		const Level<D3>& l3 = Level<Single3>(0),
+		const Level<D4>& l4 = Level<Single4>(0),
+		const Level<D5>& l5 = Level<Single5>(0),
+		const Level<D6>& l6 = Level<Single6>(0),
+		const Level<D7>& l7 = Level<Single7>(0),
+		const Level<D8>& l8 = Level<Single8>(0),
+		const Level<D9>& l9 = Level<Single9>(0),
+		const Level<D10>& l10 = Level<Single10>(0)
+	) const {
+		return values_[index(l1,l2,l3,l4,l5,l6,l7,l8,l9,l10)];
 	}
 
 	/**
@@ -455,6 +572,8 @@ public:
     /**
      * @}
      */
+    
+    #undef STENCILA_ARRAY_DIMENSIONS
 };
 
 }

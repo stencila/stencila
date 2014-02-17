@@ -107,5 +107,35 @@ BOOST_AUTO_TEST_CASE(dynamic_array_sizes){
     BOOST_CHECK_EQUAL(a.size(10).size(),10);
 }
 
+BOOST_AUTO_TEST_CASE(static_array_dimensioned){
+    Array<double,Four,Five,Seven> a;
+
+    BOOST_CHECK(a.dimensioned(four));
+    BOOST_CHECK(a.dimensioned(seven));
+    BOOST_CHECK(not a.dimensioned(two));
+}
+
+BOOST_AUTO_TEST_CASE(static_array_subscript){
+    Array<double,One> a = {1};
+    BOOST_CHECK_EQUAL(a(Level<One>(0)),1);
+
+    Array<double,One,Two> b = {11,12};
+    BOOST_CHECK_EQUAL(b(Level<One>(0),Level<Two>(0)),11);
+    BOOST_CHECK_EQUAL(b(Level<One>(0),Level<Two>(1)),12);
+    
+    Array<double,Two,Three> c = {11,12,13,21,22,23};
+    BOOST_CHECK_EQUAL(c(Level<Two>(0),Level<Three>(1)),12);
+    BOOST_CHECK_EQUAL(c(Level<Two>(1),Level<Three>(0)),21);
+    BOOST_CHECK_EQUAL(c(Level<Two>(1),Level<Three>(1)),22);
+    BOOST_CHECK_EQUAL(c(Level<Two>(1),Level<Three>(2)),23);
+
+    // The following should not compile because they involve the
+    // wrong number of levels, or levels in the wrong order:
+    //   a(Level<One>(0),Level<Two>(0));
+    //   b(Level<One>(0));
+    //   c(Level<Three>(0),Level<Two>(0));
+    //(that's a feature, not a bug!)
+}
+
 BOOST_AUTO_TEST_SUITE_END()
  
