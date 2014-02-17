@@ -40,15 +40,7 @@ BOOST_AUTO_TEST_CASE(dimension_iterate){
     }
 }
 
-BOOST_AUTO_TEST_CASE(array_sizes){
-    Array<double,Three> a;
-    BOOST_CHECK_EQUAL(a.size(),three.size());
-
-    Array<double,Four,Five,Seven> b;
-    BOOST_CHECK_EQUAL(b.size(),four.size()*five.size()*seven.size());
-}
-
-BOOST_AUTO_TEST_CASE(array_constructors){
+BOOST_AUTO_TEST_CASE(static_array_constructors){
     typedef Array<double,Three> A;
 
     A a;
@@ -76,6 +68,44 @@ BOOST_AUTO_TEST_CASE(array_constructors){
     BOOST_CHECK_EQUAL(e[2],std_array[2]);
 }
 
+BOOST_AUTO_TEST_CASE(dynmaic_array_constructors){
+    Array<> a;
+    BOOST_CHECK_EQUAL(a.size(),0);
+
+    Array<> b(42);
+    BOOST_CHECK_EQUAL(b.size(),42);
+
+    Array<> c({1,2,3});
+    BOOST_CHECK_EQUAL(c[0],1);
+    BOOST_CHECK_EQUAL(c[1],2);
+    BOOST_CHECK_EQUAL(c[2],3);
+
+    std::vector<double> std_vector({1,2,3});
+    Array<> d(std_vector);
+    BOOST_CHECK_EQUAL(d[0],std_vector[0]);
+    BOOST_CHECK_EQUAL(d[1],std_vector[1]);
+    BOOST_CHECK_EQUAL(d[2],std_vector[2]);
+
+    std::array<double,3> std_array = {1,2,3};
+    Array<> e(std_array);
+    BOOST_CHECK_EQUAL(e[0],std_array[0]);
+    BOOST_CHECK_EQUAL(e[1],std_array[1]);
+    BOOST_CHECK_EQUAL(e[2],std_array[2]);
+}
+
+BOOST_AUTO_TEST_CASE(static_array_sizes){
+    Array<double,Three> a;
+    BOOST_CHECK_EQUAL(a.size(),three.size());
+
+    Array<double,Four,Five,Seven> b;
+    BOOST_CHECK_EQUAL(b.size(),four.size()*five.size()*seven.size());
+}
+
+BOOST_AUTO_TEST_CASE(dynamic_array_sizes){
+    Array<> a;
+    BOOST_CHECK_EQUAL(a.size(),0);
+    BOOST_CHECK_EQUAL(a.size(10).size(),10);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
  
