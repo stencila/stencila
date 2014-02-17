@@ -9,24 +9,73 @@ BOOST_AUTO_TEST_SUITE(array)
 
 using namespace Stencila;
 
-BOOST_AUTO_TEST_CASE(dimension_iterate){
+STENCILA_DIM(One,one,one,1);
+STENCILA_DIM(Two,two,twp,2);
+STENCILA_DIM(Three,three,three,3);
+STENCILA_DIM(Four,four,four,4);
+STENCILA_DIM(Five,five,five,5);
+STENCILA_DIM(Six,Sixe,six,6);
+STENCILA_DIM(Seven,seven,seven,7);
 
-    STENCILA_DIM(Region,regions,region,4);
+BOOST_AUTO_TEST_CASE(dimension_macro_statics){
+    BOOST_CHECK_EQUAL(Four::size(),4);
+    BOOST_CHECK_EQUAL(four.size(),4);
 
-    unsigned int levels[4] = {0,1,2,3};
-    unsigned int level;
-
-    level = 0;
-    for(Level<Region> region=regions.begin(); region!=regions.end(); region++){
-        BOOST_CHECK_EQUAL(region,levels[level++]);
-    }
-
-    level = 0;
-    for(auto region: regions){
-        BOOST_CHECK_EQUAL(region,levels[level++]);
-    }
-
+    BOOST_CHECK_EQUAL(Four::label(),"four");
+    BOOST_CHECK_EQUAL(four.label(),"four");
 }
+
+BOOST_AUTO_TEST_CASE(dimension_iterate){
+    unsigned int levels[5] = {0,1,2,3,4};
+    unsigned int index;
+
+    index = 0;
+    for(Level<Five> level=five.begin(); level!=five.end(); level++){
+        BOOST_CHECK_EQUAL(level,levels[index++]);
+    }
+
+    index = 0;
+    for(auto level: five){
+        BOOST_CHECK_EQUAL(level,levels[index++]);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(array_sizes){
+    Array<double,Three> a;
+    BOOST_CHECK_EQUAL(a.size(),three.size());
+
+    Array<double,Four,Five,Seven> b;
+    BOOST_CHECK_EQUAL(b.size(),four.size()*five.size()*seven.size());
+}
+
+BOOST_AUTO_TEST_CASE(array_constructors){
+    typedef Array<double,Three> A;
+
+    A a;
+
+    A b(3.14);
+    BOOST_CHECK_EQUAL(b[0],3.14);
+    BOOST_CHECK_EQUAL(b[1],3.14);
+    BOOST_CHECK_EQUAL(b[2],3.14);
+
+    A c({6,7,9});
+    BOOST_CHECK_EQUAL(c[0],6);
+    BOOST_CHECK_EQUAL(c[1],7);
+    BOOST_CHECK_EQUAL(c[2],9);
+
+    std::vector<double> std_vector({1,2,3});
+    A d(std_vector);
+    BOOST_CHECK_EQUAL(d[0],std_vector[0]);
+    BOOST_CHECK_EQUAL(d[1],std_vector[1]);
+    BOOST_CHECK_EQUAL(d[2],std_vector[2]);
+
+    std::array<double,3> std_array = {1,2,3};
+    A e(std_array);
+    BOOST_CHECK_EQUAL(e[0],std_array[0]);
+    BOOST_CHECK_EQUAL(e[1],std_array[1]);
+    BOOST_CHECK_EQUAL(e[2],std_array[2]);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
  
