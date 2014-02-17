@@ -1,7 +1,11 @@
 #pragma once
 
+#include <fstream>
+
+#include <boost/filesystem.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 
+#include <stencila/exception.hpp>
 #include <stencila/traits.hpp>
 
 namespace Stencila {
@@ -382,12 +386,13 @@ public:
 
 	#undef STENCILA_ARRAY_DIMENSIONED
 
-
+	/**
+	 * Get the number of cells in a single level of a dimension
+	 */
 	template<class Dimension>
 	static unsigned int base(const Dimension&) { 
 		return 0;
 	}
-
 	static unsigned int base(const D1&) { 
 		return D2::size_ * D3::size_ * D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
@@ -418,6 +423,36 @@ public:
 	static unsigned int base(const D10&) { 
 		return 1;
 	}
+
+	/**
+	 * Get the level of a dimension at a linear index
+	 * 
+	 * @param  dimension  The dimension
+	 * @param  index The linear index
+	 */
+	template<class Dimension>
+	unsigned int level(Dimension dimension, unsigned int index) const {
+		return 0;
+	}
+	unsigned int level(D1 dimension, unsigned int index) const {
+		return index/base(dimension);
+	}
+	unsigned int level(D2 dimension, unsigned int index) const {
+		return index/base(dimension)%D2::size_;
+	}
+	unsigned int level(D3 dimension, unsigned int index) const {
+		return index/base(dimension)%D3::size_;
+	}
+	unsigned int level(D4 dimension, unsigned int index) const {
+		return index/base(dimension)%D4::size_;
+	}
+	unsigned int level(D5 dimension, unsigned int index) const {
+		return index/base(dimension)%D5::size_;
+	}
+	unsigned int level(D6 dimension, unsigned int index) const {
+		return index/base(dimension)%D6::size_;
+	}
+
 
 	/**
 	 * Get the linear index corresponding to particular levels of each 
@@ -498,6 +533,49 @@ public:
 	/**
 	 * @}
 	 */
+
+	/**
+	 * Write array to an output stream
+	 * 
+	 * @param stream Output stream
+	 * @param format Format specifier string (e.g. "tsv", "csv")
+	 *
+	 * @todo Implement more output formats including tuning off header and binary output
+	 */
+	void write(std::ostream& stream,const std::string format="tsv") const {
+		if(format=="tsv"){
+			// Header
+			#define STENCILA_ARRAY_HEADER(r,data,elem) if(elem::size_>1) stream<<elem::label()<<"\t";
+			BOOST_PP_SEQ_FOR_EACH(STENCILA_ARRAY_HEADER, , STENCILA_ARRAY_DIMENSIONS)
+			#undef STENCILA_ARRAY_HEADER
+			stream<<"value"<<std::endl;
+			// Values
+			for(uint index=0; index<size(); index++){
+				#define STENCILA_ARRAY_ROW(r,data,elem) if(elem::size_>1) stream<<level(elem(),index)<<"\t";
+				BOOST_PP_SEQ_FOR_EACH(STENCILA_ARRAY_ROW, , STENCILA_ARRAY_DIMENSIONS)
+				#undef STENCILA_ARRAY_ROW
+				stream<<operator[](index)<<std::endl;
+			}
+		}
+		else if(format=="bin"){
+			static_assert(true,"Not implemented");
+		}
+		else{
+			STENCILA_THROW(Exception,"Unsupported format:"+format)
+		}
+	}
+
+	/**
+	 * Write array to a file
+	 * 
+	 * @param path Filesystem path to file
+	 */
+	void write(const std::string& path) const {
+		std::string extension = boost::filesystem::extension(path);
+		std::ofstream file(path);
+		write(file,extension);
+		file.close();
+	}
 
 };
 

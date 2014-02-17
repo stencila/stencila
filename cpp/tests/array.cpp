@@ -2,6 +2,7 @@
 	#define BOOST_TEST_MODULE tests
 #endif
 #include <boost/test/unit_test.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <stencila/array.hpp>
 #include <stencila/query.hpp>
@@ -11,7 +12,7 @@ BOOST_AUTO_TEST_SUITE(array)
 using namespace Stencila;
 
 STENCILA_DIM(One,one,one,1);
-STENCILA_DIM(Two,two,twp,2);
+STENCILA_DIM(Two,two,two,2);
 STENCILA_DIM(Three,three,three,3);
 STENCILA_DIM(Four,four,four,4);
 STENCILA_DIM(Five,five,five,5);
@@ -154,6 +155,22 @@ BOOST_AUTO_TEST_CASE(static_array_query){
 BOOST_AUTO_TEST_CASE(dynamic_array_query){
     Array<> a(42);
     BOOST_CHECK_EQUAL(count(a),a.size());
+}
+
+BOOST_AUTO_TEST_CASE(static_array_write){
+    Array<int,Two,Three> a = 1;
+    a[5] = 42;
+    std::ostringstream stream;
+    a.write(stream);
+
+    std::string output = stream.str();
+    std::vector<std::string> lines;
+    boost::split(lines,output,boost::is_any_of("\n"));
+    BOOST_CHECK_EQUAL(lines.size(),8);
+    BOOST_CHECK_EQUAL(lines[0],"two\tthree\tvalue");
+    BOOST_CHECK_EQUAL(lines[1],"0\t0\t1");
+    BOOST_CHECK_EQUAL(lines[5],"1\t1\t1");
+    BOOST_CHECK_EQUAL(lines[6],"1\t2\t42");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
