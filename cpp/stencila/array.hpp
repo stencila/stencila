@@ -883,4 +883,16 @@ public:
     #undef STENCILA_ARRAY_DIMENSIONS
 };
 
+/**
+ * Output a static array to a stream using the `<<` operator
+ */
+template<
+	class Type,
+	class... Dimensions
+>
+std::ostream& operator<<(std::ostream& stream, const Array<Type,Dimensions...>& array){
+	array.write(stream);
+	return stream;
+}
+
 }
