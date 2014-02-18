@@ -29,7 +29,7 @@ public:
 	}
 
 	/**
-	 * Convert to an unsigned int
+	 * Implicit conversion to an unsigned int
 	 */
 	operator unsigned int (void) const{ 
 		return level_;
@@ -114,7 +114,15 @@ public:
 	 * For consistency with `label()` this is made a static method.
 	 * Does not need to be overidden.
 	 */
-	static const unsigned int size(void){
+	static const unsigned int size(void) {
+		return Size;
+	}
+
+	/**
+	 * Implicit conversion to an unsigned int for syntactic
+	 * convienience
+	 */
+	operator unsigned int (void) const { 
 		return Size;
 	}
 
@@ -307,9 +315,9 @@ public:
 		for(Type& value : values_) value = other;
 	}
 
-	template<class Other>
+	template<typename Other>
     Array(const Other& other){
-    	construct_(IsContainer<Other>(),other);
+    	construct_dispatch_(IsContainer<Other>(),IsCallable<Other>(),other);
     }
 
 	/**
@@ -318,27 +326,154 @@ public:
 	 * This constructor appears to be nessary because compiler (gcc 4.81 at least)
 	 * can not resolve between above consturtors when called with an intiializer list
 	 */
-    template<class Value>
+    template<typename Value>
 	Array(const std::initializer_list<Value>& values){
-        construct_(std::true_type(),values);
+        construct_container_(values);
     }
 
 private:
 
- 	template<class Other>
-    construct_(const std::false_type& is_not_container,const Other& other){
-        for(Type& value : values_) value = other;
+ 	template<typename Other>
+    construct_dispatch_(const std::false_type& is_container,const std::false_type& is_callable,const Other& other){
+        construct_atomic_(other);
     }
 
- 	template<class Other>
-    construct_(const std::true_type& is_container,const Other& other){
+ 	template<typename Other>
+    construct_dispatch_(const std::false_type& is_container,const std::true_type& is_callable,const Other& other){
+        construct_callable_(other);
+    }
+
+ 	template<typename IsCallable, typename Other>
+    construct_dispatch_(const std::true_type& is_container,const IsCallable& is_callable,const Other& other){
+        construct_container_(other);
+    }
+
+ 	template<typename Atomic>
+    construct_atomic_(const Atomic& atomic){
+        for(Type& value : values_) value = atomic;
+    }
+
+ 	template<class Container>
+    construct_container_(const Container& container){
         uint index = 0;
-        for(auto& item : other){
+        for(auto& item : container){
             values_[index] = item;
             index++;
             if(index>=size_) break;
         }
     }
+	
+	template<typename Callable>
+    construct_callable_(Callable callable){
+    	typedef FunctionTraits<decltype(callable)> traits;
+    	ConstructCaller<traits::arity,Callable> caller;
+    	for(unsigned int index=0;index<size();index++) values_[index] = caller(index,callable);
+	}
+
+	/**
+	 * A helper struct to allow for partial template specialisation for different arities of contructor callables.
+	 * Used in `construct_callable_`
+	 */
+	template<unsigned int Arity,typename Callable> struct ConstructCaller;
+
+	template<typename Callable>	struct ConstructCaller<0,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable();
+	}};
+	template<typename Callable>	struct ConstructCaller<1,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<2,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<3,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<4,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<5,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index),
+			level(D5(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<6,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index),
+			level(D5(),index),
+			level(D6(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<7,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index),
+			level(D5(),index),
+			level(D6(),index),
+			level(D7(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<8,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index),
+			level(D5(),index),
+			level(D6(),index),
+			level(D7(),index),
+			level(D8(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<9,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index),
+			level(D5(),index),
+			level(D6(),index),
+			level(D7(),index),
+			level(D8(),index),
+			level(D9(),index)
+		);
+	}};
+	template<typename Callable>	struct ConstructCaller<10,Callable>{ Type operator()(unsigned int index,Callable callable){
+		return callable(
+			level(D1(),index),
+			level(D2(),index),
+			level(D3(),index),
+			level(D4(),index),
+			level(D5(),index),
+			level(D6(),index),
+			level(D7(),index),
+			level(D8(),index),
+			level(D9(),index),
+			level(D10(),index)
+		);
+	}};
 
     /**
      * @}
@@ -431,27 +566,40 @@ public:
 	 * @param  index The linear index
 	 */
 	template<class Dimension>
-	unsigned int level(Dimension dimension, unsigned int index) const {
+	static unsigned int level(Dimension dimension, unsigned int index) {
 		return 0;
 	}
-	unsigned int level(D1 dimension, unsigned int index) const {
+	static unsigned int level(D1 dimension, unsigned int index) {
 		return index/base(dimension);
 	}
-	unsigned int level(D2 dimension, unsigned int index) const {
+	static unsigned int level(D2 dimension, unsigned int index) {
 		return index/base(dimension)%D2::size_;
 	}
-	unsigned int level(D3 dimension, unsigned int index) const {
+	static unsigned int level(D3 dimension, unsigned int index) {
 		return index/base(dimension)%D3::size_;
 	}
-	unsigned int level(D4 dimension, unsigned int index) const {
+	static unsigned int level(D4 dimension, unsigned int index) {
 		return index/base(dimension)%D4::size_;
 	}
-	unsigned int level(D5 dimension, unsigned int index) const {
+	static unsigned int level(D5 dimension, unsigned int index) {
 		return index/base(dimension)%D5::size_;
 	}
-	unsigned int level(D6 dimension, unsigned int index) const {
+	static unsigned int level(D6 dimension, unsigned int index) {
 		return index/base(dimension)%D6::size_;
 	}
+	static unsigned int level(D7 dimension, unsigned int index) {
+		return index/base(dimension)%D7::size_;
+	}
+	static unsigned int level(D8 dimension, unsigned int index) {
+		return index/base(dimension)%D8::size_;
+	}
+	static unsigned int level(D9 dimension, unsigned int index) {
+		return index/base(dimension)%D9::size_;
+	}
+	static unsigned int level(D10 dimension, unsigned int index) {
+		return index/base(dimension)%D10::size_;
+	}
+
 
 
 	/**

@@ -68,6 +68,17 @@ BOOST_AUTO_TEST_CASE(static_array_constructors){
     BOOST_CHECK_EQUAL(e[0],std_array[0]);
     BOOST_CHECK_EQUAL(e[1],std_array[1]);
     BOOST_CHECK_EQUAL(e[2],std_array[2]);
+
+    int jumper = 6;
+    A f([&jumper](){return jumper++;});
+    BOOST_CHECK_EQUAL(f[0],6);
+    BOOST_CHECK_EQUAL(f[1],7);
+    BOOST_CHECK_EQUAL(f[2],8);
+
+    A g([](double level){return level;});
+    BOOST_CHECK_EQUAL(g[0],0);
+    BOOST_CHECK_EQUAL(g[1],1);
+    BOOST_CHECK_EQUAL(g[2],2);
 }
 
 BOOST_AUTO_TEST_CASE(dynmaic_array_constructors){
