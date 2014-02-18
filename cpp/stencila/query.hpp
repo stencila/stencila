@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stencila/traits.hpp>
+
 namespace Stencila {
 
 class Query {
@@ -13,6 +15,8 @@ template<
 >
 class Aggregator : public Query {
 public:
+
+	typedef Result result_type;
 	
 	/**
 	 * Convienience method to return address as derived class
@@ -93,21 +97,37 @@ public:
 	/**
 	 * Apply the aggregator to a container
 	 */
-	template<class Container>
-	Class& apply(const Container& container) {
-		for(auto& value : container) self().append(value);
-		return self();
+	template<typename Type>
+	Class& apply(const Type& object) {
+		return apply_dispatch_(IsContainer<Type>(),object);
 	}
 
 	/**
-	 * Apply and calculate the aggregator on a container
+	 * Apply the aggregator to a container and calculate
 	 */
-	template<class Container>
-	Result run(const Container& container) {
-		return self().apply(container).calc();
+	template<typename Type>
+	Result run(const Type& object) {
+		return apply(object).calc();
 	}
 
+private:
+
+	template<typename Type>
+	Class& apply_dispatch_(const std::true_type& is_container,Type object) {
+		return apply_container_(object);
+	}
+
+	template<class Container>
+	Class& apply_container_(const Container& container) {
+		for(auto& value : container) self().append(value);
+		return self();
+	}
 };
+
+#define STENCILA_AGGREGATOR_FUNCS(name,func)\
+	name func(){ return name(); } \
+	template<class Type> \
+	name::result_type func(const Type& object){ return name().apply(object); }
 
 
 template<
@@ -140,7 +160,6 @@ void each(const Type& object, Function function){
 }
 
 
-
 class Count : public Aggregator<Count,unsigned int> {
 protected:
 	double count_;
@@ -156,7 +175,7 @@ public:
 		return *this;
 	}
 
-    std::string dump(void){
+    std::string dump(void) const {
         char value[1000];
         std::sprintf(value, "%lf", count_);
         return value;
@@ -177,14 +196,7 @@ public:
 	}
 };
 
-Count count(){
-	return Count();
-}
-
-template<class Type>
-double count(const Type& object){
-	return Count().run(object);
-}
+STENCILA_AGGREGATOR_FUNCS(Count,count)
 
 
 class Sum : public Aggregator<Sum,double> {
@@ -202,7 +214,7 @@ public:
 		return *this;
 	}
 
-    std::string dump(void){
+    std::string dump(void) const {
         char value[1000];
         std::sprintf(value, "%lf", sum_);
         return value;
@@ -223,14 +235,123 @@ public:
 	}
 };
 
-Sum sum(){
-	return Sum();
-}
+STENCILA_AGGREGATOR_FUNCS(Sum,sum)
 
-template<class Type>
-double sum(const Type& object){
-	return Sum().run(object);
-}
+
+class Product : public Aggregator<Product,double> {
+protected:
+	double prod_;
+	
+public:
+	Product(void):
+		prod_(1){
+	}
+
+	template<class Type>
+	Product& append(const Type& value){
+		prod_ *= value;
+		return *this;
+	}
+
+    std::string dump(void) const {
+        char value[1000];
+        std::sprintf(value, "%lf", prod_);
+        return value;
+    }
+
+    Product& load(const std::string& value){
+        std::sscanf(value.c_str(), "%lf", &prod_);
+        return *this;
+    }
+    
+    Product& join(const Product& other){
+        prod_ *= other.prod_;
+        return *this;
+    }
+
+	double calc(void) const {
+		return prod_;
+	}
+};
+
+STENCILA_AGGREGATOR_FUNCS(Product,prod)
+
+
+class Mean : public Aggregator<Mean> {
+private:
+	double sum_;
+	double count_;
+
+public:
+	Mean(void):
+		sum_(0),count_(0){
+	}
+
+	template<class Type>
+	Mean& append(const Type& value){
+		sum_ += value;
+		count_++;
+		return *this;
+	}
+
+    std::string dump(void) const {
+        char value[1000];
+        std::sprintf(value, "%lf %lf", sum_, count_);
+        return value;
+    }
+
+    Mean& load(const std::string& value){
+        std::sscanf(value.c_str(), "%lf %lf", &sum_, &count_);
+        return *this;
+    }
+    
+    Mean& join(const Mean& other){
+        sum_ += other.sum_;
+        count_ += other.count_;
+        return *this;
+    }
+
+	double calc(void) const {
+		return sum_/count_;
+	}
+};
+
+class GeometricMean : public Aggregator<GeometricMean> {
+private:
+
+	Mean mean_;
+
+public:
+
+	template<class Type>
+	GeometricMean append(const Type& value){
+		if(value>0) mean_.append(value);
+		return *this;
+	}
+
+    std::string dump(void) const {
+        return mean_.dump();
+    }
+
+    GeometricMean& load(const std::string& value){
+        mean_.load(value);
+        return *this;
+    }
+    
+    GeometricMean& join(const GeometricMean& other){
+        mean_.join(other.mean_);
+        return *this;
+    }
+
+	double calc(void) const {
+		return std::exp(mean_.calc());
+	}
+};
+
+STENCILA_AGGREGATOR_FUNCS(Mean,mean)
+
+
+#undef STENCILA_AGGREGATOR_FUNCS
 
 // Forward declaration of By class.
 // Given many template arguments to allow for Bys specialised

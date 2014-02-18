@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_SUITE(query)
 using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(each_){
-    char letters[] = {'p','e','a','n','u','t'};
+    std::vector<char> letters = {'p','e','a','n','u','t'};
     std::string word;
     each(letters,[&word](char item){
         word += item;
@@ -19,12 +19,12 @@ BOOST_AUTO_TEST_CASE(each_){
 }
 
 BOOST_AUTO_TEST_CASE(count_){
-    int items[100];
+    std::vector<int> items(100);
     BOOST_CHECK_EQUAL(count(items),100);
 }
 
 BOOST_AUTO_TEST_CASE(sum_){
-    int items[] = {1,2,3};
+    std::vector<int> items = {1,2,3};
     BOOST_CHECK_EQUAL(sum(items),6);
 
     Sum s1,s2,s3;
