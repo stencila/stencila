@@ -13,7 +13,7 @@ tests.exe: *.cpp
 #   Compiled with the STENCILA_TEST_SINGLE macro defined
 #   More recent versions of gcov have "--relative-only" which "Only output information about source files with a relative pathname (after source prefix elision). 
 #      Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
-%.exe: %.cpp
+%.exe: %.cpp ../stencila/%.hpp
 	$(STENCILA_CPP_TEST_COMPILE) -DSTENCILA_TEST_SINGLE -o $@ $< $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
 
 # Run the test
