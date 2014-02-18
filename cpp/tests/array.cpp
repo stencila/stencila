@@ -163,6 +163,30 @@ BOOST_AUTO_TEST_CASE(static_array_query){
     BOOST_CHECK_EQUAL(word,"ford");
 }
 
+BOOST_AUTO_TEST_CASE(static_array_query_by){
+    Array<double,Two,Three> numbers = 2;
+    
+    {
+        Array<unsigned int,Two> counts = numbers(by(two),count());
+        BOOST_CHECK_EQUAL(counts(0),3);
+        BOOST_CHECK_EQUAL(counts(1),3);
+    }{
+        auto sums = numbers(by(two),sum());
+        BOOST_CHECK_EQUAL(sums(0),6);
+        BOOST_CHECK_EQUAL(sums(1),6);
+    }{
+        auto sums = numbers(by(three),sum());
+        BOOST_CHECK_EQUAL(sums(0),4);
+        BOOST_CHECK_EQUAL(sums(1),4);
+        BOOST_CHECK_EQUAL(sums(2),4);
+    }{
+        auto sums = numbers(by(two,three),sum());
+        BOOST_CHECK_EQUAL(sums(0,0),2);
+        BOOST_CHECK_EQUAL(sums(0,1),2);
+        BOOST_CHECK_EQUAL(sums(0,2),2);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(dynamic_array_query){
     Array<> a(42);
     BOOST_CHECK_EQUAL(count(a),a.size());

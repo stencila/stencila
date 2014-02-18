@@ -232,4 +232,21 @@ double sum(const Type& object){
 	return Sum().run(object);
 }
 
+// Forward declaration of By class.
+// Given many template arguments to allow for Bys specialised
+// for Array dimensions (see `array.hpp`)
+template<
+	class Arg1,
+	class Arg2,
+	class Arg3,
+	class Arg4,
+	class Arg5,
+	class Arg6,
+	class Arg7,
+	class Arg8,
+	class Arg9,
+	class Arg10
+>
+class By;
+
 }

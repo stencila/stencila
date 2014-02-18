@@ -6,6 +6,7 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 
 #include <stencila/exception.hpp>
+#include <stencila/query.hpp>
 #include <stencila/traits.hpp>
 
 namespace Stencila {
@@ -183,19 +184,19 @@ public:
 #define STENCILA_DIM_SINGULAR(name) \
 	class name : public Dimension<name,1>{ \
 	public: \
-		static const char* label(void) { return "single"; } \
+		static const char* label(void) { return "singular"; } \
 	};
 
-STENCILA_DIM_SINGULAR(Single1)
-STENCILA_DIM_SINGULAR(Single2)
-STENCILA_DIM_SINGULAR(Single3)
-STENCILA_DIM_SINGULAR(Single4)
-STENCILA_DIM_SINGULAR(Single5)
-STENCILA_DIM_SINGULAR(Single6)
-STENCILA_DIM_SINGULAR(Single7)
-STENCILA_DIM_SINGULAR(Single8)
-STENCILA_DIM_SINGULAR(Single9)
-STENCILA_DIM_SINGULAR(Single10)
+STENCILA_DIM_SINGULAR(Singular1)
+STENCILA_DIM_SINGULAR(Singular2)
+STENCILA_DIM_SINGULAR(Singular3)
+STENCILA_DIM_SINGULAR(Singular4)
+STENCILA_DIM_SINGULAR(Singular5)
+STENCILA_DIM_SINGULAR(Singular6)
+STENCILA_DIM_SINGULAR(Singular7)
+STENCILA_DIM_SINGULAR(Singular8)
+STENCILA_DIM_SINGULAR(Singular9)
+STENCILA_DIM_SINGULAR(Singular10)
 
 #undef STENCILA_DIM_SINGULAR
 
@@ -264,19 +265,45 @@ public:
 
 template<
 	typename Type = double,
-	class D1 = Single1,
-	class D2 = Single2,
-	class D3 = Single3,
-	class D4 = Single4,
-	class D5 = Single5,
-	class D6 = Single6,
-	class D7 = Single7,
-	class D8 = Single8,
-	class D9 = Single9,
-	class D10 = Single10
+	class D1 = Singular1,
+	class D2 = Singular2,
+	class D3 = Singular3,
+	class D4 = Singular4,
+	class D5 = Singular5,
+	class D6 = Singular6,
+	class D7 = Singular7,
+	class D8 = Singular8,
+	class D9 = Singular9,
+	class D10 = Singular10
 >
 class Array;
 
+/**
+ * `by` query specialised for Arrays.
+ *
+ * This `By` class contains dimensions which can
+ * be used by Array to optimise it's running.
+ */
+template<
+	class D1,
+	class D2 = Singular2,
+	class D3 = Singular3,
+	class D4 = Singular4,
+	class D5 = Singular5,
+	class D6 = Singular6,
+	class D7 = Singular7,
+	class D8 = Singular8,
+	class D9 = Singular9,
+	class D10 = Singular10
+>
+class By {
+public:
+};
+
+template<class... Dimension>
+By<Dimension...> by(Dimension... dims){
+	return By<Dimension...>();
+}
 
 /**
  * A static array
@@ -300,6 +327,9 @@ private:
 		D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 
 	Type values_[size_];
+
+	// A templated struct used in method overloading to signify alternative numbers (e.g dimensions; function arity)
+	template<unsigned int> struct Rank {};
 
 public:
 
@@ -362,50 +392,43 @@ private:
             if(index>=size_) break;
         }
     }
-	
+
 	template<typename Callable>
     construct_callable_(Callable callable){
     	typedef FunctionTraits<decltype(callable)> traits;
-    	ConstructCaller<traits::arity,Callable> caller;
-    	for(unsigned int index=0;index<size();index++) values_[index] = caller(index,callable);
+    	for(unsigned int index=0;index<size();index++) values_[index] = construct_call_(Rank<traits::arity>(),index,callable);
 	}
 
-	/**
-	 * A helper struct to allow for partial template specialisation for different arities of contructor callables.
-	 * Used in `construct_callable_`
-	 */
-	template<unsigned int Arity,typename Callable> struct ConstructCaller;
-
-	template<typename Callable>	struct ConstructCaller<0,Callable>{ Type operator()(unsigned int index,Callable callable){
+	template<typename Callable> static Type construct_call_(Rank<0>,unsigned int index,Callable callable){
 		return callable();
-	}};
-	template<typename Callable>	struct ConstructCaller<1,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<1>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<2,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<2>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<3,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<3>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
 			level(D3(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<4,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<4>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
 			level(D3(),index),
 			level(D4(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<5,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<5>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
@@ -413,8 +436,8 @@ private:
 			level(D4(),index),
 			level(D5(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<6,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<6>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
@@ -423,8 +446,8 @@ private:
 			level(D5(),index),
 			level(D6(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<7,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<7>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
@@ -434,8 +457,8 @@ private:
 			level(D6(),index),
 			level(D7(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<8,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<8>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
@@ -446,8 +469,8 @@ private:
 			level(D7(),index),
 			level(D8(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<9,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<9>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
@@ -459,8 +482,8 @@ private:
 			level(D8(),index),
 			level(D9(),index)
 		);
-	}};
-	template<typename Callable>	struct ConstructCaller<10,Callable>{ Type operator()(unsigned int index,Callable callable){
+	}
+	template<typename Callable>	static Type construct_call_(Rank<10>,unsigned int index,Callable callable){
 		return callable(
 			level(D1(),index),
 			level(D2(),index),
@@ -473,7 +496,7 @@ private:
 			level(D9(),index),
 			level(D10(),index)
 		);
-	}};
+	}
 
     /**
      * @}
@@ -608,15 +631,15 @@ public:
 	 */
 	static unsigned int index(
 		const Level<D1>& l1,
-		const Level<D2>& l2 = Level<Single2>(0),
-		const Level<D3>& l3 = Level<Single3>(0),
-		const Level<D4>& l4 = Level<Single4>(0),
-		const Level<D5>& l5 = Level<Single5>(0),
-		const Level<D6>& l6 = Level<Single6>(0),
-		const Level<D7>& l7 = Level<Single7>(0),
-		const Level<D8>& l8 = Level<Single8>(0),
-		const Level<D9>& l9 = Level<Single9>(0),
-		const Level<D10>& l10 = Level<Single10>(0)
+		const Level<D2>& l2 = Level<Singular2>(0),
+		const Level<D3>& l3 = Level<Singular3>(0),
+		const Level<D4>& l4 = Level<Singular4>(0),
+		const Level<D5>& l5 = Level<Singular5>(0),
+		const Level<D6>& l6 = Level<Singular6>(0),
+		const Level<D7>& l7 = Level<Singular7>(0),
+		const Level<D8>& l8 = Level<Singular8>(0),
+		const Level<D9>& l9 = Level<Singular9>(0),
+		const Level<D10>& l10 = Level<Singular10>(0)
 	) {
 		return 
 			l1 * base(D1()) + 
@@ -650,30 +673,30 @@ public:
 
 	Type& operator()(
 		const Level<D1>& l1,
-		const Level<D2>& l2 = Level<Single2>(0),
-		const Level<D3>& l3 = Level<Single3>(0),
-		const Level<D4>& l4 = Level<Single4>(0),
-		const Level<D5>& l5 = Level<Single5>(0),
-		const Level<D6>& l6 = Level<Single6>(0),
-		const Level<D7>& l7 = Level<Single7>(0),
-		const Level<D8>& l8 = Level<Single8>(0),
-		const Level<D9>& l9 = Level<Single9>(0),
-		const Level<D10>& l10 = Level<Single10>(0)
+		const Level<D2>& l2 = Level<Singular2>(0),
+		const Level<D3>& l3 = Level<Singular3>(0),
+		const Level<D4>& l4 = Level<Singular4>(0),
+		const Level<D5>& l5 = Level<Singular5>(0),
+		const Level<D6>& l6 = Level<Singular6>(0),
+		const Level<D7>& l7 = Level<Singular7>(0),
+		const Level<D8>& l8 = Level<Singular8>(0),
+		const Level<D9>& l9 = Level<Singular9>(0),
+		const Level<D10>& l10 = Level<Singular10>(0)
 	){
 		return values_[index(l1,l2,l3,l4,l5,l6,l7,l8,l9,l10)];
 	}
 
 	const Type& operator()(
 		const Level<D1>& l1,
-		const Level<D2>& l2 = Level<Single2>(0),
-		const Level<D3>& l3 = Level<Single3>(0),
-		const Level<D4>& l4 = Level<Single4>(0),
-		const Level<D5>& l5 = Level<Single5>(0),
-		const Level<D6>& l6 = Level<Single6>(0),
-		const Level<D7>& l7 = Level<Single7>(0),
-		const Level<D8>& l8 = Level<Single8>(0),
-		const Level<D9>& l9 = Level<Single9>(0),
-		const Level<D10>& l10 = Level<Single10>(0)
+		const Level<D2>& l2 = Level<Singular2>(0),
+		const Level<D3>& l3 = Level<Singular3>(0),
+		const Level<D4>& l4 = Level<Singular4>(0),
+		const Level<D5>& l5 = Level<Singular5>(0),
+		const Level<D6>& l6 = Level<Singular6>(0),
+		const Level<D7>& l7 = Level<Singular7>(0),
+		const Level<D8>& l8 = Level<Singular8>(0),
+		const Level<D9>& l9 = Level<Singular9>(0),
+		const Level<D10>& l10 = Level<Singular10>(0)
 	) const {
 		return values_[index(l1,l2,l3,l4,l5,l6,l7,l8,l9,l10)];
 	}
@@ -681,6 +704,36 @@ public:
 	/**
 	 * @}
 	 */
+
+
+	/**
+	 * @name Query operators (`operator()` called with Query objects)
+	 *
+	 * @{
+	 */
+	
+	template<
+		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10,
+		class Class, typename Result
+	>
+	Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by,const Aggregator<Class,Result>& aggregator=Sum()){
+		// Construct an array of `Class`, not `Aggregator<Class,Result>`, so that correct `append` method is called
+		Array<Class,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregators;
+		for(uint index=0;index<size();index++) {
+			aggregators(
+				level(A1(),index),level(A2(),index),level(A3(),index),level(A4(),index),level(A5(),index),
+				level(A6(),index),level(A7(),index),level(A8(),index),level(A9(),index),level(A10(),index)
+			).append(values_[index]);
+		}
+		Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> result;
+		for(int index=0;index<aggregators.size();index++) result[index] = aggregators[index].calc();
+		return result;
+	}
+
+	/**
+	 * @}
+	 */
+	
 
 	/**
 	 * Write array to an output stream
@@ -702,7 +755,7 @@ public:
 				#define STENCILA_ARRAY_ROW(r,data,elem) if(elem::size_>1) stream<<level(elem(),index)<<"\t";
 				BOOST_PP_SEQ_FOR_EACH(STENCILA_ARRAY_ROW, , STENCILA_ARRAY_DIMENSIONS)
 				#undef STENCILA_ARRAY_ROW
-				stream<<operator[](index)<<std::endl;
+				stream<<values_[index]<<std::endl;
 			}
 		}
 		else if(format=="bin"){
@@ -719,7 +772,7 @@ public:
 	 * @param path Filesystem path to file
 	 */
 	void write(const std::string& path) const {
-		std::string extension = boost::filesystem::extension(path);
+		std::string extension = boost::filesystem::extension(path).substr(1);
 		std::ofstream file(path);
 		write(file,extension);
 		file.close();
