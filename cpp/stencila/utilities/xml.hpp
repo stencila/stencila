@@ -64,6 +64,11 @@ typedef std::vector<std::pair<std::string,std::vector<std::string>>> Whitelist;
 
 /**
  * XML node
+ *
+ * This class wraps `pugi::xml_node` to change the programming interace.
+ * It adds convienient methods for appending elements to a node e.g. `elem.append("div",{{"class","greeting"},{"id","hello"}},"Hello world")`.
+ * Where appropriate it reduces the length of method names (e.g `next_sibling()` becomes `next()`) and makes them consitent 
+ * with the [JQuery API](https://api.jquery.com/) (e.g. `attribute("class")` becomes `attr("class")`).
  */
 class Node : protected pugi::xml_node {
 
@@ -340,6 +345,28 @@ public:
     }
 
     /**
+     * Prepend a node
+     */
+    Node prepend(Node node){
+        return prepend_copy(node);
+    }
+
+    /**
+     * Insert a node before this one
+     */
+    Node before(Node node){
+        return parent().insert_copy_before(node,*this);
+    }
+
+    /**
+     * Insert a node after this one
+     */
+    Node after(Node node){
+        return parent().insert_copy_after(node,*this);
+    }
+
+
+    /**
      * Remove a child node
      * 
      * @param  child Child node
@@ -379,24 +406,58 @@ public:
      * @}
      */ 
     
+
     /**
-     * @name Node traversal
+     * @name Child traversal
      * @{
      */
 
-    // The following methods are made public for use elsewhere in Stencila code
-    // At this stage it is not certain if these will made 'offically' public method
-    // that return a Node
     using pugi::xml_node::children;
-    using pugi::xml_node::next_sibling;
 
-    Node first_child_element(void){
+    /**
+     * Get the first child node of this node
+     */
+    Node first(void){
+        return first_child();
+    }
+
+    /**
+     * Get the first child  of this node that is an element
+     */
+    Node first_element(void){
         return find_child([](pugi::xml_node node){
             return node.type()==pugi::node_element;
         });
     }
 
-    Node next_sibling_element(void){
+    /**
+     * Get the last child node of this node
+     */
+    Node last(void){
+        return last_child();
+    }
+
+    /**
+     * @}
+     */ 
+    
+    
+    /**
+     * @name Sibling traversal
+     * @{
+     */
+
+    /**
+     * Get the next sibling of this node
+     */
+    Node next(void){
+        return next_sibling();
+    }
+
+    /**
+     * Get the next sibling of this node that is an element
+     */
+    Node next_element(void){
         pugi::xml_node sibling = next_sibling();
         while(sibling){
             if(sibling.type()==pugi::node_element){
@@ -405,6 +466,13 @@ public:
             sibling = next_sibling();
         }
         return pugi::xml_node();
+    }
+
+    /**
+     * Get the previous sibling of this node
+     */
+    Node previous(void){
+        return previous_sibling();
     }
 
     /**
