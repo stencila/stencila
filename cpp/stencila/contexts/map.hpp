@@ -9,6 +9,10 @@
 namespace Stencila {
 namespace Contexts {
 
+/**
+ * @todo Document
+ * @todo Leaks memory, need to balance up all the news or else not use new so much.
+ */
 class Map : public Context<Map> {
 private:
 
@@ -165,8 +169,13 @@ public:
     }
 
    
-    Map& enter(const std::string& expression=""){
+    Map& enter(const std::string& expression){
         frames_.push_back(get_(expression));
+        return *this;
+    }
+
+    Map& enter(void){
+        frames_.push_back(new Frame);
         return *this;
     }
 
