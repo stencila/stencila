@@ -116,6 +116,11 @@ public:
     
 private:
 
+    /**
+     * @todo Currently, `data-error` attributes get set here which is convienient but also means
+     * that they do not always get applied to the nearest node where the error ocurred. Write a 
+     * `render_error_` method and try and catch errors in the individual `render_...` methods.
+     */
     template<typename Context>
     void render_element_(Node node, Context& context){
         try {
@@ -135,6 +140,7 @@ private:
                 else if(attr=="data-elif" or attr=="data-else") return;
                 else if(attr=="data-switch") return render_switch_(node,context);
                 else if(attr=="data-for") return render_for_(node,context);
+                else if(attr=="data-include") return render_include_(node,context);
             }
             //If return not yet hit then process children of this element
             render_children_(node,context);
@@ -274,7 +280,7 @@ private:
         }
         // Iterate through sibling elements to turn them on or off
         // if they are elif or else elements; break otherwise.
-        Node next = node.next_sibling_element();
+        Node next = node.next_element();
         while(next){
             if(next.has("data-elif")){
                 if(hit){
@@ -300,7 +306,7 @@ private:
                 break;
             }
             else break;
-            next = next.next_sibling_element();
+            next = next.next_element();
         }
     }
 
@@ -416,6 +422,126 @@ private:
                 else indexed.destroy();
             }
         }
+    }
+
+    template<typename Context>
+    void render_include_(Node node, Context& context){
+        std::string include = node.attr("data-include");
+        std::string version = node.attr("data-version");
+        std::string select = node.attr("data-select");
+
+        // If this node has been rendered before then there will be 
+        // a `data-included` node that needs to be cleared first. If it
+        // does not yet exists then append it.
+        Node included = node.one("data-included");
+        if(included) included.clear();
+        else included = node.append("div",{{"data-included","true"}});
+        
+        // Obtain the included stencil...
+        Stencil& stencil = Stencila::obtain<Stencil>(include,version);
+        // ...select from it
+        if(select.length()>0){
+            // ...append the selected nodes
+            for(Node node : stencil.all(select)) included.append(node);
+        } else {
+            // ...append all the nodes
+            included.append(static_cast<Xml::Document&>(stencil));
+        }
+
+        //Apply modifiers
+        const int modifiers = 7;
+        enum {
+            delete_ = 0,
+            replace = 1,
+            change = 2,
+            before = 3,
+            after = 4,
+            prepend = 5,
+            append = 6
+        };
+        std::string attributes[modifiers] = {
+            "data-delete",
+            "data-replace",
+            "data-change",
+            "data-before",
+            "data-after",
+            "data-prepend",
+            "data-append"
+        };
+        for(int type=0;type<modifiers;type++){
+            std::string attribute = attributes[type];
+            for(Node modifier : node.all("["+attribute+"]")){
+                std::string selector = modifier.attr(attribute);
+                for(Node target : included.all(selector)){
+                    Node created;
+                    switch(type){
+
+                        case delete_:
+                            target.destroy();
+                        break;
+
+                        case change:
+                            target.clear();
+                            target.append_children(modifier);
+                        break;
+
+                        case replace: 
+                            created = target.before(modifier);
+                            target.destroy();
+                        break;
+                        
+                        case before:
+                            created = target.before(modifier);
+                        break;
+                        
+                        case after:
+                            created = target.after(modifier);
+                        break;
+                        
+                        case prepend:
+                            created = included.prepend(modifier);
+                        break;
+                        
+                        case append:
+                            created = included.append(modifier);
+                        break;
+                    }
+                    // Remove the modifier attribute from any newly created node
+                    if(created) created.erase(attribute);
+                }
+            }
+        }
+        
+        // Create a new context frame, regardless of whether there are any 
+        // `data-param` elements, to avoid the included elements polluting the
+        // main frame or overwriting variables inadvertantly
+        context.enter();
+
+        // Apply `data-param` elements
+        // @todo Check the `data-param` elements of the included stencil
+        // if there is no match then use the default is any,or add an error.
+        for(Node param : node.all("[data-param]")){
+            std::string value = param.attr("data-param");
+            std::string name;
+            std::string expression;
+            size_t semicolon = value.find(":");
+            if(semicolon!=value.npos){
+                name = value.substr(0,semicolon);
+                expression = value.substr(semicolon+1);
+            } else {
+                name = value;
+                expression = param.text();
+            }
+            //Set the parameter in the new block
+            context.assign(name,expression);
+        }
+
+        // Render the `data-included` element
+        render_children_(included,context);
+        
+        // Exit the anonymous frame
+        context.exit();
+
     }
 
     /**

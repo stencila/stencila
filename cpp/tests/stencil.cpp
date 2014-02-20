@@ -175,6 +175,8 @@ struct RenderingFixture {
 
 BOOST_FIXTURE_TEST_SUITE(rendering,RenderingFixture)
 
+using namespace Stencila;
+
 BOOST_AUTO_TEST_CASE(code){
     render(R"(
         <code class="executed" data-code="map" />
@@ -327,6 +329,37 @@ BOOST_AUTO_TEST_CASE(for_locked_extras){
 
     BOOST_CHECK(not s.one("li[data-index=\"998\"]"));
     BOOST_CHECK_EQUAL(s.one("li[data-index=\"999\"]").attr("data-extra"),"true");
+}
+
+/**
+ * @todo a bunch more include related tests
+ */
+BOOST_AUTO_TEST_CASE(include){
+
+    Stencil s1(R"(html://
+        <div class="inner">
+            <div class="a" data-text="a"></div>
+            <div class="b">B</div>
+            <div class="c"></div>
+            <div class="x" data-text="x"></div>
+            <div class="y" data-text="y"></div>
+        </div>
+    )");
+
+    s1.path("s1");
+
+    render(R"(
+        <div data-text="a"></div>
+        <div data-include="s1" data-select=".inner *">
+            <p data-delete=".b" />
+            <p data-replace=".c">CCCCCCCC</p>
+            <p data-param="x:5" />
+            <p data-param="y">Oh, why!</p>
+        </div>
+    )");
+
+    //dump();
+    BOOST_CHECK(s.one("div[data-include] div[data-included]"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
