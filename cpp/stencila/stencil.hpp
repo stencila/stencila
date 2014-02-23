@@ -174,10 +174,10 @@ private:
             render_children_(node,context);
         }
         catch(std::exception& exc){
-            node.append("div",{{"class","error"}},exc.what());
+            node.append("div",{{"data-error","true"}},exc.what());
         }
         catch(...){
-            node.append("div",{{"class","error"}},"Unknown error");
+            node.append("div",{{"data-error","true"}},"Unknown error");
         }
     }
 
@@ -273,7 +273,11 @@ private:
             });
         }
         else {
-            node.attr("data-error","Image format not recognised: "+format);
+            node.append(
+                "div",
+                {{"data-error","image-format"},{"data-format",format}},
+                "Image format not recognised: "+format
+            );
         }
     }
 
@@ -478,15 +482,18 @@ private:
         }
         else included = node.append("div",{{"data-included","true"}});
         
-        // Obtain the included stencil...
-        Stencil& stencil = Stencila::obtain<Stencil>(include,version);
+        //Obtain the included stencil...
+        Node stencil;
+        //Check to see if this is a "self" include, otherwise obtain the stencil
+        if(include==".") stencil = node.root();
+        else stencil = Stencila::obtain<Stencil>(include,version);
         // ...select from it
         if(select.length()>0){
             // ...append the selected nodes
             for(Node node : stencil.all(select)) included.append(node);
         } else {
             // ...append all the nodes
-            included.append(static_cast<Xml::Document&>(stencil));
+            included.append(stencil);
         }
 
         //Apply modifiers
@@ -589,7 +596,7 @@ private:
                     // Set an error
                     included.append(
                         "div",
-                        {{"class","error"},{"data-param",name}},
+                        {{"data-error","param-required"},{"data-param",name}},
                         "Parameter is required because it has no default: "+name
                     );
                 }
