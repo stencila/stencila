@@ -180,11 +180,11 @@ using namespace Stencila;
 BOOST_AUTO_TEST_CASE(code){
     render(R"(
         <code class="executed" data-code="map" />
-        <code class="ignored" />
+        <code class="ignored">This should be ignored because no data-code attribute</code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code.executed").attr("data-error"),"Not supported by context type: map-context");
-    BOOST_CHECK_EQUAL(s.one("code.ignored").attr("data-error"),"");
+    BOOST_CHECK_EQUAL(s.one("code.executed .error").text(),"Not supported by context type: map-context");
+    BOOST_CHECK(not s.one("code.ignored .error"));
 }
 
 BOOST_AUTO_TEST_CASE(text){
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(image){
         </code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code").attr("data-error"),"Not supported by context type: map-context");
+    BOOST_CHECK_EQUAL(s.one("code .error").text(),"Not supported by context type: map-context");
 }
 
 BOOST_AUTO_TEST_CASE(with){
@@ -338,11 +338,15 @@ BOOST_AUTO_TEST_CASE(include){
 
     Stencil s1(R"(html://
         <div class="inner">
+            <div data-param="z:123" />
+
             <div class="a" data-text="a"></div>
             <div class="b">B</div>
             <div class="c"></div>
+            
             <div class="x" data-text="x"></div>
             <div class="y" data-text="y"></div>
+            <div class="z" data-text="z"></div>
         </div>
     )");
 
@@ -353,12 +357,13 @@ BOOST_AUTO_TEST_CASE(include){
         <div data-include="s1" data-select=".inner *">
             <p data-delete=".b" />
             <p data-replace=".c">CCCCCCCC</p>
+
             <p data-param="x:5" />
             <p data-param="y">Oh, why!</p>
         </div>
     )");
 
-    //dump();
+    dump();
     BOOST_CHECK(s.one("div[data-include] div[data-included]"));
 }
 

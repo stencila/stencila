@@ -102,6 +102,39 @@ public:
     }
 
     /**
+     * @name Node parsing methods
+     *
+     * Some stencil nodes require parsing of attributes or text
+     * content to determine their semantics. These methods
+     * provide for that parsing and are mostly used by other methods
+     * such as `render`.
+     * 
+     * @{
+     */
+
+private:
+
+    std::tuple<std::string,std::string> parse_param_(const Node& param){
+        std::string value = param.attr("data-param");
+        std::string name;
+        std::string expression;
+        size_t semicolon = value.find(":");
+        if(semicolon!=value.npos){
+            name = value.substr(0,semicolon);
+            expression = value.substr(semicolon+1);
+        } else {
+            name = value;
+            expression = param.text();
+        }
+        return std::tuple<std::string,std::string>(name,expression);
+    }
+
+    /**
+     * @}
+     */
+    
+
+    /**
      * @name Rendering and display methods
      * @{
      */
@@ -116,11 +149,6 @@ public:
     
 private:
 
-    /**
-     * @todo Currently, `data-error` attributes get set here which is convienient but also means
-     * that they do not always get applied to the nearest node where the error ocurred. Write a 
-     * `render_error_` method and try and catch errors in the individual `render_...` methods.
-     */
     template<typename Context>
     void render_element_(Node node, Context& context){
         try {
@@ -146,10 +174,10 @@ private:
             render_children_(node,context);
         }
         catch(std::exception& exc){
-            node.attr("data-error",exc.what());
+            node.append("div",{{"class","error"}},exc.what());
         }
         catch(...){
-            node.attr("data-error","Unknown error");
+            node.append("div",{{"class","error"}},"Unknown error");
         }
     }
 
@@ -424,6 +452,9 @@ private:
         }
     }
 
+    /**
+     * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="snippets text simple-paragraph" />` )
+     */
     template<typename Context>
     void render_include_(Node node, Context& context){
         std::string include = node.attr("data-include");
@@ -432,9 +463,19 @@ private:
 
         // If this node has been rendered before then there will be 
         // a `data-included` node that needs to be cleared first. If it
-        // does not yet exists then append it.
-        Node included = node.one("data-included");
-        if(included) included.clear();
+        // does not yet exist then append it.
+        Node included = node.one("[data-included]");
+        if(included){
+            // If this node has been edited then it may have a data-lock
+            // element. If it does then do NOT overwrite the exisiting contents
+            // and simply return straight away.
+            Node lock = included.one("[data-lock=\"true\"]");
+            if(lock) {
+                return;
+            } else {
+                included.clear();
+            }
+        }
         else included = node.append("div",{{"data-included","true"}});
         
         // Obtain the included stencil...
@@ -518,22 +559,41 @@ private:
         context.enter();
 
         // Apply `data-param` elements
-        // @todo Check the `data-param` elements of the included stencil
-        // if there is no match then use the default is any,or add an error.
+        // Apply all the params specified in this include first. This
+        // my include params no specified by the author of the included stencil.
+        // Then apply the params specified in the included stencil checking for if they
+        // are required or for any default values
+        std::vector<std::string> assigned;
         for(Node param : node.all("[data-param]")){
-            std::string value = param.attr("data-param");
-            std::string name;
-            std::string expression;
-            size_t semicolon = value.find(":");
-            if(semicolon!=value.npos){
-                name = value.substr(0,semicolon);
-                expression = value.substr(semicolon+1);
-            } else {
-                name = value;
-                expression = param.text();
-            }
-            //Set the parameter in the new block
+            // Parse the parameter node
+            std::tuple<std::string,std::string> parsed = parse_param_(param);
+            std::string name = std::get<0>(parsed);
+            std::string expression = std::get<1>(parsed);
+            // Assign the parameter in the new frame
             context.assign(name,expression);
+            // Add this to the list of parameters assigned
+            assigned.push_back(name);
+        }
+        // Now apply the included stencils parameters
+        for(Node param : included.all("[data-param]")){
+            // Parse the parameter node
+            std::tuple<std::string,std::string> parsed = parse_param_(param);
+            std::string name = std::get<0>(parsed);
+            std::string expression = std::get<1>(parsed);
+            // Check to see if it has already be assigned
+            if(std::count(assigned.begin(),assigned.end(),name)==0){
+                if(expression.length()>0){
+                    // Assign the parameter in the new frame
+                    context.assign(name,expression);
+                } else {
+                    // Set an error
+                    included.append(
+                        "div",
+                        {{"class","error"},{"data-param",name}},
+                        "Parameter is required because it has no default: "+name
+                    );
+                }
+            }
         }
 
         // Render the `data-included` element
