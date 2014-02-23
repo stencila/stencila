@@ -411,6 +411,23 @@ public:
     
 
     /**
+     * @name Parents
+     * @{
+     */
+    
+    /**
+     * Get the root node of the document the node belongs to
+     */
+    Node root(void){
+        return pugi::xml_node::root();
+    }
+
+    /**
+     * @}
+     */ 
+    
+
+    /**
      * @name Child traversal
      * @{
      */
