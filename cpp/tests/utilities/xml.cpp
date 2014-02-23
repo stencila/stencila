@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(attributes){
     div.attr("class","foo");
     BOOST_CHECK_EQUAL(div.attr("class"),"foo");
 
-    div.add("class","bar");
+    div.concat("class","bar");
     BOOST_CHECK_EQUAL(div.attr("class"),"foo bar");
 
     div.erase("class");

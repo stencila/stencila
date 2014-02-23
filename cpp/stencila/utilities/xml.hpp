@@ -152,7 +152,9 @@ public:
 		return *this;
 	}
 
-
+    /**
+     * Get a list of attribute names
+     */
     std::vector<std::string> attrs(void) const {
         std::vector<std::string> attrs;
         for(pugi::xml_attribute attr = first_attribute(); attr; attr = attr.next_attribute()){
@@ -162,20 +164,21 @@ public:
     }
 
     /**
-     * Add a string to an attribute
+     * Concatenate a string to an existing value (if any) of an attribute
      *
-     * If the attribute exists, `value`, prefixed with a space, will be appended to the
+     * If the attribute exists, `value`, prefixed with `separator`, will be appended to the
      * current value. If it does not then set the attribute i.e. same as `attr(name,value)`
      * 
      * @param  name  Name of attribute
      * @param  value String to add
+     * @param  separator Separator between existing string and value
      */
-	Node& add(const std::string& name, const std::string& value){
+	Node& concat(const std::string& name, const std::string& value, const std::string& separator=" "){
         Attribute attr = attr_get_(name);
         if(attr){
             std::string current = attr.as_string();
             std::string future;
-            if(current.length()>0) future = current + " " + value;
+            if(current.length()>0) future = current + separator + value;
             else future = value;
             attr.set_value(future.c_str());
         }else {
