@@ -183,8 +183,8 @@ BOOST_AUTO_TEST_CASE(code){
         <code class="ignored">This should be ignored because no data-code attribute</code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code.executed .error").text(),"Not supported by context type: map-context");
-    BOOST_CHECK(not s.one("code.ignored .error"));
+    BOOST_CHECK_EQUAL(s.one("code.executed [data-error]").text(),"Not supported by context type: map-context");
+    BOOST_CHECK(not s.one("code.ignored [data-error]"));
 }
 
 BOOST_AUTO_TEST_CASE(text){
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(image){
         </code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code .error").text(),"Not supported by context type: map-context");
+    BOOST_CHECK_EQUAL(s.one("code [data-error]").text(),"Not supported by context type: map-context");
 }
 
 BOOST_AUTO_TEST_CASE(with){
@@ -331,40 +331,142 @@ BOOST_AUTO_TEST_CASE(for_locked_extras){
     BOOST_CHECK_EQUAL(s.one("li[data-index=\"999\"]").attr("data-extra"),"true");
 }
 
-/**
- * @todo a bunch more include related tests
- */
-BOOST_AUTO_TEST_CASE(include){
+BOOST_AUTO_TEST_CASE(include_simple){
+    render(R"(
+        <div id="includee">Hello world</div>
+        <div data-include="." data-select="#includee" />
+    )");
 
-    Stencil s1(R"(html://
-        <div class="inner">
-            <div data-param="z:123" />
+    BOOST_CHECK_EQUAL(s.one("[data-include] [data-included] div").text(),"Hello world");
+}
 
-            <div class="a" data-text="a"></div>
-            <div class="b">B</div>
-            <div class="c"></div>
-            
+BOOST_AUTO_TEST_CASE(include_previous_included_is_cleared){
+    render(R"(
+        <div id="includee">Hello world</div>
+        <div data-include="." data-select="#includee">
+            <div data-included>
+                <span id="gone">This should be removed</span>
+            </div>
+        </div>
+    )");
+
+    BOOST_CHECK(not s.one("[data-include] [data-included] #gone"));
+    BOOST_CHECK_EQUAL(s.one("[data-include] [data-included] div").text(),"Hello world");
+}
+
+BOOST_AUTO_TEST_CASE(include_previous_included_is_not_cleared_if_lock){
+    render(R"(
+        <div id="includee">Hello world</div>
+        <div data-include="." data-select="#includee">
+            <div data-included>
+                <span id="kept" data-lock="true">This should NOT be removed because it has a data-lock</span>
+                <span id="kept-also"></span>
+            </div>
+        </div>
+    )");
+
+    BOOST_CHECK(s.one("[data-include] [data-included] #kept"));
+    BOOST_CHECK(s.one("[data-include] [data-included] #kept-also"));
+}
+
+BOOST_AUTO_TEST_CASE(include_simple_rendered){
+    render(R"(
+        <div id="includee" data-text="a"></div>
+        <div data-include="." data-select="#includee" />
+    )");
+
+    BOOST_CHECK_EQUAL(s.one("[data-include] [data-included] [data-text=\"a\"]").text(),"A");
+}
+
+BOOST_AUTO_TEST_CASE(include_modifiers){
+    render(R"(
+        <div id="includee">
+            <div id="a" />
+            <div id="b" />
+            <div id="c" class="c" />
+            <div id="e" />
+            <div id="g">
+                <div id="g1" />
+            </div>
+        </div>
+
+        <div data-include="." data-select="#includee">
+            <div data-delete="#a" />
+            <p data-replace="#b" class="b">
+                This should replace div#b with p.b
+            </p>
+            <div data-change="#c">
+                This should replace the contents of div#c but its attributes
+                should <strong>stay the same</strong>.
+            </div>
+            <div data-before="#e" id="d" />
+            <div data-after="#e" id="f" />
+            <div data-prepend="#g" id="g0" />
+            <div data-append="#g" id="g2" />
+        </div>
+    )");
+
+    BOOST_CHECK(not s.one("div[data-included] #a"));
+
+    BOOST_CHECK(not s.one("div[data-included] div#b"));
+    BOOST_CHECK(s.one("div[data-included] p.b"));
+
+    BOOST_CHECK_EQUAL(s.one("div[data-included] div.c strong").text(),"stay the same");
+
+    BOOST_CHECK_EQUAL(s.one("div[data-included] div#e").previous().attr("id"),"d");
+    BOOST_CHECK_EQUAL(s.one("div[data-included] div#e").next().attr("id"),"f");
+
+    BOOST_CHECK_EQUAL(s.one("div[data-included] div#g #g1").previous().attr("id"),"g0");
+    BOOST_CHECK_EQUAL(s.one("div[data-included] div#g #g1").next().attr("id"),"g2");
+}
+
+BOOST_AUTO_TEST_CASE(include_param){
+
+    render(R"(
+        <div id="includee" data-macro="true">
+            <div data-param="x" />
+            <div data-param="y:2" />
+
             <div class="x" data-text="x"></div>
             <div class="y" data-text="y"></div>
             <div class="z" data-text="z"></div>
         </div>
-    )");
 
-    s1.path("s1");
+        <div id="a" data-include="." data-select="#includee">
+            <p>Required parameter x is missing. Should result in error</p>
+        </div>
 
-    render(R"(
-        <div data-text="a"></div>
-        <div data-include="s1" data-select=".inner *">
-            <p data-delete=".b" />
-            <p data-replace=".c">CCCCCCCC</p>
+        <div id="b" data-include="." data-select="#includee">
+            <p data-set="x:10">Parameter value defined in attribute</p>
+        </div>
 
-            <p data-param="x:5" />
-            <p data-param="y">Oh, why!</p>
+        <div id="c" data-include="." data-select="#includee">
+            <p data-set="x">11 (Parameter value defined in text)</p>
+        </div>
+
+        <div id="d" data-include="." data-select="#includee">
+            <p data-set="x:1" />
+            <p data-set="y:20">Default parameter value overriden</p>
+            <p data-set="z:3">Parameter not declared by stencil author</p>
         </div>
     )");
 
-    dump();
-    BOOST_CHECK(s.one("div[data-include] div[data-included]"));
+    BOOST_CHECK_EQUAL(s.one("#a div[data-included] div[data-error=\"param-required\"]").attr("data-param"),"x");
+    
+    BOOST_CHECK_EQUAL(s.one("#b div[data-included] div.x").text(),"10");
+    BOOST_CHECK_EQUAL(s.one("#b div[data-included] div.y").text(),"2");
+
+    BOOST_CHECK_EQUAL(s.one("#c div[data-included] div.x").text(),"11 (Parameter value defined in text)");
+    BOOST_CHECK_EQUAL(s.one("#c div[data-included] div.y").text(),"2");
+    
+    BOOST_CHECK_EQUAL(s.one("#d div[data-included] div.x").text(),"1");
+    BOOST_CHECK_EQUAL(s.one("#d div[data-included] div.y").text(),"20");
+    BOOST_CHECK_EQUAL(s.one("#d div[data-included] div.z").text(),"3");
+
+    // Check that params are removed
+    BOOST_CHECK(not s.one("#b [data-param]"));
+    BOOST_CHECK(not s.one("#c [data-param]"));
+    BOOST_CHECK(not s.one("#d [data-param]"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -114,8 +114,8 @@ public:
 
 private:
 
-    std::tuple<std::string,std::string> parse_param_(const Node& param){
-        std::string value = param.attr("data-param");
+    std::tuple<std::string,std::string> parse_param_or_set_(const Node& node, const std::string& attr){
+        std::string value = node.attr(attr);
         std::string name;
         std::string expression;
         size_t semicolon = value.find(":");
@@ -124,9 +124,17 @@ private:
             expression = value.substr(semicolon+1);
         } else {
             name = value;
-            expression = param.text();
+            expression = node.text();
         }
         return std::tuple<std::string,std::string>(name,expression);
+    }
+
+    std::tuple<std::string,std::string> parse_param_(const Node& node){
+        return parse_param_or_set_(node,"data-param");
+    }
+
+    std::tuple<std::string,std::string> parse_set_(const Node& node){
+        return parse_param_or_set_(node,"data-set");
     }
 
     /**
@@ -159,7 +167,9 @@ private:
             //   considered and that directive will determine how/if children nodes are processed
             std::string tag = node.name();
             for(std::string attr : node.attrs()){
-                if(attr=="data-code" and tag=="code") return render_code_(node,context);
+                // `macro` elements are not rendered
+                if(attr=="data-macro") return ;
+                else if(attr=="data-code" and tag=="code") return render_code_(node,context);
                 else if(attr=="data-text") return render_text_(node,context);
                 else if(attr=="data-image") return render_image_(node,context);
                 else if(attr=="data-with") return render_with_(node,context);
@@ -457,7 +467,7 @@ private:
     }
 
     /**
-     * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="snippets text simple-paragraph" />` )
+     * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="macros text simple-paragraph" />` )
      */
     template<typename Context>
     void render_include_(Node node, Context& context){
@@ -489,10 +499,19 @@ private:
         else stencil = Stencila::obtain<Stencil>(include,version);
         // ...select from it
         if(select.length()>0){
-            // ...append the selected nodes
-            for(Node node : stencil.all(select)) included.append(node);
+            // ...append the selected nodes.
+            for(Node node : stencil.all(select)){
+                // Append the node first to get a copy of it which can be modified
+                Node appended = included.append(node);
+                // Remove `macro` declaration if any so that element gets rendered
+                appended.erase("data-macro");
+                // Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
+                // This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
+                // selecting all those instances where the macro was previously included.
+                appended.erase("id");
+            }
         } else {
-            // ...append all the nodes
+            // ...append the entire stencil. No attempt is made to remove macros when included an entire stencil.
             included.append(stencil);
         }
 
@@ -547,11 +566,11 @@ private:
                         break;
                         
                         case prepend:
-                            created = included.prepend(modifier);
+                            created = target.prepend(modifier);
                         break;
                         
                         case append:
-                            created = included.append(modifier);
+                            created = target.append(modifier);
                         break;
                     }
                     // Remove the modifier attribute from any newly created node
@@ -565,15 +584,13 @@ private:
         // main frame or overwriting variables inadvertantly
         context.enter();
 
-        // Apply `data-param` elements
-        // Apply all the params specified in this include first. This
-        // my include params no specified by the author of the included stencil.
-        // Then apply the params specified in the included stencil checking for if they
-        // are required or for any default values
+        // Apply `data-set` elements
+        // Apply all the `set`s specified in this include first. This
+        // my include params not specified by the author of the included stencil.
         std::vector<std::string> assigned;
-        for(Node param : node.all("[data-param]")){
+        for(Node set : node.all("[data-set]")){
             // Parse the parameter node
-            std::tuple<std::string,std::string> parsed = parse_param_(param);
+            std::tuple<std::string,std::string> parsed = parse_set_(set);
             std::string name = std::get<0>(parsed);
             std::string expression = std::get<1>(parsed);
             // Assign the parameter in the new frame
@@ -581,7 +598,8 @@ private:
             // Add this to the list of parameters assigned
             assigned.push_back(name);
         }
-        // Now apply the included stencils parameters
+        // Now apply the included element's parameters
+        // Check for if they are required or for any default values
         for(Node param : included.all("[data-param]")){
             // Parse the parameter node
             std::tuple<std::string,std::string> parsed = parse_param_(param);
@@ -601,6 +619,8 @@ private:
                     );
                 }
             }
+            // Remove the parameter, there is no need to have it in the included node
+            param.destroy();
         }
 
         // Render the `data-included` element
@@ -608,7 +628,6 @@ private:
         
         // Exit the anonymous frame
         context.exit();
-
     }
 
     /**
