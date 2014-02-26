@@ -29,9 +29,12 @@ public:
 
     const char* what(void)  const throw() {
         std::ostringstream stream;
-        std::string filename = "";
-        if(file_) filename = boost::filesystem::path(file_).filename().string();
-        stream << filename << ":" << line_ << ":" << message_;
+        if(file_){
+            std::string filename = boost::filesystem::path(file_).filename().string();
+            stream << filename << ":" << line_ << ":" << message_;
+        } else {
+            stream << message_;
+        }
         return stream.str().c_str();
     }
 };

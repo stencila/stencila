@@ -263,8 +263,8 @@ public:
         return static_cast<const Class&>(*this);
     }
 
-    const char* type(void) const {
-        return self().type_();
+    std::string type(void) const {
+        return "component";
     }
 
     /**
@@ -388,7 +388,7 @@ public:
      * @name Persistence methods
      */
     
-private:
+protected:
 
     /**
      * Get the component's path and, optionally, ensure
@@ -545,7 +545,6 @@ public:
      */
     Class& read(const std::string& from=""){
         path_set_(from);
-        self().read_();
         return self();
     }
     
@@ -556,7 +555,6 @@ public:
      */
     Class& write(const std::string& to=""){
         path_set_(to);
-        self().write_();
         return self();
     }
     

@@ -5,21 +5,11 @@
 namespace Stencila {
 
 class Package : public Component<Package> {
-private:
+public:
 
-    friend class Component<Package>;
-
-    const char* type_(void) const {
+    std::string type(void) const {
     	return "package";
     }
-
-    void read_(void){
-    }
-    
-    void write_(void){
-    }
-
-public:
 
 };
 
