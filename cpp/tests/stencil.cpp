@@ -117,11 +117,16 @@ BOOST_AUTO_TEST_CASE(embed){
 }
 
 BOOST_AUTO_TEST_CASE(sanitize){
-    Stencil s;
+    Stencil s(R"(html://
+        <img src="" />
+        <div src="" />
+        <script></script>
+    )");
 
     s.sanitize();
-
-    s.destroy();
+    BOOST_CHECK(s.one("img[src]"));
+    BOOST_CHECK(not s.one("div[src]"));
+    BOOST_CHECK(not s.one("script"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

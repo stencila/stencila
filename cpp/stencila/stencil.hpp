@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/lexical_cast.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
 
 #include <stencila/component.hpp>
 #include <stencila/utilities/html.hpp>
@@ -265,7 +266,8 @@ private:
      * When the code of a `image` element is sucessfully executed a child node is appended
      * which contains the resulting image and has the `data-data="true"` attribute.
      *
-     * @todo Finalise the protocol for inserion of bitmap formats: file in stencil directory or data uri?
+     * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
+     * The best way to do that still needs to be worked out.
      */
     template<typename Context>
     void render_image_(Xml::Node node, Context& context){
@@ -940,94 +942,63 @@ public:
 
 };
 
-/**
- * @todo Complete this list making sure all stencil attributes e.g. 'data-switch', `data-case`
- * are allowed for.
- */
-Xml::Whitelist Stencil::whitelist = {
-    {"p",{"class","data-text"}},
-    {"div",{"class"}}
-};
-
 std::stack<Stencil::Node> Stencil::embed_parents_;
 
-#define _(tag)\
-    Html::Node tag(void){                                                                              return Stencil::element(#tag);                                 } \
-    Html::Node tag(const std::string& text){                                                           return Stencil::element(#tag,text);                            } \
-    Html::Node tag(const Stencil::AttributeList& attributes, const std::string& text=""){              return Stencil::element(#tag,attributes,text);                 } \
-    Html::Node tag(void(*inner)(void)){                                                                return Stencil::element(#tag,Stencil::AttributeList(),inner);  } \
-    template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args){  return Stencil::element(#tag,attributes,args...);              } \
-    template<typename... Args> Html::Node tag(Args... args){                                           return Stencil::element(#tag,args...);                         } \
+/**
+ * A list of tags allowed in a stencil
+ */
+#define STENCILA_STENCIL_TAGS (section)(nav)(article)(aside)(address)(h1)(h2)(h3)(h4)(h5)(h6)(p)(hr)(pre)(blockquote)(ol)(ul)(li)(dl)(dt)(dd)\
+    (figure)(figcaption)(div)(a)(em)(strong)(small)(s)(cite)(q)(dfn)(abbr)(data)(time)(code)(var)(samp)(kbd)(sub)(sup)(i)(b)(u)(mark)(ruby)\
+    (rt)(rp)(bdi)(bdo)(span)(br)(wbr)(ins)(del)(table)(caption)(colgroup)(col)(tbody)(thead)(tfoot)(tr)(td)(th)
 
 /**
- * @todo This list of embedding functions should be made consistent with `Stencil::whitelist`
+ * A list of [global attributes](http://www.w3.org/TR/html5/dom.html#global-attributes)(those that 
+ * are "common to and may be specified on all HTML elements") and which are allowed in stencils.
+ * Currenly this is a fairly restricted set. See above link for more that could be allowed.
  */
-_(section)
-_(nav)
-_(article)
-_(aside)
-_(address)
-_(h1)
-_(h2)
-_(h3)
-_(h4)
-_(h5)
-_(h6)
-_(p)
-_(hr)
-_(pre)
-_(blockquote)
-_(ol)
-_(ul)
-_(li)
-_(dl)
-_(dt)
-_(dd)
-_(figure)
-_(figcaption)
-_(div)
-_(a)
-_(em)
-_(strong)
-_(small)
-_(s)
-_(cite)
-_(q)
-_(dfn)
-_(abbr)
-_(data)
-_(time)
-_(code)
-_(var)
-_(samp)
-_(kbd)
-_(sub)
-_(sup)
-_(i)
-_(b)
-_(u)
-_(mark)
-_(ruby)
-_(rt)
-_(rp)
-_(bdi)
-_(bdo)
-_(span)
-_(br)
-_(wbr)
-_(ins)
-_(del)
-_(table)
-_(caption)
-_(colgroup)
-_(col)
-_(tbody)
-_(thead)
-_(tfoot)
-_(tr)
-_(td)
-_(th)
+#define STENCILA_GLOBAL_ATTRS "class","id","lang","title","translate"
 
-#undef _
+/**
+ * A list of attributes that have semantic meaning in stencils
+ */
+#define STENCILA_DIRECTIVE_ATTRS "data-text","data-switch","data-case"
+
+/**
+ * Combination of the above two attribute lists
+ */
+#define STENCILA_STENCIL_ATTRS STENCILA_GLOBAL_ATTRS,STENCILA_DIRECTIVE_ATTRS
+
+/**
+ * Define stencil whitelist
+ *
+ * Note that below all STENCILA_STENCIL_TAGS are allowed to have all STENCILA_STENCIL_ATTRS
+ * but that can be overidden by placing an item before the call to BOOST_PP_SEQ_FOR_EACH
+ */
+Xml::Whitelist Stencil::whitelist = {
+    {"img",{"src",STENCILA_STENCIL_ATTRS}},
+
+    // Define an item macro, run it through BOOST_PP_SEQ_FOR_EACH, and then undef it
+    #define STENCILA_WHITELIST_ITEM_(repeater,separator,tag) {BOOST_PP_STRINGIZE(tag),{STENCILA_STENCIL_ATTRS}},
+    BOOST_PP_SEQ_FOR_EACH(STENCILA_WHITELIST_ITEM_, ,STENCILA_STENCIL_TAGS)
+    #undef STENCILA_WHITELIST_ITEM_
+
+    {} // Required due to trailing comma in STENCILA_WHITELIST_ITEM_
+};
+
+/**
+ * A macro designed to be called by BOOST_PP_SEQ_FOR_EACH to define free functions for each of STENCILA_STENCIL_TAGS
+ * Note that the use of BOOST_PP_STRINGIZE is required instead of the stringizing operator (#) which prevents arguments from expanding
+ */
+#define STENCILA_FREE_TAG_(repeater,separator,tag)\
+    Html::Node tag(void){                                                                              return Stencil::element(BOOST_PP_STRINGIZE(tag));                                 } \
+    Html::Node tag(const std::string& text){                                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),text);                            } \
+    Html::Node tag(const Stencil::AttributeList& attributes, const std::string& text=""){              return Stencil::element(BOOST_PP_STRINGIZE(tag),attributes,text);                 } \
+    Html::Node tag(void(*inner)(void)){                                                                return Stencil::element(BOOST_PP_STRINGIZE(tag),Stencil::AttributeList(),inner);  } \
+    template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args){  return Stencil::element(BOOST_PP_STRINGIZE(tag),attributes,args...);              } \
+    template<typename... Args> Html::Node tag(Args... args){                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),args...);                         } \
+
+BOOST_PP_SEQ_FOR_EACH(STENCILA_FREE_TAG_, ,STENCILA_STENCIL_TAGS)
+
+#undef STENCILA_FREE_TAG_
 
 }
