@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(count_){
     BOOST_CHECK_EQUAL(count(items),100);
 }
 
-BOOST_AUTO_TEST_CASE(sum_){
+BOOST_AUTO_TEST_CASE(sum_static){
     std::vector<int> items = {1,2,3};
     BOOST_CHECK_EQUAL(sum(items),6);
 
@@ -33,6 +33,10 @@ BOOST_AUTO_TEST_CASE(sum_){
     BOOST_CHECK_EQUAL(s1,6);
     BOOST_CHECK_EQUAL(s2,6);
     BOOST_CHECK_EQUAL(s3,12);
+}
+
+BOOST_AUTO_TEST_CASE(sum_dynamic){
+    Clause* sum = new SumDouble();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

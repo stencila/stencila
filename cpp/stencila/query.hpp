@@ -4,16 +4,38 @@
 
 namespace Stencila {
 
-class Query {
+/**
+ * An element of a Query
+ */
+class Clause {
 public:
 
+	/**
+	 * Get the programming code representation of the clause
+	 */
+    virtual std::string code(void) const = 0;
+
+};
+
+class Query : public std::vector<Clause*> {
+public:
+
+	Query(void){
+	}
+
+	/**
+	 * Construct a query from a single clause
+	 */
+	Query(Clause* clause){
+		push_back(clause);
+	}
 };
 
 template<
 	class Class,
 	typename Result = double
 >
-class Aggregator : public Query {
+class Aggregator {
 public:
 
 	typedef Result result_type;
@@ -39,7 +61,7 @@ public:
 	 */
 	template<class Type>
 	Class& append(const Type& value){
-		return self();
+		return self().add(value);
 	}
 
 	/**
@@ -58,7 +80,7 @@ public:
      *
      * Should be overidden by derived classes.
      * 
-     * @param  value String representation
+     * @param  value String codeesentation
      */
     Class& load(const std::string& value){
         return self();
@@ -82,8 +104,8 @@ public:
      *
      * Should be overidden by derived classes.
      */
-	Result calc(void) const {
-		return Result();
+	Result result(void) const {
+		return self().calc();
 	}
 
 	/**
@@ -99,7 +121,8 @@ public:
 	 */
 	template<typename Type>
 	Class& apply(const Type& object) {
-		return apply_dispatch_(IsContainer<Type>(),object);
+		apply_dispatch_(IsContainer<Type>(),object);
+		return self();
 	}
 
 	/**
@@ -112,15 +135,14 @@ public:
 
 private:
 
-	template<typename Type>
-	Class& apply_dispatch_(const std::true_type& is_container,Type object) {
-		return apply_container_(object);
+	template<typename Container>
+	void apply_dispatch_(const std::true_type& is_container,Container container) {
+		for(auto& value : container) self().append(value);
 	}
 
-	template<class Container>
-	Class& apply_container_(const Container& container) {
-		for(auto& value : container) self().append(value);
-		return self();
+	template<typename Queryable>
+	void apply_dispatch_(const std::false_type& is_container,Queryable queryable) {
+		queryable(self());
 	}
 };
 
@@ -128,6 +150,19 @@ private:
 	name func(){ return name(); } \
 	template<class Type> \
 	name::result_type func(const Type& object){ return name().apply(object); }
+
+/**
+ * Dynamic aggregator class
+ */
+template<
+	typename Value,
+	typename Result
+>
+class AggregatorDynamic : public Clause {
+public:
+	virtual AggregatorDynamic* append(const Value& value) = 0;
+	virtual Result result(void) = 0;
+};
 
 
 template<
@@ -139,13 +174,20 @@ private:
 
 public:
 
+	virtual std::string code(void) const{
+		return "each";
+	}
+
 	Each(Function func):
 		func_(func){}
 
 	template<class Type>
-	Each& append(const Type& value){
+	Each& add(const Type& value){
 		func_(value);
 		return *this;
+	}
+
+	void calc(void) const {
 	}
 };
 
@@ -169,8 +211,12 @@ public:
 		count_(0){
 	}
 
+	virtual std::string code(void) const{
+		return "count";
+	}
+
 	template<class Type>
-	Count& append(const Type& value){
+	Count& add(const Type& value){
 		count_++;
 		return *this;
 	}
@@ -208,8 +254,12 @@ public:
 		sum_(0){
 	}
 
+	virtual std::string code(void) const{
+		return "sum";
+	}
+
 	template<class Type>
-	Sum& append(const Type& value){
+	Sum& add(const Type& value){
 		sum_ += value;
 		return *this;
 	}
@@ -237,6 +287,19 @@ public:
 
 STENCILA_AGGREGATOR_FUNCS(Sum,sum)
 
+class SumDouble : public AggregatorDynamic<double,double> , public Sum {
+	virtual std::string code(void) const{
+		return "sum";
+	}
+	virtual SumDouble* append(const double& value) {
+		Sum::append(value);
+		return this;
+	}
+	virtual double result(void){
+		return Sum::result();
+	}
+};
+
 
 class Product : public Aggregator<Product,double> {
 protected:
@@ -247,8 +310,12 @@ public:
 		prod_(1){
 	}
 
+	virtual std::string code(void) const{
+		return "prod";
+	}
+
 	template<class Type>
-	Product& append(const Type& value){
+	Product& add(const Type& value){
 		prod_ *= value;
 		return *this;
 	}
@@ -287,8 +354,12 @@ public:
 		sum_(0),count_(0){
 	}
 
+	virtual std::string code(void) const{
+		return "mean";
+	}
+
 	template<class Type>
-	Mean& append(const Type& value){
+	Mean& add(const Type& value){
 		sum_ += value;
 		count_++;
 		return *this;
@@ -323,8 +394,12 @@ private:
 
 public:
 
+	virtual std::string code(void) const{
+		return "geomean";
+	}
+
 	template<class Type>
-	GeometricMean append(const Type& value){
+	GeometricMean add(const Type& value){
 		if(value>0) mean_.append(value);
 		return *this;
 	}
@@ -348,7 +423,7 @@ public:
 	}
 };
 
-STENCILA_AGGREGATOR_FUNCS(Mean,mean)
+STENCILA_AGGREGATOR_FUNCS(GeometricMean,geomean)
 
 
 #undef STENCILA_AGGREGATOR_FUNCS

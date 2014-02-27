@@ -623,8 +623,6 @@ public:
 		return index/base(dimension)%D10::size_;
 	}
 
-
-
 	/**
 	 * Get the linear index corresponding to particular levels of each 
 	 * of the array's dimensions
@@ -707,17 +705,24 @@ public:
 
 
 	/**
-	 * @name Query operators (`operator()` called with Query objects)
+	 * @name Query operators (`operator()` called with Query or Clause objects)
 	 *
 	 * @{
 	 */
 	
 	template<
-		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10,
 		class Class, typename Result
 	>
-	Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by,const Aggregator<Class,Result>& aggregator=Sum()){
-		// Construct an array of `Class`, not `Aggregator<Class,Result>`, so that correct `append` method is called
+	Result operator()(Aggregator<Class,Result>& aggregator){
+		for(Type& value : values_) aggregator.append(value);
+		return aggregator.result();
+	}
+
+	template<
+		class Class, typename Result,
+		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10
+	>
+	Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregator<Class,Result>& aggregator,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by){
 		Array<Class,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregators;
 		for(uint index=0;index<size();index++) {
 			aggregators(
@@ -725,9 +730,29 @@ public:
 				level(A6(),index),level(A7(),index),level(A8(),index),level(A9(),index),level(A10(),index)
 			).append(values_[index]);
 		}
-		Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> result;
-		for(int index=0;index<aggregators.size();index++) result[index] = aggregators[index].calc();
-		return result;
+		Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> results;
+		for(int index=0;index<aggregators.size();index++) results[index] = aggregators[index].result();
+		return results;
+	}
+
+	/**
+	 * Apply a dynamic query.
+	 *
+	 * This method allows for dynamic queries to be applied to arrays. This in turn allows
+	 * for Stencila language packages e.g. R, Python to query static arrays dynamically
+	 */
+	Array<Type> operator()(const Query& query){
+		for(Clause* clause : query){
+			if(AggregatorDynamic<double,double>* aggregator = dynamic_cast<AggregatorDynamic<double,double>*>(clause)){
+				for(Type& value : values_) aggregator->append(value);
+				Array<Type> result(1);
+				result[0] = aggregator->result();
+				return result;
+			} else {
+				STENCILA_THROW(Exception,"Query clause can not be applied");
+			}
+		}
+		return Array<Type>(1);
 	}
 
 	/**
@@ -900,6 +925,16 @@ public:
      * @}
      */
     
+
+    template<
+		class Class, typename Result
+	>
+	Result operator()(Aggregator<Class,Result>& aggregator){
+		Class& aggregator_class = aggregator.self();
+		for(int index=0;index<size();index++) aggregator_class.append(values_[index]);
+		return aggregator_class.calc();
+	}
+
    	/**
    	 * Modification methods
    	 */

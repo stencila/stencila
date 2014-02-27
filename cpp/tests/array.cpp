@@ -163,6 +163,7 @@ BOOST_AUTO_TEST_CASE(static_array_query){
     BOOST_CHECK_EQUAL(word,"ford");
 }
 
+#if 0
 BOOST_AUTO_TEST_CASE(static_array_query_by){
     Array<double,Two,Three> numbers = 2;
     
@@ -186,6 +187,15 @@ BOOST_AUTO_TEST_CASE(static_array_query_by){
         BOOST_CHECK_EQUAL(sums(0,2),2);
     }
 }
+#endif
+
+BOOST_AUTO_TEST_CASE(static_array_dynamic_query){
+    Array<int,Four> a = 1;
+
+    Clause* sum = new SumDouble();
+    auto result = a(sum);
+    BOOST_CHECK_EQUAL(result[0],4);
+}
 
 BOOST_AUTO_TEST_CASE(dynamic_array_query){
     Array<> a(42);
@@ -208,5 +218,5 @@ BOOST_AUTO_TEST_CASE(static_array_write){
     BOOST_CHECK_EQUAL(lines[6],"1\t2\t42");
 }
 
+
 BOOST_AUTO_TEST_SUITE_END()
- 
