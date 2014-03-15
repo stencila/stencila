@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(sum_static){
 }
 
 BOOST_AUTO_TEST_CASE(sum_dynamic){
-    Clause* sum = new SumDouble();
+    Clause* sum = new Summer();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

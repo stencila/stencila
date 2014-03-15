@@ -17,25 +17,12 @@ public:
 
 };
 
-class Query : public std::vector<Clause*> {
-public:
-
-	Query(void){
-	}
-
-	/**
-	 * Construct a query from a single clause
-	 */
-	Query(Clause* clause){
-		push_back(clause);
-	}
-};
 
 template<
 	class Class,
 	typename Result = double
 >
-class Aggregator {
+class Aggregate {
 public:
 
 	typedef Result result_type;
@@ -146,21 +133,21 @@ private:
 	}
 };
 
-#define STENCILA_AGGREGATOR_FUNCS(name,func)\
+#define STENCILA_AGGREGATE_FUNCS(name,func)\
 	name func(){ return name(); } \
 	template<class Type> \
 	name::result_type func(const Type& object){ return name().apply(object); }
 
 /**
- * Dynamic aggregator class
+ * Dynamic aggregate class
  */
 template<
 	typename Value,
 	typename Result
 >
-class AggregatorDynamic : public Clause {
+class Aggregater : public Clause {
 public:
-	virtual AggregatorDynamic* append(const Value& value) = 0;
+	virtual Aggregater* append(const Value& value) = 0;
 	virtual Result result(void) = 0;
 };
 
@@ -168,7 +155,7 @@ public:
 template<
 	typename Function
 >
-class Each : public Aggregator<Each<Function>,void> {
+class Each : public Aggregate<Each<Function>,void> {
 private:
 	Function func_;
 
@@ -202,7 +189,7 @@ void each(const Type& object, Function function){
 }
 
 
-class Count : public Aggregator<Count,unsigned int> {
+class Count : public Aggregate<Count,unsigned int> {
 protected:
 	double count_;
 	
@@ -242,10 +229,24 @@ public:
 	}
 };
 
-STENCILA_AGGREGATOR_FUNCS(Count,count)
+STENCILA_AGGREGATE_FUNCS(Count,count)
+
+class Counter :  public Clause, public Count {
+public:
+	virtual std::string code(void) const {
+		return "count";
+	}
+	Counter* append(void) {
+		Count::append(1);
+		return this;
+	}
+	unsigned int result(void){
+		return Count::result();
+	}
+};
 
 
-class Sum : public Aggregator<Sum,double> {
+class Sum : public Aggregate<Sum,double> {
 protected:
 	double sum_;
 	
@@ -285,13 +286,14 @@ public:
 	}
 };
 
-STENCILA_AGGREGATOR_FUNCS(Sum,sum)
+STENCILA_AGGREGATE_FUNCS(Sum,sum)
 
-class SumDouble : public AggregatorDynamic<double,double> , public Sum {
+class Summer : public Aggregater<double,double> , public Sum {
+public:
 	virtual std::string code(void) const{
 		return "sum";
 	}
-	virtual SumDouble* append(const double& value) {
+	virtual Summer* append(const double& value) {
 		Sum::append(value);
 		return this;
 	}
@@ -301,7 +303,7 @@ class SumDouble : public AggregatorDynamic<double,double> , public Sum {
 };
 
 
-class Product : public Aggregator<Product,double> {
+class Product : public Aggregate<Product,double> {
 protected:
 	double prod_;
 	
@@ -341,10 +343,10 @@ public:
 	}
 };
 
-STENCILA_AGGREGATOR_FUNCS(Product,prod)
+STENCILA_AGGREGATE_FUNCS(Product,prod)
 
 
-class Mean : public Aggregator<Mean> {
+class Mean : public Aggregate<Mean> {
 private:
 	double sum_;
 	double count_;
@@ -387,7 +389,7 @@ public:
 	}
 };
 
-class GeometricMean : public Aggregator<GeometricMean> {
+class GeometricMean : public Aggregate<GeometricMean> {
 private:
 
 	Mean mean_;
@@ -423,26 +425,62 @@ public:
 	}
 };
 
-STENCILA_AGGREGATOR_FUNCS(GeometricMean,geomean)
+STENCILA_AGGREGATE_FUNCS(GeometricMean,geomean)
 
 
 #undef STENCILA_AGGREGATOR_FUNCS
 
-// Forward declaration of By class.
-// Given many template arguments to allow for Bys specialised
-// for Array dimensions (see `array.hpp`)
+
+class Where : public Clause {
+public:
+
+
+};
+
+
+/**
+ * `by` query specialised for Arrays.
+ *
+ * This `By` class contains dimensions which can
+ * be used by Array to optimise it's running.
+ */
 template<
-	class Arg1,
-	class Arg2,
-	class Arg3,
-	class Arg4,
-	class Arg5,
-	class Arg6,
-	class Arg7,
-	class Arg8,
-	class Arg9,
-	class Arg10
+	class D1,
+	class D2 = Singular2,
+	class D3 = Singular3,
+	class D4 = Singular4,
+	class D5 = Singular5,
+	class D6 = Singular6,
+	class D7 = Singular7,
+	class D8 = Singular8,
+	class D9 = Singular9,
+	class D10 = Singular10
 >
-class By;
+class By {
+public:
+};
+
+
+template<class... Dimension>
+By<Dimension...> by(Dimension... dims){
+	return By<Dimension...>();
+}
+
+
+
+class Query : public std::vector<Clause*> {
+public:
+
+	Query(void){
+	}
+
+	/**
+	 * Construct a query from a single `Clause`
+	 */
+	Query(Clause* clause){
+		push_back(clause);
+	}
+};
+
 
 }
