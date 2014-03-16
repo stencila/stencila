@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stencila/traits.hpp>
+
 namespace Stencila {
 
 /**
@@ -87,12 +89,51 @@ public:
 	 */
 };
 
+// Declaration of Dimension class
+template<
+	class Derived = void,
+	unsigned int Size = 0
+>
+class Dimension;
+
+/**
+ * Base class for all dimensions which allows for 
+ * use by Array class.
+ */
+template<>
+class Dimension<> {
+private:
+
+	unsigned int size_;
+	const char* label_;
+
+public:
+
+	Dimension(unsigned int size, const char* label):
+		size_(size),
+		label_(label){
+	}
+
+	unsigned int size(void) const {
+		return size_;
+	}	
+
+	const char* label(void) const {
+		return label_;
+	}
+
+};
+
 template<
 	class Derived,
 	unsigned int Size
 >
-class Dimension {
+class Dimension : public Dimension<> {
 public:
+
+	Dimension(const char* label):
+		Dimension<>(Size,label){
+	}
 
 	/**
 	 * Size of dimension.
@@ -109,7 +150,7 @@ public:
 	 * For consistency with `label()` this is made a static method.
 	 * Does not need to be overidden.
 	 */
-	static const unsigned int size(void) {
+	static unsigned int size(void) {
 		return Size;
 	}
 
@@ -117,9 +158,9 @@ public:
 	 * Implicit conversion to an unsigned int for syntactic
 	 * convienience
 	 */
-	operator unsigned int (void) const { 
-		return Size;
-	}
+	//operator unsigned int (void) const { 
+	//	return Size;
+	//}
 
 	/**
 	 * Text label used when writing an Array to output
@@ -173,8 +214,9 @@ public:
  * @param  size 	Number of levels in the dimension (e.g. 3)
  */
 #define STENCILA_DIM(name,instance,lab,size) \
-	class name : public Dimension<name,size>{ \
+	class name : public Dimension<name,size> { \
 	public: \
+		name(void):Dimension<name,size>(#lab){} \
 		static const char* label(void) { return #lab; } \
 	} instance;
 
@@ -183,8 +225,9 @@ public:
  * Dimensions with only one level used as default dimensions for Arrays
  */
 #define STENCILA_DIM_SINGULAR(name) \
-	class name : public Dimension<name,1>{ \
+	class name : public Dimension<name,1> { \
 	public: \
+		name(void):Dimension<name,1>("singular"){} \
 		static const char* label(void) { return "singular"; } \
 	};
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <set>
 
 #include <stencila/exception.hpp>
 #include <stencila/dimension.hpp>
@@ -10,11 +11,11 @@
 namespace Stencila {
 
 /**
- * A dynamic array
+ * Dynamic array class
  *
- * This implementation of array is useful for arrays of variable size.
- * It is a wrapper around the C++ std::vector class but has an interface that
- * is consistent as possible with static Arrays.
+ * Unlike `Grid`s, `Array`s can be resised. 
+ * This class is a wrapper around the C++ std::vector class but has an interface that
+ * is consistent static `Grid`s (e.g. sizing by dimensions)
  */
 template<
 	typename Type = double
@@ -22,46 +23,83 @@ template<
 class Array {
 private:
 
+    std::vector<Dimension<>> dimensions_;
 	std::vector<Type> values_;
 
 public:
     
+    /**
+     * Default constructor
+     */
    	Array(void){
 	}
 
+    /**
+     * Construct from a dimension
+     */
+    Array(const Dimension<>& dim){
+        dimensions_.push_back(dim);
+        values_.resize(dim.size());
+    }
+
+    /**
+     * Construct from one or more dimensions
+     */
+    Array(const std::vector<Dimension<>>& dims){
+        uint size = 1;
+        for(auto& dim : dims){
+            dimensions_.push_back(dim);
+            size *= dim.size();
+        }
+        values_.resize(size);
+    }
+
+    /**
+     * Construct with a particular size
+     */
     Array(const int& size):
     	values_(size){
     }
 
+    /**
+     * Construct with a particular size and value for each cell
+     */
     Array(const int& size, const Type& value):
     	values_(size){
     	for(auto& item : *this) item = value;
     }
 
 	/**
-	 * Construct from an initializer_list (e.g. `{1.23,3.14,5.98}`)
+	 * Construct from a std::initializer_list (e.g. `{1.23,3.14,5.98}`)
 	 */
     template<class Value>
 	Array(const std::initializer_list<Value>& values){
-        construct_(std::true_type(),values);
+        construct_from_container_(values);
     }
 
-    template<class Other>
-    Array(const Other& other){
-    	construct_(IsContainer<Other>(),other);
+    /**
+     * Construct from a std::vector
+     */
+    template<class Value>
+    Array(const std::vector<Value>& values){
+        construct_from_container_(values);
+    }
+
+    /**
+     * Construct from a std::array
+     */
+    template<class Value,size_t Size>
+    Array(const std::array<Value,Size>& values){
+        construct_from_container_(values);
     }
 
 private:
 
- 	template<class Other>
-    void construct_(const std::false_type& is_not_container,const Other& other){
-        // Convert to size
-        unsigned int num = other;
-        size(num);
-    }
-
- 	template<class Other>
-    void construct_(const std::true_type& is_container,const Other& other){
+    /**
+     * Private helper function for constructing from a container object
+     */
+    template<class Container>
+    void construct_from_container_(const Container& other){
         size(other.size());
         unsigned int index = 0;
         for(auto& item : other){
@@ -70,7 +108,15 @@ private:
         }
     }
 
+
 public:
+
+    /**
+     * Implicit conversion to a std::vector
+     */
+    operator std::vector<Type>() {
+        return values_;
+    }
     
 	/**
 	 * Get the size of the array.
@@ -85,10 +131,6 @@ public:
     Array size(unsigned int size) {
         values_.resize(size);
         return *this;
-    }
-
-    operator std::vector<Type>() {
-    	return values_;
     }
     
  	/**
@@ -139,6 +181,41 @@ public:
      */
     
 
+    /**
+     * @name Subscript operators
+     *
+     * Return the value at the linear index
+     * 
+     * @{
+     */
+
+    template<
+        class Class, typename Result
+    >
+    Result operator()(Aggregate<Class,Result>& aggregate) const{
+        for(auto& value : *this) aggregate.append(value);
+        return aggregate.result();
+    }
+
+    Array<> operator()(const Query& query) const {
+        for(Clause* clause : query){
+            if(Counter* counter = dynamic_cast<Counter*>(clause)){
+                for(auto& value : *this) counter->append();
+                return {counter->result()};
+            } else if(Aggregater<double,double>* aggregater = dynamic_cast<Aggregater<double,double>*>(clause)){
+                for(auto& value : *this) aggregater->append(value);
+                return {aggregater->result()};
+            } else {
+                STENCILA_THROW(Exception,"Query clause can not be applied");
+            }
+        }
+        return Array<>();
+    }
+
+    /**
+     * @}
+     */
+
    	/**
    	 * Modification methods
    	 */
@@ -155,7 +232,7 @@ public:
     /**
      * Remove all items equal to a particular value
      * 
-     * @param value Value ot be removed
+     * @param value Value to be removed
      */
     void remove(const Type& value){
     	values_.erase(std::remove(values_.begin(), values_.end(), value), values_.end());
@@ -171,10 +248,6 @@ public:
     /**
      * @}
      */
-    
- 	void write(std::ostream& stream,const std::string format="tsv") const {
-
-	}
     
 };
 

@@ -489,7 +489,7 @@ public:
 		class Class, typename Result
 	>
 	Result operator()(Aggregate<Class,Result>& aggregate) const{
-		for(auto value : *this) aggregate.append(value);
+		for(auto& value : *this) aggregate.append(value);
 		return aggregate.result();
 	}
 	
@@ -513,10 +513,10 @@ public:
 	Array<> operator()(const Query& query) const {
 		for(Clause* clause : query){
 			if(Counter* counter = dynamic_cast<Counter*>(clause)){
-				for(auto value : *this) counter->append();
+				for(auto& value : *this) counter->append();
 				return {counter->result()};
 			} else if(Aggregater<double,double>* aggregater = dynamic_cast<Aggregater<double,double>*>(clause)){
-				for(auto value : *this) aggregater->append(value);
+				for(auto& value : *this) aggregater->append(value);
 				return {aggregater->result()};
 			} else {
 				STENCILA_THROW(Exception,"Query clause can not be applied");

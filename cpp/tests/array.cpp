@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(constructors){
     BOOST_CHECK_EQUAL(e[1],std_array[1]);
     BOOST_CHECK_EQUAL(e[2],std_array[2]);
 
-    Array<> f(one,two,three);
+    Array<> f({one,two,three});
     BOOST_CHECK_EQUAL(f.size(),1*2*3);
 }
 
@@ -55,7 +55,6 @@ BOOST_AUTO_TEST_CASE(size){
     BOOST_CHECK_EQUAL(a.size(),0);
     BOOST_CHECK_EQUAL(a.size(10).size(),10);
 }
-
 
 BOOST_AUTO_TEST_CASE(query){
     Array<> a(42);
@@ -67,6 +66,5 @@ BOOST_AUTO_TEST_CASE(query){
     BOOST_CHECK_EQUAL(a(new Counter)[0],count(a));
     BOOST_CHECK_EQUAL(a(new Summer)[0],sum(a));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -25,6 +25,13 @@ BOOST_AUTO_TEST_CASE(dimension_macro){
     BOOST_CHECK_EQUAL(four.label(),"four");
 }
 
+BOOST_AUTO_TEST_CASE(dimension_base){
+    Dimension<> dim = three;
+
+    BOOST_CHECK_EQUAL(dim.size(),3);
+    BOOST_CHECK_EQUAL(dim.label(),"three");
+}
+
 BOOST_AUTO_TEST_CASE(dimension_iterate){
     unsigned int levels[5] = {0,1,2,3,4};
     unsigned int index;
