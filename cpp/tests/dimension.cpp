@@ -15,21 +15,21 @@ STENCILA_DIM(Three,three,three,3);
 STENCILA_DIM(Four,four,four,4);
 STENCILA_DIM(Five,five,five,5);
 STENCILA_DIM(Six,Sixe,six,6);
-STENCILA_DIM(Seven,seven,seven,7);
+STENCILA_DIM(Seven,seven,seven,7); 
 
 BOOST_AUTO_TEST_CASE(dimension_macro){
     BOOST_CHECK_EQUAL(Four::size(),4);
     BOOST_CHECK_EQUAL(four.size(),4);
 
-    BOOST_CHECK_EQUAL(Four::label(),"four");
-    BOOST_CHECK_EQUAL(four.label(),"four");
+    BOOST_CHECK_EQUAL(Four::name(),"four");
+    BOOST_CHECK_EQUAL(four.name(),"four");
 }
 
 BOOST_AUTO_TEST_CASE(dimension_base){
     Dimension<> dim = three;
 
     BOOST_CHECK_EQUAL(dim.size(),3);
-    BOOST_CHECK_EQUAL(dim.label(),"three");
+    BOOST_CHECK_EQUAL(dim.name(),"three");
 }
 
 BOOST_AUTO_TEST_CASE(dimension_iterate){
@@ -38,12 +38,12 @@ BOOST_AUTO_TEST_CASE(dimension_iterate){
 
     index = 0;
     for(Level<Five> level=five.begin(); level!=five.end(); level++){
-        BOOST_CHECK_EQUAL(level,levels[index++]);
+        BOOST_CHECK_EQUAL(level.index(),levels[index++]);
     }
 
     index = 0;
     for(auto level: five){
-        BOOST_CHECK_EQUAL(level,levels[index++]);
+        BOOST_CHECK_EQUAL(level.index(),levels[index++]);
     }
 }
 

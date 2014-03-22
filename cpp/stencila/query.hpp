@@ -135,8 +135,7 @@ private:
 
 #define STENCILA_AGGREGATE_FUNCS(name,func)\
 	name func(){ return name(); } \
-	template<class Type> \
-	name::result_type func(const Type& object){ return name().apply(object); }
+	template<class Type> name::result_type func(const Type& object){ return name().apply(object); } \
 
 /**
  * Dynamic aggregate class
@@ -401,8 +400,8 @@ public:
 	}
 
 	template<class Type>
-	GeometricMean add(const Type& value){
-		if(value>0) mean_.append(value);
+	GeometricMean& add(const Type& value){
+		if(value>0) mean_.append(std::log(value));
 		return *this;
 	}
 

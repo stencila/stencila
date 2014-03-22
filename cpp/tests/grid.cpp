@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(constructors){
     BOOST_CHECK_EQUAL(f[1],7);
     BOOST_CHECK_EQUAL(f[2],8);
 
-    A g([](double level){return level;});
+    A g([](Level<Three> level){return level.index();});
     BOOST_CHECK_EQUAL(g[0],0);
     BOOST_CHECK_EQUAL(g[1],1);
     BOOST_CHECK_EQUAL(g[2],2);
@@ -143,6 +143,21 @@ BOOST_AUTO_TEST_CASE(query_by){
     }
 }
 
+BOOST_AUTO_TEST_CASE(numeric_operators){
+    Grid<double,Three> numbers = {1,2,3};
+
+    numbers /= 2;
+    BOOST_CHECK_EQUAL(numbers(0),0.5);
+    BOOST_CHECK_EQUAL(numbers(1),1);
+    BOOST_CHECK_EQUAL(numbers(2),1.5);
+
+    numbers += 1.5;
+    BOOST_CHECK_EQUAL(numbers(0),2);
+    BOOST_CHECK_EQUAL(numbers(1),2.5);
+    BOOST_CHECK_EQUAL(numbers(2),3.0);
+
+}
+
 BOOST_AUTO_TEST_CASE(write){
     Grid<int,Two,Three> a = 1;
     a[5] = 42;
@@ -158,5 +173,6 @@ BOOST_AUTO_TEST_CASE(write){
     BOOST_CHECK_EQUAL(lines[5],"1\t1\t1");
     BOOST_CHECK_EQUAL(lines[6],"1\t2\t42");
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()
