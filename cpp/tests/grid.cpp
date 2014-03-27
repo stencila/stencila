@@ -19,7 +19,6 @@ STENCILA_DIM(Five,five,five,5);
 STENCILA_DIM(Six,Sixe,six,6);
 STENCILA_DIM(Seven,seven,seven,7);
 
-
 BOOST_AUTO_TEST_CASE(constructors){
     typedef Grid<double,Three> A;
 
@@ -77,7 +76,7 @@ BOOST_AUTO_TEST_CASE(dimensioned){
 
 BOOST_AUTO_TEST_CASE(subscript){
     Grid<double,One> a = {1};
-    BOOST_CHECK_EQUAL(a(Level<One>(0)),1);
+    BOOST_CHECK_EQUAL(a(0),1);
 
     Grid<double,One,Two> b = {11,12};
     BOOST_CHECK_EQUAL(b(0,0),11);
@@ -104,10 +103,11 @@ BOOST_AUTO_TEST_CASE(query){
     BOOST_CHECK_EQUAL(count(a),a.size());
     BOOST_CHECK_EQUAL(sum(a),a.size()*3);
 
-    //Dynamic queries
+    // Dynamic queries
     BOOST_CHECK_EQUAL(a(new Counter)[0],count(a));
     BOOST_CHECK_EQUAL(a(new Summer)[0],sum(a));    
 
+    // Each aggregator
     Grid<char,Four> b = {'f','o','r','d'};
     std::string word;
     each(b,[&word](char item){
@@ -158,12 +158,26 @@ BOOST_AUTO_TEST_CASE(numeric_operators){
 
 }
 
+BOOST_AUTO_TEST_CASE(read){
+    std::stringstream stream;
+    stream.str("two\tvalue\n0\t2\n");
+    stream.seekg(0);
+
+    Grid<int,Two> a = 3;
+    a.read(stream);
+
+    BOOST_CHECK_EQUAL(a[0],2);
+    BOOST_CHECK_EQUAL(a[1],3);
+}
+
 BOOST_AUTO_TEST_CASE(write){
+    // Create a grid....
     Grid<int,Two,Three> a = 1;
     a[5] = 42;
+    // Write to a stream
     std::ostringstream stream;
     a.write(stream);
-
+    // Check the stream's contents
     std::string output = stream.str();
     std::vector<std::string> lines;
     boost::split(lines,output,boost::is_any_of("\n"));

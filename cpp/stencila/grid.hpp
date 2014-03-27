@@ -55,7 +55,6 @@ public:
 	 * @}
 	 */
 
-
 	/**
 	 * @name Comparison operators
 	 * @{
@@ -76,9 +75,9 @@ public:
 
 
 /**
- * A static array
- *
- * An array with fixed, known dimensions
+ * @namespace Grid
+ * 
+ * A multi-dimensional data structure
  */
 template<
 	typename Type = double,
@@ -100,10 +99,16 @@ private:
 	// of [BOOST_PP_SEQ_FOR_EACH](http://www.boost.org/doc/libs/1_55_0/libs/preprocessor/doc/ref/seq_for_each.html)
 	#define STENCILA_GRID_DIMENSIONS (D1)(D2)(D3)(D4)(D5)(D6)(D7)(D8)(D9)(D10)
 
+	/**
+	 * Size of the grid, a product of the size of each dimension
+	 */
 	static const unsigned int size_ =
 		D1::size_ * D2::size_ * D3::size_ * D4::size_ * D5::size_ *
 		D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 
+	/**
+	 * Stored values
+	 */
 	Type values_[size_];
 
 	// A templated struct used in method overloading to signify alternative numbers (e.g dimensions; function arity)
@@ -116,13 +121,23 @@ public:
 	 * @{
 	 */
 
+	/**
+	 * Default constructor
+	 */
 	Grid(void){
 	}
 
+	/**
+	 * Construct from another grid with same dimensions
+	 */
 	Grid(const Type& other){
 		for(Type& value : values_) value = other;
 	}
 
+	/**
+	 * Construct from some other object (e.g function, atomic).
+	 * See the constructor helper group of methods below
+	 */
 	template<typename Other>
     Grid(const Other& other){
     	construct_dispatch_(IsContainer<Other>(),IsCallable<Other>(),other);
@@ -132,7 +147,7 @@ public:
 	 * Construct from an initializer_list (e.g. `{1.23,3.14,5.98}`)
 	 *
 	 * This constructor appears to be nessary because compiler (gcc 4.81 at least)
-	 * can not resolve between above consturtors when called with an intiializer list
+	 * can not resolve between above consturtors when called with an initializer list
 	 */
     template<typename Value>
 	Grid(const std::initializer_list<Value>& values){
@@ -141,6 +156,13 @@ public:
 
 private:
 
+	/**
+	 * @name Constructor helpers
+	 *
+	 * A group of methods for helping to construct Grid from various types of objects
+	 * 
+	 * @{
+	 */
  	template<typename Other>
     void construct_dispatch_(const std::false_type& is_container,const std::false_type& is_callable,const Other& other){
         construct_atomic_(other);
@@ -282,19 +304,26 @@ private:
 
 public:
 
-    /**
-     * Implicit conversion to a std::vector
-     */
-    operator std::vector<Type>(void) {
-        return std::vector<Type>(values_,values_+size_);
-    }
-
 	/**
 	 * Get the size of the grid.
 	 */
     static unsigned int size(void) {
 		return size_;
 	}
+
+	/**
+	 * Does the grid have a dimension?
+	 */
+	template<class Dimension>
+	static bool dimensioned(const Dimension&) {
+		return false;
+	}
+
+	// The following macro and BOOST_PP_SEQ_FOR_EACH call create a dimensioned method
+	// for each possible dimension
+	#define STENCILA_LOCAL(r,data,elem) static bool dimensioned(const elem&) { return true; }
+	BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, , STENCILA_GRID_DIMENSIONS)
+	#undef STENCILA_LOCAL
 
  	/**
 	 * @name Iterator interface
@@ -322,23 +351,17 @@ public:
      * @}
      */
     
+	/**
+	* Implicit conversion to a std::vector
+	*/
+    operator std::vector<Type>(void) {
+        return std::vector<Type>(values_,values_+size_);
+    }
 
 	/**
-	 * Does the grid have a dimension?
-	 */
-	template<class Dimension>
-	static bool dimensioned(const Dimension&) {
-		return false;
-	}
-
-	// The following macro and BOOST_PP_SEQ_FOR_EACH call create a dimensioned method
-	// for each possible dimension
-	#define STENCILA_GRID_DIMENSIONED(r,data,elem) static bool dimensioned(const elem&) { return true; }
-	BOOST_PP_SEQ_FOR_EACH(STENCILA_GRID_DIMENSIONED, , STENCILA_GRID_DIMENSIONS)
-	#undef STENCILA_GRID_DIMENSIONED
-
-	/**
-	 * Get the number of cells in a single level of a dimension
+	 * Get the number of cells in a single level of a dimension.
+	 *
+	 * This method is used by the jump and level methods below.
 	 */
 	template<class Dimension>
 	static uint base(const Dimension&) { 
@@ -377,6 +400,8 @@ public:
 
 	/**
 	 * Get the jump in the index associated with a level of a dimension
+	 *
+	 * @param level Level of the dimension
 	 */
 	template<class Dimension>
 	static uint jump(const Level<Dimension>& level){
@@ -386,11 +411,13 @@ public:
 	/**
 	 * Get the level of a dimension at an index of this grid
 	 * 
-	 * @param  dimension  The dimension
-	 * @param  index The linear index
+	 * @param  dimension  Dimension for which level is to be obtained
+	 * @param  index 	  Index of this grid to be translated into a level of the dimension
 	 */
 	template<class Dimension>
 	static Level<Dimension> level(const Dimension& dimension, unsigned int index) {
+		// This method is called when this grid does not contain the dimension.
+		// It returns a "null" Level<Dimension> which has an index of zero. 
 		return dimension.level();
 	}
 	static Level<D1> level(const D1& dimension, unsigned int index) {
@@ -425,8 +452,8 @@ public:
 	}
 
 	/**
-	 * Get the linear index corresponding to particular levels of each 
-	 * of the array's dimensions
+	 * Get the index of this grid corresponding to particular levels of each 
+	 * of the it's dimensions
 	 */
 	static unsigned int index(
 		const Level<D1>& level1,
@@ -449,16 +476,16 @@ public:
 	/**
 	 * @name Subscript operators
 	 *
-	 * Return the value at the linear index
+	 * Return the value at the index
 	 * 
 	 * @{
 	 */
 
-	Type& operator[](unsigned int index){
+	Type& operator[](uint index){
 		return values_[index];
 	}
 
-	const Type& operator[](unsigned int index) const {
+	const Type& operator[](uint index) const {
 		return values_[index];
 	}
 
@@ -492,31 +519,23 @@ public:
 		return values_[index(l1,l2,l3,l4,l5,l6,l7,l8,l9,l10)];
 	}
 
-    template<
-		class Class, typename Result
-	>
-	Result operator()(Aggregate<Class,Result>& aggregate) const{
-		for(auto& value : *this) aggregate.append(value);
-		return aggregate.result();
-	}
-	
-	template<
-		class Class, typename Result,
-		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10
-	>
-	Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregate<Class,Result>& aggregate,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by) const{
-		Grid<Class,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregates;
-		for(uint index=0;index<size();index++) {
-			aggregates(
-				level(A1(),index),Level<A2>(level(A2(),index)),level(A3(),index),level(A4(),index),level(A5(),index),
-				level(A6(),index),level(A7(),index),level(A8(),index),level(A9(),index),level(A10(),index)
-			).append(operator[](index));
-		}
-		Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> results;
-		for(int index=0;index<aggregates.size();index++) results[index] = aggregates[index].result();
-		return results;
-	}
+	/**
+	 * @}
+	 */
 
+	/**
+	 * @name Query operators
+	 *
+	 * Evaluate a query on this grid
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Evaluate a dynamic query and return an array with the results.
+	 *
+	 * Currently, this is a partial implementation which does not handle all query types.
+	 */
 	Array<> operator()(const Query& query) const {
 		for(Clause* clause : query){
 			if(Counter* counter = dynamic_cast<Counter*>(clause)){
@@ -533,12 +552,49 @@ public:
 	}
 
 	/**
+	 * Evaluate an `Aggregate` type query and return its result
+	 */
+    template<
+		class Class, typename Result
+	>
+	Result operator()(Aggregate<Class,Result>& aggregate) const{
+		for(auto& value : *this) aggregate.append(value);
+		return aggregate.result();
+	}
+	
+	/**
+	 * Evaluate an `Aggregate` and `By` query combination returning
+	 * a `Grid` with the same dimensions as the `By`.
+	 */
+	template<
+		class Class, typename Result,
+		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10
+	>
+	Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregate<Class,Result>& aggregate,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by) const{
+		// Create a grid of aggregators with the dimesnions of the By
+		Grid<Class,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregators;
+		// Iterate over tthis grid updating the appropriate level of the aggregators grid
+		for(uint index=0;index<size();index++) {
+			aggregators(
+				level(A1(),index),level(A2(),index),level(A3(),index),level(A4(),index),level(A5(),index),
+				level(A6(),index),level(A7(),index),level(A8(),index),level(A9(),index),level(A10(),index)
+			).append(operator[](index));
+		}
+		// Get the results of each aggregator
+		Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> results;
+		for(int index=0;index<aggregators.size();index++) results[index] = aggregators[index].result();
+		return results;
+	}
+
+	/**
 	 * @}
 	 */
 	
 
 	/**
-	 * Numeric operator overloading
+	 * @name Numeric operators
+	 *
+	 * @{
 	 */
 	
 	#define STENCILA_LOCAL(op) \
@@ -552,19 +608,39 @@ public:
 	STENCILA_LOCAL(*=)
 	STENCILA_LOCAL(/=)
 	#undef STENCILA_LOCAL
+
+	/**
+	 * @}
+	 */
 	
+
+	/**
+	 * @name Reading and writing methods
+	 * 
+	 * @{
+	 */
+
+	/**
+	 * Read the grid from an input stream
+	 *
+	 * Currently, only tab separated value (TSV) format is supported. Other
+	 * formats, including binary, may be implemented in the future.
+	 * 
+	 * @param stream Input stream
+	 * @param function A function that reads tab separated values representing the `Type`
+	 */
 	void read(std::istream& stream,void(*function)(std::istream&,Type&)){
 		// Read in the header
 		// Currently this is not checked for consistency with the grid dimension names
 		std::string header;
 		std::getline(stream,header);
-
+		// Get each line....
 		std::string line;
 		while(std::getline(stream,line)){
 			// Check for lines that are all whitespace and skip them
 			// (this primarily is to prevent errors caused by extra empty lines at end of files)
 			if(std::all_of(line.begin(),line.end(),isspace)) continue;
-			// Put line into a string stream for reading
+			// Put line into a string stream for reading by the function
 			std::stringstream line_stream(line);
 			uint index = 0;
 			Type value;
@@ -583,35 +659,96 @@ public:
 		}
 	}
 
-	void read(const std::string& path,void(*function)(std::istream&,Type&)){
+	/**
+	 * Read grid from an input stream using the >> operator to read each value
+	 * 
+	 * @param stream Input stream
+	 */
+	void read(std::istream& stream) {
+		read(stream,[](std::istream& stream,Type& value){
+			stream>>value;
+		});
+	}
+
+	/**
+	 * Read grid from an input file using the specified function to write each value
+	 * 
+	 * @param path Filesystem path to file
+	 * @param function A function that reads tab separated values representing the `Type`
+	 */
+	void read(const std::string& path, void(*function)(std::istream&,Type&)) {
 		std::ifstream file(path);
 		read(file,function);
 		file.close();
 	}
 
+	/**
+	 * Read grid from an input file using the >> operator to read each value
+	 * 
+	 * @param path Filesystem path to file
+	 */
+	void read(const std::string& path) {
+		std::ofstream file(path);
+		read(file);
+		file.close();
+	}
+
+	/**
+	 * Write the grid to an output stream.
+	 *
+	 * Currently, only tab separated value (TSV) format is supported. Other
+	 * formats, including binary, may be implemented in the future.
+	 *
+	 * @param stream Output stream
+	 * @param names Vector of names coresponding to the tab separated values output by `function`
+	 * @param function A function that outputs tab separated values representing the `Type`
+	 */
 	void write(std::ostream& stream, const std::vector<std::string>& names, void(*function)(std::ostream&,const Type&)) const {
-		// Header
-		#define STENCILA_GRID_HEADER(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
-		BOOST_PP_SEQ_FOR_EACH(STENCILA_GRID_HEADER, , STENCILA_GRID_DIMENSIONS)
-		#undef STENCILA_GRID_HEADER
-		// Add header names for function
-		for(auto& name : names) stream<<name<<"\t";
-		// End the line
+		// Write a header row...
+		// ...with the names of each of the non-singular dimensions
+		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
+		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_GRID_DIMENSIONS)
+		#undef STENCILA_LOCAL
+		// ...and the names of values that will be output by the function
+		uint index = 0;
+		for(auto& name : names){
+			stream<<name;
+			if(index++ < names.size()-1) stream<<"\t";
+		}
+		// ...then end the header line
 		stream<<std::endl;
 
-		// Values
+		// Write value rows...
 		for(uint index=0;index<size();index++){
-
-			#define STENCILA_GRID_ROW(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index).label()<<"\t";
-			BOOST_PP_SEQ_FOR_EACH(STENCILA_GRID_ROW, , STENCILA_GRID_DIMENSIONS)
-			#undef STENCILA_GRID_ROW
-
+			//...with labels for each nn-singular dimension
+			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
+			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_GRID_DIMENSIONS)
+			#undef STENCILA_LOCAL
+			//...call the function to write the vaue
 			function(stream,values_[index]);
-
+			// ...then end the value line
 			stream<<std::endl;
 		}
 	}
 
+	/**
+	 * Write grid to an output stream using the << operator to write each value
+	 * 
+	 * @param stream Output stream
+	 */
+	void write(std::ostream& stream) const {
+		write(stream,{"value"},[](std::ostream& stream,const Type& value){
+			stream<<value;
+		});
+	}
+
+	/**
+	 * Write grid to an output file using the specified function operator to write each value
+	 * 
+	 * @param path Filesystem path to file
+	 * @param names Vector of names coresponding to the tab separated values output by `function`
+	 * @param function A function that outputs tab separated values for the Type
+	 */
 	void write(const std::string& path, const std::vector<std::string>& names, void(*function)(std::ostream&,const Type&)) const {
 		std::ofstream file(path);
 		write(file,names,function);
@@ -619,68 +756,33 @@ public:
 	}
 
 	/**
-	 * Write array to an output stream
-	 * 
-	 * @param stream Output stream
-	 * @param format Format specifier string (e.g. "tsv", "csv")
-	 *
-	 * @todo Implement more output formats including tuning off header and binary output
-	 */
-	void write(std::ostream& stream,const std::string format) const {
-		if(format=="tsv"){
-			// Header
-			
-			#define STENCILA_GRID_HEADER(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
-			BOOST_PP_SEQ_FOR_EACH(STENCILA_GRID_HEADER, , STENCILA_GRID_DIMENSIONS)
-			#undef STENCILA_GRID_HEADER
-
-			stream<<"value"<<std::endl;
-			// Values
-			for(uint index=0;index<size();index++){
-
-				#define STENCILA_GRID_ROW(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index).label()<<"\t";
-				BOOST_PP_SEQ_FOR_EACH(STENCILA_GRID_ROW, , STENCILA_GRID_DIMENSIONS)
-				#undef STENCILA_GRID_ROW
-
-				stream<<values_[index];
-
-				stream<<std::endl;
-			}
-		}
-		else if(format=="bin"){
-			static_assert(true,"Not implemented");
-		}
-		else{
-			STENCILA_THROW(Exception,"Unsupported format:"+format)
-		}
-	}
-
-	/**
-	 * Write array to a file
+	 * Write grid to an output file using the << operator to write each value
 	 * 
 	 * @param path Filesystem path to file
 	 */
 	void write(const std::string& path) const {
-		std::string extension = boost::filesystem::extension(path).substr(1);
 		std::ofstream file(path);
-		write(file,extension);
+		write(file);
 		file.close();
 	}
 
+	/**
+	 * @}
+	 */
+	
 #undef STENCILA_GRID_DIMENSIONS
 
 };
 
-
 /**
- * Output a static array to a stream using the `<<` operator
+ * Output a grid to a stream using the `<<` operator
  */
 template<
 	class Type,
 	class... Dimensions
 >
-std::ostream& operator<<(std::ostream& stream, const Grid<Type,Dimensions...>& array){
-	array.write(stream);
+std::ostream& operator<<(std::ostream& stream, const Grid<Type,Dimensions...>& grid){
+	grid.write(stream);
 	return stream;
 }
 
