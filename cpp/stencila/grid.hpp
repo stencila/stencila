@@ -538,15 +538,17 @@ public:
 	 */
 	Array<> operator()(const Query& query) const {
 		for(Clause* clause : query){
-			if(Counter* counter = dynamic_cast<Counter*>(clause)){
-				for(auto& value : *this) counter->append();
-				return {counter->result()};
-			} else if(Aggregater<double,double>* aggregater = dynamic_cast<Aggregater<double,double>*>(clause)){
-				for(auto& value : *this) aggregater->append(value);
-				return {aggregater->result()};
-			} else {
-				STENCILA_THROW(Exception,"Query clause can not be applied");
-			}
+            if(AggregateDynamic<double,uint>* aggregate = dynamic_cast<AggregateDynamic<double,uint>*>(clause)){
+                for(auto& value : *this) aggregate->append_dynamic(value);
+                return {aggregate->result_dynamic()};
+            }
+            else if(AggregateDynamic<double,double>* aggregate = dynamic_cast<AggregateDynamic<double,double>*>(clause)){
+                for(auto& value : *this) aggregate->append_dynamic(value);
+                return {aggregate->result_dynamic()};
+            }
+            else {
+                STENCILA_THROW(Exception,"Query clause can not be applied: "+clause->code());
+            }
 		}
 		return Array<>();
 	}
@@ -555,9 +557,9 @@ public:
 	 * Evaluate an `Aggregate` type query and return its result
 	 */
     template<
-		class Class, typename Result
+		class Derived, typename Values, typename Result
 	>
-	Result operator()(Aggregate<Class,Result>& aggregate) const{
+	Result operator()(Aggregate<Derived,Values,Result>& aggregate) const{
 		for(auto& value : *this) aggregate.append(value);
 		return aggregate.result();
 	}
@@ -567,22 +569,22 @@ public:
 	 * a `Grid` with the same dimensions as the `By`.
 	 */
 	template<
-		class Class, typename Result,
+		class Derived, typename Values, typename Result,
 		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10
 	>
-	Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregate<Class,Result>& aggregate,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by) const{
-		// Create a grid of aggregators with the dimesnions of the By
-		Grid<Class,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregators;
+	Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregate<Derived,Values,Result>& aggregate,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by) const{
+		// Create a grid of aggregators with the dimesnions of the Byer
+		Grid<Derived,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregates;
 		// Iterate over tthis grid updating the appropriate level of the aggregators grid
 		for(uint index=0;index<size();index++) {
-			aggregators(
+			aggregates(
 				level(A1(),index),level(A2(),index),level(A3(),index),level(A4(),index),level(A5(),index),
 				level(A6(),index),level(A7(),index),level(A8(),index),level(A9(),index),level(A10(),index)
 			).append(operator[](index));
 		}
 		// Get the results of each aggregator
 		Grid<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> results;
-		for(int index=0;index<aggregators.size();index++) results[index] = aggregators[index].result();
+		for(int index=0;index<aggregates.size();index++) results[index] = aggregates[index].result();
 		return results;
 	}
 

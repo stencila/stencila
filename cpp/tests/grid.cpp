@@ -101,11 +101,13 @@ BOOST_AUTO_TEST_CASE(query){
 
     // Static queries
     BOOST_CHECK_EQUAL(count(a),a.size());
+    Count counter;
+    BOOST_CHECK_EQUAL(a(counter),a.size());
     BOOST_CHECK_EQUAL(sum(a),a.size()*3);
 
     // Dynamic queries
-    BOOST_CHECK_EQUAL(a(new Counter)[0],count(a));
-    BOOST_CHECK_EQUAL(a(new Summer)[0],sum(a));    
+    BOOST_CHECK_EQUAL(a(new Count)[0],count(a));
+    BOOST_CHECK_EQUAL(a(new Sum)[0],sum(a));    
 
     // Each aggregator
     Grid<char,Four> b = {'f','o','r','d'};
@@ -120,7 +122,7 @@ BOOST_AUTO_TEST_CASE(query_by){
     Grid<double,Two,Three> numbers = 2;
     
     {
-        Grid<unsigned int,Two> counts = numbers(count(),by(two));
+        Grid<uint,Two> counts = numbers(count(),by(two));
         BOOST_CHECK_EQUAL(counts(0),3);
         BOOST_CHECK_EQUAL(counts(1),3);
     }

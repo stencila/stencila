@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE(query){
     BOOST_CHECK_EQUAL(count(a),a.size());
 
     //Dynamic queries
-    BOOST_CHECK_EQUAL(a(new Counter)[0],count(a));
-    BOOST_CHECK_EQUAL(a(new Summer)[0],sum(a));
+    BOOST_CHECK_EQUAL(a(new Count)[0],count(a));
+    BOOST_CHECK_EQUAL(a(new Sum)[0],sum(a));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

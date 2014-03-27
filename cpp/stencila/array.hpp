@@ -190,23 +190,25 @@ public:
      */
 
     template<
-        class Class, typename Result
+        class Class, typename Values, typename Result
     >
-    Result operator()(Aggregate<Class,Result>& aggregate) const{
+    Result operator()(Aggregate<Class,Values,Result>& aggregate) const{
         for(auto& value : *this) aggregate.append(value);
         return aggregate.result();
     }
 
     Array<> operator()(const Query& query) const {
         for(Clause* clause : query){
-            if(Counter* counter = dynamic_cast<Counter*>(clause)){
-                for(auto& value : *this) counter->append();
-                return {counter->result()};
-            } else if(Aggregater<double,double>* aggregater = dynamic_cast<Aggregater<double,double>*>(clause)){
-                for(auto& value : *this) aggregater->append(value);
-                return {aggregater->result()};
-            } else {
-                STENCILA_THROW(Exception,"Query clause can not be applied");
+            if(AggregateDynamic<double,uint>* aggregate = dynamic_cast<AggregateDynamic<double,uint>*>(clause)){
+                for(auto& value : *this) aggregate->append_dynamic(value);
+                return {aggregate->result_dynamic()};
+            }
+            else if(AggregateDynamic<double,double>* aggregate = dynamic_cast<AggregateDynamic<double,double>*>(clause)){
+                for(auto& value : *this) aggregate->append_dynamic(value);
+                return {aggregate->result_dynamic()};
+            }
+            else {
+                STENCILA_THROW(Exception,"Query clause can not be applied: "+clause->code());
             }
         }
         return Array<>();
