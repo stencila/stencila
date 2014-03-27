@@ -16,23 +16,33 @@ template<
 class Dimension;
 
 /**
- * A level of an array Dimension.
+ * A level of a Dimension.
  * 
- * Implements an iterator interface for convenient looping
- * over levels in a dimension (based on [this](http://stackoverflow.com/a/7185723))
+ * Levels represent a particular index of a dimension. They are used to size, slice and dice a Grid.
+ * They act as an iterator for convenient looping over levels in a dimension
  */
 template<class Dimension>
 class Level {
 private:
+
+	/**
+	 * The index of the dimension referred to by this level.
+	 */
 	uint index_;
 
 public:
 
 	/**
-	 * Construct a level from a label of the dimension.
-	 *
+	 * Construct a level from an integer label of the dimension.
 	 */
 	Level(uint label):
+		index_(Dimension::level(label).index()){
+	}
+
+	/**
+	 * Construct a level from an string label of the dimension.
+	 */
+	Level(const std::string& label):
 		index_(Dimension::level(label).index()){
 	}
 
@@ -42,8 +52,8 @@ public:
 	 * It may be unsafe to do this if the size of the other dimension
 	 * differs to the size of this one. For that reason this constructor is
 	 * made explicit and checking may be implemened at a later stage.
-	 * By not having this implicit, the compiler warns if a grid is called with
-	 * dimensions in the correct orddr - that is useful.
+	 * By not having this implicit, the compiler warns if a grid is subscripted with
+	 * dimensions in the incorrect order.
 	 */
 	template<class Other>
 	explicit Level(Level<Other> level):
@@ -51,7 +61,7 @@ public:
 	}
 
 	/**
-	 * Construct a level from an index of the dimension.
+	 * Construct a "null" level from an index of the dimension.
 	 *
 	 * Intended to only be called by a Dimension.
 	 */
@@ -84,10 +94,10 @@ public:
 	}
 
 	/**
-	 * Dereference.
+	 * Dereference operator
 	 *
 	 * Returns a copy, instead of an `uint`, because Level<Dimension>
-	 * is used an argument to index an Array<Dimension,...>
+	 * is used as an argument to subscript a Grid with this dimension
 	 */
 	Level<Dimension> operator*() const { 
 		return Level<Dimension>(index_);
@@ -127,6 +137,14 @@ public:
 		return index_ != other.index_;
 	}
 
+	bool operator<(const Level<Dimension>& other) const {
+		return index_ < other.index_;
+	}
+
+	bool operator>(const Level<Dimension>& other) const {
+		return index_ > other.index_;
+	}
+
 	/**
 	 * @}
 	 */
@@ -139,33 +157,57 @@ std::ostream& operator<<(std::ostream& stream, const Level<Dimension>& level){
 }
 
 /**
- * Base class for all dimensions which allows for 
- * use by Array class.
+ * Base class for all dimensions.
+ * 
+ * Having this base class allows dimensions to be used dynamically 
+ * by Array classes.
  */
 template<>
 class Dimension<> {
 private:
 
+	/**
+	 * The size of the dimension
+	 */
 	uint size_;
+
+	/**
+	 * The name of the dimension
+	 */
 	const char* name_;
 
 public:
 
+	/**
+	 * Construct a Dimension.
+	 *
+	 * This is the only constructor since size and name
+	 * must always be intialised.
+	 */
 	Dimension(uint size, const char* name):
 		size_(size),
 		name_(name){
 	}
 
+	/**
+	 * Get the size of the dimension.
+	 */
 	uint size(void) const {
 		return size_;
 	}	
 
+	/**
+	 * Get the name of the dimension.
+	 */
 	const char* name(void) const {
 		return name_;
 	}
 
 };
 
+/**
+ * A static Dimension class
+ */
 template<
 	class Derived,
 	uint Size,
@@ -175,6 +217,12 @@ template<
 class Dimension : public Dimension<> {
 public:
 
+	/**
+	 * Construct a dimension.
+	 *
+	 * This need sto be called so that size and name member data attributes
+	 * can be initialised
+	 */
 	Dimension(const char* name):
 		Dimension<>(Size,name){
 	}
@@ -182,7 +230,7 @@ public:
 	/**
 	 * Size of dimension.
 	 *
-	 * A static member that can be used in definition of Arrays.
+	 * A static member that can be used by Grids.
 	 * For that reason made public but use of `size()` method should be
 	 * preferred.
 	 */
@@ -191,7 +239,7 @@ public:
 	/**
 	 * Size, i.e. number of levels, of dimension
 	 *
-	 * For consistency with `label()` this is made a static method.
+	 * For consistency with `name()` this is made a static method.
 	 * Does not need to be overidden.
 	 */
 	static uint size(void) {
@@ -217,7 +265,8 @@ public:
 	}
 
 	/**
-	 * Get a "null" level for this dimension
+	 * Get a "null" level for this dimension. Intended for use in
+	 * grids which do not contain this dimension.
 	 */
 	static Level<Derived> level(void) { 
 		return Level<Derived>(); 
@@ -234,7 +283,7 @@ public:
 	/**
 	 * Get a level for a string label
 	 *
-	 * Currently, only string represnetations of integers are implemeted.
+	 * Currently, only string representations of integers are implemeted.
 	 * In the future, text labels will also be allowed.
 	 */
 	static Level<Derived> level(const std::string& label) {
@@ -242,7 +291,7 @@ public:
 	}
 
 	/**
-	 * Get an index for a label read in from a stream
+	 * Get an index for a label by reading in from a stream
 	 */
 	static Level<Derived> level(std::istream& stream) {
 		std::string label;
