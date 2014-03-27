@@ -12,9 +12,14 @@ struct GlobalFixture {
 BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #include "component.cpp"
+
 #include "stencil.cpp"
 
 #include "contexts/map.cpp"
+
+#include "dimension.cpp"
+#include "array.cpp"
+#include "grid.cpp"
 
 #include "utilities/git.cpp"
 #include "utilities/html.cpp"
