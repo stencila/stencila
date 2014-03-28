@@ -16,13 +16,13 @@ namespace Contexts {
 class Map : public Context<Map> {
 private:
 
-    class Frame {
+    class Namespace {
     private:
         std::string value_;
-        std::map<std::string,Frame*> children_;
+        std::map<std::string,Namespace*> children_;
 
     public:
-        Frame(const std::string& value=""):
+        Namespace(const std::string& value=""):
             value_(value){
         }
 
@@ -30,52 +30,52 @@ private:
             return value_;
         }
 
-        std::map<std::string,Frame*>::iterator begin(void){
+        std::map<std::string,Namespace*>::iterator begin(void){
             return children_.begin();
         }
 
-        std::map<std::string,Frame*>::iterator end(void){
+        std::map<std::string,Namespace*>::iterator end(void){
             return children_.end();
         }
 
-        Frame* set(const std::string& name,const std::string& value){
-            Frame* frame = new Frame(value);
-            children_[name] = frame;
-            return frame;
+        Namespace* set(const std::string& name,const std::string& value){
+            Namespace* ns = new Namespace(value);
+            children_[name] = ns;
+            return ns;
         }
 
-        Frame* get(const std::string& name) const {
+        Namespace* get(const std::string& name) const {
             auto i = children_.find(name);
             if(i!=children_.end()) return i->second;
             else return 0;
         }
     };
 
-    Frame frame_;
-    std::list<Frame*> frames_;
+    Namespace ns_;
+    std::list<Namespace*> nss_;
 
     void set_(const std::string& name, const std::string& value){
-        frames_.back()->set(name,value);
+        nss_.back()->set(name,value);
     }
 
-    Frame* get_(const std::string& name) const {
-        for(auto frame : frames_){
-            Frame* got = frame->get(name);
+    Namespace* get_(const std::string& name) const {
+        for(auto ns : nss_){
+            Namespace* got = ns->get(name);
             if(got) return got;
         }
         if(parent_) return parent_->get_(name);
         else throw Exception("Name not found: "+name);
     }
 
-    std::stack<Frame*> subjects_;
+    std::stack<Namespace*> subjects_;
 
     struct Loop {
-        Frame frame;
+        Namespace ns;
         std::string name;
-        std::map<std::string,Frame*>::iterator iterator;
-        std::map<std::string,Frame*>::iterator end;
+        std::map<std::string,Namespace*>::iterator iterator;
+        std::map<std::string,Namespace*>::iterator end;
 
-        Loop(const std::string& item,Frame* items){
+        Loop(const std::string& item,Namespace* items){
             name = item;
             iterator = items->begin();
             end = items->end();
@@ -88,11 +88,11 @@ private:
 public:
 
     Map(void){
-        frames_.push_back(&frame_);
+        nss_.push_back(&ns_);
     }
 
     Map(const Map* parent, Xml::Node node){
-        frames_.push_back(&frame_);
+        nss_.push_back(&ns_);
         parent_ = parent;
         node_ = node;
     }
@@ -145,15 +145,15 @@ public:
     }
 
     bool begin(const std::string& item,const std::string& expression){
-        Frame* items = get_(expression);
+        Namespace* items = get_(expression);
 
         Loop* loop = new Loop(item,items);
         loops_.push(loop);
 
-        frames_.push_back(&loop->frame);
+        nss_.push_back(&loop->ns);
 
         if(loop->iterator!=loop->end){
-            loop->frame.set(loop->name,loop->iterator->second->value());
+            loop->ns.set(loop->name,loop->iterator->second->value());
             return true;
         }
         else return false;
@@ -164,7 +164,7 @@ public:
         loop->iterator++;
         if(loop->iterator==loop->end) return false;
         else {
-            loop->frame.set(loop->name,loop->iterator->second->value());
+            loop->ns.set(loop->name,loop->iterator->second->value());
             return true;
         }
     }
@@ -173,23 +173,23 @@ public:
         delete loops_.top();
         loops_.pop();
         
-        frames_.pop_back();
+        nss_.pop_back();
         return *this;
     }
 
    
     Map& enter(const std::string& expression){
-        frames_.push_back(get_(expression));
+        nss_.push_back(get_(expression));
         return *this;
     }
 
     Map& enter(void){
-        frames_.push_back(new Frame);
+        nss_.push_back(new Namespace);
         return *this;
     }
 
     Map& exit(void){
-        frames_.pop_back();
+        nss_.pop_back();
         return *this;
     }
 
