@@ -3,22 +3,52 @@
 #include <string>
 
 #include <stencila/component.hpp>
+#include <stencila/utilities/xml.hpp>
 
 namespace Stencila {
 namespace Contexts {
 
-template<class Class>
-class Context : public Component<Context<Class>> {
+template<class Derived>
+class Context : public Component<Context<Derived>> {
+protected:
+
+    Xml::Node node_;
+
 public:
 
     std::string type(void) const {
         return "context";
     }
 
-protected:
+    /**
+     * Attach a stencil element to this context
+     */
+    void attach(Xml::Node node){
+        node_ = node;
+    }
 
+    /**
+     * Spawn a new child context attached to a stencil element.
+     *
+     * The child context has this context as its parent
+     */
+    Derived* spawn(Xml::Node node){
+        return new Derived(static_cast<Derived*>(this),node);
+    }
+
+    /**
+     * @name Rendering methods
+     *
+     * Methods related to rendering of stencils
+     *
+     * @{
+     */
+
+    /**
+     * Method to throw an "unsupported" exception
+     */
     void unsupported(void){
-        throw Exception("Not supported by context type: "+static_cast<Class&>(*this).type());
+        throw Exception("Not supported by context type: "+static_cast<Derived&>(*this).type());
     }
 
     /**
@@ -140,7 +170,7 @@ protected:
     }
 
     /**
-     * Enter a new child context. 
+     * Enter a new frame. 
      * Used by stencil `with` element e.g. `<div data-with="mydata"><span data-text="sum(a*b)" /></div>`
      *  
      * @param expression Expression that will be the scope of the new context
@@ -150,11 +180,15 @@ protected:
     }
 
     /**
-     * Exit the current child context
+     * Exit the current frame
      */
     Context& exit(void){
         unsupported();
     }
+
+    /**
+     * @}
+     */
 
 };
 

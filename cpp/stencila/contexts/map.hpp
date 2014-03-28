@@ -58,12 +58,13 @@ private:
         frames_.back()->set(name,value);
     }
 
-    Frame* get_(const std::string& name){
+    Frame* get_(const std::string& name) const {
         for(auto frame : frames_){
             Frame* got = frame->get(name);
             if(got) return got;
         }
-        throw Exception("Name not found: "+name);
+        if(parent_) return parent_->get_(name);
+        else throw Exception("Name not found: "+name);
     }
 
     std::stack<Frame*> subjects_;
@@ -82,10 +83,18 @@ private:
     };
     std::stack<Loop*> loops_;
 
+    const Map* parent_ = 0;
+
 public:
 
     Map(void){
         frames_.push_back(&frame_);
+    }
+
+    Map(const Map* parent, Xml::Node node){
+        frames_.push_back(&frame_);
+        parent_ = parent;
+        node_ = node;
     }
 
     std::string type(void) const {

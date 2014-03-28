@@ -25,7 +25,6 @@ public:
 public:
 
     Stencil(void){
-
     }
 
     Stencil(const std::string& content){
@@ -152,6 +151,7 @@ public:
 
     template<typename Context>
     Stencil& render(Context& context){
+        context.attach(*this);
         render_element_(*this,context);
         return *this;
     }
@@ -581,10 +581,11 @@ private:
             }
         }
         
-        // Create a new context frame, regardless of whether there are any 
+        // Spawn a new context and associate it with the included element.
+        // Do this regardless of whether there are any 
         // `data-param` elements, to avoid the included elements polluting the
-        // main frame or overwriting variables inadvertantly
-        context.enter();
+        // main context or overwriting variables inadvertantly
+        Context* child = context.spawn(included);
 
         // Apply `data-set` elements
         // Apply all the `set`s specified in this include first. This
@@ -596,7 +597,7 @@ private:
             std::string name = std::get<0>(parsed);
             std::string expression = std::get<1>(parsed);
             // Assign the parameter in the new frame
-            context.assign(name,expression);
+            child->assign(name,expression);
             // Add this to the list of parameters assigned
             assigned.push_back(name);
         }
@@ -611,7 +612,7 @@ private:
             if(std::count(assigned.begin(),assigned.end(),name)==0){
                 if(expression.length()>0){
                     // Assign the parameter in the new frame
-                    context.assign(name,expression);
+                    child->assign(name,expression);
                 } else {
                     // Set an error
                     included.append(
@@ -626,10 +627,10 @@ private:
         }
 
         // Render the `data-included` element
-        render_children_(included,context);
+        render_children_(included,*child);
         
-        // Exit the anonymous frame
-        context.exit();
+        // Exit the child context
+        delete child;
     }
 
     /**
