@@ -53,6 +53,10 @@ private:
 
 public:
 
+    static Stencil obtain(const std::string& address,const std::string& version="",const std::string& comparison="=="){
+        return Stencila::obtain<Stencil>(address,version,comparison);
+    }
+
     /**
      * Get the contexts that are supported by the stencil
      */
@@ -86,6 +90,31 @@ public:
     /**
      * @}
      */
+    
+    std::string content(const std::string& language) const {
+        if(language=="html"){
+            return dump();
+        } else {
+            STENCILA_THROW(Exception,"Language code not recognised for a stencil: "+language);
+        }
+    }
+
+    Stencil& content(const std::string& content, const std::string& language){
+        if(language=="html"){
+            clear();
+            append_children(Html::Document(content));
+        } else {
+            STENCILA_THROW(Exception,"Language code not recognised for a stencil: "+language);
+        }
+    }
+
+    std::string html(void) const {
+        return content("html");
+    }
+
+    Stencil& html(const std::string& html){
+        return content(html,"html");
+    }
 
     /**
      * Append HTML
@@ -151,7 +180,6 @@ public:
 
     template<typename Context>
     Stencil& render(Context& context){
-        context.attach(*this);
         render_element_(*this,context);
         return *this;
     }
@@ -581,11 +609,11 @@ private:
             }
         }
         
-        // Spawn a new context and associate it with the included element.
+        // Enter a new namespace.
         // Do this regardless of whether there are any 
         // `data-param` elements, to avoid the included elements polluting the
         // main context or overwriting variables inadvertantly
-        Context* child = context.spawn(included);
+        context.enter();
 
         // Apply `data-set` elements
         // Apply all the `set`s specified in this include first. This
@@ -597,7 +625,7 @@ private:
             std::string name = std::get<0>(parsed);
             std::string expression = std::get<1>(parsed);
             // Assign the parameter in the new frame
-            child->assign(name,expression);
+            context.assign(name,expression);
             // Add this to the list of parameters assigned
             assigned.push_back(name);
         }
@@ -612,7 +640,7 @@ private:
             if(std::count(assigned.begin(),assigned.end(),name)==0){
                 if(expression.length()>0){
                     // Assign the parameter in the new frame
-                    child->assign(name,expression);
+                    context.assign(name,expression);
                 } else {
                     // Set an error
                     included.append(
@@ -627,10 +655,10 @@ private:
         }
 
         // Render the `data-included` element
-        render_children_(included,*child);
+        render_children_(included,context);
         
-        // Exit the child context
-        delete child;
+        // Exit the included node
+        context.exit();
     }
 
     /**

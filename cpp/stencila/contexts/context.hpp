@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stack>
 #include <string>
 
 #include <stencila/component.hpp>
@@ -10,30 +11,10 @@ namespace Contexts {
 
 template<class Derived>
 class Context : public Component<Context<Derived>> {
-protected:
-
-    Xml::Node node_;
-
 public:
 
     std::string type(void) const {
         return "context";
-    }
-
-    /**
-     * Attach a stencil element to this context
-     */
-    void attach(Xml::Node node){
-        node_ = node;
-    }
-
-    /**
-     * Spawn a new child context attached to a stencil element.
-     *
-     * The child context has this context as its parent
-     */
-    Derived* spawn(Xml::Node node){
-        return new Derived(static_cast<Derived*>(this),node);
     }
 
     /**
@@ -170,7 +151,7 @@ public:
     }
 
     /**
-     * Enter a new frame. 
+     * Enter a new namespace. 
      * Used by stencil `with` element e.g. `<div data-with="mydata"><span data-text="sum(a*b)" /></div>`
      *  
      * @param expression Expression that will be the scope of the new context
@@ -180,7 +161,7 @@ public:
     }
 
     /**
-     * Exit the current frame
+     * Exit the current namespace
      */
     Context& exit(void){
         unsupported();

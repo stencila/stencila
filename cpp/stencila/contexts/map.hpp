@@ -91,12 +91,6 @@ public:
         nss_.push_back(&ns_);
     }
 
-    Map(const Map* parent, Xml::Node node){
-        nss_.push_back(&ns_);
-        parent_ = parent;
-        node_ = node;
-    }
-
     std::string type(void) const {
         return "map-context";
     }
@@ -178,13 +172,13 @@ public:
     }
 
    
-    Map& enter(const std::string& expression){
-        nss_.push_back(get_(expression));
+    Map& enter(void){
+        nss_.push_back(new Namespace);
         return *this;
     }
 
-    Map& enter(void){
-        nss_.push_back(new Namespace);
+    Map& enter(const std::string& expression){
+        nss_.push_back(get_(expression));
         return *this;
     }
 
