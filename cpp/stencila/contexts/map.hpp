@@ -96,11 +96,11 @@ public:
     }
 
     Map& execute(const std::string& code){
-        unsupported();
+        unsupported("execute");
     }
     
     std::string interact(const std::string& code){
-        unsupported();
+        unsupported("interact");
     }
 
     Map& assign(const std::string& name, const std::string& expression){
@@ -112,8 +112,8 @@ public:
         return get_(expression)->value();
     }
 
-    std::string image(const std::string& format,const std::string& code){
-        unsupported();
+    std::string paint(const std::string& format,const std::string& code){
+        unsupported("paint");
     }
 
     bool test(const std::string& expression){
@@ -121,7 +121,7 @@ public:
         return value.length()>0;
     }
 
-    Map& subject(const std::string& expression){
+    Map& mark(const std::string& expression){
         subjects_.push(get_(expression));
         return *this;
     }
@@ -133,7 +133,7 @@ public:
         else throw Exception("No subject has been set");
     }
 
-    Map& unsubject(void){
+    Map& unmark(void){
         subjects_.pop();
         return *this;
     }

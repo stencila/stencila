@@ -28,8 +28,8 @@ public:
     /**
      * Method to throw an "unsupported" exception
      */
-    void unsupported(void){
-        throw Exception("Not supported by context type: "+static_cast<Derived&>(*this).type());
+    void unsupported(const std::string& method){
+        throw Exception("Method \"" + method + "\" not supported by context type \"" + static_cast<Derived&>(*this).type() + "\"");
     }
 
     /**
@@ -38,7 +38,7 @@ public:
      * @param code String of code
      */
     Context& execute(const std::string& code){
-        unsupported();
+        unsupported("execute");
     }
     
     /**
@@ -51,7 +51,7 @@ public:
      * @return      String representation of the result of executing the code
      */
     std::string interact(const std::string& code){
-        unsupported();
+        unsupported("interact");
     }
 
     /**
@@ -63,7 +63,7 @@ public:
      * @param expression Expression to be assigned to name
      */
     Context& assign(const std::string& name, const std::string& expression){\
-        unsupported();
+        unsupported("assign");
     }
 
     /**
@@ -73,7 +73,7 @@ public:
      * @param  expression Expression to convert to text
      */
     std::string text(const std::string& expression){
-        unsupported();
+        unsupported("text");
     }
 
     /**
@@ -82,8 +82,8 @@ public:
      * 
      * @param format A support image format e.g. svg, png
      */
-    std::string image(const std::string& format,const std::string& code){
-        unsupported();
+    std::string paint(const std::string& format,const std::string& code){
+        unsupported("paint");
     }
  
     /**
@@ -93,7 +93,7 @@ public:
      * @param  expression Expression to evaluate
      */
     bool test(const std::string& expression){
-        unsupported();
+        unsupported("test");
     }
 
     /**
@@ -102,8 +102,8 @@ public:
      * 
      * @param expression Expression to evaluate
      */
-    Context& subject(const std::string& expression){
-        unsupported();
+    Context& mark(const std::string& expression){
+        unsupported("mark");
     }
 
     /**
@@ -113,14 +113,14 @@ public:
      * @param  expression Expression to evaluate
      */
     bool match(const std::string& expression){
-        unsupported();
+        unsupported("match");
     }
 
     /**
      * End the current subject
      */
-    Context& unsubject(void){
-        unsupported();
+    Context& unmark(void){
+        unsupported("unmark");
     }
     
     /**
@@ -131,7 +131,7 @@ public:
      * @param  expression Expression giveing an iterable list of items
      */
     bool begin(const std::string& item,const std::string& expression){
-        unsupported();
+        unsupported("begin");
     }
 
     /**
@@ -139,15 +139,15 @@ public:
      * Used by stencil `for` elements. See stencil `render`ing methods.
      */
     bool next(void){
-        unsupported();
+        unsupported("next");
     }
 
     /**
      * Ends the current loop.
      * Used by stencil `end` elements e.g. `<div data-if="x<-3"><div data-end /></div>`
      */
-    bool end(void){
-        unsupported();
+    bool leave(void){
+        unsupported("leave");
     }
 
     /**
@@ -157,14 +157,14 @@ public:
      * @param expression Expression that will be the scope of the new context
      */
     Context& enter(const std::string& expression=""){
-        unsupported();
+        unsupported("enter");
     }
 
     /**
      * Exit the current namespace
      */
     Context& exit(void){
-        unsupported();
+        unsupported('exit');
     }
 
     /**
