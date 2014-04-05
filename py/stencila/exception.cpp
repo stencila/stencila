@@ -18,15 +18,6 @@ void exception_test(void){
 	throw Exception("Testing, testing, 1, 2, 3.");
 }
 
-// For the line
-// 		klass.def(str(self));
-// below it is necessary to do the following
-namespace boost {
-namespace python {
-    using self_ns::str;
-}
-}
-
 void def_Exception(void){
 
     class_<Exception> klass("Exception");

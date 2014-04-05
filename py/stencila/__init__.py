@@ -1,1 +1,3 @@
-from .extension import *
+from extension import *
+
+from context import *

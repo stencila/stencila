@@ -1,7 +1,9 @@
 #include "extension.hpp"
 
 #include "exception.cpp"
+#include "component.cpp"
 #include "package.cpp"
+#include "stencil.cpp"
 
 // Define converters
 template<typename Type>
@@ -13,14 +15,11 @@ struct vector_to_list {
 	}
 };
 
-
 std::string Stencila_version(void){
 	return Stencila::version;
 }
 
 BOOST_PYTHON_MODULE(extension){
-	using namespace bp;
-
 	// Declare converters
 	to_python_converter<std::vector<std::string>, vector_to_list<std::string>>();
 
@@ -29,5 +28,7 @@ BOOST_PYTHON_MODULE(extension){
 	def("version",Stencila_version);
 
 	// Declare classes
+	def_Component();
     def_Package();
+    def_Stencil();
 }
