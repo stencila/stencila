@@ -8,7 +8,7 @@ using namespace Stencila::Contexts;
 /*!
 A specialisation of the Context class for R.
 
-Implements the virtual methods of the Context class for the rendering of stencils in an
+Implements the methods of the Context class for the rendering of stencils in an
 R environment. All the real functionality is done in an "R-side" Context class (see the R code)
 and this class justs acts as a bridge between C++ and that code.
 
@@ -32,13 +32,29 @@ object first:
     call.eval();
 
 */
-class RContext : public Context<RContext> {
+class RContext : public Context {
 private:
 
     /*!
-    An Rcpp object which represents context on the R "side"
+    An Rcpp object which represents this context on the R "side"
     */
     Rcpp::Environment environment_;
+
+    template<
+        typename... Args
+    >
+    SEXP call_(const char* name,Args... args){
+        Rcpp::Language call(Rcpp::Function(environment_.get(name)),args...);
+        return call.eval();
+    }
+
+    template<
+        typename Result,
+        typename... Args
+    >
+    Result call_(const char* name,Args... args){
+        return as<Result>(call_(name,args...));
+    }
 
 public:
     
@@ -59,100 +75,57 @@ public:
     std::string type(void) const {
         return "r-context";
     }
-    
-
-    void read_from(const std::string& directory){
-        Rcpp::Language call(Rcpp::Function(environment_.get("read_from")),directory);
-        call.eval();
-    }
-    
-    void write_to(const std::string& directory){
-        Rcpp::Language call(Rcpp::Function(environment_.get("write_to")),directory);
-        call.eval();
-    }
-
-
-    void set(const std::string& name, const std::string& expression){
-        Rcpp::Language call(environment_.get("set"),name,expression);
-        call.eval();
-    }
-
 
     void execute(const std::string& code){
-        Rcpp::Language call(environment_.get("execute"),code);
-        call.eval();
+        call_("execute",code);
+    }
+
+    void assign(const std::string& name, const std::string& expression){
+        call_("set",name,expression);
+    }
+
+    std::string write(const std::string& expression){
+        return call_<std::string>("write",expression);
     }
     
-
-    std::string interact(const std::string& code){
-        Rcpp::Language call(environment_.get("interact"),code);
-        return as<std::string>(call.eval());
-    }
-
-
-    std::string text(const std::string& expression){
-        Rcpp::Language call(environment_.get("text"),expression);
-        return as<std::string>(call.eval());
+    std::string paint(const std::string& format, const std::string& code){
+        return call_<std::string>("paint",format,code);
     }
     
-
-    void image_begin(const std::string& type){
-        Rcpp::Language call(environment_.get("image_begin"),type);
-        call.eval();
-    }
-    
-    std::string image_end(){
-        Rcpp::Language call(Rcpp::Function(environment_.get("image_end")));
-        return as<std::string>(call.eval());
-    }
-
-
     bool test(const std::string& expression){
-        Rcpp::Language call(environment_.get("test"),expression);
-        return as<bool>(call.eval());
+        return call_<bool>("test",expression);
     }
-
 
     void mark(const std::string& expression){
-        Rcpp::Language call(environment_.get("mark"),expression);
-        call.eval();
+        call_("mark",expression);
     }
 
     bool match(const std::string& expression){
-        Rcpp::Language call(environment_.get("match"),expression);
-        return as<bool>(call.eval());
+        return call_<bool>("match",expression);
     }
 
     void unmark(void){
-        Rcpp::Language call(Rcpp::Function(environment_.get("unmark")));
-        call.eval();
+        call_("unmark");
     }
 
-
     bool begin(const std::string& item,const std::string& items){
-        Rcpp::Language call(environment_.get("begin"),item,items);
-        return as<bool>(call.eval());
+        return call_<bool>("begin",item,items);
     }
 
     bool next(void){
-        Rcpp::Language call(Rcpp::Function(environment_.get("next_")));
-        return as<bool>(call.eval());
+        return call_<bool>("next_");
     }
 
-
     void enter(const std::string& expression){
-        Rcpp::Language call(environment_.get("enter"),expression);
-        call.eval();
+        call_("enter",expression);
     }
 
     void enter(void){
-        Rcpp::Language call(Rcpp::Function(environment_.get("enter")));
-        call.eval();
+        call_("enter");
     }
 
     void exit(void){
-        Rcpp::Language call(Rcpp::Function(environment_.get("exit")));
-        call.eval();
+        call_("exit");
     }
 
 };

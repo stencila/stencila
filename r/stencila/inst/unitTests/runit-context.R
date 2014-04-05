@@ -30,17 +30,17 @@ test.Context.execute <- function(){
 #    checkEquals(substr(svg,1,5),"<?xml")
 #}
 
-test.Context.text <- function(){
-  #Check text method
+test.Context.write <- function(){
+  #Check write method
   a <- 1
   b <- "b"
   c <- c(1,2,3)
   d <- c("a","b","c")
   co <- Context('.')
-  checkEquals(co$text('a'),'1')
-  checkEquals(co$text('b'),'b')
-  checkEquals(co$text('c'),'1, 2, 3')
-  checkEquals(co$text('d'),'a, b, c')
+  checkEquals(co$write('a'),'1')
+  checkEquals(co$write('b'),'b')
+  checkEquals(co$write('c'),'1, 2, 3')
+  checkEquals(co$write('d'),'a, b, c')
 }
 
 test.Context.enter_exit <- function(){

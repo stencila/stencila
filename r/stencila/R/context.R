@@ -112,9 +112,9 @@ Context <- function(envir){
     ##################################
     # "text" elements
     # 
-    # Returns a text representation of the object
+    # Returns a text representation of the expression
     
-    self$text <- function(expression){
+    self$write <- function(expression){
         value <- self$get(expression)
         stream <- textConnection("text", "w")
         cat(paste(value,collapse=", "),file=stream)
