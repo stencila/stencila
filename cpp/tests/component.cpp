@@ -10,20 +10,10 @@ BOOST_AUTO_TEST_SUITE(component)
 
 using namespace Stencila;
 
-//Define a class so we can derive from Component<> for testing
-class Test : public Component<Test> {
-public:
-
-    std::string type(void) const {
-        return "test";
-    }
-    
-};
-
 boost::regex transient_path_pattern("^"+Stencila::Host::user_dir()+"/~[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
 
 BOOST_AUTO_TEST_CASE(title){
-    Test c;
+    Component c;
     
     BOOST_CHECK_EQUAL(c.title(),"");
     
@@ -34,13 +24,13 @@ BOOST_AUTO_TEST_CASE(title){
 }
 
 BOOST_AUTO_TEST_CASE(description){
-    Test c;
+    Component c;
     
     BOOST_CHECK_EQUAL(c.description(),"");
 }
 
 BOOST_AUTO_TEST_CASE(keywords){
-    Test c;
+    Component c;
     
     BOOST_CHECK_EQUAL(c.keywords().size(),0);
 
@@ -50,7 +40,7 @@ BOOST_AUTO_TEST_CASE(keywords){
 }
 
 BOOST_AUTO_TEST_CASE(authors){
-    Test c;
+    Component c;
     
     BOOST_CHECK_EQUAL(c.authors().size(),0);
 
@@ -65,7 +55,7 @@ BOOST_AUTO_TEST_CASE(authors){
  * By default a components path is empty
  */
 BOOST_AUTO_TEST_CASE(path_initialised_empty){
-    Test c;
+    Component c;
     BOOST_CHECK_EQUAL(c.path(),"");
 }
 
@@ -75,7 +65,7 @@ BOOST_AUTO_TEST_CASE(path_initialised_empty){
  * Setting an empty path creates a transient path
  */
 BOOST_AUTO_TEST_CASE(path_set_empty){
-    Test c;
+    Component c;
     c.path("");
     BOOST_CHECK(boost::regex_match(c.path(),transient_path_pattern));
     BOOST_CHECK(boost::filesystem::exists(c.path()));
@@ -88,7 +78,7 @@ BOOST_AUTO_TEST_CASE(path_set_empty){
  * Setting an empty path twice does not change the path
  */
 BOOST_AUTO_TEST_CASE(path_set_empty_twice){
-    Test c;
+    Component c;
     std::string first = c.path("").path();
     std::string second = c.path("").path();
     BOOST_CHECK_EQUAL(first,second);
@@ -102,7 +92,7 @@ BOOST_AUTO_TEST_CASE(path_set_empty_twice){
  * Changing the path moves the component directory to the new path
  */
 BOOST_AUTO_TEST_CASE(path_change){
-    Test c;
+    Component c;
     
     std::string first = c.read().path();
     std::string second = c.path(Stencila::Host::user_dir()+"/~temp").path();
@@ -122,7 +112,7 @@ BOOST_AUTO_TEST_CASE(path_change){
  * is created in the user's Stencila library
  */
 BOOST_AUTO_TEST_CASE(read_path_empty){
-    Test c;
+    Component c;
     std::string first = c.read().path();
     BOOST_CHECK(boost::regex_match(c.path(),transient_path_pattern));
     std::string second = c.read().path();
@@ -137,7 +127,7 @@ BOOST_AUTO_TEST_CASE(read_path_empty){
  * is created in the user's Stencila library
  */
 BOOST_AUTO_TEST_CASE(write_path_empty){
-    Test c;
+    Component c;
     c.write();
     BOOST_CHECK(boost::regex_match(c.path(),transient_path_pattern));
     c.destroy();
@@ -149,7 +139,7 @@ BOOST_AUTO_TEST_CASE(write_path_empty){
  * Destroying a component with an empty path works
  */
 BOOST_AUTO_TEST_CASE(destroy_empty){
-    Test c;
+    Component c;
     c.destroy();
     BOOST_CHECK_EQUAL(c.path(),"");
 }
@@ -160,7 +150,7 @@ BOOST_AUTO_TEST_CASE(destroy_empty){
  * Destroying a component with a non-empty path removes it's directory
  */
 BOOST_AUTO_TEST_CASE(destroy_transient){
-    Test c;
+    Component c;
     c.create("foo.txt");
     std::string path = c.path();
     c.destroy();
@@ -168,7 +158,7 @@ BOOST_AUTO_TEST_CASE(destroy_transient){
 }
 
 BOOST_AUTO_TEST_CASE(commit){
-    Test c;
+    Component c;
 
     BOOST_CHECK_EQUAL(c.log().size(),0);
 
@@ -181,7 +171,7 @@ BOOST_AUTO_TEST_CASE(commit){
 }
 
 BOOST_AUTO_TEST_CASE(version){
-    Test c;
+    Component c;
     BOOST_CHECK_EQUAL(c.version(),"");
     c.commit();
     
@@ -198,7 +188,7 @@ BOOST_AUTO_TEST_CASE(version){
 }
 
 BOOST_AUTO_TEST_CASE(provide){
-    Test c;
+    Component c;
     
     c.create("version-0.0.1.txt","0.0.1");
     c.commit();
@@ -223,16 +213,16 @@ BOOST_AUTO_TEST_CASE(provide){
 }
 
 BOOST_AUTO_TEST_CASE(obtain){
-    Test c;
+    Component c;
     
     c.commit();
     c.version("0.0.1");
     c.version("0.0.2");
     
-    Test& c1 = Stencila::obtain<Test>(c.address(),"0.0.1");
+    Component& c1 = Component::obtain<>(c.address(),"0.0.1");
     BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.1"));
 
-    Test& c2 = Stencila::obtain<Test>(c.address(),"0.0.2");
+    Component& c2 = Component::obtain<>(c.address(),"0.0.2");
     BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.2"));
 
     BOOST_CHECK_EQUAL(c1.address(),c2.address());

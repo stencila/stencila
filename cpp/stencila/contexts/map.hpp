@@ -13,7 +13,7 @@ namespace Contexts {
  * @todo Document
  * @todo Leaks memory, need to balance up all the news or else not use new so much.
  */
-class Map : public Context<Map> {
+class Map : public Context {
 private:
 
     class Namespace {
@@ -96,11 +96,11 @@ public:
     }
 
     Map& execute(const std::string& code){
-        unsupported("execute");
+        unsupported_("execute");
     }
     
     std::string interact(const std::string& code){
-        unsupported("interact");
+        unsupported_("interact");
     }
 
     Map& assign(const std::string& name, const std::string& expression){
@@ -108,16 +108,16 @@ public:
         return *this;
     }
 
-    std::string text(const std::string& expression){
+    std::string write(const std::string& expression){
         return get_(expression)->value();
     }
 
     std::string paint(const std::string& format,const std::string& code){
-        unsupported("paint");
+        unsupported_("paint");
     }
 
     bool test(const std::string& expression){
-        std::string value = text(expression);
+        std::string value = write(expression);
         return value.length()>0;
     }
 

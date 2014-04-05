@@ -15,10 +15,10 @@ BOOST_AUTO_TEST_CASE(assign){
     Map map;
 
     map.assign("foo","bar");
-    BOOST_CHECK_EQUAL(map.text("foo"),"bar");
+    BOOST_CHECK_EQUAL(map.write("foo"),"bar");
 
     map.assign("foo","barred");
-    BOOST_CHECK_EQUAL(map.text("foo"),"barred");
+    BOOST_CHECK_EQUAL(map.write("foo"),"barred");
 }
 
 BOOST_AUTO_TEST_CASE(test){
@@ -35,21 +35,21 @@ BOOST_AUTO_TEST_CASE(subject_match){
     Map map;
 
     map.assign("a","A");
-    map.subject("a");
+    map.mark("a");
         BOOST_CHECK(map.match("A"));
         BOOST_CHECK(not map.match("B"));
 
         map.enter("a");
             map.assign("a1","1");
 
-            map.subject("a1");
+            map.mark("a1");
                 BOOST_CHECK(map.match("1"));
                 BOOST_CHECK(not map.match("2"));
-            map.unsubject();
+            map.unmark();
 
         map.exit();   
 
-    map.unsubject();
+    map.unmark();
 }
 
 BOOST_AUTO_TEST_CASE(loop){
@@ -73,32 +73,32 @@ BOOST_AUTO_TEST_CASE(loop){
     map.exit();
 
     map.enter("planets");
-    BOOST_CHECK_EQUAL(map.text("4"),"Earth");
+    BOOST_CHECK_EQUAL(map.write("4"),"Earth");
     map.exit();
 
     // Outer loop
     map.begin("planet","planets");
-        BOOST_CHECK_EQUAL(map.text("planet"),"Argabuthon");
+        BOOST_CHECK_EQUAL(map.write("planet"),"Argabuthon");
         BOOST_CHECK(map.next());
-        BOOST_CHECK_EQUAL(map.text("planet"),"Bartledan");
+        BOOST_CHECK_EQUAL(map.write("planet"),"Bartledan");
         BOOST_CHECK(map.next());
-        BOOST_CHECK_EQUAL(map.text("planet"),"Bethselamin");
+        BOOST_CHECK_EQUAL(map.write("planet"),"Bethselamin");
 
         //Inner loop
         map.begin("syllable","syllables");
-            BOOST_CHECK_EQUAL(map.text("syllable"),"tzjin");
+            BOOST_CHECK_EQUAL(map.write("syllable"),"tzjin");
             BOOST_CHECK(map.next());
-            BOOST_CHECK_EQUAL(map.text("syllable"),"anthony");
+            BOOST_CHECK_EQUAL(map.write("syllable"),"anthony");
             BOOST_CHECK(map.next());
-            BOOST_CHECK_EQUAL(map.text("syllable"),"ks");
+            BOOST_CHECK_EQUAL(map.write("syllable"),"ks");
             BOOST_CHECK(not map.next());
         map.end();
         BOOST_CHECK_THROW(map.test("syllable"),Exception);
 
         BOOST_CHECK(map.next());
-        BOOST_CHECK_EQUAL(map.text("planet"),"Earth");
+        BOOST_CHECK_EQUAL(map.write("planet"),"Earth");
         BOOST_CHECK(map.next());
-        BOOST_CHECK_EQUAL(map.text("planet"),"Gagrakacka");
+        BOOST_CHECK_EQUAL(map.write("planet"),"Gagrakacka");
         BOOST_CHECK(not map.next());
     map.end();
     BOOST_CHECK_THROW(map.test("planet"),Exception);

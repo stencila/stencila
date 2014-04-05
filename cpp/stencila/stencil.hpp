@@ -9,13 +9,13 @@ using namespace Stencila::Utilities;
 
 namespace Stencila {
 
-class Stencil : public Component<Stencil>, public Xml::Document {
+class Stencil : public Component, public Xml::Document {
 public:
 
     // Avoid ambiguities by defining which inherited method to use
     // when the base classes use the same name
-    using Stencila::Component<Stencil>::path;
-    using Stencila::Component<Stencil>::destroy;
+    using Component::path;
+    using Component::destroy;
 
 	typedef Xml::Attribute Attribute;
     typedef Xml::AttributeList AttributeList;
@@ -32,14 +32,60 @@ public:
         if(found==std::string::npos) STENCILA_THROW(Exception,"Content type (e.g. html://, file://) not specified in supplied string")
         std::string type = content.substr(0,found);
         std::string rest = content.substr(found+3);
-        if(type=="xml") append_xml(rest);
-        else if(type=="html") append_html(rest);
+        if(type=="html") html(rest);
         else if(type=="file") read(rest);
         else STENCILA_THROW(Exception,"Unrecognised type: " + type)
     }
 
     std::string type(void) const {
     	return "stencil";
+    }
+
+    /**
+     * Get the content of the stencil
+     * 
+     * @param  format Format for content
+     */
+    std::string content(const std::string& format) const {
+        if(format=="html"){
+            return dump();
+        } else {
+            STENCILA_THROW(Exception,"Format code not recognised: "+format);
+        }
+    }
+
+    /**
+     * Set the content of the stencil
+     *
+     * @param  format Format for content
+     */
+    Stencil& content(const std::string& content, const std::string& format){
+        if(format=="html"){
+            clear();
+            Html::Document doc(content);
+            append_children(doc.find("body"));
+        } else {
+            STENCILA_THROW(Exception,"Format code not recognised: "+format);
+        }
+    }
+
+    /**
+     * Get stencil content as HTML
+     */
+    std::string html(void) const {
+        return content("html");
+    }
+
+    /**
+     * Set stencil content as HTML
+     *
+     * This method parses the supplied HTML, tidying it up in the process, and appends the resulting node tree
+     * to the stencil's XML tree
+     * 
+     * @param html A HTML string
+     */
+    Stencil& html(const std::string& html){
+        return content(html,"html");
     }
 
     /**
@@ -52,10 +98,6 @@ private:
     std::vector<std::string> contexts_;
 
 public:
-
-    static Stencil obtain(const std::string& address,const std::string& version="",const std::string& comparison="=="){
-        return Stencila::obtain<Stencil>(address,version,comparison);
-    }
 
     /**
      * Get the contexts that are supported by the stencil
@@ -91,44 +133,6 @@ public:
      * @}
      */
     
-    std::string content(const std::string& language) const {
-        if(language=="html"){
-            return dump();
-        } else {
-            STENCILA_THROW(Exception,"Language code not recognised for a stencil: "+language);
-        }
-    }
-
-    Stencil& content(const std::string& content, const std::string& language){
-        if(language=="html"){
-            clear();
-            append_children(Html::Document(content));
-        } else {
-            STENCILA_THROW(Exception,"Language code not recognised for a stencil: "+language);
-        }
-    }
-
-    std::string html(void) const {
-        return content("html");
-    }
-
-    Stencil& html(const std::string& html){
-        return content(html,"html");
-    }
-
-    /**
-     * Append HTML
-     *
-     * Parse the supplied HTML, tidying it up, and append the resulting node tree
-     * to the stencil's XML tree
-     * 
-     * @param html A HTML string
-     */
-    Stencil& append_html(const std::string& html){
-        Html::Document doc(html);
-        append_children(doc.find("body"));
-        return *this;
-    }
 
     /**
      * @name Node parsing methods
@@ -281,7 +285,7 @@ private:
     void render_text_(Node node, Context& context){
         if(node.attr("data-lock")!="true"){
             std::string expression = node.attr("data-text");
-            std::string text = context.text(expression);
+            std::string text = context.write(expression);
             node.text(text);
         }
     }
@@ -301,7 +305,7 @@ private:
     void render_image_(Xml::Node node, Context& context){
         std::string format = node.attr("data-image");
         std::string code = node.text();
-        std::string image = context.image(format,code);
+        std::string image = context.paint(format,code);
         if(format=="svg"){
             Node svg = node.append_xml(image);
             svg.attr("data-data","true");
@@ -392,7 +396,7 @@ private:
     template<typename Context>
     void render_switch_(Node node, Context& context){
         std::string expression = node.attr("data-switch");
-        context.subject(expression);
+        context.mark(expression);
 
         bool matched = false;
         for(Node child : node.children()){
@@ -421,6 +425,8 @@ private:
                 render_element_(child,context);
             }
         }
+
+        context.unmark();
     }
 
     /**
@@ -526,7 +532,7 @@ private:
         Node stencil;
         //Check to see if this is a "self" include, otherwise obtain the stencil
         if(include==".") stencil = node.root();
-        else stencil = Stencila::obtain<Stencil>(include,version);
+        else stencil = obtain<Stencil>(include,version);
         // ...select from it
         if(select.length()>0){
             // ...append the selected nodes.
@@ -683,7 +689,7 @@ public:
 
     Stencil& theme(const std::string& theme) {
         theme_ = theme;
-        return self();
+        return *this;
     }
 
     /**
@@ -768,7 +774,7 @@ public:
         // Sanitize before proceeding
         sanitize();     
 
-        return self();
+        return *this;
     }
     
     /**
@@ -874,7 +880,7 @@ public:
 
         doc.write(to);
         
-        return self();
+        return *this;
     }
 
 
@@ -892,12 +898,12 @@ public:
     Stencil& embed(void) {
         unembed();
         embed_parents_.push(*this);
-        return self();
+        return *this;
     }
 
     Stencil& unembed(void) {
         embed_parents_ = std::stack<Node>();
-        return self();
+        return *this;
     }
 
     static Node element(const std::string& tag, const AttributeList& attributes, const std::string& text = ""){
@@ -959,7 +965,7 @@ public:
     static void add(void){
     }
 
-    static Node finish(const std::string& tag){
+    static Node finish(const std::string& tag=""){
         Node elem = embed_parents_.top();
         embed_parents_.pop();
         return elem;
@@ -1018,16 +1024,30 @@ Xml::Whitelist Stencil::whitelist = {
  * A macro designed to be called by BOOST_PP_SEQ_FOR_EACH to define free functions for each of STENCILA_STENCIL_TAGS
  * Note that the use of BOOST_PP_STRINGIZE is required instead of the stringizing operator (#) which prevents arguments from expanding
  */
-#define STENCILA_FREE_TAG_(repeater,separator,tag)\
+#define STENCILA_LOCAL(repeater,separator,tag)\
     Html::Node tag(void){                                                                              return Stencil::element(BOOST_PP_STRINGIZE(tag));                                 } \
     Html::Node tag(const std::string& text){                                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),text);                            } \
     Html::Node tag(const Stencil::AttributeList& attributes, const std::string& text=""){              return Stencil::element(BOOST_PP_STRINGIZE(tag),attributes,text);                 } \
     Html::Node tag(void(*inner)(void)){                                                                return Stencil::element(BOOST_PP_STRINGIZE(tag),Stencil::AttributeList(),inner);  } \
     template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args){  return Stencil::element(BOOST_PP_STRINGIZE(tag),attributes,args...);              } \
-    template<typename... Args> Html::Node tag(Args... args){                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),args...);                         } \
+    template<typename... Args> Html::Node tag(Args... args){                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),args...);                         }
+BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_STENCIL_TAGS)
+#undef STENCILA_LOCAL
 
-BOOST_PP_SEQ_FOR_EACH(STENCILA_FREE_TAG_, ,STENCILA_STENCIL_TAGS)
+void if_(const std::string& expression, const std::string& tag="div"){
+    Stencil::start(tag,Stencil::AttributeList{{"data-if",expression}});
+}
 
-#undef STENCILA_FREE_TAG_
+void for_(const std::string& tag="div"){
+    Stencil::element(tag,"data-for");
+}
+
+void end(void){
+    Stencil::finish();
+}
+
+void include(const std::string& tag="div"){
+    Stencil::element(tag,"data-include");
+}
 
 }

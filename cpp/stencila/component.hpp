@@ -13,186 +13,11 @@
 
 namespace Stencila {
 
-template<class Class=void> class Component;
-
 /**
- * Base class for all components that deals with cacheing and storage
+ * Base class for all Stencila components
  *
- * Only has protected static methods. Public interface is by functions in 
- * Stencila namespace.
  */
-template<>
-class Component<void> {
-
-    /**
-     * @name Cacheing
-     * @{
-     */
-    
-private:
-
-    struct Pointer {
-        std::string type;
-        Component<void>* pointer;
-    };
-    static std::map<std::string,Pointer> cache_map_;
-    
-protected:
-
-    /**
-     * Cache a component for retreival later
-     * 
-     * @param type     String representing type of component
-     * @param instance Component pointer
-     */
-    static void cache_(const std::string& address,const std::string& type,Component<void>* instance){
-        cache_map_[address] = {type,instance};
-    }
-
-    /**
-     * Get a component form the cache if it there
-     *
-     * @param address Address of the components
-     * @param type Type (class name) of the component
-     */
-    static Component<void>* cached_(const std::string& address,const std::string& type=""){
-        auto i = cache_map_.find(address);
-        if(i!=cache_map_.end()){
-            if(type.length()>0){
-                if(i->second.type==type) return i->second.pointer;
-            } else {
-                return i->second.pointer;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Remove a component from the cache
-     * 
-     * @param address Address of the component to remove
-     */
-    static void uncache_(const std::string& address){
-        cache_map_.erase(address);
-    }
-
-    /**
-     * @}
-     */
-    
-    /**
-     * @name Storage
-     * @{
-     */
-
-protected:
-
-    /**
-     * Return the path user store
-     */
-    static std::string stores_user_(void){
-        return Host::user_dir();
-    }
-
-    /**
-     * Get the store paths
-     */
-    static std::vector<std::string> stores_(bool ensure=true){
-        return {
-            Host::current_dir(),
-            Host::user_dir(),
-            Host::system_dir()
-        };
-    }
-
-    /**
-     * Get the path of a component from the stores
-     */
-    static std::string stored_(const std::string& address){
-        // Get stores
-        std::vector<std::string> stores = stores_();
-
-        std::vector<std::string> address_bits;
-        boost::split(address_bits,address,boost::is_any_of("/"));
-        auto address_base = address_bits[0];
-
-        std::string url = "";
-        for(std::string store : stores){
-            std::string store_path = store+"/"+address_base;
-            // Does the address_base exist in this store?
-            if(boost::filesystem::exists(store_path)){
-                return store_path;
-            }
-        }
-
-        return "";
-    }
-
-    /**
-     * @}
-     */
-    
-    template<class Class>
-    friend Class& obtain(const std::string&,const std::string&,const std::string&);
-
-};
-std::map<std::string,Component<void>::Pointer> Component<void>::cache_map_;
-
-/**
- * Get a component with a given address, and optionally, a version requirement
- * 
- * @param address Address of component
- * @param version Version required
- * @param comparison Version requirement comparision (e.g. >=, ==, >)
- *
- * @todo Need to delete a newly obtained component
- * @todo Check version comparison
- */
-template<class Class>
-static Class& obtain(const std::string& address,const std::string& version,const std::string& comparison){
-    Class* component;
-
-    Component<void>* cached = Component<void>::cached_(address);
-    if(cached){
-        component = static_cast<Class*>(cached);
-    }
-    else {
-        std::string path = Component<void>::stored_(address);
-        if(path.length()>0){
-            component = new Class;
-            component->read(path);
-        } else {
-            STENCILA_THROW(Exception,"Component with address not found: "+address);
-        }
-    }
-
-    // Provide required version number
-    if(version.length()>0){
-        if(comparison.length()==0 or comparison=="=="){
-            component->provide(version);
-        } else {
-            STENCILA_THROW(Exception,"Version comparison operator not yet supported: "+comparison);
-        }
-    }
-
-    return *component;
-}
-// Default argument values for this static template function do not
-// compile for some reason so simulate them here.
-template<class Class>
-static Class& obtain(const std::string& address,const std::string& version){
-    return obtain<Class>(address,version,"==");
-}
-template<class Class>
-static Class& obtain(const std::string& address){
-    return obtain<Class>(address,"","==");
-}
-
-/**
- * Component
- */
-template<class Class>
-class Component : public Component<void> {
+class Component {
 public:
 
     typedef Utilities::Git::Repository  Repository;
@@ -254,17 +79,158 @@ public:
         if(meta_) delete meta_;
     }
 
-
-    Class& self(void){
-        return static_cast<Class&>(*this);
-    }
-
-    const Class& self(void) const {
-        return static_cast<const Class&>(*this);
-    }
-
     std::string type(void) const {
         return "component";
+    }
+
+    /**
+     * @name Cacheing
+     * @{
+     */
+    
+private:
+
+    struct Pointer {
+        std::string type;
+        Component* pointer;
+    };
+    static std::map<std::string,Pointer> cache_map_;
+    
+protected:
+
+    /**
+     * Cache a component for retreival later
+     * 
+     * @param type     String representing type of component
+     * @param instance Component pointer
+     */
+    static void cache_(const std::string& address,const std::string& type,Component* instance){
+        cache_map_[address] = {type,instance};
+    }
+
+    /**
+     * Get a component form the cache if it there
+     *
+     * @param address Address of the components
+     * @param type Type (class name) of the component
+     */
+    static Component* cached_(const std::string& address,const std::string& type=""){
+        auto i = cache_map_.find(address);
+        if(i!=cache_map_.end()){
+            if(type.length()>0){
+                if(i->second.type==type) return i->second.pointer;
+            } else {
+                return i->second.pointer;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Remove a component from the cache
+     * 
+     * @param address Address of the component to remove
+     */
+    static void uncache_(const std::string& address){
+        cache_map_.erase(address);
+    }
+
+    /**
+     * @}
+     */
+    
+    /**
+     * @name Storage
+     * @{
+     */
+
+protected:
+
+    /**
+     * Return the path to the user's store
+     */
+    static std::string stores_user_(void){
+        return Host::user_dir();
+    }
+
+    /**
+     * Get the store paths
+     */
+    static std::vector<std::string> stores_(bool ensure=true){
+        return {
+            Host::current_dir(),
+            Host::user_dir(),
+            Host::system_dir()
+        };
+    }
+
+    /**
+     * Get the path of a component from the stores
+     */
+    static std::string stored_(const std::string& address){
+        // Get stores
+        std::vector<std::string> stores = stores_();
+
+        std::vector<std::string> address_bits;
+        boost::split(address_bits,address,boost::is_any_of("/"));
+        auto address_base = address_bits[0];
+
+        std::string url = "";
+        for(std::string store : stores){
+            std::string store_path = store+"/"+address_base;
+            // Does the address_base exist in this store?
+            if(boost::filesystem::exists(store_path)){
+                return store_path;
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * @}
+     */
+    
+public:
+    
+    /**
+     * Get a component with a given address, and optionally, a version requirement
+     * 
+     * @param address Address of component
+     * @param version Version required
+     * @param comparison Version requirement comparision (e.g. >=, ==, >)
+     *
+     * @todo Need to delete a newly obtained component
+     * @todo Check version comparison
+     */
+    template<class Class=Component>
+    static Class& obtain(const std::string& address,const std::string& version="",const std::string& comparison="=="){
+        Class* component;
+
+        Component* cached = Component::cached_(address);
+        if(cached){
+            component = static_cast<Class*>(cached);
+        }
+        else {
+            std::string path = Component::stored_(address);
+            if(path.length()>0){
+                component = new Class;
+                component->read(path);
+            } else {
+                STENCILA_THROW(Exception,"Component with address not found: "+address);
+            }
+        }
+
+        // Provide required version number
+        if(version.length()>0){
+            if(comparison.length()==0 or comparison=="=="){
+                component->provide(version);
+            } else {
+                STENCILA_THROW(Exception,"Version comparison operator not yet supported: "+comparison);
+            }
+        }
+
+        return *component;
     }
 
     /**
@@ -284,7 +250,7 @@ public:
     #define _SET(attr,value) \
         if(not meta_) meta_ = new Meta; \
         meta_->attr = value; \
-        return self();
+        return *this;
 
     /**
      * Get component title
@@ -304,7 +270,7 @@ public:
      * Set component title
      * @param title Title of the component
      */
-    Class& title(const std::string& title) {
+    Component& title(const std::string& title) {
         _SET(title,title)
     }
 
@@ -326,7 +292,7 @@ public:
      * Set component description
      * @param description Description for the component
      */
-    Class& description(const std::string& description) {
+    Component& description(const std::string& description) {
         _SET(description,description)
     }
     
@@ -348,7 +314,7 @@ public:
      * Set component keywords
      * @param keywords Keywords for the component
      */
-    Class& keywords(const std::vector<std::string>& keywords) {
+    Component& keywords(const std::vector<std::string>& keywords) {
         _SET(keywords,keywords)
     }
 
@@ -370,7 +336,7 @@ public:
      * Set component authors
      * @param authors Authors of the component
      */
-    Class& authors(const std::vector<std::string>& authors) {
+    Component& authors(const std::vector<std::string>& authors) {
         _SET(authors,authors)
     }
 
@@ -471,9 +437,9 @@ public:
      *
      * @todo Implement `force` option
      */
-    Class& path(const std::string& path, bool force=false) {
+    Component& path(const std::string& path, bool force=false) {
         path_set_(path);
-        return self();
+        return *this;
     }
 
     /**
@@ -497,22 +463,20 @@ public:
     /**
      * Destroy the component's entire working directory
      */
-    Class& destroy(void){
+    Component& destroy(void){
         boost::filesystem::path path_full = path_get_();
         if(boost::filesystem::exists(path_full)){
             boost::filesystem::remove_all(path_full);
         }
-        return self();
+        return *this;
     }
-
-public:
 
     /**
      * Create a file within the component's working directory
      * 
      * @param path Filesystem path within the working directory
      */
-    Class& create(const std::string& path,const std::string& content="\n"){
+    Component& create(const std::string& path,const std::string& content="\n"){
         boost::filesystem::path path_full(path_get_(true));
         path_full /= path;
         if(!boost::filesystem::exists(path_full)){
@@ -520,19 +484,19 @@ public:
             file<<content;
             file.close();
         }
-        return self();
+        return *this;
     }
 
     /**
      * Delete a file within the component's working directory
      */
-    Class& delete_(const std::string& path){
+    Component& delete_(const std::string& path){
         boost::filesystem::path path_full(path_get_());
         path_full /= path;
         if(boost::filesystem::exists(path_full)){
             boost::filesystem::remove_all(path_full);
         }
-        return self();
+        return *this;
     }
 
     /**
@@ -543,9 +507,9 @@ public:
      * 
      * @param from Filesystem path to component
      */
-    Class& read(const std::string& from=""){
+    Component& read(const std::string& from=""){
         path_set_(from);
-        return self();
+        return *this;
     }
     
     /**
@@ -553,9 +517,9 @@ public:
      * 
      * @param to Filesystem path to component
      */
-    Class& write(const std::string& to=""){
+    Component& write(const std::string& to=""){
         path_set_(to);
-        return self();
+        return *this;
     }
     
     /**
@@ -599,7 +563,7 @@ private:
 
 public:
 
-    Class& commit(const std::string& message="") {
+    Component& commit(const std::string& message="") {
         std::string commit_message = message;
         if(commit_message.length()==0) commit_message = "Updated";
         // Get the name and email of the user
@@ -612,7 +576,7 @@ public:
         // Get, or create, repository for the component and do the commit
         Repository* repo = repo_(true);
         repo->commit(commit_message,name,email);
-        return self();
+        return *this;
     }
 
     std::vector<Commit> log(void) const {
@@ -640,10 +604,10 @@ public:
         else return "";
     }
 
-    Class& version(const std::string& version,const std::string& message="") {
+    Component& version(const std::string& version,const std::string& message="") {
         std::string new_version;
         std::string tag_message = message;
-        std::string current_version = Component<Class>::version();
+        std::string current_version = Component::version();
 
         boost::regex pattern("^(\\d+)\\.(\\d+)\\.(\\d+)$");
 
@@ -709,7 +673,7 @@ public:
         Repository* repo = repo_(true);
         if(repo->head()=="<none>") STENCILA_THROW(Exception,"Component has not been commited. Please do a commit() before a version().");
         repo->tag(new_version,tag_message,name,email);
-        return self();
+        return *this;
     }
 
     /**
@@ -718,7 +682,7 @@ public:
      * @param  version [description]
      * @return         [description]
      */
-    Class& provide(const std::string& version) {
+    Component& provide(const std::string& version) {
         // Check if the version already exists
         std::string version_path = path()+"/."+version;
         if(not boost::filesystem::exists(version_path)){
@@ -736,7 +700,7 @@ public:
             // Remove version .git directory
             boost::filesystem::remove_all(version_path+"/.git");
         }
-        return self();   
+        return *this;   
     }
 
     /**
@@ -744,5 +708,6 @@ public:
      */
     
 };
+std::map<std::string,Component::Pointer> Component::cache_map_;
 
 }

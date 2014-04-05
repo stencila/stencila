@@ -160,12 +160,12 @@ struct RenderingFixture {
      * Render the stencil in the map context
      */
     void render(const std::string html){
-        s.append_html(html);
+        s.html(html);
         s.render(map);
     }
 
     /**
-     * Dump the sentecnil to std::cerr.
+     * Dump the stecnil to std::cerr.
      * Useful to put in a test to work out why a test has failed.
      */
     void dump(void){
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(code){
         <code class="ignored">This should be ignored because no data-code attribute</code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code.executed [data-error]").text(),"Not supported by context type: map-context");
+    BOOST_CHECK_EQUAL(s.one("code.executed [data-error]").text(),"Method \"execute\" not supported by this type of context");
     BOOST_CHECK(not s.one("code.ignored [data-error]"));
 }
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(image){
         </code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code [data-error]").text(),"Not supported by context type: map-context");
+    BOOST_CHECK_EQUAL(s.one("code [data-error]").text(),"Method \"paint\" not supported by this type of context");
 }
 
 BOOST_AUTO_TEST_CASE(with){

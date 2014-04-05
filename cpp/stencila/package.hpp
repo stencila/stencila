@@ -4,7 +4,7 @@
 
 namespace Stencila {
 
-class Package : public Component<Package> {
+class Package : public Component {
 public:
 
     std::string type(void) const {
