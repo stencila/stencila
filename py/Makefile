@@ -18,8 +18,9 @@ cpp_libs:
 
 # Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requires:
-	$(MAKE) -C ../cpp/requires all
 	$(MAKE) -C ../cpp version.hpp
+	$(MAKE) -C ../cpp/requires
+	$(MAKE) -C ../cpp/lib
 
 # Create binary distribution for the platform
 # Create a text file with name of latest wheel for testing (using a symlink to latest wheel instead
