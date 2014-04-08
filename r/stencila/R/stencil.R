@@ -1,4 +1,4 @@
-#' @include shortcuts.R
+#' @include component.R
 NULL
 
 #' The Stencil class
@@ -23,7 +23,7 @@ NULL
 #' # ... which is equivalent to
 #' stencil <- Stencil()
 #' stencil$content('Pi has a value of: <span data-text="pi"/>')
-class_('Stencil')
+class_('Stencil','Component')
 Stencil <- function(content,language="html") {
     stencil <- new("Stencil")
     if(!missing(content)) stencil$content(content,language)

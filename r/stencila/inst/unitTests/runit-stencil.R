@@ -2,6 +2,14 @@ test.Stencil.create <- function(){
   Stencil()
 }
 
+# Check that stencils can call some methods inherited
+# from Component
+test.Stencil.inherited <- function(){
+  s = Stencil()
+  s$title("foo")
+  checkEquals(s$title(),"foo")
+}
+
 test.Stencil.render.code <- function(){
   stencil <- Stencil(paste(
     '<code data-code="r"><![CDATA[',
