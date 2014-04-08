@@ -113,6 +113,27 @@ private:
 public:
 
     /**
+     * Is this a document node?
+     */
+    bool is_document(void) const {
+        return type()==pugi::node_document;
+    }
+
+    /**
+     * Is this an element node?
+     */
+    bool is_element(void) const {
+        return type()==pugi::node_element;
+    }
+
+    /**
+     * Is this text node?
+     */
+    bool is_text(void) const {
+        return type()==pugi::node_pcdata;
+    }
+
+    /**
      * Get the tag name of this node e.g. 'div'
      */
     std::string name(void) const {
