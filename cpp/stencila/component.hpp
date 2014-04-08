@@ -708,6 +708,5 @@ public:
      */
     
 };
-std::map<std::string,Component::Pointer> Component::cache_map_;
 
 }
