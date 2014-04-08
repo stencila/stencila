@@ -7,21 +7,26 @@ using namespace Stencila;
  * Start up function for the Stencila R module
  */
 STENCILA_R_FUNC Stencila_startup(void){
-	return nil;
+	return null;
 }
 
 /**
  * Shutdown function for the Stencila R module
  */
 STENCILA_R_FUNC Stencila_shutdown(void){
-	return nil;
+	return null;
 }
 
 /**
- * Get the version number of the Stencila library
+ * Get the Stencila class name from the tag of an "externalpointer" in R
+ *
+ * This is used when converting an externalpointer returned from a call to a
+ * C++ function into an R-side class
+ * 
+ * @param  self The object to obtain the tag for
  */
-STENCILA_R_FUNC Stencila_version(void){
+STENCILA_R_FUNC Stencila_class(SEXP self){
     STENCILA_R_BEGIN
-        return wrap(Stencila::version);
+        return R_ExternalPtrTag(self);
     STENCILA_R_END
 }

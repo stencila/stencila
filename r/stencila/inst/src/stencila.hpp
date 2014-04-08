@@ -110,8 +110,8 @@ STENCILA_R_FUNC CLASS##_new(void){ \
 }
 
 // Call a method with 0 arguments and return value
-#define STENCILA_R_GET0(CLASS,NAME) \
-STENCILA_R_FUNC CLASS##_##NAME##_get(SEXP self){ \
+#define STENCILA_R_RET0(CLASS,NAME) \
+STENCILA_R_FUNC CLASS##_##NAME(SEXP self){ \
     STENCILA_R_BEGIN \
         return wrap(from<CLASS>(self).NAME()); \
     STENCILA_R_END \
@@ -128,13 +128,22 @@ STENCILA_R_FUNC CLASS##_##NAME(SEXP self, SEXP arg1){ \
     STENCILA_R_END \
 }
 
-// Define a get method for an 
+// Define a `_get` method for an 
 #define STENCILA_R_GET(CLASS,NAME) \
-    STENCILA_R_GET0(CLASS,NAME,TYPE)
+STENCILA_R_FUNC CLASS##_##NAME##_get(SEXP self){ \
+    STENCILA_R_BEGIN \
+        return wrap(from<CLASS>(self).NAME()); \
+    STENCILA_R_END \
+}
 
-// Define a set method for an attribute
+// Define a `_set` method for an attribute
 #define STENCILA_R_SET(CLASS,NAME,TYPE) \
-    STENCILA_R_EXEC1(CLASS,NAME,TYPE)
+STENCILA_R_FUNC CLASS##_##NAME##_set(SEXP self, SEXP arg1){ \
+    STENCILA_R_BEGIN \
+        from<CLASS>(self).NAME(as<TYPE>(arg1)); \
+        return null; \
+    STENCILA_R_END \
+}
 
 // Define both get an set for an attribute
 #define STENCILA_R_ATTR(CLASS,NAME,TYPE) \
