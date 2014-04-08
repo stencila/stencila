@@ -1,4 +1,4 @@
-#' @include shortcuts.R
+#' @include stencila.R
 NULL
 
 #' Create a stencil rendering context
@@ -58,8 +58,6 @@ Context <- function(envir){
         return(self$stack[[length(self$stack)]])
     }
     
-    ##################################
-    
     self$get <- function(expression) {
         return(eval(parse(text=expression),envir=self$top()))
     }
@@ -73,8 +71,7 @@ Context <- function(envir){
     
     ##################################
     # "execute" method
-    # 
-    # Executes some code
+
     self$execute <- function(code){
         eval(parse(text=code),envir=self$top())
         return(self)

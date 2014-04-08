@@ -1,13 +1,13 @@
 all: test repo
 
-.PHONY:
+.PHONY: requires
 
 include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/variables.make
 
 # Requires everything that Stencila C++ library requires and the Stencila C++ library itself
 requires:
-	$(MAKE) -C ../cpp/requires all
-	$(MAKE) -C ../cpp version.hpp
+	$(MAKE) -C ../cpp/requires
+	$(MAKE) -C ../cpp/lib
 
 # Define R and Rcpp compile flags
 R_CPPFLAGS := $(shell R CMD config --cppflags)
@@ -95,7 +95,7 @@ namespace:
 # Create the package
 $(STENCILA_R_PACKAGE): build/$(STENCILA_R_LIB_ZIPFILE) rds namespace
 	# Get rid of any unwanted files from package
-	rm -rf stencila/R/*.Rhistory stencila/inst/src/*.o stencila/src/*.o stencila/src/*.so stencila/src/*.dll
+	#rm -rf stencila/R/*.Rhistory stencila/inst/src/*.o stencila/src/*.o stencila/src/*.so stencila/src/*.dll
 	# Copy the library into inst so it can be installed locally for testing
 	mkdir -p stencila/inst/$(STENCILA_R_LIB_DIR)
 	cp build/$(STENCILA_R_LIB_ZIPFILE) stencila/inst/$(STENCILA_R_LIB_DIR)

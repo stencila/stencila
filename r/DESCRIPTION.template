@@ -12,4 +12,4 @@ Depends:
     methods
 LinkingTo: Rcpp
 Collate:
-    'shortcuts.R'
+    'stencila.R'
