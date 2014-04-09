@@ -22,6 +22,6 @@ test.Component.keywords <- function(){
 
 test.Component.commit <- function(){
   c = Component()
-  c$commit("message")
-  #checkEquals(c$keywords(),c("foo","bar"))
+  c$commit("Updated the component")
+  checkEquals(c$log()[1,2],"Updated the component")
 }

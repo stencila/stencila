@@ -8,6 +8,9 @@ test.Stencil.inherited <- function(){
   s = Stencil()
   s$title("foo")
   checkEquals(s$title(),"foo")
+  checkEquals(nrow(s$log()),0)
+  s$commit()
+  checkEquals(nrow(s$log()),1)
 }
 
 test.Stencil.render.code <- function(){
