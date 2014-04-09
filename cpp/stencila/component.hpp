@@ -503,7 +503,10 @@ public:
      * Read the component from a directory
      *
      * Note that reading a component from path and then reading it from a different
-     * path will move the component directory to the new path
+     * path will move the component directory to the new path.
+     *
+     * This method must be overidden by derived classes to implement
+     * class specific read formats but call this base method so that `path` is set correctly.
      * 
      * @param from Filesystem path to component
      */
@@ -514,6 +517,9 @@ public:
     
     /**
      * Write the Component to a directory
+     *
+     * This method must be overidden by derived classes to implement
+     * class specific write formats but call this base method so that `path` is set correctly.
      * 
      * @param to Filesystem path to component
      */
@@ -563,6 +569,12 @@ private:
 
 public:
 
+    /**
+     * Commit the component
+     *
+     * This method should be overriden by derived classes so that
+     * their `write` method is called before commiting
+     */
     Component& commit(const std::string& message="") {
         std::string commit_message = message;
         if(commit_message.length()==0) commit_message = "Updated";

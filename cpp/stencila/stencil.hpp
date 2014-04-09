@@ -719,6 +719,8 @@ public:
      * @param  from Filesystem path to directory
      */
     Stencil& read(const std::string& from=""){
+        // Call base read method to set `path`
+        Component::read(from);
         
         Html::Document doc;
         doc.read(from);
@@ -783,6 +785,8 @@ public:
      * @param  to Filesystem path to directory
      */
     Stencil& write(const std::string& to=""){
+        // Call base write method to set `path`
+        Component::write(to);
 
         // Sanitize before writing
         sanitize();
@@ -881,6 +885,18 @@ public:
         doc.write(to);
         
         return *this;
+    }
+
+    /**
+     * Commit changes to this stencil
+     * 
+     * @param  message A commit message
+     */
+    Stencil& commit(const std::string& message=""){
+        // Save the stencil..
+        write();
+        ///...then commit it
+        Component::commit(message);
     }
 
 
