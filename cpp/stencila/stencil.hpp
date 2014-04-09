@@ -47,11 +47,8 @@ public:
      * @param  format Format for content
      */
     std::string content(const std::string& format) const {
-        if(format=="html"){
-            return dump();
-        } else {
-            STENCILA_THROW(Exception,"Format code not recognised: "+format);
-        }
+        if(format=="html") return html();
+        else STENCILA_THROW(Exception,"Format code not recognised: "+format);
     }
 
     /**
@@ -60,20 +57,16 @@ public:
      * @param  format Format for content
      */
     Stencil& content(const std::string& content, const std::string& format){
-        if(format=="html"){
-            clear();
-            Html::Document doc(content);
-            append_children(doc.find("body"));
-        } else {
-            STENCILA_THROW(Exception,"Format code not recognised: "+format);
-        }
+        if(format=="html") html(content);
+        else STENCILA_THROW(Exception,"Format code not recognised: "+format);
+        return *this;
     }
 
     /**
      * Get stencil content as HTML
      */
     std::string html(void) const {
-        return content("html");
+        return dump();
     }
 
     /**
@@ -85,7 +78,10 @@ public:
      * @param html A HTML string
      */
     Stencil& html(const std::string& html){
-        return content(html,"html");
+        clear();
+        Html::Document doc(html);
+        append_children(doc.find("body"));
+        return *this;
     }
 
     /**
