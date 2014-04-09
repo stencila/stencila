@@ -69,7 +69,7 @@ wrap_ <- function(object){
 # R function if available, or a C++ function
 # if not.
 method_ <- function(instance,name,class,bases,...){
-    result <- NA
+    found <- FALSE
     for(prefix in c(class,bases)){
         # Create a symbol of form `<class>_<name>`
         symbol <- paste(prefix,name,sep='_')
@@ -78,21 +78,23 @@ method_ <- function(instance,name,class,bases,...){
         if(exists(symbol)){
             # Found R function, call it with args
             result <- get(symbol)(instance,...)
+            found <- TRUE
             break
         }
         else if(is.loaded(symbol,PACKAGE=dll_name)){
             # Found C++ function, call it with args
             result <- call_(symbol,instance@pointer,...)
+            found <- TRUE
             break
         }
+    }
+    # If the method was not found then throw an error
+    if(!found){
+        stop(paste("Class '",class,"' has no method called '",name,"'",sep=''))
     }
     # If the return is NULL then return self
     # so method chaining can be used...
     if(is.null(result)) return(invisible(instance))
-    # If result is still NA then the method must not have been found
-    else if(is.na(result)){
-        stop(paste("Class '",class,"' has no method called '",name,"'",sep=''))
-    }
     # ...otherwise return the instance after wrapping it
     else return(wrap_(result))
 }
