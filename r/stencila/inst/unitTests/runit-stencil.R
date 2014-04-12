@@ -5,12 +5,33 @@ test.Stencil.create <- function(){
 # Check that stencils can call some methods inherited
 # from Component
 test.Stencil.inherited <- function(){
-  s = Stencil()
+  s <- Stencil()
   s$title("foo")
   checkEquals(s$title(),"foo")
-  checkEquals(nrow(s$log()),0)
+  checkEquals(nrow(s$history()),0)
   s$commit()
-  checkEquals(nrow(s$log()),1)
+  checkEquals(nrow(s$history()),1)
+}
+
+test.Stencil.html <- function(){
+  s <- Stencil()
+
+  s$html('<p>foo</p>')
+  checkEquals(s$html(),'<p>foo</p>')
+
+  html(s,'<p>bar</p>')
+  checkEquals(html(s),'<p>bar</p>')
+
+  s$content('html','<p>42</p>')
+  checkEquals(s$content(),'<p>42</p>')
+}
+
+test.Stencil.contexts <- function(){
+  s <- Stencil()
+  s$contexts('r')
+  checkEquals(s$contexts(),'r')
+  s$contexts(c('r','py'))
+  checkEquals(s$contexts(),c('r','py'))
 }
 
 test.Stencil.render.code <- function(){

@@ -55,6 +55,39 @@ call_ <- function(symbol,...){
     .Call(symbol,...,PACKAGE=dll_name)
 }
 
+
+# A convienience function for defining a Stencila R class
+class_ <- function(class,bases){
+    # Define the class and its bases
+    setClass(
+        class,
+        representation=representation(
+            created = 'logical',
+            pointer = 'externalptr'
+        ),
+        prototype=prototype(
+            created = FALSE
+        )
+    )
+    # Set its initialiser
+    setMethod('initialize',class,function(.Object,created=FALSE,pointer=NULL,...){
+        if(!created){
+            .Object@pointer = call_(paste(class,'new',sep='_'))
+            .Object@created = TRUE
+        } else {
+            .Object@pointer = pointer
+            .Object@created = TRUE
+        }
+        return(.Object)
+    })
+    # Define its getter
+    setMethod('$',class,function(x,name){
+        function(...) resolve_(x,name,class,bases,...)
+    })
+    
+    NULL
+}
+
 # Convert an externalptr object into an instance of a Stencila R class
 wrap_ <- function(object){
     if(typeof(object)=='externalptr'){
@@ -68,7 +101,7 @@ wrap_ <- function(object){
 # Call a method of a Stencila R class, using either a 
 # R function if available, or a C++ function
 # if not.
-method_ <- function(instance,name,class,bases,...){
+resolve_ <- function(instance,name,class,bases,...){
     found <- FALSE
     for(prefix in c(class,bases)){
         # Create a symbol of form `<class>_<name>`
@@ -102,43 +135,18 @@ method_ <- function(instance,name,class,bases,...){
 # Creates a function `<class>_<name>` which forwards on to
 # the C++ functions `<class>_<name>_get` or `<class>_<name>_set`
 # depending on whether value argument is supplied
-attr_ <- function(class,name){
-    assign(paste(class,name,sep='_'),function(instance,value){
-        if(missing(value)) call_(paste(class,name,'get',sep='_'),instance@pointer)
-        else call_(paste(class,name,'set',sep='_'),instance@pointer,value)
-    },pos=parent.frame())
-}
-
-# A convienience function for defining a Stencila R class
-class_ <- function(class,bases){
-    # Define the class and its bases
-    setClass(
-        class,
-        representation=representation(
-            created = 'logical',
-            pointer = 'externalptr'
-        ),
-        prototype=prototype(
-            created = FALSE
-        )     
+# 
+# The `converter` argument converts the value prior to a call to `_set`
+attr_ <- function(class,name,converter=identity){
+    # Create a setter/getter function
+    assign(
+        paste(class,name,sep='_'),
+        function(instance,value){
+            if(missing(value)) call_(paste(class,name,'get',sep='_'),instance@pointer)
+            else call_(paste(class,name,'set',sep='_'),instance@pointer,converter(value))
+        },
+        pos = parent.frame()
     )
-    # Set its initialiser
-    setMethod('initialize',class,function(.Object,created=FALSE,pointer=NULL,...){
-        if(!created){
-            .Object@pointer = call_(paste(class,'new',sep='_'))
-            .Object@created = TRUE
-        } else {
-            .Object@pointer = pointer
-            .Object@created = TRUE
-        }
-        return(.Object)
-    })
-    # Define its getter
-    setMethod('$',class,function(x,name){
-        function(...) method_(x,name,class,bases,...)
-    })
-    
-    NULL
 }
 
 # Create an instance of a Stencila R class

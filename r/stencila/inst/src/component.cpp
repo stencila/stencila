@@ -14,18 +14,18 @@ STENCILA_R_ATTR(Component,path,std::string)
 
 STENCILA_R_EXEC1(Component,commit,std::string)
 
-STENCILA_R_FUNC Component_log(SEXP self){
+STENCILA_R_FUNC Component_history(SEXP self){
     STENCILA_R_BEGIN
-    	// Get log
-        auto log = from<Component>(self).log();
+    	// Get history
+        auto history = from<Component>(self).history();
         // Convert to a data.frame
-        uint rows = log.size();
+        uint rows = history.size();
         Rcpp::DatetimeVector time(rows);
         Rcpp::CharacterVector message(rows);
         Rcpp::CharacterVector name(rows);
         Rcpp::CharacterVector email(rows);
         for(uint i=0;i<rows;i++){
-        	auto& commit = log[i];
+        	auto& commit = history[i];
         	time[i] = commit.time;
         	message[i] = commit.message;
         	name[i] = commit.name;
