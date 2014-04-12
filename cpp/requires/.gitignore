@@ -5,6 +5,7 @@ boost*
 libgit2*
 pugixml*
 tidy-html5*
+websocketpp*
 
 !*.make
 !*.patch
