@@ -160,7 +160,7 @@ public:
 		return buffer;
 	}
 
-	std::vector<Commit> log(void){
+	std::vector<Commit> history(void){
 		// Get the oid of the HEAD
 		git_oid oid;
 		git_oid_fromstr(&oid, head().c_str());
@@ -170,15 +170,15 @@ public:
 		git_revwalk_sorting(walker, GIT_SORT_TOPOLOGICAL);
 		git_revwalk_push(walker, &oid);
 		// Do the walk
-		std::vector<Commit> log;
+		std::vector<Commit> history;
 		git_commit* commit;
 		while ((git_revwalk_next(&oid, walker)) == 0) {
 			int error = git_commit_lookup(&commit, repo_, &oid);
-			log.push_back(Commit(commit));
+			history.push_back(Commit(commit));
 			git_commit_free(commit);
 		}
 		git_revwalk_free(walker);
-		return log;
+		return history;
 	}
 
 	/**

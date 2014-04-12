@@ -591,9 +591,9 @@ public:
         return *this;
     }
 
-    std::vector<Commit> log(void) const {
+    std::vector<Commit> history(void) const {
         Repository* repo = repo_();
-        if(repo) return repo->log();
+        if(repo) return repo->history();
         else return std::vector<Commit>(0);
     }
 
