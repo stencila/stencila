@@ -46,7 +46,7 @@ public:
      * 
      * @param  format Format for content
      */
-    std::string content(const std::string& format) const {
+    std::string content(const std::string& format="html") const {
         if(format=="html") return html();
         else STENCILA_THROW(Exception,"Format code not recognised: "+format);
     }
@@ -56,7 +56,7 @@ public:
      *
      * @param  format Format for content
      */
-    Stencil& content(const std::string& content, const std::string& format){
+    Stencil& content(const std::string& format, const std::string& content){
         if(format=="html") html(content);
         else STENCILA_THROW(Exception,"Format code not recognised: "+format);
         return *this;
@@ -99,13 +99,6 @@ public:
      * Get the contexts that are supported by the stencil
      */
     const std::vector<std::string> contexts(void) const {
-        return contexts_;
-    }
-
-    /**
-     * Get the contexts that are supported by the stencil
-     */
-    std::vector<std::string> contexts(void) {
         return contexts_;
     }
 
