@@ -4,6 +4,7 @@ lib
 boost*
 libgit2*
 pugixml*
+rapidjson*
 tidy-html5*
 websocketpp*
 
