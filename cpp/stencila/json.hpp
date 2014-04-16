@@ -98,7 +98,7 @@ Type as(const Value& value);
  * @param value JSON `Object`
  * @param name Name being searched for
  */
-bool has(const Value& value,const std::string& name) {
+static bool has(const Value& value,const std::string& name) {
 	return is<Object>(value)?value.HasMember(name.c_str()):false;
 }
 
@@ -107,7 +107,7 @@ bool has(const Value& value,const std::string& name) {
  * 
  * @param  value JSON `Array`
  */
-uint size(const Value& value) {
+static uint size(const Value& value) {
 	return is<Array>(value)?value.Size():0;
 }
 
@@ -118,11 +118,21 @@ class Document : public rapidjson::Document {
 public:
 	
 	Document(void){
+        // Make this document an object
+        SetObject();
 	}
+
+    Document(const char* json){
+        load(json);
+    }
 
 	Document(const std::string& json){
 		load(json);
 	}
+
+    Document(const Document& other){
+        DeepCopy(*this,other,true);
+    }
 
     /**
      * Load a JSON string into the `Document`
@@ -132,14 +142,48 @@ public:
     Document& load(const std::string& json){
         std::string input = json;
         boost::algorithm::trim(input);
-        if(input.length()==0) input = "{}";
-        Parse<0>(input.c_str());
-        if(HasParseError()) {
-            STENCILA_THROW(Exception,std::string("JSON parsing error: ")+GetParseError()+": "+json);
+        if(input.length()==0){
+            // Make this document an object if there is no JSON
+            SetObject();
+        } else {
+            // Otherwise parse the JSON
+            Parse<0>(input.c_str());
+            if(HasParseError()) {
+                STENCILA_THROW(Exception,std::string("JSON parsing error: ")+GetParseError()+": "+json);
+            }
         }
         return *this;
     }
 
+    /**
+     * Dump document to a string
+     *
+     * @return JSON string of document
+     */
+    std::string dump(void) {
+          rapidjson::StringBuffer buffer;
+          rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+          Accept(writer);
+          return buffer.GetString();
+    }
+
+    /**
+     * Pretty print document to a string
+     *
+     * @return JSON string of document with indentation
+     */
+    std::string pretty(void) {
+          rapidjson::StringBuffer buffer;
+          rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+          Accept(writer);
+          return buffer.GetString();
+    }
+
+    /**
+     * Get a member of the document
+     *
+     * Override of base method to allow for string arguments
+     */
     Value& operator[](const std::string& name) {
         return rapidjson::Document::operator[](name.c_str());
     }

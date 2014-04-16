@@ -50,4 +50,12 @@ BOOST_AUTO_TEST_CASE(set){
     BOOST_CHECK_EQUAL(as<int>(doc["b"][1]),2);
 }
 
+BOOST_AUTO_TEST_CASE(copy){
+    Document a = R"({"foo":"bar","list":[1,2,3]})";
+    Document b = a;
+    BOOST_CHECK_EQUAL(as<std::string>(b["foo"]),"bar");
+    BOOST_CHECK_EQUAL(size(b["list"]),3);
+    BOOST_CHECK_EQUAL(as<int>(b["list"][2]),3);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
