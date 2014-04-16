@@ -22,6 +22,290 @@ public:
 
     typedef Utilities::Git::Repository  Repository;
     typedef Utilities::Git::Commit      Commit;
+
+    /**
+     * Component classes
+     *
+     * Provides runtime information on Component classes
+     * 
+     * @{
+     */
+
+protected:
+
+    /**
+     * An enumeration of `Component` classes
+     *
+     * This `enum` serves to make it explicit that a variable or
+     * function argument refers to a component class. Using an `int` or similar
+     * could lead to ambiguities. An integer based code (as opposed to say a string based code)
+     * makes it fast to lookup the type information (see `classes` below).
+     * Having the `enum` values defined here, in one place, reduces the likelihood that 
+     * the same integer code is given to more than one type. 
+     */
+    enum ClassCode {
+        NoCode = 0,
+        ComponentCode = 1,
+        PackageCode = 2,
+        StencilCode = 3,
+        RContextCode = 4
+    };
+
+    /**
+     * Number of `Class`s in the `classes` array.
+     *
+     * This number should be greater than the greatest integer
+     * value in the `ClassCode` enumeration.
+     */
+    static const uint class_codes_ = 10;
+
+    /**
+     * The class' code, used for templated functions.
+     * All derived classes MUST override this.
+     */
+    static const ClassCode class_ = ComponentCode;
+
+public:
+
+    /**
+     * Structure repesenting a `Component` class.
+     *
+     * Serves as an entry in the `classes` array providing dynamic lookup
+     * of type information, in particular, "virtual" functions.
+     */
+    struct Class {
+        /**
+         * Name of the class 
+         */
+        const char* name;
+
+        /**
+         * @name Page
+         * 
+         * Pageing function for class
+         *
+         * Used to serve a page for the component
+         */
+        typedef std::string (*Page)(const Component* component);
+        Page page;
+
+        /**
+         * @name Message
+         *
+         * Messaging function for the class
+         *
+         * Used to send a message to a component when it is
+         * being served
+         */
+        typedef std::string (*Message)(Component* component, const std::string& message);
+        Message message;
+    };
+
+private:
+
+    /**
+     * Array of classes that have been defined
+     *
+     * See `component.cpp` for definitions of core classes
+     */
+    static Class classes_[class_codes_];
+
+public:
+
+    /**
+     * Define a `Component` class
+     *
+     * This places an entry in `Component::classes_` so that information
+     * on the class can be reteived later useing a `ClassCode`
+     * 
+     * @param code `ClassCode` for the class
+     * @param clas `Class` object
+     */
+    static void define(ClassCode code, const Class& clas){
+        classes_[code] = clas;
+    }
+
+    /**
+     * @}
+     */
+    
+   /**
+     * Component instances: delaration, storage and reteival
+     *
+     * Provides for registration and retrieval of components from
+     * both in memory and on disk.
+     * 
+     * @{
+     */
+    
+public:
+
+    /**
+     * Structure representing a `Componet` instance.
+     *
+     * Holds a `ClassCode` and a pointer to the instance.
+     */
+    struct Instance {
+        ClassCode code;
+        Component* pointer;
+
+        /**
+         * Does this Instance refer to a component?
+         *
+         * Used to return "null" instances from methods below
+         */
+        operator bool(void){
+            return pointer!=nullptr;
+        }
+    };
+
+private:
+
+    /**
+     * A lookup table of instances keyed by component address
+     *
+     * Provides a registry of Component instances that
+     * are in memory. Not all component's will be 
+     * in this registry, they have to be registered first using
+     * the `declare()` method
+     */
+    static std::map<std::string,Instance> instances_;
+
+public:
+
+   /**
+     * Declare a component for retreival later
+     *
+     * The component is registed in `instances_` using its address.
+     * If it does not yet have an address, one is created.
+     *
+     * This method MUST be overidden by derived classes, usually like this
+     *
+     *   <class> declare(void) {
+     *       Component::declare(<class>Code);
+     *       return *this;
+     *   }
+     * 
+     * @param code     `ClassCode` for the class of component
+     */
+    Component& declare(ClassCode code = ComponentCode) {
+        instances_[address(true)] = {code,this};
+        return *this;
+    }
+
+    /**
+     * Get a component instance with a given address
+     *
+     * This method is primarily used internally for retrieving
+     * a component that is expected, but may not be, in memory.
+     *
+     * @param address Address of the component
+     */
+    static Instance retrieve(const std::string& address){
+        auto i = instances_.find(address);
+        if(i!=instances_.end()) return i->second;
+        else return {NoCode,nullptr};
+    }
+
+    /**
+     * Get the store paths
+     */
+    static std::vector<std::string> stores(void){
+        return {
+            Host::current_dir(),
+            Host::user_dir(),
+            Host::system_dir()
+        };
+    }
+
+    /**
+     * Get the path of a component from the stores
+     */
+    static std::string lookup(const std::string& address){
+        std::vector<std::string> address_bits;
+        boost::split(address_bits,address,boost::is_any_of("/"));
+        auto address_base = address_bits[0];
+
+        std::string url = "";
+        for(std::string store : stores()){
+            std::string store_path = store+"/"+address_base;
+            // Does the address_base exist in this store?
+            if(boost::filesystem::exists(store_path)){
+                return store_path;
+            }
+        }
+
+        return "";
+    }
+    
+    /**
+     * Get a component with a given address, and optionally, a version requirement
+     *
+     * A component that is found in one of the stores will be instantiated in memory.
+     * Note that there is no garbage collection of these components at present.
+     * 
+     * @param address Address of component
+     * @param version Version required
+     * @param comparison Version requirement comparision (e.g. >=, ==, >)
+     */
+    template<class Class=Component>
+    static Class& get(const std::string& address,const std::string& version="",const std::string& comparison="==") {
+        Class* component;
+
+        Instance instance = retrieve(address);
+        if(instance){
+            component = static_cast<Class*>(instance.pointer);
+        }
+        else {
+            std::string path = lookup(address);
+            if(path.length()>0){
+                component = new Class;
+                component->read(path);
+                component->declare(Class::class_);
+            } else {
+                STENCILA_THROW(Exception,"Component with address not found: "+address);
+            }
+        }
+
+        // Provide required version number
+        if(version.length()>0){
+            if(comparison.length()==0 or comparison=="=="){
+                component->provide(version);
+            } else {
+                STENCILA_THROW(Exception,"Version comparison operator not yet supported: "+comparison);
+            }
+        }
+
+        return *component;
+    }
+
+    /**
+     * Call a "virtual" method of a component via an `Instance`
+     */
+    template<
+        typename Return,
+        typename Class,
+        typename... Args
+    >
+    static Return call(const Instance& instance, Return (* Class::* method)(Args... args)){
+        return (classes_[instance.code].*method)(instance.pointer);
+    }
+
+    /**
+     * Call a "virtual" method of a component via a component address
+     */
+    template<
+        typename Return,
+        typename Class,
+        typename... Args
+    >
+    static Return call(const std::string& address, Return (* Class::* method)(Args... args)){
+        return call(retrieve(address),method);
+    }
+
+    /**
+     * @}
+     */
     
 private:
 
@@ -78,160 +362,7 @@ public:
     ~Component(void){
         if(meta_) delete meta_;
     }
-
-    std::string type(void) const {
-        return "component";
-    }
-
-    /**
-     * @name Cacheing
-     * @{
-     */
-    
-private:
-
-    struct Pointer {
-        std::string type;
-        Component* pointer;
-    };
-    static std::map<std::string,Pointer> cache_map_;
-    
-protected:
-
-    /**
-     * Cache a component for retreival later
-     * 
-     * @param type     String representing type of component
-     * @param instance Component pointer
-     */
-    static void cache_(const std::string& address,const std::string& type,Component* instance){
-        cache_map_[address] = {type,instance};
-    }
-
-    /**
-     * Get a component form the cache if it there
-     *
-     * @param address Address of the components
-     * @param type Type (class name) of the component
-     */
-    static Component* cached_(const std::string& address,const std::string& type=""){
-        auto i = cache_map_.find(address);
-        if(i!=cache_map_.end()){
-            if(type.length()>0){
-                if(i->second.type==type) return i->second.pointer;
-            } else {
-                return i->second.pointer;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Remove a component from the cache
-     * 
-     * @param address Address of the component to remove
-     */
-    static void uncache_(const std::string& address){
-        cache_map_.erase(address);
-    }
-
-    /**
-     * @}
-     */
-    
-    /**
-     * @name Storage
-     * @{
-     */
-
-protected:
-
-    /**
-     * Return the path to the user's store
-     */
-    static std::string stores_user_(void){
-        return Host::user_dir();
-    }
-
-    /**
-     * Get the store paths
-     */
-    static std::vector<std::string> stores_(bool ensure=true){
-        return {
-            Host::current_dir(),
-            Host::user_dir(),
-            Host::system_dir()
-        };
-    }
-
-    /**
-     * Get the path of a component from the stores
-     */
-    static std::string stored_(const std::string& address){
-        // Get stores
-        std::vector<std::string> stores = stores_();
-
-        std::vector<std::string> address_bits;
-        boost::split(address_bits,address,boost::is_any_of("/"));
-        auto address_base = address_bits[0];
-
-        std::string url = "";
-        for(std::string store : stores){
-            std::string store_path = store+"/"+address_base;
-            // Does the address_base exist in this store?
-            if(boost::filesystem::exists(store_path)){
-                return store_path;
-            }
-        }
-
-        return "";
-    }
-
-    /**
-     * @}
-     */
-    
-public:
-    
-    /**
-     * Get a component with a given address, and optionally, a version requirement
-     * 
-     * @param address Address of component
-     * @param version Version required
-     * @param comparison Version requirement comparision (e.g. >=, ==, >)
-     *
-     * @todo Need to delete a newly obtained component
-     * @todo Check version comparison
-     */
-    template<class Class=Component>
-    static Class& obtain(const std::string& address,const std::string& version="",const std::string& comparison="=="){
-        Class* component;
-
-        Component* cached = Component::cached_(address);
-        if(cached){
-            component = static_cast<Class*>(cached);
-        }
-        else {
-            std::string path = Component::stored_(address);
-            if(path.length()>0){
-                component = new Class;
-                component->read(path);
-            } else {
-                STENCILA_THROW(Exception,"Component with address not found: "+address);
-            }
-        }
-
-        // Provide required version number
-        if(version.length()>0){
-            if(comparison.length()==0 or comparison=="=="){
-                component->provide(version);
-            } else {
-                STENCILA_THROW(Exception,"Version comparison operator not yet supported: "+comparison);
-            }
-        }
-
-        return *component;
-    }
+ 
 
     /**
      * @{
@@ -377,7 +508,7 @@ protected:
     }
 
     void path_set_unique_(void) const {
-        boost::filesystem::path unique_path = stores_user_();
+        boost::filesystem::path unique_path = stores()[1];
         unique_path /= boost::filesystem::unique_path("~%%%%-%%%%-%%%%-%%%%");
         boost::filesystem::create_directories(unique_path);
         if(not meta_) meta_ = new Meta;
@@ -412,7 +543,6 @@ protected:
             }
         }
         
-        cache_(address(),type(),this);
     }
     
 public:
@@ -445,12 +575,12 @@ public:
     /**
      * Get the address of the component
      */
-    std::string address(void) const {
-        std::string path = path_get_();
+    std::string address(bool ensure = false) const {
+        std::string path = path_get_(ensure);
         if(path.length()>0){
             std::string address = path;
             // Remove store prefix to obtain address
-            for(auto store : stores_()){
+            for(auto store : stores()){
                 if(address.substr(0,store.length())==store){
                     return address.substr(store.length()+1);
                 }
@@ -627,7 +757,7 @@ public:
             return boost::lexical_cast<uint>(std::string(matches[index].first,matches[index].second));
         };
 
-        // Extract the sematic parts of the current version
+        // Extract the semantic parts of the current version
         uint current_major = 0;
         uint current_minor = 0;
         uint current_patch = 0;
@@ -701,7 +831,7 @@ public:
             // Check this is a valid version number 
             std::vector<std::string> vs = versions();
             if(std::count(vs.begin(),vs.end(),version)==0){
-                STENCILA_THROW(Exception,"Component does not have version: "+version);
+                STENCILA_THROW(Exception,"Component \""+address()+"\" does not have version \""+version+"\"");
             }
             // Checkout the the version into version_path
             // Clone this repo into a version_path
@@ -718,7 +848,89 @@ public:
     /**
      * @}
      */
+
+    /**
+     * @name Web interface
+     *
+     * Methods for serving components
+     * 
+     * @{
+     */    
     
+    /**
+     * Serve this component
+     * 
+     * This method declares the component,
+     * ensures that the `Server` is started and returns the
+     * components URL.
+     * 
+     * @return URL for this component
+     */
+    std::string serve(ClassCode code);
+
+    /**
+     * View this component in the default web browser
+     *
+     * This method serves this componet and then opens it's address in the 
+     * default browser.
+     */
+    void view(ClassCode code){
+        // Serve this component so that it is available to be viewed via Server
+        std::string url = serve(code);
+        // Open URL in default browser
+        #ifdef _WIN32 || _WIN64
+           ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+        #elif __APPLE__
+            std::system(("open \""+url+"\"").c_str());
+        #elif __linux
+            // Open using xdg-open with all output redirected to null device
+            std::system(("2>/dev/null 1>&2 xdg-open \""+url+"\"").c_str());
+        #endif
+    }
+
+    /**
+     * Generate a default home page for the server that is serving
+     * components.
+     */
+    static std::string home(void){
+        return R"(
+            <html>
+                <head>
+                    <title>Stencila</title>
+                </head>
+            </html>
+        )";
+    }
+
+    /**
+     * Generate a page for a component at an address
+     *
+     * Currently, this uses `retrieve()` so will not get components
+     * on disk. As such components need to be `declare()`d or `served()`d first 
+     *
+     * @param  address Address of component
+     */
+    static std::string page(const std::string& address){
+        Instance instance = retrieve(address);
+        if(not instance) return "<html><body>No component at address \""+address+"\"</body></html>";
+        else return call(instance,&Class::page);
+    }
+
+    /**
+     * Process a message for the component at an address
+     * 
+     * @param  address Address of component
+     * @param  message JSON request message
+     * @return         JSON response message
+     */
+    static std::string message(const std::string& address,const std::string& message){
+        return "";
+    }
+
+    /**
+     * @}
+     */
+
 };
 
 }
