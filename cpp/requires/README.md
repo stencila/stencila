@@ -3,6 +3,11 @@
 The Stencila C++ module has a number of required dependencies. At present these are:
 
 * [Boost](http://www.boost.org/) libraries
+* [libgit2](http://libgit2.github.com/)
+* [pugixml](http://pugixml.org/)
+* [rapidjson](https://code.google.com/p/rapidjson/)
+* [tidy-html5](http://w3c.github.com/tidy-html5/)
+* [WebSocket++](https://github.com/zaphoyd/websocketpp)
 
 Version numbers for each of these is specified in their respective Makefiles (e.g [`boost.make`](boost.make))
 
@@ -14,8 +19,7 @@ The Makefiles download and build each requirement and so themselves have some pr
 
 * wget - for downloading files
 * tar, unzip - for unpacking tar and zip files
-* cmake - for building cpp-netlib
-* make and gcc - for building boost, cpp-netlib, sqlite etc
+* make and gcc - for building boost, sqlite etc
 
 If you are on Ubuntu, or another Linux with apt-get, you can get all these with:
 
