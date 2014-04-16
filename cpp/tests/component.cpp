@@ -160,12 +160,12 @@ BOOST_AUTO_TEST_CASE(destroy_transient){
 BOOST_AUTO_TEST_CASE(commit){
     Component c;
 
-    BOOST_CHECK_EQUAL(c.log().size(),0);
+    BOOST_CHECK_EQUAL(c.history().size(),0);
 
     c.commit();
-    auto log = c.log();
-    BOOST_CHECK_EQUAL(log.size(),1);
-    BOOST_CHECK_EQUAL(log[0].message,"Updated");
+    auto history = c.history();
+    BOOST_CHECK_EQUAL(history.size(),1);
+    BOOST_CHECK_EQUAL(history[0].message,"Updated");
     BOOST_CHECK(boost::filesystem::exists(c.path()+"/.git"));
     c.destroy();
 }
