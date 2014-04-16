@@ -281,14 +281,29 @@ public:
 
     /**
      * Call a "virtual" method of a component via an `Instance`
+     *
      */
+    // Two versions are implemented below one for const Component, the other non-const.
+    // Although Supplied... seems uneccesary (why not just use Args...) template deduction
+    // failed without it.
     template<
         typename Return,
         typename Class,
-        typename... Args
+        typename... Args,
+        typename... Supplied
     >
-    static Return call(const Instance& instance, Return (* Class::* method)(Args... args)){
-        return (classes_[instance.code].*method)(instance.pointer);
+    static Return call(const Instance& instance, Return (* Class::* method)(Component* component, Args... args), Supplied... supplied){
+        return (classes_[instance.code].*method)(instance.pointer,supplied...);
+    }
+
+    template<
+        typename Return,
+        typename Class,
+        typename... Args,
+        typename... Supplied
+    >
+    static Return call(const Instance& instance, Return (* Class::* method)(const Component* component, Args... args), Supplied... supplied){
+        return (classes_[instance.code].*method)(instance.pointer,supplied...);
     }
 
     /**
@@ -299,8 +314,8 @@ public:
         typename Class,
         typename... Args
     >
-    static Return call(const std::string& address, Return (* Class::* method)(Args... args)){
-        return call(retrieve(address),method);
+    static Return call(const std::string& address, Return (* Class::* method)(const Component* component, Args... args), Args... args){
+        return call(retrieve(address),method,args...);
     }
 
     /**
@@ -917,6 +932,16 @@ public:
     }
 
     /**
+     * Generate a web page for a component
+     *
+     * This method should be overriden by derived
+     * classes and `define()`d in `classes_`.
+     */
+    static std::string page(const Component* component){
+        return "";
+    }
+
+    /**
      * Process a message for the component at an address
      * 
      * @param  address Address of component
@@ -924,6 +949,18 @@ public:
      * @return         JSON response message
      */
     static std::string message(const std::string& address,const std::string& message){
+        Instance instance = retrieve(address);
+        if(not instance) return "error: no component at address \""+address+"\"";
+        else return call(instance,&Class::message,message);
+    }
+
+    /**
+     * Process a message for a Component
+     *
+     * This method intentionally does nothing. It should be overriden by derived
+     * classes and `define()`d in `classes_`.
+     */
+    static std::string message(Component* component, const std::string& message){
         return "";
     }
 

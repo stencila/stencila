@@ -212,19 +212,28 @@ BOOST_AUTO_TEST_CASE(provide){
     c.destroy();
 }
 
-BOOST_AUTO_TEST_CASE(obtain){
+BOOST_AUTO_TEST_CASE(get){
     Component c;
     
     c.commit();
     c.version("0.0.1");
     c.version("0.0.2");
+    c.declare();
+
+    BOOST_CHECK_EQUAL(c.versions().size(),2);
+    BOOST_CHECK_EQUAL(c.versions()[0],"0.0.1");
+    BOOST_CHECK_EQUAL(c.versions()[1],"0.0.2");
+
+    Component& c0 = Component::get<>(c.address());
+    BOOST_CHECK(boost::filesystem::exists(c.path()));
     
-    Component& c1 = Component::obtain<>(c.address(),"0.0.1");
+    Component& c1 = Component::get<>(c.address(),"0.0.1");
     BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.1"));
 
-    Component& c2 = Component::obtain<>(c.address(),"0.0.2");
+    Component& c2 = Component::get<>(c.address(),"0.0.2");
     BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.2"));
 
+    BOOST_CHECK_EQUAL(c0.address(),c1.address());
     BOOST_CHECK_EQUAL(c1.address(),c2.address());
 
     c.destroy();

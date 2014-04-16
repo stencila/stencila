@@ -77,6 +77,7 @@ BOOST_AUTO_TEST_CASE(append){
     s.destroy();
 }
 
+#if 0
 BOOST_AUTO_TEST_CASE(embed){
     Stencil s;
     s.embed();
@@ -115,6 +116,7 @@ BOOST_AUTO_TEST_CASE(embed){
     
     s.destroy();
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(sanitize){
     Stencil s(R"(html://

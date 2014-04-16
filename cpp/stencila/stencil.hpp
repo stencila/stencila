@@ -11,7 +11,7 @@ namespace Stencila {
 
 class Stencil : public Component, public Xml::Document {
 public:
-
+    
     // Avoid ambiguities by defining which inherited method to use
     // when the base classes use the same name
     using Component::path;
@@ -21,6 +21,54 @@ public:
     typedef Xml::AttributeList AttributeList;
     typedef Xml::Node Node;
     typedef Xml::Nodes Nodes;
+
+protected:
+
+    // Necessary override of Component::class_
+    static const ClassCode class_ = StencilCode;
+    friend class Component;
+
+public:
+
+    /**
+     * @name Web interface methods
+     *
+     * Overrides of `Component` methods as required
+     * 
+     * @{
+     */
+    
+    /**
+     * Serve this stencil
+     */
+    std::string serve(void){
+        return Component::serve(StencilCode);
+    }
+
+    /**
+     * View this stencil
+     */
+    void view(void){
+        return Component::view(StencilCode);
+    }
+
+    /**
+     * Generate a web page for a stencil
+     */
+    static std::string page(const Component* component){
+        return static_cast<const Stencil&>(*component).html();
+    }
+
+    /**
+     * Process a message for this stencil
+     */
+    static std::string message(Component* component, const std::string& message){
+        return "";
+    }
+
+    /**
+     * @}
+     */
 
 public:
 
@@ -35,10 +83,6 @@ public:
         if(type=="html") html(rest);
         else if(type=="file") read(rest);
         else STENCILA_THROW(Exception,"Unrecognised type: " + type)
-    }
-
-    std::string type(void) const {
-    	return "stencil";
     }
 
     /**
@@ -250,7 +294,7 @@ private:
         bool ok = false;
         for(std::string& item : items){
             boost::trim(item);
-            if(item+"-context"==context.type()){
+            if(context.accept(item)){
                 ok = true;
                 break;
             }
@@ -521,7 +565,7 @@ private:
         Node stencil;
         //Check to see if this is a "self" include, otherwise obtain the stencil
         if(include==".") stencil = node.root();
-        else stencil = obtain<Stencil>(include,version);
+        else stencil = get<Stencil>(include,version);
         // ...select from it
         if(select.length()>0){
             // ...append the selected nodes.
@@ -888,7 +932,6 @@ public:
         Component::commit(message);
     }
 
-
     /**
      * @name Embedding
      * @{
@@ -982,8 +1025,6 @@ public:
 
 };
 
-std::stack<Stencil::Node> Stencil::embed_parents_;
-
 /**
  * A list of tags allowed in a stencil
  */
@@ -1008,51 +1049,15 @@ std::stack<Stencil::Node> Stencil::embed_parents_;
  */
 #define STENCILA_STENCIL_ATTRS STENCILA_GLOBAL_ATTRS,STENCILA_DIRECTIVE_ATTRS
 
-/**
- * Define stencil whitelist
- *
- * Note that below all STENCILA_STENCIL_TAGS are allowed to have all STENCILA_STENCIL_ATTRS
- * but that can be overidden by placing an item before the call to BOOST_PP_SEQ_FOR_EACH
- */
-Xml::Whitelist Stencil::whitelist = {
-    {"img",{"src",STENCILA_STENCIL_ATTRS}},
-
-    // Define an item macro, run it through BOOST_PP_SEQ_FOR_EACH, and then undef it
-    #define STENCILA_WHITELIST_ITEM_(repeater,separator,tag) {BOOST_PP_STRINGIZE(tag),{STENCILA_STENCIL_ATTRS}},
-    BOOST_PP_SEQ_FOR_EACH(STENCILA_WHITELIST_ITEM_, ,STENCILA_STENCIL_TAGS)
-    #undef STENCILA_WHITELIST_ITEM_
-
-    {} // Required due to trailing comma in STENCILA_WHITELIST_ITEM_
-};
-
-/**
- * A macro designed to be called by BOOST_PP_SEQ_FOR_EACH to define free functions for each of STENCILA_STENCIL_TAGS
- * Note that the use of BOOST_PP_STRINGIZE is required instead of the stringizing operator (#) which prevents arguments from expanding
- */
+// Declaration of "embedding" functions (definitons in `stencil.cpp`)
 #define STENCILA_LOCAL(repeater,separator,tag)\
-    Html::Node tag(void){                                                                              return Stencil::element(BOOST_PP_STRINGIZE(tag));                                 } \
-    Html::Node tag(const std::string& text){                                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),text);                            } \
-    Html::Node tag(const Stencil::AttributeList& attributes, const std::string& text=""){              return Stencil::element(BOOST_PP_STRINGIZE(tag),attributes,text);                 } \
-    Html::Node tag(void(*inner)(void)){                                                                return Stencil::element(BOOST_PP_STRINGIZE(tag),Stencil::AttributeList(),inner);  } \
-    template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args){  return Stencil::element(BOOST_PP_STRINGIZE(tag),attributes,args...);              } \
-    template<typename... Args> Html::Node tag(Args... args){                                           return Stencil::element(BOOST_PP_STRINGIZE(tag),args...);                         }
+    Html::Node tag(void);\
+    Html::Node tag(const std::string& text);\
+    Html::Node tag(const Stencil::AttributeList& attributes, const std::string& text="");\
+    Html::Node tag(void(*inner)(void));\
+    template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args);\
+    template<typename... Args> Html::Node tag(Args... args);\
 BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_STENCIL_TAGS)
 #undef STENCILA_LOCAL
-
-void if_(const std::string& expression, const std::string& tag="div"){
-    Stencil::start(tag,Stencil::AttributeList{{"data-if",expression}});
-}
-
-void for_(const std::string& tag="div"){
-    Stencil::element(tag,"data-for");
-}
-
-void end(void){
-    Stencil::finish();
-}
-
-void include(const std::string& tag="div"){
-    Stencil::element(tag,"data-include");
-}
 
 }
