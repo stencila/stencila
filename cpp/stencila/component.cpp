@@ -1,6 +1,6 @@
 #include <stencila/component.hpp>
 #include <stencila/stencil.hpp>
-#include <stencila/utilities/websocket.hpp>
+#include <stencila/websocket.hpp>
 
 namespace Stencila {
 
@@ -16,17 +16,15 @@ Component::Class Component::classes_[Component::class_codes_] = {
 std::map<std::string,Component::Instance> Component::instances_;
 
 // Implemented here to prevent circular dependency in 
-// `component.hpp` and `/utilities/websocket.hpp`
+// `component.hpp` and `websocket.hpp`
 std::string Component::serve(ClassCode code){
     // Declare this component
     declare(code);
     // Ensure the Server is started
-    typedef Utilities::Websocket::Server Server;
+    using Websocket::Server;
     std::string url = Server::ensure();
     // Add this component's address to the url
     url += "/" + address();
-    // Add shriek to url to indicate this component is being served dynamically
-    url += "!";
     return url;
 }
 

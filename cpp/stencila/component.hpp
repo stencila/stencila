@@ -10,6 +10,9 @@
 
 #include <stencila/host.hpp>
 #include <stencila/utilities/git.hpp>
+#include <stencila/json.hpp>
+#include <stencila/utilities/html.hpp>
+using namespace Stencila::Utilities;
 
 namespace Stencila {
 
@@ -86,7 +89,7 @@ public:
          *
          * Used to serve a page for the component
          */
-        typedef std::string (*Page)(const Component* component);
+        typedef Html::Document (*Page)(const Component* component);
         Page page;
 
         /**
@@ -97,7 +100,7 @@ public:
          * Used to send a message to a component when it is
          * being served
          */
-        typedef std::string (*Message)(Component* component, const std::string& message);
+        typedef Json::Document (*Message)(Component* component, const Json::Document& message);
         Message message;
     };
 
@@ -524,7 +527,7 @@ protected:
 
     void path_set_unique_(void) const {
         boost::filesystem::path unique_path = stores()[1];
-        unique_path /= boost::filesystem::unique_path("~%%%%-%%%%-%%%%-%%%%");
+        unique_path /= boost::filesystem::unique_path("temp/%%%%-%%%%-%%%%-%%%%");
         boost::filesystem::create_directories(unique_path);
         if(not meta_) meta_ = new Meta;
         meta_->path = unique_path.string();
@@ -907,14 +910,14 @@ public:
      * Generate a default home page for the server that is serving
      * components.
      */
-    static std::string home(void){
-        return R"(
+    static Html::Document home(void){
+        return Html::Document(R"(
             <html>
                 <head>
                     <title>Stencila</title>
                 </head>
             </html>
-        )";
+        )");
     }
 
     /**
@@ -925,9 +928,9 @@ public:
      *
      * @param  address Address of component
      */
-    static std::string page(const std::string& address){
+    static Html::Document page(const std::string& address){
         Instance instance = retrieve(address);
-        if(not instance) return "<html><body>No component at address \""+address+"\"</body></html>";
+        if(not instance) return Html::Document("<html><body>No component at address \""+address+"\"</body></html>");
         else return call(instance,&Class::page);
     }
 
@@ -937,8 +940,8 @@ public:
      * This method should be overriden by derived
      * classes and `define()`d in `classes_`.
      */
-    static std::string page(const Component* component){
-        return "";
+    static Html::Document page(const Component* component){
+        return Html::Document();
     }
 
     /**
@@ -948,7 +951,7 @@ public:
      * @param  message JSON request message
      * @return         JSON response message
      */
-    static std::string message(const std::string& address,const std::string& message){
+    static Json::Document message(const std::string& address,const Json::Document& message){
         Instance instance = retrieve(address);
         if(not instance) return "error: no component at address \""+address+"\"";
         else return call(instance,&Class::message,message);
@@ -960,8 +963,8 @@ public:
      * This method intentionally does nothing. It should be overriden by derived
      * classes and `define()`d in `classes_`.
      */
-    static std::string message(Component* component, const std::string& message){
-        return "";
+    static Json::Document message(Component* component, const Json::Document& message){
+        return Json::Document("{}");
     }
 
     /**
