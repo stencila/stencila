@@ -13,7 +13,6 @@
 #include <stencila/exception.hpp>
 
 namespace Stencila {
-namespace Utilities {
 namespace Git {
 
 /**
@@ -300,5 +299,4 @@ public:
 }; // end class Repository
 
 } // end namespace Git
-} // end namespace Utils
 } // end namespace Stencila

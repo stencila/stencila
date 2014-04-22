@@ -4,7 +4,7 @@
 #include <string>
 
 #include <stencila/component.hpp>
-#include <stencila/utilities/xml.hpp>
+#include <stencila/xml.hpp>
 
 namespace Stencila {
 

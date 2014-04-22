@@ -3,9 +3,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include <stencila/exception.hpp>
-#include <stencila/utilities/git.hpp>
-
 namespace Stencila {
 namespace Host {
 

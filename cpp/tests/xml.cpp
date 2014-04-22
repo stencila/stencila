@@ -6,11 +6,11 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/utilities/xml.hpp>
+#include <stencila/xml.hpp>
 
 BOOST_AUTO_TEST_SUITE(xml)
 
-using namespace Stencila::Utilities::Xml;
+using namespace Stencila::Xml;
 
 BOOST_AUTO_TEST_CASE(attributes){
     Document doc;

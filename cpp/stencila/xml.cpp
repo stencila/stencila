@@ -2,10 +2,9 @@
 #include <boost/lexical_cast.hpp>
 
 #include <stencila/exception.hpp>
-#include <stencila/utilities/xml.hpp>
+#include <stencila/xml.hpp>
 
 namespace Stencila {
-namespace Utilities {
 namespace Xml {
 
 Node Node::append(const Document& doc) {
@@ -235,6 +234,5 @@ std::string Node::xpath(const std::string& selector) {
     return translate(parse(selector));
 }
 
-}
 }
 }

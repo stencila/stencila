@@ -3,10 +3,9 @@
 #include <tidy-html5/tidy.h>
 #include <tidy-html5/buffio.h>
 
-#include <stencila/utilities/xml.hpp>
+#include <stencila/xml.hpp>
 
 namespace Stencila {
-namespace Utilities {
 namespace Html {
 
 /**
@@ -160,6 +159,5 @@ public:
 
 };
 
-}
 }
 }

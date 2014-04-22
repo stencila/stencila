@@ -5,8 +5,7 @@
 
 #include <stencila/component.hpp>
 #include <stencila/json.hpp>
-#include <stencila/utilities/html.hpp>
-using namespace Stencila::Utilities;
+#include <stencila/html.hpp>
 
 namespace Stencila {
 

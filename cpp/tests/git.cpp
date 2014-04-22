@@ -4,11 +4,11 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
-#include <stencila/utilities/git.hpp>
+#include <stencila/git.hpp>
 
 BOOST_AUTO_TEST_SUITE(git)
 
-using namespace Stencila::Utilities::Git;
+using namespace Stencila::Git;
 
 BOOST_AUTO_TEST_CASE(basic){
 	Repository repo;
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(basic){
 	repo.open(path);
 	repo.commit("Nokome Bentley","nokome.bentley@stenci.la","The commit message");
 	repo.head();
-	repo.log();
+	repo.history();
 	repo.destroy();
 }
 

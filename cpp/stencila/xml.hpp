@@ -8,7 +8,6 @@
 #include <stencila/exception.hpp>
 
 namespace Stencila {
-namespace Utilities {
 namespace Xml {
 
 /**
@@ -776,6 +775,5 @@ public:
     }
 };
 
-}
 }
 }

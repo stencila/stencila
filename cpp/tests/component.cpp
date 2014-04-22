@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_SUITE(component)
 
 using namespace Stencila;
 
-boost::regex transient_path_pattern("^"+Stencila::Host::user_dir()+"/~[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
+boost::regex transient_path_pattern("^"+Stencila::Host::user_dir()+"/temp/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
 
 BOOST_AUTO_TEST_CASE(title){
     Component c;

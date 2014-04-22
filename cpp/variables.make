@@ -9,6 +9,7 @@ STENCILA_CPP_FLAGS := -pthread -std=c++0x -Wall -Wno-unused-local-typedefs -DSTE
 
 # Define directories for includes
 STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requires/include
+STENCILA_CPP_INCLUDE_DIRS += -I/usr/include/python2.7
 
 # Define directories for static libs
 STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requires/lib
@@ -19,6 +20,7 @@ STENCILA_CPP_LIBS += -lboost_filesystem -lboost_system -lboost_regex
 STENCILA_CPP_LIBS += -lgit2 -lcrypto -lssl -lrt # libgit2 requires libcrypto, libssl and librt
 STENCILA_CPP_LIBS += -lpugixml
 STENCILA_CPP_LIBS += -ltidy-html5
+STENCILA_CPP_LIBS += -lpython2.7 -lboost_python
 ifeq ($(STENCILA_PLATFORM), linux)
 STENCILA_CPP_LIBS +=
 endif

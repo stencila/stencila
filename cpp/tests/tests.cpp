@@ -15,12 +15,12 @@ BOOST_GLOBAL_FIXTURE(GlobalFixture);
 
 #include "stencil.cpp"
 
-#include "contexts/map.cpp"
+#include "map-context.cpp"
 
 #include "dimension.cpp"
 #include "array-dynamic.cpp"
 #include "array-static.cpp"
 
-#include "utilities/git.cpp"
-#include "utilities/html.cpp"
-#include "utilities/xml.cpp"
+#include "git.cpp"
+#include "html.cpp"
+#include "xml.cpp"

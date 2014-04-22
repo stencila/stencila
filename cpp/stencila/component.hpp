@@ -9,9 +9,8 @@
 #include <boost/regex.hpp>
 
 #include <stencila/host.hpp>
-#include <stencila/utilities/git.hpp>
-#include <stencila/utilities/html.hpp>
-using namespace Stencila::Utilities;
+#include <stencila/git.hpp>
+#include <stencila/html.hpp>
 
 namespace Stencila {
 
@@ -22,8 +21,8 @@ namespace Stencila {
 class Component {
 public:
 
-    typedef Utilities::Git::Repository  Repository;
-    typedef Utilities::Git::Commit      Commit;
+    typedef Git::Repository  Repository;
+    typedef Git::Commit      Commit;
 
     /**
      * Component classes
@@ -700,7 +699,7 @@ private:
                 try{
                     repo->open(path);
                 }
-                catch(Utilities::Git::GitNoRepoError){
+                catch(Git::GitNoRepoError){
                     repo->init(path);
                 }
                 meta_->repo = repo;

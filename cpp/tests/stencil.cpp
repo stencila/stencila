@@ -4,12 +4,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/stencil.hpp>
-#include <stencila/contexts/map.hpp>
+#include <stencila/map-context.hpp>
 
 BOOST_AUTO_TEST_SUITE(stencil)
 
 using namespace Stencila;
-
 
 BOOST_AUTO_TEST_CASE(read){
     std::string filename = (
@@ -137,7 +136,7 @@ BOOST_AUTO_TEST_SUITE_END()
  * A fixture for the follwoing rendering tests
  */
 struct RenderingFixture {
-    Stencila::Contexts::Map map;
+    Stencila::MapContext map;
     Stencila::Stencil s;
 
     RenderingFixture(void){

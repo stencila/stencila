@@ -5,11 +5,11 @@
 #endif
 #include <boost/test/unit_test.hpp>
 
-#include <stencila/utilities/html.hpp>
+#include <stencila/html.hpp>
 
 BOOST_AUTO_TEST_SUITE(html)
 
-using namespace Stencila::Utilities::Html;
+using namespace Stencila::Html;
 
 BOOST_AUTO_TEST_CASE(load){
 
