@@ -96,7 +96,7 @@ public:
         return false;
     }
 
-    MapContext& execute(const std::string& code){
+    void execute(const std::string& code){
         unsupported_("execute");
     }
     
@@ -104,9 +104,8 @@ public:
         unsupported_("interact");
     }
 
-    MapContext& assign(const std::string& name, const std::string& expression){
+    void assign(const std::string& name, const std::string& expression){
         set_(name,expression);
-        return *this;
     }
 
     std::string write(const std::string& expression){
@@ -122,9 +121,8 @@ public:
         return value.length()>0;
     }
 
-    MapContext& mark(const std::string& expression){
+    void mark(const std::string& expression){
         subjects_.push(get_(expression));
-        return *this;
     }
 
     bool match(const std::string& expression){
@@ -134,9 +132,8 @@ public:
         else throw Exception("No subject has been set");
     }
 
-    MapContext& unmark(void){
+    void unmark(void){
         subjects_.pop();
-        return *this;
     }
 
     bool begin(const std::string& item,const std::string& expression){
@@ -164,28 +161,24 @@ public:
         }
     }
 
-    MapContext& end(void){
+    void end(void){
         delete loops_.top();
         loops_.pop();
         
         nss_.pop_back();
-        return *this;
     }
 
    
-    MapContext& enter(void){
+    void enter(void){
         nss_.push_back(new Namespace);
-        return *this;
     }
 
-    MapContext& enter(const std::string& expression){
+    void enter(const std::string& expression){
         nss_.push_back(get_(expression));
-        return *this;
     }
 
-    MapContext& exit(void){
+    void exit(void){
         nss_.pop_back();
-        return *this;
     }
 
 };

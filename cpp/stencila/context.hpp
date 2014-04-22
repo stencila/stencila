@@ -27,15 +27,19 @@ public:
      *
      * @{
      */
+    
+    /**
+     * Does this context support the given language
+     * @param  language A language code (e.g. "py","r","js")
+     */
+    virtual bool accept(const std::string& language) const = 0;
 
     /**
      * Execute code within the context
      * 
      * @param code String of code
      */
-    Context& execute(const std::string& code){
-        unsupported_("execute");
-    }
+    virtual void execute(const std::string& code) = 0;
     
     /**
      * Execute a peice of code and return an interactive result
@@ -46,9 +50,7 @@ public:
      * @param  code String of code
      * @return      String representation of the result of executing the code
      */
-    std::string interact(const std::string& code){
-        unsupported_("interact");
-    }
+    virtual std::string interact(const std::string& code) = 0;
 
     /**
      * Assign an expression to a name.
@@ -58,9 +60,7 @@ public:
      * @param name       Name to be assigned
      * @param expression Expression to be assigned to name
      */
-    Context& assign(const std::string& name, const std::string& expression){
-        unsupported_("assign");
-    }
+    virtual void assign(const std::string& name, const std::string& expression) = 0;
 
     /**
      * Get a text representation of an expression. 
@@ -68,9 +68,7 @@ public:
      * 
      * @param  expression Expression to convert to text
      */
-    std::string write(const std::string& expression){
-        unsupported_("write");
-    }
+    virtual std::string write(const std::string& expression) = 0;
 
     /**
      * Create an image from the code
@@ -78,9 +76,7 @@ public:
      * 
      * @param format A support image format e.g. svg, png
      */
-    std::string paint(const std::string& format,const std::string& code){
-        unsupported_("paint");
-    }
+    virtual std::string paint(const std::string& format,const std::string& code) = 0;
  
     /**
      * Test whether an expression is true or false. 
@@ -88,9 +84,7 @@ public:
      * 
      * @param  expression Expression to evaluate
      */
-    bool test(const std::string& expression){
-        unsupported_("test");
-    }
+    virtual bool test(const std::string& expression) = 0;
 
     /**
      * Mark an expression to be the subject of subsequent `match` queries.
@@ -98,9 +92,7 @@ public:
      * 
      * @param expression Expression to evaluate
      */
-    Context& mark(const std::string& expression){
-        unsupported_("mark");
-    }
+    virtual void mark(const std::string& expression) = 0;
 
     /**
      * Test whether an expression matches the current subject.
@@ -108,16 +100,12 @@ public:
      * 
      * @param  expression Expression to evaluate
      */
-    bool match(const std::string& expression){
-        unsupported_("match");
-    }
+    virtual bool match(const std::string& expression) = 0;
 
     /**
      * Unmark the current subject expression
      */
-    Context& unmark(void){
-        unsupported_("unmark");
-    }
+    virtual void unmark(void) = 0;
     
     /**
      * Begin a loop.
@@ -126,25 +114,13 @@ public:
      * @param  item  Name given to each item
      * @param  expression Expression giveing an iterable list of items
      */
-    bool begin(const std::string& item,const std::string& expression){
-        unsupported_("begin");
-    }
+    virtual bool begin(const std::string& item,const std::string& expression) = 0;
 
     /**
      * Steps the current loop to the next item. 
      * Used by stencil `for` elements. See stencil `render`ing methods.
      */
-    bool next(void){
-        unsupported_("next");
-    }
-
-    /**
-     * Ends the current loop.
-     * Used by stencil `end` elements e.g. `<div data-if="x<-3"><div data-end /></div>`
-     */
-    bool leave(void){
-        unsupported_("leave");
-    }
+    virtual bool next(void) = 0;
 
     /**
      * Enter a new namespace. 
@@ -152,16 +128,12 @@ public:
      *  
      * @param expression Expression that will be the scope of the new context
      */
-    Context& enter(const std::string& expression=""){
-        unsupported_("enter");
-    }
+    virtual void enter(const std::string& expression="") = 0;
 
     /**
      * Exit the current namespace
      */
-    Context& exit(void){
-        unsupported_("exit");
-    }
+    virtual void exit(void) = 0;
 
     /**
      * @}
