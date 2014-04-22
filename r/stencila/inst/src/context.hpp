@@ -33,6 +33,20 @@ object first:
 
 */
 class RContext : public Context {
+public:
+
+    static std::string page(const Component* component){
+        return "<html>This is an R context</html>";
+    }
+
+    std::string serve(void){
+        return Component::serve(RContextClass);
+    }
+
+    void view(void){
+        return Component::view(RContextClass);
+    }
+
 private:
 
     /*!
@@ -72,8 +86,8 @@ public:
         environment_ = Rcpp::Environment(sexp);
     }
 
-    std::string type(void) const {
-        return "r-context";
+    bool accept(const std::string& language){
+        return language=="r";
     }
 
     void execute(const std::string& code){

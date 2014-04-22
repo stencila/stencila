@@ -21,10 +21,6 @@ protected:
 
 public:
 
-    std::string type(void) const {
-        return "context";
-    }
-
     /**
      * @name Rendering methods
      *

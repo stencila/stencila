@@ -6,6 +6,13 @@ using namespace Stencila;
 
 STENCILA_R_NEW(Stencil)
 
+// Overrides of Component methods
+
+STENCILA_R_RET0(Stencil,serve) 
+STENCILA_R_EXEC0(Stencil,view)
+
+// Content getters and setters
+
 STENCILA_R_FUNC Stencil_content_get(SEXP self, SEXP format){
     STENCILA_R_BEGIN
         return wrap(from<Stencil>(self).content(
@@ -24,6 +31,8 @@ STENCILA_R_FUNC Stencil_content_set(SEXP self, SEXP format, SEXP content){
 }
 
 STENCILA_R_ATTR(Stencil,html,std::string)
+
+// Contexts and rendering
 
 STENCILA_R_ATTR(Stencil,contexts,std::vector<std::string>)
 

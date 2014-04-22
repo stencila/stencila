@@ -1,12 +1,20 @@
 #include <stencila/version.hpp>
+#include <stencila/component.hpp>
 using namespace Stencila;
 
 #include "stencila.hpp"
+#include "context.hpp"
 
 /**
  * Start up function for the Stencila R module
  */
 STENCILA_R_FUNC Stencila_startup(void){
+	Component::declare(
+		Component::RContextClass,{
+		"RContext",
+		0,
+		RContext::page
+	});
 	return null;
 }
 

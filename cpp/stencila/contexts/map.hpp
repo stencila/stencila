@@ -91,8 +91,10 @@ public:
         nss_.push_back(&ns_);
     }
 
-    std::string type(void) const {
-        return "map-context";
+    bool accept(const std::string& language) const {
+        // Return false since this context does not
+        // accept any code
+        return false;
     }
 
     Map& execute(const std::string& code){

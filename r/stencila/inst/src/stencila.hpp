@@ -117,9 +117,18 @@ STENCILA_R_FUNC CLASS##_##NAME(SEXP self){ \
     STENCILA_R_END \
 }
 
-// Call a method with 1 arguments and return `null`
+// Call a method with 0 arguments and return `null`
 // (`null` is converted to `self` on R side so method chaining can
 // be used)
+#define STENCILA_R_EXEC0(CLASS,NAME) \
+STENCILA_R_FUNC CLASS##_##NAME(SEXP self){ \
+    STENCILA_R_BEGIN \
+        from<CLASS>(self).NAME(); \
+        return null; \
+    STENCILA_R_END \
+}
+
+// Call a method with 1 arguments and return `null`
 #define STENCILA_R_EXEC1(CLASS,NAME,TYPE) \
 STENCILA_R_FUNC CLASS##_##NAME(SEXP self, SEXP arg1){ \
     STENCILA_R_BEGIN \

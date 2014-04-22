@@ -11,10 +11,10 @@ NULL
 #' @param envir The environment for the context. Optional.
 #'
 #' @export
-Context <- function(envir){
+ContextExtension <- function(envir){
     
     self <- new.env()
-    class(self) <- "Context"
+    class(self) <- "ContextExtension"
     
     if(missing(envir)) envir <- new.env(parent=baseenv())
     else if(inherits(envir,'environment')) envir <- envir
@@ -245,4 +245,10 @@ Context <- function(envir){
     }
     
     return(self)
+}
+
+class_('Context','Component')
+#' @export
+Context <- function() {
+    create_('Context','Context_new',ContextExtension())
 }
