@@ -4,7 +4,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/grid.hpp>
+#include <stencila/array-static.hpp>
 #include <stencila/query.hpp>
 
 BOOST_AUTO_TEST_SUITE(array_static)

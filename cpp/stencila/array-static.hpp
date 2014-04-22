@@ -4,8 +4,7 @@
 
 #include <boost/preprocessor/seq/for_each.hpp>
 
-#include <stencila/array.hpp>
-#include <stencila/dimension.hpp>
+#include <stencila/array-declaration.hpp>
 #include <stencila/exception.hpp>
 #include <stencila/query.hpp>
 #include <stencila/traits.hpp>
