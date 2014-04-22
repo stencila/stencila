@@ -4,10 +4,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/grid.hpp>
+#include <stencila/array-static.hpp>
 #include <stencila/query.hpp>
 
-BOOST_AUTO_TEST_SUITE(grid)
+BOOST_AUTO_TEST_SUITE(array_static)
 
 using namespace Stencila;
 
@@ -20,7 +20,7 @@ STENCILA_DIM(Six,Sixe,six,6);
 STENCILA_DIM(Seven,seven,seven,7);
 
 BOOST_AUTO_TEST_CASE(constructors){
-    typedef Grid<double,Three> A;
+    typedef Array<double,Three> A;
 
     A a;
 
@@ -59,15 +59,15 @@ BOOST_AUTO_TEST_CASE(constructors){
 }
 
 BOOST_AUTO_TEST_CASE(size){
-    Grid<double,Three> a;
+    Array<double,Three> a;
     BOOST_CHECK_EQUAL(a.size(),three.size());
 
-    Grid<double,Four,Five,Seven> b;
+    Array<double,Four,Five,Seven> b;
     BOOST_CHECK_EQUAL(b.size(),four.size()*five.size()*seven.size());
 }
 
 BOOST_AUTO_TEST_CASE(dimensioned){
-    Grid<double,Four,Five,Seven> a;
+    Array<double,Four,Five,Seven> a;
 
     BOOST_CHECK(a.dimensioned(four));
     BOOST_CHECK(a.dimensioned(seven));
@@ -75,14 +75,14 @@ BOOST_AUTO_TEST_CASE(dimensioned){
 }
 
 BOOST_AUTO_TEST_CASE(subscript){
-    Grid<double,One> a = {1};
+    Array<double,One> a = {1};
     BOOST_CHECK_EQUAL(a(0),1);
 
-    Grid<double,One,Two> b = {11,12};
+    Array<double,One,Two> b = {11,12};
     BOOST_CHECK_EQUAL(b(0,0),11);
     BOOST_CHECK_EQUAL(b(0,1),12);
     
-    Grid<double,Two,Three> c = {11,12,13,21,22,23};
+    Array<double,Two,Three> c = {11,12,13,21,22,23};
     BOOST_CHECK_EQUAL(c(0,1),12);
     BOOST_CHECK_EQUAL(c(1,0),21);
     BOOST_CHECK_EQUAL(c(1,1),22);
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(subscript){
 }
 
 BOOST_AUTO_TEST_CASE(query){
-    Grid<int,Two,Five,Seven> a = 3;
+    Array<int,Two,Five,Seven> a = 3;
 
     // Static queries
     BOOST_CHECK_EQUAL(count(a),a.size());
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(query){
     BOOST_CHECK_EQUAL(a(new Sum)[0],sum(a));    
 
     // Each aggregator
-    Grid<char,Four> b = {'f','o','r','d'};
+    Array<char,Four> b = {'f','o','r','d'};
     std::string word;
     each(b,[&word](char item){
         word += item;
@@ -119,10 +119,10 @@ BOOST_AUTO_TEST_CASE(query){
 }
 
 BOOST_AUTO_TEST_CASE(query_by){
-    Grid<double,Two,Three> numbers = 2;
+    Array<double,Two,Three> numbers = 2;
     
     {
-        Grid<uint,Two> counts = numbers(count(),by(two));
+        Array<uint,Two> counts = numbers(count(),by(two));
         BOOST_CHECK_EQUAL(counts(0),3);
         BOOST_CHECK_EQUAL(counts(1),3);
     }
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(query_by){
 }
 
 BOOST_AUTO_TEST_CASE(numeric_operators){
-    Grid<double,Three> numbers = {1,2,3};
+    Array<double,Three> numbers = {1,2,3};
 
     numbers /= 2;
     BOOST_CHECK_EQUAL(numbers(0),0.5);
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(read){
     stream.str("two\tvalue\n0\t2\n");
     stream.seekg(0);
 
-    Grid<int,Two> a = 3;
+    Array<int,Two> a = 3;
     a.read(stream);
 
     BOOST_CHECK_EQUAL(a[0],2);
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(read){
 
 BOOST_AUTO_TEST_CASE(write){
     // Create a grid....
-    Grid<int,Two,Three> a = 1;
+    Array<int,Two,Three> a = 1;
     a[5] = 42;
     // Write to a stream
     std::ostringstream stream;

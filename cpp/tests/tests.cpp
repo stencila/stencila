@@ -18,8 +18,8 @@ BOOST_GLOBAL_FIXTURE(GlobalFixture);
 #include "contexts/map.cpp"
 
 #include "dimension.cpp"
-#include "array.cpp"
-#include "grid.cpp"
+#include "array-dynamic.cpp"
+#include "array-static.cpp"
 
 #include "utilities/git.cpp"
 #include "utilities/html.cpp"
