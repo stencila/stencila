@@ -4,15 +4,14 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/contexts/map.hpp>
+#include <stencila/map-context.hpp>
 
-BOOST_AUTO_TEST_SUITE(xml)
+BOOST_AUTO_TEST_SUITE(map_content)
 
 using namespace Stencila;
-using namespace Stencila::Contexts;
 
 BOOST_AUTO_TEST_CASE(assign){
-    Map map;
+    MapContext map;
 
     map.assign("foo","bar");
     BOOST_CHECK_EQUAL(map.write("foo"),"bar");
@@ -22,7 +21,7 @@ BOOST_AUTO_TEST_CASE(assign){
 }
 
 BOOST_AUTO_TEST_CASE(test){
-    Map map;
+    MapContext map;
 
     map.assign("ok","1");
     BOOST_CHECK(map.test("ok"));
@@ -32,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test){
 }
 
 BOOST_AUTO_TEST_CASE(subject_match){
-    Map map;
+    MapContext map;
 
     map.assign("a","A");
     map.mark("a");
@@ -53,7 +52,7 @@ BOOST_AUTO_TEST_CASE(subject_match){
 }
 
 BOOST_AUTO_TEST_CASE(loop){
-    Map map;
+    MapContext map;
 
     // Set up some variable for looping over
     map.assign("planets","");

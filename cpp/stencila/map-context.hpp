@@ -4,16 +4,15 @@
 #include <string>
 
 #include <stencila/exception.hpp>
-#include <stencila/contexts/context.hpp>
+#include <stencila/context.hpp>
 
 namespace Stencila {
-namespace Contexts {
 
 /**
  * @todo Document
  * @todo Leaks memory, need to balance up all the news or else not use new so much.
  */
-class Map : public Context {
+class MapContext : public Context {
 private:
 
     class Namespace {
@@ -83,11 +82,11 @@ private:
     };
     std::stack<Loop*> loops_;
 
-    const Map* parent_ = 0;
+    const MapContext* parent_ = 0;
 
 public:
 
-    Map(void){
+    MapContextContext(void){
         nss_.push_back(&ns_);
     }
 
@@ -97,7 +96,7 @@ public:
         return false;
     }
 
-    Map& execute(const std::string& code){
+    MapContext& execute(const std::string& code){
         unsupported_("execute");
     }
     
@@ -105,7 +104,7 @@ public:
         unsupported_("interact");
     }
 
-    Map& assign(const std::string& name, const std::string& expression){
+    MapContext& assign(const std::string& name, const std::string& expression){
         set_(name,expression);
         return *this;
     }
@@ -123,7 +122,7 @@ public:
         return value.length()>0;
     }
 
-    Map& mark(const std::string& expression){
+    MapContext& mark(const std::string& expression){
         subjects_.push(get_(expression));
         return *this;
     }
@@ -135,7 +134,7 @@ public:
         else throw Exception("No subject has been set");
     }
 
-    Map& unmark(void){
+    MapContext& unmark(void){
         subjects_.pop();
         return *this;
     }
@@ -165,7 +164,7 @@ public:
         }
     }
 
-    Map& end(void){
+    MapContext& end(void){
         delete loops_.top();
         loops_.pop();
         
@@ -174,22 +173,21 @@ public:
     }
 
    
-    Map& enter(void){
+    MapContext& enter(void){
         nss_.push_back(new Namespace);
         return *this;
     }
 
-    Map& enter(const std::string& expression){
+    MapContext& enter(const std::string& expression){
         nss_.push_back(get_(expression));
         return *this;
     }
 
-    Map& exit(void){
+    MapContext& exit(void){
         nss_.pop_back();
         return *this;
     }
 
 };
 
-}
 }

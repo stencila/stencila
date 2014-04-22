@@ -7,7 +7,6 @@
 #include <stencila/utilities/xml.hpp>
 
 namespace Stencila {
-namespace Contexts {
 
 class Context : public Component {
 protected:
@@ -170,5 +169,4 @@ public:
 
 };
 
-}
 }
