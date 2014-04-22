@@ -18,7 +18,7 @@ class Dimension;
 /**
  * A level of a Dimension.
  * 
- * Levels represent a particular index of a dimension. They are used to size, slice and dice a Grid.
+ * Levels represent a particular index of a dimension. They are used to size, slice and dice an Array.
  * They act as an iterator for convenient looping over levels in a dimension
  */
 template<class Dimension>
@@ -52,7 +52,7 @@ public:
 	 * It may be unsafe to do this if the size of the other dimension
 	 * differs to the size of this one. For that reason this constructor is
 	 * made explicit and checking may be implemened at a later stage.
-	 * By not having this implicit, the compiler warns if a grid is subscripted with
+	 * By not having this implicit, the compiler warns if an array is subscripted with
 	 * dimensions in the incorrect order.
 	 */
 	template<class Other>
@@ -97,7 +97,7 @@ public:
 	 * Dereference operator
 	 *
 	 * Returns a copy, instead of an `uint`, because Level<Dimension>
-	 * is used as an argument to subscript a Grid with this dimension
+	 * is used as an argument to subscript a Array with this dimension
 	 */
 	Level<Dimension> operator*() const { 
 		return Level<Dimension>(index_);
@@ -230,7 +230,7 @@ public:
 	/**
 	 * Size of dimension.
 	 *
-	 * A static member that can be used by Grids.
+	 * A static member that can be used by Arrays.
 	 * For that reason made public but use of `size()` method should be
 	 * preferred.
 	 */
@@ -266,7 +266,7 @@ public:
 
 	/**
 	 * Get a "null" level for this dimension. Intended for use in
-	 * grids which do not contain this dimension.
+	 *n arrays which do not contain this dimension.
 	 */
 	static Level<Derived> level(void) { 
 		return Level<Derived>(); 

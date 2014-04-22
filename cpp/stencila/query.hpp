@@ -441,10 +441,10 @@ STENCILA_AGGREGATE_FUNCS(GeometricMean,geomean)
 
 
 /**
- * `by` query specialised for `Grid`s.
+ * `by` query specialised for `Array`s.
  *
  * This `By` class contains dimensions which can
- * be used by `Grid` class to optimise it's running.
+ * be used by `Array` class to optimise it's running.
  */
 template<
 	class D1,
