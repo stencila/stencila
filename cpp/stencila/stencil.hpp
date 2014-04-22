@@ -4,6 +4,7 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 
 #include <stencila/component.hpp>
+#include <stencila/json.hpp>
 #include <stencila/utilities/html.hpp>
 using namespace Stencila::Utilities;
 
@@ -56,14 +57,27 @@ public:
      * Generate a web page for a stencil
      */
     static std::string page(const Component* component){
-        return static_cast<const Stencil&>(*component).html();
+        return static_cast<const Stencil&>(*component).dump();
     }
 
     /**
      * Process a message for this stencil
      */
     static std::string message(Component* component, const std::string& message){
-        return "";
+        Stencil& stencil = static_cast<Stencil&>(*component);
+
+        Json::Document request(message);
+        Json::Document response;
+        using Json::as;
+        auto method = as<std::string>(request["m"]);
+        if(method=="html"){
+            stencil.html(
+                as<std::string>(request["p"][uint(0)])
+            );
+        } else if(method=="commit"){
+            stencil.commit();
+        }
+        return response.dump();
     }
 
     /**
@@ -712,7 +726,7 @@ private:
     
 private:
 
-    std::string theme_ = "core/themes/default";
+    std::string theme_ = "core/stencil/themes/default";
 
 public:
 
@@ -811,19 +825,11 @@ public:
 
         return *this;
     }
-    
-    /**
-     * Write the stencil to a directory
-     * 
-     * @param  to Filesystem path to directory
-     */
-    Stencil& write(const std::string& to=""){
-        // Call base write method to set `path`
-        Component::write(to);
 
-        // Sanitize before writing
-        sanitize();
-        
+    /**
+     * Dump the stencil to a HTML document string
+     */
+    std::string dump(void) const {
         Html::Document doc;
 
         // Being a valid HTML5 document, doc already has a <head> <title> and <body>
@@ -831,17 +837,29 @@ public:
         Node body = doc.find("body");
 
         // Title to <title>
-        head.find("title").text(title());
+        // Although we are creating an XHTML5 document, if the title tag is empty (i.e <title />)
+        // this can cause browser parsing errors. So always ensure that ther is some title content.
+        auto t = title();
+        if(t.length()==0) t = "&nbsp;";
+        head.find("title").text(t);
 
-        // Keywords and description to <meta> tags
-        head.append("meta",{
-            {"name","keywords"},
-            {"content",boost::algorithm::join(keywords(),", ")}
-        });
-        head.append("meta",{
-            {"name","description"},
-            {"content",description()}
-        });
+        // Keywords to <meta>
+        auto k = keywords();
+        if(k.size()>0){
+            head.append("meta",{
+                {"name","keywords"},
+                {"content",boost::algorithm::join(k,", ")}
+            });
+        }
+
+        // Description to <meta>
+        auto d = description();
+        if(d.length()>0){
+            head.append("meta",{
+                {"name","description"},
+                {"content",d}
+            });
+        }
 
         // The following tags are added with a space as content so that they do not
         // get rendered as empty tags (e.g. <script... />). Whilst empty tags should be OK with XHTML
@@ -851,8 +869,10 @@ public:
          * <link rel="stylesheet" ...
          *
          * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
+         * Use a site-root relative path (by adding the leading forward slash) so that CSS can be served from 
+         * localhost.
          */
-        std::string css = "http://stenci.la/" + theme() + "/base.min.css";
+        std::string css = "/" + theme() + "/theme.min.css";
         head.append("link",{
             {"rel","stylesheet"},
             {"type","text/css"},
@@ -864,16 +884,18 @@ public:
          *
          * Added as a <ul> in body
          */
-        
-        Node contexts_elem = body.append("ul",{
-            {"id","contexts"}
-        }," ");
-        for(auto context : contexts()){
-            contexts_elem.append("li",{
-                {"class",context}
-            },context);
+        auto c = contexts();
+        if(c.size()>0){
+            Node contexts_elem = body.append("ul",{
+                {"id","contexts"}
+            }," ");
+            for(auto context : c){
+                contexts_elem.append("li",{
+                    {"class",context}
+                },context);
+            }
         }
-		
+
         /**
          * #authors
          *
@@ -884,14 +906,17 @@ public:
             http://www.w3.org/TR/html5/sections.html#the-address-element
             http://stackoverflow.com/questions/7290504/which-html5-tag-should-i-use-to-mark-up-an-authors-name
          */
-        auto authors_elem = body.append("address",{
-            {"id","authors"}
-        }," ");
-        for(auto author : authors()){
-            authors_elem.append("a",{
-                {"rel","author"},
-                {"href","#"}
-            },author);
+        auto a = authors();
+        if(a.size()>0){
+            auto authors_elem = body.append("address",{
+                {"id","authors"}
+            }," ");
+            for(auto author : authors()){
+                authors_elem.append("a",{
+                    {"rel","author"},
+                    {"href","#"}
+                },author);
+            }
         }
 
         /**
@@ -909,14 +934,39 @@ public:
          * <script>
          *
          * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
+         *
+         * A "src" <script> element is used to load the Stencila bootstrapping Javascript. That is then used
+         * to set the theme via an inline script element.
          */
-        std::string js = "http://stenci.la/" + theme() + "/base.min.js";
-        body.append("script",{
-            {"src",js}
-        }," ");
+        body.append("script",{{"src","/core/themes/base/boot.min.js"}}," ");
+        body.append("script","Stencila.theme('"+theme()+"');");
 
-        doc.write(to);
-        
+        return doc.dump();
+    }
+
+    /**
+     * Write the stencil to a directory
+     * 
+     * @param  to Filesystem path to directory
+     */
+    Stencil& write(std::ostream& stream){
+        stream<<dump();
+        return *this;
+    }
+    
+    /**
+     * Write the stencil to a directory
+     * 
+     * @param  to Filesystem path to directory
+     */
+    Stencil& write(const std::string& to=""){
+        // Call base write method to set `path`
+        Component::write(to);
+        // Write to file
+        std::ofstream file(to);
+        write(file);
+        file.close();
+
         return *this;
     }
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 #include <boost/lexical_cast.hpp>
 
@@ -9,7 +10,6 @@
 #include <stencila/version.hpp>
 #include <stencila/host.hpp>
 #include <stencila/component.hpp>
-#include <stencila/json.hpp>
 
 namespace Stencila {
 namespace Websocket {
@@ -28,29 +28,59 @@ private:
 	uint port_ = 9002;
 	std::string name_;
 
+	struct Session {
+		int id;
+		std::string address;
+	};
+	typedef std::map<connection_hdl,Session,std::owner_less<connection_hdl>> Sessions;
+	Sessions sessions_;
+
+	Session& session_(connection_hdl hdl) {
+        auto i = sessions_.find(hdl);
+        if(i==sessions_.end()) STENCILA_THROW(Exception,"No such session");
+        return i->second;
+    }
+
 public:
 
 	/**
-	 * Construct a server
+	 * Construct a `Server`
 	 */
 	Server(void){
-		// Set the name of this server
+		// Set the name of this server (used in the HTPP Server header below)
 		name_ = "Stencila ";
 		name_ += version;
 		// Initialise asynchronous IO
 		server_.init_asio();
 		// Set up handlers
-		//server_.set_open_handler(bind(&Server::on_open,this,_1));
-        //server_.set_close_handler(bind(&Server::on_close,this,_1));
+		server_.set_open_handler(bind(&Server::open,this,_1));
+        server_.set_close_handler(bind(&Server::close,this,_1));
         server_.set_http_handler(bind(&Server::http,this,_1));
         server_.set_message_handler(bind(&Server::message,this,_1,_2));
         // Turnoff logging
         server_.set_access_channels(log::alevel::none);
 	}
 
+	/**
+	 * Get the URL for this `Server`
+	 */
 	std::string url(void) const {
 		return "http://localhost:"+boost::lexical_cast<std::string>(port_);
 	}
+
+    void open(connection_hdl hdl) {
+		server::connection_ptr connection = server_.get_con_from_hdl(hdl);
+		std::string resource = connection->get_resource();
+		std::string address = resource.substr(1);
+		Session session;
+		session.address = address;
+        sessions_[hdl] = session;
+    }
+    
+    void close(connection_hdl hdl) {
+        Session& session = session_(hdl);
+        sessions_.erase(hdl);
+    }
 
 	void http(connection_hdl hdl) {
 		// Get the connection 
@@ -65,7 +95,7 @@ public:
 		    // (i.e. if the URI is just http://localhost/)
 		    std::string path = connection->get_resource();
 		    if(path=="/"){
-				content = Component::home().dump();
+				content = Component::home();
 			} else {
 
 			    // This server handles two types of requents for Components:
@@ -81,10 +111,10 @@ public:
 
 				if(dynamic){
 					// Dynamic request
-					// Remove the leading forward slash and trailing shreik from the path to 
+					// Remove the leading forward slash from the path to 
 					// get the Component address
-					std::string address = path.substr(1,path.length()-2);
-					content = Component::page(address).dump();
+					std::string address = path.substr(1);
+					content = Component::page(address);
 				} else {
 					// Static request
 			        // Attempt to open the file
@@ -143,11 +173,20 @@ public:
 	}
 
 	void message(connection_hdl hdl, server::message_ptr msg) {
-		Json::Document request(msg->get_payload());
-		std::string address = "to be determined from hdl";
-		Json::Document response = Component::message(address,request);
-		std::string content = response.dump();
-		server_.send(hdl,content,opcode::text);
+		std::string response;
+		try {
+			Session session = session_(hdl);
+			std::string request = msg->get_payload();
+			std::cout<<request<<std::endl;
+			response = Component::message(session.address,request);
+		}
+		catch(const std::exception& e){
+			response = "{\"e\":\"" + std::string(e.what()) + "\"}";
+		}
+		catch(...){
+			response = "{\"e\":\"unknown\"}";			
+		}
+		server_.send(hdl,response,opcode::text);
 	}
 
 	/**

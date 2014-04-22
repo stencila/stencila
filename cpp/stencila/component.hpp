@@ -10,7 +10,6 @@
 
 #include <stencila/host.hpp>
 #include <stencila/utilities/git.hpp>
-#include <stencila/json.hpp>
 #include <stencila/utilities/html.hpp>
 using namespace Stencila::Utilities;
 
@@ -89,7 +88,7 @@ public:
          *
          * Used to serve a page for the component
          */
-        typedef Html::Document (*Page)(const Component* component);
+        typedef std::string (*Page)(const Component* component);
         Page page;
 
         /**
@@ -100,7 +99,7 @@ public:
          * Used to send a message to a component when it is
          * being served
          */
-        typedef Json::Document (*Message)(Component* component, const Json::Document& message);
+        typedef std::string (*Message)(Component* component, const std::string& message);
         Message message;
     };
 
@@ -157,8 +156,9 @@ public:
          *
          * Used to return "null" instances from methods below
          */
-        operator bool(void){
-            return pointer!=nullptr;
+        operator bool(void) const {
+            // When pointer is nullptr it evaluates to false
+            return pointer;
         }
     };
 
@@ -910,14 +910,20 @@ public:
      * Generate a default home page for the server that is serving
      * components.
      */
-    static Html::Document home(void){
-        return Html::Document(R"(
+    static std::string home(void){
+        Html::Document page(R"(
             <html>
                 <head>
                     <title>Stencila</title>
                 </head>
+                <body></body>
             </html>
         )");
+        auto list = page.one("body").append("ul");
+        for(auto instance : instances_){
+            list.append("li",instance.first);
+        }
+        return page.dump();
     }
 
     /**
@@ -928,9 +934,9 @@ public:
      *
      * @param  address Address of component
      */
-    static Html::Document page(const std::string& address){
+    static std::string page(const std::string& address){
         Instance instance = retrieve(address);
-        if(not instance) return Html::Document("<html><body>No component at address \""+address+"\"</body></html>");
+        if(not instance) return "<html><head><title>Error</title></head><body>No component at address \""+address+"\"</body></html>";
         else return call(instance,&Class::page);
     }
 
@@ -940,8 +946,8 @@ public:
      * This method should be overriden by derived
      * classes and `define()`d in `classes_`.
      */
-    static Html::Document page(const Component* component){
-        return Html::Document();
+    static std::string page(const Component* component){
+        return "";
     }
 
     /**
@@ -951,7 +957,7 @@ public:
      * @param  message JSON request message
      * @return         JSON response message
      */
-    static Json::Document message(const std::string& address,const Json::Document& message){
+    static std::string message(const std::string& address,const std::string& message){
         Instance instance = retrieve(address);
         if(not instance) return "error: no component at address \""+address+"\"";
         else return call(instance,&Class::message,message);
@@ -963,8 +969,8 @@ public:
      * This method intentionally does nothing. It should be overriden by derived
      * classes and `define()`d in `classes_`.
      */
-    static Json::Document message(Component* component, const Json::Document& message){
-        return Json::Document("{}");
+    static std::string message(Component* component, const std::string& message){
+        return "{}";
     }
 
     /**

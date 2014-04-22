@@ -173,7 +173,7 @@ struct RenderingFixture {
     void dump(void){
         std::cerr
             <<"-----------------------------------\n"
-            <<s.dump(true)
+            <<s.html()
             <<"-----------------------------------\n"
             <<std::flush;
     }
