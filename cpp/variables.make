@@ -15,7 +15,7 @@ STENCILA_CPP_INCLUDE_DIRS += -I/usr/include/python2.7
 STENCILA_CPP_LIB_DIRS := -L$(STENCILA_CPP_HOME)/lib -L$(STENCILA_CPP_HOME)/requires/lib
 
 # Define libraries required
-STENCILA_CPP_LIBS := -lstencila
+STENCILA_CPP_LIBS :=
 STENCILA_CPP_LIBS += -lboost_filesystem -lboost_system -lboost_regex
 STENCILA_CPP_LIBS += -lgit2 -lcrypto -lssl -lrt # libgit2 requires libcrypto, libssl and librt
 STENCILA_CPP_LIBS += -lpugixml
