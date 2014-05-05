@@ -2,9 +2,8 @@
     #define BOOST_TEST_MODULE tests
 #endif
 #include <boost/test/unit_test.hpp>
-#include <boost/algorithm/string.hpp>
 
-#include <stencila/python-context.hpp>
+#include <stencila/python-context>
 
 BOOST_AUTO_TEST_SUITE(python_context)
 
@@ -27,6 +26,11 @@ BOOST_AUTO_TEST_CASE(various){
         c.assign("so","2");
     c.exit();
     //BOOST_CHECK_THROWS(c.write("so"));
+    
+    c.execute("__callback__()");
+
+    c.call({"execute",{"answer = 42"}});
+    BOOST_CHECK_EQUAL(c.call({"write",{"answer"}}),"42");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,6 +1,9 @@
 R"(
 
 import inspect
+import code
+import sys
+from cStringIO import StringIO
 
 class __stencila__namespace__(dict):
 
@@ -15,11 +18,50 @@ class __stencila__namespace__(dict):
 			if self.parent: return self.parent[name]
 			else: raise KeyError(name)
 
+
+class Console(code.InteractiveConsole):
+	# Used for `interact` below
+	# See https://docs.python.org/2/library/code.html
+
+	def __init__(self,locals):
+		code.InteractiveConsole.__init__(self,locals)
+
+	def push(self,source):
+		# Push some source to the buffer
+		# Redirect sys.stdout because that is what gets used for
+		# both printing (i.e. via "print") and the "showing" of a value
+		stdout = sys.stdout
+		sys.stdout = StringIO()
+		# Reset error string
+		self.err = ""
+		# Run code
+		more = code.InteractiveConsole.push(self,source)
+		# Get output and restore sys.stdout
+		self.out = sys.stdout.getvalue()
+		sys.stdout = stdout
+		return more
+
+	def write(self,line):
+		# Capture a line of traceback (lines have a newline at end)
+		self.err += line
+
+	def interact(self,source):
+		# Push some source and then concatenate output and errors
+		# Note that currently di not use return value of push()
+		self.push(source)
+		return self.out+self.err
+
+
 class __stencila__context__:
 
 	def __init__(self,namespace=None):
 		if namespace is None: namespace = __stencila__namespace__()
 		self.namespaces = [namespace]
+
+	# Bind this Python side object to the C++ side
+	
+	def bind(self,callback):
+		self.set("__callback__",callback)
 
 	# Shortcut methods for accessing the namespace stack
 	
@@ -55,6 +97,11 @@ class __stencila__context__:
 
 	def execute(self,code):
 		exec code in self.top()
+
+	def interact(self,code):
+		# Note that there is no buffering done here
+		# since a new console in instantiated each time
+		return Console(self.top()).interact(code+"\n")
 
 	def assign(self,name,expression):
 		self.top()[name] = self.evaluate(expression)
@@ -106,4 +153,4 @@ class __stencila__context__:
 	def exit(self):
 		self.pop()
 
-)"
+#)"
