@@ -11,6 +11,7 @@
 #include <stencila/host.hpp>
 #include <stencila/git.hpp>
 #include <stencila/html.hpp>
+#include <stencila/json.hpp>
 
 namespace Stencila {
 
@@ -31,8 +32,45 @@ public:
      * 
      * @{
      */
+        
+    struct Call {
+        std::string what_;
+        std::vector<std::string> args_;
+        std::map<std::string,std::string> kwargs_;
 
-protected:
+        Call(const std::string& what):
+            what_(what){
+        }
+
+        Call(const std::string& what, const std::vector<std::string>& args):
+            what_(what),
+            args_(args){
+        }
+
+        Call(const std::string& what, const std::vector<std::string>& args, const std::map<std::string,std::string>& kwargs):
+            what_(what),
+            args_(args),
+            kwargs_(kwargs){
+        }
+
+        std::string what(void) const {
+            return what_;
+        }
+
+        template<typename Type=std::string>
+        Type arg(uint index,const std::string& name="") const {
+            if(name.length()>0){
+                auto i = kwargs_.find(name);
+                if(i!=kwargs_.end()) return boost::lexical_cast<Type>(i->second);
+                else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
+            }
+            if(args_.size()<index+1){
+                STENCILA_THROW(Exception,"Not enough arguments supplied");
+            }
+            return boost::lexical_cast<Type>(args_[index]);
+        }
+
+    };
 
     /**
      * An enumeration of `Component` classes
@@ -49,7 +87,9 @@ protected:
         ComponentCode = 1,
         PackageCode = 2,
         StencilCode = 3,
-        RContextCode = 4
+
+        PythonContextCode = 4,
+        RContextCode = 5
     };
 
     /**
@@ -81,25 +121,24 @@ public:
         const char* name;
 
         /**
-         * @name Page
+         * @name pageing
          * 
          * Pageing function for class
          *
          * Used to serve a page for the component
          */
         typedef std::string (*Page)(const Component* component);
-        Page page;
+        Page pageing;
 
         /**
-         * @name Message
+         * @name calling
          *
-         * Messaging function for the class
+         * Calling function for the class
          *
-         * Used to send a message to a component when it is
-         * being served
+         * Used to call a method for the component (usually remotely)
          */
-        typedef std::string (*Message)(Component* component, const std::string& message);
-        Message message;
+        typedef std::string (*Calling)(Component* component, const Call& call);
+        Calling calling;
     };
 
 private:
@@ -936,11 +975,11 @@ public:
     static std::string page(const std::string& address){
         Instance instance = retrieve(address);
         if(not instance) return "<html><head><title>Error</title></head><body>No component at address \""+address+"\"</body></html>";
-        else return call(instance,&Class::page);
+        else return call(instance,&Class::pageing);
     }
 
     /**
-     * Generate a web page for a component
+     * Generate a HTML page for a component
      *
      * This method should be overriden by derived
      * classes and `define()`d in `classes_`.
@@ -950,16 +989,138 @@ public:
     }
 
     /**
+     * Generate a HTML page for a component with a title and theme
+     *
+     * This function is provided for the convienience of derived classes: in their
+     * `static std::string page(const Component*)` overrides they can call this to
+     * generate a standard page which their themes may then augment
+     * 
+     * @param  component [description]
+     * @param  title     [description]
+     * @param  theme     [description]
+     * @return           [description]
+     */
+    static std::string page(const Component* component,const std::string& title,const std::string& theme) {
+        using boost::format;
+        return str(format(R"(
+            <html>
+                <head>
+                    <title>%s</title>
+                    <link rel="stylesheet" type="text/css" href="/%s/theme.css" />
+                </head>
+                <body>
+                    <script src="/%s/theme.js"></script>
+                </body>
+            </html>
+        )") % title % theme % theme);
+    }
+
+    /**
      * Process a message for the component at an address
+     *
+     * We use [WAMP](http://wamp.ws/) as the message protocol.
+     * Curently that is only partially implemented.
      * 
      * @param  address Address of component
-     * @param  message JSON request message
-     * @return         JSON response message
+     * @param  message A WAMP message
+     * @return         A WAMP message
      */
     static std::string message(const std::string& address,const std::string& message){
-        Instance instance = retrieve(address);
-        if(not instance) return "error: no component at address \""+address+"\"";
-        else return call(instance,&Class::message,message);
+        using namespace Json;
+        using boost::format;
+
+        //WAMP basic spec is at https://github.com/tavendo/WAMP/blob/master/spec/basic.md
+        
+        // WAMP message codes used below.
+        // From https://github.com/tavendo/WAMP/blob/master/spec/basic.md#message-codes-and-direction
+        static const int ERROR = 8;
+        static const int CALL = 48;
+        static const int RESULT = 50;
+        static const int YIELD = 70;
+
+        //[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri]
+        //[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list]
+        //[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list, ArgumentsKw|dict]
+
+        try {
+            Instance instance = retrieve(address);
+            if(not instance){
+                return "[8, 0, 0, {}, \"no component at address\", [\"" + address + "\"]]";
+            } else {
+
+                Document request(message);
+
+                int items = size(request);
+                if(items<1) STENCILA_THROW(Exception,"Malformed message");
+
+                char code = as<int>(request[0]);
+                if(code==CALL){
+                    //[CALL, Request|id, Options|dict, Procedure|uri]
+                    //[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]
+                    //[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]
+                    
+                    if(items<2) STENCILA_THROW(Exception,"Malformed message");
+                    int id = as<int>(request[1]);
+                    
+                    if(items<4) STENCILA_THROW(Exception,"Malformed message");
+                    std::string procedure = as<std::string>(request[3]);
+
+                    std::vector<std::string> args;
+                    if(items>=5){
+                        Json::Value& args_value = request[4];
+                        args.resize(size(args_value));
+                        for(int i=0;i<args.size();i++) args[i] = as<std::string>(args_value[i]);
+                    }
+
+                    std::map<std::string,std::string> kwargs;
+                    if(items>=6){
+                        Json::Value& kwargs_value = request[5];
+                        /*
+                        for(int i=0;i<size(kwargs_value);i++){
+                            auto value = kwargs_value[i];
+                            auto name = 
+                            args[name] = value;
+                        }
+                        */
+                    }
+                    
+                    std::string result;
+                    try {
+                        Call call(procedure,args,kwargs);
+                        result = Component::call(instance,&Class::calling,call);
+                    }
+                    catch(const std::exception& e){
+                        return str(format("[8, 48, %d, {}, \"%s\"]")%id%e.what());
+                    }
+                    catch(...){
+                        return str(format("[8, 48, %d, {}, \"unknown exception\"]")%id);         
+                    }
+
+                    //[RESULT, CALL.Request|id, Details|dict]
+                    //[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
+                    //[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
+                    Document response;
+                    response.type<Array>()
+                            .push(RESULT)
+                            .push(id)                                // CALL.Request|id
+                            .push(Object())                          // Details|dict
+                            .push(std::vector<std::string>{result}); // YIELD.Arguments|list
+                    return response.dump();
+                }
+                return "[8, 0 , 0,{},\"unhandle message code\"]";
+            }
+        }
+        // Most exceptions should be caught above and WAMP ERROR messages appropriate to the 
+        // request type returned. The following are failovers if that does not happen...
+        catch(const std::exception& e){
+            return std::string("[8, 0, 0, {}, \"") + e.what() + "\"]";
+        }
+        catch(...){
+            return "[8, 0, 0, {}, \"unknown exception\"]";         
+        }
+        // This exception is intended to capture errors in coding above where none of the branches
+        // return a string
+        STENCILA_THROW(Exception,"Implementation error; message not handles properly");
     }
 
     /**
