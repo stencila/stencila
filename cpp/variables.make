@@ -5,7 +5,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))/../variables.make
 STENCILA_CPP_HOME := $(STENCILA_HOME)/cpp
 
 # Define compiler flags
-STENCILA_CPP_FLAGS := -pthread -std=c++0x -Wall -Wno-unused-local-typedefs -DSTENCILA_HOME='"$(STENCILA_HOME)"'
+STENCILA_CPP_FLAGS := -pthread -std=c++11 -Wall -Wno-unused-local-typedefs -DSTENCILA_HOME='"$(STENCILA_HOME)"'
 
 # Define directories for includes
 STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requires/include
