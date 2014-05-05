@@ -1,4 +1,4 @@
 #pragma once
 
-#include "array-dynamic.hpp"
-#include "array-static.hpp"
+#include <stencila/array-dynamic.hpp>
+#include <stencila/array-static.hpp>
