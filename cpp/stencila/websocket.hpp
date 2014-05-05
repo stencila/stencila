@@ -43,34 +43,7 @@ private:
         return i->second;
     }
 
-public:
-
-	/**
-	 * Construct a `Server`
-	 */
-	Server(void){
-		// Set the name of this server (used in the HTPP Server header below)
-		name_ = "Stencila ";
-		name_ += version;
-		// Initialise asynchronous IO
-		server_.init_asio();
-		// Set up handlers
-		server_.set_open_handler(bind(&Server::open,this,_1));
-        server_.set_close_handler(bind(&Server::close,this,_1));
-        server_.set_http_handler(bind(&Server::http,this,_1));
-        server_.set_message_handler(bind(&Server::message,this,_1,_2));
-        // Turnoff logging
-        server_.set_access_channels(log::alevel::none);
-	}
-
-	/**
-	 * Get the URL for this `Server`
-	 */
-	std::string url(void) const {
-		return "http://localhost:"+boost::lexical_cast<std::string>(port_);
-	}
-
-    void open(connection_hdl hdl) {
+    void open_(connection_hdl hdl) {
 		server::connection_ptr connection = server_.get_con_from_hdl(hdl);
 		std::string resource = connection->get_resource();
 		std::string address = resource.substr(1);
@@ -79,12 +52,12 @@ public:
         sessions_[hdl] = session;
     }
     
-    void close(connection_hdl hdl) {
+    void close_(connection_hdl hdl) {
         Session& session = session_(hdl);
         sessions_.erase(hdl);
     }
 
-	void http(connection_hdl hdl) {
+	void http_(connection_hdl hdl) {
 		// Get the connection 
 		server::connection_ptr connection = server_.get_con_from_hdl(hdl);
 		// Get the remote address
@@ -165,7 +138,7 @@ public:
 		}
 		catch(...){
 			status = http::status_code::internal_server_error;
-			content = "Internal server error: unknown";			
+			content = "Internal server error: unknown exception";			
 		}
 	    // Replace the WebSocket++ "Server" header
 	    connection->replace_header("Server",name_);
@@ -174,21 +147,58 @@ public:
 	    connection->set_body(content);
 	}
 
-	void message(connection_hdl hdl, server::message_ptr msg) {
+	/**
+	 * Handle a websocket message
+	 * 
+	 * @param hdl Connection handle
+	 * @param msg Message pointer
+	 */
+	void message_(connection_hdl hdl, server::message_ptr msg) {
 		std::string response;
 		try {
 			Session session = session_(hdl);
 			std::string request = msg->get_payload();
 			std::cout<<request<<std::endl;
 			response = Component::message(session.address,request);
+			std::cout<<response<<std::endl;
 		}
+		// `Component::message()` should handle most exceptions and return a WAMP
+		// ERROR message. If for some reason that does not happen, the following returns
+		// a plain text error message...
 		catch(const std::exception& e){
-			response = "{\"e\":\"" + std::string(e.what()) + "\"}";
+			response = "Internal server error : " + std::string(e.what());
 		}
 		catch(...){
-			response = "{\"e\":\"unknown\"}";			
+			response = "Internal server error : unknown exception";			
 		}
 		server_.send(hdl,response,opcode::text);
+	}
+
+public:
+
+	/**
+	 * Construct a `Server`
+	 */
+	Server(void){
+		// Set the name of this server (used in the HTPP Server header below)
+		name_ = "Stencila ";
+		name_ += version;
+		// Initialise asynchronous IO
+		server_.init_asio();
+		// Set up handlers
+		server_.set_open_handler(bind(&Server::open_,this,_1));
+        server_.set_close_handler(bind(&Server::close_,this,_1));
+        server_.set_http_handler(bind(&Server::http_,this,_1));
+        server_.set_message_handler(bind(&Server::message_,this,_1,_2));
+        // Turnoff logging
+        server_.set_access_channels(log::alevel::none);
+	}
+
+	/**
+	 * Get the URL for this `Server`
+	 */
+	std::string url(void) const {
+		return "http://localhost:"+boost::lexical_cast<std::string>(port_);
 	}
 
 	/**
