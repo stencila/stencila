@@ -30,19 +30,32 @@ private:
 	uint port_ = 9002;
 	std::string name_;
 
+	/**
+	 * An active session. Each session is linked to a component.
+	 * This stores the component address that the session is related to.
+	 */
 	struct Session {
-		int id;
 		std::string address;
 	};
+
+	/**
+	 * Mapping between a `connection_hdl` and a `Session`
+	 */
 	typedef std::map<connection_hdl,Session,std::owner_less<connection_hdl>> Sessions;
 	Sessions sessions_;
 
+	/**
+	 * Get the `Session` for a given `connection_hdl`
+	 */
 	Session& session_(connection_hdl hdl) {
         auto i = sessions_.find(hdl);
         if(i==sessions_.end()) STENCILA_THROW(Exception,"No such session");
         return i->second;
     }
 
+    /**
+     * Open a connection
+     */
     void open_(connection_hdl hdl) {
 		server::connection_ptr connection = server_.get_con_from_hdl(hdl);
 		std::string resource = connection->get_resource();
@@ -52,11 +65,17 @@ private:
         sessions_[hdl] = session;
     }
     
+    /**
+     * Close a connection
+     */
     void close_(connection_hdl hdl) {
         Session& session = session_(hdl);
         sessions_.erase(hdl);
     }
 
+    /**
+     * Handle a HTTP request
+     */
 	void http_(connection_hdl hdl) {
 		// Get the connection 
 		server::connection_ptr connection = server_.get_con_from_hdl(hdl);
