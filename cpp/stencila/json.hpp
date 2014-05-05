@@ -43,21 +43,20 @@ namespace Json {
 typedef rapidjson::Value Value;
 
 /**
-* @class Object
+* @struct Object
 * 
-* This class simply allows for syntax such as 
+* This struct simply allows for syntax such as 
 * @code is<Object>() @endcode
 */
-
-class Object {};
+struct Object {};
 
 /**
-* @class Array
+* @struct Array
 * 
-* This class simply allows for syntax such as 
+* This struct simply allows for syntax such as 
 * @code is<Array>(document["list"]) @endcode
 */
-class Array {};
+struct Array {};
 
 /**
  * Is a `Value` of a given type?
@@ -117,118 +116,182 @@ static uint size(const Value& value) {
 class Document : public rapidjson::Document {
 public:
 	
-	Document(void){
-        // Make this document an object
-        SetObject();
-	}
+  Document(void){
+    // Make this document an object
+    SetObject();
+  }
 
-    Document(const char* json){
-        load(json);
-    }
+  Document(const char* json){
+    load(json);
+  }
 
-	Document(const std::string& json){
-		load(json);
-	}
+  Document(const std::string& json){
+    load(json);
+  }
 
-    Document(const Document& other){
-        DeepCopy(*this,other,true);
-    }
+  Document(const Document& other){
+    DeepCopy(*this,other,true);
+  }
 
-    /**
-     * Load a JSON string into the `Document`
-     *
-     * @param json A std::string of JSON
-     */
-    Document& load(const std::string& json){
-        std::string input = json;
-        boost::algorithm::trim(input);
-        if(input.length()==0){
-            // Make this document an object if there is no JSON
-            SetObject();
-        } else {
-            // Otherwise parse the JSON
-            Parse<0>(input.c_str());
-            if(HasParseError()) {
-                STENCILA_THROW(Exception,std::string("JSON parsing error: ")+GetParseError()+": "+json);
-            }
-        }
-        return *this;
-    }
+  /**
+   * Set the type of this JSON document
+   */
+  template<typename Type>
+  Document& type(void){
+    return type(Type());
+  }
 
-    /**
-     * Dump document to a string
-     *
-     * @return JSON string of document
-     */
-    std::string dump(void) {
-          rapidjson::StringBuffer buffer;
-          rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-          Accept(writer);
-          return buffer.GetString();
-    }
+  Document& type(Json::Object){
+    SetObject();
+    return *this;
+  }
 
-    /**
-     * Pretty print document to a string
-     *
-     * @return JSON string of document with indentation
-     */
-    std::string pretty(void) {
-          rapidjson::StringBuffer buffer;
-          rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-          Accept(writer);
-          return buffer.GetString();
-    }
+  Document& type(Json::Array){
+    SetArray();
+    return *this;
+  }
 
-    /**
-     * Get a member of the document
-     *
-     * Override of base method to allow for string arguments
-     */
-    Value& operator[](const std::string& name) {
-        return rapidjson::Document::operator[](name.c_str());
-    }
-    const Value& operator[](const std::string& name) const {
-        return rapidjson::Document::operator[](name.c_str());
-    }
+  /**
+   * Load a JSON string into the `Document`
+   *
+   * @param json A std::string of JSON
+   */
+  Document& load(const std::string& json){
+      std::string input = json;
+      boost::algorithm::trim(input);
+      if(input.length()==0){
+          // Make this document an object if there is no JSON
+          SetObject();
+      } else {
+          // Otherwise parse the JSON
+          Parse<0>(input.c_str());
+          if(HasParseError()) {
+              STENCILA_THROW(Exception,std::string("JSON parsing error: ")+GetParseError()+": "+json);
+          }
+      }
+      return *this;
+  }
 
-    /**
-     * Append a member to a JSON `Value`
-     */
-    Document& append(Value& to,Value& name,Value& value) {
-    	to.AddMember(name,value,GetAllocator());
-        return *this;
-    }
+  /**
+   * Dump document to a string
+   *
+   * @return JSON string of document
+   */
+  std::string dump(void) {
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        Accept(writer);
+        return buffer.GetString();
+  }
 
-    Document& append(Value& to,const std::string& name,Value& value) {
-        Value name_value(name.c_str(),name.length(),GetAllocator());
-        return append(to,name_value,value);
-    }
+  /**
+   * Pretty print document to a string
+   *
+   * @return JSON string of document with indentation
+   */
+  std::string pretty(void) {
+        rapidjson::StringBuffer buffer;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        Accept(writer);
+        return buffer.GetString();
+  }
 
-    Document& append(Value& to,const std::string& name,const int& value) {
-        Value int_value(value);
-        return append(to,name,int_value);
-    }
+  /**
+   * Get a member of the document
+   *
+   * Override of base method to allow for string arguments.
+   * Since that is overriden, the uint ones need to be overridden too.
+   */
+  Value& operator[](const std::string& name) {
+      return rapidjson::Document::operator[](name.c_str());
+  }
+  const Value& operator[](const std::string& name) const {
+      return rapidjson::Document::operator[](name.c_str());
+  }
+  Value& operator[](const uint& index) {
+      return rapidjson::Document::operator[](index);
+  }
+  const Value& operator[](const uint& index) const {
+      return rapidjson::Document::operator[](index);
+  }
 
-    Document& append(Value& to,const std::string& name,const std::string& value) {
-        Value string_value(value.c_str(),value.length(),GetAllocator());
-        return append(to,name,string_value);
-    }
+  /**
+   * Append a member to a JSON object
+   */
+  Document& append(Value& to,Value& name,Value& value) {
+  	to.AddMember(name,value,GetAllocator());
+    return *this;
+  }
 
-    template<typename Type>
-    Document& append(Value& to,const std::string& name,const std::vector<Type>& items) {
-        Value array_value(rapidjson::kArrayType);
-        for(auto item : items) array_value.PushBack(item,GetAllocator());
-        return append(to,name,array_value);
-    }
+  Document& append(Value& to,const std::string& name,Value& value) {
+    Value name_value(name.c_str(),name.length(),GetAllocator());
+    return append(to,name_value,value);
+  }
 
-    template<typename Type>
-    Document& append(const std::string& name, const Type& value) {
-          return append(*this, name, value);
-    }
-    
-    Document& append(const std::string& name, Value& value) {
-          return append(*this, name, value);
-    }
+  Document& append(Value& to,const std::string& name,const int& value) {
+    Value int_value(value);
+    return append(to,name,int_value);
+  }
+
+  Document& append(Value& to,const std::string& name,const std::string& value) {
+    Value string_value(value.c_str(),value.length(),GetAllocator());
+    return append(to,name,string_value);
+  }
+
+  template<typename Type>
+  Document& append(Value& to,const std::string& name,const std::vector<Type>& items) {
+    Value array_value(rapidjson::kArrayType);
+    for(auto item : items) array_value.PushBack(item,GetAllocator());
+    return append(to,name,array_value);
+  }
+
+  template<typename Type>
+  Document& append(const std::string& name, const Type& value) {
+    return append(*this, name, value);
+  }
+  
+  Document& append(const std::string& name, Value& value) {
+    return append(*this, name, value);
+  }
+
+  /**
+   * Push an item to a JSON array
+   */
+  Document& push(Value& to,Value& value) {
+    to.PushBack(value,GetAllocator());
+    return *this;
+  }
+
+  Document& push(Value& to,const int& value) {
+    Value int_value(value);
+    return push(to,int_value);
+  }
+
+  Document& push(Value& to,const std::string& value) {
+    Value string_value(value.c_str(),value.length(),GetAllocator());
+    return push(to,string_value);
+  }
+
+  Document& push(Value& to,const Json::Object&) {
+    Value object_value(rapidjson::kObjectType);
+    return push(to,object_value);
+  }
+
+  template<typename Type>
+  Document& push(Value& to,const std::vector<Type>& items) {
+    Value array_value(rapidjson::kArrayType);
+    for(auto item : items) push(array_value,item);
+    return push(to,array_value);
+  }
+
+  template<typename Type>
+  Document& push(const Type& value) {
+    return push(*this, value);
+  }
+
+  Document& push(Value& value) {
+    return push(*this, value);
+  }
 };
 
 }

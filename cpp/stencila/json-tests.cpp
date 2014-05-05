@@ -9,7 +9,7 @@ BOOST_AUTO_TEST_SUITE(json)
 
 using namespace Stencila::Json;
 
-BOOST_AUTO_TEST_CASE(get){
+BOOST_AUTO_TEST_CASE(get_object){
     Document doc(R"({
         "a": false,
         "b": 42,
@@ -33,6 +33,13 @@ BOOST_AUTO_TEST_CASE(get){
     BOOST_CHECK_EQUAL(size(a),0);
 
     BOOST_CHECK_EQUAL(as<int>(doc["e"]["e1"]),42);
+}
+
+BOOST_AUTO_TEST_CASE(get_array){
+    Document doc(R"([4,3,2,1])");
+    BOOST_CHECK_EQUAL(size(doc),4);
+    BOOST_CHECK_EQUAL(as<int>(doc[0]),4);
+    BOOST_CHECK_EQUAL(as<int>(doc[1]),3);
 }
 
 BOOST_AUTO_TEST_CASE(set){
