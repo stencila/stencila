@@ -7,6 +7,8 @@
 #include <stencila/json.hpp>
 #include <stencila/html.hpp>
 
+class Context;
+
 namespace Stencila {
 
 class Stencil : public Component, public Xml::Document {
@@ -147,6 +149,11 @@ public:
      */
     
 private:
+
+    /**
+     * The current rendering context for this stencil
+     */
+    Context* context_ = nullptr;
 
     std::vector<std::string> contexts_;
 
