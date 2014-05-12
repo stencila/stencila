@@ -21,10 +21,9 @@ typedef Xml::Node Node;
 typedef Xml::Whitelist Whitelist;
 
 /**
- * HTML document
+ * A HTML5 document
  *
- * Conform to [Polyglot markup](http://www.w3.org/TR/html-polyglot/) (is both HTML5 and XML; some people call it XHTML5)
- * There is a summary of what XHTML5 requires [here](http://blog.whatwg.org/xhtml5-in-a-nutshell).
+ * Attempts to conform to [Polyglot markup](http://www.w3.org/TR/html-polyglot/) (is both HTML5 and XML; some people call it XHTML5)
  */
 class Document : public Xml::Document {
 
@@ -108,38 +107,73 @@ public:
 		load(html);
 	}
 
+
+private:
+
+	/**
+	 * A Xml::Document traverser which ensures that the content of the document conforms to 
+	 * HTML5
+	 */
+	struct Validator : pugi::xml_tree_walker {
+	    virtual bool for_each(pugi::xml_node& node) {
+	        if(node.type()==pugi::node_element){
+	        	std::string name  = node.name();
+	        	// Check to see if this is a "void element"
+	        	bool voide = false;
+	        	for(auto tag : {"area","base","br","col","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"}){
+	        		if(name==tag){
+	        			voide = true;
+	        			break;
+	        		}
+	        	}
+	        	if(voide){
+	        		// "In the HTML syntax, void elements are elements that always are empty and never have an end tag"
+	        		// Remove all child elements. 
+	        		while(node.first_child()) node.remove_child(node.first_child());
+	        	}
+	        	else {
+	        		// Ensure that other nodes have a least one child so that self-closing tags are not used for them
+	        		if(!node.first_child()) node.append_child(pugi::node_pcdata);
+	        	}
+	    	}
+	    	// Continue traversal
+	        return true;
+	    }
+	};
+
+public:
+
     /**
      * Load the document from a HTML string
      * 
-     * @param  xml 
+     * @param  html A html5 string 
      */
     Document& load(const std::string& html){
-        Xml::Document::load(tidy(html));
+        std::string tidied = tidy(html);
+        // In some cases tidy is returning an empty string
+        // this is a temporary kludge to avoid that.
+        // FIXME
+        if(tidied.length()>0) Xml::Document::load(tidied);
+        else Xml::Document::load(html);
         
-        // Make changes to the document so it conforms to [polyglot markup](http://dev.w3.org/html5/html-polyglot/html-polyglot.html)...
-
         // tidy-html5 does not add a DOCTYPE declaration even when `TidyXhtmlOut` is `yes`
         // So add one here..
         doctype("html");
 
         Node head = find("head");
 
-        /// Set Content-Type to help chances that document is treated as XHTML5
-        if(not head.find("meta","http-equiv")) {
-        	head.append("meta",{
-	        	{"http-equiv","Content-Type"},
-	        	{"content","application/xhtml+xml"}
-	        });
-	    }
-
         // Set charset
         // Although it is not technically required to define the character set, failing to do so can leave the page vulnerable to 
         // cross-site scripting attacks in older versions of IE. Note that even in old browsers this short version is equivalent to:
         //   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        ///(http://www.coreservlets.com/html5-tutorial/basic-html5-document.html)
+        //  (http://www.coreservlets.com/html5-tutorial/basic-html5-document.html)
         if(not head.find("meta","charset")) {
         	head.append("meta",{{"charset","UTF-8"}});
         }
+
+        // Validate the content of the document elements
+        Validator walker;
+		traverse(walker);
 
         return *this;
     }

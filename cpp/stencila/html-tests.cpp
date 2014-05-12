@@ -13,11 +13,6 @@ using namespace Stencila::Html;
 
 BOOST_AUTO_TEST_CASE(load){
 
-    BOOST_CHECK_EQUAL(
-    	Document().dump(),
-    	"<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title /><meta http-equiv=\"Content-Type\" content=\"application/xhtml+xml\" /><meta charset=\"UTF-8\" /></head><body /></html>"
-    );
-
     #define CHECK(in,out) BOOST_CHECK_EQUAL(Document(in).find("body").dump_children(),out);
 
     CHECK(
@@ -33,6 +28,24 @@ BOOST_AUTO_TEST_CASE(load){
     )
 
     #undef CHECK
+} 
+
+BOOST_AUTO_TEST_CASE(dump){
+    Document doc;
+    BOOST_CHECK_EQUAL(doc.dump(),R"(<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title></title><meta charset="UTF-8" /></head><body></body></html>)");
+}
+
+BOOST_AUTO_TEST_CASE(write_read){
+    auto tempfile = "/tmp/"+boost::filesystem::unique_path().string();
+
+    Document doc1;
+    doc1.find("body").append("p",{{"class","message"}},"Don't panic!");
+    doc1.write(tempfile);
+
+    Document doc2;
+    doc2.read(tempfile);
+
+    BOOST_CHECK_EQUAL(doc1.dump(),doc2.dump());
 }
 
 /**
@@ -82,7 +95,7 @@ BOOST_AUTO_TEST_CASE(xss){
     // No Filter Evasion
     CHECK(
         "<script src=\"http://example.com/xss.js\" />",
-        "<script src=\"http://example.com/xss.js\" />" 
+        "<script src=\"http://example.com/xss.js\"></script>" 
     )
     CHECK(
         "<script>alert('XSS')</script>",
@@ -164,7 +177,7 @@ BOOST_AUTO_TEST_CASE(xss){
     // Non-alpha-non-digit XSS
     CHECK(
         "<SCRIPT/XSS SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT>",
-        "<script src=\"http://ha.ckers.org/xss.js\" />"
+        "<script src=\"http://ha.ckers.org/xss.js\"></script>"
     )
     CHECK(
         "<img onmouseover!#$%&()*~+-_.,:;?@[/|\\]^`=alert(\"XSS\")>",
@@ -172,7 +185,7 @@ BOOST_AUTO_TEST_CASE(xss){
     )
     CHECK(
         "<SCRIPT/SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT>",
-        "<script />"
+        "<script></script>"
     )
 
     // Extraneous open brackets
@@ -192,7 +205,7 @@ BOOST_AUTO_TEST_CASE(xss){
     // Protocol resolution in script tags
     CHECK(
         "<SCRIPT SRC=//ha.ckers.org/.j>",
-        "<script src=\"//ha.ckers.org/.j\" />"
+        "<script src=\"//ha.ckers.org/.j\"></script>"
     )
 
     // Half open HTML/JavaScript XSS vector
@@ -229,3 +242,4 @@ BOOST_AUTO_TEST_CASE(xss){
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+ 
