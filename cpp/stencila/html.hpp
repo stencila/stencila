@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include <tidy-html5/tidy.h>
 #include <tidy-html5/buffio.h>
 
@@ -27,7 +29,7 @@ typedef Xml::Whitelist Whitelist;
  */
 class Document : public Xml::Document {
 
-private:
+public:
 
 	/**
 	 * Parse and tidy up a HTML string
@@ -45,8 +47,9 @@ private:
 	    ok = tidyOptSetBool(document,TidyDropFontTags,no);
 	    ok = tidyOptSetBool(document,TidyDropEmptyElems,no);
 	    ok = tidyOptSetBool(document,TidyDropEmptyParas,no);
-	    //	Output as XHTML
+	    //	Output as XHTML5
 	    ok = tidyOptSetBool(document,TidyXhtmlOut,yes);
+	    ok = tidyOptSetValue(document,TidyDoctype,"html5");
 	    //	Turn off adding a html-tidy <meta name="generator".. tag for itself
 	    ok = tidyOptSetBool(document,TidyMark,no);
 	    // Do processing and output
@@ -149,15 +152,22 @@ public:
      * @param  html A html5 string 
      */
     Document& load(const std::string& html){
-        std::string tidied = tidy(html);
+    	// For some reason tidy does not like a "<!DOCTYPE html>"
+    	// in the document so remove that first
+    	std::string html_to_tidy = boost::replace_all_copy(html,"<!DOCTYPE html>","");
+    	
+        std::string tidied = tidy(html_to_tidy);
         // In some cases tidy is returning an empty string
-        // this is a temporary kludge to avoid that.
-        // FIXME
-        if(tidied.length()>0) Xml::Document::load(tidied);
-        else Xml::Document::load(html);
+        // this catches that
+        if(html_to_tidy.length()>0 and tidied.length()==0){
+        	STENCILA_THROW(Exception,"No tidied HTML returned");
+        }
+
+        // Load the tidied HTML into the document
+        Xml::Document::load(tidied);
         
-        // tidy-html5 does not add a DOCTYPE declaration even when `TidyXhtmlOut` is `yes`
-        // So add one here..
+        // tidy-html5 does not add a DOCTYPE declaration even when `TidyXhtmlOut` is `yes` and
+        // `TidyDoctype` is `"html5"`. So add one here..
         doctype("html");
 
         Node head = find("head");

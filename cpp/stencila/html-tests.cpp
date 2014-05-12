@@ -10,7 +10,7 @@
 BOOST_AUTO_TEST_SUITE(html)
 
 using namespace Stencila::Html;
-
+ 
 BOOST_AUTO_TEST_CASE(load){
 
     #define CHECK(in,out) BOOST_CHECK_EQUAL(Document(in).find("body").dump_children(),out);
@@ -27,7 +27,12 @@ BOOST_AUTO_TEST_CASE(load){
         "<main id=\"content\">content</main>"
     )
 
-    #undef CHECK
+    CHECK(
+        "<p class=\"message\">Don't panic!",
+        "<p class=\"message\">Don't panic!</p>"
+    )    
+
+    #undef CHECK 
 } 
 
 BOOST_AUTO_TEST_CASE(dump){
@@ -46,6 +51,8 @@ BOOST_AUTO_TEST_CASE(write_read){
     doc2.read(tempfile);
 
     BOOST_CHECK_EQUAL(doc1.dump(),doc2.dump());
+
+    boost::filesystem::remove(tempfile);
 }
 
 /**
