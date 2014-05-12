@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <stencila/xml.hpp>
+#include <stencila/xml.cpp>
 
 BOOST_AUTO_TEST_SUITE(xml)
 
@@ -202,10 +203,20 @@ BOOST_AUTO_TEST_CASE(sanitize){
 }
 
 
-BOOST_AUTO_TEST_CASE(dump){
+BOOST_AUTO_TEST_CASE(load_dump){
     Document doc;
     std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";
     doc.load(content);
+    BOOST_CHECK_EQUAL(doc.dump(),content);
+}
+
+BOOST_AUTO_TEST_CASE(write_read){
+    Document doc;
+    std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";
+    doc.load(content);
+    auto tempfile = "/tmp/"+boost::filesystem::unique_path().string();
+    doc.write(tempfile);
+    doc.read(tempfile);
     BOOST_CHECK_EQUAL(doc.dump(),content);
 }
 
