@@ -33,4 +33,34 @@ BOOST_AUTO_TEST_CASE(various){
     BOOST_CHECK_EQUAL(c.call({"write",{"answer"}}),"42");
 }
 
+BOOST_AUTO_TEST_CASE(comments){
+    PythonContext c;
+    c.execute("#Some comment that should be removed\nanswer = 42 # Another comment\n");
+    BOOST_CHECK_EQUAL(c.write("answer"),"42");
+}
+
+BOOST_AUTO_TEST_CASE(begin_next){
+    PythonContext c;
+    c.execute("bits = ['a','b','c']"); 
+    BOOST_CHECK(c.begin("bit","bits"));
+
+    BOOST_CHECK_EQUAL(c.write("bit"),"a");
+  
+    BOOST_CHECK(c.next());
+    BOOST_CHECK_EQUAL(c.write("bit"),"b");
+
+    BOOST_CHECK(c.next());
+    BOOST_CHECK_EQUAL(c.write("bit"),"c");
+}
+
+BOOST_AUTO_TEST_CASE(error){
+    PythonContext c;
+    BOOST_CHECK_THROW(c.execute("a<1"),PythonException);
+}
+
+BOOST_AUTO_TEST_CASE(syntax_error){
+    PythonContext c;
+    BOOST_CHECK_THROW(c.execute("a syntax error"),PythonException);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

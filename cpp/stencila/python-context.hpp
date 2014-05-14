@@ -17,6 +17,36 @@ public:
  * A `Context` for Python
  */
 class PythonContext : public Context {
+public:
+
+    /**
+     * Serve this context
+     */
+    std::string serve(void){
+        return Component::serve(PythonContextCode);
+    }
+
+    /**
+     * View this context
+     */
+    void view(void){
+        return Component::view(PythonContextCode);
+    }
+
+    /**
+     * Generate a HTML page for this context
+     */
+    static std::string page(const Component* component){
+        return Component::page(component,"Python Context","core/contexts/python/themes/default");
+    }
+
+
+    static std::string call(Component* component, const Call& call){
+        return static_cast<PythonContext&>(*component).call(call);
+    }
+    // To provide access to Context::call
+    using Context::call;
+
 private:
 
     /**
@@ -43,16 +73,30 @@ private:
             return context_.attr(name)(args...);
         }
         catch(error_already_set const &){
-            PyObject *type,*value,*tb;
-            PyErr_Fetch(&type,&value,&tb);
-            handle<> hexc(type),hval(allow_null(value)),htb(allow_null(tb));
-
-            std::string message = std::string(extract<std::string>(value))+":\n";
-
-            object formatted_list = import("traceback").attr("format_exception")(hexc,hval,htb);
-            
-            for(int i=0;i<len(formatted_list);i++){
-                message += std::string(extract<std::string>(formatted_list[i])) + "\n";
+            PyObject *type,*value,*traceback;
+            PyErr_Fetch(&type,&value,&traceback);
+            // Construct a message
+            std::string message;
+            if(value){
+                extract<std::string> value_string(value);
+                // Check a string can be extracted from the PyObject
+                if(value_string.check()){
+                    message += value_string() +":\n";
+                }
+            }
+            // There may not be a traceback (e.g. if a syntax error)
+            if(value and traceback){
+                handle<> type_handle(type);
+                handle<> value_handle(allow_null(value));
+                handle<> traceback_handle(allow_null(traceback));
+                object formatted_list = import("traceback").attr("format_exception")(type_handle,value_handle,traceback_handle);
+                for(int i=0;i<len(formatted_list);i++){
+                    extract<std::string> line_string(formatted_list[i]);
+                    // Check a string can be extracted from the PyObject
+                    if(line_string.check()){
+                        message += line_string();
+                    }
+                }
             }
             throw PythonException(message);
         }
@@ -95,10 +139,10 @@ public:
         // Get the __main__ module's namespace
         object main = import("__main__");
         object globals = main.attr("__dict__");
-        // Execute the Python side code there
+        // Execute the Python-side in the glabals namespace
         exec(str(code_()),globals);
-        // Create a new context
-        context_ = globals["__stencila__context__"]();
+        // Create a new Python-side Context
+        context_ = globals["Context"]();
         // Bind to the callback
         context_.attr("bind")(raw_function(callback_));
     }
@@ -107,45 +151,6 @@ public:
         context_ = context;
     }
 
-    /**
-     * Serve this context
-     */
-    std::string serve(void){
-        return Component::serve(PythonContextCode);
-    }
-
-    /**
-     * View this context
-     */
-    void view(void){
-        return Component::view(PythonContextCode);
-    }
-
-    /**
-     * Generate a web page for a context
-     */
-    static std::string page(const Component* component){
-        return Component::page(component,"Python Context","core/contexts/python/themes/default");
-    }
-
-
-    static std::string call(Component* component, const Call& call){
-        return static_cast<PythonContext&>(*component).call(call);
-    }
-
-    std::string call(const Call& call) {
-        auto what = call.what();
-        if(what=="execute"){
-            execute(call.arg(0));
-        }
-        else if(what=="interact"){
-            return interact(call.arg(0));
-        }
-        else if(what=="write"){
-            return write(call.arg(0));
-        }
-        return "";
-    }
 
     bool accept(const std::string& language) const {
         return language=="py";
@@ -188,7 +193,7 @@ public:
     }
 
     bool begin(const std::string& item,const std::string& items){
-        return call_<bool>("match",item,items);
+        return call_<bool>("begin",item,items);
     }
 
     bool next(void){

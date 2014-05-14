@@ -5,7 +5,7 @@ import code
 import sys
 from cStringIO import StringIO
 
-class __stencila__namespace__(dict):
+class Namespace(dict):
 
 	def __init__(self,parent=None):
 		if parent==None: parent = inspect.currentframe(1).f_locals
@@ -52,10 +52,10 @@ class Console(code.InteractiveConsole):
 		return self.out+self.err
 
 
-class __stencila__context__:
+class Context:
 
 	def __init__(self,namespace=None):
-		if namespace is None: namespace = __stencila__namespace__()
+		if namespace is None: namespace = Namespace()
 		self.namespaces = [namespace]
 
 	# Bind this Python side object to the C++ side
@@ -67,7 +67,7 @@ class __stencila__context__:
 	
 	def push(self,namespace=None):
 		# Push a new namespace on to the stack
-		if namespace is None: namespace = __stencila__namespace__(self.top())
+		if namespace is None: namespace = Namespace(self.top())
 		self.namespaces.append(namespace)
 		return self
 
