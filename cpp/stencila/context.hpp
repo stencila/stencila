@@ -8,6 +8,22 @@
 namespace Stencila {
 
 class Context : public Component {
+public:
+
+    std::string call(const Call& call) {
+        auto what = call.what();
+        if(what=="execute"){
+            execute(call.arg(0));
+        }
+        else if(what=="interact"){
+            return interact(call.arg(0));
+        }
+        else if(what=="write"){
+            return write(call.arg(0));
+        }
+        return "";
+    }
+    
 protected:
 
     /**
