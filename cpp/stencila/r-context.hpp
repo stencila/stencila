@@ -1,12 +1,26 @@
 #pragma once
 
-#include <stencila/contexts/context.hpp>
-using namespace Stencila::Contexts;
+#include <boost/algorithm/string/replace.hpp>
 
-#include "stencila.hpp"
+#include <Rcpp.h>
+#include <RInside.h>
+// Undefine some macros that R defines which clash
+// with those used below
+#undef Realloc
+#undef Free
+#undef ERROR
+
+#include <stencila/context.hpp>
+
+namespace Stencila {
+
+class RException : public Exception {
+public:
+    RException(std::string message): Exception(message) {}
+};
 
 /*!
-A specialisation of the Context class for R.
+A `Context` for R.
 
 Implements the methods of the Context class for the rendering of stencils in an
 R environment. All the real functionality is done in an "R-side" Context class (see the R code)
@@ -22,44 +36,109 @@ These include using the [] operator on the context and the () operator on a func
 However, these don't always produce the expected results and so the best approach seems to be
 to use the get() method, construct a Rcpp::Language object and then eval(). e.g.
 
-    Rcpp::Language call(environment_.get("method_name"),arg1,arg2);
+    Rcpp::Language call(context_.get("method_name"),arg1,arg2);
     call.eval();
 
 Note that when the method is being called with no arguments it appear to be necessary to consturct a Rcpp::Function 
 object first:
 
-    Rcpp::Language call(Rcpp::Function(environment_.get("enter")));
+    Rcpp::Language call(Rcpp::Function(context_.get("enter")));
     call.eval();
 
 */
 class RContext : public Context {
 public:
 
-    static std::string page(const Component* component){
-        return "<html>This is an R context</html>";
-    }
-
     std::string serve(void){
-        return Component::serve(RContextClass);
+        return Component::serve(RContextCode);
     }
 
     void view(void){
-        return Component::view(RContextClass);
+        return Component::view(RContextCode);
     }
 
+    static std::string page(const Component* component){
+        return Component::page(component,"R Context","core/contexts/r/themes/default");
+    }
+
+    static std::string call(Component* component, const Call& call){
+        return static_cast<RContext&>(*component).call(call);
+    }
+    // To provide access to Context::call
+    using Context::call;
+
 private:
+
+    /**
+     * Get R code used to implement a `RContext` on the R-side
+     */
+    static const char* code_(void){ 
+        return
+            #include "r-context.R"
+        ;
+    }
+
+    static RInside r_;
+    static unsigned int contexts_;
+
+    std::string id_;
 
     /*!
     An Rcpp object which represents this context on the R "side"
     */
-    Rcpp::Environment environment_;
+    Rcpp::Environment context_;
+   
+    static std::string arguments(void){
+        return "";
+    }
+
+    static std::string arguments(std::string arg){
+        boost::replace_all(arg,"\"","\\\"");
+        return '"'+arg+'"';
+    }
+
+    template<
+        typename Arg
+    >
+    static std::string arguments(Arg arg){
+        return boost::lexical_cast<std::string>(arg);
+    }
+
+    template<
+        typename Arg,
+        typename... Args
+    >
+    static std::string arguments(Arg arg, Args... args){
+        return arguments(arg) + "," + arguments(args...);
+    }
 
     template<
         typename... Args
     >
     SEXP call_(const char* name,Args... args){
-        Rcpp::Language call(Rcpp::Function(environment_.get(name)),args...);
+        // When used in an R package the following works
+        // but seems to fail when trying to embed R. So, instead
+        // resort to generating code as below
+        #if 0
+        Rcpp::Function func = context_.get(name);
+        Rcpp::Language call(func,args...);
         return call.eval();
+        #endif
+        // Generate a call expression
+        std::string call = id_+"$"+name+"("+arguments(args...)+")";
+        try {
+            return r_.parseEval(call);
+        }
+        catch(const std::runtime_error& exc) {
+            // Rinside::parseEval throws a std::runtime_error with a message similar to "Error evaluating: context4233$execute(..." 
+            // i.e. its message is for the call string above and gives few details. 
+            // So, grab some more details and turn them into an RException
+            std::string message = Rcpp::as<std::string>(r_.parseEval("geterrmessage()"));
+            throw RException(message);
+        }
+        catch(...) {
+            throw RException("Unknown exception");
+        }
     }
 
     template<
@@ -67,31 +146,48 @@ private:
         typename... Args
     >
     Result call_(const char* name,Args... args){
-        return as<Result>(call_(name,args...));
+        SEXP result = call_(name,args...);
+        // Currently, this function only handles strings returned from R and then casts those
+        // using boost::lexical_cast. I got serious errors of the form:
+        //    memory access violation at address: 0x7fff712beff8: no mapping at fault address
+        // when trying to use Rcpp::as<bool> or Rcpp::as<int> even when checking the returned SEXP was
+        // the correct type
+        if(TYPEOF(result)!=STRSXP) STENCILA_THROW(Exception,"R-side methods should return a string");
+        return boost::lexical_cast<Result>(Rcpp::as<std::string>(result));
     }
 
 public:
     
     RContext(void){
-        Rcpp::Environment stencila("package:stencila");
-        Rcpp::Function func = stencila.get("Context");
-        Rcpp::Language call(func);
-        environment_ = Rcpp::Environment(call.eval());
+        // Execute implementation code
+        static bool initialised_ = false;
+        if(not initialised_){
+            r_.parseEvalQ(code_());
+            initialised_ = true;
+        }
+        // Create a context
+        id_ = "context"+boost::lexical_cast<std::string>(contexts_++);
+        r_.parseEvalQ(id_ + " <- Context()");
     }
 
     /*!
     Constructor which takes a SEXP representing the R-side Context.
     */
     RContext(SEXP sexp){
-        environment_ = Rcpp::Environment(sexp);
+        context_ = Rcpp::Environment(sexp);
     }
 
-    bool accept(const std::string& language){
+
+    bool accept(const std::string& language) const {
         return language=="r";
     }
 
     void execute(const std::string& code){
         call_("execute",code);
+    }
+
+    std::string interact(const std::string& code){
+        return call_<std::string>("interact",code);
     }
 
     void assign(const std::string& name, const std::string& expression){
@@ -143,3 +239,13 @@ public:
     }
 
 };
+
+RInside RContext::r_(
+    0,{}, // argc and argv
+    true, // loadRcpp (overidden to true in code anyway)
+    false, // verbose
+    true // interactive
+);
+unsigned int RContext::contexts_ = 0;
+
+}

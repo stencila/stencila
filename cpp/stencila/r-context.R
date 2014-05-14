@@ -1,5 +1,7 @@
-#' @include stencila.R
-NULL
+R"(
+
+# Prevent R from printing out error messages
+options(show.error.messages = FALSE)
 
 #' Create a stencil rendering context
 #' 
@@ -11,10 +13,10 @@ NULL
 #' @param envir The environment for the context. Optional.
 #'
 #' @export
-ContextExtension <- function(envir){
+Context <- function(envir){
     
     self <- new.env()
-    class(self) <- "ContextExtension"
+    class(self) <- "Context"
     
     if(missing(envir)) envir <- new.env(parent=baseenv())
     else if(inherits(envir,'environment')) envir <- envir
@@ -59,7 +61,7 @@ ContextExtension <- function(envir){
     }
     
     self$get <- function(expression) {
-        return(eval(parse(text=expression),envir=self$top()))
+        self$evaluate(expression)
     }
     
     self$set <- function(name,expression){
@@ -68,13 +70,23 @@ ContextExtension <- function(envir){
         assign(name,value,envir=env)
         return(self)
     }
+
+    self$evaluate <- function(expression){
+        # Evaluate an expression in the top of the stack
+        result <- tryCatch(eval(parse(text=expression),envir=self$top()),error=function(error)error)
+        if(inherits(result,'error')){
+            stop(result$message,call.=F)
+        } else {
+            return(result)
+        }
+    }
     
     ##################################
     # "execute" method
 
     self$execute <- function(code){
-        eval(parse(text=code),envir=self$top())
-        return(self)
+        self$evaluate(code)
+        self
     }
     
     ##################################
@@ -95,7 +107,7 @@ ContextExtension <- function(envir){
         } else {
             self$interact_code <- ""
             result <- tryCatch(eval(expr,envir=self$top()),error=function(error)error)
-            if(inherits(expr,'result')){
+            if(inherits(result,'error')){
                 return(paste("E",result$message,sep=""))
             } else {
                 # show() and capture.output() actually return vectors of strings for each line
@@ -155,7 +167,7 @@ ContextExtension <- function(envir){
     
     self$test <- function(expression){
         value <- self$get(expression)
-        return(as.logical(value))
+        if(as.logical(value)) "1" else "0"
     }
     
     ##################################
@@ -220,7 +232,7 @@ ContextExtension <- function(envir){
         assign('_item_',item,envir=loop)
         assign(item,iterator$step(),envir=loop)
         # Return flag indicating if any items
-        return(iterator$more())
+        if(iterator$more()) "1" else "0"
     }
     
     # Because "next" is an R keyword this method has to be called "next_"
@@ -236,19 +248,88 @@ ContextExtension <- function(envir){
                 item,
                 envir=loop
             )
-            return(TRUE)
+            return("1")
         } else {
             #No more items so exit the loop
             self$exit()
-            return(FALSE)
+            return("0")
         }
     }
     
     return(self)
 }
 
-class_('Context','Component')
+#' Iterators
+
+#' Create an iterator for an R object
+#'
+#' An iterator is a "helper" object for traversing a container object.
+#' Iterators are commonly used in languages such as C++ and Java.
+#' Stencila requires iterators for rendering stencils.
+#' Specifically, when rendering "for" elements, iterators allow for looping over item in a container
+#' using a consistent interface: one which exposes the $step() and $more() methods.
+#' There is already an 'iterator' package for R.
+#' We have not used that package here because Stencila requires fairly simple iterator functionality and
+#' it would introduce another dependency.
+#' However, users looking for more advanced and comprehensive iterators
+#' should consider using the 'iterator' package.
+#'
+#' @param container The container object to iterate over
+#' 
 #' @export
-Context <- function() {
-    create_('Context','Context_new',ContextExtension())
+#'
+#' @examples
+#' i <- iterate(c(1,2,3))
+#' i$step() # -> 1
+#' i$step() # -> 2
+#' i$more() # -> TRUE
+#' i$step() # -> 3
+#' i$more() # -> FALSE
+iterate <- function(container){
+    UseMethod('iterate')
 }
+
+# A default iterator for vectors and lists
+DefaultIterator <- function(container){
+    self <- new.env()
+    class(self) <- "DefaultIterator"
+    
+    self$container <- container
+    self$index <- 0
+    self$size <- length(self$container)
+    
+    self$more <- function(){
+        self$index<self$size
+    }
+    
+    self$step <- function(){
+        self$index <- self$index+1
+        self$container[[self$index]]
+    }
+    
+    self
+}
+iterate.default <- function(container){
+    DefaultIterator(container)
+}
+
+# Iterator for data.frames. Iterates by row
+DataframeIterator <- function(container){
+    self <- DefaultIterator(container)
+    self$size <- nrow(container)
+
+    self$step <- function(){
+        self$index <- self$index+1
+        self$container[self$index,]
+    }
+
+    self
+}
+iterate.data.frame <- function(container){
+    DataframeIterator(container)
+}
+
+# Other iterate methods will be added when
+# other iterator classes are written (e.g. MatrixIterator)
+
+#)"
