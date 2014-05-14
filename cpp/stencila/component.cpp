@@ -6,12 +6,7 @@ namespace Stencila {
 
 // It is important that classes are put into the classes_ array in the right
 // order and that the thods are also in the right order!
-Component::Class Component::classes_[Component::class_codes_] = {
-	{},//NoCode
-	{"Component",Component::page,0},
-	{"Package",0,0},
-	{"Stencil",Stencil::page,0},
-};
+Component::Class Component::classes_[Component::class_codes_];
 
 std::map<std::string,Component::Instance> Component::instances_;
 

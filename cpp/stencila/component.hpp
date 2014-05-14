@@ -238,7 +238,7 @@ public:
      * Get a component instance with a given address
      *
      * This method is primarily used internally for retrieving
-     * a component that is expected, but may not be, in memory.
+     * a component that is expected to, but may not, be in memory.
      *
      * @param address Address of the component
      */
@@ -582,8 +582,10 @@ protected:
                 // call the private path_set_unique_ method
                 path_set_unique_();
             } else {
-                // and create the path.
-                boost::filesystem::create_directories(new_path);
+                // and create the path if necessary
+                if(not boost::filesystem::exists(new_path)){
+                    boost::filesystem::create_directories(new_path);
+                }
                 meta_->path = new_path;
             }
         } 
@@ -635,12 +637,15 @@ public:
         std::string path = path_get_(ensure);
         if(path.length()>0){
             std::string address = path;
-            // Remove store prefix to obtain address
+            // Remove store prefix
             for(auto store : stores()){
                 if(address.substr(0,store.length())==store){
-                    return address.substr(store.length()+1);
+                    address = address.substr(store.length()+1);
                 }
             }
+            // Remove file names
+            // FIXME this is a temporary hack
+            boost::replace_last(address,"/index.html","");
             return address;
         }
         else return "";
@@ -1009,6 +1014,7 @@ public:
                     <link rel="stylesheet" type="text/css" href="/%s/theme.css" />
                 </head>
                 <body>
+                    <script src="/core/themes/boot.js"></script>
                     <script src="/%s/theme.js"></script>
                 </body>
             </html>
