@@ -96,7 +96,7 @@ private:
 			    // (1) "Dynamic" requests where the component is loaded into
 			    // memory (if not already) and (2) Static requests for component
 			    // files
-			    // Static requests are indicated by a "."
+			    // Static requests are indicated by a "." anywhere in the url
 			    bool dynamic = true;
 			    auto found = path.find(".");
 		  		if(found!=std::string::npos){
