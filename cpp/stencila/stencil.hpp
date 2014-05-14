@@ -7,6 +7,8 @@
 #include <stencila/json.hpp>
 #include <stencila/html.hpp>
 
+#include <stencila/r-context.hpp>
+
 class Context;
 
 namespace Stencila {
@@ -23,12 +25,6 @@ public:
     typedef Xml::AttributeList AttributeList;
     typedef Xml::Node Node;
     typedef Xml::Nodes Nodes;
-
-protected:
-
-    // Necessary override of Component::class_
-    static const ClassCode class_ = StencilCode;
-    friend class Component;
 
 public:
 
@@ -64,21 +60,25 @@ public:
     /**
      * Process a message for this stencil
      */
-    static std::string message(Component* component, const std::string& message){
-        Stencil& stencil = static_cast<Stencil&>(*component);
+    static std::string call(Component* component, const Call& call){
+        return static_cast<Stencil&>(*component).call(call);
+    }
 
-        Json::Document request(message);
-        Json::Document response;
-        using Json::as;
-        auto method = as<std::string>(request["m"]);
-        if(method=="html"){
-            stencil.html(
-                as<std::string>(request["p"][uint(0)])
-            );
-        } else if(method=="commit"){
-            stencil.commit();
+    std::string call(const Call& call) {
+        auto what = call.what();
+        if(what=="html"){
+            html(call.arg(0));
         }
-        return response.dump();
+        else if(what=="commit"){
+            commit(call.arg(0));
+        }
+        else if(what=="render"){
+            render();
+        }
+        else {
+            STENCILA_THROW(Exception,"Method not registered for calling: "+what);
+        }
+        return "";
     }
 
     /**
@@ -240,14 +240,27 @@ public:
         render_element_(*this,context);
         return *this;
     }
+
+    Stencil& render(void){
+        RContext context;
+        render_element_(*this,context);
+        return *this;
+    }
     
 private:
 
     template<typename Context>
     void render_element_(Node node, Context& context){
         try {
-            //Check for handled element tag names
-            //For each attribute in this node...
+            // Remove any existing errors
+            for(Node child : node.children()){
+                if(child.attr("data-error").length()>0){
+                    node.remove(child);
+                }
+            }
+            
+            // Check for handled elements
+            // For each attribute in this node...
             //...use the name of the attribute to dispatch to another rendering method
             //   Note that return is used so that only the first Stencila "data-xxx" will be 
             //   considered and that directive will determine how/if children nodes are processed
@@ -255,7 +268,7 @@ private:
             for(std::string attr : node.attrs()){
                 // `macro` elements are not rendered
                 if(attr=="data-macro") return ;
-                else if(attr=="data-code" and tag=="code") return render_code_(node,context);
+                else if(attr=="data-code") return render_code_(node,context);
                 else if(attr=="data-text") return render_text_(node,context);
                 else if(attr=="data-image") return render_image_(node,context);
                 else if(attr=="data-with") return render_with_(node,context);
@@ -266,14 +279,14 @@ private:
                 else if(attr=="data-for") return render_for_(node,context);
                 else if(attr=="data-include") return render_include_(node,context);
             }
-            //If return not yet hit then process children of this element
+            // If return not yet hit then process children of this element
             render_children_(node,context);
         }
         catch(std::exception& exc){
-            node.append("div",{{"data-error","true"}},exc.what());
+            node.append("span",{{"data-error","exception"}},std::string("Error:")+exc.what());
         }
         catch(...){
-            node.append("div",{{"data-error","true"}},"Unknown error");
+            node.append("span",{{"data-error","unknown"}},"Unknown error");
         }
     }
 
@@ -515,28 +528,40 @@ private:
 
         // Initialise the loop
         bool more = context.begin(item,items);
-        // Get the `data-each` node
-        Node each = node.one("[data-each]");
+        // Get the `data-repeat` node
+        Node repeat = node.one("[data-repeat]");
+        // If is for loop has been rendered before then it will have a `data-off`
+        // attribute. So erase that attribute so that the repeated nodes don't get it
+        if(repeat) repeat.erase("data-off");
         // Iterate
         int count = 0;
-        while(each and more){
+        while(repeat and more){
             // See if there is an existing child with a corresponding `data-index`
-            // - if there is use it, if not then append a copy of each
             std::string index = boost::lexical_cast<std::string>(count);
             Node item = node.one("[data-index=\""+index+"\"]");
-            if(not item){
-                item = node.append(each);
-                item.erase("data-each");
-                item.attr("data-index",index);
+            if(item){
+                // If there is check to see if it is locked
+                Node locked = item.one("[data-lock]");
+                if(not locked){
+                    // If it is then destory and replace it
+                    item.destroy();
+                    item = node.append(repeat);
+                }
+            } else {
+                // If there is not, create one
+                item = node.append(repeat);
             }
+            // Erase and set index as required
+            item.erase("data-repeat");
+            item.attr("data-index",index);
             // Render the element
             render_element_(item,context);
             // Ask context to step to next item
             more = context.next();
             count++;
         }
-        // Deactivate the each object
-        if(each) each.attr("data-off","true");
+        // Deactivate the repeat object
+        if(repeat) repeat.attr("data-off","true");
         // Remove any children having a `data-index` attribute greater than the 
         // number of items, unless it has a `data-lock` decendent
         Nodes indexeds = node.all("[data-index]");
@@ -732,7 +757,7 @@ private:
     
 private:
 
-    std::string theme_ = "core/stencil/themes/default";
+    std::string theme_ = "core/stencils/themes/default";
 
 public:
 
@@ -827,7 +852,8 @@ public:
         }  
 
         // Sanitize before proceeding
-        sanitize();     
+        // FIXME currently disabled
+        // sanitize();
 
         return *this;
     }
@@ -844,9 +870,9 @@ public:
 
         // Title to <title>
         // Although we are creating an XHTML5 document, if the title tag is empty (i.e <title />)
-        // this can cause browser parsing errors. So always ensure that ther is some title content.
+        // this can cause browser parsing errors. So always ensure that there is some title content.
         auto t = title();
-        if(t.length()==0) t = "&nbsp;";
+        if(t.length()==0) t = "Untitled";
         head.find("title").text(t);
 
         // Keywords to <meta>
@@ -878,7 +904,7 @@ public:
          * Use a site-root relative path (by adding the leading forward slash) so that CSS can be served from 
          * localhost.
          */
-        std::string css = "/" + theme() + "/theme.min.css";
+        std::string css = "/" + theme() + "/theme.css";
         head.append("link",{
             {"rel","stylesheet"},
             {"type","text/css"},
@@ -928,24 +954,25 @@ public:
         /**
          * #content
          *
-         * Content is placed in a <div> rather than just using the <body> so that extra HTML elements can be added by the 
-         * theme without affecting the stencil's content
+         * Content is placed in a <main> rather than just using the <body> so that extra HTML elements can be added by the 
+         * theme without affecting the stencil's content.
          */
         auto content = body.append("main",{
             {"id","content"}
-        });
+        }," ");
         content.append(*this);
 
         /**
          * <script>
          *
          * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
-         *
-         * A "src" <script> element is used to load the Stencila bootstrapping Javascript. That is then used
-         * to set the theme via an inline script element.
          */
-        body.append("script",{{"src","/core/themes/base/boot.min.js"}}," ");
-        body.append("script","Stencila.theme('"+theme()+"');");
+        body.append("script",{
+            {"src","/core/themes/boot.js"}
+        }," ");
+        body.append("script",{
+            {"src","/" + theme() + "/theme.js"}
+        }," ");
 
         return doc.dump();
     }
@@ -1098,7 +1125,7 @@ public:
 /**
  * A list of attributes that have semantic meaning in stencils
  */
-#define STENCILA_DIRECTIVE_ATTRS "data-text","data-switch","data-case"
+#define STENCILA_DIRECTIVE_ATTRS "data-code","data-text","data-switch","data-case"
 
 /**
  * Combination of the above two attribute lists
