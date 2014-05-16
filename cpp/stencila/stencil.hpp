@@ -73,7 +73,9 @@ public:
             commit(call.arg(0));
         }
         else if(what=="render"){
+            if(call.args()>0) html(call.arg(0));
             render();
+            return html();
         }
         else {
             STENCILA_THROW(Exception,"Method not registered for calling: "+what);
@@ -125,7 +127,9 @@ public:
      * Get stencil content as HTML
      */
     std::string html(void) const {
-        return dump();
+        // Dump content as html.
+        // Note that this explicitly avoids Stencil::dump
+        return Xml::Document::dump();
     }
 
     /**
