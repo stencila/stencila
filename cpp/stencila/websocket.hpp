@@ -111,15 +111,13 @@ private:
 					content = Component::page(address);
 				} else {
 					// Static request
-			        // Attempt to open the file
-			        boost::filesystem::path filename(Host::user_dir());
-			        filename /= path;
-			        if(!boost::filesystem::exists(filename)){
+			        std::string filename = Component::resolve(path);
+			        if(not filename.length()){
 			        	// 404: not found
 			        	status = http::status_code::not_found;
 			        	content = "Not found: "+path;
 			        } else {
-			            std::ifstream file(filename.string());
+			            std::ifstream file(filename);
 			        	if(!file.good()){
 			        		// 500 : internal server error
 			        		status = http::status_code::internal_server_error;
@@ -135,7 +133,7 @@ private:
 			         		content = file_content;
 			         		// Determine and set the "Content-Type" header
 					        std::string content_type;
-					        std::string extension = filename.extension().string();
+					        std::string extension = boost::filesystem::path(filename).extension().string();
 					        if(extension==".txt") content_type = "text/plain";
 					        else if(extension==".css") content_type = "text/css";
 					        else if(extension==".html") content_type = "text/html";

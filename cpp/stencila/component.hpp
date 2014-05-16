@@ -57,6 +57,10 @@ public:
             return what_;
         }
 
+        uint args(void) const {
+            return args_.size();
+        }
+
         template<typename Type=std::string>
         Type arg(uint index,const std::string& name="") const {
             if(name.length()>0){
@@ -250,13 +254,24 @@ public:
 
     /**
      * Get the store paths
+     *
+     * `STENCILA_STORES` can be set as an environment variable.
+     * It serves the same function as [`PYTHONPATH` in Python](https://docs.python.org/2/using/cmdline.html#envvar-PYTHONPATH) 
+     * and [`R_LIBS` in R](http://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html)
      */
     static std::vector<std::string> stores(void){
-        return {
-            Host::current_dir(),
-            Host::user_dir(),
-            Host::system_dir()
+        std::vector<std::string> stores = {
+            Host::current_dir()
         };
+        const char* more = std::getenv("STENCILA_STORES");
+        if(more) {
+            std::vector<std::string> more_stores;
+            boost::split(more_stores,more,boost::is_any_of(";"));
+            for(std::string store : more_stores) stores.push_back(store);
+        }
+        stores.push_back(Host::user_dir());
+        stores.push_back(Host::system_dir());
+        return stores;
     }
 
     /**
@@ -276,6 +291,17 @@ public:
             }
         }
 
+        return "";
+    }
+
+    static std::string resolve(const std::string& path){
+        std::string url = "";
+        for(std::string store : stores()){
+            std::string store_path = store+"/"+path;
+            if(boost::filesystem::exists(store_path)){
+                return store_path;
+            }
+        }
         return "";
     }
     
