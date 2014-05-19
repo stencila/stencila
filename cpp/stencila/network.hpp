@@ -14,7 +14,6 @@
 #include <stencila/component.hpp>
 
 namespace Stencila {
-namespace Websocket {
 
 using namespace websocketpp;
 using namespace websocketpp::frame;
@@ -267,5 +266,4 @@ public:
     }
 };
 
-} // namespace Websocket
 } // namespace Stencila

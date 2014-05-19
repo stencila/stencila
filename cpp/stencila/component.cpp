@@ -1,6 +1,6 @@
 #include <stencila/component.hpp>
 #include <stencila/stencil.hpp>
-#include <stencila/websocket.hpp>
+#include <stencila/network.hpp>
 
 namespace Stencila {
 
@@ -11,12 +11,11 @@ Component::Class Component::classes_[Component::class_codes_];
 std::map<std::string,Component::Instance> Component::instances_;
 
 // Implemented here to prevent circular dependency in 
-// `component.hpp` and `websocket.hpp`
+// `component.hpp` and `network.hpp`
 std::string Component::serve(ClassCode code){
     // Declare this component
     declare(code);
     // Ensure the Server is started
-    using Websocket::Server;
     std::string url = Server::ensure();
     // Add this component's address to the url
     url += "/" + address();
