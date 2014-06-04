@@ -246,7 +246,7 @@ public:
     }
 
     Stencil& render(void){
-        RContext context;
+        PythonContext context;
         render_element_(*this,context);
         return *this;
     }
@@ -532,14 +532,14 @@ private:
 
         // Initialise the loop
         bool more = context.begin(item,items);
-        // Get the `data-repeat` node
-        Node repeat = node.one("[data-repeat]");
-        // If is for loop has been rendered before then it will have a `data-off`
+        // Get the `data-each` node
+        Node each = node.one("[data-each]");
+        // If is for loop has been rendered before then `each` will have a `data-off`
         // attribute. So erase that attribute so that the repeated nodes don't get it
-        if(repeat) repeat.erase("data-off");
+        if(each) each.erase("data-off");
         // Iterate
         int count = 0;
-        while(repeat and more){
+        while(each and more){
             // See if there is an existing child with a corresponding `data-index`
             std::string index = boost::lexical_cast<std::string>(count);
             Node item = node.one("[data-index=\""+index+"\"]");
@@ -549,14 +549,14 @@ private:
                 if(not locked){
                     // If it is then destory and replace it
                     item.destroy();
-                    item = node.append(repeat);
+                    item = node.append(each);
                 }
             } else {
                 // If there is not, create one
-                item = node.append(repeat);
+                item = node.append(each);
             }
             // Erase and set index as required
-            item.erase("data-repeat");
+            item.erase("data-each");
             item.attr("data-index",index);
             // Render the element
             render_element_(item,context);
@@ -564,8 +564,8 @@ private:
             more = context.next();
             count++;
         }
-        // Deactivate the repeat object
-        if(repeat) repeat.attr("data-off","true");
+        // Deactivate the each object
+        if(each) each.attr("data-off","true");
         // Remove any children having a `data-index` attribute greater than the 
         // number of items, unless it has a `data-lock` decendent
         Nodes indexeds = node.all("[data-index]");
