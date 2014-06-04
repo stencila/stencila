@@ -26,7 +26,16 @@ class Server {
 private:
 
 	server server_;
-	uint port_ = 9002;
+	
+	/**
+	 * Port number for the server
+	 *
+	 * The default port number, 7373, was chosen quasi-arbitarily from amongst the unassigned 
+	 * port numbers at [IANA](http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.txt)
+	 * Seven and three also happen to be ["lucky numbers"](http://en.wikipedia.org/wiki/Lucky_number)!
+	 */
+	uint port_ = 7373;
+
 	std::string name_;
 
 	/**
