@@ -670,8 +670,8 @@ public:
                 }
             }
             // Remove file names
-            // FIXME this is a temporary hack
-            boost::replace_last(address,"/index.html","");
+            // @fixme this is a temporary hack
+            boost::replace_last(address,"/stencil.html","");
             return address;
         }
         else return "";

@@ -245,9 +245,14 @@ public:
         return *this;
     }
 
-    Stencil& render(void){
-        PythonContext context;
-        render_element_(*this,context);
+    Stencil& render(const std::string& type){
+        if(type=="py"){
+            PythonContext context;
+            render_element_(*this,context);
+        } else if(type=="r"){
+            RContext context;
+            render_element_(*this,context);
+        }
         return *this;
     }
     
@@ -856,8 +861,7 @@ public:
         }  
 
         // Sanitize before proceeding
-        // FIXME currently disabled
-        // sanitize();
+        sanitize();
 
         return *this;
     }
