@@ -86,7 +86,7 @@ private:
 
 public:
 
-    MapContextContext(void){
+    MapContext(void){
         nss_.push_back(&ns_);
     }
 
