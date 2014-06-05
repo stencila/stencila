@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(error){
     try{
         c.execute("nonexistant*5");
     } catch(const RException& exc){
-        BOOST_CHECK_EQUAL(exc.what(),"object 'nonexistant' not found");
+        BOOST_CHECK_EQUAL(exc.what(),"Error: object 'nonexistant' not found\n");
     }
 } 
 
