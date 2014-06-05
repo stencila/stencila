@@ -425,7 +425,7 @@ private:
      * The best way to do that still needs to be worked out.
      */
     template<typename Context>
-    void render_image_(Xml::Node node, Context& context){
+    void render_image_(Node node, Context& context){
         std::string format = node.attr("data-image");
         std::string code = node.text();
         std::string image = context.paint(format,code);

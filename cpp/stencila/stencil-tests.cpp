@@ -185,12 +185,12 @@ using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(code){
     render(R"(
-        <code class="executed" data-code="map" />
-        <code class="ignored">This should be ignored because no data-code attribute</code>
+        <code class="a" data-code="map">This should be ignored because no MapContext does not `accept` any code</code>
+        <code class="b">This should be ignored because no data-code attribute</code>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("code.executed [data-error]").text(),"Method \"execute\" not supported by this type of context");
-    BOOST_CHECK(not s.one("code.ignored [data-error]"));
+    BOOST_CHECK(not s.one("code.a [data-error]"));
+    BOOST_CHECK(not s.one("code.b [data-error]"));
 }
 
 BOOST_AUTO_TEST_CASE(text){
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(image){
             plot(x,y)
         </code>
     )");
-
+    dump();
     BOOST_CHECK_EQUAL(s.one("code [data-error]").text(),"Method \"paint\" not supported by this type of context");
 }
 
@@ -315,13 +315,11 @@ BOOST_AUTO_TEST_CASE(for_existing_index){
     render(R"(
         <ul data-for="planet:planets">
             <li data-each data-text="planet" />
-            <li data-text="planet" data-index="0"><span>(the first)</span></li>
+            <li data-text="planet" data-index="0">Should be overwritten</li>
         </ul>
     )");
     
     BOOST_CHECK_EQUAL(s.one("li[data-index=\"0\"]").text(),"Argabuthon");
-    BOOST_CHECK_EQUAL(s.one("li[data-index=\"0\"] span").text(),"(the first)");
-    BOOST_CHECK(not s.one("li[data-index=\"1\"] span"));
 }
 
 BOOST_AUTO_TEST_CASE(for_locked_extras){
