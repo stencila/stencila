@@ -6,8 +6,13 @@
 #include <stencila/component.hpp>
 #include <stencila/json.hpp>
 #include <stencila/html.hpp>
-
-#include <stencila/r-context.hpp>
+// Conditional includes of context types
+#if STENCILA_PYTHON_CONTEXT
+    #include <stencila/python-context.hpp>
+#endif
+#if STENCILA_R_CONTEXT
+    #include <stencila/r-context.hpp>
+#endif
 
 class Context;
 
@@ -159,6 +164,13 @@ private:
      */
     Context* context_ = nullptr;
 
+    /**
+     * A list of rendering contexts that are compatible with this stencil.
+     *
+     * Context compatability will be determined by the expressions used in 
+     * stencil directives like `data-with`,`data-text` etc. Some expressions
+     * will be able to be used in multiple contexts.
+     */
     std::vector<std::string> contexts_;
 
 public:
@@ -239,20 +251,56 @@ private:
 
 public:
 
-    template<typename Context>
-    Stencil& render(Context& context){
-        render_element_(*this,context);
+    /**
+     * Render this stencil
+     * 
+     * @param  type Type of stencil (e.g. "r", "py")
+     */
+    Stencil& render(const std::string& type=""){
+        // Get the list of context that are compatible with this stencil
+        auto types = contexts();
+        // Use the first in the list if type has not been specified
+        std::string use;
+        if(type.length()==0){
+            if(types.size()==0){
+                STENCILA_THROW(Exception,"No default context type for this stencil; please specify one.");
+            }
+            else use = types[0];
+        } else {
+            use = type;
+        }
+        // Render the stencil in the correposnding context type
+        if(use=="py"){
+            #if STENCILA_PYTHON_CONTEXT
+                PythonContext context;
+                render(context);
+            #else
+                STENCILA_THROW(Exception,"Stencila has not been compiled with support for Python contexts");
+            #endif
+        }
+        else if(use=="r"){
+            #if STENCILA_R_CONTEXT
+                RContext context;
+                render(context);
+            #else
+                STENCILA_THROW(Exception,"Stencila has not been compiled with support for R contexts");
+            #endif
+        }
+        else {
+           STENCILA_THROW(Exception,"Unrecognised context type: "+type); 
+        }
+        // Return self for chaining
         return *this;
     }
 
-    Stencil& render(const std::string& type){
-        if(type=="py"){
-            PythonContext context;
-            render_element_(*this,context);
-        } else if(type=="r"){
-            RContext context;
-            render_element_(*this,context);
-        }
+    /**
+     * Render this stencil within an existing context
+     *
+     * @parameters context Context for rendering
+     */
+    template<typename Context>
+    Stencil& render(Context& context){
+        render_element_(*this,context);
         return *this;
     }
     
