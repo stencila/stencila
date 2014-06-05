@@ -1059,6 +1059,8 @@ public:
      */
     static std::string message(const std::string& address,const std::string& message){
         using namespace Json;
+        using Json::Object;
+        using Json::Array;
         using boost::format;
 
         //WAMP basic spec is at https://github.com/tavendo/WAMP/blob/master/spec/basic.md
