@@ -114,6 +114,7 @@ public:
      */
     std::string content(const std::string& format="html") const {
         if(format=="html") return html();
+        else if(format=="cila") return cila();
         else STENCILA_THROW(Exception,"Format code not recognised: "+format);
     }
 
@@ -124,6 +125,7 @@ public:
      */
     Stencil& content(const std::string& format, const std::string& content){
         if(format=="html") html(content);
+        else if(format=="cila") cila(content);
         else STENCILA_THROW(Exception,"Format code not recognised: "+format);
         return *this;
     }
@@ -134,7 +136,8 @@ public:
     std::string html(void) const {
         // Dump content as html.
         // Note that this explicitly avoids Stencil::dump
-        return Xml::Document::dump();
+        // and uses indentation
+        return Xml::Document::dump(true);
     }
 
     /**
@@ -151,6 +154,46 @@ public:
         append_children(doc.find("body"));
         return *this;
     }
+
+
+public:
+
+    /**
+     * Get stencil content as Cila
+     */
+    std::string cila(void) const;
+
+    /**
+     * Write stencil content as Cila to an output stream
+     *
+     * @param stream Output stream to write to
+     */
+    const Stencil& cila(std::ostream& stream) const;
+
+    /**
+     * Write Cila to a stream for a Xml::Node
+     * 
+     * @param stream Output stream to write to
+     * @param node   The Xml::Node
+     * @param indent Indentation for each line of Cila
+     */
+    static void cila(Node node, std::ostream& stream, std::string indent="");
+
+    /**
+     * Set stencil content using Cila
+     * 
+     * @param cila A string of Cila code
+     */
+    Stencil& cila(const std::string& cila);
+
+    /**
+     * Set stencil content using Cila read from an input stream
+     *
+     * @param stream Input stream to read from
+     */
+    Stencil& cila(std::istream& stream);
+
+
 
     /**
      * @name Contexts
