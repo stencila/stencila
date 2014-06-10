@@ -7,8 +7,10 @@ STENCILA_CPP_HOME := $(STENCILA_HOME)/cpp
 # Define compiler flags
 STENCILA_CPP_FLAGS := -pthread -std=c++11 -Wall -Wno-unused-local-typedefs -DSTENCILA_HOME='"$(STENCILA_HOME)"'
 
-R_CPPFLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()") $(shell Rscript -e "RInside:::CxxFlags()")
-R_LDFLAGS :=  $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()") $(shell Rscript -e "RInside:::LdFlags()")
+# The following shell commands are slow so are temporarily commented out
+# until a better way is found to include these
+#R_CPPFLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()") $(shell Rscript -e "RInside:::CxxFlags()")
+#R_LDFLAGS :=  $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()") $(shell Rscript -e "RInside:::LdFlags()")
 
 # Define directories for includes
 STENCILA_CPP_INCLUDE_DIRS := -I$(STENCILA_CPP_HOME) -I$(STENCILA_CPP_HOME)/requires/include
