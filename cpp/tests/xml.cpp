@@ -7,7 +7,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include <stencila/xml.hpp>
-#include <stencila/xml.cpp>
 
 BOOST_AUTO_TEST_SUITE(xml)
 

@@ -6,11 +6,6 @@
 #include <stencila/stencil.hpp>
 #include <stencila/map-context.hpp>
 
-#include <stencila/stencil.cpp>
-#include <stencila/xml.cpp>
-#include <stencila/component.cpp>
-#include <stencila/network.cpp>
-
 BOOST_AUTO_TEST_SUITE(stencil)
 
 using namespace Stencila;
