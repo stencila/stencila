@@ -155,6 +155,13 @@ public:
         return *this;
     }
 
+    /**
+     * @name Cila parsing and generating
+     *
+     * Method implementation in `stencil-cila.cpp`
+     * 
+     * @{
+     */
 
 public:
 
@@ -193,6 +200,9 @@ public:
      */
     Stencil& cila(std::istream& stream);
 
+    /**
+     * @}
+     */
 
 
     /**
