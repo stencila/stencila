@@ -5,10 +5,12 @@ include $(dir $(lastword $(MAKEFILE_LIST)))/../variables.make
 
 # Define a header macro to 
 # make it easier to read Makefile output
+# Previous version set colours using tput that failed when 
+# using with SublimeText
 define header
-	@tput setaf 6
+	@echo -------------------------------------------------------
 	@echo $1
-	@tput sgr0
+	@echo -------------------------------------------------------
 endef
 
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid)
