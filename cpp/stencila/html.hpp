@@ -20,6 +20,7 @@ namespace Html {
 typedef Xml::Attribute Attribute;
 typedef Xml::AttributeList AttributeList;
 typedef Xml::Node Node;
+typedef Xml::Nodes Nodes;
 typedef Xml::Whitelist Whitelist;
 
 /**
@@ -114,16 +115,17 @@ public:
 private:
 
 	/**
-	 * A Xml::Document traverser which ensures that the content of the document conforms to 
-	 * HTML5
+	 * A Xml::Document traverser which ensures that the content of the 
+	 * document conforms to HTML5
 	 */
-	struct Validator : pugi::xml_tree_walker {
+	struct Sanitizer : pugi::xml_tree_walker {
 	    virtual bool for_each(pugi::xml_node& node) {
 	        if(node.type()==pugi::node_element){
 	        	std::string name  = node.name();
 	        	// Check to see if this is a "void element"
 	        	bool voide = false;
-	        	for(auto tag : {"area","base","br","col","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"}){
+	        	for(auto tag : {"area","base","br","col","embed","hr","img","input",
+	        					"keygen","link","meta","param","source","track","wbr"}){
 	        		if(name==tag){
 	        			voide = true;
 	        			break;
@@ -145,6 +147,15 @@ private:
 	};
 
 public:
+
+	/**
+	 * Sanitize the document to ensure it conforms to HTML5
+	 */
+	Document& sanitize(void){
+        Sanitizer sanitizer;
+		traverse(sanitizer);
+		return *this;
+	}
 
     /**
      * Load the document from a HTML string
@@ -181,9 +192,8 @@ public:
         	head.append("meta",{{"charset","UTF-8"}});
         }
 
-        // Validate the content of the document elements
-        Validator walker;
-		traverse(walker);
+        // Sanitize this document
+        sanitize();
 
         return *this;
     }

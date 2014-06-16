@@ -126,10 +126,17 @@ public:
     }
 
     /**
-     * Is this text node?
+     * Is this a text node?
      */
     bool is_text(void) const {
         return type()==pugi::node_pcdata;
+    }
+
+    /**
+     * Is this a CDATA node?
+     */
+    bool is_cdata(void) const {
+        return type()==pugi::node_cdata;
     }
 
     /**
