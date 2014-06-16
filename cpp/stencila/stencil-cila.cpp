@@ -5,154 +5,727 @@
 
 #include <stencila/stencil.hpp>
 
-namespace Stencila {
+// Anonymous local namespace for Cila parsing and generating functions
+// which do not need to be Stencil methods
+namespace {
 
-std::string Stencil::cila(void) const {
-    // Create a std::ostream and pass to cila(std::ostream)
-    std::ostringstream stream;
-    cila(stream);
-    return stream.str();
-}
+using namespace Stencila;
+typedef Stencil::Node Node;
 
-const Stencil& Stencil::cila(std::ostream& stream) const {
-    // Generate Cila with this Stencil as the root Node
-    cila(*this,stream);
-    return *this;
-}
+// Enumeration for the Cila parsing mode
+enum Mode {
+    normal_mode,
+    code_mode
+};
 
-void Stencil::cila(Node node, std::ostream& stream, std::string indent) {
-    // Generate Cila for a Xml::Node
-    // For a document...
-    if(node.is_document()){
-        // .... generate Cila for each cild with no indentation
-        for(Node child : node.children()) cila(child,stream);
+// Parsing state information passed between parsing functions
+struct State {
+    Mode mode = normal_mode;
+
+    bool end = false;
+
+    struct Line {
+        bool empty = false;
+        int indentation = 0;
+    };
+    Line current;
+    Line previous;
+
+    struct {
+        std::string lang;
+        std::string content;
+        int indentation = 0;
+    } code;
+};
+
+// Forward declarations of the main parsing and generating functions
+// which are used recursively below
+void parse(Node node, std::istream& stream);
+void generate(Node node, std::ostream& stream, std::string indent);
+
+// Language grammer is defined below.
+// For clarity, parsing and generating functions
+// are defined adjacent to each element of the grammar
+using namespace boost::xpressive;
+
+/**
+ * Text
+ */
+
+sregex text = +_;
+
+Node text_parse(Node parent, const smatch& tree, const State& state){
+    // If previous line was empty then create a new paragraph to be target
+    // for additional text, otherwise use existing parent as target
+    Node node;
+    if(state.previous.empty){
+        node = parent.append("p");
+    } else {
+        node = parent;
     }
-    // For an element...
-    else if(node.is_element()){
-        // Unless this is the very first content written to the stream
-        // start elements on a new line with appropriate indentation
-        if(stream.tellp()>0) stream<<"\n"<<indent;
-        // Get element name and attributes
-        std::string name = node.name();    
-        auto attrs = node.attrs();
-        // If this has no attributes...
-        if(attrs.size()==0) {
-            //... then output the node name (this needs to be done for <div>s too 
-            // otherwise you get a blank line
-            stream<<name;
-        } else {
-            // If this is not a <div> then output name
-            bool div = true;
-            if(name!="div"){
-                stream<<name;
-                div = false;
-            }
+    // Text nodes may have "inlines" defined using curly braces e.g.
+    //   The minimum is {if a<b {text a} else {text b}}.
+    // Deal with those by replacing { with indented lines and } with outdented lines
+    std::string content = tree.str();
+    bool altered = false;
+    std::string formatted;
+    formatted.reserve(content.length());
+    std::deque<char> indent = {'\n'};
+    for(std::string::iterator iter=content.begin();iter!=content.end();iter++){
+        char chara = *iter;
+        if(chara=='{'){
+            altered = true;
+            if(formatted.length()>0) formatted.append(indent.begin(),indent.end());
+            indent.push_back('\t');
+        }
+        else if(chara=='}'){
+            formatted.push_back('\n');
+            indent.pop_back();
+        }
+        else {
+            formatted += chara;
+        }
+    }
+    if(formatted.back()=='\n') formatted.pop_back();
 
-            // id and class notations
-            std::string id = node.attr("id");
-            if(id.length()) stream<<"#"<<id;
+    if(not altered) node.append_text(content);
+    else {
+        std::stringstream stream(formatted);
+        stream.seekg(0);
+        //std::cout<<"\n--------------------------\n"<<formatted<<"\n--------------------------"<<std::endl;
+        parse(node,stream);
+        //std::cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n"<<node.dump()<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~"<<std::endl;
+    }
+    return node;
+}
 
-            std::string class_ = node.attr("class");
+/**
+ * HTML5 tags
+ */
+/*
+List of vaild HTML5 element names from 
+    http://www.w3.org/TR/html-markup/elements.html
+and extracted using this python script:
+    import requests
+    import bs4
+    page = requests.get('http://www.w3.org/TR/html-markup/elements.html').text
+    elems = bs4.BeautifulSoup(page).findAll('span', {'class':'element'})
+    print '|'.join('"%s"'%elem.text for elem in sorted(set(elems)))
+*/
+sregex tag = 
+    #if 0 
+    /*
+    Statically compiling element name list dramatically increases compile
+    times (e.g. 11s to 27s) and executable sizes (e.g. 10Mb to 80Mb).
+    */
+    as_xpr("a")|"abbr"|"address"|"area"|"article"|"aside"|"audio"|"b"|"base"|"bdi"|"bdo"|"blockquote"|"body"|"br"|"button"|
+        "canvas"|"caption"|"cite"|"code"|"col"|"colgroup"|"command"|"datalist"|"dd"|"del"|"details"|"dfn"|"div"|"dl"|"dt"|
+        "em"|"embed"|"fieldset"|"figcaption"|"figure"|"footer"|"form"|"h1"|"h2"|"h3"|"h4"|"h5"|"h6"|"head"|"header"|"hgroup"|"hr"|"html"|
+        "i"|"iframe"|"img"|"input"|"ins"|"kbd"|"keygen"|"label"|"legend"|"li"|"link"|"map"|"mark"|"menu"|"meta"|"meter"|"nav"|"noscript"|
+        "object"|"ol"|"optgroup"|"option"|"output"|"p"|"param"|"pre"|"progress"|"q"|"rp"|"rt"|"ruby"|"s"|"samp"|"script"|"section"|
+        "select"|"small"|"source"|"span"|"strong"|"style"|"sub"|"summary"|"sup"|"table"|"tbody"|"td"|"textarea"|"tfoot"|"th"|"thead"|
+        "time"|"title"|"tr"|"track"|"u"|"ul"|"var"|"video"|"wbr"
+    #else
+    /*
+    Dynamically compiling element name list only slightly increases compile
+    times (e.g. 11s to 15s) and executable sizes (e.g. 10Mb to 13Mb).
+    */
+    sregex::compile(
+        "a|abbr|address|area|article|aside|audio|b|base|bdi|bdo|blockquote|body|br|button|"
+        "canvas|caption|cite|code|col|colgroup|command|datalist|dd|del|details|dfn|div|dl|dt|"
+        "em|embed|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|"
+        "i|iframe|img|input|ins|kbd|keygen|label|legend|li|link|map|mark|menu|meta|meter|nav|noscript|"
+        "object|ol|optgroup|option|output|p|param|pre|progress|q|rp|rt|ruby|s|samp|script|section|"
+        "select|small|source|span|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|"
+        "time|title|tr|track|u|ul|var|video|wbr"
+    )
+    #endif
+;
+
+/**
+ * Attributes of elements
+ */
+
+sregex attr_identifier  = +(_w|'-');
+
+// id="bar"
+
+sregex id = '#' >> attr_identifier;
+
+void id_parse(Node node, const smatch& tree){
+    // Set `id` after removing leading "#"
+    // This will overide any previous id assignments for this element
+    node.attr("id",tree.str(0).erase(0,1));
+}
+
+void id_gen(Node node, std::ostream& stream){
+    auto id = node.attr("id");
+    if(id.length()) stream<<"#"<<id;
+}
+
+// class="foo"
+
+sregex class_ = '.' >> attr_identifier;
+
+void class_parse(Node node, const smatch& tree){
+    // Concatenate to `class` after removing leading "."
+    // This will "accumulate" any class assignments
+    node.concat("class",tree.str(0).erase(0,1));
+}
+
+void class_gen(Node node, std::ostream& stream){
+    // Get clas attribute and split using spaces
+    std::string class_ = node.attr("class");
+    if(class_.length()){
+        std::vector<std::string> classes;
+        boost::split(classes,class_,boost::is_any_of(" "));
+        for(std::string class_ : classes){
             if(class_.length()) stream<<"."<<class_;
+        }
+    }
+}
 
-            // other attributes to go here in square braces
+// [foo="bar"]
 
-            // Status attributes
-            std::string index = node.attr("data-index");
-            if(index.length()) stream<<"@"<<index;
+sregex attr_string = ('\"' >> *(~(set='\r','\n','\"')) >> '\"') | 
+                           ('\'' >> *(~(set='\r','\n','\'')) >> '\'');
+sregex attr_assign = '[' >> *space >> attr_identifier >> '=' >> attr_string >> *space >> ']';
 
-            std::string off = node.attr("data-off");
-            if(off.length()) stream<<"-";    
+void attr_assign_parse(Node node, const smatch& tree){
+    // Get name and value
+    auto branch = tree.nested_results().begin();
+    auto name = branch;
+    auto value = ++branch;
+    // Remove leading and trailing quotes from value
+    std::string content = value->str();
+    content.erase(0,1);
+    content.erase(content.length()-1,1);
+    // Set the attribute
+    node.attr(name->str(),content);
+}
 
-            std::string lock = node.attr("data-lock");
-            if(lock.length()) stream<<"!";    
+void attr_assign_gen(Node node, std::ostream& stream, const std::string& attr){
+    stream << "[" << attr << "=\"" + node.attr(attr) + "\"]";
+}
 
-            // Directive attributes. An element can only have one of these.
-            // These need to go after the other attributes
-            for(std::string attr : attrs){
-                if(attr=="data-macro"){
-                    if(not div) stream<<"!";
-                    stream<<"macro";
-                    break;
-                }
+/**
+ * off: Indicator for conditional stencil directives
+ * (if,elif,else,case,default)
+ */
 
-                else if(attr=="data-code"){
-                    if(not div) stream<<" ";
-                    stream<<"code ";
-                    break;
-                }
+sregex off = as_xpr('/');
 
-                else if(attr=="data-text"){
-                    if(not div) stream<<" ";
-                    stream<<"text "<<node.attr("data-text");
-                    break;
-                }
-                else if(attr=="data-image"){
-                    if(not div) stream<<" ";
-                    stream<<"image "<<node.attr("data-image");
-                    break;
-                }
+void off_parse(Node node, const smatch& tree){
+    // Set the attribute to true
+    node.attr("data-off","true");
+}
 
-                else if(attr=="data-with"){
-                    if(not div) stream<<"!";
-                    stream<<"with "<<node.attr("data-with");
-                    break;
-                }
+void off_gen(Node node, std::ostream& stream){
+    auto off = node.attr("data-off");
+    if(off.length()) stream<<"/";
+}
 
-                else if(attr=="data-if"){
-                    if(not div) stream<<" ";
-                    stream<<"if "<<node.attr("data-if");
-                    break;
-                }
-                else if(attr=="data-elif"){
-                    if(not div) stream<<" ";
-                    stream<<"elif "<<node.attr("data-elif");
-                    break;
-                }
-                else if(attr=="data-else"){
-                    if(not div) stream<<" ";
-                    stream<<"else";
-                    break;
-                }
+/**
+ * index: Indicator for index of each elements in 
+ * a for directive
+ */
 
-                else if(attr=="data-switch"){
-                    if(not div) stream<<" ";
-                    stream<<"switch "<<node.attr("data-switch");
-                    break;
-                }
-                else if(attr=="data-case"){
-                    if(not div) stream<<" ";
-                    stream<<"case "<<node.attr("data-case");
-                }
-                else if(attr=="data-default"){
-                    if(not div) stream<<" ";
-                    stream<<"default";
-                }
+sregex index = as_xpr('@') >> +_d;
 
-                else if(attr=="data-for"){
-                    if(not div) stream<<" ";
-                    stream<<"for "<<node.attr("data-for");
-                }
-                else if(attr=="data-each"){
-                    if(not div) stream<<" ";
-                    stream<<"each "<<node.attr("data-each");
-                }
+void index_parse(Node node, const smatch& tree){
+    // Set the attribute, removing the leading @
+    node.attr("data-index",tree.str().substr(1));
+}
 
-                else if(attr=="data-include"){
-                    if(not div) stream<<" ";
-                    stream<<node.attr("data-include");
-                }
+void index_gen(Node node, std::ostream& stream){
+    auto index = node.attr("data-index");
+    if(index.length()) stream<<"@"<<index;
+}
+
+/**
+ * lock: Indicator for elements that have been edited an
+ * which should not be overwritten by rendering
+ */
+
+sregex lock = as_xpr('^');
+
+void lock_parse(Node node, const smatch& tree){
+    // Set the attribute to true
+    node.attr("data-lock","true");
+}
+
+void lock_gen(Node node, std::ostream& stream){
+    auto lock = node.attr("data-lock");
+    if(lock.length()) stream<<"^";
+}
+
+/**
+ * Stencil directives
+ */
+
+// Regexes for the types of directive arguments
+// Currently, very permissive
+sregex expr = +_;
+sregex address = +_w;
+sregex selector = +_;
+
+/**
+ * Directives with no arguments
+ */
+sregex directive_noarg = sregex::compile("else|default");
+
+void directive_noarg_parse(Node node, const smatch& tree){
+    // Set empty directive attribute
+    node.attr("data-"+tree.str(),"");
+}
+
+/**
+ * Directives with a single expression argument
+ */
+sregex directive_expr_name = sregex::compile("text|with|if|elif|switch|case");
+sregex directive_expr = directive_expr_name >> +space >> expr;
+
+void directive_expr_parse(Node node, const smatch& tree){
+    // Get name and value
+    auto branch = tree.nested_results().begin();
+    auto name = branch;
+    auto value = ++branch;
+    // Set directive attribute
+    node.attr("data-"+name->str(),value->str());
+}
+
+/**
+ * For directive
+ */
+
+sregex for_ = as_xpr("for") >> +space >> expr >> +space >> "in" >> +space >> expr;
+
+void for_parse(Node node, const smatch& tree){
+    // Get item and items
+    auto branch = tree.nested_results().begin();
+    auto item = branch;
+    auto items = ++branch;
+    // Set for attribute
+    node.attr("data-for",item->str()+":"+items->str());
+}
+
+void for_gen(Node node, std::ostream& stream){
+    auto parts = node.attr("data-for");
+    auto colon = parts.find_first_of(":");
+    std::string item = "item";
+    std::string items = "items";
+    if(colon!=std::string::npos){
+        item = parts.substr(0,colon);
+        if(item.length()==0) STENCILA_THROW(Exception,"Missing 'item' parameter")
+        items = parts.substr(colon+1);
+        if(items.length()==0) STENCILA_THROW(Exception,"Missing 'items' parameter")
+    } else {
+        STENCILA_THROW(Exception,"Missing semicolon")
+    }
+    stream<<"for "<<item<<" in "<<items;
+}
+
+/**
+ * Include directive
+ */
+
+sregex include = as_xpr("include") >> +space >> address >> *(+space >> selector);
+
+void include_parse(Node node, const smatch& tree){
+    auto include = tree.nested_results().begin();
+    node.attr("data-include",include->str());
+    auto select = ++include;
+    if(select!=tree.nested_results().end()) node.attr("data-select",select->str());
+}
+
+void include_gen(Node node, std::ostream& stream){
+    stream<<"include "<<node.attr("data-include");
+    auto select = node.attr("data-select");
+    if(select.length()) stream<<" "<<select;
+}
+
+/**
+ * Modifier directives
+ */
+
+sregex modifier_name = sregex::compile("delete|change|replace|before|after|prepend|append");
+sregex modifier = modifier_name >> +space >> selector;
+
+/**
+ * Element line
+ */
+
+sregex element = (
+    // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
+    // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
+    (tag >> *(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier)))|
+    (       +(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier)))|
+    (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|modifier) )|
+    (                                                            directive_noarg|directive_expr|for_|include|modifier  )
+) >> 
+    // Allow for trailing text. Note that the first space is not significant (it does
+    // not get included in `text`).
+    !(space>>*text); 
+
+Node element_parse(Node parent, const smatch& tree, State& state){
+    auto branch = tree.nested_results().begin();
+    // The first branch is always a tag or an attr
+    // If it is an tag use that, otherwise make it a <div>
+    std::string name = (branch->regex_id()==tag.regex_id())?branch->str():"div";
+    // Create the element
+    Node node = parent.append(name);
+    // Iterate over remaining branches which include attributes for the element
+    // including those for stencil directives.
+    // Note that since the first branch may need further processing (if it is an attribute)
+    // that the branch iterator is not incremented until the end of the loop.
+    while(branch!=tree.nested_results().end()){
+        const void* id = branch->regex_id();
+        // Attributes
+        if(id==::id.regex_id()) id_parse(node,*branch);
+        else if(id==class_.regex_id()) class_parse(node,*branch);
+        else if(id==attr_assign.regex_id()) attr_assign_parse(node,*branch);
+        // Flags
+        else if(id==off.regex_id()) off_parse(node,*branch);
+        else if(id==index.regex_id()) index_parse(node,*branch);
+        else if(id==lock.regex_id()) lock_parse(node,*branch);
+        // Directives
+        else if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
+        else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
+        else if(id==for_.regex_id()) for_parse(node,*branch);
+        else if(id==include.regex_id()) include_parse(node,*branch);
+        // Text
+        else if(id==text.regex_id()) text_parse(node,*branch,state);
+        branch++;
+    }
+    return node;
+}
+
+void element_gen(Node node, std::ostream& stream,const std::string& indent){
+    // Unless this is the very first content written to the stream
+    // start elements on a new line with appropriate indentation
+    if(stream.tellp()>0) stream<<"\n"<<indent;
+    // The format of the element line can be complicated and dependent
+    // upon the what came earlier on the line so use a string rather than
+    // going straight to the stream
+    std::ostringstream line;
+    // Get element name and attributes
+    std::string name = node.name();    
+    auto attrs = node.attrs();
+    // Check number of attributes
+    if(attrs.size()==0) {
+        // If this has no attributes then output the node name (this needs to be done for <div>s too 
+        // otherwise you get a blank line)
+        line << name;
+    } else {
+        // If this is not a <div> then output name
+        if(name!="div") line << name;
+        // id
+        id_gen(node,line);
+        // class
+        class_gen(node,line);
+        // Other attributes go before directives
+        for(std::string attr : node.attrs()){
+            if(
+                attr!="id" and attr!="class" and 
+                attr!="off"  and attr!="index"  and 
+                attr!="lock" and attr.substr(0,5)!="data-"
+            ){
+                attr_assign_gen(node,line,attr);
             }
         }
+        // Flags go before directives
+        off_gen(node,line);
+        index_gen(node,line);
+        lock_gen(node,line);
+        // Directive attributes. An element can only have one of these.
+        // These need to go after the other attributes
+        std::string directive;
+        for(std::string attr : attrs){
+            if(attr=="data-macro"){
+                directive = "macro";
+                break;
+            }
 
-        for(Node child : node.children()) cila(child,stream,indent+"\t");
+            else if(attr=="data-text"){
+                directive = "text " + node.attr("data-text");
+                break;
+            }
+            else if(attr=="data-image"){
+                directive = "image " + node.attr("data-image");
+                break;
+            }
+
+            else if(attr=="data-with"){
+                directive = "with " + node.attr("data-with");
+                break;
+            }
+
+            else if(attr=="data-if"){
+                directive = "if " + node.attr("data-if");
+                break;
+            }
+            else if(attr=="data-elif"){
+                directive = "elif " + node.attr("data-elif");
+                break;
+            }
+            else if(attr=="data-else"){
+                directive = "else";
+                break;
+            }
+
+            else if(attr=="data-switch"){
+                directive = "switch " + node.attr("data-switch");
+                break;
+            }
+            else if(attr=="data-case"){
+                directive = "case " + node.attr("data-case");
+            }
+            else if(attr=="data-default"){
+                directive = "default";
+            }
+
+            else if(attr=="data-for"){
+                for_gen(node,line);
+            }
+            else if(attr=="data-each"){
+                directive = "each " + node.attr("data-each");
+            }
+
+            else if(attr=="data-include"){
+                include_gen(node,line);
+            }
+        }
+        if(directive.length()>0){
+            if(line.tellp()>0) line << '!';
+            line << directive;
+        }
     }
-    else if(node.is_text()){
-        std::string text = node.text();
-        if(text.length()<100) stream<<" "<<text;
-        else stream<<"\n"<<indent<<text;
+    // Add line to the stream
+    stream<<line.str();
+    // Generate Cila for children
+    for(Node child : node.children()) generate(child,stream,indent+"\t");
+}
+
+/**
+ * Code directive for embedded code
+ */
+sregex code = sregex::compile("py|r");
+
+Node code_parse(Node parent, const smatch& tree, State& state){
+    // The code language is the the tree string
+    auto lang = tree.str();
+    // Append the node
+    Node node = parent.append("code",{{"data-code",lang}});
+    // Set state variables (note indentation to one plus current) 
+    state.mode = code_mode;
+    state.code.lang = lang;
+    state.code.content = "";
+    state.code.indentation = state.current.indentation + 1;
+    return node;
+}
+
+void code_check(Node parent,const std::string& line, State& state){
+    // If line is empty or indented more...
+    if(not state.end and (state.current.empty or state.current.indentation>=state.code.indentation)){
+        // Add line, even if it is empty, to `code.content`
+        // But strip `code.indentation` from it first
+        if(state.current.empty) state.code.content += line;
+        else state.code.content += line.substr(state.code.indentation);
+        state.code.content += "\n";
+    }
+    // Otherwise wrap up the code element
+    else {
+        // The following block of code escapes the CDATA wrapper
+        // It seems unecessary to do this, certainly for non-<script> elements
+        // which the browser wil no attempt to parse anyway
+        #if 0
+            // Determine comment flag
+            std::string comment;
+            if(code_lang=="r" or code_lang=="py") comment = "#";
+            else comment = "//";
+            // Add a comment token to escape "<![CDATA[" . This needs to be added to `current` node NOT `state.code.content`
+            current.append_text(comment);
+            // Add a comment token to escape "]]>". This needs to be added to `state.code.content` before appending as CDATA
+            state.code.content += comment;
+        #endif
+        // Insert a starting newline to escape the "<![CDATA[" line
+        state.code.content.insert(0,"\n");
+        // Then add the code as CDATA
+        parent.append_cdata(state.code.content);
+        // Turn off code mode
+        state.mode = normal_mode;
     }
 }
+
+void code_gen(Node node, std::ostream& stream, const std::string& indent){
+    // Unless this is the very first content written to the stream
+    // start on a new line with appropriate indentation
+    if(stream.tellp()>0) stream<<"\n"<<indent;
+    // Output language code; no element name
+    stream<<node.attr("data-code")<<"\n";
+    // Get the actual code. Assumes it is the first child node!
+    auto code = node.first().text();
+    // Split into lines
+    std::vector<std::string> lines;
+    boost::split(lines,code,boost::is_any_of("\n"));
+    // Add extra indentation to each line
+    // Ignore the first line which was added when parsing Cila to HTML
+    // and the last line which is a "pseudo" line created when splittin by "\n"
+    for(uint index=1;index<(lines.size()-1);index++){
+        stream<<indent+"\t"<<lines[index];
+        // Don't put a newline on last line - that is the 
+        // repsonsibility of the following element
+        if(index<(lines.size()-2)) stream<<"\n";
+    }
+}
+
+/**
+ * Equations
+ */
+
+sregex asciimath = as_xpr("`") >> *(~(set='`')) >> as_xpr("`");
+sregex tex = as_xpr("\\(") >> *_ >> as_xpr("\\)");
+sregex equation = asciimath|tex;
+
+Node equation_parse(Node parent,const smatch& tree){
+    // Resolve type
+    std::string type;
+    auto branch = tree.nested_results().begin();
+    auto id = branch->regex_id();
+    if(id==asciimath.regex_id()){
+        type = "asciimath";
+    }
+    else if(id==tex.regex_id()){
+        type = "tex";
+    }
+    // Create a <p class="<type>">
+    Node node = parent.append("p",{{"class",type}});
+    // Append equation text to current node with delimiters
+    node.append_text(tree.str());
+    return node;
+}
+
+void equation_gen(Node node, std::ostream& stream, const std::string& indent){
+    // Just need to output child text, not the paragraph element
+    // No extra indentation required
+    for(Node child : node.children()) generate(child,stream,indent);
+}
+
+/**
+ * Comments.
+ * Currently not implemented
+ */
+
+sregex comment_text = *_;
+sregex comment = as_xpr("//") >> comment_text;
+
+/**
+ * Root regex for each line
+ */
+sregex root = comment|equation|code|element|text;
+
+void parse(Node node, std::istream& stream){
+    // Keep track of state variables for 
+    // sending to other nose-specific parsing functions
+    State state;
+    // Define a parent node, starting off as the stencil's
+    // content root node
+    Node parent = node;
+    // Define current node that may become parent
+    Node current = node;
+    // Define a stack of <indent,Node> pairs
+    // when the indentation increases then then `currrent`
+    // becomes parent
+    std::deque<std::pair<int,Node>> levels;
+    levels.push_back({0,node});
+    // Iterate over lines
+    uint count = 0;
+    while(true){
+        // Read line in
+        std::string line;
+        bool ok = std::getline(stream,line,'\n');
+        // Check for end of file so that can be treated
+        // as a "pseudo"-line
+        if(not ok){
+            if(stream.eof()) state.end = true;
+            else break;
+        } else {
+            // Increment the line counter
+            count++;
+        }
+        // Determine if this line is empty - anything other than whitespace?
+        bool empty = state.current.empty = line.find_first_not_of("\t ")==std::string::npos;
+        int indentation = state.current.indentation = (not empty)?line.find_first_not_of("\t"):0;
+
+        //std::cout<<count<<":"<<empty<<":"<<indentation<<":"<<state.end<<":"<<line<<"\n";
+
+        // If in `code_mode` then process the line immeadiately
+        // and potentially change to `normal_mode`
+        // This should be done before any changes to `parent`
+        if(state.mode==code_mode) code_check(parent,line,state);
+        // Determine the parent-child relationships for this node based on its indentation
+        // If indentation has increased, the current node becomes the parent
+        int last = levels.back().first;
+        if(indentation>last){
+            levels.push_back({indentation,current});
+            parent = current;
+        }
+        // if it has not changed, then do nothing
+        else if(indentation==last){
+        }
+        // if it less, then pop off parents until we get to the right level
+        else {
+            while(levels.size()>1 and indentation<levels.back().first) levels.pop_back();
+            parent = levels.back().second;
+        }
+        // Normal mode processing which may have been turned
+        // back on by `code_process` etc
+        if(state.mode==normal_mode){
+            // If the line has content...
+            if(not state.current.empty){
+                // Remove indentation before parsing
+                std::string content = line.substr(indentation);
+                // Parse the line into a syntax tree
+                smatch tree;
+                regex_match(content,tree,root);
+                // Parse the first and only branch of the tree
+                auto branch = tree.nested_results().begin();
+                const void* id = branch->regex_id();
+                if(id==comment.regex_id()) {}
+                else if(id==equation.regex_id()) current = equation_parse(parent,*branch);
+                else if(id==code.regex_id()) current = code_parse(parent,*branch,state);
+                else if(id==element.regex_id()) current = element_parse(parent,*branch,state);
+                else if(id==text.regex_id()) current = text_parse(parent,*branch,state);
+                else  STENCILA_THROW(Exception,"Unrecognised syntax: "+boost::lexical_cast<std::string>(count)+": "+line);
+            }
+        }
+        // If this is the end then break out,
+        // otherwise update state.previous
+        if(state.end) break;
+        else state.previous = state.current;
+    }
+}
+
+void generate(Node node, std::ostream& stream, std::string indent="") {
+    // Generate Cila for a Stencil::Node
+    if(node.is_document()){
+        // .... generate Cila for each cild with no indentation
+        for(Node child : node.children()) generate(child,stream);
+    }
+    else if(node.name()=="p" and (node.attr("class")=="asciimath" or node.attr("class")=="tex")) equation_gen(node,stream,indent);
+    else if(node.attr("data-code")!="") code_gen(node,stream,indent);
+    else if(node.is_element()) element_gen(node,stream,indent);
+    else if(node.is_text()){
+        std::string text = node.text();
+        stream<<"\n"<<indent<<text;
+    }
+}
+
+} // namespace <anonymous>
+
+namespace Stencila {
+
+// Parsing methods
 
 Stencil& Stencil::cila(const std::string& string){
     // Convert the std::string to a std::istream
@@ -163,298 +736,26 @@ Stencil& Stencil::cila(const std::string& string){
 }
 
 Stencil& Stencil::cila(std::istream& stream){
-    // Define language grammar
-    using namespace boost::xpressive;
-    sregex indent = *space;
-    /*
-    List of vaild HTML5 element names from 
-        http://www.w3.org/TR/html-markup/elements.html
-    and extracted using this python script:
-        import requests
-        import bs4
-        page = requests.get('http://www.w3.org/TR/html-markup/elements.html').text
-        elems = bs4.BeautifulSoup(page).findAll('span', {'class':'element'})
-        print '|'.join('"%s"'%elem.text for elem in sorted(set(elems)))
-    */
-    sregex tag = 
-        #if 0 
-        /*
-        Statically compiling element name list dramatically increases compile
-        times (e.g. 11s to 27s) and executable sizes (e.g. 10Mb to 80Mb).
-        */
-        as_xpr("a")|"abbr"|"address"|"area"|"article"|"aside"|"audio"|"b"|"base"|"bdi"|"bdo"|"blockquote"|"body"|"br"|"button"|
-            "canvas"|"caption"|"cite"|"code"|"col"|"colgroup"|"command"|"datalist"|"dd"|"del"|"details"|"dfn"|"div"|"dl"|"dt"|
-            "em"|"embed"|"fieldset"|"figcaption"|"figure"|"footer"|"form"|"h1"|"h2"|"h3"|"h4"|"h5"|"h6"|"head"|"header"|"hgroup"|"hr"|"html"|
-            "i"|"iframe"|"img"|"input"|"ins"|"kbd"|"keygen"|"label"|"legend"|"li"|"link"|"map"|"mark"|"menu"|"meta"|"meter"|"nav"|"noscript"|
-            "object"|"ol"|"optgroup"|"option"|"output"|"p"|"param"|"pre"|"progress"|"q"|"rp"|"rt"|"ruby"|"s"|"samp"|"script"|"section"|
-            "select"|"small"|"source"|"span"|"strong"|"style"|"sub"|"summary"|"sup"|"table"|"tbody"|"td"|"textarea"|"tfoot"|"th"|"thead"|
-            "time"|"title"|"tr"|"track"|"u"|"ul"|"var"|"video"|"wbr"
-        #else
-        /*
-        Dynamically compiling element name list only slightly increases compile
-        times (e.g. 11s to 15s) and executable sizes (e.g. 10Mb to 13Mb).
-        */
-        sregex::compile(
-            "a|abbr|address|area|article|aside|audio|b|base|bdi|bdo|blockquote|body|br|button|"
-            "canvas|caption|cite|code|col|colgroup|command|datalist|dd|del|details|dfn|div|dl|dt|"
-            "em|embed|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|head|header|hgroup|hr|html|"
-            "i|iframe|img|input|ins|kbd|keygen|label|legend|li|link|map|mark|menu|meta|meter|nav|noscript|"
-            "object|ol|optgroup|option|output|p|param|pre|progress|q|rp|rt|ruby|s|samp|script|section|"
-            "select|small|source|span|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|"
-            "time|title|tr|track|u|ul|var|video|wbr"
-        )
-        #endif
-    ;
-
-    sregex inlined_expr      = *(~(set='|'));
-    sregex inlined           = *tag >> "|" >> inlined_expr >> "|";
-    sregex chars            = *space>>+(~(set='|'))>>*space;
-    sregex text             = +(inlined|chars);
-
-    sregex expr = +_;
-    sregex selector = +_;
-    sregex address = +_w;
-
-    sregex directive_for = as_xpr("for") >> +space >> expr >> +space >> "in" >> +space >> expr;
-    sregex directive_include = as_xpr("include") >> +space >> address >> *(+space >> selector);
-    sregex directive_modifier_name = sregex::compile("replace|before|after|prepend|append");
-    sregex directive_modifier = directive_modifier_name >> +space >> selector;
-    sregex directive_arg_name = sregex::compile("text|with|if|elif|switch|value");
-    sregex directive_arg = directive_arg_name >> +space >> expr;
-    sregex directive_noarg = sregex::compile("script|else|default");
-
-    sregex attr_identifier  = +(_w|'-');
-    sregex attr_string      = ('\"' >> *(~(set='\r','\n','\"')) >> '\"') | 
-                               ('\'' >> *(~(set='\r','\n','\'')) >> '\'');
-    sregex attr_class       = '.' >> attr_identifier;
-    sregex attr_id          = as_xpr("#") >> attr_identifier;
-    sregex attr_assign      = attr_identifier >> '=' >> attr_string;
-
-    sregex element          = (
-        (*(tag >> "!") >> (directive_include|directive_modifier|directive_for|directive_arg|directive_noarg)) |
-        (tag >> *(attr_class|attr_id|'[' >> *space >> +(attr_assign>>*space) >> ']')) |
-        +(attr_class|attr_id|'[' >> *space >> +(attr_assign>>*space) >> ']')
-    ) >> *(+space >> *chars);
-
-    sregex code = sregex::compile("py|r");
-
-    sregex equation_text = *(~(set='`')); 
-    sregex equation = as_xpr("`") >> equation_text >> as_xpr("`");
-
-    sregex comment_text = *_;
-    sregex comment = as_xpr("//") >> comment_text;
-
-    sregex regex = indent >> (comment|equation|code|element|text);
-
     // Clear the stencil of all existing content
     clear();
-    // Define modes for parsing
-    enum {normal_mode,code_mode} mode = normal_mode;
-    // Define a parent node, starting off as the stencil's
-    // content root node
-    Node parent = *this;
-    // Define current node that may become parent
-    Node current;
-    // Define a stack of <indent,Node> pairs
-    // when the indentation increases then then `currrent`
-    // becomes parent
-    std::deque<std::pair<int,Node>> levels;
-    levels.push_back({0,*this});
-    // Define code which is appended
-    std::string code_content;
-    std::string code_lang;
-    // Keep track if previous line was empty
-    bool previous_empty = true;
-    // Iterate over lines
-    std::string line;
-    uint count = 0;
-    while(std::getline(stream,line,'\n')){
-        // Increment the line counter
-        count++;
-        // Determine if this line is empty - anything other than whitespace?
-        bool empty = line.find_first_not_of("\t ")==std::string::npos;
-        // Determine the parent-child relationships for this node based on its indentation
-        if(not empty){
-            int indentation = line.find_first_not_of("\t");
-            // If indentation has increased, the current node becomes the parent
-            int last = levels.back().first;
-            if(indentation>last){
-                levels.push_back({indentation,current});
-                parent = current;
-            }
-            // if it has not changed, then do nothing
-            else if(indentation==last){
-            }
-            // if it less, then pop off parents until we get to the right level
-            else {
-                while(levels.size()>1 and indentation<levels.back().first) levels.pop_back();
-                parent = levels.back().second;
-            }
-        }
-        if(mode==normal_mode){
-            // Trim the line of extraneous whitespace
-            boost::trim(line);
-            // If the line has content...
-            if(not empty){
-                // Parse the line into a syntax tree
-                smatch tree;
-                regex_match(line,tree,regex);
-                // The line has several branches; get the branches iterator
-                auto branch = tree.nested_results().begin();
-                // Skip the first branch for the `indent`
-                branch++;
-                // Get the id of the next branch
-                const void* id = branch->regex_id();
-                if(id==element.regex_id()){
-                    // Get iterator for subtree
-                    auto tree = *branch;
-                    auto branch = tree.nested_results().begin();
-                    // The first branch is always a tag or an attr
-                    // If it is an tag use that, otherwise make it a <div>
-                    std::string name = (branch->regex_id()==tag.regex_id())?branch->str():"div";
-                    // Create the element
-                    current = parent.append(name);
-                    // Iterate over remaining branches which include attributes for the element
-                    // including those for stencil directives.
-                    // Note that since the first branch may need further processing (if it is an attribute)
-                    // that the branch iterator is not incremented until the end of the loop.
-                    while(branch!=tree.nested_results().end()){
-                        const void* id = branch->regex_id();
-
-                        if(id==directive_include.regex_id()) {
-                            auto attr = branch->nested_results().begin();
-                            current.attr("data-include",attr->str());
-                            //if(branch->nested_results().size()>1){
-                            //    auto selector = ++nested;
-                            //    current.attr("data-select",selector->str());
-                            //}
-                        }
-                        else if(id==directive_for.regex_id()) {
-                            // Get item and items
-                            auto nested = branch->nested_results().begin();
-                            auto item = nested;
-                            auto items = ++nested;
-                            // Set for attribute
-                            current.attr("data-for",item->str()+":"+items->str());
-                        }
-                        else if(id==directive_arg.regex_id() or id==directive_modifier.regex_id()) {
-                            // Get name and value
-                            auto nested = branch->nested_results().begin();
-                            auto name = nested;
-                            auto value = ++nested;
-                            // Set directive attribute
-                            current.attr("data-"+name->str(),value->str());
-                        }
-                        else if(id==directive_noarg.regex_id()){
-                            // Set empty directive attribute
-                            current.attr("data-"+branch->str(),"");
-                        }
-                        else if(id==attr_id.regex_id()) {
-                            // Set `id` after removing leading "#"
-                            current.attr("id",branch->str(0).erase(0,1));
-                        }
-                        else if(id==attr_class.regex_id()){
-                            // Set `class` after removing leading "."
-                            current.attr("class",branch->str(0).erase(0,1));
-                        }
-                        else if(id==attr_assign.regex_id()){
-                            // Get name and value
-                            auto nested = branch->nested_results().begin();
-                            auto name = nested;
-                            auto value = ++nested;
-                            // Remove leading and trailing quotes from value
-                            std::string string = value->str();
-                            string.erase(0,1);
-                            string.erase(string.length()-1,1);
-                            // Set the attribute
-                            current.attr(name->str(),string);
-                        }
-                        else if(id==chars.regex_id()){
-                            current.append_text(branch->str());
-                        }
-                        branch++;
-                    }
-                }
-                else if(id==text.regex_id()){
-                    // If previous line was empty then create a new paragraph to be target
-                    // for additional text, otherwise use existing parent as target
-                    Node target;
-                    if(previous_empty){
-                        current = parent.append("p");
-                        target = current;
-                    } else {
-                        target = parent;
-                    }
-                    // `text` nodes are made up of one or more `chars` and `inlined` `data-text` directives
-                    auto tree = *branch;
-                    for(auto branch = tree.nested_results().begin();branch!=tree.nested_results().end();branch++){
-                        const void* id = branch->regex_id();
-                        if(id==chars.regex_id()){
-                            target.append_text(branch->str());
-                        }
-                        else if(id==inlined.regex_id()) {
-                            /*
-                            std::string element_name = "span";
-                            auto expression = branch;
-                            if(tree.nested_results().size()==2){
-                                element_name = branch->str();
-                                expression = ++branch;
-                            }
-                            Xml::Node self = Xml::Document::append(node,element_name);
-                            Xml::Document::set(self,"data-text",expression->str());
-                            */
-                        }
-                    }
-                }
-                else if(id==code.regex_id()){
-                    // Append the node
-                    current = parent.append("pre");
-                    // Reset code content
-                    // A starting newline is required to escape the commented "<![CDATA[" line
-                    code_content = "\n";
-                    // The code language is the the branch string
-                    code_lang = branch->str();
-                    current.attr("data-code",code_lang);
-                    // Turn on code mode
-                    mode = code_mode;
-                }
-                else if(id==equation.regex_id()){
-                    // Create a <p class="equation">
-                    current = parent.append("p",{{"class","equation"}});
-                    // Get equation_text
-                    std::string equation_text;
-                    auto tree = *branch;
-                    auto text = tree.nested_results().begin();
-                    if(text != tree.nested_results().end()) equation_text = text->str();
-                    // Append equation text to current node with surrounding backticks
-                    current.append_text("`"+equation_text+"`");
-                }
-                else if(id==comment.regex_id()){
-                }
-                else {
-                    STENCILA_THROW(Exception,"Unrecognised syntax: "+boost::lexical_cast<std::string>(count)+": "+line);
-                }
-            }
-        }
-        else if(mode==code_mode){
-            if(empty){
-                // Add to code
-                code_content += line + "\n";
-            } else {
-                // Add a comment token to escape "<![CDATA[" . This needs to be added to `current` NOT `code_content`
-                if(code_lang=="r" or code_lang=="py") current.append_text("#");
-                // Add a comment token to escape "]]>". This needs to be added to `code_content` before appending as CDATA
-                if(code_lang=="r" or code_lang=="py") code_content += "#";
-                // Then add the code as CDATA
-                current.append_cdata(code_content);
-                // Turn off code mode
-                mode = normal_mode;
-            }
-        }
-
-        previous_empty = empty;
-    }
+    // Parse Cila with this Stencil as the root Node
+    parse(*this,stream);
     return *this;
+}
+
+// Generating methods
+
+std::string Stencil::cila(void) const {
+    // Create a std::ostream and pass to cila(std::ostream)
+    std::ostringstream stream;
+    cila(stream);
+    return stream.str();
+}
+
+std::ostream& Stencil::cila(std::ostream& stream) const {
+    // Generate Cila with this Stencil as the root Node
+    generate(*this,stream);
+    return stream;
 }
 
 }

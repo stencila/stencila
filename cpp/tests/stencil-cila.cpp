@@ -52,86 +52,234 @@ std::string echo(const std::string& in){
 // Check Cila to Cila, allowing for differences in input/output
 #define BACK_(_IN,_OUT) BOOST_CHECK_EQUAL(echo(_IN),_OUT);
 
-BOOST_AUTO_TEST_CASE(a){
+
+BOOST_AUTO_TEST_CASE(empty){
+    // Empty lines should be ignored
     ECHO_("")
-
-    ECHO_("ul\n\tli\n\tli")
-
+    BACK_("\n","")
+    BACK_("div\n\ndiv","div\ndiv")
+    BACK_("div\n\ndiv\n\n\ndiv","div\ndiv\ndiv")
 }
 
-BOOST_AUTO_TEST_CASE(shorthand){
-    HTML_(".class",R"(<div class="class" />)")
-    CILA_(R"(<div class="class" />)",".class")
-    ECHO_(".class")
+BOOST_AUTO_TEST_CASE(indentation){
+    // Indentation should work....
+    ECHO_("ul\n\tli\n\tli")
+    ECHO_("div\n\tdiv\n\t\tdiv")
+    ECHO_("div\n\tdiv\n\t\tdiv\n\tdiv\ndiv")
+}
 
+BOOST_AUTO_TEST_CASE(text){
+    // Anything that is not a div should be plain text
+    // but not on the first line (in that case it is assumed to be a paragraph)
+    HTML_("div\nplain text","<div />\nplain text")
+}
+
+BOOST_AUTO_TEST_CASE(elements_with_trailing_text){
+    HTML_("a my link","<a>my link</a>")
+    HTML_("span            This is my span","<span>           This is my span</span>");
+}
+
+BOOST_AUTO_TEST_CASE(id_class){
+    // Shorthand CSS id and class works
+    ECHO_("ul#id")
+    ECHO_("ul.class")
+    // Only one id
+    BACK_("ul#id1#id2","ul#id2")
+    // More than one class
+    HTML_("div.klass","<div class=\"klass\" />");
+    HTML_("div.klass1.klass2","<div class=\"klass1 klass2\" />");
+    HTML_("div.klass-a.klass-b.klass-c","<div class=\"klass-a klass-b klass-c\" />");
+    // No need to include div
     ECHO_("#id")
-
-    //ECHO_("[attr-a=1]")
-
-    ECHO_(".class#id")
+    HTML_(".class","<div class=\"class\" />")
+    CILA_("<div class=\"class\" />",".class")
+    ECHO_(".class")
+    // Mix them up
     ECHO_("#id.class")
+    // ... id always comes before class
+    BACK_(".class#id","#id.class")
+    // Multiple classes
+    HTML_(".a.b.c#id","<div class=\"a b c\" id=\"id\" />")
+    ECHO_(".a.b.c.d")
+}
+
+BOOST_AUTO_TEST_CASE(attributes){
+    HTML_("a[href=\"http://stenci.la\"] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
+    ECHO_("a[href=\"http://stenci.la\"]\n\tStencila");
+    // More than one
+    HTML_("div[attr1=\"1\"][attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
+    ECHO_("ul[attr1=\"1\"][attr2=\"2\"][attr3=\"3\"]");
+    // Single quotes are replaced by doubles
+    BACK_("a[href='http://stenci.la']","a[href=\"http://stenci.la\"]")
+    // No need to include div
+    HTML_("[attr=\"1\"]","<div attr=\"1\" />")
+    ECHO_("[attr=\"1\"]");
+}
+
+BOOST_AUTO_TEST_CASE(flags){
+    HTML_("/","<div data-off=\"true\" />")
+    ECHO_("/")
+
+    HTML_("@42","<div data-index=\"42\" />")
+    //ECHO_("@42")
+
+    HTML_("^","<div data-lock=\"true\" />")
+    ECHO_("^")
+
+    //ECHO_("/@42^");
+}
+
+BOOST_AUTO_TEST_CASE(paragraph_implied){
+    // Paragraph (empty line before)
+    HTML_("div\n\nThis should be a paragraph","<div />\n<p>This should be a paragraph</p>")
+    // Text (no empty line before)
+    HTML_("This should NOT be a paragraph","This should NOT be a paragraph")
+    HTML_("div\nThis should NOT be a paragraph","<div />\nThis should NOT be a paragraph")
+    // Nests text (no empty line before)
+    HTML_("div\n\tThis should NOT be a paragraph","<div>This should NOT be a paragraph</div>")
+    // Nested paragraph
+    HTML_("div\n\n\tThis should be a paragraph","<div>\n\t<p>This should be a paragraph</p>\n</div>")
+}
+
+BOOST_AUTO_TEST_CASE(equations){
+    // AsciiMath : lines starting with a backtick are made into separate paragraphs
+    HTML_("`E=mc^2`","<p class=\"asciimath\">`E=mc^2`</p>")
+    ECHO_("`E=mc^2`")
+    // Tex and LaTeX : lines starting with a \[ are made into separate paragraphs
+    HTML_("\\(E=mc^2\\)","<p class=\"tex\">\\(E=mc^2\\)</p>")
+    ECHO_("\\(E=mc^2\\)")
+    //...inline math should not be parse, only lines starting with a backtick
+    HTML_("p where `c` is the speed of light","<p>where `c` is the speed of light</p>")
+    HTML_("p where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
+}
+
+
+BOOST_AUTO_TEST_CASE(directive_code_1){
+    auto cila_ = 
+R"(r
+	pi <- 3.14)";
+    auto html_ = 
+R"(<code data-code="r"><![CDATA[
+pi <- 3.14
+]]></code>)";
+    HTML_(cila_,html_)
+    ECHO_(cila_)
+}
+
+BOOST_AUTO_TEST_CASE(directive_code_2){
+    auto cila_ = 
+R"(r
+	pi <- 3.14
+	print(pi))";
+    auto html_ = 
+R"(<code data-code="r"><![CDATA[
+pi <- 3.14
+print(pi)
+]]></code>)";
+    HTML_(cila_,html_)
+    ECHO_(cila_)
+}
+
+BOOST_AUTO_TEST_CASE(directive_code_3){
+    auto cila_ = 
+R"(r
+	pi <- 3.14
+	2*pi
+	2*pi*r^2
+div
+div)";
+    auto html_ = 
+R"(<code data-code="r"><![CDATA[
+pi <- 3.14
+2*pi
+2*pi*r^2
+]]></code>
+<div />
+<div />)";
+    HTML_(cila_,html_)
+    ECHO_(cila_)
+}
+
+BOOST_AUTO_TEST_CASE(directive_text){
+    HTML_("text variable","<div data-text=\"variable\" />");
+    HTML_("span!text variable","<span data-text=\"variable\" />");
+}
+
+BOOST_AUTO_TEST_CASE(directive_image){
+	//!@todo
 }
 
 BOOST_AUTO_TEST_CASE(directive_with){
-    HTML_("with what",R"(<div data-with="what" />)")
-    CILA_(R"(<div data-with="what" />)","with what")
+    HTML_("with what","<div data-with=\"what\" />")
+    CILA_("<div data-with=\"what\" />","with what")
     ECHO_("with what")
 
     ECHO_("section!with what")
 }
 
+BOOST_AUTO_TEST_CASE(directive_if){
+    HTML_(
+        "if true\n\tp.a\nelif false\n\tp.b\nelse\n\tp.c",
+        "<div data-if=\"true\">\n\t<p class=\"a\" />\n</div>\n<div data-elif=\"false\">\n\t<p class=\"b\" />\n</div>\n<div data-else=\"\">\n\t<p class=\"c\" />\n</div>"
+    );
+}
+
+BOOST_AUTO_TEST_CASE(directive_switch){
+	auto cila_ = 
+R"(switch a
+	case 3.14
+		Pi
+	case 42
+		The answer
+	default
+		A number)";
+    auto html_ = 
+R"(<div data-switch="a">
+	<div data-case="3.14">Pi</div>
+	<div data-case="42">The answer</div>
+	<div data-default="">A number</div>
+</div>)";
+	HTML_(cila_,html_)
+    ECHO_(cila_)
+}
+
 BOOST_AUTO_TEST_CASE(directive_for){
-    HTML_("for item in items",R"(<div data-for="item:items" />)")
+    ECHO_("for item in items")
+    HTML_("for item in items","<div data-for=\"item:items\" />")
 }
 
+BOOST_AUTO_TEST_CASE(directive_include){
+	ECHO_("include address")
+	HTML_("include address","<div data-include=\"address\" />")
 
-BOOST_AUTO_TEST_CASE(cila_get){
-    Stencil s;
-    s.html(R"(
-        <div data-if="1">
-            <p>One</p>
-        </div>
-        <section data-elif="0">
-            <p>None</p>
-        </section>
-        <div data-else>
-            <p>None</p>
-        </div>
+	ECHO_("include address selector")
 
-        <ul id="a">
-            <li id="a1" class="A1" data-off="true" data-lock="true" data-index="3" data-if="p<0.05">some text</li>
-            <li id="a2">Yo!</li>
-        </ul>
-    )");
-    std::cout<<s.cila();
+	ECHO_("include a-superbly-sublime-stencil #a-marvelous-macro")
+	ECHO_("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
 }
 
-BOOST_AUTO_TEST_CASE(cila_set){
-    Stencil s;
-    std::string cila = R"(
-div#myid.myclass[foo="bar"]
-    Some text in the div
-
-    This should be a paragraph
-
-    ul!for item in items
-        li!text item
-
-    py
-        a = 1
-        print a
-
-    r
-        a <-1
-        print(a)
-
-    `e = mc^2`
-
-    )";
-    s.cila(cila);
-    std::cout<<cila<<"\n"<<s.html()<<std::endl;
+BOOST_AUTO_TEST_CASE(directive_macro){
+	//! @todo
 }
 
+BOOST_AUTO_TEST_CASE(inlines){
+    HTML_("Text with a no inlines","Text with a no inlines");
+    HTML_("Text with a {a[href=\"http://stencil.la\"] link} in it.","Text with a \n<a href=\"http://stencil.la\">link</a>\n in it.");
+
+    HTML_("{div}","<div />");
+    HTML_("{div {div}}","<div>\n\t<div />\n</div>");
+
+    HTML_(
+        "The minimum is {if a<b {text a}}{else {text b}}",
+        "The minimum is \n<div data-if=\"a&lt;b \">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
+    );
+
+    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t\t<div data-text=\"pi*2\" />\n</div>");
+
+    HTML_("div Some text","<div>Some text</div>");
+    HTML_("div {Some text}","<div>Some text</div>");
+    HTML_("div Text with a {span inside span}.","<div>\n\tText with a \n\t<span>inside span</span>\n\t.\n</div>");
+}
 
 #undef HTML_
 #undef CILA_

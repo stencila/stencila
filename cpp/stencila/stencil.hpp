@@ -166,27 +166,6 @@ public:
 public:
 
     /**
-     * Get stencil content as Cila
-     */
-    std::string cila(void) const;
-
-    /**
-     * Write stencil content as Cila to an output stream
-     *
-     * @param stream Output stream to write to
-     */
-    const Stencil& cila(std::ostream& stream) const;
-
-    /**
-     * Write Cila to a stream for a Xml::Node
-     * 
-     * @param stream Output stream to write to
-     * @param node   The Xml::Node
-     * @param indent Indentation for each line of Cila
-     */
-    static void cila(Node node, std::ostream& stream, std::string indent="");
-
-    /**
      * Set stencil content using Cila
      * 
      * @param cila A string of Cila code
@@ -199,6 +178,18 @@ public:
      * @param stream Input stream to read from
      */
     Stencil& cila(std::istream& stream);
+
+    /**
+     * Get stencil content as Cila
+     */
+    std::string cila(void) const;
+
+    /**
+     * Get stencil content as Cila written to an output stream
+     *
+     * @param stream Output stream to write to
+     */
+    std::ostream& cila(std::ostream& stream) const;
 
     /**
      * @}
