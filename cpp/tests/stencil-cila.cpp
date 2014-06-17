@@ -121,12 +121,12 @@ BOOST_AUTO_TEST_CASE(flags){
     ECHO_("/")
 
     HTML_("@42","<div data-index=\"42\" />")
-    //ECHO_("@42")
+    ECHO_("@42")
 
     HTML_("^","<div data-lock=\"true\" />")
     ECHO_("^")
 
-    //ECHO_("/@42^");
+    ECHO_("/@42^");
 }
 
 BOOST_AUTO_TEST_CASE(paragraph_implied){
@@ -200,13 +200,22 @@ pi <- 3.14
     ECHO_(cila_)
 }
 
+BOOST_AUTO_TEST_CASE(directive_code_image){
+    auto cila_ = 
+R"(r png 60x42
+	plot(x,y))";
+    auto html_ = 
+R"(<code data-code="r" data-output="png" data-size="60x42"><![CDATA[
+plot(x,y)
+]]></code>)";
+    HTML_(cila_,html_)
+    ECHO_(cila_)
+}
+
+
 BOOST_AUTO_TEST_CASE(directive_text){
     HTML_("text variable","<div data-text=\"variable\" />");
     HTML_("span!text variable","<span data-text=\"variable\" />");
-}
-
-BOOST_AUTO_TEST_CASE(directive_image){
-	//!@todo
 }
 
 BOOST_AUTO_TEST_CASE(directive_with){
@@ -274,7 +283,7 @@ BOOST_AUTO_TEST_CASE(inlines){
         "The minimum is \n<div data-if=\"a&lt;b \">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
     );
 
-    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t\t<div data-text=\"pi*2\" />\n</div>");
+    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<div data-text=\"pi*2\" />\n</div>");
 
     HTML_("div Some text","<div>Some text</div>");
     HTML_("div {Some text}","<div>Some text</div>");

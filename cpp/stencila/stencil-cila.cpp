@@ -12,6 +12,11 @@ namespace {
 using namespace Stencila;
 typedef Stencil::Node Node;
 
+// Forward declarations of the main parsing and generating functions
+// which are used recursively below
+void parse(Node node, std::istream& stream);
+void generate(Node node, std::ostream& stream, std::string indent);
+
 // Enumeration for the Cila parsing mode
 enum Mode {
     normal_mode,
@@ -38,10 +43,46 @@ struct State {
     } code;
 };
 
-// Forward declarations of the main parsing and generating functions
-// which are used recursively below
-void parse(Node node, std::istream& stream);
-void generate(Node node, std::ostream& stream, std::string indent);
+void code_mode_start(const std::string& lang, State& state){
+    // Set state variables (note indentation to one plus current) 
+    state.mode = code_mode;
+    state.code.lang = lang;
+    state.code.content = "";
+    state.code.indentation = state.current.indentation + 1;
+}
+
+void code_mode_check(Node parent, const std::string& line, State& state){
+    // If line is empty or indented more...
+    if(not state.end and (state.current.empty or state.current.indentation>=state.code.indentation)){
+        // Add line, even if it is empty, to `code.content`
+        // But strip `code.indentation` from it first
+        if(state.current.empty) state.code.content += line;
+        else state.code.content += line.substr(state.code.indentation);
+        state.code.content += "\n";
+    }
+    // Otherwise wrap up the code element
+    else {
+        // The following block of code escapes the CDATA wrapper
+        // It seems unecessary to do this, certainly for non-<script> elements
+        // which the browser wil no attempt to parse anyway
+        #if 0
+            // Determine comment flag
+            std::string comment;
+            if(code_lang=="r" or code_lang=="py") comment = "#";
+            else comment = "//";
+            // Add a comment token to escape "<![CDATA[" . This needs to be added to `current` node NOT `state.code.content`
+            current.append_text(comment);
+            // Add a comment token to escape "]]>". This needs to be added to `state.code.content` before appending as CDATA
+            state.code.content += comment;
+        #endif
+        // Insert a starting newline to escape the "<![CDATA[" line
+        state.code.content.insert(0,"\n");
+        // Then add the code as CDATA
+        parent.append_cdata(state.code.content);
+        // Turn off code mode
+        state.mode = normal_mode;
+    }
+}
 
 // Language grammer is defined below.
 // For clarity, parsing and generating functions
@@ -75,6 +116,7 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
         char chara = *iter;
         if(chara=='{'){
             altered = true;
+            // Add a newline with indentation if there is already some content
             if(formatted.length()>0) formatted.append(indent.begin(),indent.end());
             indent.push_back('\t');
         }
@@ -86,6 +128,7 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
             formatted += chara;
         }
     }
+    // Remove any trailing newline
     if(formatted.back()=='\n') formatted.pop_back();
 
     if(not altered) node.append_text(content);
@@ -450,10 +493,6 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
                 directive = "text " + node.attr("data-text");
                 break;
             }
-            else if(attr=="data-image"){
-                directive = "image " + node.attr("data-image");
-                break;
-            }
 
             else if(attr=="data-with"){
                 directive = "with " + node.attr("data-with");
@@ -509,52 +548,25 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
 /**
  * Code directive for embedded code
  */
-sregex code = sregex::compile("py|r");
+sregex output = as_xpr("out") | "svg" | "png" | "jpg";
+sregex size = +_d >> "x" >> +_d;
+sregex lang = as_xpr("py") | "r";
+sregex code = lang >> *(+space >> (output|size));
 
 Node code_parse(Node parent, const smatch& tree, State& state){
-    // The code language is the the tree string
-    auto lang = tree.str();
+    // The code language is always the first branch
+    auto language = tree.nested_results().begin()->str();
     // Append the node
-    Node node = parent.append("code",{{"data-code",lang}});
-    // Set state variables (note indentation to one plus current) 
-    state.mode = code_mode;
-    state.code.lang = lang;
-    state.code.content = "";
-    state.code.indentation = state.current.indentation + 1;
+    Node node = parent.append("code",{{"data-code",language}});
+    // Iterate over branches adding arguments
+    for(auto branch : tree.nested_results()){
+        auto id = branch.regex_id();
+        if(id==output.regex_id()) node.attr("data-output",branch.str());
+        else if(id==size.regex_id()) node.attr("data-size",branch.str());
+    }
+    // Turn on code mode processing
+    code_mode_start(language,state);
     return node;
-}
-
-void code_check(Node parent,const std::string& line, State& state){
-    // If line is empty or indented more...
-    if(not state.end and (state.current.empty or state.current.indentation>=state.code.indentation)){
-        // Add line, even if it is empty, to `code.content`
-        // But strip `code.indentation` from it first
-        if(state.current.empty) state.code.content += line;
-        else state.code.content += line.substr(state.code.indentation);
-        state.code.content += "\n";
-    }
-    // Otherwise wrap up the code element
-    else {
-        // The following block of code escapes the CDATA wrapper
-        // It seems unecessary to do this, certainly for non-<script> elements
-        // which the browser wil no attempt to parse anyway
-        #if 0
-            // Determine comment flag
-            std::string comment;
-            if(code_lang=="r" or code_lang=="py") comment = "#";
-            else comment = "//";
-            // Add a comment token to escape "<![CDATA[" . This needs to be added to `current` node NOT `state.code.content`
-            current.append_text(comment);
-            // Add a comment token to escape "]]>". This needs to be added to `state.code.content` before appending as CDATA
-            state.code.content += comment;
-        #endif
-        // Insert a starting newline to escape the "<![CDATA[" line
-        state.code.content.insert(0,"\n");
-        // Then add the code as CDATA
-        parent.append_cdata(state.code.content);
-        // Turn off code mode
-        state.mode = normal_mode;
-    }
 }
 
 void code_gen(Node node, std::ostream& stream, const std::string& indent){
@@ -562,7 +574,14 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
     // start on a new line with appropriate indentation
     if(stream.tellp()>0) stream<<"\n"<<indent;
     // Output language code; no element name
-    stream<<node.attr("data-code")<<"\n";
+    stream<<node.attr("data-code");
+    //Optional arguments
+    for(auto attr : {"data-output","data-size"}){
+        if(node.attr(attr).length()){
+            stream<<" "<<node.attr(attr);
+        }
+    }
+    stream<<"\n";
     // Get the actual code. Assumes it is the first child node!
     auto code = node.first().text();
     // Split into lines
@@ -662,7 +681,7 @@ void parse(Node node, std::istream& stream){
         // If in `code_mode` then process the line immeadiately
         // and potentially change to `normal_mode`
         // This should be done before any changes to `parent`
-        if(state.mode==code_mode) code_check(parent,line,state);
+        if(state.mode==code_mode) code_mode_check(parent,line,state);
         // Determine the parent-child relationships for this node based on its indentation
         // If indentation has increased, the current node becomes the parent
         int last = levels.back().first;
