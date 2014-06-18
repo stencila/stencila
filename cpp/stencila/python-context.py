@@ -5,6 +5,32 @@ import code
 import sys
 from cStringIO import StringIO
 
+class Images:
+	'''
+	Handles image generation
+	'''
+
+	engine = None
+	count = 0
+
+	@staticmethod
+	def filename(format):
+		Images.count += 1
+		return "%d.%s"%(Images.count,format)
+
+# Attempt to load image packages
+try:
+	import matplotlib
+except ImportError:
+	pass
+else:
+	Images.engine = 'matplotlib'
+	# Use the cairo backend because it support a variety of image formats.
+	matplotlib.use('cairo')
+	# Only once backend has been set then pylab can be imported
+	import pylab
+
+
 class Namespace(dict):
 
 	def __init__(self,parent=None):
@@ -95,8 +121,16 @@ class Context:
 
 	# Context methods that provide the interface defined in cpp/stencila/context.hpp
 
-	def execute(self,code):
+	def execute(self,code,format,width,height,units):
 		exec code in self.top()
+
+		if format in ('png','svg'):
+			if Images.engine=='matplotlib':
+				filename = Images.filename(format)
+				pylab.savefig(filename)				
+				return filename
+
+		return ""
 
 	def interact(self,code):
 		# Note that there is no buffering done here
@@ -108,9 +142,6 @@ class Context:
 
 	def write(self,expression):
 		return str(self.evaluate(expression))
-
-	def paint(self,format,code):
-		raise NotImplementedError
 
 	def test(self,expression):
 		return bool(self.evaluate(expression))

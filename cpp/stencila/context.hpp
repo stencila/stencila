@@ -53,8 +53,12 @@ public:
      * Execute code within the context
      * 
      * @param code String of code
+     * @param format Output format
+     * @param width Width of output (image formats only)
+     * @param height Height of output (image formats only)
+     * @param units Units of width and height (image formats only)
      */
-    virtual void execute(const std::string& code) = 0;
+    virtual std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units="") = 0;
     
     /**
      * Execute a peice of code and return an interactive result

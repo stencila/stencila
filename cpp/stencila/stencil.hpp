@@ -371,7 +371,6 @@ private:
                 if(attr=="data-macro") return ;
                 else if(attr=="data-code") return render_code_(node,context);
                 else if(attr=="data-text") return render_text_(node,context);
-                else if(attr=="data-image") return render_image_(node,context);
                 else if(attr=="data-with") return render_with_(node,context);
                 else if(attr=="data-if") return render_if_(node,context);
                 // Ignore `elif` and `else` elements as these are processed by `render_if_`
@@ -418,6 +417,11 @@ private:
      * 
      * `code` elements must have both the `code` tag and the `data-code` attribute.
      * Elements having just one of these will not be rendered.
+     *
+     * 
+     *
+     * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
+     * The best way to do that still needs to be worked out.
      */
     template<typename Context>
     void render_code_(Node node, Context& context){
@@ -436,7 +440,45 @@ private:
         // If ok, execute the code, otherwise just ignore
         if(ok){
             std::string code = node.text();
-            context.execute(code);
+            std::string format = node.attr("data-format");
+            std::string size = node.attr("data-size");
+            std::string width,height,units;
+            if(size.length()){
+                boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
+                boost::smatch matches;
+                if(boost::regex_match(size, matches, regex)){
+                    width = matches[1];
+                    height = matches[2];
+                    if(matches.size()>2) units = matches[3];
+                }
+            }
+            std::string output = context.execute(code,format,width,height,units);
+            if(format.length()){
+                Xml::Document doc;
+                Node output_node;
+                if(format=="out"){
+                    output_node = doc.append("samp",output);
+                }
+                else if(format=="png"){
+                    output_node = doc.append("img",{
+                        {"src",output}
+                    });
+                }
+                else if(format=="svg"){
+                    output_node = doc.append_xml(output);
+                }
+                else {
+                    output_node = doc.append(
+                        "div",
+                        {{"data-error","output-format"},{"data-format",format}},
+                        "Output format not recognised: "+format
+                    );
+                }
+                // Flag output node 
+                output_node.attr("data-output","true");
+                // Create a copy immeadiately after code directive
+                node.after(output_node);
+            }
         }
     }
 
@@ -454,41 +496,6 @@ private:
             std::string expression = node.attr("data-text");
             std::string text = context.write(expression);
             node.text(text);
-        }
-    }
-
-    /** 
-     * Render a `image` element (e.g `<code data-image="svg">plot(x,y)</code>`)
-     *
-     * `image` elements capture any images produced by executing the enclosed code
-     * in the context. `image` elements can be of alternative graphic formats e.g `svg`,`png`
-     * When the code of a `image` element is sucessfully executed a child node is appended
-     * which contains the resulting image and has the `data-data="true"` attribute.
-     *
-     * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
-     * The best way to do that still needs to be worked out.
-     */
-    template<typename Context>
-    void render_image_(Node node, Context& context){
-        std::string format = node.attr("data-image");
-        std::string code = node.text();
-        std::string image = context.paint(format,code);
-        if(format=="svg"){
-            Node svg = node.append_xml(image);
-            svg.attr("data-data","true");
-        } 
-        else if(format=="png"){
-            node.append("img",{
-                {"src",""},
-                {"data-data","true"}
-            });
-        }
-        else {
-            node.append(
-                "div",
-                {{"data-error","image-format"},{"data-format",format}},
-                "Image format not recognised: "+format
-            );
         }
     }
 

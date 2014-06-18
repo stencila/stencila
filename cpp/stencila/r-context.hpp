@@ -182,8 +182,8 @@ public:
         return language=="r";
     }
 
-    void execute(const std::string& code){
-        call_("execute",code);
+    std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
+        return call_<std::string>("execute",code,format,width,height,units);
     }
 
     std::string interact(const std::string& code){
@@ -196,10 +196,6 @@ public:
 
     std::string write(const std::string& expression){
         return call_<std::string>("write",expression);
-    }
-    
-    std::string paint(const std::string& format, const std::string& code){
-        return call_<std::string>("paint",format,code);
     }
     
     bool test(const std::string& expression){

@@ -156,8 +156,8 @@ public:
         return language=="py";
     }
 
-    void execute(const std::string& code){
-        call_("execute",code);
+    std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
+        return call_<std::string>("execute",code,format,width,height,units);
     }
 
     std::string interact(const std::string& code){

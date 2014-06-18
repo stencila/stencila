@@ -85,15 +85,6 @@ BOOST_AUTO_TEST_CASE(text_lock){
     BOOST_CHECK_EQUAL(s.one("[data-text=\"a\"]").text(),"So long, and thanks ...");
 }
 
-BOOST_AUTO_TEST_CASE(image){
-    render(R"(
-        <code data-image="svg">
-            plot(x,y)
-        </code>
-    )");
-    BOOST_CHECK_EQUAL(s.one("code [data-error]").text(),"Method \"paint\" not supported by this type of context");
-}
-
 BOOST_AUTO_TEST_CASE(with){
     render(R"(
         <ul data-with="planets">

@@ -33,6 +33,12 @@ BOOST_AUTO_TEST_CASE(various){
     BOOST_CHECK_EQUAL(c.call({"write",{"answer"}}),"42");
 }
 
+BOOST_AUTO_TEST_CASE(image){
+    PythonContext c;
+
+    BOOST_CHECK_EQUAL(c.execute("from pylab import plot; plot([1,2],[3,4])","png"),"1.png");
+}
+
 BOOST_AUTO_TEST_CASE(comments){
     PythonContext c;
     c.execute("#Some comment that should be removed\nanswer = 42 # Another comment\n");

@@ -84,9 +84,9 @@ Context <- function(envir){
     ##################################
     # "execute" method
 
-    self$execute <- function(code){
+    self$execute <- function(code,format,width,height,units){
         self$evaluate(code)
-        self
+        return("")
     }
     
     ##################################
