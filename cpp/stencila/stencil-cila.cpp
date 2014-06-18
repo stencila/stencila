@@ -548,10 +548,10 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
 /**
  * Code directive for embedded code
  */
-sregex output = as_xpr("out") | "svg" | "png" | "jpg";
+sregex format = as_xpr("out") | "svg" | "png" | "jpg";
 sregex size = +_d >> "x" >> +_d;
 sregex lang = as_xpr("py") | "r";
-sregex code = lang >> *(+space >> (output|size));
+sregex code = lang >> *(+space >> (format|size));
 
 Node code_parse(Node parent, const smatch& tree, State& state){
     // The code language is always the first branch
@@ -561,7 +561,7 @@ Node code_parse(Node parent, const smatch& tree, State& state){
     // Iterate over branches adding arguments
     for(auto branch : tree.nested_results()){
         auto id = branch.regex_id();
-        if(id==output.regex_id()) node.attr("data-output",branch.str());
+        if(id==format.regex_id()) node.attr("data-format",branch.str());
         else if(id==size.regex_id()) node.attr("data-size",branch.str());
     }
     // Turn on code mode processing
@@ -576,7 +576,7 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
     // Output language code; no element name
     stream<<node.attr("data-code");
     //Optional arguments
-    for(auto attr : {"data-output","data-size"}){
+    for(auto attr : {"data-format","data-size"}){
         if(node.attr(attr).length()){
             stream<<" "<<node.attr(attr);
         }
