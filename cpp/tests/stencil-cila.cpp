@@ -255,6 +255,9 @@ R"(<div data-switch="a">
 BOOST_AUTO_TEST_CASE(directive_for){
     ECHO_("for item in items")
     HTML_("for item in items","<div data-for=\"item:items\" />")
+
+    ECHO_("for item in items\n\teach\n\t\tItem")
+    HTML_("li!each","<li data-each=\"\" />")
 }
 
 BOOST_AUTO_TEST_CASE(directive_include){
@@ -265,6 +268,21 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
 	ECHO_("include a-superbly-sublime-stencil #a-marvelous-macro")
 	ECHO_("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
+}
+
+BOOST_AUTO_TEST_CASE(modifiers){
+    for(std::string modifier : {
+        "delete",
+        "replace",
+        "change",
+        "before",
+        "after",
+        "prepend",
+        "append"
+    }){
+        ECHO_(modifier+" selector")
+        HTML_(modifier+" selector","<div data-"+modifier+"=\"selector\" />")
+    }
 }
 
 BOOST_AUTO_TEST_CASE(directive_macro){

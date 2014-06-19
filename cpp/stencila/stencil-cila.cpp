@@ -320,7 +320,7 @@ sregex selector = +_;
 /**
  * Directives with no arguments
  */
-sregex directive_noarg = sregex::compile("else|default");
+sregex directive_noarg = sregex::compile("each|else|default");
 
 void directive_noarg_parse(Node node, const smatch& tree){
     // Set empty directive attribute
@@ -401,6 +401,25 @@ void include_gen(Node node, std::ostream& stream){
 }
 
 /**
+ * Modifier directives
+ */
+
+sregex modifier_name = sregex::compile("delete|replace|change|before|after|prepend|append");
+sregex modifier = modifier_name >> +space >> selector;
+
+void modifier_parse(Node node, const smatch& tree){
+    auto branch = tree.nested_results().begin();
+    auto which = branch->str();
+    auto selector = (++branch)->str();
+    node.attr("data-"+which,selector);
+}
+
+void modifier_gen(const std::string& which, Node node, std::ostream& stream){
+    auto selector = node.attr("data-"+which);
+    stream<<which<<" "<<selector;
+}
+
+/**
  * macro directive
  */
 
@@ -415,13 +434,6 @@ void macro_parse(Node node, const smatch& tree){
 void macro_gen(Node node, std::ostream& stream){
     stream<<"macro "<<node.attr("data-macro");
 }
-
-/**
- * Modifier directives
- */
-
-sregex modifier_name = sregex::compile("delete|change|replace|before|after|prepend|append");
-sregex modifier = modifier_name >> +space >> selector;
 
 /**
  * Element line
@@ -465,6 +477,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
         else if(id==for_.regex_id()) for_parse(node,*branch);
         else if(id==include.regex_id()) include_parse(node,*branch);
+        else if(id==modifier.regex_id()) modifier_parse(node,*branch);
         else if(id==macro.regex_id()) macro_parse(node,*branch);
         // Text
         else if(id==text.regex_id()) text_parse(node,*branch,state);
@@ -525,6 +538,15 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             else if(attr=="data-for") for_gen(node,directive);
             else if(attr=="data-each") directive_noarg_gen("each",node,directive);
             else if(attr=="data-include") include_gen(node,directive);
+            #define MOD_(which) else if(attr=="data-"#which) modifier_gen(#which,node,directive);
+                MOD_(delete)
+                MOD_(replace)
+                MOD_(change)
+                MOD_(before)
+                MOD_(after)
+                MOD_(prepend)
+                MOD_(append)
+            #undef MOD_
             else if(attr=="data-macro") macro_gen(node,directive);
             // If one of these directives has been hit then add to line
             // and break fro attr loop
