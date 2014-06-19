@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(directive_code_image){
 R"(r png 60x42
 	plot(x,y))";
     auto html_ = 
-R"(<code data-code="r" data-output="png" data-size="60x42"><![CDATA[
+R"(<code data-code="r" data-format="png" data-size="60x42"><![CDATA[
 plot(x,y)
 ]]></code>)";
     HTML_(cila_,html_)
@@ -268,7 +268,8 @@ BOOST_AUTO_TEST_CASE(directive_include){
 }
 
 BOOST_AUTO_TEST_CASE(directive_macro){
-	//! @todo
+	ECHO_("macro name")
+    HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
 }
 
 BOOST_AUTO_TEST_CASE(inlines){

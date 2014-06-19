@@ -189,11 +189,11 @@ sregex tag =
  * Attributes of elements
  */
 
-sregex attr_identifier  = +(_w|'-');
+sregex identifier  = +(_w|'-');
 
 // id="bar"
 
-sregex id = '#' >> attr_identifier;
+sregex id = '#' >> identifier;
 
 void id_parse(Node node, const smatch& tree){
     // Set `id` after removing leading "#"
@@ -203,12 +203,17 @@ void id_parse(Node node, const smatch& tree){
 
 void id_gen(Node node, std::ostream& stream){
     auto id = node.attr("id");
-    if(id.length()) stream<<"#"<<id;
+    if(id.length()){
+        // Id is reduntant if this is a macro so do not output id
+        // if this node is a macro
+        auto macro = node.attr("data-macro");
+        if(macro.length()==0) stream<<"#"<<id;
+    };
 }
 
 // class="foo"
 
-sregex class_ = '.' >> attr_identifier;
+sregex class_ = '.' >> identifier;
 
 void class_parse(Node node, const smatch& tree){
     // Concatenate to `class` after removing leading "."
@@ -230,9 +235,9 @@ void class_gen(Node node, std::ostream& stream){
 
 // [foo="bar"]
 
-sregex attr_string = ('\"' >> *(~(set='\r','\n','\"')) >> '\"') | 
-                           ('\'' >> *(~(set='\r','\n','\'')) >> '\'');
-sregex attr_assign = '[' >> *space >> attr_identifier >> '=' >> attr_string >> *space >> ']';
+sregex string = ('\"' >> *(~(set='\r','\n','\"')) >> '\"') | 
+                ('\'' >> *(~(set='\r','\n','\'')) >> '\'');
+sregex attr_assign = '[' >> *space >> identifier >> '=' >> string >> *space >> ']';
 
 void attr_assign_parse(Node node, const smatch& tree){
     // Get name and value
@@ -322,6 +327,10 @@ void directive_noarg_parse(Node node, const smatch& tree){
     node.attr("data-"+tree.str(),"");
 }
 
+void directive_noarg_gen(const std::string type, Node node, std::ostream& stream){
+    stream<<type;
+}
+
 /**
  * Directives with a single expression argument
  */
@@ -335,6 +344,10 @@ void directive_expr_parse(Node node, const smatch& tree){
     auto value = ++branch;
     // Set directive attribute
     node.attr("data-"+name->str(),value->str());
+}
+
+void directive_expr_gen(const std::string type, Node node, std::ostream& stream){
+    stream<<type<<" "<<node.attr("data-"+type);
 }
 
 /**
@@ -388,6 +401,22 @@ void include_gen(Node node, std::ostream& stream){
 }
 
 /**
+ * macro directive
+ */
+
+sregex macro = as_xpr("macro") >> +space >> identifier;
+
+void macro_parse(Node node, const smatch& tree){
+    auto name = tree.nested_results().begin()->str();
+    node.attr("data-macro",name);
+    node.attr("id",name);
+}
+
+void macro_gen(Node node, std::ostream& stream){
+    stream<<"macro "<<node.attr("data-macro");
+}
+
+/**
  * Modifier directives
  */
 
@@ -401,10 +430,10 @@ sregex modifier = modifier_name >> +space >> selector;
 sregex element = (
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier)))|
-    (       +(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier)))|
-    (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|modifier) )|
-    (                                                            directive_noarg|directive_expr|for_|include|modifier  )
+    (tag >> *(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier|macro)))|
+    (       +(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier|macro)))|
+    (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|modifier|macro) )|
+    (                                                            directive_noarg|directive_expr|for_|include|modifier|macro  )
 ) >> 
     // Allow for trailing text. Note that the first space is not significant (it does
     // not get included in `text`).
@@ -436,6 +465,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
         else if(id==for_.regex_id()) for_parse(node,*branch);
         else if(id==include.regex_id()) include_parse(node,*branch);
+        else if(id==macro.regex_id()) macro_parse(node,*branch);
         // Text
         else if(id==text.regex_id()) text_parse(node,*branch,state);
         branch++;
@@ -482,61 +512,27 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
         lock_gen(node,line);
         // Directive attributes. An element can only have one of these.
         // These need to go after the other attributes
-        std::string directive;
+        std::ostringstream directive;
         for(std::string attr : attrs){
-            if(attr=="data-macro"){
-                directive = "macro";
+            if(attr=="data-text") directive_expr_gen("text",node,directive);
+            else if(attr=="data-with") directive_expr_gen("with",node,directive);
+            else if(attr=="data-if") directive_expr_gen("if",node,directive);
+            else if(attr=="data-elif") directive_expr_gen("elif",node,directive);
+            else if(attr=="data-else") directive_noarg_gen("else",node,directive);
+            else if(attr=="data-switch") directive_expr_gen("switch",node,directive);
+            else if(attr=="data-case") directive_expr_gen("case",node,directive);
+            else if(attr=="data-default") directive_noarg_gen("default",node,directive);
+            else if(attr=="data-for") for_gen(node,directive);
+            else if(attr=="data-each") directive_noarg_gen("each",node,directive);
+            else if(attr=="data-include") include_gen(node,directive);
+            else if(attr=="data-macro") macro_gen(node,directive);
+            // If one of these directives has been hit then add to line
+            // and break fro attr loop
+            if(directive.tellp()>0){
+                if(line.tellp()>0) line << '!';
+                line << directive.str();
                 break;
             }
-
-            else if(attr=="data-text"){
-                directive = "text " + node.attr("data-text");
-                break;
-            }
-
-            else if(attr=="data-with"){
-                directive = "with " + node.attr("data-with");
-                break;
-            }
-
-            else if(attr=="data-if"){
-                directive = "if " + node.attr("data-if");
-                break;
-            }
-            else if(attr=="data-elif"){
-                directive = "elif " + node.attr("data-elif");
-                break;
-            }
-            else if(attr=="data-else"){
-                directive = "else";
-                break;
-            }
-
-            else if(attr=="data-switch"){
-                directive = "switch " + node.attr("data-switch");
-                break;
-            }
-            else if(attr=="data-case"){
-                directive = "case " + node.attr("data-case");
-            }
-            else if(attr=="data-default"){
-                directive = "default";
-            }
-
-            else if(attr=="data-for"){
-                for_gen(node,line);
-            }
-            else if(attr=="data-each"){
-                directive = "each " + node.attr("data-each");
-            }
-
-            else if(attr=="data-include"){
-                include_gen(node,line);
-            }
-        }
-        if(directive.length()>0){
-            if(line.tellp()>0) line << '!';
-            line << directive;
         }
     }
     // Add line to the stream
