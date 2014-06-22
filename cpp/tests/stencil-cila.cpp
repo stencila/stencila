@@ -268,6 +268,12 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
 	ECHO_("include a-superbly-sublime-stencil #a-marvelous-macro")
 	ECHO_("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
+
+    // Special '.' identifier for current stencil
+    ECHO_("macro hello\n\ttext who\ninclude . #hello\n\tset who = 'world'")
+
+    // Set directive
+    ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){

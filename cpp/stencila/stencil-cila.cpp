@@ -64,7 +64,7 @@ void code_mode_check(Node parent, const std::string& line, State& state){
     else {
         // The following block of code escapes the CDATA wrapper
         // It seems unecessary to do this, certainly for non-<script> elements
-        // which the browser wil no attempt to parse anyway
+        // which the browser will not attempt to parse anyway
         #if 0
             // Determine comment flag
             std::string comment;
@@ -135,9 +135,7 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
     else {
         std::stringstream stream(formatted);
         stream.seekg(0);
-        //std::cout<<"\n--------------------------\n"<<formatted<<"\n--------------------------"<<std::endl;
         parse(node,stream);
-        //std::cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n"<<node.dump()<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~"<<std::endl;
     }
     return node;
 }
@@ -314,7 +312,7 @@ void lock_gen(Node node, std::ostream& stream){
 // Regexes for the types of directive arguments
 // Currently, very permissive
 sregex expr = +_;
-sregex address = +_w;
+sregex address = ('.'|+_w);
 sregex selector = +_;
 
 /**
@@ -401,6 +399,35 @@ void include_gen(Node node, std::ostream& stream){
 }
 
 /**
+ * Set directive
+ */
+
+sregex set_ = as_xpr("set") >> +space >> identifier >> +space >> "=" >> +space >> expr;
+
+void set_parse(Node node, const smatch& tree){
+    // Get name and expression
+    auto branch = tree.nested_results().begin();
+    auto name = branch;
+    auto expr = ++branch;
+    // Set for attribute
+    node.attr("data-set",name->str()+":"+expr->str());
+}
+
+void set_gen(Node node, std::ostream& stream){
+    auto parts = node.attr("data-set");
+    auto colon = parts.find_first_of(":");
+    std::string name;
+    std::string expr;
+    if(colon!=std::string::npos){
+        name = parts.substr(0,colon);
+        expr = parts.substr(colon+1);
+    } else {
+        STENCILA_THROW(Exception,"Missing semicolon")
+    }
+    stream<<"set "<<name<<" = "<<expr;
+}
+
+/**
  * Modifier directives
  */
 
@@ -442,10 +469,10 @@ void macro_gen(Node node, std::ostream& stream){
 sregex element = (
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier|macro)))|
-    (       +(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|modifier|macro)))|
-    (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|modifier|macro) )|
-    (                                                            directive_noarg|directive_expr|for_|include|modifier|macro  )
+    (tag >> *(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
+    (       +(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
+    (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro) )|
+    (                                                            directive_noarg|directive_expr|for_|include|set_|modifier|macro  )
 ) >> 
     // Allow for trailing text. Note that the first space is not significant (it does
     // not get included in `text`).
@@ -477,6 +504,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
         else if(id==for_.regex_id()) for_parse(node,*branch);
         else if(id==include.regex_id()) include_parse(node,*branch);
+        else if(id==set_.regex_id()) set_parse(node,*branch);
         else if(id==modifier.regex_id()) modifier_parse(node,*branch);
         else if(id==macro.regex_id()) macro_parse(node,*branch);
         // Text
@@ -538,6 +566,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             else if(attr=="data-for") for_gen(node,directive);
             else if(attr=="data-each") directive_noarg_gen("each",node,directive);
             else if(attr=="data-include") include_gen(node,directive);
+            else if(attr=="data-set") set_gen(node,directive);
             #define MOD_(which) else if(attr=="data-"#which) modifier_gen(#which,node,directive);
                 MOD_(delete)
                 MOD_(replace)
@@ -693,8 +722,6 @@ void parse(Node node, std::istream& stream){
         // Determine if this line is empty - anything other than whitespace?
         bool empty = state.current.empty = line.find_first_not_of("\t ")==std::string::npos;
         int indentation = state.current.indentation = (not empty)?line.find_first_not_of("\t"):0;
-
-        //std::cout<<count<<":"<<empty<<":"<<indentation<<":"<<state.end<<":"<<line<<"\n";
 
         // If in `code_mode` then process the line immeadiately
         // and potentially change to `normal_mode`
