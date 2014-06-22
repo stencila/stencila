@@ -306,6 +306,23 @@ void lock_gen(Node node, std::ostream& stream){
 }
 
 /**
+ * included: Indicator for elements that have been included
+ * by a `include` directive
+ */
+
+sregex included = as_xpr("<<");
+
+void included_parse(Node node, const smatch& tree){
+    // Set the attribute to true
+    node.attr("data-included","true");
+}
+
+void included_gen(Node node, std::ostream& stream){
+    auto included = node.attr("data-included");
+    if(included.length()) stream<<"<<";
+}
+
+/**
  * Stencil directives
  */
 
@@ -469,8 +486,8 @@ void macro_gen(Node node, std::ostream& stream){
 sregex element = (
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
-    (       +(id|class_|attr_assign|off|index|lock) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
+    (tag >> *(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
+    (       +(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
     (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro) )|
     (                                                            directive_noarg|directive_expr|for_|include|set_|modifier|macro  )
 ) >> 
@@ -499,6 +516,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==off.regex_id()) off_parse(node,*branch);
         else if(id==index.regex_id()) index_parse(node,*branch);
         else if(id==lock.regex_id()) lock_parse(node,*branch);
+        else if(id==included.regex_id()) included_parse(node,*branch);
         // Directives
         else if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
@@ -542,7 +560,8 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             if(
                 attr!="id" and attr!="class" and 
                 attr!="off"  and attr!="index"  and 
-                attr!="lock" and attr.substr(0,5)!="data-"
+                attr!="lock" and attr!="included" and
+                attr.substr(0,5)!="data-"
             ){
                 attr_assign_gen(node,line,attr);
             }
@@ -551,6 +570,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
         off_gen(node,line);
         index_gen(node,line);
         lock_gen(node,line);
+        included_gen(node,line);
         // Directive attributes. An element can only have one of these.
         // These need to go after the other attributes
         std::ostringstream directive;

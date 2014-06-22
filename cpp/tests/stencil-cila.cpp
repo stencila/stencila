@@ -274,6 +274,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
     // Set directive
     ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
+    ECHO_("include stencil selector\n\tset a = 7\n\tp<<\n\t\tSome included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){
