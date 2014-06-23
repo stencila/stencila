@@ -325,7 +325,11 @@ public:
         } else {
             use = type;
         }
-        // Render the stencil in the correposnding context type
+        // Change to the stencil's directory
+        boost::filesystem::path cwd = boost::filesystem::current_path();
+        boost::filesystem::path dir = boost::filesystem::path(path()).parent_path();
+        boost::filesystem::current_path(dir);
+        // Render the stencil in the corresponding context type
         if(use=="py"){
             #if STENCILA_PYTHON_CONTEXT
                 PythonContext context;
@@ -345,6 +349,8 @@ public:
         else {
            STENCILA_THROW(Exception,"Unrecognised context type: "+type); 
         }
+        // Return to the cwd
+        boost::filesystem::current_path(cwd);
         // Return self for chaining
         return *this;
     }
@@ -451,6 +457,7 @@ private:
         }
         // If ok, execute the code, otherwise just ignore
         if(ok){
+            // Get code and format etc
             std::string code = node.text();
             std::string format = node.attr("data-format");
             std::string size = node.attr("data-size");
@@ -464,7 +471,12 @@ private:
                     if(matches.size()>2) units = matches[3];
                 }
             }
+            // Execute
             std::string output = context.execute(code,format,width,height,units);
+            // Remove any existing output
+            Node next = node.next_element();
+            if(next and next.attr("data-output")=="true") next.destroy();
+            // Append new output
             if(format.length()){
                 Xml::Document doc;
                 Node output_node;
