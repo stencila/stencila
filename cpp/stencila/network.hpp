@@ -47,6 +47,17 @@ private:
 	};
 
 	/**
+	 * Convert a URL path to a Component address by 
+	 * removing any leading or trailing forward slashes
+	 */
+	std::string address_(const std::string& path){
+		std::string address = path;
+		if(address[0]=='/') address = address.substr(1);
+		if(address[address.length()-1]=='/') address = address.substr(0,address.length()-1);
+		return address;
+	}
+
+	/**
 	 * Mapping between a `connection_hdl` and a `Session`
 	 */
 	typedef std::map<connection_hdl,Session,std::owner_less<connection_hdl>> Sessions;
@@ -66,10 +77,9 @@ private:
      */
     void open_(connection_hdl hdl) {
 		server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-		std::string resource = connection->get_resource();
-		std::string address = resource.substr(1);
-		Session session;
-		session.address = address;
+		std::string path = connection->get_resource();
+		std::string address = address_(path);
+		Session session = {address};
         sessions_[hdl] = session;
     }
     
@@ -113,10 +123,19 @@ private:
 
 				if(dynamic){
 					// Dynamic request
-					// Remove the leading forward slash from the path to 
-					// get the Component address
-					std::string address = path.substr(1);
-					content = Component::page(address);
+					// 
+					// Components must be served with a trailing slash so that relative links work.
+					// For example, if a stencil with address "a/b/c" is served with the url "/a/b/c/"
+					// then a relative link within that stencil to an image "1.png" will resolved to "/a/b/c/1.png" (which
+					// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
+					// will cause a 404 error). 
+					// So, if no trailing slash redirect...
+					if(path[path.length()-1]!='/'){
+						status = http::status_code::moved_permanently;
+						connection->append_header("Location",path+"/");
+					}
+					// Provide the page content
+					else content = Component::page(address_(path));
 				} else {
 					// Static request
 			        std::string filename = Component::resolve(path);
