@@ -276,7 +276,6 @@ BOOST_AUTO_TEST_CASE(directive_for){
     HTML_("for item in items","<div data-for=\"item:items\" />")
 
     ECHO_("for item in items\n\teach\n\t\tItem")
-    HTML_("li!each","<li data-each=\"\" />")
 }
 
 BOOST_AUTO_TEST_CASE(directive_include){

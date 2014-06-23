@@ -337,7 +337,7 @@ sregex selector = +_;
 /**
  * Directives with no arguments
  */
-sregex directive_noarg = sregex::compile("each|else|default");
+sregex directive_noarg = sregex::compile("else|default");
 
 void directive_noarg_parse(Node node, const smatch& tree){
     // Set empty directive attribute
@@ -586,7 +586,6 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             else if(attr=="data-case") directive_expr_gen("case",node,directive);
             else if(attr=="data-default") directive_noarg_gen("default",node,directive);
             else if(attr=="data-for") for_gen(node,directive);
-            else if(attr=="data-each") directive_noarg_gen("each",node,directive);
             else if(attr=="data-include") include_gen(node,directive);
             else if(attr=="data-set") set_gen(node,directive);
             #define MOD_(which) else if(attr=="data-"#which) modifier_gen(#which,node,directive);

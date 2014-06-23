@@ -616,13 +616,13 @@ private:
     }
 
     /**
-     * Render a `for` element `<ul data-for="planet:planets"><li data-each data-text="planet" /></ul>`
+     * Render a `for` element `<ul data-for="planet:planets"><li data-text="planet" /></ul>`
      *
      * A `for` element has a `data-for` attribute which specifies the variable name given to each item and 
      * an expression providing the items to iterate over e.g. `planet:planets`. The variable name is optional
      * and defaults to "item".
      *
-     * The child element having a `data-each` attribute is rendered for each item and given a `data-index="<index>"`
+     * The first child element is rendered for each item and given a `data-index="<index>"`
      * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
      * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
      * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
@@ -648,14 +648,14 @@ private:
 
         // Initialise the loop
         bool more = context.begin(item,items);
-        // Get the `data-each` node
-        Node each = node.one("[data-each]");
-        // If is for loop has been rendered before then `each` will have a `data-off`
+        // Get the first child element which will be repeated
+        Node first = node.first_element();
+        // If this for loop has been rendered before then the first element will have a `data-off`
         // attribute. So erase that attribute so that the repeated nodes don't get it
-        if(each) each.erase("data-off");
+        if(first) first.erase("data-off");
         // Iterate
         int count = 0;
-        while(each and more){
+        while(first and more){
             // See if there is an existing child with a corresponding `data-index`
             std::string index = boost::lexical_cast<std::string>(count);
             Node item = node.one("[data-index=\""+index+"\"]");
@@ -665,14 +665,13 @@ private:
                 if(not locked){
                     // If it is then destory and replace it
                     item.destroy();
-                    item = node.append(each);
+                    item = node.append(first);
                 }
             } else {
                 // If there is not, create one
-                item = node.append(each);
+                item = node.append(first);
             }
-            // Erase and set index as required
-            item.erase("data-each");
+            // Set index attribute
             item.attr("data-index",index);
             // Render the element
             render_element_(item,context);
@@ -680,8 +679,8 @@ private:
             more = context.next();
             count++;
         }
-        // Deactivate the each object
-        if(each) each.attr("data-off","true");
+        // Deactivate the first child
+        if(first) first.attr("data-off","true");
         // Remove any children having a `data-index` attribute greater than the 
         // number of items, unless it has a `data-lock` decendent
         Nodes indexeds = node.all("[data-index]");

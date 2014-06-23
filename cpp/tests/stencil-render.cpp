@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(switch_2){
 BOOST_AUTO_TEST_CASE(for_){
     render(R"(
         <ul data-for="planet:planets">
-            <li data-each data-text="planet" />
+            <li data-text="planet" />
         </ul>
     )");
     
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(for_){
 BOOST_AUTO_TEST_CASE(for_existing_index){
     render(R"(
         <ul data-for="planet:planets">
-            <li data-each data-text="planet" />
+            <li data-text="planet" />
             <li data-text="planet" data-index="0">Should be overwritten</li>
         </ul>
     )");
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(for_existing_index){
 BOOST_AUTO_TEST_CASE(for_locked_extras){
     render(R"(
         <ul data-for="planet:planets">
-            <li data-each data-text="planet" />
+            <li data-text="planet" />
             <li data-index="998">Should be removed</li>
             <li data-index="999">Should be retained because contains a lock <span data-lock /> </li>
         </ul>
