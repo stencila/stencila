@@ -74,6 +74,18 @@ public:
         if(what=="html"){
             html(call.arg(0));
         }
+        else if(what=="cila"){
+            if(call.args()==0) return cila();
+            else cila(call.arg(0)); 
+        }
+        else if(what=="html_cila"){
+            html(call.arg(0));
+            return cila();
+        }
+        else if(what=="cila_html"){
+            cila(call.arg(0));
+            return html();
+        }
         else if(what=="commit"){
             commit(call.arg(0));
         }
@@ -891,7 +903,7 @@ public:
     static Xml::Whitelist whitelist;
 
     Stencil& sanitize(void) {
-        Xml::Document::sanitize(whitelist);
+        //Xml::Document::sanitize(whitelist);
     };
 
     /**
