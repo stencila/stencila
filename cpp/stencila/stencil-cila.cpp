@@ -29,6 +29,8 @@ struct State {
 
     bool end = false;
 
+    char indenter = 0;
+
     struct Line {
         bool empty = false;
         int indentation = 0;
@@ -84,7 +86,7 @@ void code_mode_check(Node parent, const std::string& line, State& state){
     }
 }
 
-// Language grammer is defined below.
+// Language grammar is defined below.
 // For clarity, parsing and generating functions
 // are defined adjacent to each element of the grammar
 using namespace boost::xpressive;
@@ -739,9 +741,27 @@ void parse(Node node, std::istream& stream){
             // Increment the line counter
             count++;
         }
-        // Determine if this line is empty - anything other than whitespace?
-        bool empty = state.current.empty = line.find_first_not_of("\t ")==std::string::npos;
-        int indentation = state.current.indentation = (not empty)?line.find_first_not_of("\t"):0;
+        // Determine indentation and emptiness of line
+        bool empty = true;
+        int indentation = 0;
+        for(char c : line){
+            if(c=='\t'){
+                if(state.indenter==0) state.indenter = '\t';
+                if(state.indenter=='\t') indentation++;
+                else STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : tab used for indentation when space used previously");
+            }
+            else if(c==' '){
+                if(state.indenter==0) state.indenter = ' ';
+                if(state.indenter==' ') indentation++;
+                else STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : space used for indentation when tab used previously");
+            }
+            else {
+                empty = false;
+                break;
+            }
+        }
+        state.current.empty = empty;
+        state.current.indentation = indentation;
 
         // If in `code_mode` then process the line immeadiately
         // and potentially change to `normal_mode`
@@ -780,7 +800,7 @@ void parse(Node node, std::istream& stream){
                 else if(id==code.regex_id()) current = code_parse(parent,*branch,state);
                 else if(id==element.regex_id()) current = element_parse(parent,*branch,state);
                 else if(id==text.regex_id()) current = text_parse(parent,*branch,state);
-                else  STENCILA_THROW(Exception,"Unrecognised syntax: "+boost::lexical_cast<std::string>(count)+": "+line);
+                else  STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+": unrecognised syntax :"+line);
             }
         }
         // If this is the end then break out,

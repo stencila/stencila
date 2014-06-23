@@ -62,10 +62,29 @@ BOOST_AUTO_TEST_CASE(empty){
 }
 
 BOOST_AUTO_TEST_CASE(indentation){
-    // Indentation should work....
+    // Indentation should work with tabs or spaces
     ECHO_("ul\n\tli\n\tli")
     ECHO_("div\n\tdiv\n\t\tdiv")
+    // Always generates using tabs event if spaces were used
+    BACK_("div\n div\n  div","div\n\tdiv\n\t\tdiv")
     ECHO_("div\n\tdiv\n\t\tdiv\n\tdiv\ndiv")
+
+    ///..but not both
+    BOOST_CHECK_THROW(html("div\n\tdiv\n  div"),Stencila::Exception);
+    BOOST_CHECK_THROW(html("div\n  div\n\tdiv"),Stencila::Exception);
+
+    // CHeck that empty lines don't cause errors
+    auto cila_1 = "#a\n\t#aa\n\t#ab\n\t\n\t#ac";
+    auto cila_2 = "#a\n  #aa\n  #ab\n  \n  #ac";
+    auto cila_3 = "#a\n   #aa\n   #ab\n   \n   #ac";
+    auto html_ = R"(<div id="a">
+	<div id="aa" />
+	<div id="ab" />
+	<div id="ac" />
+</div>)";
+    HTML_(cila_1,html_);
+    HTML_(cila_2,html_);
+    HTML_(cila_3,html_);
 }
 
 BOOST_AUTO_TEST_CASE(text){
