@@ -90,14 +90,6 @@ public:
     virtual std::string write(const std::string& expression) = 0;
 
     /**
-     * Create an image from the code
-     * Used by stencil `image` elements e.g. `<code data-image="png">plot(x,y)</code>`
-     * 
-     * @param format A support image format e.g. svg, png
-     */
-    virtual std::string paint(const std::string& format,const std::string& code) = 0;
- 
-    /**
      * Test whether an expression is true or false. 
      * Used by stencil `if` elements e.g. `<span data-if="height>10">The height is greater than 10</span>`
      * 
