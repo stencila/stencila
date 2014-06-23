@@ -272,7 +272,7 @@ public:
 
 private:
 
-    std::tuple<std::string,std::string> parse_param_or_set_(const Node& node, const std::string& attr){
+    std::tuple<std::string,std::string> parse_arg_or_set_(const Node& node, const std::string& attr){
         std::string value = node.attr(attr);
         std::string name;
         std::string expression;
@@ -287,12 +287,12 @@ private:
         return std::tuple<std::string,std::string>(name,expression);
     }
 
-    std::tuple<std::string,std::string> parse_param_(const Node& node){
-        return parse_param_or_set_(node,"data-param");
+    std::tuple<std::string,std::string> parse_arg_(const Node& node){
+        return parse_arg_or_set_(node,"data-arg");
     }
 
     std::tuple<std::string,std::string> parse_set_(const Node& node){
-        return parse_param_or_set_(node,"data-set");
+        return parse_arg_or_set_(node,"data-set");
     }
 
     /**
@@ -814,47 +814,47 @@ private:
         
         // Enter a new namespace.
         // Do this regardless of whether there are any 
-        // `data-param` elements, to avoid the included elements polluting the
+        // `data-arg` elements, to avoid the included elements polluting the
         // main context or overwriting variables inadvertantly
         context.enter();
 
         // Apply `data-set` elements
         // Apply all the `set`s specified in this include first. This
-        // my include params not specified by the author of the included stencil.
+        // my include args not specified by the author of the included stencil.
         std::vector<std::string> assigned;
         for(Node set : node.all("[data-set]")){
-            // Parse the parameter node
+            // Parse the argument node
             std::tuple<std::string,std::string> parsed = parse_set_(set);
             std::string name = std::get<0>(parsed);
             std::string expression = std::get<1>(parsed);
-            // Assign the parameter in the new frame
+            // Assign the argument in the new frame
             context.assign(name,expression);
-            // Add this to the list of parameters assigned
+            // Add this to the list of arguments assigned
             assigned.push_back(name);
         }
-        // Now apply the included element's parameters
+        // Now apply the included element's arguments
         // Check for if they are required or for any default values
-        for(Node param : included.all("[data-param]")){
-            // Parse the parameter node
-            std::tuple<std::string,std::string> parsed = parse_param_(param);
+        for(Node arg : included.all("[data-arg]")){
+            // Parse the argument node
+            std::tuple<std::string,std::string> parsed = parse_arg_(arg);
             std::string name = std::get<0>(parsed);
             std::string expression = std::get<1>(parsed);
             // Check to see if it has already be assigned
             if(std::count(assigned.begin(),assigned.end(),name)==0){
                 if(expression.length()>0){
-                    // Assign the parameter in the new frame
+                    // Assign the argument in the new frame
                     context.assign(name,expression);
                 } else {
                     // Set an error
                     included.append(
                         "div",
-                        {{"data-error","param-required"},{"data-param",name}},
-                        "Parameter is required because it has no default: "+name
+                        {{"data-error","arg-required"},{"data-arg",name}},
+                        "Argument is required because it has no default: "+name
                     );
                 }
             }
-            // Remove the parameter, there is no need to have it in the included node
-            param.destroy();
+            // Remove the argument, there is no need to have it in the included node
+            arg.destroy();
         }
 
         // Render the `data-included` element

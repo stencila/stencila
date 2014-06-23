@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(directive_for){
     ECHO_("for item in items")
     HTML_("for item in items","<div data-for=\"item:items\" />")
 
-    ECHO_("for item in items\n\teach\n\t\tItem")
+    ECHO_("for item in items\n\tp")
 }
 
 BOOST_AUTO_TEST_CASE(directive_include){
@@ -313,6 +313,11 @@ BOOST_AUTO_TEST_CASE(modifiers){
 BOOST_AUTO_TEST_CASE(directive_macro){
 	ECHO_("macro name")
     HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
+
+    HTML_("macro name\n\targ x","<div data-macro=\"name\" id=\"name\">\n\t<div data-arg=\"x\" />\n</div>")
+    ECHO_("macro name\n\targ x")
+    ECHO_("macro name\n\targ x = 1")
+    ECHO_("macro name\n\targ x = 1\n\targ y")
 }
 
 BOOST_AUTO_TEST_CASE(inlines){

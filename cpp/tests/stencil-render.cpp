@@ -288,12 +288,12 @@ BOOST_AUTO_TEST_CASE(include_modifiers){
     BOOST_CHECK_EQUAL(s.one("div[data-included] div#g #g1").next().attr("id"),"g2");
 }
 
-BOOST_AUTO_TEST_CASE(include_param){
+BOOST_AUTO_TEST_CASE(include_arg){
 
     render(R"(
         <div id="includee" data-macro="true">
-            <div data-param="x" />
-            <div data-param="y:2" />
+            <div data-arg="x" />
+            <div data-arg="y:2" />
 
             <div class="x" data-text="x"></div>
             <div class="y" data-text="y"></div>
@@ -301,30 +301,30 @@ BOOST_AUTO_TEST_CASE(include_param){
         </div>
 
         <div id="a" data-include="." data-select="#includee">
-            <p>Required parameter x is missing. Should result in error</p>
+            <p>Required argument x is missing. Should result in error</p>
         </div>
 
         <div id="b" data-include="." data-select="#includee">
-            <p data-set="x:10">Parameter value defined in attribute</p>
+            <p data-set="x:10">Argument value defined in attribute</p>
         </div>
 
         <div id="c" data-include="." data-select="#includee">
-            <p data-set="x">11 (Parameter value defined in text)</p>
+            <p data-set="x">11 (Argument value defined in text)</p>
         </div>
 
         <div id="d" data-include="." data-select="#includee">
             <p data-set="x:1" />
             <p data-set="y:20">Default parameter value overriden</p>
-            <p data-set="z:3">Parameter not declared by stencil author</p>
+            <p data-set="z:3">Argument not declared by stencil author</p>
         </div>
     )");
 
-    BOOST_CHECK_EQUAL(s.one("#a div[data-included] div[data-error=\"param-required\"]").attr("data-param"),"x");
+    BOOST_CHECK_EQUAL(s.one("#a div[data-included] div[data-error=\"arg-required\"]").attr("data-arg"),"x");
     
     BOOST_CHECK_EQUAL(s.one("#b div[data-included] div.x").text(),"10");
     BOOST_CHECK_EQUAL(s.one("#b div[data-included] div.y").text(),"2");
 
-    BOOST_CHECK_EQUAL(s.one("#c div[data-included] div.x").text(),"11 (Parameter value defined in text)");
+    BOOST_CHECK_EQUAL(s.one("#c div[data-included] div.x").text(),"11 (Argument value defined in text)");
     BOOST_CHECK_EQUAL(s.one("#c div[data-included] div.y").text(),"2");
     
     BOOST_CHECK_EQUAL(s.one("#d div[data-included] div.x").text(),"1");
@@ -332,9 +332,9 @@ BOOST_AUTO_TEST_CASE(include_param){
     BOOST_CHECK_EQUAL(s.one("#d div[data-included] div.z").text(),"3");
 
     // Check that params are removed
-    BOOST_CHECK(not s.one("#b [data-param]"));
-    BOOST_CHECK(not s.one("#c [data-param]"));
-    BOOST_CHECK(not s.one("#d [data-param]"));
+    BOOST_CHECK(not s.one("#b [data-arg]"));
+    BOOST_CHECK(not s.one("#c [data-arg]"));
+    BOOST_CHECK(not s.one("#d [data-arg]"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -482,16 +482,47 @@ void macro_gen(Node node, std::ostream& stream){
 }
 
 /**
+ * arg directive
+ */
+
+sregex arg = as_xpr("arg") >> +space >> identifier >> !(+space >> "=" >> +space >> expr);
+
+void arg_parse(Node node, const smatch& tree){
+    // Get name and, optionally, expression
+    auto branch = tree.nested_results().begin();
+    std::string arg = branch->str();
+    if(tree.nested_results().size()>1){
+        std::string expr = ((++branch)->str());
+        arg += ":"+expr;
+    }
+    // Set attribute
+    node.attr("data-arg",arg);
+}
+
+void arg_gen(Node node, std::ostream& stream){
+    auto parts = node.attr("data-arg");
+    auto colon = parts.find_first_of(":");
+    if(colon==std::string::npos){
+        stream<<"arg "<<parts;
+    } else {
+        auto name = parts.substr(0,colon);
+        auto expr = parts.substr(colon+1);
+        stream<<"arg "<<name<<" = "<<expr;
+    }
+}
+
+
+/**
  * Element line
  */
 
 sregex element = (
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
-    (       +(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro)))|
-    (tag                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro) )|
-    (                                                            directive_noarg|directive_expr|for_|include|set_|modifier|macro  )
+    (tag >> *(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg)))|
+    (       +(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg)))|
+    (tag                                                     >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg) )|
+    (                                                                     directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg  )
 ) >> 
     // Allow for trailing text. Note that the first space is not significant (it does
     // not get included in `text`).
@@ -527,6 +558,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==set_.regex_id()) set_parse(node,*branch);
         else if(id==modifier.regex_id()) modifier_parse(node,*branch);
         else if(id==macro.regex_id()) macro_parse(node,*branch);
+        else if(id==arg.regex_id()) arg_parse(node,*branch);
         // Text
         else if(id==text.regex_id()) text_parse(node,*branch,state);
         branch++;
@@ -598,6 +630,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
                 MOD_(append)
             #undef MOD_
             else if(attr=="data-macro") macro_gen(node,directive);
+            else if(attr=="data-arg") arg_gen(node,directive);
             // If one of these directives has been hit then add to line
             // and break fro attr loop
             if(directive.tellp()>0){
