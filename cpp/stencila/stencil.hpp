@@ -483,13 +483,10 @@ private:
                 if(format=="out"){
                     output_node = doc.append("samp",output);
                 }
-                else if(format=="png"){
+                else if(format=="png" or format=="svg"){
                     output_node = doc.append("img",{
                         {"src",output}
                     });
-                }
-                else if(format=="svg"){
-                    output_node = doc.append_xml(output);
                 }
                 else {
                     output_node = doc.append(
