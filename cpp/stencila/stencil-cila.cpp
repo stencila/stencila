@@ -62,25 +62,15 @@ void code_mode_check(Node parent, const std::string& line, State& state){
         else state.code.content += line.substr(state.code.indentation);
         state.code.content += "\n";
     }
-    // Otherwise wrap up the code element
+    // Otherwise finalise the code element
     else {
-        // The following block of code escapes the CDATA wrapper
-        // It seems unecessary to do this, certainly for non-<script> elements
-        // which the browser will not attempt to parse anyway
-        #if 0
-            // Determine comment flag
-            std::string comment;
-            if(code_lang=="r" or code_lang=="py") comment = "#";
-            else comment = "//";
-            // Add a comment token to escape "<![CDATA[" . This needs to be added to `current` node NOT `state.code.content`
-            current.append_text(comment);
-            // Add a comment token to escape "]]>". This needs to be added to `state.code.content` before appending as CDATA
-            state.code.content += comment;
-        #endif
-        // Insert a starting newline to escape the "<![CDATA[" line
-        state.code.content.insert(0,"\n");
-        // Then add the code as CDATA
-        parent.append_cdata(state.code.content);
+        std::string code = state.code.content;
+        // Force starting and ending newlines
+        // for aesthetics
+        if(code[0]!='\n') code.insert(0,"\n");
+        if(code[code.length()-1]!='\n') code += "\n";
+        // Then add the code as plain text
+        parent.append_text(code);
         // Turn off code mode
         state.mode = normal_mode;
     }
@@ -624,6 +614,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
         index_gen(node,line);
         lock_gen(node,line);
         included_gen(node,line);
+        output_gen(node,line);
         // Directive attributes. An element can only have one of these.
         // These need to go after the other attributes
         std::ostringstream directive;
@@ -638,7 +629,6 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             else if(attr=="data-default") directive_noarg_gen("default",node,directive);
             else if(attr=="data-for") for_gen(node,directive);
             else if(attr=="data-include") include_gen(node,directive);
-            else if(attr=="data-output") output_gen(node,directive);
             else if(attr=="data-set") set_gen(node,directive);
             #define MOD_(which) else if(attr=="data-"#which) modifier_gen(#which,node,directive);
                 MOD_(delete)
@@ -677,8 +667,9 @@ sregex code = lang >> *(+space >> (format|size));
 Node code_parse(Node parent, const smatch& tree, State& state){
     // The code language is always the first branch
     auto language = tree.nested_results().begin()->str();
-    // Append the node
-    Node node = parent.append("code",{{"data-code",language}});
+    // Append the element. Use a <pre> element since this retains whitespace
+    // formatting when parsed as HTML
+    Node node = parent.append("pre",{{"data-code",language}});
     // Iterate over branches adding arguments
     for(auto branch : tree.nested_results()){
         auto id = branch.regex_id();
@@ -703,19 +694,26 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
         }
     }
     stream<<"\n";
-    // Get the actual code. Assumes it is the first child node!
-    auto code = node.first().text();
+    // Get the code from the first child nodes
+    // Usually there will be only one, but in case there are more
+    // add them all
+    // Note that the text() method unencodes HTML special characters
+    // e.g. &lt; for us
+    std::string code;
+    for(Node child : node.children()) code += child.text();
+    // Normally code will start and end with a newline (that is how it is created when parsed)
+    // so remove those for consistent Cila generation
+    if(code[0]=='\n') code = code.substr(1);
+    if(code[code.length()-1]=='\n') code = code.substr(0,code.length()-1);
     // Split into lines
     std::vector<std::string> lines;
     boost::split(lines,code,boost::is_any_of("\n"));
     // Add extra indentation to each line
-    // Ignore the first line which was added when parsing Cila to HTML
-    // and the last line which is a "pseudo" line created when splittin by "\n"
-    for(uint index=1;index<(lines.size()-1);index++){
+    for(uint index=0;index<lines.size();index++){
         stream<<indent+"\t"<<lines[index];
         // Don't put a newline on last line - that is the 
         // repsonsibility of the following element
-        if(index<(lines.size()-2)) stream<<"\n";
+        if(index<(lines.size()-1)) stream<<"\n";
     }
 }
 
@@ -794,18 +792,20 @@ void parse(Node node, std::istream& stream){
             count++;
         }
         // Determine indentation and emptiness of line
+        // If in code mode count indents but don't complain about
+        // other whitespace characters
         bool empty = true;
         int indentation = 0;
         for(char c : line){
             if(c=='\t'){
                 if(state.indenter==0) state.indenter = '\t';
                 if(state.indenter=='\t') indentation++;
-                else STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : tab used for indentation when space used previously");
+                else if(not state.mode==code_mode) STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : tab used for indentation when space used previously");
             }
             else if(c==' '){
                 if(state.indenter==0) state.indenter = ' ';
                 if(state.indenter==' ') indentation++;
-                else STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : space used for indentation when tab used previously");
+                else if(not state.mode==code_mode) STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : space used for indentation when tab used previously");
             }
             else {
                 empty = false;

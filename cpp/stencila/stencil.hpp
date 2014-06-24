@@ -958,7 +958,9 @@ public:
         if(Node elem = body.find("ul","id","contexts")){
             std::vector<std::string> items;
             for(auto& item : elem.all("li")){
-                items.push_back(item.text());
+                std::string context = item.text();
+                boost::trim(context);
+                if(context.length()) items.push_back(context);
             }
             contexts(items);  
         }

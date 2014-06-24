@@ -178,9 +178,9 @@ BOOST_AUTO_TEST_CASE(directive_code_1){
 R"(r
 	pi <- 3.14)";
     auto html_ = 
-R"(<code data-code="r"><![CDATA[
-pi <- 3.14
-]]></code>)";
+R"(<pre data-code="r">
+pi &lt;- 3.14
+</pre>)";
     HTML_(cila_,html_)
     ECHO_(cila_)
 }
@@ -191,10 +191,10 @@ R"(r
 	pi <- 3.14
 	print(pi))";
     auto html_ = 
-R"(<code data-code="r"><![CDATA[
-pi <- 3.14
+R"(<pre data-code="r">
+pi &lt;- 3.14
 print(pi)
-]]></code>)";
+</pre>)";
     HTML_(cila_,html_)
     ECHO_(cila_)
 }
@@ -208,11 +208,11 @@ R"(r
 div
 div)";
     auto html_ = 
-R"(<code data-code="r"><![CDATA[
-pi <- 3.14
+R"(<pre data-code="r">
+pi &lt;- 3.14
 2*pi
 2*pi*r^2
-]]></code>
+</pre>
 <div />
 <div />)";
     HTML_(cila_,html_)
@@ -224,9 +224,9 @@ BOOST_AUTO_TEST_CASE(directive_code_image){
 R"(r png 60x42
 	plot(x,y))";
     auto html_ = 
-R"(<code data-code="r" data-format="png" data-size="60x42"><![CDATA[
+R"(<pre data-code="r" data-format="png" data-size="60x42">
 plot(x,y)
-]]></code>)";
+</pre>)";
     HTML_(cila_,html_)
     ECHO_(cila_)
 }
