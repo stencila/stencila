@@ -56,6 +56,12 @@ BOOST_AUTO_TEST_CASE(begin_next_dataframe){
     BOOST_CHECK_EQUAL(c.write("bit$letter"),"c");
 }
 
+BOOST_AUTO_TEST_CASE(image){
+    RContext c;
+
+    BOOST_CHECK_EQUAL(c.execute("plot(1,1)","png"),"1.png");
+}
+
 BOOST_AUTO_TEST_CASE(error){
     RContext c;
 

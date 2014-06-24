@@ -1,4 +1,9 @@
-R"(
+R"(#"
+
+# Load default packages and usually happens in the startup of R
+# this loads important packages like stats, utils and graphics
+# See http://stat.ethz.ch/R-manual/R-patched/library/base/html/Startup.html
+.First.sys()
 
 # Prevent R from printing out error messages
 options(show.error.messages = FALSE)
@@ -18,8 +23,7 @@ Context <- function(envir){
     self <- new.env()
     class(self) <- "Context"
     
-    if(missing(envir)) envir <- new.env(parent=baseenv())
-    else if(inherits(envir,'environment')) envir <- envir
+    if(inherits(envir,'environment')) envir <- envir
     else if(is.list(envir)) envir <- list2env(envir,parent=baseenv())
     else if(is.atomic(envir) & inherits(envir,'character')){
         if(envir==".") envir <- parent.frame()
@@ -27,6 +31,9 @@ Context <- function(envir){
     }
     else stop(paste('unrecognised environment class:',paste(class(envir),collapse=",")))
     self$stack <- list(envir)
+
+    # An image counter for filenames
+    self$images = 0
     
     ##################################
     
@@ -85,7 +92,32 @@ Context <- function(envir){
     # "execute" method
 
     self$execute <- function(code,format,width,height,units){
+        if(format!=""){
+            if(format %in% c('png','svg')){
+                self$images = self$images + 1
+                filename = paste0(self$images,'.',format)
+                if(width=="") width = 10
+                if(height=="") height = 10
+                if(units=="") units = 'cm'
+                if(format=='png') png(filename=filename,width=width,height=height,units=units,res=90)
+                else if(format=='svg'){
+                    # The svg function does not take units. Since these are scalable
+                    # graphics just provide the width and height to get the righ aspect ratio
+                    svg(filename=filename,width=width,height=height)
+                }
+            }
+        }
+
         self$evaluate(code)
+
+        if(format!=""){
+            # Close all graphics devices. In case the
+            # code opened new ones, we really need to close them all
+            graphics.off()
+
+            return(filename)
+        }
+
         return("")
     }
     
@@ -129,35 +161,6 @@ Context <- function(envir){
         cat(paste(value,collapse=", "),file=stream)
         close(stream)
         return(text)
-    }
-    
-    ##################################
-    # "image" elements
-    # 
-    # Creates a new graphics device then executes the code
-    # (which is expected to write to the device) and then 
-    # returns the additional nodes.
-    self$image_begin <- function(type){
-        if(type!='svg') stop(paste('Image type not supported:',type))
-        # Create a temporary filename
-        filename = tempfile()
-        # Create an SVG graphics device
-        svg(filename)
-        # Store that filename for later
-        assign('_svg_',filename,envir=self$top())
-    }
-    
-    self$image_end  <- function(){
-        # Get filename
-        filename <- base::get('_svg_',envir=self$top())
-        # Close all graphics devices. In case the
-        # code opened new ones, we really need to closethem all
-        graphics.off()
-        # Determine file size so we know how many bytes to read in
-        bytes = file.info(filename)$size
-        # Read in the SVG file and return it
-        svg = readChar(filename,nchars=bytes)
-        return(svg)
     }
     
     ##################################

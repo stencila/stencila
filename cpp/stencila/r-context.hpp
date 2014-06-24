@@ -167,7 +167,7 @@ public:
         }
         // Create a context
         id_ = "context"+boost::lexical_cast<std::string>(contexts_++);
-        r_.parseEvalQ(id_ + " <- Context()");
+        r_.parseEvalQ(id_ + " <- Context('.')");
     }
 
     /*!
