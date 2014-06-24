@@ -231,6 +231,11 @@ plot(x,y)
     ECHO_(cila_)
 }
 
+BOOST_AUTO_TEST_CASE(code_output){
+    HTML_("<<","<div data-output=\"true\" />");
+    ECHO_("<<");
+}
+
 
 BOOST_AUTO_TEST_CASE(directive_text){
     HTML_("text variable","<div data-text=\"variable\" />");
@@ -292,7 +297,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
     // Set directive
     ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
-    ECHO_("include stencil selector\n\tset a = 7\n\tp<<\n\t\tSome included text")
+    ECHO_("include stencil selector\n\tset a = 7\n\tp>>\n\t\tSome included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){

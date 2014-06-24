@@ -309,10 +309,10 @@ void lock_gen(Node node, std::ostream& stream){
 
 /**
  * included: Indicator for elements that have been included
- * by a `include` directive
+ * by an `include` directive
  */
 
-sregex included = as_xpr("<<");
+sregex included = as_xpr(">>");
 
 void included_parse(Node node, const smatch& tree){
     // Set the attribute to true
@@ -321,7 +321,24 @@ void included_parse(Node node, const smatch& tree){
 
 void included_gen(Node node, std::ostream& stream){
     auto included = node.attr("data-included");
-    if(included.length()) stream<<"<<";
+    if(included.length()) stream<<">>";
+}
+
+/**
+ * output: Indicator for elements that have been output
+ * by a `code` directive
+ */
+
+sregex output = as_xpr("<<");
+
+void output_parse(Node node, const smatch& tree){
+    // Set the attribute to true
+    node.attr("data-output","true");
+}
+
+void output_gen(Node node, std::ostream& stream){
+    auto output = node.attr("data-output");
+    if(output.length()) stream<<"<<";
 }
 
 /**
@@ -519,10 +536,10 @@ void arg_gen(Node node, std::ostream& stream){
 sregex element = (
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg)))|
-    (       +(id|class_|attr_assign|off|index|lock|included) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg)))|
-    (tag                                                     >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg) )|
-    (                                                                     directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg  )
+    (tag >> *(id|class_|attr_assign|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg)))|
+    (       +(id|class_|attr_assign|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg)))|
+    (tag                                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg) )|
+    (                                                                            directive_noarg|directive_expr|for_|include|set_|modifier|macro|arg  )
 ) >> 
     // Allow for trailing text. Note that the first space is not significant (it does
     // not get included in `text`).
@@ -550,6 +567,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==index.regex_id()) index_parse(node,*branch);
         else if(id==lock.regex_id()) lock_parse(node,*branch);
         else if(id==included.regex_id()) included_parse(node,*branch);
+        else if(id==output.regex_id()) output_parse(node,*branch);
         // Directives
         else if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
@@ -595,6 +613,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
                 attr!="id" and attr!="class" and 
                 attr!="off"  and attr!="index"  and 
                 attr!="lock" and attr!="included" and
+                attr!="output" and
                 attr.substr(0,5)!="data-"
             ){
                 attr_assign_gen(node,line,attr);
@@ -619,6 +638,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             else if(attr=="data-default") directive_noarg_gen("default",node,directive);
             else if(attr=="data-for") for_gen(node,directive);
             else if(attr=="data-include") include_gen(node,directive);
+            else if(attr=="data-output") output_gen(node,directive);
             else if(attr=="data-set") set_gen(node,directive);
             #define MOD_(which) else if(attr=="data-"#which) modifier_gen(#which,node,directive);
                 MOD_(delete)
