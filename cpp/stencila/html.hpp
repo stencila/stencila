@@ -55,11 +55,35 @@ public:
 	    ok = tidyOptSetBool(document,TidyMark,no);
 	    // Do processing and output
 	    if(ok){
+	    	// Unfortunately Tidy relaces all tabs with spaces, including in <pre> elements
+	    	// There does not appear to be an option for turning this off (only for changing number of tab spaces)
+	    	// The HTML5 spec does not say that tabs are not allowed in pre elements (http://www.w3.org/TR/html5/grouping-content.html#the-pre-element)
+	    	// Leaving this behaviour on may cause problems with indentation of code.
+	    	// Putting in a character proxy for tabs (e.g. "---tab---" as used below) in other elements can cause Tidy to insert extra
+	    	// element so should be avoided.
+	    	// So, protect tabs in <pre> elements only...
+	    	std::string input = html;
+	    	std::size_t from = 0;
+	    	while(true){
+	    		// Find start and end tag
+	    		// Start tag is found allowing for zero or more attributes
+	    		std::size_t start = input.find("<pre",from);
+	    		if(start==std::string::npos) break;
+	    		start += 5;
+	    		std::size_t end = input.find("</pre>",start);
+	    		// Extract preformatted text, protect tabs and reinsert
+	    		std::string pre = input.substr(start,end);
+	    		boost::replace_all(pre,"\t","---tab---");
+	    		input.replace(start,end,pre);
+	    		// Continue...
+	    		from = end + 6;
+	    	}
+
 	        TidyBuffer error_buffer = {0};
 	        // `status` will be greater than 1 if there are errors
 	        // in the `tidyParseString`
 	        int status = tidySetErrorBuffer(document, &error_buffer);
-	        if(status >= 0) status = tidyParseString(document,html.c_str());
+	        if(status >= 0) status = tidyParseString(document,input.c_str());
 	        if(status >= 0) status = tidyCleanAndRepair(document);
 	        if(status >= 0) status = tidyRunDiagnostics(document);
 
@@ -88,6 +112,8 @@ public:
 	            if(errors>0) {
 	                STENCILA_THROW(Exception,"Parsing error: "+error);
 	            }
+	            // Reinstate tabs
+	            boost::replace_all(output,"---tab---","\t");
 	            return output;
 	        } else {
 	            STENCILA_THROW(Exception,"An error occurred");

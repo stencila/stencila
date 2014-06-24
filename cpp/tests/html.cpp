@@ -30,7 +30,17 @@ BOOST_AUTO_TEST_CASE(load){
     CHECK(
         "<p class=\"message\">Don't panic!",
         "<p class=\"message\">Don't panic!</p>"
-    )    
+    ) 
+
+    // Check for preservation of tabs in <pre> elements
+    CHECK(
+        "<pre>\n\tline1\n\t\tline2\n</pre>",
+        "<pre>\n\tline1\n\t\tline2\n</pre>"
+    )
+    CHECK(
+        "<pre id=\"id\">\n\tline1\n\t\tline2\n</pre>",
+        "<pre id=\"id\">\n\tline1\n\t\tline2\n</pre>"
+    )  
 
     #undef CHECK 
 } 
