@@ -96,7 +96,7 @@ private:
 
 	// A sequence of dimension numbers used below for application
 	// of [BOOST_PP_SEQ_FOR_EACH](http://www.boost.org/doc/libs/1_55_0/libs/preprocessor/doc/ref/seq_for_each.html)
-	#define STENCILA_array_DIMENSIONS (D1)(D2)(D3)(D4)(D5)(D6)(D7)(D8)(D9)(D10)
+	#define STENCILA_ARRAY_DIMENSIONS (D1)(D2)(D3)(D4)(D5)(D6)(D7)(D8)(D9)(D10)
 
 	/**
 	 * Size of the array, a product of the size of each dimension
@@ -321,7 +321,7 @@ public:
 	// The following macro and BOOST_PP_SEQ_FOR_EACH call create a dimensioned method
 	// for each possible dimension
 	#define STENCILA_LOCAL(r,data,elem) static bool dimensioned(const elem&) { return true; }
-	BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, , STENCILA_array_DIMENSIONS)
+	BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, , STENCILA_ARRAY_DIMENSIONS)
 	#undef STENCILA_LOCAL
 
  	/**
@@ -648,7 +648,7 @@ public:
 			try{
 				// Accumulate index
 				#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) index += jump(dimension::level(line_stream));
-				BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_array_DIMENSIONS)
+				BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 				#undef STENCILA_LOCAL
 				// Read in value using function
 				function(line_stream,value);
@@ -708,7 +708,7 @@ public:
 		// Write a header row...
 		// ...with the names of each of the non-singular dimensions
 		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
-		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_array_DIMENSIONS)
+		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 		#undef STENCILA_LOCAL
 		// ...and the names of values that will be output by the function
 		uint index = 0;
@@ -723,7 +723,7 @@ public:
 		for(uint index=0;index<size();index++){
 			//...with labels for each nn-singular dimension
 			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
-			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_array_DIMENSIONS)
+			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 			#undef STENCILA_LOCAL
 			//...call the function to write the vaue
 			function(stream,values_[index]);
@@ -771,7 +771,7 @@ public:
 	 * @}
 	 */
 	
-#undef STENCILA_array_DIMENSIONS
+#undef STENCILA_ARRAY_DIMENSIONS
 
 };
 
