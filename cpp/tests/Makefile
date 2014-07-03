@@ -3,8 +3,7 @@ all: tests.run
 # Include for various STENCILA_XXX and STENCILA_CPP_XXX variables
 include $(dir $(lastword $(MAKEFILE_LIST)))/../variables.make
 
-# Define a header macro to 
-# make it easier to read Makefile output
+# Define a header macro to make it easier to read Makefile output
 # Previous version set colours using tput that failed when 
 # using with SublimeText
 define header
@@ -14,24 +13,27 @@ define header
 endef
 
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid)
-#   Compiled with the STENCILA_TEST_SINGLE macro defined. This gets undeffed in tests.cpp
 # 	More recent versions of gcov have "--relative-only" which "Only output information about source files with a relative pathname (after source prefix elision). 
 #   Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
-STENCILA_CPP_TEST_COMPILE := $(CXX) $(STENCILA_CPP_FLAGS) -DSTENCILA_TEST_SINGLE -g --coverage -O0 $(STENCILA_CPP_INCLUDE_DIRS)
+STENCILA_CPP_TEST_COMPILE := $(CXX) $(STENCILA_CPP_FLAGS) -g --coverage -O0 $(STENCILA_CPP_INCLUDE_DIRS)
 
-# Define a list of CPP files by recursively searching source directory
+# Define a list of Stencila C++ library files by recursively searching source directory
 STENCILA_CPPS := $(shell find ../stencila -name "*.cpp")
-# Strip off directory names and replace .cpp with .o
-# The object files are put in the build subdirectory
+# Strip off directory names and replace .cpp with .o in the build subdirectory
 STENCILA_OS := $(patsubst %.cpp,build/stencila/%.o,$(notdir $(STENCILA_CPPS)))
 
+# Define a list of test files in this directory
+TEST_CPPS := $(shell find -name "*.cpp")
+# Strip off directory names and replace .cpp with .o (in the build subdirectory)
+TEST_OS := $(patsubst %.cpp,build/%.o,$(notdir $(TEST_CPPS)))
+
 # Compile a stencila object file
-# These are compiled into build/stencila to prevent names
+# These are compiled into build/stencila to prevent name
 # clashes with test object files
 build/stencila/%.o : ../stencila/%.cpp
 	$(call header, $@ : $^)
 	mkdir -p build/stencila
-	$(STENCILA_CPP_TEST_COMPILE) $(STENCILA_CPP_INCLUDE_DIRS) -o $@ -c $<
+	$(STENCILA_CPP_TEST_COMPILE) -o $@ -c $<
 
 # Compile a test object file
 # This is a separate step from compiling the executable to ensure that
@@ -39,10 +41,15 @@ build/stencila/%.o : ../stencila/%.cpp
 build/%.o : %.cpp
 	$(call header, $@ : $^)
 	mkdir -p build
-	$(STENCILA_CPP_TEST_COMPILE) $(STENCILA_CPP_INCLUDE_DIRS) -o $@ -c $<
+	$(STENCILA_CPP_TEST_COMPILE) -o $@ -c $<
 
-# Compile a test executable
-build/%.exe : build/%.o $(STENCILA_OS)
+# Compile a single test file into an executable
+build/%.exe : build/tests.o build/%.o $(STENCILA_OS)
+	$(call header, $@ : $^)
+	$(STENCILA_CPP_TEST_COMPILE) -o $@ $^ $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
+
+# Compile all test files into an executable
+build/tests.exe : $(TEST_OS) $(STENCILA_OS)
 	$(call header, $@ : $^)
 	$(STENCILA_CPP_TEST_COMPILE) -o $@ $^ $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
 

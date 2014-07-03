@@ -1,8 +1,3 @@
-#include <iostream>
-
-#ifdef STENCILA_TEST_SINGLE
-    #define BOOST_TEST_MODULE tests
-#endif
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/html.hpp>
