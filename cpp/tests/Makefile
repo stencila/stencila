@@ -67,7 +67,10 @@ build/%.exe : build/tests.o build/%.o $(STENCILA_OS)
 # Compile all test files into an executable
 build/tests.exe : $(TEST_OS) $(STENCILA_OS)
 	$(call header, $@ : $^)
-	$(STENCILA_CPP_COMPILE_TEST) -o $@ $^ $(STENCILA_CPP_LIDS) $(STENCILA_CPP_LIBS_TEST)
+	$(STENCILA_CPP_COMPILE_TEST) $(STENCILA_CPP_FLAGS_PY) $(STENCILA_CPP_FLAGS_R) \
+		-o $@ $^ \
+		$(STENCILA_CPP_LIDS) $(STENCILA_CPP_LIDS_PY) $(STENCILA_CPP_LIDS_R) \
+		$(STENCILA_CPP_LIBS_TEST) $(STENCILA_CPP_LIBS_PY) $(STENCILA_CPP_LIBS_R) 
 
 # Run a test executable
 # Changes into build directory and runs tests from there
