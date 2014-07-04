@@ -7,25 +7,30 @@ include $(dir $(lastword $(MAKEFILE_LIST)))/../cpp/variables.make
 # Tasks that get called by setup.py to return variables
 version:
 	@echo $(STENCILA_VERSION)
+cpp_files:
+	@echo $(shell find stencila -name "*.cpp" -follow) # Follow symlinks
 cpp_flags:
 	@echo $(STENCILA_CPP_FLAGS)
 cpp_include_dirs:
-	@echo $(STENCILA_CPP_INCLUDE_DIRS)
+	@echo $(STENCILA_CPP_INCS)
 cpp_library_dirs:
-	@echo $(STENCILA_CPP_LIB_DIRS)
+	@echo $(STENCILA_CPP_LIDS)
 cpp_libs:
-	@echo $(STENCILA_CPP_LIBS)
+	@echo $(STENCILA_CPP_LIBS) -lboost_python
 
-# Requires everything that Stencila C++ library requires and the Stencila C++ library itself
+# Requires everything that Stencila C++ library requires
 requires:
-	$(MAKE) -C ../cpp version.hpp
 	$(MAKE) -C ../cpp/requires
-	$(MAKE) -C ../cpp/lib
+
+# Copy PythonContext code from the `cpp` module. Append
+# a hash to it to escapr the raw string.
+pycode:
+	echo -n "#" | cat - ../cpp/stencila/python-context.py >> stencila/context.py
 
 # Create binary distribution for the platform
 # Create a text file with name of latest wheel for testing (using a symlink to latest wheel instead
 # failed when installing using pip install)
-dist:
+dist: requires pycode
 	python setup.py bdist_wheel
 	cd dist; echo `ls -rt *.whl | tail -n1` > latest_wheel.txt
 

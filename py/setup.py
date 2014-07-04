@@ -6,7 +6,7 @@ Usage example:
     sudo python setup.py install
     
 For creating binary packages or installers use:
-    python setup.py bdist_egg
+    python setup.py bdist_wheel
     
 There has been a lot of confusion and contention around Python packaging e.g.
     http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/
@@ -23,11 +23,15 @@ from subprocess import Popen, PIPE
 def shell(command):
     return Popen(command, shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip()
 # Get Makefile variables. --quiet is needed to prevent make from echoing which directory it is in
-version = shell('make --no-print-directory --quiet version')
-cpp_flags = shell('make --no-print-directory --quiet cpp_flags').split()
-cpp_incl_dirs = shell('make --no-print-directory --quiet cpp_include_dirs').replace('-I','').split()
-cpp_lib_dirs = shell('make --no-print-directory --quiet cpp_library_dirs').replace('-L','').split()
-cpp_libs = shell('make --no-print-directory --quiet cpp_libs').replace('-l','').split()
+def make(variable):
+    return shell('make --no-print-directory --quiet %s'%variable)
+
+version = make('version')
+cpp_files = make('cpp_files').split()
+cpp_flags = make('cpp_flags').split()
+cpp_incl_dirs = make('cpp_include_dirs').replace('-I','').split()
+cpp_lib_dirs = make('cpp_library_dirs').replace('-L','').split()
+cpp_libs = make('cpp_libs').replace('-l','').split()
 
 setup(
     # See http://docs.python.org/distutils/apiref.html for a full list of optional arguments
@@ -44,13 +48,11 @@ setup(
     ext_modules = [
         Extension(
             'stencila.extension',
-            [
-                'stencila/extension.cpp'
-            ],
+            cpp_files,
             extra_compile_args = cpp_flags,
             include_dirs = cpp_incl_dirs,
             library_dirs = cpp_lib_dirs,
-            libraries = ['boost_python']+cpp_libs
+            libraries = cpp_libs
         )
     ]
 )

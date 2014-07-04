@@ -1,9 +1,6 @@
-#include "extension.hpp"
+#include <stencila/version.hpp>
 
-#include "exception.cpp"
-#include "component.cpp"
-#include "package.cpp"
-#include "stencil.cpp"
+#include "extension.hpp"
 
 // Define converters
 template<typename Type>

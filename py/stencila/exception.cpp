@@ -1,5 +1,4 @@
 #include <stencila/exception.hpp>
-using namespace Stencila;
 
 #include "extension.hpp"
 
@@ -15,13 +14,12 @@ template<typename Class>
 PyObject* ExceptionTranslator<Class>::type;
 
 void exception_test(void){
-	throw Exception("Testing, testing, 1, 2, 3.");
+	throw Stencila::Exception("Testing, testing, 1, 2, 3.");
 }
 
 void def_Exception(void){
-
     class_<Exception> klass("Exception");
-    klass.def(str(self));
+    //klass.def(str(self));
     ExceptionTranslator<Exception>::type = klass.ptr();
     register_exception_translator<Exception>(ExceptionTranslator<Exception>::translate);
 

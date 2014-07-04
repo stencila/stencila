@@ -1,5 +1,4 @@
 #include <stencila/package.hpp>
-using namespace Stencila;
 
 #include "extension.hpp"
 
