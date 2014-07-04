@@ -16,7 +16,7 @@ STENCILA_CPP_LIDS := -L$(STENCILA_CPP_HOME)/requires/lib
 # Define libraries required
 STENCILA_CPP_LIBS :=
 STENCILA_CPP_LIBS += -lboost_filesystem -lboost_system -lboost_regex
-STENCILA_CPP_LIBS += -lgit2 -lcrypto -lssl -lrt # libgit2 requires libcrypto, libssl and librt
+STENCILA_CPP_LIBS += -lgit2 -lcrypto -lssl -lrt -lz # libgit2 requires libcrypto, libssl, librt, libz
 STENCILA_CPP_LIBS += -lpugixml
 STENCILA_CPP_LIBS += -ltidy-html5
 
