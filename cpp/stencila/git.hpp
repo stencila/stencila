@@ -129,6 +129,7 @@ public:
 		} else {
 			STENCILA_THROW(GitNoRepoError,"No repository found at: "+path);
 		}
+		return true;
 	}
 
 
