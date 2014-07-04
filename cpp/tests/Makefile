@@ -15,9 +15,10 @@ endef
 # Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid)
 # 	More recent versions of gcov have "--relative-only" which "Only output information about source files with a relative pathname (after source prefix elision). 
 #   Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
-STENCILA_CPP_TEST_COMPILE := $(CXX) $(STENCILA_CPP_FLAGS) -g --coverage -O0 $(STENCILA_CPP_INCLUDE_DIRS)
+STENCILA_CPP_COMPILE_TEST := $(CXX) $(STENCILA_CPP_FLAGS) -g --coverage -O0 $(STENCILA_CPP_INCS)
+STENCILA_CPP_LIBS_TEST := $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
 
-# Define a list of Stencila C++ library files by recursively searching source directory
+# Define a list of Stencila C++ library files by searching source directory
 STENCILA_CPPS := $(shell find ../stencila -name "*.cpp")
 # Strip off directory names and replace .cpp with .o in the build subdirectory
 STENCILA_OS := $(patsubst %.cpp,build/stencila/%.o,$(notdir $(STENCILA_CPPS)))
@@ -33,7 +34,7 @@ TEST_OS := $(patsubst %.cpp,build/%.o,$(notdir $(TEST_CPPS)))
 build/stencila/%.o : ../stencila/%.cpp
 	$(call header, $@ : $^)
 	mkdir -p build/stencila
-	$(STENCILA_CPP_TEST_COMPILE) -o $@ -c $<
+	$(STENCILA_CPP_COMPILE_TEST) -o $@ -c $<
 
 # Compile a test object file
 # This is a separate step from compiling the executable to ensure that
@@ -41,17 +42,32 @@ build/stencila/%.o : ../stencila/%.cpp
 build/%.o : %.cpp
 	$(call header, $@ : $^)
 	mkdir -p build
-	$(STENCILA_CPP_TEST_COMPILE) -o $@ -c $<
+	$(STENCILA_CPP_COMPILE_TEST) -c -o $@ $<
+
+# Compile PythonContext test
+build/python-context.o : python-context.cpp
+	$(STENCILA_CPP_COMPILE_TEST) $(STENCILA_CPP_FLAGS_PY) $(STENCILA_CPP_INCS_PY) -c -o $@ $^
+
+build/python-context.exe : build/python-context.o build/tests.o $(STENCILA_OS)
+	$(STENCILA_CPP_COMPILE_TEST) $(STENCILA_CPP_FLAGS_PY) -o $@ $^ $(STENCILA_CPP_LIDS) $(STENCILA_CPP_LIDS_PY) $(STENCILA_CPP_LIBS_TEST) $(STENCILA_CPP_LIBS_PY)
+
+# Compile RContext test
+build/r-context.o : r-context.cpp
+	$(STENCILA_CPP_COMPILE_TEST) $(STENCILA_CPP_FLAGS_R) $(STENCILA_CPP_INCS_R) -c -o $@ $^
+
+build/r-context.exe : build/r-context.o build/tests.o $(STENCILA_OS)
+	$(STENCILA_CPP_COMPILE_TEST) $(STENCILA_CPP_FLAGS_R) -o $@ $^ $(STENCILA_CPP_LIDS) $(STENCILA_CPP_LIDS_R) $(STENCILA_CPP_LIBS_TEST) $(STENCILA_CPP_LIBS_R)
+
 
 # Compile a single test file into an executable
 build/%.exe : build/tests.o build/%.o $(STENCILA_OS)
 	$(call header, $@ : $^)
-	$(STENCILA_CPP_TEST_COMPILE) -o $@ $^ $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
+	$(STENCILA_CPP_COMPILE_TEST) -o $@ $^ $(STENCILA_CPP_LIDS) $(STENCILA_CPP_LIBS_TEST)
 
 # Compile all test files into an executable
 build/tests.exe : $(TEST_OS) $(STENCILA_OS)
 	$(call header, $@ : $^)
-	$(STENCILA_CPP_TEST_COMPILE) -o $@ $^ $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS) -lboost_unit_test_framework -lgcov
+	$(STENCILA_CPP_COMPILE_TEST) -o $@ $^ $(STENCILA_CPP_LIDS) $(STENCILA_CPP_LIBS_TEST)
 
 # Run a test executable
 # Changes into build directory and runs tests from there
