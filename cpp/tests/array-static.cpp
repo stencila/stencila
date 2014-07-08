@@ -190,5 +190,36 @@ BOOST_AUTO_TEST_CASE(write){
     BOOST_CHECK_EQUAL(lines[6],"1\t2\t42");
 }
 
+struct A {
+
+    int a = 1;
+    int b = 2;
+
+    template<class Mirror>
+    void reflect(Mirror& mirror){
+        mirror
+            .data(a,"a")
+            .data(b,"b")
+        ;
+    }
+};
+
+BOOST_AUTO_TEST_CASE(write_reflect){
+    Array<A,Three> a;
+    a(1).a = 7373;
+    // Write to stream
+    std::ostringstream stream;
+    a.write(stream,true);
+    // Check the stream's contents
+    std::string output = stream.str();
+    std::vector<std::string> lines;
+    boost::split(lines,output,boost::is_any_of("\n"));
+    BOOST_CHECK_EQUAL(lines.size(),5);
+    BOOST_CHECK_EQUAL(lines[0],"three\ta\tb");
+    BOOST_CHECK_EQUAL(lines[1],"0\t1\t2");
+    BOOST_CHECK_EQUAL(lines[2],"1\t7373\t2");
+    BOOST_CHECK_EQUAL(lines[3],"2\t1\t2");
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
