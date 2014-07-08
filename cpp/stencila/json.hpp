@@ -277,6 +277,12 @@ public:
     return push(to,object_value);
   }
 
+  Value& push_object() {
+    Value object_value(rapidjson::kObjectType);
+    push(*this,object_value);
+    return object_value;
+  }
+
   template<typename Type>
   Document& push(Value& to,const std::vector<Type>& items) {
     Value array_value(rapidjson::kArrayType);
