@@ -87,7 +87,6 @@ private:
      * Close a connection
      */
     void close_(connection_hdl hdl) {
-        Session& session = session_(hdl);
         sessions_.erase(hdl);
     }
 
@@ -165,7 +164,7 @@ private:
 					        else if(extension==".css") content_type = "text/css";
 					        else if(extension==".html") content_type = "text/html";
 					        else if(extension==".png") content_type = "image/png";
-					        else if(extension==".jpg" | extension==".jpeg") content_type = "image/jpg";
+					        else if(extension==".jpg" || extension==".jpeg") content_type = "image/jpg";
 					        else if(extension==".svg") content_type = "image/svg+xml";
 					        else if(extension==".js") content_type = "application/javascript";
 					        else if(extension==".woff") content_type = "application/font-wof";
@@ -267,12 +266,14 @@ public:
  	/**
  	 * Start server instance
  	 */
+    static void start_(void) {
+        instance_->start();
+    }
+
     static void startup(void) {
         if(not instance_){
         	instance_ = new Server();
-        	thread_ = new std::thread([&instance_](){
-        		instance_->start();
-        	});
+        	thread_ = new std::thread(start_);
         }
     }
 

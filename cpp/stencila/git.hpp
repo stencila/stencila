@@ -129,6 +129,7 @@ public:
 		} else {
 			STENCILA_THROW(GitNoRepoError,"No repository found at: "+path);
 		}
+		return true;
 	}
 
 
@@ -172,7 +173,7 @@ public:
 		std::vector<Commit> history;
 		git_commit* commit;
 		while ((git_revwalk_next(&oid, walker)) == 0) {
-			int error = git_commit_lookup(&commit, repo_, &oid);
+			STENCILA_GIT_TRY(git_commit_lookup(&commit, repo_, &oid));
 			history.push_back(Commit(commit));
 			git_commit_free(commit);
 		}
@@ -241,7 +242,7 @@ public:
 		git_strarray tags;
 		STENCILA_GIT_TRY(git_tag_list(&tags, repo_));
 		std::vector<std::string> tags_v(tags.count);
-		for(int i=0;i<tags.count;i++) tags_v[i] = tags.strings[i];
+		for(uint i=0;i<tags.count;i++) tags_v[i] = tags.strings[i];
 		git_strarray_free(&tags);
 		return tags_v;
 	}

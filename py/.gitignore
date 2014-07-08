@@ -2,3 +2,5 @@ build
 dist
 stencila.egg-info
 testing
+
+stencila/context.py

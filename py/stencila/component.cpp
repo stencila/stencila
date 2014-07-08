@@ -2,7 +2,6 @@
 #include <string>
 
 #include <stencila/component.hpp>
-using namespace Stencila;
 
 #include "extension.hpp"
 

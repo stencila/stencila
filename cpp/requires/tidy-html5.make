@@ -11,8 +11,9 @@ tidy-html5.zip:
 	wget --no-check-certificate -Otidy-html5.zip https://github.com/w3c/tidy-html5/archive/master.zip
 
 tidy-html5-master: tidy-html5.zip
-	unzip tidy-html5.zip
+	unzip -f tidy-html5.zip
 	patch tidy-html5-master/build/gmake/Makefile tidy-html5-build-gmake-Makefile.patch
+	wget --no-check-certificate -Otidy-html5-pull-98.patch https://github.com/w3c/tidy-html5/pull/98.patch
 	cd tidy-html5-master; patch -p1 -i ../tidy-html5-pull-98.patch
 ifeq ($(STENCILA_PLATFORM), msys)
 	patch tidy-html5-master/src/mappedio.c tidy-html5-src-mappedio.c.patch

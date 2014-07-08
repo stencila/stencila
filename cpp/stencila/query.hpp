@@ -151,8 +151,8 @@ private:
 };
 
 #define STENCILA_AGGREGATE_FUNCS(name,func)\
-	name func(){ return name(); } \
-	template<class Type> name::result_type func(const Type& object){ return name().apply(object).result(); } \
+	static name func(){ return name(); } \
+	template<class Type> static name::result_type func(const Type& object){ return name().apply(object).result(); } \
 
 
 template<

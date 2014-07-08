@@ -1,10 +1,12 @@
 #include <string>
 
 #include <stencila/stencil.hpp>
-using namespace Stencila;
+#include <stencila/python-context.hpp>
 
 #include "extension.hpp"
-#include "context.hpp"
+
+using namespace Stencila;
+using namespace boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_content_set_overloads,content,2,2)
 
@@ -17,7 +19,6 @@ Stencil& Stencil_render(Stencil& self, object python_context){
 }
 
 void def_Stencil(void){
-
     class_<Stencil,bases<Component>>("Stencil")
 
         .def("content",

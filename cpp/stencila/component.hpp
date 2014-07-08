@@ -996,7 +996,7 @@ public:
         // Serve this component so that it is available to be viewed via Server
         std::string url = serve(code);
         // Open URL in default browser
-        #ifdef _WIN32 || _WIN64
+        #if defined(_WIN32) || defined(_WIN64)
            ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
         #elif __APPLE__
             std::system(("open \""+url+"\"").c_str());
@@ -1097,10 +1097,10 @@ public:
         
         // WAMP message codes used below.
         // From https://github.com/tavendo/WAMP/blob/master/spec/basic.md#message-codes-and-direction
-        static const int ERROR = 8;
+        //static const int ERROR = 8;
         static const int CALL = 48;
         static const int RESULT = 50;
-        static const int YIELD = 70;
+        //static const int YIELD = 70;
 
         //[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri]
         //[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list]
@@ -1133,19 +1133,22 @@ public:
                     if(items>=5){
                         Json::Value& args_value = request[4];
                         args.resize(size(args_value));
-                        for(int i=0;i<args.size();i++) args[i] = as<std::string>(args_value[i]);
+                        for(uint i=0;i<args.size();i++) args[i] = as<std::string>(args_value[i]);
                     }
 
                     std::map<std::string,std::string> kwargs;
                     if(items>=6){
+                        /**
+                         * @fixme Not implemented
+                         */
+                        #if 0
                         Json::Value& kwargs_value = request[5];
-                        /*
                         for(int i=0;i<size(kwargs_value);i++){
                             auto value = kwargs_value[i];
                             auto name = 
                             args[name] = value;
                         }
-                        */
+                        #endif
                     }
                     
                     std::string result;

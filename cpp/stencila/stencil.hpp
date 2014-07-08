@@ -931,6 +931,7 @@ public:
 
     Stencil& sanitize(void) {
         //Xml::Document::sanitize(whitelist);
+        return *this;
     };
 
     /**
@@ -1161,6 +1162,7 @@ public:
         write();
         ///...then commit it
         Component::commit(message);
+        return *this;
     }
 
     /**
@@ -1204,7 +1206,7 @@ public:
     static Node element(const std::string& tag, const AttributeList& attributes, Args... args){
         Node started = start(tag,attributes);
         add(args...);
-        Node finished = finish(tag);
+        //Node finished = finish(tag);
         return started;
     }
 
