@@ -71,32 +71,51 @@ public:
 
     std::string call(const Call& call) {
         auto what = call.what();
-        if(what=="html"){
-            html(call.arg(0));
+        
+        // Getting content
+        if(what=="html():string"){
+            return html();
         }
-        else if(what=="cila"){
-            if(call.args()==0) return cila();
-            else cila(call.arg(0)); 
-        }
-        else if(what=="html_cila"){
-            html(call.arg(0));
+        else if(what=="cila():string"){
             return cila();
         }
-        else if(what=="cila_html"){
-            cila(call.arg(0));
-            return html();
+
+        // Setting content
+        else if(what=="html(string)"){
+            std::string string = call.arg(0);
+            html(string);
         }
-        else if(what=="commit"){
-            commit(call.arg(0));
+        else if(what=="cila(string)"){
+            std::string string = call.arg(0);
+            cila(string);
         }
-        else if(what=="render"){
-            if(call.args()>0) html(call.arg(0));
-            render();
-            return html();
+
+        // Conversion of content...
+        // ... HTML to Cila
+        else if(what=="html(string).cila():string"){
+            std::string string = call.arg(0);
+            return     html(string).cila();
         }
-        else {
-            STENCILA_THROW(Exception,"Method not registered for calling: "+what);
+        // ... Cila to HTML
+        else if(what=="cila(string).html():string"){
+            std::string string = call.arg(0);
+            return     cila(string).html();
         }
+
+        // Rendering...
+        //... HTML
+        else if(what=="html(string).render().html():string"){
+            std::string string = call.arg(0);
+            return     html(string).render().html();
+        }
+        //...Cila
+        else if(what=="cila(string).render().cila():string"){
+            std::string string = call.arg(0);
+            return     cila(string).render().cila();
+        }
+
+        else return Component::call(call);
+
         return "";
     }
 
