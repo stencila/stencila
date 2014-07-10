@@ -761,7 +761,7 @@ public:
 
 	void read(std::istream& stream,bool) {
 		// Instantiate an attribute matcher
-		AttributeMatcher matcher;
+		ColumnMatcher matcher;
 		// Read in the header and pass to matcher
 		std::string header;
 		std::getline(stream,header);
@@ -803,7 +803,7 @@ public:
 		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 		#undef STENCILA_LOCAL
 
-		stream<<RowHeader<Type>();
+		stream<<Type::derived_nullptr()->header_row();
 
 		// ...then end the header line
 		stream<<std::endl;
@@ -816,7 +816,7 @@ public:
 			#undef STENCILA_LOCAL
 			
 			Type copy = values_[index];
-			stream<<RowString(copy);
+			stream<<copy.to_row();
 
 			// ...then end the value line
 			stream<<std::endl;

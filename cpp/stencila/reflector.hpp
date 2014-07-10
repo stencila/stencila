@@ -1,10 +1,13 @@
 #include <stencila/polymorph.hpp>
+#include <stencila/mirrors.hpp>
 
 namespace Stencila {
 
 template<class Derived>
 class Reflector : public Polymorph<Derived>{
 public:
+
+  using Polymorph<Derived>::derived;
 
 #if 0
     std::string type(void) {
@@ -20,7 +23,7 @@ public:
     }
 #endif
     bool has(const std::string& name) {
-		return Has<Derived>(name);
+		  return Has(derived(),name);
     }
 #if 0
     std::string repr(void) const{
@@ -29,6 +32,19 @@ public:
           return repr.repr();
     }
 #endif
+
+    std::string header_row(const std::string& separator="\t") const {
+      return RowHeader(derived(),separator);
+    }
+
+    std::string to_row(const std::string& separator="\t") {
+      return RowGenerator(derived(),separator);
+    }
+
+    Derived& from_row(const std::string& row, const std::string& separator="\t") {
+      RowParser(derived(),row,separator);
+      return derived();
+    }
 };
 
-}  // namespace Stencila
+} // namespace Stencila

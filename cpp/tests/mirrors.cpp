@@ -40,18 +40,29 @@ struct B : A {
 };
 
 BOOST_AUTO_TEST_CASE(has){
-	BOOST_CHECK(Has<A>("a"));
-	BOOST_CHECK(not Has<A>("z"));
+	A a;
+	BOOST_CHECK(Has(a,"a"));
+	BOOST_CHECK(not Has(a,"z"));
 }
 
 BOOST_AUTO_TEST_CASE(row_header){
-	BOOST_CHECK_EQUAL(RowHeader<A>(),"a\tb\tc");
-	BOOST_CHECK_EQUAL(RowHeader<B>(","),"a,b,c,d,e,f");
+	A a;
+	B b;
+	BOOST_CHECK_EQUAL(RowHeader(a),"a\tb\tc");
+	BOOST_CHECK_EQUAL(RowHeader(b,","),"a,b,c,d,e,f");
 }
 
-BOOST_AUTO_TEST_CASE(row_writer){
+BOOST_AUTO_TEST_CASE(row_generator){
 	A a;
-	BOOST_CHECK_EQUAL(RowString(a),"1\tb\t42");
+	BOOST_CHECK_EQUAL(RowGenerator(a),"1\tb\t42");
+}
+
+BOOST_AUTO_TEST_CASE(row_parser){
+	A a;
+	RowParser(a,"0\tz\t64");
+	BOOST_CHECK_EQUAL(a.a,false);
+	BOOST_CHECK_EQUAL(a.b,'z');
+	BOOST_CHECK_EQUAL(a.c,64);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

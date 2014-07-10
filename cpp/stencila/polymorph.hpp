@@ -26,6 +26,15 @@ public:
     const Derived& derived(void) const {
         return static_cast<const Derived&>(*this);
     }
+    /**
+     * Create a null pointer to the derived type
+     *
+     * This can be useful when an instance of a type is expensive to construct
+     * but is required as a type indicator for a function
+     */
+    static const Derived* derived_nullptr(void) {
+        return static_cast<const Derived*>(nullptr);
+    }
 }; //class Polymorph
 
 } // namespace Stencila
