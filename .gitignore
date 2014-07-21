@@ -1,6 +1,9 @@
-#Ignore compiled files
+# Ignore compiled files
 *.o
 *.pyc
+
+# Ignore WAF build system binary folder
+.waf-*
 
 # Ignore Sublime Text project and workspace files
 *.sublime-project
