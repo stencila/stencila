@@ -141,14 +141,83 @@ public:
 		return index_ < other.index_;
 	}
 
+	bool operator<=(const Level<Dimension>& other) const {
+		return index_ <= other.index_;
+	}
+
 	bool operator>(const Level<Dimension>& other) const {
 		return index_ > other.index_;
+	}
+
+	bool operator>=(const Level<Dimension>& other) const {
+		return index_ >= other.index_;
+	}
+
+
+	template<typename Other>
+	bool operator==(const Other& other) const {
+		return *this == Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator!=(const Other& other) const {
+		return *this != Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator<(const Other& other) const {
+		return *this < Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator<=(const Other& other) const {
+		return *this <= Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator>(const Other& other) const {
+		return *this > Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator>=(const Other& other) const {
+		return *this >= Level<Dimension>(other);
 	}
 
 	/**
 	 * @}
 	 */
 };
+
+template<typename Other,class Dimension>
+bool operator==(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) == level;
+}
+
+template<typename Other,class Dimension>
+bool operator!=(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) != level;
+}
+
+template<typename Other,class Dimension>
+bool operator<(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) < level;
+}
+
+template<typename Other,class Dimension>
+bool operator<=(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) <= level;
+}
+
+template<typename Other,class Dimension>
+bool operator>(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) > level;
+}
+
+template<typename Other,class Dimension>
+bool operator>=(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) >= level;
+}
 
 template<class Dimension>
 std::ostream& operator<<(std::ostream& stream, const Level<Dimension>& level){
