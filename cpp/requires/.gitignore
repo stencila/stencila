@@ -8,8 +8,6 @@ rapidjson*
 tidy-html5*
 websocketpp*
 
+!*.py
 !*.make
 !*.patch
-
-# Ignore this downloaded patch
-tidy-html5-pull-98.patch

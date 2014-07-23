@@ -1,0 +1,144 @@
+From 06d0a0543a9352aad28fa99d74dcd863468af6d9 Mon Sep 17 00:00:00 2001
+From: Peter Hoffmann <Hoffmann.P@gmx.net>
+Date: Fri, 26 Jul 2013 12:27:46 +0200
+Subject: [PATCH] Added MAIN-tag
+
+---
+ include/tidyenum.h |  1 +
+ src/attrdict.c     | 74 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/attrdict.h     |  1 +
+ src/tags.c         |  2 ++
+ 4 files changed, 78 insertions(+)
+
+diff --git a/include/tidyenum.h b/include/tidyenum.h
+index 6066e3b..a284b8d 100644
+--- a/include/tidyenum.h
++++ b/include/tidyenum.h
+@@ -450,6 +450,7 @@
+   TidyTag_FIGCAPTION,
+   TidyTag_FIGURE,
+   TidyTag_FOOTER,
++  TidyTag_MAIN,
+   TidyTag_HEADER,
+   TidyTag_HGROUP,
+   TidyTag_MARK,
+diff --git a/src/attrdict.c b/src/attrdict.c
+index 0588628..19703f5 100644
+--- a/src/attrdict.c
++++ b/src/attrdict.c
+@@ -4833,6 +4833,80 @@ const AttrVersion TY_(W3CAttrsFor_LISTING)[] =
+   { TidyAttr_UNKNOWN,            0                                                                          },
+ };
+ 
++const AttrVersion TY_(W3CAttrsFor_MAIN)[] = 
++{
++  { TidyAttr_ACCESSKEY,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_CLASS,              xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_CONTENTEDITABLE,    xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_CONTEXTMENU,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_DIR,                xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_DRAGGABLE,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_DROPZONE,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_HIDDEN,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_ID,                 xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_LANG,               xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnABORT,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnBLUR,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnCANPLAY,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnCANPLAYTHROUGH,   xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnCHANGE,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnCLICK,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnCONTEXTMENU,      xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnCUECHANGE,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDBLCLICK,         xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDRAG,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDRAGEND,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDRAGENTER,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDRAGLEAVE,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDRAGOVER,         xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDRAGSTART,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDROP,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnDURATIONCHANGE,   xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnEMPTIED,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnENDED,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnERROR,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnFOCUS,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnINPUT,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnINVALID,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnKEYDOWN,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnKEYPRESS,         xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnKEYUP,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnLOAD,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnLOADEDDATA,       xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnLOADEDMETADATA,   xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnLOADSTART,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnMOUSEDOWN,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnMOUSEMOVE,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnMOUSEOUT,         xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnMOUSEOVER,        xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnMOUSEUP,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnMOUSEWHEEL,       xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnPAUSE,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnPLAY,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnPLAYING,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnPROGRESS,         xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnRATECHANGE,       xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnREADYSTATECHANGE, xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnRESET,            xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSCROLL,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSEEKED,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSEEKING,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSELECT,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSHOW,             xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSTALLED,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSUBMIT,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnSUSPEND,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnTIMEUPDATE,       xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnVOLUMECHANGE,     xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_OnWAITING,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_SPELLCHECK,         xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_STYLE,              xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_TABINDEX,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_TITLE,              xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
++  { TidyAttr_XML_LANG,           xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|XH50 },
++  { TidyAttr_UNKNOWN,            0                                                                          },
++};
++
+ const AttrVersion TY_(W3CAttrsFor_MAP)[] = 
+ {
+   { TidyAttr_ACCESSKEY,          xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50 },
+diff --git a/src/attrdict.h b/src/attrdict.h
+index 7127d45..e50d62b 100644
+--- a/src/attrdict.h
++++ b/src/attrdict.h
+@@ -128,6 +128,7 @@
+ extern const AttrVersion TY_(W3CAttrsFor_NAV)[];
+ extern const AttrVersion TY_(W3CAttrsFor_SECTION)[];
+ extern const AttrVersion TY_(W3CAttrsFor_FOOTER)[];
++extern const AttrVersion TY_(W3CAttrsFor_MAIN)[];
+ extern const AttrVersion TY_(W3CAttrsFor_HEADER)[];
+ extern const AttrVersion TY_(W3CAttrsFor_DETAILS)[];
+ extern const AttrVersion TY_(W3CAttrsFor_COMMAND)[];
+diff --git a/src/tags.c b/src/tags.c
+index 4705dcd..69084cf 100644
+--- a/src/tags.c
++++ b/src/tags.c
+@@ -132,6 +132,7 @@
+ #define VERS_ELEM_FIGCAPTION (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
+ #define VERS_ELEM_FIGURE     (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
+ #define VERS_ELEM_FOOTER     (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
++#define VERS_ELEM_MAIN       (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
+ #define VERS_ELEM_HEADER     (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
+ #define VERS_ELEM_HGROUP     (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
+ #define VERS_ELEM_KEYGEN     (xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|xxxx|HT50|XH50)
+@@ -284,6 +285,7 @@
+   { TidyTag_FIGCAPTION,  "figcaption",   VERS_ELEM_FIGCAPTION,  &TY_(W3CAttrsFor_FIGCAPTION)[0],  (CM_BLOCK),                    TY_(ParseBlock),     NULL           },
+   { TidyTag_FIGURE,      "figure",       VERS_ELEM_FIGURE,      &TY_(W3CAttrsFor_FIGURE)[0],      (CM_BLOCK),                    TY_(ParseBlock),     NULL           },
+   { TidyTag_FOOTER,      "footer",       VERS_ELEM_FOOTER,      &TY_(W3CAttrsFor_FOOTER)[0],      (CM_BLOCK),                    TY_(ParseBlock),     NULL           },
++  { TidyTag_MAIN,        "main",         VERS_ELEM_MAIN,        &TY_(W3CAttrsFor_MAIN)[0],        (CM_BLOCK),                    TY_(ParseBlock),     NULL           },
+   { TidyTag_HEADER,      "header",       VERS_ELEM_HEADER,      &TY_(W3CAttrsFor_HEADER)[0],      (CM_BLOCK),                    TY_(ParseBlock),     NULL           },
+   { TidyTag_HGROUP,      "hgroup",       VERS_ELEM_HGROUP,      &TY_(W3CAttrsFor_HGROUP)[0],      (CM_BLOCK),                    TY_(ParseBlock),     NULL           },
+   { TidyTag_KEYGEN,      "keygen",       VERS_ELEM_KEYGEN,      &TY_(W3CAttrsFor_KEYGEN)[0],      (CM_INLINE|CM_EMPTY),          TY_(ParseEmpty),     NULL           },
+-- 
+1.8.5.1
+
