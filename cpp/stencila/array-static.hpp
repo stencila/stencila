@@ -716,7 +716,7 @@ public:
 	 * @param path Filesystem path to file
 	 */
 	void read(const std::string& path) {
-		std::ofstream file(path);
+		std::ifstream file(path);
 		read(file);
 		file.close();
 	}
