@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+# Each requirement has it's own Python module...
+import boost
+import libgit2
+import pugixml
+import rapidjson
+import tidyhtml5
+import websocketpp
+
+def configure(context):
+	# Call each module
+	boost.configure(context)
+	libgit2.configure(context)
+	pugixml.configure(context)
+	rapidjson.configure(context)
+	tidyhtml5.configure(context)
+	websocketpp.configure(context)
+
+def build(context):
+	# Create `include` and `lib` directories for
+	# holding symlinks to all required headers and libraries
+	target = context.path.get_bld()
+	context(
+		name = 'cpp-requires-include',
+		rule = 'mkdir -p ${TGT}',
+		target = target.make_node('include')
+	)
+	context(
+		name = 'cpp-requires-lib',
+		rule = 'mkdir -p ${TGT}',
+		target = target.make_node('lib')
+	)
+	# Call each module
+	boost.build(context)
+	libgit2.build(context)
+	pugixml.build(context)
+	rapidjson.build(context)
+	tidyhtml5.build(context)
+	websocketpp.build(context)

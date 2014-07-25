@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+import os
+
+def configure(context):
+	pass
+
+def build(context):
+	for source in context.path.get_src().ant_glob('*.cpp'):
+		target = os.path.basename(source.abspath()).replace('.cpp','')
+		context.program(
+			source = [source],
+			target = target,
+			cxxflags = context.env.CXXFLAGS + ['-g','--coverage','-O0'],
+			lib = ['boost_unit_test_framework','gcov']
+		)

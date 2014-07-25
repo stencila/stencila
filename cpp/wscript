@@ -1,0 +1,21 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def options(context):
+	# Load C++ compiler options
+	context.load('compiler_cxx')
+
+def configure(context):
+	# Load C++ compiler configuration
+	context.load('compiler_cxx')
+	# Set common C++ flags
+	context.env.CXXFLAGS = ['-Wall','--std=c++11']
+	# Recurse into subdirectories
+	context.recurse('requires')
+	#context.recurse('tests')
+
+def build(context):
+	# Recurse into subdirectories
+	context.recurse('requires')
+	#context.recurse('tests')
+	
