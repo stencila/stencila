@@ -50,7 +50,7 @@ public:
 		return has_;
 	}
   
-};
+}; // class Has
 
 class RowHeader : public Mirror<RowHeader>, public std::string {
 private:
@@ -90,7 +90,6 @@ public:
         return *this;
     }
 }; // class RowGenerator
-
 
 class RowWriter : public Mirror<RowWriter>, public std::ofstream {
 private:
@@ -159,7 +158,6 @@ public:
 
 }; // class RowWriter
 
-
 class RowParser : public Mirror<RowParser> {
 private:
     std::vector<std::string> items_;
@@ -181,9 +179,6 @@ public:
     }
 }; // class RowParser
 
-/**
- * Matches columns with 
- */
 class ColumnMatcher : public Mirror<ColumnMatcher> {
 private:
 	std::vector<std::string> names_;
