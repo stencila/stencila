@@ -8,6 +8,7 @@
 #include <stencila/exception.hpp>
 #include <stencila/query.hpp>
 #include <stencila/traits.hpp>
+#include <stencila/mirrors.hpp>
 
 namespace Stencila {
 
@@ -451,6 +452,23 @@ public:
 	}
 
 	/**
+	 * Get a string representing the subscript notation associated with 
+	 * a linear index of the array
+	 */
+	std::string subscript(uint index, bool parentheses=false) const {
+		std::string subscript;
+		if(parentheses) subscript += "(";
+		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) subscript += boost::lexical_cast<std::string>(level(dimension(),index)) + ",";
+		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
+		#undef STENCILA_LOCAL
+		if(subscript.length()){
+			if(subscript[subscript.length()-1]==',') subscript = subscript.substr(0,subscript.length()-1);
+		}
+		if(parentheses) subscript += ")";
+		return subscript;
+	}
+
+	/**
 	 * Get the index of this array corresponding to particular levels of each 
 	 * of the it's dimensions
 	 */
@@ -521,6 +539,15 @@ public:
 	/**
 	 * @}
 	 */
+	
+	void each(void (*function)(Type&)){
+		for(uint index=0;index<size();index++) function(values_[index]);
+	}
+
+	template<typename Return>
+	void each(Return (*function)(Type&)){
+		for(uint index=0;index<size();index++) function(values_[index]);
+	}
 
 	/**
 	 * @name Query operators
@@ -689,7 +716,7 @@ public:
 	 * @param path Filesystem path to file
 	 */
 	void read(const std::string& path) {
-		std::ofstream file(path);
+		std::ifstream file(path);
 		read(file);
 		file.close();
 	}
@@ -731,6 +758,77 @@ public:
 			stream<<std::endl;
 		}
 	}
+
+	void read(std::istream& stream,bool) {
+		// Instantiate an attribute matcher
+		ColumnMatcher matcher;
+		// Read in the header and pass to matcher
+		std::string header;
+		std::getline(stream,header);
+		matcher.names(header);
+		// Get each line....
+		std::string line;
+		while(std::getline(stream,line)){
+			// Check for lines that are all whitespace and skip them
+			if(std::all_of(line.begin(),line.end(),isspace)) continue;
+			// Put line into a string stream for reading by the function
+			std::stringstream line_stream(line);
+			uint index = 0;
+			Type value;
+			try{
+				// Accumulate index
+				#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) index += jump(dimension::level(line_stream));
+				BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
+				#undef STENCILA_LOCAL
+				// Read in value using function
+				matcher.values(line_stream.str());
+				value.reflect(matcher);
+			} catch(...) {
+				STENCILA_THROW(Exception,"Error occurred reading line:"+line);
+			}
+			// Assign to correct place
+			values_[index] = value;
+		}
+	}
+	void read(const std::string& filename,bool) {
+        if(not boost::filesystem::exists(filename)) STENCILA_THROW(Exception,str(boost::format("File name does not exist; <%s>")%filename));
+        std::ifstream file(filename);
+        read(file,true);
+    }
+
+	void write(std::ostream& stream,bool) const {
+		// Write a header row...
+		// ...with the names of each of the non-singular dimensions
+		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
+		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
+		#undef STENCILA_LOCAL
+
+		stream<<Type::derived_nullptr()->header_row();
+
+		// ...then end the header line
+		stream<<std::endl;
+
+		// Write value rows...
+		for(uint index=0;index<size();index++){
+			//...with labels for each nn-singular dimension
+			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
+			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
+			#undef STENCILA_LOCAL
+			
+			Type copy = values_[index];
+			stream<<copy.to_row();
+
+			// ...then end the value line
+			stream<<std::endl;
+		}
+	}
+	void write(const std::string& filename,bool) const {
+		// Create necessary path for filename in case it does not yet exist
+        boost::filesystem::path path(filename);
+        boost::filesystem::create_directories(path.parent_path());
+        std::ofstream file(filename);
+        write(file,true);
+    }
 
 	/**
 	 * Write array to an output stream using the << operator to write each value

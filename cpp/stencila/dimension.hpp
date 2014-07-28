@@ -100,7 +100,7 @@ public:
 	 * is used as an argument to subscript a Array with this dimension
 	 */
 	Level<Dimension> operator*() const { 
-		return Level<Dimension>(index_);
+		return Level<Dimension>(index_,"index");
 	}
 
 	/**
@@ -141,14 +141,83 @@ public:
 		return index_ < other.index_;
 	}
 
+	bool operator<=(const Level<Dimension>& other) const {
+		return index_ <= other.index_;
+	}
+
 	bool operator>(const Level<Dimension>& other) const {
 		return index_ > other.index_;
+	}
+
+	bool operator>=(const Level<Dimension>& other) const {
+		return index_ >= other.index_;
+	}
+
+
+	template<typename Other>
+	bool operator==(const Other& other) const {
+		return *this == Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator!=(const Other& other) const {
+		return *this != Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator<(const Other& other) const {
+		return *this < Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator<=(const Other& other) const {
+		return *this <= Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator>(const Other& other) const {
+		return *this > Level<Dimension>(other);
+	}
+
+	template<typename Other>
+	bool operator>=(const Other& other) const {
+		return *this >= Level<Dimension>(other);
 	}
 
 	/**
 	 * @}
 	 */
 };
+
+template<typename Other,class Dimension>
+bool operator==(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) == level;
+}
+
+template<typename Other,class Dimension>
+bool operator!=(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) != level;
+}
+
+template<typename Other,class Dimension>
+bool operator<(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) < level;
+}
+
+template<typename Other,class Dimension>
+bool operator<=(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) <= level;
+}
+
+template<typename Other,class Dimension>
+bool operator>(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) > level;
+}
+
+template<typename Other,class Dimension>
+bool operator>=(const Other& other, const Level<Dimension>& level) {
+	return  Level<Dimension>(other) >= level;
+}
 
 template<class Dimension>
 std::ostream& operator<<(std::ostream& stream, const Level<Dimension>& level){
@@ -337,6 +406,13 @@ public:
 	class class_ : public Dimension<class_,size> { \
 	public: \
 		class_(void):Dimension<class_,size>(#name_){} \
+		static const char* name(void) { return #name_; } \
+	} instance;
+
+#define STENCILA_DIM_RANGE(class_,instance,name_,from,to) \
+	class class_ : public Dimension<class_,to-from+1,from> { \
+	public: \
+		class_(void):Dimension<class_,to-from+1,from>(#name_){} \
 		static const char* name(void) { return #name_; } \
 	} instance;
 

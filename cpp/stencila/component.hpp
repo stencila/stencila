@@ -678,6 +678,37 @@ public:
     }
 
     /**
+     * List files and folders in a components directory 
+     */
+    struct File {
+        std::string name;
+        std::string type;
+
+        static bool by_name(const File& a, const File& b){
+            return a.name<b.name;
+        }
+    };
+    std::vector<File> list(const std::string& subdirectory=""){
+        using namespace boost::filesystem;
+        std::vector<File> files;
+        std::string dir = boost::filesystem::path(path()).parent_path().string() + subdirectory;
+        if(exists(dir) and is_directory(dir)){
+            directory_iterator end ;
+            for(directory_iterator iter(dir) ; iter != end ; ++iter){
+                File file;
+                file.name = iter->path().filename().string();
+                if(is_regular_file(iter->status())) file.type = "f";
+                else if(is_directory(iter->status())) file.type = "d";
+                else file.type = "o";
+                files.push_back(file);
+            }
+        }
+        // Sort alphabetically
+        std::sort(files.begin(),files.end(),File::by_name);
+        return files;
+    }
+
+    /**
      * Destroy the component's entire working directory
      */
     Component& destroy(void){
@@ -1058,10 +1089,9 @@ public:
      * @return         A WAMP message
      */
     static std::string message(const std::string& address,const std::string& message){
-        using namespace Json;
-        using Json::Object;
-        using Json::Array;
         using boost::format;
+        using Json::size;
+        using Json::as;
 
         //WAMP basic spec is at https://github.com/tavendo/WAMP/blob/master/spec/basic.md
         
@@ -1082,7 +1112,7 @@ public:
                 return "[8, 0, 0, {}, \"no component at address\", [\"" + address + "\"]]";
             } else {
 
-                Document request(message);
+                Json::Document request(message);
 
                 int items = size(request);
                 if(items<1) STENCILA_THROW(Exception,"Malformed message");
@@ -1136,11 +1166,11 @@ public:
                     //[RESULT, CALL.Request|id, Details|dict]
                     //[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
                     //[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
-                    Document response;
-                    response.type<Array>()
+                    Json::Document response;
+                    response.type<Json::Array>()
                             .push(RESULT)
                             .push(id)                                // CALL.Request|id
-                            .push(Object())                          // Details|dict
+                            .push(Json::Object())                          // Details|dict
                             .push(std::vector<std::string>{result}); // YIELD.Arguments|list
                     return response.dump();
                 }
@@ -1169,6 +1199,40 @@ public:
     static std::string message(Component* component, const std::string& message){
         return "{}";
     }
+
+    std::string call(const Call& call) {
+        auto what = call.what();
+        if(what=="list():array"){
+            Json::Document files;
+            files.type<Json::Array>();
+            for(auto file : list()) {
+                //Json::Value& desc = files.push_object();
+                //files.append(desc,"name",file.name);
+                //files.append(desc,"type",file.type);
+                files.push(file.name);
+            }
+            return files.dump();
+        }
+
+        // Respository methods
+        else if(what=="commit(string)"){
+            std::string string = call.arg(0);
+            commit(string);
+        }
+        else if(what=="history():array"){
+            Json::Document log;
+            log.type<Json::Array>();
+            for(auto commit : history()) {
+                log.push(commit.name+" "+commit.email+" "+commit.message);
+            }
+            return log.dump();
+        }
+
+        else {
+            STENCILA_THROW(Exception,"Method signature not registered for calling: "+what);
+        }
+        return "";
+    }        
 
     /**
      * @}
