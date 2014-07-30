@@ -5,8 +5,142 @@ def options(context):
 	pass
 
 def configure(context):
-	pass
+	# Determine which versions of Python are installed
+	import os
+	versions = []
+	for version in (
+		'2.5','2.6','2.7',
+		# Python 3 is currently not supported
+		#'3.1','3.2','3.3','3.4'
+	):
+		# See if it exists
+		if os.path.exists(py_include(context.env.SYSTEM,version)): versions.append(version)
+	print 'Found Python versions: ',', '.join(versions)
+	context.env.PYTHON_VERSIONS = versions
 
 def build(context):
-	pass
-	
+	system = context.env.SYSTEM
+
+	src = context.path.get_src()
+	bld = context.path.get_bld()
+	for version in context.env.PYTHON_VERSIONS:
+		# Absolute path for this version's build
+		version_dir = '%s/%s'%(bld.abspath(),version)
+
+		# Compile object files
+		cpps = src.ant_glob('stencila/*.cpp')
+		cpps = [cpp for cpp in cpps if str(cpp)!='extension.cpp']
+		objs = []
+		includes = [
+			py_include(system,version)
+		]
+		for cpp in cpps:
+			obj = '%s/%s'%(version,str(cpp).replace('.cpp','.o'))
+			objs.append(obj)
+			context(
+				rule = '${CXX} --std=c++11 -fPIC -c -o ${TGT} %s ${SRC} %s'%(
+					' '.join('-I%s'%item for item in includes),
+					' '.join('-l%s'%item for item in ['boost_python'])
+				),
+				source = cpp,
+				target = obj
+			)
+
+		# Copy setup.py to version build directory so it can be run from there
+		context(
+			rule = 'cp ${SRC} ${TGT}',
+			source = 'setup.py',
+			target = '%s/setup.py'%version,
+		)
+
+		# Copy module files to version build directory so they can be used by
+		# setup.py
+		for filename in ['__init__.py','context.py','extension.cpp']:
+			context(
+				rule = 'cp ${SRC} ${TGT}',
+				source = 'stencila/%s'%filename,
+				target = '%s/stencila/%s'%(version,filename),
+			)
+
+		# Run setup.py in version build directory and record the 
+		# name of the wheel to file for reading by other
+		# build tasks
+		context(
+			name = 'py-setup-%s'%version,
+			cwd = version_dir,
+			rule = '''
+				touch stencila/extension.cpp
+				python%s setup.py bdist_wheel
+				echo `ls -rt dist/*.whl | tail -n1` > setup-latest.txt
+			'''%version,
+			# Sources are object files and 
+			source = objs + [
+				'%s/stencila/extension.cpp'%version,
+				'%s/setup.py'%version
+			],
+			# Target is file with wheel name
+			target = '%s/setup-latest.txt'%version
+		)
+
+		# Create a virtual environment to be used for testing with the Python version
+		# Using a virtual environment allows the Stencila wheel to be installed locally,
+		# i.e. without root privalages, and also does not affect the host machines Python setup 
+		# Waf does not remove the directory structure on `./waf clean` which causes issues with
+		# the virtual env setup. So force removal here.
+		context(
+			name = 'py-testenv-%s'%version,
+			cwd = version_dir,
+			rule = '''
+				rm -rf testenv
+				virtualenv --python=python%s --no-site-packages testenv
+			'''%version,
+			# Target is virtual enviroment activate script
+			target = '%s/testenv/bin/activate'%version
+		)
+
+		ext = py_extension(system,version)
+
+		# Activate testenv and install latest Stencila wheel there
+		context(
+			name = 'py-install-%s'%version,
+			cwd = version_dir,
+			rule = '''
+				. testenv/bin/activate
+				pip install --upgrade --force-reinstall `cat setup-latest.txt`
+			''',
+			# Source is virtual enviroment activate script and file with name of
+			# latest Stencila Python package
+			source = [
+				'%s/testenv/bin/activate'%version,
+				'%s/setup-latest.txt'%version
+			],
+			# Target is the installed extension module
+			target = '%s/testenv/lib/python%s/site-packages/stencila/extension.%s'%(version,version,ext)
+		)
+
+		# Activate testenv, run tests in it and send output to file
+		context(
+			name = 'py-test-%s'%version,
+			cwd = version_dir,
+			rule = '''
+				. testenv/bin/activate
+				python ${SRC[1].abspath()} 2>&1 | tee test-output.txt
+			''',
+			# Source is the installed extension module and the tests.py source file
+			source = [
+				'%s/testenv/lib/python%s/site-packages/stencila/extension.%s'%(version,version,ext),
+				'tests/tests.py'
+			],
+			# Target is the test output
+			target = '%s/test-output.txt'%version
+		)
+
+# Get the Python include directory for system/version combination
+def py_include(system,version):
+	if system=='linux': return '/usr/include/python%s/'%version
+	else: raise NotImplementedError("Sorry, Python builds not yet implemented for operating system <%s>"%system)
+
+# Get the Python extension module file extension for system/version combination
+def py_extension(system,version):
+	if(system=='linux'): return 'so'
+	else: raise NotImplementedError("Sorry, Python builds not yet implemented for operating system <%s>"%system)
