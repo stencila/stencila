@@ -43,8 +43,9 @@ class ComponentTests(unittest.TestCase):
     def test_authors(self):
         self.assertEqual(self.component.authors(),[])
 
-    def test_path(self):
-        self.assertRegexpMatches(self.component.path("").path(),"~")
+    # self.assertRegex not in all versions of Python
+    #def test_path(self):
+    #    self.assertRegex(self.component.path("").path(),"~")
 
     def test_create(self):
         self.component.create("README.txt")
@@ -81,7 +82,7 @@ class NamespaceTests(unittest.TestCase):
 
         # Create a namespace that will have read-only access
         # to the current frame's locals
-        ns1 = stencila.Namespace()
+        ns1 = stencila.Namespace({'a':a})
         ns1['b'] = 'b1'
         ns1['c'] = 'c1'
 
@@ -183,13 +184,13 @@ class StencilTests(unittest.TestCase):
 
     def test_content(self):
         s = Stencil()
-        s.content('Hello world','html')
-        self.assertEqual(s.content('html'),'\nHello world\n')
+        s.content('html','Hello world')
+        self.assertEqual(s.content('html').strip(),'Hello world')
 
     def test_html(self):
         s = Stencil()
         s.html('Hello world')
-        self.assertEqual(s.html(),'\nHello world\n')
+        self.assertEqual(s.html().strip(),'Hello world')
 
     def renderCheck(self,inp,out,context=None):
         '''
@@ -198,7 +199,7 @@ class StencilTests(unittest.TestCase):
         if context is None: context = Context()
         if type(context) is dict: context = Context(context)
         return self.assertEqual(
-            Stencil().html(inp).render(context).html(),
+            Stencil().html(inp).render(context).html().strip(),
             out
         )
 

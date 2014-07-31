@@ -27,7 +27,7 @@ void def_Stencil(void){
         .def("content",
             static_cast<Stencil& (Stencil::*)(const std::string&,const std::string&)>(&Stencil::content),
             Stencil_content_set_overloads(
-                (arg("content"),arg("format")),
+                (arg("format"),arg("content")),
                 "Set the stencil's content"
             )[return_self<>()]
         )
