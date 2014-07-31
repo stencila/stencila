@@ -1,9 +1,32 @@
-R"(
+#R"(
 
 import inspect
 import code
 import sys
-from cStringIO import StringIO
+
+PY = sys.version_info[0]
+
+if PY==2:
+	from cStringIO import StringIO
+elif PY==3:
+	from io import StringIO
+
+# Create an `exec_` function that can be used in both
+# Python 2 and 3. This is inspired by the exec_ function implmented in
+# https://pypi.python.org/pypi/six but simplified for this use case
+if PY==2:
+	# Function signature compatible with Python 3's
+	def exec_(code, globals, locals):
+		assert globals is None
+		exec("""exec code in {}, locals""")
+elif PY==3:
+	import builtins
+	# Need to use `getattr` to avoid Python 2 syntax error
+	exec_ = getattr(builtins,'exec')
+
+# Creat a `next` function as in Python 3
+if PY==2:
+	def next(iterator): return iterator.next()
 
 class Images:
 	'''
@@ -34,7 +57,6 @@ else:
 class Namespace(dict):
 
 	def __init__(self,parent=None):
-		if parent==None: parent = inspect.currentframe(1).f_locals
 		self.parent = parent
 
 	def __getitem__(self,name):
@@ -121,9 +143,13 @@ class Context:
 
 	# Context methods that provide the interface defined in cpp/stencila/context.hpp
 
-	def execute(self,code,format,width,height,units):
-		exec code in self.top()
-
+	def execute(self,code,format=None,width=None,height=None,units=None):
+		# Some Python versions don't like trailing blank lines so remove all surrounding
+		# whitepace
+		code = code.strip()
+		# Execute in top namespace
+		exec_(code,None,self.top())
+		# Return according to format code
 		if format in ('png','svg'):
 			if Images.engine=='matplotlib':
 				filename = Images.filename(format)
@@ -168,7 +194,7 @@ class Context:
 
 	def next(self):
 		try:
-			item = self.get('__items__').next()
+			item = next(self.get('__items__'))
 		except StopIteration:
 			return False
 		else:
@@ -183,5 +209,8 @@ class Context:
 
 	def exit(self):
 		self.pop()
+
+class ContextError(BaseException):
+	pass 
 
 #)"
