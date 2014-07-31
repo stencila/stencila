@@ -49,9 +49,9 @@ def configure(context):
 	# and downloading resources
 	def resource(url,filename):
 		resource = os.path.join(resources,filename)
-		print 'Checking for resource "%s"'%resource
+		print('Checking for resource "%s"'%resource)
 		if not os.path.exists(resource):
-			print 'Downloading resource "%s"'%resource
+			print('Downloading resource "%s"'%resource)
 			os.system('wget --no-check-certificate -O %s %s'%(resource,url))
 	context.resource = resource
 	# Recurse into subdirectories
@@ -64,21 +64,23 @@ def build(context):
 	# resources can be referred to
 	context.resources = context.path.make_node(resources)
 	# Recurse into subdirectories
-	#context.recurse('cpp')
+	context.recurse('cpp')
 	context.recurse('py')
 	context.recurse('r')
 
 
 def stencila_version():
 	# Get Stencila library version number
-	# This uses "--long" so that git produces the same format output each time (even just after a new tag)
-	# The sed command is based on http://www.linuxquestions.org/questions/linux-general-1/parsing-a-version-number-with-regular-expressions-737095/
 	from subprocess import Popen, PIPE
-	version = Popen("git describe --long", shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip()
-	# | sed -r 's/([0-9]+)\.([0-9]+)(-([0-9]+)-g[0-9A-Fa-f]*)?/\1.\2.\4/g' > VERSION 
-	version_file = file('VERSION','w')
+	# This uses "--long" so that git produces the same format output each time (even just after a new tag)
+	# This uses "--tags" so that lightweight tags (not annotated) are shown in output
+	version = Popen("git describe --long --tags", shell=True,stdout=PIPE, stderr=PIPE).communicate()[0].strip()
+	# Just get the tag from the front
+	version = version[:version.find('-')]
+	# Write to file
+	version_file = open('VERSION','w')
 	version_file.write(version)
 	version_file.close()
 
-	print 'Setting Stencila version:',version
+	print('Setting Stencila version: %s'%version)
 	return version
