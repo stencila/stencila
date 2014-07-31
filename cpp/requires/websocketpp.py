@@ -14,10 +14,10 @@ def build(context):
 		cwd = context.path.get_bld().abspath(),
 		rule = '''
 			unzip -qo ${SRC[0].abspath()}
-			rm -rf websocket
-			mv websocketpp-%s websocket
+			rm -rf websocketpp
+			mv websocketpp-%s websocketpp
 			ln -sfT ../websocketpp/websocketpp include/websocketpp
 		'''%version,
 		source = context.resources.make_node('websocketpp-%s.zip'%version),
-		target = 'include/websocketpp'
+		target = context.path.get_bld().make_node('include/websocketpp')
 	)
