@@ -53,9 +53,9 @@ private:
      * Python code used to create an object representing this context on the Python side
      */
     static const char* code_(void){ 
-        return
-            #include "python-context.py"
-        ;
+        //return
+        //    #include "python-context.py"
+        //;
     }
 
     /**
