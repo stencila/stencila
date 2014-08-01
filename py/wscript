@@ -46,11 +46,13 @@ def build(context):
 
 		# Compile object files
 		includes = [
+			src.parent.make_node('/cpp/').abspath(),
+			bld.parent.make_node('cpp/requires/include/').abspath(),
 			py_include(system,version)
 		]
 		for cpp,obj in pairs:
 			context(
-				rule = '${CXX} --std=c++11 -fPIC -c -o ${TGT} %s ${SRC}'%(
+				rule = '${CXX} --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -fPIC -c -o ${TGT} %s ${SRC}'%(
 					' '.join('-I%s'%item for item in includes),
 				),
 				source = cpp,
@@ -84,6 +86,7 @@ def build(context):
 			cwd = version_dir,
 			rule = '''
 				export STENCILA_VERSION=${STENCILA_VERSION}
+				touch stencila/extension.cpp # To force setup.py to do the compile
 				python%s setup.py bdist_wheel
 				echo `ls -rt dist/*.whl | tail -n1` > setup-latest.txt
 			'''%version,

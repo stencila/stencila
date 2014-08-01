@@ -1,6 +1,9 @@
 #include <stencila/exception.hpp>
 
-#include "extension.hpp"
+#include <boost/python.hpp>
+
+using namespace Stencila;
+using namespace boost::python;
 
 template<typename Class>
 struct ExceptionTranslator {

@@ -34,7 +34,7 @@ boost_python_lib = 'boost_python3' if python_version>='3.0' else 'boost_python'
 stencila_version = os.getenv('STENCILA_VERSION')
 print("Stencila version: %s"%stencila_version)
 
-objects = glob.glob('objects/*.o')
+objects = glob.glob('objects/*.o') + glob.glob('objects/cpp/*.o')
 print("Object files provided as extra_objects: %s"%objects)
 
 setup(
@@ -63,7 +63,10 @@ setup(
             'stencila.extension',
             ['stencila/extension.cpp'],
             extra_objects = objects,
-            extra_compile_args = ['--std=c++11'],
+            extra_compile_args = ['--std=c++11','-Wno-unused-local-typedefs'],
+            include_dirs = [
+                '../../cpp/requires/include'
+            ],
             library_dirs = [
                 '../../cpp/requires/lib'
             ],
@@ -71,9 +74,8 @@ setup(
                 'boost_filesystem','boost_system','boost_regex',
                 'git2','crypto','ssl','rt','z',
                 'pugixml',
-                'tidy-html5',
-                python_lib,
-                boost_python_lib,
+                'tidyhtml5',
+                boost_python_lib,python_lib,
             ]
         ),
     ],

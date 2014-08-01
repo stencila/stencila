@@ -3,7 +3,7 @@
 #include <stencila/stencil.hpp>
 #include <stencila/python-context.hpp>
 
-#include "extension.hpp"
+#include <boost/python.hpp>
 
 using namespace Stencila;
 using namespace boost::python;

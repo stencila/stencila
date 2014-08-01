@@ -1,16 +1,9 @@
+#include <string>
 #include <vector>
-
-#include <stencila/version.hpp>
 
 #include <boost/python.hpp>
 
-using namespace Stencila;
 using namespace boost::python;
-
-void def_Exception(void);
-void def_Component(void);
-void def_Package(void);
-void def_Stencil(void);
 
 // Define converters
 template<typename Type>
@@ -22,9 +15,13 @@ struct vector_to_list {
 	}
 };
 
-std::string Stencila_version(void){
-	return Stencila::version;
-}
+// Forward declarations of functions defined in other
+// source files
+void def_Exception(void);
+void def_Version(void);
+void def_Component(void);
+void def_Package(void);
+void def_Stencil(void);
 
 BOOST_PYTHON_MODULE(extension){
 	// Declare converters
@@ -32,7 +29,7 @@ BOOST_PYTHON_MODULE(extension){
 
 	// Declare exception translation and general Stencila functions
 	def_Exception();
-	def("version",Stencila_version);
+	def_Version();
 
 	// Declare classes
 	def_Component();
