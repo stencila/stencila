@@ -44,6 +44,9 @@ def configure(context):
 
 	# Update the Stencila VERSION
 	context.env.STENCILA_VERSION = stencila_version()
+	print('Set STENCILA_VERSION: %s'%context.env.STENCILA_VERSION)
+	context.env.STENCILA_HOME = context.path.get_src().abspath()
+	print('Set STENCILA_HOME: %s'%context.env.STENCILA_HOME)
 
 	# Create a `resource` function on context for checking
 	# and downloading resources
@@ -82,5 +85,4 @@ def stencila_version():
 	version_file.write(version)
 	version_file.close()
 
-	print('Setting Stencila version: %s'%version)
 	return version

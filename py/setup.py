@@ -12,35 +12,13 @@ There has been a lot of confusion and contention around Python packaging e.g.
 The Python Packaging User Guide recommends using setuptools (https://python-packaging-user-guide.readthedocs.org/en/latest/current.html)
 and bdist_wheel
 '''
-import sys
 import os
 from setuptools import setup, Extension
-import glob
-
-from configuration import *
-
-# Get the python version
-python_version = py_version()
-print("Python version: %s"%python_version)
-
-# Determine correct libraries to use based on Python version
-python_lib = 'python%s'%python_version
-# On Ubuntu, the ABI
-if python_version>='3.2':
-    python_lib += 'mu'
-boost_python_lib = 'boost_python3' if python_version>='3.0' else 'boost_python'
-
-# Get the Stencila version
-stencila_version = os.getenv('STENCILA_VERSION')
-print("Stencila version: %s"%stencila_version)
-
-objects = glob.glob('objects/*.o') + glob.glob('objects/cpp/*.o')
-print("Object files provided as extra_objects: %s"%objects)
 
 setup(
     # See http://docs.python.org/distutils/apiref.html for a full list of optional arguments
     name = 'stencila',
-    version = stencila_version,
+    version = os.getenv('VERSION'),
 
     author = 'Nokome Bentley',
     author_email = 'nokome.bentley@stenci.la',
@@ -61,22 +39,10 @@ setup(
     ext_modules = [
         Extension(
             'stencila.extension',
-            ['stencila/extension.cpp'],
-            extra_objects = objects,
-            extra_compile_args = ['--std=c++11','-Wno-unused-local-typedefs'],
-            include_dirs = [
-                '../../cpp/requires/include'
-            ],
-            library_dirs = [
-                '../../cpp/requires/lib'
-            ],
-            libraries = [
-                'boost_filesystem','boost_system','boost_regex',
-                'git2','crypto','ssl','rt','z',
-                'pugixml',
-                'tidyhtml5',
-                boost_python_lib,python_lib,
-            ]
+            ['dummy.cpp'],
+            extra_objects = os.getenv('EXTRA_OBJECTS').split(),
+            library_dirs = os.getenv('LIBRARY_DIRS').split(),
+            libraries = os.getenv('LIBRARIES').split()
         ),
     ],
 )

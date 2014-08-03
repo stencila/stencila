@@ -28,7 +28,7 @@ if(!file.exists(zipfilepath)){
   message(" - downloading ",url)
   download.file(url,zipfilepath)
 }
-# Calculate where the library needs to do (this code is from the above page)
+# Calculate where the library needs to go (this code is from the above page)
 libsarch <- if (nzchar(R_ARCH)) paste('libs', R_ARCH, sep='') else 'libs'
 libsdir <- file.path(R_PACKAGE_DIR, libsarch)
 dir.create(libsdir, recursive = TRUE, showWarnings = FALSE)

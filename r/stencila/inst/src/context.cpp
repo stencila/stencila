@@ -1,8 +1,9 @@
 #include <stencila/stencil.hpp>
+
 using namespace Stencila;
 
-#include "stencila.hpp"
-#include "context.hpp"
+#include "extension.hpp"
+#include "r-context.hpp"
 
 STENCILA_R_FUNC Context_new(SEXP context){
     STENCILA_R_BEGIN

@@ -5,7 +5,16 @@ def options(context):
 	pass
 
 def configure(context):
-	pass
+	# Determine which versions of R are installed and able to be compiled
+	# against
+	import os
+	versions = []
+	for version in ('2.14'):
+		include = '/usr/???????%s'%version
+		if os.path.exists(include):
+			versions.append(version)
+	print 'Found R versions: ', ', '.join(versions)
+	context.env.R_VERSIONS = versions
 
 def build(context):
 	pass

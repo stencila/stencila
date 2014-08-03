@@ -1,7 +1,7 @@
 #include <stencila/component.hpp>
 using namespace Stencila;
 
-#include "stencila.hpp"
+#include "extension.hpp"
 
 STENCILA_R_NEW(Component)
 
