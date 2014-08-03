@@ -1,5 +1,0 @@
-# Ignore version file which is made by Makefile
-stencila/version.hpp
-
-# Ignore precompiled headers
-*.gch

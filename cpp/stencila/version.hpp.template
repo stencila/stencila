@@ -1,4 +1,0 @@
-#pragma once
-namespace Stencila {
-	static const char* version = %(inserted by Makefile)%;
-}
