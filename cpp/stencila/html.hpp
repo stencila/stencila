@@ -2,8 +2,8 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-#include <tidyhtml5/tidy.h>
-#include <tidyhtml5/buffio.h>
+#include <tidy-html5/tidy.h>
+#include <tidy-html5/buffio.h>
 
 #include <stencila/xml.hpp>
 

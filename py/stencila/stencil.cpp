@@ -1,7 +1,8 @@
 #include <string>
 
 #include <stencila/stencil.hpp>
-#include <stencila/python-context.hpp>
+
+#include "py-context.hpp"
 
 #include <boost/python.hpp>
 

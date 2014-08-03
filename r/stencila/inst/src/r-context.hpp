@@ -73,9 +73,10 @@ private:
      * Get R code used to implement a `RContext` on the R-side
      */
     static const char* code_(void){ 
-        return
-            #include "r-context.R"
-        ;
+        //return
+        //    #include "r-context.R"
+        //;
+        return "";
     }
 
     static RInside r_;
@@ -177,6 +178,8 @@ public:
         context_ = Rcpp::Environment(sexp);
     }
 
+    ~RContext(void){
+    }
 
     bool accept(const std::string& language) const {
         return language=="r";
@@ -235,13 +238,5 @@ public:
     }
 
 };
-
-RInside RContext::r_(
-    0,{}, // argc and argv
-    true, // loadRcpp (overidden to true in code anyway)
-    false, // verbose
-    true // interactive
-);
-unsigned int RContext::contexts_ = 0;
 
 }

@@ -56,6 +56,7 @@ private:
         //return
         //    #include "python-context.py"
         //;
+        return "";
     }
 
     /**
