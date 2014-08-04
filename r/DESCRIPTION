@@ -8,7 +8,7 @@ Maintainer: Nokome Bentley <nokome.bentley@stenci.la>
 Description: A package for doing stuff with data
 License: BSD_3_clause + file LICENSE
 Depends:
-    Rcpp (>= 0.9.10),
+    Rcpp (>= 0.11.2),
     methods
 LinkingTo: Rcpp
 Collate:

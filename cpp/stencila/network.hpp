@@ -9,7 +9,6 @@
 #include <websocketpp/config/asio.hpp>
 #include <websocketpp/server.hpp>
 
-#include <stencila/version.hpp>
 #include <stencila/host.hpp>
 #include <stencila/component.hpp>
 
@@ -225,7 +224,6 @@ public:
 	Server(void){
 		// Set the name of this server (used in the HTPP Server header below)
 		name_ = "Stencila ";
-		name_ += version;
 		// Initialise asynchronous IO
 		server_.init_asio();
 		// Set up handlers

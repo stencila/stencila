@@ -1,4 +1,4 @@
-all: cpp-test py-test r-test
+all: cpp-tests py-tests r-tests
 
 # Get the operating system  e.g. linux
 OS := $(shell ./config.py os)
@@ -15,20 +15,8 @@ BUILD := build/$(OS)/$(ARCH)/$(VERSION)
 # that are independent of build
 RESOURCES := build/resources
 
-# Clean everything
-clean:
-	rm -rf $(BUILD)
-
 #################################################################################################
 # C++ requirements
-
-cpp-requires: $(BUILD)/cpp/requires
-$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml cpp-requires-rapidjson cpp-requires-tidy-html5 cpp-requires-websocketpp
-
-#################################################################################################
-# Boost C++ libraries http://www.boost.org/
-
-cpp-requires-boost: $(BUILD)/cpp/requires/boost-linked.flag
 
 BOOST_VERSION := 1_55_0
 
@@ -92,10 +80,8 @@ $(BUILD)/cpp/requires/boost-linked.flag: $(BUILD)/cpp/requires/boost-built.flag
 	  for file in $$(ls boost/lib/*.a); do ln -sf ../$$file lib; done
 	touch $@
 
-#################################################################################################
-# libgit2 http://libgit2.github.com/
+cpp-requires-boost: $(BUILD)/cpp/requires/boost-linked.flag
 
-cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-linked.flag
 
 LIBGIT2_VERSION := 0.20.0
 
@@ -126,10 +112,8 @@ $(BUILD)/cpp/requires/libgit2-linked.flag: $(BUILD)/cpp/requires/libgit2-built.f
 	  ln -sfT ../libgit2/build/libgit2.a lib/libgit2.a
 	touch $@
 
-#################################################################################################
-# pugixml http://pugixml.org/
+cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-linked.flag
 
-cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-linked.flag
 
 PUGIXML_VERSION := 1.2
 
@@ -156,10 +140,8 @@ $(BUILD)/cpp/requires/pugixml-linked.flag: $(BUILD)/cpp/requires/pugixml-built.f
 	  ln -sfT ../pugixml/src/libpugixml.a lib/libpugixml.a
 	touch $@
 
-#################################################################################################
-# rapidjson https://code.google.com/p/rapidjson/
+cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-linked.flag
 
-cpp-requires-rapidjson: $(BUILD)/cpp/requires/rapidjson-linked.flag
 
 RAPIDJSON_VERSION := 0.11
 
@@ -191,10 +173,8 @@ $(BUILD)/cpp/requires/rapidjson-linked.flag: $(BUILD)/cpp/requires/rapidjson $(B
 	  ln -sfT ../rapidjson/include/rapidjson include/rapidjson
 	touch $@
 
-#################################################################################################
-# tidy-html5 http://w3c.github.com/tidy-html5/
+cpp-requires-rapidjson: $(BUILD)/cpp/requires/rapidjson-linked.flag
 
-cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-linked.flag
 
 $(RESOURCES)/tidy-html5-master.zip:
 	mkdir -p $(RESOURCES)
@@ -239,10 +219,8 @@ $(BUILD)/cpp/requires/tidy-html5-linked.flag: $(BUILD)/cpp/requires/tidy-html5-b
 	  ln -sfT ../tidy-html5/lib/libtidy.a lib/libtidy-html5.a
 	touch $@
 
-#################################################################################################
-# WebSocket++ https://github.com/zaphoyd/websocketpp
+cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-linked.flag
 
-cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-linked.flag
 
 WEBSOCKETPP_VERSION := 0.3.0-alpha4
 
@@ -260,36 +238,7 @@ $(BUILD)/cpp/requires/websocketpp-linked.flag: $(RESOURCES)/websocketpp-$(WEBSOC
 	  ln -sfT ../websocketpp/websocketpp include/websocketpp
 	touch $@
 
-#################################################################################################
-# Stencila C++ library
-
-cpp-library: cpp-library-stencila cpp-libary-staticlib
-
-CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
-CPP_LIBRARY_HPPS := $(patsubst %.hpp,$(BUILD)/cpp/library/stencila/%.hpp,$(notdir $(CPP_STENCILA_HPPS)))
-
-CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
-
-$(BUILD)/cpp/library/layout.flag:
-	mkdir -p $(BUILD)/cpp/library/stencila $(BUILD)/cpp/library/objects
-	touch $@
-
-cpp-library-stencila: $(CPP_LIBRARY_HPPS)
-
-$(BUILD)/cpp/library/stencila/%.hpp: cpp/stencila/%.hpp $(BUILD)/cpp/library/layout.flag
-	cp $< $@
-
-cpp-libary-staticlib: $(BUILD)/cpp/library/libstencila.a
-
-# Archive all object files and requirements libraries into a single static lib
-# Output list of contents to `contents.txt` for checking
-$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
-	$(AR) rc $@ $(CPP_LIBRARY_OBJECTS) 
-	$(AR) t $@ > $(BUILD)/cpp/library/contents.txt
-
-$(BUILD)/cpp/library/objects/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/library/layout.flag $(BUILD)/cpp/requires
-	$(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC -Icpp -I$(BUILD)/cpp/requires/include -o$@ -c $<
+cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-linked.flag
 
 # List of libraries to be used below
 CPP_REQUIRE_LIBS += boost_filesystem boost_system boost_regex
@@ -297,11 +246,71 @@ CPP_REQUIRE_LIBS += git2 crypto ssl rt z # libgit2 requires libcrypto, libssl, l
 CPP_REQUIRE_LIBS += pugixml
 CPP_REQUIRE_LIBS += tidy-html5
 
+$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml \
+   cpp-requires-rapidjson cpp-requires-tidy-html5 cpp-requires-websocketpp
+
+cpp-requires: $(BUILD)/cpp/requires
+
+#################################################################################################
+# Stencila C++ library
+
+CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
+CPP_LIBRARY_HPPS := $(patsubst %.hpp,$(BUILD)/cpp/library/stencila/%.hpp,$(notdir $(CPP_STENCILA_HPPS)))
+
+CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
+
+$(BUILD)/cpp/library/stencila/%.hpp: cpp/stencila/%.hpp
+	@mkdir -p $(BUILD)/cpp/library/stencila
+	cp $< $@
+
+cpp-library-stencila: $(CPP_LIBRARY_HPPS)
+
+$(BUILD)/cpp/library/objects/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
+	$(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC -Icpp -I$(BUILD)/cpp/requires/include -o$@ -c $<
+
+# Archive all object files and requirements libraries into a single static lib
+# Output list of contents to `contents.txt` for checking
+$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
+	$(AR) rc $@ $(CPP_LIBRARY_OBJECTS) 
+	$(AR) t $@ > $(BUILD)/cpp/library/contents.txt
+
+cpp-libary-staticlib: $(BUILD)/cpp/library/libstencila.a
+
+cpp-library: cpp-library-stencila cpp-libary-staticlib
+
+
 #################################################################################################
 # Stencila C++ tests
 
-cpp-test: cpp-library
+# Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid)
+# 	More recent versions of gcov have "--relative-only" which "Only output information about source files with a relative pathname (after source prefix elision). 
+#   Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
+CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -g --coverage -O0 -Icpp -I$(BUILD)/cpp/requires/include
 
+CPP_TEST_LIBDIRS := $(BUILD)/cpp/library $(BUILD)/cpp/requires/lib
+CPP_TEST_LIBDIRS := $(patsubst %, -L%,$(CPP_TEST_LIBDIRS))
+
+CPP_TEST_LIBS := stencila $(CPP_REQUIRE_LIBS) boost_unit_test_framework gcov
+CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
+
+CPP_TEST_OS = $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/tests/*.cpp)))
+
+# Compile a test object file
+# Both .hpp and .cpp are dependencies : recompilation is required
+# if either of these changes
+$(BUILD)/cpp/tests/%.o: cpp/tests/%.hpp cpp/tests/%.cpp
+	@mkdir -p $(BUILD)/cpp/tests
+	$(CPP_TEST_COMPILE) -o$@ -c $<
+
+# Compile all test files into an executable
+$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
+	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
+
+$(BUILD)/cpp/tests/tests.out: $(BUILD)/cpp/tests/tests.exe
+	$< 2>&1 | tee $@
+
+cpp-tests: $(BUILD)/cpp/tests/tests.out
 
 #################################################################################################
 # Stencila Python package
@@ -313,14 +322,6 @@ endif
 
 PY_BUILD := $(BUILD)/py/$(PY_VERSION)
 
-PY_PYS := $(wildcard py/stencila/*.py)
-PY_CPPS := $(wildcard py/stencila/*.cpp)
-
-PY_PACKAGE_PYS := $(patsubst %.py,$(PY_BUILD)/stencila/%.py,$(notdir $(PY_PYS)))
-PY_PACKAGE_OBJECTS := $(patsubst %.cpp,$(PY_BUILD)/objects/%.o,$(notdir $(PY_CPPS)))
-
-PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
-
 ifeq ($(OS), linux)
   PY_INCLUDE_DIR := /usr/include/python$(PY_VERSION)
   PY_EXE := python$(PY_VERSION)
@@ -331,21 +332,27 @@ PY_BOOST_PYTHON_LIB := boost_python
 #	PY_BOOST_PYTHON_LIB += 3
 #endif
 
+PY_PACKAGE_PYS := $(patsubst %.py,$(PY_BUILD)/stencila/%.py,$(notdir $(wildcard py/stencila/*.py)))
+PY_PACKAGE_OBJECTS := $(patsubst %.cpp,$(PY_BUILD)/objects/%.o,$(notdir $(wildcard py/stencila/*.cpp)))
+
+PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
+
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
 PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/lib
 PY_SETUP_LIBS := $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) stencila $(CPP_REQUIRE_LIBS)
 
-py-package: $(PY_BUILD)/setup-latest.txt
+$(PY_BUILD)/stencila/%.py: py/stencila/%.py
+	@mkdir -p $(PY_BUILD)/stencila
+	cp $< $@
 
-# Setup layout of Python build directory
-$(PY_BUILD)/layout.flag:
-	mkdir -p $(PY_BUILD)/stencila $(PY_BUILD)/objects
-	touch $@
+$(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(BUILD)/cpp/requires
+	@mkdir -p $(PY_BUILD)/objects
+	$(CXX) $(PY_CXX_FLAGS) -Icpp -I$(BUILD)/cpp/requires/include -I$(PY_INCLUDE_DIR) -o$@ -c $<
 
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
 # Record name of the wheel to file for reading by other build tasks
-$(PY_BUILD)/setup-latest.txt: py/setup.py $(PY_BUILD)/layout.flag $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS)
+$(PY_BUILD)/setup-latest.txt: py/setup.py $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS)
 	cp py/setup.py $(PY_BUILD)
 	cd $(PY_BUILD)/ ;\
 		export \
@@ -357,13 +364,7 @@ $(PY_BUILD)/setup-latest.txt: py/setup.py $(PY_BUILD)/layout.flag $(PY_PACKAGE_P
 		$(PY_EXE) setup.py bdist_wheel ;\
 		echo `ls -rt dist/*.whl | tail -n1` > setup-latest.txt
 
-$(PY_BUILD)/stencila/%.py: py/stencila/%.py $(PY_BUILD)/layout.flag
-	cp $< $@
-
-$(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(PY_BUILD)/layout.flag $(BUILD)/cpp/requires
-	$(CXX) $(PY_CXX_FLAGS) -Icpp -I$(BUILD)/cpp/requires/include -I$(PY_INCLUDE_DIR) -o$@ -c $<
-
-py-test: $(PY_BUILD)/test-output.txt
+py-package: $(PY_BUILD)/setup-latest.txt
 
 # Create a virtual environment to be used for testing with the Python version
 # Using a virtual environment allows the Stencila wheel to be installed locally,
@@ -378,20 +379,19 @@ $(PY_BUILD)/test-install.flag: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setu
 		pip install --upgrade --force-reinstall `cat setup-latest.txt`
 	touch $@
 
-$(PY_BUILD)/test-output.txt: py/tests/tests.py $(PY_BUILD)/test-install.flag
+$(PY_BUILD)/tests.out: py/tests/tests.py $(PY_BUILD)/test-install.flag
 	cp py/tests/tests.py $(PY_BUILD)/testenv
 	cd $(PY_BUILD)/testenv ;\
 		. bin/activate ;\
-		python tests.py 2>&1 | tee ../test-output.txt
+		python tests.py 2>&1 | tee ../tests.out
+
+py-tests: $(PY_BUILD)/tests.out
 
 py-clean:
 	rm -rf $(PY_BUILD)
 
 #################################################################################################
 # R requirements
-
-#################################################################################################
-# Rcpp
 
 RCPP_VERSION = 0.11.2
 
@@ -405,9 +405,6 @@ $(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
 
 r-requires-rcpp: $(BUILD)/r/requires/Rcpp
 
-#################################################################################################
-# RInside
-
 RINSIDE_VERSION := 0.2.11
 
 $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz:
@@ -419,7 +416,6 @@ $(BUILD)/r/requires/RInside: $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz
 	R CMD INSTALL -l $(BUILD)/r/requires $<
 
 r-requires-rinside: $(BUILD)/r/requires/RInside
-
 
 r-requires: r-requires-rcpp r-requires-rinside
 
@@ -453,7 +449,6 @@ endif
 R_DYNLIB_NAME := stencila_$(R_PACKAGE_VERSION)
 R_DYNLIB := $(R_DYNLIB_NAME).$(R_DYNLIB_EXT)
 
-
 R_BUILD := $(BUILD)/r/$(R_VERSION)
 
 # Print R related Makefile variables; useful for debugging
@@ -486,74 +481,68 @@ $(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB)
 	@mkdir -p $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)
 	rm -f $@
 	zip -j $@ $<
-r-package-libzip: $(R_PACKAGE_LIBZIP)
 
 # Copy over `install.libs.R
-$(R_BUILD)/stencila/src/install.libs.R: r/install.libs.R
+R_PACKAGE_INSTALLSCRIPT := $(R_BUILD)/stencila/src/install.libs.R
+$(R_PACKAGE_INSTALLSCRIPT): r/install.libs.R
 	@mkdir -p $(R_BUILD)/stencila/src/
 	cp $< $@
-r-package-install: $(R_BUILD)/stencila/src/install.libs.R
 
 # Create a dummy C source code file in `src`
 # If there is no source files in `src` then `src\nstall.libs.R` is not run. 
-$(R_BUILD)/stencila/src/dummy.c:
+R_PACKAGE_DUMMYC := $(R_BUILD)/stencila/src/dummy.c
+$(R_PACKAGE_DUMMYC):
 	@mkdir -p $(R_BUILD)/stencila/src/
 	touch $@
-r-package-dummy: $(R_BUILD)/stencila/src/dummy.c
 
 # Copy over each R file
 R_PACKAGE_RS := $(patsubst %, $(R_BUILD)/stencila/R/%, $(notdir $(wildcard r/stencila/*.R)))
 $(R_BUILD)/stencila/R/%.R: r/stencila/%.R
 	@mkdir -p $(R_BUILD)/stencila/R
 	cp $< $@
-r-package-rs: $(R_PACKAGE_RS)
 
 # Copy over each unit test file
 R_PACKAGE_TESTS := $(patsubst %, $(R_BUILD)/stencila/inst/unitTests/%, $(notdir $(wildcard r/tests/*.R)))
 $(R_BUILD)/stencila/inst/unitTests/%.R: r/tests/%.R
 	@mkdir -p $(R_BUILD)/stencila/inst/unitTests
 	cp $< $@
-r-package-tests: $(R_PACKAGE_TESTS)
 
 # Copy over DESCRIPTION
-$(R_BUILD)/stencila/DESCRIPTION: r/DESCRIPTION
+R_PACKAGE_DESC := $(R_BUILD)/stencila/DESCRIPTION
+$(R_PACKAGE_DESC): r/DESCRIPTION
 	cp $< $@
 
-# Update the DESCRIPTION with version and date
-# Using sed:
-#	.* = anything, any number of times
-#	$ = end of line
-# The $ needs to be doubled for escaping make
-# ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
+# Finalise the package directory
 R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
-r-package-desc: $(R_BUILD)/stencila/DESCRIPTION
-	sed -i 's!Version: .*$$!Version: $(R_PACKAGE_VERSION)!' $<
-	sed -i 's!Date: .*$$!Date: $(R_PACKAGE_DATE)!' $<
-
-# Run roxygen to generate Rd files and NAMESPACE file
-r-package-roxygenize: r-package-desc
+$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
+	# Edit package version and date using sed:
+	#	.* = anything, any number of times
+	#	$ = end of line
+	# The $ needs to be doubled for escaping make
+	# ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
+	sed -i 's!Version: .*$$!Version: $(R_PACKAGE_VERSION)!' $(R_PACKAGE_DESC)
+	sed -i 's!Date: .*$$!Date: $(R_PACKAGE_DATE)!' $(R_PACKAGE_DESC)
+	# Run roxygen to generate Rd files and NAMESPACE file
 	cd $(R_BUILD) ;\
 		rm -f stencila/man/*.Rd ;\
 		Rscript -e "library(roxygen2);roxygenize('stencila');"
-
-# Add `useDynLib` to the NAMESPACE file after roxygensiation so that
-# the dynamic library is loaded
-r-package-namespace: r-package-roxygenize
+	# Add `useDynLib` to the NAMESPACE file (after roxygensiation) so that
+	# the dynamic library is loaded
 	echo "useDynLib($(R_DYNLIB_NAME))" >> $(R_BUILD)/stencila/NAMESPACE
-
-# A rule for the complet package directory
-r-package-dir: r-package-libzip r-package-install r-package-dummy r-package-rs r-package-tests r-package-namespace
+	# Touch the directory to ensure it is newer than its contents
+	touch $@
+r-package-dir: $(R_BUILD)/stencila
 
 # Check the package by running R CMD check
 # on the package directory. Do this in the
 # build directory to prevent polluting source tree
-r-package-check: r-package-dir
+r-package-check: $(R_BUILD)/stencila
 	cd $(R_BUILD) ;\
 	  R CMD check stencila
 
 # Build the package
 R_PACKAGE_FILE := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT)
-$(R_BUILD)/$(R_PACKAGE_FILE): r-package-dir
+$(R_BUILD)/$(R_PACKAGE_FILE): $(R_BUILD)/stencila
 ifeq ($(OS),linux)
 	cd $(R_BUILD); R CMD build stencila
 endif
@@ -565,9 +554,16 @@ r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 # Test the package by running unit tests
 # Install package in a testenv directory and run unit tests from there
 # This is better than installing package in the user's R library location
-r-test: $(R_BUILD)/$(R_PACKAGE_FILE)
+$(R_BUILD)/tests.out: $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;\
 	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
-	  mkdir testenv ;\
+	  mkdir -p testenv ;\
 	  cd testenv ;\
-	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')"
+	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')" 2>&1 | tee ../tests.out
+r-tests: $(R_BUILD)/tests.out
+
+#################################################################################################
+
+# Clean everything!
+clean:
+	rm -rf $(BUILD)

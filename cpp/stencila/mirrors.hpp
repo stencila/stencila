@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
