@@ -2,6 +2,8 @@
 
 namespace Stencila {
 
+#ifdef STENCILA_R_EMBED
+
 RInside RContext::r_(
     0,{}, // argc and argv
     true, // loadRcpp (overidden to true in code anyway)
@@ -10,5 +12,7 @@ RInside RContext::r_(
 );
 
 unsigned int RContext::contexts_ = 0;
+
+#endif
 
 }

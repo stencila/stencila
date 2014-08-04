@@ -3,7 +3,11 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include <Rcpp.h>
-#include <RInside.h>
+
+#ifdef STENCILA_R_EMBED
+    #include <RInside.h>
+#endif
+
 // Undefine some macros that R defines which clash
 // with those used below
 #undef Realloc
@@ -79,8 +83,10 @@ private:
         return "";
     }
 
-    static RInside r_;
-    static unsigned int contexts_;
+    #ifdef STENCILA_R_EMBED
+        static RInside r_;
+        static unsigned int contexts_;
+    #endif
 
     std::string id_;
 
@@ -117,29 +123,27 @@ private:
         typename... Args
     >
     SEXP call_(const char* name,Args... args){
-        // When used in an R package the following works
-        // but seems to fail when trying to embed R. So, instead
-        // resort to generating code as below
-        #if 0
-        Rcpp::Function func = context_.get(name);
-        Rcpp::Language call(func,args...);
-        return call.eval();
+        #ifdef STENCILA_R_EMBED
+            // Generate a call expression
+            std::string call = id_+"$"+name+"("+arguments(args...)+")";
+            try {
+                return r_.parseEval(call);
+            }
+            catch(const std::runtime_error& exc) {
+                // Rinside::parseEval throws a std::runtime_error with a message similar to "Error evaluating: context4233$execute(..." 
+                // i.e. its message is for the call string above and gives few details. 
+                // So, grab some more details and turn them into an RException
+                std::string message = Rcpp::as<std::string>(r_.parseEval("geterrmessage()"));
+                throw RException(message);
+            }
+            catch(...) {
+                throw RException("Unknown exception");
+            }
+        #else
+            Rcpp::Function func = context_.get(name);
+            Rcpp::Language call(func,args...);
+            return call.eval();
         #endif
-        // Generate a call expression
-        std::string call = id_+"$"+name+"("+arguments(args...)+")";
-        try {
-            return r_.parseEval(call);
-        }
-        catch(const std::runtime_error& exc) {
-            // Rinside::parseEval throws a std::runtime_error with a message similar to "Error evaluating: context4233$execute(..." 
-            // i.e. its message is for the call string above and gives few details. 
-            // So, grab some more details and turn them into an RException
-            std::string message = Rcpp::as<std::string>(r_.parseEval("geterrmessage()"));
-            throw RException(message);
-        }
-        catch(...) {
-            throw RException("Unknown exception");
-        }
     }
 
     template<
@@ -159,26 +163,25 @@ private:
 
 public:
     
-    RContext(void){
-        // Execute implementation code
-        static bool initialised_ = false;
-        if(not initialised_){
-            r_.parseEvalQ(code_());
-            initialised_ = true;
+    #ifdef STENCILA_R_EMBED
+        RContext(void){
+            // Execute implementation code
+            static bool initialised_ = false;
+            if(not initialised_){
+                r_.parseEvalQ(code_());
+                initialised_ = true;
+            }
+            // Create a context
+            id_ = "context"+boost::lexical_cast<std::string>(contexts_++);
+            r_.parseEvalQ(id_ + " <- Context('.')");
         }
-        // Create a context
-        id_ = "context"+boost::lexical_cast<std::string>(contexts_++);
-        r_.parseEvalQ(id_ + " <- Context('.')");
-    }
+    #else
+        RContext(SEXP sexp){
+            context_ = Rcpp::Environment(sexp);
+        }
+    #endif
 
-    /*!
-    Constructor which takes a SEXP representing the R-side Context.
-    */
-    RContext(SEXP sexp){
-        context_ = Rcpp::Environment(sexp);
-    }
-
-    ~RContext(void){
+    virtual ~RContext(void){
     }
 
     bool accept(const std::string& language) const {

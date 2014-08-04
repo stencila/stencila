@@ -1,4 +1,3 @@
-#include <stencila/version.hpp>
 #include <stencila/component.hpp>
 
 using namespace Stencila;

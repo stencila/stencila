@@ -1,4 +1,4 @@
-R"(#"
+#R"(#"
 
 # Load default packages and usually happens in the startup of R
 # this loads important packages like stats, utils and graphics
@@ -91,7 +91,7 @@ Context <- function(envir){
     ##################################
     # "execute" method
 
-    self$execute <- function(code,format,width,height,units){
+    self$execute <- function(code,format="",width="",height="",units=""){
         if(format!=""){
             if(format %in% c('png','svg')){
                 self$images = self$images + 1

@@ -17,13 +17,13 @@ test.Stencil.html <- function(){
   s <- Stencil()
 
   s$html('<p>foo</p>')
-  checkEquals(s$html(),'<p>foo</p>')
+  checkEquals(s$html(),'<p>foo</p>\n')
 
   html(s,'<p>bar</p>')
-  checkEquals(html(s),'<p>bar</p>')
+  checkEquals(html(s),'<p>bar</p>\n')
 
   s$content('html','<p>42</p>')
-  checkEquals(s$content(),'<p>42</p>')
+  checkEquals(s$content(),'<p>42</p>\n')
 }
 
 test.Stencil.contexts <- function(){

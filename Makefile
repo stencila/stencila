@@ -396,22 +396,14 @@ py-clean:
 RCPP_VERSION = 0.11.2
 
 $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz:
-	mkdir -p $(RESOURCES)
+	@mkdir -p $(RESOURCES)
 	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/Rcpp_$(RCPP_VERSION).tar.gz
 	
 $(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
-	mkdir -p $(BUILD)/r/requires
-	tar -xf $<
-	mv Rcpp $(BUILD)/r/requires
-	touch $(BUILD)/r/requires/Rcpp
+	@mkdir -p $@
+	R CMD INSTALL -l $(BUILD)/r/requires $<
 
-$(BUILD)/r/requires/Rcpp-built.flag: $(BUILD)/r/requires/Rcpp
-ifeq ($(shell Rscript -e "cat(length(grep('Rcpp',installed.packages()))>0)"), FALSE)
-	R CMD INSTALL Rcpp_$(RCPP_VERSION)
-	touch $@
-endif
-
-r-requires-rcpp: $(BUILD)/r/requires/Rcpp-built.flag
+r-requires-rcpp: $(BUILD)/r/requires/Rcpp
 
 #################################################################################################
 # RInside
@@ -423,19 +415,13 @@ $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz:
 	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/RInside_$(RINSIDE_VERSION).tar.gz
 	
 $(BUILD)/r/requires/RInside: $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz
-	mkdir -p $(BUILD)/r/requires
-	tar -xf $<
-	mv RInside $(BUILD)/r/requires
-	touch $(BUILD)/r/requires/RInside
+	@mkdir -p $@
+	R CMD INSTALL -l $(BUILD)/r/requires $<
 
-$(BUILD)/r/requires/RInside-built.flag: $(BUILD)/r/requires/RInside
-ifeq ($(shell Rscript -e "cat(length(grep('RInside',installed.packages()))>0)"), FALSE)
-	R CMD INSTALL RInside_$(RINSIDE_VERSION)
-	touch $@
-endif
+r-requires-rinside: $(BUILD)/r/requires/RInside
 
-r-requires-rinside: $(BUILD)/r/requires/RInside-built.flag
 
+r-requires: r-requires-rcpp r-requires-rinside
 
 #################################################################################################
 # Stencila R package
@@ -446,76 +432,142 @@ ifndef $(R_VERSION)
   R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'\\\\.')[[1]][1],sep='.')" )
 endif
 
+# Define R platform
+# Note in the below the double $ is to escape make's treatment of $
+# and the \$ is to escape the shell's treatment of $
+R_PLATFORM := $(shell Rscript -e "cat(R.version\$$platform)" )
+
+# The R version can not include the '-dev' tag
+R_PACKAGE_VERSION := $(subst -dev,,$(VERSION))
+
 # Define other platform specific variables...
 ifeq ($(OS),linux)
-R_PACKAGE := $(VERSION).tar.gz
-R_REPO_DIR := repo/src/contrib
-R_REPO_TYPE := source
-R_LIB_EXT := so
+R_PACKAGE_EXT := tar.gz
+R_DYNLIB_EXT := so
 endif
 ifeq ($(OS),msys)
-R_PACKAGE := $(VERSION).zip
-R_REPO_DIR := repo/bin/windows/contrib/$(R_VERSION)
-R_REPO_TYPE := win.binary
-R_LIB_EXT := dll
+R_PACKAGE_EXT := zip
+R_DYNLIB_EXT := dll
 endif
 # Define where the shared library gets put
-R_LIB_DIR := lib/$(OS)/$(R_VERSION)
-R_LIB_NAME := $(VERSION)
-R_LIB_FILE := $(R_LIB_NAME).$(R_LIB_EXT)
-R_LIB_ZIPFILE := $(R_LIB_FILE).zip
+R_DYNLIB_NAME := stencila_$(R_PACKAGE_VERSION)
+R_DYNLIB := $(R_DYNLIB_NAME).$(R_DYNLIB_EXT)
 
 
 R_BUILD := $(BUILD)/r/$(R_VERSION)
 
-R_RS := $(wildcard r/stencila/R/*.R)
-R_CPPS := $(wildcard r/stencila/inst/src/*.cpp)
+# Print R related Makefile variables; useful for debugging
+r-vars:
+	@echo R_VERSION : $(R_VERSION)
+	@echo R_PLATFORM : $(R_PLATFORM)
+	@echo R_PACKAGE_VERSION : $(R_PACKAGE_VERSION)
+	@echo R_DYNLIB : $(R_DYNLIB)
 
+# Compile each cpp file
+R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
 R_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
-
 R_INCLUDE_DIR := /usr/share/R/include
-
 R_INCLUDES := -Icpp -I$(BUILD)/cpp/requires/include \
               -I$(R_INCLUDE_DIR) \
-              -I$(BUILD)/r/requires/Rcpp/inst/include \
-              -I$(BUILD)/r/requires/RInside/inst/include
-
-R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(R_CPPS)))
-
-r-package: $(R_BUILD)/$(R_LIB_FILE) $(R_BUILD)/layout.flag
-
-# Setup layout of Python build directory
-$(R_BUILD)/layout.flag:
-	mkdir -p $(R_BUILD)/stencila $(R_BUILD)/objects
-	mkdir -p $(R_BUILD)/stencila/inst
-	mkdir -p $(R_BUILD)/stencila/src
-	touch $@
-	
-$(R_BUILD)/stencila: r/stencila
-	cp -r $< $@
-
-$(R_BUILD)/$(R_LIB_FILE): $(R_PACKAGE_OBJECTS)
-	$(CXX) -shared -o$@ $(R_PACKAGE_OBJECTS) $(R_LDFLAGS) $(RCPP_LDFLAGS) $(STENCILA_CPP_LIB_DIRS) $(STENCILA_CPP_LIBS)
-
-$(R_BUILD)/objects/%.o: r/stencila/inst/src/%.cpp $(R_BUILD)/layout.flag $(BUILD)/cpp/requires
+              -I$(BUILD)/r/requires/Rcpp/include
+$(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requires
+	@mkdir -p $(R_BUILD)/objects
 	$(CXX) $(R_CXX_FLAGS) $(R_INCLUDES) -o$@ -c $<
+	
+# Create shared library
+R_DYNLIB_LIB_DIRS := $(BUILD)/cpp/library $(BUILD)/cpp/requires/lib
+R_DYNLIB_LIBS := stencila $(CPP_REQUIRE_LIBS) 
+$(R_BUILD)/$(R_DYNLIB): $(R_PACKAGE_OBJECTS)
+	$(CXX) -shared -o$@ $^ $(patsubst %, -L%,$(R_DYNLIB_LIB_DIRS)) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
-# Create package directory structure
-stencila:
-	mkdir -p stencila/R stencila/src
+# Place zippled up shared library in package
+R_PACKAGE_LIBZIP := $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)/$(R_DYNLIB).zip
+$(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB)
+	@mkdir -p $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)
+	rm -f $@
+	zip -j $@ $<
+r-package-libzip: $(R_PACKAGE_LIBZIP)
 
 # Copy over `install.libs.R
 $(R_BUILD)/stencila/src/install.libs.R: r/install.libs.R
+	@mkdir -p $(R_BUILD)/stencila/src/
 	cp $< $@
+r-package-install: $(R_BUILD)/stencila/src/install.libs.R
 
 # Create a dummy C source code file in `src`
 # If there is no source files in `src` then `src\nstall.libs.R` is not run. 
 $(R_BUILD)/stencila/src/dummy.c:
+	@mkdir -p $(R_BUILD)/stencila/src/
 	touch $@
+r-package-dummy: $(R_BUILD)/stencila/src/dummy.c
 
-# Copy over R files
-cp $(wildcard r/stencila/R/*.R) $(R_BUILD)/stencila/R
-# Copy over unitTests
-cp r/tests $(R_BUILD)/stencila/inst/unitTests
+# Copy over each R file
+R_PACKAGE_RS := $(patsubst %, $(R_BUILD)/stencila/R/%, $(notdir $(wildcard r/stencila/*.R)))
+$(R_BUILD)/stencila/R/%.R: r/stencila/%.R
+	@mkdir -p $(R_BUILD)/stencila/R
+	cp $< $@
+r-package-rs: $(R_PACKAGE_RS)
 
-r-test: r-package
+# Copy over each unit test file
+R_PACKAGE_TESTS := $(patsubst %, $(R_BUILD)/stencila/inst/unitTests/%, $(notdir $(wildcard r/tests/*.R)))
+$(R_BUILD)/stencila/inst/unitTests/%.R: r/tests/%.R
+	@mkdir -p $(R_BUILD)/stencila/inst/unitTests
+	cp $< $@
+r-package-tests: $(R_PACKAGE_TESTS)
+
+# Copy over DESCRIPTION
+$(R_BUILD)/stencila/DESCRIPTION: r/DESCRIPTION
+	cp $< $@
+
+# Update the DESCRIPTION with version and date
+# Using sed:
+#	.* = anything, any number of times
+#	$ = end of line
+# The $ needs to be doubled for escaping make
+# ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
+R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
+r-package-desc: $(R_BUILD)/stencila/DESCRIPTION
+	sed -i 's!Version: .*$$!Version: $(R_PACKAGE_VERSION)!' $<
+	sed -i 's!Date: .*$$!Date: $(R_PACKAGE_DATE)!' $<
+
+# Run roxygen to generate Rd files and NAMESPACE file
+r-package-roxygenize: r-package-desc
+	cd $(R_BUILD) ;\
+		rm -f stencila/man/*.Rd ;\
+		Rscript -e "library(roxygen2);roxygenize('stencila');"
+
+# Add `useDynLib` to the NAMESPACE file after roxygensiation so that
+# the dynamic library is loaded
+r-package-namespace: r-package-roxygenize
+	echo "useDynLib($(R_DYNLIB_NAME))" >> $(R_BUILD)/stencila/NAMESPACE
+
+# A rule for the complet package directory
+r-package-dir: r-package-libzip r-package-install r-package-dummy r-package-rs r-package-tests r-package-namespace
+
+# Check the package by running R CMD check
+# on the package directory. Do this in the
+# build directory to prevent polluting source tree
+r-package-check: r-package-dir
+	cd $(R_BUILD) ;\
+	  R CMD check stencila
+
+# Build the package
+R_PACKAGE_FILE := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT)
+$(R_BUILD)/$(R_PACKAGE_FILE): r-package-dir
+ifeq ($(OS),linux)
+	cd $(R_BUILD); R CMD build stencila
+endif
+ifeq ($(OS),msys)
+	cd $(R_BUILD); R CMD INSTALL --build stencila
+endif
+r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
+
+# Test the package by running unit tests
+# Install package in a testenv directory and run unit tests from there
+# This is better than installing package in the user's R library location
+r-test: $(R_BUILD)/$(R_PACKAGE_FILE)
+	cd $(R_BUILD) ;\
+	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
+	  mkdir testenv ;\
+	  cd testenv ;\
+	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')"
