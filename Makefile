@@ -256,17 +256,16 @@ cpp-requires: $(BUILD)/cpp/requires
 
 CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
 CPP_LIBRARY_HPPS := $(patsubst %.hpp,$(BUILD)/cpp/library/stencila/%.hpp,$(notdir $(CPP_STENCILA_HPPS)))
-
-CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
-
 $(BUILD)/cpp/library/stencila/%.hpp: cpp/stencila/%.hpp
 	@mkdir -p $(BUILD)/cpp/library/stencila
 	cp $< $@
-
 cpp-library-stencila: $(CPP_LIBRARY_HPPS)
 
+
+CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
 $(BUILD)/cpp/library/objects/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
+	@mkdir -p $(BUILD)/cpp/library/objects
 	$(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC -Icpp -I$(BUILD)/cpp/requires/include -o$@ -c $<
 
 # Archive all object files and requirements libraries into a single static lib
@@ -274,7 +273,6 @@ $(BUILD)/cpp/library/objects/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 $(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 	$(AR) rc $@ $(CPP_LIBRARY_OBJECTS) 
 	$(AR) t $@ > $(BUILD)/cpp/library/contents.txt
-
 cpp-libary-staticlib: $(BUILD)/cpp/library/libstencila.a
 
 cpp-library: cpp-library-stencila cpp-libary-staticlib
@@ -402,8 +400,8 @@ $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz:
 $(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
 	@mkdir -p $@
 	R CMD INSTALL -l $(BUILD)/r/requires $<
-
 r-requires-rcpp: $(BUILD)/r/requires/Rcpp
+
 
 RINSIDE_VERSION := 0.2.11
 
@@ -414,10 +412,11 @@ $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz:
 $(BUILD)/r/requires/RInside: $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz
 	@mkdir -p $@
 	R CMD INSTALL -l $(BUILD)/r/requires $<
-
 r-requires-rinside: $(BUILD)/r/requires/RInside
 
-r-requires: r-requires-rcpp r-requires-rinside
+
+$(BUILD)/r/requires: $(BUILD)/r/requires/Rcpp $(BUILD)/r/requires/RInside
+r-requires: $(BUILD)/r/requires
 
 #################################################################################################
 # Stencila R package
@@ -472,7 +471,7 @@ $(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requir
 # Create shared library
 R_DYNLIB_LIB_DIRS := $(BUILD)/cpp/library $(BUILD)/cpp/requires/lib
 R_DYNLIB_LIBS := stencila $(CPP_REQUIRE_LIBS) 
-$(R_BUILD)/$(R_DYNLIB): $(R_PACKAGE_OBJECTS)
+$(R_BUILD)/$(R_DYNLIB): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
 	$(CXX) -shared -o$@ $^ $(patsubst %, -L%,$(R_DYNLIB_LIB_DIRS)) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
 # Place zippled up shared library in package
@@ -561,6 +560,12 @@ $(R_BUILD)/tests.out: $(R_BUILD)/$(R_PACKAGE_FILE)
 	  cd testenv ;\
 	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')" 2>&1 | tee ../tests.out
 r-tests: $(R_BUILD)/tests.out
+
+# Install R on the local host
+# Not intended for development but rather 
+# to install on the host machine after a build
+r-install: $(R_BUILD)/$(R_PACKAGE_FILE)
+	R CMD INSTALL $(R_BUILD)/$(R_PACKAGE_FILE)
 
 #################################################################################################
 
