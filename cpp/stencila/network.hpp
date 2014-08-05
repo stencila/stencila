@@ -200,9 +200,7 @@ private:
 		try {
 			Session session = session_(hdl);
 			std::string request = msg->get_payload();
-			std::cout<<request<<std::endl;
 			response = Component::message(session.address,request);
-			std::cout<<response<<std::endl;
 		}
 		// `Component::message()` should handle most exceptions and return a WAMP
 		// ERROR message. If for some reason that does not happen, the following returns
