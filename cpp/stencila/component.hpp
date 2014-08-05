@@ -119,10 +119,16 @@ public:
      * of type information, in particular, "virtual" functions.
      */
     struct Class {
+
+        /**
+         * Flag to indicate that the class has been defined
+         */
+        bool defined = false;
+
         /**
          * Name of the class 
          */
-        const char* name;
+        const char* name = "";
 
         /**
          * @name pageing
@@ -131,8 +137,8 @@ public:
          *
          * Used to serve a page for the component
          */
-        typedef std::string (*Page)(const Component* component);
-        Page pageing;
+        typedef std::string (*Pageing)(const Component* component);
+        Pageing pageing = nullptr;
 
         /**
          * @name calling
@@ -142,7 +148,19 @@ public:
          * Used to call a method for the component (usually remotely)
          */
         typedef std::string (*Calling)(Component* component, const Call& call);
-        Calling calling;
+        Calling calling = nullptr;
+
+        
+        Class(void):
+            defined(false){
+        }
+
+        Class(const char* name, Pageing pageing, Calling calling):
+            defined(true),
+            name(name),
+            pageing(pageing),
+            calling(calling){
+        }
     };
 
 private:
@@ -167,6 +185,17 @@ public:
      */
     static void define(ClassCode code, const Class& clas){
         classes_[code] = clas;
+    }
+
+    /**
+     * Obtain a `Class` definition
+     *
+     * @param code `ClassCode` for the class
+     */
+    static const Class& definition(ClassCode code){
+        const Class& clas = classes_[code];
+        if(not clas.defined) STENCILA_THROW(Exception,str(boost::format("Class with code <%s> has not been defined")%code));
+        return clas;
     }
 
     /**
@@ -360,7 +389,7 @@ public:
         typename... Supplied
     >
     static Return call(const Instance& instance, Return (* Class::* method)(Component* component, Args... args), Supplied... supplied){
-        return (classes_[instance.code].*method)(instance.pointer,supplied...);
+        return (definition(instance.code).*method)(instance.pointer,supplied...);
     }
 
     template<
@@ -370,7 +399,7 @@ public:
         typename... Supplied
     >
     static Return call(const Instance& instance, Return (* Class::* method)(const Component* component, Args... args), Supplied... supplied){
-        return (classes_[instance.code].*method)(instance.pointer,supplied...);
+        return (definition(instance.code).*method)(instance.pointer,supplied...);
     }
 
     /**
