@@ -297,17 +297,29 @@ CPP_TEST_OS = $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/te
 # Compile a test object file
 # Both .hpp and .cpp are dependencies : recompilation is required
 # if either of these changes
-$(BUILD)/cpp/tests/%.o: cpp/tests/%.hpp cpp/tests/%.cpp
+$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests
 	$(CPP_TEST_COMPILE) -o$@ -c $<
+
+# Compile a single test file into an executable
+$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
+	$(CPP_TEST_COMPILE) -o$@ $< cpp/tests/tests.cpp $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
-$(BUILD)/cpp/tests/tests.out: $(BUILD)/cpp/tests/tests.exe
+$(BUILD)/cpp/tests/%.out: $(BUILD)/cpp/tests/%.exe
 	$< 2>&1 | tee $@
 
+# Run a single test suite by specifying in command line e.g.
+# 	make cpp-test CPP_TEST=stencil-cila
+ifndef $(CPP_TEST)
+	CPP_TEST := tests
+endif
+cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).out
+
+# Run all tests
 cpp-tests: $(BUILD)/cpp/tests/tests.out
 
 #################################################################################################
@@ -555,8 +567,8 @@ r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 # This is better than installing package in the user's R library location
 $(R_BUILD)/tests.out: $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;\
-	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
 	  mkdir -p testenv ;\
+	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
 	  cd testenv ;\
 	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')" 2>&1 | tee ../tests.out
 r-tests: $(R_BUILD)/tests.out
