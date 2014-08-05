@@ -303,7 +303,7 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 
 # Compile a single test file into an executable
 $(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
-	$(CPP_TEST_COMPILE) -o$@ $< cpp/tests/tests.cpp $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
@@ -314,7 +314,7 @@ $(BUILD)/cpp/tests/%.out: $(BUILD)/cpp/tests/%.exe
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
-ifndef $(CPP_TEST)
+ifndef CPP_TEST
 	CPP_TEST := tests
 endif
 cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).out
@@ -326,7 +326,7 @@ cpp-tests: $(BUILD)/cpp/tests/tests.out
 # Stencila Python package
 
 # If PY_VERSION is not defined then get it
-ifndef $(PY_VERSION)
+ifndef PY_VERSION
   PY_VERSION := $(shell ./config.py py_version)
 endif
 
@@ -434,7 +434,7 @@ r-requires: $(BUILD)/r/requires
 # Stencila R package
 
 # If R_VERSION is not defined then get it
-ifndef $(R_VERSION)
+ifndef R_VERSION
   # Version number excludes any patch number
   R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'\\\\.')[[1]][1],sep='.')" )
 endif
