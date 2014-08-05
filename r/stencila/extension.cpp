@@ -1,4 +1,5 @@
 #include <stencila/component.hpp>
+#include <stencila/stencil.hpp>
 
 using namespace Stencila;
 
@@ -9,14 +10,19 @@ using namespace Stencila;
  * Start up function for the Stencila R module
  */
 STENCILA_R_FUNC Stencila_startup(void){
-	/*
-	Component::define(
-		Component::RContextCode,{
+
+	Component::define(Component::StencilCode, Component::Class(
+		"Stencil",
+		Stencil::page,
+		Stencil::call
+	));
+
+	Component::define(Component::RContextCode, Component::Class(
 		"RContext",
-		0,
-		RContext::page
-	});
-	*/
+		RContext::page,
+		RContext::call
+	));
+
 	return null;
 }
 
