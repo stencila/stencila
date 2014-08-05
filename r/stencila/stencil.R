@@ -24,10 +24,10 @@ NULL
 #' stencil <- Stencil()
 #' stencil$html('Pi has a value of: <span data-text="pi"/>')
 class_('Stencil','Component')
-Stencil <- function(content,format='html') {
+Stencil <- function(content="") {
     stencil <- new('Stencil')
-    if(!missing(content)) stencil$content(format,content)
-    return(stencil)
+    stencil$initialise(toString(content))
+    stencil
 }
 
 #' Get or set the content of a Stencil
@@ -73,6 +73,8 @@ setGeneric('html',function(instance,value) standardGeneric('html'))
 setMethod('html','Stencil',Stencil_html)
 
 
+attr_('Stencil','cila',toString)
+
 #' Get or set the contexts that a Stencil can be rendered in
 #'
 #' @export
@@ -84,7 +86,6 @@ attr_('Stencil','contexts',as.character)
 setGeneric('contexts',function(instance,value) standardGeneric('contexts'))
 setMethod('contexts','Stencil',Stencil_contexts)
 
-
 #' Render a stencil object or a stencil string 
 #'
 #' This is a convienience function for creating, rendering and then
@@ -94,17 +95,21 @@ setMethod('contexts','Stencil',Stencil_contexts)
 #' @export
 #' @name render
 #' @aliases Stencil-method render,ANY-method
-setGeneric("render",function(stencil,context) standardGeneric("render"))
-setMethod("render",c("ANY","ANY"),function(stencil,context){
-    if(!('Stencil' %in% class(stencil))){
-        stencil <- Stencil(stencil)
-    }
-    
+NULL
+
+Stencil_render <- function(stencil,context){
     if(missing(context)) context <- Context(parent.frame())
     else {
         if(!('Context' %in% class(context))) context <- Context(context)
     }
-    
+    return(call_('Stencil_render',stencil@pointer,context))
+}
+
+setGeneric("render",function(stencil,context) standardGeneric("render"))
+setMethod("render",c("ANY","ANY"),function(stencil,context){
+    if(!('Stencil' %in% class(stencil))){
+        stencil <- Stencil(paste("html://",stencil))
+    }
     stencil$render(context)
     return(stencil$html())
 })

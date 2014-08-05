@@ -129,13 +129,17 @@ public:
     }
 
     Stencil(const std::string& content){
+        initialise(content);
+    }
+
+    Stencil& initialise(const std::string& content){
         std::size_t found = content.find("://");
         if(found==std::string::npos) STENCILA_THROW(Exception,"Content type (e.g. html://, file://) not specified in supplied string")
         std::string type = content.substr(0,found);
         std::string rest = content.substr(found+3);
         if(type=="html") html(rest);
         else if(type=="file") read(rest);
-        else STENCILA_THROW(Exception,"Unrecognised type: " + type)
+        else STENCILA_THROW(Exception,"Unrecognised type: " + type);
     }
 
     /**
@@ -180,8 +184,57 @@ public:
      * @param html A HTML string
      */
     Stencil& html(const std::string& html){
-        clear();
         Html::Document doc(html);
+
+        // Being a valid HTML5 document, doc already has a <head> <title> and <body>
+        // so these do not have to be checked for
+        Node head = doc.find("head");
+        Node body = doc.find("body");
+
+        // Title
+        title(head.find("title").text());
+
+        // Keywords
+        if(Node elem = head.find("meta","name","keywords")){
+            std::string content = elem.attr("content");
+            std::vector<std::string> items;
+            boost::split(items,content,boost::is_any_of(","));
+            for(auto& keyword : items) boost::trim(keyword);
+            keywords(items);
+        }
+
+        // Description
+        if(Node elem = head.find("meta","name","description")){
+            std::string content = elem.attr("content");
+            description(content);
+        }       
+
+        // Contexts
+        if(Node elem = body.find("ul","id","contexts")){
+            std::vector<std::string> items;
+            for(auto& item : elem.all("li")){
+                std::string context = item.text();
+                boost::trim(context);
+                if(context.length()) items.push_back(context);
+            }
+            contexts(items);  
+        }
+
+        // Authors
+        if(Node elem = body.find("address","id","authors")){
+            std::vector<std::string> items;
+            for(auto& item : elem.all("a[rel=\"author\"]")){
+                items.push_back(item.text());
+            }
+            authors(items);  
+        }
+
+        // Content
+        // Clear content before appending new content from Html::Document
+        clear();
+        if(Node elem = body.find("main","id","content")){
+            append_children(elem);
+        }
         append_children(doc.find("body"));
         return *this;
     }
@@ -478,46 +531,48 @@ private:
         if(ok){
             // Get code and format etc
             std::string code = node.text();
-            std::string format = node.attr("data-format");
-            std::string size = node.attr("data-size");
-            std::string width,height,units;
-            if(size.length()){
-                boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
-                boost::smatch matches;
-                if(boost::regex_match(size, matches, regex)){
-                    width = matches[1];
-                    height = matches[2];
-                    if(matches.size()>2) units = matches[3];
+            if(code.length()>0){
+                std::string format = node.attr("data-format");
+                std::string size = node.attr("data-size");
+                std::string width,height,units;
+                if(size.length()){
+                    boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
+                    boost::smatch matches;
+                    if(boost::regex_match(size, matches, regex)){
+                        width = matches[1];
+                        height = matches[2];
+                        if(matches.size()>2) units = matches[3];
+                    }
                 }
-            }
-            // Execute
-            std::string output = context.execute(code,format,width,height,units);
-            // Remove any existing output
-            Node next = node.next_element();
-            if(next and next.attr("data-output")=="true") next.destroy();
-            // Append new output
-            if(format.length()){
-                Xml::Document doc;
-                Node output_node;
-                if(format=="out"){
-                    output_node = doc.append("samp",output);
+                // Execute
+                std::string output = context.execute(code,format,width,height,units);
+                // Remove any existing output
+                Node next = node.next_element();
+                if(next and next.attr("data-output")=="true") next.destroy();
+                // Append new output
+                if(format.length()){
+                    Xml::Document doc;
+                    Node output_node;
+                    if(format=="out"){
+                        output_node = doc.append("samp",output);
+                    }
+                    else if(format=="png" or format=="svg"){
+                        output_node = doc.append("img",{
+                            {"src",output}
+                        });
+                    }
+                    else {
+                        output_node = doc.append(
+                            "div",
+                            {{"data-error","output-format"},{"data-format",format}},
+                            "Output format not recognised: "+format
+                        );
+                    }
+                    // Flag output node 
+                    output_node.attr("data-output","true");
+                    // Create a copy immeadiately after code directive
+                    node.after(output_node);
                 }
-                else if(format=="png" or format=="svg"){
-                    output_node = doc.append("img",{
-                        {"src",output}
-                    });
-                }
-                else {
-                    output_node = doc.append(
-                        "div",
-                        {{"data-error","output-format"},{"data-format",format}},
-                        "Output format not recognised: "+format
-                    );
-                }
-                // Flag output node 
-                output_node.attr("data-output","true");
-                // Create a copy immeadiately after code directive
-                node.after(output_node);
             }
         }
     }
@@ -942,68 +997,20 @@ public:
     /**
      * Read the stencil from a directory
      * 
-     * @param  from Filesystem path to directory
+     * @param  path Filesystem path to directory
      */
-    Stencil& read(const std::string& from=""){
-        // Call base read method to set `path`
-        Component::read(from);
-        
-        Html::Document doc;
-        doc.read(from);
-        
-        // Being a valid HTML5 document, doc already has a <head> <title> and <body>
-        // so these do not have to be checked for
-        Node head = doc.find("head");
-        Node body = doc.find("body");
-
-        // Title
-        title(head.find("title").text());
-
-        // Keywords
-        if(Node elem = head.find("meta","name","keywords")){
-            std::string content = elem.attr("content");
-            std::vector<std::string> items;
-            boost::split(items,content,boost::is_any_of(","));
-            for(auto& keyword : items) boost::trim(keyword);
-            keywords(items);
+    Stencil& read(const std::string& path=""){
+        std::string ext = boost::filesystem::extension(path);
+        if(ext==".html" or ext==".cila"){
+            std::ifstream file(path);
+            std::stringstream stream;
+            stream<<file.rdbuf();
+            std::string content = stream.str();
+            if(ext==".html") html(content); 
+            else if(ext==".cila") cila(content);
+            sanitize();
         }
-
-        // Description
-        if(Node elem = head.find("meta","name","description")){
-            std::string content = elem.attr("content");
-            description(content);
-        }       
-
-        // Contexts
-        if(Node elem = body.find("ul","id","contexts")){
-            std::vector<std::string> items;
-            for(auto& item : elem.all("li")){
-                std::string context = item.text();
-                boost::trim(context);
-                if(context.length()) items.push_back(context);
-            }
-            contexts(items);  
-        }
-
-        // Authors
-        if(Node elem = body.find("address","id","authors")){
-            std::vector<std::string> items;
-            for(auto& item : elem.all("a[rel=\"author\"]")){
-                items.push_back(item.text());
-            }
-            authors(items);  
-        }
-
-        // Content
-        // Clear content before appending new content from Html::Document
-        clear();
-        if(Node elem = body.find("main","id","content")){
-            append_children(elem);
-        }  
-
-        // Sanitize before proceeding
-        sanitize();
-
+        else STENCILA_THROW(Exception,str(boost::format("File extension <%s> not valid for a Stencil")%ext));
         return *this;
     }
 
