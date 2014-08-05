@@ -721,32 +721,41 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
  * Equations
  */
 
-sregex asciimath = as_xpr("`") >> *(~(set='`')) >> as_xpr("`");
-sregex tex = as_xpr("\\(") >> *_ >> as_xpr("\\)");
+mark_tag equation_content(1);
+sregex asciimath = as_xpr("|") >> (equation_content=*(~(set='|'))) >> as_xpr("|");
+sregex tex = as_xpr("\\(") >> (equation_content=*_) >> as_xpr("\\)");
 sregex equation = asciimath|tex;
 
 Node equation_parse(Node parent,const smatch& tree){
-    // Resolve type
+    // Resolve type of math
     std::string type;
     auto branch = tree.nested_results().begin();
     auto id = branch->regex_id();
-    if(id==asciimath.regex_id()){
-        type = "asciimath";
-    }
-    else if(id==tex.regex_id()){
-        type = "tex";
-    }
-    // Create a <p class="<type>">
-    Node node = parent.append("p",{{"class",type}});
-    // Append equation text to current node with delimiters
-    node.append_text(tree.str());
+    if(id==asciimath.regex_id()) type = "math/asciimath";
+    else if(id==tex.regex_id()) type = "math/tex";
+    // Get the math content
+    std::string content = (*branch)[equation_content];
+    // Create a MathJax script tag
+    //  http://docs.mathjax.org/en/latest/model.html#mathjax-script-tags
+    Node node = parent.append("script",{{"type",type}},content);
     return node;
 }
 
 void equation_gen(Node node, std::ostream& stream, const std::string& indent){
-    // Just need to output child text, not the paragraph element
-    // No extra indentation required
-    for(Node child : node.children()) generate(child,stream,indent);
+    // When generating Cila for an equation element...
+    // ...get all the text content
+    std::string content = node.text();
+    // ...add corresponding delimeters as required
+    std::string begin, end;
+    std::string type = node.attr("type");
+    if(type=="math/asciimath"){
+        begin = end = '|';
+    }
+    else if(type=="math/tex"){
+        begin = "\\(";
+        end = "\\)";
+    }
+    stream<<begin<<content<<end<<"\n";
 }
 
 /**
@@ -868,7 +877,10 @@ void generate(Node node, std::ostream& stream, std::string indent="") {
         // .... generate Cila for each cild with no indentation
         for(Node child : node.children()) generate(child,stream);
     }
-    else if(node.name()=="p" and (node.attr("class")=="asciimath" or node.attr("class")=="tex")) equation_gen(node,stream,indent);
+    else if(node.name()=="script"){
+        std::string type = node.attr("type");
+        if(type=="math/asciimath" or type=="math/tex") equation_gen(node,stream,indent);
+    }
     else if(node.attr("data-code")!="") code_gen(node,stream,indent);
     else if(node.is_element()) element_gen(node,stream,indent);
     else if(node.is_text()){

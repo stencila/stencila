@@ -158,14 +158,14 @@ BOOST_AUTO_TEST_CASE(paragraph_implied){
 }
 
 BOOST_AUTO_TEST_CASE(equations){
-    // AsciiMath : lines starting with a backtick are made into separate paragraphs
-    HTML_("`E=mc^2`","<p class=\"asciimath\">`E=mc^2`</p>")
-    ECHO_("`E=mc^2`")
-    // Tex and LaTeX : lines starting with a \[ are made into separate paragraphs
-    HTML_("\\(E=mc^2\\)","<p class=\"tex\">\\(E=mc^2\\)</p>")
+    // AsciiMath : lines starting with a | are made into separate paragraphs
+    HTML_("|E=mc^2|","<script type=\"math/asciimath\">E=mc^2</script>")
+    ECHO_("|E=mc^2|")
+    // Tex and LaTeX : lines starting with a \( are made into separate paragraphs
+    HTML_("\\(E=mc^2\\)","<script type=\"math/tex\">E=mc^2</script>")
     ECHO_("\\(E=mc^2\\)")
-    //...inline math should not be parse, only lines starting with a backtick
-    HTML_("p where `c` is the speed of light","<p>where `c` is the speed of light</p>")
+    //...at present inline math should not be parsed, only lines starting with delimiter
+    HTML_("p where |c| is the speed of light","<p>where |c| is the speed of light</p>")
     HTML_("p where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
 }
 
