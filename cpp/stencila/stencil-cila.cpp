@@ -32,7 +32,8 @@ struct State {
     char indenter = 0;
 
     struct Line {
-        bool empty = false;
+        // Is the line blank? (ie. no non-whitespace characters)
+        bool blank = false;
         int indentation = 0;
     };
     Line current;
@@ -54,13 +55,12 @@ void code_mode_start(const std::string& lang, State& state){
 }
 
 void code_mode_check(Node parent, const std::string& line, State& state){
-    // If line is empty or indented more...
-    if(not state.end and (state.current.empty or state.current.indentation>=state.code.indentation)){
-        // Add line, even if it is empty, to `code.content`
-        // But strip `code.indentation` from it first
-        if(state.current.empty) state.code.content += line;
-        else state.code.content += line.substr(state.code.indentation);
-        state.code.content += "\n";
+    // If line is blank or indented more...
+    if(not state.end and (state.current.blank or state.current.indentation>=state.code.indentation)){
+        // Add line, even if it is blank, to `code.content` but strip `code.indentation` from it first
+        std::string stripped = line;
+        if(stripped.length()>=uint(state.code.indentation)) stripped = stripped.substr(state.code.indentation);
+        state.code.content += stripped + "\n";
     }
     // Otherwise finalise the code element
     else {
@@ -88,10 +88,10 @@ using namespace boost::xpressive;
 sregex text = +_;
 
 Node text_parse(Node parent, const smatch& tree, const State& state){
-    // If previous line was empty then create a new paragraph to be target
+    // If previous line was blank then create a new paragraph to be target
     // for additional text, otherwise use existing parent as target
     Node node;
-    if(state.previous.empty){
+    if(state.previous.blank){
         node = parent.append("p");
     } else {
         node = parent;
@@ -791,8 +791,8 @@ void parse(Node node, std::istream& stream){
         // Read line in
         std::string line;
         bool ok = std::getline(stream,line,'\n');
-        // Check for end of file so that can be treated
-        // as a "pseudo"-line
+        // Check for end of file so that the end of file can be treated
+        // as a "pseudo"-line to finish off processing
         if(not ok){
             if(stream.eof()) state.end = true;
             else break;
@@ -803,7 +803,7 @@ void parse(Node node, std::istream& stream){
         // Determine indentation and emptiness of line
         // If in code mode count indents but don't complain about
         // other whitespace characters
-        bool empty = true;
+        bool blank = true;
         int indentation = 0;
         for(char c : line){
             if(c=='\t'){
@@ -817,17 +817,18 @@ void parse(Node node, std::istream& stream){
                 else if(not state.mode==code_mode) STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : space used for indentation when tab used previously");
             }
             else {
-                empty = false;
+                blank = false;
                 break;
             }
         }
-        state.current.empty = empty;
+        state.current.blank = blank;
         state.current.indentation = indentation;
 
         // If in `code_mode` then process the line immeadiately
         // and potentially change to `normal_mode`
         // This should be done before any changes to `parent`
         if(state.mode==code_mode) code_mode_check(parent,line,state);
+
         // Determine the parent-child relationships for this node based on its indentation
         // If indentation has increased, the current node becomes the parent
         int last = levels.back().first;
@@ -838,16 +839,19 @@ void parse(Node node, std::istream& stream){
         // if it has not changed, then do nothing
         else if(indentation==last){
         }
-        // if it less, then pop off parents until we get to the right level
+        // if it less, and the line is not blank, then pop off parents until we get to the right level
         else {
-            while(levels.size()>1 and indentation<levels.back().first) levels.pop_back();
-            parent = levels.back().second;
+            if(not blank){
+                while(levels.size()>1 and indentation<levels.back().first) levels.pop_back();
+                parent = levels.back().second;
+            }
         }
+
         // Normal mode processing which may have been turned
         // back on by `code_process` etc
         if(state.mode==normal_mode){
             // If the line has content...
-            if(not state.current.empty){
+            if(not state.current.blank){
                 // Remove indentation before parsing
                 std::string content = line.substr(indentation);
                 // Parse the line into a syntax tree

@@ -216,6 +216,40 @@ pi &lt;- 3.14
     ECHO_(cila_)
 }
 
+BOOST_AUTO_TEST_CASE(directive_code_with_empty_lines){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+
+	2*pi
+
+	2*pi*r^2)";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+
+2*pi
+
+2*pi*r^2
+</pre>)";
+	HTML_(cila_,html_)
+}
+
+BOOST_AUTO_TEST_CASE(directive_code_with_empty_line_before_next){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+	
+div)";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+
+</pre>
+<div />)";
+	HTML_(cila_,html_)
+}
+
 BOOST_AUTO_TEST_CASE(directive_code_image){
     auto cila_ = 
 R"(r png 60x42
