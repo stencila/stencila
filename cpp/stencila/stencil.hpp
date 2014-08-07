@@ -383,7 +383,7 @@ public:
     /**
      * Render this stencil
      * 
-     * @param  type Type of stencil (e.g. "r", "py")
+     * @param  type Type of context (e.g. "r", "py")
      */
     Stencil& render(const std::string& type=""){
         // Get the list of context that are compatible with this stencil
@@ -398,10 +398,6 @@ public:
         } else {
             use = type;
         }
-        // Change to the stencil's directory
-        boost::filesystem::path cwd = boost::filesystem::current_path();
-        boost::filesystem::path dir = boost::filesystem::path(path()).parent_path();
-        boost::filesystem::current_path(dir);
         // Render the stencil in the corresponding context type
         if(use=="py"){
             #if STENCILA_PYTHON_CONTEXT
@@ -422,8 +418,6 @@ public:
         else {
            STENCILA_THROW(Exception,"Unrecognised context type: "+type); 
         }
-        // Return to the cwd
-        boost::filesystem::current_path(cwd);
         // Return self for chaining
         return *this;
     }
@@ -431,11 +425,18 @@ public:
     /**
      * Render this stencil within an existing context
      *
-     * @parameters context Context for rendering
+     * @param context Context for rendering
      */
     template<typename Context>
     Stencil& render(Context& context){
+        // Change to the stencil's directory
+        boost::filesystem::path cwd = boost::filesystem::current_path();
+        boost::filesystem::path dir = boost::filesystem::path(path()).parent_path();
+        boost::filesystem::current_path(dir);
+        // Render root element within context
         render_element_(*this,context);
+        // Return to the cwd
+        boost::filesystem::current_path(cwd);
         return *this;
     }
     
