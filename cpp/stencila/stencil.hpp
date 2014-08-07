@@ -134,10 +134,11 @@ public:
 
     Stencil& initialise(const std::string& content){
         std::size_t found = content.find("://");
-        if(found==std::string::npos) STENCILA_THROW(Exception,"Content type (e.g. html://, file://) not specified in supplied string")
+        if(found==std::string::npos) STENCILA_THROW(Exception,"Content type (e.g. html://, cila://, file://) not specified in supplied string")
         std::string type = content.substr(0,found);
         std::string rest = content.substr(found+3);
         if(type=="html") html(rest);
+        else if(type=="cila") cila(rest);
         else if(type=="file") read(rest);
         else STENCILA_THROW(Exception,"Unrecognised type: " + type);
     }
