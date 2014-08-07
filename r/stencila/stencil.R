@@ -24,9 +24,9 @@ NULL
 #' stencil <- Stencil()
 #' stencil$html('Pi has a value of: <span data-text="pi"/>')
 class_('Stencil','Component')
-Stencil <- function(content="") {
+Stencil <- function(content) {
     stencil <- new('Stencil')
-    stencil$initialise(toString(content))
+    if(!missing(content)) stencil$initialise(toString(content))
     stencil
 }
 
