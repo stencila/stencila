@@ -82,9 +82,93 @@ void code_mode_check(Node parent, const std::string& line, State& state){
 using namespace boost::xpressive;
 
 /**
- * Text
+ * Markdown-like shortcuts for inline HTML elements
+ *
+ * These mimic Markdown behaviour by converting certain syntax into HTML elements.
+ * These are parsed out of text within the `text_parse` function.
  */
 
+/**
+ * Inline code
+ *
+ * Called `mono` to prevent clashes with the 
+ * special `code` directive below (used for executed code)
+ */
+mark_tag mono_content(1);
+sregex mono = '`' >> (mono_content=-+_) >> '`';
+
+void mono_parse(Node node, const smatch& tree){
+    node.append("code",tree[mono_content].str());
+}
+
+void mono_gen(Node node, std::ostream& stream){
+    stream<<'`'<<node.text()<<'`';
+}
+
+/**
+ * Inline math 
+ */
+mark_tag math_content(1);
+sregex math = '|' >> (math_content=-+_) >> '|';
+
+void math_parse(Node node, const smatch& tree){
+    node.append("script",{{"type","math/asciimath"}},tree[math_content].str());
+}
+
+void math_gen(Node node, std::ostream& stream){
+    stream<<'|'<<node.text()<<'|';
+}
+
+/**
+ * Emphasis <em>
+ */
+mark_tag emphasis_content(1);
+sregex emphasis = ('_' >> (emphasis_content=-+_) >> '_') |
+                  ('*' >> (emphasis_content=-+_) >> '*');
+
+void emphasis_parse(Node node, const smatch& tree){
+    node.append("em",tree[emphasis_content].str());
+}
+
+void emphasis_gen(Node node, std::ostream& stream){
+    stream<<'_'<<node.text()<<'_';
+}
+
+/**
+ * Strong <strong>
+ */
+mark_tag strong_content(1);
+sregex strong = (as_xpr("__") >> (strong_content=-+_) >> "__") |
+                (as_xpr("**") >> (strong_content=-+_) >> "**");
+
+void strong_parse(Node node, const smatch& tree){
+    node.append("strong",tree[strong_content].str());
+}
+
+void strong_gen(Node node, std::ostream& stream){
+    stream<<"__"<<node.text()<<"__";
+}
+
+/**
+ * Hyperlinks
+ */
+mark_tag link_content(1);
+mark_tag link_url(2);
+sregex link = '[' >> (link_content=-+_) >> ']' >> '(' >> (link_url=-+_) >> ')';
+
+void link_parse(Node node, const smatch& tree){
+    node.append("a",{{"href",tree[link_url].str()}},tree[link_content].str());
+}
+
+void link_gen(Node node, std::ostream& stream){
+    stream<<"["<<node.text()<<"]("<<node.attr("href")<<")";
+}
+
+sregex inlines = +(mono|math|strong|emphasis|link);
+
+/**
+ * Text
+ */
 sregex text = +_;
 
 Node text_parse(Node parent, const smatch& tree, const State& state){
@@ -96,18 +180,18 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
     } else {
         node = parent;
     }
-    // Text nodes may have "inlines" defined using curly braces e.g.
+    // Text nodes may have nested lines defined using curly braces e.g.
     //   The minimum is {if a<b {text a} else {text b}}.
     // Deal with those by replacing { with indented lines and } with outdented lines
     std::string content = tree.str();
-    bool altered = false;
+    bool nested = false;
     std::string formatted;
     formatted.reserve(content.length());
     std::deque<char> indent = {'\n'};
     for(std::string::iterator iter=content.begin();iter!=content.end();iter++){
         char chara = *iter;
         if(chara=='{'){
-            altered = true;
+            nested = true;
             // Add a newline with indentation if there is already some content
             if(formatted.length()>0) formatted.append(indent.begin(),indent.end());
             indent.push_back('\t');
@@ -123,7 +207,37 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
     // Remove any trailing newline
     if(formatted.back()=='\n') formatted.pop_back();
 
-    if(not altered) node.append_text(content);
+    if(not nested){
+        std::string text = tree.str();
+        // Search for inlines within in the text
+        boost::xpressive::sregex_iterator iter(text.begin(), text.end(), inlines), end;
+        // Iterate over any inlines, appending text in between them
+        uint last = 0;
+        for (; iter != end; ++iter){
+            // Get start and finish of inline
+            auto submatch = (*iter)[0];
+            uint start = submatch.first - text.begin();
+            uint finish = start + submatch.length() - 1;
+            // If there is any preceding text append it
+            if(start>last){
+                node.append_text(text.substr(last,start-last));
+            }
+            last = finish + 1;
+            // The first, and only, nested result is the inline.
+            // Get it and resolve it's id.
+            auto result = iter->nested_results().begin();
+            const void* id = result->regex_id();
+            if(id==mono.regex_id()) mono_parse(node,*result);
+            else if(id==math.regex_id()) math_parse(node,*result);
+            else if(id==emphasis.regex_id()) emphasis_parse(node,*result);
+            else if(id==strong.regex_id()) strong_parse(node,*result);
+            else if(id==link.regex_id()) link_parse(node,*result);
+            
+        }
+        // Append any trailing text
+        if(last<text.length()) node.append_text(text.substr(last));
+        
+    }
     else {
         std::stringstream stream(formatted);
         stream.seekg(0);
@@ -131,6 +245,40 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
     }
     return node;
 }
+
+/**
+ * Markdown-like shortcuts for HTML elements
+ *
+ * These mimic Markdown behaviour by converting certain syntax into HTML elements.
+ * See the `root` regex and the `parse` function for their application.
+ */
+
+mark_tag header_level(1);
+mark_tag header_content(2);
+sregex header = (header_level=repeat<1,6>('#')) >> +space >> (header_content=+_);
+
+Node header_parse(Node parent, const smatch& tree, const State& state){
+    uint level = tree[header_level].str().length();
+    return parent.append(
+        "h"+boost::lexical_cast<std::string>(level),
+        tree[header_content].str()
+    );
+}
+
+mark_tag ul_content(1);
+sregex ul = (set='*','-','+') >> +space >> (ul_content=+_);
+
+Node ul_parse(Node parent, const smatch& tree, const State& state){
+    return parent.append("li",tree[ul_content].str());
+}
+
+mark_tag ol_content(1);
+sregex ol = +_d >> '.' >> +space >> (ol_content=+_);
+
+Node ol_parse(Node parent, const smatch& tree, const State& state){
+    return parent.append("li",tree[ol_content].str());
+}
+
 
 /**
  * HTML5 tags
@@ -722,7 +870,7 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
  */
 
 mark_tag equation_content(1);
-sregex asciimath = as_xpr("|") >> (equation_content=*(~(set='|'))) >> as_xpr("|");
+sregex asciimath = '|' >> (equation_content=*(~(set='|'))) >> '|';
 sregex tex = as_xpr("\\(") >> (equation_content=*_) >> as_xpr("\\)");
 sregex equation = asciimath|tex;
 
@@ -769,7 +917,7 @@ sregex comment = as_xpr("//") >> comment_text;
 /**
  * Root regex for each line
  */
-sregex root = comment|equation|code|element|text;
+sregex root = comment|equation|code|element|header|ul|ol|text;
 
 void parse(Node node, std::istream& stream){
     // Keep track of state variables for 
@@ -864,6 +1012,17 @@ void parse(Node node, std::istream& stream){
                 else if(id==equation.regex_id()) current = equation_parse(parent,*branch);
                 else if(id==code.regex_id()) current = code_parse(parent,*branch,state);
                 else if(id==element.regex_id()) current = element_parse(parent,*branch,state);
+                // Markdown-like syntax
+                else if(id==header.regex_id()) current = header_parse(parent,*branch,state);
+                else if(id==ul.regex_id()){
+                    if(parent.name()!="ul") parent = parent.append("ul");
+                    current = ul_parse(parent,*branch,state);
+                }
+                else if(id==ol.regex_id()){
+                    if(parent.name()!="ol") parent = parent.append("ol");
+                    current = ol_parse(parent,*branch,state);
+                }
+                // Plain old text
                 else if(id==text.regex_id()) current = text_parse(parent,*branch,state);
                 else  STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+": unrecognised syntax :"+line);
             }
@@ -876,12 +1035,19 @@ void parse(Node node, std::istream& stream){
 }
 
 void generate(Node node, std::ostream& stream, std::string indent="") {
+    std::string name = node.name();
     // Generate Cila for a Stencil::Node
     if(node.is_document()){
         // .... generate Cila for each cild with no indentation
         for(Node child : node.children()) generate(child,stream);
     }
-    else if(node.name()=="script"){
+    else if(name=="code") mono_gen(node,stream);
+    else if(name=="em") emphasis_gen(node,stream);
+    else if(name=="strong") strong_gen(node,stream);
+    else if(name=="a" and node.attr("href")!="" and node.attrs().size()==1){
+        link_gen(node,stream);
+    }
+    else if(name=="script"){
         std::string type = node.attr("type");
         if(type=="math/asciimath" or type=="math/tex") equation_gen(node,stream,indent);
     }

@@ -87,12 +87,91 @@ BOOST_AUTO_TEST_CASE(indentation){
 BOOST_AUTO_TEST_CASE(text){
     // Anything that is not a div should be plain text
     // but not on the first line (in that case it is assumed to be a paragraph)
-    HTML_("div\nplain text","<div />\nplain text")
+    HTML_("div\nplain text","<div />\nplain text");
+}
+
+BOOST_AUTO_TEST_CASE(mono){
+    HTML_("`code` at start","<code>code</code>\n at start");
+    HTML_("In the `code` middle","In the \n<code>code</code>\n middle");
+    HTML_("At end `code`","At end \n<code>code</code>");
+
+    ECHO_("`code` at start")
+    ECHO_("At end `code`")
+
+}
+
+BOOST_AUTO_TEST_CASE(math){
+    HTML_("|E=mc^2| at start","<script type=\"math/asciimath\">E=mc^2</script>\n at start");
+    HTML_("In the |E=mc^2| middle","In the \n<script type=\"math/asciimath\">E=mc^2</script>\n middle");
+    HTML_("At end |E=mc^2|","At end \n<script type=\"math/asciimath\">E=mc^2</script>");
+
+    ECHO_("|E=mc^2| at start")
+    ECHO_("At end |E=mc^2|")
+}
+
+BOOST_AUTO_TEST_CASE(emphasis){
+    HTML_("_word_","<em>word</em>");
+    HTML_("*word*","<em>word</em>");
+
+    ECHO_("_word_");
+}
+
+BOOST_AUTO_TEST_CASE(strong){
+    HTML_("__word__","<strong>word</strong>");
+    HTML_("**word**","<strong>word</strong>");
+
+    ECHO_("__word__");
+}
+
+BOOST_AUTO_TEST_CASE(link){
+    HTML_("[t-test](http://en.wikipedia.org/wiki/Student's_t-test)","<a href=\"http://en.wikipedia.org/wiki/Student's_t-test\">t-test</a>");
+    
+    ECHO_("[Google](http://google.com)")
+    ECHO_("Go to [Google](http://google.com)")
+    ECHO_("[Google](http://google.com) is a link")
+}
+
+BOOST_AUTO_TEST_CASE(different_numbers_of_inlines){
+    HTML_("`code` and |math|","<code>code</code>\n and \n<script type=\"math/asciimath\">math</script>");
 }
 
 BOOST_AUTO_TEST_CASE(elements_with_trailing_text){
     HTML_("a my link","<a>my link</a>")
     HTML_("span            This is my span","<span>           This is my span</span>");
+}
+
+BOOST_AUTO_TEST_CASE(header){
+    HTML_("# Header 1","<h1>Header 1</h1>")
+    HTML_("## Header 2","<h2>Header 2</h2>")
+    HTML_("### Header 3","<h3>Header 3</h3>")
+    HTML_("#### Header 4","<h4>Header 4</h4>")
+    HTML_("##### Header 5","<h5>Header 5</h5>")
+    HTML_("###### Header 6","<h6>Header 6</h6>")
+
+    // A single "#" with no space after it is parsed as an `id` directive
+    HTML_("#identifier","<div id=\"identifier\" />")
+
+    // Multiple hases with no space after them are parsed as
+    // plain text
+    HTML_("##plain old text","##plain old text")
+    HTML_("####plain old text","####plain old text")
+}
+
+BOOST_AUTO_TEST_CASE(ul){
+    HTML_("* item 1","<ul>\n\t<li>item 1</li>\n</ul>")
+    HTML_("- item 1","<ul>\n\t<li>item 1</li>\n</ul>")
+    HTML_("+ item 1","<ul>\n\t<li>item 1</li>\n</ul>")
+
+    HTML_("* item 1\n* item 2","<ul>\n\t<li>item 1</li>\n\t<li>item 2</li>\n</ul>")
+}
+
+BOOST_AUTO_TEST_CASE(ol){
+    HTML_("1. item 1","<ol>\n\t<li>item 1</li>\n</ol>")
+    HTML_("1. item 1\n2. item 2","<ol>\n\t<li>item 1</li>\n\t<li>item 2</li>\n</ol>")
+
+    // Digits do not need to be in order
+    HTML_("1. item 1\n1. item 2","<ol>\n\t<li>item 1</li>\n\t<li>item 2</li>\n</ol>")
+    HTML_("100. item 1\n1. item 2","<ol>\n\t<li>item 1</li>\n\t<li>item 2</li>\n</ol>")
 }
 
 BOOST_AUTO_TEST_CASE(id_class){
@@ -121,12 +200,12 @@ BOOST_AUTO_TEST_CASE(id_class){
 
 BOOST_AUTO_TEST_CASE(attributes){
     HTML_("a[href=\"http://stenci.la\"] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
-    ECHO_("a[href=\"http://stenci.la\"]\n\tStencila");
+    ECHO_("a[href=\"http://stenci.la\"][title=\"Stencila\"]\n\tStencila");
     // More than one
     HTML_("div[attr1=\"1\"][attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
     ECHO_("ul[attr1=\"1\"][attr2=\"2\"][attr3=\"3\"]");
     // Single quotes are replaced by doubles
-    BACK_("a[href='http://stenci.la']","a[href=\"http://stenci.la\"]")
+    BACK_("span[attr1='value']","span[attr1=\"value\"]")
     // No need to include div
     HTML_("[attr=\"1\"]","<div attr=\"1\" />")
     ECHO_("[attr=\"1\"]");
@@ -165,7 +244,7 @@ BOOST_AUTO_TEST_CASE(equations){
     HTML_("\\(E=mc^2\\)","<script type=\"math/tex\">E=mc^2</script>")
     ECHO_("\\(E=mc^2\\)")
     //...at present inline math should not be parsed, only lines starting with delimiter
-    HTML_("p where |c| is the speed of light","<p>where |c| is the speed of light</p>")
+    HTML_("p where |c| is the speed of light","<p>\n\twhere \n\t<script type=\"math/asciimath\">c</script>\n\t is the speed of light\n</p>")
     HTML_("p where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
 }
 
