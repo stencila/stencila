@@ -19,6 +19,15 @@ BUILD := build/$(OS)/$(ARCH)/$(VERSION)
 RESOURCES := build/resources
 
 #################################################################################################
+# Symbolic links to builds
+# 
+# Useful for automatically collecting the latest build products
+
+build/current:
+	ln -s $(OS)/$(ARCH)/$(VERSION) build/current
+build-current: build/current
+
+#################################################################################################
 # C++ requirements
 
 BOOST_VERSION := 1_55_0
