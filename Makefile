@@ -360,9 +360,9 @@ cpp-tests-xml: $(BUILD)/cpp/tests/tests.exe $(BUILD)/cpp/tests/boost-test-to-jun
 	  ./tests.exe --report_format=xml --report_level=detailed --log_format=xml --log_level=test_suite > boost-test-out.xml 2>&1 ;\
 	  # Because redirecting stdout and stderr to one file need to wrap in an outer tag \
 	  python -c "print '<xml>',file('boost-test-out.xml').read(),'</xml>'" > boost-test.xml ;\
-	  # Convert to Junit XML format ;\
+	  # Convert to Junit XML format \
 	  xsltproc --output junit.xml boost-test-to-junit.xsl boost-test.xml ;\
-	  # Produce coverage report.
+	  # Produce coverage report \
 	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*' --xml --output=coverage.xml
 
 # Run all tests and report results and coverage to HTML files
