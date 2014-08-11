@@ -1,5 +1,8 @@
 all: cpp-tests py-tests r-tests
 
+# Get root directory for Stencila project
+ROOT := $(realpath .)
+
 # Get the operating system  e.g. linux
 OS := $(shell ./config.py os)
 # Get the machine architecture e.g i386, x86_64
@@ -281,33 +284,42 @@ cpp-library: cpp-library-stencila cpp-libary-staticlib
 #################################################################################################
 # Stencila C++ tests
 
-# Compile options include g (debug symbols), --coverage (coverage statistics) and -O0 (no optimizations, so coverage is valid)
-# 	More recent versions of gcov have "--relative-only" which "Only output information about source files with a relative pathname (after source prefix elision). 
-#   Absolute paths are usually system header files and coverage of any inline functions therein is normally uninteresting."
-CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -g --coverage -O0 -Icpp -I$(BUILD)/cpp/requires/include
+# Compile options for tests include:
+# 		-g (debug symbols),
+# 		-fprofile-arcs -ftest-coverage (coverage statistics)
+# 		-O0 (no optimizations, so coverage is valid)
+CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
+                       -g -fprofile-arcs -ftest-coverage -fPIC -O0 -Icpp -I$(BUILD)/cpp/requires/include
 
-CPP_TEST_LIBDIRS := $(BUILD)/cpp/library $(BUILD)/cpp/requires/lib
+CPP_TEST_LIBDIRS := $(BUILD)/cpp/requires/lib
 CPP_TEST_LIBDIRS := $(patsubst %, -L%,$(CPP_TEST_LIBDIRS))
 
-CPP_TEST_LIBS := stencila $(CPP_REQUIRE_LIBS) boost_unit_test_framework gcov
+CPP_TEST_LIBS := $(CPP_REQUIRE_LIBS) boost_unit_test_framework gcov
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 
-CPP_TEST_OS = $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/tests/*.cpp)))
-
-# Compile a test object file
-# Both .hpp and .cpp are dependencies : recompilation is required
-# if either of these changes
+# Compile a test file into an object file
+# $(realpath $<) is used for consistency of paths in coverage reports
+CPP_TEST_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/tests/*.cpp)))
 $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests
-	$(CPP_TEST_COMPILE) -o$@ -c $<
+	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
+
+# Compile a stencila source file into an object file
+# This needs to be done (instead of linking to libstencila.a) so that coverage statistics
+# can be generated for these files
+# $(realpath $<) is used for consistency of paths in coverage reports
+CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp)))
+$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
+	@mkdir -p $(BUILD)/cpp/tests/stencila
+	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
 # Compile a single test file into an executable
-$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
-	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
+$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
+	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
-$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/requires
-	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
+$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
+	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
 $(BUILD)/cpp/tests/%.out: $(BUILD)/cpp/tests/%.exe
 	$< 2>&1 | tee $@
@@ -321,6 +333,40 @@ cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).out
 
 # Run all tests
 cpp-tests: $(BUILD)/cpp/tests/tests.out
+
+# Run all tests and report results and coverage to XML files
+# Useful for integration with CI systems like Jenkins
+# Requires python, xsltproc and [gcovr](http://gcovr.com/guide.html):
+#   sudo apt-get install xsltproc
+#   sudo pip install gcovr
+# Use of 
+#   gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*'
+# below seems to be necessary when there are different source and build directories to
+# only produce coverage reports for files in 'cpp/stencila' 
+$(BUILD)/cpp/tests/boost-test-to-junit.xsl: cpp/tests/boost-test-to-junit.xsl
+	cp $< $@
+cpp-tests-xml: $(BUILD)/cpp/tests/tests.exe $(BUILD)/cpp/tests/boost-test-to-junit.xsl
+	cd $(BUILD)/cpp/tests ;\
+	  # Run all tests with reporting to XML file \
+	  ./tests.exe --report_format=xml --report_level=detailed --log_format=xml --log_level=test_suite > boost-test-out.xml 2>&1 ;\
+	  # Because redirecting stdout and stderr to one file need to wrap in an outer tag \
+	  python -c "print '<xml>',file('boost-test-out.xml').read(),'</xml>'" > boost-test.xml ;\
+	  # Convert to Junit XML format ;\
+	  xsltproc --output junit.xml boost-test-to-junit.xsl boost-test.xml ;\
+	  # Produce coverage report.
+	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*' --xml --output=coverage.xml
+
+# Run all tests and report results and coverage to HTML files
+# Useful for examining coverage during local development 
+cpp-tests-html: $(BUILD)/cpp/tests/tests.exe
+	cd $(BUILD)/cpp/tests ;\
+	  # Run all tests \
+	  ./tests.exe;\
+	  # Produce coverage report \
+	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*' --html --html-details --output=coverage.html
+
+cpp-tests-clean:
+	rm -rf $(BUILD)/cpp/tests
 
 #################################################################################################
 # Stencila Python package
