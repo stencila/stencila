@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(read){
     out.close();
 
     Stencil s;
-    s.read(filename);
+    s.import(filename);
 
     BOOST_CHECK_EQUAL(s.title(),"Yo");
 
@@ -119,7 +119,6 @@ BOOST_AUTO_TEST_CASE(sanitize){
         <div src="" />
         <script></script>
     )");
-
     s.sanitize();
     BOOST_CHECK(s.one("img[src]"));
     BOOST_CHECK(not s.one("div[src]"));

@@ -128,19 +128,29 @@ public:
     Stencil(void){
     }
 
-    Stencil(const std::string& content){
-        initialise(content);
+    Stencil(const std::string& from){
+        initialise(from);
     }
 
-    Stencil& initialise(const std::string& content){
-        std::size_t found = content.find("://");
-        if(found==std::string::npos) STENCILA_THROW(Exception,"Content type (e.g. html://, cila://, file://) not specified in supplied string")
-        std::string type = content.substr(0,found);
-        std::string rest = content.substr(found+3);
-        if(type=="html") html(rest);
-        else if(type=="cila") cila(rest);
-        else if(type=="file") read(rest);
-        else STENCILA_THROW(Exception,"Unrecognised type: " + type);
+    /**
+     * Initialise a stencil
+     * 
+     * @param  from A string indicating how the stecnil is initialised
+     */
+    Stencil& initialise(const std::string& from){
+        std::size_t found = from.find("://");
+        if(found==std::string::npos){
+            // Initialised from a path
+            read(from);
+        } else {
+            // Initialised from some content
+            std::string type = from.substr(0,found);
+            std::string content = from.substr(found+3);
+            if(type=="html") html(content);
+            else if(type=="cila") cila(content);
+            else if(type=="file") import(content);
+            else STENCILA_THROW(Exception,"Unrecognised content type: " + type);
+        }
     }
 
     /**
@@ -280,7 +290,6 @@ public:
      * @}
      */
 
-
     /**
      * @name Contexts
      * @{
@@ -381,11 +390,33 @@ private:
 public:
 
     /**
-     * Render this stencil
+     * Render this stencil within a context
+     *
+     * @param context Context for rendering
+     */
+    template<typename Context>
+    Stencil& render(Context& context){
+        // Change to the stencil's directory
+        boost::filesystem::path cwd = boost::filesystem::current_path();
+        boost::filesystem::path path = boost::filesystem::path(Component::path(true));
+        try {
+            boost::filesystem::current_path(path);
+        } catch(const std::exception& exc){
+            STENCILA_THROW(Exception,str(boost::format("Error setting directory to <%s>")%path));
+        }
+        // Render root element within context
+        render_element_(*this,context);
+        // Return to the cwd
+        boost::filesystem::current_path(cwd);
+        return *this;
+    }
+
+    /**
+     * Render this stencil in a new context
      * 
      * @param  type Type of context (e.g. "r", "py")
      */
-    Stencil& render(const std::string& type=""){
+    Stencil& render(const std::string& type){
         // Get the list of context that are compatible with this stencil
         auto types = contexts();
         // Use the first in the list if type has not been specified
@@ -423,21 +454,10 @@ public:
     }
 
     /**
-     * Render this stencil within an existing context
-     *
-     * @param context Context for rendering
+     * Render this stencil, creating a new context if necessary
      */
-    template<typename Context>
-    Stencil& render(Context& context){
-        // Change to the stencil's directory
-        boost::filesystem::path cwd = boost::filesystem::current_path();
-        boost::filesystem::path dir = boost::filesystem::path(path()).parent_path();
-        boost::filesystem::current_path(dir);
-        // Render root element within context
-        render_element_(*this,context);
-        // Return to the cwd
-        boost::filesystem::current_path(cwd);
-        return *this;
+    Stencil& render(void){
+        return render(std::string());
     }
     
 private:
@@ -997,11 +1017,11 @@ public:
 
 
     /**
-     * Read the stencil from a directory
+     * Import the stencil content from a file
      * 
-     * @param  path Filesystem path to directory
+     * @param  path Filesystem path to file
      */
-    Stencil& read(const std::string& path=""){
+    Stencil& import(const std::string& path=""){
         std::string ext = boost::filesystem::extension(path);
         if(ext==".html" or ext==".cila"){
             std::ifstream file(path);
@@ -1010,9 +1030,64 @@ public:
             std::string content = stream.str();
             if(ext==".html") html(content); 
             else if(ext==".cila") cila(content);
-            sanitize();
         }
         else STENCILA_THROW(Exception,str(boost::format("File extension <%s> not valid for a Stencil")%ext));
+        return *this;
+    }
+
+    /**
+     * Export the stencil content to a file
+     * 
+     * @param  path Filesystem path to file
+     */
+    Stencil& export_(const std::string& path=""){
+        std::string ext = boost::filesystem::extension(path);
+        if(ext==".html" or ext==".cila"){
+            std::ofstream file(path);
+            if(ext==".html") file<<html(); 
+            else if(ext==".cila") file<<cila();
+        }
+        else STENCILA_THROW(Exception,str(boost::format("File extension <%s> not valid for a Stencil")%ext));
+        return *this;
+    }
+
+    /**
+     * Read the stencil from a directory
+     * 
+     * @param  directory Filesystem directory to directory
+     */
+    Stencil& read(const std::string& directory=""){
+        if(directory.length()){
+            // Check that directory exits and is a directory
+            if(not boost::filesystem::exists(directory)){
+                STENCILA_THROW(Exception,str(boost::format("Path <%s> does not exist")%directory));
+            }
+            if(not boost::filesystem::is_directory(directory)){
+                STENCILA_THROW(Exception,str(boost::format("Path <%s> is not a directory")%directory));
+            }
+            // Set the stencil's path
+            path(directory);
+        }
+        // Currently, set the stencil's content from main.cila
+        boost::filesystem::path cila = boost::filesystem::path(directory) / "main.cila";
+        if(not boost::filesystem::exists(cila)){
+            STENCILA_THROW(Exception,str(boost::format("Directory <%s> does contain a 'main.cila' file")%directory));
+        }
+        import(cila.string());
+        return *this;
+    }
+    
+    /**
+     * Write the stencil to a directory
+     * 
+     * @param  path Filesystem path
+     */
+    Stencil& write(const std::string& directory=""){
+        // Set `path` if provided
+        if(directory.length()) Component::path(directory);
+        // Write necessary files
+        // @fixme This should use `export_()`
+        Component::write("main.html",dump());
         return *this;
     }
 
@@ -1124,41 +1199,13 @@ public:
          * <script>
          *
          * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
+         * Files are with a fallback to hub.
          */
-        body.append("script",{
-            {"src","/core/themes/boot.js"}
-        }," ");
-        body.append("script",{
-            {"src","/" + theme() + "/theme.js"}
-        }," ");
+        body.append("script",{{"src","/core/themes/boot.js"}}," ");
+        body.append("script","if(!window.Stencila){window.StencilaHost='http://hub.stenci.la';document.write(unescape('%3Cscript src=\"http://hub.stenci.la/core/themes/boot.js\"%3E%3C/script%3E'))}");
+        body.append("script","window.Stencila.Booter.theme('" + theme() + "');");
 
         return doc.dump();
-    }
-
-    /**
-     * Write the stencil to a directory
-     * 
-     * @param  to Filesystem path to directory
-     */
-    Stencil& write(std::ostream& stream){
-        stream<<dump();
-        return *this;
-    }
-    
-    /**
-     * Write the stencil to a directory
-     * 
-     * @param  to Filesystem path to directory
-     */
-    Stencil& write(const std::string& to=""){
-        // Call base write method to set `path`
-        Component::write(to);
-        // Write to file
-        std::ofstream file(to);
-        write(file);
-        file.close();
-
-        return *this;
     }
 
     /**
