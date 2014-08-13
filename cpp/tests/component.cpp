@@ -7,7 +7,7 @@ BOOST_AUTO_TEST_SUITE(component)
 
 using namespace Stencila;
 
-boost::regex transient_path_pattern("^"+Stencila::Host::user_dir()+"/temp/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");//"
+boost::regex temp_path_pattern(".*/temp/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");
 
 BOOST_AUTO_TEST_CASE(title){
     Component c;
@@ -57,14 +57,22 @@ BOOST_AUTO_TEST_CASE(path_initialised_empty){
 }
 
 /**
+ * Get path and ensure there is
+ */
+BOOST_AUTO_TEST_CASE(path_get_ensure){
+    Component c;
+    BOOST_CHECK(c.path(true)!="");
+}
+
+/**
  * @class Component
  *
- * Setting an empty path creates a transient path
+ * Setting an empty path creates a temporary path
  */
 BOOST_AUTO_TEST_CASE(path_set_empty){
     Component c;
     c.path("");
-    BOOST_CHECK(boost::regex_match(c.path(),transient_path_pattern));
+    BOOST_CHECK(boost::regex_match(c.path(),temp_path_pattern));
     BOOST_CHECK(boost::filesystem::exists(c.path()));
     c.destroy();
 }
@@ -111,7 +119,7 @@ BOOST_AUTO_TEST_CASE(path_change){
 BOOST_AUTO_TEST_CASE(read_path_empty){
     Component c;
     std::string first = c.read().path();
-    BOOST_CHECK(boost::regex_match(c.path(),transient_path_pattern));
+    BOOST_CHECK(boost::regex_match(c.path(),temp_path_pattern));
     std::string second = c.read().path();
     BOOST_CHECK_EQUAL(first,second);
     c.destroy();
@@ -126,7 +134,7 @@ BOOST_AUTO_TEST_CASE(read_path_empty){
 BOOST_AUTO_TEST_CASE(write_path_empty){
     Component c;
     c.write();
-    BOOST_CHECK(boost::regex_match(c.path(),transient_path_pattern));
+    BOOST_CHECK(boost::regex_match(c.path(),temp_path_pattern));
     c.destroy();
 }
 
@@ -185,26 +193,31 @@ BOOST_AUTO_TEST_CASE(version){
 }
 
 BOOST_AUTO_TEST_CASE(provide){
+    using boost::filesystem::exists;
+
     Component c;
     
     c.create("version-0.0.1.txt","0.0.1");
+        BOOST_CHECK(exists(c.path()+"/version-0.0.1.txt"));
     c.commit();
     c.version("0.0.1");
 
     c.delete_("version-0.0.1.txt");
+        BOOST_CHECK(not exists(c.path()+"/version-0.0.1.txt"));
     c.create("version-0.0.2.txt","0.0.2");
+        BOOST_CHECK(exists(c.path()+"/version-0.0.2.txt"));
     c.commit();
     c.version("0.0.2");
-    
+
     c.provide("0.0.1");
-    BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.1/version-0.0.1.txt"));
-    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.1/version-0.0.2.txt"));
-    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.1/.git"));
+        BOOST_CHECK(exists(c.path()+"/.0.0.1/version-0.0.1.txt"));
+        BOOST_CHECK(not exists(c.path()+"/.0.0.1/version-0.0.2.txt"));
+        BOOST_CHECK(not exists(c.path()+"/.0.0.1/.git"));
 
     c.provide("0.0.2");
-    BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.2/version-0.0.2.txt"));
-    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.2/version-0.0.1.txt"));
-    BOOST_CHECK(not boost::filesystem::exists(c.path()+"/.0.0.2/.git"));
+        BOOST_CHECK(exists(c.path()+"/.0.0.2/version-0.0.2.txt"));
+        BOOST_CHECK(not exists(c.path()+"/.0.0.2/version-0.0.1.txt"));
+        BOOST_CHECK(not exists(c.path()+"/.0.0.2/.git"));
 
     c.destroy();
 }

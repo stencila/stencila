@@ -596,37 +596,38 @@ public:
      * @name Persistence methods
      */
     
-protected:
+public:
 
     /**
-     * Get the component's path and, optionally, ensure
-     * it exists
+     * Get the component's path
+     *
+     * @param ensure Ensure a path is set if component does not yet have one?
      */
-    const std::string& path_get_(bool ensure = false) const {
-        static const std::string none = "";
+    std::string path(bool ensure = false) const {
         if(meta_){
-            if(ensure and meta_->path.length()==0){
-                path_set_unique_();
+            if(meta_->path.length()==0 and ensure){
+                // Remove constness so that the setter can be called
+                const_cast<Component&>(*this).path(std::string(""));
             }
             return meta_->path;
         } else {
             if(ensure){
-                meta_ = new Meta;
-                return path_get_(true);
+                const_cast<Component&>(*this).path(std::string(""));
+                return meta_->path;
             }
-            else return none;
+            else return "";
         }
     }
 
-    void path_set_unique_(void) const {
-        boost::filesystem::path unique_path = stores()[1];
-        unique_path /= boost::filesystem::unique_path("temp/%%%%-%%%%-%%%%-%%%%");
-        boost::filesystem::create_directories(unique_path);
-        if(not meta_) meta_ = new Meta;
-        meta_->path = unique_path.string();
-    }
-
-    void path_set_(const std::string& path){
+    /**
+     * Set the component's path
+     *
+     * If an empty string is supplied as `path` then a unique path under the "transient"
+     * subdirectory of the user's Stencila library will be created.
+     * 
+     * @param path Path to component
+     */
+    Component& path(const std::string& path) {
         if(not meta_) meta_ = new Meta;
         std::string current_path = meta_->path;
         std::string new_path = path;
@@ -634,10 +635,13 @@ protected:
         if(current_path.length()==0){
             // If the new path is empty then...
             if(new_path.length()==0){
-                // call the private path_set_unique_ method
-                path_set_unique_();
+                // Create a unique one
+                boost::filesystem::path unique_path = stores()[1];
+                unique_path /= boost::filesystem::unique_path("temp/%%%%-%%%%-%%%%-%%%%");
+                boost::filesystem::create_directories(unique_path);
+                meta_->path = unique_path.string();
             } else {
-                // and create the path if necessary
+                // Create the path if necessary
                 if(not boost::filesystem::exists(new_path)){
                     boost::filesystem::create_directories(new_path);
                 }
@@ -655,52 +659,31 @@ protected:
                 meta_->path = new_path;
             }
         }
-        
-    }
-    
-public:
-
-    /**
-     * Get the component's path
-     */
-    const std::string& path(void) const {
-        static const std::string none = "";
-        if(not meta_) return none;
-        else return meta_->path;
+        return *this;
     }
 
     /**
      * Set the component's path
-     *
-     * If an empty string is supplied as `path` then a unique path under the "transient"
-     * subdirectory of the user's Stencila library will be created.
      * 
-     * @param path Path to component
-     * @param force Force change of path if path already exists?
-     *
-     * @todo Implement `force` option
+     * This overload prevents ambiguities with path(bool) when calling path("")
      */
-    Component& path(const std::string& path, bool force=false) {
-        path_set_(path);
-        return *this;
+    Component& path(const char* path) {
+        return Component::path(std::string(path));
     }
 
     /**
      * Get the address of the component
      */
     std::string address(bool ensure = false) const {
-        std::string path = path_get_(ensure);
-        if(path.length()>0){
-            std::string address = path;
+        std::string path_full_ = path(ensure);
+        if(path_full_.length()>0){
+            std::string address = path_full_;
             // Remove store prefix
             for(auto store : stores()){
                 if(address.substr(0,store.length())==store){
                     address = address.substr(store.length()+1);
                 }
             }
-            // Remove file names
-            // @fixme this is a temporary hack
-            boost::replace_last(address,"/stencil.html","");
             return address;
         }
         else return "";
@@ -741,7 +724,7 @@ public:
      * Destroy the component's entire working directory
      */
     Component& destroy(void){
-        boost::filesystem::path path_full = path_get_();
+        boost::filesystem::path path_full = Component::path();
         if(boost::filesystem::exists(path_full)){
             boost::filesystem::remove_all(path_full);
         }
@@ -754,7 +737,7 @@ public:
      * @param path Filesystem path within the working directory
      */
     Component& create(const std::string& path,const std::string& content="\n"){
-        boost::filesystem::path path_full(path_get_(true));
+        boost::filesystem::path path_full(Component::path(true));
         path_full /= path;
         if(!boost::filesystem::exists(path_full)){
             std::ofstream file(path_full.string());
@@ -764,11 +747,20 @@ public:
         return *this;
     }
 
+    Component& write(const std::string& path,const std::string& content){
+        boost::filesystem::path path_full(Component::path(true));
+        path_full /= path;
+        std::ofstream file(path_full.string());
+        file<<content;
+        file.close();
+        return *this;
+    }
+
     /**
      * Delete a file within the component's working directory
      */
     Component& delete_(const std::string& path){
-        boost::filesystem::path path_full(path_get_());
+        boost::filesystem::path path_full(Component::path());
         path_full /= path;
         if(boost::filesystem::exists(path_full)){
             boost::filesystem::remove_all(path_full);
@@ -788,7 +780,7 @@ public:
      * @param from Filesystem path to component
      */
     Component& read(const std::string& from=""){
-        path_set_(from);
+        path(from);
         return *this;
     }
     
@@ -801,7 +793,7 @@ public:
      * @param to Filesystem path to component
      */
     Component& write(const std::string& to=""){
-        path_set_(to);
+        path(to);
         return *this;
     }
     
@@ -824,7 +816,7 @@ private:
     Repository* repo_(bool ensure = false) const {
         if(meta_){
             if(ensure and not meta_->repo){
-                std::string path = path_get_();
+                std::string path = Component::path(true);
                 Repository* repo = new Repository;
                 try{
                     repo->open(path);
@@ -955,9 +947,6 @@ public:
         //! @todo Get the name and email of the user from ~/.stencila/.config
         std::string name = "";
         std::string email = "";
-        // Set the path to "empty" (if already non-empty will leave unchanged, if not will be transient) 
-        // to ensure component has a working directory
-        path("");
         // Get, or create, repository for the component and tag it.
         Repository* repo = repo_(true);
         if(repo->head()=="<none>") STENCILA_THROW(Exception,"Component has not been commited. Please do a commit() before a version().");
