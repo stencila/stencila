@@ -183,25 +183,38 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
     // Text nodes may have nested lines defined using curly braces e.g.
     //   The minimum is {if a<b {text a} else {text b}}.
     // Deal with those by replacing { with indented lines and } with outdented lines
+    // There is some escaping in the code below so that braces within `mono` and `math`
+    // are ignored as are \{ and \}. However, this is probably not robust and we should consider
+    // reimplementing this using regexes.
     std::string content = tree.str();
     bool nested = false;
     std::string formatted;
     formatted.reserve(content.length());
     std::deque<char> indent = {'\n'};
+    char previous = 0;
+    char protector = 0;
     for(std::string::iterator iter=content.begin();iter!=content.end();iter++){
-        char chara = *iter;
-        if(chara=='{'){
+        char current = *iter;
+        if(current=='{' and previous!='\\' and protector==0){
             nested = true;
             // Add a newline with indentation if there is already some content
             if(formatted.length()>0) formatted.append(indent.begin(),indent.end());
             indent.push_back('\t');
         }
-        else if(chara=='}'){
+        else if(current=='}' and previous!='\\' and protector==0){
             formatted.push_back('\n');
             indent.pop_back();
         }
+        else if(current=='`'){
+            if(protector=='`') protector = 0;
+            else protector = '`';
+        }
+        else if(current=='|'){
+            if(protector=='|') protector = 0;
+            else protector = '|';
+        }
         else {
-            formatted += chara;
+            formatted += current;
         }
     }
     // Remove any trailing newline
