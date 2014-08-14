@@ -23,8 +23,9 @@ RESOURCES := build/resources
 # 
 # Useful for automatically collecting the latest build products
 
+.PHONY: build/current
 build/current:
-	ln -s $(OS)/$(ARCH)/$(VERSION) build/current
+	@ln -sfT $(OS)/$(ARCH)/$(VERSION) build/current
 build-current: build/current
 
 #################################################################################################
@@ -323,20 +324,23 @@ $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
 # Compile a single test file into an executable
-$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
 
+# Run a test
+# Limit memory to prevent bugs like infinite recursion from filling up the
+# machine's memeory
 $(BUILD)/cpp/tests/%.out: $(BUILD)/cpp/tests/%.exe
-	$< 2>&1 | tee $@
+	ulimit -v 100000; $< 2>&1 | tee $@
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
 ifndef CPP_TEST
-	CPP_TEST := tests
+  CPP_TEST := tests
 endif
 cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).out
 
@@ -620,13 +624,12 @@ r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 # Test the package by running unit tests
 # Install package in a testenv directory and run unit tests from there
 # This is better than installing package in the user's R library location
-$(R_BUILD)/tests.out: $(R_BUILD)/$(R_PACKAGE_FILE)
+r-tests: $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;\
 	  mkdir -p testenv ;\
 	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
 	  cd testenv ;\
 	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')" 2>&1 | tee ../tests.out
-r-tests: $(R_BUILD)/tests.out
 
 # Install R on the local host
 # Not intended for development but rather 
