@@ -26,103 +26,6 @@ public:
     using Component::path;
     using Component::destroy;
 
-	typedef Xml::Attribute Attribute;
-    typedef Xml::AttributeList AttributeList;
-    typedef Xml::Node Node;
-    typedef Xml::Nodes Nodes;
-
-public:
-
-    /**
-     * @name Web interface methods
-     *
-     * Overrides of `Component` methods as required
-     * 
-     * @{
-     */
-    
-    /**
-     * Serve this stencil
-     */
-    std::string serve(void){
-        return Component::serve(StencilCode);
-    }
-
-    /**
-     * View this stencil
-     */
-    void view(void){
-        return Component::view(StencilCode);
-    }
-
-    /**
-     * Generate a web page for a stencil
-     */
-    static std::string page(const Component* component){
-        return static_cast<const Stencil&>(*component).dump();
-    }
-
-    /**
-     * Process a message for this stencil
-     */
-    static std::string call(Component* component, const Call& call){
-        return static_cast<Stencil&>(*component).call(call);
-    }
-
-    std::string call(const Call& call) {
-        auto what = call.what();
-        
-        // Getting content
-        if(what=="html():string"){
-            return html();
-        }
-        else if(what=="cila():string"){
-            return cila();
-        }
-
-        // Setting content
-        else if(what=="html(string)"){
-            std::string string = call.arg(0);
-            html(string);
-        }
-        else if(what=="cila(string)"){
-            std::string string = call.arg(0);
-            cila(string);
-        }
-
-        // Conversion of content...
-        // ... HTML to Cila
-        else if(what=="html(string).cila():string"){
-            std::string string = call.arg(0);
-            return     html(string).cila();
-        }
-        // ... Cila to HTML
-        else if(what=="cila(string).html():string"){
-            std::string string = call.arg(0);
-            return     cila(string).html();
-        }
-
-        // Rendering...
-        //... HTML
-        else if(what=="html(string).render().html():string"){
-            std::string string = call.arg(0);
-            return     html(string).render().html();
-        }
-        //...Cila
-        else if(what=="cila(string).render().cila():string"){
-            std::string string = call.arg(0);
-            return     cila(string).render().cila();
-        }
-
-        else return Component::call(call);
-
-        return "";
-    }
-
-    /**
-     * @}
-     */
-
 public:
 
     Stencil(void){
@@ -343,6 +246,46 @@ public:
      */
     Stencil& render(void);
     
+    /**
+     * @}
+     */
+    
+    /**
+     * @name Serving
+     *
+     * Methods for serving a stencil over a nework.
+     * Overrides of `Component` methods as required.
+     * 
+     * @{
+     */
+
+    /**
+     * Serve this stencil
+     */
+    std::string serve(void);
+
+    /**
+     * View this stencil
+     */
+    void view(void);
+
+    /**
+     * Execute a call on this stencil
+     * 
+     * @param  call A `Call` object
+     */
+    std::string call(const Call& call);
+
+    /**
+     * Generate a web page for a stencil
+     */
+    static std::string page(const Component* component);
+
+    /**
+     * Execute a call on a stencil
+     */
+    static std::string call(Component* component, const Call& call);
+
     /**
      * @}
      */
