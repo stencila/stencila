@@ -1,4 +1,5 @@
 #include <stencila/stencil.hpp>
+#include <stencila/stencil-render.hpp>
 using namespace Stencila;
 
 #include "extension.hpp"
@@ -7,47 +8,18 @@ using namespace Stencila;
 STENCILA_R_NEW(Stencil)
 
 STENCILA_R_EXEC1(Stencil,initialise,std::string)
-
-// Overrides of Component methods
-
-STENCILA_R_RET0(Stencil,serve) 
-STENCILA_R_EXEC0(Stencil,view)
-
+STENCILA_R_EXEC1(Stencil,import,std::string)
+STENCILA_R_EXEC1(Stencil,export_,std::string)
 STENCILA_R_EXEC1(Stencil,read,std::string)
 STENCILA_R_EXEC1(Stencil,write,std::string)
 
-// Content getters and setters
-
-STENCILA_R_FUNC Stencil_content_get(SEXP self, SEXP format){
-    STENCILA_R_BEGIN
-        return wrap(from<Stencil>(self).content(
-            as<std::string>(format)
-        ));
-    STENCILA_R_END
-}
-STENCILA_R_FUNC Stencil_content_set(SEXP self, SEXP format, SEXP content){
-    STENCILA_R_BEGIN
-        from<Stencil>(self).content(
-            as<std::string>(format),
-            as<std::string>(content)
-        );
-        return null;
-    STENCILA_R_END
-}
-
 STENCILA_R_ATTR(Stencil,html,std::string)
+
 STENCILA_R_ATTR(Stencil,cila,std::string)
 
-STENCILA_R_FUNC Stencil_import(SEXP self,SEXP filename){
-    STENCILA_R_BEGIN
-        from<Stencil>(self).import(as<std::string>(filename));
-        return null;
-    STENCILA_R_END
-}
-
-// Contexts and rendering
-
 STENCILA_R_ATTR(Stencil,contexts,std::vector<std::string>)
+
+STENCILA_R_ATTR(Stencil,theme,std::string)
 
 STENCILA_R_FUNC Stencil_render(SEXP self,SEXP context){
     STENCILA_R_BEGIN
@@ -56,3 +28,6 @@ STENCILA_R_FUNC Stencil_render(SEXP self,SEXP context){
         return null;
     STENCILA_R_END
 }
+
+STENCILA_R_RET0(Stencil,serve) 
+STENCILA_R_EXEC0(Stencil,view)

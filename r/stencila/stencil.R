@@ -30,29 +30,6 @@ Stencil <- function(content) {
     stencil
 }
 
-#' Get or set the content of a Stencil
-#'
-#' @export
-#' @name content
-#' @aliases content,Stencil-method
-#' 
-#' @examples
-#' # Create a stencil...
-#' stencil <- Stencil()
-#' # ... and set the it's content
-#' stencil$content('html','Hello world!')
-#' # ... or, equivalently
-#' content(stencil,'html','Hello world!')
-NULL
-
-Stencil_content <- function(stencil,format,content){
-  if(missing(format)) format <- 'html'
-  if(missing(content)) return(call_('Stencil_content_get',stencil@pointer,format))
-  else call_('Stencil_content_set',stencil@pointer,format,toString(content))
-}
-setGeneric('content',function(stencil,format,content) standardGeneric('content'))
-setMethod('content','Stencil',Stencil_content)
-
 #' Get or set the content of a Stencil as HTML
 #'
 #' @export
