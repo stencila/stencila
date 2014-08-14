@@ -8,7 +8,7 @@
 using namespace Stencila;
 using namespace boost::python;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_path_set_overloads,path,1,2)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_path_set_overloads,path,1,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_destroy_overloads,destroy,0,0)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_create_overloads,create,1,2)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_delete_overloads,delete_,1,1)
@@ -31,12 +31,12 @@ void def_Component(void){
         .def("authors",static_cast<const std::vector<std::string>& (Component::*)(void) const>(&Component::authors),return_value_policy<copy_const_reference>())
         .def("authors",static_cast<Component& (Component::*)(const std::vector<std::string>&)>(&Component::authors),return_self<>())
 
-        .def("path",static_cast<const std::string& (Component::*)(void) const>(&Component::path),return_value_policy<copy_const_reference>())
-        .def("path",static_cast<Component& (Component::*)(const std::string&,bool)>(&Component::path),Component_path_set_overloads(
+        .def("path",static_cast<std::string (Component::*)(bool) const>(&Component::path))
+        .def("path",static_cast<Component& (Component::*)(const std::string&)>(&Component::path),Component_path_set_overloads(
             (arg("path"),arg("force")),
             "Set the component's working directory"
         )[return_self<>()])
-
+        
         .def("destroy",static_cast<Component& (Component::*)(void)>(&Component::destroy),Component_destroy_overloads(
             "Destroy the component's working directory"
         )[return_self<>()])

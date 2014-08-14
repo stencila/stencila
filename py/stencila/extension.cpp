@@ -18,7 +18,6 @@ struct vector_to_list {
 // Forward declarations of functions defined in other
 // source files
 void def_Exception(void);
-void def_Version(void);
 void def_Component(void);
 void def_Package(void);
 void def_Stencil(void);
@@ -29,7 +28,6 @@ BOOST_PYTHON_MODULE(extension){
 
 	// Declare exception translation and general Stencila functions
 	def_Exception();
-	def_Version();
 
 	// Declare classes
 	def_Component();

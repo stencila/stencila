@@ -3,13 +3,6 @@ import unittest
 import stencila
 from stencila import *
 
-
-class StencilaTests(unittest.TestCase):
-    
-    def test_version(self):
-        stencila.version()
-
-
 class ExceptionTests(unittest.TestCase):
 
     def test_translation(self):
@@ -181,11 +174,6 @@ class StencilTests(unittest.TestCase):
     def test_commit(self):
         s = Stencil()
         s.commit()
-
-    def test_content(self):
-        s = Stencil()
-        s.content('html','Hello world')
-        self.assertEqual(s.content('html').strip(),'Hello world')
 
     def test_html(self):
         s = Stencil()
