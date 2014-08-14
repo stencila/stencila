@@ -398,7 +398,7 @@ $(BUILD)/cpp/docs/%.html: cpp/docs/%.html
 	cp $< $@
 	
 cpp-docs: $(BUILD)/cpp/docs/Doxyfile $(BUILD)/cpp/docs/doxy.css \
-	      $(BUILD)/cpp/docs/doxy_header.html $(BUILD)/cpp/docs/doxy_footer.html
+	      $(BUILD)/cpp/docs/doxy-header.html $(BUILD)/cpp/docs/doxy-footer.html
 	cd $(BUILD)/cpp/docs ;\
 	  sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile ;\
 	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/!' Doxyfile ;\
