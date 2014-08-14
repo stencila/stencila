@@ -334,18 +334,18 @@ $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cp
 # Run a test
 # Limit memory to prevent bugs like infinite recursion from filling up the
 # machine's memeory
-$(BUILD)/cpp/tests/%.out: $(BUILD)/cpp/tests/%.exe
-	ulimit -v 100000; $< 2>&1 | tee $@
+$(BUILD)/cpp/tests/%.run: $(BUILD)/cpp/tests/%.exe
+	ulimit -v 100000; $< 2>&1 | tee $(BUILD)/cpp/tests/%.out
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
 ifndef CPP_TEST
   CPP_TEST := tests
 endif
-cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).out
+cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).run
 
 # Run all tests
-cpp-tests: $(BUILD)/cpp/tests/tests.out
+cpp-tests: $(BUILD)/cpp/tests/tests.run
 
 # Run all tests and report results and coverage to XML files
 # Useful for integration with CI systems like Jenkins
