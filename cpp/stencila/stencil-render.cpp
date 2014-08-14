@@ -1,5 +1,13 @@
 #include <stencila/stencil.hpp>
 
+// Conditional includes of context types
+#if STENCILA_PYTHON_CONTEXT
+    #include <stencila/python-context.hpp>
+#endif
+#if STENCILA_R_CONTEXT
+    #include <stencila/r-context.hpp>
+#endif
+
 namespace Stencila {
 
 Stencil& Stencil::render(const std::string& type){
