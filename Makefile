@@ -381,6 +381,29 @@ cpp-tests-html: $(BUILD)/cpp/tests/tests.exe
 cpp-tests-clean:
 	rm -rf $(BUILD)/cpp/tests
 
+
+#################################################################################################
+# C++ documentation
+
+$(BUILD)/cpp/docs/Doxyfile: cpp/docs/Doxyfile
+	@mkdir -p $(BUILD)/cpp/docs
+	cp $< $@
+
+$(BUILD)/cpp/docs/%.css: cpp/docs/%.css
+	@mkdir -p $(BUILD)/cpp/docs
+	cp $< $@
+
+$(BUILD)/cpp/docs/%.html: cpp/docs/%.html
+	@mkdir -p $(BUILD)/cpp/docs
+	cp $< $@
+	
+cpp-docs: $(BUILD)/cpp/docs/Doxyfile $(BUILD)/cpp/docs/doxy.css \
+	      $(BUILD)/cpp/docs/doxy_header.html $(BUILD)/cpp/docs/doxy_footer.html
+	cd $(BUILD)/cpp/docs ;\
+	  sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile ;\
+	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/!' Doxyfile ;\
+	  doxygen Doxyfile
+
 #################################################################################################
 # Stencila Python package
 

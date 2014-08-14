@@ -1,0 +1,303 @@
+@import url('http://static.stenci.la/stencila.css');
+
+body {
+	padding: 15px;
+}
+
+body, div, table, p, dl {
+    font-family: "Titillium Web", Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+a, 
+a:hover {
+    text-decoration: none;
+}
+
+div#stencila-warning {
+	margin:10px;
+	clear: both;
+	border: solid 1px red;
+	padding: 5px;
+	background: lightyellow;
+	font-size: 14px;
+}
+
+div#stencila-header {
+    padding: 10px;
+    float: left;
+}
+div#stencila-header a,
+div#stencila-header img{
+	display: inline-block;
+	vertical-align: middle;
+}
+div#stencila-header div.stencila-details {
+    margin-left: 10px;
+	display: inline-block;
+    vertical-align: middle;
+}
+div#stencila-header div.stencila-details h1 {
+    margin: 0px;
+    margin-bottom: 5px;
+}
+div#stencila-header div.stencila-details h2 {
+    margin: 0px;
+	color: grey;
+	font-size: 16px;
+}
+
+div#navrow1.tabs,
+div#navrow2.tabs2,
+div#navrow3.tabs2{
+    float: left;
+    margin-top: 6px;
+}
+
+div#navrow4.tabs3{
+	clear: both;
+}
+div#navrow4.tabs3 ul.tablist {
+	margin-left: 10px;
+	padding: 0px;
+}
+
+div#navrow1.tabs ul.tablist li,
+div#navrow2.tabs2 ul.tablist li,
+div#navrow3.tabs2 ul.tablist li,
+div#navrow4.tabs3 ul.tablist li{
+    display: inline-block;
+    padding: 3px 7px 3px 7px;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+    border: 1px solid #666;
+}
+
+div#navrow1.tabs ul.tablist li {
+    background: #BBB;
+}
+div#navrow2.tabs2 ul.tablist li {
+    background: #BBB;
+}
+div#navrow3.tabs2 ul.tablist li {
+    background: #BBB;
+}
+div#navrow4.tabs3 ul.tablist li {
+    background: #BBB;
+}
+
+div#navrow1.tabs ul.tablist li a,
+div#navrow2.tabs2 ul.tablist li a,
+div#navrow3.tabs2 ul.tablist li a {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+div#nav-path.navpath {
+    display: none;
+}
+
+div#nav-path.navpath ul {
+    background-image: none;
+    border:none;
+}
+
+div#nav-path.navpath li.navelem {
+    background-image: none;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+div#nav-path.navpath li.navelem b,
+div#nav-path.navpath li.navelem a {
+    font-weight: normal;
+}
+
+div.header {
+    clear: both;
+    background: none;
+    border: none;
+}
+
+div.header div.headertitle {
+    margin: 10px 10px 0px 10px;
+    border: 1px solid #666;
+    border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    border-bottom: none;
+	border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    padding: 5px;
+    background: #BBB;
+}
+
+div.header div.headertitle div.title{
+    margin: 5px 2px 5px 2px;
+	color: black;
+    font-size: 24px;
+	font-weight: bold;
+}
+
+div.header div.summary{
+    display: none;
+}
+
+div.contents {
+    clear: both;
+    margin: 0px 10px 10px 10px;
+    border: 1px solid #666;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    padding: 10px;
+}
+
+div.contents>p {
+    margin-top:0px;
+}
+
+div.contents>hr {
+    display:none;
+}
+
+table {
+    border-spacing: 5px;
+}
+
+td.indexkey,
+td.indexvalue {
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    padding: 5px;
+}
+
+table.memberdecls {
+    margin-bottom: 30px;
+}
+
+table.memberdecls h2 {
+    margin-top: 0px;
+}
+
+div.groupHeader {
+    margin-top: 10px;
+	font-size: 18px;
+	font-weight: bold;
+}
+div.groupText p {
+    margin: 5px 0px 5px 0px;
+    color: grey;
+    font-style: normal;
+}
+
+.memItemLeft, .memItemRight, .memTemplParams {
+    border-top: none;
+}
+.mdescLeft, .mdescRight, .memItemLeft, .memItemRight, .memTemplItemLeft, .memTemplItemRight, .memTemplParams {
+    background-color: white;
+}
+.memdescLeft, .memdescRight {
+    padding-bottom: 10px;
+}
+.memTemplParams {
+    color: #367A24;
+}
+
+div.memitem {
+    margin-bottom: 20px;
+    border: 1px solid #666;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+div.memitem div.memproto {    
+    border:none;
+    border-bottom: 1px solid #444;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	-webkit-border-radius: 0px;
+
+    padding: 0px;
+ 
+    box-shadow: none;
+    background:none;
+    background-color: #BBB;
+
+    color: white;
+    text-shadow: none;
+}
+div.memitem div.memproto div.memtemplate,
+div.memitem div.memproto table.memname {  
+    font-family: Helvetica, Lucida Grande, Verdana, Geneva, Arial, sans-serif;
+    font-size: 17px;
+	font-weight: bold;
+} 
+div.memitem div.memproto div.memtemplate {
+	color: #367A24;
+}
+div.memitem div.memproto table.memname { 
+	border-spacing: 0px;
+	color: black;
+}
+div.memitem div.memproto table.memname td.memname { 
+	color: rgb(24, 24, 173);
+}
+div.memitem div.memproto table.memname td.paramtype { 
+	color: white;
+}
+div.memitem div.memdoc {
+    box-shadow: none;
+    border:none;
+    padding: 10px;
+}
+
+div.memitem div.memdoc dl,
+div.memitem div.memdoc p {
+   padding: 0px;
+   margin: 0px;
+}
+
+div.memitem div.memdoc dl {
+   margin-top: 5px;
+}
+
+/* Todo List  */
+div.textblock dl.reflist dt {    
+    border: 1px solid #666;
+    border-bottom: none;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+	
+	box-shadow: none;
+	
+	background: #BBB;
+	
+    padding: 5px;
+	text-shadow: none;
+}
+
+div.textblock dl.reflist dd {    
+    border: 1px solid #666;
+    border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+	
+	box-shadow: none;
+	
+    padding: 5px;
+}
+
+
+
+
