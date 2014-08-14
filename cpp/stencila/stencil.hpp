@@ -376,97 +376,6 @@ public:
         return *this;
     }
 
-    /**
-     * @name Embedding
-     * @{
-     */
-    
-private:
-
-    static std::stack<Node> embed_parents_;
-
-public:
-
-    Stencil& embed(void) {
-        unembed();
-        embed_parents_.push(*this);
-        return *this;
-    }
-
-    Stencil& unembed(void) {
-        embed_parents_ = std::stack<Node>();
-        return *this;
-    }
-
-    static Node element(const std::string& tag, const AttributeList& attributes, const std::string& text = ""){
-        // Append to the current parent
-        Node parent = embed_parents_.top();
-        Node elem = parent.append(tag,attributes,text);
-        return elem;
-    }
-
-    static Node element(const std::string& tag, const std::string& text){
-        return element(tag,AttributeList(),text);
-    }
-
-    static Node element(const std::string& tag){
-        return element(tag,AttributeList());
-    }
-
-    template<typename... Args>
-    static Node element(const std::string& tag, const AttributeList& attributes, Args... args){
-        Node started = start(tag,attributes);
-        add(args...);
-        //Node finished = finish(tag);
-        return started;
-    }
-
-    template<typename... Args>
-    static Node element(const std::string& tag, Args... args){
-        return element(tag,AttributeList(),args...);
-    }
-
-    static Node start(const std::string& tag, const AttributeList& attributes){
-        Node elem = element(tag,attributes);
-        embed_parents_.push(elem);
-        return elem;
-    }
-
-    template<typename... Args>
-    static void add(const std::string& text,Args... args){
-        // Append a text node
-        embed_parents_.top().append_text(text);
-        add(args...);
-    }
-
-    template<typename... Args>
-    static void add(Node& node,Args... args){
-        // Append a node. This node must be moved from it's existing parent
-        Node parent = embed_parents_.top();
-        node.move(parent);
-        add(args...);
-    }
-
-    template<typename... Args>
-    static void add(void(*inner)(void),Args... args){
-        // Execute the 
-        inner();
-        add(args...);
-    }
-
-    static void add(void){
-    }
-
-    static Node finish(const std::string& tag=""){
-        Node elem = embed_parents_.top();
-        embed_parents_.pop();
-        return elem;
-    }
-
-    /**
-     * @}
-     */
-
 };
 
 /**
@@ -492,16 +401,5 @@ public:
  * Combination of the above two attribute lists
  */
 #define STENCILA_STENCIL_ATTRS STENCILA_GLOBAL_ATTRS,STENCILA_DIRECTIVE_ATTRS
-
-// Declaration of "embedding" functions (definitons in `stencil.cpp`)
-#define STENCILA_LOCAL(repeater,separator,tag)\
-    Html::Node tag(void);\
-    Html::Node tag(const std::string& text);\
-    Html::Node tag(const Stencil::AttributeList& attributes, const std::string& text="");\
-    Html::Node tag(void(*inner)(void));\
-    template<typename... Args> Html::Node tag(const Stencil::AttributeList& attributes,Args... args);\
-    template<typename... Args> Html::Node tag(Args... args);\
-BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_STENCIL_TAGS)
-#undef STENCILA_LOCAL
 
 }
