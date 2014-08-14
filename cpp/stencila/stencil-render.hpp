@@ -1,0 +1,622 @@
+#pragma once
+
+#include <stencila/stencil.hpp>
+
+namespace Stencila {
+
+// Unnamed namespace to contain rendering free helper functions
+namespace {
+
+typedef Xml::Attribute Attribute;
+typedef Xml::AttributeList AttributeList;
+typedef Xml::Node Node;
+typedef Xml::Nodes Nodes;
+
+/**
+ * Node parsing functions
+ *
+ * Some stencil nodes require parsing of attributes or text
+ * content to determine their semantics. These methods
+ * provide for that parsing and are mostly used by other methods
+ * such as `render`.
+ * 
+ */
+
+std::tuple<std::string,std::string> arg_or_set_(const Node& node, const std::string& attr){
+    std::string value = node.attr(attr);
+    std::string name;
+    std::string expression;
+    size_t semicolon = value.find(":");
+    if(semicolon!=value.npos){
+        name = value.substr(0,semicolon);
+        expression = value.substr(semicolon+1);
+    } else {
+        name = value;
+        expression = node.text();
+    }
+    return std::tuple<std::string,std::string>(name,expression);
+}
+
+std::tuple<std::string,std::string> arg_(const Node& node){
+    return arg_or_set_(node,"data-arg");
+}
+
+std::tuple<std::string,std::string> set_(const Node& node){
+    return arg_or_set_(node,"data-set");
+}
+
+// Forward declaration of the element rendering function
+template<typename Context>
+void element_(Node node, Context& context);
+
+/**
+ * Render all the children of a node
+ */
+template<typename Context>
+void children_(Node node, Context& context){
+    for(Node child : node.children()) element_(child,context);
+}
+
+/**
+ * Render a `code` element (e.g. `<code data-code="r,py">`)
+ *
+ * The text of the element is executed in the context if the context's type
+ * is listed in the `data-code` attribute. If the context's type is not listed
+ * then the element will not be rendered (i.e. will not be executed). 
+ * 
+ * This behaviour allows for polyglot stencils which have both `code` elements that
+ * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
+ * as required by similarities/differences in the language syntax e.g.
+ *
+ *    <code data-code="r,py">
+ *        m = 1
+ *        c = 299792458
+ *    </code>
+ * 
+ *    <code data-code="r"> e = m * c^2 </code>
+ *    <code data-code="py"> e = m * pow(c,2) </code>
+ *    
+ * 
+ * `code` elements must have both the `code` tag and the `data-code` attribute.
+ * Elements having just one of these will not be rendered.
+ *
+ * 
+ *
+ * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
+ * The best way to do that still needs to be worked out.
+ */
+template<typename Context>
+void code_(Node node, Context& context){
+    // Get the list of contexts and ensure this context is in the list
+    std::string contexts = node.attr("data-code");
+    std::vector<std::string> items;
+    boost::split(items,contexts,boost::is_any_of(","));
+    bool ok = false;
+    for(std::string& item : items){
+        boost::trim(item);
+        if(context.accept(item)){
+            ok = true;
+            break;
+        }
+    }
+    // If ok, execute the code, otherwise just ignore
+    if(ok){
+        // Get code and format etc
+        std::string code = node.text();
+        if(code.length()>0){
+            std::string format = node.attr("data-format");
+            std::string size = node.attr("data-size");
+            std::string width,height,units;
+            if(size.length()){
+                boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
+                boost::smatch matches;
+                if(boost::regex_match(size, matches, regex)){
+                    width = matches[1];
+                    height = matches[2];
+                    if(matches.size()>2) units = matches[3];
+                }
+            }
+            // Execute
+            std::string output = context.execute(code,format,width,height,units);
+            // Remove any existing output
+            Node next = node.next_element();
+            if(next and next.attr("data-output")=="true") next.destroy();
+            // Append new output
+            if(format.length()){
+                Xml::Document doc;
+                Node output_node;
+                if(format=="out"){
+                    output_node = doc.append("samp",output);
+                }
+                else if(format=="png" or format=="svg"){
+                    output_node = doc.append("img",{
+                        {"src",output}
+                    });
+                }
+                else {
+                    output_node = doc.append(
+                        "div",
+                        {{"data-error","output-format"},{"data-format",format}},
+                        "Output format not recognised: "+format
+                    );
+                }
+                // Flag output node 
+                output_node.attr("data-output","true");
+                // Create a copy immeadiately after code directive
+                node.after(output_node);
+            }
+        }
+    }
+}
+
+/**
+ * Render a `text` element (e.g. `<span data-text="result"></span>`)
+ *
+ * The expression in the `data-text` attribute is converted to a 
+ * character string by the context and used as the element's text.
+ * If the element has a `data-off="true"` attribute then the element will not
+ * be rendered and its text will remain unchanged.
+ */
+template<typename Context>
+void text_(Node node, Context& context){
+    if(node.attr("data-lock")!="true"){
+        std::string expression = node.attr("data-text");
+        std::string text = context.write(expression);
+        node.text(text);
+    }
+}
+
+/**
+ * Render a `with` element (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
+ *
+ * The expression in the `data-with` attribute is evaluated and made the subject of a new context frame.
+ * All child nodes are rendered within the new frame. The frame is then exited.
+ */
+template<typename Context>
+void with_(Node node, Context& context){
+    std::string expression = node.attr("data-with");
+    context.enter(expression);
+    children_(node,context);
+    context.exit();
+} 
+
+/**
+ * Render a `if` element (e.g. `<div data-if="answer==42">...</div>` )
+ *
+ * The expression in the `data-if` attribute is evaluated in the context.
+ */
+template<typename Context>
+void if_(Node node, Context& context){
+    std::string expression = node.attr("data-if");
+    bool hit = context.test(expression);
+    if(hit){
+        node.erase("data-off");
+        children_(node,context);
+    } else {
+        node.attr("data-off","true");
+    }
+    // Iterate through sibling elements to turn them on or off
+    // if they are elif or else elements; break otherwise.
+    Node next = node.next_element();
+    while(next){
+        if(next.has("data-elif")){
+            if(hit){
+                next.attr("data-off","true");
+            } else {
+                std::string expression = next.attr("data-elif");
+                hit = context.test(expression);
+                if(hit){
+                    next.erase("data-off");
+                    children_(next,context);
+                } else {
+                    next.attr("data-off","true");
+                }
+            }
+        }
+        else if(next.has("data-else")){
+            if(hit){
+                next.attr("data-off","true");
+            } else {
+                next.erase("data-off");
+                children_(next,context);
+            }
+            break;
+        }
+        else break;
+        next = next.next_element();
+    }
+}
+
+/**
+ * Render a `switch` element
+ *
+ * The first `case` element (i.e. having a `data-case` attribute) that matches
+ * the `switch` expression is activated. All other `case` and `default` elements
+ * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
+ */
+template<typename Context>
+void switch_(Node node, Context& context){
+    std::string expression = node.attr("data-switch");
+    context.mark(expression);
+
+    bool matched = false;
+    for(Node child : node.children()){
+        if(child.has("data-case")){
+            if(matched){
+                child.attr("data-off","true");
+            } else {
+                std::string match = child.attr("data-case");
+                matched = context.match(match);
+                if(matched){
+                    child.erase("data-off");
+                    element_(child,context);
+                } else {
+                    child.attr("data-off","true");
+                }
+            }
+        }
+        else if(child.has("data-default")){
+            if(matched){
+                child.attr("data-off","true");
+            } else {
+                child.erase("data-off");
+                element_(child,context);
+            }
+        } else {
+            element_(child,context);
+        }
+    }
+
+    context.unmark();
+}
+
+/**
+ * Render a `for` element `<ul data-for="planet:planets"><li data-text="planet" /></ul>`
+ *
+ * A `for` element has a `data-for` attribute which specifies the variable name given to each item and 
+ * an expression providing the items to iterate over e.g. `planet:planets`. The variable name is optional
+ * and defaults to "item".
+ *
+ * The first child element is rendered for each item and given a `data-index="<index>"`
+ * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
+ * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
+ * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
+ * Any child elements with a `data-index` greater than the number of items is removed unless it has a 
+ * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
+ */
+template<typename Context>
+void for_(Node node, Context& context){
+    std::string parts = node.attr("data-for");
+    // Get the name of item and items
+    std::string item = "item";
+    std::string items;
+    std::vector<std::string> bits;
+    boost::split(bits,parts,boost::is_any_of(":"));
+    if(bits.size()==1){
+        items = bits[0];
+    } else if(bits.size()==2){
+        item = bits[0];
+        items = bits[1];
+    } else {
+        throw Exception("Error in parsing for item and items; more than one semicolon (:).");
+    }
+
+    // Initialise the loop
+    bool more = context.begin(item,items);
+    // Get the first child element which will be repeated
+    Node first = node.first_element();
+    // If this for loop has been rendered before then the first element will have a `data-off`
+    // attribute. So erase that attribute so that the repeated nodes don't get it
+    if(first) first.erase("data-off");
+    // Iterate
+    int count = 0;
+    while(first and more){
+        // See if there is an existing child with a corresponding `data-index`
+        std::string index = boost::lexical_cast<std::string>(count);
+        Node item = node.one("[data-index=\""+index+"\"]");
+        if(item){
+            // If there is check to see if it is locked
+            Node locked = item.one("[data-lock]");
+            if(not locked){
+                // If it is then destory and replace it
+                item.destroy();
+                item = node.append(first);
+            }
+        } else {
+            // If there is not, create one
+            item = node.append(first);
+        }
+        // Set index attribute
+        item.attr("data-index",index);
+        // Render the element
+        element_(item,context);
+        // Ask context to step to next item
+        more = context.next();
+        count++;
+    }
+    // Deactivate the first child
+    if(first) first.attr("data-off","true");
+    // Remove any children having a `data-index` attribute greater than the 
+    // number of items, unless it has a `data-lock` decendent
+    Nodes indexeds = node.all("[data-index]");
+    for(Node indexed : indexeds){
+        std::string index_string = indexed.attr("data-index");
+        int index = boost::lexical_cast<int>(index_string);
+        if(index>count-1){
+            Node locked = indexed.one("[data-lock]");
+            if(locked){
+                indexed.attr("data-extra","true");
+                // Move the end of the `for` element
+                indexed.move(node);
+            }
+            else indexed.destroy();
+        }
+    }
+}
+
+/**
+ * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="macros text simple-paragraph" />` )
+ */
+template<typename Context>
+void include_(Node node, Context& context){
+    std::string include = node.attr("data-include");
+    std::string version = node.attr("data-version");
+    std::string select = node.attr("data-select");
+
+    // If this node has been rendered before then there will be 
+    // a `data-included` node that needs to be cleared first. If it
+    // does not yet exist then append it.
+    Node included = node.one("[data-included]");
+    if(included){
+        // If this node has been edited then it may have a data-lock
+        // element. If it does then do NOT overwrite the exisiting contents
+        // and simply return straight away.
+        Node lock = included.one("[data-lock=\"true\"]");
+        if(lock) {
+            return;
+        } else {
+            included.clear();
+        }
+    }
+    else included = node.append("div",{{"data-included","true"}});
+    
+    //Obtain the included stencil...
+    Node stencil;
+    //Check to see if this is a "self" include, otherwise obtain the stencil
+    if(include==".") stencil = node.root();
+    else stencil = Component::get<Stencil>(include,version);
+    // ...select from it
+    if(select.length()>0){
+        // ...append the selected nodes.
+        for(Node node : stencil.all(select)){
+            // Append the node first to get a copy of it which can be modified
+            Node appended = included.append(node);
+            // Remove `macro` declaration if any so that element gets rendered
+            appended.erase("data-macro");
+            // Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
+            // This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
+            // selecting all those instances where the macro was previously included.
+            appended.erase("id");
+        }
+    } else {
+        // ...append the entire stencil. No attempt is made to remove macros when included an entire stencil.
+        included.append(stencil);
+    }
+
+    //Apply modifiers
+    const int modifiers = 7;
+    enum {
+        delete_ = 0,
+        replace = 1,
+        change = 2,
+        before = 3,
+        after = 4,
+        prepend = 5,
+        append = 6
+    };
+    std::string attributes[modifiers] = {
+        "data-delete",
+        "data-replace",
+        "data-change",
+        "data-before",
+        "data-after",
+        "data-prepend",
+        "data-append"
+    };
+    for(int type=0;type<modifiers;type++){
+        std::string attribute = attributes[type];
+        for(Node modifier : node.all("["+attribute+"]")){
+            std::string selector = modifier.attr(attribute);
+            for(Node target : included.all(selector)){
+                Node created;
+                switch(type){
+
+                    case delete_:
+                        target.destroy();
+                    break;
+
+                    case change:
+                        target.clear();
+                        target.append_children(modifier);
+                    break;
+
+                    case replace: 
+                        created = target.before(modifier);
+                        target.destroy();
+                    break;
+                    
+                    case before:
+                        created = target.before(modifier);
+                    break;
+                    
+                    case after:
+                        created = target.after(modifier);
+                    break;
+                    
+                    case prepend:
+                        created = target.prepend(modifier);
+                    break;
+                    
+                    case append:
+                        created = target.append(modifier);
+                    break;
+                }
+                // Remove the modifier attribute from any newly created node
+                if(created) created.erase(attribute);
+            }
+        }
+    }
+    
+    // Enter a new namespace.
+    // Do this regardless of whether there are any 
+    // `data-arg` elements, to avoid the included elements polluting the
+    // main context or overwriting variables inadvertantly
+    context.enter();
+
+    // Apply `data-set` elements
+    // Apply all the `set`s specified in this include first. This
+    // my include args not specified by the author of the included stencil.
+    std::vector<std::string> assigned;
+    for(Node set : node.all("[data-set]")){
+        // Parse the argument node
+        std::tuple<std::string,std::string> parsed = set_(set);
+        std::string name = std::get<0>(parsed);
+        std::string expression = std::get<1>(parsed);
+        // Assign the argument in the new frame
+        context.assign(name,expression);
+        // Add this to the list of arguments assigned
+        assigned.push_back(name);
+    }
+    // Now apply the included element's arguments
+    // Check for if they are required or for any default values
+    for(Node arg : included.all("[data-arg]")){
+        // Parse the argument node
+        std::tuple<std::string,std::string> parsed = arg_(arg);
+        std::string name = std::get<0>(parsed);
+        std::string expression = std::get<1>(parsed);
+        // Check to see if it has already be assigned
+        if(std::count(assigned.begin(),assigned.end(),name)==0){
+            if(expression.length()>0){
+                // Assign the argument in the new frame
+                context.assign(name,expression);
+            } else {
+                // Set an error
+                included.append(
+                    "div",
+                    {{"data-error","arg-required"},{"data-arg",name}},
+                    "Argument is required because it has no default: "+name
+                );
+            }
+        }
+        // Remove the argument, there is no need to have it in the included node
+        arg.destroy();
+    }
+
+    // Render the `data-included` element
+    children_(included,context);
+    
+    // Exit the included node
+    context.exit();
+}
+
+template<typename Context>
+void element_(Node node, Context& context){
+    try {
+        // Remove any existing errors
+        for(Node child : node.children()){
+            if(child.attr("data-error").length()>0){
+                node.remove(child);
+            }
+        }
+        
+        // Check for handled elements
+        // For each attribute in this node...
+        //...use the name of the attribute to dispatch to another rendering method
+        //   Note that return is used so that only the first Stencila "data-xxx" will be 
+        //   considered and that directive will determine how/if children nodes are processed
+        std::string tag = node.name();
+        for(std::string attr : node.attrs()){
+            // `macro` elements are not rendered
+            if(attr=="data-macro") return ;
+            else if(attr=="data-code") return code_(node,context);
+            else if(attr=="data-text") return text_(node,context);
+            else if(attr=="data-with") return with_(node,context);
+            else if(attr=="data-if") return if_(node,context);
+            // Ignore `elif` and `else` elements as these are processed by `if_`
+            else if(attr=="data-elif" or attr=="data-else") return;
+            else if(attr=="data-switch") return switch_(node,context);
+            else if(attr=="data-for") return for_(node,context);
+            else if(attr=="data-include") return include_(node,context);
+        }
+        // If return not yet hit then process children of this element
+        children_(node,context);
+    }
+    catch(std::exception& exc){
+        node.append("span",{{"data-error","exception"}},std::string("Error:")+exc.what());
+    }
+    catch(...){
+        node.append("span",{{"data-error","unknown"}},"Unknown error");
+    }
+}
+
+} // namespace
+
+template<typename Context>
+Stencil& Stencil::render(Context& context){
+    // Change to the stencil's directory
+    boost::filesystem::path cwd = boost::filesystem::current_path();
+    boost::filesystem::path path = boost::filesystem::path(Component::path(true));
+    try {
+        boost::filesystem::current_path(path);
+    } catch(const std::exception& exc){
+        STENCILA_THROW(Exception,str(boost::format("Error setting directory to <%s>")%path));
+    }
+    // Render root element within context
+    element_(*this,context);
+    // Return to the cwd
+    boost::filesystem::current_path(cwd);
+    return *this;
+}
+
+Stencil& Stencil::render(const std::string& type){
+    // Get the list of context that are compatible with this stencil
+    auto types = contexts();
+    // Use the first in the list if type has not been specified
+    std::string use;
+    if(type.length()==0){
+        if(types.size()==0){
+            STENCILA_THROW(Exception,"No default context type for this stencil; please specify one.");
+        }
+        else use = types[0];
+    } else {
+        use = type;
+    }
+    // Render the stencil in the corresponding context type
+    if(use=="py"){
+        #if STENCILA_PYTHON_CONTEXT
+            PythonContext context;
+            render(context);
+        #else
+            STENCILA_THROW(Exception,"Stencila has not been compiled with support for Python contexts");
+        #endif
+    }
+    else if(use=="r"){
+        #if STENCILA_R_CONTEXT
+            RContext context;
+            render(context);
+        #else
+            STENCILA_THROW(Exception,"Stencila has not been compiled with support for R contexts");
+        #endif
+    }
+    else {
+       STENCILA_THROW(Exception,"Unrecognised context type: "+type); 
+    }
+    // Return self for chaining
+    return *this;
+}
+
+Stencil& Stencil::render(void){
+    return render(std::string());
+}
+
+} // namespace Stencila
