@@ -1,11 +1,8 @@
 #pragma once
 
-#include <boost/lexical_cast.hpp>
-#include <boost/preprocessor/seq/for_each.hpp>
-
 #include <stencila/component.hpp>
-#include <stencila/json.hpp>
 #include <stencila/html.hpp>
+
 // Conditional includes of context types
 #if STENCILA_PYTHON_CONTEXT
     #include <stencila/python-context.hpp>
@@ -20,13 +17,11 @@ namespace Stencila {
 
 class Stencil : public Component, public Xml::Document {
 public:
-    
+
     // Avoid ambiguities by defining which inherited method to use
-    // when the base classes use the same name
+    // when the base classes (Component & Xml::Document) use the same name
     using Component::path;
     using Component::destroy;
-
-public:
 
     Stencil(void){
     }

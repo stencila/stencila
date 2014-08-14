@@ -1,12 +1,7 @@
-#include <stecila/stencil.hpp>
+#include <stencila/stencil.hpp>
 
 namespace Stencila {
 
-/**
- * Initialise a stencil
- * 
- * @param  from A string indicating how the stecnil is initialised
- */
 Stencil& Stencil::initialise(const std::string& from){
     std::size_t found = from.find("://");
     if(found==std::string::npos){
@@ -21,14 +16,10 @@ Stencil& Stencil::initialise(const std::string& from){
         else if(type=="file") import(content);
         else STENCILA_THROW(Exception,"Unrecognised content type: " + type);
     }
+    return *this;
 }
 
-/**
- * Import the stencil content from a file
- * 
- * @param  path Filesystem path to file
- */
-Stencil& Stencil::import(const std::string& path=""){
+Stencil& Stencil::import(const std::string& path){
     std::string ext = boost::filesystem::extension(path);
     if(ext==".html" or ext==".cila"){
         std::ifstream file(path);
@@ -42,12 +33,7 @@ Stencil& Stencil::import(const std::string& path=""){
     return *this;
 }
 
-/**
- * Export the stencil content to a file
- * 
- * @param  path Filesystem path to file
- */
-Stencil& Stencil::export_(const std::string& path=""){
+Stencil& Stencil::export_(const std::string& path){
     std::string ext = boost::filesystem::extension(path);
     if(ext==".html" or ext==".cila"){
         std::ofstream file(path);
@@ -58,12 +44,7 @@ Stencil& Stencil::export_(const std::string& path=""){
     return *this;
 }
 
-/**
- * Read the stencil from a directory
- * 
- * @param  directory Filesystem directory to directory
- */
-Stencil& Stencil::read(const std::string& directory=""){
+Stencil& Stencil::read(const std::string& directory){
     if(directory.length()){
         // Check that directory exits and is a directory
         if(not boost::filesystem::exists(directory)){
@@ -84,12 +65,7 @@ Stencil& Stencil::read(const std::string& directory=""){
     return *this;
 }
 
-/**
- * Write the stencil to a directory
- * 
- * @param  path Filesystem path
- */
-Stencil& Stencil::write(const std::string& directory=""){
+Stencil& Stencil::write(const std::string& directory){
     // Set `path` if provided
     if(directory.length()) Component::path(directory);
     // Write necessary files

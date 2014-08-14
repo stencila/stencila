@@ -2,15 +2,15 @@
 
 namespace Stencila {
 
-std::string serve(void){
+std::string Stencil::serve(void){
     return Component::serve(StencilCode);
 }
 
-void view(void){
+void Stencil::view(void){
     return Component::view(StencilCode);
 }
 
-std::string call(const Call& call) {
+std::string Stencil::call(const Call& call) {
     auto what = call.what();
     
     // Getting content
@@ -60,11 +60,11 @@ std::string call(const Call& call) {
     return "";
 }
 
-static std::string page(const Component* component){
+std::string Stencil::page(const Component* component){
     return static_cast<const Stencil&>(*component).dump();
 }
 
-static std::string call(Component* component, const Call& call){
+std::string Stencil::call(Component* component, const Call& call){
     return static_cast<Stencil&>(*component).call(call);
 }
 
