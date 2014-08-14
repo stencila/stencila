@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/stencil-render.hpp>
 #include <stencila/map-context.hpp>
 
 /**
