@@ -24,11 +24,10 @@ test.Context.execute <- function(){
     checkEquals(w$get('y'),42)
 }
 
-#test.Context.figure <- function(){
-#    w <- Context('.')
-#    svg = w$figure('plot(1,1)')
-#    checkEquals(substr(svg,1,5),"<?xml")
-#}
+test.Context.execute_svg <- function(){
+    w <- Context('.')
+    w$execute('plot(1,1)',format='svg',width='5',height='5',units='cm')
+}
 
 test.Context.write <- function(){
   #Check write method

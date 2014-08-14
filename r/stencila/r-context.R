@@ -96,13 +96,27 @@ Context <- function(envir){
             if(format %in% c('png','svg')){
                 self$images = self$images + 1
                 filename = paste0(self$images,'.',format)
-                if(width=="") width = 10
-                if(height=="") height = 10
+                width = if(width=="") 10 else as.numeric(width)
+                height = if(height=="") 10 else as.numeric(height)
                 if(units=="") units = 'cm'
-                if(format=='png') png(filename=filename,width=width,height=height,units=units,res=90)
+                if(format=='png'){
+                    # The `res` argument must be specified unless `units='in'`
+                    # Use 150ppi instead of the default 72
+                    png(filename=filename,width=width,height=height,units=units,res=150)
+                }
                 else if(format=='svg'){
-                    # The svg function does not take units. Since these are scalable
-                    # graphics just provide the width and height to get the righ aspect ratio
+                    # The svg function does not have a units argument and assumes inches. 
+                    # Absolute size does matter because it affects the relative size of the text
+                    # For cm, adjust accordingly...
+                    if(units=='cm'){
+                        width = width/2.54
+                        height = height/2.54
+                    }
+                    # For pixels, use a nominal resolution of 150ppi...
+                    else if(units=='px'){
+                        width = width/150
+                        height = height/150
+                    }
                     svg(filename=filename,width=width,height=height)
                 }
             }
