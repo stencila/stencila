@@ -821,7 +821,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
  * Code directive for embedded code
  */
 sregex format = as_xpr("out") | "svg" | "png" | "jpg";
-sregex size = +_d >> "x" >> +_d;
+sregex size = +_d >> "x" >> +_d >> !(as_xpr("px") | "cm" | "in");
 sregex lang = as_xpr("py") | "r";
 sregex code = lang >> *(+space >> (format|size));
 
