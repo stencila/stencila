@@ -15,23 +15,14 @@ std::string Stencil::html(bool document,bool indent) const {
         Node head = doc.find("head");
         Node body = doc.find("body");
 
-        // Title to <title>
-        // Although we are creating an XHTML5 document, if the title tag is empty (i.e <title />)
-        // this can cause browser parsing errors. So always ensure that there is some title content.
+        // Title is repeated in <title>
+        // Although we are creating an XHTML5 document, an empty title tag (i.e <title />)
+        // can cause browser parsing errors. So always ensure that there is some title content.
         auto t = title();
         if(t.length()==0) t = "Untitled";
         head.find("title").text(t);
 
-        // Keywords to <meta>
-        auto k = keywords();
-        if(k.size()>0){
-            head.append("meta",{
-                {"name","keywords"},
-                {"content",boost::algorithm::join(k,", ")}
-            });
-        }
-
-        // Description to <meta>
+        // Description is repeated in <meta>
         auto d = description();
         if(d.length()>0){
             head.append("meta",{
@@ -40,7 +31,16 @@ std::string Stencil::html(bool document,bool indent) const {
             });
         }
 
-        // The following tags are added with a space as content so that they do not
+        // Keywords are repeated in <meta>
+        auto k = keywords();
+        if(k.size()>0){
+            head.append("meta",{
+                {"name","keywords"},
+                {"content",boost::algorithm::join(k,", ")}
+            });
+        }
+
+        // The following tags are appended with a space as content so that they do not
         // get rendered as empty tags (e.g. <script... />). Whilst empty tags should be OK with XHTML
         // they can cause problems with some browsers.
 
@@ -59,31 +59,13 @@ std::string Stencil::html(bool document,bool indent) const {
         }," ");
 
         /**
-         * #contexts
-         *
-         * Added as a <ul> in body
-         */
-        auto c = contexts();
-        if(c.size()>0){
-            Node contexts_elem = body.append("ul",{
-                {"id","contexts"}
-            }," ");
-            for(auto context : c){
-                contexts_elem.append("li",{
-                    {"class",context}
-                },context);
-            }
-        }
-
-        /**
-         * #authors
-         *
-         * Use both <address> and <a rel="author" ...> as suggested at http://stackoverflow.com/a/7295013 .
-         * The placement of <address> as a child of <body> should mean that this authors list applies to the whole document.
+         * Authors are repeated as `<a rel="author" ...>` elements within an `<address>` element.
+         * The placement of `<address>` as a child of `<body>` should mean that this authors list applies to the whole document.
          * See:
-            http://html5doctor.com/the-address-element/
-            http://www.w3.org/TR/html5/sections.html#the-address-element
-            http://stackoverflow.com/questions/7290504/which-html5-tag-should-i-use-to-mark-up-an-authors-name
+         *   http://html5doctor.com/the-address-element/
+         *   http://www.w3.org/TR/html5/sections.html#the-address-element
+         *   http://stackoverflow.com/questions/7290504/which-html5-tag-should-i-use-to-mark-up-an-authors-name
+         *   http://stackoverflow.com/a/7295013
          */
         auto a = authors();
         if(a.size()>0){
@@ -96,7 +78,7 @@ std::string Stencil::html(bool document,bool indent) const {
                     {"href","#"}
                 },author);
             }
-        }
+        }        
 
         /**
          * #content
@@ -125,59 +107,14 @@ std::string Stencil::html(bool document,bool indent) const {
 
 
 Stencil& Stencil::html(const std::string& html){
-    Html::Document doc(html);
-    typedef Html::Node Node;
-
-    // Being a valid HTML5 document, doc already has a <head> <title> and <body>
-    // so these do not have to be checked for
-    Node head = doc.find("head");
-    Node body = doc.find("body");
-
-    // Title
-    title(head.find("title").text());
-
-    // Keywords
-    if(Node elem = head.find("meta","name","keywords")){
-        std::string content = elem.attr("content");
-        std::vector<std::string> items;
-        boost::split(items,content,boost::is_any_of(","));
-        for(auto& keyword : items) boost::trim(keyword);
-        keywords(items);
-    }
-
-    // Description
-    if(Node elem = head.find("meta","name","description")){
-        std::string content = elem.attr("content");
-        description(content);
-    }       
-
-    // Contexts
-    if(Node elem = body.find("ul","id","contexts")){
-        std::vector<std::string> items;
-        for(auto& item : elem.all("li")){
-            std::string context = item.text();
-            boost::trim(context);
-            if(context.length()) items.push_back(context);
-        }
-        contexts(items);  
-    }
-
-    // Authors
-    if(Node elem = body.find("address","id","authors")){
-        std::vector<std::string> items;
-        for(auto& item : elem.all("a[rel=\"author\"]")){
-            items.push_back(item.text());
-        }
-        authors(items);  
-    }
-
-    // Content
     // Clear content before appending new content from Html::Document
     clear();
-    if(Node elem = body.find("main","id","content")){
+    Html::Document doc(html);
+    auto body = doc.find("body");
+    if(auto elem = body.find("main","id","content")){
         append_children(elem);
     }
-    append_children(doc.find("body"));
+    else append_children(doc.find("body"));
     return *this;
 }
 

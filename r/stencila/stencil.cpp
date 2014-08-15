@@ -17,10 +17,6 @@ STENCILA_R_ATTR(Stencil,html,std::string)
 
 STENCILA_R_ATTR(Stencil,cila,std::string)
 
-STENCILA_R_ATTR(Stencil,contexts,std::vector<std::string>)
-
-STENCILA_R_ATTR(Stencil,theme,std::string)
-
 STENCILA_R_FUNC Stencil_render(SEXP self,SEXP context){
     STENCILA_R_BEGIN
         RContext rcontext(context);

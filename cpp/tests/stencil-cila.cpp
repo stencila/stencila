@@ -13,14 +13,15 @@ using namespace Stencila;
 /**
  * Check Cila to HTML
  */
-std::string html(const std::string& cila){
+std::string html(const std::string& cila,bool indent=true){
     Stencil s;
     s.cila(cila);
-    std::string html = s.html();
+    std::string html = s.html(false,indent);
     boost::trim(html);
     return html;
 }
 #define HTML_(_CILA,_HTML) BOOST_CHECK_EQUAL(html(_CILA),_HTML);
+#define HTML__(_CILA,_HTML) BOOST_CHECK_EQUAL(html(_CILA,false),_HTML);
 
 /**
  * Check HTML to Cila
@@ -248,6 +249,14 @@ BOOST_AUTO_TEST_CASE(equations){
     HTML_("p where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
 }
 
+BOOST_AUTO_TEST_CASE(meta){
+    HTML__("#title My title","<div id=\"title\">My title</div>")
+    HTML__("#description A short little stencil","<div id=\"description\">A short little stencil</div>")
+    HTML__("#keywords foo,bar","<div id=\"keywords\">foo,bar</div>")
+    HTML__(".author Joe Bloggs","<div class=\"author\">Joe Bloggs</div>")
+    HTML__("#contexts r","<div id=\"contexts\">r</div>")
+    HTML__("#theme beautiful","<div id=\"theme\">beautiful</div>")
+}
 
 BOOST_AUTO_TEST_CASE(directive_code_1){
     auto cila_ = 

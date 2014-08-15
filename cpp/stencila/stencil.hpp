@@ -134,79 +134,56 @@ public:
     /**
      * @}
      */
-
+    
+    
     /**
-     * @name Context
+     * @name Metadata
+     *
+     * Methods for obtaining metadata on a stencil.
+     * At present only metadata getters are implemeted.
+     * To set metadata add corresponding elements to the stencil's
+     * HTML or Cila. 
+     *
+     * Methods implemented in `stencil-meta.cpp`
+     * 
      * @{
      */
-    
-private:
 
     /**
-     * The current rendering context for this stencil
+     * Get this stencil's title
      */
-    Context* context_ = nullptr;
+    std::string title(void) const;
 
     /**
-     * A list of rendering contexts that are compatible with this stencil.
+     * Get this stencil's description
+     */
+    std::string description(void) const;
+
+    /**
+     * Get this stencil's keywords
+     */
+    std::vector<std::string> keywords(void) const;
+
+    /**
+     * Get this stencil's authors
+     */
+    std::vector<std::string> authors(void) const;
+    
+    /**
+     * Get the list of rendering contexts that are compatible with this stencil.
      *
      * Context compatability will be determined by the expressions used in 
      * stencil directives like `data-with`,`data-text` etc. Some expressions
      * will be able to be used in multiple contexts.
      */
-    std::vector<std::string> contexts_;
+    std::vector<std::string> contexts(void) const;
 
-public:
 
     /**
-     * Get the contexts that are supported by the stencil
+     * Get this stencil's theme
      */
-    const std::vector<std::string> contexts(void) const {
-        return contexts_;
-    }
+    std::string theme(void) const;
 
-    /**
-     * Set the contexts that are supported by the stencil
-     */
-    Stencil& contexts(const std::vector<std::string>& values) {
-        // Whitelist check of context values
-        for(auto value : values){
-            bool ok = false;
-            for(auto context : {"py","r"}){
-                if(value==context) ok = true;
-            }
-            if(not ok) STENCILA_THROW(Exception,"Context string not recognised: "+value)
-        }
-        contexts_ = values;
-        return *this;
-    }
-
-    /**
-     * @}
-     */    
-    
-    /**
-     * @name Theme
-     * @{
-     */
-private:
-
-    std::string theme_ = "core/stencils/themes/default";
-
-public:
-
-    const std::string& theme(void) const {
-        return theme_;
-    }
-
-    Stencil& theme(const std::string& theme) {
-        theme_ = theme;
-        return *this;
-    }
-
-    /**
-     * @}
-     */
 
     /**
      * @name Rendering
@@ -306,6 +283,12 @@ public:
         return *this;
     }
 
+private:
+
+    /**
+     * The current rendering context for this stencil
+     */
+    Context* context_ = nullptr;
 };
 
 /**
