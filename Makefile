@@ -404,6 +404,14 @@ cpp-docs: $(BUILD)/cpp/docs/Doxyfile $(BUILD)/cpp/docs/doxy.css \
 	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/!' Doxyfile ;\
 	  doxygen Doxyfile
 
+# Remove everything except C++ requirements
+cpp-scrub:
+	rm -rf $(BUILD)/library $(BUILD)/tests $(BUILD)/docs
+
+# Remove everything
+cpp-clean:
+	rm -rf $(BUILD)/cpp
+
 #################################################################################################
 # Stencila Python package
 
@@ -659,6 +667,14 @@ r-tests: $(R_BUILD)/$(R_PACKAGE_FILE)
 # to install on the host machine after a build
 r-install: $(R_BUILD)/$(R_PACKAGE_FILE)
 	R CMD INSTALL $(R_BUILD)/$(R_PACKAGE_FILE)
+
+# Remove everything except R requirements
+r-scrub:
+	rm -rf $(R_BUILD)/objects $(R_BUILD)/stencila $(R_BUILD)/$(R_DYNLIB) $(R_BUILD)/$(R_PACKAGE_FILE) $(R_BUILD)/testenv
+
+# Remove everything
+r-clean:
+	rm -rf $(BUILD)/r
 
 #################################################################################################
 
