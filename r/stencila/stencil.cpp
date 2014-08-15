@@ -1,5 +1,4 @@
 #include <stencila/stencil.hpp>
-#include <stencila/stencil-render.hpp>
 using namespace Stencila;
 
 #include "extension.hpp"
@@ -14,13 +13,27 @@ STENCILA_R_EXEC1(Stencil,read,std::string)
 STENCILA_R_EXEC1(Stencil,write,std::string)
 
 STENCILA_R_ATTR(Stencil,html,std::string)
-
 STENCILA_R_ATTR(Stencil,cila,std::string)
+
+STENCILA_R_FUNC Stencil_attach(SEXP self,SEXP context){
+    STENCILA_R_BEGIN
+        RContext* rcontext = new RContext(context);
+        from<Stencil>(self).attach(rcontext);
+        return null;
+    STENCILA_R_END
+}
+STENCILA_R_EXEC0(Stencil,detach)
+
+STENCILA_R_RET0(Stencil,context) 
 
 STENCILA_R_FUNC Stencil_render(SEXP self,SEXP context){
     STENCILA_R_BEGIN
-        RContext rcontext(context);
-        from<Stencil>(self).render(rcontext);
+    	if(context!=null){
+	        RContext* rcontext = new RContext(context);
+	        from<Stencil>(self).render(rcontext);
+        } else {
+        	from<Stencil>(self).render();
+        }
         return null;
     STENCILA_R_END
 }

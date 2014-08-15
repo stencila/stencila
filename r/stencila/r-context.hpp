@@ -181,8 +181,11 @@ public:
         }
     #endif
 
-    virtual ~RContext(void){
-    }
+    virtual ~RContext(void){}
+
+    std::string details(void) const {
+        return str(boost::format("RContext at %s")%this);
+    };
 
     bool accept(const std::string& language) const {
         return language=="r";

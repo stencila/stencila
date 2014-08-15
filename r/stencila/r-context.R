@@ -23,12 +23,9 @@ Context <- function(envir){
     self <- new.env()
     class(self) <- "Context"
     
-    if(inherits(envir,'environment')) envir <- envir
+    if(missing(envir)) envir <- parent.frame()
+    else if(inherits(envir,'environment')) envir <- envir
     else if(is.list(envir)) envir <- list2env(envir,parent=baseenv())
-    else if(is.atomic(envir) & inherits(envir,'character')){
-        if(envir==".") envir <- parent.frame()
-        else stop(paste('unrecognised environment flag:',envir))
-    }
     else stop(paste('unrecognised environment class:',paste(class(envir),collapse=",")))
     self$stack <- list(envir)
 

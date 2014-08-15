@@ -35,6 +35,11 @@ protected:
 
 public:
 
+    // Virtual destructor to prevent compiler warnings
+    virtual ~Context(void) {};
+
+    virtual std::string details(void) const = 0;
+
     /**
      * @name Rendering methods
      *

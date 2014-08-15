@@ -90,6 +90,10 @@ public:
         nss_.push_back(&ns_);
     }
 
+    std::string details(void) const {
+        return "MapContext";
+    }
+
     bool accept(const std::string& language) const {
         // Return false since this context does not
         // accept any code

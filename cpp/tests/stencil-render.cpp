@@ -1,7 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/stencil.hpp>
-#include <stencila/stencil-render.hpp>
 #include <stencila/map-context.hpp>
 
 /**
@@ -34,7 +33,7 @@ struct RenderingFixture {
      */
     void render(const std::string html){
         s.html(html);
-        s.render(map);
+        s.render();
     }
 
     /**
@@ -54,6 +53,10 @@ struct RenderingFixture {
 BOOST_FIXTURE_TEST_SUITE(stencil_render,RenderingFixture)
 
 using namespace Stencila;
+
+BOOST_AUTO_TEST_CASE(attach){
+    s.attach(new MapContext);
+}
 
 BOOST_AUTO_TEST_CASE(code){
     render(R"(

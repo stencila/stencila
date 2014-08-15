@@ -2,8 +2,7 @@
 
 #include <stencila/component.hpp>
 #include <stencila/xml.hpp>
-
-class Context;
+#include <stencila/context.hpp>
 
 namespace Stencila {
 
@@ -187,16 +186,40 @@ public:
 
     /**
      * @name Rendering
+     *
+     * Methods implemented in `stencil-render.cpp`
+     * 
      * @{
      */
-
+    
     /**
-     * Render this stencil within a context
+     * Attach a context to this stencil
      *
      * @param context Context for rendering
      */
-    template<typename Context>
-    Stencil& render(Context& context);
+    Stencil& attach(Context* context);
+
+    /**
+     * Detach the stencil's current context
+     *
+     * The method `delete`s the context.
+     */
+    Stencil& detach(void);
+
+    /**
+     * Get details on this stencil's current context
+     *
+     * The method `delete`s the context.
+     */
+    std::string context(void) const;
+
+    /**
+     * Render this stencil within a context
+     * and attach the context.
+     *
+     * @param context Context for rendering
+     */
+    Stencil& render(Context* context);
 
     /**
      * Render this stencil in a new context
@@ -206,7 +229,8 @@ public:
     Stencil& render(const std::string& type);
 
     /**
-     * Render this stencil, creating a new context if necessary
+     * Render this stencil, using the currenly attached context, or 
+     * creating a new context if necessary
      */
     Stencil& render(void);
     
@@ -219,6 +243,8 @@ public:
      *
      * Methods for serving a stencil over a nework.
      * Overrides of `Component` methods as required.
+     *
+     * Methods implemented in `stencil-serve.cpp`
      * 
      * @{
      */

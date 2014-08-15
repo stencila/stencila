@@ -74,8 +74,10 @@ setMethod('contexts','Stencil',Stencil_contexts)
 #' @aliases Stencil-method render,ANY-method
 NULL
 
-Stencil_render <- function(stencil,context){
-    if(missing(context)) context <- Context(parent.frame())
+Stencil_render <- function(stencil,context=NULL){
+    if(is.null(context)){
+        if(stencil$context()=="none") context <- Context(parent.frame())
+    }
     else {
         if(!('Context' %in% class(context))) context <- Context(context)
     }
