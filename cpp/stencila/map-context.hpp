@@ -8,86 +8,29 @@
 
 namespace Stencila {
 
-/**
- * @todo Document
- * @todo Leaks memory, need to balance up all the news or else not use new so much.
- */
 class MapContext : public Context {
 private:
 
-    class Namespace {
-    private:
-        std::string value_;
-        std::map<std::string,Namespace*> children_;
+    typedef std::map<std::string,std::string> Namespace;
 
-    public:
-        Namespace(const std::string& value=""):
-            value_(value){
-        }
-
-        std::string value(void) const {
-            return value_;
-        }
-
-        std::map<std::string,Namespace*>::iterator begin(void){
-            return children_.begin();
-        }
-
-        std::map<std::string,Namespace*>::iterator end(void){
-            return children_.end();
-        }
-
-        Namespace* set(const std::string& name,const std::string& value){
-            Namespace* ns = new Namespace(value);
-            children_[name] = ns;
-            return ns;
-        }
-
-        Namespace* get(const std::string& name) const {
-            auto i = children_.find(name);
-            if(i!=children_.end()) return i->second;
-            else return 0;
-        }
-    };
-
-    Namespace ns_;
-    std::list<Namespace*> nss_;
+    std::list<Namespace> namespaces_;
 
     void set_(const std::string& name, const std::string& value){
-        nss_.back()->set(name,value);
+        namespaces_.front()[name] = value;
     }
 
-    Namespace* get_(const std::string& name) const {
-        for(auto ns : nss_){
-            Namespace* got = ns->get(name);
-            if(got) return got;
+    std::string get_(const std::string& name) const {
+        for(auto& ns : namespaces_){
+            auto i = ns.find(name);
+            if(i!=ns.end()) return i->second;
         }
-        if(parent_) return parent_->get_(name);
-        else throw Exception("Name not found: "+name);
+        STENCILA_THROW(Exception,"Not found: "+name);
     }
-
-    std::stack<Namespace*> subjects_;
-
-    struct Loop {
-        Namespace ns;
-        std::string name;
-        std::map<std::string,Namespace*>::iterator iterator;
-        std::map<std::string,Namespace*>::iterator end;
-
-        Loop(const std::string& item,Namespace* items){
-            name = item;
-            iterator = items->begin();
-            end = items->end();
-        }
-    };
-    std::stack<Loop*> loops_;
-
-    const MapContext* parent_ = 0;
 
 public:
 
     MapContext(void){
-        nss_.push_back(&ns_);
+        namespaces_.push_front(Namespace());
     }
 
     std::string details(void) const {
@@ -113,7 +56,7 @@ public:
     }
 
     std::string write(const std::string& expression){
-        return get_(expression)->value();
+        return get_(expression);
     }
 
     std::string paint(const std::string& format,const std::string& code){
@@ -121,70 +64,71 @@ public:
     }
 
     bool test(const std::string& expression){
-        std::string value = write(expression);
+        std::string value = get_(expression);
         return value.length()>0;
     }
 
     void mark(const std::string& expression){
-        subjects_.push(get_(expression));
+        enter();
+        set_("__subject__",get_(expression));
     }
 
     bool match(const std::string& expression){
-        if(subjects_.size()>0){
-            return subjects_.top()->value()==expression;
-        } 
-        else throw Exception("No subject has been set");
+        return get_("__subject__")==expression;
     }
 
     void unmark(void){
-        subjects_.pop();
+        exit();
     }
 
     bool begin(const std::string& item,const std::string& expression){
-        Namespace* items = get_(expression);
-
-        Loop* loop = new Loop(item,items);
-        loops_.push(loop);
-
-        nss_.push_back(&loop->ns);
-
-        if(loop->iterator!=loop->end){
-            loop->ns.set(loop->name,loop->iterator->second->value());
-            return true;
-        }
-        else return false;
+        enter();
+        set_("__item__",item);
+        std::string items_string = get_(expression);
+        std::vector<std::string> items;
+        boost::split(items,items_string,boost::is_any_of(" "));
+        set_("__items__",items_string);
+        set_("__items_index__","0");
+        set_("__items_size__",boost::lexical_cast<std::string>(items.size()));
+        return next();
     }
 
     bool next(void){
-        Loop* loop = loops_.top();
-        loop->iterator++;
-        if(loop->iterator==loop->end) return false;
-        else {
-            loop->ns.set(loop->name,loop->iterator->second->value());
+        int index = boost::lexical_cast<int>(get_("__items_index__"));
+        int length = boost::lexical_cast<int>(get_("__items_size__"));
+        if(index>=length){
+            return false;
+        } else {
+            // Get the items and split them up
+            std::string items_string = get_("__items__");
+            std::vector<std::string> items;
+            boost::split(items,items_string,boost::is_any_of(" "));
+            // Set the looping variable name
+            std::string name = get_("__item__");
+            set_(name,items[index]);
+            // Increment the index and re-set it in the loop namespace
+            index++;
+            set_("__items_index__",boost::lexical_cast<std::string>(index));
             return true;
         }
     }
 
     void end(void){
-        delete loops_.top();
-        loops_.pop();
-        
-        nss_.pop_back();
+        exit();
     }
 
    
     void enter(void){
-        nss_.push_back(new Namespace);
+        namespaces_.push_front(Namespace());
     }
 
     void enter(const std::string& expression){
-        nss_.push_back(get_(expression));
+        unsupported_("enter");
     }
 
     void exit(void){
-        nss_.pop_back();
+        namespaces_.pop_front();
     }
-
 };
 
 }

@@ -30,19 +30,16 @@ BOOST_AUTO_TEST_CASE(subject_match){
     MapContext map;
 
     map.assign("a","A");
+    map.assign("b","B");
+
     map.mark("a");
         BOOST_CHECK(map.match("A"));
         BOOST_CHECK(not map.match("B"));
 
-        map.enter("a");
-            map.assign("a1","1");
-
-            map.mark("a1");
-                BOOST_CHECK(map.match("1"));
-                BOOST_CHECK(not map.match("2"));
-            map.unmark();
-
-        map.exit();   
+        map.mark("b");
+            BOOST_CHECK(not map.match("A"));
+            BOOST_CHECK(map.match("B"));
+        map.unmark();   
 
     map.unmark();
 }
@@ -51,25 +48,8 @@ BOOST_AUTO_TEST_CASE(loop){
     MapContext map;
 
     // Set up some variable for looping over
-    map.assign("planets","");
-    map.enter("planets");
-        map.assign("1","Argabuthon");
-        map.assign("2","Bartledan");
-        map.assign("3","Bethselamin");
-        map.assign("4","Earth");
-        map.assign("5","Gagrakacka");
-    map.exit();
-
-    map.assign("syllables","");
-    map.enter("syllables");
-        map.assign("1","tzjin");
-        map.assign("2","anthony");
-        map.assign("3","ks");
-    map.exit();
-
-    map.enter("planets");
-    BOOST_CHECK_EQUAL(map.write("4"),"Earth");
-    map.exit();
+    map.assign("planets","Argabuthon Bartledan Bethselamin Earth Gagrakacka");
+    map.assign("syllables","tzjin anthony ks");
 
     // Outer loop
     map.begin("planet","planets");
