@@ -21,6 +21,10 @@ public:
         initialise(from);
     }
 
+    ~Stencil(void){
+        if(context_) delete context_;
+    }
+
     /**
      * @name Input and output
      *

@@ -486,6 +486,7 @@ void include_(Node node, Context* context){
     }
     // Now apply the included element's arguments
     // Check for if they are required or for any default values
+    bool ok = true;
     for(Node arg : included.all("[data-arg]")){
         // Parse the argument node
         std::tuple<std::string,std::string> parsed = arg_(arg);
@@ -503,6 +504,7 @@ void include_(Node node, Context* context){
                     {{"data-error","arg-required"},{"data-arg",name}},
                     "Argument is required because it has no default: "+name
                 );
+                ok  = false;
             }
         }
         // Remove the argument, there is no need to have it in the included node
@@ -510,7 +512,7 @@ void include_(Node node, Context* context){
     }
 
     // Render the `data-included` element
-    children_(included,context);
+    if(ok) children_(included,context);
     
     // Exit the included node
     context->exit();
@@ -519,12 +521,7 @@ void include_(Node node, Context* context){
 void element_(Node node, Context* context){
     try {
         // Remove any existing errors
-        for(Node child : node.children()){
-            if(child.attr("data-error").length()>0){
-                node.remove(child);
-            }
-        }
-        
+        for(Node child : node.all("[data-error]")) child.destroy();
         // Check for handled elements
         // For each attribute in this node...
         //...use the name of the attribute to dispatch to another rendering method
@@ -548,7 +545,9 @@ void element_(Node node, Context* context){
         children_(node,context);
     }
     catch(std::exception& exc){
-        node.append("span",{{"data-error","exception"}},std::string("Error:")+exc.what());
+        std::string message = "Error:";
+        message += exc.what();
+        node.append("span",{{"data-error","exception"}},message);
     }
     catch(...){
         node.append("span",{{"data-error","unknown"}},"Unknown error");

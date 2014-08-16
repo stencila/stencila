@@ -45,7 +45,8 @@ Stencil& Stencil::export_(const std::string& path){
 }
 
 Stencil& Stencil::read(const std::string& directory){
-    if(directory.length()){
+    std::string where = directory;
+    if(where.length()){
         // Check that directory exits and is a directory
         if(not boost::filesystem::exists(directory)){
             STENCILA_THROW(Exception,str(boost::format("Path <%s> does not exist")%directory));
@@ -55,11 +56,13 @@ Stencil& Stencil::read(const std::string& directory){
         }
         // Set the stencil's path
         path(directory);
+    } else{
+        where = path();
     }
     // Currently, set the stencil's content from main.cila
-    boost::filesystem::path cila = boost::filesystem::path(directory) / "main.cila";
+    boost::filesystem::path cila = boost::filesystem::path(where) / "main.cila";
     if(not boost::filesystem::exists(cila)){
-        STENCILA_THROW(Exception,str(boost::format("Directory <%s> does contain a 'main.cila' file")%directory));
+        STENCILA_THROW(Exception,str(boost::format("Directory <%s> does contain a 'main.cila' file")%where));
     }
     import(cila.string());
     return *this;

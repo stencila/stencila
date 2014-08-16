@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(include_arg){
             <p data-set="z:3">Argument not declared by stencil author</p>
         </div>
     )");
-    //dump();
+    
     BOOST_CHECK_EQUAL(stencil.one("#a div[data-included] div[data-error=\"arg-required\"]").attr("data-arg"),"x");
     
     BOOST_CHECK_EQUAL(stencil.one("#b div[data-included] div.x").text(),"10");

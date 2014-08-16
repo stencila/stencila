@@ -24,7 +24,7 @@ private:
             auto i = ns.find(name);
             if(i!=ns.end()) return i->second;
         }
-        STENCILA_THROW(Exception,"Not found: "+name);
+        throw Exception("Variable <"+name+"> not found");
     }
 
 public:
@@ -117,13 +117,8 @@ public:
         exit();
     }
 
-   
-    void enter(void){
+    void enter(const std::string& expression=""){
         namespaces_.push_front(Namespace());
-    }
-
-    void enter(const std::string& expression){
-        unsupported_("enter");
     }
 
     void exit(void){
