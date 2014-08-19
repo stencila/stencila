@@ -57,7 +57,8 @@ public:
     /**
      * Read the stencil from a directory
      * 
-     * @param  directory Filesystem path to a directory
+     * @param  directory Filesystem path to a directory. 
+     *                   If an empty string (`""`) then the stencil's current path is used.
      */
     Stencil& read(const std::string& directory="");
     

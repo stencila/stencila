@@ -46,25 +46,34 @@ Stencil& Stencil::export_(const std::string& path){
 
 Stencil& Stencil::read(const std::string& directory){
     std::string where = directory;
-    if(where.length()){
-        // Check that directory exits and is a directory
-        if(not boost::filesystem::exists(directory)){
-            STENCILA_THROW(Exception,str(boost::format("Path <%s> does not exist")%directory));
+    if(where.length()==0){
+        where = path();
+        if(where.length()==0){
+            STENCILA_THROW(Exception,"Path not supplied and not yet set for stencil");
         }
-        if(not boost::filesystem::is_directory(directory)){
-            STENCILA_THROW(Exception,str(boost::format("Path <%s> is not a directory")%directory));
+    }
+    else {
+        // Check that directory exits and is a directory
+        if(not boost::filesystem::exists(where)){
+            STENCILA_THROW(Exception,str(boost::format("Path <%s> does not exist")%where));
+        }
+        if(not boost::filesystem::is_directory(where)){
+            STENCILA_THROW(Exception,str(boost::format("Path <%s> is not a directory")%where));
         }
         // Set the stencil's path
-        path(directory);
-    } else{
-        where = path();
+        path(where);
     }
-    // Currently, set the stencil's content from main.cila
-    boost::filesystem::path cila = boost::filesystem::path(where) / "main.cila";
-    if(not boost::filesystem::exists(cila)){
-        STENCILA_THROW(Exception,str(boost::format("Directory <%s> does contain a 'main.cila' file")%where));
+    // Search for a stencil file. Currently with precedence on .html over .cila files
+    bool found = false;
+    for(std::string extension : {"html","cila"}){
+        boost::filesystem::path filename = boost::filesystem::path(where) / ("stencil." + extension);
+        if(boost::filesystem::exists(filename)){
+            found = true;
+            import(filename.string());
+            break;
+        }
     }
-    import(cila.string());
+    if(not found) STENCILA_THROW(Exception,str(boost::format("Directory <%s> does contain a 'stencil.html' or 'stencil.cila' file")%where));
     return *this;
 }
 
