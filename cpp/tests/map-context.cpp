@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(loop){
             BOOST_CHECK(map.next());
             BOOST_CHECK_EQUAL(map.write("syllable"),"ks");
             BOOST_CHECK(not map.next());
-        map.end();
+        //end
         BOOST_CHECK_THROW(map.test("syllable"),Exception);
 
         BOOST_CHECK(map.next());
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(loop){
         BOOST_CHECK(map.next());
         BOOST_CHECK_EQUAL(map.write("planet"),"Gagrakacka");
         BOOST_CHECK(not map.next());
-    map.end();
+    //end
     BOOST_CHECK_THROW(map.test("planet"),Exception);
 }
 

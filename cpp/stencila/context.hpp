@@ -135,6 +135,11 @@ public:
     /**
      * Steps the current loop to the next item. 
      * Used by stencil `for` elements. See stencil `render`ing methods.
+     *
+     * If there are more items to iterate over this method should return `true`.
+     * When there are no more items, this method should do any clean up required 
+     * (e.g popping the loop namespace off a namespace stack) when ending a loop, 
+     * and return `false`. 
      */
     virtual bool next(void) = 0;
 

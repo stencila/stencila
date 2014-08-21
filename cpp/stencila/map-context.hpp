@@ -97,6 +97,8 @@ public:
         int index = boost::lexical_cast<int>(get_("__items_index__"));
         int length = boost::lexical_cast<int>(get_("__items_size__"));
         if(index>=length){
+            // Exit the loop namespace and return false
+            exit();
             return false;
         } else {
             // Get the items and split them up
@@ -111,10 +113,6 @@ public:
             set_("__items_index__",boost::lexical_cast<std::string>(index));
             return true;
         }
-    }
-
-    void end(void){
-        exit();
     }
 
     void enter(const std::string& expression=""){
