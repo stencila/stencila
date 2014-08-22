@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(read){
 
     BOOST_CHECK_EQUAL(s.theme(),"inter-galatic-journal/theme");
 
-    BOOST_CHECK_EQUAL(s.one("p.advice").text(),"Don't panic!");
+    BOOST_CHECK_EQUAL(s.select("p.advice").text(),"Don't panic!");
 
     s.destroy();
 }
@@ -84,11 +84,11 @@ BOOST_AUTO_TEST_CASE(embed){
     // Element with attributes
     div({{"class","prefect"},{"id","ford"}});
     BOOST_CHECK(s.find("div","class","prefect"));
-    BOOST_CHECK(s.one("div#ford.prefect"));
+    BOOST_CHECK(s.select("div#ford.prefect"));
 
     // Element with attributes and text
     p({{"class","dent"},{"id","arthur"}},"I'm sorry, did you just say you needed my brain?");
-    BOOST_CHECK_EQUAL(s.one("p.dent#arthur").text(),"I'm sorry, did you just say you needed my brain?");
+    BOOST_CHECK_EQUAL(s.select("p.dent#arthur").text(),"I'm sorry, did you just say you needed my brain?");
 
     // Nested tags
     div({{"class","advice"}},[](){
@@ -99,11 +99,11 @@ BOOST_AUTO_TEST_CASE(embed){
             a();
         });
    	});
-    BOOST_CHECK(s.one("div.advice"));
-    BOOST_CHECK_EQUAL(s.one("div.advice p").text(),"Don't panic!");
+    BOOST_CHECK(s.select("div.advice"));
+    BOOST_CHECK_EQUAL(s.select("div.advice p").text(),"Don't panic!");
 
-    BOOST_CHECK(s.one("div.advice>p>a[href=ddd]"));
-    BOOST_CHECK(!s.one("div.advice>a[href=ddd]"));
+    BOOST_CHECK(s.select("div.advice>p>a[href=ddd]"));
+    BOOST_CHECK(!s.select("div.advice>a[href=ddd]"));
     
     s.destroy();
 }
@@ -116,9 +116,9 @@ BOOST_AUTO_TEST_CASE(sanitize){
         <script></script>
     )");
     s.sanitize();
-    BOOST_CHECK(s.one("img[src]"));
-    //BOOST_CHECK(not s.one("div[src]"));
-    //BOOST_CHECK(not s.one("script"));
+    BOOST_CHECK(s.select("img[src]"));
+    //BOOST_CHECK(not s.select("div[src]"));
+    //BOOST_CHECK(not s.select("script"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
