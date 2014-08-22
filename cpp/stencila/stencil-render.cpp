@@ -285,7 +285,7 @@ void switch_(Node node, Context* context){
  */
 void for_(Node node, Context* context){
     std::string parts = node.attr("data-for");
-    // Get the name of item and items
+    // Get the name of `item` and the `items` expression
     std::string item = "item";
     std::string items;
     std::vector<std::string> bits;
@@ -298,7 +298,6 @@ void for_(Node node, Context* context){
     } else {
         throw Exception("Error in parsing for item and items; more than one semicolon (:).");
     }
-
     // Initialise the loop
     bool more = context->begin(item,items);
     // Get the first child element which will be repeated
@@ -311,12 +310,17 @@ void for_(Node node, Context* context){
     while(first and more){
         // See if there is an existing child with a corresponding `data-index`
         std::string index = boost::lexical_cast<std::string>(count);
-        Node item = node.one("[data-index=\""+index+"\"]");
+        // Must select only children (not other decendents) to prevent messing with
+        // nested loops. 
+        // Currently, our CSS selector implementation does not support this syntax:
+        //     > [data-index="0"]
+        // so use XPath instead:
+        Node item = node.select("./*[@data-index='"+index+"']","xpath");
         if(item){
-            // If there is check to see if it is locked
-            Node locked = item.one("[data-lock]");
+            // If there is, check to see if it is locked
+            Node locked = item.select("./*[@data-lock]","xpath");
             if(not locked){
-                // If it is then destory and replace it
+                // If it is not locked, then destroy and replace it
                 item.destroy();
                 item = node.append(first);
             }
@@ -336,12 +340,12 @@ void for_(Node node, Context* context){
     if(first) first.attr("data-off","true");
     // Remove any children having a `data-index` attribute greater than the 
     // number of items, unless it has a `data-lock` decendent
-    Nodes indexeds = node.all("[data-index]");
+    Nodes indexeds = node.filter("./*[@data-index]","xpath");
     for(Node indexed : indexeds){
         std::string index_string = indexed.attr("data-index");
         int index = boost::lexical_cast<int>(index_string);
         if(index>count-1){
-            Node locked = indexed.one("[data-lock]");
+            Node locked = indexed.select("[data-lock]");
             if(locked){
                 indexed.attr("data-extra","true");
                 // Move the end of the `for` element
@@ -363,12 +367,12 @@ void include_(Node node, Context* context){
     // If this node has been rendered before then there will be 
     // a `data-included` node that needs to be cleared first. If it
     // does not yet exist then append it.
-    Node included = node.one("[data-included]");
+    Node included = node.select("[data-included]");
     if(included){
         // If this node has been edited then it may have a data-lock
         // element. If it does then do NOT overwrite the exisiting contents
         // and simply return straight away.
-        Node lock = included.one("[data-lock=\"true\"]");
+        Node lock = included.select("[data-lock=\"true\"]");
         if(lock) {
             return;
         } else {
@@ -385,7 +389,7 @@ void include_(Node node, Context* context){
     // ...select from it
     if(select.length()>0){
         // ...append the selected nodes.
-        for(Node node : stencil.all(select)){
+        for(Node node : stencil.filter(select)){
             // Append the node first to get a copy of it which can be modified
             Node appended = included.append(node);
             // Remove `macro` declaration if any so that element gets rendered
@@ -422,9 +426,9 @@ void include_(Node node, Context* context){
     };
     for(int type=0;type<modifiers;type++){
         std::string attribute = attributes[type];
-        for(Node modifier : node.all("["+attribute+"]")){
+        for(Node modifier : node.filter("["+attribute+"]")){
             std::string selector = modifier.attr(attribute);
-            for(Node target : included.all(selector)){
+            for(Node target : included.filter(selector)){
                 Node created;
                 switch(type){
 
@@ -474,7 +478,7 @@ void include_(Node node, Context* context){
     // Apply all the `set`s specified in this include first. This
     // my include args not specified by the author of the included stencil.
     std::vector<std::string> assigned;
-    for(Node set : node.all("[data-set]")){
+    for(Node set : node.filter("[data-set]")){
         // Parse the argument node
         std::tuple<std::string,std::string> parsed = set_(set);
         std::string name = std::get<0>(parsed);
@@ -487,7 +491,7 @@ void include_(Node node, Context* context){
     // Now apply the included element's arguments
     // Check for if they are required or for any default values
     bool ok = true;
-    for(Node arg : included.all("[data-arg]")){
+    for(Node arg : included.filter("[data-arg]")){
         // Parse the argument node
         std::tuple<std::string,std::string> parsed = arg_(arg);
         std::string name = std::get<0>(parsed);
@@ -521,7 +525,7 @@ void include_(Node node, Context* context){
 void element_(Node node, Context* context){
     try {
         // Remove any existing errors
-        for(Node child : node.all("[data-error]")) child.destroy();
+        for(Node child : node.filter("[data-error]")) child.destroy();
         // Check for handled elements
         // For each attribute in this node...
         //...use the name of the attribute to dispatch to another rendering method

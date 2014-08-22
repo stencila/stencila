@@ -15,6 +15,8 @@ struct RenderingFixture {
         context->assign("a","A");
         context->assign("none","");
         context->assign("planets","Argabuthon Bartledan Bethselamin Earth Gagrakacka");
+        context->assign("numbers","1 2 3");
+        context->assign("letters","a b c");
         stencil.attach(context);
     }
 
@@ -54,8 +56,8 @@ BOOST_AUTO_TEST_CASE(code){
         <code class="b">This should be ignored because no data-code attribute</code>
     )");
 
-    BOOST_CHECK(not stencil.one("code.a [data-error]"));
-    BOOST_CHECK(not stencil.one("code.b [data-error]"));
+    BOOST_CHECK(not stencil.select("code.a [data-error]"));
+    BOOST_CHECK(not stencil.select("code.b [data-error]"));
 }
 
 BOOST_AUTO_TEST_CASE(text){
@@ -64,8 +66,8 @@ BOOST_AUTO_TEST_CASE(text){
         <p data-text="none" />
     )");
 
-    BOOST_CHECK_EQUAL(stencil.one("[data-text=\"a\"]").text(),"A");
-    BOOST_CHECK_EQUAL(stencil.one("[data-text=\"none\"]").text(),"");
+    BOOST_CHECK_EQUAL(stencil.select("[data-text=\"a\"]").text(),"A");
+    BOOST_CHECK_EQUAL(stencil.select("[data-text=\"none\"]").text(),"");
 }
 
 BOOST_AUTO_TEST_CASE(text_lock){
@@ -73,7 +75,7 @@ BOOST_AUTO_TEST_CASE(text_lock){
         <p data-text="a" data-lock="true">So long, and thanks ...</p>
     )");
 
-    BOOST_CHECK_EQUAL(stencil.one("[data-text=\"a\"]").text(),"So long, and thanks ...");
+    BOOST_CHECK_EQUAL(stencil.select("[data-text=\"a\"]").text(),"So long, and thanks ...");
 }
 
 /* 
@@ -90,9 +92,9 @@ BOOST_AUTO_TEST_CASE(with){
         </ul>
     )");
 
-    BOOST_CHECK_EQUAL(stencil.one("li[data-text=\"1\"]").text(),"Argabuthon");
-    BOOST_CHECK_EQUAL(stencil.one("li[data-text=\"3\"]").text(),"Bethselamin");
-    BOOST_CHECK_EQUAL(stencil.one("li[data-text=\"5\"]").text(),"Gagrakacka");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-text=\"1\"]").text(),"Argabuthon");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-text=\"3\"]").text(),"Bethselamin");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-text=\"5\"]").text(),"Gagrakacka");
 }
 */
 
@@ -102,8 +104,8 @@ BOOST_AUTO_TEST_CASE(if_else){
         <div class="else-on" data-elif="a" />
     )");
 
-    BOOST_CHECK(stencil.one("div.if-off").has("data-off"));
-    BOOST_CHECK(not stencil.one("div.else-on").has("data-off"));
+    BOOST_CHECK(stencil.select("div.if-off").has("data-off"));
+    BOOST_CHECK(not stencil.select("div.else-on").has("data-off"));
 }
 
 BOOST_AUTO_TEST_CASE(if_elif){
@@ -112,8 +114,8 @@ BOOST_AUTO_TEST_CASE(if_elif){
         <div class="elif-off" data-elif="none" />
     )");
 
-    BOOST_CHECK(not stencil.one("div.if-on").has("data-off"));
-    BOOST_CHECK(stencil.one("div.elif-off").has("data-off"));
+    BOOST_CHECK(not stencil.select("div.if-on").has("data-off"));
+    BOOST_CHECK(stencil.select("div.elif-off").has("data-off"));
 }
 
 BOOST_AUTO_TEST_CASE(if_elif_else){
@@ -124,10 +126,10 @@ BOOST_AUTO_TEST_CASE(if_elif_else){
         <div class="else-off" data-else />
     )");
 
-    BOOST_CHECK(stencil.one("div.if-off").has("data-off"));
-    BOOST_CHECK(stencil.one("div.elif-off").has("data-off"));
-    BOOST_CHECK(not stencil.one("div.elif-on").has("data-off"));
-    BOOST_CHECK(stencil.one("div.else-off").has("data-off"));
+    BOOST_CHECK(stencil.select("div.if-off").has("data-off"));
+    BOOST_CHECK(stencil.select("div.elif-off").has("data-off"));
+    BOOST_CHECK(not stencil.select("div.elif-on").has("data-off"));
+    BOOST_CHECK(stencil.select("div.else-off").has("data-off"));
 }
 
 BOOST_AUTO_TEST_CASE(switch_1){
@@ -140,10 +142,10 @@ BOOST_AUTO_TEST_CASE(switch_1){
         </div>
     )");
 
-    BOOST_CHECK(stencil.one("p[data-case=\"x\"]").has("data-off"));
-    BOOST_CHECK(not stencil.one("p[data-case=\"A\"]").has("data-off"));
-    BOOST_CHECK(stencil.one("p[data-case=\"b\"]").has("data-off"));
-    BOOST_CHECK(stencil.one("p[data-default]").has("data-off"));
+    BOOST_CHECK(stencil.select("p[data-case=\"x\"]").has("data-off"));
+    BOOST_CHECK(not stencil.select("p[data-case=\"A\"]").has("data-off"));
+    BOOST_CHECK(stencil.select("p[data-case=\"b\"]").has("data-off"));
+    BOOST_CHECK(stencil.select("p[data-default]").has("data-off"));
 }
 
 BOOST_AUTO_TEST_CASE(switch_2){
@@ -156,9 +158,9 @@ BOOST_AUTO_TEST_CASE(switch_2){
         </div>
     )");
 
-    BOOST_CHECK(stencil.one("p[data-case=\"x\"]").has("data-off"));
-    BOOST_CHECK(not stencil.one("p[data-default]").has("data-off"));
-    BOOST_CHECK_EQUAL(stencil.one("p[data-default] span[data-text=\"a\"]").text(),"A");
+    BOOST_CHECK(stencil.select("p[data-case=\"x\"]").has("data-off"));
+    BOOST_CHECK(not stencil.select("p[data-default]").has("data-off"));
+    BOOST_CHECK_EQUAL(stencil.select("p[data-default] span[data-text=\"a\"]").text(),"A");
 }
 
 BOOST_AUTO_TEST_CASE(for_){
@@ -168,8 +170,8 @@ BOOST_AUTO_TEST_CASE(for_){
         </ul>
     )");
     
-    BOOST_CHECK_EQUAL(stencil.one("li[data-index=\"0\"]").text(),"Argabuthon");
-    BOOST_CHECK_EQUAL(stencil.one("li[data-index=\"4\"]").text(),"Gagrakacka");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-index=\"0\"]").text(),"Argabuthon");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-index=\"4\"]").text(),"Gagrakacka");
 }
 
 BOOST_AUTO_TEST_CASE(for_existing_index){
@@ -180,7 +182,7 @@ BOOST_AUTO_TEST_CASE(for_existing_index){
         </ul>
     )");
     
-    BOOST_CHECK_EQUAL(stencil.one("li[data-index=\"0\"]").text(),"Argabuthon");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-index=\"0\"]").text(),"Argabuthon");
 }
 
 BOOST_AUTO_TEST_CASE(for_locked_extras){
@@ -192,8 +194,22 @@ BOOST_AUTO_TEST_CASE(for_locked_extras){
         </ul>
     )");
 
-    BOOST_CHECK(not stencil.one("li[data-index=\"998\"]"));
-    BOOST_CHECK_EQUAL(stencil.one("li[data-index=\"999\"]").attr("data-extra"),"true");
+    BOOST_CHECK(not stencil.select("li[data-index=\"998\"]"));
+    BOOST_CHECK_EQUAL(stencil.select("li[data-index=\"999\"]").attr("data-extra"),"true");
+}
+
+BOOST_AUTO_TEST_CASE(for_nested){
+    render(R"(
+        <tbody data-for="number:numbers">
+            <tr data-for="letter:letters">
+                <td data-text="letter"></td>
+            </tr>
+        </tbody
+    )");
+
+    BOOST_CHECK_EQUAL(stencil.select("tr[data-index=\"0\"] td[data-index=\"0\"]").text(),"a");
+    BOOST_CHECK_EQUAL(stencil.select("tr[data-index=\"1\"] td[data-index=\"1\"]").text(),"b");
+    BOOST_CHECK_EQUAL(stencil.select("tr[data-index=\"2\"] td[data-index=\"2\"]").text(),"c");
 }
 
 BOOST_AUTO_TEST_CASE(include_simple){
@@ -202,7 +218,7 @@ BOOST_AUTO_TEST_CASE(include_simple){
         <div data-include="." data-select="#includee" />
     )");
 
-    BOOST_CHECK_EQUAL(stencil.one("[data-include] [data-included] div").text(),"Hello world");
+    BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"Hello world");
 }
 
 BOOST_AUTO_TEST_CASE(include_previous_included_is_cleared){
@@ -215,8 +231,8 @@ BOOST_AUTO_TEST_CASE(include_previous_included_is_cleared){
         </div>
     )");
 
-    BOOST_CHECK(not stencil.one("[data-include] [data-included] #gone"));
-    BOOST_CHECK_EQUAL(stencil.one("[data-include] [data-included] div").text(),"Hello world");
+    BOOST_CHECK(not stencil.select("[data-include] [data-included] #gone"));
+    BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"Hello world");
 }
 
 BOOST_AUTO_TEST_CASE(include_previous_included_is_not_cleared_if_lock){
@@ -230,8 +246,8 @@ BOOST_AUTO_TEST_CASE(include_previous_included_is_not_cleared_if_lock){
         </div>
     )");
 
-    BOOST_CHECK(stencil.one("[data-include] [data-included] #kept"));
-    BOOST_CHECK(stencil.one("[data-include] [data-included] #kept-also"));
+    BOOST_CHECK(stencil.select("[data-include] [data-included] #kept"));
+    BOOST_CHECK(stencil.select("[data-include] [data-included] #kept-also"));
 }
 
 BOOST_AUTO_TEST_CASE(include_simple_rendered){
@@ -240,7 +256,7 @@ BOOST_AUTO_TEST_CASE(include_simple_rendered){
         <div data-include="." data-select="#includee" />
     )");
 
-    BOOST_CHECK_EQUAL(stencil.one("[data-include] [data-included] [data-text=\"a\"]").text(),"A");
+    BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] [data-text=\"a\"]").text(),"A");
 }
 
 BOOST_AUTO_TEST_CASE(include_modifiers){
@@ -271,18 +287,18 @@ BOOST_AUTO_TEST_CASE(include_modifiers){
         </div>
     )");
 
-    BOOST_CHECK(not stencil.one("div[data-included] #a"));
+    BOOST_CHECK(not stencil.select("div[data-included] #a"));
 
-    BOOST_CHECK(not stencil.one("div[data-included] div#b"));
-    BOOST_CHECK(stencil.one("div[data-included] p.b"));
+    BOOST_CHECK(not stencil.select("div[data-included] div#b"));
+    BOOST_CHECK(stencil.select("div[data-included] p.b"));
 
-    BOOST_CHECK_EQUAL(stencil.one("div[data-included] div.c strong").text(),"stay the same");
+    BOOST_CHECK_EQUAL(stencil.select("div[data-included] div.c strong").text(),"stay the same");
 
-    BOOST_CHECK_EQUAL(stencil.one("div[data-included] div#e").previous().attr("id"),"d");
-    BOOST_CHECK_EQUAL(stencil.one("div[data-included] div#e").next().attr("id"),"f");
+    BOOST_CHECK_EQUAL(stencil.select("div[data-included] div#e").previous().attr("id"),"d");
+    BOOST_CHECK_EQUAL(stencil.select("div[data-included] div#e").next().attr("id"),"f");
 
-    BOOST_CHECK_EQUAL(stencil.one("div[data-included] div#g #g1").previous().attr("id"),"g0");
-    BOOST_CHECK_EQUAL(stencil.one("div[data-included] div#g #g1").next().attr("id"),"g2");
+    BOOST_CHECK_EQUAL(stencil.select("div[data-included] div#g #g1").previous().attr("id"),"g0");
+    BOOST_CHECK_EQUAL(stencil.select("div[data-included] div#g #g1").next().attr("id"),"g2");
 }
 
 BOOST_AUTO_TEST_CASE(include_arg){
@@ -315,22 +331,22 @@ BOOST_AUTO_TEST_CASE(include_arg){
         </div>
     )");
     
-    BOOST_CHECK_EQUAL(stencil.one("#a div[data-included] div[data-error=\"arg-required\"]").attr("data-arg"),"x");
+    BOOST_CHECK_EQUAL(stencil.select("#a div[data-included] div[data-error=\"arg-required\"]").attr("data-arg"),"x");
     
-    BOOST_CHECK_EQUAL(stencil.one("#b div[data-included] div.x").text(),"10");
-    BOOST_CHECK_EQUAL(stencil.one("#b div[data-included] div.y").text(),"2");
+    BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.x").text(),"10");
+    BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.y").text(),"2");
 
-    BOOST_CHECK_EQUAL(stencil.one("#c div[data-included] div.x").text(),"11 (Argument value defined in text)");
-    BOOST_CHECK_EQUAL(stencil.one("#c div[data-included] div.y").text(),"2");
+    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.x").text(),"11 (Argument value defined in text)");
+    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.y").text(),"2");
     
-    BOOST_CHECK_EQUAL(stencil.one("#d div[data-included] div.x").text(),"1");
-    BOOST_CHECK_EQUAL(stencil.one("#d div[data-included] div.y").text(),"20");
-    BOOST_CHECK_EQUAL(stencil.one("#d div[data-included] div.z").text(),"3");
+    BOOST_CHECK_EQUAL(stencil.select("#d div[data-included] div.x").text(),"1");
+    BOOST_CHECK_EQUAL(stencil.select("#d div[data-included] div.y").text(),"20");
+    BOOST_CHECK_EQUAL(stencil.select("#d div[data-included] div.z").text(),"3");
 
     // Check that params are removed
-    BOOST_CHECK(not stencil.one("#b [data-arg]"));
-    BOOST_CHECK(not stencil.one("#c [data-arg]"));
-    BOOST_CHECK(not stencil.one("#d [data-arg]"));
+    BOOST_CHECK(not stencil.select("#b [data-arg]"));
+    BOOST_CHECK(not stencil.select("#c [data-arg]"));
+    BOOST_CHECK(not stencil.select("#d [data-arg]"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
