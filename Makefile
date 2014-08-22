@@ -406,7 +406,7 @@ cpp-docs: $(BUILD)/cpp/docs/Doxyfile $(BUILD)/cpp/docs/doxy.css \
 
 # Remove everything except C++ requirements
 cpp-scrub:
-	rm -rf $(BUILD)/library $(BUILD)/tests $(BUILD)/docs
+	rm -rf $(BUILD)/cpp/library $(BUILD)/cpp/tests $(BUILD)/cpp/docs
 
 # Remove everything
 cpp-clean:
