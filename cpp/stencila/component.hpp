@@ -306,30 +306,10 @@ public:
     /**
      * Get the path of a component from the stores
      */
-    static std::string lookup(const std::string& address){
-        std::vector<std::string> address_bits;
-        boost::split(address_bits,address,boost::is_any_of("/"));
-        auto address_base = address_bits[0];
-
-        std::string url = "";
+    static std::string locate(const std::string& path){
         for(std::string store : stores()){
-            std::string store_path = store+"/"+address_base;
-            // Does the address_base exist in this store?
-            if(boost::filesystem::exists(store_path)){
-                return store_path;
-            }
-        }
-
-        return "";
-    }
-
-    static std::string resolve(const std::string& path){
-        std::string url = "";
-        for(std::string store : stores()){
-            std::string store_path = store+"/"+path;
-            if(boost::filesystem::exists(store_path)){
-                return store_path;
-            }
+            boost::filesystem::path full_path = boost::filesystem::path(store)/path;
+            if(boost::filesystem::exists(full_path)) return full_path.string();
         }
         return "";
     }
@@ -353,7 +333,7 @@ public:
             component = static_cast<Class*>(instance.pointer);
         }
         else {
-            std::string path = lookup(address);
+            std::string path = locate(address);
             if(path.length()>0){
                 component = new Class;
                 component->read(path);
@@ -675,18 +655,17 @@ public:
      * Get the address of the component
      */
     std::string address(bool ensure = false) const {
-        std::string path_full_ = path(ensure);
-        if(path_full_.length()>0){
-            std::string address = path_full_;
-            // Remove store prefix
+        std::string path = this->path(ensure);
+        if(path.length()>0){
             for(auto store : stores()){
-                if(address.substr(0,store.length())==store){
-                    address = address.substr(store.length()+1);
+                if(path.length()>store.length()){
+                    if(path.substr(0,store.length())==store){
+                        return path.substr(store.length()+1);
+                    }
                 }
             }
-            return address;
         }
-        else return "";
+        return "";
     }
 
     /**
@@ -1037,7 +1016,7 @@ public:
                 <body></body>
             </html>
         )");
-        auto list = page.one("body").append("ul");
+        auto list = page.select("body").append("ul");
         for(auto instance : instances_){
             list.append("li",instance.first);
         }

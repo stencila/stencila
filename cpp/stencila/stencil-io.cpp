@@ -5,8 +5,14 @@ namespace Stencila {
 Stencil& Stencil::initialise(const std::string& from){
     std::size_t found = from.find("://");
     if(found==std::string::npos){
-        // Initialised from a path
-        read(from);
+        // Initialised from an address or path
+        if(boost::filesystem::exists(from)){
+            read(from);
+        } else {
+            std::string path = Component::locate(from);
+            if(path.length()) read(path);
+            else STENCILA_THROW(Exception,str(boost::format("No stencil found with path or address <%s>")%from));
+        }        
     } else {
         // Initialised from some content
         std::string type = from.substr(0,found);

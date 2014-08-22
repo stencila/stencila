@@ -136,7 +136,7 @@ private:
 					else content = Component::page(address_(path));
 				} else {
 					// Static request
-			        std::string filename = Component::resolve(path);
+			        std::string filename = Component::locate(path);
 			        if(not filename.length()){
 			        	// 404: not found
 			        	status = http::status_code::not_found;
