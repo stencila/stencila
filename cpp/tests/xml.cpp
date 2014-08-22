@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(one){
         </html>
     )");
 
-    #define CHECK(selector,result) BOOST_CHECK_EQUAL(doc.one(selector).text(),result);
+    #define CHECK(selector,result) BOOST_CHECK_EQUAL(doc.select(selector).text(),result);
 
     CHECK("div.a","A")
     
@@ -178,21 +178,21 @@ BOOST_AUTO_TEST_CASE(sanitize){
         </div>
     )");
 
-    BOOST_CHECK(doc.one("p.a"));
-    BOOST_CHECK(doc.one("script.b"));
-    BOOST_CHECK(doc.one("div.c[foo]"));
-    BOOST_CHECK(doc.one("img.d"));
+    BOOST_CHECK(doc.select("p.a"));
+    BOOST_CHECK(doc.select("script.b"));
+    BOOST_CHECK(doc.select("div.c[foo]"));
+    BOOST_CHECK(doc.select("img.d"));
 
     doc.sanitize({
         {"p",{"class"}},
         {"div",{"class"}}
     });
 
-    BOOST_CHECK(doc.one("p.a"));
-    BOOST_CHECK(!doc.one("script"));
-    BOOST_CHECK(doc.one("div.c"));
-    BOOST_CHECK(!doc.one("div.c[foo]"));
-    BOOST_CHECK(!doc.one("img.d"));
+    BOOST_CHECK(doc.select("p.a"));
+    BOOST_CHECK(!doc.select("script"));
+    BOOST_CHECK(doc.select("div.c"));
+    BOOST_CHECK(!doc.select("div.c[foo]"));
+    BOOST_CHECK(!doc.select("img.d"));
 }
 
 

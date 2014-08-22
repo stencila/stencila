@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 
+#include <boost/format.hpp>
+
 #include <pugixml.hpp>
 
 #include <stencila/exception.hpp>
@@ -570,26 +572,34 @@ public:
     static std::string xpath(const std::string& selector);
 
     /**
-     * Get the first element which matches the CSS selector
+     * Get the first element which matches the selector
      * 
-     * @param  selector CSS selector expression
+     * @param  selector Selector expression
+     * @param  type Type of seletor expression, `"css"` or `"xpath"`
      */
-    Node one(const std::string& selector) const {
-        std::string xpat = xpath(selector);
+    Node select(const std::string& selector,const std::string& type="css") const {
+        std::string xpat;
+        if(type=="css") xpat = xpath(selector);
+        else if(type=="xpath") xpat = selector;
+        else STENCILA_THROW(Exception,str(boost::format("Unknown selector type <%s>")%type));
         try {
             return select_single_node(xpat.c_str()).node();
         } catch (const pugi::xpath_exception& e){
             STENCILA_THROW(Exception,e.what());
         }
     }
-    
+
     /**
-     * Get all the element which match the CSS selector
+     * Get all the element which match the selector
      * 
-     * @param  selector CSS selector expression
+     * @param  selector Selector expression
+     * @param  type Type of seletor expression, `"css"` or `"xpath"`
      */
-    Nodes all(const std::string& selector) const {
-        std::string xpat = xpath(selector);
+    Nodes filter(const std::string& selector,const std::string& type="css") const {
+        std::string xpat;
+        if(type=="css") xpat = xpath(selector);
+        else if(type=="xpath") xpat = selector;
+        else STENCILA_THROW(Exception,str(boost::format("Unknown selector type <%s>")%type));
         try {
             // Select nodes
             pugi::xpath_node_set selected = select_nodes(xpat.c_str());
