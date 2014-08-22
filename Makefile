@@ -96,7 +96,7 @@ $(BUILD)/cpp/requires/boost-linked.flag: $(BUILD)/cpp/requires/boost-built.flag
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-linked.flag
 
 
-LIBGIT2_VERSION := 0.20.0
+LIBGIT2_VERSION := 0.21.1
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p $(RESOURCES)
