@@ -65,12 +65,9 @@ void Repository::init(const std::string& path,bool commit){
 }
 
 bool Repository::open(const std::string& path){
-	char path_chars[1024];
-	if(git_repository_discover(path_chars,1024,path.c_str(),true,"/")==0){
-		STENCILA_GIT_TRY(git_repository_open(&repo_,path_chars));
-	} else {
-		STENCILA_THROW(NoRepoError,"No repository found at: "+path);
-	}
+	int error = git_repository_open_ext(&repo_,path.c_str(),0,NULL);
+	if(error==0) return true;
+	else if(error==GIT_ENOTFOUND) STENCILA_THROW(NoRepoError,"No repository found at: "+path);
 	return true;
 }
 
@@ -122,8 +119,8 @@ void Repository::commit(const std::string& message,const std::string& name,const
 	git_index* index;
 	STENCILA_GIT_TRY(git_repository_index(&index, repo_));
 	// Update index based on the working directory
-	char* paths[] = {"*"};
-	git_strarray paths_array = {paths, 1};
+	const char* paths[] = {"*"};
+	git_strarray paths_array = {const_cast<char**>(paths), 1};
 	STENCILA_GIT_TRY(git_index_add_all(index,&paths_array, GIT_INDEX_ADD_DEFAULT, nullptr,nullptr));
 	STENCILA_GIT_TRY(git_index_update_all(index,&paths_array,nullptr,nullptr));
 	// Write the index content as a tree
@@ -217,10 +214,10 @@ void Repository::checkout_tag(const std::string& tag){
 	// There are plenty of options
 	// See https://github.com/libgit2/libgit2/blob/HEAD/include/git2/checkout.h
 	// opts.checkout_strategy is really important!
-	git_checkout_opts opts = GIT_CHECKOUT_OPTS_INIT;
-	opts.checkout_strategy = GIT_CHECKOUT_FORCE;
+	git_checkout_options options = GIT_CHECKOUT_OPTIONS_INIT;
+	options.checkout_strategy = GIT_CHECKOUT_FORCE;
 	// Do the commit
-	STENCILA_GIT_TRY(git_checkout_tree(repo_,commit,&opts));
+	STENCILA_GIT_TRY(git_checkout_tree(repo_,commit,&options));
 	git_object_free(commit);
 }
 

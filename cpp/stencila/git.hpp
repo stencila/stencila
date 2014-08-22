@@ -6,6 +6,7 @@
 
 #include <stencila/exception.hpp>
 
+// Declarations to avoid including git2.h
 struct git_repository;
 struct git_commit;
 
