@@ -438,10 +438,18 @@ BOOST_AUTO_TEST_CASE(directive_macro){
 	ECHO_("macro name")
     HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
 
-    HTML_("macro name\n\targ x","<div data-macro=\"name\" id=\"name\">\n\t<div data-arg=\"x\" />\n</div>")
-    ECHO_("macro name\n\targ x")
-    ECHO_("macro name\n\targ x = 1")
-    ECHO_("macro name\n\targ x = 1\n\targ y")
+    HTML_("macro name\n\tpar x","<div data-macro=\"name\" id=\"name\">\n\t<div data-par=\"x\" />\n</div>")
+}
+
+BOOST_AUTO_TEST_CASE(directive_param){
+    HTML_("par x","<div data-par=\"x\" />")
+    HTML_("par x:text","<div data-par=\"x:text\" />")
+    HTML_("par x:number = 42","<div data-par=\"x:number=42\" />")
+    HTML_("par x = 'a'","<div data-par=\"x='a'\" />")
+
+    ECHO_("par x")
+    ECHO_("par x = 1")
+    ECHO_("par x:number = 42")
 }
 
 BOOST_AUTO_TEST_CASE(inlines){

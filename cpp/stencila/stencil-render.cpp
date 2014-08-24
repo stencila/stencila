@@ -28,8 +28,8 @@ typedef Xml::Nodes Nodes;
  * 
  */
 
-std::tuple<std::string,std::string> arg_or_set_(const Node& node, const std::string& attr){
-    std::string value = node.attr(attr);
+std::tuple<std::string,std::string> par_(const Node& node){
+    std::string value = node.attr("data-set");
     std::string name;
     std::string expression;
     size_t semicolon = value.find(":");
@@ -43,12 +43,19 @@ std::tuple<std::string,std::string> arg_or_set_(const Node& node, const std::str
     return std::tuple<std::string,std::string>(name,expression);
 }
 
-std::tuple<std::string,std::string> arg_(const Node& node){
-    return arg_or_set_(node,"data-arg");
-}
-
 std::tuple<std::string,std::string> set_(const Node& node){
-    return arg_or_set_(node,"data-set");
+    std::string value = node.attr("data-set");
+    std::string name;
+    std::string expression;
+    size_t semicolon = value.find(":");
+    if(semicolon!=value.npos){
+        name = value.substr(0,semicolon);
+        expression = value.substr(semicolon+1);
+    } else {
+        name = value;
+        expression = node.text();
+    }
+    return std::tuple<std::string,std::string>(name,expression);
 }
 
 // Forward declaration of the element rendering function
@@ -491,9 +498,9 @@ void include_(Node node, Context* context){
     // Now apply the included element's arguments
     // Check for if they are required or for any default values
     bool ok = true;
-    for(Node arg : included.filter("[data-arg]")){
-        // Parse the argument node
-        std::tuple<std::string,std::string> parsed = arg_(arg);
+    for(Node par : included.filter("[data-par]")){
+        // Parse the parameter node
+        std::tuple<std::string,std::string> parsed = par_(par);
         std::string name = std::get<0>(parsed);
         std::string expression = std::get<1>(parsed);
         // Check to see if it has already be assigned
@@ -505,14 +512,14 @@ void include_(Node node, Context* context){
                 // Set an error
                 included.append(
                     "div",
-                    {{"data-error","arg-required"},{"data-arg",name}},
-                    "Argument is required because it has no default: "+name
+                    {{"data-error","par-required"},{"data-par",name}},
+                    "Parameter is required because it has no default: "+name
                 );
                 ok  = false;
             }
         }
-        // Remove the argument, there is no need to have it in the included node
-        arg.destroy();
+        // Remove the parameter, there is no need to have it in the included node
+        par.destroy();
     }
 
     // Render the `data-included` element
