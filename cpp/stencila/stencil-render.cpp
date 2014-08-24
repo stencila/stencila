@@ -19,43 +19,30 @@ typedef Xml::Node Node;
 typedef Xml::Nodes Nodes;
 
 /**
- * Node parsing functions
- *
- * Some stencil nodes require parsing of attributes or text
- * content to determine their semantics. These methods
- * provide for that parsing and are mostly used by other methods
- * such as `render`.
+ * Render an error onto a node.
  * 
+ * A function for providing consistent error reporting from
+ * within rendering functions.
+ * 
+ * @param node    Node where error occurred
+ * @param type    Type of error, usually prefixed with directive type e.g. `for-syntax`
+ * @param data    Data associated with the error which may be useful for resolving it
+ * @param message A human readable description of the error
  */
-
-std::tuple<std::string,std::string> par_(const Node& node){
-    std::string value = node.attr("data-set");
-    std::string name;
-    std::string expression;
-    size_t semicolon = value.find(":");
-    if(semicolon!=value.npos){
-        name = value.substr(0,semicolon);
-        expression = value.substr(semicolon+1);
-    } else {
-        name = value;
-        expression = node.text();
-    }
-    return std::tuple<std::string,std::string>(name,expression);
-}
-
-std::tuple<std::string,std::string> set_(const Node& node){
-    std::string value = node.attr("data-set");
-    std::string name;
-    std::string expression;
-    size_t semicolon = value.find(":");
-    if(semicolon!=value.npos){
-        name = value.substr(0,semicolon);
-        expression = value.substr(semicolon+1);
-    } else {
-        name = value;
-        expression = node.text();
-    }
-    return std::tuple<std::string,std::string>(name,expression);
+void error_(Node node, const std::string& type, const std::string& data, const std::string& message){
+    node.append(
+        // A <div> with...
+        "div",
+        // attributes...
+        {
+            // to identify the type of error,
+            {"data-error",type},
+            // and data for helping resolve the error...
+            {"data-"+type,data}
+        },
+        // and a message as text content
+        message
+    );
 }
 
 // Forward declaration of the element rendering function
@@ -156,6 +143,36 @@ void code_(Node node, Context* context){
                 node.after(output_node);
             }
         }
+    }
+}
+
+/**
+ * Render a `set` element (e.g. `<span data-set="answer=42"></span>`)
+ *
+ * The expression in the `data-set` attribute is parsed and
+ * assigned to a variable in the context.
+ */
+std::string set_(Node node, Context* context){
+    std::string attribute = node.attr("data-set");
+    static const boost::regex pattern("^([^=]+)(=(.+))?$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) {
+        std::string name = match[1].str();
+        std::string value = match[3].str();
+        // If there is no value then use the node's text
+        if(value.length()==0) value = node.text();
+        // If still no value then create an error
+        if(value.length()==0){
+            error_(node,"set-value-none",name,str(boost::format("No value provided for <%s>")%name));
+            return "";
+        }
+        // Assign the variable in the new frame
+        context->assign(name,value);
+        return name;
+    }
+    else {
+        error_(node,"set-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+        return "";
     }
 }
 
@@ -477,47 +494,46 @@ void include_(Node node, Context* context){
     
     // Enter a new namespace.
     // Do this regardless of whether there are any 
-    // `data-arg` elements, to avoid the included elements polluting the
+    // `data-par` elements, to avoid the included elements polluting the
     // main context or overwriting variables inadvertantly
     context->enter();
 
     // Apply `data-set` elements
-    // Apply all the `set`s specified in this include first. This
-    // my include args not specified by the author of the included stencil.
+    // Apply all the `set`s specified in the include first. This
+    // may include setting vatiables not specified by the author of the included stencil.
     std::vector<std::string> assigned;
     for(Node set : node.filter("[data-set]")){
-        // Parse the argument node
-        std::tuple<std::string,std::string> parsed = set_(set);
-        std::string name = std::get<0>(parsed);
-        std::string expression = std::get<1>(parsed);
-        // Assign the argument in the new frame
-        context->assign(name,expression);
-        // Add this to the list of arguments assigned
+        std::string name = set_(set,context);
         assigned.push_back(name);
     }
-    // Now apply the included element's arguments
-    // Check for if they are required or for any default values
+    // Now apply the included element's parameters
     bool ok = true;
     for(Node par : included.filter("[data-par]")){
-        // Parse the parameter node
-        std::tuple<std::string,std::string> parsed = par_(par);
-        std::string name = std::get<0>(parsed);
-        std::string expression = std::get<1>(parsed);
-        // Check to see if it has already be assigned
-        if(std::count(assigned.begin(),assigned.end(),name)==0){
-            if(expression.length()>0){
-                // Assign the argument in the new frame
-                context->assign(name,expression);
-            } else {
-                // Set an error
-                included.append(
-                    "div",
-                    {{"data-error","par-required"},{"data-par",name}},
-                    "Parameter is required because it has no default: "+name
-                );
-                ok  = false;
+        // Parse the attribute
+        std::string attribute = par.attr("data-par");
+        static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
+        boost::smatch match;
+        if(boost::regex_search(attribute, match, pattern)) {
+            std::string name = match[1].str();
+            std::string type = match[3].str();
+            std::string default_ = match[5].str();
+            // Check to see if it has already be assigned
+            if(std::count(assigned.begin(),assigned.end(),name)==0){
+                if(default_.length()>0){
+                    // Assign the default_ in the new frame
+                    context->assign(name,default_);
+                } else {
+                    // Set an error
+                    error_(node,"par-required",name,str(boost::format("Parameter <%s> is required because it has no default")%name));
+                    ok  = false;
+                }
             }
         }
+        else {
+            error_(node,"par-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+            ok = false;
+        }
+
         // Remove the parameter, there is no need to have it in the included node
         par.destroy();
     }
@@ -543,6 +559,10 @@ void element_(Node node, Context* context){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
             else if(attr=="data-code") return code_(node,context);
+            else if(attr=="data-set") {
+                set_(node,context);
+                return;
+            }
             else if(attr=="data-text") return text_(node,context);
             else if(attr=="data-with") return with_(node,context);
             else if(attr=="data-if") return if_(node,context);
@@ -555,13 +575,11 @@ void element_(Node node, Context* context){
         // If return not yet hit then process children of this element
         children_(node,context);
     }
-    catch(std::exception& exc){
-        std::string message = "Error:";
-        message += exc.what();
-        node.append("span",{{"data-error","exception"}},message);
+    catch(const std::exception& exc){
+        error_(node,"exception","",exc.what());
     }
     catch(...){
-        node.append("span",{{"data-error","unknown"}},"Unknown error");
+        error_(node,"unknown","","Unknown exception");
     }
 }
 
