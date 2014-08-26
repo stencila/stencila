@@ -11,7 +11,7 @@ namespace Stencila {
 namespace Html {
 
 /**
- * @namespace Html
+ * @namespace Stencila::Html
  *
  * Stencila's interface to HTML5
  * 

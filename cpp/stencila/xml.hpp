@@ -13,7 +13,7 @@ namespace Stencila {
 namespace Xml {
 
 /**
- * @namespace Xml
+ * @namespace Stencila::Xml
  *
  * Stencila's interface to <a href="http://en.wikipedia.org/wiki/XML/">Extensible Markup Language (XML)</a>.
  *

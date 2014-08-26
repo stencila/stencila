@@ -800,7 +800,7 @@ private:
                 try{
                     repo->open(path);
                 }
-                catch(Git::GitNoRepoError){
+                catch(Git::NoRepoError){
                     repo->init(path);
                 }
                 meta_->repo = repo;
@@ -827,7 +827,6 @@ public:
         std::string commit_message = message;
         if(commit_message.length()==0) commit_message = "Updated";
         // Get the name and email of the user
-        //! @todo Get the name and email of the user from ~/.stencila/.config
         std::string name = "";
         std::string email = "";
         // Write the component to ensure it has a working directory with up to date
@@ -923,7 +922,6 @@ public:
         }
 
         if(tag_message.length()==0) tag_message = "Versioned changed to " + new_version;
-        //! @todo Get the name and email of the user from ~/.stencila/.config
         std::string name = "";
         std::string email = "";
         // Get, or create, repository for the component and tag it.
@@ -953,7 +951,7 @@ public:
             Repository version_repo;
             version_repo.clone(path(),version_path);      
             // Checkout version
-            version_repo.checkout_tag(version);
+            version_repo.checkout(version);
             // Remove version .git directory
             boost::filesystem::remove_all(version_path+"/.git");
         }

@@ -117,7 +117,8 @@ private:
 public:
 
 	/**
-	 * @namespace Constructors
+	 * @name Constructors
+	 * 
 	 * @{
 	 */
 

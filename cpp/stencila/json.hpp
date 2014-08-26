@@ -17,7 +17,7 @@ namespace Stencila {
 namespace Json {
 
 /**
- @namespace  Json
+ @namespace  Stencila::Json
 
  This namespace contains utility classes for handling the <a href="http://www.json.org/">JavaScript Object Notation (JSON)</a>.
 
