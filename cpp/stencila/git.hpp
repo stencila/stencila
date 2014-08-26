@@ -14,7 +14,7 @@ namespace Stencila {
 namespace Git {
 
 /**
- * @namespace Git
+ * @namespace Stencila::Git
  *
  * Stencila's interface to [libgit2](http://libgit2.github.com)
  */
@@ -29,6 +29,9 @@ public:
 
 };
 
+/**
+ * A libgit2 no repository found error
+ */
 class NoRepoError : public Error {
 public:
 
@@ -37,7 +40,7 @@ public:
 };
 
 /**
- * A commit to a repository
+ * A commit to a Git repository
  */
 class Commit {
 public:
@@ -59,55 +62,80 @@ class Repository {
 public:
 
 	Repository(void);
-
 	~Repository(void);
 
 	/**
-	 * Create a new Git repository if it does not exist in the given folder
+	 * Create a new repository if it does not exist in the directory
+	 * 
 	 * @param path Filesystem path to the repository
-	 * @todo How is this different to open?
 	 */
 	void init(const std::string& path,bool commit=false);
 
 	/**
-	 * Open a Git repository
+	 * Open a repository
 	 * 
 	 * @param path Filesystem path to the repository
 	 */
 	bool open(const std::string& path);
 
-
+	/**
+	 * Open a repository
+	 * 
+	 * @param url URL of remote repository
+	 * @param path Filesystem path to the repository
+	 */
 	void clone(const std::string& url,const std::string& path);
 
 	/**
 	 * Destroy the repository
-	 * @todo Implement, check for gitlib2 functions to call; remove all files?
 	 */
 	void destroy(void);
 
 	/**
 	 * Get the id of the repository head
-	 * @return Id
 	 */
 	std::string head();
 
+	/**
+	 * Get a commit history for the repository
+	 */
 	std::vector<Commit> history(void);
 
 	/**
 	 * Commit all the files in the working directory
+	 * 
 	 * @param message Message for the commit
 	 * @param name    Name of the commit author
 	 * @param email   Email of the commit author
 	 */
 	void commit(const std::string& message,const std::string& name,const std::string& email);
 
+	/**
+	 * Get a list of all tags on the repository
+	 */
 	std::vector<std::string> tags(void);
 
+	/**
+	 * Get the latest tag on the repository
+	 */
 	std::string tag(void);
 
+	/**
+	 * Set a tag on the HEAD
+	 * 
+	 * @param tag     Tag to set
+	 * @param message Message to associate with tag
+	 * @param name    Name of tagger
+	 * @param email   Email of tagger
+	 */
 	void tag(const std::string& tag,const std::string& message,const std::string& name,const std::string& email);
 
-	void checkout_tag(const std::string& tag);
+	/**
+	 * Checkout a specific tag 
+	 * 
+	 * @param tag Tag to checkout
+	 */
+	void checkout(const std::string& tag);
 
 private:
 

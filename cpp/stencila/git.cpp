@@ -206,7 +206,7 @@ void Repository::tag(const std::string& tag,const std::string& message,const std
 	git_signature_free(tagger);
 }
 
-void Repository::checkout_tag(const std::string& tag){
+void Repository::checkout(const std::string& tag){
 	git_object* commit = nullptr;
 	// Get the commit from the tag
 	STENCILA_GIT_TRY(git_revparse_single(&commit, repo_, tag.c_str()));
