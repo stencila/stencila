@@ -44,7 +44,7 @@ Component& Component::commit(const std::string& message) {
 
 std::vector<Component::Commit> Component::commits(void) const {
 	Repository* repo = this->repo();
-	if(repo) return repo->history();
+	if(repo) return repo->commits();
 	else return std::vector<Commit>(0);
 }
 

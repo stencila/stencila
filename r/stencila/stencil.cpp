@@ -15,6 +15,11 @@ STENCILA_R_EXEC1(Stencil,write,std::string)
 STENCILA_R_ATTR(Stencil,html,std::string)
 STENCILA_R_ATTR(Stencil,cila,std::string)
 
+STENCILA_R_RET0(Stencil,title)
+STENCILA_R_RET0(Stencil,description)
+STENCILA_R_RET0(Stencil,keywords)
+STENCILA_R_RET0(Stencil,authors)
+
 STENCILA_R_FUNC Stencil_attach(SEXP self,SEXP context){
     STENCILA_R_BEGIN
         RContext* rcontext = new RContext(context);

@@ -27,11 +27,11 @@ public:
     ~Exception(void) throw() {
     }
 
-    const char* what(void)  const throw() {
+    const char* what(void) const throw() {
         std::ostringstream stream;
         if(file_){
             std::string filename = boost::filesystem::path(file_).filename().string();
-            stream << filename << ":" << line_ << ":" << message_;
+            stream << filename << ": " << line_ << ": " << message_;
         } else {
             stream << message_;
         }

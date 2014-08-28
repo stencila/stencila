@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -302,10 +303,10 @@ public:
     /**
      * Get the path of a component from the stores
      */
-    static std::string locate(const std::string& path){
+    static std::string locate(const std::string& address){
         for(std::string store : stores()){
-            boost::filesystem::path full_path = boost::filesystem::path(store)/path;
-            if(boost::filesystem::exists(full_path)) return full_path.string();
+            boost::filesystem::path path = boost::filesystem::path(store)/address;
+            if(boost::filesystem::exists(path)) return path.string();
         }
         return "";
     }
@@ -407,123 +408,6 @@ public:
     ~Component(void){
         if(meta_) delete meta_;
     }
- 
-
-    /**
-     * @{
-     * @name Information attribute getters and setters
-     */
-
-    //Define some local get and set macros
-    
-    #define _GET(attr,value) \
-        if(not meta_){ \
-            meta_ = new Meta; \
-            meta_->attr = value; \
-        } \
-        return meta_->attr;
-
-    #define _SET(attr,value) \
-        if(not meta_) meta_ = new Meta; \
-        meta_->attr = value; \
-        return *this;
-
-    /**
-     * Get component title
-     */
-    const std::string& title(void) const {
-        _GET(title,"")
-    }
-
-    /**
-     * Get component title
-     */
-    std::string& title(void) {
-        _GET(title,"")
-    }
-
-    /**
-     * Set component title
-     * @param title Title of the component
-     */
-    Component& title(const std::string& title) {
-        _SET(title,title)
-    }
-
-    /**
-     * Get component description
-     */
-    const std::string& description(void) const {
-        _GET(description,"")
-    }
-
-    /**
-     * Get component description
-     */
-    std::string& description(void) {
-        _GET(description,"")
-    }
-
-    /**
-     * Set component description
-     * @param description Description for the component
-     */
-    Component& description(const std::string& description) {
-        _SET(description,description)
-    }
-    
-    /**
-     * Get component keywords
-     */
-    const std::vector<std::string>& keywords(void) const {
-        _GET(keywords,std::vector<std::string>(0))
-    }
-
-    /**
-     * Get component keywords
-     */
-    std::vector<std::string>& keywords(void) {
-        _GET(keywords,std::vector<std::string>(0))
-    }
-
-    /**
-     * Set component keywords
-     * @param keywords Keywords for the component
-     */
-    Component& keywords(const std::vector<std::string>& keywords) {
-        _SET(keywords,keywords)
-    }
-
-    /**
-     * Get component authors
-     */
-    const std::vector<std::string>& authors(void) const {
-        _GET(authors,std::vector<std::string>(0))
-    }
-
-    /**
-     * Get component authors
-     */
-    std::vector<std::string>& authors(void) {
-        _GET(authors,std::vector<std::string>(0))
-    }
-
-    /**
-     * Set component authors
-     * @param authors Authors of the component
-     */
-    Component& authors(const std::vector<std::string>& authors) {
-        _SET(authors,authors)
-    }
-
-    // Undefine local macros
-    #undef _GET
-    #undef _SET
-
-    /**
-     * @}
-     */
-
 
     /**
      * @name Input and output
@@ -936,10 +820,10 @@ public:
             std::string string = call.arg(0);
             commit(string);
         }
-        else if(what=="history():array"){
+        else if(what=="commits():array"){
             Json::Document log;
             log.type<Json::Array>();
-            for(auto commit : history()) {
+            for(auto commit : commits()) {
                 log.push(commit.name+" "+commit.email+" "+commit.message);
             }
             return log.dump();
@@ -965,11 +849,6 @@ private:
      */
     class Meta {
     public:
-        std::string title;
-        std::string description;  
-        std::vector<std::string> keywords;
-        std::vector<std::string> authors;
-
         /**
          * Local filesystem path to the component.
          *

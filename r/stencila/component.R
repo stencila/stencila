@@ -10,11 +10,6 @@ NULL
 class_('Component',NULL)
 Component <- function() new("Component")
 
-attr_('Component','title')
-attr_('Component','description')
-attr_('Component','keywords')
-attr_('Component','authors')
-
 #' Get or set the path of a component
 #'
 #' @param path New path for the component
@@ -28,8 +23,6 @@ attr_('Component','authors')
 NULL
 
 attr_('Component','path',toString)
-setGeneric('path',function(instance,path,...) standardGeneric('path'))
-setMethod('path','Component',Component_path)
 
 #' Commit a component
 #'
@@ -46,25 +39,19 @@ NULL
 Component_commit <- function(instance,message=""){
 	call_('Component_commit',instance@pointer,toString(message))
 }
-setGeneric('commit',function(instance,message) standardGeneric('commit'))
-setMethod('commit','Component',Component_commit)
 
-
-#' Get history for component
+#' Get commits for component
 #'
 #' @export
-#' @name history
+#' @name commits
 #'
 #' @docType methods
-#' @rdname history-methods
-#' @aliases history,Component-method
+#' @rdname commits-methods
+#' @aliases commits,Component-method
 #'
 #' @examples
-#' # Create a component, commit it and get a history of commits ...
+#' # Create a component, commit it and get a list of commits ...
 #' c <- Component()
 #' c$commit("Initial commit")
-#' c$history()
+#' c$commits()
 NULL
-
-setGeneric('history',function(instance) standardGeneric('history'))
-setMethod('history','Component',function(instance) instance$history())

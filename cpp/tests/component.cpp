@@ -9,43 +9,6 @@ using namespace Stencila;
 
 boost::regex temp_path_pattern(".*/temp/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");
 
-BOOST_AUTO_TEST_CASE(title){
-    Component c;
-    
-    BOOST_CHECK_EQUAL(c.title(),"");
-    
-    BOOST_CHECK_EQUAL(c.title("A really useful component").title(),"A really useful component");
-    
-    c.title() = "A quite useful component";
-    BOOST_CHECK_EQUAL(c.title(),"A quite useful component");
-}
-
-BOOST_AUTO_TEST_CASE(description){
-    Component c;
-    
-    BOOST_CHECK_EQUAL(c.description(),"");
-}
-
-BOOST_AUTO_TEST_CASE(keywords){
-    Component c;
-    
-    BOOST_CHECK_EQUAL(c.keywords().size(),0);
-
-    std::vector<std::string> keywords = {"great","fantastic"};
-    c.keywords().insert(c.keywords().end(),keywords.begin(),keywords.end());
-    BOOST_CHECK_EQUAL(c.keywords().size(),keywords.size());
-}
-
-BOOST_AUTO_TEST_CASE(authors){
-    Component c;
-    
-    BOOST_CHECK_EQUAL(c.authors().size(),0);
-
-    c.authors({"Peter Pan","Marry Poppins"});
-    c.authors().push_back("Joe Bloggs");
-    BOOST_CHECK_EQUAL(c.authors().size(),3);
-}
-
 /**
  * @class Component
  *
@@ -165,12 +128,12 @@ BOOST_AUTO_TEST_CASE(destroy_transient){
 BOOST_AUTO_TEST_CASE(commit){
     Component c;
 
-    BOOST_CHECK_EQUAL(c.history().size(),0);
+    BOOST_CHECK_EQUAL(c.commits().size(),0);
 
     c.commit();
-    auto history = c.history();
-    BOOST_CHECK_EQUAL(history.size(),1);
-    BOOST_CHECK_EQUAL(history[0].message,"Updated");
+    auto commits = c.commits();
+    BOOST_CHECK_EQUAL(commits.size(),1);
+    BOOST_CHECK_EQUAL(commits[0].message,"Updated");
     BOOST_CHECK(boost::filesystem::exists(c.path()+"/.git"));
     c.destroy();
 }

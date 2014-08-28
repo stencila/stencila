@@ -1,3 +1,5 @@
+#include <boost/regex.hpp>
+
 #include <stencila/stencil.hpp>
 
 // Conditional includes of context types
