@@ -10,7 +10,7 @@ namespace Git {
 
 Error::Error(int code,std::string message,const char* file, int line):
     Exception(message,file,line){
-	if(code>0){
+	if(code<0){
 		const git_error* error = giterr_last();
 		const char* message = (error && error->message) ? error->message : "unknown";
 		message_ += message;
@@ -18,11 +18,11 @@ Error::Error(int code,std::string message,const char* file, int line):
 }
 
 NoRepoError::NoRepoError(std::string message,const char* file, int line): 
-	Error(-1,message,file,line){
+	Error(GIT_ENOTFOUND,message,file,line){
 }
 
 #define STENCILA_GIT_THROW(code) throw Error(code,"",__FILE__,__LINE__);
-#define STENCILA_GIT_TRY(call) { int code = call; if(code) STENCILA_GIT_THROW(code); }
+#define STENCILA_GIT_TRY(call) { int code = call; if(code<0) STENCILA_GIT_THROW(code); }
 
 Commit::Commit(void){
 }
@@ -37,6 +37,15 @@ Commit::Commit(const git_commit* commit){
 
 Repository::Repository(void):
 	repo_(nullptr){
+	// Initialise libgit so https supported is initialised
+	// See
+	//  https://github.com/libgit2/libgit2/issues/2446
+	// 	https://github.com/libgit2/libgit2/issues/2480
+	static bool git_threads_inited = false;
+	if(not git_threads_inited){
+		git_threads_init();
+		git_threads_inited = true;
+	}
 }
 
 Repository::~Repository(void){
@@ -67,7 +76,8 @@ void Repository::init(const std::string& path,bool commit){
 bool Repository::open(const std::string& path){
 	int error = git_repository_open_ext(&repo_,path.c_str(),0,NULL);
 	if(error==0) return true;
-	else if(error==GIT_ENOTFOUND) STENCILA_THROW(NoRepoError,"No repository found at: "+path);
+	else if(error==GIT_ENOTFOUND) throw NoRepoError("No repository found at: "+path,__FILE__,__LINE__);
+	else throw Error(error,"",__FILE__,__LINE__);
 	return true;
 }
 
@@ -90,7 +100,7 @@ std::string Repository::head(void){
 	return buffer;
 }
 
-std::vector<Commit> Repository::history(void){
+std::vector<Commit> Repository::commits(void){
 	// Get the oid of the HEAD
 	git_oid oid;
 	git_oid_fromstr(&oid, head().c_str());
@@ -100,15 +110,15 @@ std::vector<Commit> Repository::history(void){
 	git_revwalk_sorting(walker, GIT_SORT_TOPOLOGICAL);
 	git_revwalk_push(walker, &oid);
 	// Do the walk
-	std::vector<Commit> history;
+	std::vector<Commit> commits;
 	git_commit* commit;
 	while ((git_revwalk_next(&oid, walker)) == 0) {
 		STENCILA_GIT_TRY(git_commit_lookup(&commit, repo_, &oid));
-		history.push_back(Commit(commit));
+		commits.push_back(Commit(commit));
 		git_commit_free(commit);
 	}
 	git_revwalk_free(walker);
-	return history;
+	return commits;
 }
 
 void Repository::commit(const std::string& message,const std::string& name,const std::string& email){

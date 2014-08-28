@@ -99,7 +99,7 @@ public:
 	/**
 	 * Get a commit history for the repository
 	 */
-	std::vector<Commit> history(void);
+	std::vector<Commit> commits(void);
 
 	/**
 	 * Commit all the files in the working directory
