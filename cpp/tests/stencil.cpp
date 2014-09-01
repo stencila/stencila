@@ -59,6 +59,20 @@ BOOST_AUTO_TEST_CASE(write_empty){
     s.destroy();
 }
 
+BOOST_AUTO_TEST_CASE(get){
+    Stencil s;
+    s.write();
+
+    auto instance = s.get(s.address());
+    BOOST_CHECK(instance.exists());
+    BOOST_CHECK_EQUAL(instance.type(),Component::StencilType);
+
+    Stencil& s_ = instance.as<Stencil>();
+    BOOST_CHECK_EQUAL(s.address(),s_.address());
+
+    s.destroy();
+}
+
 BOOST_AUTO_TEST_CASE(append){
     Stencil s;
 

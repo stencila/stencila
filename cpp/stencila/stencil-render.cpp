@@ -411,7 +411,7 @@ void include_(Node node, Context* context){
     Node stencil;
     //Check to see if this is a "self" include, otherwise obtain the stencil
     if(include==".") stencil = node.root();
-    else stencil = Component::get<Stencil>(include,version);
+    else stencil = Component::get(include,version).as<Stencil>();
     // ...select from it
     if(select.length()>0){
         // ...append the selected nodes.

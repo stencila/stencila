@@ -83,12 +83,11 @@ Stencil& Stencil::read(const std::string& directory){
     return *this;
 }
 
-Stencil& Stencil::write(const std::string& directory){
-    // Set `path` if provided
-    if(directory.length()) Component::path(directory);
+Stencil& Stencil::write(const std::string& path_arg){
+    if(path_arg.length()) path(path_arg);
     // Write necessary files
     // @fixme This should use `export_()`
-    Component::write("main.html",html(true));
+    Component::write("stencil.html",html(true));
     return *this;
 }
 

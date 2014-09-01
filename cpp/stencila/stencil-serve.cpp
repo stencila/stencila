@@ -3,11 +3,11 @@
 namespace Stencila {
 
 std::string Stencil::serve(void){
-    return Component::serve(StencilCode);
+    return Component::serve(StencilType);
 }
 
 void Stencil::view(void){
-    return Component::view(StencilCode);
+    return Component::view(StencilType);
 }
 
 std::string Stencil::call(const Call& call) {
