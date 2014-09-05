@@ -79,7 +79,7 @@ public:
 	bool open(const std::string& path);
 
 	/**
-	 * Open a repository
+	 * Clone a repository
 	 * 
 	 * @param url URL of remote repository
 	 * @param path Filesystem path to the repository
@@ -94,7 +94,23 @@ public:
 	/**
 	 * Get the id of the repository head
 	 */
-	std::string head();
+	std::string head(void);
+
+	/**
+	 * Get the URL of a remote repository
+	 * 
+	 * @param  name Name of the remote repository
+	 * @return      URL of the remote repository
+	 */
+	std::string remote(const std::string& name="origin");
+
+	/**
+	 * Set the URL of a remote repository
+	 * 
+	 * @param  name Name of the remote repository
+	 * @param  url  New URL of the remote repository
+	 */
+	Repository& remote(const std::string& name,const std::string& url);
 
 	/**
 	 * Get a commit history for the repository

@@ -100,6 +100,19 @@ std::string Repository::head(void){
 	return buffer;
 }
 
+std::string Repository::remote(const std::string& name){
+	git_remote* remote = NULL;
+	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, "origin"));
+	return git_remote_url(remote);
+}
+
+Repository& Repository::remote(const std::string& name,const std::string& url){
+	git_remote* remote = NULL;
+	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, "origin"));
+	STENCILA_GIT_TRY(git_remote_set_url(remote,url.c_str()));
+	return *this;
+}
+
 std::vector<Commit> Repository::commits(void){
 	// Get the oid of the HEAD
 	git_oid oid;
