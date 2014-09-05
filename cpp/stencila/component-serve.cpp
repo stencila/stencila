@@ -66,7 +66,7 @@ std::string Component::message(const std::string& address,const std::string& mes
 
 	try {
 		Instance instance = get(address);
-		if(instance.exists()){
+		if(not instance.exists()){
 			return "[8, 0, 0, {}, \"no component at address\", [\"" + address + "\"]]";
 		} else {
 
