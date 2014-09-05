@@ -149,6 +149,27 @@ public:
 	Repository* repo(bool ensure = false) const;
 
 	/**
+	 * Clone a component
+	 *
+	 * @param  address Address of component to be cloned
+	 */
+	Component& clone(const std::string& address);
+
+	/**
+	 * Fork a component
+	 *
+	 * @param  address Address of component to be forked
+	 */
+	Component& fork(const std::string& address);
+
+	/**
+	 * Get the origin for this component
+	 * 
+	 * @return  URL of the origin; empty string if this component is not a clone
+	 */
+	std::string origin(void) const;
+
+	/**
 	 * Commit this component
 	 *
 	 * This method should be overriden by derived classes so that
@@ -193,7 +214,7 @@ public:
 	 * @}
 	 */
 
-   /**
+    /**
 	 * @name Instances
 	 *
 	 * Methods for the delaration, storage and reteival of components.
@@ -364,9 +385,9 @@ public:
 	Component& hold(Type type = ComponentType);
 
     /**
-     * Get the path of a component from the stores
+     * Get the file system path of a component within the stores
      *
-     * This method is used by `get()` but also by the `Server` class to 
+     * This method is used by the `get()` method below but also by the `Server` class to 
      * statically serve a component file
      */
     static std::string locate(const std::string& address);

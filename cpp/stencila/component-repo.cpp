@@ -6,14 +6,18 @@ namespace Stencila {
 
 Component::Repository* Component::repo(bool ensure) const {
 	if(meta_){
-		if(ensure and not meta_->repo){
+		if(not meta_->repo){
 			std::string path = Component::path(true);
 			Repository* repo = new Repository;
 			try{
 				repo->open(path);
 			}
 			catch(Git::NoRepoError){
-				repo->init(path);
+				if(ensure) repo->init(path);
+				else{
+					delete repo;
+					repo = nullptr;
+				}
 			}
 			meta_->repo = repo;
 		}
@@ -25,6 +29,28 @@ Component::Repository* Component::repo(bool ensure) const {
 		}
 		else return nullptr;
 	}
+}
+
+Component& Component::clone(const std::string& address) {
+	if(path().length()>0) STENCILA_THROW(Exception,"Path already set for this component; can not clone");
+	if(not meta_) meta_ = new Meta;
+	meta_->repo = new Repository;
+	std::string path = stores()[1] + "/" + address;
+	meta_->repo->clone("https://github.com/stencila/"+address,path);
+	meta_->path = path;
+	return *this;
+}
+
+Component& Component::fork(const std::string& address) {
+	clone(address);
+	meta_->repo->remote("origin","");
+	return *this;
+}
+
+std::string Component::origin(void) const {
+	Repository* repo = this->repo();
+	if(repo) return repo->remote("origin");
+	else return "";
 }
 
 Component& Component::commit(const std::string& message) {

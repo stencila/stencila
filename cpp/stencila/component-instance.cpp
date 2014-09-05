@@ -62,7 +62,7 @@ Component::Type Component::type(const std::string& path_string){
 	for(auto file : {"stencil.html","stencil.cila"}){
 		if(boost::filesystem::exists(path/file)) return StencilType;
 	}
-	STENCILA_THROW(Exception,"Unknown component type at path <"+path_string+">");
+	return ComponentType;
 }
 
 Component::Instance Component::get(const std::string& address,const std::string& version,const std::string& comparison){
@@ -71,23 +71,26 @@ Component::Instance Component::get(const std::string& address,const std::string&
 	auto iterator = instances_.find(address);
 	if(iterator!=instances_.end()) instance = iterator->second;
 	else {
-		std::string path = Component::locate(address);
-		if(path.length()>0){
-			Component* component;
-			Type type = Component::type(path);
-			if(type==StencilType){
-				Stencil* stencil = new Stencil;
-				stencil->read(path);
-				component = stencil;
-			} else {
-				STENCILA_THROW(Exception,str(boost::format("Unhandled component type <%s>")%type));
-			}
-			component->path(path);
-			component->hold(type);
-			instance = {type,component};
-		} else {
-			STENCILA_THROW(Exception,"Component with address not found <"+address+">");
+		std::string path = locate(address);
+		if(path.length()==0){
+			Component temp;
+			temp.clone(address);
+			path = temp.path();
 		}
+		Component* component;
+		Type type = Component::type(path);
+		if(type==ComponentType){
+			component = new Component;
+		} else if(type==StencilType){
+			Stencil* stencil = new Stencil;
+			stencil->read(path);
+			component = stencil;
+		} else {
+			STENCILA_THROW(Exception,str(boost::format("Unhandled component type <%s>")%type));
+		}
+		component->path(path);
+		component->hold(type);
+		instance = {type,component};
 	}
 
 	if(version.length()>0){

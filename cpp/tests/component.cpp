@@ -125,6 +125,14 @@ BOOST_AUTO_TEST_CASE(destroy_transient){
     BOOST_CHECK(not boost::filesystem::exists(path));
 }
 
+BOOST_AUTO_TEST_CASE(clone){
+    Component c;
+    c.clone("test");
+    BOOST_CHECK_EQUAL(c.address(),"test");
+    BOOST_CHECK_EQUAL(c.origin(),"https://github.com/stencila/test");
+    c.destroy();
+}
+
 BOOST_AUTO_TEST_CASE(commit){
     Component c;
 
@@ -209,6 +217,13 @@ BOOST_AUTO_TEST_CASE(get){
     BOOST_CHECK_EQUAL(c0.address(),c1.address());
     BOOST_CHECK_EQUAL(c1.address(),c2.address());
 
+    c.destroy();
+}
+
+BOOST_AUTO_TEST_CASE(get_remote){
+    Component& c = Component::get("test").as<Component>();
+    BOOST_CHECK_EQUAL(c.address(),"test");
+    BOOST_CHECK_EQUAL(c.origin(),"https://github.com/stencila/test");
     c.destroy();
 }
 
