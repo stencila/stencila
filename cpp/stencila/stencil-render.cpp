@@ -179,6 +179,49 @@ std::string set_(Node node, Context* context){
 }
 
 /**
+ * Render a `par` element (e.g. `<span data-par="answer:number=42"></span>`)
+ */
+std::array<std::string,3> par_(Node node, Context* context,bool primary=true){
+    std::string attribute = node.attr("data-par");
+    static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
+    boost::smatch match;
+    std::string name;
+    std::string type;
+    std::string default_;
+    if(boost::regex_search(attribute, match, pattern)) {
+        name = match[1].str();
+        type = match[3].str();
+        default_ = match[5].str();
+        if(primary){
+            Node input = node.select("input");
+            if(not input) input = node.append("input");
+            // Set name
+            input.attr("name",name);
+            // Set type
+            if(type.length()>0) input.attr("type",type);
+            // Get value, using default if not defined
+            std::string value = input.attr("value");
+            if(value.length()==0 and default_.length()>0){
+                value = default_;
+                input.attr("value",default_);
+            }
+            // Convert value into a valid expression
+            if(value.length()>0){
+                std::string expression;
+                if(type=="text") expression = "\""+value+"\"";
+                //..other HTML5 input types to be evaluated
+                else expression = value;
+                context->assign(name,expression);
+            }
+        }
+    }
+    else {
+        error_(node,"par-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+    }
+    return {name,type,default_};
+}
+
+/**
  * Render a `text` element (e.g. `<span data-text="result"></span>`)
  *
  * The expression in the `data-text` attribute is converted to a 
@@ -511,31 +554,20 @@ void include_(Node node, Context* context){
     // Now apply the included element's parameters
     bool ok = true;
     for(Node par : included.filter("[data-par]")){
-        // Parse the attribute
-        std::string attribute = par.attr("data-par");
-        static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
-        boost::smatch match;
-        if(boost::regex_search(attribute, match, pattern)) {
-            std::string name = match[1].str();
-            std::string type = match[3].str();
-            std::string default_ = match[5].str();
-            // Check to see if it has already be assigned
-            if(std::count(assigned.begin(),assigned.end(),name)==0){
-                if(default_.length()>0){
-                    // Assign the default_ in the new frame
-                    context->assign(name,default_);
-                } else {
-                    // Set an error
-                    error_(node,"par-required",name,str(boost::format("Parameter <%s> is required because it has no default")%name));
-                    ok  = false;
-                }
+        auto parts = par_(par,context,false);
+        std::string name = parts[0];
+        std::string default_ = parts[2];
+        // Check to see if it has already be assigned
+        if(std::count(assigned.begin(),assigned.end(),name)==0){
+            if(default_.length()>0){
+                // Assign the default_ in the new frame
+                context->assign(name,default_);
+            } else {
+                // Set an error
+                error_(node,"par-required",name,str(boost::format("Parameter <%s> is required because it has no default")%name));
+                ok  = false;
             }
         }
-        else {
-            error_(node,"par-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
-            ok = false;
-        }
-
         // Remove the parameter, there is no need to have it in the included node
         par.destroy();
     }
@@ -561,8 +593,12 @@ void element_(Node node, Context* context){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
             else if(attr=="data-code") return code_(node,context);
-            else if(attr=="data-set") {
+            else if(attr=="data-set"){
                 set_(node,context);
+                return;
+            }
+            else if(attr=="data-par"){
+                par_(node,context);
                 return;
             }
             else if(attr=="data-text") return text_(node,context);

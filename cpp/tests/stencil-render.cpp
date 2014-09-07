@@ -60,7 +60,6 @@ BOOST_AUTO_TEST_CASE(code){
     BOOST_CHECK(not stencil.select("code.b [data-error]"));
 }
 
-
 BOOST_AUTO_TEST_CASE(set){
     render(R"(
         <p data-set="x=42" />
@@ -77,6 +76,28 @@ BOOST_AUTO_TEST_CASE(set){
     BOOST_CHECK_EQUAL(stencil.select("#z [data-error=\"set-value-none\"]").attr("data-set-value-none"),"z");
 }
 
+BOOST_AUTO_TEST_CASE(par){
+    render(R"(
+        <div data-par="x:number=42" />
+        <p id="x" data-text="x"></p>
+
+        <div data-par="y=24" />
+        <p id="y" data-text="y"></p>
+
+        <div id="z" data-par="z" />
+    )");
+
+    auto input = stencil.select("[data-par=\"x:number=42\"] input");
+    BOOST_CHECK_EQUAL(input.attr("name"),"x");
+    BOOST_CHECK_EQUAL(input.attr("type"),"number");
+    BOOST_CHECK_EQUAL(input.attr("value"),"42");
+    BOOST_CHECK_EQUAL(stencil.select("#x").text(),"42");
+
+    BOOST_CHECK_EQUAL(stencil.select("[data-par=\"y=24\"] input[name=\"y\"]").attr("type"),"");
+    BOOST_CHECK_EQUAL(stencil.select("#y").text(),"24");
+
+    BOOST_CHECK_EQUAL(stencil.select("[data-par=\"z\"] input[name=\"z\"]").attr("type"),"");
+}
 
 BOOST_AUTO_TEST_CASE(text){
     render(R"(
