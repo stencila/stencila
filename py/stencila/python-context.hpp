@@ -23,14 +23,14 @@ public:
      * Serve this context
      */
     std::string serve(void){
-        return Component::serve(PythonContextCode);
+        return Component::serve(PythonContextType);
     }
 
     /**
      * View this context
      */
     void view(void){
-        return Component::view(PythonContextCode);
+        return Component::view(PythonContextType);
     }
 
     /**
@@ -207,6 +207,14 @@ public:
 
     void exit(void){
         call_("exit");
+    }
+
+    static void class_(void){
+        Context::class_(PythonContextType,{
+            "PythonContext",
+            page,
+            call
+        });
     }
 };
 
