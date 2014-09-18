@@ -153,6 +153,10 @@ public:
 	 */
 	void checkout(const std::string& tag);
 
+	void pull(const std::string& name="origin");
+
+	void push(const std::string& name="origin");
+
 private:
 
 	git_repository* repo_;

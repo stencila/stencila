@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(basic){
 	repo.destroy();
 }
 
-BOOST_AUTO_TEST_CASE(clone_remote){
+BOOST_AUTO_TEST_CASE(remote){
 	Repository repo;
 	boost::filesystem::path path = (
 		boost::filesystem::temp_directory_path()/
@@ -31,6 +31,17 @@ BOOST_AUTO_TEST_CASE(clone_remote){
 	repo.clone(origin,path.string());
 	BOOST_CHECK(boost::filesystem::exists(path/".git"));
 	BOOST_CHECK_EQUAL(repo.remote(),origin);
+	repo.destroy();
+}
+
+BOOST_AUTO_TEST_CASE(push_pull){
+	boost::filesystem::path path = (
+		boost::filesystem::temp_directory_path()/
+			boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%")
+	);
+	Repository repo;
+	repo.clone("https://github.com/stencila/test.git",path.string());
+	repo.push();
 	repo.destroy();
 }
 

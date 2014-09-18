@@ -103,13 +103,16 @@ std::string Repository::head(void){
 std::string Repository::remote(const std::string& name){
 	git_remote* remote = NULL;
 	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, "origin"));
-	return git_remote_url(remote);
+	std::string url = git_remote_url(remote);
+	git_remote_free(remote);
+	return url;
 }
 
 Repository& Repository::remote(const std::string& name,const std::string& url){
 	git_remote* remote = NULL;
 	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, "origin"));
 	STENCILA_GIT_TRY(git_remote_set_url(remote,url.c_str()));
+	git_remote_free(remote);
 	return *this;
 }
 
@@ -242,6 +245,24 @@ void Repository::checkout(const std::string& tag){
 	// Do the commit
 	STENCILA_GIT_TRY(git_checkout_tree(repo_,commit,&options));
 	git_object_free(commit);
+}
+
+void Repository::pull(const std::string& name){
+	git_remote* remote = NULL;
+	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, name.c_str()));
+	STENCILA_GIT_TRY(git_remote_fetch(remote, NULL, NULL));
+	git_remote_free(remote);
+}
+
+void Repository::push(const std::string& name){
+	git_remote* remote = NULL;
+	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, name.c_str()));
+    git_push* push = NULL;
+    STENCILA_GIT_TRY(git_push_new(&push, remote));
+    STENCILA_GIT_TRY(git_push_add_refspec(push,"refs/heads/master:refs/heads/master"));
+    STENCILA_GIT_TRY(git_push_finish(push));
+    STENCILA_GIT_TRY(git_push_unpack_ok(push));
+	git_remote_free(remote);
 }
 
 } // end namespace Git
