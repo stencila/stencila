@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(remote){
 		boost::filesystem::temp_directory_path()/
 			boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%")
 	);
-	std::string origin = "https://github.com/stencila/test.git";
+	std::string origin = "http://stenci.la/test.git";
 	repo.clone(origin,path.string());
 	BOOST_CHECK(boost::filesystem::exists(path/".git"));
 	BOOST_CHECK_EQUAL(repo.remote(),origin);
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(push_pull){
 			boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%")
 	);
 	Repository repo;
-	repo.clone("https://github.com/stencila/test.git",path.string());
+	repo.clone("http://stenci.la/test.git",path.string());
 	repo.push();
 	repo.destroy();
 }
