@@ -98,9 +98,11 @@ std::string Stencil::html(bool document,bool indent) const {
          * Files are with a fallback to hub.
          */
         body.append("script",{{"src","/core/themes/boot.js"}}," ");
-        body.append("script","if(!window.Stencila){window.StencilaHost='http://hub.stenci.la';document.write(unescape('%3Cscript src=\"http://hub.stenci.la/core/themes/boot.js\"%3E%3C/script%3E'))}");
+        body.append("script","if(!window.Stencila){window.StencilaHost='http://stenci.la';document.write(unescape('%3Cscript src=\"http://stenci.la/core/themes/boot.js\"%3E%3C/script%3E'))}");
         body.append("script","window.Stencila.Booter.theme('" + theme() + "');");
 
+        doc.validate();
+        
         return doc.dump(indent);
     }
 }
