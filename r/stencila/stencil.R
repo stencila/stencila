@@ -49,19 +49,7 @@ attr_('Stencil','html',toString)
 setGeneric('html',function(instance,value) standardGeneric('html'))
 setMethod('html','Stencil',Stencil_html)
 
-
 attr_('Stencil','cila',toString)
-
-#' Get or set the contexts that a Stencil can be rendered in
-#'
-#' @export
-#' @name contexts
-#' @aliases Stencil-contexts
-NULL
-
-attr_('Stencil','contexts',as.character)
-setGeneric('contexts',function(instance,value) standardGeneric('contexts'))
-setMethod('contexts','Stencil',Stencil_contexts)
 
 #' Render a stencil object or a stencil string 
 #'

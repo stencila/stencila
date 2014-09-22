@@ -214,9 +214,9 @@ Context <- function(envir){
     # See http://digitheadslabnotebook.blogspot.co.nz/2011/06/environments-in-r.html (and links therein)
     # for a useful explanation of environments
     
-    self$enter <- function(expression=NULL){
+    self$enter <- function(expression=''){
         parent <- self$top()
-        if(is.null(expression)) env <- new.env(parent=parent)
+        if(nchar(expression)==0) env <- new.env(parent=parent)
         else env <- list2env(self$get(expression),parent=parent) #Use list2env rather than as.enviroment because it allows use to define parent
         self$push(env)
         return(self)

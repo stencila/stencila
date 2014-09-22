@@ -1,5 +1,4 @@
 #include <stencila/component.hpp>
-#include <stencila/stencil.hpp>
 
 #include "extension.hpp"
 #include "r-context.hpp"
@@ -22,13 +21,9 @@ STENCILA_R_FUNC Stencila_startup(void){
 	// e.g. http://stats.blogoverflow.com/2011/08/using-openmp-ized-c-code-with-r/
 	R_CStackLimit = (uintptr_t)-1;
 
-	Component::define(Component::StencilCode, Component::Class(
-		"Stencil",
-		Stencil::page,
-		Stencil::call
-	));
+	Component::classes();
 
-	Component::define(Component::RContextCode, Component::Class(
+	Component::class_(Component::RContextType, Component::Class(
 		"RContext",
 		RContext::page,
 		RContext::call

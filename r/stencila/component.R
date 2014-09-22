@@ -14,7 +14,6 @@ Component <- function() new("Component")
 #'
 #' @param path New path for the component
 #'
-#' @export
 #' @name path
 #'
 #' @docType methods
@@ -28,7 +27,6 @@ attr_('Component','path',toString)
 #'
 #' @param message A message to describe the commit
 #'
-#' @export
 #' @name commit
 #'
 #' @docType methods
@@ -42,7 +40,6 @@ Component_commit <- function(instance,message=""){
 
 #' Get commits for component
 #'
-#' @export
 #' @name commits
 #'
 #' @docType methods

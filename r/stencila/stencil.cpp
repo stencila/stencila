@@ -8,7 +8,13 @@ STENCILA_R_NEW(Stencil)
 
 STENCILA_R_EXEC1(Stencil,initialise,std::string)
 STENCILA_R_EXEC1(Stencil,import,std::string)
-STENCILA_R_EXEC1(Stencil,export_,std::string)
+// Because `export` is a keyword in C++ wrap manually
+STENCILA_R_FUNC Stencil_export(SEXP self,SEXP path){
+    STENCILA_R_BEGIN
+        from<Stencil>(self).export_(as<std::string>(path));
+        return null;
+    STENCILA_R_END
+}
 STENCILA_R_EXEC1(Stencil,read,std::string)
 STENCILA_R_EXEC1(Stencil,write,std::string)
 

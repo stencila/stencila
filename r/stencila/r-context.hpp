@@ -54,11 +54,11 @@ class RContext : public Context {
 public:
 
     std::string serve(void){
-        return Component::serve(RContextCode);
+        return Component::serve(RContextType);
     }
 
     void view(void){
-        return Component::view(RContextCode);
+        return Component::view(RContextType);
     }
 
     static std::string page(const Component* component){
@@ -243,6 +243,13 @@ public:
         call_("exit");
     }
 
+    static void class_(void){
+        Context::class_(RContextType,{
+            "RContext",
+            page,
+            call
+        });
+    }
 };
 
 }
