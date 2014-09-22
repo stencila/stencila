@@ -152,6 +152,9 @@ public:
         context_ = context;
     }
 
+    std::string details(void) const {
+        return str(boost::format("PythonContext at %s")%this);
+    };
 
     bool accept(const std::string& language) const {
         return language=="py";

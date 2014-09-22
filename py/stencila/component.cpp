@@ -19,18 +19,6 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 void def_Component(void){
     class_<Component,bases<>>("Component",no_init)
 
-        .def("title",static_cast<const std::string& (Component::*)(void) const>(&Component::title),return_value_policy<copy_const_reference>())
-        .def("title",static_cast<Component& (Component::*)(const std::string&)>(&Component::title),return_self<>())
-
-        .def("description",static_cast<const std::string& (Component::*)(void) const>(&Component::description),return_value_policy<copy_const_reference>())
-        .def("description",static_cast<Component& (Component::*)(const std::string&)>(&Component::description),return_self<>())
-
-        .def("keywords",static_cast<const std::vector<std::string>& (Component::*)(void) const>(&Component::keywords),return_value_policy<copy_const_reference>())
-        .def("keywords",static_cast<Component& (Component::*)(const std::vector<std::string>&)>(&Component::keywords),return_self<>())
-
-        .def("authors",static_cast<const std::vector<std::string>& (Component::*)(void) const>(&Component::authors),return_value_policy<copy_const_reference>())
-        .def("authors",static_cast<Component& (Component::*)(const std::vector<std::string>&)>(&Component::authors),return_self<>())
-
         .def("path",static_cast<std::string (Component::*)(bool) const>(&Component::path))
         .def("path",static_cast<Component& (Component::*)(const std::string&)>(&Component::path),Component_path_set_overloads(
             (arg("path"),arg("force")),

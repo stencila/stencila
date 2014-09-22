@@ -1,9 +1,8 @@
 #include <string>
 
 #include <stencila/stencil.hpp>
-#include <stencila/stencil-render.hpp>
 
-#include "py-context.hpp"
+#include "python-context.hpp"
 
 #include <boost/python.hpp>
 
@@ -16,12 +15,13 @@ Stencil& Stencil_render(Stencil& self, object python_context){
     // Use supplied Python Context to create a C++ side PythonContext
     PythonContext context(python_context);
     // Render within this context
-    self.render(context);
+    self.render(&context);
     return self;
 }
 
 void def_Stencil(void){
     class_<Stencil,bases<Component>>("Stencil")
+        .def(init<std::string>())
 
         .def("html",
             static_cast<std::string (Stencil::*)(bool,bool) const>(&Stencil::html),
@@ -35,6 +35,10 @@ void def_Stencil(void){
         .def("render",
             Stencil_render,
             return_self<>()
+        )
+
+        .def("page",
+            &Stencil::page
         )
     ;
 }
