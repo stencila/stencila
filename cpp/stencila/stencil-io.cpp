@@ -43,7 +43,7 @@ Stencil& Stencil::export_(const std::string& path){
     std::string ext = boost::filesystem::extension(path);
     if(ext==".html" or ext==".cila"){
         std::ofstream file(path);
-        if(ext==".html") file<<html(); 
+        if(ext==".html") file<<html(true,true); 
         else if(ext==".cila") file<<cila();
     }
     else STENCILA_THROW(Exception,str(boost::format("File extension <%s> not valid for a Stencil")%ext));
@@ -69,9 +69,9 @@ Stencil& Stencil::read(const std::string& directory){
         // Set the stencil's path
         path(where);
     }
-    // Search for a stencil file. Currently with precedence on .html over .cila files
+    // Search for a stencil file. Currently with precedence on .cila before .html files
     bool found = false;
-    for(std::string extension : {"html","cila"}){
+    for(std::string extension : {"cila","html"}){
         boost::filesystem::path filename = boost::filesystem::path(where) / ("stencil." + extension);
         if(boost::filesystem::exists(filename)){
             found = true;
