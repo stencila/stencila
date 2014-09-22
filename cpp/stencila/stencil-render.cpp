@@ -434,109 +434,103 @@ void include_(Node node, Context* context){
     std::string select = node.attr("data-select");
 
     // If this node has been rendered before then there will be 
-    // a `data-included` node that needs to be cleared first. If it
-    // does not yet exist then append it.
+    // a `data-included` node. If it does not yet exist then append one.
     Node included = node.select("[data-included]");
-    if(included){
-        // If this node has been edited then it may have a data-lock
-        // element. If it does then do NOT overwrite the exisiting contents
-        // and simply return straight away.
-        Node lock = included.select("[data-lock=\"true\"]");
-        if(lock) {
-            return;
+    if(not included) included = node.append("div",{{"data-included","true"}});
+
+    // If the included node has been edited then it may have a data-lock
+    // element. If it does not have then clear and reinclude
+    Node lock = included.select("[data-lock=\"true\"]");
+    if(not lock) {
+        // Clear the included node
+        included.clear();
+        //Obtain the included stencil...
+        Node stencil;
+        //Check to see if this is a "self" include, otherwise obtain the stencil
+        if(include==".") stencil = node.root();
+        else stencil = Component::get(include,version).as<Stencil>();
+        // ...select from it
+        if(select.length()>0){
+            // ...append the selected nodes.
+            for(Node node : stencil.filter(select)){
+                // Append the node first to get a copy of it which can be modified
+                Node appended = included.append(node);
+                // Remove `macro` declaration if any so that element gets rendered
+                appended.erase("data-macro");
+                // Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
+                // This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
+                // selecting all those instances where the macro was previously included.
+                appended.erase("id");
+            }
         } else {
-            included.clear();
+            // ...append the entire stencil. No attempt is made to remove macros when included an entire stencil.
+            included.append(stencil);
         }
-    }
-    else included = node.append("div",{{"data-included","true"}});
-    
-    //Obtain the included stencil...
-    Node stencil;
-    //Check to see if this is a "self" include, otherwise obtain the stencil
-    if(include==".") stencil = node.root();
-    else stencil = Component::get(include,version).as<Stencil>();
-    // ...select from it
-    if(select.length()>0){
-        // ...append the selected nodes.
-        for(Node node : stencil.filter(select)){
-            // Append the node first to get a copy of it which can be modified
-            Node appended = included.append(node);
-            // Remove `macro` declaration if any so that element gets rendered
-            appended.erase("data-macro");
-            // Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
-            // This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
-            // selecting all those instances where the macro was previously included.
-            appended.erase("id");
-        }
-    } else {
-        // ...append the entire stencil. No attempt is made to remove macros when included an entire stencil.
-        included.append(stencil);
-    }
+        //Apply modifiers
+        const int modifiers = 7;
+        enum {
+            delete_ = 0,
+            replace = 1,
+            change = 2,
+            before = 3,
+            after = 4,
+            prepend = 5,
+            append = 6
+        };
+        std::string attributes[modifiers] = {
+            "data-delete",
+            "data-replace",
+            "data-change",
+            "data-before",
+            "data-after",
+            "data-prepend",
+            "data-append"
+        };
+        for(int type=0;type<modifiers;type++){
+            std::string attribute = attributes[type];
+            for(Node modifier : node.filter("["+attribute+"]")){
+                std::string selector = modifier.attr(attribute);
+                for(Node target : included.filter(selector)){
+                    Node created;
+                    switch(type){
 
-    //Apply modifiers
-    const int modifiers = 7;
-    enum {
-        delete_ = 0,
-        replace = 1,
-        change = 2,
-        before = 3,
-        after = 4,
-        prepend = 5,
-        append = 6
-    };
-    std::string attributes[modifiers] = {
-        "data-delete",
-        "data-replace",
-        "data-change",
-        "data-before",
-        "data-after",
-        "data-prepend",
-        "data-append"
-    };
-    for(int type=0;type<modifiers;type++){
-        std::string attribute = attributes[type];
-        for(Node modifier : node.filter("["+attribute+"]")){
-            std::string selector = modifier.attr(attribute);
-            for(Node target : included.filter(selector)){
-                Node created;
-                switch(type){
+                        case delete_:
+                            target.destroy();
+                        break;
 
-                    case delete_:
-                        target.destroy();
-                    break;
+                        case change:
+                            target.clear();
+                            target.append_children(modifier);
+                        break;
 
-                    case change:
-                        target.clear();
-                        target.append_children(modifier);
-                    break;
-
-                    case replace: 
-                        created = target.before(modifier);
-                        target.destroy();
-                    break;
-                    
-                    case before:
-                        created = target.before(modifier);
-                    break;
-                    
-                    case after:
-                        created = target.after(modifier);
-                    break;
-                    
-                    case prepend:
-                        created = target.prepend(modifier);
-                    break;
-                    
-                    case append:
-                        created = target.append(modifier);
-                    break;
+                        case replace: 
+                            created = target.before(modifier);
+                            target.destroy();
+                        break;
+                        
+                        case before:
+                            created = target.before(modifier);
+                        break;
+                        
+                        case after:
+                            created = target.after(modifier);
+                        break;
+                        
+                        case prepend:
+                            created = target.prepend(modifier);
+                        break;
+                        
+                        case append:
+                            created = target.append(modifier);
+                        break;
+                    }
+                    // Remove the modifier attribute from any newly created node
+                    if(created) created.erase(attribute);
                 }
-                // Remove the modifier attribute from any newly created node
-                if(created) created.erase(attribute);
             }
         }
     }
-    
+
     // Enter a new namespace.
     // Do this regardless of whether there are any 
     // `data-par` elements, to avoid the included elements polluting the
