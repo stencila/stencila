@@ -8,17 +8,20 @@
 namespace Stencila {
 namespace Git {
 
-Error::Error(int code,std::string message,const char* file, int line):
+Error::Error(int code,std::string message, const char* file, int line):
     Exception(message,file,line){
-	if(code<0){
+	if(code<0 and message.length()==0){
 		const git_error* error = giterr_last();
-		const char* message = (error && error->message) ? error->message : "unknown";
-		message_ += message;
+		message_ = (error && error->message) ? error->message : "unknown";
 	}
 }
 
 NoRepoError::NoRepoError(std::string message,const char* file, int line): 
-	Error(GIT_ENOTFOUND,message,file,line){
+	Error(0,message,file,line){
+}
+
+NoRemoteError::NoRemoteError(std::string url,const char* file, int line): 
+	Error(0,"No repository found at "+url,file,line){
 }
 
 #define STENCILA_GIT_THROW(code) throw Error(code,"",__FILE__,__LINE__);
@@ -82,7 +85,18 @@ bool Repository::open(const std::string& path){
 }
 
 void Repository::clone(const std::string& url,const std::string& path){
-	STENCILA_GIT_TRY(git_clone(&repo_, url.c_str(), path.c_str(), NULL));
+	int error_code = git_clone(&repo_, url.c_str(), path.c_str(), NULL);
+	if(error_code<0){
+		const git_error* error = giterr_last();
+		std::string message = (error && error->message) ? error->message : "unknown";
+		bool is404 = message.find("Unexpected HTTP status code: 404") != std::string::npos;
+		if(is404){
+			STENCILA_THROW(NoRemoteError,url);
+		}
+		else {
+			STENCILA_THROW(Exception,message);
+		}
+	}
 }
 
 void Repository::destroy(void){

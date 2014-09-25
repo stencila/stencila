@@ -40,6 +40,16 @@ public:
 };
 
 /**
+ * A remote repository was not found
+ */
+class NoRemoteError : public Error {
+public:
+
+	NoRemoteError(std::string message="",const char* file=0, int line=0);
+
+};
+
+/**
  * A commit to a Git repository
  */
 class Commit {
