@@ -19,6 +19,7 @@ std::string Component::path(bool ensure) const {
 }
 
 Component& Component::path(const std::string& path) {
+	using namespace boost::filesystem;
 	if(not meta_) meta_ = new Meta;
 	std::string current_path = meta_->path;
 	std::string new_path = path;
@@ -27,16 +28,16 @@ Component& Component::path(const std::string& path) {
 		// If the new path is empty then...
 		if(new_path.length()==0){
 			// Create a unique one
-			boost::filesystem::path unique_path = stores()[1];
-			unique_path /= boost::filesystem::unique_path("temp/%%%%-%%%%-%%%%-%%%%");
-			boost::filesystem::create_directories(unique_path);
-			meta_->path = unique_path.string();
+			boost::filesystem::path unique = stores()[1];
+			unique /= unique_path("temp/%%%%-%%%%-%%%%-%%%%");
+			create_directories(unique);
+			meta_->path = unique.string();
 		} else {
 			// Create the path if necessary
-			if(not boost::filesystem::exists(new_path)){
-				boost::filesystem::create_directories(new_path);
+			if(not exists(new_path)){
+				create_directories(new_path);
 			}
-			meta_->path = new_path;
+			meta_->path = canonical(absolute(new_path)).string();
 		}
 	} 
 	// If the current path is not empty...
@@ -44,10 +45,10 @@ Component& Component::path(const std::string& path) {
 		/// and the new path is not empty...
 		if(new_path.length()>0){
 			// create necessary directories for the following rename operation
-			boost::filesystem::create_directories(new_path);
+			create_directories(new_path);
 			// move (i.e rename) existing path to the new path.
-			boost::filesystem::rename(current_path,new_path);
-			meta_->path = new_path;
+			rename(current_path,new_path);
+			meta_->path = canonical(absolute(new_path)).string();
 		}
 	}
 	return *this;
@@ -68,7 +69,7 @@ std::string Component::address(bool ensure) {
 			}
 		}
 	}
-	return "";
+	return (boost::filesystem::path("-")/path).string();
 }
 
 std::vector<Component::File> Component::list(const std::string& subdirectory){
