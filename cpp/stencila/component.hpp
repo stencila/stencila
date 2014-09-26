@@ -42,6 +42,16 @@ public:
 	 * @{
 	 */
 
+
+	/**
+	 * Get the store paths
+	 *
+	 * `STENCILA_STORES` can be set as an environment variable.
+	 * It serves the same function as [`PYTHONPATH` in Python](https://docs.python.org/2/using/cmdline.html#envvar-PYTHONPATH) 
+	 * and [`R_LIBS` in R](http://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html)
+	 */
+	static std::vector<std::string> stores(void);
+
 	/**
 	 * Get the component's path
 	 *
@@ -70,6 +80,14 @@ public:
 	 * Get the address of the component
 	 */
 	std::string address(bool ensure = false);
+
+    /**
+     * Get the filesystem path of a component
+     *
+     * This method is used by the `get()` method below but also by the `Server` class to 
+     * statically serve a component file
+     */
+    static std::string locate(const std::string& address);
 
 	/**
 	 * List files and folders in a components directory 
@@ -359,15 +377,6 @@ public:
 	};
 
 	/**
-	 * Get the store paths
-	 *
-	 * `STENCILA_STORES` can be set as an environment variable.
-	 * It serves the same function as [`PYTHONPATH` in Python](https://docs.python.org/2/using/cmdline.html#envvar-PYTHONPATH) 
-	 * and [`R_LIBS` in R](http://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html)
-	 */
-	static std::vector<std::string> stores(void);
-
-	/**
 	 * Declare a component for retreival later
 	 *
 	 * The component is registed in `instances_` using its address.
@@ -383,14 +392,6 @@ public:
 	 * @param type     `Type` for the class of component
 	 */
 	Component& hold(Type type = ComponentType);
-
-    /**
-     * Get the file system path of a component within the stores
-     *
-     * This method is used by the `get()` method below but also by the `Server` class to 
-     * statically serve a component file
-     */
-    static std::string locate(const std::string& address);
 
     /**
      * Get the type of a component at path

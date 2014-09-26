@@ -33,30 +33,6 @@ Component& Component::hold(Type type) {
 	return *this;
 }
 
-std::vector<std::string> Component::stores(void){
-	std::vector<std::string> stores = {
-		Host::current_dir()
-	};
-	const char* more = std::getenv("STENCILA_STORES");
-	if(more) {
-		std::vector<std::string> more_stores;
-		boost::split(more_stores,more,boost::is_any_of(";"));
-		for(std::string store : more_stores) stores.push_back(store);
-	}
-	stores.push_back(Host::user_dir());
-	stores.push_back(Host::system_dir());
-	return stores;
-}
-
-std::string Component::locate(const std::string& address){
-	boost::filesystem::path path;
-	for(std::string store : stores()){
-		path = boost::filesystem::path(store)/address;
-		if(boost::filesystem::exists(path)) return path.string();
-	}
-	return "";
-}
-
 Component::Type Component::type(const std::string& path_string){
 	boost::filesystem::path path(path_string);
 	for(auto file : {"stencil.html","stencil.cila"}){

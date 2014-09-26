@@ -2,6 +2,21 @@
 
 namespace Stencila {
 
+std::vector<std::string> Component::stores(void){
+	std::vector<std::string> stores = {
+		Host::current_dir()
+	};
+	const char* more = std::getenv("STENCILA_STORES");
+	if(more) {
+		std::vector<std::string> more_stores;
+		boost::split(more_stores,more,boost::is_any_of(";"));
+		for(std::string store : more_stores) stores.push_back(store);
+	}
+	stores.push_back(Host::user_dir());
+	stores.push_back(Host::system_dir());
+	return stores;
+}
+
 std::string Component::path(bool ensure) const {
 	if(meta_){
 		if(meta_->path.length()==0 and ensure){
@@ -70,6 +85,18 @@ std::string Component::address(bool ensure) {
 		}
 	}
 	return (boost::filesystem::path("-")/path).string();
+}
+
+std::string Component::locate(const std::string& address){
+	using namespace boost::filesystem;
+	if(address.length()>0){
+		if(address[0]=='-') return address.substr(1);
+		for(std::string store : stores()){
+			boost::filesystem::path path = boost::filesystem::path(store)/address;
+			if(exists(path)) return path.string();
+		}
+	}
+	return "";
 }
 
 std::vector<Component::File> Component::list(const std::string& subdirectory){
