@@ -103,21 +103,16 @@ private:
 		try {
 		    // get_resource() returns "/" when there is no resource part in the URI
 		    // (i.e. if the URI is just http://localhost/)
-		    std::string path = connection->get_resource();
-		    if(path=="/"){
+		    std::string resource = connection->get_resource();
+		    if(resource=="/"){
 				content = Component::home();
 			} else {
-
 			    // This server handles two types of requents for Components:
 			    // (1) "Dynamic" requests where the component is loaded into
 			    // memory (if not already) and (2) Static requests for component
 			    // files
 			    // Static requests are indicated by a "." anywhere in the url
-			    bool dynamic = true;
-			    auto found = path.find(".");
-		  		if(found!=std::string::npos){
-		  			dynamic = false;
-		  		}
+			    bool dynamic = resource.find(".")!=std::string::npos;
 
 				if(dynamic){
 					// Dynamic request
@@ -128,21 +123,22 @@ private:
 					// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
 					// will cause a 404 error). 
 					// So, if no trailing slash redirect...
-					if(path[path.length()-1]!='/'){
+					if(resource[resource.length()-1]!='/'){
 						status = http::status_code::moved_permanently;
-						connection->append_header("Location",path+"/");
+						connection->append_header("Location",resource+"/");
 					}
 					// Provide the page content
-					else content = Component::page(address_(path));
+					else content = Component::page(address_(resource));
 				} else {
 					// Static request
-			        std::string filename = Component::locate(path);
-			        if(not filename.length()){
+					std::string address = address_(resource);
+			        std::string path = Component::locate(address);
+			        if(not path.length()){
 			        	// 404: not found
 			        	status = http::status_code::not_found;
-			        	content = "Not found: "+path;
+			        	content = "Not found: "+address;
 			        } else {
-			            std::ifstream file(filename);
+			            std::ifstream file(path);
 			        	if(!file.good()){
 			        		// 500 : internal server error
 			        		status = http::status_code::internal_server_error;
@@ -158,7 +154,7 @@ private:
 			         		content = file_content;
 			         		// Determine and set the "Content-Type" header
 					        std::string content_type;
-					        std::string extension = boost::filesystem::path(filename).extension().string();
+					        std::string extension = boost::filesystem::path(path).extension().string();
 					        if(extension==".txt") content_type = "text/plain";
 					        else if(extension==".css") content_type = "text/css";
 					        else if(extension==".html") content_type = "text/html";
