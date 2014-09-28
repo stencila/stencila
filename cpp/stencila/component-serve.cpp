@@ -5,7 +5,7 @@ namespace Stencila {
 
 std::string Component::serve(Type type){
     hold(type);
-    return Server::ensure() + "/" + address();
+    return Server::startup() + "/" + address();
 }
 
 void Component::view(Type type){
