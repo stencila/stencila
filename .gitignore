@@ -1,6 +1,9 @@
 # Ignore build directory
 build
 
+# Ignore Vagrant cache
+.vagrant
+
 # Ignore code editor and IDE project and workspace files
 *.sublime-project
 *.sublime-workspace
