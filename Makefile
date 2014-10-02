@@ -12,11 +12,15 @@ VERSION :=  $(shell ./config.py version)
 
 # Build directory uses a heirarchy based on the 
 # operating system and machine architecture.
-BUILD := build/$(OS)/$(ARCH)/$(VERSION)
+ifndef BUILD
+	BUILD := $(realpath build/$(OS)/$(ARCH)/$(VERSION))
+endif
 
 # Resources directory for downloads of dependencies
 # that are independent of build
-RESOURCES := build/resources
+ifndef RESOURCES
+	RESOURCES := $(realpath build/resources)
+endif
 
 #################################################################################################
 # Symbolic links to builds
@@ -31,6 +35,7 @@ build-current: build/current
 #################################################################################################
 # C++ requirements
 
+# Collect necessary include an lib directories
 CPP_REQUIRES_INC_DIRS := 
 CPP_REQUIRES_LIB_DIRS := 
 
@@ -42,9 +47,10 @@ $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
 
 $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 	mkdir -p $(BUILD)/cpp/requires
-	rm -rf $@
-	tar --bzip2 -xf $<
-	mv boost_$(BOOST_VERSION) $@
+	cd $(BUILD)/cpp/requires ;\
+		rm -rf boost ;\
+		tar --bzip2 -xf $< ;\
+		mv boost_$(BOOST_VERSION) boost
 	touch $@
 
 # TODO
@@ -93,7 +99,7 @@ endif
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/boost/include
-CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/boost/lib
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
 
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
@@ -130,7 +136,7 @@ $(BUILD)/cpp/requires/libgit2-built.flag: $(BUILD)/cpp/requires/libgit2
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libgit2/include
-CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/libgit2/build
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
 
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
@@ -157,7 +163,7 @@ $(BUILD)/cpp/requires/pugixml-built.flag: $(BUILD)/cpp/requires/pugixml
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
-CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
@@ -208,7 +214,7 @@ $(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-master.z
 # These patches depend upon `tidy-html5-unpacked.flag` rather than simply the `tidy-html5` since that
 # directory's time changes with the patches and so they keep getting applied
 
-# Apply patch to Makefile to add -O3 -fPIC options
+# Apply patch to Makefile to add -O2 -fPIC options
 $(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile: cpp/requires/tidy-html5-build-gmake-Makefile.patch $(BUILD)/cpp/requires/tidy-html5-unpacked.flag
 	patch $@ $<
 
@@ -217,23 +223,23 @@ $(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile: cpp/requires/tidy-html5-b
 $(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h: cpp/requires/tidy-html5-pull-98.patch $(BUILD)/cpp/requires/tidy-html5-unpacked.flag
 	cat $< | patch -p1 -d $(BUILD)/cpp/requires/tidy-html5
 
-# Apply patch to prevent linker error associated with "GetFileSizeEx" on MSYS
-$(BUILD)/cpp/requires/tidy-html5/src/mappedio.c: cpp/requires/tidy-html5-src-mappedio.c.patch $(BUILD)/cpp/requires/tidy-html5-unpacked.flag
-	patch $@ $<
-
 # Note that we only "make ../../lib/libtidy.a" and not "make all" because the latter is not required
+# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 $(BUILD)/cpp/requires/tidy-html5-built.flag: \
 		$(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile \
-		$(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h \
-		$(BUILD)/cpp/requires/tidy-html5/src/mappedio.c
+		$(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h
 	cd $(BUILD)/cpp/requires/tidy-html5/build/gmake ;\
 	  make ../../lib/libtidy.a
 	cd $(BUILD)/cpp/requires/tidy-html5 ;\
-	  mkdir tidy-html5 ; cp include/* tidy-html5
+	  mkdir -p tidy-html5 ; cp -f include/* tidy-html5 ;\
+	  mv lib/libtidy.a lib/libtidy-html5.a
+ifeq ($(OS), msys)
+	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/lib/libtidy-html5.a
+endif
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/tidy-html5
-CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/tidy-html5/lib
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/tidy-html5/lib
 
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
@@ -245,13 +251,11 @@ $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	wget --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).zip
 
 $(BUILD)/cpp/requires/websocketpp-built.flag: $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip
-	mkdir -p $(BUILD)/cpp/requires/include
 	rm -rf $(BUILD)/cpp/requires/websocketpp
 	unzip -qo $< -d $(BUILD)/cpp/requires
 	cd $(BUILD)/cpp/requires ;\
 	  mv websocketpp-$(WEBSOCKETPP_VERSION) websocketpp ;\
-	  touch websocketpp ;\
-	  ln -sfT ../websocketpp/websocketpp include/websocketpp
+	  touch websocketpp
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
@@ -260,9 +264,15 @@ cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
 # List of libraries to be used below
 CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex
-CPP_REQUIRES_LIBS += git2 crypto ssl rt z # libgit2 requires libcrypto, libssl, librt, libz
+CPP_REQUIRES_LIBS += git2 crypto ssl z
 CPP_REQUIRES_LIBS += pugixml
 CPP_REQUIRES_LIBS += tidy-html5
+ifeq ($(OS), linux)
+	CPP_REQUIRES_LIBS += rt
+endif
+ifeq ($(OS), msys)
+	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2
+endif
 
 $(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml \
    cpp-requires-rapidjson cpp-requires-tidy-html5 cpp-requires-websocketpp
@@ -310,8 +320,7 @@ cpp-library: cpp-library-stencila cpp-libary-staticlib
 CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
                        -g -fprofile-arcs -ftest-coverage -fPIC -O0 -Icpp $(CPP_REQUIRES_INC_DIRS)
 
-CPP_TEST_LIBDIRS := $(BUILD)/cpp/requires/lib
-CPP_TEST_LIBDIRS := $(patsubst %, -L%,$(CPP_TEST_LIBDIRS))
+CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
 
 CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) boost_unit_test_framework gcov
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
@@ -334,11 +343,11 @@ $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 
 # Compile a single test file into an executable
 $(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
-	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
-	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIBDIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Run a test
 # Limit memory to prevent bugs like infinite recursion from filling up the

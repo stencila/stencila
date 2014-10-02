@@ -1,8 +1,0 @@
-195c195
-< #if _MSC_VER < 1300  /* less than msvc++ 7.0 */
----
-> #if _MSC_VER < 1300 | defined(__GNUC__) /* less than msvc++ 7.0 */
-198c198
-<         (DWORD)pli->LowPart = GetFileSize( fp, (DWORD *)&pli->HighPart );
----
->         pli->LowPart = GetFileSize( fp, (DWORD *)&pli->HighPart );
