@@ -124,9 +124,9 @@ BOOST_AUTO_TEST_CASE(query_by){
     Array<double,Two,Three> numbers = 2;
     
     {
-        Array<uint,Two> counts = numbers(count(),by(two));
-        BOOST_CHECK_EQUAL(counts(0),3);
-        BOOST_CHECK_EQUAL(counts(1),3);
+        Array<unsigned int,Two> counts = numbers(count(),by(two));
+        BOOST_CHECK_EQUAL(counts(0),3u);
+        BOOST_CHECK_EQUAL(counts(1),3u);
     }
     {
         auto sums = numbers(sum(),by(two));
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(write){
     std::string output = stream.str();
     std::vector<std::string> lines;
     boost::split(lines,output,boost::is_any_of("\n"));
-    BOOST_CHECK_EQUAL(lines.size(),8);
+    BOOST_CHECK_EQUAL(lines.size(),8u);
     BOOST_CHECK_EQUAL(lines[0],"two\tthree\tvalue");
     BOOST_CHECK_EQUAL(lines[1],"0\t0\t1");
     BOOST_CHECK_EQUAL(lines[5],"1\t1\t1");
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(write_reflect){
     std::string output = stream.str();
     std::vector<std::string> lines;
     boost::split(lines,output,boost::is_any_of("\n"));
-    BOOST_CHECK_EQUAL(lines.size(),5);
+    BOOST_CHECK_EQUAL(lines.size(),5u);
     BOOST_CHECK_EQUAL(lines[0],"three\ta\tb");
     BOOST_CHECK_EQUAL(lines[1],"0\t1\t2");
     BOOST_CHECK_EQUAL(lines[2],"1\t7373\t2");

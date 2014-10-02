@@ -15,8 +15,8 @@ STENCILA_DIM(Six,Sixe,six,6);
 STENCILA_DIM(Seven,seven,seven,7); 
 
 BOOST_AUTO_TEST_CASE(dimension_macro){
-    BOOST_CHECK_EQUAL(Four::size(),4);
-    BOOST_CHECK_EQUAL(four.size(),4);
+    BOOST_CHECK_EQUAL(Four::size(),4u);
+    BOOST_CHECK_EQUAL(four.size(),4u);
 
     BOOST_CHECK_EQUAL(Four::name(),"four");
     BOOST_CHECK_EQUAL(four.name(),"four");
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(dimension_macro){
 BOOST_AUTO_TEST_CASE(dimension_base){
     Dimension<> dim = three;
 
-    BOOST_CHECK_EQUAL(dim.size(),3);
+    BOOST_CHECK_EQUAL(dim.size(),3u);
     BOOST_CHECK_EQUAL(dim.name(),"three");
 }
 

@@ -9,9 +9,9 @@ namespace Stencila {
 // Declaration of Dimension class
 template<
 	class Derived = void,
-	uint Size = 0,
-	uint Base = 0,
-	uint Step = 1
+	unsigned int Size = 0,
+	unsigned int Base = 0,
+	unsigned int Step = 1
 >
 class Dimension;
 
@@ -28,14 +28,14 @@ private:
 	/**
 	 * The index of the dimension referred to by this level.
 	 */
-	uint index_;
+	unsigned int index_;
 
 public:
 
 	/**
 	 * Construct a level from an integer label of the dimension.
 	 */
-	Level(uint label):
+	Level(unsigned int label):
 		index_(Dimension::level(label).index()){
 	}
 
@@ -73,16 +73,16 @@ public:
 	 * Construct a level from an index of the dimension.
 	 *
 	 * Intended to only be called by a Dimension.
-	 * The unused argument prevents abiguity with constructor from uint label
+	 * The unused argument prevents abiguity with constructor from unsigned int label
 	 */
-	explicit Level(uint index,const char* unused):
+	explicit Level(unsigned int index,const char* unused):
 		index_(index){
 	}
 
 	/**
 	 * Return the index of the dimension
 	 */
-	uint index(void) const { 
+	unsigned int index(void) const { 
 		return index_;
 	}
 
@@ -96,7 +96,7 @@ public:
 	/**
 	 * Dereference operator
 	 *
-	 * Returns a copy, instead of an `uint`, because Level<Dimension>
+	 * Returns a copy, instead of an `unsigned int`, because Level<Dimension>
 	 * is used as an argument to subscript a Array with this dimension
 	 */
 	Level<Dimension> operator*() const { 
@@ -238,7 +238,7 @@ private:
 	/**
 	 * The size of the dimension
 	 */
-	uint size_;
+	unsigned int size_;
 
 	/**
 	 * The name of the dimension
@@ -253,7 +253,7 @@ public:
 	 * This is the only constructor since size and name
 	 * must always be intialised.
 	 */
-	Dimension(uint size, const char* name):
+	Dimension(unsigned int size, const char* name):
 		size_(size),
 		name_(name){
 	}
@@ -261,7 +261,7 @@ public:
 	/**
 	 * Get the size of the dimension.
 	 */
-	uint size(void) const {
+	unsigned int size(void) const {
 		return size_;
 	}	
 
@@ -279,9 +279,9 @@ public:
  */
 template<
 	class Derived,
-	uint Size,
-	uint Base,
-	uint Step
+	unsigned int Size,
+	unsigned int Base,
+	unsigned int Step
 >
 class Dimension : public Dimension<> {
 public:
@@ -303,7 +303,7 @@ public:
 	 * For that reason made public but use of `size()` method should be
 	 * preferred.
 	 */
-	static const uint size_ = Size;
+	static const unsigned int size_ = Size;
 
 	/**
 	 * Size, i.e. number of levels, of dimension
@@ -311,7 +311,7 @@ public:
 	 * For consistency with `name()` this is made a static method.
 	 * Does not need to be overidden.
 	 */
-	static uint size(void) {
+	static unsigned int size(void) {
 		return Size;
 	}
 
@@ -329,7 +329,7 @@ public:
 	/**
 	 * Get a label for an index of this dimension
 	 */
-	static std::string label(const uint& index) {
+	static std::string label(const unsigned int& index) {
 		return boost::lexical_cast<std::string>(Base+index*Step);
 	}
 
@@ -344,8 +344,8 @@ public:
 	/**
 	 * Get a level for an index of this dimension
 	 */
-	static Level<Derived> level(const uint& label) { 
-		uint index = (label-Base)/Step;
+	static Level<Derived> level(const unsigned int& label) { 
+		unsigned int index = (label-Base)/Step;
 		return Level<Derived>(index,"index"); 
 	}
 
@@ -356,7 +356,7 @@ public:
 	 * In the future, text labels will also be allowed.
 	 */
 	static Level<Derived> level(const std::string& label) {
-		return level(boost::lexical_cast<uint>(label));
+		return level(boost::lexical_cast<unsigned int>(label));
 	}
 
 	/**

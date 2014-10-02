@@ -18,10 +18,10 @@ STENCILA_DIM(Seven,seven,seven,7);
 
 BOOST_AUTO_TEST_CASE(constructors){
     Array<> a;
-    BOOST_CHECK_EQUAL(a.size(),0);
+    BOOST_CHECK_EQUAL(a.size(),0u);
 
     Array<> b(42,3.14);
-    BOOST_CHECK_EQUAL(b.size(),42);
+    BOOST_CHECK_EQUAL(b.size(),42u);
     BOOST_CHECK_EQUAL(b[0],3.14);
     BOOST_CHECK_EQUAL(b[41],3.14);
 
@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_CASE(constructors){
     BOOST_CHECK_EQUAL(e[2],std_array[2]);
 
     Array<> f({one,two,three});
-    BOOST_CHECK_EQUAL(f.size(),1*2*3);
+    BOOST_CHECK_EQUAL(f.size(),6u);
 }
 
 BOOST_AUTO_TEST_CASE(size){
     Array<> a;
-    BOOST_CHECK_EQUAL(a.size(),0);
-    BOOST_CHECK_EQUAL(a.size(10).size(),10);
+    BOOST_CHECK_EQUAL(a.size(),0u);
+    BOOST_CHECK_EQUAL(a.size(10).size(),10u);
 }
 
 BOOST_AUTO_TEST_CASE(query){

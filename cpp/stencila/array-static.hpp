@@ -186,7 +186,7 @@ private:
 
  	template<class Container>
     void construct_container_(const Container& container){
-        uint index = 0;
+        unsigned int index = 0;
         for(auto& item : container){
             values_[index] = item;
             index++;
@@ -365,37 +365,37 @@ public:
 	 * This method is used by the jump and level methods below.
 	 */
 	template<class Dimension>
-	static uint base(const Dimension&) { 
+	static unsigned int base(const Dimension&) { 
 		return 0;
 	}
-	static uint base(const D1&) { 
+	static unsigned int base(const D1&) { 
 		return D2::size_ * D3::size_ * D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D2&) { 
+	static unsigned int base(const D2&) { 
 		return D3::size_ * D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D3&) { 
+	static unsigned int base(const D3&) { 
 		return D4::size_ * D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D4&) { 
+	static unsigned int base(const D4&) { 
 		return D5::size_ * D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D5&) { 
+	static unsigned int base(const D5&) { 
 		return D6::size_ * D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D6&) { 
+	static unsigned int base(const D6&) { 
 		return D7::size_ * D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D7&) { 
+	static unsigned int base(const D7&) { 
 		return D8::size_ * D9::size_ * D10::size_;
 	}
-	static uint base(const D8&) { 
+	static unsigned int base(const D8&) { 
 		return D9::size_ * D10::size_;
 	}
-	static uint base(const D9&) { 
+	static unsigned int base(const D9&) { 
 		return D10::size_;
 	}
-	static uint base(const D10&) { 
+	static unsigned int base(const D10&) { 
 		return 1;
 	}
 
@@ -405,7 +405,7 @@ public:
 	 * @param level Level of the dimension
 	 */
 	template<class Dimension>
-	static uint jump(const Level<Dimension>& level){
+	static unsigned int jump(const Level<Dimension>& level){
 		return level.index() * base(Dimension());
 	}
 
@@ -456,7 +456,7 @@ public:
 	 * Get a string representing the subscript notation associated with 
 	 * a linear index of the array
 	 */
-	std::string subscript(uint index, bool parentheses=false) const {
+	std::string subscript(unsigned int index, bool parentheses=false) const {
 		std::string subscript;
 		if(parentheses) subscript += "(";
 		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) subscript += boost::lexical_cast<std::string>(level(dimension(),index)) + ",";
@@ -499,11 +499,11 @@ public:
 	 * @{
 	 */
 
-	Type& operator[](uint index){
+	Type& operator[](unsigned int index){
 		return values_[index];
 	}
 
-	const Type& operator[](uint index) const {
+	const Type& operator[](unsigned int index) const {
 		return values_[index];
 	}
 
@@ -542,12 +542,12 @@ public:
 	 */
 	
 	void each(void (*function)(Type&)){
-		for(uint index=0;index<size();index++) function(values_[index]);
+		for(unsigned int index=0;index<size();index++) function(values_[index]);
 	}
 
 	template<typename Return>
 	void each(Return (*function)(Type&)){
-		for(uint index=0;index<size();index++) function(values_[index]);
+		for(unsigned int index=0;index<size();index++) function(values_[index]);
 	}
 
 	/**
@@ -565,7 +565,7 @@ public:
 	 */
 	Array<> operator()(const Query& query) const {
 		for(Clause* clause : query){
-            if(AggregateDynamic<double,uint>* aggregate = dynamic_cast<AggregateDynamic<double,uint>*>(clause)){
+            if(AggregateDynamic<double,unsigned int>* aggregate = dynamic_cast<AggregateDynamic<double,unsigned int>*>(clause)){
                 for(auto& value : *this) aggregate->append_dynamic(value);
                 return {aggregate->result_dynamic()};
             }
@@ -603,7 +603,7 @@ public:
 		// Create an array of aggregators with the dimesnions of the Byer
 		Array<Derived,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregates;
 		// Iterate over tthis array updating the appropriate level of the aggregators array
-		for(uint index=0;index<size();index++) {
+		for(unsigned int index=0;index<size();index++) {
 			aggregates(
 				level(A1(),index),level(A2(),index),level(A3(),index),level(A4(),index),level(A5(),index),
 				level(A6(),index),level(A7(),index),level(A8(),index),level(A9(),index),level(A10(),index)
@@ -611,7 +611,7 @@ public:
 		}
 		// Get the results of each aggregator
 		Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> results;
-		for(int index=0;index<aggregates.size();index++) results[index] = aggregates[index].result();
+		for(unsigned int index=0;index<aggregates.size();index++) results[index] = aggregates[index].result();
 		return results;
 	}
 
@@ -671,7 +671,7 @@ public:
 			if(std::all_of(line.begin(),line.end(),isspace)) continue;
 			// Put line into a string stream for reading by the function
 			std::stringstream line_stream(line);
-			uint index = 0;
+			unsigned int index = 0;
 			Type value;
 			try{
 				// Accumulate index
@@ -739,7 +739,7 @@ public:
 		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 		#undef STENCILA_LOCAL
 		// ...and the names of values that will be output by the function
-		uint index = 0;
+		unsigned int index = 0;
 		for(auto& name : names){
 			stream<<name;
 			if(index++ < names.size()-1) stream<<"\t";
@@ -748,7 +748,7 @@ public:
 		stream<<std::endl;
 
 		// Write value rows...
-		for(uint index=0;index<size();index++){
+		for(unsigned int index=0;index<size();index++){
 			//...with labels for each nn-singular dimension
 			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
 			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
@@ -762,7 +762,7 @@ public:
 
 	void read(std::istream& stream,bool) {
 		// Instantiate an attribute matcher
-		ColumnMatcher matcher;
+		Mirrors::ColumnMatcher matcher;
 		// Read in the header and pass to matcher
 		std::string header;
 		std::getline(stream,header);
@@ -774,7 +774,7 @@ public:
 			if(std::all_of(line.begin(),line.end(),isspace)) continue;
 			// Put line into a string stream for reading by the function
 			std::stringstream line_stream(line);
-			uint index = 0;
+			unsigned int index = 0;
 			Type value;
 			try{
 				// Accumulate index
@@ -810,7 +810,7 @@ public:
 		stream<<std::endl;
 
 		// Write value rows...
-		for(uint index=0;index<size();index++){
+		for(unsigned int index=0;index<size();index++){
 			//...with labels for each nn-singular dimension
 			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
 			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)

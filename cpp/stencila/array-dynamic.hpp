@@ -45,7 +45,7 @@ public:
      * Construct from one or more dimensions
      */
     Array(const std::vector<Dimension<>>& dims){
-        uint size = 1;
+        unsigned int size = 1;
         for(auto& dim : dims){
             dimensions_.push_back(dim);
             size *= dim.size();
@@ -198,7 +198,7 @@ public:
 
     Array<> operator()(const Query& query) const {
         for(Clause* clause : query){
-            if(AggregateDynamic<double,uint>* aggregate = dynamic_cast<AggregateDynamic<double,uint>*>(clause)){
+            if(AggregateDynamic<double,unsigned int>* aggregate = dynamic_cast<AggregateDynamic<double,unsigned int>*>(clause)){
                 for(auto& value : *this) aggregate->append_dynamic(value);
                 return {aggregate->result_dynamic()};
             }
