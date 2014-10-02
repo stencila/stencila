@@ -163,7 +163,7 @@ public:
 class RowParser : public Mirror<RowParser> {
 private:
     std::vector<std::string> items_;
-    uint index_ = 0;
+    unsigned int index_ = 0;
 
 public:
     template<class Type>
@@ -210,7 +210,7 @@ public:
     ColumnMatcher& data(Data& data, const std::string& name=""){
     	auto iter =  std::find(names_.begin(), names_.end(), name);
     	if(iter!=names_.end()){
-    		uint index = iter-names_.begin();
+    		unsigned int index = iter-names_.begin();
     		data = boost::lexical_cast<Data>(values_[index]);
     	}
         return *this;

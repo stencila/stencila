@@ -194,7 +194,7 @@ void each(const Type& object, Function function){
 }
 
 
-class Count : public Aggregate<Count,double,uint> {
+class Count : public Aggregate<Count,double,unsigned int> {
 protected:
 
 	double count_;
