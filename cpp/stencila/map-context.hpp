@@ -45,10 +45,12 @@ public:
     
     std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
         unsupported_("execute");
+        return "";
     }
     
     std::string interact(const std::string& code){
         unsupported_("interact");
+        return "";
     }
 
     void assign(const std::string& name, const std::string& expression){
@@ -61,6 +63,7 @@ public:
 
     std::string paint(const std::string& format,const std::string& code){
         unsupported_("paint");
+        return "";
     }
 
     bool test(const std::string& expression){
