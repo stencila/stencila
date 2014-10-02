@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(each_){
 
 BOOST_AUTO_TEST_CASE(count_){
     std::vector<int> items(100);
-    BOOST_CHECK_EQUAL(count(items),100);
+    BOOST_CHECK_EQUAL(count(items),100u);
 }
 
 BOOST_AUTO_TEST_CASE(sum_){
