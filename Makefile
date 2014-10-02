@@ -31,6 +31,9 @@ build-current: build/current
 #################################################################################################
 # C++ requirements
 
+CPP_REQUIRES_INC_DIRS := 
+CPP_REQUIRES_LIB_DIRS := 
+
 BOOST_VERSION := 1_55_0
 
 $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
@@ -56,9 +59,6 @@ $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 #   
 #   An alternative may to be to not use a project-config.jam and instead use a hand coded user-config.jam
 #   based on one that bootstrap.sh produces.
-#
-# Under MSYS some differences are required
-#	- project-config.jam must be edited to fix the [error](http://stackoverflow.com/a/5244844/1583041) produced by the above command
 
 # Boost is configured with:
 #   --with-libraries - so that only those libraries that are needed are built
@@ -70,9 +70,12 @@ endif
 
 # Boost is built with:
 #   --prefix=.  - so that boost installs into its own directory
-#   cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
 #   link=static - so that get statically compiled instead of dynamically compiled libraries
-BOOST_B2_FLAGS := --prefix=. cxxflags=-fPIC link=static install
+BOOST_B2_FLAGS := --prefix=. link=static install
+ifeq ($(OS), linux)
+	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
+	BOOST_B2_FLAGS += cxxflags=-fPIC
+endif
 ifeq ($(OS), msys)
 	# b2 must be called with "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
 	# b2 must be called with "release" build otherwise defaults to debug AND release, which with "system" causes an 
@@ -81,19 +84,18 @@ ifeq ($(OS), msys)
 endif
 
 $(BUILD)/cpp/requires/boost-built.flag: $(BUILD)/cpp/requires/boost
-	cd $< ;\
-	  ./bootstrap.sh $(BOOST_BOOTSTRAP_FLAGS) ;\
-	  ./b2 $(BOOST_B2_FLAGS)
+	cd $< ; ./bootstrap.sh $(BOOST_BOOTSTRAP_FLAGS)
+ifeq ($(OS), msys)
+	# Under MSYS, project-config.jam must be edited to fix [this error](http://stackoverflow.com/a/5244844/1583041) 
+	sed -i "s/mingw/gcc/g" $</project-config.jam
+endif
+	cd $< ; ./b2 $(BOOST_B2_FLAGS)
 	touch $@
 
-$(BUILD)/cpp/requires/boost-linked.flag: $(BUILD)/cpp/requires/boost-built.flag
-	mkdir -p $(BUILD)/cpp/requires/include $(BUILD)/cpp/requires/lib
-	cd $(BUILD)/cpp/requires ;\
-	  ln -sfT ../boost/include/boost include/boost ;\
-	  for file in $$(ls boost/lib/*.a); do ln -sf ../$$file lib; done
-	touch $@
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/boost/include
+CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/boost/lib
 
-cpp-requires-boost: $(BUILD)/cpp/requires/boost-linked.flag
+cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
 LIBGIT2_VERSION := 0.21.1
@@ -109,23 +111,28 @@ $(BUILD)/cpp/requires/libgit2: $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip
 	mv libgit2-$(LIBGIT2_VERSION) $@
 	touch $@
 
+# For build options see https://libgit2.github.com/docs/guides/build-and-link/
+#  	BUILD_CLAR=OFF - do not build tests
+#  	BUILD_SHARED_LIBS=OFF - do not build shared library
+LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
+ifeq ($(OS), linux)
+	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
+endif
+ifeq ($(OS), msys)
+	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
+endif
 $(BUILD)/cpp/requires/libgit2-built.flag: $(BUILD)/cpp/requires/libgit2
 	cd $< ;\
 	  mkdir -p build ;\
 	  cd build ;\
-	  cmake .. -DCMAKE_C_FLAGS=-fPIC -DBUILD_SHARED_LIBS=OFF ;\
+	  cmake .. $(LIBGIT2_CMAKE_FLAGS);\
 	  cmake --build .
 	touch $@
 
-$(BUILD)/cpp/requires/libgit2-linked.flag: $(BUILD)/cpp/requires/libgit2-built.flag
-	mkdir -p $(BUILD)/cpp/requires/include $(BUILD)/cpp/requires/lib
-	cd $(BUILD)/cpp/requires ;\
-	  ln -sfT ../libgit2/include/git2.h include/git2.h ;\
-	  ln -sfT ../libgit2/include/git2 include/git2 ;\
-	  ln -sfT ../libgit2/build/libgit2.a lib/libgit2.a
-	touch $@
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libgit2/include
+CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/libgit2/build
 
-cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-linked.flag
+cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
 PUGIXML_VERSION := 1.2
@@ -139,21 +146,20 @@ $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	cp $< $@
 	cd $@ && tar xzf pugixml-$(PUGIXML_VERSION).tar.gz
 
+PUGIXML_CXX_FLAGS := -O2
+ifeq ($(OS), linux)
+	PUGIXML_CXX_FLAGS += -fPIC
+endif
 $(BUILD)/cpp/requires/pugixml-built.flag: $(BUILD)/cpp/requires/pugixml
 	cd $</src ;\
-	  $(CXX) -O2 -fPIC -c pugixml.cpp ;\
+	  $(CXX) -O2 $(PUGIXML_CXX_FLAGS) -c pugixml.cpp ;\
 	  $(AR) rcs libpugixml.a pugixml.o
 	touch $@
 
-$(BUILD)/cpp/requires/pugixml-linked.flag: $(BUILD)/cpp/requires/pugixml-built.flag
-	mkdir -p $(BUILD)/cpp/requires/include $(BUILD)/cpp/requires/lib
-	cd $(BUILD)/cpp/requires ;\
-	  ln -sfT ../pugixml/src/pugixml.hpp include/pugixml.hpp ;\
-	  ln -sfT ../pugixml/src/pugiconfig.hpp include/pugiconfig.hpp ;\
-	  ln -sfT ../pugixml/src/libpugixml.a lib/libpugixml.a
-	touch $@
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
+CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
 
-cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-linked.flag
+cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
 
 RAPIDJSON_VERSION := 0.11
@@ -180,13 +186,12 @@ $(BUILD)/cpp/requires/rapidjson: $(RESOURCES)/rapidjson-$(RAPIDJSON_VERSION).zip
 $(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h: cpp/requires/rapidjson-scanlime-0c69df5ac0.patch $(BUILD)/cpp/requires/rapidjson
 	cat $< | patch -d $(BUILD)/cpp/requires/rapidjson/include/rapidjson
 
-$(BUILD)/cpp/requires/rapidjson-linked.flag: $(BUILD)/cpp/requires/rapidjson $(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h
-	mkdir -p $(BUILD)/cpp/requires/include
-	cd $(BUILD)/cpp/requires ;\
-	  ln -sfT ../rapidjson/include/rapidjson include/rapidjson
+$(BUILD)/cpp/requires/rapidjson-built.flag: $(BUILD)/cpp/requires/rapidjson $(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h
 	touch $@
 
-cpp-requires-rapidjson: $(BUILD)/cpp/requires/rapidjson-linked.flag
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/rapidjson/include
+
+cpp-requires-rapidjson: $(BUILD)/cpp/requires/rapidjson-built.flag
 
 
 $(RESOURCES)/tidy-html5-master.zip:
@@ -198,7 +203,7 @@ $(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-master.z
 	rm -rf $(BUILD)/cpp/requires/tidy-html5
 	unzip -qo $< -d $(BUILD)/cpp/requires
 	mv $(BUILD)/cpp/requires/tidy-html5-master $(BUILD)/cpp/requires/tidy-html5
-	touch $(BUILD)/cpp/requires/tidy-html5-unpacked.flag
+	touch $@
 
 # These patches depend upon `tidy-html5-unpacked.flag` rather than simply the `tidy-html5` since that
 # directory's time changes with the patches and so they keep getting applied
@@ -223,25 +228,23 @@ $(BUILD)/cpp/requires/tidy-html5-built.flag: \
 		$(BUILD)/cpp/requires/tidy-html5/src/mappedio.c
 	cd $(BUILD)/cpp/requires/tidy-html5/build/gmake ;\
 	  make ../../lib/libtidy.a
+	cd $(BUILD)/cpp/requires/tidy-html5 ;\
+	  mkdir tidy-html5 ; cp include/* tidy-html5
 	touch $@
 
-$(BUILD)/cpp/requires/tidy-html5-linked.flag: $(BUILD)/cpp/requires/tidy-html5-built.flag
-	mkdir -p $(BUILD)/cpp/requires/include $(BUILD)/cpp/requires/lib
-	cd $(BUILD)/cpp/requires ;\
-	  ln -sfT ../tidy-html5/include include/tidy-html5 ;\
-	  ln -sfT ../tidy-html5/lib/libtidy.a lib/libtidy-html5.a
-	touch $@
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/tidy-html5
+CPP_REQUIRES_LIB_DIRS += -I$(BUILD)/cpp/requires/tidy-html5/lib
 
-cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-linked.flag
+cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
 
-WEBSOCKETPP_VERSION := 0.3.0-alpha4
+WEBSOCKETPP_VERSION := 0.3.0
 
 $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	mkdir -p $(RESOURCES)
 	wget --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).zip
 
-$(BUILD)/cpp/requires/websocketpp-linked.flag: $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip
+$(BUILD)/cpp/requires/websocketpp-built.flag: $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip
 	mkdir -p $(BUILD)/cpp/requires/include
 	rm -rf $(BUILD)/cpp/requires/websocketpp
 	unzip -qo $< -d $(BUILD)/cpp/requires
@@ -251,13 +254,15 @@ $(BUILD)/cpp/requires/websocketpp-linked.flag: $(RESOURCES)/websocketpp-$(WEBSOC
 	  ln -sfT ../websocketpp/websocketpp include/websocketpp
 	touch $@
 
-cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-linked.flag
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
+
+cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
 # List of libraries to be used below
-CPP_REQUIRE_LIBS += boost_filesystem boost_system boost_regex
-CPP_REQUIRE_LIBS += git2 crypto ssl rt z # libgit2 requires libcrypto, libssl, librt, libz
-CPP_REQUIRE_LIBS += pugixml
-CPP_REQUIRE_LIBS += tidy-html5
+CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex
+CPP_REQUIRES_LIBS += git2 crypto ssl rt z # libgit2 requires libcrypto, libssl, librt, libz
+CPP_REQUIRES_LIBS += pugixml
+CPP_REQUIRES_LIBS += tidy-html5
 
 $(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml \
    cpp-requires-rapidjson cpp-requires-tidy-html5 cpp-requires-websocketpp
@@ -275,11 +280,15 @@ $(BUILD)/cpp/library/stencila/%.hpp: cpp/stencila/%.hpp
 cpp-library-stencila: $(CPP_LIBRARY_HPPS)
 
 
+CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
+ifeq ($(OS), linux)
+	CPP_LIBRARY_FLAGS +=-fPIC
+endif
 CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
 CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
 $(BUILD)/cpp/library/objects/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(BUILD)/cpp/library/objects
-	$(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC -Icpp -I$(BUILD)/cpp/requires/include -o$@ -c $<
+	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
 
 # Archive all object files and requirements libraries into a single static lib
 # Output list of contents to `contents.txt` for checking
@@ -299,12 +308,12 @@ cpp-library: cpp-library-stencila cpp-libary-staticlib
 # 		-fprofile-arcs -ftest-coverage (coverage statistics)
 # 		-O0 (no optimizations, so coverage is valid)
 CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
-                       -g -fprofile-arcs -ftest-coverage -fPIC -O0 -Icpp -I$(BUILD)/cpp/requires/include
+                       -g -fprofile-arcs -ftest-coverage -fPIC -O0 -Icpp $(CPP_REQUIRES_INC_DIRS)
 
 CPP_TEST_LIBDIRS := $(BUILD)/cpp/requires/lib
 CPP_TEST_LIBDIRS := $(patsubst %, -L%,$(CPP_TEST_LIBDIRS))
 
-CPP_TEST_LIBS := $(CPP_REQUIRE_LIBS) boost_unit_test_framework gcov
+CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) boost_unit_test_framework gcov
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 
 # Compile a test file into an object file
@@ -413,6 +422,21 @@ cpp-clean:
 	rm -rf $(BUILD)/cpp
 
 #################################################################################################
+# Stencila console program
+
+$(BUILD)/console/stencila: console/stencila.cpp $(BUILD)/cpp/requires
+	@mkdir -p $(BUILD)/console
+	$(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 \
+	   -Icpp -Ipy -Ir $(CPP_REQUIRES_INC_DIRS) \
+	   -L$(BUILD)/cpp/library -Lcpp/requires/lib \
+	   -o$@ $< \
+	   -lstencila $(patsubst %, -l%,$(CPP_REQUIRES_LIBS)) \
+	   -lpython2.7 -lboost_python \
+	   
+
+console-build: $(BUILD)/console/stencila
+
+#################################################################################################
 # Stencila Python package
 
 # If PY_VERSION is not defined then get it
@@ -439,7 +463,7 @@ PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-functio
 
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
 PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/lib
-PY_SETUP_LIBS := $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) stencila $(CPP_REQUIRE_LIBS)
+PY_SETUP_LIBS := $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) stencila $(CPP_REQUIRES_LIBS)
 
 $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 	@mkdir -p $(PY_BUILD)/stencila
@@ -447,7 +471,7 @@ $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 
 $(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(PY_BUILD)/objects
-	$(CXX) $(PY_CXX_FLAGS) -Icpp -I$(BUILD)/cpp/requires/include -I$(PY_INCLUDE_DIR) -o$@ -c $<
+	$(CXX) $(PY_CXX_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(PY_INCLUDE_DIR) -o$@ -c $<
 
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
@@ -563,7 +587,7 @@ r-vars:
 R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
 R_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
 R_INCLUDE_DIR := /usr/share/R/include
-R_INCLUDES := -Icpp -I$(BUILD)/cpp/requires/include \
+R_INCLUDES := -Icpp $(CPP_REQUIRES_INC_DIRS) \
               -I$(R_INCLUDE_DIR) \
               -I$(BUILD)/r/requires/Rcpp/include
 $(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requires
@@ -572,7 +596,7 @@ $(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requir
 	
 # Create shared library
 R_DYNLIB_LIB_DIRS := $(BUILD)/cpp/library $(BUILD)/cpp/requires/lib
-R_DYNLIB_LIBS := stencila $(CPP_REQUIRE_LIBS) 
+R_DYNLIB_LIBS := stencila $(CPP_REQUIRES_LIBS) 
 $(R_BUILD)/$(R_DYNLIB): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
 	$(CXX) -shared -o$@ $^ $(patsubst %, -L%,$(R_DYNLIB_LIB_DIRS)) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
