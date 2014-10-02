@@ -65,7 +65,7 @@ private:
 	 * port numbers at [IANA](http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.txt)
 	 * Seven and three also happen to be ["lucky numbers"](http://en.wikipedia.org/wiki/Lucky_number)!
 	 */
-	uint port_ = 7373;
+	unsigned int port_ = 7373;
 
 	/**
 	 * An active session. Each session is linked to a component.

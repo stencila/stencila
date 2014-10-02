@@ -34,7 +34,7 @@ struct State {
     struct Line {
         // Is the line blank? (ie. no non-whitespace characters)
         bool blank = false;
-        int indentation = 0;
+        unsigned int indentation = 0;
     };
     Line current;
     Line previous;
@@ -42,7 +42,7 @@ struct State {
     struct {
         std::string lang;
         std::string content;
-        int indentation = 0;
+        unsigned int indentation = 0;
     } code;
 };
 
@@ -59,7 +59,7 @@ void code_mode_check(Node parent, const std::string& line, State& state){
     if(not state.end and (state.current.blank or state.current.indentation>=state.code.indentation)){
         // Add line, even if it is blank, to `code.content` but strip `code.indentation` from it first
         std::string stripped = line;
-        if(stripped.length()>=uint(state.code.indentation)) stripped = stripped.substr(state.code.indentation);
+        if(stripped.length()>=state.code.indentation) stripped = stripped.substr(state.code.indentation);
         state.code.content += stripped + "\n";
     }
     // Otherwise finalise the code element
@@ -225,12 +225,12 @@ Node text_parse(Node parent, const smatch& tree, const State& state){
         // Search for inlines within in the text
         boost::xpressive::sregex_iterator iter(text.begin(), text.end(), inlines), end;
         // Iterate over any inlines, appending text in between them
-        uint last = 0;
+        unsigned int last = 0;
         for (; iter != end; ++iter){
             // Get start and finish of inline
             auto submatch = (*iter)[0];
-            uint start = submatch.first - text.begin();
-            uint finish = start + submatch.length() - 1;
+            unsigned int start = submatch.first - text.begin();
+            unsigned int finish = start + submatch.length() - 1;
             // If there is any preceding text append it
             if(start>last){
                 node.append_text(text.substr(last,start-last));
@@ -271,7 +271,7 @@ mark_tag header_content(2);
 sregex header = (header_level=repeat<1,6>('#')) >> +space >> (header_content=+_);
 
 Node header_parse(Node parent, const smatch& tree, const State& state){
-    uint level = tree[header_level].str().length();
+    unsigned int level = tree[header_level].str().length();
     return parent.append(
         "h"+boost::lexical_cast<std::string>(level),
         tree[header_content].str()
@@ -871,7 +871,7 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
     std::vector<std::string> lines;
     boost::split(lines,code,boost::is_any_of("\n"));
     // Add extra indentation to each line
-    for(uint index=0;index<lines.size();index++){
+    for(unsigned int index=0;index<lines.size();index++){
         stream<<indent+"\t"<<lines[index];
         // Don't put a newline on last line - that is the 
         // repsonsibility of the following element
@@ -948,7 +948,7 @@ void parse(Node node, std::istream& stream){
     std::deque<std::pair<int,Node>> levels;
     levels.push_back({0,node});
     // Iterate over lines
-    uint count = 0;
+    unsigned int count = 0;
     while(true){
         // Read line in
         std::string line;

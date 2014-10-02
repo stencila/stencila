@@ -206,7 +206,7 @@ std::vector<std::string> Repository::tags(void){
 	git_strarray tags;
 	STENCILA_GIT_TRY(git_tag_list(&tags, repo_));
 	std::vector<std::string> tags_v(tags.count);
-	for(uint i=0;i<tags.count;i++) tags_v[i] = tags.strings[i];
+	for(unsigned int i=0;i<tags.count;i++) tags_v[i] = tags.strings[i];
 	git_strarray_free(&tags);
 	return tags_v;
 }

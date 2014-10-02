@@ -273,7 +273,7 @@ public:
 	 * This number should be greater than the greatest integer
 	 * value in the `Type` enumeration.
 	 */
-	static const uint types_ = 10;
+	static const unsigned int types_ = 10;
 
 	/**
 	 * Structure repesenting a `Component` class.
@@ -450,12 +450,12 @@ public:
 	        return what_;
 	    }
 	
-	    uint args(void) const {
+	    unsigned int args(void) const {
 	        return args_.size();
 	    }
 	
 	    template<typename Type=std::string>
-	    Type arg(uint index,const std::string& name="") const {
+	    Type arg(unsigned int index,const std::string& name="") const {
 	        if(name.length()>0){
 	            auto i = kwargs_.find(name);
 	            if(i!=kwargs_.end()) return boost::lexical_cast<Type>(i->second);

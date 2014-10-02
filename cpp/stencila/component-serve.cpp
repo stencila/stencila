@@ -11,7 +11,7 @@ std::string Component::serve(Type type){
 void Component::view(Type type){
 	std::string url = serve(type);
 	#if defined(_WIN32) || defined(_WIN64)
-	   ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+	   ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
 	#elif __APPLE__
 		std::system(("open \""+url+"\"").c_str());
 	#elif __linux
@@ -91,7 +91,7 @@ std::string Component::message(const std::string& address,const std::string& mes
 				if(items>=5){
 					Json::Value& args_value = request[4];
 					args.resize(size(args_value));
-					for(uint i=0;i<args.size();i++) args[i] = as<std::string>(args_value[i]);
+					for(unsigned int i=0;i<args.size();i++) args[i] = as<std::string>(args_value[i]);
 				}
 
 				std::map<std::string,std::string> kwargs;

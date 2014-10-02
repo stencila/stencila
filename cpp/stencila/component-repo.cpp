@@ -91,14 +91,14 @@ Component& Component::version(const std::string& version,const std::string& mess
 
 	boost::regex pattern("^(\\d+)\\.(\\d+)\\.(\\d+)$");
 
-	auto regex_uint = [](const boost::smatch& matches,uint index){
-		return boost::lexical_cast<uint>(std::string(matches[index].first,matches[index].second));
+	auto regex_uint = [](const boost::smatch& matches,unsigned int index){
+		return boost::lexical_cast<unsigned int>(std::string(matches[index].first,matches[index].second));
 	};
 
 	// Extract the semantic parts of the current version
-	uint current_major = 0;
-	uint current_minor = 0;
-	uint current_patch = 0;
+	unsigned int current_major = 0;
+	unsigned int current_minor = 0;
+	unsigned int current_patch = 0;
 	boost::smatch matches;
 	if(boost::regex_match(current_version,matches,pattern)){
 		current_major = regex_uint(matches,1);
@@ -121,7 +121,7 @@ Component& Component::version(const std::string& version,const std::string& mess
 	else {
 		// Check that the supplied version is greater, or equal to the current
 		// version
-		uint new_major,new_minor,new_patch;
+		unsigned int new_major,new_minor,new_patch;
 		boost::smatch matches;
 		if(boost::regex_match(version,matches,pattern)){
 			new_major = regex_uint(matches,1);

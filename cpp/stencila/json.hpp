@@ -106,7 +106,7 @@ static bool has(const Value& value,const std::string& name) {
  * 
  * @param  value JSON `Array`
  */
-static uint size(const Value& value) {
+static unsigned int size(const Value& value) {
 	return is<Array>(value)?value.Size():0;
 }
 
@@ -200,7 +200,7 @@ public:
    * Get a member of the document
    *
    * Override of base method to allow for string arguments.
-   * Since that is overriden, the uint ones need to be overridden too.
+   * Since that is overriden, the unsigned int ones need to be overridden too.
    */
   Value& operator[](const std::string& name) {
       return rapidjson::Document::operator[](name.c_str());
@@ -208,10 +208,10 @@ public:
   const Value& operator[](const std::string& name) const {
       return rapidjson::Document::operator[](name.c_str());
   }
-  Value& operator[](const uint& index) {
+  Value& operator[](const unsigned int& index) {
       return rapidjson::Document::operator[](index);
   }
-  const Value& operator[](const uint& index) const {
+  const Value& operator[](const unsigned int& index) const {
       return rapidjson::Document::operator[](index);
   }
 
