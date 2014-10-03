@@ -10,6 +10,20 @@ We appreciate any help with Stencila development! There's a [Kanban board](https
 
 ### Building
 
+#### Quick start
+
+Running `make` will build the C++, Python and R module packages in a subdirectory corresponding to `build/OS/ARCH/VERSION`. There are separate Makefile shortcuts. e.g
+
+* `make cpp-requires` : build all requirements for the C++ module
+* `make cpp-requires-boost` etc : build the required Boost libraries
+* `make cpp-package` : build the C++ package
+* `make py-tests` : run Python tests suites
+* `make r-package` : build the R package
+* `make r-tests` : run R test suites
+* `make r-install` : install the R package on the host machine
+
+These shortcut tasks should build necessary dependencies e.g. `r-tests` first builds the R package.
+
 #### Tool chain requirements
 
 Stencila is developed and tested using [`g++`](https://gcc.gnu.org/). A recent version of `g++` (>=4.8) supporting features of the C++11 standard is necessary. For Microsoft Windows we recommend building under [MSYS2](http://msys2.github.io/) which provides a up-to-date and convenient way of compiling using the [MinGW-w64](http://mingw-w64.sourceforge.net/) Windows port of `g++`.
