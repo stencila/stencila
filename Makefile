@@ -607,12 +607,12 @@ $(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requir
 	$(CXX) $(R_CXX_FLAGS) $(R_INCLUDES) -o$@ -c $<
 	
 # Create shared library
-R_DYNLIB_LIB_DIRS := $(BUILD)/cpp/library $(BUILD)/cpp/requires/lib
+R_DYNLIB_LIB_DIRS := -L$(BUILD)/cpp/library $(CPP_REQUIRES_LIB_DIRS)
 R_DYNLIB_LIBS := stencila $(CPP_REQUIRES_LIBS) 
 $(R_BUILD)/$(R_DYNLIB): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
-	$(CXX) -shared -o$@ $^ $(patsubst %, -L%,$(R_DYNLIB_LIB_DIRS)) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
+	$(CXX) -shared -o$@ $^ $(R_DYNLIB_LIB_DIRS) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
-# Place zippled up shared library in package
+# Place zipped up shared library in package
 R_PACKAGE_LIBZIP := $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)/$(R_DYNLIB).zip
 $(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB)
 	@mkdir -p $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)
