@@ -19,13 +19,13 @@
 #  
 #    vagrant ssh ubuntu-14.04-32
 #  
-# Change into the VM's share of this directory, called `/vargrant`, and run
+# Change into the VM's share of this directory, called `/vagrant`, and run
 # a task in the `Makefile` e.g.
 #  
 #    cd /vagrant
-#    make py-package r-package
+#    make cpp-package py-package r-package
 #  
-# This will create a new directory in the `build` subdirecoty for the platform.
+# This will create a new directory in the `build` subdirectory for the platform.
 # 
 # When finished shutdown the VM with `halt`:
 # 
