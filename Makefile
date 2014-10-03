@@ -1,4 +1,4 @@
-all: cpp-tests py-tests r-tests
+all: cpp-package py-package r-package
 
 # Get root directory for Stencila project
 ROOT := $(realpath .)
@@ -180,19 +180,15 @@ $(RESOURCES)/rapidjson-$(RAPIDJSON_VERSION).zip:
 	mkdir -p $(RESOURCES)
 	wget --no-check-certificate -O $@ http://rapidjson.googlecode.com/files/rapidjson-$(RAPIDJSON_VERSION).zip
 
-$(BUILD)/cpp/requires/rapidjson: $(RESOURCES)/rapidjson-$(RAPIDJSON_VERSION).zip
-	mkdir -p $(BUILD)/cpp/requires
-	rm -rf $@
-	unzip -qo $< -d $(BUILD)/cpp/requires
-	touch $@
-
 # Apply patch from https://github.com/scanlime/rapidjson/commit/0c69df5ac098640018d9232ae71ed1036c692187
 # that allows for copying of Documents [rapidjson by default prevents copying 
 # of documents](http://stackoverflow.com/questions/22707814/perform-a-copy-of-document-object-of-rapidjson)
-$(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h: cpp/requires/rapidjson-scanlime-0c69df5ac0.patch $(BUILD)/cpp/requires/rapidjson
-	cat $< | patch -d $(BUILD)/cpp/requires/rapidjson/include/rapidjson
-
-$(BUILD)/cpp/requires/rapidjson-built.flag: $(BUILD)/cpp/requires/rapidjson $(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h
+$(BUILD)/cpp/requires/rapidjson-built.flag: $(RESOURCES)/rapidjson-$(RAPIDJSON_VERSION).zip
+	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
+	unzip -qo $< -d $(BUILD)/cpp/requires
+	dos2unix $(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h
+	cat cpp/requires/rapidjson-scanlime-0c69df5ac0.patch | patch -d $(BUILD)/cpp/requires/rapidjson/include/rapidjson
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/rapidjson/include
@@ -282,14 +278,6 @@ cpp-requires: $(BUILD)/cpp/requires
 #################################################################################################
 # Stencila C++ library
 
-CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
-CPP_LIBRARY_HPPS := $(patsubst %.hpp,$(BUILD)/cpp/library/stencila/%.hpp,$(notdir $(CPP_STENCILA_HPPS)))
-$(BUILD)/cpp/library/stencila/%.hpp: cpp/stencila/%.hpp
-	@mkdir -p $(BUILD)/cpp/library/stencila
-	cp $< $@
-cpp-library-stencila: $(CPP_LIBRARY_HPPS)
-
-
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
@@ -307,7 +295,22 @@ $(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 	$(AR) t $@ > $(BUILD)/cpp/library/contents.txt
 cpp-libary-staticlib: $(BUILD)/cpp/library/libstencila.a
 
-cpp-library: cpp-library-stencila cpp-libary-staticlib
+cpp-library: cpp-libary-staticlib
+
+#################################################################################################
+# Stencila C++ package
+
+CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
+CPP_PACKAGE_HPPS := $(patsubst %.hpp,$(BUILD)/cpp/package/stencila/stencila/%.hpp,$(notdir $(CPP_STENCILA_HPPS)))
+$(BUILD)/cpp/package/stencila/stencila/%.hpp: cpp/stencila/%.hpp
+	@mkdir -p $(BUILD)/cpp/package/stencila/stencila
+	cp $< $@
+
+$(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) $(BUILD)/cpp/library/libstencila.a
+	cp $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/package/stencila
+	cd $(BUILD)/cpp/package ; tar czf stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz stencila
+
+cpp-package: $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
 
 
 #################################################################################################
