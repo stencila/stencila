@@ -762,7 +762,7 @@ public:
 
 	void read(std::istream& stream,bool) {
 		// Instantiate an attribute matcher
-		Mirrors::ColumnMatcher matcher;
+		ColumnMatcher matcher;
 		// Read in the header and pass to matcher
 		std::string header;
 		std::getline(stream,header);
