@@ -23,7 +23,7 @@ sudo apt-get update
 ###############################################################################
 # C++ module
 
-sudo apt-get install build-essential cmake git g++ libssl-dev --force-yes --assume-yes --fix-broken
+sudo apt-get install build-essential cmake git g++ libssl-dev dos2unix --force-yes --assume-yes --fix-broken
 
 ###############################################################################
 # Python module	
