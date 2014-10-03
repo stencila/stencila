@@ -5,7 +5,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <stencila/host.hpp>

@@ -2,8 +2,6 @@
 
 #include <fstream>
 
-#include <boost/preprocessor/seq/for_each.hpp>
-
 #include <stencila/array-declaration.hpp>
 #include <stencila/exception.hpp>
 #include <stencila/query.hpp>
