@@ -36,14 +36,14 @@ BOOST_AUTO_TEST_CASE(read){
 
     BOOST_CHECK_EQUAL(s.description(),"blah blah blah");
 
-    BOOST_CHECK_EQUAL(s.keywords().size(),3);
+    BOOST_CHECK_EQUAL(s.keywords().size(),3u);
     BOOST_CHECK_EQUAL(s.keywords()[1],"b");
 
-    BOOST_CHECK_EQUAL(s.contexts().size(),2);
+    BOOST_CHECK_EQUAL(s.contexts().size(),2u);
     BOOST_CHECK_EQUAL(s.contexts()[0],"r");
     BOOST_CHECK_EQUAL(s.contexts()[1],"py");
 
-    BOOST_CHECK_EQUAL(s.authors().size(),2);
+    BOOST_CHECK_EQUAL(s.authors().size(),2u);
     BOOST_CHECK_EQUAL(s.authors()[1],"Slartibartfast");
 
     BOOST_CHECK_EQUAL(s.theme(),"inter-galatic-journal/theme");
