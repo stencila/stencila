@@ -23,12 +23,12 @@ sudo apt-get update
 ###############################################################################
 # C++ module
 
-sudo apt-get install build-essential cmake git g++ libssl-dev --assume-yes --fix-broken
+sudo apt-get install build-essential cmake git g++ libssl-dev --force-yes --assume-yes --fix-broken
 
 ###############################################################################
 # Python module	
 
-sudo apt-get install python python-dev python-pip --assume-yes --fix-broken
+sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
 
 # Uncomment out the following line to install multiple versions of Python
 # sudo apt-get install python2.7-dev python3.0-dev python3.1-dev python3.2-dev
@@ -39,7 +39,8 @@ sudo pip install wheel virtualenv
 ###############################################################################
 # R module
 
-sudo apt-get install r-base r-base-dev --assume-yes --fix-broken
+# libxml2-dev is required for package XML
+sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
 
 # Install `roxygen2` for packaging and `svUnit`, `XML` for testing
 sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
