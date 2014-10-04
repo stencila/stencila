@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(clone){
     Component c;
     c.clone("test");
     BOOST_CHECK_EQUAL(c.address(),"test");
-    BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test");
+    BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test.git");
     c.destroy();
 }
 
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(get){
 BOOST_AUTO_TEST_CASE(get_remote){
     Component& c = Component::get("test").as<Component>();
     BOOST_CHECK_EQUAL(c.address(),"test");
-    BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test");
+    BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test.git");
     c.destroy();
 }
 

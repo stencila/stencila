@@ -36,7 +36,7 @@ Component& Component::clone(const std::string& address) {
 	if(not meta_) meta_ = new Meta;
 	meta_->repo = new Repository;
 	std::string path = stores()[1] + "/" + address;
-	meta_->repo->clone("http://stenci.la/"+address,path);
+	meta_->repo->clone("http://stenci.la/"+address+".git",path);
 	meta_->path = path;
 	return *this;
 }
