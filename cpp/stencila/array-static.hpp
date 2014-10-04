@@ -8,7 +8,7 @@
 #include <stencila/exception.hpp>
 #include <stencila/query.hpp>
 #include <stencila/traits.hpp>
-#include <stencila/mirrors.hpp>
+#include <stencila/mirror-rows.hpp>
 
 namespace Stencila {
 
@@ -762,7 +762,7 @@ public:
 
 	void read(std::istream& stream,bool) {
 		// Instantiate an attribute matcher
-		ColumnMatcher matcher;
+		Mirrors::ColumnMatcher matcher;
 		// Read in the header and pass to matcher
 		std::string header;
 		std::getline(stream,header);
@@ -775,22 +775,26 @@ public:
 			// Put line into a string stream for reading by the function
 			std::stringstream line_stream(line);
 			unsigned int index = 0;
-			Type value;
+			Type item;
 			try{
 				// Accumulate index
 				#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) index += jump(dimension::level(line_stream));
 				BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 				#undef STENCILA_LOCAL
-				// Read in value using function
+				// Parse values from line using matcher
 				matcher.values(line_stream.str());
-				value.reflect(matcher);
+				// Reflect values into current item
+				item.reflect(matcher);
+			} catch(const std::exception& e) {
+				STENCILA_THROW(Exception,"Error <"+std::string(e.what())+"> occurred reading line <"+line+">");
 			} catch(...) {
-				STENCILA_THROW(Exception,"Error occurred reading line:"+line);
+				STENCILA_THROW(Exception,"Unknown error occurred reading line<"+line+">");
 			}
 			// Assign to correct place
-			values_[index] = value;
+			values_[index] = item;
 		}
 	}
+
 	void read(const std::string& filename,bool) {
         if(not boost::filesystem::exists(filename)) STENCILA_THROW(Exception,str(boost::format("File name does not exist; <%s>")%filename));
         std::ifstream file(filename);
@@ -873,6 +877,20 @@ public:
 #undef STENCILA_ARRAY_DIMENSIONS
 
 };
+
+/**
+ * Input an array from a stream using the `>>` operator
+ */
+template<
+	class Type,
+	class... Dimensions
+>
+std::istream& operator>>(std::istream& stream, Array<Type,Dimensions...>& array){
+	//The following fails to compile but this function is required so throw an exception
+	//array.read(stream);
+	STENCILA_THROW(Exception, "Not implemented");
+	return stream;
+}
 
 /**
  * Output an array to a stream using the `<<` operator
