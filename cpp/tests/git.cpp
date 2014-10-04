@@ -34,16 +34,5 @@ BOOST_AUTO_TEST_CASE(remote){
 	repo.destroy();
 }
 
-BOOST_AUTO_TEST_CASE(push_pull){
-	boost::filesystem::path path = (
-		boost::filesystem::temp_directory_path()/
-			boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%")
-	);
-	Repository repo;
-	repo.clone("http://stenci.la/test.git",path.string());
-	repo.push();
-	repo.destroy();
-}
-
 BOOST_AUTO_TEST_SUITE_END()
  
