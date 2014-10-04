@@ -7,52 +7,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include <stencila/exception.hpp>
-#include <stencila/polymorph.hpp>
+#include <stencila/mirror.hpp>
 
 namespace Stencila {
-
-template<class Derived>
-class Mirror : public Polymorph<Derived> {
-public:
-    using Polymorph<Derived>::derived;
-
-	template<typename Data,typename... Args>
-	Derived& data(Data& data, Args... args){
-		return derived();
-	}
-
-	template<typename Method,typename... Args>
-	Derived& method(Method& method, Args... args){
-		return derived();
-	}
-	
-}; // class Mirror
-
-class Has : public Mirror<Has> {
-private:
-    std::string name_;
-    bool has_;
-
-public:
-
-    template<class Type>
-    Has(const Type& type, const std::string& name):
-        name_(name),
-        has_(false){
-        static_cast<Type*>(nullptr)->reflect(*this);
-    }
-
- 	template<typename Data,typename... Args>
-	Has& data(Data& data, const std::string& name, Args... args){
-		if(not has_) has_ = name==name_;
-		return *this;
-	}
-
-	operator bool(void) const {
-		return has_;
-	}
-  
-}; // class Has
+namespace Mirrors {
 
 class RowHeader : public Mirror<RowHeader>, public std::string {
 private:
@@ -88,7 +46,7 @@ public:
     template<typename Data>
     RowGenerator& data(Data& data, const std::string& name=""){
         if(length()>0) append(separator_);
-        append(boost::lexical_cast<std::string>(data));
+        append(str(boost::format("%s")%data));
         return *this;
     }
 }; // class RowGenerator
@@ -217,4 +175,5 @@ public:
     }
 }; // class ColumnMatcher
 
+} // namepace Mirrors
 } // namespace Stencila

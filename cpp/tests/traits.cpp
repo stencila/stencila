@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <stencila/traits.hpp>
+#include <stencila/reflector.hpp>
 
 BOOST_AUTO_TEST_SUITE(traits)
 
@@ -52,6 +53,12 @@ BOOST_AUTO_TEST_CASE(traits){
 	BOOST_CHECK_EQUAL(IsContainer<map>::value,true);
 	BOOST_CHECK_EQUAL(IsAssociative<map>::value,true);
     BOOST_CHECK_EQUAL(IsPaired<map>::value,true);
+}
+
+BOOST_AUTO_TEST_CASE(reflector){
+    struct A : Reflector<A> {};
+	BOOST_CHECK_EQUAL(HasReflect<A>::value,true);
+	BOOST_CHECK_EQUAL(IsReflector<A>::value,true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

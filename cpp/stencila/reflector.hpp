@@ -1,5 +1,7 @@
 #include <stencila/polymorph.hpp>
-#include <stencila/mirrors.hpp>
+#include <stencila/mirror-inspect.hpp>
+#include <stencila/mirror-rows.hpp>
+#include <stencila/mirror-stencil.hpp>
 
 namespace Stencila {
 
@@ -9,42 +11,48 @@ public:
 
   using Polymorph<Derived>::derived;
 
-#if 0
-    std::string type(void) {
-          Type type;
-          type.mirror(*static_cast<Derived*>(this));
-          return type.type();
-    }
+  void has_reflect(void){}
 
-    std::vector<std::string> attrs(void) {
-          Keys keys;
-          keys.mirror(*static_cast<Derived*>(this));
-          return keys.keys();
-    }
-#endif
-    bool has(const std::string& name) {
-		  return Has(derived(),name);
-    }
-#if 0
-    std::string repr(void) const{
-          Repr repr();
-          repr.mirror(*static_cast<Derived*>(this));
-          return repr.repr();
-    }
-#endif
+  bool has(const std::string& name) {
+	  return Mirrors::Has(derived(),name);
+  }
 
-    std::string header_row(const std::string& separator="\t") const {
-      return RowHeader(derived(),separator);
-    }
+  Derived& read(const std::string& path) {
+    Stencil stencil;
+    stencil.import(path);
+    read(stencil);
+    return derived();
+  }
 
-    std::string to_row(const std::string& separator="\t") {
-      return RowGenerator(derived(),separator);
-    }
+  Derived& read(Stencil& stencil) {
+    Mirrors::StencilParser(derived(),stencil);
+    return derived();
+  }
 
-    Derived& from_row(const std::string& row, const std::string& separator="\t") {
-      RowParser(derived(),row,separator);
-      return derived();
-    }
+  Derived& write(const std::string& path) {
+    Stencil stencil;
+    write(stencil);
+    stencil.export_(path);
+    return derived();
+  }
+
+  Derived& write(Stencil& stencil) {
+    Mirrors::StencilGenerator(derived(),stencil);
+    return derived();
+  }
+
+  std::string header_row(const std::string& separator="\t") const {
+    return Mirrors::RowHeader(derived(),separator);
+  }
+
+  std::string to_row(const std::string& separator="\t") {
+    return Mirrors::RowGenerator(derived(),separator);
+  }
+
+  Derived& from_row(const std::string& row, const std::string& separator="\t") {
+    Mirrors::RowParser(derived(),row,separator);
+    return derived();
+  }
 };
 
 } // namespace Stencila

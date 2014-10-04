@@ -22,9 +22,26 @@ struct A : public Reflector<A> {
 	}
 };
 
+BOOST_AUTO_TEST_CASE(is_reflector){
+	A a;
+	BOOST_CHECK(IsReflector<A>::value);
+}
+
 BOOST_AUTO_TEST_CASE(has){
 	A a;
 	BOOST_CHECK(a.has("a"));
+	BOOST_CHECK(a.has("b"));
+	BOOST_CHECK(a.has("c"));
+}
+
+BOOST_AUTO_TEST_CASE(stencil_read){
+    Stencil stencil;
+    stencil.cila("#b g\n#c 24");
+    A a;
+    a.read(stencil);
+    BOOST_CHECK_EQUAL(a.a,true);
+    BOOST_CHECK_EQUAL(a.b,'g');
+    BOOST_CHECK_EQUAL(a.c,24);
 }
 
 BOOST_AUTO_TEST_CASE(header_row){
