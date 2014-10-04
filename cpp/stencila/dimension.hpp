@@ -2,6 +2,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <stencila/exception.hpp>
 #include <stencila/traits.hpp>
 
 namespace Stencila {
@@ -356,7 +357,13 @@ public:
 	 * In the future, text labels will also be allowed.
 	 */
 	static Level<Derived> level(const std::string& label) {
-		return level(boost::lexical_cast<unsigned int>(label));
+		int label_int;
+		try {
+			label_int = boost::lexical_cast<int>(label);
+		} catch(...) {
+			STENCILA_THROW(Exception,"Error attempting to parse string <"+label+"> as an integer");
+		}
+		return level(label_int);
 	}
 
 	/**
