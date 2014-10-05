@@ -2,21 +2,6 @@
 
 namespace Stencila {
 
-std::vector<std::string> Component::stores(void){
-	std::vector<std::string> stores = {
-		Host::current_dir()
-	};
-	const char* more = std::getenv("STENCILA_STORES");
-	if(more) {
-		std::vector<std::string> more_stores;
-		boost::split(more_stores,more,boost::is_any_of(";"));
-		for(std::string store : more_stores) stores.push_back(store);
-	}
-	stores.push_back(Host::user_dir());
-	stores.push_back(Host::system_dir());
-	return stores;
-}
-
 std::string Component::path(bool ensure) const {
 	if(meta_){
 		if(meta_->path.length()==0 and ensure){
@@ -69,11 +54,11 @@ Component& Component::path(const std::string& path) {
 	return *this;
 }
 
-Component& Component::path(const char* path) {
+Component& Component::path(const char* path){
 	return Component::path(std::string(path));
 }
 
-std::string Component::address(bool ensure) {
+std::string Component::address(bool ensure){
 	std::string path = this->path(ensure);
 	if(path.length()>0){
 		for(auto store : stores()){
@@ -87,6 +72,21 @@ std::string Component::address(bool ensure) {
 	return (boost::filesystem::path("-")/path).string();
 }
 
+std::vector<std::string> Component::stores(void){
+	std::vector<std::string> stores = {
+		Host::current_dir()
+	};
+	const char* more = std::getenv("STENCILA_STORES");
+	if(more) {
+		std::vector<std::string> more_stores;
+		boost::split(more_stores,more,boost::is_any_of(";"));
+		for(std::string store : more_stores) stores.push_back(store);
+	}
+	stores.push_back(Host::user_dir());
+	stores.push_back(Host::system_dir());
+	return stores;
+}
+
 std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
@@ -96,6 +96,19 @@ std::string Component::locate(const std::string& address){
 			if(exists(path)) return path.string();
 		}
 	}
+	return "";
+}
+
+std::string Component::package(void) {
+	return package(address());
+}
+
+std::string Component::package(const std::string& address){
+	std::string temp = address;
+	if(temp[0]=='/') temp = temp.substr(1);
+	std::vector<std::string> parts;
+	boost::split(parts,temp,boost::is_any_of("/"));
+	if(parts.size()>0) return parts[0];
 	return "";
 }
 

@@ -41,25 +41,15 @@ public:
 	 * @{
 	 */
 
-
 	/**
-	 * Get the store paths
-	 *
-	 * `STENCILA_STORES` can be set as an environment variable.
-	 * It serves the same function as [`PYTHONPATH` in Python](https://docs.python.org/2/using/cmdline.html#envvar-PYTHONPATH) 
-	 * and [`R_LIBS` in R](http://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html)
-	 */
-	static std::vector<std::string> stores(void);
-
-	/**
-	 * Get the component's path
+	 * Get this component's path
 	 *
 	 * @param ensure Ensure a path is set if component does not yet have one?
 	 */
 	std::string path(bool ensure = false) const;
 
 	/**
-	 * Set the component's path
+	 * Set this component's path
 	 *
 	 * If an empty string is supplied as `path` then a unique path under the "transient"
 	 * subdirectory of the user's Stencila library will be created.
@@ -69,24 +59,46 @@ public:
 	Component& path(const std::string& path);
 
 	/**
-	 * Set the component's path
+	 * Set this component's path
 	 * 
 	 * This overload prevents ambiguities with path(bool) when calling path("")
 	 */
 	Component& path(const char* path);
 
 	/**
-	 * Get the address of the component
+	 * Get this component's address
 	 */
 	std::string address(bool ensure = false);
 
+	/**
+	 * Get the filesystem paths of the Stencila stores
+	 *
+	 * `STENCILA_STORES` can be set as an environment variable.
+	 * It serves the same function as [`PYTHONPATH` in Python](https://docs.python.org/2/using/cmdline.html#envvar-PYTHONPATH) 
+	 * and [`R_LIBS` in R](http://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html)
+	 */
+	static std::vector<std::string> stores(void);
+
     /**
-     * Get the filesystem path of a component
+     * Locate a component in the stores
+     * i.e. convert an `address` into a `path`
      *
      * This method is used by the `get()` method below but also by the `Server` class to 
      * statically serve a component file
      */
     static std::string locate(const std::string& address);
+
+    /**
+     * Get the package that this component belongs to
+     */
+    std::string package(void);
+
+    /**
+     * Get the package corresponding to a component address
+     * 
+     * @param  address A component address
+     */
+    static std::string package(const std::string& address);
 
 	/**
 	 * List files and folders in a components directory 

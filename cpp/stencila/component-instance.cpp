@@ -3,6 +3,7 @@
 #include <boost/filesystem.hpp>
 
 #include <stencila/component.hpp>
+#include <stencila/package.hpp>
 #include <stencila/stencil.hpp>
 
 namespace Stencila {
@@ -47,11 +48,18 @@ Component::Instance Component::get(const std::string& address,const std::string&
 	auto iterator = instances_.find(address);
 	if(iterator!=instances_.end()) instance = iterator->second;
 	else {
+		// Try to find a component on the filesystem
 		std::string path = locate(address);
 		if(path.length()==0){
-			Component temp;
-			temp.clone(address);
-			path = temp.path();
+			// Not found on filesystem so attempt to clone the package
+			std::string package_name = package(address);
+			if(package_name.length()>0){
+				Package package;
+				package.clone(package_name);
+				path = package.path();
+			} else {
+				STENCILA_THROW(Exception,str(boost::format("Invalid component address <%s>")%address));
+			}
 		}
 		Component* component;
 		Type type = Component::type(path);
