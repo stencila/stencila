@@ -10,6 +10,14 @@ NULL
 class_('Component',NULL)
 Component <- function() new("Component")
 
+#' Get a component
+#'
+#' A C++ Component static method which is not exported
+#' Use `stencila:::get(address)` '
+get <- function(address){
+	call_('Component_get',toString(address))
+}
+
 #' Get or set the path of a component
 #'
 #' @param path New path for the component

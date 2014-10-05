@@ -110,7 +110,8 @@ resolve_ <- function(instance,name,class,bases,...){
         # try to get it from C++ symbols 
         if(exists(symbol)){
             # Found R function, call it with args
-            result <- get(symbol)(instance,...)
+            # Use base::get to prevent conflict with stencila::get
+            result <- base::get(symbol)(instance,...)
             found <- TRUE
             break
         }

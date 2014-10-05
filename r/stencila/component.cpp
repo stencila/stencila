@@ -5,6 +5,13 @@ using namespace Stencila;
 
 STENCILA_R_NEW(Component)
 
+STENCILA_R_FUNC Component_get(SEXP address){
+    STENCILA_R_BEGIN
+        Component& component = Component::get(as<std::string>(address)).as<Component>();
+        return wrap(component.path());
+    STENCILA_R_END
+}
+
 STENCILA_R_ATTR(Component,path,std::string)
 STENCILA_R_RET0(Component,address)
 
