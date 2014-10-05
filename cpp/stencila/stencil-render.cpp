@@ -115,6 +115,11 @@ void code_(Node node, Context* context){
                     if(matches.size()>2) units = matches[3];
                 }
             }
+            // Default images sizes and units based on the width of an A4 page having
+            // 2cm margins.
+            if(width=="") width = "17";
+            if(height=="") height = "17";
+            if(units=="") units = "cm";
             // Execute
             std::string output = context->execute(code,format,width,height,units);
             // Remove any existing output

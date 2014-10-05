@@ -93,9 +93,12 @@ Context <- function(envir){
             if(format %in% c('png','svg')){
                 self$images = self$images + 1
                 filename = paste0(self$images,'.',format)
-                width = if(width=="") 10 else as.numeric(width)
-                height = if(height=="") 10 else as.numeric(height)
-                if(units=="") units = 'cm'
+                # Default image sizes are defined in `stencil-render.cpp` so that they
+                # are consistent across contexts. Don't be tempted to replace missing values
+                # with defaults here!
+                width = if(width=='') stop('no width specified') else as.numeric(width)
+                height = if(height=='') stop('no height specified') else as.numeric(height)
+                if(units=='') stop('no units specified')
                 if(format=='png'){
                     # The `res` argument must be specified unless `units='in'`
                     # Use 150ppi instead of the default 72
