@@ -9,6 +9,11 @@ namespace Stencila {
 class Stencil : public Component, public Xml::Document {
 public:
 
+    typedef Xml::Attribute Attribute;
+    typedef Xml::AttributeList AttributeList;
+    typedef Xml::Node Node;
+    typedef Xml::Nodes Nodes;
+
     // Avoid ambiguities by defining which inherited method to use
     // when the base classes (Component & Xml::Document) use the same name
     using Component::path;
@@ -219,6 +224,133 @@ public:
     std::string context(void) const;
 
     /**
+     * Render an error onto a node.
+     * 
+     * A function for providing consistent error reporting from
+     * within rendering functions.
+     * 
+     * @param node    Node where error occurred
+     * @param type    Type of error, usually prefixed with directive type e.g. `for-syntax`
+     * @param data    Data associated with the error which may be useful for resolving it
+     * @param message A human readable description of the error
+     */
+    void render_error(Node node, const std::string& type, const std::string& data, const std::string& message);
+
+    /**
+     * Render a `code` element (e.g. `<code data-code="r,py">`)
+     *
+     * The text of the element is executed in the context if the context's type
+     * is listed in the `data-code` attribute. If the context's type is not listed
+     * then the element will not be rendered (i.e. will not be executed). 
+     * 
+     * This behaviour allows for polyglot stencils which have both `code` elements that
+     * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
+     * as required by similarities/differences in the language syntax e.g.
+     *
+     *    <code data-code="r,py">
+     *        m = 1
+     *        c = 299792458
+     *    </code>
+     * 
+     *    <code data-code="r"> e = m * c^2 </code>
+     *    <code data-code="py"> e = m * pow(c,2) </code>
+     *    
+     * 
+     * `code` elements must have both the `code` tag and the `data-code` attribute.
+     * Elements having just one of these will not be rendered.
+     *
+     * 
+     *
+     * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
+     * The best way to do that still needs to be worked out.
+     */
+    void render_code(Node node, Context* context);
+
+    /**
+     * Render a `set` element (e.g. `<span data-set="answer=42"></span>`)
+     *
+     * The expression in the `data-set` attribute is parsed and
+     * assigned to a variable in the context.
+     */
+    std::string render_set(Node node, Context* context);
+
+    /**
+     * Render a `par` element (e.g. `<span data-par="answer:number=42"></span>`)
+     */
+    std::array<std::string,3> render_par(Node node, Context* context,bool primary=true);
+
+    /**
+     * Render a `text` element (e.g. `<span data-text="result"></span>`)
+     *
+     * The expression in the `data-text` attribute is converted to a 
+     * character string by the context and used as the element's text.
+     * If the element has a `data-off="true"` attribute then the element will not
+     * be rendered and its text will remain unchanged.
+     */
+    void render_text(Node node, Context* context);
+
+    /**
+     * Render a `with` element (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
+     *
+     * The expression in the `data-with` attribute is evaluated and made the subject of a new context frame.
+     * All child nodes are rendered within the new frame. The frame is then exited.
+     */
+    void render_with(Node node, Context* context);
+
+    /**
+     * Render a `if` element (e.g. `<div data-if="answer==42">...</div>` )
+     *
+     * The expression in the `data-if` attribute is evaluated in the context.
+     */
+    void render_if(Node node, Context* context);
+
+    /**
+     * Render a `switch` element
+     *
+     * The first `case` element (i.e. having a `data-case` attribute) that matches
+     * the `switch` expression is activated. All other `case` and `default` elements
+     * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
+     */
+    void render_switch(Node node, Context* context);
+
+    /**
+     * Render a `for` element `<ul data-for="planet:planets"><li data-text="planet" /></ul>`
+     *
+     * A `for` element has a `data-for` attribute which specifies the variable name given to each item and 
+     * an expression providing the items to iterate over e.g. `planet:planets`. The variable name is optional
+     * and defaults to "item".
+     *
+     * The first child element is rendered for each item and given a `data-index="<index>"`
+     * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
+     * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
+     * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
+     * Any child elements with a `data-index` greater than the number of items is removed unless it has a 
+     * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
+     */
+    void render_for(Node node, Context* context);
+
+    /**
+     * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="macros text simple-paragraph" />` )
+     */
+    void render_include(Node node, Context* context);
+
+    /**
+     * Render the children of an HTML element
+     * 
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_children(Node node, Context* context);
+
+    /**
+     * Render a HTML element
+     * 
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render(Node node, Context* context);
+
+    /**
      * Render this stencil within a context
      * and attach the context.
      *
@@ -320,6 +452,12 @@ private:
      * The current rendering context for this stencil
      */
     Context* context_ = nullptr;
+
+    /**
+     * A record of the number of elements of particular types within
+     * this stencil
+     */
+    std::map<std::string,unsigned int> counts_;
 };
 
 /**

@@ -12,26 +12,24 @@
 
 namespace Stencila {
 
-// Anonymous namespace to contain rendering helper functions
-namespace {
+Stencil& Stencil::attach(Context* context){
+    if(context_) delete context_;
+    context_ = context;
+    return *this;
+}
 
-typedef Xml::Attribute Attribute;
-typedef Xml::AttributeList AttributeList;
-typedef Xml::Node Node;
-typedef Xml::Nodes Nodes;
+Stencil& Stencil::detach(void){
+    if(context_) delete context_;
+    context_ = nullptr;
+    return *this;
+}
 
-/**
- * Render an error onto a node.
- * 
- * A function for providing consistent error reporting from
- * within rendering functions.
- * 
- * @param node    Node where error occurred
- * @param type    Type of error, usually prefixed with directive type e.g. `for-syntax`
- * @param data    Data associated with the error which may be useful for resolving it
- * @param message A human readable description of the error
- */
-void error_(Node node, const std::string& type, const std::string& data, const std::string& message){
+std::string Stencil::context(void) const {
+    if(context_) return context_->details();
+    else return "none";
+}
+
+void Stencil::render_error(Node node, const std::string& type, const std::string& data, const std::string& message){
     node.append(
         // A <div> with...
         "div",
@@ -47,45 +45,7 @@ void error_(Node node, const std::string& type, const std::string& data, const s
     );
 }
 
-// Forward declaration of the element rendering function
-void element_(Node node, Context* context);
-
-/**
- * Render all the children of a node
- */
-void children_(Node node, Context* context){
-    for(Node child : node.children()) element_(child,context);
-}
-
-/**
- * Render a `code` element (e.g. `<code data-code="r,py">`)
- *
- * The text of the element is executed in the context if the context's type
- * is listed in the `data-code` attribute. If the context's type is not listed
- * then the element will not be rendered (i.e. will not be executed). 
- * 
- * This behaviour allows for polyglot stencils which have both `code` elements that
- * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
- * as required by similarities/differences in the language syntax e.g.
- *
- *    <code data-code="r,py">
- *        m = 1
- *        c = 299792458
- *    </code>
- * 
- *    <code data-code="r"> e = m * c^2 </code>
- *    <code data-code="py"> e = m * pow(c,2) </code>
- *    
- * 
- * `code` elements must have both the `code` tag and the `data-code` attribute.
- * Elements having just one of these will not be rendered.
- *
- * 
- *
- * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
- * The best way to do that still needs to be worked out.
- */
-void code_(Node node, Context* context){
+void Stencil::render_code(Node node, Context* context){
     // Get the list of contexts and ensure this context is in the list
     std::string contexts = node.attr("data-code");
     std::vector<std::string> items;
@@ -153,13 +113,7 @@ void code_(Node node, Context* context){
     }
 }
 
-/**
- * Render a `set` element (e.g. `<span data-set="answer=42"></span>`)
- *
- * The expression in the `data-set` attribute is parsed and
- * assigned to a variable in the context.
- */
-std::string set_(Node node, Context* context){
+std::string Stencil::render_set(Node node, Context* context){
     std::string attribute = node.attr("data-set");
     static const boost::regex pattern("^([^=]+)(=(.+))?$");
     boost::smatch match;
@@ -170,7 +124,7 @@ std::string set_(Node node, Context* context){
         if(value.length()==0) value = node.text();
         // If still no value then create an error
         if(value.length()==0){
-            error_(node,"set-value-none",name,str(boost::format("No value provided for <%s>")%name));
+            render_error(node,"set-value-none",name,str(boost::format("No value provided for <%s>")%name));
             return "";
         }
         // Assign the variable in the new frame
@@ -178,15 +132,12 @@ std::string set_(Node node, Context* context){
         return name;
     }
     else {
-        error_(node,"set-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+        render_error(node,"set-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
         return "";
     }
 }
 
-/**
- * Render a `par` element (e.g. `<span data-par="answer:number=42"></span>`)
- */
-std::array<std::string,3> par_(Node node, Context* context,bool primary=true){
+std::array<std::string,3> Stencil::render_par(Node node, Context* context,bool primary){
     std::string attribute = node.attr("data-par");
     static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
     boost::smatch match;
@@ -221,20 +172,12 @@ std::array<std::string,3> par_(Node node, Context* context,bool primary=true){
         }
     }
     else {
-        error_(node,"par-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+        render_error(node,"par-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
     }
     return {name,type,default_};
 }
 
-/**
- * Render a `text` element (e.g. `<span data-text="result"></span>`)
- *
- * The expression in the `data-text` attribute is converted to a 
- * character string by the context and used as the element's text.
- * If the element has a `data-off="true"` attribute then the element will not
- * be rendered and its text will remain unchanged.
- */
-void text_(Node node, Context* context){
+void Stencil::render_text(Node node, Context* context){
     if(node.attr("data-lock")!="true"){
         std::string expression = node.attr("data-text");
         std::string text = context->write(expression);
@@ -242,30 +185,19 @@ void text_(Node node, Context* context){
     }
 }
 
-/**
- * Render a `with` element (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
- *
- * The expression in the `data-with` attribute is evaluated and made the subject of a new context frame.
- * All child nodes are rendered within the new frame. The frame is then exited.
- */
-void with_(Node node, Context* context){
+void Stencil::render_with(Node node, Context* context){
     std::string expression = node.attr("data-with");
     context->enter(expression);
-    children_(node,context);
+    render_children(node,context);
     context->exit();
 } 
 
-/**
- * Render a `if` element (e.g. `<div data-if="answer==42">...</div>` )
- *
- * The expression in the `data-if` attribute is evaluated in the context.
- */
-void if_(Node node, Context* context){
+void Stencil::render_if(Node node, Context* context){
     std::string expression = node.attr("data-if");
     bool hit = context->test(expression);
     if(hit){
         node.erase("data-off");
-        children_(node,context);
+        render_children(node,context);
     } else {
         node.attr("data-off","true");
     }
@@ -281,7 +213,7 @@ void if_(Node node, Context* context){
                 hit = context->test(expression);
                 if(hit){
                     next.erase("data-off");
-                    children_(next,context);
+                    render_children(next,context);
                 } else {
                     next.attr("data-off","true");
                 }
@@ -292,7 +224,7 @@ void if_(Node node, Context* context){
                 next.attr("data-off","true");
             } else {
                 next.erase("data-off");
-                children_(next,context);
+                render_children(next,context);
             }
             break;
         }
@@ -301,14 +233,7 @@ void if_(Node node, Context* context){
     }
 }
 
-/**
- * Render a `switch` element
- *
- * The first `case` element (i.e. having a `data-case` attribute) that matches
- * the `switch` expression is activated. All other `case` and `default` elements
- * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
- */
-void switch_(Node node, Context* context){
+void Stencil::render_switch(Node node, Context* context){
     std::string expression = node.attr("data-switch");
     context->mark(expression);
 
@@ -322,7 +247,7 @@ void switch_(Node node, Context* context){
                 matched = context->match(match);
                 if(matched){
                     child.erase("data-off");
-                    element_(child,context);
+                    render(child,context);
                 } else {
                     child.attr("data-off","true");
                 }
@@ -333,31 +258,17 @@ void switch_(Node node, Context* context){
                 child.attr("data-off","true");
             } else {
                 child.erase("data-off");
-                element_(child,context);
+                render(child,context);
             }
         } else {
-            element_(child,context);
+            render(child,context);
         }
     }
 
     context->unmark();
 }
 
-/**
- * Render a `for` element `<ul data-for="planet:planets"><li data-text="planet" /></ul>`
- *
- * A `for` element has a `data-for` attribute which specifies the variable name given to each item and 
- * an expression providing the items to iterate over e.g. `planet:planets`. The variable name is optional
- * and defaults to "item".
- *
- * The first child element is rendered for each item and given a `data-index="<index>"`
- * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
- * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
- * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
- * Any child elements with a `data-index` greater than the number of items is removed unless it has a 
- * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
- */
-void for_(Node node, Context* context){
+void Stencil::render_for(Node node, Context* context){
     std::string parts = node.attr("data-for");
     // Get the name of `item` and the `items` expression
     std::string item = "item";
@@ -405,7 +316,7 @@ void for_(Node node, Context* context){
         // Set index attribute
         item.attr("data-index",index);
         // Render the element
-        element_(item,context);
+        render(item,context);
         // Ask context to step to next item
         more = context->next();
         count++;
@@ -430,10 +341,7 @@ void for_(Node node, Context* context){
     }
 }
 
-/**
- * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="macros text simple-paragraph" />` )
- */
-void include_(Node node, Context* context){
+void Stencil::render_include(Node node, Context* context){
     std::string include = node.attr("data-include");
     std::string version = node.attr("data-version");
     std::string select = node.attr("data-select");
@@ -547,13 +455,13 @@ void include_(Node node, Context* context){
     // may include setting vatiables not specified by the author of the included stencil.
     std::vector<std::string> assigned;
     for(Node set : node.filter("[data-set]")){
-        std::string name = set_(set,context);
+        std::string name = render_set(set,context);
         assigned.push_back(name);
     }
     // Now apply the included element's parameters
     bool ok = true;
     for(Node par : included.filter("[data-par]")){
-        auto parts = par_(par,context,false);
+        auto parts = render_par(par,context,false);
         std::string name = parts[0];
         std::string default_ = parts[2];
         // Check to see if it has already be assigned
@@ -563,7 +471,7 @@ void include_(Node node, Context* context){
                 context->assign(name,default_);
             } else {
                 // Set an error
-                error_(node,"par-required",name,str(boost::format("Parameter <%s> is required because it has no default")%name));
+                render_error(node,"par-required",name,str(boost::format("Parameter <%s> is required because it has no default")%name));
                 ok  = false;
             }
         }
@@ -572,72 +480,81 @@ void include_(Node node, Context* context){
     }
 
     // Render the `data-included` element
-    if(ok) children_(included,context);
+    if(ok) render_children(included,context);
     
     // Exit the included node
     context->exit();
 }
 
-void element_(Node node, Context* context){
+void Stencil::render_children(Node node, Context* context){
+    for(Node child : node.children()) render(child,context);
+}
+
+void Stencil::render(Node node, Context* context){
     try {
         // Remove any existing errors
         for(Node child : node.filter("[data-error]")) child.destroy();
         // Check for handled elements
+        std::string tag = node.name();
         // For each attribute in this node...
         //...use the name of the attribute to dispatch to another rendering method
         //   Note that return is used so that only the first Stencila "data-xxx" will be 
         //   considered and that directive will determine how/if children nodes are processed
-        std::string tag = node.name();
         for(std::string attr : node.attrs()){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
-            else if(attr=="data-code") return code_(node,context);
+            else if(attr=="data-code") return render_code(node,context);
             else if(attr=="data-set"){
-                set_(node,context);
+                render_set(node,context);
                 return;
             }
             else if(attr=="data-par"){
-                par_(node,context);
+                render_par(node,context);
                 return;
             }
-            else if(attr=="data-text") return text_(node,context);
-            else if(attr=="data-with") return with_(node,context);
-            else if(attr=="data-if") return if_(node,context);
+            else if(attr=="data-text") return render_text(node,context);
+            else if(attr=="data-with") return render_with(node,context);
+            else if(attr=="data-if") return render_if(node,context);
             // Ignore `elif` and `else` elements as these are processed by `if_`
             else if(attr=="data-elif" or attr=="data-else") return;
-            else if(attr=="data-switch") return switch_(node,context);
-            else if(attr=="data-for") return for_(node,context);
-            else if(attr=="data-include") return include_(node,context);
+            else if(attr=="data-switch") return render_switch(node,context);
+            else if(attr=="data-for") return render_for(node,context);
+            else if(attr=="data-include") return render_include(node,context);
+        }
+        // Handle table and figure captions
+        if(tag=="table" or tag=="figure"){
+            Node caption = node.select("caption,figcaption");
+            if(caption){
+                // Increment the count for his caption type
+                unsigned int& count = counts_[tag+"-caption"];
+                count++;
+                std::string count_string = boost::lexical_cast<std::string>(count);
+                // Check for an existing label
+                Node label = caption.select(".label");
+                if(not label){
+                    // Prepend a label
+                    label = caption.prepend("span");
+                    label.attr("class","label");
+                    label.append("span",{{"class","type"}},tag=="table"?"Table":"Figure");
+                    label.append("span",{{"class","number"}},count_string);
+                    label.append("span",{{"class","separator"}},":");
+                } else {
+                    // Ammend the label
+                    Node number = label.select(".number");
+                    if(not number) number = label.append("span",{{"class","number"}},count_string);
+                    else number.text(count_string);
+                }
+            }
         }
         // If return not yet hit then process children of this element
-        children_(node,context);
+        render_children(node,context);
     }
     catch(const std::exception& exc){
-        error_(node,"exception","",exc.what());
+        render_error(node,"exception","",exc.what());
     }
     catch(...){
-        error_(node,"unknown","","Unknown exception");
+        render_error(node,"unknown","","Unknown exception");
     }
-}
-
-} // namespace
-
-
-Stencil& Stencil::attach(Context* context){
-    if(context_) delete context_;
-    context_ = context;
-    return *this;
-}
-
-Stencil& Stencil::detach(void){
-    if(context_) delete context_;
-    context_ = nullptr;
-    return *this;
-}
-
-std::string Stencil::context(void) const {
-    if(context_) return context_->details();
-    else return "none";
 }
 
 Stencil& Stencil::render(Context* context){
@@ -651,8 +568,11 @@ Stencil& Stencil::render(Context* context){
     } catch(const std::exception& exc){
         STENCILA_THROW(Exception,str(boost::format("Error setting directory to <%s>")%path));
     }
+    // Reset counts
+    counts_["table-caption"] = 0;
+    counts_["figure-caption"] = 0;
     // Render root element within context
-    element_(*this,context);
+    render(*this,context);
     // Return to the cwd
     boost::filesystem::current_path(cwd);
     return *this;
