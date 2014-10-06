@@ -899,7 +899,8 @@ Node equation_parse(Node parent,const smatch& tree){
     std::string content = (*branch)[equation_content];
     // Create a MathJax script tag
     //  http://docs.mathjax.org/en/latest/model.html#mathjax-script-tags
-    Node node = parent.append("script",{{"type",type}},content);
+    Node node = parent.append("p",{{"class","equation"}});
+    node.append("script",{{"type",type+"; mode=display"}},content);
     return node;
 }
 
