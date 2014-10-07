@@ -136,6 +136,8 @@ private:
 
 class ColumnMatcher : public Mirror<ColumnMatcher> {
 public:
+    ColumnMatcher(void){}
+
     ColumnMatcher(const std::string& names,const std::string& values, const std::string& separator="\t"){
     	this->names(names);
     	this->values(values);
