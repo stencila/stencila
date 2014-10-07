@@ -384,6 +384,15 @@ public:
     }
 
     /**
+     * Prepend an element node
+     * 
+     * @param  tag Tag name (e.g. "div")
+     */
+    Node prepend(const std::string& tag) {
+        return prepend_child(tag.c_str());
+    }
+
+    /**
      * Insert a node before this one
      */
     Node before(Node node){
