@@ -1,12 +1,12 @@
 #include <boost/test/unit_test.hpp>
 
-#include <stencila/reflector.hpp>
+#include <stencila/structure.hpp>
 
-BOOST_AUTO_TEST_SUITE(reflector)
+BOOST_AUTO_TEST_SUITE(structure)
 
 using namespace Stencila;
 
-struct A : public Reflector<A> {
+struct A : public Structure<A> {
 
 	bool a = true;
 	char b  = 'b';
@@ -22,9 +22,9 @@ struct A : public Reflector<A> {
 	}
 };
 
-BOOST_AUTO_TEST_CASE(is_reflector){
+BOOST_AUTO_TEST_CASE(is_structure){
 	A a;
-	BOOST_CHECK(IsReflector<A>::value);
+	BOOST_CHECK(IsStructure<A>::value);
 }
 
 BOOST_AUTO_TEST_CASE(has){
@@ -32,6 +32,11 @@ BOOST_AUTO_TEST_CASE(has){
 	BOOST_CHECK(a.has("a"));
 	BOOST_CHECK(a.has("b"));
 	BOOST_CHECK(a.has("c"));
+}
+
+BOOST_AUTO_TEST_CASE(labels){
+	A a;
+	BOOST_CHECK_EQUAL(a.labels()[1],"b");
 }
 
 BOOST_AUTO_TEST_CASE(stencil_read){

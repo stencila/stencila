@@ -6,15 +6,19 @@
 namespace Stencila {
 
 template<class Derived>
-class Reflector : public Polymorph<Derived>{
+class Structure : public Polymorph<Derived>{
 public:
 
   using Polymorph<Derived>::derived;
 
-  void has_reflect(void){}
+  typedef Derived structure_type;
 
   bool has(const std::string& name) {
 	  return Mirrors::Has(derived(),name);
+  }
+
+  std::vector<std::string> labels(void) {
+    return Mirrors::Labels(derived()).result();
   }
 
   Derived& read(const std::string& path) {
