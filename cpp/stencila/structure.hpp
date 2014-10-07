@@ -11,14 +11,14 @@ public:
 
   using Polymorph<Derived>::derived;
 
-  typedef Derived structure_type;
+  typedef bool structure_type;
 
-  bool has(const std::string& name) {
-	  return Mirrors::Has(derived(),name);
+  bool has(const std::string& name) const {
+	  return Mirrors::Has(name).mirror<Derived>();
   }
 
-  std::vector<std::string> labels(void) {
-    return Mirrors::Labels(derived()).result();
+  std::vector<std::string> labels(void) const {
+    return Mirrors::Labels().mirror<Derived>();
   }
 
   Derived& read(const std::string& path) {
@@ -29,7 +29,7 @@ public:
   }
 
   Derived& read(Stencil& stencil) {
-    Mirrors::StencilParser(derived(),stencil);
+    Mirrors::StencilParser(stencil).mirror(derived());
     return derived();
   }
 
@@ -41,20 +41,20 @@ public:
   }
 
   Derived& write(Stencil& stencil) {
-    Mirrors::StencilGenerator(derived(),stencil);
+    Mirrors::StencilGenerator(stencil).mirror(derived());
     return derived();
   }
 
   std::string header_row(const std::string& separator="\t") const {
-    return Mirrors::RowHeader(derived(),separator);
+    return Mirrors::RowHeader(separator).mirror<Derived>();
   }
 
   std::string to_row(const std::string& separator="\t") {
-    return Mirrors::RowGenerator(derived(),separator);
+    return Mirrors::RowGenerator(separator).mirror(derived());
   }
 
   Derived& from_row(const std::string& row, const std::string& separator="\t") {
-    Mirrors::RowParser(derived(),row,separator);
+    Mirrors::RowParser(row,separator).mirror(derived());
     return derived();
   }
 };

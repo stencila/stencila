@@ -116,6 +116,9 @@ private:
 
 public:
 
+
+	typedef bool array_type;
+
 	/**
 	 * @name Constructors
 	 * 
@@ -540,6 +543,11 @@ public:
 	/**
 	 * @}
 	 */
+	
+	template<class Mirror>
+	void reflect(Mirror& mirror){
+		for(unsigned int index=0;index<size();index++) mirror.data(values_[index],subscript(index,true));
+	}
 	
 	void each(void (*function)(Type&)){
 		for(unsigned int index=0;index<size();index++) function(values_[index]);

@@ -3,7 +3,7 @@
 
 #include <stencila/array-static.hpp>
 #include <stencila/query.hpp>
-#include <stencila/reflector.hpp>
+#include <stencila/structure.hpp>
 
 BOOST_AUTO_TEST_SUITE(array_static)
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(write){
     BOOST_CHECK_EQUAL(lines[6],"1\t2\t42");
 }
 
-struct A : public Reflector<A> {
+struct A : public Structure<A> {
 
     int a = 1;
     int b = 2;

@@ -13,15 +13,9 @@ namespace Stencila {
 namespace Mirrors {
 
 class RowHeader : public Mirror<RowHeader>, public std::string {
-private:
-    std::string separator_;
-
 public:
-    template<class Type>
-    RowHeader(const Type& type, const std::string& separator="\t"):
-        separator_(separator){
-        static_cast<Type*>(0)->reflect(*this);
-    }
+    RowHeader(const std::string& separator="\t"):
+        separator_(separator){}
 
     template<typename Data>
     RowHeader& data(Data& data, const std::string& name=""){
@@ -29,19 +23,16 @@ public:
         append(name);
         return *this;
     }
+
+private:
+    std::string separator_;
 }; // class RowHeader
 
 
 class RowGenerator : public Mirror<RowGenerator>, public std::string {
-private:
-    std::string separator_;
-
 public:
-	template<class Type>
-    RowGenerator(Type& type, const std::string& separator="\t"):
-        separator_(separator){
-        type.reflect(*this);
-    }
+    RowGenerator(const std::string& separator="\t"):
+        separator_(separator){}
 
     template<typename Data>
     RowGenerator& data(Data& data, const std::string& name=""){
@@ -49,35 +40,15 @@ public:
         append(str(boost::format("%s")%data));
         return *this;
     }
+
+private:
+    std::string separator_;
 }; // class RowGenerator
 
 class RowWriter : public Mirror<RowWriter>, public std::ofstream {
-private:
-    bool all_;
-    bool started_;
-    std::string path_;
-    std::vector<std::string> prefixes_;
-    std::vector<std::string> names_;
-    std::string separator_;
-    std::ofstream file_;
-
-    template<
-        typename Arg,
-        typename... Args
-    >
-    void write_prefixes_(Arg arg, Args... args){
-        file_<<arg<<separator_;
-        started_ = true;
-        write_prefixes_(args...);
-    }
-
-    void write_prefixes_(void){
-    }
-
 public:
 
-    template<class Type>
-    RowWriter(const Type& type, const std::string& path, const std::vector<std::string>& prefixes = {}, const std::vector<std::string>& names = {},const std::string& separator="\t"):
+    RowWriter(const std::string& path, const std::vector<std::string>& prefixes = {}, const std::vector<std::string>& names = {},const std::string& separator="\t"):
         path_(path),
         prefixes_(prefixes),
         names_(names),
@@ -85,13 +56,18 @@ public:
         file_(path){
         // All `data` attributes?
         all_ = names.size()==0;
+    }
+
+    template<typename Type>
+    RowWriter& start(Type& type){
         // Write the header row
         for(auto prefix : prefixes_) file_<<prefix<<separator_;
-        if(all_) file_<<RowHeader(type,separator);
+        if(all_) file_<<RowHeader(separator_).mirror(type);
         else {
-            for(auto name : names) file_<<name<<separator_;
+            for(auto name : names_) file_<<name<<separator_;
         }
         file_<<"\n";
+        return this;
     }
 
     template<typename Data>
@@ -116,18 +92,33 @@ public:
         return *this;
     }
 
+private:
+    bool all_;
+    bool started_;
+    std::string path_;
+    std::vector<std::string> prefixes_;
+    std::vector<std::string> names_;
+    std::string separator_;
+    std::ofstream file_;
+
+    template<
+        typename Arg,
+        typename... Args
+    >
+    void write_prefixes_(Arg arg, Args... args){
+        file_<<arg<<separator_;
+        started_ = true;
+        write_prefixes_(args...);
+    }
+
+    void write_prefixes_(void){
+    }
 }; // class RowWriter
 
 class RowParser : public Mirror<RowParser> {
-private:
-    std::vector<std::string> items_;
-    unsigned int index_ = 0;
-
 public:
-    template<class Type>
-    RowParser(Type& type, const std::string& row,const std::string& separator="\t"){
+    RowParser(const std::string& row,const std::string& separator="\t"){
     	boost::split(items_,row,boost::is_any_of(separator));
-        type.reflect(*this);
     }
 
     template<typename Data>
@@ -137,17 +128,14 @@ public:
     	index_++;
         return *this;
     }
+
+private:
+    std::vector<std::string> items_;
+    unsigned int index_ = 0;
 }; // class RowParser
 
 class ColumnMatcher : public Mirror<ColumnMatcher> {
-private:
-	std::vector<std::string> names_;
-	std::vector<std::string> values_;
-
 public:
-    ColumnMatcher(void){
-    }
-
     ColumnMatcher(const std::string& names,const std::string& values, const std::string& separator="\t"){
     	this->names(names);
     	this->values(values);
@@ -173,6 +161,10 @@ public:
     	}
         return *this;
     }
+
+private:
+    std::vector<std::string> names_;
+    std::vector<std::string> values_;
 }; // class ColumnMatcher
 
 } // namepace Mirrors

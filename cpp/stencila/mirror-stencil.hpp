@@ -13,18 +13,15 @@ namespace Mirrors {
 class StencilParser : public Mirror<StencilParser> {
 public:
 
-	template<class Reflector>
-	StencilParser(Reflector& reflector, Html::Node& node):
-		node_(node){
-		reflector.reflect(*this);
-	}
+	StencilParser(Html::Node& node):
+		node_(node){}
 
-	template<typename Data,typename... Args>
-	StencilParser& data(Data& data, const std::string& name, Args... args){    	
+	template<typename Type,typename... Args>
+	StencilParser& data(Type& data, const std::string& name, Args... args){    	
     	Html::Node node = node_.select("#"+name);
 		if(node){
 			// Matching node found, dispatch according to type of data
-			value_(node,data,name,IsReflector<Data>());
+			data_(node,data,name,IsStructure<Type>());
 		}
 		return *this;
 	}
@@ -32,14 +29,14 @@ public:
 private:
 
 	template<typename Data>
-	static void value_(Html::Node node, Data& data, const std::string& name, const std::true_type& is_reflector){
+	static void data_(Html::Node node, Data& data, const std::string& name, const std::true_type& is_structure){
 		// Data is a reflector so recurse into the current node 
 		// using another StencilParser
-		StencilParser(data,node);
+		StencilParser(node).mirror(data);
 	}
 
 	template<typename Data>
-	static void value_(Html::Node node, Data& data, const std::string& name, const std::false_type& is_reflector){
+	static void data_(Html::Node node, Data& data, const std::string& name, const std::false_type& is_structure){
 		// Data is not a reflector so attempt to convert node text to type
 		std::string text = node.text();
 		// Trim whitespace from text
@@ -61,31 +58,28 @@ private:
 class StencilGenerator : public Mirror<StencilGenerator> {
 public:
 
-	template<class Reflector>
-	StencilGenerator(Reflector& reflector, Html::Node& node):
-		node_(node){
-		reflector.reflect(*this);
-	}
+	StencilGenerator(Html::Node& node):
+		node_(node){}
 
-	template<typename Data,typename... Args>
-	StencilGenerator& data(Data& data, const std::string& name, Args... args){
+	template<typename Type,typename... Args>
+	StencilGenerator& data(Type& data, const std::string& name, Args... args){
 		auto node = node_.append("div",{{"id",name}},"");
 		// Dispatch according to type of data
-		value_(node,data,IsReflector<Data>());
+		value_(node,data,IsStructure<Type>());
 		return *this;
 	}
 
 private:
 
-	template<typename Data>
-	static void value_(Html::Node node, Data& data,const std::true_type& is_reflector){
+	template<typename Type>
+	static void value_(Html::Node node, Type& data,const std::true_type& is_structure){
 		// Data is a reflector so recurse into the current node 
 		// usinganother StencilGenerator
-		StencilGenerator(data,node);
+		StencilGenerator(node).mirror(data);
 	}
 
-	template<typename Data>
-	static void value_(Html::Node node, Data& data,const std::false_type& is_reflector){
+	template<typename Type>
+	static void value_(Html::Node node, Type& data,const std::false_type& is_structure){
 		// Data is not a reflector so attempt to convert to string
 		// boost::lexical_cast produces 3.1400001 for 3.14 so use boost::format instead
 		node.text(str(boost::format("%s")%data));

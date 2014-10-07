@@ -108,8 +108,15 @@ struct HasMappedType : HasTrait {
 };
 
 template <typename Type>
-struct HasReflect : HasTrait {
-    template <typename A> static yes test(decltype(&A::has_reflect));
+struct HasStructureType : HasTrait {
+    template <typename A> static yes test(typename A::structure_type*);
+    template <typename A> static no test(...);
+    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
+};
+
+template <typename Type>
+struct HasArrayType : HasTrait {
+    template <typename A> static yes test(typename A::array_type*);
     template <typename A> static no test(...);
     enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
@@ -152,9 +159,15 @@ struct IsPaired : std::integral_constant<bool,
 >{};
 
 template <typename Type>
-struct IsReflector : std::integral_constant<bool,
+struct IsStructure : std::integral_constant<bool,
     std::is_class<Type>::value and 
-    HasReflect<Type>::value
+    HasStructureType<Type>::value
+>{};
+
+template <typename Type>
+struct IsArray : std::integral_constant<bool,
+    std::is_class<Type>::value and 
+    HasArrayType<Type>::value
 >{};
 
 }
