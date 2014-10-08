@@ -352,21 +352,25 @@ $(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CP
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
+# Make test executable precious so they are kept despite
+# being intermediaries for test runs
+.PRECIOUS: $(BUILD)/cpp/tests/%.exe
+
 # Run a test
 # Limit memory to prevent bugs like infinite recursion from filling up the
 # machine's memeory
-$(BUILD)/cpp/tests/%.run: $(BUILD)/cpp/tests/%.exe
-	ulimit -v 100000; $< 2>&1 | tee $(BUILD)/cpp/tests/%.out
+$(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe
+	ulimit -v 100000; $< 2>&1 | tee $@.out
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
 ifndef CPP_TEST
   CPP_TEST := tests
 endif
-cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST).run
+cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
 
 # Run all tests
-cpp-tests: $(BUILD)/cpp/tests/tests.run
+cpp-tests: $(BUILD)/cpp/tests/tests
 
 # Run all tests and report results and coverage to XML files
 # Useful for integration with CI systems like Jenkins
