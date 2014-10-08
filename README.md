@@ -6,7 +6,7 @@ Head on over to the [releases page](https://github.com/stencila/stencila/release
 
 ### Contributing
 
-We appreciate any help with Stencila development! There's a [Kanban board](https://huboard.com/stencila/stencila/beta) over at [Huboard](https://huboard.com/stencila/stencila/beta). It's a good place for ideas with where to start out contributing. Or just see [issues](https://github.com/stencila/stencila/issues) for those that are [ready](https://github.com/stencila/stencila/issues?labels=1+-+Ready&page=1&state=open) to be tackled.
+We appreciate any help with Stencila development! There's a [Kanban board](https://huboard.com/stencila/stencila) over at [Huboard](https://huboard.com/stencila/stencila). It's a good place for ideas with where to start out contributing. Or just see [issues](https://github.com/stencila/stencila/issues) for those that are [ready](https://github.com/stencila/stencila/issues?labels=1+-+Ready&page=1&state=open) to be tackled.
 
 ### Building
 
