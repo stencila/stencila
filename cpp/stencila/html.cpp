@@ -1,5 +1,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
+#include <pugixml.hpp>
+
 #include <tidy-html5/tidy.h>
 #include <tidy-html5/buffio.h>
 
@@ -184,7 +186,7 @@ struct Validator : pugi::xml_tree_walker {
 
 Document& Document::validate(void){
 	Validator validator;
-	traverse(validator);
+	pimpl_->traverse(validator);
 	return *this;
 }
 

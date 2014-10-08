@@ -10,7 +10,7 @@ class Stencil : public Component, public Xml::Document {
 public:
 
     typedef Xml::Attribute Attribute;
-    typedef Xml::AttributeList AttributeList;
+    typedef Xml::Attributes Attributes;
     typedef Xml::Node Node;
     typedef Xml::Nodes Nodes;
 

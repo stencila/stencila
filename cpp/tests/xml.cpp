@@ -195,7 +195,6 @@ BOOST_AUTO_TEST_CASE(sanitize){
     BOOST_CHECK(!doc.select("img.d"));
 }
 
-
 BOOST_AUTO_TEST_CASE(load_dump){
     Document doc;
     std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";

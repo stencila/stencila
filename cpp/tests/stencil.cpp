@@ -30,6 +30,8 @@ BOOST_AUTO_TEST_CASE(read){
     )";
     out.close();
 
+    BOOST_TEST_CHECKPOINT("start");
+
     Stencil s("file://"+filename);
 
     BOOST_CHECK_EQUAL(s.title(),"Yo");

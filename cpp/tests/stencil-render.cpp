@@ -299,6 +299,8 @@ BOOST_AUTO_TEST_CASE(include_simple_rendered){
 }
 
 BOOST_AUTO_TEST_CASE(include_modifiers){
+    BOOST_TEST_CHECKPOINT("start");
+
     render(R"(
         <div id="includee">
             <div id="a" />

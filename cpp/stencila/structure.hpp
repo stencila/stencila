@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stencila/polymorph.hpp>
 #include <stencila/mirror-inspect.hpp>
 #include <stencila/mirror-rows.hpp>
