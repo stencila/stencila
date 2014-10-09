@@ -135,9 +135,9 @@ public:
 				"Error attempting to append a frame with <%i> columns to a frame with <%s> columns"
 			)%frame.columns()%columns_));
 		}
-		for(int row=0;row<frame.rows();row++){
+		for(unsigned int row=0;row<frame.rows();row++){
 			std::vector<boost::any> data(columns_);
-			for(int col=0;col<frame.columns();col++) data[col] = frame(row,col);
+			for(unsigned int col=0;col<frame.columns();col++) data[col] = frame(row,col);
 			data_.push_back(data);
 		}
 		return *this;
