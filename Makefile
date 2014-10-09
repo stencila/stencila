@@ -278,38 +278,65 @@ cpp-requires: $(BUILD)/cpp/requires
 #################################################################################################
 # Stencila C++ library
 
+# Compile Stecnila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
 endif
 CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
-$(BUILD)/cpp/library/objects/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
-	@mkdir -p $(BUILD)/cpp/library/objects
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
+$(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
+	@mkdir -p $(BUILD)/cpp/library/stencila
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
 
-# Archive all object files and requirements libraries into a single static lib
+# Extract object files from requirement libraries
+# Care may be required to ensure no name clashes in object files
+# Currently this is not dealt with
+cpp-library-requires: $(BUILD)/cpp/requires
+	@mkdir $(BUILD)/cpp/library/requires
+	cd $(BUILD)/cpp/library/requires ;\
+		ar x ../../requires/boost/lib/libboost_system.a ;\
+		ar x ../../requires/boost/lib/libboost_filesystem.a ;\
+		ar x ../../requires/boost/lib/libboost_regex.a ;\
+		ar x ../../requires/libgit2/build/libgit2.a ;\
+		ar x ../../requires/pugixml/src/libpugixml.a ;\
+		ar x ../../requires/tidy-html5/lib/libtidy-html5.a ;\
+
+# Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
+# into a single static library.
 # Output list of contents to `contents.txt` for checking
-$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
-	$(AR) rc $@ $(CPP_LIBRARY_OBJECTS) 
-	$(AR) t $@ > $(BUILD)/cpp/library/contents.txt
-cpp-libary-staticlib: $(BUILD)/cpp/library/libstencila.a
+$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) cpp-library-requires
+	cd $(BUILD)/cpp/library ;\
+		$(AR) rc $@ `find . -name "*.o"` ;\
+		$(AR) t $@ > contents.txt 
+cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
 
 cpp-library: cpp-libary-staticlib
 
 #################################################################################################
 # Stencila C++ package
 
+# Copy over Stencila header files
 CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
 CPP_PACKAGE_HPPS := $(patsubst %.hpp,$(BUILD)/cpp/package/stencila/stencila/%.hpp,$(notdir $(CPP_STENCILA_HPPS)))
 $(BUILD)/cpp/package/stencila/stencila/%.hpp: cpp/stencila/%.hpp
 	@mkdir -p $(BUILD)/cpp/package/stencila/stencila
 	cp $< $@
 
-$(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) $(BUILD)/cpp/library/libstencila.a
+# Boost and rapidjson need to be available as headers to compile against Stencila
+# So copy over the their headers
+$(BUILD)/cpp/package/stencila/boost: $(BUILD)/cpp/requires/boost/boost
+	@mkdir -p $@
+	cp -fr $(BUILD)/cpp/requires/boost/boost/. $(BUILD)/cpp/package/stencila/boost/
+$(BUILD)/cpp/package/stencila/rapidjson: $(BUILD)/cpp/requires/rapidjson/include/rapidjson
+	@mkdir -p $@
+	cp -fr $(BUILD)/cpp/requires/rapidjson/include/rapidjson/. $(BUILD)/cpp/package/stencila/rapidjson/
+cpp-package-requires: $(BUILD)/cpp/package/stencila/boost $(BUILD)/cpp/package/stencila/rapidjson
+
+# Zip it up
+$(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) cpp-package-requires $(BUILD)/cpp/library/libstencila.a
 	cp $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/package/stencila
 	cd $(BUILD)/cpp/package ; tar czf stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz stencila
-
 cpp-package: $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
 
 
