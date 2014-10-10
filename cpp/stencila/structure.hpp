@@ -4,6 +4,7 @@
 #include <stencila/mirror-inspect.hpp>
 #include <stencila/mirror-rows.hpp>
 #include <stencila/mirror-stencil.hpp>
+#include <stencila/mirror-frame.hpp>
 
 namespace Stencila {
 
@@ -30,8 +31,13 @@ public:
     return derived();
   }
 
-  Derived& read(Stencil& stencil) {
+  Derived& read(const Stencil& stencil) {
     Mirrors::StencilParser(stencil).mirror(derived());
+    return derived();
+  }
+
+  Derived& read(const Frame& frame,const std::vector<std::string>& exclude) {
+    Mirrors::FrameReader(frame,exclude).mirror(derived());
     return derived();
   }
 

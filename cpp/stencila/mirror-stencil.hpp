@@ -13,7 +13,7 @@ namespace Mirrors {
 class StencilParser : public Mirror<StencilParser> {
 public:
 
-	StencilParser(Html::Node& node):
+	StencilParser(const Html::Node& node):
 		node_(node){}
 
 	template<typename Type,typename... Args>
@@ -52,7 +52,7 @@ private:
 		}
 	}
 
-	Html::Node& node_;
+	const Html::Node& node_;
 }; // class StencilParser
 
 class StencilGenerator : public Mirror<StencilGenerator> {
