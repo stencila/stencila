@@ -250,6 +250,25 @@ public:
      * @}
      */
     
+    void write(const std::string& path) const {
+        // Create necessary path for filename in case it does not yet exist
+        boost::filesystem::create_directories(boost::filesystem::path(path).parent_path());
+        std::ofstream file(path);
+        write_(file,IsStructure<Type>());
+    }
+
+private:
+
+    void write_(std::ostream& stream, const std::true_type& is_structure) const {
+        // Header
+        stream<<Type::derived_nullptr()->header_row()<<"\n";
+        // Values
+        for(unsigned int index=0;index<size();index++){
+            Type copy = values_[index];
+            stream<<copy.to_row()<<"\n";
+        }
+    }
+
 };
 
 } //namespace Stencila
