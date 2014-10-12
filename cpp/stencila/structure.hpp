@@ -36,11 +36,6 @@ public:
     return derived();
   }
 
-  Derived& read(const Frame& frame,const std::vector<std::string>& exclude) {
-    Mirrors::FrameReader(frame,exclude).mirror(derived());
-    return derived();
-  }
-
   Derived& write(const std::string& path) {
     Stencil stencil;
     write(stencil);
@@ -52,6 +47,18 @@ public:
     Mirrors::StencilGenerator(stencil).mirror(derived());
     return derived();
   }
+
+
+  Derived& read(const Frame& frame,const std::vector<std::string>& exclude = {}) {
+    Mirrors::FrameReader(frame,exclude).mirror(derived());
+    return derived();
+  }
+
+  Derived& write(const Frame& frame,const std::vector<std::string>& exclude = {}) {
+    Mirrors::FrameWriter(frame,exclude).mirror(derived());
+    return derived();
+  }
+
 
   std::string header_row(const std::string& separator="\t") const {
     return Mirrors::RowHeader(separator).mirror<Derived>();
