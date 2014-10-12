@@ -594,9 +594,8 @@ public:
     template<
 		class Derived, typename Values, typename Result
 	>
-	Result operator()(Aggregate<Derived,Values,Result>& aggregate) const{
-		for(auto& value : *this) aggregate.append(value);
-		return aggregate.result();
+	Result operator()(Aggregate<Derived,Values,Result> aggregate) const {
+		return aggregate.apply(*this).result();
 	}
 	
 	/**
@@ -607,7 +606,7 @@ public:
 		class Derived, typename Values, typename Result,
 		class A1,class A2,class A3,class A4,class A5,class A6,class A7,class A8,class A9,class A10
 	>
-	Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregate<Derived,Values,Result>& aggregate,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by) const{
+	Array<Result,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> operator()(const Aggregate<Derived,Values,Result>& aggregate,const By<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& by) const {
 		// Create an array of aggregators with the dimesnions of the Byer
 		Array<Derived,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> aggregates;
 		// Iterate over tthis array updating the appropriate level of the aggregators array

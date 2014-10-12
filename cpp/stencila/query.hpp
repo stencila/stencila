@@ -14,7 +14,9 @@ public:
 	/**
 	 * Get the code representation of the clause
 	 */
-    virtual std::string code(void) const = 0;
+    virtual std::string code(void) const {
+
+    };
 
 };
 
@@ -133,20 +135,20 @@ public:
 	 */
 	template<typename Type>
 	Derived& apply(const Type& object) {
-		apply_dispatch_(IsContainer<Type>(),object);
+		apply_(object,IsContainer<Type>(),IsArray<Type>());
 		return self();
 	}
 
 private:
 
-	template<typename Container>
-	void apply_dispatch_(const std::true_type& is_container,Container container) {
+	template<typename Type>
+	void apply_(Type container, const std::true_type& is_container,const std::false_type& is_array) {
 		for(auto& value : container) self().append(value);
 	}
 
-	template<typename Queryable>
-	void apply_dispatch_(const std::false_type& is_container,Queryable queryable) {
-		queryable(self());
+	template<typename Type>
+	void apply_(Type array, const std::false_type& is_container,const std::true_type& is_array) {
+		for(auto& value : array) self().append(value);
 	}
 };
 
@@ -208,6 +210,13 @@ public:
 		return "count";
 	}
 
+	using Aggregate<Count,double,unsigned int>::append;
+	
+	Count& append(void){
+		count_++;
+		return *this;
+	}
+
 	template<class Type>
 	void append_static(const Type& value){
 		count_++;
@@ -247,7 +256,7 @@ public:
 		sum_(0){
 	}
 
-	virtual std::string code(void) const{
+	virtual std::string code(void) const {
 		return "sum";
 	}
 
