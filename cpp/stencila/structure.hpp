@@ -24,6 +24,10 @@ public:
     return Mirrors::Labels().mirror<Derived>();
   }
 
+  std::vector<std::string> values(void) const {
+    return Mirrors::Labels().mirror<Derived>();
+  }
+
   Derived& read(const std::string& path) {
     Stencil stencil;
     stencil.import(path);
@@ -54,7 +58,7 @@ public:
     return derived();
   }
 
-  Derived& write(const Frame& frame,const std::vector<std::string>& exclude = {}) {
+  Derived& write(Frame& frame,const std::vector<std::string>& exclude = {}) {
     Mirrors::FrameWriter(frame,exclude).mirror(derived());
     return derived();
   }

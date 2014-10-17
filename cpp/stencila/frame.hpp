@@ -2,263 +2,116 @@
 
 #include <string>
 #include <vector>
-#include <fstream>
+#include <limits>
 
-#include <boost/any.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
-#include <stencila/exception.hpp>
-#include <stencila/datatype.hpp>
+namespace boost {
+	template<typename T, std::size_t NumDims,typename Allocator> class multi_array;
+}
 
 namespace Stencila {
 
 class Frame {
 public:
 
-	typedef boost::any Type;
+	Frame(void);
 
-	Frame(void){
-	}
+	Frame(const Frame& frame);
 
-	Frame(const std::vector<std::string>& labels, unsigned int rows=0){
-		initialise(rows,labels);
-	}
+	Frame(const std::vector<std::string>& labels, unsigned int rows=0);
 
-	Frame(unsigned int rows, const std::vector<std::string>& labels={}){
-		initialise(rows,labels);
-	}
+	Frame(unsigned int rows, const std::vector<std::string>& labels={});
 
-	template<typename Type>
-	static Frame of(void){
-		auto labels  = static_cast<Type*>(nullptr)->labels();
-		Frame frame;
-		for(auto label : labels) frame.add(label,Null);
-		return frame;
-	}
+	Frame(const std::vector<std::string>& labels, const std::vector<double>& values);
 
-	Frame& initialise(unsigned int rows, const std::vector<std::string>& labels){
-		rows_ = rows;
-		labels_ = labels;
-		columns_ = labels_.size();
-		resize();
-		return *this;
-	}
+	~Frame(void);
 
-	Frame& resize(void){
-		data_.resize(rows_,std::vector<boost::any>(columns_));
-		return *this;
-	}
+	template<class Structure>
+	static Frame of(void);
 
-	unsigned int rows(void) const {
-		return rows_;
-	}
 
-	unsigned int columns(void) const {
-		return columns_;
-	}
+	unsigned int rows(void) const;
 
-	std::vector<std::string> labels(void) const {
-		return labels_;
-	}
+	unsigned int columns(void) const;
 
-	std::string label(unsigned int index) const {
-		return labels_[index];
-	}
+	bool empty(void) const;
 
-	int column(const std::string& label) const {
-		auto iter = std::find(labels_.begin(),labels_.end(),label);
-		if(iter==labels_.end()) return -1;
-		else return iter-labels_.begin();
-	}
 
-	bool has(const std::string& label) const {
-		return column(label)>=0;
-	}
+	std::vector<std::string> labels(void) const;
 
-	std::vector<Datatype> types(void) const {
-		return types_;
-	}
+	std::string label(unsigned int index) const;
 
-	Datatype type(unsigned int column) const {
-		return types_[column];
-	}
+	int label(const std::string& label) const;
 
-	Datatype type(unsigned int row, unsigned int column) const {
-		return Datatype::from_type_info(data_[row][column].type());
-	}
+	bool has(const std::string& label) const;
 
-	template<typename Type>
-	Frame& type(void){
-		for(unsigned int row=0;row<rows_;row++){
-			for(unsigned int col=0;col<columns_;col++){
-				data_[row][col] = boost::lexical_cast<Type>(boost::any_cast<std::string>(data_[row][col]));
-			}
-		}
-		return *this;
-	}	
 
-	template<typename Type=boost::any>
-	Frame& add(const std::string& label, const Datatype& type, const Type& value=Type()){
-		columns_++;
-		labels_.push_back(label);
-		types_.push_back(type);
-		for(unsigned int row=0;row<rows_;row++) data_[row].push_back(value);
-		return *this;
-	}
+	double& operator()(unsigned int row, unsigned int column);
 
-	Frame& append(void){
-		data_.push_back(std::vector<boost::any>(columns_));
-		rows_++;
-		return *this;
-	}
+	const double& operator()(unsigned int row, unsigned int column) const;
 
-	Frame& append(const std::vector<boost::any>& row){
-		if(row.size()!=columns_){
-			STENCILA_THROW(Exception,str(boost::format(
-				"Error attempting to append a row with <%i> columns to a frame with <%s> columns"
-			)%row.size()%columns_));
-		}
-		data_.push_back(row);
-		rows_++;
-		return *this;
-	}
+	const double& operator()(unsigned int row, const std::string& label) const;
 
-	template<typename Type>
-	Frame& append(const std::vector<Type>& row){
-		if(row.size()!=columns_){
-			STENCILA_THROW(Exception,str(boost::format(
-				"Error attempting to append a row with <%i> columns to a frame with <%s> columns"
-			)%row.size()%columns_));
-		}
-		std::vector<boost::any> values(columns_);
-		for(int col=0;col<columns_;col++) values[col] = row[col];
-		data_.push_back(values);
-		rows_++;
-		return *this;
-	}
 
-	Frame& append(const Frame& frame){
-		if(columns_==0){
-			initialise(0,frame.labels_);
-		}
-		else if(frame.columns()!=columns_){
-			STENCILA_THROW(Exception,str(boost::format(
-				"Error attempting to append a frame with <%i> columns to a frame with <%s> columns"
-			)%frame.columns()%columns_));
-		}
-		for(unsigned int row=0;row<frame.rows();row++){
-			std::vector<boost::any> data(columns_);
-			for(unsigned int col=0;col<frame.columns();col++) data[col] = frame(row,col);
-			data_.push_back(data);
-			rows_++;
-		}
-		return *this;
-	}
+	std::vector<double> row(unsigned int row) const;
 
-	boost::any& operator()(unsigned int row, unsigned int column){
-		return data_[row][column];
-	}
+	std::vector<double> column(unsigned int column) const;
 
-	const boost::any& operator()(unsigned int row, unsigned int column) const {
-		return data_[row][column];
-	}
+	std::vector<double> column(const std::string& label) const;
 
-	Frame row(unsigned int row) const {
-		Frame frame(1,labels());
-		frame.data_[0] = data_[row];
-		return frame;
-	}
+	Frame slice(unsigned int row) const;
 
-	template<typename Type>
-	Type value(unsigned int row, unsigned int column) const {
-		return boost::any_cast<Type>(data_[row][column]);
-	}
+	Frame slice(unsigned int from,unsigned int to) const;
 
-	template<typename Type>
-	Type value(const std::string& label) const {
-		int col = column(label);
-		if(col<0) STENCILA_THROW(Exception,"No such label <"+label+"> in frame")
-		return boost::any_cast<Type>(data_[0][col]);
-	}
+	Frame chop(unsigned int from) const;
 
-	static boost::any from_string(const std::string& string, Datatype datatype) {
-		boost::any any;
-		switch(datatype.code){
-			case 'n': break;
-			case 'i': any = boost::lexical_cast<int>(string); break;
-			case 'r': any = boost::lexical_cast<double>(string); break;
-			case 't': any = string; break;
-		}
-		return any;
-	}
+	Frame chop(unsigned int from,unsigned int to) const;
 
-	std::string string(unsigned int row, unsigned int column) const {
-		auto any = data_[row][column];
-		auto datatype = type(row,column);
-		switch(datatype.code){
-			case 'n': return "";
-			case 'i': return boost::lexical_cast<std::string>(boost::any_cast<int>(any));
-			case 'r': return boost::lexical_cast<std::string>(boost::any_cast<double>(any));
-			case 't': return boost::any_cast<std::string>(any);
-		}
-		return "";
-	}
+	Frame chop(const std::vector<double>& labels) const;
 
-	void clear(const std::string path) {
-		data_.clear();
-	}
+	Frame dice(unsigned int row_from,unsigned int row_to,unsigned int col_from, unsigned int col_to) const;
 
-	Frame& read(std::istream& stream, const std::string& separator="\t") {
-		// Get labels from header and use to intialise
-		std::string header;
-		std::getline(stream,header);
-		std::vector<std::string> labels;
-		boost::split(labels,header,boost::is_any_of(separator));
-		initialise(0,labels);
-		// Get each line....
-		std::string line;
-		while(std::getline(stream,line)){
-			// Skip lines that are all whitespace
-			// (this primarily is to prevent errors caused by extra empty lines at end of files)
-			if(std::all_of(line.begin(),line.end(),isspace)) continue;
-			// Split into values
-			std::vector<std::string> values;
-			boost::split(values,line,boost::is_any_of(separator));
-			append(values);
-		}
-		return *this;
-	}
 
-	Frame& read(const std::string path, const std::string& separator="\t") {
-		std::ifstream file(path);
-		return read(file,separator);
-	}
+	Frame& add(const std::string& label,const double& value = 0);
 
-	const Frame& write(const std::string path) const {
-		std::ofstream file(path);
-		for(unsigned int col=0;col<columns_;col++){
-			file<<labels_[col];
-			if(col!=columns_-1) file<<"\t";
-		}
-		file<<"\n";
-		for(unsigned int row=0;row<rows_;row++){
-			for(unsigned int col=0;col<columns_;col++){
-				file<<string(row,col);
-				if(col!=columns_-1) file<<"\t";
-			}
-			file<<"\n";
-		}
-		return *this;
-	}
+
+	Frame& append(unsigned int rows = 1);
+
+	Frame& append(const std::vector<double>& row);
+
+	Frame& append(const std::vector<std::string>& row);
+
+	Frame& append(const Frame& frame);
+
+	Frame& clear(void);
+
+
+	Frame& read(std::istream& stream, const std::string& separator="\t");
+
+	Frame& read(const std::string path, const std::string& separator="\t");
+
+	const Frame& write(std::ostream& stream, const std::string& separator="\t") const;
+
+	const Frame& write(const std::string path, const std::string& separator="\t") const;
 
 private:
-	std::vector<std::vector<boost::any>> data_;
-	unsigned int rows_ = 0;
-	unsigned int columns_ = 0;
+
+	void resize_(unsigned int rows, unsigned int columns);
+
+	void delta_(int rows, int columns);
+
+	typedef boost::multi_array<double,2,std::allocator<double>> Data;
+	Data* data_;
 	std::vector<std::string> labels_;
-	std::vector<Datatype> types_;
 };
 
+template<class Structure>
+Frame Frame::of(void){
+	return Frame(static_cast<Structure*>(nullptr)->labels());
 }
+
+}
+
+/**
+ * Output a Frame to a stream using the `<<` operator
+ */
+std::ostream& operator<<(std::ostream& stream, const Stencila::Frame& frame);

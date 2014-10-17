@@ -58,7 +58,7 @@ public:
 	void data_(Data& data, const std::string& name, const std::false_type& is_structure, const std::false_type& is_array){
 		if(handle_(name)){
 			std::string label = prefix_+name;
-			if(frame_.has(label)) data = frame_.value<Data>(label);
+			if(frame_.has(label)) data = frame_(0,label);
 		}
 	}
 }; // class FrameReader
