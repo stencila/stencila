@@ -124,23 +124,23 @@ BOOST_AUTO_TEST_CASE(query_by){
     Array<double,Two,Three> numbers = 2;
     
     {
-        Array<unsigned int,Two> counts = numbers(count(),by(two));
+        Array<unsigned int,Two> counts = numbers(count,by(two));
         BOOST_CHECK_EQUAL(counts(0),3u);
         BOOST_CHECK_EQUAL(counts(1),3u);
     }
     {
-        auto sums = numbers(sum(),by(two));
+        auto sums = numbers(sum,by(two));
         BOOST_CHECK_EQUAL(sums(0),6);
         BOOST_CHECK_EQUAL(sums(1),6);
     }
     {
-        auto sums = numbers(sum(),by(three));
+        auto sums = numbers(sum,by(three));
         BOOST_CHECK_EQUAL(sums(0),4);
         BOOST_CHECK_EQUAL(sums(1),4);
         BOOST_CHECK_EQUAL(sums(2),4);
     }
     {
-        auto sums = numbers(sum(),by(two,three));
+        auto sums = numbers(sum,by(two,three));
         BOOST_CHECK_EQUAL(sums(0,0),2);
         BOOST_CHECK_EQUAL(sums(0,1),2);
         BOOST_CHECK_EQUAL(sums(1,2),2);

@@ -58,11 +58,26 @@ public:
 	}
 
 	/**
-	 * Append an item
+	 * Apply the aggregator to an object
 	 */
-	template<class Type>
-	Derived& append(const Type& value){
-		self().append_static(value);
+	template<typename Type>
+	Derived& apply(const Type& object) {
+		self().reset();
+		append(object);
+		return self();
+	}
+
+	template<typename Type>
+	Derived& operator()(const Type& type){
+		return apply(type);
+	}
+
+	/**
+	 * Append a container, array or valu
+	 */
+	template<typename Type>
+	Derived& append(const Type& object){
+		append_(object,IsContainer<Type>(),IsArray<Type>());
 		return self();
 	}
 
@@ -130,32 +145,23 @@ public:
 		return result();
 	}
 
-	/**
-	 * Apply the aggregator to a container
-	 */
-	template<typename Type>
-	Derived& apply(const Type& object) {
-		apply_(object,IsContainer<Type>(),IsArray<Type>());
-		return self();
-	}
-
 private:
 
 	template<typename Type>
-	void apply_(Type container, const std::true_type& is_container,const std::false_type& is_array) {
-		for(auto& value : container) self().append(value);
+	void append_(Type container, const std::true_type& is_container,const std::false_type& is_array) {
+		for(auto& value : container) self().append_static(value);
 	}
 
 	template<typename Type>
-	void apply_(Type array, const std::false_type& is_container,const std::true_type& is_array) {
-		for(auto& value : array) self().append(value);
+	void append_(Type array, const std::false_type& is_container,const std::true_type& is_array) {
+		for(auto& value : array) self().append_static(value);
+	}
+
+	template<typename Type>
+	void append_(const Type& value, const std::false_type& is_container,const std::false_type& is_array){
+		self().append_static(value);
 	}
 };
-
-#define STENCILA_AGGREGATE_FUNCS(name,func)\
-	static name func(){ return name(); } \
-	template<class Type> static name::result_type func(const Type& object){ return name().apply(object).result(); } \
-
 
 template<
 	typename Function
@@ -173,6 +179,9 @@ public:
 
 	Each(Function function):
 		function_(function){}
+
+	void reset(void){
+	}
 
 	template<class Type>
 	Each& append_static(const Type& value){
@@ -204,6 +213,10 @@ protected:
 public:
 	Count(void):
 		count_(0){
+	}
+
+	void reset(void){
+		count_ = 0;
 	}
 
 	virtual std::string code(void) const{
@@ -243,8 +256,7 @@ public:
 	}
 
 };
-
-STENCILA_AGGREGATE_FUNCS(Count,count)
+static Count count;
 
 class Sum : public Aggregate<Sum,double,double> {
 protected:
@@ -254,6 +266,10 @@ protected:
 public:
 	Sum(void):
 		sum_(0){
+	}
+
+	void reset(void){
+		sum_ = 0;
 	}
 
 	virtual std::string code(void) const {
@@ -285,8 +301,7 @@ public:
 		return sum_;
 	}
 };
-
-STENCILA_AGGREGATE_FUNCS(Sum,sum)
+static Sum sum;
 
 class Product : public Aggregate<Product,double,double> {
 protected:
@@ -295,6 +310,10 @@ protected:
 public:
 	Product(void):
 		prod_(1){
+	}
+
+	void reset(void){
+		prod_ = 1;
 	}
 
 	virtual std::string code(void) const{
@@ -327,8 +346,7 @@ public:
 	}
 
 };
-
-STENCILA_AGGREGATE_FUNCS(Product,prod)
+static Product prod;
 
 
 class Mean : public Aggregate<Mean,double,double> {
@@ -339,6 +357,11 @@ private:
 public:
 	Mean(void):
 		sum_(0),count_(0){
+	}
+
+	void reset(void){
+		sum_ = 0;
+		count_ = 0;
 	}
 
 	virtual std::string code(void) const{
@@ -372,6 +395,7 @@ public:
 		return sum_/count_;
 	}
 };
+static Mean mean;
 
 class GeometricMean : public Aggregate<GeometricMean,double,double> {
 private:
@@ -379,6 +403,10 @@ private:
 	Mean mean_;
 
 public:
+
+	void reset(void){
+		mean_.reset();
+	}
 
 	virtual std::string code(void) const{
 		return "geomean";
@@ -407,13 +435,18 @@ public:
 		return std::exp(mean_.result());
 	}
 };
+static GeometricMean geomean;
 
-class HarmonicMean : public Mean {
+class HarmonicMean : public Aggregate<GeometricMean,double,double> {
 private:
 
 	Mean mean_;
 
 public:
+
+	void reset(void){
+		mean_.reset();
+	}
 
 	virtual std::string code(void) const{
 		return "harmean";
@@ -421,7 +454,7 @@ public:
 
 	template<class Type>
 	void append_static(const Type& value){
-		if(value!=0) Mean::append_static(1.0/value);
+		if(value!=0) mean_.append_static(1.0/value);
 	}
 
     std::string dump(void) const {
@@ -439,14 +472,110 @@ public:
     }
 
 	double result_static(void) const {
-		return 1.0/Mean::result_static();
+		return 1.0/mean_.result_static();
 	}
 };
+static HarmonicMean harmean;
 
-STENCILA_AGGREGATE_FUNCS(GeometricMean,geomean)
 
+class Variance : public Aggregate<Variance,double,double> {
+public:
+    Variance(void):
+        count_(0),
+        mean_(0),
+        m2_(0){
+    }
 
-#undef STENCILA_AGGREGATOR_FUNCS
+    void reset(void){
+        count_ = 0;
+        mean_ = 0;
+        m2_ = 0;
+    }
+
+    void append_static(const double& value){
+        count_++;
+        double delta = value - mean_;
+        mean_ += delta/count_;
+        m2_ += delta*(value-mean_);
+    }
+
+    std::string dump(void){
+        char value[1000];
+        std::sprintf(value, "%li %lf %lf", count_, mean_, m2_);
+        return value;
+    }
+    
+    void load(const std::string& value){
+        std::sscanf(value.c_str(), "%li %lf %lf", &count_, &mean_, &m2_);
+    }
+    
+    void join(const Variance& other){
+        count_ += other.count_;
+        mean_ += other.mean_;
+        m2_ += other.m2_;
+    }    
+     
+    double result_static(void) const {
+        return m2_/(count_ - 1);
+    }
+
+protected:
+    unsigned long int count_;
+    double mean_;
+    double m2_;
+};
+
+class StandardDeviation : public Variance {
+public:
+    double result_static(void) const {
+        return std::sqrt(Variance::result_static());
+    }
+};
+
+class Mapc : public Aggregate<Mapc,double,double> {
+private:
+
+	Mean mean_;
+	double last_ = NAN;
+
+public:
+
+	void reset(void){
+		mean_.reset();
+		last_ = NAN;
+	}
+
+	virtual std::string code(void) const{
+		return "mapc";
+	}
+
+	template<class Type>
+	void append_static(const Type& value){
+		if(std::isfinite(last_)){
+			mean_.append_static(std::fabs(value-last_)/last_);
+		}
+		last_ = value;
+	}
+
+    std::string dump(void) const {
+        return mean_.dump();
+    }
+
+    Mapc& load(const std::string& value){
+        mean_.load(value);
+        return *this;
+    }
+    
+    Mapc& join(const Mapc& other){
+        mean_.join(other.mean_);
+        return *this;
+    }
+
+	double result_static(void) const {
+		return mean_.result_static();
+	}
+};
+static Mapc mapc;
 
 
 /**
