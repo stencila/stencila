@@ -293,7 +293,7 @@ $(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 # Care may be required to ensure no name clashes in object files
 # Currently this is not dealt with
 cpp-library-requires: $(BUILD)/cpp/requires
-	@mkdir $(BUILD)/cpp/library/requires
+	@mkdir -p $(BUILD)/cpp/library/requires
 	cd $(BUILD)/cpp/library/requires ;\
 		ar x ../../requires/boost/lib/libboost_system.a ;\
 		ar x ../../requires/boost/lib/libboost_filesystem.a ;\
