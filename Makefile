@@ -267,7 +267,7 @@ ifeq ($(OS), msys)
 endif
 
 $(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml \
-   cpp-requires-rapidjson cpp-requires-tidy-html5 cpp-requires-websocketpp
+   cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
 
 cpp-requires: $(BUILD)/cpp/requires
 
@@ -319,15 +319,12 @@ $(BUILD)/cpp/package/stencila/stencila/%.hpp: cpp/stencila/%.hpp
 	@mkdir -p $(BUILD)/cpp/package/stencila/stencila
 	cp $< $@
 
-# Boost and rapidjson need to be available as headers to compile against Stencila
+# Boost needs to be available as headers to compile against Stencila
 # So copy over the their headers
 $(BUILD)/cpp/package/stencila/boost: $(BUILD)/cpp/requires/boost/boost
 	@mkdir -p $@
 	cp -fr $(BUILD)/cpp/requires/boost/boost/. $(BUILD)/cpp/package/stencila/boost/
-$(BUILD)/cpp/package/stencila/rapidjson: $(BUILD)/cpp/requires/rapidjson/include/rapidjson
-	@mkdir -p $@
-	cp -fr $(BUILD)/cpp/requires/rapidjson/include/rapidjson/. $(BUILD)/cpp/package/stencila/rapidjson/
-cpp-package-requires: $(BUILD)/cpp/package/stencila/boost $(BUILD)/cpp/package/stencila/rapidjson
+cpp-package-requires: $(BUILD)/cpp/package/stencila/boost
 
 # Zip it up
 $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) cpp-package-requires $(BUILD)/cpp/library/libstencila.a
