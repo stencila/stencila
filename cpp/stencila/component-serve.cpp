@@ -1,5 +1,6 @@
 #include <stencila/component.hpp>
 #include <stencila/network.hpp>
+#include <stencila/json.hpp>
 
 namespace Stencila {
 
@@ -48,8 +49,6 @@ std::string Component::page(const Component* component,const std::string& title,
 
 std::string Component::message(const std::string& address,const std::string& message){
 	using boost::format;
-	using Json::size;
-	using Json::as;
 
 	//WAMP basic spec is at https://github.com/tavendo/WAMP/blob/master/spec/basic.md
 	
@@ -72,42 +71,26 @@ std::string Component::message(const std::string& address,const std::string& mes
 
 			Json::Document request(message);
 
-			int items = size(request);
+			int items = request.size();
 			if(items<1) STENCILA_THROW(Exception,"Malformed message");
 
-			char code = as<int>(request[0]);
+			char code = request[0].as<int>();
 			if(code==CALL){
 				//[CALL, Request|id, Options|dict, Procedure|uri]
 				//[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]
 				//[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]
 				
 				if(items<2) STENCILA_THROW(Exception,"Malformed message");
-				int id = as<int>(request[1]);
+				int id = request[1].as<int>();
 				
 				if(items<4) STENCILA_THROW(Exception,"Malformed message");
-				std::string procedure = as<std::string>(request[3]);
+				std::string procedure = request[3].as<std::string>();
 
 				std::vector<std::string> args;
-				if(items>=5){
-					Json::Value& args_value = request[4];
-					args.resize(size(args_value));
-					for(unsigned int i=0;i<args.size();i++) args[i] = as<std::string>(args_value[i]);
-				}
+				if(items>=5) args = request[4].as<std::vector<std::string>>();
 
 				std::map<std::string,std::string> kwargs;
-				if(items>=6){
-					/**
-					 * @fixme Not implemented
-					 */
-					#if 0
-					Json::Value& kwargs_value = request[5];
-					for(int i=0;i<size(kwargs_value);i++){
-						auto value = kwargs_value[i];
-						auto name = 
-						args[name] = value;
-					}
-					#endif
-				}
+				if(items>=6) kwargs = request[5].as<std::map<std::string,std::string>>();
 				
 				std::string result;
 				try {
@@ -124,12 +107,12 @@ std::string Component::message(const std::string& address,const std::string& mes
 				//[RESULT, CALL.Request|id, Details|dict]
 				//[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
 				//[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
-				Json::Document response;
-				response.type<Json::Array>()
-						.push(RESULT)
-						.push(id)                                // CALL.Request|id
-						.push(Json::Object())                          // Details|dict
-						.push(std::vector<std::string>{result}); // YIELD.Arguments|list
+				Json::Document response = Json::Array();
+				response.append(RESULT);
+				response.append(id);                                // CALL.Request|id
+				response.append(Json::Object());                    // Details|dict
+				std::vector<std::string> yield_args = {result};
+				response.append(yield_args);                        // YIELD.Arguments|list
 				return response.dump();
 			}
 			return "[8, 0 , 0,{},\"unhandle message code\"]";

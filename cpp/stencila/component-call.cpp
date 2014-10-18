@@ -5,13 +5,12 @@ namespace Stencila {
 std::string Component::call(const Component::Call& call) {
 	auto what = call.what();
 	if(what=="list():array"){
-		Json::Document files;
-		files.type<Json::Array>();
+		Json::Document files = Json::Array();
 		for(auto file : list()) {
 			//Json::Value& desc = files.push_object();
 			//files.append(desc,"name",file.name);
 			//files.append(desc,"type",file.type);
-			files.push(file.name);
+			files.append(file.name);
 		}
 		return files.dump();
 	}
@@ -22,10 +21,9 @@ std::string Component::call(const Component::Call& call) {
 		commit(string);
 	}
 	else if(what=="commits():array"){
-		Json::Document log;
-		log.type<Json::Array>();
+		Json::Document log = Json::Array();
 		for(auto commit : commits()) {
-			log.push(commit.name+" "+commit.email+" "+commit.message);
+			log.append(commit.name+" "+commit.email+" "+commit.message);
 		}
 		return log.dump();
 	}

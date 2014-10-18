@@ -168,32 +168,28 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
 
-RAPIDJSON_VERSION := 0.11
+JSONCPP_VERSION := 4cd31f0
 
-# There are several forks of rapidjson on Github
-# At the time of writing the ones that appeared to be most worthwhile watching were:
-# 
-# 	- https://github.com/pah/rapidjson
-# 	- https://github.com/miloyip/rapidjson/issues/1
-# 
-$(RESOURCES)/rapidjson-$(RAPIDJSON_VERSION).zip:
+$(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ http://rapidjson.googlecode.com/files/rapidjson-$(RAPIDJSON_VERSION).zip
+	wget --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/tarball/$(JSONCPP_VERSION)
 
-# Apply patch from https://github.com/scanlime/rapidjson/commit/0c69df5ac098640018d9232ae71ed1036c692187
-# that allows for copying of Documents [rapidjson by default prevents copying 
-# of documents](http://stackoverflow.com/questions/22707814/perform-a-copy-of-document-object-of-rapidjson)
-$(BUILD)/cpp/requires/rapidjson-built.flag: $(RESOURCES)/rapidjson-$(RAPIDJSON_VERSION).zip
+$(BUILD)/cpp/requires/jsoncpp/dist/libjsoncpp.a: $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
-	unzip -qo $< -d $(BUILD)/cpp/requires
-	dos2unix $(BUILD)/cpp/requires/rapidjson/include/rapidjson/document.h
-	cat cpp/requires/rapidjson-scanlime-0c69df5ac0.patch | patch -d $(BUILD)/cpp/requires/rapidjson/include/rapidjson
+	tar xzf $< -C $(BUILD)/cpp/requires
+	cd $(BUILD)/cpp/requires/ ;\
+		rm -rf jsoncpp ;\
+		mv -f open-source-parsers-jsoncpp-$(JSONCPP_VERSION) jsoncpp ;\
+		cd jsoncpp ;\
+			python amalgamate.py ;\
+			cd dist ;\
+				#g++ -I. -O2 -shared -static -olibjsoncpp.a jsoncpp.cpp
 	touch $@
 
-CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/rapidjson/include
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 
-cpp-requires-rapidjson: $(BUILD)/cpp/requires/rapidjson-built.flag
+cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist/libjsoncpp.a
 
 
 $(RESOURCES)/tidy-html5-master.zip:
