@@ -3,8 +3,6 @@
 #include <iostream>
 #include <map>
 
-#include <boost/lexical_cast.hpp>
-
 #define _WEBSOCKETPP_CPP11_STL_
 #include <websocketpp/config/asio.hpp>
 #include <websocketpp/server.hpp>

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <boost/lexical_cast.hpp>
-
 #include <stencila/exception.hpp>
+#include <stencila/string.hpp>
 #include <stencila/traits.hpp>
 
 namespace Stencila {
@@ -331,7 +330,7 @@ public:
 	 * Get a label for an index of this dimension
 	 */
 	static std::string label(const unsigned int& index) {
-		return boost::lexical_cast<std::string>(Base+index*Step);
+		return string(Base+index*Step);
 	}
 
 	/**
@@ -359,7 +358,7 @@ public:
 	static Level<Derived> level(const std::string& label) {
 		int label_int;
 		try {
-			label_int = boost::lexical_cast<int>(label);
+			label_int = unstring<int>(label);
 		} catch(...) {
 			STENCILA_THROW(Exception,"Error attempting to parse string <"+label+"> as an integer");
 		}

@@ -5,12 +5,11 @@
 #include <vector>
 #include <map>
 
-#include <boost/lexical_cast.hpp>
-
 #include <stencila/host.hpp>
 #include <stencila/git.hpp>
 #include <stencila/html.hpp>
 #include <stencila/json.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -469,13 +468,13 @@ public:
 	    Type arg(unsigned int index,const std::string& name="") const {
 	        if(name.length()>0){
 	            auto i = kwargs_.find(name);
-	            if(i!=kwargs_.end()) return boost::lexical_cast<Type>(i->second);
+	            if(i!=kwargs_.end()) return unstring<Type>(i->second);
 	            else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
 	        }
 	        if(args_.size()<index+1){
 	            STENCILA_THROW(Exception,"Not enough arguments supplied");
 	        }
-	        return boost::lexical_cast<Type>(args_[index]);
+	        return unstring<Type>(args_[index]);
 	    }
 	};
 

@@ -462,7 +462,7 @@ public:
 	std::string subscript(unsigned int index, bool parentheses=false) const {
 		std::string subscript;
 		if(parentheses) subscript += "(";
-		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) subscript += boost::lexical_cast<std::string>(level(dimension(),index)) + ",";
+		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) subscript += string(level(dimension(),index).index()) + ",";
 		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
 		#undef STENCILA_LOCAL
 		if(subscript.length()){
@@ -803,7 +803,7 @@ public:
 	}
 
 	void read(const std::string& filename,bool) {
-        if(not boost::filesystem::exists(filename)) STENCILA_THROW(Exception,str(boost::format("File name does not exist; <%s>")%filename));
+        if(not boost::filesystem::exists(filename)) STENCILA_THROW(Exception,"File name <"+filename+"> does not exist");
         std::ifstream file(filename);
         read(file,true);
     }

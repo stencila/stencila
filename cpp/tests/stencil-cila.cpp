@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 BOOST_AUTO_TEST_SUITE(stencil_cila)
 
@@ -17,7 +18,7 @@ std::string html(const std::string& cila,bool indent=true){
     Stencil s;
     s.cila(cila);
     std::string html = s.html(false,indent);
-    boost::trim(html);
+    trim(html);
     return html;
 }
 #define HTML_(_CILA,_HTML) BOOST_CHECK_EQUAL(html(_CILA),_HTML);
@@ -30,7 +31,7 @@ std::string cila(const std::string& html){
     Stencil s;
     s.html(html);
     std::string cila = s.cila();
-    boost::trim(cila);
+    trim(cila);
     return cila;
 }
 #define CILA_(_HTML,_CILA) BOOST_CHECK_EQUAL(cila(_HTML),_CILA);
@@ -42,7 +43,7 @@ std::string echo(const std::string& in){
     Stencil s;
     s.cila(in);
     std::string out = s.cila();
-    boost::trim(out);
+    trim(out);
     return out;
 }
 #define ECHO_(_CILA) BOOST_CHECK_EQUAL(echo(_CILA),_CILA);

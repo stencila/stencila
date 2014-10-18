@@ -1,4 +1,7 @@
+#include <boost/algorithm/string.hpp>
+
 #include <stencila/network.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -19,7 +22,7 @@ Server::Server(void){
 }
 
 std::string Server::url(void) const {
-	return "http://localhost:"+boost::lexical_cast<std::string>(port_);
+	return "http://localhost:"+string(port_);
 }
 
 void Server::start(void){

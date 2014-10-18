@@ -1,10 +1,8 @@
 #pragma once
 
-#include <boost/format.hpp>
-
+#include <stencila/frame.hpp>
 #include <stencila/mirror.hpp>
 #include <stencila/traits.hpp>
-#include <stencila/frame.hpp>
 
 namespace Stencila {
 namespace Mirrors {

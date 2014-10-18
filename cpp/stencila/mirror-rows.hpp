@@ -2,12 +2,9 @@
 
 #include <fstream>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <stencila/exception.hpp>
 #include <stencila/mirror.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 namespace Mirrors {
@@ -37,7 +34,7 @@ public:
     template<typename Data>
     RowGenerator& data(Data& data, const std::string& name=""){
         if(length()>0) append(separator_);
-        append(str(boost::format("%s")%data));
+        append(string(data));
         return *this;
     }
 
@@ -118,13 +115,15 @@ private:
 class RowParser : public Mirror<RowParser> {
 public:
     RowParser(const std::string& row,const std::string& separator="\t"){
-    	boost::split(items_,row,boost::is_any_of(separator));
+    	items_ = split(row,separator);
     }
 
     template<typename Data>
     RowParser& data(Data& data, const std::string& name=""){
-    	if(index_>=items_.size()) STENCILA_THROW(Exception,str(boost::format("Not enough elements in row; got <%s>, need at least <%s>")%items_.size()%index_));
-        data = boost::lexical_cast<Data>(items_[index_]);
+    	if(index_>=items_.size()) STENCILA_THROW(Exception,
+            "Not enough elements in row; got <"+string(items_.size())+">, need at least <"+string(index_)+">"
+        );
+        data = unstring<Data>(items_[index_]);
     	index_++;
         return *this;
     }
@@ -141,16 +140,22 @@ public:
     ColumnMatcher(const std::string& names,const std::string& values, const std::string& separator="\t"){
     	this->names(names);
     	this->values(values);
-    	if(names_.size()!=values_.size()) STENCILA_THROW(Exception,str(boost::format("Different numbers of names and values; got <%s> names and <%s> values using separator <%s>")%names_.size()%values_.size()%separator));
+    	if(names_.size()!=values_.size()){
+            auto message = 
+                "Different numbers of names and values; got <" + string(names_.size()) + "> " +
+                "names and <" + string(values_.size()) + "> " +
+                "values using separator <" + separator + "> ";
+            STENCILA_THROW(Exception,message);
+        }
     }
 
     ColumnMatcher& names(const std::string& names, const std::string& separator="\t"){
-    	boost::split(names_,names,boost::is_any_of(separator));
+    	names_ = split(names,separator);
         return *this;
     }
 
     ColumnMatcher& values(const std::string& values, const std::string& separator="\t"){
-    	boost::split(values_,values,boost::is_any_of(separator));
+    	values_ = split(values,separator);
         return *this;
     }    
 
@@ -159,7 +164,7 @@ public:
     	auto iter =  std::find(names_.begin(), names_.end(), name);
     	if(iter!=names_.end()){
     		unsigned int index = iter-names_.begin();
-    		data = boost::lexical_cast<Data>(values_[index]);
+    		data = unstring<Data>(values_[index]);
     	}
         return *this;
     }

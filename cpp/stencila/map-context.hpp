@@ -5,6 +5,7 @@
 
 #include <stencila/exception.hpp>
 #include <stencila/context.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -88,17 +89,16 @@ public:
         enter();
         set_("__item__",item);
         std::string items_string = get_(expression);
-        std::vector<std::string> items;
-        boost::split(items,items_string,boost::is_any_of(" "));
+        std::vector<std::string> items = split(items_string," ");
         set_("__items__",items_string);
         set_("__items_index__","0");
-        set_("__items_size__",boost::lexical_cast<std::string>(items.size()));
+        set_("__items_size__",string(items.size()));
         return next();
     }
 
     bool next(void){
-        int index = boost::lexical_cast<int>(get_("__items_index__"));
-        int length = boost::lexical_cast<int>(get_("__items_size__"));
+        int index = unstring<int>(get_("__items_index__"));
+        int length = unstring<int>(get_("__items_size__"));
         if(index>=length){
             // Exit the loop namespace and return false
             exit();
@@ -106,14 +106,13 @@ public:
         } else {
             // Get the items and split them up
             std::string items_string = get_("__items__");
-            std::vector<std::string> items;
-            boost::split(items,items_string,boost::is_any_of(" "));
+            std::vector<std::string> items = split(items_string," ");
             // Set the looping variable name
             std::string name = get_("__item__");
             set_(name,items[index]);
             // Increment the index and re-set it in the loop namespace
             index++;
-            set_("__items_index__",boost::lexical_cast<std::string>(index));
+            set_("__items_index__",string(index));
             return true;
         }
     }

@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include <boost/format.hpp>
-
 #include <stencila/exception.hpp>
 
 namespace pugi {

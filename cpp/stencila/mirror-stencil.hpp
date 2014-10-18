@@ -1,10 +1,8 @@
 #pragma once
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <stencila/mirror.hpp>
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 #include <stencila/traits.hpp>
 
 namespace Stencila {
@@ -40,15 +38,12 @@ private:
 		// Data is not a reflector so attempt to convert node text to type
 		std::string text = node.text();
 		// Trim whitespace from text
-		boost::trim(text);
+		trim(text);
 		try {
-			data = boost::lexical_cast<Data>(text);
-		}
-		catch(const boost::bad_lexical_cast& e){
-			STENCILA_THROW(Exception,str(boost::format("Error parsing text <%s> for attribute <%s>")%text%name));
+			data = unstring<Data>(text);
 		}
 		catch(...){
-			STENCILA_THROW(Exception,str(boost::format("Error with text <%s> for attribute <%s>")%text%name));
+			STENCILA_THROW(Exception,"Error with text <"+text+"> for attribute <"+name+">");
 		}
 	}
 
@@ -81,8 +76,7 @@ private:
 	template<typename Type>
 	static void value_(Html::Node node, Type& data,const std::false_type& is_structure){
 		// Data is not a reflector so attempt to convert to string
-		// boost::lexical_cast produces 3.1400001 for 3.14 so use boost::format instead
-		node.text(str(boost::format("%s")%data));
+		node.text(string(data));
 	}
 
 	Html::Node& node_;
