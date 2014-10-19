@@ -5,24 +5,6 @@
 
 namespace Stencila {
 
-#define STRING(TYPE_) \
-	std::string string(TYPE_ value){ \
-		return boost::lexical_cast<std::string>(value); \
-	}
-
-STRING(bool)
-STRING(char)
-STRING(unsigned char)
-STRING(int)
-STRING(long int)
-STRING(unsigned int)
-STRING(unsigned long int)
-STRING(float)
-STRING(double)
-STRING(const std::string&)
-
-#undef STRING
-
 #define UNSTRING(TYPE_) \
 	template<> \
 	TYPE_ unstring(const std::string& value){ \
