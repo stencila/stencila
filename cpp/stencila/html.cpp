@@ -1,11 +1,10 @@
-#include <boost/algorithm/string/replace.hpp>
-
 #include <pugixml.hpp>
 
 #include <tidy-html5/tidy.h>
 #include <tidy-html5/buffio.h>
 
 #include <stencila/html.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 namespace Html {
@@ -59,7 +58,7 @@ std::string Document::tidy(const std::string& html){
 			std::size_t end = input.find("</pre>",start);
 			// Extract preformatted text, protect tabs and reinsert
 			std::string pre = input.substr(start,end);
-			boost::replace_all(pre,"\t","---tab---");
+			replace_all(pre,"\t","---tab---");
 			input.replace(start,end,pre);
 			// Continue...
 			from = end + 6;
@@ -99,7 +98,7 @@ std::string Document::tidy(const std::string& html){
 				STENCILA_THROW(Exception,"Parsing error: "+error);
 			}
 			// Reinstate tabs
-			boost::replace_all(output,"---tab---","\t");
+			replace_all(output,"---tab---","\t");
 			return output;
 		} else {
 			STENCILA_THROW(Exception,"An error occurred");
@@ -111,7 +110,8 @@ std::string Document::tidy(const std::string& html){
 Document& Document::load(const std::string& html){
 	// For some reason tidy does not like a "<!DOCTYPE html>"
 	// in the document so remove that first
-	std::string html_to_tidy = boost::replace_all_copy(html,"<!DOCTYPE html>","");
+	std::string html_to_tidy = html;
+	replace_all(html_to_tidy,"<!DOCTYPE html>","");
 	
 	std::string tidied = tidy(html_to_tidy);
 	// In some cases tidy is returning an empty string

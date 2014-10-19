@@ -1,4 +1,5 @@
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <stencila/string.hpp>
 
@@ -10,10 +11,14 @@ namespace Stencila {
 	}
 
 STRING(bool)
+STRING(char)
+STRING(unsigned char)
 STRING(int)
+STRING(long int)
 STRING(unsigned int)
+STRING(unsigned long int)
 STRING(float)
-STRING(const double&)
+STRING(double)
 STRING(const std::string&)
 
 #undef STRING
@@ -25,22 +30,36 @@ STRING(const std::string&)
 	}
 
 UNSTRING(bool)
+UNSTRING(char)
+UNSTRING(unsigned char)
 UNSTRING(int)
+UNSTRING(long int)
 UNSTRING(unsigned int)
+UNSTRING(unsigned long int)
 UNSTRING(float)
 UNSTRING(double)
 UNSTRING(std::string)
 
 #undef UNSTRING
 
-void trim(std::string& string){
+std::string& trim(std::string& string){
 	boost::trim(string);
+	return string;
+}
+
+std::string& replace_all(std::string& string, const std::string& what, const std::string& with){
+	boost::replace_all(string,what,with);
+	return string;
 }
 
 std::vector<std::string> split(const std::string& string, const std::string& separator){
 	std::vector<std::string> bits;
 	boost::split(bits,string,boost::is_any_of(separator));
 	return bits;
+}
+
+std::string join(const std::vector<std::string>& vector, const std::string& separator){
+	return boost::join(vector,separator);
 }
 
 }

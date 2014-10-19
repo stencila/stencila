@@ -1,4 +1,5 @@
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -36,7 +37,7 @@ std::string Stencil::html(bool document,bool indent) const {
         if(k.size()>0){
             head.append("meta",{
                 {"name","keywords"},
-                {"content",boost::algorithm::join(k,", ")}
+                {"content",join(k,", ")}
             });
         }
 

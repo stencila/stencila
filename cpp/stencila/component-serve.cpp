@@ -1,3 +1,5 @@
+#include <boost/format.hpp>
+
 #include <stencila/component.hpp>
 #include <stencila/network.hpp>
 #include <stencila/json.hpp>

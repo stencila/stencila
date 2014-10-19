@@ -1,6 +1,7 @@
 #include <boost/regex.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 // Conditional includes of context types
 #if STENCILA_PYTHON_CONTEXT
@@ -48,11 +49,10 @@ void Stencil::render_error(Node node, const std::string& type, const std::string
 void Stencil::render_code(Node node, Context* context){
     // Get the list of contexts and ensure this context is in the list
     std::string contexts = node.attr("data-code");
-    std::vector<std::string> items;
-    boost::split(items,contexts,boost::is_any_of(","));
+    std::vector<std::string> items = split(contexts,",");
     bool ok = false;
     for(std::string& item : items){
-        boost::trim(item);
+        trim(item);
         if(context->accept(item)){
             ok = true;
             break;
@@ -124,7 +124,7 @@ std::string Stencil::render_set(Node node, Context* context){
         if(value.length()==0) value = node.text();
         // If still no value then create an error
         if(value.length()==0){
-            render_error(node,"set-value-none",name,str(boost::format("No value provided for <%s>")%name));
+            render_error(node,"set-value-none",name,"No value provided for <"+name+">");
             return "";
         }
         // Assign the variable in the new frame
@@ -132,7 +132,7 @@ std::string Stencil::render_set(Node node, Context* context){
         return name;
     }
     else {
-        render_error(node,"set-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+        render_error(node,"set-syntax",attribute,"Syntax error in attribute <"+attribute+">");
         return "";
     }
 }
@@ -172,7 +172,7 @@ std::array<std::string,3> Stencil::render_par(Node node, Context* context,bool p
         }
     }
     else {
-        render_error(node,"par-syntax",attribute,str(boost::format("Syntax error in attribute <%s>")%attribute));
+        render_error(node,"par-syntax",attribute,"Syntax error in attribute <"+attribute+">");
     }
     return {name,type,default_};
 }
@@ -273,8 +273,7 @@ void Stencil::render_for(Node node, Context* context){
     // Get the name of `item` and the `items` expression
     std::string item = "item";
     std::string items;
-    std::vector<std::string> bits;
-    boost::split(bits,parts,boost::is_any_of(":"));
+    std::vector<std::string> bits = split(parts,":");
     if(bits.size()==1){
         items = bits[0];
     } else if(bits.size()==2){
@@ -294,7 +293,7 @@ void Stencil::render_for(Node node, Context* context){
     int count = 0;
     while(first and more){
         // See if there is an existing child with a corresponding `data-index`
-        std::string index = boost::lexical_cast<std::string>(count);
+        std::string index = string(count);
         // Must select only children (not other decendents) to prevent messing with
         // nested loops. 
         // Currently, our CSS selector implementation does not support this syntax:
@@ -328,7 +327,7 @@ void Stencil::render_for(Node node, Context* context){
     Nodes indexeds = node.filter("./*[@data-index]","xpath");
     for(Node indexed : indexeds){
         std::string index_string = indexed.attr("data-index");
-        int index = boost::lexical_cast<int>(index_string);
+        int index = unstring<int>(index_string);
         if(index>count-1){
             Node locked = indexed.select("[data-lock]");
             if(locked){
@@ -471,7 +470,7 @@ void Stencil::render_include(Node node, Context* context){
                 context->assign(name,default_);
             } else {
                 // Set an error
-                render_error(node,"par-required",name,str(boost::format("Parameter <%s> is required because it has no default")%name));
+                render_error(node,"par-required",name,"Parameter <"+name+"> is required because it has no default");
                 ok  = false;
             }
         }
@@ -528,7 +527,7 @@ void Stencil::render(Node node, Context* context){
                 // Increment the count for his caption type
                 unsigned int& count = counts_[tag+"-caption"];
                 count++;
-                std::string count_string = boost::lexical_cast<std::string>(count);
+                std::string count_string = string(count);
                 // Check for an existing label
                 Node label = caption.select(".label");
                 if(not label){
@@ -566,7 +565,7 @@ Stencil& Stencil::render(Context* context){
     try {
         boost::filesystem::current_path(path);
     } catch(const std::exception& exc){
-        STENCILA_THROW(Exception,str(boost::format("Error setting directory to <%s>")%path));
+        STENCILA_THROW(Exception,"Error setting directory to <"+path.string()+">");
     }
     // Reset counts
     counts_["table-caption"] = 0;

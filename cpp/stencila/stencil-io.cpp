@@ -1,4 +1,5 @@
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -11,7 +12,7 @@ Stencil& Stencil::initialise(const std::string& from){
         } else {
             std::string path = Component::locate(from);
             if(path.length()) read(path);
-            else STENCILA_THROW(Exception,str(boost::format("No stencil found with path or address <%s>")%from));
+            else STENCILA_THROW(Exception,"No stencil found with path or address <"+from+">");
         }        
     } else {
         // Initialised from some content
@@ -35,7 +36,7 @@ Stencil& Stencil::import(const std::string& path){
         if(ext==".html") html(content); 
         else if(ext==".cila") cila(content);
     }
-    else STENCILA_THROW(Exception,str(boost::format("File extension <%s> not valid for a Stencil")%ext));
+    else STENCILA_THROW(Exception,"File extension <"+ext+"> not valid for a Stencil");
     return *this;
 }
 
@@ -46,7 +47,7 @@ Stencil& Stencil::export_(const std::string& path){
         if(ext==".html") file<<html(true,true); 
         else if(ext==".cila") file<<cila();
     }
-    else STENCILA_THROW(Exception,str(boost::format("File extension <%s> not valid for a Stencil")%ext));
+    else STENCILA_THROW(Exception,"File extension <"+ext+"> not valid for a Stencil");
     return *this;
 }
 
@@ -61,10 +62,10 @@ Stencil& Stencil::read(const std::string& directory){
     else {
         // Check that directory exits and is a directory
         if(not boost::filesystem::exists(where)){
-            STENCILA_THROW(Exception,str(boost::format("Path <%s> does not exist")%where));
+            STENCILA_THROW(Exception,"Path <"+where+"> does not exist");
         }
         if(not boost::filesystem::is_directory(where)){
-            STENCILA_THROW(Exception,str(boost::format("Path <%s> is not a directory")%where));
+            STENCILA_THROW(Exception,"Path <"+where+">> is not a directory");
         }
         // Set the stencil's path
         path(where);
@@ -79,7 +80,7 @@ Stencil& Stencil::read(const std::string& directory){
             break;
         }
     }
-    if(not found) STENCILA_THROW(Exception,str(boost::format("Directory <%s> does contain a 'stencil.html' or 'stencil.cila' file")%where));
+    if(not found) STENCILA_THROW(Exception,"Directory <"+where+"> does contain a 'stencil.html' or 'stencil.cila' file");
     return *this;
 }
 

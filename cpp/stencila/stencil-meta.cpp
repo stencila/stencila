@@ -1,4 +1,5 @@
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -14,8 +15,8 @@ std::vector<std::string> Stencil::keywords(void) const {
     std::vector<std::string> keywords;
     if(Node elem = select("#keywords")){
         auto text = elem.text();
-        boost::split(keywords,text,boost::is_any_of(","));
-        for(auto& keyword : keywords) boost::trim(keyword);
+        keywords = split(text,",");
+        for(auto& keyword : keywords) trim(keyword);
     }
     return keywords;
 }
@@ -32,8 +33,8 @@ std::vector<std::string> Stencil::contexts(void) const {
     std::vector<std::string> contexts;
     if(Node elem = select("#contexts")){
         auto text = elem.text();
-        boost::split(contexts,text,boost::is_any_of(","));
-        for(auto& context : contexts) boost::trim(context);
+        contexts = split(text,",");
+        for(auto& context : contexts) trim(context);
     }    
     return contexts;
 }

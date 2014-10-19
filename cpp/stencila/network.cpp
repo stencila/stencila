@@ -100,7 +100,7 @@ void Server::http_(connection_hdl hdl) {
 			// Decode the URL
 			// Currently this only converts spaces.
 			// More conversions will be required
-			boost::replace_all(resource, "%20", " ");
+			replace_all(resource, "%20", " ");
 			// This server handles two types of requents for Components:
 			// (1) "Dynamic" requests where the component is loaded into
 			// memory (if not already) and (2) Static requests for component

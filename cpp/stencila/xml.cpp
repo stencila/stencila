@@ -1,9 +1,9 @@
 #include <boost/xpressive/xpressive_static.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <pugixml.hpp>
 
 #include <stencila/exception.hpp>
+#include <stencila/string.hpp>
 #include <stencila/xml.hpp>
 
 namespace Stencila {
@@ -265,7 +265,7 @@ Node Node::select(const std::string& selector,const std::string& type) const {
 	std::string xpat;
 	if(type=="css") xpat = xpath(selector);
 	else if(type=="xpath") xpat = selector;
-	else STENCILA_THROW(Exception,str(boost::format("Unknown selector type <%s>")%type));
+	else STENCILA_THROW(Exception,"Unknown selector type <"+type+">");
 	try {
 		return pimpl_->select_single_node(xpat.c_str()).node();
 	} catch (const pugi::xpath_exception& e){
@@ -277,7 +277,7 @@ Nodes Node::filter(const std::string& selector,const std::string& type) const {
 	std::string xpat;
 	if(type=="css") xpat = xpath(selector);
 	else if(type=="xpath") xpat = selector;
-	else STENCILA_THROW(Exception,str(boost::format("Unknown selector type <%s>")%type));
+	else STENCILA_THROW(Exception,"Unknown selector type <"+type+">");
 	try {
 		// Select nodes
 		pugi::xpath_node_set selected = pimpl_->select_nodes(xpat.c_str());
@@ -479,8 +479,7 @@ std::string translate(const smatch& node,bool adjacent=false) {
 		else if(op=="$="){
 			return "@" + name + " and substring(@" + name + ",string-length(@" + name + ")-" + 
 				// XPath's substring function uses 1-based indexing so use length-1
-				boost::lexical_cast<std::string>(value.length()-1) + 
-				")='" + value + "'";
+				Stencila::string(value.length()-1) + ")='" + value + "'";
 		}
 		else if(op=="*="){
 			return "@" + name + " and contains(@" + name + ",'" + value + "')";

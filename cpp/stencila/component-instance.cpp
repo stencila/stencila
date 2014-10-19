@@ -5,6 +5,7 @@
 #include <stencila/component.hpp>
 #include <stencila/package.hpp>
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -25,7 +26,7 @@ void Component::classes(void){
 
 const Component::Class& Component::class_(Type type){
 	const Class& clas = classes_[type];
-	if(not clas.defined) STENCILA_THROW(Exception,str(boost::format("Class with type <%s> has not been defined")%type));
+	if(not clas.defined) STENCILA_THROW(Exception,"Class with type <"+string(type)+"> has not been defined");
 	return clas;
 }
 
@@ -58,7 +59,7 @@ Component::Instance Component::get(const std::string& address,const std::string&
 				package.clone(package_name);
 				path = package.path();
 			} else {
-				STENCILA_THROW(Exception,str(boost::format("Invalid component address <%s>")%address));
+				STENCILA_THROW(Exception,"Invalid component address <"+address+">");
 			}
 		}
 		Component* component;
@@ -70,7 +71,7 @@ Component::Instance Component::get(const std::string& address,const std::string&
 			stencil->read(path);
 			component = stencil;
 		} else {
-			STENCILA_THROW(Exception,str(boost::format("Unhandled component type <%s>")%type));
+			STENCILA_THROW(Exception,"Unhandled component type <"+string(type)+">");
 		}
 		component->path(path);
 		component->hold(type);

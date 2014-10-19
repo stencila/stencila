@@ -78,8 +78,7 @@ std::vector<std::string> Component::stores(void){
 	};
 	const char* more = std::getenv("STENCILA_STORES");
 	if(more) {
-		std::vector<std::string> more_stores;
-		boost::split(more_stores,more,boost::is_any_of(";"));
+		std::vector<std::string> more_stores = split(more,";");
 		for(std::string store : more_stores) stores.push_back(store);
 	}
 	stores.push_back(Host::user_dir());
@@ -106,8 +105,7 @@ std::string Component::package(void) {
 std::string Component::package(const std::string& address){
 	std::string temp = address;
 	if(temp[0]=='/') temp = temp.substr(1);
-	std::vector<std::string> parts;
-	boost::split(parts,temp,boost::is_any_of("/"));
+	std::vector<std::string> parts = split(temp,"/");
 	if(parts.size()>0) return parts[0];
 	return "";
 }

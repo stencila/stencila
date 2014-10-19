@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/algorithm/string/replace.hpp>
-
 #include <Rcpp.h>
 
 #ifdef STENCILA_R_EMBED
@@ -15,6 +13,7 @@
 #undef ERROR
 
 #include <stencila/context.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -100,7 +99,7 @@ private:
     }
 
     static std::string arguments(std::string arg){
-        boost::replace_all(arg,"\"","\\\"");
+        replace_all(arg,"\"","\\\"");
         return '"'+arg+'"';
     }
 
@@ -108,7 +107,7 @@ private:
         typename Arg
     >
     static std::string arguments(Arg arg){
-        return boost::lexical_cast<std::string>(arg);
+        return string(arg);
     }
 
     template<
@@ -158,7 +157,7 @@ private:
         // when trying to use Rcpp::as<bool> or Rcpp::as<int> even when checking the returned SEXP was
         // the correct type
         if(TYPEOF(result)!=STRSXP) STENCILA_THROW(Exception,"R-side methods should return a string");
-        return boost::lexical_cast<Result>(Rcpp::as<std::string>(result));
+        return unstring<Result>(Rcpp::as<std::string>(result));
     }
 
 public:
@@ -184,7 +183,7 @@ public:
     virtual ~RContext(void){}
 
     std::string details(void) const {
-        return str(boost::format("RContext at %s")%this);
+        return "RContext at " + string(this);
     };
 
     bool accept(const std::string& language) const {
