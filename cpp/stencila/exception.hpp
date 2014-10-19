@@ -4,8 +4,6 @@
 #include <sstream>
 #include <ostream>
 
-#include <boost/filesystem.hpp>
-
 namespace Stencila {
 
 class Exception : public std::exception {
@@ -30,8 +28,7 @@ public:
     const char* what(void) const throw() {
         std::ostringstream stream;
         if(file_){
-            std::string filename = boost::filesystem::path(file_).filename().string();
-            stream << filename << ": " << line_ << ": " << message_;
+            stream << file_ << ": " << line_ << ": " << message_;
         } else {
             stream << message_;
         }
@@ -43,20 +40,6 @@ inline std::ostream& operator<<(std::ostream& stream,const Exception& exception)
     stream<<exception.what();
     return stream;
 }
-
-class Unimplemented : public Exception {
-
-public:
-
-    Unimplemented(std::string what="",const char* file=0, int line=0):
-        Exception("Unimplemented: "+what,file,line){
-    }
-
-    ~Unimplemented(void) throw() {
-    }
-
-};
-
 
 #define STENCILA_THROW(exception,message) throw exception(message,__FILE__,__LINE__);
 
