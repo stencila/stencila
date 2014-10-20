@@ -2,8 +2,6 @@
 
 #include <fstream>
 
-#include <boost/preprocessor/seq/for_each.hpp>
-
 #include <stencila/array-declaration.hpp>
 #include <stencila/exception.hpp>
 #include <stencila/query.hpp>
@@ -94,10 +92,6 @@ template<
 >
 class Array {
 private:
-
-	// A sequence of dimension numbers used below for application
-	// of [BOOST_PP_SEQ_FOR_EACH](http://www.boost.org/doc/libs/1_55_0/libs/preprocessor/doc/ref/seq_for_each.html)
-	#define STENCILA_ARRAY_DIMENSIONS (D1)(D2)(D3)(D4)(D5)(D6)(D7)(D8)(D9)(D10)
 
 	/**
 	 * Size of the array, a product of the size of each dimension
@@ -322,12 +316,36 @@ public:
 	static bool dimensioned(const Dimension&) {
 		return false;
 	}
-
-	// The following macro and BOOST_PP_SEQ_FOR_EACH call create a dimensioned method
-	// for each possible dimension
-	#define STENCILA_LOCAL(r,data,elem) static bool dimensioned(const elem&) { return true; }
-	BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, , STENCILA_ARRAY_DIMENSIONS)
-	#undef STENCILA_LOCAL
+	static bool dimensioned(const D1&) {
+		return true;
+	}
+	static bool dimensioned(const D2&) {
+		return true;
+	}
+	static bool dimensioned(const D3&) {
+		return true;
+	}
+	static bool dimensioned(const D4&) {
+		return true;
+	}
+	static bool dimensioned(const D5&) {
+		return true;
+	}
+	static bool dimensioned(const D6&) {
+		return true;
+	}
+	static bool dimensioned(const D7&) {
+		return true;
+	}
+	static bool dimensioned(const D8&) {
+		return true;
+	}
+	static bool dimensioned(const D9&) {
+		return true;
+	}
+	static bool dimensioned(const D10&) {
+		return true;
+	} 	
 
  	/**
 	 * @name Iterator interface
@@ -462,9 +480,16 @@ public:
 	std::string subscript(unsigned int index, bool parentheses=false) const {
 		std::string subscript;
 		if(parentheses) subscript += "(";
-		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) subscript += string(level(dimension(),index).index()) + ",";
-		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-		#undef STENCILA_LOCAL
+		if(D1::size_>1) subscript += string(level(D1(),index).index()) + ",";
+		if(D2::size_>1) subscript += string(level(D2(),index).index()) + ",";
+		if(D3::size_>1) subscript += string(level(D3(),index).index()) + ",";
+		if(D4::size_>1) subscript += string(level(D4(),index).index()) + ",";
+		if(D5::size_>1) subscript += string(level(D5(),index).index()) + ",";
+		if(D6::size_>1) subscript += string(level(D6(),index).index()) + ",";
+		if(D7::size_>1) subscript += string(level(D7(),index).index()) + ",";
+		if(D8::size_>1) subscript += string(level(D8(),index).index()) + ",";
+		if(D9::size_>1) subscript += string(level(D9(),index).index()) + ",";
+		if(D10::size_>1) subscript += string(level(D10(),index).index()) + ",";
 		if(subscript.length()){
 			if(subscript[subscript.length()-1]==',') subscript = subscript.substr(0,subscript.length()-1);
 		}
@@ -682,9 +707,16 @@ public:
 			Type value;
 			try{
 				// Accumulate index
-				#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) index += jump(dimension::level(line_stream));
-				BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-				#undef STENCILA_LOCAL
+				if(D1::size_>1) index += jump(D1::level(line_stream));
+				if(D2::size_>1) index += jump(D2::level(line_stream));
+				if(D3::size_>1) index += jump(D3::level(line_stream));
+				if(D4::size_>1) index += jump(D4::level(line_stream));
+				if(D5::size_>1) index += jump(D5::level(line_stream));
+				if(D6::size_>1) index += jump(D6::level(line_stream));
+				if(D7::size_>1) index += jump(D7::level(line_stream));
+				if(D8::size_>1) index += jump(D8::level(line_stream));
+				if(D9::size_>1) index += jump(D9::level(line_stream));
+				if(D10::size_>1) index += jump(D10::level(line_stream));
 				// Read in value using function
 				function(line_stream,value);
 			} catch(...) {
@@ -742,9 +774,16 @@ public:
 	void write(std::ostream& stream, const std::vector<std::string>& names, void(*function)(std::ostream&,const Type&)) const {
 		// Write a header row...
 		// ...with the names of each of the non-singular dimensions
-		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
-		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-		#undef STENCILA_LOCAL
+		if(D1::size_>1) stream<<D1::name()<<"\t";
+		if(D2::size_>1) stream<<D2::name()<<"\t";
+		if(D3::size_>1) stream<<D3::name()<<"\t";
+		if(D4::size_>1) stream<<D4::name()<<"\t";
+		if(D5::size_>1) stream<<D5::name()<<"\t";
+		if(D6::size_>1) stream<<D6::name()<<"\t";
+		if(D7::size_>1) stream<<D7::name()<<"\t";
+		if(D8::size_>1) stream<<D8::name()<<"\t";
+		if(D9::size_>1) stream<<D9::name()<<"\t";
+		if(D10::size_>1) stream<<D10::name()<<"\t";
 		// ...and the names of values that will be output by the function
 		unsigned int index = 0;
 		for(auto& name : names){
@@ -757,9 +796,16 @@ public:
 		// Write value rows...
 		for(unsigned int index=0;index<size();index++){
 			//...with labels for each nn-singular dimension
-			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
-			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-			#undef STENCILA_LOCAL
+			if(D1::size_>1) stream<<level(D1(),index)<<"\t";
+			if(D2::size_>1) stream<<level(D2(),index)<<"\t";
+			if(D3::size_>1) stream<<level(D3(),index)<<"\t";
+			if(D4::size_>1) stream<<level(D4(),index)<<"\t";
+			if(D5::size_>1) stream<<level(D5(),index)<<"\t";
+			if(D6::size_>1) stream<<level(D6(),index)<<"\t";
+			if(D7::size_>1) stream<<level(D7(),index)<<"\t";
+			if(D8::size_>1) stream<<level(D8(),index)<<"\t";
+			if(D9::size_>1) stream<<level(D9(),index)<<"\t";
+			if(D10::size_>1) stream<<level(D10(),index)<<"\t";
 			//...call the function to write the vaue
 			function(stream,values_[index]);
 			// ...then end the value line
@@ -785,9 +831,16 @@ public:
 			Type item;
 			try{
 				// Accumulate index
-				#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) index += jump(dimension::level(line_stream));
-				BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-				#undef STENCILA_LOCAL
+				if(D1::size_>1) index += jump(D1::level(line_stream));
+				if(D2::size_>1) index += jump(D2::level(line_stream));
+				if(D3::size_>1) index += jump(D3::level(line_stream));
+				if(D4::size_>1) index += jump(D4::level(line_stream));
+				if(D5::size_>1) index += jump(D5::level(line_stream));
+				if(D6::size_>1) index += jump(D6::level(line_stream));
+				if(D7::size_>1) index += jump(D7::level(line_stream));
+				if(D8::size_>1) index += jump(D8::level(line_stream));
+				if(D9::size_>1) index += jump(D9::level(line_stream));
+				if(D10::size_>1) index += jump(D10::level(line_stream));
 				// Parse values from line using matcher
 				matcher.values(line_stream.str());
 				// Reflect values into current item
@@ -803,7 +856,6 @@ public:
 	}
 
 	void read(const std::string& filename,bool) {
-        if(not boost::filesystem::exists(filename)) STENCILA_THROW(Exception,"File name <"+filename+"> does not exist");
         std::ifstream file(filename);
         read(file,true);
     }
@@ -811,9 +863,16 @@ public:
 	void write(std::ostream& stream,bool) const {
 		// Write a header row...
 		// ...with the names of each of the non-singular dimensions
-		#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<dimension::name()<<"\t";
-		BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-		#undef STENCILA_LOCAL
+		if(D1::size_>1) stream<<D1::name()<<"\t";
+		if(D2::size_>1) stream<<D2::name()<<"\t";
+		if(D3::size_>1) stream<<D3::name()<<"\t";
+		if(D4::size_>1) stream<<D4::name()<<"\t";
+		if(D5::size_>1) stream<<D5::name()<<"\t";
+		if(D6::size_>1) stream<<D6::name()<<"\t";
+		if(D7::size_>1) stream<<D7::name()<<"\t";
+		if(D8::size_>1) stream<<D8::name()<<"\t";
+		if(D9::size_>1) stream<<D9::name()<<"\t";
+		if(D10::size_>1) stream<<D10::name()<<"\t";
 
 		stream<<Type::derived_nullptr()->header_row();
 
@@ -823,9 +882,16 @@ public:
 		// Write value rows...
 		for(unsigned int index=0;index<size();index++){
 			//...with labels for each nn-singular dimension
-			#define STENCILA_LOCAL(r,data,dimension) if(dimension::size_>1) stream<<level(dimension(),index)<<"\t";
-			BOOST_PP_SEQ_FOR_EACH(STENCILA_LOCAL, ,STENCILA_ARRAY_DIMENSIONS)
-			#undef STENCILA_LOCAL
+			if(D1::size_>1) stream<<level(D1(),index)<<"\t";
+			if(D2::size_>1) stream<<level(D2(),index)<<"\t";
+			if(D3::size_>1) stream<<level(D3(),index)<<"\t";
+			if(D4::size_>1) stream<<level(D4(),index)<<"\t";
+			if(D5::size_>1) stream<<level(D5(),index)<<"\t";
+			if(D6::size_>1) stream<<level(D6(),index)<<"\t";
+			if(D7::size_>1) stream<<level(D7(),index)<<"\t";
+			if(D8::size_>1) stream<<level(D8(),index)<<"\t";
+			if(D9::size_>1) stream<<level(D9(),index)<<"\t";
+			if(D10::size_>1) stream<<level(D10(),index)<<"\t";
 			
 			Type copy = values_[index];
 			stream<<copy.to_row();
@@ -835,9 +901,6 @@ public:
 		}
 	}
 	void write(const std::string& filename,bool) const {
-		// Create necessary path for filename in case it does not yet exist
-        boost::filesystem::path path(filename);
-        boost::filesystem::create_directories(path.parent_path());
         std::ofstream file(filename);
         write(file,true);
     }
