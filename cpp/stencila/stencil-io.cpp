@@ -1,3 +1,5 @@
+#include <boost/filesystem.hpp>
+
 #include <stencila/stencil.hpp>
 #include <stencila/string.hpp>
 

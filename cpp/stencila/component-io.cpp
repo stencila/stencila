@@ -1,3 +1,5 @@
+#include <boost/filesystem.hpp>
+
 #include <stencila/component.hpp>
 
 namespace Stencila {

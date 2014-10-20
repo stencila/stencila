@@ -1,3 +1,4 @@
+#include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
 #include <stencila/stencil.hpp>

@@ -319,15 +319,8 @@ $(BUILD)/cpp/package/stencila/stencila/%.hpp: cpp/stencila/%.hpp
 	@mkdir -p $(BUILD)/cpp/package/stencila/stencila
 	cp $< $@
 
-# Boost needs to be available as headers to compile against Stencila
-# So copy over the their headers
-$(BUILD)/cpp/package/stencila/boost: $(BUILD)/cpp/requires/boost/boost
-	@mkdir -p $@
-	cp -fr $(BUILD)/cpp/requires/boost/boost/. $(BUILD)/cpp/package/stencila/boost/
-cpp-package-requires: $(BUILD)/cpp/package/stencila/boost
-
 # Zip it up
-$(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) cpp-package-requires $(BUILD)/cpp/library/libstencila.a
+$(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) $(BUILD)/cpp/library/libstencila.a
 	cp $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/package/stencila
 	cd $(BUILD)/cpp/package ; tar czf stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz stencila
 cpp-package: $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz

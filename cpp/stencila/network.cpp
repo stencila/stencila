@@ -1,3 +1,4 @@
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <stencila/network.hpp>
