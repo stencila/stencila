@@ -1,4 +1,5 @@
 #include <boost/test/unit_test.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
 #include <stencila/component.hpp>
