@@ -15,7 +15,7 @@ public:
 	 * Get the code representation of the clause
 	 */
     virtual std::string code(void) const {
-
+    	return "";
     };
 
 };
