@@ -13,13 +13,13 @@ VERSION :=  $(shell ./config.py version)
 # Build directory uses a heirarchy based on the 
 # operating system and machine architecture.
 ifndef BUILD
-	BUILD := $(realpath build/$(OS)/$(ARCH)/$(VERSION))
+	BUILD := build/$(OS)/$(ARCH)/$(VERSION)
 endif
 
 # Resources directory for downloads of dependencies
 # that are independent of build
 ifndef RESOURCES
-	RESOURCES := $(realpath build/resources)
+	RESOURCES := build/resources
 endif
 
 #################################################################################################
@@ -39,7 +39,7 @@ build-current: build/current
 CPP_REQUIRES_INC_DIRS := 
 CPP_REQUIRES_LIB_DIRS := 
 
-BOOST_VERSION := 1_55_0
+BOOST_VERSION := 1_56_0
 
 $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
 	mkdir -p $(RESOURCES)
@@ -47,10 +47,9 @@ $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
 
 $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 	mkdir -p $(BUILD)/cpp/requires
-	cd $(BUILD)/cpp/requires ;\
-		rm -rf boost ;\
-		tar --bzip2 -xf $< ;\
-		mv boost_$(BOOST_VERSION) boost
+	rm -rf $(BUILD)/cpp/requires/boost
+	tar --bzip2 -xf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/boost_$(BOOST_VERSION) $(BUILD)/cpp/requires/boost
 	touch $@
 
 # TODO
@@ -104,7 +103,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
-LIBGIT2_VERSION := 0.21.1
+LIBGIT2_VERSION := 0.21.2
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -141,16 +140,16 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
-PUGIXML_VERSION := 1.2
+PUGIXML_VERSION := 1.4
 
 $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ http://pugixml.googlecode.com/files/pugixml-$(PUGIXML_VERSION).tar.gz
+	wget --no-check-certificate -O $@ http://github.com/zeux/pugixml/releases/download/v$(PUGIXML_VERSION)/pugixml-$(PUGIXML_VERSION).tar.gz
 
 $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
-	mkdir -p $@
-	cp $< $@
-	cd $@ && tar xzf pugixml-$(PUGIXML_VERSION).tar.gz
+	mkdir -p $(BUILD)/cpp/requires
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/pugixml-$(PUGIXML_VERSION) $(BUILD)/cpp/requires/pugixml
 
 PUGIXML_CXX_FLAGS := -O2
 ifeq ($(OS), linux)
@@ -168,7 +167,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
 
-JSONCPP_VERSION := 4cd31f0
+JSONCPP_VERSION := 7bd75b0
 
 $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
@@ -303,8 +302,8 @@ cpp-library-requires: $(BUILD)/cpp/requires
 # Output list of contents to `contents.txt` for checking
 $(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) cpp-library-requires
 	cd $(BUILD)/cpp/library ;\
-		$(AR) rc $@ `find . -name "*.o"` ;\
-		$(AR) t $@ > contents.txt 
+		$(AR) rc libstencila.a `find . -name "*.o"` ;\
+		$(AR) t libstencila.a > contents.txt 
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
 
 cpp-library: cpp-libary-staticlib
@@ -491,8 +490,13 @@ PY_PACKAGE_OBJECTS := $(patsubst %.cpp,$(PY_BUILD)/objects/%.o,$(notdir $(wildca
 PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
 
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
-PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/lib
-PY_SETUP_LIBS := $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) stencila $(CPP_REQUIRES_LIBS)
+PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/boost/lib
+PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) rt crypto ssl z
+
+# Print Python related Makefile variables; useful for debugging
+py-vars:
+	@echo PY_VERSION : $(PY_VERSION)
+	@echo PY_BUILD : $(PY_BUILD)
 
 $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 	@mkdir -p $(PY_BUILD)/stencila
@@ -514,8 +518,8 @@ $(PY_BUILD)/setup-latest.txt: py/setup.py $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS
 			LIBRARY_DIRS='$(PY_SETUP_LIB_DIRS)' \
 			LIBRARIES='$(PY_SETUP_LIBS)' ;\
 		touch dummy.cpp ;\
-		$(PY_EXE) setup.py bdist_wheel ;\
-		echo `ls -rt dist/*.whl | tail -n1` > setup-latest.txt
+		$(PY_EXE) setup.py bdist_wheel
+	cd $(PY_BUILD); echo `ls -rt dist/*.whl | tail -n1` > setup-latest.txt
 
 py-package: $(PY_BUILD)/setup-latest.txt
 
@@ -523,22 +527,21 @@ py-package: $(PY_BUILD)/setup-latest.txt
 # Using a virtual environment allows the Stencila wheel to be installed locally,
 # i.e. without root privalages, and also does not affect the host machines Python setup 
 $(PY_BUILD)/testenv/bin/activate:
+	@mkdir -p $(PY_BUILD);
 	cd $(PY_BUILD) ;\
 		virtualenv --python=python$(PY_VERSION) --no-site-packages testenv
 
-$(PY_BUILD)/test-install.flag: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
+$(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
+	@mkdir -p $(PY_BUILD);
 	cd $(PY_BUILD) ;\
 		. testenv/bin/activate ;\
 		pip install --upgrade --force-reinstall `cat setup-latest.txt`
-	touch $@
 
-$(PY_BUILD)/tests.out: py/tests/tests.py $(PY_BUILD)/test-install.flag
+py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila
 	cp py/tests/tests.py $(PY_BUILD)/testenv
 	cd $(PY_BUILD)/testenv ;\
 		. bin/activate ;\
 		python tests.py 2>&1 | tee ../tests.out
-
-py-tests: $(PY_BUILD)/tests.out
 
 py-clean:
 	rm -rf $(PY_BUILD)
@@ -587,8 +590,8 @@ endif
 # and the \$ is to escape the shell's treatment of $
 R_PLATFORM := $(shell Rscript -e "cat(R.version\$$platform)" )
 
-# The R version can not include the '-dev' tag
-R_PACKAGE_VERSION := $(subst -dev,,$(VERSION))
+# The R version can not include the '+' suffix
+R_PACKAGE_VERSION := $(subst +,,$(VERSION))
 
 # Define other platform specific variables...
 ifeq ($(OS),linux)

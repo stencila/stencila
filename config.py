@@ -30,11 +30,11 @@ def version():
 	# Create version number
 	version = tag
 	# If any extra commits or any uncommited changes
-	# then add a 'dev' suffix to indicate a local development
+	# then add a '+' suffix to indicate a local development
 	# branch. We do not add commit to the version number so that completely
 	# new builds are not triggered on each commit (only on new tag numbers or
 	# changes after them).
-	version += '-dev'
+	version += '+'
 	return version
 
 # Get the operating system  e.g. linux
