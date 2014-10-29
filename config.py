@@ -34,7 +34,7 @@ def version():
 	# branch. We do not add commit to the version number so that completely
 	# new builds are not triggered on each commit (only on new tag numbers or
 	# changes after them).
-	version += '+'
+	if commits!='0' or dirty: version += '+'
 	return version
 
 # Get the operating system  e.g. linux
