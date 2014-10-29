@@ -549,7 +549,7 @@ py-clean:
 #################################################################################################
 # R requirements
 
-RCPP_VERSION = 0.11.2
+RCPP_VERSION = 0.11.3
 
 $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz:
 	@mkdir -p $(RESOURCES)
