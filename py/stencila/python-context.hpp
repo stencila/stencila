@@ -153,7 +153,7 @@ public:
     }
 
     std::string details(void) const {
-        return str(boost::format("PythonContext at %s")%this);
+        return "PythonContext at " + string(this);
     };
 
     bool accept(const std::string& language) const {

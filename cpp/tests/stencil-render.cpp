@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/stencil.hpp>
@@ -33,7 +35,7 @@ struct RenderingFixture {
     }
 
     /**
-     * Dump the stecnil to std::cerr.
+     * Dump the stencil to std::cerr.
      * Useful to put in a test to work out why a test has failed.
      */
     void dump(void){
