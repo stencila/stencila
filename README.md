@@ -37,15 +37,28 @@ Provisioning scripts are available to install the necessary build tools e.g. g++
 
 [Vagrant](https://www.vagrantup.com/) is a tool for creating lightweight, reproducible, and portable development environments. If you want to build Stencila for different operating systems or architectures we recommend using Vagrant. The [Vagrantfile](Vagrantfile) includes multiple virtual machine (VM) configurations and uses the provisioning scripts to setup each WM with the tools needed to build Stencila. See the comments at the top of the [Vagrantfile](Vagrantfile) for instructions.
 
-When using a VM, for better performance it is recommended to use a build directory which is on the VM, instead of the default `stencila/build/OS/ARCH/VERSION` directory within a shared folder on the host. For example, with MSYS2:
+When using a VM, for better performance it is recommended to use a build directory which is on the VM, instead of the default `stencila/build/OS/ARCH/VERSION` directory within a shared folder on the host. 
+
+For example, with Linux:
+
+```sh
+# Create build directory on the guest VM
+mkdir -p ~/build
+# Change into the `stencila` directory on the host (mapped to `/vagrant`)
+cd /vagrant
+# Specify the build directory when invoking `make`
+make cpp-package r-package py-package BUILD=~/build
+```
+
+For example, with MSYS2:
 
 ```sh
 # Create build directory on the guest VM
 mkdir -p /c/build
-# Change into the `stencila` on the host (mapped to drive Z:)
+# Change into the `stencila`directory on the host (mapped to drive Z:)
 cd /z
 # Specify the build directory when invoking `make`
-make cpp-requires BUILD=/c/build
+make cpp-package r-package py-package BUILD=/c/build
 ```
 
 #### C++ module requirements
