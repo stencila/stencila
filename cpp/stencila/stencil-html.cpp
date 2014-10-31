@@ -59,6 +59,34 @@ std::string Stencil::html(bool document,bool indent) const {
             {"href",css}
         }," ");
 
+        // A fallback function to load the theme CSS from http://stenci.la if it is not served from the 
+        // host of this HTML (e.g. file:// or some non-Stencila-aware server)
+        std::string fallback = "(function(c){\n";
+        // Local variables
+        fallback += "\tvar d=document,s,i,l;\n";
+        // Check to see if the theme stylesheet has been loaded
+        // The theme CSS will not necessarily be the first stylesheet and no all stylesheets have `href`
+        // The try block is to avoid the security error raised by Firefox for accessing cross domain stylesheets
+        // If this happens it means the theme CSS was not loaded from the current domain so do not return
+        // See http://stackoverflow.com/questions/21642277/security-error-the-operation-is-insecure-in-firefox-document-stylesheets
+        // Note use of `!=` instead of `<` to avoid escaping in generated HTML
+        fallback += "\ts=d.styleSheets;for(i=0;i!=s.length;i++){if((s[i].href||'').match(c)){try{if(s[i].cssRules.length)return;}catch(e){}}}\n";
+        // If still in the function the stylesheet must not have been loaded so create
+        // a new <link> to the theme CSS on http://stenci.la
+        fallback += "\tl=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href='http://stenci.la'+c;\n";
+        // To prevent flash of unstyled content (FOUC) while the new <link> is loading make the document class 'unready'
+        // and then remove this class when the style is loaded (there is a fallback to this fallback at end of document).
+        // See http://www.techrepublic.com/blog/web-designer/how-to-prevent-flash-of-unstyled-content-on-your-websites/
+        fallback += "\td.documentElement.className='unready';l.onload=function(){d.documentElement.className='';};\n";
+        // Append new link to head
+        fallback += "\td.getElementsByTagName('head')[0].appendChild(l);\n";
+        // Call the function
+        fallback += "})('"+css+"');";
+        // Add CSS fallback Javascript
+        head.append("script",{{"type","text/javascript"}},fallback);
+        // Add CSS fallback style for the unready document
+        head.append("style",{{"type","text/css"}},".unready{display:none;}");
+
         /**
          * Authors are repeated as `<a rel="author" ...>` elements within an `<address>` element.
          * The placement of `<address>` as a child of `<body>` should mean that this authors list applies to the whole document.
@@ -101,6 +129,10 @@ std::string Stencil::html(bool document,bool indent) const {
         body.append("script",{{"src","/core/themes/boot.js"}}," ");
         body.append("script","if(!window.Stencila){window.StencilaHost='http://stenci.la';document.write(unescape('%3Cscript src=\"http://stenci.la/core/themes/boot.js\"%3E%3C/script%3E'))}");
         body.append("script","window.Stencila.Booter.theme('" + theme() + "');");
+
+        // Fallback to the CSS fallback! Remove the `unready` class from the root element is not already
+        // removed. This is in case the remote CSS link added by the CSS fallback function (see above) fails to load.
+        body.append("script","window.setTimeout(function(){document.documentElement.className='';},10000)");
 
         doc.validate();
         
