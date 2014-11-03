@@ -480,16 +480,16 @@ public:
 	std::string subscript(unsigned int index, bool parentheses=false) const {
 		std::string subscript;
 		if(parentheses) subscript += "(";
-		if(D1::size_>1) subscript += string(level(D1(),index).index()) + ",";
-		if(D2::size_>1) subscript += string(level(D2(),index).index()) + ",";
-		if(D3::size_>1) subscript += string(level(D3(),index).index()) + ",";
-		if(D4::size_>1) subscript += string(level(D4(),index).index()) + ",";
-		if(D5::size_>1) subscript += string(level(D5(),index).index()) + ",";
-		if(D6::size_>1) subscript += string(level(D6(),index).index()) + ",";
-		if(D7::size_>1) subscript += string(level(D7(),index).index()) + ",";
-		if(D8::size_>1) subscript += string(level(D8(),index).index()) + ",";
-		if(D9::size_>1) subscript += string(level(D9(),index).index()) + ",";
-		if(D10::size_>1) subscript += string(level(D10(),index).index()) + ",";
+		if(D1::size_>1) subscript += level(D1(),index).label() + ",";
+		if(D2::size_>1) subscript += level(D2(),index).label() + ",";
+		if(D3::size_>1) subscript += level(D3(),index).label() + ",";
+		if(D4::size_>1) subscript += level(D4(),index).label() + ",";
+		if(D5::size_>1) subscript += level(D5(),index).label() + ",";
+		if(D6::size_>1) subscript += level(D6(),index).label() + ",";
+		if(D7::size_>1) subscript += level(D7(),index).label() + ",";
+		if(D8::size_>1) subscript += level(D8(),index).label() + ",";
+		if(D9::size_>1) subscript += level(D9(),index).label() + ",";
+		if(D10::size_>1) subscript += level(D10(),index).label() + ",";
 		if(subscript.length()){
 			if(subscript[subscript.length()-1]==',') subscript = subscript.substr(0,subscript.length()-1);
 		}
