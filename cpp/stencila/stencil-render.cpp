@@ -32,8 +32,10 @@ std::string Stencil::context(void) const {
 }
 
 void Stencil::render_error(Node node, const std::string& type, const std::string& data, const std::string& message){
-    node.append(
-        // A <div> with...
+    // Create an error element as a
+    Xml::Document fragment;
+    auto error = fragment.append(
+        // <div> with...
         "div",
         // attributes...
         {
@@ -45,6 +47,14 @@ void Stencil::render_error(Node node, const std::string& type, const std::string
         // and a message as text content
         message
     );
+    // Decide where to put the error. Usually it will be appended
+    // but this is not appropriate for some elements e.g. <pre data-code="r" ...
+    if(node.name()=="pre"){
+        error.attr("data-rel","before");
+        node.after(error);
+    } else {
+        node.append(error);
+    }
 }
 
 void Stencil::render_code(Node node, Context* context){
