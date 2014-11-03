@@ -19,7 +19,7 @@ public:
     	Html::Node node = node_.select("#"+name);
 		if(node){
 			// Matching node found, dispatch according to type of data
-			data_(node,data,name,IsStructure<Type>());
+			data_(node,data,name,IsStructure<Type>(),IsArray<Type>());
 		}
 		return *this;
 	}
@@ -27,14 +27,19 @@ public:
 private:
 
 	template<typename Data>
-	static void data_(Html::Node node, Data& data, const std::string& name, const std::true_type& is_structure){
-		// Data is a reflector so recurse into the current node 
+	static void data_(Html::Node node, Data& data, const std::string& name, const std::true_type& is_structure, const std::false_type& is_array){
+		// Data is a structure so recurse into the current node 
 		// using another StencilParser
 		StencilParser(node).mirror(data);
 	}
 
 	template<typename Data>
-	static void data_(Html::Node node, Data& data, const std::string& name, const std::false_type& is_structure){
+	static void data_(Html::Node node, Data& data, const std::string& name, const std::false_type& is_structure, const std::true_type& is_array){
+		// Data is an array. Currently ignore.
+	}
+
+	template<typename Data>
+	static void data_(Html::Node node, Data& data, const std::string& name, const std::false_type& is_structure, const std::false_type& is_array){
 		// Data is not a reflector so attempt to convert node text to type
 		std::string text = node.text();
 		// Trim whitespace from text
@@ -75,7 +80,7 @@ private:
 
 	template<typename Type>
 	static void value_(Html::Node node, Type& data,const std::false_type& is_structure){
-		// Data is not a reflector so attempt to convert to string
+		// Data is not a structure so attempt to convert to string
 		node.text(string(data));
 	}
 
