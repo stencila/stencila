@@ -8,6 +8,7 @@
 
 #include <stencila/exception.hpp>
 #include <stencila/frame.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -137,16 +138,18 @@ Frame& Frame::append(const std::vector<double>& values){
 }
 
 Frame& Frame::append(const std::vector<std::string>& values){
-	auto cols = columns();
-	if(values.size()!=cols){
-		STENCILA_THROW(Exception,str(boost::format(
-			"Error attempting to append a row with <%i> columns to a frame with <%i> columns"
-		)%values.size()%cols));
+	std::vector<double> numbers(values.size());
+	for(unsigned int i=0;i<values.size();i++){
+		auto string = values[i];
+		double number;
+		try {
+			number = boost::lexical_cast<double>(string);
+		} catch(...){
+			STENCILA_THROW(Exception,"Error attempting to convert string <"+string+"> to number");
+		}
+		numbers[i] = number;
 	}
-	delta_(1,0);
-	auto row = rows()-1;
-	for(unsigned int col=0;col<cols;col++) operator()(row,col) = boost::lexical_cast<double>(values[col]);
-	return *this;
+	return append(numbers);
 }
 
 Frame& Frame::append(const Frame& frame){
@@ -175,7 +178,7 @@ Frame& Frame::clear(void){
 }
 
 Frame& Frame::read(std::istream& stream, const std::string& separator) {
-	// Cler this frame
+	// Clear this frame
 	clear();
 	// Get labels from header and use to intialise
 	std::string header;
@@ -186,14 +189,20 @@ Frame& Frame::read(std::istream& stream, const std::string& separator) {
 	resize_(0,labels_.size());
 	// Get each line 
 	std::string line;
+	int count = 0;
 	while(std::getline(stream,line)){
-		// Skip lines that are all whitespace
-		// (this primarily is to prevent errors caused by extra empty lines at end of files)
-		if(std::all_of(line.begin(),line.end(),isspace)) continue;
-		// Split into values
-		std::vector<std::string> values;
-		boost::split(values,line,boost::is_any_of(separator));
-		append(values);
+		try {
+			count++;
+			// Skip lines that are all whitespace
+			// (this primarily is to prevent errors caused by extra empty lines at end of files)
+			if(std::all_of(line.begin(),line.end(),isspace)) continue;
+			// Split into values
+			std::vector<std::string> values;
+			boost::split(values,line,boost::is_any_of(separator));
+			append(values);
+		} catch (const std::exception& error){
+			STENCILA_THROW(Exception,"Error reading line <"+string(count)+"> : "+error.what());
+		}
 	}
 	return *this;
 }
