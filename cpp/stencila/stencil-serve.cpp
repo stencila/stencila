@@ -55,6 +55,16 @@ std::string Stencil::call(const Call& call) {
         return     cila(string).render().cila();
     }
 
+    // Access to context
+    else if(what=="context.interact(string):string"){
+        if(context_){
+            std::string string = call.arg(0);
+            return     context_->interact(string);
+        } else {
+            STENCILA_THROW(Exception,"No context attached to this stencil");
+        }
+    }
+
     else return Component::call(call);
 
     return "";
