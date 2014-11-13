@@ -32,8 +32,8 @@ protected:
 	}
 
 	const Frame& frame_;
-	const std::vector<std::string>& exclude_;
 	std::string prefix_;
+	const std::vector<std::string>& exclude_;
 }; // class FrameIoer
 
 
