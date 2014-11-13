@@ -4,6 +4,13 @@
 
 namespace Stencila {
 
+Component& Component::initialise(const std::string& address){
+    std::string path = Component::locate(address);
+    if(path.length()) Component::path(path);
+    else STENCILA_THROW(Exception,"No component found with address <"+address+">");      
+    return *this;
+}
+
 std::string Component::path(bool ensure) const {
 	if(meta_){
 		if(meta_->path.length()==0 and ensure){
@@ -97,18 +104,6 @@ std::string Component::locate(const std::string& address){
 			if(exists(path)) return path.string();
 		}
 	}
-	return "";
-}
-
-std::string Component::package(void) {
-	return package(address());
-}
-
-std::string Component::package(const std::string& address){
-	std::string temp = address;
-	if(temp[0]=='/') temp = temp.substr(1);
-	std::vector<std::string> parts = split(temp,"/");
-	if(parts.size()>0) return parts[0];
 	return "";
 }
 
