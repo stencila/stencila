@@ -62,6 +62,17 @@ BOOST_AUTO_TEST_CASE(write_read){
 }
 
 /**
+ * Test that tidy put wraps script code in CDATA element
+ */
+BOOST_AUTO_TEST_CASE(cdata){
+    Document doc("<script>code</script>");
+    BOOST_CHECK_EQUAL(
+        doc.find("script").dump(),
+        "<script><![CDATA[\ncode\n]]></script>"
+    );
+}
+
+/**
  * Test escaping of text in attributes and nodes
  *
  * Without proper escaping a user could insert text that you be used in a 
