@@ -1,12 +1,16 @@
 #R"(#"
 
-# Load default packages and usually happens in the startup of R
+# Load default packages as usually happens in the startup of R
 # this loads important packages like stats, utils and graphics
 # See http://stat.ethz.ch/R-manual/R-patched/library/base/html/Startup.html
 .First.sys()
 
 # Prevent R from printing out error messages
 options(show.error.messages = FALSE)
+
+# Set a very wide console so R does not do line wrapping of output
+# 10000 is the maximum value allowed see ?options
+options(width=10000)
 
 #' Create a stencil rendering context
 #' 
