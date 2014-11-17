@@ -1,4 +1,5 @@
 #include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include <stencila/component.hpp>
 #include <stencila/network.hpp>
@@ -100,7 +101,10 @@ std::string Component::message(const std::string& address,const std::string& mes
 					result = Component::call(instance,&Class::calling,call);
 				}
 				catch(const std::exception& e){
-					return str(format("[8, 48, %d, {}, \"%s\"]")%id%e.what());
+					std::string message = e.what();
+					// Escape quotes to prevent JSON parsing errors
+					boost::replace_all(message,"\"","\\\"");
+					return str(format("[8, 48, %d, {}, \"%s\"]")%id%message);
 				}
 				catch(...){
 					return str(format("[8, 48, %d, {}, \"unknown exception\"]")%id);         
@@ -123,7 +127,10 @@ std::string Component::message(const std::string& address,const std::string& mes
 	// Most exceptions should be caught above and WAMP ERROR messages appropriate to the 
 	// request type returned. The following are failovers if that does not happen...
 	catch(const std::exception& e){
-		return std::string("[8, 0, 0, {}, \"") + e.what() + "\"]";
+		std::string message = e.what();
+		// Escape quotes to prevent JSON parsing errors
+		boost::replace_all(message,"\"","\\\"");
+		return std::string("[8, 0, 0, {}, \"") + message + "\"]";
 	}
 	catch(...){
 		return "[8, 0, 0, {}, \"unknown exception\"]";         
