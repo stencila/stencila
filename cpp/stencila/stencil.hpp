@@ -275,9 +275,16 @@ public:
     std::string render_set(Node node, Context* context);
 
     /**
-     * Render a `par` element (e.g. `<span data-par="answer:number=42"></span>`)
+     * Render a `par` directive (e.g. `<span data-par="answer:number=42"></span>`)
+     *
+     * Returns the name,type and default value for the directive
      */
     std::array<std::string,3> render_par(Node node, Context* context,bool primary=true);
+
+    /**
+     * Render an `<input>` element (e.g. `<input name="answer" type="number" value="42"></input>`)
+     */
+    void render_input(Node node, Context* context);
 
     /**
      * Render a `text` element (e.g. `<span data-text="result"></span>`)

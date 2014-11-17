@@ -188,6 +188,13 @@ std::array<std::string,3> Stencil::render_par(Node node, Context* context,bool p
     return {name,type,default_};
 }
 
+void Stencil::render_input(Node node, Context* context){
+    auto name = node.attr("name");
+    auto type = node.attr("type");
+    auto value = node.attr("value");
+    context->input(name,type,value);
+}
+
 void Stencil::render_text(Node node, Context* context){
     if(node.attr("data-lock")!="true"){
         std::string expression = node.attr("data-text");
@@ -530,6 +537,10 @@ void Stencil::render(Node node, Context* context){
             else if(attr=="data-switch") return render_switch(node,context);
             else if(attr=="data-for") return render_for(node,context);
             else if(attr=="data-include") return render_include(node,context);
+        }
+        // Render input elements
+        if(tag=="input"){
+            return render_input(node,context);
         }
         // Handle table and figure captions
         if(tag=="table" or tag=="figure"){
