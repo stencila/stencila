@@ -18,6 +18,9 @@ options(width=10000)
 #' The context determines the variables that are available to the stencil.
 #' Often, stencils will be rendered within the context of the R global environment.
 #' However, if you want to create a different context then use this function
+#'
+#' See http://digitheadslabnotebook.blogspot.co.nz/2011/06/environments-in-r.html (and links therein)
+#' for a useful explanation of environments
 #' 
 #' @param envir The environment for the context. Optional.
 #'
@@ -32,23 +35,9 @@ Context <- function(envir){
     else if(is.list(envir)) envir <- list2env(envir,parent=baseenv())
     else stop(paste('unrecognised environment class:',paste(class(envir),collapse=",")))
     self$stack <- list(envir)
-
-    # An image counter for filenames
-    self$images = 0
-    
-    ##################################
-    
-    self$read_from <- function(dir){
-        base::load(paste(dir,'.RData',sep='/'),envir=self$bottom())
-    }
-    
-    self$write_to <- function(dir){
-        envir <- self$bottom()
-        objs <-ls(envir)
-        save(list=objs,envir=envir,file=paste(dir,'.RData',sep='/'))
-    }
-    
-    ##################################
+        
+    ####################################################################
+    # Internal convienience methods used below
     
     self$push <- function(item){
         self$stack[[length(self$stack)+1]] <- item
@@ -89,9 +78,12 @@ Context <- function(envir){
         }
     }
     
-    ##################################
-    # "execute" method
+    ####################################################################
+    # Methods that implement the context interface
+    # See the documentation for the `Context` C++ base class methods
 
+    # An image counter for filenames
+    self$images <- 0
     self$execute <- function(code,format="",width="",height="",units=""){
         if(format!=""){
             if(format %in% c('png','svg')){
@@ -138,12 +130,8 @@ Context <- function(envir){
 
         return("")
     }
-    
-    ##################################
-    # "interact" method
-    
+        
     self$interact_code <- ""
-    
     self$interact <- function(code){
         self$interact_code <- paste(self$interact_code,code,sep="")
         expr <- tryCatch(parse(text=self$interact_code),error=function(error)error)
@@ -167,12 +155,25 @@ Context <- function(envir){
             }
         }
     }
-    
-    ##################################
-    # "text" elements
-    # 
-    # Returns a text representation of the expression
-    
+
+    self$assign <- function(name,expression){
+        self$set(name,expression)
+    }
+
+    self$input <- function(name,type,value){
+        env <- self$top()
+        # Convert the string value to the appropriate R type
+        # Note that for text type there is no conversion, the text value is
+        # simply assigned to the variable
+        # For a full list of input types see
+        #   https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input
+        if(type=='number') value <- as.numeric(value)
+        else if(type=='date') value <- strptime(value,"%Y-%m-%d")
+        else if(type=='datetime') value <- strptime(value,"%Y-%m-%d %H:%M:%S")
+        # Now assign the variable
+        assign(name,value,envir=env)
+    }
+
     self$write <- function(expression){
         value <- self$get(expression)
         stream <- textConnection("text", "w")
@@ -180,20 +181,12 @@ Context <- function(envir){
         close(stream)
         return(text)
     }
-    
-    ##################################
-    # "if" elements
-    # 
-    # Returns a boolean evaluation of expression
-    
+
     self$test <- function(expression){
         value <- self$get(expression)
         if(as.logical(value)) "1" else "0"
     }
-    
-    ##################################
-    # "switch" elements
-    
+
     self$mark <- function(expression){
         value <- self$get(expression)
         assign('_subject_',value,envir=self$top())
@@ -211,16 +204,6 @@ Context <- function(envir){
         return(self)
     }
     
-    ##################################
-    # "with" elements
-    #
-    # Call enter('expression') at start of a "with" element
-    # Call enter() at start of a "block" element
-    # Call exit() at the end of a "with" or "block" element
-    #
-    # See http://digitheadslabnotebook.blogspot.co.nz/2011/06/environments-in-r.html (and links therein)
-    # for a useful explanation of environments
-    
     self$enter <- function(expression=''){
         parent <- self$top()
         if(nchar(expression)==0) env <- new.env(parent=parent)
@@ -233,12 +216,6 @@ Context <- function(envir){
         self$pop()
         return(self)
     }
-    
-    ##################################
-    # "each" elements
-    #
-    # Call begin('item','items') at start of an "each" element
-    # Call step() at end of each element
     
     self$begin <- function(item,items){
         # Enter a new anonymous block that forms the namespace for the loop
@@ -277,6 +254,19 @@ Context <- function(envir){
         }
     }
     
+    ####################################################################
+    # Methods for read/write to disk
+    
+    self$read_from <- function(dir){
+        base::load(paste(dir,'.RData',sep='/'),envir=self$bottom())
+    }
+    
+    self$write_to <- function(dir){
+        envir <- self$bottom()
+        objs <-ls(envir)
+        save(list=objs,envir=envir,file=paste(dir,'.RData',sep='/'))
+    }
+
     return(self)
 }
 
