@@ -540,14 +540,15 @@ void Stencil::render(Node node, Context* context){
         }
         // Render input elements
         if(tag=="input"){
+            counts_["input"]++;
             return render_input(node,context);
         }
         // Handle table and figure captions
-        if(tag=="table" or tag=="figure"){
+        else if(tag=="table" or tag=="figure"){
             Node caption = node.select("caption,figcaption");
             if(caption){
                 // Increment the count for his caption type
-                unsigned int& count = counts_[tag+"-caption"];
+                unsigned int& count = counts_[tag+" caption"];
                 count++;
                 std::string count_string = string(count);
                 // Check for an existing label
@@ -578,6 +579,9 @@ void Stencil::render(Node node, Context* context){
     }
 }
 
+void Stencil::render_finalise(Node node, Context* context){
+}
+
 Stencil& Stencil::render(Context* context){
     // If a different context, attach the new one
     if(context!=context_) attach(context);
@@ -589,11 +593,14 @@ Stencil& Stencil::render(Context* context){
     } catch(const std::exception& exc){
         STENCILA_THROW(Exception,"Error setting directory to <"+path.string()+">");
     }
-    // Reset counts
-    counts_["table-caption"] = 0;
-    counts_["figure-caption"] = 0;
+    // Reset flags and counts
+    counts_["input"] = 0;
+    counts_["table caption"] = 0;
+    counts_["figure caption"] = 0;
     // Render root element within context
     render(*this,context);
+    // Finalise rendering
+    render_finalise(*this,context);
     // Return to the cwd
     boost::filesystem::current_path(cwd);
     return *this;

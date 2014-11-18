@@ -350,6 +350,14 @@ public:
     void render_children(Node node, Context* context);
 
     /**
+     * Finalise the rendering of a stencil (e.g. adding missing elements)
+     *
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_finalise(Node node, Context* context);
+
+    /**
      * Render a HTML element
      * 
      * @param node    Node to render
