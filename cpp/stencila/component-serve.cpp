@@ -89,11 +89,13 @@ std::string Component::message(const std::string& address,const std::string& mes
 				if(items<4) STENCILA_THROW(Exception,"Malformed message");
 				std::string procedure = request[3].as<std::string>();
 
-				std::vector<std::string> args;
-				if(items>=5) args = request[4].as<std::vector<std::string>>();
+				std::string args;
+				if(items>=5) args = request[4].dump();
+				else args = "[]";
 
-				std::map<std::string,std::string> kwargs;
-				if(items>=6) kwargs = request[5].as<std::map<std::string,std::string>>();
+				std::string kwargs;
+				if(items>=6) kwargs = request[5].dump();
+				else kwargs = "{}";
 				
 				std::string result;
 				try {

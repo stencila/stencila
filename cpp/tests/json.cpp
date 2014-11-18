@@ -6,6 +6,14 @@ BOOST_AUTO_TEST_SUITE(json)
 
 using namespace Stencila::Json;
 
+BOOST_AUTO_TEST_CASE(construct){
+	Document a(R"([{"a":1},4])");
+	// Construct a document from a node in another document
+	Document b(a[0].dump());
+	BOOST_CHECK_EQUAL(a.dump(),"[{\"a\":1},4]");
+	BOOST_CHECK_EQUAL(b.dump(),"{\"a\":1}");
+}
+
 BOOST_AUTO_TEST_CASE(get_object){
 	Document doc(R"({
 		"a": false,

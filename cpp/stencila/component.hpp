@@ -438,19 +438,19 @@ public:
 	    
 	struct Call {
 	    std::string what_;
-	    std::vector<std::string> args_;
-	    std::map<std::string,std::string> kwargs_;
+	    Json::Document args_;
+	    Json::Document kwargs_;
 	
 	    Call(const std::string& what):
 	        what_(what){
 	    }
 	
-	    Call(const std::string& what, const std::vector<std::string>& args):
+	    Call(const std::string& what, const std::string& args):
 	        what_(what),
 	        args_(args){
 	    }
 	
-	    Call(const std::string& what, const std::vector<std::string>& args, const std::map<std::string,std::string>& kwargs):
+	    Call(const std::string& what, const std::string& args, const std::string& kwargs):
 	        what_(what),
 	        args_(args),
 	        kwargs_(kwargs){
@@ -465,16 +465,17 @@ public:
 	    }
 	
 	    template<typename Type=std::string>
-	    Type arg(unsigned int index,const std::string& name="") const {
+	    Type arg(int index,const std::string& name="") const {
+	        // Get argument string
+	        std::string arg;
 	        if(name.length()>0){
-	            auto i = kwargs_.find(name);
-	            if(i!=kwargs_.end()) return unstring<Type>(i->second);
+	            if(kwargs_.has(name)) return kwargs_[name].as<Type>();
 	            else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
 	        }
-	        if(args_.size()<index+1){
+	        else if(args_.size()<index+1){
 	            STENCILA_THROW(Exception,"Not enough arguments supplied");
 	        }
-	        return unstring<Type>(args_[index]);
+	        else return args_[index].as<Type>();
 	    }
 	};
 

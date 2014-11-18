@@ -143,17 +143,13 @@ public:
     /**
      * @}
      */
-    
-    
+        
     /**
-     * @name Metadata
+     * @name Attributes
      *
-     * Methods for obtaining metadata on a stencil.
-     * At present only metadata getters are implemeted.
-     * To set metadata add corresponding elements to the stencil's
-     * HTML or Cila. 
+     * Methods for obtaining or setting attributes of the stencil.
      *
-     * Methods implemented in `stencil-meta.cpp`
+     * Methods implemented in `stencil-attrs.cpp`
      * 
      * @{
      */
@@ -193,6 +189,21 @@ public:
      */
     std::string theme(void) const;
 
+    /**
+     * Get this stencil's inputs
+     */
+    std::map<std::string,std::string> inputs(void) const;
+
+    /**
+     * Set this stencil's inputs
+     * 
+     * @param cila A string of Cila code
+     */
+    Stencil& inputs(const std::map<std::string,std::string>& inputs);
+
+    /**
+     * @}
+     */
 
     /**
      * @name Rendering
@@ -385,6 +396,7 @@ public:
      * creating a new context if necessary
      */
     Stencil& render(void);
+
     
     /**
      * @}
