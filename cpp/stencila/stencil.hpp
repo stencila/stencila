@@ -145,6 +145,31 @@ public:
      */
         
     /**
+     * @name Setting stencil user inputs
+     *
+     * Methods implemented in `stencil-cila.cpp`
+     * 
+     * @{
+     */
+
+    /**
+     * Set this stencil's inputs
+     *
+     * The `html` and `cila` methods can be used for changing
+     * a stencil's content from a trusted source. In contrast, 
+     * this method is intended for inputs from an untrusted user.
+     * It maps the supplied `name:value` pairs into `<input>` elements
+     * (which may, or may not, be within `par` directives).
+     * 
+     * @param inputs A map of `name:value` pairs of inputs
+     */
+    Stencil& inputs(const std::map<std::string,std::string>& inputs);
+
+    /**
+     * @}
+     */
+
+    /**
      * @name Attributes
      *
      * Methods for obtaining or setting attributes of the stencil.
@@ -190,16 +215,24 @@ public:
     std::string theme(void) const;
 
     /**
-     * Get this stencil's inputs
+     * A structure to extract and hold the details
+     * of a stencil parameter (defined using a `par` directive)
      */
-    std::map<std::string,std::string> inputs(void) const;
+    struct Parameter {
+        std::string attribute;
+        bool ok;
+        std::string name;
+        std::string type;
+        std::string default_;
+        std::string value;
+
+        Parameter(Node node);
+    };
 
     /**
-     * Set this stencil's inputs
-     * 
-     * @param cila A string of Cila code
+     * Get this stencil's parameters
      */
-    Stencil& inputs(const std::map<std::string,std::string>& inputs);
+    std::vector<Parameter> pars(void) const;
 
     /**
      * @}
@@ -290,12 +323,7 @@ public:
      *
      * Returns the name,type and default value for the directive
      */
-    std::array<std::string,3> render_par(Node node, Context* context,bool primary=true);
-
-    /**
-     * Render an `<input>` element (e.g. `<input name="answer" type="number" value="42"></input>`)
-     */
-    void render_input(Node node, Context* context);
+    void render_par(Node node, Context* context);
 
     /**
      * Render a `text` element (e.g. `<span data-text="result"></span>`)
@@ -353,6 +381,19 @@ public:
     void render_include(Node node, Context* context);
 
     /**
+     * Render an `<input>` element (e.g. `<input name="answer" type="number" value="42"></input>`)
+     *
+     * `input` elements are used for setting variables in the context base on untrusted
+     * user content. Variables must be of a specified type.
+     * For trusted user content, the analogue of an `<input>` element
+     * is a `set` directive which takes a language expression (which may be any type). 
+     * 
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_input(Node node, Context* context);
+
+    /**
      * Render the children of an HTML element
      * 
      * @param node    Node to render
@@ -397,7 +438,6 @@ public:
      */
     Stencil& render(void);
 
-    
     /**
      * @}
      */

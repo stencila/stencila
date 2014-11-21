@@ -148,51 +148,32 @@ std::string Stencil::render_set(Node node, Context* context){
     }
 }
 
-std::array<std::string,3> Stencil::render_par(Node node, Context* context,bool primary){
-    std::string attribute = node.attr("data-par");
-    static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
-    boost::smatch match;
-    std::string name;
-    std::string type;
-    std::string default_;
-    if(boost::regex_search(attribute, match, pattern)) {
-        name = match[1].str();
-        type = match[3].str();
-        default_ = match[5].str();
-        if(primary){
-            Node input = node.select("input");
-            if(not input) input = node.append("input");
-            // Set name
-            input.attr("name",name);
-            // Set type
-            if(type.length()>0) input.attr("type",type);
-            // Get value, using default if not defined
-            std::string value = input.attr("value");
-            if(value.length()==0 and default_.length()>0){
-                value = default_;
-                input.attr("value",default_);
-            }
-            // Convert value into a valid expression
-            if(value.length()>0){
-                std::string expression;
-                if(type=="text") expression = "\""+value+"\"";
-                //..other HTML5 input types to be evaluated
-                else expression = value;
-                context->assign(name,expression);
-            }
+void Stencil::render_par(Node node, Context* context){
+    Parameter par(node);
+    if(par.ok){
+        auto name = par.name;
+        auto type = par.type;
+        auto default_ = par.default_;
+        Node input = node.select("input");
+        if(not input) input = node.append("input");
+        // Set name
+        input.attr("name",name);
+        // Set type
+        if(type.length()) input.attr("type",type);
+        // Get value, using default if not defined
+        std::string value = input.attr("value");
+        if(not value.length() and par.default_.length()){
+            value = default_;
+            input.attr("value",value);
+        }
+        // Set value in the context
+        if(value.length()>0){
+            context->input(name,type,value);
         }
     }
     else {
-        render_error(node,"par-syntax",attribute,"Syntax error in attribute <"+attribute+">");
+        render_error(node,"par-syntax",par.attribute,"Syntax error in attribute <"+par.attribute+">");
     }
-    return {name,type,default_};
-}
-
-void Stencil::render_input(Node node, Context* context){
-    auto name = node.attr("name");
-    auto type = node.attr("type");
-    auto value = node.attr("value");
-    context->input(name,type,value);
 }
 
 void Stencil::render_text(Node node, Context* context){
@@ -478,18 +459,21 @@ void Stencil::render_include(Node node, Context* context){
     // Now apply the included element's parameters
     bool ok = true;
     for(Node par : included.filter("[data-par]")){
-        auto parts = render_par(par,context,false);
-        std::string name = parts[0];
-        std::string default_ = parts[2];
-        // Check to see if it has already be assigned
-        if(std::count(assigned.begin(),assigned.end(),name)==0){
-            if(default_.length()>0){
-                // Assign the default_ in the new frame
-                context->assign(name,default_);
-            } else {
-                // Set an error
-                render_error(node,"par-required",name,"Parameter <"+name+"> is required because it has no default");
-                ok  = false;
+        Parameter parameter(par);
+        if(parameter.ok){
+            auto name = parameter.name;
+            auto type = parameter.type;
+            auto default_ = parameter.default_;
+            // Check to see if it has already be assigned
+            if(std::count(assigned.begin(),assigned.end(),name)==0){
+                if(default_.length()){
+                    // Assign the default_ in the new frame
+                    context->assign(name,default_);
+                } else {
+                    // Set an error
+                    render_error(node,"par-required",name,"Parameter <"+name+"> is required because it has no default");
+                    ok  = false;
+                }
             }
         }
         // Remove the parameter, there is no need to have it in the included node
@@ -501,6 +485,13 @@ void Stencil::render_include(Node node, Context* context){
     
     // Exit the included node
     context->exit();
+}
+
+void Stencil::render_input(Node node, Context* context){
+    auto name = node.attr("name");
+    auto type = node.attr("type");
+    auto value = node.attr("value");
+    context->input(name,type,value);
 }
 
 void Stencil::render_children(Node node, Context* context){
@@ -525,10 +516,7 @@ void Stencil::render(Node node, Context* context){
                 render_set(node,context);
                 return;
             }
-            else if(attr=="data-par"){
-                render_par(node,context);
-                return;
-            }
+            else if(attr=="data-par") return render_par(node,context);
             else if(attr=="data-text") return render_text(node,context);
             else if(attr=="data-with") return render_with(node,context);
             else if(attr=="data-if") return render_if(node,context);
