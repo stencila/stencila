@@ -33,13 +33,13 @@ void def_Stencil(void){
             return_self<>()
         )
 
-        .def("render",
-            Stencil_render,
-            return_self<>()
-        )
+        .def("title",&Stencil::title)
+        .def("description",&Stencil::description)
+        .def("keywords",&Stencil::keywords)
+        .def("authors",&Stencil::authors)
 
-        .def("page",
-            &Stencil::page
-        )
+        .def("render",Stencil_render,return_self<>())
+
+        .def("page",&Stencil::page)
     ;
 }

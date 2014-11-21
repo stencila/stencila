@@ -22,20 +22,6 @@ class ComponentTests(unittest.TestCase):
     def tearDown(self):
         self.component.destroy()
 
-    def test_title(self):
-        title = "A really useful component"
-        self.assertEqual(self.component.title(title).title(),title)
-
-    def test_description(self):
-        desc = "A not so useful description of a really useful component"
-        self.assertEqual(self.component.description(desc).description(),desc)
-
-    def test_keywords(self):
-        self.assertEqual(self.component.keywords(),[])
-
-    def test_authors(self):
-        self.assertEqual(self.component.authors(),[])
-
     # self.assertRegex not in all versions of Python
     #def test_path(self):
     #    self.assertRegex(self.component.path("").path(),"~")
@@ -170,14 +156,29 @@ class StencilTests(unittest.TestCase):
     Tests for the Stencil class
     '''
 
+    def setUp(self):
+        self.stencil = stencila.Stencil()
+
     def test_commit(self):
-        s = Stencil()
-        s.commit()
+        self.stencil.commit()
 
     def test_html(self):
-        s = Stencil()
-        s.html('Hello world')
-        self.assertEqual(s.html().strip(),'Hello world')
+        self.stencil.html('Hello world')
+        self.assertEqual(self.stencil.html().strip(),'Hello world')
+
+    def test_title(self):
+        self.stencil.html('<div id="title">Hello world</div>')
+        self.assertEqual(self.stencil.title(),"Hello world")
+
+    def test_description(self):
+        self.stencil.html('<div id="description">Hello world</div>')
+        self.assertEqual(self.stencil.description(),"Hello world")
+
+    def test_keywords(self):
+        self.assertEqual(self.stencil.keywords(),[])
+
+    def test_authors(self):
+        self.assertEqual(self.stencil.authors(),[])
 
     def renderCheck(self,inp,out,context=None):
         '''
@@ -192,8 +193,8 @@ class StencilTests(unittest.TestCase):
 
     def test_render_code(self):
         self.renderCheck(
-            '<code data-code="python">a=1.2 ; b=3.4 ; c=a+b</code><div data-text="c"></div',
-            '<code data-code="python">a=1.2 ; b=3.4 ; c=a+b</code><div data-text="c">4.6</div>'
+            '<code data-code="py">a=1.2 ; b=3.4 ; c=a+b</code>\n<div data-text="c"></div',
+            '<code data-code="py">a=1.2 ; b=3.4 ; c=a+b</code>\n<div data-text="c">4.6</div>'
         )
 
     def test_render_text(self):
