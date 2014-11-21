@@ -2,7 +2,7 @@
 #include <stencila/network.hpp>
 
 #include "extension.hpp"
-#include "r-context.hpp"
+#include "context.hpp"
 
 using namespace Stencila;
 

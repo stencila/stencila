@@ -2,7 +2,7 @@
 using namespace Stencila;
 
 #include "extension.hpp"
-#include "r-context.hpp"
+#include "context.hpp"
 
 STENCILA_R_NEW(Stencil)
 
