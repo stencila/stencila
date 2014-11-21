@@ -161,7 +161,6 @@ Context <- function(envir){
     }
 
     self$input <- function(name,type,value){
-        env <- self$top()
         # Convert the string value to the appropriate R type
         # Note that for text type there is no conversion, the text value is
         # simply assigned to the variable
@@ -171,7 +170,7 @@ Context <- function(envir){
         else if(type=='date') value <- strptime(value,"%Y-%m-%d")
         else if(type=='datetime') value <- strptime(value,"%Y-%m-%d %H:%M:%S")
         # Now assign the variable
-        assign(name,value,envir=env)
+        assign(name,value,envir=self$top())
     }
 
     self$write <- function(expression){
