@@ -17,7 +17,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_write_overloads,write,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 
 void def_Component(void){
-    class_<Component,bases<>>("Component",no_init)
+    class_<Component,bases<>>("Component")
 
         .def("path",static_cast<std::string (Component::*)(bool) const>(&Component::path))
         .def("path",static_cast<Component& (Component::*)(const std::string&)>(&Component::path),Component_path_set_overloads(

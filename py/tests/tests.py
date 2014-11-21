@@ -17,7 +17,7 @@ class ExceptionTests(unittest.TestCase):
 class ComponentTests(unittest.TestCase):
 
     def setUp(self):
-        self.component = stencila.Package()
+        self.component = stencila.Component()
 
     def tearDown(self):
         self.component.destroy()
@@ -54,12 +54,6 @@ class ComponentTests(unittest.TestCase):
 
     def test_commit(self):
         self.component.commit("Just a test commit")
-
-
-class PackageTests(unittest.TestCase):
-    
-    pass
-
 
 class NamespaceTests(unittest.TestCase):
     '''
