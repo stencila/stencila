@@ -2,7 +2,7 @@
 
 #include <stencila/stencil.hpp>
 
-#include "python-context.hpp"
+#include "context.hpp"
 
 #include <boost/python.hpp>
 
