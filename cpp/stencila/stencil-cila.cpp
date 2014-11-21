@@ -654,7 +654,7 @@ void macro_gen(Node node, std::ostream& stream){
  */
 
 sregex type = +_w;
-sregex par = as_xpr("par") >> +space >> identifier >> !(*space>>":">>type) >> !(+space>>"=">>+space>>expr);
+sregex par = as_xpr("par") >> +space >> identifier >> !(*space>>":">>type) >> !(*space>>"=">>+space>>expr);
 
 void par_parse(Node node, const smatch& tree){
     std::string attribute;
