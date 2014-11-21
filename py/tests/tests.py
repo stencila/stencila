@@ -119,6 +119,11 @@ c = a+b
         c.assign('x','4*3')
         self.assertEqual(c.get('x'),12)
 
+    def test_input(self):
+        c = Context()
+        c.input('x','number','42')
+        self.assertEqual(c.get('x'),42)
+
     def test_write(self):
         c = Context()
         self.assertEqual(c.set('x',42).write('x'),'42')

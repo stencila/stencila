@@ -3,6 +3,7 @@
 import inspect
 import code
 import sys
+import datetime
 
 PY = sys.version_info[0]
 
@@ -165,6 +166,18 @@ class Context:
 
 	def assign(self,name,expression):
 		self.top()[name] = self.evaluate(expression)
+
+    def input(name,type,value):
+        # Convert the string value to the appropriate Python type
+        # Note that for text type there is no conversion, the text value is
+        # simply assigned to the variable
+        # For a full list of input types see
+        #   https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input
+        if(type=='number') value = float(value)
+        else if(type=='date') value = datetime.strptime(value,"%Y-%m-%d")
+        else if(type=='datetime') value = datetime.strptime(value,"%Y-%m-%d %H:%M:%S")
+        # Now assign the variable
+        self.top()[name] = value
 
 	def write(self,expression):
 		return str(self.evaluate(expression))
