@@ -167,7 +167,7 @@ class Context:
 	def assign(self,name,expression):
 		self.top()[name] = self.evaluate(expression)
 
-	def input(name,type,value):
+	def input(self,name,type,value):
 		# Convert the string value to the appropriate Python type
 		# Note that for text type there is no conversion, the text value is
 		# simply assigned to the variable
