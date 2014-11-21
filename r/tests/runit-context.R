@@ -18,14 +18,14 @@ test.Context.set_get <- function(){
 }
 
 test.Context.execute <- function(){
-    w <- Context('.')
+    w <- Context()
     w$execute('x <- 3.14; y <- 42')
     checkEquals(w$get('x'),3.14)
     checkEquals(w$get('y'),42)
 }
 
 test.Context.execute_svg <- function(){
-    w <- Context('.')
+    w <- Context()
     w$execute('plot(1,1)',format='svg',width='5',height='5',units='cm')
 }
 
@@ -35,7 +35,7 @@ test.Context.write <- function(){
   b <- "b"
   c <- c(1,2,3)
   d <- c("a","b","c")
-  co <- Context('.')
+  co <- Context()
   checkEquals(co$write('a'),'1')
   checkEquals(co$write('b'),'b')
   checkEquals(co$write('c'),'1, 2, 3')
@@ -57,7 +57,7 @@ test.Context.enter_exit <- function(){
     d = 'D3'
   )
   
-  co <- Context('.')
+  co <- Context()
   
   checkEquals(co$get('a'),"A1")
   
@@ -87,7 +87,7 @@ test.Context.begin_next <- function(){
   # Test looping over items in a container
   items <- c('a','b','c')
   
-  co <- Context('.')
+  co <- Context()
   
   co$begin('item','items')
   checkEquals(co$get('item'),'a')

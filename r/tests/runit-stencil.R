@@ -6,11 +6,9 @@ test.Stencil.create <- function(){
 # from Component
 test.Stencil.inherited <- function(){
   s <- Stencil()
-  s$title("foo")
-  checkEquals(s$title(),"foo")
-  checkEquals(nrow(s$history()),0)
+  checkEquals(nrow(s$commits()),0)
   s$commit()
-  checkEquals(nrow(s$history()),1)
+  checkEquals(nrow(s$commits()),1)
 }
 
 test.Stencil.html <- function(){
@@ -21,42 +19,38 @@ test.Stencil.html <- function(){
 
   html(s,'<p>bar</p>')
   checkEquals(html(s),'<p>bar</p>\n')
-
-  s$content('html','<p>42</p>')
-  checkEquals(s$content(),'<p>42</p>\n')
 }
 
 test.Stencil.contexts <- function(){
   s <- Stencil()
-  s$contexts('r')
+  checkEquals(s$contexts(),'')
+  s$cila('r\n\ta <- 1\n')
   checkEquals(s$contexts(),'r')
-  s$contexts(c('r','py'))
-  checkEquals(s$contexts(),c('r','py'))
 }
 
 test.Stencil.render.code <- function(){
-  stencil <- Stencil(paste(
+  stencil <- Stencil(paste0('html://',
     '<code data-code="r"><![CDATA[',
       'a <- 1',
     ']]></code>',
-    '<span data-text="a"></span>',sep=''))
+    '<span data-text="a"></span>'))
   
-  checkEquals(paste(
+  checkEquals(paste0(
     '<code data-code="r"><![CDATA[',
       'a <- 1',
     ']]></code>',
-    '<span data-text="a">1</span>',sep=''),render(stencil))
+    '<span data-text="a">1</span>'),stencil$render())
 }
 
 test.Stencil.render.code.error <- function(){
   checkEquals(
     '<code data-code="r">b<div data-error="true">object \'b\' not found</div></code>',render(
-    '<code data-code="r">b</code>'
+    '<code data-code="r">b</code>',list()
   ))
 }
 
-test.Stencil.render.image <- function(){
-    render('<script data-image="svg">plot(1,1)</script>')
+test.Stencil.render.code.image <- function(){
+    render('<pre data-code="r" data-format="png">plot(1,1)</pre>',list())
 }
 
 test.Stencil.render.text.numeric <- function(){
@@ -108,7 +102,7 @@ test.Stencil.render.with.data.frame <- function(){
 }
 
 test.Stencil.render.if <- function(){
-  stencil <- Stencil('<div data-if="test"><span data-text="test">previous</span></div>')
+  stencil <- Stencil('html://<div data-if="test"><span data-text="test">previous</span></div>')
   checkEquals('<div data-if="test" data-off="true"><span data-text="test">previous</span></div>',render(stencil,list(test=FALSE)))
   checkEquals('<div data-if="test"><span data-text="test">TRUE</span></div>',render(stencil,list(test=TRUE)))
 }
@@ -121,7 +115,7 @@ test.Stencil.render.if.elif <- function(){
   return('elif is not implemented')
   
   stencil <- Stencil(paste(
-    '<ul>',
+    'html://<ul>',
       '<li data-if="a" />',
       '<li data-elif="b" />',
     '</ul>',sep=''))
@@ -150,7 +144,7 @@ test.Stencil.render.if.elif <- function(){
 
 test.Stencil.render.switch <- function(){
   stencil <- Stencil(paste(
-    '<ul data-switch="a">',
+    'html://<ul data-switch="a">',
       '<li data-case="1" />',
       '<li data-case="2" />',
       '<li data-default="" />',
@@ -180,7 +174,7 @@ test.Stencil.render.switch <- function(){
 
 test.Stencil.render.switch.no_default <- function(){
   stencil <- Stencil(paste(
-    '<ul data-switch="a">',
+    'html://<ul data-switch="a">',
       '<li data-case="1" />',
       '<li data-case="2" />',
     '</ul>',sep=''))

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include <stencila/r-context>   
+#include <stencila/r/context.hpp>   
 
 BOOST_AUTO_TEST_SUITE(r_context)
  
