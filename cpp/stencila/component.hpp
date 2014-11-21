@@ -28,6 +28,10 @@ public:
 		meta_(nullptr){
 	}
 
+	Component(const std::string& address){
+		initialise(address);
+	}
+
 	~Component(void){
 		if(meta_) delete meta_;
 	}
@@ -39,6 +43,13 @@ public:
 	 * 
 	 * @{
 	 */
+	
+    /**
+     * Initialise a component
+     * 
+     * @param  address Address of component
+     */
+    Component& initialise(const std::string& address);
 
 	/**
 	 * Get this component's path
@@ -86,18 +97,6 @@ public:
      * statically serve a component file
      */
     static std::string locate(const std::string& address);
-
-    /**
-     * Get the package that this component belongs to
-     */
-    std::string package(void);
-
-    /**
-     * Get the package corresponding to a component address
-     * 
-     * @param  address A component address
-     */
-    static std::string package(const std::string& address);
 
 	/**
 	 * List files and folders in a components directory 
@@ -181,14 +180,15 @@ public:
 	 *
 	 * @param  address Address of component to be cloned
 	 */
-	Component& clone(const std::string& address);
+	static void clone(const std::string& address);
 
 	/**
 	 * Fork a component
 	 *
-	 * @param  address Address of component to be forked
+	 * @param  from Address of component to be forked
+	 * @param  to Address of new component
 	 */
-	Component& fork(const std::string& address);
+	static void fork(const std::string& from, const std::string& to);
 
 	/**
 	 * Get the origin for this component
@@ -269,7 +269,6 @@ public:
 	enum Type {
 		NoType,
 		ComponentType,
-		PackageType,
 		StencilType,
 		ThemeType,
 
