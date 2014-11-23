@@ -292,7 +292,6 @@ Node ol_parse(Node parent, const smatch& tree, const State& state){
     return parent.append("li",tree[ol_content].str());
 }
 
-
 /**
  * HTML5 tags
  */
@@ -405,6 +404,39 @@ void attr_assign_parse(Node node, const smatch& tree){
 
 void attr_assign_gen(Node node, std::ostream& stream, const std::string& attr){
     stream << "[" << attr << "=\"" + node.attr(attr) + "\"]";
+}
+
+/**
+ * const: Intra-stencil dependency const declaration
+ *
+ * e.g. const
+ */
+sregex const_ = as_xpr(" const");
+
+void const_parse(Node node, const smatch& tree){
+    node.attr("data-const","true");
+}
+
+void const_gen(Node node, std::ostream& stream){
+    auto const_ = node.attr("data-const");
+    if(const_=="true") stream<<" const";
+}
+
+/**
+ * hash: Intra-stencil dependency tracking hash
+ *
+ * e.g. &dTgy2J
+ */
+mark_tag hash_value(1);
+sregex hash = as_xpr(" &") >> (hash_value=+_w);
+
+void hash_parse(Node node, const smatch& tree){
+    node.attr("data-hash",tree[hash_value].str());
+}
+
+void hash_gen(Node node, std::ostream& stream){
+    auto hash = node.attr("data-hash");
+    if(hash.length()) stream<<" &"<<hash;
 }
 
 /**
@@ -688,10 +720,10 @@ void par_gen(Node node, std::ostream& stream){
 sregex element = (
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)))|
-    (       +(id|class_|attr_assign|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)))|
-    (tag                                                            >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par) )|
-    (                                                                            directive_noarg|directive_expr|for_|include|set_|modifier|macro|par  )
+    (tag >> *(id|class_|attr_assign|hash|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)))|
+    (       +(id|class_|attr_assign|hash|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)))|
+    (tag                                                                 >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par) )|
+    (                                                                                 directive_noarg|directive_expr|for_|include|set_|modifier|macro|par  )
 ) >> 
     // Allow for trailing text. Note that the first space is not significant (it does
     // not get included in `text`).
@@ -715,6 +747,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==class_.regex_id()) class_parse(node,*branch);
         else if(id==attr_assign.regex_id()) attr_assign_parse(node,*branch);
         // Flags
+        else if(id==hash.regex_id()) hash_parse(node,*branch);
         else if(id==off.regex_id()) off_parse(node,*branch);
         else if(id==index.regex_id()) index_parse(node,*branch);
         else if(id==lock.regex_id()) lock_parse(node,*branch);
@@ -759,19 +792,18 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
         id_gen(node,line);
         // class
         class_gen(node,line);
-        // Other attributes go before directives
+        // Other attributes go before flags and directives
         for(std::string attr : node.attrs()){
             if(
-                attr!="id" and attr!="class" and 
-                attr!="off"  and attr!="index"  and 
-                attr!="lock" and attr!="included" and
-                attr!="output" and
-                attr.substr(0,5)!="data-"
+                attr!="id" and attr!="class" and
+                not Stencil::flag(attr) and
+                not Stencil::directive(attr)
             ){
                 attr_assign_gen(node,line,attr);
             }
         }
         // Flags go before directives
+        hash_gen(node,line);
         off_gen(node,line);
         index_gen(node,line);
         lock_gen(node,line);
@@ -821,10 +853,10 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
 /**
  * Code directive for embedded code
  */
+sregex lang = as_xpr("py") | "r";
 sregex format = as_xpr("out") | "svg" | "png" | "jpg";
 sregex size = +_d >> "x" >> +_d >> !(as_xpr("px") | "cm" | "in");
-sregex lang = as_xpr("py") | "r";
-sregex code = lang >> *(+space >> (format|size));
+sregex code = lang >> !(+space >> format >> !(+space >> !size)) >> *(*space >> (const_|hash));
 
 Node code_parse(Node parent, const smatch& tree, State& state){
     // The code language is always the first branch
@@ -837,6 +869,8 @@ Node code_parse(Node parent, const smatch& tree, State& state){
         auto id = branch.regex_id();
         if(id==format.regex_id()) node.attr("data-format",branch.str());
         else if(id==size.regex_id()) node.attr("data-size",branch.str());
+        else if(id==const_.regex_id()) const_parse(node,branch);
+        else if(id==hash.regex_id()) hash_parse(node,branch);
     }
     // Turn on code mode processing
     code_mode_start(language,state);
@@ -855,7 +889,9 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
             stream<<" "<<node.attr(attr);
         }
     }
-    stream<<"\n";
+    // Hash
+    const_gen(node,stream);
+    hash_gen(node,stream);
     // Get the code from the first child nodes
     // Usually there will be only one, but in case there are more
     // add them all
@@ -870,7 +906,8 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
     // Split into lines
     std::vector<std::string> lines;
     boost::split(lines,code,boost::is_any_of("\n"));
-    // Add extra indentation to each line
+    // Start a new line, add extra indentation to each line
+    stream<<"\n";
     for(unsigned int index=0;index<lines.size();index++){
         stream<<indent+"\t"<<lines[index];
         // Don't put a newline on last line - that is the 

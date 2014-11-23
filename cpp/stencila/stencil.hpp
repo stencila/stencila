@@ -402,6 +402,19 @@ public:
     void render_children(Node node, Context* context);
 
     /**
+     * Update and render a intra-stencil dependecy hash on the node
+     */
+    bool render_hash(Node node);
+
+    /**
+     * Initialise the rendering of a stencil
+     *
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_initialise(Node node, Context* context);
+
+    /**
      * Finalise the rendering of a stencil (e.g. adding missing elements)
      *
      * @param node    Node to render
@@ -485,16 +498,45 @@ public:
      */
 
     /**
-     * @name Sanitize
+     * @name Inspection and sanitization
      * @{
      */
     
-    static Xml::Whitelist whitelist;
+    /**
+     * List of allowed stencil element names?
+     */
+    static const std::vector<std::string> tags;
 
-    Stencil& sanitize(void) {
-        //Xml::Document::sanitize(whitelist);
-        return *this;
-    };
+    /*
+     * List of stencil directive attributes
+     */
+    static const std::vector<std::string> directives;
+
+    /*
+     * List of stencil flag attributes
+     */
+    static const std::vector<std::string> flags;
+
+    /**
+     * Is the element tag name an allowed stencil element?
+     */
+    static bool tag(const std::string& name);
+    
+    /**
+     * Is the attribute a stencil directive?
+     */
+    static bool directive(const std::string& attr);
+
+    /**
+     * Is the attribute a stencil flag?
+     */
+    static bool flag(const std::string& attr);
+
+    /**
+     * Sanitize the stencil to remove potenitally malicious elements
+     * and attributes
+     */
+    Stencil& sanitize(void);
 
     /**
      * @}
@@ -525,30 +567,11 @@ private:
      * this stencil
      */
     std::map<std::string,unsigned int> counts_;
+
+    /**
+     * A hash used to track changes in 
+     */
+    std::string hash_;
 };
-
-/**
- * A list of tags allowed in a stencil
- */
-#define STENCILA_STENCIL_TAGS (section)(nav)(article)(aside)(address)(h1)(h2)(h3)(h4)(h5)(h6)(p)(hr)(pre)(blockquote)(ol)(ul)(li)(dl)(dt)(dd)\
-    (figure)(figcaption)(div)(a)(em)(strong)(small)(s)(cite)(q)(dfn)(abbr)(data)(time)(code)(var)(samp)(kbd)(sub)(sup)(i)(b)(u)(mark)(ruby)\
-    (rt)(rp)(bdi)(bdo)(span)(br)(wbr)(ins)(del)(table)(caption)(colgroup)(col)(tbody)(thead)(tfoot)(tr)(td)(th)
-
-/**
- * A list of [global attributes](http://www.w3.org/TR/html5/dom.html#global-attributes)(those that 
- * are "common to and may be specified on all HTML elements") and which are allowed in stencils.
- * Currenly this is a fairly restricted set. See above link for more that could be allowed.
- */
-#define STENCILA_GLOBAL_ATTRS "class","id","lang","title","translate"
-
-/**
- * A list of attributes that have semantic meaning in stencils
- */
-#define STENCILA_DIRECTIVE_ATTRS "data-code","data-text","data-switch","data-case"
-
-/**
- * Combination of the above two attribute lists
- */
-#define STENCILA_STENCIL_ATTRS STENCILA_GLOBAL_ATTRS,STENCILA_DIRECTIVE_ATTRS
 
 }

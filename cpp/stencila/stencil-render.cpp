@@ -58,6 +58,8 @@ void Stencil::render_error(Node node, const std::string& type, const std::string
 }
 
 void Stencil::render_code(Node node, Context* context){
+    // Check if this `code` directive needs to be executed
+    if(not render_hash(node)) return;
     // Get the list of contexts and ensure this context is in the list
     std::string contexts = node.attr("data-code");
     std::vector<std::string> items = split(contexts,",");
@@ -170,6 +172,8 @@ void Stencil::render_par(Node node, Context* context){
         if(value.length()>0){
             context->input(name,type,value);
         }
+        // Render input node
+        render_input(input,context);
     }
     else {
         render_error(node,"par-syntax",par.attribute,"Syntax error in attribute <"+par.attribute+">");
@@ -488,10 +492,12 @@ void Stencil::render_include(Node node, Context* context){
 }
 
 void Stencil::render_input(Node node, Context* context){
-    auto name = node.attr("name");
-    auto type = node.attr("type");
-    auto value = node.attr("value");
-    context->input(name,type,value);
+    if(render_hash(node)){
+        auto name = node.attr("name");
+        auto type = node.attr("type");
+        auto value = node.attr("value");
+        context->input(name,type,value);
+    }
 }
 
 void Stencil::render_children(Node node, Context* context){
@@ -567,6 +573,47 @@ void Stencil::render(Node node, Context* context){
     }
 }
 
+bool Stencil::render_hash(Node node){
+    // Create a key string for this node which starts with the current value
+    // for the current cumulative hash and its attributes and text
+    std::string key = hash_;
+    for(auto attr : node.attrs()){
+        if(attr!="data-hash") key += attr+":"+node.attr(attr);
+    } 
+    key += node.text();
+    // Create a new integer hash
+    static std::hash<std::string> hasher;
+    std::size_t number = hasher(key);
+    // To reduce its lenght, convert the integer hash to a 
+    // shorter string by encoding using a character set
+    static char chars[] = {
+        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+        'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+        '0','1','2','3','4','5','6','7','8','9'
+    };
+    std::string hash;
+    while(number>0){
+        int index = number % sizeof(chars);
+        hash = chars[index] + hash;
+        number = int(number/sizeof(chars));
+    }
+    // If this is a non-`const` node (not declared const) then update the cumulative hash
+    // so that changes in this node cascade to other nodes
+    if(node.attr("data-const")!="true") hash_ = hash;
+    // If there is no change in the hash then return false
+    // otherwise replace the hash (may be missing) and return true
+    std::string current = node.attr("data-hash");
+    if(hash==current) return false;
+    else {
+        node.attr("data-hash",hash);
+        return true;
+    }
+}
+
+void Stencil::render_initialise(Node node, Context* context){
+    hash_ = "";
+}
+
 void Stencil::render_finalise(Node node, Context* context){
 }
 
@@ -585,6 +632,8 @@ Stencil& Stencil::render(Context* context){
     counts_["input"] = 0;
     counts_["table caption"] = 0;
     counts_["figure caption"] = 0;
+    // Initlise rendering
+    render_initialise(*this,context);
     // Render root element within context
     render(*this,context);
     // Finalise rendering
