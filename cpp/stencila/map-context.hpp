@@ -58,6 +58,10 @@ public:
         set_(name,expression);
     }
 
+    void input(const std::string& name, const std::string& type, const std::string& value){
+        set_(name,value);
+    }
+
     std::string write(const std::string& expression){
         return get_(expression);
     }
