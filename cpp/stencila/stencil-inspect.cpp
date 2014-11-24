@@ -12,17 +12,20 @@ const std::vector<std::string> Stencil::tags = {
 };
 
 const std::vector<std::string> Stencil::directives = {
-    "data-code","data-text","data-with",
+    "data-code","data-format","data-size",
+    "data-text","data-with",
     "data-if","data-elif","data-else",
     "data-switch","data-case","data-default",
     "data-for",
-    "data-include","data-set",
+    "data-include","data-version","data-select","data-set",
         "data-delete","data-replace","data-change","data-before","data-after","data-prepend","data-append",
     "data-macro","data-par",
 };
 
 const std::vector<std::string> Stencil::flags = {
-    "data-const","data-hash","data-off","data-index","data-lock","data-included","data-output"
+    "data-const","data-hash","data-output",
+    "data-off","data-index","data-lock","data-included",
+    "data-error"
 };
 
 bool Stencil::tag(const std::string& name){
