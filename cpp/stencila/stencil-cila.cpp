@@ -411,7 +411,7 @@ void attr_assign_gen(Node node, std::ostream& stream, const std::string& attr){
  *
  * e.g. const
  */
-sregex const_ = as_xpr(" const");
+sregex const_ = as_xpr("const");
 
 void const_parse(Node node, const smatch& tree){
     node.attr("data-const","true");
@@ -419,7 +419,7 @@ void const_parse(Node node, const smatch& tree){
 
 void const_gen(Node node, std::ostream& stream){
     auto const_ = node.attr("data-const");
-    if(const_=="true") stream<<" const";
+    if(const_=="true") stream<<"const";
 }
 
 /**
@@ -428,7 +428,7 @@ void const_gen(Node node, std::ostream& stream){
  * e.g. &dTgy2J
  */
 mark_tag hash_value(1);
-sregex hash = as_xpr(" &") >> (hash_value=+_w);
+sregex hash = as_xpr("&") >> (hash_value=+_w);
 
 void hash_parse(Node node, const smatch& tree){
     node.attr("data-hash",tree[hash_value].str());
@@ -436,7 +436,7 @@ void hash_parse(Node node, const smatch& tree){
 
 void hash_gen(Node node, std::ostream& stream){
     auto hash = node.attr("data-hash");
-    if(hash.length()) stream<<" &"<<hash;
+    if(hash.length()) stream<<(stream.tellp()>0?" ":"")<<"&"<<hash;
 }
 
 /**
@@ -444,50 +444,47 @@ void hash_gen(Node node, std::ostream& stream){
  * (if,elif,else,case,default)
  */
 
-sregex off = as_xpr('/');
+sregex off = as_xpr("~off");
 
 void off_parse(Node node, const smatch& tree){
-    // Set the attribute to true
     node.attr("data-off","true");
 }
 
 void off_gen(Node node, std::ostream& stream){
     auto off = node.attr("data-off");
-    if(off.length()) stream<<"/";
+    if(off.length()) stream<<(stream.tellp()>0?" ":"")<<"~off";
 }
 
 /**
  * index: Indicator for index of each elements in 
  * a for directive
  */
-
-sregex index = as_xpr('@') >> +_d;
+mark_tag index_value(1);
+sregex index = as_xpr('@') >> (index_value=+_d);
 
 void index_parse(Node node, const smatch& tree){
-    // Set the attribute, removing the leading @
-    node.attr("data-index",tree.str().substr(1));
+    node.attr("data-index",tree[index_value].str());
 }
 
 void index_gen(Node node, std::ostream& stream){
     auto index = node.attr("data-index");
-    if(index.length()) stream<<"@"<<index;
+    if(index.length()) stream<<(stream.tellp()>0?" ":"")<<"@"<<index;
 }
 
 /**
- * lock: Indicator for elements that have been edited an
+ * lock: Indicator for elements that have been lock an
  * which should not be overwritten by rendering
  */
 
-sregex lock = as_xpr('^');
+sregex lock = as_xpr("~lock");
 
 void lock_parse(Node node, const smatch& tree){
-    // Set the attribute to true
     node.attr("data-lock","true");
 }
 
 void lock_gen(Node node, std::ostream& stream){
     auto lock = node.attr("data-lock");
-    if(lock.length()) stream<<"^";
+    if(lock.length()) stream<<(stream.tellp()>0?" ":"")<<"~lock";
 }
 
 /**
@@ -495,33 +492,31 @@ void lock_gen(Node node, std::ostream& stream){
  * by an `include` directive
  */
 
-sregex included = as_xpr(">>");
+sregex included = as_xpr("~included");
 
 void included_parse(Node node, const smatch& tree){
-    // Set the attribute to true
     node.attr("data-included","true");
 }
 
 void included_gen(Node node, std::ostream& stream){
     auto included = node.attr("data-included");
-    if(included.length()) stream<<">>";
+    if(included.length()) stream<<(stream.tellp()>0?" ":"")<<"~included";
 }
 
 /**
- * output: Indicator for elements that have been output
+ * out: Indicator for elements that have been output
  * by a `code` directive
  */
 
-sregex output = as_xpr("<<");
+sregex output = as_xpr("~output");
 
 void output_parse(Node node, const smatch& tree){
-    // Set the attribute to true
     node.attr("data-output","true");
 }
 
 void output_gen(Node node, std::ostream& stream){
     auto output = node.attr("data-output");
-    if(output.length()) stream<<"<<";
+    if(output.length()) stream<<(stream.tellp()>0?" ":"")<<"~output";
 }
 
 /**
@@ -530,7 +525,7 @@ void output_gen(Node node, std::ostream& stream){
 
 // Regexes for the types of directive arguments
 // Currently, very permissive
-sregex expr = +_;
+sregex expr = ('('>>+_>>')')|(+~space);
 sregex address = ('.'|+(_w|'/'));
 sregex selector = +_;
 
@@ -686,7 +681,7 @@ void macro_gen(Node node, std::ostream& stream){
  */
 
 sregex type = +_w;
-sregex par = as_xpr("par") >> +space >> identifier >> !(*space>>":">>type) >> !(*space>>"=">>+space>>expr);
+sregex par = as_xpr("par") >> +space >> identifier >> !(*space>>":">>*space>>type) >> !(*space>>"=">>*space>>expr);
 
 void par_parse(Node node, const smatch& tree){
     std::string attribute;
@@ -717,17 +712,19 @@ void par_gen(Node node, std::ostream& stream){
  * Element line
  */
 
-sregex element = (
+sregex element =
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
-    (tag >> *(id|class_|attr_assign|hash|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)))|
-    (       +(id|class_|attr_assign|hash|off|index|lock|included|output) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)))|
-    (tag                                                                 >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par) )|
-    (                                                                                 directive_noarg|directive_expr|for_|include|set_|modifier|macro|par  )
-) >> 
+    (
+        (tag >> *(id|class_|attr_assign) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)) >> *(+space>>(hash|off|index|lock|included|output)) )|
+        (       +(id|class_|attr_assign) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)) >> *(+space>>(hash|off|index|lock|included|output)) )|
+        (tag                             >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)  >> *(+space>>(hash|off|index|lock|included|output)) )|
+        (                                            (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)  >> *(+space>>(hash|off|index|lock|included|output)) )|
+        (                                            (hash|off|index|lock|included|output)                                  >> *(+space>>(hash|off|index|lock|included|output)) )
+    ) 
     // Allow for trailing text. Note that the first space is not significant (it does
     // not get included in `text`).
-    !(space>>*text); 
+    >> !(space>>*text); 
 
 Node element_parse(Node parent, const smatch& tree, State& state){
     auto branch = tree.nested_results().begin();
@@ -802,13 +799,6 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
                 attr_assign_gen(node,line,attr);
             }
         }
-        // Flags go before directives
-        hash_gen(node,line);
-        off_gen(node,line);
-        index_gen(node,line);
-        lock_gen(node,line);
-        included_gen(node,line);
-        output_gen(node,line);
         // Directive attributes. An element can only have one of these.
         // These need to go after the other attributes
         std::ostringstream directive;
@@ -836,13 +826,20 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             else if(attr=="data-macro") macro_gen(node,directive);
             else if(attr=="data-par") par_gen(node,directive);
             // If one of these directives has been hit then add to line
-            // and break fro attr loop
+            // and break from attr loop
             if(directive.tellp()>0){
                 if(line.tellp()>0) line << '!';
                 line << directive.str();
                 break;
             }
         }
+        // Flags go after directives
+        hash_gen(node,line);
+        off_gen(node,line);
+        index_gen(node,line);
+        lock_gen(node,line);
+        included_gen(node,line);
+        output_gen(node,line);
     }
     // Add line to the stream
     stream<<line.str();

@@ -214,16 +214,24 @@ BOOST_AUTO_TEST_CASE(attributes){
 }
 
 BOOST_AUTO_TEST_CASE(flags){
-    HTML_("/","<div data-off=\"true\" />")
-    ECHO_("/")
+    HTML_("&tH4dFg","<div data-hash=\"tH4dFg\" />")
+    ECHO_("&tH4dFg")
+
+    HTML_("~off","<div data-off=\"true\" />")
+    ECHO_("~off")
 
     HTML_("@42","<div data-index=\"42\" />")
     ECHO_("@42")
 
-    HTML_("^","<div data-lock=\"true\" />")
-    ECHO_("^")
+    HTML_("~lock","<div data-lock=\"true\" />")
+    ECHO_("~lock")
 
-    ECHO_("/@42^");
+    HTML_("~output","<div data-output=\"true\" />")
+    ECHO_("~output")
+
+    ECHO_("&tH4dFg ~off @42 ~lock ~output");
+    ECHO_("p &tH4dFg ~off @42 ~lock ~output");
+    ECHO_("#id.class &tH4dFg ~off @42 ~lock ~output");
 }
 
 BOOST_AUTO_TEST_CASE(paragraph_implied){
@@ -351,12 +359,6 @@ plot(x,y)
     ECHO_(cila_)
 }
 
-BOOST_AUTO_TEST_CASE(code_output){
-    HTML_("<<","<div data-output=\"true\" />");
-    ECHO_("<<");
-}
-
-
 BOOST_AUTO_TEST_CASE(directive_text){
     HTML_("text variable","<div data-text=\"variable\" />");
     HTML_("span!text variable","<span data-text=\"variable\" />");
@@ -417,7 +419,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
     // Set directive
     ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
-    ECHO_("include stencil selector\n\tset a = 7\n\tp>>\n\t\tSome included text")
+    ECHO_("include stencil selector\n\tset a = 7\n\tp ~included\n\t\tSome included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){
@@ -462,7 +464,7 @@ BOOST_AUTO_TEST_CASE(inlines){
 
     HTML_(
         "The minimum is {if a<b {text a}}{else {text b}}",
-        "The minimum is \n<div data-if=\"a&lt;b \">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
+        "The minimum is \n<div data-if=\"a&lt;b\">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
     );
 
     HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<div data-text=\"pi*2\" />\n</div>");
