@@ -110,11 +110,13 @@ mark_tag math_content(1);
 sregex math = '|' >> (math_content=-+_) >> '|';
 
 void math_parse(Node node, const smatch& tree){
-    node.append("script",{{"type","math/asciimath"}},tree[math_content].str());
+    Node span = node.append("span",{{"class","math"}});
+    span.append("script",{{"type","math/asciimath"}},tree[math_content].str());
 }
 
 void math_gen(Node node, std::ostream& stream){
-    stream<<'|'<<node.text()<<'|';
+    Node script = node.select("script");
+    stream<<'|'<<script.text()<<'|';
 }
 
 /**
@@ -729,9 +731,9 @@ sregex element =
 
     ) 
     // Allow for trailing text.
-    // Note that the first space, if present, is intentionally
-    // stripped from text
-    >> !(*space >> ":" >> !space >> *text); 
+    // Note that the first space is intentionally
+    // stripped from text.
+    >> !(space >> *text);
 
 Node element_parse(Node parent, const smatch& tree, State& state){
     auto branch = tree.nested_results().begin();
@@ -821,7 +823,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
             // If one of these directives has been hit then add to line
             // and break from attr loop
             if(directive.tellp()>0){
-                if(line.tellp()>0) line << '!';
+                if(line.tellp()>0) line << " ";
                 line << directive.str();
                 break;
             }
@@ -947,19 +949,23 @@ Node equation_parse(Node parent,const smatch& tree){
 
 void equation_gen(Node node, std::ostream& stream, const std::string& indent){
     // When generating Cila for an equation element...
-    // ...get all the text content
-    std::string content = node.text();
-    // ...add corresponding delimeters as required
-    std::string begin, end;
-    std::string type = node.attr("type");
-    if(type=="math/asciimath"){
-        begin = end = '|';
+    // ...get the script element
+    Node script = node.select("script");
+    if(script){
+        // ...get all the text content
+        std::string content = script.text();
+        // ...add corresponding delimeters as required
+        std::string begin, end;
+        std::string type = script.attr("type");
+        if(type=="math/asciimath; mode=display"){
+            begin = end = '|';
+        }
+        else if(type=="math/tex; mode=display"){
+            begin = "\\(";
+            end = "\\)";
+        }
+        stream<<begin<<content<<end<<"\n";
     }
-    else if(type=="math/tex"){
-        begin = "\\(";
-        end = "\\)";
-    }
-    stream<<begin<<content<<end<<"\n";
 }
 
 /**
@@ -1092,9 +1098,11 @@ void generate(Node node, std::ostream& stream, std::string indent="") {
     else if(name=="a" and node.attr("href")!="" and node.attrs().size()==1){
         link_gen(node,stream);
     }
-    else if(name=="script"){
-        std::string type = node.attr("type");
-        if(type=="math/asciimath" or type=="math/tex") equation_gen(node,stream,indent);
+    else if(name=="span" and node.attr("class").find("math")!=std::string::npos){
+        math_gen(node,stream);
+    }
+    else if(name=="p" and node.attr("class").find("equation")!=std::string::npos){
+        equation_gen(node,stream,indent);
     }
     else if(node.attr("data-code")!="") code_gen(node,stream,indent);
     else if(node.is_element()) element_gen(node,stream,indent);
