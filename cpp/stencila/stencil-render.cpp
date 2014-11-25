@@ -97,12 +97,12 @@ void Stencil::render_code(Node node, Context* context){
             std::string output = context->execute(code,format,width,height,units);
             // Remove any existing output
             Node next = node.next_element();
-            if(next and next.attr("data-output")=="true") next.destroy();
+            if(next and next.attr("data-out")=="true") next.destroy();
             // Append new output
             if(format.length()){
                 Xml::Document doc;
                 Node output_node;
-                if(format=="out"){
+                if(format=="text"){
                     output_node = doc.append("samp",output);
                 }
                 else if(format=="png" or format=="svg"){
@@ -113,12 +113,12 @@ void Stencil::render_code(Node node, Context* context){
                 else {
                     output_node = doc.append(
                         "div",
-                        {{"data-error","output-format"},{"data-format",format}},
+                        {{"data-error","out-format"},{"data-format",format}},
                         "Output format not recognised: "+format
                     );
                 }
                 // Flag output node 
-                output_node.attr("data-output","true");
+                output_node.attr("data-out","true");
                 // Create a copy immeadiately after code directive
                 node.after(output_node);
             }
@@ -454,7 +454,8 @@ void Stencil::render_include(Node node, Context* context){
 
     // Apply `data-set` elements
     // Apply all the `set`s specified in the include first. This
-    // may include setting vatiables not specified by the author of the included stencil.
+    // may include setting variables not specified as parameters
+    // by the author of the included stencil.
     std::vector<std::string> assigned;
     for(Node set : node.filter("[data-set]")){
         std::string name = render_set(set,context);

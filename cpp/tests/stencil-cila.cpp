@@ -129,8 +129,12 @@ BOOST_AUTO_TEST_CASE(different_numbers_of_inlines){
 }
 
 BOOST_AUTO_TEST_CASE(elements_with_trailing_text){
-    HTML_("a my link","<a>my link</a>")
-    HTML_("span            This is my span","<span>           This is my span</span>");
+    HTML_("a:my link","<a>my link</a>")
+    HTML_("a [href=\"http://...\"] #id :my link","<a href=\"http://...\" id=\"id\">my link</a>")
+    //Insignificant whitespace before colon; significant after but first space after is stipped
+    HTML_("span :foo","<span>foo</span>");
+    HTML_("span : foo","<span>foo</span>");
+    HTML_("span :            foo","<span>           foo</span>");
 }
 
 BOOST_AUTO_TEST_CASE(header){
@@ -169,36 +173,36 @@ BOOST_AUTO_TEST_CASE(ol){
 
 BOOST_AUTO_TEST_CASE(id_class){
     // Shorthand CSS id and class works
-    ECHO_("ul#id")
-    ECHO_("ul.class")
+    ECHO_("ul #id")
+    ECHO_("ul .class")
     // Only one id
-    BACK_("ul#id1#id2","ul#id2")
+    BACK_("ul #id1 #id2","ul #id2")
     // More than one class
-    HTML_("div.klass","<div class=\"klass\" />");
-    HTML_("div.klass1.klass2","<div class=\"klass1 klass2\" />");
-    HTML_("div.klass-a.klass-b.klass-c","<div class=\"klass-a klass-b klass-c\" />");
+    HTML_("div .klass","<div class=\"klass\" />");
+    HTML_("div .klass1 .klass2","<div class=\"klass1 klass2\" />");
+    HTML_("div .klass-a .klass-b .klass-c","<div class=\"klass-a klass-b klass-c\" />");
     // No need to include div
     ECHO_("#id")
     HTML_(".class","<div class=\"class\" />")
     CILA_("<div class=\"class\" />",".class")
     ECHO_(".class")
     // Mix them up
-    ECHO_("#id.class")
+    ECHO_("#id .class")
     // ... id always comes before class
-    BACK_(".class#id","#id.class")
+    BACK_(".class #id","#id .class")
     // Multiple classes
-    HTML_(".a.b.c#id","<div class=\"a b c\" id=\"id\" />")
-    ECHO_(".a.b.c.d")
+    HTML_(".a .b .c #id","<div class=\"a b c\" id=\"id\" />")
+    ECHO_(".a .b .c .d")
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
-    HTML_("a[href=\"http://stenci.la\"] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
-    ECHO_("a[href=\"http://stenci.la\"][title=\"Stencila\"]\n\tStencila");
+    HTML_("a [href=\"http://stenci.la\"]:Stencila","<a href=\"http://stenci.la\">Stencila</a>");
+    ECHO_("a [href=\"http://stenci.la\"] [title=\"Stencila\"]\n\tStencila");
     // More than one
-    HTML_("div[attr1=\"1\"][attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
-    ECHO_("ul[attr1=\"1\"][attr2=\"2\"][attr3=\"3\"]");
+    HTML_("div [attr1=\"1\"] [attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
+    ECHO_("ul [attr1=\"1\"] [attr2=\"2\"] [attr3=\"3\"]");
     // Single quotes are replaced by doubles
-    BACK_("span[attr1='value']","span[attr1=\"value\"]")
+    BACK_("span [attr1='value']","span [attr1=\"value\"]")
     // No need to include div
     HTML_("[attr=\"1\"]","<div attr=\"1\" />")
     ECHO_("[attr=\"1\"]");
@@ -208,21 +212,21 @@ BOOST_AUTO_TEST_CASE(flags){
     HTML_("&tH4dFg","<div data-hash=\"tH4dFg\" />")
     ECHO_("&tH4dFg")
 
-    HTML_("~off","<div data-off=\"true\" />")
-    ECHO_("~off")
+    HTML_("off","<div data-off=\"true\" />")
+    ECHO_("off")
 
     HTML_("@42","<div data-index=\"42\" />")
     ECHO_("@42")
 
-    HTML_("~lock","<div data-lock=\"true\" />")
-    ECHO_("~lock")
+    HTML_("lock","<div data-lock=\"true\" />")
+    ECHO_("lock")
 
-    HTML_("~output","<div data-output=\"true\" />")
-    ECHO_("~output")
+    HTML_("out","<div data-out=\"true\" />")
+    ECHO_("out")
 
-    ECHO_("&tH4dFg ~off @42 ~lock ~output");
-    ECHO_("p &tH4dFg ~off @42 ~lock ~output");
-    ECHO_("#id.class &tH4dFg ~off @42 ~lock ~output");
+    ECHO_("&tH4dFg off @42 lock out");
+    ECHO_("p &tH4dFg off @42 lock out");
+    ECHO_("#id .class &tH4dFg off @42 lock out");
 }
 
 BOOST_AUTO_TEST_CASE(paragraph_implied){
@@ -245,17 +249,17 @@ BOOST_AUTO_TEST_CASE(equations){
     HTML_("\\(E=mc^2\\)","<script type=\"math/tex\">E=mc^2</script>")
     ECHO_("\\(E=mc^2\\)")
     //...at present inline math should not be parsed, only lines starting with delimiter
-    HTML_("p where |c| is the speed of light","<p>\n\twhere \n\t<script type=\"math/asciimath\">c</script>\n\t is the speed of light\n</p>")
-    HTML_("p where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
+    HTML_("p:where |c| is the speed of light","<p>\n\twhere \n\t<script type=\"math/asciimath\">c</script>\n\t is the speed of light\n</p>")
+    HTML_("p:where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
 }
 
 BOOST_AUTO_TEST_CASE(meta){
-    HTML__("#title My title","<div id=\"title\">My title</div>")
-    HTML__("#description A short little stencil","<div id=\"description\">A short little stencil</div>")
-    HTML__("#keywords foo,bar","<div id=\"keywords\">foo,bar</div>")
-    HTML__(".author Joe Bloggs","<div class=\"author\">Joe Bloggs</div>")
-    HTML__("#contexts r","<div id=\"contexts\">r</div>")
-    HTML__("#theme beautiful","<div id=\"theme\">beautiful</div>")
+    HTML__("#title: My title","<div id=\"title\">My title</div>")
+    HTML__("#description: A short little stencil","<div id=\"description\">A short little stencil</div>")
+    HTML__("#keywords: foo,bar","<div id=\"keywords\">foo,bar</div>")
+    HTML__(".author: Joe Bloggs","<div class=\"author\">Joe Bloggs</div>")
+    HTML__("#contexts: r","<div id=\"contexts\">r</div>")
+    HTML__("#theme: beautiful","<div id=\"theme\">beautiful</div>")
 }
 
 BOOST_AUTO_TEST_CASE(directive_code_1){
@@ -352,7 +356,7 @@ plot(x,y)
 
 BOOST_AUTO_TEST_CASE(directive_text){
     HTML_("text variable","<div data-text=\"variable\" />");
-    HTML_("span!text variable","<span data-text=\"variable\" />");
+    HTML_("span text variable","<span data-text=\"variable\" />");
 }
 
 BOOST_AUTO_TEST_CASE(directive_with){
@@ -365,7 +369,7 @@ BOOST_AUTO_TEST_CASE(directive_with){
 
 BOOST_AUTO_TEST_CASE(directive_if){
     HTML_(
-        "if true\n\tp.a\nelif false\n\tp.b\nelse\n\tp.c",
+        "if true\n\tp .a\nelif false\n\tp .b\nelse\n\tp .c",
         "<div data-if=\"true\">\n\t<p class=\"a\" />\n</div>\n<div data-elif=\"false\">\n\t<p class=\"b\" />\n</div>\n<div data-else=\"\">\n\t<p class=\"c\" />\n</div>"
     );
 }
@@ -410,7 +414,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
     // Set directive
     ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
-    ECHO_("include stencil selector\n\tset a = 7\n\tp ~included\n\t\tSome included text")
+    ECHO_("include stencil selector\n\tset a = 7\n\tp included\n\t\tSome included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){
@@ -430,7 +434,7 @@ BOOST_AUTO_TEST_CASE(modifiers){
 
 BOOST_AUTO_TEST_CASE(directive_macro){
 	ECHO_("macro name")
-    HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
+    HTML_("macro name: {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
 
     HTML_("macro name\n\tpar x","<div data-macro=\"name\" id=\"name\">\n\t<div data-par=\"x\" />\n</div>")
 }
@@ -448,21 +452,21 @@ BOOST_AUTO_TEST_CASE(directive_param){
 
 BOOST_AUTO_TEST_CASE(inlines){
     HTML_("Text with a no inlines","Text with a no inlines");
-    HTML_("Text with a {a[href=\"http://stencil.la\"] link} in it.","Text with a \n<a href=\"http://stencil.la\">link</a>\n in it.");
+    HTML_("Text with a {a [href=\"http://stencil.la\"]:link} in it.","Text with a \n<a href=\"http://stencil.la\">link</a>\n in it.");
 
     HTML_("{div}","<div />");
-    HTML_("{div {div}}","<div>\n\t<div />\n</div>");
+    HTML_("{div:{div}}","<div>\n\t<div />\n</div>");
 
     HTML_(
-        "The minimum is {if a<b {text a}}{else {text b}}",
+        "The minimum is {if a<b :{text a}}{else :{text b}}",
         "The minimum is \n<div data-if=\"a&lt;b\">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
     );
 
     HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<div data-text=\"pi*2\" />\n</div>");
 
-    HTML_("div Some text","<div>Some text</div>");
-    HTML_("div {Some text}","<div>Some text</div>");
-    HTML_("div Text with a {span inside span}.","<div>\n\tText with a \n\t<span>inside span</span>\n\t.\n</div>");
+    HTML_("div: Some text","<div>Some text</div>");
+    HTML_("div: {Some text}","<div>Some text</div>");
+    HTML_("div: Text with a {span: inside span}.","<div>\n\tText with a \n\t<span>inside span</span>\n\t.\n</div>");
 }
 
 #undef HTML_

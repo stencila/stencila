@@ -339,6 +339,14 @@ sregex tag =
 
 sregex identifier  = +(_w|'-');
 
+/**
+ * A convienience function for generating attribute Cila
+ */
+void attr_gen(std::ostream& line, const std::string& string){
+    if(line.tellp()>0) line<<" ";
+    line<<string;
+}
+
 // id="bar"
 
 sregex id = '#' >> identifier;
@@ -349,13 +357,13 @@ void id_parse(Node node, const smatch& tree){
     node.attr("id",tree.str(0).erase(0,1));
 }
 
-void id_gen(Node node, std::ostream& stream){
+void id_gen(Node node, std::ostream& line){
     auto id = node.attr("id");
     if(id.length()){
         // Id is reduntant if this is a macro so do not output id
         // if this node is a macro
         auto macro = node.attr("data-macro");
-        if(macro.length()==0) stream<<"#"<<id;
+        if(macro.length()==0) attr_gen(line,"#"+id);
     };
 }
 
@@ -369,14 +377,14 @@ void class_parse(Node node, const smatch& tree){
     node.concat("class",tree.str(0).erase(0,1));
 }
 
-void class_gen(Node node, std::ostream& stream){
+void class_gen(Node node, std::ostream& line){
     // Get clas attribute and split using spaces
     std::string class_ = node.attr("class");
     if(class_.length()){
         std::vector<std::string> classes;
         boost::split(classes,class_,boost::is_any_of(" "));
         for(std::string class_ : classes){
-            if(class_.length()) stream<<"."<<class_;
+            if(class_.length()) attr_gen(line,"."+class_);
         }
     }
 }
@@ -400,8 +408,8 @@ void attr_assign_parse(Node node, const smatch& tree){
     node.attr(name->str(),content);
 }
 
-void attr_assign_gen(Node node, std::ostream& stream, const std::string& attr){
-    stream << "[" << attr << "=\"" + node.attr(attr) + "\"]";
+void attr_assign_gen(Node node, std::ostream& line, const std::string& attr){
+    attr_gen(line,"[" + attr + "=\"" + node.attr(attr) + "\"]");
 }
 
 /**
@@ -415,9 +423,9 @@ void const_parse(Node node, const smatch& tree){
     node.attr("data-const","true");
 }
 
-void const_gen(Node node, std::ostream& stream){
+void const_gen(Node node, std::ostream& line){
     auto const_ = node.attr("data-const");
-    if(const_=="true") stream<<"const";
+    if(const_=="true") attr_gen(line,"const");
 }
 
 /**
@@ -432,9 +440,9 @@ void hash_parse(Node node, const smatch& tree){
     node.attr("data-hash",tree[hash_value].str());
 }
 
-void hash_gen(Node node, std::ostream& stream){
+void hash_gen(Node node, std::ostream& line){
     auto hash = node.attr("data-hash");
-    if(hash.length()) stream<<(stream.tellp()>0?" ":"")<<"&"<<hash;
+    if(hash.length()) attr_gen(line,"&"+hash);
 }
 
 /**
@@ -442,15 +450,15 @@ void hash_gen(Node node, std::ostream& stream){
  * (if,elif,else,case,default)
  */
 
-sregex off = as_xpr("~off");
+sregex off = as_xpr("off");
 
 void off_parse(Node node, const smatch& tree){
     node.attr("data-off","true");
 }
 
-void off_gen(Node node, std::ostream& stream){
+void off_gen(Node node, std::ostream& line){
     auto off = node.attr("data-off");
-    if(off.length()) stream<<(stream.tellp()>0?" ":"")<<"~off";
+    if(off.length()) attr_gen(line,"off");
 }
 
 /**
@@ -464,9 +472,9 @@ void index_parse(Node node, const smatch& tree){
     node.attr("data-index",tree[index_value].str());
 }
 
-void index_gen(Node node, std::ostream& stream){
+void index_gen(Node node, std::ostream& line){
     auto index = node.attr("data-index");
-    if(index.length()) stream<<(stream.tellp()>0?" ":"")<<"@"<<index;
+    if(index.length()) attr_gen(line,"@"+index);
 }
 
 /**
@@ -474,15 +482,15 @@ void index_gen(Node node, std::ostream& stream){
  * which should not be overwritten by rendering
  */
 
-sregex lock = as_xpr("~lock");
+sregex lock = as_xpr("lock");
 
 void lock_parse(Node node, const smatch& tree){
     node.attr("data-lock","true");
 }
 
-void lock_gen(Node node, std::ostream& stream){
+void lock_gen(Node node, std::ostream& line){
     auto lock = node.attr("data-lock");
-    if(lock.length()) stream<<(stream.tellp()>0?" ":"")<<"~lock";
+    if(lock.length()) attr_gen(line,"lock");
 }
 
 /**
@@ -490,31 +498,32 @@ void lock_gen(Node node, std::ostream& stream){
  * by an `include` directive
  */
 
-sregex included = as_xpr("~included");
+sregex included = as_xpr("included");
 
 void included_parse(Node node, const smatch& tree){
     node.attr("data-included","true");
 }
 
-void included_gen(Node node, std::ostream& stream){
+void included_gen(Node node, std::ostream& line){
     auto included = node.attr("data-included");
-    if(included.length()) stream<<(stream.tellp()>0?" ":"")<<"~included";
+    if(included.length()) attr_gen(line,"included");
 }
 
 /**
  * out: Indicator for elements that have been output
- * by a `code` directive
+ * by a `code` directive (don't use `output` as flag since
+ * that is a HTML tag name)
  */
 
-sregex output = as_xpr("~output");
+sregex output = as_xpr("out");
 
 void output_parse(Node node, const smatch& tree){
-    node.attr("data-output","true");
+    node.attr("data-out","true");
 }
 
-void output_gen(Node node, std::ostream& stream){
-    auto output = node.attr("data-output");
-    if(output.length()) stream<<(stream.tellp()>0?" ":"")<<"~output";
+void output_gen(Node node, std::ostream& line){
+    auto output = node.attr("data-out");
+    if(output.length()) attr_gen(line,"out");
 }
 
 /**
@@ -523,7 +532,7 @@ void output_gen(Node node, std::ostream& stream){
 
 // Regexes for the types of directive arguments
 // Currently, very permissive
-sregex expr = ('('>>+_>>')')|(+~space);
+sregex expr = +~space;
 sregex address = ('.'|+(_w|'/'));
 sregex selector = +_;
 
@@ -714,15 +723,15 @@ sregex element =
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
     (
-        (tag >> *(id|class_|attr_assign) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)) >> *(+space>>(hash|off|index|lock|included|output)) )|
-        (       +(id|class_|attr_assign) >> !("!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)) >> *(+space>>(hash|off|index|lock|included|output)) )|
-        (tag                             >>   "!" >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)  >> *(+space>>(hash|off|index|lock|included|output)) )|
-        (                                            (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)  >> *(+space>>(hash|off|index|lock|included|output)) )|
-        (                                            (hash|off|index|lock|included|output)                                  >> *(+space>>(hash|off|index|lock|included|output)) )
+        (tag >> !(+space >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)) >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
+        (                   (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)  >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
+        (                   (id|class_|attr_assign|hash|off|index|lock|included|output)            >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output)))
+
     ) 
-    // Allow for trailing text. Note that the first space is not significant (it does
-    // not get included in `text`).
-    >> !(space>>*text); 
+    // Allow for trailing text.
+    // Note that the first space, if present, is intentionally
+    // stripped from text
+    >> !(*space >> ":" >> !space >> *text); 
 
 Node element_parse(Node parent, const smatch& tree, State& state){
     auto branch = tree.nested_results().begin();
@@ -737,8 +746,17 @@ Node element_parse(Node parent, const smatch& tree, State& state){
     // that the branch iterator is not incremented until the end of the loop.
     while(branch!=tree.nested_results().end()){
         const void* id = branch->regex_id();
+        // Directives
+        if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
+        else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
+        else if(id==for_.regex_id()) for_parse(node,*branch);
+        else if(id==include.regex_id()) include_parse(node,*branch);
+        else if(id==set_.regex_id()) set_parse(node,*branch);
+        else if(id==modifier.regex_id()) modifier_parse(node,*branch);
+        else if(id==macro.regex_id()) macro_parse(node,*branch);
+        else if(id==par.regex_id()) par_parse(node,*branch);
         // Attributes
-        if(id==::id.regex_id()) id_parse(node,*branch);
+        else if(id==::id.regex_id()) id_parse(node,*branch);
         else if(id==class_.regex_id()) class_parse(node,*branch);
         else if(id==attr_assign.regex_id()) attr_assign_parse(node,*branch);
         // Flags
@@ -748,15 +766,6 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==lock.regex_id()) lock_parse(node,*branch);
         else if(id==included.regex_id()) included_parse(node,*branch);
         else if(id==output.regex_id()) output_parse(node,*branch);
-        // Directives
-        else if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
-        else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
-        else if(id==for_.regex_id()) for_parse(node,*branch);
-        else if(id==include.regex_id()) include_parse(node,*branch);
-        else if(id==set_.regex_id()) set_parse(node,*branch);
-        else if(id==modifier.regex_id()) modifier_parse(node,*branch);
-        else if(id==macro.regex_id()) macro_parse(node,*branch);
-        else if(id==par.regex_id()) par_parse(node,*branch);
         // Text
         else if(id==text.regex_id()) text_parse(node,*branch,state);
         branch++;
@@ -783,20 +792,6 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
     } else {
         // If this is not a <div> then output name
         if(name!="div") line << name;
-        // id
-        id_gen(node,line);
-        // class
-        class_gen(node,line);
-        // Other attributes go before flags and directives
-        for(std::string attr : node.attrs()){
-            if(
-                attr!="id" and attr!="class" and
-                not Stencil::flag(attr) and
-                not Stencil::directive(attr)
-            ){
-                attr_assign_gen(node,line,attr);
-            }
-        }
         // Directive attributes. An element can only have one of these.
         // These need to go after the other attributes
         std::ostringstream directive;
@@ -831,7 +826,21 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
                 break;
             }
         }
-        // Flags go after directives
+        // id
+        id_gen(node,line);
+        // class
+        class_gen(node,line);
+        // Other attributes go before flags and directives
+        for(std::string attr : node.attrs()){
+            if(
+                attr!="id" and attr!="class" and
+                not Stencil::flag(attr) and
+                not Stencil::directive(attr)
+            ){
+                attr_assign_gen(node,line,attr);
+            }
+        }
+        // Flags last
         hash_gen(node,line);
         off_gen(node,line);
         index_gen(node,line);
@@ -849,7 +858,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
  * Code directive for embedded code
  */
 sregex lang = as_xpr("py") | "r";
-sregex format = as_xpr("out") | "svg" | "png" | "jpg";
+sregex format = as_xpr("text") | "svg" | "png" | "jpg";
 sregex size = +_d >> "x" >> +_d >> !(as_xpr("px") | "cm" | "in");
 sregex code = lang >> !(+space >> format >> !(+space >> !size)) >> *(*space >> (const_|hash));
 

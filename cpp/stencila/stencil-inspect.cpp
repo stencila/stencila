@@ -23,7 +23,7 @@ const std::vector<std::string> Stencil::directives = {
 };
 
 const std::vector<std::string> Stencil::flags = {
-    "data-const","data-hash","data-output",
+    "data-const","data-hash","data-out",
     "data-off","data-index","data-lock","data-included",
     "data-error"
 };
