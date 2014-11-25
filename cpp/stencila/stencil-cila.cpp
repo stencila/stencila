@@ -29,8 +29,6 @@ struct State {
 
     bool end = false;
 
-    char indenter = 0;
-
     struct Line {
         // Is the line blank? (ie. no non-whitespace characters)
         bool blank = false;
@@ -998,21 +996,10 @@ void parse(Node node, std::istream& stream){
             count++;
         }
         // Determine indentation and emptiness of line
-        // If in code mode count indents but don't complain about
-        // other whitespace characters
         bool blank = true;
         int indentation = 0;
         for(char c : line){
-            if(c=='\t'){
-                if(state.indenter==0) state.indenter = '\t';
-                if(state.indenter=='\t') indentation++;
-                else if(not state.mode==code_mode) STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : tab used for indentation when space used previously");
-            }
-            else if(c==' '){
-                if(state.indenter==0) state.indenter = ' ';
-                if(state.indenter==' ') indentation++;
-                else if(not state.mode==code_mode) STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+" : space used for indentation when tab used previously");
-            }
+            if(c=='\t') indentation++;
             else {
                 blank = false;
                 break;
