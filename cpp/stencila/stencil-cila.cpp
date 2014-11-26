@@ -852,7 +852,20 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
     }
     // Add line to the stream
     stream<<line.str();
-    // Generate Cila for children
+    
+    // If only one child that is text and less than 80 characters
+    // then put on the same line...
+    if(node.children().size()==1){
+        auto first = node.first();
+        if(first.is_text()){
+            auto text = first.text();
+            if(text.length()<=80){
+                stream<<" "<<text;
+                return;
+            }
+        }
+    }
+    // ...otherwise, generate Cila for children indented one level
     for(Node child : node.children()) generate(child,stream,indent+"\t");
 }
 

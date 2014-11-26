@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(id_class){
 
 BOOST_AUTO_TEST_CASE(attributes){
     HTML_("a [href=\"http://stenci.la\"] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
-    ECHO_("a [href=\"http://stenci.la\"] [title=\"Stencila\"]\n\tStencila");
+    ECHO_("a [href=\"http://stenci.la\"] [title=\"Stencila\"] Stencila");
     // More than one
     HTML_("div [attr1=\"1\"] [attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
     ECHO_("ul [attr1=\"1\"] [attr2=\"2\"] [attr3=\"3\"]");
@@ -373,12 +373,9 @@ BOOST_AUTO_TEST_CASE(directive_if){
 BOOST_AUTO_TEST_CASE(directive_switch){
 	auto cila_ = 
 R"(switch a
-	case 3.14
-		Pi
-	case 42
-		The answer
-	default
-		A number)";
+	case 3.14 Pi
+	case 42 The answer
+	default A number)";
     auto html_ = 
 R"(<div data-switch="a">
 	<div data-case="3.14">Pi</div>
@@ -410,7 +407,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
     // Set directive
     ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
-    ECHO_("include stencil selector\n\tset a = 7\n\tp included\n\t\tSome included text")
+    ECHO_("include stencil selector\n\tset a = 7\n\tp included Some included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){
