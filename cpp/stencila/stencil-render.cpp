@@ -344,9 +344,12 @@ void Stencil::render_for(Node node, Context* context){
 }
 
 void Stencil::render_include(Node node, Context* context){
-    std::string include = node.attr("data-include");
+    std::string include_expr = node.attr("data-include");
     std::string version = node.attr("data-version");
     std::string select = node.attr("data-select");
+
+    // Obtain string representation of include_expr
+    std::string include = context->write(include_expr);
 
     // If this node has been rendered before then there will be 
     // a `data-included` node. If it does not yet exist then append one.
@@ -360,14 +363,14 @@ void Stencil::render_include(Node node, Context* context){
         // Clear the included node
         included.clear();
         //Obtain the included stencil...
-        Node stencil;
-        //Check to see if this is a "self" include, otherwise obtain the stencil
-        if(include==".") stencil = node.root();
-        else stencil = Component::get(include,version).as<Stencil>();
+        Node includee;
+        //Check to see if this is a "self" include, otherwise obtain the includee
+        if(include==".") includee = node.root();
+        else includee = Component::get(include,version).as<Stencil>();
         // ...select from it
         if(select.length()>0){
             // ...append the selected nodes.
-            for(Node node : stencil.filter(select)){
+            for(Node node : includee.filter(select)){
                 // Append the node first to get a copy of it which can be modified
                 Node appended = included.append(node);
                 // Remove `macro` declaration if any so that element gets rendered
@@ -378,8 +381,10 @@ void Stencil::render_include(Node node, Context* context){
                 appended.erase("id");
             }
         } else {
-            // ...append the entire stencil. No attempt is made to remove macros when included an entire stencil.
-            included.append(stencil);
+            // ...append the entire includee. 
+            // No attempt is made to remove macros when included an entire includee.
+            // Must add each child because includee is a document (see `Node::append(const Document& doc)`)
+            for(auto child : includee.children()) included.append(child);
         }
         //Apply modifiers
         const int modifiers = 7;

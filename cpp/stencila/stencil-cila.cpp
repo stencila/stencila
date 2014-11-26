@@ -535,8 +535,6 @@ void output_gen(Node node, std::ostream& line){
 // Regexes for the types of directive arguments
 // Currently, very permissive
 sregex expr = +~space;
-sregex address = ('.'|+(_w|'/'));
-sregex selector = +_;
 
 /**
  * Directives with no arguments
@@ -606,7 +604,8 @@ void for_gen(Node node, std::ostream& stream){
  * Include directive
  */
 
-sregex include = as_xpr("include") >> +space >> address >> *(+space >> selector);
+sregex selector = +(_w|"#"|".");
+sregex include = as_xpr("include") >> +space >> expr >> *(+space >> selector);
 
 void include_parse(Node node, const smatch& tree){
     auto include = tree.nested_results().begin();
