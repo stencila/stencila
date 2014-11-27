@@ -28,6 +28,7 @@ public:
 
     ~Stencil(void){
         if(context_) delete context_;
+        if(outline_) delete outline_;
     }
 
     /**
@@ -569,9 +570,16 @@ private:
     std::map<std::string,unsigned int> counts_;
 
     /**
-     * A hash used to track changes in 
+     * A hash used to track intra-stencil dependencies
      */
     std::string hash_;
+
+    /**
+     * Outlining, including section numbering and table of content, handled
+     * by `Outline` struct
+     */
+    struct Outline;
+    Outline* outline_ = nullptr;
 };
 
 }
