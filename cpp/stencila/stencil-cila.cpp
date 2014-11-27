@@ -535,6 +535,7 @@ void output_gen(Node node, std::ostream& line){
 // Regexes for the types of directive arguments
 // Currently, very permissive
 sregex expr = +~space;
+sregex selector = +(_w|"#"|"."|'-');
 
 /**
  * Directives with no arguments
@@ -567,6 +568,20 @@ void directive_expr_parse(Node node, const smatch& tree){
 
 void directive_expr_gen(const std::string type, Node node, std::ostream& stream){
     stream<<type<<" "<<node.attr("data-"+type);
+}
+
+/**
+ * Directives with a single selector argument
+ */
+mark_tag ref_selector(1);
+sregex ref = as_xpr("ref") >> +space >> (ref_selector=selector);
+
+void ref_parse(Node node, const smatch& tree){
+    node.attr("data-ref",tree[ref_selector].str());
+}
+
+void ref_gen(Node node, std::ostream& stream){
+    stream<<"ref "<<node.attr("data-ref");
 }
 
 /**
@@ -603,8 +618,6 @@ void for_gen(Node node, std::ostream& stream){
 /**
  * Include directive
  */
-
-sregex selector = +(_w|"#"|".");
 sregex include = as_xpr("include") >> +space >> expr >> *(+space >> selector);
 
 void include_parse(Node node, const smatch& tree){
@@ -724,8 +737,8 @@ sregex element =
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
     (
-        (tag >> !(+space >> (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)) >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
-        (                   (directive_noarg|directive_expr|for_|include|set_|modifier|macro|par)  >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
+        (tag >> !(+space >> (directive_noarg|directive_expr|ref|for_|include|set_|modifier|macro|par)) >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
+        (                   (directive_noarg|directive_expr|ref|for_|include|set_|modifier|macro|par)  >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
         (                   (id|class_|attr_assign|hash|off|index|lock|included|output)            >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output)))
 
     ) 
@@ -737,8 +750,20 @@ sregex element =
 Node element_parse(Node parent, const smatch& tree, State& state){
     auto branch = tree.nested_results().begin();
     // The first branch is always a tag or an attr
-    // If it is an tag use that, otherwise make it a <div>
-    std::string name = (branch->regex_id()==tag.regex_id())?branch->str():"div";
+    // If it is a tag use that, otherwise make it a <div>
+    std::string name;
+    if(branch->regex_id()==tag.regex_id()){
+        name = branch->str();
+    } else {
+        for(auto branch : tree.nested_results()){
+            const void* id = branch.regex_id();
+            if(id==ref.regex_id()){
+                name = "span";
+                break;
+            }
+        }
+        if(not name.length()) name = "div";
+    }
     // Create the element
     Node node = parent.append(name);
     // Iterate over remaining branches which include attributes for the element
@@ -750,6 +775,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         // Directives
         if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
+        else if(id==ref.regex_id()) ref_parse(node,*branch);
         else if(id==for_.regex_id()) for_parse(node,*branch);
         else if(id==include.regex_id()) include_parse(node,*branch);
         else if(id==set_.regex_id()) set_parse(node,*branch);
@@ -798,6 +824,7 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
         std::ostringstream directive;
         for(std::string attr : attrs){
             if(attr=="data-text") directive_expr_gen("text",node,directive);
+            else if(attr=="data-ref") ref_gen(node,directive);
             else if(attr=="data-with") directive_expr_gen("with",node,directive);
             else if(attr=="data-if") directive_expr_gen("if",node,directive);
             else if(attr=="data-elif") directive_expr_gen("elif",node,directive);

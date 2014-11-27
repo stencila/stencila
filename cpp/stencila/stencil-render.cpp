@@ -703,10 +703,15 @@ void Stencil::render(Node node, Context* context){
                     label.append("span",{{"class","number"}},count_string);
                     label.append("span",{{"class","separator"}},":");
                 } else {
-                    // Ammend the label
+                    // Amend the label
                     Node number = label.select(".number");
                     if(not number) number = label.append("span",{{"class","number"}},count_string);
                     else number.text(count_string);
+                }
+                // Check for id - on table or figure NOT caption!
+                std::string id = node.attr("id");
+                if(not id.length()){
+                    node.attr("id",tag+"-"+count_string);
                 }
             }
         }
@@ -767,6 +772,24 @@ void Stencil::render_initialise(Node node, Context* context){
 
 void Stencil::render_finalise(Node node, Context* context){
     outline_->render();
+
+    // Render references
+    for(Node ref : filter("[data-ref]")){
+        std::string selector = ref.attr("data-ref");
+        Node target = select(selector);
+        Node label = target.select(".label");
+        if(label){
+            Node a = ref.append(
+                "a",
+                {{"href","#"+target.attr("id")}},
+                label.select(".type").text() + " " + label.select(".number").text()
+            );
+        } else {
+            // If no label then use the selector
+            // as the label
+            ref.text(selector);
+        }
+    }
 }
 
 Stencil& Stencil::render(Context* context){
