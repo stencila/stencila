@@ -59,6 +59,10 @@ std::string Stencil::call(const Call& call) {
         auto values = call.arg<std::map<std::string,std::string>>(0);
         return     inputs(     values    ).render().html();
     }
+    //... restart
+    else if(what=="restart().html():string"){
+        return     restart().html();
+    }    
 
     // Access to context
     else if(what=="context.interact(string):string"){

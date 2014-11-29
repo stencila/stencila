@@ -453,6 +453,17 @@ public:
     Stencil& render(void);
 
     /**
+     * Remove attributes and element added to this stencil during
+     * previous renderings
+     */
+    Stencil& strip(void);
+
+    /**
+     * Strip and then render this stencil
+     */
+    Stencil& restart(void);
+
+    /**
      * @}
      */
     

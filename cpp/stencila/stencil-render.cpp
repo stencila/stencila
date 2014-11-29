@@ -855,7 +855,22 @@ Stencil& Stencil::render(const std::string& type){
 Stencil& Stencil::render(void){
     if(context_) return render(context_);
     else return render(std::string());
-    return *this;
 }
+
+Stencil& Stencil::restart(void){
+    return strip().render();
+}
+
+Stencil& Stencil::strip(void){
+    // Remove attributes added by `render()`
+    for(std::string attr : {"data-hash","data-off"}){
+        for(Node node : filter("["+attr+"]")) node.erase(attr);
+    }
+    // Remove elements added by `render()`
+    for(Node node : filter("[data-index],[data-out],[data-included],[data-error]")){
+        node.destroy();
+    }
+    return *this;
+}    
 
 } // namespace Stencila
