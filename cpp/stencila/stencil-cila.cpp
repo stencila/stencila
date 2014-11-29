@@ -757,7 +757,10 @@ Node element_parse(Node parent, const smatch& tree, State& state){
     } else {
         for(auto branch : tree.nested_results()){
             const void* id = branch.regex_id();
-            if(id==ref.regex_id()){
+            if(
+                id==text.regex_id() or 
+                id==ref.regex_id()
+            ){
                 name = "span";
                 break;
             }
