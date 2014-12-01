@@ -575,6 +575,7 @@ struct Stencil::Outline {
                     label = node.prepend("span");
                     label.attr("class","label");
                     label.append("span",{{"class","path"}},path_string);
+                    label.append("span",{{"class","separator"}}," ");
                 } else {
                     // Ammend the label
                     Node path = label.select(".path");
