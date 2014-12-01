@@ -112,8 +112,8 @@ std::string Stencil::html(bool document,bool indent) const {
         /**
          * #content
          *
-         * Content is placed in a <main> rather than just using the <body> so that extra HTML elements can be added by the 
-         * theme without affecting the stencil's content.
+         * Content is placed in a <main> rather than just using the <body> so that 
+         * extra HTML elements can be added by the theme without affecting the stencil's content.
          */
         auto content = body.append("main",{
             {"id","content"}
@@ -134,9 +134,9 @@ std::string Stencil::html(bool document,bool indent) const {
         // removed. This is in case the remote CSS link added by the CSS fallback function (see above) fails to load.
         body.append("script","window.setTimeout(function(){document.documentElement.className='';},10000)");
 
+        // Validate the HTML5 document before dumping it
         doc.validate();
-        
-        return doc.dump(indent);
+        return doc.dump();
     }
 }
 

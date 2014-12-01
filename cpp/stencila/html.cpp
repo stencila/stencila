@@ -127,21 +127,80 @@ Document& Document::load(const std::string& html){
 	// `TidyDoctype` is `"html5"`. So add one here..
 	doctype("html");
 
-	Node head = find("head");
-
-	// Set charset
-	// Although it is not technically required to define the character set, failing to do so can leave the page vulnerable to 
-	// cross-site scripting attacks in older versions of IE. Note that even in old browsers this short version is equivalent to:
-	//   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	//  (http://www.coreservlets.com/html5-tutorial/basic-html5-document.html)
-	if(not head.find("meta","charset")) {
-		head.append("meta",{{"charset","UTF-8"}});
-	}
-
 	// Validate this document
 	validate();
 
 	return *this;
+}
+
+namespace {
+	
+// Void elements which have no children
+bool void_element_(const std::string& name){
+	for(auto elem : {
+		"area","base","br","col","embed","hr","img","input",
+		"keygen","link","meta","param","source","track","wbr"
+	}){
+		if(name==elem) return true;
+	}
+	return false;
+}
+
+// Must not format inline elements because then spaces between e.g. <span>s and following text can be lost
+// This list from https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elemente
+bool inline_element_(const std::string& name){
+	for(auto elem : {
+		"b", "big", "i", "small", "tt",
+		"abbr", "acronym", "cite", "code", "dfn", "em", "kbd", "strong", "samp", "var",
+		"a", "bdo", "br", "img", "map", "object", "q", "script", "span", "sub", "sup",
+		"button", "input", "label", "select", "textarea"
+	}){
+		if(name==elem) return true;
+	}
+	return false;
+}
+
+void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::string& indent){
+	if(node.is_document()){
+		// Dump children without indent
+		for(auto child : node.children()) dump_(stream,child,pretty,"");
+		return;
+	}
+	else if(node.is_doctype()){
+		stream<<"<!DOCTYPE html>";
+		return;
+	}
+	else if(node.is_element()){
+		// Dump start tag with attributes
+		auto name = node.name();
+		auto inlinee = inline_element_(name);
+		if(pretty and not inlinee) stream<<"\n"<<indent;
+		stream<<"<"<<name;
+		for(auto name : node.attrs()){
+			auto value = node.attr(name);
+			stream<<" "<<name<<"=\""<<value<<"\"";
+		}
+		stream<<">";
+		// For void HTML nothing else to do so return
+		if(void_element_(name)) return;
+		// Dump children
+		for(auto child : node.children()) dump_(stream,child,pretty,indent+"\t");
+		// Closing tag
+		if(pretty and not inlinee and node.children().size()) stream<<"\n"<<indent;
+		stream<<"</"<<name<<">";
+	}
+	else if(node.is_text()){
+		stream<<node.text();
+		return;
+	}
+}
+
+}
+
+std::string Document::dump(bool pretty) const {
+	std::stringstream html;
+	dump_(html,*this,pretty,"");
+	return html.str();
 }
 
 Document& Document::read(const std::string& filename){
@@ -161,21 +220,15 @@ struct Validator : pugi::xml_tree_walker {
 		if(node.type()==pugi::node_element){
 			std::string name  = node.name();
 			// Check to see if this is a "void element"
-			bool voide = false;
-			for(auto tag : {"area","base","br","col","embed","hr","img","input",
-							"keygen","link","meta","param","source","track","wbr"}){
-				if(name==tag){
-					voide = true;
-					break;
-				}
-			}
-			if(voide){
-				// "In the HTML syntax, void elements are elements that always are empty and never have an end tag"
+			if(void_element_(name)){
+				// "In the HTML syntax, void elements are elements that always are empty 
+				// and never have an end tag"
 				// Remove all child elements. 
 				while(node.first_child()) node.remove_child(node.first_child());
 			}
 			else {
-				// Ensure that other nodes have a least one child so that self-closing tags are not used for them
+				// Ensure that other nodes have a least one child so that self-closing 
+				// tags are not used for them
 				if(!node.first_child()) node.append_child(pugi::node_pcdata);
 			}
 		}
@@ -185,6 +238,17 @@ struct Validator : pugi::xml_tree_walker {
 };
 
 Document& Document::validate(void){
+	// Add necessary elements to head
+	Node head = find("head");
+	// Set charset
+	// Although it is not technically required to define the character set, failing to do so can leave the page vulnerable to 
+	// cross-site scripting attacks in older versions of IE. Note that even in old browsers this short version is equivalent to:
+	//   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	//  (http://www.coreservlets.com/html5-tutorial/basic-html5-document.html)
+	if(not head.find("meta","charset")) {
+		head.append("meta",{{"charset","utf-8"}});
+	}
+	// Run through validator
 	Validator validator;
 	pimpl_->traverse(validator);
 	return *this;

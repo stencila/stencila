@@ -85,6 +85,11 @@ public:
 	 * Is this a document node?
 	 */
 	bool is_document(void) const;
+	
+	/**
+	 * Is this a DOCTYPE node?
+	 */
+	bool is_doctype(void) const;
 
 	/**
 	 * Is this an element node?
