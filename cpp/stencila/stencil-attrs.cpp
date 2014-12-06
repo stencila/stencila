@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <boost/regex.hpp>
 
 #include <stencila/stencil.hpp>
@@ -34,10 +36,29 @@ std::vector<std::string> Stencil::authors(void) const {
 std::vector<std::string> Stencil::contexts(void) const {
     std::vector<std::string> contexts;
     if(Node elem = select("#contexts")){
+        // A #contexts node found so use that
         auto text = elem.text();
         contexts = split(text,",");
         for(auto& context : contexts) trim(context);
-    }    
+    } else {
+        // Count the number of code directives of each type
+        std::map<std::string,int> counts;
+        auto codes = filter("[data-code]");
+        for(auto code : codes){
+            auto context = code.attr("data-code");
+            if(counts.find(context)==counts.end()) counts[context] = 1;
+            else counts[context] += 1;
+        }
+        // Sort in decending order of count
+        std::vector<std::pair<std::string,int>> sorted;
+        for(auto pair : counts) sorted.push_back(pair);
+        auto cmp = [](std::pair<std::string,int> const & a, std::pair<std::string,int> const & b){ 
+            return a.second > b.second;
+        };
+        std::sort(sorted.begin(), sorted.end(), cmp);
+        for(auto pair : sorted) contexts.push_back(pair.first);
+
+    }   
     return contexts;
 }
 
