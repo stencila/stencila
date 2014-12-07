@@ -51,6 +51,17 @@ setMethod('html','Stencil',Stencil_html)
 
 attr_('Stencil','cila',toString)
 
+# Function used below to ensure that a stencil has a context attached
+Stencil_context_ensure_ <- function(stencil,context=NULL){
+    if(is.null(context)){
+        if(stencil$context()=="none") context <- Context(parent.frame())
+    }
+    else {
+        if(!('Context' %in% class(context))) context <- Context(context)
+    }
+    call_('Stencil_attach',stencil@pointer,context)
+}
+
 #' Render a stencil object or a stencil string 
 #'
 #' This is a convienience function for creating, rendering and then
@@ -63,15 +74,9 @@ attr_('Stencil','cila',toString)
 NULL
 
 Stencil_render <- function(stencil,context=NULL){
-    if(is.null(context)){
-        if(stencil$context()=="none") context <- Context(parent.frame())
-    }
-    else {
-        if(!('Context' %in% class(context))) context <- Context(context)
-    }
-    return(call_('Stencil_render',stencil@pointer,context))
+    Stencil_context_ensure_(stencil,context)
+    return(call_('Stencil_render',stencil@pointer))
 }
-
 setGeneric("render",function(stencil,context) standardGeneric("render"))
 setMethod("render",c("ANY","ANY"),function(stencil,context){
     if(!('Stencil' %in% class(stencil))){
@@ -80,3 +85,13 @@ setMethod("render",c("ANY","ANY"),function(stencil,context){
     stencil$render(context)
     return(stencil$html())
 })
+
+Stencil_serve <- function(stencil,context=NULL){
+    Stencil_context_ensure_(stencil,context)
+    return(call_('Stencil_serve',stencil@pointer))
+}
+
+Stencil_view <- function(stencil,context=NULL){
+    Stencil_context_ensure_(stencil,context)
+    return(call_('Stencil_view',stencil@pointer))
+}
