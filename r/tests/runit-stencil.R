@@ -28,6 +28,14 @@ test.Stencil.contexts <- function(){
   checkEquals(s$contexts(),'r')
 }
 
+render <- function(stencil,context){
+    if(!('Stencil' %in% class(stencil))){
+        stencil <- Stencil(paste("html://",stencil))
+    }
+    stencil$render(context)
+    return(stencil$html())
+}
+
 test.Stencil.render.code <- function(){
   stencil <- Stencil(paste0('html://',
     '<code data-code="r"><![CDATA[',
