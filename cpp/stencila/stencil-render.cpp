@@ -26,29 +26,7 @@ std::string Stencil::context(void) const {
 }
 
 void Stencil::render_error(Node node, const std::string& type, const std::string& data, const std::string& message){
-    // Create an error element as a
-    Xml::Document fragment;
-    auto error = fragment.append(
-        // <div> with...
-        "div",
-        // attributes...
-        {
-            // to identify the type of error,
-            {"data-error",type},
-            // and data for helping resolve the error...
-            {"data-"+type,data}
-        },
-        // and a message as text content
-        message
-    );
-    // Decide where to put the error. Usually it will be appended
-    // but this is not appropriate for some elements e.g. <pre data-code="r" ...
-    if(node.name()=="pre"){
-        error.attr("data-rel","before");
-        node.after(error);
-    } else {
-        node.append(error);
-    }
+    node.attr("data-error",type+"~"+data+"~"+message);
 }
 
 void Stencil::render_code(Node node, Context* context){
@@ -105,16 +83,14 @@ void Stencil::render_code(Node node, Context* context){
                     });
                 }
                 else {
-                    output_node = doc.append(
-                        "div",
-                        {{"data-error","out-format"},{"data-format",format}},
-                        "Output format not recognised: "+format
-                    );
+                    render_error(node,"out-format",format,"Output format not recognised: "+format);
                 }
-                // Flag output node 
-                output_node.attr("data-out","true");
-                // Create a copy immeadiately after code directive
-                node.after(output_node);
+                if(output_node){
+                    // Flag output node 
+                    output_node.attr("data-out","true");
+                    // Create a copy immeadiately after code directive
+                    node.after(output_node);
+                }
             }
         }
     }
@@ -628,8 +604,8 @@ struct Stencil::Outline {
 
 void Stencil::render(Node node, Context* context){
     try {
-        // Remove any existing errors
-        for(Node child : node.filter("[data-error]")) child.destroy();
+        // Remove any existing error attribute
+        node.erase("[data-error]");
         // Check for handled elements
         std::string tag = node.name();
         // For each attribute in this node...
@@ -856,11 +832,11 @@ Stencil& Stencil::restart(void){
 
 Stencil& Stencil::strip(void){
     // Remove attributes added by `render()`
-    for(std::string attr : {"data-hash","data-off"}){
+    for(std::string attr : {"data-hash","data-off","data-error"}){
         for(Node node : filter("["+attr+"]")) node.erase(attr);
     }
     // Remove elements added by `render()`
-    for(Node node : filter("[data-index],[data-out],[data-included],[data-error]")){
+    for(Node node : filter("[data-index],[data-out],[data-included]")){
         node.destroy();
     }
     return *this;
