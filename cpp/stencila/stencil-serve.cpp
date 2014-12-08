@@ -1,3 +1,5 @@
+#include <boost/filesystem.hpp>
+
 #include <stencila/stencil.hpp>
 
 namespace Stencila {
@@ -8,6 +10,30 @@ std::string Stencil::serve(void){
 
 void Stencil::view(void){
     return Component::view(StencilType);
+}
+
+std::string Stencil::interact(const std::string& code){
+    if(context_){
+        // Switch to stencil's directory
+        boost::filesystem::path cwd = boost::filesystem::current_path();
+        boost::filesystem::path path = boost::filesystem::path(Component::path(true)); 
+        boost::filesystem::current_path(path);
+        // Create a new unique id
+        static char chars[] = {
+            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+            '0','1','2','3','4','5','6','7','8','9'
+        };
+        std::string id;
+        for(int cha=0;cha<8;cha++) id += chars[int(random()/double(RAND_MAX)*sizeof(chars))];
+        // Run code in context
+        auto result = context_->interact(code,id);
+        // Return to original working directory
+        boost::filesystem::current_path(cwd);
+        return result;
+    } else {
+        STENCILA_THROW(Exception,"No context attached to this stencil");
+    }
 }
 
 std::string Stencil::call(const Call& call) {
@@ -65,13 +91,9 @@ std::string Stencil::call(const Call& call) {
     }    
 
     // Access to context
-    else if(what=="context.interact(string):string"){
-        if(context_){
-            std::string string = call.arg(0);
-            return     context_->interact(string);
-        } else {
-            STENCILA_THROW(Exception,"No context attached to this stencil");
-        }
+    else if(what=="interact(string):string"){
+        std::string string = call.arg(0);
+        return     interact(string);
     }
 
     else return Component::call(call);

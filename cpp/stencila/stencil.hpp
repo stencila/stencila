@@ -489,6 +489,11 @@ public:
     void view(void);
 
     /**
+     * Interact with this stencil
+     */
+    std::string interact(const std::string& code);
+
+    /**
      * Execute a call on this stencil
      * 
      * @param  call A `Call` object
