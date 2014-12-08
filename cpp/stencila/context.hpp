@@ -29,12 +29,13 @@ public:
      * Execute code within the context
      * 
      * @param code String of code
+     * @param id Unique identifier for this execution
      * @param format Output format
      * @param width Width of output (image formats only)
      * @param height Height of output (image formats only)
      * @param units Units of width and height (image formats only)
      */
-    virtual std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units="") = 0;
+    virtual std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units="") = 0;
     
     /**
      * Execute a peice of code and return an interactive result
@@ -43,9 +44,10 @@ public:
      * [read-eval-print loop](http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop).
      * 
      * @param  code String of code
+     * @param  id   Unique identifier for this execution
      * @return      String representation of the result of executing the code
      */
-    virtual std::string interact(const std::string& code) = 0;
+    virtual std::string interact(const std::string& code, const std::string& id="") = 0;
 
     /**
      * Assign an expression to a name.

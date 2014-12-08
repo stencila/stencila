@@ -44,12 +44,12 @@ public:
         return false;
     }
     
-    std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
+    std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
         unsupported_("execute");
         return "";
     }
     
-    std::string interact(const std::string& code){
+    std::string interact(const std::string& code, const std::string& id=""){
         unsupported_("interact");
         return "";
     }
