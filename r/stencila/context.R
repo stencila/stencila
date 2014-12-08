@@ -82,13 +82,10 @@ Context <- function(envir){
     # Methods that implement the context interface
     # See the documentation for the `Context` C++ base class methods
 
-    # An image counter for filenames
-    self$images <- 0
-    self$execute <- function(code,format="",width="",height="",units=""){
+    self$execute <- function(code,id,format="",width="",height="",units=""){
         if(format!=""){
             if(format %in% c('png','svg')){
-                self$images = self$images + 1
-                filename = paste0(self$images,'.',format)
+                filename = paste0(id,'.',format)
                 # Default image sizes are defined in `stencil-render.cpp` so that they
                 # are consistent across contexts. Don't be tempted to replace missing values
                 # with defaults here!
@@ -132,13 +129,15 @@ Context <- function(envir){
     }
         
     self$interact_code <- ""
-    self$interact <- function(code){
+    self$interact <- function(code,id){
         self$interact_code <- paste(self$interact_code,code,sep="")
         expr <- tryCatch(parse(text=self$interact_code),error=function(error)error)
         if(inherits(expr,'error')){
             if(grepl('unexpected end of input',expr$message)){
+                # Input not yet complete
                 return(paste("C",self$interact_code,sep=""))
             } else {
+                # Syntax error
                 self$interact_code <- ""
                 return(paste("S",expr$message,sep=""))
             }
@@ -146,12 +145,23 @@ Context <- function(envir){
             self$interact_code <- ""
             result <- tryCatch(eval(expr,envir=self$top()),error=function(error)error)
             if(inherits(result,'error')){
+                # Runtime error
                 return(paste("E",result$message,sep=""))
             } else {
-                # show() and capture.output() actually return vectors of strings for each line
-                # so they need to be collapsed...
-                string <- paste(capture.output(show(result)),collapse='\n')
-                return(paste("R",string,sep=""))
+                # Check to see if a device has been written to
+                if(length(dev.list())>0){
+                    # Copy to a PNG file
+                    filename <- paste0(id,'.png')
+                    dev.copy(png,filename=filename)
+                    # Close all graphics devices
+                    graphics.off()
+                    return(paste("I",filename,sep=""))
+                } else {
+                    # show() and capture.output() actually return vectors of strings for each line
+                    # so they need to be collapsed...
+                    string <- paste(capture.output(show(result)),collapse='\n')
+                    return(paste("R",string,sep=""))
+                }
             }
         }
     }

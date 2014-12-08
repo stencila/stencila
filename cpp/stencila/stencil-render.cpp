@@ -66,7 +66,7 @@ void Stencil::render_code(Node node, Context* context){
             if(height=="") height = "17";
             if(units=="") units = "cm";
             // Execute
-            std::string output = context->execute(code,format,width,height,units);
+            std::string output = context->execute(code,hash_,format,width,height,units);
             // Remove any existing output
             Node next = node.next_element();
             if(next and next.attr("data-out")=="true") next.destroy();
