@@ -744,6 +744,7 @@ void Stencil::render_finalise(Node node, Context* context){
 
     // Render references
     for(Node ref : filter("[data-ref]")){
+        ref.clear();
         std::string selector = ref.attr("data-ref");
         Node target = select(selector);
         Node label = target.select(".label");
@@ -753,10 +754,6 @@ void Stencil::render_finalise(Node node, Context* context){
                 {{"href","#"+target.attr("id")}},
                 label.select(".type").text() + " " + label.select(".number").text()
             );
-        } else {
-            // If no label then use the selector
-            // as the label
-            ref.text(selector);
         }
     }
 }
