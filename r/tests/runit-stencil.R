@@ -6,16 +6,16 @@ test.Stencil.create <- function(){
 # from Component
 test.Stencil.inherited <- function(){
   s <- Stencil()
-  checkEquals(nrow(s$commits()),0)
+  checkEquals(nrow(s$commits),0)
   s$commit()
-  checkEquals(nrow(s$commits()),1)
+  checkEquals(nrow(s$commits),1)
 }
 
 test.Stencil.html <- function(){
   s <- Stencil()
 
-  s$html('<p>foo</p>')
-  checkEquals(s$html(),'<p>foo</p>\n')
+  s$html <- '<p>foo</p>'
+  checkEquals(s$html,'<p>foo</p>\n')
 
   html(s,'<p>bar</p>')
   checkEquals(html(s),'<p>bar</p>\n')
@@ -23,9 +23,9 @@ test.Stencil.html <- function(){
 
 test.Stencil.contexts <- function(){
   s <- Stencil()
-  checkEquals(s$contexts(),'')
+  checkEquals(s$contexts,'')
   s$cila('r\n\ta <- 1\n')
-  checkEquals(s$contexts(),'r')
+  checkEquals(s$contexts,'r')
 }
 
 render <- function(stencil,context){
@@ -33,7 +33,7 @@ render <- function(stencil,context){
         stencil <- Stencil(paste("html://",stencil))
     }
     stencil$render(context)
-    return(stencil$html())
+    return(stencil$html)
 }
 
 test.Stencil.render.code <- function(){

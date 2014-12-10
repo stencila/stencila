@@ -155,6 +155,6 @@ STENCILA_R_FUNC CLASS##_##NAME##_set(SEXP self, SEXP arg1){ \
 }
 
 // Define both get an set for an attribute
-#define STENCILA_R_ATTR(CLASS,NAME,TYPE) \
+#define STENCILA_R_GETSET(CLASS,NAME,TYPE) \
     STENCILA_R_GET(CLASS,NAME)\
     STENCILA_R_SET(CLASS,NAME,TYPE)
