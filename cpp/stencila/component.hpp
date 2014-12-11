@@ -123,7 +123,22 @@ public:
 	 */
 	Component& create(const std::string& path,const std::string& content="\n");
 
+	/**
+	 * Read a file withing the component's working directory
+	 * 
+	 * @param  path    Filesystem path within the working directory
+	 * @param  content String content to write
+	 */
 	Component& write(const std::string& path,const std::string& content);
+
+	/**
+	 * Read a file withing the component's working directory
+	 * 
+	 * @param  path    Filesystem path within the working directory
+	 * @param  flag    A dummy string argument. Used to avoid ambiguity with other `read` method
+	 *                 whilst maining consistency with file `write` method
+	 */
+	std::string read(const std::string& path,const std::string& flag);
 
 	/**
 	 * Delete a file within the component's working directory

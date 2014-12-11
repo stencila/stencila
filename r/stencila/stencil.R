@@ -57,8 +57,8 @@ setRefClass(
 
         import = function(path) method_(.self,'Stencil_import',path),
         export = function(path) method_(.self,'Stencil_export',path),
-        read = function(path) method_(.self,'Stencil_read',path),
-        write = function(path) method_(.self,'Stencil_write',path),
+        read = function(path="") method_(.self,'Stencil_read',path),
+        write = function(path="") method_(.self,'Stencil_write',path),
 
         attach = function(context){
             if(!is.null(context)) detach()

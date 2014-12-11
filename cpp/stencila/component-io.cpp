@@ -146,13 +146,22 @@ Component& Component::create(const std::string& path,const std::string& content)
 	return *this;
 }
 
-Component& Component::write(const std::string& path,const std::string& content){
+Component& Component::write(const std::string& path, const std::string& content){
 	boost::filesystem::path path_full(Component::path(true));
 	path_full /= path;
 	std::ofstream file(path_full.string());
 	file<<content;
 	file.close();
 	return *this;
+}
+
+std::string Component::read(const std::string& path, const std::string& content){
+	boost::filesystem::path path_full(Component::path(true));
+	path_full /= path;
+	std::ifstream file(path_full.string());
+	std::stringstream stream;
+	stream<<file.rdbuf();
+	return stream.str();
 }
 
 Component& Component::delete_(const std::string& path){
