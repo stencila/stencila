@@ -170,9 +170,9 @@ sregex inlines = +(mono|math|strong|emphasis|link);
 /**
  * Text
  */
-sregex text = +_;
+sregex words = +_;
 
-Node text_parse(Node parent, const smatch& tree, const State& state){
+Node words_parse(Node parent, const smatch& tree, const State& state){
     // If previous line was blank then create a new paragraph to be target
     // for additional text, otherwise use existing parent as target
     Node node;
@@ -555,7 +555,7 @@ void directive_noarg_gen(const std::string type, Node node, std::ostream& stream
 /**
  * Directives with a single expression argument
  */
-sregex directive_expr_name = sregex::compile("text|with|if|elif|switch|case");
+sregex directive_expr_name = sregex::compile("with|if|elif|switch|case");
 sregex directive_expr = directive_expr_name >> +space >> expr;
 
 void directive_expr_parse(Node node, const smatch& tree){
@@ -569,6 +569,22 @@ void directive_expr_parse(Node node, const smatch& tree){
 
 void directive_expr_gen(const std::string type, Node node, std::ostream& stream){
     stream<<type<<" "<<node.attr("data-"+type);
+}
+
+/**
+ * Text directive
+ *
+ * Separated from directive_expr for special treatment below
+ */
+mark_tag text_expr(1);
+sregex text = as_xpr("text") >> +space >> (text_expr=expr);
+
+void text_parse(Node node, const smatch& tree){
+    node.attr("data-text",tree[text_expr].str());
+}
+
+void text_gen(Node node, std::ostream& stream){
+    stream<<"text "<<node.attr("data-text");
 }
 
 /**
@@ -735,15 +751,15 @@ sregex element =
     // These grammar rules are repetitive. But attempting to simplify tem can create a rule that
     // allows nothing before the trailing text which thus implies an extra <div> which is not what is wanted
     (
-        (tag >> !(+space >> (directive_noarg|directive_expr|ref|for_|include|set_|modifier|macro|par)) >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
-        (                   (directive_noarg|directive_expr|ref|for_|include|set_|modifier|macro|par)  >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
+        (tag >> !(+space >> (directive_noarg|directive_expr|text|ref|for_|include|set_|modifier|macro|par)) >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
+        (                   (directive_noarg|directive_expr|text|ref|for_|include|set_|modifier|macro|par)  >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output))) |
         (                   (id|class_|attr_assign|hash|off|index|lock|included|output)            >> *(+space >> (id|class_|attr_assign|hash|off|index|lock|included|output)))
 
     ) 
     // Allow for trailing text.
     // Note that the first space is intentionally
     // stripped from text.
-    >> !(space >> *text);
+    >> !(space >> *words);
 
 Node element_parse(Node parent, const smatch& tree, State& state){
     auto branch = tree.nested_results().begin();
@@ -776,6 +792,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         // Directives
         if(id==directive_noarg.regex_id()) directive_noarg_parse(node,*branch);
         else if(id==directive_expr.regex_id()) directive_expr_parse(node,*branch);
+        else if(id==text.regex_id()) text_parse(node,*branch);
         else if(id==ref.regex_id()) ref_parse(node,*branch);
         else if(id==for_.regex_id()) for_parse(node,*branch);
         else if(id==include.regex_id()) include_parse(node,*branch);
@@ -795,7 +812,7 @@ Node element_parse(Node parent, const smatch& tree, State& state){
         else if(id==included.regex_id()) included_parse(node,*branch);
         else if(id==output.regex_id()) output_parse(node,*branch);
         // Text
-        else if(id==text.regex_id()) text_parse(node,*branch,state);
+        else if(id==words.regex_id()) words_parse(node,*branch,state);
         branch++;
     }
     return node;
@@ -819,12 +836,15 @@ void element_gen(Node node, std::ostream& stream,const std::string& indent){
         line << name;
     } else {
         // If this is not a <div> then output name
-        if(name!="div") line << name;
+        if(node.attr("data-text").length() or node.attr("data-ref").length()){
+            if(name!="span") line<<name;
+        }
+        else if(name!="div") line<<name;
         // Directive attributes. An element can only have one of these.
         // These need to go after the other attributes
         std::ostringstream directive;
         for(std::string attr : attrs){
-            if(attr=="data-text") directive_expr_gen("text",node,directive);
+            if(attr=="data-text") text_gen(node,directive);
             else if(attr=="data-ref") ref_gen(node,directive);
             else if(attr=="data-with") directive_expr_gen("with",node,directive);
             else if(attr=="data-if") directive_expr_gen("if",node,directive);
@@ -1019,7 +1039,7 @@ sregex comment = as_xpr("//") >> comment_text;
 /**
  * Root regex for each line
  */
-sregex root = comment|equation|code|element|header|ul|ol|text;
+sregex root = comment|equation|code|element|header|ul|ol|words;
 
 void parse(Node node, std::istream& stream){
     // Keep track of state variables for 
@@ -1114,7 +1134,7 @@ void parse(Node node, std::istream& stream){
                     current = ol_parse(parent,*branch,state);
                 }
                 // Plain old text
-                else if(id==text.regex_id()) current = text_parse(parent,*branch,state);
+                else if(id==words.regex_id()) current = words_parse(parent,*branch,state);
                 else  STENCILA_THROW(Exception,"<cila> : "+boost::lexical_cast<std::string>(count)+": unrecognised syntax :"+line);
             }
         }

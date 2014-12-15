@@ -351,7 +351,7 @@ plot(x,y)
 }
 
 BOOST_AUTO_TEST_CASE(directive_text){
-    HTML_("text variable","<div data-text=\"variable\" />");
+    HTML_("text variable","<span data-text=\"variable\" />");
     HTML_("span text variable","<span data-text=\"variable\" />");
 }
 
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(modifiers){
 
 BOOST_AUTO_TEST_CASE(directive_macro){
 	ECHO_("macro name")
-    HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
+    HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<span data-text=\"a+b\" />\n</div>")
 
     HTML_("macro name\n\tpar x","<div data-macro=\"name\" id=\"name\">\n\t<div data-par=\"x\" />\n</div>")
 }
@@ -452,10 +452,10 @@ BOOST_AUTO_TEST_CASE(inlines){
 
     HTML_(
         "The minimum is {if a<b {text a}}{else {text b}}",
-        "The minimum is \n<div data-if=\"a&lt;b\">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
+        "The minimum is \n<div data-if=\"a&lt;b\">\n\t<span data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<span data-text=\"b\" />\n</div>"
     );
 
-    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<div data-text=\"pi*2\" />\n</div>");
+    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<span data-text=\"pi*2\" />\n</div>");
 
     HTML_("div Some text","<div>Some text</div>");
     HTML_("div {Some text}","<div>Some text</div>");
