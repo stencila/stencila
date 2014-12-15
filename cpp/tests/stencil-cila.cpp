@@ -388,7 +388,7 @@ R"(<div data-switch="a">
 
 BOOST_AUTO_TEST_CASE(directive_for){
     ECHO_("for item in items")
-    HTML_("for item in items","<div data-for=\"item:items\" />")
+    HTML_("for item in items","<div data-for=\"item in items\" />")
 
     ECHO_("for item in items\n\tp")
 }

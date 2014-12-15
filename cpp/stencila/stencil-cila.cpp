@@ -2,6 +2,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive_static.hpp>
 #include <boost/xpressive/regex_compiler.hpp>
+#include <boost/regex.hpp>
 
 #include <stencila/stencil.hpp>
 
@@ -596,23 +597,20 @@ void for_parse(Node node, const smatch& tree){
     auto item = branch;
     auto items = ++branch;
     // Set for attribute
-    node.attr("data-for",item->str()+":"+items->str());
+    node.attr("data-for",item->str()+" in "+items->str());
 }
 
 void for_gen(Node node, std::ostream& stream){
-    auto parts = node.attr("data-for");
-    auto colon = parts.find_first_of(":");
-    std::string item = "item";
-    std::string items = "items";
-    if(colon!=std::string::npos){
-        item = parts.substr(0,colon);
-        if(item.length()==0) STENCILA_THROW(Exception,"Missing 'item' parameter")
-        items = parts.substr(colon+1);
-        if(items.length()==0) STENCILA_THROW(Exception,"Missing 'items' parameter")
+    std::string attribute = node.attr("data-for");
+    static const boost::regex pattern("^(\\w+) in (.+)$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) {
+        std::string item = match[1].str();
+        std::string items = match[2].str();
+        stream<<"for "<<item<<" in "<<items;
     } else {
-        STENCILA_THROW(Exception,"Missing semicolon")
+        STENCILA_THROW(Exception,"Syntax error in data-for attribute <"+attribute+">")
     }
-    stream<<"for "<<item<<" in "<<items;
 }
 
 /**

@@ -242,74 +242,72 @@ void Stencil::render_switch(Node node, Context* context){
 }
 
 void Stencil::render_for(Node node, Context* context){
-    std::string parts = node.attr("data-for");
     // Get the name of `item` and the `items` expression
-    std::string item = "item";
-    std::string items;
-    std::vector<std::string> bits = split(parts,":");
-    if(bits.size()==1){
-        items = bits[0];
-    } else if(bits.size()==2){
-        item = bits[0];
-        items = bits[1];
-    } else {
-        throw Exception("Error in parsing for item and items; more than one semicolon (:).");
-    }
-    // Initialise the loop
-    bool more = context->begin(item,items);
-    // Get the first child element which will be repeated
-    Node first = node.first_element();
-    // If this for loop has been rendered before then the first element will have a `data-off`
-    // attribute. So erase that attribute so that the repeated nodes don't get it
-    if(first) first.erase("data-off");
-    // Iterate
-    int count = 0;
-    while(first and more){
-        // See if there is an existing child with a corresponding `data-index`
-        std::string index = string(count);
-        // Must select only children (not other decendents) to prevent messing with
-        // nested loops. 
-        // Currently, our CSS selector implementation does not support this syntax:
-        //     > [data-index="0"]
-        // so use XPath instead:
-        Node item = node.select("./*[@data-index='"+index+"']","xpath");
-        if(item){
-            // If there is, check to see if it is locked
-            Node locked = item.select("./*[@data-lock]","xpath");
-            if(not locked){
-                // If it is not locked, then destroy and replace it
-                item.destroy();
+    std::string attribute = node.attr("data-for");
+    static const boost::regex pattern("^(\\w+) in (.+)$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) {
+        std::string item = match[1].str();
+        std::string items = match[2].str();
+        // Initialise the loop
+        bool more = context->begin(item,items);
+        // Get the first child element which will be repeated
+        Node first = node.first_element();
+        // If this for loop has been rendered before then the first element will have a `data-off`
+        // attribute. So erase that attribute so that the repeated nodes don't get it
+        if(first) first.erase("data-off");
+        // Iterate
+        int count = 0;
+        while(first and more){
+            // See if there is an existing child with a corresponding `data-index`
+            std::string index = string(count);
+            // Must select only children (not other decendents) to prevent messing with
+            // nested loops. 
+            // Currently, our CSS selector implementation does not support this syntax:
+            //     > [data-index="0"]
+            // so use XPath instead:
+            Node item = node.select("./*[@data-index='"+index+"']","xpath");
+            if(item){
+                // If there is, check to see if it is locked
+                Node locked = item.select("./*[@data-lock]","xpath");
+                if(not locked){
+                    // If it is not locked, then destroy and replace it
+                    item.destroy();
+                    item = node.append(first);
+                }
+            } else {
+                // If there is not, create one
                 item = node.append(first);
             }
-        } else {
-            // If there is not, create one
-            item = node.append(first);
+            // Set index attribute
+            item.attr("data-index",index);
+            // Render the element
+            render(item,context);
+            // Ask context to step to next item
+            more = context->next();
+            count++;
         }
-        // Set index attribute
-        item.attr("data-index",index);
-        // Render the element
-        render(item,context);
-        // Ask context to step to next item
-        more = context->next();
-        count++;
-    }
-    // Deactivate the first child
-    if(first) first.attr("data-off","true");
-    // Remove any children having a `data-index` attribute greater than the 
-    // number of items, unless it has a `data-lock` decendent
-    Nodes indexeds = node.filter("./*[@data-index]","xpath");
-    for(Node indexed : indexeds){
-        std::string index_string = indexed.attr("data-index");
-        int index = unstring<int>(index_string);
-        if(index>count-1){
-            Node locked = indexed.select("[data-lock]");
-            if(locked){
-                indexed.attr("data-extra","true");
-                // Move the end of the `for` element
-                indexed.move(node);
+        // Deactivate the first child
+        if(first) first.attr("data-off","true");
+        // Remove any children having a `data-index` attribute greater than the 
+        // number of items, unless it has a `data-lock` decendent
+        Nodes indexeds = node.filter("./*[@data-index]","xpath");
+        for(Node indexed : indexeds){
+            std::string index_string = indexed.attr("data-index");
+            int index = unstring<int>(index_string);
+            if(index>count-1){
+                Node locked = indexed.select("[data-lock]");
+                if(locked){
+                    indexed.attr("data-extra","true");
+                    // Move the end of the `for` element
+                    indexed.move(node);
+                }
+                else indexed.destroy();
             }
-            else indexed.destroy();
         }
+    }
+    else {
+        render_error(node,"for-syntax",attribute,"Syntax error in attribute <"+attribute+">");
     }
 }
 
