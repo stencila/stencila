@@ -604,7 +604,6 @@ void ref_gen(Node node, std::ostream& stream){
 /**
  * For directive
  */
-
 sregex for_ = as_xpr("for") >> +space >> expr >> +space >> "in" >> +space >> expr;
 
 void for_parse(Node node, const smatch& tree){
@@ -618,15 +617,9 @@ void for_parse(Node node, const smatch& tree){
 
 void for_gen(Node node, std::ostream& stream){
     std::string attribute = node.attr("data-for");
-    static const boost::regex pattern("^(\\w+) in (.+)$");
-    boost::smatch match;
-    if(boost::regex_search(attribute, match, pattern)) {
-        std::string item = match[1].str();
-        std::string items = match[2].str();
-        stream<<"for "<<item<<" in "<<items;
-    } else {
-        STENCILA_THROW(Exception,"Syntax error in data-for attribute <"+attribute+">")
-    }
+    auto parts = Stencil::parse_for(attribute);
+    if(parts.size()==2) stream<<"for "<<parts[0]<<" in "<<parts[1];
+    else STENCILA_THROW(Exception,"Syntax error in data-for attribute <"+attribute+">")
 }
 
 /**

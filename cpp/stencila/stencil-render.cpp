@@ -243,12 +243,11 @@ void Stencil::render_switch(Node node, Context* context){
 
 void Stencil::render_for(Node node, Context* context){
     // Get the name of `item` and the `items` expression
-    std::string attribute = node.attr("data-for");
-    static const boost::regex pattern("^(\\w+) in (.+)$");
-    boost::smatch match;
-    if(boost::regex_search(attribute, match, pattern)) {
-        std::string item = match[1].str();
-        std::string items = match[2].str();
+    auto attribute = node.attr("data-for");
+    auto parts = parse_for(attribute);
+    if(parts.size()==2) {
+        auto item = parts[0];
+        auto items = parts[1];
         // Initialise the loop
         bool more = context->begin(item,items);
         // Get the first child element which will be repeated

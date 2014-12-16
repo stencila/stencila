@@ -550,6 +550,12 @@ public:
     static bool flag(const std::string& attr);
 
     /**
+     * Parse a for directive
+     */
+    static std::vector<std::string> parse_for(const std::string& attribute);
+
+
+    /**
      * Sanitize the stencil to remove potenitally malicious elements
      * and attributes
      */

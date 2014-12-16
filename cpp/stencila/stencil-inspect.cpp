@@ -1,6 +1,8 @@
 #include <vector>
 #include <algorithm>
 
+#include <boost/regex.hpp>
+
 #include <stencila/stencil.hpp>
 
 namespace Stencila {
@@ -38,6 +40,13 @@ bool Stencil::directive(const std::string& attr){
 
 bool Stencil::flag(const std::string& attr){
     return std::find(flags.begin(),flags.end(),attr)!=flags.end();
+}
+
+std::vector<std::string> Stencil::parse_for(const std::string& attribute){
+    static const boost::regex pattern("^(\\w+) in (.+)$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) return {match[1].str(),match[2].str()};
+    else return {};
 }
 
 Stencil& Stencil::sanitize(void) {
