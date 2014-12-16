@@ -42,11 +42,56 @@ bool Stencil::flag(const std::string& attr){
     return std::find(flags.begin(),flags.end(),attr)!=flags.end();
 }
 
-std::vector<std::string> Stencil::parse_for(const std::string& attribute){
-    static const boost::regex pattern("^(\\w+) in (.+)$");
+Stencil::Code Stencil::parse_code(const std::string& attribute){
+    static const boost::regex pattern("^(\\w+(\\s*,\\s*\\w+)*)(\\s+\\w+)?(\\s+([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(\\s*\\w+)?)?$");
     boost::smatch match;
-    if(boost::regex_search(attribute, match, pattern)) return {match[1].str(),match[2].str()};
-    else return {};
+    if(boost::regex_search(attribute, match, pattern)){
+        Code directive;
+        // Comma separated list of compatible contexts
+        auto contexts = split(match[1].str(),",");
+        for(auto& context : contexts) trim(context);
+        for(const auto& context : contexts){
+            if(not(
+                context=="py" or
+                context=="r"
+            )) STENCILA_THROW(Exception,"Context type <"+context+"> is not valid");
+        }
+        directive.contexts = contexts;
+        // Format
+        auto format = match[3].str();
+        trim(format);
+        if(format.length() and not(
+            format=="text" or 
+            format=="png" or format=="jpg" or format=="svg"
+        )) STENCILA_THROW(Exception,"Format <"+format+"> is not valid");
+        directive.format = format;
+        // Size
+        directive.width = match[5].str();
+        directive.height = match[6].str();
+        auto units = match[7].str();
+        trim(units);
+        if(units.length() and not(
+            units=="cm" or units=="in" or units=="px"
+        )) STENCILA_THROW(Exception,"Size units <"+units+"> is not valid");
+        directive.units = units;
+        return directive;
+    } else {
+        STENCILA_THROW(Exception,"Syntax error in code directive attribute <"+attribute+">");
+    }
+}
+
+Stencil::For Stencil::parse_for(const std::string& attribute){
+    static const boost::regex pattern("^(\\w+)\\s+in\\s+(.+)$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) {
+        For directive;
+        directive.name = match[1].str();
+        directive.expr = match[2].str();
+        return directive;
+    }
+    else {
+        STENCILA_THROW(Exception,"Syntax error in for directive attribute <"+attribute+">");
+    }
 }
 
 Stencil& Stencil::sanitize(void) {

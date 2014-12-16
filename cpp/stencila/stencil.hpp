@@ -549,11 +549,28 @@ public:
      */
     static bool flag(const std::string& attr);
 
+    struct Code {
+        std::vector<std::string> contexts;
+        std::string format;
+        std::string width;
+        std::string height;
+        std::string units;
+    };
+
+    /**
+     * Parse a code directive
+     */
+    static Code parse_code(const std::string& attribute);
+
+    struct For {
+        std::string name;
+        std::string expr;
+    };
+
     /**
      * Parse a for directive
      */
-    static std::vector<std::string> parse_for(const std::string& attribute);
-
+    static For parse_for(const std::string& attribute);
 
     /**
      * Sanitize the stencil to remove potenitally malicious elements

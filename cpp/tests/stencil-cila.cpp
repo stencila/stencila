@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(directive_code_image){
 R"(r png 60x42
 	plot(x,y))";
     auto html_ = 
-R"(<pre data-code="r" data-format="png" data-size="60x42">
+R"(<pre data-code="r png 60x42">
 plot(x,y)
 </pre>)";
     HTML_(cila_,html_)

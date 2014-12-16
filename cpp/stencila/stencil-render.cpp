@@ -32,65 +32,70 @@ void Stencil::render_error(Node node, const std::string& type, const std::string
 void Stencil::render_code(Node node, Context* context){
     // Check if this `code` directive needs to be executed
     if(not render_hash(node)) return;
-    // Get the list of contexts and ensure this context is in the list
-    std::string contexts = node.attr("data-code");
-    std::vector<std::string> items = split(contexts,",");
+    // Parse the attribute
+    auto attribute = node.attr("data-code");
+    Code directive;
+    try {
+        directive = parse_code(attribute);
+    }
+    catch(const Exception& exception){
+        render_error(node,"code-syntax",attribute,exception.message());
+    }
+
+    // Ensure the code is compatible with the current context
     bool ok = false;
-    for(std::string& item : items){
-        trim(item);
+    for(const std::string& item : directive.contexts){
         if(context->accept(item)){
             ok = true;
             break;
         }
     }
-    // If ok, execute the code, otherwise just ignore
-    if(ok){
-        // Get code and format etc
-        std::string code = node.text();
-        if(code.length()>0){
-            std::string format = node.attr("data-format");
-            std::string size = node.attr("data-size");
-            std::string width,height,units;
-            if(size.length()){
-                boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
-                boost::smatch matches;
-                if(boost::regex_match(size, matches, regex)){
-                    width = matches[1];
-                    height = matches[2];
-                    if(matches.size()>2) units = matches[3];
-                }
+    // If not, skip execution of this code
+    if(not ok) return;
+
+    // Get code and format etc
+    std::string code = node.text();
+    if(code.length()>0){
+        auto format = directive.format;
+        auto width = directive.width;
+        auto height = directive.height;
+        auto units = directive.units;
+        // Default images sizes and units based on the width of an A4 page having
+        // 2cm margins.
+        if(width=="") width = "17";
+        if(height=="") height = "17";
+        if(units=="") units = "cm";
+        // Execute
+        std::string output = context->execute(
+            code,hash_,
+            directive.format,
+            width,
+            height,
+            units
+        );
+        // Remove any existing output
+        Node next = node.next_element();
+        if(next and next.attr("data-out")=="true") next.destroy();
+        // Append new output
+        if(format.length()){
+            Xml::Document doc;
+            Node output_node;
+            if(format=="text"){
+                output_node = doc.append("samp",output);
             }
-            // Default images sizes and units based on the width of an A4 page having
-            // 2cm margins.
-            if(width=="") width = "17";
-            if(height=="") height = "17";
-            if(units=="") units = "cm";
-            // Execute
-            std::string output = context->execute(code,hash_,format,width,height,units);
-            // Remove any existing output
-            Node next = node.next_element();
-            if(next and next.attr("data-out")=="true") next.destroy();
-            // Append new output
-            if(format.length()){
-                Xml::Document doc;
-                Node output_node;
-                if(format=="text"){
-                    output_node = doc.append("samp",output);
-                }
-                else if(format=="png" or format=="svg"){
-                    output_node = doc.append("img",{
-                        {"src",output}
-                    });
-                }
-                else {
-                    render_error(node,"out-format",format,"Output format not recognised: "+format);
-                }
-                if(output_node){
-                    // Flag output node 
-                    output_node.attr("data-out","true");
-                    // Create a copy immeadiately after code directive
-                    node.after(output_node);
-                }
+            else if(format=="png" or format=="svg"){
+                output_node = doc.append("img",{
+                    {"src",output}
+                });
+            }
+            else {
+                render_error(node,"out-format",format,"Output format not recognised: "+format);
+            }
+            if(output_node){
+                // Flag output node 
+                output_node.attr("data-out","true");
+                // Create a copy immeadiately after code directive
+                node.after(output_node);
             }
         }
     }
@@ -244,69 +249,68 @@ void Stencil::render_switch(Node node, Context* context){
 void Stencil::render_for(Node node, Context* context){
     // Get the name of `item` and the `items` expression
     auto attribute = node.attr("data-for");
-    auto parts = parse_for(attribute);
-    if(parts.size()==2) {
-        auto item = parts[0];
-        auto items = parts[1];
-        // Initialise the loop
-        bool more = context->begin(item,items);
-        // Get the first child element which will be repeated
-        Node first = node.first_element();
-        // If this for loop has been rendered before then the first element will have a `data-off`
-        // attribute. So erase that attribute so that the repeated nodes don't get it
-        if(first) first.erase("data-off");
-        // Iterate
-        int count = 0;
-        while(first and more){
-            // See if there is an existing child with a corresponding `data-index`
-            std::string index = string(count);
-            // Must select only children (not other decendents) to prevent messing with
-            // nested loops. 
-            // Currently, our CSS selector implementation does not support this syntax:
-            //     > [data-index="0"]
-            // so use XPath instead:
-            Node item = node.select("./*[@data-index='"+index+"']","xpath");
-            if(item){
-                // If there is, check to see if it is locked
-                Node locked = item.select("./*[@data-lock]","xpath");
-                if(not locked){
-                    // If it is not locked, then destroy and replace it
-                    item.destroy();
-                    item = node.append(first);
-                }
-            } else {
-                // If there is not, create one
+    For directive;
+    try {
+        directive = parse_for(attribute);
+    }
+    catch(const Exception& exception) {
+        render_error(node,"for-syntax",attribute,exception.message());
+    }
+    // Initialise the loop
+    bool more = context->begin(directive.name,directive.expr);
+    // Get the first child element which will be repeated
+    Node first = node.first_element();
+    // If this for loop has been rendered before then the first element will have a `data-off`
+    // attribute. So erase that attribute so that the repeated nodes don't get it
+    if(first) first.erase("data-off");
+    // Iterate
+    int count = 0;
+    while(first and more){
+        // See if there is an existing child with a corresponding `data-index`
+        std::string index = string(count);
+        // Must select only children (not other decendents) to prevent messing with
+        // nested loops. 
+        // Currently, our CSS selector implementation does not support this syntax:
+        //     > [data-index="0"]
+        // so use XPath instead:
+        Node item = node.select("./*[@data-index='"+index+"']","xpath");
+        if(item){
+            // If there is, check to see if it is locked
+            Node locked = item.select("./*[@data-lock]","xpath");
+            if(not locked){
+                // If it is not locked, then destroy and replace it
+                item.destroy();
                 item = node.append(first);
             }
-            // Set index attribute
-            item.attr("data-index",index);
-            // Render the element
-            render(item,context);
-            // Ask context to step to next item
-            more = context->next();
-            count++;
+        } else {
+            // If there is not, create one
+            item = node.append(first);
         }
-        // Deactivate the first child
-        if(first) first.attr("data-off","true");
-        // Remove any children having a `data-index` attribute greater than the 
-        // number of items, unless it has a `data-lock` decendent
-        Nodes indexeds = node.filter("./*[@data-index]","xpath");
-        for(Node indexed : indexeds){
-            std::string index_string = indexed.attr("data-index");
-            int index = unstring<int>(index_string);
-            if(index>count-1){
-                Node locked = indexed.select("[data-lock]");
-                if(locked){
-                    indexed.attr("data-extra","true");
-                    // Move the end of the `for` element
-                    indexed.move(node);
-                }
-                else indexed.destroy();
-            }
-        }
+        // Set index attribute
+        item.attr("data-index",index);
+        // Render the element
+        render(item,context);
+        // Ask context to step to next item
+        more = context->next();
+        count++;
     }
-    else {
-        render_error(node,"for-syntax",attribute,"Syntax error in attribute <"+attribute+">");
+    // Deactivate the first child
+    if(first) first.attr("data-off","true");
+    // Remove any children having a `data-index` attribute greater than the 
+    // number of items, unless it has a `data-lock` decendent
+    Nodes indexeds = node.filter("./*[@data-index]","xpath");
+    for(Node indexed : indexeds){
+        std::string index_string = indexed.attr("data-index");
+        int index = unstring<int>(index_string);
+        if(index>count-1){
+            Node locked = indexed.select("[data-lock]");
+            if(locked){
+                indexed.attr("data-extra","true");
+                // Move the end of the `for` element
+                indexed.move(node);
+            }
+            else indexed.destroy();
+        }
     }
 }
 

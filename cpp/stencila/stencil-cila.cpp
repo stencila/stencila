@@ -617,9 +617,8 @@ void for_parse(Node node, const smatch& tree){
 
 void for_gen(Node node, std::ostream& stream){
     std::string attribute = node.attr("data-for");
-    auto parts = Stencil::parse_for(attribute);
-    if(parts.size()==2) stream<<"for "<<parts[0]<<" in "<<parts[1];
-    else STENCILA_THROW(Exception,"Syntax error in data-for attribute <"+attribute+">")
+    auto forr = Stencil::parse_for(attribute);
+    stream<<"for "<<forr.name<<" in "<<forr.expr;
 }
 
 /**
@@ -922,15 +921,17 @@ Node code_parse(Node parent, const smatch& tree, State& state){
     auto language = tree.nested_results().begin()->str();
     // Append the element. Use a <pre> element since this retains whitespace
     // formatting when parsed as HTML
-    Node node = parent.append("pre",{{"data-code",language}});
+    Node node = parent.append("pre");
     // Iterate over branches adding arguments
+    auto directive = language;
     for(auto branch : tree.nested_results()){
         auto id = branch.regex_id();
-        if(id==format.regex_id()) node.attr("data-format",branch.str());
-        else if(id==size.regex_id()) node.attr("data-size",branch.str());
+        if(id==format.regex_id()) directive += " " + branch.str();
+        else if(id==size.regex_id()) directive += " " + branch.str();
         else if(id==const_.regex_id()) const_parse(node,branch);
         else if(id==hash.regex_id()) hash_parse(node,branch);
     }
+    node.attr("data-code",directive);
     // Turn on code mode processing
     code_mode_start(language,state);
     return node;
@@ -940,14 +941,8 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
     // Unless this is the very first content written to the stream
     // start on a new line with appropriate indentation
     if(stream.tellp()>0) stream<<"\n"<<indent;
-    // Output language code; no element name
+    // Output code directive; no element name
     stream<<node.attr("data-code");
-    //Optional arguments
-    for(auto attr : {"data-format","data-size"}){
-        if(node.attr(attr).length()){
-            stream<<" "<<node.attr(attr);
-        }
-    }
     // Hash
     const_gen(node,stream);
     hash_gen(node,stream);
