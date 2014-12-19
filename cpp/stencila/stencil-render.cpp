@@ -32,70 +32,65 @@ void Stencil::render_error(Node node, const std::string& type, const std::string
 void Stencil::render_code(Node node, Context* context){
     // Check if this `code` directive needs to be executed
     if(not render_hash(node)) return;
-    // Parse the attribute
-    auto attribute = node.attr("data-code");
-    Code directive;
-    try {
-        directive = parse_code(attribute);
-    }
-    catch(const Exception& exception){
-        render_error(node,"code-syntax",attribute,exception.message());
-    }
-
-    // Ensure the code is compatible with the current context
+    // Get the list of contexts and ensure this context is in the list
+    std::string contexts = node.attr("data-code");
+    std::vector<std::string> items = split(contexts,",");
     bool ok = false;
-    for(const std::string& item : directive.contexts){
+    for(std::string& item : items){
+        trim(item);
         if(context->accept(item)){
             ok = true;
             break;
         }
     }
-    // If not, skip execution of this code
-    if(not ok) return;
-
-    // Get code and format etc
-    std::string code = node.text();
-    if(code.length()>0){
-        auto format = directive.format;
-        auto width = directive.width;
-        auto height = directive.height;
-        auto units = directive.units;
-        // Default images sizes and units based on the width of an A4 page having
-        // 2cm margins.
-        if(width=="") width = "17";
-        if(height=="") height = "17";
-        if(units=="") units = "cm";
-        // Execute
-        std::string output = context->execute(
-            code,hash_,
-            directive.format,
-            width,
-            height,
-            units
-        );
-        // Remove any existing output
-        Node next = node.next_element();
-        if(next and next.attr("data-out")=="true") next.destroy();
-        // Append new output
-        if(format.length()){
-            Xml::Document doc;
-            Node output_node;
-            if(format=="text"){
-                output_node = doc.append("samp",output);
+    // If ok, execute the code, otherwise just ignore
+    if(ok){
+        // Get code and format etc
+        std::string code = node.text();
+        if(code.length()>0){
+            std::string format = node.attr("data-format");
+            std::string size = node.attr("data-size");
+            std::string width,height,units;
+            if(size.length()){
+                boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
+                boost::smatch matches;
+                if(boost::regex_match(size, matches, regex)){
+                    width = matches[1];
+                    height = matches[2];
+                    if(matches.size()>2) units = matches[3];
+                }
             }
-            else if(format=="png" or format=="svg"){
-                output_node = doc.append("img",{
-                    {"src",output}
-                });
-            }
-            else {
-                render_error(node,"out-format",format,"Output format not recognised: "+format);
-            }
-            if(output_node){
-                // Flag output node 
-                output_node.attr("data-out","true");
-                // Create a copy immeadiately after code directive
-                node.after(output_node);
+            // Default images sizes and units based on the width of an A4 page having
+            // 2cm margins.
+            if(width=="") width = "17";
+            if(height=="") height = "17";
+            if(units=="") units = "cm";
+            // Execute
+            std::string output = context->execute(code,hash_,format,width,height,units);
+            // Remove any existing output
+            Node next = node.next_element();
+            if(next and next.attr("data-out")=="true") next.destroy();
+            // Append new output
+            if(format.length()){
+                Xml::Document doc;
+                Node output_node;
+                if(format=="text"){
+                    output_node = doc.append("samp",output);
+                }
+                else if(format=="png" or format=="svg"){
+                    output_node = doc.append("img",{
+                        {"src",output}
+                    });
+                }
+                else {
+                    render_error(node,"out-format",format,"Output format not recognised: "+format);
+                }
+                if(output_node){
+                    // Flag output node 
+                    output_node.attr("data-out","true");
+                    // Create a copy immeadiately after code directive
+                    node.after(output_node);
+                }
             }
         }
     }
@@ -247,17 +242,21 @@ void Stencil::render_switch(Node node, Context* context){
 }
 
 void Stencil::render_for(Node node, Context* context){
+    std::string parts = node.attr("data-for");
     // Get the name of `item` and the `items` expression
-    auto attribute = node.attr("data-for");
-    For directive;
-    try {
-        directive = parse_for(attribute);
-    }
-    catch(const Exception& exception) {
-        render_error(node,"for-syntax",attribute,exception.message());
+    std::string item = "item";
+    std::string items;
+    std::vector<std::string> bits = split(parts,":");
+    if(bits.size()==1){
+        items = bits[0];
+    } else if(bits.size()==2){
+        item = bits[0];
+        items = bits[1];
+    } else {
+        throw Exception("Error in parsing for item and items; more than one semicolon (:).");
     }
     // Initialise the loop
-    bool more = context->begin(directive.name,directive.expr);
+    bool more = context->begin(item,items);
     // Get the first child element which will be repeated
     Node first = node.first_element();
     // If this for loop has been rendered before then the first element will have a `data-off`
@@ -315,17 +314,12 @@ void Stencil::render_for(Node node, Context* context){
 }
 
 void Stencil::render_include(Node node, Context* context){
-    auto attribute = node.attr("data-include");
-    Include directive;
-    try {
-        directive.parse(attribute);
-    }
-    catch(const Exception& exception) {
-        render_error(node,"include-syntax",attribute,exception.message());
-    }
+    std::string include_expr = node.attr("data-include");
+    std::string version = node.attr("data-version");
+    std::string select = node.attr("data-select");
 
-    // Obtain string representation of includee
-    std::string include = context->write(directive.includee);
+    // Obtain string representation of include_expr
+    std::string include = context->write(include_expr);
 
     // If this node has been rendered before then there will be 
     // a `data-included` node. If it does not yet exist then append one.
@@ -342,11 +336,11 @@ void Stencil::render_include(Node node, Context* context){
         Node includee;
         //Check to see if this is a "self" include, otherwise obtain the includee
         if(include==".") includee = node.root();
-        else includee = Component::get(include,directive.version).as<Stencil>();
+        else includee = Component::get(include,version).as<Stencil>();
         // ...select from it
-        if(directive.select.length()>0){
+        if(select.length()>0){
             // ...append the selected nodes.
-            for(Node node : includee.filter(directive.select)){
+            for(Node node : includee.filter(select)){
                 // Append the node first to get a copy of it which can be modified
                 Node appended = included.append(node);
                 // Remove `macro` declaration if any so that element gets rendered

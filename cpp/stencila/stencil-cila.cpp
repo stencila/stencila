@@ -2,7 +2,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive_static.hpp>
 #include <boost/xpressive/regex_compiler.hpp>
-#include <boost/regex.hpp>
 
 #include <stencila/stencil.hpp>
 
@@ -604,6 +603,7 @@ void ref_gen(Node node, std::ostream& stream){
 /**
  * For directive
  */
+
 sregex for_ = as_xpr("for") >> +space >> expr >> +space >> "in" >> +space >> expr;
 
 void for_parse(Node node, const smatch& tree){
@@ -612,30 +612,41 @@ void for_parse(Node node, const smatch& tree){
     auto item = branch;
     auto items = ++branch;
     // Set for attribute
-    node.attr("data-for",item->str()+" in "+items->str());
+    node.attr("data-for",item->str()+":"+items->str());
 }
 
 void for_gen(Node node, std::ostream& stream){
-    std::string attribute = node.attr("data-for");
-    auto forr = Stencil::parse_for(attribute);
-    stream<<"for "<<forr.name<<" in "<<forr.expr;
+    auto parts = node.attr("data-for");
+    auto colon = parts.find_first_of(":");
+    std::string item = "item";
+    std::string items = "items";
+    if(colon!=std::string::npos){
+        item = parts.substr(0,colon);
+        if(item.length()==0) STENCILA_THROW(Exception,"Missing 'item' parameter")
+        items = parts.substr(colon+1);
+        if(items.length()==0) STENCILA_THROW(Exception,"Missing 'items' parameter")
+    } else {
+        STENCILA_THROW(Exception,"Missing semicolon")
+    }
+    stream<<"for "<<item<<" in "<<items;
 }
 
 /**
  * Include directive
  */
-sregex include = as_xpr("include") >> +space >> expr >> *(+space>> as_xpr("select") >> +space >> selector);
+sregex include = as_xpr("include") >> +space >> expr >> *(+space >> selector);
 
 void include_parse(Node node, const smatch& tree){
     auto include = tree.nested_results().begin();
-    std::string attr = include->str();
+    node.attr("data-include",include->str());
     auto select = ++include;
-    if(select!=tree.nested_results().end()) attr += " select " + select->str();
-    node.attr("data-include",attr);
+    if(select!=tree.nested_results().end()) node.attr("data-select",select->str());
 }
 
 void include_gen(Node node, std::ostream& stream){
     stream<<"include "<<node.attr("data-include");
+    auto select = node.attr("data-select");
+    if(select.length()) stream<<" "<<select;
 }
 
 /**
@@ -920,17 +931,15 @@ Node code_parse(Node parent, const smatch& tree, State& state){
     auto language = tree.nested_results().begin()->str();
     // Append the element. Use a <pre> element since this retains whitespace
     // formatting when parsed as HTML
-    Node node = parent.append("pre");
+    Node node = parent.append("pre",{{"data-code",language}});
     // Iterate over branches adding arguments
-    auto directive = language;
     for(auto branch : tree.nested_results()){
         auto id = branch.regex_id();
-        if(id==format.regex_id()) directive += " " + branch.str();
-        else if(id==size.regex_id()) directive += " " + branch.str();
+        if(id==format.regex_id()) node.attr("data-format",branch.str());
+        else if(id==size.regex_id()) node.attr("data-size",branch.str());
         else if(id==const_.regex_id()) const_parse(node,branch);
         else if(id==hash.regex_id()) hash_parse(node,branch);
     }
-    node.attr("data-code",directive);
     // Turn on code mode processing
     code_mode_start(language,state);
     return node;
@@ -940,8 +949,14 @@ void code_gen(Node node, std::ostream& stream, const std::string& indent){
     // Unless this is the very first content written to the stream
     // start on a new line with appropriate indentation
     if(stream.tellp()>0) stream<<"\n"<<indent;
-    // Output code directive; no element name
+    // Output language code; no element name
     stream<<node.attr("data-code");
+    //Optional arguments
+    for(auto attr : {"data-format","data-size"}){
+        if(node.attr(attr).length()){
+            stream<<" "<<node.attr(attr);
+        }
+    }
     // Hash
     const_gen(node,stream);
     hash_gen(node,stream);
