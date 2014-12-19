@@ -624,19 +624,18 @@ void for_gen(Node node, std::ostream& stream){
 /**
  * Include directive
  */
-sregex include = as_xpr("include") >> +space >> expr >> *(+space >> selector);
+sregex include = as_xpr("include") >> +space >> expr >> *(+space>> as_xpr("select") >> +space >> selector);
 
 void include_parse(Node node, const smatch& tree){
     auto include = tree.nested_results().begin();
-    node.attr("data-include",include->str());
+    std::string attr = include->str();
     auto select = ++include;
-    if(select!=tree.nested_results().end()) node.attr("data-select",select->str());
+    if(select!=tree.nested_results().end()) attr += " select " + select->str();
+    node.attr("data-include",attr);
 }
 
 void include_gen(Node node, std::ostream& stream){
     stream<<"include "<<node.attr("data-include");
-    auto select = node.attr("data-select");
-    if(select.length()) stream<<" "<<select;
 }
 
 /**

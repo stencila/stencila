@@ -14,12 +14,14 @@ const std::vector<std::string> Stencil::tags = {
 };
 
 const std::vector<std::string> Stencil::directives = {
-    "data-code","data-format","data-size",
-    "data-text","data-with",
+    "data-code",
+    "data-text",
+    "data-with",
     "data-if","data-elif","data-else",
     "data-switch","data-case","data-default",
     "data-for",
-    "data-include","data-version","data-select","data-set",
+    "data-include",
+        "data-set",
         "data-delete","data-replace","data-change","data-before","data-after","data-prepend","data-append",
     "data-macro","data-par",
 };
@@ -43,7 +45,7 @@ bool Stencil::flag(const std::string& attr){
 }
 
 Stencil::Code Stencil::parse_code(const std::string& attribute){
-    static const boost::regex pattern("^(\\w+(\\s*,\\s*\\w+)*)(\\s+\\w+)?(\\s+([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(\\s*\\w+)?)?$");
+    static const boost::regex pattern("^(\\w+( *, *\\w+)*)( +\\w+)?( +([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)( *\\w+)?)?$");
     boost::smatch match;
     if(boost::regex_search(attribute, match, pattern)){
         Code directive;
@@ -81,13 +83,26 @@ Stencil::Code Stencil::parse_code(const std::string& attribute){
 }
 
 Stencil::For Stencil::parse_for(const std::string& attribute){
-    static const boost::regex pattern("^(\\w+)\\s+in\\s+(.+)$");
+    static const boost::regex pattern("^(\\w+) +in +(.+)$");
     boost::smatch match;
     if(boost::regex_search(attribute, match, pattern)) {
         For directive;
         directive.name = match[1].str();
         directive.expr = match[2].str();
         return directive;
+    }
+    else {
+        STENCILA_THROW(Exception,"Syntax error in for directive attribute <"+attribute+">");
+    }
+}
+
+void Stencil::Include::parse(const std::string& attribute){
+    static const boost::regex pattern("^([^ ]+)( +version ([^ ]+))?( +select +(.+?))?( +once)?$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) {
+        includee = match[1].str();
+        version = match[3].str();
+        select = match[5].str();
     }
     else {
         STENCILA_THROW(Exception,"Syntax error in for directive attribute <"+attribute+">");

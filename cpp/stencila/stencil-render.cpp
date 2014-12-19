@@ -315,12 +315,17 @@ void Stencil::render_for(Node node, Context* context){
 }
 
 void Stencil::render_include(Node node, Context* context){
-    std::string include_expr = node.attr("data-include");
-    std::string version = node.attr("data-version");
-    std::string select = node.attr("data-select");
+    auto attribute = node.attr("data-include");
+    Include directive;
+    try {
+        directive.parse(attribute);
+    }
+    catch(const Exception& exception) {
+        render_error(node,"include-syntax",attribute,exception.message());
+    }
 
-    // Obtain string representation of include_expr
-    std::string include = context->write(include_expr);
+    // Obtain string representation of includee
+    std::string include = context->write(directive.includee);
 
     // If this node has been rendered before then there will be 
     // a `data-included` node. If it does not yet exist then append one.
@@ -337,11 +342,11 @@ void Stencil::render_include(Node node, Context* context){
         Node includee;
         //Check to see if this is a "self" include, otherwise obtain the includee
         if(include==".") includee = node.root();
-        else includee = Component::get(include,version).as<Stencil>();
+        else includee = Component::get(include,directive.version).as<Stencil>();
         // ...select from it
-        if(select.length()>0){
+        if(directive.select.length()>0){
             // ...append the selected nodes.
-            for(Node node : includee.filter(select)){
+            for(Node node : includee.filter(directive.select)){
                 // Append the node first to get a copy of it which can be modified
                 Node appended = included.append(node);
                 // Remove `macro` declaration if any so that element gets rendered

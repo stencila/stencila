@@ -549,6 +549,9 @@ public:
      */
     static bool flag(const std::string& attr);
 
+    /**
+     * Representation of a code directive
+     */
     struct Code {
         std::vector<std::string> contexts;
         std::string format;
@@ -562,6 +565,9 @@ public:
      */
     static Code parse_code(const std::string& attribute);
 
+    /**
+     * Representation of a for directive
+     */
     struct For {
         std::string name;
         std::string expr;
@@ -571,6 +577,17 @@ public:
      * Parse a for directive
      */
     static For parse_for(const std::string& attribute);
+
+    /**
+     * Representation of an include directive
+     */
+    struct Include {
+        std::string includee;
+        std::string version;
+        std::string select;
+
+        void parse(const std::string& attribute);
+    };
 
     /**
      * Sanitize the stencil to remove potenitally malicious elements

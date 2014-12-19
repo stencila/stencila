@@ -397,17 +397,17 @@ BOOST_AUTO_TEST_CASE(directive_include){
 	ECHO_("include address")
 	HTML_("include address","<div data-include=\"address\" />")
 
-	ECHO_("include address selector")
+	ECHO_("include address select selector")
 
-	ECHO_("include a-superbly-sublime-stencil #a-marvelous-macro")
-	ECHO_("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
+	ECHO_("include a-superbly-sublime-stencil select #a-marvelous-macro")
+	ECHO_("include a-stencil-with-no-macro-defined select .class-a .class-b")
 
     // Special '.' identifier for current stencil
-    ECHO_("macro hello\n\ttext who\ninclude . #hello\n\tset who = 'world'")
+    ECHO_("macro hello\n\ttext who\ninclude . select #hello\n\tset who = 'world'")
 
     // Set directive
-    ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
-    ECHO_("include stencil selector\n\tset a = 7\n\tp included Some included text")
+    ECHO_("include stencil select selector\n\tset a = 4\n\tset b = 1")
+    ECHO_("include stencil select selector\n\tset a = 7\n\tp included Some included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){
