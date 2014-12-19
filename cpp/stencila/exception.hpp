@@ -25,10 +25,6 @@ public:
     ~Exception(void) throw() {
     }
 
-    std::string message(void) const {
-        return message_;
-    }
-
     const char* what(void) const throw() {
         std::ostringstream stream;
         if(file_){
