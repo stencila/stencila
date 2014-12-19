@@ -320,6 +320,11 @@ public:
 	Node root(void);
 
 	/**
+	 * Get this node's parent node
+	 */
+	Node parent(void) const;
+
+	/**
 	 * @}
 	 */ 
 	

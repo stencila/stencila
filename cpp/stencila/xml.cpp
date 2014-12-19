@@ -210,6 +210,10 @@ Node Node::root(void){
 	return pimpl_->root();
 }
 
+Node Node::parent(void) const {
+	return pimpl_->parent();
+}
+
 Nodes Node::children(void) const {
 	Nodes children;
 	for(auto child : pimpl_->children()) children.push_back(child);
