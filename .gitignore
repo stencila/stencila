@@ -4,6 +4,9 @@ build
 # Ignore Vagrant cache
 .vagrant
 
+# Ignore the sandbox
+.sandbox
+
 # Ignore code editor and IDE project and workspace files
 *.sublime-project
 *.sublime-workspace
