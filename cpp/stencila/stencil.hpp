@@ -352,11 +352,10 @@ public:
     void render_switch(Node node, Context* context);
 
     /**
-     * Render a `for` element `<ul data-for="planet:planets"><li data-text="planet" /></ul>`
+     * Render a `for` directive e.g. `<ul data-for="planet in planets"><li data-text="planet" /></ul>`
      *
-     * A `for` element has a `data-for` attribute which specifies the variable name given to each item and 
-     * an expression providing the items to iterate over e.g. `planet:planets`. The variable name is optional
-     * and defaults to "item".
+     * A `for` directive has a `data-for` attribute which specifies the variable name given to each item and 
+     * an expression providing the items to iterate over e.g. `planet in planets`
      *
      * The first child element is rendered for each item and given a `data-index="<index>"`
      * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and

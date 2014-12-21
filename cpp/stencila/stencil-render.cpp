@@ -242,21 +242,21 @@ void Stencil::render_switch(Node node, Context* context){
 }
 
 void Stencil::render_for(Node node, Context* context){
-    std::string parts = node.attr("data-for");
+    std::string attribute = node.attr("data-for");
     // Get the name of `item` and the `items` expression
-    std::string item = "item";
-    std::string items;
-    std::vector<std::string> bits = split(parts,":");
-    if(bits.size()==1){
-        items = bits[0];
-    } else if(bits.size()==2){
-        item = bits[0];
-        items = bits[1];
-    } else {
-        throw Exception("Error in parsing for item and items; more than one semicolon (:).");
+    std::string name;
+    std::string expr;
+    static const boost::regex pattern("^(\\w+)\\s+in\\s+(.+)$");
+    boost::smatch match;
+    if(boost::regex_search(attribute, match, pattern)) {
+        name = match[1].str();
+        expr = match[2].str();
+    }
+    else {
+        STENCILA_THROW(Exception,"Syntax error in for directive attribute <"+attribute+">");
     }
     // Initialise the loop
-    bool more = context->begin(item,items);
+    bool more = context->begin(name,expr);
     // Get the first child element which will be repeated
     Node first = node.first_element();
     // If this for loop has been rendered before then the first element will have a `data-off`
