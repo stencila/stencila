@@ -69,7 +69,11 @@ public:
 
 	Node operator[](const std::string& name);
 
+	const Node operator[](const std::string& name) const;
+
 	Node operator[](const unsigned int& index);
+
+	const Node operator[](const unsigned int& index) const;
 
 	template<class Type>
 	Node append(Type value);
@@ -88,6 +92,20 @@ public:
 
 	template<class Type>
 	Node append(const std::string& name, const std::map<std::string,Type>& values);
+
+	/**
+	* Load a JSON string into this document
+	*
+	* @param json A std::string of JSON
+	*/
+	Node& load(const std::string& json);
+
+	/**
+	* Dump this document to a string
+	*
+	* @param pretty Prettify the output?
+	*/
+	std::string dump(bool pretty = false) const;
 
 protected:
 	typedef ::Json::Value Impl;
@@ -120,20 +138,6 @@ public:
 	Document(const std::string& json);
 
 	~Document(void);
-
-	/**
-	* Load a JSON string into this document
-	*
-	* @param json A std::string of JSON
-	*/
-	Document& load(const std::string& json);
-
-	/**
-	* Dump this document to a string
-	*
-	* @param pretty Prettify the output?
-	*/
-	std::string dump(bool pretty = false) const;
 
 	Document& read(std::istream& stream);
 

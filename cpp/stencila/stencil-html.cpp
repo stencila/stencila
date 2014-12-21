@@ -112,8 +112,8 @@ std::string Stencil::html(bool document,bool indent) const {
         /**
          * #content
          *
-         * Content is placed in a <main> rather than just using the <body> so that extra HTML elements can be added by the 
-         * theme without affecting the stencil's content.
+         * Content is placed in a <main> rather than just using the <body> so that 
+         * extra HTML elements can be added by the theme without affecting the stencil's content.
          */
         auto content = body.append("main",{
             {"id","content"}
@@ -126,7 +126,7 @@ std::string Stencil::html(bool document,bool indent) const {
          * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
          * Files are with a fallback to hub.
          */
-        body.append("script",{{"src","/core/themes/boot.js"}}," ");
+        body.append("script",{{"src","/core/components/themes/base/boot.js"}}," ");
         body.append("script","if(!window.Stencila){window.StencilaHost='http://stenci.la';document.write(unescape('%3Cscript src=\"http://stenci.la/core/themes/boot.js\"%3E%3C/script%3E'))}");
         body.append("script","window.Stencila.Booter.theme('" + theme() + "');");
 
@@ -134,9 +134,9 @@ std::string Stencil::html(bool document,bool indent) const {
         // removed. This is in case the remote CSS link added by the CSS fallback function (see above) fails to load.
         body.append("script","window.setTimeout(function(){document.documentElement.className='';},10000)");
 
+        // Validate the HTML5 document before dumping it
         doc.validate();
-        
-        return doc.dump(indent);
+        return doc.dump();
     }
 }
 

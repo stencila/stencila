@@ -4,6 +4,13 @@
 
 namespace Stencila {
 
+Component& Component::initialise(const std::string& address){
+    std::string path = Component::locate(address);
+    if(path.length()) Component::path(path);
+    else STENCILA_THROW(Exception,"No component found with address <"+address+">");      
+    return *this;
+}
+
 std::string Component::path(bool ensure) const {
 	if(meta_){
 		if(meta_->path.length()==0 and ensure){
@@ -100,18 +107,6 @@ std::string Component::locate(const std::string& address){
 	return "";
 }
 
-std::string Component::package(void) {
-	return package(address());
-}
-
-std::string Component::package(const std::string& address){
-	std::string temp = address;
-	if(temp[0]=='/') temp = temp.substr(1);
-	std::vector<std::string> parts = split(temp,"/");
-	if(parts.size()>0) return parts[0];
-	return "";
-}
-
 std::vector<Component::File> Component::list(const std::string& subdirectory){
 	using namespace boost::filesystem;
 	std::vector<File> files;
@@ -151,13 +146,22 @@ Component& Component::create(const std::string& path,const std::string& content)
 	return *this;
 }
 
-Component& Component::write(const std::string& path,const std::string& content){
+Component& Component::write(const std::string& path, const std::string& content){
 	boost::filesystem::path path_full(Component::path(true));
 	path_full /= path;
 	std::ofstream file(path_full.string());
 	file<<content;
 	file.close();
 	return *this;
+}
+
+std::string Component::read(const std::string& path, const std::string& content){
+	boost::filesystem::path path_full(Component::path(true));
+	path_full /= path;
+	std::ifstream file(path_full.string());
+	std::stringstream stream;
+	stream<<file.rdbuf();
+	return stream.str();
 }
 
 Component& Component::delete_(const std::string& path){

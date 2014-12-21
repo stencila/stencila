@@ -10,8 +10,10 @@ Stencil& Stencil::initialise(const std::string& from){
     if(found==std::string::npos){
         // Initialised from an address or path
         if(boost::filesystem::exists(from)){
+            // This is a path so read from it
             read(from);
         } else {
+            // Search for address
             std::string path = Component::locate(from);
             if(path.length()) read(path);
             else STENCILA_THROW(Exception,"No stencil found with path or address <"+from+">");
@@ -29,6 +31,9 @@ Stencil& Stencil::initialise(const std::string& from){
 }
 
 Stencil& Stencil::import(const std::string& path){
+    if(not boost::filesystem::exists(path)){
+        STENCILA_THROW(Exception,"File <"+path+"> not found");
+    }
     std::string ext = boost::filesystem::extension(path);
     if(ext==".html" or ext==".cila"){
         std::ifstream file(path);
@@ -72,24 +77,15 @@ Stencil& Stencil::read(const std::string& directory){
         // Set the stencil's path
         path(where);
     }
-    // Search for a stencil file. Currently with precedence on .cila before .html files
-    bool found = false;
-    for(std::string extension : {"cila","html"}){
-        boost::filesystem::path filename = boost::filesystem::path(where) / ("stencil." + extension);
-        if(boost::filesystem::exists(filename)){
-            found = true;
-            import(filename.string());
-            break;
-        }
-    }
-    if(not found) STENCILA_THROW(Exception,"Directory <"+where+"> does contain a 'stencil.html' or 'stencil.cila' file");
+    // Search for a stencil.html file and, if it exists, read it using `import`
+    boost::filesystem::path filename = boost::filesystem::path(path()) / "stencil.html";
+    if(boost::filesystem::exists(filename)) import(filename.string());
+    
     return *this;
 }
 
 Stencil& Stencil::write(const std::string& path_arg){
     if(path_arg.length()) path(path_arg);
-    // Write necessary files
-    // @fixme This should use `export_()`
     Component::write("stencil.html",html(true));
     return *this;
 }

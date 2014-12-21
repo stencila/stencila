@@ -28,6 +28,7 @@ public:
 
     ~Stencil(void){
         if(context_) delete context_;
+        if(outline_) delete outline_;
     }
 
     /**
@@ -143,17 +144,38 @@ public:
     /**
      * @}
      */
-    
-    
+        
     /**
-     * @name Metadata
+     * @name Setting stencil user inputs
      *
-     * Methods for obtaining metadata on a stencil.
-     * At present only metadata getters are implemeted.
-     * To set metadata add corresponding elements to the stencil's
-     * HTML or Cila. 
+     * Methods implemented in `stencil-cila.cpp`
+     * 
+     * @{
+     */
+
+    /**
+     * Set this stencil's inputs
      *
-     * Methods implemented in `stencil-meta.cpp`
+     * The `html` and `cila` methods can be used for changing
+     * a stencil's content from a trusted source. In contrast, 
+     * this method is intended for inputs from an untrusted user.
+     * It maps the supplied `name:value` pairs into `<input>` elements
+     * (which may, or may not, be within `par` directives).
+     * 
+     * @param inputs A map of `name:value` pairs of inputs
+     */
+    Stencil& inputs(const std::map<std::string,std::string>& inputs);
+
+    /**
+     * @}
+     */
+
+    /**
+     * @name Attributes
+     *
+     * Methods for obtaining or setting attributes of the stencil.
+     *
+     * Methods implemented in `stencil-attrs.cpp`
      * 
      * @{
      */
@@ -193,6 +215,29 @@ public:
      */
     std::string theme(void) const;
 
+    /**
+     * A structure to extract and hold the details
+     * of a stencil parameter (defined using a `par` directive)
+     */
+    struct Parameter {
+        std::string attribute;
+        bool ok;
+        std::string name;
+        std::string type;
+        std::string default_;
+        std::string value;
+
+        Parameter(Node node);
+    };
+
+    /**
+     * Get this stencil's parameters
+     */
+    std::vector<Parameter> pars(void) const;
+
+    /**
+     * @}
+     */
 
     /**
      * @name Rendering
@@ -275,9 +320,11 @@ public:
     std::string render_set(Node node, Context* context);
 
     /**
-     * Render a `par` element (e.g. `<span data-par="answer:number=42"></span>`)
+     * Render a `par` directive (e.g. `<span data-par="answer:number=42"></span>`)
+     *
+     * Returns the name,type and default value for the directive
      */
-    std::array<std::string,3> render_par(Node node, Context* context,bool primary=true);
+    void render_par(Node node, Context* context);
 
     /**
      * Render a `text` element (e.g. `<span data-text="result"></span>`)
@@ -335,12 +382,46 @@ public:
     void render_include(Node node, Context* context);
 
     /**
+     * Render an `<input>` element (e.g. `<input name="answer" type="number" value="42"></input>`)
+     *
+     * `input` elements are used for setting variables in the context base on untrusted
+     * user content. Variables must be of a specified type.
+     * For trusted user content, the analogue of an `<input>` element
+     * is a `set` directive which takes a language expression (which may be any type). 
+     * 
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_input(Node node, Context* context);
+
+    /**
      * Render the children of an HTML element
      * 
      * @param node    Node to render
      * @param context Context to render in
      */
     void render_children(Node node, Context* context);
+
+    /**
+     * Update and render a intra-stencil dependecy hash on the node
+     */
+    bool render_hash(Node node);
+
+    /**
+     * Initialise the rendering of a stencil
+     *
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_initialise(Node node, Context* context);
+
+    /**
+     * Finalise the rendering of a stencil (e.g. adding missing elements)
+     *
+     * @param node    Node to render
+     * @param context Context to render in
+     */
+    void render_finalise(Node node, Context* context);
 
     /**
      * Render a HTML element
@@ -370,7 +451,18 @@ public:
      * creating a new context if necessary
      */
     Stencil& render(void);
-    
+
+    /**
+     * Remove attributes and element added to this stencil during
+     * previous renderings
+     */
+    Stencil& strip(void);
+
+    /**
+     * Strip and then render this stencil
+     */
+    Stencil& restart(void);
+
     /**
      * @}
      */
@@ -397,6 +489,11 @@ public:
     void view(void);
 
     /**
+     * Interact with this stencil
+     */
+    std::string interact(const std::string& code);
+
+    /**
      * Execute a call on this stencil
      * 
      * @param  call A `Call` object
@@ -418,16 +515,45 @@ public:
      */
 
     /**
-     * @name Sanitize
+     * @name Inspection and sanitization
      * @{
      */
     
-    static Xml::Whitelist whitelist;
+    /**
+     * List of allowed stencil element names?
+     */
+    static const std::vector<std::string> tags;
 
-    Stencil& sanitize(void) {
-        //Xml::Document::sanitize(whitelist);
-        return *this;
-    };
+    /*
+     * List of stencil directive attributes
+     */
+    static const std::vector<std::string> directives;
+
+    /*
+     * List of stencil flag attributes
+     */
+    static const std::vector<std::string> flags;
+
+    /**
+     * Is the element tag name an allowed stencil element?
+     */
+    static bool tag(const std::string& name);
+    
+    /**
+     * Is the attribute a stencil directive?
+     */
+    static bool directive(const std::string& attr);
+
+    /**
+     * Is the attribute a stencil flag?
+     */
+    static bool flag(const std::string& attr);
+
+    /**
+     * Sanitize the stencil to remove potenitally malicious elements
+     * and attributes
+     */
+    Stencil& sanitize(void);
 
     /**
      * @}
@@ -458,30 +584,18 @@ private:
      * this stencil
      */
     std::map<std::string,unsigned int> counts_;
+
+    /**
+     * A hash used to track intra-stencil dependencies
+     */
+    std::string hash_;
+
+    /**
+     * Outlining, including section numbering and table of content, handled
+     * by `Outline` struct
+     */
+    struct Outline;
+    Outline* outline_ = nullptr;
 };
-
-/**
- * A list of tags allowed in a stencil
- */
-#define STENCILA_STENCIL_TAGS (section)(nav)(article)(aside)(address)(h1)(h2)(h3)(h4)(h5)(h6)(p)(hr)(pre)(blockquote)(ol)(ul)(li)(dl)(dt)(dd)\
-    (figure)(figcaption)(div)(a)(em)(strong)(small)(s)(cite)(q)(dfn)(abbr)(data)(time)(code)(var)(samp)(kbd)(sub)(sup)(i)(b)(u)(mark)(ruby)\
-    (rt)(rp)(bdi)(bdo)(span)(br)(wbr)(ins)(del)(table)(caption)(colgroup)(col)(tbody)(thead)(tfoot)(tr)(td)(th)
-
-/**
- * A list of [global attributes](http://www.w3.org/TR/html5/dom.html#global-attributes)(those that 
- * are "common to and may be specified on all HTML elements") and which are allowed in stencils.
- * Currenly this is a fairly restricted set. See above link for more that could be allowed.
- */
-#define STENCILA_GLOBAL_ATTRS "class","id","lang","title","translate"
-
-/**
- * A list of attributes that have semantic meaning in stencils
- */
-#define STENCILA_DIRECTIVE_ATTRS "data-code","data-text","data-switch","data-case"
-
-/**
- * Combination of the above two attribute lists
- */
-#define STENCILA_STENCIL_ATTRS STENCILA_GLOBAL_ATTRS,STENCILA_DIRECTIVE_ATTRS
 
 }

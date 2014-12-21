@@ -111,12 +111,19 @@ bool Node::has(const std::string& name) const {
 	else return false;
 }
 
-
 Node Node::operator[](const std::string& name){
 	return (*pimpl_)[name];
 }
 
+const Node Node::operator[](const std::string& name) const {
+	return (*pimpl_)[name];
+}
+
 Node Node::operator[](const unsigned int& index){
+	return (*pimpl_)[index];
+}
+
+const Node Node::operator[](const unsigned int& index) const {
 	return (*pimpl_)[index];
 }
 
@@ -222,6 +229,27 @@ APPEND_MAP(std::string)
 
 #undef APPEND_MAP
 
+Node& Node::load(const std::string& json){
+	JsonCpp::Reader reader;
+	pimpl_->clear();
+	bool ok = reader.parse(json,*pimpl_);
+	if(not ok){
+		STENCILA_THROW(Exception,reader.getFormattedErrorMessages());
+	}
+	return *this;
+}
+
+std::string Node::dump(bool pretty) const {
+	if(pretty){
+		JsonCpp::StyledWriter writer;
+		return writer.write(*pimpl_);	
+	} else {
+		JsonCpp::FastWriter writer;
+		writer.omitEndingLineFeed();
+		return writer.write(*pimpl_);		
+	}
+}
+
 Document::Document(void):
 	Node(new Impl){
 }
@@ -252,31 +280,11 @@ Document::~Document(void){
 	delete pimpl_;
 }
 
-Document& Document::load(const std::string& json){
-	JsonCpp::Reader reader;
-	pimpl_->clear();
-	bool ok = reader.parse(json,*pimpl_);
-	if(not ok){
-		STENCILA_THROW(Exception,reader.getFormattedErrorMessages());
-	}
-	return *this;
-}
-
-std::string Document::dump(bool pretty) const {
-	if(pretty){
-		JsonCpp::StyledWriter writer;
-		return writer.write(*pimpl_);	
-	} else {
-		JsonCpp::FastWriter writer;
-		writer.omitEndingLineFeed();
-		return writer.write(*pimpl_);		
-	}
-}
-
 Document& Document::read(std::istream& stream){
 	std::stringstream string;
 	string<<stream.rdbuf();
-	return load(string.str());
+	load(string.str());
+	return *this;
 }
 
 Document& Document::read(const std::string& path){

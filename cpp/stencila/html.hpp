@@ -39,6 +39,11 @@ public:
     Document& load(const std::string& html);
 
     /**
+     * Dump the document to a HTML string
+     */
+    std::string dump(bool pretty=true) const;
+
+    /**
      * Read the document from a file
      * 
      * @param  filename Name of file to read from

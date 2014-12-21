@@ -1,27 +1,18 @@
-#include <stencila/stencil.hpp>
+#include "context.hpp"
 
-using namespace Stencila;
+namespace Stencila {
 
-#include "extension.hpp"
-#include "r-context.hpp"
+#ifdef STENCILA_R_EMBED
 
-STENCILA_R_FUNC Context_new(SEXP context){
-    STENCILA_R_BEGIN
-        return to<RContext>(new RContext(context),"Context");
-    STENCILA_R_END
-}
+RInside RContext::r_(
+    0,{}, // argc and argv
+    true, // loadRcpp (overidden to true in code anyway)
+    false, // verbose
+    true // interactive
+);
 
-// Overrides of Component methods
+unsigned int RContext::contexts_ = 0;
 
-STENCILA_R_FUNC Context_serve(SEXP self){
-    STENCILA_R_BEGIN
-        return wrap(from<RContext>(self).serve());
-    STENCILA_R_END
-}
+#endif
 
-STENCILA_R_FUNC Context_view(SEXP self){
-    STENCILA_R_BEGIN
-        from<RContext>(self).view();
-        return null;
-    STENCILA_R_END
 }

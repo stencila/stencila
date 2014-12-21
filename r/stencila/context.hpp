@@ -190,17 +190,21 @@ public:
         return language=="r";
     }
 
-    std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
-        return call_<std::string>("execute",code,format,width,height,units);
+    std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
+        return call_<std::string>("execute",code,id,format,width,height,units);
     }
 
-    std::string interact(const std::string& code){
-        return call_<std::string>("interact",code);
+    std::string interact(const std::string& code, const std::string& id=""){
+        return call_<std::string>("interact",code,id);
     }
 
     void assign(const std::string& name, const std::string& expression){
-        call_("set",name,expression);
+        call_("assign",name,expression);
     }
+
+    void input(const std::string& name, const std::string& type, const std::string& value){
+        call_("input",name,type,value);
+    };
 
     std::string write(const std::string& expression){
         return call_<std::string>("write",expression);

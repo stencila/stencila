@@ -85,6 +85,11 @@ public:
 	 * Is this a document node?
 	 */
 	bool is_document(void) const;
+	
+	/**
+	 * Is this a DOCTYPE node?
+	 */
+	bool is_doctype(void) const;
 
 	/**
 	 * Is this an element node?
@@ -313,6 +318,11 @@ public:
 	 * Get the root node of the document the node belongs to
 	 */
 	Node root(void);
+
+	/**
+	 * Get this node's parent node
+	 */
+	Node parent(void) const;
 
 	/**
 	 * @}

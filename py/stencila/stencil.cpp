@@ -2,7 +2,7 @@
 
 #include <stencila/stencil.hpp>
 
-#include "python-context.hpp"
+#include "context.hpp"
 
 #include <boost/python.hpp>
 
@@ -11,11 +11,12 @@ using namespace boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_set_overloads,html,0,2)
 
-Stencil& Stencil_render(Stencil& self, object python_context){
+Stencil& Stencil_render(Stencil& self, object context){
+    //! @todo Garbage collection of PythonContext is not correcly handles here
     // Use supplied Python Context to create a C++ side PythonContext
-    PythonContext context(python_context);
+    PythonContext* python_context = new PythonContext(context);
     // Render within this context
-    self.render(&context);
+    self.render(python_context);
     return self;
 }
 
@@ -32,13 +33,13 @@ void def_Stencil(void){
             return_self<>()
         )
 
-        .def("render",
-            Stencil_render,
-            return_self<>()
-        )
+        .def("title",&Stencil::title)
+        .def("description",&Stencil::description)
+        .def("keywords",&Stencil::keywords)
+        .def("authors",&Stencil::authors)
 
-        .def("page",
-            &Stencil::page
-        )
+        .def("render",Stencil_render,return_self<>())
+
+        .def("page",&Stencil::page)
     ;
 }

@@ -86,15 +86,18 @@ void Server::close_(connection_hdl hdl) {
 void Server::http_(connection_hdl hdl) {
 	// Get the connection 
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	// Get the remote address
+	// Get the request resource, method etc
+	// get_resource() returns "/" when there is no resource part in the URI
+	// (i.e. if the URI is just http://localhost/)
+	std::string resource = connection->get_resource();
+	auto request = connection->get_request();
+    std::string method = request.get_method();
+    // Get the remote address
 	std::string remote = connection->get_remote_endpoint();
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
 	std::string content;
 	try {
-		// get_resource() returns "/" when there is no resource part in the URI
-		// (i.e. if the URI is just http://localhost/)
-		std::string resource = connection->get_resource();
 		if(resource=="/"){
 			content = Component::home();
 		} else {

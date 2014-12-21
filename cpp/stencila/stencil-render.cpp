@@ -4,13 +4,7 @@
 #include <stencila/stencil.hpp>
 #include <stencila/string.hpp>
 
-// Conditional includes of context types
-#if STENCILA_PYTHON_CONTEXT
-    #include <stencila/python-context.hpp>
-#endif
-#if STENCILA_R_CONTEXT
-    #include <stencila/r-context.hpp>
-#endif
+#include <iostream>
 
 namespace Stencila {
 
@@ -32,32 +26,12 @@ std::string Stencil::context(void) const {
 }
 
 void Stencil::render_error(Node node, const std::string& type, const std::string& data, const std::string& message){
-    // Create an error element as a
-    Xml::Document fragment;
-    auto error = fragment.append(
-        // <div> with...
-        "div",
-        // attributes...
-        {
-            // to identify the type of error,
-            {"data-error",type},
-            // and data for helping resolve the error...
-            {"data-"+type,data}
-        },
-        // and a message as text content
-        message
-    );
-    // Decide where to put the error. Usually it will be appended
-    // but this is not appropriate for some elements e.g. <pre data-code="r" ...
-    if(node.name()=="pre"){
-        error.attr("data-rel","before");
-        node.after(error);
-    } else {
-        node.append(error);
-    }
+    node.attr("data-error",type+"~"+data+"~"+message);
 }
 
 void Stencil::render_code(Node node, Context* context){
+    // Check if this `code` directive needs to be executed
+    if(not render_hash(node)) return;
     // Get the list of contexts and ensure this context is in the list
     std::string contexts = node.attr("data-code");
     std::vector<std::string> items = split(contexts,",");
@@ -92,15 +66,15 @@ void Stencil::render_code(Node node, Context* context){
             if(height=="") height = "17";
             if(units=="") units = "cm";
             // Execute
-            std::string output = context->execute(code,format,width,height,units);
+            std::string output = context->execute(code,hash_,format,width,height,units);
             // Remove any existing output
             Node next = node.next_element();
-            if(next and next.attr("data-output")=="true") next.destroy();
+            if(next and next.attr("data-out")=="true") next.destroy();
             // Append new output
             if(format.length()){
                 Xml::Document doc;
                 Node output_node;
-                if(format=="out"){
+                if(format=="text"){
                     output_node = doc.append("samp",output);
                 }
                 else if(format=="png" or format=="svg"){
@@ -109,16 +83,14 @@ void Stencil::render_code(Node node, Context* context){
                     });
                 }
                 else {
-                    output_node = doc.append(
-                        "div",
-                        {{"data-error","output-format"},{"data-format",format}},
-                        "Output format not recognised: "+format
-                    );
+                    render_error(node,"out-format",format,"Output format not recognised: "+format);
                 }
-                // Flag output node 
-                output_node.attr("data-output","true");
-                // Create a copy immeadiately after code directive
-                node.after(output_node);
+                if(output_node){
+                    // Flag output node 
+                    output_node.attr("data-out","true");
+                    // Create a copy immeadiately after code directive
+                    node.after(output_node);
+                }
             }
         }
     }
@@ -148,44 +120,34 @@ std::string Stencil::render_set(Node node, Context* context){
     }
 }
 
-std::array<std::string,3> Stencil::render_par(Node node, Context* context,bool primary){
-    std::string attribute = node.attr("data-par");
-    static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
-    boost::smatch match;
-    std::string name;
-    std::string type;
-    std::string default_;
-    if(boost::regex_search(attribute, match, pattern)) {
-        name = match[1].str();
-        type = match[3].str();
-        default_ = match[5].str();
-        if(primary){
-            Node input = node.select("input");
-            if(not input) input = node.append("input");
-            // Set name
-            input.attr("name",name);
-            // Set type
-            if(type.length()>0) input.attr("type",type);
-            // Get value, using default if not defined
-            std::string value = input.attr("value");
-            if(value.length()==0 and default_.length()>0){
-                value = default_;
-                input.attr("value",default_);
-            }
-            // Convert value into a valid expression
-            if(value.length()>0){
-                std::string expression;
-                if(type=="text") expression = "\""+value+"\"";
-                //..other HTML5 input types to be evaluated
-                else expression = value;
-                context->assign(name,expression);
-            }
+void Stencil::render_par(Node node, Context* context){
+    Parameter par(node);
+    if(par.ok){
+        auto name = par.name;
+        auto type = par.type;
+        auto default_ = par.default_;
+        Node input = node.select("input");
+        if(not input) input = node.append("input");
+        // Set name
+        input.attr("name",name);
+        // Set type
+        if(type.length()) input.attr("type",type);
+        // Get value, using default if not defined
+        std::string value = input.attr("value");
+        if(not value.length() and par.default_.length()){
+            value = default_;
+            input.attr("value",value);
         }
+        // Set value in the context
+        if(value.length()>0){
+            context->input(name,type,value);
+        }
+        // Render input node
+        render_input(input,context);
     }
     else {
-        render_error(node,"par-syntax",attribute,"Syntax error in attribute <"+attribute+">");
+        render_error(node,"par-syntax",par.attribute,"Syntax error in attribute <"+par.attribute+">");
     }
-    return {name,type,default_};
 }
 
 void Stencil::render_text(Node node, Context* context){
@@ -352,9 +314,13 @@ void Stencil::render_for(Node node, Context* context){
 }
 
 void Stencil::render_include(Node node, Context* context){
-    std::string include = node.attr("data-include");
+    std::string include_expr = node.attr("data-include");
     std::string version = node.attr("data-version");
     std::string select = node.attr("data-select");
+
+    // Obtain string representation of include_expr
+    std::string include = include_expr;
+    if(include_expr!=".") context->write(include_expr);
 
     // If this node has been rendered before then there will be 
     // a `data-included` node. If it does not yet exist then append one.
@@ -368,14 +334,14 @@ void Stencil::render_include(Node node, Context* context){
         // Clear the included node
         included.clear();
         //Obtain the included stencil...
-        Node stencil;
-        //Check to see if this is a "self" include, otherwise obtain the stencil
-        if(include==".") stencil = node.root();
-        else stencil = Component::get(include,version).as<Stencil>();
+        Node includee;
+        //Check to see if this is a "self" include, otherwise obtain the includee
+        if(include==".") includee = node.root();
+        else includee = Component::get(include,version).as<Stencil>();
         // ...select from it
         if(select.length()>0){
             // ...append the selected nodes.
-            for(Node node : stencil.filter(select)){
+            for(Node node : includee.filter(select)){
                 // Append the node first to get a copy of it which can be modified
                 Node appended = included.append(node);
                 // Remove `macro` declaration if any so that element gets rendered
@@ -386,8 +352,10 @@ void Stencil::render_include(Node node, Context* context){
                 appended.erase("id");
             }
         } else {
-            // ...append the entire stencil. No attempt is made to remove macros when included an entire stencil.
-            included.append(stencil);
+            // ...append the entire includee. 
+            // No attempt is made to remove macros when included an entire includee.
+            // Must add each child because includee is a document (see `Node::append(const Document& doc)`)
+            for(auto child : includee.children()) included.append(child);
         }
         //Apply modifiers
         const int modifiers = 7;
@@ -462,7 +430,8 @@ void Stencil::render_include(Node node, Context* context){
 
     // Apply `data-set` elements
     // Apply all the `set`s specified in the include first. This
-    // may include setting vatiables not specified by the author of the included stencil.
+    // may include setting variables not specified as parameters
+    // by the author of the included stencil.
     std::vector<std::string> assigned;
     for(Node set : node.filter("[data-set]")){
         std::string name = render_set(set,context);
@@ -471,18 +440,21 @@ void Stencil::render_include(Node node, Context* context){
     // Now apply the included element's parameters
     bool ok = true;
     for(Node par : included.filter("[data-par]")){
-        auto parts = render_par(par,context,false);
-        std::string name = parts[0];
-        std::string default_ = parts[2];
-        // Check to see if it has already be assigned
-        if(std::count(assigned.begin(),assigned.end(),name)==0){
-            if(default_.length()>0){
-                // Assign the default_ in the new frame
-                context->assign(name,default_);
-            } else {
-                // Set an error
-                render_error(node,"par-required",name,"Parameter <"+name+"> is required because it has no default");
-                ok  = false;
+        Parameter parameter(par);
+        if(parameter.ok){
+            auto name = parameter.name;
+            auto type = parameter.type;
+            auto default_ = parameter.default_;
+            // Check to see if it has already be assigned
+            if(std::count(assigned.begin(),assigned.end(),name)==0){
+                if(default_.length()){
+                    // Assign the default_ in the new frame
+                    context->assign(name,default_);
+                } else {
+                    // Set an error
+                    render_error(node,"par-required",name,"Parameter <"+name+"> is required because it has no default");
+                    ok  = false;
+                }
             }
         }
         // Remove the parameter, there is no need to have it in the included node
@@ -496,14 +468,145 @@ void Stencil::render_include(Node node, Context* context){
     context->exit();
 }
 
+void Stencil::render_input(Node node, Context* context){
+    if(render_hash(node)){
+        auto name = node.attr("name");
+        auto type = node.attr("type");
+        auto value = node.attr("value");
+        context->input(name,type,value);
+    }
+}
+
 void Stencil::render_children(Node node, Context* context){
     for(Node child : node.children()) render(child,context);
 }
 
+struct Stencil::Outline {
+
+    struct Level {
+
+        Level* parent = nullptr;
+        int level = 0;
+        int index;
+        std::string label;
+        std::string id;
+        std::vector<Level*> sublevels;
+
+        ~Level(void){
+            for(auto* level : sublevels) delete level;
+        }
+
+        Level* sublevel(void){
+            Level* sublevel = new Level;
+            sublevel->level = level+1;
+            sublevel->index = sublevels.size()+1;
+            sublevel->parent = this;
+            sublevels.push_back(sublevel);
+            return sublevel;
+        }
+
+        std::string path(const std::string& sep=".") const {
+            std::string path;
+            const Level* next = this;
+            while(next->index){
+                if(path.length()) path.insert(0,sep);
+                path.insert(0,string(next->index));
+                next = next->parent;
+            }
+            return path;
+        }
+
+        std::string id_(void) const {
+            return "section-"+path("-");
+        }
+
+        std::string class_(void) const {
+            return "level-"+string(level);
+        }
+
+        void heading(Node node){
+            if(label.length()==0){
+                // Get label for this level from the node
+                label = node.text();
+                // Check for node id, create one if needed, then add it to 
+                // level for links and to the section header
+                auto id_value = node.attr("id");
+                if(not id_value.length()){
+                    id_value = id_();
+                    node.attr("id",id_value);
+                }
+                id = id_value;
+                // Check for an existing label
+                std::string path_string = path();
+                Node label = node.select(".label");
+                if(not label){
+                    // Prepend a label
+                    label = node.prepend("span");
+                    label.attr("class","label");
+                    label.append("span",{{"class","path"}},path_string);
+                    label.append("span",{{"class","separator"}}," ");
+                } else {
+                    // Ammend the label
+                    Node path = label.select(".path");
+                    if(not path) path = label.append("span",{{"class","path"}},path_string);
+                    else path.text(path_string);
+                }            
+                // Give class to the heading for styling
+                node.attr("class",class_());
+            }
+        }
+
+        void render(Node ul) const {  
+            Node li = ul.append(
+                "li",
+                {{"class",class_()}}
+            );
+            li.append(
+                "a",
+                {{"href","#"+id}},
+                path()+" "+label
+            );
+            for(auto* level : sublevels) level->render(ul);
+        }
+    };
+
+    Level* root;
+    Level* current;
+    Node node;
+
+    Outline(void){
+        root = new Level;
+        current = root;
+    }
+
+    ~Outline(void){
+        if(root) delete root;
+    }
+
+    void enter(void){
+        current = current->sublevel();
+    }
+
+    void exit(void){
+        current = current->parent;
+    }
+
+    void heading(Node node){
+        current->heading(node);
+    }
+
+    void render(void){
+        if(node) {
+            Node ul = node.append("ul");
+            root->render(ul);
+        }
+    }
+};
+
 void Stencil::render(Node node, Context* context){
     try {
-        // Remove any existing errors
-        for(Node child : node.filter("[data-error]")) child.destroy();
+        // Remove any existing error attribute
+        node.erase("[data-error]");
         // Check for handled elements
         std::string tag = node.name();
         // For each attribute in this node...
@@ -518,10 +621,7 @@ void Stencil::render(Node node, Context* context){
                 render_set(node,context);
                 return;
             }
-            else if(attr=="data-par"){
-                render_par(node,context);
-                return;
-            }
+            else if(attr=="data-par") return render_par(node,context);
             else if(attr=="data-text") return render_text(node,context);
             else if(attr=="data-with") return render_with(node,context);
             else if(attr=="data-if") return render_if(node,context);
@@ -531,12 +631,36 @@ void Stencil::render(Node node, Context* context){
             else if(attr=="data-for") return render_for(node,context);
             else if(attr=="data-include") return render_include(node,context);
         }
+        // Render input elements
+        if(tag=="input"){
+            counts_["input"]++;
+            return render_input(node,context);
+        }
+        // Handle outline
+        else if(node.attr("id")=="outline"){
+            outline_->node = node;
+        }
+        // Handle sections
+        else if(tag=="section"){
+            // Enter a sublevel
+            outline_->enter();
+            // Render children
+            render_children(node,context);
+            // Exit sublevel
+            outline_->exit();
+            // Return so the render_children below is not hit
+            return;
+        }
+        // Handle headings
+        else if(tag=="h1"){
+            outline_->heading(node);
+        }
         // Handle table and figure captions
-        if(tag=="table" or tag=="figure"){
+        else if(tag=="table" or tag=="figure"){
             Node caption = node.select("caption,figcaption");
             if(caption){
                 // Increment the count for his caption type
-                unsigned int& count = counts_[tag+"-caption"];
+                unsigned int& count = counts_[tag+" caption"];
                 count++;
                 std::string count_string = string(count);
                 // Check for an existing label
@@ -549,10 +673,15 @@ void Stencil::render(Node node, Context* context){
                     label.append("span",{{"class","number"}},count_string);
                     label.append("span",{{"class","separator"}},":");
                 } else {
-                    // Ammend the label
+                    // Amend the label
                     Node number = label.select(".number");
                     if(not number) number = label.append("span",{{"class","number"}},count_string);
                     else number.text(count_string);
+                }
+                // Check for id - on table or figure NOT caption!
+                std::string id = node.attr("id");
+                if(not id.length()){
+                    node.attr("id",tag+"-"+count_string);
                 }
             }
         }
@@ -567,6 +696,69 @@ void Stencil::render(Node node, Context* context){
     }
 }
 
+bool Stencil::render_hash(Node node){
+    // Create a key string for this node which starts with the current value
+    // for the current cumulative hash and its attributes and text
+    std::string key = hash_;
+    for(auto attr : node.attrs()){
+        if(attr!="data-hash") key += attr+":"+node.attr(attr);
+    } 
+    key += node.text();
+    // Create a new integer hash
+    static std::hash<std::string> hasher;
+    std::size_t number = hasher(key);
+    // To reduce its lenght, convert the integer hash to a 
+    // shorter string by encoding using a character set
+    static char chars[] = {
+        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+        'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+        '0','1','2','3','4','5','6','7','8','9'
+    };
+    std::string hash;
+    while(number>0){
+        int index = number % sizeof(chars);
+        hash = chars[index] + hash;
+        number = int(number/sizeof(chars));
+    }
+    // If this is a non-`const` node (not declared const) then update the cumulative hash
+    // so that changes in this node cascade to other nodes
+    if(node.attr("data-const")!="true") hash_ = hash;
+    // If there is no change in the hash then return false
+    // otherwise replace the hash (may be missing) and return true
+    std::string current = node.attr("data-hash");
+    if(hash==current) return false;
+    else {
+        node.attr("data-hash",hash);
+        return true;
+    }
+}
+
+void Stencil::render_initialise(Node node, Context* context){
+    hash_ = "";
+
+    if(outline_) delete outline_;
+    outline_ = new Outline;
+}
+
+void Stencil::render_finalise(Node node, Context* context){
+    outline_->render();
+
+    // Render references
+    for(Node ref : filter("[data-ref]")){
+        ref.clear();
+        std::string selector = ref.attr("data-ref");
+        Node target = select(selector);
+        Node label = target.select(".label");
+        if(label){
+            Node a = ref.append(
+                "a",
+                {{"href","#"+target.attr("id")}},
+                label.select(".type").text() + " " + label.select(".number").text()
+            );
+        }
+    }
+}
+
 Stencil& Stencil::render(Context* context){
     // If a different context, attach the new one
     if(context!=context_) attach(context);
@@ -578,11 +770,16 @@ Stencil& Stencil::render(Context* context){
     } catch(const std::exception& exc){
         STENCILA_THROW(Exception,"Error setting directory to <"+path.string()+">");
     }
-    // Reset counts
-    counts_["table-caption"] = 0;
-    counts_["figure-caption"] = 0;
+    // Reset flags and counts
+    counts_["input"] = 0;
+    counts_["table caption"] = 0;
+    counts_["figure caption"] = 0;
+    // Initlise rendering
+    render_initialise(*this,context);
     // Render root element within context
     render(*this,context);
+    // Finalise rendering
+    render_finalise(*this,context);
     // Return to the cwd
     boost::filesystem::current_path(cwd);
     return *this;
@@ -625,7 +822,22 @@ Stencil& Stencil::render(const std::string& type){
 Stencil& Stencil::render(void){
     if(context_) return render(context_);
     else return render(std::string());
-    return *this;
 }
+
+Stencil& Stencil::restart(void){
+    return strip().render();
+}
+
+Stencil& Stencil::strip(void){
+    // Remove attributes added by `render()`
+    for(std::string attr : {"data-hash","data-off","data-error"}){
+        for(Node node : filter("["+attr+"]")) node.erase(attr);
+    }
+    // Remove elements added by `render()`
+    for(Node node : filter("[data-index],[data-out],[data-included]")){
+        node.destroy();
+    }
+    return *this;
+}    
 
 } // namespace Stencila

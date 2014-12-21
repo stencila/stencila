@@ -3,8 +3,6 @@ using namespace Stencila;
 
 #include "extension.hpp"
 
-STENCILA_R_NEW(Component)
-
 STENCILA_R_FUNC Component_get(SEXP address){
     STENCILA_R_BEGIN
         Component& component = Component::get(as<std::string>(address)).as<Component>();
@@ -12,14 +10,14 @@ STENCILA_R_FUNC Component_get(SEXP address){
     STENCILA_R_END
 }
 
-STENCILA_R_ATTR(Component,path,std::string)
-STENCILA_R_RET0(Component,address)
+STENCILA_R_NEW(Component)
 
-STENCILA_R_RET0(Component,origin)
+STENCILA_R_GETSET(Component,path,std::string)
+STENCILA_R_GET(Component,address)
 
+STENCILA_R_GET(Component,origin)
 STENCILA_R_EXEC1(Component,commit,std::string)
-
-STENCILA_R_FUNC Component_commits(SEXP self){
+STENCILA_R_FUNC Component_commits_get(SEXP self){
     STENCILA_R_BEGIN
     	// Get history
         auto commits = from<Component>(self).commits();

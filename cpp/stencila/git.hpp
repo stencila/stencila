@@ -85,8 +85,9 @@ public:
 	 * Open a repository
 	 * 
 	 * @param path Filesystem path to the repository
+	 * @param up Should search for a repository continue up path tree
 	 */
-	bool open(const std::string& path);
+	bool open(const std::string& path, bool up=false);
 
 	/**
 	 * Clone a repository

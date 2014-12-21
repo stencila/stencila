@@ -258,7 +258,6 @@ BOOST_AUTO_TEST_CASE(include_simple){
         <div id="includee">Hello world</div>
         <div data-include="." data-select="#includee" />
     )");
-
     BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"Hello world");
 }
 

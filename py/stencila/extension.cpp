@@ -19,18 +19,13 @@ struct vector_to_list {
 // source files
 void def_Exception(void);
 void def_Component(void);
-void def_Package(void);
 void def_Stencil(void);
 
 BOOST_PYTHON_MODULE(extension){
 	// Declare converters
 	to_python_converter<std::vector<std::string>, vector_to_list<std::string>>();
-
-	// Declare exception translation and general Stencila functions
+	// Define classes
 	def_Exception();
-
-	// Declare classes
 	def_Component();
-    def_Package();
     def_Stencil();
 }

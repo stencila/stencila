@@ -40,7 +40,7 @@ Commit::Commit(const git_commit* commit){
 
 Repository::Repository(void):
 	repo_(nullptr){
-	// Initialise libgit so https supported is initialised
+	// Initialise libgit so https support is initialised
 	// See
 	//  https://github.com/libgit2/libgit2/issues/2446
 	// 	https://github.com/libgit2/libgit2/issues/2480
@@ -76,8 +76,10 @@ void Repository::init(const std::string& path,bool commit){
 	}
 }
 
-bool Repository::open(const std::string& path){
-	int error = git_repository_open_ext(&repo_,path.c_str(),0,NULL);
+bool Repository::open(const std::string& path, bool up){
+	const char* ceiling = NULL;
+	if(not up) ceiling = path.c_str();
+	int error = git_repository_open_ext(&repo_,path.c_str(),0,ceiling);
 	if(error==0) return true;
 	else if(error==GIT_ENOTFOUND) throw NoRepoError("No repository found at: "+path,__FILE__,__LINE__);
 	else throw Error(error,"",__FILE__,__LINE__);

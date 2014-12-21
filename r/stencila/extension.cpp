@@ -1,7 +1,8 @@
 #include <stencila/component.hpp>
+#include <stencila/network.hpp>
 
 #include "extension.hpp"
-#include "r-context.hpp"
+#include "context.hpp"
 
 using namespace Stencila;
 
@@ -29,6 +30,8 @@ STENCILA_R_FUNC Stencila_startup(void){
  * Shutdown function for the Stencila R module
  */
 STENCILA_R_FUNC Stencila_shutdown(void){
+	// Shutdown server if it has been started
+	Server::shutdown();
 	return null;
 }
 

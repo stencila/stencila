@@ -31,6 +31,10 @@ bool Node::is_document(void) const {
 	return pimpl_->type()==pugi::node_document;
 }
 
+bool Node::is_doctype(void) const {
+	return pimpl_->type()==pugi::node_doctype;
+}
+
 bool Node::is_element(void) const {
 	return pimpl_->type()==pugi::node_element;
 }
@@ -204,6 +208,10 @@ void Node::destroy(void) {
 
 Node Node::root(void){
 	return pimpl_->root();
+}
+
+Node Node::parent(void) const {
+	return pimpl_->parent();
 }
 
 Nodes Node::children(void) const {

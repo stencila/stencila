@@ -127,10 +127,18 @@ BOOST_AUTO_TEST_CASE(destroy_transient){
 }
 
 BOOST_AUTO_TEST_CASE(clone){
-    Component c;
-    c.clone("test");
+    Component::clone("test");
+    Component c("test");
     BOOST_CHECK_EQUAL(c.address(),"test");
     BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test.git");
+    c.destroy();
+}
+
+BOOST_AUTO_TEST_CASE(fork){
+    Component::fork("test","mytest");
+    Component c("mytest");
+    BOOST_CHECK_EQUAL(c.address(),"mytest");
+    BOOST_CHECK_EQUAL(c.origin(),"");
     c.destroy();
 }
 

@@ -61,21 +61,13 @@ BOOST_AUTO_TEST_CASE(empty){
 }
 
 BOOST_AUTO_TEST_CASE(indentation){
-    // Indentation should work with tabs or spaces
     ECHO_("ul\n\tli\n\tli")
     ECHO_("div\n\tdiv\n\t\tdiv")
-    // Always generates using tabs event if spaces were used
-    BACK_("div\n div\n  div","div\n\tdiv\n\t\tdiv")
     ECHO_("div\n\tdiv\n\t\tdiv\n\tdiv\ndiv")
 
-    ///..but not both
-    BOOST_CHECK_THROW(html("div\n\tdiv\n  div"),Stencila::Exception);
-    BOOST_CHECK_THROW(html("div\n  div\n\tdiv"),Stencila::Exception);
-
-    // CHeck that empty lines don't cause errors
+    // Check that empty lines don't cause errors
     auto cila_1 = "#a\n\t#aa\n\t#ab\n\t\n\t#ac";
-    auto cila_2 = "#a\n  #aa\n  #ab\n  \n  #ac";
-    auto cila_3 = "#a\n   #aa\n   #ab\n   \n   #ac";
+    auto cila_2 = "#a\n\t\t#aa\n\t\t#ab\n\t\t\n\t\t#ac";
     auto html_ = R"(<div id="a">
 	<div id="aa" />
 	<div id="ab" />
@@ -83,7 +75,6 @@ BOOST_AUTO_TEST_CASE(indentation){
 </div>)";
     HTML_(cila_1,html_);
     HTML_(cila_2,html_);
-    HTML_(cila_3,html_);
 }
 
 BOOST_AUTO_TEST_CASE(text){
@@ -103,9 +94,9 @@ BOOST_AUTO_TEST_CASE(mono){
 }
 
 BOOST_AUTO_TEST_CASE(math){
-    HTML_("|E=mc^2| at start","<script type=\"math/asciimath\">E=mc^2</script>\n at start");
-    HTML_("In the |E=mc^2| middle","In the \n<script type=\"math/asciimath\">E=mc^2</script>\n middle");
-    HTML_("At end |E=mc^2|","At end \n<script type=\"math/asciimath\">E=mc^2</script>");
+    HTML_("|E=mc^2| at start","<span class=\"math\">\n\t<script type=\"math/asciimath\">E=mc^2</script>\n</span>\n at start");
+    HTML_("In the |E=mc^2| middle","In the \n<span class=\"math\">\n\t<script type=\"math/asciimath\">E=mc^2</script>\n</span>\n middle");
+    HTML_("At end |E=mc^2|","At end \n<span class=\"math\">\n\t<script type=\"math/asciimath\">E=mc^2</script>\n</span>");
 
     ECHO_("|E=mc^2| at start")
     ECHO_("At end |E=mc^2|")
@@ -134,12 +125,15 @@ BOOST_AUTO_TEST_CASE(link){
 }
 
 BOOST_AUTO_TEST_CASE(different_numbers_of_inlines){
-    HTML_("`code` and |math|","<code>code</code>\n and \n<script type=\"math/asciimath\">math</script>");
+    HTML_("`code` and |math|","<code>code</code>\n and \n<span class=\"math\">\n\t<script type=\"math/asciimath\">math</script>\n</span>");
 }
 
 BOOST_AUTO_TEST_CASE(elements_with_trailing_text){
     HTML_("a my link","<a>my link</a>")
-    HTML_("span            This is my span","<span>           This is my span</span>");
+    HTML_("a [href=\"http://...\"] #id my link","<a href=\"http://...\" id=\"id\">my link</a>")
+    //First space after is stipped
+    HTML_("span foo","<span>foo</span>");
+    HTML_("span            foo","<span>           foo</span>");
 }
 
 BOOST_AUTO_TEST_CASE(header){
@@ -178,52 +172,60 @@ BOOST_AUTO_TEST_CASE(ol){
 
 BOOST_AUTO_TEST_CASE(id_class){
     // Shorthand CSS id and class works
-    ECHO_("ul#id")
-    ECHO_("ul.class")
+    ECHO_("ul #id")
+    ECHO_("ul .class")
     // Only one id
-    BACK_("ul#id1#id2","ul#id2")
+    BACK_("ul #id1 #id2","ul #id2")
     // More than one class
-    HTML_("div.klass","<div class=\"klass\" />");
-    HTML_("div.klass1.klass2","<div class=\"klass1 klass2\" />");
-    HTML_("div.klass-a.klass-b.klass-c","<div class=\"klass-a klass-b klass-c\" />");
+    HTML_("div .klass","<div class=\"klass\" />");
+    HTML_("div .klass1 .klass2","<div class=\"klass1 klass2\" />");
+    HTML_("div .klass-a .klass-b .klass-c","<div class=\"klass-a klass-b klass-c\" />");
     // No need to include div
     ECHO_("#id")
     HTML_(".class","<div class=\"class\" />")
     CILA_("<div class=\"class\" />",".class")
     ECHO_(".class")
     // Mix them up
-    ECHO_("#id.class")
+    ECHO_("#id .class")
     // ... id always comes before class
-    BACK_(".class#id","#id.class")
+    BACK_(".class #id","#id .class")
     // Multiple classes
-    HTML_(".a.b.c#id","<div class=\"a b c\" id=\"id\" />")
-    ECHO_(".a.b.c.d")
+    HTML_(".a .b .c #id","<div class=\"a b c\" id=\"id\" />")
+    ECHO_(".a .b .c .d")
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
-    HTML_("a[href=\"http://stenci.la\"] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
-    ECHO_("a[href=\"http://stenci.la\"][title=\"Stencila\"]\n\tStencila");
+    HTML_("a [href=\"http://stenci.la\"] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
+    ECHO_("a [href=\"http://stenci.la\"] [title=\"Stencila\"] Stencila");
     // More than one
-    HTML_("div[attr1=\"1\"][attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
-    ECHO_("ul[attr1=\"1\"][attr2=\"2\"][attr3=\"3\"]");
+    HTML_("div [attr1=\"1\"] [attr2=\"2\"]","<div attr1=\"1\" attr2=\"2\" />");
+    ECHO_("ul [attr1=\"1\"] [attr2=\"2\"] [attr3=\"3\"]");
     // Single quotes are replaced by doubles
-    BACK_("span[attr1='value']","span[attr1=\"value\"]")
+    BACK_("span [attr1='value']","span [attr1=\"value\"]")
     // No need to include div
     HTML_("[attr=\"1\"]","<div attr=\"1\" />")
     ECHO_("[attr=\"1\"]");
 }
 
 BOOST_AUTO_TEST_CASE(flags){
-    HTML_("/","<div data-off=\"true\" />")
-    ECHO_("/")
+    HTML_("&tH4dFg","<div data-hash=\"tH4dFg\" />")
+    ECHO_("&tH4dFg")
+
+    HTML_("off","<div data-off=\"true\" />")
+    ECHO_("off")
 
     HTML_("@42","<div data-index=\"42\" />")
     ECHO_("@42")
 
-    HTML_("^","<div data-lock=\"true\" />")
-    ECHO_("^")
+    HTML_("lock","<div data-lock=\"true\" />")
+    ECHO_("lock")
 
-    ECHO_("/@42^");
+    HTML_("out","<div data-out=\"true\" />")
+    ECHO_("out")
+
+    ECHO_("&tH4dFg off @42 lock out");
+    ECHO_("p &tH4dFg off @42 lock out");
+    ECHO_("#id .class &tH4dFg off @42 lock out");
 }
 
 BOOST_AUTO_TEST_CASE(paragraph_implied){
@@ -240,14 +242,11 @@ BOOST_AUTO_TEST_CASE(paragraph_implied){
 
 BOOST_AUTO_TEST_CASE(equations){
     // AsciiMath : lines starting with a | are made into separate paragraphs
-    HTML_("|E=mc^2|","<script type=\"math/asciimath\">E=mc^2</script>")
+    HTML_("|E=mc^2|","<p class=\"equation\">\n\t<script type=\"math/asciimath; mode=display\">E=mc^2</script>\n</p>")
     ECHO_("|E=mc^2|")
     // Tex and LaTeX : lines starting with a \( are made into separate paragraphs
-    HTML_("\\(E=mc^2\\)","<script type=\"math/tex\">E=mc^2</script>")
+    HTML_("\\(E=mc^2\\)","<p class=\"equation\">\n\t<script type=\"math/tex; mode=display\">E=mc^2</script>\n</p>")
     ECHO_("\\(E=mc^2\\)")
-    //...at present inline math should not be parsed, only lines starting with delimiter
-    HTML_("p where |c| is the speed of light","<p>\n\twhere \n\t<script type=\"math/asciimath\">c</script>\n\t is the speed of light\n</p>")
-    HTML_("p where \\(c\\) is the speed of light","<p>where \\(c\\) is the speed of light</p>")
 }
 
 BOOST_AUTO_TEST_CASE(meta){
@@ -351,15 +350,9 @@ plot(x,y)
     ECHO_(cila_)
 }
 
-BOOST_AUTO_TEST_CASE(code_output){
-    HTML_("<<","<div data-output=\"true\" />");
-    ECHO_("<<");
-}
-
-
 BOOST_AUTO_TEST_CASE(directive_text){
-    HTML_("text variable","<div data-text=\"variable\" />");
-    HTML_("span!text variable","<span data-text=\"variable\" />");
+    HTML_("text variable","<span data-text=\"variable\" />");
+    HTML_("span text variable","<span data-text=\"variable\" />");
 }
 
 BOOST_AUTO_TEST_CASE(directive_with){
@@ -367,12 +360,12 @@ BOOST_AUTO_TEST_CASE(directive_with){
     CILA_("<div data-with=\"what\" />","with what")
     ECHO_("with what")
 
-    ECHO_("section!with what")
+    ECHO_("section with what")
 }
 
 BOOST_AUTO_TEST_CASE(directive_if){
     HTML_(
-        "if true\n\tp.a\nelif false\n\tp.b\nelse\n\tp.c",
+        "if true\n\tp .a\nelif false\n\tp .b\nelse\n\tp .c",
         "<div data-if=\"true\">\n\t<p class=\"a\" />\n</div>\n<div data-elif=\"false\">\n\t<p class=\"b\" />\n</div>\n<div data-else=\"\">\n\t<p class=\"c\" />\n</div>"
     );
 }
@@ -380,12 +373,9 @@ BOOST_AUTO_TEST_CASE(directive_if){
 BOOST_AUTO_TEST_CASE(directive_switch){
 	auto cila_ = 
 R"(switch a
-	case 3.14
-		Pi
-	case 42
-		The answer
-	default
-		A number)";
+	case 3.14 Pi
+	case 42 The answer
+	default A number)";
     auto html_ = 
 R"(<div data-switch="a">
 	<div data-case="3.14">Pi</div>
@@ -417,7 +407,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 
     // Set directive
     ECHO_("include stencil selector\n\tset a = 4\n\tset b = 1")
-    ECHO_("include stencil selector\n\tset a = 7\n\tp>>\n\t\tSome included text")
+    ECHO_("include stencil selector\n\tset a = 7\n\tp included Some included text")
 }
 
 BOOST_AUTO_TEST_CASE(modifiers){
@@ -437,7 +427,7 @@ BOOST_AUTO_TEST_CASE(modifiers){
 
 BOOST_AUTO_TEST_CASE(directive_macro){
 	ECHO_("macro name")
-    HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<div data-text=\"a+b\" />\n</div>")
+    HTML_("macro name {text a+b}","<div data-macro=\"name\" id=\"name\">\n\t<span data-text=\"a+b\" />\n</div>")
 
     HTML_("macro name\n\tpar x","<div data-macro=\"name\" id=\"name\">\n\t<div data-par=\"x\" />\n</div>")
 }
@@ -455,17 +445,17 @@ BOOST_AUTO_TEST_CASE(directive_param){
 
 BOOST_AUTO_TEST_CASE(inlines){
     HTML_("Text with a no inlines","Text with a no inlines");
-    HTML_("Text with a {a[href=\"http://stencil.la\"] link} in it.","Text with a \n<a href=\"http://stencil.la\">link</a>\n in it.");
+    HTML_("Text with a {a [href=\"http://stencil.la\"] link} in it.","Text with a \n<a href=\"http://stencil.la\">link</a>\n in it.");
 
     HTML_("{div}","<div />");
     HTML_("{div {div}}","<div>\n\t<div />\n</div>");
 
     HTML_(
         "The minimum is {if a<b {text a}}{else {text b}}",
-        "The minimum is \n<div data-if=\"a&lt;b \">\n\t<div data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<div data-text=\"b\" />\n</div>"
+        "The minimum is \n<div data-if=\"a&lt;b\">\n\t<span data-text=\"a\" />\n</div>\n<div data-else=\"\">\n\t<span data-text=\"b\" />\n</div>"
     );
 
-    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<div data-text=\"pi*2\" />\n</div>");
+    HTML_("div\n\tSome inline {text pi*2}","<div>\n\tSome inline \n\t<span data-text=\"pi*2\" />\n</div>");
 
     HTML_("div Some text","<div>Some text</div>");
     HTML_("div {Some text}","<div>Some text</div>");

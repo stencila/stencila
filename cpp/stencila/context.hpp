@@ -10,46 +10,17 @@ namespace Stencila {
 class Context : public Component {
 public:
 
-    std::string call(const Call& call) {
-        auto what = call.what();
-        if(what=="execute"){
-            execute(call.arg(0));
-        }
-        else if(what=="interact"){
-            return interact(call.arg(0));
-        }
-        else if(what=="write"){
-            return write(call.arg(0));
-        }
-        return "";
-    }
-    
-protected:
-
-    /**
-     * Method to throw an "unsupported" exception
-     */
-    void unsupported_(const std::string& method){
-        throw Exception("Method \"" + method + "\" not supported by this type of context");
-    }
-
-public:
-
     // Virtual destructor to prevent compiler warnings
     virtual ~Context(void) {};
 
+    /**
+     * Get details of this context
+     */
     virtual std::string details(void) const = 0;
 
     /**
-     * @name Rendering methods
-     *
-     * Methods related to rendering of stencils
-     *
-     * @{
-     */
-    
-    /**
      * Does this context support the given language
+     * 
      * @param  language A language code (e.g. "py","r","js")
      */
     virtual bool accept(const std::string& language) const = 0;
@@ -58,12 +29,13 @@ public:
      * Execute code within the context
      * 
      * @param code String of code
+     * @param id Unique identifier for this execution
      * @param format Output format
      * @param width Width of output (image formats only)
      * @param height Height of output (image formats only)
      * @param units Units of width and height (image formats only)
      */
-    virtual std::string execute(const std::string& code, const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units="") = 0;
+    virtual std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units="") = 0;
     
     /**
      * Execute a peice of code and return an interactive result
@@ -72,9 +44,10 @@ public:
      * [read-eval-print loop](http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop).
      * 
      * @param  code String of code
+     * @param  id   Unique identifier for this execution
      * @return      String representation of the result of executing the code
      */
-    virtual std::string interact(const std::string& code) = 0;
+    virtual std::string interact(const std::string& code, const std::string& id="") = 0;
 
     /**
      * Assign an expression to a name.
@@ -85,6 +58,16 @@ public:
      * @param expression Expression to be assigned to name
      */
     virtual void assign(const std::string& name, const std::string& expression) = 0;
+
+    /**
+     * Apply user input to the context
+     * Used by stencil `<input>` elements.
+     * 
+     * @param name  Name of the input
+     * @param type  Type of the input (e.g. "text","number")
+     * @param value Value of the input
+     */
+    virtual void input(const std::string& name, const std::string& type, const std::string& value) = 0;
 
     /**
      * Get a text representation of an expression. 
@@ -157,9 +140,30 @@ public:
     virtual void exit(void) = 0;
 
     /**
-     * @}
+     * Call a method of this context
      */
+    std::string call(const Call& call) {
+        auto what = call.what();
+        if(what=="execute"){
+            execute(call.arg(0));
+        }
+        else if(what=="interact"){
+            return interact(call.arg(0));
+        }
+        else if(what=="write"){
+            return write(call.arg(0));
+        }
+        return "";
+    }
+    
+protected:
 
+    /**
+     * Method to throw an "unsupported" exception
+     */
+    void unsupported_(const std::string& method){
+        throw Exception("Method \"" + method + "\" not supported by this type of context");
+    }
 };
 
 }

@@ -28,6 +28,10 @@ public:
 		meta_(nullptr){
 	}
 
+	Component(const std::string& address){
+		initialise(address);
+	}
+
 	~Component(void){
 		if(meta_) delete meta_;
 	}
@@ -39,6 +43,13 @@ public:
 	 * 
 	 * @{
 	 */
+	
+    /**
+     * Initialise a component
+     * 
+     * @param  address Address of component
+     */
+    Component& initialise(const std::string& address);
 
 	/**
 	 * Get this component's path
@@ -87,18 +98,6 @@ public:
      */
     static std::string locate(const std::string& address);
 
-    /**
-     * Get the package that this component belongs to
-     */
-    std::string package(void);
-
-    /**
-     * Get the package corresponding to a component address
-     * 
-     * @param  address A component address
-     */
-    static std::string package(const std::string& address);
-
 	/**
 	 * List files and folders in a components directory 
 	 */
@@ -124,7 +123,22 @@ public:
 	 */
 	Component& create(const std::string& path,const std::string& content="\n");
 
+	/**
+	 * Read a file withing the component's working directory
+	 * 
+	 * @param  path    Filesystem path within the working directory
+	 * @param  content String content to write
+	 */
 	Component& write(const std::string& path,const std::string& content);
+
+	/**
+	 * Read a file withing the component's working directory
+	 * 
+	 * @param  path    Filesystem path within the working directory
+	 * @param  flag    A dummy string argument. Used to avoid ambiguity with other `read` method
+	 *                 whilst maining consistency with file `write` method
+	 */
+	std::string read(const std::string& path,const std::string& flag);
 
 	/**
 	 * Delete a file within the component's working directory
@@ -181,14 +195,15 @@ public:
 	 *
 	 * @param  address Address of component to be cloned
 	 */
-	Component& clone(const std::string& address);
+	static void clone(const std::string& address);
 
 	/**
 	 * Fork a component
 	 *
-	 * @param  address Address of component to be forked
+	 * @param  from Address of component to be forked
+	 * @param  to Address of new component
 	 */
-	Component& fork(const std::string& address);
+	static void fork(const std::string& from, const std::string& to);
 
 	/**
 	 * Get the origin for this component
@@ -269,7 +284,6 @@ public:
 	enum Type {
 		NoType,
 		ComponentType,
-		PackageType,
 		StencilType,
 		ThemeType,
 
@@ -438,19 +452,19 @@ public:
 	    
 	struct Call {
 	    std::string what_;
-	    std::vector<std::string> args_;
-	    std::map<std::string,std::string> kwargs_;
+	    Json::Document args_;
+	    Json::Document kwargs_;
 	
 	    Call(const std::string& what):
 	        what_(what){
 	    }
 	
-	    Call(const std::string& what, const std::vector<std::string>& args):
+	    Call(const std::string& what, const std::string& args):
 	        what_(what),
 	        args_(args){
 	    }
 	
-	    Call(const std::string& what, const std::vector<std::string>& args, const std::map<std::string,std::string>& kwargs):
+	    Call(const std::string& what, const std::string& args, const std::string& kwargs):
 	        what_(what),
 	        args_(args),
 	        kwargs_(kwargs){
@@ -465,16 +479,17 @@ public:
 	    }
 	
 	    template<typename Type=std::string>
-	    Type arg(unsigned int index,const std::string& name="") const {
+	    Type arg(int index,const std::string& name="") const {
+	        // Get argument string
+	        std::string arg;
 	        if(name.length()>0){
-	            auto i = kwargs_.find(name);
-	            if(i!=kwargs_.end()) return unstring<Type>(i->second);
+	            if(kwargs_.has(name)) return kwargs_[name].as<Type>();
 	            else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
 	        }
-	        if(args_.size()<index+1){
+	        else if(args_.size()<index+1){
 	            STENCILA_THROW(Exception,"Not enough arguments supplied");
 	        }
-	        return unstring<Type>(args_[index]);
+	        else return args_[index].as<Type>();
 	    }
 	};
 

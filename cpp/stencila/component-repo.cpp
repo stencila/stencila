@@ -34,20 +34,21 @@ Component::Repository* Component::repo(bool ensure) const {
 	}
 }
 
-Component& Component::clone(const std::string& address) {
-	if(path().length()>0) STENCILA_THROW(Exception,"Path already set for this component; can not clone");
-	if(not meta_) meta_ = new Meta;
-	meta_->repo = new Repository;
-	std::string path = stores()[1] + "/" + address;
-	meta_->repo->clone("http://stenci.la/"+address+".git",path);
-	meta_->path = path;
-	return *this;
+void Component::clone(const std::string& address) {
+	Repository repo;
+	repo.clone(
+		"http://stenci.la/"+address+".git",
+		stores()[1] + "/" + address
+	);
 }
 
-Component& Component::fork(const std::string& address) {
-	clone(address);
-	meta_->repo->remote("origin","");
-	return *this;
+void Component::fork(const std::string& from, const std::string& to) {
+	Repository repo;
+	repo.clone(
+		"http://stenci.la/"+from+".git",
+		stores()[1] + "/" + to
+	);
+	repo.remote("origin","");
 }
 
 std::string Component::origin(void) const {
