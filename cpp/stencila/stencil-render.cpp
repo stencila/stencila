@@ -150,9 +150,9 @@ void Stencil::render_par(Node node, Context* context){
     }
 }
 
-void Stencil::render_text(Node node, Context* context){
+void Stencil::render_write(Node node, Context* context){
     if(node.attr("data-lock")!="true"){
-        std::string expression = node.attr("data-text");
+        std::string expression = node.attr("data-write");
         std::string text = context->write(expression);
         node.text(text);
     }
@@ -622,7 +622,7 @@ void Stencil::render(Node node, Context* context){
                 return;
             }
             else if(attr=="data-par") return render_par(node,context);
-            else if(attr=="data-text") return render_text(node,context);
+            else if(attr=="data-write") return render_write(node,context);
             else if(attr=="data-with") return render_with(node,context);
             else if(attr=="data-if") return render_if(node,context);
             // Ignore `elif` and `else` elements as these are processed by `if_`

@@ -65,10 +65,10 @@ BOOST_AUTO_TEST_CASE(code){
 BOOST_AUTO_TEST_CASE(set){
     render(R"(
         <p data-set="x=42" />
-        <p id="x" data-text="x"></p>
+        <p id="x" data-write="x"></p>
 
         <p data-set="y">24</p>
-        <p id="y" data-text="y"></p>
+        <p id="y" data-write="y"></p>
 
         <p id="z" data-set="z"></p>
     )");
@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE(set){
 BOOST_AUTO_TEST_CASE(par){
     render(R"(
         <div data-par="x:number=42" />
-        <p id="x" data-text="x"></p>
+        <p id="x" data-write="x"></p>
 
         <div data-par="y=24" />
-        <p id="y" data-text="y"></p>
+        <p id="y" data-write="y"></p>
 
         <div id="z" data-par="z" />
     )");
@@ -103,20 +103,20 @@ BOOST_AUTO_TEST_CASE(par){
 
 BOOST_AUTO_TEST_CASE(text){
     render(R"(
-        <p data-text="a" />
-        <p data-text="none" />
+        <p data-write="a" />
+        <p data-write="none" />
     )");
 
-    BOOST_CHECK_EQUAL(stencil.select("[data-text=\"a\"]").text(),"A");
-    BOOST_CHECK_EQUAL(stencil.select("[data-text=\"none\"]").text(),"");
+    BOOST_CHECK_EQUAL(stencil.select("[data-write=\"a\"]").text(),"A");
+    BOOST_CHECK_EQUAL(stencil.select("[data-write=\"none\"]").text(),"");
 }
 
 BOOST_AUTO_TEST_CASE(text_lock){
     render(R"(
-        <p data-text="a" data-lock="true">So long, and thanks ...</p>
+        <p data-write="a" data-lock="true">So long, and thanks ...</p>
     )");
 
-    BOOST_CHECK_EQUAL(stencil.select("[data-text=\"a\"]").text(),"So long, and thanks ...");
+    BOOST_CHECK_EQUAL(stencil.select("[data-write=\"a\"]").text(),"So long, and thanks ...");
 }
 
 /* 
@@ -127,15 +127,15 @@ A `data-with` directive can not be tested with map context at present because it
 BOOST_AUTO_TEST_CASE(with){
     render(R"(
         <ul data-with="planets">
-            <li data-text="1" />
-            <li data-text="3" />
-            <li data-text="5" />
+            <li data-write="1" />
+            <li data-write="3" />
+            <li data-write="5" />
         </ul>
     )");
 
-    BOOST_CHECK_EQUAL(stencil.select("li[data-text=\"1\"]").text(),"Argabuthon");
-    BOOST_CHECK_EQUAL(stencil.select("li[data-text=\"3\"]").text(),"Bethselamin");
-    BOOST_CHECK_EQUAL(stencil.select("li[data-text=\"5\"]").text(),"Gagrakacka");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-write=\"1\"]").text(),"Argabuthon");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-write=\"3\"]").text(),"Bethselamin");
+    BOOST_CHECK_EQUAL(stencil.select("li[data-write=\"5\"]").text(),"Gagrakacka");
 }
 */
 
@@ -194,20 +194,20 @@ BOOST_AUTO_TEST_CASE(switch_2){
         <div data-switch="a">
             <p data-case="x" />
             <p data-default data-off>
-                <span data-text="a" />
+                <span data-write="a" />
             </p>
         </div>
     )");
 
     BOOST_CHECK(stencil.select("p[data-case=\"x\"]").has("data-off"));
     BOOST_CHECK(not stencil.select("p[data-default]").has("data-off"));
-    BOOST_CHECK_EQUAL(stencil.select("p[data-default] span[data-text=\"a\"]").text(),"A");
+    BOOST_CHECK_EQUAL(stencil.select("p[data-default] span[data-write=\"a\"]").text(),"A");
 }
 
 BOOST_AUTO_TEST_CASE(for_){
     render(R"(
         <ul data-for="planet:planets">
-            <li data-text="planet" />
+            <li data-write="planet" />
         </ul>
     )");
     
@@ -218,8 +218,8 @@ BOOST_AUTO_TEST_CASE(for_){
 BOOST_AUTO_TEST_CASE(for_existing_index){
     render(R"(
         <ul data-for="planet:planets">
-            <li data-text="planet" />
-            <li data-text="planet" data-index="0">Should be overwritten</li>
+            <li data-write="planet" />
+            <li data-write="planet" data-index="0">Should be overwritten</li>
         </ul>
     )");
     
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(for_existing_index){
 BOOST_AUTO_TEST_CASE(for_locked_extras){
     render(R"(
         <ul data-for="planet:planets">
-            <li data-text="planet" />
+            <li data-write="planet" />
             <li data-index="998">Should be removed</li>
             <li data-index="999">Should be retained because contains a lock <span data-lock /> </li>
         </ul>
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(for_nested){
     render(R"(
         <tbody data-for="number:numbers">
             <tr data-for="letter:letters">
-                <td data-text="letter"></td>
+                <td data-write="letter"></td>
             </tr>
         </tbody
     )");
@@ -292,11 +292,11 @@ BOOST_AUTO_TEST_CASE(include_previous_included_is_not_cleared_if_lock){
 
 BOOST_AUTO_TEST_CASE(include_simple_rendered){
     render(R"(
-        <div id="includee" data-text="a"></div>
+        <div id="includee" data-write="a"></div>
         <div data-include="." data-select="#includee" />
     )");
 
-    BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] [data-text=\"a\"]").text(),"A");
+    BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] [data-write=\"a\"]").text(),"A");
 }
 
 BOOST_AUTO_TEST_CASE(include_modifiers){
@@ -349,9 +349,9 @@ BOOST_AUTO_TEST_CASE(include_par){
             <div data-par="x" />
             <div data-par="y=2" />
 
-            <div class="x" data-text="x"></div>
-            <div class="y" data-text="y"></div>
-            <div class="z" data-text="z"></div>
+            <div class="x" data-write="x"></div>
+            <div class="y" data-write="y"></div>
+            <div class="z" data-write="z"></div>
         </div>
 
         <div id="a" data-include="." data-select="#includee">

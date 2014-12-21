@@ -327,14 +327,14 @@ public:
     void render_par(Node node, Context* context);
 
     /**
-     * Render a `text` element (e.g. `<span data-text="result"></span>`)
+     * Render a `write` directive (e.g. `<span data-write="result"></span>`)
      *
-     * The expression in the `data-text` attribute is converted to a 
+     * The expression in the `data-write` attribute is converted to a 
      * character string by the context and used as the element's text.
      * If the element has a `data-off="true"` attribute then the element will not
      * be rendered and its text will remain unchanged.
      */
-    void render_text(Node node, Context* context);
+    void render_write(Node node, Context* context);
 
     /**
      * Render a `with` element (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
