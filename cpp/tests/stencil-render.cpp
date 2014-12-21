@@ -54,8 +54,8 @@ using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(code){
     render(R"(
-        <code class="a" data-code="map">This should be ignored because no MapContext does not `accept` any code</code>
-        <code class="b">This should be ignored because no data-code attribute</code>
+        <code class="a" data-exec="map">This should be ignored because no MapContext does not `accept` any code</code>
+        <code class="b">This should be ignored because no data-exec attribute</code>
     )");
 
     BOOST_CHECK(not stencil.select("code.a [data-error]"));

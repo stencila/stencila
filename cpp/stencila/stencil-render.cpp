@@ -29,11 +29,11 @@ void Stencil::render_error(Node node, const std::string& type, const std::string
     node.attr("data-error",type+"~"+data+"~"+message);
 }
 
-void Stencil::render_code(Node node, Context* context){
+void Stencil::render_exec(Node node, Context* context){
     // Check if this `code` directive needs to be executed
     if(not render_hash(node)) return;
     // Get the list of contexts and ensure this context is in the list
-    std::string contexts = node.attr("data-code");
+    std::string contexts = node.attr("data-exec");
     std::vector<std::string> items = split(contexts,",");
     bool ok = false;
     for(std::string& item : items){
@@ -616,7 +616,7 @@ void Stencil::render(Node node, Context* context){
         for(std::string attr : node.attrs()){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
-            else if(attr=="data-code") return render_code(node,context);
+            else if(attr=="data-exec") return render_exec(node,context);
             else if(attr=="data-set"){
                 render_set(node,context);
                 return;

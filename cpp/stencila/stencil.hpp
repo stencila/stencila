@@ -282,34 +282,25 @@ public:
     void render_error(Node node, const std::string& type, const std::string& data, const std::string& message);
 
     /**
-     * Render a `code` element (e.g. `<code data-code="r,py">`)
+     * Render an `exec` directive (e.g. `<pre data-exec="r,py">`)
      *
      * The text of the element is executed in the context if the context's type
-     * is listed in the `data-code` attribute. If the context's type is not listed
+     * is listed in the `data-exec` attribute. If the context's type is not listed
      * then the element will not be rendered (i.e. will not be executed). 
      * 
-     * This behaviour allows for polyglot stencils which have both `code` elements that
+     * This behaviour allows for polyglot stencils which have `exec` directives that
      * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
      * as required by similarities/differences in the language syntax e.g.
      *
-     *    <code data-code="r,py">
+     *    <pre data-exec="r,py">
      *        m = 1
      *        c = 299792458
-     *    </code>
+     *    </pre>
      * 
-     *    <code data-code="r"> e = m * c^2 </code>
-     *    <code data-code="py"> e = m * pow(c,2) </code>
-     *    
-     * 
-     * `code` elements must have both the `code` tag and the `data-code` attribute.
-     * Elements having just one of these will not be rendered.
-     *
-     * 
-     *
-     * This method is currently incomplete, it does not insert bitmap formats like PNG fully.
-     * The best way to do that still needs to be worked out.
+     *    <pre data-exec="r"> e = m * c^2 </pre>
+     *    <pre data-exec="py"> e = m * pow(c,2) </pre>
      */
-    void render_code(Node node, Context* context);
+    void render_exec(Node node, Context* context);
 
     /**
      * Render a `set` element (e.g. `<span data-set="answer=42"></span>`)

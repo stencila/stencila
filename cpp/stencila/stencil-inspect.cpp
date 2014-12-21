@@ -12,7 +12,7 @@ const std::vector<std::string> Stencil::tags = {
 };
 
 const std::vector<std::string> Stencil::directives = {
-    "data-code","data-format","data-size",
+    "data-exec","data-format","data-size",
     "data-write","data-with",
     "data-if","data-elif","data-else",
     "data-switch","data-case","data-default",
