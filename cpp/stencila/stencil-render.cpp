@@ -743,10 +743,10 @@ void Stencil::render_initialise(Node node, Context* context){
 void Stencil::render_finalise(Node node, Context* context){
     outline_->render();
 
-    // Render references
-    for(Node ref : filter("[data-ref]")){
+    // Render refer directives
+    for(Node ref : filter("[data-refer]")){
         ref.clear();
-        std::string selector = ref.attr("data-ref");
+        std::string selector = ref.attr("data-refer");
         Node target = select(selector);
         Node label = target.select(".label");
         if(label){
