@@ -269,9 +269,9 @@ public:
 	static bool flag(const std::string& attr);
 
 	struct Directive {
-
 		typedef std::string Name;
 		typedef std::string Expression;
+		typedef bool Flag;
 	};
 
 	struct DirectiveException : Exception {
@@ -322,6 +322,8 @@ public:
 		Expression height;
 		Expression units;
 		std::string size;
+		Flag constant = false;
+		Flag show = false;
 
 		Execute(const std::string& attribute);
 		Execute(Node node);

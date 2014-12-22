@@ -73,6 +73,24 @@ BOOST_AUTO_TEST_CASE(exec){
 		}
 	}
 
+	{
+		E e("r");
+		BOOST_CHECK(not e.constant);
+	}
+	{
+		E e("r const");
+		BOOST_CHECK(e.constant);
+	}
+
+	{
+		E e("cila");
+		BOOST_CHECK(not e.show);
+	}
+	{
+		E e("cila show");
+		BOOST_CHECK(e.show);
+	}
+
 }
 
 BOOST_AUTO_TEST_CASE(par){

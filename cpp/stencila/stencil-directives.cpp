@@ -20,7 +20,7 @@ const std::vector<std::string> Stencil::directives = {
 
 const std::vector<std::string> Stencil::flags = {
 	"data-const","data-hash","data-output",
-	"data-off","data-index","data-lock","data-included",
+	"data-show","data-off","data-index","data-lock","data-included",
 	"data-error"
 };
 
@@ -54,6 +54,8 @@ void Stencil::Execute::parse(const std::string& attribute){
 		"(\\s+height\\s+(.+?))?" \
 		"(\\s+units\\s+(.+?))?" \
 		"(\\s+size\\s+(.+?))?" \
+        "(\\s+(const))?" \
+        "(\\s+(show))?" \
 		"$"
 	);
 	if(boost::regex_search(attribute, match, pattern)) {
@@ -102,6 +104,9 @@ void Stencil::Execute::parse(const std::string& attribute){
 		} else {
 			units = "cm";
 		}
+
+        constant = match[14].str()=="const";
+        show = match[16].str()=="show";
 
 	} else {
 		throw DirectiveException("syntax",attribute);
