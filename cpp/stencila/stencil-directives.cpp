@@ -155,6 +155,9 @@ void Stencil::Execute::render(Node node, Context* context, const std::string& id
             }
         }
     }
+
+    // Add a show flag if needed
+    if(show) node.attr("data-show","true");
 }
 
 
