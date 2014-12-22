@@ -268,8 +268,22 @@ public:
 	 */
 	static bool flag(const std::string& attr);
 
+	struct Directive {
+		typedef std::string Name;
+		typedef std::string Expression;
+	};
+
+	struct DirectiveException : Exception {
+		std::string type;
+		std::string data;
+
+		DirectiveException(const std::string& type, const std::string& data):
+			type(type),data(data){
+		}
+	};
+
 	/**
-	 * Render an error onto a node.
+	 * Render an error onto a directive node.
 	 * 
 	 * A function for providing consistent error reporting from
 	 * within rendering functions.
@@ -281,13 +295,47 @@ public:
 	static void error(Node node, const std::string& type, const std::string& data);
 
 	/**
-	 * A `par` directive
+	 * An execute (`exec`) directive (e.g. `<pre data-exec="r,py">`)
+	 *
+	 * The text of the element is executed in the context if the context's type
+	 * is listed in the `data-exec` attribute. If the context's type is not listed
+	 * then the element will not be rendered (i.e. will not be executed). 
+	 * 
+	 * This behaviour allows for polyglot stencils which have `exec` directives that
+	 * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
+	 * as required by similarities/differences in the language syntax e.g.
+	 *
+	 *    <pre data-exec="r,py">
+	 *        m = 1
+	 *        c = 299792458
+	 *    </pre>
+	 * 
+	 *    <pre data-exec="r"> e = m * c^2 </pre>
+	 *    <pre data-exec="py"> e = m * pow(c,2) </pre>
 	 */
-	struct Parameter {
+	struct Execute : Directive {
 		bool valid;
-		std::string name;
-		std::string type;
-		std::string value;
+		std::vector<Name> contexts;
+		Expression format;
+		Expression width;
+		Expression height;
+		Expression units;
+		std::string size;
+		
+		Execute(const std::string& attribute);
+		Execute(Node node);
+
+		void render(Node node, Context* context, const std::string& id);
+	};
+
+	/**
+	 * A parameter (`par`) directive
+	 */
+	struct Parameter : Directive {
+		bool valid;
+		Name name;
+		Name type;
+		Expression value;
 
 		Parameter(const std::string& attribute);
 		Parameter(Node node);
@@ -332,39 +380,6 @@ public:
 	 * The method `delete`s the context.
 	 */
 	std::string context(void) const;
-
-	/**
-	 * Render an error onto a node.
-	 * 
-	 * A function for providing consistent error reporting from
-	 * within rendering functions.
-	 * 
-	 * @param node    Node where error occurred
-	 * @param type    Type of error, usually prefixed with directive type e.g. `for-syntax`
-	 * @param data    Data associated with the error which may be useful for resolving it
-	 */
-	void render_error(Node node, const std::string& type, const std::string& data);
-
-	/**
-	 * Render an `exec` directive (e.g. `<pre data-exec="r,py">`)
-	 *
-	 * The text of the element is executed in the context if the context's type
-	 * is listed in the `data-exec` attribute. If the context's type is not listed
-	 * then the element will not be rendered (i.e. will not be executed). 
-	 * 
-	 * This behaviour allows for polyglot stencils which have `exec` directives that
-	 * are either polyglot (valid in more than one languages) or monoglot (valid in only one language)
-	 * as required by similarities/differences in the language syntax e.g.
-	 *
-	 *    <pre data-exec="r,py">
-	 *        m = 1
-	 *        c = 299792458
-	 *    </pre>
-	 * 
-	 *    <pre data-exec="r"> e = m * c^2 </pre>
-	 *    <pre data-exec="py"> e = m * pow(c,2) </pre>
-	 */
-	void render_exec(Node node, Context* context);
 
 	/**
 	 * Render a `set` element (e.g. `<span data-set="answer=42"></span>`)

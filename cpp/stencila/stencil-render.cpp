@@ -25,77 +25,6 @@ std::string Stencil::context(void) const {
     else return "none";
 }
 
-void Stencil::render_error(Node node, const std::string& type, const std::string& data){
-    node.attr("data-error-" + type,data);
-}
-
-void Stencil::render_exec(Node node, Context* context){
-    // Check if this `code` directive needs to be executed
-    if(not render_hash(node)) return;
-    // Get the list of contexts and ensure this context is in the list
-    std::string contexts = node.attr("data-exec");
-    std::vector<std::string> items = split(contexts,",");
-    bool ok = false;
-    for(std::string& item : items){
-        trim(item);
-        if(context->accept(item)){
-            ok = true;
-            break;
-        }
-    }
-    // If ok, execute the code, otherwise just ignore
-    if(ok){
-        // Get code and format etc
-        std::string code = node.text();
-        if(code.length()>0){
-            std::string format = node.attr("data-format");
-            std::string size = node.attr("data-size");
-            std::string width,height,units;
-            if(size.length()){
-                boost::regex regex("([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(cm|in|px)?");
-                boost::smatch matches;
-                if(boost::regex_match(size, matches, regex)){
-                    width = matches[1];
-                    height = matches[2];
-                    if(matches.size()>2) units = matches[3];
-                }
-            }
-            // Default images sizes and units based on the width of an A4 page having
-            // 2cm margins.
-            if(width=="") width = "17";
-            if(height=="") height = "17";
-            if(units=="") units = "cm";
-            // Execute
-            std::string output = context->execute(code,hash_,format,width,height,units);
-            // Remove any existing output
-            Node next = node.next_element();
-            if(next and next.attr("data-out")=="true") next.destroy();
-            // Append new output
-            if(format.length()){
-                Xml::Document doc;
-                Node output_node;
-                if(format=="text"){
-                    output_node = doc.append("samp",output);
-                }
-                else if(format=="png" or format=="svg"){
-                    output_node = doc.append("img",{
-                        {"src",output}
-                    });
-                }
-                else {
-                    render_error(node,"format",format);
-                }
-                if(output_node){
-                    // Flag output node 
-                    output_node.attr("data-out","true");
-                    // Create a copy immeadiately after code directive
-                    node.after(output_node);
-                }
-            }
-        }
-    }
-}
-
 std::string Stencil::render_set(Node node, Context* context){
     std::string attribute = node.attr("data-set");
     static const boost::regex pattern("^(\\w+)\\s+to\\s+(.+)$");
@@ -107,7 +36,7 @@ std::string Stencil::render_set(Node node, Context* context){
         return name;
     }
     else {
-        render_error(node,"syntax",attribute);
+        error(node,"syntax",attribute);
         return "";
     }
 }
@@ -414,7 +343,7 @@ void Stencil::render_include(Node node, Context* context){
                     context->assign(name,default_);
                 } else {
                     // Set an error
-                    render_error(node,"required",name);
+                    error(node,"required",name);
                     ok  = false;
                 }
             }
@@ -569,7 +498,10 @@ void Stencil::render(Node node, Context* context){
         for(std::string attr : node.attrs()){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
-            else if(attr=="data-exec") return render_exec(node,context);
+            else if(attr=="data-exec"){
+                if(render_hash(node)) return Execute(node).render(node,context,hash_);
+                else return;
+            }
             else if(attr=="data-set"){
                 render_set(node,context);
                 return;
@@ -641,11 +573,14 @@ void Stencil::render(Node node, Context* context){
         // If return not yet hit then process children of this element
         render_children(node,context);
     }
+    catch(const DirectiveException& exc){
+        error(node,exc.type,exc.data);
+    }
     catch(const std::exception& exc){
-        render_error(node,"exception",exc.what());
+        error(node,"exception",exc.what());
     }
     catch(...){
-        render_error(node,"exception","unknown");
+        error(node,"exception","unknown");
     }
 }
 
