@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE(include_par){
         </div>
     )");
     
-    BOOST_CHECK_EQUAL(stencil.select("#a [data-error-par-required]").attr("data-error-par-required"),"x");
+    BOOST_CHECK_EQUAL(stencil.select("#a[data-error-required]").attr("data-error-required"),"x");
     
     BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.x").text(),"10");
     BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.y").text(),"2");

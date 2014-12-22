@@ -277,9 +277,8 @@ public:
      * @param node    Node where error occurred
      * @param type    Type of error, usually prefixed with directive type e.g. `for-syntax`
      * @param data    Data associated with the error which may be useful for resolving it
-     * @param message A human readable description of the error
      */
-    void render_error(Node node, const std::string& type, const std::string& data, const std::string& message);
+    void render_error(Node node, const std::string& type, const std::string& data);
 
     /**
      * Render an `exec` directive (e.g. `<pre data-exec="r,py">`)

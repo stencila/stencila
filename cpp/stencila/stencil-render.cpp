@@ -25,8 +25,8 @@ std::string Stencil::context(void) const {
     else return "none";
 }
 
-void Stencil::render_error(Node node, const std::string& type, const std::string& data, const std::string& message){
-    node.attr("data-error",type+"~"+data+"~"+message);
+void Stencil::render_error(Node node, const std::string& type, const std::string& data){
+    node.attr("data-error-" + type,data);
 }
 
 void Stencil::render_exec(Node node, Context* context){
@@ -83,7 +83,7 @@ void Stencil::render_exec(Node node, Context* context){
                     });
                 }
                 else {
-                    render_error(node,"out-format",format,"Output format not recognised: "+format);
+                    render_error(node,"format",format);
                 }
                 if(output_node){
                     // Flag output node 
@@ -107,7 +107,7 @@ std::string Stencil::render_set(Node node, Context* context){
         return name;
     }
     else {
-        render_error(node,"set-syntax",attribute,"Syntax error in attribute <"+attribute+">");
+        render_error(node,"syntax",attribute);
         return "";
     }
 }
@@ -138,7 +138,7 @@ void Stencil::render_par(Node node, Context* context){
         render_input(input,context);
     }
     else {
-        render_error(node,"par-syntax",par.attribute,"Syntax error in attribute <"+par.attribute+">");
+        render_error(node,"syntax",par.attribute);
     }
 }
 
@@ -444,7 +444,7 @@ void Stencil::render_include(Node node, Context* context){
                     context->assign(name,default_);
                 } else {
                     // Set an error
-                    render_error(node,"par-required",name,"Parameter <"+name+"> is required because it has no default");
+                    render_error(node,"required",name);
                     ok  = false;
                 }
             }
@@ -681,10 +681,10 @@ void Stencil::render(Node node, Context* context){
         render_children(node,context);
     }
     catch(const std::exception& exc){
-        render_error(node,"exception","",exc.what());
+        render_error(node,"exception",exc.what());
     }
     catch(...){
-        render_error(node,"unknown","","Unknown exception");
+        render_error(node,"exception","unknown");
     }
 }
 
