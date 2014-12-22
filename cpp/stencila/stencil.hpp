@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stencila/component.hpp>
-#include <stencila/xml.hpp>
 #include <stencila/context.hpp>
+#include <stencila/xml.hpp>
 
 namespace Stencila {
 
@@ -269,6 +269,7 @@ public:
 	static bool flag(const std::string& attr);
 
 	struct Directive {
+
 		typedef std::string Name;
 		typedef std::string Expression;
 	};
@@ -321,10 +322,10 @@ public:
 		Expression height;
 		Expression units;
 		std::string size;
-		
+
 		Execute(const std::string& attribute);
 		Execute(Node node);
-
+		void parse(const std::string& attribute);
 		void render(Node node, Context* context, const std::string& id);
 	};
 
@@ -332,14 +333,13 @@ public:
 	 * A parameter (`par`) directive
 	 */
 	struct Parameter : Directive {
-		bool valid;
 		Name name;
 		Name type;
 		Expression value;
 
 		Parameter(const std::string& attribute);
 		Parameter(Node node);
-
+		void parse(const std::string& attribute);
 		void render(Node node, Context* context);
 	};
 
@@ -347,6 +347,34 @@ public:
 	 * Get this stencil's parameters
 	 */
 	std::vector<Parameter> pars(void) const;
+
+	/**
+	 * A set (`set`) directive (e.g. `<span data-set="answer to 42"></span>`)
+	 *
+	 * The expression in the `data-set` attribute is assigned to the name in the context.
+	 */
+	struct Set : Directive {
+		Name name;
+		Expression value;
+
+		Set(const std::string& attribute);
+		Set(Node node);
+		void parse(const std::string& attribute);
+		void render(Node node, Context* context);
+	};
+
+	/**
+	 * An `include` directive (e.g. `<div data-include="stats/t-test select #macros #text #simple-paragraph" />` )
+	 */
+	struct Include : Directive {
+		Expression address;
+		Expression select;
+
+		Include(const std::string& attribute);
+		Include(Node node);
+		void parse(const std::string& attribute);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
 
 	/**
 	 * @}
@@ -380,14 +408,6 @@ public:
 	 * The method `delete`s the context.
 	 */
 	std::string context(void) const;
-
-	/**
-	 * Render a `set` element (e.g. `<span data-set="answer=42"></span>`)
-	 *
-	 * The expression in the `data-set` attribute is parsed and
-	 * assigned to a variable in the context.
-	 */
-	std::string render_set(Node node, Context* context);
 
 	/**
 	 * Render a `write` directive (e.g. `<span data-write="result"></span>`)
@@ -437,11 +457,6 @@ public:
 	 * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
 	 */
 	void render_for(Node node, Context* context);
-
-	/**
-	 * Render an `include` element (e.g. `<div data-include="stats/t-test" data-select="macros text simple-paragraph" />` )
-	 */
-	void render_include(Node node, Context* context);
 
 	/**
 	 * Render the children of an HTML element

@@ -79,37 +79,52 @@ BOOST_AUTO_TEST_CASE(par){
 	typedef Stencil::Parameter P;
 	{
 		P p("x");
-		BOOST_CHECK(p.valid);
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"");
 		BOOST_CHECK_EQUAL(p.value,"");
 	}{
 		P p("x type number");
-		BOOST_CHECK(p.valid);
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"number");
 		BOOST_CHECK_EQUAL(p.value,"");
 	}{
 		P p("x type number value 42");
-		BOOST_CHECK(p.valid);
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"number");
 		BOOST_CHECK_EQUAL(p.value,"42");
 	}{
 		P p("x value 42");
-		BOOST_CHECK(p.valid);
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"");
 		BOOST_CHECK_EQUAL(p.value,"42");
 	}{
 		P p("x value pi*7*6");
-		BOOST_CHECK(p.valid);
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"");
 		BOOST_CHECK_EQUAL(p.value,"pi*7*6");
 	}{
-		P p("x foo bar");
-		BOOST_CHECK(not p.valid);
+		try{
+			P p("x foo bar");
+		} catch(const Stencil::DirectiveException& exc){
+			BOOST_CHECK_EQUAL(exc.type,"syntax");
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(includ){
+	typedef Stencil::Include I;
+	{
+		I i("x");
+		BOOST_CHECK_EQUAL(i.address,"x");
+		BOOST_CHECK_EQUAL(i.select,"");
+	}{
+		I i("x select y");
+		BOOST_CHECK_EQUAL(i.address,"x");
+		BOOST_CHECK_EQUAL(i.select,"y");
+	}{
+		I i(". select #id .class");
+		BOOST_CHECK_EQUAL(i.address,".");
+		BOOST_CHECK_EQUAL(i.select,"#id .class");
 	}
 }
 

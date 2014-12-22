@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(for_nested){
 BOOST_AUTO_TEST_CASE(include_simple){
     render(R"(
         <div id="includee">Hello world</div>
-        <div data-include="." data-select="#includee" />
+        <div data-include=". select #includee" />
     )");
     BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"Hello world");
 }
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(include_simple){
 BOOST_AUTO_TEST_CASE(include_previous_included_is_cleared){
     render(R"(
         <div id="includee">Hello world</div>
-        <div data-include="." data-select="#includee">
+        <div data-include=". select #includee">
             <div data-included>
                 <span id="gone">This should be removed</span>
             </div>
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(include_previous_included_is_cleared){
 BOOST_AUTO_TEST_CASE(include_previous_included_is_not_cleared_if_lock){
     render(R"(
         <div id="includee">Hello world</div>
-        <div data-include="." data-select="#includee">
+        <div data-include=". select #includee">
             <div data-included>
                 <span id="kept" data-lock="true">This should NOT be removed because it has a data-lock</span>
                 <span id="kept-also"></span>
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(include_previous_included_is_not_cleared_if_lock){
 BOOST_AUTO_TEST_CASE(include_simple_rendered){
     render(R"(
         <div id="includee" data-write="a"></div>
-        <div data-include="." data-select="#includee" />
+        <div data-include=". select #includee" />
     )");
 
     BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] [data-write=\"a\"]").text(),"A");
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(include_modifiers){
             </div>
         </div>
 
-        <div data-include="." data-select="#includee">
+        <div data-include=". select #includee">
             <div data-delete="#a" />
             <p data-replace="#b" class="b">
                 This should replace div#b with p.b
@@ -354,15 +354,15 @@ BOOST_AUTO_TEST_CASE(include_par){
             <div class="z" data-write="z"></div>
         </div>
 
-        <div id="a" data-include="." data-select="#includee">
+        <div id="a" data-include=". select #includee">
             <p>Required parameter x is missing. Should result in error</p>
         </div>
 
-        <div id="b" data-include="." data-select="#includee">
+        <div id="b" data-include=". select #includee">
             <p data-set="x to 10">Parameter value defined in attribute</p>
         </div>
 
-        <div id="c" data-include="." data-select="#includee">
+        <div id="c" data-include=". select #includee">
             <p data-set="x to 1" />
             <p data-set="y to 20">Default parameter value overriden</p>
             <p data-set="z to 3">Parameter not declared by stencil author</p>

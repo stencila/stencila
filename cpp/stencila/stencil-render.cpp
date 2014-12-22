@@ -25,22 +25,6 @@ std::string Stencil::context(void) const {
     else return "none";
 }
 
-std::string Stencil::render_set(Node node, Context* context){
-    std::string attribute = node.attr("data-set");
-    static const boost::regex pattern("^(\\w+)\\s+to\\s+(.+)$");
-    boost::smatch match;
-    if(boost::regex_search(attribute, match, pattern)) {
-        std::string name = match[1].str();
-        std::string value = match[2].str();
-        context->assign(name,value);
-        return name;
-    }
-    else {
-        error(node,"syntax",attribute);
-        return "";
-    }
-}
-
 void Stencil::render_write(Node node, Context* context){
     if(node.attr("data-lock")!="true"){
         std::string expression = node.attr("data-write");
@@ -204,161 +188,6 @@ void Stencil::render_for(Node node, Context* context){
     }
 }
 
-void Stencil::render_include(Node node, Context* context){
-    std::string include_expr = node.attr("data-include");
-    std::string version = node.attr("data-version");
-    std::string select = node.attr("data-select");
-
-    // Obtain string representation of include_expr
-    std::string include = include_expr;
-    if(include_expr!=".") context->write(include_expr);
-
-    // If this node has been rendered before then there will be 
-    // a `data-included` node. If it does not yet exist then append one.
-    Node included = node.select("[data-included]");
-    if(not included) included = node.append("div",{{"data-included","true"}});
-
-    // If the included node has been edited then it may have a data-lock
-    // element. If it does not have then clear and reinclude
-    Node lock = included.select("[data-lock=\"true\"]");
-    if(not lock) {
-        // Clear the included node
-        included.clear();
-        //Obtain the included stencil...
-        Node includee;
-        //Check to see if this is a "self" include, otherwise obtain the includee
-        if(include==".") includee = node.root();
-        else includee = Component::get(include,version).as<Stencil>();
-        // ...select from it
-        if(select.length()>0){
-            // ...append the selected nodes.
-            for(Node node : includee.filter(select)){
-                // Append the node first to get a copy of it which can be modified
-                Node appended = included.append(node);
-                // Remove `macro` declaration if any so that element gets rendered
-                appended.erase("data-macro");
-                // Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
-                // This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
-                // selecting all those instances where the macro was previously included.
-                appended.erase("id");
-            }
-        } else {
-            // ...append the entire includee. 
-            // No attempt is made to remove macros when included an entire includee.
-            // Must add each child because includee is a document (see `Node::append(const Document& doc)`)
-            for(auto child : includee.children()) included.append(child);
-        }
-        //Apply modifiers
-        const int modifiers = 7;
-        enum {
-            delete_ = 0,
-            replace = 1,
-            change = 2,
-            before = 3,
-            after = 4,
-            prepend = 5,
-            append = 6
-        };
-        std::string attributes[modifiers] = {
-            "data-delete",
-            "data-replace",
-            "data-change",
-            "data-before",
-            "data-after",
-            "data-prepend",
-            "data-append"
-        };
-        for(int type=0;type<modifiers;type++){
-            std::string attribute = attributes[type];
-            for(Node modifier : node.filter("["+attribute+"]")){
-                std::string selector = modifier.attr(attribute);
-                for(Node target : included.filter(selector)){
-                    Node created;
-                    switch(type){
-
-                        case delete_:
-                            target.destroy();
-                        break;
-
-                        case change:
-                            target.clear();
-                            target.append_children(modifier);
-                        break;
-
-                        case replace: 
-                            created = target.before(modifier);
-                            target.destroy();
-                        break;
-                        
-                        case before:
-                            created = target.before(modifier);
-                        break;
-                        
-                        case after:
-                            created = target.after(modifier);
-                        break;
-                        
-                        case prepend:
-                            created = target.prepend(modifier);
-                        break;
-                        
-                        case append:
-                            created = target.append(modifier);
-                        break;
-                    }
-                    // Remove the modifier attribute from any newly created node
-                    if(created) created.erase(attribute);
-                }
-            }
-        }
-    }
-
-    // Enter a new namespace.
-    // Do this regardless of whether there are any 
-    // `data-par` elements, to avoid the included elements polluting the
-    // main context or overwriting variables inadvertantly
-    context->enter();
-
-    // Apply `data-set` elements
-    // Apply all the `set`s specified in the include first. This
-    // may include setting variables not specified as parameters
-    // by the author of the included stencil.
-    std::vector<std::string> assigned;
-    for(Node set : node.filter("[data-set]")){
-        std::string name = render_set(set,context);
-        assigned.push_back(name);
-    }
-    // Now apply the included element's parameters
-    bool ok = true;
-    for(Node par : included.filter("[data-par]")){
-        Parameter parameter(par);
-        if(parameter.valid){
-            auto name = parameter.name;
-            auto type = parameter.type;
-            auto default_ = parameter.value;
-            // Check to see if it has already be assigned
-            if(std::count(assigned.begin(),assigned.end(),name)==0){
-                if(default_.length()){
-                    // Assign the default_ in the new frame
-                    context->assign(name,default_);
-                } else {
-                    // Set an error
-                    error(node,"required",name);
-                    ok  = false;
-                }
-            }
-        }
-        // Remove the parameter, there is no need to have it in the included node
-        par.destroy();
-    }
-
-    // Render the `data-included` element
-    if(ok) render_children(included,context);
-    
-    // Exit the included node
-    context->exit();
-}
-
 void Stencil::render_children(Node node, Context* context){
     for(Node child : node.children()) render(child,context);
 }
@@ -502,10 +331,7 @@ void Stencil::render(Node node, Context* context){
                 if(render_hash(node)) return Execute(node).render(node,context,hash_);
                 else return;
             }
-            else if(attr=="data-set"){
-                render_set(node,context);
-                return;
-            }
+            else if(attr=="data-set") return Set(node).render(node,context);
             else if(attr=="data-par") return Parameter(node).render(node,context);
             else if(attr=="data-write") return render_write(node,context);
             else if(attr=="data-with") return render_with(node,context);
@@ -514,7 +340,7 @@ void Stencil::render(Node node, Context* context){
             else if(attr=="data-elif" or attr=="data-else") return;
             else if(attr=="data-switch") return render_switch(node,context);
             else if(attr=="data-for") return render_for(node,context);
-            else if(attr=="data-include") return render_include(node,context);
+            else if(attr=="data-include") return Include(node).render(*this,node,context);
         }
         // Render input elements
         if(tag=="input"){
