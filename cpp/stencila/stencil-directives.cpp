@@ -54,8 +54,8 @@ void Stencil::Execute::parse(const std::string& attribute){
 		"(\\s+height\\s+(.+?))?" \
 		"(\\s+units\\s+(.+?))?" \
 		"(\\s+size\\s+(.+?))?" \
-        "(\\s+(const))?" \
-        "(\\s+(show))?" \
+		"(\\s+(const))?" \
+		"(\\s+(show))?" \
 		"$"
 	);
 	if(boost::regex_search(attribute, match, pattern)) {
@@ -105,59 +105,91 @@ void Stencil::Execute::parse(const std::string& attribute){
 			units = "cm";
 		}
 
-        constant = match[14].str()=="const";
-        show = match[16].str()=="show";
+		constant = match[14].str()=="const";
+		show = match[16].str()=="show";
 
 	} else {
 		throw DirectiveException("syntax",attribute);
 	}
 }
 
-void Stencil::Execute::render(Node node, Context* context, const std::string& id){
-    // Check that the context accepts the declared contexts types
-    bool accepted = false;
-    for(std::string& item : contexts){
-        if(context->accept(item)){
-            accepted = true;
-            break;
-        }
-    }
-    if(not accepted) return;
+void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
+	// Check that the context accepts the declared contexts types
+	bool accepted = false;
+	for(std::string& item : contexts){
+		if(context->accept(item)){
+			accepted = true;
+			break;
+		}
+	}
+	if(not accepted) return;
+	
+	// Create a key string for this node which starts with the current value
+	// for the current cumulative hash and its attributes and text
+	std::string key = stencil.hash_;
+	for(auto attr : node.attrs()){
+		if(attr!="data-hash") key += attr+":"+node.attr(attr);
+	} 
+	key += node.text();
+	// Create a new integer hash
+	static std::hash<std::string> hasher;
+	std::size_t number = hasher(key);
+	// To reduce its lenght, convert the integer hash to a 
+	// shorter string by encoding using a character set
+	static char chars[] = {
+		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+		'0','1','2','3','4','5','6','7','8','9'
+	};
+	std::string hash;
+	while(number>0){
+		int index = number % sizeof(chars);
+		hash = chars[index] + hash;
+		number = int(number/sizeof(chars));
+	}
+	// If this is a non-`const` node (not declared const) then update the cumulative hash
+	// so that changes in this node cascade to other nodes
+	if(not constant) stencil.hash_ = hash;
+	// If there is no change in the hash then return
+	// otherwise replace the hash (may be missing) and keep rendering
+	std::string current = node.attr("data-hash");
+	if(hash==current) return;
+	else node.attr("data-hash",hash);
 
-    // Get code and execute it
-    std::string code = node.text();
-    if(code.length()>0){
-        // Execute
-        std::string result = context->execute(code,id,format,width,height,units);
-        // Remove any existing output
-        Node next = node.next_element();
-        if(next and next.attr("data-output")=="true") next.destroy();
-        // Append new output
-        if(format.length()){
-            Xml::Document doc;
-            Node output;
-            if(format=="text"){
-                output = doc.append("samp",result);
-            }
-            else if(format=="png" or format=="svg"){
-                output = doc.append("img",{
-                    {"src",result}
-                });
-            }
-            else {
-                Stencil::error(node,"format-invalid",format);
-            }
-            if(output){
-                // Flag output node 
-                output.attr("data-output","true");
-                // Create a copy immeadiately after code directive
-                node.after(output);
-            }
-        }
-    }
+	// Get code and execute it
+	std::string code = node.text();
+	if(code.length()>0){
+		// Execute
+		std::string result = context->execute(code,stencil.hash_,format,width,height,units);
+		// Remove any existing output
+		Node next = node.next_element();
+		if(next and next.attr("data-output")=="true") next.destroy();
+		// Append new output
+		if(format.length()){
+			Xml::Document doc;
+			Node output;
+			if(format=="text"){
+				output = doc.append("samp",result);
+			}
+			else if(format=="png" or format=="svg"){
+				output = doc.append("img",{
+					{"src",result}
+				});
+			}
+			else {
+				Stencil::error(node,"format-invalid",format);
+			}
+			if(output){
+				// Flag output node 
+				output.attr("data-output","true");
+				// Create a copy immeadiately after code directive
+				node.after(output);
+			}
+		}
+	}
 
-    // Add a show flag if needed
-    if(show) node.attr("data-show","true");
+	// Add a show flag if needed
+	if(show) node.attr("data-show","true");
 }
 
 
@@ -177,8 +209,8 @@ void Stencil::Parameter::parse(const std::string& attribute){
 		type = match[3].str();
 		value = match[5].str();
 	} else {
-        throw DirectiveException("syntax","");
-    }
+		throw DirectiveException("syntax","");
+	}
 }
 
 void Stencil::Parameter::render(Node node, Context* context){
@@ -222,18 +254,18 @@ Stencil::Set::Set(Node node){
 }
 
 void Stencil::Set::parse(const std::string& attribute){
-    static const boost::regex pattern("^(\\w+)\\s+to\\s+(.+)$");
-    boost::smatch match;
-    if(boost::regex_search(attribute, match, pattern)) {
-        name = match[1].str();
-        value = match[2].str();
-    } else {
-        throw DirectiveException("syntax","");
-    }
+	static const boost::regex pattern("^(\\w+)\\s+to\\s+(.+)$");
+	boost::smatch match;
+	if(boost::regex_search(attribute, match, pattern)) {
+		name = match[1].str();
+		value = match[2].str();
+	} else {
+		throw DirectiveException("syntax","");
+	}
 }
 
 void Stencil::Set::render(Node node, Context* context){
-    context->assign(name,value);
+	context->assign(name,value);
 }
 
 
@@ -257,151 +289,151 @@ void Stencil::Include::parse(const std::string& attribute){
 }
 
 void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
-    // Obtain string representation of include_expr
-    std::string include;
-    if(address==".") include = ".";
-    else include = context->write(address);
+	// Obtain string representation of include_expr
+	std::string include;
+	if(address==".") include = ".";
+	else include = context->write(address);
 
-    // If this node has been rendered before then there will be 
-    // a `data-included` node. If it does not yet exist then append one.
-    Node included = node.select("[data-included]");
-    if(not included) included = node.append("div",{{"data-included","true"}});
+	// If this node has been rendered before then there will be 
+	// a `data-included` node. If it does not yet exist then append one.
+	Node included = node.select("[data-included]");
+	if(not included) included = node.append("div",{{"data-included","true"}});
 
-    // If the included node has been edited then it may have a data-lock
-    // element. If it does not have then clear and reinclude
-    Node lock = included.select("[data-lock=\"true\"]");
-    if(not lock) {
-        // Clear the included node
-        included.clear();
-        //Obtain the included stencil...
-        Node includee;
-        //Check to see if this is a "self" include, otherwise obtain the includee
-        if(include==".") includee = node.root();
-        else includee = Component::get(include).as<Stencil>();
-        // ...select from it
-        if(select.length()>0){
-            // ...append the selected nodes.
-            for(Node node : includee.filter(select)){
-                // Append the node first to get a copy of it which can be modified
-                Node appended = included.append(node);
-                // Remove `macro` declaration if any so that element gets rendered
-                appended.erase("data-macro");
-                // Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
-                // This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
-                // selecting all those instances where the macro was previously included.
-                appended.erase("id");
-            }
-        } else {
-            // ...append the entire includee. 
-            // No attempt is made to remove macros when included an entire includee.
-            // Must add each child because includee is a document (see `Node::append(const Document& doc)`)
-            for(auto child : includee.children()) included.append(child);
-        }
-        //Apply modifiers
-        const int modifiers = 7;
-        enum {
-            delete_ = 0,
-            replace = 1,
-            change = 2,
-            before = 3,
-            after = 4,
-            prepend = 5,
-            append = 6
-        };
-        std::string attributes[modifiers] = {
-            "data-delete",
-            "data-replace",
-            "data-change",
-            "data-before",
-            "data-after",
-            "data-prepend",
-            "data-append"
-        };
-        for(int type=0;type<modifiers;type++){
-            std::string attribute = attributes[type];
-            for(Node modifier : node.filter("["+attribute+"]")){
-                std::string selector = modifier.attr(attribute);
-                for(Node target : included.filter(selector)){
-                    Node created;
-                    switch(type){
+	// If the included node has been edited then it may have a data-lock
+	// element. If it does not have then clear and reinclude
+	Node lock = included.select("[data-lock=\"true\"]");
+	if(not lock) {
+		// Clear the included node
+		included.clear();
+		//Obtain the included stencil...
+		Node includee;
+		//Check to see if this is a "self" include, otherwise obtain the includee
+		if(include==".") includee = node.root();
+		else includee = Component::get(include).as<Stencil>();
+		// ...select from it
+		if(select.length()>0){
+			// ...append the selected nodes.
+			for(Node node : includee.filter(select)){
+				// Append the node first to get a copy of it which can be modified
+				Node appended = included.append(node);
+				// Remove `macro` declaration if any so that element gets rendered
+				appended.erase("data-macro");
+				// Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
+				// This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
+				// selecting all those instances where the macro was previously included.
+				appended.erase("id");
+			}
+		} else {
+			// ...append the entire includee. 
+			// No attempt is made to remove macros when included an entire includee.
+			// Must add each child because includee is a document (see `Node::append(const Document& doc)`)
+			for(auto child : includee.children()) included.append(child);
+		}
+		//Apply modifiers
+		const int modifiers = 7;
+		enum {
+			delete_ = 0,
+			replace = 1,
+			change = 2,
+			before = 3,
+			after = 4,
+			prepend = 5,
+			append = 6
+		};
+		std::string attributes[modifiers] = {
+			"data-delete",
+			"data-replace",
+			"data-change",
+			"data-before",
+			"data-after",
+			"data-prepend",
+			"data-append"
+		};
+		for(int type=0;type<modifiers;type++){
+			std::string attribute = attributes[type];
+			for(Node modifier : node.filter("["+attribute+"]")){
+				std::string selector = modifier.attr(attribute);
+				for(Node target : included.filter(selector)){
+					Node created;
+					switch(type){
 
-                        case delete_:
-                            target.destroy();
-                        break;
+						case delete_:
+							target.destroy();
+						break;
 
-                        case change:
-                            target.clear();
-                            target.append_children(modifier);
-                        break;
+						case change:
+							target.clear();
+							target.append_children(modifier);
+						break;
 
-                        case replace: 
-                            created = target.before(modifier);
-                            target.destroy();
-                        break;
-                        
-                        case before:
-                            created = target.before(modifier);
-                        break;
-                        
-                        case after:
-                            created = target.after(modifier);
-                        break;
-                        
-                        case prepend:
-                            created = target.prepend(modifier);
-                        break;
-                        
-                        case append:
-                            created = target.append(modifier);
-                        break;
-                    }
-                    // Remove the modifier attribute from any newly created node
-                    if(created) created.erase(attribute);
-                }
-            }
-        }
-    }
+						case replace: 
+							created = target.before(modifier);
+							target.destroy();
+						break;
+						
+						case before:
+							created = target.before(modifier);
+						break;
+						
+						case after:
+							created = target.after(modifier);
+						break;
+						
+						case prepend:
+							created = target.prepend(modifier);
+						break;
+						
+						case append:
+							created = target.append(modifier);
+						break;
+					}
+					// Remove the modifier attribute from any newly created node
+					if(created) created.erase(attribute);
+				}
+			}
+		}
+	}
 
-    // Enter a new namespace.
-    // Do this regardless of whether there are any 
-    // `data-par` elements, to avoid the included elements polluting the
-    // main context or overwriting variables inadvertantly
-    context->enter();
+	// Enter a new namespace.
+	// Do this regardless of whether there are any 
+	// `data-par` elements, to avoid the included elements polluting the
+	// main context or overwriting variables inadvertantly
+	context->enter();
 
-    // Apply `data-set` elements
-    // Apply all the `set`s specified in the include first. This
-    // may include setting variables not specified as parameters
-    // by the author of the included stencil.
-    std::vector<std::string> assigned;
-    for(Node set_node : node.filter("[data-set]")){
-        Stencil::Set set(set_node);
-        set.render(set_node,context);
-        assigned.push_back(set.name);
-    }
-    // Now apply the included element's parameters
-    bool ok = true;
-    for(Node par : included.filter("[data-par]")){
-        Stencil::Parameter parameter(par);
-        // Check to see if it has already be assigned
-        if(std::count(assigned.begin(),assigned.end(),parameter.name)==0){
-            if(parameter.value.length()){
-                // Assign the default_ in the new frame
-                context->assign(parameter.name,parameter.value);
-            } else {
-                // Set an error
-                error(node,"required",parameter.name);
-                ok  = false;
-            }
-        }
-        // Remove the parameter, there is no need to have it in the included node
-        par.destroy();
-    }
+	// Apply `data-set` elements
+	// Apply all the `set`s specified in the include first. This
+	// may include setting variables not specified as parameters
+	// by the author of the included stencil.
+	std::vector<std::string> assigned;
+	for(Node set_node : node.filter("[data-set]")){
+		Stencil::Set set(set_node);
+		set.render(set_node,context);
+		assigned.push_back(set.name);
+	}
+	// Now apply the included element's parameters
+	bool ok = true;
+	for(Node par : included.filter("[data-par]")){
+		Stencil::Parameter parameter(par);
+		// Check to see if it has already be assigned
+		if(std::count(assigned.begin(),assigned.end(),parameter.name)==0){
+			if(parameter.value.length()){
+				// Assign the default_ in the new frame
+				context->assign(parameter.name,parameter.value);
+			} else {
+				// Set an error
+				error(node,"required",parameter.name);
+				ok  = false;
+			}
+		}
+		// Remove the parameter, there is no need to have it in the included node
+		par.destroy();
+	}
 
-    // Render the `data-included` element
-    if(ok) stencil.render_children(included,context);
-    
-    // Exit the included node
-    context->exit();
+	// Render the `data-included` element
+	if(ok) stencil.render_children(included,context);
+	
+	// Exit the included node
+	context->exit();
 }
 
 }

@@ -328,7 +328,7 @@ public:
 		Execute(const std::string& attribute);
 		Execute(Node node);
 		void parse(const std::string& attribute);
-		void render(Node node, Context* context, const std::string& id);
+		void render(Stencil& stencil, Node node, Context* context);
 	};
 
 	/**

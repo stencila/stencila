@@ -327,10 +327,7 @@ void Stencil::render(Node node, Context* context){
         for(std::string attr : node.attrs()){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
-            else if(attr=="data-exec"){
-                if(render_hash(node)) return Execute(node).render(node,context,hash_);
-                else return;
-            }
+            else if(attr=="data-exec") return Execute(node).render(*this,node,context);
             else if(attr=="data-set") return Set(node).render(node,context);
             else if(attr=="data-par") return Parameter(node).render(node,context);
             else if(attr=="data-write") return render_write(node,context);
@@ -407,43 +404,6 @@ void Stencil::render(Node node, Context* context){
     }
     catch(...){
         error(node,"exception","unknown");
-    }
-}
-
-bool Stencil::render_hash(Node node){
-    // Create a key string for this node which starts with the current value
-    // for the current cumulative hash and its attributes and text
-    std::string key = hash_;
-    for(auto attr : node.attrs()){
-        if(attr!="data-hash") key += attr+":"+node.attr(attr);
-    } 
-    key += node.text();
-    // Create a new integer hash
-    static std::hash<std::string> hasher;
-    std::size_t number = hasher(key);
-    // To reduce its lenght, convert the integer hash to a 
-    // shorter string by encoding using a character set
-    static char chars[] = {
-        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-        'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-        '0','1','2','3','4','5','6','7','8','9'
-    };
-    std::string hash;
-    while(number>0){
-        int index = number % sizeof(chars);
-        hash = chars[index] + hash;
-        number = int(number/sizeof(chars));
-    }
-    // If this is a non-`const` node (not declared const) then update the cumulative hash
-    // so that changes in this node cascade to other nodes
-    if(node.attr("data-const")!="true") hash_ = hash;
-    // If there is no change in the hash then return false
-    // otherwise replace the hash (may be missing) and return true
-    std::string current = node.attr("data-hash");
-    if(hash==current) return false;
-    else {
-        node.attr("data-hash",hash);
-        return true;
     }
 }
 
