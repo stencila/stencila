@@ -112,36 +112,6 @@ std::string Stencil::render_set(Node node, Context* context){
     }
 }
 
-void Stencil::render_par(Node node, Context* context){
-    Parameter par(node);
-    if(par.ok){
-        auto name = par.name;
-        auto type = par.type;
-        auto default_ = par.default_;
-        Node input = node.select("input");
-        if(not input) input = node.append("input");
-        // Set name
-        input.attr("name",name);
-        // Set type
-        if(type.length()) input.attr("type",type);
-        // Get value, using default if not defined
-        std::string value = input.attr("value");
-        if(not value.length() and par.default_.length()){
-            value = default_;
-            input.attr("value",value);
-        }
-        // Set value in the context
-        if(value.length()>0){
-            context->input(name,type,value);
-        }
-        // Render input node
-        render_input(input,context);
-    }
-    else {
-        render_error(node,"syntax",par.attribute);
-    }
-}
-
 void Stencil::render_write(Node node, Context* context){
     if(node.attr("data-lock")!="true"){
         std::string expression = node.attr("data-write");
@@ -433,10 +403,10 @@ void Stencil::render_include(Node node, Context* context){
     bool ok = true;
     for(Node par : included.filter("[data-par]")){
         Parameter parameter(par);
-        if(parameter.ok){
+        if(parameter.valid){
             auto name = parameter.name;
             auto type = parameter.type;
-            auto default_ = parameter.default_;
+            auto default_ = parameter.value;
             // Check to see if it has already be assigned
             if(std::count(assigned.begin(),assigned.end(),name)==0){
                 if(default_.length()){
@@ -458,15 +428,6 @@ void Stencil::render_include(Node node, Context* context){
     
     // Exit the included node
     context->exit();
-}
-
-void Stencil::render_input(Node node, Context* context){
-    if(render_hash(node)){
-        auto name = node.attr("name");
-        auto type = node.attr("type");
-        auto value = node.attr("value");
-        context->input(name,type,value);
-    }
 }
 
 void Stencil::render_children(Node node, Context* context){
@@ -613,7 +574,7 @@ void Stencil::render(Node node, Context* context){
                 render_set(node,context);
                 return;
             }
-            else if(attr=="data-par") return render_par(node,context);
+            else if(attr=="data-par") return Parameter(node).render(node,context);
             else if(attr=="data-write") return render_write(node,context);
             else if(attr=="data-with") return render_with(node,context);
             else if(attr=="data-if") return render_if(node,context);
@@ -626,7 +587,7 @@ void Stencil::render(Node node, Context* context){
         // Render input elements
         if(tag=="input"){
             counts_["input"]++;
-            return render_input(node,context);
+            return Input(node).render(node,context);
         }
         // Handle outline
         else if(node.attr("id")=="outline"){

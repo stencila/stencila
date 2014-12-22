@@ -80,22 +80,22 @@ BOOST_AUTO_TEST_CASE(set){
 
 BOOST_AUTO_TEST_CASE(par){
     render(R"(
-        <div data-par="x:number=42" />
+        <div data-par="x type number value 42" />
         <p id="x" data-write="x"></p>
 
-        <div data-par="y=24" />
+        <div data-par="y value 24" />
         <p id="y" data-write="y"></p>
 
         <div id="z" data-par="z" />
     )");
 
-    auto input = stencil.select("[data-par=\"x:number=42\"] input");
+    auto input = stencil.select("[data-par=\"x type number value 42\"] input");
     BOOST_CHECK_EQUAL(input.attr("name"),"x");
     BOOST_CHECK_EQUAL(input.attr("type"),"number");
     BOOST_CHECK_EQUAL(input.attr("value"),"42");
     BOOST_CHECK_EQUAL(stencil.select("#x").text(),"42");
 
-    BOOST_CHECK_EQUAL(stencil.select("[data-par=\"y=24\"] input[name=\"y\"]").attr("type"),"");
+    BOOST_CHECK_EQUAL(stencil.select("[data-par=\"y value 24\"] input[name=\"y\"]").attr("type"),"");
     BOOST_CHECK_EQUAL(stencil.select("#y").text(),"24");
 
     BOOST_CHECK_EQUAL(stencil.select("[data-par=\"z\"] input[name=\"z\"]").attr("type"),"");
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(include_par){
     render(R"(
         <div id="includee" data-macro="true">
             <div data-par="x" />
-            <div data-par="y=2" />
+            <div data-par="y value 2" />
 
             <div class="x" data-write="x"></div>
             <div class="y" data-write="y"></div>

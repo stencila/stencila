@@ -67,27 +67,4 @@ std::string Stencil::theme(void) const {
     else return "core/stencils/themes/default";
 }
 
-Stencil::Parameter::Parameter(Node node){
-    attribute = node.attr("data-par");
-    boost::smatch match;
-    static const boost::regex pattern("^([^:=]+)(:([a-z_]+))?(=(.+))?$");
-    if(boost::regex_search(attribute, match, pattern)) {
-        ok = true;
-        name = match[1].str();
-        type = match[3].str();
-        default_ = match[5].str();
-    } else {
-        ok = false;
-    }
-}
-
-std::vector<Stencil::Parameter> Stencil::pars(void) const {
-    std::vector<Stencil::Parameter> pars;
-    for(auto elem : filter("[data-par]")){
-        Parameter par(elem);
-        pars.push_back(par);
-    }
-    return pars;
-}
-
 }
