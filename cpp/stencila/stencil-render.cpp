@@ -327,9 +327,9 @@ void Stencil::render(Node node, Context* context){
         for(std::string attr : node.attrs()){
             // `macro` elements are not rendered
             if(attr=="data-macro") return ;
-            else if(attr=="data-exec") return Execute(node).render(*this,node,context);
-            else if(attr=="data-set") return Set(node).render(node,context);
-            else if(attr=="data-par") return Parameter(node).render(node,context);
+            else if(attr=="data-exec") return Execute().render(*this,node,context);
+            else if(attr=="data-set") return Set().render(*this,node,context);
+            else if(attr=="data-par") return Parameter().render(*this,node,context);
             else if(attr=="data-write") return render_write(node,context);
             else if(attr=="data-with") return render_with(node,context);
             else if(attr=="data-if") return render_if(node,context);
@@ -337,12 +337,12 @@ void Stencil::render(Node node, Context* context){
             else if(attr=="data-elif" or attr=="data-else") return;
             else if(attr=="data-switch") return render_switch(node,context);
             else if(attr=="data-for") return render_for(node,context);
-            else if(attr=="data-include") return Include(node).render(*this,node,context);
+            else if(attr=="data-include") return Include().render(*this,node,context);
         }
         // Render input elements
         if(tag=="input"){
             counts_["input"]++;
-            return Input(node).render(node,context);
+            return Input().render(*this,node,context);
         }
         // Handle outline
         else if(node.attr("id")=="outline"){

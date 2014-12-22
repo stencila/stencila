@@ -2,14 +2,22 @@
 
 namespace Stencila {
 
+Stencil::Input::Input(void){
+}
+
 Stencil::Input::Input(Node node){
+    parse(node);
+}
+
+void Stencil::Input::parse(Node node){
 	name = node.attr("name");
 	type = node.attr("type");
 	value = node.attr("value");
 }
 
-void Stencil::Input::render(Node node, Context* context){
-	context->input(name,type,value);
+void Stencil::Input::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+    context->input(name,type,value);
 }		
 
 Stencil& Stencil::inputs(const std::map<std::string,std::string>& inputs) {

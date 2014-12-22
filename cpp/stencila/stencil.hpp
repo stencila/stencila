@@ -169,9 +169,10 @@ public:
 		std::string type;
 		std::string value;
 
+		Input(void);
 		Input(Node node);
-
-		void render(Node node, Context* context);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
 	};
 
 	/**
@@ -325,9 +326,11 @@ public:
 		Flag constant = false;
 		Flag show = false;
 
+		Execute(void);
 		Execute(const std::string& attribute);
 		Execute(Node node);
 		void parse(const std::string& attribute);
+		void parse(Node node);
 		void render(Stencil& stencil, Node node, Context* context);
 	};
 
@@ -339,10 +342,12 @@ public:
 		Name type;
 		Expression value;
 
+		Parameter(void);
 		Parameter(const std::string& attribute);
 		Parameter(Node node);
 		void parse(const std::string& attribute);
-		void render(Node node, Context* context);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
 	};
 
 	/**
@@ -359,10 +364,12 @@ public:
 		Name name;
 		Expression value;
 
+		Set(void);
 		Set(const std::string& attribute);
 		Set(Node node);
 		void parse(const std::string& attribute);
-		void render(Node node, Context* context);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
 	};
 
 	/**
@@ -372,9 +379,11 @@ public:
 		Expression address;
 		Expression select;
 
+		Include(void);
 		Include(const std::string& attribute);
 		Include(Node node);
 		void parse(const std::string& attribute);
+		void parse(Node node);
 		void render(Stencil& stencil, Node node, Context* context);
 	};
 

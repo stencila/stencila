@@ -36,12 +36,15 @@ void Stencil::error(Node node, const std::string& type, const std::string& data)
 	node.attr("data-error-" + type,data);
 }
 
+Stencil::Execute::Execute(void){
+}
+
 Stencil::Execute::Execute(const std::string& attribute){
 	parse(attribute);
 }
 
 Stencil::Execute::Execute(Node node){
-	parse(node.attr("data-exec"));
+	parse(node);
 }
 
 void Stencil::Execute::parse(const std::string& attribute){
@@ -113,7 +116,13 @@ void Stencil::Execute::parse(const std::string& attribute){
 	}
 }
 
+void Stencil::Execute::parse(Node node){
+	parse(node.attr("data-exec"));
+}
+
 void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+
 	// Check that the context accepts the declared contexts types
 	bool accepted = false;
 	for(std::string& item : contexts){
@@ -192,13 +201,15 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	if(show) node.attr("data-show","true");
 }
 
+Stencil::Parameter::Parameter(void){
+}
 
 Stencil::Parameter::Parameter(const std::string& attribute){
 	parse(attribute);
 }
 
 Stencil::Parameter::Parameter(Node node){
-	parse(node.attr("data-par"));
+	parse(node);
 }
 
 void Stencil::Parameter::parse(const std::string& attribute){
@@ -213,7 +224,13 @@ void Stencil::Parameter::parse(const std::string& attribute){
 	}
 }
 
-void Stencil::Parameter::render(Node node, Context* context){
+void Stencil::Parameter::parse(Node node){
+	parse(node.attr("data-par"));
+}
+
+void Stencil::Parameter::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+
 	// Create an input element
 	Node input = node.select("input");
 	if(not input) input = node.append("input");
@@ -232,7 +249,7 @@ void Stencil::Parameter::render(Node node, Context* context){
 		context->input(name,type,value);
 	}
 	// Render the input node
-	Stencil::Input(input).render(input,context);
+	Stencil::Input(input).render(stencil,input,context);
 }
 
 std::vector<Stencil::Parameter> Stencil::pars(void) const {
@@ -244,13 +261,15 @@ std::vector<Stencil::Parameter> Stencil::pars(void) const {
 	return directives;
 }
 
+Stencil::Set::Set(void){
+}
 
 Stencil::Set::Set(const std::string& attribute){
 	parse(attribute);
 }
 
 Stencil::Set::Set(Node node){
-	parse(node.attr("data-set"));
+	parse(node);
 }
 
 void Stencil::Set::parse(const std::string& attribute){
@@ -264,17 +283,24 @@ void Stencil::Set::parse(const std::string& attribute){
 	}
 }
 
-void Stencil::Set::render(Node node, Context* context){
+void Stencil::Set::parse(Node node){
+	parse(node.attr("data-set"));
+}
+
+void Stencil::Set::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
 	context->assign(name,value);
 }
 
+Stencil::Include::Include(void){
+}
 
 Stencil::Include::Include(const std::string& attribute){
 	parse(attribute);
 }
 
 Stencil::Include::Include(Node node){
-	parse(node.attr("data-include"));
+	parse(node);
 }
 
 void Stencil::Include::parse(const std::string& attribute){
@@ -288,7 +314,13 @@ void Stencil::Include::parse(const std::string& attribute){
 	}
 }
 
+void Stencil::Include::parse(Node node){
+	parse(node.attr("data-include"));
+}
+
 void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+
 	// Obtain string representation of include_expr
 	std::string include;
 	if(address==".") include = ".";
@@ -406,8 +438,8 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	// by the author of the included stencil.
 	std::vector<std::string> assigned;
 	for(Node set_node : node.filter("[data-set]")){
-		Stencil::Set set(set_node);
-		set.render(set_node,context);
+		Stencil::Set set;
+		set.render(stencil,set_node,context);
 		assigned.push_back(set.name);
 	}
 	// Now apply the included element's parameters
