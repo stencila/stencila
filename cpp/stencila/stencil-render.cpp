@@ -98,19 +98,11 @@ void Stencil::render_exec(Node node, Context* context){
 
 std::string Stencil::render_set(Node node, Context* context){
     std::string attribute = node.attr("data-set");
-    static const boost::regex pattern("^([^=]+)(=(.+))?$");
+    static const boost::regex pattern("^(\\w+)\\s+to\\s+(.+)$");
     boost::smatch match;
     if(boost::regex_search(attribute, match, pattern)) {
         std::string name = match[1].str();
-        std::string value = match[3].str();
-        // If there is no value then use the node's text
-        if(value.length()==0) value = node.text();
-        // If still no value then create an error
-        if(value.length()==0){
-            render_error(node,"set-value-none",name,"No value provided for <"+name+">");
-            return "";
-        }
-        // Assign the variable in the new frame
+        std::string value = match[2].str();
         context->assign(name,value);
         return name;
     }

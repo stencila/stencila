@@ -64,10 +64,10 @@ BOOST_AUTO_TEST_CASE(code){
 
 BOOST_AUTO_TEST_CASE(set){
     render(R"(
-        <p data-set="x=42" />
+        <p data-set="x to 42"></p>
         <p id="x" data-write="x"></p>
 
-        <p data-set="y">24</p>
+        <p data-set="y to 24"></p>
         <p id="y" data-write="y"></p>
 
         <p id="z" data-set="z"></p>
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(set){
     
     BOOST_CHECK_EQUAL(stencil.select("#x").text(),"42");
     BOOST_CHECK_EQUAL(stencil.select("#y").text(),"24");
-    BOOST_CHECK_EQUAL(stencil.select("#z [data-error=\"set-value-none\"]").attr("data-set-value-none"),"z");
+    BOOST_CHECK_EQUAL(stencil.select("#z [data-error-set-syntax]").text(),"");
 }
 
 BOOST_AUTO_TEST_CASE(par){
@@ -359,31 +359,24 @@ BOOST_AUTO_TEST_CASE(include_par){
         </div>
 
         <div id="b" data-include="." data-select="#includee">
-            <p data-set="x=10">Parameter value defined in attribute</p>
+            <p data-set="x to 10">Parameter value defined in attribute</p>
         </div>
 
         <div id="c" data-include="." data-select="#includee">
-            <p data-set="x">11 (Parameter value defined in text)</p>
-        </div>
-
-        <div id="d" data-include="." data-select="#includee">
-            <p data-set="x=1" />
-            <p data-set="y=20">Default parameter value overriden</p>
-            <p data-set="z=3">Parameter not declared by stencil author</p>
+            <p data-set="x to 1" />
+            <p data-set="y to 20">Default parameter value overriden</p>
+            <p data-set="z to 3">Parameter not declared by stencil author</p>
         </div>
     )");
     
-    BOOST_CHECK_EQUAL(stencil.select("#a [data-error=\"par-required\"]").attr("data-par-required"),"x");
+    BOOST_CHECK_EQUAL(stencil.select("#a [data-error-par-required]").attr("data-error-par-required"),"x");
     
     BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.x").text(),"10");
     BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.y").text(),"2");
-
-    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.x").text(),"11 (Parameter value defined in text)");
-    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.y").text(),"2");
     
-    BOOST_CHECK_EQUAL(stencil.select("#d div[data-included] div.x").text(),"1");
-    BOOST_CHECK_EQUAL(stencil.select("#d div[data-included] div.y").text(),"20");
-    BOOST_CHECK_EQUAL(stencil.select("#d div[data-included] div.z").text(),"3");
+    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.x").text(),"1");
+    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.y").text(),"20");
+    BOOST_CHECK_EQUAL(stencil.select("#c div[data-included] div.z").text(),"3");
 
     // Check that params are removed
     BOOST_CHECK(not stencil.select("#b [data-par]"));
