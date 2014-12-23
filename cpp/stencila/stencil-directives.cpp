@@ -32,6 +32,18 @@ bool Stencil::flag(const std::string& attr){
 	return std::find(flags.begin(),flags.end(),attr)!=flags.end();
 }
 
+namespace {
+	template<class Type>
+	std::vector<Type> directives_list(const Stencil& stencil, const std::string& type) {
+		std::vector<Type> directives;
+		for(auto elem : stencil.filter("[data-"+type+"]")){
+			Type directive(elem);
+			directives.push_back(directive);
+		}
+		return directives;
+	}
+}
+
 void Stencil::error(Node node, const std::string& type, const std::string& data){
 	node.attr("data-error-" + type,data);
 }
@@ -201,6 +213,11 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	if(show) node.attr("data-show","true");
 }
 
+std::vector<Stencil::Execute> Stencil::execs(void) const {
+	return directives_list<Stencil::Execute>(*this,"exec");
+}
+
+
 Stencil::Parameter::Parameter(void){
 }
 
@@ -253,12 +270,7 @@ void Stencil::Parameter::render(Stencil& stencil, Node node, Context* context){
 }
 
 std::vector<Stencil::Parameter> Stencil::pars(void) const {
-	std::vector<Stencil::Parameter> directives;
-	for(auto elem : filter("[data-par]")){
-		Stencil::Parameter directive(elem);
-		directives.push_back(directive);
-	}
-	return directives;
+	return directives_list<Stencil::Parameter>(*this,"par");
 }
 
 Stencil::Set::Set(void){

@@ -41,13 +41,13 @@ std::vector<std::string> Stencil::contexts(void) const {
         contexts = split(text,",");
         for(auto& context : contexts) trim(context);
     } else {
-        // Count the number of code directives of each type
+        // Count the number of exec directives of each type
         std::map<std::string,int> counts;
-        auto codes = filter("[data-code]");
-        for(auto code : codes){
-            auto context = code.attr("data-code");
-            if(counts.find(context)==counts.end()) counts[context] = 1;
-            else counts[context] += 1;
+        for(auto exec : execs()){
+            for(auto context : exec.contexts){
+                if(counts.find(context)==counts.end()) counts[context] = 1;
+                else counts[context] += 1;
+            }
         }
         // Sort in decending order of count
         std::vector<std::pair<std::string,int>> sorted;

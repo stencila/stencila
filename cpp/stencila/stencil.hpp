@@ -335,6 +335,11 @@ public:
 	};
 
 	/**
+	 * Get a list of this stencil's execute directives
+	 */
+	std::vector<Execute> execs(void) const;
+
+	/**
 	 * A parameter (`par`) directive
 	 */
 	struct Parameter : Directive {
@@ -351,7 +356,7 @@ public:
 	};
 
 	/**
-	 * Get this stencil's parameters
+	 * Get a list of this stencil's parameter directives
 	 */
 	std::vector<Parameter> pars(void) const;
 
