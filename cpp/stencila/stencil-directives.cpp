@@ -317,10 +317,12 @@ Stencil::Include::Include(Node node){
 
 void Stencil::Include::parse(const std::string& attribute){
 	boost::smatch match;
-	static const boost::regex pattern("^(.+?)(\\s+select\\s+(.+?))?$");
+	static const boost::regex pattern("^(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?$");
 	if(boost::regex_search(attribute, match, pattern)) {
-		address = match[1].str();
-		select = match[3].str();
+		address = match[4].str();
+		address_eval = match[3].str()=="eval";
+		select = match[8].str();
+		select_eval = match[7].str()=="eval";
 	} else {
 		throw DirectiveException("syntax","");
 	}
@@ -334,9 +336,9 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
 
 	// Obtain string representation of include_expr
-	std::string include;
-	if(address==".") include = ".";
-	else include = context->write(address);
+	std::string address_use;
+	if(address_eval) address_use = context->write(address);
+	else address_use = address;
 
 	// If this node has been rendered before then there will be 
 	// a `data-included` node. If it does not yet exist then append one.
@@ -352,12 +354,15 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 		//Obtain the included stencil...
 		Node includee;
 		//Check to see if this is a "self" include, otherwise obtain the includee
-		if(include==".") includee = node.root();
-		else includee = Component::get(include).as<Stencil>();
+		if(address_use==".") includee = node.root();
+		else includee = Component::get(address_use).as<Stencil>();
 		// ...select from it
 		if(select.length()>0){
+			std::string select_use;
+			if(select_eval) select_use = context->write(select);
+			else select_use = select;
 			// ...append the selected nodes.
-			for(Node node : includee.filter(select)){
+			for(Node node : includee.filter(select_use)){
 				// Append the node first to get a copy of it which can be modified
 				Node appended = included.append(node);
 				// Remove `macro` declaration if any so that element gets rendered

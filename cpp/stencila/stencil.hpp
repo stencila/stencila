@@ -381,8 +381,10 @@ public:
 	 * An `include` directive (e.g. `<div data-include="stats/t-test select #macros #text #simple-paragraph" />` )
 	 */
 	struct Include : Directive {
-		Expression address;
-		Expression select;
+		std::string address;
+		bool address_eval = false;
+		std::string select;
+		bool select_eval = false;
 
 		Include(void);
 		Include(const std::string& attribute);

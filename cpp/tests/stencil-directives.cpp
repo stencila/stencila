@@ -134,15 +134,27 @@ BOOST_AUTO_TEST_CASE(includ){
 	{
 		I i("x");
 		BOOST_CHECK_EQUAL(i.address,"x");
+		BOOST_CHECK_EQUAL(i.address_eval,false);
 		BOOST_CHECK_EQUAL(i.select,"");
 	}{
 		I i("x select y");
 		BOOST_CHECK_EQUAL(i.address,"x");
 		BOOST_CHECK_EQUAL(i.select,"y");
+		BOOST_CHECK_EQUAL(i.select_eval,false);
 	}{
 		I i(". select #id .class");
 		BOOST_CHECK_EQUAL(i.address,".");
 		BOOST_CHECK_EQUAL(i.select,"#id .class");
+	}{
+		I i("eval x+'stencil'");
+		BOOST_CHECK_EQUAL(i.address,"x+'stencil'");
+		BOOST_CHECK_EQUAL(i.address_eval,true);
+	}{
+		I i("eval 'address'+'/'+'of/stencil' select eval '#macro-id'");
+		BOOST_CHECK_EQUAL(i.address,"'address'+'/'+'of/stencil'");
+		BOOST_CHECK_EQUAL(i.address_eval,true);
+		BOOST_CHECK_EQUAL(i.select,"'#macro-id'");
+		BOOST_CHECK_EQUAL(i.select_eval,true);
 	}
 }
 
