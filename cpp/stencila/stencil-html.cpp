@@ -126,8 +126,20 @@ std::string Stencil::html(bool document,bool indent) const {
 		 * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
 		 * Files are with a fallback to hub.
 		 */
-		body.append("script",{{"src","/core/components/themes/base/boot.js"}}," ");
-		body.append("script","if(!window.Stencila){window.StencilaHost='http://stenci.la';document.write(unescape('%3Cscript src=\"http://stenci.la/core/themes/boot.js\"%3E%3C/script%3E'))}");
+		// Theme booter...
+		const std::string booter = "/core/components/themes/base/boot.js";
+		// get booter locally...
+		body.append("script",{{"src",booter}}," ");
+		// or, fallback to hub
+		body.append(
+			"script",
+			std::string("if(!window.Stencila){") +
+				"window.StencilaHost='http://stenci.la';" +
+				"document.write(unescape('%3Cscript src=\"" +
+					"http://stenci.la" + booter + "\"%3E%3C/script%3E'" +
+				"))" +
+			"}"
+		);
 		body.append("script","window.Stencila.Booter.theme('" + theme() + "');");
 
 		// Fallback to the CSS fallback! Remove the `unready` class from the root element is not already
