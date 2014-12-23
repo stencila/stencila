@@ -5,10 +5,10 @@
 namespace Stencila {
 
 Component& Component::initialise(const std::string& address){
-    std::string path = Component::locate(address);
-    if(path.length()) Component::path(path);
-    else STENCILA_THROW(Exception,"No component found with address <"+address+">");      
-    return *this;
+	std::string path = Component::locate(address);
+	if(path.length()) Component::path(path);
+	else STENCILA_THROW(Exception,"No component found with address <"+address+">");      
+	return *this;
 }
 
 std::string Component::path(bool ensure) const {

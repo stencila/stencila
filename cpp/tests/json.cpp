@@ -62,17 +62,17 @@ BOOST_AUTO_TEST_CASE(append){
 	BOOST_CHECK(doc["b"][1].is<int>());
 	BOOST_CHECK_EQUAL(doc["b"][1].as<int>(),2);
 
-    std::map<std::string,std::string> map;
-    map["a"] = "a";
-    map["b"] = "b";
-    map["c"] = "c";
+	std::map<std::string,std::string> map;
+	map["a"] = "a";
+	map["b"] = "b";
+	map["c"] = "c";
 
-    doc.append("c",map);
-    BOOST_CHECK(doc.has("c"));
-    BOOST_CHECK(doc["c"].is<Object>());
-    BOOST_CHECK_EQUAL(doc["c"].size(),3u);
-    BOOST_CHECK(doc["c"]["a"].is<std::string>());
-    BOOST_CHECK_EQUAL(doc["c"]["a"].as<std::string>(),"a");
+	doc.append("c",map);
+	BOOST_CHECK(doc.has("c"));
+	BOOST_CHECK(doc["c"].is<Object>());
+	BOOST_CHECK_EQUAL(doc["c"].size(),3u);
+	BOOST_CHECK(doc["c"]["a"].is<std::string>());
+	BOOST_CHECK_EQUAL(doc["c"]["a"].as<std::string>(),"a");
 }
 
 BOOST_AUTO_TEST_CASE(copy){

@@ -23,7 +23,7 @@ public:
 	operator bool(void) const {
 		return has_;
 	}
-  
+
 private:
 	std::string name_;
 	bool has_;
@@ -38,7 +38,7 @@ public:
 		data_(data,name,IsStructure<Type>(),IsArray<Type>());
 		return *this;
 	}
-  
+
 private:
 	template<typename Type>
 	Labels& data_(Type& data, const std::string& name, const std::true_type& is_structure, const std::false_type& is_array){

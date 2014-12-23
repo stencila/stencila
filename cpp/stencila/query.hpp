@@ -14,9 +14,9 @@ public:
 	/**
 	 * Get the code representation of the clause
 	 */
-    virtual std::string code(void) const {
-    	return "";
-    };
+	virtual std::string code(void) const {
+		return "";
+	};
 
 };
 
@@ -94,38 +94,38 @@ public:
 	 *
 	 * Should be overidden by derived classes.
 	 */
-    std::string dump(void){
-        return "";
-    }
-    
-    /**
-     * Load this aggregator from a string.
-     * Used to load a stored aggregator.
-     *
-     * Should be overidden by derived classes.
-     * 
-     * @param  value String codeesentation
-     */
-    Derived& load(const std::string& value){
-        return self();
-    }
-    
-    /**
-     * Join two aggregators of the same class.
-     * Used to join aggregator instances that have been run
-     * on different database table shards or segments of arrays.
-     *
-     * Should be overidden by derived classes.
-     * 
-     * @param  other Other aggregator instance
-     */
-    Derived& join(const Derived& other){
-        return self();
-    }
+	std::string dump(void){
+		return "";
+	}
+	
+	/**
+	 * Load this aggregator from a string.
+	 * Used to load a stored aggregator.
+	 *
+	 * Should be overidden by derived classes.
+	 * 
+	 * @param  value String codeesentation
+	 */
+	Derived& load(const std::string& value){
+		return self();
+	}
+	
+	/**
+	 * Join two aggregators of the same class.
+	 * Used to join aggregator instances that have been run
+	 * on different database table shards or segments of arrays.
+	 *
+	 * Should be overidden by derived classes.
+	 * 
+	 * @param  other Other aggregator instance
+	 */
+	Derived& join(const Derived& other){
+		return self();
+	}
 
-    /**
-     * Get the result of the aggregator
-     */
+	/**
+	 * Get the result of the aggregator
+	 */
 	Result result(void) const {
 		return self().result_static();
 	}
@@ -235,21 +235,21 @@ public:
 		count_++;
 	}
 
-    std::string dump(void) const {
-        char value[1000];
-        std::sprintf(value, "%lf", count_);
-        return value;
-    }
-    
-    Count& load(const std::string& value){
-        std::sscanf(value.c_str(), "%lf", &count_);
-        return *this;
-    }
-    
-    Count& join(const Count& other){
-        count_ += other.count_;
-        return *this;
-    }
+	std::string dump(void) const {
+		char value[1000];
+		std::sprintf(value, "%lf", count_);
+		return value;
+	}
+	
+	Count& load(const std::string& value){
+		std::sscanf(value.c_str(), "%lf", &count_);
+		return *this;
+	}
+	
+	Count& join(const Count& other){
+		count_ += other.count_;
+		return *this;
+	}
 
 	double result_static(void) const {
 		return count_;
@@ -281,21 +281,21 @@ public:
 		sum_ += value;
 	}
 
-    std::string dump(void) const {
-        char value[1000];
-        std::sprintf(value, "%lf", sum_);
-        return value;
-    }
+	std::string dump(void) const {
+		char value[1000];
+		std::sprintf(value, "%lf", sum_);
+		return value;
+	}
 
-    Sum& load(const std::string& value){
-        std::sscanf(value.c_str(), "%lf", &sum_);
-        return *this;
-    }
-    
-    Sum& join(const Sum& other){
-        sum_ += other.sum_;
-        return *this;
-    }
+	Sum& load(const std::string& value){
+		std::sscanf(value.c_str(), "%lf", &sum_);
+		return *this;
+	}
+	
+	Sum& join(const Sum& other){
+		sum_ += other.sum_;
+		return *this;
+	}
 
 	double result_static(void) const {
 		return sum_;
@@ -325,21 +325,21 @@ public:
 		prod_ *= value;
 	}
 
-    std::string dump(void) const {
-        char value[1000];
-        std::sprintf(value, "%lf", prod_);
-        return value;
-    }
+	std::string dump(void) const {
+		char value[1000];
+		std::sprintf(value, "%lf", prod_);
+		return value;
+	}
 
-    Product& load(const std::string& value){
-        std::sscanf(value.c_str(), "%lf", &prod_);
-        return *this;
-    }
-    
-    Product& join(const Product& other){
-        prod_ *= other.prod_;
-        return *this;
-    }
+	Product& load(const std::string& value){
+		std::sscanf(value.c_str(), "%lf", &prod_);
+		return *this;
+	}
+	
+	Product& join(const Product& other){
+		prod_ *= other.prod_;
+		return *this;
+	}
 
 	double result_static(void) const {
 		return prod_;
@@ -374,22 +374,22 @@ public:
 		count_++;
 	}
 
-    std::string dump(void) const {
-        char value[1000];
-        std::sprintf(value, "%lf %lf", sum_, count_);
-        return value;
-    }
+	std::string dump(void) const {
+		char value[1000];
+		std::sprintf(value, "%lf %lf", sum_, count_);
+		return value;
+	}
 
-    Mean& load(const std::string& value){
-        std::sscanf(value.c_str(), "%lf %lf", &sum_, &count_);
-        return *this;
-    }
-    
-    Mean& join(const Mean& other){
-        sum_ += other.sum_;
-        count_ += other.count_;
-        return *this;
-    }
+	Mean& load(const std::string& value){
+		std::sscanf(value.c_str(), "%lf %lf", &sum_, &count_);
+		return *this;
+	}
+	
+	Mean& join(const Mean& other){
+		sum_ += other.sum_;
+		count_ += other.count_;
+		return *this;
+	}
 
 	double result_static(void) const {
 		return sum_/count_;
@@ -417,19 +417,19 @@ public:
 		if(value>0) mean_.append(std::log(value));
 	}
 
-    std::string dump(void) const {
-        return mean_.dump();
-    }
+	std::string dump(void) const {
+		return mean_.dump();
+	}
 
-    GeometricMean& load(const std::string& value){
-        mean_.load(value);
-        return *this;
-    }
-    
-    GeometricMean& join(const GeometricMean& other){
-        mean_.join(other.mean_);
-        return *this;
-    }
+	GeometricMean& load(const std::string& value){
+		mean_.load(value);
+		return *this;
+	}
+	
+	GeometricMean& join(const GeometricMean& other){
+		mean_.join(other.mean_);
+		return *this;
+	}
 
 	double result_static(void) const {
 		return std::exp(mean_.result());
@@ -457,19 +457,19 @@ public:
 		if(value!=0) mean_.append_static(1.0/value);
 	}
 
-    std::string dump(void) const {
-        return mean_.dump();
-    }
+	std::string dump(void) const {
+		return mean_.dump();
+	}
 
-    HarmonicMean& load(const std::string& value){
-        mean_.load(value);
-        return *this;
-    }
-    
-    HarmonicMean& join(const HarmonicMean& other){
-        mean_.join(other.mean_);
-        return *this;
-    }
+	HarmonicMean& load(const std::string& value){
+		mean_.load(value);
+		return *this;
+	}
+	
+	HarmonicMean& join(const HarmonicMean& other){
+		mean_.join(other.mean_);
+		return *this;
+	}
 
 	double result_static(void) const {
 		return 1.0/mean_.result_static();
@@ -480,56 +480,56 @@ static HarmonicMean harmean;
 
 class Variance : public Aggregate<Variance,double,double> {
 public:
-    Variance(void):
-        count_(0),
-        mean_(0),
-        m2_(0){
-    }
+	Variance(void):
+		count_(0),
+		mean_(0),
+		m2_(0){
+	}
 
-    void reset(void){
-        count_ = 0;
-        mean_ = 0;
-        m2_ = 0;
-    }
+	void reset(void){
+		count_ = 0;
+		mean_ = 0;
+		m2_ = 0;
+	}
 
-    void append_static(const double& value){
-        count_++;
-        double delta = value - mean_;
-        mean_ += delta/count_;
-        m2_ += delta*(value-mean_);
-    }
+	void append_static(const double& value){
+		count_++;
+		double delta = value - mean_;
+		mean_ += delta/count_;
+		m2_ += delta*(value-mean_);
+	}
 
-    std::string dump(void){
-        char value[1000];
-        std::sprintf(value, "%li %lf %lf", count_, mean_, m2_);
-        return value;
-    }
-    
-    void load(const std::string& value){
-        std::sscanf(value.c_str(), "%li %lf %lf", &count_, &mean_, &m2_);
-    }
-    
-    void join(const Variance& other){
-        count_ += other.count_;
-        mean_ += other.mean_;
-        m2_ += other.m2_;
-    }    
-     
-    double result_static(void) const {
-        return m2_/(count_ - 1);
-    }
+	std::string dump(void){
+		char value[1000];
+		std::sprintf(value, "%li %lf %lf", count_, mean_, m2_);
+		return value;
+	}
+	
+	void load(const std::string& value){
+		std::sscanf(value.c_str(), "%li %lf %lf", &count_, &mean_, &m2_);
+	}
+	
+	void join(const Variance& other){
+		count_ += other.count_;
+		mean_ += other.mean_;
+		m2_ += other.m2_;
+	}
+	 
+	double result_static(void) const {
+		return m2_/(count_ - 1);
+	}
 
 protected:
-    unsigned long int count_;
-    double mean_;
-    double m2_;
+	unsigned long int count_;
+	double mean_;
+	double m2_;
 };
 
 class StandardDeviation : public Variance {
 public:
-    double result_static(void) const {
-        return std::sqrt(Variance::result_static());
-    }
+	double result_static(void) const {
+		return std::sqrt(Variance::result_static());
+	}
 };
 
 class Mapc : public Aggregate<Mapc,double,double> {
@@ -557,19 +557,19 @@ public:
 		last_ = value;
 	}
 
-    std::string dump(void) const {
-        return mean_.dump();
-    }
+	std::string dump(void) const {
+		return mean_.dump();
+	}
 
-    Mapc& load(const std::string& value){
-        mean_.load(value);
-        return *this;
-    }
-    
-    Mapc& join(const Mapc& other){
-        mean_.join(other.mean_);
-        return *this;
-    }
+	Mapc& load(const std::string& value){
+		mean_.load(value);
+		return *this;
+	}
+	
+	Mapc& join(const Mapc& other){
+		mean_.join(other.mean_);
+		return *this;
+	}
 
 	double result_static(void) const {
 		return mean_.result_static();

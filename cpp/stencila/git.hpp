@@ -25,7 +25,7 @@ namespace Git {
 class Error : public Exception {
 public:
 
-    Error(int code,std::string message="",const char* file=0, int line=0);
+	Error(int code,std::string message="",const char* file=0, int line=0);
 
 };
 

@@ -44,12 +44,12 @@ public:
 	 * @{
 	 */
 	
-    /**
-     * Initialise a component
-     * 
-     * @param  address Address of component
-     */
-    Component& initialise(const std::string& address);
+	/**
+	 * Initialise a component
+	 * 
+	 * @param  address Address of component
+	 */
+	Component& initialise(const std::string& address);
 
 	/**
 	 * Get this component's path
@@ -89,14 +89,14 @@ public:
 	 */
 	static std::vector<std::string> stores(void);
 
-    /**
-     * Locate a component in the stores
-     * i.e. convert an `address` into a `path`
-     *
-     * This method is used by the `get()` method below but also by the `Server` class to 
-     * statically serve a component file
-     */
-    static std::string locate(const std::string& address);
+	/**
+	 * Locate a component in the stores
+	 * i.e. convert an `address` into a `path`
+	 *
+	 * This method is used by the `get()` method below but also by the `Server` class to 
+	 * statically serve a component file
+	 */
+	static std::string locate(const std::string& address);
 
 	/**
 	 * List files and folders in a components directory 
@@ -178,7 +178,7 @@ public:
 	 * Methods implemented in `stencil-repo.cpp`
 	 * 
 	 * @{
-	 */   
+	 */
 	
 	typedef Git::Repository  Repository;
 	typedef Git::Commit      Commit;
@@ -257,7 +257,7 @@ public:
 	 * @}
 	 */
 
-    /**
+	/**
 	 * @name Instances
 	 *
 	 * Methods for the delaration, storage and reteival of components.
@@ -417,12 +417,12 @@ public:
 	 */
 	Component& hold(Type type = ComponentType);
 
-    /**
-     * Get the type of a component at path
-     * 
-     * @param  path Filesystem path to component
-     */
-    static Type type(const std::string& path);
+	/**
+	 * Get the type of a component at path
+	 * 
+	 * @param  path Filesystem path to component
+	 */
+	static Type type(const std::string& path);
 
 	/**
 	 * Get a component with a given address, and optionally, a version requirement
@@ -449,48 +449,48 @@ public:
 	 * 
 	 * @{
 	 */
-	    
+		
 	struct Call {
-	    std::string what_;
-	    Json::Document args_;
-	    Json::Document kwargs_;
+		std::string what_;
+		Json::Document args_;
+		Json::Document kwargs_;
 	
-	    Call(const std::string& what):
-	        what_(what){
-	    }
+		Call(const std::string& what):
+			what_(what){
+		}
 	
-	    Call(const std::string& what, const std::string& args):
-	        what_(what),
-	        args_(args){
-	    }
+		Call(const std::string& what, const std::string& args):
+			what_(what),
+			args_(args){
+		}
 	
-	    Call(const std::string& what, const std::string& args, const std::string& kwargs):
-	        what_(what),
-	        args_(args),
-	        kwargs_(kwargs){
-	    }
+		Call(const std::string& what, const std::string& args, const std::string& kwargs):
+			what_(what),
+			args_(args),
+			kwargs_(kwargs){
+		}
 	
-	    std::string what(void) const {
-	        return what_;
-	    }
+		std::string what(void) const {
+			return what_;
+		}
 	
-	    unsigned int args(void) const {
-	        return args_.size();
-	    }
+		unsigned int args(void) const {
+			return args_.size();
+		}
 	
-	    template<typename Type=std::string>
-	    Type arg(int index,const std::string& name="") const {
-	        // Get argument string
-	        std::string arg;
-	        if(name.length()>0){
-	            if(kwargs_.has(name)) return kwargs_[name].as<Type>();
-	            else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
-	        }
-	        else if(args_.size()<index+1){
-	            STENCILA_THROW(Exception,"Not enough arguments supplied");
-	        }
-	        else return args_[index].as<Type>();
-	    }
+		template<typename Type=std::string>
+		Type arg(int index,const std::string& name="") const {
+			// Get argument string
+			std::string arg;
+			if(name.length()>0){
+				if(kwargs_.has(name)) return kwargs_[name].as<Type>();
+				else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
+			}
+			else if(args_.size()<index+1){
+				STENCILA_THROW(Exception,"Not enough arguments supplied");
+			}
+			else return args_[index].as<Type>();
+		}
 	};
 
 	/**
@@ -535,7 +535,7 @@ public:
 	 * Methods implemented in `component-serve.cpp`
 	 * 
 	 * @{
-	 */   
+	 */
 	
 	/**
 	 * Serve this component
@@ -607,11 +607,11 @@ public:
 	 */
 	static std::string message(Component* component, const std::string& message);
 
-    /**
-     * Generate a default home page for the server that is serving
-     * components.
-     */
-    static std::string home(void);
+	/**
+	 * Generate a default home page for the server that is serving
+	 * components.
+	 */
+	static std::string home(void);
 
 	/**
 	 * @}

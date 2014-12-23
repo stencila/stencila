@@ -40,13 +40,13 @@ BOOST_AUTO_TEST_CASE(labels){
 }
 
 BOOST_AUTO_TEST_CASE(stencil_read){
-    Stencil stencil;
-    stencil.cila("#b g\n#c 24");
-    A a;
-    a.read(stencil);
-    BOOST_CHECK_EQUAL(a.a,true);
-    BOOST_CHECK_EQUAL(a.b,'g');
-    BOOST_CHECK_EQUAL(a.c,24);
+	Stencil stencil;
+	stencil.cila("#b g\n#c 24");
+	A a;
+	a.read(stencil);
+	BOOST_CHECK_EQUAL(a.a,true);
+	BOOST_CHECK_EQUAL(a.b,'g');
+	BOOST_CHECK_EQUAL(a.c,24);
 }
 
 BOOST_AUTO_TEST_CASE(header_row){

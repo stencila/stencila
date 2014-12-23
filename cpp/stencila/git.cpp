@@ -9,7 +9,7 @@ namespace Stencila {
 namespace Git {
 
 Error::Error(int code,std::string message, const char* file, int line):
-    Exception(message,file,line){
+	Exception(message,file,line){
 	if(code<0 and message.length()==0){
 		const git_error* error = giterr_last();
 		message_ = (error && error->message) ? error->message : "unknown";
@@ -59,10 +59,10 @@ void Repository::init(const std::string& path,bool commit){
 	STENCILA_GIT_TRY(git_repository_init(&repo_,path.c_str(),false));
 
 	if(commit){
-	    git_signature *sig;
-	    git_index *index;
-	    git_oid tree_id, commit_id;
-	    git_tree *tree;
+		git_signature *sig;
+		git_index *index;
+		git_oid tree_id, commit_id;
+		git_tree *tree;
 
 		git_repository_index(&index, repo_);
 		git_index_write_tree(&tree_id, index);
@@ -273,11 +273,11 @@ void Repository::pull(const std::string& name){
 void Repository::push(const std::string& name){
 	git_remote* remote = NULL;
 	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, name.c_str()));
-    git_push* push = NULL;
-    STENCILA_GIT_TRY(git_push_new(&push, remote));
-    STENCILA_GIT_TRY(git_push_add_refspec(push,"refs/heads/master:refs/heads/master"));
-    STENCILA_GIT_TRY(git_push_finish(push));
-    STENCILA_GIT_TRY(git_push_unpack_ok(push));
+	git_push* push = NULL;
+	STENCILA_GIT_TRY(git_push_new(&push, remote));
+	STENCILA_GIT_TRY(git_push_add_refspec(push,"refs/heads/master:refs/heads/master"));
+	STENCILA_GIT_TRY(git_push_finish(push));
+	STENCILA_GIT_TRY(git_push_unpack_ok(push));
 	git_remote_free(remote);
 }
 

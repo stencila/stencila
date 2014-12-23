@@ -16,7 +16,7 @@ public:
 
 	template<typename Type,typename... Args>
 	StencilParser& data(Type& data, const std::string& name, Args... args){    	
-    	Html::Node node = node_.select("#"+name);
+		Html::Node node = node_.select("#"+name);
 		if(node){
 			// Matching node found, dispatch according to type of data
 			data_(node,data,name,IsStructure<Type>(),IsArray<Type>());

@@ -32,6 +32,6 @@ std::string Component::call(const Component::Call& call) {
 		STENCILA_THROW(Exception,"Method signature not registered for calling: "+what);
 	}
 	return "";
-}        
+}
 
 }

@@ -91,8 +91,8 @@ void Server::http_(connection_hdl hdl) {
 	// (i.e. if the URI is just http://localhost/)
 	std::string resource = connection->get_resource();
 	auto request = connection->get_request();
-    std::string method = request.get_method();
-    // Get the remote address
+	std::string method = request.get_method();
+	// Get the remote address
 	std::string remote = connection->get_remote_endpoint();
 	// Response variables
 	http::status_code::value status = http::status_code::ok;

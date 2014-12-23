@@ -8,8 +8,8 @@
 namespace Stencila {
 
 std::string Component::serve(Type type){
-    hold(type);
-    return Server::startup() + "/" + address();
+	hold(type);
+	return Server::startup() + "/" + address();
 }
 
 void Component::view(Type type){

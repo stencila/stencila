@@ -31,24 +31,24 @@ public:
 	 */
 	Document(const std::string& html="");
 
-    /**
-     * Load the document from a HTML string
-     * 
-     * @param  html A HTML string 
-     */
-    Document& load(const std::string& html);
+	/**
+	 * Load the document from a HTML string
+	 * 
+	 * @param  html A HTML string 
+	 */
+	Document& load(const std::string& html);
 
-    /**
-     * Dump the document to a HTML string
-     */
-    std::string dump(bool pretty=true) const;
+	/**
+	 * Dump the document to a HTML string
+	 */
+	std::string dump(bool pretty=true) const;
 
-    /**
-     * Read the document from a file
-     * 
-     * @param  filename Name of file to read from
-     */
-    Document& read(const std::string& filename);
+	/**
+	 * Read the document from a file
+	 * 
+	 * @param  filename Name of file to read from
+	 */
+	Document& read(const std::string& filename);
 
 	/**
 	 * Tidy a string of HTML to ensure it can be parsed

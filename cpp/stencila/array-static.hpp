@@ -137,9 +137,9 @@ public:
 	 * See the constructor helper group of methods below
 	 */
 	template<typename Other>
-    Array(const Other& other){
-    	construct_dispatch_(IsContainer<Other>(),IsCallable<Other>(),other);
-    }
+	Array(const Other& other){
+		construct_dispatch_(IsContainer<Other>(),IsCallable<Other>(),other);
+	}
 
 	/**
 	 * Construct from an initializer_list (e.g. `{1.23,3.14,5.98}`)
@@ -147,10 +147,10 @@ public:
 	 * This constructor appears to be nessary because compiler (gcc 4.81 at least)
 	 * can not resolve between above consturtors when called with an initializer list
 	 */
-    template<typename Value>
+	template<typename Value>
 	Array(const std::initializer_list<Value>& values){
-        construct_container_(values);
-    }
+		construct_container_(values);
+	}
 
 private:
 
@@ -161,40 +161,40 @@ private:
 	 * 
 	 * @{
 	 */
- 	template<typename Other>
-    void construct_dispatch_(const std::false_type& is_container,const std::false_type& is_callable,const Other& other){
-        construct_atomic_(other);
-    }
+	template<typename Other>
+	void construct_dispatch_(const std::false_type& is_container,const std::false_type& is_callable,const Other& other){
+		construct_atomic_(other);
+	}
 
- 	template<typename Other>
-    void construct_dispatch_(const std::false_type& is_container,const std::true_type& is_callable,const Other& other){
-        construct_callable_(other);
-    }
+	template<typename Other>
+	void construct_dispatch_(const std::false_type& is_container,const std::true_type& is_callable,const Other& other){
+		construct_callable_(other);
+	}
 
- 	template<typename IsCallable, typename Other>
-    void construct_dispatch_(const std::true_type& is_container,const IsCallable& is_callable,const Other& other){
-        construct_container_(other);
-    }
+	template<typename IsCallable, typename Other>
+	void construct_dispatch_(const std::true_type& is_container,const IsCallable& is_callable,const Other& other){
+		construct_container_(other);
+	}
 
- 	template<typename Atomic>
-    void construct_atomic_(const Atomic& atomic){
-        for(Type& value : values_) value = atomic;
-    }
+	template<typename Atomic>
+	void construct_atomic_(const Atomic& atomic){
+		for(Type& value : values_) value = atomic;
+	}
 
- 	template<class Container>
-    void construct_container_(const Container& container){
-        unsigned int index = 0;
-        for(auto& item : container){
-            values_[index] = item;
-            index++;
-            if(index>=size_) break;
-        }
-    }
+	template<class Container>
+	void construct_container_(const Container& container){
+		unsigned int index = 0;
+		for(auto& item : container){
+			values_[index] = item;
+			index++;
+			if(index>=size_) break;
+		}
+	}
 
 	template<typename Callable>
-    void construct_callable_(Callable callable){
-    	typedef FunctionTraits<decltype(callable)> traits;
-    	for(unsigned int index=0;index<size();index++) values_[index] = construct_call_(Rank<traits::arity>(),index,callable);
+	void construct_callable_(Callable callable){
+		typedef FunctionTraits<decltype(callable)> traits;
+		for(unsigned int index=0;index<size();index++) values_[index] = construct_call_(Rank<traits::arity>(),index,callable);
 	}
 
 	template<typename Callable> static Type construct_call_(Rank<0>,unsigned int index,Callable callable){
@@ -296,16 +296,16 @@ private:
 		);
 	}
 
-    /**
-     * @}
-     */
+	/**
+	 * @}
+	 */
 
 public:
 
 	/**
 	 * Get the size of the array.
 	 */
-    static unsigned int size(void) {
+	static unsigned int size(void) {
 		return size_;
 	}
 
@@ -345,9 +345,9 @@ public:
 	}
 	static bool dimensioned(const D10&) {
 		return true;
-	} 	
+	}
 
- 	/**
+	/**
 	 * @name Iterator interface
 	 *
 	 * @{
@@ -367,18 +367,18 @@ public:
 
 	Cell<Type> end(void) {
 		return Cell<Type>(&values_[size_]);
-	}    
+	}
 
-    /**
-     * @}
-     */
-    
+	/**
+	 * @}
+	 */
+	
 	/**
 	* Implicit conversion to a std::vector
 	*/
-    operator std::vector<Type>(void) {
-        return std::vector<Type>(values_,values_+size_);
-    }
+	operator std::vector<Type>(void) {
+		return std::vector<Type>(values_,values_+size_);
+	}
 
 	/**
 	 * Get the number of cells in a single level of a dimension.
@@ -598,17 +598,17 @@ public:
 	 */
 	Array<> operator()(const Query& query) const {
 		for(Clause* clause : query){
-            if(AggregateDynamic<double,unsigned int>* aggregate = dynamic_cast<AggregateDynamic<double,unsigned int>*>(clause)){
-                for(auto& value : *this) aggregate->append_dynamic(value);
-                return {aggregate->result_dynamic()};
-            }
-            else if(AggregateDynamic<double,double>* aggregate = dynamic_cast<AggregateDynamic<double,double>*>(clause)){
-                for(auto& value : *this) aggregate->append_dynamic(value);
-                return {aggregate->result_dynamic()};
-            }
-            else {
-                STENCILA_THROW(Exception,"Query clause can not be applied: "+clause->code());
-            }
+			if(AggregateDynamic<double,unsigned int>* aggregate = dynamic_cast<AggregateDynamic<double,unsigned int>*>(clause)){
+				for(auto& value : *this) aggregate->append_dynamic(value);
+				return {aggregate->result_dynamic()};
+			}
+			else if(AggregateDynamic<double,double>* aggregate = dynamic_cast<AggregateDynamic<double,double>*>(clause)){
+				for(auto& value : *this) aggregate->append_dynamic(value);
+				return {aggregate->result_dynamic()};
+			}
+			else {
+				STENCILA_THROW(Exception,"Query clause can not be applied: "+clause->code());
+			}
 		}
 		return Array<>();
 	}
@@ -616,7 +616,7 @@ public:
 	/**
 	 * Evaluate an `Aggregate` type query and return its result
 	 */
-    template<
+	template<
 		class Derived, typename Values, typename Result
 	>
 	Result operator()(Aggregate<Derived,Values,Result> aggregate) const {
@@ -856,9 +856,9 @@ public:
 	}
 
 	void read(const std::string& filename,bool) {
-        std::ifstream file(filename);
-        read(file,true);
-    }
+		std::ifstream file(filename);
+		read(file,true);
+	}
 
 	void write(std::ostream& stream,bool) const {
 		// Write a header row...
@@ -901,9 +901,9 @@ public:
 		}
 	}
 	void write(const std::string& filename,bool) const {
-        std::ofstream file(filename);
-        write(file,true);
-    }
+		std::ofstream file(filename);
+		write(file,true);
+	}
 
 	/**
 	 * Write array to an output stream using the << operator to write each value
