@@ -314,13 +314,9 @@ void Stencil::render_for(Node node, Context* context){
 }
 
 void Stencil::render_include(Node node, Context* context){
-    std::string include_expr = node.attr("data-include");
+    std::string include = node.attr("data-include");
     std::string version = node.attr("data-version");
     std::string select = node.attr("data-select");
-
-    // Obtain string representation of include_expr
-    std::string include = include_expr;
-    if(include_expr!=".") context->write(include_expr);
 
     // If this node has been rendered before then there will be 
     // a `data-included` node. If it does not yet exist then append one.
