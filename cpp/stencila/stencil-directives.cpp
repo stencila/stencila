@@ -194,7 +194,8 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 			}
 			else if(format=="png" or format=="svg"){
 				output = doc.append("img",{
-					{"src",result}
+					{"src",result},
+					{"style","width:"+width+units+";height:"+height+units}
 				});
 			}
 			else {
