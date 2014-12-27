@@ -680,6 +680,8 @@ private:
 	/**
 	 * Outlining, including section numbering and table of content, handled
 	 * by `Outline` struct
+	 *
+	 * Implementation in `stencil-outline.hpp`.
 	 */
 	struct Outline;
 	Outline* outline_ = nullptr;
