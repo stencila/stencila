@@ -340,6 +340,85 @@ public:
 	std::vector<Execute> execs(void) const;
 
 	/**
+	 * A `write` directive (e.g. `<span data-write="result"></span>`)
+	 *
+	 * The expression in the `data-write` attribute is converted to a 
+	 * character string by the context and used as the element's text.
+	 * If the element has a `data-off="true"` attribute then the element will not
+	 * be rendered and its text will remain unchanged.
+	 */
+	struct Write : Directive {
+		Expression expression;
+
+		Write(void);
+		Write(const std::string& attribute);
+		Write(Node node);
+		void parse(const std::string& attribute);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
+	 * A `with` directive (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
+	 *
+	 * The expression in the `data-with` attribute is evaluated and made the subject of a new context namespace.
+	 * All child nodes are rendered within the new namespace. The namespace is then exited.
+	 */
+	struct With : Directive {
+		Expression expression;
+
+		With(void);
+		With(const std::string& attribute);
+		With(Node node);
+		void parse(const std::string& attribute);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
+	 * A `if` directive (e.g. `<div data-if="answer==42">...</div>` )
+	 *
+	 * The expression in the `data-if` attribute is evaluated in the context.
+	 */
+	struct If : Directive {
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
+	 * A `switch` directive
+	 *
+	 * The first `case` element (i.e. having a `data-case` attribute) that matches
+	 * the `switch` expression is activated. All other `case` and `default` elements
+	 * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
+	 */
+	struct Switch : Directive {
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
+	 * A `for` directive e.g. `<ul data-for="planet in planets"><li data-text="planet" /></ul>`
+	 *
+	 * A `for` directive has a `data-for` attribute which specifies the variable name given to each item and 
+	 * an expression providing the items to iterate over e.g. `planet in planets`
+	 *
+	 * The first child element is rendered for each item and given a `data-index="<index>"`
+	 * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
+	 * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
+	 * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
+	 * Any child elements with a `data-index` greater than the number of items is removed unless it has a 
+	 * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
+	 */
+	struct For : Directive {
+		Name item;
+		Expression items;
+
+		For();
+		For(const std::string& attribute);
+		void parse(const std::string& attribute);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
 	 * A parameter (`par`) directive
 	 */
 	struct Parameter : Directive {
@@ -426,55 +505,6 @@ public:
 	 * The method `delete`s the context.
 	 */
 	std::string context(void) const;
-
-	/**
-	 * Render a `write` directive (e.g. `<span data-write="result"></span>`)
-	 *
-	 * The expression in the `data-write` attribute is converted to a 
-	 * character string by the context and used as the element's text.
-	 * If the element has a `data-off="true"` attribute then the element will not
-	 * be rendered and its text will remain unchanged.
-	 */
-	void render_write(Node node, Context* context);
-
-	/**
-	 * Render a `with` element (e.g. `<div data-with="sales"><span data-text="sum(quantity*price)" /></div>` )
-	 *
-	 * The expression in the `data-with` attribute is evaluated and made the subject of a new context frame.
-	 * All child nodes are rendered within the new frame. The frame is then exited.
-	 */
-	void render_with(Node node, Context* context);
-
-	/**
-	 * Render a `if` element (e.g. `<div data-if="answer==42">...</div>` )
-	 *
-	 * The expression in the `data-if` attribute is evaluated in the context.
-	 */
-	void render_if(Node node, Context* context);
-
-	/**
-	 * Render a `switch` element
-	 *
-	 * The first `case` element (i.e. having a `data-case` attribute) that matches
-	 * the `switch` expression is activated. All other `case` and `default` elements
-	 * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
-	 */
-	void render_switch(Node node, Context* context);
-
-	/**
-	 * Render a `for` directive e.g. `<ul data-for="planet in planets"><li data-text="planet" /></ul>`
-	 *
-	 * A `for` directive has a `data-for` attribute which specifies the variable name given to each item and 
-	 * an expression providing the items to iterate over e.g. `planet in planets`
-	 *
-	 * The first child element is rendered for each item and given a `data-index="<index>"`
-	 * attribute where `<index>` is the 0-based index for the item. If the `for` element has already been rendered and
-	 * already has a child with a corresponding `data-index` attribute then that is used, otherwise a new child is appended.
-	 * This behaviour allows for a user to `data-lock` an child in a `for` element and not have it lost. 
-	 * Any child elements with a `data-index` greater than the number of items is removed unless it has a 
-	 * descendent with a `data-lock` attribute in which case it is retained but marked with a `data-extra` attribute.
-	 */
-	void render_for(Node node, Context* context);
 
 	/**
 	 * Render the children of an HTML element

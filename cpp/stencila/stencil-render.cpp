@@ -25,169 +25,6 @@ std::string Stencil::context(void) const {
 	else return "none";
 }
 
-void Stencil::render_write(Node node, Context* context){
-	if(node.attr("data-lock")!="true"){
-		std::string expression = node.attr("data-write");
-		std::string text = context->write(expression);
-		node.text(text);
-	}
-}
-
-void Stencil::render_with(Node node, Context* context){
-	std::string expression = node.attr("data-with");
-	context->enter(expression);
-	render_children(node,context);
-	context->exit();
-} 
-
-void Stencil::render_if(Node node, Context* context){
-	std::string expression = node.attr("data-if");
-	bool hit = context->test(expression);
-	if(hit){
-		node.erase("data-off");
-		render_children(node,context);
-	} else {
-		node.attr("data-off","true");
-	}
-	// Iterate through sibling elements to turn them on or off
-	// if they are elif or else elements; break otherwise.
-	Node next = node.next_element();
-	while(next){
-		if(next.has("data-elif")){
-			if(hit){
-				next.attr("data-off","true");
-			} else {
-				std::string expression = next.attr("data-elif");
-				hit = context->test(expression);
-				if(hit){
-					next.erase("data-off");
-					render_children(next,context);
-				} else {
-					next.attr("data-off","true");
-				}
-			}
-		}
-		else if(next.has("data-else")){
-			if(hit){
-				next.attr("data-off","true");
-			} else {
-				next.erase("data-off");
-				render_children(next,context);
-			}
-			break;
-		}
-		else break;
-		next = next.next_element();
-	}
-}
-
-void Stencil::render_switch(Node node, Context* context){
-	std::string expression = node.attr("data-switch");
-	context->mark(expression);
-
-	bool matched = false;
-	for(Node child : node.children()){
-		if(child.has("data-case")){
-			if(matched){
-				child.attr("data-off","true");
-			} else {
-				std::string match = child.attr("data-case");
-				matched = context->match(match);
-				if(matched){
-					child.erase("data-off");
-					render(child,context);
-				} else {
-					child.attr("data-off","true");
-				}
-			}
-		}
-		else if(child.has("data-default")){
-			if(matched){
-				child.attr("data-off","true");
-			} else {
-				child.erase("data-off");
-				render(child,context);
-			}
-		} else {
-			render(child,context);
-		}
-	}
-
-	context->unmark();
-}
-
-void Stencil::render_for(Node node, Context* context){
-	std::string attribute = node.attr("data-for");
-	// Get the name of `item` and the `items` expression
-	std::string name;
-	std::string expr;
-	static const boost::regex pattern("^(\\w+)\\s+in\\s+(.+)$");
-	boost::smatch match;
-	if(boost::regex_search(attribute, match, pattern)) {
-		name = match[1].str();
-		expr = match[2].str();
-	}
-	else {
-		STENCILA_THROW(Exception,"Syntax error in for directive attribute <"+attribute+">");
-	}
-	// Initialise the loop
-	bool more = context->begin(name,expr);
-	// Get the first child element which will be repeated
-	Node first = node.first_element();
-	// If this for loop has been rendered before then the first element will have a `data-off`
-	// attribute. So erase that attribute so that the repeated nodes don't get it
-	if(first) first.erase("data-off");
-	// Iterate
-	int count = 0;
-	while(first and more){
-		// See if there is an existing child with a corresponding `data-index`
-		std::string index = string(count);
-		// Must select only children (not other decendents) to prevent messing with
-		// nested loops. 
-		// Currently, our CSS selector implementation does not support this syntax:
-		//     > [data-index="0"]
-		// so use XPath instead:
-		Node item = node.select("./*[@data-index='"+index+"']","xpath");
-		if(item){
-			// If there is, check to see if it is locked
-			Node locked = item.select("./*[@data-lock]","xpath");
-			if(not locked){
-				// If it is not locked, then destroy and replace it
-				item.destroy();
-				item = node.append(first);
-			}
-		} else {
-			// If there is not, create one
-			item = node.append(first);
-		}
-		// Set index attribute
-		item.attr("data-index",index);
-		// Render the element
-		render(item,context);
-		// Ask context to step to next item
-		more = context->next();
-		count++;
-	}
-	// Deactivate the first child
-	if(first) first.attr("data-off","true");
-	// Remove any children having a `data-index` attribute greater than the 
-	// number of items, unless it has a `data-lock` decendent
-	Nodes indexeds = node.filter("./*[@data-index]","xpath");
-	for(Node indexed : indexeds){
-		std::string index_string = indexed.attr("data-index");
-		int index = unstring<int>(index_string);
-		if(index>count-1){
-			Node locked = indexed.select("[data-lock]");
-			if(locked){
-				indexed.attr("data-extra","true");
-				// Move the end of the `for` element
-				indexed.move(node);
-			}
-			else indexed.destroy();
-		}
-	}
-}
-
 void Stencil::render_children(Node node, Context* context){
 	for(Node child : node.children()) render(child,context);
 }
@@ -328,16 +165,24 @@ void Stencil::render(Node node, Context* context){
 			// `macro` elements are not rendered
 			if(attr=="data-macro") return ;
 			else if(attr=="data-exec") return Execute().render(*this,node,context);
+			else if(attr=="data-write") return Write().render(*this,node,context);
+			else if(attr=="data-with") return With().render(*this,node,context);
+
+			else if(attr=="data-if") return If().render(*this,node,context);
+			// Ignore `elif` and `else` elements as these are processed by `if`
+			// and the `render_children` below should not necessarily be called for them
+			else if(attr=="data-elif" or attr=="data-else") return;
+
+			else if(attr=="data-switch") return Switch().render(*this,node,context);
+			// Ignore `case` and `default` elements as these a processed by `switch`
+			// and the `render_children` below should not necessarily be called for them
+			else if(attr=="data-case" or attr=="data-default") return;
+
+			else if(attr=="data-for") return For().render(*this,node,context);
+
+			else if(attr=="data-include") return Include().render(*this,node,context);
 			else if(attr=="data-set") return Set().render(*this,node,context);
 			else if(attr=="data-par") return Parameter().render(*this,node,context);
-			else if(attr=="data-write") return render_write(node,context);
-			else if(attr=="data-with") return render_with(node,context);
-			else if(attr=="data-if") return render_if(node,context);
-			// Ignore `elif` and `else` elements as these are processed by `if_`
-			else if(attr=="data-elif" or attr=="data-else") return;
-			else if(attr=="data-switch") return render_switch(node,context);
-			else if(attr=="data-for") return render_for(node,context);
-			else if(attr=="data-include") return Include().render(*this,node,context);
 		}
 		// Render input elements
 		if(tag=="input"){

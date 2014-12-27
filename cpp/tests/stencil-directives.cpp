@@ -93,6 +93,21 @@ BOOST_AUTO_TEST_CASE(exec){
 
 }
 
+BOOST_AUTO_TEST_CASE(for_){
+	typedef Stencil::For F;
+	{
+		F f("item in items");
+		BOOST_CHECK_EQUAL(f.item,"item");
+		BOOST_CHECK_EQUAL(f.items,"items");
+	}{
+		try{
+			F f("foo bar");
+		} catch(const Stencil::DirectiveException& exc){
+			BOOST_CHECK_EQUAL(exc.type,"syntax");
+		}
+	}
+}
+
 BOOST_AUTO_TEST_CASE(par){
 	typedef Stencil::Parameter P;
 	{

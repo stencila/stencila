@@ -218,6 +218,212 @@ std::vector<Stencil::Execute> Stencil::execs(void) const {
 	return directives_list<Stencil::Execute>(*this,"exec");
 }
 
+Stencil::Write::Write(void){
+}
+
+Stencil::Write::Write(const std::string& attribute){
+	parse(attribute);
+}
+
+Stencil::Write::Write(Node node){
+	parse(node);
+}
+
+void Stencil::Write::parse(const std::string& attribute){
+	expression = attribute;
+}
+
+void Stencil::Write::parse(Node node){
+	parse(node.attr("data-write"));
+}
+
+void Stencil::Write::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+	if(node.attr("data-lock")!="true"){
+		auto text = context->write(expression);
+		node.text(text);
+	}
+}
+
+Stencil::With::With(void){
+}
+
+Stencil::With::With(const std::string& attribute){
+	parse(attribute);
+}
+
+Stencil::With::With(Node node){
+	parse(node);
+}
+
+void Stencil::With::parse(const std::string& attribute){
+	expression = attribute;
+}
+
+void Stencil::With::parse(Node node){
+	parse(node.attr("data-with"));
+}
+
+void Stencil::With::render(Stencil& stencil, Node node, Context* context){
+	context->enter(expression);
+	stencil.render_children(node,context);
+	context->exit();
+}
+
+void Stencil::If::render(Stencil& stencil, Node node, Context* context){
+	std::string expression = node.attr("data-if");
+	bool hit = context->test(expression);
+	if(hit){
+		node.erase("data-off");
+		stencil.render_children(node,context);
+	} else {
+		node.attr("data-off","true");
+	}
+	// Iterate through sibling elements to turn them on or off
+	// if they are elif or else elements; break otherwise.
+	Node next = node.next_element();
+	while(next){
+		if(next.has("data-elif")){
+			if(hit){
+				next.attr("data-off","true");
+			} else {
+				std::string expression = next.attr("data-elif");
+				hit = context->test(expression);
+				if(hit){
+					next.erase("data-off");
+					stencil.render_children(next,context);
+				} else {
+					next.attr("data-off","true");
+				}
+			}
+		}
+		else if(next.has("data-else")){
+			if(hit){
+				next.attr("data-off","true");
+			} else {
+				next.erase("data-off");
+				stencil.render_children(next,context);
+			}
+			break;
+		}
+		else break;
+		next = next.next_element();
+	}
+}
+
+void Stencil::Switch::render(Stencil& stencil, Node node, Context* context){
+	std::string expression = node.attr("data-switch");
+	context->mark(expression);
+
+	bool matched = false;
+	for(Node child : node.children()){
+		if(child.has("data-case")){
+			if(matched){
+				child.attr("data-off","true");
+			} else {
+				std::string match = child.attr("data-case");
+				matched = context->match(match);
+				if(matched){
+					child.erase("data-off");
+					stencil.render_children(child,context);
+				} else {
+					child.attr("data-off","true");
+				}
+			}
+		}
+		else if(child.has("data-default")){
+			if(matched){
+				child.attr("data-off","true");
+			} else {
+				child.erase("data-off");
+				stencil.render_children(child,context);
+			}
+		} else {
+			stencil.render(child,context);
+		}
+	}
+
+	context->unmark();
+}
+
+Stencil::For::For(void){
+}
+
+Stencil::For::For(const std::string& attribute){
+	parse(attribute);
+}
+
+void Stencil::For::parse(const std::string& attribute){
+	static const boost::regex pattern("^(\\w+)\\s+in\\s+(.+)$");
+	boost::smatch match;
+	if(boost::regex_search(attribute, match, pattern)) {
+		item = match[1].str();
+		items = match[2].str();
+	} else {
+		throw DirectiveException("syntax",attribute);
+	}
+}
+
+void Stencil::For::render(Stencil& stencil, Node node, Context* context){
+	parse(node.attr("data-for"));
+
+	// Initialise the loop
+	bool more = context->begin(item,items);
+	// Get the first child element which will be repeated
+	Node first = node.first_element();
+	// If this for loop has been rendered before then the first element will have a `data-off`
+	// attribute. So erase that attribute so that the repeated nodes don't get it
+	if(first) first.erase("data-off");
+	// Iterate
+	int count = 0;
+	while(first and more){
+		// See if there is an existing child with a corresponding `data-index`
+		std::string index = string(count);
+		// Must select only children (not other decendents) to prevent messing with
+		// nested loops. 
+		// Currently, our CSS selector implementation does not support this syntax:
+		//     > [data-index="0"]
+		// so use XPath instead:
+		Node item = node.select("./*[@data-index='"+index+"']","xpath");
+		if(item){
+			// If there is, check to see if it is locked
+			Node locked = item.select("./*[@data-lock]","xpath");
+			if(not locked){
+				// If it is not locked, then destroy and replace it
+				item.destroy();
+				item = node.append(first);
+			}
+		} else {
+			// If there is not, create one
+			item = node.append(first);
+		}
+		// Set index attribute
+		item.attr("data-index",index);
+		// Render the element
+		stencil.render(item,context);
+		// Ask context to step to next item
+		more = context->next();
+		count++;
+	}
+	// Deactivate the first child
+	if(first) first.attr("data-off","true");
+	// Remove any children having a `data-index` attribute greater than the 
+	// number of items, unless it has a `data-lock` decendent
+	Nodes indexeds = node.filter("./*[@data-index]","xpath");
+	for(Node indexed : indexeds){
+		std::string index_string = indexed.attr("data-index");
+		int index = unstring<int>(index_string);
+		if(index>count-1){
+			Node locked = indexed.select("[data-lock]");
+			if(locked){
+				indexed.attr("data-extra","true");
+				// Move the end of the `for` element
+				indexed.move(node);
+			}
+			else indexed.destroy();
+		}
+	}
+}
 
 Stencil::Parameter::Parameter(void){
 }

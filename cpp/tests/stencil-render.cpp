@@ -142,9 +142,8 @@ BOOST_AUTO_TEST_CASE(with){
 BOOST_AUTO_TEST_CASE(if_else){
 	render(R"(
 		<div class="if-off" data-if="none" />
-		<div class="else-on" data-elif="a" />
+		<div class="else-on" data-else />
 	)");
-
 	BOOST_CHECK(stencil.select("div.if-off").has("data-off"));
 	BOOST_CHECK(not stencil.select("div.else-on").has("data-off"));
 }
