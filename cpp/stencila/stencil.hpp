@@ -515,11 +515,6 @@ public:
 	void render_children(Node node, Context* context);
 
 	/**
-	 * Update and render a intra-stencil dependecy hash on the node
-	 */
-	bool render_hash(Node node);
-
-	/**
 	 * Initialise the rendering of a stencil
 	 *
 	 * @param node    Node to render
