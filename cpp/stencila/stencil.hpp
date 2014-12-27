@@ -271,7 +271,22 @@ public:
 
 	struct Directive {
 		typedef std::string Name;
+
 		typedef std::string Expression;
+
+		struct Evaluatable {
+			bool eval = false;
+			std::string expr;
+			std::string value;
+
+			std::string evaluate(Context* context) {
+				if(eval and expr.length()) value = context->write(expr);
+				else value = expr;
+				return value;
+			}
+
+		};
+
 		typedef bool Flag;
 	};
 
@@ -318,11 +333,11 @@ public:
 	struct Execute : Directive {
 		bool valid;
 		std::vector<Name> contexts;
-		Expression format;
-		Expression width;
-		Expression height;
-		Expression units;
-		std::string size;
+		Evaluatable format;
+		Evaluatable width;
+		Evaluatable height;
+		Evaluatable units;
+		Evaluatable size;
 		Flag constant = false;
 		Flag show = false;
 
@@ -460,10 +475,8 @@ public:
 	 * An `include` directive (e.g. `<div data-include="stats/t-test select #macros #text #simple-paragraph" />` )
 	 */
 	struct Include : Directive {
-		std::string address;
-		bool address_eval = false;
-		std::string select;
-		bool select_eval = false;
+		Evaluatable address;
+		Evaluatable select;
 
 		Include(void);
 		Include(const std::string& attribute);

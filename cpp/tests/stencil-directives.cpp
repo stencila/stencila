@@ -32,13 +32,13 @@ BOOST_AUTO_TEST_CASE(exec){
 
 	{
 		E e("r format text");
-		BOOST_CHECK_EQUAL(e.format,"text");
+		BOOST_CHECK_EQUAL(e.format.expr,"text");
 	}{
 		E e("r format png");
-		BOOST_CHECK_EQUAL(e.format,"png");
+		BOOST_CHECK_EQUAL(e.format.expr,"png");
 	}{
 		E e("r format svg");
-		BOOST_CHECK_EQUAL(e.format,"svg");
+		BOOST_CHECK_EQUAL(e.format.expr,"svg");
 	}{
 		try {
 			E e("r format gnp");
@@ -49,9 +49,7 @@ BOOST_AUTO_TEST_CASE(exec){
 
 	{
 		E e("r format png width 19");
-		BOOST_CHECK_EQUAL(e.width,"19");
-		BOOST_CHECK_EQUAL(e.height,"17");
-		BOOST_CHECK_EQUAL(e.units,"cm");
+		BOOST_CHECK_EQUAL(e.width.expr,"19");
 	}
 
 	{
@@ -59,11 +57,8 @@ BOOST_AUTO_TEST_CASE(exec){
 		BOOST_CHECK_EQUAL(e.contexts.size(),2);
 		BOOST_CHECK_EQUAL(e.contexts[0],"py");
 		BOOST_CHECK_EQUAL(e.contexts[1],"r");
-		BOOST_CHECK_EQUAL(e.format,"png");
-		BOOST_CHECK_EQUAL(e.size,"4.2x8.4in");
-		BOOST_CHECK_EQUAL(e.width,"4.2");
-		BOOST_CHECK_EQUAL(e.height,"8.4");
-		BOOST_CHECK_EQUAL(e.units,"in");
+		BOOST_CHECK_EQUAL(e.format.expr,"png");
+		BOOST_CHECK_EQUAL(e.size.expr,"4.2x8.4in");
 	}{
 		try {
 			E e("r format png size 10x10km");
@@ -148,28 +143,28 @@ BOOST_AUTO_TEST_CASE(includ){
 	typedef Stencil::Include I;
 	{
 		I i("x");
-		BOOST_CHECK_EQUAL(i.address,"x");
-		BOOST_CHECK_EQUAL(i.address_eval,false);
-		BOOST_CHECK_EQUAL(i.select,"");
+		BOOST_CHECK_EQUAL(i.address.expr,"x");
+		BOOST_CHECK_EQUAL(i.address.eval,false);
+		BOOST_CHECK_EQUAL(i.select.expr,"");
 	}{
 		I i("x select y");
-		BOOST_CHECK_EQUAL(i.address,"x");
-		BOOST_CHECK_EQUAL(i.select,"y");
-		BOOST_CHECK_EQUAL(i.select_eval,false);
+		BOOST_CHECK_EQUAL(i.address.expr,"x");
+		BOOST_CHECK_EQUAL(i.select.expr,"y");
+		BOOST_CHECK_EQUAL(i.select.eval,false);
 	}{
 		I i(". select #id .class");
-		BOOST_CHECK_EQUAL(i.address,".");
-		BOOST_CHECK_EQUAL(i.select,"#id .class");
+		BOOST_CHECK_EQUAL(i.address.expr,".");
+		BOOST_CHECK_EQUAL(i.select.expr,"#id .class");
 	}{
 		I i("eval x+'stencil'");
-		BOOST_CHECK_EQUAL(i.address,"x+'stencil'");
-		BOOST_CHECK_EQUAL(i.address_eval,true);
+		BOOST_CHECK_EQUAL(i.address.expr,"x+'stencil'");
+		BOOST_CHECK_EQUAL(i.address.eval,true);
 	}{
 		I i("eval 'address'+'/'+'of/stencil' select eval '#macro-id'");
-		BOOST_CHECK_EQUAL(i.address,"'address'+'/'+'of/stencil'");
-		BOOST_CHECK_EQUAL(i.address_eval,true);
-		BOOST_CHECK_EQUAL(i.select,"'#macro-id'");
-		BOOST_CHECK_EQUAL(i.select_eval,true);
+		BOOST_CHECK_EQUAL(i.address.expr,"'address'+'/'+'of/stencil'");
+		BOOST_CHECK_EQUAL(i.address.eval,true);
+		BOOST_CHECK_EQUAL(i.select.expr,"'#macro-id'");
+		BOOST_CHECK_EQUAL(i.select.eval,true);
 	}
 }
 

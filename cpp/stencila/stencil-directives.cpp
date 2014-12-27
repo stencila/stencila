@@ -64,11 +64,11 @@ void Stencil::Execute::parse(const std::string& attribute){
 	static const boost::regex pattern(
 		"^" \
 		"(\\w+(\\s*,\\s*\\w+)*)" \
-		"(\\s+format\\s+(.+?))?" \
-		"(\\s+width\\s+(.+?))?" \
-		"(\\s+height\\s+(.+?))?" \
-		"(\\s+units\\s+(.+?))?" \
-		"(\\s+size\\s+(.+?))?" \
+		"(((eval)\\s+)?\\s+format\\s+(.+?))?" \
+		"(((eval)\\s+)?\\s+width\\s+(.+?))?" \
+		"(((eval)\\s+)?\\s+height\\s+(.+?))?" \
+		"(((eval)\\s+)?\\s+units\\s+(.+?))?" \
+		"(((eval)\\s+)?\\s+size\\s+(.+?))?" \
 		"(\\s+(const))?" \
 		"(\\s+(show))?" \
 		"$"
@@ -86,43 +86,18 @@ void Stencil::Execute::parse(const std::string& attribute){
 			)) throw DirectiveException("context-invalid",context);
 		}
 
-		format = match[4].str();
-		if(format.length() and not(
-			format=="text" or 
-			format=="png" or format=="jpg" or format=="svg"
-		)) throw DirectiveException("format-invalid",format);
-
-		width = match[6].str();
-		height = match[8].str();
-		units = match[10].str();
-
-		size = match[12].str();
-		if(size.length()){
-			static const boost::regex pattern("^([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(\\w+)?$");
-			boost::smatch match;
-			if(boost::regex_search(size, match, pattern)){
-				width = match[1].str();
-				height = match[2].str();
-				units = match[3].str();
-			} else {
-				throw DirectiveException("size-invalid",size);
-			}
-		}
-
-		if(not width.length()) width = "17";
-		if(not height.length()) height = "17";
-
-		if(units.length()){
-			if(not(
-				units=="cm" or units=="in" or units=="px"
-			)) throw DirectiveException("units-invalid",units);
-		} else {
-			units = "cm";
-		}
-
-		constant = match[14].str()=="const";
-		show = match[16].str()=="show";
-
+		format.eval = match[5].str()=="eval";
+		format.expr = match[6].str();
+		width.eval = match[9].str()=="eval";
+		width.expr = match[10].str();
+		height.eval = match[13].str()=="eval";
+		height.expr = match[14].str();
+		units.eval = match[17].str()=="eval";
+		units.expr = match[18].str();
+		size.eval = match[21].str()=="eval";
+		size.expr = match[22].str();
+		constant = match[24].str()=="const";
+		show = match[26].str()=="show";
 	} else {
 		throw DirectiveException("syntax",attribute);
 	}
@@ -177,36 +152,78 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	if(hash==current) return;
 	else node.attr("data-hash",hash);
 
-	// Get code and execute it
+	// Get code and return if zero length
 	std::string code = node.text();
-	if(code.length()>0){
-		// Execute
-		std::string result = context->execute(code,stencil.hash_,format,width,height,units);
-		// Remove any existing output
-		Node next = node.next_element();
-		if(next and next.attr("data-output")=="true") next.destroy();
-		// Append new output
-		if(format.length()){
-			Xml::Document doc;
-			Node output;
-			if(format=="text"){
-				output = doc.append("samp",result);
-			}
-			else if(format=="png" or format=="svg"){
-				output = doc.append("img",{
-					{"src",result},
-					{"style","width:"+width+units+";height:"+height+units}
-				});
-			}
-			else {
-				Stencil::error(node,"format-invalid",format);
-			}
-			if(output){
-				// Flag output node 
-				output.attr("data-output","true");
-				// Create a copy immeadiately after code directive
-				node.after(output);
-			}
+	if(code.length()==0) return;
+
+	// Evaluate parameters within context and check their values
+	format.evaluate(context);
+	if(format.value.length() and not(
+		format.value=="text" or 
+		format.value=="png" or format.value=="jpg" or format.value=="svg"
+	)) throw DirectiveException("format-invalid",format.value);
+
+	width.evaluate(context);
+	height.evaluate(context);
+	units.evaluate(context);
+
+	size.evaluate(context);
+	if(size.value.length()){
+		static const boost::regex pattern("^([0-9]*\\.?[0-9]+)x([0-9]*\\.?[0-9]+)(\\w+)?$");
+		boost::smatch match;
+		if(boost::regex_search(size.value, match, pattern)){
+			width.value = match[1].str();
+			height.value = match[2].str();
+			units.value = match[3].str();
+		} else {
+			throw DirectiveException("size-invalid",size.value);
+		}
+	}
+
+	if(not width.value.length()) width.value = "17";
+	if(not height.value.length()) height.value = "17";
+
+	if(units.value.length()){
+		if(not(
+			units.value=="cm" or units.value=="in" or units.value=="px"
+		)) throw DirectiveException("units-invalid",units.value);
+	} else {
+		units.value = "cm";
+	}
+
+	// Execute code
+	std::string result = context->execute(code,stencil.hash_,
+		format.value,
+		width.value,
+		height.value,
+		units.value
+	);
+	// Remove any existing output
+	Node next = node.next_element();
+	if(next and next.attr("data-output")=="true") next.destroy();
+
+	// Append new output
+	if(format.value.length()){
+		// Append output element
+		Xml::Document doc;
+		Node output;
+		if(format.value=="text"){
+			output = doc.append("samp",result);
+		}
+		else if(format.value=="png" or format.value=="svg"){
+			output = doc.append("img",{
+				{"src",result},
+				{"style","width:"+width.value+units.value+";height:"+height.value+units.value}
+			});
+		}
+		else {
+			throw DirectiveException("format-invalid",format.value);
+		}
+		if(output){
+			// Flag output node 
+			output.attr("data-output","true");
+			// Create a copy immeadiately after code directive
+			node.after(output);
 		}
 	}
 
@@ -526,10 +543,10 @@ void Stencil::Include::parse(const std::string& attribute){
 	boost::smatch match;
 	static const boost::regex pattern("^(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?$");
 	if(boost::regex_search(attribute, match, pattern)) {
-		address = match[4].str();
-		address_eval = match[3].str()=="eval";
-		select = match[8].str();
-		select_eval = match[7].str()=="eval";
+		address.expr = match[4].str();
+		address.eval = match[3].str()=="eval";
+		select.expr = match[8].str();
+		select.eval = match[7].str()=="eval";
 	} else {
 		throw DirectiveException("syntax","");
 	}
@@ -541,11 +558,6 @@ void Stencil::Include::parse(Node node){
 
 void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
-
-	// Obtain string representation of include_expr
-	std::string address_use;
-	if(address_eval) address_use = context->write(address);
-	else address_use = address;
 
 	// If this node has been rendered before then there will be 
 	// a `data-included` node. If it does not yet exist then append one.
@@ -561,15 +573,14 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 		//Obtain the included stencil...
 		Node includee;
 		//Check to see if this is a "self" include, otherwise obtain the includee
-		if(address_use==".") includee = node.root();
-		else includee = Component::get(address_use).as<Stencil>();
+		address.evaluate(context);
+		if(address.value==".") includee = node.root();
+		else includee = Component::get(address.value).as<Stencil>();
 		// ...select from it
-		if(select.length()>0){
-			std::string select_use;
-			if(select_eval) select_use = context->write(select);
-			else select_use = select;
+		select.evaluate(context);
+		if(select.value.length()){
 			// ...append the selected nodes.
-			for(Node node : includee.filter(select_use)){
+			for(Node node : includee.filter(select.value)){
 				// Append the node first to get a copy of it which can be modified
 				Node appended = included.append(node);
 				// Remove `macro` declaration if any so that element gets rendered
