@@ -297,6 +297,8 @@ BOOST_AUTO_TEST_CASE(include_simple_rendered){
 	)");
 
 	BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"A");
+	// Check that included stencil is crushed
+	BOOST_CHECK(not stencil.select("[data-include] [data-included] [data-write]"));
 }
 
 BOOST_AUTO_TEST_CASE(include_modifiers){

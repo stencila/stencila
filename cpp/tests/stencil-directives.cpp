@@ -6,12 +6,43 @@ using namespace Stencila;
 BOOST_AUTO_TEST_SUITE(stencil_directives)
 
 BOOST_AUTO_TEST_CASE(crush){
-	Stencil s;
+	Stencil s(R"(html://
+		
+		`exec` directive elements shoul be removed completely
 
-	BOOST_CHECK_EQUAL(
-		s.html(std::string("<div data-if=\"\"></div>")).crush().html(false,false),
-		"<div></div>"
-	);
+		<pre data-exec="" id="exec"></pre>
+
+
+		Directive attributes should be removed
+
+		<div data-if=""></div>
+		<div data-switch="">
+			<div data-case=""></div>
+			<div data-case=""></div>
+		</div>
+
+
+		Flag attributes should be removed
+
+		<div data-hash=""></div>
+		<div data-output=""></div>
+	)");
+
+	BOOST_CHECK(s.select("pre#exec"));
+	BOOST_CHECK(s.select("[data-if]"));
+	BOOST_CHECK(s.select("[data-switch]"));
+	BOOST_CHECK(s.select("[data-case]"));
+	BOOST_CHECK(s.select("[data-hash]"));
+	BOOST_CHECK(s.select("[data-output]"));
+
+	s.crush();
+
+	BOOST_CHECK(not s.select("pre#exec"));
+	BOOST_CHECK(not s.select("[data-if]"));
+	BOOST_CHECK(not s.select("[data-switch]"));
+	BOOST_CHECK(not s.select("[data-case]"));
+	BOOST_CHECK(not s.select("[data-hash]"));
+	BOOST_CHECK(not s.select("[data-output]"));
 }
 
 BOOST_AUTO_TEST_CASE(exec){

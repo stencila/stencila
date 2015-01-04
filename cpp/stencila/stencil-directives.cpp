@@ -19,9 +19,8 @@ const std::vector<std::string> Stencil::directives = {
 };
 
 const std::vector<std::string> Stencil::flags = {
-	"data-const","data-hash","data-output",
-	"data-show","data-off","data-index","data-lock","data-included",
-	"data-error"
+	"data-error","data-hash","data-off","data-lock",
+	"data-index","data-output","data-included"
 };
 
 bool Stencil::directive(const std::string& attr){
@@ -34,11 +33,11 @@ bool Stencil::flag(const std::string& attr){
 
 void Stencil::strip(Node node){
 	// Remove attributes added during rendering
-	for(std::string attr : {"data-hash","data-off","data-error"}){
+	for(std::string attr : {"data-error","data-hash","data-off"}){
 		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
 	}
 	// Remove elements added during rendering
-	for(Node child : node.filter("[data-index],[data-out],[data-included]")){
+	for(Node child : node.filter("[data-index],[data-output],[data-included]")){
 		child.destroy();
 	}
 }
