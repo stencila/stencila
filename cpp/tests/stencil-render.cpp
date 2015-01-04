@@ -257,6 +257,7 @@ BOOST_AUTO_TEST_CASE(include_simple){
 		<div id="includee">Hello world</div>
 		<div data-include=". select #includee" />
 	)");
+
 	BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"Hello world");
 }
 
@@ -295,7 +296,7 @@ BOOST_AUTO_TEST_CASE(include_simple_rendered){
 		<div data-include=". select #includee" />
 	)");
 
-	BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] [data-write=\"a\"]").text(),"A");
+	BOOST_CHECK_EQUAL(stencil.select("[data-include] [data-included] div").text(),"A");
 }
 
 BOOST_AUTO_TEST_CASE(include_modifiers){

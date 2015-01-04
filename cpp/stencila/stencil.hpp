@@ -269,6 +269,29 @@ public:
 	 */
 	static bool flag(const std::string& attr);
 
+	/**
+	 * Remove attributes and elements added to a HTML node,
+	 * and its children, during rendering
+	 */
+	static void strip(Node node);
+
+	/**
+	 * Remove attributes and elements added to this stencil
+	 * during rendering
+	 */
+	Stencil& strip(void);
+
+	/**
+	 * Remove all directives and flags from a HTML node and its children
+	 */
+	static void crush(Node node);
+
+	/**
+	 * Remove all directives and flags from this stencil
+	 */
+	Stencil& crush(void);
+
+
 	struct Directive {
 		typedef std::string Name;
 
@@ -571,12 +594,6 @@ public:
 	 * creating a new context if necessary
 	 */
 	Stencil& render(void);
-
-	/**
-	 * Remove attributes and element added to this stencil during
-	 * previous renderings
-	 */
-	Stencil& strip(void);
 
 	/**
 	 * Strip and then render this stencil

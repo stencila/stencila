@@ -226,16 +226,4 @@ Stencil& Stencil::restart(void){
 	return strip().render();
 }
 
-Stencil& Stencil::strip(void){
-	// Remove attributes added by `render()`
-	for(std::string attr : {"data-hash","data-off","data-error"}){
-		for(Node node : filter("["+attr+"]")) node.erase(attr);
-	}
-	// Remove elements added by `render()`
-	for(Node node : filter("[data-index],[data-out],[data-included]")){
-		node.destroy();
-	}
-	return *this;
-}    
-
 } // namespace Stencila

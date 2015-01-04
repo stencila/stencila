@@ -5,6 +5,14 @@ using namespace Stencila;
 
 BOOST_AUTO_TEST_SUITE(stencil_directives)
 
+BOOST_AUTO_TEST_CASE(crush){
+	Stencil s;
+
+	BOOST_CHECK_EQUAL(
+		s.html(std::string("<div data-if=\"\"></div>")).crush().html(false,false),
+		"<div></div>"
+	);
+}
 
 BOOST_AUTO_TEST_CASE(exec){
 	typedef Stencil::Execute E;

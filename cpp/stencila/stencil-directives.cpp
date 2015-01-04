@@ -32,6 +32,43 @@ bool Stencil::flag(const std::string& attr){
 	return std::find(flags.begin(),flags.end(),attr)!=flags.end();
 }
 
+void Stencil::strip(Node node){
+	// Remove attributes added during rendering
+	for(std::string attr : {"data-hash","data-off","data-error"}){
+		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
+	}
+	// Remove elements added during rendering
+	for(Node child : node.filter("[data-index],[data-out],[data-included]")){
+		child.destroy();
+	}
+}
+
+Stencil& Stencil::strip(void){
+	strip(*this);
+	return *this;
+}
+
+void Stencil::crush(Node node){
+	// Strip to remove attributes and elements added during rendering
+	strip(node);
+	// Remove elements `exec` elements (which contain code) since simply removing the 
+	// `data-exec` attribute is not "enough"
+	for(Node child : node.filter("[data-exec]")){
+		child.destroy();
+	}	
+	// Remove all directive and flag attributes
+	auto all = directives;
+	all.insert(all.end(),flags.begin(),flags.end());
+	for(std::string attr : all){
+		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
+	}
+}
+
+Stencil& Stencil::crush(void){
+	crush(*this);
+	return *this;
+}
+
 namespace {
 	template<class Type>
 	std::vector<Type> directives_list(const Stencil& stencil, const std::string& type) {
@@ -47,6 +84,8 @@ namespace {
 void Stencil::error(Node node, const std::string& type, const std::string& data){
 	node.attr("data-error-" + type,data);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 Stencil::Execute::Execute(void){
 }
@@ -235,6 +274,8 @@ std::vector<Stencil::Execute> Stencil::execs(void) const {
 	return directives_list<Stencil::Execute>(*this,"exec");
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 Stencil::Write::Write(void){
 }
 
@@ -262,6 +303,8 @@ void Stencil::Write::render(Stencil& stencil, Node node, Context* context){
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 Stencil::With::With(void){
 }
 
@@ -286,6 +329,8 @@ void Stencil::With::render(Stencil& stencil, Node node, Context* context){
 	stencil.render_children(node,context);
 	context->exit();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Stencil::If::render(Stencil& stencil, Node node, Context* context){
 	std::string expression = node.attr("data-if");
@@ -328,6 +373,8 @@ void Stencil::If::render(Stencil& stencil, Node node, Context* context){
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Stencil::Switch::render(Stencil& stencil, Node node, Context* context){
 	std::string expression = node.attr("data-switch");
 	context->mark(expression);
@@ -362,6 +409,8 @@ void Stencil::Switch::render(Stencil& stencil, Node node, Context* context){
 
 	context->unmark();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 Stencil::For::For(void){
 }
@@ -442,6 +491,8 @@ void Stencil::For::render(Stencil& stencil, Node node, Context* context){
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 Stencil::Parameter::Parameter(void){
 }
 
@@ -497,6 +548,8 @@ std::vector<Stencil::Parameter> Stencil::pars(void) const {
 	return directives_list<Stencil::Parameter>(*this,"par");
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 Stencil::Set::Set(void){
 }
 
@@ -527,6 +580,8 @@ void Stencil::Set::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
 	context->assign(name,value);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 Stencil::Include::Include(void){
 }
@@ -565,7 +620,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	if(not included) included = node.append("div",{{"data-included","true"}});
 
 	// If the included node has been edited then it may have a data-lock
-	// element. If it does not have then clear and reinclude
+	// element. If it does not have one, then clear and reinclude it
 	Node lock = included.select("[data-lock=\"true\"]");
 	if(not lock) {
 		// Clear the included node
@@ -596,6 +651,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 			// Must add each child because includee is a document (see `Node::append(const Document& doc)`)
 			for(auto child : includee.children()) included.append(child);
 		}
+
 		//Apply modifiers
 		const int modifiers = 7;
 		enum {
@@ -663,11 +719,11 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 
 	// Enter a new namespace.
 	// Do this regardless of whether there are any 
-	// `data-par` elements, to avoid the included elements polluting the
+	// `par` directives to avoid the included elements polluting the
 	// main context or overwriting variables inadvertantly
 	context->enter();
 
-	// Apply `data-set` elements
+	// Apply `set` directives
 	// Apply all the `set`s specified in the include first. This
 	// may include setting variables not specified as parameters
 	// by the author of the included stencil.
@@ -698,6 +754,9 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 
 	// Render the `data-included` element
 	if(ok) stencil.render_children(included,context);
+
+	// Crush the children of the `data-included` element (not it though)
+	for(auto child : included.children()) crush(child);
 	
 	// Exit the included node
 	context->exit();
