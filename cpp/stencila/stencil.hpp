@@ -78,6 +78,30 @@ public:
 	/**
 	 * @}
 	 */
+	
+	/**
+	 * @name XML parsing and generation
+	 *
+	 * Methods implemented in `stencil-xml.cpp`
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Get stencil content as XML
+	 */
+	std::string xml(void) const;
+
+	/**
+	 * Set stencil content as XML
+	 * 
+	 * @param xml A XML string
+	 */
+	Stencil& xml(const std::string& xml);
+
+	/**
+	 * @}
+	 */
 
 	/**
 	 * @name HTML parsing and generation
