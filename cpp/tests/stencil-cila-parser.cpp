@@ -9,13 +9,19 @@ using namespace Stencila;
 struct CilaParserFixture : public CilaParser {  
 	// Methods added for debugging purposes
 	
-	void show_states(void){
+	void states_show(void){
 		std::cout<<"-----------------States-------------------\n";
 		for(auto state : states) std::cout<<state_name(state)<<"\n";
 		std::cout<<"-----------------------------------------\n";
 	}
 
-	void show_xml(void){
+	void nodes_show(void){
+		std::cout<<"-----------------Nodes-------------------\n";
+		for(auto node : nodes) std::cout<<node.indent.length()<<"\t"<<node.node.name()<<"\n";
+		std::cout<<"-----------------------------------------\n";
+	}
+
+	void xml_show(void){
 		std::cout<<"-------------------XML-------------------\n"
 				<<stencil.xml()<<"\n"
 				<<"-----------------------------------------\n";
@@ -27,17 +33,35 @@ struct CilaParserFixture : public CilaParser {
 #define CILA_XML(_CILA,_XML) BOOST_CHECK_EQUAL(parse(_CILA).stencil.xml(),_XML);
 
 BOOST_FIXTURE_TEST_SUITE(cila_parser,CilaParserFixture)
-
+ 
 BOOST_AUTO_TEST_CASE(elements){
 	CILA_XML("div","<div />");
 	CILA_XML("div\ndiv","<div /><div />");
-	CILA_XML("div\na\ndiv","<div /><a /><div />");
+	CILA_XML("div\na\np","<div /><a /><p />");
+}
+
+BOOST_AUTO_TEST_CASE(indentation){
+	CILA_XML("div\ndiv","<div /><div />");
+	CILA_XML("div\n\tp\n\t\ta\ndiv","<div><p><a /></p></div><div />");
+	// Blank lines should not muck up indentation
+	CILA_XML("div\n\n\tp\n\t\n  \n\n\tp\n\n \n\t\t\ta","<div><p /><p><a /></p></div>");
+}
+
+BOOST_AUTO_TEST_CASE(auto_paragraphs){
+	CILA_XML("No para","No para");
+	CILA_XML("\nPara","<p>Para</p>");
+	CILA_XML("\n\nPara","<p>Para</p>");
+	CILA_XML("div\n\n\tPara1\n\t\n\tPara2\n\t\t\tPara2cont","<div><p>Para1</p><p>Para2Para2cont</p></div>");
 }
 
 BOOST_AUTO_TEST_CASE(embedded){
 	CILA_XML("div{div{div}}","<div><div><div /></div></div>");
 	CILA_XML("div id=yo Some text {a href=none nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
 	CILA_XML("{ul{li apple}{li pear}}",R"(<ul><li>apple</li><li>pear</li></ul>)");
+}
+
+BOOST_AUTO_TEST_CASE(exec){
+	CILA_XML("r\n\ta=1\n","<pre data-exec=\"r\">\ta=1</pre>");
 }
 
 BOOST_AUTO_TEST_CASE(sections){
@@ -49,6 +73,10 @@ BOOST_AUTO_TEST_CASE(ul){
 	CILA_XML("- apple\n- pear",R"(<ul><li>apple</li><li>pear</li></ul>)");
 	CILA_XML("-apple\n-pear",R"(<ul><li>apple</li><li>pear</li></ul>)");
 	CILA_XML("{-apple}{-pear}",R"(<ul><li>apple</li><li>pear</li></ul>)");
+	// List items can have normal text parsing
+	CILA_XML("- Some _emphasis_",R"(<ul><li>Some <em>emphasis</em></li></ul>)");
+	CILA_XML("- An interpolated ``value``",R"(<ul><li>An interpolated <span data-write="value" /></li></ul>)");
+	CILA_XML("- A link to [Google](http://google.com)",R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)");
 }
 
 BOOST_AUTO_TEST_CASE(ol){

@@ -22,14 +22,14 @@ public:
 		sol,
 
 		/**
-		 * Null state
+		 * Looking for element
 		 *
 		 * In this state can move across into `attrs`
 		 */
-		null,
+		elem,
 
 		/**
-		 * Within element attributes
+		 * Looking for element attributes
 		 *
 		 * In this state the parser is looking for HTML element attribute
 		 * syntax (e.g. `[id="an-id"]`, `#an-id`, `.a-class`) including directives (e.g. `write x`) 
@@ -74,8 +74,6 @@ public:
 
 		/**
 		 * Within an `exec` directive
-		 *
-		 * Buffers all text. Exits on an empty line (e.g. `\n\n`)
 		 */
 		exec
 	};
@@ -115,6 +113,18 @@ public:
 	Stencil stencil;
 
 	/**
+	 * Current indentation. Used for keeping track
+	 * of parent-child relationships
+	 */
+	std::string indent;
+
+	/**
+	 * Flag for if indentation has been added to.
+	 * Need for "simulated" indentation
+	 */
+	bool indent_added;
+
+	/**
 	 * Current HTML node
 	 */
 	Node node;
@@ -122,7 +132,11 @@ public:
 	/**
 	 * Stack of nodes for enter/exit
 	 */
-	std::deque<Node> nodes;
+	struct Element {
+		std::string indent;
+		Node node;
+	};
+	std::deque<Element> nodes;
 
 	/**
 	 * Buffer of characters to be added as HTML text
@@ -132,7 +146,8 @@ public:
 	/**
 	 * Flag for orphaned element attributes
 	 */
-	bool tagged;
+	bool tag_needed;
+	bool para_needed;
 
 	/**
 	 * Get string representation of a state for debugging
@@ -141,7 +156,7 @@ public:
 		switch(state){
 			#define CASE(STATE) case STATE: return #STATE;
 			CASE(sol)
-			CASE(null)
+			CASE(elem)
 			CASE(attrs)
 			CASE(text)
 			CASE(empha)
@@ -228,7 +243,9 @@ public:
 	 */
 	void enter(Node elem){
 		node = elem;
-		nodes.push_back(node);
+		nodes.push_back({indent,node});
+		tag_needed = false;
+		para_needed = false;
 	}
 
 	/**
@@ -237,7 +254,9 @@ public:
 	void enter(const std::string& name){
 		flush();
 		node = node.append(name);
-		nodes.push_back(node);
+		nodes.push_back({indent,node});
+		tag_needed = false;
+		para_needed = false;
 	}
 
 	/**
@@ -247,7 +266,7 @@ public:
 		flush();
 
 		if(nodes.size()) nodes.pop_back();
-		if(nodes.size()) node = nodes.back();
+		if(nodes.size()) node = nodes.back().node;
 		else node = stencil;
 	}
 
@@ -298,7 +317,7 @@ public:
 		State state;
 		int states = -1;
 		int nodes = -1;
-		char begin;
+		std::string begin;
 		std::string regex = "<?>";
 		std::string match = "<?>";
 	};
@@ -314,6 +333,9 @@ public:
 		current.states = states.size();
 		current.nodes = nodes.size();
 		current.begin = *begin;
+		boost::replace_all(current.begin,"\t","\\t");
+		boost::replace_all(current.begin,"\n","\\n");
+		boost::replace_all(current.begin," ","\\s");
 		traces.push_back(current);
 	}
 
@@ -356,7 +378,6 @@ public:
 
 #endif
 
-
 	/**
 	 * Parse a string of Cila
 	 * 
@@ -375,11 +396,17 @@ public:
 		stencil.clear();
 		// ... nodes
 		nodes.clear();
-		nodes.push_back(stencil);
-		node = nodes.back();
+		nodes.push_back({"",stencil});
+		node = nodes.back().node;
+
+		tag_needed = false;
+		para_needed = false;
 
 		// Define regular expressions
-		static const boost::regex 		
+		static const boost::regex
+			indentation("[ \\t]*"),
+
+			exec_open("((r|py)( +[^\\n]+)?)\\n"),
 
 			tag("("\
 				"section|nav|article|aside|address|h1|h2|h3|h4|h5|h6|p|hr|pre|blockquote|ol|ul|li|dl|dt|dd|" \
@@ -390,6 +417,7 @@ public:
 			section(">\\s*([ \\w-]+)"),
 			ul_item("-\\s*"),
 			ol_item("\\d+\\.\\s*"),
+			li_shortcut("-|(\\d+\\.)\\s*"),
 
 			attr("([\\w-]+)=([^ ]+)\\b"),
 			id("#([\\w-]+)\\b"),
@@ -418,6 +446,7 @@ public:
 			curly_open("\\{"),
 			curly_close("\\}"),
 
+			blankline("[ \\t]*\\n"),
 			endline("\\n")
 		;
 
@@ -426,27 +455,65 @@ public:
 			trace_new();
 
 			if(state==sol){
-				// Get indentation and use to determine parent-child
-				// relationships
-				//! @todo Temporarily just exit current node 
-				exit();
-				// Move across into null state
-				across(null);
+				if(not boost::regex_search(begin, end, blankline, boost::regex_constants::match_continuous)){
+					// Get indentation
+					is(indentation);
+					indent = match.str();
+					// Peek ahead to see if this is a `ul_item` or `ol_item`; for these
+					// it is necessary to "simulate" further indentation to ensure correct
+					// parent child relationships
+					if(boost::regex_search(begin, end, li_shortcut, boost::regex_constants::match_continuous)){
+						indent_added = true;
+						indent += "\t";
+					} else {
+						indent_added = false;
+					}
+					// Exit nodes until a node with lower indentation is reached
+					// which then becomes the current node to which others get appended
+					while(nodes.size()>1 and (
+						nodes.back().indent=="none" or indent.size()<=nodes.back().indent.size()
+					)) exit();
+				}
+
+				if(is(exec_open)){
+					trace("exec");
+					// A execute directive should only begin at the 
+					// start of a line
+					// Enter `<pre>` element and move across to `exec` state;
+					enter_across("pre",exec);
+					node.attr("data-exec",match[1].str());
+				}
+				else if(is(blankline)){
+					trace("blank");
+					para_needed = true;
+				}
+				else {
+					trace("other");
+					// Move across into elem state
+					across(elem);
+				}
 			}
-			else if(state==null){
+			else if(state==elem){
+				// Local lambda for entering a list if necessary
+				auto enter_list_if_needed = [this](const std::string& name){
+					if(node.name()!=name){
+						if(indent_added) indent.pop_back();
+						enter(name);
+						if(indent_added) indent.push_back('\t');
+						indent_added = false;
+					}
+				};
 				// Attempt to match...
 				if(is(tag)){
 					trace("tag");
 					// Enter new element and move to `attrs` state to 
 					// start looking for attributes
 					enter_across(match.str(),attrs);
-					// Indicate that a new element is not required
-					// for any subsequent attributes
-					tagged = true;
 				}
 				else if(is(section)){
 					trace("section");
-
+					// Enter `<section>` move into `elem` state to allow
+					// for any further attributes
 					flush();
 					auto id = match[1].str();
 					boost::to_lower(id);
@@ -455,77 +522,74 @@ public:
 					auto title = match[1].str();
 					auto h1 = section.append("h1").text(title);
 					enter(section);
-					across(null);
+					across(elem);
 				}
 				else if(is(ul_item)){
 					trace("ul_item");
 					// Enter `<ul>` if necessary, enter `<li>` and move into `text` state
-					if(node.name()!="ul") enter("ul");
+					enter_list_if_needed("ul");
 					enter_across("li",text);
 				}
 				else if(is(ol_item)){
 					trace("ol_item");
 					// Enter `<ol>` if necessary, enter `<li>` and move into `text` state
-					if(node.name()!="ol") enter("ol");
+					enter_list_if_needed("ol");
 					enter_across("li",text);
 				}
 				else{
 					trace("none");
 					// Indicate that a new element is required
 					// for any subsequent attributes
-					tagged = false;
+					tag_needed = true;
 					// Move across to `attrs` state to look for any attributes
 					across(attrs);
 				}
 			}
 			else if(state==attrs){
 				// Local lambda for entering a new element if needed
-				auto enter_if_needed = [this](const std::string& name="div"){
-					if(not tagged){
-						enter(name);
-						tagged = true;
-					}
+				auto enter_elem_if_needed = [this](const std::string& name="div"){
+					if(tag_needed) enter(name);
 				};
 				// Attempt to match...
 				if(is(attr)){
 					trace("attr");
 					// Enter new element it necessary and create attribute;
 					// keep on looking for more attributes
-					enter_if_needed();
+					enter_elem_if_needed();
 					node.attr(match[1].str(),match[2].str());
 				}
 				else if(is(id)){
 					trace("id");
 					// Enter new element it necessary and create id attribute;
 					// keep on looking for more attributes
-					enter_if_needed();
+					enter_elem_if_needed();
 					node.attr("id",match[1].str());
 				}
 				else if(is(clas)){
 					trace("clas");
 					// Enter new element it necessary and create class attribute;
 					// keep on looking for more attributes
-					enter_if_needed();
+					enter_elem_if_needed();
 					node.attr("class",match[1].str());
 				}
 				else if(is(directive_no_arg)){
 					trace("directive_no_arg");
 					// Enter new element it necessary and create directive attribute;
-					// move across to `null` state (i.e no attributes or text to follow)
-					enter_if_needed();
+					// move across to `elem` state (i.e no attributes or text to follow)
+					enter_elem_if_needed();
 					node.attr("data-"+match.str(),"true");
-					across(null);
+					across(elem);
 				}
 				else if(is(directive_arg)){
 					trace("directive_arg");
 					// Enter new element it necessary and create directive attribute;
 					// type of element depends on which directive;
-					// move across to `null` state (i.e no attributes or text to follow)
+					// move across to `elem` state (i.e no attributes or text to follow)
 					auto directive = match[1].str();
-					if(directive=="write") enter_if_needed("span");
-					else enter_if_needed();
+					if(directive=="write") enter_elem_if_needed("span");
+					else enter_elem_if_needed();
 					node.attr("data-"+directive,match[2].str());
-					across(null);
+					across(elem);
 				}
 				else if(is(spaces)){
 					trace("spaces");
@@ -539,11 +603,16 @@ public:
 				}
 			}
 			else if(state==text){
+				// Enter a new paragraph if necessary
+				if(para_needed) enter("p");
+				// Any elements that are `enter()`ed from here on
+				// will be inlines so set indent to none.
+				indent = "none";
 				// Attempt to match...
 				if(is(curly_open)){
 					trace("curly_open");
-					// Push into `null` state
-					push(null);
+					// Push into `elem` state
+					push(elem);
 				}
 				else if(is(curly_close)){
 					trace("curly_close");
@@ -653,6 +722,17 @@ public:
 			}
 			else if(state==tex){
 				if(is(tex_close)) exit_pop();
+				else add();
+			}
+			else if(state==exec){
+				// Capture all characters but on new lines
+				// move to `sol` state to see if indentation
+				// has reduced and should pop out of this state
+				// @todo Remove leading indentation
+				if(is(endline)){
+					trace("endline");
+					across(sol);
+				}
 				else add();
 			}
 			else add();
