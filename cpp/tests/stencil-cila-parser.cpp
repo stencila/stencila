@@ -143,4 +143,9 @@ BOOST_AUTO_TEST_CASE(autolink){
 	CILA_XML("An autolink http://google.com with text after it",R"(An autolink <a href="http://google.com">http://google.com</a> with text after it)");
 }
 
+BOOST_AUTO_TEST_CASE(interpolate){
+	CILA_XML("``x``",R"(<span data-write="x" />)");
+	CILA_XML("The answer is ``6*7``!",R"(The answer is <span data-write="6*7" />!)");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

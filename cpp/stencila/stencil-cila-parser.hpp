@@ -53,6 +53,11 @@ public:
 		strong,
 
 		/**
+		 * Within an interpolation section (e.g ``answer``)
+		 */
+		interp,		
+
+		/**
 		 * Within a code section (e.g `answer = 42`)
 		 */
 		code,
@@ -141,6 +146,7 @@ public:
 			CASE(text)
 			CASE(empha)
 			CASE(strong)
+			CASE(interp)
 			CASE(code)
 			CASE(asciimath)
 			CASE(tex)
@@ -395,6 +401,8 @@ public:
 			underscore("_"),
 			asterisk("\\*"),
 
+			backtick_backtick("``"),
+
 			backtick_escaped("\\\\`"),
 			backtick("`"),
 
@@ -557,6 +565,11 @@ public:
 					// Replace with backtick
 					add('`');
 				}
+				else if(is(backtick_backtick)){
+					trace("backtick_backtick");
+					// Enter a <span> and push into `interp` state
+					enter_push("span",interp);
+				}
 				else if(is(backtick)){
 					trace("backtick");
 					// Enter `<code>` and push into `code` state
@@ -617,6 +630,16 @@ public:
 				if(is(asterisk)) exit_pop();
 				else if(is(underscore)) enter_push("em",empha);
 				else add();
+			}
+			else if(state==interp){
+				if(is(backtick_backtick)){
+					// Use buffer as `data-write` attribute, reset it,
+					// then exit from `<span>` and pop up to `text` state
+					node.attr("data-write",buffer);
+					buffer = "";
+					exit_pop();
+				}
+				else add();				
 			}
 			else if(state==code){
 				if(is(backtick_escaped)) add('`');
