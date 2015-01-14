@@ -745,4 +745,41 @@ public:
 	}
 };
 
+class CilaGenerator {
+public:
+	typedef Stencil::Node Node;
+
+	/**
+	 * Generate a string of Cila from a stencil
+	 * 
+	 * @param stencil Stencil to generate Cila for
+	 */
+	void generate(Node node, std::ostream& stream, const std::string& indent=""){
+		// Document : generate for each cild with no indentation
+		if(node.is_document()){
+			for(Node child : node.children()) generate(child,stream);
+		}
+		else if(node.is_element()){
+			std::string name = node.name();
+			stream<<name;
+		}
+		else if(node.is_text()){
+			std::string text = node.text();
+			stream<<text;
+		}
+	}
+
+	std::string generate(Node node){
+		std::stringstream cila;
+		generate(node,cila);
+		return cila.str();
+	}
+
+	std::string generate(const std::string& xml){
+		Stencil stencil;
+		stencil.xml(xml);
+		return generate(stencil);
+	}
+};
+
 }

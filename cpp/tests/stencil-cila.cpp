@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp> 
 
 #define STENCILA_CILA_PARSER_TRACE
-#include <stencila/stencil-cila-parser.hpp>  
+#include <stencila/stencil-cila.hpp>  
 
 using namespace Stencila;
 struct CilaParserFixture : public CilaParser {  
@@ -177,3 +177,21 @@ BOOST_AUTO_TEST_CASE(interpolate){
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+
+struct CilaGeneratorFixture : public CilaGenerator {  
+};
+
+// Check macros. Macros are used so that Boost::Unit reports lines number
+// of failed checks properly
+#define XML_CILA(_XML,_CILA) BOOST_CHECK_EQUAL(generate(_XML),_CILA);
+
+BOOST_FIXTURE_TEST_SUITE(cila_generator,CilaGeneratorFixture)
+ 
+BOOST_AUTO_TEST_CASE(elements){
+	XML_CILA("Hello","Hello");
+	XML_CILA("<div />","div");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
