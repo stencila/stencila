@@ -23,14 +23,14 @@ typedef Xml::Whitelist Whitelist;
  *
  * @param  name Element name
  */
-static bool is_void_element(const std::string& name);
+bool is_void_element(const std::string& name);
 
 /**
  * Is this an inline element type?
  * 
  * @param  name Element name
  */
-static bool is_inline_element(const std::string& name);
+bool is_inline_element(const std::string& name);
 
 /**
  * A HTML5 document
