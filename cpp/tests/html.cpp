@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(dump_not_pretty){
 }
 
 BOOST_AUTO_TEST_CASE(dump_pretty){
-	Document doc("x<span>y</span>z");
+	Document doc("<div>x<span>y</span>z</div>");
 	auto result = R"(<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -55,14 +55,16 @@ BOOST_AUTO_TEST_CASE(dump_pretty){
 		<meta charset="utf-8">
 	</head>
 	<body>
-		x<span>y</span>z
+		<div>
+			x<span>y</span>z
+		</div>
 	</body>
 </html>)";
 	BOOST_CHECK_EQUAL(
 		doc.dump("\t"),
 		result
 	);
-
+	//"
 }
 
 
@@ -139,7 +141,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// No Filter Evasion
 	CHECK(
 		"<script src=\"http://example.com/xss.js\" />",
-		"<script src=\"http://example.com/xss.js\"></script>" 
+		"<script src=\"http://example.com/xss.js\" />" 
 	)
 	CHECK(
 		"<script>alert('XSS')</script>",
@@ -221,7 +223,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// Non-alpha-non-digit XSS
 	CHECK(
 		"<SCRIPT/XSS SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT>",
-		"<script src=\"http://ha.ckers.org/xss.js\"></script>"
+		"<script src=\"http://ha.ckers.org/xss.js\" />"
 	)
 	CHECK(
 		"<img onmouseover!#$%&()*~+-_.,:;?@[/|\\]^`=alert(\"XSS\")>",
@@ -229,7 +231,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	)
 	CHECK(
 		"<SCRIPT/SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT>",
-		"<script></script>"
+		"<script />"
 	)
 
 	// Extraneous open brackets
@@ -249,7 +251,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// Protocol resolution in script tags
 	CHECK(
 		"<SCRIPT SRC=//ha.ckers.org/.j>",
-		"<script src=\"//ha.ckers.org/.j\"></script>"
+		"<script src=\"//ha.ckers.org/.j\" />"
 	)
 
 	// Half open HTML/JavaScript XSS vector

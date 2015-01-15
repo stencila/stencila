@@ -19,6 +19,20 @@ typedef Xml::Nodes Nodes;
 typedef Xml::Whitelist Whitelist;
 
 /**
+ * Is this a void element type
+ *
+ * @param  name Element name
+ */
+static bool is_void_element(const std::string& name);
+
+/**
+ * Is this an inline element type?
+ * 
+ * @param  name Element name
+ */
+static bool is_inline_element(const std::string& name);
+
+/**
  * A HTML5 document
  *
  * Attempts to conform to [Polyglot markup](http://www.w3.org/TR/html-polyglot/) 

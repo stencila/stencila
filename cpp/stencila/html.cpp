@@ -9,6 +9,28 @@
 namespace Stencila {
 namespace Html {
 
+bool is_void_element(const std::string& name){
+	for(auto elem : {
+		"area","base","br","col","embed","hr","img","input",
+		"keygen","link","meta","param","source","track","wbr"
+	}){
+		if(name==elem) return true;
+	}
+	return false;
+}
+
+bool is_inline_element(const std::string& name){
+	for(auto elem : {
+		"b", "big", "i", "small", "tt",
+		"abbr", "acronym", "cite", "code", "dfn", "em", "kbd", "strong", "samp", "var",
+		"a", "bdo", "br", "img", "map", "object", "q", "script", "span", "sub", "sup",
+		"button", "input", "label", "select", "textarea"
+	}){
+		if(name==elem) return true;
+	}
+	return false;
+}
+
 Document::Document(const std::string& html):
 	Xml::Document(){
 	// Even for an initally empty document call load
@@ -135,31 +157,6 @@ Document& Document::load(const std::string& html){
 
 namespace {
 	
-// Void elements which have no children
-bool void_element_(const std::string& name){
-	for(auto elem : {
-		"area","base","br","col","embed","hr","img","input",
-		"keygen","link","meta","param","source","track","wbr"
-	}){
-		if(name==elem) return true;
-	}
-	return false;
-}
-
-// Must not format inline elements because then spaces between e.g. <span>s and following text can be lost
-// This list from https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elemente
-bool inline_element_(const std::string& name){
-	for(auto elem : {
-		"b", "big", "i", "small", "tt",
-		"abbr", "acronym", "cite", "code", "dfn", "em", "kbd", "strong", "samp", "var",
-		"a", "bdo", "br", "img", "map", "object", "q", "script", "span", "sub", "sup",
-		"button", "input", "label", "select", "textarea"
-	}){
-		if(name==elem) return true;
-	}
-	return false;
-}
-
 void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::string& indent){
 	if(node.is_document()){
 		// Dump children without indent
@@ -173,7 +170,7 @@ void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::str
 	else if(node.is_element()){
 		// Dump start tag with attributes
 		auto name = node.name();
-		auto inlinee = inline_element_(name);
+		auto inlinee = is_inline_element(name);
 		if(pretty and not inlinee) stream<<"\n"<<indent;
 		stream<<"<"<<name;
 		for(auto name : node.attrs()){
@@ -182,11 +179,20 @@ void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::str
 		}
 		stream<<">";
 		// For void HTML nothing else to do so return
-		if(void_element_(name)) return;
+		if(is_void_element(name)) return;
 		// Dump children
-		for(auto child : node.children()) dump_(stream,child,pretty,indent+"\t");
+		bool content = false;
+		bool first = true;
+		for(auto child : node.children()){
+			if(pretty and not inlinee and first and child.is_text()){
+				stream<<"\n"<<indent+"\t";
+				first = false;
+			}
+			if(child.is_element() or (child.is_text() and child.text().length()>0)) content = true;
+			dump_(stream,child,pretty,indent+"\t");
+		}
 		// Closing tag
-		if(pretty and not inlinee and node.children().size()) stream<<"\n"<<indent;
+		if(pretty and not inlinee and content) stream<<"\n"<<indent;
 		stream<<"</"<<name<<">";
 	}
 	else if(node.is_text()){
@@ -220,16 +226,11 @@ struct Validator : pugi::xml_tree_walker {
 		if(node.type()==pugi::node_element){
 			std::string name  = node.name();
 			// Check to see if this is a "void element"
-			if(void_element_(name)){
+			if(is_void_element(name)){
 				// "In the HTML syntax, void elements are elements that always are empty 
 				// and never have an end tag"
 				// Remove all child elements. 
 				while(node.first_child()) node.remove_child(node.first_child());
-			}
-			else {
-				// Ensure that other nodes have a least one child so that self-closing 
-				// tags are not used for them
-				if(!node.first_child()) node.append_child(pugi::node_pcdata);
 			}
 		}
 		// Continue traversal
