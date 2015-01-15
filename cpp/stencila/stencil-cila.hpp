@@ -755,17 +755,153 @@ public:
 	 * @param stencil Stencil to generate Cila for
 	 */
 	void generate(Node node, std::ostream& stream, const std::string& indent=""){
-		// Document : generate for each cild with no indentation
 		if(node.is_document()){
-			for(Node child : node.children()) generate(child,stream);
+			bool first = true;
+			for(Node child : node.children()){
+				if(not first) stream<<"\n";
+				else first = false;
+				generate(child,stream,indent);
+			}
 		}
 		else if(node.is_element()){
-			std::string name = node.name();
-			stream<<name;
+			auto name = node.name();
+			auto attrs = node.attrs();
+			auto attrs_size = attrs.size();
+			auto children = node.children();
+			Node only_child;
+			if(children.size()==1) only_child = children[0];
+
+			// Shortcuts from whence we return...
+
+			// Write directive
+			if(name=="span" and children.size()==0 and attrs.size()==1 and node.attr("data-write").length()){
+				stream<<"``"<<node.attr("data-write")<<"``";
+				return;
+			}
+			// Emphasis & strong
+			if((name=="em" or name=="strong") and attrs.size()==0){
+				std::string delim;
+				if(name=="em") delim = "_";
+				else delim = "*";
+				stream<<delim;
+				for(Node child : node.children()) generate(child,stream);
+				stream<<delim;
+				return;
+			}
+			// Code
+			if(name=="code" and attrs_size==0){
+				auto text = node.text();
+				boost::replace_all(text,"`","\\`");
+				stream<<"`"<<text<<"`";
+				return;
+			}
+			// Math
+			if(name=="span" and node.attr("class")=="math"){
+				auto script = node.select("script");
+				auto code = script.text();
+				auto type = script.attr("type");
+				std::string begin,end;
+				if(type=="math/asciimath"){
+					begin = end = "|";
+					boost::replace_all(code,"|","\\|");
+				}
+				if(type=="math/tex"){
+					begin = "\\(";
+					end = "\\)";
+				}
+				stream<<begin<<code<<end;
+				return;
+			}
+			// Links and autolinks
+			if(name=="a" and attrs_size==1 and node.has("href")){
+				auto text = node.text();
+				auto href = node.attr("href");
+				if(text==href) stream<<text;
+				else stream<<"["<<text<<"]("<<href<<")";
+				return;
+			}
+
+			bool inlinee = Html::is_inline_element(name);
+
+			// Keep track of whether content has been put to the stream for this
+			// element for knowing if separating spaces are required
+			bool separate = false;
+			// Keep track of whether trailing text is allowed
+			bool trail = true;
+
+			// Paragraphs indicated by a preceding, indented, blank line
+			if(name=="p" and children.size()>0 and attrs.size()==0){
+				stream<<"\n"<<indent;
+			}
+			else {
+				// Name
+				auto tag = [&](){
+					stream<<name;
+					separate = true;
+				};
+				if(name=="span"){
+					if(attrs.size()==1 and node.attr("data-write").length()){}
+					else tag();
+				}
+				else if(name=="div"){
+					if(attrs.size()==0 or node.attr("data-write").length()) tag();
+				}
+				else tag();
+				// Attributes...
+				for(auto name : attrs){
+					auto value = node.attr(name);
+					if(separate) stream<<" ";
+					if(name=="id") stream<<"#"<<value;
+					else if(name=="class") stream<<"."<<value;
+					else if(
+						name=="data-else" or 
+						name=="data-default"
+					) {
+						stream<<name.substr(5);
+						trail = false;
+					}
+					else if(
+						name=="data-write" or 
+						name=="data-with" or 
+						name=="data-if" or 
+						name=="data-elif" or 
+						name=="data-switch" or 
+						name=="data-case"
+					){
+						stream<<name.substr(5)<<" "<<value;
+						trail = false;
+					}
+					else stream<<name<<"="<<value;
+					separate = true;
+				}
+			}
+
+			// Chillen
+			if(trail and only_child and only_child.is_text()){			
+				// Short text only child trails, long text only child is indented
+				auto text = only_child.text();
+				if(text.length()<100){
+					if(separate) stream<<" ";
+					stream<<text;
+				}
+				else stream<<"\n"<<indent<<"\t"<<text;
+			} else {
+				// Generate children
+				for(Node child : node.children()){
+					if(not inlinee) stream<<"\n"<<indent+"\t";
+					generate(child,stream,indent+"\t");
+				}
+			}
 		}
 		else if(node.is_text()){
 			std::string text = node.text();
+			// Escape backticks and pipes
+			boost::replace_all(text,"`","\\`");
+			boost::replace_all(text,"|","\\|");
 			stream<<text;
+		}
+		else {
+			STENCILA_THROW(Exception,"Unhandled XML node type");
 		}
 	}
 
