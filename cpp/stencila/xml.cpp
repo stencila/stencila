@@ -197,8 +197,7 @@ Node& Node::clear(void){
 }  
 
 Node& Node::move(Node& to) {
-	to.pimpl_->append_copy(*pimpl_);
-	pimpl_->parent().remove_child(*pimpl_);
+	to.pimpl_->append_move(*pimpl_);
 	return *this;
 }  
 
