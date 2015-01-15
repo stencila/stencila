@@ -140,7 +140,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
-PUGIXML_VERSION := 1.4
+PUGIXML_VERSION := 1.5
 
 $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
@@ -148,6 +148,7 @@ $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 
 $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	mv $(BUILD)/cpp/requires/pugixml-$(PUGIXML_VERSION) $(BUILD)/cpp/requires/pugixml
 
