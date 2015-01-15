@@ -155,7 +155,7 @@ Node Node::append_comment(const std::string& comment){
 
 Node Node::append_xml(const std::string& xml){
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load(xml.c_str());
+	pugi::xml_parse_result result = doc.load_string(xml.c_str());
 	if(not result){
 		STENCILA_THROW(Exception,result.description());
 	}
@@ -613,7 +613,7 @@ Node Document::doctype(const std::string& type){
 }
 
 Document& Document::load(const std::string& xml){
-	pugi::xml_parse_result result = doc_()->load(xml.c_str());
+	pugi::xml_parse_result result = doc_()->load_string(xml.c_str());
 	if(not result){
 		STENCILA_THROW(Exception,result.description());
 	}
