@@ -80,6 +80,16 @@ BOOST_AUTO_TEST_CASE(auto_paragraphs){
 	CILA_XML("\n\nPara","<p>Para</p>");
 	CILA_XML("div\n\n\tPara1\n\t\n\tPara2\n\t\t\tPara2cont","<div><p>Para1</p><p>Para2Para2cont</p></div>");
 
+	// Paragraph (empty line before)
+	CILA_XML("div\n\nThis should be a paragraph","<div /><p>This should be a paragraph</p>")
+	// Text (no empty line before)
+	CILA_XML("This should NOT be a paragraph","This should NOT be a paragraph")
+	CILA_XML("div\nThis should NOT be a paragraph","<div />This should NOT be a paragraph")
+	// Nested text (no empty line before)
+	CILA_XML("div\n\tThis should NOT be a paragraph","<div>This should NOT be a paragraph</div>")
+	// Nested paragraph
+	CILA_XML("div\n\n\tThis should be a paragraph","<div><p>This should be a paragraph</p></div>")
+
 	XML_CILA("<p>Para</p>","\nPara");
 	XML_CILA("<div><p>Para1</p><p>Para2</p></div>","div\n\t\n\tPara1\n\t\n\tPara2");
 
@@ -92,7 +102,7 @@ BOOST_AUTO_TEST_CASE(embedded){
 	CILA_XML("div id=yo Some text {a href=none nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
 	CILA_XML("{div{div apple}{div pear}}",R"(<div><div>apple</div><div>pear</div></div>)");
 
-	// Embedded elements are shortcuts for input and are not generated
+	// Embedded syntax can be used for inline elements but is not generated
 	CILA_CILA("{ul #id-to-prevent-autolist-style-cila {li apple}{li pear}}","ul #id-to-prevent-autolist-style-cila\n\tli apple\n\tli pear");
 }
 
@@ -151,6 +161,16 @@ BOOST_AUTO_TEST_CASE(id_class){
 	ECHO(".a .b .c .d");
 }
 
+BOOST_AUTO_TEST_CASE(meta){
+	// Special IDs
+	CILA_XML("#title My title","<div id=\"title\">My title</div>")
+	CILA_XML("#description A short little stencil","<div id=\"description\">A short little stencil</div>")
+	CILA_XML("#keywords foo,bar","<div id=\"keywords\">foo,bar</div>")
+	CILA_XML(".author Joe Bloggs","<div class=\"author\">Joe Bloggs</div>")
+	CILA_XML("#contexts r","<div id=\"contexts\">r</div>")
+	CILA_XML("#theme beautiful","<div id=\"theme\">beautiful</div>")
+}
+
 BOOST_AUTO_TEST_CASE(exec){
 	//# CILA_XML("r\n\ta=1","<pre data-exec=\"r\">\na=1\n</pre>");
 
@@ -158,6 +178,239 @@ BOOST_AUTO_TEST_CASE(exec){
 	XML_CILA("<pre data-exec=\"r\">\na=1\n</pre>","r\n\ta=1");
 
 	//# ECHO("r\n\ta=1");
+}
+
+//# These tests temporary excluded
+#if 0
+
+BOOST_AUTO_TEST_CASE(exec_1){
+	auto cila_ = 
+R"(r
+	pi <- 3.14)";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+</pre>)";
+	CILA_XML(cila_,html_)
+	ECHO(cila_)
+}
+
+BOOST_AUTO_TEST_CASE(exec_2){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+	print(pi))";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+print(pi)
+</pre>)";
+	CILA_XML(cila_,html_)
+	ECHO(cila_)
+}
+
+BOOST_AUTO_TEST_CASE(exec_3){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+	2*pi
+	2*pi*r^2
+div
+div)";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+2*pi
+2*pi*r^2
+</pre>
+<div />
+<div />)";
+	CILA_XML(cila_,html_)
+	ECHO(cila_)
+}
+
+BOOST_AUTO_TEST_CASE(exec_with_empty_lines){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+
+	2*pi
+
+	2*pi*r^2)";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+
+2*pi
+
+2*pi*r^2
+</pre>)";
+	CILA_XML(cila_,html_)
+}
+
+BOOST_AUTO_TEST_CASE(exec_with_empty_line_before_next){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+	
+div)";
+	auto html_ = 
+R"(<pre data-code="r">
+pi &lt;- 3.14
+
+</pre>
+<div />)";
+	CILA_XML(cila_,html_)
+}
+
+BOOST_AUTO_TEST_CASE(exec_image){
+	auto cila_ = 
+R"(r png 60x42px
+	plot(x,y))";
+	auto html_ = 
+R"(<pre data-code="r png 60x42px">
+plot(x,y)
+</pre>)";
+	CILA_XML(cila_,html_)
+	ECHO(cila_)
+}
+
+#endif
+
+BOOST_AUTO_TEST_CASE(directive_no_arg){
+	CILA_XML("div else",R"(<div data-else="true" />)");
+	CILA_XML("else",R"(<div data-else="true" />)");
+	CILA_XML("div default",R"(<div data-default="true" />)");
+	CILA_XML("default",R"(<div data-default="true" />)");
+
+	XML_CILA(R"(<li data-else="true" />)","li else");
+	XML_CILA(R"(<div data-else="true" />)","else");
+	XML_CILA(R"(<li data-default="true" />)","li default");
+	XML_CILA(R"(<div data-default="true" />)","default");
+
+	ECHO("else");
+	ECHO("li else");
+	ECHO("default");
+	ECHO("li default");
+}
+
+BOOST_AUTO_TEST_CASE(directive_arg){
+	CILA_XML("div write x",R"(<div data-write="x" />)");
+	CILA_XML("write x",R"(<span data-write="x" />)");
+	CILA_XML("div if x",R"(<div data-if="x" />)");
+	CILA_XML("if x",R"(<div data-if="x" />)");
+
+	XML_CILA(R"(<div data-write="x" />)","div write x");
+	XML_CILA(R"(<span data-write="x" />)","``x``");
+	XML_CILA(R"(<li data-if="x" />)","li if x");
+	XML_CILA(R"(<div data-if="x" />)","if x");
+
+	ECHO("div write x");
+	CILA_CILA("write x","``x``");
+	ECHO("ul #an-id .a-class with x");
+	ECHO("#an-id .a-class with x");
+	CILA_CILA("div if x","if x");
+	ECHO("if x");
+}
+
+BOOST_AUTO_TEST_CASE(directive_write){
+	CILA_XML("write variable","<span data-write=\"variable\" />");
+	CILA_XML("span write variable","<span data-write=\"variable\" />");
+}
+
+BOOST_AUTO_TEST_CASE(directive_with){
+	CILA_XML("with what","<div data-with=\"what\" />")
+	XML_CILA("<div data-with=\"what\" />","with what")
+	ECHO("with what")
+
+	ECHO("section with what")
+}
+
+BOOST_AUTO_TEST_CASE(directive_if){
+	CILA_XML("if x<0\nelif x<1\nelse",R"(<div data-if="x&lt;0" /><div data-elif="x&lt;1" /><div data-else="true" />)");
+
+	XML_CILA(R"(<div data-if="x&lt;0" /><div data-elif="x&lt;1" /><div data-else="true" />)","if x<0\nelif x<1\nelse");
+
+	ECHO("if x<0\n\tA\nelif x<1\n\tB\nelse\n\tC");
+
+	CILA_XML(
+		"if true\n\tp .a\nelif false\n\tp .b\nelse\n\tp .c",
+		"<div data-if=\"true\"><p class=\"a\" /></div><div data-elif=\"false\"><p class=\"b\" /></div><div data-else=\"true\"><p class=\"c\" /></div>"
+	);
+}
+
+BOOST_AUTO_TEST_CASE(directive_switch){
+	auto cila_ =
+R"(switch a
+	case 3.14
+		Pi
+	case 42
+		The answer
+	default
+		A number)";
+	auto html_ =
+"<div data-switch=\"a\">"
+	"<div data-case=\"3.14\">Pi</div>"
+	"<div data-case=\"42\">The answer</div>"
+	"<div data-default=\"true\">A number</div>"
+"</div>";
+	CILA_XML(cila_,html_);
+	ECHO(cila_);
+}
+
+BOOST_AUTO_TEST_CASE(directive_for){
+	ECHO("for item in items");
+	CILA_XML("for item in items","<div data-for=\"item in items\" />");
+
+	ECHO("for item in items\n\tp");
+}
+
+BOOST_AUTO_TEST_CASE(directive_include){
+	ECHO("include address")
+	CILA_XML("include address","<div data-include=\"address\" />")
+
+	ECHO("include address selector")
+
+	ECHO("include a-superbly-sublime-stencil #a-marvelous-macro")
+	ECHO("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
+
+	// Special '.' identifier for current stencil
+	ECHO("macro hello\n\t``who``\ninclude . select #hello\n\tset who to 'world'")
+
+	// Set directive
+	ECHO("include stencil select selector\n\tset a to 4\n\tset b to 1")
+}
+
+BOOST_AUTO_TEST_CASE(modifiers){
+	for(std::string modifier : {
+		"delete",
+		"replace",
+		"change",
+		"before",
+		"after",
+		"prepend",
+		"append"
+	}){
+		ECHO(modifier+" selector")
+		CILA_XML(modifier+" selector","<div data-"+modifier+"=\"selector\" />")
+	}
+}
+
+BOOST_AUTO_TEST_CASE(directive_macro){
+	CILA_XML("macro name\n\tpar x","<div data-macro=\"name\"><div data-par=\"x\" /></div>")
+
+	ECHO("macro name")
+}
+
+BOOST_AUTO_TEST_CASE(directive_par){
+	CILA_XML("par x","<div data-par=\"x\" />")
+	CILA_XML("par x type text","<div data-par=\"x type text\" />")
+	CILA_XML("par x type number value 42","<div data-par=\"x type number value 42\" />")
+	CILA_XML("par x value 'a'","<div data-par=\"x value 'a'\" />")
+
+	ECHO("par x")
+	ECHO("par x value 1")
+	ECHO("par x type number value 42")
 }
 
 BOOST_AUTO_TEST_CASE(sections){
@@ -206,50 +459,6 @@ BOOST_AUTO_TEST_CASE(ol){
 	XML_CILA(R"(<ol id="an-id"><li>apple</li><li>pear</li></ol>)","ol #an-id\n\tli apple\n\tli pear");
 
 	ECHO("1. apple\n2. pear\n3. apricot");
-}
-
-BOOST_AUTO_TEST_CASE(directive_no_arg){
-	CILA_XML("div else",R"(<div data-else="true" />)");
-	CILA_XML("else",R"(<div data-else="true" />)");
-	CILA_XML("div default",R"(<div data-default="true" />)");
-	CILA_XML("default",R"(<div data-default="true" />)");
-
-	XML_CILA(R"(<li data-else="true" />)","li else");
-	XML_CILA(R"(<div data-else="true" />)","else");
-	XML_CILA(R"(<li data-default="true" />)","li default");
-	XML_CILA(R"(<div data-default="true" />)","default");
-
-	ECHO("else");
-	ECHO("li else");
-	ECHO("default");
-	ECHO("li default");
-}
-
-BOOST_AUTO_TEST_CASE(directive_arg){
-	CILA_XML("div write x",R"(<div data-write="x" />)");
-	CILA_XML("write x",R"(<span data-write="x" />)");
-	CILA_XML("div if x",R"(<div data-if="x" />)");
-	CILA_XML("if x",R"(<div data-if="x" />)");
-
-	XML_CILA(R"(<div data-write="x" />)","div write x");
-	XML_CILA(R"(<span data-write="x" />)","``x``");
-	XML_CILA(R"(<li data-if="x" />)","li if x");
-	XML_CILA(R"(<div data-if="x" />)","if x");
-
-	ECHO("div write x");
-	CILA_CILA("write x","``x``");
-	ECHO("ul #an-id .a-class with x");
-	ECHO("#an-id .a-class with x");
-	CILA_CILA("div if x","if x");
-	ECHO("if x");
-}
-
-BOOST_AUTO_TEST_CASE(if_elif_else){
-	CILA_XML("if x<0\nelif x<1\nelse",R"(<div data-if="x&lt;0" /><div data-elif="x&lt;1" /><div data-else="true" />)");
-
-	XML_CILA(R"(<div data-if="x&lt;0" /><div data-elif="x&lt;1" /><div data-else="true" />)","if x<0\nelif x<1\nelse");
-
-	ECHO("if x<0\n\tA\nelif x<1\n\tB\nelse\n\tC");
 }
 
 BOOST_AUTO_TEST_CASE(trailing_text){

@@ -423,7 +423,7 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			directive_no_arg("else|default\\b"),
-			directive_arg("(write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append) +([^\\n\\}]+)"),
+			directive_arg("(ref|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +([^\\n\\}]+)"),
 			spaces(" +"),
 
 			underscore("_"),
@@ -929,6 +929,7 @@ public:
 					}
 					else if(
 						name=="data-write" or 
+						name=="data-refer" or
 						name=="data-with" or 
 						name=="data-if" or 
 						name=="data-elif" or 
@@ -943,7 +944,11 @@ public:
 						name=="data-before" or
 						name=="data-after" or
 						name=="data-prepend" or
-						name=="data-append"
+						name=="data-append" or
+
+						name=="data-macro" or
+						name=="data-par" or
+						name=="data-set"
 					){
 						stream<<name.substr(5)<<" "<<value;
 						trail = false;
