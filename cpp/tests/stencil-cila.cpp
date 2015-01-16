@@ -122,7 +122,11 @@ BOOST_AUTO_TEST_CASE(sections){
 	CILA_XML("> Heading",R"(<section id="heading"><h1>Heading</h1></section>)");
 	CILA_XML("> Heading with spaces",R"(<section id="heading-with-spaces"><h1>Heading with spaces</h1></section>)");
 
-	//@
+	XML_CILA(R"(<section id="heading"><h1>Heading</h1></section>)","> Heading");
+	XML_CILA(R"(<section id="heading-with-spaces"><h1>Heading with spaces</h1></section>)","> Heading with spaces");
+	// Xml which does not convert to an autosection
+	XML_CILA(R"(<section id="id-different-to-heading"><h1>Heading</h1></section>)","section #id-different-to-heading\n\th1 Heading");
+	XML_CILA(R"(<section><p></p><h1>Heading not the first child</h1></section>)","section\n\tp\n\th1 Heading not the first child");
 }
 
 BOOST_AUTO_TEST_CASE(ul){

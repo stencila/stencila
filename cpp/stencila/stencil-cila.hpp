@@ -820,6 +820,22 @@ public:
 				else stream<<"["<<text<<"]("<<href<<")";
 				return;
 			}
+			// Section with an id attribute and a <h1> child
+			if(name=="section" and node.attr("id").length() and children.size()>0){
+				// Only proceed if <h1> is first child
+				if(children[0].name()=="h1"){
+					// Only proceed if id is consistent with header
+					auto title = node.select("h1").text();
+					auto id_expected = title;
+					boost::to_lower(id_expected);
+					boost::replace_all(id_expected," ","-");
+					auto id = node.attr("id");
+					if(id==id_expected){
+						stream<<"> "<<title;
+						return;
+					}
+				}
+			}
 
 			bool inlinee = Html::is_inline_element(name);
 
