@@ -54,6 +54,14 @@ BOOST_AUTO_TEST_CASE(elements){
 	ECHO("div\ntable\np\na\nhr");
 }
 
+BOOST_AUTO_TEST_CASE(empty){
+	// Empty lines should be ignored
+	ECHO("");
+	CILA_CILA("\n","");
+	CILA_CILA("div\n\ndiv","div\ndiv");
+	CILA_CILA("div\n\ndiv\n\n\ndiv","div\ndiv\ndiv");
+}
+
 BOOST_AUTO_TEST_CASE(indentation){
 	CILA_XML("div\ndiv","<div /><div />");
 	CILA_XML("div\n\tp\n\t\ta\ndiv","<div><p><a /></p></div><div />");
@@ -107,8 +115,40 @@ BOOST_AUTO_TEST_CASE(attributes){
 	XML_CILA(R"(<div class="a-class" />)",".a-class");
 	XML_CILA(R"(<div id="an-id" class="a-class" />)","#an-id .a-class");
 
+	CILA_XML("a href=http://stenci.la Stencila","<a href=\"http://stenci.la\">Stencila</a>");
+	ECHO("a href=http://stenci.la title=Stencila Stencila");
+	// More than one
+	CILA_XML("div attr1=1 attr2=2","<div attr1=\"1\" attr2=\"2\" />");
+	ECHO("ul attr1=1 attr2=2 attr3=3");
+	// No need to include div
+	CILA_XML("attr=1","<div attr=\"1\" />")
+	ECHO("attr=1");
+
 	ECHO("#an-id .a-class href=google.com");
 	ECHO("li .a-class href=google.com #an-id");
+}
+
+BOOST_AUTO_TEST_CASE(id_class){
+	// Shorthand CSS id and class works
+	ECHO("ul #id");
+	ECHO("ul .class");
+	// Only one id
+	CILA_CILA("ul #id1 #id2","ul #id2");
+	// More than one class
+	CILA_XML("div .klass","<div class=\"klass\" />");
+	CILA_XML("div .klass1 .klass2","<div class=\"klass1 klass2\" />");
+	CILA_XML("div .klass-a .klass-b .klass-c","<div class=\"klass-a klass-b klass-c\" />");
+	// No need to include div
+	ECHO("#id");
+	CILA_XML(".class","<div class=\"class\" />");
+	XML_CILA("<div class=\"class\" />",".class");
+	ECHO(".class");
+	// Mix them up
+	ECHO("#id .class");
+	// Multiple classes
+	CILA_XML(".a .b .c #id","<div class=\"a b c\" id=\"id\" />");
+	XML_CILA("<div class=\"a b c\" id=\"id\" />",".a .b .c #id");
+	ECHO(".a .b .c .d");
 }
 
 BOOST_AUTO_TEST_CASE(exec){
@@ -217,6 +257,13 @@ BOOST_AUTO_TEST_CASE(trailing_text){
 	CILA_XML("a href=http://google.com Google",R"(<a href="http://google.com">Google</a>)");
 	CILA_XML("div Some text with bits like #id and .class",R"(<div>Some text with bits like #id and .class</div>)");
 	CILA_XML(".a-class else",R"(<div class="a-class" data-else="true" />)");
+
+	CILA_XML("a my link","<a>my link</a>")
+	CILA_XML("a href=http://google.com #id my link","<a href=\"http://google.com\" id=\"id\">my link</a>")
+	
+	//Space before trailing text is stripped
+	CILA_XML("span foo","<span>foo</span>");
+	CILA_XML("span            foo","<span>foo</span>");
 
 	XML_CILA("<div>Short text only child trails</div><div />","div Short text only child trails\ndiv");
 	XML_CILA(
