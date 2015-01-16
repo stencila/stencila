@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(elements){
 	XML_CILA("<div /><div />","div\ndiv");
 	XML_CILA("<div /><a /><p />","div\na\np");
 
-	ECHO("div\ntable\np\na\nul");
+	ECHO("div\ntable\np\na\nhr");
 }
 
 BOOST_AUTO_TEST_CASE(indentation){
@@ -62,9 +62,9 @@ BOOST_AUTO_TEST_CASE(indentation){
 	CILA_XML("div\n\n\tp\n\t\n  \n\n\tp\n\n \n\t\t\ta","<div><p /><p><a /></p></div>");
 
 	XML_CILA("<div /><div><div /><div /></div><div />","div\ndiv\n\tdiv\n\tdiv\ndiv");
-	XML_CILA("<div><ul><li /></ul></div><div />","div\n\tul\n\t\tli\ndiv");
+	XML_CILA("<div><div><div /></div></div><div />","div\n\tdiv\n\t\tdiv\ndiv");
 
-	ECHO("ul\n\tli\n\t\tul\n\t\t\tli\n\t\t\tli\n\t\tli");
+	ECHO("div\n\tdiv\n\t\tdiv\n\t\t\tdiv\n\t\t\tdiv\n\t\tdiv");
 }
 
 BOOST_AUTO_TEST_CASE(auto_paragraphs){
@@ -83,10 +83,10 @@ BOOST_AUTO_TEST_CASE(auto_paragraphs){
 BOOST_AUTO_TEST_CASE(embedded){
 	CILA_XML("div{div{div}}","<div><div><div /></div></div>");
 	CILA_XML("div id=yo Some text {a href=none nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
-	CILA_XML("{ul{li apple}{li pear}}",R"(<ul><li>apple</li><li>pear</li></ul>)");
+	CILA_XML("{div{div apple}{div pear}}",R"(<div><div>apple</div><div>pear</div></div>)");
 
 	// Embedded elements are shortcuts for input and are not generated
-	CILA_CILA("{ul{li apple}{li pear}}","ul\n\tli apple\n\tli pear");
+	CILA_CILA("{ul #id-to-prevent-autolist-style-cila {li apple}{li pear}}","ul #id-to-prevent-autolist-style-cila\n\tli apple\n\tli pear");
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
@@ -127,6 +127,9 @@ BOOST_AUTO_TEST_CASE(sections){
 	// Xml which does not convert to an autosection
 	XML_CILA(R"(<section id="id-different-to-heading"><h1>Heading</h1></section>)","section #id-different-to-heading\n\th1 Heading");
 	XML_CILA(R"(<section><p></p><h1>Heading not the first child</h1></section>)","section\n\tp\n\th1 Heading not the first child");
+
+	ECHO("> Heading");
+	ECHO("> Heading with spaces");
 }
 
 BOOST_AUTO_TEST_CASE(ul){
@@ -138,14 +141,29 @@ BOOST_AUTO_TEST_CASE(ul){
 	CILA_XML("- An interpolated ``value``",R"(<ul><li>An interpolated <span data-write="value" /></li></ul>)");
 	CILA_XML("- A link to [Google](http://google.com)",R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)");
 
-	//@
+	XML_CILA(R"(<ul><li>apple</li><li>pear</li></ul>)","- apple\n- pear");
+	XML_CILA(R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)","- A link to [Google](http://google.com)");
+
+	ECHO("- apple\n- pear");
+	ECHO("- An interpolated ``value``\n- A bit of |math|\n- A bit of `code` too");
+	
+	ECHO("div\n\t- Should\n\t- be\n\t- indented\ndiv");
+	ECHO("div\n\tdiv\n\t\t- Should\n\t\t- be\n\t\t- indented more");
+
+	// <ul> with attributes or no <li> children are not autoed
+	CILA_CILA("ul","ul");
+	CILA_CILA("ul #an-id\n\ta","ul #an-id\n\ta");
+	CILA_CILA("ul\n\ta","ul\n\ta");
 }
 
 BOOST_AUTO_TEST_CASE(ol){
 	CILA_XML("1. apple\n2. pear",R"(<ol><li>apple</li><li>pear</li></ol>)");
 	CILA_XML("1.apple\n2.pear",R"(<ol><li>apple</li><li>pear</li></ol>)");
 
-	//@
+	XML_CILA(R"(<ol><li>apple</li><li>pear</li></ol>)","1. apple\n2. pear");
+	XML_CILA(R"(<ol id="an-id"><li>apple</li><li>pear</li></ol>)","ol #an-id\n\tli apple\n\tli pear");
+
+	ECHO("1. apple\n2. pear\n3. apricot");
 }
 
 BOOST_AUTO_TEST_CASE(directive_no_arg){

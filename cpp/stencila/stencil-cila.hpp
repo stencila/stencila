@@ -820,7 +820,7 @@ public:
 				else stream<<"["<<text<<"]("<<href<<")";
 				return;
 			}
-			// Section with an id attribute and a <h1> child
+			// Sections with an id attribute and a <h1> child
 			if(name=="section" and node.attr("id").length() and children.size()>0){
 				// Only proceed if <h1> is first child
 				if(children[0].name()=="h1"){
@@ -835,6 +835,24 @@ public:
 						return;
 					}
 				}
+			}
+			// Lists with no attributes
+			if((name=="ul" or name=="ol") and attrs_size==0 and children.size()>0){
+				// Only procedd if all children are `<li>`
+				if(children.size()==node.filter("li").size()){
+					bool first = true;
+					bool ol = name=="ol";
+					int index = 1;
+					for(auto child : children){
+						if(not first) stream<<"\n"<<indent;
+						if(ol) stream<<index++<<". ";
+						else stream<<"- ";
+						for(auto grandchild : child.children()) generate(grandchild,stream);
+						first = false;
+					}
+					return;
+				}
+				
 			}
 
 			bool inlinee = Html::is_inline_element(name);
