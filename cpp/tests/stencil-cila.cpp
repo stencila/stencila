@@ -5,11 +5,10 @@
 #define STENCILA_CILA_PARSER_TRACE
 #include <stencila/stencil-cila.hpp>  
 
+//# indicates where a test is failing due to improper parsing
 
 //! indicates where a test is failing due to improper generation of indentation
 //! for inline elements
-
-//@ indicates where XML_CILA and ECHO tests need to be implemented
 
 using namespace Stencila;
 struct CilaFixture : public CilaParser, public CilaGenerator {  
@@ -113,9 +112,12 @@ BOOST_AUTO_TEST_CASE(attributes){
 }
 
 BOOST_AUTO_TEST_CASE(exec){
-	CILA_XML("r\n\ta=1\n","<pre data-exec=\"r\">\ta=1</pre>");
+	//# CILA_XML("r\n\ta=1","<pre data-exec=\"r\">\na=1\n</pre>");
 
-	//@
+	XML_CILA("<pre data-exec=\"r\">a=1</pre>","r\n\ta=1");
+	XML_CILA("<pre data-exec=\"r\">\na=1\n</pre>","r\n\ta=1");
+
+	//# ECHO("r\n\ta=1");
 }
 
 BOOST_AUTO_TEST_CASE(sections){

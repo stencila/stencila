@@ -455,6 +455,7 @@ public:
 			trace_new();
 
 			if(state==sol){
+				// If this is not a blank line (zero or more spaces or tabs and nothing else)
 				if(not boost::regex_search(begin, end, blankline, boost::regex_constants::match_continuous)){
 					// Get indentation
 					is(indentation);
@@ -768,13 +769,12 @@ public:
 			auto attrs = node.attrs();
 			auto attrs_size = attrs.size();
 			auto children = node.children();
-			Node only_child;
-			if(children.size()==1) only_child = children[0];
+			auto children_size = children.size();
 
 			// Shortcuts from whence we return...
 
 			// Write directive
-			if(name=="span" and children.size()==0 and attrs.size()==1 and node.attr("data-write").length()){
+			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-write").length()){
 				stream<<"``"<<node.attr("data-write")<<"``";
 				return;
 			}
@@ -821,7 +821,7 @@ public:
 				return;
 			}
 			// Sections with an id attribute and a <h1> child
-			if(name=="section" and node.attr("id").length() and children.size()>0){
+			if(name=="section" and node.attr("id").length() and children_size>0){
 				// Only proceed if <h1> is first child
 				if(children[0].name()=="h1"){
 					// Only proceed if id is consistent with header
@@ -837,9 +837,9 @@ public:
 				}
 			}
 			// Lists with no attributes
-			if((name=="ul" or name=="ol") and attrs_size==0 and children.size()>0){
-				// Only procedd if all children are `<li>`
-				if(children.size()==node.filter("li").size()){
+			if((name=="ul" or name=="ol") and attrs_size==0 and children_size>0){
+				// Only proceed if all children are `<li>`
+				if(children_size==node.filter("li").size()){
 					bool first = true;
 					bool ol = name=="ol";
 					int index = 1;
@@ -852,7 +852,29 @@ public:
 					}
 					return;
 				}
-				
+			}
+			// Execute directive
+			if(node.attr("data-exec").length()){
+				stream<<node.attr("data-exec")<<"\n";
+				// Get the code from the child nodes. Usually there will be only one, but in case there are more
+				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
+				std::string code;
+				for(Node child : node.children()) code += child.text();
+				// Normally code will start and end with a newline (that is how it is created when parsed)
+				// so remove those for consistent Cila generation
+				if(code[0]=='\n') code = code.substr(1);
+				if(code[code.length()-1]=='\n') code = code.substr(0,code.length()-1);
+				// Split into lines
+				std::vector<std::string> lines;
+				boost::split(lines,code,boost::is_any_of("\n"));
+				// Add extra indentation to each line
+				for(unsigned int index=0;index<lines.size();index++){
+					stream<<indent+"\t"<<lines[index];
+					// Don't put a newline on last line - that is the 
+					// responsibility of the following element
+					if(index<(lines.size()-1)) stream<<"\n";
+				}
+				return;
 			}
 
 			bool inlinee = Html::is_inline_element(name);
@@ -864,7 +886,7 @@ public:
 			bool trail = true;
 
 			// Paragraphs indicated by a preceding, indented, blank line
-			if(name=="p" and children.size()>0 and attrs.size()==0){
+			if(name=="p" and children_size>0 and attrs.size()==0){
 				stream<<"\n"<<indent;
 			}
 			else {
@@ -911,6 +933,8 @@ public:
 			}
 
 			// Chillen
+			Node only_child;
+			if(children_size==1) only_child = children[0];
 			if(trail and only_child and only_child.is_text()){			
 				// Short text only child trails, long text only child is indented
 				auto text = only_child.text();
