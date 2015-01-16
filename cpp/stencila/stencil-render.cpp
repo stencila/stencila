@@ -42,8 +42,7 @@ void Stencil::render(Node node, Context* context){
 		//   considered and that directive will determine how/if children nodes are processed
 		for(std::string attr : node.attrs()){
 			// `macro` elements are not rendered
-			if(attr=="data-macro") return ;
-			else if(attr=="data-exec") return Execute().render(*this,node,context);
+			if(attr=="data-exec") return Execute().render(*this,node,context);
 			else if(attr=="data-write") return Write().render(*this,node,context);
 			else if(attr=="data-with") return With().render(*this,node,context);
 
@@ -62,6 +61,8 @@ void Stencil::render(Node node, Context* context){
 			else if(attr=="data-include") return Include().render(*this,node,context);
 			else if(attr=="data-set") return Set().render(*this,node,context);
 			else if(attr=="data-par") return Parameter().render(*this,node,context);
+
+			else if(attr=="data-macro") return Macro().render(*this,node,context);
 		}
 		// Render input elements
 		if(tag=="input"){

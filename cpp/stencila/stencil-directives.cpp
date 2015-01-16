@@ -761,4 +761,37 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	context->exit();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Stencil::Macro::Macro(void){
+}
+
+Stencil::Macro::Macro(const std::string& attribute){
+	parse(attribute);
+}
+
+Stencil::Macro::Macro(Node node){
+	parse(node);
+}
+
+void Stencil::Macro::parse(const std::string& attribute){
+	boost::smatch match;
+	static const boost::regex pattern("^[\\w-]+$");
+	if(boost::regex_search(attribute, match, pattern)) {
+		name = match.str();
+	} else {
+		throw DirectiveException("syntax","");
+	}
+}
+
+void Stencil::Macro::parse(Node node){
+	parse(node.attr("data-macro"));
+}
+
+void Stencil::Macro::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+	// Add id to element so it can be selected
+	node.attr("id",name);
+}
+
 }

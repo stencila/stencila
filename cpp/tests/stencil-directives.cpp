@@ -207,4 +207,21 @@ BOOST_AUTO_TEST_CASE(includ){
 	}
 }
 
+BOOST_AUTO_TEST_CASE(macro){
+	typedef Stencil::Macro M;
+	{
+		M m("x");
+		BOOST_CHECK_EQUAL(m.name,"x");
+	}{
+		M m("x-y_z");
+		BOOST_CHECK_EQUAL(m.name,"x-y_z");
+	}{
+		try{
+			M m("x*foo.bar");
+		} catch(const Stencil::DirectiveException& exc){
+			BOOST_CHECK_EQUAL(exc.type,"syntax");
+		}
+	}
+}
+
 BOOST_AUTO_TEST_SUITE_END()

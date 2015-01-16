@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(include_modifiers){
 
 BOOST_AUTO_TEST_CASE(include_par){
 	render(R"(
-		<div id="includee" data-macro="true">
+		<div data-macro="includee">
 			<div data-par="x" />
 			<div data-par="y value 2" />
 

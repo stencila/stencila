@@ -534,6 +534,20 @@ public:
 	};
 
 	/**
+	 * A `macro` directive (e.g. `<div data-macro="my-macro" />` )
+	 */
+	struct Macro : Directive {
+		Name name;
+		
+		Macro(void);
+		Macro(const std::string& attribute);
+		Macro(Node node);
+		void parse(const std::string& attribute);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
 	 * @}
 	 */
 
