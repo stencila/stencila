@@ -423,7 +423,7 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			directive_no_arg("else|default\\b"),
-			directive_arg("(write|with|if|elif|switch|case|for) +([^\\n\\}]+)"),
+			directive_arg("(write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append) +([^\\n\\}]+)"),
 			spaces(" +"),
 
 			underscore("_"),
@@ -925,6 +925,7 @@ public:
 					) {
 						stream<<name.substr(5);
 						trail = false;
+						break;
 					}
 					else if(
 						name=="data-write" or 
@@ -933,10 +934,20 @@ public:
 						name=="data-elif" or 
 						name=="data-switch" or 
 						name=="data-case" or
-						name=="data-for"
+						name=="data-for" or
+
+						name=="data-include" or
+						name=="data-delete" or
+						name=="data-replace" or
+						name=="data-change" or
+						name=="data-before" or
+						name=="data-after" or
+						name=="data-prepend" or
+						name=="data-append"
 					){
 						stream<<name.substr(5)<<" "<<value;
 						trail = false;
+						break;
 					}
 					else stream<<name<<"="<<value;
 					separate = true;
