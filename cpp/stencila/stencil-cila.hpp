@@ -423,7 +423,7 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			directive_no_arg("else|default\\b"),
-			directive_arg("(write|with|if|elif|switch|case) +([^\\n\\}]+)"),
+			directive_arg("(write|with|if|elif|switch|case|for) +([^\\n\\}]+)"),
 			spaces(" +"),
 
 			underscore("_"),
@@ -932,7 +932,8 @@ public:
 						name=="data-if" or 
 						name=="data-elif" or 
 						name=="data-switch" or 
-						name=="data-case"
+						name=="data-case" or
+						name=="data-for"
 					){
 						stream<<name.substr(5)<<" "<<value;
 						trail = false;
