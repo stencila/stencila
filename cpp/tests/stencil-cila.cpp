@@ -102,6 +102,23 @@ BOOST_AUTO_TEST_CASE(embedded){
 	CILA_XML("div id=yo Some text {a href=none nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
 	CILA_XML("{div{div apple}{div pear}}",R"(<div><div>apple</div><div>pear</div></div>)");
 
+	CILA_XML("Text with a no inlines","Text with a no inlines");
+	CILA_XML("Text with a {a href=http://stencil.la link} in it.","Text with a <a href=\"http://stencil.la\">link</a> in it.");
+
+	CILA_XML("{div}","<div />");
+	CILA_XML("{div {div}}","<div><div /></div>");
+
+	CILA_XML(
+		"The minimum is {if a<b {write a}}{else {write b}}",
+		"The minimum is <div data-if=\"a&lt;b\"><span data-write=\"a\" /></div><div data-else=\"true\"><span data-write=\"b\" /></div>"
+	);
+
+	CILA_XML("div\n\tSome inline {write pi*2}","<div>Some inline <span data-write=\"pi*2\" /></div>");
+
+	CILA_XML("div Some text","<div>Some text</div>");
+	CILA_XML("div {Some text}","<div>Some text</div>");
+	CILA_XML("div Text with a {span inside span}.","<div>Text with a <span>inside span</span>.</div>");
+
 	// Embedded syntax can be used for inline elements but is not generated
 	CILA_CILA("{ul #id-to-prevent-autolist-style-cila {li apple}{li pear}}","ul #id-to-prevent-autolist-style-cila\n\tli apple\n\tli pear");
 }

@@ -184,6 +184,9 @@ public:
 	 */
 	void pop(void){
 		if(states.size()<2){
+			#if defined(STENCILA_CILA_PARSER_TRACE)
+				trace_show();
+			#endif
 			throw std::runtime_error("Too few states to pop: "+boost::lexical_cast<std::string>(states.size()));
 		}
 		states.pop_back();
@@ -423,7 +426,7 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			directive_no_arg("else|default\\b"),
-			directive_arg("(ref|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +([^\\n\\}]+)"),
+			directive_arg("(ref|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +([^\\n\\{\\}]+)"),
 			spaces(" +"),
 
 			underscore("_"),
@@ -589,7 +592,9 @@ public:
 					auto directive = match[1].str();
 					if(directive=="write") enter_elem_if_needed("span");
 					else enter_elem_if_needed();
-					node.attr("data-"+directive,match[2].str());
+					auto arg = match[2].str();
+					boost::trim(arg);
+					node.attr("data-"+directive,arg);
 					across(elem);
 				}
 				else if(is(spaces)){
