@@ -554,28 +554,28 @@ public:
 				// Attempt to match...
 				if(is(attr)){
 					trace("attr");
-					// Enter new element it necessary and create attribute;
+					// Enter new element if necessary and create attribute;
 					// keep on looking for more attributes
 					enter_elem_if_needed();
 					node.attr(match[1].str(),match[2].str());
 				}
 				else if(is(id)){
 					trace("id");
-					// Enter new element it necessary and create id attribute;
+					// Enter new element if necessary and create id attribute;
 					// keep on looking for more attributes
 					enter_elem_if_needed();
 					node.attr("id",match[1].str());
 				}
 				else if(is(clas)){
 					trace("clas");
-					// Enter new element it necessary and create class attribute;
+					// Enter new element if necessary and create class attribute;
 					// keep on looking for more attributes
 					enter_elem_if_needed();
-					node.attr("class",match[1].str());
+					node.concat("class",match[1].str());
 				}
 				else if(is(directive_no_arg)){
 					trace("directive_no_arg");
-					// Enter new element it necessary and create directive attribute;
+					// Enter new element if necessary and create directive attribute;
 					// move across to `elem` state (i.e no attributes or text to follow)
 					enter_elem_if_needed();
 					node.attr("data-"+match.str(),"true");
@@ -908,7 +908,17 @@ public:
 					auto value = node.attr(name);
 					if(separate) stream<<" ";
 					if(name=="id") stream<<"#"<<value;
-					else if(name=="class") stream<<"."<<value;
+					else if(name=="class"){
+						// Get clas attribute and split using spaces
+						std::vector<std::string> classes;
+						boost::split(classes,value,boost::is_any_of(" "));
+						int index = 0;
+						for(auto name : classes){
+							if(index>0) stream<<" ";
+							if(name.length()) stream<<"."<<name;
+							index++;
+						}
+					}
 					else if(
 						name=="data-else" or 
 						name=="data-default"
