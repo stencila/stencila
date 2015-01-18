@@ -446,6 +446,9 @@ public:
 			link("(\\[)([^\\]]*)(\\]\\()([^\\)]+)(\\))"),
 			autolink("\\bhttp(s)?://[^ ]+\\b"),
 
+			at_escaped("\\\\@"),
+			refer("@([\\w-]+)\\b"),
+
 			curly_open("\\{"),
 			curly_close("\\}"),
 
@@ -685,6 +688,17 @@ public:
 					flush();
 					node.append("a").attr("href",match.str()).text(match.str());
 				}
+				else if(is(at_escaped)){
+					trace("at_escaped");
+					// Replace with at
+					add('@');
+				}
+				else if(is(refer)){
+					trace("refer");
+					// Flush text and append `<span data-refer="" />`
+					flush();
+					node.append("span").attr("data-refer",match[1].str());
+				}
 				else if(is(endline)){
 					trace("endline");
 					// Move across into `sol` state
@@ -781,6 +795,10 @@ public:
 			// Write directive
 			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-write").length()){
 				stream<<"``"<<node.attr("data-write")<<"``";
+				return;
+			}
+			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-refer").length()){
+				stream<<"@"<<node.attr("data-refer");
 				return;
 			}
 			// Emphasis & strong
@@ -988,6 +1006,7 @@ public:
 			// Escape backticks and pipes
 			boost::replace_all(text,"`","\\`");
 			boost::replace_all(text,"|","\\|");
+			boost::replace_all(text,"@","\\@");
 			stream<<text;
 		}
 		else {

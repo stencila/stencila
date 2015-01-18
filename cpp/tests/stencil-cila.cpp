@@ -611,6 +611,17 @@ BOOST_AUTO_TEST_CASE(autolink){
 	//!ECHO("Before http://google.com after");
 }
 
+BOOST_AUTO_TEST_CASE(refer){
+	CILA_XML("@figure-x-y",R"(<span data-refer="figure-x-y" />)");
+	CILA_XML("An escaped at \\@ in text","An escaped at @ in text");
+
+	XML_CILA(R"(<span data-refer="figure-x-y" />)","@figure-x-y");
+	XML_CILA("An at @ in text","An at \\@ in text");
+
+	ECHO("@figure-x-y");
+	ECHO("\\@");
+}
+
 BOOST_AUTO_TEST_CASE(interpolate){
 	CILA_XML("``x``",R"(<span data-write="x" />)");
 	CILA_XML("The answer is ``6*7``!",R"(The answer is <span data-write="6*7" />!)");
