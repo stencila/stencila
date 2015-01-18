@@ -1,6 +1,6 @@
 #include <iostream>
  
-#include <boost/test/unit_test.hpp> 
+#include <boost/test/unit_test.hpp>
 
 #define STENCILA_CILA_PARSER_TRACE
 #include <stencila/stencil-cila.hpp>  
@@ -328,6 +328,36 @@ BOOST_AUTO_TEST_CASE(directive_arg){
 	ECHO("#an-id .a-class with x");
 	CILA_CILA("div if x","if x");
 	ECHO("if x");
+}
+
+BOOST_AUTO_TEST_CASE(flags){
+	CILA_XML("~ &tH4dFg","<div data-hash=\"tH4dFg\" />");
+	ECHO("~ &tH4dFg");
+
+	CILA_XML("~ off","<div data-off=\"true\" />");
+	ECHO("~ off");
+
+	CILA_XML("~ ^42","<div data-index=\"42\" />");
+	ECHO("~ ^42");
+
+	CILA_XML("~ lock","<div data-lock=\"true\" />");
+	ECHO("~ lock");
+
+	CILA_XML("~ output","<div data-output=\"true\" />");
+	ECHO("~ output");
+
+	CILA_XML("~ included","<div data-included=\"true\" />");
+	ECHO("~ included");
+
+	CILA_XML("if x<0 ~ off",R"(<div data-if="x&lt;0" data-off="true" />)");
+	ECHO("if x<0 ~ off");
+
+	CILA_XML("write x ~ lock",R"(<span data-write="x" data-lock="true" />)");
+	ECHO("write x ~ lock");
+
+	ECHO("~ &tH4dFg off ^42 lock output");
+	ECHO("p ~ &tH4dFg off ^42 lock output");
+	ECHO("#id .class ~ &tH4dFg off ^42 lock output");
 }
 
 BOOST_AUTO_TEST_CASE(directive_write){

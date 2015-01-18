@@ -38,6 +38,19 @@ public:
 		attrs,
 
 		/**
+		 * Looking for rendering flags (e.g. hash, index, off) som of which are only applied to
+		 * directives:
+		 *   - hash
+		 *   - off
+		 * and others which can be applied to both directives and normal elements
+		 *   - index
+		 *   - lock
+		 *   - output
+		 *   - included 
+		 */
+		flags,
+
+		/**
 		 * Text including inlines, shortcuts and embedded elements
 		 */
 		text,
@@ -158,6 +171,7 @@ public:
 			CASE(sol)
 			CASE(elem)
 			CASE(attrs)
+			CASE(flags)
 			CASE(text)
 			CASE(empha)
 			CASE(strong)
@@ -425,9 +439,17 @@ public:
 			attr("([\\w-]+)=([^ ]+)\\b"),
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
-			directive_no_arg("else|default\\b"),
-			directive_arg("(ref|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +([^\\n\\{\\}]+)"),
+			directive_noarg("(else|default) *(?=(~ )|\\n|\\{|\\}|$)"),
+			directive_arg("(ref|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)?(?=(~ )|\\n|\\{|\\}|$)"),
 			spaces(" +"),
+
+			flags_open("~ "),
+			hash("&([a-zA-Z0-9]+)"),
+			index("\\^(\\d+)"),
+			lock("lock"),
+			output("output"),
+			off("off"),
+			included("included"),
 
 			underscore("_"),
 			asterisk("\\*"),
@@ -579,26 +601,29 @@ public:
 					enter_elem_if_needed();
 					node.concat("class",match[1].str());
 				}
-				else if(is(directive_no_arg)){
-					trace("directive_no_arg");
-					// Enter new element if necessary and create directive attribute;
-					// move across to `elem` state (i.e no attributes or text to follow)
+				else if(is(directive_noarg)){
+					trace("directive_noarg");
+					// Enter new element it necessary and create directive attribute;
+					// type of element depends on which directive;
+					// move across to `flags` state (i.e no attributes or text to follow)
 					enter_elem_if_needed();
-					node.attr("data-"+match.str(),"true");
-					across(elem);
-				}
-				else if(is(directive_arg)){
+					node.attr("data-"+match[1].str(),"true");
+				}else if(is(directive_arg)){
 					trace("directive_arg");
 					// Enter new element it necessary and create directive attribute;
 					// type of element depends on which directive;
-					// move across to `elem` state (i.e no attributes or text to follow)
+					// move across to `flags` state (i.e no attributes or text to follow)
 					auto directive = match[1].str();
-					if(directive=="write") enter_elem_if_needed("span");
+					if(directive=="write" or directive=="refer") enter_elem_if_needed("span");
 					else enter_elem_if_needed();
-					auto arg = match[2].str();
+					std::string arg = match[2].str();
 					boost::trim(arg);
 					node.attr("data-"+directive,arg);
-					across(elem);
+				}
+				else if(is(flags_open)){
+					trace("flags");
+					enter_elem_if_needed();
+					across(flags);
 				}
 				else if(is(spaces)){
 					trace("spaces");
@@ -606,9 +631,43 @@ public:
 				}
 				else {
 					trace("none");
-					// If no match move across to `text` state to look 
-					// for plain text, shortcuts and embedded elements
+					// If no match move across to `text`
 					across(text);
+				}
+			}
+			else if(state==flags){
+				if(is(hash)){
+					trace("hash");
+					node.attr("data-hash",match[1].str());
+				}
+				else if(is(index)){
+					trace("index");
+					node.attr("data-index",match[1].str());
+				}
+				else if(is(lock)){
+					trace("lock");
+					node.attr("data-lock","true");
+				}
+				else if(is(output)){
+					trace("output");
+					node.attr("data-output","true");
+				}
+				else if(is(off)){
+					trace("off");
+					node.attr("data-off","true");
+				}
+				else if(is(included)){
+					trace("included");
+					node.attr("data-included","true");
+				}
+				else if(is(spaces)){
+					trace("spaces");
+					// Ignore spaces and keep on looking for flags
+				}
+				else {
+					trace("none");
+					std::string error(begin,end-1);
+					STENCILA_THROW(Exception,"Syntax error in flags section <"+error+">");
 				}
 			}
 			else if(state==text){
@@ -919,7 +978,7 @@ public:
 					separate = true;
 				};
 				if(name=="span"){
-					if(attrs.size()==1 and node.attr("data-write").length()){}
+					if(node.attr("data-write").length()){}
 					else tag();
 				}
 				else if(name=="div"){
@@ -927,61 +986,69 @@ public:
 				}
 				else tag();
 				// Attributes...
+				std::pair<std::string,std::string> directive;
+				std::vector<std::pair<std::string,std::string>> flags;
 				for(auto name : attrs){
 					auto value = node.attr(name);
-					if(separate) stream<<" ";
-					if(name=="id") stream<<"#"<<value;
-					else if(name=="class"){
-						// Get clas attribute and split using spaces
-						std::vector<std::string> classes;
-						boost::split(classes,value,boost::is_any_of(" "));
-						int index = 0;
-						for(auto name : classes){
-							if(index>0) stream<<" ";
-							if(name.length()) stream<<"."<<name;
-							index++;
+					if(Stencil::directive(name)){
+						directive.first = name;
+						directive.second = value;
+					}
+					else if(Stencil::flag(name)){
+						flags.push_back({name,value});
+					}
+					else {
+						if(separate) stream<<" ";
+						if(name=="id"){
+							stream<<"#"<<value;
 						}
+						else if(name=="class"){
+							// Get class attribute and split using spaces
+							std::vector<std::string> classes;
+							boost::split(classes,value,boost::is_any_of(" "));
+							int index = 0;
+							for(auto name : classes){
+								if(index>0) stream<<" ";
+								if(name.length()) stream<<"."<<name;
+								index++;
+							}
+						}
+						else {
+							stream<<name<<"="<<value;
+						}
+						separate = true;
 					}
-					else if(
-						name=="data-else" or 
-						name=="data-default"
-					) {
-						stream<<name.substr(5);
-						trail = false;
-						break;
+				}
+				// Directives
+				if(directive.first.length()){
+					if(separate) stream<<" ";
+					auto name = directive.first;
+					stream<<name.substr(5);
+					if(not(name=="data-else" or name=="data-default")){
+						auto value = directive.second;
+						stream<<" "<<value;
 					}
-					else if(
-						name=="data-write" or 
-						name=="data-refer" or
-						name=="data-with" or 
-						name=="data-if" or 
-						name=="data-elif" or 
-						name=="data-switch" or 
-						name=="data-case" or
-						name=="data-for" or
+					trail = false;
+					separate = true;
+				}
 
-						name=="data-include" or
-						name=="data-delete" or
-						name=="data-replace" or
-						name=="data-change" or
-						name=="data-before" or
-						name=="data-after" or
-						name=="data-prepend" or
-						name=="data-append" or
-
-						name=="data-macro" or
-						name=="data-par" or
-						name=="data-set"
-					){
-						stream<<name.substr(5)<<" "<<value;
-						trail = false;
-						break;
-					}
-					else stream<<name<<"="<<value;
+				// Flags
+				if(flags.size()){
+					if(separate) stream<<" ";
+					stream<<"~";
+				}
+				for(auto attr : flags){
+					auto name = attr.first;
+					auto value = attr.second;
+					std::string flag;
+					if(name=="data-hash") flag = "&"+value;
+					else if(name=="data-index") flag = "^"+value;
+					else flag = name.substr(5);
+					stream<<" "<<flag;
+					trail = false;
 					separate = true;
 				}
 			}
-
 			// Chillen
 			Node only_child;
 			if(children_size==1) only_child = children[0];
