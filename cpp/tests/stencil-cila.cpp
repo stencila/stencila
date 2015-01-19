@@ -12,6 +12,8 @@
 
 using namespace Stencila;
 struct CilaFixture : public CilaParser, public CilaGenerator {  
+	Stencil stencil;
+
 	// Methods added for debugging purposes
 	
 	void states_show(void){
@@ -35,9 +37,9 @@ struct CilaFixture : public CilaParser, public CilaGenerator {
 
 // Check macros. Macros are used so that Boost::Unit reports lines number
 // of failed checks properly
-#define CILA_XML(_CILA,_XML) BOOST_CHECK_EQUAL(parse(_CILA).stencil.xml(),_XML);
-#define XML_CILA(_XML,_CILA) BOOST_CHECK_EQUAL(generate(_XML),_CILA);
-#define CILA_CILA(_IN,_OUT) BOOST_CHECK_EQUAL(generate(parse(_IN).stencil.xml()),_OUT);
+#define CILA_XML(_CILA,_XML) { parse(stencil,_CILA); BOOST_CHECK_EQUAL(stencil.xml(),_XML); }
+#define XML_CILA(_XML,_CILA) { stencil.xml(_XML); BOOST_CHECK_EQUAL(generate(stencil),_CILA); }
+#define CILA_CILA(_IN,_OUT) { parse(stencil,_IN); BOOST_CHECK_EQUAL(generate(stencil),_OUT); }
 #define ECHO(_IN) CILA_CILA(_IN,_IN);
 
 BOOST_FIXTURE_TEST_SUITE(cila,CilaFixture)

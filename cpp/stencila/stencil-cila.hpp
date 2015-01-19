@@ -123,7 +123,7 @@ public:
 	/**
 	 * Stencil being parse into
 	 */
-	Stencil stencil;
+	Node stencil;
 
 	/**
 	 * Current indentation. Used for keeping track
@@ -666,7 +666,7 @@ public:
 				}
 				else {
 					trace("none");
-					std::string error(begin,end-1);
+					std::string error(begin,end);
 					STENCILA_THROW(Exception,"Syntax error in flags section <"+error+">");
 				}
 			}
@@ -821,6 +821,12 @@ public:
 		flush();
 
 		return *this;
+	}
+
+	CilaParser& parse(Node node,const std::string& cila){
+		stencil = node;
+		node.clear();
+		return parse(cila);
 	}
 };
 
@@ -1085,12 +1091,6 @@ public:
 		std::stringstream cila;
 		generate(node,cila);
 		return cila.str();
-	}
-
-	std::string generate(const std::string& xml){
-		Stencil stencil;
-		stencil.xml(xml);
-		return generate(stencil);
 	}
 };
 

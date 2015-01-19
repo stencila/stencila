@@ -145,25 +145,11 @@ public:
 	std::string cila(void) const;
 
 	/**
-	 * Get stencil content as Cila written to an output stream
-	 *
-	 * @param stream Output stream to write to
-	 */
-	std::ostream& cila(std::ostream& stream) const;
-
-	/**
 	 * Set stencil content using Cila
 	 * 
 	 * @param cila A string of Cila code
 	 */
 	Stencil& cila(const std::string& cila);
-
-	/**
-	 * Set stencil content using Cila read from an input stream
-	 *
-	 * @param stream Input stream to read from
-	 */
-	Stencil& cila(std::istream& stream);
 
 	/**
 	 * @}
