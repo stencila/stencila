@@ -512,7 +512,9 @@ public:
 					// start of a line
 					// Enter `<pre>` element and move across to `flags` state;
 					enter_across("pre",exec);
-					node.attr("data-exec",match[1].str());
+					auto arg = match[1].str();
+					if(match[2].str().length()) arg += " " + match[2].str();
+					node.attr("data-exec",arg);
 				}
 				else if(is(blankline)){
 					trace("blank");

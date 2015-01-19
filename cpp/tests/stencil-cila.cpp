@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(meta){
 	CILA_XML("#contexts r","<div id=\"contexts\">r</div>")
 	CILA_XML("#theme beautiful","<div id=\"theme\">beautiful</div>")
 }
- 
+
 BOOST_AUTO_TEST_CASE(exec){
 	CILA_XML("r\n\ta=1","<pre data-exec=\"r\">\na=1\n</pre>");
 	CILA_XML("r ~ &h34Ft7\n\ta=1","<pre data-exec=\"r\" data-hash=\"h34Ft7\">\na=1\n</pre>");
@@ -264,9 +264,6 @@ pi &lt;- 3.14
 	CILA_XML(cila_,html_); 
 }
 
-//# These tests temporary excluded
-#if 0
- 
 BOOST_AUTO_TEST_CASE(exec_with_empty_line_before_next){
 	auto cila_ = 
 R"(r
@@ -274,27 +271,24 @@ R"(r
 	
 div)";
 	auto html_ = 
-R"(<pre data-code="r">
+R"(<pre data-exec="r">
 pi &lt;- 3.14
 
-</pre>
-<div />)";
+</pre><div />)";
 	CILA_XML(cila_,html_)
 }
 
 BOOST_AUTO_TEST_CASE(exec_image){
 	auto cila_ = 
-R"(r png 60x42px
+R"(r format png size 60x42px
 	plot(x,y))";
 	auto html_ = 
-R"(<pre data-code="r png 60x42px">
+R"(<pre data-exec="r format png size 60x42px">
 plot(x,y)
 </pre>)";
 	CILA_XML(cila_,html_)
 	ECHO(cila_)
 }
-
-#endif
 
 BOOST_AUTO_TEST_CASE(directive_no_arg){
 	CILA_XML("div else",R"(<div data-else="true" />)");
