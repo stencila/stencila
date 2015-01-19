@@ -423,8 +423,6 @@ public:
 		static const boost::regex
 			indentation("[ \\t]*"),
 
-			exec_open("((r|py)( +[^\\n]+)?)\\n"),
-
 			tag("("\
 				"section|nav|article|aside|address|h1|h2|h3|h4|h5|h6|p|hr|pre|blockquote|ol|ul|li|dl|dt|dd|" \
 				"figure|figcaption|div|a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|" \
@@ -439,8 +437,11 @@ public:
 			attr("([\\w-]+)=([^ ]+)\\b"),
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
-			directive_noarg("(else|default) *(?=(~ )|\\n|\\{|\\}|$)"),
-			directive_arg("(refer|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)?(?=(~ )|\\n|\\{|\\}|$)"),
+			
+			exec_open("(r|py)\\b *([^~\\n]+)?(?=(~ )|\\n|$)"),
+			directive_noarg("(else|default)\\b *(?=(~ )|\\n|\\{|\\}|$)"),
+			directive_arg("(refer|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(~ )|\\n|\\{|\\}|$)"),
+			
 			spaces(" +"),
 
 			flags_open("~ "),
@@ -475,7 +476,8 @@ public:
 			curly_close("\\}"),
 
 			blankline("[ \\t]*\\n"),
-			endline("\\n")
+			endline("\\n"),
+			endinput("$")
 		;
 
 		trace_begin();
@@ -508,7 +510,7 @@ public:
 					trace("exec");
 					// A execute directive should only begin at the 
 					// start of a line
-					// Enter `<pre>` element and move across to `exec` state;
+					// Enter `<pre>` element and move across to `flags` state;
 					enter_across("pre",exec);
 					node.attr("data-exec",match[1].str());
 				}
@@ -626,7 +628,8 @@ public:
 					// move across to `flags` state (i.e no attributes or text to follow)
 					enter_elem_if_needed();
 					node.attr("data-"+match[1].str(),"true");
-				}else if(is(directive_arg)){
+				}
+				else if(is(directive_arg)){
 					trace("directive_arg");
 					// Enter new element it necessary and create directive attribute;
 					// type of element depends on which directive;
@@ -684,8 +687,16 @@ public:
 				}
 				else {
 					trace("none");
-					std::string error(begin,end);
-					STENCILA_THROW(Exception,"Syntax error in flags section <"+error+">");
+					//
+					bool under_exec = false;
+					if(states.size()>1){
+						if(states[states.size()-2]==exec) under_exec = true;
+					}
+					if(under_exec){
+						pop();
+					} else {
+						across(sol);
+					}
 				}
 			}
 			else if(state==text){
@@ -824,11 +835,31 @@ public:
 				// move to `sol` state to see if indentation
 				// has reduced and should pop out of this state
 				// @todo Remove leading indentation
-				if(is(endline)){
-					trace("endline");
-					across(sol);
+				if(is(flags_open)){
+					trace("flags");
+					push(flags);
 				}
-				else add();
+				else {
+					static const boost::regex line("([ \t]*)([^\n]*)(\n|$)");
+					boost::smatch match_local;
+					boost::regex_search(begin, end, match_local, line, boost::regex_constants::match_continuous);
+					auto indent_line = match_local[1].str();
+					auto content_line = match_local[2].str();
+					// Should this `exec` directive end?
+					if(begin==end or (content_line.length()>0 and indent_line.length()<=indent.length())){
+						// Exit and pop. Note that `begin` is not shifted along at all
+						// so that the line can be processed by `sol`
+						exit();
+						across(sol);
+					} else {
+						// Add to buffer
+						if(indent_line.length()>=indent.length()+1) buffer += indent_line.substr(indent.length()+1);
+						buffer += content_line;
+						buffer += "\n";
+						// Shift along
+						begin += match_local.position() + match_local.length();
+					}
+				}
 			}
 			else add();
 		}
@@ -842,7 +873,7 @@ public:
 	CilaParser& parse(Node node,const std::string& cila){
 		stencil = node;
 		node.clear();
-		return parse(cila);
+		return parse(cila+"\n");
 	}
 };
 

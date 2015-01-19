@@ -189,25 +189,23 @@ BOOST_AUTO_TEST_CASE(meta){
 	CILA_XML("#contexts r","<div id=\"contexts\">r</div>")
 	CILA_XML("#theme beautiful","<div id=\"theme\">beautiful</div>")
 }
-
+ 
 BOOST_AUTO_TEST_CASE(exec){
-	//# CILA_XML("r\n\ta=1","<pre data-exec=\"r\">\na=1\n</pre>");
+	CILA_XML("r\n\ta=1","<pre data-exec=\"r\">\na=1\n</pre>");
+	CILA_XML("r ~ &h34Ft7\n\ta=1","<pre data-exec=\"r\" data-hash=\"h34Ft7\">\na=1\n</pre>");
 
 	XML_CILA("<pre data-exec=\"r\">a=1</pre>","r\n\ta=1");
 	XML_CILA("<pre data-exec=\"r\">\na=1\n</pre>","r\n\ta=1");
 
-	//# ECHO("r\n\ta=1");
+	ECHO("r\n\ta=1");
 }
-
-//# These tests temporary excluded
-#if 0
 
 BOOST_AUTO_TEST_CASE(exec_1){
 	auto cila_ = 
 R"(r
 	pi <- 3.14)";
 	auto html_ = 
-R"(<pre data-code="r">
+R"(<pre data-exec="r">
 pi &lt;- 3.14
 </pre>)";
 	CILA_XML(cila_,html_)
@@ -220,10 +218,10 @@ R"(r
 	pi <- 3.14
 	print(pi))";
 	auto html_ = 
-R"(<pre data-code="r">
+R"(<pre data-exec="r">
 pi &lt;- 3.14
 print(pi)
-</pre>)";
+</pre>)"; 
 	CILA_XML(cila_,html_)
 	ECHO(cila_)
 }
@@ -237,13 +235,11 @@ R"(r
 div
 div)";
 	auto html_ = 
-R"(<pre data-code="r">
+R"(<pre data-exec="r">
 pi &lt;- 3.14
 2*pi
 2*pi*r^2
-</pre>
-<div />
-<div />)";
+</pre><div /><div />)";
 	CILA_XML(cila_,html_)
 	ECHO(cila_)
 }
@@ -255,18 +251,22 @@ R"(r
 
 	2*pi
 
-	2*pi*r^2)";
+	2*pi*r^2
+div)";
 	auto html_ = 
-R"(<pre data-code="r">
+R"(<pre data-exec="r">
 pi &lt;- 3.14
 
 2*pi
 
 2*pi*r^2
-</pre>)";
-	CILA_XML(cila_,html_)
+</pre><div />)";
+	CILA_XML(cila_,html_); 
 }
 
+//# These tests temporary excluded
+#if 0
+ 
 BOOST_AUTO_TEST_CASE(exec_with_empty_line_before_next){
 	auto cila_ = 
 R"(r
