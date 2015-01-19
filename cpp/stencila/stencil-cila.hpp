@@ -565,6 +565,24 @@ public:
 					enter_list_if_needed("ol");
 					enter_across("li",text);
 				}
+				else if(is(pipe)){
+					trace("pipe");
+					// Enter `<script>` and push into `asciimath` state
+					flush();
+					auto span = node.append("p",{{"class","equation"}});
+					auto script = span.append("script",{{"type","math/asciimath; mode=display"}});
+					enter(script);
+					push(asciimath);
+				}
+				else if(is(tex_open)){
+					trace("tex_open");
+					// Enter `<script>` and push into `tex` state
+					flush();
+					auto span = node.append("p",{{"class","equation"}});
+					auto script = span.append("script",{{"type","math/tex; mode=display"}});
+					enter(script);
+					push(tex);
+				}
 				else{
 					trace("none");
 					// Indicate that a new element is required
@@ -721,8 +739,7 @@ public:
 					trace("pipe");
 					// Enter `<script>` and push into `asciimath` state
 					flush();
-					auto span = node.append("span",{{"class","math"}});
-					auto script = span.append("script",{{"type","math/asciimath"}});
+					auto script = node.append("script",{{"type","math/asciimath"}});
 					enter(script);
 					push(asciimath);
 				}
@@ -730,8 +747,7 @@ public:
 					trace("tex_open");
 					// Enter `<script>` and push into `tex` state
 					flush();
-					auto span = node.append("span",{{"class","math"}});
-					auto script = span.append("script",{{"type","math/tex"}});
+					auto script = node.append("script",{{"type","math/tex"}});
 					enter(script);
 					push(tex);
 				}
@@ -890,21 +906,35 @@ public:
 				stream<<"`"<<text<<"`";
 				return;
 			}
-			// Math
-			if(name=="span" and node.attr("class")=="math"){
+			// Equations and inline math
+			if(name=="p" and node.attr("class")=="equation"){
 				auto script = node.select("script");
-				auto code = script.text();
-				auto type = script.attr("type");
-				std::string begin,end;
-				if(type=="math/asciimath"){
-					begin = end = "|";
-					boost::replace_all(code,"|","\\|");
+				if(script){
+					auto type = script.attr("type");
+					if(type.length()){
+						auto code = script.text();
+						std::string begin,end;
+						if(type.find("math/asciimath")!=std::string::npos){
+							begin = "|";
+							end = "|";
+							boost::replace_all(code,"|","\\|");
+						} else {
+							begin = "\\(";
+							end = "\\)";
+						}
+						stream<<begin<<code<<end;
+						return;
+					}
 				}
-				if(type=="math/tex"){
-					begin = "\\(";
-					end = "\\)";
-				}
-				stream<<begin<<code<<end;
+			}
+			if(name=="script" and node.attr("type")=="math/asciimath"){
+				auto code = node.text();
+				boost::replace_all(code,"|","\\|");
+				stream<<'|'<<code<<'|';
+				return;
+			}
+			if(name=="script" and node.attr("type")=="math/tex"){
+				stream<<"\\("<<node.text()<<"\\)";
 				return;
 			}
 			// Links and autolinks

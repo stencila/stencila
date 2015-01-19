@@ -591,13 +591,14 @@ BOOST_AUTO_TEST_CASE(code){
 }
 
 BOOST_AUTO_TEST_CASE(asciimath){
-	CILA_XML("|e=mc^2|",R"(<span class="math"><script type="math/asciimath">e=mc^2</script></span>)");
-	CILA_XML("Text before |e=mc^2|",R"(Text before <span class="math"><script type="math/asciimath">e=mc^2</script></span>)");
-	CILA_XML("|e=mc^2| text after",R"(<span class="math"><script type="math/asciimath">e=mc^2</script></span> text after)");
-	CILA_XML("With asterisks and underscores |a_b*c|",R"(With asterisks and underscores <span class="math"><script type="math/asciimath">a_b*c</script></span>)");
-	CILA_XML("An escaped pipe within AsciiMath |a\\|b|",R"(An escaped pipe within AsciiMath <span class="math"><script type="math/asciimath">a|b</script></span>)");
+	CILA_XML("|e=mc^2|",R"(<p class="equation"><script type="math/asciimath; mode=display">e=mc^2</script></p>)");
+	CILA_XML("Text before |e=mc^2|",R"(Text before <script type="math/asciimath">e=mc^2</script>)");
+	CILA_XML("Text before |e=mc^2| text after",R"(Text before <script type="math/asciimath">e=mc^2</script> text after)");
+	CILA_XML("With asterisks and underscores |a_b*c|",R"(With asterisks and underscores <script type="math/asciimath">a_b*c</script>)");
+	CILA_XML("An escaped pipe within AsciiMath |a\\|b|",R"(An escaped pipe within AsciiMath <script type="math/asciimath">a|b</script>)");
 
-	XML_CILA(R"(<span class="math"><script type="math/asciimath">e=mc^2</script></span>)","|e=mc^2|");
+	//!XML_CILA(R"(Before <script type="math/asciimath">e=mc^2</script> after)","Before |e=mc^2| after");
+	XML_CILA(R"(<p class="equation"><script type="math/asciimath; mode=display">e=mc^2</script></p>)","|e=mc^2|");
 	XML_CILA(R"(An escaped pipe | within text)","An escaped pipe \\| within text");
 	//!XML_CILA(R"(An escaped pipe within AsciiMath <span class="math"><script type="math/asciimath">a|b</script></span>)","An escaped pipe within AsciiMath |a\\|b|");
 
@@ -608,9 +609,9 @@ BOOST_AUTO_TEST_CASE(asciimath){
 }
 
 BOOST_AUTO_TEST_CASE(tex){
-	CILA_XML("\\(e=mc^2\\)",R"(<span class="math"><script type="math/tex">e=mc^2</script></span>)");
+	CILA_XML("\\(e=mc^2\\)",R"(<p class="equation"><script type="math/tex; mode=display">e=mc^2</script></p>)");
 
-	XML_CILA(R"(<span class="math"><script type="math/tex">e=mc^2</script></span>)","\\(e=mc^2\\)");
+	XML_CILA(R"(<p class="equation"><script type="math/tex; mode=display">e=mc^2</script></p>)","\\(e=mc^2\\)");
 
 	ECHO("\\(e=mc^2\\)");
 	//! ECHO("Before \\(e=mc^2\\) after");
