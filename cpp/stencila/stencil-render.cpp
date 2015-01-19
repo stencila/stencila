@@ -147,13 +147,19 @@ void Stencil::render_finalise(Node node, Context* context){
 		ref.clear();
 		std::string selector = ref.attr("data-refer");
 		Node target = select(selector);
-		Node label = target.select(".label");
-		if(label){
-			Node a = ref.append(
-				"a",
-				{{"href","#"+target.attr("id")}},
-				label.select(".type").text() + " " + label.select(".number").text()
-			);
+		if(target){
+			Node label = target.select(".label");
+			if(label){
+				Node a = ref.append(
+					"a",
+					{{"href","#"+target.attr("id")}},
+					label.select(".type").text() + " " + label.select(".number").text()
+				);
+			} else {
+				error(ref,"refer-unlabelled","Matched element does not have a label");
+			}
+		} else {
+			error(ref,"refer-missing","No matching element found");
 		}
 	}
 }

@@ -644,13 +644,17 @@ BOOST_AUTO_TEST_CASE(autolink){
 }
 
 BOOST_AUTO_TEST_CASE(refer){
-	CILA_XML("@figure-x-y",R"(<span data-refer="figure-x-y" />)");
+	CILA_XML("@figure-x-y",R"(<span data-refer="#figure-x-y" />)");
 	CILA_XML("An escaped at \\@ in text","An escaped at @ in text");
 
-	XML_CILA(R"(<span data-refer="figure-x-y" />)","@figure-x-y");
+	XML_CILA(R"(<span data-refer="#figure-x-y" />)","@figure-x-y");
 	XML_CILA("An at @ in text","An at \\@ in text");
 
+	CILA_XML("refer selector with space",R"(<span data-refer="selector with space" />)");
+	XML_CILA(R"(<span data-refer="selector with space" />)","refer selector with space");
+
 	ECHO("@figure-x-y");
+	ECHO("refer section#intro figure");
 	ECHO("\\@");
 }
 

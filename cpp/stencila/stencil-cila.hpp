@@ -440,7 +440,7 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			directive_noarg("(else|default) *(?=(~ )|\\n|\\{|\\}|$)"),
-			directive_arg("(ref|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)?(?=(~ )|\\n|\\{|\\}|$)"),
+			directive_arg("(refer|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)?(?=(~ )|\\n|\\{|\\}|$)"),
 			spaces(" +"),
 
 			flags_open("~ "),
@@ -754,9 +754,9 @@ public:
 				}
 				else if(is(refer)){
 					trace("refer");
-					// Flush text and append `<span data-refer="" />`
+					// Flush text and append `<span data-refer="#id" />`
 					flush();
-					node.append("span").attr("data-refer",match[1].str());
+					node.append("span").attr("data-refer","#"+match[1].str());
 				}
 				else if(is(endline)){
 					trace("endline");
@@ -857,14 +857,21 @@ public:
 
 			// Shortcuts from whence we return...
 
-			// Write directive
+			// Write directive shortcut
 			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-write").length()){
 				stream<<"``"<<node.attr("data-write")<<"``";
 				return;
 			}
+			// Refer directive shortcut
 			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-refer").length()){
-				stream<<"@"<<node.attr("data-refer");
-				return;
+				auto value = node.attr("data-refer");
+				if(value[0]=='#'){
+					int spaces = std::count_if(value.begin(), value.end(),[](unsigned char c){ return std::isspace(c); });
+					if(spaces==0){
+						stream<<"@"<<value.substr(1);
+						return;
+					}
+				}
 			}
 			// Emphasis & strong
 			if((name=="em" or name=="strong") and attrs.size()==0){
@@ -984,11 +991,11 @@ public:
 					separate = true;
 				};
 				if(name=="span"){
-					if(node.attr("data-write").length()){}
+					if(node.has("data-write") or node.has("data-refer")){}
 					else tag();
 				}
 				else if(name=="div"){
-					if(attrs.size()==0 or node.attr("data-write").length()) tag();
+					if(attrs.size()==0 or node.has("data-write") or node.has("data-refer")) tag();
 				}
 				else tag();
 				// Attributes...
