@@ -20,6 +20,10 @@ Server::Server(void){
 	server_.set_message_handler(bind(&Server::message_,this,_1,_2));
 	// Turnoff logging
 	server_.set_access_channels(log::alevel::none);
+	// Allow reuse of address in case still in TIME_WAIT state
+	// after previous unclean shutdown.
+	// See http://hea-www.harvard.edu/~fine/Tech/addrinuse.html
+	server_.set_reuse_addr(true);
 }
 
 std::string Server::url(void) const {
