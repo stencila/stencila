@@ -53,17 +53,12 @@ BOOST_FIXTURE_TEST_SUITE(stencil_render,RenderingFixture)
 using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(exec){
-	render(R"(
-		<pre class="a" data-exec="map">This should be ignored because no MapContext does not `accept` any code</pre>
-		<pre class="b">This should be ignored because no data-exec attribute</pre>
-	)");
+	render(R"(<pre data-exec="map">This should be ignored because MapContext does nothing on execute</pre>)");
 
-	BOOST_CHECK(not stencil.select("pre.a [data-error]"));
-	BOOST_CHECK(not stencil.select("pre.b [data-error]"));
-
-	render(R"(
-		<pre data-exec="map"></pre>Text after
-	)");
+	// At one point in development, when text followed an
+	// exec directive, an infinite loop happened (bug in xml.cpp). 
+	// This is a regression "test" for that.
+	render(R"(<pre data-exec="map">a = 42</pre>Text after)");
 }
 
 BOOST_AUTO_TEST_CASE(set){

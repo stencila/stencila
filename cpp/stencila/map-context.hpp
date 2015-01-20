@@ -39,18 +39,14 @@ public:
 	}
 
 	bool accept(const std::string& language) const {
-		// Return false since this context does not
-		// accept any code
-		return false;
+		return language=="map";
 	}
 	
 	std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
-		unsupported_("execute");
 		return "";
 	}
 	
 	std::string interact(const std::string& code, const std::string& id=""){
-		unsupported_("interact");
 		return "";
 	}
 
@@ -64,11 +60,6 @@ public:
 
 	std::string write(const std::string& expression){
 		return get_(expression);
-	}
-
-	std::string paint(const std::string& format,const std::string& code){
-		unsupported_("paint");
-		return "";
 	}
 
 	bool test(const std::string& expression){

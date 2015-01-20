@@ -243,7 +243,7 @@ Node Node::next_element(void){
 		if(sibling.type()==pugi::node_element){
 			return sibling;
 		}
-		sibling = pimpl_->next_sibling();
+		sibling = sibling.next_sibling();
 	}
 	return pugi::xml_node();
 }

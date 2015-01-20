@@ -37,6 +37,13 @@ test.Stencil.render.exec <- function(){
   render('<pre data-exec="r">a <- 42</pre><span data-write="a"></span>')
 }
 
+test.Stencil.render.exec.1 <- function(){
+  # At one point in development, when text followed an
+  # exec directive, an infinite loop happened (bug in xml.cpp). 
+  # This is a regression "test" for that.
+  render('<pre data-exec="r">a <- 42</pre>Text after')
+}
+
 test.Stencil.render.exec.image <- function(){
   render('<pre data-exec="r format png">plot(1,1)</pre>')
 }
