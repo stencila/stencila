@@ -47,7 +47,9 @@ BOOST_AUTO_TEST_CASE(dump_not_pretty){
 }
 
 BOOST_AUTO_TEST_CASE(dump_pretty){
-	Document doc("<div>x<span>y</span>z</div>");
+	Document doc(R"(
+		<p>Text <span>in spans</span> and <script type="math">in scripts</script> <span>too</span> should be inline</p>
+	)");
 	auto result = R"(<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -55,13 +57,13 @@ BOOST_AUTO_TEST_CASE(dump_pretty){
 		<meta charset="utf-8">
 	</head>
 	<body>
-		<div>
-			x<span>y</span>z
-		</div>
+		<p>
+			Text <span>in spans</span> and <script type="math">in scripts</script> <span>too</span> should be inline
+		</p>
 	</body>
 </html>)";
 	BOOST_CHECK_EQUAL(
-		doc.dump("\t"),
+		doc.dump(false),
 		result
 	);
 	//"

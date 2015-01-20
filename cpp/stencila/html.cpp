@@ -184,7 +184,7 @@ void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::str
 		bool content = false;
 		bool first = true;
 		for(auto child : node.children()){
-			if(pretty and not inlinee and first and child.is_text()){
+			if(pretty and not inlinee and name!="pre" and first and child.is_text()){
 				stream<<"\n"<<indent+"\t";
 				first = false;
 			}
@@ -192,7 +192,7 @@ void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::str
 			dump_(stream,child,pretty,indent+"\t");
 		}
 		// Closing tag
-		if(pretty and not inlinee and content) stream<<"\n"<<indent;
+		if(pretty and not inlinee and name!="pre" and content) stream<<"\n"<<indent;
 		stream<<"</"<<name<<">";
 	}
 	else if(node.is_text()){
