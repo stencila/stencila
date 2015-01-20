@@ -168,28 +168,25 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
 
-JSONCPP_VERSION := 7bd75b0
+JSONCPP_VERSION := 1.1.0
 
 $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/tarball/$(JSONCPP_VERSION)
+	wget --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/archive/$(JSONCPP_VERSION).tar.gz
 
-$(BUILD)/cpp/requires/jsoncpp/dist/libjsoncpp.a: $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz
+$(BUILD)/cpp/requires/jsoncpp/dist: $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
-	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	cd $(BUILD)/cpp/requires/ ;\
 		rm -rf jsoncpp ;\
-		mv -f open-source-parsers-jsoncpp-$(JSONCPP_VERSION) jsoncpp ;\
+		mv -f jsoncpp-$(JSONCPP_VERSION) jsoncpp ;\
 		cd jsoncpp ;\
-			python amalgamate.py ;\
-			cd dist ;\
-				#g++ -I. -O2 -shared -static -olibjsoncpp.a jsoncpp.cpp
+			python amalgamate.py ;
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 
-cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist/libjsoncpp.a
+cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
 $(RESOURCES)/tidy-html5-master.zip:
