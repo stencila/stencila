@@ -191,10 +191,10 @@ class StencilTests(unittest.TestCase):
             out
         )
 
-    def test_render_code(self):
+    def test_render_exec(self):
         self.renderCheck(
-            '<code data-code="py">a=1.2 ; b=3.4 ; c=a+b</code>\n<div data-text="c"></div',
-            '<code data-code="py">a=1.2 ; b=3.4 ; c=a+b</code>\n<div data-text="c">4.6</div>'
+            '<pre data-exec="py">a=1.2 ; b=3.4 ; c=a+b</pre>\n<div data-write="c"></div',
+            '<pre data-exec="py">a=1.2 ; b=3.4 ; c=a+b</pre>\n<div data-write="c">4.6</div>'
         )
 
     def test_render_text(self):
@@ -207,8 +207,8 @@ class StencilTests(unittest.TestCase):
             ({'a':1,'b':2,'c':3},"{'a': 1, 'c': 3, 'b': 2}"),
         ):
             self.renderCheck(
-                '<div data-text="value"></div>',
-                '<div data-text="value">%s</div>'%text,
+                '<div data-write="value"></div>',
+                '<div data-write="value">%s</div>'%text,
                 {'value':value}
             )
 
