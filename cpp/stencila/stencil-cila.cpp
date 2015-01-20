@@ -1,8 +1,3 @@
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/xpressive/xpressive_static.hpp>
-#include <boost/xpressive/regex_compiler.hpp>
-
 #include <stencila/stencil.hpp>
 #include <stencila/stencil-cila.hpp>
 
