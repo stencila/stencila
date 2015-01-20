@@ -39,7 +39,7 @@ build-current: build/current
 CPP_REQUIRES_INC_DIRS := 
 CPP_REQUIRES_LIB_DIRS := 
 
-BOOST_VERSION := 1_56_0
+BOOST_VERSION := 1_57_0
 
 $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
 	mkdir -p $(RESOURCES)
