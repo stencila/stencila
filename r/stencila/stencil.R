@@ -55,6 +55,10 @@ setRefClass(
             method_(.self,'Stencil_initialise',initialiser)
         },
 
+        html_get = function(indent=true){
+            method_(.self,'Stencil_html_options',indent)
+        },
+
         import = function(path) method_(.self,'Stencil_import',path),
         export = function(path) method_(.self,'Stencil_export',path),
         read = function(path="") method_(.self,'Stencil_read',path),
@@ -71,7 +75,7 @@ setRefClass(
             method_(.self,'Stencil_detach')
         },
         render = function(context=NULL){
-            if(!is.null(context)) attach(context)
+            if(!is.null(context)) attach(Context(context))
             else if(is.null(.context)) attach(Context())
             method_(.self,'Stencil_render')
         },

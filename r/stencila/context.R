@@ -81,8 +81,10 @@ Context <- function(envir){
     ####################################################################
     # Methods that implement the context interface
     # See the documentation for the `Context` C++ base class methods
+    # 
+    # All of these methods should return a string!
 
-    self$execute <- function(code,id,format="",width="",height="",units=""){
+    self$execute <- function(code,id="",format="",width="",height="",units=""){
         if(format!=""){
             if(format %in% c('png','svg')){
                 filename = paste0(id,'.',format)
@@ -164,10 +166,12 @@ Context <- function(envir){
                 }
             }
         }
+        return("")
     }
 
     self$assign <- function(name,expression){
         self$set(name,expression)
+        return("")
     }
 
     self$input <- function(name,type,value){
@@ -181,6 +185,7 @@ Context <- function(envir){
         else if(type=='datetime') value <- strptime(value,"%Y-%m-%d %H:%M:%S")
         # Now assign the variable
         assign(name,value,envir=self$top())
+        return("")
     }
 
     self$write <- function(expression){
@@ -199,18 +204,18 @@ Context <- function(envir){
     self$mark <- function(expression){
         value <- self$get(expression)
         assign('_subject_',value,envir=self$top())
-        return(self)
+        return("")
     }
     
     self$match <- function(expression){
         value <- self$get(expression)
         subject <- base::get('_subject_',envir=self$top())
-        return(value==subject)
+        if(value==subject) "1" else "0"
     }
 
     self$unmark <- function(){
         assign('_subject_',NULL,envir=self$top())
-        return(self)
+        return("")
     }
     
     self$enter <- function(expression=''){
@@ -218,17 +223,18 @@ Context <- function(envir){
         if(nchar(expression)==0) env <- new.env(parent=parent)
         else env <- list2env(self$get(expression),parent=parent) #Use list2env rather than as.enviroment because it allows use to define parent
         self$push(env)
-        return(self)
+        return("")
     }
     
     self$exit <- function(){
         self$pop()
-        return(self)
+        return("")
     }
     
     self$begin <- function(item,items){
         # Enter a new anonymous block that forms the namespace for the loop
-        loop <- self$enter()$top()
+        self$enter()
+        loop <- self$top()
         # Create an iterator for items
         items <- eval(parse(text=items),envir=loop)
         iterator <- iterate(items)
@@ -261,6 +267,7 @@ Context <- function(envir){
             self$exit()
             return("0")
         }
+        return("")
     }
     
     ####################################################################
