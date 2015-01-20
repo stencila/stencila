@@ -287,7 +287,8 @@ Stencil::Write::Write(Node node){
 }
 
 void Stencil::Write::parse(const std::string& attribute){
-	expression = attribute;
+	if(attribute.length()) expression = attribute;
+	else throw DirectiveException("write-empty","");
 }
 
 void Stencil::Write::parse(Node node){
@@ -316,7 +317,8 @@ Stencil::With::With(Node node){
 }
 
 void Stencil::With::parse(const std::string& attribute){
-	expression = attribute;
+	if(attribute.length()) expression = attribute;
+	else throw DirectiveException("with-empty","");
 }
 
 void Stencil::With::parse(Node node){
@@ -324,6 +326,7 @@ void Stencil::With::parse(Node node){
 }
 
 void Stencil::With::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
 	context->enter(expression);
 	stencil.render_children(node,context);
 	context->exit();

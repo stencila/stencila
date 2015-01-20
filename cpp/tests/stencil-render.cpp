@@ -52,14 +52,18 @@ BOOST_FIXTURE_TEST_SUITE(stencil_render,RenderingFixture)
 
 using namespace Stencila;
 
-BOOST_AUTO_TEST_CASE(code){
+BOOST_AUTO_TEST_CASE(exec){
 	render(R"(
-		<code class="a" data-exec="map">This should be ignored because no MapContext does not `accept` any code</code>
-		<code class="b">This should be ignored because no data-exec attribute</code>
+		<pre class="a" data-exec="map">This should be ignored because no MapContext does not `accept` any code</pre>
+		<pre class="b">This should be ignored because no data-exec attribute</pre>
 	)");
 
-	BOOST_CHECK(not stencil.select("code.a [data-error]"));
-	BOOST_CHECK(not stencil.select("code.b [data-error]"));
+	BOOST_CHECK(not stencil.select("pre.a [data-error]"));
+	BOOST_CHECK(not stencil.select("pre.b [data-error]"));
+
+	render(R"(
+		<pre data-exec="map"></pre>Text after
+	)");
 }
 
 BOOST_AUTO_TEST_CASE(set){

@@ -278,6 +278,18 @@ pi &lt;- 3.14
 	CILA_XML(cila_,html_)
 }
 
+BOOST_AUTO_TEST_CASE(exec_with_text_after){
+	auto cila_ = 
+R"(r
+	pi <- 3.14
+Hello world)";
+	auto html_ = 
+R"(<pre data-exec="r">
+pi &lt;- 3.14
+</pre>Hello world)";
+	CILA_XML(cila_,html_)
+}
+
 BOOST_AUTO_TEST_CASE(exec_image){
 	auto cila_ = 
 R"(r format png size 60x42px
