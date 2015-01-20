@@ -848,7 +848,7 @@ public:
 					auto indent_line = match_local[1].str();
 					auto content_line = match_local[2].str();
 					// Should this `exec` directive end?
-					if(begin==end or (content_line.length()>0 and indent_line.length()<=indent.length())){
+					if(content_line.length()>0 and indent_line.length()<=indent.length()){
 						// Exit and pop. Note that `begin` is not shifted along at all
 						// so that the line can be processed by `sol`
 						exit();
