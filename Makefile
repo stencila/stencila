@@ -189,15 +189,17 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
-$(RESOURCES)/tidy-html5-master.zip:
-	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/w3c/tidy-html5/archive/master.zip
+TIDYHTML5_VERSION := 8b454f5
 
-$(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-master.zip
+$(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
+	mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/tarball/$(TIDYHTML5_VERSION)
+
+$(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
-	rm -rf $(BUILD)/cpp/requires/tidy-html5
-	unzip -qo $< -d $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/tidy-html5-master $(BUILD)/cpp/requires/tidy-html5
+	rm -rf $@
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/htacg-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
 	touch $@
 
 # These patches depend upon `tidy-html5-unpacked.flag` rather than simply the `tidy-html5` since that
@@ -215,6 +217,7 @@ $(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h: cpp/requires/tidy-html5-pul
 # Note that we only "make ../../lib/libtidy.a" and not "make all" because the latter is not required
 # Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 $(BUILD)/cpp/requires/tidy-html5-built.flag: \
+		$(BUILD)/cpp/requires/tidy-html5-unpacked.flag \
 		$(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile \
 		$(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h
 	cd $(BUILD)/cpp/requires/tidy-html5/build/gmake ;\
