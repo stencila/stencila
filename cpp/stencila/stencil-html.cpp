@@ -127,7 +127,7 @@ std::string Stencil::html(bool document,bool indent) const {
 		 * Files are with a fallback to hub.
 		 */
 		// Theme booter...
-		const std::string booter = "/core/components/themes/base/boot.js";
+		const std::string booter = "/core/themes/base/boot.js";
 		// get booter locally...
 		body.append("script",{{"src",booter}}," ");
 		// or, fallback to hub
