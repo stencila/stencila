@@ -423,6 +423,7 @@ public:
 		static const boost::regex
 			indentation("[ \\t]*"),
 
+			// Not necessary all tags, just those that are valid in stencils
 			tag("("\
 				"section|nav|article|aside|address|h1|h2|h3|h4|h5|h6|p|hr|pre|blockquote|ol|ul|li|dl|dt|dd|" \
 				"figure|figcaption|div|a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|" \
@@ -447,6 +448,7 @@ public:
 			flags_open("~ "),
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
+			error("\\!([\\w-]+)(\\([^\\)]+\\))?"),
 			lock("lock"),
 			output("output"),
 			off("off"),
@@ -666,6 +668,13 @@ public:
 				else if(is(index)){
 					trace("index");
 					node.attr("data-index",match[1].str());
+				}
+				else if(is(error)){
+					trace("error");
+					auto value = match[1].str();
+					auto data = match[2].str();
+					if(data.length()) value += data;
+					node.attr("data-error",value);
 				}
 				else if(is(lock)){
 					trace("lock");
@@ -888,16 +897,8 @@ public:
 	 * 
 	 * @param stencil Stencil to generate Cila for
 	 */
-	void generate(Node node, std::ostream& stream, const std::string& indent=""){
-		if(node.is_document()){
-			bool first = true;
-			for(Node child : node.children()){
-				if(not first) stream<<"\n";
-				else first = false;
-				generate(child,stream,indent);
-			}
-		}
-		else if(node.is_element()){
+	void generate(Node node, std::ostream& stream, const std::string& this_indent="", const std::string& child_indent=""){
+		if(node.is_document() or node.is_element()){
 			auto name = node.name();
 			auto attrs = node.attrs();
 			auto attrs_size = attrs.size();
@@ -906,6 +907,13 @@ public:
 
 			// Shortcuts from whence we return...
 
+			// Paragraphs indicated by a preceding blank line and children
+			// just dumped
+			if(name=="p" and children_size>0 and attrs.size()==0){
+				stream<<"\n"<<this_indent;
+				for(Node child : node.children()) generate(child,stream);
+				return;
+			}
 			// Write directive shortcut
 			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-write").length()){
 				stream<<"``"<<node.attr("data-write")<<"``";
@@ -998,15 +1006,14 @@ public:
 			if((name=="ul" or name=="ol") and attrs_size==0 and children_size>0){
 				// Only proceed if all children are `<li>`
 				if(children_size==node.filter("li").size()){
-					bool first = true;
 					bool ol = name=="ol";
-					int index = 1;
+					int index = 0;
 					for(auto child : children){
-						if(not first) stream<<"\n"<<indent;
-						if(ol) stream<<index++<<". ";
+						if(index>0) stream<<"\n"<<this_indent;
+						++index;
+						if(ol) stream<<index<<". ";
 						else stream<<"- ";
 						for(auto grandchild : child.children()) generate(grandchild,stream);
-						first = false;
 					}
 					return;
 				}
@@ -1027,7 +1034,7 @@ public:
 				boost::split(lines,code,boost::is_any_of("\n"));
 				// Add extra indentation to each line
 				for(unsigned int index=0;index<lines.size();index++){
-					stream<<indent+"\t"<<lines[index];
+					stream<<child_indent<<lines[index];
 					// Don't put a newline on last line - that is the 
 					// responsibility of the following element
 					if(index<(lines.size()-1)) stream<<"\n";
@@ -1035,112 +1042,107 @@ public:
 				return;
 			}
 
-			bool inlinee = Html::is_inline_element(name);
-
 			// Keep track of whether content has been put to the stream for this
 			// element for knowing if separating spaces are required
-			bool separate = false;
+			bool separator_required = false;
 			// Keep track of whether trailing text is allowed
-			bool trail = true;
-
-			// Paragraphs indicated by a preceding, indented, blank line
-			if(name=="p" and children_size>0 and attrs.size()==0){
-				stream<<"\n"<<indent;
-			}
-			else {
-				// Name
-				auto tag = [&](){
-					stream<<name;
-					separate = true;
-				};
-				if(name=="span"){
-					if(node.has("data-write") or node.has("data-refer")){}
-					else tag();
-				}
-				else if(name=="div"){
-					if(attrs.size()==0 or node.has("data-write") or node.has("data-refer")) tag();
-				}
+			bool trailing_text_ok = true;
+		
+			// Name
+			auto tag = [&](){
+				stream<<name;
+				separator_required = true;
+			};
+			if(name=="span"){
+				if(node.has("data-write") or node.has("data-refer")){}
 				else tag();
-				// Attributes...
-				std::pair<std::string,std::string> directive;
-				std::vector<std::pair<std::string,std::string>> flags;
-				for(auto name : attrs){
-					auto value = node.attr(name);
-					if(Stencil::directive(name)){
-						directive.first = name;
-						directive.second = value;
+			}
+			else if(name=="div"){
+				if(attrs.size()==0 or node.has("data-write") or node.has("data-refer")) tag();
+			}
+			else tag();
+			// Attributes...
+			std::pair<std::string,std::string> directive;
+			std::vector<std::pair<std::string,std::string>> flags;
+			for(auto name : attrs){
+				auto value = node.attr(name);
+				if(Stencil::directive(name)){
+					directive.first = name;
+					directive.second = value;
+				}
+				else if(Stencil::flag(name)){
+					flags.push_back({name,value});
+				}
+				else {
+					if(separator_required) stream<<" ";
+					if(name=="id"){
+						stream<<"#"<<value;
 					}
-					else if(Stencil::flag(name)){
-						flags.push_back({name,value});
+					else if(name=="class"){
+						// Get class attribute and split using spaces
+						std::vector<std::string> classes;
+						boost::split(classes,value,boost::is_any_of(" "));
+						int index = 0;
+						for(auto name : classes){
+							if(index>0) stream<<" ";
+							if(name.length()) stream<<"."<<name;
+							index++;
+						}
 					}
 					else {
-						if(separate) stream<<" ";
-						if(name=="id"){
-							stream<<"#"<<value;
-						}
-						else if(name=="class"){
-							// Get class attribute and split using spaces
-							std::vector<std::string> classes;
-							boost::split(classes,value,boost::is_any_of(" "));
-							int index = 0;
-							for(auto name : classes){
-								if(index>0) stream<<" ";
-								if(name.length()) stream<<"."<<name;
-								index++;
-							}
-						}
-						else {
-							stream<<name<<"="<<value;
-						}
-						separate = true;
+						stream<<name<<"="<<value;
 					}
-				}
-				// Directives
-				if(directive.first.length()){
-					if(separate) stream<<" ";
-					auto name = directive.first;
-					stream<<name.substr(5);
-					if(not(name=="data-else" or name=="data-default")){
-						auto value = directive.second;
-						stream<<" "<<value;
-					}
-					trail = false;
-					separate = true;
-				}
-
-				// Flags
-				if(flags.size()){
-					if(separate) stream<<" ";
-					stream<<"~";
-				}
-				for(auto attr : flags){
-					auto name = attr.first;
-					auto value = attr.second;
-					std::string flag;
-					if(name=="data-hash") flag = "&"+value;
-					else if(name=="data-index") flag = "^"+value;
-					else flag = name.substr(5);
-					stream<<" "<<flag;
-					trail = false;
-					separate = true;
+					separator_required = true;
 				}
 			}
+			// Directives
+			if(directive.first.length()){
+				if(separator_required) stream<<" ";
+				auto name = directive.first;
+				stream<<name.substr(5);
+				if(not(name=="data-else" or name=="data-default")){
+					auto value = directive.second;
+					stream<<" "<<value;
+				}
+				trailing_text_ok = false;
+				separator_required = true;
+			}
+
+			// Flags
+			if(flags.size()){
+				if(separator_required) stream<<" ";
+				stream<<"~";
+			}
+			for(auto attr : flags){
+				auto name = attr.first;
+				auto value = attr.second;
+				std::string flag;
+				if(name=="data-hash") flag = "&"+value;
+				else if(name=="data-index") flag = "^"+value;
+				else if(name=="data-error") flag = "!"+value;
+				else flag = name.substr(5);
+				stream<<" "<<flag;
+				trailing_text_ok = false;
+				separator_required = true;
+			}
+		
 			// Chillen
 			Node only_child;
 			if(children_size==1) only_child = children[0];
-			if(trail and only_child and only_child.is_text()){			
+			if(not node.is_document() and trailing_text_ok and only_child and only_child.is_text()){			
 				// Short text only child trails, long text only child is indented
 				auto text = only_child.text();
 				if(text.length()<100){
-					if(separate) stream<<" ";
+					if(separator_required) stream<<" ";
 					stream<<text;
 				}
-				else stream<<"\n"<<indent<<"\t"<<text;
+				else stream<<"\n"<<child_indent<<text;
 			} else {
 				// Generate children
+				bool node_is_inline = Html::is_inline_element(name);
 				for(Node child : node.children()){
-					if(not inlinee) stream<<"\n"<<indent+"\t";
-					generate(child,stream,indent+"\t");
+					if(not node_is_inline) stream<<"\n"<<child_indent;
+					generate(child,stream,child_indent,child_indent+"\t");
 				}
 			}
 		}
@@ -1159,8 +1161,14 @@ public:
 
 	std::string generate(Node node){
 		std::stringstream cila;
-		generate(node,cila);
-		return cila.str();
+		generate(node,cila,"","");
+		auto str = cila.str();
+		if(str.length()){
+			if(str[0]=='\n'){
+				return str.substr(1);
+			}
+		}
+		return str;
 	}
 };
 

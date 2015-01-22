@@ -5,11 +5,6 @@
 #define STENCILA_CILA_PARSER_TRACE
 #include <stencila/stencil-cila.hpp>  
 
-//# indicates where a test is failing due to improper parsing
-
-//! indicates where a test is failing due to improper generation of indentation
-//! for inline elements
-
 using namespace Stencila;
 struct CilaFixture : public CilaParser, public CilaGenerator {  
 	Stencil stencil;
@@ -368,6 +363,14 @@ BOOST_AUTO_TEST_CASE(flags){
 	ECHO("#id .class ~ &tH4dFg off ^42 lock output");
 }
 
+BOOST_AUTO_TEST_CASE(error){
+	CILA_XML("~ !syntax","<div data-error=\"syntax\" />");
+	CILA_XML("~ !exception(foo bar)","<div data-error=\"exception(foo bar)\" />");
+
+	XML_CILA("<div data-error=\"syntax\" />","~ !syntax");
+	XML_CILA("<div data-error=\"exception(foo bar)\" />","~ !exception(foo bar)");
+}
+
 BOOST_AUTO_TEST_CASE(directive_write){
 	CILA_XML("write variable","<span data-write=\"variable\" />");
 	CILA_XML("span write variable","<span data-write=\"variable\" />");
@@ -556,8 +559,8 @@ BOOST_AUTO_TEST_CASE(emphasis){
 	CILA_XML("Some _emphasised_ text","Some <em>emphasised</em> text");
 
 	XML_CILA("<em>emphasised</em>","_emphasised_");
-	//!XML_CILA("Some <em>emphasised</em> text","Some _emphasised_ text");
-	
+	XML_CILA("Some <em>emphasised</em> text","Some _emphasised_ text");
+
 	ECHO("_emphasised_");
 }
 
