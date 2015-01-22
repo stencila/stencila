@@ -342,7 +342,7 @@ public:
 	 * @param type    Type of error, usually prefixed with directive type e.g. `for-syntax`
 	 * @param data    Data associated with the error which may be useful for resolving it
 	 */
-	static void error(Node node, const std::string& type, const std::string& data);
+	static void error(Node node, const std::string& type, const std::string& data="");
 
 	/**
 	 * An execute (`exec`) directive (e.g. `<pre data-exec="r,py">`)

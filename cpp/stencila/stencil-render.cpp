@@ -128,7 +128,7 @@ void Stencil::render(Node node, Context* context){
 		error(node,"exception",exc.what());
 	}
 	catch(...){
-		error(node,"exception","unknown");
+		error(node,"exception");
 	}
 }
 

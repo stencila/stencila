@@ -61,6 +61,12 @@ BOOST_AUTO_TEST_CASE(exec){
 	render(R"(<pre data-exec="map">a = 42</pre>Text after)");
 }
 
+BOOST_AUTO_TEST_CASE(error){
+	render(R"(<p data-write="foo" />)");
+	
+	BOOST_CHECK_EQUAL(stencil.xml(),"<p data-write=\"foo\" data-error=\"exception(Variable &lt;foo&gt; not found)\" />");
+}
+
 BOOST_AUTO_TEST_CASE(set){
 	render(R"(
 		<p data-set="x to 42"></p>
@@ -370,7 +376,7 @@ BOOST_AUTO_TEST_CASE(include_par){
 		</div>
 	)");
 	
-	BOOST_CHECK_EQUAL(stencil.select("#a[data-error-required]").attr("data-error-required"),"x");
+	BOOST_CHECK_EQUAL(stencil.select("#a[data-error]").attr("data-error"),"required(x)");
 	
 	BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.x").text(),"10");
 	BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.y").text(),"2");

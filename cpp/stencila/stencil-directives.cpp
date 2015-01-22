@@ -1,4 +1,5 @@
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <stencila/stencil.hpp>
 
@@ -81,7 +82,15 @@ namespace {
 }
 
 void Stencil::error(Node node, const std::string& type, const std::string& data){
-	node.attr("data-error-" + type,data);
+	auto value = type;
+	if(data.length()){
+		auto data_clean = data;
+		boost::replace_all(data_clean,"(","[");
+		boost::replace_all(data_clean,")","]");
+		boost::replace_all(data_clean,"\n","\\n");
+		value += "(" + data_clean + ")";
+	}
+	node.attr("data-error",value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
