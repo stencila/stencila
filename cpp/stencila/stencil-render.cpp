@@ -138,6 +138,8 @@ void Stencil::render_initialise(Node node, Context* context){
 
 	if(outline_) delete outline_;
 	outline_ = new Outline;
+	// If there an outline element, clear it
+	select("#outline").clear();
 }
 
 void Stencil::render_finalise(Node node, Context* context){
