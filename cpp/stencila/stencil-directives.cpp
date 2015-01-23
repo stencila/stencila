@@ -39,9 +39,15 @@ void Stencil::strip(Node node){
 		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
 	}
 	// Remove elements added during rendering
-	for(Node child : node.filter("[data-index],[data-output],[data-included]")){
+	for(Node child : node.filter("[data-index],[data-output],[data-included],[data-label]")){
 		child.destroy();
 	}
+	// Clear directive elements
+	for(Node child : node.filter("[data-refer]")){
+		child.clear();
+	}
+	// Clear outline
+	node.select("#outline").clear();
 }
 
 Stencil& Stencil::strip(void){

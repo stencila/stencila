@@ -98,11 +98,11 @@ void Stencil::render(Node node, Context* context){
 				count++;
 				std::string count_string = string(count);
 				// Check for an existing label
-				Node label = caption.select(".label");
+				Node label = caption.select("[data-label]");
 				if(not label){
 					// Prepend a label
 					label = caption.prepend("span");
-					label.attr("class","label");
+					label.attr("data-label","true");
 					label.append("span",{{"class","type"}},tag=="table"?"Table":"Figure");
 					label.append("span",{{"class","number"}},count_string);
 					label.append("span",{{"class","separator"}},":");
@@ -149,7 +149,7 @@ void Stencil::render_finalise(Node node, Context* context){
 		std::string selector = ref.attr("data-refer");
 		Node target = select(selector);
 		if(target){
-			Node label = target.select(".label");
+			Node label = target.select("[data-label]");
 			if(label){
 				Node a = ref.append(
 					"a",
