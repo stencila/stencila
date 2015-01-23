@@ -128,6 +128,7 @@ void Stencil::Execute::parse(const std::string& attribute){
 		for(auto& context : contexts) trim(context);
 		for(const auto& context : contexts){
 			if(not(
+				context=="exec" or
 				context=="cila" or
 				context=="py" or
 				context=="r"
@@ -160,6 +161,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 
 	// Check that the context accepts the declared contexts types
 	bool accepted = false;
+	if(contexts.size()==1 and contexts[0]=="exec") accepted = true;
 	for(std::string& item : contexts){
 		if(context->accept(item)){
 			accepted = true;
