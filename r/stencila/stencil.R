@@ -41,7 +41,13 @@ setRefClass(
         description = function(value) get_(.self,'Stencil_description_get'),
         keywords = function(value) get_(.self,'Stencil_keywords_get'),
         authors = function(value) get_(.self,'Stencil_authors_get'),
-        contexts = function(value) get_(.self,'Stencil_contexts_get')
+        contexts = function(value) get_(.self,'Stencil_contexts_get'),
+
+        # Getter/setter for stencil context
+        context = function(value){
+            if(missing(value)) .context
+            else attach(value)
+        }
     ),
     contains = 'Component',
     methods = list(
@@ -68,6 +74,9 @@ setRefClass(
             if(!is.null(context)) detach()
             if(inherits(context,'Context')) .context <<- context
             else .context <<- Context(context)
+            # Assign this stencil to the 'self' context
+            # variable so it can be accessed from there
+            assign('self',.self,envir=.context$top())
             method_(.self,'Stencil_attach',context)
         },
         detach = function(){
