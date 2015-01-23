@@ -698,7 +698,8 @@ public:
 				}
 				else {
 					trace("none");
-					//
+					// If current state is under an `exec` state then 
+					// pop up to the `exec` otherwise move across to `sol`
 					bool under_exec = false;
 					if(states.size()>1){
 						if(states[states.size()-2]==exec) under_exec = true;
