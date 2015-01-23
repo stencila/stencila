@@ -61,6 +61,24 @@ BOOST_AUTO_TEST_CASE(exec){
 	render(R"(<pre data-exec="map">a = 42</pre>Text after)");
 }
 
+BOOST_AUTO_TEST_CASE(when){
+	render(R"(
+		<div data-when="map">
+			<p data-write="a" />
+		</div>
+		<div data-when="map,foo,bar">
+			<p data-write="a" />
+		</div>
+		<div data-when="foo,bar">
+			<p data-write="a" />
+		</div>
+	)");
+	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"map\"] [data-write=\"a\"]").text(),"A");
+	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"map,foo,bar\"] [data-write=\"a\"]").text(),"A");
+	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"foo,bar\"]").attr("data-off"),"true");
+	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"foo,bar\"] [data-write=\"a\"]").text(),"");
+}
+
 BOOST_AUTO_TEST_CASE(error){
 	render(R"(<p data-write="foo" />)");
 	

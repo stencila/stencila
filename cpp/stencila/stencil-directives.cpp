@@ -7,6 +7,7 @@ namespace Stencila {
 
 const std::vector<std::string> Stencil::directives = {
 	"data-exec",
+	"data-when",
 	"data-write",
 	"data-refer",
 	"data-with",
@@ -280,6 +281,33 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 
 std::vector<Stencil::Execute> Stencil::execs(void) const {
 	return directives_list<Stencil::Execute>(*this,"exec");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Stencil::When::parse(const std::string& attribute){
+	if(attribute.length()){
+		contexts = split(attribute,",");
+		for(auto& context : contexts) trim(context);
+	}
+	else throw DirectiveException("when-empty");
+}
+
+void Stencil::When::scan(Node node){
+	parse(node.attr("data-when"));
+}
+
+void Stencil::When::render(Stencil& stencil, Node node, Context* context){
+	scan(node);
+	bool ok = false;
+	for(auto& item : contexts){
+		if(context->accept(item)){
+			ok = true;
+			break;
+		}
+	}
+	if(ok) stencil.render_children(node,context);
+	else node.attr("data-off","true");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

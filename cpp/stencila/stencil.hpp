@@ -327,7 +327,7 @@ public:
 		std::string type;
 		std::string data;
 
-		DirectiveException(const std::string& type, const std::string& data):
+		DirectiveException(const std::string& type, const std::string& data=""):
 			type(type),data(data){
 		}
 	};
@@ -386,6 +386,22 @@ public:
 	 * Get a list of this stencil's execute directives
 	 */
 	std::vector<Execute> execs(void) const;
+
+	/**
+	 * A `when` directive (e.g. `<div data-when="py,cpp"><span data-text="point.x" /></div>` )
+	 *
+	 * Used to restrict the rendering of sections of a stencil to only some context types.
+	 * This is useful when evaluated expressions are specific to a particular context type.
+	 * If the current context does not accept one of the labels in the comma separated list the
+	 * section is turned off.
+	 */
+	struct When : Directive {
+		std::vector<Name> contexts;
+
+		void parse(const std::string& attribute);
+		void scan(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
 
 	/**
 	 * A `write` directive (e.g. `<span data-write="result"></span>`)

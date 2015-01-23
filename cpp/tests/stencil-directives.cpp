@@ -127,6 +127,20 @@ BOOST_AUTO_TEST_CASE(exec){
 
 }
 
+BOOST_AUTO_TEST_CASE(when){
+	Stencil::When when;
+
+	when.parse("r");
+	BOOST_CHECK_EQUAL(when.contexts.size(),1);
+	BOOST_CHECK_EQUAL(when.contexts[0],"r");
+
+	when.parse("r,py ,  cpp");
+	BOOST_CHECK_EQUAL(when.contexts.size(),3);
+	BOOST_CHECK_EQUAL(when.contexts[0],"r");
+	BOOST_CHECK_EQUAL(when.contexts[1],"py");
+	BOOST_CHECK_EQUAL(when.contexts[2],"cpp");
+}
+
 BOOST_AUTO_TEST_CASE(for_){
 	typedef Stencil::For F;
 	{
