@@ -72,15 +72,20 @@ Stencil& Stencil::read(const std::string& directory){
 			STENCILA_THROW(Exception,"Path <"+where+"> does not exist");
 		}
 		if(not boost::filesystem::is_directory(where)){
-			STENCILA_THROW(Exception,"Path <"+where+">> is not a directory");
+			STENCILA_THROW(Exception,"Path <"+where+"> is not a directory");
 		}
 		// Set the stencil's path
 		path(where);
 	}
-	// Search for a stencil.html file and, if it exists, read it using `import`
-	boost::filesystem::path filename = boost::filesystem::path(path()) / "stencil.html";
-	if(boost::filesystem::exists(filename)) import(filename.string());
-	
+	// Search for a stencil.html and stencil.cila files and read the first one using `import`
+	for(std::string file : {"stencil.html","stencil.cila"}){
+		boost::filesystem::path filename = boost::filesystem::path(path()) / file;
+		if(boost::filesystem::exists(filename)){
+			import(filename.string());
+			break;
+		}
+	}
+
 	return *this;
 }
 
