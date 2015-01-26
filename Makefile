@@ -544,6 +544,10 @@ py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-pac
 		. bin/activate ;\
 		python tests.py 2>&1 | tee ../tests.out
 
+py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
+	cd $(PY_BUILD) ;\
+		sudo pip$(PY_VERSION) install --upgrade --force-reinstall `cat setup-latest.txt`
+
 py-clean:
 	rm -rf $(PY_BUILD)
 

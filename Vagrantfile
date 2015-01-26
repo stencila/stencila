@@ -1,7 +1,8 @@
-# Vagrantfile for building Stencila library modules for various platforms.
+# Vagrantfile for building and testing Stencila packages for various platforms.
 # 
 # We use [Vagrant](https://www.vagrantup.com/) to create virtual machines
-# for building Stencila library modules. Vagrant is a virtual machine (VM) manager
+# for building Stencila packages for multiple operating systems. 
+# Vagrant is a virtual machine (VM) manager
 # which eases the configuration and provisioning of VMs running 
 # on [VirtualBox](https://www.virtualbox.org/) (or other).
 # 
@@ -13,11 +14,11 @@
 # Once VirtualBox and Vagrant are installed on the host machine launch one of the 
 # platform VMs using `vagrant up` in this directory e.g. 
 # 
-#    vagrant up ubuntu-14.04-32
+#    vagrant up ubuntu-14.04-32-build
 #  
 # Then SSH into it,
 #  
-#    vagrant ssh ubuntu-14.04-32
+#    vagrant ssh ubuntu-14.04-32-build
 #  
 # Change into the VM's share of this directory, called `/vagrant`, and run
 # a task in the `Makefile` e.g.
@@ -29,24 +30,68 @@
 # 
 # When finished shutdown the VM with `halt`:
 # 
-#    vagrant halt ubuntu-14.04-32
+#    vagrant halt ubuntu-14.04-32-build
+#
+# When using a VM, for better performance it is recommended to use a build 
+# directory which is on the VM, instead of the default `stencila/build/OS/ARCH/VERSION` 
+# directory within a shared folder on the host. For example, with Linux:
+#
+# Create build directory on the guest VM
+#    mkdir -p ~/build
+# Change into the `stencila` directory on the host (mapped to `/vagrant`)
+#    cd /vagrant
+# Specify the build directory when invoking `make`
+#    make cpp-package r-package py-package BUILD=~/build
+#
+# For example, with MSYS2:
+# 
+# Create build directory on the guest VM
+#    mkdir -p /c/build
+# Change into the `stencila`directory on the host (mapped to drive Z:)
+#    cd /z
+# Specify the build directory when invoking `make`
+#    make cpp-package r-package py-package BUILD=/c/build
+#
+# There are also Vagrant machines defined for testing the installation of Stencila
+# packages on user machines. These have a reduced provisioning which only includes
+# the bare necessities for installation.
 
 Vagrant.configure("2") do |config|
 
-    config.vm.define "ubuntu-14.04-32" do |platform|
+    config.vm.define "ubuntu-14.04-32-build" do |platform|
         platform.vm.box = "ubuntu/trusty32"
-        platform.vm.provision "shell", path: "provision-ubuntu-14.04.sh"
+        platform.vm.provision "shell", path: "provision-ubuntu-14.04-build.sh"
         platform.vm.provider "virtualbox" do |provider|
-            provider.name = "stencila-ubuntu-14.04-32"
+            provider.name = "stencila-ubuntu-14.04-32-build"
             provider.memory = 1024
         end
     end
 
-    config.vm.define "ubuntu-14.04-64" do |platform|
+    config.vm.define "ubuntu-14.04-64-use" do |platform|
         platform.vm.box = "ubuntu/trusty64"
-        platform.vm.provision "shell", path: "provision-ubuntu-14.04.sh"
+        platform.vm.provision "shell", path: "provision-ubuntu-14.04-use.sh"
+        platform.vm.network "forwarded_port", guest: 7373, host: 7374
         platform.vm.provider "virtualbox" do |provider|
-            provider.name = "stencila-ubuntu-14.04-64"
+            provider.name = "stencila-ubuntu-14.04-64-use"
+            provider.memory = 1024
+        end
+    end
+
+    config.vm.define "ubuntu-14.04-64-build" do |platform|
+        platform.vm.box = "ubuntu/trusty64"
+        platform.vm.provision "shell", path: "provision-ubuntu-14.04-build.sh"
+        platform.vm.provider "virtualbox" do |provider|
+            provider.name = "stencila-ubuntu-14.04-64-build"
+            provider.memory = 1024
+        end
+    end
+
+    config.vm.define "ubuntu-14.04-64-use" do |platform|
+        platform.vm.box = "ubuntu/trusty64"
+        platform.vm.provision "shell", path: "provision-ubuntu-14.04-use.sh"
+        platform.vm.network "forwarded_port", guest: 7373, host: 7374
+        platform.vm.provider "virtualbox" do |provider|
+            provider.name = "stencila-ubuntu-14.04-64-use"
             provider.memory = 1024
         end
     end
