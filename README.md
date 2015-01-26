@@ -27,9 +27,10 @@ Python 2.7
 sudo pip install stencila-0.10_-cp27-none-linux_x86_64.whl
 ```
 
-Load and view a stencil for editing...in R,
+Load and view a stencil for editing...for example, in R,
 
 ```R
+require(stencila)
 s <- Stencil('core/stencils/examples/kitchensink')
 s$view()
 ```
