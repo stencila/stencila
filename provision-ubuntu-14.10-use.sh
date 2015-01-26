@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Shell script for provisioning Ubuntu 14.04 with the tools
+# Shell script for provisioning Ubuntu 14.10 with the tools
 # required to use Stencila packages
 
 sudo apt-get update
@@ -19,6 +19,6 @@ sudo apt-get install python2.7 --force-yes --assume-yes --fix-broken
 # R package
 
 # Install R 3.2 from CRAN repository
-sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
+sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu utopic/"
 sudo apt-get update
 sudo apt-get install r-base --force-yes --assume-yes --fix-broken

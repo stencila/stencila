@@ -96,4 +96,14 @@ Vagrant.configure("2") do |config|
         end
     end
 
+    config.vm.define "ubuntu-14.10-64-use" do |platform|
+        platform.vm.box = "larryli/utopic64"
+        platform.vm.provision "shell", path: "provision-ubuntu-14.10-use.sh"
+        platform.vm.network "forwarded_port", guest: 7373, host: 7374
+        platform.vm.provider "virtualbox" do |provider|
+            provider.name = "stencila-ubuntu-14.10-64-use"
+            provider.memory = 1024
+        end
+    end
+
 end
