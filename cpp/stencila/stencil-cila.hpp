@@ -992,13 +992,19 @@ public:
 				// Only proceed if <h1> is first child
 				if(children[0].name()=="h1"){
 					// Only proceed if id is consistent with header
-					auto title = node.select("h1").text();
+					auto h1 = node.select("h1");
+					auto title = h1.text();
 					auto id_expected = title;
 					boost::to_lower(id_expected);
 					boost::replace_all(id_expected," ","-");
 					auto id = node.attr("id");
 					if(id==id_expected){
+						// Add shortcut
 						stream<<"> "<<title;
+						// Generate each child except for the h1
+						for(Node child : node.children()){
+							if(not (child.name()=="h1" and child.text()==title)) generate(child,stream,child_indent,child_indent+"\t");
+						}
 						return;
 					}
 				}
