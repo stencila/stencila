@@ -526,6 +526,12 @@ public:
 	struct Include : Directive {
 		Evaluatable address;
 		Evaluatable select;
+		/**
+		 * By default the included content is `crush`ed thereby removing all stencil directives
+		 * and declarations. When `complete = true` no crushing is done. This can be useful when
+		 * debugging an included stencil to discover why it did not render as expected.
+		 */
+		Flag complete = false;
 
 		Include(void);
 		Include(const std::string& attribute);

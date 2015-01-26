@@ -199,6 +199,7 @@ BOOST_AUTO_TEST_CASE(includ){
 		BOOST_CHECK_EQUAL(i.address.expr,"x");
 		BOOST_CHECK_EQUAL(i.address.eval,false);
 		BOOST_CHECK_EQUAL(i.select.expr,"");
+		BOOST_CHECK_EQUAL(i.complete,false);
 	}{
 		I i("x select y");
 		BOOST_CHECK_EQUAL(i.address.expr,"x");
@@ -218,6 +219,11 @@ BOOST_AUTO_TEST_CASE(includ){
 		BOOST_CHECK_EQUAL(i.address.eval,true);
 		BOOST_CHECK_EQUAL(i.select.expr,"'#macro-id'");
 		BOOST_CHECK_EQUAL(i.select.eval,true);
+	}{
+		I i("x complete");
+		BOOST_CHECK_EQUAL(i.address.expr,"x");
+		BOOST_CHECK_EQUAL(i.address.eval,false);
+		BOOST_CHECK_EQUAL(i.complete,true);
 	}
 }
 

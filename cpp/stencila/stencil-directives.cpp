@@ -643,12 +643,13 @@ Stencil::Include::Include(Node node){
 
 void Stencil::Include::parse(const std::string& attribute){
 	boost::smatch match;
-	static const boost::regex pattern("^(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?$");
+	static const boost::regex pattern("^(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?(\\s+(complete))?$");
 	if(boost::regex_search(attribute, match, pattern)) {
 		address.expr = match[4].str();
 		address.eval = match[3].str()=="eval";
 		select.expr = match[8].str();
 		select.eval = match[7].str()=="eval";
+		complete = match[10].str()=="complete";
 	} else {
 		throw DirectiveException("syntax","");
 	}
@@ -803,7 +804,9 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	if(ok) stencil.render_children(included,context);
 
 	// Crush the children of the `data-included` element (not it though)
-	for(auto child : included.children()) crush(child);
+	if(not complete){
+		for(auto child : included.children()) crush(child);
+	}
 	
 	// Exit the included node
 	context->exit();
