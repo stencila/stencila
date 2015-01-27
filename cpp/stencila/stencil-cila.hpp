@@ -470,6 +470,7 @@ public:
 
 			link("(\\[)([^\\]]*)(\\]\\()([^\\)]+)(\\))"),
 			autolink("\\bhttp(s)?://[^ ]+\\b"),
+			autoemail("[a-zA-Z0-9_-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+"),
 
 			at_escaped("\\\\@"),
 			refer("@([\\w-]+)\\b"),
@@ -786,6 +787,13 @@ public:
 					flush();
 					node.append("a").attr("href",match.str()).text(match.str());
 				}
+				else if(is(autoemail)){
+					trace("autoemail");
+					// Needs to be before `refer` to prevent @ begin matched there
+					// Flush text and append a mailto link
+					flush();
+					node.append("a").attr("href","mailto:"+match.str()).text(match.str());
+				}
 				else if(is(at_escaped)){
 					trace("at_escaped");
 					// Replace with at
@@ -979,11 +987,12 @@ public:
 				stream<<"\\("<<node.text()<<"\\)";
 				return;
 			}
-			// Links and autolinks
+			// Links, autolinks and autoemails
 			if(name=="a" and attrs_size==1 and node.has("href")){
 				auto text = node.text();
 				auto href = node.attr("href");
 				if(text==href) stream<<text;
+				else if(href.substr(0,7)=="mailto:" and href.substr(7)==text) stream<<text;
 				else stream<<"["<<text<<"]("<<href<<")";
 				return;
 			}

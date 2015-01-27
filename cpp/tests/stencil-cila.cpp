@@ -297,6 +297,24 @@ plot(x,y)
 	ECHO(cila_)
 }
 
+BOOST_AUTO_TEST_CASE(exec_with_lt){
+	auto cila_ = 
+R"(exec
+	a<b
+	a <b
+	a< b
+	a < b)";
+	auto html_ = 
+R"(<pre data-exec="exec">
+a&lt;b
+a &lt;b
+a&lt; b
+a &lt; b
+</pre>)";
+	CILA_XML(cila_,html_)
+	ECHO(cila_)
+}
+
 BOOST_AUTO_TEST_CASE(directive_no_arg){
 	CILA_XML("div else",R"(<div data-else="true" />)");
 	CILA_XML("else",R"(<div data-else="true" />)");
@@ -651,6 +669,12 @@ BOOST_AUTO_TEST_CASE(autolink){
 	ECHO("http://google.com");
 	ECHO("https://google.com");
 	//!ECHO("Before http://google.com after");
+}
+
+BOOST_AUTO_TEST_CASE(autoemail){
+	CILA_XML("someone@example.com","<a href=\"mailto:someone@example.com\">someone@example.com</a>");
+	XML_CILA("<a href=\"mailto:someone@example.com\">someone@example.com</a>","someone@example.com");
+	ECHO("someone@example.com");
 }
 
 BOOST_AUTO_TEST_CASE(refer){
