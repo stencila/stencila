@@ -1,12 +1,14 @@
 ![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
 
+[![Ready issues](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=Ready)](http://waffle.io/stencila/stencila)
+
 ### Releases and versioning
 
 Head on over to the [releases page](https://github.com/stencila/stencila/releases) for more info on progress so far. It is still very early days so the API will change frequently. We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. Don't rely on API stability until the release of version 1.0.0.
 
 ### Contributing
 
-We appreciate any help with Stencila development! There's a [Kanban board](https://huboard.com/stencila/stencila) over at [Huboard](https://huboard.com/stencila/stencila). It's a good place for ideas with where to start out contributing. Or just see [issues](https://github.com/stencila/stencila/issues) for those that are [ready](https://github.com/stencila/stencila/issues?labels=1+-+Ready&page=1&state=open) to be tackled.
+We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the Stencila [Kanban board](https://huboard.com/stencila/stencila) at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
 
 ### Building
 
