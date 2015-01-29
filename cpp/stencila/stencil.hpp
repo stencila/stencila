@@ -19,17 +19,11 @@ public:
 	using Component::path;
 	using Component::destroy;
 
-	Stencil(void){
-	}
+	Stencil(void);
 
-	Stencil(const std::string& from){
-		initialise(from);
-	}
+	Stencil(const std::string& from);
 
-	~Stencil(void){
-		if(context_) delete context_;
-		if(outline_) delete outline_;
-	}
+	~Stencil(void);
 
 	/**
 	 * @name Input and output
