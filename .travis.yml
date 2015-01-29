@@ -21,5 +21,11 @@ install:
 
     - $CXX --version
 
+before_script:
+    # Use this to prepare your build for testing
+
+    # Fetch tags so that build versioning works correctly
+    git fetch --tags
+
 script: 
-    - make vars-echo cpp-requires cpp-tests
+    - make vars cpp-requires cpp-tests
