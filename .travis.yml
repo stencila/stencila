@@ -2,21 +2,21 @@ language: cpp
 
 compiler:
   - gcc
-  - clang
 
 before_install:
 	# Use this to prepare the system to install prerequisites or dependencies
 
-	# Update to gcc 4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
-	- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+	# gcc 4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
+	- if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test -y; fi
+
 	- sudo apt-get update -qq
-	- if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-	- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-	- if [ "$CXX" = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev; fi
 
 install:
-	# Use this to prepare the system to install prerequisites or dependencies
-	- make requires
+	# Use this to install any prerequisites or dependencies necessary to run your build
+
+	# gcc 4.8
+	- if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+	- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
 
 script: 
-	- make cpp-tests
+	- make requires cpp-tests
