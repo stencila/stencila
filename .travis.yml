@@ -15,8 +15,10 @@ install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
     # gcc 4.8
-    - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+    - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+    - if [ "$CXX" == "g++" ]; then export CXX="g++-4.8"; fi
+
+    - $CXX --version
 
 script: 
-    - make requires cpp-tests
+    - make vars-echo cpp-requires cpp-tests

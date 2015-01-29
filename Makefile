@@ -22,6 +22,13 @@ ifndef RESOURCES
 	RESOURCES := build/resources
 endif
 
+vars-echo:
+	echo $(OS)
+	echo $(ARCH)
+	echo $(VERSION)
+	echo $(BUILD)
+	echo $(RESOURCES)
+
 #################################################################################################
 # Symbolic links to builds
 # 
