@@ -6,7 +6,7 @@ compiler:
 before_install:
     # Use this to prepare the system to install prerequisites or dependencies
 
-    # gcc 4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
+    # Use PPA for g++4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
     - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test -y; fi
 
     - sudo apt-get update -qq
@@ -14,9 +14,10 @@ before_install:
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
-    # gcc 4.8
+    # Install g++4.8
     - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    - if [ "$CXX" == "g++" ]; then export CXX="g++-4.8"; fi
+    # Use g++4.8 as g++ (do this instead of redefining CXX as others do so that Boost.Build (b2) uses right one)
+    - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
 
     - $CXX --version
 

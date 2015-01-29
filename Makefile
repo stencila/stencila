@@ -28,6 +28,7 @@ vars:
 	@echo VERSION: $(VERSION)
 	@echo BUILD: $(BUILD)
 	@echo RESOURCES: $(RESOURCES)
+	@echo CXX: $(CXX)
 
 #################################################################################################
 # Symbolic links to builds
