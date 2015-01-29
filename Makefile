@@ -74,9 +74,10 @@ ifeq ($(OS), msys)
 endif
 
 # Boost is built with:
+#   --d0 		- supress all informational messages (reduces verbosity which is useful on CI servers)
 #   --prefix=.  - so that boost installs into its own directory
 #   link=static - so that get statically compiled instead of dynamically compiled libraries
-BOOST_B2_FLAGS := --prefix=. link=static install
+BOOST_B2_FLAGS := -d0 --prefix=. link=static install
 ifeq ($(OS), linux)
 	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
 	BOOST_B2_FLAGS += cxxflags=-fPIC
