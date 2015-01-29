@@ -479,14 +479,17 @@ BOOST_AUTO_TEST_CASE(directive_macro){
 }
 
 BOOST_AUTO_TEST_CASE(directive_par){
-	CILA_XML("par x","<div data-par=\"x\" />")
-	CILA_XML("par x type text","<div data-par=\"x type text\" />")
-	CILA_XML("par x type number value 42","<div data-par=\"x type number value 42\" />")
-	CILA_XML("par x value 'a'","<div data-par=\"x value 'a'\" />")
+	CILA_XML("par x","<div data-par=\"x\" />");
+	CILA_XML("par x type text","<div data-par=\"x type text\" />");
+	CILA_XML("par x type number value 42","<div data-par=\"x type number value 42\" />");
+	CILA_XML("par x value \"a\"","<div data-par=\"x value &quot;a&quot;\" />");
 
-	ECHO("par x")
-	ECHO("par x value 1")
-	ECHO("par x type number value 42")
+	XML_CILA("<div data-par=\"x value &quot;a&quot;\" />","par x value \"a\"");
+	
+	ECHO("par x");
+	ECHO("par x value 1");
+	ECHO("par x type number value 42");
+	ECHO("par x type text value \"Hello world\"");
 }
 
 BOOST_AUTO_TEST_CASE(sections){
