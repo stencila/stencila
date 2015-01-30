@@ -339,11 +339,11 @@ cpp-package: $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
 # Stencila C++ tests
 
 # Compile options for tests include:
-# 		-g (debug symbols),
-# 		-fprofile-arcs -ftest-coverage (coverage statistics)
+# 		-g (debug symbols)
 # 		-O0 (no optimizations, so coverage is valid)
+# 		--coverage (for coverage instrumentation)
 CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
-                       -g -fprofile-arcs -ftest-coverage -fPIC -O0 -Icpp $(CPP_REQUIRES_INC_DIRS)
+                       -g -O0 --coverage -fPIC -Icpp $(CPP_REQUIRES_INC_DIRS)
 
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
 
@@ -395,7 +395,6 @@ cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
 cpp-tests: $(BUILD)/cpp/tests/tests
 
 # Run all tests and report results and coverage to XML files
-# Useful for integration with CI systems like Jenkins
 # Requires python, xsltproc and [gcovr](http://gcovr.com/guide.html):
 #   sudo apt-get install xsltproc
 #   sudo pip install gcovr
@@ -403,6 +402,17 @@ cpp-tests: $(BUILD)/cpp/tests/tests
 #   gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*'
 # below seems to be necessary when there are different source and build directories to
 # only produce coverage reports for files in 'cpp/stencila' 
+
+# Run all tests and generate coverage stats
+cpp-tests-coverage: $(BUILD)/cpp/tests/tests.exe
+	cd $(BUILD)/cpp/tests ;\
+	  # Run all tests \
+	  ./tests.exe;\
+	  # Produce coverage stats using gcovr helper for gcov \
+	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*'
+
+# Run all tests and report results to Junit compatible XML files and coverage X
+# to Cobertura comparible XML files
 $(BUILD)/cpp/tests/boost-test-to-junit.xsl: cpp/tests/boost-test-to-junit.xsl
 	cp $< $@
 cpp-tests-xml: $(BUILD)/cpp/tests/tests.exe $(BUILD)/cpp/tests/boost-test-to-junit.xsl
@@ -416,7 +426,7 @@ cpp-tests-xml: $(BUILD)/cpp/tests/tests.exe $(BUILD)/cpp/tests/boost-test-to-jun
 	  # Produce coverage report \
 	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*' --xml --output=coverage.xml
 
-# Run all tests and report results and coverage to HTML files
+# Run all tests and create coverage to HTML files
 # Useful for examining coverage during local development 
 cpp-tests-html: $(BUILD)/cpp/tests/tests.exe
 	cd $(BUILD)/cpp/tests ;\
