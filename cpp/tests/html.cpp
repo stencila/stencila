@@ -69,6 +69,15 @@ BOOST_AUTO_TEST_CASE(dump_pretty){
 	//"
 }
 
+BOOST_AUTO_TEST_CASE(dump_escapes){
+	Document doc;
+	doc.find("body").append("span",{{"data-write","\"a quoted value\""}});
+	BOOST_CHECK_EQUAL(
+		doc.dump(false),
+		R"(<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title></title><meta charset="utf-8"></head><body><span data-write="&quot;a quoted value&quot;"></span></body></html>)"
+	);
+}
+
 
 BOOST_AUTO_TEST_CASE(write_read){
 	auto tempfile = "/tmp/"+boost::filesystem::unique_path().string();
@@ -86,7 +95,7 @@ BOOST_AUTO_TEST_CASE(write_read){
 }
 
 /**
- * Test that tidy put wraps script code in CDATA element
+ * Test that tidy wraps script code in CDATA element
  */
 BOOST_AUTO_TEST_CASE(cdata){
 	Document doc("<script>code</script>");

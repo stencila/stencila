@@ -1,3 +1,5 @@
+#include <boost/algorithm/string.hpp>
+
 #include <pugixml.hpp>
 
 #include <tidy-html5/tidy.h>
@@ -157,15 +159,13 @@ Document& Document::load(const std::string& html){
 
 namespace {
 	
-void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::string& indent){
+void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::string& indent){
 	if(node.is_document()){
 		// Dump children without indent
 		for(auto child : node.children()) dump_(stream,child,pretty,"");
-		return;
 	}
 	else if(node.is_doctype()){
 		stream<<"<!DOCTYPE html>";
-		return;
 	}
 	else if(node.is_element()){
 		// Dump start tag with attributes
@@ -175,6 +175,8 @@ void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::str
 		stream<<"<"<<name;
 		for(auto name : node.attrs()){
 			auto value = node.attr(name);
+			// Escape quotes in attribute values
+			boost::replace_all(value,"\"","&quot;");
 			stream<<" "<<name<<"=\""<<value<<"\"";
 		}
 		stream<<">";
@@ -197,7 +199,6 @@ void dump_(std::stringstream& stream, Html::Node node,bool pretty,const std::str
 	}
 	else if(node.is_text()){
 		stream<<node.text();
-		return;
 	}
 }
 
