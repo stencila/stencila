@@ -28,7 +28,6 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    # Split tasks on to separate lines to give folding goodness in Travis interface
     - make vars
     - make cpp-requires
     - make cpp-tests
