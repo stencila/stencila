@@ -24,8 +24,11 @@ install:
 before_script:
     # Use this to prepare your build for testing
 
-    # Fetch tags so that build versioning works correctly
-    git fetch --tags
+    # Check tags that are required for build versioning
+    - git describe --tags --dirty --long
 
-script: 
-    - make vars cpp-requires cpp-tests
+script:
+    # Split tasks on to separate lines to give folding goodness in Travis interface
+    - make vars
+    - make cpp-requires
+    - make cpp-tests
