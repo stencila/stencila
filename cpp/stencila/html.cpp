@@ -198,7 +198,13 @@ void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::s
 		stream<<"</"<<name<<">";
 	}
 	else if(node.is_text()){
-		stream<<node.text();
+		// Escape & and < in text.
+		// Note that this is will incorrectly escape already escaped values in the text e.g. if someone has used &gt;
+		// That _may_ actually be the desired behaviour
+		auto text = node.text();
+		boost::replace_all(text,"&","&amp;");
+		boost::replace_all(text,"<","&lt;");
+		stream<<text;
 	}
 }
 

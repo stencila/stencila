@@ -71,10 +71,10 @@ BOOST_AUTO_TEST_CASE(dump_pretty){
 
 BOOST_AUTO_TEST_CASE(dump_escapes){
 	Document doc;
-	doc.find("body").append("span",{{"data-write","\"a quoted value\""}});
+	doc.find("body").append("span",{{"data-write","\"a quoted value\""}},"a < b & c < d");
 	BOOST_CHECK_EQUAL(
 		doc.dump(false),
-		R"(<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title></title><meta charset="utf-8"></head><body><span data-write="&quot;a quoted value&quot;"></span></body></html>)"
+		R"(<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title></title><meta charset="utf-8"></head><body><span data-write="&quot;a quoted value&quot;">a &lt; b &amp; c &lt; d</span></body></html>)"
 	);
 }
 
