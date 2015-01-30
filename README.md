@@ -1,5 +1,8 @@
 ![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
 
+[![Ready issues](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
+[![Build status](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
+
 ### Quick start
 
 Stencila components (e.g. stencils, themes) are git repositories. The first thing to do is clone some of the core repositories into a Stencila "store" directory:
@@ -41,7 +44,7 @@ Head on over to the [releases page](https://github.com/stencila/stencila/release
 
 ### Contributing
 
-We appreciate any help with Stencila development! There's a [Kanban board](https://huboard.com/stencila/stencila) over at [Huboard](https://huboard.com/stencila/stencila). It's a good place for ideas with where to start out contributing. Or just see [issues](https://github.com/stencila/stencila/issues) for those that are [ready](https://github.com/stencila/stencila/issues?labels=1+-+Ready&page=1&state=open) to be tackled.
+We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the Stencila [Kanban board](https://huboard.com/stencila/stencila) at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
 
 ### Building
 
