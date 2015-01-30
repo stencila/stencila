@@ -1,7 +1,16 @@
 ![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
 
-[![Ready issues](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
-[![Build status](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
+Documents powered by data
+
+### Status
+
+Issues:
+[![Ideas](https://badge.waffle.io/stencila/stencila.svg?label=0+-+Ideas&title=ideas)](http://waffle.io/stencila/stencila)
+[![Ready](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
+[![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
+
+Build:
+[![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
 
 ### Quick start
 
