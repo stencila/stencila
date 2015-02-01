@@ -70,6 +70,10 @@ setRefClass(
         read = function(path="") method_(.self,'Stencil_read',path),
         write = function(path="") method_(.self,'Stencil_write',path),
 
+        # Currently, rather than invoking multiple inheritance (ie.e a stecnil derived from a Html::Node)
+        # implement these methods for Stencils and HtmlNodes
+        select = function(selector) method_(.self,'Stencil_select',selector),
+
         attach = function(context){
             if(!is.null(context)) detach()
             if(inherits(context,'Context')) .context <<- context

@@ -29,6 +29,16 @@ STENCILA_R_GET(Stencil,keywords)
 STENCILA_R_GET(Stencil,authors)
 STENCILA_R_GET(Stencil,contexts)
 
+STENCILA_R_FUNC Stencil_select(SEXP self,SEXP selector){
+    STENCILA_R_BEGIN
+        Html::Node* node = new Html::Node;
+        *node = from<Stencil>(self).select(
+            as<std::string>(selector)
+        );
+        return to<Html::Node>(node,"HtmlNode");
+    STENCILA_R_END
+}
+
 // An alternative to the `html` getter which allows specifying
 // options onindentation
 STENCILA_R_FUNC Stencil_html_options(SEXP self,SEXP indented){
