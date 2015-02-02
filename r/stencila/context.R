@@ -32,7 +32,7 @@ Context <- function(envir){
     
     if(missing(envir)) envir <- parent.frame()
     else if(inherits(envir,'environment')) envir <- envir
-    else if(is.list(envir)) envir <- list2env(envir,parent=baseenv())
+    else if(is.list(envir)) envir <- list2env(envir,parent=parent.frame())
     else stop(paste('unrecognised environment class:',paste(class(envir),collapse=",")))
     self$stack <- list(envir)
         
