@@ -454,8 +454,10 @@ public:
 			off("off"),
 			included("included"),
 
-			underscore("_"),
-			asterisk("\\*"),
+			empha_open("(\\s)_(?=[^\\s])"),
+			empha_close("_(?=\\s)"),
+			strong_open("(\\s)\\*(?=[^\\s])"),
+			strong_close("\\*(?=\\s)"),
 
 			backtick_backtick("``"),
 
@@ -729,13 +731,17 @@ public:
 					// Exit from current element and pop out of `text` state
 					exit_pop();
 				}
-				else if(is(underscore)){
-					trace("underscore");
+				else if(is(empha_open)){
+					trace("empha_open");
+					// Add captured preceeding whitespace
+					add(match[1].str());
 					// Enter `<em>` and push into `empha` state
 					enter_push("em",empha);
 				}
-				else if(is(asterisk)){
-					trace("asterisk");
+				else if(is(strong_open)){
+					trace("strong_open");
+					// Add captured preceeding whitespace
+					add(match[1].str());
 					// Enter `<strong>` and push into `strong` state
 					enter_push("strong",strong);
 				}
@@ -817,13 +823,19 @@ public:
 				}
 			}
 			else if(state==empha){
-				if(is(underscore)) exit_pop();
-				else if(is(asterisk)) enter_push("strong",strong);
+				if(is(empha_close)) exit_pop();
+				else if(is(strong_open)){
+					add(match[1].str());
+					enter_push("strong",strong);
+				}
 				else add();
 			}
 			else if(state==strong){
-				if(is(asterisk)) exit_pop();
-				else if(is(underscore)) enter_push("em",empha);
+				if(is(strong_close)) exit_pop();
+				else if(is(empha_open)) {
+					add(match[1].str());
+					enter_push("em",empha);
+				}
 				else add();
 			}
 			else if(state==interp){
