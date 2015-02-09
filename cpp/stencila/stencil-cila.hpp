@@ -435,7 +435,7 @@ public:
 			ol_item("\\d+\\.\\s*"),
 			li_shortcut("-|(\\d+\\.)\\s*"),
 
-			attr("([\\w-]+)=([^ ]+)\\b"),
+			attr("\\[([\\w-]+)=(.+?)\\]"),
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
@@ -1118,7 +1118,7 @@ public:
 						}
 					}
 					else {
-						stream<<name<<"="<<value;
+						stream<<"["<<name<<"="<<value<<"]";
 					}
 					separator_required = true;
 				}

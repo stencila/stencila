@@ -96,11 +96,11 @@ BOOST_AUTO_TEST_CASE(auto_paragraphs){
 
 BOOST_AUTO_TEST_CASE(embedded){
 	CILA_XML("div{div{div}}","<div><div><div /></div></div>");
-	CILA_XML("div id=yo Some text {a href=none nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
+	CILA_XML("div [id=yo] Some text {a [href=none] nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
 	CILA_XML("{div{div apple}{div pear}}",R"(<div><div>apple</div><div>pear</div></div>)");
 
 	CILA_XML("Text with a no inlines","Text with a no inlines");
-	CILA_XML("Text with a {a href=http://stencil.la link} in it.","Text with a <a href=\"http://stencil.la\">link</a> in it.");
+	CILA_XML("Text with a {a [href=http://stencil.la] link} in it.","Text with a <a href=\"http://stencil.la\">link</a> in it.");
 
 	CILA_XML("{div}","<div />");
 	CILA_XML("{div {div}}","<div><div /></div>");
@@ -121,35 +121,35 @@ BOOST_AUTO_TEST_CASE(embedded){
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
-	CILA_XML("div class=a",R"(<div class="a" />)");
+	CILA_XML("div [class=a]",R"(<div class="a" />)");
 	CILA_XML("div #an-id",R"(<div id="an-id" />)");
 	CILA_XML("div .a-class",R"(<div class="a-class" />)");
-	CILA_XML("a href=http://google.com #an-id .a-class",R"(<a href="http://google.com" id="an-id" class="a-class" />)");
+	CILA_XML("a [href=http://google.com] #an-id .a-class",R"(<a href="http://google.com" id="an-id" class="a-class" />)");
 
-	CILA_XML("class=a",R"(<div class="a" />)");
+	CILA_XML("[class=a]",R"(<div class="a" />)");
 	CILA_XML("#an-id",R"(<div id="an-id" />)");
 	CILA_XML(".a-class",R"(<div class="a-class" />)");
 	CILA_XML("#an-id .a-class",R"(<div id="an-id" class="a-class" />)");
 
 	XML_CILA(R"(<li id="an-id" />)","li #an-id");
 	XML_CILA(R"(<ul class="a-class" />)","ul .a-class");
-	XML_CILA(R"(<a href="http://google.com" id="an-id" class="a-class" />)","a href=http://google.com #an-id .a-class");
+	XML_CILA(R"(<a href="http://google.com" id="an-id" class="a-class" />)","a [href=http://google.com] #an-id .a-class");
 
 	XML_CILA(R"(<div id="an-id" />)","#an-id");
 	XML_CILA(R"(<div class="a-class" />)",".a-class");
 	XML_CILA(R"(<div id="an-id" class="a-class" />)","#an-id .a-class");
 
-	CILA_XML("a href=http://stenci.la Stencila","<a href=\"http://stenci.la\">Stencila</a>");
-	ECHO("a href=http://stenci.la title=Stencila Stencila");
+	CILA_XML("a [href=http://stenci.la] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
+	ECHO("a [href=http://stenci.la] [title=Stencila] Stencila");
 	// More than one
-	CILA_XML("div attr1=1 attr2=2","<div attr1=\"1\" attr2=\"2\" />");
-	ECHO("ul attr1=1 attr2=2 attr3=3");
+	CILA_XML("div [attr1=1] [attr2=2]","<div attr1=\"1\" attr2=\"2\" />");
+	ECHO("ul [attr1=1] [attr2=2] [attr3=3]");
 	// No need to include div
-	CILA_XML("attr=1","<div attr=\"1\" />")
-	ECHO("attr=1");
+	CILA_XML("[attr=1]","<div attr=\"1\" />")
+	ECHO("[attr=1]");
 
-	ECHO("#an-id .a-class href=google.com");
-	ECHO("li .a-class href=google.com #an-id");
+	ECHO("#an-id .a-class [href=google.com]");
+	ECHO("li .a-class [href=google.com] #an-id");
 }
 
 BOOST_AUTO_TEST_CASE(id_class){
@@ -542,12 +542,12 @@ BOOST_AUTO_TEST_CASE(ol){
 
 BOOST_AUTO_TEST_CASE(trailing_text){
 	CILA_XML("div Hello",R"(<div>Hello</div>)");
-	CILA_XML("a href=http://google.com Google",R"(<a href="http://google.com">Google</a>)");
+	CILA_XML("a [href=http://google.com] Google",R"(<a href="http://google.com">Google</a>)");
 	CILA_XML("div Some text with bits like #id and .class",R"(<div>Some text with bits like #id and .class</div>)");
 	CILA_XML(".a-class else",R"(<div class="a-class" data-else="true" />)");
 
 	CILA_XML("a my link","<a>my link</a>")
-	CILA_XML("a href=http://google.com #id my link","<a href=\"http://google.com\" id=\"id\">my link</a>")
+	CILA_XML("a [href=http://google.com] #id my link","<a href=\"http://google.com\" id=\"id\">my link</a>")
 	
 	//Space before trailing text is stripped
 	CILA_XML("span foo","<span>foo</span>");
@@ -578,7 +578,7 @@ BOOST_AUTO_TEST_CASE(text){
 BOOST_AUTO_TEST_CASE(emphasis){
 	CILA_XML("Is _emphasised_","Is <em>emphasised</em>");
 	CILA_XML("Some _emphasised_ text","Some <em>emphasised</em> text");
-	CILA_XML("This is _emphasised_.","This is <em>emphasised</em>.");
+	CILA_XML("This is _emphasised_. But this is not.","This is <em>emphasised</em>. But this is not.");
 	CILA_XML("not_emphasised","not_emphasised");
 	CILA_XML("not_emphasised_ text","not_emphasised_ text");
 
@@ -591,7 +591,7 @@ BOOST_AUTO_TEST_CASE(emphasis){
 BOOST_AUTO_TEST_CASE(strong){
 	CILA_XML("Is *strong*","Is <strong>strong</strong>");
 	CILA_XML("Some *strong* text","Some <strong>strong</strong> text");
-	CILA_XML("This is *strong*.","This is <strong>strong</strong>.");
+	CILA_XML("This is *strong*. But this is not.","This is <strong>strong</strong>. But this is not.");
 	CILA_XML("not*strong","not*strong");
 	CILA_XML("some not*strong* text","some not*strong* text");
 
