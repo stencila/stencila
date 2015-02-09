@@ -42,12 +42,10 @@ void Stencil::strip(Node node){
 	for(Node child : node.filter("[data-index],[data-output],[data-included],[data-label]")){
 		child.destroy();
 	}
-	// Clear directive elements
-	for(Node child : node.filter("[data-refer]")){
+	// Clear elements with text or children added during rendering
+	for(Node child : node.filter("[data-write],[data-refer],#outline")){
 		child.clear();
 	}
-	// Clear outline
-	node.select("#outline").clear();
 }
 
 Stencil& Stencil::strip(void){
@@ -56,11 +54,9 @@ Stencil& Stencil::strip(void){
 }
 
 void Stencil::crush(Node node){
-	// Strip to remove attributes and elements added during rendering
-	strip(node);
-	// Remove elements `exec` elements (which contain code) since simply removing the 
-	// `data-exec` attribute is not "enough"
-	for(Node child : node.filter("[data-exec]")){
+	// Remove elements : `exec` elements (which contain code) element that
+	// have been turned off `[data-off`]
+	for(Node child : node.filter("[data-exec],[data-off]")){
 		child.destroy();
 	}	
 	// Remove all directive and flag attributes
@@ -69,6 +65,8 @@ void Stencil::crush(Node node){
 	for(std::string attr : all){
 		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
 	}
+	// Note that no clearing of elements is done here so that the contents of
+	// `write`, `refer` etc directives are retained
 }
 
 Stencil& Stencil::crush(void){
