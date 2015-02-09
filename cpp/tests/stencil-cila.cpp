@@ -578,6 +578,7 @@ BOOST_AUTO_TEST_CASE(text){
 BOOST_AUTO_TEST_CASE(emphasis){
 	CILA_XML("Is _emphasised_","Is <em>emphasised</em>");
 	CILA_XML("Some _emphasised_ text","Some <em>emphasised</em> text");
+	CILA_XML("This is _emphasised_.","This is <em>emphasised</em>.");
 	CILA_XML("not_emphasised","not_emphasised");
 	CILA_XML("not_emphasised_ text","not_emphasised_ text");
 
@@ -590,6 +591,7 @@ BOOST_AUTO_TEST_CASE(emphasis){
 BOOST_AUTO_TEST_CASE(strong){
 	CILA_XML("Is *strong*","Is <strong>strong</strong>");
 	CILA_XML("Some *strong* text","Some <strong>strong</strong> text");
+	CILA_XML("This is *strong*.","This is <strong>strong</strong>.");
 	CILA_XML("not*strong","not*strong");
 	CILA_XML("some not*strong* text","some not*strong* text");
 

@@ -455,9 +455,9 @@ public:
 			included("included"),
 
 			empha_open("(\\s)_(?=[^\\s])"),
-			empha_close("_(?=\\s)"),
+			empha_close("_"),
 			strong_open("(\\s)\\*(?=[^\\s])"),
-			strong_close("\\*(?=\\s)"),
+			strong_close("\\*"),
 
 			backtick_backtick("``"),
 
