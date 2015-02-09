@@ -103,9 +103,9 @@ void Stencil::render(Node node, Context* context){
 					// Prepend a label
 					label = caption.prepend("span");
 					label.attr("data-label","true");
-					label.append("span",{{"class","type"}},tag=="table"?"Table":"Figure");
+					label.append("span",{{"class","type"}},tag=="table"?"Table ":"Figure ");
 					label.append("span",{{"class","number"}},count_string);
-					label.append("span",{{"class","separator"}},":");
+					label.append("span",{{"class","separator"}},": ");
 				} else {
 					// Amend the label
 					Node number = label.select(".number");
