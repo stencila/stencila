@@ -122,6 +122,7 @@ BOOST_AUTO_TEST_CASE(embedded){
 
 BOOST_AUTO_TEST_CASE(attributes){
 	CILA_XML("div [class=a]",R"(<div class="a" />)");
+	CILA_XML("div [attr= an attribute with leading and embedded spaces]",R"(<div attr=" an attribute with leading and embedded spaces" />)");
 	CILA_XML("div #an-id",R"(<div id="an-id" />)");
 	CILA_XML("div .a-class",R"(<div class="a-class" />)");
 	CILA_XML("a [href=http://google.com] #an-id .a-class",R"(<a href="http://google.com" id="an-id" class="a-class" />)");
