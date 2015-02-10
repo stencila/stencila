@@ -9,7 +9,9 @@ namespace Stencila {
 
 std::string Component::serve(Type type){
 	hold(type);
-	return Server::startup() + "/" + address();
+	// URL should include trailing slash to avoid redictions
+	// and provide proper serving
+	return Server::startup() + "/" + address() + "/";
 }
 
 void Component::view(Type type){
@@ -130,8 +132,10 @@ std::string Component::message(const std::string& address,const std::string& mes
 	// request type returned. The following are failovers if that does not happen...
 	catch(const std::exception& e){
 		std::string message = e.what();
-		// Escape quotes to prevent JSON parsing errors
+		// Escape quotes, newlines and tabs to prevent JSON parsing errors
 		boost::replace_all(message,"\"","\\\"");
+		boost::replace_all(message,"\n","\\n");
+		boost::replace_all(message,"\t","\\t");
 		return std::string("[8, 0, 0, {}, \"") + message + "\"]";
 	}
 	catch(...){
@@ -139,7 +143,7 @@ std::string Component::message(const std::string& address,const std::string& mes
 	}
 	// This exception is intended to capture errors in coding above where none of the branches
 	// return a string
-	STENCILA_THROW(Exception,"Implementation error; message not handles properly");
+	STENCILA_THROW(Exception,"Implementation error; message not handled properly");
 }
 
 std::string Component::message(Component* component, const std::string& message){

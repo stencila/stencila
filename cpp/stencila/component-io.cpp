@@ -78,7 +78,10 @@ std::string Component::address(bool ensure){
 			}
 		}
 	}
-	return (boost::filesystem::path("-")/path).string();
+	// Return a "local" address starting with a double forward slash
+	auto address = boost::filesystem::absolute(path).string();
+	if(address[0]!='/') address.insert(0,"/");
+	return address;
 }
 
 std::vector<std::string> Component::stores(void){
@@ -98,10 +101,16 @@ std::vector<std::string> Component::stores(void){
 std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
-		if(address[0]=='-') return address.substr(1);
-		for(std::string store : stores()){
-			boost::filesystem::path path = boost::filesystem::path(store)/address;
-			if(exists(path)) return path.string();
+		if(address[0]=='/'){
+			// This is meant to be a local path; check it exists
+			auto path = address.substr(1);
+			if(exists(path)) return path;
+			else STENCILA_THROW(Exception,"Address is local but does not correspond to local path.\n  address: "+address);
+		} else {
+			for(std::string store : stores()){
+				boost::filesystem::path path = boost::filesystem::path(store)/address;
+				if(exists(path)) return path.string();
+			}
 		}
 	}
 	return "";

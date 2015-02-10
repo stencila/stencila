@@ -282,7 +282,7 @@ public:
 	 * the same integer code is given to more than one type. 
 	 */
 	enum Type {
-		NoType,
+		NoneType,
 		ComponentType,
 		StencilType,
 		ThemeType,
@@ -379,7 +379,7 @@ public:
 	 */
 	class Instance {
 	public:
-		Instance(void): type_(NoType),pointer_(nullptr){};
+		Instance(void): type_(NoneType),pointer_(nullptr){};
 		Instance(Type type, Component* pointer): type_(type),pointer_(pointer){};
 
 		bool exists(void) const {
@@ -423,6 +423,13 @@ public:
 	 * @param  path Filesystem path to component
 	 */
 	static Type type(const std::string& path);
+
+	/**
+	 * Get the name of the component type
+	 * 
+	 * @param  type
+	 */
+	static std::string type_name(const Type& type);
 
 	/**
 	 * Get a component with a given address, and optionally, a version requirement

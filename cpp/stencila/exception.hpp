@@ -32,7 +32,7 @@ public:
 	const char* what(void) const throw() {
 		std::ostringstream stream;
 		if(file_){
-			stream << file_ << ": " << line_ << ": " << message_;
+			stream << message_ << "\n  location: " << file_ << " " << line_;
 		} else {
 			stream << message_;
 		}

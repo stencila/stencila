@@ -39,7 +39,21 @@ Component::Type Component::type(const std::string& path_string){
 	for(auto file : {"stencil.html","stencil.cila"}){
 		if(boost::filesystem::exists(path/file)) return StencilType;
 	}
-	return ComponentType;
+	return NoneType;
+}
+
+std::string Component::type_name(const Component::Type& type){
+	switch(type){
+		case NoneType: return "None";
+		case ComponentType: return "Component";
+		case StencilType: return "Stencil";
+		case ThemeType: return "Theme";
+		case PythonContextType: return "PythonContext";
+		case RContextType: return "RContext";
+		default: 
+			STENCILA_THROW(Exception,"`Component::type_name` has not been configured for type.\n type  "+string(type));
+		break;
+	}
 }
 
 Component::Instance Component::get(const std::string& address,const std::string& version,const std::string& comparison){
@@ -57,14 +71,16 @@ Component::Instance Component::get(const std::string& address,const std::string&
 		// Load the component into memory
 		Component* component;
 		Type type = Component::type(path);
-		if(type==ComponentType){
+		if(type==NoneType){
+			STENCILA_THROW(Exception,"Path does not appear to be a Stencila component.\n  path: "+path);
+		} else if(type==ComponentType){
 			component = new Component;
 		} else if(type==StencilType){
 			Stencil* stencil = new Stencil;
 			stencil->read(path);
 			component = stencil;
 		} else {
-			STENCILA_THROW(Exception,"Unhandled component type <"+string(type)+">");
+			STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get.`\n  path: "+path+"\n  type: "+type_name(type));
 		}
 		component->path(path);
 		component->hold(type);
