@@ -1,3 +1,7 @@
+#include <string>
+#include <iostream>
+#include <stdio.h>
+
 #include <boost/filesystem.hpp>
 
 namespace Stencila {
@@ -26,6 +30,14 @@ std::string user_dir(void) {
 std::string system_dir(void) {
 	std::string path = "/usr/lib/stencila";
 	return path;
+}
+
+std::string temp_filename(const std::string& extension){
+	auto path = boost::filesystem::temp_directory_path();
+	path /= ".stencila";
+	boost::filesystem::create_directories(path);
+	path /= boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%." + extension);
+	return path.string();
 }
 
 }

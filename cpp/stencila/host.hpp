@@ -19,5 +19,7 @@ std::string user_dir(void);
 
 std::string system_dir(void);
 
+std::string temp_filename(const std::string& extension);
+
 }
 }
