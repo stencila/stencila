@@ -18,8 +18,23 @@ Server::Server(void){
 	server_.set_close_handler(bind(&Server::close_,this,_1));
 	server_.set_http_handler(bind(&Server::http_,this,_1));
 	server_.set_message_handler(bind(&Server::message_,this,_1,_2));
-	// Turnoff logging
-	server_.set_access_channels(log::alevel::none);
+	// Only log some things. See
+	//   http://www.zaphoyd.com/websocketpp/manual/reference/logging
+	// for a full list
+	server_.clear_access_channels(websocketpp::log::alevel::all);
+	server_.set_access_channels(websocketpp::log::alevel::connect);
+	server_.clear_error_channels(websocketpp::log::elevel::all);
+	server_.set_error_channels(websocketpp::log::elevel::warn);
+	server_.set_error_channels(websocketpp::log::elevel::rerror);
+	server_.set_error_channels(websocketpp::log::elevel::fatal);
+	// Log to files
+	auto dir = boost::filesystem::temp_directory_path();
+	dir /= ".stencila/logs";
+	if(not boost::filesystem::exists(dir)) boost::filesystem::create_directories(dir);
+	access_log_.open((dir/"server-access.log").string());
+	error_log_.open((dir/"server-error.log").string());
+	server_.get_alog().set_ostream(&access_log_);
+	server_.get_elog().set_ostream(&error_log_);
 	// Allow reuse of address in case still in TIME_WAIT state
 	// after previous unclean shutdown.
 	// See http://hea-www.harvard.edu/~fine/Tech/addrinuse.html

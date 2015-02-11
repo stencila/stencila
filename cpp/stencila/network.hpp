@@ -80,6 +80,16 @@ private:
 	Sessions sessions_;
 
 	/**
+	 * Access log file
+	 */
+	std::ofstream access_log_;
+
+	/**
+	 * Error log file
+	 */
+	std::ofstream error_log_;
+
+	/**
 	 * Get the `Session` for a given `connection_hdl`
 	 */
 	Session& session_(connection_hdl connection);
