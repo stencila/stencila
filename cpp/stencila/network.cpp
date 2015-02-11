@@ -98,10 +98,11 @@ void Server::close_(connection_hdl hdl) {
 void Server::http_(connection_hdl hdl) {
 	// Get the connection 
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	// Get the request resource, method etc
+	// Get the request resource and decode it
 	// get_resource() returns "/" when there is no resource part in the URI
 	// (i.e. if the URI is just http://localhost/)
-	std::string resource = connection->get_resource();
+	std::string resource = decode_(connection->get_resource());
+	// Get request method
 	auto request = connection->get_request();
 	std::string method = request.get_method();
 	// Get the remote address
@@ -113,8 +114,6 @@ void Server::http_(connection_hdl hdl) {
 		if(resource=="/"){
 			content = Component::home();
 		} else {
-			// Decode the URL
-			resource = decode_(resource);
 			// This server handles two types of requents for Components:
 			// (1) "Dynamic" requests where the component is loaded into
 			// memory (if not already) and (2) Static requests for component
@@ -199,7 +198,7 @@ void Server::http_(connection_hdl hdl) {
 		content = "Unknown exception";			
 	}
 	// Replace the WebSocket++ "Server" header
-	connection->replace_header("Server","Stencila");
+	connection->replace_header("Server","Stencila embedded");
 	// Set status and content
 	connection->set_status(status);
 	connection->set_body(content);

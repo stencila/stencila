@@ -102,10 +102,9 @@ std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
 		if(address[0]=='/'){
-			// This is meant to be a local path; check it exists
-			auto path = address.substr(1);
-			if(exists(path)) return path;
-			else STENCILA_THROW(Exception,"Address is local but does not correspond to local path.\n  address: "+address);
+			// This is meant to be a local path; check it actuall exists on the filesystem
+			if(exists(address)) return address;
+			else STENCILA_THROW(Exception,"Local address (leading '/') does not correspond to a local filesystem path:\n  address: "+address);
 		} else {
 			for(std::string store : stores()){
 				boost::filesystem::path path = boost::filesystem::path(store)/address;
