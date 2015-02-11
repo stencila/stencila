@@ -102,6 +102,13 @@ void Server::http_(connection_hdl hdl) {
 	// get_resource() returns "/" when there is no resource part in the URI
 	// (i.e. if the URI is just http://localhost/)
 	std::string resource = decode_(connection->get_resource());
+	// Extract query
+	std::string query;
+	std::size_t found =  resource.find("?");
+    if(found > 0){
+    	query = resource.substr(found+1);
+    	resource = resource.substr(0,found);
+    }
 	// Get request method
 	auto request = connection->get_request();
 	std::string method = request.get_method();
