@@ -26,6 +26,13 @@ setRefClass(
 			method_(.self,'Component_commit',toString(message))
 		},
 
+        serve = function(){
+            method_(.self,paste0(class(.self)[1],'_serve'))
+        },
+        view = function(){
+            method_(.self,paste0(class(.self)[1],'_view'))
+        },
+
 		test = function(task='run'){
 			runners <- list(
 				runit = list(

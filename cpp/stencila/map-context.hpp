@@ -2,6 +2,7 @@
 
 #include <stack>
 #include <string>
+#include <list>
 
 #include <stencila/exception.hpp>
 #include <stencila/context.hpp>

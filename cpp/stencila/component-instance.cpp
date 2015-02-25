@@ -22,7 +22,7 @@ void Component::classes(void){
 		Stencil::page,
 		Stencil::call
 	));
-	class_(Component::StencilType, Class(
+	class_(Component::ThemeType, Class(
 		"Theme",
 		Theme::page,
 		Theme::call
@@ -31,7 +31,7 @@ void Component::classes(void){
 
 const Component::Class& Component::class_(Type type){
 	const Class& clas = classes_[type];
-	if(not clas.defined) STENCILA_THROW(Exception,"Class with type <"+string(type)+"> has not been defined");
+	if(not clas.defined) STENCILA_THROW(Exception,"Class with type enum has not been defined.\n  type: "+string(type));
 	return clas;
 }
 

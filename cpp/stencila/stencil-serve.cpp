@@ -102,7 +102,7 @@ std::string Stencil::call(const Call& call) {
 }
 
 std::string Stencil::page(const Component* component){
-	// Retun HTML for a complete HTML document with indentation
+	// Return HTML for a complete HTML document with indentation
 	return static_cast<const Stencil&>(*component).html(true,true);
 }
 
