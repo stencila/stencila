@@ -54,6 +54,8 @@ Stencil& Stencil::export_(const std::string& path){
 		if(ext==".html") file<<html(true,true); 
 		else if(ext==".cila") file<<cila();
 	}
+	else if(ext==".docx") docx("to",path);
+	else if(ext==".pdf") pdf("to",path);
 	else STENCILA_THROW(Exception,"File extension <"+ext+"> not valid for a Stencil");
 	return *this;
 }

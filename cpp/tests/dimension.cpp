@@ -2,7 +2,7 @@
 
 #include <stencila/dimension.hpp>
 
-BOOST_AUTO_TEST_SUITE(dimension)
+BOOST_AUTO_TEST_SUITE(dimension_quick)
 
 using namespace Stencila;
 

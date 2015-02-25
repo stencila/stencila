@@ -4,6 +4,7 @@
 
 #include <stencila/component.hpp>
 #include <stencila/stencil.hpp>
+#include <stencila/theme.hpp>
 #include <stencila/string.hpp>
 
 namespace Stencila {
@@ -20,6 +21,11 @@ void Component::classes(void){
 		"Stencil",
 		Stencil::page,
 		Stencil::call
+	));
+	class_(Component::StencilType, Class(
+		"Theme",
+		Theme::page,
+		Theme::call
 	));
 }
 
@@ -38,6 +44,9 @@ Component::Type Component::type(const std::string& path_string){
 	boost::filesystem::path path(path_string);
 	for(auto file : {"stencil.html","stencil.cila"}){
 		if(boost::filesystem::exists(path/file)) return StencilType;
+	}
+	for(auto file : {"theme.css","theme.scss","theme.js"}){
+		if(boost::filesystem::exists(path/file)) return ThemeType;
 	}
 	return NoneType;
 }

@@ -4,7 +4,7 @@
 
 #include <stencila/component.hpp>
 
-BOOST_AUTO_TEST_SUITE(component)
+BOOST_AUTO_TEST_SUITE(component_quick)
 
 using namespace Stencila;
 
@@ -126,22 +126,6 @@ BOOST_AUTO_TEST_CASE(destroy_transient){
 	BOOST_CHECK(not boost::filesystem::exists(path));
 }
 
-BOOST_AUTO_TEST_CASE(clone){
-	Component::clone("test");
-	Component c("test");
-	BOOST_CHECK_EQUAL(c.address(),"test");
-	BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test.git");
-	c.destroy();
-}
-
-BOOST_AUTO_TEST_CASE(fork){
-	Component::fork("test","mytest");
-	Component c("mytest");
-	BOOST_CHECK_EQUAL(c.address(),"mytest");
-	BOOST_CHECK_EQUAL(c.origin(),"");
-	c.destroy();
-}
-
 BOOST_AUTO_TEST_CASE(commit){
 	Component c;
 
@@ -229,10 +213,33 @@ BOOST_AUTO_TEST_CASE(get){
 	c.destroy();
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(component_slow)
+
+using namespace Stencila;
+
+BOOST_AUTO_TEST_CASE(clone){
+	Component::clone("test");
+	Component c("test");
+	BOOST_CHECK_EQUAL(c.address(),"test");
+	BOOST_CHECK_EQUAL(c.origin(),"https://stenci.la/test.git");
+	c.destroy();
+}
+
+BOOST_AUTO_TEST_CASE(fork){
+	Component::fork("test","mytest");
+	Component c("mytest");
+	BOOST_CHECK_EQUAL(c.address(),"mytest");
+	BOOST_CHECK_EQUAL(c.origin(),"");
+	c.destroy();
+}
+
 BOOST_AUTO_TEST_CASE(get_remote){
 	Component& c = Component::get("test").as<Component>();
 	BOOST_CHECK_EQUAL(c.address(),"test");
-	BOOST_CHECK_EQUAL(c.origin(),"http://stenci.la/test.git");
+	BOOST_CHECK_EQUAL(c.origin(),"https://stenci.la/test.git");
 	c.destroy();
 }
 

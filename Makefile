@@ -281,9 +281,34 @@ $(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugi
 cpp-requires: $(BUILD)/cpp/requires
 
 #################################################################################################
+# C++ helpers
+# These helpers are currently used by the C++ module via system calls. As such they are not required
+# to compile Stencila modules but rather provide additional functionality. In the long term the
+# system calls to these helpers will be replaced by integrating C++ compatible libraries or replacement code
+
+# PhantomJS is used in `stencil-formats.cpp` for translating ASCIIMath to MathML and for
+# creating thumbnails.
+# Instead of using PhantomJS, the translation from ASCIIMath to MathML could be done by porting the ASCIIMath.js code to C++
+cpp-helpers-phantomjs:
+	cd /usr/local/share ;\
+		sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 ;\
+		sudo tar xjf phantomjs-1.9.8-linux-x86_64.tar.bz2 ;\
+		sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs ;\
+		sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs ;\
+
+# Sass is used for `make`ing themes (compiling SCSS into minified CSS)
+# Instead of using node-sass, libsass could be used in C++ directly
+cpp-helpers-sass:
+	sudo npm install node-sass -g
+
+# UglifyJS is used for `make`ing themes (compiling JS into minified JS)
+cpp-helpers-uglifyjs:
+	sudo npm install uglify-js -g
+
+#################################################################################################
 # Stencila C++ library
 
-# Compile Stecnila C++ files into object files
+# Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
@@ -390,6 +415,10 @@ ifndef CPP_TEST
   CPP_TEST := tests
 endif
 cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
+
+# Run quick tests only
+cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe
+	ulimit -v 2097152; $< --run_test=*_quick/* 2>&1 | tee $@.out
 
 # Run all tests
 cpp-tests: $(BUILD)/cpp/tests/tests

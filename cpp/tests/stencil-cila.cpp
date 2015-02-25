@@ -37,7 +37,7 @@ struct CilaFixture : public CilaParser, public CilaGenerator {
 #define CILA_CILA(_IN,_OUT) { parse(stencil,_IN); BOOST_CHECK_EQUAL(generate(stencil),_OUT); }
 #define ECHO(_IN) CILA_CILA(_IN,_IN);
 
-BOOST_FIXTURE_TEST_SUITE(cila,CilaFixture)
+BOOST_FIXTURE_TEST_SUITE(stencil_cila_quick,CilaFixture)
  
 BOOST_AUTO_TEST_CASE(elements){
 	CILA_XML("div","<div />");

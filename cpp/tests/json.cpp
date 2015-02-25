@@ -2,7 +2,7 @@
 
 #include <stencila/json.hpp>
 
-BOOST_AUTO_TEST_SUITE(json)
+BOOST_AUTO_TEST_SUITE(json_quick)
 
 using namespace Stencila::Json;
 

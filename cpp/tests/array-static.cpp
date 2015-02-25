@@ -5,7 +5,7 @@
 #include <stencila/query.hpp>
 #include <stencila/structure.hpp>
 
-BOOST_AUTO_TEST_SUITE(array_static)
+BOOST_AUTO_TEST_SUITE(array_static_quick)
 
 using namespace Stencila;
 

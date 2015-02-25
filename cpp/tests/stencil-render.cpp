@@ -48,7 +48,7 @@ struct RenderingFixture {
 
 };
 
-BOOST_FIXTURE_TEST_SUITE(stencil_render,RenderingFixture)
+BOOST_FIXTURE_TEST_SUITE(stencil_render_quick,RenderingFixture)
 
 using namespace Stencila;
 

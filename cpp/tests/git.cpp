@@ -3,7 +3,7 @@
 
 #include <stencila/git.hpp>
 
-BOOST_AUTO_TEST_SUITE(git)
+BOOST_AUTO_TEST_SUITE(git_slow)
 
 using namespace Stencila::Git;
 

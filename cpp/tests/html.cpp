@@ -3,7 +3,7 @@
 
 #include <stencila/html.hpp>
 
-BOOST_AUTO_TEST_SUITE(html)
+BOOST_AUTO_TEST_SUITE(html_quick)
 
 using namespace Stencila::Html;
  

@@ -3,7 +3,7 @@
 
 #include <stencila/stencil.hpp>
 
-BOOST_AUTO_TEST_SUITE(stencil)
+BOOST_AUTO_TEST_SUITE(stencil_quick)
 
 using namespace Stencila;
 

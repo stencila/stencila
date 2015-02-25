@@ -3,7 +3,7 @@
 #include <stencila/array.hpp>
 #include <stencila/query.hpp>
 
-BOOST_AUTO_TEST_SUITE(array_dynamic)
+BOOST_AUTO_TEST_SUITE(array_dynamic_quick)
 
 using namespace Stencila;
 

@@ -2,7 +2,7 @@
 
 #include <stencila/map-context.hpp>
 
-BOOST_AUTO_TEST_SUITE(map_content)
+BOOST_AUTO_TEST_SUITE(map_content_quick)
 
 using namespace Stencila;
 

@@ -4,7 +4,7 @@
 #include <stencila/array.hpp>
 #include <stencila/structure.hpp>
 
-BOOST_AUTO_TEST_SUITE(frame)
+BOOST_AUTO_TEST_SUITE(frame_quick)
 
 using namespace Stencila;
 

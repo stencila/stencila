@@ -7,7 +7,7 @@
 #include <stencila/mirror-rows.hpp>
 #include <stencila/mirror-stencil.hpp>
 
-BOOST_AUTO_TEST_SUITE(mirrors)
+BOOST_AUTO_TEST_SUITE(mirrors_quick)
 
 using namespace Stencila;
 using namespace Stencila::Mirrors;

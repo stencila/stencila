@@ -30,4 +30,4 @@ before_script:
 script:
     - make vars
     - make cpp-requires
-    - make cpp-tests
+    - make cpp-tests-quick

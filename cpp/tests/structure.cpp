@@ -2,7 +2,7 @@
 
 #include <stencila/structure.hpp>
 
-BOOST_AUTO_TEST_SUITE(structure)
+BOOST_AUTO_TEST_SUITE(structure_quick)
 
 using namespace Stencila;
 

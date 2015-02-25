@@ -3,7 +3,7 @@
 
 #include <stencila/xml.hpp>
 
-BOOST_AUTO_TEST_SUITE(xml)
+BOOST_AUTO_TEST_SUITE(xml_quick)
 
 using namespace Stencila::Xml;
 

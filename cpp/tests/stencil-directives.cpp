@@ -3,7 +3,7 @@
 #include <stencila/stencil.hpp>
 using namespace Stencila;
 
-BOOST_AUTO_TEST_SUITE(stencil_directives)
+BOOST_AUTO_TEST_SUITE(stencil_directives_quick)
 
 BOOST_AUTO_TEST_CASE(crush){
 	Stencil s(R"(html://

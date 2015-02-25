@@ -123,7 +123,6 @@ public:
 	/**
 	 * @}
 	 */
-	
 
 	/**
 	 * @name Cila parsing and generation
@@ -149,6 +148,62 @@ public:
 	 * @}
 	 */
 		
+	/**
+	 * @name Conversion to/from other formats
+	 *
+	 * Methods implemented in `stencil-conversion.cpp`
+	 *
+	 * Most of these methods have a `direction` parameter; however only one
+	 * direction may be currently implemented.
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Convert to/from a Microsoft Word document
+	 * 
+	 * @param  direction  The direction of conversion; one of "to" or "from"
+	 * @param  path       Path of the DOCX file to read from / write to (dependending on direction)
+	 */
+	Stencil& docx(const std::string& direction, const std::string& path);
+
+	/**
+	 * Convert to/from a Markdown document
+	 * 
+	 * @param  direction  The direction of conversion; one of "to" or "from"
+	 * @param  path       Path of the Markdown to read from / write to (dependending on direction)
+	 */
+	Stencil& markdown(const std::string& direction, const std::string& path);
+
+	/**
+	 * Convert to/from a Portable Document Format (PDF) document
+	 * 
+	 * @param  direction    The direction of conversion; one of "to" or "from"
+	 * @param  path         Path of PDF file to create
+	 * @param  format       One of "A3", "A4", "A5", "legal", "letter", "tabloid"
+	 * @param  orientation  Either "portrait" or "landscape"
+	 * @param  margin       Width of margins e.g. "2cm" . Allowed units are "mm", "cm", "in", "px"
+	 * 
+	 */
+	Stencil& pdf(
+		const std::string& direction, 
+		const std::string& path,
+		const std::string& format = "A4",
+		const std::string& orientation = "portrait",
+		const std::string& margin = "1cm"
+	);
+
+	/**
+	 * Convert to thumbnail image
+	 *
+	 * @param  path       Path of the DOCX file to read from / write to (dependending on direction)
+	 */
+	Stencil& thumbnail(const std::string& path);
+	
+	/**
+	 * @}
+	 */
+
 	/**
 	 * @name User inputs
 	 *
@@ -671,21 +726,25 @@ public:
 	std::string interact(const std::string& code);
 
 	/**
-	 * Execute a call on this stencil
-	 * 
-	 * @param  call A `Call` object
-	 */
-	std::string call(const Call& call);
-
-	/**
 	 * Generate a web page for a stencil
+	 *
+	 * @param  component  A pointer to a stencil
 	 */
 	static std::string page(const Component* component);
 
 	/**
 	 * Execute a call on a stencil
+	 *
+	 * @param  component  A pointer to a stencil
 	 */
 	static std::string call(Component* component, const Call& call);
+
+	/**
+	 * Execute a call on this stencil
+	 * 
+	 * @param  call  A `Call` object
+	 */
+	std::string call(const Call& call);
 
 	/**
 	 * @}

@@ -5,7 +5,7 @@
 #include <stencila/stencil.hpp>
 using namespace Stencila;
 
-BOOST_AUTO_TEST_SUITE()
+BOOST_AUTO_TEST_SUITE(stencil_attrs_quick)
 
 BOOST_AUTO_TEST_CASE(general){
 	Stencil s(R"(html://

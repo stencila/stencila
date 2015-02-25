@@ -2,7 +2,7 @@
 
 #include <stencila/query.hpp>
 
-BOOST_AUTO_TEST_SUITE(query)
+BOOST_AUTO_TEST_SUITE(query_quick)
 
 using namespace Stencila;
 
