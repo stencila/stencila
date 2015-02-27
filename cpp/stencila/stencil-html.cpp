@@ -52,7 +52,7 @@ std::string Stencil::html(bool document,bool indent) const {
 		 * Use a site-root relative path (by adding the leading forward slash) so that CSS can be served from 
 		 * localhost.
 		 */
-		std::string css = "/" + theme() + "/theme.css";
+		std::string css = "/" + theme() + "/theme.min.css";
 		head.append("link",{
 			{"rel","stylesheet"},
 			{"type","text/css"},
@@ -127,16 +127,16 @@ std::string Stencil::html(bool document,bool indent) const {
 		 * Files are with a fallback to hub.
 		 */
 		// Theme booter...
-		const std::string booter = "/core/themes/base/boot.js";
+		const std::string booter = "/core/themes/base/boot.min.js";
 		// get booter locally...
 		body.append("script",{{"src",booter}}," ");
 		// or, fallback to hub
 		body.append(
 			"script",
 			std::string("if(!window.Stencila){") +
-				"window.StencilaHost='http://stenci.la';" +
+				"window.StencilaHost='https://stenci.la';" +
 				"document.write(unescape('%3Cscript src=\"" +
-					"http://stenci.la" + booter + "\"%3E%3C/script%3E'" +
+					"https://stenci.la" + booter + "\"%3E%3C/script%3E'" +
 				"))" +
 			"}"
 		);
