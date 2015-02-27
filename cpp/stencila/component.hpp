@@ -121,7 +121,7 @@ public:
 	 * 
 	 * @param path Filesystem path within the working directory
 	 */
-	Component& create(const std::string& path,const std::string& content="\n");
+	Component& create(const std::string& path, const std::string& content="\n");
 
 	/**
 	 * Read a file withing the component's working directory
@@ -129,16 +129,14 @@ public:
 	 * @param  path    Filesystem path within the working directory
 	 * @param  content String content to write
 	 */
-	Component& write(const std::string& path,const std::string& content);
+	Component& write_to(const std::string& path, const std::string& content);
 
 	/**
 	 * Read a file withing the component's working directory
 	 * 
 	 * @param  path    Filesystem path within the working directory
-	 * @param  flag    A dummy string argument. Used to avoid ambiguity with other `read` method
-	 *                 whilst maining consistency with file `write` method
 	 */
-	std::string read(const std::string& path,const std::string& flag);
+	std::string read_from(const std::string& path);
 
 	/**
 	 * Delete a file within the component's working directory
@@ -154,9 +152,9 @@ public:
 	 * This method must be overidden by derived classes to implement
 	 * class specific read formats but call this base method so that `path` is set correctly.
 	 * 
-	 * @param from Filesystem path to component
+	 * @param path Filesystem path to component
 	 */
-	Component& read(const std::string& from="");
+	Component& read(const std::string& path="");
 	
 	/**
 	 * Write the Component to a directory
@@ -164,9 +162,9 @@ public:
 	 * This method must be overidden by derived classes to implement
 	 * class specific write formats but call this base method so that `path` is set correctly.
 	 * 
-	 * @param to Filesystem path to component
+	 * @param path Filesystem path to component
 	 */
-	Component& write(const std::string& to="");
+	Component& write(const std::string& path="");
 	
 	/**
 	 * @}

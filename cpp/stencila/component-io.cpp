@@ -154,7 +154,7 @@ Component& Component::create(const std::string& path,const std::string& content)
 	return *this;
 }
 
-Component& Component::write(const std::string& path, const std::string& content){
+Component& Component::write_to(const std::string& path, const std::string& content){
 	boost::filesystem::path path_full(Component::path(true));
 	path_full /= path;
 	std::ofstream file(path_full.string());
@@ -163,7 +163,7 @@ Component& Component::write(const std::string& path, const std::string& content)
 	return *this;
 }
 
-std::string Component::read(const std::string& path, const std::string& content){
+std::string Component::read_from(const std::string& path){
 	boost::filesystem::path path_full(Component::path(true));
 	path_full /= path;
 	std::ifstream file(path_full.string());
@@ -181,13 +181,22 @@ Component& Component::delete_(const std::string& path){
 	return *this;
 }
 
-Component& Component::read(const std::string& from){
-	path(from);
+Component& Component::read(const std::string& path){
+	std::string where = path;
+	if(where.length()==0){
+		where = this->path();
+		if(where.length()==0) STENCILA_THROW(Exception,"Component path not supplied and not yet set.");
+	}
+	else {
+		if(not boost::filesystem::exists(where)) STENCILA_THROW(Exception,"Directory does not exist.\n  path: "+path);
+		if(not boost::filesystem::is_directory(where)) STENCILA_THROW(Exception,"Path is not a directory.\n  path: "+path);
+		this->path(path);
+	}
 	return *this;
 }
 
-Component& Component::write(const std::string& to){
-	path(to);
+Component& Component::write(const std::string& path){
+	this->path(path);
 	return *this;
 }
 

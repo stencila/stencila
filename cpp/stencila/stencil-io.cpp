@@ -61,24 +61,7 @@ Stencil& Stencil::export_(const std::string& path){
 }
 
 Stencil& Stencil::read(const std::string& directory){
-	std::string where = directory;
-	if(where.length()==0){
-		where = path();
-		if(where.length()==0){
-			STENCILA_THROW(Exception,"Path not supplied and not yet set for stencil");
-		}
-	}
-	else {
-		// Check that directory exits and is a directory
-		if(not boost::filesystem::exists(where)){
-			STENCILA_THROW(Exception,"Path <"+where+"> does not exist");
-		}
-		if(not boost::filesystem::is_directory(where)){
-			STENCILA_THROW(Exception,"Path <"+where+"> is not a directory");
-		}
-		// Set the stencil's path
-		path(where);
-	}
+	Component::read(directory);
 	// Search for a stencil.html and stencil.cila files and read the first one using `import`
 	for(std::string file : {"stencil.html","stencil.cila"}){
 		boost::filesystem::path filename = boost::filesystem::path(path()) / file;
@@ -87,13 +70,12 @@ Stencil& Stencil::read(const std::string& directory){
 			break;
 		}
 	}
-
 	return *this;
 }
 
 Stencil& Stencil::write(const std::string& path_arg){
 	if(path_arg.length()) path(path_arg);
-	Component::write("stencil.html",html(true));
+	Component::write_to("stencil.html",html(true));
 	return *this;
 }
 

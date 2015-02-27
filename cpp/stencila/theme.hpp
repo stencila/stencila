@@ -9,7 +9,48 @@ namespace Stencila {
 class Theme : public Component {
 public:
 
-	Theme& make(void);
+	/**
+	 * Initialise this theme
+	 * 
+	 * @param  from A string indicating how the theme is initialised
+	 */
+	Theme& initialise(const std::string& from);
+
+	/**
+	 * Get this theme's style
+	 */
+	std::string style(void) const;
+
+	/**
+	 * Set this theme's style
+	 */
+	Theme& style(const std::string& path);
+
+	/**
+	 * Get this theme's behaviour
+	 */
+	std::string behaviour(void) const;
+
+	/**
+	 * Set this theme's behaviour
+	 */
+	Theme& behaviour(const std::string& path);
+
+	/**
+	 * Read this theme from a directory
+	 * 
+	 * @param  path Filesystem path to a directory. 
+	 *              If an empty string (`""`) then the current path, if any, is used.
+	 */
+	Theme& read(const std::string& directory="");
+	
+	/**
+	 * Compile this theme
+	 *
+	 * Compile CSS (Cascading Style Sheets) and/or SCSS (Sass CSS) into
+	 * minified CSS (`.min.css`) and Javascript into minified JS (`.min.js`)
+	 */
+	Theme& compile(void);
 
 	/**
 	 * @name Serving
