@@ -73,7 +73,7 @@ std::string Stencil::html(bool document,bool indent) const {
 		fallback += "\ts=d.styleSheets;for(i=0;i!=s.length;i++){if((s[i].href||'').match(c)){try{if(s[i].cssRules.length)return;}catch(e){}}}\n";
 		// If still in the function the stylesheet must not have been loaded so create
 		// a new <link> to the theme CSS on http://stenci.la
-		fallback += "\tl=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href='http://stenci.la'+c;\n";
+		fallback += "\tl=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href='https://stenci.la'+c;\n";
 		// To prevent flash of unstyled content (FOUC) while the new <link> is loading make the document class 'unready'
 		// and then remove this class when the style is loaded (there is a fallback to this fallback at end of document).
 		// See http://www.techrepublic.com/blog/web-designer/how-to-prevent-flash-of-unstyled-content-on-your-websites/
