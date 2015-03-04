@@ -60,22 +60,39 @@ setRefClass(
 						}
 					},
 					run = function(){
-						require(RUnit)
 						dir <- file.path(.self$path,'tests/r/runit')
-						# Create a test suite from all test*.R files in the tests/r/runit directory
-						suite <- defineTestSuite(
-							"tests",
-							dirs = dir,
-							testFileRegexp = '^test.+\\.R'
-						)
-						# Run the test suite
-						result <- runTestSuite(suite)
-						# Report test results in junit format
-						printTextProtocol(
-							result,
-							fileName = file.path(dir,'results.txt'),
-							showDetails = TRUE
-						)
+						if(file.exists(dir)){
+							cat("Running `RUnit` test cases\n")
+							require(RUnit)
+							# Create a test suite from all test*.R files in the tests/r/runit directory
+							suite <- defineTestSuite(
+								"tests",
+								dirs = dir,
+								testFileRegexp = '^test.+\\.R'
+							)
+							# Run the test suite
+							results <- runTestSuite(suite)
+							# Print results to user
+							print(results)
+							# Save results to file
+							tsv <- NULL
+							for(file in names(results$tests$sourceFileResults)){
+								file_data <- results$tests$sourceFileResults[[file]]
+								for(func in names(file_data)){
+									func_data <- file_data[[func]]
+									tsv <- rbind(tsv,data.frame(
+										# Remove `dir` from file path
+										file = gsub(paste0(dir,"/"),"",file),
+										name = func,
+										# Recode status
+										status = ifelse(func_data$kind=="success","pass",ifelse(func_data$kind=="failure","fail",func_data$kind)),
+										# Remove newlines and tabs from message
+										message = if(is.null(func_data$msg)) "" else gsub("\t","\\\\t",gsub("\n","\\\\n",func_data$msg))
+									))
+								}
+							}						
+							write.table(tsv,file.path(dir,'results.tsv'),row.names=F,col.names=T,quote=F,sep="\t")
+						}
 					}
 				),
 				testthat = list(
@@ -103,12 +120,29 @@ setRefClass(
 						}
 					},
 					run = function(){
-						# Run tests
-						require(testthat)
 						dir <- file.path(.self$path,'tests/r/testthat')
-						results <- test_dir(dir)
-						# Write results
-						write.table(results,file.path(dir,'results.txt'),row.names=F,col.names=T,quote=F)
+						if(file.exists(dir)){
+							cat("Running `testthat` test cases\n")
+							# Run tests
+							require(testthat)
+							results <- test_dir(dir)
+							# Print results to user
+							print(results)
+							# Save results to file.
+							# Remove columns we don't use
+							results$context <- NULL
+							results$nb <- NULL
+							# Collapse `failed` and `error` columns
+							results$status <- 'pass'
+							results$status[results$failed!=0] <- 'fail'
+							results$status[results$error] <- 'error'
+							results$failed <- NULL
+							results$error <- NULL
+							# Remove tabs and newlines from `test` and put into `name`
+							results$name <- gsub("\t","\\\\t",gsub("\n","\\\\n",results$test))
+							results$test <- NULL
+							write.table(results,file.path(dir,'results.tsv'),row.names=F,col.names=T,quote=F,sep="\t")
+						}
 					}
 				)
 			)
