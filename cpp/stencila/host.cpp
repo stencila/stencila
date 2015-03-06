@@ -32,11 +32,21 @@ std::string system_dir(void) {
 	return path;
 }
 
+std::string temp_dirname(void){
+	auto path = boost::filesystem::temp_directory_path();
+	path /= ".stencila";
+	boost::filesystem::create_directories(path);
+	path /= boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%");
+	return path.string();
+}
+
 std::string temp_filename(const std::string& extension){
 	auto path = boost::filesystem::temp_directory_path();
 	path /= ".stencila";
 	boost::filesystem::create_directories(path);
-	path /= boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%." + extension);
+	std::string pattern = "%%%%-%%%%-%%%%-%%%%";
+	if(extension.length()) pattern += "." + extension;
+	path /= boost::filesystem::unique_path(pattern);
 	return path.string();
 }
 
