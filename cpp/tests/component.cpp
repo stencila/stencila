@@ -63,30 +63,15 @@ BOOST_AUTO_TEST_CASE(path_set_empty_twice){
 BOOST_AUTO_TEST_CASE(path_change){
 	Component c;
 	
-	std::string first = c.read().path();
-	std::string second = c.path(Stencila::Host::user_dir()+"/~temp").path();
+	std::string first = c.path(true);
+	std::string second = Stencila::Host::temp_dirname();
+	c.path(second);
 	BOOST_CHECK(first!=second);
 	BOOST_CHECK(not boost::filesystem::exists(first));
 	BOOST_CHECK(boost::filesystem::exists(second));
-	BOOST_CHECK_EQUAL(c.address(),"~temp");
 
 	c.destroy();
 	BOOST_CHECK(not boost::filesystem::exists(second));
-}
-
-/**
- * @class Component
- *
- * When `read` is called with an empty path then a unique path
- * is created in the user's Stencila library
- */
-BOOST_AUTO_TEST_CASE(read_path_empty){
-	Component c;
-	std::string first = c.read().path();
-	BOOST_CHECK(boost::regex_match(c.path(),temp_path_pattern));
-	std::string second = c.read().path();
-	BOOST_CHECK_EQUAL(first,second);
-	c.destroy();
 }
 
 /**
@@ -174,14 +159,14 @@ BOOST_AUTO_TEST_CASE(provide){
 	c.version("0.0.2");
 
 	c.provide("0.0.1");
-		BOOST_CHECK(exists(c.path()+"/.0.0.1/version-0.0.1.txt"));
-		BOOST_CHECK(not exists(c.path()+"/.0.0.1/version-0.0.2.txt"));
-		BOOST_CHECK(not exists(c.path()+"/.0.0.1/.git"));
+		BOOST_CHECK(exists(c.path()+"/.at/0.0.1/version-0.0.1.txt"));
+		BOOST_CHECK(not exists(c.path()+"/.at/0.0.1/version-0.0.2.txt"));
+		BOOST_CHECK(not exists(c.path()+"/.at/0.0.1/.git"));
 
 	c.provide("0.0.2");
-		BOOST_CHECK(exists(c.path()+"/.0.0.2/version-0.0.2.txt"));
-		BOOST_CHECK(not exists(c.path()+"/.0.0.2/version-0.0.1.txt"));
-		BOOST_CHECK(not exists(c.path()+"/.0.0.2/.git"));
+		BOOST_CHECK(exists(c.path()+"/.at/0.0.2/version-0.0.2.txt"));
+		BOOST_CHECK(not exists(c.path()+"/.at/0.0.2/version-0.0.1.txt"));
+		BOOST_CHECK(not exists(c.path()+"/.at/0.0.2/.git"));
 
 	c.destroy();
 }
@@ -202,10 +187,10 @@ BOOST_AUTO_TEST_CASE(get){
 	BOOST_CHECK(boost::filesystem::exists(c.path()));
 	
 	Component& c1 = Component::get(c.address(),"0.0.1").as<Component>();
-	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.1"));
+	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.at/0.0.1"));
 
 	Component& c2 = Component::get(c.address(),"0.0.2").as<Component>();
-	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.0.0.2"));
+	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.at/0.0.2"));
 
 	BOOST_CHECK_EQUAL(c0.address(),c1.address());
 	BOOST_CHECK_EQUAL(c1.address(),c2.address());

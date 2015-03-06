@@ -204,11 +204,32 @@ public:
 	static void fork(const std::string& from, const std::string& to);
 
 	/**
+	 * Is this component managed?
+	 */
+	bool managed(void) const;
+
+	/**
+	 * Make this a managed component
+	 */
+	Component& managed(bool yes);
+
+	/**
+	 * Publish this component so that it is accessible to
+	 * others
+	 */
+	Component& publish(const std::string& address);
+
+	/**
 	 * Get the origin for this component
 	 * 
 	 * @return  URL of the origin; empty string if this component is not a clone
 	 */
 	std::string origin(void) const;
+
+	/**
+	 * Sync the master branch with the origin
+	 */
+	Component& sync(void);
 
 	/**
 	 * Commit this component
@@ -243,9 +264,47 @@ public:
 	 */
 	std::vector<std::string> versions(void) const;
 
+	/**
+	 * Get current branch
+	 */
+	std::string branch(void) const;
 
 	/**
-	 * Provide a particular version of the component
+	 * Switch to a branch
+	 * 
+	 * @param  branch Branch name
+	 */
+	Component& branch(const std::string& branch);
+
+	/**
+	 * Get a list of branches
+	 */
+	std::vector<std::string> branches(void) const;
+
+	/**
+	 * Create a new branch
+	 * 
+	 * @param  new_branch Name of the new branch
+	 */
+	Component& sprout(const std::string& new_branch, const std::string& from_branch = "master");
+
+	/**
+	 * Merge one branch into another branch
+	 *
+	 * @param from_branch Name of the branch to merge commits from
+	 * @param into_branch Name of the branch to merge commits into
+	 */
+	Component& merge(const std::string& from_branch, const std::string& into_branch = "master");
+
+	/**
+	 * Delete a branch
+	 * 
+	 * @param  branch Branch name
+	 */
+	Component& lop(const std::string& branch);
+
+	/**
+	 * Provide a particular version or branch of the component
 	 * 
 	 * @param  version Version to provide
 	 */

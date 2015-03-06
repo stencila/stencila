@@ -16,7 +16,7 @@ Component::Repository* Component::repo(bool ensure) const {
 				repo->open(path);
 			}
 			catch(Git::NoRepoError){
-				if(ensure) repo->init(path);
+				if(ensure) repo->init(path,true); // Do an initial commit
 				else{
 					delete repo;
 					repo = nullptr;
@@ -51,10 +51,38 @@ void Component::fork(const std::string& from, const std::string& to) {
 	repo.remote("origin","");
 }
 
+bool Component::managed(void) const {
+	return repo()!=nullptr;
+}
+
+Component& Component::managed(bool yes){
+	if(not managed()){
+		if(not yes) STENCILA_THROW(Exception,"It is only possible to turn on component management; use `manage(true)`.");
+		repo(true);
+	}
+	return *this;
+}
+
+Component& Component::publish(const std::string& address) {
+	//Post to Web API via HTTP client
+	sync();
+	return *this;
+}
+
 std::string Component::origin(void) const {
 	Repository* repo = this->repo();
 	if(repo) return repo->remote("origin");
 	else return "";
+}
+
+Component& Component::sync(void) {
+	if(origin().length()){
+		auto r = repo();
+		r->download();
+		r->merge("origin/master","master");
+		r->upload();
+	} else STENCILA_THROW(Exception,"Component is not published so can not be synced.");
+	return *this;
 }
 
 Component& Component::commit(const std::string& message) {
@@ -165,23 +193,49 @@ std::vector<std::string> Component::versions(void) const {
 	else return std::vector<std::string>(0);
 }
 
+std::string Component::branch(void) const {
+	if(auto r = repo()) return r->branch();
+	else return "";
+}
+
+std::vector<std::string> Component::branches(void) const {
+	if(auto r = repo()) return r->branches();
+	else return std::vector<std::string>(0);	
+}
+
+Component& Component::branch(const std::string& branch) {
+	repo(true)->branch(branch);
+	return *this;
+}
+
+Component& Component::sprout(const std::string& new_branch, const std::string& from_branch) {
+	repo(true)->sprout(new_branch,from_branch);
+	return *this;
+}
+
+Component& Component::merge(const std::string& from_branch, const std::string& into_branch) {
+	repo(true)->merge(from_branch,into_branch);
+	return *this;
+}
+
+Component& Component::lop(const std::string& branch) {
+	repo(true)->lop(branch);
+	return *this;
+}
+
 Component& Component::provide(const std::string& version) {
-	// Check if the version already exists
-	std::string version_path = path()+"/."+version;
-	if(not boost::filesystem::exists(version_path)){
-		// Check this is a valid version number 
-		std::vector<std::string> vs = versions();
-		if(std::count(vs.begin(),vs.end(),version)==0){
-			STENCILA_THROW(Exception,"Component \""+address()+"\" does not have version \""+version+"\"");
-		}
-		// Checkout the the version into version_path
-		// Clone this repo into a version_path
-		Repository version_repo;
-		version_repo.clone(path(),version_path);      
-		// Checkout version
-		version_repo.checkout(version);
-		// Remove version .git directory
-		boost::filesystem::remove_all(version_path+"/.git");
+	// Check this is a valid version number 
+	std::vector<std::string> vs = versions();
+	if(std::count(vs.begin(),vs.end(),version)==0){
+		STENCILA_THROW(Exception,"Component does not have version.\n  address: "+address()+"\n  version: "+version);
+	}
+	// Create directory
+	std::string version_path = path()+"/.at/"+version;
+	boost::filesystem::create_directories(version_path);
+	// Archive into it
+	Repository* repo = this->repo();
+	if(repo){
+		repo->archive(version,version_path);
 	}
 	return *this;   
 }
