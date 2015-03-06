@@ -27,5 +27,16 @@ void execute(const std::string& command) {
 	if(status != 0) STENCILA_THROW(Exception,"System call failed\n  command: "+command+"\n  status: "+string(status));
 }
 
+std::string call(const std::string& command) {
+	FILE* stream  = popen(command.c_str(), "r");
+	if(stream==NULL) STENCILA_THROW(Exception,"System call failed\n  command: "+command);
+	std::string string;
+	const int buffer_size = 1028;
+	char buffer[buffer_size];
+	while(fgets(buffer, buffer_size, stream) != NULL) string.append(buffer);
+  	pclose(stream);
+	return trim(string);
+}
+
 }
 }

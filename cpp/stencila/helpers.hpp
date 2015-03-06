@@ -11,5 +11,8 @@ std::string script(const std::string& filename,const std::string& contents);
 // Execute a system command
 void execute(const std::string& command);
 
+// Call a system command and return output
+std::string call(const std::string& command);
+
 }
 }
