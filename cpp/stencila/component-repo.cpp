@@ -4,6 +4,7 @@
 #include <boost/format.hpp>
 
 #include <stencila/component.hpp>
+#include <stencila/hub.hpp>
 
 namespace Stencila {
 
@@ -64,7 +65,7 @@ Component& Component::managed(bool yes){
 }
 
 Component& Component::publish(const std::string& address) {
-	//Post to Web API via HTTP client
+	hub.post("component/new");
 	sync();
 	return *this;
 }

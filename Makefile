@@ -75,7 +75,7 @@ $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 
 # Boost is configured with:
 #   --with-libraries - so that only those libraries that are needed are built
-BOOST_BOOTSTRAP_FLAGS := --with-libraries=filesystem,python,regex,system,test
+BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,thread
 ifeq ($(OS), msys)
 	# bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
 	BOOST_BOOTSTRAP_FLAGS += --with-toolset=mingw
@@ -147,6 +147,39 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libgit2/include
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
 
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
+
+
+CPP_NETLIB_VERSION := 0.11.1
+
+$(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2:
+	mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O $@ http://storage.googleapis.com/cpp-netlib-downloads/$(CPP_NETLIB_VERSION)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+	
+$(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
+	tar --bzip2 -xf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/cpp-netlib-$(CPP_NETLIB_VERSION)-final $(BUILD)/cpp/requires/cpp-netlib
+	touch $@
+
+# cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
+# some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
+CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
+# Under MSYS some additional CMake flags need to be specified
+# The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
+ifeq ($(OS), msys)
+CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
+endif
+$(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: $(BUILD)/cpp/requires/cpp-netlib
+	cd $(BUILD)/cpp/requires/cpp-netlib; \
+		export BOOST_ROOT=../boost ; \
+		cmake $(CPP_NETLIB_CMAKE_FLAGS); \
+		make cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri
+
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/cpp-netlib/
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/cpp-netlib/libs/network/src
+
+cpp-requires-cpp-netlib: $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a
 
 
 PUGIXML_VERSION := 1.5
@@ -264,8 +297,9 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
 cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
 # List of libraries to be used below
-CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex
+CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex 
 CPP_REQUIRES_LIBS += git2 crypto ssl z
+CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri boost_thread
 CPP_REQUIRES_LIBS += pugixml
 CPP_REQUIRES_LIBS += tidy-html5
 ifeq ($(OS), linux)
@@ -328,6 +362,7 @@ cpp-library-requires: $(BUILD)/cpp/requires
 		ar x ../../requires/boost/lib/libboost_system.a ;\
 		ar x ../../requires/boost/lib/libboost_filesystem.a ;\
 		ar x ../../requires/boost/lib/libboost_regex.a ;\
+		ar x ../../requires/boost/lib/libboost_thread.a ;\
 		ar x ../../requires/libgit2/build/libgit2.a ;\
 		ar x ../../requires/pugixml/src/libpugixml.a ;\
 		ar x ../../requires/tidy-html5/lib/libtidy-html5.a ;\

@@ -3,20 +3,22 @@ using namespace Stencila;
 
 #include "extension.hpp"
 
-STENCILA_R_FUNC Component_get(SEXP address){
-    STENCILA_R_BEGIN
-        Component& component = Component::get(as<std::string>(address)).as<Component>();
-        return wrap(component.path());
-    STENCILA_R_END
-}
-
 STENCILA_R_NEW(Component)
 
 STENCILA_R_GETSET(Component,path,std::string)
+
 STENCILA_R_GET(Component,address)
 
+STENCILA_R_GETSET(Component,managed,bool)
+
 STENCILA_R_GET(Component,origin)
+
+//STENCILA_R_GET(Component,publish)
+
+//STENCILA_R_GET(Component,sync)
+
 STENCILA_R_EXEC1(Component,commit,std::string)
+
 STENCILA_R_FUNC Component_commits_get(SEXP self){
     STENCILA_R_BEGIN
     	// Get history
@@ -44,3 +46,20 @@ STENCILA_R_FUNC Component_commits_get(SEXP self){
         );
     STENCILA_R_END
 }
+
+STENCILA_R_GET(Component,version)
+
+STENCILA_R_EXEC2(Component,version,std::string,std::string)
+
+STENCILA_R_GET(Component,versions)
+
+STENCILA_R_GETSET(Component,branch,std::string)
+
+STENCILA_R_GET(Component,branches)
+
+STENCILA_R_EXEC2(Component,sprout,std::string,std::string)
+
+STENCILA_R_EXEC2(Component,merge,std::string,std::string)
+
+STENCILA_R_EXEC1(Component,lop,std::string)
+

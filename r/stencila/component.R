@@ -6,32 +6,76 @@ NULL
 #' @name Component
 #' @export
 Component <- function() {
-    new('Component')
+	new('Component')
 }
 setRefClass(
 	'Component',
-    contains = 'Extension',
-	fields = list(
-		path = function(value) get_set_(.self,'Component_path_get','Component_path_set',value),
-		address = function(value) get_(.self,'Component_address_get'),
-
-		origin = function(value) get_(.self,'Component_origin_get'),
-		commits = function(value) get_(.self,'Component_commits_get')
-	),
+	contains = 'Extension',
 	methods = list(
 		show = function(){
-		    cat(class(.self)[1],'@',address,'\n',sep='')
+			cat(class(.self)[1],'@',address,'\n',sep='')
 		},
+
+		path = function(value){
+			get_set_(.self,'Component_path_get','Component_path_set',value)
+		},
+
+		address = function(){
+			get_(.self,'Component_address_get')
+		},
+
+		managed = function(value){
+			get_set_(.self,'Component_managed_get','Component_managed_set',value)
+		},
+
+		origin = function(){
+			get_(.self,'Component_origin_get')
+		},
+
 		commit = function(message=""){
 			method_(.self,'Component_commit',toString(message))
 		},
 
-        serve = function(){
-            method_(.self,paste0(class(.self)[1],'_serve'))
-        },
-        view = function(){
-            method_(.self,paste0(class(.self)[1],'_view'))
-        },
+		commits = function(){
+			get_(.self,'Component_commits_get')
+		},
+
+		version = function(value,message=""){
+			if(missing(value)) get_(.self,'Component_version_get')
+			else method_(.self,'Component_version',value,message)
+		},
+
+		versions = function(){
+			get_(.self,'Component_versions_get')
+		},
+
+		branch = function(value){
+			get_set_(.self,'Component_branch_get','Component_branch_set')
+		},
+
+		branches = function(){
+			get_(.self,'Component_branches_get')
+		},
+
+		sprout = function(new_branch,from_branch){
+			method_(.self,'Component_sprout',new_branch,from_branch)
+		},
+
+		merge = function(from_branch,to_branch="master"){
+			method_(.self,'Component_merge',from_branch,to_branch)
+		},
+
+		lop = function(branch){
+			method_(.self,'Component_lop',branch)
+		},
+
+		serve = function(){
+			method_(.self,paste0(class(.self)[1],'_serve'))
+		},
+
+		view = function(){
+			method_(.self,paste0(class(.self)[1],'_view'))
+		},
 
 		test = function(task='run'){
 			runners <- list(
