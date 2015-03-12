@@ -309,7 +309,7 @@ ifeq ($(OS), msys)
 	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2
 endif
 
-$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml \
+$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-cpp-netlib cpp-requires-libgit2 cpp-requires-pugixml \
    cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
 
 cpp-requires: $(BUILD)/cpp/requires
