@@ -25,19 +25,19 @@ template <typename Type>
 struct FunctionTraits : public FunctionTraits<decltype(&Type::operator())> {};
 
 template < 
-    typename Return, 
-    typename... Args
+	typename Return, 
+	typename... Args
 >
 struct FunctionTraits<Return(Args...)> {
-    enum { arity = sizeof...(Args) };
+	enum { arity = sizeof...(Args) };
 
-    typedef Return function_type(Args...);
-    typedef Return return_type;
+	typedef Return function_type(Args...);
+	typedef Return return_type;
 
-    template <size_t i>
-    struct args {
-        typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
-    };
+	template <size_t i>
+	struct args {
+		typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
+	};
 };
 
 template <typename Return, typename... Args>
@@ -45,22 +45,22 @@ struct FunctionTraits<Return(*)(Args...)> : public FunctionTraits<Return(Args...
 
 template <typename Class, typename Return, typename... Args>
 struct FunctionTraits<Return(Class::*)(Args...)> : public FunctionTraits<Return(Args...)> {
-    typedef Class& owner_type;
+	typedef Class& owner_type;
 };
 
 template <typename Class, typename Return, typename... Args>
 struct FunctionTraits<Return(Class::*)(Args...) const> : public FunctionTraits<Return(Args...)> {
-    typedef const Class& owner_type;
+	typedef const Class& owner_type;
 };
 
 template <typename Class, typename Return, typename... Args>
 struct FunctionTraits<Return(Class::*)(Args...) volatile> : public FunctionTraits<Return(Args...)> {
-    typedef volatile Class& owner_type;
+	typedef volatile Class& owner_type;
 };
 
 template <typename Class, typename Return, typename... Args>
 struct FunctionTraits<Return(Class::*)(Args...) const volatile> : public FunctionTraits<Return(Args...)> {
-    typedef const volatile Class& owner_type;
+	typedef const volatile Class& owner_type;
 };
 
 /**
@@ -73,52 +73,52 @@ struct FunctionTraits<Return(Class::*)(Args...) const volatile> : public Functio
  */
 
 struct HasTrait {
-    typedef char (&yes)[1];
-    typedef char (&no)[2];
+	typedef char (&yes)[1];
+	typedef char (&no)[2];
 };
 
 template <typename Type>
 struct HasCall : HasTrait {
-    template <typename A> static yes test(decltype(&A::operator()));
-    template <typename A> static no test(...);
-    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
+	template <typename A> static yes test(decltype(&A::operator()));
+	template <typename A> static no test(...);
+	enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 template <typename Type>
 struct HasBeginEnd : HasTrait {
-    template<typename A, A, A> struct Match;
-    // This must use const_iterator so that it is true for std::set<>
-    template <typename A> static yes test(Match<typename A::const_iterator (A::*)() const,&A::begin,&A::end>*);
-    template <typename A> static no test(...);
-    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
+	template<typename A, A, A> struct Match;
+	// This must use const_iterator so that it is true for std::set<>
+	template <typename A> static yes test(Match<typename A::const_iterator (A::*)() const,&A::begin,&A::end>*);
+	template <typename A> static no test(...);
+	enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 template <typename Type>
 struct HasKeyTypeValueType : HasTrait {
-    template <typename A> static yes test(typename A::key_type*,typename A::value_type*);
-    template <typename A> static no test(...);
-    enum {value = (sizeof(test<Type>(0,0)) == sizeof(yes))};
+	template <typename A> static yes test(typename A::key_type*,typename A::value_type*);
+	template <typename A> static no test(...);
+	enum {value = (sizeof(test<Type>(0,0)) == sizeof(yes))};
 };
 
 template <typename Type>
 struct HasMappedType : HasTrait {
-    template <typename A> static yes test(typename A::mapped_type*);
-    template <typename A> static no test(...);
-    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
+	template <typename A> static yes test(typename A::mapped_type*);
+	template <typename A> static no test(...);
+	enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 template <typename Type>
 struct HasStructureType : HasTrait {
-    template <typename A> static yes test(typename A::structure_type*);
-    template <typename A> static no test(...);
-    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
+	template <typename A> static yes test(typename A::structure_type*);
+	template <typename A> static no test(...);
+	enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 template <typename Type>
 struct HasArrayType : HasTrait {
-    template <typename A> static yes test(typename A::array_type*);
-    template <typename A> static no test(...);
-    enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
+	template <typename A> static yes test(typename A::array_type*);
+	template <typename A> static no test(...);
+	enum {value = (sizeof(test<Type>(0)) == sizeof(yes))};
 };
 
 /**
@@ -137,37 +137,37 @@ struct HasArrayType : HasTrait {
 
 template <typename Type>
 struct IsCallable : std::integral_constant<bool,
-    HasCall<Type>::value
+	HasCall<Type>::value
 >{};
 
 template <typename Type>
 struct IsContainer : std::integral_constant<bool,
-    std::is_class<Type>::value and 
-    HasBeginEnd<Type>::value
+	std::is_class<Type>::value and 
+	HasBeginEnd<Type>::value
 >{};
 
 template <typename Type>
 struct IsAssociative : std::integral_constant<bool,
-    IsContainer<Type>::value and 
-    HasKeyTypeValueType<Type>::value
+	IsContainer<Type>::value and 
+	HasKeyTypeValueType<Type>::value
 >{};
 
 template <typename Type>
 struct IsPaired : std::integral_constant<bool,
-    IsAssociative<Type>::value and 
-    HasMappedType<Type>::value
+	IsAssociative<Type>::value and 
+	HasMappedType<Type>::value
 >{};
 
 template <typename Type>
 struct IsStructure : std::integral_constant<bool,
-    std::is_class<Type>::value and 
-    HasStructureType<Type>::value
+	std::is_class<Type>::value and 
+	HasStructureType<Type>::value
 >{};
 
 template <typename Type>
 struct IsArray : std::integral_constant<bool,
-    std::is_class<Type>::value and 
-    HasArrayType<Type>::value
+	std::is_class<Type>::value and 
+	HasArrayType<Type>::value
 >{};
 
 }

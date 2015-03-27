@@ -22,6 +22,14 @@ ifndef RESOURCES
 	RESOURCES := build/resources
 endif
 
+vars:
+	@echo OS: $(OS)
+	@echo ARCH: $(ARCH)
+	@echo VERSION: $(VERSION)
+	@echo BUILD: $(BUILD)
+	@echo RESOURCES: $(RESOURCES)
+	@echo CXX: $(CXX)
+
 #################################################################################################
 # Symbolic links to builds
 # 
@@ -39,7 +47,7 @@ build-current: build/current
 CPP_REQUIRES_INC_DIRS := 
 CPP_REQUIRES_LIB_DIRS := 
 
-BOOST_VERSION := 1_56_0
+BOOST_VERSION := 1_57_0
 
 $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
 	mkdir -p $(RESOURCES)
@@ -67,16 +75,17 @@ $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 
 # Boost is configured with:
 #   --with-libraries - so that only those libraries that are needed are built
-BOOST_BOOTSTRAP_FLAGS := --with-libraries=filesystem,python,regex,system,test
+BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,thread
 ifeq ($(OS), msys)
 	# bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
 	BOOST_BOOTSTRAP_FLAGS += --with-toolset=mingw
 endif
 
 # Boost is built with:
+#   --d0 		- supress all informational messages (reduces verbosity which is useful on CI servers)
 #   --prefix=.  - so that boost installs into its own directory
 #   link=static - so that get statically compiled instead of dynamically compiled libraries
-BOOST_B2_FLAGS := --prefix=. link=static install
+BOOST_B2_FLAGS := -d0 --prefix=. link=static install
 ifeq ($(OS), linux)
 	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
 	BOOST_B2_FLAGS += cxxflags=-fPIC
@@ -103,7 +112,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
-LIBGIT2_VERSION := 0.21.2
+LIBGIT2_VERSION := 0.22.0
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -140,7 +149,40 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
-PUGIXML_VERSION := 1.4
+CPP_NETLIB_VERSION := 0.11.1
+
+$(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2:
+	mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O $@ http://storage.googleapis.com/cpp-netlib-downloads/$(CPP_NETLIB_VERSION)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+	
+$(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
+	tar --bzip2 -xf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/cpp-netlib-$(CPP_NETLIB_VERSION)-final $(BUILD)/cpp/requires/cpp-netlib
+	touch $@
+
+# cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
+# some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
+CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
+# Under MSYS some additional CMake flags need to be specified
+# The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
+ifeq ($(OS), msys)
+CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
+endif
+$(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: $(BUILD)/cpp/requires/cpp-netlib
+	cd $(BUILD)/cpp/requires/cpp-netlib; \
+		export BOOST_ROOT=../boost ; \
+		cmake $(CPP_NETLIB_CMAKE_FLAGS); \
+		make cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri
+
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/cpp-netlib/
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/cpp-netlib/libs/network/src
+
+cpp-requires-cpp-netlib: $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a
+
+
+PUGIXML_VERSION := 1.5
 
 $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
@@ -148,6 +190,7 @@ $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 
 $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	mv $(BUILD)/cpp/requires/pugixml-$(PUGIXML_VERSION) $(BUILD)/cpp/requires/pugixml
 
@@ -167,39 +210,38 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
 
-JSONCPP_VERSION := 7bd75b0
+JSONCPP_VERSION := 1.1.0
 
 $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/tarball/$(JSONCPP_VERSION)
+	wget --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/archive/$(JSONCPP_VERSION).tar.gz
 
-$(BUILD)/cpp/requires/jsoncpp/dist/libjsoncpp.a: $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz
+$(BUILD)/cpp/requires/jsoncpp/dist: $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
-	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	cd $(BUILD)/cpp/requires/ ;\
 		rm -rf jsoncpp ;\
-		mv -f open-source-parsers-jsoncpp-$(JSONCPP_VERSION) jsoncpp ;\
+		mv -f jsoncpp-$(JSONCPP_VERSION) jsoncpp ;\
 		cd jsoncpp ;\
-			python amalgamate.py ;\
-			cd dist ;\
-				#g++ -I. -O2 -shared -static -olibjsoncpp.a jsoncpp.cpp
+			python amalgamate.py ;
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 
-cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist/libjsoncpp.a
+cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
-$(RESOURCES)/tidy-html5-master.zip:
+TIDYHTML5_VERSION := 8b454f5
+
+$(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/w3c/tidy-html5/archive/master.zip
+	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/tarball/$(TIDYHTML5_VERSION)
 
-$(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-master.zip
+$(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
-	rm -rf $(BUILD)/cpp/requires/tidy-html5
-	unzip -qo $< -d $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/tidy-html5-master $(BUILD)/cpp/requires/tidy-html5
+	rm -rf $@
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/htacg-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
 	touch $@
 
 # These patches depend upon `tidy-html5-unpacked.flag` rather than simply the `tidy-html5` since that
@@ -217,6 +259,7 @@ $(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h: cpp/requires/tidy-html5-pul
 # Note that we only "make ../../lib/libtidy.a" and not "make all" because the latter is not required
 # Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 $(BUILD)/cpp/requires/tidy-html5-built.flag: \
+		$(BUILD)/cpp/requires/tidy-html5-unpacked.flag \
 		$(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile \
 		$(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h
 	cd $(BUILD)/cpp/requires/tidy-html5/build/gmake ;\
@@ -235,7 +278,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/tidy-html5/lib
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
 
-WEBSOCKETPP_VERSION := 0.3.0
+WEBSOCKETPP_VERSION := 0.4.0
 
 $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -254,8 +297,9 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
 cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
 # List of libraries to be used below
-CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex
+CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex 
 CPP_REQUIRES_LIBS += git2 crypto ssl z
+CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri boost_thread
 CPP_REQUIRES_LIBS += pugixml
 CPP_REQUIRES_LIBS += tidy-html5
 ifeq ($(OS), linux)
@@ -265,15 +309,40 @@ ifeq ($(OS), msys)
 	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2
 endif
 
-$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-libgit2 cpp-requires-pugixml \
+$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-cpp-netlib cpp-requires-libgit2 cpp-requires-pugixml \
    cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
 
 cpp-requires: $(BUILD)/cpp/requires
 
 #################################################################################################
+# C++ helpers
+# These helpers are currently used by the C++ module via system calls. As such they are not required
+# to compile Stencila modules but rather provide additional functionality. In the long term the
+# system calls to these helpers will be replaced by integrating C++ compatible libraries or replacement code
+
+# PhantomJS is used in `stencil-formats.cpp` for translating ASCIIMath to MathML and for
+# creating thumbnails.
+# Instead of using PhantomJS, the translation from ASCIIMath to MathML could be done by porting the ASCIIMath.js code to C++
+cpp-helpers-phantomjs:
+	cd /usr/local/share ;\
+		sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 ;\
+		sudo tar xjf phantomjs-1.9.8-linux-x86_64.tar.bz2 ;\
+		sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs ;\
+		sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs ;\
+
+# Sass is used for `make`ing themes (compiling SCSS into minified CSS)
+# Instead of using node-sass, libsass could be used in C++ directly
+cpp-helpers-sass:
+	sudo npm install node-sass -g
+
+# UglifyJS is used for `make`ing themes (compiling JS into minified JS)
+cpp-helpers-uglifyjs:
+	sudo npm install uglify-js -g
+
+#################################################################################################
 # Stencila C++ library
 
-# Compile Stecnila C++ files into object files
+# Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
@@ -293,6 +362,7 @@ cpp-library-requires: $(BUILD)/cpp/requires
 		ar x ../../requires/boost/lib/libboost_system.a ;\
 		ar x ../../requires/boost/lib/libboost_filesystem.a ;\
 		ar x ../../requires/boost/lib/libboost_regex.a ;\
+		ar x ../../requires/boost/lib/libboost_thread.a ;\
 		ar x ../../requires/libgit2/build/libgit2.a ;\
 		ar x ../../requires/pugixml/src/libpugixml.a ;\
 		ar x ../../requires/tidy-html5/lib/libtidy-html5.a ;\
@@ -329,11 +399,11 @@ cpp-package: $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
 # Stencila C++ tests
 
 # Compile options for tests include:
-# 		-g (debug symbols),
-# 		-fprofile-arcs -ftest-coverage (coverage statistics)
+# 		-g (debug symbols)
 # 		-O0 (no optimizations, so coverage is valid)
+# 		--coverage (for coverage instrumentation)
 CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
-                       -g -fprofile-arcs -ftest-coverage -fPIC -O0 -Icpp $(CPP_REQUIRES_INC_DIRS)
+                       -g -O0 --coverage -fPIC -Icpp $(CPP_REQUIRES_INC_DIRS)
 
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
 
@@ -370,9 +440,9 @@ $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cp
 
 # Run a test
 # Limit memory to prevent bugs like infinite recursion from filling up the
-# machine's memeory
+# machine's memory. This needs to be quite high for some tests. 2Gb = 2,097,152 kb
 $(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe
-	ulimit -v 100000; $< 2>&1 | tee $@.out
+	ulimit -v 2097152; $< 2>&1 | tee $@.out
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
@@ -381,11 +451,14 @@ ifndef CPP_TEST
 endif
 cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
 
+# Run quick tests only
+cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe
+	ulimit -v 2097152; $< --run_test=*_quick/* 2>&1 | tee $@.out
+
 # Run all tests
 cpp-tests: $(BUILD)/cpp/tests/tests
 
 # Run all tests and report results and coverage to XML files
-# Useful for integration with CI systems like Jenkins
 # Requires python, xsltproc and [gcovr](http://gcovr.com/guide.html):
 #   sudo apt-get install xsltproc
 #   sudo pip install gcovr
@@ -393,6 +466,17 @@ cpp-tests: $(BUILD)/cpp/tests/tests
 #   gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*'
 # below seems to be necessary when there are different source and build directories to
 # only produce coverage reports for files in 'cpp/stencila' 
+
+# Run all tests and generate coverage stats
+cpp-tests-coverage: $(BUILD)/cpp/tests/tests.exe
+	cd $(BUILD)/cpp/tests ;\
+	  # Run all tests \
+	  ./tests.exe;\
+	  # Produce coverage stats using gcovr helper for gcov \
+	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*'
+
+# Run all tests and report results to Junit compatible XML files and coverage X
+# to Cobertura comparible XML files
 $(BUILD)/cpp/tests/boost-test-to-junit.xsl: cpp/tests/boost-test-to-junit.xsl
 	cp $< $@
 cpp-tests-xml: $(BUILD)/cpp/tests/tests.exe $(BUILD)/cpp/tests/boost-test-to-junit.xsl
@@ -406,7 +490,7 @@ cpp-tests-xml: $(BUILD)/cpp/tests/tests.exe $(BUILD)/cpp/tests/boost-test-to-jun
 	  # Produce coverage report \
 	  gcovr --root $(ROOT) --filter='.*/cpp/stencila/.*' --xml --output=coverage.xml
 
-# Run all tests and report results and coverage to HTML files
+# Run all tests and create coverage to HTML files
 # Useful for examining coverage during local development 
 cpp-tests-html: $(BUILD)/cpp/tests/tests.exe
 	cd $(BUILD)/cpp/tests ;\
@@ -542,6 +626,10 @@ py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-pac
 	cd $(PY_BUILD)/testenv ;\
 		. bin/activate ;\
 		python tests.py 2>&1 | tee ../tests.out
+
+py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
+	cd $(PY_BUILD) ;\
+		sudo pip$(PY_VERSION) install --upgrade --force-reinstall `cat setup-latest.txt`
 
 py-clean:
 	rm -rf $(PY_BUILD)

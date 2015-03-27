@@ -80,15 +80,30 @@ private:
 	Sessions sessions_;
 
 	/**
+	 * Access log file
+	 */
+	std::ofstream access_log_;
+
+	/**
+	 * Error log file
+	 */
+	std::ofstream error_log_;
+
+	/**
 	 * Get the `Session` for a given `connection_hdl`
 	 */
 	Session& session_(connection_hdl connection);
 
 	/**
+	 * Decode a URL by removing encodings like %20 for a space
+	 */
+	static std::string decode_(const std::string& url);
+
+	/**
 	 * Convert a URL path to a Component address by 
 	 * removing any leading or trailing forward slashes
 	 */
-	std::string address_(const std::string& path);
+	static std::string address_(const std::string& path);
 
 	/**
 	 * Open a connection

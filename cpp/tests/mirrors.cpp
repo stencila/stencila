@@ -7,7 +7,7 @@
 #include <stencila/mirror-rows.hpp>
 #include <stencila/mirror-stencil.hpp>
 
-BOOST_AUTO_TEST_SUITE(mirrors)
+BOOST_AUTO_TEST_SUITE(mirrors_quick)
 
 using namespace Stencila;
 using namespace Stencila::Mirrors;
@@ -66,16 +66,16 @@ STENCILA_DIM(Three,three,three,3);
 
 struct D : public Structure<D> {
 
-    int a = 42;
-    Array<int,Two> b;
+	int a = 42;
+	Array<int,Two> b;
 
-    template<class Mirror>
-    void reflect(Mirror& mirror){
-        mirror
-            .data(a,"a")
-            .data(b,"b")
-        ;
-    }
+	template<class Mirror>
+	void reflect(Mirror& mirror){
+		mirror
+			.data(a,"a")
+			.data(b,"b")
+		;
+	}
 };
 
 BOOST_AUTO_TEST_CASE(has){

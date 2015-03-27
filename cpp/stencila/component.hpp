@@ -44,12 +44,12 @@ public:
 	 * @{
 	 */
 	
-    /**
-     * Initialise a component
-     * 
-     * @param  address Address of component
-     */
-    Component& initialise(const std::string& address);
+	/**
+	 * Initialise a component
+	 * 
+	 * @param  address Address of component
+	 */
+	Component& initialise(const std::string& address);
 
 	/**
 	 * Get this component's path
@@ -89,14 +89,14 @@ public:
 	 */
 	static std::vector<std::string> stores(void);
 
-    /**
-     * Locate a component in the stores
-     * i.e. convert an `address` into a `path`
-     *
-     * This method is used by the `get()` method below but also by the `Server` class to 
-     * statically serve a component file
-     */
-    static std::string locate(const std::string& address);
+	/**
+	 * Locate a component in the stores
+	 * i.e. convert an `address` into a `path`
+	 *
+	 * This method is used by the `get()` method below but also by the `Server` class to 
+	 * statically serve a component file
+	 */
+	static std::string locate(const std::string& address);
 
 	/**
 	 * List files and folders in a components directory 
@@ -121,7 +121,7 @@ public:
 	 * 
 	 * @param path Filesystem path within the working directory
 	 */
-	Component& create(const std::string& path,const std::string& content="\n");
+	Component& create(const std::string& path, const std::string& content="\n");
 
 	/**
 	 * Read a file withing the component's working directory
@@ -129,16 +129,14 @@ public:
 	 * @param  path    Filesystem path within the working directory
 	 * @param  content String content to write
 	 */
-	Component& write(const std::string& path,const std::string& content);
+	Component& write_to(const std::string& path, const std::string& content);
 
 	/**
 	 * Read a file withing the component's working directory
 	 * 
 	 * @param  path    Filesystem path within the working directory
-	 * @param  flag    A dummy string argument. Used to avoid ambiguity with other `read` method
-	 *                 whilst maining consistency with file `write` method
 	 */
-	std::string read(const std::string& path,const std::string& flag);
+	std::string read_from(const std::string& path);
 
 	/**
 	 * Delete a file within the component's working directory
@@ -154,9 +152,9 @@ public:
 	 * This method must be overidden by derived classes to implement
 	 * class specific read formats but call this base method so that `path` is set correctly.
 	 * 
-	 * @param from Filesystem path to component
+	 * @param path Filesystem path to component
 	 */
-	Component& read(const std::string& from="");
+	Component& read(const std::string& path="");
 	
 	/**
 	 * Write the Component to a directory
@@ -164,9 +162,9 @@ public:
 	 * This method must be overidden by derived classes to implement
 	 * class specific write formats but call this base method so that `path` is set correctly.
 	 * 
-	 * @param to Filesystem path to component
+	 * @param path Filesystem path to component
 	 */
-	Component& write(const std::string& to="");
+	Component& write(const std::string& path="");
 	
 	/**
 	 * @}
@@ -178,7 +176,7 @@ public:
 	 * Methods implemented in `stencil-repo.cpp`
 	 * 
 	 * @{
-	 */   
+	 */
 	
 	typedef Git::Repository  Repository;
 	typedef Git::Commit      Commit;
@@ -206,11 +204,32 @@ public:
 	static void fork(const std::string& from, const std::string& to);
 
 	/**
+	 * Is this component managed?
+	 */
+	bool managed(void) const;
+
+	/**
+	 * Make this a managed component
+	 */
+	Component& managed(bool yes);
+
+	/**
+	 * Publish this component so that it is accessible to
+	 * others
+	 */
+	Component& publish(const std::string& address);
+
+	/**
 	 * Get the origin for this component
 	 * 
 	 * @return  URL of the origin; empty string if this component is not a clone
 	 */
 	std::string origin(void) const;
+
+	/**
+	 * Sync the master branch with the origin
+	 */
+	Component& sync(void);
 
 	/**
 	 * Commit this component
@@ -245,9 +264,47 @@ public:
 	 */
 	std::vector<std::string> versions(void) const;
 
+	/**
+	 * Get current branch
+	 */
+	std::string branch(void) const;
 
 	/**
-	 * Provide a particular version of the component
+	 * Switch to a branch
+	 * 
+	 * @param  branch Branch name
+	 */
+	Component& branch(const std::string& branch);
+
+	/**
+	 * Get a list of branches
+	 */
+	std::vector<std::string> branches(void) const;
+
+	/**
+	 * Create a new branch
+	 * 
+	 * @param  new_branch Name of the new branch
+	 */
+	Component& sprout(const std::string& new_branch, const std::string& from_branch = "master");
+
+	/**
+	 * Merge one branch into another branch
+	 *
+	 * @param from_branch Name of the branch to merge commits from
+	 * @param into_branch Name of the branch to merge commits into
+	 */
+	Component& merge(const std::string& from_branch, const std::string& into_branch = "master");
+
+	/**
+	 * Delete a branch
+	 * 
+	 * @param  branch Branch name
+	 */
+	Component& lop(const std::string& branch);
+
+	/**
+	 * Provide a particular version or branch of the component
 	 * 
 	 * @param  version Version to provide
 	 */
@@ -257,7 +314,7 @@ public:
 	 * @}
 	 */
 
-    /**
+	/**
 	 * @name Instances
 	 *
 	 * Methods for the delaration, storage and reteival of components.
@@ -282,7 +339,7 @@ public:
 	 * the same integer code is given to more than one type. 
 	 */
 	enum Type {
-		NoType,
+		NoneType,
 		ComponentType,
 		StencilType,
 		ThemeType,
@@ -379,7 +436,7 @@ public:
 	 */
 	class Instance {
 	public:
-		Instance(void): type_(NoType),pointer_(nullptr){};
+		Instance(void): type_(NoneType),pointer_(nullptr){};
 		Instance(Type type, Component* pointer): type_(type),pointer_(pointer){};
 
 		bool exists(void) const {
@@ -417,12 +474,19 @@ public:
 	 */
 	Component& hold(Type type = ComponentType);
 
-    /**
-     * Get the type of a component at path
-     * 
-     * @param  path Filesystem path to component
-     */
-    static Type type(const std::string& path);
+	/**
+	 * Get the type of a component at path
+	 * 
+	 * @param  path Filesystem path to component
+	 */
+	static Type type(const std::string& path);
+
+	/**
+	 * Get the name of the component type
+	 * 
+	 * @param  type
+	 */
+	static std::string type_name(const Type& type);
 
 	/**
 	 * Get a component with a given address, and optionally, a version requirement
@@ -449,48 +513,48 @@ public:
 	 * 
 	 * @{
 	 */
-	    
+		
 	struct Call {
-	    std::string what_;
-	    Json::Document args_;
-	    Json::Document kwargs_;
+		std::string what_;
+		Json::Document args_;
+		Json::Document kwargs_;
 	
-	    Call(const std::string& what):
-	        what_(what){
-	    }
+		Call(const std::string& what):
+			what_(what){
+		}
 	
-	    Call(const std::string& what, const std::string& args):
-	        what_(what),
-	        args_(args){
-	    }
+		Call(const std::string& what, const std::string& args):
+			what_(what),
+			args_(args){
+		}
 	
-	    Call(const std::string& what, const std::string& args, const std::string& kwargs):
-	        what_(what),
-	        args_(args),
-	        kwargs_(kwargs){
-	    }
+		Call(const std::string& what, const std::string& args, const std::string& kwargs):
+			what_(what),
+			args_(args),
+			kwargs_(kwargs){
+		}
 	
-	    std::string what(void) const {
-	        return what_;
-	    }
+		std::string what(void) const {
+			return what_;
+		}
 	
-	    unsigned int args(void) const {
-	        return args_.size();
-	    }
+		unsigned int args(void) const {
+			return args_.size();
+		}
 	
-	    template<typename Type=std::string>
-	    Type arg(int index,const std::string& name="") const {
-	        // Get argument string
-	        std::string arg;
-	        if(name.length()>0){
-	            if(kwargs_.has(name)) return kwargs_[name].as<Type>();
-	            else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
-	        }
-	        else if(args_.size()<index+1){
-	            STENCILA_THROW(Exception,"Not enough arguments supplied");
-	        }
-	        else return args_[index].as<Type>();
-	    }
+		template<typename Type=std::string>
+		Type arg(int index,const std::string& name="") const {
+			// Get argument string
+			std::string arg;
+			if(name.length()>0){
+				if(kwargs_.has(name)) return kwargs_[name].as<Type>();
+				else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
+			}
+			else if(args_.size()<index+1){
+				STENCILA_THROW(Exception,"Not enough arguments supplied");
+			}
+			else return args_[index].as<Type>();
+		}
 	};
 
 	/**
@@ -535,7 +599,7 @@ public:
 	 * Methods implemented in `component-serve.cpp`
 	 * 
 	 * @{
-	 */   
+	 */
 	
 	/**
 	 * Serve this component
@@ -607,11 +671,11 @@ public:
 	 */
 	static std::string message(Component* component, const std::string& message);
 
-    /**
-     * Generate a default home page for the server that is serving
-     * components.
-     */
-    static std::string home(void);
+	/**
+	 * Generate a default home page for the server that is serving
+	 * components.
+	 */
+	static std::string home(void);
 
 	/**
 	 * @}

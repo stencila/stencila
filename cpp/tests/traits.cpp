@@ -8,7 +8,7 @@
 #include <stencila/traits.hpp>
 #include <stencila/structure.hpp>
 
-BOOST_AUTO_TEST_SUITE(traits)
+BOOST_AUTO_TEST_SUITE(traits_quick)
 
 using namespace Stencila;
 
@@ -34,32 +34,32 @@ BOOST_AUTO_TEST_CASE(traits){
 	BOOST_CHECK_EQUAL(IsCallable<double>::value,false);
 
 
-    typedef std::vector<int> vec;
+	typedef std::vector<int> vec;
 	BOOST_CHECK_EQUAL(IsContainer<vec>::value,true);
 	BOOST_CHECK_EQUAL(IsAssociative<vec>::value,false);
-    BOOST_CHECK_EQUAL(IsPaired<vec>::value,false);
+	BOOST_CHECK_EQUAL(IsPaired<vec>::value,false);
 
-    typedef std::array<double,10> arr;
+	typedef std::array<double,10> arr;
 	BOOST_CHECK_EQUAL(IsContainer<arr>::value,true);
 	BOOST_CHECK_EQUAL(IsAssociative<arr>::value,false);
-    BOOST_CHECK_EQUAL(IsPaired<arr>::value,false);
-    
-    typedef std::set<int> set;
+	BOOST_CHECK_EQUAL(IsPaired<arr>::value,false);
+	
+	typedef std::set<int> set;
 	BOOST_CHECK_EQUAL(IsContainer<set>::value,true);
 	BOOST_CHECK_EQUAL(IsAssociative<set>::value,true);
-    BOOST_CHECK_EQUAL(IsPaired<set>::value,false);
-    
-    typedef std::map<int,int> map;
+	BOOST_CHECK_EQUAL(IsPaired<set>::value,false);
+	
+	typedef std::map<int,int> map;
 	BOOST_CHECK_EQUAL(IsContainer<map>::value,true);
 	BOOST_CHECK_EQUAL(IsAssociative<map>::value,true);
-    BOOST_CHECK_EQUAL(IsPaired<map>::value,true);
+	BOOST_CHECK_EQUAL(IsPaired<map>::value,true);
 }
 
 BOOST_AUTO_TEST_CASE(structure){
-    struct A : Structure<A> {};
+	struct A : Structure<A> {};
 	BOOST_CHECK_EQUAL(IsStructure<A>::value,true);
 
-    struct B : A {};
+	struct B : A {};
 	BOOST_CHECK_EQUAL(IsStructure<B>::value,true);
 }
 

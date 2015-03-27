@@ -155,7 +155,7 @@ Node Node::append_comment(const std::string& comment){
 
 Node Node::append_xml(const std::string& xml){
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load(xml.c_str());
+	pugi::xml_parse_result result = doc.load_string(xml.c_str());
 	if(not result){
 		STENCILA_THROW(Exception,result.description());
 	}
@@ -197,8 +197,7 @@ Node& Node::clear(void){
 }  
 
 Node& Node::move(Node& to) {
-	to.pimpl_->append_copy(*pimpl_);
-	pimpl_->parent().remove_child(*pimpl_);
+	to.pimpl_->append_move(*pimpl_);
 	return *this;
 }  
 
@@ -244,7 +243,7 @@ Node Node::next_element(void){
 		if(sibling.type()==pugi::node_element){
 			return sibling;
 		}
-		sibling = pimpl_->next_sibling();
+		sibling = sibling.next_sibling();
 	}
 	return pugi::xml_node();
 }
@@ -613,7 +612,7 @@ Node Document::doctype(const std::string& type){
 }
 
 Document& Document::load(const std::string& xml){
-	pugi::xml_parse_result result = doc_()->load(xml.c_str());
+	pugi::xml_parse_result result = doc_()->load_string(xml.c_str());
 	if(not result){
 		STENCILA_THROW(Exception,result.description());
 	}

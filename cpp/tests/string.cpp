@@ -2,7 +2,7 @@
 
 #include <stencila/string.hpp>
 
-BOOST_AUTO_TEST_SUITE(string)
+BOOST_AUTO_TEST_SUITE(string_quick)
 
 BOOST_AUTO_TEST_CASE(stringify){
 	using Stencila::string;

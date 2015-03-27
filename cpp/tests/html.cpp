@@ -3,7 +3,7 @@
 
 #include <stencila/html.hpp>
 
-BOOST_AUTO_TEST_SUITE(html)
+BOOST_AUTO_TEST_SUITE(html_quick)
 
 using namespace Stencila::Html;
  
@@ -47,7 +47,9 @@ BOOST_AUTO_TEST_CASE(dump_not_pretty){
 }
 
 BOOST_AUTO_TEST_CASE(dump_pretty){
-	Document doc("x<span>y</span>z");
+	Document doc(R"(
+		<p>Text <span>in spans</span> and <a href="">in-links</a><span>too</span> should be inline</p>
+	)");
 	auto result = R"(<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -55,14 +57,25 @@ BOOST_AUTO_TEST_CASE(dump_pretty){
 		<meta charset="utf-8">
 	</head>
 	<body>
-		x<span>y</span>z
+		<p>
+			Text <span>in spans</span> and <a href="">in-links</a><span>too</span> should be inline
+		</p>
 	</body>
 </html>)";
 	BOOST_CHECK_EQUAL(
-		doc.dump("\t"),
+		doc.dump(),
 		result
 	);
+	//"
+}
 
+BOOST_AUTO_TEST_CASE(dump_escapes){
+	Document doc;
+	doc.find("body").append("span",{{"data-write","\"a quoted value\""}},"a < b & c < d");
+	BOOST_CHECK_EQUAL(
+		doc.dump(false),
+		R"(<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title></title><meta charset="utf-8"></head><body><span data-write="&quot;a quoted value&quot;">a &lt; b &amp; c &lt; d</span></body></html>)"
+	);
 }
 
 
@@ -82,7 +95,7 @@ BOOST_AUTO_TEST_CASE(write_read){
 }
 
 /**
- * Test that tidy put wraps script code in CDATA element
+ * Test that tidy wraps script code in CDATA element
  */
 BOOST_AUTO_TEST_CASE(cdata){
 	Document doc("<script>code</script>");
@@ -139,7 +152,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// No Filter Evasion
 	CHECK(
 		"<script src=\"http://example.com/xss.js\" />",
-		"<script src=\"http://example.com/xss.js\"></script>" 
+		"<script src=\"http://example.com/xss.js\" />" 
 	)
 	CHECK(
 		"<script>alert('XSS')</script>",
@@ -221,7 +234,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// Non-alpha-non-digit XSS
 	CHECK(
 		"<SCRIPT/XSS SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT>",
-		"<script src=\"http://ha.ckers.org/xss.js\"></script>"
+		"<script src=\"http://ha.ckers.org/xss.js\" />"
 	)
 	CHECK(
 		"<img onmouseover!#$%&()*~+-_.,:;?@[/|\\]^`=alert(\"XSS\")>",
@@ -229,7 +242,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	)
 	CHECK(
 		"<SCRIPT/SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT>",
-		"<script></script>"
+		"<script />"
 	)
 
 	// Extraneous open brackets
@@ -249,7 +262,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// Protocol resolution in script tags
 	CHECK(
 		"<SCRIPT SRC=//ha.ckers.org/.j>",
-		"<script src=\"//ha.ckers.org/.j\"></script>"
+		"<script src=\"//ha.ckers.org/.j\" />"
 	)
 
 	// Half open HTML/JavaScript XSS vector

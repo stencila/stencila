@@ -24,8 +24,8 @@ def version():
 	# Extract into parts
 	parts = long.split('-')
 	tag = parts[0]
-	commits = parts[1]
-	commit = parts[2]
+	commits = parts[1] if len(parts)>1 else '?'
+	commit = parts[2] if len(parts)>2 else '?'
 	dirty = True if 'dirty' in long else False
 	# Create version number
 	version = tag

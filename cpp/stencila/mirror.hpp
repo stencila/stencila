@@ -8,7 +8,7 @@ namespace Mirrors {
 template<class Derived>
 class Mirror : public Polymorph<Derived> {
 public:
-    using Polymorph<Derived>::derived;
+	using Polymorph<Derived>::derived;
 
 	template<class Type>
 	Derived& mirror(void){

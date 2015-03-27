@@ -41,7 +41,13 @@ setRefClass(
         description = function(value) get_(.self,'Stencil_description_get'),
         keywords = function(value) get_(.self,'Stencil_keywords_get'),
         authors = function(value) get_(.self,'Stencil_authors_get'),
-        contexts = function(value) get_(.self,'Stencil_contexts_get')
+        contexts = function(value) get_(.self,'Stencil_contexts_get'),
+
+        # Getter/setter for stencil context
+        context = function(value){
+            if(missing(value)) .context
+            else attach(value)
+        }
     ),
     contains = 'Component',
     methods = list(
@@ -55,15 +61,26 @@ setRefClass(
             method_(.self,'Stencil_initialise',initialiser)
         },
 
+        html_get = function(indent=true){
+            method_(.self,'Stencil_html_options',indent)
+        },
+
         import = function(path) method_(.self,'Stencil_import',path),
         export = function(path) method_(.self,'Stencil_export',path),
         read = function(path="") method_(.self,'Stencil_read',path),
         write = function(path="") method_(.self,'Stencil_write',path),
 
+        # Currently, rather than invoking multiple inheritance (ie.e a stecnil derived from a Html::Node)
+        # implement these methods for Stencils and HtmlNodes
+        select = function(selector) method_(.self,'Stencil_select',selector),
+
         attach = function(context){
             if(!is.null(context)) detach()
             if(inherits(context,'Context')) .context <<- context
             else .context <<- Context(context)
+            # Assign this stencil to the 'self' context
+            # variable so it can be accessed from there
+            assign('self',.self,envir=.context$top())
             method_(.self,'Stencil_attach',context)
         },
         detach = function(){
@@ -71,7 +88,7 @@ setRefClass(
             method_(.self,'Stencil_detach')
         },
         render = function(context=NULL){
-            if(!is.null(context)) attach(context)
+            if(!is.null(context)) attach(Context(context))
             else if(is.null(.context)) attach(Context())
             method_(.self,'Stencil_render')
         },

@@ -137,6 +137,15 @@ STENCILA_R_FUNC CLASS##_##NAME(SEXP self, SEXP arg1){ \
     STENCILA_R_END \
 }
 
+// Call a method with 2 arguments and return `null`
+#define STENCILA_R_EXEC2(CLASS,NAME,TYPE1, TYPE2) \
+STENCILA_R_FUNC CLASS##_##NAME(SEXP self, SEXP arg1, SEXP arg2){ \
+    STENCILA_R_BEGIN \
+        from<CLASS>(self).NAME(as<TYPE1>(arg1),as<TYPE2>(arg2)); \
+        return null; \
+    STENCILA_R_END \
+}
+
 // Define a `_get` method for an 
 #define STENCILA_R_GET(CLASS,NAME) \
 STENCILA_R_FUNC CLASS##_##NAME##_get(SEXP self){ \

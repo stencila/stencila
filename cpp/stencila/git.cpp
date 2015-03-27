@@ -4,12 +4,21 @@
 #include <git2.h>
 
 #include <stencila/git.hpp>
+#include <stencila/helpers.hpp>
+#include <stencila/string.hpp>
+
+namespace {
+	using namespace Stencila::Helpers;
+	std::string repo_call(const std::string& path,const std::string& command){
+		return call("cd "+path+" && "+command);
+	}
+}
 
 namespace Stencila {
 namespace Git {
 
 Error::Error(int code,std::string message, const char* file, int line):
-    Exception(message,file,line){
+	Exception(message,file,line){
 	if(code<0 and message.length()==0){
 		const git_error* error = giterr_last();
 		message_ = (error && error->message) ? error->message : "unknown";
@@ -44,10 +53,10 @@ Repository::Repository(void):
 	// See
 	//  https://github.com/libgit2/libgit2/issues/2446
 	// 	https://github.com/libgit2/libgit2/issues/2480
-	static bool git_threads_inited = false;
-	if(not git_threads_inited){
-		git_threads_init();
-		git_threads_inited = true;
+	static bool git_libgit2_inited = false;
+	if(not git_libgit2_inited){
+		git_libgit2_init();
+		git_libgit2_inited = true;
 	}
 }
 
@@ -55,28 +64,14 @@ Repository::~Repository(void){
 	if(repo_) git_repository_free(repo_);
 }
 
-void Repository::init(const std::string& path,bool commit){
+void Repository::init(const std::string& path, bool initial_commit){
+	path_ = path;
 	STENCILA_GIT_TRY(git_repository_init(&repo_,path.c_str(),false));
-
-	if(commit){
-	    git_signature *sig;
-	    git_index *index;
-	    git_oid tree_id, commit_id;
-	    git_tree *tree;
-
-		git_repository_index(&index, repo_);
-		git_index_write_tree(&tree_id, index);
-		git_tree_lookup(&tree, repo_, &tree_id);
-		git_signature_now(&sig,"Anonymous","none");
-		git_commit_create_v(&commit_id, repo_, "HEAD", sig, sig, NULL, "Initial commit", tree, 0);
-
-		git_signature_free(sig);
-		git_tree_free(tree);
-		git_index_free(index);
-	}
+	if(initial_commit) commit("Initial commit");
 }
 
 bool Repository::open(const std::string& path, bool up){
+	path_ = path;
 	const char* ceiling = NULL;
 	if(not up) ceiling = path.c_str();
 	int error = git_repository_open_ext(&repo_,path.c_str(),0,ceiling);
@@ -87,6 +82,7 @@ bool Repository::open(const std::string& path, bool up){
 }
 
 void Repository::clone(const std::string& url,const std::string& path){
+	path_ = path;
 	int error_code = git_clone(&repo_, url.c_str(), path.c_str(), NULL);
 	if(error_code<0){
 		const git_error* error = giterr_last();
@@ -118,7 +114,7 @@ std::string Repository::head(void){
 
 std::string Repository::remote(const std::string& name){
 	git_remote* remote = NULL;
-	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, "origin"));
+	STENCILA_GIT_TRY(git_remote_lookup(&remote, repo_, "origin"));
 	std::string url = git_remote_url(remote);
 	git_remote_free(remote);
 	return url;
@@ -126,10 +122,24 @@ std::string Repository::remote(const std::string& name){
 
 Repository& Repository::remote(const std::string& name,const std::string& url){
 	git_remote* remote = NULL;
-	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, "origin"));
+	STENCILA_GIT_TRY(git_remote_lookup(&remote, repo_, "origin"));
 	STENCILA_GIT_TRY(git_remote_set_url(remote,url.c_str()));
 	git_remote_free(remote);
 	return *this;
+}
+
+void Repository::download(const std::string& name){
+	git_remote* remote = NULL;
+	STENCILA_GIT_TRY(git_remote_lookup(&remote, repo_, name.c_str()));
+	STENCILA_GIT_TRY(git_remote_fetch(remote, NULL, NULL, NULL));
+	git_remote_free(remote);
+}
+
+void Repository::upload(const std::string& name){
+	git_remote* remote = NULL;
+	STENCILA_GIT_TRY(git_remote_lookup(&remote, repo_, name.c_str()));
+	STENCILA_GIT_TRY(git_remote_upload(remote, NULL, NULL));
+	git_remote_free(remote);
 }
 
 std::vector<Commit> Repository::commits(void){
@@ -204,6 +214,21 @@ void Repository::commit(const std::string& message,const std::string& name,const
 	git_reference_free(ref);
 }
 
+void Repository::checkout(const std::string& ref){
+	git_object* commit = nullptr;
+	// Get the commit from the ref
+	STENCILA_GIT_TRY(git_revparse_single(&commit, repo_, ref.c_str()));
+	// Set options
+	// There are plenty of options
+	// See https://github.com/libgit2/libgit2/blob/HEAD/include/git2/checkout.h
+	// opts.checkout_strategy is really important!
+	git_checkout_options options = GIT_CHECKOUT_OPTIONS_INIT;
+	options.checkout_strategy = GIT_CHECKOUT_FORCE;
+	// Do the commit
+	STENCILA_GIT_TRY(git_checkout_tree(repo_,commit,&options));
+	git_object_free(commit);
+}
+
 std::vector<std::string> Repository::tags(void){
 	git_strarray tags;
 	STENCILA_GIT_TRY(git_tag_list(&tags, repo_));
@@ -224,7 +249,7 @@ std::string Repository::tag(void){
 
 void Repository::tag(const std::string& tag,const std::string& message,const std::string& name,const std::string& email){
 	
-	git_object* target = nullptr;		
+	git_object* target = nullptr;
 	STENCILA_GIT_TRY(git_revparse_single(&target, repo_, "HEAD^{commit}"));
 	
 	git_signature* tagger = nullptr;
@@ -248,37 +273,37 @@ void Repository::tag(const std::string& tag,const std::string& message,const std
 	git_signature_free(tagger);
 }
 
-void Repository::checkout(const std::string& tag){
-	git_object* commit = nullptr;
-	// Get the commit from the tag
-	STENCILA_GIT_TRY(git_revparse_single(&commit, repo_, tag.c_str()));
-	// Set options
-	// There are plenty of options
-	// See https://github.com/libgit2/libgit2/blob/HEAD/include/git2/checkout.h
-	// opts.checkout_strategy is really important!
-	git_checkout_options options = GIT_CHECKOUT_OPTIONS_INIT;
-	options.checkout_strategy = GIT_CHECKOUT_FORCE;
-	// Do the commit
-	STENCILA_GIT_TRY(git_checkout_tree(repo_,commit,&options));
-	git_object_free(commit);
+std::vector<std::string> Repository::branches(void) const{
+	auto string = repo_call(path_,"git branch | sed 's/^..//'");
+	return split(string,"\n");
 }
 
-void Repository::pull(const std::string& name){
-	git_remote* remote = NULL;
-	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, name.c_str()));
-	STENCILA_GIT_TRY(git_remote_fetch(remote, NULL, NULL));
-	git_remote_free(remote);
+std::string Repository::branch(void) const {
+	return repo_call(path_,"git rev-parse --abbrev-ref HEAD");
 }
 
-void Repository::push(const std::string& name){
-	git_remote* remote = NULL;
-	STENCILA_GIT_TRY(git_remote_load(&remote, repo_, name.c_str()));
-    git_push* push = NULL;
-    STENCILA_GIT_TRY(git_push_new(&push, remote));
-    STENCILA_GIT_TRY(git_push_add_refspec(push,"refs/heads/master:refs/heads/master"));
-    STENCILA_GIT_TRY(git_push_finish(push));
-    STENCILA_GIT_TRY(git_push_unpack_ok(push));
-	git_remote_free(remote);
+void Repository::branch(const std::string& name){
+	repo_call(path_,"git checkout "+name);
+}
+
+void Repository::sprout(const std::string& new_branch, const std::string& from_branch){
+	repo_call(path_,"git checkout "+from_branch+" -b "+new_branch);
+}
+
+void Repository::merge(const std::string& from_branch, const std::string& into_branch){
+	auto current_branch = branch();
+	if(current_branch!=into_branch) branch(into_branch);
+	repo_call(path_,"git merge --no-ff "+from_branch);
+	if(current_branch!=into_branch) branch(current_branch);
+}
+
+void Repository::lop(const std::string& branch){
+	repo_call(path_,"git branch -D "+branch);
+}
+
+void Repository::archive(const std::string& ref, const std::string& to) const{
+	boost::filesystem::create_directories(to);
+	repo_call(path_,"git archive "+ref+" | tar -x -C "+to);
 }
 
 } // end namespace Git
