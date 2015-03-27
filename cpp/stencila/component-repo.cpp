@@ -38,7 +38,7 @@ Component::Repository* Component::repo(bool ensure) const {
 void Component::clone(const std::string& address) {
 	Repository repo;
 	repo.clone(
-		"http://stenci.la/"+address+".git",
+		"https://stenci.la/"+address+".git",
 		stores()[1] + "/" + address
 	);
 }
@@ -46,7 +46,7 @@ void Component::clone(const std::string& address) {
 void Component::fork(const std::string& from, const std::string& to) {
 	Repository repo;
 	repo.clone(
-		"http://stenci.la/"+from+".git",
+		"https://stenci.la/"+from+".git",
 		stores()[1] + "/" + to
 	);
 	repo.remote("origin","");
@@ -65,8 +65,7 @@ Component& Component::managed(bool yes){
 }
 
 Component& Component::publish(const std::string& address) {
-	hub.post("component/new");
-	sync();
+	STENCILA_THROW(Exception,"Publishing of components is not yet implemented.");
 	return *this;
 }
 
