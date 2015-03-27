@@ -19,9 +19,9 @@ Stencila components (e.g. stencils, themes) are git repositories. The first thin
 ```sh
 mkdir ~/.stencila
 cd ~/.stencila
-git clone https::/stenci.la/core/themes/base core/themes/base
-git clone https::/stenci.la/core/stencils/themes/default core/stencils/themes/default
-git clone https::/stenci.la/core/stencils/examples/kitchensink core/stencils/examples/kitchensink
+git clone https://stenci.la/core/themes/base.git core/themes/base
+git clone https://stenci.la/core/stencils/themes/default.git core/stencils/themes/default
+git clone https://stenci.la/core/stencils/examples/kitchensink.git core/stencils/examples/kitchensink
 ```
 
 It is important to clone into the correct directories, as shown above, to get the Stencila components' address space right. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
