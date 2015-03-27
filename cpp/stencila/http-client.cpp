@@ -1,4 +1,4 @@
-
+#define BOOST_NETWORK_ENABLE_HTTPS
 #include <boost/network/protocol/http/client.hpp>
 #include <boost/network/utils/base64/encode.hpp>
 
@@ -9,18 +9,24 @@
 namespace Stencila {
 namespace Http {
 
-Request::Request(const std::string& url):
+Request::Request(Method method, const std::string& url):
+	method_(method),
 	impl_(new Implementation_(url))
 {
 	header("User-Agent","Stencila embedded");
 }
 
+Request::Request(const std::string& url):
+	Request(GET,url)
+{}
+
 Request::Request(
+	Method method,
 	const std::string& url,
 	const std::map<std::string,std::string>& params,
 	const std::map<std::string,std::string>& headers
 ):
-	Request(url)
+	Request(method,url)
 {
 	for(auto item : headers) header(item.first,item.second);
 }
@@ -96,11 +102,30 @@ Client::~Client(void){
 	delete impl_;
 }
 
-Response Client::get(
-	const Request& request
-){
-	auto response = impl_->get(*request.impl_);
-	check_(response);
+Response Client::request(const Request& request){
+	using namespace boost::network;
+	http::response response;
+	switch(request.method_){
+		case GET:
+			response = impl_->get(*request.impl_);
+		break;
+		case POST:
+			response = impl_->post(*request.impl_);
+		break;
+		case DELETE:
+			response = impl_->delete_(*request.impl_);
+		break;
+		default:
+			STENCILA_THROW(Exception,"Request method not currently handled");
+		break;
+	}
+	int code = http::status(response);
+	if(code>299){
+		STENCILA_THROW(
+			Exception,
+			"Server responded with a HTTP failure code.\n  code: "+string(code)
+		);
+	}
 	return Response(response);
 }
 
@@ -109,15 +134,7 @@ Response Client::get(
 	const std::map<std::string,std::string>& params,
 	const std::map<std::string,std::string>& headers
 ){
-	return get(Request(url,params,headers));
-}
-
-Response Client::post(
-	const Request& request
-){
-	auto response = impl_->post(*request.impl_);
-	check_(response);
-	return Response(response);
+	return this->request(Request(GET,url,params,headers));
 }
 
 Response Client::post(
@@ -126,20 +143,9 @@ Response Client::post(
 	const std::map<std::string,std::string>& headers,
 	const std::string& body
 ){
-	auto request = Request(url,params,headers);
+	auto request = Request(POST,url,params,headers);
 	if(body.length()) request.body(body);
-	return post(request);
-}
-
-void Client::check_(boost::network::http::client::response& response){
-	using namespace boost::network::http;
-	int code = status(response);
-	if(code>299){
-		STENCILA_THROW(
-			Exception,
-			"Server responded with HTTP non-success HTTP code.\n  code: "+string(code)
-		);
-	}
+	return this->request(request);
 }
 
 Response get(

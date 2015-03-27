@@ -22,8 +22,25 @@ namespace boost {
 namespace Stencila {
 namespace Http {
 
+enum Method {
+	GET,
+	HEAD,
+	POST,
+	PUT,
+	DELETE,
+	TRACE,
+	OPTIONS,
+	CONNECT,
+	PATCH,
+};
+
 class Request {
 public:
+
+	/**
+	 * Construct a request from a method and URL
+	 */
+	Request(Method method, const std::string& url);
 
 	/**
 	 * Construct a request from a URL
@@ -34,6 +51,7 @@ public:
 	 * Construct a request from a URL, parameters and headers
 	 */
 	Request(
+		Method method,
 		const std::string& url,
 		const std::map<std::string,std::string>& params,
 		const std::map<std::string,std::string>& headers
@@ -53,6 +71,11 @@ public:
 	Request& body(const std::string& body);
 
 private:
+
+	/**
+	 * HTTP method
+	 */
+	Method method_;
 
 	/**
 	 * Implementation
@@ -117,9 +140,23 @@ public:
 	~Client(void);
 
 	/**
+	 * Make a request
+	 */
+	Response request(const Request& request);
+
+	/**
+	 * Make a request
+	 */
+	Response request(
+		Method method,
+		const std::string& url,
+		const std::map<std::string,std::string>& params = {},
+		const std::map<std::string,std::string>& headers = {}
+	);
+
+	/**
 	 * Make a GET request
 	 */
-	Response get(const Request& request);
 	Response get(
 		const std::string& url,
 		const std::map<std::string,std::string>& params = {},
@@ -129,7 +166,6 @@ public:
 	/**
 	 * Make a POST request
 	 */
-	Response post(const Request& request);
 	Response post(
 		const std::string& url,
 		const std::map<std::string,std::string>& params = {},
