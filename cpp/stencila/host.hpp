@@ -3,6 +3,8 @@
 namespace Stencila {
 namespace Host {
 
+std::string variable(const std::string& name);
+
 std::string current_dir(void);
 
 /**

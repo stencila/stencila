@@ -7,6 +7,12 @@
 namespace Stencila {
 namespace Host {
 
+std::string variable(const std::string& name) {
+	const char* raw = std::getenv(name.c_str());
+	// Necessary to check for raw==0 before attempting to construct a string from it
+	return raw?raw:""; 
+}
+
 std::string current_dir(void) {
 	return boost::filesystem::current_path().string();
 }
