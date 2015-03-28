@@ -35,21 +35,25 @@ Component::Repository* Component::repo(bool ensure) const {
 	}
 }
 
-void Component::clone(const std::string& address) {
+std::string Component::clone(const std::string& address) {
+	std::string path = stores()[1] + "/" + address;
 	Repository repo;
 	repo.clone(
 		"https://stenci.la/"+address+".git",
-		stores()[1] + "/" + address
+		path
 	);
+	return path;
 }
 
-void Component::fork(const std::string& from, const std::string& to) {
+std::string Component::fork(const std::string& from, const std::string& to) {
+	std::string path = stores()[1] + "/" + to;
 	Repository repo;
 	repo.clone(
 		"https://stenci.la/"+from+".git",
-		stores()[1] + "/" + to
+		path
 	);
 	repo.remote("origin","");
+	return path;
 }
 
 bool Component::managed(void) const {

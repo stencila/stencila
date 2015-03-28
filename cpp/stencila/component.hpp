@@ -192,16 +192,18 @@ public:
 	 * Clone a component
 	 *
 	 * @param  address Address of component to be cloned
+	 * @return Path of the newly cloned component
 	 */
-	static void clone(const std::string& address);
+	static std::string clone(const std::string& address);
 
 	/**
 	 * Fork a component
 	 *
 	 * @param  from Address of component to be forked
 	 * @param  to Address of new component
+	 * @return Path of the newly cloned component
 	 */
-	static void fork(const std::string& from, const std::string& to);
+	static std::string fork(const std::string& from, const std::string& to);
 
 	/**
 	 * Is this component managed?

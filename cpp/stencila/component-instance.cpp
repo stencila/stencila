@@ -73,10 +73,10 @@ Component::Instance Component::get(const std::string& address,const std::string&
 		instance = iterator->second;
 	}
 	else {
-		// Try to find a component on the filesystem
-		// and if not found clone it from Stencila hub
+		// Try to find a component on the filesystem...
 		std::string path = locate(address);
-		if(path.length()==0) Component::clone(address);
+		//...if not found clone it from Stencila hub
+		if(path.length()==0) path = Component::clone(address);
 		// Load the component into memory
 		Component* component;
 		Type type = Component::type(path);
