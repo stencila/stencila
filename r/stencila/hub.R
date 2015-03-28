@@ -20,8 +20,3 @@ username = function(){
 signout = function(){
 	call_('hub_signout')
 }
-
-#' @export
-get = function(address){
-	call_('Component_get',address)
-}

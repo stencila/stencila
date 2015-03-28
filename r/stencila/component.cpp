@@ -63,3 +63,14 @@ STENCILA_R_EXEC2(Component,merge,std::string,std::string)
 
 STENCILA_R_EXEC1(Component,lop,std::string)
 
+STENCILA_R_FUNC Component_grab(SEXP address){
+    STENCILA_R_BEGIN
+        Component::Instance instance = Component::get(
+            as<std::string>(address)
+        );
+        Rcpp::CharacterVector parts(2);
+        parts[0] = Component::type_name(instance.type());
+        parts[1] = instance.as<Component>().path();
+        return parts;
+    STENCILA_R_END
+}

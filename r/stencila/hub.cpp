@@ -25,10 +25,3 @@ STENCILA_R_FUNC hub_signout(void){
         hub.signout();
     STENCILA_R_END
 }
-
-STENCILA_R_FUNC Component_get(SEXP address){
-    STENCILA_R_BEGIN
-        Component& component = Component::get(as<std::string>(address)).as<Component>();
-        return wrap(component.path());
-    STENCILA_R_END
-}

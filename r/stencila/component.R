@@ -13,7 +13,7 @@ setRefClass(
 	contains = 'Extension',
 	methods = list(
 		show = function(){
-			cat(class(.self)[1],'@',address,'\n',sep='')
+			cat(class(.self)[1],'(',address(),')\n',sep='')
 		},
 
 		path = function(value){
@@ -196,3 +196,18 @@ setRefClass(
 		}
 	)
 )
+
+#' Grab a component
+#' 
+#' This is functionally the same as the Stencila C++ method
+#' `Component::get` but will actually instantiate a new member of
+#' the retreived class. Not called `get` or `load` because those clash 
+#' with functions in the base package
+#'
+#' @export
+grab = function(address){
+	parts <- call_('Component_grab',address)
+	type <- parts[1]
+	address <- parts[2]
+	return(get(type)(address))
+}
