@@ -106,8 +106,10 @@ std::string Component::message(const std::string& address,const std::string& mes
 				}
 				catch(const std::exception& e){
 					std::string message = e.what();
-					// Escape quotes to prevent JSON parsing errors
+					// Escape quotes, newlines and tabs to prevent JSON parsing errors
 					boost::replace_all(message,"\"","\\\"");
+					boost::replace_all(message,"\n","\\n");
+					boost::replace_all(message,"\t","\\t");
 					return str(format("[8, 48, %d, {}, \"%s\"]")%id%message);
 				}
 				catch(...){
