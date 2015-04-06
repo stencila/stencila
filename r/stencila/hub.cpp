@@ -5,7 +5,21 @@ using namespace Stencila;
 
 #include "extension.hpp"
 
-STENCILA_R_FUNC hub_signin(SEXP username, SEXP password){
+STENCILA_R_FUNC hub_signin_envvar(){
+    STENCILA_R_BEGIN
+        hub.signin();
+    STENCILA_R_END
+}
+
+STENCILA_R_FUNC hub_signin_token(SEXP token){
+    STENCILA_R_BEGIN
+        hub.signin(
+            as<std::string>(token)
+        );
+    STENCILA_R_END
+}
+
+STENCILA_R_FUNC hub_signin_pass(SEXP username, SEXP password){
     STENCILA_R_BEGIN
         hub.signin(
             as<std::string>(username),

@@ -2,13 +2,21 @@
 NULL
 
 #' @export
-signin = function(){
-	username <- readline("Username: ")
-	cat("Password: ")
-	system("stty -echo")
-	password <- readline()
-	system("stty echo")
-	call_('hub_signin',username,password)
+signin = function(token){
+	if(missing(token)){
+		username <- readline("Username: ")
+		cat("Password: ")
+		system("stty -echo")
+		password <- readline()
+		system("stty echo")
+		call_('hub_signin_pass',username,password)
+	}
+	else if(token=='*'){
+		call_('hub_signin_envvar')
+	}
+	else {
+		call_('hub_signin_token',token)
+	}
 }
 
 #' @export
