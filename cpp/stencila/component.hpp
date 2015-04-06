@@ -78,7 +78,13 @@ public:
 	/**
 	 * Get this component's address
 	 */
-	std::string address(bool ensure = false);
+	std::string address(void) const;
+
+     /**
+	 * Get this component's address, assigning
+	 * an address if it does not yet have one
+	 */
+	std::string address(bool ensure);
 
 	/**
 	 * Get the filesystem paths of the Stencila stores

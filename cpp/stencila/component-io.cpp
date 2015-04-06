@@ -67,21 +67,29 @@ Component& Component::path(const char* path){
 	return Component::path(std::string(path));
 }
 
-std::string Component::address(bool ensure){
-	std::string path = this->path(ensure);
+std::string Component::address(void) const {
+	std::string path = this->path();
 	if(path.length()>0){
 		for(auto store : stores()){
 			if(path.length()>store.length()){
 				if(path.substr(0,store.length())==store){
+					// Component is in a store
 					return path.substr(store.length()+1);
 				}
 			}
 		}
 	}
-	// Return a "local" address starting with a double forward slash
+	// Component is not in a store so return a "local" address 
+	// starting with a double forward slash
 	auto address = boost::filesystem::absolute(path).string();
 	if(address[0]!='/') address.insert(0,"/");
 	return address;
+}
+
+std::string Component::address(bool ensure){
+	if(not ensure) STENCILA_THROW(Exception,"Method must be called with a true value");
+	path(true);
+	return address();
 }
 
 std::vector<std::string> Component::stores(void){
