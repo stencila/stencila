@@ -23,6 +23,13 @@ std::string Stencil::html(bool document,bool indent) const {
 		if(t.length()==0) t = "Untitled";
 		head.find("title").text(t);
 
+		// Address is put into a <meta> as microdata
+		// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
+		head.append("meta",{
+			{"itemprop","address"},
+			{"content",address()}
+		});
+
 		// Description is repeated in <meta>
 		auto d = description();
 		if(d.length()>0){
