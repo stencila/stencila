@@ -90,6 +90,17 @@ private:
 	std::ofstream error_log_;
 
 	/**
+	 * Keep track of the number of retires. See `start()` method.
+	 */
+	uint restarts_;
+	const static uint max_restarts_ = 100;
+
+	/**
+	 * Restart the server after an otherwise unhandled exception
+	 */
+	void restart_(void);
+
+	/**
 	 * Get the `Session` for a given `connection_hdl`
 	 */
 	Session& session_(connection_hdl connection);

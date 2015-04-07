@@ -39,6 +39,8 @@ Server::Server(void){
 	// after previous unclean shutdown.
 	// See http://hea-www.harvard.edu/~fine/Tech/addrinuse.html
 	server_.set_reuse_addr(true);
+	// Reset number of restarts
+	restarts_ = 0;
 }
 
 std::string Server::url(void) const {
@@ -46,9 +48,17 @@ std::string Server::url(void) const {
 }
 
 void Server::start(void){
-	server_.listen(port_);
-	server_.start_accept();
-	server_.run();
+	try {
+		server_.listen(port_);
+		server_.start_accept();
+		server_.run();
+	} catch (std::exception const & e) {
+        error_log_ << "[XXXX-XX-XX XX:XX:XX] [exception]" << e.what() << std::endl;
+        restart_();
+    } catch (...) {
+        error_log_ << "[XXXX-XX-XX XX:XX:XX] [exception] Unknown exception" << std::endl;
+        restart_();
+    }
 }
 
 void Server::stop(void){
@@ -75,6 +85,11 @@ void Server::shutdown(void) {
 		delete server_instance_;
 		delete server_thread_;
 	}
+}
+
+void Server::restart_(void){
+	restarts_ += 1;
+	if(restarts_<max_restarts_) start();
 }
 
 Server::Session& Server::session_(connection_hdl hdl) {
