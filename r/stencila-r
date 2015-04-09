@@ -1,0 +1,94 @@
+#!/usr/bin/env Rscript
+
+# Stencila command line interface (CLI) for R
+# 
+# Allows you to launch an R session, grab a component and execute methods from
+# the terminal shell.
+
+# Check if outputting to a terminal or not
+terminal <- isatty(stdout())
+
+# ANSI escape codes for terminal text colours.
+# See http://en.wikipedia.org/wiki/ANSI_escape_code
+if(terminal){
+	grey <- '\x1b[90m'
+	green <- '\x1b[32m'
+	yellow <- '\x1b[93m'
+	blue <- '\x1b[94m'
+	magenta <- '\x1b[95m'
+	cyan <- '\x1b[96m'
+	reset <- '\x1b[0m'
+} else {
+	grey <- NULL
+	green <- NULL
+	yellow <- NULL
+	blue <- NULL
+	magenta <- NULL
+	cyan <- NULL
+	reset <- NULL
+}
+
+# Banner
+cat(green,'Stencila CLI for R\n\n',reset,sep='')
+
+# Get the command line arguments
+commands <- commandArgs(trailingOnly=TRUE)
+
+# General help on usage
+if(length(commands)==0 | (length(commands)==1 & commands[1]=='help')){
+	cat('Usage:\n')
+	cat('  stencila-r help                                   \n')
+	cat('  stencila-r <address> <method>[:<arg>,<arg>,...] ...\n')
+	cat('\n')
+	cat('Examples:\n')
+	cat('  stencila-r . render export:index.html\n')
+	cat('  stencila-r core/themes/base compile\n')
+	quit('no')
+}
+
+# Not needing help, so load package
+library(stencila,quietly=T)
+
+# Get address, remove it from commands and grab component
+address <- commands[1]
+commands <- commands[-1]
+cat('Grabbing component : ',magenta,address,reset,'\n',sep='')
+component <- grab(address)
+
+# Confirm component type
+cat('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
+cat('Component path     : ',cyan,component$path(),reset,'\n',sep='')
+
+# Iterate over methods, applying them to the component
+for(command in commands){
+	if(!is.na(command)){
+		# Get method and arguments
+		parts <- strsplit(command,':')[[1]]
+		method <- parts[1]
+		args <- parts[2]
+		# Parse args into numbers if possible, otherwise assume
+		# they are strings
+		args_formatted <- NULL
+		if(!is.na(args)){
+			for(arg in strsplit(args,',')[[1]]){
+				number <- suppressWarnings(as.numeric(arg))
+				if(is.na(number)) args_formatted <- c(args_formatted,paste0('"',arg,'"'))
+				else args_formatted <- c(args_formatted,arg)
+			}
+			args_formatted <- paste0(args_formatted,collapse=',')
+		}
+		# Construct call
+		if(!is.null(args_formatted)) call <- paste0(method,'(',args_formatted,')')
+		else call <- paste0(method,'()')
+		# Execute call
+		cat('Running method     : ',blue,call,reset,'\n',sep='')
+		cat(yellow)
+		eval(
+			parse(
+				text = paste0('component$',call)
+			)
+		)
+		cat(reset)
+	}
+}
+
