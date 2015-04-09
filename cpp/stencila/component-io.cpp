@@ -31,7 +31,7 @@ Component& Component::path(const std::string& path) {
 	using namespace boost::filesystem;
 	if(not meta_) meta_ = new Meta;
 	std::string current_path = meta_->path;
-	std::string new_path = path;
+	std::string new_path = canonical(absolute(path)).string();
 	// If the current path is empty...
 	if(current_path.length()==0){
 		// If the new path is empty then...
@@ -46,18 +46,21 @@ Component& Component::path(const std::string& path) {
 			if(not exists(new_path)){
 				create_directories(new_path);
 			}
-			meta_->path = canonical(absolute(new_path)).string();
+			meta_->path = new_path;
 		}
 	} 
 	// If the current path is not empty...
 	else {
 		/// and the new path is not empty...
 		if(new_path.length()>0){
-			// create necessary directories for the following rename operation
-			create_directories(new_path);
-			// move (i.e rename) existing path to the new path.
-			rename(current_path,new_path);
-			meta_->path = canonical(absolute(new_path)).string();
+			// and they are different...
+			if(new_path != current_path){
+				// create necessary directories for the following rename operation
+				create_directories(new_path);
+				// move (i.e rename) existing path to the new path.
+				rename(current_path,new_path);
+				meta_->path = new_path;
+			}
 		}
 	}
 	return *this;
@@ -190,15 +193,15 @@ Component& Component::delete_(const std::string& path){
 }
 
 Component& Component::read(const std::string& path){
-	std::string where = path;
-	if(where.length()==0){
-		where = this->path();
-		if(where.length()==0) STENCILA_THROW(Exception,"Component path not supplied and not yet set.");
+	std::string path_copy = path;
+	if(path_copy.length()==0){
+		path_copy = this->path();
+		if(path_copy.length()==0) STENCILA_THROW(Exception,"Component path not supplied and not yet set.");
 	}
 	else {
-		if(not boost::filesystem::exists(where)) STENCILA_THROW(Exception,"Directory does not exist.\n  path: "+path);
-		if(not boost::filesystem::is_directory(where)) STENCILA_THROW(Exception,"Path is not a directory.\n  path: "+path);
-		this->path(path);
+		if(not boost::filesystem::exists(path_copy)) STENCILA_THROW(Exception,"Directory does not exist.\n  path: "+path_copy);
+		if(not boost::filesystem::is_directory(path_copy)) STENCILA_THROW(Exception,"Path is not a directory.\n  path: "+path_copy);
+		this->path(path_copy);
 	}
 	return *this;
 }
