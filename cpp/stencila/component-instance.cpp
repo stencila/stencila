@@ -88,8 +88,12 @@ Component::Instance Component::get(const std::string& address,const std::string&
 			Stencil* stencil = new Stencil;
 			stencil->read(path);
 			component = stencil;
+		} else if(type==ThemeType){
+			Theme* theme = new Theme;
+			theme->read(path);
+			component = theme;
 		} else {
-			STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get.`\n  path: "+path+"\n  type: "+type_name(type));
+			STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
 		}
 		component->path(path);
 		component->hold(type);
