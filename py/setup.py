@@ -45,4 +45,9 @@ setup(
             libraries = os.getenv('LIBRARIES').split()
         ),
     ],
+
+    # Install CLI
+    scripts = [
+        'scripts/stencila-py'
+    ]
 )
