@@ -104,6 +104,19 @@ setRefClass(
         view = function(){
             if(is.null(.context)) attach(Context())
             method_(.self,'Stencil_view')
+        },
+
+        docx = function(direction,path){
+            method_(.self,'Stencil_docx',direction,path)
+        },
+        markdown = function(direction,path){
+            method_(.self,'Stencil_markdown',direction,path)
+        },
+        pdf = function(direction,path){
+            method_(.self,'Stencil_pdf',direction,path)
+        },
+        thumbnail = function(path){
+            method_(.self,'Stencil_thumbnail',path)
         }
     )
 )

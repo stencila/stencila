@@ -62,3 +62,8 @@ STENCILA_R_EXEC0(Stencil,render)
 
 STENCILA_R_RET0(Stencil,serve) 
 STENCILA_R_EXEC0(Stencil,view)
+
+STENCILA_R_EXEC2(Stencil,docx,std::string,std::string)
+STENCILA_R_EXEC2(Stencil,markdown,std::string,std::string)
+STENCILA_R_EXEC2(Stencil,pdf,std::string,std::string)
+STENCILA_R_EXEC1(Stencil,thumbnail,std::string)

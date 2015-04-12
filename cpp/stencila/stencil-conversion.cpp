@@ -170,8 +170,11 @@ Stencil& Stencil::thumbnail(const std::string& path) {
 		var url = args[1];
 		var png = args[2];
 		
-		page.viewportSize = { width: 480, height: 480 };
-		page.zoomFactor = 0.5;  
+		// Seems best to use a viewportSize that is what is
+		// wanted for final thumbnail and then adjust zoomFactor
+		// to tradeoff extent/clarity of preview
+		page.viewportSize = { width: 300, height: 300 };
+		page.zoomFactor = 0.3333;  
 
 		page.open(url, function(){
 			// Wait for page to render
@@ -182,8 +185,10 @@ Stencil& Stencil::thumbnail(const std::string& path) {
 			},renderTime);
 		});
 	)");
-	Helpers::execute("phantomjs '"+script+"' '"+url+"' '"+path+"'");
-	//execute("convert '"+path+"' -resize 50% '"+path+"'");
+	auto temp = Host::temp_filename("png");
+	Helpers::execute("phantomjs '"+script+"' '"+url+"' '"+temp+"'");
+	// Crop is necessary because viewportSize only ssems to be relevat to width
+	Helpers::execute("convert "+temp+" -crop '300x300+0+0' "+path);
 	
 	return *this;
 }
