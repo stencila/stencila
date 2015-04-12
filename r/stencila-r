@@ -28,8 +28,11 @@ if(terminal){
 	reset <- NULL
 }
 
+# Load package
+library(stencila,quietly=T)
+
 # Banner
-cat(green,'Stencila CLI for R\n\n',reset,sep='')
+cat(green,'Stencila ',stencila:::version(),' CLI for R\n\n',reset,sep='')
 
 # Get the command line arguments
 commands <- commandArgs(trailingOnly=TRUE)
@@ -45,9 +48,6 @@ if(length(commands)==0 | (length(commands)==1 & commands[1]=='help')){
 	cat('  stencila-r core/themes/base compile\n')
 	quit('no')
 }
-
-# Not needing help, so load package
-library(stencila,quietly=T)
 
 # Get address, remove it from commands and grab component
 address <- commands[1]

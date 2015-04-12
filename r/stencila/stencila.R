@@ -24,7 +24,27 @@ dll_name <- NULL
 #' @examples
 #'   stencila:::version()
 version <- function(){
-	utils::packageVersion("stencila")
+	as.character(utils::packageVersion("stencila"))
+}
+
+###########################################################################
+# Installation of packaged shared libraries (.so, .dll) and command line 
+# scripts
+###########################################################################
+
+#' Install `stencila-r` on the sytem path
+#'
+#' On Linux this function creates a symlink to `stencila-r` in `/usr/local/bin`. 
+#' Use R as a superuser (e.g. with `sudo`) to run this function e.g :
+#
+#'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_cli()' }
+#`
+install_cli <- function(){
+	src <- file.path(system.file(package='stencila'),'bin','stencila-r')
+	dest <- file.path('/usr/local/bin','stencila-r')
+	suppressWarnings(file.remove(dest))
+	ok <- file.symlink(src,dest)
+	if(ok) cat('Stencila CLI(command line interface) for R successfully installed to:',dest,'\n')
 }
 
 ###########################################################################

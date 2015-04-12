@@ -727,14 +727,20 @@ $(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB)
 	rm -f $@
 	zip -j $@ $<
 
-# Copy over `install.libs.R
+# Copy over `stencila-r`
+R_PACKAGE_CLI := $(R_BUILD)/stencila/inst/bin/stencila-r
+$(R_PACKAGE_CLI): r/stencila-r
+	@mkdir -p $(R_BUILD)/stencila/inst/bin
+	cp $< $@
+
+# Copy over `install.libs.R`
 R_PACKAGE_INSTALLSCRIPT := $(R_BUILD)/stencila/src/install.libs.R
 $(R_PACKAGE_INSTALLSCRIPT): r/install.libs.R
 	@mkdir -p $(R_BUILD)/stencila/src/
 	cp $< $@
 
 # Create a dummy C source code file in `src`
-# If there is no source files in `src` then `src\nstall.libs.R` is not run. 
+# If there is no source files in `src` then `src\nistall.libs.R` is not run. 
 R_PACKAGE_DUMMYC := $(R_BUILD)/stencila/src/dummy.c
 $(R_PACKAGE_DUMMYC):
 	@mkdir -p $(R_BUILD)/stencila/src/
@@ -759,7 +765,7 @@ $(R_PACKAGE_DESC): r/DESCRIPTION
 
 # Finalise the package directory
 R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
-$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
+$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_CLI) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
 	# Edit package version and date using sed:
 	#	.* = anything, any number of times
 	#	$ = end of line
