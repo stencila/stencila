@@ -196,7 +196,7 @@ public:
 	/**
 	 * Convert to thumbnail image
 	 *
-	 * @param  path       Path of the DOCX file to read from / write to (dependending on direction)
+	 * @param  path       Path of the thumnail image to be generated
 	 */
 	Stencil& thumbnail(const std::string& path);
 	
