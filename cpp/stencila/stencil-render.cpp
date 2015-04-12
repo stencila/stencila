@@ -1,8 +1,8 @@
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
 #include <stencila/stencil.hpp>
-#include <stencila/stencil-outline.hpp>
 #include <stencila/string.hpp>
 
 #include <iostream>
@@ -70,24 +70,73 @@ void Stencil::render(Node node, Context* context){
 			counts_["input"]++;
 			return Input().render(*this,node,context);
 		}
-		// Handle outline
-		else if(node.attr("id")=="outline"){
-			outline_->node = node;
-		}
 		// Handle sections
-		else if(tag=="section"){
+		else if(tag=="section" and outline_.on){
 			// Enter a sublevel
-			outline_->enter();
+			outline_.index++;
+			outline_.path.push_back(outline_.index);
+			outline_.index = 0;
+			outline_.list = outline_.list.append("ul");
 			// Render children
 			render_children(node,context);
 			// Exit sublevel
-			outline_->exit();
+			outline_.index = outline_.path.back();
+			outline_.path.pop_back();
+			outline_.list = outline_.list.parent();
 			// Return so the render_children below is not hit
 			return;
 		}
 		// Handle headings
-		else if(tag=="h1"){
-			outline_->heading(node);
+		else if(tag=="h1" and outline_.on){
+			// Add the <h1> title to the outline element
+			// All section related 'accounting' is done in block above
+			// This block just does transformation of this accounting into content
+			
+			// Get label for this level from the node
+			std::string label = node.text();
+			// Generate "path" prefix for label
+			std::string path;
+			for(auto parent : outline_.path){
+				path += string(parent)+".";
+			}
+			// Generate level string for classes
+			std::string level = string(outline_.path.size());
+			// Check for node id, create one if needed, then add it to 
+			// level for links and to the section header
+			std::string id = node.attr("id");
+			if(not id.length()){
+				id = label;
+				boost::to_lower(id);
+				boost::replace_all(id," ","-");
+				node.attr("id",id);
+			}
+			// Check for an existing label
+			Node label_node = node.select(".label");
+			if(not label_node){
+				// Prepend a label
+				label_node = node.prepend("span");
+				label_node.attr("class","label");
+				label_node.append("span",{{"class","path"}},path);
+				label_node.append("span",{{"class","separator"}}," ");
+			} else {
+				// Ammend the label
+				Node path_node = label_node.select(".path");
+				if(not path_node) path_node = label_node.append("span",{{"class","path"}},path);
+				else path_node.text(path);
+			}            
+			// Give class to the heading for styling
+			node.attr("class","level-"+level);
+
+			// Now append a link to outline
+			Node li = outline_.list.append(
+				"li",
+				{{"class","level-"+level}}
+			);
+			li.append(
+				"a",
+				{{"href","#"+id}},
+				path+" "+label
+			);
 		}
 		// Handle table and figure captions
 		else if(tag=="table" or tag=="figure"){
@@ -133,18 +182,38 @@ void Stencil::render(Node node, Context* context){
 	}
 }
 
-void Stencil::render_initialise(Node node, Context* context){
+Stencil& Stencil::render(Context* context){
+	// If a different context, attach the new one
+	if(context!=context_) attach(context);
+	// Change to the stencil's directory
+	boost::filesystem::path cwd = boost::filesystem::current_path();
+	boost::filesystem::path path = boost::filesystem::path(Component::path(true));
+	try {
+		boost::filesystem::current_path(path);
+	} catch(const std::exception& exc){
+		STENCILA_THROW(Exception,"Error setting directory to <"+path.string()+">");
+	}
+	// Reset flags and counts
+	counts_["input"] = 0;
+	counts_["table caption"] = 0;
+	counts_["figure caption"] = 0;
+	// Reset hash
 	hash_ = "";
+	// Reset outline outline
+	Node outline = select("#outline");
+	if(outline){
+		outline.clear();
+		outline_.on = true;
+		if(outline.name()=="ul") outline_.list = outline;
+		else outline_.list = outline.append("ul");
+		outline_.index = 0;
+		outline_.path.clear();
+	}
 
-	if(outline_) delete outline_;
-	outline_ = new Outline;
-	// If there an outline element, clear it
-	select("#outline").clear();
-}
+	// Render root element within context
+	render(*this,context);
 
-void Stencil::render_finalise(Node node, Context* context){
-	outline_->render();
-
+	// Finalise rendering
 	// Render refer directives
 	for(Node ref : filter("[data-refer]")){
 		ref.clear();
@@ -165,29 +234,7 @@ void Stencil::render_finalise(Node node, Context* context){
 			error(ref,"refer-missing","No matching element found");
 		}
 	}
-}
 
-Stencil& Stencil::render(Context* context){
-	// If a different context, attach the new one
-	if(context!=context_) attach(context);
-	// Change to the stencil's directory
-	boost::filesystem::path cwd = boost::filesystem::current_path();
-	boost::filesystem::path path = boost::filesystem::path(Component::path(true));
-	try {
-		boost::filesystem::current_path(path);
-	} catch(const std::exception& exc){
-		STENCILA_THROW(Exception,"Error setting directory to <"+path.string()+">");
-	}
-	// Reset flags and counts
-	counts_["input"] = 0;
-	counts_["table caption"] = 0;
-	counts_["figure caption"] = 0;
-	// Initlise rendering
-	render_initialise(*this,context);
-	// Render root element within context
-	render(*this,context);
-	// Finalise rendering
-	render_finalise(*this,context);
 	// Return to the cwd
 	boost::filesystem::current_path(cwd);
 	return *this;

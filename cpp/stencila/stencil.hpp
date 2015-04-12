@@ -646,22 +646,6 @@ public:
 	void render_children(Node node, Context* context);
 
 	/**
-	 * Initialise the rendering of a stencil
-	 *
-	 * @param node    Node to render
-	 * @param context Context to render in
-	 */
-	void render_initialise(Node node, Context* context);
-
-	/**
-	 * Finalise the rendering of a stencil (e.g. adding missing elements)
-	 *
-	 * @param node    Node to render
-	 * @param context Context to render in
-	 */
-	void render_finalise(Node node, Context* context);
-
-	/**
 	 * Render a HTML element
 	 * 
 	 * @param node    Node to render
@@ -808,12 +792,14 @@ private:
 
 	/**
 	 * Outlining, including section numbering and table of content, handled
-	 * by `Outline` struct
-	 *
-	 * Implementation in `stencil-outline.hpp`.
+	 * by `Outline` struct 
 	 */
-	struct Outline;
-	Outline* outline_ = nullptr;
+	struct Outline {
+		bool on = false;
+		Node list;
+		uint index;
+		std::vector<int> path;
+	} outline_;
 };
 
 }
