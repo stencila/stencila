@@ -7,6 +7,20 @@ BOOST_AUTO_TEST_SUITE(xml_quick)
 
 using namespace Stencila::Xml;
 
+BOOST_AUTO_TEST_CASE(node){
+	Node node;
+
+	BOOST_CHECK(not node);
+	BOOST_CHECK_EQUAL(node.name(),"");
+
+	Document doc;
+	doc.append("div");
+
+	node = doc.select("div");
+	BOOST_CHECK(node);
+	BOOST_CHECK_EQUAL(node.name(),"div");
+}
+
 BOOST_AUTO_TEST_CASE(attributes){
 	Document doc;
 	Node div = doc.append("div");
