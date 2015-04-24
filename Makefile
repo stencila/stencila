@@ -627,7 +627,7 @@ py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-pac
 	cp py/tests/tests.py $(PY_BUILD)/testenv
 	cd $(PY_BUILD)/testenv ;\
 		. bin/activate ;\
-		python tests.py 2>&1 | tee ../tests.out
+		(python tests.py)||(exit 1)
 
 py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
 	cd $(PY_BUILD) ;\
