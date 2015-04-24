@@ -42,9 +42,9 @@ class ComponentTests(unittest.TestCase):
     def test_commit(self):
         self.component.commit("Just a test commit")
 
-class NamespaceTests(unittest.TestCase):
+class ScopeTests(unittest.TestCase):
     '''
-    Tests for the Namespace class
+    Tests for the Scope class
     '''
 
     def test(self):
@@ -56,29 +56,29 @@ class NamespaceTests(unittest.TestCase):
 
         # Create a namespace that will have read-only access
         # to the current frame's locals
-        ns1 = stencila.Namespace({'a':a})
-        ns1['b'] = 'b1'
-        ns1['c'] = 'c1'
+        scope1 = stencila.Scope({'a':a})
+        scope1['b'] = 'b1'
+        scope1['c'] = 'c1'
 
         ## Create a child namespace
-        ns2 = stencila.Namespace(ns1)
-        ns2['c'] = 'c2'
-        ns2['d'] = 'd2'
+        scope2 = stencila.Scope(scope1)
+        scope2['c'] = 'c2'
+        scope2['d'] = 'd2'
 
         # Check that the correct variables are obtained
-        self.assertEqual(ns2['a'],'a0')
-        self.assertEqual(ns2['b'],'b1')
-        self.assertEqual(ns2['c'],'c2')
+        self.assertEqual(scope2['a'],'a0')
+        self.assertEqual(scope2['b'],'b1')
+        self.assertEqual(scope2['c'],'c2')
 
         # The local variable 'a' is read-only within the namespace
-        ns2['a'] = 'a0-is-not-changed'
+        scope2['a'] = 'a0-is-not-changed'
         self.assertEqual(a,'a0')
         self.assertNotEqual(a,'a0-is-not-changed')
-        self.assertEqual(ns1['a'],'a0')
+        self.assertEqual(scope1['a'],'a0')
 
         # Check that a KeyError is thrown if no such name
-        self.assertRaises(KeyError,ns2.__getitem__,'foo')
-        self.assertRaises(KeyError,ns1.__getitem__,'d')
+        self.assertRaises(KeyError,scope2.__getitem__,'foo')
+        self.assertRaises(KeyError,scope1.__getitem__,'d')
 
 
 class ContextTests(unittest.TestCase):

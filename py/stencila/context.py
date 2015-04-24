@@ -55,7 +55,7 @@ else:
 	import pylab
 
 
-class Namespace(dict):
+class Scope(dict):
 
 	def __init__(self,parent=None):
 		self.parent = parent
@@ -103,31 +103,31 @@ class Console(code.InteractiveConsole):
 
 class Context:
 
-	def __init__(self,namespace=None):
-		if namespace is None: namespace = Namespace()
-		self.namespaces = [namespace]
+	def __init__(self,scope=None):
+		if scope is None: scope = Scope()
+		self.scopes = [scope]
 
 	# Bind this Python side object to the C++ side
 	
 	def bind(self,callback):
 		self.set("__callback__",callback)
 
-	# Shortcut methods for accessing the namespace stack
+	# Shortcut methods for accessing the scope stack
 	
-	def push(self,namespace=None):
-		# Push a new namespace on to the stack
-		if namespace is None: namespace = Namespace(self.top())
-		self.namespaces.append(namespace)
+	def push(self,scope=None):
+		# Push a new scope on to the stack
+		if scope is None: scope = Scope(self.top())
+		self.scopes.append(scope)
 		return self
 
 	def pop(self):
-		# Pop the current namespace off the top of the stack
-		self.namespaces.pop(len(self.namespaces)-1)
+		# Pop the current scope off the top of the stack
+		self.scopes.pop(len(self.scopes)-1)
 		return self
 
 	def top(self):
-		# Get the top of the namepace stack (i.e. the current namespace)
-		return self.namespaces[len(self.namespaces)-1]
+		# Get the top of the namepace stack (i.e. the current scope)
+		return self.scopes[len(self.scopes)-1]
 
 	def get(self,name):
 		# Get a variable from the top of the stack
@@ -148,7 +148,7 @@ class Context:
 		# Some Python versions don't like trailing blank lines so remove all surrounding
 		# whitepace
 		code = code.strip()
-		# Execute in top namespace
+		# Execute in top scope
 		exec_(code,None,self.top())
 		# Return according to format code
 		if format in ('png','svg'):
