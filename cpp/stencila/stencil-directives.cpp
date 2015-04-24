@@ -858,4 +858,53 @@ void Stencil::Macro::render(Stencil& stencil, Node node, Context* context){
 	node.attr("id",name);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Stencil::Create::Create(void){
+}
+
+Stencil::Create::Create(const std::string& attribute){
+	parse(attribute);
+}
+
+Stencil::Create::Create(Node node){
+	parse(node);
+}
+
+void Stencil::Create::parse(const std::string& attribute){
+	boost::smatch match;
+	static const boost::regex pattern("^(\\w+)\\s+from\\s+(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?(\\s+(complete))?(\\s+(names))?$");
+	if(boost::regex_search(attribute, match, pattern)) {
+		name = match[1].str();
+		address.expr = match[5].str();
+		address.eval = match[4].str()=="eval";
+		select.expr = match[9].str();
+		select.eval = match[8].str()=="eval";
+	} else {
+		throw DirectiveException("syntax",attribute);
+	}
+}
+
+void Stencil::Create::parse(Node node){
+	parse(node.attr("data-create"));
+}
+
+void Stencil::Create::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+
+	// Enter a new named namespace.
+	context->enter("",name);
+
+	// Apply `Set`s and `Par`s
+	
+	// Render the `init` div
+
+	// Register binding
+	//Node from;
+	//stencil.bind(name,from);
+	
+	// Exit the named namespace
+	context->exit();
+}
+
 }

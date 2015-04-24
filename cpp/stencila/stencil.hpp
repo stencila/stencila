@@ -582,6 +582,8 @@ public:
 		 */
 		Flag complete = false;
 
+		Flag names = false;
+
 		Include(void);
 		Include(const std::string& attribute);
 		Include(Node node);
@@ -599,6 +601,22 @@ public:
 		Macro(void);
 		Macro(const std::string& attribute);
 		Macro(Node node);
+		void parse(const std::string& attribute);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
+	 * A `create` directive (e.g. `<div data-create="x from core/stencils/table" />` )
+	 */
+	struct Create : Directive {
+		Name name;
+		Evaluatable address;
+		Evaluatable select;
+		
+		Create(void);
+		Create(const std::string& attribute);
+		Create(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
 		void render(Stencil& stencil, Node node, Context* context);
