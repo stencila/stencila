@@ -593,9 +593,10 @@ $(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(BUILD)/cpp/requires
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
 # Record name of the wheel to file for reading by other build tasks
-$(PY_BUILD)/setup-latest.txt: py/setup.py py/stencila-py $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS)
+$(PY_BUILD)/setup-latest.txt: py/setup.py py/scripts/stencila-py $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS)
 	cp py/setup.py $(PY_BUILD)
-	cp py/stencila-py $(PY_BUILD)
+	mkdir -p $(PY_BUILD)/scripts
+	cp py/scripts/stencila-py $(PY_BUILD)/scripts/stencila-py
 	cd $(PY_BUILD)/ ;\
 		export \
 			VERSION=$(VERSION) \
