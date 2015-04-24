@@ -54,7 +54,7 @@ Stencil& Stencil::strip(void){
 }
 
 void Stencil::crush(Node node){
-	// Remove elements : `exec` elements (which contain code) element that
+	// Remove elements : `exec` elements (which contain code) and elements that
 	// have been turned off `[data-off`]
 	for(Node child : node.filter("[data-exec],[data-off]")){
 		child.destroy();
@@ -557,7 +557,7 @@ void Stencil::Parameter::parse(const std::string& attribute){
 		type = match[3].str();
 		value = match[5].str();
 	} else {
-		throw DirectiveException("syntax","");
+		throw DirectiveException("syntax",attribute);
 	}
 }
 
@@ -568,13 +568,27 @@ void Stencil::Parameter::parse(Node node){
 void Stencil::Parameter::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
 
-	// Create an input element
+	// Create a <label> element
+	Node label = node.select("label");
+	if(not label) label = node.append("label",{
+		{"for",name+"-input"}
+	},name);
+
+	// Create an <input> element
 	Node input = node.select("input");
 	if(not input) input = node.append("input");
 	// Set name
 	input.attr("name",name);
+	// Set id
+	input.attr("id",name+"-input");
 	// Set type
-	if(type.length()) input.attr("type",type);
+	if(type.length()){
+		// Translate type into a valid type for HTML elements. See
+		//    https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input
+		std::string input_type = type;
+		if(input_type=="boolean") input_type = "checkbox";
+		input.attr("type",input_type);
+	}
 	// Get current value, using default value if not defined
 	std::string current = input.attr("value");
 	if(not current.length() and value.length()){
@@ -613,7 +627,7 @@ void Stencil::Set::parse(const std::string& attribute){
 		name = match[1].str();
 		value = match[2].str();
 	} else {
-		throw DirectiveException("syntax","");
+		throw DirectiveException("syntax",attribute);
 	}
 }
 
@@ -641,15 +655,16 @@ Stencil::Include::Include(Node node){
 
 void Stencil::Include::parse(const std::string& attribute){
 	boost::smatch match;
-	static const boost::regex pattern("^(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?(\\s+(complete))?$");
+	static const boost::regex pattern("^(((eval)\\s+)?(.+?))(\\s+select\\s+((eval)\\s+)?(.+?))?(\\s+(complete))?(\\s+(names))?$");
 	if(boost::regex_search(attribute, match, pattern)) {
 		address.expr = match[4].str();
 		address.eval = match[3].str()=="eval";
 		select.expr = match[8].str();
 		select.eval = match[7].str()=="eval";
 		complete = match[10].str()=="complete";
+		names = match[12].str()=="names";
 	} else {
-		throw DirectiveException("syntax","");
+		throw DirectiveException("syntax",attribute);
 	}
 }
 
@@ -767,7 +782,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	// Do this regardless of whether there are any 
 	// `par` directives to avoid the included elements polluting the
 	// main context or overwriting variables inadvertantly
-	context->enter();
+	if(not names) context->enter();
 
 	// Apply `set` directives
 	// Apply all the `set`s specified in the include first. This
@@ -807,7 +822,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	}
 	
 	// Exit the included node
-	context->exit();
+	if(not names) context->exit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -829,7 +844,7 @@ void Stencil::Macro::parse(const std::string& attribute){
 	if(boost::regex_search(attribute, match, pattern)) {
 		name = match.str();
 	} else {
-		throw DirectiveException("syntax","");
+		throw DirectiveException("syntax",attribute);
 	}
 }
 
