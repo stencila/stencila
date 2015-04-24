@@ -33,6 +33,7 @@ class ComponentTests(unittest.TestCase):
         self.component.delete("README.txt")
 
     def test_read(self):
+        self.component.path("")
         self.component.read()
 
     def test_write(self):
@@ -189,12 +190,6 @@ class StencilTests(unittest.TestCase):
         return self.assertEqual(
             Stencil().html(inp).render(context).html().strip(),
             out
-        )
-
-    def test_render_exec(self):
-        self.renderCheck(
-            '<pre data-exec="py">a=1.2 ; b=3.4 ; c=a+b</pre>\n<div data-write="c"></div',
-            '<pre data-exec="py">a=1.2 ; b=3.4 ; c=a+b</pre>\n<div data-write="c">4.6</div>'
         )
 
     def test_render_text(self):
