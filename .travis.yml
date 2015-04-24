@@ -19,6 +19,10 @@ install:
     # Use g++4.8 as g++ (do this instead of redefining CXX as others do so that Boost.Build (b2) uses right one)
     - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
 
+    # Install Python dependencies
+    - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
+    - sudo pip install wheel virtualenv
+
     - $CXX --version
 
 before_script:

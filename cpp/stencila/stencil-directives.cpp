@@ -893,7 +893,7 @@ void Stencil::Create::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
 
 	// Enter a new named namespace.
-	context->enter("",name);
+	context->enter();
 
 	// Apply `Set`s and `Par`s
 	
