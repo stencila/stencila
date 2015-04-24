@@ -43,7 +43,7 @@ Component& Component::path(const std::string& path) {
 			meta_->path = unique.string();
 		} else {
 			// ensure new directory does not already exist
-			if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path:"+new_path);
+			if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path: "+new_path);
 			// Create the path
 			create_directories(new_path);
 			meta_->path = canonical(absolute(path)).string();
@@ -56,7 +56,7 @@ Component& Component::path(const std::string& path) {
 			// and they are different...
 			if(new_path != current_path){
 				// ensure new directory does not already exist
-				if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path:"+new_path);
+				if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path: "+new_path);
 				// create necessary directories for the following rename operation
 				create_directories(new_path);
 				// move (i.e rename) existing path to the new path.
