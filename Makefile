@@ -453,7 +453,7 @@ cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
 
 # Run quick tests only
 cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe
-	ulimit -v 2097152; $< --run_test=*_quick/* 2>&1 | tee $@.out
+	ulimit -v 2097152; $< --run_test=*_quick/* 2>&1 | tee $(BUILD)/cpp/tests/cpp-tests-quick.out
 
 # Run all tests
 cpp-tests: $(BUILD)/cpp/tests/tests
