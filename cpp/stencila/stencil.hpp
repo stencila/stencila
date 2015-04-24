@@ -637,6 +637,83 @@ public:
 	 */
 	std::string context(void) const;
 
+
+	/**
+	 * Create an alias to a node
+	 *
+	 * Aliases are usually only produced by `alias` 
+	 * directives e.g.
+	 *  
+	 *      `<div data-alias="z is x/y"></div>` 
+	 *      
+	 * results in a alias "z" which points to the node with address x/y
+	 * 
+	 * @param  alias [description]
+	 * @param  node  [description]
+	 */
+	Stencil& alias(const std::string& alias, Node node);
+
+	/**
+	 * Retreive the node associated with an alias 
+	 *
+	 * Called by `include` directives to resolve a name to a node.
+	 * If no matching alias is found then name is assumed to be
+	 * a stencil address.
+	 */
+	Node alias(const std::string& alias);
+
+	/**
+	 * Remove an alias
+	 * 
+	 * @param  alias [description]
+	 */
+	Stencil& unalias(const std::string& alias);
+
+	/**
+	 * Remove all aliases
+	 */
+	Stencil& unalias(void);
+
+	/**
+	 * Create a link between a context namespace and a node
+	 * 
+	 * Links are created by the `snip` directive. e.g.
+	 * 
+	 *    `<div data-snip="m from p/q"></div>`
+	 *
+	 * creates a namespace in the stencil's context called `m`. This namespace 
+	 * has a unique link string (e.g. "af73cd") stored in the special variable
+	 * `__link__`. By calling this method, that link string is used to link the node `p/q` to the
+	 * namespace `m`.
+	 */
+	Stencil& link(const std::string& link, Node node);
+
+	/**
+	 * Retreive the node associated with a link
+	 * 
+	 * Used when a snippet is pasted e.g.
+	 * 
+	 *    `<div data-paste="m #scatter-plot"></div>` 
+	 *
+	 * The variable "m" is retreived from the context, it's special variable
+	 * `__link__` is obtained and is then used, by calling this method,
+	 * to retreive the corresponding node so that it can be rendered, within the
+	 * namespace "m" and inserted into the stencil.
+	 */
+	Node link(const std::string& link);
+
+	/**
+	 * Remove a link
+	 * 
+	 * @param  link A link string
+	 */
+	Stencil& unlink(const std::string& link);
+
+	/**
+	 * Remove all links
+	 */
+	Stencil& unlink(void);
+
 	/**
 	 * Render the children of an HTML element
 	 * 
@@ -791,8 +868,8 @@ private:
 	std::string hash_;
 
 	/**
-	 * Outlining, including section numbering and table of content, handled
-	 * by `Outline` struct 
+	 * Outlining, including section numbering and table of contents, is handled
+	 * by an `Outline` struct.
 	 */
 	struct Outline {
 		bool on = false;
@@ -800,6 +877,9 @@ private:
 		uint index;
 		std::vector<int> path;
 	} outline_;
+
+
+	std::map<std::string,std::pair<Node,bool>> aliases_;
 };
 
 }
