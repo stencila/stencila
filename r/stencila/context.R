@@ -34,27 +34,27 @@ Context <- function(envir){
     else if(inherits(envir,'environment')) envir <- envir
     else if(is.list(envir)) envir <- list2env(envir,parent=parent.frame())
     else stop(paste('unrecognised environment class:',paste(class(envir),collapse=",")))
-    self$stack <- list(envir)
+    self$scopes <- list(envir)
         
     ####################################################################
     # Internal convienience methods used below
     
     self$push <- function(item){
-        self$stack[[length(self$stack)+1]] <- item
+        self$scopes[[length(self$scopes)+1]] <- item
         return(self)
     }
     
     self$pop  <- function() {
-        self$stack[[length(self$stack)]] <- NULL
+        self$scopes[[length(self$scopes)]] <- NULL
         return(self)
     }
     
     self$bottom  <- function() {
-        return(self$stack[[1]])
+        return(self$scopes[[1]])
     }
     
     self$top  <- function() {
-        return(self$stack[[length(self$stack)]])
+        return(self$scopes[[length(self$scopes)]])
     }
     
     self$get <- function(expression) {
@@ -69,7 +69,7 @@ Context <- function(envir){
     }
 
     self$evaluate <- function(expression){
-        # Evaluate an expression in the top of the stack
+        # Evaluate an expression in the top of the scopes
         result <- tryCatch(eval(parse(text=expression),envir=self$top()),error=function(error)error)
         if(inherits(result,'error')){
             stop(result$message,call.=F)
