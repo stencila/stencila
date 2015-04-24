@@ -194,11 +194,11 @@ public:
 	);
 
 	/**
-	 * Convert to thumbnail image
+	 * Create a preview image of this stencil
 	 *
-	 * @param  path       Path of the thumnail image to be generated
+	 * @param  path       Path of the image to be generated
 	 */
-	Stencil& thumbnail(const std::string& path);
+	Stencil& preview(const std::string& path);
 	
 	/**
 	 * @}

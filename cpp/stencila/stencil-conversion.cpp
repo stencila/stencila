@@ -159,27 +159,48 @@ Stencil& Stencil::pdf(const std::string& direction, const std::string& path,cons
 	return *this;
 }
 
-Stencil& Stencil::thumbnail(const std::string& path) {
+Stencil& Stencil::preview(const std::string& path) {
 	// Serve this stencil so theme CSS and JS is available
 	Component::classes();
 	auto url = serve();
 	// Convert to PNG using PhantomJS
-	auto script = Helpers::script("stencil-thumbnail-phantom.js",R"(
+	auto script = Helpers::script("stencil-preview-phantom.js",R"(
 		var page = require('webpage').create();
 		var args = require('system').args;
 		var url = args[1];
 		var png = args[2];
 		
 		// Seems best to use a viewportSize that is what is
-		// wanted for final thumbnail and then adjust zoomFactor
+		// wanted for final preview and then adjust zoomFactor
 		// to tradeoff extent/clarity of preview
-		page.viewportSize = { width: 300, height: 300 };
+		page.viewportSize = { width: 300, height: 300*1.618 };
 		page.zoomFactor = 0.3333;  
 
 		page.open(url, function(){
 			// Wait for page to render
 			var renderTime = 5000;
 			setTimeout(function(){
+				var clip = page.evaluate(function(selector){
+					var target;
+					target = document.querySelector('#preview');
+					if(!target) target = document.querySelector('figure');
+					if(!target) target = document.querySelector('.equation');
+					if(!target) target = document.querySelector('table');
+					if(target){
+						retun target.getBoundingClientRect();
+					} else {
+						return {
+							top: 0, 
+							left:0, 
+							width: 300, 
+							height: 300*1.618
+						};
+					}
+				},{
+					selector:selector
+				});
+				console.log('Clipping to '+JSON.stringify(clip));
+				page.clipRect = rect;
 				page.render(png);
 				phantom.exit();
 			},renderTime);

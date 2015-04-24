@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(to){
 	s.pdf("to",pdf);
 
 	auto tn = Host::temp_filename("png");
-	s.thumbnail(tn);
+	s.preview(tn);
 }
 
 BOOST_AUTO_TEST_CASE(from_markdown){
