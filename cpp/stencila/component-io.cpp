@@ -31,7 +31,7 @@ Component& Component::path(const std::string& path) {
 	using namespace boost::filesystem;
 	if(not meta_) meta_ = new Meta;
 	std::string current_path = meta_->path;
-	std::string new_path = canonical(absolute(path)).string();
+	std::string new_path = path;
 	// If the current path is empty...
 	if(current_path.length()==0){
 		// If the new path is empty then...
@@ -42,11 +42,11 @@ Component& Component::path(const std::string& path) {
 			create_directories(unique);
 			meta_->path = unique.string();
 		} else {
-			// Create the path if necessary
-			if(not exists(new_path)){
-				create_directories(new_path);
-			}
-			meta_->path = new_path;
+			// ensure new directory does not already exist
+			if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path:"+new_path);
+			// Create the path
+			create_directories(new_path);
+			meta_->path = canonical(absolute(path)).string();
 		}
 	} 
 	// If the current path is not empty...
@@ -55,11 +55,13 @@ Component& Component::path(const std::string& path) {
 		if(new_path.length()>0){
 			// and they are different...
 			if(new_path != current_path){
+				// ensure new directory does not already exist
+				if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path:"+new_path);
 				// create necessary directories for the following rename operation
 				create_directories(new_path);
 				// move (i.e rename) existing path to the new path.
 				rename(current_path,new_path);
-				meta_->path = new_path;
+				meta_->path = canonical(absolute(path)).string();
 			}
 		}
 	}
@@ -157,7 +159,7 @@ Component& Component::destroy(void){
 Component& Component::create(const std::string& path,const std::string& content){
 	boost::filesystem::path path_full(Component::path(true));
 	path_full /= path;
-	if(!boost::filesystem::exists(path_full)){
+	if(not boost::filesystem::exists(path_full)){
 		std::ofstream file(path_full.string());
 		file<<content;
 		file.close();
@@ -184,7 +186,7 @@ std::string Component::read_from(const std::string& path){
 }
 
 Component& Component::delete_(const std::string& path){
-	boost::filesystem::path path_full(Component::path());
+	boost::filesystem::path path_full = Component::path();
 	path_full /= path;
 	if(boost::filesystem::exists(path_full)){
 		boost::filesystem::remove_all(path_full);
