@@ -442,7 +442,7 @@ $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cp
 # Limit memory to prevent bugs like infinite recursion from filling up the
 # machine's memory. This needs to be quite high for some tests. 2Gb = 2,097,152 kb
 $(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe
-	ulimit -v 2097152; $< 2>&1 | tee $@.out
+	ulimit -v 2097152; ($<) || (exit 1)
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
@@ -453,7 +453,7 @@ cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
 
 # Run quick tests only
 cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe
-	ulimit -v 2097152; $< --run_test=*_quick/* 2>&1 | tee $(BUILD)/cpp/tests/cpp-tests-quick.out
+	ulimit -v 2097152; ($< --run_test=*_quick/*) || (exit 1)
 
 # Run all tests
 cpp-tests: $(BUILD)/cpp/tests/tests
