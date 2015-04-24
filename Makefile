@@ -639,7 +639,7 @@ py-clean:
 #################################################################################################
 # R requirements
 
-RCPP_VERSION = 0.11.3
+RCPP_VERSION = 0.11.5
 
 $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz:
 	@mkdir -p $(RESOURCES)
@@ -651,7 +651,7 @@ $(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
 r-requires-rcpp: $(BUILD)/r/requires/Rcpp
 
 
-RINSIDE_VERSION := 0.2.11
+RINSIDE_VERSION := 0.2.12
 
 $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
