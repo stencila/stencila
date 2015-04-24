@@ -6,9 +6,9 @@ test.Stencil.create <- function(){
 # from Component
 test.Stencil.inherited <- function(){
   s <- Stencil()
-  checkEquals(nrow(s$commits),0)
+  checkEquals(nrow(s$commits()),0)
   s$commit()
-  checkEquals(nrow(s$commits),1)
+  checkEquals(nrow(s$commits()),1)
 }
 
 test.Stencil.html <- function(){
