@@ -112,7 +112,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
-LIBGIT2_VERSION := 0.22.0
+LIBGIT2_VERSION := 0.22.2
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p $(RESOURCES)
