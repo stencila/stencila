@@ -8,6 +8,5 @@ build
 .sandbox
 
 # Ignore code editor and IDE project and workspace files
-*.sublime-project
 *.sublime-workspace
 .Rhistory
