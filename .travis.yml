@@ -29,5 +29,6 @@ before_script:
 
 script:
     - make vars
-    - make cpp-requires
+    - make cpp-package py-package
     - make cpp-tests-quick
+    - make py-tests
