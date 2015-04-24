@@ -15,8 +15,9 @@ BOOST_AUTO_TEST_CASE(commit){
 
 	c.commit();
 	auto commits = c.commits();
-	BOOST_CHECK_EQUAL(commits.size(),1);
+	BOOST_CHECK_EQUAL(commits.size(),2);
 	BOOST_CHECK_EQUAL(commits[0].message,"Updated");
+	BOOST_CHECK_EQUAL(commits[1].message,"Initial commit");
 	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.git"));
 	c.destroy();
 }

@@ -65,6 +65,7 @@ BOOST_AUTO_TEST_CASE(write_empty){
 BOOST_AUTO_TEST_CASE(get){
 	Stencil s;
 	s.write();
+	s.hold(Component::StencilType); // Need to gold this so it is not duplicated on get
 
 	auto instance = s.get(s.address());
 	BOOST_CHECK(instance.exists());
