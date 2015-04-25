@@ -14,3 +14,5 @@ clearLog()
 runTest(suite)
 # Report test results in junit format
 protocol_junit(Log(),file="svUnit.xml")
+# Count the number of failiures and errors
+fails <- sum(stats(Log())$kind %in% c('**FAILS**','**ERROR**'))

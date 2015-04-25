@@ -812,7 +812,7 @@ r-tests: $(R_BUILD)/$(R_PACKAGE_FILE)
 	  mkdir -p testenv ;\
 	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
 	  cd testenv ;\
-	    Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R')" 2>&1 | tee ../tests.out
+	    (Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
 
 # Install R on the local host
 # Not intended for development but rather 
