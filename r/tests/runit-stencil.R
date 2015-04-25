@@ -8,7 +8,7 @@ test.Stencil.inherited <- function(){
   s <- Stencil()
   checkEquals(nrow(s$commits()),0)
   s$commit()
-  checkEquals(nrow(s$commits()),1)
+  checkEquals(nrow(s$commits()),2)
 }
 
 test.Stencil.html <- function(){
