@@ -6,8 +6,12 @@ compiler:
 before_install:
     # Use this to prepare the system to install prerequisites or dependencies
 
-    # Use PPA for g++4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
+    # Add PPA for g++4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
     - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test -y; fi
+
+    # Add repository for R 
+    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+    - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu precise/"
 
     - sudo apt-get update -qq
 
@@ -19,11 +23,17 @@ install:
     # Use g++4.8 as g++ (do this instead of redefining CXX as others do so that Boost.Build (b2) uses right one)
     - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
 
+    - $CXX --version
+
     # Install Python dependencies
     - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
+    # Install wheel and virtualenv for packaging
     - sudo pip install wheel virtualenv
 
-    - $CXX --version
+    # Install R
+    - sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
+    # Install `roxygen2` for packaging and `svUnit`, `XML` for testing
+    - sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
 before_script:
     # Use this to prepare your build for testing
@@ -36,3 +46,4 @@ script:
     - make cpp-package py-package
     - make cpp-tests-quick
     - make py-tests
+    - make r-tests
