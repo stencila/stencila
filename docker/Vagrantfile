@@ -1,0 +1,23 @@
+# Vagrantfile for building and testing Stencila docker images
+ 
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "ubuntu/trusty64"
+
+    # Give a static IP for testing
+    config.vm.network "private_network", ip: "192.168.21.12"
+
+    # Give a useful name in VirtualBox
+    config.vm.provider "virtualbox" do |provider|
+        provider.name = "stencila-docker"
+        provider.memory = 1024
+        provider.cpus = 2
+    end
+
+    # Provision using Ansible 
+    config.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "vagrant-provision.yml"
+    end
+
+end
