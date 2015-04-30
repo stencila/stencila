@@ -51,4 +51,13 @@ BOOST_AUTO_TEST_CASE(join){
 	BOOST_CHECK_EQUAL(join({"a","b"},"|"),"a|b");
 }
 
+BOOST_AUTO_TEST_CASE(slugify){
+	using Stencila::slugify;
+	BOOST_CHECK_EQUAL(slugify("a b c"),"a-b-c");
+	BOOST_CHECK_EQUAL(slugify(" a b c  "),"a-b-c");
+	BOOST_CHECK_EQUAL(slugify("a^b%c&d*e"),"a-b-c-d-e");
+	BOOST_CHECK_EQUAL(slugify("The quick brown..."),"the-quick-brown---");
+	BOOST_CHECK_EQUAL(slugify("The quick brown fox",9),"the-quick");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

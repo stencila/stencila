@@ -1,5 +1,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/regex.hpp>
 
 #include <stencila/string.hpp>
 
@@ -42,6 +43,20 @@ std::vector<std::string> split(const std::string& string, const std::string& sep
 
 std::string join(const std::vector<std::string>& vector, const std::string& separator){
 	return boost::join(vector,separator);
+}
+
+std::string slugify(const std::string& string, unsigned int length){
+	std::string copy = string;
+	boost::trim(copy);
+	boost::to_lower(copy);
+	boost::replace_all_regex(
+		copy,
+		boost::regex("[^a-z0-9]|(\\s+)"),
+		std::string("-"),
+		boost::match_default | boost::format_all
+	);
+	if(copy.length()>length) return copy.substr(0,length);
+	else return copy;
 }
 
 }

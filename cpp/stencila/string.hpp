@@ -45,4 +45,9 @@ std::vector<std::string> split(const std::string& string, const std::string& sep
  */
 std::string join(const std::vector<std::string>& vector, const std::string& separator);
 
+/**
+ * Slugify a string by replacing no alphanumeric characters and imposing a maximum length 
+ */
+std::string slugify(const std::string& string, unsigned int length=256);
+ 
 }
