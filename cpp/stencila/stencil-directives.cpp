@@ -259,7 +259,9 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 		if(id.length()) id += "-";
 		id += slug;
 	}
-	if(id.length()) id += "-";
+	if(id.length()){
+		if(id[id.length()-1]!='-') id += "-";
+	}
 	id += stencil.hash_;
 
 	// Execute code
