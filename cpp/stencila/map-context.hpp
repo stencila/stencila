@@ -44,7 +44,7 @@ public:
 	}
 	
 	std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
-		return "";
+		return id;
 	}
 	
 	std::string interact(const std::string& code, const std::string& id=""){

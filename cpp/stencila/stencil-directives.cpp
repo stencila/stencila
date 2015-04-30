@@ -2,6 +2,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -132,6 +133,7 @@ void Stencil::Execute::parse(const std::string& attribute){
 		for(auto& context : contexts) trim(context);
 		for(const auto& context : contexts){
 			if(not(
+				context=="map" or
 				context=="exec" or
 				context=="cila" or
 				context=="py" or
@@ -245,8 +247,25 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 		units.value = "cm";
 	}
 
+	// Generate a unique id for this execute directive which, if possible, 
+	// includes useful text as well as the unique-ifying hash
+	std::string id;
+	// Does the parent of this element have an id?
+	id += node.parent().attr("id");
+	// Does the parent of this element have a caption
+	Node caption = node.parent().select("caption,figcaption");
+	if(caption){
+		std::string slug = slugify(caption.text(),25);
+		if(id.length()) id += "-";
+		id += slug;
+	}
+	if(id.length()) id += "-";
+	id += stencil.hash_;
+
 	// Execute code
-	std::string result = context->execute(code,stencil.hash_,
+	std::string result = context->execute(
+		code,
+		id,
 		format.value,
 		width.value,
 		height.value,

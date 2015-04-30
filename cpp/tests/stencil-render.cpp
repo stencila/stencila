@@ -61,6 +61,20 @@ BOOST_AUTO_TEST_CASE(exec){
 	render(R"(<pre data-exec="map">a = 42</pre>Text after)");
 }
 
+BOOST_AUTO_TEST_CASE(exec_output){
+	render(R"(
+		<figure id="figure-a">
+			<pre data-exec="map format png">do</pre>
+		</figure>
+
+		<figure id="figure-b">
+			<pre data-exec="map format png">do</pre>
+			<figcaption>Hello world</figcaption>
+		</figure>
+	)");
+	dump();
+}
+
 BOOST_AUTO_TEST_CASE(when){
 	render(R"(
 		<div data-when="map">
