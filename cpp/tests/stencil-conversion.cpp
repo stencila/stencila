@@ -3,6 +3,7 @@
 
 #include <stencila/stencil.hpp>
 #include <stencila/host.hpp>
+#include <stencila/map-context.hpp>
 using namespace Stencila;
 
 BOOST_AUTO_TEST_SUITE(stencil_conversion_slow)
@@ -35,6 +36,15 @@ BOOST_AUTO_TEST_CASE(from_markdown){
 	s.markdown("from",md);
 
 	BOOST_CHECK_EQUAL(s.html(),"");
+}
+
+BOOST_AUTO_TEST_CASE(compile){
+	Stencil s;
+	s.cila("Hello world");
+	// Prior to rendering (in compile() it is necessary to attach a context)
+	MapContext* context = new MapContext;
+	s.attach(context);
+	s.compile();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

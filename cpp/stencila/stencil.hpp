@@ -199,6 +199,14 @@ public:
 	 * @param  path       Path of the image to be generated
 	 */
 	Stencil& preview(const std::string& path);
+
+	/**
+	 * Compile this stencil
+	 *
+	 * Render this stencil and export it as HTML to `index.html` and
+	 * a create a preview image as `preview.png`
+	 */
+	Stencil& compile(void);
 	
 	/**
 	 * @}

@@ -173,34 +173,32 @@ Stencil& Stencil::preview(const std::string& path) {
 		// Seems best to use a viewportSize that is what is
 		// wanted for final preview and then adjust zoomFactor
 		// to tradeoff extent/clarity of preview
-		page.viewportSize = { width: 300, height: 300*1.618 };
-		page.zoomFactor = 0.3333;  
+		//page.viewportSize = { width: 300, height: 300*1.618 };
+		//page.zoomFactor = 0.3333;
 
 		page.open(url, function(){
 			// Wait for page to render
 			var renderTime = 5000;
 			setTimeout(function(){
-				var clip = page.evaluate(function(selector){
+				var clip = page.evaluate(function(){
 					var target;
 					target = document.querySelector('#preview');
 					if(!target) target = document.querySelector('figure');
 					if(!target) target = document.querySelector('.equation');
 					if(!target) target = document.querySelector('table');
 					if(target){
-						retun target.getBoundingClientRect();
+						return target.getBoundingClientRect();
 					} else {
 						return {
-							top: 0, 
-							left:0, 
-							width: 300, 
+							top: 0,
+							left:0,
+							width: 300,
 							height: 300*1.618
 						};
 					}
-				},{
-					selector:selector
 				});
 				console.log('Clipping to '+JSON.stringify(clip));
-				page.clipRect = rect;
+				page.clipRect = clip;
 				page.render(png);
 				phantom.exit();
 			},renderTime);
@@ -214,5 +212,12 @@ Stencil& Stencil::preview(const std::string& path) {
 	return *this;
 }
 
+Stencil& Stencil::compile(void){
+	render();
+	auto home = boost::filesystem::path(path(true));
+	export_((home/"index.html").string());
+	preview((home/"preview.png").string());
+	return *this;
+}
 
 }
