@@ -5,5 +5,28 @@
 			"path": ".",
 			"folder_exclude_patterns": ["build"]
 		}
-	]
+	],
+	"build_systems":
+    [
+        {
+            "name": "Stencila: run current C++ test",
+            "working_dir": ".",
+            "cmd": ["make","cpp-test","CPP_TEST=$file_base_name"]
+        },
+        {
+            "name": "Stencila: run all C++ tests",
+            "working_dir": ".",
+            "cmd": ["make","cpp-tests"]
+        },
+        {
+            "name": "Stencila: run all R tests",
+            "working_dir": ".",
+            "cmd": ["make","r-tests"]
+        },
+        {
+            "name": "Stencila: run all Python tests",
+            "working_dir": ".",
+            "cmd": ["make","py-tests"]
+        }
+    ]
 }
