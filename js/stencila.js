@@ -6,15 +6,15 @@ var Stencila = (function(Stencila){
 
 	// Private methods
 
-	Context.prototype.push_ = function(expression){
+	Context.prototype.push_ = function(value){
 		var scope;
-		if(expression) scope = evaluate_(expression);
+		if(value) scope = value;
 		else scope = {};
 		this.scopes.push(scope);
 	};
 
 	Context.prototype.pop_ = function(){
-		delete this.scopes[this.scopes.length-1];
+		this.scopes.pop();
 	};
 
 	Context.prototype.top_ = function(){
@@ -78,7 +78,8 @@ var Stencila = (function(Stencila){
 	 * @param  expression Expression to convert to text
 	 */
 	Context.prototype.write = function(expression){
-		return String(this.evaluate_(expression));
+		var value = this.evaluate_(expression);
+		return String(value);
 	};
 
 	/**
@@ -168,7 +169,7 @@ var Stencila = (function(Stencila){
 	 * @param expression Expression that will be the scope of the new context
 	 */
 	Context.prototype.enter = function(expression){
-		this.push_(expression);
+		this.push_(this.evaluate_(expression));
 	};
 
 	/**
