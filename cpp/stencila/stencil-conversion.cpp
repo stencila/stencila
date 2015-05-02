@@ -169,12 +169,6 @@ Stencil& Stencil::preview(const std::string& path) {
 		var args = require('system').args;
 		var url = args[1];
 		var png = args[2];
-		
-		// Seems best to use a viewportSize that is what is
-		// wanted for final preview and then adjust zoomFactor
-		// to tradeoff extent/clarity of preview
-		//page.viewportSize = { width: 300, height: 300*1.618 };
-		//page.zoomFactor = 0.3333;
 
 		page.open(url, function(){
 			// Wait for page to render
@@ -186,19 +180,19 @@ Stencil& Stencil::preview(const std::string& path) {
 					if(!target) target = document.querySelector('figure');
 					if(!target) target = document.querySelector('.equation');
 					if(!target) target = document.querySelector('table');
-					if(target){
-						return target.getBoundingClientRect();
-					} else {
-						return {
-							top: 0,
-							left:0,
-							width: 300,
-							height: 300*1.618
-						};
-					}
+					if(target) return target.getBoundingClientRect();
+					else return null;
 				});
-				console.log('Clipping to '+JSON.stringify(clip));
-				page.clipRect = clip;
+				if(clip){
+					// Clip the page to the target 
+					page.clipRect = clip;
+				} else {
+					// Use a viewportSize that is what is
+					// wanted for final preview. Adjust zoomFactor
+					// to tradeoff extent/clarity of preview
+					page.viewportSize = { width: 480, height: 300 };
+					page.zoomFactor = 0.5;
+				}
 				page.render(png);
 				phantom.exit();
 			},renderTime);

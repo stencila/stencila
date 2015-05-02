@@ -115,8 +115,12 @@ setRefClass(
         pdf = function(direction,path){
             method_(.self,'Stencil_pdf',direction,path)
         },
-        thumbnail = function(path){
-            method_(.self,'Stencil_thumbnail',path)
+        preview = function(path){
+            method_(.self,'Stencil_preview',path)
+        },
+        compile = function(){
+            attach(Context())
+            method_(.self,'Stencil_compile')
         }
     )
 )
