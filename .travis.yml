@@ -35,12 +35,6 @@ install:
     # Install `roxygen2` for packaging and `svUnit`, `XML` for testing
     - sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
-before_script:
-    # Use this to prepare your build for testing
-
-    # Check tags that are required for build versioning
-    - git describe --tags --dirty --long
-
 script:
     - make vars
     - make cpp-package py-package
