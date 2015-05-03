@@ -675,20 +675,7 @@ $(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
 	R CMD INSTALL -l $(BUILD)/r/requires $<
 r-requires-rcpp: $(BUILD)/r/requires/Rcpp
 
-
-RINSIDE_VERSION := 0.2.12
-
-$(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz:
-	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/Archive/RInside/RInside_$(RINSIDE_VERSION).tar.gz
-	
-$(BUILD)/r/requires/RInside: $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz
-	@mkdir -p $@
-	R CMD INSTALL -l $(BUILD)/r/requires $<
-r-requires-rinside: $(BUILD)/r/requires/RInside
-
-
-$(BUILD)/r/requires: $(BUILD)/r/requires/Rcpp $(BUILD)/r/requires/RInside
+$(BUILD)/r/requires: $(BUILD)/r/requires/Rcpp
 r-requires: $(BUILD)/r/requires
 
 #################################################################################################
