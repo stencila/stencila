@@ -551,6 +551,11 @@ console-build: $(BUILD)/console/stencila
 #################################################################################################
 # Stencila Javascript package
 
+$(BUILD)/js/stencila.min.js : js/stencila.js
+	uglifyjs $< -m > $@
+
+js-build: $(BUILD)/js/stencila.min.js
+
 # Put Jasmine in build but for ease in edit-test loop symlink to
 # it from source directory instead of copying source files over to there.
 
