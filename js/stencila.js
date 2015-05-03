@@ -1,7 +1,10 @@
 var Stencila = (function(Stencila){
 
-	var Context = Stencila.Context = function(){
-		this.scopes = [{}];
+	/**
+	 * A JavaScript rendering context
+	 */
+	var Context = Stencila.Context = function(scope){
+		this.scopes = [scope||{}];
 	};
 
 	// Private methods
@@ -12,36 +15,31 @@ var Stencila = (function(Stencila){
 		else scope = {};
 		this.scopes.push(scope);
 	};
-
 	Context.prototype.pop_ = function(){
 		this.scopes.pop();
 	};
-
 	Context.prototype.top_ = function(){
 		return this.scopes[this.scopes.length-1];
 	};
-
 	Context.prototype.set_ = function(name,value){
 		this.top_()[name] = value;
 	};
-
 	Context.prototype.get_ = function(name){
-		return this.top_()[name];
+		for(var index=this.scopes.length-1;index>=0;index--){
+			var value = this.scopes[index][name];
+			if(value!==undefined) return value;
+		}
 	};
-
 	Context.prototype.unset_ = function(name){
 		delete this.top_()[name];
 	};
-
-	Context.prototype.evaluate_ = function(code,execute){
-		execute = execute || false;
+	Context.prototype.evaluate_ = function(expression){
 		var func = '';
 		var index;
 		for(index=0;index<this.scopes.length;index++){
 			func += 'with(this.scopes['+index+']){\n';
 		}
-		if(execute) func += code+'\n';
-		else func += 'return '+code+';\n';
+		func += 'return '+expression+';\n';
 		for(index=0;index<this.scopes.length;index++){
 			func += '}\n';
 		}
@@ -56,7 +54,10 @@ var Stencila = (function(Stencila){
 	 * @param code String of code
 	 */
 	Context.prototype.execute = function(code){
-		this.evaluate_(code,true);
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.text = code;
+		document.head.appendChild(script);
 	};
 	
 	/**
@@ -128,11 +129,12 @@ var Stencila = (function(Stencila){
 	 */
 	Context.prototype.begin = function(item,expression){
 		var items = this.evaluate_(expression);
-		this.set_('_items_',items);
 		if(items.length>0){
+			this.push_();
+			this.set_('_item_',item);
+			this.set_('_items_',items);
 			this.set_('_index_',0);
 			this.set_(item,items[0]);
-			this.set_('_item_',item);
 			return true;
 		} else {
 			return false;
@@ -151,13 +153,15 @@ var Stencila = (function(Stencila){
 	Context.prototype.next = function(){
 		var items = this.get_('_items_');
 		var index = this.get_('_index_');
-		if(index<items.length){
-			this.set_('_index_',index++);
-			var name = this.get('_item_');
+		if(index<items.length-1){
+			index += 1;
+			this.set_('_index_',index);
+			var name = this.get_('_item_');
 			var value = items[index];
 			this.set_(name,value);
 			return true;
 		} else {
+			this.pop_();
 			return false;
 		}
 	};
@@ -180,14 +184,205 @@ var Stencila = (function(Stencila){
 	};
 
 
-
-	var Stencil = Stencila.Stencil = function(){
+	/**
+	 * A simple HTML node class
+	 *
+	 * Provides a similar API to the `Html::Node` in the 
+	 * C++ module, which in turn is similar to the jQuery interface.
+	 * Provides some shortcuts to DOM manipulation, without having to 
+	 * rely on the whole of jQuery as a dependency.
+	 */
+	var Node = Stencila.Node = function(dom){
+		this.dom = dom || document.createElement('div');
+	};
+	Node.prototype.attr = function(name,value){
+		if(value===undefined){
+			var attr = this.dom.getAttribute(name);
+			return attr?attr:'';
+		} else {
+			this.dom.setAttribute(name,value);
+		}
+	};
+	Node.prototype.erase = function(name){
+		this.dom.removeAttribute(name);
+	};
+	Node.prototype.html = function(value){
+		if(value===undefined) return this.dom.innerHTML;
+		else this.dom.innerHTML = value;
+	};
+	Node.prototype.text = function(value){
+		if(value===undefined) return this.dom.textContent;
+		else this.dom.textContent = value;
+	};
+	Node.prototype.children = function(){
+		return this.dom.children;
+	};
+	Node.prototype.select = function(selector){
+		return new Node(this.dom.querySelector(selector));
 	};
 
-	Stencil.prototype.render = function(node,context){
+	/**
+	 * Stencil directives
+	 *
+	 * Each directive has:
+	 * 
+	 * 	- a constructor which takes the string value of associated attribute
+	 * 	  (and may do parsing of it) and optionally a node
+	 * 	- an `apply` method which adds necessary attributes and text for
+	 * 	  the directive to a node
+	 * 	- a `render` method which renders the directive in a context
+	 */
 
+
+	/**
+	 * An `exec` directive
+	 */
+	var Exec = Stencila.Exec = function(attribute,node){
+		this.details = attribute;
+		this.code = (typeof node ==="string")?node:node.text();
+	};
+	Exec.prototype.apply = function(node){
+		node.attr('data-exec',this.details);
+		node.text(this.code);
+	};
+	Exec.prototype.render = function(node,context){
+		context.execute(this.code);
 	};
 
+	/**
+	 * A `write` directive
+	 */
+	var Write = Stencila.Write = function(attribute){
+		this.expression = attribute;
+	};
+	Write.prototype.apply = function(node){
+		node.attr('data-write',this.expression);
+	};
+	Write.prototype.render = function(node,context){
+		node.text(context.write(this.expression));
+	};
+
+	/**
+	 * An `if` directive
+	 */
+	var If = Stencila.If = function(attribute){
+		this.expression = attribute;
+	};
+	If.prototype.apply = function(node){
+		node.attr('data-if',this.expression);
+	};
+	If.prototype.render = function(node,context){
+		var hit = context.test(this.expression);
+		if(hit){
+			node.erase("data-off");
+			Stencila.renderChildren(node,context);
+		} else {
+			node.attr("data-off","true");
+		}
+		//! @todo Implement this C++ code as JS
+		/*
+		// Iterate through sibling elements to turn them on or off
+		// if they are elif or else elements; break otherwise.
+		Node next = node.next_element();
+		while(next){
+			if(next.has("data-elif")){
+				if(hit){
+					next.attr("data-off","true");
+				} else {
+					std::string expression = next.attr("data-elif");
+					hit = context->test(expression);
+					if(hit){
+						next.erase("data-off");
+						stencil.render_children(next,context);
+					} else {
+						next.attr("data-off","true");
+					}
+				}
+			}
+			else if(next.has("data-else")){
+				if(hit){
+					next.attr("data-off","true");
+				} else {
+					next.erase("data-off");
+					stencil.render_children(next,context);
+				}
+				break;
+			}
+			else break;
+			next = next.next_element();
+		}
+		*/
+	};
+
+	/**
+	 * A `for` directive
+	 */
+	var For = Stencila.For = function(attribute){
+		var matches = attribute.match(/^(\w+)\s+in\s+(.+)$/);
+		this.item = matches[1];
+		this.items = matches[2];
+	};
+	For.prototype.apply = function(node){
+		node.attr('data-for',this.item+' in '+this.items);
+	};
+	For.prototype.render = function(node,context){
+		var more = context.begin(this.item,this.items);
+		//! @todo Fully implement
+	};
+
+	/**
+	 * Rendering of directives into a context
+	 */
+	
+	Stencila.render = function(node,context){
+		var attr;
+
+		attr = node.attr('data-exec');
+		if(attr){
+			new Exec(attr,node).render(node,context);
+			return;
+		}
+
+		attr = node.attr('data-write');
+		if(attr){
+			new Write(attr,node).render(node,context);
+			return;
+		}
+
+		attr = node.attr('data-if');
+		if(attr){
+			new If(attr,node).render(node,context);
+			return;
+		}
+
+		Stencila.renderChildren(node,context);
+	};
+	Stencila.renderChildren = function(node,context){
+		var children = node.children();
+		for(var index=0;index<children.length;index++){
+			Stencila.render(
+				new Node(children[index]),
+				context
+			);
+		}
+	};
+
+	/**
+	 * A stencil
+	 */
+	var Stencil = Stencila.Stencil = function(html){
+		this.dom = document.createElement('main');
+		this.html(html);
+	};
+	Stencil.prototype.html = function(html){
+		return Node.prototype.html.call(this,html);
+	};
+	Stencil.prototype.select = function(selector){
+		return Node.prototype.select.call(this,selector);
+	};
+	Stencil.prototype.render = function(context){
+		Stencila.render(new Node(this.dom),context);
+	};
 
 	return Stencila;
 })(Stencila||{});
