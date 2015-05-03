@@ -549,6 +549,26 @@ $(BUILD)/console/stencila: console/stencila.cpp $(BUILD)/cpp/requires
 console-build: $(BUILD)/console/stencila
 
 #################################################################################################
+# Stencila Javascript package
+
+# Put Jasmine in build but for ease in edit-test loop symlink to
+# it from source directory instead of copying source files over to there.
+
+JASMINE_VERSION := 2.3.0
+
+$(RESOURCES)/jasmine-standalone-$(JASMINE_VERSION).zip:
+	@mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O$@ https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
+	
+$(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION): $(RESOURCES)/jasmine-standalone-$(JASMINE_VERSION).zip
+	@mkdir -p $(BUILD)/js/tests/
+	unzip -qo $< -d $(BUILD)/js/tests
+	rm -rf $(BUILD)/js/tests/*.html $(BUILD)/js/tests/spec $(BUILD)/js/tests/src
+
+js-tests: $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)
+	ln -sfT ../../$(BUILD)/js/tests/lib/ js/tests/lib
+
+#################################################################################################
 # Stencila Python package
 
 # If PY_VERSION is not defined then get it
