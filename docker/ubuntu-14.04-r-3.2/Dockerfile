@@ -8,7 +8,7 @@ RUN apt-get install -y wget software-properties-common
 RUN add-apt-repository 'deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/'
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 RUN apt-get update
-RUN apt-get install -y r-base=3.2.0-1trusty0 r-base-dev=3.2.0-1trusty0 r-recommended=3.2.0-1trusty0
+RUN apt-get install -y r-base=3.2.0-1trusty r-base-dev=3.2.0-1trusty r-recommended=3.2.0-1trusty
 
 # Do following install tasks in /tmp
 WORKDIR /tmp
