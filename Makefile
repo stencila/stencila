@@ -668,7 +668,7 @@ RCPP_VERSION = 0.11.5
 
 $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz:
 	@mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/Rcpp_$(RCPP_VERSION).tar.gz
+	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_$(RCPP_VERSION).tar.gz
 	
 $(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
 	@mkdir -p $@
@@ -680,7 +680,7 @@ RINSIDE_VERSION := 0.2.12
 
 $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/RInside_$(RINSIDE_VERSION).tar.gz
+	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/Archive/RInside/RInside_$(RINSIDE_VERSION).tar.gz
 	
 $(BUILD)/r/requires/RInside: $(RESOURCES)/RInside_$(RINSIDE_VERSION).tar.gz
 	@mkdir -p $@
