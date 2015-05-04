@@ -39,14 +39,27 @@ BOOST_AUTO_TEST_CASE(labels){
 	BOOST_CHECK_EQUAL(a.labels()[1],"b");
 }
 
-BOOST_AUTO_TEST_CASE(stencil_read){
-	Stencil stencil;
-	stencil.cila("#b g\n#c 24");
+BOOST_AUTO_TEST_CASE(json){
 	A a;
-	a.read(stencil);
+
+	std::string json_in = R"({
+		"a": true,
+		"b": "g",
+		"c": 24
+	})";
+	std::string json_out = R"({
+    "a": "true",
+    "b": "g",
+    "c": "24"
+}
+)";
+
+	a.json(json_in);
 	BOOST_CHECK_EQUAL(a.a,true);
 	BOOST_CHECK_EQUAL(a.b,'g');
 	BOOST_CHECK_EQUAL(a.c,24);
+
+	BOOST_CHECK_EQUAL(a.json(),json_out);
 }
 
 BOOST_AUTO_TEST_CASE(header_row){

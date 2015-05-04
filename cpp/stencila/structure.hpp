@@ -3,7 +3,7 @@
 #include <stencila/polymorph.hpp>
 #include <stencila/mirror-inspect.hpp>
 #include <stencila/mirror-rows.hpp>
-#include <stencila/mirror-stencil.hpp>
+#include <stencila/mirror-formats.hpp>
 #include <stencila/mirror-frame.hpp>
 
 namespace Stencila {
@@ -28,30 +28,39 @@ public:
 		return Mirrors::Labels().mirror<Derived>();
 	}
 
-	Derived& read(const std::string& path) {
-		Stencil stencil;
-		stencil.import(path);
-		read(stencil);
+	std::string json(void) {
+		std::stringstream stream;
+		Mirrors::JsonWriter().mirror(derived()).write(stream);
+		return stream.str();
+	}
+
+	Derived& json(const std::string& json) {
+		std::stringstream stream(json);
+		Mirrors::JsonReader(stream).mirror(derived());
 		return derived();
 	}
 
-	Derived& read(const Stencil& stencil) {
-		Mirrors::StencilParser(stencil).mirror(derived());
+	Derived& read(const std::string& format, const std::string& path) {
+		if(format=="json") return read_json(path);
+		STENCILA_THROW(Exception,"Unhandled format.\n  format: "+format);
+	}
+
+	Derived& write(const std::string& format, const std::string& path) {
+		if(format=="json") return write_json(path);
+		STENCILA_THROW(Exception,"Unhandled format.\n  format: "+format);
+	}
+
+	Derived& read_json(const std::string& path) {
+		std::ifstream stream(path);
+		Mirrors::JsonReader(stream).mirror(derived());
 		return derived();
 	}
 
-	Derived& write(const std::string& path) {
-		Stencil stencil;
-		write(stencil);
-		stencil.export_(path);
+	Derived& write_json(const std::string& path) {
+		std::ofstream stream(path);
+		Mirrors::JsonWriter().mirror(derived()).write(stream);
 		return derived();
 	}
-
-	Derived& write(Stencil& stencil) {
-		Mirrors::StencilGenerator(stencil).mirror(derived());
-		return derived();
-	}
-
 
 	Derived& read(const Frame& frame,const std::vector<std::string>& exclude = {}) {
 		Mirrors::FrameReader(frame,exclude).mirror(derived());
@@ -62,7 +71,6 @@ public:
 		Mirrors::FrameWriter(frame,exclude).mirror(derived());
 		return derived();
 	}
-
 
 	std::string header_row(const std::string& separator="\t") const {
 		return Mirrors::RowHeader(separator).mirror<Derived>();
