@@ -1,3 +1,5 @@
+#define STENCILA_FRAME_CPP
+
 #include <fstream>
 
 #include <boost/format.hpp>

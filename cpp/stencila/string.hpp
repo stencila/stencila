@@ -51,3 +51,7 @@ std::string join(const std::vector<std::string>& vector, const std::string& sepa
 std::string slugify(const std::string& string, unsigned int length=256);
  
 }
+
+#if defined(STENCILA_INLINE) && !defined(STENCILA_STRING_CPP)
+#include <stencila/string.cpp>
+#endif

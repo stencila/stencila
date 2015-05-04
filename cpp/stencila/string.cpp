@@ -1,3 +1,5 @@
+#define STENCILA_STRING_CPP
+
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/regex.hpp>

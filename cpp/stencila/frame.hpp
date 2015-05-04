@@ -115,3 +115,8 @@ Frame Frame::of(void){
  * Output a Frame to a stream using the `<<` operator
  */
 std::ostream& operator<<(std::ostream& stream, const Stencila::Frame& frame);
+
+
+#if defined(STENCILA_INLINE) && !defined(STENCILA_FRAME_CPP)
+#include <stencila/frame.cpp>
+#endif
