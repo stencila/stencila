@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/filesystem.hpp>
+
 #include <stencila/polymorph.hpp>
 #include <stencila/mirror-inspect.hpp>
 #include <stencila/mirror-rows.hpp>
@@ -38,6 +40,14 @@ public:
 		std::stringstream stream(json);
 		Mirrors::JsonReader(stream).mirror(derived());
 		return derived();
+	}
+
+	Derived& read(const std::string& path) {
+		return read(boost::filesystem::extension(path).substr(1),path);
+	}
+
+	Derived& write(const std::string& path) {
+		return write(boost::filesystem::extension(path).substr(1),path);
 	}
 
 	Derived& read(const std::string& format, const std::string& path) {
