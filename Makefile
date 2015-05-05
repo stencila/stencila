@@ -446,10 +446,16 @@ $(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe
 
 # Run a single test suite by specifying in command line e.g.
 # 	make cpp-test CPP_TEST=stencil-cila
+# Creates a symlink so the debugger picks this test as the one
+# to debug
 ifndef CPP_TEST
   CPP_TEST := tests
 endif
-cpp-test: $(BUILD)/cpp/tests/$(CPP_TEST)
+cpp-test: build-current $(BUILD)/cpp/tests/$(CPP_TEST).exe
+	cd $(BUILD)/cpp/tests/ ;\
+		ln -sfT $(CPP_TEST).exe test-to-debug ;\
+		ulimit -v 2097152 ;\
+		(./$(CPP_TEST).exe) || (exit 1)
 
 # Run quick tests only
 cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe

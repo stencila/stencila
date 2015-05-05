@@ -6,6 +6,11 @@
 			"folder_exclude_patterns": ["build"]
 		}
 	],
+    "settings":
+    {
+        "sublimegdb_workingdir": "./build/current/cpp/tests",
+        "sublimegdb_commandline": "gdb --interpreter=mi --args ./test-to-debug"
+    },
 	"build_systems":
     [
         {
