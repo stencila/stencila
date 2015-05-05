@@ -22,6 +22,20 @@ struct A : public Structure<A> {
 	}
 };
 
+struct B : public Structure<B> {
+
+	A a;
+	int b = 314;
+
+	template<class Mirror>
+	void reflect(Mirror& mirror){
+		mirror
+			.data(a,"a")
+			.data(b,"b")
+		;
+	}
+};
+
 BOOST_AUTO_TEST_CASE(is_structure){
 	A a;
 	BOOST_CHECK(IsStructure<A>::value);
@@ -39,27 +53,55 @@ BOOST_AUTO_TEST_CASE(labels){
 	BOOST_CHECK_EQUAL(a.labels()[1],"b");
 }
 
-BOOST_AUTO_TEST_CASE(json){
-	A a;
+BOOST_AUTO_TEST_CASE(json_1){
+	{
+		A a;
 
-	std::string json_in = R"({
-		"a": true,
-		"b": "g",
-		"c": 24
-	})";
-	std::string json_out = R"({
+		std::string json = 
+R"({
     "a": "true",
     "b": "g",
     "c": "24"
 }
 )";
 
-	a.json(json_in);
-	BOOST_CHECK_EQUAL(a.a,true);
-	BOOST_CHECK_EQUAL(a.b,'g');
-	BOOST_CHECK_EQUAL(a.c,24);
+		a.json(json);
+		BOOST_CHECK_EQUAL(a.a,true);
+		BOOST_CHECK_EQUAL(a.b,'g');
+		BOOST_CHECK_EQUAL(a.c,24);
 
-	BOOST_CHECK_EQUAL(a.json(),json_out);
+		BOOST_CHECK_EQUAL(a.json(),json);
+	}{
+		B b;
+
+		std::string json_in =
+R"({
+    "a": {
+        "a": false,
+        "b": "p",
+        "c": 39
+    },
+    "b": 227
+}
+)";
+		b.json(json_in);
+		BOOST_CHECK_EQUAL(b.a.a,false);
+		BOOST_CHECK_EQUAL(b.a.b,'p');
+		BOOST_CHECK_EQUAL(b.a.c,39);
+		BOOST_CHECK_EQUAL(b.b,227);
+
+		std::string json_out =
+R"({
+    "a": {
+        "a": "false",
+        "b": "p",
+        "c": "39"
+    },
+    "b": "227"
+}
+)";
+		BOOST_CHECK_EQUAL(b.json(),json_out);
+	}
 }
 
 BOOST_AUTO_TEST_CASE(header_row){
