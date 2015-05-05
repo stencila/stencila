@@ -562,7 +562,7 @@ $(BUILD)/js/stencila.min.js : js/stencila.js
 
 js-build: $(BUILD)/js/stencila.min.js
 
-# Put Jasmine in build but for ease in edit-test loop symlink to
+# Put Jasmine in the build directory but for ease of use when in the edit-test cycle symlink to
 # it from source directory instead of copying source files over to there.
 
 JASMINE_VERSION := 2.3.0
