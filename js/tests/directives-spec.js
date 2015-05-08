@@ -7,12 +7,12 @@ describe("Stencil directives", function() {
 	var context = new Stencila.Context();
 	var node;
 	beforeEach(function() {
-    node = new Stencila.Node();
-  });
+		node = new Stencila.Node('<div></div>');
+	});
 
 	it("include an `exec` directive", function() {
 		var exec = new Stencila.Exec('js','var xyb26f82=24;');
-		exec.apply(node);
+		exec.set(node);
 		exec.render(node,context);
 
 		expect(exec.code).toEqual('var xyb26f82=24;');
@@ -24,10 +24,10 @@ describe("Stencil directives", function() {
 
 	it("include a `write` directive", function() {
 		var write = new Stencila.Write('2*2');
-		write.apply(node);
+		write.set(node);
 		write.render(node,context);
 
-		expect(write.expression).toEqual('2*2');
+		expect(write.expr).toEqual('2*2');
 
 		expect(node.attr('data-write')).toEqual('2*2');
 		expect(node.text()).toEqual('4');
@@ -35,27 +35,55 @@ describe("Stencil directives", function() {
 
 	it("include an `if` directive", function() {
 		var iff = new Stencila.If('0>1');
-		iff.apply(node);
+		iff.set(node);
 		iff.render(node,context);
 
-		expect(iff.expression).toEqual('0>1');
+		expect(iff.expr).toEqual('0>1');
 
 		expect(node.attr('data-if')).toEqual('0>1');
 		expect(node.attr('data-off')).toEqual('true');
+
+		var n = new Stencila.Node(
+			'<div id="a" data-if="1"></div>' +
+			'<div id="b" data-elif="0"></div>' +
+			'<div id="c" data-elif="0"></div>' +
+			'<div id="d" data-else=""></div>'
+		);
+		Stencila.directiveRender(n,context);
+		expect(n.select('#a').has('data-off')).not.toBeTruthy();
+		expect(n.select('#b').has('data-off')).toBeTruthy();
+		expect(n.select('#c').has('data-off')).toBeTruthy();
+		expect(n.select('#d').has('data-off')).toBeTruthy();
+
+		n.select('#a').attr('data-if','0');
+		Stencila.directiveRender(n,context);
+		expect(n.select('#a').has('data-off')).toBeTruthy();
+		expect(n.select('#b').has('data-off')).toBeTruthy();
+		expect(n.select('#c').has('data-off')).toBeTruthy();
+		expect(n.select('#d').has('data-off')).not.toBeTruthy();
+
+		n.select('#b').attr('data-elif','1');
+		n.select('#c').attr('data-elif','1');
+		Stencila.directiveRender(n,context);
+		expect(n.select('#a').has('data-off')).toBeTruthy();
+		expect(n.select('#b').has('data-off')).not.toBeTruthy();
+		expect(n.select('#c').has('data-off')).toBeTruthy();
+		expect(n.select('#d').has('data-off')).toBeTruthy();
+		
 	});
 
 	it("include a `for` directive", function() {
 		node.html('<div data-write="name"></div>');
 
-		var forr = new Stencila.For('name in ["Joe","Sally","Jane"]');
-		forr.apply(node);
+		var forr = new Stencila.For('name','["Joe","Sally","Jane"]');
+		forr.set(node);
 		forr.render(node,context);
 
 		expect(forr.item).toEqual('name');
 		expect(forr.items).toEqual('["Joe","Sally","Jane"]');
 
 		expect(node.attr('data-for')).toEqual('name in ["Joe","Sally","Jane"]');
-		console.log(node.html());
+		//console.log(node.html());
 	});
 
 });
