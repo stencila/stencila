@@ -315,31 +315,13 @@ var Stencila = (function(Stencila){
 	 */
 	
 	var directiveRender = Stencila.directiveRender = function(node,context){
-		var attr;
+		if(node.has('data-exec')) return new Exec().apply(node,context);
+		if(node.has('data-write')) return new Write().apply(node,context);
 
-		attr = node.attr('data-exec');
-		if(attr){
-			new Exec().apply(node,context);
-			return;
-		}
+		if(node.has('data-if')) return new If().apply(node,context);
+		if(node.has('data-elif') | node.has('data-else')) return;
 
-		attr = node.attr('data-write');
-		if(attr){
-			new Write().apply(node,context);
-			return;
-		}
-
-		attr = node.attr('data-if');
-		if(attr){
-			new If().apply(node,context);
-			return;
-		}
-
-		attr = node.attr('data-for');
-		if(attr){
-			new For().apply(node,context);
-			return;
-		}
+		if(node.has('data-for')) return new For().apply(node,context);
 
 		directiveRenderChildren(node,context);
 	};
