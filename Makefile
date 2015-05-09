@@ -576,7 +576,10 @@ $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION): $(RESOURCES)/jasmine-standalon
 	unzip -qo $< -d $(BUILD)/js/tests
 	rm -rf $(BUILD)/js/tests/*.html $(BUILD)/js/tests/spec $(BUILD)/js/tests/src
 
-js-tests: $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)
+$(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)/mock-ajax.js: $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)
+	wget --no-check-certificate -O$@ https://raw.github.com/jasmine/jasmine-ajax/master/lib/mock-ajax.js
+
+js-tests: $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION) $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)/mock-ajax.js
 	ln -sfT ../../$(BUILD)/js/tests/lib/ js/tests/lib
 
 #################################################################################################

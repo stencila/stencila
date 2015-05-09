@@ -477,5 +477,17 @@ var Stencila = (function(Stencila){
 		directiveRender(new Node(this.dom),context);
 	};
 
+	/**
+	 * Get data from a URL
+	 */
+	Stencila.get = function(url,callback){
+		var oReq = new XMLHttpRequest();
+		oReq.onload = function reqListener () {
+			callback(JSON.parse(this.responseText));
+		};
+		oReq.open("GET",url);
+		oReq.send();
+	};
+
 	return Stencila;
 })(Stencila||{});
