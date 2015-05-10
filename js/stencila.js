@@ -1,6 +1,18 @@
 var Stencila = (function(Stencila){
 
 	/**
+	 * Get data from a URL
+	 */
+	var get = Stencila.get = function(url,callback,async){
+		var oReq = new XMLHttpRequest();
+		oReq.onload = function(){
+			callback(JSON.parse(this.responseText));
+		};
+		oReq.open("GET",url,async);
+		oReq.send();
+	};
+
+	/**
 	 * A JavaScript rendering context
 	 *
 	 * Used for rendering stencils against.
@@ -8,7 +20,15 @@ var Stencila = (function(Stencila){
 	 * virtual base class in the C++ module.
 	 */
 	var Context = Stencila.Context = function(scope){
-		this.scopes = [scope||{}];
+		this.scopes = [];
+		if(typeof scope==='string'){
+			var self = this;
+			get(scope,function(object){
+				self.scopes.push(object);
+			},false);
+		} else {
+			this.scopes.push(scope||{});
+		}
 	};
 
 	// Private methods for manipulating the stack
@@ -459,13 +479,28 @@ var Stencila = (function(Stencila){
 	};
 	For.prototype.apply = directiveApply;
 
-
 	/**
-	 * A stencil
+	 * A stencil class
+	 * 
+	 * @param content HTML string or CSS selector string to element in current document. Defaults to `#content`
+	 * @param context Object or string defining the conext for this stencil
 	 */
-	var Stencil = Stencila.Stencil = function(html){
-		this.dom = document.createElement('main');
-		this.html(html);
+	var Stencil = Stencila.Stencil = function(content,context){
+		content = content || '#content';
+		if(typeof content==='string'){
+			if(content.substr(0,1)==='<'){
+				this.dom = document.createElement('main');
+				this.html(content);
+			} else {
+				this.dom = document.querySelector(content);
+			}
+		}
+		else {
+			this.dom = content;
+		}
+
+		context = context || window.location.url;
+		this.context = new Context(context);
 	};
 	Stencil.prototype.html = function(html){
 		return Node.prototype.html.call(this,html);
@@ -474,19 +509,14 @@ var Stencila = (function(Stencila){
 		return Node.prototype.select.call(this,selector);
 	};
 	Stencil.prototype.render = function(context){
-		directiveRender(new Node(this.dom),context);
-	};
-
-	/**
-	 * Get data from a URL
-	 */
-	Stencila.get = function(url,callback){
-		var oReq = new XMLHttpRequest();
-		oReq.onload = function reqListener () {
-			callback(JSON.parse(this.responseText));
+		if(context!==undefined){
+			if(context instanceof Context) this.context = context;
+			else this.context = new Context(context);
 		};
-		oReq.open("GET",url);
-		oReq.send();
+		directiveRender(
+			new Node(this.dom),
+			this.context
+		);
 	};
 
 	return Stencila;
