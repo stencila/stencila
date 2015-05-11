@@ -1,15 +1,33 @@
 var Stencila = (function(Stencila){
 
 	/**
-	 * Get data from a URL
+	 * Functions exposed to contexts via an object 
+	 * which is always the uppermmost scope of a `Context`
 	 */
-	var get = Stencila.get = function(url,callback,async){
-		var oReq = new XMLHttpRequest();
-		oReq.onload = function(){
-			callback(JSON.parse(this.responseText));
-		};
-		oReq.open("GET",url,async);
-		oReq.send();
+	expose = {};
+
+	/**
+	 * Get JSON data from a URL
+	 */
+	var get = expose.get = Stencila.get = function(url,callback,async){
+		var request = new XMLHttpRequest();
+		if(callback){
+			request.onload = function(){
+				callback(JSON.parse(this.responseText));
+			};
+			request.open("GET",url,async);
+			request.setRequestHeader('Accept','application/json');
+			request.send();
+		} else {
+			var data;
+			request.onload = function(){
+				data = JSON.parse(this.responseText);
+			};
+			request.open("GET",url,false);
+			request.setRequestHeader('Accept','application/json');
+			request.send();
+			return data;
+		}
 	};
 
 	/**
@@ -20,12 +38,11 @@ var Stencila = (function(Stencila){
 	 * virtual base class in the C++ module.
 	 */
 	var Context = Stencila.Context = function(scope){
-		this.scopes = [];
+		this.scopes = [expose];
 		if(typeof scope==='string'){
-			var self = this;
-			get(scope,function(object){
-				self.scopes.push(object);
-			},false);
+			this.scopes.push(
+				get(scope)
+			);
 		} else {
 			this.scopes.push(scope||{});
 		}
@@ -337,6 +354,7 @@ var Stencila = (function(Stencila){
 	var directiveRender = Stencila.directiveRender = function(node,context){
 		if(node.has('data-exec')) return new Exec().apply(node,context);
 		if(node.has('data-write')) return new Write().apply(node,context);
+		if(node.has('data-with')) return new With().apply(node,context);
 
 		if(node.has('data-if')) return new If().apply(node,context);
 		if(node.has('data-elif') | node.has('data-else')) return;
@@ -402,6 +420,28 @@ var Stencila = (function(Stencila){
 	Write.prototype.apply = directiveApply;
 
 	/**
+	 * A `with` directive
+	 */
+	var With = Stencila.With = function(expr){
+		this.expr = expr;
+	};
+	With.prototype.get = function(node){
+		this.expr = node.attr('data-with');
+		return this;
+	};
+	With.prototype.set = function(node){
+		node.attr('data-with',this.expr);
+		return this;
+	};
+	With.prototype.render = function(node,context){
+		context.enter(this.expr);
+		directiveRenderChildren(node,context);
+		context.exit();
+		return this;
+	};
+	With.prototype.apply = directiveApply;
+
+	/**
 	 * An `if` directive
 	 */
 	var If = Stencila.If = function(expr){
@@ -463,7 +503,7 @@ var Stencila = (function(Stencila){
 	};
 	For.prototype.get = function(node){
 		var attr = node.attr('data-for');
-		var matches = attribute.match(/^(\w+)\s+in\s+(.+)$/);
+		var matches = attr.match(/^(\w+)\s+in\s+(.+)$/);
 		this.item = matches[1];
 		this.items = matches[2];
 		return this;
