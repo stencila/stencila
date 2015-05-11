@@ -36,9 +36,9 @@ version <- function(){
 #'
 #' On Linux this function creates a symlink to `stencila-r` in `/usr/local/bin`. 
 #' Use R as a superuser (e.g. with `sudo`) to run this function e.g :
-#
+#'
 #'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_cli()' }
-#`
+#'
 install_cli <- function(){
 	src <- file.path(system.file(package='stencila'),'bin','stencila-r')
 	dest <- file.path('/usr/local/bin','stencila-r')
