@@ -314,6 +314,13 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
+	 * Get the first child
+	 */
+	Node.prototype.first = function(){
+		return new Node(this.dom.children[0]);
+	};
+
+	/**
 	 * Get next sibling element
 	 */
 	Node.prototype.next = function(){
@@ -328,12 +335,27 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
+	 * Append a child element
+	 */
+	Node.prototype.append = function(node){
+		this.dom.appendChild(node.dom);
+		return this;
+	};
+
+	/**
 	 * Select child elements
 	 * 
 	 * @param  {String} selector Select child elements using a CSS selector
 	 */
 	Node.prototype.select = function(selector){
 		return new Node(this.dom.querySelector(selector));
+	};
+
+	/**
+	 * Clone this element
+	 */
+	Node.prototype.clone = function(){
+		return new Node(this.dom.cloneNode(true));
 	};
 
 	/**
@@ -514,7 +536,18 @@ var Stencila = (function(Stencila){
 	};
 	For.prototype.render = function(node,context){
 		var more = context.begin(this.item,this.items);
-		//! @todo Fully implement
+		var each = node.select(['data-each']);
+		if(each.empty()){
+			each = node.first();
+		}
+		each.erase('data-off');
+		while(more){
+			var item = each.clone();
+			node.append(item);
+			directiveRender(item,context);
+			more = context.next();
+		}
+		each.attr('data-off','true');
 		return this;
 	};
 	For.prototype.apply = directiveApply;
@@ -552,7 +585,7 @@ var Stencila = (function(Stencila){
 		if(context!==undefined){
 			if(context instanceof Context) this.context = context;
 			else this.context = new Context(context);
-		};
+		}
 		directiveRender(
 			new Node(this.dom),
 			this.context
