@@ -756,6 +756,12 @@ $(R_PACKAGE_CLI): r/stencila-r
 	@mkdir -p $(R_BUILD)/stencila/inst/bin
 	cp $< $@
 
+# Copy over `stencila.min.js`
+R_PACKAGE_STENCILA_JS := $(R_BUILD)/stencila/inst/bin/stencila.min.js
+$(R_PACKAGE_STENCILA_JS): $(BUILD)/js/stencila.min.js
+	@mkdir -p $(R_BUILD)/stencila/inst/bin
+	cp $< $@
+
 # Copy over `install.libs.R`
 R_PACKAGE_INSTALLSCRIPT := $(R_BUILD)/stencila/src/install.libs.R
 $(R_PACKAGE_INSTALLSCRIPT): r/install.libs.R
@@ -788,7 +794,7 @@ $(R_PACKAGE_DESC): r/DESCRIPTION
 
 # Finalise the package directory
 R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
-$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_CLI) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
+$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_CLI) $(R_PACKAGE_STENCILA_JS) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
 	# Edit package version and date using sed:
 	#	.* = anything, any number of times
 	#	$ = end of line
