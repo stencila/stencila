@@ -37,8 +37,7 @@ Component& Component::path(const std::string& path) {
 		// If the new path is empty then...
 		if(new_path.length()==0){
 			// Create a unique one
-			boost::filesystem::path unique = stores()[1];
-			unique /= unique_path("temp/%%%%-%%%%-%%%%-%%%%");
+			boost::filesystem::path unique = Host::temp_dirname();
 			create_directories(unique);
 			meta_->path = unique.string();
 		} else {
@@ -49,7 +48,7 @@ Component& Component::path(const std::string& path) {
 	} 
 	// If the current path is not empty...
 	else {
-		/// and the new path is not empty...
+		// and the new path is not empty...
 		if(new_path.length()>0){
 			// and they are different...
 			if(new_path != current_path){

@@ -38,9 +38,15 @@ std::string system_dir(void) {
 	return path;
 }
 
+std::string home_dir(void){
+	auto home = user_dir();
+	if(not boost::filesystem::exists(home)) boost::filesystem::create_directories(home);
+	return home;
+}
+
 std::string temp_dirname(void){
 	auto path = boost::filesystem::temp_directory_path();
-	path /= ".stencila";
+	path /= "stencila";
 	boost::filesystem::create_directories(path);
 	path /= boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%");
 	return path.string();
@@ -48,7 +54,7 @@ std::string temp_dirname(void){
 
 std::string temp_filename(const std::string& extension){
 	auto path = boost::filesystem::temp_directory_path();
-	path /= ".stencila";
+	path /= "stencila";
 	boost::filesystem::create_directories(path);
 	std::string pattern = "%%%%-%%%%-%%%%-%%%%";
 	if(extension.length()) pattern += "." + extension;
