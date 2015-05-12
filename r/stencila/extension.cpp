@@ -1,5 +1,6 @@
 #include <stencila/component.hpp>
 #include <stencila/network.hpp>
+#include <stencila/host.hpp>
 
 #include "extension.hpp"
 #include "context.hpp"
@@ -33,6 +34,13 @@ STENCILA_R_FUNC Stencila_shutdown(void){
 	// Shutdown server if it has been started
 	Server::shutdown();
 	return null;
+}
+
+/**
+ * Get the Stencila home directory
+ */
+STENCILA_R_FUNC Stencila_home(void){
+	return wrap(Host::home_dir());
 }
 
 /**

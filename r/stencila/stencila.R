@@ -44,7 +44,26 @@ install_cli <- function(){
 	dest <- file.path('/usr/local/bin','stencila-r')
 	suppressWarnings(file.remove(dest))
 	ok <- file.symlink(src,dest)
-	if(ok) cat('Stencila CLI(command line interface) for R successfully installed to:',dest,'\n')
+	if(ok) cat('Stencila CLI(command line interface) for R installed to:',dest,'\n')
+}
+
+#' Install `stencila.min.js` so it can be served from the localhost
+install_js <- function(){
+	src <- file.path(system.file(package='stencila'),'bin','stencila.min.js')
+	dest <- file.path(.Call('Stencila_home'),'stencila.min.js')
+	ok <- file.copy(src,dest,overwrite=T)
+	if(ok) cat('Stencila Javascript installed to:',dest,'\n')
+}
+
+#' Install extra Stencila scripts
+#'
+#' On Linux, use R as a superuser (e.g. with `sudo`) to run this function e.g :
+#'
+#'   \code{ sudo Rscript -e 'require(stencila); stencila:::install()' }
+#'
+install <- function(){
+	install_cli()
+	install_js()
 }
 
 ###########################################################################
