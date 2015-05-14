@@ -1,6 +1,128 @@
 var Stencila = (function(Stencila){
 
 	/**
+	 * Bootstrapping functions.
+	 * 
+	 * Provide the bare minimum for themes to be able to hoist themselves into the browser.
+	 * Of course there are plenty of script loader already out there (e.g. LABjs, Head.JS, basket.js)
+	 * A present we wanted something that was minimalistic but which fitted
+	 * with our theme architecture. But we might alternatives later.
+	 */
+	
+	// Map of included scripts
+	var includes = {};
+	// List of initialisation functions
+	var inits = [];
+	// List of main functions
+	var mains = [];
+
+	/**
+	 * Include a script
+	 * 
+	 * @param  {String}   url      URL of the script
+	 * @param  {Function} callback Local callback to run after script is loaded
+	 */
+	var include = Stencila.include = function(path,callback){
+		// Calculate a URL for the included element
+		// If StencilaHost is defined use that, otherwise, use the current host
+		var host = window.StencilaHost || (window.location.protocol+'//'+window.location.host);
+		var url = host + ((path[0]=='/')?'':'/') + path;
+		// If the resource is already included then exit
+		if(includes[url]) return;
+		// Determine resource type and associated element tag
+		var type = path.substr(path.lastIndexOf('.') + 1);
+		var tag = type=='js'?'script':'link';
+		var attr = type=='js'?'src':'href';
+		// Search for existing element with same src/href
+		// and exit if found
+		for(var ele in document.getElementsByTagName(tag)){
+			if(ele[attr]==url) return;
+		}
+		// Register this resource
+		includes[url] = {
+			loaded : false,
+			callback : callback
+		};
+		// Create element
+		var elem = document.createElement(tag);
+		if(type=='js'){
+			elem.type = 'text/javascript';
+			elem.src = url;
+			elem.async = true;
+		}
+		else if(type=='css'){
+			elem.type = 'text/css';
+			elem.rel = 'stylesheet';
+			elem.href = url;
+			elem.async = true;
+		}
+		// Bind events
+		// ...Internet Explorer
+		if(elem.readyState){
+			elem.onreadystatechange = function(){
+				if(elem.readyState=="loaded" || elem.readyState=="complete"){
+					elem.onreadystatechange = null;
+					loaded(url);
+				}
+			};
+		}
+		// ...others
+		else{
+			elem.onload = function(){
+				loaded(url);
+			};
+		}
+		// Add to head
+		document.head.appendChild(elem);
+	};
+
+	/**
+	 * Function called when a script has finished loading
+	 */
+	var loaded = function(url){
+		includes[url].loaded = true;
+		if(includes[url].callback) includes[url].callback();
+		check();
+	};
+
+	/**
+	 * Check if all scripts have been loaded
+	 */
+	var check = function(){
+		// Loop through includes and return if any are not
+		// loaded
+		for(var script in includes){
+			if(!includes[script].loaded) return;
+		}
+		// Have not returned yet so everything must be loaded
+		// so do inits and mains
+		for(var init=0; init<inits.length;init++) inits[init](Stencila);
+		for(var main=0; main<mains.length;main++) mains[main](Stencila);
+	};
+
+	/**
+	 * Define a "init" function to be called once all `include()`d scripts
+	 * have been loaded but before "main"
+	 */
+	var init = Stencila.init = function(callback){
+		// Add to inits
+		inits.push(callback);
+	};
+	
+	/**
+	 * Define a "main" function to be called once all `include()`ds and
+	 * `init()`ds have been done
+	 */
+	var main = Stencila.main = function(callback){
+		// Add to mains
+		mains.push(callback);
+		// Check if everything is loaded
+		check();
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
 	 * Functions exposed to contexts via an object 
 	 * which is always the uppermmost scope of a `Context`
 	 */
@@ -366,11 +488,10 @@ var Stencila = (function(Stencila){
 	 * 
 	 * Each directive has:
 	 * 
-	 * 	- a `get` method which takes the string value of associated attribute
-	 * 	  (and may do parsing of it) and optionally a node
-	 * 	- an `apply` method which adds necessary attributes and text for
-	 * 	  the directive to a node
+	 * 	- a `get` method which extracts directive attributes from a node
+	 * 	- a `set` method which stores directive attributes on a node
 	 * 	- a `render` method which renders the directive in a context
+	 * 	- an `apply` method which `get`s and `render`s
 	 */
 	
 	var directiveRender = Stencila.directiveRender = function(node,context){
@@ -575,12 +696,33 @@ var Stencila = (function(Stencila){
 		context = context || window.location.url;
 		this.context = new Context(context);
 	};
+
+	/**
+	 * Get or set the HTML for this stencil
+	 */
 	Stencil.prototype.html = function(html){
 		return Node.prototype.html.call(this,html);
 	};
+
+	/**
+	 * Select child elements
+	 * 
+	 * @param  {String} selector Select child elements using a CSS selector
+	 */
 	Stencil.prototype.select = function(selector){
 		return Node.prototype.select.call(this,selector);
 	};
+
+	/**
+	 * Load the theme for this stencil
+	 */
+	Stencil.prototype.theme = function(theme){
+		include(theme+'/theme.min.js');
+	};
+	
+	/**
+	 * Render this stencil
+	 */
 	Stencil.prototype.render = function(context){
 		if(context!==undefined){
 			if(context instanceof Context) this.context = context;
@@ -592,5 +734,27 @@ var Stencila = (function(Stencila){
 		);
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	/// Initialise the Stencila component on a page. These functions create `Stencila.component`
+
+	/**
+	 * Initialise a Stencil
+	 * 
+	 * @param  {String} theme  Theme to load for stencil
+	 * @param  {Boolean} render Should the stencil be rendered in the browser
+	 */
+	Stencila.stencil = function(theme,render){
+		var stencil = Stencila.component = new Stencil('#content');
+		stencil.theme(theme);
+		if(render) stencil.render();
+	};
+
 	return Stencila;
 })(Stencila||{});
+
+// Provide some functions in global namespace
+// This provides consistency with previous boot script
+// but may be removed is the future when themes are updated
+var include = Stencila.include;
+var init = Stencila.init;
+var main = Stencila.main;
