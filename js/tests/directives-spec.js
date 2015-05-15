@@ -44,10 +44,12 @@ describe("Stencil directives", function() {
 		expect(node.attr('data-off')).toEqual('true');
 
 		var n = new Stencila.Node(
-			'<div id="a" data-if="1"></div>' +
-			'<div id="b" data-elif="0"></div>' +
-			'<div id="c" data-elif="0"></div>' +
-			'<div id="d" data-else=""></div>'
+			'<div>'+
+				'<div id="a" data-if="1"></div>' +
+				'<div id="b" data-elif="0"></div>' +
+				'<div id="c" data-elif="0"></div>' +
+				'<div id="d" data-else=""></div>' +
+			'</div>'
 		);
 		Stencila.directiveRender(n,context);
 		expect(n.select('#a').has('data-off')).not.toBeTruthy();

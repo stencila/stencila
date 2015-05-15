@@ -120,35 +120,257 @@ var Stencila = (function(Stencila){
 		check();
 	};
 
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * Functions exposed to contexts via an object 
-	 * which is always the uppermmost scope of a `Context`
-	 */
-	expose = {};
+	var Request = Stencila.Request = {};
 
 	/**
-	 * Get JSON data from a URL
+	 * Create a request
 	 */
-	var get = expose.get = Stencila.get = function(url,callback,async){
+	Request.create = function(success,failure){
 		var request = new XMLHttpRequest();
-		if(callback){
-			request.onload = function(){
-				callback(JSON.parse(this.responseText));
-			};
-			request.open("GET",url,async);
-			request.setRequestHeader('Accept','application/json');
-			request.send();
+		request.onreadystatechange = function(){
+			if(request.readyState === 4){
+				if(request.status === 200){
+					success(JSON.parse(request.responseText));
+				} else {
+					if(failure) failure();
+				}
+			}
+		};
+		return request;
+	}
+
+	/**
+	 * Set request headers
+	 */
+	Request.headers = function(request,headers){
+		for(var header in headers) {
+			if(headers.hasOwnProperty(header)) {
+				request.setRequestHeader(header,headers[header]);
+			}
+		}
+	}
+
+	/**
+	 * Get JSON data
+	 */
+	Request.get = function(url,headers,success,failure){
+		var request = Request.create(success,failure);
+		request.open("GET",url,true);
+		request.setRequestHeader('Accept','application/json');
+		Request.headers(request,headers);
+		request.send();
+	};
+
+	/**
+	 * Post JSON data
+	 */
+	Request.post = function(url,headers,data,success,failure){
+		var request = Request.create(success,failure);
+		request.open("POST",url,true);
+		request.setRequestHeader('Content-Type','application/json');
+		request.setRequestHeader('Accept','application/json');
+		Request.headers(request,headers);
+		request.send(JSON.stringify(data));
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	var Hub = Stencila.Hub = {};
+
+	/**
+	 * Username and permit strings for stenci.la
+	 *
+	 * Permit is used for authentication and CSRF validation
+	 * for all asynchronous requests
+	 */
+	Hub.username = null;
+	Hub.permit = null;
+
+	/**
+	 * Signin to stenci.la
+	 *
+	 * @param  {Function} then Callback once signed in
+	 */
+	Hub.signin = function(then) {
+		// This page may already be at https://stenci.la and user already signed in
+		// Check for that using cookies set by stenci.la when a user is authenticated
+		if(window.location.host=="stenci.la"){
+			var username = $.cookie('username');
+			if(username){
+				Hub.username = username;
+			}
+		}
+		// ...otherwise signin
+		// @todo Implement a signin window
+		
+		// Get a permit to be used for subsequent requests
+		Request.get(
+			// Normally https will be used but in development http may be used. 
+			// Using the current window protocol allows for that situation
+			window.location.protocol+"//stenci.la/user/permit/",
+			{},
+			function(data){
+				Hub.permit = data.permit;
+				if(then) then();
+			}
+		);
+	};
+
+	/**
+	 * Make a GET request to stenci.la
+	 * 
+	 * @param  {String}   path Path to resource
+	 * @param  {Function} then Callback when done
+	 */
+	Hub.get = function(path,then) {
+		if(!Hub.username) {
+			// If not signed in then signin and then get
+			Hub.signin(function(){
+				Hub.get(path,then);
+			});
 		} else {
-			var data;
-			request.onload = function(){
-				data = JSON.parse(this.responseText);
-			};
-			request.open("GET",url,false);
-			request.setRequestHeader('Accept','application/json');
-			request.send();
-			return data;
+			Request.get(
+				window.location.protocol+"//stenci.la/"+path,
+				{"Authorization" : "Permit "+Hub.permit},
+				then
+			);
+		}
+	};
+
+	/**
+	 * Make a POST request to stenci.la
+	 * 
+	 * @param  {String}   path Path to resource
+	 * @param  {String}   data Data (as JSON) to post
+	 * @param  {Function} then Callback when done
+	 *
+	 * @todo Add POST JSON data to request
+	 */
+	Hub.post = function(path,data,then) {
+		if(!Hub.username) {
+			// If not signed in then signin and then post
+			Hub.signin(function(){
+				Hub.post(path,data,then);
+			});
+		} else {
+			Request.post(
+				window.location.protocol+"//stenci.la/"+path,
+				{"Authorization" : "Permit "+Hub.permit},
+				then
+			);
+		}
+	};
+
+	/**
+	 * Signout of stenci.la
+	 */
+	Hub.signout = function() {
+		Hub.username = null;
+		Hub.permit = null;
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	/**
+	 * Base class for all components
+	 */
+	var Component = Stencila.Component = function(){
+		// Collect host information
+		var location = window.location;
+		this.host = location.hostname;
+		this.port = location.port;
+
+		// Get the address of the component
+		this.address = null;
+		// ... from <meta> tag
+		this.address = new Node('head meta[itemprop=address]').attr('content');
+		// ... or from url
+		if(!this.address) {
+			var parts = window.location.pathname.split('/');
+			// Remove the first part cause by the leading /
+			if(parts[0]==="") parts.shift();
+			// Remove the last part if it is a title slug
+			var last = parts[parts.length-1];
+			if(last.substr(last.length-1)=="-") parts.pop();
+			this.address = parts.join('/');
+		}
+
+		// If on localhost attempt to activate
+		this.active = 'no';
+		if(this.host=='localhost'){
+			this.activate();
+		}
+	};
+
+	/**
+	 * Is this component writeable?
+	 */
+	Component.prototype.writeable = function(){
+		// Currently just check if this is 
+		// active.
+		return this.active;
+	};
+
+	/**
+	 * Activate this component
+	 */
+	Component.prototype.activate = function(){
+		if(this.active==='no'){
+			this.active = 'activating';
+			if(this.host=='localhost'){
+				// On localhost, simply connect to the Websocket at the
+				// same address
+				var websocket = window.location.href.replace("http:","ws:");
+				this.connection = new WebSocketConnection(websocket);
+				this.active = 'yes';
+			} else {
+				// Elsewhere, request stenci.la to activate a session
+				// for this component
+				var self = this;
+				Hub.post(self.address+"/activate!",{},function(data){
+					self.session = data;
+					// Wait for three minutes for session to be ready
+					var until = new Date().getTime()+1000*60*3;
+					var wait = function(){
+						Hub.get(self.session.url,function(data){
+							self.session = data;
+							if(self.session.ready){
+								self.connection = new WebSocketConnection(self.session.websocket);
+								self.active = 'yes';
+							}
+							else if(new Date().getTime()>until){
+								self.active = 'no';
+								console.error('Failed to connect to session: '+self.session.url);
+							}
+							else {
+								setTimeout(function() {
+									wait();
+								},1000);
+							}
+						});
+					};
+				});
+			}
+		}
+	};
+
+	/**
+	 * Deactivate this component
+	 */
+	Component.prototype.deactivate = function(){
+		if(this.active==='yes' && this.host!=='localhost'){
+			this.active = 'deactivating';
+			var self = this;
+			Hub.post(this.address+"/deactivate!",{},function(data){
+				self.active = 'no';
+			});
 		}
 	};
 
@@ -160,14 +382,16 @@ var Stencila = (function(Stencila){
 	 * virtual base class in the C++ module.
 	 */
 	var Context = Stencila.Context = function(scope){
-		this.scopes = [expose];
-		if(typeof scope==='string'){
-			this.scopes.push(
-				get(scope)
-			);
-		} else {
-			this.scopes.push(scope||{});
-		}
+		this.scopes = [
+			/**
+			 * Functions exposed to contexts via an object 
+			 * which is always the uppermmost scope of a `Context`
+			 */
+			{
+				get: Request.get
+			},
+			scope||{}
+		];
 	};
 
 	// Private methods for manipulating the stack
@@ -359,9 +583,13 @@ var Stencila = (function(Stencila){
 	 */
 	var Node = Stencila.Node = function(dom){
 		if(typeof dom==='string'){
-			var frag = document.createElement('div');
-			frag.innerHTML = dom;
-			this.dom = frag;
+			if(dom.substr(0,1)==='<'){
+				var frag = document.createElement('div');
+				frag.innerHTML = dom;
+				this.dom = frag.children[0];
+			} else {
+				this.dom = document.querySelector(dom);
+			}
 		}
 		else {
 			this.dom = dom;
