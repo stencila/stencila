@@ -29,7 +29,7 @@ Server::Server(void){
 	server_.set_error_channels(websocketpp::log::elevel::fatal);
 	// Log to files
 	auto dir = boost::filesystem::temp_directory_path();
-	dir /= ".stencila/logs";
+	dir /= "stencila/logs";
 	if(not boost::filesystem::exists(dir)) boost::filesystem::create_directories(dir);
 	access_log_.open((dir/"server-access.log").string());
 	error_log_.open((dir/"server-error.log").string());

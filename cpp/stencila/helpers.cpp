@@ -11,7 +11,7 @@ namespace Helpers {
 
 std::string script(const std::string& filename,const std::string& contents){
 	auto dir = boost::filesystem::temp_directory_path();
-	dir /= ".stencila/scripts";
+	dir /= "stencila/scripts";
 	auto path = dir / filename;
 	if(not boost::filesystem::exists(path)){
 		boost::filesystem::create_directories(dir);

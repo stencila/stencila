@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_SUITE(component_quick)
 
 using namespace Stencila;
 
-boost::regex temp_path_pattern(".*/temp/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");
+boost::regex temp_path_pattern("/tmp/stencila/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");
 
 /**
  * @class Component
