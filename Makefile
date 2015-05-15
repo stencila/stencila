@@ -13,7 +13,7 @@ VERSION :=  $(shell ./config.py version)
 # Build directory uses a heirarchy based on the 
 # operating system and machine architecture.
 ifndef BUILD
-	BUILD := build/$(OS)/$(ARCH)/$(VERSION)
+	BUILD := build/$(OS)/$(ARCH)
 endif
 
 # Resources directory for downloads of dependencies
@@ -31,13 +31,13 @@ vars:
 	@echo CXX: $(CXX)
 
 #################################################################################################
-# Symbolic links to builds
+# Symbolic links to current build
 # 
 # Useful for automatically collecting the latest build products
 
 .PHONY: build/current
 build/current:
-	@ln -sfT $(OS)/$(ARCH)/$(VERSION) build/current
+	@ln -sfT $(OS)/$(ARCH) build/current
 build-current: build/current
 
 #################################################################################################
@@ -342,13 +342,18 @@ cpp-helpers-uglifyjs:
 #################################################################################################
 # Stencila C++ library
 
+# Build version object file
+$(BUILD)/cpp/library/stencila/version.o:
+	@echo "#include <stencila/version.hpp>\nconst std::string Stencila::version = \"$(VERSION)\";" > $(BUILD)/cpp/library/stencila/version.cpp
+	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(BUILD)/cpp/library/stencila/version.cpp
+
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
 endif
-CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS)))
+CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp) $(BUILD)/cpp/library/version.cpp
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(BUILD)/cpp/library/stencila/version.o
 $(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(BUILD)/cpp/library/stencila
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
@@ -376,7 +381,7 @@ $(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) cpp-library-requires
 		$(AR) t libstencila.a > contents.txt 
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
 
-cpp-library: cpp-libary-staticlib
+cpp-library: cpp-library-staticlib
 
 #################################################################################################
 # Stencila C++ package
@@ -556,11 +561,18 @@ console-build: $(BUILD)/console/stencila
 
 #################################################################################################
 # Stencila Javascript package
+# 
 
-$(BUILD)/js/stencila.min.js : js/stencila.js
+JS_MIN := $(BUILD)/js/stencila-$(VERSION).min.js
+
+$(JS_MIN) : js/stencila.js
 	uglifyjs $< -m > $@
 
-js-build: $(BUILD)/js/stencila.min.js
+js-build: $(JS_MIN)
+
+js-deliver: js-build
+	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/stencila-$(VERSION).min.js --content-type application/json --cache-control max-age=31536000
+
 
 # Put Jasmine in the build directory but for ease of use when in the edit-test cycle symlink to
 # it from source directory instead of copying source files over to there.
@@ -701,8 +713,8 @@ endif
 # and the \$ is to escape the shell's treatment of $
 R_PLATFORM := $(shell Rscript -e "cat(R.version\$$platform)" )
 
-# The R version can not include the '+' suffix
-R_PACKAGE_VERSION := $(subst +,,$(VERSION))
+# The R version can not include any of the non numeric suffixes (commit and/or dirty)
+R_PACKAGE_VERSION := $(firstword $(subst -, ,$(VERSION)))
 
 # Define other platform specific variables...
 ifeq ($(OS),linux)
@@ -756,12 +768,6 @@ $(R_PACKAGE_CLI): r/stencila-r
 	@mkdir -p $(R_BUILD)/stencila/inst/bin
 	cp $< $@
 
-# Copy over `stencila.min.js`
-R_PACKAGE_STENCILA_JS := $(R_BUILD)/stencila/inst/bin/stencila.min.js
-$(R_PACKAGE_STENCILA_JS): $(BUILD)/js/stencila.min.js
-	@mkdir -p $(R_BUILD)/stencila/inst/bin
-	cp $< $@
-
 # Copy over `install.libs.R`
 R_PACKAGE_INSTALLSCRIPT := $(R_BUILD)/stencila/src/install.libs.R
 $(R_PACKAGE_INSTALLSCRIPT): r/install.libs.R
@@ -769,7 +775,7 @@ $(R_PACKAGE_INSTALLSCRIPT): r/install.libs.R
 	cp $< $@
 
 # Create a dummy C source code file in `src`
-# If there is no source files in `src` then `src\nistall.libs.R` is not run. 
+# If there is no source files in `src` then `src\install.libs.R` is not run. 
 R_PACKAGE_DUMMYC := $(R_BUILD)/stencila/src/dummy.c
 $(R_PACKAGE_DUMMYC):
 	@mkdir -p $(R_BUILD)/stencila/src/
@@ -794,7 +800,7 @@ $(R_PACKAGE_DESC): r/DESCRIPTION
 
 # Finalise the package directory
 R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
-$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_CLI) $(R_PACKAGE_STENCILA_JS) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
+$(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_CLI) $(R_PACKAGE_INSTALLSCRIPT) $(R_PACKAGE_DUMMYC) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
 	# Edit package version and date using sed:
 	#	.* = anything, any number of times
 	#	$ = end of line
