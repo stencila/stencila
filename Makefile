@@ -9,6 +9,8 @@ OS := $(shell ./config.py os)
 ARCH := $(shell ./config.py arch)
 # Get Stencila version
 VERSION :=  $(shell ./config.py version)
+# Is this a dirty build (i.e. changes since last commit)?
+DIRTY := $(findstring dirty,$(VERSION))
 
 # Build directory uses a heirarchy based on the 
 # operating system and machine architecture.
@@ -26,6 +28,7 @@ vars:
 	@echo OS: $(OS)
 	@echo ARCH: $(ARCH)
 	@echo VERSION: $(VERSION)
+	@echo DIRTY: $(DIRTY)
 	@echo BUILD: $(BUILD)
 	@echo RESOURCES: $(RESOURCES)
 	@echo CXX: $(CXX)
@@ -385,6 +388,8 @@ cpp-library: cpp-library-staticlib
 
 #################################################################################################
 # Stencila C++ package
+CPP_PACKAGE := stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
+CPP_PACKAGE_BUILD := $(BUILD)/cpp/package/$(CPP_PACKAGE)
 
 # Copy over Stencila header files
 CPP_STENCILA_HPPS := $(wildcard cpp/stencila/*.hpp)
@@ -394,10 +399,18 @@ $(BUILD)/cpp/package/stencila/stencila/%.hpp: cpp/stencila/%.hpp
 	cp $< $@
 
 # Zip it up
-$(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz: $(CPP_PACKAGE_HPPS) $(BUILD)/cpp/library/libstencila.a
+$(CPP_PACKAGE_BUILD): $(CPP_PACKAGE_HPPS) $(BUILD)/cpp/library/libstencila.a
 	cp $(BUILD)/cpp/library/libstencila.a $(BUILD)/cpp/package/stencila
 	cd $(BUILD)/cpp/package ; tar czf stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz stencila
-cpp-package: $(BUILD)/cpp/package/stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
+cpp-package: $(CPP_PACKAGE_BUILD)
+
+# Deliver C++ package to get.stenci.la
+cpp-deliver: $(CPP_PACKAGE_BUILD)
+ifeq (dirty,$(DIRTY))
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+else
+	aws s3 cp $(CPP_PACKAGE_BUILD) s3://get.stenci.la/cpp/$(CPP_PACKAGE) --cache-control max-age=31536000
+endif
 
 
 #################################################################################################
@@ -570,9 +583,13 @@ $(JS_MIN) : js/stencila.js
 
 js-build: $(JS_MIN)
 
+# Deliver JS package to get.stenci.la
 js-deliver: js-build
+ifeq (dirty,$(DIRTY))
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+else
 	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/stencila-$(VERSION).min.js --content-type application/json --cache-control max-age=31536000
-
+endif
 
 # Put Jasmine in the build directory but for ease of use when in the edit-test cycle symlink to
 # it from source directory instead of copying source files over to there.
