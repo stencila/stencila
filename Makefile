@@ -346,7 +346,9 @@ cpp-helpers-uglifyjs:
 # Stencila C++ library
 
 # Build version object file
-$(BUILD)/cpp/library/stencila/version.o:
+CPP_VERSION_0 := $(BUILD)/cpp/library/stencila/version.o
+$(CPP_VERSION_0):
+	@mkdir -p $(BUILD)/cpp/library/stencila
 	@echo "#include <stencila/version.hpp>\nconst std::string Stencila::version = \"$(VERSION)\";" > $(BUILD)/cpp/library/stencila/version.cpp
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(BUILD)/cpp/library/stencila/version.cpp
 
@@ -355,8 +357,8 @@ CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-fu
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
 endif
-CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp) $(BUILD)/cpp/library/version.cpp
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(BUILD)/cpp/library/stencila/version.o
+CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_0)
 $(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(BUILD)/cpp/library/stencila
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
@@ -439,7 +441,7 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 # This needs to be done (instead of linking to libstencila.a) so that coverage statistics
 # can be generated for these files
 # $(realpath $<) is used for consistency of paths in coverage reports
-CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp)))
+CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) $(CPP_VERSION_0)
 $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
