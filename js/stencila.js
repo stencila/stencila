@@ -122,6 +122,147 @@ var Stencila = (function(Stencila){
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+
+	/**
+	 * A HTML element
+	 *
+	 * Provides a similar API to the `Html::Node` in the 
+	 * C++ module, which in turn is similar to the jQuery interface.
+	 * A thin wrapper around a native DOM element.
+	 * Provides some shortcuts to DOM manipulation, without having to 
+	 * rely on the whole of jQuery as a dependency.
+	 */
+	var Node = Stencila.Node = function(dom){
+		if(typeof dom==='string'){
+			if(dom.substr(0,1)==='<'){
+				var frag = document.createElement('div');
+				frag.innerHTML = dom;
+				this.dom = frag.children[0];
+			} else {
+				this.dom = document.querySelector(dom);
+			}
+		}
+		else {
+			this.dom = dom;
+		}
+	};
+
+	/**
+	 * Is this node a null? 
+	 */
+	Node.prototype.empty = function(){
+		return this.dom?false:true;
+	};
+
+	/**
+	 * Get or set an attribute
+	 * 
+	 * @param  {String} name  Name of attribute
+	 * @param  {String} value Value for attribute
+	 */
+	Node.prototype.attr = function(name,value){
+		if(value===undefined){
+			var attr = this.dom.getAttribute(name);
+			return attr?attr:'';
+		} else {
+			this.dom.setAttribute(name,value);
+		}
+	};
+
+	/**
+	 * Remove an attribute
+	 * 
+	 * @param  {String} name Name of attribute
+	 */
+	Node.prototype.erase = function(name){
+		this.dom.removeAttribute(name);
+	};
+
+	/**
+	 * Does this element have a particular attribute
+	 * 
+	 * @param  {String} name  Name of attribute
+	 */
+	Node.prototype.has = function(name){
+		return this.dom.hasAttribute(name);
+	};
+
+	/**
+	 * Get or set the HTML (inner) of this element
+	 * 
+	 * @param  {String} value HTML string
+	 */
+	Node.prototype.html = function(value){
+		if(value===undefined) return this.dom.innerHTML;
+		else this.dom.innerHTML = value;
+	};
+
+	/**
+	 * Get or set the text of this element
+	 * 
+	 * @param  {String} value Text constent string
+	 */
+	Node.prototype.text = function(value){
+		if(value===undefined) return this.dom.textContent;
+		else this.dom.textContent = value;
+	};
+
+	/**
+	 * Get array of child elements
+	 */
+	Node.prototype.children = function(){
+		return this.dom.children;
+	};
+
+	/**
+	 * Get the first child
+	 */
+	Node.prototype.first = function(){
+		return new Node(this.dom.children[0]);
+	};
+
+	/**
+	 * Get next sibling element
+	 */
+	Node.prototype.next = function(){
+		return new Node(this.dom.nextElementSibling);
+	};
+
+	/**
+	 * Get previous sibling element
+	 */
+	Node.prototype.previous = function(){
+		return new Node(this.dom.previousElementSibling);
+	};
+
+	/**
+	 * Append a child element
+	 */
+	Node.prototype.append = function(node){
+		this.dom.appendChild(node.dom);
+		return this;
+	};
+
+	/**
+	 * Select child elements
+	 * 
+	 * @param  {String} selector Select child elements using a CSS selector
+	 */
+	Node.prototype.select = function(selector){
+		return new Node(this.dom.querySelector(selector));
+	};
+
+	/**
+	 * Clone this element
+	 */
+	Node.prototype.clone = function(){
+		return new Node(this.dom.cloneNode(true));
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	var Request = Stencila.Request = {};
 
@@ -136,11 +277,14 @@ var Stencila = (function(Stencila){
 					success(JSON.parse(request.responseText));
 				} else {
 					if(failure) failure();
+					else Stencila.view.error(
+						'Request failed: status='+request.statusText
+					);
 				}
 			}
 		};
 		return request;
-	}
+	};
 
 	/**
 	 * Set request headers
@@ -151,7 +295,7 @@ var Stencila = (function(Stencila){
 				request.setRequestHeader(header,headers[header]);
 			}
 		}
-	}
+	};
 
 	/**
 	 * Get JSON data
@@ -176,6 +320,155 @@ var Stencila = (function(Stencila){
 		request.send(JSON.stringify(data));
 	};
 
+	/////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Connection to a server.
+	 * 
+	 * Implements the WAMP (http://wamp.ws) messaging protocol over
+	 */
+	var Connection = Stencila.Connection = function(){
+		// Callbacks registered for remote procedure calls (see call() method)
+		this.callbacks = {};
+		// Identifier for messages; incremented in call method
+		this.id = 0;
+	};
+
+	/**
+	 * Connect to server
+	 */
+	Connection.prototype.connect = function(){
+		// Automatically disconnect when page is unloaded
+		var self = this;
+		window.addEventListener("beforeunload", function(event){
+			self.disconnect();
+		});
+	};
+
+	/**
+	 * Receive a message from the server
+	 * 
+	 * @param  {String} data
+	 */
+	Connection.prototype.receive = function(data){
+		// Parse JSON
+		var message = [8];
+		try {
+			message = JSON.parse(data);
+		}
+		catch(error) {
+			console.error('Error parsing WAMP message data.\n  data:'+data+'\n  error:'+error);
+		}
+		// Dispatch based on WAMP code
+		var code = message[0];
+		if(code==50) this.result(message);
+		else if(code==8){
+			throw "WAMP error:"+message;
+		}
+		else {
+			throw "WAMP message type unknown:"+code;
+		}
+	};
+
+	/**
+	 * Make a remote procedure call
+	 * See https://github.com/tavendo/WAMP/blob/master/spec/basic.md#call-1
+	 * 
+	 * @param  {String}   method   Name of method to call
+	 * @param  {Array}    args     Array of arguments
+	 * @param  {Function} callback Function to call when method returns (potentially with a result)
+	 */
+	Connection.prototype.call = function(method,args,callback){
+		args = args || [];
+		// Increment id
+		// According to https://github.com/tavendo/WAMP/blob/master/spec/basic.md#ids
+		// "IDs in the session scope SHOULD be incremented by 1 beginning with 1"
+		this.id++;
+		// Generate a WAMP call array
+		var wamp = [
+			48,			// CALL
+			this.id,	// Request|id
+			{},			// Options|dict
+			method,		// Procedure|uri
+			args		// Arguments|list
+		];
+		// Register callback
+		if(callback){
+			this.callbacks[this.id] = callback;
+		}
+		// Send WAMP
+		this.send(wamp);
+	};
+
+	/**
+	 * Receive the result of a remote procedure call
+	 * See https://github.com/tavendo/WAMP/blob/master/spec/basic.md#result-1
+	 *
+	 * This method is called when a WAMP RESULT message is received and is not meant to be called
+	 * publically
+	 */
+	Connection.prototype.result = function(message){
+		// [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
+		var id = message[1];
+		var callback = this.callbacks[id];
+		if(callback){
+			var results = message[3];
+			// WAMP allows for muliple returns
+			// Only passing on a single result, the first
+			var result = results[0];
+			callback(result);
+		}
+	};
+
+	/**
+	 * Websocket connection class
+	 */
+	var WebSocketConnection = Stencila.WebSocketConnection = function(url){
+		Connection.call(this);
+		this.socket = null;
+		this.connect(url);
+	};
+	WebSocketConnection.prototype = Object.create(Connection.prototype);
+
+	/**
+	 * Connect
+	 * 
+	 * @param  {String} url URL to connect to
+	 */
+	WebSocketConnection.prototype.connect = function(url){
+		var self = this;
+		// Create a new websocket
+		self.socket = new WebSocket(url);
+		// Bind some socket events
+		//   when connection is opened...
+		self.socket.onopen = function(event){
+			self.ok = true;
+		};
+		//   when there are any connection errors...
+		self.socket.onclose = function(event){
+			console.warn("Connection closed");
+			self.ok = false;
+		};
+		//   when a message is recieved...
+		self.socket.onmessage = function(event){
+			Connection.prototype.receive.call(self,event.data);
+		};
+		Connection.prototype.connect.call(this);
+	};
+
+	/**
+	 * Disconnect
+	 */
+	WebSocketConnection.prototype.disconnect = function(){
+		this.socket.close();
+	};
+
+	/**
+	 * Send data
+	 */
+	WebSocketConnection.prototype.send = function(data){
+		this.socket.send(data);
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +490,7 @@ var Stencila = (function(Stencila){
 	 * @param  {Function} then Callback once signed in
 	 */
 	Hub.signin = function(then) {
+		var headers = {};
 		// This page may already be at https://stenci.la and user already signed in
 		// Check for that using cookies set by stenci.la when a user is authenticated
 		if(window.location.host=="stenci.la"){
@@ -204,16 +498,20 @@ var Stencila = (function(Stencila){
 			if(username){
 				Hub.username = username;
 			}
+		} else {
+			var credentials = Stencila.view.signin();
+			if(credentials.password){
+				var encoded = btoa(credentials.username+":"+credentials.password);
+				headers["Authorization"] = "Basic "+encoded;
+			}
 		}
-		// ...otherwise signin
-		// @todo Implement a signin window
-		
+
 		// Get a permit to be used for subsequent requests
 		Request.get(
 			// Normally https will be used but in development http may be used. 
 			// Using the current window protocol allows for that situation
-			window.location.protocol+"//stenci.la/user/permit/",
-			{},
+			window.location.protocol+"//stenci.la/user/permit",
+			headers,
 			function(data){
 				Hub.permit = data.permit;
 				if(then) then();
@@ -246,7 +544,7 @@ var Stencila = (function(Stencila){
 	 * Make a POST request to stenci.la
 	 * 
 	 * @param  {String}   path Path to resource
-	 * @param  {String}   data Data (as JSON) to post
+	 * @param  {String}   data Data to post
 	 * @param  {Function} then Callback when done
 	 *
 	 * @todo Add POST JSON data to request
@@ -261,6 +559,7 @@ var Stencila = (function(Stencila){
 			Request.post(
 				window.location.protocol+"//stenci.la/"+path,
 				{"Authorization" : "Permit "+Hub.permit},
+				data,
 				then
 			);
 		}
@@ -274,6 +573,43 @@ var Stencila = (function(Stencila){
 		Hub.permit = null;
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * The user interface view
+	 *
+	 * This is a basic stub. Themes define their own Views and assign
+	 * it to `Stencila.com.view`.
+	 */
+	var View = Stencila.View = function(component){
+		this.com = component;
+	};
+
+	View.prototype.info = function(message){
+		console.info(message);
+	};
+
+	View.prototype.warn = function(message){
+		console.warn(message);
+	};
+
+	View.prototype.error = function(message){
+		console.error(message);
+	};
+
+	View.prototype.signin = function(){
+		var username = prompt('Username for stenci.la');
+		var password = prompt('Password for stenci.la');
+		return {
+			username: username,
+			password: password
+		};
+	};
+
+	View.prototype.change = function(property,value){
+		console.log('Property changed: property='+property+' value='+value);
+	};
+
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -282,6 +618,9 @@ var Stencila = (function(Stencila){
 	 * Base class for all components
 	 */
 	var Component = Stencila.Component = function(){
+		// Create default view
+		this.view = new View(this);
+
 		// Collect host information
 		var location = window.location;
 		this.host = location.hostname;
@@ -290,7 +629,8 @@ var Stencila = (function(Stencila){
 		// Get the address of the component
 		this.address = null;
 		// ... from <meta> tag
-		this.address = new Node('head meta[itemprop=address]').attr('content');
+		var address = new Node('head meta[itemprop=address]');
+		if(!address.empty()) this.address = address.attr('content');
 		// ... or from url
 		if(!this.address) {
 			var parts = window.location.pathname.split('/');
@@ -303,38 +643,41 @@ var Stencila = (function(Stencila){
 		}
 
 		// If on localhost attempt to activate
-		this.active = 'no';
+		this.active = 'off';
 		if(this.host=='localhost'){
 			this.activate();
 		}
 	};
 
 	/**
-	 * Is this component writeable?
+	 * Set a property of the component and notify the view of 
+	 * the change
+	 * 
+	 * @param {String} 	property Name of property
+	 * @param {any} 	value    Value of property
 	 */
-	Component.prototype.writeable = function(){
-		// Currently just check if this is 
-		// active.
-		return this.active;
+	Component.prototype.set = function(property,value){
+		this[property] = value;
+		this.view.change(property,value);
 	};
 
 	/**
 	 * Activate this component
 	 */
 	Component.prototype.activate = function(){
-		if(this.active==='no'){
-			this.active = 'activating';
+		if(this.active==='off'){
+			this.set('active','activating');
 			if(this.host=='localhost'){
 				// On localhost, simply connect to the Websocket at the
 				// same address
 				var websocket = window.location.href.replace("http:","ws:");
 				this.connection = new WebSocketConnection(websocket);
-				this.active = 'yes';
+				this.set('active','on');
 			} else {
 				// Elsewhere, request stenci.la to activate a session
 				// for this component
 				var self = this;
-				Hub.post(self.address+"/activate!",{},function(data){
+				Hub.post(self.address+"/activate!",null,function(data){
 					self.session = data;
 					// Wait for three minutes for session to be ready
 					var until = new Date().getTime()+1000*60*3;
@@ -343,11 +686,11 @@ var Stencila = (function(Stencila){
 							self.session = data;
 							if(self.session.ready){
 								self.connection = new WebSocketConnection(self.session.websocket);
-								self.active = 'yes';
+								self.set('active','on');
 							}
 							else if(new Date().getTime()>until){
-								self.active = 'no';
-								console.error('Failed to connect to session: '+self.session.url);
+								self.set('active','off');
+								self.view.error('Failed to connect to session: '+self.session.url);
 							}
 							else {
 								setTimeout(function() {
@@ -365,14 +708,16 @@ var Stencila = (function(Stencila){
 	 * Deactivate this component
 	 */
 	Component.prototype.deactivate = function(){
-		if(this.active==='yes' && this.host!=='localhost'){
-			this.active = 'deactivating';
+		if(this.active==='on' && this.host!=='localhost'){
+			this.set('active','deactivating');
 			var self = this;
-			Hub.post(this.address+"/deactivate!",{},function(data){
-				self.active = 'no';
+			Hub.post(this.address+"/deactivate!",null,function(data){
+				self.set('active','off');
 			});
 		}
 	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * A JavaScript rendering context
@@ -571,142 +916,7 @@ var Stencila = (function(Stencila){
 		this.pop_();
 	};
 
-
-	/**
-	 * A HTML element
-	 *
-	 * Provides a similar API to the `Html::Node` in the 
-	 * C++ module, which in turn is similar to the jQuery interface.
-	 * A thin wrapper around a native DOM element.
-	 * Provides some shortcuts to DOM manipulation, without having to 
-	 * rely on the whole of jQuery as a dependency.
-	 */
-	var Node = Stencila.Node = function(dom){
-		if(typeof dom==='string'){
-			if(dom.substr(0,1)==='<'){
-				var frag = document.createElement('div');
-				frag.innerHTML = dom;
-				this.dom = frag.children[0];
-			} else {
-				this.dom = document.querySelector(dom);
-			}
-		}
-		else {
-			this.dom = dom;
-		}
-	};
-
-	/**
-	 * Is this node a null? 
-	 */
-	Node.prototype.empty = function(){
-		return this.dom?false:true;
-	};
-
-	/**
-	 * Get or set an attribute
-	 * 
-	 * @param  {String} name  Name of attribute
-	 * @param  {String} value Value for attribute
-	 */
-	Node.prototype.attr = function(name,value){
-		if(value===undefined){
-			var attr = this.dom.getAttribute(name);
-			return attr?attr:'';
-		} else {
-			this.dom.setAttribute(name,value);
-		}
-	};
-
-	/**
-	 * Remove an attribute
-	 * 
-	 * @param  {String} name Name of attribute
-	 */
-	Node.prototype.erase = function(name){
-		this.dom.removeAttribute(name);
-	};
-
-	/**
-	 * Does this element have a particular attribute
-	 * 
-	 * @param  {String} name  Name of attribute
-	 */
-	Node.prototype.has = function(name){
-		return this.dom.hasAttribute(name);
-	};
-
-	/**
-	 * Get or set the HTML (inner) of this element
-	 * 
-	 * @param  {String} value HTML string
-	 */
-	Node.prototype.html = function(value){
-		if(value===undefined) return this.dom.innerHTML;
-		else this.dom.innerHTML = value;
-	};
-
-	/**
-	 * Get or set the text of this element
-	 * 
-	 * @param  {String} value Text constent string
-	 */
-	Node.prototype.text = function(value){
-		if(value===undefined) return this.dom.textContent;
-		else this.dom.textContent = value;
-	};
-
-	/**
-	 * Get array of child elements
-	 */
-	Node.prototype.children = function(){
-		return this.dom.children;
-	};
-
-	/**
-	 * Get the first child
-	 */
-	Node.prototype.first = function(){
-		return new Node(this.dom.children[0]);
-	};
-
-	/**
-	 * Get next sibling element
-	 */
-	Node.prototype.next = function(){
-		return new Node(this.dom.nextElementSibling);
-	};
-
-	/**
-	 * Get previous sibling element
-	 */
-	Node.prototype.previous = function(){
-		return new Node(this.dom.previousElementSibling);
-	};
-
-	/**
-	 * Append a child element
-	 */
-	Node.prototype.append = function(node){
-		this.dom.appendChild(node.dom);
-		return this;
-	};
-
-	/**
-	 * Select child elements
-	 * 
-	 * @param  {String} selector Select child elements using a CSS selector
-	 */
-	Node.prototype.select = function(selector){
-		return new Node(this.dom.querySelector(selector));
-	};
-
-	/**
-	 * Clone this element
-	 */
-	Node.prototype.clone = function(){
-		return new Node(this.dom.cloneNode(true));
-	};
+	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Stencil directives
