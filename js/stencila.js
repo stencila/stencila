@@ -140,65 +140,53 @@ var Stencila = (function(Stencila){
 		return new Node(this.dom.cloneNode(true));
 	};
 
-
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-
-	var Request = Stencila.Request = {};
-
 	/**
-	 * Create a request
+	 * The user interface environment
+	 *
+	 * This is a basic stub. Themes define their own HubView which is
+	 * assigned to `Hub.view`
 	 */
-	Request.create = function(success,failure){
-		var request = new XMLHttpRequest();
-		request.onreadystatechange = function(){
-			if(request.readyState === 4){
-				if(request.status === 200){
-					success(JSON.parse(request.responseText));
-				} else {
-					if(failure) failure();
-					else Stencila.view.error(
-						'Request failed: status='+request.statusText
-					);
-				}
-			}
+	var HubView = Stencila.HubView = function(component){
+	};
+
+	HubView.prototype.info = function(message){
+		console.info(message);
+	};
+
+	HubView.prototype.warn = function(message){
+		console.warn(message);
+	};
+
+	HubView.prototype.error = function(message){
+		console.error(message);
+	};
+
+	HubView.prototype.signin = function(){
+		var username = prompt('Username for stenci.la');
+		var password = prompt('Password for stenci.la');
+		return {
+			username: username,
+			password: password
 		};
-		return request;
 	};
 
-	/**
-	 * Set request headers
-	 */
-	Request.headers = function(request,headers){
-		for(var header in headers) {
-			if(headers.hasOwnProperty(header)) {
-				request.setRequestHeader(header,headers[header]);
-			}
-		}
-	};
 
 	/**
-	 * Get JSON data
+	 * The user interface view
+	 *
+	 * This is a basic stub. Themes define their own Views which get assigned
+	 * to `Stencila.com.view`.
 	 */
-	Request.get = function(url,headers,success,failure){
-		var request = Request.create(success,failure);
-		request.open("GET",url,true);
-		request.setRequestHeader('Accept','application/json');
-		Request.headers(request,headers);
-		request.send();
+	var ComponentView = Stencila.ComponentView = function(component){
+		this.com = component;
 	};
 
-	/**
-	 * Post JSON data
-	 */
-	Request.post = function(url,headers,data,success,failure){
-		var request = Request.create(success,failure);
-		request.open("POST",url,true);
-		request.setRequestHeader('Content-Type','application/json');
-		request.setRequestHeader('Accept','application/json');
-		Request.headers(request,headers);
-		request.send(JSON.stringify(data));
+	ComponentView.prototype.change = function(property,value){
+		console.log('Property changed: property='+property+' value='+value);
 	};
+
 
 	/////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -369,54 +357,66 @@ var Stencila = (function(Stencila){
 	 *
 	 * @param  {Function} then Callback once signed in
 	 */
-	Hub.signin = function(then) {
-		var headers = {};
+	Hub.signin = function(credentials,then) {
+		var headers = {
+			'Accept':'application/json'
+		};
 		// This page may already be at https://stenci.la and user already signed in
 		// Check for that using cookies set by stenci.la when a user is authenticated
-		if(window.location.host=="stenci.la"){
+		if(window.location.host=='stenci.la'){
 			var username = $.cookie('username');
 			if(username){
 				Hub.username = username;
 			}
-		} else {
-			var credentials = Stencila.view.signin();
+		}
+		else if(credentials){
 			if(credentials.password){
-				var encoded = btoa(credentials.username+":"+credentials.password);
-				headers["Authorization"] = "Basic "+encoded;
+				var encoded = btoa(credentials.username+':'+credentials.password);
+				headers['Authorization'] = 'Basic '+encoded;
 			}
+		} 
+		else {
+			Hub.view.signin();
 		}
 
 		// Get a permit to be used for subsequent requests
-		Request.get(
+		$.ajax({
 			// Normally https will be used but in development http may be used. 
 			// Using the current window protocol allows for that situation
-			window.location.protocol+"//stenci.la/user/permit",
-			headers,
-			function(data){
-				Hub.permit = data.permit;
-				if(then) then();
-			}
-		);
+			url: window.location.protocol+'//stenci.la/user/permit',
+			method: 'GET',
+			headers: headers
+		}).done(function(data){
+			Hub.permit = data.permit;
+			if(then) then();
+		});
 	};
 
 	/**
 	 * Make a GET request to stenci.la
 	 * 
 	 * @param  {String}   path Path to resource
+	 * @param  {Boolean}  auth Is authentication required for this request?
 	 * @param  {Function} then Callback when done
 	 */
-	Hub.get = function(path,then) {
-		if(!Hub.username) {
+	Hub.get = function(path,auth,then) {
+		if(auth & !Hub.permit) {
 			// If not signed in then signin and then get
 			Hub.signin(function(){
-				Hub.get(path,then);
+				Hub.get(path,auth,then);
 			});
 		} else {
-			Request.get(
-				window.location.protocol+"//stenci.la/"+path,
-				{"Authorization" : "Permit "+Hub.permit},
-				then
-			);
+			var headers = {
+				'Accept':'application/json'
+			};
+			if(auth) headers = {
+				'Authorization' : 'Permit '+Hub.permit
+			};
+			$.ajax({
+				url: window.location.protocol+'//stenci.la/'+path,
+				method: 'GET',
+				headers: headers
+			}).done(then);
 		}
 	};
 
@@ -430,18 +430,19 @@ var Stencila = (function(Stencila){
 	 * @todo Add POST JSON data to request
 	 */
 	Hub.post = function(path,data,then) {
-		if(!Hub.username) {
+		if(!Hub.permit) {
 			// If not signed in then signin and then post
 			Hub.signin(function(){
 				Hub.post(path,data,then);
 			});
 		} else {
-			Request.post(
-				window.location.protocol+"//stenci.la/"+path,
-				{"Authorization" : "Permit "+Hub.permit},
-				data,
-				then
-			);
+			$.ajax({
+				url: window.location.protocol+'//stenci.la/'+path,
+				method: 'POST',
+				headers: {
+					'Authorization' : 'Permit '+Hub.permit,
+				}
+			}).done(then);
 		}
 	};
 
@@ -456,57 +457,18 @@ var Stencila = (function(Stencila){
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * The user interface view
-	 *
-	 * This is a basic stub. Themes define their own Views and assign
-	 * it to `Stencila.com.view`.
-	 */
-	var View = Stencila.View = function(component){
-		this.com = component;
-	};
-
-	View.prototype.info = function(message){
-		console.info(message);
-	};
-
-	View.prototype.warn = function(message){
-		console.warn(message);
-	};
-
-	View.prototype.error = function(message){
-		console.error(message);
-	};
-
-	View.prototype.signin = function(){
-		var username = prompt('Username for stenci.la');
-		var password = prompt('Password for stenci.la');
-		return {
-			username: username,
-			password: password
-		};
-	};
-
-	View.prototype.change = function(property,value){
-		console.log('Property changed: property='+property+' value='+value);
-	};
-
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	/**
 	 * Base class for all components
 	 */
 	var Component = Stencila.Component = function(){
 		// Create default view
-		this.view = new View(this);
+		this.view = new ComponentView(this);
 
-		// Collect host information
+		// Set host information
 		var location = window.location;
 		this.host = location.hostname;
 		this.port = location.port;
 
-		// Get the address of the component
+		// Set address
 		this.address = null;
 		// ... from <meta> tag
 		var address = new Node('head meta[itemprop=address]');
@@ -522,23 +484,62 @@ var Stencila = (function(Stencila){
 			this.address = parts.join('/');
 		}
 
-		// If on localhost attempt to activate
+		// Get details on this component from Hub
+		var self = this;
+		Hub.get(this.address,false,function(data){
+			$.each([
+				'account_name','account_logo_url','public','views','favourites','favourited'
+			],function(index,property){
+				self.change(property,data[property]);
+			});
+		});
+
+		// Set active flag and attempt to 
+		// activate if on localhost
 		this.active = 'off';
-		if(this.host=='localhost'){
-			this.activate();
-		}
+		if(this.host=='localhost') this.activate();
 	};
 
 	/**
-	 * Set a property of the component and notify the view of 
-	 * the change
+	 * Change the theme for this compontent
+	 */
+	Component.prototype.theme = function(theme){
+		var self = this;
+		require([theme+'/theme'],function(theme){
+			//if(self.view) self.view.close();
+			Hub.view = new theme.HubView();
+			self.view = new theme.NormalView(self);
+		});
+	};
+
+	/**
+	 * Change a property of the component and notify the view of 
+	 * the change so updates can be made to the user interface
 	 * 
-	 * @param {String} 	property Name of property
+	 * @param {String or Object} 	property Name of property or Object of property:value pairs
 	 * @param {any} 	value    Value of property
 	 */
-	Component.prototype.set = function(property,value){
-		this[property] = value;
-		this.view.change(property,value);
+	Component.prototype.change = function(property,value){
+		if(typeof property=='string'){
+			this[property] = value;
+			this.view.change(property,value);
+		}
+		else {
+			var self = this;
+			$.each(property,function(key,value){
+				self.change(key,value);
+			});
+		}
+	};
+
+	Component.prototype.favourite = function(){
+		var self = this;
+		Hub.post(this.address+"/favourite!",null,function(response){
+			self.change({
+				'favourites':response.favourites,
+				'favourited':response.favourited
+			});
+		});
 	};
 
 	/**
@@ -546,13 +547,13 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.activate = function(){
 		if(this.active==='off'){
-			this.set('active','activating');
+			this.change('active','activating');
 			if(this.host=='localhost'){
 				// On localhost, simply connect to the Websocket at the
 				// same address
 				var websocket = window.location.href.replace("http:","ws:");
 				this.connection = new WebSocketConnection(websocket);
-				this.set('active','on');
+				this.change('active','on');
 			} else {
 				// Elsewhere, request stenci.la to activate a session
 				// for this component
@@ -589,10 +590,10 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.deactivate = function(){
 		if(this.active==='on' && this.host!=='localhost'){
-			this.set('active','deactivating');
+			this.change('active','deactivating');
 			var self = this;
 			Hub.post(this.address+"/deactivate!",null,function(data){
-				self.set('active','off');
+				self.change('active','off');
 			});
 		}
 	};
@@ -613,7 +614,7 @@ var Stencila = (function(Stencila){
 			 * which is always the uppermmost scope of a `Context`
 			 */
 			{
-				get: Request.get
+				get: null
 			},
 			scope||{}
 		];
@@ -998,6 +999,8 @@ var Stencila = (function(Stencila){
 	 * @param context Object or string defining the conext for this stencil
 	 */
 	var Stencil = Stencila.Stencil = function(content,context){
+		Component.call(this);
+
 		content = content || '#content';
 		if(typeof content==='string'){
 			if(content.substr(0,1)==='<'){
@@ -1014,6 +1017,7 @@ var Stencila = (function(Stencila){
 		context = context || window.location.url;
 		this.context = new Context(context);
 	};
+	Stencil.prototype = Object.create(Component.prototype);
 
 	/**
 	 * Get or set the HTML for this stencil
@@ -1029,17 +1033,6 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.select = function(selector){
 		return Node.prototype.select.call(this,selector);
-	};
-
-	/**
-	 * Change the theme for this stencil
-	 */
-	Stencil.prototype.theme = function(theme){
-		var self = this;
-		require([theme+'/theme'],function(theme){
-			if(self.view) self.view.close();
-			self.view = new theme.NormalView(self);
-		});
 	};
 	
 	/**
