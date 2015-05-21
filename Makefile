@@ -25,6 +25,7 @@ ifndef RESOURCES
 endif
 
 vars:
+	@echo ROOT: $(ROOT)
 	@echo OS: $(OS)
 	@echo ARCH: $(ARCH)
 	@echo VERSION: $(VERSION)
@@ -42,6 +43,13 @@ vars:
 build/current:
 	@ln -sfT $(OS)/$(ARCH) build/current
 build-current: build/current
+
+# During development symlink the `stencila.js` into the 
+# Stencila store so it can be served by the embedded server.
+# Call this with STORE variable e.g.
+#    make store-link STORE=../../store
+store-link:
+	ln -s $(ROOT) $(STORE)/meta
 
 #################################################################################################
 # C++ requirements
@@ -576,16 +584,46 @@ console-build: $(BUILD)/console/stencila
 
 #################################################################################################
 # Stencila Javascript package
-# 
+
+REQUIREJS_VERSION := 2.1.17
+
+$(RESOURCES)/require-$(REQUIREJS_VERSION).js:
+	@mkdir -p $(RESOURCES)
+	wget -O$@ http://requirejs.org/docs/release/$(REQUIREJS_VERSION)/comments/require.js
+	
+$(BUILD)/js/requires/require-$(REQUIREJS_VERSION).min.js: $(RESOURCES)/require-$(REQUIREJS_VERSION).js
+	@mkdir -p $(BUILD)/js/requires/
+	uglifyjs $< --compress --mangle > $@
+
+JQUERY_VERSION := 2.1.4
+
+$(RESOURCES)/jquery-$(JQUERY_VERSION).js:
+	@mkdir -p $(RESOURCES)
+	wget -O$@ http://code.jquery.com/jquery-$(JQUERY_VERSION).js
+
+$(BUILD)/js/requires/jquery-$(JQUERY_VERSION).min.js: $(RESOURCES)/jquery-$(JQUERY_VERSION).js
+	@mkdir -p $(BUILD)/js/requires/
+	uglifyjs $< --compress --mangle > $@
+
+# Use `build/current` as the root for files since this is where
+# the method `Stencil::html()` expects them to be (rather than a path including OS and arch)
+$(BUILD)/js/requires.min.js: \
+			build/current/js/requires/require-$(REQUIREJS_VERSION).min.js \
+	        build/current/js/requires/jquery-$(JQUERY_VERSION).min.js
+	uglifyjs $^ --compress --mangle --comments \
+		--source-map build/current/js/requires.min.js.map \
+		--source-map-url /meta/build/current/js/requires.min.js.map \
+		--source-map-root /meta \
+		> $@
+
+js-develop: $(BUILD)/js/requires.min.js
 
 JS_MIN := $(BUILD)/js/stencila-$(VERSION).min.js
 
 $(JS_MIN) : js/stencila.js
-	uglifyjs $< -m > $@
+	uglifyjs $< --compress --mangle > $@
 
-js-build: $(JS_MIN)
-
-# Deliver JS package to get.stenci.la
+# Deliver Javascript to get.stenci.la
 js-deliver: js-build
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
