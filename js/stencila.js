@@ -172,22 +172,6 @@ var Stencila = (function(Stencila){
 		};
 	};
 
-
-	/**
-	 * The user interface view
-	 *
-	 * This is a basic stub. Themes define their own Views which get assigned
-	 * to `Stencila.com.view`.
-	 */
-	var ComponentView = Stencila.ComponentView = function(component){
-		this.com = component;
-	};
-
-	ComponentView.prototype.change = function(property,value){
-		console.log('Property changed: property='+property+' value='+value);
-	};
-
-
 	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -265,7 +249,7 @@ var Stencila = (function(Stencila){
 			this.callbacks[this.id] = callback;
 		}
 		// Send WAMP
-		this.send(wamp);
+		this.send(JSON.stringify(wamp));
 	};
 
 	/**
@@ -461,7 +445,11 @@ var Stencila = (function(Stencila){
 	 */
 	var Component = Stencila.Component = function(){
 		// Create default view
-		this.view = new ComponentView(this);
+		this.viewCurrent = null;
+
+		// Array of views that have been constructed
+		// for this component
+		this.viewList = [];
 
 		// Set host information
 		var location = window.location;
@@ -484,6 +472,63 @@ var Stencila = (function(Stencila){
 			this.address = parts.join('/');
 		}
 
+		// Set activation status
+		this.activation = 'inactive';
+	};
+
+	/**
+	 * Set the theme for this compontent
+	 */
+	Component.prototype.theme = function(theme,then){
+		var self = this;
+		require([theme+'/theme'],function(theme){
+			Hub.menu = new theme.HubMenu();
+			self.menu = new theme.ComponentMenu(self);
+			self.view(theme.DefaultView);
+			if(then) then();
+		});
+	};
+
+	/**
+	 * Set the view for this component
+	 * 
+	 * @param  {Class} viewClass A view Class (e.g. RevealView)
+	 */
+	Component.prototype.view = function(viewClass){
+		if((!this.viewCurrent) || (this.viewCurrent.constructor!==viewClass)){
+			var construct = true;
+			var self = this;
+			$.each(this.viewList,function(index,view){
+				if(view.constructor===viewClass){
+					if(self.viewCurrent){
+						self.viewCurrent.close(view);
+					}
+					view.open(self.viewCurrent);
+					self.viewCurrent = view;
+					construct = false;
+				}
+			});
+			if(construct){
+				var view = new viewClass(this);
+				if(self.viewCurrent){
+					this.viewCurrent.close(view);
+				}
+				view.construct(this.viewCurrent);
+				this.viewCurrent = view;
+				this.viewList.push(view);
+			}
+		}
+	};
+
+	/**
+	 * Startup the component.
+	 *
+	 * Intended to be called after the theme has been set
+	 */
+	Component.prototype.startup = function(){
+		// Attempt to activate if on localhost
+		if(this.host=='localhost') this.activate();
+
 		// Get details on this component from Hub
 		var self = this;
 		Hub.get(this.address,false,function(data){
@@ -492,23 +537,6 @@ var Stencila = (function(Stencila){
 			],function(index,property){
 				self.change(property,data[property]);
 			});
-		});
-
-		// Set active flag and attempt to 
-		// activate if on localhost
-		this.active = 'off';
-		if(this.host=='localhost') this.activate();
-	};
-
-	/**
-	 * Change the theme for this compontent
-	 */
-	Component.prototype.theme = function(theme){
-		var self = this;
-		require([theme+'/theme'],function(theme){
-			//if(self.view) self.view.close();
-			Hub.view = new theme.HubView();
-			self.view = new theme.NormalView(self);
 		});
 	};
 
@@ -522,7 +550,8 @@ var Stencila = (function(Stencila){
 	Component.prototype.change = function(property,value){
 		if(typeof property=='string'){
 			this[property] = value;
-			this.view.change(property,value);
+			this.menu.from(property,value);
+			this.viewCurrent.from(property,value);
 		}
 		else {
 			var self = this;
@@ -546,14 +575,14 @@ var Stencila = (function(Stencila){
 	 * Activate this component
 	 */
 	Component.prototype.activate = function(){
-		if(this.active==='off'){
-			this.change('active','activating');
+		if(this.activation==='inactive'){
+			this.change('activation','activating');
 			if(this.host=='localhost'){
 				// On localhost, simply connect to the Websocket at the
 				// same address
 				var websocket = window.location.href.replace("http:","ws:");
 				this.connection = new WebSocketConnection(websocket);
-				this.change('active','on');
+				this.change('activation','active');
 			} else {
 				// Elsewhere, request stenci.la to activate a session
 				// for this component
@@ -567,10 +596,10 @@ var Stencila = (function(Stencila){
 							self.session = data;
 							if(self.session.ready){
 								self.connection = new WebSocketConnection(self.session.websocket);
-								self.set('active','on');
+								self.set('activation','active');
 							}
 							else if(new Date().getTime()>until){
-								self.set('active','off');
+								self.set('activation','inactive');
 								self.view.error('Failed to connect to session: '+self.session.url);
 							}
 							else {
@@ -589,13 +618,20 @@ var Stencila = (function(Stencila){
 	 * Deactivate this component
 	 */
 	Component.prototype.deactivate = function(){
-		if(this.active==='on' && this.host!=='localhost'){
-			this.change('active','deactivating');
+		if(this.activation==='active' && this.host!=='localhost'){
+			this.change('activation','deactivating');
 			var self = this;
 			Hub.post(this.address+"/deactivate!",null,function(data){
-				self.change('active','off');
+				self.change('activation','inactive');
 			});
 		}
+	};
+
+	/**
+	 * Call a method in the activate session
+	 */
+	Component.prototype.call = function(method,args,callback){
+		this.connection.call(method,args,callback);
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1007,7 +1043,7 @@ var Stencila = (function(Stencila){
 				this.dom = document.createElement('main');
 				this.html(content);
 			} else {
-				this.dom = document.querySelector(content);
+				this.content = $(document).find(content);
 			}
 		}
 		else {
@@ -1027,12 +1063,10 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
-	 * Select child elements
-	 * 
-	 * @param  {String} selector Select child elements using a CSS selector
+	 * Get the title of the stencil
 	 */
-	Stencil.prototype.select = function(selector){
-		return Node.prototype.select.call(this,selector);
+	Stencil.prototype.title = function(){
+		return this.content.find('#title').text().trim();
 	};
 	
 	/**
@@ -1044,9 +1078,19 @@ var Stencila = (function(Stencila){
 			else this.context = new Context(context);
 		}
 		directiveRender(
-			new Node(this.dom),
+			this.content,
 			this.context
 		);
+	};
+
+	Stencil.prototype.restart = function(){
+		var self = this;
+		this.viewCurrent.updating(true);
+		self.call("restart().html():string",[],function(html){
+			self.content.html(html);
+			self.viewCurrent.from('content');
+			self.viewCurrent.updating(false);
+		});
 	};
 
 	// http://requirejs.org/docs/api.html#config
@@ -1055,18 +1099,29 @@ var Stencila = (function(Stencila){
 	});
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	/// Initialise the Stencila component on a page. These functions create `Stencila.component`
 
 	/**
-	 * Initialise a Stencil
+	 * Launch a component in the browser window
+	 *
+	 * This function is the entry point to this Stencila Javascript module from within a component's
+	 * saved HTML page. For example, within the HTML for a stencil:
 	 * 
-	 * @param  {String} theme  Theme to load for stencil
-	 * @param  {Boolean} render Should the stencil be rendered in the browser
+	 * 		<script>
+	 *   		Stencila.launch({type:'stencil',theme:'core/stencils/themes/default'});
+	 * 		</script>
+	 * 		
+	 * As such, the options passed may vary with the type of component. The intention is to make
+	 * the interface to this function as permissive as possible so as to reduce changes to the code
+	 * embedded within HTML.
 	 */
-	Stencila.stencil = function(theme,render){
-		var stencil = Stencila.component = new Stencil('#content');
-		stencil.theme(theme);
-		if(render) stencil.render();
+	Stencila.launch = function(options){
+		if(options.type==='stencil'){
+			var stencil = Stencila.component = new Stencil('#content');
+			stencil.theme(options.theme,function(){
+				stencil.startup();
+				if(options.render) stencil.render();
+			});
+		}
 	};
 
 	return Stencila;

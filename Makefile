@@ -591,30 +591,35 @@ $(RESOURCES)/require-$(REQUIREJS_VERSION).js:
 	@mkdir -p $(RESOURCES)
 	wget -O$@ http://requirejs.org/docs/release/$(REQUIREJS_VERSION)/comments/require.js
 	
-$(BUILD)/js/requires/require-$(REQUIREJS_VERSION).min.js: $(RESOURCES)/require-$(REQUIREJS_VERSION).js
-	@mkdir -p $(BUILD)/js/requires/
-	uglifyjs $< --compress --mangle > $@
-
 JQUERY_VERSION := 2.1.4
 
 $(RESOURCES)/jquery-$(JQUERY_VERSION).js:
 	@mkdir -p $(RESOURCES)
 	wget -O$@ http://code.jquery.com/jquery-$(JQUERY_VERSION).js
 
-$(BUILD)/js/requires/jquery-$(JQUERY_VERSION).min.js: $(RESOURCES)/jquery-$(JQUERY_VERSION).js
-	@mkdir -p $(BUILD)/js/requires/
-	uglifyjs $< --compress --mangle > $@
+JQUERY_COOKIE_VERSION := 1.4.1
 
-# Use `build/current` as the root for files since this is where
-# the method `Stencil::html()` expects them to be (rather than a path including OS and arch)
+$(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js:
+	@mkdir -p $(RESOURCES)
+	wget -O$@ https://github.com/carhartl/jquery-cookie/releases/download/v$(JQUERY_COOKIE_VERSION)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js
+
+JQUERY_HOTKEYS_VERSION := 0.2.0
+
+$(RESOURCES)/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION).tar.gz:
+	@mkdir -p $(RESOURCES)
+	wget -O$@ https://github.com/jeresig/jquery.hotkeys/archive/$(JQUERY_HOTKEYS_VERSION).tar.gz
+
+$(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js: $(RESOURCES)/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION).tar.gz
+	@mkdir -p $(BUILD)/js/requires
+	tar xzf $< -C $(BUILD)/js/requires
+	touch $@
+
 $(BUILD)/js/requires.min.js: \
-			build/current/js/requires/require-$(REQUIREJS_VERSION).min.js \
-	        build/current/js/requires/jquery-$(JQUERY_VERSION).min.js
-	uglifyjs $^ --compress --mangle --comments \
-		--source-map build/current/js/requires.min.js.map \
-		--source-map-url /meta/build/current/js/requires.min.js.map \
-		--source-map-root /meta \
-		> $@
+			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
+	        $(RESOURCES)/jquery-$(JQUERY_VERSION).js \
+	        $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
+	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
+	uglifyjs $^ --compress --mangle --comments 	> $@
 
 js-develop: $(BUILD)/js/requires.min.js
 
