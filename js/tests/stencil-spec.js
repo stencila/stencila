@@ -28,7 +28,7 @@ describe("Stencil", function() {
 		);
 		stencil.render();
 
-		expect(stencil.select('#a').attr('data-off')).toEqual('');
+		expect(stencil.select('#a').attr('data-off')).not.toBeDefined();
 		expect(stencil.select('#b').attr('data-off')).toEqual('true');
 	});
 

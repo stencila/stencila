@@ -1,13 +1,13 @@
 describe("Stencil directives", function() {
 
-	// These tests are mainly fto check parsing/applying node attributes
+	// These tests are mainly to check parsing/applying node attributes
 	// There is some testing of rendering but it is limited to simple
 	// cases. See stencil-spec.js for more complex tests of rendering.
 
 	var context = new Stencila.Context();
 	var node;
 	beforeEach(function() {
-		node = new Stencila.Node('<div></div>');
+		node = $('<div></div>');
 	});
 
 	it("include an `exec` directive", function() {
@@ -43,7 +43,7 @@ describe("Stencil directives", function() {
 		expect(node.attr('data-if')).toEqual('0>1');
 		expect(node.attr('data-off')).toEqual('true');
 
-		var n = new Stencila.Node(
+		var n = $(
 			'<div>'+
 				'<div id="a" data-if="1"></div>' +
 				'<div id="b" data-elif="0"></div>' +
@@ -52,25 +52,25 @@ describe("Stencil directives", function() {
 			'</div>'
 		);
 		Stencila.directiveRender(n,context);
-		expect(n.select('#a').has('data-off')).not.toBeTruthy();
-		expect(n.select('#b').has('data-off')).toBeTruthy();
-		expect(n.select('#c').has('data-off')).toBeTruthy();
-		expect(n.select('#d').has('data-off')).toBeTruthy();
+		expect(n.find('#a').attr('data-off')).not.toBeDefined();
+		expect(n.find('#b').attr('data-off')).toEqual('true');
+		expect(n.find('#c').attr('data-off')).toEqual('true');
+		expect(n.find('#d').attr('data-off')).toEqual('true');
 
-		n.select('#a').attr('data-if','0');
+		n.find('#a').attr('data-if','0');
 		Stencila.directiveRender(n,context);
-		expect(n.select('#a').has('data-off')).toBeTruthy();
-		expect(n.select('#b').has('data-off')).toBeTruthy();
-		expect(n.select('#c').has('data-off')).toBeTruthy();
-		expect(n.select('#d').has('data-off')).not.toBeTruthy();
+		expect(n.find('#a').attr('data-off')).toEqual('true');
+		expect(n.find('#b').attr('data-off')).toEqual('true');
+		expect(n.find('#c').attr('data-off')).toEqual('true');
+		expect(n.find('#d').attr('data-off')).not.toBeDefined();
 
-		n.select('#b').attr('data-elif','1');
-		n.select('#c').attr('data-elif','1');
+		n.find('#b').attr('data-elif','1');
+		n.find('#c').attr('data-elif','1');
 		Stencila.directiveRender(n,context);
-		expect(n.select('#a').has('data-off')).toBeTruthy();
-		expect(n.select('#b').has('data-off')).not.toBeTruthy();
-		expect(n.select('#c').has('data-off')).toBeTruthy();
-		expect(n.select('#d').has('data-off')).toBeTruthy();
+		expect(n.find('#a').attr('data-off')).toEqual('true');
+		expect(n.find('#b').attr('data-off')).not.toBeDefined();
+		expect(n.find('#c').attr('data-off')).toEqual('true');
+		expect(n.find('#d').attr('data-off')).toEqual('true');
 		
 	});
 

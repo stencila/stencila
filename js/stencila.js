@@ -1,145 +1,5 @@
 var Stencila = (function(Stencila){
 
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	
-
-	/**
-	 * A HTML element
-	 *
-	 * Provides a similar API to the `Html::Node` in the 
-	 * C++ module, which in turn is similar to the jQuery interface.
-	 * A thin wrapper around a native DOM element.
-	 * Provides some shortcuts to DOM manipulation, without having to 
-	 * rely on the whole of jQuery as a dependency.
-	 */
-	var Node = Stencila.Node = function(dom){
-		if(typeof dom==='string'){
-			if(dom.substr(0,1)==='<'){
-				var frag = document.createElement('div');
-				frag.innerHTML = dom;
-				this.dom = frag.children[0];
-			} else {
-				this.dom = document.querySelector(dom);
-			}
-		}
-		else {
-			this.dom = dom;
-		}
-	};
-
-	/**
-	 * Is this node a null? 
-	 */
-	Node.prototype.empty = function(){
-		return this.dom?false:true;
-	};
-
-	/**
-	 * Get or set an attribute
-	 * 
-	 * @param  {String} name  Name of attribute
-	 * @param  {String} value Value for attribute
-	 */
-	Node.prototype.attr = function(name,value){
-		if(value===undefined){
-			var attr = this.dom.getAttribute(name);
-			return attr?attr:'';
-		} else {
-			this.dom.setAttribute(name,value);
-		}
-	};
-
-	/**
-	 * Remove an attribute
-	 * 
-	 * @param  {String} name Name of attribute
-	 */
-	Node.prototype.erase = function(name){
-		this.dom.removeAttribute(name);
-	};
-
-	/**
-	 * Does this element have a particular attribute
-	 * 
-	 * @param  {String} name  Name of attribute
-	 */
-	Node.prototype.has = function(name){
-		return this.dom.hasAttribute(name);
-	};
-
-	/**
-	 * Get or set the HTML (inner) of this element
-	 * 
-	 * @param  {String} value HTML string
-	 */
-	Node.prototype.html = function(value){
-		if(value===undefined) return this.dom.innerHTML;
-		else this.dom.innerHTML = value;
-	};
-
-	/**
-	 * Get or set the text of this element
-	 * 
-	 * @param  {String} value Text constent string
-	 */
-	Node.prototype.text = function(value){
-		if(value===undefined) return this.dom.textContent;
-		else this.dom.textContent = value;
-	};
-
-	/**
-	 * Get array of child elements
-	 */
-	Node.prototype.children = function(){
-		return this.dom.children;
-	};
-
-	/**
-	 * Get the first child
-	 */
-	Node.prototype.first = function(){
-		return new Node(this.dom.children[0]);
-	};
-
-	/**
-	 * Get next sibling element
-	 */
-	Node.prototype.next = function(){
-		return new Node(this.dom.nextElementSibling);
-	};
-
-	/**
-	 * Get previous sibling element
-	 */
-	Node.prototype.previous = function(){
-		return new Node(this.dom.previousElementSibling);
-	};
-
-	/**
-	 * Append a child element
-	 */
-	Node.prototype.append = function(node){
-		this.dom.appendChild(node.dom);
-		return this;
-	};
-
-	/**
-	 * Select child elements
-	 * 
-	 * @param  {String} selector Select child elements using a CSS selector
-	 */
-	Node.prototype.select = function(selector){
-		return new Node(this.dom.querySelector(selector));
-	};
-
-	/**
-	 * Clone this element
-	 */
-	Node.prototype.clone = function(){
-		return new Node(this.dom.cloneNode(true));
-	};
-
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -459,8 +319,8 @@ var Stencila = (function(Stencila){
 		// Set address
 		this.address = null;
 		// ... from <meta> tag
-		var address = new Node('head meta[itemprop=address]');
-		if(!address.empty()) this.address = address.attr('content');
+		var address = $('head meta[itemprop=address]');
+		if(!address.length) this.address = address.attr('content');
 		// ... or from url
 		if(!this.address) {
 			var parts = window.location.pathname.split('/');
@@ -850,14 +710,14 @@ var Stencila = (function(Stencila){
 	 */
 	
 	var directiveRender = Stencila.directiveRender = function(node,context){
-		if(node.has('data-exec')) return new Exec().apply(node,context);
-		if(node.has('data-write')) return new Write().apply(node,context);
-		if(node.has('data-with')) return new With().apply(node,context);
+		if(node.attr('data-exec')) return new Exec().apply(node,context);
+		if(node.attr('data-write')) return new Write().apply(node,context);
+		if(node.attr('data-with')) return new With().apply(node,context);
 
-		if(node.has('data-if')) return new If().apply(node,context);
-		if(node.has('data-elif') | node.has('data-else')) return;
+		if(node.attr('data-if')) return new If().apply(node,context);
+		if(node.attr('data-elif') | node.attr('data-else')) return;
 
-		if(node.has('data-for')) return new For().apply(node,context);
+		if(node.attr('data-for')) return new For().apply(node,context);
 
 		directiveRenderChildren(node,context);
 	};
@@ -865,7 +725,7 @@ var Stencila = (function(Stencila){
 		var children = node.children();
 		for(var index=0;index<children.length;index++){
 			directiveRender(
-				new Node(children[index]),
+				$(children[index]),
 				context
 			);
 		}
@@ -956,32 +816,32 @@ var Stencila = (function(Stencila){
 	If.prototype.render = function(node,context){
 		var hit = context.test(this.expr);
 		if(hit){
-			node.erase("data-off");
+			node.removeAttr("data-off");
 			directiveRenderChildren(node,context);
 		} else {
 			node.attr("data-off","true");
 		}
 		var next = node.next();
-		while(!next.empty()){
+		while(next.length){
 			var expr = next.attr("data-elif");
-			if(expr.length>0){
+			if(expr){
 				if(hit){
 					next.attr('data-off','true');
 				} else {
 					hit = context.test(expr);
 					if(hit){
-						next.erase("data-off");
+						next.removeAttr("data-off");
 						directiveRenderChildren(next,context);
 					} else {
 						next.attr("data-off","true");
 					}
 				}
 			}
-			else if(next.has("data-else")){
+			else if(typeof next.attr("data-else")==='string'){
 				if(hit){
 					next.attr("data-off","true");
 				} else {
-					next.erase("data-off");
+					next.removeAttr("data-off");
 					directiveRenderChildren(next,context);
 				}
 				break;
@@ -1012,11 +872,11 @@ var Stencila = (function(Stencila){
 	};
 	For.prototype.render = function(node,context){
 		var more = context.begin(this.item,this.items);
-		var each = node.select(['data-each']);
-		if(each.empty()){
+		var each = node.find(['data-each']);
+		if(each.length){
 			each = node.first();
 		}
-		each.erase('data-off');
+		each.removeAttr('data-off');
 		while(more){
 			var item = each.clone();
 			node.append(item);
@@ -1038,16 +898,9 @@ var Stencila = (function(Stencila){
 		Component.call(this);
 
 		content = content || '#content';
-		if(typeof content==='string'){
-			if(content.substr(0,1)==='<'){
-				this.dom = document.createElement('main');
-				this.html(content);
-			} else {
-				this.content = $(document).find(content);
-			}
-		}
-		else {
-			this.dom = content;
+		this.content = $(content);
+		if(this.content.length>1){
+			this.content = $('<div></div>').append(this.content.clone());
 		}
 
 		context = context || window.location.url;
@@ -1059,7 +912,14 @@ var Stencila = (function(Stencila){
 	 * Get or set the HTML for this stencil
 	 */
 	Stencil.prototype.html = function(html){
-		return Node.prototype.html.call(this,html);
+		return this.content.html(html);
+	};
+
+	/**
+	 * Select an elment from the stencil
+	 */
+	Stencil.prototype.select = function(selector){
+		return this.content.find(selector);
 	};
 
 	/**

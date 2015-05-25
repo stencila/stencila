@@ -601,13 +601,13 @@ JQUERY_COOKIE_VERSION := 1.4.1
 
 $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js:
 	@mkdir -p $(RESOURCES)
-	wget -O$@ https://github.com/carhartl/jquery-cookie/releases/download/v$(JQUERY_COOKIE_VERSION)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js
+	wget --no-check-certificate -O$@ https://github.com/carhartl/jquery-cookie/releases/download/v$(JQUERY_COOKIE_VERSION)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js
 
 JQUERY_HOTKEYS_VERSION := 0.2.0
 
 $(RESOURCES)/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION).tar.gz:
 	@mkdir -p $(RESOURCES)
-	wget -O$@ https://github.com/jeresig/jquery.hotkeys/archive/$(JQUERY_HOTKEYS_VERSION).tar.gz
+	wget --no-check-certificate -O$@ https://github.com/jeresig/jquery.hotkeys/archive/$(JQUERY_HOTKEYS_VERSION).tar.gz
 
 $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js: $(RESOURCES)/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION).tar.gz
 	@mkdir -p $(BUILD)/js/requires
@@ -620,6 +620,21 @@ $(BUILD)/js/requires.min.js: \
 	        $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
 	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
 	uglifyjs $^ --compress --mangle --comments 	> $@
+
+JASMINE_VERSION := 2.3.4
+
+$(RESOURCES)/jasmine-standalone-$(JASMINE_VERSION).zip:
+	@mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O$@ https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
+	
+$(BUILD)/js/requires/jasmine-$(JASMINE_VERSION): $(RESOURCES)/jasmine-standalone-$(JASMINE_VERSION).zip
+	@mkdir -p $(BUILD)/js/requires
+	unzip -qoj $< 'lib/jasmine-$(JASMINE_VERSION)/*' -d $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)
+
+$(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js: $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)
+	wget --no-check-certificate -O$@ https://raw.github.com/jasmine/jasmine-ajax/master/lib/mock-ajax.js
+
+js-tests: $(BUILD)/js/requires.min.js $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION) $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js
 
 js-develop: $(BUILD)/js/requires.min.js
 
@@ -636,25 +651,7 @@ else
 	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/stencila-$(VERSION).min.js --content-type application/json --cache-control max-age=31536000
 endif
 
-# Put Jasmine in the build directory but for ease of use when in the edit-test cycle symlink to
-# it from source directory instead of copying source files over to there.
 
-JASMINE_VERSION := 2.3.0
-
-$(RESOURCES)/jasmine-standalone-$(JASMINE_VERSION).zip:
-	@mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O$@ https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
-	
-$(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION): $(RESOURCES)/jasmine-standalone-$(JASMINE_VERSION).zip
-	@mkdir -p $(BUILD)/js/tests/
-	unzip -qo $< -d $(BUILD)/js/tests
-	rm -rf $(BUILD)/js/tests/*.html $(BUILD)/js/tests/spec $(BUILD)/js/tests/src
-
-$(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)/mock-ajax.js: $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)
-	wget --no-check-certificate -O$@ https://raw.github.com/jasmine/jasmine-ajax/master/lib/mock-ajax.js
-
-js-tests: $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION) $(BUILD)/js/tests/lib/jasmine-$(JASMINE_VERSION)/mock-ajax.js
-	ln -sfT ../../$(BUILD)/js/tests/lib/ js/tests/lib
 
 #################################################################################################
 # Stencila Python package
