@@ -9,8 +9,24 @@
 
   <script src="../../build/current/js/requires/jasmine-2.3.4/jasmine.js"></script>
   <script src="../../build/current/js/requires/jasmine-2.3.4/jasmine-html.js"></script>
+  <script src="../../build/current/js/requires/jasmine-2.3.4/console.js"></script>
   <script src="../../build/current/js/requires/jasmine-2.3.4/boot.js"></script>
   <script src="../../build/current/js/requires/jasmine-2.3.4/mock-ajax.js"></script>
+
+  <script>
+    // Use console reporter if running using PhantomJS
+    // Based on http://lorenzoplanas.com/blog/20140302-headless-javascript-testing-with-jasmine-20
+    if(navigator.userAgent.indexOf("PhantomJS") > 0){
+      consoleReporter = new jasmineRequire.ConsoleReporter()({
+        timer: new jasmine.Timer, 
+        print: function () {
+          console.log.apply(console,arguments)
+        },
+        showColors: true
+      });
+      jasmine.getEnv().addReporter(consoleReporter);
+    }
+  </script>
 
   <!-- include source files here... -->
   <script src="../../build/current/js/requires.min.js"></script>

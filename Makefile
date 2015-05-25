@@ -614,12 +614,14 @@ $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js:
 	tar xzf $< -C $(BUILD)/js/requires
 	touch $@
 
+# Build a minified file of all JS requirements for `stencila.js`
 $(BUILD)/js/requires.min.js: \
 			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
 	        $(RESOURCES)/jquery-$(JQUERY_VERSION).js \
 	        $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
 	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
 	uglifyjs $^ --compress --mangle --comments 	> $@
+
 
 JASMINE_VERSION := 2.3.4
 
@@ -634,7 +636,10 @@ $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION): $(RESOURCES)/jasmine-standalone
 $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js: $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)
 	wget --no-check-certificate -O$@ https://raw.github.com/jasmine/jasmine-ajax/master/lib/mock-ajax.js
 
-js-tests: $(BUILD)/js/requires.min.js $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION) $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js
+# Run Javascript tests
+js-tests: build/current $(BUILD)/js/requires.min.js $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION) $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js
+	(phantomjs js/tests/spec-runner.js js/tests/spec-runner.html)  || (exit 1)
+
 
 js-develop: $(BUILD)/js/requires.min.js
 

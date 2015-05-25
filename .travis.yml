@@ -45,5 +45,6 @@ script:
     - make vars
     - make cpp-package py-package
     - make cpp-tests-quick
+    - make js-tests
     - make py-tests
     - make r-tests
