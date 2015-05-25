@@ -22,23 +22,28 @@ install:
     - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
     # Use g++4.8 as g++ (do this instead of redefining CXX as others do so that Boost.Build (b2) uses right one)
     - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
-
+    # Display g++ version in log
     - $CXX --version
 
-    # Install Python dependencies
+    # Install Javascript build dependencies
+    # `uglifyjs` for minification; `phantomjs` is required for testing but is already present on Travis CI
+    - sudo apt-get install nodejs npm --force-yes --assume-yes --fix-broken
+    - sudo npm install -g uglify-js
+
+    # Install Python build dependencies
+    # `wheel` for packaging; `virtualenv` for testing
     - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
-    # Install wheel and virtualenv for packaging
     - sudo pip install wheel virtualenv
 
-    # Install R
+    # Install R build dependencies
+    # `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
     - sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
-    # Install `roxygen2` for packaging and `svUnit`, `XML` for testing
     - sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
 before_script:
     # Use this to prepare your build for testing
 
-    # Check tags that are required for build versioning
+    # Display git tags in log
     - git describe --tags --dirty --long
 
 script:
