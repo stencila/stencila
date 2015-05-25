@@ -71,13 +71,13 @@ std::string Component::message(const std::string& address,const std::string& mes
 	try {
 		Instance instance = get(address);
 		if(not instance.exists()){
-			return "[8, 0, 0, {}, \"no component at address\", [\"" + address + "\"]]";
+			return "[8, 0, 0, {}, \"No component at address.\", [\"" + address + "\"]]";
 		} else {
 
 			Json::Document request(message);
 
 			int items = request.size();
-			if(items<1) STENCILA_THROW(Exception,"Malformed message");
+			if(items<1) STENCILA_THROW(Exception,"Malformed message.\n  message: "+message);
 
 			char code = request[0].as<int>();
 			if(code==CALL){
@@ -85,10 +85,10 @@ std::string Component::message(const std::string& address,const std::string& mes
 				//[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]
 				//[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]
 				
-				if(items<2) STENCILA_THROW(Exception,"Malformed message");
+				if(items<2) STENCILA_THROW(Exception,"Malformed message.\n  message: "+message);
 				int id = request[1].as<int>();
 				
-				if(items<4) STENCILA_THROW(Exception,"Malformed message");
+				if(items<4) STENCILA_THROW(Exception,"Malformed message.\n  message: "+message);
 				std::string procedure = request[3].as<std::string>();
 
 				std::string args;
