@@ -41,6 +41,7 @@ vars:
 
 .PHONY: build/current
 build/current:
+	@mkdir -p $(BUILD)
 	@ln -sfT $(OS)/$(ARCH) build/current
 build-current: build/current
 
