@@ -26,9 +26,9 @@ install:
     - $CXX --version
 
     # Install Javascript build dependencies
+    # `nodejs` and `npm` are already installed (http://docs.travis-ci.com/user/ci-environment/#Runtimes)
     # `uglifyjs` for minification; `phantomjs` is required for testing but is already present on Travis CI
-    - sudo apt-get install nodejs npm --force-yes --assume-yes --fix-broken
-    - sudo npm install uglify-js@2.4.23 -g
+    - sudo npm install uglify-js -g
 
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
