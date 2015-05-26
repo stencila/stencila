@@ -39,13 +39,13 @@ install:
 
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
-    #- sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
-    #- sudo pip install wheel virtualenv
+    - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
+    - sudo pip install wheel virtualenv
 
     # Install R build dependencies
     # `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
-    #- sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
-    #- sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
+    - sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
+    - sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
 before_script:
     # Use this to prepare your build for testing
@@ -54,9 +54,9 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    #- make vars
-    #- make cpp-package py-package
-    #- make cpp-tests-quick
+    - make vars
+    - make cpp-package py-package
+    - make cpp-tests-quick
     - make js-tests
-    #- make py-tests
-    #- make r-tests
+    - make py-tests
+    - make r-tests

@@ -619,8 +619,7 @@ $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js:
 $(BUILD)/js/requires.min.js: \
 			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
 	        $(RESOURCES)/jquery-$(JQUERY_VERSION).js \
-	        #$(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
-	        #$(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
+	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
 	@mkdir -p $(BUILD)/js
 	uglifyjs $^ --compress --mangle --comments 	> $@
 
