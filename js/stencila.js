@@ -320,7 +320,7 @@ var Stencila = (function(Stencila){
 		this.address = null;
 		// ... from <meta> tag
 		var address = $('head meta[itemprop=address]');
-		if(!address.length) this.address = address.attr('content');
+		if(address.length) this.address = address.attr('content');
 		// ... or from url
 		if(!this.address) {
 			var parts = window.location.pathname.split('/');
