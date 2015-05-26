@@ -27,8 +27,14 @@ install:
 
     # Install Javascript build dependencies
     # `nodejs` and `npm` are already installed (http://docs.travis-ci.com/user/ci-environment/#Runtimes)
-    # `uglifyjs` for minification; `phantomjs` is required for testing but is already present on Travis CI
+    # `uglifyjs` for minification
     - npm install -g uglify-js
+    # PhantomJS for testing. An old verson is installed already on Travis but this updates it to 2.0.0
+    # Based on https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to
+    - mkdir travis-phantomjs
+    - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
+    - tar -xvf $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs
+    - export PATH=$PWD/travis-phantomjs:$PATH
 
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
