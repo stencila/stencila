@@ -47,9 +47,9 @@ build-current: build/current
 # During development symlink the `stencila.js` into the 
 # Stencila store so it can be served by the embedded server.
 # Call this with STORE variable e.g.
-#    make store-link STORE=../../store
-store-link:
-	ln -s $(ROOT) $(STORE)/meta
+#    make build-serve STORE=../../store
+build-serve: build/current
+	ln -sfT $(ROOT)/build/current $(STORE)/build
 
 #################################################################################################
 # C++ requirements
@@ -618,8 +618,9 @@ $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js:
 $(BUILD)/js/requires.min.js: \
 			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
 	        $(RESOURCES)/jquery-$(JQUERY_VERSION).js \
-	        $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
-	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
+	        #$(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
+	        #$(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
+	@mkdir -p $(BUILD)/js
 	uglifyjs $^ --compress --mangle --comments 	> $@
 
 
@@ -640,8 +641,10 @@ $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js: $(BUILD)/js/requir
 js-tests: build/current $(BUILD)/js/requires.min.js $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION) $(BUILD)/js/requires/jasmine-$(JASMINE_VERSION)/mock-ajax.js
 	(phantomjs js/tests/spec-runner.js js/tests/spec-runner.html)  || (exit 1)
 
-
+# Provide files needed to serve files from the Javascript modules during development
+# You must run the make taks `build-serve` see above.
 js-develop: $(BUILD)/js/requires.min.js
+	ln -sfT $(ROOT)/js/stencila.js $(BUILD)/js/stencila.js
 
 JS_MIN := $(BUILD)/js/stencila-$(VERSION).min.js
 
