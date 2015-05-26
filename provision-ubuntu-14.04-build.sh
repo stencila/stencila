@@ -26,21 +26,35 @@ sudo apt-get update
 sudo apt-get install build-essential cmake git g++ libssl-dev dos2unix --force-yes --assume-yes --fix-broken
 
 ###############################################################################
+# Javascript module	
+# `uglifyjs` for minification; `phantomjs` is required for testing
+
+sudo apt-get install nodejs --force-yes --assume-yes --fix-broken
+sudo npm install -g uglify-js
+
+# Currently an official binary of PhantomJs 2.0 is not available
+# So use a contributed binary instead (compile times are very long!)
+# See https://github.com/ariya/phantomjs/issues/12948
+cd /tmp
+wget  --no-check-certificate -O phantomjs-ubuntu.gz https://github.com/mirraj2/PhantomjsUbuntu/blob/master/phantomjs-ubuntu.gz?raw=true
+gunzip phantomjs-ubuntu.gz
+sudo mv phantomjs-ubuntu /usr/bin/phantomjs
+chmod 755 /usr/bin/phantomjs
+
+###############################################################################
 # Python module	
+# `wheel` for packaging; `virtualenv` for testing
 
 sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
 
 # Uncomment out the following line to install multiple versions of Python
 # sudo apt-get install python2.7-dev python3.0-dev python3.1-dev python3.2-dev
 
-# Install `wheel` for packaging and `virtualenv` for testing
 sudo pip install wheel virtualenv
 
 ###############################################################################
 # R module
+# `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
 
-# libxml2-dev is required for package XML
 sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
-
-# Install `roxygen2` for packaging and `svUnit`, `XML` for testing
 sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
