@@ -17,23 +17,37 @@ std::string Stencil::html(bool document,bool indent) const {
 		Node head = doc.find("head");
 		Node body = doc.find("body");
 
+		// Properties put into <meta> as microdata
+		// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
+		// These are used by `Stencila.launch()` Javascript function to display the
+		// component
+		head.append("meta",{
+			{"itemprop","type"},
+			{"content","stencil"}
+		});
+		head.append("meta",{
+			{"itemprop","address"},
+			{"content",address()}
+		});
+		head.append("meta",{
+			{"itemprop","theme"},
+			{"content",theme()}
+		});
+		head.append("meta",{
+			{"itemprop","closed"},
+			{"content",closed()?"true":"false"}
+		});
+		head.append("meta",{
+			{"itemprop","contexts"},
+			{"content",join(contexts(),",")}
+		});
+
 		// Title is repeated in <title>
 		// Although we are creating an XHTML5 document, an empty title tag (i.e <title />)
 		// can cause browser parsing errors. So always ensure that there is some title content.
 		auto t = title();
 		if(t.length()==0) t = "Untitled";
 		head.find("title").text(t);
-
-		// Properties put into <meta> as microdata
-		// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
-		head.append("meta",{
-			{"itemprop","address"},
-			{"content",address()}
-		});
-		head.append("meta",{
-			{"itemprop","closed"},
-			{"content",closed()?"true":"false"}
-		});
 
 		// Description is repeated in <meta>
 		auto d = description();
@@ -49,7 +63,7 @@ std::string Stencil::html(bool document,bool indent) const {
 		if(k.size()>0){
 			head.append("meta",{
 				{"name","keywords"},
-				{"content",join(k,", ")}
+				{"content",join(k,",")}
 			});
 		}
 
@@ -114,11 +128,7 @@ std::string Stencil::html(bool document,bool indent) const {
 		//}," ");
 		
 		// Now Stencila Javascript is loaded, launch the component
-		std::string script = "Stencila.launch({";
-		script += "type: 'stencil',";
-		script += "theme: '" + theme() + "',";
-		script += "});";
-		body.append("script",script);
+		body.append("script","Stencila.launch();");
 
 		// Validate the HTML5 document before dumping it
 		doc.validate();

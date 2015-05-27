@@ -996,22 +996,21 @@ var Stencila = (function(Stencila){
 	 * Launch a component in the browser window
 	 *
 	 * This function is the entry point to this Stencila Javascript module from within a component's
-	 * saved HTML page. For example, within the HTML for a stencil:
-	 * 
-	 * 		<script>
-	 *   		Stencila.launch({type:'stencil',theme:'core/stencils/themes/default'});
-	 * 		</script>
-	 * 		
-	 * As such, the options passed may vary with the type of component. The intention is to make
-	 * the interface to this function as permissive as possible so as to reduce changes to the code
-	 * embedded within HTML.
+	 * saved HTML page.
 	 */
-	Stencila.launch = function(options){
-		if(options.type==='stencil'){
+	Stencila.launch = function(){
+		function prop(name){
+			return $('head meta[itemprop='+name+']').attr('content');
+		}
+		var type = prop('type');
+		var theme = prop('theme');
+		if(type==='stencil'){
 			var stencil = Stencila.component = new Stencil('#content');
-			stencil.theme(options.theme,function(){
+			stencil.theme(theme,function(){
 				stencil.startup();
-				if(options.render) stencil.render();
+				// Javascript-only stencils need to be rendered in browser
+				var contexts = prop('contexts');
+				if(contexts=='js') stencil.render();
 			});
 		}
 	};
