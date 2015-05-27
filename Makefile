@@ -919,6 +919,7 @@ r-tests: $(R_BUILD)/$(R_PACKAGE_FILE)
 # to install on the host machine after a build
 r-install: $(R_BUILD)/$(R_PACKAGE_FILE)
 	sudo R CMD INSTALL $(R_BUILD)/$(R_PACKAGE_FILE)
+	sudo Rscript -e 'library(stencila);stencila:::install()'
 
 # Remove everything except R requirements
 r-scrub:
