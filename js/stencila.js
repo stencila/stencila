@@ -388,16 +388,8 @@ var Stencila = (function(Stencila){
 	Component.prototype.startup = function(){
 		// Attempt to activate if on localhost
 		if(this.host=='localhost') this.activate();
-
-		// Get details on this component from Hub
-		var self = this;
-		Hub.get(this.address,false,function(data){
-			$.each([
-				'account_name','account_logo_url','public','views','favourites','favourited'
-			],function(index,property){
-				self.change(property,data[property]);
-			});
-		});
+		// Read properties
+		this.read();
 	};
 
 	/**
@@ -421,6 +413,31 @@ var Stencila = (function(Stencila){
 		}
 	};
 
+	/**
+	 * CRUD (create, read, update and delete) operations on Stencila Hub (stenci.la)
+	 *
+	 * Operate on RESTful URL <address>: (i.e. semicoloned address)
+	 */
+
+
+	/**
+	 * Read
+	 */
+	Component.prototype.read = function(){
+		var self = this;
+		Hub.get(this.address+":",false,function(data){
+			$.each([
+				'account_name','account_logo_url','public','views','favourites','favourited'
+			],function(index,property){
+				self.change(property,data[property]);
+			});
+		});
+	};
+
+
+	/**
+	 * Favourite this component
+	 */
 	Component.prototype.favourite = function(){
 		var self = this;
 		Hub.post(this.address+"/favourite!",null,function(response){
