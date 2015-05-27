@@ -332,6 +332,15 @@ var Stencila = (function(Stencila){
 			this.address = parts.join('/');
 		}
 
+		// Set closed. By default is false
+		this.closed = false;
+		// ... but can be set in <meta> tag
+		var closed = $('head meta[itemprop=closed]');
+		if(closed.length) this.closed = closed.attr('content')=='true';
+		// ... but always overidden by hash fragment
+		if(window.location.hash==='#closed!') this.closed = true;
+		else if(window.location.hash==='#open!') this.closed = false;
+
 		// Set activation status
 		this.activation = 'inactive';
 	};
@@ -343,7 +352,15 @@ var Stencila = (function(Stencila){
 		var self = this;
 		require([theme+'/theme'],function(theme){
 			Hub.menu = new theme.HubMenu();
-			self.menu = new theme.ComponentMenu(self);
+			if(!self.closed) self.menu = new theme.ComponentMenu(self);
+			else{
+				self.menu = null;
+				$(document).bind('keydown','f1',function(event){
+					event.preventDefault();
+					self.menu = new theme.ComponentMenu(self);
+					self.menu.from(self);
+				});
+			}
 			self.view(theme.DefaultView);
 			if(then) then();
 		});
@@ -402,8 +419,8 @@ var Stencila = (function(Stencila){
 	Component.prototype.change = function(property,value){
 		if(typeof property=='string'){
 			this[property] = value;
-			this.menu.from(property,value);
-			this.viewCurrent.from(property,value);
+			if(this.menu) this.menu.from(property,value);
+			if(this.viewCurrent) this.viewCurrent.from(property,value);
 		}
 		else {
 			var self = this;
@@ -426,10 +443,8 @@ var Stencila = (function(Stencila){
 	Component.prototype.read = function(){
 		var self = this;
 		Hub.get(this.address+":",false,function(data){
-			$.each([
-				'account_name','account_logo_url','public','views','favourites','favourited'
-			],function(index,property){
-				self.change(property,data[property]);
+			$.each(data,function(property,value){
+				self.change(property,value);
 			});
 		});
 	};

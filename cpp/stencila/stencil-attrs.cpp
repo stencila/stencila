@@ -67,4 +67,9 @@ std::string Stencil::theme(void) const {
 	else return "core/stencils/themes/default";
 }
 
+bool Stencil::closed(void) const {
+	if(select("#closed")) return true;
+	else return false;
+}
+
 }

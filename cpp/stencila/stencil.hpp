@@ -298,11 +298,15 @@ public:
 	 */
 	std::vector<std::string> contexts(void) const;
 
-
 	/**
 	 * Get this stencil's theme
 	 */
 	std::string theme(void) const;
+
+	/**
+	 * Is this stencil closed?
+	 */
+	bool closed(void) const;
 
 	/**
 	 * @}

@@ -24,11 +24,15 @@ std::string Stencil::html(bool document,bool indent) const {
 		if(t.length()==0) t = "Untitled";
 		head.find("title").text(t);
 
-		// Address is put into a <meta> as microdata
+		// Properties put into <meta> as microdata
 		// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
 		head.append("meta",{
 			{"itemprop","address"},
 			{"content",address()}
+		});
+		head.append("meta",{
+			{"itemprop","closed"},
+			{"content",closed()?"true":"false"}
 		});
 
 		// Description is repeated in <meta>
@@ -67,34 +71,6 @@ std::string Stencil::html(bool document,bool indent) const {
 			{"href",css}
 		}," ");
 
-		// A fallback function to load the theme CSS from http://stenci.la if it is not served from the 
-		// host of this HTML (e.g. file:// or some non-Stencila-aware server)
-		std::string fallback = "(function(c){";
-		// Local variables
-		fallback += "var d=document,s,i,l;";
-		// Check to see if the theme stylesheet has been loaded
-		// The theme CSS will not necessarily be the first stylesheet and no all stylesheets have `href`
-		// The try block is to avoid the security error raised by Firefox for accessing cross domain stylesheets
-		// If this happens it means the theme CSS was not loaded from the current domain so do not return
-		// See http://stackoverflow.com/questions/21642277/security-error-the-operation-is-insecure-in-firefox-document-stylesheets
-		// Note use of `!=` instead of `<` to avoid escaping in generated HTML
-		fallback += "s=d.styleSheets;for(i=0;i!=s.length;i++){if((s[i].href||'').match(c)){try{if(s[i].cssRules.length)return;}catch(e){}}}";
-		// If still in the function the stylesheet must not have been loaded so create
-		// a new <link> to the theme CSS on http://stenci.la
-		fallback += "l=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href='https://stenci.la'+c;";
-		// To prevent flash of unstyled content (FOUC) while the new <link> is loading make the document class 'unready'
-		// and then remove this class when the style is loaded (there is a fallback to this fallback at end of document).
-		// See http://www.techrepublic.com/blog/web-designer/how-to-prevent-flash-of-unstyled-content-on-your-websites/
-		fallback += "d.documentElement.className='unready';l.onload=function(){d.documentElement.className='';};";
-		// Append new link to head
-		fallback += "d.getElementsByTagName('head')[0].appendChild(l);";
-		// Call the function
-		fallback += "})('"+css+"');";
-		// Add CSS fallback Javascript
-		head.append("script",{{"type","text/javascript"}},fallback);
-		// Add CSS fallback style for the unready document
-		head.append("style",{{"type","text/css"}},".unready{display:none;}");
-
 		/**
 		 * Authors are repeated as `<a rel="author" ...>` elements within an `<address>` element.
 		 * The placement of `<address>` as a child of `<body>` should mean that this authors list applies to the whole document.
@@ -128,29 +104,20 @@ std::string Stencil::html(bool document,bool indent) const {
 		}," ");
 		content.append(*this);
 
-		/**
-		 * <script>
-		 *
-		 * Script elements are [placed at bottom of page](http://developer.yahoo.com/performance/rules.html#js_bottom)
-		 * Files are with a fallback to hub.
-		 */
-		// Load versioned Stencila Javascript from get.stenci.la. This has
+		// Load versioned, minified `stencila.js` from get.stenci.la. This has
 		// a "far future" cache header so it should be available even when offline
-		body.append("script",{
-			{"src","//get.stenci.la/js/stencila-"+Stencila::version+".min.js"}
-		}," ");
-		// Now Stencila Javascript is loaded do stuff with it...
-		std::string script = "Stencila.stencil('" + theme() + "'";
-		// If this is a Javascript stencil then render it on the client
-		auto con = contexts();
-		if(std::find(con.begin(),con.end(),"js")!=con.end()){
-			script += ",true";
-		}
-		// Load the theme
-		script += ");";
-		// Add a fallback to the CSS fallback! Remove the `unready` class from the root element is not already
-		// removed. This is in case the remote CSS link added by the CSS fallback function (see above) fails to load.
-		script += "window.setTimeout(function(){document.documentElement.className='';},10000)";
+		body.append("script",{{"src","/build/js/requires.min.js"}}," ");
+		body.append("script",{{"src","/build/js/stencila.js"}}," ");
+		//std::string js = "//get.stenci.la/js/stencila-"+Stencila::version+".min.js";
+		//body.append("script",{
+		//	{"src",js}
+		//}," ");
+		
+		// Now Stencila Javascript is loaded, launch the component
+		std::string script = "Stencila.launch({";
+		script += "type: 'stencil',";
+		script += "theme: '" + theme() + "',";
+		script += "});";
 		body.append("script",script);
 
 		// Validate the HTML5 document before dumping it
