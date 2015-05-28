@@ -441,7 +441,7 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
-			exec_open("(exec|r|py)\\b *([^~\\n]+)?(?=(~ )|\\n|$)"),
+			exec_open("(exec|js|r|py)\\b *([^~\\n]+)?(?=(~ )|\\n|$)"),
 			directive_noarg("(else|default)\\b *(?=(~ )|\\n|\\{|\\}|$)"),
 			directive_arg("(when|refer|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(~ )|\\n|\\{|\\}|$)"),
 			
