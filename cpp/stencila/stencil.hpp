@@ -465,6 +465,23 @@ public:
 	};
 
 	/**
+	 * An `attr` directive (e.g. `<span data-attr="src image+'.png'"></span>`)
+	 *
+	 * Adds or sets an attribute on the parent element
+	 */
+	struct Attr : Directive {
+		Name name;
+		Expression expression;
+
+		Attr(void);
+		Attr(const std::string& attribute);
+		Attr(Node node);
+		void parse(const std::string& attribute);
+		void parse(Node node);
+		void render(Stencil& stencil, Node node, Context* context);
+	};
+
+	/**
 	 * A `write` directive (e.g. `<span data-write="result"></span>`)
 	 *
 	 * The expression in the `data-write` attribute is converted to a 

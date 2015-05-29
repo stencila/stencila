@@ -315,7 +315,7 @@ CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri boost_thread
 CPP_REQUIRES_LIBS += pugixml
 CPP_REQUIRES_LIBS += tidy-html5
 ifeq ($(OS), linux)
-	CPP_REQUIRES_LIBS += rt
+	CPP_REQUIRES_LIBS += rt pthread
 endif
 ifeq ($(OS), msys)
 	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2

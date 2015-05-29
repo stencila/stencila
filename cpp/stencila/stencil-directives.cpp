@@ -339,6 +339,40 @@ void Stencil::When::render(Stencil& stencil, Node node, Context* context){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+Stencil::Attr::Attr(void){
+}
+
+Stencil::Attr::Attr(const std::string& attribute){
+	parse(attribute);
+}
+
+Stencil::Attr::Attr(Node node){
+	parse(node);
+}
+
+void Stencil::Attr::parse(const std::string& attribute){
+	static const boost::regex pattern("^([\\w-]+)\\s+(.+)$");
+	boost::smatch match;
+	if(boost::regex_search(attribute, match, pattern)) {
+		name = match[1].str();
+		expression = match[2].str();
+	} else {
+		throw DirectiveException("syntax",attribute);
+	}
+}
+
+void Stencil::Attr::parse(Node node){
+	parse(node.attr("data-attr"));
+}
+
+void Stencil::Attr::render(Stencil& stencil, Node node, Context* context){
+	parse(node);
+	auto value = context->write(expression);
+	node.attr(name,value);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 Stencil::Write::Write(void){
 }
 

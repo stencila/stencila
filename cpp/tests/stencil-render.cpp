@@ -93,6 +93,14 @@ BOOST_AUTO_TEST_CASE(when){
 	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"foo,bar\"] [data-write=\"a\"]").text(),"");
 }
 
+BOOST_AUTO_TEST_CASE(attr){
+	render(R"(
+		<div data-attr="name a"></div>
+	)");
+
+	BOOST_CHECK_EQUAL(stencil.select("[data-attr]").attr("name"),"A");
+}
+
 BOOST_AUTO_TEST_CASE(error){
 	render(R"(<p data-write="foo" />)");
 	
