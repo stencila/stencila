@@ -86,9 +86,9 @@ public:
 		tex,
 
 		/**
-		 * Within an `exec` directive
+		 * Within an `exec` a `style` directive. Embedded code.
 		 */
-		exec
+		embed
 	};
 
 	/**
@@ -179,7 +179,7 @@ public:
 			CASE(code)
 			CASE(asciimath)
 			CASE(tex)
-			CASE(exec)
+			CASE(embed)
 			#undef CASE
 			default: return "";
 		}
@@ -444,6 +444,8 @@ public:
 			clas("\\.([\\w-]+)\\b"),
 			
 			exec_open("(exec|js|r|py)\\b *([^~\\n]+)?(?=(~ )|\\n|$)"),
+			style_open("(style|css)(\\n|$)"),
+
 			directive_noarg("(else|default)\\b *(?=(~ )|\\n|\\{|\\}|$)"),
 			directive_arg("(when|refer|attr|write|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(~ )|\\n|\\{|\\}|$)"),
 			
@@ -517,13 +519,23 @@ public:
 
 				if(is(exec_open)){
 					trace("exec");
-					// A execute directive should only begin at the 
+					// An execute directive should only begin at the 
 					// start of a line
-					// Enter `<pre>` element and move across to `flags` state;
-					enter_across("pre",exec);
+					// Enter `<pre>` element and move across to `embed` state;
+					enter_across("pre",embed);
 					auto arg = match[1].str();
 					if(match[2].str().length()) arg += " " + match[2].str();
 					node.attr("data-exec",arg);
+				}
+				else if(is(style_open)){
+					trace("style");
+					// A style directive should only begin at the 
+					// start of a line
+					// Enter `<style>` element and move across to `embed` state;
+					enter_across("style",embed);
+					std::string type = "text/css";
+					node.attr("type",type);
+					add("\n");
 				}
 				else if(is(blankline)){
 					trace("blank");
@@ -705,13 +717,13 @@ public:
 				}
 				else {
 					trace("none");
-					// If current state is under an `exec` state then 
-					// pop up to the `exec` otherwise move across to `sol`
-					bool under_exec = false;
+					// If current state is under an `embed` state then 
+					// pop up to the `embed` otherwise move across to `sol`
+					bool under_embed = false;
 					if(states.size()>1){
-						if(states[states.size()-2]==exec) under_exec = true;
+						if(states[states.size()-2]==embed) under_embed = true;
 					}
-					if(under_exec){
+					if(under_embed){
 						pop();
 					} else {
 						across(sol);
@@ -866,7 +878,7 @@ public:
 				if(is(tex_close)) exit_pop();
 				else add();
 			}
-			else if(state==exec){
+			else if(state==embed){
 				// Capture all characters but on new lines
 				// move to `sol` state to see if indentation
 				// has reduced and should pop out of this state
@@ -881,7 +893,7 @@ public:
 					boost::regex_search(begin, end, match_local, line, boost::regex_constants::match_continuous);
 					auto indent_line = match_local[1].str();
 					auto content_line = match_local[2].str();
-					// Should this `exec` directive end?
+					// Should this `embed` state end?
 					if(content_line.length()>0 and indent_line.length()<=indent.length()){
 						// Exit and pop. Note that `begin` is not shifted along at all
 						// so that the line can be processed by `sol`
@@ -1051,8 +1063,14 @@ public:
 				}
 			}
 			// Execute directive
-			if(node.attr("data-exec").length()){
-				stream<<node.attr("data-exec")<<"\n";
+			if(node.attr("data-exec").length() or name=="style"){
+				if(node.attr("data-exec").length()) stream<<node.attr("data-exec")<<"\n";
+				else if(name=="style"){
+					std::string lang = "css";
+					std::string type = node.attr("type");
+					if(type=="text/css") lang = "css";
+					stream<<lang<<"\n";
+				}
 				// Get the code from the child nodes. Usually there will be only one, but in case there are more
 				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
 				std::string code;

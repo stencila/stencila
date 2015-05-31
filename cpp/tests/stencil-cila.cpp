@@ -316,6 +316,19 @@ a &lt; b
 	ECHO(cila_)
 }
 
+BOOST_AUTO_TEST_CASE(exec_contexts){
+	CILA_XML("js","<pre data-exec=\"js\">\n</pre>");
+	CILA_XML("py","<pre data-exec=\"py\">\n</pre>");
+	CILA_XML("r","<pre data-exec=\"r\">\n</pre>");
+}
+
+
+BOOST_AUTO_TEST_CASE(style){
+	CILA_XML("css\n\tselector{color:red;}","<style type=\"text/css\">\nselector{color:red;}\n</style>");
+
+	XML_CILA("<style>\nselector{color:red;}\n</style>","css\n\tselector{color:red;}");
+}
+
 BOOST_AUTO_TEST_CASE(directive_no_arg){
 	CILA_XML("div else",R"(<div data-else="true" />)");
 	CILA_XML("else",R"(<div data-else="true" />)");
