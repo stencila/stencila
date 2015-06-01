@@ -202,8 +202,8 @@ class StencilTests(unittest.TestCase):
             ({'a':1,'b':2,'c':3},"{'a': 1, 'c': 3, 'b': 2}"),
         ):
             self.renderCheck(
-                '<div data-write="value"></div>',
-                '<div data-write="value">%s</div>'%text,
+                '<div data-text="value"></div>',
+                '<div data-text="value">%s</div>'%text,
                 {'value':value}
             )
 
