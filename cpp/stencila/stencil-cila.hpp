@@ -443,15 +443,15 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
-			exec_open("(exec|js|r|py)\\b *([^~\\n]+)?(?=(~ )|\\n|$)"),
+			exec_open("(exec|js|r|py)\\b *([^:\\n]+)?(?=(: )|\\n|$)"),
 			style_open("(style|css)(\\n|$)"),
 
-			directive_noarg("(else|default)\\b *(?=(~ )|\\n|\\{|\\}|$)"),
-			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(~ )|\\n|\\{|\\}|$)"),
+			directive_noarg("(else|default)\\b *(?=(: )|\\n|\\{|\\}|$)"),
+			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(: )|\\n|\\{|\\}|$)"),
 			
 			spaces(" +"),
 
-			flags_open("~ "),
+			flags_open(": "),
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
 			error("\\!([\\w-]+)(\\([^\\)]+\\))?"),
@@ -465,7 +465,8 @@ public:
 			strong_open("(\\s)\\*(?=[^\\s])"),
 			strong_close("\\*"),
 
-			backtick_backtick("``"),
+			tilde_escaped("\\\\~"),
+			tilde("~"),
 
 			backtick_escaped("\\\\`"),
 			backtick("`"),
@@ -761,15 +762,20 @@ public:
 					// Enter `<strong>` and push into `strong` state
 					enter_push("strong",strong);
 				}
+				else if(is(tilde_escaped)){
+					trace("tilde_escaped");
+					// Replace with tilde
+					add('~');
+				}
+				else if(is(tilde)){
+					trace("tilde");
+					// Enter a <span> and push into `interp` state
+					enter_push("span",interp);
+				}
 				else if(is(backtick_escaped)){
 					trace("backtick_escaped");
 					// Replace with backtick
 					add('`');
-				}
-				else if(is(backtick_backtick)){
-					trace("backtick_backtick");
-					// Enter a <span> and push into `interp` state
-					enter_push("span",interp);
 				}
 				else if(is(backtick)){
 					trace("backtick");
@@ -855,7 +861,7 @@ public:
 				else add();
 			}
 			else if(state==interp){
-				if(is(backtick_backtick)){
+				if(is(tilde)){
 					// Use buffer as `data-text` attribute, reset it,
 					// then exit from `<span>` and pop up to `text` state
 					node.attr("data-text",buffer);
@@ -953,7 +959,7 @@ public:
 			}
 			// Write directive shortcut
 			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-text").length()){
-				stream<<"``"<<node.attr("data-text")<<"``";
+				stream<<"~"<<node.attr("data-text")<<"~";
 				return;
 			}
 			// Refer directive shortcut
@@ -1161,7 +1167,7 @@ public:
 			// Flags
 			if(flags.size()){
 				if(separator_required) stream<<" ";
-				stream<<"~";
+				stream<<":";
 			}
 			for(auto attr : flags){
 				auto name = attr.first;

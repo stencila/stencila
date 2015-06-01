@@ -162,7 +162,7 @@ Stencil& Stencil::pdf(const std::string& direction, const std::string& path,cons
 Stencil& Stencil::preview(const std::string& path) {
 	// Serve this stencil so theme CSS and JS is available
 	Component::classes();
-	auto url = serve();
+	auto url = serve()+"#closed!";
 	// Convert to PNG using PhantomJS
 	auto script = Helpers::script("stencil-preview-phantom.js",R"(
 		var page = require('webpage').create();
@@ -177,9 +177,9 @@ Stencil& Stencil::preview(const std::string& path) {
 				var clip = page.evaluate(function(){
 					var target;
 					target = document.querySelector('#preview');
-					if(!target) target = document.querySelector('figure');
-					if(!target) target = document.querySelector('.equation');
-					if(!target) target = document.querySelector('table');
+					//if(!target) target = document.querySelector('figure');
+					//if(!target) target = document.querySelector('.equation');
+					//if(!target) target = document.querySelector('table');
 					if(target) return target.getBoundingClientRect();
 					else return null;
 				});
