@@ -50,6 +50,11 @@ install:
 before_script:
     # Use this to prepare your build for testing
 
+    # Travis CI does a shallow clone of the current branch (`git clone --depth=50 --branch=develop ...`)
+    # If the last tag was more than 50 commits in the past then the following `git describe` will fail and
+    # the build will error. So, "unshallow" this clone to get a complete history
+    - git fetch --unshallow
+
     # Display git tags in log
     - git describe --tags --dirty --long
 
