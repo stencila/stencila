@@ -482,19 +482,19 @@ public:
 	};
 
 	/**
-	 * A `write` directive (e.g. `<span data-write="result"></span>`)
+	 * A `text` directive (e.g. `<span data-text="result"></span>`)
 	 *
-	 * The expression in the `data-write` attribute is converted to a 
+	 * The expression in the `data-text` attribute is converted to a 
 	 * character string by the context and used as the element's text.
 	 * If the element has a `data-off="true"` attribute then the element will not
 	 * be rendered and its text will remain unchanged.
 	 */
-	struct Write : Directive {
+	struct Text : Directive {
 		Expression expression;
 
-		Write(void);
-		Write(const std::string& attribute);
-		Write(Node node);
+		Text(void);
+		Text(const std::string& attribute);
+		Text(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
 		void render(Stencil& stencil, Node node, Context* context);

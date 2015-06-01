@@ -10,7 +10,7 @@ const std::vector<std::string> Stencil::directives = {
 	"data-exec",
 	"data-when",
 	"data-attr",
-	"data-write",
+	"data-text",
 	"data-icon",
 	"data-refer",
 	"data-with",
@@ -46,7 +46,7 @@ void Stencil::strip(Node node){
 		child.destroy();
 	}
 	// Clear elements with text or children added during rendering
-	for(Node child : node.filter("[data-write],[data-refer],#outline")){
+	for(Node child : node.filter("[data-text],[data-refer],#outline")){
 		child.clear();
 	}
 }
@@ -376,27 +376,27 @@ void Stencil::Attr::render(Stencil& stencil, Node node, Context* context){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-Stencil::Write::Write(void){
+Stencil::Text::Text(void){
 }
 
-Stencil::Write::Write(const std::string& attribute){
+Stencil::Text::Text(const std::string& attribute){
 	parse(attribute);
 }
 
-Stencil::Write::Write(Node node){
+Stencil::Text::Text(Node node){
 	parse(node);
 }
 
-void Stencil::Write::parse(const std::string& attribute){
+void Stencil::Text::parse(const std::string& attribute){
 	if(attribute.length()) expression = attribute;
 	else throw DirectiveException("write-empty","");
 }
 
-void Stencil::Write::parse(Node node){
-	parse(node.attr("data-write"));
+void Stencil::Text::parse(Node node){
+	parse(node.attr("data-text"));
 }
 
-void Stencil::Write::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Text::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
 	if(node.attr("data-lock")!="true"){
 		auto text = context->write(expression);

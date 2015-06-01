@@ -32,7 +32,7 @@ public:
 		 * Looking for element attributes
 		 *
 		 * In this state the parser is looking for HTML element attribute
-		 * syntax (e.g. `[id="an-id"]`, `#an-id`, `.a-class`) including directives (e.g. `write x`) 
+		 * syntax (e.g. `[id="an-id"]`, `#an-id`, `.a-class`) including directives (e.g. `text x`) 
 		 * and ignoring whitepace. If no attribute is found then moves across to `text` state.
 		 */
 		attrs,
@@ -447,7 +447,7 @@ public:
 			style_open("(style|css)(\\n|$)"),
 
 			directive_noarg("(else|default)\\b *(?=(~ )|\\n|\\{|\\}|$)"),
-			directive_arg("(when|refer|attr|write|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(~ )|\\n|\\{|\\}|$)"),
+			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(~ )|\\n|\\{|\\}|$)"),
 			
 			spaces(" +"),
 
@@ -658,7 +658,7 @@ public:
 					// type of element depends on which directive;
 					// move across to `flags` state (i.e no attributes or text to follow)
 					auto directive = match[1].str();
-					if(directive=="write" or directive=="refer") enter_elem_if_needed("span");
+					if(directive=="text" or directive=="refer") enter_elem_if_needed("span");
 					else enter_elem_if_needed();
 					std::string arg = match[2].str();
 					boost::trim(arg);
@@ -856,9 +856,9 @@ public:
 			}
 			else if(state==interp){
 				if(is(backtick_backtick)){
-					// Use buffer as `data-write` attribute, reset it,
+					// Use buffer as `data-text` attribute, reset it,
 					// then exit from `<span>` and pop up to `text` state
-					node.attr("data-write",buffer);
+					node.attr("data-text",buffer);
 					buffer = "";
 					exit_pop();
 				}
@@ -952,8 +952,8 @@ public:
 				return;
 			}
 			// Write directive shortcut
-			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-write").length()){
-				stream<<"``"<<node.attr("data-write")<<"``";
+			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-text").length()){
+				stream<<"``"<<node.attr("data-text")<<"``";
 				return;
 			}
 			// Refer directive shortcut
@@ -1104,11 +1104,11 @@ public:
 				separator_required = true;
 			};
 			if(name=="span"){
-				if(node.has("data-write") or node.has("data-refer")){}
+				if(node.has("data-text") or node.has("data-refer")){}
 				else tag();
 			}
 			else if(name=="div"){
-				if(attrs.size()==0 or node.has("data-write") or node.has("data-refer")) tag();
+				if(attrs.size()==0 or node.has("data-text") or node.has("data-refer")) tag();
 			}
 			else tag();
 			// Attributes...

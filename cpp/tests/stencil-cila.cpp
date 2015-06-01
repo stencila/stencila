@@ -106,11 +106,11 @@ BOOST_AUTO_TEST_CASE(embedded){
 	CILA_XML("{div {div}}","<div><div /></div>");
 
 	CILA_XML(
-		"The minimum is {if a<b {write a}}{else {write b}}",
-		"The minimum is <div data-if=\"a&lt;b\"><span data-write=\"a\" /></div><div data-else=\"true\"><span data-write=\"b\" /></div>"
+		"The minimum is {if a<b {text a}}{else {text b}}",
+		"The minimum is <div data-if=\"a&lt;b\"><span data-text=\"a\" /></div><div data-else=\"true\"><span data-text=\"b\" /></div>"
 	);
 
-	CILA_XML("div\n\tSome inline {write pi*2}","<div>Some inline <span data-write=\"pi*2\" /></div>");
+	CILA_XML("div\n\tSome inline {text pi*2}","<div>Some inline <span data-text=\"pi*2\" /></div>");
 
 	CILA_XML("div Some text","<div>Some text</div>");
 	CILA_XML("div {Some text}","<div>Some text</div>");
@@ -347,18 +347,18 @@ BOOST_AUTO_TEST_CASE(directive_no_arg){
 }
 
 BOOST_AUTO_TEST_CASE(directive_arg){
-	CILA_XML("div write x",R"(<div data-write="x" />)");
-	CILA_XML("write x",R"(<span data-write="x" />)");
+	CILA_XML("div text x",R"(<div data-text="x" />)");
+	CILA_XML("text x",R"(<span data-text="x" />)");
 	CILA_XML("div if x",R"(<div data-if="x" />)");
 	CILA_XML("if x",R"(<div data-if="x" />)");
 
-	XML_CILA(R"(<div data-write="x" />)","div write x");
-	XML_CILA(R"(<span data-write="x" />)","``x``");
+	XML_CILA(R"(<div data-text="x" />)","div text x");
+	XML_CILA(R"(<span data-text="x" />)","``x``");
 	XML_CILA(R"(<li data-if="x" />)","li if x");
 	XML_CILA(R"(<div data-if="x" />)","if x");
 
-	ECHO("div write x");
-	CILA_CILA("write x","``x``");
+	ECHO("div text x");
+	CILA_CILA("text x","``x``");
 	ECHO("ul #an-id .a-class with x");
 	ECHO("#an-id .a-class with x");
 	CILA_CILA("div if x","if x");
@@ -387,8 +387,8 @@ BOOST_AUTO_TEST_CASE(flags){
 	CILA_XML("if x<0 ~ off",R"(<div data-if="x&lt;0" data-off="true" />)");
 	ECHO("if x<0 ~ off");
 
-	CILA_XML("write x ~ lock",R"(<span data-write="x" data-lock="true" />)");
-	ECHO("write x ~ lock");
+	CILA_XML("text x ~ lock",R"(<span data-text="x" data-lock="true" />)");
+	ECHO("text x ~ lock");
 
 	ECHO("~ &tH4dFg off ^42 lock output");
 	ECHO("p ~ &tH4dFg off ^42 lock output");
@@ -408,9 +408,9 @@ BOOST_AUTO_TEST_CASE(directive_attr){
 	ECHO("attr title 'Some title'");
 }
 
-BOOST_AUTO_TEST_CASE(directive_write){
-	CILA_XML("write variable","<span data-write=\"variable\" />");
-	CILA_XML("span write variable","<span data-write=\"variable\" />");
+BOOST_AUTO_TEST_CASE(directive_text){
+	CILA_XML("text variable","<span data-text=\"variable\" />");
+	CILA_XML("span text variable","<span data-text=\"variable\" />");
 }
 
 BOOST_AUTO_TEST_CASE(directive_icon){
@@ -536,7 +536,7 @@ BOOST_AUTO_TEST_CASE(ul){
 	CILA_XML("{-apple}{-pear}",R"(<ul><li>apple</li><li>pear</li></ul>)");
 	// List items can have normal text parsing
 	CILA_XML("- Some _emphasis_",R"(<ul><li>Some <em>emphasis</em></li></ul>)");
-	CILA_XML("- An interpolated ``value``",R"(<ul><li>An interpolated <span data-write="value" /></li></ul>)");
+	CILA_XML("- An interpolated ``value``",R"(<ul><li>An interpolated <span data-text="value" /></li></ul>)");
 	CILA_XML("- A link to [Google](http://google.com)",R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)");
 
 	XML_CILA(R"(<ul><li>apple</li><li>pear</li></ul>)","- apple\n- pear");
@@ -726,11 +726,11 @@ BOOST_AUTO_TEST_CASE(refer){
 }
 
 BOOST_AUTO_TEST_CASE(interpolate){
-	CILA_XML("``x``",R"(<span data-write="x" />)");
-	CILA_XML("The answer is ``6*7``!",R"(The answer is <span data-write="6*7" />!)");
+	CILA_XML("``x``",R"(<span data-text="x" />)");
+	CILA_XML("The answer is ``6*7``!",R"(The answer is <span data-text="6*7" />!)");
 
-	XML_CILA(R"(<span data-write="x" />)","``x``");
-	//!XML_CILA(R"(The answer is <span data-write="6*7" />!)","The answer is ``6*7``!");
+	XML_CILA(R"(<span data-text="x" />)","``x``");
+	//!XML_CILA(R"(The answer is <span data-text="6*7" />!)","The answer is ``6*7``!");
 	
 	ECHO("``x``");
 	//!ECHO("Before ``x`` after");
