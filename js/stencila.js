@@ -432,8 +432,6 @@ var Stencila = (function(Stencila){
 
 	/**
 	 * CRUD (create, read, update and delete) operations on Stencila Hub (stenci.la)
-	 *
-	 * Operate on RESTful URL <address>: (i.e. semicoloned address)
 	 */
 
 
@@ -442,7 +440,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.read = function(){
 		var self = this;
-		Hub.get(this.address+":",false,function(data){
+		Hub.get(this.address+"'",false,function(data){
 			$.each(data,function(property,value){
 				self.change(property,value);
 			});
@@ -527,6 +525,56 @@ var Stencila = (function(Stencila){
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+
+	var Resource = Stencila.Resource = function(url,options){
+		this.url = url;
+	};
+
+	Resource.prototype.pull = function(then){
+		var self = this;
+		$.ajax({
+			url: this.url,
+			method: 'GET'
+		}).done(function(data){
+			self.update(data);
+			if(then) then();
+		});
+	};
+
+	var Structure = Stencila.Structure = function(url){
+		Resource.call(this,url);
+	};
+	Structure.prototype = Object.create(Resource.prototype);
+	Structure.constructor = Structure;
+
+	Structure.prototype.update = function(data){
+		$.extend(this,data);
+	};
+
+
+	var Array_ = Stencila.Array = function(url){
+		Resource.call(this,url);
+		this.items = [];
+	};
+	Array_.prototype = Object.create(Resource.prototype);
+	Array_.constructor = Array_;
+
+	Array_.prototype.update = function(data){
+		this.items = data;
+	};
+
+
+	var Icons = Stencila.Icons = function(url){
+		$.ajax(url).done(function(svg){
+			var icons = document.body.appendChild(svg.children[0]);
+			$(icons).hide();
+		});
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	/**
 	 * A JavaScript rendering context
@@ -541,9 +589,7 @@ var Stencila = (function(Stencila){
 			 * Functions exposed to contexts via an object 
 			 * which is always the uppermmost scope of a `Context`
 			 */
-			{
-				get: null
-			},
+			{},
 			scope||{}
 		];
 	};
@@ -667,10 +713,9 @@ var Stencila = (function(Stencila){
 	 * Used by stencil `for` elements e.g. `<ul data-for="planet:planets"><li data-each data-text="planet" /></ul>`
 	 * 
 	 * @param  item  Name given to each item
-	 * @param  expression Expression giveing an iterable list of items
+	 * @param  items An array of items
 	 */
-	Context.prototype.begin = function(item,expression){
-		var items = this.evaluate_(expression);
+	Context.prototype.begin = function(item,items){
 		if(items.length>0){
 			this.push_();
 			this.set_('_item_',item);
@@ -712,10 +757,10 @@ var Stencila = (function(Stencila){
 	 * Enter a new namespace. 
 	 * Used by stencil `with` element e.g. `<div data-with="mydata"><span data-text="sum(a*b)" /></div>`
 	 *  
-	 * @param expression Expression that will be the scope of the new context
+	 * @param object New scope of the new context
 	 */
-	Context.prototype.enter = function(expression){
-		this.push_(this.evaluate_(expression));
+	Context.prototype.enter = function(object){
+		this.push_(object);
 	};
 
 	/**
@@ -743,7 +788,9 @@ var Stencila = (function(Stencila){
 	
 	var directiveRender = Stencila.directiveRender = function(node,context){
 		if(node.attr('data-exec')) return new Exec().apply(node,context);
+		if(node.attr('data-attr')) return new Attr().apply(node,context);
 		if(node.attr('data-write')) return new Write().apply(node,context);
+		if(node.attr('data-icon')) return new Icon().apply(node,context);
 		if(node.attr('data-with')) return new With().apply(node,context);
 
 		if(node.attr('data-if')) return new If().apply(node,context);
@@ -790,6 +837,30 @@ var Stencila = (function(Stencila){
 	Exec.prototype.apply = directiveApply;
 
 	/**
+	 * A `attr` directive
+	 */
+	var Attr = Stencila.Attr = function(expr){
+		this.expr = expr;
+	};
+	Attr.prototype.get = function(node){
+		var attr = node.attr('data-attr');
+		var matches = attr.match(/^(\w+)\s+(.+)$/);
+		this.name = matches[1];
+		this.expr = matches[2];
+		return this;
+	};
+	Attr.prototype.set = function(node){
+		node.attr('data-attr',this.expr);
+		return this;
+	};
+	Attr.prototype.render = function(node,context){
+		node.attr(this.name,context.write(this.expr));
+		directiveRenderChildren(node,context);
+		return this;
+	};
+	Attr.prototype.apply = directiveApply;
+
+	/**
 	 * A `write` directive
 	 */
 	var Write = Stencila.Write = function(expr){
@@ -810,6 +881,27 @@ var Stencila = (function(Stencila){
 	Write.prototype.apply = directiveApply;
 
 	/**
+	 * An `icon` directive
+	 */
+	var Icon = Stencila.Icon = function(expr){
+		this.expr = expr;
+	};
+	Icon.prototype.get = function(node){
+		this.expr = node.attr('data-icon');
+		return this;
+	};
+	Icon.prototype.set = function(node){
+		node.attr('data-icon',this.expr);
+		return this;
+	};
+	Icon.prototype.render = function(node,context){
+		var id = context.evaluate_(this.expr);
+		node.append('<svg class="icon"><use xlink:href="#icon-'+id+'"></use></svg>');
+		return this;
+	};
+	Icon.prototype.apply = directiveApply;
+
+	/**
 	 * A `with` directive
 	 */
 	var With = Stencila.With = function(expr){
@@ -824,9 +916,20 @@ var Stencila = (function(Stencila){
 		return this;
 	};
 	With.prototype.render = function(node,context){
-		context.enter(this.expr);
-		directiveRenderChildren(node,context);
-		context.exit();
+		var object = context.evaluate_(this.expr);
+		if(object instanceof Structure){
+			var self = this;
+			object.pull(function(){
+				go.call(self,object);
+			});
+		} else {
+			go.call(this,object);
+		}
+		function go(object){
+			context.enter(object);
+			directiveRenderChildren(node,context);
+			context.exit();
+		}
 		return this;
 	};
 	With.prototype.apply = directiveApply;
@@ -903,19 +1006,30 @@ var Stencila = (function(Stencila){
 		return this;
 	};
 	For.prototype.render = function(node,context){
-		var more = context.begin(this.item,this.items);
-		var each = node.find(['data-each']);
-		if(each.length){
-			each = node.first();
+		var items = context.evaluate_(this.items);
+		if(items instanceof Array_){
+			var self = this;
+			items.pull(function(){
+				go.call(self,items.items);
+			});
+		} else {
+			go.call(this,items);
 		}
-		each.removeAttr('data-off');
-		while(more){
-			var item = each.clone();
-			node.append(item);
-			directiveRender(item,context);
-			more = context.next();
+		function go(items){
+			var more = context.begin(this.item,items);
+			var each = node.find(['data-each']);
+			if(each.length===0){
+				each = node.children().first();
+			}
+			each.removeAttr('data-off');
+			while(more){
+				var item = each.clone();
+				node.append(item);
+				directiveRender(item,context);
+				more = context.next();
+			}
+			each.attr('data-off','true');
 		}
-		each.attr('data-off','true');
 		return this;
 	};
 	For.prototype.apply = directiveApply;
@@ -973,6 +1087,10 @@ var Stencila = (function(Stencila){
 			this.content,
 			this.context
 		);
+	};
+
+	Stencil.prototype.refresh = function(){
+
 	};
 
 	Stencil.prototype.restart = function(){
