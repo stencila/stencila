@@ -9,7 +9,9 @@ namespace Stencila {
 const std::vector<std::string> Stencil::directives = {
 	"data-exec",
 	"data-when",
+	"data-attr",
 	"data-write",
+	"data-icon",
 	"data-refer",
 	"data-with",
 	"data-if","data-elif","data-else",

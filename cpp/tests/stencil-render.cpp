@@ -101,6 +101,15 @@ BOOST_AUTO_TEST_CASE(attr){
 	BOOST_CHECK_EQUAL(stencil.select("[data-attr]").attr("name"),"A");
 }
 
+BOOST_AUTO_TEST_CASE(icon){
+	render(R"(
+		<div data-icon="id"></div>
+	)");
+
+	// Currently icon directives are only rendered within Javascript contexts
+	BOOST_CHECK_EQUAL(stencil.select("[data-icon]").children().size(),0);
+}
+
 BOOST_AUTO_TEST_CASE(error){
 	render(R"(<p data-write="foo" />)");
 	

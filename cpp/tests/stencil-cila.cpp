@@ -403,9 +403,19 @@ BOOST_AUTO_TEST_CASE(error){
 	XML_CILA("<div data-error=\"exception(foo bar)\" />","~ !exception(foo bar)");
 }
 
+BOOST_AUTO_TEST_CASE(directive_attr){
+	CILA_XML("attr title 'Some title'","<div data-attr=\"title 'Some title'\" />");
+	ECHO("attr title 'Some title'");
+}
+
 BOOST_AUTO_TEST_CASE(directive_write){
 	CILA_XML("write variable","<span data-write=\"variable\" />");
 	CILA_XML("span write variable","<span data-write=\"variable\" />");
+}
+
+BOOST_AUTO_TEST_CASE(directive_icon){
+	CILA_XML("icon eye","<div data-icon=\"eye\" />");
+	ECHO("icon eye");
 }
 
 BOOST_AUTO_TEST_CASE(directive_with){
