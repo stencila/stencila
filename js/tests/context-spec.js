@@ -59,12 +59,12 @@ describe("Context", function() {
 	describe("the `begin` and `next` methods", function() {
 
 		it("should do nothing with empty lists or objects", function() {
-			expect(context.begin('item','[]')).not.toBeTruthy();
-			expect(context.begin('item','{}')).not.toBeTruthy();
+			expect(context.begin('item',[])).not.toBeTruthy();
+			expect(context.begin('item',{})).not.toBeTruthy();
 		});
 
 		it("should work on lists", function() {
-			expect(context.begin('item','[1,2,3]')).toBeTruthy();
+			expect(context.begin('item',[1,2,3])).toBeTruthy();
 			expect(context.get_('item')).toEqual(1);
 			expect(context.next()).toBeTruthy();
 			expect(context.get_('item')).toEqual(2);
@@ -75,8 +75,8 @@ describe("Context", function() {
 		});
 
 		it("should work with nested loops", function() {
-			expect(context.begin('outer','[1,2,3]')).toBeTruthy();
-				expect(context.begin('inner','["a","b"]')).toBeTruthy();
+			expect(context.begin('outer',[1,2,3])).toBeTruthy();
+				expect(context.begin('inner',["a","b"])).toBeTruthy();
 					
 					expect(context.get_('outer')).toEqual(1);
 					expect(context.get_('inner')).toEqual("a");
@@ -96,7 +96,7 @@ describe("Context", function() {
 
 		it("should work as expected ...", function() {
 			context.assign('a','10');
-			context.enter('{a1:11,b1:12}');
+			context.enter({a1:11,b1:12});
 
 			expect(context.get_('a')).toEqual(10);
 			expect(context.get_('a1')).toEqual(11);

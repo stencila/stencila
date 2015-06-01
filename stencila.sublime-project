@@ -33,6 +33,10 @@
             "name": "Stencila: run all Python tests",
             "working_dir": ".",
             "cmd": ["make","py-tests"]
+        },{
+            "name": "Stencila: run all Javascript tests",
+            "working_dir": ".",
+            "cmd": ["make","js-tests"]
         }
     ]
 }
