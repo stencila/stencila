@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <boost/filesystem.hpp>
 
 #include <stencila/stencil.hpp>
@@ -61,20 +63,28 @@ Stencil& Stencil::export_(const std::string& path){
 }
 
 Stencil& Stencil::read(const std::string& directory){
+	namespace fs = boost::filesystem;
+	// Check and set this stencil's path using `Component::read`
 	Component::read(directory);
-	// Search for a stencil.html and stencil.cila files and read the first one using `import`
+	// Search for a stencil.html and stencil.cila files
+	std::vector<fs::path> files;
 	for(std::string file : {"stencil.html","stencil.cila"}){
-		boost::filesystem::path filename = boost::filesystem::path(path()) / file;
-		if(boost::filesystem::exists(filename)){
-			import(filename.string());
-			break;
-		}
+		fs::path filename = fs::path(path()) / file;
+		if(fs::exists(filename)) files.push_back(filename);
 	}
+	// Sort by last modified time; latest at end
+	std::sort(files.begin(), files.end(),[](const fs::path& p1, const fs::path& p2){
+	 	return fs::last_write_time(p1) < fs::last_write_time(p2);
+	});
+	// Read the newest using `import`
+	if(not files.empty()) import(files.back().string());
 	return *this;
 }
 
-Stencil& Stencil::write(const std::string& path_arg){
-	if(path_arg.length()) path(path_arg);
+Stencil& Stencil::write(const std::string& directory){
+	// Set this stencil's path using `Component::write`
+	Component::write(directory);
+	// Write HTML to file
 	Component::write_to("stencil.html",html(true));
 	return *this;
 }
