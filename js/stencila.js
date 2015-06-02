@@ -1103,11 +1103,6 @@ var Stencila = (function(Stencila){
 		});
 	};
 
-	// http://requirejs.org/docs/api.html#config
-	require.config({
-		baseUrl: "/"
-	});
-
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -1117,9 +1112,19 @@ var Stencila = (function(Stencila){
 	 * saved HTML page.
 	 */
 	Stencila.launch = function(){
+		// Launch options are determined by microdata in <head>
 		function prop(name){
 			return $('head meta[itemprop='+name+']').attr('content');
 		}
+		// Set the store from which themes are obtained
+		var store;
+		var local = prop('local');
+		if(local==='true') store = '/';
+		else store = '//stenci.la/';
+		require.config({
+			baseUrl: store
+		});
+		// Launch the component type with specified theme
 		var type = prop('type');
 		var theme = prop('theme');
 		if(type==='stencil'){

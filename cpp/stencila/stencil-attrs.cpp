@@ -62,13 +62,25 @@ std::vector<std::string> Stencil::contexts(void) const {
 	return contexts;
 }
 
-std::string Stencil::theme(void) const {
-	if(Node theme = select("#theme")) return theme.text();
+std::string Stencil::theme(bool versioned) const {
+	if(auto theme = select("#theme")){
+		auto value = theme.text();
+		if(versioned) return value;
+		else {
+			auto parts = split(value,"==");
+			return parts[0];
+		}
+	}
 	else return "core/stencils/themes/default";
 }
 
 bool Stencil::closed(void) const {
 	if(select("#closed")) return true;
+	else return false;
+}
+
+bool Stencil::local(void) const {
+	if(select("#local")) return true;
 	else return false;
 }
 

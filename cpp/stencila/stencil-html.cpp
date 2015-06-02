@@ -38,6 +38,10 @@ std::string Stencil::html(bool document,bool indent) const {
 			{"content",closed()?"true":"false"}
 		});
 		head.append("meta",{
+			{"itemprop","local"},
+			{"content",local()?"true":"false"}
+		});
+		head.append("meta",{
 			{"itemprop","contexts"},
 			{"content",join(contexts(),",")}
 		});
@@ -75,10 +79,16 @@ std::string Stencil::html(bool document,bool indent) const {
 		 * <link rel="stylesheet" ...
 		 *
 		 * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
-		 * Use a site-root relative path (by adding the leading forward slash) so that CSS can be served from 
-		 * localhost.
 		 */
-		std::string css = "/" + theme() + "/theme.min.css";
+		std::string css;
+		if(local()){
+			// Load development version of theme from the current host (usually http://localhost:7373)
+			css = "/" + theme(false) + "/theme.min.css";
+		} else {
+			// Load (potentially) versioned, minified theme from stenci.la. If theme has a version this has
+			// a "far future" cache header so it should be available even when offline
+			css = "//stenci.la/" + theme() + "/theme.min.css";
+		}
 		head.append("link",{
 			{"rel","stylesheet"},
 			{"type","text/css"},
@@ -118,16 +128,24 @@ std::string Stencil::html(bool document,bool indent) const {
 		}," ");
 		content.append(*this);
 
-		// Load versioned, minified `stencila.js` from get.stenci.la. This has
-		// a "far future" cache header so it should be available even when offline
-		body.append("script",{{"src","/build/js/requires.min.js"}}," ");
-		body.append("script",{{"src","/build/js/stencila.js"}}," ");
-		//std::string js = "//get.stenci.la/js/stencila-"+Stencila::version+".min.js";
-		//body.append("script",{
-		//	{"src",js}
-		//}," ");
+		// Load Stencila Javascript module
+		// Use version number to check if in development. No development versions
+		// of stencila.js are on get.stenci.la (only release versions).
+		bool development = Stencila::version.find("-")!=std::string::npos;
+		if(local() or development){
+			// Load development version from the current host (usually http://localhost:7373)
+			// Requires that the `make build-serve ...` task has been run so that build directory
+			// of the `stencila/stencila` repo is being served and that `make js-develop` task has been 
+			// run to ensure the following files are in that directory
+			body.append("script",{{"src","/build/js/requires.min.js"}}," ");
+			body.append("script",{{"src","/build/js/stencila.js"}}," ");
+		} else {
+			// Load versioned, minified file from get.stenci.la. This has
+			// a "far future" cache header so it should be available even when offline
+			body.append("script",{{"src","//get.stenci.la/js/stencila-"+Stencila::version+".min.js"}}," ");
+		}		
 		
-		// Now Stencila Javascript is loaded, launch the component
+		// Launch the component
 		body.append("script","Stencila.launch();");
 
 		// Validate the HTML5 document before dumping it
@@ -135,7 +153,6 @@ std::string Stencil::html(bool document,bool indent) const {
 		return doc.dump();
 	}
 }
-
 
 Stencil& Stencil::html(const std::string& html){
 	// Clear content before appending new content from Html::Document
