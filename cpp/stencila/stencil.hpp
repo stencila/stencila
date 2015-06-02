@@ -203,7 +203,7 @@ public:
 	/**
 	 * Compile this stencil
 	 *
-	 * Render this stencil and export it as HTML to `index.html` and
+	 * Render this stencil and export it as HTML to `stencil.html` and
 	 * a create a preview image as `preview.png`
 	 */
 	Stencil& compile(void);

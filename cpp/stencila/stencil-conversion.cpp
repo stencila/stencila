@@ -209,7 +209,7 @@ Stencil& Stencil::preview(const std::string& path) {
 Stencil& Stencil::compile(void){
 	render();
 	auto home = boost::filesystem::path(path(true));
-	export_((home/"index.html").string());
+	export_((home/"stencil.html").string());
 	preview((home/"preview.png").string());
 	return *this;
 }
