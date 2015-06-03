@@ -1,5 +1,47 @@
 var Stencila = (function(Stencila){
 
+	/**
+	 * Configuration for requirejs module loader
+	 *
+	 * By default all modules are attempted to be loade from the current host
+	 * but with a fallback to stenci.la.
+	 */
+	require.config({
+		baseUrl: '/'
+	});
+	require.onError = function (err) {
+		var modules = err.requireModules;
+		if(modules) {
+			// This accesses the "semi-private" configuration option. This API may 
+			// change in the furture!
+			var paths = requirejs.s.contexts._.config.paths;
+			// For each module...
+			for(var i = 0; i < modules.length; i++){
+				var module = modules[i];
+				var current = require.toUrl(module);
+				var fallback = '//stenci.la/' + module;
+				console.log('Could not load '+current);
+				// Check to see if path is already set to the fallback
+				if(current!==fallback){
+					console.log('Falling back to '+fallback);
+					// Undefine module, so another attempt is made to load it
+					require.undef(module);
+					// Set the new path
+					var path = {};
+					path[module] = fallback;
+					requirejs.config({
+						paths: path
+					});
+					// Reattempt to load module with new path; note that callbacks that
+					// are already registered will be called on sucess
+					require([module],function () {});
+				}
+			}
+		} else {
+			throw err;
+		}
+	};
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -354,6 +396,16 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.theme = function(theme,then){
 		var self = this;
+
+		// Load theme CSS. This is currently done, with fallbacks
+		// in the page <head> but will need to be done
+		// here when theme is changed.
+		//require(['text!'+theme+'/theme.min.css'],function(theme){
+			// Add CSS
+			//$('head').append('<style>\n'+theme+'\n</style>');
+		//});
+
+		// Load theme Javascript module and initialise menus
 		require([theme+'/theme'],function(theme){
 			if(!self.preview) Hub.menu = new theme.HubMenu();
 			if(!self.preview){
@@ -1156,14 +1208,6 @@ var Stencila = (function(Stencila){
 		function prop(name){
 			return $('head meta[itemprop='+name+']').attr('content');
 		}
-		// Set the store from which themes are obtained
-		var store;
-		var local = prop('local');
-		if(local==='true') store = '/';
-		else store = '//stenci.la/';
-		require.config({
-			baseUrl: store
-		});
 		// Launch the component type with specified theme
 		var com;
 		var type = prop('type');

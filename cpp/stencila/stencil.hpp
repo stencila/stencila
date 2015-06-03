@@ -304,16 +304,6 @@ public:
 	bool closed(void) const;
 
 	/**
-	 * Is this stencil in local development mode in which it's theme and the Stencila
-	 * Javascript module are served from the current host?
-	 *
-	 * Defaults to `false` but can be turned to `true` during development
-	 * by adding a `#local` element in which case the stencil's HTML is linked to local 
-	 * development versions of both it's theme and the Stencila Javascript module.
-	 */
-	bool local(void) const;
-
-	/**
 	 * @}
 	 */
 	

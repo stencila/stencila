@@ -38,10 +38,6 @@ std::string Stencil::html(bool document,bool indent) const {
 			{"content",closed()?"true":"false"}
 		});
 		head.append("meta",{
-			{"itemprop","local"},
-			{"content",local()?"true":"false"}
-		});
-		head.append("meta",{
 			{"itemprop","contexts"},
 			{"content",join(contexts(),",")}
 		});
@@ -80,20 +76,40 @@ std::string Stencil::html(bool document,bool indent) const {
 		 *
 		 * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
 		 */
-		std::string css;
-		if(local()){
-			// Load development version of theme from the current host (usually http://localhost:7373)
-			css = "/" + theme(false) + "/theme.min.css";
-		} else {
-			// Load (potentially) versioned, minified theme from stenci.la. If theme has a version this has
-			// a "far future" cache header so it should be available even when offline
-			css = "//stenci.la/" + theme() + "/theme.min.css";
-		}
+		std::string css = "/" + theme() + "/theme.min.css";
 		head.append("link",{
 			{"rel","stylesheet"},
 			{"type","text/css"},
 			{"href",css}
 		}," ");
+
+		// A fallback function to load the theme CSS from http://stenci.la if it is not served from the 
+		// host of this HTML (e.g. file:// or some non-Stencila-aware server)
+		std::string fallback = "(function(c){";
+		// Local variables
+		fallback += "var d=document,s,i,l;";
+		// Check to see if the theme stylesheet has been loaded
+		// The theme CSS will not necessarily be the first stylesheet and no all stylesheets have `href`
+		// The try block is to avoid the security error raised by Firefox for accessing cross domain stylesheets
+		// If this happens it means the theme CSS was not loaded from the current domain so do not return
+		// See http://stackoverflow.com/questions/21642277/security-error-the-operation-is-insecure-in-firefox-document-stylesheets
+		// Note use of `!=` instead of `<` to avoid escaping in generated HTML
+		fallback += "s=d.styleSheets;for(i=0;i!=s.length;i++){if((s[i].href||'').match(c)){try{if(s[i].cssRules.length)return;}catch(e){}}}";
+		// If still in the function the stylesheet must not have been loaded so create
+		// a new <link> to the theme CSS on http://stenci.la
+		fallback += "l=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href='https://stenci.la'+c;";
+		// To prevent flash of unstyled content (FOUC) while the new <link> is loading make the document class 'unready'
+		// and then remove this class when the style is loaded (there is a fallback to this fallback at end of document).
+		// See http://www.techrepublic.com/blog/web-designer/how-to-prevent-flash-of-unstyled-content-on-your-websites/
+		fallback += "d.documentElement.className='unready';l.onload=function(){d.documentElement.className='';};";
+		// Append new link to head
+		fallback += "d.getElementsByTagName('head')[0].appendChild(l);";
+		// Call the function
+		fallback += "})('"+css+"');";
+		// Add CSS fallback Javascript
+		head.append("script",{{"type","text/javascript"}},fallback);
+		// Add CSS fallback style for the unready document
+		head.append("style",{{"type","text/css"}},".unready{display:none;}");
 
 		/**
 		 * Authors are repeated as `<a rel="author" ...>` elements within an `<address>` element.
@@ -132,7 +148,7 @@ std::string Stencil::html(bool document,bool indent) const {
 		// Use version number to check if in development. No development versions
 		// of stencila.js are on get.stenci.la (only release versions).
 		bool development = Stencila::version.find("-")!=std::string::npos;
-		if(local() or development){
+		if(development){
 			// Load development version from the current host (usually http://localhost:7373)
 			// Requires that the `make build-serve ...` task has been run so that build directory
 			// of the `stencila/stencila` repo is being served and that `make js-develop` task has been 
@@ -147,6 +163,14 @@ std::string Stencil::html(bool document,bool indent) const {
 		
 		// Launch the component
 		body.append("script","Stencila.launch();");
+
+		// Fallback to the CSS fallback! Remove the `unready` class from the root element is not already
+		// removed. This is in case the remote CSS link added by the CSS fallback function (see above) fails to load.
+		// This could perhaps generate an alert
+		body.append("script",std::string("window.setTimeout(function(){")+
+			"document.documentElement.className='';" + 
+			"if(!window.Stencila){window.alert('Page could not be fully loaded. Not all functionality will be available.');}"+
+		"},10000)");
 
 		// Validate the HTML5 document before dumping it
 		doc.validate();
