@@ -56,8 +56,9 @@ public:
         return Component::serve(RContextType);
     }
 
-    void view(void){
-        return Component::view(RContextType);
+    RContext& view(void){
+        Component::view(RContextType);
+        return *this;
     }
 
     static std::string page(const Component* component){

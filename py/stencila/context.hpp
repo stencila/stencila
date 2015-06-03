@@ -29,8 +29,9 @@ public:
     /**
      * View this context
      */
-    void view(void){
-        return Component::view(PythonContextType);
+    PythonContext& view(void){
+        Component::view(PythonContextType);
+        return *this;
     }
 
     /**
