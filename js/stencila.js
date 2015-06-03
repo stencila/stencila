@@ -525,6 +525,16 @@ var Stencila = (function(Stencila){
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * A theme class
+	 */
+	var Theme = Stencila.Theme = function(){
+		Component.call(this);
+	};
+	Theme.prototype = Object.create(Component.prototype);
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	
 
 	var Resource = Stencila.Resource = function(url,options){
@@ -1149,15 +1159,22 @@ var Stencila = (function(Stencila){
 			baseUrl: store
 		});
 		// Launch the component type with specified theme
+		var com;
 		var type = prop('type');
 		var theme = prop('theme');
 		if(type==='stencil'){
-			var stencil = Stencila.component = new Stencil('#content');
-			stencil.theme(theme,function(){
-				stencil.startup();
+			com = Stencila.component = new Stencil('#content');
+			com.theme(theme,function(){
+				com.startup();
 				// Javascript-only stencils need to be rendered in browser
-				stencil.contexts = prop('contexts');
-				if(stencil.contexts=='js') stencil.render();
+				com.contexts = prop('contexts');
+				if(com.contexts=='js') com.render();
+			});
+		}
+		else if(type==='theme'){
+			com = Stencila.component = new Theme();
+			com.theme(theme,function(){
+				com.startup();
 			});
 		}
 	};
