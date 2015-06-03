@@ -69,23 +69,29 @@ std::string Stencil::call(const Call& call) {
 		return     cila(string).html();
 	}
 
-	// Rendering...
-	//... HTML
+	// Rendering HTML
 	else if(what=="html(string).render().html():string"){
 		std::string string = call.arg(0);
 		return     html(string).render().html();
 	}
-	//... Cila
+	else if(what=="html(string).refresh().html():string"){
+		std::string string = call.arg(0);
+		return     html(string).refresh().html();
+	}
+
+	// Rendering Cila
 	else if(what=="cila(string).render().cila():string"){
 		std::string string = call.arg(0);
 		return     cila(string).render().cila();
 	}
-	//... update <input>s
+
+	// Update <input>s
 	else if(what=="inputs({string,string}).render().html():string"){
 		auto values = call.arg<std::map<std::string,std::string>>(0);
 		return     inputs(     values    ).render().html();
 	}
-	//... restart
+	
+	// Restart
 	else if(what=="restart().html():string"){
 		return     restart().html();
 	}    

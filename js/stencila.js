@@ -789,7 +789,7 @@ var Stencila = (function(Stencila){
 	var directiveRender = Stencila.directiveRender = function(node,context){
 		if(node.attr('data-exec')) return new Exec().apply(node,context);
 		if(node.attr('data-attr')) return new Attr().apply(node,context);
-		if(node.attr('data-write')) return new Write().apply(node,context);
+		if(node.attr('data-text')) return new Text().apply(node,context);
 		if(node.attr('data-icon')) return new Icon().apply(node,context);
 		if(node.attr('data-with')) return new With().apply(node,context);
 
@@ -861,24 +861,24 @@ var Stencila = (function(Stencila){
 	Attr.prototype.apply = directiveApply;
 
 	/**
-	 * A `write` directive
+	 * A `text` directive
 	 */
-	var Write = Stencila.Write = function(expr){
+	var Text = Stencila.Text = function(expr){
 		this.expr = expr;
 	};
-	Write.prototype.get = function(node){
-		this.expr = node.attr('data-write');
+	Text.prototype.get = function(node){
+		this.expr = node.attr('data-text');
 		return this;
 	};
-	Write.prototype.set = function(node){
-		node.attr('data-write',this.expr);
+	Text.prototype.set = function(node){
+		node.attr('data-text',this.expr);
 		return this;
 	};
-	Write.prototype.render = function(node,context){
+	Text.prototype.render = function(node,context){
 		node.text(context.write(this.expr));
 		return this;
 	};
-	Write.prototype.apply = directiveApply;
+	Text.prototype.apply = directiveApply;
 
 	/**
 	 * An `icon` directive
@@ -1079,24 +1079,48 @@ var Stencila = (function(Stencila){
 	 * Render this stencil
 	 */
 	Stencil.prototype.render = function(context){
-		if(context!==undefined){
-			if(context instanceof Context) this.context = context;
-			else this.context = new Context(context);
+		if(this.contexts=='js'){
+			if(context!==undefined){
+				if(context instanceof Context) this.context = context;
+				else this.context = new Context(context);
+			}
+			directiveRender(
+				this.content,
+				this.context
+			);
+		} else {
+			var self = this;
+			this.viewCurrent.updating(true);
+			this.viewCurrent.to('content');
+			this.call("html(string).render().html():string",[this.content.html()],function(html){
+				self.content.html(html);
+				self.viewCurrent.from('content');
+				self.viewCurrent.updating(false);
+			});
 		}
-		directiveRender(
-			this.content,
-			this.context
-		);
 	};
 
+	/**
+	 * Refresh this stencil
+	 */
 	Stencil.prototype.refresh = function(){
-
+		var self = this;
+		this.viewCurrent.updating(true);
+		this.viewCurrent.to('content');
+		this.call("html(string).refresh().html():string",[this.content.html()],function(html){
+			self.content.html(html);
+			self.viewCurrent.from('content');
+			self.viewCurrent.updating(false);
+		});
 	};
 
+	/**
+	 * Restart this stencil
+	 */
 	Stencil.prototype.restart = function(){
 		var self = this;
 		this.viewCurrent.updating(true);
-		self.call("restart().html():string",[],function(html){
+		this.call("restart().html():string",[],function(html){
 			self.content.html(html);
 			self.viewCurrent.from('content');
 			self.viewCurrent.updating(false);
@@ -1132,8 +1156,8 @@ var Stencila = (function(Stencila){
 			stencil.theme(theme,function(){
 				stencil.startup();
 				// Javascript-only stencils need to be rendered in browser
-				var contexts = prop('contexts');
-				if(contexts=='js') stencil.render();
+				stencil.contexts = prop('contexts');
+				if(stencil.contexts=='js') stencil.render();
 			});
 		}
 	};

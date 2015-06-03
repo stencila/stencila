@@ -811,7 +811,12 @@ public:
 	Stencil& render(void);
 
 	/**
-	 * Strip and then render this stencil
+	 * Strip and render this stencil
+	 */
+	Stencil& refresh(void);
+
+	/**
+	 * Read (in case of local file changes), strip and render this stencil
 	 */
 	Stencil& restart(void);
 

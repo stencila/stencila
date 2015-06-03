@@ -280,8 +280,12 @@ Stencil& Stencil::render(void){
 	else return render(std::string());
 }
 
-Stencil& Stencil::restart(void){
+Stencil& Stencil::refresh(void){
 	return strip().render();
+}
+
+Stencil& Stencil::restart(void){
+	return read().strip().render();
 }
 
 } // namespace Stencila
