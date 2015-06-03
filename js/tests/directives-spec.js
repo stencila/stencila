@@ -22,14 +22,14 @@ describe("Stencil directives", function() {
 		expect(window.xyb26f82).toEqual(24);
 	});
 
-	it("include a `write` directive", function() {
-		var write = new Stencila.Write('2*2');
-		write.set(node);
-		write.render(node,context);
+	it("include a `text` directive", function() {
+		var text = new Stencila.Text('2*2');
+		text.set(node);
+		text.render(node,context);
 
-		expect(write.expr).toEqual('2*2');
+		expect(text.expr).toEqual('2*2');
 
-		expect(node.attr('data-write')).toEqual('2*2');
+		expect(node.attr('data-text')).toEqual('2*2');
 		expect(node.text()).toEqual('4');
 	});
 

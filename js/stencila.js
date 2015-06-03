@@ -1079,7 +1079,7 @@ var Stencila = (function(Stencila){
 	 * Render this stencil
 	 */
 	Stencil.prototype.render = function(context){
-		if(this.contexts=='js'){
+		if(this.contexts==undefined || this.contexts=='js'){
 			if(context!==undefined){
 				if(context instanceof Context) this.context = context;
 				else this.context = new Context(context);

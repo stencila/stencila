@@ -8,10 +8,10 @@ describe("Stencil", function() {
       jasmine.Ajax.uninstall();
     });
 
-	it("renders a `write` directive", function() {
+	it("renders a `text` directive", function() {
 		var stencil = new Stencila.Stencil(
-			'<span id="a" data-write="answer"></span>' +
-			'<span id="b" data-write="answer*2"></span>'
+			'<span id="a" data-text="answer"></span>' +
+			'<span id="b" data-text="answer*2"></span>'
 		);
 		stencil.render({
 			answer:42
@@ -37,7 +37,7 @@ describe("Stencil", function() {
 		// Add #content (will normally be done when the stencil is exported to HTML)
 		document.body.innerHTML +=
 			'<main id="content" style="display:none">' +
-				'<span id="a" data-write="answer"></span>' +
+				'<span id="a" data-text="answer"></span>' +
 				'<span id="b" data-if="answer==41"></span>' +
 			'</main>';
 		// Construct Stencil with no arguments
