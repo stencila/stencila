@@ -69,8 +69,12 @@ setRefClass(
 			method_(.self,'Component_lop',branch)
 		},
 
-		serve = function(){
-			method_(.self,paste0(class(.self)[1],'_serve'))
+		serve = function(wait=0){
+			url <- method_(.self,paste0(class(.self)[1],'_serve'))
+			if(wait){
+                cat(url,'\n')
+                Sys.sleep(wait)
+            }
 		},
 
 		view = function(){
