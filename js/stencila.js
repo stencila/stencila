@@ -341,6 +341,10 @@ var Stencila = (function(Stencila){
 		if(window.location.hash==='#closed!') this.closed = true;
 		else if(window.location.hash==='#open!') this.closed = false;
 
+		// Set preview mode
+		this.preview = false;
+		if(window.location.hash==='#preview!') this.preview = true;
+
 		// Set activation status
 		this.activation = 'inactive';
 	};
@@ -351,15 +355,17 @@ var Stencila = (function(Stencila){
 	Component.prototype.theme = function(theme,then){
 		var self = this;
 		require([theme+'/theme'],function(theme){
-			Hub.menu = new theme.HubMenu();
-			if(!self.closed) self.menu = new theme.ComponentMenu(self);
-			else{
-				self.menu = null;
-				$(document).bind('keydown','f1',function(event){
-					event.preventDefault();
-					self.menu = new theme.ComponentMenu(self);
-					self.menu.from(self);
-				});
+			if(!self.preview) Hub.menu = new theme.HubMenu();
+			if(!self.preview){
+				if(!self.closed) self.menu = new theme.ComponentMenu(self);
+				else{
+					self.menu = null;
+					$(document).bind('keydown','f1',function(event){
+						event.preventDefault();
+						self.menu = new theme.ComponentMenu(self);
+						self.menu.from(self);
+					});
+				}
 			}
 			self.view(theme.DefaultView);
 			if(then) then();
@@ -404,7 +410,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.startup = function(){
 		// Attempt to activate if on localhost
-		if(this.host=='localhost') this.activate();
+		if(this.host=='localhost' && !this.preview) this.activate();
 		// Read properties
 		this.read();
 	};
