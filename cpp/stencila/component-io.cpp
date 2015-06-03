@@ -173,8 +173,8 @@ Component& Component::write_to(const std::string& path, const std::string& conte
 	return *this;
 }
 
-std::string Component::read_from(const std::string& path){
-	boost::filesystem::path path_full(Component::path(true));
+std::string Component::read_from(const std::string& path) const {
+	boost::filesystem::path path_full(Component::path());
 	path_full /= path;
 	std::ifstream file(path_full.string());
 	std::stringstream stream;

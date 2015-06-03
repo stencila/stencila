@@ -8,8 +8,14 @@ std::string Stencil::serve(void){
 	return Component::serve(StencilType);
 }
 
-void Stencil::view(void){
-	return Component::view(StencilType);
+Stencil& Stencil::view(void){
+	Component::view(StencilType);
+	return *this;
+}
+
+Stencil& Stencil::preview(const std::string& path){
+	Component::preview(StencilType,path);
+	return *this;
 }
 
 std::string Stencil::interact(const std::string& code){

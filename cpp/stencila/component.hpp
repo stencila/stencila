@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 
+#include <stencila/helpers.hpp>
 #include <stencila/host.hpp>
 #include <stencila/git.hpp>
 #include <stencila/html.hpp>
@@ -142,7 +143,7 @@ public:
 	 * 
 	 * @param  path    Filesystem path within the working directory
 	 */
-	std::string read_from(const std::string& path);
+	std::string read_from(const std::string& path) const;
 
 	/**
 	 * Delete a file within the component's working directory
@@ -625,7 +626,14 @@ public:
 	 * This method serves this componet and then opens it's address in the 
 	 * default browser on the host machine.
 	 */
-	void view(Type type);
+	Component& view(Type type);
+
+	/**
+	 * Create a preview image of this component
+	 *
+	 * @param  path       Path of the image to be generated
+	 */
+	Component& preview(Type type, const std::string& path);
 
 	/**
 	 * Generate a page for a component at an address

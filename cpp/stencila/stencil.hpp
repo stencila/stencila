@@ -194,13 +194,6 @@ public:
 	);
 
 	/**
-	 * Create a preview image of this stencil
-	 *
-	 * @param  path       Path of the image to be generated
-	 */
-	Stencil& preview(const std::string& path);
-
-	/**
 	 * Compile this stencil
 	 *
 	 * Render this stencil and export it as HTML to `stencil.html` and
@@ -843,7 +836,12 @@ public:
 	/**
 	 * View this stencil
 	 */
-	void view(void);
+	Stencil& view(void);
+
+	/**
+	 * Create a preview of this stencil
+	 */
+	Stencil& preview(const std::string& path);
 
 	/**
 	 * Interact with this stencil

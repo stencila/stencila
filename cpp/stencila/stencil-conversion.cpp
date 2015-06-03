@@ -159,53 +159,6 @@ Stencil& Stencil::pdf(const std::string& direction, const std::string& path,cons
 	return *this;
 }
 
-Stencil& Stencil::preview(const std::string& path) {
-	// Serve this stencil so theme CSS and JS is available
-	Component::classes();
-	auto url = serve()+"#closed!";
-	// Convert to PNG using PhantomJS
-	auto script = Helpers::script("stencil-preview-phantom.js",R"(
-		var page = require('webpage').create();
-		var args = require('system').args;
-		var url = args[1];
-		var png = args[2];
-
-		page.open(url, function(){
-			// Wait for page to render
-			var renderTime = 5000;
-			setTimeout(function(){
-				var clip = page.evaluate(function(){
-					var target;
-					target = document.querySelector('#preview');
-					//if(!target) target = document.querySelector('figure');
-					//if(!target) target = document.querySelector('.equation');
-					//if(!target) target = document.querySelector('table');
-					if(target) return target.getBoundingClientRect();
-					else return null;
-				});
-				if(clip){
-					// Clip the page to the target 
-					page.clipRect = clip;
-				} else {
-					// Use a viewportSize that is what is
-					// wanted for final preview. Adjust zoomFactor
-					// to tradeoff extent/clarity of preview
-					page.viewportSize = { width: 480, height: 300 };
-					page.zoomFactor = 0.5;
-				}
-				page.render(png);
-				phantom.exit();
-			},renderTime);
-		});
-	)");
-	auto temp = Host::temp_filename("png");
-	Helpers::execute("phantomjs '"+script+"' '"+url+"' '"+temp+"'");
-	// Crop is necessary because viewportSize only ssems to be relevat to width
-	Helpers::execute("convert "+temp+" -crop '300x300+0+0' "+path);
-	
-	return *this;
-}
-
 Stencil& Stencil::compile(void){
 	render();
 	auto home = boost::filesystem::path(path(true));

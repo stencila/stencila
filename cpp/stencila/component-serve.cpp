@@ -14,7 +14,7 @@ std::string Component::serve(Type type){
 	return Server::startup() + "/" + address() + "/";
 }
 
-void Component::view(Type type){
+Component& Component::view(Type type){
 	std::string url = serve(type);
 	#if defined(_WIN32) || defined(_WIN64)
 	   ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
@@ -24,6 +24,50 @@ void Component::view(Type type){
 		// Open using xdg-open with all output redirected to null device
 		std::system(("2>/dev/null 1>&2 xdg-open \""+url+"\"").c_str());
 	#endif
+	return *this;
+}
+
+Component& Component::preview(Type type, const std::string& path) {
+	// Serve this component so that theme CSS and JS is available
+	auto url = serve(type)+"#preview!";
+	// Convert to PNG using PhantomJS
+	auto script = Helpers::script("component-preview-phantom.js",R"(
+		var page = require('webpage').create();
+		var args = require('system').args;
+		var url = args[1];
+		var png = args[2];
+
+		page.open(url, function(){
+			// Wait for page to render
+			var renderTime = 5000;
+			setTimeout(function(){
+				var clip = page.evaluate(function(){
+					var target;
+					target = document.querySelector('#preview');
+					if(target) return target.getBoundingClientRect();
+					else return null;
+				});
+				if(clip){
+					// Clip the page to the target 
+					page.clipRect = clip;
+				} else {
+					// Use a viewportSize that is what is
+					// wanted for final preview. Adjust zoomFactor
+					// to tradeoff extent/clarity of preview
+					page.viewportSize = { width: 480, height: 300 };
+					page.zoomFactor = 0.5;
+				}
+				page.render(png);
+				phantom.exit();
+			},renderTime);
+		});
+	)");
+	auto temp = Host::temp_filename("png");
+	Helpers::execute("phantomjs '"+script+"' '"+url+"' '"+temp+"'");
+	// Resize is necessary because viewportSize only seems to be relevant to width
+	// and not to height
+	Helpers::execute("convert "+temp+" -crop '480x300+0+0' "+path);
+	return *this;
 }
 
 std::string Component::page(const std::string& address){
