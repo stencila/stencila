@@ -71,7 +71,12 @@ public:
 	/**
 	 * View this theme
 	 */
-	void view(void);
+	Theme& view(void);
+
+	/**
+	 * Create a preview of this theme
+	 */
+	Theme& preview(const std::string& path);
 
 	/**
 	 * Generate a web page for a theme
