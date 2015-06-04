@@ -722,7 +722,7 @@ $(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(BUILD)/cpp/requires
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
 # Record name of the wheel to file for reading by other build tasks
-$(PY_BUILD)/setup-latest.txt: py/setup.py py/scripts/stencila-py $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
+$(PY_BUILD)/latest.txt: py/setup.py py/scripts/stencila-py $(PY_PACKAGE_PYS) $(PY_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
 	cp py/setup.py $(PY_BUILD)
 	mkdir -p $(PY_BUILD)/scripts
 	cp py/scripts/stencila-py $(PY_BUILD)/scripts/stencila-py
@@ -734,9 +734,9 @@ $(PY_BUILD)/setup-latest.txt: py/setup.py py/scripts/stencila-py $(PY_PACKAGE_PY
 			LIBRARIES='$(PY_SETUP_LIBS)' ;\
 		touch dummy.cpp ;\
 		$(PY_EXE) setup.py bdist_wheel
-	cd $(PY_BUILD); echo `ls -rt dist/*.whl | tail -n1` > setup-latest.txt
+	cd $(PY_BUILD)/dist; echo `ls -rt *.whl | tail -n1` > ../latest.txt
 
-py-package: $(PY_BUILD)/setup-latest.txt
+py-package: $(PY_BUILD)/latest.txt
 
 # Create a virtual environment to be used for testing with the Python version
 # Using a virtual environment allows the Stencila wheel to be installed locally,
@@ -746,11 +746,11 @@ $(PY_BUILD)/testenv/bin/activate:
 	cd $(PY_BUILD) ;\
 		virtualenv --python=python$(PY_VERSION) --no-site-packages testenv
 
-$(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
+$(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/latest.txt
 	@mkdir -p $(PY_BUILD);
 	cd $(PY_BUILD) ;\
 		. testenv/bin/activate ;\
-		pip install --upgrade --force-reinstall `cat setup-latest.txt`
+		pip install --upgrade --force-reinstall dist/`cat latest.txt`
 
 py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila
 	cp py/tests/tests.py $(PY_BUILD)/testenv
@@ -758,12 +758,21 @@ py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-pac
 		. bin/activate ;\
 		(python tests.py)||(exit 1)
 
-py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/setup-latest.txt
+py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/latest.txt
 	cd $(PY_BUILD) ;\
-		sudo pip$(PY_VERSION) install --upgrade --force-reinstall `cat setup-latest.txt`
+		sudo pip$(PY_VERSION) install --upgrade --force-reinstall dist/`cat latest.txt`
 
 py-clean:
 	rm -rf $(PY_BUILD)
+
+# Deliver Python package to get.stenci.la
+py-deliver: py-package
+ifeq (dirty,$(DIRTY))
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+else
+	$(eval PY_WHEEL := $(shell cat $(PY_BUILD)/latest.txt))
+	aws s3 cp $(PY_BUILD)/dist/$(PY_WHEEL) s3://get.stenci.la/py/
+endif
 
 #################################################################################################
 # R requirements
