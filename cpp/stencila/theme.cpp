@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <boost/filesystem.hpp>
 
 #include <stencila/theme.hpp>
@@ -53,6 +55,16 @@ Theme& Theme::read(const std::string& directory){
 			break;
 		}
 	}
+	
+	boost::filesystem::path metafile = boost::filesystem::path(path()) / "meta.json";
+	if(boost::filesystem::exists(metafile)){
+		Json::Document json;
+		json.read(metafile.string());
+		if(json.has("title")) title_ = json["title"].as<std::string>();
+		if(json.has("description")) description_ = json["description"].as<std::string>();
+		if(json.has("theme")) theme_ = json["theme"].as<std::string>();
+	}
+
 	return *this;
 }
 
@@ -140,7 +152,7 @@ std::string Theme::page(void) const {
 	// component
 	head.append("meta",{
 		{"itemprop","type"},
-		{"content","stencil"}
+		{"content","theme"}
 	});
 	head.append("meta",{
 		{"itemprop","address"},
@@ -148,18 +160,18 @@ std::string Theme::page(void) const {
 	});
 	head.append("meta",{
 		{"itemprop","theme"},
-		{"content","core/themes/themes/default"}
+		{"content",theme()}
 	});
 
 	// Title is repeated in <title>
 	// Although we are creating an XHTML5 document, an empty title tag (i.e <title />)
 	// can cause browser parsing errors. So always ensure that there is some title content.
-	auto t = std::string("title()");
+	auto t = std::string(title());
 	if(t.length()==0) t = "Untitled";
 	head.find("title").text(t);
 
 	// Description is repeated in <meta>
-	auto d = std::string("description()");
+	auto d = description();
 	if(d.length()>0){
 		head.append("meta",{
 			{"name","description"},
@@ -168,7 +180,7 @@ std::string Theme::page(void) const {
 	}
 
 	// Keywords are repeated in <meta>
-	auto k = std::vector<std::string>({"keywords()"});
+	auto k = keywords();
 	if(k.size()>0){
 		head.append("meta",{
 			{"name","keywords"},
@@ -188,7 +200,7 @@ std::string Theme::page(void) const {
 	head.append("link",{
 		{"rel","stylesheet"},
 		{"type","text/css"},
-		{"href","/core/themes/themes/default/theme.min.css"}
+		{"href",theme()+"theme.min.css"}
 	}," ");
 
 	body.append("pre",{

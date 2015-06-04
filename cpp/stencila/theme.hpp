@@ -43,6 +43,47 @@ public:
 	 *              If an empty string (`""`) then the current path, if any, is used.
 	 */
 	Theme& read(const std::string& directory="");
+
+
+	/**
+	 * @name Metadata
+	 *
+	 * Methods for obtaining or setting metadata.
+	 *
+	 * Methods implemented in `theme-metadata.cpp`
+	 * 
+	 * @{
+	 */
+
+	/**
+	 * Get this theme's title
+	 */
+	std::string title(void) const;
+
+	/**
+	 * Get this theme's description
+	 */
+	std::string description(void) const;
+
+	/**
+	 * Get this theme's keywords
+	 */
+	std::vector<std::string> keywords(void) const;
+
+	/**
+	 * Get this theme's authors
+	 */
+	std::vector<std::string> authors(void) const;
+	
+	/**
+	 * Get this theme's theme
+	 */
+	std::string theme(void) const;
+
+	/**
+	 * @}
+	 */
+
 	
 	/**
 	 * Compile this theme
@@ -114,6 +155,16 @@ private:
 	std::string style_;
 	
 	std::string behaviour_;
+
+	std::string title_;
+
+	std::string description_;
+
+	std::vector<std::string> keywords_;
+
+	std::vector<std::string> authors_;
+
+	std::string theme_ = "core/themes/themes/default";
 };
 
 }
