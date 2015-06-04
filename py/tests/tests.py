@@ -8,8 +8,8 @@ class ExceptionTests(unittest.TestCase):
     def test_translation(self):
         try:
             stencila.extension.exception_test()
-        except:
-            pass
+        except Exception, e:
+            self.assertEqual(str(e),"Testing, testing, 1, 2, 3.")
         else:
             raise
 
