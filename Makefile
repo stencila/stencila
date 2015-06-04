@@ -760,7 +760,7 @@ py-tests: py/tests/tests.py $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-pac
 
 py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/latest.txt
 	cd $(PY_BUILD) ;\
-		sudo pip$(PY_VERSION) install --upgrade --force-reinstall dist/`cat latest.txt`
+		sudo pip install --upgrade --force-reinstall dist/`cat latest.txt`
 
 py-clean:
 	rm -rf $(PY_BUILD)
