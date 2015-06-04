@@ -18,6 +18,10 @@ Html::Document Component_page_doc(const Type& component) {
 	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
 	// These are used by `Stencila.launch()` Javascript function to display the
 	// component
+	head.append("meta",{
+		{"itemprop","generator"},
+		{"content","Stencila "+version}
+	});
 	auto type = lower(Component::type_name(component.type()));
 	head.append("meta",{
 		{"itemprop","type"},
@@ -28,18 +32,22 @@ Html::Document Component_page_doc(const Type& component) {
 		{"content",component.address()}
 	});
 	head.append("meta",{
+		{"itemprop","version"},
+		{"content",component.version()}
+	});
+	head.append("meta",{
 		{"itemprop","theme"},
 		{"content",component.theme()}
 	});
 
-	// Title is repeated in <title>
+	// Title is put in <title>
 	// Although we are creating an XHTML5 document, an empty title tag (i.e <title />)
 	// can cause browser parsing errors. So always ensure that there is some title content.
 	auto title = component.title();
 	if(title.length()==0) title = "Untitled";
 	head.find("title").text(title);
 
-	// Description is repeated in <meta>
+	// Description is put in <meta>
 	auto description = component.description();
 	if(description.length()>0){
 		head.append("meta",{
@@ -48,7 +56,7 @@ Html::Document Component_page_doc(const Type& component) {
 		});
 	}
 
-	// Keywords are repeated in <meta>
+	// Keywords are put in <meta>
 	auto keywords = component.keywords();
 	if(keywords.size()>0){
 		head.append("meta",{
@@ -102,7 +110,7 @@ Html::Document Component_page_doc(const Type& component) {
 	head.append("style",{{"type","text/css"}},".unready{display:none;}");
 
 	/**
-	 * Authors are repeated as `<a rel="author" ...>` elements within an `<address>` element.
+	 * Authors are inserted as `<a rel="author" ...>` elements within an `<address>` element.
 	 * The placement of `<address>` as a child of `<body>` should mean that this authors list applies to the whole document.
 	 * See:
 	 *   http://html5doctor.com/the-address-element/
