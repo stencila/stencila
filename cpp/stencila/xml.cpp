@@ -178,6 +178,21 @@ Node Node::prepend(const std::string& tag) {
 	return pimpl_->prepend_child(tag.c_str());
 }
 
+Node Node::prepend(const std::string& tag, const std::string& text) {
+	Node child = prepend(tag);
+	child.pimpl_->append_child(pugi::node_pcdata).set_value(text.c_str());
+	return child;
+}
+
+Node Node::prepend(const std::string& tag, const Attributes& attributes, const std::string& text) {
+	Node child = prepend(tag);
+	for(auto attribute : attributes){
+		child.pimpl_->append_attribute(attribute.first.c_str()) = attribute.second.c_str();
+	}
+	if(text.length()>0) child.pimpl_->append_child(pugi::node_pcdata).set_value(text.c_str());
+	return child;
+}
+
 Node Node::before(Node node){
 	return pimpl_->parent().insert_copy_before(*node.pimpl_,*pimpl_);
 }

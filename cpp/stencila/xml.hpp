@@ -271,6 +271,23 @@ public:
 	Node prepend(const std::string& tag);
 
 	/**
+	 * Prepend an element node with text content
+	 * 
+	 * @param  tag  Tag name
+	 * @param  text Text content
+	 */
+	Node prepend(const std::string& tag, const std::string& text);
+
+	/**
+	 * Prepend an element node having attributes and, optionally, text content
+	 * 
+	 * @param  tag        Tag name
+	 * @param  attributes List of attributes
+	 * @param  text       Text content
+	 */
+	Node prepend(const std::string& tag, const Attributes& attributes, const std::string& text = "");
+
+	/**
 	 * Insert a node before this one
 	 */
 	Node before(Node node);
