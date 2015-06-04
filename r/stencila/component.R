@@ -209,7 +209,7 @@ setRefClass(
 #' with functions in the base package
 #'
 #' @export
-grab = function(address){
+grab <- function(address){
 	parts <- call_('Component_grab',address)
 	type <- parts[1]
 	address <- parts[2]
