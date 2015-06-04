@@ -7,67 +7,67 @@ import stencila
 def main():
     try:
         
-    	# Check if outputting to a terminal or not.
-		terminal = sys.stdout.isatty()
+        # Check if outputting to a terminal or not.
+        terminal = sys.stdout.isatty()
 
-		# ANSI escape codes for terminal text colours.
-		# See http://en.wikipedia.org/wiki/ANSI_escape_code
-		grey = '\x1b[90m' if terminal else ''
-		green = '\x1b[32m' if terminal else ''
-		yellow = '\x1b[93m' if terminal else ''
-		blue = '\x1b[94m' if terminal else ''
-		magenta = '\x1b[95m' if terminal else ''
-		cyan = '\x1b[96m' if terminal else ''
-		reset = '\x1b[0m' if terminal else ''
+        # ANSI escape codes for terminal text colours.
+        # See http://en.wikipedia.org/wiki/ANSI_escape_code
+        grey = '\x1b[90m' if terminal else ''
+        green = '\x1b[32m' if terminal else ''
+        yellow = '\x1b[93m' if terminal else ''
+        blue = '\x1b[94m' if terminal else ''
+        magenta = '\x1b[95m' if terminal else ''
+        cyan = '\x1b[96m' if terminal else ''
+        reset = '\x1b[0m' if terminal else ''
 
-		# Banner
-		print green+'Stencila CLI for Python\n'+reset
+        # Banner
+        print green+'Stencila CLI for Python\n'+reset
 
-		# Get the command line arguments
-		if len(sys.argv)>=2: commands = sys.argv[1:]
-		else: commands = []
+        # Get the command line arguments
+        if len(sys.argv)>=2: commands = sys.argv[1:]
+        else: commands = []
 
-		# General help on usage
-		if len(commands)==0 or (len(commands)==1 and commands[0]=='help'):
-			print 'Usage:'
-			print '  stencila-py help                                   '
-			print '  stencila-py <address> <method>[:<arg>,<arg>,...] ...'
-			print ''
-			print 'Examples:'
-			print '  stencila-py . render export:index.html'
-			print '  stencila-py core/themes/base compile'
-			sys.exit()
+        # General help on usage
+        if len(commands)==0 or (len(commands)==1 and commands[0]=='help'):
+            print 'Usage:'
+            print '  stencila-py help                                   '
+            print '  stencila-py <address> <method>[:<arg>,<arg>,...] ...'
+            print ''
+            print 'Examples:'
+            print '  stencila-py . render export:index.html'
+            print '  stencila-py core/themes/base compile'
+            sys.exit()
 
-		# Get address, remove it from commands and grab component
-		address = commands.pop(0)
-		print 'Grabbing component : '+magenta+address+reset
-		component = stencila.Stencil(address)
+        # Get address, remove it from commands and grab component
+        address = commands.pop(0)
+        print 'Grabbing component : '+magenta+address+reset
+        component = stencila.Stencil(address)
 
-		# Confirm component type
-		print 'Component type     : '+cyan+component.__class__.__name__+reset
-		print 'Component path     : '+cyan+component.path(False)+reset
+        # Confirm component type
+        print 'Component type     : '+cyan+component.__class__.__name__+reset
+        print 'Component path     : '+cyan+component.path(False)+reset
 
-		# Iterate over methods, applying them to the component
-		for command in commands:
-		
-			# Get method and arguments
-			if ':' in command: method, args = command.split(':')
-			else: method, args = command,None
-			exprs = []
-			if args:
-				for arg in args.split(','):
-					# Attempt to convert arguments
-					try:
-						expr = float(arg)
-					except ValueError:
-						expr = arg
-					exprs.append(expr)
-			# Construct and run call
-			call = method+'('+','.join(repr(expr) for expr in exprs)+')'
-			print 'Running method     : '+blue+call+yellow
-			result = eval('component.'+call)
-			if result is not None: print result
-			sys.stdout.write(reset)
+        # Iterate over methods, applying them to the component
+        for command in commands:
+        
+            # Get method and arguments
+            if ':' in command: method, args = command.split(':')
+            else: method, args = command,None
+            exprs = []
+            if args:
+                for arg in args.split(','):
+                    # Attempt to convert arguments
+                    try:
+                        expr = float(arg)
+                    except ValueError:
+                        expr = arg
+                    exprs.append(expr)
+            # Construct and run call
+            call = method+'('+','.join(repr(expr) for expr in exprs)+')'
+            print 'Running method     : '+blue+call+yellow
+            result = eval('component.'+call)
+            if result is not None: print result
+            sys.stdout.write(reset)
 
     except KeyboardInterrupt :
         print ""
