@@ -79,9 +79,4 @@ bool Stencil::closed(void) const {
 	else return false;
 }
 
-bool Stencil::local(void) const {
-	if(select("#local")) return true;
-	else return false;
-}
-
 }
