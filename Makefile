@@ -360,6 +360,8 @@ $(CPP_VERSION_0):
 	@mkdir -p $(BUILD)/cpp/library/stencila
 	@echo "#include <stencila/version.hpp>\nconst std::string Stencila::version = \"$(VERSION)\";" > $(BUILD)/cpp/library/stencila/version.cpp
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(BUILD)/cpp/library/stencila/version.cpp
+# Make it PHONY so it builds every time
+.PHONY: $(CPP_VERSION_0)
 
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
