@@ -1,6 +1,7 @@
 #include <boost/filesystem.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/component-page.hpp>
 
 namespace Stencila {
 
@@ -16,6 +17,39 @@ Stencil& Stencil::view(void){
 Stencil& Stencil::preview(const std::string& path){
 	Component::preview(StencilType,path);
 	return *this;
+}
+
+std::string Stencil::page(const Component* component){
+	return static_cast<const Stencil&>(*component).page();
+}
+
+std::string Stencil::page(void) const {
+	// Get base document
+	Html::Document doc = Component_page_doc<Stencil>(*this);
+	Html::Node head = doc.find("head");
+	Html::Node body = doc.find("body");
+
+	// Extra metadata
+	head.append("meta",{
+		{"itemprop","closed"},
+		{"content",closed()?"true":"false"}
+	});
+	head.append("meta",{
+		{"itemprop","contexts"},
+		{"content",join(contexts(),",")}
+	});
+
+	// Content is placed in a <main> rather than just using the <body> so that 
+	// extra HTML elements can be added by the theme without affecting the stencil's content.
+	// Note that this is prepended to body so it is before launch script
+	auto content = body.prepend("main",{
+		{"id","content"}
+	}," ");
+	content.append(*this);
+
+	// Validate the HTML5 document before dumping it
+	doc.validate();
+	return doc.dump();
 }
 
 std::string Stencil::interact(const std::string& code){
@@ -40,6 +74,10 @@ std::string Stencil::interact(const std::string& code){
 	} else {
 		STENCILA_THROW(Exception,"No context attached to this stencil");
 	}
+}
+
+std::string Stencil::call(Component* component, const Call& call){
+	return static_cast<Stencil&>(*component).call(call);
 }
 
 std::string Stencil::call(const Call& call) {
@@ -111,15 +149,6 @@ std::string Stencil::call(const Call& call) {
 	else return Component::call(call);
 
 	return "";
-}
-
-std::string Stencil::page(const Component* component){
-	// Return HTML for a complete HTML document with indentation
-	return static_cast<const Stencil&>(*component).html(true,true);
-}
-
-std::string Stencil::call(Component* component, const Call& call){
-	return static_cast<Stencil&>(*component).call(call);
 }
 
 }

@@ -654,20 +654,6 @@ public:
 	static std::string page(const Component* component);
 
 	/**
-	 * Generate a HTML page for a component with a title and theme
-	 *
-	 * This function is provided for the convienience of derived classes: in their
-	 * `static std::string page(const Component*)` overrides they can call this to
-	 * generate a standard page which their themes may then augment
-	 * 
-	 * @param  component [description]
-	 * @param  title     [description]
-	 * @param  theme     [description]
-	 * @return           [description]
-	 */
-	static std::string page(const Component* component,const std::string& title,const std::string& theme);
-
-	/**
 	 * Process a message for the component at an address
 	 *
 	 * We use [WAMP](http://wamp.ws/) as the message protocol.
@@ -753,5 +739,11 @@ protected:
 	static std::map<std::string,Instance> instances_;
 
 };
+
+/**
+ * Generate a HTML document as the basis for a 
+ */
+template<class Type>
+Html::Document Component_page_doc(const Type& component);
 
 }

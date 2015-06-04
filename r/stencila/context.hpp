@@ -61,10 +61,6 @@ public:
         return *this;
     }
 
-    static std::string page(const Component* component){
-        return Component::page(component,"R Context","core/contexts/r/themes/default");
-    }
-
     static std::string call(Component* component, const Call& call){
         return static_cast<RContext&>(*component).call(call);
     }

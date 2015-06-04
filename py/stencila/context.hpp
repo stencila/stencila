@@ -34,14 +34,6 @@ public:
         return *this;
     }
 
-    /**
-     * Generate a HTML page for this context
-     */
-    static std::string page(const Component* component){
-        return Component::page(component,"Python Context","core/contexts/python/themes/default");
-    }
-
-
     static std::string call(Component* component, const Call& call){
         return static_cast<PythonContext&>(*component).call(call);
     }

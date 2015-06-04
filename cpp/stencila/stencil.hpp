@@ -26,6 +26,13 @@ public:
 	~Stencil(void);
 
 	/**
+	 * Get the component type
+	 */
+	static Type type(void){
+		return StencilType;
+	}
+
+	/**
 	 * @name Input and output
 	 *
 	 * Methods implemented in `stencil-io.cpp`
@@ -844,6 +851,11 @@ public:
 	 * @param  component  A pointer to a stencil
 	 */
 	static std::string page(const Component* component);
+
+	/**
+	 * Generate a web page for this stencil
+	 */
+	std::string page(void) const;
 
 	/**
 	 * Execute a call on a stencil

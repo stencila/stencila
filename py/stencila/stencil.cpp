@@ -40,6 +40,6 @@ void def_Stencil(void){
 
         .def("render",Stencil_render,return_self<>())
 
-        .def("page",&Stencil::page)
+        .def("compile",&Stencil::compile,return_self<>())
     ;
 }

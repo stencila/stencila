@@ -2,6 +2,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <stencila/component-page.hpp>
 #include <stencila/theme.hpp>
 #include <stencila/stencil.hpp>
 #include <stencila/helpers.hpp>
@@ -138,100 +139,23 @@ std::string Theme::page(const Component* component){
 }
 
 std::string Theme::page(void) const {
-	// Return a complete HTML document
-	Html::Document doc;
-	typedef Xml::Node Node;
+	// Get base document
+	Html::Document doc = Component_page_doc<Theme>(*this);
+	Html::Node head = doc.find("head");
+	Html::Node body = doc.find("body");
 
-	// Being a valid HTML5 document, doc already has a <head> <title> and <body>
-	Node head = doc.find("head");
-	Node body = doc.find("body");
+	// Add style and behaviour before lauch script
+	Html::Node main = body.prepend("main");
 
-	// Properties put into <meta> as microdata
-	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
-	// These are used by `Stencila.launch()` Javascript function to display the
-	// component
-	head.append("meta",{
-		{"itemprop","type"},
-		{"content","theme"}
-	});
-	head.append("meta",{
-		{"itemprop","address"},
-		{"content",address()}
-	});
-	head.append("meta",{
-		{"itemprop","theme"},
-		{"content",theme()}
-	});
-
-	// Title is repeated in <title>
-	// Although we are creating an XHTML5 document, an empty title tag (i.e <title />)
-	// can cause browser parsing errors. So always ensure that there is some title content.
-	auto t = std::string(title());
-	if(t.length()==0) t = "Untitled";
-	head.find("title").text(t);
-
-	// Description is repeated in <meta>
-	auto d = description();
-	if(d.length()>0){
-		head.append("meta",{
-			{"name","description"},
-			{"content",d}
-		});
-	}
-
-	// Keywords are repeated in <meta>
-	auto k = keywords();
-	if(k.size()>0){
-		head.append("meta",{
-			{"name","keywords"},
-			{"content",join(k,",")}
-		});
-	}
-
-	// The following tags are appended with a space as content so that they do not
-	// get rendered as empty tags (e.g. <script... />). Whilst empty tags should be OK with XHTML
-	// they can cause problems with some browsers.
-
-	/**
-	 * <link rel="stylesheet" ...
-	 *
-	 * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
-	 */
-	head.append("link",{
-		{"rel","stylesheet"},
-		{"type","text/css"},
-		{"href",theme()+"theme.min.css"}
-	}," ");
-
-	body.append("pre",{
+	main.append("pre",{
 		{"id","style"},
 		{"class","code"}
 	},read_from(style_));
 
-	body.append("pre",{
+	main.append("pre",{
 		{"id","behaviour"},
 		{"class","code"}
 	},read_from(behaviour_));
-
-	// Load Stencila Javascript module
-	// Use version number to check if in development. No development versions
-	// of stencila.js are on get.stenci.la (only release versions).
-	bool development = Stencila::version.find("-")!=std::string::npos;
-	if(development){
-		// Load development version from the current host (usually http://localhost:7373)
-		// Requires that the `make build-serve ...` task has been run so that build directory
-		// of the `stencila/stencila` repo is being served and that `make js-develop` task has been 
-		// run to ensure the following files are in that directory
-		body.append("script",{{"src","/build/js/requires.min.js"}}," ");
-		body.append("script",{{"src","/build/js/stencila.js"}}," ");
-	} else {
-		// Load versioned, minified file from get.stenci.la. This has
-		// a "far future" cache header so it should be available even when offline
-		body.append("script",{{"src","//get.stenci.la/js/stencila-"+Stencila::version+".min.js"}}," ");
-	}		
-	
-	// Launch the component
-	body.append("script","Stencila.launch();");
 
 	// Validate the HTML5 document before dumping it
 	doc.validate();

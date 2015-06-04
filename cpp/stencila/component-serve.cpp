@@ -80,22 +80,6 @@ std::string Component::page(const Component* component){
 	return "";
 }
 
-std::string Component::page(const Component* component,const std::string& title,const std::string& theme) {
-	using boost::format;
-	return str(format(R"(
-		<html>
-			<head>
-				<title>%s</title>
-				<link rel="stylesheet" type="text/css" href="/%s/theme.css" />
-			</head>
-			<body>
-				<script src="/core/themes/boot.js"></script>
-				<script src="/%s/theme.js"></script>
-			</body>
-		</html>
-	)") % title % theme % theme);
-}
-
 std::string Component::message(const std::string& address,const std::string& message){
 	using boost::format;
 
