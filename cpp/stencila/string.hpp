@@ -31,6 +31,16 @@ Type unstring(const std::string& value);
 std::string& trim(std::string& string);
 
 /**
+ * Convert to lower case
+ */
+std::string lower(const std::string& string);
+
+/**
+ * Convert to upper case
+ */
+std::string upper(const std::string& string);
+
+/**
  * Replace all occurrences of `what` in `string` with `with`
  */
 std::string& replace_all(std::string& string, const std::string& what, const std::string& with);

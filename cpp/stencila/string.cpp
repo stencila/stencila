@@ -1,8 +1,13 @@
 #define STENCILA_STRING_CPP
 
+#include <iostream>       // std::cout
+#include <string>         // std::string
+#include <locale>         // std::locale, std::tolower
+
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/regex.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 
 #include <stencila/string.hpp>
 
@@ -30,6 +35,14 @@ UNSTRING(std::string)
 std::string& trim(std::string& string){
 	boost::trim(string);
 	return string;
+}
+
+std::string lower(const std::string& string){
+	return boost::to_lower_copy(string);
+}
+
+std::string upper(const std::string& string){
+	return boost::to_upper_copy(string);
 }
 
 std::string& replace_all(std::string& string, const std::string& what, const std::string& with){

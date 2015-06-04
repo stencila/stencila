@@ -28,6 +28,18 @@ BOOST_AUTO_TEST_CASE(trim){
 	BOOST_CHECK_EQUAL(trim(string=" a b c "),"a b c");
 }
 
+BOOST_AUTO_TEST_CASE(lower){
+	using Stencila::lower;
+	BOOST_CHECK_EQUAL(lower("ABC"),"abc");
+	BOOST_CHECK_EQUAL(lower("abc"),"abc");
+}
+
+BOOST_AUTO_TEST_CASE(upper){
+	using Stencila::upper;
+	BOOST_CHECK_EQUAL(upper("abc"),"ABC");
+	BOOST_CHECK_EQUAL(upper("ABC"),"ABC");
+}
+
 BOOST_AUTO_TEST_CASE(replace_all){
 	using Stencila::replace_all;
 	std::string string = "abc";
