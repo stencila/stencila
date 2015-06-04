@@ -45,7 +45,7 @@ def main():
         # Get address, remove it from commands and grab component
         address = commands.pop(0)
         print 'Grabbing component : '+magenta+address+reset
-        component = stencila.Stencil(address)
+        component = stencila.grab(address)
 
         # Confirm component type
         print 'Component type     : '+cyan+component.__class__.__name__+reset
@@ -71,8 +71,8 @@ def main():
             call = method+'('+','.join(repr(expr) for expr in exprs)+')'
             print 'Running method     : '+blue+call+yellow
             result = eval('component.'+call)
-            if result is not None:
-                print result
+            if result is not None and result is not component:
+                print repr(result)
             sys.stdout.write(reset)
 
     except KeyboardInterrupt:

@@ -16,6 +16,14 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_read_overloads,read,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_write_overloads,write,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 
+std::vector<std::string> Component_grab(std::string address){
+    Component::Instance instance = Component::get(address);
+    std::vector<std::string> parts(2);
+    parts[0] = Component::type_name(instance.type());
+    parts[1] = instance.as<Component>().path();
+    return parts;
+}
+
 void def_Component(void){
     class_<Component,bases<>>("Component")
 
@@ -54,4 +62,6 @@ void def_Component(void){
             "Commit the component"
         )[return_self<>()])
     ;
+
+    def("grab",Component_grab);
 }

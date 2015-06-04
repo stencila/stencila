@@ -17,6 +17,12 @@ public:
 	}
 
 	/**
+	 * Constructors
+	 */
+	Theme(void);
+	Theme(const std::string& from);
+
+	/**
 	 * Initialise this theme
 	 * 
 	 * @param  from A string indicating how the theme is initialised

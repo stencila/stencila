@@ -10,6 +10,13 @@
 
 namespace Stencila {
 
+Theme::Theme(void){
+}
+
+Theme::Theme(const std::string& from){
+	initialise(from);
+}
+
 Theme& Theme::initialise(const std::string& from){
 	if(boost::filesystem::exists(from)){
 		read(from);

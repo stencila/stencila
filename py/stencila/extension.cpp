@@ -20,6 +20,7 @@ struct vector_to_list {
 void def_Exception(void);
 void def_Component(void);
 void def_Stencil(void);
+void def_Theme(void);
 
 BOOST_PYTHON_MODULE(extension){
 	// Declare converters
@@ -28,4 +29,5 @@ BOOST_PYTHON_MODULE(extension){
 	def_Exception();
 	def_Component();
     def_Stencil();
+    def_Theme();
 }
