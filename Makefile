@@ -591,6 +591,18 @@ REQUIREJS_VERSION := 2.1.17
 $(RESOURCES)/require-$(REQUIREJS_VERSION).js:
 	@mkdir -p $(RESOURCES)
 	wget -O$@ http://requirejs.org/docs/release/$(REQUIREJS_VERSION)/comments/require.js
+
+REQUIREJS_TEXT_VERSION := 2.0.14
+
+$(RESOURCES)/require-text-$(REQUIREJS_TEXT_VERSION).tar.gz:
+	@mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O$@ https://github.com/requirejs/text/archive/$(REQUIREJS_TEXT_VERSION).tar.gz
+
+# Make the text.js plugin "inlineable"
+$(BUILD)/js/requires/text-$(REQUIREJS_TEXT_VERSION)/text.js: $(RESOURCES)/require-text-$(REQUIREJS_TEXT_VERSION).tar.gz
+	@mkdir -p $(BUILD)/js/requires
+	tar xzf $< -C $(BUILD)/js/requires
+	sed -i "s/define(\['module'\]/define('text',\['module'\]/g" $@
 	
 JQUERY_VERSION := 2.1.4
 
@@ -618,11 +630,11 @@ $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js:
 # Build a minified file of all JS requirements for `stencila.js`
 $(BUILD)/js/requires.min.js: \
 			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
+			$(BUILD)/js/requires/text-$(REQUIREJS_TEXT_VERSION)/text.js \
 	        $(RESOURCES)/jquery-$(JQUERY_VERSION).js \
 	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
 	@mkdir -p $(BUILD)/js
 	uglifyjs $^ --compress --mangle --comments 	> $@
-
 
 JASMINE_VERSION := 2.3.4
 
@@ -659,6 +671,8 @@ else
 	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/stencila-$(VERSION).min.js --content-type application/json --cache-control max-age=31536000
 endif
 
+js-clean:
+	rm -f $(BUILD)/js/requires.min.js
 
 
 #################################################################################################
