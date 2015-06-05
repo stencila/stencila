@@ -60,6 +60,7 @@ BOOST_AUTO_TEST_CASE(path_set_empty_twice){
  *
  * Changing the path moves the component directory to the new path
  */
+/*
 BOOST_AUTO_TEST_CASE(path_change){
 	Component c;
 	
@@ -73,6 +74,7 @@ BOOST_AUTO_TEST_CASE(path_change){
 	c.destroy();
 	BOOST_CHECK(not boost::filesystem::exists(second));
 }
+*/
 
 /**
  * @class Component
