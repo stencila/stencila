@@ -32,6 +32,9 @@ Component& Component::path(const std::string& path) {
 	if(not meta_) meta_ = new Meta;
 	std::string current_path = meta_->path;
 	std::string new_path = path;
+	// Absolutise and canonicalise the new path (to follow symlinks etc)
+	// so comparing apples wth appls below
+	if(new_path.length()>0) new_path = canonical(absolute(new_path)).string();
 	// If the current path is empty...
 	if(current_path.length()==0){
 		// If the new path is empty then...
@@ -43,7 +46,7 @@ Component& Component::path(const std::string& path) {
 		} else {
 			// Create the path if necessary
 			if(not exists(new_path)) create_directories(new_path);
-			meta_->path = canonical(absolute(new_path)).string();
+			meta_->path = new_path;
 		}
 	} 
 	// If the current path is not empty...
@@ -53,12 +56,12 @@ Component& Component::path(const std::string& path) {
 			// and they are different...
 			if(new_path != current_path){
 				// ensure new directory does not already exist
-				if(exists(new_path)) STENCILA_THROW(Exception,"Path already exists.\n  path: "+new_path);
+				if(exists(new_path)) STENCILA_THROW(Exception,"New path already exists.\n  new: "+new_path+"\n  current: "+current_path);
 				// create necessary directories for the following rename operation
 				create_directories(new_path);
 				// move (i.e rename) existing path to the new path.
 				rename(current_path,new_path);
-				meta_->path = canonical(absolute(new_path)).string();
+				meta_->path = new_path;
 			}
 		}
 	}
