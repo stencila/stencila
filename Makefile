@@ -661,16 +661,16 @@ js-develop: $(BUILD)/js/requires.min.js
 	ln -sfT $(ROOT)/js/stencila.js $(BUILD)/js/stencila.js
 
 JS_MIN := $(BUILD)/js/stencila-$(VERSION).min.js
-
-$(JS_MIN) : js/stencila.js
-	uglifyjs $< --compress --mangle > $@
+$(JS_MIN) : $(BUILD)/js/requires.min.js js/stencila.js
+	uglifyjs $^ --compress --mangle > $@
+js-build: $(JS_MIN)
 
 # Deliver Javascript to get.stenci.la
-js-deliver: js-build
+js-deliver: $(JS_MIN)
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
 else
-	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/stencila-$(VERSION).min.js --content-type application/json --cache-control max-age=31536000
+	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/ --content-type application/json --cache-control max-age=31536000
 endif
 
 js-clean:
