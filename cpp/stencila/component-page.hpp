@@ -145,7 +145,9 @@ Html::Document Component_page_doc(const Type& component) {
 	} else {
 		// Load versioned, minified file from get.stenci.la. This has
 		// a "far future" cache header so it should be available even when offline
-		body.append("script",{{"src","//get.stenci.la/js/stencila-"+Stencila::version+".min.js"}}," ");
+		// This is https:// not a "propocol relative URL" so that it will work with both file://
+		// and https:// (i.e not mixed content as it would be if it were http://)
+		body.append("script",{{"src","https://stenci.la/get/js/stencila-"+Stencila::version+".min.js"}}," ");
 	}		
 	
 	// Launch the component
