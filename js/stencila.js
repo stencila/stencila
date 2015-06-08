@@ -19,7 +19,9 @@ var Stencila = (function(Stencila){
 			for(var i = 0; i < modules.length; i++){
 				var module = modules[i];
 				var current = require.toUrl(module);
-				var fallback = '//stenci.la/' + module;
+				// Fallback needs to specify a scheme for cases where
+				// page scheme is file://
+				var fallback = 'https://stenci.la/' + module;
 				console.log('Could not load '+current);
 				// Check to see if path is already set to the fallback
 				if(current!==fallback){
