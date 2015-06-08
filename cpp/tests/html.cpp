@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(load){
 	CHECK(
 		"<pre id=\"id\">\n\tline1\n\t\tline2\n</pre>",
 		"<pre id=\"id\">\n\tline1\n\t\tline2\n</pre>"
-	)  
+	)
 
 	#undef CHECK 
 }
@@ -49,6 +49,8 @@ BOOST_AUTO_TEST_CASE(dump_not_pretty){
 BOOST_AUTO_TEST_CASE(dump_pretty){
 	Document doc(R"(
 		<p>Text <span>in spans</span> and <a href="">in-links</a><span>too</span> should be inline</p>
+		<script type="text/asciimath"><![CDATA[e=mc^2]]></script>
+		<style type="text/css"><![CDATA[a {color:red;}]]></style>
 	)");
 	auto result = R"(<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -59,7 +61,8 @@ BOOST_AUTO_TEST_CASE(dump_pretty){
 	<body>
 		<p>
 			Text <span>in spans</span> and <a href="">in-links</a><span>too</span> should be inline
-		</p>
+		</p><script type="text/asciimath">e=mc^2</script>
+		<style type="text/css">a {color:red;}</style>
 	</body>
 </html>)";
 	BOOST_CHECK_EQUAL(

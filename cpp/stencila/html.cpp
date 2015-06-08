@@ -206,6 +206,10 @@ void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::s
 		boost::replace_all(text,"<","&lt;");
 		stream<<text;
 	}
+	else if(node.is_cdata()){
+		// Note that this currently does not include the "<![CDATA[" prefix and the "]]>" suffix
+		stream<<node.text();
+	}
 }
 
 }
