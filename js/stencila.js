@@ -21,7 +21,9 @@ var Stencila = (function(Stencila){
 				var current = require.toUrl(module);
 				// Fallback needs to specify a scheme for cases where
 				// page scheme is file://
-				var fallback = 'https://stenci.la/' + module;
+				var protocol = window.location.protocol;
+				if(protocol===undefined || protocol==='file:') protocol = 'http:';
+				var fallback = protocol+'//stenci.la/' + module;
 				console.log('Could not load '+current);
 				// Check to see if path is already set to the fallback
 				if(current!==fallback){
@@ -228,7 +230,14 @@ var Stencila = (function(Stencila){
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-
+	/**
+	 * Stencila Hub at https://stenci.la
+	 *
+	 * Previously, the URLs below used for XHR (AJAX) requests used the window.locations.protocol.
+	 * Regardless, all http requests are redirected to https on the hub. However, that caused problems (
+	 * related to CORS requiring those redirects to have appropriate headers set). So to avoid those issues
+	 * and reduce latency, all requests use https! 
+	 */
 	var Hub = Stencila.Hub = {};
 
 	/**
@@ -269,9 +278,7 @@ var Stencila = (function(Stencila){
 
 		// Get a permit to be used for subsequent requests
 		$.ajax({
-			// Normally https will be used but in development http may be used. 
-			// Using the current window protocol allows for that situation
-			url: window.location.protocol+'//stenci.la/user/permit',
+			url: 'https://stenci.la/user/permit',
 			method: 'GET',
 			headers: headers
 		}).done(function(data){
@@ -301,7 +308,7 @@ var Stencila = (function(Stencila){
 				'Authorization' : 'Permit '+Hub.permit
 			};
 			$.ajax({
-				url: window.location.protocol+'//stenci.la/'+path,
+				url: 'https://stenci.la/'+path,
 				method: 'GET',
 				headers: headers
 			}).done(then);
@@ -325,7 +332,7 @@ var Stencila = (function(Stencila){
 			});
 		} else {
 			$.ajax({
-				url: window.location.protocol+'//stenci.la/'+path,
+				url: 'https://stenci.la/'+path,
 				method: 'POST',
 				headers: {
 					'Authorization' : 'Permit '+Hub.permit,
@@ -357,7 +364,8 @@ var Stencila = (function(Stencila){
 
 		// Set host information
 		var location = window.location;
-		this.host = location.hostname;
+		if(location.protocol==='file:') this.host = 'localfile';
+		else this.host = location.hostname;
 		this.port = location.port;
 
 		// Set address
@@ -500,7 +508,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.read = function(){
 		var self = this;
-		Hub.get(this.address+"'",false,function(data){
+		Hub.get(this.address+"/_",false,function(data){
 			$.each(data,function(property,value){
 				self.change(property,value);
 			});
