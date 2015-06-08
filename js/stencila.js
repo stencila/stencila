@@ -21,9 +21,7 @@ var Stencila = (function(Stencila){
 				var current = require.toUrl(module);
 				// Fallback needs to specify a scheme for cases where
 				// page scheme is file://
-				var protocol = window.location.protocol;
-				if(protocol===undefined || protocol==='file:') protocol = 'http:';
-				var fallback = protocol+'//stenci.la/' + module;
+				var fallback = 'https://stenci.la/' + module;
 				console.log('Could not load '+current);
 				// Check to see if path is already set to the fallback
 				if(current!==fallback){
