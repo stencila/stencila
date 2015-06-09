@@ -800,6 +800,8 @@ ifndef R_VERSION
   R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'\\\\.')[[1]][1],sep='.')" )
 endif
 
+R_BUILD := $(BUILD)/r/$(R_VERSION)
+
 # Define R platform
 # Note in the below the double $ is to escape make's treatment of $
 # and the \$ is to escape the shell's treatment of $
@@ -812,23 +814,29 @@ R_PACKAGE_VERSION := $(firstword $(subst -, ,$(VERSION)))
 ifeq ($(OS),linux)
 R_PACKAGE_EXT := tar.gz
 R_DYNLIB_EXT := so
+R_REPO_PACKAGE_DIR := $(R_BUILD)/repo/src/contrib
+R_REPO_TYPE := source
 endif
 ifeq ($(OS),msys)
 R_PACKAGE_EXT := zip
 R_DYNLIB_EXT := dll
+R_REPO_PACKAGE_DIR := $(R_BUILD)/repo/bin/windows/contrib/$(STENCILA_R_VERSION)
+R_REPO_TYPE := win.binary
 endif
 # Define where the shared library gets put
 R_DYNLIB_NAME := stencila_$(R_PACKAGE_VERSION)
-R_DYNLIB := $(R_DYNLIB_NAME).$(R_DYNLIB_EXT)
-
-R_BUILD := $(BUILD)/r/$(R_VERSION)
+R_DYNLIB_FILE := $(R_DYNLIB_NAME).$(R_DYNLIB_EXT)
+R_REPO_DYNLIB_DIR := $(R_BUILD)/repo/lib/$(R_PLATFORM)/$(R_VERSION)
 
 # Print R related Makefile variables; useful for debugging
 r-vars:
 	@echo R_VERSION : $(R_VERSION)
 	@echo R_PLATFORM : $(R_PLATFORM)
 	@echo R_PACKAGE_VERSION : $(R_PACKAGE_VERSION)
-	@echo R_DYNLIB : $(R_DYNLIB)
+	@echo R_DYNLIB_FILE : $(R_DYNLIB_FILE)
+	@echo R_REPO_PACKAGE_DIR : $(R_REPO_PACKAGE_DIR)
+	@echo R_REPO_TYPE : $(R_REPO_TYPE)
+	@echo R_REPO_DYNLIB_DIR : $(R_REPO_DYNLIB_DIR)
 
 # Compile each cpp file
 R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
@@ -844,14 +852,15 @@ $(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requir
 # Create shared library
 R_DYNLIB_LIB_DIRS := -L$(BUILD)/cpp/library $(CPP_REQUIRES_LIB_DIRS)
 R_DYNLIB_LIBS := stencila $(CPP_REQUIRES_LIBS) 
-$(R_BUILD)/$(R_DYNLIB): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
+$(R_BUILD)/$(R_DYNLIB_FILE): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
 	$(CXX) -shared -o$@ $^ $(R_DYNLIB_LIB_DIRS) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
 # Place zipped up shared library in package
-R_PACKAGE_LIBZIP := $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)/$(R_DYNLIB).zip
-$(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB)
+# There should only ever be one platform/version dynamic library in a package , so wipe the `inst/lib` dir first
+R_PACKAGE_LIBZIP := $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)/$(R_DYNLIB_FILE).zip
+$(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB_FILE)
+	rm -rf $(R_BUILD)/stencila/inst/lib/
 	@mkdir -p $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)
-	rm -f $@
 	zip -j $@ $<
 
 # Copy over `stencila-r`
@@ -928,6 +937,28 @@ ifeq ($(OS),msys)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
 endif
 r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
+
+# Deposit package into local repository
+# See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
+r-repo: r-package
+	# Make R package repository sub directory
+	mkdir -p $(R_REPO_PACKAGE_DIR)
+	# Copy package there
+	cp $(R_BUILD)/$(R_PACKAGE_FILE) $(R_REPO_PACKAGE_DIR)
+	# Generate the PACKAGE file for the repo
+	Rscript -e "tools::write_PACKAGES('$(R_REPO_PACKAGE_DIR)',type='$(R_REPO_TYPE)')"
+	# Make the directory for the shared dynamic library
+	mkdir -p $(R_REPO_DYNLIB_DIR)
+	# Copy the library zip file there
+	cp $(R_PACKAGE_LIBZIP) $(R_REPO_DYNLIB_DIR)
+
+# Deliver R package to get.stenci.la
+r-deliver: r-package
+ifeq (dirty,$(DIRTY))
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+else
+	aws s3 cp $(R_BUILD)/$(R_PACKAGE_FILE) s3://get.stenci.la/r/$(R_PLATFORM)/$(R_VERSION)
+endif
 
 # Test the package by running unit tests
 # Install package in a testenv directory and run unit tests from there
