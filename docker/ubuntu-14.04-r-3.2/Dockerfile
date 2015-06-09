@@ -22,8 +22,8 @@ RUN R CMD INSTALL Rcpp_0.11.5.tar.gz
 
 # Install Stencila R package
 # Temporarily using a development R package uploaded to Dropbox during testing
-RUN wget https://github.com/stencila/stencila/releases/download/0.12/stencila_0.12.tar.gz
-RUN R CMD INSTALL stencila_0.12.tar.gz
+RUN wget http://get.stenci.la/r/complete/x86_64-pc-linux-gnu/3.2/stencila_0.14.tar.gz
+RUN R CMD INSTALL stencila_0.14.tar.gz
 
 # Add Stencila CLI script to PATH
 RUN Rscript -e 'require(stencila); stencila:::install_cli()'

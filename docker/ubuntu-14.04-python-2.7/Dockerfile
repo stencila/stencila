@@ -11,8 +11,7 @@ RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python2.7 get-pip.py
 
 # Install Stencila Python package
-RUN wget https://github.com/stencila/stencila/releases/download/0.12/stencila-0.12-cp27-none-linux_x86_64.whl
-RUN pip install stencila-0.12-cp27-none-linux_x86_64.whl
+RUN pip install http://get.stenci.la/py/stencila-0.14-cp27-none-linux_x86_64.whl
 
 # Install other Python modules
 RUN apt-get install -y build-essential pkg-config libpng-dev libfreetype6-dev
