@@ -957,7 +957,7 @@ r-deliver: r-package
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
 else
-	aws s3 cp $(R_BUILD)/$(R_PACKAGE_FILE) s3://get.stenci.la/r/$(R_PLATFORM)/$(R_VERSION)
+	aws s3 cp $(R_BUILD)/$(R_PACKAGE_FILE) s3://get.stenci.la/r/complete/$(R_PLATFORM)/$(R_VERSION)/
 endif
 
 # Test the package by running unit tests
