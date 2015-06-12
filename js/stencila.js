@@ -1097,6 +1097,7 @@ var Stencila = (function(Stencila){
 			if(each.length===0){
 				each = node.children().first();
 			}
+			each.removeAttr('data-each');
 			each.removeAttr('data-off');
 			while(more){
 				var item = each.clone();
@@ -1104,6 +1105,7 @@ var Stencila = (function(Stencila){
 				directiveRender(item,context);
 				more = context.next();
 			}
+			each.attr('data-each','true');
 			each.attr('data-off','true');
 		}
 		return this;
