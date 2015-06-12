@@ -91,6 +91,10 @@ const double& Frame::operator()(unsigned int row, unsigned int column) const {
 	return (*data_)(boost::array<Data::index,2>{{row,column}});
 }
 
+double& Frame::operator()(unsigned int row, const std::string& label) {
+	return operator()(row,this->label(label));
+}
+
 const double& Frame::operator()(unsigned int row, const std::string& label) const {
 	return operator()(row,this->label(label));
 }
@@ -203,7 +207,7 @@ Frame& Frame::read(std::istream& stream, const std::string& separator) {
 			boost::split(values,line,boost::is_any_of(separator));
 			append(values);
 		} catch (const std::exception& error){
-			STENCILA_THROW(Exception,"Error reading line <"+string(count)+"> : "+error.what());
+			STENCILA_THROW(Exception,"Error reading line.\n  number: "+string(count)+"\n  content: "+line.substr(0,20)+"...\n  error: "+error.what());
 		}
 	}
 	return *this;

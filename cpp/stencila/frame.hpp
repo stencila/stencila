@@ -46,9 +46,9 @@ public:
 
 
 	double& operator()(unsigned int row, unsigned int column);
-
 	const double& operator()(unsigned int row, unsigned int column) const;
 
+	double& operator()(unsigned int row, const std::string& label);
 	const double& operator()(unsigned int row, const std::string& label) const;
 
 
@@ -85,9 +85,9 @@ public:
 	Frame& clear(void);
 
 
-	Frame& read(std::istream& stream, const std::string& separator="\t");
+	Frame& read(std::istream& stream, const std::string& separator=" \t");
 
-	Frame& read(const std::string path, const std::string& separator="\t");
+	Frame& read(const std::string path, const std::string& separator=" \t");
 
 	const Frame& write(std::ostream& stream, const std::string& separator="\t") const;
 
