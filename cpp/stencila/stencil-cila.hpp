@@ -446,7 +446,7 @@ public:
 			exec_open("(exec|js|r|py)\\b *([^:\\n]+)?(?=(: )|\\n|$)"),
 			style_open("(style|css)(\\n|$)"),
 
-			directive_noarg("(else|default)\\b *(?=(: )|\\n|\\{|\\}|$)"),
+			directive_noarg("(each|else|default)\\b *(?=(: )|\\n|\\{|\\}|$)"),
 			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(: )|\\n|\\{|\\}|$)"),
 			
 			spaces(" +"),
@@ -1156,7 +1156,7 @@ public:
 				if(separator_required) stream<<" ";
 				auto name = directive.first;
 				stream<<name.substr(5);
-				if(not(name=="data-else" or name=="data-default")){
+				if(not(name=="data-each" or name=="data-else" or name=="data-default")){
 					auto value = directive.second;
 					stream<<" "<<value;
 				}

@@ -16,7 +16,7 @@ const std::vector<std::string> Stencil::directives = {
 	"data-with",
 	"data-if","data-elif","data-else",
 	"data-switch","data-case","data-default",
-	"data-for",
+	"data-for","data-each",
 	"data-par",
 	"data-set",
 	"data-include","data-delete","data-replace","data-change","data-before","data-after","data-prepend","data-append",

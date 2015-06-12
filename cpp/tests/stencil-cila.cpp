@@ -465,6 +465,13 @@ BOOST_AUTO_TEST_CASE(directive_for){
 	ECHO("for item in items\n\tp");
 }
 
+BOOST_AUTO_TEST_CASE(directive_each){
+	CILA_XML("each","<div data-each=\"true\" />");
+	CILA_XML("span each","<span data-each=\"true\" />");
+
+	ECHO("for item in items\n\teach\n\t\t~item~");
+}
+
 BOOST_AUTO_TEST_CASE(directive_include){
 	ECHO("include address")
 	CILA_XML("include address","<div data-include=\"address\" />")
