@@ -291,7 +291,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 		else if(format.value=="png" or format.value=="svg"){
 			output = doc.append("img",{
 				{"src",result},
-				{"style","width:"+width.value+units.value+";height:"+height.value+units.value}
+				{"style","max-width:"+width.value+units.value+";max-height:"+height.value+units.value}
 			});
 		}
 		else {
