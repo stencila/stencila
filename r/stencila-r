@@ -52,12 +52,13 @@ if(length(commands)==0 | (length(commands)==1 & commands[1]=='help')){
 # Get address, remove it from commands and grab component
 address <- commands[1]
 commands <- commands[-1]
-cat('Grabbing component : ',magenta,address,reset,'\n',sep='')
+cat('Grabbing from      : ',magenta,address,reset,'\n',sep='')
 component <- grab(address)
 
-# Confirm component type
-cat('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
+# Confirm component address, path, type
+cat('Component address  : ',cyan,component$address(),reset,'\n',sep='')
 cat('Component path     : ',cyan,component$path(),reset,'\n',sep='')
+cat('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
 
 # Iterate over methods, applying them to the component
 for(command in commands){

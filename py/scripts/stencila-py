@@ -44,12 +44,13 @@ def main():
 
         # Get address, remove it from commands and grab component
         address = commands.pop(0)
-        print 'Grabbing component : '+magenta+address+reset
+        print 'Grabbing from      : '+magenta+address+reset
         component = stencila.grab(address)
 
-        # Confirm component type
-        print 'Component type     : '+cyan+component.__class__.__name__+reset
+        # Confirm component address, path, type
+        print 'Component address  : '+cyan+component.address()+reset
         print 'Component path     : '+cyan+component.path(False)+reset
+        print 'Component type     : '+cyan+component.__class__.__name__+reset
 
         # Iterate over methods, applying them to the component
         for command in commands:
