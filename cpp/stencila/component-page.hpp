@@ -14,14 +14,24 @@ Html::Document Component_page_doc(const Type& component) {
 	Node head = doc.find("head");
 	Node body = doc.find("body");
 
-	// Properties put into <meta> as microdata
+	// For potential use in resolving Stencila version differences
+	// include a <meta> generator tag
+	head.append("meta",{
+		{"name","generator"},
+		{"content","Stencila "+version}
+	});
+
+	// For layout that is responsive to the device size
+	// include a <meta> viewport tag
+	head.append("meta",{
+		{"name","viewport"},
+		{"content","width=device-width, initial-scale=1"}
+	});
+
+	// Component properties put into <meta> as microdata
 	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
 	// These are used by `Stencila.launch()` Javascript function to display the
 	// component
-	head.append("meta",{
-		{"itemprop","generator"},
-		{"content","Stencila "+version}
-	});
 	auto type = lower(Component::type_name(component.type()));
 	head.append("meta",{
 		{"itemprop","type"},
@@ -148,7 +158,7 @@ Html::Document Component_page_doc(const Type& component) {
 		// This is https:// not a "propocol relative URL" so that it will work with both file://
 		// and https:// (i.e not mixed content as it would be if it were http://)
 		body.append("script",{{"src","https://stenci.la/get/js/stencila-"+Stencila::version+".min.js"}}," ");
-	}		
+	}
 	
 	// Launch the component
 	body.append("script","Stencila.launch();");
