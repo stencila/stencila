@@ -85,7 +85,7 @@ std::string Component::address(void) const {
 		}
 	}
 	// Component is not in a store so return a "local" address 
-	// starting with a double forward slash
+	// starting with a forward slash
 	auto address = boost::filesystem::absolute(path).string();
 	if(address[0]!='/') address.insert(0,"/");
 	return address;
