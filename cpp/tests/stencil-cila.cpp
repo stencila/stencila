@@ -6,7 +6,7 @@
 #include <stencila/stencil-cila.hpp>  
 
 using namespace Stencila;
-struct CilaFixture : public CilaParser, public CilaGenerator {  
+struct CilaFixture : public CilaParser, public CilaGenerator {
 	Stencil stencil;
 
 	// Methods added for debugging purposes
@@ -469,6 +469,10 @@ BOOST_AUTO_TEST_CASE(directive_each){
 	CILA_XML("each","<div data-each=\"true\" />");
 	CILA_XML("span each","<span data-each=\"true\" />");
 
+	CILA_XML(
+		"for item in items\n\teach\n\t\t~item~",
+		"<div data-for=\"item in items\"><div data-each=\"true\"><span data-text=\"item\" /></div></div>"
+	);
 	ECHO("for item in items\n\teach\n\t\t~item~");
 }
 
@@ -550,7 +554,7 @@ BOOST_AUTO_TEST_CASE(ul){
 	XML_CILA(R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)","- A link to [Google](http://google.com)");
 
 	ECHO("- apple\n- pear");
-	ECHO("- An interpolated ``value``\n- A bit of |math|\n- A bit of `code` too");
+	ECHO("- An interpolated ~value~\n- A bit of |math|\n- A bit of `code` too");
 	
 	ECHO("div\n\t- Should\n\t- be\n\t- indented\ndiv");
 	ECHO("div\n\tdiv\n\t\t- Should\n\t\t- be\n\t\t- indented more");

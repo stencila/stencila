@@ -942,64 +942,86 @@ class CilaGenerator {
 public:
 	typedef Stencil::Node Node;
 
+	std::stringstream cila;
+
 	/**
-	 * Generate a string of Cila from a stencil
-	 * 
-	 * @param stencil Stencil to generate Cila for
+	 * Current indentation
 	 */
-	void generate(Node node, std::ostream& stream, const std::string& this_indent="", const std::string& child_indent="",bool first=false,bool last=false){
-		if(node.is_document() or node.is_element()){
+	std::string indentation;
+
+	/**
+	 * Increase indentation
+	 */
+	void indent(void){
+		indentation += "\t";
+	}
+
+	/**
+	 * Decrease indentation
+	 */
+	void outdent(void){
+		if(indentation.length()) indentation.pop_back();
+	}
+
+	/**
+	 * Create a new line (with the right indentation)
+	 */
+	void newline(void){
+		cila<<"\n"<<indentation;
+	}
+
+	void visit(Node node, bool first=false, bool last=false){
+		if(node.is_document()){
+			visit_children(node);
+		}
+		else if(node.is_element()){
 			auto name = node.name();
-			bool is_inline = Html::is_inline_element(name);
-			auto attrs = node.attrs();
-			auto attrs_size = attrs.size();
-			auto children = node.children();
-			auto children_size = children.size();
+			auto children_list = node.children();
+			auto children = children_list.size();
+			auto attribute_list = node.attrs();
+			auto attributes = attribute_list.size();
 
-			// Shortcuts from whence we return...
+			// Remove an attribute already dealt with
+			auto erase_attr = [&](const std::string& attr){
+				attribute_list.erase(
+					std::remove(attribute_list.begin(),attribute_list.end(),attr),
+				attribute_list.end());
+			};
 
-			// Paragraphs indicated by a preceding blank line and children
-			// just dumped
-			if(name=="p" and children_size>0 and attrs.size()==0){
-				stream<<"\n"<<this_indent;
-				uint index = 0;
-				for(Node child : node.children()){
-					generate(child,stream,"","",index==0,index==children_size);
-					index++;
-				}
-				return;
-			}
+			// Shortcuts from whence we return...and if we don't then the
+			// default generation happens (that's why it's not an if,else if tree)
+			
 			// Write directive shortcut
-			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-text").length()){
-				stream<<"~"<<node.attr("data-text")<<"~";
+			if(name=="span" and children==0 and attributes==1 and node.attr("data-text").length()){
+				cila<<"~"<<node.attr("data-text")<<"~";
 				return;
 			}
 			// Refer directive shortcut
-			if(name=="span" and children_size==0 and attrs.size()==1 and node.attr("data-refer").length()){
+			if(name=="span" and children==0 and attributes==1 and node.attr("data-refer").length()){
 				auto value = node.attr("data-refer");
 				if(value[0]=='#'){
 					int spaces = std::count_if(value.begin(), value.end(),[](unsigned char c){ return std::isspace(c); });
 					if(spaces==0){
-						stream<<"@"<<value.substr(1);
+						cila<<"@"<<value.substr(1);
 						return;
 					}
 				}
 			}
 			// Emphasis & strong
-			if((name=="em" or name=="strong") and attrs.size()==0){
+			if((name=="em" or name=="strong") and attributes==0){
 				std::string delim;
 				if(name=="em") delim = "_";
 				else delim = "*";
-				stream<<delim;
-				for(Node child : node.children()) generate(child,stream);
-				stream<<delim;
+				cila<<delim;
+				visit_children(node,false);
+				cila<<delim;
 				return;
 			}
 			// Code
-			if(name=="code" and attrs_size==0){
+			if(name=="code" and attributes==0){
 				auto text = node.text();
 				boost::replace_all(text,"`","\\`");
-				stream<<"`"<<text<<"`";
+				cila<<"`"<<text<<"`";
 				return;
 			}
 			// Equations and inline math
@@ -1018,7 +1040,8 @@ public:
 							begin = "\\(";
 							end = "\\)";
 						}
-						stream<<"\n"<<this_indent<<begin<<code<<end;
+						newline();
+						cila<<begin<<code<<end;
 						return;
 					}
 				}
@@ -1026,27 +1049,49 @@ public:
 			if(name=="script" and node.attr("type")=="math/asciimath"){
 				auto code = trim(node.text());
 				boost::replace_all(code,"|","\\|");
-				stream<<'|'<<code<<'|';
+				cila<<'|'<<code<<'|';
 				return;
 			}
 			if(name=="script" and node.attr("type")=="math/tex"){
 				auto code = trim(node.text());
-				stream<<"\\("<<code<<"\\)";
+				cila<<"\\("<<code<<"\\)";
 				return;
 			}
 			// Links, autolinks and autoemails
-			if(name=="a" and attrs_size==1 and node.has("href")){
+			if(name=="a" and attributes==1 and node.has("href")){
 				auto text = node.text();
 				auto href = node.attr("href");
-				if(text==href) stream<<text;
-				else if(href.substr(0,7)=="mailto:" and href.substr(7)==text) stream<<text;
-				else stream<<"["<<text<<"]("<<href<<")";
+				if(text==href) cila<<text;
+				else if(href.substr(0,7)=="mailto:" and href.substr(7)==text) cila<<text;
+				else cila<<"["<<text<<"]("<<href<<")";
+				return;
+			}
+			// Lists with no attributes
+			if((name=="ul" or name=="ol") and attributes==0 and children>0){
+				// Only proceed if all children are `<li>`
+				if(node.filter("li").size()==children){
+					bool ol = name=="ol";
+					int index = 0;
+					for(auto child : children_list){
+						if(index!=0) newline();
+						index++;
+						if(ol) cila<<index<<". ";
+						else cila<<"- ";
+						visit_children(child,false);
+					}
+					return;
+				}
+			}
+			// Plain paragraph just needs a blank line before it
+			if(name=="p" and children>0 and attributes==0){
+				newline();
+				visit_children(node,false);
 				return;
 			}
 			// Sections with an id attribute and a <h1> child
-			if(name=="section" and node.attr("id").length() and children_size>0){
+			if(name=="section" and node.attr("id").length() and children>0){
 				// Only proceed if <h1> is first child
-				if(children[0].name()=="h1"){
+				if(children_list[0].name()=="h1"){
 					// Only proceed if id is consistent with header
 					auto h1 = node.select("h1");
 					auto title = h1.text();
@@ -1057,178 +1102,194 @@ public:
 					auto id = node.attr("id");
 					if(id==id_expected){
 						// Add shortcut with blank line before
-						stream<<"\n> "<<boost::trim_copy(title);
+						newline();
+						cila<<"> "<<boost::trim_copy(title);
 						// Generate each child on a new line except for the h1
+						indent();
 						uint index = 0;
+						uint last = children-1;
 						for(Node child : node.children()){
 							if(not(child.name()=="h1" and child.text()==title)){
-								stream<<"\n"<<child_indent;
-								generate(child,stream,child_indent,child_indent+"\t",index==0,index==children_size);
+								newline();
+								visit(child,index==0,index==last);
 								index++;
 							}
 						}
+						outdent();
 						return;
 					}
 				}
 			}
-			// Lists with no attributes
-			if((name=="ul" or name=="ol") and attrs_size==0 and children_size>0){
-				// Only proceed if all children are `<li>`
-				if(children_size==node.filter("li").size()){
-					bool ol = name=="ol";
-					int index = 0;
-					for(auto child : children){
-						if(index>0) stream<<"\n"<<this_indent;
-						++index;
-						if(ol) stream<<index<<". ";
-						else stream<<"- ";
-						for(auto grandchild : child.children()) generate(grandchild,stream);
-					}
-					return;
+				
+			// Everything that could not be shortcutted still remains here...
+		
+			bool separate = false;
+			bool trail = true;
+			bool embedded = false;
+
+			// Start of line depends on type of element...
+			// Execute directives
+			if(node.has("data-exec")){
+				newline();
+				cila<<node.attr("data-exec");
+				separate = true;
+
+				erase_attr("data-exec");
+				embedded = true;
+			}
+			// Style elements
+			else if(name=="style"){
+				std::string lang = "css";
+				std::string type = node.attr("type");
+				if(type=="text/css") lang = "css";
+				
+				newline();
+				cila<<lang;
+				separate = true;
+
+				erase_attr("type");
+				embedded = true;
+			}
+			// <div>s only need to be specified if 
+			// 	- no attributes following
+			// 	- not a `text` or `refer` directive (which have span defaults)
+			else if(name=="div"){
+				if(attributes==0 or node.has("data-text") or node.has("data-refer")){
+					cila<<name;
+					separate = true;
 				}
 			}
-			// Execute ans style directives
-			if(node.attr("data-exec").length() or name=="style"){
-				// Always have a blank line before
-				stream<<"\n";
-				if(node.attr("data-exec").length()){
-					stream<<this_indent<<node.attr("data-exec")<<"\n";
+			// <span>s don't need to specified if a `text` or `refer` directive
+			else if(name=="span"){
+				if(not (node.has("data-text") or node.has("data-refer"))){
+					cila<<name;
+					separate = true;
 				}
-				else if(name=="style"){
-					std::string lang = "css";
-					std::string type = node.attr("type");
-					if(type=="text/css") lang = "css";
-					stream<<this_indent<<lang<<"\n";
+			}
+			else {
+				cila<<name;
+				separate = true;
+			}
+
+			// Handle attributes...
+			if(attributes){
+				std::pair<std::string,std::string> directive;
+				std::vector<std::pair<std::string,std::string>> flags;
+				for(auto name : attribute_list){
+					auto value = node.attr(name);
+					if(Stencil::directive(name)){
+						directive.first = name;
+						directive.second = value;
+					}
+					else if(Stencil::flag(name)){
+						flags.push_back({name,value});
+					}
+					else {
+						if(separate) cila<<" ";
+
+						if(name=="id"){
+							cila<<"#"<<value;
+						}
+						else if(name=="class"){
+							// Get class attribute and split using spaces
+							std::vector<std::string> classes;
+							boost::split(classes,value,boost::is_any_of(" "));
+							int index = 0;
+							for(auto name : classes){
+								if(index>0) cila<<" ";
+								if(name.length()) cila<<"."<<name;
+								index++;
+							}
+						}
+						else {
+							cila<<"["<<name<<"="<<value<<"]";
+						}
+
+						separate = true;
+					}
 				}
+
+				// Directives
+				if(directive.first.length()){
+					if(separate) cila<<" ";
+					auto name = directive.first;
+					cila<<name.substr(5);
+					if(not(name=="data-each" or name=="data-else" or name=="data-default")){
+						auto value = directive.second;
+						cila<<" "<<value;
+					}
+					trail = false;
+					separate = true;
+				}
+
+				// Flags
+				if(flags.size()){
+					if(separate) cila<<" ";
+					cila<<":";
+				}
+				for(auto attr : flags){
+					auto name = attr.first;
+					auto value = attr.second;
+					std::string flag;
+					if(name=="data-hash") flag = "&"+value;
+					else if(name=="data-index") flag = "^"+value;
+					else if(name=="data-error") flag = "!"+value;
+					else flag = name.substr(5);
+					cila<<" "<<flag;
+					trail = false;
+					separate = true;
+				}
+			}
+
+			// Embedded code
+			if(not embedded){
+				// Short text only child trails, long text only child is indented
+				if(trail and children==1){
+					auto child = children_list[0];
+					if(child.is_text()){			
+						auto text = child.text();
+						boost::trim(text);
+						if(text.length()<100){
+							if(separate) cila<<" ";
+							cila<<text;
+						}
+						else {
+							indent();
+							newline();
+							cila<<text;
+							outdent();
+						}
+						return;
+					}
+				}
+				// Otherwise all childen indented
+				indent();
+				visit_children(node);
+				outdent();
+			} else {
 				// Get the code from the child nodes. Usually there will be only one, but in case there are more
 				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
 				std::string code;
 				for(Node child : node.children()) code += child.text();
 				// Trim white space (it should never be significant when at start or end)
-				// Normally code will start and end with a newline (that is how it is created when parsed)
+				// Normally code will start and end with a new line (that is how it is created when parsed)
 				// so remove those, and any other whitespace, for consistent Cila generation
 				boost::trim(code);
 				// Split into lines
 				std::vector<std::string> lines;
 				boost::split(lines,code,boost::is_any_of("\n"));
 				// Output each line with extra indentation
+				indent();
 				for(unsigned int index=0;index<lines.size();index++){
-					stream<<child_indent<<lines[index];
-					// Don't put a newline on last line - that is the 
-					// responsibility of the following element
-					if(index<(lines.size()-1)) stream<<"\n";
+					newline();
+					cila<<lines[index];
 				}
-				return;
+				outdent();
 			}
 
-			// Keep track of whether content has been put to the stream for this
-			// element for knowing if separating spaces are required
-			bool separator_required = false;
-			// Keep track of whether trailing text is allowed
-			bool trailing_text_ok = true;
-		
-			// Name
-			auto tag = [&](){
-				stream<<name;
-				separator_required = true;
-			};
-			if(name=="span"){
-				if(node.has("data-text") or node.has("data-refer")){}
-				else tag();
-			}
-			else if(name=="div"){
-				if(attrs.size()==0 or node.has("data-text") or node.has("data-refer")) tag();
-			}
-			else tag();
-			// Attributes...
-			std::pair<std::string,std::string> directive;
-			std::vector<std::pair<std::string,std::string>> flags;
-			for(auto name : attrs){
-				auto value = node.attr(name);
-				if(Stencil::directive(name)){
-					directive.first = name;
-					directive.second = value;
-				}
-				else if(Stencil::flag(name)){
-					flags.push_back({name,value});
-				}
-				else {
-					if(separator_required) stream<<" ";
-					if(name=="id"){
-						stream<<"#"<<value;
-					}
-					else if(name=="class"){
-						// Get class attribute and split using spaces
-						std::vector<std::string> classes;
-						boost::split(classes,value,boost::is_any_of(" "));
-						int index = 0;
-						for(auto name : classes){
-							if(index>0) stream<<" ";
-							if(name.length()) stream<<"."<<name;
-							index++;
-						}
-					}
-					else {
-						stream<<"["<<name<<"="<<value<<"]";
-					}
-					separator_required = true;
-				}
-			}
-			// Directives
-			if(directive.first.length()){
-				if(separator_required) stream<<" ";
-				auto name = directive.first;
-				stream<<name.substr(5);
-				if(not(name=="data-each" or name=="data-else" or name=="data-default")){
-					auto value = directive.second;
-					stream<<" "<<value;
-				}
-				trailing_text_ok = false;
-				separator_required = true;
-			}
-
-			// Flags
-			if(flags.size()){
-				if(separator_required) stream<<" ";
-				stream<<":";
-			}
-			for(auto attr : flags){
-				auto name = attr.first;
-				auto value = attr.second;
-				std::string flag;
-				if(name=="data-hash") flag = "&"+value;
-				else if(name=="data-index") flag = "^"+value;
-				else if(name=="data-error") flag = "!"+value;
-				else flag = name.substr(5);
-				stream<<" "<<flag;
-				trailing_text_ok = false;
-				separator_required = true;
-			}
-		
-			// Chillen
-			Node only_child;
-			if(children_size==1) only_child = children[0];
-			if(not node.is_document() and trailing_text_ok and only_child and only_child.is_text()){			
-				// Short text only child trails, long text only child is indented
-				auto text = only_child.text();
-				boost::trim(text);
-				if(text.length()<100){
-					if(separator_required) stream<<" ";
-					stream<<text;
-				}
-				else stream<<"\n"<<child_indent<<text;
-			} else {
-				// Generate children
-				uint index = 0;
-				for(Node child : node.children()){
-					if(not is_inline) stream<<"\n"<<child_indent;
-					generate(child,stream,child_indent,child_indent+"\t",index==0,index==children_size);
-					index++;
-				}
-			}
 		}
 		else if(node.is_text()){
-			std::string text = node.text();
+			auto text = node.text();
 			// Trim white space if first or last child
 			if(first) boost::trim_left(text);
 			if(last) boost::trim_right(text);
@@ -1237,24 +1298,30 @@ public:
 			boost::replace_all(text,"|","\\|");
 			boost::replace_all(text,"~","\\~");
 			boost::replace_all(text,"@","\\@");
-			stream<<text;
+
+			cila<<text;
 		}
 		else {
 			STENCILA_THROW(Exception,"Unhandled XML node type");
 		}
 	}
 
-	std::string generate(Node node){
-		std::stringstream cila;
-		generate(node,cila,"","");
-		auto str = cila.str();
-		if(str.length()){
-			if(str[0]=='\n'){
-				return str.substr(1);
-			}
+	void visit_children(Node node, bool newlines=true){
+		int index = 0;
+		int last = node.children().size()-1;
+		for(Node child : node.children()){
+			if(newlines) newline();
+			visit(child,index==0,index==last);
+			index++;
 		}
-		return str;
 	}
+
+	std::string generate(Node node){
+		cila.str("");
+		visit(node);
+		return trim(cila.str());
+	}
+
 };
 
 }
