@@ -5,6 +5,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -905,6 +906,12 @@ public:
 						// so that the line can be processed by `sol`
 						exit();
 						across(sol);
+						// Currently the `embed` state is eating up all trailing blank lines (until there is an
+						// outented line). This means that without the following `blankline` is not matched and thus
+						// text is not considered to require a paragraph. An alternative would be to not include blank 
+						// lines in the `embed`ed element until an outdent (in which case it is put back in the stream), or
+						// more embedded content (in which case it is added to the buffer)
+						para_needed = true;
 					} else {
 						// Add to buffer
 						if(indent_line.length()>=indent.length()+1) buffer += indent_line.substr(indent.length()+1);
@@ -940,9 +947,10 @@ public:
 	 * 
 	 * @param stencil Stencil to generate Cila for
 	 */
-	void generate(Node node, std::ostream& stream, const std::string& this_indent="", const std::string& child_indent=""){
+	void generate(Node node, std::ostream& stream, const std::string& this_indent="", const std::string& child_indent="",bool first=false,bool last=false){
 		if(node.is_document() or node.is_element()){
 			auto name = node.name();
+			bool is_inline = Html::is_inline_element(name);
 			auto attrs = node.attrs();
 			auto attrs_size = attrs.size();
 			auto children = node.children();
@@ -954,7 +962,11 @@ public:
 			// just dumped
 			if(name=="p" and children_size>0 and attrs.size()==0){
 				stream<<"\n"<<this_indent;
-				for(Node child : node.children()) generate(child,stream);
+				uint index = 0;
+				for(Node child : node.children()){
+					generate(child,stream,"","",index==0,index==children_size);
+					index++;
+				}
 				return;
 			}
 			// Write directive shortcut
@@ -996,7 +1008,7 @@ public:
 				if(script){
 					auto type = script.attr("type");
 					if(type.length()){
-						auto code = script.text();
+						auto code = trim(script.text());
 						std::string begin,end;
 						if(type.find("math/asciimath")!=std::string::npos){
 							begin = "|";
@@ -1006,19 +1018,20 @@ public:
 							begin = "\\(";
 							end = "\\)";
 						}
-						stream<<begin<<code<<end;
+						stream<<"\n"<<this_indent<<begin<<code<<end;
 						return;
 					}
 				}
 			}
 			if(name=="script" and node.attr("type")=="math/asciimath"){
-				auto code = node.text();
+				auto code = trim(node.text());
 				boost::replace_all(code,"|","\\|");
 				stream<<'|'<<code<<'|';
 				return;
 			}
 			if(name=="script" and node.attr("type")=="math/tex"){
-				stream<<"\\("<<node.text()<<"\\)";
+				auto code = trim(node.text());
+				stream<<"\\("<<code<<"\\)";
 				return;
 			}
 			// Links, autolinks and autoemails
@@ -1038,15 +1051,21 @@ public:
 					auto h1 = node.select("h1");
 					auto title = h1.text();
 					auto id_expected = title;
+					boost::trim(id_expected);
 					boost::to_lower(id_expected);
 					boost::replace_all(id_expected," ","-");
 					auto id = node.attr("id");
 					if(id==id_expected){
-						// Add shortcut
-						stream<<"> "<<title;
-						// Generate each child except for the h1
+						// Add shortcut with blank line before
+						stream<<"\n> "<<boost::trim_copy(title);
+						// Generate each child on a new line except for the h1
+						uint index = 0;
 						for(Node child : node.children()){
-							if(not (child.name()=="h1" and child.text()==title)) generate(child,stream,child_indent,child_indent+"\t");
+							if(not(child.name()=="h1" and child.text()==title)){
+								stream<<"\n"<<child_indent;
+								generate(child,stream,child_indent,child_indent+"\t",index==0,index==children_size);
+								index++;
+							}
 						}
 						return;
 					}
@@ -1068,27 +1087,31 @@ public:
 					return;
 				}
 			}
-			// Execute directive
+			// Execute ans style directives
 			if(node.attr("data-exec").length() or name=="style"){
-				if(node.attr("data-exec").length()) stream<<node.attr("data-exec")<<"\n";
+				// Always have a blank line before
+				stream<<"\n";
+				if(node.attr("data-exec").length()){
+					stream<<this_indent<<node.attr("data-exec")<<"\n";
+				}
 				else if(name=="style"){
 					std::string lang = "css";
 					std::string type = node.attr("type");
 					if(type=="text/css") lang = "css";
-					stream<<lang<<"\n";
+					stream<<this_indent<<lang<<"\n";
 				}
 				// Get the code from the child nodes. Usually there will be only one, but in case there are more
 				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
 				std::string code;
 				for(Node child : node.children()) code += child.text();
+				// Trim white space (it should never be significant when at start or end)
 				// Normally code will start and end with a newline (that is how it is created when parsed)
-				// so remove those for consistent Cila generation
-				if(code[0]=='\n') code = code.substr(1);
-				if(code[code.length()-1]=='\n') code = code.substr(0,code.length()-1);
+				// so remove those, and any other whitespace, for consistent Cila generation
+				boost::trim(code);
 				// Split into lines
 				std::vector<std::string> lines;
 				boost::split(lines,code,boost::is_any_of("\n"));
-				// Add extra indentation to each line
+				// Output each line with extra indentation
 				for(unsigned int index=0;index<lines.size();index++){
 					stream<<child_indent<<lines[index];
 					// Don't put a newline on last line - that is the 
@@ -1188,6 +1211,7 @@ public:
 			if(not node.is_document() and trailing_text_ok and only_child and only_child.is_text()){			
 				// Short text only child trails, long text only child is indented
 				auto text = only_child.text();
+				boost::trim(text);
 				if(text.length()<100){
 					if(separator_required) stream<<" ";
 					stream<<text;
@@ -1195,18 +1219,23 @@ public:
 				else stream<<"\n"<<child_indent<<text;
 			} else {
 				// Generate children
-				bool node_is_inline = Html::is_inline_element(name);
+				uint index = 0;
 				for(Node child : node.children()){
-					if(not node_is_inline) stream<<"\n"<<child_indent;
-					generate(child,stream,child_indent,child_indent+"\t");
+					if(not is_inline) stream<<"\n"<<child_indent;
+					generate(child,stream,child_indent,child_indent+"\t",index==0,index==children_size);
+					index++;
 				}
 			}
 		}
 		else if(node.is_text()){
 			std::string text = node.text();
-			// Escape backticks and pipes
+			// Trim white space if first or last child
+			if(first) boost::trim_left(text);
+			if(last) boost::trim_right(text);
+			// Escape characters used for shortcuts
 			boost::replace_all(text,"`","\\`");
 			boost::replace_all(text,"|","\\|");
+			boost::replace_all(text,"~","\\~");
 			boost::replace_all(text,"@","\\@");
 			stream<<text;
 		}

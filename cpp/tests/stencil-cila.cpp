@@ -33,12 +33,12 @@ struct CilaFixture : public CilaParser, public CilaGenerator {
 // Check macros. Macros are used so that Boost::Unit reports lines number
 // of failed checks properly
 #define CILA_XML(_CILA,_XML) { parse(stencil,_CILA); BOOST_CHECK_EQUAL(stencil.xml(),_XML); }
-#define XML_CILA(_XML,_CILA) { stencil.xml(_XML); BOOST_CHECK_EQUAL(generate(stencil),_CILA); }
-#define CILA_CILA(_IN,_OUT) { parse(stencil,_IN); BOOST_CHECK_EQUAL(generate(stencil),_OUT); }
+#define XML_CILA(_XML,_CILA) { stencil.xml(_XML); BOOST_CHECK_EQUAL(trim(generate(stencil)),_CILA); }
+#define CILA_CILA(_IN,_OUT) { parse(stencil,_IN); BOOST_CHECK_EQUAL(trim(generate(stencil)),_OUT); }
 #define ECHO(_IN) CILA_CILA(_IN,_IN);
 
 BOOST_FIXTURE_TEST_SUITE(stencil_cila_quick,CilaFixture)
- 
+
 BOOST_AUTO_TEST_CASE(elements){
 	CILA_XML("div","<div />");
 	CILA_XML("div\ndiv","<div /><div />");
@@ -87,11 +87,11 @@ BOOST_AUTO_TEST_CASE(auto_paragraphs){
 	// Nested paragraph
 	CILA_XML("div\n\n\tThis should be a paragraph","<div><p>This should be a paragraph</p></div>")
 
-	XML_CILA("<p>Para</p>","\nPara");
+	XML_CILA("<p>Para</p>","Para");
 	XML_CILA("<div><p>Para1</p><p>Para2</p></div>","div\n\t\n\tPara1\n\t\n\tPara2");
 
-	ECHO("\nPara");
-	ECHO("\nPara1\n\nPara2");
+	ECHO("Para");
+	ECHO("Para1\n\nPara2");
 }
 
 BOOST_AUTO_TEST_CASE(embedded){
@@ -282,7 +282,7 @@ Hello world)";
 	auto html_ = 
 R"(<pre data-exec="r">
 pi &lt;- 3.14
-</pre>Hello world)";
+</pre><p>Hello world</p>)";
 	CILA_XML(cila_,html_)
 }
 
@@ -664,15 +664,15 @@ BOOST_AUTO_TEST_CASE(asciimath){
 	CILA_XML("With asterisks and underscores |a_b*c|",R"(With asterisks and underscores <script type="math/asciimath">a_b*c</script>)");
 	CILA_XML("An escaped pipe within AsciiMath |a\\|b|",R"(An escaped pipe within AsciiMath <script type="math/asciimath">a|b</script>)");
 
-	//!XML_CILA(R"(Before <script type="math/asciimath">e=mc^2</script> after)","Before |e=mc^2| after");
+	XML_CILA(R"(<p>Before <script type="math/asciimath">e=mc^2</script> after</p>)","Before |e=mc^2| after");
 	XML_CILA(R"(<p class="equation"><script type="math/asciimath; mode=display">e=mc^2</script></p>)","|e=mc^2|");
 	XML_CILA(R"(An escaped pipe | within text)","An escaped pipe \\| within text");
-	//!XML_CILA(R"(An escaped pipe within AsciiMath <span class="math"><script type="math/asciimath">a|b</script></span>)","An escaped pipe within AsciiMath |a\\|b|");
+	XML_CILA(R"(<p>A pipe within AsciiMath <script type="math/asciimath">a|b</script></p>)","A pipe within AsciiMath |a\\|b|");
 
 	ECHO("|e=mc^2|");
-	//! ECHO("Before |e=mc^2| after");
-	//! ECHO("An escaped pipe within AsciiMath |a\\|b|");
-	ECHO("An escaped pipe \\| within text)");
+	//ECHO("Before |e=mc^2| after");
+	//ECHO("An escaped pipe within AsciiMath |a\\|b|");
+	//ECHO("An escaped pipe \\| within text)");
 }
 
 BOOST_AUTO_TEST_CASE(tex){
@@ -681,7 +681,7 @@ BOOST_AUTO_TEST_CASE(tex){
 	XML_CILA(R"(<p class="equation"><script type="math/tex; mode=display">e=mc^2</script></p>)","\\(e=mc^2\\)");
 
 	ECHO("\\(e=mc^2\\)");
-	//! ECHO("Before \\(e=mc^2\\) after");
+	//ECHO("Before \\(e=mc^2\\) after");
 }
 
 BOOST_AUTO_TEST_CASE(link){
@@ -741,6 +741,78 @@ BOOST_AUTO_TEST_CASE(interpolate){
 	
 	ECHO("~x~");
 	//!ECHO("Before ~x~ after");
+}
+
+BOOST_AUTO_TEST_CASE(html_cila){
+	std::string html = R"(
+		<div id="title">Title</div>
+
+		<section id="sections-and-paragraphs">
+			<h1>Sections and paragraphs</h1>
+			<p>
+				There should be an empty line before section headings.
+			</p>
+			<p>
+				There should be an empty line before paragraphs.
+			</p>
+			<p>
+				A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+			</p>
+			<p>
+				Some <code>code</code>.
+			</p>
+		</section>
+
+		<section id="math">
+			<h1>Math</h1>
+			<p>
+				Asciimath <script type="math/asciimath">e=mc^2</script> inline.
+				LaTeX <script type="math/tex">a^2+b^2=c^2</script> inline.
+			</p>
+			<p class="equation">
+				<script type="math/asciimath; mode=display">theta(x)=1/(sqrt(2 pi sigma)) e^((x-mu)^2/(2 sigma^2))</script>
+			</p>
+		</section>
+
+		<section id="exec">
+			<h1>Exec</h1>
+			<pre data-exec="r">
+# Needs to have no indentation
+pi <- 22/7
+			</pre>
+		</section>
+
+		<p>End</p>
+	)";
+
+	std::string cila = R"(#title Title
+
+> Sections and paragraphs
+	
+	There should be an empty line before section headings.
+	
+	There should be an empty line before paragraphs.
+	
+	A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+	
+	Some `code`.
+
+> Math
+	
+	Asciimath |e=mc^2| inline. LaTeX \(a^2+b^2=c^2\) inline.
+	
+	|theta(x)=1/(sqrt(2 pi sigma)) e^((x-mu)^2/(2 sigma^2))|
+
+> Exec
+	
+	r
+		# Needs to have no indentation
+		pi <- 22/7
+
+End)";
+
+	Stencil stencil;
+	BOOST_CHECK_EQUAL(stencil.html(html).cila(),cila);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
