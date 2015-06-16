@@ -48,7 +48,7 @@ std::string Document::tidy(const std::string& html){
 	// Create a tidyhtml5 document
 	TidyDoc document = tidyCreate();
 	// Set processing  and output options.
-	// For a list of options see http://w3c.github.io/tidy-html5/quickref.html
+	// For a list of options see http://www.htacg.org/tidy-html5/quickref.html
 	// For C names of options see tidy-html5-master/src/config.c
 	bool ok = false;
 	// 	Do not drop attributes or elements (otherwise elems that have meaning in
@@ -57,6 +57,8 @@ std::string Document::tidy(const std::string& html){
 	ok = tidyOptSetBool(document,TidyDropFontTags,no);
 	ok = tidyOptSetBool(document,TidyDropEmptyElems,no);
 	ok = tidyOptSetBool(document,TidyDropEmptyParas,no);
+	// Don't wrap lines
+	ok = tidyOptSetInt(document,TidyWrapLen,0);
 	//	Output as XHTML5
 	ok = tidyOptSetBool(document,TidyXhtmlOut,yes);
 	ok = tidyOptSetValue(document,TidyDoctype,"html5");
