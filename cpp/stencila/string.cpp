@@ -37,6 +37,10 @@ std::string& trim(std::string& string){
 	return string;
 }
 
+std::string trim(const std::string& string){
+	return boost::trim_copy(string);
+}
+
 std::string lower(const std::string& string){
 	return boost::to_lower_copy(string);
 }

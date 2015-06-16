@@ -30,6 +30,8 @@ Type unstring(const std::string& value);
  */
 std::string& trim(std::string& string);
 
+std::string trim(const std::string& string);
+
 /**
  * Convert to lower case
  */
