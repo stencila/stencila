@@ -1241,7 +1241,6 @@ public:
 				}
 			}
 
-			// Embedded code
 			if(not embedded){
 				// Short text only child trails, long text only child is indented
 				if(trail and children==1){
@@ -1285,6 +1284,9 @@ public:
 					cila<<lines[index];
 				}
 				outdent();
+				// Follow with a blankline (for easier parsing of embed elements in editor)
+				// This may not be needed in future
+				cila<<"\n";
 			}
 
 		}
