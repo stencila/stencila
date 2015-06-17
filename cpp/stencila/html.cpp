@@ -148,7 +148,11 @@ Document& Document::load(const std::string& html){
 
 	// Load the tidied HTML into the document
 	Xml::Document::load(tidied);
-	
+
+	// Unfortunately, TidyHTML seems to unecessarily add in <li> elements when there is whitespace within a <ul> or <ol>
+	// This is a tempory fix, it's here becasue it is the easiest place for it.
+	for(auto node : filter("li[style='list-style: none']")) node.destroy();
+
 	// tidy-html5 does not add a DOCTYPE declaration even when `TidyXhtmlOut` is `yes` and
 	// `TidyDoctype` is `"html5"`. So add one here..
 	doctype("html");
