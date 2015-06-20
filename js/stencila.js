@@ -528,6 +528,13 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
+	 * Is this component active?
+	 */
+	Component.prototype.active = function(){
+		return this.activation==='active';
+	};
+
+	/**
 	 * Activate this component
 	 */
 	Component.prototype.activate = function(){
@@ -898,6 +905,7 @@ var Stencila = (function(Stencila){
 	};
 	Exec.prototype.get = function(node){
 		this.details = node.attr('data-exec');
+		this.error = node.attr('data-error');
 		this.code = node.text();
 		return this;
 	};
@@ -1113,6 +1121,57 @@ var Stencila = (function(Stencila){
 	For.prototype.apply = directiveApply;
 
 	/**
+	 * A `comments` directive
+	 */
+	var Comments = Stencila.Comments = function(on){
+		this.on = on;
+	};
+	Comments.prototype.get = function(node){
+		var attr = node.attr('data-comments');
+		var matches = attr.match(/^on\s+(.+)$/);
+		if(matches && matches.length>1) this.on = matches[1];
+		return this;
+	};
+	Comments.prototype.set = function(node){
+		node.attr('data-comments',this.on?('on '+this.on):'');
+		return this;
+	};
+	Comments.prototype.render = function(node,context){
+		return this;
+	};
+	Comments.prototype.apply = directiveApply;
+
+	/**
+	 * A `comment` directive
+	 */
+	var Comment = Stencila.Comment = function(by,at,content){
+		this.by = by;
+		this.at = at;
+		this.content = content;
+	};
+	Comment.prototype.get = function(node){
+		var attr = node.attr('data-comment');
+		// A regex for an ISO datetime for `at` (without the timezone, assuming UTC)
+		// is something litke \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d
+		// But here being more permissive
+		var matches = attr.match(/^by\s+([@\w]+)\s+at\s+([\w-:.]+)$/);
+		if(matches && matches.length==2){
+			this.by = matches[1];
+			this.at = matches[2];
+		}
+		this.content = node.text();
+		return this;
+	};
+	Comment.prototype.set = function(node){
+		node.attr('data-comment','by '+ this.by + ' at '+ this.at);
+		return this;
+	};
+	Comment.prototype.render = function(node,context){
+		return this;
+	};
+	Comment.prototype.apply = directiveApply;
+
+	/**
 	 * A stencil class
 	 * 
 	 * @param content HTML string or CSS selector string to element in current document. Defaults to `#content`
@@ -1129,6 +1188,8 @@ var Stencila = (function(Stencila){
 
 		context = context || window.location.url;
 		this.context = new Context(context);
+
+		this.editable = (this.host=='localhost');
 	};
 	Stencil.prototype = Object.create(Component.prototype);
 
@@ -1136,7 +1197,33 @@ var Stencila = (function(Stencila){
 	 * Get or set the HTML for this stencil
 	 */
 	Stencil.prototype.html = function(html){
-		return this.content.html(html);
+		if(html===undefined){
+			return this.content.html();
+		}
+		else {
+			this.content.html(html);
+			return this;
+		}
+	};
+
+	/**
+	 * Get or set the Cila for this stencil
+	 */
+	Stencil.prototype.cila = function(arg){
+		var self = this;
+		if(typeof arg==="function"){
+			// Get
+			self.call("html(string).cila():string",[self.html()],function(cila){
+				arg(cila);
+			});
+		}
+		else {
+			// Set
+			self.call("cila(string).html():string",[arg],function(html){
+				self.content.html(html);
+			});
+		}
+		return self;
 	};
 
 	/**
@@ -1151,6 +1238,13 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.title = function(){
 		return this.content.find('#title').text().trim();
+	};
+
+	/**
+	 * Edit this stencil
+	 */
+	Stencil.prototype.edit = function(on){
+		this.change('editable',(on===undefined)?true:on);
 	};
 	
 	/**
@@ -1202,6 +1296,16 @@ var Stencila = (function(Stencila){
 			self.content.html(html);
 			self.viewCurrent.from('content');
 			self.viewCurrent.updating(false);
+		});
+	};
+
+	/**
+	 * Save this stencil
+	 */
+	Stencil.prototype.save = function(){
+		var self = this;
+		this.call("html(string)",[this.content.html()],function(){
+			console.log('Saved');
 		});
 	};
 

@@ -448,8 +448,9 @@ public:
 			style_open("(style|css)(\\n|$)"),
 
 			directive_noarg("(each|else|default)\\b *(?=(: )|\\n|\\{|\\}|$)"),
-			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set) +(.+?)(?=(: )|\\n|\\{|\\}|$)"),
-			
+			directive_arg_optional("(comments)( +(.+?))?(?=(: )|\\n|\\{|\\}|$)"),
+			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set|comment) +(.+?)(?=(: )|\\n|\\{|\\}|$)"),
+
 			spaces(" +"),
 
 			flags_open(": "),
@@ -648,15 +649,21 @@ public:
 				}
 				else if(is(directive_noarg)){
 					trace("directive_noarg");
-					// Enter new element it necessary and create directive attribute;
-					// type of element depends on which directive;
-					// move across to `flags` state (i.e no attributes or text to follow)
+					// Enter new element if necessary and create directive attribute;
 					enter_elem_if_needed();
 					node.attr("data-"+match[1].str(),"true");
 				}
+				else if(is(directive_arg_optional)){
+					trace("directive_arg_optional");
+					// Enter new element if necessary and create directive attribute;
+					auto directive = match[1].str();
+					auto arg = match[3].str();
+					enter_elem_if_needed();
+					node.attr("data-"+directive,arg);
+				}
 				else if(is(directive_arg)){
 					trace("directive_arg");
-					// Enter new element it necessary and create directive attribute;
+					// Enter new element if necessary and create directive attribute;
 					// type of element depends on which directive;
 					// move across to `flags` state (i.e no attributes or text to follow)
 					auto directive = match[1].str();

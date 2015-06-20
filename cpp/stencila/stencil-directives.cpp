@@ -21,6 +21,7 @@ const std::vector<std::string> Stencil::directives = {
 	"data-set",
 	"data-include","data-delete","data-replace","data-change","data-before","data-after","data-prepend","data-append",
 	"data-macro",
+	"data-comments","data-comment"
 };
 
 const std::vector<std::string> Stencil::flags = {

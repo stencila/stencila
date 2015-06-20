@@ -237,7 +237,7 @@ pi &lt;- 3.14
 2*pi*r^2
 </pre><div /><div />)";
 	CILA_XML(cila_,html_)
-	ECHO(cila_)
+	//! ECHO(cila_)
 }
 
 BOOST_AUTO_TEST_CASE(exec_with_empty_lines){
@@ -747,6 +747,16 @@ BOOST_AUTO_TEST_CASE(interpolate){
 	//!ECHO("Before ~x~ after");
 }
 
+BOOST_AUTO_TEST_CASE(comments){
+	CILA_XML("comments","<div data-comments=\"\" />");
+
+	CILA_XML("comments on #an-element","<div data-comments=\"on #an-element\" />");
+	ECHO("comments on #an-element");
+
+	CILA_XML("comment by Arthur Dent at 1989-03-28T00:01:42","<div data-comment=\"by Arthur Dent at 1989-03-28T00:01:42\" />");
+	ECHO("comment by Arthur Dent at 1989-03-28T00:01:42");
+}
+
 BOOST_AUTO_TEST_CASE(html_cila){
 	std::string html = R"(
 		<div id="title">Title</div>
@@ -812,6 +822,7 @@ pi <- 22/7
 	r
 		# Needs to have no indentation
 		pi <- 22/7
+
 
 End)";
 
