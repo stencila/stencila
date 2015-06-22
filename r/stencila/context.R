@@ -85,49 +85,64 @@ Context <- function(envir){
     # All of these methods should return a string!
 
     self$execute <- function(code,id="",format="",width="",height="",units=""){
-        if(format!=""){
-            if(format %in% c('png','svg')){
-                filename = paste0(id,'.',format)
-                # Default image sizes are defined in `stencil-render.cpp` so that they
-                # are consistent across contexts. Don't be tempted to replace missing values
-                # with defaults here!
-                width = if(width=='') stop('no width specified') else as.numeric(width)
-                height = if(height=='') stop('no height specified') else as.numeric(height)
-                if(units=='') stop('no units specified')
-                if(format=='png'){
-                    # The `res` argument must be specified unless `units='in'`
-                    # Use 150ppi instead of the default 72
-                    png(filename=filename,width=width,height=height,units=units,res=150)
-                }
-                else if(format=='svg'){
-                    # The svg function does not have a units argument and assumes inches. 
-                    # Absolute size does matter because it affects the relative size of the text
-                    # For cm, adjust accordingly...
-                    if(units=='cm'){
-                        width = width/2.54
-                        height = height/2.54
-                    }
-                    # For pixels, use a nominal resolution of 150ppi...
-                    else if(units=='px'){
-                        width = width/150
-                        height = height/150
-                    }
-                    svg(filename=filename,width=width,height=height)
-                }
+        if(format==""){ 
+            # No output expected           
+        }
+        else if(format %in% c('png','svg')){
+            filename = paste0(id,'.',format)
+            # Default image sizes are defined in `stencil-render.cpp` so that they
+            # are consistent across contexts. Don't be tempted to replace missing values
+            # with defaults here!
+            width = if(width=='') stop('no width specified') else as.numeric(width)
+            height = if(height=='') stop('no height specified') else as.numeric(height)
+            if(units=='') stop('no units specified')
+            if(format=='png'){
+                # The `res` argument must be specified unless `units='in'`
+                # Use 150ppi instead of the default 72
+                png(filename=filename,width=width,height=height,units=units,res=150)
             }
+            else if(format=='svg'){
+                # The svg function does not have a units argument and assumes inches. 
+                # Absolute size does matter because it affects the relative size of the text
+                # For cm, adjust accordingly...
+                if(units=='cm'){
+                    width = width/2.54
+                    height = height/2.54
+                }
+                # For pixels, use a nominal resolution of 150ppi...
+                else if(units=='px'){
+                    width = width/150
+                    height = height/150
+                }
+                svg(filename=filename,width=width,height=height)
+            }
+        }
+        else if(format=='text'){
+            tempfile <- file()
+            sink(tempfile)
+        }
+        else {
+            stop(paste0('Unhandled format: ',format))
         }
 
         self$evaluate(code)
 
-        if(format!=""){
+        if(format %in% c('png','svg')){
             # Close all graphics devices. In case the
             # code opened new ones, we really need to close them all
             graphics.off()
 
             return(filename)
         }
-
-        return("")
+        else if(format=='text'){
+            # Undivert R output (first!), read and close temp file
+            sink()
+            text <- readLines(tempfile)
+            text <- paste(text,collapse='\n')
+            close(tempfile)
+            return(text)
+        }
+        else return("")
     }
         
     self$interact_code <- ""
