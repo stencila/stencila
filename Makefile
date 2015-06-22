@@ -630,11 +630,13 @@ $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js:
 	touch $@
 
 # Build a minified file of all JS requirements for `stencila.js`
+# RequireJS is concatenated last to avoid conflicts with JQuery and plugins
 $(BUILD)/js/requires.min.js: \
-			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
-			$(BUILD)/js/requires/text-$(REQUIREJS_TEXT_VERSION)/text.js \
 	        $(RESOURCES)/jquery-$(JQUERY_VERSION).js \
-	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js
+	        $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
+	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js \
+			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
+			$(BUILD)/js/requires/text-$(REQUIREJS_TEXT_VERSION)/text.js
 	@mkdir -p $(BUILD)/js
 	uglifyjs $^ --compress --mangle --comments 	> $@
 
