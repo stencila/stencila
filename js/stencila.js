@@ -253,30 +253,27 @@ var Stencila = (function(Stencila){
 	 * @param  {Function} callback Callback once signed in
 	 */
 	Hub.signin = function(credentials,callback) {
-		// Resolve arguments
-		if(typeof credentials==='function' && callback===undefined){
-			credentials = undefined;
-			callback = credentials;
-		}
-
 		var headers = {
 			'Accept':'application/json'
 		};
-		// This page may already be at https://stenci.la and user already signed in
-		// Check for that using cookies set by stenci.la when a user is authenticated
-		if(window.location.host=='stenci.la'){
-			var username = $.cookie('username');
-			if(username){
-				Hub.username = username;
-			}
-		}
-		else if(credentials){
+		if(credentials){
+			// Credentials supplied
 			if(credentials.password){
 				var encoded = btoa(credentials.username+':'+credentials.password);
 				headers['Authorization'] = 'Basic '+encoded;
 			}
-		} 
+		}
+		else if(window.location.host=='stenci.la'){
+			// This page may already be at https://stenci.la and user already signed in
+			// Check for that using cookies set by stenci.la when a user is authenticated
+			var username = $.cookie('username');
+			// If signed in then correct headers will be set in AJAX GET below,
+			// otherwise ask user to sign in
+			if(username) Hub.username = username;
+			else Hub.view.signin();
+		}
 		else {
+			// Ask user to sign in
 			Hub.view.signin();
 		}
 
@@ -301,7 +298,7 @@ var Stencila = (function(Stencila){
 	Hub.get = function(path,auth,then) {
 		if(auth & !Hub.permit) {
 			// If not signed in then signin and then get
-			Hub.signin(function(){
+			Hub.signin(null,function(){
 				Hub.get(path,auth,then);
 			});
 		} else {
@@ -331,7 +328,7 @@ var Stencila = (function(Stencila){
 	Hub.post = function(path,data,then) {
 		if(!Hub.permit) {
 			// If not signed in then signin and then post
-			Hub.signin(function(){
+			Hub.signin(null,function(){
 				Hub.post(path,data,then);
 			});
 		} else {
