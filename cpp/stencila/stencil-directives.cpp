@@ -78,6 +78,41 @@ Stencil& Stencil::crush(void){
 	return *this;
 }
 
+std::string Stencil::hash(Node node, bool attrs, bool text){
+	// Create a key string for this node which starts with the current value
+	// for the current cumulative hash and its adds attributes and text
+	std::string key = hash_;
+	// Update based on attrs
+	if(attrs){
+		for(auto attr : node.attrs()){
+			if(attr!="data-hash") key += attr+":"+node.attr(attr);
+		}
+	}
+	// Update based on text
+	if(text){
+		key += node.text();
+	}
+	// Create an integer hash of key
+	static std::hash<std::string> hasher;
+	std::size_t number = hasher(key);
+	// To reduce the length of the hash, convert the integer hash to a 
+	// shorter string by encoding using a character set
+	static char chars[] = {
+		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+		'0','1','2','3','4','5','6','7','8','9'
+	};
+	std::string string;
+	while(number>0){
+		int index = number % sizeof(chars);
+		string = chars[index] + string;
+		number = int(number/sizeof(chars));
+	}
+	// Set the hash and return it
+	hash_ = string;
+	return hash_;
+}
+
 namespace {
 	template<class Type>
 	std::vector<Type> directives_list(const Stencil& stencil, const std::string& type) {
@@ -180,32 +215,8 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	}
 	if(not accepted) return;
 	
-	// Create a key string for this node which starts with the current value
-	// for the current cumulative hash and its attributes and text
-	std::string key = stencil.hash_;
-	for(auto attr : node.attrs()){
-		if(attr!="data-hash") key += attr+":"+node.attr(attr);
-	} 
-	key += node.text();
-	// Create a new integer hash
-	static std::hash<std::string> hasher;
-	std::size_t number = hasher(key);
-	// To reduce its lenght, convert the integer hash to a 
-	// shorter string by encoding using a character set
-	static char chars[] = {
-		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'0','1','2','3','4','5','6','7','8','9'
-	};
-	std::string hash;
-	while(number>0){
-		int index = number % sizeof(chars);
-		hash = chars[index] + hash;
-		number = int(number/sizeof(chars));
-	}
-	// If this is a non-`const` node (not declared const) then update the cumulative hash
-	// so that changes in this node cascade to other nodes
-	if(not constant) stencil.hash_ = hash;
+	// Update hash
+	auto hash = stencil.hash(node);
 	// If there is no change in the hash then return
 	// otherwise replace the hash (may be missing) and keep rendering
 	std::string current = node.attr("data-hash");
@@ -271,6 +282,12 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	}
 	id += stencil.hash_;
 
+	// Remove any existing output before executing code
+	// in case there is an error in it (in which case
+	// existing output would be inappropriate to current code)
+	Node next = node.next_element();
+	if(next and next.attr("data-output")=="true") next.destroy();
+
 	// Execute code
 	std::string result = context->execute(
 		code,
@@ -280,9 +297,6 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 		height.value,
 		units.value
 	);
-	// Remove any existing output
-	Node next = node.next_element();
-	if(next and next.attr("data-output")=="true") next.destroy();
 
 	// Append new output
 	if(format.value.length()){

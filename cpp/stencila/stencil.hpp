@@ -364,6 +364,12 @@ public:
 	 */
 	Stencil& crush(void);
 
+	/**
+	 * Create a hash of a string key. Used to keep track
+	 * of intra-stencil depenedencies
+	 */
+	std::string hash(Node node, bool attrs=true, bool text=true);
+
 
 	struct Directive {
 		typedef std::string Name;

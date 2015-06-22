@@ -17,7 +17,14 @@ void Stencil::Input::parse(Node node){
 
 void Stencil::Input::render(Stencil& stencil, Node node, Context* context){
 	parse(node);
-	context->input(name,type,value);
+
+	// Update and check hash
+	auto hash = stencil.hash(node,true,false);
+	if(hash==node.attr("data-hash")) return;
+	else {
+		node.attr("data-hash",hash);
+		context->input(name,type,value);
+	}
 }		
 
 Stencil& Stencil::inputs(const std::map<std::string,std::string>& inputs) {
