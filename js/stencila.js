@@ -562,7 +562,7 @@ var Stencila = (function(Stencila){
 					function ready(){
 						if(self.session.ready){
 							self.connection = new WebSocketConnection(self.session.websocket);
-							self.set('activation','active');
+							self.change('activation','active');
 							return true;
 						}
 						return false;
@@ -572,7 +572,7 @@ var Stencila = (function(Stencila){
 					var until = new Date().getTime()+1000*60*3;
 					function giveup(){
 						if(new Date().getTime()>until){
-							self.set('activation','inactive');
+							self.change('activation','inactive');
 							self.view.error('Failed to connect to session: '+self.session.url);
 							return true;
 						}
