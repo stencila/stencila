@@ -1170,7 +1170,7 @@ var Stencila = (function(Stencila){
 		// is something litke \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d
 		// But here being more permissive
 		var matches = attr.match(/^by\s+([@\w]+)\s+at\s+([\w-:.]+)$/);
-		if(matches && matches.length==2){
+		if(matches && matches.length==3){
 			this.by = matches[1];
 			this.at = matches[2];
 		}
