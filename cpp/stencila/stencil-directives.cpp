@@ -212,6 +212,9 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	if(hash==current) return;
 	else node.attr("data-hash",hash);
 
+	// Remove any existing error attribute
+	node.erase("data-error");
+
 	// Get code and return if zero length
 	std::string code = node.text();
 	if(code.length()==0) return;

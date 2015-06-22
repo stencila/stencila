@@ -32,39 +32,44 @@ void Stencil::render_children(Node node, Context* context){
 
 void Stencil::render(Node node, Context* context){
 	try {
-		// Remove any existing error attribute
-		node.erase("[data-error]");
 		// Check for handled elements
 		std::string tag = node.name();
 		// For each attribute in this node...
 		//...use the name of the attribute to dispatch to another rendering method
 		//   Note that return is used so that only the first Stencila "data-xxx" will be 
 		//   considered and that directive will determine how/if children nodes are processed
-		for(std::string attr : node.attrs()){
-			// `macro` elements are not rendered
-			if(attr=="data-exec") return Execute().render(*this,node,context);
-			else if(attr=="data-when") return When().render(*this,node,context);
-			else if(attr=="data-attr") return Attr().render(*this,node,context);
-			else if(attr=="data-text") return Text().render(*this,node,context);
-			else if(attr=="data-with") return With().render(*this,node,context);
+		for(std::string attr : node.attrs()){		
+			// Exec attributes check for hash changes before removing errors so
+			// are treated differently below.
+			if(attr=="data-exec"){
+				return Execute().render(*this,node,context);
+			} else {
+				// Remove any existing error attribute
+				node.erase("data-error");
+	
+				if(attr=="data-when") return When().render(*this,node,context);
+				else if(attr=="data-attr") return Attr().render(*this,node,context);
+				else if(attr=="data-text") return Text().render(*this,node,context);
+				else if(attr=="data-with") return With().render(*this,node,context);
 
-			else if(attr=="data-if") return If().render(*this,node,context);
-			// Ignore `elif` and `else` elements as these are processed by `if`
-			// and the `render_children` below should not necessarily be called for them
-			else if(attr=="data-elif" or attr=="data-else") return;
+				else if(attr=="data-if") return If().render(*this,node,context);
+				// Ignore `elif` and `else` elements as these are processed by `if`
+				// and the `render_children` below should not necessarily be called for them
+				else if(attr=="data-elif" or attr=="data-else") return;
 
-			else if(attr=="data-switch") return Switch().render(*this,node,context);
-			// Ignore `case` and `default` elements as these a processed by `switch`
-			// and the `render_children` below should not necessarily be called for them
-			else if(attr=="data-case" or attr=="data-default") return;
+				else if(attr=="data-switch") return Switch().render(*this,node,context);
+				// Ignore `case` and `default` elements as these a processed by `switch`
+				// and the `render_children` below should not necessarily be called for them
+				else if(attr=="data-case" or attr=="data-default") return;
 
-			else if(attr=="data-for") return For().render(*this,node,context);
+				else if(attr=="data-for") return For().render(*this,node,context);
 
-			else if(attr=="data-include") return Include().render(*this,node,context);
-			else if(attr=="data-set") return Set().render(*this,node,context);
-			else if(attr=="data-par") return Parameter().render(*this,node,context);
+				else if(attr=="data-include") return Include().render(*this,node,context);
+				else if(attr=="data-set") return Set().render(*this,node,context);
+				else if(attr=="data-par") return Parameter().render(*this,node,context);
 
-			else if(attr=="data-macro") return Macro().render(*this,node,context);
+				else if(attr=="data-macro") return Macro().render(*this,node,context);
+			}
 		}
 		// Render input elements
 		if(tag=="input"){
