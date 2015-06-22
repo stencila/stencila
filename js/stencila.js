@@ -250,9 +250,15 @@ var Stencila = (function(Stencila){
 	/**
 	 * Signin to stenci.la
 	 *
-	 * @param  {Function} then Callback once signed in
+	 * @param  {Function} callback Callback once signed in
 	 */
-	Hub.signin = function(credentials,then) {
+	Hub.signin = function(credentials,callback) {
+		// Resolve arguments
+		if(typeof credentials==='function' && callback===undefined){
+			credentials = undefined;
+			callback = credentials;
+		}
+
 		var headers = {
 			'Accept':'application/json'
 		};
@@ -281,7 +287,7 @@ var Stencila = (function(Stencila){
 			headers: headers
 		}).done(function(data){
 			Hub.permit = data.permit;
-			if(then) then();
+			if(callback) callback();
 		});
 	};
 
