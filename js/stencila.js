@@ -558,26 +558,38 @@ var Stencila = (function(Stencila){
 				var self = this;
 				Hub.post(self.address+"/activate!",null,function(data){
 					self.session = data;
-					// Wait for three minutes for session to be ready
+					// Check if session is ready
+					function ready(){
+						if(self.session.ready){
+							self.connection = new WebSocketConnection(self.session.websocket);
+							self.set('activation','active');
+							return true;
+						}
+						return false;
+					}
+					if(ready()) return;
+					// Give up trying after 3 minutes
 					var until = new Date().getTime()+1000*60*3;
-					var wait = function(){
+					function giveup(){
+						if(new Date().getTime()>until){
+							self.set('activation','inactive');
+							self.view.error('Failed to connect to session: '+self.session.url);
+							return true;
+						}
+						return false;
+					}
+					// Wait for the session to be ready, retrying every second
+					function wait(){
 						Hub.get(self.session.url,function(data){
 							self.session = data;
-							if(self.session.ready){
-								self.connection = new WebSocketConnection(self.session.websocket);
-								self.set('activation','active');
-							}
-							else if(new Date().getTime()>until){
-								self.set('activation','inactive');
-								self.view.error('Failed to connect to session: '+self.session.url);
-							}
-							else {
-								setTimeout(function() {
-									wait();
-								},1000);
-							}
+							if(ready()) return;
+							if(giveup()) return;
+							setTimeout(function() {
+								wait();
+							},1000);
 						});
-					};
+					}
+					wait();
 				});
 			}
 		}
