@@ -27,6 +27,8 @@ std::vector<std::string> Component_grab(std::string address){
 void def_Component(void){
     class_<Component,bases<>>("Component")
 
+        .def("address",static_cast<std::string (Component::*)(void) const>(&Component::address))
+
         .def("path",static_cast<std::string (Component::*)(bool) const>(&Component::path))
         .def("path",static_cast<Component& (Component::*)(const std::string&)>(&Component::path),Component_path_set_overloads(
             (arg("path"),arg("force")),
