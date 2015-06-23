@@ -430,7 +430,9 @@ var Stencila = (function(Stencila){
 					});
 				}
 			}
-			self.view(theme.DefaultView);
+			var view = theme.ComponentView;
+			if(typeof view==='function') view = view(self);
+			self.view(view);
 			if(then) then();
 		});
 	};
