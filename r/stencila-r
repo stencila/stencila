@@ -84,11 +84,13 @@ for(command in commands){
 		# Execute call
 		cat('Running method     : ',blue,call,reset,'\n',sep='')
 		cat(yellow)
-		eval(
+		result <- eval(
 			parse(
 				text = paste0('component$',call)
 			)
 		)
+		# Only show if not null return and not the component
+		if(!is.null(result) && !inherits(result,class(component)[1])) show(result)
 		cat(reset)
 	}
 }
