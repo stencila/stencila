@@ -98,9 +98,7 @@ std::string Component::address(bool ensure){
 }
 
 std::vector<std::string> Component::stores(void){
-	std::vector<std::string> stores = {
-		Host::current_dir()
-	};
+	std::vector<std::string> stores;
 	const char* more = std::getenv("STENCILA_STORES");
 	if(more) {
 		std::vector<std::string> more_stores = split(more,";");
