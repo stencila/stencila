@@ -481,7 +481,27 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
-	 * Change a property of the component and notify the view of 
+	 * Tell mirrors of change in a property
+	 * 
+	 * @param {String or Object} 	property Name of property
+	 */
+	Component.prototype.tell = function(property,value){
+		if(this.menu) this.menu.from(property,value);
+		if(this.viewCurrent) this.viewCurrent.from(property,value);
+	};
+
+	/**
+	 * Ask mirrors to update a property
+	 * 
+	 * @param {String or Object} 	property Name of property
+	 */
+	Component.prototype.ask = function(property){
+		if(this.menu) this.menu.to(property);
+		if(this.viewCurrent) this.viewCurrent.to(property);
+	};
+
+	/**
+	 * Change a property of the component and notify mirrors of 
 	 * the change so updates can be made to the user interface
 	 * 
 	 * @param {String or Object} 	property Name of property or Object of property:value pairs
@@ -490,8 +510,7 @@ var Stencila = (function(Stencila){
 	Component.prototype.change = function(property,value){
 		if(typeof property=='string'){
 			this[property] = value;
-			if(this.menu) this.menu.from(property,value);
-			if(this.viewCurrent) this.viewCurrent.from(property,value);
+			this.tell(property,value);
 		}
 		else {
 			var self = this;
@@ -512,9 +531,7 @@ var Stencila = (function(Stencila){
 	Component.prototype.read = function(){
 		var self = this;
 		Hub.get(this.address+"/_",false,function(data){
-			$.each(data,function(property,value){
-				self.change(property,value);
-			});
+			self.change(data);
 		});
 	};
 
@@ -1226,7 +1243,7 @@ var Stencila = (function(Stencila){
 	/**
 	 * Get or set the Cila for this stencil
 	 */
-	Stencil.prototype.cila = function(arg){
+	Stencil.prototype.cila = function(arg,callback){
 		var self = this;
 		if(typeof arg==="function"){
 			// Get
@@ -1237,7 +1254,8 @@ var Stencila = (function(Stencila){
 		else {
 			// Set
 			self.call("cila(string).html():string",[arg],function(html){
-				self.content.html(html);
+				self.html(html);
+				callback();
 			});
 		}
 		return self;
@@ -1280,10 +1298,10 @@ var Stencila = (function(Stencila){
 		} else {
 			var self = this;
 			this.viewCurrent.updating(true);
-			this.viewCurrent.to('content');
-			this.call("html(string).render().html():string",[this.content.html()],function(html){
-				self.content.html(html);
-				self.viewCurrent.from('content');
+			this.ask('content');
+			this.call("html(string).render().html():string",[this.html()],function(html){
+				self.html(html);
+				self.tell('content');
 				self.viewCurrent.updating(false);
 			});
 		}
@@ -1295,10 +1313,10 @@ var Stencila = (function(Stencila){
 	Stencil.prototype.refresh = function(){
 		var self = this;
 		this.viewCurrent.updating(true);
-		this.viewCurrent.to('content');
-		this.call("html(string).refresh().html():string",[this.content.html()],function(html){
-			self.content.html(html);
-			self.viewCurrent.from('content');
+		this.ask('content');
+		this.call("html(string).refresh().html():string",[this.html()],function(html){
+			self.html(html);
+			self.tell('content');
 			self.viewCurrent.updating(false);
 		});
 	};
@@ -1310,8 +1328,8 @@ var Stencila = (function(Stencila){
 		var self = this;
 		this.viewCurrent.updating(true);
 		this.call("restart().html():string",[],function(html){
-			self.content.html(html);
-			self.viewCurrent.from('content');
+			self.html(html);
+			self.tell('content');
 			self.viewCurrent.updating(false);
 		});
 	};
@@ -1321,7 +1339,8 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.save = function(){
 		var self = this;
-		this.call("html(string)",[this.content.html()],function(){
+		this.ask('content');
+		this.call("html(string)",[this.html()],function(){
 			console.log('Saved');
 		});
 	};
