@@ -12,7 +12,7 @@ describe("Stencil", function() {
 		var stencil = new Stencila.Stencil(
 			'<span id="a" data-text="answer"></span>' +
 			'<span id="b" data-text="answer*2"></span>'
-		);
+		,'js');
 		stencil.render({
 			answer:42
 		});
@@ -25,7 +25,7 @@ describe("Stencil", function() {
 		stencil = new Stencila.Stencil(
 			'<span id="a" data-if="1"></span>' +
 			'<span id="b" data-if="0"></span>'
-		);
+		,'js','js');
 		stencil.render();
 
 		expect(stencil.select('#a').attr('data-off')).not.toBeDefined();
@@ -41,7 +41,7 @@ describe("Stencil", function() {
 				'<span id="b" data-if="answer==41"></span>' +
 			'</main>';
 		// Construct Stencil with no arguments
-		stencil = new Stencila.Stencil();
+		stencil = new Stencila.Stencil(undefined,'js');
 		stencil.render({answer:42});
 
 		expect(stencil.select('#a').text()).toEqual('42');

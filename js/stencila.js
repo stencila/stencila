@@ -1211,7 +1211,7 @@ var Stencila = (function(Stencila){
 	 * @param content HTML string or CSS selector string to element in current document. Defaults to `#content`
 	 * @param context Object or string defining the conext for this stencil
 	 */
-	var Stencil = Stencila.Stencil = function(content,context){
+	var Stencil = Stencila.Stencil = function(content,contexts){
 		Component.call(this);
 
 		content = content || '#content';
@@ -1220,8 +1220,7 @@ var Stencila = (function(Stencila){
 			this.content = $('<div></div>').append(this.content.clone());
 		}
 
-		context = context || window.location.url;
-		this.context = new Context(context);
+		this.contexts = contexts;
 
 		this.editable = (this.host=='localhost');
 	};
@@ -1286,14 +1285,16 @@ var Stencila = (function(Stencila){
 	 * Render this stencil
 	 */
 	Stencil.prototype.render = function(context){
-		if(this.contexts==undefined || this.contexts=='js'){
+		if(this.contexts=='js'){
 			if(context!==undefined){
-				if(context instanceof Context) this.context = context;
-				else this.context = new Context(context);
+				if(!(context instanceof Context)) context = new Context(context);
+			}
+			else {
+				context = new Context();
 			}
 			directiveRender(
 				this.content,
-				this.context
+				context
 			);
 		} else {
 			var self = this;
@@ -1363,11 +1364,9 @@ var Stencila = (function(Stencila){
 		var type = prop('type');
 		var theme = prop('theme');
 		if(type==='stencil'){
-			com = Stencila.component = new Stencil('#content');
+			com = Stencila.component = new Stencil('#content',prop('contexts'));
 			com.theme(theme,function(){
 				com.startup();
-				// Javascript-only stencils need to be rendered in browser
-				com.contexts = prop('contexts');
 				if(com.contexts=='js') com.render();
 			});
 		}
