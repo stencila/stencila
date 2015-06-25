@@ -112,17 +112,27 @@ std::vector<std::string> Component::stores(void){
 std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
+		// An address explicty declared as a local path...
 		if(address[0]=='/' or address[0]=='.'){
-			// This is meant to be a local path; check it actually exists on the filesystem
+			// Check the local path actually exists on the filesystem
 			if(exists(address)){
 				auto path = canonical(absolute(address));
 				return path.string();
 			}
 			else STENCILA_THROW(Exception,"Local address (leading '/' or '.') does not correspond to a local filesystem path:\n  address: "+address);
-		} else {
-			for(std::string store : stores()){
-				auto path = boost::filesystem::path(store)/address;
-				if(exists(path)) return path.string();
+		}
+		else {
+			// Could be a local path or an address within a store
+			if(exists(address)){
+				// Local path so just return that
+				auto path = canonical(absolute(address));
+				return path.string();
+			} else {
+				// Not a local path so search in stores
+				for(std::string store : stores()){
+					auto path = boost::filesystem::path(store)/address;
+					if(exists(path)) return path.string();
+				}
 			}
 		}
 	}
