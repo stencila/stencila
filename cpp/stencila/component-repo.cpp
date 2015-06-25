@@ -36,7 +36,7 @@ Component::Repository* Component::repo(bool ensure) const {
 }
 
 std::string Component::clone(const std::string& address) {
-	std::string path = stores()[1] + "/" + address;
+	std::string path = Host::home_dir() + "/" + address;
 	Repository repo;
 	repo.clone(
 		"https://stenci.la/"+address+".git",
@@ -46,7 +46,7 @@ std::string Component::clone(const std::string& address) {
 }
 
 std::string Component::fork(const std::string& from, const std::string& to) {
-	std::string path = stores()[1] + "/" + to;
+	std::string path = Host::home_dir() + "/" + to;
 	Repository repo;
 	repo.clone(
 		"https://stenci.la/"+from+".git",
