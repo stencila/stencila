@@ -1259,9 +1259,9 @@ var Stencila = (function(Stencila){
 		}
 		return self;
 	};
-
+ 
 	/**
-	 * Select an elment from the stencil
+	 * Select an element from the stencil
 	 */
 	Stencil.prototype.select = function(selector){
 		return this.content.find(selector);
