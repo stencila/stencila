@@ -193,6 +193,11 @@ Node Node::prepend(const std::string& tag, const Attributes& attributes, const s
 	return child;
 }
 
+Node& Node::prepend_children(const Node& other){
+	for(Node child : other.children()) pimpl_->prepend_copy(*child.pimpl_);
+	return *this;
+}
+
 Node Node::before(Node node){
 	return pimpl_->parent().insert_copy_before(*node.pimpl_,*pimpl_);
 }
@@ -234,17 +239,17 @@ Nodes Node::children(void) const {
 	return children;
 }
 
-Node Node::first(void){
+Node Node::first(void) const {
 	return pimpl_->first_child();
 }
 
-Node Node::first_element(void){
+Node Node::first_element(void) const {
 	return pimpl_->find_child([](pugi::xml_node node){
 		return node.type()==pugi::node_element;
 	});
 }
 
-Node Node::last(void){
+Node Node::last(void) const {
 	return pimpl_->last_child();
 }
 

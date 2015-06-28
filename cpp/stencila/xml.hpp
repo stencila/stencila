@@ -288,6 +288,13 @@ public:
 	Node prepend(const std::string& tag, const Attributes& attributes, const std::string& text = "");
 
 	/**
+	 * Prepend the children of another node
+	 * 
+	 * @param  other Other node
+	 */
+	Node& prepend_children(const Node& other);
+
+	/**
 	 * Insert a node before this one
 	 */
 	Node before(Node node);
@@ -323,7 +330,37 @@ public:
 
 	/**
 	 * @}
-	 */ 
+	 */
+	
+	/**
+	 * @name Patching
+	 *
+	 * Allow for changing parts of a XML tree. Uses the patch framework documented in 
+	 * [An Extensible Markup Language (XML) Patch Operations Framework Utilizing
+     * XML Path Language (XPath) Selectors](https://tools.ietf.org/html/rfc5261)
+	 *
+	 * Methods implemented in `xml-patch.cpp`
+	 * 
+	 * @{
+	 */
+		
+	/**
+	 * Apply a patch to this node
+	 *
+	 * @param patch Patch (as `Xml::Node`) to apply
+	 */
+	Node& patch(const Node& patch);
+
+	/**
+	 * Apply a patch to this node
+	 *
+	 * @param patch Patch (as `std::string`) to apply
+	 */
+	Node& patch(const std::string& patch);
+
+	/**
+	 * @}
+	 */
 	
 
 	/**
@@ -359,17 +396,17 @@ public:
 	/**
 	 * Get the first child node of this node
 	 */
-	Node first(void);
+	Node first(void) const;
 
 	/**
 	 * Get the first child  of this node that is an element
 	 */
-	Node first_element(void);
+	Node first_element(void) const;
 
 	/**
 	 * Get the last child node of this node
 	 */
-	Node last(void);
+	Node last(void) const;
 
 	/**
 	 * @}
