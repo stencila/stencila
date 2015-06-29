@@ -54,7 +54,7 @@ sudo pip install wheel virtualenv
 
 ###############################################################################
 # R module
-# `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
+# `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
 
 sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
-sudo Rscript -e "install.packages(c('roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
+sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"

@@ -70,7 +70,7 @@ Hub::Document Hub::post(const std::string& path){
 }
 
 Hub::Document Hub::delete_(const std::string& path){
-	return request(Http::DELETE,path);
+	return request(Http::DELETE_,path);
 }
 
 }

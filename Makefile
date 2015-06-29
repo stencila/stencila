@@ -780,22 +780,6 @@ else
 	aws s3 cp $(PY_BUILD)/dist/$(PY_WHEEL) s3://get.stenci.la/py/
 endif
 
-#################################################################################################
-# R requirements
-
-RCPP_VERSION = 0.11.5
-
-$(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz:
-	@mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O$@ http://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_$(RCPP_VERSION).tar.gz
-	
-$(BUILD)/r/requires/Rcpp: $(RESOURCES)/Rcpp_$(RCPP_VERSION).tar.gz
-	@mkdir -p $@
-	R CMD INSTALL -l $(BUILD)/r/requires $<
-r-requires-rcpp: $(BUILD)/r/requires/Rcpp
-
-$(BUILD)/r/requires: $(BUILD)/r/requires/Rcpp
-r-requires: $(BUILD)/r/requires
 
 #################################################################################################
 # Stencila R package
@@ -834,6 +818,12 @@ R_DYNLIB_NAME := stencila_$(R_PACKAGE_VERSION)
 R_DYNLIB_FILE := $(R_DYNLIB_NAME).$(R_DYNLIB_EXT)
 R_REPO_DYNLIB_DIR := $(R_BUILD)/repo/lib/$(R_PLATFORM)/$(R_VERSION)
 
+# Platform dependent variables
+R_CPPFLAGS := $(shell R CMD config --cppflags)
+R_LDFLAGS := $(shell R CMD config --ldflags)
+RCPP_CXXFLAGS := $(shell Rscript -e "Rcpp:::CxxFlags()")
+RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
+
 # Print R related Makefile variables; useful for debugging
 r-vars:
 	@echo R_VERSION : $(R_VERSION)
@@ -843,23 +833,28 @@ r-vars:
 	@echo R_REPO_PACKAGE_DIR : $(R_REPO_PACKAGE_DIR)
 	@echo R_REPO_TYPE : $(R_REPO_TYPE)
 	@echo R_REPO_DYNLIB_DIR : $(R_REPO_DYNLIB_DIR)
+	@echo R_CPPFLAGS : $(R_CPPFLAGS)
+	@echo R_LDFLAGS : $(R_LDFLAGS)
+	@echo RCPP_CXXFLAGS : $(RCPP_CXXFLAGS)
+	@echo RCPP_LDFLAGS : $(RCPP_LDFLAGS)
+
+R_COMPILE_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 \
+				-Icpp $(CPP_REQUIRES_INC_DIRS) $(R_CPPFLAGS) $(RCPP_CXXFLAGS)
+ifeq ($(OS),linux)
+	R_COMPILE_FLAGS += -fPIC
+endif
 
 # Compile each cpp file
 R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
-R_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
-R_INCLUDE_DIR := /usr/share/R/include
-R_INCLUDES := -Icpp $(CPP_REQUIRES_INC_DIRS) \
-              -I$(R_INCLUDE_DIR) \
-              -I$(BUILD)/r/requires/Rcpp/include
-$(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires $(BUILD)/r/requires
+$(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(R_BUILD)/objects
-	$(CXX) $(R_CXX_FLAGS) $(R_INCLUDES) -o$@ -c $<
+	$(CXX) $(R_COMPILE_FLAGS) -o$@ -c $<
 	
 # Create shared library
 R_DYNLIB_LIB_DIRS := -L$(BUILD)/cpp/library $(CPP_REQUIRES_LIB_DIRS)
 R_DYNLIB_LIBS := stencila $(CPP_REQUIRES_LIBS) 
 $(R_BUILD)/$(R_DYNLIB_FILE): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
-	$(CXX) -shared -o$@ $^ $(R_DYNLIB_LIB_DIRS) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
+	$(CXX) -shared -o$@ $^ $(R_DYNLIB_LIB_DIRS) $(R_LDFLAGS) $(RCPP_LDFLAGS) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
 # Place zipped up shared library in package
 # There should only ever be one platform/version dynamic library in a package , so wipe the `inst/lib` dir first

@@ -24,12 +24,12 @@ STENCILA_R_FUNC Component_commits_get(SEXP self){
     	// Get history
         auto commits = from<Component>(self).commits();
         // Convert to a data.frame
-        uint rows = commits.size();
+        unsigned int rows = commits.size();
         Rcpp::DatetimeVector time(rows);
         Rcpp::CharacterVector message(rows);
         Rcpp::CharacterVector name(rows);
         Rcpp::CharacterVector email(rows);
-        for(uint i=0;i<rows;i++){
+        for(unsigned int i=0;i<rows;i++){
         	auto& commit = commits[i];
         	time[i] = commit.time;
         	message[i] = commit.message;

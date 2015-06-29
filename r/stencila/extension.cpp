@@ -7,14 +7,18 @@
 
 using namespace Stencila;
 
+#if !defined(_WIN32)
 void Stencila_R_CStackLimit(void);
+#endif
 
 /**
  * Start up function for the Stencila R module
  */
 STENCILA_R_FUNC Stencila_startup(void){
 
+	#if !defined(_WIN32)
 	Stencila_R_CStackLimit();
+	#endif
 
 	Component::classes();
 

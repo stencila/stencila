@@ -1,3 +1,5 @@
+#if !defined(_WIN32)
+
 // Include R internals for turning off
 // R's C stack limit checking below
 // Included here because including "Rinterface.h" along with `cpp/stencila/component.hpp'
@@ -14,3 +16,5 @@ void Stencila_R_CStackLimit(void){
 	// 
 	R_CStackLimit = (uintptr_t)-1;
 }
+
+#endif
