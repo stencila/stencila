@@ -113,7 +113,8 @@ $(BUILD)/cpp/requires/boost-built.flag: $(BUILD)/cpp/requires/boost
 	cd $< ; ./bootstrap.sh $(BOOST_BOOTSTRAP_FLAGS)
 ifeq ($(OS), msys)
 	# Under MSYS, project-config.jam must be edited to fix [this error](http://stackoverflow.com/a/5244844/1583041) 
-	sed -i "s/mingw/gcc/g" $</project-config.jam
+	# The spaces are important so that we don't clobber the python setup in this config file
+	sed -i "s!mingw !gcc !" $</project-config.jam
 endif
 	cd $< ; ./b2 $(BOOST_B2_FLAGS)
 	touch $@
@@ -124,7 +125,7 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
-LIBGIT2_VERSION := 0.22.2
+LIBGIT2_VERSION := 0.22.3
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -132,9 +133,9 @@ $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 
 $(BUILD)/cpp/requires/libgit2: $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip
 	mkdir -p $(BUILD)/cpp/requires
+	unzip -qo $< -d $(BUILD)/cpp/requires
 	rm -rf $@
-	unzip -qo $<
-	mv libgit2-$(LIBGIT2_VERSION) $@
+	mv $(BUILD)/cpp/requires/libgit2-$(LIBGIT2_VERSION) $@
 	touch $@
 
 # For build options see https://libgit2.github.com/docs/guides/build-and-link/
@@ -176,7 +177,7 @@ $(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-
 
 # cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
 # some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
-CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
+CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
 # Under MSYS some additional CMake flags need to be specified
 # The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
 ifeq ($(OS), msys)
@@ -310,7 +311,7 @@ cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
 # List of libraries to be used below
 CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex 
-CPP_REQUIRES_LIBS += git2 crypto ssl z
+CPP_REQUIRES_LIBS += git2 z
 CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri boost_thread
 CPP_REQUIRES_LIBS += pugixml
 CPP_REQUIRES_LIBS += tidy-html5
@@ -320,6 +321,7 @@ endif
 ifeq ($(OS), msys)
 	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2
 endif
+CPP_REQUIRES_LIBS += crypto ssl
 
 $(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-cpp-netlib cpp-requires-libgit2 cpp-requires-pugixml \
    cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
@@ -355,13 +357,15 @@ cpp-helpers-uglifyjs:
 # Stencila C++ library
 
 # Build version object file
-CPP_VERSION_0 := $(BUILD)/cpp/library/stencila/version.o
-$(CPP_VERSION_0):
+CPP_VERSION_CPP := $(BUILD)/cpp/library/stencila/version.cpp
+CPP_VERSION_O := $(BUILD)/cpp/library/stencila/version.o
+$(CPP_VERSION_O):
 	@mkdir -p $(BUILD)/cpp/library/stencila
-	@echo "#include <stencila/version.hpp>\nconst std::string Stencila::version = \"$(VERSION)\";" > $(BUILD)/cpp/library/stencila/version.cpp
+	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
+	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(BUILD)/cpp/library/stencila/version.cpp
 # Make it PHONY so it builds every time
-.PHONY: $(CPP_VERSION_0)
+.PHONY: $(CPP_VERSION_O)
 
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
@@ -369,7 +373,7 @@ ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
 endif
 CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_0)
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_O)
 $(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(BUILD)/cpp/library/stencila
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
@@ -434,7 +438,7 @@ endif
 # 		-O0 (no optimizations, so coverage is valid)
 # 		--coverage (for coverage instrumentation)
 CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
-                       -g -O0 --coverage -fPIC -Icpp $(CPP_REQUIRES_INC_DIRS)
+                       -g -O0 --coverage -Icpp $(CPP_REQUIRES_INC_DIRS)
 
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
 
@@ -452,7 +456,7 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 # This needs to be done (instead of linking to libstencila.a) so that coverage statistics
 # can be generated for these files
 # $(realpath $<) is used for consistency of paths in coverage reports
-CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) $(CPP_VERSION_0)
+CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) $(CPP_VERSION_O)
 $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
