@@ -94,11 +94,17 @@ std::string Stencil::call(const Call& call) {
 	// Setting content
 	else if(what=="html(string)"){
 		std::string string = call.arg(0);
-		html(string);
+		           html(string);
 	}
 	else if(what=="cila(string)"){
 		std::string string = call.arg(0);
-		cila(string);
+		           cila(string);
+	}
+
+	// Patching content
+	else if(what=="patch(string)"){
+		std::string string = call.arg(0);
+		           patch(string);	
 	}
 
 	// Conversion of content...

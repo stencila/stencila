@@ -1198,6 +1198,7 @@ var Stencila = (function(Stencila){
 	};
 	Comment.prototype.set = function(node){
 		node.attr('data-comment','by '+ this.by + ' at '+ this.at);
+		node.append(this.content);
 		return this;
 	};
 	Comment.prototype.render = function(node,context){
@@ -1258,6 +1259,35 @@ var Stencila = (function(Stencila){
 			});
 		}
 		return self;
+	};
+
+	/**
+	 * Patch the content of this stencil
+	 */
+	Stencil.prototype.patch = function(elem,op,content){
+		var patch;
+		var xpath = this.xpath(elem);
+		if(op=='append'){
+			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
+		}
+		this.call("patch(string)",[patch]);
+		return this;
+	};
+
+	/**
+	 * Determine the XPath selector for an element within this stencil
+	 */
+	Stencil.prototype.xpath = function(elem){
+		// Implementation thanks to http://dzone.com/snippets/get-xpath
+		content = this.content.get(0);
+		elem = $(elem).get(0);
+		var path = ''; 
+		for (; elem && elem.nodeType==1 && elem!==content; elem=elem.parentNode) {
+			var index = $(elem.parentNode).children(elem.tagName).index(elem)+1; 
+			index>1 ? (index='['+index+']') : (index='');
+			path = '/'+elem.tagName.toLowerCase()+index+path; 
+		} 
+		return path; 
 	};
  
 	/**

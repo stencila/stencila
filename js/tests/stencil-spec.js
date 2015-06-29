@@ -32,7 +32,6 @@ describe("Stencil", function() {
 		expect(stencil.select('#b').attr('data-off')).toEqual('true');
 	});
 
-
 	it("by default renders the `#content` element", function() {
 		// Add #content (will normally be done when the stencil is exported to HTML)
 		document.body.innerHTML +=
@@ -48,4 +47,19 @@ describe("Stencil", function() {
 		expect(stencil.select('#b').attr('data-off')).toEqual('true');
 	});
 
+
+	it("has an `xpath` method", function() {
+		var stencil = new Stencila.Stencil(
+			'<div id="a">' +
+				'<div id="a1"></div>' + 
+			'</div>' +
+			'<div id="b"><div><i /><p id="b1"/><i id="b2"/><div></div>'
+		,'js');
+
+		expect(stencil.xpath(stencil.select('#a'))).toEqual('/div');
+		expect(stencil.xpath(stencil.select('#a1'))).toEqual('/div/div');
+		expect(stencil.xpath(stencil.select('#b'))).toEqual('/div[2]');
+		expect(stencil.xpath(stencil.select('#b1'))).toEqual('/div[2]/div/p');
+		expect(stencil.xpath(stencil.select('#b2'))).toEqual('/div[2]/div/i[2]');
+	});
 });

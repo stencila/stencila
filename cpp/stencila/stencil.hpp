@@ -154,7 +154,8 @@ public:
 	/**
 	 * @}
 	 */
-		
+
+
 	/**
 	 * @name Conversion to/from other formats
 	 *
