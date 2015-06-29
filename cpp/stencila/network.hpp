@@ -92,8 +92,8 @@ private:
 	/**
 	 * Keep track of the number of retires. See `start()` method.
 	 */
-	uint restarts_;
-	const static uint max_restarts_ = 100;
+	unsigned int restarts_;
+	const static unsigned int max_restarts_ = 100;
 
 	/**
 	 * Restart the server after an otherwise unhandled exception

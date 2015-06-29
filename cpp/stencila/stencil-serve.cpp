@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include <boost/filesystem.hpp>
 
 #include <stencila/stencil.hpp>
@@ -65,7 +67,7 @@ std::string Stencil::interact(const std::string& code){
 			'0','1','2','3','4','5','6','7','8','9'
 		};
 		std::string id;
-		for(int cha=0;cha<8;cha++) id += chars[int(random()/double(RAND_MAX)*sizeof(chars))];
+		for(int cha=0;cha<8;cha++) id += chars[int(std::rand()/double(RAND_MAX)*sizeof(chars))];
 		// Run code in context
 		auto result = context_->interact(code,id);
 		// Return to original working directory

@@ -1113,8 +1113,8 @@ public:
 						cila<<"> "<<boost::trim_copy(title);
 						// Generate each child on a new line except for the h1
 						indent();
-						uint index = 0;
-						uint last = children-1;
+						unsigned int index = 0;
+						unsigned int last = children-1;
 						for(Node child : node.children()){
 							if(not(child.name()=="h1" and child.text()==title)){
 								newline();

@@ -112,7 +112,7 @@ Response Client::request(const Request& request){
 		case POST:
 			response = impl_->post(*request.impl_);
 		break;
-		case DELETE:
+		case DELETE_:
 			response = impl_->delete_(*request.impl_);
 		break;
 		default:

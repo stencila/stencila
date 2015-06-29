@@ -945,7 +945,7 @@ private:
 	struct Outline {
 		bool on = false;
 		Node list;
-		uint index;
+		unsigned int index;
 		std::vector<int> path;
 	} outline_;
 

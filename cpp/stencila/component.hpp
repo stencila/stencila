@@ -552,7 +552,7 @@ public:
 		}
 	
 		template<typename Type=std::string>
-		Type arg(int index,const std::string& name="") const {
+		Type arg(unsigned int index,const std::string& name="") const {
 			// Get argument string
 			std::string arg;
 			if(name.length()>0){

@@ -27,7 +27,7 @@ enum Method {
 	HEAD,
 	POST,
 	PUT,
-	DELETE,
+	DELETE_,
 	TRACE,
 	OPTIONS,
 	CONNECT,
