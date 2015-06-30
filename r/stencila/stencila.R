@@ -11,10 +11,6 @@ NULL
 # it seemed not to work as intended when roxygenising the package
 # So this file is specified first in the Collate section of the DESCRIPTION.template (which roxygen checks first)
 
-# The name of the stencila DLL.
-# Used internally to help resolution of C++ functions
-dll_name <- NULL
-
 ###########################################################################
 # Package version number
 ###########################################################################
@@ -31,6 +27,64 @@ version <- function(){
 # Installation of packaged shared libraries (.so, .dll) and command line 
 # scripts
 ###########################################################################
+
+r_platform <- function(){
+	R.version$platform
+}
+r_version <- function(){
+	paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
+}
+r_dll_ext <- function(){
+	.Platform$dynlib.ext
+}
+
+# The name of the Stencila DLL.
+# Used internally to help resolution of C++ functions
+dll_name <- NULL
+
+dll_file <- function(){
+	paste0('stencila_',version(),r_dll_ext())
+}
+
+dll_path <- function(){
+	file.path('bin',paste0(dll_file(),'.zip'))
+}
+
+dll_url <- function(){
+	paste0("http://get.stenci.la/r/bin/",r_platform(),"/",r_version(),"/",dll_file(),'.zip')
+}
+
+# Flag for if Stencila DLL is loaded or not.
+dll_loaded <- FALSE
+
+load_dll <- function(){
+	if(!dll_loaded){
+		result <- tryCatch(library.dynam(dll_name,'stencila',.libPaths()),error=identity)
+		dll_loaded <<- !inherits(result,'simpleError')
+	}
+}
+
+install_dll <- function(){
+	message("Installing Stencila DLL")
+	# See if it is available locally in the "dll" folder
+	zip_path <- file.path(system.file(package='stencila'),dll_path())
+	message(" - finding ",zip_path)
+	if(!file.exists(zip_path)){
+	  # If it is not then download it to a temporary zip file
+	  url <- dll_url()
+	  zip_path <- tempfile()
+	  message(" - downloading ",url)
+	  result <- tryCatch(download.file(url,zip_path),error=identity)
+	  if(inherits(result,'simpleError')) return(FALSE)
+	}
+	# Unzip into package `libs`
+	libs_dir <- file.path(system.file(package='stencila'),'libs')
+	dir.create(libs_dir, recursive = TRUE, showWarnings = FALSE)
+	# Unzip the file there
+	message(" - unzipping ",zip_path," to ",libs_dir)
+	unzip(zip_path, exdir = libs_dir, overwrite = TRUE)
+	return(TRUE)
+}
 
 #' Install `stencila-r` on the sytem path
 #'
@@ -61,17 +115,30 @@ install <- function(){
 # Package startup and shutdown hooks
 ###########################################################################
 
-# Package startup hook
-# See ?.onLoad
 .onLoad <- function(libname, pkgname){
-	# Call C++ startup function
-	.Call('Stencila_startup')
 	# Initialise `dll_name`
-	dll_name <<- paste('stencila',version(),sep='_')
+	dll_name <<- paste0('stencila_',version())
+	# Attempt to load shared library and install it
+	# if it can't be loaded
+	load_dll()
+	if(!dll_loaded){
+		install_dll()
+		load_dll()
+	}
+	# If DLL still not loaded let the user know
+	if(!dll_loaded) warning("Stencila DLL could not be loaded. Please ensure you are connected to the internet and try `stencila:::install_dll()` again.")
 }
 
-# Package shutdown hook
-# See ?.onUnLoad
+.onAttach <- function(libname, pkgname){
+	# Call C++ startup function
+	.Call('Stencila_startup',PACKAGE=dll_name)
+}
+
+.onDetach <- function(libname, pkgname){
+	# Call C++ startup function
+	.Call('Stencila_shutdown',PACKAGE=dll_name)
+}
+
 .onUnload <- function(libpath){
-	.Call('Stencila_shutdown')
+	library.dynam.unload(dll_name,system.file(package='stencila'))
 }

@@ -826,8 +826,8 @@ RCPP_LDFLAGS :=  $(shell Rscript -e "Rcpp:::LdFlags()")
 
 # Print R related Makefile variables; useful for debugging
 r-vars:
-	@echo R_VERSION : $(R_VERSION)
 	@echo R_PLATFORM : $(R_PLATFORM)
+	@echo R_VERSION : $(R_VERSION)
 	@echo R_PACKAGE_VERSION : $(R_PACKAGE_VERSION)
 	@echo R_DYNLIB_FILE : $(R_DYNLIB_FILE)
 	@echo R_REPO_PACKAGE_DIR : $(R_REPO_PACKAGE_DIR)
@@ -856,32 +856,25 @@ R_DYNLIB_LIBS := stencila $(CPP_REQUIRES_LIBS)
 $(R_BUILD)/$(R_DYNLIB_FILE): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
 	$(CXX) -shared -o$@ $^ $(R_DYNLIB_LIB_DIRS) $(R_LDFLAGS) $(RCPP_LDFLAGS) $(patsubst %, -l%,$(R_DYNLIB_LIBS))
 
-# Place zipped up shared library in package
-# There should only ever be one platform/version dynamic library in a package , so wipe the `inst/lib` dir first
-R_PACKAGE_LIBZIP := $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)/$(R_DYNLIB_FILE).zip
+# Copy over DLLs
+# There should only be one zip in `stencila/inst/bin`, remove any others that may be
+# lingering from a previous version
+R_PACKAGE_LIBZIP := $(R_BUILD)/stencila/inst/bin/$(R_DYNLIB_FILE).zip
 $(R_PACKAGE_LIBZIP): $(R_BUILD)/$(R_DYNLIB_FILE)
-	rm -rf $(R_BUILD)/stencila/inst/lib/
-	@mkdir -p $(R_BUILD)/stencila/inst/lib/$(R_PLATFORM)/$(R_VERSION)
+	@mkdir -p $(dir $@)
+	rm -f $(dir $@)/*.zip
+ifeq ($(OS),linux)
 	zip -j $@ $<
+endif
+ifeq ($(OS),msys)
+	zip -j $@ $(R_BUILD)/*.dll 
+endif
 
 # Copy over `stencila-r`
 R_PACKAGE_CLI := $(R_BUILD)/stencila/inst/bin/stencila-r
 $(R_PACKAGE_CLI): r/stencila-r
 	@mkdir -p $(R_BUILD)/stencila/inst/bin
 	cp $< $@
-
-# Copy over `install.libs.R`
-R_PACKAGE_INSTALLSCRIPT := $(R_BUILD)/stencila/src/install.libs.R
-$(R_PACKAGE_INSTALLSCRIPT): r/install.libs.R
-	@mkdir -p $(R_BUILD)/stencila/src/
-	cp $< $@
-
-# Create a dummy C source code file in `src`
-# If there is no source files in `src` then `src\install.libs.R` is not run. 
-R_PACKAGE_DUMMYC := $(R_BUILD)/stencila/src/dummy.c
-$(R_PACKAGE_DUMMYC):
-	@mkdir -p $(R_BUILD)/stencila/src/
-	touch $@
 
 # Copy over each R file
 R_PACKAGE_RS := $(patsubst %, $(R_BUILD)/stencila/R/%, $(notdir $(wildcard r/stencila/*.R)))
@@ -914,9 +907,6 @@ $(R_BUILD)/stencila: $(R_PACKAGE_LIBZIP) $(R_PACKAGE_CLI) $(R_PACKAGE_INSTALLSCR
 	cd $(R_BUILD) ;\
 		rm -f stencila/man/*.Rd ;\
 		Rscript -e "library(roxygen2);roxygenize('stencila');"
-	# Add `useDynLib` to the NAMESPACE file (after roxygensiation) so that
-	# the dynamic library is loaded
-	echo "useDynLib($(R_DYNLIB_NAME))" >> $(R_BUILD)/stencila/NAMESPACE
 	# Touch the directory to ensure it is newer than its contents
 	touch $@
 r-package-dir: $(R_BUILD)/stencila
