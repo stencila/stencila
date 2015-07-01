@@ -28,65 +28,93 @@ version <- function(){
 # scripts
 ###########################################################################
 
-r_platform <- function(){
-	R.version$platform
+have_dll <- function(){
+	'stencila' %in% unlist(lapply(library.dynam(),function(x) x[["name"]]))
 }
-r_version <- function(){
-	paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
-}
-r_dll_ext <- function(){
-	.Platform$dynlib.ext
-}
-
-# The name of the Stencila DLL.
-# Used internally to help resolution of C++ functions
-dll_name <- NULL
-
-dll_file <- function(){
-	paste0('stencila_',version(),r_dll_ext())
-}
-
-dll_path <- function(){
-	file.path('bin',paste0(dll_file(),'.zip'))
-}
-
-dll_url <- function(){
-	paste0("http://get.stenci.la/r/bin/",r_platform(),"/",r_version(),"/",dll_file(),'.zip')
-}
-
-# Flag for if Stencila DLL is loaded or not.
-dll_loaded <- FALSE
 
 load_dll <- function(){
-	if(!dll_loaded){
-		result <- tryCatch(library.dynam(dll_name,'stencila',.libPaths()),error=identity)
-		dll_loaded <<- !inherits(result,'simpleError')
+	# Check that the DLL is not already loaded
+	if(have_dll()){
+		invisible(TRUE)
+	}
+	else {
+		# Attempt to load the DLL
+		result <- tryCatch(library.dynam('stencila','stencila',.libPaths()),error=identity)
+		if(inherits(result,'simpleError')){
+			invisible(FALSE)
+		} else {
+			invisible(TRUE)
+		}
 	}
 }
 
-install_dll <- function(){
+#' Download the Stencila dynamically linked libary (DLL)
+#'
+#'   \code{ sudo Rscript -e 'require(stencila); stencila:::get_dll()' }
+#'
+get_dll <- function(){
+	# Determine URL
+	plat <- R.version$platform
+	if(grepl('linux',plat)) os <- 'linux' 
+	else if(grepl('mingw',plat)) os <- 'win'
+	else warning("Stencila DLL is not available for this operating system; sorry.")
+	arch <- R.version$arch
+	r_version <- paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
+	stencila_version <- version()
+	url <- paste0('http://get.stenci.la/r/dll/',file.path(os,arch,r_version),'/stencila-',stencila_version,'.zip')
+	# Determine path to put it
+	zip <- file.path(system.file(package='stencila'),'bin','stencila-dll.zip')
+	# Download it!
+	message(" - downloading: ",url)
+	result <- tryCatch(download.file(url,zip),error=identity)
+	if(inherits(result,'simpleError')){
+		warning("Stencila DLL could not be downloaded. Please ensure you are connected to the internet and try again.")
+		invisible(FALSE)
+	}
+	else {
+		invisible(TRUE)
+	}
+}
+
+#' Install the Stencila dynamically linked libary (DLL)
+#'
+#'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_dll()' }
+#'
+install_dll <- function(get=TRUE,load=TRUE){
+	# Check the DLL is not already loaded (you get a segfault if
+	# you try to write over it when it is loaded alrady!)
+	if(have_dll()) return(invisible(TRUE))
 	message("Installing Stencila DLL")
-	# See if it is available locally in the "dll" folder
-	zip_path <- file.path(system.file(package='stencila'),dll_path())
-	message(" - finding ",zip_path)
-	if(!file.exists(zip_path)){
-	  # If it is not then download it to a temporary zip file
-	  url <- dll_url()
-	  zip_path <- tempfile()
-	  message(" - downloading ",url)
-	  result <- tryCatch(download.file(url,zip_path),error=identity)
-	  if(inherits(result,'simpleError')) return(FALSE)
+	# See if it is available locally in the `bin` dir
+	zip <- file.path(system.file(package='stencila'),'bin','stencila-dll.zip')
+	message(" - looking for: ",zip)
+	# Get the DLL if it is not avialable locally
+	if(!file.exists(zip)){
+		if(get){
+			got <- get_dll()
+			if(!got) return(invisible(FALSE))
+		}
+		else {
+			return(invisible(FALSE))
+		}
 	}
-	# Unzip into package `libs`
+	# Determine where to put the DLL
 	libs_dir <- file.path(system.file(package='stencila'),'libs')
+	if(grepl('mingw',R.version$platform)){
+		if(R.version$arch=='x86_64') libs_dir <- file.path(libs_dir,'x64')
+		else libs_dir <- file.path(libs_dir,'i386')
+	}
 	dir.create(libs_dir, recursive = TRUE, showWarnings = FALSE)
-	# Unzip the file there
-	message(" - unzipping ",zip_path," to ",libs_dir)
-	unzip(zip_path, exdir = libs_dir, overwrite = TRUE)
-	return(TRUE)
+	# Unzip the DLL into the `libs` dir
+	message(" - unzipping to: ",libs_dir)
+	unzip(zip, exdir = libs_dir, overwrite = TRUE)
+	# Now, load it!
+	if(load) load_dll()
+
+	invisible(TRUE)
 }
 
-#' Install `stencila-r` on the sytem path
+#' Install `stencila-r` on the system path
 #'
 #' On Linux this function creates a symlink to `stencila-r` in `/usr/local/bin`. 
 #' Use R as a superuser (e.g. with `sudo`) to run this function e.g :
@@ -108,6 +136,7 @@ install_cli <- function(){
 #'   \code{ sudo Rscript -e 'require(stencila); stencila:::install()' }
 #'
 install <- function(){
+	install_dll()
 	install_cli()
 }
 
@@ -116,29 +145,35 @@ install <- function(){
 ###########################################################################
 
 .onLoad <- function(libname, pkgname){
-	# Initialise `dll_name`
-	dll_name <<- paste0('stencila_',version())
-	# Attempt to load shared library and install it
-	# if it can't be loaded
-	load_dll()
-	if(!dll_loaded){
-		install_dll()
-		load_dll()
+	# Attempt to load DLL
+	loaded <- load_dll()
+	# On Linux, it seems OK to attempt to install the DLL within this function. 
+	# But on windows, that causes building of the package (`R CMD INSTALL ---build`) to fail
+	# So, only do it for linux...
+	if(!loaded && grepl('linux',R.version$platform)){
+		# Since R does a test install first, don't attempt to download the DLL
+		# when doing this (otherwise the download is done twice
+		# i.e. this will only work for the package which already has the DLL bundled in the `bin` dir
+		install_dll(get=FALSE,load=TRUE)
 	}
-	# If DLL still not loaded let the user know
-	if(!dll_loaded) warning("Stencila DLL could not be loaded. Please ensure you are connected to the internet and try `stencila:::install_dll()` again.")
 }
 
 .onAttach <- function(libname, pkgname){
 	# Call C++ startup function
-	.Call('Stencila_startup',PACKAGE=dll_name)
+	# Protect from failiure so this function, which is called during packages installation,
+	# does not fail
+	result <- tryCatch(.Call('Stencila_startup',PACKAGE='stencila'),error=identity)
+	if(inherits(result,'simpleError')){
+		warning("Stencila DLL does not appear to be installed. Please run `stencila:::install_dll()`.")
+	}
 }
 
 .onDetach <- function(libname, pkgname){
-	# Call C++ startup function
-	.Call('Stencila_shutdown',PACKAGE=dll_name)
+	# Call C++ shutdown function
+	.Call('Stencila_shutdown',PACKAGE='stencila')
 }
 
 .onUnload <- function(libpath){
-	library.dynam.unload(dll_name,system.file(package='stencila'))
+	# Unload the DLL
+	tryCatch(library.dynam.unload('stencila',system.file(package='stencila')),silent=TRUE)
 }

@@ -27,7 +27,7 @@ setRefClass(
 
 # Call a C++ function in the Stencila R extension module
 call_ <- function(symbol,...){
-    .Call(symbol,...,PACKAGE=dll_name)
+    .Call(symbol,...,PACKAGE='stencila')
 }
 # Call a method and wrap the result appropriately
 method_ <- function(instance,symbol,...){
