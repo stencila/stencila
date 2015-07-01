@@ -88,7 +88,7 @@ $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 # Boost is configured with:
 #   --with-libraries - so that only those libraries that are needed are built
 BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,thread
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 	# bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
 	BOOST_BOOTSTRAP_FLAGS += --with-toolset=mingw
 endif
@@ -102,7 +102,7 @@ ifeq ($(OS), linux)
 	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
 	BOOST_B2_FLAGS += cxxflags=-fPIC
 endif
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 	# b2 must be called with "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
 	# b2 must be called with "release" build otherwise defaults to debug AND release, which with "system" causes an 
 	#   error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
@@ -111,7 +111,7 @@ endif
 
 $(BUILD)/cpp/requires/boost-built.flag: $(BUILD)/cpp/requires/boost
 	cd $< ; ./bootstrap.sh $(BOOST_BOOTSTRAP_FLAGS)
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 	# Under MSYS, project-config.jam must be edited to fix [this error](http://stackoverflow.com/a/5244844/1583041) 
 	# The spaces are important so that we don't clobber the python setup in this config file
 	sed -i "s!mingw !gcc !" $</project-config.jam
@@ -145,7 +145,7 @@ LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
 ifeq ($(OS), linux)
 	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
 endif
 $(BUILD)/cpp/requires/libgit2-built.flag: $(BUILD)/cpp/requires/libgit2
@@ -180,7 +180,7 @@ $(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-
 CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
 # Under MSYS some additional CMake flags need to be specified
 # The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
 endif
 $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: $(BUILD)/cpp/requires/cpp-netlib
@@ -280,7 +280,7 @@ $(BUILD)/cpp/requires/tidy-html5-built.flag: \
 	cd $(BUILD)/cpp/requires/tidy-html5 ;\
 	  mkdir -p tidy-html5 ; cp -f include/* tidy-html5 ;\
 	  mv lib/libtidy.a lib/libtidy-html5.a
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/lib/libtidy-html5.a
 endif
 	touch $@
@@ -318,7 +318,7 @@ CPP_REQUIRES_LIBS += tidy-html5
 ifeq ($(OS), linux)
 	CPP_REQUIRES_LIBS += rt pthread
 endif
-ifeq ($(OS), msys)
+ifeq ($(OS), win)
 	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2
 endif
 CPP_REQUIRES_LIBS += crypto ssl
@@ -803,7 +803,7 @@ R_DLL_EXT := so
 R_REPO_DIR := src/contrib
 R_REPO_TYPE := source
 endif
-ifeq ($(OS),msys)
+ifeq ($(OS),win)
 R_PACKAGE_EXT := zip
 R_DLL_EXT := dll
 R_REPO_DIR := bin/windows/contrib/$(R_VERSION)
@@ -864,7 +864,7 @@ $(R_BUILD)/stencila-dll.zip: $(R_BUILD)/stencila.$(R_DLL_EXT)
 ifeq ($(OS),linux)
 	zip -j $@ $<
 endif
-ifeq ($(OS),msys)
+ifeq ($(OS),win)
 	zip -j $@ $<
 endif
 r-dll-zip: $(R_BUILD)/stencila-dll.zip
@@ -929,7 +929,7 @@ $(R_BUILD)/$(R_PACKAGE_FILE): $(R_BUILD)/stencila
 ifeq ($(OS),linux)
 	cd $(R_BUILD); R CMD build stencila
 endif
-ifeq ($(OS),msys)
+ifeq ($(OS),win)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
 endif
 r-package: $(R_BUILD)/$(R_PACKAGE_FILE)

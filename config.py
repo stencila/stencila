@@ -33,11 +33,11 @@ def version():
 	if dirty: version += '-dirty'
 	return version
 
-# Get the operating system  e.g. linux
+# Get the operating system  e.g. linux, win
 def os():
-	os = shell('uname -o')
-	if os=='GNU/Linux': os = 'linux'
-	else: os = os.lower()
+	os = shell('uname -o').lower()
+	if os=='gnu/linux': os = 'linux'
+	elif os=='msys': os = 'win'
 	return os
 
 # Get the machine architecture e.g i386, x86_64
