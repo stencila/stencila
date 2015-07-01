@@ -954,12 +954,15 @@ endif
 # Test the package by running unit tests
 # Install package in a testenv directory and run unit tests from there
 # This is better than installing package in the user's R library location
+# Previously, the `lib.loc='.'` argument was supplied to `library` but
+# that did not work with the current DLL loading mechanism. So `.libPaths('.')`
+# is used instead
 r-tests: $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;\
 	  mkdir -p testenv ;\
 	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
 	  cd testenv ;\
-	    (Rscript -e "library(stencila,lib.loc='.'); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
+	    (Rscript -e ".libPaths('.'); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
 
 # Install R on the local host
 # Not intended for development but rather 
