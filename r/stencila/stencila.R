@@ -12,7 +12,7 @@ NULL
 # So this file is specified first in the Collate section of the DESCRIPTION.template (which roxygen checks first)
 
 ###########################################################################
-# Package version number
+# Package version number and other global attributes
 ###########################################################################
 
 #' Get the version of the Stencila R package
@@ -21,6 +21,14 @@ NULL
 #'   stencila:::version()
 version <- function(){
 	as.character(utils::packageVersion("stencila"))
+}
+
+#' Get the Stencila stores
+#'
+#' @examples
+#'   stencila:::stores()
+stores <- function(){
+	.Call('Stencila_stores',PACKAGE='stencila')
 }
 
 ###########################################################################
