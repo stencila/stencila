@@ -14,19 +14,7 @@ Build:
 
 ### Quick start
 
-Stencila components (e.g. stencils, themes) are git repositories. The first thing to do is clone some of the core repositories into a Stencila "store" directory:
-
-```sh
-mkdir ~/.stencila
-cd ~/.stencila
-git clone https://stenci.la/core/themes/base.git core/themes/base
-git clone https://stenci.la/core/stencils/themes/default.git core/stencils/themes/default
-git clone https://stenci.la/core/stencils/examples/kitchensink.git core/stencils/examples/kitchensink
-```
-
-It is important to clone into the correct directories, as shown above, to get the Stencila components' address space right. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
-
-Then install the package file you downloaded from the [releases page](https://github.com/stencila/stencila/releases) or built yourself...
+Install the package file you downloaded from the [releases page](https://github.com/stencila/stencila/releases) or built yourself...
 
 R
 ```R
@@ -47,13 +35,15 @@ s <- Stencil('core/stencils/examples/kitchensink')
 s$view()
 ```
 
+Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
+
 ### Releases and versioning
 
 Head on over to the [releases page](https://github.com/stencila/stencila/releases) for more info on progress so far. It is still very early days so the API will change frequently. We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. Don't rely on API stability until the release of version 1.0.0.
 
 ### Contributing
 
-We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the Stencila [Kanban board](https://huboard.com/stencila/stencila) at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
+We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the kanban board at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
 
 ### Building
 
@@ -73,12 +63,53 @@ These shortcut tasks should build necessary dependencies e.g. `r-tests` first bu
 
 #### Tool chain requirements
 
-Stencila is developed and tested using [`g++`](https://gcc.gnu.org/). A recent version of `g++` (>=4.8) supporting features of the C++11 standard is necessary. For Microsoft Windows we recommend building under [MSYS2](http://msys2.github.io/) which provides a up-to-date and convenient way of compiling using the [MinGW-w64](http://mingw-w64.sourceforge.net/) Windows port of `g++`.
+The C++ libraries requires the usual build tool suspects e.g. make, cmake, git. Stencila is developed and tested using [`g++`](https://gcc.gnu.org/). A recent version of `g++` (>=4.8) supporting features of the C++11 standard is necessary. 
 
-Provisioning scripts are available to install the necessary build tools e.g. g++, make, cmake. These scripts can be run on your machine or consulted to see what is needed. Currently, provisioning scripts are provided for:
+##### Linux
 
-* [Ubuntu 14.04](provision-ubuntu-14.04.sh)
-* [MSYS2](provision-msys2.sh)
+Provisioning scripts are available for Linux which install the necessary build tools. These scripts can be run on your machine or simply perused to see what is needed. Currently, provisioning scripts are provided for:
+
+* [Ubuntu 12.04](provision-ubuntu-build-12.04.sh)
+* [Ubuntu 14.04](provision-ubuntu-build-14.04.sh)
+
+##### Windows
+
+For Microsoft Windows we recommend building under [MSYS2](http://msys2.github.io/) which provides a up-to-date and convenient way of compiling using the [MinGW-w64](http://mingw-w64.sourceforge.net/) Windows port of `g++`. This section provides a guide to setting up a toolchain for building Stencila packages. Where possible, we use the MSYS2 package manager, `pacman` to install required dependencies. If a package is not available for `pacman` (see the list [here](https://github.com/Alexpux/MSYS2-packages)) then we recommend installing via the `choco` package manager. If the `choco` package is out of date then we resort to manual installation.  
+
+- Install [MYSYS2](https://msys2.github.io/) and [Chocolatey](https://chocolatey.org).
+
+- Open the MYSY2 shell and install necessary build tools and libraries using `pacman`:
+
+	```shell
+	pacman -S base-devel cmake gcc git mingw-w64-x86_64-python2-pip msys2-devel unzip zip
+	pacman -S openssl libssh2
+	```
+
+- Install R using the Windows installer provided at http://www.r-project.org/ and make sure the R binary directory is added to the path e.g.
+
+	```shell
+	setx path "%path%;C:\Program Files\R\R-3.2.1\bin"
+	```
+
+- Install required R packages:
+
+	```shell
+	Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),repos='http://cran.us.r-project.org')"
+	```
+
+- If you want to deliver any of the Stencila packages to http://get.stenci.la (using Makefile recipes such as `cpp-deliver`, `r-deliver`) you will need to install the Amazon Web Services Command Line Interface. Although there is a Windows Installer is seems easier to install the `awscli` package into the MSYS2 environment as in Linux:
+
+	```shell
+	pip install awscli
+	```
+
+	For some reason, `aws configure` within an MSYS2 shell does not seem to work, so configure `aws` by adding the files described [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files):
+
+	```shell
+	mkdir ~/.aws
+	nano ~/.aws/credentials
+	nano ~/.aws/config
+	```
 
 #### C++ package requirements
 
@@ -99,3 +130,30 @@ We link statically to these libraries and distribute a large dynamic library for
 
 [Vagrant](https://www.vagrantup.com/) is a tool for creating lightweight, reproducible, and portable development environments. If you want to build Stencila for different operating systems or architectures we recommend using Vagrant. The [Vagrantfile](Vagrantfile) includes multiple virtual machine (VM) configurations and uses the provisioning scripts to setup each VM with the tools needed to build Stencila. See the comments at the top of the [Vagrantfile](Vagrantfile) for instructions.
 
+#### Building and testing on Windows
+
+If you are running Windows in a virtual machine (e.g. VirtualBox) for better performance it is recommended to use a build  directory that is on the VM (instead of the default `stencila/build/OS/ARCH/VERSION` directory that is within a shared folder on the host). Within the `MinGW-w64 Win64` shell create a build directory on the guest VM, change into the `stencila` directory on the host (in this example, mapped to drive Z:) and then specify the build directory when invoking `make`:
+
+```shell
+mkdir -p c:/build
+cd /z
+make cpp-package BUILD=c:/build
+```
+
+For some reason, the Makefile recipe `r-package` causes an error on Windows:
+
+```shell
+$ make r-package BUILD=c:/build
+cd /c/build/r/3.2; R CMD INSTALL --build stencila
+* installing to library 'C:/Program Files/R/R-3.2.1/library'
+Error: ERROR: no permission to install to directory 'C:/Program Files/R/R-3.2.1/library'
+Makefile:950: recipe for target '/c/build/r/3.2/stencila_0.15.1.zip' failed
+make: *** [/c/build/r/3.2/stencila_0.15.1.zip] Error 1
+```
+
+To work around this, run the `MinGW-w64 Win64 Shell` *as an administrator* and then run the build command from there e.g.
+
+```shell
+cd /c/build/r/3.2
+R CMD INSTALL --build stencila
+```
