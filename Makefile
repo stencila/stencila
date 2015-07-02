@@ -356,16 +356,31 @@ cpp-helpers-uglifyjs:
 #################################################################################################
 # Stencila C++ library
 
-# Build version object file
+# Get version compiled into library
 CPP_VERSION_CPP := $(BUILD)/cpp/library/stencila/version.cpp
 CPP_VERSION_O := $(BUILD)/cpp/library/stencila/version.o
-$(CPP_VERSION_O):
-	@mkdir -p $(BUILD)/cpp/library/stencila
+CPP_VERSION_COMPILED := $(shell grep -Po "(?<=Stencila::version = \")([^\"]+)" $(CPP_VERSION_CPP))
+
+# Delete version.cpp if it is out of date
+ifneq ($(CPP_VERSION_COMPILED),$(VERSION))
+DUMMY := $(shell rm -f $(CPP_VERSION_CPP))
+endif
+
+# Create version.cpp file with current version
+$(CPP_VERSION_CPP):
+	@mkdir -p $(dir $(CPP_VERSION_CPP))
 	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
 	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(BUILD)/cpp/library/stencila/version.cpp
-# Make it PHONY so it builds every time
-.PHONY: $(CPP_VERSION_O)
+
+# Compile version object file
+$(CPP_VERSION_O): $(CPP_VERSION_CPP)
+	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
+cpp-library-version: $(CPP_VERSION_O)
+
+cpp-library-vars:
+	@echo VERSION: $(VERSION)
+	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
+
 
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
@@ -381,21 +396,22 @@ $(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 # Extract object files from requirement libraries
 # Care may be required to ensure no name clashes in object files
 # Currently this is not dealt with
-cpp-library-requires: $(BUILD)/cpp/requires
-	@mkdir -p $(BUILD)/cpp/library/requires
-	cd $(BUILD)/cpp/library/requires ;\
+$(BUILD)/cpp/library/requires: $(BUILD)/cpp/requires
+	@mkdir -p $@
+	cd $@ ;\
 		ar x ../../requires/boost/lib/libboost_system.a ;\
 		ar x ../../requires/boost/lib/libboost_filesystem.a ;\
 		ar x ../../requires/boost/lib/libboost_regex.a ;\
 		ar x ../../requires/boost/lib/libboost_thread.a ;\
 		ar x ../../requires/libgit2/build/libgit2.a ;\
 		ar x ../../requires/pugixml/src/libpugixml.a ;\
-		ar x ../../requires/tidy-html5/lib/libtidy-html5.a ;\
+		ar x ../../requires/tidy-html5/lib/libtidy-html5.a
+	touch $@
 
 # Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
 # into a single static library.
 # Output list of contents to `contents.txt` for checking
-$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) cpp-library-requires
+$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/library/requires
 	cd $(BUILD)/cpp/library ;\
 		$(AR) rc libstencila.a `find . -name "*.o"` ;\
 		$(AR) t libstencila.a > contents.txt 
