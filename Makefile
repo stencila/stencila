@@ -963,9 +963,10 @@ r-repo: r-package
 	# Copy package there
 	cp $(R_BUILD)/$(R_PACKAGE_FILE) $(R_BUILD)/repo/$(R_REPO_DIR)
 	# Generate the PACKAGE file for the repo
-	Rscript -e "tools::write_PACKAGES('$(R_BUILD)/repo/$(R_REPO_DIR)',type='$(R_REPO_TYPE)')"
+	Rscript -e "require(tools); tools::write_PACKAGES('$(R_BUILD)/repo/$(R_REPO_DIR)',type='$(R_REPO_TYPE)')"
 
 # Deliver R package to get.stenci.la
+# Requires http://aws.amazon.com/cli/ and access keys for get.stenci.la
 r-deliver: $(R_BUILD)/stencila-dll.zip r-repo
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
