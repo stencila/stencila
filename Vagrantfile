@@ -43,21 +43,24 @@
 # Specify the build directory when invoking `make`
 #    make cpp-package r-package py-package BUILD=~/build
 #
-# For example, with MSYS2:
-# 
-# Create build directory on the guest VM
-#    mkdir -p /c/build
-# Change into the `stencila`directory on the host (mapped to drive Z:)
-#    cd /z
-# Specify the build directory when invoking `make`
-#    make cpp-package r-package py-package BUILD=/c/build
-#
 # There are also Vagrant machines defined for testing the installation of Stencila
 # packages on user machines. These have a reduced provisioning which only includes
 # the bare necessities for installation.
 
 Vagrant.configure("2") do |config|
 
+    # For building on Ubuntu 12.04 LTS (Precise Pangolin) 64 bit
+    # This is a similar VM to that used on Travis CI (http://docs.travis-ci.com/user/ci-environment/)
+    config.vm.define "ubuntu-12.04-64-build" do |platform|
+        platform.vm.box = "ubuntu/precise64"
+        platform.vm.provision "shell", path: "provision-ubuntu-12.04-build.sh"
+        platform.vm.provider "virtualbox" do |provider|
+            provider.name = "stencila-ubuntu-12.04-64-build"
+            provider.memory = 3072
+        end
+    end
+
+    # For building on Ubuntu 14.04 LTS (Trusty Tahr) 32 bit
     config.vm.define "ubuntu-14.04-32-build" do |platform|
         platform.vm.box = "ubuntu/trusty32"
         platform.vm.provision "shell", path: "provision-ubuntu-14.04-build.sh"
@@ -67,16 +70,7 @@ Vagrant.configure("2") do |config|
         end
     end
 
-    config.vm.define "ubuntu-14.04-64-use" do |platform|
-        platform.vm.box = "ubuntu/trusty64"
-        platform.vm.provision "shell", path: "provision-ubuntu-14.04-use.sh"
-        platform.vm.network "forwarded_port", guest: 7373, host: 7374
-        platform.vm.provider "virtualbox" do |provider|
-            provider.name = "stencila-ubuntu-14.04-64-use"
-            provider.memory = 1024
-        end
-    end
-
+    # For building on Ubuntu 14.04 LTS (Trusty Tahr) 64 bit
     config.vm.define "ubuntu-14.04-64-build" do |platform|
         platform.vm.box = "ubuntu/trusty64"
         platform.vm.provision "shell", path: "provision-ubuntu-14.04-build.sh"
@@ -86,6 +80,7 @@ Vagrant.configure("2") do |config|
         end
     end
 
+    # For testing use on Ubuntu 14.04 LTS (Trusty Tahr) 64 bit
     config.vm.define "ubuntu-14.04-64-use" do |platform|
         platform.vm.box = "ubuntu/trusty64"
         platform.vm.provision "shell", path: "provision-ubuntu-14.04-use.sh"
@@ -96,6 +91,7 @@ Vagrant.configure("2") do |config|
         end
     end
 
+    # For testing use on Ubuntu 14.10 (Utopic Unicorn) 64 bit
     config.vm.define "ubuntu-14.10-64-use" do |platform|
         platform.vm.box = "larryli/utopic64"
         platform.vm.provision "shell", path: "provision-ubuntu-14.10-use.sh"
