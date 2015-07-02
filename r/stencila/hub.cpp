@@ -3,7 +3,7 @@
 
 using namespace Stencila;
 
-#include "extension.hpp"
+#include "stencila.hpp"
 
 STENCILA_R_FUNC hub_signin_envvar(){
     STENCILA_R_BEGIN

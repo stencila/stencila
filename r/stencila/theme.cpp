@@ -1,7 +1,7 @@
 #include <stencila/theme.hpp>
 using namespace Stencila;
 
-#include "extension.hpp"
+#include "stencila.hpp"
 
 STENCILA_R_NEW(Theme)
 

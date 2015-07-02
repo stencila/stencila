@@ -1,7 +1,7 @@
 #include <stencila/html.hpp>
 using namespace Stencila;
 
-#include "extension.hpp"
+#include "stencila.hpp"
 
 STENCILA_R_FUNC HtmlNode_attr(SEXP self, SEXP name){
 	STENCILA_R_BEGIN

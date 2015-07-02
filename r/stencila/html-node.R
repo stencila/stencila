@@ -1,4 +1,4 @@
-#' @include extension.R
+#' @include stencila.R
 NULL
 
 #' A HTML node
