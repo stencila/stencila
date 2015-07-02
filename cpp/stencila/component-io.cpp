@@ -75,7 +75,7 @@ Component& Component::path(const char* path){
 std::string Component::address(void) const {
 	std::string path = this->path();
 	if(path.length()>0){
-		for(auto store : stores()){
+		for(auto store : Host::stores()){
 			if(path.length()>store.length()){
 				if(path.substr(0,store.length())==store){
 					// Component is in a store
@@ -97,26 +97,19 @@ std::string Component::address(bool ensure){
 	return address();
 }
 
-std::vector<std::string> Component::stores(void){
-	std::vector<std::string> stores;
-	const char* more = std::getenv("STENCILA_STORES");
-	if(more) {
-		std::vector<std::string> more_stores = split(more,";");
-		for(std::string store : more_stores) stores.push_back(store);
-	}
-	stores.push_back(Host::user_dir());
-	stores.push_back(Host::system_dir());
-	return stores;
-}
-
 std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
 		// An address explicty declared as a local path...
 		if(address[0]=='/' or address[0]=='.'){
 			// Check the local path actually exists on the filesystem
-			if(exists(address)){
-				auto path = canonical(absolute(address));
+			std::string modified = address;
+			// On Windows, remove a leading '/'
+			#if defined(_WIN32)
+				if(modified[0]=='/') modified = modified.substr(1);
+			#endif
+			if(exists(modified)){
+				auto path = canonical(absolute(modified));
 				return path.string();
 			}
 			else STENCILA_THROW(Exception,"Local address (leading '/' or '.') does not correspond to a local filesystem path:\n  address: "+address);
@@ -129,7 +122,7 @@ std::string Component::locate(const std::string& address){
 				return path.string();
 			} else {
 				// Not a local path so search in stores
-				for(std::string store : stores()){
+				for(std::string store : Host::stores()){
 					auto path = boost::filesystem::path(store)/address;
 					if(exists(path)) return path.string();
 				}

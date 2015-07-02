@@ -88,15 +88,6 @@ public:
 	std::string address(bool ensure);
 
 	/**
-	 * Get the filesystem paths of the Stencila stores
-	 *
-	 * `STENCILA_STORES` can be set as an environment variable.
-	 * It serves the same function as [`PYTHONPATH` in Python](https://docs.python.org/2/using/cmdline.html#envvar-PYTHONPATH) 
-	 * and [`R_LIBS` in R](http://stat.ethz.ch/R-manual/R-devel/library/base/html/libPaths.html)
-	 */
-	static std::vector<std::string> stores(void);
-
-	/**
 	 * Locate a component in the stores
 	 * i.e. convert an `address` into a `path`
 	 *

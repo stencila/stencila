@@ -36,7 +36,7 @@ Hub& Hub::signin(const std::string& token){
 }
 
 Hub& Hub::signin(void){
-	std::string token = Host::variable("STENCILA_TOKEN");
+	std::string token = Host::env_var("STENCILA_TOKEN");
 	if(token.length()==0) STENCILA_THROW(Exception,"Environment variable STENCILA_TOKEN is not defined");
 	return signin(token);
 }
