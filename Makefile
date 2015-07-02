@@ -840,7 +840,7 @@ r-vars:
 R_COMPILE_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 \
 				-Icpp $(CPP_REQUIRES_INC_DIRS) $(R_CPPFLAGS) $(RCPP_CXXFLAGS)
 ifeq ($(OS),linux)
-	R_COMPILE_FLAGS += -fPIC
+R_COMPILE_FLAGS += -fPIC
 endif
 
 # Compile each cpp file
@@ -859,14 +859,15 @@ $(R_BUILD)/stencila.$(R_DLL_EXT): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libs
 r-dll: $(R_BUILD)/stencila.$(R_DLL_EXT)
 
 # Build DLL zip file
+ifeq ($(OS),win)
+# Extra DLLs needed on windows. These should be available from the MSYS2 install.
+# List of extra DLLs required can be determined by running Dependency Walker
+# (http://www.dependencywalker.com/) on stencila.dll
+R_DLL_EXTRA := $(patsubst %, /c/msys64/mingw64/bin/%, libeay32.dll libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll ssleay32.dll zlib1.dll)
+endif
 $(R_BUILD)/stencila-dll.zip: $(R_BUILD)/stencila.$(R_DLL_EXT)
 	rm -f $@
-ifeq ($(OS),linux)
-	zip -j $@ $<
-endif
-ifeq ($(OS),win)
-	zip -j $@ $<
-endif
+	zip -j $@ $< $(R_DLL_EXTRA)
 r-dll-zip: $(R_BUILD)/stencila-dll.zip
 
 # Copy over DLL zip file
