@@ -2,7 +2,7 @@
 #include <stencila/network.hpp>
 #include <stencila/host.hpp>
 
-#include "extension.hpp"
+#include "stencila.hpp"
 #include "context.hpp"
 
 using namespace Stencila;
@@ -45,12 +45,7 @@ STENCILA_R_FUNC Stencila_shutdown(void){
  */
 STENCILA_R_FUNC Stencila_stores(void){
     STENCILA_R_BEGIN
-        auto stores = Component::stores();
-        Rcpp::CharacterVector result(stores.size());
-        for(unsigned int i=0;i<stores.size();i++){
-        	result[i] = stores[i];
-        }
-        return Rcpp::wrap(stores);//result;
+        return Rcpp::wrap(Host::stores());
     STENCILA_R_END
 }
 
