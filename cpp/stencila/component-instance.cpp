@@ -31,7 +31,7 @@ void Component::classes(void){
 
 const Component::Class& Component::class_(Type type){
 	const Class& clas = classes_[type];
-	if(not clas.defined) STENCILA_THROW(Exception,"Class with type enum has not been defined.\n  type: "+string(type));
+	if(not clas.defined) STENCILA_THROW(Exception,"Class with type enum has not been defined.\n  type: "+type_name(type));
 	return clas;
 }
 
