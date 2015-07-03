@@ -145,7 +145,7 @@ Html::Document Component_page_doc(const Type& component) {
 	// During development it can be useful to specify that a particular version of the Javascript
 	// module be used. For example, when compiling a component using a locally built development version of
 	// the Python or R package. Uncomment the following line to do that
-	// #define STENCILA_USE_JS_VERSION "0.15"
+	//#define STENCILA_USE_JS_VERSION "0.16"
 	#if defined(STENCILA_USE_JS_VERSION)
 		// Use the specified version
 		body.append("script",{{"src","https://stenci.la/get/js/stencila-" STENCILA_USE_JS_VERSION ".min.js"}}," ");
