@@ -117,7 +117,11 @@ install_dll <- function(get=TRUE,load=TRUE){
 	message(" - unzipping to: ",libs_dir)
 	unzip(zip, exdir = libs_dir, overwrite = TRUE)
 	# Now, load it!
-	if(load) load_dll()
+	if(load){
+		load_dll()
+		# ... and call the start up function
+		.Call('Stencila_startup',PACKAGE='stencila')
+	}
 
 	invisible(TRUE)
 }
