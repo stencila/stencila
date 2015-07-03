@@ -34,7 +34,7 @@ std::string user_store(void) {
 	}
 	// Fallback to current directory
 	if(not home.length()) {
-		home = current_path().string();
+		home = current_path().generic_string();
 	}
 	// Create stencila directory within user's directory
 	// Naming to fit the OS specific convention
@@ -45,17 +45,19 @@ std::string user_store(void) {
 	#endif
 	auto dir = path(home) / stencila;
 	if(not exists(dir)) create_directories(dir);
-	return dir.string();
+	return dir.generic_string();
 }
 
 std::string system_store(void) {
+	using namespace boost::filesystem;
+	path dir;
 	#if defined(__linux__)
-		std::string dir = "/usr/lib/stencila";
+		dir = "/usr/lib/stencila";
 	#elif defined(_WIN32)
 		// Currently, no system directory defined on Windows
-		std::string dir = "";
+		dir = "";
 	#endif
-	return dir;
+	return dir.generic_string();
 }
 
 std::vector<std::string> stores_;
@@ -77,7 +79,7 @@ std::vector<std::string> stores(void){
 
 std::string store_path(const std::string& address){
 	if(stores_.size()==0) STENCILA_THROW(Exception,"No stores available");
-	return (boost::filesystem::path(stores_[0])/address).string();
+	return (boost::filesystem::path(stores_[0])/address).generic_string();
 }
 
 std::string temp_dirname(void){
@@ -85,7 +87,7 @@ std::string temp_dirname(void){
 	path /= "stencila";
 	boost::filesystem::create_directories(path);
 	path /= boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%");
-	return path.string();
+	return path.generic_string();
 }
 
 std::string temp_filename(const std::string& extension){
@@ -95,7 +97,7 @@ std::string temp_filename(const std::string& extension){
 	std::string pattern = "%%%%-%%%%-%%%%-%%%%";
 	if(extension.length()) pattern += "." + extension;
 	path /= boost::filesystem::unique_path(pattern);
-	return path.string();
+	return path.generic_string();
 }
 
 }

@@ -34,7 +34,7 @@ Component& Component::path(const std::string& path) {
 	std::string new_path = path;
 	// Absolutise and canonicalise the new path (to follow symlinks etc)
 	// so comparing apples wth appls below
-	if(new_path.length()>0) new_path = canonical(absolute(new_path)).string();
+	if(new_path.length()>0) new_path = canonical(new_path).generic_string();
 	// If the current path is empty...
 	if(current_path.length()==0){
 		// If the new path is empty then...
@@ -42,7 +42,7 @@ Component& Component::path(const std::string& path) {
 			// Create a unique one
 			boost::filesystem::path unique = Host::temp_dirname();
 			create_directories(unique);
-			meta_->path = unique.string();
+			meta_->path = unique.generic_string();
 		} else {
 			// Create the path if necessary
 			if(not exists(new_path)) create_directories(new_path);
@@ -73,7 +73,9 @@ Component& Component::path(const char* path){
 }
 
 std::string Component::address(void) const {
+	using namespace boost::filesystem;
 	std::string path = this->path();
+	// Is path in any of the stores?
 	if(path.length()>0){
 		for(auto store : Host::stores()){
 			if(path.length()>store.length()){
@@ -85,10 +87,8 @@ std::string Component::address(void) const {
 		}
 	}
 	// Component is not in a store so return a "local" address 
-	// starting with a forward slash
-	auto address = boost::filesystem::absolute(path).string();
-	if(address[0]!='/') address.insert(0,"/");
-	return address;
+	// i.e. a canonicalised path
+	return boost::filesystem::canonical(path).generic_string();
 }
 
 std::string Component::address(bool ensure){
@@ -100,31 +100,29 @@ std::string Component::address(bool ensure){
 std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
-		// An address explicty declared as a local path...
-		if(address[0]=='/' or address[0]=='.'){
+		// Check if this is an address explicty declared as a local path...
+		bool local = false;
+		if(address[0]=='/' or address[0]=='.') local = true;
+		else if(address.length()>=2){
+			if(address[1]==':') local = true;
+		}
+		if(local){
 			// Check the local path actually exists on the filesystem
-			std::string modified = address;
-			// On Windows, remove a leading '/'
-			#if defined(_WIN32)
-				if(modified[0]=='/') modified = modified.substr(1);
-			#endif
-			if(exists(modified)){
-				auto path = canonical(absolute(modified));
-				return path.string();
+			if(exists(address)){
+				return canonical(address).generic_string();
 			}
-			else STENCILA_THROW(Exception,"Local address (leading '/' or '.') does not correspond to a local filesystem path:\n  address: "+address);
+			else STENCILA_THROW(Exception,"Local address (leading '/', '.', or 'x:') does not correspond to a local filesystem path:\n  address: "+address);
 		}
 		else {
 			// Could be a local path or an address within a store
 			if(exists(address)){
 				// Local path so just return that
-				auto path = canonical(absolute(address));
-				return path.string();
+				return canonical(address).generic_string();
 			} else {
 				// Not a local path so search in stores
 				for(std::string store : Host::stores()){
 					auto path = boost::filesystem::path(store)/address;
-					if(exists(path)) return path.string();
+					if(exists(path)) return path.generic_string();
 				}
 			}
 		}
