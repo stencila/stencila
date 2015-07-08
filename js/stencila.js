@@ -44,44 +44,12 @@ var Stencila = (function(Stencila){
 		}
 	};
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * The user interface environment
-	 *
-	 * This is a basic stub. Themes define their own HubView which is
-	 * assigned to `Hub.view`
-	 */
-	var HubView = Stencila.HubView = function(component){
-	};
-
-	HubView.prototype.info = function(message){
-		console.info(message);
-	};
-
-	HubView.prototype.warn = function(message){
-		console.warn(message);
-	};
-
-	HubView.prototype.error = function(message){
-		console.error(message);
-	};
-
-	HubView.prototype.signin = function(){
-		var username = prompt('Username for stenci.la');
-		var password = prompt('Password for stenci.la');
-		return {
-			username: username,
-			password: password
-		};
-	};
-
 	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Connection to a server.
 	 * 
-	 * Implements the WAMP (http://wamp.ws) messaging protocol over
+	 * Implements the WAMP (http://wamp.ws) messaging protocol
 	 */
 	var Connection = Stencila.Connection = function(){
 		// Callbacks registered for remote procedure calls (see call() method)
@@ -248,44 +216,76 @@ var Stencila = (function(Stencila){
 	Hub.permit = null;
 
 	/**
+	 * Tell mirrors of change in a property
+	 * 
+	 * @param {String or Object} 	property Name of property
+	 */
+	Hub.tell = function(property,value){
+		if(this.menu) this.menu.from(property,value);
+	};
+
+	/**
 	 * Signin to stenci.la
 	 *
 	 * @param  {Function} callback Callback once signed in
 	 */
-	Hub.signin = function(credentials,callback) {
-		var headers = {
-			'Accept':'application/json'
-		};
+	Hub.signin = function(credentials,callback,ask) {
+		if(ask===undefined) ask = true;
+
+		Hub.username = null;
+		Hub.permit = null;
+
+		// Do we need to ask user for credentials?
+		var need = true;
 		if(credentials){
 			// Credentials supplied
-			if(credentials.password){
-				var encoded = btoa(credentials.username+':'+credentials.password);
-				headers['Authorization'] = 'Basic '+encoded;
-			}
+			need = false;
 		}
 		else if(window.location.host=='stenci.la'){
 			// This page may already be at https://stenci.la and user already signed in
 			// Check for that using cookies set by stenci.la when a user is authenticated
+			// If signed in then correct headers will be set in the AJAX GET below and an
+			// explicit Authorization header is not required
 			var username = $.cookie('username');
-			// If signed in then correct headers will be set in AJAX GET below,
-			// otherwise ask user to sign in
-			if(username) Hub.username = username;
-			else Hub.view.signin();
+			if(username) need = false;
 		}
-		else {
-			// Ask user to sign in
-			Hub.view.signin();
+		// Prompt user for credentials
+		if(need && ask){
+			credentials = Hub.menu.signin();
+			need = false;
 		}
+		// Construct headers
+		var headers = {
+			'Accept':'application/json'
+		};
+		if(credentials){
+			var encoded = btoa(credentials.username+':'+credentials.password);
+			headers['Authorization'] = 'Basic '+encoded;
+		}
+		if(!need){
+			// Get a permit to be used for subsequent requests
+			$.ajax({
+				url: 'https://stenci.la/user/permit',
+				method: 'GET',
+				headers: headers
+			}).done(function(data){
+				Hub.username = data.username;
+				Hub.permit = data.permit;
+				// Update mirrors
+				Hub.tell('username',Hub.username);
+				// Do callback
+				if(callback) callback();
+			});
+		}
+	};
 
-		// Get a permit to be used for subsequent requests
-		$.ajax({
-			url: 'https://stenci.la/user/permit',
-			method: 'GET',
-			headers: headers
-		}).done(function(data){
-			Hub.permit = data.permit;
-			if(callback) callback();
-		});
+	/**
+	 * Signout of stenci.la
+	 */
+	Hub.signout = function() {
+		Hub.username = null;
+		Hub.permit = null;
+		Hub.tell('username',Hub.username);
 	};
 
 	/**
@@ -342,15 +342,12 @@ var Stencila = (function(Stencila){
 		}
 	};
 
-	/**
-	 * Signout of stenci.la
-	 */
-	Hub.signout = function() {
-		Hub.username = null;
-		Hub.permit = null;
-	};
-
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Component instance on page
+	 */
+	var Com = null;
 
 	/**
 	 * Base class for all components
@@ -384,6 +381,8 @@ var Stencila = (function(Stencila){
 			if(last.substr(last.length-1)=="-") parts.pop();
 			this.address = parts.join('/');
 		}
+		// ...remove any leading /
+		if(this.address.length && this.address[0]==='/') this.address=this.address.substr(1);
 
 		// Set closed. By default is false
 		this.closed = false;
@@ -398,6 +397,14 @@ var Stencila = (function(Stencila){
 		this.preview = false;
 		if(window.location.hash==='#preview!') this.preview = true;
 
+		// Determine if within an iframe
+		// Thanks to http://stackoverflow.com/a/326076/4625911
+		try {
+	        this.embedded = window.self !== window.top;
+	    } catch (e) {
+	        this.embedded = true;
+	    }
+
 		// Set activation status
 		this.activation = 'inactive';
 	};
@@ -405,7 +412,7 @@ var Stencila = (function(Stencila){
 	/**
 	 * Set the theme for this compontent
 	 */
-	Component.prototype.theme = function(theme,then){
+	Component.prototype.theme = function(theme,callback){
 		var self = this;
 
 		// Load theme CSS. This is currently done, with fallbacks
@@ -418,22 +425,7 @@ var Stencila = (function(Stencila){
 
 		// Load theme Javascript module and initialise menus
 		require([theme+'/theme'],function(theme){
-			if(!self.preview) Hub.menu = new theme.HubMenu();
-			if(!self.preview){
-				if(!self.closed) self.menu = new theme.ComponentMenu(self);
-				else{
-					self.menu = null;
-					$(document).bind('keydown','f1',function(event){
-						event.preventDefault();
-						self.menu = new theme.ComponentMenu(self);
-						self.menu.from(self);
-					});
-				}
-			}
-			var view = theme.ComponentView;
-			if(typeof view==='function') view = view(self);
-			self.view(view);
-			if(then) then();
+			if(callback) callback(theme);
 		});
 	};
 
@@ -473,11 +465,52 @@ var Stencila = (function(Stencila){
 	 *
 	 * Intended to be called after the theme has been set
 	 */
-	Component.prototype.startup = function(){
-		// Attempt to activate if on localhost
-		if(this.host=='localhost' && !this.preview) this.activate();
-		// Read properties
-		this.read();
+	Component.prototype.startup = function(theme){
+		var self = this;
+		// Create menus if not in preview mode
+		if(!self.preview && !self.embedded){
+			// ComponentMenu on left side
+			if(!self.closed) self.menu = new theme.ComponentMenu(self);
+			else{
+				self.menu = null;
+				$(document).bind('keydown','f1',function(event){
+					event.preventDefault();
+					self.menu = new theme.ComponentMenu(self);
+					self.menu.from(self);
+				});
+			}
+			// Create hub menu
+			Hub.menu = new theme.HubMenu(self);
+		}
+		// Create default view
+		var view = theme.ComponentView;
+		if(typeof view==='function') view = view(self);
+		else if(view!==undefined) self.view(view);
+		// Now that menus and views are constructed...
+		if(!self.preview && !self.embedded){
+			// Attempt to sign in to hub automatically
+			Hub.signin(false,null,false);
+			// Localise the page based on this address
+			if(self.host=='stenci.la'){
+				var url = '.localize';
+				if(self.address) url = self.address+'/'+url;
+				Hub.get(url,false,function(data){
+					var locale = $(data);
+					$(document.head).append(locale.find('#styles').html());
+					$(document.body).prepend(locale.find('#header'));
+					$(document.body).append(locale.find('#footer'));
+					locale.find('script').each(function(){
+						eval($(this).text());
+					});
+				});
+			}
+			if(!self.closed){
+				// Read meta-data to update view
+				self.read();
+				// Attempt to activate now if on localhost
+				if(self.host=='localhost') self.activate();
+			}
+		}
 	};
 
 	/**
@@ -530,7 +563,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.read = function(){
 		var self = this;
-		Hub.get(this.address+"/_",false,function(data){
+		Hub.get(this.address+"/.meta",false,function(data){
 			self.change(data);
 		});
 	};
@@ -541,7 +574,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.favourite = function(){
 		var self = this;
-		Hub.post(this.address+"/favourite!",null,function(response){
+		Hub.post(this.address+"/.favourite",null,function(response){
 			self.change({
 				'favourites':response.favourites,
 				'favourited':response.favourited
@@ -572,7 +605,7 @@ var Stencila = (function(Stencila){
 				// Elsewhere, request stenci.la to activate a session
 				// for this component
 				var self = this;
-				Hub.post(self.address+"/activate!",null,function(data){
+				Hub.post(self.address+"/.activate",null,function(data){
 					self.session = data;
 					// Check if session is ready
 					function ready(){
@@ -618,7 +651,7 @@ var Stencila = (function(Stencila){
 		if(this.activation==='active' && this.host!=='localhost'){
 			this.change('activation','deactivating');
 			var self = this;
-			Hub.post(this.address+"/deactivate!",null,function(data){
+			Hub.post(this.address+"/.deactivate",null,function(data){
 				self.change('activation','inactive');
 			});
 		}
@@ -1221,11 +1254,27 @@ var Stencila = (function(Stencila){
 			this.content = $('<div></div>').append(this.content.clone());
 		}
 
+		if(contexts===undefined){
+			contexts = $('head meta[itemprop=closed]');
+			if(contexts.length) contexts = contexts.attr('content');
+			else contexts = undefined;
+		}
 		this.contexts = contexts;
 
 		this.editable = (this.host=='localhost');
 	};
 	Stencil.prototype = Object.create(Component.prototype);
+
+	/**
+	 * Startup the stencil.
+	 *
+	 * Intended to be called after the theme has been set.
+	 * Overrides `Component.prototype.startup()`
+	 */
+	Stencil.prototype.startup = function(theme){
+		Component.prototype.startup.call(this,theme);
+		if(this.contexts=='js') this.render();
+	};
 
 	/**
 	 * Get or set the HTML for this stencil
@@ -1385,27 +1434,22 @@ var Stencila = (function(Stencila){
 	 * saved HTML page.
 	 */
 	Stencila.launch = function(){
-		// Launch options are determined by microdata in <head>
 		function prop(name){
 			return $('head meta[itemprop='+name+']').attr('content');
 		}
-		// Launch the component type with specified theme
+		// Create component
 		var com;
 		var type = prop('type');
+		if(type==='stencil') com = new Stencil('#content');
+		else if(type==='theme') com = new Theme();
+		else com = new Component();
+		// Set theme and startup
 		var theme = prop('theme');
-		if(type==='stencil'){
-			com = Stencila.component = new Stencil('#content',prop('contexts'));
-			com.theme(theme,function(){
-				com.startup();
-				if(com.contexts=='js') com.render();
-			});
-		}
-		else if(type==='theme'){
-			com = Stencila.component = new Theme();
-			com.theme(theme,function(){
-				com.startup();
-			});
-		}
+		com.theme(theme,function(theme){
+			com.startup(theme);
+		});
+		// Primarily for debugging, make the component accessible
+		Stencila.Com = com;
 	};
 
 	return Stencila;
