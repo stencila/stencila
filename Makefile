@@ -477,12 +477,17 @@ $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
+# Input files (typically text files) used for tests
+CPP_TEST_INPUTS := $(BUILD)/cpp/tests/stencil-cila-convert.txt
+$(BUILD)/cpp/tests/stencil-cila-convert.txt: cpp/tests/stencil-cila-convert.txt
+	cp -f $< $@
+
 # Compile a single test file into an executable
-$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS) $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
-$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS) $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Make test executable precious so they are kept despite
