@@ -2,8 +2,8 @@
 
 #include <pugixml.hpp>
 
-#include <tidy-html5/tidy.h>
-#include <tidy-html5/buffio.h>
+#include <tidy.h>
+#include <tidybuffio.h>
 
 #include <stencila/html.hpp>
 #include <stencila/string.hpp>

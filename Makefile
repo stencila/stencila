@@ -244,49 +244,31 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
-TIDYHTML5_VERSION := 8b454f5
+TIDYHTML5_VERSION := f450263
 
 $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
 	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/tarball/$(TIDYHTML5_VERSION)
 
-$(BUILD)/cpp/requires/tidy-html5-unpacked.flag: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
+$(BUILD)/cpp/requires/tidy-html5: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	mv $(BUILD)/cpp/requires/htacg-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
 	touch $@
 
-# These patches depend upon `tidy-html5-unpacked.flag` rather than simply the `tidy-html5` since that
-# directory's time changes with the patches and so they keep getting applied
-
-# Apply patch to Makefile to add -O2 -fPIC options
-$(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile: cpp/requires/tidy-html5-build-gmake-Makefile.patch $(BUILD)/cpp/requires/tidy-html5-unpacked.flag
-	patch $@ $<
-
-# Apply patch from pull request #98 to add <main> tag (this is applied using `patch` rather than `git` so that `git` is not required)
-# This patch affects include/tidyenum.h, src/attrdict.h, src/attrdict.c, src/tags.c
-$(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h: cpp/requires/tidy-html5-pull-98.patch $(BUILD)/cpp/requires/tidy-html5-unpacked.flag
-	cat $< | patch -p1 -d $(BUILD)/cpp/requires/tidy-html5
-
-# Note that we only "make ../../lib/libtidy.a" and not "make all" because the latter is not required
 # Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
-$(BUILD)/cpp/requires/tidy-html5-built.flag: \
-		$(BUILD)/cpp/requires/tidy-html5-unpacked.flag \
-		$(BUILD)/cpp/requires/tidy-html5/build/gmake/Makefile \
-		$(BUILD)/cpp/requires/tidy-html5/include/tidyenum.h
-	cd $(BUILD)/cpp/requires/tidy-html5/build/gmake ;\
-	  make ../../lib/libtidy.a
-	cd $(BUILD)/cpp/requires/tidy-html5 ;\
-	  mkdir -p tidy-html5 ; cp -f include/* tidy-html5 ;\
-	  mv lib/libtidy.a lib/libtidy-html5.a
+$(BUILD)/cpp/requires/tidy-html5-built.flag: $(BUILD)/cpp/requires/tidy-html5
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+	  cmake ../.. -DCMAKE_CXX_FLAGS="-O3 -fPIC" ;\
+	  make
 ifeq ($(OS), win)
-	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/lib/libtidy-html5.a
+	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/build/cmake/libtidys.a
 endif
 	touch $@
 
-CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/tidy-html5
-CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/tidy-html5/lib
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/tidy-html5/include
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/tidy-html5/build/cmake
 
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
@@ -314,7 +296,7 @@ CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex
 CPP_REQUIRES_LIBS += git2 z
 CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri boost_thread
 CPP_REQUIRES_LIBS += pugixml
-CPP_REQUIRES_LIBS += tidy-html5
+CPP_REQUIRES_LIBS += tidys
 ifeq ($(OS), linux)
 	CPP_REQUIRES_LIBS += rt pthread
 endif

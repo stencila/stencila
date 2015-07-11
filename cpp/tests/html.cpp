@@ -16,8 +16,6 @@ BOOST_AUTO_TEST_CASE(load){
 		"<h2>subheading</h2>"
 	)
 
-	// As of commit 0cf6d99843 tidy-html5 did not recognise <main> tags (https://github.com/w3c/tidy-html5/issues/82)
-	// We add a patch to fix that. This check tests that <main> is indeed recognised.
 	CHECK(
 		"<main id=\"content\">content</main>",
 		"<main id=\"content\">content</main>"
