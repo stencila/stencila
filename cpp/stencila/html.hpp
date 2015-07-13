@@ -48,9 +48,14 @@ bool is_shortable_element(const std::string& name);
 class Fragment : public Xml::Document {
 public:
 	/**
-	 * Construct a HTML5 fragment
+	 * Construct a HTML5 fragment from string
 	 */
 	Fragment(const std::string& html="");
+
+	/**
+	 * Construct a HTML5 fragment from a Xml::Document
+	 */
+	Fragment(const Xml::Document& xml);
 
 	/**
 	 * Tidy a string of HTML to ensure it can be parsed

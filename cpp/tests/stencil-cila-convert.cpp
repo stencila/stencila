@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(run) {
 	std::string text = buffer.str();
     // Split it into individual tests
     std::vector<std::string> tests;
-    boost::iter_split(tests, text, boost::first_finder("----------------------------------------------------------------------------------------------------\n"));
+    boost::iter_split(tests, text, boost::first_finder("--------------------------------------------------\n\n\n"));
     // For each test
     std::ofstream exp("stencil-cila-convert.exp");
     std::ofstream got("stencil-cila-convert.got");
@@ -41,9 +41,11 @@ BOOST_AUTO_TEST_CASE(run) {
     	}
     	// Display header section
     	std::string header = sections[0];
-    	std::cout<<header;
     	exp<<header<<"--------------------------------------------------\n";
     	got<<header<<"--------------------------------------------------\n";
+
+        // Get name
+        auto name = header.substr(0,header.length()-3);
 
     	// Determine directionality of test from last two chars of header
     	boost::trim(header);
@@ -54,20 +56,26 @@ BOOST_AUTO_TEST_CASE(run) {
     	Stencil stencil;
     	if(direction=="<>" or direction==">>"){
     		stencil.cila(sections[1]);
-    		auto html = stencil.html();
+    		auto html = stencil.html()+'\n';
     		exp<<sections[2];
     		got<<html;
-    		BOOST_CHECK_EQUAL(html,sections[2]);
+            if(html!=sections[2]){
+                std::cout<<"****  "<<name<<"  ****"<<std::endl;
+                BOOST_CHECK_EQUAL(html,sections[2]);
+            }
     	}
     	if(direction=="<>" or direction=="<<"){
     		stencil.html(sections[2]);
-    		auto cila = stencil.cila();
+    		auto cila = stencil.cila()+'\n';
     		exp<<sections[1];
     		got<<cila;
-    		BOOST_CHECK_EQUAL(cila,sections[1]);
+            if(cila!=sections[1]){
+                std::cout<<"****  "<<name<<"  ****"<<std::endl;
+                BOOST_CHECK_EQUAL(cila,sections[1]);
+            }
     	}
-    	exp<<"----------------------------------------------------------------------------------------------------\n";
-    	got<<"----------------------------------------------------------------------------------------------------\n";
+    	exp<<"--------------------------------------------------\n\n\n";
+    	got<<"--------------------------------------------------\n\n\n";
     }
 }
 

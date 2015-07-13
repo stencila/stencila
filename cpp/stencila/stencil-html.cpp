@@ -7,9 +7,9 @@ namespace Stencila {
 std::string Stencil::html(bool document,bool indent) const {
 	if(not document){
 		// Return content only
-		// Place into a Html::Document
-		Html::Document doc(dump(indent));
-		auto html = doc.dump();
+		// Place into a Html::Fragment
+		Html::Fragment frag = *this;
+		auto html = frag.dump();
 		return trim(html);
 	} else {
 		// Return a complete HTML document

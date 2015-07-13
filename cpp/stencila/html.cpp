@@ -50,6 +50,10 @@ Fragment::Fragment(const std::string& html):
 	load(html);
 }
 
+Fragment::Fragment(const Xml::Document& xml):
+	Xml::Document(xml){
+}
+
 /**
  * Parse and tidy up a HTML string
  */
@@ -228,7 +232,7 @@ void dump_node(std::stringstream& stream, Html::Node node, bool pretty, const st
 		bool content = false;
 		bool first = true;
 		for(auto child : node.children()){
-			if(pretty and not inlinee and not shorten and name!="pre" and first and child.is_text()){
+			if(pretty and not inlinee and not shorten and name!="pre" and first and (child.is_text() or is_inline_element(child.name()))){
 				stream<<"\n"<<indent+"\t";
 			}
 			if(child.is_element() or (child.is_text() and child.text().length()>0)) content = true;

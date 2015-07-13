@@ -12,7 +12,7 @@ using namespace Stencila::Html;
 
 BOOST_AUTO_TEST_CASE(tidy){
 	// Tests mainly for understanding/checkingwhat htmltidy does
-	boost::regex regex("<body>\n(.*)\n</body>");
+	boost::regex regex("<body>(.*)</body>");
 	boost::smatch match;
 	#define CHECK(in,out) { \
 		auto temp = Fragment::tidy(in); \
@@ -25,12 +25,23 @@ BOOST_AUTO_TEST_CASE(tidy){
 		"<p>Cheking works</p>"
 	)
 
-	// htmltidy puts start and end newlines in pre and script elements
+	// htmltidy 5.0.0RC1 (and before) puts start and end newlines in pre and script elements
 	// See See https://github.com/htacg/tidy-html5/issues/158 and https://github.com/htacg/tidy-html5/issues/227
+	// Our pull request https://github.com/htacg/tidy-html5/pull/228 removes them if `vertical-space` is no
+	// But any intentional initial newline is lost (in htmltidy's parsing?)
 	CHECK(
 		"<pre>code</pre>",
-		"<pre>\ncode\n</pre>"
+		"<pre>code</pre>"
 	)
+	CHECK(
+		"<pre>\ncode</pre>",
+		"<pre>code</pre>"
+	)
+	CHECK(
+		"<pre>\n\ncode</pre>",
+		"<pre>\ncode</pre>"
+	)
+
 
 	// htmltidy does not allow top level scripts, they must be within something
 	CHECK(
@@ -39,7 +50,7 @@ BOOST_AUTO_TEST_CASE(tidy){
 	)
 	CHECK(
 		"<div><script>code</script></div>",
-		"<div>\n<script>\ncode\n</script>\n</div>"
+		"<div><script>code</script></div>"
 	)
 
 	#undef CHECK 
@@ -65,32 +76,32 @@ BOOST_AUTO_TEST_CASE(load_and_dump){
 	CHECK(
 		"<p class=\"message\">Don't panic!",
 		"<p class=\"message\">\n\tDon't panic!\n</p>"
-	) 
+	)
 
 	// Preserves tabs in <pre> elements
 	CHECK(
-		"<pre>\n\tline1\n\t\tline2\n</pre>",
-		"<pre>\n\tline1\n\t\tline2\n</pre>"
+		"<pre>\tline1\n\t\tline2\n</pre>",
+		"<pre>\tline1\n\t\tline2\n</pre>"
 	)
 	CHECK(
-		"<pre id=\"id\">\n\tline1\n\t\tline2\n</pre>",
-		"<pre id=\"id\">\n\tline1\n\t\tline2\n</pre>"
+		"<pre id=\"id\">\tline1\n\t\tline2\n</pre>",
+		"<pre id=\"id\">\tline1\n\t\tline2\n</pre>"
 	)
 
 	// Doesn't add CDATA wrapper to script elements
 	CHECK(
 		"<div><script>code</script></div>",
-		"<div><script>\ncode\n</script>\n</div>"
+		"<div>\n\t<script>code</script>\n</div>"
 	)
 
 	// Does not have any newline in inline math elements but does in display mode ones
 	CHECK(
 		"<div><script type=\"math/asciimath\">\nE=mc^2\n</script></div>",
-		"<div><script type=\"math/asciimath\">E=mc^2</script>\n</div>"
+		"<div>\n\t<script type=\"math/asciimath\">E=mc^2</script>\n</div>"
 	)
 	CHECK(
-		"<div><script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script></div>",
-		"<div><script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script>\n</div>"
+		"<div><script type=\"math/asciimath; mode=display\">\n\nE=mc^2\n</script></div>",
+		"<div>\n\t<script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script>\n</div>"
 	)
 
 	#undef CHECK 
@@ -168,7 +179,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	)
 	CHECK(
 		"<div><script>alert('XSS')</script></div>",
-		"<div><script>\nalert('XSS')\n</script></div>"
+		"<div><script>alert('XSS')</script></div>"
 	)
 
 	// Image XSS using the JavaScript directive
@@ -180,7 +191,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// Malformed IMG tags
 	CHECK(
 		R"( <img """><SCRIPT>alert('XSS')</SCRIPT>"> )",
-		"<img><script>\nalert('XSS')\n</script>\"&gt;"
+		"<img><script>alert('XSS')</script>\"&gt;"
 	)
 
 	// Default SRC tag by leaving it empty
@@ -266,7 +277,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	// No closing script tags
 	CHECK(
 		"<div><script src=http://ha.ckers.org/xss.js?< B ></div>",
-		"<div><script src=\"http://ha.ckers.org/xss.js?\">\n&lt; B &gt;&lt;/div&gt;\n</script></div>"
+		"<div><script src=\"http://ha.ckers.org/xss.js?\">&lt; B &gt;&lt;/div&gt;</script></div>"
 	)        
 
 	// Protocol resolution in script tags
