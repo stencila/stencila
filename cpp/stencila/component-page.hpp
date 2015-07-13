@@ -180,8 +180,6 @@ Html::Document Component_page_doc(const Type& component) {
 		"if(!window.Stencila){window.alert('Page could not be fully loaded. Not all functionality will be available.');}"+
 	"},10000)");
 
-	// Validate the HTML5 document before returning it
-	doc.validate();
 	return doc;
 }
 

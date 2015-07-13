@@ -33,18 +33,27 @@ bool is_inline_element(const std::string& name){
 	return false;
 }
 
-Document::Document(const std::string& html):
+bool is_shortable_element(const std::string& name){
+	for(auto elem : {
+		"title",
+		"h1","h2","h3","h4","h5","h6","h7",
+		"li",
+		"th","td"
+	}){
+		if(name==elem) return true;
+	}
+	return false;
+}
+
+Fragment::Fragment(const std::string& html):
 	Xml::Document(){
-	// Even for an initally empty document call load
-	// with an empty string so that `tidy()` can create
-	// the elements necessary in a HTML5 document (e.g. <body>)
 	load(html);
 }
 
 /**
  * Parse and tidy up a HTML string
  */
-std::string Document::tidy(const std::string& html){
+std::string Fragment::tidy(const std::string& html){
 	// Create a tidyhtml5 document
 	TidyDoc document = tidyCreate();
 	// Set processing  and output options.
@@ -59,13 +68,18 @@ std::string Document::tidy(const std::string& html){
 	ok = tidyOptSetBool(document,TidyDropEmptyParas,no);
 	// Don't wrap lines
 	ok = tidyOptSetInt(document,TidyWrapLen,0);
-	//	Output as XHTML5
-	ok = tidyOptSetBool(document,TidyXhtmlOut,yes);
-	ok = tidyOptSetValue(document,TidyDoctype,"html5");
+	// Don't add newlines
+	ok = tidyOptSetBool(document,TidyVertSpace,no);
 	//	Turn off adding a html-tidy <meta name="generator".. tag for itself
 	ok = tidyOptSetBool(document,TidyMark,no);
+	// Output as well formed XML since that is where is is going to
+	ok = tidyOptSetBool(document,TidyXmlOut,yes);
 	// Do processing and output
 	if(ok){
+		std::string input = html;
+		// For some reason tidy does not like a "<!DOCTYPE html>"
+		// in the document so remove that first
+		replace_all(input,"<!DOCTYPE html>","");
 		// Unfortunately Tidy relaces all tabs with spaces, including in <pre> elements
 		// There does not appear to be an option for turning this off (only for changing number of tab spaces)
 		// The HTML5 spec does not say that tabs are not allowed in pre elements (http://www.w3.org/TR/html5/grouping-content.html#the-pre-element)
@@ -73,7 +87,6 @@ std::string Document::tidy(const std::string& html){
 		// Putting in a character proxy for tabs (e.g. "---tab---" as used below) in other elements can cause Tidy to insert extra
 		// element so should be avoided.
 		// So, protect tabs in <pre> elements only...
-		std::string input = html;
 		std::size_t from = 0;
 		while(true){
 			// Find start and end tag
@@ -133,42 +146,49 @@ std::string Document::tidy(const std::string& html){
 	STENCILA_THROW(Exception,"An error occurred");
 }   
 
-Document& Document::load(const std::string& html){
-	// For some reason tidy does not like a "<!DOCTYPE html>"
-	// in the document so remove that first
-	std::string html_to_tidy = html;
-	replace_all(html_to_tidy,"<!DOCTYPE html>","");
-	
-	std::string tidied = tidy(html_to_tidy);
+Fragment& Fragment::load(const std::string& html, bool document){
+	std::string tidied = tidy(html);
+
 	// In some cases tidy is returning an empty string
 	// this catches that
-	if(html_to_tidy.length()>0 and tidied.length()==0){
+	if(html.length()>0 and tidied.length()==0){
 		STENCILA_THROW(Exception,"No tidied HTML returned");
 	}
 
-	// Load the tidied HTML into the document
-	Xml::Document::load(tidied);
+	if(not document){
+		// Just copy tidied body
+		Xml::Document temp(tidied);
+		clear();
+		append_children(temp.find("body"));
+	} else {
+		// Load the entire tidied HTM document
+		Xml::Document::load(tidied);
+	}
+
+	// Tidy inserts new lines at start and end of pre and script tags.
+	// See https://github.com/htacg/tidy-html5/issues/158 and https://github.com/htacg/tidy-html5/issues/227
+	// For us the main issue is the newlines in inline script elements for MathJax, so just deal with these
+	// Note that type="math/asciimath; mode=display" element are not filtered by this select (which is the desired behaviour)
+	for(auto node : filter("script[type='math/asciimath'],script[type='math/tex']")){
+		auto text = node.text();
+		if(text.front()=='\n') text.erase(0,1);
+		if(text.back()=='\n') text.pop_back();
+		node.text(text);
+	}
 
 	// Unfortunately, TidyHTML seems to unecessarily add in <li> elements when there is whitespace within a <ul> or <ol>
-	// This is a tempory fix, it's here becasue it is the easiest place for it.
+	// This is a temporary fix, it's here becasue it is the easiest place for it.
 	for(auto node : filter("li[style='list-style: none']")) node.destroy();
-
-	// tidy-html5 does not add a DOCTYPE declaration even when `TidyXhtmlOut` is `yes` and
-	// `TidyDoctype` is `"html5"`. So add one here..
-	doctype("html");
-
-	// Validate this document
-	validate();
 
 	return *this;
 }
 
 namespace {
 	
-void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::string& indent){
+void dump_node(std::stringstream& stream, Html::Node node, bool pretty, const std::string& indent=""){
 	if(node.is_document()){
 		// Dump children without indent
-		for(auto child : node.children()) dump_(stream,child,pretty,"");
+		for(auto child : node.children()) dump_node(stream,child,pretty,"");
 	}
 	else if(node.is_doctype()){
 		stream<<"<!DOCTYPE html>";
@@ -179,6 +199,8 @@ void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::s
 		auto inlinee = is_inline_element(name);
 		if(pretty and not inlinee) stream<<"\n"<<indent;
 		stream<<"<"<<name;
+
+		// Attributes
 		for(auto name : node.attrs()){
 			auto value = node.attr(name);
 			// Escape quotes in attribute values
@@ -186,21 +208,35 @@ void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::s
 			stream<<" "<<name<<"=\""<<value<<"\"";
 		}
 		stream<<">";
-		// For void HTML nothing else to do so return
+
+		// For void element nothing else to do so return
 		if(is_void_element(name)) return;
-		// Dump children
+
+		// If this is not an inline element can it be "shortend"
+		bool shorten = false;
+		if(not inlinee and is_shortable_element(name)){
+			shorten = true;
+			for(auto child : node.children()){
+				if(not child.is_text() or child.text().length()>100){
+					shorten = false;
+					break;
+				}
+			}
+		}
+		
+		// Dump child nodes
 		bool content = false;
 		bool first = true;
 		for(auto child : node.children()){
-			if(pretty and not inlinee and name!="pre" and first and child.is_text()){
+			if(pretty and not inlinee and not shorten and name!="pre" and first and child.is_text()){
 				stream<<"\n"<<indent+"\t";
-				first = false;
 			}
 			if(child.is_element() or (child.is_text() and child.text().length()>0)) content = true;
-			dump_(stream,child,pretty,indent+"\t");
+			dump_node(stream,child,pretty,indent+"\t");
+			first = false;
 		}
 		// Closing tag
-		if(pretty and not inlinee and name!="pre" and content) stream<<"\n"<<indent;
+		if(pretty and not inlinee and name!="pre" and content and not shorten) stream<<"\n"<<indent;
 		stream<<"</"<<name<<">";
 	}
 	else if(node.is_text()){
@@ -210,6 +246,7 @@ void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::s
 		auto text = node.text();
 		boost::replace_all(text,"&","&amp;");
 		boost::replace_all(text,"<","&lt;");
+		boost::replace_all(text,">","&gt;");
 		stream<<text;
 	}
 	else if(node.is_cdata()){
@@ -220,42 +257,39 @@ void dump_(std::stringstream& stream, Html::Node node, bool pretty, const std::s
 
 }
 
-std::string Document::dump(bool pretty) const {
+std::string Fragment::dump(bool pretty) const {
 	std::stringstream html;
-	dump_(html,*this,pretty,"");
-	return html.str();
+	dump_node(html,*this,pretty);
+	return trim(html.str());
 }
 
-Document& Document::read(const std::string& filename){
-	std::ifstream file(filename);
+Fragment& Fragment::read(const std::string& path){
+	std::ifstream file(path);
 	std::stringstream html;
 	html<<file.rdbuf();
 	load(html.str());
 	return *this;
 }
 
-/**
- * A Xml::Document traverser which ensures that the content of the 
- * document conforms to HTML5
- */
-struct Validator : pugi::xml_tree_walker {
-	virtual bool for_each(pugi::xml_node& node) {
-		if(node.type()==pugi::node_element){
-			std::string name  = node.name();
-			// Check to see if this is a "void element"
-			if(is_void_element(name)){
-				// "In the HTML syntax, void elements are elements that always are empty 
-				// and never have an end tag"
-				// Remove all child elements. 
-				while(node.first_child()) node.remove_child(node.first_child());
-			}
-		}
-		// Continue traversal
-		return true;
-	}
-};
+Fragment& Fragment::write(const std::string& path){
+	std::ofstream file(path);
+	file<<dump();
+	return *this;
+}
 
-Document& Document::validate(void){
+Document::Document(const std::string& html):
+	Fragment(){
+	// Even for an empty string call load since 
+	// tidy() sets up the document structure
+	load(html);
+}
+
+Document& Document::load(const std::string& html){
+	Fragment::load(html,true);
+
+	// Add a DOCTYPE declaration
+	doctype("html");
+
 	// Add necessary elements to head
 	Node head = find("head");
 	// Set charset
@@ -266,9 +300,15 @@ Document& Document::validate(void){
 	if(not head.find("meta","charset")) {
 		head.append("meta",{{"charset","utf-8"}});
 	}
-	// Run through validator
-	Validator validator;
-	pimpl_->traverse(validator);
+
+	return *this;
+}
+
+Document& Document::read(const std::string& path){
+	std::ifstream file(path);
+	std::stringstream html;
+	html<<file.rdbuf();
+	load(html.str());
 	return *this;
 }
 

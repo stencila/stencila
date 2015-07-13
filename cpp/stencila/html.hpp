@@ -33,12 +33,64 @@ bool is_void_element(const std::string& name);
 bool is_inline_element(const std::string& name);
 
 /**
- * A HTML5 document
+ * Is this a "shortable" element type?
  *
- * Attempts to conform to [Polyglot markup](http://www.w3.org/TR/html-polyglot/) 
- * (is both HTML5 and XML; some people call it XHTML5)
+ * Elements like <title>, <h1>-<h6>, <li> and <td> are block elements but their contents
+ * are not usually indented when they are short.
+ * 
+ * @param  name Element name
  */
-class Document : public Xml::Document {
+bool is_shortable_element(const std::string& name);
+
+/**
+ * A HTML5 document
+ */
+class Fragment : public Xml::Document {
+public:
+	/**
+	 * Construct a HTML5 fragment
+	 */
+	Fragment(const std::string& html="");
+
+	/**
+	 * Tidy a string of HTML to ensure it can be parsed
+	 * as a XML document
+	 *
+	 * @param	html A HTML string
+	 */
+	static std::string tidy(const std::string& html);
+
+	/**
+	 * Load the document from a HTML string
+	 * 
+	 * @param  html A HTML string 
+	 */
+	Fragment& load(const std::string& html,bool document=false);
+
+	/**
+	 * Dump the document to a HTML string
+	 */
+	std::string dump(bool pretty=true) const;
+
+	/**
+	 * Read the document from a file
+	 * 
+	 * @param  path File system path for file to read from
+	 */
+	Fragment& read(const std::string& path);
+
+	/**
+	 * Write the document to a file
+	 * 
+	 * @param  path File system path for file to write to
+	 */
+	Fragment& write(const std::string& path);
+};
+
+/**
+ * A HTML5 document
+ */
+class Document : public Fragment {
 public:
 	/**
 	 * Construct a HTML5 document
@@ -53,29 +105,11 @@ public:
 	Document& load(const std::string& html);
 
 	/**
-	 * Dump the document to a HTML string
-	 */
-	std::string dump(bool pretty=true) const;
-
-	/**
 	 * Read the document from a file
 	 * 
-	 * @param  filename Name of file to read from
+	 * @param  path File system path for file to read from
 	 */
-	Document& read(const std::string& filename);
-
-	/**
-	 * Tidy a string of HTML to ensure it can be parsed
-	 * as a XML document
-	 *
-	 * @param	html A HTML string
-	 */
-	static std::string tidy(const std::string& html);
-
-	/**
-	 * Validate the document to ensure it conforms to HTML5
-	 */
-	Document& validate(void);
+	Document& read(const std::string& path);
 };
 
 }

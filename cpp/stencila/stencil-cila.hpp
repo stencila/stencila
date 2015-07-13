@@ -1328,11 +1328,7 @@ public:
 	std::string generate(Node node){
 		cila.str("");
 		visit(node);
-		auto str = cila.str();
-		// Ensure that first char is not a newline and last char is one
-		if(str.front()=='\n') str.erase(0,1);
-		if(str.back()!='\n') str.push_back('\n');
-		return str;
+		return trim(cila.str());
 	}
 
 };

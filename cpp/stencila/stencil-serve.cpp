@@ -41,16 +41,19 @@ std::string Stencil::page(void) const {
 		{"content",join(contexts(),",")}
 	});
 
+	// Create a sanitized copy of the stencil to insert into the page
+	// (this is a const function; should not alter this stencil itself)
+	Stencil copy;
+	copy.sanitize();
+
 	// Content is placed in a <main> rather than just using the <body> so that 
 	// extra HTML elements can be added by the theme without affecting the stencil's content.
 	// Note that this is prepended to body so it is before launch script
 	auto content = body.prepend("main",{
 		{"id","content"}
 	}," ");
-	content.append(*this);
+	content.append(copy);
 
-	// Validate the HTML5 document before dumping it
-	doc.validate();
 	return doc.dump();
 }
 

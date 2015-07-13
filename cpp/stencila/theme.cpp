@@ -164,8 +164,6 @@ std::string Theme::page(void) const {
 		{"class","code"}
 	},read_from(behaviour_));
 
-	// Validate the HTML5 document before dumping it
-	doc.validate();
 	return doc.dump();
 }
 

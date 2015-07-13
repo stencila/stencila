@@ -7,7 +7,10 @@ namespace Stencila {
 std::string Stencil::html(bool document,bool indent) const {
 	if(not document){
 		// Return content only
-		return Xml::Document::dump(indent);
+		// Place into a Html::Document
+		Html::Document doc(dump(indent));
+		auto html = doc.dump();
+		return trim(html);
 	} else {
 		// Return a complete HTML document
 		return page();
