@@ -87,7 +87,7 @@ $(BUILD)/cpp/requires/boost: $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2
 
 # Boost is configured with:
 #   --with-libraries - so that only those libraries that are needed are built
-BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,thread
+BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,timer,thread
 ifeq ($(OS), win)
 	# bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
 	BOOST_BOOTSTRAP_FLAGS += --with-toolset=mingw
@@ -440,7 +440,7 @@ CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unu
 
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
 
-CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) boost_unit_test_framework gcov
+CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) boost_unit_test_framework boost_timer boost_chrono gcov
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 
 # Compile a test file into an object file
