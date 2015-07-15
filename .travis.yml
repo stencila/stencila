@@ -10,7 +10,7 @@ before_install:
     - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test -y; fi
 
     # Add PPA for cmake 2.8.11 (default is 2.8.7 since this is Ubuntu 12.04 and html-tidy needs >=2.8.8)
-    sudo add-apt-repository -y ppa:kalakris/cmake -y
+    - sudo add-apt-repository -y ppa:kalakris/cmake -y
 
     # Add repository for R 
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
@@ -29,7 +29,7 @@ install:
     - $CXX --version
 
     # Install cmake >=2.8.8
-    sudo apt-get install cmake --force-yes --assume-yes --fix-broken
+    - sudo apt-get install cmake --force-yes --assume-yes --fix-broken
 
     # Install Javascript build dependencies
     # `nodejs` and `npm` are already installed (http://docs.travis-ci.com/user/ci-environment/#Runtimes)
