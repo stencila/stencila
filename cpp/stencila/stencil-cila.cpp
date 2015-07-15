@@ -464,7 +464,9 @@ public:
 			flags_open(": "),
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
-			error("\\!([\\w-]+)(\\([^\\)]+\\))?"),
+			error("\\!\\\"([^\\\"]*)\\\""),
+			warning("\\%\\\"([^\\\"]*)\\\""),
+			location("\\@(\\d+(,\\d+)?)"),
 			lock("lock"),
 			output("output"),
 			off("off"),
@@ -707,10 +709,15 @@ public:
 				}
 				else if(is(error)){
 					trace("error");
-					auto value = match[1].str();
-					auto data = match[2].str();
-					if(data.length()) value += data;
-					node.attr("data-error",value);
+					node.attr("data-error",match[1].str());
+				}
+				else if(is(warning)){
+					trace("warning");
+					node.attr("data-warning",match[1].str());
+				}
+				else if(is(location)){
+					trace("location");
+					node.attr("data-location",match[1].str());
 				}
 				else if(is(lock)){
 					trace("lock");
@@ -1258,7 +1265,9 @@ public:
 					std::string flag;
 					if(name=="data-hash") flag = "&"+value;
 					else if(name=="data-index") flag = "^"+value;
-					else if(name=="data-error") flag = "!"+value;
+					else if(name=="data-error") flag = "!\""+replace_all(value,"\"","'")+"\"";  // Double quote replaced with single to avoid parsing errors
+					else if(name=="data-warning") flag = "%\""+replace_all(value,"\"","'")+"\"";
+					else if(name=="data-location") flag = "@"+value;
 					else flag = name.substr(5);
 					cila<<" "<<flag;
 					trail = false;

@@ -25,7 +25,8 @@ const std::vector<std::string> Stencil::directives = {
 };
 
 const std::vector<std::string> Stencil::flags = {
-	"data-error","data-hash","data-off","data-lock",
+	"data-error","data-warning","data-location",
+	"data-hash","data-off","data-lock",
 	"data-index","data-output","data-included"
 };
 
