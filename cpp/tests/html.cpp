@@ -35,11 +35,11 @@ BOOST_AUTO_TEST_CASE(tidy){
 	)
 	CHECK(
 		"<pre>\ncode</pre>",
-		"<pre>code</pre>"
+		"<pre>\ncode</pre>"
 	)
 	CHECK(
-		"<pre>\n\ncode</pre>",
-		"<pre>\ncode</pre>"
+		"<pre>\n\ncode\n\n</pre>",
+		"<pre>\n\ncode\n\n</pre>"
 	)
 
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(load_and_dump){
 		"<div>\n\t<script type=\"math/asciimath\">E=mc^2</script>\n</div>"
 	)
 	CHECK(
-		"<div><script type=\"math/asciimath; mode=display\">\n\nE=mc^2\n</script></div>",
+		"<div><script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script></div>",
 		"<div>\n\t<script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script>\n</div>"
 	)
 
