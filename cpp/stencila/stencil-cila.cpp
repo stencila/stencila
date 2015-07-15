@@ -1,5 +1,3 @@
-#pragma once
-
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -158,9 +156,19 @@ public:
 	std::string buffer;
 
 	/**
+	 * Bilge of characters which may me kept or discarded for
+	 * embedded code elements
+	 */
+	std::string bilge;
+
+	/**
 	 * Flag for orphaned element attributes
 	 */
 	bool tag_needed;
+
+	/**
+	 * Flag for a paragraph is needed
+	 */
 	bool para_needed;
 
 	/**
@@ -920,10 +928,20 @@ public:
 						// more embedded content (in which case it is added to the buffer)
 						para_needed = true;
 					} else {
-						// Add to buffer
-						if(indent_line.length()>=indent.length()+1) buffer += indent_line.substr(indent.length()+1);
-						buffer += content_line;
-						buffer += "\n";
+						if(content_line.length()==0){
+							// If this is an empty or blank (only whitespace chars) line then add a newline to the bilge
+							// This means that whitespace chars on a blank line are considered insignificant; they are discarded
+							bilge += "\n";
+						} else {
+							// Line is not empy, so use any bilge and add line to buffer
+							// Add bilge to buffer and clear it
+							buffer += bilge;
+							bilge = "";
+							// Add line to buffer
+							if(indent_line.length()>=indent.length()+1) buffer += indent_line.substr(indent.length()+1);
+							buffer += content_line;
+							buffer += "\n";
+						}
 						// Shift along
 						begin += match_local.position() + match_local.length();
 					}
@@ -1281,18 +1299,24 @@ public:
 				// Normally code will start and end with a new line (that is how it is created when parsed)
 				// so remove those, and any other whitespace, for consistent Cila generation
 				boost::trim(code);
-				// Split into lines
-				std::vector<std::string> lines;
-				boost::split(lines,code,boost::is_any_of("\n"));
-				// Output each line with extra indentation
-				indent();
-				for(unsigned int index=0;index<lines.size();index++){
-					newline();
-					cila<<lines[index];
+				if(code.length()>0){
+					// Split into lines
+					std::vector<std::string> lines;
+					boost::split(lines,code,boost::is_any_of("\n"));
+					// Output each line, with extra indentation if it has content
+					indent();
+					for(unsigned int index=0;index<lines.size();index++){
+						auto content = lines[index];
+						if(content.length()>0){
+							newline();
+							cila<<content;
+						} else {
+							cila<<"\n";
+						}
+					}
+					outdent();
 				}
-				outdent();
-				// Follow with a blankline (for easier parsing of embed elements in editor)
-				// This may not be needed in future
+				// Follow with a emptyline
 				cila<<"\n";
 			}
 

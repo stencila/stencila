@@ -44,7 +44,6 @@ div
 		<figure>
 			<pre data-exec="r format png">
 plot(1,1)
-
 </pre>
 			<figcaption>
 				One equals one
@@ -81,6 +80,75 @@ Lists 2 <>
 	<li>Two</li>
 	<li>Three</li>
 </ul>
+--------------------------------------------------
+
+
+`exec` <>
+--------------------------------------------------
+exec
+	some_code_on
+	multiple * lines
+	including
+
+	blank lines
+		and
+			indented lines
+--------------------------------------------------
+<pre data-exec="exec">
+some_code_on
+multiple * lines
+including
+
+blank lines
+	and
+		indented lines
+</pre>
+--------------------------------------------------
+
+
+`exec` with following elem <>
+--------------------------------------------------
+exec
+	always has empty line after
+
+div
+--------------------------------------------------
+<pre data-exec="exec">
+always has empty line after
+</pre>
+<div></div>
+--------------------------------------------------
+
+
+`exec` with extra whitespace <<
+--------------------------------------------------
+exec
+	whitespace is trimmed
+--------------------------------------------------
+<pre data-exec="exec">
+
+whitespace is trimmed
+
+</pre>
+--------------------------------------------------
+
+
+`exec` with no content I <>
+--------------------------------------------------
+exec
+--------------------------------------------------
+<pre data-exec="exec"></pre>
+--------------------------------------------------
+
+
+`exec` with no content II <>
+--------------------------------------------------
+exec
+
+div
+--------------------------------------------------
+<pre data-exec="exec"></pre>
+<div></div>
 --------------------------------------------------
 
 
