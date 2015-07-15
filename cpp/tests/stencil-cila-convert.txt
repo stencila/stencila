@@ -152,6 +152,17 @@ div
 --------------------------------------------------
 
 
+`exec` with options <>
+--------------------------------------------------
+exec format png size 10x10cm
+	plot(1,1)
+--------------------------------------------------
+<pre data-exec="exec format png size 10x10cm">
+plot(1,1)
+</pre>
+--------------------------------------------------
+
+
 `exec` with flags I <>
 --------------------------------------------------
 exec : &aaaaaa
@@ -187,6 +198,17 @@ code
 exec : !"A message with a quote ' in it"
 --------------------------------------------------
 <pre data-exec="exec" data-error="A message with a quote ' in it"></pre>
+--------------------------------------------------
+
+
+`exec` with arguments and flags <>
+--------------------------------------------------
+exec format png size 10x10cm : !"exception: error" %"warning"
+	code
+--------------------------------------------------
+<pre data-exec="exec format png size 10x10cm" data-error="exception: error" data-warning="warning">
+code
+</pre>
 --------------------------------------------------
 
 

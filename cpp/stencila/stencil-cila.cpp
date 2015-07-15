@@ -538,7 +538,7 @@ public:
 					enter_across("pre",embed);
 					auto arg = match[1].str();
 					if(match[2].str().length()) arg += " " + match[2].str();
-					node.attr("data-exec",arg);
+					node.attr("data-exec",trim(arg));
 				}
 				else if(is(style_open)){
 					trace("style");
@@ -669,7 +669,7 @@ public:
 					auto directive = match[1].str();
 					auto arg = match[3].str();
 					enter_elem_if_needed();
-					node.attr("data-"+directive,arg);
+					node.attr("data-"+directive,trim(arg));
 				}
 				else if(is(directive_arg)){
 					trace("directive_arg");
@@ -681,7 +681,7 @@ public:
 					else enter_elem_if_needed();
 					std::string arg = match[2].str();
 					boost::trim(arg);
-					node.attr("data-"+directive,arg);
+					node.attr("data-"+directive,trim(arg));
 				}
 				else if(is(flags_open)){
 					trace("flags");
@@ -1366,6 +1366,8 @@ public:
 
 };
 
+#if !defined(STENCILA_CILA_INLINE)
+
 Stencil& Stencil::cila(const std::string& string){
 	CilaParser().parse(*this,string);
 	return *this;
@@ -1374,5 +1376,7 @@ Stencil& Stencil::cila(const std::string& string){
 std::string Stencil::cila(void) const {
 	return CilaGenerator().generate(*this);
 }
+
+#endif
 
 }

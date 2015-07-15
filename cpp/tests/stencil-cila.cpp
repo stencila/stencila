@@ -3,7 +3,8 @@
 #include <boost/test/unit_test.hpp>
 
 #define STENCILA_CILA_PARSER_TRACE
-#include <stencila/stencil-cila.hpp>  
+#define STENCILA_CILA_INLINE
+#include <stencila/stencil-cila.cpp>  
 
 using namespace Stencila;
 struct CilaFixture : public CilaParser, public CilaGenerator {
@@ -264,12 +265,11 @@ BOOST_AUTO_TEST_CASE(exec_with_empty_line_before_next){
 	auto cila_ = 
 R"(r
 	pi <- 3.14
-	
+
 div)";
 	auto html_ = 
 R"(<pre data-exec="r">
 pi &lt;- 3.14
-
 </pre><div />)";
 	CILA_XML(cila_,html_)
 }
@@ -317,9 +317,9 @@ a &lt; b
 }
 
 BOOST_AUTO_TEST_CASE(exec_contexts){
-	CILA_XML("js","<pre data-exec=\"js\">\n</pre>");
-	CILA_XML("py","<pre data-exec=\"py\">\n</pre>");
-	CILA_XML("r","<pre data-exec=\"r\">\n</pre>");
+	CILA_XML("js","<pre data-exec=\"js\" />");
+	CILA_XML("py","<pre data-exec=\"py\" />");
+	CILA_XML("r","<pre data-exec=\"r\" />");
 }
 
 
@@ -396,11 +396,11 @@ BOOST_AUTO_TEST_CASE(flags){
 }
 
 BOOST_AUTO_TEST_CASE(error){
-	CILA_XML(": !syntax","<div data-error=\"syntax\" />");
-	CILA_XML(": !exception(foo bar)","<div data-error=\"exception(foo bar)\" />");
+	CILA_XML(": !\"syntax\"","<div data-error=\"syntax\" />");
+	CILA_XML(": !\"exception: foo bar\"","<div data-error=\"exception: foo bar\" />");
 
-	XML_CILA("<div data-error=\"syntax\" />",": !syntax");
-	XML_CILA("<div data-error=\"exception(foo bar)\" />",": !exception(foo bar)");
+	XML_CILA("<div data-error=\"syntax\" />",": !\"syntax\"");
+	XML_CILA("<div data-error=\"exception: foo bar\" />",": !\"exception: foo bar\"");
 }
 
 BOOST_AUTO_TEST_CASE(directive_attr){
