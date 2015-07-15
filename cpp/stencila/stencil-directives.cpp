@@ -130,10 +130,9 @@ void Stencil::error(Node node, const std::string& type, const std::string& data)
 	auto value = type;
 	if(data.length()){
 		auto data_clean = data;
-		boost::replace_all(data_clean,"(","[");
-		boost::replace_all(data_clean,")","]");
+		boost::replace_all(data_clean,"\"","'");
 		boost::replace_all(data_clean,"\n","\\n");
-		value += "(" + data_clean + ")";
+		value += ": " + data_clean;
 	}
 	node.attr("data-error",value);
 }
