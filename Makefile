@@ -478,11 +478,11 @@ $(BUILD)/cpp/tests/%.html: cpp/tests/%.html
 	cp -f $< $@
 
 # Compile a single test file into an executable
-$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS)
+$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS)
 	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
-$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS)
+$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS)
 	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Make test executable precious so they are kept despite
@@ -492,7 +492,7 @@ $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_
 # Run a test
 # Limit memory to prevent bugs like infinite recursion from filling up the
 # machine's memory. This needs to be quite high for some tests. 2Gb = 2,097,152 kb
-$(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe
+$(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe $(CPP_TEST_INPUTS)
 	cd $(BUILD)/cpp/tests/ ;\
 		ulimit -v 2097152; (./$(notdir $<)) || (exit 1)
 
@@ -503,14 +503,14 @@ $(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe
 ifndef CPP_TEST
   CPP_TEST := tests
 endif
-cpp-test: build-current $(BUILD)/cpp/tests/$(CPP_TEST).exe
+cpp-test: build-current $(BUILD)/cpp/tests/$(CPP_TEST).exe $(CPP_TEST_INPUTS)
 	cd $(BUILD)/cpp/tests/ ;\
 		ln -sfT $(CPP_TEST).exe test-to-debug ;\
 		ulimit -v 2097152 ;\
 		(./$(CPP_TEST).exe) || (exit 1)
 
 # Run quick tests only
-cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe
+cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe $(CPP_TEST_INPUTS)
 	cd $(BUILD)/cpp/tests/ ;\
 		ulimit -v 2097152; (./tests.exe --run_test=*_quick/*) || (exit 1)
 
