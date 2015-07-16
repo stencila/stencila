@@ -1032,7 +1032,7 @@ public:
 				attribute_list.end());
 			};
 
-			// Shortcuts from whence we return...and if we don't then the
+			// Shorthands from whence we return...and if we don't then the
 			// default generation happens (that's why it's not an if,else if tree)
 			
 			// Write directive shorthand
@@ -1091,19 +1091,20 @@ public:
 			}
 			// Lists with no attributes
 			if((name=="ul" or name=="ol") and attributes==0 and children>0){
-				// Only proceed if all children are `<li>`
-				if(node.filter("li").size()==children){
-					bool ol = name=="ol";
-					int index = 0;
-					for(auto child : children_list){
-						if(index!=0) newline();
-						index++;
-						if(ol) content(index+". ");
-						else content("- ");
-						visit_children(child,false);
-					}
-					return;
+				blankline();
+				bool ol = name=="ol";
+				int index = 0;
+				for(auto child : children_list){
+					if(index>0) newline();
+					index++;
+					if(ol) content(index+". ");
+					else content("- ");
+					indent();
+					visit_children(child,false);
+					outdent();
 				}
+				blankline();
+				return;
 			}
 			// Plain paragraph
 			if(name=="p" and children>0 and attributes==0){

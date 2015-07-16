@@ -196,14 +196,22 @@ After
 --------------------------------------------------
 
 
-Lists can be nested >>
+Lists can be nested <>
 --------------------------------------------------
 - A
+
 	- 1
+
 		- a
 		- b
+
 	- 2
+
+		- a
+		- b
+
 - B
+
 	- 1
 	- 2
 	- 3
@@ -219,7 +227,13 @@ Lists can be nested >>
 					<li>b</li>
 				</ul>
 			</li>
-			<li>2</li>
+			<li>
+				2
+				<ul>
+					<li>a</li>
+					<li>b</li>
+				</ul>
+			</li>
 		</ul>
 	</li>
 	<li>
