@@ -9,7 +9,7 @@
 using namespace Stencila;
 using namespace boost::python;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_set_overloads,html,0,2)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_get_overloads,html,0,2)
 
 Stencil& Stencil_render(Stencil& self, object context){
     //! @todo Garbage collection of PythonContext is not correcly handles here
@@ -26,7 +26,7 @@ void def_Stencil(void){
 
         .def("html",
             static_cast<std::string (Stencil::*)(bool,bool) const>(&Stencil::html),
-            Stencil_html_set_overloads()
+            Stencil_html_get_overloads()
         )
         .def("html",
             static_cast<Stencil& (Stencil::*)(const std::string&)>(&Stencil::html),

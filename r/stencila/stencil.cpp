@@ -40,12 +40,12 @@ STENCILA_R_FUNC Stencil_select(SEXP self,SEXP selector){
 }
 
 // An alternative to the `html` getter which allows specifying
-// options onindentation
-STENCILA_R_FUNC Stencil_html_options(SEXP self,SEXP indented){
+// options on pretty printing
+STENCILA_R_FUNC Stencil_html_options(SEXP self,SEXP pretty){
     STENCILA_R_BEGIN
         return wrap(from<Stencil>(self).html(
         	false,
-        	as<bool>(indented)
+        	as<bool>(pretty)
         ));
     STENCILA_R_END
 }

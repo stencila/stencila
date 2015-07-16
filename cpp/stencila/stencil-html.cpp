@@ -4,12 +4,12 @@
 
 namespace Stencila {
 
-std::string Stencil::html(bool document,bool indent) const {
+std::string Stencil::html(bool document,bool pretty) const {
 	if(not document){
 		// Return content only
 		// Place into a Html::Fragment
 		Html::Fragment frag = *this;
-		auto html = frag.dump();
+		auto html = frag.dump(pretty);
 		return trim(html);
 	} else {
 		// Return a complete HTML document

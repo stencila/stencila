@@ -15,7 +15,7 @@ test.Stencil.html <- function(){
   s <- Stencil()
 
   s$html <- '<p>foo</p>'
-  checkEquals(s$html,'<p>foo</p>\n')
+  checkEquals('<p>\n\tfoo\n</p>',s$html)
 }
 
 test.Stencil.contexts <- function(){
@@ -107,8 +107,6 @@ test.Stencil.render.if.else <- function(){
 }
 
 test.Stencil.render.if.elif <- function(){
-  return('elif is not implemented')
-  
   stencil <- Stencil(paste(
     'html://<ul>',
       '<li data-if="a" />',
@@ -117,84 +115,87 @@ test.Stencil.render.if.elif <- function(){
   
   checkEquals(paste(
     '<ul>',
-      '<li data-if="a" />',
-      '<li data-elif="b" />',
+      '<li data-if="a" data-off="true"></li>',
+      '<li data-elif="b" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=FALSE,b=FALSE)))
+
   checkEquals(paste(
     '<ul>',
-      '<li data-if="a" data-active="true" />',
-      '<li data-elif="b" />',
+      '<li data-if="a"></li>',
+      '<li data-elif="b" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=TRUE,b=FALSE)))
+
   checkEquals(paste(
     '<ul>',
-      '<li data-if="a" data-active="true" />',
-      '<li data-elif="b" />',
+      '<li data-if="a"></li>',
+      '<li data-elif="b" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=TRUE,b=TRUE)))
+
   checkEquals(paste(
     '<ul>',
-      '<li data-if="a" />',
-      '<li data-elif="b" data-active="true" />',
+      '<li data-if="a" data-off="true"></li>',
+      '<li data-elif="b"></li>',
     '</ul>',sep=''),render(stencil,list(a=FALSE,b=TRUE)))
 }
 
 test.Stencil.render.switch <- function(){
   stencil <- Stencil(paste(
     'html://<ul data-switch="a">',
-      '<li data-case="1" />',
-      '<li data-case="2" />',
-      '<li data-default="" />',
+      '<li data-case="1"></li>',
+      '<li data-case="2"></li>',
+      '<li data-default=""></li>',
     '</ul>',sep=''))
   
   checkEquals(paste(
     '<ul data-switch="a">',
-      '<li data-case="1" />',
-      '<li data-case="2" data-off="true" />',
-      '<li data-default="" data-off="true" />',
+      '<li data-case="1"></li>',
+      '<li data-case="2" data-off="true"></li>',
+      '<li data-default="" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=1)))
             
   checkEquals(paste(
     '<ul data-switch="a">',
-      '<li data-case="1" data-off="true" />',
-      '<li data-case="2" />',
-      '<li data-default="" data-off="true" />',
+      '<li data-case="1" data-off="true"></li>',
+      '<li data-case="2"></li>',
+      '<li data-default="" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=2)))
               
   checkEquals(paste(
     '<ul data-switch="a">',
-      '<li data-case="1" data-off="true" />',
-      '<li data-case="2" data-off="true" />',
-      '<li data-default="" />',
+      '<li data-case="1" data-off="true"></li>',
+      '<li data-case="2" data-off="true"></li>',
+      '<li data-default=""></li>',
     '</ul>',sep=''),render(stencil,list(a=99)))
 }
 
 test.Stencil.render.switch.no_default <- function(){
   stencil <- Stencil(paste(
     'html://<ul data-switch="a">',
-      '<li data-case="1" />',
-      '<li data-case="2" />',
+      '<li data-case="1"></li>',
+      '<li data-case="2"></li>',
     '</ul>',sep=''))
   
   checkEquals(paste(
     '<ul data-switch="a">',
-      '<li data-case="1" />',
-      '<li data-case="2" data-off="true" />',
+      '<li data-case="1"></li>',
+      '<li data-case="2" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=1)))
   
   checkEquals(paste(
     '<ul data-switch="a">',
-      '<li data-case="1" data-off="true" />',
-      '<li data-case="2" />',
+      '<li data-case="1" data-off="true"></li>',
+      '<li data-case="2"></li>',
     '</ul>',sep=''),render(stencil,list(a=2)))
   
   checkEquals(paste(
     '<ul data-switch="a">',
-      '<li data-case="1" data-off="true" />',
-      '<li data-case="2" data-off="true" />',
+      '<li data-case="1" data-off="true"></li>',
+      '<li data-case="2" data-off="true"></li>',
     '</ul>',sep=''),render(stencil,list(a=99)))
 }
 
 test.Stencil.render.switch.no_children <- function(){
-  checkEquals('<ul data-switch="a" />',render('<ul data-switch="a" />',list(a='not actually used')))
+  checkEquals('<ul data-switch="a"></ul>',render('<ul data-switch="a"></ul>',list(a='not actually used')))
 }
 
 

@@ -61,8 +61,8 @@ setRefClass(
             method_(.self,'Stencil_initialise',initialiser)
         },
 
-        html_get = function(indent=true){
-            method_(.self,'Stencil_html_options',indent)
+        html_get = function(pretty=true){
+            method_(.self,'Stencil_html_options',pretty)
         },
 
         import = function(path) method_(.self,'Stencil_import',path),

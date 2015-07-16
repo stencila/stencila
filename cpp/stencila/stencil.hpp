@@ -115,7 +115,7 @@ public:
 	/**
 	 * Get stencil content as HTML
 	 */
-	std::string html(bool document = false, bool indent = true) const;
+	std::string html(bool document = false, bool pretty = true) const;
 
 	/**
 	 * Set stencil content as HTML
