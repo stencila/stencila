@@ -426,7 +426,10 @@ public:
 		node = nodes.back().node;
 
 		tag_needed = false;
-		para_needed = false;
+
+		// Plain text at the start will get treated as a paragraph
+		// (subsequently needs to have a blank line before it)
+		para_needed = true;
 
 		// Define regular expressions
 		static const boost::regex
@@ -928,12 +931,6 @@ public:
 						// so that the line can be processed by `sol`
 						exit();
 						across(sol);
-						// Currently the `embed` state is eating up all trailing blank lines (until there is an
-						// outented line). This means that without the following `blankline` is not matched and thus
-						// text is not considered to require a paragraph. An alternative would be to not include blank 
-						// lines in the `embed`ed element until an outdent (in which case it is put back in the stream), or
-						// more embedded content (in which case it is added to the buffer)
-						para_needed = true;
 					} else {
 						if(content_line.length()==0){
 							// If this is an empty or blank (only whitespace chars) line then add a newline to the bilge
@@ -974,6 +971,12 @@ class CilaGenerator {
 public:
 	typedef Stencil::Node Node;
 
+	enum {
+		NEWLINE,
+		BLANKLINE,
+		CONTENT
+	} state;
+
 	std::stringstream cila;
 
 	/**
@@ -996,10 +999,31 @@ public:
 	}
 
 	/**
+	 * Add line context
+	 */
+	void content(const std::string& content){
+		if(state==NEWLINE){
+			cila<<"\n"<<indentation;
+		}
+		else if(state==BLANKLINE){
+			cila<<"\n\n"<<indentation;
+		}
+		cila<<content;
+		state = CONTENT;
+	}
+
+	/**
 	 * Create a new line (with the right indentation)
 	 */
 	void newline(void){
-		cila<<"\n"<<indentation;
+		if(state!=BLANKLINE) state = NEWLINE;
+	}
+
+	/**
+	 * Create a blankline
+	 */
+	void blankline(void){
+		state = BLANKLINE;
 	}
 
 	void visit(Node node, bool first=false, bool last=false){
@@ -1025,7 +1049,7 @@ public:
 			
 			// Write directive shortcut
 			if(name=="span" and children==0 and attributes==1 and node.attr("data-text").length()){
-				cila<<"~"<<node.attr("data-text")<<"~";
+				content("~"+node.attr("data-text")+"~");
 				return;
 			}
 			// Refer directive shortcut
@@ -1034,7 +1058,7 @@ public:
 				if(value[0]=='#'){
 					int spaces = std::count_if(value.begin(), value.end(),[](unsigned char c){ return std::isspace(c); });
 					if(spaces==0){
-						cila<<"@"<<value.substr(1);
+						content("@"+value.substr(1));
 						return;
 					}
 				}
@@ -1044,19 +1068,63 @@ public:
 				std::string delim;
 				if(name=="em") delim = "_";
 				else delim = "*";
-				cila<<delim;
+				content(delim);
 				visit_children(node,false);
-				cila<<delim;
+				content(delim);
 				return;
 			}
 			// Code
 			if(name=="code" and attributes==0){
 				auto text = node.text();
 				boost::replace_all(text,"`","\\`");
-				cila<<"`"<<text<<"`";
+				content("`"+text+"`");
 				return;
 			}
 			// Equations and inline math
+			if(name=="script" and node.attr("type")=="math/asciimath"){
+				auto code = trim(node.text());
+				boost::replace_all(code,"|","\\|");
+				content('|'+code+'|');
+				return;
+			}
+			if(name=="script" and node.attr("type")=="math/tex"){
+				auto code = trim(node.text());
+				content("\\("+code+"\\)");
+				return;
+			}
+			// Links, autolinks and autoemails
+			if(name=="a" and attributes==1 and node.has("href")){
+				auto text = node.text();
+				auto href = node.attr("href");
+				if(text==href) content(text);
+				else if(href.substr(0,7)=="mailto:" and href.substr(7)==text) content(text);
+				else content("["+text+"]("+href+")");
+				return;
+			}
+			// Lists with no attributes
+			if((name=="ul" or name=="ol") and attributes==0 and children>0){
+				// Only proceed if all children are `<li>`
+				if(node.filter("li").size()==children){
+					bool ol = name=="ol";
+					int index = 0;
+					for(auto child : children_list){
+						if(index!=0) newline();
+						index++;
+						if(ol) content(index+". ");
+						else content("- ");
+						visit_children(child,false);
+					}
+					return;
+				}
+			}
+			// Plain paragraph
+			if(name=="p" and children>0 and attributes==0){
+				blankline();
+				visit_children(node,false);
+				blankline();
+				return;
+			}
+			// Equation paragraph
 			if(name=="p" and node.attr("class")=="equation"){
 				auto script = node.select("script");
 				if(script){
@@ -1072,53 +1140,13 @@ public:
 							begin = "\\(";
 							end = "\\)";
 						}
-						newline();
-						cila<<begin<<code<<end;
+						
+						blankline();
+						content(begin+code+end);
+						blankline();
 						return;
 					}
 				}
-			}
-			if(name=="script" and node.attr("type")=="math/asciimath"){
-				auto code = trim(node.text());
-				boost::replace_all(code,"|","\\|");
-				cila<<'|'<<code<<'|';
-				return;
-			}
-			if(name=="script" and node.attr("type")=="math/tex"){
-				auto code = trim(node.text());
-				cila<<"\\("<<code<<"\\)";
-				return;
-			}
-			// Links, autolinks and autoemails
-			if(name=="a" and attributes==1 and node.has("href")){
-				auto text = node.text();
-				auto href = node.attr("href");
-				if(text==href) cila<<text;
-				else if(href.substr(0,7)=="mailto:" and href.substr(7)==text) cila<<text;
-				else cila<<"["<<text<<"]("<<href<<")";
-				return;
-			}
-			// Lists with no attributes
-			if((name=="ul" or name=="ol") and attributes==0 and children>0){
-				// Only proceed if all children are `<li>`
-				if(node.filter("li").size()==children){
-					bool ol = name=="ol";
-					int index = 0;
-					for(auto child : children_list){
-						if(index!=0) newline();
-						index++;
-						if(ol) cila<<index<<". ";
-						else cila<<"- ";
-						visit_children(child,false);
-					}
-					return;
-				}
-			}
-			// Plain paragraph just needs a blank line before it
-			if(name=="p" and children>0 and attributes==0){
-				newline();
-				visit_children(node,false);
-				return;
 			}
 			// Sections with an id attribute and a <h1> child
 			if(name=="section" and node.attr("id").length() and children>0){
@@ -1134,8 +1162,8 @@ public:
 					auto id = node.attr("id");
 					if(id==id_expected){
 						// Add shortcut with blank line before
-						newline();
-						cila<<"> "<<boost::trim_copy(title);
+						blankline();
+						content("> "+boost::trim_copy(title));
 						// Generate each child on a new line except for the h1
 						indent();
 						unsigned int index = 0;
@@ -1158,16 +1186,18 @@ public:
 			bool separate = false;
 			bool trail = true;
 			bool embedded = false;
+			bool blank_after = false;
 
 			// Start of line depends on type of element...
 			// Execute directives
 			if(node.has("data-exec")){
-				newline();
-				cila<<node.attr("data-exec");
+				blankline();
+				content(node.attr("data-exec"));
 				separate = true;
 
 				erase_attr("data-exec");
 				embedded = true;
+				blank_after = true;
 			}
 			// Style elements
 			else if(name=="style"){
@@ -1175,31 +1205,41 @@ public:
 				std::string type = node.attr("type");
 				if(type=="text/css") lang = "css";
 				
-				newline();
-				cila<<lang;
+				blankline();
+				content(lang);
 				separate = true;
 
 				erase_attr("type");
 				embedded = true;
+				blank_after = true;
 			}
 			// <div>s only need to be specified if 
 			// 	- no attributes following
 			// 	- not a `text` or `refer` directive (which have span defaults)
 			else if(name=="div"){
 				if(attributes==0 or node.has("data-text") or node.has("data-refer")){
-					cila<<name;
+					content(name);
 					separate = true;
 				}
 			}
 			// <span>s don't need to specified if a `text` or `refer` directive
 			else if(name=="span"){
 				if(not (node.has("data-text") or node.has("data-refer"))){
-					cila<<name;
+					content(name);
 					separate = true;
 				}
 			}
+			else if(
+				node.has("data-when") or node.has("data-with") or node.has("data-for")
+				or node.has("data-switch") or node.has("data-include") or node.has("data-macro")
+			){
+				blankline();
+				content(name);
+				separate = true;
+				blank_after = true;				
+			}
 			else {
-				cila<<name;
+				content(name);
 				separate = true;
 			}
 
@@ -1217,10 +1257,10 @@ public:
 						flags.push_back({name,value});
 					}
 					else {
-						if(separate) cila<<" ";
+						if(separate) content(" ");
 
 						if(name=="id"){
-							cila<<"#"<<value;
+							content("#"+value);
 						}
 						else if(name=="class"){
 							// Get class attribute and split using spaces
@@ -1228,13 +1268,13 @@ public:
 							boost::split(classes,value,boost::is_any_of(" "));
 							int index = 0;
 							for(auto name : classes){
-								if(index>0) cila<<" ";
-								if(name.length()) cila<<"."<<name;
+								if(index>0) content(" ");
+								if(name.length()) content("."+name);
 								index++;
 							}
 						}
 						else {
-							cila<<"["<<name<<"="<<value<<"]";
+							content("["+name+"="+value+"]");
 						}
 
 						separate = true;
@@ -1243,12 +1283,12 @@ public:
 
 				// Directives
 				if(directive.first.length()){
-					if(separate) cila<<" ";
+					if(separate) content(" ");
 					auto name = directive.first;
-					cila<<name.substr(5);
+					content(name.substr(5));
 					if(not(name=="data-each" or name=="data-else" or name=="data-default")){
 						auto value = directive.second;
-						cila<<" "<<value;
+						content(" "+value);
 					}
 					trail = false;
 					separate = true;
@@ -1256,8 +1296,8 @@ public:
 
 				// Flags
 				if(flags.size()){
-					if(separate) cila<<" ";
-					cila<<":";
+					if(separate) content(" ");
+					content(":");
 				}
 				for(auto attr : flags){
 					auto name = attr.first;
@@ -1269,7 +1309,7 @@ public:
 					else if(name=="data-warning") flag = "%\""+replace_all(value,"\"","'")+"\"";
 					else if(name=="data-location") flag = "@"+value;
 					else flag = name.substr(5);
-					cila<<" "<<flag;
+					content(" "+flag);
 					trail = false;
 					separate = true;
 				}
@@ -1283,13 +1323,13 @@ public:
 						auto text = child.text();
 						boost::trim(text);
 						if(text.length()<100){
-							if(separate) cila<<" ";
-							cila<<text;
+							if(separate) content(" ");
+							content(text);
 						}
 						else {
 							indent();
 							newline();
-							cila<<text;
+							content(text);
 							outdent();
 						}
 						return;
@@ -1315,20 +1355,20 @@ public:
 					// Output each line, with extra indentation if it has content
 					indent();
 					for(unsigned int index=0;index<lines.size();index++){
-						auto content = lines[index];
-						if(content.length()>0){
+						auto line = lines[index];
+						if(line.length()>0){
 							newline();
-							cila<<content;
+							content(line);
 						} else {
-							cila<<"\n";
+							content("\n");
 						}
 					}
 					outdent();
 				}
-				// Follow with a emptyline
-				cila<<"\n";
 			}
 
+			// Add following blank line
+			if(blank_after) blankline();
 		}
 		else if(node.is_text()){
 			auto text = node.text();
@@ -1341,7 +1381,7 @@ public:
 			boost::replace_all(text,"~","\\~");
 			boost::replace_all(text,"@","\\@");
 
-			cila<<text;
+			content(text);
 		}
 		else {
 			STENCILA_THROW(Exception,"Unhandled XML node type");

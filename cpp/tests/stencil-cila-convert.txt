@@ -1,11 +1,3 @@
-Just some plain text <>
---------------------------------------------------
-Text starting the line
---------------------------------------------------
-Text starting the line
---------------------------------------------------
-
-
 Empty lines should be ignored >>
 --------------------------------------------------
 div
@@ -30,7 +22,7 @@ div
 	p #id A paragraph
 	div
 		figure
-			
+
 			r format png
 				plot(1,1)
 
@@ -59,23 +51,23 @@ A more complete example <>
 #title Title
 
 > Sections and paragraphs
-	
+
 	There should be an empty line before section headings.
-	
+
 	There should be an empty line before paragraphs.
-	
+
 	A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
-	
+
 	Some `code`.
 
 > Math
-	
+
 	Asciimath |e=mc^2| inline. LaTeX \(a^2+b^2=c^2\) inline.
-	
+
 	|theta(x)=1/(sqrt(2 pi sigma)) e^((x-mu)^2/(2 sigma^2))|
 
 > Exec
-	
+
 	r
 		# Needs to have no indentation
 		pi <- 22/7
@@ -117,9 +109,18 @@ pi &lt;- 22/7
 --------------------------------------------------
 
 
-Auto-paragraphs have a preceding and following blank line <>
+Start line text <>
+--------------------------------------------------
+Start line text is treated as a paragraph
+--------------------------------------------------
+<p>
+	Start line text is treated as a paragraph
+</p>
 --------------------------------------------------
 
+
+Auto-paragraphs have a preceding and following blank line <>
+--------------------------------------------------
 Paragraph 1
 
 Paragraph 2
@@ -345,8 +346,29 @@ for i in range(1,10):
 --------------------------------------------------
 
 
+`when` directive <>
+--------------------------------------------------
+Get a blank line before
+
+when py
+	Then do this
+
+Get a blank line after
+--------------------------------------------------
+<p>
+	Get a blank line before
+</p>
+<div data-when="py">
+	Then do this
+</div>
+<p>
+	Get a blank line after
+</p>
+--------------------------------------------------
+
+
 End test. Insert new tests above this <>
 --------------------------------------------------
-Because the end of file format is a bit tricky.
+span Because the end of file format is a bit tricky.
 --------------------------------------------------
-Because the end of file format is a bit tricky.
+<span>Because the end of file format is a bit tricky.</span>
