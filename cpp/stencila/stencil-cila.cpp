@@ -50,7 +50,7 @@ public:
 		flags,
 
 		/**
-		 * Text including inlines, shortcuts and embedded elements
+		 * Text including shorthands and ilined elements
 		 */
 		text,
 
@@ -449,7 +449,7 @@ public:
 			section(">\\s*([ \\w-]+)"),
 			ul_item("-\\s*"),
 			ol_item("\\d+\\.\\s*"),
-			li_shortcut("-|(\\d+\\.)\\s*"),
+			li_shorthand("-|(\\d+\\.)\\s*"),
 
 			attr("\\[([\\w-]+)=(.+?)\\]"),
 			id("#([\\w-]+)\\b"),
@@ -517,10 +517,10 @@ public:
 					// Get indentation
 					is(indentation);
 					indent = match.str();
-					// Peek ahead to see if this is a `ul_item` or `ol_item`; for these
+					// Peek ahead to see if this is a `li_shorthand`; for these
 					// it is necessary to "simulate" further indentation to ensure correct
 					// parent child relationships
-					if(boost::regex_search(begin, end, li_shortcut, boost::regex_constants::match_continuous)){
+					if(boost::regex_search(begin, end, li_shorthand, boost::regex_constants::match_continuous)){
 						indent_added = true;
 						indent += "\t";
 					} else {
@@ -1047,12 +1047,12 @@ public:
 			// Shortcuts from whence we return...and if we don't then the
 			// default generation happens (that's why it's not an if,else if tree)
 			
-			// Write directive shortcut
+			// Write directive shorthand
 			if(name=="span" and children==0 and attributes==1 and node.attr("data-text").length()){
 				content("~"+node.attr("data-text")+"~");
 				return;
 			}
-			// Refer directive shortcut
+			// Refer directive shorthand
 			if(name=="span" and children==0 and attributes==1 and node.attr("data-refer").length()){
 				auto value = node.attr("data-refer");
 				if(value[0]=='#'){
@@ -1161,7 +1161,7 @@ public:
 					boost::replace_all(id_expected," ","-");
 					auto id = node.attr("id");
 					if(id==id_expected){
-						// Add shortcut with blank line before
+						// Add shorthand with blank line before
 						blankline();
 						content("> "+boost::trim_copy(title));
 						// Generate each child on a new line except for the h1
@@ -1181,7 +1181,7 @@ public:
 				}
 			}
 				
-			// Everything that could not be shortcutted still remains here...
+			// Everything that could not be shorthandted still remains here...
 		
 			bool separate = false;
 			bool trail = true;
@@ -1375,7 +1375,7 @@ public:
 			// Trim white space if first or last child
 			if(first) boost::trim_left(text);
 			if(last) boost::trim_right(text);
-			// Escape characters used for shortcuts
+			// Escape characters used for shorthands
 			boost::replace_all(text,"`","\\`");
 			boost::replace_all(text,"|","\\|");
 			boost::replace_all(text,"~","\\~");
