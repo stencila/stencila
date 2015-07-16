@@ -341,7 +341,7 @@ cpp-helpers-uglifyjs:
 
 # Get version compiled into library
 CPP_VERSION_CPP := $(BUILD)/cpp/library/version.cpp
-CPP_VERSION_O := $(BUILD)/cpp/library/objects/stencila-version.o
+CPP_VERSION_O := $(BUILD)/cpp/library/version.o
 CPP_VERSION_COMPILED := $(shell grep -s -Po "(?<=Stencila::version = \")([^\"]+)" $(CPP_VERSION_CPP))
 
 # Delete version.cpp if it is out of date
@@ -351,12 +351,13 @@ endif
 
 # Create version.cpp file with current version
 $(CPP_VERSION_CPP):
-	@mkdir -p $(dir $(CPP_VERSION_CPP))
+	@mkdir -p $(dir $@)
 	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
 	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
 
 # Compile version object file
 $(CPP_VERSION_O): $(CPP_VERSION_CPP)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
 cpp-library-version: $(CPP_VERSION_O)
 
