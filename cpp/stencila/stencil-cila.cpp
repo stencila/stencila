@@ -131,12 +131,6 @@ public:
 	std::string indent;
 
 	/**
-	 * Flag for if indentation has been added to.
-	 * Need for "simulated" indentation
-	 */
-	bool indent_added;
-
-	/**
 	 * Current HTML node
 	 */
 	Node node;
@@ -277,12 +271,11 @@ public:
 	/**
 	 * Enter a HTML element with given tag name
 	 */
-	void enter(const std::string& name, const std::string& indent_special = "default"){
+	void enter(const std::string& name){
 		flush();
 
 		node = node.append(name);
-		if(indent_special=="default") nodes.push_back({indent,node});
-		else nodes.push_back({indent_special,node});
+		nodes.push_back({indent,node});
 		tag_needed = false;
 		para_needed = false;
 	}
@@ -591,14 +584,14 @@ public:
 					trace("ul_item");
 					// Enter `<ul>` if necessary, enter `<li>` and move into `text` state
 					if(node.name()!="ul") enter("ul");
-					enter("li",indent);
+					enter("li");
 					across(text);
 				}
 				else if(is(ol_item)){
 					trace("ol_item");
 					// Enter `<ol>` if necessary, enter `<li>` and move into `text` state
 					if(node.name()!="ol") enter("ol");
-					enter("li",indent);
+					enter("li");
 					across(text);
 				}
 				else if(is(pipe)){
