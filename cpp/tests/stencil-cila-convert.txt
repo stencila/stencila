@@ -172,6 +172,117 @@ Lists 2 <>
 --------------------------------------------------
 
 
+Lists get isolating blanklines <>
+--------------------------------------------------
+Before
+
+- One
+- Two
+- Three
+
+After
+--------------------------------------------------
+<p>
+	Before
+</p>
+<ul>
+	<li>One</li>
+	<li>Two</li>
+	<li>Three</li>
+</ul>
+<p>
+	After
+</p>
+--------------------------------------------------
+
+
+Lists can be nested >>
+--------------------------------------------------
+- A
+	- 1
+		- a
+		- b
+	- 2
+- B
+	- 1
+	- 2
+	- 3
+--------------------------------------------------
+<ul>
+	<li>
+		A
+		<ul>
+			<li>
+				1
+				<ul>
+					<li>a</li>
+					<li>b</li>
+				</ul>
+			</li>
+			<li>2</li>
+		</ul>
+	</li>
+	<li>
+		B
+		<ul>
+			<li>1</li>
+			<li>2</li>
+			<li>3</li>
+		</ul>
+	</li>
+</ul>
+--------------------------------------------------
+
+
+Mixed list types can be nested >>
+--------------------------------------------------
+A paragraph with a nested list inside it
+	
+	- A
+
+		1. One
+
+			- alpha
+			- beta
+
+		2. Two
+
+			- delta
+			- gamma
+
+		3. Three
+
+	- B Some text
+--------------------------------------------------
+<p>
+	A paragraph with a nested list inside it
+	<ul>
+		<li>
+			A
+			<ol>
+				<li>
+					One
+					<ul>
+						<li>alpha</li>
+						<li>beta</li>
+					</ul>
+				</li>
+				<li>
+					Two
+					<ul>
+						<li>delta</li>
+						<li>gamma</li>
+					</ul>
+				</li>
+				<li>Three</li>
+			</ol>
+		</li>
+		<li>B Some text</li>
+	</ul>
+</p>
+--------------------------------------------------
+
+
 `exec` <>
 --------------------------------------------------
 exec

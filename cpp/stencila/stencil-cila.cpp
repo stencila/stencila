@@ -277,10 +277,12 @@ public:
 	/**
 	 * Enter a HTML element with given tag name
 	 */
-	void enter(const std::string& name){
+	void enter(const std::string& name, const std::string& indent_special = "default"){
 		flush();
+
 		node = node.append(name);
-		nodes.push_back({indent,node});
+		if(indent_special=="default") nodes.push_back({indent,node});
+		else nodes.push_back({indent_special,node});
 		tag_needed = false;
 		para_needed = false;
 	}
@@ -449,7 +451,6 @@ public:
 			section(">\\s*([ \\w-]+)"),
 			ul_item("-\\s*"),
 			ol_item("\\d+\\.\\s*"),
-			li_shorthand("-|(\\d+\\.)\\s*"),
 
 			attr("\\[([\\w-]+)=(.+?)\\]"),
 			id("#([\\w-]+)\\b"),
@@ -517,20 +518,21 @@ public:
 					// Get indentation
 					is(indentation);
 					indent = match.str();
-					// Peek ahead to see if this is a `li_shorthand`; for these
-					// it is necessary to "simulate" further indentation to ensure correct
-					// parent child relationships
-					if(boost::regex_search(begin, end, li_shorthand, boost::regex_constants::match_continuous)){
-						indent_added = true;
-						indent += "\t";
-					} else {
-						indent_added = false;
-					}
+					// Peek ahead to see if this is a `li` shorthand line; for these
+					// we don't want to pop off the parent `ul` or `ol`
+					bool ul_li = boost::regex_search(begin, end, ul_item, boost::regex_constants::match_continuous);
+					bool ol_li = boost::regex_search(begin, end, ol_item, boost::regex_constants::match_continuous);
 					// Exit nodes until a node with lower indentation is reached
 					// which then becomes the current node to which others get appended
-					while(nodes.size()>1 and (
-						nodes.back().indent=="none" or indent.size()<=nodes.back().indent.size()
-					)) exit();
+					auto line_indent = indent.size();
+					while(nodes.size()>1 and 
+						(nodes.back().indent=="none" or line_indent<=nodes.back().indent.size())
+					){
+						auto node_indent = nodes.back().indent.size();
+						if(ul_li and node.name()=="ul" and indent.size()==node_indent) break;
+						if(ol_li and node.name()=="ol" and indent.size()==node_indent) break;
+						exit();
+					}
 				}
 
 				if(is(exec_open)){
@@ -564,15 +566,6 @@ public:
 				}
 			}
 			else if(state==elem){
-				// Local lambda for entering a list if necessary
-				auto enter_list_if_needed = [this](const std::string& name){
-					if(node.name()!=name){
-						if(indent_added) indent.pop_back();
-						enter(name);
-						if(indent_added) indent.push_back('\t');
-						indent_added = false;
-					}
-				};
 				// Attempt to match...
 				if(is(tag)){
 					trace("tag");
@@ -597,14 +590,16 @@ public:
 				else if(is(ul_item)){
 					trace("ul_item");
 					// Enter `<ul>` if necessary, enter `<li>` and move into `text` state
-					enter_list_if_needed("ul");
-					enter_across("li",text);
+					if(node.name()!="ul") enter("ul");
+					enter("li",indent);
+					across(text);
 				}
 				else if(is(ol_item)){
 					trace("ol_item");
 					// Enter `<ol>` if necessary, enter `<li>` and move into `text` state
-					enter_list_if_needed("ol");
-					enter_across("li",text);
+					if(node.name()!="ol") enter("ol");
+					enter("li",indent);
+					across(text);
 				}
 				else if(is(pipe)){
 					trace("pipe");
