@@ -471,7 +471,7 @@ $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
 # Input files (typically text files) used for tests
-CPP_TEST_INPUTS := $(BUILD)/cpp/tests/stencil-cila-convert.txt $(BUILD)/cpp/tests/html-doc-1.html
+CPP_TEST_INPUTS := $(BUILD)/cpp/tests/stencil-cila-html.txt $(BUILD)/cpp/tests/html-doc-1.html
 $(BUILD)/cpp/tests/%.txt: cpp/tests/%.txt
 	cp -f $< $@
 $(BUILD)/cpp/tests/%.html: cpp/tests/%.html

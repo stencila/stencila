@@ -19,7 +19,7 @@ using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(run) {
     // Read the test file
-    std::ifstream file("stencil-cila-convert.txt");
+    std::ifstream file("stencil-cila-html.txt");
     std::stringstream buffer;
 	buffer << file.rdbuf();
 	std::string text = buffer.str();
@@ -27,8 +27,8 @@ BOOST_AUTO_TEST_CASE(run) {
     std::vector<std::string> tests;
     boost::iter_split(tests, text, boost::first_finder("--------------------------------------------------\n\n\n"));
     // For each test
-    std::ofstream exp("stencil-cila-convert.exp");
-    std::ofstream got("stencil-cila-convert.got");
+    std::ofstream exp("stencil-cila-html.exp");
+    std::ofstream got("stencil-cila-html.got");
     for(auto test : tests) {
     	/// Split into sections
         std::vector<std::string> sections;
@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE(run) {
     	if(direction=="<>" or direction==">>"){
     		stencil.cila(sections[1]);
     		auto html = stencil.html()+'\n';
-    		exp<<sections[2];
-    		got<<html;
+    		exp<<sections[2]<<"\n";
+    		got<<html<<"\n";
             if(html!=sections[2]){
                 std::cout<<"****  "<<name<<"  ****"<<std::endl;
                 BOOST_CHECK_EQUAL(html,sections[2]);
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(run) {
     	if(direction=="<>" or direction=="<<"){
     		stencil.html(sections[2]);
     		auto cila = stencil.cila()+'\n';
-    		exp<<sections[1];
-    		got<<cila;
+    		exp<<sections[1]<<"\n";
+    		got<<cila<<"\n";
             if(cila!=sections[1]){
                 std::cout<<"****  "<<name<<"  ****"<<std::endl;
                 BOOST_CHECK_EQUAL(cila,sections[1]);
