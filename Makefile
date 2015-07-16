@@ -55,9 +55,10 @@ build-serve: build/current
 #################################################################################################
 # C++ requirements
 
-# Collect necessary include an lib directories
+# Collect necessary include and lib directories and library names
 CPP_REQUIRES_INC_DIRS := 
 CPP_REQUIRES_LIB_DIRS := 
+CPP_REQUIRES_LIBS :=
 
 BOOST_VERSION := 1_58_0
 
@@ -121,6 +122,7 @@ endif
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/boost/include
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
+CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex boost_thread 
 
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
@@ -158,6 +160,7 @@ $(BUILD)/cpp/requires/libgit2-built.flag: $(BUILD)/cpp/requires/libgit2
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libgit2/include
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
+CPP_REQUIRES_LIBS += git2
 
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
@@ -191,6 +194,7 @@ $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connection
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/cpp-netlib/
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/cpp-netlib/libs/network/src
+CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri
 
 cpp-requires-cpp-netlib: $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a
 
@@ -213,12 +217,13 @@ ifeq ($(OS), linux)
 endif
 $(BUILD)/cpp/requires/pugixml-built.flag: $(BUILD)/cpp/requires/pugixml
 	cd $</src ;\
-	  $(CXX) -O2 $(PUGIXML_CXX_FLAGS) -c pugixml.cpp ;\
+	  $(CXX) $(PUGIXML_CXX_FLAGS) -c pugixml.cpp ;\
 	  $(AR) rcs libpugixml.a pugixml.o
 	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
+CPP_REQUIRES_LIBS += pugixml
 
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
@@ -260,7 +265,7 @@ $(BUILD)/cpp/requires/tidy-html5: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).t
 # Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 $(BUILD)/cpp/requires/tidy-html5-built.flag: $(BUILD)/cpp/requires/tidy-html5
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
-	  cmake ../.. -DCMAKE_CXX_FLAGS="-O3 -fPIC" ;\
+	  cmake -DCMAKE_C_FLAGS="-O2 -fPIC" ../..;\
 	  make
 ifeq ($(OS), win)
 	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/build/cmake/libtidys.a
@@ -269,6 +274,7 @@ endif
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/tidy-html5/include
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/tidy-html5/build/cmake
+CPP_REQUIRES_LIBS += tidys
 
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
@@ -291,24 +297,19 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
 
 cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
-# List of libraries to be used below
-CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex 
-CPP_REQUIRES_LIBS += git2 z
-CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri boost_thread
-CPP_REQUIRES_LIBS += pugixml
-CPP_REQUIRES_LIBS += tidys
-ifeq ($(OS), linux)
-	CPP_REQUIRES_LIBS += rt pthread
-endif
-ifeq ($(OS), win)
-	CPP_REQUIRES_LIBS += ws2_32 mswsock ssh2
-endif
-CPP_REQUIRES_LIBS += crypto ssl
-
 $(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-cpp-netlib cpp-requires-libgit2 cpp-requires-pugixml \
    cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
 
 cpp-requires: $(BUILD)/cpp/requires
+
+# List of other libraries required. These are not included `libstencila.a`
+CPP_OTHER_LIBS := z crypto ssl
+ifeq ($(OS), linux)
+	CPP_OTHER_LIBS += rt pthread
+endif
+ifeq ($(OS), win)
+	CPP_OTHER_LIBS += ws2_32 mswsock ssh2
+endif
 
 #################################################################################################
 # C++ helpers
@@ -339,9 +340,9 @@ cpp-helpers-uglifyjs:
 # Stencila C++ library
 
 # Get version compiled into library
-CPP_VERSION_CPP := $(BUILD)/cpp/library/stencila/version.cpp
-CPP_VERSION_O := $(BUILD)/cpp/library/stencila/version.o
-CPP_VERSION_COMPILED := $(shell grep -Po "(?<=Stencila::version = \")([^\"]+)" $(CPP_VERSION_CPP))
+CPP_VERSION_CPP := $(BUILD)/cpp/library/version.cpp
+CPP_VERSION_O := $(BUILD)/cpp/library/objects/stencila-version.o
+CPP_VERSION_COMPILED := $(shell grep -s -Po "(?<=Stencila::version = \")([^\"]+)" $(CPP_VERSION_CPP))
 
 # Delete version.cpp if it is out of date
 ifneq ($(CPP_VERSION_COMPILED),$(VERSION))
@@ -370,33 +371,42 @@ ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
 endif
 CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/stencila/%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_O)
-$(BUILD)/cpp/library/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
-	@mkdir -p $(BUILD)/cpp/library/stencila
+CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/stencila-%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_O)
+$(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
+	@mkdir -p $(BUILD)/cpp/library/objects
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
 
 # Extract object files from requirement libraries
 # Care may be required to ensure no name clashes in object files
-# Currently this is not dealt with
-$(BUILD)/cpp/library/requires: $(BUILD)/cpp/requires
+define CPP_LIBRARY_EXTRACT
+	mkdir -p $(BUILD)/cpp/library/objects/$2
+	cd $(BUILD)/cpp/library/objects/$2 ;\
+		ar x $(realpath $(BUILD)/cpp/requires)/$1 ;\
+		for filename in *.o; do mv $$filename ../$2-$$filename; done ;
+	rm -rf $(BUILD)/cpp/library/objects/$2
+endef
+
+$(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 	@mkdir -p $@
-	cd $@ ;\
-		ar x ../../requires/boost/lib/libboost_system.a ;\
-		ar x ../../requires/boost/lib/libboost_filesystem.a ;\
-		ar x ../../requires/boost/lib/libboost_regex.a ;\
-		ar x ../../requires/boost/lib/libboost_thread.a ;\
-		ar x ../../requires/libgit2/build/libgit2.a ;\
-		ar x ../../requires/pugixml/src/libpugixml.a ;\
-		ar x ../../requires/tidy-html5/lib/libtidy-html5.a
+	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_system.a,boost-system)
+	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_filesystem.a,boost-filesystem)
+	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
+	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_thread.a,boost-thread)
+	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-client-connections.a,cppnetlib-client-connections)
+	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-uri.a,cppnetlib-uri)
+	$(call CPP_LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
+	$(call CPP_LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
+	$(call CPP_LIBRARY_EXTRACT,tidy-html5/build/cmake/libtidys.a,tidy)
 	touch $@
 
 # Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
 # into a single static library.
-# Output list of contents to `contents.txt` for checking
-$(BUILD)/cpp/library/libstencila.a: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/library/requires
+# Output list of contents to `files.txt` and `symbols.txt` for checking
+$(BUILD)/cpp/library/libstencila.a: $(BUILD)/cpp/library/objects
 	cd $(BUILD)/cpp/library ;\
 		$(AR) rc libstencila.a `find . -name "*.o"` ;\
-		$(AR) t libstencila.a > contents.txt 
+		$(AR) t libstencila.a > files.txt ;\
+		nm -gC libstencila.a > symbols.txt
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
 
 cpp-library: cpp-library-staticlib
@@ -440,13 +450,13 @@ CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unu
 
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
 
-CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) boost_unit_test_framework boost_timer boost_chrono gcov
+CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) $(CPP_OTHER_LIBS) boost_unit_test_framework boost_timer boost_chrono gcov
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 
 # Compile a test file into an object file
 # $(realpath $<) is used for consistency of paths in coverage reports
 CPP_TEST_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/tests/*.cpp)))
-$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
+$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp $(BUILD)/cpp/requires
 	@mkdir -p $(BUILD)/cpp/tests
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
@@ -455,7 +465,7 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 # can be generated for these files
 # $(realpath $<) is used for consistency of paths in coverage reports
 CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) $(CPP_VERSION_O)
-$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
+$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires 
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
@@ -467,11 +477,11 @@ $(BUILD)/cpp/tests/%.html: cpp/tests/%.html
 	cp -f $< $@
 
 # Compile a single test file into an executable
-$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS) $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS)
 	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
-$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS) $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_INPUTS)
 	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Make test executable precious so they are kept despite
@@ -581,20 +591,6 @@ cpp-scrub:
 cpp-clean:
 	rm -rf $(BUILD)/cpp
 
-#################################################################################################
-# Stencila console program
-
-$(BUILD)/console/stencila: console/stencila.cpp $(BUILD)/cpp/requires
-	@mkdir -p $(BUILD)/console
-	$(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 \
-	   -Icpp -Ipy -Ir $(CPP_REQUIRES_INC_DIRS) \
-	   -L$(BUILD)/cpp/library -Lcpp/requires/lib \
-	   -o$@ $< \
-	   -lstencila $(patsubst %, -l%,$(CPP_REQUIRES_LIBS)) \
-	   -lpython2.7 -lboost_python \
-	   
-
-console-build: $(BUILD)/console/stencila
 
 #################################################################################################
 # Stencila Javascript package
@@ -717,7 +713,7 @@ PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-functio
 
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
 PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/boost/lib
-PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) rt crypto ssl z
+PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) $(CPP_OTHER_LIBS) 
 
 # Print Python related Makefile variables; useful for debugging
 py-vars:
@@ -857,12 +853,10 @@ $(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires
 	$(CXX) $(R_COMPILE_FLAGS) -o$@ -c $<
 	
 # Build DLL
-R_DLL_LIBS := stencila $(CPP_REQUIRES_LIBS) 
+R_DLL_LIBS := stencila $(CPP_OTHER_LIBS)
+R_DLL_LIBS := $(patsubst %, -l%,$(R_DLL_LIBS))
 $(R_BUILD)/stencila.$(R_DLL_EXT): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libstencila.a
-	$(CXX) -shared -o$@ $^ \
-		-L$(BUILD)/cpp/library $(CPP_REQUIRES_LIB_DIRS) \
-		$(R_LDFLAGS) $(RCPP_LDFLAGS) \
-		$(patsubst %, -l%,$(R_DLL_LIBS))
+	$(CXX) -shared -o$@ $^ $(R_LDFLAGS) $(RCPP_LDFLAGS) -L$(BUILD)/cpp/library $(R_DLL_LIBS)
 r-dll: $(R_BUILD)/stencila.$(R_DLL_EXT)
 
 # Build DLL zip file
