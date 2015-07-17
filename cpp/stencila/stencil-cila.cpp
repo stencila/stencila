@@ -960,64 +960,87 @@ class CilaGenerator {
 public:
 	typedef Stencil::Node Node;
 
-	enum {
-		NEWLINE,
-		BLANKLINE,
-		CONTENT
-	} state;
-
 	std::stringstream cila;
+
+	enum Mode {
+		BLOCK,
+		INLINE,
+		TEXT
+	};
+	std::vector<Mode> modes;
 
 	/**
 	 * Current indentation
 	 */
-	std::string indentation;
+	std::string indentation = "";
 
 	/**
-	 * Increase indentation
+	 * Is there is a blank line at end of Cila stream
 	 */
-	void indent(void){
-		indentation += "\t";
+	bool newline = false;
+
+	/**
+	 * Enter a new node (element or text)
+	 */
+	void enter(Mode mode = BLOCK){
+		Mode parent_mode = modes.back();
+		if(parent_mode==BLOCK){
+			cila<<"\n"<<indentation;
+			newline = false;
+		}
+		else if(parent_mode==INLINE and mode!=TEXT){
+			cila<<"{";
+			newline = false;
+			// If the parent is inline then we
+			// must continue in inline mode
+			mode = INLINE;
+		}
+		if(mode==BLOCK){
+			indentation.push_back('\t');
+		}
+		modes.push_back(mode);
 	}
 
 	/**
-	 * Decrease indentation
+	 * Exit a node (element or text)
 	 */
-	void outdent(void){
-		if(indentation.length()) indentation.pop_back();
+	void exit(void){
+		Mode mode = modes.back();
+		modes.pop_back();
+		if(mode==BLOCK){
+			indentation.pop_back();
+		}
+		Mode parent_mode = modes.back();
+		if(parent_mode==INLINE and mode!=TEXT){
+			cila<<"}";
+			newline = false;
+		}
 	}
 
 	/**
 	 * Add line context
 	 */
 	void content(const std::string& content){
-		if(state==NEWLINE){
-			cila<<"\n"<<indentation;
-		}
-		else if(state==BLANKLINE){
-			cila<<"\n\n"<<indentation;
-		}
 		cila<<content;
-		state = CONTENT;
+		newline = false;
 	}
 
 	/**
-	 * Create a new line (with the right indentation)
+	 * Isolate an element by ensuring a blank
+	 * link before it (if in BLOCK mode)
 	 */
-	void newline(void){
-		if(state!=BLANKLINE) state = NEWLINE;
-	}
-
-	/**
-	 * Create a blankline
-	 */
-	void blankline(void){
-		state = BLANKLINE;
+	void isolate(void){
+		if(modes.back()==BLOCK and not newline){
+			cila<<"\n";
+			newline = true;
+		}
 	}
 
 	void visit(Node node, bool first=false, bool last=false){
 		if(node.is_document()){
+			modes.push_back(BLOCK);
 			visit_children(node);
+			modes.pop_back();
 		}
 		else if(node.is_element()){
 			auto name = node.name();
@@ -1090,104 +1113,125 @@ public:
 				else content("["+text+"]("+href+")");
 				return;
 			}
-			// Lists with no attributes
-			if((name=="ul" or name=="ol") and attributes==0 and children>0){
-				blankline();
-				bool ol = name=="ol";
-				int index = 0;
-				for(auto child : children_list){
-					if(index>0) newline();
-					index++;
-					if(ol) content(string(index)+". ");
-					else content("- ");
-					indent();
-					visit_children(child);
-					outdent();
-				}
-				blankline();
-				return;
-			}
-			// Plain paragraph
-			if(name=="p" and children>0 and attributes==0){
-				blankline();
-				visit_children(node);
-				blankline();
-				return;
-			}
-			// Equation paragraph
-			if(name=="p" and node.attr("class")=="equation"){
-				auto script = node.select("script");
-				if(script){
-					auto type = script.attr("type");
-					if(type.length()){
-						auto code = trim(script.text());
-						std::string begin,end;
-						if(type.find("math/asciimath")!=std::string::npos){
-							begin = "|";
-							end = "|";
-							boost::replace_all(code,"|","\\|");
-						} else {
-							begin = "\\(";
-							end = "\\)";
-						}
-						
-						blankline();
-						content(begin+code+end);
-						blankline();
-						return;
+
+			// Shorthands which only work in block mode
+			if(modes.back()==BLOCK){
+				// Lists with no attributes
+				if((name=="ul" or name=="ol") and attributes==0 and children>0){
+					isolate();
+					bool ol = name=="ol";
+					int index = 0;
+					for(auto child : children_list){
+						index++;
+						if(ol) content("\n"+indentation+string(index)+". ");
+						else content("\n"+indentation+"- ");
+						indentation.push_back('\t');
+						visit_children(child,true);
+						indentation.pop_back();
 					}
+					isolate();
+					return;
 				}
-			}
-			// Sections with an id attribute and a <h1> child
-			if(name=="section" and node.attr("id").length() and children>0){
-				// Only proceed if <h1> is first child
-				if(children_list[0].name()=="h1"){
-					// Only proceed if id is consistent with header
-					auto h1 = node.select("h1");
-					auto title = h1.text();
-					auto id_expected = title;
-					boost::trim(id_expected);
-					boost::to_lower(id_expected);
-					boost::replace_all(id_expected," ","-");
-					auto id = node.attr("id");
-					if(id==id_expected){
-						// Add shorthand with blank line before
-						blankline();
-						content("> "+boost::trim_copy(title));
-						// Generate each child on a new line except for the h1
-						indent();
-						unsigned int index = 0;
-						unsigned int last = children-1;
-						for(Node child : node.children()){
-							if(not(child.name()=="h1" and child.text()==title)){
-								visit(child,index==0,index==last);
-								index++;
+				// Plain paragraph
+				if(name=="p" and children>0 and attributes==0){
+					isolate();
+					enter(INLINE);
+					visit_children(node);
+					exit();
+					isolate();
+					return;
+				}
+				// Equation paragraph
+				if(name=="p" and node.attr("class")=="equation"){
+					auto script = node.select("script");
+					if(script){
+						auto type = script.attr("type");
+						if(type.length()){
+							auto code = trim(script.text());
+							std::string begin,end;
+							if(type.find("math/asciimath")!=std::string::npos){
+								begin = "|";
+								end = "|";
+								boost::replace_all(code,"|","\\|");
+							} else {
+								begin = "\\(";
+								end = "\\)";
 							}
+							
+							isolate();
+							enter();
+							content(begin+code+end);
+							exit();
+							isolate();
+							return;
 						}
-						outdent();
-						return;
+					}
+				}
+				// Sections with an id attribute and a <h1> child
+				if(name=="section" and node.attr("id").length() and children>0){
+					// Only proceed if <h1> is first child
+					if(children_list[0].name()=="h1"){
+						// Only proceed if id is consistent with header
+						auto h1 = node.select("h1");
+						auto title = h1.text();
+						auto id_expected = title;
+						boost::trim(id_expected);
+						boost::to_lower(id_expected);
+						boost::replace_all(id_expected," ","-");
+						auto id = node.attr("id");
+						if(id==id_expected){
+							// Add shorthand with blank line before
+							isolate();
+							enter();
+							content("> "+boost::trim_copy(title));
+							// Generate each child on a new line except for the h1
+							unsigned int index = 0;
+							unsigned int last = children-1;
+							for(Node child : node.children()){
+								if(not(child.name()=="h1" and child.text()==title)){
+									visit(child,index==0,index==last);
+									index++;
+								}
+							}
+							exit();
+							return;
+						}
 					}
 				}
 			}
-				
+
 			// Everything that could not be shorthandted still remains here...
 		
+			// Need a separating space between element name,
+			// attributes or trailing text?
 			bool separate = false;
+			// Is trailing text allowed?
 			bool trail = true;
+			// Does this element have embedded code content (ie. exec or style)?
 			bool embedded = false;
-			bool blank_after = false;
-			bool is_block_element = not Html::is_inline_element(name);
+
+			// Should this element be isolated with blanklines before and after
+			bool isolated = 
+				node.has("data-exec") or name=="style" or
+				node.has("data-when") or node.has("data-with") or 
+				node.has("data-for") or node.has("data-switch") or 
+				node.has("data-include") or node.has("data-macro");
+			if(isolated) isolate();
+
+			// Should this turn on inlining for all descendents?
+			bool inlined = Html::is_inline_element(name);
+
+			// Enter this element
+			enter(inlined?INLINE:BLOCK);
 
 			// Start of line depends on type of element...
 			// Execute directives
 			if(node.has("data-exec")){
-				blankline();
 				content(node.attr("data-exec"));
 				separate = true;
 
 				erase_attr("data-exec");
 				embedded = true;
-				blank_after = true;
 			}
 			// Style elements
 			else if(name=="style"){
@@ -1195,19 +1239,16 @@ public:
 				std::string type = node.attr("type");
 				if(type=="text/css") lang = "css";
 				
-				blankline();
 				content(lang);
 				separate = true;
 
 				erase_attr("type");
 				embedded = true;
-				blank_after = true;
 			}
 			// <div>s only need to be specified if 
 			// 	- no attributes following
 			// 	- not a `text` or `refer` directive (which have span defaults)
 			else if(name=="div"){
-				newline();
 				if(attributes==0 or node.has("data-text") or node.has("data-refer")){
 					content(name);
 					separate = true;
@@ -1220,17 +1261,7 @@ public:
 					separate = true;
 				}
 			}
-			else if(
-				node.has("data-when") or node.has("data-with") or node.has("data-for")
-				or node.has("data-switch") or node.has("data-include") or node.has("data-macro")
-			){
-				blankline();
-				content(name);
-				separate = true;
-				blank_after = true;				
-			}
-			else {
-				if(is_block_element) newline();
+			else{
 				content(name);
 				separate = true;
 			}
@@ -1307,38 +1338,7 @@ public:
 				}
 			}
 
-			if(not embedded){
-				// Short text only child trails, long text only child is indented
-				if(trail and children==1){
-					auto child = children_list[0];
-					if(child.is_text()){			
-						auto text = child.text();
-						boost::trim(text);
-						if(text.length()<100){
-							if(separate) content(" ");
-							content(text);
-						}
-						else {
-							indent();
-							newline();
-							content(text);
-							outdent();
-						}
-						return;
-					}
-				}
-				// Otherwise all childen indented
-				if(is_block_element){
-					indent();
-					newline();
-					visit_children(node,true);
-					outdent();
-				} else {
-					indent();
-					visit_children(node);
-					outdent();
-				}
-			} else {
+			if(embedded){
 				// Get the code from the child nodes. Usually there will be only one, but in case there are more
 				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
 				std::string code;
@@ -1352,22 +1352,24 @@ public:
 					std::vector<std::string> lines;
 					boost::split(lines,code,boost::is_any_of("\n"));
 					// Output each line, with extra indentation if it has content
-					indent();
 					for(unsigned int index=0;index<lines.size();index++){
 						auto line = lines[index];
 						if(line.length()>0){
-							newline();
-							content(line);
+							content("\n"+indentation+line);
 						} else {
 							content("\n");
 						}
 					}
-					outdent();
 				}
+			} else {
+				// Otherwise, visit children as normal
+				visit_children(node,trail,separate);
 			}
 
-			// Add following blank line
-			if(blank_after) blankline();
+			// Exit this element
+			exit();
+			// Isolate after, if necessary
+			if(isolated) isolate();
 		}
 		else if(node.is_text()){
 			auto text = node.text();
@@ -1380,20 +1382,36 @@ public:
 			boost::replace_all(text,"~","\\~");
 			boost::replace_all(text,"@","\\@");
 
+			enter(TEXT);
 			content(text);
+			exit();
 		}
 		else {
 			STENCILA_THROW(Exception,"Unhandled XML node type");
 		}
 	}
 
-	void visit_children(Node node, bool newlines = false){
+	void visit_children(Node node, bool trail = false, bool separate = false){
+		auto children = node.children();
+		int childrens = children.size();
 		int index = 0;
-		int last = node.children().size()-1;
-		for(Node child : node.children()){
-			if(newlines) newline();
-			visit(child,index==0,index==last);
-			index++;
+		// If trailing text is allowed and the first
+		// child is short enough text then trail it
+		if(trail and childrens>0){
+			auto child = children[0];
+			if(child.is_text()){			
+				auto text = child.text();
+				boost::trim(text);
+				if(text.length()<=100){
+					if(separate) content(" ");
+					content(text);
+					index = 1;
+				}
+			}
+		}
+		// Continue with remainder of children
+		for(;index<childrens;index++){
+			visit(children[index],index==0,index==(childrens-1));
 		}
 	}
 

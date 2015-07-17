@@ -46,66 +46,50 @@ plot(1,1)
 --------------------------------------------------
 
 
-A more complete example <>
+Nested plain text <>
 --------------------------------------------------
-#title Title
-
-> Sections and paragraphs
-
-	There should be an empty line before section headings.
-
-	There should be an empty line before paragraphs.
-
-	A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
-
-	Some `code`.
-
-> Math
-
-	Asciimath |e=mc^2| inline. LaTeX \(a^2+b^2=c^2\) inline.
-
-	|theta(x)=1/(sqrt(2 pi sigma)) e^((x-mu)^2/(2 sigma^2))|
-
-> Exec
-
-	r
-		# Needs to have no indentation
-		pi <- 22/7
+div
+	Line one
+	Line two
+	Line three
 --------------------------------------------------
-<div id="title">
-	Title
+<div>
+	Line one
+	<br>
+	Line two
+	<br>
+	Line three
 </div>
-<section id="sections-and-paragraphs">
-	<h1>Sections and paragraphs</h1>
-	<p>
-		There should be an empty line before section headings.
-	</p>
-	<p>
-		There should be an empty line before paragraphs.
-	</p>
-	<p>
-		A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
-	</p>
-	<p>
-		Some <code>code</code>.
-	</p>
-</section>
-<section id="math">
-	<h1>Math</h1>
-	<p>
-		Asciimath <script type="math/asciimath">e=mc^2</script> inline. LaTeX <script type="math/tex">a^2+b^2=c^2</script> inline.
-	</p>
-	<p class="equation">
-		<script type="math/asciimath; mode=display">theta(x)=1/(sqrt(2 pi sigma)) e^((x-mu)^2/(2 sigma^2))</script>
-	</p>
-</section>
-<section id="exec">
-	<h1>Exec</h1>
-	<pre data-exec="r">
-# Needs to have no indentation
-pi &lt;- 22/7
-</pre>
-</section>
+--------------------------------------------------
+
+
+Inlines I <>
+--------------------------------------------------
+Inline HTML elements get inlined using {span braces}, {b .special braces}.
+--------------------------------------------------
+<p>
+	Inline HTML elements get inlined using <span>braces</span>, <b class="special">braces</b>.
+</p>
+--------------------------------------------------
+
+
+Inlines II <>
+--------------------------------------------------
+Some shorthand inlines elements _emphasis_, some *strong*, some `code`, some asciimath |e=mc^2|, some LaTeX \(a^2+b^2=c^2\), a [link](http://foo.bar), a reference @my-special-figure. Some *bold with some _emphasis_ inside it*!
+--------------------------------------------------
+<p>
+	Some shorthand inlines elements <em>emphasis</em>, some <strong>strong</strong>, some <code>code</code>, some asciimath <script type="math/asciimath">e=mc^2</script>, some LaTeX <script type="math/tex">a^2+b^2=c^2</script>, a <a href="http://foo.bar">link</a>, a reference <span data-refer="#my-special-figure"></span>. Some <strong>bold with some <em>emphasis</em> inside it</strong>!
+</p>
+--------------------------------------------------
+
+
+Inlines III <>
+--------------------------------------------------
+Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2{span zero is not equal to two}} with end text.
+--------------------------------------------------
+<p>
+	Even directives get inlined with braces in shorthand paragraphs see: <span data-if="0!=2"><span>zero is not equal to two</span></span> with end text.
+</p>
 --------------------------------------------------
 
 
@@ -140,6 +124,36 @@ div Another one
 <div>
 	Another one
 </div>
+--------------------------------------------------
+
+
+Sections <>
+--------------------------------------------------
+#title Title
+
+> Sections and paragraphs
+
+	There should be an empty line before section headings.
+
+	There should be an empty line before paragraphs.
+
+	A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+--------------------------------------------------
+<div id="title">
+	Title
+</div>
+<section id="sections-and-paragraphs">
+	<h1>Sections and paragraphs</h1>
+	<p>
+		There should be an empty line before section headings.
+	</p>
+	<p>
+		There should be an empty line before paragraphs.
+	</p>
+	<p>
+		A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+	</p>
+</section>
 --------------------------------------------------
 
 
