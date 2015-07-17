@@ -172,6 +172,20 @@ Lists 2 <>
 --------------------------------------------------
 
 
+Lists 3 <>
+--------------------------------------------------
+1. One
+2. Two
+3. Three
+--------------------------------------------------
+<ol>
+	<li>One</li>
+	<li>Two</li>
+	<li>Three</li>
+</ol>
+--------------------------------------------------
+
+
 Lists get isolating blanklines <>
 --------------------------------------------------
 Before
@@ -305,6 +319,7 @@ exec
 	including
 
 	blank lines
+
 		and
 			indented lines
 --------------------------------------------------
@@ -314,8 +329,28 @@ multiple * lines
 including
 
 blank lines
+
 	and
 		indented lines
+</pre>
+--------------------------------------------------
+
+
+`exec` escaping <>
+--------------------------------------------------
+exec
+	with less thans and greater thans
+	a<b
+	a<=b
+	a>b
+	a>=b
+--------------------------------------------------
+<pre data-exec="exec">
+with less thans and greater thans
+a&lt;b
+a&lt;=b
+a&gt;b
+a&gt;=b
 </pre>
 --------------------------------------------------
 

@@ -72,43 +72,42 @@ BOOST_AUTO_TEST_CASE(indentation){
 	ECHO("div\n\tdiv\n\t\tdiv\n\t\t\tdiv\n\t\t\tdiv\n\t\tdiv");
 }
 
-BOOST_AUTO_TEST_CASE(auto_paragraphs){
-	CILA_XML("No para","No para");
+BOOST_AUTO_TEST_CASE(shorthand_paragraphs){
+	// Paragraph if starting text
+	CILA_XML("This should be a paragraph","<p>This should be a paragraph</p>")
+	// Paragraph if empty line before
 	CILA_XML("\nPara","<p>Para</p>");
 	CILA_XML("\n\nPara","<p>Para</p>");
-	CILA_XML("div\n\n\tPara1\n\t\n\tPara2\n\t\t\tPara2cont","<div><p>Para1</p><p>Para2Para2cont</p></div>");
-
-	// Paragraph (empty line before)
 	CILA_XML("div\n\nThis should be a paragraph","<div /><p>This should be a paragraph</p>")
-	// Text (no empty line before)
-	CILA_XML("This should NOT be a paragraph","This should NOT be a paragraph")
+	// No paragraph if no empty line before
 	CILA_XML("div\nThis should NOT be a paragraph","<div />This should NOT be a paragraph")
 	// Nested text (no empty line before)
 	CILA_XML("div\n\tThis should NOT be a paragraph","<div>This should NOT be a paragraph</div>")
 	// Nested paragraph
 	CILA_XML("div\n\n\tThis should be a paragraph","<div><p>This should be a paragraph</p></div>")
+	CILA_XML("div\n\n\tPara1\n\t\n\tPara2\n\t\t\tPara2cont","<div><p>Para1</p><p>Para2Para2cont</p></div>");
 
 	XML_CILA("<p>Para</p>","Para");
-	XML_CILA("<div><p>Para1</p><p>Para2</p></div>","div\n\t\n\tPara1\n\t\n\tPara2");
+	XML_CILA("<div><p>Para1</p><p>Para2</p></div>","div\n\n\tPara1\n\n\tPara2");
 
 	ECHO("Para");
 	ECHO("Para1\n\nPara2");
 }
 
-BOOST_AUTO_TEST_CASE(embedded){
+BOOST_AUTO_TEST_CASE(inlined){
 	CILA_XML("div{div{div}}","<div><div><div /></div></div>");
 	CILA_XML("div [id=yo] Some text {a [href=none] nowhere} after",R"(<div id="yo">Some text <a href="none">nowhere</a> after</div>)");
-	CILA_XML("{div{div apple}{div pear}}",R"(<div><div>apple</div><div>pear</div></div>)");
+	CILA_XML(
+		"{div{div apple}{div pear}}",
+		"<p><div><div>apple</div><div>pear</div></div></p>"
+	);
 
-	CILA_XML("Text with a no inlines","Text with a no inlines");
-	CILA_XML("Text with a {a [href=http://stencil.la] link} in it.","Text with a <a href=\"http://stencil.la\">link</a> in it.");
-
-	CILA_XML("{div}","<div />");
-	CILA_XML("{div {div}}","<div><div /></div>");
+	CILA_XML("Text with a no inlines","<p>Text with a no inlines</p>");
+	CILA_XML("Text with a {a [href=http://stencil.la] link} in it.","<p>Text with a <a href=\"http://stencil.la\">link</a> in it.</p>");
 
 	CILA_XML(
 		"The minimum is {if a<b {text a}}{else {text b}}",
-		"The minimum is <div data-if=\"a&lt;b\"><span data-text=\"a\" /></div><div data-else=\"true\"><span data-text=\"b\" /></div>"
+		"<p>The minimum is <div data-if=\"a&lt;b\"><span data-text=\"a\" /></div><div data-else=\"true\"><span data-text=\"b\" /></div></p>"
 	);
 
 	CILA_XML("div\n\tSome inline {text pi*2}","<div>Some inline <span data-text=\"pi*2\" /></div>");
@@ -197,131 +196,11 @@ BOOST_AUTO_TEST_CASE(exec){
 	ECHO("r\n\ta=1");
 }
 
-BOOST_AUTO_TEST_CASE(exec_1){
-	auto cila_ = 
-R"(r
-	pi <- 3.14)";
-	auto html_ = 
-R"(<pre data-exec="r">
-pi &lt;- 3.14
-</pre>)";
-	CILA_XML(cila_,html_)
-	ECHO(cila_)
-}
-
-BOOST_AUTO_TEST_CASE(exec_2){
-	auto cila_ = 
-R"(r
-	pi <- 3.14
-	print(pi))";
-	auto html_ = 
-R"(<pre data-exec="r">
-pi &lt;- 3.14
-print(pi)
-</pre>)"; 
-	CILA_XML(cila_,html_)
-	ECHO(cila_)
-}
-
-BOOST_AUTO_TEST_CASE(exec_3){
-	auto cila_ = 
-R"(r
-	pi <- 3.14
-	2*pi
-	2*pi*r^2
-div
-div)";
-	auto html_ = 
-R"(<pre data-exec="r">
-pi &lt;- 3.14
-2*pi
-2*pi*r^2
-</pre><div /><div />)";
-	CILA_XML(cila_,html_)
-	//! ECHO(cila_)
-}
-
-BOOST_AUTO_TEST_CASE(exec_with_empty_lines){
-	auto cila_ = 
-R"(r
-	pi <- 3.14
-
-	2*pi
-
-	2*pi*r^2
-div)";
-	auto html_ = 
-R"(<pre data-exec="r">
-pi &lt;- 3.14
-
-2*pi
-
-2*pi*r^2
-</pre><div />)";
-	CILA_XML(cila_,html_); 
-}
-
-BOOST_AUTO_TEST_CASE(exec_with_empty_line_before_next){
-	auto cila_ = 
-R"(r
-	pi <- 3.14
-
-div)";
-	auto html_ = 
-R"(<pre data-exec="r">
-pi &lt;- 3.14
-</pre><div />)";
-	CILA_XML(cila_,html_)
-}
-
-BOOST_AUTO_TEST_CASE(exec_with_text_after){
-	auto cila_ = 
-R"(r
-	pi <- 3.14
-Hello world)";
-	auto html_ = 
-R"(<pre data-exec="r">
-pi &lt;- 3.14
-</pre><p>Hello world</p>)";
-	CILA_XML(cila_,html_)
-}
-
-BOOST_AUTO_TEST_CASE(exec_image){
-	auto cila_ = 
-R"(r format png size 60x42px
-	plot(x,y))";
-	auto html_ = 
-R"(<pre data-exec="r format png size 60x42px">
-plot(x,y)
-</pre>)";
-	CILA_XML(cila_,html_)
-	ECHO(cila_)
-}
-
-BOOST_AUTO_TEST_CASE(exec_with_lt){
-	auto cila_ = 
-R"(exec
-	a<b
-	a <b
-	a< b
-	a < b)";
-	auto html_ = 
-R"(<pre data-exec="exec">
-a&lt;b
-a &lt;b
-a&lt; b
-a &lt; b
-</pre>)";
-	CILA_XML(cila_,html_)
-	ECHO(cila_)
-}
-
 BOOST_AUTO_TEST_CASE(exec_contexts){
 	CILA_XML("js","<pre data-exec=\"js\" />");
 	CILA_XML("py","<pre data-exec=\"py\" />");
 	CILA_XML("r","<pre data-exec=\"r\" />");
 }
-
 
 BOOST_AUTO_TEST_CASE(style){
 	CILA_XML("css\n\tselector{color:red;}","<style type=\"text/css\">\nselector{color:red;}\n</style>");
@@ -544,7 +423,7 @@ BOOST_AUTO_TEST_CASE(sections){
 BOOST_AUTO_TEST_CASE(ul){
 	CILA_XML("- apple\n- pear",R"(<ul><li>apple</li><li>pear</li></ul>)");
 	CILA_XML("-apple\n-pear",R"(<ul><li>apple</li><li>pear</li></ul>)");
-	CILA_XML("{-apple}{-pear}",R"(<ul><li>apple</li><li>pear</li></ul>)");
+	CILA_XML("{-apple}{-pear}",R"(<p><ul><li>apple</li><li>pear</li></ul></p>)");
 	// List items can have normal text parsing
 	CILA_XML("- Some _emphasis_",R"(<ul><li>Some <em>emphasis</em></li></ul>)");
 	CILA_XML("- An interpolated ~value~",R"(<ul><li>An interpolated <span data-text="value" /></li></ul>)");
@@ -556,13 +435,12 @@ BOOST_AUTO_TEST_CASE(ul){
 	ECHO("- apple\n- pear");
 	ECHO("- An interpolated ~value~\n- A bit of |math|\n- A bit of `code` too");
 	
-	ECHO("div\n\t- Should\n\t- be\n\t- indented\ndiv");
-	ECHO("div\n\tdiv\n\t\t- Should\n\t\t- be\n\t\t- indented more");
+	ECHO("div\n\n\t- Should\n\t- be\n\t- indented\n\ndiv");
+	ECHO("div\n\tdiv\n\n\t- Should\n\n\t\t- be\n\t\t- indented more");
 
-	// <ul> with attributes or no <li> children are not autoed
+	// <ul> with attributes are not shorthanded
 	CILA_CILA("ul","ul");
 	CILA_CILA("ul #an-id\n\ta","ul #an-id\n\ta");
-	CILA_CILA("ul\n\ta","ul\n\ta");
 }
 
 BOOST_AUTO_TEST_CASE(ol){
@@ -602,7 +480,7 @@ BOOST_AUTO_TEST_CASE(trailing_text){
 
 BOOST_AUTO_TEST_CASE(text){
 	CILA_XML("","");
-	CILA_XML("Hello world","Hello world");
+	CILA_XML("Hello world","<p>Hello world</p>");
 
 	XML_CILA("","");
 	XML_CILA("Hello world","Hello world");
@@ -611,11 +489,11 @@ BOOST_AUTO_TEST_CASE(text){
 }
 
 BOOST_AUTO_TEST_CASE(emphasis){
-	CILA_XML("Is _emphasised_","Is <em>emphasised</em>");
-	CILA_XML("Some _emphasised_ text","Some <em>emphasised</em> text");
-	CILA_XML("This is _emphasised_. But this is not.","This is <em>emphasised</em>. But this is not.");
-	CILA_XML("not_emphasised","not_emphasised");
-	CILA_XML("not_emphasised_ text","not_emphasised_ text");
+	CILA_XML("Is _emphasised_","<p>Is <em>emphasised</em></p>");
+	CILA_XML("Some _emphasised_ text","<p>Some <em>emphasised</em> text</p>");
+	CILA_XML("This is _emphasised_. But this is not.","<p>This is <em>emphasised</em>. But this is not.</p>");
+	CILA_XML("not_emphasised","<p>not_emphasised</p>");
+	CILA_XML("not_emphasised_ text","<p>not_emphasised_ text</p>");
 
 	XML_CILA("<em>emphasised</em>","_emphasised_");
 	//!XML_CILA("Some <em>emphasised</em> text","Some _emphasised_ text");
@@ -624,11 +502,11 @@ BOOST_AUTO_TEST_CASE(emphasis){
 }
 
 BOOST_AUTO_TEST_CASE(strong){
-	CILA_XML("Is *strong*","Is <strong>strong</strong>");
-	CILA_XML("Some *strong* text","Some <strong>strong</strong> text");
-	CILA_XML("This is *strong*. But this is not.","This is <strong>strong</strong>. But this is not.");
-	CILA_XML("not*strong","not*strong");
-	CILA_XML("some not*strong* text","some not*strong* text");
+	CILA_XML("Is *strong*","<p>Is <strong>strong</strong></p>");
+	CILA_XML("Some *strong* text","<p>Some <strong>strong</strong> text</p>");
+	CILA_XML("This is *strong*. But this is not.","<p>This is <strong>strong</strong>. But this is not.</p>");
+	CILA_XML("not*strong","<p>not*strong</p>");
+	CILA_XML("some not*strong* text","<p>some not*strong* text</p>");
 
 	XML_CILA("<strong>strong</strong>","*strong*");
 	//!XML_CILA("Some <strong>strong</strong> text","Some *strong* text");
@@ -637,8 +515,8 @@ BOOST_AUTO_TEST_CASE(strong){
 }
 
 BOOST_AUTO_TEST_CASE(emphasis_strong){
-	CILA_XML("Some _emphasised *strong* text_","Some <em>emphasised <strong>strong</strong> text</em>");
-	CILA_XML("Some *strong _emphasised_ text*","Some <strong>strong <em>emphasised</em> text</strong>");
+	CILA_XML("Some _emphasised *strong* text_","<p>Some <em>emphasised <strong>strong</strong> text</em></p>");
+	CILA_XML("Some *strong _emphasised_ text*","<p>Some <strong>strong <em>emphasised</em> text</strong></p>");
 
 	//!XML_CILA("Some <em>emphasised <strong>strong</strong> text</em>","Some _emphasised *strong* text_");
 	//!XML_CILA("Some <strong>strong <em>emphasised</em> text</strong>","Some *strong _emphasised_ text*");
@@ -648,9 +526,9 @@ BOOST_AUTO_TEST_CASE(emphasis_strong){
 }
 
 BOOST_AUTO_TEST_CASE(code){
-	CILA_XML("`e=mc^2`","<code>e=mc^2</code>");
-	CILA_XML("An escaped backtick \\` within text","An escaped backtick ` within text");
-	CILA_XML("An escaped backtick within code `\\``","An escaped backtick within code <code>`</code>");
+	CILA_XML("`e=mc^2`","<p><code>e=mc^2</code></p>");
+	CILA_XML("An escaped backtick \\` within text","<p>An escaped backtick ` within text</p>");
+	CILA_XML("An escaped backtick within code `\\``","<p>An escaped backtick within code <code>`</code></p>");
 
 	XML_CILA("<code>e=mc^2</code>","`e=mc^2`");
 	XML_CILA("An escaped backtick ` within text","An escaped backtick \\` within text");
@@ -663,10 +541,10 @@ BOOST_AUTO_TEST_CASE(code){
 
 BOOST_AUTO_TEST_CASE(asciimath){
 	CILA_XML("|e=mc^2|",R"(<p class="equation"><script type="math/asciimath; mode=display">e=mc^2</script></p>)");
-	CILA_XML("Text before |e=mc^2|",R"(Text before <script type="math/asciimath">e=mc^2</script>)");
-	CILA_XML("Text before |e=mc^2| text after",R"(Text before <script type="math/asciimath">e=mc^2</script> text after)");
-	CILA_XML("With asterisks and underscores |a_b*c|",R"(With asterisks and underscores <script type="math/asciimath">a_b*c</script>)");
-	CILA_XML("An escaped pipe within AsciiMath |a\\|b|",R"(An escaped pipe within AsciiMath <script type="math/asciimath">a|b</script>)");
+	CILA_XML("Text before |e=mc^2|",R"(<p>Text before <script type="math/asciimath">e=mc^2</script></p>)");
+	CILA_XML("Text before |e=mc^2| text after",R"(<p>Text before <script type="math/asciimath">e=mc^2</script> text after</p>)");
+	CILA_XML("With asterisks and underscores |a_b*c|",R"(<p>With asterisks and underscores <script type="math/asciimath">a_b*c</script></p>)");
+	CILA_XML("An escaped pipe within AsciiMath |a\\|b|",R"(<p>An escaped pipe within AsciiMath <script type="math/asciimath">a|b</script></p>)");
 
 	XML_CILA(R"(<p>Before <script type="math/asciimath">e=mc^2</script> after</p>)","Before |e=mc^2| after");
 	XML_CILA(R"(<p class="equation"><script type="math/asciimath; mode=display">e=mc^2</script></p>)","|e=mc^2|");
@@ -689,9 +567,9 @@ BOOST_AUTO_TEST_CASE(tex){
 }
 
 BOOST_AUTO_TEST_CASE(link){
-	CILA_XML("[t-test](http://en.wikipedia.org/wiki/Student's_t-test)",R"(<a href="http://en.wikipedia.org/wiki/Student's_t-test">t-test</a>)");
-	CILA_XML("Go to [Google](http://google.com)",R"(Go to <a href="http://google.com">Google</a>)");
-	CILA_XML("[Google](http://google.com) is a link",R"(<a href="http://google.com">Google</a> is a link)");
+	CILA_XML("[t-test](http://en.wikipedia.org/wiki/Student's_t-test)",R"(<p><a href="http://en.wikipedia.org/wiki/Student's_t-test">t-test</a></p>)");
+	CILA_XML("Go to [Google](http://google.com)",R"(<p>Go to <a href="http://google.com">Google</a></p>)");
+	CILA_XML("[Google](http://google.com) is a link",R"(<p><a href="http://google.com">Google</a> is a link</p>)");
 
 	XML_CILA(R"(<a href="http://en.wikipedia.org/wiki/Student's_t-test">t-test</a>)","[t-test](http://en.wikipedia.org/wiki/Student's_t-test)");
 	//!XML_CILA(R"(Go to <a href="http://google.com">Google</a>)","Go to [Google](http://google.com)");
@@ -702,9 +580,9 @@ BOOST_AUTO_TEST_CASE(link){
 }
 
 BOOST_AUTO_TEST_CASE(autolink){
-	CILA_XML("http://google.com",R"(<a href="http://google.com">http://google.com</a>)");
-	CILA_XML("Go to https://google.com",R"(Go to <a href="https://google.com">https://google.com</a>)");
-	CILA_XML("An autolink http://google.com with text after it",R"(An autolink <a href="http://google.com">http://google.com</a> with text after it)");
+	CILA_XML("http://google.com",R"(<p><a href="http://google.com">http://google.com</a></p>)");
+	CILA_XML("Go to https://google.com",R"(<p>Go to <a href="https://google.com">https://google.com</a></p>)");
+	CILA_XML("An autolink http://google.com with text after it",R"(<p>An autolink <a href="http://google.com">http://google.com</a> with text after it</p>)");
 
 	XML_CILA(R"(<a href="http://google.com">http://google.com</a>)","http://google.com");
 	//!XML_CILA(R"(Go to <a href="https://google.com">https://google.com</a>)","Go to https://google.com");
@@ -716,14 +594,14 @@ BOOST_AUTO_TEST_CASE(autolink){
 }
 
 BOOST_AUTO_TEST_CASE(autoemail){
-	CILA_XML("someone@example.com","<a href=\"mailto:someone@example.com\">someone@example.com</a>");
+	CILA_XML("someone@example.com","<p><a href=\"mailto:someone@example.com\">someone@example.com</a></p>");
 	XML_CILA("<a href=\"mailto:someone@example.com\">someone@example.com</a>","someone@example.com");
 	ECHO("someone@example.com");
 }
 
 BOOST_AUTO_TEST_CASE(refer){
-	CILA_XML("@figure-x-y",R"(<span data-refer="#figure-x-y" />)");
-	CILA_XML("An escaped at \\@ in text","An escaped at @ in text");
+	CILA_XML("@figure-x-y",R"(<p><span data-refer="#figure-x-y" /></p>)");
+	CILA_XML("An escaped at \\@ in text","<p>An escaped at @ in text</p>");
 
 	XML_CILA(R"(<span data-refer="#figure-x-y" />)","@figure-x-y");
 	XML_CILA("An at @ in text","An at \\@ in text");
@@ -737,8 +615,8 @@ BOOST_AUTO_TEST_CASE(refer){
 }
 
 BOOST_AUTO_TEST_CASE(interpolate){
-	CILA_XML("~x~",R"(<span data-text="x" />)");
-	CILA_XML("The answer is ~6*7~!",R"(The answer is <span data-text="6*7" />!)");
+	CILA_XML("~x~",R"(<p><span data-text="x" /></p>)");
+	CILA_XML("The answer is ~6*7~!",R"(<p>The answer is <span data-text="6*7" />!</p>)");
 
 	XML_CILA(R"(<span data-text="x" />)","~x~");
 	//!XML_CILA(R"(The answer is <span data-text="6*7" />!)","The answer is ~6*7~!");

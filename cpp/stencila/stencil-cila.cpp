@@ -1097,7 +1097,7 @@ public:
 				for(auto child : children_list){
 					if(index>0) newline();
 					index++;
-					if(ol) content(index+". ");
+					if(ol) content(string(index)+". ");
 					else content("- ");
 					indent();
 					visit_children(child,false);
