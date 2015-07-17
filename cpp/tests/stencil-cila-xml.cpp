@@ -33,9 +33,9 @@ struct CilaFixture : public CilaParser, public CilaGenerator {
 
 // Check macros. Macros are used so that Boost::Unit reports lines number
 // of failed checks properly
-#define CILA_XML(_CILA,_XML) { parse(stencil,_CILA); BOOST_CHECK_EQUAL(stencil.xml(),_XML); }
-#define XML_CILA(_XML,_CILA) { stencil.xml(_XML); BOOST_CHECK_EQUAL(trim(generate(stencil)),_CILA); }
-#define CILA_CILA(_IN,_OUT) { parse(stencil,_IN); BOOST_CHECK_EQUAL(trim(generate(stencil)),_OUT); }
+#define CILA_XML(_CILA,_XML) { parse(stencil,_CILA); BOOST_CHECK_EQUAL(stencil.xml()    ,_XML);  }
+#define XML_CILA(_XML,_CILA) { stencil.xml(_XML);    BOOST_CHECK_EQUAL(generate(stencil),_CILA); }
+#define CILA_CILA(_IN,_OUT)  { parse(stencil,_IN);   BOOST_CHECK_EQUAL(generate(stencil),_OUT);  }
 #define ECHO(_IN) CILA_CILA(_IN,_IN);
 
 BOOST_FIXTURE_TEST_SUITE(stencil_cila_quick,CilaFixture)
@@ -52,8 +52,7 @@ BOOST_AUTO_TEST_CASE(elements){
 	ECHO("div\ntable\np\na\nhr");
 }
 
-BOOST_AUTO_TEST_CASE(empty){
-	// Empty lines should be ignored
+BOOST_AUTO_TEST_CASE(empty_lines_ignored){
 	ECHO("");
 	CILA_CILA("\n","");
 	CILA_CILA("div\n\ndiv","div\ndiv");
@@ -299,23 +298,29 @@ BOOST_AUTO_TEST_CASE(directive_icon){
 
 BOOST_AUTO_TEST_CASE(directive_with){
 	CILA_XML("with what","<div data-with=\"what\" />")
-	XML_CILA("<div data-with=\"what\" />","with what")
-	ECHO("with what")
 
+	XML_CILA("<div data-with=\"what\" />","with what")
+
+	ECHO("with what")
 	ECHO("section with what")
 }
 
 BOOST_AUTO_TEST_CASE(directive_if){
-	CILA_XML("if x<0\nelif x<1\nelse",R"(<div data-if="x&lt;0" /><div data-elif="x&lt;1" /><div data-else="true" />)");
-
-	XML_CILA(R"(<div data-if="x&lt;0" /><div data-elif="x&lt;1" /><div data-else="true" />)","if x<0\nelif x<1\nelse");
-
-	ECHO("if x<0\n\tA\nelif x<1\n\tB\nelse\n\tC");
-
+	CILA_XML(
+		"if x<0\nelif x<1\nelse",
+		"<div data-if=\"x&lt;0\" /><div data-elif=\"x&lt;1\" /><div data-else=\"true\" />"
+	);
 	CILA_XML(
 		"if true\n\tp .a\nelif false\n\tp .b\nelse\n\tp .c",
 		"<div data-if=\"true\"><p class=\"a\" /></div><div data-elif=\"false\"><p class=\"b\" /></div><div data-else=\"true\"><p class=\"c\" /></div>"
 	);
+
+	XML_CILA(
+		"<div data-if=\"x&lt;0\" /><div data-elif=\"x&lt;1\" /><div data-else=\"true\" />",
+		"if x<0\nelif x<1\nelse"
+	);
+
+	ECHO("if x<0\n\tA\nelif x<1\n\tB\nelse\n\tC");
 }
 
 BOOST_AUTO_TEST_CASE(directive_switch){
@@ -327,18 +332,20 @@ R"(switch a
 		The answer
 	default
 		A number)";
-	auto html_ =
+
+	auto xml_ =
 "<div data-switch=\"a\">"
 	"<div data-case=\"3.14\">Pi</div>"
 	"<div data-case=\"42\">The answer</div>"
 	"<div data-default=\"true\">A number</div>"
 "</div>";
-	CILA_XML(cila_,html_);
+
+	CILA_XML(cila_,xml_);
+
 	ECHO(cila_);
 }
 
 BOOST_AUTO_TEST_CASE(directive_for){
-	ECHO("for item in items");
 	CILA_XML("for item in items","<div data-for=\"item in items\" />");
 
 	ECHO("for item in items\n\tp");
@@ -496,7 +503,7 @@ BOOST_AUTO_TEST_CASE(emphasis){
 	CILA_XML("not_emphasised_ text","<p>not_emphasised_ text</p>");
 
 	XML_CILA("<em>emphasised</em>","_emphasised_");
-	//!XML_CILA("Some <em>emphasised</em> text","Some _emphasised_ text");
+	XML_CILA("Some <em>emphasised</em> text","Some _emphasised_ text");
 
 	ECHO("_emphasised_");
 }
@@ -509,7 +516,7 @@ BOOST_AUTO_TEST_CASE(strong){
 	CILA_XML("some not*strong* text","<p>some not*strong* text</p>");
 
 	XML_CILA("<strong>strong</strong>","*strong*");
-	//!XML_CILA("Some <strong>strong</strong> text","Some *strong* text");
+	XML_CILA("Some <strong>strong</strong> text","Some *strong* text");
 	
 	ECHO("*strong*");
 }
@@ -518,8 +525,8 @@ BOOST_AUTO_TEST_CASE(emphasis_strong){
 	CILA_XML("Some _emphasised *strong* text_","<p>Some <em>emphasised <strong>strong</strong> text</em></p>");
 	CILA_XML("Some *strong _emphasised_ text*","<p>Some <strong>strong <em>emphasised</em> text</strong></p>");
 
-	//!XML_CILA("Some <em>emphasised <strong>strong</strong> text</em>","Some _emphasised *strong* text_");
-	//!XML_CILA("Some <strong>strong <em>emphasised</em> text</strong>","Some *strong _emphasised_ text*");
+	XML_CILA("Some <em>emphasised <strong>strong</strong> text</em>","Some _emphasised *strong* text_");
+	XML_CILA("Some <strong>strong <em>emphasised</em> text</strong>","Some *strong _emphasised_ text*");
 	
 	//! ECHO("Some _emphasised *strong* text_");
 	//! ECHO("Some *strong _emphasised_ text*")

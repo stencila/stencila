@@ -3,6 +3,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/html.hpp>
 #include <stencila/string.hpp>
 
 namespace Stencila {
@@ -1057,7 +1058,7 @@ public:
 				if(name=="em") delim = "_";
 				else delim = "*";
 				content(delim);
-				visit_children(node,false);
+				visit_children(node);
 				content(delim);
 				return;
 			}
@@ -1100,7 +1101,7 @@ public:
 					if(ol) content(string(index)+". ");
 					else content("- ");
 					indent();
-					visit_children(child,false);
+					visit_children(child);
 					outdent();
 				}
 				blankline();
@@ -1109,7 +1110,7 @@ public:
 			// Plain paragraph
 			if(name=="p" and children>0 and attributes==0){
 				blankline();
-				visit_children(node,false);
+				visit_children(node);
 				blankline();
 				return;
 			}
@@ -1159,7 +1160,6 @@ public:
 						unsigned int last = children-1;
 						for(Node child : node.children()){
 							if(not(child.name()=="h1" and child.text()==title)){
-								newline();
 								visit(child,index==0,index==last);
 								index++;
 							}
@@ -1176,6 +1176,7 @@ public:
 			bool trail = true;
 			bool embedded = false;
 			bool blank_after = false;
+			bool is_block_element = not Html::is_inline_element(name);
 
 			// Start of line depends on type of element...
 			// Execute directives
@@ -1206,6 +1207,7 @@ public:
 			// 	- no attributes following
 			// 	- not a `text` or `refer` directive (which have span defaults)
 			else if(name=="div"){
+				newline();
 				if(attributes==0 or node.has("data-text") or node.has("data-refer")){
 					content(name);
 					separate = true;
@@ -1228,6 +1230,7 @@ public:
 				blank_after = true;				
 			}
 			else {
+				if(is_block_element) newline();
 				content(name);
 				separate = true;
 			}
@@ -1325,9 +1328,16 @@ public:
 					}
 				}
 				// Otherwise all childen indented
-				indent();
-				visit_children(node);
-				outdent();
+				if(is_block_element){
+					indent();
+					newline();
+					visit_children(node,true);
+					outdent();
+				} else {
+					indent();
+					visit_children(node);
+					outdent();
+				}
 			} else {
 				// Get the code from the child nodes. Usually there will be only one, but in case there are more
 				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
@@ -1377,7 +1387,7 @@ public:
 		}
 	}
 
-	void visit_children(Node node, bool newlines=true){
+	void visit_children(Node node, bool newlines = false){
 		int index = 0;
 		int last = node.children().size()-1;
 		for(Node child : node.children()){
