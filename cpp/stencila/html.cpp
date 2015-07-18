@@ -198,13 +198,12 @@ void dump_node(std::stringstream& stream, Html::Node node, bool pretty, const st
 		stream<<"<!DOCTYPE html>";
 	}
 	else if(node.is_element()){
-		// Dump start tag with attributes
 		auto name = node.name();
-		auto inlinee = is_inline_element(name);
-		if(pretty and not inlinee) stream<<"\n"<<indent;
+		auto block = not is_inline_element(name);
+		
+		// Dump start tag with attributes
+		if(pretty and block) stream<<"\n"<<indent;
 		stream<<"<"<<name;
-
-		// Attributes
 		for(auto name : node.attrs()){
 			auto value = node.attr(name);
 			// Escape quotes in attribute values
@@ -216,31 +215,34 @@ void dump_node(std::stringstream& stream, Html::Node node, bool pretty, const st
 		// For void element nothing else to do so return
 		if(is_void_element(name)) return;
 
-		// If this is not an inline element can it be "shortend"
+		// Can this element be "shortend" (not presented as a block)
 		bool shorten = false;
-		if(not inlinee and is_shortable_element(name)){
+		auto children = node.children();
+		if(children.size()==0) shorten = true;
+		else if(is_shortable_element(name)){
 			shorten = true;
-			for(auto child : node.children()){
+			for(auto child : children){
 				if(not child.is_text() or child.text().length()>100){
 					shorten = false;
 					break;
 				}
 			}
 		}
+
+		// Are internal newlines required?
+		bool newlines = pretty and block and not shorten and name!="pre";
 		
 		// Dump child nodes
-		bool content = false;
-		bool first = true;
-		for(auto child : node.children()){
-			if(pretty and not inlinee and not shorten and name!="pre" and first and (child.is_text() or is_inline_element(child.name()))){
-				stream<<"\n"<<indent+"\t";
-			}
-			if(child.is_element() or (child.is_text() and child.text().length()>0)) content = true;
+		bool previous_was_block = block;
+		for(auto child : children){
+			bool is_inline = child.is_text() or is_inline_element(child.name());
+			if(newlines and is_inline and previous_was_block) stream<<"\n"<<indent+"\t";
 			dump_node(stream,child,pretty,indent+"\t");
-			first = false;
+			previous_was_block = not is_inline;
 		}
+
 		// Closing tag
-		if(pretty and not inlinee and name!="pre" and content and not shorten) stream<<"\n"<<indent;
+		if(newlines) stream<<"\n"<<indent;
 		stream<<"</"<<name<<">";
 	}
 	else if(node.is_text()){

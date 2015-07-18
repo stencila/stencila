@@ -25,7 +25,49 @@ BOOST_AUTO_TEST_CASE(tidy){
 		"<p>Cheking works</p>"
 	)
 
-	// htmltidy 5.0.0RC1 (and before) puts start and end newlines in pre and script elements
+	// Our Tidy options should flatten everything by taking out newlines
+	// and tabs (but not spaces)
+	auto in = R"(
+		<div>
+			<p id="id">
+				A paragraph
+			</p>
+			<div>
+				<figure>
+					<figcaption>
+						A <span>figure</span> <span>caption</span>
+					</figcaption>
+				</figure>
+			</div>
+		</div>
+	)";
+	CHECK(
+		in,
+		"<div><p id=\"id\">A paragraph</p><div><figure><figcaption>A <span>figure</span> <span>caption</span></figcaption></figure></div></div>"
+	);
+
+	// Tidy discards only whitespace text element
+	CHECK(
+		"<p>\t  \t </p>",
+		"<p></p>"
+	);
+	// Tidy trims whitespace in block and inline elements
+	CHECK(
+		"<div>  <span> x </span>    </div>",
+		"<div><span>x</span></div>"
+	);
+	// Whitespace before a sibline is significant
+	CHECK(
+		"<div> x <span>x</span></div>",
+		"<div>x <span>x</span></div>"
+	);
+	// Tidy reduces multiple significant spaces to one
+	CHECK(
+		"<p>  x   x  </p>",
+		"<p>x x</p>"
+	);
+
+	// Tidy 5.0.0RC1 (and before) puts start and end newlines in pre and script elements
 	// See See https://github.com/htacg/tidy-html5/issues/158 and https://github.com/htacg/tidy-html5/issues/227
 	// Our pull request https://github.com/htacg/tidy-html5/pull/228 removes them if `vertical-space` is no
 	// But any intentional initial newline is lost (in htmltidy's parsing?)
@@ -43,7 +85,7 @@ BOOST_AUTO_TEST_CASE(tidy){
 	)
 
 
-	// htmltidy does not allow top level scripts, they must be within something
+	// Tidy does not allow top level scripts, they must be within something
 	CHECK(
 		"<script>code</script>",
 		""
@@ -341,6 +383,7 @@ BOOST_AUTO_TEST_CASE(doc_pretty){
 		<meta charset="utf-8">
 	</head>
 	<body>
+		Text
 		<div>
 			<ul>
 				<li>One</li>
@@ -348,6 +391,7 @@ BOOST_AUTO_TEST_CASE(doc_pretty){
 				<li>Three</li>
 			</ul>
 		</div>
+		Text
 	</body>
 </html>)";
 
