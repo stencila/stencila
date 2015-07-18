@@ -210,21 +210,26 @@ BOOST_AUTO_TEST_CASE(sanitize){
 	BOOST_CHECK(!doc.select("img.d"));
 }
 
+const std::string test_content = 
+	"<div class=\"foo\">"
+		"The ships hung in <span>the</span> <span>sky</span> in much the same way that bricks don't."
+	"</div>"
+;
+
+
 BOOST_AUTO_TEST_CASE(load_dump){
 	Document doc;
-	std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";
-	doc.load(content);
-	BOOST_CHECK_EQUAL(doc.dump(),content);
+	doc.load(test_content);
+	BOOST_CHECK_EQUAL(doc.dump(),test_content);
 }
 
 BOOST_AUTO_TEST_CASE(write_read){
 	Document doc;
-	std::string content = "<div class=\"foo\">The ships hung in the sky in much the same way that bricks don't.</div>";
-	doc.load(content);
+	doc.load(test_content);
 	auto tempfile = "/tmp/"+boost::filesystem::unique_path().string();
 	doc.write(tempfile);
 	doc.read(tempfile);
-	BOOST_CHECK_EQUAL(doc.dump(),content);
+	BOOST_CHECK_EQUAL(doc.dump(),test_content);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

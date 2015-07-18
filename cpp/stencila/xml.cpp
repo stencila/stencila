@@ -154,14 +154,10 @@ Node Node::append_comment(const std::string& comment){
 }
 
 Node Node::append_xml(const std::string& xml){
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_string(xml.c_str());
-	if(not result){
-		STENCILA_THROW(Exception,result.description());
-	}
+	Document doc(xml);
 	// To append a pugi::xml_document it is necessary to append each of
-	// it children (instead of just the document root) like this...
-	for(pugi::xml_node child : doc.children()) pimpl_->append_copy(child);
+	// it children (instead of just the document root)
+	append_children(doc);
 	return doc;
 }   
 
@@ -632,7 +628,13 @@ Node Document::doctype(const std::string& type){
 }
 
 Document& Document::load(const std::string& xml){
-	pugi::xml_parse_result result = doc_()->load_string(xml.c_str());
+	// The`pugi::parse_ws_pcdata` option prevents whitespace only text
+	// nodes from being discarded.
+	// See http://pugixml.googlecode.com/svn/trunk/docs/manual/loading.html#manual.loading.options
+	pugi::xml_parse_result result = doc_()->load_string(
+		xml.c_str(),
+		(pugi::parse_default | pugi::parse_ws_pcdata)
+	);
 	if(not result){
 		STENCILA_THROW(Exception,result.description());
 	}
@@ -640,7 +642,11 @@ Document& Document::load(const std::string& xml){
 }
 
 Document& Document::read(const std::string& filename){
-	pugi::xml_parse_result result = doc_()->load_file(filename.c_str());
+	pugi::xml_parse_result result = doc_()->load_file(
+		filename.c_str(),
+		// See above for options used here
+		(pugi::parse_default | pugi::parse_ws_pcdata)
+	);
 	if(not result){
 		STENCILA_THROW(Exception,result.description());
 	}
