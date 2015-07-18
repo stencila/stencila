@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(tidy){
 
 	// Tidy discards only whitespace text element
 	CHECK(
-		"<p>\t  \t </p>",
+		"<p>    </p>",
 		"<p></p>"
 	);
 	// Tidy trims whitespace in block and inline elements
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(tidy){
 		"<div>  <span> x </span>    </div>",
 		"<div><span>x</span></div>"
 	);
-	// Whitespace before a sibline is significant
+	// Whitespace before a sibling is significant
 	CHECK(
 		"<div> x <span>x</span></div>",
 		"<div>x <span>x</span></div>"
@@ -65,6 +65,18 @@ BOOST_AUTO_TEST_CASE(tidy){
 	CHECK(
 		"<p>  x   x  </p>",
 		"<p>x x</p>"
+	);
+	// Tidy converts tabs to spaces and treats them the same way
+	CHECK(
+		"<p>\tx\t\tx\t</p>",
+		"<p>x x</p>"
+	);
+
+	// Tidy also removes tabs in <pre>s. But we aaply a hack to 
+	// protect them
+	CHECK(
+		"<p>\t</p><pre>\tx\t</pre><p>x\tx</p>",
+		"<p></p><pre>\tx\t</pre><p>x x</p>"
 	);
 
 	// Tidy 5.0.0RC1 (and before) puts start and end newlines in pre and script elements

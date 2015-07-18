@@ -97,14 +97,15 @@ std::string Fragment::tidy(const std::string& html){
 			// Start tag is found allowing for zero or more attributes
 			std::size_t start = input.find("<pre",from);
 			if(start==std::string::npos) break;
-			start += 5;
 			std::size_t end = input.find("</pre>",start);
+			if(end==std::string::npos) break;
+			end += 5;
 			// Extract preformatted text, protect tabs and reinsert
-			std::string pre = input.substr(start,end);
+			std::string pre = input.substr(start,end-start+1);
 			replace_all(pre,"\t","---tab---");
-			input.replace(start,end,pre);
+			input.replace(start,end-start+1,pre);
 			// Continue...
-			from = end + 6;
+			from = end + 1;
 		}
 
 		TidyBuffer error_buffer = {0};
