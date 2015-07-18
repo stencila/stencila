@@ -46,20 +46,13 @@ plot(1,1)
 --------------------------------------------------
 
 
-Nested plain text <>
+Spaces between elements <>
 --------------------------------------------------
-div
-	Line one
-	Line two
-	Line three
+Spaces between _this_ *this* `this` |this| {span this} should be retained.
 --------------------------------------------------
-<div>
-	Line one
-	<br>
-	Line two
-	<br>
-	Line three
-</div>
+<p>
+	Spaces between <em>this</em> <strong>this</strong> <code>this</code> <script type="math/asciimath">this</script> <span>this</span> should be retained.
+</p>
 --------------------------------------------------
 
 
@@ -100,6 +93,24 @@ Start line text is treated as a paragraph
 <p>
 	Start line text is treated as a paragraph
 </p>
+--------------------------------------------------
+
+
+Trailing text <>
+--------------------------------------------------
+div Nodes trail `until` |a| {span block element} is reached
+	div
+	then they start on new
+	div
+	lines
+--------------------------------------------------
+<div>
+	Nodes trail <code>until</code> <script type="math/asciimath">a</script> <span>block element</span> is reached
+	<div></div>
+	then they start on new
+	<div></div>
+	lines
+</div>
 --------------------------------------------------
 
 

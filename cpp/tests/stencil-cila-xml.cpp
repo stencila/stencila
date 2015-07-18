@@ -33,9 +33,10 @@ struct CilaFixture : public CilaParser, public CilaGenerator {
 
 // Check macros. Macros are used so that Boost::Unit reports lines number
 // of failed checks properly
-#define CILA_XML(_CILA,_XML) { parse(stencil,_CILA); BOOST_CHECK_EQUAL(stencil.xml()    ,_XML);  }
-#define XML_CILA(_XML,_CILA) { stencil.xml(_XML);    BOOST_CHECK_EQUAL(generate(stencil),_CILA); }
-#define CILA_CILA(_IN,_OUT)  { parse(stencil,_IN);   BOOST_CHECK_EQUAL(generate(stencil),_OUT);  }
+#define CILA_XML(_CILA,_XML) { parse(stencil,_CILA); BOOST_CHECK_EQUAL(stencil.xml(),    _XML);}
+#define XML_CILA(_XML,_CILA) { stencil.xml(_XML);    BOOST_CHECK_EQUAL(generate(stencil),_CILA);}
+#define XML_XML(_IN,_OUT)    { stencil.xml(_IN);     BOOST_CHECK_EQUAL(stencil.xml(),    _OUT);}
+#define CILA_CILA(_IN,_OUT)  { parse(stencil,_IN);   BOOST_CHECK_EQUAL(generate(stencil),_OUT);}
 #define ECHO(_IN) CILA_CILA(_IN,_IN);
 
 BOOST_FIXTURE_TEST_SUITE(stencil_cila_quick,CilaFixture)
@@ -69,6 +70,25 @@ BOOST_AUTO_TEST_CASE(indentation){
 	XML_CILA("<div><div><div /></div></div><div />","div\n\tdiv\n\t\tdiv\ndiv");
 
 	ECHO("div\n\tdiv\n\t\tdiv\n\t\t\tdiv\n\t\t\tdiv\n\t\tdiv");
+}
+
+BOOST_AUTO_TEST_CASE(spaces){
+	CILA_XML(
+		"Space between {span here} {span and here} should be retained.",
+		"<p>Space between <span>here</span> <span>and here</span> should be retained.</p>"
+	)
+	XML_XML(
+		"<p>Space between <span>here</span> <span>and here</span> should be retained.</p>",
+		"<p>Space between <span>here</span> <span>and here</span> should be retained.</p>"
+	)
+	XML_CILA(
+		"<p>Space between <span>here</span> <span>and here</span> should be retained.</p>",
+		"Space between {span here} {span and here} should be retained."
+	)
+	XML_CILA(
+		"<p>Spaces between <em>this</em> <strong>this</strong> <code>this</code> <script type=\"math/asciimath\">this</script> <span>this</span> should be retained.</p>",
+		"Spaces between _this_ *this* `this` |this| {span this} should be retained."
+	)
 }
 
 BOOST_AUTO_TEST_CASE(shorthand_paragraphs){
@@ -114,9 +134,6 @@ BOOST_AUTO_TEST_CASE(inlined){
 	CILA_XML("div Some text","<div>Some text</div>");
 	CILA_XML("div {Some text}","<div>Some text</div>");
 	CILA_XML("div Text with a {span inside span}.","<div>Text with a <span>inside span</span>.</div>");
-
-	// Embedded syntax can be used for inline elements but is not generated
-	CILA_CILA("{ul #id-to-prevent-autolist-style-cila {li apple}{li pear}}","ul #id-to-prevent-autolist-style-cila\n\tli apple\n\tli pear");
 }
 
 BOOST_AUTO_TEST_CASE(attributes){
@@ -372,7 +389,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 	ECHO("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
 
 	// Special '.' identifier for current stencil
-	ECHO("macro hello\n\t~who~\ninclude . select #hello\n\tset who to 'world'")
+	ECHO("macro hello\n\t~who~\n\ninclude . select #hello\n\tset who to 'world'")
 
 	// Set directive
 	ECHO("include stencil select selector\n\tset a to 4\n\tset b to 1")
@@ -473,12 +490,12 @@ BOOST_AUTO_TEST_CASE(trailing_text){
 	CILA_XML("span foo","<span>foo</span>");
 	CILA_XML("span            foo","<span>foo</span>");
 
-	XML_CILA("<div>Short text only child trails</div><div />","div Short text only child trails\ndiv");
+	XML_CILA("<div>Short text trails</div><div />","div Short text trails\ndiv");
 	XML_CILA(
-		"<div>Long text only child is on next line and indented xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>",
-		"div\n\tLong text only child is on next line and indented xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		"<div>Long text trails xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>",
+		"div Long text trails xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	);
-	XML_CILA("<div>Text with block siblings does not trail<div/></div>","div\n\tText with block siblings does not trail\n\tdiv");
+	XML_CILA("<div>Text with block siblings can trail<div/></div>","div Text with block siblings can trail\n\tdiv");
 
 	ECHO("div Hello");
 	ECHO("div Some text with bits like #id and .class");

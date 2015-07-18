@@ -1,5 +1,6 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <stencila/stencil.hpp>
@@ -956,16 +957,31 @@ public:
 	}
 };
 
+//#define STENCILA_CILA_GENERATOR_TRACE
 class CilaGenerator {
 public:
 	typedef Stencil::Node Node;
 
+	/**
+	 * Generated Cila
+	 */
 	std::stringstream cila;
 
+	/**
+	 * Generation mode stack
+	 */
 	enum Mode {
+		/**
+		 * In BLOCK mode, all nodes (elem or text) must
+		 * start with an indented line
+		 */
 		BLOCK,
-		INLINE,
-		TEXT
+		/**
+		 * In INLINE mode, all nodes must start and end
+		 * with a curly brace. Any attempt to enter a nested
+		 * BLOCK mode are squashed (converted to INLINE)
+		 */
+		INLINE
 	};
 	std::vector<Mode> modes;
 
@@ -975,45 +991,90 @@ public:
 	std::string indentation = "";
 
 	/**
-	 * Is there is a blank line at end of Cila stream
+	 * Is a separating space needed before 
+	 * new content on the same line?
 	 */
-	bool newline = false;
+	bool space_required = false;
 
 	/**
-	 * Enter a new node (element or text)
+	 * Is a newline needed before 
+	 * any new content?
 	 */
-	void enter(Mode mode = BLOCK){
-		Mode parent_mode = modes.back();
-		if(parent_mode==BLOCK){
-			cila<<"\n"<<indentation;
-			newline = false;
+	bool newline_required = false;
+
+	/**
+	 * Is there is a blank line at end of Cila stream?
+	 */
+	bool blankline_present = false;
+
+	/**
+	 * For debugging get mode as string
+	 */
+	std::string mode_name(Mode mode){
+		switch(mode){
+			#define MODE(mode) case mode: return #mode; break;
+			MODE(BLOCK)
+			MODE(INLINE)
+			#undef MODE
+			default: return ""; break;
 		}
-		else if(parent_mode==INLINE and mode!=TEXT){
-			cila<<"{";
-			newline = false;
-			// If the parent is inline then we
-			// must continue in inline mode
-			mode = INLINE;
-		}
-		if(mode==BLOCK){
-			indentation.push_back('\t');
-		}
-		modes.push_back(mode);
 	}
 
 	/**
-	 * Exit a node (element or text)
+	 * Enter a new node
 	 */
-	void exit(void){
-		Mode mode = modes.back();
+	void enter(Mode new_mode){
+		#if defined(STENCILA_CILA_GENERATOR_TRACE)
+			cila<<mode_name(new_mode)<<">";
+		#endif
+		// Do stuff based on current mode
+		Mode current_mode = modes.back();
+		if(current_mode==BLOCK){
+			cila<<"\n"<<indentation;
+			space_required = false;
+			newline_required = false;
+			blankline_present = false;
+		}
+		else if(current_mode==INLINE){
+			if(new_mode==BLOCK or new_mode==INLINE){
+				cila<<"{";
+				space_required = false;
+				newline_required = false;
+				blankline_present = false;
+				// If the current_mode is INLINE then we
+				// must continue in INLINE mode
+				new_mode = INLINE;
+			}
+		}
+
+		// Do stuff based on new mode
+		if(new_mode==BLOCK){
+			indentation.push_back('\t');
+		}
+		// Push new mode onto the stack
+		modes.push_back(new_mode);
+	}
+
+	/**
+	 * Exit a node
+	 */
+	void exit(){
+		// Do stuff based on current mode
+		Mode current_mode = modes.back();
 		modes.pop_back();
-		if(mode==BLOCK){
+		#if defined(STENCILA_CILA_GENERATOR_TRACE)
+			cila<<">"<<mode_name(current_mode);
+		#endif
+		if(current_mode==BLOCK){
 			indentation.pop_back();
 		}
+		// Do stuff based on parent mode
 		Mode parent_mode = modes.back();
-		if(parent_mode==INLINE and mode!=TEXT){
+		if(current_mode==INLINE and parent_mode==INLINE){
 			cila<<"}";
-			newline = false;
+			space_required = false;
+			newline_required = false;
+			blankline_present = false;
 		}
 	}
 
@@ -1021,8 +1082,16 @@ public:
 	 * Add line context
 	 */
 	void content(const std::string& content){
+		if(newline_required){
+			cila<<"\n"<<indentation;
+			newline_required = false;
+		}
+		else if(space_required){
+			cila<<" ";
+			space_required = false;
+		}
 		cila<<content;
-		newline = false;
+		blankline_present = false;
 	}
 
 	/**
@@ -1030,9 +1099,11 @@ public:
 	 * link before it (if in BLOCK mode)
 	 */
 	void isolate(void){
-		if(modes.back()==BLOCK and not newline){
+		if(modes.back()==BLOCK and not blankline_present){
 			cila<<"\n";
-			newline = true;
+			space_required = false;
+			newline_required = false;
+			blankline_present = true;
 		}
 	}
 
@@ -1114,7 +1185,7 @@ public:
 				return;
 			}
 
-			// Shorthands which only work in block mode
+			// Shorthands should only be used in block mode
 			if(modes.back()==BLOCK){
 				// Lists with no attributes
 				if((name=="ul" or name=="ol") and attributes==0 and children>0){
@@ -1122,12 +1193,13 @@ public:
 					bool ol = name=="ol";
 					int index = 0;
 					for(auto child : children_list){
+						enter(BLOCK);
 						index++;
-						if(ol) content("\n"+indentation+string(index)+". ");
-						else content("\n"+indentation+"- ");
-						indentation.push_back('\t');
-						visit_children(child,true);
-						indentation.pop_back();
+						if(ol) content(string(index)+".");
+						else content("-");
+						space_required = true;
+						visit_children(child);
+						exit();
 					}
 					isolate();
 					return;
@@ -1159,7 +1231,7 @@ public:
 							}
 							
 							isolate();
-							enter();
+							enter(BLOCK);
 							content(begin+code+end);
 							exit();
 							isolate();
@@ -1182,7 +1254,7 @@ public:
 						if(id==id_expected){
 							// Add shorthand with blank line before
 							isolate();
-							enter();
+							enter(BLOCK);
 							content("> "+boost::trim_copy(title));
 							// Generate each child on a new line except for the h1
 							unsigned int index = 0;
@@ -1200,17 +1272,14 @@ public:
 				}
 			}
 
-			// Everything that could not be shorthandted still remains here...
+			// Everything that could not be shorthanded still remains here...
 		
-			// Need a separating space between element name,
-			// attributes or trailing text?
-			bool separate = false;
-			// Is trailing text allowed?
+			// Are child nodes allowed to trail behind this element?
 			bool trail = true;
 			// Does this element have embedded code content (ie. exec or style)?
 			bool embedded = false;
 
-			// Should this element be isolated with blanklines before and after
+			// Should this element be isolated with blank lines before and after
 			bool isolated = 
 				node.has("data-exec") or name=="style" or
 				node.has("data-when") or node.has("data-with") or 
@@ -1218,17 +1287,15 @@ public:
 				node.has("data-include") or node.has("data-macro");
 			if(isolated) isolate();
 
-			// Should this turn on inlining for all descendents?
+			// Enter element with correct mode
 			bool inlined = Html::is_inline_element(name);
-
-			// Enter this element
 			enter(inlined?INLINE:BLOCK);
 
 			// Start of line depends on type of element...
 			// Execute directives
 			if(node.has("data-exec")){
 				content(node.attr("data-exec"));
-				separate = true;
+				space_required = true;
 
 				erase_attr("data-exec");
 				embedded = true;
@@ -1240,7 +1307,7 @@ public:
 				if(type=="text/css") lang = "css";
 				
 				content(lang);
-				separate = true;
+				space_required = true;
 
 				erase_attr("type");
 				embedded = true;
@@ -1251,19 +1318,19 @@ public:
 			else if(name=="div"){
 				if(attributes==0 or node.has("data-text") or node.has("data-refer")){
 					content(name);
-					separate = true;
+					space_required = true;
 				}
 			}
 			// <span>s don't need to specified if a `text` or `refer` directive
 			else if(name=="span"){
 				if(not (node.has("data-text") or node.has("data-refer"))){
 					content(name);
-					separate = true;
+					space_required = true;
 				}
 			}
 			else{
 				content(name);
-				separate = true;
+				space_required = true;
 			}
 
 			// Handle attributes...
@@ -1280,8 +1347,6 @@ public:
 						flags.push_back({name,value});
 					}
 					else {
-						if(separate) content(" ");
-
 						if(name=="id"){
 							content("#"+value);
 						}
@@ -1299,42 +1364,41 @@ public:
 						else {
 							content("["+name+"="+value+"]");
 						}
-
-						separate = true;
+						space_required = true;
 					}
 				}
 
 				// Directives
 				if(directive.first.length()){
-					if(separate) content(" ");
 					auto name = directive.first;
 					content(name.substr(5));
 					if(not(name=="data-each" or name=="data-else" or name=="data-default")){
 						auto value = directive.second;
 						content(" "+value);
 					}
+					space_required = true;
 					trail = false;
-					separate = true;
 				}
 
 				// Flags
 				if(flags.size()){
-					if(separate) content(" ");
 					content(":");
-				}
-				for(auto attr : flags){
-					auto name = attr.first;
-					auto value = attr.second;
-					std::string flag;
-					if(name=="data-hash") flag = "&"+value;
-					else if(name=="data-index") flag = "^"+value;
-					else if(name=="data-error") flag = "!\""+replace_all(value,"\"","'")+"\"";  // Double quote replaced with single to avoid parsing errors
-					else if(name=="data-warning") flag = "%\""+replace_all(value,"\"","'")+"\"";
-					else if(name=="data-location") flag = "@"+value;
-					else flag = name.substr(5);
-					content(" "+flag);
+					space_required = true;
 					trail = false;
-					separate = true;
+			
+					for(auto attr : flags){
+						auto name = attr.first;
+						auto value = attr.second;
+						std::string flag;
+						if(name=="data-hash") flag = "&"+value;
+						else if(name=="data-index") flag = "^"+value;
+						else if(name=="data-error") flag = "!\""+replace_all(value,"\"","'")+"\"";  // Double quote replaced with single to avoid parsing errors
+						else if(name=="data-warning") flag = "%\""+replace_all(value,"\"","'")+"\"";
+						else if(name=="data-location") flag = "@"+value;
+						else flag = name.substr(5);
+						content(flag);
+						space_required = true;
+					}
 				}
 			}
 
@@ -1355,15 +1419,16 @@ public:
 					for(unsigned int index=0;index<lines.size();index++){
 						auto line = lines[index];
 						if(line.length()>0){
-							content("\n"+indentation+line);
+							cila<<"\n"+indentation+line;
 						} else {
-							content("\n");
+							cila<<"\n";
 						}
 					}
 				}
 			} else {
-				// Otherwise, visit children as normal
-				visit_children(node,trail,separate);
+				// Tell children if they should start on a newline or not
+				if(not trail) newline_required = true;
+				visit_children(node);
 			}
 
 			// Exit this element
@@ -1373,45 +1438,29 @@ public:
 		}
 		else if(node.is_text()){
 			auto text = node.text();
-			// Trim white space if first or last child
-			if(first) boost::trim_left(text);
-			if(last) boost::trim_right(text);
+			
 			// Escape characters used for shorthands
 			boost::replace_all(text,"`","\\`");
 			boost::replace_all(text,"|","\\|");
 			boost::replace_all(text,"~","\\~");
 			boost::replace_all(text,"@","\\@");
 
-			enter(TEXT);
+			// Translate HTML entities
+			boost::replace_all(text,"&nbsp;"," ");
+			
 			content(text);
-			exit();
 		}
 		else {
 			STENCILA_THROW(Exception,"Unhandled XML node type");
 		}
 	}
 
-	void visit_children(Node node, bool trail = false, bool separate = false){
+	void visit_children(Node node){
 		auto children = node.children();
-		int childrens = children.size();
-		int index = 0;
-		// If trailing text is allowed and the first
-		// child is short enough text then trail it
-		if(trail and childrens>0){
-			auto child = children[0];
-			if(child.is_text()){			
-				auto text = child.text();
-				boost::trim(text);
-				if(text.length()<=100){
-					if(separate) content(" ");
-					content(text);
-					index = 1;
-				}
-			}
-		}
-		// Continue with remainder of children
-		for(;index<childrens;index++){
-			visit(children[index],index==0,index==(childrens-1));
+		uint index = 0;
+		for(auto child : children){
+			visit(child,index==0,index==(children.size()-1));
+			index++;
 		}
 	}
 

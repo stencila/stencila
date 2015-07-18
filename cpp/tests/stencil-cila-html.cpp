@@ -57,8 +57,10 @@ BOOST_AUTO_TEST_CASE(run) {
     	if(direction=="<>" or direction==">>"){
     		stencil.cila(sections[1]);
     		auto html = stencil.html()+'\n';
-    		exp<<sections[2]<<"\n";
-    		got<<html<<"\n";
+    		exp<<sections[2]<<"--------------------------------------------------\n";
+    		exp<<stencil.xml()<<"\n--------------------------------------------------\n";
+            got<<html<<"--------------------------------------------------\n";
+            got<<stencil.xml()<<"\n--------------------------------------------------\n";
             if(html!=sections[2]){
                 std::cout<<"****  "<<name<<"  ****"<<std::endl;
                 BOOST_CHECK_EQUAL(html,sections[2]);
@@ -67,15 +69,17 @@ BOOST_AUTO_TEST_CASE(run) {
     	if(direction=="<>" or direction=="<<"){
     		stencil.html(sections[2]);
     		auto cila = stencil.cila()+'\n';
-    		exp<<sections[1]<<"\n";
-    		got<<cila<<"\n";
+    		exp<<sections[1]<<"--------------------------------------------------\n";
+    		exp<<stencil.xml()<<"\n--------------------------------------------------\n";
+            got<<cila<<"--------------------------------------------------\n";
+            got<<stencil.xml()<<"\n--------------------------------------------------\n";
             if(cila!=sections[1]){
                 std::cout<<"****  "<<name<<"  ****"<<std::endl;
                 BOOST_CHECK_EQUAL(cila,sections[1]);
             }
     	}
-    	exp<<"--------------------------------------------------\n\n\n";
-    	got<<"--------------------------------------------------\n\n\n";
+    	exp<<"\n\n\n";
+    	got<<"\n\n\n";
     }
 }
 
