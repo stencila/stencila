@@ -33,6 +33,27 @@ bool is_void_element(const std::string& name);
 bool is_inline_element(const std::string& name);
 
 /**
+ * Is this an inline element type?
+ * 
+ * @param  name node
+ */
+bool is_inline_element(Node node);
+
+/**
+ * Is this an block element type?
+ * 
+ * @param  name Element name
+ */
+bool is_block_element(const std::string& name);
+
+/**
+ * Is this an block element type?
+ * 
+ * @param  name node
+ */
+bool is_block_element(Node node);
+
+/**
  * Is this a "shortable" element type?
  *
  * Elements like <title>, <h1>-<h6>, <li> and <td> are block elements but their contents

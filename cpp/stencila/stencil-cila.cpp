@@ -451,16 +451,18 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
-			exec_open("(exec|js|r|py)\\b *([^:\\n]+)?(?=(: )|\\n|$)"),
+			exec_open("(exec|js|r|py)\\b *([^:\\n]+)?(?=( : )|\\n|$)"),
 			style_open("(style|css)(\\n|$)"),
 
-			directive_noarg("(each|else|default)\\b *(?=(: )|\\n|\\{|\\}|$)"),
-			directive_arg_optional("(comments)( +(.+?))?(?=(: )|\\n|\\{|\\}|$)"),
-			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set|comment) +(.+?)(?=(: )|\\n|\\{|\\}|$)"),
+			// Spaces around semicolons and colons are used to preven confusion with those
+			// symbols in expressions
+			directive_noarg("(each|else|default)\\b *(?=( : )|\\n|\\{|\\}|$)"),
+			directive_arg_optional("(comments)( +(.+?))?(?=( : )|( ; )|\\n|\\{|\\}|$)"),
+			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set|comment) +(.+?)(?=( : )|( ; )|\\n|\\{|\\}|$)"),
 
 			spaces(" +"),
 
-			flags_open(": "),
+			flags_open(" : "),
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
 			error("\\!\\\"([^\\\"]*)\\\""),
@@ -470,6 +472,10 @@ public:
 			output("output"),
 			off("off"),
 			included("included"),
+
+			// Indicates the directive arguments and flags have ended
+			// to separate those from any content that may be following
+			directive_close(" ; "),
 
 			empha_open("(\\s)_(?=[^\\s])"),
 			empha_close("_"),
@@ -681,6 +687,10 @@ public:
 					enter_elem_if_needed();
 					across(flags);
 				}
+				else if(is(directive_close)){
+					trace("directive_close");
+					across(text);
+				}
 				else if(is(spaces)){
 					trace("spaces");
 					// Ignore spaces and keep on looking for attributes
@@ -728,6 +738,10 @@ public:
 					trace("included");
 					node.attr("data-included","true");
 				}
+				else if(is(directive_close)){
+					trace("directive_close");
+					across(text);
+				}
 				else if(is(spaces)){
 					trace("spaces");
 					// Ignore spaces and keep on looking for flags
@@ -735,7 +749,7 @@ public:
 				else {
 					trace("none");
 					// If current state is under an `embed` state then 
-					// pop up to the `embed` otherwise move across to `sol`
+					// pop up to the `embed` otherwise move across to `text`
 					bool under_embed = false;
 					if(states.size()>1){
 						if(states[states.size()-2]==embed) under_embed = true;
@@ -743,7 +757,7 @@ public:
 					if(under_embed){
 						pop();
 					} else {
-						across(sol);
+						across(text);
 					}
 				}
 			}
@@ -967,151 +981,51 @@ public:
 	 */
 	std::stringstream cila;
 
-	/**
-	 * Generation mode stack
-	 */
-	enum Mode {
-		/**
-		 * In BLOCK mode, all nodes (elem or text) must
-		 * start with an indented line
-		 */
-		BLOCK,
-		/**
-		 * In INLINE mode, all nodes must start and end
-		 * with a curly brace. Any attempt to enter a nested
-		 * BLOCK mode are squashed (converted to INLINE)
-		 */
-		INLINE
-	};
-	std::vector<Mode> modes;
-
-	/**
-	 * Current indentation
-	 */
-	std::string indentation = "";
-
-	/**
-	 * Is a separating space needed before 
-	 * new content on the same line?
-	 */
-	bool space_required = false;
-
-	/**
-	 * Is a newline needed before 
-	 * any new content?
-	 */
-	bool newline_required = false;
-
-	/**
-	 * Is there is a blank line at end of Cila stream?
-	 */
-	bool blankline_present = false;
-
-	/**
-	 * For debugging get mode as string
-	 */
-	std::string mode_name(Mode mode){
-		switch(mode){
-			#define MODE(mode) case mode: return #mode; break;
-			MODE(BLOCK)
-			MODE(INLINE)
-			#undef MODE
-			default: return ""; break;
-		}
-	}
-
-	/**
-	 * Enter a new node
-	 */
-	void enter(Mode new_mode){
-		#if defined(STENCILA_CILA_GENERATOR_TRACE)
-			cila<<mode_name(new_mode)<<">";
-		#endif
-		// Do stuff based on current mode
-		Mode current_mode = modes.back();
-		if(current_mode==BLOCK){
-			cila<<"\n"<<indentation;
-			space_required = false;
-			newline_required = false;
-			blankline_present = false;
-		}
-		else if(current_mode==INLINE){
-			if(new_mode==BLOCK or new_mode==INLINE){
-				cila<<"{";
-				space_required = false;
-				newline_required = false;
-				blankline_present = false;
-				// If the current_mode is INLINE then we
-				// must continue in INLINE mode
-				new_mode = INLINE;
-			}
-		}
-
-		// Do stuff based on new mode
-		if(new_mode==BLOCK){
-			indentation.push_back('\t');
-		}
-		// Push new mode onto the stack
-		modes.push_back(new_mode);
-	}
-
-	/**
-	 * Exit a node
-	 */
-	void exit(){
-		// Do stuff based on current mode
-		Mode current_mode = modes.back();
-		modes.pop_back();
-		#if defined(STENCILA_CILA_GENERATOR_TRACE)
-			cila<<">"<<mode_name(current_mode);
-		#endif
-		if(current_mode==BLOCK){
-			indentation.pop_back();
-		}
-		// Do stuff based on parent mode
-		Mode parent_mode = modes.back();
-		if(current_mode==INLINE and parent_mode==INLINE){
-			cila<<"}";
-			space_required = false;
-			newline_required = false;
-			blankline_present = false;
-		}
-	}
+	uint newlines = 0;
 
 	/**
 	 * Add line context
 	 */
 	void content(const std::string& content){
-		if(newline_required){
-			cila<<"\n"<<indentation;
-			newline_required = false;
+		if(content.length()>0){
+			for(auto i=content.begin(); i!=content.end(); ++i){
+				if(*i!='\n'){
+					newlines = 0;
+					break;
+				}
+			}
+			for(auto i=content.rbegin(); i!=content.rend(); ++i){
+				if(*i=='\n') newlines++;
+				else break;
+			}
+			cila<<content;
 		}
-		else if(space_required){
-			cila<<" ";
-			space_required = false;
-		}
-		cila<<content;
-		blankline_present = false;
 	}
 
 	/**
-	 * Isolate an element by ensuring a blank
-	 * link before it (if in BLOCK mode)
+	 * Start a new line
 	 */
-	void isolate(void){
-		if(modes.back()==BLOCK and not blankline_present){
+	void newline(const std::string& indentation=""){
+		if(newlines<1){
 			cila<<"\n";
-			space_required = false;
-			newline_required = false;
-			blankline_present = true;
+			newlines++;
+		}
+		cila<<indentation;
+	}
+
+	/**
+	 * Ensure a blank line
+	 */
+	void blankline(void){
+		while(newlines<2){
+			cila<<"\n";
+			newlines++;
 		}
 	}
 
-	void visit(Node node, bool first=false, bool last=false){
+	void visit(Node node, const std::string& indent=""){
 		if(node.is_document()){
-			modes.push_back(BLOCK);
-			visit_children(node);
-			modes.pop_back();
+			for(Node child : node.children()) visit(child);
 		}
 		else if(node.is_element()){
 			auto name = node.name();
@@ -1127,7 +1041,7 @@ public:
 				attribute_list.end());
 			};
 
-			// Shorthands from whence we return...and if we don't then the
+			// Shorthands from whence we return...if we don't then the
 			// default generation happens (that's why it's not an if,else if tree)
 			
 			// Write directive shorthand
@@ -1152,7 +1066,7 @@ public:
 				if(name=="em") delim = "_";
 				else delim = "*";
 				content(delim);
-				visit_children(node);
+				for(Node child : node.children()) visit(child);
 				content(delim);
 				return;
 			}
@@ -1185,113 +1099,124 @@ public:
 				return;
 			}
 
-			// Shorthands should only be used in block mode
-			if(modes.back()==BLOCK){
-				// Lists with no attributes
-				if((name=="ul" or name=="ol") and attributes==0 and children>0){
-					isolate();
-					bool ol = name=="ol";
-					int index = 0;
-					for(auto child : children_list){
-						enter(BLOCK);
-						index++;
-						if(ol) content(string(index)+".");
-						else content("-");
-						space_required = true;
-						visit_children(child);
-						exit();
-					}
-					isolate();
-					return;
+			// Lists with no attributes
+			if((name=="ul" or name=="ol") and attributes==0 and children>0){
+				blankline();
+				bool ol = name=="ol";
+				int index = 0;
+				for(auto child : children_list){
+					newline(indent);
+					index++;
+					if(ol) content(string(index)+". ");
+					else content("- ");
+					for(Node grandchild : child.children()) visit(grandchild,indent+"\t");
 				}
-				// Plain paragraph
-				if(name=="p" and children>0 and attributes==0){
-					isolate();
-					enter(INLINE);
-					visit_children(node);
-					exit();
-					isolate();
-					return;
-				}
-				// Equation paragraph
-				if(name=="p" and node.attr("class")=="equation"){
-					auto script = node.select("script");
-					if(script){
-						auto type = script.attr("type");
-						if(type.length()){
-							auto code = trim(script.text());
-							std::string begin,end;
-							if(type.find("math/asciimath")!=std::string::npos){
-								begin = "|";
-								end = "|";
-								boost::replace_all(code,"|","\\|");
-							} else {
-								begin = "\\(";
-								end = "\\)";
-							}
-							
-							isolate();
-							enter(BLOCK);
-							content(begin+code+end);
-							exit();
-							isolate();
-							return;
-						}
+				blankline();
+				return;
+			}
+			// Plain paragraph
+			if(name=="p" and children>0 and attributes==0){
+				// ... and only inline-able children
+				bool shorthandable = true;
+				for(Node child : children_list){
+					if(not (child.is_text() or Html::is_inline_element(child))){
+						shorthandable = false;
 					}
 				}
-				// Sections with an id attribute and a <h1> child
-				if(name=="section" and node.attr("id").length() and children>0){
-					// Only proceed if <h1> is first child
-					if(children_list[0].name()=="h1"){
-						// Only proceed if id is consistent with header
-						auto h1 = node.select("h1");
-						auto title = h1.text();
-						auto id_expected = title;
-						boost::trim(id_expected);
-						boost::to_lower(id_expected);
-						boost::replace_all(id_expected," ","-");
-						auto id = node.attr("id");
-						if(id==id_expected){
-							// Add shorthand with blank line before
-							isolate();
-							enter(BLOCK);
-							content("> "+boost::trim_copy(title));
-							// Generate each child on a new line except for the h1
-							unsigned int index = 0;
-							unsigned int last = children-1;
-							for(Node child : node.children()){
-								if(not(child.name()=="h1" and child.text()==title)){
-									visit(child,index==0,index==last);
-									index++;
-								}
-							}
-							exit();
-							return;
+				if(shorthandable){
+					blankline();
+					// Indent the start of this paragraph
+					newline(indent);
+					for(Node child : children_list) visit(child);
+					blankline();
+					return;
+				}
+			}
+			// Equation paragraph
+			if(name=="p" and node.attr("class")=="equation"){
+				auto script = node.select("script");
+				if(script){
+					auto type = script.attr("type");
+					if(type.length()){
+						auto code = trim(script.text());
+						std::string begin,end;
+						if(type.find("math/asciimath")!=std::string::npos){
+							begin = "|";
+							end = "|";
+							boost::replace_all(code,"|","\\|");
+						} else {
+							begin = "\\(";
+							end = "\\)";
 						}
+						
+						blankline();
+						content(begin+code+end);
+						blankline();
+						return;
+					}
+				}
+			}
+			// Sections with an id attribute and a <h1> child
+			if(name=="section" and node.attr("id").length() and children>0){
+				// Only proceed if <h1> is first child
+				if(children_list[0].name()=="h1"){
+					// Only proceed if id is consistent with header
+					auto h1 = node.select("h1");
+					auto title = h1.text();
+					auto id_expected = title;
+					boost::trim(id_expected);
+					boost::to_lower(id_expected);
+					boost::replace_all(id_expected," ","-");
+					auto id = node.attr("id");
+					if(id==id_expected){
+						// Add shorthand with blank line before
+						blankline();
+						content("> "+boost::trim_copy(title));
+						// Generate each child on a new line except for the h1
+						for(Node child : children_list){
+							if(not(child.name()=="h1" and child.text()==title)){
+								visit(child,indent+"\t");
+							}
+						}
+						return;
 					}
 				}
 			}
 
 			// Everything that could not be shorthanded still remains here...
 		
-			// Are child nodes allowed to trail behind this element?
-			bool trail = true;
-			// Does this element have embedded code content (ie. exec or style)?
+			// Is this an inline element?
+			bool inline_element  = Html::is_inline_element(name);
+
+			// If a block element, does this element have embedded 
+			// code content (ie. exec or style)?
 			bool embedded = false;
 
-			// Should this element be isolated with blank lines before and after
+			// If a block element, should this element be isolated 
+			// with blank lines before and after?
 			bool isolated = 
+				name=="p" or
 				node.has("data-exec") or name=="style" or
 				node.has("data-when") or node.has("data-with") or 
 				node.has("data-for") or node.has("data-switch") or 
 				node.has("data-include") or node.has("data-macro");
-			if(isolated) isolate();
+			if(isolated) blankline();
 
-			// Enter element with correct mode
-			bool inlined = Html::is_inline_element(name);
-			enter(inlined?INLINE:BLOCK);
+			// Is a space required for any following content
+			bool space_required = false;
 
-			// Start of line depends on type of element...
+			// Can children trail on the element's starting line?
+			bool trailing_allowed = true;
+
+			// Start of element depends on type of element...
+			if(inline_element){
+				// Opening brace
+				content("{");
+			} else {
+				// Fresh line
+				newline(indent);
+			}
+			
 			// Execute directives
 			if(node.has("data-exec")){
 				content(node.attr("data-exec"));
@@ -1347,6 +1272,7 @@ public:
 						flags.push_back({name,value});
 					}
 					else {
+						if(space_required) content(" ");
 						if(name=="id"){
 							content("#"+value);
 						}
@@ -1371,20 +1297,23 @@ public:
 				// Directives
 				if(directive.first.length()){
 					auto name = directive.first;
+					// Directive name
+					if(space_required) content(" ");
 					content(name.substr(5));
+					// Directive argumnet
 					if(not(name=="data-each" or name=="data-else" or name=="data-default")){
 						auto value = directive.second;
 						content(" "+value);
 					}
 					space_required = true;
-					trail = false;
+					trailing_allowed = false;
 				}
 
 				// Flags
 				if(flags.size()){
+					if(space_required) content(" ");
 					content(":");
-					space_required = true;
-					trail = false;
+					trailing_allowed = false;
 			
 					for(auto attr : flags){
 						auto name = attr.first;
@@ -1396,45 +1325,87 @@ public:
 						else if(name=="data-warning") flag = "%\""+replace_all(value,"\"","'")+"\"";
 						else if(name=="data-location") flag = "@"+value;
 						else flag = name.substr(5);
-						content(flag);
+						content(" "+flag);
 						space_required = true;
 					}
 				}
 			}
 
-			if(embedded){
-				// Get the code from the child nodes. Usually there will be only one, but in case there are more
-				// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
-				std::string code;
-				for(Node child : node.children()) code += child.text();
-				// Trim white space (it should never be significant when at start or end)
-				// Normally code will start and end with a new line (that is how it is created when parsed)
-				// so remove those, and any other whitespace, for consistent Cila generation
-				boost::trim(code);
-				if(code.length()>0){
-					// Split into lines
-					std::vector<std::string> lines;
-					boost::split(lines,code,boost::is_any_of("\n"));
-					// Output each line, with extra indentation if it has content
-					for(unsigned int index=0;index<lines.size();index++){
-						auto line = lines[index];
-						if(line.length()>0){
-							cila<<"\n"+indentation+line;
-						} else {
-							cila<<"\n";
+			// Generate children
+			if(children>0){
+				if(inline_element){
+					// Insert a separating space
+					content(" ");
+					// If trailing is not allowed then need to separate with
+					// space surrounded semicolon
+					if(not trailing_allowed) content("; ");
+					// Generate children (which should all be inline)
+					for(Node child : children_list) visit(child);
+				}
+				else {
+					if(not embedded) {
+						// Check if this element has any block elements
+						bool has_block_children = false;
+						for(Node child : children_list){
+							if(Html::is_block_element(child)){
+								has_block_children = true;
+								break;
+							}
+						}
+						// If trailing allowed and only inline elements...
+						if(trailing_allowed and not has_block_children){
+							content(" ");
+							for(Node child : children_list) visit(child);
+						}
+						// otherwise...
+						else {
+							// ...start on a newline and put a newline after each non-block child
+							bool previous_was_block = true;
+							for(Node child : children_list){
+								bool child_is_block = Html::is_block_element(child);
+								if(not child_is_block and previous_was_block) newline(indent+"\t");
+								visit(child,indent+"\t");
+								previous_was_block = child_is_block;
+							}
+						}
+					}
+					else {
+						// Get the code from the child nodes. Usually there will be only one, but in case there are more
+						// add them all. Note that the text() method unencodes HTML special characters (e.g. &lt;) for us
+						std::string code;
+						for(Node child : children_list) code += child.text();
+						// Trim white space (it should never be significant when at start or end)
+						// Normally code will start and end with a new line (that is how it is created when parsed)
+						// so remove those, and any other whitespace, for consistent Cila generation
+						boost::trim(code);
+						if(code.length()>0){
+							// Split into lines
+							std::vector<std::string> lines;
+							boost::split(lines,code,boost::is_any_of("\n"));
+							// Output each line, with extra indentation if it has content
+							for(unsigned int index=0;index<lines.size();index++){
+								auto line = lines[index];
+								if(line.length()>0){
+									newline(indent+"\t");
+									content(line);
+								} else {
+									blankline();
+								}
+							}
 						}
 					}
 				}
-			} else {
-				// Tell children if they should start on a newline or not
-				if(not trail) newline_required = true;
-				visit_children(node);
 			}
 
-			// Exit this element
-			exit();
-			// Isolate after, if necessary
-			if(isolated) isolate();
+			// End of element depends on type of element...
+			if(inline_element){
+				// Closing brace
+				content("}");
+			} else {
+				// Isolate after, if necessary
+				if(isolated) blankline();
+			}
+
 		}
 		else if(node.is_text()){
 			auto text = node.text();
@@ -1452,15 +1423,6 @@ public:
 		}
 		else {
 			STENCILA_THROW(Exception,"Unhandled XML node type");
-		}
-	}
-
-	void visit_children(Node node){
-		auto children = node.children();
-		uint index = 0;
-		for(auto child : children){
-			visit(child,index==0,index==(children.size()-1));
-			index++;
 		}
 	}
 

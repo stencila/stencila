@@ -33,6 +33,20 @@ bool is_inline_element(const std::string& name){
 	return false;
 }
 
+bool is_inline_element(Node node){
+	if(not node.is_element()) return false;
+	else return is_inline_element(node.name());
+}
+
+bool is_block_element(const std::string& name){
+	return not (is_inline_element(name) or is_void_element(name));
+}
+
+bool is_block_element(Node node){
+	if(not node.is_element()) return false;
+	else return is_block_element(node.name());
+}
+
 bool is_shortable_element(const std::string& name){
 	for(auto elem : {
 		"title",

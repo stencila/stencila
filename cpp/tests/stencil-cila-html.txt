@@ -18,31 +18,52 @@ div
 
 Various nested elements <>
 --------------------------------------------------
-div
-	p #id A paragraph
-	div
-		figure
+section
 
-			r format png
-				plot(1,1)
+	A paragraph with no attributes and only {span inline} elements
 
-			figcaption One equals one
+	p .class A paragraph with only {span inline} elements
+
+section
+	.class
+		A div with `some` |inline| elements {span and} some
+		ul .class
+			li block
+			li elements
+		{span followed} by an inline element and an inline directive {b text 7*6}
+	figure
+
+		r format png
+			plot(1,1)
+
+		figcaption One equals one
 --------------------------------------------------
-<div>
-	<p id="id">
-		A paragraph
+<section>
+	<p>
+		A paragraph with no attributes and only <span>inline</span> elements
 	</p>
-	<div>
-		<figure>
-			<pre data-exec="r format png">
+	<p class="class">
+		A paragraph with only <span>inline</span> elements
+	</p>
+</section>
+<section>
+	<div class="class">
+		A div with <code>some</code> <script type="math/asciimath">inline</script> elements <span>and</span> some
+		<ul class="class">
+			<li>block</li>
+			<li>elements</li>
+		</ul>
+		<span>followed</span> by an inline element and an inline directive <b data-text="7*6"></b>
+	</div>
+	<figure>
+		<pre data-exec="r format png">
 plot(1,1)
 </pre>
-			<figcaption>
-				One equals one
-			</figcaption>
-		</figure>
-	</div>
-</div>
+		<figcaption>
+			One equals one
+		</figcaption>
+	</figure>
+</section>
 --------------------------------------------------
 
 
@@ -78,11 +99,53 @@ Some shorthand inlines elements _emphasis_, some *strong*, some `code`, some asc
 
 Inlines III <>
 --------------------------------------------------
-Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2{span zero is not equal to two}} with end text.
+Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2 ; {span zero is not equal to two}} with end text.
 --------------------------------------------------
 <p>
 	Even directives get inlined with braces in shorthand paragraphs see: <span data-if="0!=2"><span>zero is not equal to two</span></span> with end text.
 </p>
+--------------------------------------------------
+
+
+Empty inlines <>
+--------------------------------------------------
+Empty inlines {span}, {a}, {img}.
+--------------------------------------------------
+<p>
+	Empty inlines <span></span>, <a></a>, <img>.
+</p>
+--------------------------------------------------
+
+
+Nested inlines <>
+--------------------------------------------------
+{span one {span inside {b another}}}
+--------------------------------------------------
+<p>
+	<span>one <span>inside <b>another</b></span></span>
+</p>
+--------------------------------------------------
+
+
+Inlines with attributes, directives and flags <>
+--------------------------------------------------
+{b .class text 6*7}, {span if x==0 ; zero}, {span if x==1 : off ; chars}.
+--------------------------------------------------
+<p>
+	<b class="class" data-text="6*7"></b>, <span data-if="x==0">zero</span>, <span data-if="x==1" data-off="true">chars</span>.
+</p>
+--------------------------------------------------
+
+
+Blocks with attributes, directives and flags <>
+--------------------------------------------------
+.class #id [attr=value]
+div .class #id [attr=value] text 6*7
+div .class #id [attr=value] text 6*7 : &hash !"error:arrgh" off
+--------------------------------------------------
+<div class="class" id="id" attr="value"></div>
+<div class="class" id="id" attr="value" data-text="6*7"></div>
+<div class="class" id="id" attr="value" data-text="6*7" data-hash="hash" data-error="error:arrgh" data-off="true"></div>
 --------------------------------------------------
 
 
@@ -93,24 +156,6 @@ Start line text is treated as a paragraph
 <p>
 	Start line text is treated as a paragraph
 </p>
---------------------------------------------------
-
-
-Trailing text <>
---------------------------------------------------
-div Nodes trail `until` |a| {span block element} is reached
-	div
-	then they start on new
-	div
-	lines
---------------------------------------------------
-<div>
-	Nodes trail <code>until</code> <script type="math/asciimath">a</script> <span>block element</span> is reached
-	<div></div>
-	then they start on new
-	<div></div>
-	lines
-</div>
 --------------------------------------------------
 
 
@@ -554,6 +599,8 @@ Get a blank line after
 
 End test. Insert new tests above this <>
 --------------------------------------------------
-span Because the end of file format is a bit tricky.
+Because the end of file format is a bit tricky.
 --------------------------------------------------
-<span>Because the end of file format is a bit tricky.</span>
+<p>
+	Because the end of file format is a bit tricky.
+</p>

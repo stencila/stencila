@@ -48,9 +48,6 @@ BOOST_AUTO_TEST_CASE(elements){
 
 	XML_CILA("<div />","div");
 	XML_CILA("<div /><div />","div\ndiv");
-	XML_CILA("<div /><a /><p />","div\na\np");
-
-	ECHO("div\ntable\np\na\nhr");
 }
 
 BOOST_AUTO_TEST_CASE(empty_lines_ignored){
@@ -150,14 +147,17 @@ BOOST_AUTO_TEST_CASE(attributes){
 
 	XML_CILA(R"(<li id="an-id" />)","li #an-id");
 	XML_CILA(R"(<ul class="a-class" />)","ul .a-class");
-	XML_CILA(R"(<a href="http://google.com" id="an-id" class="a-class" />)","a [href=http://google.com] #an-id .a-class");
+	XML_CILA(
+		R"(<a href="http://google.com" id="an-id" class="a-class" />)",
+		"{a [href=http://google.com] #an-id .a-class}"
+	);
 
 	XML_CILA(R"(<div id="an-id" />)","#an-id");
 	XML_CILA(R"(<div class="a-class" />)",".a-class");
 	XML_CILA(R"(<div id="an-id" class="a-class" />)","#an-id .a-class");
 
 	CILA_XML("a [href=http://stenci.la] Stencila","<a href=\"http://stenci.la\">Stencila</a>");
-	ECHO("a [href=http://stenci.la] [title=Stencila] Stencila");
+	ECHO("{a [href=http://stenci.la] [title=Stencila] Stencila}");
 	// More than one
 	CILA_XML("div [attr1=1] [attr2=2]","<div attr1=\"1\" attr2=\"2\" />");
 	ECHO("ul [attr1=1] [attr2=2] [attr3=3]");
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(flags){
 	ECHO("if x<0 : off");
 
 	CILA_XML("text x : lock",R"(<span data-text="x" data-lock="true" />)");
-	ECHO("text x : lock");
+	ECHO("{text x : lock}");
 
 	ECHO(": &tH4dFg off ^42 lock output");
 	ECHO("p : &tH4dFg off ^42 lock output");
@@ -365,7 +365,7 @@ R"(switch a
 BOOST_AUTO_TEST_CASE(directive_for){
 	CILA_XML("for item in items","<div data-for=\"item in items\" />");
 
-	ECHO("for item in items\n\tp");
+	ECHO("for item in items\n\n\tp");
 }
 
 BOOST_AUTO_TEST_CASE(directive_each){
@@ -438,7 +438,10 @@ BOOST_AUTO_TEST_CASE(sections){
 	XML_CILA(R"(<section id="heading-with-spaces"><h1>Heading with spaces</h1></section>)","> Heading with spaces");
 	// Xml which does not convert to an autosection
 	XML_CILA(R"(<section id="id-different-to-heading"><h1>Heading</h1></section>)","section #id-different-to-heading\n\th1 Heading");
-	XML_CILA(R"(<section><p></p><h1>Heading not the first child</h1></section>)","section\n\tp\n\th1 Heading not the first child");
+	XML_CILA(
+		R"(<section><p></p><h1>Heading not the first child</h1></section>)",
+		"section\n\n\tp\n\n\th1 Heading not the first child"
+	);
 
 	ECHO("> Heading");
 	ECHO("> Heading with spaces");
@@ -464,7 +467,7 @@ BOOST_AUTO_TEST_CASE(ul){
 
 	// <ul> with attributes are not shorthanded
 	CILA_CILA("ul","ul");
-	CILA_CILA("ul #an-id\n\ta","ul #an-id\n\ta");
+	CILA_CILA("ul #an-id\n\ta","ul #an-id {a}");
 }
 
 BOOST_AUTO_TEST_CASE(ol){
@@ -495,7 +498,10 @@ BOOST_AUTO_TEST_CASE(trailing_text){
 		"<div>Long text trails xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>",
 		"div Long text trails xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	);
-	XML_CILA("<div>Text with block siblings can trail<div/></div>","div Text with block siblings can trail\n\tdiv");
+	XML_CILA(
+		"<div>Text with block siblings does not trail<div /></div>",
+		"div\n\tText with block siblings does not trail\n\tdiv"
+	);
 
 	ECHO("div Hello");
 	ECHO("div Some text with bits like #id and .class");
@@ -631,10 +637,10 @@ BOOST_AUTO_TEST_CASE(refer){
 	XML_CILA("An at @ in text","An at \\@ in text");
 
 	CILA_XML("refer selector with space",R"(<span data-refer="selector with space" />)");
-	XML_CILA(R"(<span data-refer="selector with space" />)","refer selector with space");
+	XML_CILA(R"(<span data-refer="selector with space" />)","{refer selector with space}");
 
 	ECHO("@figure-x-y");
-	ECHO("refer section#intro figure");
+	ECHO("{refer section#intro figure}");
 	ECHO("\\@");
 }
 

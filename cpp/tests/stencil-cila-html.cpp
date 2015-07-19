@@ -16,6 +16,9 @@ BOOST_AUTO_TEST_SUITE(stencil_cila_convert_quick)
 
 using namespace Stencila;
 
+// Sometimes it can be useful for debugging to see the underlying XML
+// in output
+#define STENCILA_CILA_HTML_SHOW_XML 0
 
 BOOST_AUTO_TEST_CASE(run) {
     // Read the test file
@@ -57,10 +60,12 @@ BOOST_AUTO_TEST_CASE(run) {
     	if(direction=="<>" or direction==">>"){
     		stencil.cila(sections[1]);
     		auto html = stencil.html()+'\n';
-    		exp<<sections[2]<<"--------------------------------------------------\n";
-    		exp<<stencil.xml()<<"\n--------------------------------------------------\n";
-            got<<html<<"--------------------------------------------------\n";
-            got<<stencil.xml()<<"\n--------------------------------------------------\n";
+    		#if STENCILA_CILA_HTML_SHOW_XML
+                exp<<stencil.xml()<<"\n--------------------------------------------------\n";
+                got<<stencil.xml()<<"\n--------------------------------------------------\n";
+            #endif
+            exp<<sections[2]<<"--------------------------------------------------\n";
+    		got<<html<<"--------------------------------------------------\n";
             if(html!=sections[2]){
                 std::cout<<"****  "<<name<<"  ****"<<std::endl;
                 BOOST_CHECK_EQUAL(html,sections[2]);
@@ -69,10 +74,12 @@ BOOST_AUTO_TEST_CASE(run) {
     	if(direction=="<>" or direction=="<<"){
     		stencil.html(sections[2]);
     		auto cila = stencil.cila()+'\n';
-    		exp<<sections[1]<<"--------------------------------------------------\n";
-    		exp<<stencil.xml()<<"\n--------------------------------------------------\n";
-            got<<cila<<"--------------------------------------------------\n";
-            got<<stencil.xml()<<"\n--------------------------------------------------\n";
+    		#if STENCILA_CILA_HTML_SHOW_XML
+                exp<<stencil.xml()<<"\n--------------------------------------------------\n";
+                got<<stencil.xml()<<"\n--------------------------------------------------\n";
+            #endif
+            exp<<sections[1]<<"--------------------------------------------------\n";
+    		got<<cila<<"--------------------------------------------------\n";
             if(cila!=sections[1]){
                 std::cout<<"****  "<<name<<"  ****"<<std::endl;
                 BOOST_CHECK_EQUAL(cila,sections[1]);
