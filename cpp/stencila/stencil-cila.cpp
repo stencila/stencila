@@ -1103,20 +1103,31 @@ public:
 				return;
 			}
 
-			// Lists with no attributes
+			// Lists with no attributes and children with no attributes
 			if((name=="ul" or name=="ol") and attributes==0 and children>0){
-				blankline();
-				bool ol = name=="ol";
-				int index = 0;
-				for(auto child : children_list){
-					newline(indent);
-					index++;
-					if(ol) content(string(index)+". ");
-					else content("- ");
-					for(Node grandchild : child.children()) visit(grandchild,indent+"\t");
+				// Check all of the children can be represented by a dash ("-")
+				// i.e. they have no attributes
+				bool all_ok = true;
+				for(Node child : children_list){
+					if(child.attrs().size()>0){
+						all_ok = false;
+						break;
+					}
 				}
-				blankline();
-				return;
+				if(all_ok){
+					blankline();
+					bool ol = name=="ol";
+					int index = 0;
+					for(auto child : children_list){
+						newline(indent);
+						index++;
+						if(ol) content(string(index)+". ");
+						else content("- ");
+						for(Node grandchild : child.children()) visit(grandchild,indent+"\t");
+					}
+					blankline();
+					return;
+				}
 			}
 			// Plain paragraph
 			if(name=="p" and children>0 and attributes==0){
