@@ -1150,6 +1150,7 @@ public:
 						}
 						
 						blankline();
+						newline(indent);
 						content(begin+code+end);
 						blankline();
 						return;

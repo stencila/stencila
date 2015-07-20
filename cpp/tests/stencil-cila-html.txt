@@ -183,6 +183,35 @@ div Another one
 --------------------------------------------------
 
 
+Equations <>
+--------------------------------------------------
+Isolated from preceding
+
+|e = mc^2|
+
+Isolated from following
+
+section
+
+	|Indented properly|
+--------------------------------------------------
+<p>
+	Isolated from preceding
+</p>
+<p class="equation">
+	<script type="math/asciimath; mode=display">e = mc^2</script>
+</p>
+<p>
+	Isolated from following
+</p>
+<section>
+	<p class="equation">
+		<script type="math/asciimath; mode=display">Indented properly</script>
+	</p>
+</section>
+--------------------------------------------------
+
+
 Sections <>
 --------------------------------------------------
 #title Title
