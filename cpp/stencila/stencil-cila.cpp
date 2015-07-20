@@ -442,6 +442,7 @@ public:
 			")\\b"),
 
 			section(">\\s*([ \\w-]+)"),
+
 			ul_item("-\\s*"),
 			ol_item("\\d+\\.\\s*"),
 
@@ -449,19 +450,27 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
-			exec_open("(exec|js|r|py)\\b *([^:\\n]+)?(?=( : )|\\n|$)"),
+			exec_open("(exec|js|r|py)\\b(.*?)(?=( ~ )|\\n|$)"),
 			out("out"),
-			style_open("(style|css)(\\n|$)"),
+			
+			style_open("(style|css)\\b(\\n|$)"),
 
 			// Spaces around semicolons and colons are used to preven confusion with those
 			// symbols in expressions
-			directive_noarg("(each|else|default)\\b *(?=( : )|\\n|\\{|\\}|$)"),
-			directive_arg_optional("(comments)( +(.+?))?(?=( : )|( ; )|\\n|\\{|\\}|$)"),
-			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set|comment) +(.+?)(?=( : )|( ; )|\\n|\\{|\\}|$)"),
+			directive_noarg("(each|else|default)\\b *(?=( ~ )|( : )|\\n|\\{|\\}|$)"),
+			directive_arg_optional("(comments)\\b(.*?)(?=( ~ )|( : )|\\n|\\{|\\}|$)"),
+			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set|comment)\\b(.+?)(?=( ~ )|( : )|\\n|\\{|\\}|$)"),
 
+			// Just used for eting up spaces between attributes and flags
 			spaces(" +"),
-
-			flags_open(" : "),
+			
+			// Indicates the directive arguments have ended
+			// Use tilde because it is generally quite rare in language expressions. Use
+			// surrounding spaces to prevent ambiguity with any qithin expression tilde.
+			flags_open(" ~ "),
+			// Flags
+			// These are placed after all directive arguments so that the layout of stencil logic (i.e. directive names and args)
+			// is not affected when they are added. i.e. they should be at the end of directive lines.
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
 			error  ("\\!\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
@@ -471,8 +480,10 @@ public:
 			included("included"),
 
 			// Indicates the directive arguments and flags have ended
-			// to separate those from any content that may be following
-			directive_close(" ; "),
+			// Needed to separate those from any content that may be following in inline elements
+			// (for block elements a newline does the separation)
+			// Use surrounding spaces to prevent ambiguity with in expression spaces
+			directive_close(" : "),
 
 			empha_open("(\\s)_(?=[^\\s])"),
 			empha_close("_"),
@@ -536,9 +547,10 @@ public:
 					// start of a line
 					// Enter `<pre>` element and move across to `embed` state;
 					enter_across("pre",embed);
-					auto arg = match[1].str();
-					if(match[2].str().length()) arg += " " + match[2].str();
-					node.attr("data-exec",trim(arg));
+					std::string arg = match[1].str();
+					std::string rest = trim(match[2].str());
+					if(rest.length()) arg += " " + rest;
+					node.attr("data-exec",arg);
 				}
 				else if(is(out)){
 					trace("out");
@@ -668,9 +680,9 @@ public:
 					trace("directive_arg_optional");
 					// Enter new element if necessary and create directive attribute;
 					auto directive = match[1].str();
-					auto arg = match[3].str();
+					auto arg = trim(match[2].str());
 					enter_elem_if_needed();
-					node.attr("data-"+directive,trim(arg));
+					node.attr("data-"+directive,arg);
 				}
 				else if(is(directive_arg)){
 					trace("directive_arg");
@@ -678,11 +690,10 @@ public:
 					// type of element depends on which directive;
 					// move across to `flags` state (i.e no attributes or text to follow)
 					auto directive = match[1].str();
+					std::string arg = trim(match[2].str());
 					if(directive=="text" or directive=="refer") enter_elem_if_needed("span");
 					else enter_elem_if_needed();
-					std::string arg = match[2].str();
-					boost::trim(arg);
-					node.attr("data-"+directive,trim(arg));
+					node.attr("data-"+directive,arg);
 				}
 				else if(is(flags_open)){
 					trace("flags");
@@ -1314,7 +1325,7 @@ public:
 				// Flags
 				if(flags.size()){
 					if(space_required) content(" ");
-					content(":");
+					content("~");
 					trailing_allowed = false;
 			
 					for(auto attr : flags){
@@ -1348,7 +1359,7 @@ public:
 					content(" ");
 					// If trailing is not allowed then need to separate with
 					// space surrounded semicolon
-					if(not trailing_allowed) content("; ");
+					if(not trailing_allowed) content(": ");
 					// Generate children (which should all be inline)
 					generate_children(children_list);
 				}

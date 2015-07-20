@@ -146,10 +146,10 @@ Some shorthand inlines elements _emphasis_, some *strong*, some `code`, some asc
 
 Inlines III <>
 --------------------------------------------------
-Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2 ; {span zero is not equal to two}} with end text.
+Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2 : zero is not equal to two} with end text.
 --------------------------------------------------
 <p>
-	Even directives get inlined with braces in shorthand paragraphs see: <span data-if="0!=2"><span>zero is not equal to two</span></span> with end text.
+	Even directives get inlined with braces in shorthand paragraphs see: <span data-if="0!=2">zero is not equal to two</span> with end text.
 </p>
 --------------------------------------------------
 
@@ -176,7 +176,7 @@ Nested inlines <>
 
 Inlines with attributes, directives and flags <>
 --------------------------------------------------
-{b .class text 6*7}, {span if x==0 ; zero}, {span if x==1 : off ; chars}.
+{b .class text 6*7}, {span if x==0 : zero}, {span if x==1 ~ off : chars}.
 --------------------------------------------------
 <p>
 	<b class="class" data-text="6*7"></b>, <span data-if="x==0">zero</span>, <span data-if="x==1" data-off="true">chars</span>.
@@ -188,11 +188,14 @@ Blocks with attributes, directives and flags <>
 --------------------------------------------------
 .class #id [attr=value]
 div .class #id [attr=value] text 6*7
-div .class #id [attr=value] text 6*7 : &hash !"error:arrgh" off
+div .class #id [attr=value] text 6*7 ~ &hash !"error:arrgh" off
+	A child node
 --------------------------------------------------
 <div class="class" id="id" attr="value"></div>
 <div class="class" id="id" attr="value" data-text="6*7"></div>
-<div class="class" id="id" attr="value" data-text="6*7" data-hash="hash" data-error="error:arrgh" data-off="true"></div>
+<div class="class" id="id" attr="value" data-text="6*7" data-hash="hash" data-error="error:arrgh" data-off="true">
+	A child node
+</div>
 --------------------------------------------------
 
 
@@ -674,7 +677,7 @@ plot(1,1)
 
 `exec` with flags I <>
 --------------------------------------------------
-exec : &aaaaaa
+exec ~ &aaaaaa
 --------------------------------------------------
 <pre data-exec="exec" data-hash="aaaaaa"></pre>
 --------------------------------------------------
@@ -682,7 +685,7 @@ exec : &aaaaaa
 
 `exec` with flags II <>
 --------------------------------------------------
-exec : &aaaaaa !"Error message"@1,4
+exec ~ &aaaaaa !"Error message"@1,4
 	code
 --------------------------------------------------
 <pre data-exec="exec" data-hash="aaaaaa" data-error="Error message@1,4">
@@ -693,7 +696,7 @@ code
 
 `exec` with flags III <>
 --------------------------------------------------
-exec : &aaaaaa %"Warning message"
+exec ~ &aaaaaa %"Warning message"
 	code
 --------------------------------------------------
 <pre data-exec="exec" data-hash="aaaaaa" data-warning="Warning message">
@@ -704,7 +707,7 @@ code
 
 `exec` error with quotes <>
 --------------------------------------------------
-exec : !"A message with a quote ' in it"
+exec ~ !"A message with a quote ' in it"
 --------------------------------------------------
 <pre data-exec="exec" data-error="A message with a quote ' in it"></pre>
 --------------------------------------------------
@@ -712,7 +715,7 @@ exec : !"A message with a quote ' in it"
 
 `exec` with arguments and flags <>
 --------------------------------------------------
-exec format png size 10x10cm : !"exception: error" %"warning"
+exec format png size 10x10cm ~ !"exception: error" %"warning"
 	code
 --------------------------------------------------
 <pre data-exec="exec format png size 10x10cm" data-error="exception: error" data-warning="warning">
@@ -788,14 +791,19 @@ Get a blank line after
 
 `text` directive normal <>
 --------------------------------------------------
-Some text {text 42}
+Unrendered {text 6*7} and rendered {text 6*7 : 42}.
+
+With an error {text foo ~ !"could not find foo"}.
 
 div text 6*7
 div .class #id text 6*7
 	42
 --------------------------------------------------
 <p>
-	Some text <span data-text="42"></span>
+	Unrendered <span data-text="6*7"></span> and rendered <span data-text="6*7">42</span>.
+</p>
+<p>
+	With an error <span data-text="foo" data-error="could not find foo"></span>.
 </p>
 <div data-text="6*7"></div>
 <div class="class" id="id" data-text="6*7">
@@ -806,9 +814,9 @@ div .class #id text 6*7
 
 `error` and `warning` flags <>
 --------------------------------------------------
-div : !"arrrgh"
-div : !"something went wrong"@1
-div : %"don't panic"@3,4
+div ~ !"arrrgh"
+div ~ !"something went wrong"@1
+div ~ %"don't panic"@3,4
 --------------------------------------------------
 <div data-error="arrrgh"></div>
 <div data-error="something went wrong@1"></div>
