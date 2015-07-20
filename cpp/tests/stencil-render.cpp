@@ -72,7 +72,22 @@ BOOST_AUTO_TEST_CASE(exec_output){
 			<figcaption>Hello world</figcaption>
 		</figure>
 	)");
-	dump();
+	auto out = 
+R"(<figure id="figure-a">
+	<pre data-exec="map format png" data-hash="bzCo1eW">do</pre>
+	<img src="figure-a-bzCo1eW" style="max-width:17cm;max-height:17cm" data-output="true">
+</figure>
+<figure id="figure-b">
+	<pre data-exec="map format png" data-hash="bMmxSpc">do</pre>
+	<img src="figure-b-hello-world-bMmxSpc" style="max-width:17cm;max-height:17cm" data-output="true">
+	<figcaption>
+		<span data-label="true"><span class="type">Figure </span><span class="number">1</span><span class="separator">: </span></span>Hello world
+	</figcaption>
+</figure>)";
+	BOOST_CHECK_EQUAL(
+		stencil.html(),
+		out
+	);
 }
 
 BOOST_AUTO_TEST_CASE(when){
@@ -113,7 +128,7 @@ BOOST_AUTO_TEST_CASE(icon){
 BOOST_AUTO_TEST_CASE(error){
 	render(R"(<p data-text="foo" />)");
 	
-	BOOST_CHECK_EQUAL(stencil.xml(),"<p data-text=\"foo\" data-error=\"exception(Variable &lt;foo&gt; not found)\" />");
+	BOOST_CHECK_EQUAL(stencil.xml(),"<p data-text=\"foo\" data-error=\"exception: Variable &lt;foo&gt; not found\" />");
 }
 
 BOOST_AUTO_TEST_CASE(set){
@@ -425,7 +440,7 @@ BOOST_AUTO_TEST_CASE(include_par){
 		</div>
 	)");
 	
-	BOOST_CHECK_EQUAL(stencil.select("#a[data-error]").attr("data-error"),"required(x)");
+	BOOST_CHECK_EQUAL(stencil.select("#a[data-error]").attr("data-error"),"required: x");
 	
 	BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.x").text(),"10");
 	BOOST_CHECK_EQUAL(stencil.select("#b div[data-included] div.y").text(),"2");
