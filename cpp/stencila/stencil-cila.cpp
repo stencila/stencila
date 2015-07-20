@@ -46,7 +46,7 @@ public:
 		 * and others which can be applied to both directives and normal elements
 		 *   - index
 		 *   - lock
-		 *   - output
+		 *   - out
 		 *   - included 
 		 */
 		flags,
@@ -469,7 +469,7 @@ public:
 			warning("\\%\\\"([^\\\"]*)\\\""),
 			location("\\@(\\d+(,\\d+)?)"),
 			lock("lock"),
-			output("output"),
+			out("out"),
 			off("off"),
 			included("included"),
 
@@ -726,9 +726,9 @@ public:
 					trace("lock");
 					node.attr("data-lock","true");
 				}
-				else if(is(output)){
-					trace("output");
-					node.attr("data-output","true");
+				else if(is(out)){
+					trace("out");
+					node.attr("data-out","true");
 				}
 				else if(is(off)){
 					trace("off");

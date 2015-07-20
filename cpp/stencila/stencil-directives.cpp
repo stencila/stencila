@@ -27,7 +27,7 @@ const std::vector<std::string> Stencil::directives = {
 const std::vector<std::string> Stencil::flags = {
 	"data-error","data-warning","data-location",
 	"data-hash","data-off","data-lock",
-	"data-index","data-output","data-included"
+	"data-index","data-out","data-included"
 };
 
 bool Stencil::directive(const std::string& attr){
@@ -54,7 +54,7 @@ void Stencil::clean(Node node){
 			for(unsigned int index=1;index<children.size();index++) children[index].destroy();
 		}
 	}
-	for(Node child : node.filter("[data-output],[data-included]")){
+	for(Node child : node.filter("[data-out],[data-included]")){
 		child.destroy();
 	}
 
@@ -309,7 +309,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 	// in case there is an error in it (in which case
 	// existing output would be inappropriate to current code)
 	Node next = node.next_element();
-	if(next and next.attr("data-output")=="true") next.destroy();
+	if(next and next.attr("data-out")=="true") next.destroy();
 
 	// Execute code
 	std::string result = context->execute(
@@ -340,7 +340,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 		}
 		if(output){
 			// Flag output node 
-			output.attr("data-output","true");
+			output.attr("data-out","true");
 			// Create a copy immeadiately after code directive
 			node.after(output);
 		}
