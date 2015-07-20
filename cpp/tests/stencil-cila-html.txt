@@ -222,7 +222,13 @@ Sections <>
 
 	There should be an empty line before paragraphs.
 
-	A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+	> Sub-section
+
+		A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+
+		> Sub-sub-section
+
+			Getting deep now...
 --------------------------------------------------
 <div id="title">
 	Title
@@ -235,9 +241,18 @@ Sections <>
 	<p>
 		There should be an empty line before paragraphs.
 	</p>
-	<p>
-		A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
-	</p>
+	<section id="sub-section">
+		<h1>Sub-section</h1>
+		<p>
+			A long line which should not get cut by HTML parser or in Cila generation. A regression test. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.
+		</p>
+		<section id="sub-sub-section">
+			<h1>Sub-sub-section</h1>
+			<p>
+				Getting deep now...
+			</p>
+		</section>
+	</section>
 </section>
 --------------------------------------------------
 

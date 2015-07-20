@@ -1172,6 +1172,7 @@ public:
 					if(id==id_expected){
 						// Add shorthand with blank line before
 						blankline();
+						newline(indent);
 						content("> "+boost::trim_copy(title));
 						// Generate each child on a new line except for the h1
 						for(Node child : children_list){
