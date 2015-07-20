@@ -38,44 +38,67 @@ bool Stencil::flag(const std::string& attr){
 	return std::find(flags.begin(),flags.end(),attr)!=flags.end();
 }
 
-void Stencil::strip(Node node){
-	// Remove attributes added during rendering
-	for(std::string attr : {"data-error","data-hash","data-off"}){
+void Stencil::clean(Node node){
+	// Remove flag attributes added during rendering
+	// Do this after destroying notes above since the `index` is used as the basis for the
+	// above destroying
+	for(std::string attr : {"data-error","data-hash","data-off","data-index"}){
 		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
 	}
+
 	// Remove elements added during rendering
-	for(Node child : node.filter("[data-index],[data-output],[data-included],[data-label]")){
+	// For `for` directives remove all children except for the first
+	for(Node directive : node.filter("[data-for]")){
+		auto children = directive.children();
+		if(children.size()>1){
+			for(unsigned int index=1;index<children.size();index++) children[index].destroy();
+		}
+	}
+	for(Node child : node.filter("[data-output],[data-included]")){
 		child.destroy();
 	}
+
 	// Clear elements with text or children added during rendering
 	for(Node child : node.filter("[data-text],[data-refer],#outline")){
 		child.clear();
 	}
 }
 
-Stencil& Stencil::strip(void){
-	strip(*this);
+Stencil& Stencil::clean(void){
+	clean(*this);
 	return *this;
 }
 
-void Stencil::crush(Node node){
+void Stencil::scrub(Node node){
 	// Remove elements : `exec` elements (which contain code) and elements that
 	// have been turned off `[data-off`]
 	for(Node child : node.filter("[data-exec],[data-off]")){
 		child.destroy();
-	}	
-	// Remove all directive and flag attributes
-	auto all = directives;
-	all.insert(all.end(),flags.begin(),flags.end());
-	for(std::string attr : all){
+	}
+	// Remove all directive attributes
+	for(auto attr : directives){
+		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
+	}
+}
+
+Stencil& Stencil::scrub(void){
+	scrub(*this);
+	return *this;
+}
+
+void Stencil::strip(Node node){
+	// Scrub this node
+	scrub(node);	
+	// Remove all flag attributes
+	for(auto attr : flags){
 		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
 	}
 	// Note that no clearing of elements is done here so that the contents of
 	// `write`, `refer` etc directives are retained
 }
 
-Stencil& Stencil::crush(void){
-	crush(*this);
+Stencil& Stencil::strip(void){
+	strip(*this);
 	return *this;
 }
 
@@ -892,9 +915,9 @@ void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
 	// Render the `data-included` element
 	if(ok) stencil.render_children(included,context);
 
-	// Crush the children of the `data-included` element (not it though)
+	// Scrub the children of the `data-included` element (not it though)
 	if(not complete){
-		for(auto child : included.children()) crush(child);
+		for(auto child : included.children()) scrub(child);
 	}
 	
 	// Exit the included node

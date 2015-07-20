@@ -148,30 +148,12 @@ void Stencil::render(Node node, Context* context){
 		else if(tag=="table" or tag=="figure"){
 			Node caption = node.select("caption,figcaption");
 			if(caption){
-				// Increment the count for his caption type
-				unsigned int& count = counts_[tag+" caption"];
+				// Increment the count for this caption type
+				unsigned int& count = counts_[tag+"-caption"];
 				count++;
 				std::string count_string = string(count);
-				// Check for an existing label
-				Node label = caption.select("[data-label]");
-				if(not label){
-					// Prepend a label
-					label = caption.prepend("span");
-					label.attr("data-label","true");
-					label.append("span",{{"class","type"}},tag=="table"?"Table ":"Figure ");
-					label.append("span",{{"class","number"}},count_string);
-					label.append("span",{{"class","separator"}},": ");
-				} else {
-					// Amend the label
-					Node number = label.select(".number");
-					if(not number) number = label.append("span",{{"class","number"}},count_string);
-					else number.text(count_string);
-				}
-				// Check for id - on table or figure NOT caption!
-				std::string id = node.attr("id");
-				if(not id.length()){
-					node.attr("id",tag+"-"+count_string);
-				}
+				// Set the index attribute on the node
+				node.attr("data-index",count_string);
 			}
 		}
 		// If return not yet hit then process children of this element
@@ -201,8 +183,8 @@ Stencil& Stencil::render(Context* context){
 	}
 	// Reset flags and counts
 	counts_["input"] = 0;
-	counts_["table caption"] = 0;
-	counts_["figure caption"] = 0;
+	counts_["table-caption"] = 0;
+	counts_["figure-caption"] = 0;
 	// Reset hash
 	hash_ = "";
 	// Reset outline outline
@@ -224,6 +206,7 @@ Stencil& Stencil::render(Context* context){
 	for(Node ref : filter("[data-refer]")){
 		ref.clear();
 		std::string selector = ref.attr("data-refer");
+		// Attempt to find target using selector
 		Node target = select(selector);
 		if(target){
 			Node label = target.select("[data-label]");
@@ -286,11 +269,11 @@ Stencil& Stencil::render(void){
 }
 
 Stencil& Stencil::refresh(void){
-	return strip().render();
+	return clean().render();
 }
 
 Stencil& Stencil::restart(void){
-	return read().strip().render();
+	return read().clean().render();
 }
 
 } // namespace Stencila

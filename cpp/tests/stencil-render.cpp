@@ -77,11 +77,11 @@ R"(<figure id="figure-a">
 	<pre data-exec="map format png" data-hash="bzCo1eW">do</pre>
 	<img src="figure-a-bzCo1eW" style="max-width:17cm;max-height:17cm" data-output="true">
 </figure>
-<figure id="figure-b">
+<figure id="figure-b" data-index="1">
 	<pre data-exec="map format png" data-hash="bMmxSpc">do</pre>
 	<img src="figure-b-hello-world-bMmxSpc" style="max-width:17cm;max-height:17cm" data-output="true">
 	<figcaption>
-		<span data-label="true"><span class="type">Figure </span><span class="number">1</span><span class="separator">: </span></span>Hello world
+		Hello world
 	</figcaption>
 </figure>)";
 	BOOST_CHECK_EQUAL(

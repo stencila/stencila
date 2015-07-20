@@ -345,25 +345,39 @@ public:
 
 	/**
 	 * Remove attributes and elements added to a HTML node,
-	 * and its children, during rendering
+	 * and its children, during rendering. Retains the rendering 
+	 * logic but discards the rendering results. The opposite of `strip`.
+	 */
+	static void clean(Node node);
+
+	/**
+	 * Clean this stencil
+	 */
+	Stencil& clean(void);
+
+	/**
+	 * Remove all directives from a HTML node and its children.
+	 * After scrubbing a node all the rendering logic is removed. However the rendered content and the 
+	 * rendering flags are still retained.
+	 */
+	static void scrub(Node node);
+
+	/**
+	 * Scrub this stencil
+	 */
+	Stencil& scrub(void);
+
+	/**
+	 * Remove all directives and flags from a HTML node and its children.
+	 * After stripping a node it should not have any traces of having been part of a stencil.
+	 * Only rendered content is retained. All directive and flag attributes are removed.
 	 */
 	static void strip(Node node);
 
 	/**
-	 * Remove attributes and elements added to this stencil
-	 * during rendering
+	 * Strip this stencil
 	 */
 	Stencil& strip(void);
-
-	/**
-	 * Remove all directives and flags from a HTML node and its children
-	 */
-	static void crush(Node node);
-
-	/**
-	 * Remove all directives and flags from this stencil
-	 */
-	Stencil& crush(void);
 
 	/**
 	 * Create a hash of a string key. Used to keep track
