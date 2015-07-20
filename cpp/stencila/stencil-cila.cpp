@@ -1238,10 +1238,15 @@ public:
 				embedded = true;
 			}
 			// <div>s only need to be specified if 
-			// 	- no attributes following
+			// 	- has no attributes
+			// 	- has only flag attributes
 			// 	- not a `text` or `refer` directive (which have span defaults)
 			else if(name=="div"){
-				if(attributes==0 or node.has("data-text") or node.has("data-refer")){
+				unsigned int flags = 0;
+				for(auto attr : attribute_list){
+					if(Stencil::flag(attr)) flags++;
+				}
+				if(attributes==0 or flags==attributes or node.has("data-text") or node.has("data-refer")){
 					content(name);
 					space_required = true;
 				}

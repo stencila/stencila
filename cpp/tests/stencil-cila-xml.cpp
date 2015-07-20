@@ -261,23 +261,23 @@ BOOST_AUTO_TEST_CASE(directive_arg){
 }
 
 BOOST_AUTO_TEST_CASE(flags){
-	CILA_XML(": &tH4dFg","<div data-hash=\"tH4dFg\" />");
-	ECHO(": &tH4dFg");
+	CILA_XML("div : &tH4dFg","<div data-hash=\"tH4dFg\" />");
+	ECHO("div : &tH4dFg");
 
-	CILA_XML(": off","<div data-off=\"true\" />");
-	ECHO(": off");
+	CILA_XML("div : off","<div data-off=\"true\" />");
+	ECHO("div : off");
 
-	CILA_XML(": ^42","<div data-index=\"42\" />");
-	ECHO(": ^42");
+	CILA_XML("div : ^42","<div data-index=\"42\" />");
+	ECHO("div : ^42");
 
-	CILA_XML(": lock","<div data-lock=\"true\" />");
-	ECHO(": lock");
+	CILA_XML("div : lock","<div data-lock=\"true\" />");
+	ECHO("div : lock");
 
-	CILA_XML(": output","<div data-output=\"true\" />");
-	ECHO(": output");
+	CILA_XML("div : output","<div data-output=\"true\" />");
+	ECHO("div : output");
 
-	CILA_XML(": included","<div data-included=\"true\" />");
-	ECHO(": included");
+	CILA_XML("div : included","<div data-included=\"true\" />");
+	ECHO("div : included");
 
 	CILA_XML("if x<0 : off",R"(<div data-if="x&lt;0" data-off="true" />)");
 	ECHO("if x<0 : off");
@@ -285,17 +285,17 @@ BOOST_AUTO_TEST_CASE(flags){
 	CILA_XML("text x : lock",R"(<span data-text="x" data-lock="true" />)");
 	ECHO("{text x : lock}");
 
-	ECHO(": &tH4dFg off ^42 lock output");
+	ECHO("div : &tH4dFg off ^42 lock output");
 	ECHO("p : &tH4dFg off ^42 lock output");
 	ECHO("#id .class : &tH4dFg off ^42 lock output");
 }
 
 BOOST_AUTO_TEST_CASE(error){
-	CILA_XML(": !\"syntax\"","<div data-error=\"syntax\" />");
-	CILA_XML(": !\"exception: foo bar\"","<div data-error=\"exception: foo bar\" />");
+	CILA_XML("div : !\"syntax\"","<div data-error=\"syntax\" />");
+	CILA_XML("div : !\"exception: foo bar\"","<div data-error=\"exception: foo bar\" />");
 
-	XML_CILA("<div data-error=\"syntax\" />",": !\"syntax\"");
-	XML_CILA("<div data-error=\"exception: foo bar\" />",": !\"exception: foo bar\"");
+	XML_CILA("<div data-error=\"syntax\" />","div : !\"syntax\"");
+	XML_CILA("<div data-error=\"exception: foo bar\" />","div : !\"exception: foo bar\"");
 }
 
 BOOST_AUTO_TEST_CASE(directive_attr){
