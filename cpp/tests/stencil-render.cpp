@@ -75,11 +75,15 @@ BOOST_AUTO_TEST_CASE(exec_output){
 	auto out = 
 R"(<figure id="figure-a">
 	<pre data-exec="map format png" data-hash="bzCo1eW">do</pre>
-	<img src="figure-a-bzCo1eW" style="max-width:17cm;max-height:17cm" data-output="true">
+	<div data-out="true">
+		<img src="figure-a-bzCo1eW" style="max-width:17cm;max-height:17cm">
+	</div>
 </figure>
 <figure id="figure-b" data-index="1">
 	<pre data-exec="map format png" data-hash="bMmxSpc">do</pre>
-	<img src="figure-b-hello-world-bMmxSpc" style="max-width:17cm;max-height:17cm" data-output="true">
+	<div data-out="true">
+		<img src="figure-b-hello-world-bMmxSpc" style="max-width:17cm;max-height:17cm">
+	</div>
 	<figcaption>
 		Hello world
 	</figcaption>

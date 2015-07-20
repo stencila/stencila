@@ -207,14 +207,20 @@ namespace {
 void dump_node(std::stringstream& stream, Html::Node node, bool pretty, const std::string& indent=""){
 	if(node.is_document()){
 		// Dump children without indent
-		for(auto child : node.children()) dump_node(stream,child,pretty,"");
+		bool previous_was_block = true;
+		for(auto child : node.children()){
+			bool current_is_block = is_block_element(child);
+			if(not current_is_block and previous_was_block) stream<<"\n";
+			dump_node(stream,child,pretty);
+			previous_was_block = current_is_block;
+		}
 	}
 	else if(node.is_doctype()){
 		stream<<"<!DOCTYPE html>";
 	}
 	else if(node.is_element()){
 		auto name = node.name();
-		auto block = not is_inline_element(name);
+		auto block = is_block_element(name);
 		
 		// Dump start tag with attributes
 		if(pretty and block) stream<<"\n"<<indent;
@@ -250,10 +256,10 @@ void dump_node(std::stringstream& stream, Html::Node node, bool pretty, const st
 		// Dump child nodes
 		bool previous_was_block = block;
 		for(auto child : children){
-			bool is_inline = child.is_text() or is_inline_element(child.name());
-			if(newlines and is_inline and previous_was_block) stream<<"\n"<<indent+"\t";
+			bool current_is_block = is_block_element(child);
+			if(newlines and (not current_is_block) and previous_was_block) stream<<"\n"<<indent+"\t";
 			dump_node(stream,child,pretty,indent+"\t");
-			previous_was_block = not is_inline;
+			previous_was_block = current_is_block;
 		}
 
 		// Closing tag

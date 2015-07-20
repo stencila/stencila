@@ -324,14 +324,13 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 
 	// Append new output
 	if(format.value.length()){
-		// Append output element
 		Xml::Document doc;
-		Node output;
+		Node output = doc.append("div",{{"data-out","true"}});
 		if(format.value=="text"){
-			output = doc.append("samp",result);
+			output.append("samp",result);
 		}
 		else if(format.value=="png" or format.value=="svg"){
-			output = doc.append("img",{
+			output.append("img",{
 				{"src",result},
 				{"style","max-width:"+width.value+units.value+";max-height:"+height.value+units.value}
 			});
@@ -339,12 +338,8 @@ void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
 		else {
 			throw DirectiveException("format-invalid",format.value);
 		}
-		if(output){
-			// Flag output node 
-			output.attr("data-out","true");
-			// Create a copy immeadiately after code directive
-			node.after(output);
-		}
+		// Put immeadiately after exec directive
+		node.after(output);
 	}
 
 	// Add a show flag if needed

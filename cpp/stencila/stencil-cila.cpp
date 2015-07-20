@@ -39,14 +39,13 @@ public:
 		attrs,
 
 		/**
-		 * Looking for rendering flags (e.g. hash, index, off) som of which are only applied to
+		 * Looking for rendering flags (e.g. hash, index, off) some of which are only applied to
 		 * directives:
 		 *   - hash
 		 *   - off
 		 * and others which can be applied to both directives and normal elements
 		 *   - index
 		 *   - lock
-		 *   - out
 		 *   - included 
 		 */
 		flags,
@@ -452,6 +451,7 @@ public:
 			clas("\\.([\\w-]+)\\b"),
 			
 			exec_open("(exec|js|r|py)\\b *([^:\\n]+)?(?=( : )|\\n|$)"),
+			out("out"),
 			style_open("(style|css)(\\n|$)"),
 
 			// Spaces around semicolons and colons are used to preven confusion with those
@@ -468,7 +468,6 @@ public:
 			error  ("\\!\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
 			warning("\\%\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
 			lock("lock"),
-			out("out"),
 			off("off"),
 			included("included"),
 
@@ -544,6 +543,14 @@ public:
 					auto arg = match[1].str();
 					if(match[2].str().length()) arg += " " + match[2].str();
 					node.attr("data-exec",trim(arg));
+				}
+				else if(is(out)){
+					trace("out");
+					// Output from an execute directive
+					// No attibutes should follow but to eat up spaces before
+					// child elements, go to attributes
+					enter_across("div",attrs);
+					node.attr("data-out","true");
 				}
 				else if(is(style_open)){
 					trace("style");
@@ -724,10 +731,6 @@ public:
 				else if(is(lock)){
 					trace("lock");
 					node.attr("data-lock","true");
-				}
-				else if(is(out)){
-					trace("out");
-					node.attr("data-out","true");
 				}
 				else if(is(off)){
 					trace("off");
@@ -1024,7 +1027,14 @@ public:
 
 	void visit(Node node, const std::string& indent=""){
 		if(node.is_document()){
-			for(Node child : node.children()) visit(child);
+			// Generate children with no indentation
+			bool previous_was_block = true;
+			for(Node child : node.children()){
+				bool child_is_block = Html::is_block_element(child);
+				if(not child_is_block and previous_was_block) newline();
+				visit(child);
+				previous_was_block = child_is_block;
+			}
 		}
 		else if(node.is_element()){
 			auto name = node.name();
@@ -1242,6 +1252,13 @@ public:
 				erase_attr("data-exec");
 				embedded = true;
 			}
+			// Execute directive output
+			else if(node.has("data-out")){
+				content("out");
+				space_required = true;
+
+				erase_attr("data-out");
+			}
 			// Style elements
 			else if(name=="style"){
 				std::string lang = "css";
@@ -1431,8 +1448,9 @@ public:
 			if(inline_element){
 				// Closing brace
 				content("}");
-			} else {
-				// Isolate after, if necessary
+			} 
+			else {
+				// Specifically isolate with a blankline
 				if(isolated) blankline();
 			}
 

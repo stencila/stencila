@@ -78,6 +78,23 @@ Spaces between _this_ *this* `this` |this| {span this} should be retained.
 --------------------------------------------------
 
 
+Mix of block and inline siblings <>
+--------------------------------------------------
+div
+Text
+div
+	div
+	{img}
+--------------------------------------------------
+<div></div>
+Text
+<div>
+	<div></div>
+	<img>
+</div>
+--------------------------------------------------
+
+
 Inlines I <>
 --------------------------------------------------
 Inline HTML elements get inlined using {span braces}, {b .special braces}.
@@ -672,6 +689,22 @@ exec format png size 10x10cm : !"exception: error" %"warning"
 <pre data-exec="exec format png size 10x10cm" data-error="exception: error" data-warning="warning">
 code
 </pre>
+--------------------------------------------------
+
+
+`exec` with output <>
+--------------------------------------------------
+exec format png
+	code
+
+out {img [src=xyx.png]}
+--------------------------------------------------
+<pre data-exec="exec format png">
+code
+</pre>
+<div data-out="true">
+	<img src="xyx.png">
+</div>
 --------------------------------------------------
 
 
