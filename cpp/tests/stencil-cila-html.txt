@@ -31,6 +31,7 @@ section
 			li block
 			li elements
 		{span followed} by an inline element and an inline directive {b text 7*6}
+
 	figure
 
 		r format png
@@ -253,6 +254,62 @@ Sections <>
 			</p>
 		</section>
 	</section>
+</section>
+--------------------------------------------------
+
+
+Some elements are isolated with blank lines <>
+--------------------------------------------------
+p #id Paragraph
+
+div Text
+
+table
+	caption Table
+
+div Text
+
+figure
+	figcaption Figure
+
+div Text
+
+section Text
+
+div Text
+
+section Text
+--------------------------------------------------
+<p id="id">
+	Paragraph
+</p>
+<div>
+	Text
+</div>
+<table>
+	<caption>
+		Table
+	</caption>
+</table>
+<div>
+	Text
+</div>
+<figure>
+	<figcaption>
+		Figure
+	</figcaption>
+</figure>
+<div>
+	Text
+</div>
+<section>
+	Text
+</section>
+<div>
+	Text
+</div>
+<section>
+	Text
 </section>
 --------------------------------------------------
 
