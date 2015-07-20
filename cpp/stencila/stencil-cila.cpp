@@ -179,7 +179,6 @@ public:
 			CASE(text)
 			CASE(empha)
 			CASE(strong)
-			CASE(interp)
 			CASE(code)
 			CASE(asciimath)
 			CASE(tex)
@@ -479,9 +478,6 @@ public:
 			empha_close("_"),
 			strong_open("(\\s)\\*(?=[^\\s])"),
 			strong_close("\\*"),
-
-			tilde_escaped("\\\\~"),
-			tilde("~"),
 
 			backtick_escaped("\\\\`"),
 			backtick("`"),
@@ -794,16 +790,6 @@ public:
 					// Enter `<strong>` and push into `strong` state
 					enter_push("strong",strong);
 				}
-				else if(is(tilde_escaped)){
-					trace("tilde_escaped");
-					// Replace with tilde
-					add('~');
-				}
-				else if(is(tilde)){
-					trace("tilde");
-					// Enter a <span> and push into `interp` state
-					enter_push("span",interp);
-				}
 				else if(is(backtick_escaped)){
 					trace("backtick_escaped");
 					// Replace with backtick
@@ -891,16 +877,6 @@ public:
 					enter_push("em",empha);
 				}
 				else add();
-			}
-			else if(state==interp){
-				if(is(tilde)){
-					// Use buffer as `data-text` attribute, reset it,
-					// then exit from `<span>` and pop up to `text` state
-					node.attr("data-text",buffer);
-					buffer = "";
-					exit_pop();
-				}
-				else add();				
 			}
 			else if(state==code){
 				if(is(backtick_escaped)) add('`');
@@ -1048,16 +1024,6 @@ public:
 			// Shorthands from whence we return...if we don't then the
 			// default generation happens (that's why it's not an if,else if tree)
 			
-			// Write directive shorthand
-			if(name=="span" and children<=1 and attributes==1 and node.attr("data-text").length()){
-				content("~"+node.attr("data-text"));
-				if(children==1){
-					// The child should only ever be a text node inserted by rendering
-					content(" ; "+children_list[0].text());
-				}
-				content("~");
-				return;
-			}
 			// Refer directive shorthand
 			if(name=="span" and children==0 and attributes==1 and node.attr("data-refer").length()){
 				auto value = node.attr("data-refer");

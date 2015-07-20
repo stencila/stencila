@@ -786,27 +786,17 @@ Get a blank line after
 --------------------------------------------------
 
 
-`text` directive shorthand <>
---------------------------------------------------
-Prior to rendering ~6*7~
-
-After to rendering ~6*7 ; 42~
---------------------------------------------------
-<p>
-	Prior to rendering <span data-text="6*7"></span>
-</p>
-<p>
-	After to rendering <span data-text="6*7 ; 42"></span>
-</p>
---------------------------------------------------
-
-
 `text` directive normal <>
 --------------------------------------------------
+Some text {text 42}
+
 div text 6*7
 div .class #id text 6*7
 	42
 --------------------------------------------------
+<p>
+	Some text <span data-text="42"></span>
+</p>
 <div data-text="6*7"></div>
 <div class="class" id="id" data-text="6*7">
 	42

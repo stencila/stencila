@@ -248,12 +248,12 @@ BOOST_AUTO_TEST_CASE(directive_arg){
 	CILA_XML("if x",R"(<div data-if="x" />)");
 
 	XML_CILA(R"(<div data-text="x" />)","div text x");
-	XML_CILA(R"(<span data-text="x" />)","~x~");
+	XML_CILA(R"(<span data-text="x" />)","{text x}");
 	XML_CILA(R"(<li data-if="x" />)","li if x");
 	XML_CILA(R"(<div data-if="x" />)","if x");
 
 	ECHO("div text x");
-	CILA_CILA("text x","~x~");
+	CILA_CILA("text x","{text x}");
 	ECHO("ul #an-id .a-class with x");
 	ECHO("#an-id .a-class with x");
 	CILA_CILA("div if x","if x");
@@ -373,10 +373,10 @@ BOOST_AUTO_TEST_CASE(directive_each){
 	CILA_XML("span each","<span data-each=\"true\" />");
 
 	CILA_XML(
-		"for item in items\n\teach\n\t\t~item~",
+		"for item in items\n\teach\n\t\t{text item}",
 		"<div data-for=\"item in items\"><div data-each=\"true\"><span data-text=\"item\" /></div></div>"
 	);
-	ECHO("for item in items\n\teach\n\t\t~item~");
+	ECHO("for item in items\n\teach\n\t\t{text item}");
 }
 
 BOOST_AUTO_TEST_CASE(directive_include){
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(directive_include){
 	ECHO("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
 
 	// Special '.' identifier for current stencil
-	ECHO("macro hello\n\t~who~\n\ninclude . select #hello\n\tset who to 'world'")
+	ECHO("macro hello\n\t{text who}\n\ninclude . select #hello\n\tset who to 'world'")
 
 	// Set directive
 	ECHO("include stencil select selector\n\tset a to 4\n\tset b to 1")
@@ -453,14 +453,14 @@ BOOST_AUTO_TEST_CASE(ul){
 	CILA_XML("{-apple}{-pear}",R"(<p><ul><li>apple</li><li>pear</li></ul></p>)");
 	// List items can have normal text parsing
 	CILA_XML("- Some _emphasis_",R"(<ul><li>Some <em>emphasis</em></li></ul>)");
-	CILA_XML("- An interpolated ~value~",R"(<ul><li>An interpolated <span data-text="value" /></li></ul>)");
+	CILA_XML("- An interpolated {text value}",R"(<ul><li>An interpolated <span data-text="value" /></li></ul>)");
 	CILA_XML("- A link to [Google](http://google.com)",R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)");
 
 	XML_CILA(R"(<ul><li>apple</li><li>pear</li></ul>)","- apple\n- pear");
 	XML_CILA(R"(<ul><li>A link to <a href="http://google.com">Google</a></li></ul>)","- A link to [Google](http://google.com)");
 
 	ECHO("- apple\n- pear");
-	ECHO("- An interpolated ~value~\n- A bit of |math|\n- A bit of `code` too");
+	ECHO("- An interpolated {text value}\n- A bit of |math|\n- A bit of `code` too");
 	
 	ECHO("div\n\n\t- Should\n\t- be\n\t- indented\n\ndiv");
 	ECHO("div\n\tdiv\n\n\t- Should\n\n\t\t- be\n\t\t- indented more");
@@ -645,14 +645,14 @@ BOOST_AUTO_TEST_CASE(refer){
 }
 
 BOOST_AUTO_TEST_CASE(interpolate){
-	CILA_XML("~x~",R"(<p><span data-text="x" /></p>)");
-	CILA_XML("The answer is ~6*7~!",R"(<p>The answer is <span data-text="6*7" />!</p>)");
+	CILA_XML("{text x}",R"(<p><span data-text="x" /></p>)");
+	CILA_XML("The answer is {text 6*7}!",R"(<p>The answer is <span data-text="6*7" />!</p>)");
 
-	XML_CILA(R"(<span data-text="x" />)","~x~");
-	//!XML_CILA(R"(The answer is <span data-text="6*7" />!)","The answer is ~6*7~!");
+	XML_CILA(R"(<span data-text="x" />)","{text x}");
+	XML_CILA(R"(The answer is <span data-text="6*7" />!)","The answer is {text 6*7}!");
 	
-	ECHO("~x~");
-	//!ECHO("Before ~x~ after");
+	ECHO("{text value}");
+	ECHO("Before {text value} after");
 }
 
 BOOST_AUTO_TEST_CASE(comments){
