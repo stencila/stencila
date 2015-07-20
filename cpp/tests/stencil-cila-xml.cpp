@@ -273,8 +273,8 @@ BOOST_AUTO_TEST_CASE(flags){
 	CILA_XML("div : lock","<div data-lock=\"true\" />");
 	ECHO("div : lock");
 
-	CILA_XML("div : output","<div data-output=\"true\" />");
-	ECHO("div : output");
+	CILA_XML("out","<div data-out=\"true\" />");
+	ECHO("out");
 
 	CILA_XML("div : included","<div data-included=\"true\" />");
 	ECHO("div : included");
@@ -285,9 +285,9 @@ BOOST_AUTO_TEST_CASE(flags){
 	CILA_XML("text x : lock",R"(<span data-text="x" data-lock="true" />)");
 	ECHO("{text x : lock}");
 
-	ECHO("div : &tH4dFg off ^42 lock output");
-	ECHO("p : &tH4dFg off ^42 lock output");
-	ECHO("#id .class : &tH4dFg off ^42 lock output");
+	ECHO("div : &tH4dFg off ^42 lock");
+	ECHO("p : &tH4dFg off ^42 lock");
+	ECHO("#id .class : &tH4dFg off ^42 lock");
 }
 
 BOOST_AUTO_TEST_CASE(error){
