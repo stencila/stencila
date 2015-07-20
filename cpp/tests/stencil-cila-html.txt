@@ -95,6 +95,35 @@ Text
 --------------------------------------------------
 
 
+Shorthanded section children play nicely <>
+--------------------------------------------------
+> My section
+	div
+	{img}
+	div
+	Text
+
+	> My sub-section
+		Text
+		div
+		Text
+--------------------------------------------------
+<section id="my-section">
+	<h1>My section</h1>
+	<div></div>
+	<img>
+	<div></div>
+	Text
+	<section id="my-sub-section">
+		<h1>My sub-section</h1>
+		Text
+		<div></div>
+		Text
+	</section>
+</section>
+--------------------------------------------------
+
+
 Inlines I <>
 --------------------------------------------------
 Inline HTML elements get inlined using {span braces}, {b .special braces}.

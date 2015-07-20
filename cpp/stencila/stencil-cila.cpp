@@ -977,6 +977,7 @@ public:
 class CilaGenerator {
 public:
 	typedef Stencil::Node Node;
+	typedef Stencil::Nodes Nodes;
 
 	/**
 	 * Generated Cila
@@ -1025,16 +1026,10 @@ public:
 		}
 	}
 
-	void visit(Node node, const std::string& indent=""){
+	void generate_node(Node node, const std::string& indent=""){
 		if(node.is_document()){
 			// Generate children with no indentation
-			bool previous_was_block = true;
-			for(Node child : node.children()){
-				bool child_is_block = Html::is_block_element(child);
-				if(not child_is_block and previous_was_block) newline();
-				visit(child);
-				previous_was_block = child_is_block;
-			}
+			generate_children(node.children(),true);
 		}
 		else if(node.is_element()){
 			auto name = node.name();
@@ -1080,7 +1075,7 @@ public:
 				if(name=="em") delim = "_";
 				else delim = "*";
 				content(delim);
-				for(Node child : node.children()) visit(child);
+				generate_children(children_list);
 				content(delim);
 				return;
 			}
@@ -1128,12 +1123,12 @@ public:
 					blankline();
 					bool ol = name=="ol";
 					int index = 0;
-					for(auto child : children_list){
+					for(auto li : children_list){
 						newline(indent);
 						index++;
 						if(ol) content(string(index)+". ");
 						else content("- ");
-						for(Node grandchild : child.children()) visit(grandchild,indent+"\t");
+						generate_children(li.children(),false,indent+"\t");
 					}
 					blankline();
 					return;
@@ -1152,7 +1147,7 @@ public:
 					blankline();
 					// Indent the start of this paragraph
 					newline(indent);
-					for(Node child : children_list) visit(child);
+					generate_children(children_list);
 					blankline();
 					return;
 				}
@@ -1200,11 +1195,13 @@ public:
 						newline(indent);
 						content("> "+boost::trim_copy(title));
 						// Generate each child on a new line except for the h1
+						Nodes children_to_generate;
 						for(Node child : children_list){
 							if(not(child.name()=="h1" and child.text()==title)){
-								visit(child,indent+"\t");
+								children_to_generate.push_back(child);
 							}
 						}
+						generate_children(children_to_generate,true,indent+"\t");
 						return;
 					}
 				}
@@ -1387,7 +1384,7 @@ public:
 					// space surrounded semicolon
 					if(not trailing_allowed) content("; ");
 					// Generate children (which should all be inline)
-					for(Node child : children_list) visit(child);
+					generate_children(children_list);
 				}
 				else {
 					if(not embedded) {
@@ -1402,18 +1399,11 @@ public:
 						// If trailing allowed and only inline elements...
 						if(trailing_allowed and not has_block_children){
 							content(" ");
-							for(Node child : children_list) visit(child);
+							generate_children(children_list);
 						}
 						// otherwise...
 						else {
-							// ...start on a newline and put a newline after each non-block child
-							bool previous_was_block = true;
-							for(Node child : children_list){
-								bool child_is_block = Html::is_block_element(child);
-								if(not child_is_block and previous_was_block) newline(indent+"\t");
-								visit(child,indent+"\t");
-								previous_was_block = child_is_block;
-							}
+							generate_children(children_list,true,indent+"\t");
 						}
 					}
 					else {
@@ -1474,9 +1464,29 @@ public:
 		}
 	}
 
+	/**
+	 * Generate Cila for the children of a node
+	 *
+	 * @param start_as_block  Should this be started off like a block element with a newline?
+	 * @param indent Indentation _for children_
+	 */
+	void generate_children(Nodes children, bool start_as_block=false, const std::string& indent=""){
+		// If a child in a block element it must ne followed by a newline
+		bool previous_was_block = start_as_block;
+		for(Node child : children){
+			bool child_is_block = Html::is_block_element(child);
+			if(not child_is_block and previous_was_block) newline(indent);
+			generate_node(child,indent);
+			previous_was_block = child_is_block;
+		}
+	}
+
+	/**
+	 * Generate Cila from a `Html::Node`
+	 */
 	std::string generate(Node node){
 		cila.str("");
-		visit(node);
+		generate_node(node);
 		return trim(cila.str());
 	}
 
