@@ -5,10 +5,13 @@ using namespace Stencila::Xml;
 
 BOOST_AUTO_TEST_SUITE(xml_patch_quick)
 
+/**
+ * Note that for these tests, whitespace (which needs to be retained by XML trres, because it can be significant
+ * within HTML documents) is significant because those whitespace nodes are counted by the XPath selector
+ */
+
 BOOST_AUTO_TEST_CASE(add_basic){
-	Document doc(R"(
-		<a />
-	)");
+	Document doc("<a />");
 	doc.patch(R"(
 		<add sel="*[1]" type="@href">http://google.com</add>
 		<add sel="*[1]">Google</add>
@@ -17,9 +20,7 @@ BOOST_AUTO_TEST_CASE(add_basic){
 }
 
 BOOST_AUTO_TEST_CASE(add_append){
-	Document doc(R"(
-		<div />
-	)");
+	Document doc("<div />");
 	doc.patch(R"(
 		<add sel="*[1]" pos=""><div id="default" /></add>
 		<add sel="*[1]" pos="append"><div id="append" /></add>
@@ -28,9 +29,7 @@ BOOST_AUTO_TEST_CASE(add_append){
 }
 
 BOOST_AUTO_TEST_CASE(add_prepend){
-	Document doc(R"(
-		<div />
-	)");
+	Document doc("<div />");
 	doc.patch(R"(
 		<add sel="*[1]" pos="prepend"><div id="prepend" /></add>
 	)");
@@ -38,45 +37,33 @@ BOOST_AUTO_TEST_CASE(add_prepend){
 }
 
 BOOST_AUTO_TEST_CASE(add_before){
-	Document doc(R"(
-		<div />
-	)");
+	Document doc("<div />");
 	doc.patch(R"(
-		<add sel="*[1]" pos="before">
-			<div id="added-1" />
-			<div id="added-2" />
-			<div id="added-3" />
-		</add>
+		<add sel="*[1]" pos="before"><div id="added-1" /><div id="added-2" /><div id="added-3" /></add>
 	)");
 	BOOST_CHECK_EQUAL(doc.dump(),R"(<div id="added-1" /><div id="added-2" /><div id="added-3" /><div />)");
 }
 
 BOOST_AUTO_TEST_CASE(add_after){
-	Document doc(R"(
-		<div />
-	)");
+	Document doc("<div />");
 	doc.patch(R"(
-		<add sel="*[1]" pos="after">
-			<div id="added-1" />
-			<div id="added-2" />
-			<div id="added-3" />
-		</add>
+		<add sel="*[1]" pos="after"><div id="added-1" /><div id="added-2" /><div id="added-3" /></add>
 	)");
 	BOOST_CHECK_EQUAL(doc.dump(),R"(<div /><div id="added-1" /><div id="added-2" /><div id="added-3" />)");
 }
 
 BOOST_AUTO_TEST_CASE(add_nested){
-	Document doc(R"(
-		<div id="a" />
-		<div id="b" >
-			<div id="b1">
-				<div id="b1a">
-					<div id="b1a1">
-					</div>
-				</div>
-			</div>
-		</div>
-	)");
+	Document doc(
+		"<div id=\"a\" />"
+		"<div id=\"b\" >"
+			"<div id=\"b1\">"
+				"<div id=\"b1a\">"
+					"<div id=\"b1a1\">"
+					"</div>"
+				"</div>"
+			"</div>"
+		"</div>"
+	);
 
 	doc.patch(R"(
 		<add sel="*[1]" pos="append"><a>Hello</a><p>world</p></add>
@@ -90,9 +77,7 @@ BOOST_AUTO_TEST_CASE(add_nested){
 }
 
 BOOST_AUTO_TEST_CASE(replace){
-	Document doc(R"(
-		<div />
-	)");
+	Document doc("<div />");
 	doc.patch(R"(
 		<replace sel="*[1]"><div id="replacement" class="foo"/></replace>
 		<replace sel="*[1]/@class">bar</replace>
@@ -101,13 +86,7 @@ BOOST_AUTO_TEST_CASE(replace){
 }
 
 BOOST_AUTO_TEST_CASE(remove){
-	Document doc(R"(
-		<div>
-			<div>
-			</div>
-		</div>
-		<a />
-	)");
+	Document doc("<div><div></div></div><a />");
 	doc.patch(R"(
 		<remove sel="*[1]//*[1]"></remove>
 		<remove sel="*[2]"></remove>
