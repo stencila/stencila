@@ -1045,8 +1045,13 @@ public:
 			// default generation happens (that's why it's not an if,else if tree)
 			
 			// Write directive shorthand
-			if(name=="span" and children==0 and attributes==1 and node.attr("data-text").length()){
-				content("~"+node.attr("data-text")+"~");
+			if(name=="span" and children<=1 and attributes==1 and node.attr("data-text").length()){
+				content("~"+node.attr("data-text"));
+				if(children==1){
+					// The child should only ever be a text node inserted by rendering
+					content(" ; "+children_list[0].text());
+				}
+				content("~");
 				return;
 			}
 			// Refer directive shorthand
