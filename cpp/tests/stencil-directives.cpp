@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(strip){
 		Flag attributes should be removed
 
 		<div data-hash=""></div>
-		<div data-output=""></div>
+		<div data-out=""></div>
 	)");
 
 	BOOST_CHECK(s.select("pre#exec"));
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(strip){
 	BOOST_CHECK(s.select("[data-switch]"));
 	BOOST_CHECK(s.select("[data-case]"));
 	BOOST_CHECK(s.select("[data-hash]"));
-	BOOST_CHECK(s.select("[data-output]"));
+	BOOST_CHECK(s.select("[data-out]"));
 
 	s.strip();
 
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(strip){
 	BOOST_CHECK(not s.select("[data-switch]"));
 	BOOST_CHECK(not s.select("[data-case]"));
 	BOOST_CHECK(not s.select("[data-hash]"));
-	BOOST_CHECK(not s.select("[data-output]"));
+	BOOST_CHECK(not s.select("[data-out]"));
 }
 
 BOOST_AUTO_TEST_CASE(exec){
