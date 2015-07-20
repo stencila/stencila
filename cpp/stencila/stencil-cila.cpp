@@ -465,9 +465,8 @@ public:
 			flags_open(" : "),
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
-			error("\\!\\\"([^\\\"]*)\\\""),
-			warning("\\%\\\"([^\\\"]*)\\\""),
-			location("\\@(\\d+(,\\d+)?)"),
+			error  ("\\!\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
+			warning("\\%\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
 			lock("lock"),
 			out("out"),
 			off("off"),
@@ -712,15 +711,15 @@ public:
 				}
 				else if(is(error)){
 					trace("error");
-					node.attr("data-error",match[1].str());
+					auto value = match[1].str();
+					if(match[3].str()!="") value += "@"+match[3].str();
+					node.attr("data-error",value);
 				}
 				else if(is(warning)){
 					trace("warning");
-					node.attr("data-warning",match[1].str());
-				}
-				else if(is(location)){
-					trace("location");
-					node.attr("data-location",match[1].str());
+					auto value = match[1].str();
+					if(match[3].str()!="") value += "@"+match[3].str();
+					node.attr("data-warning",value);
 				}
 				else if(is(lock)){
 					trace("lock");
@@ -1333,9 +1332,17 @@ public:
 						std::string flag;
 						if(name=="data-hash") flag = "&"+value;
 						else if(name=="data-index") flag = "^"+value;
-						else if(name=="data-error") flag = "!\""+replace_all(value,"\"","'")+"\"";  // Double quote replaced with single to avoid parsing errors
-						else if(name=="data-warning") flag = "%\""+replace_all(value,"\"","'")+"\"";
-						else if(name=="data-location") flag = "@"+value;
+						else if(name=="data-error" or name=="data-warning"){
+							flag = (name=="data-error")?"!":"%";
+							auto parts = split(value,"@");
+							std::string message = parts[0];
+							boost::replace_all(message,"\"","'");  // Double quote replaced with single to avoid parsing errors
+							flag += "\"" + message + "\"";
+							std::string location;
+							if(parts.size()>1){
+								flag += "@" + parts[1];
+							}
+						}
 						else flag = name.substr(5);
 						content(" "+flag);
 						space_required = true;

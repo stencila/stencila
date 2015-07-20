@@ -25,7 +25,7 @@ const std::vector<std::string> Stencil::directives = {
 };
 
 const std::vector<std::string> Stencil::flags = {
-	"data-error","data-warning","data-location",
+	"data-error","data-warning",
 	"data-hash","data-off","data-lock",
 	"data-index","data-out","data-included"
 };
@@ -154,6 +154,7 @@ void Stencil::error(Node node, const std::string& type, const std::string& data)
 	if(data.length()){
 		auto data_clean = data;
 		boost::replace_all(data_clean,"\"","'");
+		boost::replace_all(data_clean,"@"," at ");
 		boost::replace_all(data_clean,"\n","\\n");
 		value += ": " + data_clean;
 	}

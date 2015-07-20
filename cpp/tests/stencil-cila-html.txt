@@ -610,10 +610,10 @@ exec : &aaaaaa
 
 `exec` with flags II <>
 --------------------------------------------------
-exec : &aaaaaa !"Error message" @1,4
+exec : &aaaaaa !"Error message"@1,4
 	code
 --------------------------------------------------
-<pre data-exec="exec" data-hash="aaaaaa" data-error="Error message" data-location="1,4">
+<pre data-exec="exec" data-hash="aaaaaa" data-error="Error message@1,4">
 code
 </pre>
 --------------------------------------------------
@@ -723,6 +723,18 @@ div .class #id text 6*7
 <div class="class" id="id" data-text="6*7">
 	42
 </div>
+--------------------------------------------------
+
+
+`error` and `warning` flags <>
+--------------------------------------------------
+div : !"arrrgh"
+div : !"something went wrong"@1
+div : %"don't panic"@3,4
+--------------------------------------------------
+<div data-error="arrrgh"></div>
+<div data-error="something went wrong@1"></div>
+<div data-warning="don't panic@3,4"></div>
 --------------------------------------------------
 
 
