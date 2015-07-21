@@ -730,12 +730,17 @@ exec format png
 	code
 
 out {img [src=xyx.png]}
+
+div Out is isolated with blanklines
 --------------------------------------------------
 <pre data-exec="exec format png">
 code
 </pre>
 <div data-out="true">
 	<img src="xyx.png">
+</div>
+<div>
+	Out is isolated with blanklines
 </div>
 --------------------------------------------------
 

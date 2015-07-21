@@ -1197,7 +1197,8 @@ public:
 			// with blank lines before and after?
 			bool isolated = 
 				name=="section" or name=="p" or name=="figure" or name=="table" or
-				name=="style" or node.has("data-exec") or
+				name=="style" or 
+				node.has("data-exec") or node.has("data-out") or
 				node.has("data-when") or node.has("data-with") or 
 				node.has("data-for") or node.has("data-switch") or 
 				node.has("data-include") or node.has("data-macro");
