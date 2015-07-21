@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
@@ -5,18 +7,14 @@
 #include <stencila/stencil.hpp>
 #include <stencila/string.hpp>
 
-#include <iostream>
-
 namespace Stencila {
 
-Stencil& Stencil::attach(Context* context){
-	if(context_) delete context_;
+Stencil& Stencil::attach(std::shared_ptr<Context> context){
 	context_ = context;
 	return *this;
 }
 
 Stencil& Stencil::detach(void){
-	if(context_) delete context_;
 	context_ = nullptr;
 	return *this;
 }
@@ -26,11 +24,11 @@ std::string Stencil::context(void) const {
 	else return "none";
 }
 
-void Stencil::render_children(Node node, Context* context){
+void Stencil::render_children(Node node, std::shared_ptr<Context> context){
 	for(Node child : node.children()) render(child,context);
 }
 
-void Stencil::render(Node node, Context* context){
+void Stencil::render(Node node, std::shared_ptr<Context> context){
 	try {
 		// Check for handled elements
 		std::string tag = node.name();
@@ -170,9 +168,10 @@ void Stencil::render(Node node, Context* context){
 	}
 }
 
-Stencil& Stencil::render(Context* context){
+Stencil& Stencil::render(std::shared_ptr<Context> context){
 	// If a different context, attach the new one
 	if(context!=context_) attach(context);
+	
 	// Change to the stencil's directory
 	boost::filesystem::path cwd = boost::filesystem::current_path();
 	boost::filesystem::path path = boost::filesystem::path(Component::path(true));

@@ -1,4 +1,5 @@
 #include <string>
+#include <memory>
 
 #include <stencila/stencil.hpp>
 
@@ -12,9 +13,8 @@ using namespace boost::python;
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_get_overloads,html,0,2)
 
 Stencil& Stencil_render(Stencil& self, object context){
-    //! @todo Garbage collection of PythonContext is not correcly handles here
     // Use supplied Python Context to create a C++ side PythonContext
-    PythonContext* python_context = new PythonContext(context);
+    auto python_context = std::make_shared<PythonContext>(context);
     // Render within this context
     self.render(python_context);
     return self;

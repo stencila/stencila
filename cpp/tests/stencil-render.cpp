@@ -1,3 +1,4 @@
+#include <memory>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -13,7 +14,7 @@ struct RenderingFixture {
 	Stencil stencil;
 
 	RenderingFixture(void){
-		MapContext* context = new MapContext;
+		auto context = std::make_shared<MapContext>;
 		context->assign("a","A");
 		context->assign("none","");
 		context->assign("planets","Argabuthon Bartledan Bethselamin Earth Gagrakacka");

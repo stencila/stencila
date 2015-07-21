@@ -15,7 +15,7 @@ void Stencil::Input::parse(Node node){
 	value = node.attr("value");
 }
 
-void Stencil::Input::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Input::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
 	// Update and check hash

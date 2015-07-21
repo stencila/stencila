@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <stencila/component.hpp>
 #include <stencila/context.hpp>
 #include <stencila/xml.hpp>
@@ -240,7 +242,7 @@ public:
 		Input(void);
 		Input(Node node);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -396,7 +398,7 @@ public:
 			std::string expr;
 			std::string value;
 
-			std::string evaluate(Context* context) {
+			std::string evaluate(std::shared_ptr<Context> context) {
 				if(eval and expr.length()) value = context->write(expr);
 				else value = expr;
 				return value;
@@ -463,7 +465,7 @@ public:
 		Execute(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -484,7 +486,7 @@ public:
 
 		void parse(const std::string& attribute);
 		void scan(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -501,7 +503,7 @@ public:
 		Attr(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -520,7 +522,7 @@ public:
 		Text(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -537,7 +539,7 @@ public:
 		With(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -546,7 +548,7 @@ public:
 	 * The expression in the `data-if` attribute is evaluated in the context.
 	 */
 	struct If : Directive {
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -557,7 +559,7 @@ public:
 	 * are deactivated. If none of the `case` elements matches then any `default` elements are activated.
 	 */
 	struct Switch : Directive {
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -580,7 +582,7 @@ public:
 		For();
 		For(const std::string& attribute);
 		void parse(const std::string& attribute);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -596,7 +598,7 @@ public:
 		Parameter(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -618,7 +620,7 @@ public:
 		Set(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -641,7 +643,7 @@ public:
 		Include(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -655,7 +657,7 @@ public:
 		Macro(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -671,7 +673,7 @@ public:
 		Create(Node node);
 		void parse(const std::string& attribute);
 		void parse(Node node);
-		void render(Stencil& stencil, Node node, Context* context);
+		void render(Stencil& stencil, Node node, std::shared_ptr<Context> context);
 	};
 
 	/**
@@ -691,7 +693,7 @@ public:
 	 *
 	 * @param context Context for rendering
 	 */
-	Stencil& attach(Context* context);
+	Stencil& attach(std::shared_ptr<Context> context);
 
 	/**
 	 * Detach the stencil's current context
@@ -790,7 +792,7 @@ public:
 	 * @param node    Node to render
 	 * @param context Context to render in
 	 */
-	void render_children(Node node, Context* context);
+	void render_children(Node node, std::shared_ptr<Context> context);
 
 	/**
 	 * Render a HTML element
@@ -798,7 +800,7 @@ public:
 	 * @param node    Node to render
 	 * @param context Context to render in
 	 */
-	void render(Node node, Context* context);
+	void render(Node node, std::shared_ptr<Context> context);
 
 	/**
 	 * Render this stencil within a context
@@ -806,7 +808,7 @@ public:
 	 *
 	 * @param context Context for rendering
 	 */
-	Stencil& render(Context* context);
+	Stencil& render(std::shared_ptr<Context> context);
 
 	/**
 	 * Render this stencil in a new context
@@ -939,7 +941,7 @@ private:
 	/**
 	 * The current rendering context for this stencil
 	 */
-	Context* context_ = nullptr;
+	std::shared_ptr<Context> context_ = nullptr;
 
 	/**
 	 * A record of the number of elements of particular types within

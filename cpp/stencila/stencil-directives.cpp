@@ -225,7 +225,7 @@ void Stencil::Execute::parse(Node node){
 	parse(node.attr("data-exec"));
 }
 
-void Stencil::Execute::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
 	// Check that the context accepts the declared contexts types
@@ -364,7 +364,7 @@ void Stencil::When::scan(Node node){
 	parse(node.attr("data-when"));
 }
 
-void Stencil::When::render(Stencil& stencil, Node node, Context* context){
+void Stencil::When::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	scan(node);
 	bool ok = false;
 	for(auto& item : contexts){
@@ -405,7 +405,7 @@ void Stencil::Attr::parse(Node node){
 	parse(node.attr("data-attr"));
 }
 
-void Stencil::Attr::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Attr::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 	auto value = context->write(expression);
 	node.attr(name,value);
@@ -433,7 +433,7 @@ void Stencil::Text::parse(Node node){
 	parse(node.attr("data-text"));
 }
 
-void Stencil::Text::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Text::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 	if(node.attr("data-lock")!="true"){
 		auto text = context->write(expression);
@@ -463,7 +463,7 @@ void Stencil::With::parse(Node node){
 	parse(node.attr("data-with"));
 }
 
-void Stencil::With::render(Stencil& stencil, Node node, Context* context){
+void Stencil::With::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 	context->enter(expression);
 	stencil.render_children(node,context);
@@ -472,7 +472,7 @@ void Stencil::With::render(Stencil& stencil, Node node, Context* context){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Stencil::If::render(Stencil& stencil, Node node, Context* context){
+void Stencil::If::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	std::string expression = node.attr("data-if");
 	bool hit = context->test(expression);
 	if(hit){
@@ -515,7 +515,7 @@ void Stencil::If::render(Stencil& stencil, Node node, Context* context){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Stencil::Switch::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Switch::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	std::string expression = node.attr("data-switch");
 	context->mark(expression);
 
@@ -570,7 +570,7 @@ void Stencil::For::parse(const std::string& attribute){
 	}
 }
 
-void Stencil::For::render(Stencil& stencil, Node node, Context* context){
+void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node.attr("data-for"));
 
 	// Initialise the loop
@@ -660,7 +660,7 @@ void Stencil::Parameter::parse(Node node){
 	parse(node.attr("data-par"));
 }
 
-void Stencil::Parameter::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Parameter::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
 	// Create a <label> element
@@ -730,7 +730,7 @@ void Stencil::Set::parse(Node node){
 	parse(node.attr("data-set"));
 }
 
-void Stencil::Set::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Set::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 	context->assign(name,value);
 }
@@ -767,7 +767,7 @@ void Stencil::Include::parse(Node node){
 	parse(node.attr("data-include"));
 }
 
-void Stencil::Include::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
 	// If this node has been rendered before then there will be 
@@ -947,7 +947,7 @@ void Stencil::Macro::parse(Node node){
 	parse(node.attr("data-macro"));
 }
 
-void Stencil::Macro::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Macro::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 	// Add id to element so it can be selected
 	node.attr("id",name);
@@ -984,7 +984,7 @@ void Stencil::Create::parse(Node node){
 	parse(node.attr("data-create"));
 }
 
-void Stencil::Create::render(Stencil& stencil, Node node, Context* context){
+void Stencil::Create::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
 	// Enter a new named namespace.

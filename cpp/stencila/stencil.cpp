@@ -10,7 +10,6 @@ Stencil::Stencil(const std::string& from){
 }
 
 Stencil::~Stencil(void){
-	if(context_) delete context_;
 }
 
 }

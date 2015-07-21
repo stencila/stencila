@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <stencila/stencil.hpp>
 using namespace Stencila;
 
@@ -52,12 +54,12 @@ STENCILA_R_FUNC Stencil_html_options(SEXP self,SEXP pretty){
 
 STENCILA_R_FUNC Stencil_attach(SEXP self,SEXP context){
     STENCILA_R_BEGIN
-        RContext* rcontext = new RContext(context);
-        from<Stencil>(self).attach(rcontext);
+        from<Stencil>(self).attach(std::make_shared<RContext>(context));
         return null;
     STENCILA_R_END
 }
 STENCILA_R_EXEC0(Stencil,detach)
+
 STENCILA_R_EXEC0(Stencil,render)
 
 STENCILA_R_RET0(Stencil,serve) 

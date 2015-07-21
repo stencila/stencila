@@ -43,7 +43,7 @@ std::string Stencil::page(void) const {
 
 	// Create a sanitized copy of the stencil to insert into the page
 	// (this is a const function; should not alter this stencil itself)
-	Stencil copy;
+	Stencil copy(*this);
 	copy.sanitize();
 
 	// Content is placed in a <main> rather than just using the <body> so that 
