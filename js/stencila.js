@@ -259,8 +259,13 @@ var Stencila = (function(Stencila){
 			'Accept':'application/json'
 		};
 		if(credentials){
-			var encoded = btoa(credentials.username+':'+credentials.password);
-			headers['Authorization'] = 'Basic '+encoded;
+			if(credentials.username && credentials.password){
+				var encoded = btoa(credentials.username+':'+credentials.password);
+				headers['Authorization'] = 'Basic '+encoded;
+			}
+			else if(credentials.token){
+				headers['Authorization'] = 'Token '+credentials.token;
+			}
 		}
 		if(!need){
 			// Get a permit to be used for subsequent requests
