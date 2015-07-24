@@ -433,7 +433,7 @@ cpp-package: $(CPP_PACKAGE_BUILD)
 # Deliver C++ package to get.stenci.la
 cpp-deliver: $(CPP_PACKAGE_BUILD)
 ifeq (dirty,$(DIRTY))
-	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 cp $(CPP_PACKAGE_BUILD) s3://get.stenci.la/cpp/$(CPP_PACKAGE) --cache-control max-age=31536000
 endif
@@ -676,11 +676,13 @@ $(JS_MIN) : $(BUILD)/js/requires.min.js js/stencila.js
 js-build: $(JS_MIN)
 
 # Deliver Javascript to get.stenci.la
+# The `stencila-latest.min.js` should not be cached
 js-deliver: $(JS_MIN)
 ifeq (dirty,$(DIRTY))
-	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 cp $(JS_MIN) s3://get.stenci.la/js/ --content-type application/json --cache-control max-age=31536000
+	aws s3 cp s3://get.stenci.la/js/stencila-$(VERSION).min.js s3://get.stenci.la/js/stencila-latest.min.js
 endif
 
 js-clean:
@@ -778,7 +780,7 @@ py-clean:
 # Deliver Python package to get.stenci.la
 py-deliver: py-package
 ifeq (dirty,$(DIRTY))
-	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	$(eval PY_WHEEL := $(shell cat $(PY_BUILD)/latest.txt))
 	aws s3 cp $(PY_BUILD)/dist/$(PY_WHEEL) s3://get.stenci.la/py/
@@ -955,7 +957,7 @@ r-repo: r-package
 # Requires http://aws.amazon.com/cli/ and access keys for get.stenci.la
 r-deliver: $(R_BUILD)/stencila-dll.zip r-repo
 ifeq (dirty,$(DIRTY))
-	$(error Delivery is not done for dirty versions: $(VERSION). Commit first.)
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
 	aws s3 sync $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
