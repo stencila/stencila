@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
@@ -42,8 +44,7 @@ BOOST_AUTO_TEST_CASE(compile){
 	Stencil s;
 	s.cila("Hello world");
 	// Prior to rendering (in compile() it is necessary to attach a context)
-	MapContext* context = new MapContext;
-	s.attach(context);
+	s.attach(std::make_shared<MapContext>());
 	s.compile();
 }
 

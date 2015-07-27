@@ -14,7 +14,7 @@ struct RenderingFixture {
 	Stencil stencil;
 
 	RenderingFixture(void){
-		auto context = std::make_shared<MapContext>;
+		auto context = std::make_shared<MapContext>();
 		context->assign("a","A");
 		context->assign("none","");
 		context->assign("planets","Argabuthon Bartledan Bethselamin Earth Gagrakacka");
