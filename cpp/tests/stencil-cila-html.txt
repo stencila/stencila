@@ -146,7 +146,7 @@ Some shorthand inlines elements _emphasis_, some *strong*, some `code`, some asc
 
 Inlines III <>
 --------------------------------------------------
-Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2 : zero is not equal to two} with end text.
+Even directives get inlined with braces in shorthand paragraphs see: {span if 0!=2 zero is not equal to two} with end text.
 --------------------------------------------------
 <p>
 	Even directives get inlined with braces in shorthand paragraphs see: <span data-if="0!=2">zero is not equal to two</span> with end text.
@@ -176,10 +176,10 @@ Nested inlines <>
 
 Inlines with attributes, directives and flags <>
 --------------------------------------------------
-{b .class text 6*7}, {span if x==0 : zero}, {span if x==1 ~ off : chars}.
+{b .class text 6*7}, {span if x==0 zero}, {span if x==1 ~off text}.
 --------------------------------------------------
 <p>
-	<b class="class" data-text="6*7"></b>, <span data-if="x==0">zero</span>, <span data-if="x==1" data-off="true">chars</span>.
+	<b class="class" data-text="6*7"></b>, <span data-if="x==0">zero</span>, <span data-if="x==1" data-off="true">text</span>.
 </p>
 --------------------------------------------------
 
@@ -188,7 +188,7 @@ Blocks with attributes, directives and flags <>
 --------------------------------------------------
 .class #id [attr=value]
 div .class #id [attr=value] text 6*7
-div .class #id [attr=value] text 6*7 ~ &hash !"error:arrgh" off
+div .class #id [attr=value] text 6*7 &hash !"error:arrgh" ~off
 	A child node
 --------------------------------------------------
 <div class="class" id="id" attr="value"></div>
@@ -677,7 +677,7 @@ plot(1,1)
 
 `exec` with flags I <>
 --------------------------------------------------
-exec ~ &aaaaaa
+exec &aaaaaa
 --------------------------------------------------
 <pre data-exec="exec" data-hash="aaaaaa"></pre>
 --------------------------------------------------
@@ -685,7 +685,7 @@ exec ~ &aaaaaa
 
 `exec` with flags II <>
 --------------------------------------------------
-exec ~ &aaaaaa !"Error message"@1,4
+exec &aaaaaa !"Error message"@1,4
 	code
 --------------------------------------------------
 <pre data-exec="exec" data-hash="aaaaaa" data-error="Error message@1,4">
@@ -696,7 +696,7 @@ code
 
 `exec` with flags III <>
 --------------------------------------------------
-exec ~ &aaaaaa %"Warning message"
+exec &aaaaaa %"Warning message"
 	code
 --------------------------------------------------
 <pre data-exec="exec" data-hash="aaaaaa" data-warning="Warning message">
@@ -707,7 +707,7 @@ code
 
 `exec` error with quotes <>
 --------------------------------------------------
-exec ~ !"A message with a quote ' in it"
+exec !"A message with a quote ' in it"
 --------------------------------------------------
 <pre data-exec="exec" data-error="A message with a quote ' in it"></pre>
 --------------------------------------------------
@@ -715,7 +715,7 @@ exec ~ !"A message with a quote ' in it"
 
 `exec` with arguments and flags <>
 --------------------------------------------------
-exec format png size 10x10cm ~ !"exception: error" %"warning"
+exec format png size 10x10cm !"exception: error" %"warning"
 	code
 --------------------------------------------------
 <pre data-exec="exec format png size 10x10cm" data-error="exception: error" data-warning="warning">
@@ -729,7 +729,8 @@ code
 exec format png
 	code
 
-out {img [src=xyx.png]}
+out
+	{img [src=xyx.png]}
 
 div Out is isolated with blanklines
 --------------------------------------------------
@@ -780,6 +781,9 @@ Get a blank line before
 when py
 	Then do this
 
+when py,r
+	Then do that
+
 Get a blank line after
 --------------------------------------------------
 <p>
@@ -788,17 +792,41 @@ Get a blank line after
 <div data-when="py">
 	Then do this
 </div>
+<div data-when="py,r">
+	Then do that
+</div>
 <p>
 	Get a blank line after
 </p>
 --------------------------------------------------
 
 
+`if` directive <>
+--------------------------------------------------
+if x<0
+	Negative
+elif x>0
+	Positive
+else
+	Zero
+--------------------------------------------------
+<div data-if="x<0">
+	Negative
+</div>
+<div data-elif="x>0">
+	Positive
+</div>
+<div data-else="true">
+	Zero
+</div>
+--------------------------------------------------
+
+
 `text` directive normal <>
 --------------------------------------------------
-Unrendered {text 6*7} and rendered {text 6*7 : 42}.
+Unrendered {text 6*7} and rendered {text 6*7 42}.
 
-With an error {text foo ~ !"could not find foo"}.
+With an error {text foo !"could not find foo"}.
 
 div text 6*7
 div .class #id text 6*7
@@ -819,9 +847,9 @@ div .class #id text 6*7
 
 `error` and `warning` flags <>
 --------------------------------------------------
-div ~ !"arrrgh"
-div ~ !"something went wrong"@1
-div ~ %"don't panic"@3,4
+div !"arrrgh"
+div !"something went wrong"@1
+div %"don't panic"@3,4
 --------------------------------------------------
 <div data-error="arrrgh"></div>
 <div data-error="something went wrong@1"></div>

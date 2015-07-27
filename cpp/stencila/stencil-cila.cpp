@@ -63,12 +63,7 @@ public:
 		/**
 		 * Within a strong section (e.g `*this text is strong*`)
 		 */
-		strong,
-
-		/**
-		 * Within an interpolation section (e.g ``answer``)
-		 */
-		interp,		
+		strong,	
 
 		/**
 		 * Within a code section (e.g `answer = 42`)
@@ -450,40 +445,49 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
-			exec_open("(exec|js|r|py)\\b(.*?)(?=( ~ )|\\n|$)"),
-			out("out"),
-			
-			style_open("(style|css)\\b(\\n|$)"),
+			// Directives with embedded content and associated
+			exec_open("\\b(exec|js|r|py)\\b((\\s+format\\s+[^\\s]+)?(\\s+size\\s+[^\\s]+)?(\\s+const)?(\\s+show)?)"),
+			out("\\bout\\b"),
+			style_open("\\b(style|css)\\b(\\n|$)"),
 
-			// Spaces around semicolons and colons are used to preven confusion with those
-			// symbols in expressions
-			directive_noarg("(each|else|default)\\b *(?=( ~ )|( : )|\\n|\\{|\\}|$)"),
-			directive_arg_optional("(comments)\\b(.*?)(?=( ~ )|( : )|\\n|\\{|\\}|$)"),
-			directive_arg("(when|refer|attr|text|icon|with|if|elif|switch|case|for|include|delete|replace|change|before|after|prepend|append|macro|par|set|comment)\\b(.+?)(?=( ~ )|( : )|\\n|\\{|\\}|$)"),
+			// Directives with no argument
+			directive_noarg("\\b(each|else|default)\\b"),
+			// Directives with a single string argument
+			directive_str("\\b(when|icon|macro)\\s+([^\\s}]+)"),
+			// Directives with a single expression argument
+			directive_expr("\\b(when|with|text|if|elif|switch|case)\\s+([^\\s}]+)"),
+			// Directives with a single selector argument
+			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
+			// `attr` directive
+			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+([^\\s}]+))?"),
+			// `for` directive
+			directive_for("\\bfor\\s+(\\w+)\\s+in\\s+([^\\s}]+)"),
+			// `include` directive
+			directive_include("\\binclude\\s+([\\w\\./]+)(\\s+select\\s+([\\.\\#\\w\\-]+))?"),
+			// `set` directive
+			directive_set("\\bset\\s+([\\w]+)\\s+to\\s+([^\\s}]+)"),
+			// `include` modifier directives
+			directive_modifier("\\b(delete|replace|change|before|after|prepend|append)\\s+([\\.\\#\\w\\-]+)"),
+			// `par` directive
+			directive_par("\\bpar\\s+([\\w]+)(\\s+type\\s+([\\w]+))?(\\s+value\\s+([^\\s}]+))?"),
+			// `comments` directive
+			directive_comments("\\bcomments(\\s+([\\#\\.\\w-]+))?"),
+			// `comment` directive
+			directive_comment("\\bcomment\\s+(.+?)\\s+at\\s+([\\w\\-\\:\\.]+)"),
 
-			// Just used for eting up spaces between attributes and flags
+			// Just used for eating up spaces between attributes and flags
 			spaces(" +"),
 			
-			// Indicates the directive arguments have ended
-			// Use tilde because it is generally quite rare in language expressions. Use
-			// surrounding spaces to prevent ambiguity with any qithin expression tilde.
-			flags_open(" ~ "),
 			// Flags
 			// These are placed after all directive arguments so that the layout of stencil logic (i.e. directive names and args)
 			// is not affected when they are added. i.e. they should be at the end of directive lines.
 			hash("&([a-zA-Z0-9]+)"),
 			index("\\^(\\d+)"),
-			error  ("\\!\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
-			warning("\\%\\\"([^\\\"]*)\\\"(\\@(\\d+(,\\d+)?))?"),
-			lock("lock"),
-			off("off"),
-			included("included"),
-
-			// Indicates the directive arguments and flags have ended
-			// Needed to separate those from any content that may be following in inline elements
-			// (for block elements a newline does the separation)
-			// Use surrounding spaces to prevent ambiguity with in expression spaces
-			directive_close(" : "),
+			error  ("\\!\\\"([^\\\"]*)\\\"(@((\\d+)(,\\d+)?))?"),
+			warning("\\%\\\"([^\\\"]*)\\\"(@((\\d+)(,\\d+)?))?"),
+			lock("~lock"),
+			off("~off"),
+			included("~included"),
 
 			empha_open("(\\s)_(?=[^\\s])"),
 			empha_close("_"),
@@ -545,12 +549,14 @@ public:
 					trace("exec");
 					// An execute directive should only begin at the 
 					// start of a line
-					// Enter `<pre>` element and move across to `embed` state;
+					// Enter `<pre>` element, move across to `embed` state,
+					// and push into flags
 					enter_across("pre",embed);
-					std::string arg = match[1].str();
-					std::string rest = trim(match[2].str());
-					if(rest.length()) arg += " " + rest;
-					node.attr("data-exec",arg);
+					push(flags);
+					std::string value = match[1].str();
+					std::string args = trim(match[2].str());
+					if(args.length()) value += " " + args;
+					node.attr("data-exec",value);
 				}
 				else if(is(out)){
 					trace("out");
@@ -564,8 +570,10 @@ public:
 					trace("style");
 					// A style directive should only begin at the 
 					// start of a line
-					// Enter `<style>` element and move across to `embed` state;
+					// Enter `<style>` element, move across to `embed` state,
+					// and push into flags
 					enter_across("style",embed);
+					push(flags);
 					std::string type = "text/css";
 					node.attr("type",type);
 					add("\n");
@@ -672,37 +680,78 @@ public:
 				}
 				else if(is(directive_noarg)){
 					trace("directive_noarg");
-					// Enter new element if necessary and create directive attribute;
+
 					enter_elem_if_needed();
 					node.attr("data-"+match[1].str(),"true");
 				}
-				else if(is(directive_arg_optional)){
-					trace("directive_arg_optional");
-					// Enter new element if necessary and create directive attribute;
+				else if(is(directive_str) or is(directive_expr) or is(directive_selector)){
+					trace("directive_str/directive_expr");
+
 					auto directive = match[1].str();
-					auto arg = trim(match[2].str());
-					enter_elem_if_needed();
-					node.attr("data-"+directive,arg);
-				}
-				else if(is(directive_arg)){
-					trace("directive_arg");
-					// Enter new element if necessary and create directive attribute;
-					// type of element depends on which directive;
-					// move across to `flags` state (i.e no attributes or text to follow)
-					auto directive = match[1].str();
-					std::string arg = trim(match[2].str());
+					auto arg = match[2].str();
 					if(directive=="text" or directive=="refer") enter_elem_if_needed("span");
 					else enter_elem_if_needed();
 					node.attr("data-"+directive,arg);
 				}
-				else if(is(flags_open)){
-					trace("flags");
+				else if(is(directive_attr)){
+					trace("directive_attr");
+
 					enter_elem_if_needed();
-					across(flags);
+					auto args = match[1].str();
+					if(match[3].str()!="") args += " value " + match[3].str();
+					node.attr("data-attr",args);
 				}
-				else if(is(directive_close)){
-					trace("directive_close");
-					across(text);
+				else if(is(directive_for)){
+					trace("directive_for");
+
+					enter_elem_if_needed();
+					auto args = match[1].str() + " in " + match[2].str();
+					node.attr("data-for",args);
+				}
+				else if(is(directive_include)){
+					trace("directive_include");
+
+					enter_elem_if_needed();
+					auto args = match[1].str();
+					if(match[3].str()!="") args += " select " + match[3].str();
+					node.attr("data-include",args);
+				}
+				else if(is(directive_set)){
+					trace("directive_set");
+
+					enter_elem_if_needed();
+					auto args = match[1].str() + " to " + match[2].str();
+					node.attr("data-set",args);
+				}
+				else if(is(directive_modifier)){
+					trace("directive_modifier");
+
+					enter_elem_if_needed();
+					node.attr("data-"+match[1].str(),match[2].str());
+				}
+				else if(is(directive_par)){
+					trace("directive_par");
+
+					enter_elem_if_needed();
+					auto args = match[1].str();
+					if(match[3].str()!="") args += " type " + match[3].str();
+					if(match[5].str()!="") args += " value " + match[5].str();
+					node.attr("data-par",args);
+				}
+				else if(is(directive_comments)){
+					trace("directive_comments");
+
+					enter_elem_if_needed();
+					std::string args;
+					if(match[2].str()!="") args = match[2].str();
+					node.attr("data-comments",args);
+				}
+				else if(is(directive_comment)){
+					trace("directive_comment");
+
+					enter_elem_if_needed();
+					auto args = match[1].str() + " at " + match[2].str();
+					node.attr("data-comment",args);
 				}
 				else if(is(spaces)){
 					trace("spaces");
@@ -710,8 +759,8 @@ public:
 				}
 				else {
 					trace("none");
-					// If no match move across to `text`
-					across(text);
+					// If no match move across to `flags`
+					across(flags);
 				}
 			}
 			else if(state==flags){
@@ -746,10 +795,6 @@ public:
 				else if(is(included)){
 					trace("included");
 					node.attr("data-included","true");
-				}
-				else if(is(directive_close)){
-					trace("directive_close");
-					across(text);
 				}
 				else if(is(spaces)){
 					trace("spaces");
@@ -904,44 +949,34 @@ public:
 				else add();
 			}
 			else if(state==embed){
-				// Capture all characters but on new lines
-				// move to `sol` state to see if indentation
-				// has reduced and should pop out of this state
-				// @todo Remove leading indentation
-				if(is(flags_open)){
-					trace("flags");
-					push(flags);
-				}
-				else {
-					static const boost::regex line("([ \t]*)([^\n]*)(\n|$)");
-					boost::smatch match_local;
-					boost::regex_search(begin, end, match_local, line, boost::regex_constants::match_continuous);
-					auto indent_line = match_local[1].str();
-					auto content_line = match_local[2].str();
-					// Should this `embed` state end?
-					if(content_line.length()>0 and indent_line.length()<=indent.length()){
-						// Exit and pop. Note that `begin` is not shifted along at all
-						// so that the line can be processed by `sol`
-						exit();
-						across(sol);
+				static const boost::regex line("([ \t]*)([^\n]*)(\n|$)");
+				boost::smatch match_local;
+				boost::regex_search(begin, end, match_local, line, boost::regex_constants::match_continuous);
+				auto indent_line = match_local[1].str();
+				auto content_line = match_local[2].str();
+				// Should this `embed` state end?
+				if(content_line.length()>0 and indent_line.length()<=indent.length()){
+					// Exit and pop. Note that `begin` is not shifted along at all
+					// so that the line can be processed by `sol`
+					exit();
+					across(sol);
+				} else {
+					if(content_line.length()==0){
+						// If this is an empty or blank (only whitespace chars) line then add a newline to the bilge
+						// This means that whitespace chars on a blank line are considered insignificant; they are discarded
+						bilge += "\n";
 					} else {
-						if(content_line.length()==0){
-							// If this is an empty or blank (only whitespace chars) line then add a newline to the bilge
-							// This means that whitespace chars on a blank line are considered insignificant; they are discarded
-							bilge += "\n";
-						} else {
-							// Line is not empy, so use any bilge and add line to buffer
-							// Add bilge to buffer and clear it
-							buffer += bilge;
-							bilge = "";
-							// Add line to buffer
-							if(indent_line.length()>=indent.length()+1) buffer += indent_line.substr(indent.length()+1);
-							buffer += content_line;
-							buffer += "\n";
-						}
-						// Shift along
-						begin += match_local.position() + match_local.length();
+						// Line is not empy, so use any bilge and add line to buffer
+						// Add bilge to buffer and clear it
+						buffer += bilge;
+						bilge = "";
+						// Add line to buffer
+						if(indent_line.length()>=indent.length()+1) buffer += indent_line.substr(indent.length()+1);
+						buffer += content_line;
+						buffer += "\n";
 					}
+					// Shift along
+					begin += match_local.position() + match_local.length();
 				}
 			}
 			else add();
@@ -1230,7 +1265,7 @@ public:
 			// Execute directive output
 			else if(node.has("data-out")){
 				content("out");
-				space_required = true;
+				trailing_allowed = false;
 
 				erase_attr("data-out");
 			}
@@ -1325,10 +1360,6 @@ public:
 
 				// Flags
 				if(flags.size()){
-					if(space_required) content(" ");
-					content("~");
-					trailing_allowed = false;
-			
 					for(auto attr : flags){
 						auto name = attr.first;
 						auto value = attr.second;
@@ -1346,10 +1377,11 @@ public:
 								flag += "@" + parts[1];
 							}
 						}
-						else flag = name.substr(5);
+						else flag = "~"+name.substr(5);
 						content(" "+flag);
-						space_required = true;
 					}
+					space_required = true;
+					trailing_allowed = false;
 				}
 			}
 
@@ -1358,9 +1390,6 @@ public:
 				if(inline_element){
 					// Insert a separating space
 					content(" ");
-					// If trailing is not allowed then need to separate with
-					// space surrounded semicolon
-					if(not trailing_allowed) content(": ");
 					// Generate children (which should all be inline)
 					generate_children(children_list);
 				}
@@ -1429,7 +1458,6 @@ public:
 			// Escape characters used for shorthands
 			boost::replace_all(text,"`","\\`");
 			boost::replace_all(text,"|","\\|");
-			boost::replace_all(text,"~","\\~");
 			boost::replace_all(text,"@","\\@");
 
 			// Translate HTML entities

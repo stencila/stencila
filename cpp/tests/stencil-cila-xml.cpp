@@ -4,7 +4,7 @@
 
 #define STENCILA_CILA_PARSER_TRACE
 #define STENCILA_CILA_INLINE
-#include <stencila/stencil-cila.cpp>  
+#include <stencila/stencil-cila.cpp>
 
 using namespace Stencila;
 struct CilaFixture : public CilaParser, public CilaGenerator {
@@ -204,8 +204,8 @@ BOOST_AUTO_TEST_CASE(meta){
 
 BOOST_AUTO_TEST_CASE(exec){
 	CILA_XML("r\n\ta=1","<pre data-exec=\"r\">\na=1\n</pre>");
-	CILA_XML("r ~ &h34Ft7\n\ta=1","<pre data-exec=\"r\" data-hash=\"h34Ft7\">\na=1\n</pre>");
-	CILA_XML("r format text ~ &h34Ft7\n\ta=1","<pre data-exec=\"r format text\" data-hash=\"h34Ft7\">\na=1\n</pre>");
+	CILA_XML("r &h34Ft7\n\ta=1","<pre data-exec=\"r\" data-hash=\"h34Ft7\">\na=1\n</pre>");
+	CILA_XML("r format text &h34Ft7\n\ta=1","<pre data-exec=\"r format text\" data-hash=\"h34Ft7\">\na=1\n</pre>");
 
 	XML_CILA("<pre data-exec=\"r\">a=1</pre>","r\n\ta=1");
 	XML_CILA("<pre data-exec=\"r\">\na=1\n</pre>","r\n\ta=1");
@@ -262,46 +262,46 @@ BOOST_AUTO_TEST_CASE(directive_arg){
 }
 
 BOOST_AUTO_TEST_CASE(flags){
-	CILA_XML("div ~ &tH4dFg","<div data-hash=\"tH4dFg\" />");
-	ECHO("div ~ &tH4dFg");
+	CILA_XML("div &tH4dFg","<div data-hash=\"tH4dFg\" />");
+	ECHO("div &tH4dFg");
 
-	CILA_XML("div ~ off","<div data-off=\"true\" />");
-	ECHO("div ~ off");
+	CILA_XML("div ~off","<div data-off=\"true\" />");
+	ECHO("div ~off");
 
-	CILA_XML("div ~ ^42","<div data-index=\"42\" />");
-	ECHO("div ~ ^42");
+	CILA_XML("div ^42","<div data-index=\"42\" />");
+	ECHO("div ^42");
 
-	CILA_XML("div ~ lock","<div data-lock=\"true\" />");
-	ECHO("div ~ lock");
+	CILA_XML("div ~lock","<div data-lock=\"true\" />");
+	ECHO("div ~lock");
 
 	CILA_XML("out","<div data-out=\"true\" />");
 	ECHO("out");
 
-	CILA_XML("div ~ included","<div data-included=\"true\" />");
-	ECHO("div ~ included");
+	CILA_XML("div ~included","<div data-included=\"true\" />");
+	ECHO("div ~included");
 
-	CILA_XML("if x<0 ~ off",R"(<div data-if="x&lt;0" data-off="true" />)");
-	ECHO("if x<0 ~ off");
+	CILA_XML("if x<0 ~off",R"(<div data-if="x&lt;0" data-off="true" />)");
+	ECHO("if x<0 ~off");
 
-	CILA_XML("text x ~ lock",R"(<span data-text="x" data-lock="true" />)");
-	ECHO("{text x ~ lock}");
+	CILA_XML("text x ~lock",R"(<span data-text="x" data-lock="true" />)");
+	ECHO("{text x ~lock}");
 
-	ECHO("div ~ &tH4dFg off ^42 lock");
-	ECHO("p ~ &tH4dFg off ^42 lock");
-	ECHO("#id .class ~ &tH4dFg off ^42 lock");
+	ECHO("div &tH4dFg ~off ^42 ~lock");
+	ECHO("p &tH4dFg ~off ^42 ~lock");
+	ECHO("#id .class &tH4dFg ~off ^42 ~lock");
 }
 
 BOOST_AUTO_TEST_CASE(error){
-	CILA_XML("div ~ !\"syntax\"","<div data-error=\"syntax\" />");
-	CILA_XML("div ~ !\"exception: foo bar\"","<div data-error=\"exception: foo bar\" />");
+	CILA_XML("div !\"syntax\"","<div data-error=\"syntax\" />");
+	CILA_XML("div !\"exception: foo bar\"","<div data-error=\"exception: foo bar\" />");
 
-	XML_CILA("<div data-error=\"syntax\" />","div ~ !\"syntax\"");
-	XML_CILA("<div data-error=\"exception: foo bar\" />","div ~ !\"exception: foo bar\"");
+	XML_CILA("<div data-error=\"syntax\" />","div !\"syntax\"");
+	XML_CILA("<div data-error=\"exception: foo bar\" />","div !\"exception: foo bar\"");
 }
 
 BOOST_AUTO_TEST_CASE(directive_attr){
-	CILA_XML("attr title 'Some title'","<div data-attr=\"title 'Some title'\" />");
-	ECHO("attr title 'Some title'");
+	CILA_XML("attr name value expr","<div data-attr=\"name value expr\" />");
+	ECHO("attr name value expr");
 }
 
 BOOST_AUTO_TEST_CASE(directive_text){
@@ -384,10 +384,10 @@ BOOST_AUTO_TEST_CASE(directive_include){
 	ECHO("include address")
 	CILA_XML("include address","<div data-include=\"address\" />")
 
-	ECHO("include address selector")
+	ECHO("include address select selector")
 
-	ECHO("include a-superbly-sublime-stencil #a-marvelous-macro")
-	ECHO("include a-stencil-with-no-macro-defined .class-a [attr=\"x\"] .class-b")
+	ECHO("include a/superbly/sublime/stencil select #a-marvelous-macro")
+	ECHO("include a/stencil/with/no/macro/defined select .class-a")
 
 	// Special '.' identifier for current stencil
 	ECHO("macro hello\n\t{text who}\n\ninclude . select #hello\n\tset who to 'world'")
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE(directive_par){
 	ECHO("par x");
 	ECHO("par x value 1");
 	ECHO("par x type number value 42");
-	ECHO("par x type text value \"Hello world\"");
+	ECHO("par x type text value \"Hello\"");
 }
 
 BOOST_AUTO_TEST_CASE(sections){
@@ -637,8 +637,7 @@ BOOST_AUTO_TEST_CASE(refer){
 	XML_CILA(R"(<span data-refer="#figure-x-y" />)","@figure-x-y");
 	XML_CILA("An at @ in text","An at \\@ in text");
 
-	CILA_XML("refer selector with space",R"(<span data-refer="selector with space" />)");
-	XML_CILA(R"(<span data-refer="selector with space" />)","{refer selector with space}");
+	CILA_XML("refer selector",R"(<span data-refer="selector" />)");
 
 	ECHO("@figure-x-y");
 	ECHO("{refer section#intro figure}");
@@ -657,17 +656,32 @@ BOOST_AUTO_TEST_CASE(interpolate){
 }
 
 BOOST_AUTO_TEST_CASE(comments){
-	CILA_XML("comments","<div data-comments=\"\" />");
-	CILA_XML("comments on #an-element","<div data-comments=\"on #an-element\" />");
 	CILA_XML(
-		"comments on #an-element ~ !\"element not found\"",
-		"<div data-comments=\"on #an-element\" data-error=\"element not found\" />"
+		"comments",
+		"<div data-comments=\"\" />"
+	);
+	CILA_XML(
+		"comments #an-element",
+		"<div data-comments=\"#an-element\" />"
+	);
+	CILA_XML(
+		"comments #an-element !\"element not found\"",
+		"<div data-comments=\"#an-element\" data-error=\"element not found\" />"
 	);
 
-	ECHO("comments on #an-element");
+	ECHO("comments #an-element");
 
-	CILA_XML("comment by Arthur Dent at 1989-03-28T00:01:42","<div data-comment=\"by Arthur Dent at 1989-03-28T00:01:42\" />");
-	ECHO("comment by Arthur Dent at 1989-03-28T00:01:42");
+	CILA_XML(
+		"comment Arthur Dent at 1989-03-28T00:01:42",
+		"<div data-comment=\"Arthur Dent at 1989-03-28T00:01:42\" />"
+	);
+	CILA_XML(
+		"comment @arthur at 1989-03-28T00:01:42",
+		"<div data-comment=\"@arthur at 1989-03-28T00:01:42\" />"
+	);
+	
+	ECHO("comment Arthur Dent at 1989-03-28T00:01:42");
+	ECHO("comment @arthur at 1989-03-28T00:01:42");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
