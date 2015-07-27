@@ -341,9 +341,6 @@ void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 		// Put immeadiately after exec directive
 		node.after(output);
 	}
-
-	// Add a show flag if needed
-	if(show) node.attr("data-show","true");
 }
 
 std::vector<Stencil::Execute> Stencil::execs(void) const {
