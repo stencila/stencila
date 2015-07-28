@@ -6,15 +6,6 @@ BOOST_AUTO_TEST_SUITE(query_quick)
 
 using namespace Stencila;
 
-BOOST_AUTO_TEST_CASE(each_){
-	std::vector<char> letters = {'p','e','a','n','u','t'};
-	std::string word;
-	each(letters,[&word](char item){
-		word += item;
-	});
-	BOOST_CHECK_EQUAL(word,"peanut");
-}
-
 BOOST_AUTO_TEST_CASE(count_){
 	std::vector<int> items(100);
 	BOOST_CHECK_EQUAL(count(items),100u);

@@ -1,9 +1,14 @@
 #pragma once
 
+#include <cmath>
+
+#include <stencila/polymorph.hpp>
 #include <stencila/traits.hpp>
 #include <stencila/dimension.hpp>
 
 namespace Stencila {
+
+namespace Queries {}
 
 /**
  * An element of a Query
@@ -38,47 +43,41 @@ template<
 	typename Values,
 	typename Result
 >
-class Aggregate : public AggregateDynamic<Values,Result> {
-public:
-
+class Aggregate : public AggregateDynamic<Values,Result>, public Polymorph<Derived> {
+ public:
+ 	using Polymorph<Derived>::derived;
 	typedef Result result_type;
-	
-	/**
-	 * Convienience method to return address as derived class
-	 */
-	const Derived& self(void) const {
-		return static_cast<const Derived&>(*this);
-	}
-
-	/**
-	 * Convienience method to return address as derived class
-	 */
-	Derived& self(void) {
-		return static_cast<Derived&>(*this);
-	}
 
 	/**
 	 * Apply the aggregator to an object
 	 */
 	template<typename Type>
 	Derived& apply(const Type& object) {
-		self().reset();
+		derived().reset();
 		append(object);
-		return self();
+		return derived();
 	}
 
-	template<typename Type>
-	Derived& operator()(const Type& type){
-		return apply(type);
+	template<typename Type,typename Member>
+	Derived& apply(const Type& object, Member member) {
+		derived().reset();
+		append(object, member);
+		return derived();
 	}
 
 	/**
-	 * Append a container, array or valu
+	 * Append a container, array or value
 	 */
 	template<typename Type>
 	Derived& append(const Type& object){
 		append_(object,IsContainer<Type>(),IsArray<Type>());
-		return self();
+		return derived();
+	}
+
+	template<typename Type,typename Member>
+	Derived& append(const Type& object, Member member){
+		append_member_(object,member,std::true_type(),typename std::is_member_function_pointer<Member>::type());
+		return derived();
 	}
 
 	/**
@@ -107,7 +106,7 @@ public:
 	 * @param  value String codeesentation
 	 */
 	Derived& load(const std::string& value){
-		return self();
+		return derived();
 	}
 	
 	/**
@@ -120,14 +119,14 @@ public:
 	 * @param  other Other aggregator instance
 	 */
 	Derived& join(const Derived& other){
-		return self();
+		return derived();
 	}
 
 	/**
 	 * Get the result of the aggregator
 	 */
 	Result result(void) const {
-		return self().result_static();
+		return derived().result_static();
 	}
 
 	/**
@@ -149,24 +148,41 @@ private:
 
 	template<typename Type>
 	void append_(Type container, const std::true_type& is_container,const std::false_type& is_array) {
-		for(auto& value : container) self().append_static(value);
+		for(auto& value : container) derived().append_static(value);
 	}
 
 	template<typename Type>
 	void append_(Type array, const std::false_type& is_container,const std::true_type& is_array) {
-		for(auto& value : array) self().append_static(value);
+		for(auto& value : array) derived().append_static(value);
 	}
 
 	template<typename Type>
 	void append_(const Type& value, const std::false_type& is_container,const std::false_type& is_array){
-		self().append_static(value);
+		derived().append_static(value);
+	}
+
+	template<typename Type,typename Member>
+	void append_member_(Type container, Member member, const std::true_type& is_container,const std::true_type& is_method){
+		for(auto& item : container){
+			auto value = (item.*member)();
+			derived().append_static(value);
+		}
+	}
+
+	template<typename Type,typename Member>
+	void append_member_(Type container, Member member, const std::true_type& is_container,const std::false_type& is_method){
+		for(auto& item : container){
+			auto value = item.*member;
+			derived().append_static(value);
+		}
 	}
 };
 
 template<
+	typename Type,
 	typename Function
 >
-class Each : public Aggregate<Each<Function>,bool,void> {
+class Each : public Aggregate<Each<Type,Function>,Type,void> {
 private:
 
 	Function function_;
@@ -183,7 +199,6 @@ public:
 	void reset(void){
 	}
 
-	template<class Type>
 	Each& append_static(const Type& value){
 		function_(value);
 		return *this;
@@ -194,15 +209,12 @@ public:
 
 };
 
-template<typename Function>
-Each<Function> each(Function function){
-	return Each<Function>(function);
+template<class Type,typename Container,typename Function>
+void each(const Container& container, Function function){
+	return Each<Type,Function>(function).apply(container).result();
 }
 
-template<class Type,typename Function>
-void each(const Type& object, Function function){
-	return Each<Function>(function).apply(object).result();
-}
+namespace Queries { using Stencila::each; }
 
 
 class Count : public Aggregate<Count,double,unsigned int> {
@@ -256,7 +268,65 @@ public:
 	}
 
 };
-static Count count;
+
+static Count count(void){
+	return Count();
+}
+
+template<typename... Args>
+Count count(Args... args){
+	Count count;
+	count.apply(args...);
+	return count;
+}
+
+namespace Queries {
+	using Stencila::count;
+	using Stencila::Count;
+}
+
+
+class Frequency : public Aggregate<Frequency,unsigned int,std::vector<unsigned int>> {
+protected:
+
+	std::vector<unsigned int> counts_;
+	
+public:
+	Frequency(void):
+		counts_(0){
+	}
+
+	void reset(unsigned int size){
+		counts_.clear();
+		counts_.resize(size);
+	}
+
+	virtual std::string code(void) const{
+		return "freq";
+	}
+
+	template<class Type>
+	void append_static(const Type& value){
+		unsigned int index = value;
+		if(counts_.size()>index) counts_[index]++;
+		else {
+			counts_.resize(index+1);
+			counts_[index] = 1;
+		}
+	}
+
+	result_type result_static(void) const {
+		return counts_;
+	}
+
+};
+
+namespace Queries {
+	using Stencila::Frequency;
+}
+
+
+
 
 class Sum : public Aggregate<Sum,double,double> {
 protected:
@@ -301,7 +371,23 @@ public:
 		return sum_;
 	}
 };
-static Sum sum;
+
+template<typename... Args>
+Sum sum(Args... args){
+	Sum sum;
+	sum.apply(args...);
+	return sum;
+}
+
+static Sum sum(void){
+	return Sum();
+}
+
+namespace Queries {
+	using Stencila::sum;
+	using Stencila::Sum;
+}
+
 
 class Product : public Aggregate<Product,double,double> {
 protected:
@@ -348,6 +434,10 @@ public:
 };
 static Product prod;
 
+namespace Queries {
+	using Stencila::Product;
+	using Stencila::prod;
+}
 
 class Mean : public Aggregate<Mean,double,double> {
 private:
@@ -397,6 +487,11 @@ public:
 };
 static Mean mean;
 
+namespace Queries {
+	using Stencila::Mean;
+	using Stencila::mean;
+}
+
 class GeometricMean : public Aggregate<GeometricMean,double,double> {
 private:
 
@@ -437,6 +532,11 @@ public:
 };
 static GeometricMean geomean;
 
+namespace Queries {
+	using Stencila::GeometricMean;
+	using Stencila::geomean;
+}
+
 class HarmonicMean : public Aggregate<GeometricMean,double,double> {
 private:
 
@@ -476,6 +576,11 @@ public:
 	}
 };
 static HarmonicMean harmean;
+
+namespace Queries {
+	using Stencila::HarmonicMean;
+	using Stencila::harmean;
+}
 
 
 class Variance : public Aggregate<Variance,double,double> {
