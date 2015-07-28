@@ -446,7 +446,7 @@ public:
 			clas("\\.([\\w-]+)\\b"),
 			
 			// Directives with embedded content and associated
-			exec_open("\\b(exec|js|r|py)\\b((\\s+format\\s+[^\\s]+)?(\\s+size\\s+[^\\s]+)?(\\s+const)?(\\s+show)?)"),
+			exec_open("\\b(exec|cila|js|html|r|py)\\b((\\s+format\\s+[^\\s]+)?(\\s+size\\s+[^\\s]+)?(\\s+const)?(\\s+show)?)"),
 			out("\\bout\\b"),
 			style_open("\\b(style|css)\\b(\\n|$)"),
 

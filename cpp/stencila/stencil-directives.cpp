@@ -198,6 +198,7 @@ void Stencil::Execute::parse(const std::string& attribute){
 				context=="map" or
 				context=="exec" or
 				context=="cila" or
+				context=="html" or
 				context=="js" or
 				context=="py" or
 				context=="r"
