@@ -975,10 +975,21 @@ var Stencila = (function(Stencila){
 		this.details = details;
 		this.code = code;
 	};
+	Exec.prototype.regex =  "\\b(exec|cila|js|html|r|py)\\b(\\s+format\\s+([^\\s]+))?(\\s+size\\s+([^\\s]+))?(\\s+(const))?(\\s+(show))?";
+	//Match indices             1                          2              3          4            5          6    7        8    9
 	Exec.prototype.get = function(node){
 		this.details = node.attr('data-exec');
+
+		var matches = this.details.match(this.regex);
+		this.lang = matches[1];
+		this.format = matches[3];
+		this.size = matches[5];
+		this.cons = matches[7]==='const';
+		this.show = matches[9]==='show';
+
 		this.error = node.attr('data-error');
 		this.code = node.text();
+
 		return this;
 	};
 	Exec.prototype.set = function(node){
