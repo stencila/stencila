@@ -490,7 +490,7 @@ var Stencila = (function(Stencila){
 		// Create default view
 		var view = theme.ComponentView;
 		if(typeof view==='function') view = view(self);
-		else if(view!==undefined) self.view(view);
+		if(view!==undefined) self.view(view);
 		// Now that menus and views are constructed...
 		if(!self.preview && !self.embedded){
 			// Attempt to sign in to hub automatically
