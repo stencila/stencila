@@ -671,6 +671,195 @@ var Stencila = (function(Stencila){
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
+
+	/**
+	 * A stencil class
+	 * 
+	 * @param content HTML string or CSS selector string to element in current document. Defaults to `#content`
+	 * @param context Object or string defining the conext for this stencil
+	 */
+	var Stencil = Stencila.Stencil = function(content,contexts){
+		Component.call(this);
+
+		content = content || '#content';
+		this.content = $(content);
+		if(this.content.length>1){
+			this.content = $('<div></div>').append(this.content.clone());
+		}
+
+		if(contexts===undefined){
+			contexts = $('head meta[itemprop=closed]');
+			if(contexts.length) contexts = contexts.attr('content');
+			else contexts = undefined;
+		}
+		this.contexts = contexts;
+
+		this.editable = (this.host=='localhost');
+	};
+	Stencil.prototype = Object.create(Component.prototype);
+
+	/**
+	 * Startup the stencil.
+	 *
+	 * Intended to be called after the theme has been set.
+	 * Overrides `Component.prototype.startup()`
+	 */
+	Stencil.prototype.startup = function(theme){
+		Component.prototype.startup.call(this,theme);
+		if(this.contexts=='js') this.render();
+	};
+
+	/**
+	 * Get or set the HTML for this stencil
+	 */
+	Stencil.prototype.html = function(html){
+		if(html===undefined){
+			return this.content.html();
+		}
+		else {
+			this.content.html(html);
+			return this;
+		}
+	};
+
+	/**
+	 * Get or set the Cila for this stencil
+	 */
+	Stencil.prototype.cila = function(arg,callback){
+		var self = this;
+		if(typeof arg==="function"){
+			// Get
+			self.call("html(string).cila():string",[self.html()],function(cila){
+				arg(cila);
+			});
+		}
+		else {
+			// Set
+			self.call("cila(string).html():string",[arg],function(html){
+				self.html(html);
+				callback();
+			});
+		}
+		return self;
+	};
+
+	/**
+	 * Patch the content of this stencil
+	 */
+	Stencil.prototype.patch = function(elem,op,content){
+		var patch;
+		var xpath = this.xpath(elem);
+		if(op=='append'){
+			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
+		}
+		this.call("patch(string)",[patch]);
+		return this;
+	};
+
+	/**
+	 * Determine the XPath selector for an element within this stencil
+	 */
+	Stencil.prototype.xpath = function(elem){
+		// Implementation thanks to http://dzone.com/snippets/get-xpath
+		content = this.content.get(0);
+		elem = $(elem).get(0);
+		var path = ''; 
+		for (; elem && elem.nodeType==1 && elem!==content; elem=elem.parentNode) {
+			var index = $(elem.parentNode).children(elem.tagName).index(elem)+1; 
+			index>1 ? (index='['+index+']') : (index='');
+			path = '/'+elem.tagName.toLowerCase()+index+path; 
+		} 
+		return path; 
+	};
+ 
+	/**
+	 * Select an element from the stencil
+	 */
+	Stencil.prototype.select = function(selector){
+		return this.content.find(selector);
+	};
+
+	/**
+	 * Get the title of the stencil
+	 */
+	Stencil.prototype.title = function(){
+		return this.content.find('#title').text().trim();
+	};
+
+	/**
+	 * Edit this stencil
+	 */
+	Stencil.prototype.edit = function(on){
+		this.change('editable',(on===undefined)?true:on);
+	};
+	
+	/**
+	 * Render this stencil
+	 */
+	Stencil.prototype.render = function(context){
+		if(this.contexts=='js'){
+			if(context!==undefined){
+				if(!(context instanceof Context)) context = new Context(context);
+			}
+			else {
+				context = new Context();
+			}
+			directiveRender(
+				this.content,
+				context
+			);
+		} else {
+			var self = this;
+			this.viewCurrent.updating(true);
+			this.ask('content');
+			this.call("html(string).render().html():string",[this.html()],function(html){
+				self.html(html);
+				self.tell('content');
+				self.viewCurrent.updating(false);
+			});
+		}
+	};
+
+	/**
+	 * Refresh this stencil
+	 */
+	Stencil.prototype.refresh = function(){
+		var self = this;
+		this.viewCurrent.updating(true);
+		this.ask('content');
+		this.call("html(string).refresh().html():string",[this.html()],function(html){
+			self.html(html);
+			self.tell('content');
+			self.viewCurrent.updating(false);
+		});
+	};
+
+	/**
+	 * Restart this stencil
+	 */
+	Stencil.prototype.restart = function(){
+		var self = this;
+		this.viewCurrent.updating(true);
+		this.call("restart().html():string",[],function(html){
+			self.html(html);
+			self.tell('content');
+			self.viewCurrent.updating(false);
+		});
+	};
+
+	/**
+	 * Save this stencil
+	 */
+	Stencil.prototype.save = function(){
+		var self = this;
+		this.ask('content');
+		this.call("html(string)",[this.html()],function(){
+			console.log('Saved');
+		});
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * A theme class
 	 */
@@ -1254,192 +1443,6 @@ var Stencila = (function(Stencila){
 		return this;
 	};
 	Comment.prototype.apply = directiveApply;
-
-	/**
-	 * A stencil class
-	 * 
-	 * @param content HTML string or CSS selector string to element in current document. Defaults to `#content`
-	 * @param context Object or string defining the conext for this stencil
-	 */
-	var Stencil = Stencila.Stencil = function(content,contexts){
-		Component.call(this);
-
-		content = content || '#content';
-		this.content = $(content);
-		if(this.content.length>1){
-			this.content = $('<div></div>').append(this.content.clone());
-		}
-
-		if(contexts===undefined){
-			contexts = $('head meta[itemprop=closed]');
-			if(contexts.length) contexts = contexts.attr('content');
-			else contexts = undefined;
-		}
-		this.contexts = contexts;
-
-		this.editable = (this.host=='localhost');
-	};
-	Stencil.prototype = Object.create(Component.prototype);
-
-	/**
-	 * Startup the stencil.
-	 *
-	 * Intended to be called after the theme has been set.
-	 * Overrides `Component.prototype.startup()`
-	 */
-	Stencil.prototype.startup = function(theme){
-		Component.prototype.startup.call(this,theme);
-		if(this.contexts=='js') this.render();
-	};
-
-	/**
-	 * Get or set the HTML for this stencil
-	 */
-	Stencil.prototype.html = function(html){
-		if(html===undefined){
-			return this.content.html();
-		}
-		else {
-			this.content.html(html);
-			return this;
-		}
-	};
-
-	/**
-	 * Get or set the Cila for this stencil
-	 */
-	Stencil.prototype.cila = function(arg,callback){
-		var self = this;
-		if(typeof arg==="function"){
-			// Get
-			self.call("html(string).cila():string",[self.html()],function(cila){
-				arg(cila);
-			});
-		}
-		else {
-			// Set
-			self.call("cila(string).html():string",[arg],function(html){
-				self.html(html);
-				callback();
-			});
-		}
-		return self;
-	};
-
-	/**
-	 * Patch the content of this stencil
-	 */
-	Stencil.prototype.patch = function(elem,op,content){
-		var patch;
-		var xpath = this.xpath(elem);
-		if(op=='append'){
-			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
-		}
-		this.call("patch(string)",[patch]);
-		return this;
-	};
-
-	/**
-	 * Determine the XPath selector for an element within this stencil
-	 */
-	Stencil.prototype.xpath = function(elem){
-		// Implementation thanks to http://dzone.com/snippets/get-xpath
-		content = this.content.get(0);
-		elem = $(elem).get(0);
-		var path = ''; 
-		for (; elem && elem.nodeType==1 && elem!==content; elem=elem.parentNode) {
-			var index = $(elem.parentNode).children(elem.tagName).index(elem)+1; 
-			index>1 ? (index='['+index+']') : (index='');
-			path = '/'+elem.tagName.toLowerCase()+index+path; 
-		} 
-		return path; 
-	};
- 
-	/**
-	 * Select an element from the stencil
-	 */
-	Stencil.prototype.select = function(selector){
-		return this.content.find(selector);
-	};
-
-	/**
-	 * Get the title of the stencil
-	 */
-	Stencil.prototype.title = function(){
-		return this.content.find('#title').text().trim();
-	};
-
-	/**
-	 * Edit this stencil
-	 */
-	Stencil.prototype.edit = function(on){
-		this.change('editable',(on===undefined)?true:on);
-	};
-	
-	/**
-	 * Render this stencil
-	 */
-	Stencil.prototype.render = function(context){
-		if(this.contexts=='js'){
-			if(context!==undefined){
-				if(!(context instanceof Context)) context = new Context(context);
-			}
-			else {
-				context = new Context();
-			}
-			directiveRender(
-				this.content,
-				context
-			);
-		} else {
-			var self = this;
-			this.viewCurrent.updating(true);
-			this.ask('content');
-			this.call("html(string).render().html():string",[this.html()],function(html){
-				self.html(html);
-				self.tell('content');
-				self.viewCurrent.updating(false);
-			});
-		}
-	};
-
-	/**
-	 * Refresh this stencil
-	 */
-	Stencil.prototype.refresh = function(){
-		var self = this;
-		this.viewCurrent.updating(true);
-		this.ask('content');
-		this.call("html(string).refresh().html():string",[this.html()],function(html){
-			self.html(html);
-			self.tell('content');
-			self.viewCurrent.updating(false);
-		});
-	};
-
-	/**
-	 * Restart this stencil
-	 */
-	Stencil.prototype.restart = function(){
-		var self = this;
-		this.viewCurrent.updating(true);
-		this.call("restart().html():string",[],function(html){
-			self.html(html);
-			self.tell('content');
-			self.viewCurrent.updating(false);
-		});
-	};
-
-	/**
-	 * Save this stencil
-	 */
-	Stencil.prototype.save = function(){
-		var self = this;
-		this.ask('content');
-		this.call("html(string)",[this.html()],function(){
-			console.log('Saved');
-		});
-	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
