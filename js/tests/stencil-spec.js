@@ -9,23 +9,23 @@ describe("Stencil", function() {
     });
 
 	it("renders a `text` directive", function() {
-		var stencil = new Stencila.Stencil(
+		var stencil = new Stencila.Stencil('html://'+
 			'<span id="a" data-text="answer"></span>' +
 			'<span id="b" data-text="answer*2"></span>'
-		,'js');
-		stencil.render({
+		,{
 			answer:42
 		});
+		stencil.render();
 
 		expect(stencil.select('#a').text()).toEqual('42');
 		expect(stencil.select('#b').text()).toEqual('84');
 	});
 
 	it("renders an `if` directive", function() {
-		stencil = new Stencila.Stencil(
+		stencil = new Stencila.Stencil('html://'+
 			'<span id="a" data-if="1"></span>' +
 			'<span id="b" data-if="0"></span>'
-		,'js','js');
+		,{});
 		stencil.render();
 
 		expect(stencil.select('#a').attr('data-off')).not.toBeDefined();
@@ -40,21 +40,20 @@ describe("Stencil", function() {
 				'<span id="b" data-if="answer==41"></span>' +
 			'</main>';
 		// Construct Stencil with no arguments
-		stencil = new Stencila.Stencil(undefined,'js');
-		stencil.render({answer:42});
+		stencil = new Stencila.Stencil(undefined,{answer:42});
+		stencil.render();
 
 		expect(stencil.select('#a').text()).toEqual('42');
 		expect(stencil.select('#b').attr('data-off')).toEqual('true');
 	});
 
-
 	it("has an `xpath` method", function() {
-		var stencil = new Stencila.Stencil(
+		var stencil = new Stencila.Stencil('html://'+
 			'<div id="a">' +
 				'<div id="a1"></div>' + 
 			'</div>' +
 			'<div id="b"><div><i /><p id="b1"/><i id="b2"/><div></div>'
-		,'js');
+		);
 
 		expect(stencil.xpath(stencil.select('#a'))).toEqual('/div');
 		expect(stencil.xpath(stencil.select('#a1'))).toEqual('/div/div');
@@ -62,4 +61,5 @@ describe("Stencil", function() {
 		expect(stencil.xpath(stencil.select('#b1'))).toEqual('/div[2]/div/p');
 		expect(stencil.xpath(stencil.select('#b2'))).toEqual('/div[2]/div/i[2]');
 	});
+
 });

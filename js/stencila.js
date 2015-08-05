@@ -9,6 +9,8 @@ var Stencila = (function(Stencila){
 	require.config({
 		baseUrl: '/'
 	});
+	// During development it can be useful to comment out this function so thrown
+	// exceptions are visible
 	require.onError = function (err) {
 		var modules = err.requireModules;
 		if(modules) {
@@ -87,7 +89,7 @@ var Stencila = (function(Stencila){
 		var code = message[0];
 		if(code==50) this.result(message);
 		else if(code==8){
-			throw "WAMP error:"+message;
+			throw message[4];
 		}
 		else {
 			throw "WAMP message type unknown:"+code;
@@ -103,7 +105,14 @@ var Stencila = (function(Stencila){
 	 * @param  {Function} callback Function to call when method returns (potentially with a result)
 	 */
 	Connection.prototype.call = function(method,args,callback){
-		args = args || [];
+		if(arguments.length==1){
+			args = [];
+			callback = undefined;
+		}
+		else if(arguments.length==2){
+			args = [];
+			callback = arguments[1];
+		}
 		// Increment id
 		// According to https://github.com/tavendo/WAMP/blob/master/spec/basic.md#ids
 		// "IDs in the session scope SHOULD be incremented by 1 beginning with 1"
@@ -216,15 +225,6 @@ var Stencila = (function(Stencila){
 	Hub.permit = null;
 
 	/**
-	 * Tell mirrors of change in a property
-	 * 
-	 * @param {String or Object} 	property Name of property
-	 */
-	Hub.tell = function(property,value){
-		if(this.menu) this.menu.from(property,value);
-	};
-
-	/**
 	 * Signin to stenci.la
 	 *
 	 * @param  {Function} callback Callback once signed in
@@ -251,7 +251,7 @@ var Stencila = (function(Stencila){
 		}
 		// Prompt user for credentials
 		if(need && ask){
-			credentials = Hub.menu.signin();
+			//credentials = Hub.menu.signin();
 			need = false;
 		}
 		// Construct headers
@@ -276,8 +276,6 @@ var Stencila = (function(Stencila){
 			}).done(function(data){
 				Hub.username = data.username;
 				Hub.permit = data.permit;
-				// Update mirrors
-				Hub.tell('username',Hub.username);
 				// Do callback
 				if(callback) callback();
 			});
@@ -290,7 +288,6 @@ var Stencila = (function(Stencila){
 	Hub.signout = function() {
 		Hub.username = null;
 		Hub.permit = null;
-		Hub.tell('username',Hub.username);
 	};
 
 	/**
@@ -342,7 +339,10 @@ var Stencila = (function(Stencila){
 				method: 'POST',
 				headers: {
 					'Authorization' : 'Permit '+Hub.permit,
-				}
+				},
+				data: JSON.stringify(data),
+			    contentType: "application/json; charset=utf-8",
+			    dataType: "json"
 			}).done(then);
 		}
 	};
@@ -358,13 +358,6 @@ var Stencila = (function(Stencila){
 	 * Base class for all components
 	 */
 	var Component = Stencila.Component = function(){
-		// Create default view
-		this.viewCurrent = null;
-
-		// Array of views that have been constructed
-		// for this component
-		this.viewList = [];
-
 		// Set host information
 		var location = window.location;
 		if(location.protocol==='file:') this.host = 'localfile';
@@ -412,86 +405,12 @@ var Stencila = (function(Stencila){
 
 		// Set activation status
 		this.activation = 'inactive';
+
+		this.meta = false;
 	};
 
-	/**
-	 * Set the theme for this compontent
-	 */
-	Component.prototype.theme = function(theme,callback){
+	Component.prototype.startup = function(what){
 		var self = this;
-
-		// Load theme CSS. This is currently done, with fallbacks
-		// in the page <head> but will need to be done
-		// here when theme is changed.
-		//require(['text!'+theme+'/theme.min.css'],function(theme){
-			// Add CSS
-			//$('head').append('<style>\n'+theme+'\n</style>');
-		//});
-
-		// Load theme Javascript module and initialise menus
-		require([theme+'/theme'],function(theme){
-			if(callback) callback(theme);
-		});
-	};
-
-	/**
-	 * Set the view for this component
-	 * 
-	 * @param  {Class} viewClass A view Class (e.g. RevealView)
-	 */
-	Component.prototype.view = function(viewClass){
-		if((!this.viewCurrent) || (this.viewCurrent.constructor!==viewClass)){
-			var construct = true;
-			var self = this;
-			$.each(this.viewList,function(index,view){
-				if(view.constructor===viewClass){
-					if(self.viewCurrent){
-						self.viewCurrent.close(view);
-					}
-					view.open(self.viewCurrent);
-					self.viewCurrent = view;
-					construct = false;
-				}
-			});
-			if(construct){
-				var view = new viewClass(this);
-				if(self.viewCurrent){
-					this.viewCurrent.close(view);
-				}
-				view.construct(this.viewCurrent);
-				this.viewCurrent = view;
-				this.viewList.push(view);
-			}
-		}
-	};
-
-	/**
-	 * Startup the component.
-	 *
-	 * Intended to be called after the theme has been set
-	 */
-	Component.prototype.startup = function(theme){
-		var self = this;
-		// Create menus if not in preview mode
-		if(!self.preview && !self.embedded){
-			// ComponentMenu on left side
-			if(!self.closed) self.menu = new theme.ComponentMenu(self);
-			else{
-				self.menu = null;
-				$(document).bind('keydown','f1',function(event){
-					event.preventDefault();
-					self.menu = new theme.ComponentMenu(self);
-					self.menu.from(self);
-				});
-			}
-			// Create hub menu
-			Hub.menu = new theme.HubMenu(self);
-		}
-		// Create default view
-		var view = theme.ComponentView;
-		if(typeof view==='function') view = view(self);
-		if(view!==undefined) self.view(view);
-		// Now that menus and views are constructed...
 		if(!self.preview && !self.embedded){
 			// Attempt to sign in to hub automatically
 			Hub.signin(false,null,false);
@@ -518,58 +437,27 @@ var Stencila = (function(Stencila){
 		}
 	};
 
-	/**
-	 * Tell mirrors of change in a property
-	 * 
-	 * @param {String or Object} 	property Name of property
-	 */
-	Component.prototype.tell = function(property,value){
-		if(this.menu) this.menu.from(property,value);
-		if(this.viewCurrent) this.viewCurrent.from(property,value);
+
+	Component.prototype.notify = function(what){
+		$(document).trigger(what);
+		console.info(what);
 	};
 
-	/**
-	 * Ask mirrors to update a property
-	 * 
-	 * @param {String or Object} 	property Name of property
-	 */
-	Component.prototype.ask = function(property){
-		if(this.menu) this.menu.to(property);
-		if(this.viewCurrent) this.viewCurrent.to(property);
-	};
-
-	/**
-	 * Change a property of the component and notify mirrors of 
-	 * the change so updates can be made to the user interface
-	 * 
-	 * @param {String or Object} 	property Name of property or Object of property:value pairs
-	 * @param {any} 	value    Value of property
-	 */
-	Component.prototype.change = function(property,value){
-		if(typeof property=='string'){
-			this[property] = value;
-			this.tell(property,value);
-		}
-		else {
-			var self = this;
-			$.each(property,function(key,value){
-				self.change(key,value);
-			});
-		}
-	};
 
 	/**
 	 * CRUD (create, read, update and delete) operations on Stencila Hub (stenci.la)
 	 */
-
 
 	/**
 	 * Read
 	 */
 	Component.prototype.read = function(){
 		var self = this;
-		Hub.get(this.address+"/.meta",false,function(data){
-			self.change(data);
+		Hub.get(this.address+"/.details",false,function(data){
+			$.each(data,function(key,value){
+				self[key] = value;
+			});
+			self.meta = true;
 		});
 	};
 
@@ -580,10 +468,8 @@ var Stencila = (function(Stencila){
 	Component.prototype.favourite = function(){
 		var self = this;
 		Hub.post(this.address+"/.favourite",null,function(response){
-			self.change({
-				'favourites':response.favourites,
-				'favourited':response.favourited
-			});
+			self.favourites = response.favourites;
+			self.favourited = response.favourited;
 		});
 	};
 
@@ -599,13 +485,16 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.activate = function(){
 		if(this.activation==='inactive'){
-			this.change('activation','activating');
+			this.activation = 'activating';
+			this.notify('component:activation:changed');
+			//this.change('component','activation','activating');
 			if(this.host=='localhost'){
 				// On localhost, simply connect to the Websocket at the
 				// same address
 				var websocket = window.location.href.replace("http:","ws:");
 				this.connection = new WebSocketConnection(websocket);
-				this.change('activation','active');
+				this.activation = 'active';
+				this.notify('component:activation:changed');
 			} else {
 				// Elsewhere, request stenci.la to activate a session
 				// for this component
@@ -616,7 +505,8 @@ var Stencila = (function(Stencila){
 					function ready(){
 						if(self.session.ready){
 							self.connection = new WebSocketConnection(self.session.websocket);
-							self.change('activation','active');
+							self.activation = 'active';
+							self.notify('component:activation:changed');
 							return true;
 						}
 						return false;
@@ -626,7 +516,8 @@ var Stencila = (function(Stencila){
 					var until = new Date().getTime()+1000*60*3;
 					function giveup(){
 						if(new Date().getTime()>until){
-							self.change('activation','inactive');
+							self.activation = 'inactive';
+							self.notify('component:activation:changed');
 							self.view.error('Failed to connect to session: '+self.session.url);
 							return true;
 						}
@@ -653,12 +544,19 @@ var Stencila = (function(Stencila){
 	 * Deactivate this component
 	 */
 	Component.prototype.deactivate = function(){
-		if(this.activation==='active' && this.host!=='localhost'){
-			this.change('activation','deactivating');
-			var self = this;
-			Hub.post(this.address+"/.deactivate",null,function(data){
-				self.change('activation','inactive');
-			});
+		var self = this;
+		if(this.activation==='active'){
+			self.activation = 'deactivating';
+			self.notify('component:activation:changed');
+			if(this.host=='localhost'){
+				self.activation = 'inactive';
+				self.notify('component:activation:changed');
+			} else {
+				Hub.post(this.address+"/.deactivate",null,function(data){
+					self.activation = 'inactive';
+					self.notify('component:activation:changed');
+				});
+			}
 		}
 	};
 
@@ -678,82 +576,217 @@ var Stencila = (function(Stencila){
 	 * @param content HTML string or CSS selector string to element in current document. Defaults to `#content`
 	 * @param context Object or string defining the conext for this stencil
 	 */
-	var Stencil = Stencila.Stencil = function(content,contexts){
-		Component.call(this);
-
-		content = content || '#content';
-		this.content = $(content);
-		if(this.content.length>1){
-			this.content = $('<div></div>').append(this.content.clone());
-		}
-
-		if(contexts===undefined){
-			contexts = $('head meta[itemprop=closed]');
-			if(contexts.length) contexts = contexts.attr('content');
-			else contexts = undefined;
-		}
-		this.contexts = contexts;
-
-		this.editable = (this.host=='localhost');
+	var Stencil = Stencila.Stencil = function(content,context,callback){
+		var self = this;
+		Component.call(self);
+		self.initialise(content,context,callback);
 	};
 	Stencil.prototype = Object.create(Component.prototype);
 
-	/**
-	 * Startup the stencil.
-	 *
-	 * Intended to be called after the theme has been set.
-	 * Overrides `Component.prototype.startup()`
-	 */
-	Stencil.prototype.startup = function(theme){
-		Component.prototype.startup.call(this,theme);
-		if(this.contexts=='js') this.render();
-	};
-
-	/**
-	 * Get or set the HTML for this stencil
-	 */
-	Stencil.prototype.html = function(html){
-		if(html===undefined){
-			return this.content.html();
+	Stencil.prototype.initialise = function(content,context,callback){
+		var self = this;
+		self.contentDom = null;
+		if(content){
+			var prefix = content.substr(0,7);
+			var rest = content.substr(7);
+			if(prefix==='html://'){
+				self.contentDom = $('<main>'+rest+'</main>');
+			}
+			else if(prefix=='file://'){
+				require(['text!'+rest],function(text){
+					self.initialise('html://'+text,context,callback);
+				});
+				return;
+			}
+			else throw 'Prefix not handled:'+prefix;
 		}
 		else {
-			this.content.html(html);
-			return this;
+			self.contentDom = $('#content');
 		}
+
+		self.contentCila = null;
+
+		self.context = null;
+		// If there is a #context element then use that to construct the 
+		// context for stencil
+		var contextConstruct = self.contentDom.find('#context');
+		if(contextConstruct.length){
+			var func = new Function('context',contextConstruct.text());
+			self.context = func(context);
+		}
+		else {
+			if(context!==undefined) self.context = new Context(context);
+			else {
+				var context = $('head meta[itemprop=contexts]').attr('content');
+				if(context=='js'){
+					self.context = new Context();
+					self.render();
+				}
+			}
+		}	
+
+		self.editable_ = (self.host=='localhost');
+
+		if(callback) callback(self);
+	}
+
+	/**
+	 * Set whether this stencil is editale
+	 */
+	Stencil.prototype.editable = function(value){
+		if(value===undefined) return this.editable_;
+		else this.editable_ = value;
 	};
 
 	/**
-	 * Get or set the Cila for this stencil
+	 * Get the DOM for this stencil
 	 */
-	Stencil.prototype.cila = function(arg,callback){
+	Stencil.prototype.dom = function(callback){
 		var self = this;
-		if(typeof arg==="function"){
-			// Get
-			self.call("html(string).cila():string",[self.html()],function(cila){
-				arg(cila);
+		if(self.contentDom){
+			callback(self.contentDom);
+		}
+		else if(self.contentCila){
+			self.call("cila(string).html():string",[self.contentCila],function(string){
+				self.contentDom.html(string);
+				callback(self.contentDom);
 			});
 		}
 		else {
-			// Set
-			self.call("cila(string).html():string",[arg],function(html){
-				self.html(html);
-				callback();
+			self.call("html():string",function(string){
+				self.contentDom.html(string);
+				self.contentCila = null;
+				callback(self.contentDom);
 			});
 		}
 		return self;
 	};
 
 	/**
-	 * Patch the content of this stencil
+	 * Show the DOM for this stencil
 	 */
-	Stencil.prototype.patch = function(elem,op,content){
-		var patch;
-		var xpath = this.xpath(elem);
-		if(op=='append'){
-			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
+	Stencil.prototype.show = function(callback){
+		var self = this;
+		self.dom(function(dom){
+			dom.show();
+			if(callback) callback(dom);
+		});
+		return self;
+	};
+
+	/**
+	 * Hide the DOM for this stencil
+	 */
+	Stencil.prototype.hide = function(callback){
+		var self = this;
+		if(self.contentDom) self.contentDom.hide();
+		if(callback) callback();
+		return self;
+	};
+
+	/**
+	 * Get or set the HTML for this stencil
+	 */
+	Stencil.prototype.html = function(html){
+		var self = this;
+		if(typeof html==="function"){
+			// Get HTML (argument is a callback)
+			if(self.contentDom){
+				html(self.contentDom.html());
+			}
+			else if(self.contentCila){
+				self.call("cila(string).html():string",[self.contentCila],function(string){
+					self.contentDom.html(string);
+					html(string);
+				});
+			}
+			else {
+				self.call("html():string",function(string){
+					self.contentDom.html(string);
+					self.contentCila = null;
+					html(string);
+				});
+			}
 		}
-		this.call("patch(string)",[patch]);
-		return this;
+		else {
+			// Set HTML (argument is a string)
+			self.contentDom.html(html);
+			self.contentCila = null;
+		}
+		return self;
+	};
+
+	/**
+	 * Get or set the Cila for this stencil
+	 */
+	Stencil.prototype.cila = function(cila){
+		var self = this;
+		if(typeof cila==="function"){
+			// Get Cila (argument is a callback)
+			if(self.contentCila){
+				cila(self.contentCila);
+			}
+			else if(self.contentDom){
+				self.call("html(string).cila():string",[self.contentDom.html()],function(string){
+					self.contentCila = string;
+					cila(string);
+				});
+			}
+			else {
+				self.call("cila():string",function(string){
+					self.contentCila = string;
+					self.contentDom = null;
+					cila(string);
+				});
+			}
+		}
+		else {
+			// Set Cila (argument is a string)
+			self.contentCila = cila;
+			self.contentDom = null;
+		}
+		return self;
+	};
+
+	/**
+	 * Save this stencil
+	 * 			
+	 * @param  {String}   format   Format for content, 'cila' or 'html'
+	 * @param  {String}   content  Stencil content
+	 * @param  {Function} callback Callback when saving is finished
+	 */
+	Stencil.prototype.save = function(callback){
+		var self = this;
+		if(self.contentDom){
+			self.call("html(string).save()",[self.contentDom.html()],function(){
+				callback();
+			});
+		}
+		else if(self.contentCila){
+			self.call("cila(string).save()",[self.contentCila],function(){
+				callback();
+			});
+		}
+	};
+
+	/**
+	 * Patch the content of this stencil
+	 *
+	 * This method modifies the local DOM and the patches the remote, so only
+	 * Cila is made null.
+	 */
+	Stencil.prototype.patch = function(elem,operation,content){
+		var self = this;
+		var patch;
+		var xpath = self.xpath(elem);
+		if(operation=='append'){
+			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
+			elem.append(content);
+		}
+		self.call("patch(string)",[patch],function(){
+			self.cila = null;
+		});
+		return self;
 	};
 
 	/**
@@ -761,7 +794,7 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.xpath = function(elem){
 		// Implementation thanks to http://dzone.com/snippets/get-xpath
-		content = this.content.get(0);
+		content = this.contentDom.get(0);
 		elem = $(elem).get(0);
 		var path = ''; 
 		for (; elem && elem.nodeType==1 && elem!==content; elem=elem.parentNode) {
@@ -771,90 +804,91 @@ var Stencila = (function(Stencila){
 		} 
 		return path; 
 	};
- 
+
 	/**
 	 * Select an element from the stencil
 	 */
 	Stencil.prototype.select = function(selector){
-		return this.content.find(selector);
+		return this.contentDom.find(selector);
 	};
 
-	/**
-	 * Get the title of the stencil
-	 */
-	Stencil.prototype.title = function(){
-		return this.content.find('#title').text().trim();
-	};
 
 	/**
-	 * Edit this stencil
+	 * Bind the user interface. 
+	 * Key stuff that is not really part of the theme
+	 * Needs to be done here, rather than say in remore R session
+	 * Not really part of the theme (which is intended to be limied to views)
+	 * Other directives like `on` and `click` should be bound here too (currently fo JS rendering they are bound elsewhere)
 	 */
-	Stencil.prototype.edit = function(on){
-		this.change('editable',(on===undefined)?true:on);
+	Stencil.prototype.bind = function(){
+		var self = this;
+
+		// Submit buttons to 
+		self.dom(function(dom){
+			dom.on('click','form[data-call] button[type=submit]',function(event){
+				event.preventDefault();
+				var form = $(event.target).closest('form');
+				var func = form.attr('data-call');
+				var args = {};
+				form.find('input').each(function(){
+					args[this.name] = this.value;
+				});
+				self.context.call(func,args);
+			});
+		});
 	};
-	
+
 	/**
 	 * Render this stencil
 	 */
-	Stencil.prototype.render = function(context){
-		if(this.contexts=='js'){
-			if(context!==undefined){
-				if(!(context instanceof Context)) context = new Context(context);
-			}
-			else {
-				context = new Context();
-			}
+	Stencil.prototype.render = function(context,callback){
+		var self = this;
+		if(context || self.context){
+			if(context) self.context = new Context(context);
 			directiveRender(
-				this.content,
-				context
+				self.contentDom,
+				self.context
 			);
+			self.bind();
 		} else {
-			var self = this;
-			this.viewCurrent.updating(true);
-			this.ask('content');
-			this.call("html(string).render().html():string",[this.html()],function(html){
-				self.html(html);
-				self.tell('content');
-				self.viewCurrent.updating(false);
-			});
+			if(self.contentDom){
+				this.call("html(string).refresh().html():string",[self.contentDom.html()],function(html){
+					self.html(html);
+					callback();
+				});
+			}
 		}
 	};
 
 	/**
 	 * Refresh this stencil
 	 */
-	Stencil.prototype.refresh = function(){
+	Stencil.prototype.refresh = function(callback){
 		var self = this;
-		this.viewCurrent.updating(true);
-		this.ask('content');
 		this.call("html(string).refresh().html():string",[this.html()],function(html){
 			self.html(html);
-			self.tell('content');
-			self.viewCurrent.updating(false);
+			callback();
 		});
 	};
 
 	/**
 	 * Restart this stencil
 	 */
-	Stencil.prototype.restart = function(){
+	Stencil.prototype.restart = function(callback){
 		var self = this;
-		this.viewCurrent.updating(true);
 		this.call("restart().html():string",[],function(html){
 			self.html(html);
-			self.tell('content');
-			self.viewCurrent.updating(false);
+			callback();
 		});
 	};
 
 	/**
-	 * Save this stencil
+	 * Fork this component
 	 */
-	Stencil.prototype.save = function(){
+	Stencil.prototype.fork = function(args){
 		var self = this;
-		this.ask('content');
-		this.call("html(string)",[this.html()],function(){
-			console.log('Saved');
+		Hub.post(self.address+"/.fork",args,function(response){
+			console.log(response);
 		});
 	};
 
@@ -863,10 +897,72 @@ var Stencila = (function(Stencila){
 	/**
 	 * A theme class
 	 */
-	var Theme = Stencila.Theme = function(){
+	var Theme = Stencila.Theme = function(com){
 		Component.call(this);
+		this.com = com;
 	};
 	Theme.prototype = Object.create(Component.prototype);
+
+	/**
+	 * Load a theme and apply it to a component
+	 */
+	Theme.load = function(theme,com){
+		// Load theme CSS. 
+		// This is currently done, with fallbacks,
+		// in the component's page <head> but will need to be done
+		// here when theme is changed.
+		//require(['text!'+theme+'/theme.min.css'],function(theme){
+			// Add CSS
+			//$('head').append('<style>\n'+theme+'\n</style>');
+		//});
+
+		// Load theme Javascript, instantiate a theme object and apply it to the
+		// component
+		require([theme+'/theme'],function(Theme){
+			new Theme(com);
+		});
+	};
+
+	/**
+	 * Apply a theme to a component
+	 * 
+	 * @param  com 	Component to apply the theme to
+	 */
+	/*Theme.prototype.apply = function(){
+		var self = this;
+		// Create menus if not in preview mode
+		if(!com.preview && !com.embedded){
+			// ComponentMenu on left side
+			if(!com.closed) self.comMenu = new self.ComponentMenu(this);
+			else{
+				self.comMenu = null;
+				$(document).bind('keydown','f1',function(event){
+					event.preventDefault();
+					self.comMenu = new self.ComponentMenu(this);
+				});
+			}
+			// HubMenu of right side
+			self.hubMenu = new self.HubMenu(self);
+		}
+		// Create default view
+		var view = self.ComponentView;
+		if(typeof view==='function') view = view(com);
+		self.comView = new view(com);
+		self.comView.open();
+	};*/
+
+	Theme.prototype.view = function(viewClass){
+		var self = this;
+		if(viewClass===undefined){
+			return self.view_;
+		} else {
+			var view = new viewClass(self.com);
+			if(self.view_) self.view_.close(view);
+			view.open(self.view_);
+			self.view_ = view;
+			return self;
+		}
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -896,6 +992,26 @@ var Stencila = (function(Stencila){
 		$.extend(this,data);
 	};
 
+	var Entity = Stencila.Entity = function(url,data){
+		this.url = url+'/'+data.id;
+		$.extend(this,data);
+	};
+	Entity.prototype = Object.create(Object.prototype);
+	Entity.constructor = Entity;
+
+	Entity.prototype.signal = function(name){
+		return 'entity:'+this.url+':'+name;
+	};
+
+	Entity.prototype.delete = function(data){
+		var self = this;
+		$.ajax({
+			url: self.url,
+			method: 'DELETE'
+		});
+		$(document).trigger(self.signal('delete'));
+	};
+
 
 	var Array_ = Stencila.Array = function(url){
 		Resource.call(this,url);
@@ -903,6 +1019,41 @@ var Stencila = (function(Stencila){
 	};
 	Array_.prototype = Object.create(Resource.prototype);
 	Array_.constructor = Array_;
+
+	Array_.prototype.signal = function(name){
+		return 'array:'+this.url+':'+name;
+	};
+
+	Array_.prototype.create = function(data,callback){
+		var self = this;
+		$.ajax({
+			url: self.url,
+			method: 'POST',
+			data: JSON.stringify(data),
+			contentType: "application/json; charset=utf-8",
+			dataType: "json"
+		}).done(function(data){
+			self.items.push(new Entity(self.url,data));
+			$(document).trigger(self.signal('create'));
+		});
+	};
+
+	Array_.prototype.read = function(callback){
+		var self = this;
+		$.ajax({
+			url: this.url,
+			method: 'GET'
+		}).done(function(data){
+			self.items = [];
+			$.each(data,function(index,item){
+				if(typeof item === 'object'){
+					item = new Entity(self.url,item);
+				}
+				self.items.push(item);
+			});
+			if(callback) callback();
+		});
+	};
 
 	Array_.prototype.update = function(data){
 		this.items = data;
@@ -965,13 +1116,14 @@ var Stencila = (function(Stencila){
 	Context.prototype.unset_ = function(name){
 		delete this.top_()[name];
 	};
-	Context.prototype.evaluate_ = function(expression){
+	Context.prototype.evaluate_ = function(code,exec){
 		var func = '';
 		var index;
 		for(index=0;index<this.scopes.length;index++){
 			func += 'with(this.scopes['+index+']){\n';
 		}
-		func += 'return '+expression+';\n';
+		if(!exec) func += 'return ';
+		func += code + ';\n';
 		for(index=0;index<this.scopes.length;index++){
 			func += '}\n';
 		}
@@ -990,6 +1142,53 @@ var Stencila = (function(Stencila){
 		script.type = 'text/javascript';
 		script.text = code;
 		document.head.appendChild(script);
+	};
+
+	/**
+	 * Create a function with current scopes as closure
+	 * 
+	 * @param code String of code
+	 */
+	Context.prototype.function = function(scopes,code){
+		var func = '';
+		var index;
+		for(index=0;index<scopes.length;index++){
+			func += 'with(scopes['+index+']){\n';
+		}
+		func += code + ';';
+		for(index=0;index<scopes.length;index++){
+			func += '}\n';
+		}
+		return Function('scopes',func);
+	};
+
+	Context.prototype.capture = function(code){
+		// Create a shallow copy of each scope
+		var scopes = [];
+		$.each(this.scopes,function(index,scope){
+			scopes.push($.extend({},scope));
+		});
+
+		var func = '';
+		var index;
+		for(index=0;index<scopes.length;index++){
+			func += 'with(this['+index+']){\n';
+		}
+		func += code + ';';
+		for(index=0;index<scopes.length;index++){
+			func += '}\n';
+		}
+		return Function(func).bind(scopes);
+	};
+
+	/**
+	 * Execute code within the context
+	 * 
+	 * @param code String of code
+	 */
+	Context.prototype.call = function(func,args){
+		var expression = func + '(' + JSON.stringify(args) + ')';
+		this.evaluate_(expression);
 	};
 	
 	/**
@@ -1114,6 +1313,7 @@ var Stencila = (function(Stencila){
 		this.pop_();
 	};
 
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -1132,15 +1332,23 @@ var Stencila = (function(Stencila){
 	
 	var directiveRender = Stencila.directiveRender = function(node,context){
 		if(node.attr('data-exec')) return new Exec().apply(node,context);
+
 		if(node.attr('data-attr')) return new Attr().apply(node,context);
 		if(node.attr('data-text')) return new Text().apply(node,context);
 		if(node.attr('data-icon')) return new Icon().apply(node,context);
+
 		if(node.attr('data-with')) return new With().apply(node,context);
 
 		if(node.attr('data-if')) return new If().apply(node,context);
 		if(node.attr('data-elif') | node.attr('data-else')) return;
 
 		if(node.attr('data-for')) return new For().apply(node,context);
+
+		if(node.attr('data-when')) return new When().apply(node,context);
+		if(node.attr('data-react')) return new React().apply(node,context);
+		if(node.attr('data-on')) return new On().apply(node,context);
+		if(node.attr('data-click')) return new Click().apply(node,context);
+
 
 		directiveRenderChildren(node,context);
 	};
@@ -1155,6 +1363,7 @@ var Stencila = (function(Stencila){
 	};
 	var directiveApply = function(node,context){
 		this.get(node).render(node,context);
+		return this;
 	};
 
 	/**
@@ -1200,7 +1409,7 @@ var Stencila = (function(Stencila){
 	};
 	Attr.prototype.get = function(node){
 		var attr = node.attr('data-attr');
-		var matches = attr.match(/^(\w+)\s+(.+)$/);
+		var matches = attr.match(/^([\w\-]+)\s+value\s+(.+)$/);
 		this.name = matches[1];
 		this.expr = matches[2];
 		return this;
@@ -1365,13 +1574,13 @@ var Stencila = (function(Stencila){
 		var items = context.evaluate_(this.items);
 		if(items instanceof Array_){
 			var self = this;
-			items.pull(function(){
-				go.call(self,items.items);
+			items.read(function(){
+				render.call(self,items.items);
 			});
 		} else {
-			go.call(this,items);
+			render.call(this,items);
 		}
-		function go(items){
+		function render(items){
 			var more = context.begin(this.item,items);
 			var each = node.find(['data-each']);
 			if(each.length===0){
@@ -1379,6 +1588,8 @@ var Stencila = (function(Stencila){
 			}
 			each.removeAttr('data-each');
 			each.removeAttr('data-off');
+			// Delete any other existing children
+			each.siblings().remove();
 			while(more){
 				var item = each.clone();
 				node.append(item);
@@ -1424,7 +1635,7 @@ var Stencila = (function(Stencila){
 	Comment.prototype.get = function(node){
 		var attr = node.attr('data-comment');
 		// A regex for an ISO datetime for `at` (without the timezone, assuming UTC)
-		// is something litke \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d
+		// is something like \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d
 		// But here being more permissive
 		var matches = attr.match(/^by\s+([@\w]+)\s+at\s+([\w-:.]+)$/);
 		if(matches && matches.length==3){
@@ -1444,6 +1655,159 @@ var Stencila = (function(Stencila){
 	};
 	Comment.prototype.apply = directiveApply;
 
+	/**
+	 * A `when` directive
+	 *
+	 * When a signal is fired then do something with the element.
+	 * 
+	 * `signal` is an expression that evaluates to a string.
+	 * 
+	 * `then` is one of the actions:
+	 * 		- render
+	 * 		- delete
+	 * 		- disappear
+	 *
+	 *  In the future, might allow the same modifier directives
+	 *  that are used in `include` directives as children. This would allow
+	 *  for `append`, `change` etc. of content
+	 */
+	var When = Stencila.When = function(expr,then){
+		this.expr = expr;
+		this.then = then;
+	};
+	When.prototype.get = function(node){
+		var attr = node.attr('data-when');
+		var matches = attr.match(/^([^\s]+)(\s+then\s+(.+))?$/);
+		this.expr = matches[1];
+		this.then = matches[3] || "render";
+		return this;
+	};
+	When.prototype.set = function(node){
+		node.attr('data-when',this.expr+' then '+this.then);
+		return this;
+	};
+	When.prototype.render = function(node,context){
+		var self = this;
+		var signal = context.evaluate_(this.expr);
+		$(document).on(signal,function(){
+			if(self.then=='render') directiveRender(node,context);
+			else if(self.then=='delete') node.remove();
+			else if(self.then=='disappear'){
+				node.animate({
+					opacity: 0,
+					height: 0
+				},700,function(){
+					node.remove();
+				});
+			}
+		});
+		directiveRenderChildren(node,context);
+		return this;
+	};
+	When.prototype.apply = directiveApply;
+
+
+	/**
+	 * A `react` directive
+	 */
+	var React = Stencila.React = function(expr){
+		this.expr = expr;
+	};
+	React.prototype.get = function(node){
+		this.expr = node.attr('data-react');
+		return this;
+	};
+	React.prototype.set = function(node){
+		node.attr('data-react',this.expr);
+		return this;
+	};
+	React.prototype.render = function(node,context){
+		// Does expression evaluate to true?
+		var on = context.evaluate_(this.expr);
+		if(!on){
+			// Unbind all events
+			node.off();
+			// Add `off` flag
+			node.attr('data-off','true');
+		}
+		else {
+			// Remove any `off` flag that may
+			// already be on this element
+			node.removeAttr('data-off');
+		}
+		directiveRenderChildren(node,context);
+		return this;
+	};
+	React.prototype.apply = directiveApply;
+
+
+	/**
+	 * An `on` directive
+	 */
+	var On = Stencila.On = function(event,code){
+		this.event = event;
+		this.code = code;
+	};
+	On.prototype.get = function(node){
+		this.event = node.attr('data-on');
+		this.code = node.text();
+		return this;
+	};
+	On.prototype.set = function(node){
+		node.attr('data-on',this.event);
+		node.text(this.code);
+		return this;
+	};
+	On.prototype.render = function(node,context){
+		// Look for a `react` directive ancestor to
+		// use as the target of the event
+		var target = node.closest('[data-react]');
+		if(target){
+			// Only proceed if it is on
+			if(target.attr('data-off')=="true") return this;
+		} else {
+			// Otherwise, make the paraent the target element
+			target = node.parent();
+		}
+		// Create a function from the code
+		var capture = context.capture(this.code);
+		target.on(this.event,function(){
+			capture();
+		});
+		return this;
+	};
+	On.prototype.apply = directiveApply;
+
+
+	/**
+	 * A `click` directive
+	 *
+	 * A shortcut for an `on click` directive attached to
+	 * the current node
+	 */
+	var Click = Stencila.Click = function(code){
+		this.code = code;
+	};
+	Click.prototype.get = function(node){
+		this.code = node.attr('data-click');
+		return this;
+	};
+	Click.prototype.set = function(node){
+		node.attr('data-click',this.code);
+		return this;
+	};
+	Click.prototype.render = function(node,context){
+		var scopes = $.extend(true,[],context.scopes);
+		var func = context.function(scopes,this.code);
+		node.on('click',function(){
+			func(scopes);
+		});
+		directiveRenderChildren(node,context);
+		return this;
+	};
+	Click.prototype.apply = directiveApply;
+
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -1456,19 +1820,17 @@ var Stencila = (function(Stencila){
 		function prop(name){
 			return $('head meta[itemprop='+name+']').attr('content');
 		}
-		// Create component
+		// Create component and startup
 		var com;
 		var type = prop('type');
-		if(type==='stencil') com = new Stencil('#content');
+		if(type==='stencil') com = new Stencil();
 		else if(type==='theme') com = new Theme();
 		else com = new Component();
-		// Set theme and startup
-		var theme = prop('theme');
-		com.theme(theme,function(theme){
-			com.startup(theme);
-		});
-		// Primarily for debugging, make the component accessible
+		com.startup();
 		Stencila.Com = com;
+		// Load theme and apply it to the component
+		var theme = prop('theme');
+		Theme.load(theme,com);
 	};
 
 	return Stencila;
