@@ -474,14 +474,14 @@ public:
 	std::vector<Execute> execs(void) const;
 
 	/**
-	 * A `when` directive (e.g. `<div data-when="py,cpp"><span data-text="point.x" /></div>` )
+	 * A `where` directive (e.g. `<div data-where="py,cpp"><span data-text="point.x" /></div>` )
 	 *
 	 * Used to restrict the rendering of sections of a stencil to only some context types.
 	 * This is useful when evaluated expressions are specific to a particular context type.
 	 * If the current context does not accept one of the labels in the comma separated list the
 	 * section is turned off.
 	 */
-	struct When : Directive {
+	struct Where : Directive {
 		std::vector<Name> contexts;
 
 		void parse(const std::string& attribute);

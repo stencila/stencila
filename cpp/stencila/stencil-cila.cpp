@@ -453,9 +453,9 @@ public:
 			// Directives with no argument
 			directive_noarg("\\b(each|else|default)\\b"),
 			// Directives with a single string argument
-			directive_str("\\b(when|icon|macro)\\s+([^\\s}]+)"),
+			directive_str("\\b(where|icon|macro)\\s+([^\\s}]+)"),
 			// Directives with a single expression argument
-			directive_expr("\\b(when|with|text|if|elif|switch|case)\\s+([^\\s}]+)"),
+			directive_expr("\\b(with|text|if|elif|switch|case)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
 			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
 			// `attr` directive

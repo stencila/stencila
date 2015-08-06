@@ -7,20 +7,41 @@
 namespace Stencila {
 
 const std::vector<std::string> Stencil::directives = {
+	// Execution
 	"data-exec",
-	"data-when",
+	"data-where",
+	"data-call",
+	
+	// Element attributes and contents
 	"data-attr",
 	"data-text",
 	"data-icon",
 	"data-refer",
+	
+	// Scoping
 	"data-with",
+	
+	// Logical
 	"data-if","data-elif","data-else",
 	"data-switch","data-case","data-default",
 	"data-for","data-each",
-	"data-par",
-	"data-set",
-	"data-include","data-delete","data-replace","data-change","data-before","data-after","data-prepend","data-append",
+	
+	// Macros and parameters
 	"data-macro",
+	"data-par",
+
+	// Inclusion
+	"data-include",
+		"data-set",
+		"data-delete","data-replace","data-change","data-before","data-after","data-prepend","data-append",
+
+	// Signals, events, interaction
+	"data-when",
+	"data-react",
+		"data-on",
+	"data-click",
+
+	// Comments
 	"data-comments","data-comment"
 };
 
@@ -350,19 +371,19 @@ std::vector<Stencil::Execute> Stencil::execs(void) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Stencil::When::parse(const std::string& attribute){
+void Stencil::Where::parse(const std::string& attribute){
 	if(attribute.length()){
 		contexts = split(attribute,",");
 		for(auto& context : contexts) trim(context);
 	}
-	else throw DirectiveException("when-empty");
+	else throw DirectiveException("where-empty");
 }
 
-void Stencil::When::scan(Node node){
-	parse(node.attr("data-when"));
+void Stencil::Where::scan(Node node){
+	parse(node.attr("data-context"));
 }
 
-void Stencil::When::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
+void Stencil::Where::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	scan(node);
 	bool ok = false;
 	for(auto& item : contexts){

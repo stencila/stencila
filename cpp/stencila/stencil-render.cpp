@@ -45,7 +45,7 @@ void Stencil::render(Node node, std::shared_ptr<Context> context){
 				// Remove any existing error attribute
 				node.erase("data-error");
 	
-				if(attr=="data-when") return When().render(*this,node,context);
+				if(attr=="data-where") return Where().render(*this,node,context);
 				else if(attr=="data-attr") return Attr().render(*this,node,context);
 				else if(attr=="data-text") return Text().render(*this,node,context);
 				else if(attr=="data-with") return With().render(*this,node,context);

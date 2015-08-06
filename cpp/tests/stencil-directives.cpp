@@ -135,18 +135,18 @@ BOOST_AUTO_TEST_CASE(attr){
 	BOOST_CHECK_EQUAL(attr.expression,"expression");
 }
 
-BOOST_AUTO_TEST_CASE(when){
-	Stencil::When when;
+BOOST_AUTO_TEST_CASE(where){
+	Stencil::Where where;
 
-	when.parse("r");
-	BOOST_CHECK_EQUAL(when.contexts.size(),1);
-	BOOST_CHECK_EQUAL(when.contexts[0],"r");
+	where.parse("r");
+	BOOST_CHECK_EQUAL(where.contexts.size(),1);
+	BOOST_CHECK_EQUAL(where.contexts[0],"r");
 
-	when.parse("r,py ,  cpp");
-	BOOST_CHECK_EQUAL(when.contexts.size(),3);
-	BOOST_CHECK_EQUAL(when.contexts[0],"r");
-	BOOST_CHECK_EQUAL(when.contexts[1],"py");
-	BOOST_CHECK_EQUAL(when.contexts[2],"cpp");
+	where.parse("r,py ,  cpp");
+	BOOST_CHECK_EQUAL(where.contexts.size(),3);
+	BOOST_CHECK_EQUAL(where.contexts[0],"r");
+	BOOST_CHECK_EQUAL(where.contexts[1],"py");
+	BOOST_CHECK_EQUAL(where.contexts[2],"cpp");
 }
 
 BOOST_AUTO_TEST_CASE(for_){
