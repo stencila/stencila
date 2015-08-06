@@ -249,6 +249,10 @@ get_ <- function(instance,symbol,value){
     if(missing(value)) method_(instance,symbol)
     else stop('Read only field')
 }
+# Call setter function
+set_ <- function(instance,symbol,value){
+    method_(instance,symbol,value)
+}
 # Call getter or setter function as appropriate
 get_set_ <- function(instance,get_symbol,set_symbol,value){
     if(missing(value)) method_(instance,get_symbol)

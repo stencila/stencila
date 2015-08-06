@@ -22,7 +22,16 @@ STENCILA_R_FUNC Stencil_export(SEXP self,SEXP path){
 STENCILA_R_EXEC1(Stencil,read,std::string)
 STENCILA_R_EXEC1(Stencil,write,std::string)
 
-STENCILA_R_GETSET(Stencil,html,std::string)
+STENCILA_R_FUNC Stencil_html_get(SEXP self,SEXP pretty){
+    STENCILA_R_BEGIN
+        return wrap(from<Stencil>(self).html(
+            false,
+            as<bool>(pretty)
+        ));
+    STENCILA_R_END
+}
+STENCILA_R_SET(Stencil,html,std::string)
+
 STENCILA_R_GETSET(Stencil,cila,std::string)
 
 STENCILA_R_GET(Stencil,title)
@@ -38,17 +47,6 @@ STENCILA_R_FUNC Stencil_select(SEXP self,SEXP selector){
             as<std::string>(selector)
         );
         return to<Html::Node>(node,"HtmlNode");
-    STENCILA_R_END
-}
-
-// An alternative to the `html` getter which allows specifying
-// options on pretty printing
-STENCILA_R_FUNC Stencil_html_options(SEXP self,SEXP pretty){
-    STENCILA_R_BEGIN
-        return wrap(from<Stencil>(self).html(
-        	false,
-        	as<bool>(pretty)
-        ));
     STENCILA_R_END
 }
 

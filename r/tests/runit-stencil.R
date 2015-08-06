@@ -14,8 +14,8 @@ test.Stencil.inherited <- function(){
 test.Stencil.html <- function(){
   s <- Stencil()
 
-  s$html <- '<p>foo</p>'
-  checkEquals('<p>\n\tfoo\n</p>',s$html)
+  s$html('<p>foo</p>')
+  checkEquals('<p>\n\tfoo\n</p>',s$html())
 }
 
 test.Stencil.contexts <- function(){
@@ -30,7 +30,7 @@ render <- function(stencil,context=list()){
         stencil <- Stencil(paste("html://",stencil))
     }
     stencil$render(context)
-    stencil$html_get(FALSE)
+    stencil$html(FALSE)
 }
 
 test.Stencil.render.exec <- function(){

@@ -32,22 +32,7 @@ setRefClass(
         # when there is a C++-side `RContext` which holds a pointer to it.
         # A '.' prefix is used to signify this is a private field and to prevent
         # a name clash with method arguments
-        .context = 'ANY',
-
-        html = function(value) get_set_(.self,'Stencil_html_get','Stencil_html_set',value),
-        cila = function(value) get_set_(.self,'Stencil_cila_get','Stencil_cila_set',value),
-
-        title = function(value) get_(.self,'Stencil_title_get'),
-        description = function(value) get_(.self,'Stencil_description_get'),
-        keywords = function(value) get_(.self,'Stencil_keywords_get'),
-        authors = function(value) get_(.self,'Stencil_authors_get'),
-        contexts = function(value) get_(.self,'Stencil_contexts_get'),
-
-        # Getter/setter for stencil context
-        context = function(value){
-            if(missing(value)) .context
-            else attach(value)
-        }
+        .context = 'ANY'
     ),
     contains = 'Component',
     methods = list(
@@ -61,8 +46,29 @@ setRefClass(
             method_(.self,'Stencil_initialise',initialiser)
         },
 
-        html_get = function(pretty=true){
-            method_(.self,'Stencil_html_options',pretty)
+        html = function(value){
+            if(missing(value)) get_(.self,'Stencil_html_get',FALSE)
+            else if(typeof(value)=='logical') get_(.self,'Stencil_html_get',value)
+            else set_(.self,'Stencil_html_set',toString(value))
+        },
+        cila = function(value){
+            get_set_(.self,'Stencil_cila_get','Stencil_cila_set',value)
+        },
+
+        title = function(){
+            get_(.self,'Stencil_title_get')
+        },
+        description = function(){
+            get_(.self,'Stencil_description_get')
+        },
+        keywords = function(){
+            get_(.self,'Stencil_keywords_get')
+        },
+        authors = function(){
+            get_(.self,'Stencil_authors_get')
+        },
+        contexts = function(){
+            get_(.self,'Stencil_contexts_get')
         },
 
         import = function(path) method_(.self,'Stencil_import',path),
@@ -70,10 +76,14 @@ setRefClass(
         read = function(path="") method_(.self,'Stencil_read',path),
         write = function(path="") method_(.self,'Stencil_write',path),
 
-        # Currently, rather than invoking multiple inheritance (ie.e a stecnil derived from a Html::Node)
-        # implement these methods for Stencils and HtmlNodes
+        # Currently, rather than invoking multiple inheritance (i.e a stencil derived from a Html::Node)
+        # implement these methods for Stencils and HtmlNodes separately
         select = function(selector) method_(.self,'Stencil_select',selector),
 
+        context = function(value){
+            if(missing(value)) .context
+            else attach(value)
+        },
         attach = function(context){
             if(!is.null(context)) detach()
             if(inherits(context,'Context')) .context <<- context
