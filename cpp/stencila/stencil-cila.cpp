@@ -456,7 +456,7 @@ public:
 			// Directives with a single string argument
 			directive_str("\\b(where|icon|macro)\\s+([^\\s}]+)"),
 			// Directives with a single expression argument
-			directive_expr("\\b(call|with|text|if|elif|switch|case|react)\\s+([^\\s}]+)"),
+			directive_expr("\\b(call|with|text|if|elif|switch|case|react|click)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
 			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
 			// `attr` directive

@@ -903,14 +903,14 @@ div at the start of lines
 
 `click` directive <>
 --------------------------------------------------
-div {button click start(simulation)}
-div {button click console.log('Hello!')}
+div {button click start(simulation) Start}
+div {button click console.log('Hello!') Greet}
 --------------------------------------------------
 <div>
-	<button>click start(simulation)</button>
+	<button data-click="start(simulation)">Start</button>
 </div>
 <div>
-	<button>click console.log('Hello!')</button>
+	<button data-click="console.log('Hello!')">Greet</button>
 </div>
 --------------------------------------------------
 
