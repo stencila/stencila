@@ -160,10 +160,8 @@ Stencil& Stencil::pdf(const std::string& direction, const std::string& path,cons
 }
 
 Stencil& Stencil::compile(void){
-	render();
 	auto home = boost::filesystem::path(path(true));
 	export_((home/"page.html").string());
-	preview((home/"preview.png").string());
 	return *this;
 }
 
