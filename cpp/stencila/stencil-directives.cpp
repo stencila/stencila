@@ -10,7 +10,6 @@ const std::vector<std::string> Stencil::directives = {
 	// Execution
 	"data-exec",
 	"data-where",
-	"data-call",
 	
 	// Element attributes and contents
 	"data-attr",
@@ -40,6 +39,7 @@ const std::vector<std::string> Stencil::directives = {
 	"data-react",
 		"data-on",
 	"data-click",
+	"data-call",
 
 	// Comments
 	"data-comments","data-comment"
@@ -380,7 +380,7 @@ void Stencil::Where::parse(const std::string& attribute){
 }
 
 void Stencil::Where::scan(Node node){
-	parse(node.attr("data-context"));
+	parse(node.attr("data-where"));
 }
 
 void Stencil::Where::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){

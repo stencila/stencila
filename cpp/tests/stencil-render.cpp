@@ -95,22 +95,22 @@ R"(<figure id="figure-a">
 	);
 }
 
-BOOST_AUTO_TEST_CASE(when){
+BOOST_AUTO_TEST_CASE(where){
 	render(R"(
-		<div data-when="map">
+		<div data-where="map">
 			<p data-text="a" />
 		</div>
-		<div data-when="map,foo,bar">
+		<div data-where="map,foo,bar">
 			<p data-text="a" />
 		</div>
-		<div data-when="foo,bar">
+		<div data-where="foo,bar">
 			<p data-text="a" />
 		</div>
 	)");
-	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"map\"] [data-text=\"a\"]").text(),"A");
-	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"map,foo,bar\"] [data-text=\"a\"]").text(),"A");
-	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"foo,bar\"]").attr("data-off"),"true");
-	BOOST_CHECK_EQUAL(stencil.select("[data-when=\"foo,bar\"] [data-text=\"a\"]").text(),"");
+	BOOST_CHECK_EQUAL(stencil.select("[data-where=\"map\"] [data-text=\"a\"]").text(),"A");
+	BOOST_CHECK_EQUAL(stencil.select("[data-where=\"map,foo,bar\"] [data-text=\"a\"]").text(),"A");
+	BOOST_CHECK_EQUAL(stencil.select("[data-where=\"foo,bar\"]").attr("data-off"),"true");
+	BOOST_CHECK_EQUAL(stencil.select("[data-where=\"foo,bar\"] [data-text=\"a\"]").text(),"");
 }
 
 BOOST_AUTO_TEST_CASE(attr){

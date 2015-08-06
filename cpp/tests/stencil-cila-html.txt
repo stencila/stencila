@@ -785,14 +785,14 @@ for i in range(1,10):
 --------------------------------------------------
 
 
-`when` directive <>
+`where` directive <>
 --------------------------------------------------
 Get a blank line before
 
-when py
+where py
 	Then do this
 
-when py,r
+where py,r
 	Then do that
 
 Get a blank line after
@@ -800,10 +800,10 @@ Get a blank line after
 <p>
 	Get a blank line before
 </p>
-<div data-when="py">
+<div data-where="py">
 	Then do this
 </div>
-<div data-when="py,r">
+<div data-where="py,r">
 	Then do that
 </div>
 <p>
@@ -865,6 +865,66 @@ div %"don't panic"@3,4
 <div data-error="arrrgh"></div>
 <div data-error="something went wrong@1"></div>
 <div data-warning="don't panic@3,4"></div>
+--------------------------------------------------
+
+
+`when` directive <>
+--------------------------------------------------
+when 'my-special-event'
+when object.signal('delete') then delete
+--------------------------------------------------
+<div data-when="'my-special-event'"></div>
+<div data-when="object.signal('delete') then delete"></div>
+--------------------------------------------------
+
+
+`react` and `on` directives <>
+--------------------------------------------------
+react x>0
+	on click
+		some code
+
+		with blank lines
+
+		with keywords and element names
+		div at the start of lines
+--------------------------------------------------
+<div data-react="x>0">
+	<pre data-on="click">some code
+
+with blank lines
+
+with keywords and element names
+div at the start of lines
+</pre>
+</div>
+--------------------------------------------------
+
+
+`click` directive <>
+--------------------------------------------------
+div {button click start(simulation)}
+div {button click console.log('Hello!')}
+--------------------------------------------------
+<div>
+	<button>click start(simulation)</button>
+</div>
+<div>
+	<button>click console.log('Hello!')</button>
+</div>
+--------------------------------------------------
+
+
+`call` directive >>
+--------------------------------------------------
+call myfunc
+	input [name=arg1]
+	input [name=arg2]
+	button [type=submit] Calculate
+--------------------------------------------------
+<form data-call="myfunc">
+	<input name="arg1"><input name="arg2"><button type="submit">Calculate</button>
+</form>
 --------------------------------------------------
 
 

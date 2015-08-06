@@ -448,6 +448,7 @@ public:
 			// Directives with embedded content and associated
 			exec_open("\\b(exec|cila|js|html|r|py)\\b((\\s+format\\s+[^\\s]+)?(\\s+size\\s+[^\\s]+)?(\\s+const)?(\\s+show)?)"),
 			out("\\bout\\b"),
+			on_open("\\bon\\b\\s+(\\w+)(\\n|$)"),
 			style_open("\\b(style|css)\\b(\\n|$)"),
 
 			// Directives with no argument
@@ -455,7 +456,7 @@ public:
 			// Directives with a single string argument
 			directive_str("\\b(where|icon|macro)\\s+([^\\s}]+)"),
 			// Directives with a single expression argument
-			directive_expr("\\b(with|text|if|elif|switch|case)\\s+([^\\s}]+)"),
+			directive_expr("\\b(call|with|text|if|elif|switch|case|react)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
 			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
 			// `attr` directive
@@ -470,6 +471,8 @@ public:
 			directive_modifier("\\b(delete|replace|change|before|after|prepend|append)\\s+([\\.\\#\\w\\-]+)"),
 			// `par` directive
 			directive_par("\\bpar\\s+([\\w]+)(\\s+type\\s+([\\w]+))?(\\s+value\\s+([^\\s}]+))?"),
+			// `when` directive
+			directive_when("\\bwhen\\s+([^\\s}]+)(\\s+then\\s+([\\w]+))?"),
 			// `comments` directive
 			directive_comments("\\bcomments(\\s+([\\#\\.\\w-]+))?"),
 			// `comment` directive
@@ -557,6 +560,13 @@ public:
 					std::string args = trim(match[2].str());
 					if(args.length()) value += " " + args;
 					node.attr("data-exec",value);
+				}
+				else if(is(on_open)){
+					trace("on");
+					// On directive is handled similarly to an exec directive
+					enter_across("pre",embed);
+					push(flags);
+					node.attr("data-on",match[1].str());
 				}
 				else if(is(out)){
 					trace("out");
@@ -690,6 +700,7 @@ public:
 					auto directive = match[1].str();
 					auto arg = match[2].str();
 					if(directive=="text" or directive=="refer") enter_elem_if_needed("span");
+					else if(directive=="call") enter_elem_if_needed("form");
 					else enter_elem_if_needed();
 					node.attr("data-"+directive,arg);
 				}
@@ -737,6 +748,14 @@ public:
 					if(match[3].str()!="") args += " type " + match[3].str();
 					if(match[5].str()!="") args += " value " + match[5].str();
 					node.attr("data-par",args);
+				}
+				else if(is(directive_when)){
+					trace("directive_when");
+
+					enter_elem_if_needed();
+					auto args = match[1].str();
+					if(match[3].str()!="") args += " then " + match[3].str();
+					node.attr("data-when",args);
 				}
 				else if(is(directive_comments)){
 					trace("directive_comments");
@@ -1232,9 +1251,9 @@ public:
 			// with blank lines before and after?
 			bool isolated = 
 				name=="section" or name=="p" or name=="figure" or name=="table" or
-				name=="style" or 
+				name=="style" or name=="form" or
 				node.has("data-exec") or node.has("data-out") or
-				node.has("data-when") or node.has("data-with") or 
+				node.has("data-where") or node.has("data-with") or 
 				node.has("data-for") or node.has("data-switch") or 
 				node.has("data-include") or node.has("data-macro");
 			if(isolated) blankline();
@@ -1260,6 +1279,14 @@ public:
 				space_required = true;
 
 				erase_attr("data-exec");
+				embedded = true;
+			}
+			// On directive (as for exec directive)
+			else if(node.has("data-on")){
+				content("on "+node.attr("data-on"));
+				space_required = true;
+
+				erase_attr("data-on");
 				embedded = true;
 			}
 			// Execute directive output
