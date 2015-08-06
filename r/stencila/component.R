@@ -24,6 +24,10 @@ setRefClass(
 			get_(.self,'Component_address_get')
 		},
 
+		held = function(){
+			get_(.self,'Component_held_get')
+		},
+
 		managed = function(value){
 			get_set_(.self,'Component_managed_get','Component_managed_set',value)
 		},
@@ -214,4 +218,12 @@ grab <- function(address){
 	type <- parts[1]
 	address <- parts[2]
 	return(get(type)(address))
+}
+
+#' Get a list of held components
+#' 
+#' See the Stencila C++ method `Component::held_list`.
+#' Mostly used for debugging so not exported.
+held_list <- function(){
+	call_('Component_held_list')
 }

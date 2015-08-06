@@ -9,6 +9,8 @@ STENCILA_R_GETSET(Component,path,std::string)
 
 STENCILA_R_GET(Component,address)
 
+STENCILA_R_GET(Component,held)
+
 STENCILA_R_GETSET(Component,managed,bool)
 
 STENCILA_R_GET(Component,origin)
@@ -72,5 +74,25 @@ STENCILA_R_FUNC Component_grab(SEXP address){
         parts[0] = Component::type_name(instance.type());
         parts[1] = instance.as<Component>().path();
         return parts;
+    STENCILA_R_END
+}
+
+STENCILA_R_FUNC Component_held_list(){
+    STENCILA_R_BEGIN
+        auto list = Component::held_list();
+        auto rows = list.size();
+        Rcpp::CharacterVector address(rows);
+        Rcpp::CharacterVector type(rows);
+        for(unsigned int i=0;i<rows;i++){
+            auto& info = list[i];
+            address[i] = info.first;
+            type[i] = info.second;
+        }
+        return Rcpp::DataFrame::create(
+            Rcpp::Named("address") = address,
+            Rcpp::Named("type") = type,
+            // Don't convert strings to factors
+            Rcpp::Named("stringsAsFactors") = 0
+        );
     STENCILA_R_END
 }

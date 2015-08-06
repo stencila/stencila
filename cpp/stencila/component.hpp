@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <tuple>
 #include <map>
 
 #include <stencila/helpers.hpp>
@@ -473,6 +474,16 @@ public:
 	 * @param type     `Type` for the class of component
 	 */
 	Component& hold(Type type = ComponentType);
+
+	/**
+	 * Is this component held?
+	 */
+	bool held(void) const;
+
+	/**
+	 * Get a list of all components held with address and type strings
+	 */
+	static std::vector<std::pair<std::string,std::string>> held_list(void);
 
 	/**
 	 * Get the type of a component at path

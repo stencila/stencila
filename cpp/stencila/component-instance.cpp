@@ -40,6 +40,19 @@ Component& Component::hold(Type type) {
 	return *this;
 }
 
+bool Component::held(void) const {
+	auto iterator = instances_.find(address());
+	return iterator!=instances_.end();
+}
+
+std::vector<std::pair<std::string,std::string>> Component::held_list(void){
+	std::vector<std::pair<std::string,std::string>> list;
+	for(auto instance : instances_){
+		list.push_back({instance.first,type_name(instance.second.type())});
+	}
+	return list;
+}
+
 Component::Type Component::type(const std::string& path_string){
 	boost::filesystem::path path(path_string);
 	for(auto file : {"stencil.html","stencil.cila"}){
