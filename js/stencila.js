@@ -382,14 +382,14 @@ var Stencila = (function(Stencila){
 		// ...remove any leading /
 		if(this.address.length && this.address[0]==='/') this.address=this.address.substr(1);
 
-		// Set closed. By default is false
-		this.closed = false;
+		// Set quiet. By default is false
+		this.quiet = false;
 		// ... but can be set in <meta> tag
-		var closed = $('head meta[itemprop=closed]');
-		if(closed.length) this.closed = closed.attr('content')=='true';
+		var quiet = $('head meta[itemprop=quiet]');
+		if(quiet.length) this.quiet = quiet.attr('content')=='true';
 		// ... but always overidden by hash fragment
-		if(window.location.hash==='#closed!') this.closed = true;
-		else if(window.location.hash==='#open!') this.closed = false;
+		if(window.location.hash==='#quiet!') this.quiet = true;
+		else if(window.location.hash==='#unquiet!') this.quiet = false;
 
 		// Set preview mode
 		this.preview = false;
@@ -409,7 +409,12 @@ var Stencila = (function(Stencila){
 		this.meta = false;
 	};
 
-	Component.prototype.startup = function(what){
+	/**
+	 * Startup function for the component. Called
+	 * once the theme for the component has been loaded and applied
+	 * to the component.
+	 */
+	Component.prototype.startup = function(){
 		var self = this;
 		if(!self.preview && !self.embedded){
 			// Attempt to sign in to hub automatically
@@ -428,12 +433,10 @@ var Stencila = (function(Stencila){
 					});
 				});
 			}
-			if(!self.closed){
-				// Read meta-data to update view
-				self.read();
-				// Attempt to activate now if on localhost
-				if(self.host=='localhost') self.activate();
-			}
+			// Read meta-data to update view
+			self.read();
+			// Attempt to activate now if on localhost
+			if(self.host=='localhost') self.activate();
 		}
 	};
 
@@ -491,7 +494,7 @@ var Stencila = (function(Stencila){
 			if(this.host=='localhost'){
 				// On localhost, simply connect to the Websocket at the
 				// same address
-				var websocket = window.location.href.replace("http:","ws:");
+				var websocket = 'ws://'+window.location.host+window.location.pathname;
 				this.connection = new WebSocketConnection(websocket);
 				this.activation = 'active';
 				this.notify('component:activation:changed');
@@ -620,7 +623,6 @@ var Stencila = (function(Stencila){
 				var context = $('head meta[itemprop=contexts]').attr('content');
 				if(context=='js'){
 					self.context = new Context();
-					self.render();
 				}
 			}
 		}	
@@ -628,6 +630,12 @@ var Stencila = (function(Stencila){
 		self.editable_ = (self.host=='localhost');
 
 		if(callback) callback(self);
+	}
+
+	Stencil.prototype.startup = function(){
+		var self = this;
+		Component.prototype.startup.call(self);
+		if(self.context) self.render();
 	}
 
 	/**
@@ -906,7 +914,7 @@ var Stencila = (function(Stencila){
 	/**
 	 * Load a theme and apply it to a component
 	 */
-	Theme.load = function(theme,com){
+	Theme.load = function(theme,com,callback){
 		// Load theme CSS. 
 		// This is currently done, with fallbacks,
 		// in the component's page <head> but will need to be done
@@ -919,7 +927,8 @@ var Stencila = (function(Stencila){
 		// Load theme Javascript, instantiate a theme object and apply it to the
 		// component
 		require([theme+'/theme'],function(Theme){
-			new Theme(com);
+			var theme = new Theme(com);
+			callback(theme);
 		});
 	};
 
@@ -1820,17 +1829,20 @@ var Stencila = (function(Stencila){
 		function prop(name){
 			return $('head meta[itemprop='+name+']').attr('content');
 		}
-		// Create component and startup
-		var com;
+		// Create component
+		var component;
 		var type = prop('type');
-		if(type==='stencil') com = new Stencil();
-		else if(type==='theme') com = new Theme();
-		else com = new Component();
-		com.startup();
-		Stencila.Com = com;
+		if(type==='stencil') component = new Stencil();
+		else if(type==='theme') component = new Theme();
+		else component = new Component();
+		Stencila.Component = component;
 		// Load theme and apply it to the component
 		var theme = prop('theme');
-		Theme.load(theme,com);
+		Theme.load(theme,component,function(theme){
+			Stencila.Theme = theme;
+			// Now theme has been created, startup the component
+			component.startup();
+		});
 	};
 
 	return Stencila;

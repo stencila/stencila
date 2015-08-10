@@ -33,8 +33,8 @@ std::string Stencil::page(void) const {
 
 	// Extra metadata
 	head.append("meta",{
-		{"itemprop","closed"},
-		{"content",closed()?"true":"false"}
+		{"itemprop","quiet"},
+		{"content",quiet()?"true":"false"}
 	});
 	head.append("meta",{
 		{"itemprop","contexts"},
