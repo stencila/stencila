@@ -207,22 +207,27 @@ var Stencila = (function(Stencila){
 
 	/**
 	 * Stencila Hub at https://stenci.la
-	 *
-	 * Previously, the URLs below used for XHR (AJAX) requests used the window.locations.protocol.
-	 * Regardless, all http requests are redirected to https on the hub. However, that caused problems (
-	 * related to CORS requiring those redirects to have appropriate headers set). So to avoid those issues
-	 * and reduce latency, all requests use https! 
 	 */
-	var Hub = Stencila.Hub = {};
+	var Hub = Stencila.Hub = {
+		/**
+		 * URL root for all requests
+		 *
+		 * Previously, the URLs below used for XHR (AJAX) requests used the window.locations.protocol.
+		 * Regardless, all http requests are redirected to https on the hub. However, that caused problems (
+		 * related to CORS requiring those redirects to have appropriate headers set). So to avoid those issues
+		 * and reduce latency, all requests use https! 
+		 */
+		origin : 'https://stenci.la/api/',
+		/**
+		 * Username and permit strings
+		 *
+		 * Permit is used for authentication and CSRF validation
+		 * for all asynchronous requests
+		 */
+		username : null,
+		permit : null
+	};
 
-	/**
-	 * Username and permit strings for stenci.la
-	 *
-	 * Permit is used for authentication and CSRF validation
-	 * for all asynchronous requests
-	 */
-	Hub.username = null;
-	Hub.permit = null;
 
 	/**
 	 * Signin to stenci.la
@@ -270,7 +275,7 @@ var Stencila = (function(Stencila){
 		if(!need){
 			// Get a permit to be used for subsequent requests
 			$.ajax({
-				url: 'https://stenci.la/user/permit',
+				url: this.origin+'user/me/permit',
 				method: 'GET',
 				headers: headers
 			}).done(function(data){
@@ -311,7 +316,7 @@ var Stencila = (function(Stencila){
 				'Authorization' : 'Permit '+Hub.permit
 			};
 			$.ajax({
-				url: 'https://stenci.la/'+path,
+				url: this.origin+path,
 				method: 'GET',
 				headers: headers
 			}).done(then);
@@ -335,7 +340,7 @@ var Stencila = (function(Stencila){
 			});
 		} else {
 			$.ajax({
-				url: 'https://stenci.la/'+path,
+				url: this.origin+path,
 				method: 'POST',
 				headers: {
 					'Authorization' : 'Permit '+Hub.permit,
@@ -348,11 +353,6 @@ var Stencila = (function(Stencila){
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	
-	/**
-	 * Component instance on page
-	 */
-	var Com = null;
 
 	/**
 	 * Base class for all components
@@ -421,9 +421,10 @@ var Stencila = (function(Stencila){
 			Hub.signin(false,null,false);
 			// Localise the page based on this address
 			if(self.host=='stenci.la'){
-				var url = '.localize';
-				if(self.address) url = self.address+'/'+url;
-				Hub.get(url,false,function(data){
+				var url = 'components/';
+				if(self.address) url += self.address;
+				else url += 'null';
+				Hub.get(url+'/localize',false,function(data){
 					var locale = $(data);
 					$(document.head).append(locale.find('#styles').html());
 					$(document.body).prepend(locale.find('#header'));
@@ -433,6 +434,8 @@ var Stencila = (function(Stencila){
 					});
 				});
 			}
+		}
+		if(!self.preview && !self.quiet){
 			// Read meta-data to update view
 			self.read();
 			// Attempt to activate now if on localhost
@@ -456,7 +459,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.read = function(){
 		var self = this;
-		Hub.get(this.address+"/.details",false,function(data){
+		Hub.get('components/'+this.address,false,function(data){
 			$.each(data,function(key,value){
 				self[key] = value;
 			});
@@ -470,7 +473,7 @@ var Stencila = (function(Stencila){
 	 */
 	Component.prototype.favourite = function(){
 		var self = this;
-		Hub.post(this.address+"/.favourite",null,function(response){
+		Hub.post('components/'+this.address+"/favourite",null,function(response){
 			self.favourites = response.favourites;
 			self.favourited = response.favourited;
 		});
@@ -1132,7 +1135,7 @@ var Stencila = (function(Stencila){
 			func += 'with(this.scopes['+index+']){\n';
 		}
 		if(!exec) func += 'return ';
-		func += code + ';\n';
+		func += code.replace(/\\_/g,' ') + ';\n';
 		for(index=0;index<this.scopes.length;index++){
 			func += '}\n';
 		}
@@ -1835,7 +1838,7 @@ var Stencila = (function(Stencila){
 		if(type==='stencil') component = new Stencil();
 		else if(type==='theme') component = new Theme();
 		else component = new Component();
-		Stencila.Component = component;
+		Stencila.Com = component;
 		// Load theme and apply it to the component
 		var theme = prop('theme');
 		Theme.load(theme,component,function(theme){
