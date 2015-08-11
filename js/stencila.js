@@ -1,5 +1,9 @@
 var Stencila = (function(Stencila){
 
+	var DEBUG = true;
+
+	var LOG = DEBUG ? console.log.bind(console) : function () {};
+
 	/**
 	 * Configuration for requirejs module loader
 	 *
@@ -421,10 +425,10 @@ var Stencila = (function(Stencila){
 			Hub.signin(false,null,false);
 			// Localise the page based on this address
 			if(self.host=='stenci.la'){
-				var url = 'components/';
-				if(self.address) url += self.address;
-				else url += 'null';
-				Hub.get(url+'/localize',false,function(data){
+				var endpoint = 'components/';
+				if(self.address) endpoint += self.address;
+				else endpoint += 'null';
+				Hub.get(endpoint+'/localize?url='+window.location.href,false,function(data){
 					var locale = $(data);
 					$(document.head).append(locale.find('#styles').html());
 					$(document.body).prepend(locale.find('#header'));
@@ -979,64 +983,129 @@ var Stencila = (function(Stencila){
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	
 
-	var Resource = Stencila.Resource = function(url,options){
+	var Resource = Stencila.Resource = function(url,data){
 		this.url = url;
+		$.extend(this,data||{});
+	};
+	Resource.prototype = Object.create(Object.prototype);
+	Resource.constructor = Resource;
+
+	/**
+	 * Generate a signal string for an event on this resource
+	 * @param  {String} name Name of the event
+	 */
+	Resource.prototype.signal = function(name){
+		return 'Resource:'+this.url+':'+name;
 	};
 
-	Resource.prototype.pull = function(then){
+	/**
+	 * Notify subscribers of an event
+	 * 
+	 * @param  {String} name Name of the event
+	 */
+	Resource.prototype.notify = function(name){
+		var signal = this.signal(name);
+		$(document).trigger(signal);
+		LOG('NOTIFY: '+signal);
+	};
+
+	/**
+	 * Read this resource
+	 */
+	Resource.prototype.read = function(){
 		var self = this;
 		$.ajax({
-			url: this.url,
-			method: 'GET'
+			url: self.url,
+			method: 'GET',
+			dataType: "json"
 		}).done(function(data){
-			self.update(data);
-			if(then) then();
+			$.extend(this,data);
+			self.notify('read');
 		});
 	};
 
-	var Structure = Stencila.Structure = function(url){
-		Resource.call(this,url);
-	};
-	Structure.prototype = Object.create(Resource.prototype);
-	Structure.constructor = Structure;
-
-	Structure.prototype.update = function(data){
-		$.extend(this,data);
-	};
-
-	var Entity = Stencila.Entity = function(url,data){
-		this.url = url+'/'+data.id;
-		$.extend(this,data);
-	};
-	Entity.prototype = Object.create(Object.prototype);
-	Entity.constructor = Entity;
-
-	Entity.prototype.signal = function(name){
-		return 'entity:'+this.url+':'+name;
+	/**
+	 * Update this resource
+	 */
+	Resource.prototype.update = function(){
+		var self = this;
+		$.ajax({
+			url: self.url,
+			method: 'PATCH',
+			data: JSON.stringify(self),
+			contentType: "application/json; charset=utf-8",
+			dataType: "json"
+		}).done(function(data){
+			$.extend(this,data);
+			self.notify('updated');
+		});
 	};
 
-	Entity.prototype.delete = function(data){
+	/**
+	 * Delete this resource
+	 */
+	Resource.prototype.delete = function(){
 		var self = this;
 		$.ajax({
 			url: self.url,
 			method: 'DELETE'
+		}).done(function(data){
+			self.notify('deleted');
 		});
-		$(document).trigger(self.signal('delete'));
 	};
 
 
-	var Array_ = Stencila.Array = function(url){
-		Resource.call(this,url);
-		this.items = [];
+	/**
+	 * A list of resources
+	 */
+	var ResourceList = Stencila.ResourceList = function(url,items){
+		this.url = url;
+		this.items = items;
 	};
-	Array_.prototype = Object.create(Resource.prototype);
-	Array_.constructor = Array_;
+	ResourceList.prototype = Object.create(Object.prototype);
+	ResourceList.constructor = ResourceList;
 
-	Array_.prototype.signal = function(name){
-		return 'array:'+this.url+':'+name;
+	/**
+	 * Generate a signal string for an event on this resource
+	 * @param  {String} name Name of the event
+	 */
+	ResourceList.prototype.signal = function(name){
+		return 'ResourceList:'+this.url+':'+name;
 	};
 
-	Array_.prototype.create = function(data,callback){
+	/**
+	 * Notify subscribers of an event
+	 * 
+	 * @param  {String} name Name of the event
+	 */
+	ResourceList.prototype.notify = function(name){
+		var signal = this.signal(name);
+		$(document).trigger(signal);
+		LOG('NOTIFY: '+signal);
+	};
+
+	/**
+	 * Get the list of resources
+	 */
+	ResourceList.prototype.get = function(query,callback){
+		var self = this;
+		$.ajax({
+			url: self.url + (query?('?'+query):''),
+			method: 'GET'
+		}).done(function(data){
+			if(data.constructor !== Array) data = [data];
+			self.items = $.map(data,function(item){
+				return new Resource(self.url+'/'+item.id,item);
+			});
+			callback && callback();
+			self.notify('changed');
+		});
+	};
+
+	/**
+	 * Get the list of resources
+	 */
+	ResourceList.prototype.create = function(data,callback){
 		var self = this;
 		$.ajax({
 			url: self.url,
@@ -1045,33 +1114,17 @@ var Stencila = (function(Stencila){
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
 		}).done(function(data){
-			self.items.push(new Entity(self.url,data));
-			$(document).trigger(self.signal('create'));
+			self.items.push(
+				new Resource(self.url+'/'+data.id,data)
+			);
+			callback && callback();
+			self.notify('changed');
 		});
 	};
 
-	Array_.prototype.read = function(callback){
-		var self = this;
-		$.ajax({
-			url: this.url,
-			method: 'GET'
-		}).done(function(data){
-			self.items = [];
-			$.each(data,function(index,item){
-				if(typeof item === 'object'){
-					item = new Entity(self.url,item);
-				}
-				self.items.push(item);
-			});
-			if(callback) callback();
-		});
-	};
-
-	Array_.prototype.update = function(data){
-		this.items = data;
-	};
-
-
+	/**
+	 * Load a SVG icon sprite
+	 */
 	var Icons = Stencila.Icons = function(url){
 		$.ajax(url).done(function(svg){
 			var icons = document.body.appendChild(svg.children[0]);
@@ -1131,11 +1184,18 @@ var Stencila = (function(Stencila){
 	Context.prototype.evaluate_ = function(code,exec){
 		var func = '';
 		var index;
+		// Open with blocks
 		for(index=0;index<this.scopes.length;index++){
 			func += 'with(this.scopes['+index+']){\n';
 		}
+		// Remove encapsulating braces if necessary
+		// (when there are space are in the code, these are required)
+		var matches = code.match(/^{([^}]+)}$/);
+		if(matches) code = matches[1];
+		// Return or just execute
 		if(!exec) func += 'return ';
-		func += code.replace(/\\_/g,' ') + ';\n';
+		func += code + ';\n';
+		// Close with blocks
 		for(index=0;index<this.scopes.length;index++){
 			func += '}\n';
 		}
@@ -1494,19 +1554,9 @@ var Stencila = (function(Stencila){
 	};
 	With.prototype.render = function(node,context){
 		var object = context.evaluate_(this.expr);
-		if(object instanceof Structure){
-			var self = this;
-			object.pull(function(){
-				go.call(self,object);
-			});
-		} else {
-			go.call(this,object);
-		}
-		function go(object){
-			context.enter(object);
-			directiveRenderChildren(node,context);
-			context.exit();
-		}
+		context.enter(object);
+		directiveRenderChildren(node,context);
+		context.exit();
 		return this;
 	};
 	With.prototype.apply = directiveApply;
@@ -1584,33 +1634,23 @@ var Stencila = (function(Stencila){
 	};
 	For.prototype.render = function(node,context){
 		var items = context.evaluate_(this.items);
-		if(items instanceof Array_){
-			var self = this;
-			items.read(function(){
-				render.call(self,items.items);
-			});
-		} else {
-			render.call(this,items);
+		var more = context.begin(this.item,items);
+		var each = node.find(['data-each']);
+		if(each.length===0){
+			each = node.children().first();
 		}
-		function render(items){
-			var more = context.begin(this.item,items);
-			var each = node.find(['data-each']);
-			if(each.length===0){
-				each = node.children().first();
-			}
-			each.removeAttr('data-each');
-			each.removeAttr('data-off');
-			// Delete any other existing children
-			each.siblings().remove();
-			while(more){
-				var item = each.clone();
-				node.append(item);
-				directiveRender(item,context);
-				more = context.next();
-			}
-			each.attr('data-each','true');
-			each.attr('data-off','true');
+		each.removeAttr('data-each');
+		each.removeAttr('data-off');
+		// Delete any other existing children
+		each.siblings().remove();
+		while(more){
+			var item = each.clone();
+			node.append(item);
+			directiveRender(item,context);
+			more = context.next();
 		}
+		each.attr('data-each','true');
+		each.attr('data-off','true');
 		return this;
 	};
 	For.prototype.apply = directiveApply;
@@ -1702,8 +1742,12 @@ var Stencila = (function(Stencila){
 		var self = this;
 		var signal = context.evaluate_(this.expr);
 		$(document).on(signal,function(){
-			if(self.then=='render') directiveRender(node,context);
-			else if(self.then=='delete') node.remove();
+			if(self.then=='render'){
+				directiveRenderChildren(node,context);
+			}
+			else if(self.then=='delete'){
+				node.remove();
+			}
 			else if(self.then=='disappear'){
 				node.animate({
 					opacity: 0,
@@ -1713,7 +1757,8 @@ var Stencila = (function(Stencila){
 				});
 			}
 		});
-		directiveRenderChildren(node,context);
+		// Unless `then` is render, render all children now
+		if(self.then!=='render') directiveRenderChildren(node,context);
 		return this;
 	};
 	When.prototype.apply = directiveApply;
