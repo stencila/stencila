@@ -386,18 +386,8 @@ var Stencila = (function(Stencila){
 		// ...remove any leading /
 		if(this.address.length && this.address[0]==='/') this.address=this.address.substr(1);
 
-		// Set quiet. By default is false
-		this.quiet = false;
-		// ... but can be set in <meta> tag
-		var quiet = $('head meta[itemprop=quiet]');
-		if(quiet.length) this.quiet = quiet.attr('content')=='true';
-		// ... but always overidden by hash fragment
-		if(window.location.hash==='#quiet!') this.quiet = true;
-		else if(window.location.hash==='#unquiet!') this.quiet = false;
-
 		// Set preview mode
-		this.preview = false;
-		if(window.location.hash==='#preview!') this.preview = true;
+		this.preview = (window.location.hash==='#preview!');
 
 		// Determine if within an iframe
 		// Thanks to http://stackoverflow.com/a/326076/4625911
@@ -439,7 +429,7 @@ var Stencila = (function(Stencila){
 				});
 			}
 		}
-		if(!self.preview && !self.quiet){
+		if(!self.preview){
 			// Read meta-data to update view
 			self.read();
 			// Attempt to activate now if on localhost

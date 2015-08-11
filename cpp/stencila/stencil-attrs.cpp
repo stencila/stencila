@@ -74,9 +74,4 @@ std::string Stencil::theme(bool versioned) const {
 	else return "core/stencils/themes/default";
 }
 
-bool Stencil::quiet(void) const {
-	if(select("#quiet")) return true;
-	else return false;
-}
-
 }

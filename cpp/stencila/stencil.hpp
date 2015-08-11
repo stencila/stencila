@@ -309,14 +309,6 @@ public:
 	std::string theme(bool versioned=true) const;
 
 	/**
-	 * Is this stencil quiet?
-	 *
-	 * Quiet stencils are displayed in the browser without menus and
-	 * other embellishments that indicate that they are stencils
-	 */
-	bool quiet(void) const;
-
-	/**
 	 * @}
 	 */
 	
