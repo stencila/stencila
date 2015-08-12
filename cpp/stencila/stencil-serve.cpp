@@ -33,10 +33,6 @@ std::string Stencil::page(void) const {
 
 	// Extra metadata
 	head.append("meta",{
-		{"itemprop","quiet"},
-		{"content",quiet()?"true":"false"}
-	});
-	head.append("meta",{
 		{"itemprop","contexts"},
 		{"content",join(contexts(),",")}
 	});
@@ -46,10 +42,9 @@ std::string Stencil::page(void) const {
 	Stencil copy(*this);
 	copy.sanitize();
 
-	// Content is placed in a <main> rather than just using the <body> so that 
-	// extra HTML elements can be added by the theme without affecting the stencil's content.
-	// Note that this is prepended to body so it is before launch script
-	auto content = body.prepend("main",{
+	// Add stencil content to the #main element
+	auto main = body.select("#main");
+	auto content = main.append("div",{
 		{"id","content"}
 	}," ");
 	content.append(copy);

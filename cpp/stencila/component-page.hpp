@@ -141,6 +141,9 @@ Html::Document Component_page_doc(const Type& component) {
 		}
 	}
 
+	// Main element where custom component pages should add content
+	body.append("main",{{"id","main"}});
+
 	// Load Stencila Javascript module
 	// During development it can be useful to specify that a particular version of the Javascript
 	// module be used. For example, when compiling a component using a locally built development version of
