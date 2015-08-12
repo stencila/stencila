@@ -421,6 +421,8 @@ public:
 		// (subsequently needs to have a blank line before it)
 		para_needed = true;
 
+		std::string arg_expr = "(({[^}]+})|([^\\s}]+))";
+
 		// Define regular expressions
 		static const boost::regex
 			indentation("[ \\t]*"),
@@ -459,8 +461,8 @@ public:
 			directive_expr("\\b(call|with|text|if|elif|switch|case|react|click)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
 			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
-			// `attr` directive
-			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+([^\\s}]+))?"),
+			// `attr` directive        1          2               3
+			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+"+arg_expr+")?"),
 			// `for` directive
 			directive_for("\\bfor\\s+(\\w+)\\s+in\\s+([^\\s}]+)"),
 			// `include` directive
@@ -474,9 +476,9 @@ public:
 			// `when` directive
 			directive_when("\\bwhen\\s+([^\\s}]+)(\\s+then\\s+([\\w]+))?"),
 			// `comments` directive
-			directive_comments("\\bcomments(\\s+([\\#\\.\\w-]+))?"),
+			directive_comments("\\bcomments\\b( +([\\#\\.\\w-]+))?"),
 			// `comment` directive
-			directive_comment("\\bcomment\\s+(.+?)\\s+at\\s+([\\w\\-\\:\\.]+)"),
+			directive_comment("\\bcomment\\b +(.+?) +at +([\\w\\-\\:\\.]+)"),
 
 			// Just used for eating up spaces between attributes and flags
 			spaces(" +"),
@@ -1255,7 +1257,9 @@ public:
 				node.has("data-exec") or node.has("data-out") or
 				node.has("data-where") or node.has("data-with") or 
 				node.has("data-for") or node.has("data-switch") or 
-				node.has("data-include") or node.has("data-macro");
+				node.has("data-include") or node.has("data-macro") or
+				node.has("data-comments");
+			;
 			if(isolated) blankline();
 
 			// Is a space required for any following content
@@ -1372,13 +1376,17 @@ public:
 
 				// Directives
 				if(directive.first.length()){
-					auto name = directive.first;
+					auto attr = directive.first;
+					auto name = attr.substr(5);
+					auto value = directive.second;
 					// Directive name
 					if(space_required) content(" ");
-					content(name.substr(5));
+					content(name);
 					// Directive argumnet
-					if(not(name=="data-each" or name=="data-else" or name=="data-default")){
-						auto value = directive.second;
+					if(name=="comments"){
+						if(value.length()) content(" "+value);
+					}
+					else if(not(name=="each" or name=="else" or name=="default")){
 						content(" "+value);
 					}
 					space_required = true;

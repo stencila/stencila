@@ -856,6 +856,16 @@ div .class #id text 6*7
 --------------------------------------------------
 
 
+`attr` directive <>
+--------------------------------------------------
+attr name_string value value_expression
+attr name_string value {value expression can have spaces}
+--------------------------------------------------
+<div data-attr="name_string value value_expression"></div>
+<div data-attr="name_string value {value expression can have spaces}"></div>
+--------------------------------------------------
+
+
 `error` and `warning` flags <>
 --------------------------------------------------
 div !"arrrgh"
@@ -925,6 +935,34 @@ call myfunc
 <form data-call="myfunc">
 	<input name="arg1"><input name="arg2"><button type="submit">Calculate</button>
 </form>
+--------------------------------------------------
+
+
+`comments` directive <>
+--------------------------------------------------
+comments
+	comment @nokome at 2015-06-08T20:34:45
+		A
+
+comments #target-of-comment
+	comment @nokome at 2015-06-08T20:34:45
+		A
+	comment @matt at 2015-06-08T20:35:52
+		B
+--------------------------------------------------
+<div data-comments="">
+	<div data-comment="@nokome at 2015-06-08T20:34:45">
+		A
+	</div>
+</div>
+<div data-comments="#target-of-comment">
+	<div data-comment="@nokome at 2015-06-08T20:34:45">
+		A
+	</div>
+	<div data-comment="@matt at 2015-06-08T20:35:52">
+		B
+	</div>
+</div>
 --------------------------------------------------
 
 
