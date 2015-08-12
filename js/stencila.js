@@ -15,40 +15,42 @@ var Stencila = (function(Stencila){
 	});
 	// During development it can be useful to comment out this function so thrown
 	// exceptions are visible
-	require.onError = function (err) {
-		var modules = err.requireModules;
-		if(modules) {
-			// This accesses the "semi-private" configuration option. This API may 
-			// change in the furture!
-			var paths = requirejs.s.contexts._.config.paths;
-			// For each module...
-			for(var i = 0; i < modules.length; i++){
-				var module = modules[i];
-				var current = require.toUrl(module);
-				// Fallback needs to specify a scheme for cases where
-				// page scheme is file://
-				var fallback = 'https://stenci.la/' + module;
-				console.log('Could not load '+current);
-				// Check to see if path is already set to the fallback
-				if(current!==fallback){
-					console.log('Falling back to '+fallback);
-					// Undefine module, so another attempt is made to load it
-					require.undef(module);
-					// Set the new path
-					var path = {};
-					path[module] = fallback;
-					requirejs.config({
-						paths: path
-					});
-					// Reattempt to load module with new path; note that callbacks that
-					// are already registered will be called on sucess
-					require([module],function () {});
+	if(!DEBUG){
+		require.onError = function (err) {
+			var modules = err.requireModules;
+			if(modules) {
+				// This accesses the "semi-private" configuration option. This API may 
+				// change in the furture!
+				var paths = requirejs.s.contexts._.config.paths;
+				// For each module...
+				for(var i = 0; i < modules.length; i++){
+					var module = modules[i];
+					var current = require.toUrl(module);
+					// Fallback needs to specify a scheme for cases where
+					// page scheme is file://
+					var fallback = 'https://stenci.la/' + module;
+					console.log('Could not load '+current);
+					// Check to see if path is already set to the fallback
+					if(current!==fallback){
+						console.log('Falling back to '+fallback);
+						// Undefine module, so another attempt is made to load it
+						require.undef(module);
+						// Set the new path
+						var path = {};
+						path[module] = fallback;
+						requirejs.config({
+							paths: path
+						});
+						// Reattempt to load module with new path; note that callbacks that
+						// are already registered will be called on sucess
+						require([module],function () {});
+					}
 				}
+			} else {
+				throw err;
 			}
-		} else {
-			throw err;
-		}
-	};
+		};
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -413,21 +415,6 @@ var Stencila = (function(Stencila){
 		if(!self.preview && !self.embedded){
 			// Attempt to sign in to hub automatically
 			Hub.signin(false,null,false);
-			// Localise the page based on this address
-			if(self.host=='stenci.la'){
-				var endpoint = 'components/';
-				if(self.address) endpoint += self.address;
-				else endpoint += 'null';
-				Hub.get(endpoint+'/localize?url='+window.location.href,false,function(data){
-					var locale = $(data);
-					$(document.head).append(locale.find('#styles').html());
-					$(document.body).prepend(locale.find('#header'));
-					$(document.body).append(locale.find('#footer'));
-					locale.find('script').each(function(){
-						eval($(this).text());
-					});
-				});
-			}
 		}
 		if(!self.preview){
 			// Read meta-data to update view
@@ -561,9 +548,9 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
-	 * Call a method in the activate session
+	 * Execute a method in the active session
 	 */
-	Component.prototype.call = function(method,args,callback){
+	Component.prototype.execute = function(method,args,callback){
 		this.connection.call(method,args,callback);
 	};
 
@@ -587,18 +574,34 @@ var Stencila = (function(Stencila){
 		var self = this;
 		self.contentDom = null;
 		if(content){
-			var prefix = content.substr(0,7);
-			var rest = content.substr(7);
-			if(prefix==='html://'){
-				self.contentDom = $('<main>'+rest+'</main>');
+			if(typeof content === 'string'){
+				var prefix = content.substr(0,7);
+				var rest = content.substr(7);
+				if(prefix==='html://'){
+					// A HTML string
+					self.contentDom = $('<div id="content">'+rest+'</div>');
+				}
+				else if(prefix=='file://'){
+					// A HTML file to download
+					require(['text!'+rest],function(text){
+						self.initialise('html://'+text,context,callback);
+					});
+					return;
+				}
+				else {
+					// Assume to be an address, so get compiled page
+					require(['text!'+content+'/page.html'],function(text){
+						// Use `filter` here instead of `find` because of the way jQuery 
+						// handles complete documents
+						var dom = $(text).find("#content");
+						self.initialise(dom,context,callback);
+					});
+					return;
+				}
 			}
-			else if(prefix=='file://'){
-				require(['text!'+rest],function(text){
-					self.initialise('html://'+text,context,callback);
-				});
-				return;
+			else if(content.constructor===jQuery){
+				self.contentDom = content;
 			}
-			else throw 'Prefix not handled:'+prefix;
 		}
 		else {
 			self.contentDom = $('#content');
@@ -606,23 +609,15 @@ var Stencila = (function(Stencila){
 
 		self.contentCila = null;
 
-		self.context = null;
-		// If there is a #context element then use that to construct the 
-		// context for stencil
-		var contextConstruct = self.contentDom.find('#context');
-		if(contextConstruct.length){
-			var func = new Function('context',contextConstruct.text());
-			self.context = func(context);
-		}
+		if(context) self.context = new Context(context);
 		else {
-			if(context!==undefined) self.context = new Context(context);
-			else {
-				var context = $('head meta[itemprop=contexts]').attr('content');
-				if(context=='js'){
-					self.context = new Context();
-				}
+			var context = $('head meta[itemprop=contexts]').attr('content');
+			if(context=='js'){
+				self.context = new Context();
+			} else {
+				self.context = null;
 			}
-		}	
+		}
 
 		self.editable_ = (self.host=='localhost');
 
@@ -652,13 +647,13 @@ var Stencila = (function(Stencila){
 			callback(self.contentDom);
 		}
 		else if(self.contentCila){
-			self.call("cila(string).html():string",[self.contentCila],function(string){
+			self.execute("cila(string).html():string",[self.contentCila],function(string){
 				self.contentDom.html(string);
 				callback(self.contentDom);
 			});
 		}
 		else {
-			self.call("html():string",function(string){
+			self.execute("html():string",function(string){
 				self.contentDom.html(string);
 				self.contentCila = null;
 				callback(self.contentDom);
@@ -700,13 +695,13 @@ var Stencila = (function(Stencila){
 				html(self.contentDom.html());
 			}
 			else if(self.contentCila){
-				self.call("cila(string).html():string",[self.contentCila],function(string){
+				self.execute("cila(string).html():string",[self.contentCila],function(string){
 					self.contentDom.html(string);
 					html(string);
 				});
 			}
 			else {
-				self.call("html():string",function(string){
+				self.execute("html():string",function(string){
 					self.contentDom.html(string);
 					self.contentCila = null;
 					html(string);
@@ -732,13 +727,13 @@ var Stencila = (function(Stencila){
 				cila(self.contentCila);
 			}
 			else if(self.contentDom){
-				self.call("html(string).cila():string",[self.contentDom.html()],function(string){
+				self.execute("html(string).cila():string",[self.contentDom.html()],function(string){
 					self.contentCila = string;
 					cila(string);
 				});
 			}
 			else {
-				self.call("cila():string",function(string){
+				self.execute("cila():string",function(string){
 					self.contentCila = string;
 					self.contentDom = null;
 					cila(string);
@@ -763,12 +758,12 @@ var Stencila = (function(Stencila){
 	Stencil.prototype.save = function(callback){
 		var self = this;
 		if(self.contentDom){
-			self.call("html(string).save()",[self.contentDom.html()],function(){
+			self.execute("html(string).save()",[self.contentDom.html()],function(){
 				callback();
 			});
 		}
 		else if(self.contentCila){
-			self.call("cila(string).save()",[self.contentCila],function(){
+			self.execute("cila(string).save()",[self.contentCila],function(){
 				callback();
 			});
 		}
@@ -788,7 +783,7 @@ var Stencila = (function(Stencila){
 			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
 			elem.append(content);
 		}
-		self.call("patch(string)",[patch],function(){
+		self.execute("patch(string)",[patch],function(){
 			self.cila = null;
 		});
 		return self;
@@ -857,7 +852,7 @@ var Stencila = (function(Stencila){
 			self.bind();
 		} else {
 			if(self.contentDom){
-				this.call("html(string).refresh().html():string",[self.contentDom.html()],function(html){
+				self.execute("html(string).refresh().html():string",[self.contentDom.html()],function(html){
 					self.html(html);
 					callback();
 				});
@@ -870,7 +865,7 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.refresh = function(callback){
 		var self = this;
-		this.call("html(string).refresh().html():string",[this.html()],function(html){
+		self.execute("html(string).refresh().html():string",[this.html()],function(html){
 			self.html(html);
 			callback();
 		});
@@ -881,7 +876,7 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.restart = function(callback){
 		var self = this;
-		this.call("restart().html():string",[],function(html){
+		self.execute("restart().html():string",[],function(html){
 			self.html(html);
 			callback();
 		});
@@ -975,7 +970,7 @@ var Stencila = (function(Stencila){
 
 	var Resource = Stencila.Resource = function(url,data){
 		this.url = url;
-		$.extend(this,data||{});
+		$.extend(this,data);
 	};
 	Resource.prototype = Object.create(Object.prototype);
 	Resource.constructor = Resource;
@@ -1084,11 +1079,13 @@ var Stencila = (function(Stencila){
 			method: 'GET'
 		}).done(function(data){
 			if(data.constructor !== Array) data = [data];
-			self.items = $.map(data,function(item){
-				return new Resource(self.url+'/'+item.id,item);
+			self.items = [];
+			$.each(data,function(index,item){
+				self.append(new Resource(self.url+'/'+item.id,item));
 			});
-			callback && callback();
-			self.notify('changed');
+			callback && callback(self);
+			self.notify('got');
+			self.notify('resized');
 		});
 	};
 
@@ -1104,12 +1101,36 @@ var Stencila = (function(Stencila){
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
 		}).done(function(data){
-			self.items.push(
-				new Resource(self.url+'/'+data.id,data)
-			);
-			callback && callback();
-			self.notify('changed');
+			var item = new Resource(self.url+'/'+data.id,data);
+			self.append(item);
+			callback && callback(item);
+			self.notify('created',item);
+			self.notify('resized');
 		});
+	};
+
+	/**
+	 * Append an item to the list
+	 */
+	ResourceList.prototype.append = function(item){
+		var self = this;
+		self.items.push(item);
+		$(document).on(item.signal('deleted'),function(){
+			self.remove(item);
+		});
+		self.notify('appended',item);
+		self.notify('resized');
+	};			
+
+	/**
+	 * Remove an item from the list
+	 */
+	ResourceList.prototype.remove = function(item){
+		var self = this;
+		var index = self.items.indexOf(item);
+		if(index>-1) self.items.splice(index,1);
+		self.notify('removed',item);
+		self.notify('resized');
 	};
 
 	/**
@@ -1234,13 +1255,17 @@ var Stencila = (function(Stencila){
 		var func = '';
 		var index;
 		for(index=0;index<scopes.length;index++){
-			func += 'with(this['+index+']){\n';
+			func += 'with(scopes['+index+']){\n';
 		}
 		func += code + ';';
 		for(index=0;index<scopes.length;index++){
 			func += '}\n';
 		}
-		return Function(func).bind(scopes);
+		var funct = Function('scopes',func);
+		return {
+			func: funct,
+			scopes: scopes
+		};
 	};
 
 	/**
@@ -1653,8 +1678,8 @@ var Stencila = (function(Stencila){
 	};
 	Comments.prototype.get = function(node){
 		var attr = node.attr('data-comments');
-		var matches = attr.match(/^on\s+(.+)$/);
-		if(matches && matches.length>1) this.on = matches[1];
+		if(attr.length>0) this.on = attr;
+		else this.on = undefined;
 		return this;
 	};
 	Comments.prototype.set = function(node){
@@ -1679,7 +1704,7 @@ var Stencila = (function(Stencila){
 		// A regex for an ISO datetime for `at` (without the timezone, assuming UTC)
 		// is something like \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d
 		// But here being more permissive
-		var matches = attr.match(/^by\s+([@\w]+)\s+at\s+([\w-:.]+)$/);
+		var matches = attr.match(/^([@\w]+) +at +([\w-:.]+)$/);
 		if(matches && matches.length==3){
 			this.by = matches[1];
 			this.at = matches[2];
@@ -1688,7 +1713,7 @@ var Stencila = (function(Stencila){
 		return this;
 	};
 	Comment.prototype.set = function(node){
-		node.attr('data-comment','by '+ this.by + ' at '+ this.at);
+		node.attr('data-comment',this.by + ' at '+ this.at);
 		node.append(this.content);
 		return this;
 	};
@@ -1733,6 +1758,8 @@ var Stencila = (function(Stencila){
 		var signal = context.evaluate_(this.expr);
 		$(document).on(signal,function(){
 			if(self.then=='render'){
+				// Turn this on and render children
+				node.attr('data-off','false');
 				directiveRenderChildren(node,context);
 			}
 			else if(self.then=='delete'){
@@ -1747,8 +1774,16 @@ var Stencila = (function(Stencila){
 				});
 			}
 		});
-		// Unless `then` is render, render all children now
-		if(self.then!=='render') directiveRenderChildren(node,context);
+		// If `then` is render turn this element off (until the
+		// event occurs), otherwise turn on and render children
+		if(self.then==='render'){
+			node.attr('data-off','true');
+		} else {
+			// Explicitly turn this on, because it will not be 
+			// shown otherwise
+			node.attr('data-off','false');
+			directiveRenderChildren(node,context);
+		}
 		return this;
 	};
 	When.prototype.apply = directiveApply;
@@ -1774,13 +1809,13 @@ var Stencila = (function(Stencila){
 		if(!on){
 			// Unbind all events
 			node.off();
-			// Add `off` flag
-			node.attr('data-off','true');
+			// Add `active` flag
+			node.attr('data-active','true');
 		}
 		else {
-			// Remove any `off` flag that may
+			// Remove any `active` flag that may
 			// already be on this element
-			node.removeAttr('data-off');
+			node.removeAttr('data-active');
 		}
 		directiveRenderChildren(node,context);
 		return this;
@@ -1806,20 +1841,17 @@ var Stencila = (function(Stencila){
 		return this;
 	};
 	On.prototype.render = function(node,context){
-		// Look for a `react` directive ancestor to
-		// use as the target of the event
-		var target = node.closest('[data-react]');
-		if(target){
-			// Only proceed if it is on
-			if(target.attr('data-off')=="true") return this;
-		} else {
-			// Otherwise, make the paraent the target element
-			target = node.parent();
-		}
+		// Parent is the target of the event
+		var target = node.parent();
+		// If the target is explicitly turned off (usually from
+		// rendering a `react` directive) then don't do anything else
+		if(target.attr('data-active')==="false") return this;
 		// Create a function from the code
 		var capture = context.capture(this.code);
-		target.on(this.event,function(){
-			capture();
+		target.on(this.event,function(event){
+			capture.func.call(target,capture.scopes);
+			event.preventDefault();
+			event.stopPropagation();
 		});
 		return this;
 	};
@@ -1844,10 +1876,11 @@ var Stencila = (function(Stencila){
 		return this;
 	};
 	Click.prototype.render = function(node,context){
-		var scopes = $.extend(true,[],context.scopes);
-		var func = context.function(scopes,this.code);
-		node.on('click',function(){
-			func(scopes);
+		var capture = context.capture(this.code);
+		node.on('click',function(event){
+			capture.func.call(node,capture.scopes);
+			event.preventDefault();
+			event.stopPropagation();
 		});
 		directiveRenderChildren(node,context);
 		return this;
@@ -1873,11 +1906,11 @@ var Stencila = (function(Stencila){
 		if(type==='stencil') component = new Stencil();
 		else if(type==='theme') component = new Theme();
 		else component = new Component();
-		Stencila.Com = component;
+		Stencila.component = component;
 		// Load theme and apply it to the component
 		var theme = prop('theme');
 		Theme.load(theme,component,function(theme){
-			Stencila.Theme = theme;
+			Stencila.theme = theme;
 			// Now theme has been created, startup the component
 			component.startup();
 		});
