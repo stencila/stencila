@@ -180,7 +180,7 @@ std::string Component::message(Component* component, const std::string& message)
 	return "{}";
 }
 
-std::string Component::home(void){
+std::string Component::index(void){
 	Html::Document page(R"(
 		<html>
 			<head>
@@ -193,6 +193,22 @@ std::string Component::home(void){
 	for(auto instance : instances_){
 		list.append("li",instance.first);
 	}
+	return page.dump();
+}
+
+std::string Component::extras(void){
+	Xml::Document page(R"(
+		<div>
+			<div id="styles">
+			</div>
+			<div id="prepend">
+				<header id="header">
+				</header>
+			</div>
+			<div id="append">
+			</div>
+		</div>
+	)");
 	return page.dump();
 }
 

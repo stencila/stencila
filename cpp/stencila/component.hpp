@@ -676,10 +676,15 @@ public:
 	static std::string message(Component* component, const std::string& message);
 
 	/**
-	 * Generate a default home page for the server that is serving
+	 * Generate a default index page for the server that is serving
 	 * components.
 	 */
-	static std::string home(void);
+	static std::string index(void);
+
+	/**
+	 * Generate a extra constent for adding to component pages when served.
+	 */
+	static std::string extras(void);
 
 	/**
 	 * @}

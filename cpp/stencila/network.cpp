@@ -150,8 +150,12 @@ void Server::http_(connection_hdl hdl) {
 	std::string content;
 	try {
 		if(resource=="/"){
-			content = Component::home();
-		} else {
+			content = Component::index();
+		} 
+		else if(resource=="/extras"){
+			content = Component::extras();
+		}
+		else {
 			// This server handles two types of requents for Components:
 			// (1) "Dynamic" requests where the component is loaded into
 			// memory (if not already) and (2) Static requests for component
