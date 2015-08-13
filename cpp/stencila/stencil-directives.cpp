@@ -410,7 +410,7 @@ Stencil::Attr::Attr(Node node){
 }
 
 void Stencil::Attr::parse(const std::string& attribute){
-	static const boost::regex pattern("^([\\w-]+)\\s+(.+)$");
+	static const boost::regex pattern("^([\\w-]+) +value +(.+)$");
 	boost::smatch match;
 	if(boost::regex_search(attribute, match, pattern)) {
 		name = match[1].str();
