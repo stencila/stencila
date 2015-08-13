@@ -102,6 +102,16 @@ std::string Stencil::call(const Call& call) {
 		           patch(string);	
 	}
 
+	// Saving
+	else if(what=="html(string).write()"){
+		std::string string = call.arg(0);
+		           html(string).write();
+	}
+	else if(what=="cila(string).write()"){
+		std::string string = call.arg(0);
+		           cila(string).write();
+	}
+
 	// Conversion of content...
 	// ... HTML to Cila
 	else if(what=="html(string).cila():string"){

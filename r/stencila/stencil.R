@@ -47,9 +47,9 @@ setRefClass(
         },
 
         html = function(value){
-            if(missing(value)) get_(.self,'Stencil_html_get',FALSE)
-            else if(typeof(value)=='logical') get_(.self,'Stencil_html_get',value)
-            else set_(.self,'Stencil_html_set',toString(value))
+            if(missing(value)) method_(.self,'Stencil_html_get',FALSE)
+            else if(typeof(value)=='logical') method_(.self,'Stencil_html_get',value)
+            else method_(.self,'Stencil_html_set',toString(value))
         },
         cila = function(value){
             get_set_(.self,'Stencil_cila_get','Stencil_cila_set',value)
@@ -73,6 +73,9 @@ setRefClass(
 
         import = function(path) method_(.self,'Stencil_import',path),
         export = function(path) method_(.self,'Stencil_export',path),
+        source = function(filename){
+            get_set_(.self,'Stencil_source_get','Stencil_source_set',filename)
+        },
         read = function(path="") method_(.self,'Stencil_read',path),
         write = function(path="") method_(.self,'Stencil_write',path),
 

@@ -62,6 +62,15 @@ Stencil& Stencil::export_(const std::string& path){
 	return *this;
 }
 
+std::string Stencil::source(void) const {
+	return source_;
+}
+
+Stencil& Stencil::source(const std::string& source){
+	source_ = source;
+	return *this;
+}
+
 Stencil& Stencil::read(const std::string& directory){
 	namespace fs = boost::filesystem;
 	// Check and set this stencil's path using `Component::read`
@@ -76,16 +85,20 @@ Stencil& Stencil::read(const std::string& directory){
 	std::sort(files.begin(), files.end(),[](const fs::path& p1, const fs::path& p2){
 	 	return fs::last_write_time(p1) < fs::last_write_time(p2);
 	});
+	auto latest = files.back();
+	// Set source
+	source(latest.filename().string());
 	// Read the newest using `import`
-	if(not files.empty()) import(files.back().string());
+	if(not files.empty()) import(latest.string());
 	return *this;
 }
 
 Stencil& Stencil::write(const std::string& directory){
 	// Set this stencil's path using `Component::write`
 	Component::write(directory);
-	// Write HTML to file
-	Component::write_to("stencil.html",html(true));
+	// Write to the source file, default to HTML
+	if(source_=="stencil.cila") Component::write_to("stencil.cila",cila());
+	else Component::write_to("stencil.html",html(false,true));
 	return *this;
 }
 

@@ -64,6 +64,18 @@ public:
 	Stencil& export_(const std::string& path="");
 
 	/**
+	 * Get the source file for this stencil 
+	 */
+	std::string source(void) const;
+
+	/**
+	 * Set the source file for this stencil 
+	 *
+	 * Should be `stencil.html` or `stencil.cila`
+	 */
+	Stencil& source(const std::string& source);
+
+	/**
 	 * Read the stencil from a directory
 	 * 
 	 * @param  path Filesystem path to a directory. 
@@ -932,6 +944,12 @@ public:
 	}
 
 private:
+
+	/**
+	 * The source file for this stencil within its `path()`
+	 * directory. One of `stencil.cila` or `stencil.html`
+	 */
+	std::string source_;
 
 	/**
 	 * The current rendering context for this stencil

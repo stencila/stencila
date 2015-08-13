@@ -19,6 +19,7 @@ STENCILA_R_FUNC Stencil_export(SEXP self,SEXP path){
         return null;
     STENCILA_R_END
 }
+STENCILA_R_GETSET(Stencil,source,std::string)
 STENCILA_R_EXEC1(Stencil,read,std::string)
 STENCILA_R_EXEC1(Stencil,write,std::string)
 

@@ -857,7 +857,7 @@ var Stencila = (function(Stencila){
 			if(self.format_=='dom' || self.format_=='html'){
 				// Save using HTML
 				self.html(function(html){
-					self.execute("html(string).save()",[html],function(){
+					self.execute("html(string).write()",[html],function(){
 						self.state_ = 0;
 						callback();
 					});
@@ -865,7 +865,7 @@ var Stencila = (function(Stencila){
 			}
 			else if(self.format_=='cila'){
 				// Save using Cila
-				self.execute("cila(string).save()",[self.content_],function(){
+				self.execute("cila(string).write()",[self.content_],function(){
 					self.state_ = 0;
 					callback();
 				});
@@ -873,7 +873,7 @@ var Stencila = (function(Stencila){
 			else {
 				throw "Format not handled";
 			}
-		}
+		} else callback();
 	};
 
 	/**
