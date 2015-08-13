@@ -554,6 +554,16 @@ var Stencila = (function(Stencila){
 		this.connection.call(method,args,callback);
 	};
 
+	/**
+	 * Fork this component
+	 */
+	Component.prototype.fork = function(args){
+		var self = this;
+		Hub.post(self.address+"/.fork",args,function(response){
+			console.log(response);
+		});
+	};
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -566,104 +576,168 @@ var Stencila = (function(Stencila){
 	var Stencil = Stencila.Stencil = function(content,context,callback){
 		var self = this;
 		Component.call(self);
-		self.initialise(content,context,callback);
+
+		/**
+		 * Format of the `content_` : 'html','cila' or 'dom'
+		 * @type string
+		 */
+		self.format_ = null;
+
+		/**
+		 * Actual content of this stencil in the `format_`
+		 * @type DOM or string
+		 */
+		self.content_ = null;
+
+		/**
+		 * The context that this stencil is rendered in.
+		 * Only used for Javascript stencils
+		 * 
+		 * @type Context
+		 */
+		self.context_ = null;
+
+		/**
+		 * Can this stencil be edited?
+		 */
+		self.editable_ = false;
+
+		/**
+		 * Local state of this stencil
+		 *
+		 *  0 = equal to remote
+		 *  1 = ahead of remote
+		 * -1 = behind remote
+		 */
+		self.state_ = 0;
+
+		self.initialise_(content,context,callback);
 	};
 	Stencil.prototype = Object.create(Component.prototype);
 
-	Stencil.prototype.initialise = function(content,context,callback){
+	/**
+	 * Initialise this stencil
+	 *
+	 * A recursive method, so made separate to consutructor.
+	 * 
+	 * @param  {[type]}   content  [description]
+	 * @param  {[type]}   context  [description]
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	Stencil.prototype.initialise_ = function(content,context,callback){
 		var self = this;
-		self.contentDom = null;
+
+		self.format_ = null;
+		self.content_ = null;
+		self.dom_ = null;
 		if(content){
 			if(typeof content === 'string'){
 				var prefix = content.substr(0,7);
 				var rest = content.substr(7);
 				if(prefix==='html://'){
 					// A HTML string
-					self.contentDom = $('<div id="content">'+rest+'</div>');
+					self.format_ = 'html';
+					self.content_ = rest;
 				}
 				else if(prefix=='file://'){
 					// A HTML file to download
 					require(['text!'+rest],function(text){
-						self.initialise('html://'+text,context,callback);
+						self.initialise_('html://'+text,context,callback);
 					});
 					return;
 				}
 				else {
-					// Assume to be an address, so get compiled page
+					// A stencil address, so fetch compiled page and
+					// extract content from it
 					require(['text!'+content+'/page.html'],function(text){
-						// Use `filter` here instead of `find` because of the way jQuery 
-						// handles complete documents
 						var dom = $(text).find("#content");
-						self.initialise(dom,context,callback);
+						self.initialise_(dom,context,callback);
 					});
 					return;
 				}
 			}
 			else if(content.constructor===jQuery){
-				self.contentDom = content;
+				// A DOM element
+				self.format_ = 'dom';
+				self.content_ = content;
 			}
-		}
-		else {
-			self.contentDom = $('#content');
+			// Create a (currently invisible) DOM element
+			self.dom_ = $('<div></div>');
+		} else {
+			// Content must be in #content, find it, or create it
+			var dom = $('#content');
+			if(dom.length===0) throw "No content";
+			self.dom_ = dom;
+			self.format_ = 'dom';
+			self.content_ = self.dom_;
 		}
 
-		self.contentCila = null;
-
-		if(context) self.context = new Context(context);
+		self.context_ = null;
+		if(context){
+			// Context supplied
+			self.context_ = new Context(context);
+		}
 		else {
-			var context = $('head meta[itemprop=contexts]').attr('content');
-			if(context=='js'){
-				self.context = new Context();
-			} else {
-				self.context = null;
-			}
+			// Check if this is a Javascript stencil which needs to 
+			// have a context created
+			contexts = $('head meta[itemprop=contexts]').attr('content');
+			if(contexts=='js') self.context_ = new Context();
 		}
 
 		self.editable_ = (self.host=='localhost');
 
-		if(callback) callback(self);
-	}
+		self.state_ = 0;
 
+		if(callback) callback(self);
+	};
+
+	/**
+	 * Startup the stencil once the theme has been loaded and applied
+	 */
 	Stencil.prototype.startup = function(){
 		var self = this;
 		Component.prototype.startup.call(self);
-		if(self.context) self.render();
-	}
-
-	/**
-	 * Set whether this stencil is editale
-	 */
-	Stencil.prototype.editable = function(value){
-		if(value===undefined) return this.editable_;
-		else this.editable_ = value;
+		// For Javascript stencils, render
+		if(self.context_) self.render();
 	};
 
 	/**
 	 * Get the DOM for this stencil
+	 *
+	 * Changes the `format_` to 'dom' so any changes to the gotton
+	 * DOM will persist
 	 */
 	Stencil.prototype.dom = function(callback){
 		var self = this;
-		if(self.contentDom){
-			callback(self.contentDom);
+		if(self.format_=='dom'){
+			callback(self.content_);
 		}
-		else if(self.contentCila){
-			self.execute("cila(string).html():string",[self.contentCila],function(string){
-				self.contentDom.html(string);
-				callback(self.contentDom);
+		else if(self.format_=='html'){
+			// Convert HTML to DOM
+			self.format_ = 'dom';
+			self.dom_.html(self.content_);
+			self.content_ = self.dom_;
+			callback(self.content_);
+		}
+		else if(self.format_=='cila'){
+			// Get remote to convert Cila to HTML, then convert to DOM
+			self.execute("cila(string).html():string",[self.content_],function(string){
+				self.state_ = 0;
+				self.format_ = 'dom';
+				self.dom_.html(string);
+				self.content_ = self.dom_;
+				callback(self.content_);
 			});
 		}
 		else {
-			self.execute("html():string",function(string){
-				self.contentDom.html(string);
-				self.contentCila = null;
-				callback(self.contentDom);
-			});
+			throw "Format not handled";
 		}
 		return self;
 	};
 
 	/**
-	 * Show the DOM for this stencil
+	 * Show the DOM element for this stencil
 	 */
 	Stencil.prototype.show = function(callback){
 		var self = this;
@@ -679,9 +753,18 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.hide = function(callback){
 		var self = this;
-		if(self.contentDom) self.contentDom.hide();
+		if(self.dom_) self.dom_.hide();
 		if(callback) callback();
 		return self;
+	};
+
+	/**
+	 * Select an element from this stencil's DOM
+	 */
+	Stencil.prototype.select = function(selector){
+		return this.dom(function(dom){
+			dom.find(selector);
+		});
 	};
 
 	/**
@@ -691,27 +774,31 @@ var Stencila = (function(Stencila){
 		var self = this;
 		if(typeof html==="function"){
 			// Get HTML (argument is a callback)
-			if(self.contentDom){
-				html(self.contentDom.html());
+			if(self.format_=='html'){
+				html(self.content_);
 			}
-			else if(self.contentCila){
-				self.execute("cila(string).html():string",[self.contentCila],function(string){
-					self.contentDom.html(string);
-					html(string);
+			else if(self.format_=='dom'){
+				// Convert DOM to HTML
+				html(self.content_.html());
+			}
+			else if(self.format_=='cila'){
+				// Get remote to convert Cila to HTML
+				self.execute("cila(string).html():string",[self.content_],function(string){
+					self.state_ = 0;
+					self.format_ = 'html';
+					self.content_ = string;
+					html(self.content_);
 				});
 			}
 			else {
-				self.execute("html():string",function(string){
-					self.contentDom.html(string);
-					self.contentCila = null;
-					html(string);
-				});
+				throw "Format not handled";
 			}
 		}
 		else {
 			// Set HTML (argument is a string)
-			self.contentDom.html(html);
-			self.contentCila = null;
+			self.state_ = 1;
+			self.content_ = html;
+			self.format_ = 'html';
 		}
 		return self;
 	};
@@ -723,49 +810,69 @@ var Stencila = (function(Stencila){
 		var self = this;
 		if(typeof cila==="function"){
 			// Get Cila (argument is a callback)
-			if(self.contentCila){
-				cila(self.contentCila);
+			if(self.format_=='cila'){
+				cila(self.content_);
 			}
-			else if(self.contentDom){
-				self.execute("html(string).cila():string",[self.contentDom.html()],function(string){
-					self.contentCila = string;
-					cila(string);
+			else if(self.format_=='dom' || self.format_=='html'){
+				// Get remote to convert HTML to Cila
+				self.html(function(html){
+					self.execute("html(string).cila():string",[html],function(string){
+						self.state_ = 0;
+						self.format_ = 'cila';
+						self.content_ = string;
+						cila(self.content_);
+					});
 				});
 			}
 			else {
-				self.execute("cila():string",function(string){
-					self.contentCila = string;
-					self.contentDom = null;
-					cila(string);
-				});
+				throw "Format not handled";
 			}
 		}
 		else {
 			// Set Cila (argument is a string)
-			self.contentCila = cila;
-			self.contentDom = null;
+			self.state_ = 1;
+			self.format_ = 'cila';
+			self.content_ = cila;
 		}
 		return self;
 	};
 
 	/**
+	 * Get or set whether this stencil is editable
+	 */
+	Stencil.prototype.editable = function(value){
+		if(value===undefined) return this.editable_;
+		else this.editable_ = value;
+	};
+
+	/**
 	 * Save this stencil
-	 * 			
-	 * @param  {String}   format   Format for content, 'cila' or 'html'
-	 * @param  {String}   content  Stencil content
+	 * 
 	 * @param  {Function} callback Callback when saving is finished
 	 */
 	Stencil.prototype.save = function(callback){
 		var self = this;
-		if(self.contentDom){
-			self.execute("html(string).save()",[self.contentDom.html()],function(){
-				callback();
-			});
-		}
-		else if(self.contentCila){
-			self.execute("cila(string).save()",[self.contentCila],function(){
-				callback();
-			});
+		// If ahead of remote...
+		if(self.state_==1){
+			if(self.format_=='dom' || self.format_=='html'){
+				// Save using HTML
+				self.html(function(html){
+					self.execute("html(string).save()",[html],function(){
+						self.state_ = 0;
+						callback();
+					});
+				});
+			}
+			else if(self.format_=='cila'){
+				// Save using Cila
+				self.execute("cila(string).save()",[self.content_],function(){
+					self.state_ = 0;
+					callback();
+				});
+			}
+			else {
+				throw "Format not handled";
+			}
 		}
 	};
 
@@ -805,13 +912,6 @@ var Stencila = (function(Stencila){
 		return path; 
 	};
 
-	/**
-	 * Select an element from the stencil
-	 */
-	Stencil.prototype.select = function(selector){
-		return this.contentDom.find(selector);
-	};
-
 
 	/**
 	 * Bind the user interface. 
@@ -833,7 +933,7 @@ var Stencila = (function(Stencila){
 				form.find('input').each(function(){
 					args[this.name] = this.value;
 				});
-				self.context.call(func,args);
+				self.context_.call(func,args);
 			});
 		});
 	};
@@ -843,54 +943,39 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.render = function(context,callback){
 		var self = this;
-		if(context || self.context){
-			if(context) self.context = new Context(context);
-			directiveRender(
-				self.contentDom,
-				self.context
-			);
+		if(context || self.context_){
+			// If a context is supplied, or this stencil already has one then this
+			// is a Javascript stencil, so render locally
+			if(context) self.context_ = new Context(context);
+			self.dom(function(dom){
+				directiveRender(
+					dom,
+					self.context_
+				);
+			});
 			self.bind();
 		} else {
-			if(self.contentDom){
-				self.execute("html(string).refresh().html():string",[self.contentDom.html()],function(html){
+			// No local context, needs to be rendered remotely
+			if(self.format_==='dom'){
+				self.execute("html(string).render().html():string",[self.content_.html()],function(html){
+					self.state_ = 0;
+					self.content_.html(html);
+					callback();
+				});
+			} else if(self.format_==='html'){
+				self.execute("html(string).render().html():string",[self.content_],function(html){
 					self.html(html);
+					callback();
+				});
+			} else if(self.format_==='cila'){
+				self.execute("cila(string).render().cila():string",[self.content_],function(cila){
+					self.cila(cila);
 					callback();
 				});
 			}
 		}
 	};
 
-	/**
-	 * Refresh this stencil
-	 */
-	Stencil.prototype.refresh = function(callback){
-		var self = this;
-		self.execute("html(string).refresh().html():string",[this.html()],function(html){
-			self.html(html);
-			callback();
-		});
-	};
-
-	/**
-	 * Restart this stencil
-	 */
-	Stencil.prototype.restart = function(callback){
-		var self = this;
-		self.execute("restart().html():string",[],function(html){
-			self.html(html);
-			callback();
-		});
-	};
-
-	/**
-	 * Fork this component
-	 */
-	Stencil.prototype.fork = function(args){
-		var self = this;
-		Hub.post(self.address+"/.fork",args,function(response){
-			console.log(response);
-		});
-	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1004,7 +1089,7 @@ var Stencila = (function(Stencila){
 			method: 'GET',
 			dataType: "json"
 		}).done(function(data){
-			$.extend(this,data);
+			$.extend(self,data);
 			self.notify('read');
 		});
 	};
@@ -1021,7 +1106,7 @@ var Stencila = (function(Stencila){
 			contentType: "application/json; charset=utf-8",
 			dataType: "json"
 		}).done(function(data){
-			$.extend(this,data);
+			$.extend(self,data);
 			self.notify('updated');
 		});
 	};
