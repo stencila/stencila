@@ -622,10 +622,12 @@ void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> 
 			// If there is not, create one
 			item = node.append(first);
 		}
-		// Set index attribute
-		item.attr("data-index",index);
 		// Render the element
 		stencil.render(item,context);
+		// Scrub the elemet to prevent repetition of directives 
+		scrub(item);
+		// Set index flag
+		item.attr("data-index",index);
 		// Ask context to step to next item
 		more = context->next();
 		count++;
