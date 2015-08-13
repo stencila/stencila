@@ -89,7 +89,8 @@ Context <- function(envir){
             # No output expected           
         }
         else if(format %in% c('png','svg')){
-            filename = paste0(id,'.',format)
+            dir.create('out', showWarnings = FALSE)
+            filename = file.path('out',paste0(id,'.',format))
             # Default image sizes are defined in `stencil-render.cpp` so that they
             # are consistent across contexts. Don't be tempted to replace missing values
             # with defaults here!
