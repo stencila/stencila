@@ -594,14 +594,14 @@ void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> 
 
 	// Initialise the loop
 	bool more = context->begin(item,items);
-	// Get the first child element which will be repeated
-	Node first = node.first_element();
-	// If this for loop has been rendered before then the first element will have a `data-off`
-	// attribute. So erase that attribute so that the repeated nodes don't get it
-	if(first) first.erase("data-off");
+	// Get the first child element
+	Node each = node.first_element();
+	// The first element will have a `data-each` attribute either explicitly or
+	// because a previous rendering added on. So erase that attribute so that the repeated nodes don't get it
+	if(each) each.erase("data-each");
 	// Iterate
 	int count = 0;
-	while(first and more){
+	while(each and more){
 		// See if there is an existing child with a corresponding `data-index`
 		std::string index = string(count);
 		// Must select only children (not other decendents) to prevent messing with
@@ -616,11 +616,11 @@ void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> 
 			if(not locked){
 				// If it is not locked, then destroy and replace it
 				item.destroy();
-				item = node.append(first);
+				item = node.append(each);
 			}
 		} else {
 			// If there is not, create one
-			item = node.append(first);
+			item = node.append(each);
 		}
 		// Render the element
 		stencil.render(item,context);
@@ -632,8 +632,8 @@ void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> 
 		more = context->next();
 		count++;
 	}
-	// Deactivate the first child
-	if(first) first.attr("data-off","true");
+	// Add back the `data-each` attribute to the child
+	if(each) each.attr("data-each","true");
 	// Remove any children having a `data-index` attribute greater than the 
 	// number of items, unless it has a `data-lock` decendent
 	Nodes indexeds = node.filter("./*[@data-index]","xpath");
