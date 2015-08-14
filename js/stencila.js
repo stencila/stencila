@@ -639,6 +639,9 @@ var Stencila = (function(Stencila){
 					// A HTML string
 					self.format_ = 'html';
 					self.content_ = rest;
+					self.dom_ = $(rest);
+					// Ensure DOM is a single element
+					if(self.dom_.length>1) self.dom_ = $('<div></div>').append(self.dom_);
 				}
 				else if(prefix=='file://'){
 					// A HTML file to download
@@ -661,9 +664,9 @@ var Stencila = (function(Stencila){
 				// A DOM element
 				self.format_ = 'dom';
 				self.content_ = content;
+				// Ensure DOM is a single element
+				self.dom_ = $(content.get(0));
 			}
-			// Create a (currently invisible) DOM element
-			self.dom_ = $('<div></div>');
 		} else {
 			// Content must be in #content, find it, or create it
 			var dom = $('#content');
@@ -762,9 +765,7 @@ var Stencila = (function(Stencila){
 	 * Select an element from this stencil's DOM
 	 */
 	Stencil.prototype.select = function(selector){
-		return this.dom(function(dom){
-			dom.find(selector);
-		});
+		return this.dom_.find(selector);
 	};
 
 	/**
@@ -901,10 +902,10 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.xpath = function(elem){
 		// Implementation thanks to http://dzone.com/snippets/get-xpath
-		content = this.contentDom.get(0);
+		var root = this.dom_.get(0);
 		elem = $(elem).get(0);
 		var path = ''; 
-		for (; elem && elem.nodeType==1 && elem!==content; elem=elem.parentNode) {
+		for (; elem && elem.nodeType==1 && elem!==root; elem=elem.parentNode) {
 			var index = $(elem.parentNode).children(elem.tagName).index(elem)+1; 
 			index>1 ? (index='['+index+']') : (index='');
 			path = '/'+elem.tagName.toLowerCase()+index+path; 
@@ -1092,6 +1093,7 @@ var Stencila = (function(Stencila){
 			$.extend(self,data);
 			self.notify('read');
 		});
+		return self.signal('read');
 	};
 
 	/**
@@ -1148,9 +1150,9 @@ var Stencila = (function(Stencila){
 	 * 
 	 * @param  {String} name Name of the event
 	 */
-	ResourceList.prototype.notify = function(name){
+	ResourceList.prototype.notify = function(name,data){
 		var signal = this.signal(name);
-		$(document).trigger(signal);
+		$(document).trigger(signal,data);
 		LOG('NOTIFY: '+signal);
 	};
 
@@ -1203,7 +1205,7 @@ var Stencila = (function(Stencila){
 		$(document).on(item.signal('deleted'),function(){
 			self.remove(item);
 		});
-		self.notify('appended',item);
+		self.notify('append',item);
 		self.notify('resized');
 	};			
 
@@ -1214,7 +1216,7 @@ var Stencila = (function(Stencila){
 		var self = this;
 		var index = self.items.indexOf(item);
 		if(index>-1) self.items.splice(index,1);
-		self.notify('removed',item);
+		self.notify('remove',item);
 		self.notify('resized');
 	};
 

@@ -5,7 +5,7 @@ describe("Context", function() {
 	describe("the `execute()` method", function() {
 
 		it("should execute in the global environment", function() {
-			context.execute('var j = 0;');
+			context.execute('_scope_.j = 0;');
 			expect(context.write('j')).toEqual('0');
 			context.enter();
 			context.assign('j','1');

@@ -11,15 +11,15 @@ describe("Stencil directives", function() {
 	});
 
 	it("include an `exec` directive", function() {
-		var exec = new Stencila.Exec('js','var xyb26f82=24;');
+		var exec = new Stencila.Exec('js','_scope_.xyb26f82=24;');
 		exec.set(node);
 		exec.render(node,context);
 
-		expect(exec.code).toEqual('var xyb26f82=24;');
+		expect(exec.code).toEqual('_scope_.xyb26f82=24;');
 
 		expect(node.attr('data-exec')).toEqual('js');
-		expect(node.text()).toEqual('var xyb26f82=24;');
-		expect(window.xyb26f82).toEqual(24);
+		expect(node.text()).toEqual('_scope_.xyb26f82=24;');
+		expect(context.scopes[1].xyb26f82).toEqual(24);
 	});
 
 	it("include a `text` directive", function() {
@@ -141,7 +141,7 @@ describe("Stencil directives", function() {
 				array: array
 			});
 
-			node.html(
+			var node = $(
 				'<button data-react="true">' +
 					'<div data-on="click">' +
 						'num = num + 1;' +
@@ -155,12 +155,12 @@ describe("Stencil directives", function() {
 			// Note that the plain number (a primitive type) is copied by value
 			// not by reference in the capture so it does not get updated.
 			// See http://stackoverflow.com/questions/10231868/pointers-in-javascript
-			node.find('button').click();
+			node.click();
 			expect(num).toEqual(0);
 			expect(object.x).toEqual(1);
 			expect(array[0]).toEqual(1);
 
-			node.find('button').click();
+			node.click();
 			expect(num).toEqual(0);
 			expect(object.x).toEqual(2);
 			expect(array[0]).toEqual(2);
