@@ -1277,25 +1277,42 @@ var Stencila = (function(Stencila){
 	Context.prototype.unset_ = function(name){
 		delete this.top_()[name];
 	};
-	Context.prototype.evaluate_ = function(code,exec){
-		var func = '';
+
+	/**
+	 * Create a function using scopes.
+	 *
+	 * Current scope is assigned to variable `_scope_` so that
+	 * it can be assigned to
+	 * 
+	 * @param code String of code
+	 */
+	Context.prototype.function_ = function(code,result){
+		// Generate function
+		var func = 'var _scope_ = scopes[scopes.length-1];\n';
 		var index;
-		// Open with blocks
 		for(index=0;index<this.scopes.length;index++){
-			func += 'with(this.scopes['+index+']){\n';
+			func += 'with(scopes['+index+']){\n';
 		}
+		if(result) func += 'return ';
+		func += code + ';\n';
+		for(index=0;index<this.scopes.length;index++){
+			func += '}\n';
+		}
+		return Function('scopes',func);
+	};
+
+	/**
+	 * Evaluate an expression
+	 * 
+	 * @param code String of code
+	 */
+	Context.prototype.evaluate_ = function(code){
 		// Remove encapsulating braces if necessary
 		// (when there are space are in the code, these are required)
 		var matches = code.match(/^{([^}]+)}$/);
 		if(matches) code = matches[1];
-		// Return or just execute
-		if(!exec) func += 'return ';
-		func += code + ';\n';
-		// Close with blocks
-		for(index=0;index<this.scopes.length;index++){
-			func += '}\n';
-		}
-		return Function(func).call(this);
+		// Create and run function
+		return this.function_(code,true)(this.scopes);
 	};
 
 	// Methods to meet the API for a context
@@ -1306,49 +1323,26 @@ var Stencila = (function(Stencila){
 	 * @param code String of code
 	 */
 	Context.prototype.execute = function(code){
-		var script = document.createElement('script');
-		script.type = 'text/javascript';
-		script.text = code;
-		document.head.appendChild(script);
+		this.function_(code)(this.scopes);
 	};
 
 	/**
-	 * Create a function with current scopes as closure
+	 * Create a capture which mimics a closure with the
+	 * current scope
 	 * 
 	 * @param code String of code
 	 */
-	Context.prototype.function = function(scopes,code){
-		var func = '';
-		var index;
-		for(index=0;index<scopes.length;index++){
-			func += 'with(scopes['+index+']){\n';
-		}
-		func += code + ';';
-		for(index=0;index<scopes.length;index++){
-			func += '}\n';
-		}
-		return Function('scopes',func);
-	};
-
 	Context.prototype.capture = function(code){
 		// Create a shallow copy of each scope
 		var scopes = [];
 		$.each(this.scopes,function(index,scope){
 			scopes.push($.extend({},scope));
 		});
-
-		var func = '';
-		var index;
-		for(index=0;index<scopes.length;index++){
-			func += 'with(scopes['+index+']){\n';
-		}
-		func += code + ';';
-		for(index=0;index<scopes.length;index++){
-			func += '}\n';
-		}
-		var funct = Function('scopes',func);
+		// Generate function
+		var func = this.function_(code);
+		// Return function and captured scopes
 		return {
-			func: funct,
+			func: func,
 			scopes: scopes
 		};
 	};
