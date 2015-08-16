@@ -853,42 +853,39 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 			std::string attribute = attributes[type];
 			for(Node modifier : node.filter("["+attribute+"]")){
 				std::string selector = modifier.attr(attribute);
+				auto children = modifier.children();
 				for(Node target : included.filter(selector)){
-					Node created;
 					switch(type){
-
 						case delete_:
 							target.destroy();
 						break;
 
 						case change:
 							target.clear();
-							target.append_children(modifier);
+							target.append(children);
 						break;
 
 						case replace: 
-							created = target.before(modifier);
+							target.before(children);
 							target.destroy();
 						break;
 						
 						case before:
-							created = target.before(modifier);
+							target.before(children);
 						break;
 						
 						case after:
-							created = target.after(modifier);
+							target.after(children);
 						break;
 						
 						case prepend:
-							created = target.prepend(modifier);
+							target.prepend(children);
 						break;
 						
 						case append:
-							created = target.append(modifier);
+							target.append(children);
 						break;
 					}
-					// Remove the modifier attribute from any newly created node
-					if(created) created.erase(attribute);
 				}
 			}
 		}
