@@ -161,9 +161,13 @@ Node Node::append_xml(const std::string& xml){
 	return doc;
 }   
 
-Node& Node::append_children(const Node& other){
-	for(Node child : other.children()) pimpl_->append_copy(*child.pimpl_);
+Node& Node::append(const Nodes& nodes){
+	for(auto node : nodes) pimpl_->append_copy(*node.pimpl_);
 	return *this;
+}
+
+Node& Node::append_children(const Node& other){
+	return append(other.children());
 }
 
 Node Node::prepend(Node node){
@@ -189,17 +193,31 @@ Node Node::prepend(const std::string& tag, const Attributes& attributes, const s
 	return child;
 }
 
-Node& Node::prepend_children(const Node& other){
-	for(Node child : other.children()) pimpl_->prepend_copy(*child.pimpl_);
+Node& Node::prepend(const Nodes& nodes){
+	for(auto node = nodes.rbegin(); node != nodes.rend(); ++node) pimpl_->prepend_copy(*(node->pimpl_));
 	return *this;
+}
+
+Node& Node::prepend_children(const Node& other){
+	return prepend(other.children());
 }
 
 Node Node::before(Node node){
 	return pimpl_->parent().insert_copy_before(*node.pimpl_,*pimpl_);
 }
 
+Node& Node::before(const Nodes& nodes){
+	for(auto node = nodes.rbegin(); node != nodes.rend(); ++node) before(*node);
+	return *this;
+}
+
 Node Node::after(Node node){
 	return pimpl_->parent().insert_copy_after(*node.pimpl_,*pimpl_);
+}
+
+Node& Node::after(const Nodes& nodes){
+	for(auto node : nodes) after(node);
+	return *this;
 }
 
 Node& Node::remove(const Node& child){

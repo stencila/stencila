@@ -252,6 +252,11 @@ public:
 	Node append_xml(const std::string& xml);
 
 	/**
+	 * Append nodes
+	 */
+	Node& append(const Nodes& nodes);
+
+	/**
 	 * Append the children of another node
 	 * 
 	 * @param  child Child node
@@ -288,6 +293,11 @@ public:
 	Node prepend(const std::string& tag, const Attributes& attributes, const std::string& text = "");
 
 	/**
+	 * Prepend nodes
+	 */
+	Node& prepend(const Nodes& nodes);
+
+	/**
 	 * Prepend the children of another node
 	 * 
 	 * @param  other Other node
@@ -300,9 +310,19 @@ public:
 	Node before(Node node);
 
 	/**
+	 * Insert nodes before this one
+	 */
+	Node& before(const Nodes& nodes);
+
+	/**
 	 * Insert a node after this one
 	 */
 	Node after(Node node);
+
+	/**
+	 * Insert nodes after this one
+	 */
+	Node& after(const Nodes& nodes);
 
 	/**
 	 * Remove a child node
