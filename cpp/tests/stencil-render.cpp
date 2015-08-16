@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(where){
 
 BOOST_AUTO_TEST_CASE(attr){
 	render(R"(
-		<div data-attr="name a"></div>
+		<div data-attr="name value a"></div>
 	)");
 
 	BOOST_CHECK_EQUAL(stencil.select("[data-attr]").attr("name"),"A");

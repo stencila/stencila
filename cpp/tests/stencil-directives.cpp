@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(exec){
 BOOST_AUTO_TEST_CASE(attr){
 	Stencil::Attr attr;
 
-	attr.parse("name expression");
+	attr.parse("name value expression");
 	BOOST_CHECK_EQUAL(attr.name,"name");
 	BOOST_CHECK_EQUAL(attr.expression,"expression");
 }
