@@ -12,34 +12,13 @@ Issues:
 Build:
 [![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
 
-### Quick start
+### Installing
 
-Install the package file you downloaded from the [releases page](https://github.com/stencila/stencila/releases) or built yourself...
+Head on over to the [releases page](https://github.com/stencila/stencila/releases) for instructions on installing the Stencila package for R or Python. Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
 
-R
-```R
-install.packages('Rcpp')
-install.packages('stencila_0.10.tar.gz',repos=NULL)
-```
+### Versioning
 
-Python 2.7
-```py
-sudo pip install stencila-0.10_-cp27-none-linux_x86_64.whl
-```
-
-Load and view a stencil for editing...for example, in R,
-
-```R
-require(stencila)
-s <- Stencil('core/stencils/examples/kitchensink')
-s$view()
-```
-
-Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
-
-### Releases and versioning
-
-Head on over to the [releases page](https://github.com/stencila/stencila/releases) for more info on progress so far. It is still very early days so the API will change frequently. We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. Don't rely on API stability until the release of version 1.0.0.
+We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. It is still early days so the API will change frequently. Don't rely on API stability until the release of version 1.0.0.
 
 ### Contributing
 
