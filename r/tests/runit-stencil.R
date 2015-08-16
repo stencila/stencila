@@ -20,9 +20,9 @@ test.Stencil.html <- function(){
 
 test.Stencil.contexts <- function(){
   s <- Stencil()
-  checkEquals(length(s$contexts),0)
-  s$cila <- 'r\n\ta <- 1\n'
-  checkEquals(s$contexts,'r')
+  checkEquals(length(s$contexts()),0)
+  s$cila('r\n\ta <- 1\n')
+  checkEquals(s$contexts(),'r')
 }
 
 render <- function(stencil,context=list()){

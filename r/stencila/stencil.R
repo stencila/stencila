@@ -47,7 +47,7 @@ setRefClass(
         },
 
         html = function(value){
-            if(missing(value)) method_(.self,'Stencil_html_get',FALSE)
+            if(missing(value)) method_(.self,'Stencil_html_get',TRUE)
             else if(typeof(value)=='logical') method_(.self,'Stencil_html_get',value)
             else method_(.self,'Stencil_html_set',toString(value))
         },
