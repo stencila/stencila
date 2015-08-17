@@ -492,7 +492,7 @@ public:
 			warning("\\%\\\"([^\\\"]*)\\\"(@((\\d+)(,\\d+)?))?"),
 			lock("~lock"),
 			off("~off"),
-			included("~included"),
+			included("~incl"),
 
 			empha_open("(\\s)_(?=[^\\s])"),
 			empha_close("_"),
@@ -1412,6 +1412,7 @@ public:
 								flag += "@" + parts[1];
 							}
 						}
+						else if(name=="data-included") flag = "~incl";
 						else flag = "~"+name.substr(5);
 						content(" "+flag);
 					}
