@@ -452,6 +452,7 @@ public:
 			out("\\bout\\b"),
 			on_open("\\bon\\b\\s+(\\w+)(\\n|$)"),
 			style_open("\\b(style|css)\\b(\\n|$)"),
+			pre_open("\\b(pre)\\b(\\n|$)"),
 
 			// Directives with no argument
 			directive_noarg("\\b(each|else|default)\\b"),
@@ -589,6 +590,12 @@ public:
 					std::string type = "text/css";
 					node.attr("type",type);
 					add("\n");
+				}
+				else if(is(pre_open)){
+					trace("pre");
+
+					enter_across("pre",embed);
+					push(flags);
 				}
 				else if(is(blankline)){
 					trace("blank");
@@ -1252,13 +1259,16 @@ public:
 			// If a block element, should this element be isolated 
 			// with blank lines before and after?
 			bool isolated = 
-				name=="section" or name=="p" or name=="figure" or name=="table" or
-				name=="style" or name=="form" or
+				name=="section" or name=="p" or 
+				name=="figure" or name=="table" or
+				name=="style" or name=="pre" or 
+				name=="form" or
+
 				node.has("data-exec") or node.has("data-out") or
 				node.has("data-where") or node.has("data-with") or 
 				node.has("data-for") or node.has("data-switch") or 
 				node.has("data-include") or node.has("data-macro") or
-				node.has("data-comments");
+				node.has("data-comments")
 			;
 			if(isolated) blankline();
 
@@ -1305,11 +1315,16 @@ public:
 				std::string lang = "css";
 				std::string type = node.attr("type");
 				if(type=="text/css") lang = "css";
-				
+				erase_attr("type");
+
 				content(lang);
 				space_required = true;
-
-				erase_attr("type");
+				embedded = true;
+			}
+			// Preformatted elements
+			else if(name=="pre"){
+				content("pre");
+				space_required = true;
 				embedded = true;
 			}
 			// <div>s only need to be specified if 
@@ -1350,6 +1365,9 @@ public:
 					}
 					else if(Stencil::flag(name)){
 						flags.push_back({name,value});
+					}
+					else if(name=="id" and node.has("data-macro")){
+						// Don't need to output id for macros
 					}
 					else {
 						if(space_required) content(" ");

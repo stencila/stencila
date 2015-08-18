@@ -349,7 +349,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 		Xml::Document doc;
 		Node output = doc.append("div",{{"data-out","true"}});
 		if(format.value=="text"){
-			output.append("samp",result);
+			output.append("pre",result);
 		}
 		else if(format.value=="png" or format.value=="svg"){
 			output.append("img",{
