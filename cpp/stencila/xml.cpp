@@ -207,7 +207,7 @@ Node Node::before(Node node){
 }
 
 Node& Node::before(const Nodes& nodes){
-	for(auto node = nodes.rbegin(); node != nodes.rend(); ++node) before(*node);
+	for(auto node : nodes) before(node);
 	return *this;
 }
 
@@ -216,7 +216,7 @@ Node Node::after(Node node){
 }
 
 Node& Node::after(const Nodes& nodes){
-	for(auto node : nodes) after(node);
+	for(auto node = nodes.rbegin(); node != nodes.rend(); ++node) after(*node);
 	return *this;
 }
 
