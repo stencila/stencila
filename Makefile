@@ -471,10 +471,10 @@ $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
 # Input files (typically text files) used for tests
-CPP_TEST_INPUTS := $(BUILD)/cpp/tests/stencil-cila-html.txt $(BUILD)/cpp/tests/html-doc-1.html
-$(BUILD)/cpp/tests/%.txt: cpp/tests/%.txt
-	cp -f $< $@
-$(BUILD)/cpp/tests/%.html: cpp/tests/%.html
+CPP_TEST_INPUTS := $(BUILD)/cpp/tests/stencil-cila-html.txt \
+				   $(BUILD)/cpp/tests/stencil-cila-render.cila \
+				   $(BUILD)/cpp/tests/html-doc-1.html
+$(BUILD)/cpp/tests/%: cpp/tests/%
 	cp -f $< $@
 
 # Compile a single test file into an executable
@@ -963,17 +963,19 @@ else
 	aws s3 sync $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
 endif
 
-# Test the package by running unit tests
-# Install package in a testenv directory and run unit tests from there
+# Install package in a testenv directory
 # This is better than installing package in the user's R library location
 # Previously, the `lib.loc='.'` argument was supplied to `library` but
 # that did not work with the current DLL loading mechanism. So `.libPaths('.')`
 # is used instead
-r-tests: $(R_BUILD)/$(R_PACKAGE_FILE)
+$(R_BUILD)/testenv/stencila: $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;\
 	  mkdir -p testenv ;\
-	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE) ;\
-	  cd testenv ;\
+	  R CMD INSTALL -l testenv $(R_PACKAGE_FILE)
+
+# Test the package by running unit tests
+r-tests: $(R_BUILD)/testenv/stencila $(R_BUILD)/$(R_PACKAGE_FILE)
+	cd $(R_BUILD) ;cd testenv ;\
 	    (Rscript -e ".libPaths('.'); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
 
 # Install R on the local host

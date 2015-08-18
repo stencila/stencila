@@ -1,0 +1,73 @@
+`exec` directive
+--------------------------------------------------
+exec
+	Some code (not executed in MapContext)
+--------------------------------------------------
+exec &b4EQBah
+	Some code (not executed in MapContext)
+--------------------------------------------------
+
+
+`where` directive
+--------------------------------------------------
+where map
+	Render this
+where other
+	Don't render this
+--------------------------------------------------
+where map
+	Render this
+
+where other ~off
+	Don't render this
+--------------------------------------------------
+
+
+`text` directive
+--------------------------------------------------
+set x to 42
+div text x
+div {text x}
+--------------------------------------------------
+set x to 42
+div text x
+	42
+div {text x 42}
+--------------------------------------------------
+
+
+`attr` directive
+--------------------------------------------------
+set x to hello
+attr name value x
+--------------------------------------------------
+set x to hello
+[name=hello] attr name value x
+--------------------------------------------------
+
+
+Outlines
+--------------------------------------------------
+> Section
+	> Subsection
+		> Subsubsection
+		> Subsubsection
+#outline
+--------------------------------------------------
+> Section
+
+	> Subsection
+
+		> Subsubsection
+
+		> Subsubsection
+
+#outline
+--------------------------------------------------
+
+
+End test. Insert new tests above this
+--------------------------------------------------
+Because the end of file format is a bit tricky.
+--------------------------------------------------
+Because the end of file format is a bit tricky.
