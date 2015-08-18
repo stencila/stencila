@@ -277,8 +277,8 @@ BOOST_AUTO_TEST_CASE(flags){
 	CILA_XML("out","<div data-out=\"true\" />");
 	ECHO("out");
 
-	CILA_XML("div ~included","<div data-included=\"true\" />");
-	ECHO("div ~included");
+	CILA_XML("div ~incl","<div data-included=\"true\" />");
+	ECHO("div ~incl");
 
 	CILA_XML("if x<0 ~off",R"(<div data-if="x&lt;0" data-off="true" />)");
 	ECHO("if x<0 ~off");

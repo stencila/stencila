@@ -391,17 +391,25 @@ BOOST_AUTO_TEST_CASE(include_modifiers){
 
 		<div data-include=". select #includee">
 			<div data-delete="#a" />
-			<p data-replace="#b" class="b">
-				This should replace div#b with p.b
-			</p>
+			<div data-replace="#b">
+				<p class="b"></p>
+			</div>
 			<div data-change="#c">
 				This should replace the contents of div#c but its attributes
 				should <strong>stay the same</strong>.
 			</div>
-			<div data-before="#e" id="d" />
-			<div data-after="#e" id="f" />
-			<div data-prepend="#g" id="g0" />
-			<div data-append="#g" id="g2" />
+			<div data-before="#e">
+				<div id="d" />
+			</div>
+			<div data-after="#e">
+				<div id="f" />
+			</div>
+			<div data-prepend="#g">
+				<div id="g0" />
+			</div>
+			<div data-append="#g">
+				<div id="g2" />
+			</div>
 		</div>
 	)");
 
