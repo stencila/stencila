@@ -41,6 +41,7 @@ BOOST_AUTO_TEST_CASE(run) {
 			throw std::runtime_error("Test does not have 3 sections");
 		}
 		auto header = sections[0];
+		if(header.find("skip")!=std::string::npos) continue;
 
 		// Do tests
 		Stencil stencil;

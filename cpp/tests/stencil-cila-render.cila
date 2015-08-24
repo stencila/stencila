@@ -46,7 +46,113 @@ set x to hello
 --------------------------------------------------
 
 
-Outlines
+`include` directive
+--------------------------------------------------
+macro m
+	par x
+	div text x
+
+include . select #m
+	set x to 10
+--------------------------------------------------
+macro m
+	par x
+	div text x
+
+include . select #m
+	set x to 10
+	div ~incl
+		div
+			div 10
+--------------------------------------------------
+
+
+`include` directive modifiers
+--------------------------------------------------
+macro foo
+	#a A
+	#b B
+
+include . select #foo
+
+include . select #foo
+	delete #b
+
+include . select #foo
+	change #b
+		BB
+
+include . select #foo
+	replace #a
+		#aa AA
+
+include . select #foo
+	before #b
+		#a-1
+		#a-2
+
+include . select #foo
+	after #b
+		#c
+		#d
+--------------------------------------------------
+macro foo
+	#a A
+	#b B
+
+include . select #foo
+	div ~incl
+		div
+			#a A
+			#b B
+
+include . select #foo
+	delete #b
+	div ~incl
+		div
+			#a A
+
+include . select #foo
+	change #b
+		BB
+	div ~incl
+		div
+			#a A
+			#b BB
+
+include . select #foo
+	replace #a
+		#aa AA
+	div ~incl
+		div
+			#aa AA
+			#b B
+
+include . select #foo
+	before #b
+		#a-1
+		#a-2
+	div ~incl
+		div
+			#a A
+			#a-1
+			#a-2
+			#b B
+
+include . select #foo
+	after #b
+		#c
+		#d
+	div ~incl
+		div
+			#a A
+			#b B
+			#c
+			#d
+--------------------------------------------------
+
+
+Outlines  skip
 --------------------------------------------------
 > Section
 	> Subsection
