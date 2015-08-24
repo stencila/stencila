@@ -79,7 +79,7 @@ public:
 	 * Read the stencil from a directory
 	 * 
 	 * @param  path Filesystem path to a directory. 
-	 *              If an empty string (`""`) then the stencil's current path is used.
+	 *              If an empty string then the stencil's current path is used.
 	 */
 	Stencil& read(const std::string& path="");
 	
@@ -87,6 +87,7 @@ public:
 	 * Write the stencil to a directory
 	 * 
 	 * @param  path Filesystem path to a directory
+	 *              If an empty string then the stencil's current path is used.
 	 */
 	Stencil& write(const std::string& path="");
 
@@ -392,7 +393,7 @@ public:
 	 * Create a hash of a string key. Used to keep track
 	 * of intra-stencil depenedencies
 	 */
-	std::string hash(Node node, bool attrs=true, bool text=true);
+	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true);
 
 
 	struct Directive {
@@ -465,6 +466,7 @@ public:
 		Evaluatable units;
 		Evaluatable size;
 		Flag constant = false;
+		Flag volatil = false;
 		Flag show = false;
 
 		Execute(void);

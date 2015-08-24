@@ -123,23 +123,31 @@ Stencil& Stencil::strip(void){
 	return *this;
 }
 
-std::string Stencil::hash(Node node, bool attrs, bool text){
-	// Create a key string for this node which starts with the current value
-	// for the current cumulative hash and its adds attributes and text
-	std::string key = hash_;
-	// Update based on attrs
-	if(attrs){
-		for(auto attr : node.attrs()){
-			if(attr!="data-hash") key += attr+":"+node.attr(attr);
+std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
+	std::size_t number;
+	// Normal, cumulative hash
+	if(effect==0 or effect==1){
+		// Create a key string for this node which starts with the current value
+		// for the current cumulative hash and its adds attributes and text
+		std::string key = hash_;
+		// Update based on attrs
+		if(attrs){
+			for(auto attr : node.attrs()){
+				if(attr!="data-hash") key += attr+":"+node.attr(attr);
+			}
 		}
+		// Update based on text
+		if(text){
+			key += node.text();
+		}
+		// Create an integer hash of key
+		static std::hash<std::string> hasher;
+		number = hasher(key);
 	}
-	// Update based on text
-	if(text){
-		key += node.text();
+	// Volatile element, hash should change every time
+	else {
+		number = std::rand();
 	}
-	// Create an integer hash of key
-	static std::hash<std::string> hasher;
-	std::size_t number = hasher(key);
 	// To reduce the length of the hash, convert the integer hash to a 
 	// shorter string by encoding using a character set
 	static char chars[] = {
@@ -154,8 +162,8 @@ std::string Stencil::hash(Node node, bool attrs, bool text){
 		number = int(number/sizeof(chars));
 	}
 	// Set the hash and return it
-	hash_ = string;
-	return hash_;
+	if(effect!=0) hash_ = string;
+	return string;
 }
 
 namespace {
@@ -206,6 +214,7 @@ void Stencil::Execute::parse(const std::string& attribute){
 		"(((eval)\\s+)?\\s+units\\s+(.+?))?" \
 		"(((eval)\\s+)?\\s+size\\s+(.+?))?" \
 		"(\\s+(const))?" \
+		"(\\s+(volat))?" \
 		"(\\s+(show))?" \
 		"$"
 	);
@@ -237,7 +246,8 @@ void Stencil::Execute::parse(const std::string& attribute){
 		size.eval = match[21].str()=="eval";
 		size.expr = match[22].str();
 		constant = match[24].str()=="const";
-		show = match[26].str()=="show";
+		volatil = match[26].str()=="volat";
+		show = match[28].str()=="show";
 	} else {
 		throw DirectiveException("syntax",attribute);
 	}
@@ -262,7 +272,10 @@ void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 	if(not accepted) return;
 	
 	// Update hash
-	auto hash = stencil.hash(node);
+	int effect = 1;
+	if(constant) effect = 0;
+	else if(volatil) effect = -1;
+	auto hash = stencil.hash(node,effect);
 	// If there is no change in the hash then return
 	// otherwise replace the hash (may be missing) and keep rendering
 	std::string current = node.attr("data-hash");
@@ -326,7 +339,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 	if(id.length()){
 		if(id[id.length()-1]!='-') id += "-";
 	}
-	id += stencil.hash_;
+	id += hash;
 
 	// Remove any existing output before executing code
 	// in case there is an error in it (in which case
