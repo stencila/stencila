@@ -31,7 +31,7 @@ setRefClass(
         # This is necessary to prevent garbage collection of the `Context`
         # when there is a C++-side `RContext` which holds a pointer to it.
         # A '.' prefix is used to signify this is a private field and to prevent
-        # a name clash with method arguments
+        # a name clash with a method name below
         .context = 'ANY'
     ),
     contains = 'Component',
@@ -39,7 +39,11 @@ setRefClass(
         initialize = function(initialiser=NULL,...){
             callSuper(...)
             .context <<- NULL
+            # Initialise from the argument
             if(!is.null(initialiser)) call_('Stencil_initialise',.pointer,toString(initialiser))
+            # Attach a context, if necessary reading it from the the stencil's path
+            context <- Context()
+            attach(context)
         },
 
         initialise = function(initialiser){
