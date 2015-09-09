@@ -281,8 +281,8 @@ var Stencila = (function(Stencila){
 		if(!need){
 			// Get a permit to be used for subsequent requests
 			$.ajax({
-				url: this.origin+'user/me/permit',
-				method: 'GET',
+				url: this.origin+'me/permit',
+				method: 'POST',
 				headers: headers
 			}).done(function(data){
 				Hub.username = data.username;
@@ -878,26 +878,6 @@ var Stencila = (function(Stencila){
 	};
 
 	/**
-	 * Patch the content of this stencil
-	 *
-	 * This method modifies the local DOM and the patches the remote, so only
-	 * Cila is made null.
-	 */
-	Stencil.prototype.patch = function(elem,operation,content){
-		var self = this;
-		var patch;
-		var xpath = self.xpath(elem);
-		if(operation=='append'){
-			patch = '<add sel="'+xpath+'" pos="append">'+content[0].outerHTML+'</add>';
-			elem.append(content);
-		}
-		self.execute("patch(string)",[patch],function(){
-			self.cila = null;
-		});
-		return self;
-	};
-
-	/**
 	 * Determine the XPath selector for an element within this stencil
 	 */
 	Stencil.prototype.xpath = function(elem){
@@ -913,6 +893,32 @@ var Stencila = (function(Stencila){
 		return path; 
 	};
 
+	/**
+	 * Patch this stencil
+	 */
+	Stencil.prototype.patch = function(){
+		var self = this;
+		Stencila.Hub.post(
+			'components/'+self.address+'/patch',
+			// Patch data
+			{
+				patch: Date.now()
+			},
+			// Callback after success
+			function(data){
+			}
+		);
+	};
+
+	/**
+	 * Check for changes and patch when changes are made
+	 */
+	Stencil.prototype.monitor = function(){
+		var self = this;
+		window.setInterval(function(){
+			self.patch();
+		},1000);
+	};
 
 	/**
 	 * Bind the user interface. 
