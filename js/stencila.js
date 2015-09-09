@@ -912,21 +912,6 @@ var Stencila = (function(Stencila){
 		},1000);
 	};
 
-	/**
-	 * Determine the XPath selector for an element within this stencil
-	 */
-	Stencil.prototype.xpath = function(elem){
-		// Implementation thanks to http://dzone.com/snippets/get-xpath
-		var root = this.dom_.get(0);
-		elem = $(elem).get(0);
-		var path = ''; 
-		for (; elem && elem.nodeType==1 && elem!==root; elem=elem.parentNode) {
-			var index = $(elem.parentNode).children(elem.tagName).index(elem)+1; 
-			index>1 ? (index='['+index+']') : (index='');
-			path = '/'+elem.tagName.toLowerCase()+index+path; 
-		} 
-		return path; 
-	};
 
 	/**
 	 * Bind the user interface. 
