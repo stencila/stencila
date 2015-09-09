@@ -858,23 +858,58 @@ var Stencila = (function(Stencila){
 			if(self.format_=='dom' || self.format_=='html'){
 				// Save using HTML
 				self.html(function(html){
-					self.execute("html(string).write()",[html],function(){
-						self.state_ = 0;
-						callback();
-					});
+					if(self.host=='localhost'){
+						self.execute("html(string).write()",[html],function(){
+							self.state_ = 0;
+							callback();
+						});
+					} else {
+						Stencila.Hub.post('components/'+self.address+'/save',
+							{
+								content: html
+							},
+							function(data){
+								self.state_ = 0;
+								callback();
+							}
+						);
+					}
 				});
 			}
 			else if(self.format_=='cila'){
 				// Save using Cila
-				self.execute("cila(string).write()",[self.content_],function(){
-					self.state_ = 0;
-					callback();
-				});
+				if(self.host=='localhost'){
+					self.execute("cila(string).write()",[self.content_],function(){
+						self.state_ = 0;
+						callback();
+					});
+				} else {
+					Stencila.Hub.post('components/'+self.address+'/save',
+						{
+							content: self.content_
+						},
+						function(data){
+							self.state_ = 0;
+							callback();
+						}
+					);
+				}
 			}
 			else {
 				throw "Format not handled";
 			}
 		} else callback();
+	};
+
+	/**
+	 * Check for changes in this stencils and save when 
+	 * necessary
+	 */
+	Stencil.prototype.monitor = function(){
+		var self = this;
+		window.setInterval(function(){
+			self.save();
+		},1000);
 	};
 
 	/**
@@ -891,33 +926,6 @@ var Stencila = (function(Stencila){
 			path = '/'+elem.tagName.toLowerCase()+index+path; 
 		} 
 		return path; 
-	};
-
-	/**
-	 * Patch this stencil
-	 */
-	Stencil.prototype.patch = function(){
-		var self = this;
-		Stencila.Hub.post(
-			'components/'+self.address+'/patch',
-			// Patch data
-			{
-				patch: Date.now()
-			},
-			// Callback after success
-			function(data){
-			}
-		);
-	};
-
-	/**
-	 * Check for changes and patch when changes are made
-	 */
-	Stencil.prototype.monitor = function(){
-		var self = this;
-		window.setInterval(function(){
-			self.patch();
-		},1000);
 	};
 
 	/**
