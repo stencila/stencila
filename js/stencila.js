@@ -835,7 +835,15 @@ var Stencila = (function(Stencila){
 	 */
 	Stencil.prototype.save = function(callback){
 		var self = this;
-		// If ahead of remote...
+
+		function save_callback(data){
+			self.revision_ = data.revision;
+			if(data.status===1){
+				if(self.format_=='dom' || self.format_=='html') self.html(data.content);
+				else self.cila(data.content);
+			}
+		}
+
 		if(self.format_=='dom' || self.format_=='html'){
 			// Save using HTML
 			self.html(function(html){
@@ -845,9 +853,10 @@ var Stencila = (function(Stencila){
 					Stencila.Hub.post('components/'+self.address+'/save',
 						{
 							format: 'html',
-							content: html
+							content: html,
+							revision: self.revision_
 						},
-						callback
+						save_callback
 					);
 				}
 			});
@@ -861,9 +870,10 @@ var Stencila = (function(Stencila){
 				Stencila.Hub.post('components/'+self.address+'/save',
 					{
 						format: 'cila',
-						content: cila
+						content: cila,
+						revision: self.revision_
 					},
-					callback
+					save_callback
 				);
 			}
 		}
@@ -886,7 +896,7 @@ var Stencila = (function(Stencila){
 		var format;
 		if(self.format_=='dom' || self.format_=='html') format = 'html';
 		else format = 'cila';
-		Hub.get('components/'+self.address+'/content?format='+format,function(data){
+		Hub.get('components/'+self.address+'/content?format='+format,true,function(data){
 			self.revision_ = data.revision;
 			if(format=='html'){
 				self.html(data.content);
