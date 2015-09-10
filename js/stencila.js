@@ -866,6 +866,7 @@ var Stencila = (function(Stencila){
 					} else {
 						Stencila.Hub.post('components/'+self.address+'/save',
 							{
+								format: 'html',
 								content: html
 							},
 							function(data){
@@ -878,15 +879,17 @@ var Stencila = (function(Stencila){
 			}
 			else if(self.format_=='cila'){
 				// Save using Cila
+				var cila = self.content_;
 				if(self.host=='localhost'){
-					self.execute("cila(string).write()",[self.content_],function(){
+					self.execute("cila(string).write()",[cila],function(){
 						self.state_ = 0;
 						callback();
 					});
 				} else {
 					Stencila.Hub.post('components/'+self.address+'/save',
 						{
-							content: self.content_
+							format: 'cila',
+							content: cila
 						},
 						function(data){
 							self.state_ = 0;
