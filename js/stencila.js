@@ -402,7 +402,7 @@ var Stencila = (function(Stencila){
 		// Set activation status
 		this.activation = 'inactive';
 
-		this.meta = false;
+		this.meta_ = null;
 	};
 
 	/**
@@ -441,10 +441,7 @@ var Stencila = (function(Stencila){
 	Component.prototype.read = function(){
 		var self = this;
 		Hub.get('components/'+this.address,false,function(data){
-			$.each(data,function(key,value){
-				self[key] = value;
-			});
-			self.meta = true;
+			self.meta_ = data;
 		});
 	};
 
@@ -584,6 +581,12 @@ var Stencila = (function(Stencila){
 		self.format_ = null;
 
 		/**
+		 * Revision of `content_`
+		 * @type string
+		 */
+		self.revision_ = null;
+
+		/**
 		 * Actual content of this stencil in the `format_`
 		 * @type DOM or string
 		 */
@@ -596,20 +599,6 @@ var Stencila = (function(Stencila){
 		 * @type Context
 		 */
 		self.context_ = null;
-
-		/**
-		 * Can this stencil be edited?
-		 */
-		self.editable_ = false;
-
-		/**
-		 * Local state of this stencil
-		 *
-		 *  0 = equal to remote
-		 *  1 = ahead of remote
-		 * -1 = behind remote
-		 */
-		self.state_ = 0;
 
 		self.initialise_(content,context,callback);
 	};
@@ -688,10 +677,6 @@ var Stencila = (function(Stencila){
 			if(contexts=='js') self.context_ = new Context();
 		}
 
-		self.editable_ = (self.host=='localhost');
-
-		self.state_ = 0;
-
 		if(callback) callback(self);
 	};
 
@@ -703,6 +688,7 @@ var Stencila = (function(Stencila){
 		Component.prototype.startup.call(self);
 		// For Javascript stencils, render
 		if(self.context_) self.render();
+		//
 	};
 
 	/**
@@ -726,7 +712,6 @@ var Stencila = (function(Stencila){
 		else if(self.format_=='cila'){
 			// Get remote to convert Cila to HTML, then convert to DOM
 			self.execute("cila(string).html():string",[self.content_],function(string){
-				self.state_ = 0;
 				self.format_ = 'dom';
 				self.dom_.html(string);
 				self.content_ = self.dom_;
@@ -785,7 +770,6 @@ var Stencila = (function(Stencila){
 			else if(self.format_=='cila'){
 				// Get remote to convert Cila to HTML
 				self.execute("cila(string).html():string",[self.content_],function(string){
-					self.state_ = 0;
 					self.format_ = 'html';
 					self.content_ = string;
 					html(self.content_);
@@ -797,7 +781,6 @@ var Stencila = (function(Stencila){
 		}
 		else {
 			// Set HTML (argument is a string)
-			self.state_ = 1;
 			self.content_ = html;
 			self.format_ = 'html';
 		}
@@ -818,7 +801,6 @@ var Stencila = (function(Stencila){
 				// Get remote to convert HTML to Cila
 				self.html(function(html){
 					self.execute("html(string).cila():string",[html],function(string){
-						self.state_ = 0;
 						self.format_ = 'cila';
 						self.content_ = string;
 						cila(self.content_);
@@ -831,7 +813,6 @@ var Stencila = (function(Stencila){
 		}
 		else {
 			// Set Cila (argument is a string)
-			self.state_ = 1;
 			self.format_ = 'cila';
 			self.content_ = cila;
 		}
@@ -842,6 +823,7 @@ var Stencila = (function(Stencila){
 	 * Get or set whether this stencil is editable
 	 */
 	Stencil.prototype.editable = function(value){
+		// TODO (self.host=='localhost')
 		if(value===undefined) return this.editable_;
 		else this.editable_ = value;
 	};
@@ -854,65 +836,72 @@ var Stencila = (function(Stencila){
 	Stencil.prototype.save = function(callback){
 		var self = this;
 		// If ahead of remote...
-		if(self.state_==1){
-			if(self.format_=='dom' || self.format_=='html'){
-				// Save using HTML
-				self.html(function(html){
-					if(self.host=='localhost'){
-						self.execute("html(string).write()",[html],function(){
-							self.state_ = 0;
-							callback();
-						});
-					} else {
-						Stencila.Hub.post('components/'+self.address+'/save',
-							{
-								format: 'html',
-								content: html
-							},
-							function(data){
-								self.state_ = 0;
-								callback();
-							}
-						);
-					}
-				});
-			}
-			else if(self.format_=='cila'){
-				// Save using Cila
-				var cila = self.content_;
+		if(self.format_=='dom' || self.format_=='html'){
+			// Save using HTML
+			self.html(function(html){
 				if(self.host=='localhost'){
-					self.execute("cila(string).write()",[cila],function(){
-						self.state_ = 0;
-						callback();
-					});
+					self.execute("html(string).write()",[html],callback);
 				} else {
 					Stencila.Hub.post('components/'+self.address+'/save',
 						{
-							format: 'cila',
-							content: cila
+							format: 'html',
+							content: html
 						},
-						function(data){
-							self.state_ = 0;
-							callback();
-						}
+						callback
 					);
 				}
+			});
+		}
+		else if(self.format_=='cila'){
+			// Save using Cila
+			var cila = self.content_;
+			if(self.host=='localhost'){
+				self.execute("cila(string).write()",[cila],callback);
+			} else {
+				Stencila.Hub.post('components/'+self.address+'/save',
+					{
+						format: 'cila',
+						content: cila
+					},
+					callback
+				);
 			}
-			else {
-				throw "Format not handled";
-			}
-		} else callback();
+		}
+		else {
+			throw "Format not handled";
+		}
 	};
 
 	/**
 	 * Check for changes in this stencils and save when 
 	 * necessary
+	 *
+	 * @param frequency Number of seconds between checks, defaults to 60 seconds
 	 */
-	Stencil.prototype.monitor = function(){
+	Stencil.prototype.monitor = function(frequency){
+		frequency = frequency || 60;
+
 		var self = this;
-		window.setInterval(function(){
-			self.save();
-		},1000);
+		// Before starting get the most recent `revision_` and `content_`
+		var format;
+		if(self.format_=='dom' || self.format_=='html') format = 'html';
+		else format = 'cila';
+		Hub.get('components/'+self.address+'/content?format='+format,function(data){
+			self.revision_ = data.revision;
+			if(format=='html'){
+				self.html(data.content);
+			} else {
+				self.cila(data.content);
+			}
+			// Now start to monitor
+			if(self.monitor_){
+				window.clearInterval(self.monitor_);
+				self.monitor_ = null;
+			}
+			self.monitor_ = window.setInterval(function(){
+				self.save();
+			},frequency*1000);
+		});
 	};
 
 
@@ -961,7 +950,6 @@ var Stencila = (function(Stencila){
 			// No local context, needs to be rendered remotely
 			if(self.format_==='dom'){
 				self.execute("html(string).render().html():string",[self.content_.html()],function(html){
-					self.state_ = 0;
 					self.content_.html(html);
 					callback();
 				});
