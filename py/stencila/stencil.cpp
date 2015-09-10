@@ -33,6 +33,25 @@ void def_Stencil(void){
             return_self<>()
         )
 
+        .def("cila",
+            static_cast<std::string (Stencil::*)(void) const>(&Stencil::cila)
+        )
+        .def("cila",
+            static_cast<Stencil& (Stencil::*)(const std::string&)>(&Stencil::cila),
+            return_self<>()
+        )
+
+        .def("source",
+            static_cast<std::string (Stencil::*)(void) const>(&Stencil::source)
+        )
+        .def("source",
+            static_cast<Stencil& (Stencil::*)(const std::string&)>(&Stencil::source),
+            return_self<>()
+        )
+
+        .def("read",&Stencil::read,return_self<>())
+        .def("write",&Stencil::write,return_self<>())
+
         .def("title",&Stencil::title)
         .def("description",&Stencil::description)
         .def("keywords",&Stencil::keywords)
