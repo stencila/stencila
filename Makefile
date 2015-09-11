@@ -637,17 +637,6 @@ $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js:
 	tar xzf $< -C $(BUILD)/js/requires
 	touch $@
 
-GOOGLE_DMP_JS_VERSION := 1.0.0
-
-$(RESOURCES)/google-diff-match-patch-js-$(GOOGLE_DMP_JS_VERSION).tar.gz:
-	@mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O$@ https://github.com/tanaka-de-silva/google-diff-match-patch-js/archive/v$(GOOGLE_DMP_JS_VERSION).tar.gz
-
-$(BUILD)/js/requires/google-diff-match-patch-js-$(GOOGLE_DMP_JS_VERSION)/diff_match_patch.js: $(RESOURCES)/google-diff-match-patch-js-$(GOOGLE_DMP_JS_VERSION).tar.gz
-	@mkdir -p $(BUILD)/js/requires
-	tar xzf $< -C $(BUILD)/js/requires
-	touch $@
-
 # Build a minified file of all JS requirements for `stencila.js`
 # RequireJS is concatenated last to avoid conflicts with JQuery and plugins
 $(BUILD)/js/requires.min.js: \
@@ -655,8 +644,7 @@ $(BUILD)/js/requires.min.js: \
 	        $(RESOURCES)/jquery.cookie-$(JQUERY_COOKIE_VERSION).min.js \
 	        $(BUILD)/js/requires/jquery.hotkeys-$(JQUERY_HOTKEYS_VERSION)/jquery.hotkeys.js \
 			$(RESOURCES)/require-$(REQUIREJS_VERSION).js \
-			$(BUILD)/js/requires/text-$(REQUIREJS_TEXT_VERSION)/text.js \
-			$(BUILD)/js/requires/google-diff-match-patch-js-$(GOOGLE_DMP_JS_VERSION)/diff_match_patch.js
+			$(BUILD)/js/requires/text-$(REQUIREJS_TEXT_VERSION)/text.js
 	@mkdir -p $(BUILD)/js
 	uglifyjs $^ --compress --mangle --comments 	> $@
 
