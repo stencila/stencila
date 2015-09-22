@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <fstream>
 
 #include <stencila/array-declaration.hpp>
