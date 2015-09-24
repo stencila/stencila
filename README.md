@@ -1,4 +1,4 @@
-<div align="center"><img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:100%"></div>
+<div align="center"><img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="width:300px"></div>
 
 ### Status
 
@@ -32,10 +32,8 @@ Stencila is based around stencils, you can create a stencil from strings, or fil
 ```r
 # An empty stencil
 s <- Stencil()
-
 # A stencil from an HTML string
 s <- Stencil('html://The date is <span data-text="date()">')
-
 # A stencil from a Cila file
 s <- Stencil('file://stencil.cila')
 ```
@@ -43,7 +41,9 @@ s <- Stencil('file://stencil.cila')
 Internally, stencils are represented by an XHTML tree structure that can be converted to/from HTML and Cila. You can set a stencil's content using HTML and get it back as Cila:
 
 ```r
+# Set the stencil's content using HTML
 s$html('The date is <span data-text="date()">')
+# Get the stencil's content as Cila
 s$cila()
 [1] "The date is {text date()}"
 ```
@@ -51,12 +51,18 @@ s$cila()
 Stencils are similar to other template formats and can be rendered to produce textual and graphical outputs. The key difference with stencils is that the output gets embedded within the stencil itself. Or, to express it the other way around, the rendered document retains the template logic.
 
 ```r
+# Load some data on irises
+data(iris)
+# Create a stencil that calculates a summary statistic
+s <- Stencil('cila://The correlation between petal length and petal width was {text with(iris,cor(Petal.Length,Petal.Width))}.')
+# Render it
 s$render()
-s$cila()
-[1] "The date is {text date() Thu Sep 24 19:22:36 2015}"
+# Get it's rendered content as HTML
+s$html()
+[1] "<p>\n\tThe correlation between petal length and petal width was <span data-text=\"with(iris,cor(Petal.Length,Petal.Width))\">0.962865431402796</span>.\n</p>"
 ```
 
-Most templating engines separate the source (the template) from the target (the document). Stencils are [automorphic](https://en.wikipedia.org/wiki/Automorphism) the source (the stencil) is also the target (the stencil). And because stencil's are nateively XHTML, this means that you can view, edit and re-render them in place, in your browser:
+Most templating engines separate the source (the template) from the target (the document). Stencils are [automorphic](https://en.wikipedia.org/wiki/Automorphism) the source (the stencil) is also the target (the stencil). And because stencil's are natively XHTML, this means that you can view, edit and re-render them in place, in your browser:
 
 ```r
 s$view()
