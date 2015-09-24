@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -95,9 +97,11 @@ public:
 		root_(true){
 	}
 
-	JsonWriter(boost::property_tree::ptree* tree):
+	JsonWriter(boost::property_tree::ptree* tree, const std::vector<std::string>& path, const std::string& name):
 		tree_(tree),
-		root_(false){
+		root_(false),
+		path_(path){
+			path_.push_back(name);
 	}
 
 	~JsonWriter(void){
@@ -121,12 +125,18 @@ private:
 	void data_(Data& data, const std::string& name, const std::true_type& is_structure, const std::false_type& is_array){
 		// Data is a structure so create another node and recurse into it with another JsonWriter
 		boost::property_tree::ptree& child = tree_->put_child(name,boost::property_tree::ptree());
-		JsonWriter(&child).mirror(data);
+		JsonWriter(&child,path_,name).mirror(data);
 	}
 
 	template<typename Data>
 	void data_(Data& data, const std::string& name, const std::false_type& is_structure, const std::true_type& is_array){
-		// Data is an array. Currently ignore.
+		// Data is an array. Write to a file an insert a link into JSON
+		boost::filesystem::path dir = boost::join(path_,"/");
+		boost::filesystem::create_directories(dir);
+		boost::filesystem::path file = dir / (name + ".tsv");
+		std::string filename = file.string();
+		data.write(filename);
+		tree_->put(name,"@file:"+filename);
 	}
 
 	template<typename Data>
@@ -137,6 +147,7 @@ private:
 
 	boost::property_tree::ptree* tree_;
 	bool root_;
+	std::vector<std::string> path_;
 
 }; // class JsonWriter
 
