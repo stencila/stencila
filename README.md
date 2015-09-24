@@ -1,6 +1,4 @@
-![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
-
-Documents powered by data
+<div align="center"><img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:100%"></div>
 
 ### Status
 
@@ -11,6 +9,61 @@ Issues:
 
 Build:
 [![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
+
+### Quick start
+
+Stencila is a platform for creating documents that are driven by data. The core engine is in C++ with thin wrappers in to R and Python (more languages to come). Here's a taste of what Stencila does, illustrated using the R package, but with similar functionality available in the other packages.
+
+Install the R package from our R repository:
+
+```r
+install.packages('stencila',repo='http://get.stenci.la/r')
+```
+
+There's an optional command line interface which you can install into your path:
+
+```r
+require(stencila)
+stencila:::install()
+```
+
+Stencila is based around stencils, you can create a stencil from strings, or files, of HTML or Cila (our stencil authoring language):
+
+```r
+# An empty stencil
+s <- Stencil()
+
+# A stencil from an HTML string
+s <- Stencil('html://The date is <span data-text="date()">')
+
+# A stencil from a Cila file
+s <- Stencil('file://stencil.cila')
+```
+
+Internally, stencils are represented by an XHTML tree structure that can be converted to/from HTML and Cila. You can set a stencil's content using HTML and get it back as Cila:
+
+```r
+s$html('The date is <span data-text="date()">')
+s$cila()
+[1] "The date is {text date()}"
+```
+
+Stencils are similar to other template formats and can be rendered to produce textual and graphical outputs. The key difference with stencils is that the output gets embedded within the stencil itself. Or, to express it the other way around, the rendered document retains the template logic.
+
+```r
+s$render()
+s$cila()
+[1] "The date is {text date() Thu Sep 24 19:22:36 2015}"
+```
+
+Most templating engines separate the source (the template) from the target (the document). Stencils are [automorphic](https://en.wikipedia.org/wiki/Automorphism) the source (the stencil) is also the target (the stencil). And because stencil's are nateively XHTML, this means that you can view, edit and re-render them in place, in your browser:
+
+```r
+s$view()
+```
+
+(We're currently doing some major refactoring of the front end Javascript so, depending on when you try this out, Stencil editing may not work too well/at all).
+
 
 ### Installing
 
