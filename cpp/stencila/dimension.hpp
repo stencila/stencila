@@ -413,14 +413,17 @@ public:
 	public: \
 		class_(void):Dimension<class_,size>(#name_){} \
 		static const char* name(void) { return #name_; } \
-	} instance;
+		static class_ levels; \
+	}; \
+	class_ instance; class_ class_::levels;
 
 #define STENCILA_DIM_RANGE(class_,instance,name_,from,to) \
 	class class_ : public Dimension<class_,to-from+1,from> { \
 	public: \
 		class_(void):Dimension<class_,to-from+1,from>(#name_){} \
 		static const char* name(void) { return #name_; } \
-	} instance;
+	}; \
+	class_ instance;
 
 /**
  * Singular dimensions.
