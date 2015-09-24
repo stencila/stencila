@@ -42,22 +42,25 @@ public:
 		return derived();
 	}
 
-	Derived& read(const std::string& path) {
-		return read(boost::filesystem::extension(path).substr(1),path);
+	Derived& read(const std::string& path, std::string format = "", std::string directory = "") {
+		auto pwd = boost::filesystem::current_path();
+		if(directory.length()) boost::filesystem::current_path(directory);
+		if(format.length()==0) format = boost::filesystem::extension(path).substr(1);
+		if(format=="json") read_json(path);
+		if(directory.length()) boost::filesystem::current_path(pwd);
+		return derived();
 	}
 
-	Derived& write(const std::string& path) {
-		return write(boost::filesystem::extension(path).substr(1),path);
-	}
-
-	Derived& read(const std::string& format, const std::string& path) {
-		if(format=="json") return read_json(path);
-		STENCILA_THROW(Exception,"Unhandled format.\n  format: "+format);
-	}
-
-	Derived& write(const std::string& format, const std::string& path) {
-		if(format=="json") return write_json(path);
-		STENCILA_THROW(Exception,"Unhandled format.\n  format: "+format);
+	Derived& write(const std::string& path, std::string format = "", std::string directory = "") {
+		auto pwd = boost::filesystem::current_path();
+		if(directory.length()){
+			boost::filesystem::create_directories(directory);
+			boost::filesystem::current_path(directory);
+		}
+		if(format.length()==0) format = boost::filesystem::extension(path).substr(1);
+		if(format=="json") write_json(path);
+		if(directory.length()) boost::filesystem::current_path(pwd);
+		return derived();
 	}
 
 	Derived& read_json(const std::string& path) {
