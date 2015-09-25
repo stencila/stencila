@@ -1,4 +1,4 @@
-<div align="center"><img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="width:300px"></div>
+<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:300px">
 
 ### Status
 
@@ -68,7 +68,9 @@ Most templating engines separate the source (the template) from the target (the 
 s$view()
 ```
 
-(We're currently doing some major refactoring of the front end Javascript so, depending on when you try this out, Stencil editing may not work too well/at all).
+<img src="http://static.stenci.la/img/stencila-readme-screenshot.png">
+
+(We're currently doing some major refactoring of the front end Javascript so, depending on when you try this out, stencil editing may not work too well/at all).
 
 
 ### Installing
