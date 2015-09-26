@@ -84,7 +84,7 @@ Html::Document Component_page_doc(const Type& component) {
 	 *
 	 * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
 	 */
-	std::string css = "/" + component.theme() + "/theme.min.css";
+	std::string css = "/web/" + type + ".min.css";
 	head.append("link",{
 		{"rel","stylesheet"},
 		{"type","text/css"},
@@ -115,7 +115,7 @@ Html::Document Component_page_doc(const Type& component) {
 	// Call the function
 	fallback += "})('"+css+"');";
 	// Add CSS fallback Javascript
-	head.append("script",{{"type","text/javascript"}},fallback);
+	head.append("script",{{"type","application/javascript"}},fallback);
 	// Add CSS fallback style for the unready document
 	head.append("style",{{"type","text/css"}},".unready{display:none;}");
 
@@ -144,40 +144,20 @@ Html::Document Component_page_doc(const Type& component) {
 	// Main element where custom component pages should add content
 	body.append("main",{{"id","main"}});
 
-	// Load Stencila Javascript module
-	// During development it can be useful to specify that a particular version of the Javascript
-	// module be used. For example, when compiling a component using a locally built development version of
-	// the Python or R package. Uncomment the following line to do that
-	//#define STENCILA_USE_JS_VERSION "0.16"
-	#if defined(STENCILA_USE_JS_VERSION)
-		// Use the specified version
-		body.append("script",{{"src","https://stenci.la/get/js/stencila-" STENCILA_USE_JS_VERSION ".min.js"}}," ");
-	#else
-		// Use version number to check if in development. No development versions
-		// of stencila.js are on get.stenci.la (only release versions).
-		bool development = Stencila::version.find("-")!=std::string::npos;
-		if(development){
-			// Load development version from the current host (usually http://localhost:7373)
-			// Requires that the `make build-serve ...` task has been run so that build directory
-			// of the `stencila/stencila` repo is being served and that `make js-develop` task has been 
-			// run to ensure the following files are in that directory
-			body.append("script",{{"src","/build/js/requires.min.js"}}," ");
-			body.append("script",{{"src","/build/js/stencila.js"}}," ");
-		} else {
-			// Load versioned, minified file from get.stenci.la. This has
-			// a "far future" cache header so it should be available even when offline
-			// This is https:// not a "propocol relative URL" so that it will work with both file://
-			// and https:// (i.e not mixed content as it would be if it were http://)
-			body.append("script",{{"src","https://stenci.la/get/js/stencila-"+Stencila::version+".min.js"}}," ");
-		}
-	#endif
+	// Load Stencila Javascript
+	std::string js = "/web/"+type+".min.js";
+	// First attempt to load from host
+	body.append("script",{{"src",js}}," ");
+	// Fallback load from https://stenci.la. This is https:// not a "propocol relative URL" so that it 
+	// will work with file:// and https:// (i.e not mixed content as it would be if it were http://)
+	body.append(
+		"script",
+		{{"type","application/javascript"}},
+		"window.Stencila || document.write(unescape('%3Cscript src=\""+js+"\"%3E%3C/script%3E'))"
+	);
 	
-	// Launch the component
-	body.append("script","Stencila.launch();");
-
 	// Fallback to the CSS fallback! Remove the `unready` class from the root element is not already
 	// removed. This is in case the remote CSS link added by the CSS fallback function (see above) fails to load.
-	// This could perhaps generate an alert
 	body.append("script",std::string("window.setTimeout(function(){")+
 		"document.documentElement.className='';" + 
 		"if(!window.Stencila){window.alert('Page could not be fully loaded. Not all functionality will be available.');}"+
