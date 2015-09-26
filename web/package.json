@@ -1,0 +1,26 @@
+{
+  "name": "stencila",
+  "version": "0.18.0",
+  "description": "Web client interfaces to Stencila components",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stencila authors (https://github.com/stencila/stencila/blob/master/AUTHORS)",
+  "license": "GPL3",
+  "dependencies": {
+    "jquery": "^2.1.4"
+  },
+  "devDependencies": {
+    "babelify": "^6.3.0",
+    "gulp": "^3.9.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-jasmine": "^2.1.0",
+    "gulp-minify-css": "^1.2.1",
+    "gulp-sass": "^2.0.4",
+    "gulp-uglify": "^1.4.1"
+  }
+}

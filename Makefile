@@ -990,6 +990,18 @@ r-clean:
 	rm -rf $(BUILD)/r
 
 #################################################################################################
+# Stencila web browser module
+
+web-build:
+	cd web; gulp build
+
+web-deliver:
+	aws s3 sync web/build s3://get.stenci.la/web/
+
+web-clean:
+	rm -rf web/build
+
+#################################################################################################
 
 # Clean everything!
 clean:
