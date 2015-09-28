@@ -1,3 +1,135 @@
-body {
-	color: #444;
+@import '../base.scss';
+
+/******************************************************
+ * Stencil content
+ ******************************************************/
+#content {
+    // For readability, don't allow to be too wide
+    max-width: 45em;
+
+    // Centre on page
+    margin-left: auto;
+    margin-right: auto;
+
+    // Text
+    font-family: $serif;
+    font-size: 18px;
+    line-height: 1.5em;
+    text-align: justify;
+    color: #555;
 }
+
+/******************************************************
+ * Headings
+ ******************************************************/
+#content h1,
+#content h2,
+#content h3,
+#content h4,
+#content h5,
+#content h6 {
+	font-family: $sans;
+	font-weight: bold;
+	color: #444;
+    margin-top: 1em;
+}
+#content h1 {
+    font-size: 1.2em;
+}
+#content h2 {
+    font-size: 1.1em;
+}
+#content h3 {
+    font-size: 1.05em;
+}
+#content h4 {
+    font-size: 1.0em;
+}
+
+/******************************************************
+ * Stencil attributes
+ *
+ * Informational meta-attributes that are usually hidden
+ ******************************************************/
+ #theme {
+ 	display: none;
+ }
+
+
+/******************************************************
+ * Stencil directives
+ *
+ * Many directive elements should be hidden
+ ******************************************************/
+
+/**
+ * Hide the following  directives...
+ */
+//... `exec` and `on` directives containing code
+[data-exec],
+[data-on],
+//... `when` directives (unless they are explicitly turned on, see below)
+[data-when],
+//... `for` directive's `each` child
+[data-each],
+//... `include` directive`s child elements
+[data-set],
+[data-delete],
+[data-replace],
+[data-change],
+[data-before],
+[data-set],
+[data-after],
+[data-prepend],
+[data-append],
+/**
+ * ... `macro` 
+ */
+[data-macro],
+/**
+ * ... `comments`
+ */
+[data-comments],
+[data-comment],
+/**
+ * ... any element that has the `~off`
+ * flag, either explicitly, or from rendering
+ */
+[data-off="true"] {
+    display: none;
+}
+
+/**
+ * Some directives need to be explictly turned on
+ * by setting off to false
+ */
+[data-off="false"]{
+    display: inherit;
+}
+
+/******************************************************
+ * Printing
+ ******************************************************/
+
+@media print {
+	#content {
+		// Smaller and more compact text
+	    font-size: 14px;
+	    line-height: 1.3em;
+	}
+	
+	#content h1,
+	#content h2,
+	#content h3,
+	#content h4,
+	#content h5 {
+		// Avoid page breaks after
+		page-break-after: avoid;
+	}
+
+	#content figure,
+	#content table {
+		// Avoid pagebreaks within
+		page-break-inside: avoid;
+	}
+};

@@ -27,7 +27,9 @@ gulp.task('scripts', function() {
 gulp.task('styles', function() {
   types.forEach(function(type) {
     gulp.src('./stencila/'+type+'/'+type+'.scss')
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass({
+            includePaths: require('node-normalize-scss').includePaths
+         }).on('error', sass.logError))
         .pipe(minifyCSS())
         .pipe(rename(type+'.min.css'))
         .pipe(gulp.dest('./build'));
