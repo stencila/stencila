@@ -12,7 +12,7 @@
     margin-right: auto;
 
     // Text
-    font-family: $serif;
+    font-family: $sans;
     font-size: 18px;
     line-height: 1.5em;
     text-align: justify;
@@ -44,6 +44,10 @@
 }
 #content h4 {
     font-size: 1.0em;
+}
+
+code, kbd, pre, samp {
+	font-family: $mono;
 }
 
 /******************************************************

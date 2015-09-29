@@ -4,6 +4,14 @@
 @import 'normalize';
 
 /**
+ * Setup fonts to be used
+ */
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
+$serif: 'Libre Baskerville', Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua', Georgia, serif;
+$sans: 'Lato', Helvetica, Arial, Verdana, sans-serif;
+$mono: 'Source Code Pro', mono;
+
+/**
  * Apply natural box layout model to all elements.
  * See
  * 	http://www.paulirish.com/2012/box-sizing-border-box-ftw/
@@ -23,11 +31,3 @@ body {
 	margin: 0;
 }
 
-/**
- * Setup fonts to be used
- */
-@import url(https://fonts.googleapis.com/css?family=Libre+Baskerville|Source+Sans+Pro|Source+Code+Pro);
-
-$serif: 'Libre Baskerville', Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua', Georgia, serif;
-$sans: 'Source Sans Pro', Helvetica, Arial, Verdana, sans-serif;
-$mono: 'Source Code Pro', mono;
