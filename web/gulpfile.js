@@ -6,7 +6,6 @@ var rename = require('gulp-rename');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var sass = require('gulp-sass');
-var minifyCSS = require('gulp-minify-css');
 
 // Test dependencies
 var jasmine = require('gulp-jasmine');
@@ -28,9 +27,9 @@ gulp.task('styles', function() {
   types.forEach(function(type) {
     gulp.src('./stencila/'+type+'/'+type+'.scss')
         .pipe(sass({
+            outputStyle: 'compressed',
             includePaths: require('node-normalize-scss').includePaths
          }).on('error', sass.logError))
-        .pipe(minifyCSS())
         .pipe(rename(type+'.min.css'))
         .pipe(gulp.dest('./build'));
   });
