@@ -647,9 +647,20 @@ public:
 					// Enter `<section>` move into `elem` state to allow
 					// for any further attributes
 					flush();
+
 					auto id = match[1].str();
+					// Replace punctuation
+					std::replace_if(id.begin(), id.end(), [](const char& c){
+						return not std::isalnum(c);
+					},'-');
+					// Remove consecutive dashes
+					auto new_end = std::unique(id.begin(), id.end(), [](char lhs, char rhs) {
+						return (lhs == rhs) && (lhs == '-');
+					});
+					id.erase(new_end, id.end());
+					// Make lowercase
 					boost::to_lower(id);
-					boost::replace_all(id," ","-");
+
 					auto section = node.append("section").attr("id",id);
 					auto title = match[1].str();
 					auto h1 = section.append("h1").text(title);
