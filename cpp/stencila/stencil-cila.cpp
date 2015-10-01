@@ -7,6 +7,10 @@
 #include <stencila/html.hpp>
 #include <stencila/string.hpp>
 
+#if defined(STENCILA_CILA_PARSER_TRACE)
+	#include <iostream>
+#endif
+
 namespace Stencila {
 
 class CilaParser {
@@ -99,7 +103,12 @@ public:
 	std::deque<State> states;
 
 	/**
-	 * Beggining of input
+	 * Start of input
+	 */
+	std::string::const_iterator start;
+
+	/**
+	 * Current position of parsing in input string
 	 */
 	std::string::const_iterator begin;
 
@@ -184,6 +193,19 @@ public:
 	}
 
 	/**
+	 * Throw an error
+	 */
+	CilaParser& error(const std::string& message){
+		// Count number of lines from start
+		auto lines = std::count(start, begin, '\n');
+		std::string error = "An error occurred when parsing Cila.\n";
+		error += "  error: " + message + "\n";
+		error += "  line: " + string(lines) + "\n";
+		error += "  near: " + std::string(begin-10, begin+10);
+		STENCILA_THROW(Exception,error);
+	}
+
+	/**
 	 * Push into a parsing state
 	 */
 	void push(State to){
@@ -199,7 +221,9 @@ public:
 			#if defined(STENCILA_CILA_PARSER_TRACE)
 				trace_show();
 			#endif
-			throw std::runtime_error("Too few states to pop: "+boost::lexical_cast<std::string>(states.size()));
+			std::string states_list;
+			for(auto state : states) states_list += state_name(state) + ",";
+			error("too few states to pop\n  states: ["+states_list+"]");
 		}
 		states.pop_back();
 		state = states.back();
@@ -402,6 +426,7 @@ public:
 	CilaParser& parse(const std::string& cila){
 		// Initialise members...
 		// ... input
+		start = cila.cbegin();
 		begin = cila.cbegin();
 		end = cila.cend();
 		// ... states
@@ -457,11 +482,13 @@ public:
 			// Directives with no argument
 			directive_noarg("\\b(each|else|default)\\b"),
 			// Directives with a single string argument
-			directive_str("\\b(where|icon|macro)\\s+([^\\s}]+)"),
+			directive_str("\\b(icon|macro)\\s+([^\\s}]+)"),
 			// Directives with a single expression argument
 			directive_expr("\\b(call|with|text|if|elif|switch|case|react|click)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
 			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
+			// `where` directive
+			directive_where("\\b(where)\\s+(js|r|py)\\b"),
 			// `attr` directive        1          2               3
 			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+"+arg_expr+")?"),
 			// `for` directive
@@ -712,6 +739,11 @@ public:
 					else if(directive=="call") enter_elem_if_needed("form");
 					else enter_elem_if_needed();
 					node.attr("data-"+directive,arg);
+				}
+				else if(is(directive_where)){
+					trace("directive_where");
+
+					node.attr("data-where",match[2].str());
 				}
 				else if(is(directive_attr)){
 					trace("directive_attr");
