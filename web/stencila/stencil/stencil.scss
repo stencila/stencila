@@ -51,13 +51,42 @@ code, kbd, pre, samp {
 }
 
 /******************************************************
+ * Math <script> elements
+ *
+ * Shown initially until rendered by MathJax/KaTeX or
+ * if rendering fails
+ ******************************************************/
+#content script[type^="math/tex"],
+#content script[type^="math/asciimath"] {
+    display: inline;
+    font-family: $mono;
+    color: #BBB;
+}
+
+#content p.equation {
+    text-align: center;
+}
+
+#content p.equation script[type^="math/tex"],
+#content p.equation script[type^="math/asciimath"]{
+    display: block;
+}
+
+/**
+ * Hide the MathJax message box (http://docs.mathjax.org/en/latest/api/message.html)
+ */
+#MathJax_Message {
+    display: none;
+}
+
+/******************************************************
  * Stencil attributes
  *
  * Informational meta-attributes that are usually hidden
  ******************************************************/
- #theme {
- 	display: none;
- }
+#theme {
+	display: none;
+}
 
 
 /******************************************************
