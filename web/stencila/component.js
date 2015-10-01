@@ -1,5 +1,5 @@
 // JQuery as a globally available variable
-$ = require('jquery');
+global.$ = require('jquery');
 
 module.exports = {
 	Component: {}
