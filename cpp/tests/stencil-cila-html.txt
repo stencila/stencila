@@ -37,7 +37,7 @@ section
 		r format png
 			plot(1,1)
 
-		figcaption One equals one
+		figcaption [[Figure 1]] One equals one
 --------------------------------------------------
 <section>
 	<p>
@@ -61,7 +61,7 @@ section
 plot(1,1)
 </pre>
 		<figcaption>
-			One equals one
+			<span data-label="figure-1">Figure 1</span>One equals one
 		</figcaption>
 	</figure>
 </section>
@@ -554,6 +554,27 @@ A paragraph with a nested list inside it
 		<li>B Some text</li>
 	</ul>
 </p>
+--------------------------------------------------
+
+
+Caption labels <>
+--------------------------------------------------
+figure
+	figcaption [[Figure 1]] Plot of X versus Y
+
+table
+	caption [[Table 4]] X and Y by year
+--------------------------------------------------
+<figure>
+	<figcaption>
+		<span data-label="figure-1">Figure 1</span>Plot of X versus Y
+	</figcaption>
+</figure>
+<table>
+	<caption>
+		<span data-label="table-4">Table 4</span>X and Y by year
+	</caption>
+</table>
 --------------------------------------------------
 
 

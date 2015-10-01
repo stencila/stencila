@@ -522,6 +522,8 @@ public:
 			off("~off"),
 			included("~incl"),
 
+			label("\\[\\[(\\w+)\\s(\\d+)\\]\\]\\s"),
+
 			empha_open("(\\s)_(?=[^\\s])"),
 			empha_close("_"),
 			strong_open("(\\s)\\*(?=[^\\s])"),
@@ -949,6 +951,14 @@ public:
 					enter(script);
 					push(tex);
 				}
+				else if(is(label)){
+					trace("label");
+					// Flush text and append `<span data-label>`
+					flush();
+					auto type = match[1].str();
+					auto index = match[2].str();
+					node.append("span").attr("data-label",lower(type)+"-"+index).text(title(type)+" "+index);
+				}
 				else if(is(link)){
 					trace("link");
 					// Flush text and append `<a>`
@@ -1191,7 +1201,12 @@ public:
 				else content("["+text+"]("+href+")");
 				return;
 			}
-
+			// Labels
+			if(name=="span" and node.has("data-label")){
+				auto label = trim(node.text());
+				content("[["+label+"]] ");
+				return;
+			}
 			// Lists with no attributes and children with no attributes
 			if((name=="ul" or name=="ol") and attributes==0 and children>0){
 				// Check all of the children can be represented by a dash ("-")
