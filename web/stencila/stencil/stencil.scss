@@ -4,8 +4,11 @@
  * Stencil content
  ******************************************************/
 #content {
-    // For readability, don't allow to be too wide
-    max-width: 45em;
+    // For readability, don't allow to be too wide,
+    // or too narrow
+    max-width: 47em;
+    min-width: 15em;
+    padding: 1em;
 
     // Centre on page
     margin-left: auto;
@@ -13,10 +16,49 @@
 
     // Text
     font-family: $sans;
-    font-size: 18px;
+    font-size: 17px;
     line-height: 1.5em;
     text-align: justify;
     color: #555;
+}
+
+
+/******************************************************
+ * Inline text
+ ******************************************************/
+#content em,
+#content i {
+    font-style: italic;
+}
+#content strong,
+#content b {
+    font-weight: bold;
+}
+
+#content a {
+    text-decoration: none;
+    color: rgb(92, 116, 216);
+}
+
+/* Super and sub scripts 
+ See also http://stackoverflow.com/questions/501671/superscript-in-css-only
+ */
+#content sup,
+#content sub {
+    font-size: 0.8em;
+}
+#content sup {
+    vertical-align: super;
+}
+#content sub {
+    vertical-align: sub;
+}
+
+/******************************************************
+ * Paragraphs
+ ******************************************************/
+#content p {
+	margin-top: 1em;
 }
 
 /******************************************************
@@ -46,8 +88,28 @@
     font-size: 1.0em;
 }
 
-code, kbd, pre, samp {
+/******************************************************
+ * Lists
+ ******************************************************/
+#content ol {
+    list-style-type: decimal;
+}
+#content ul {
+    list-style-type: disc;
+}
+
+/******************************************************
+ * Code
+ ******************************************************/
+#content code, 
+#content kbd, 
+#content pre, 
+#content samp {
 	font-family: $mono;
+	font-size: 0.9em;
+    background: #EFEFEF;
+    border-radius: 3px;
+    padding: 0 3px;
 }
 
 /******************************************************
@@ -79,15 +141,133 @@ code, kbd, pre, samp {
     display: none;
 }
 
+/************************************************
+ * Tables
+ */
+
+#content table {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#content thead,
+#content tbody {
+    text-align: left;
+}
+
+#content th,
+#content td {
+    padding: 0.1em 1em 0.1em 1em;
+}
+
+#content th {
+    font-weight: bold;
+}
+
+/************************************************
+ * Outline
+ */
+
+#content #outline ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#content #outline .level-1 {
+    margin-left: 0em
+}
+#content #outline .level-2 {
+    margin-left: 1em
+}
+#content #outline .level-3 {
+    margin-left: 2em
+}
+#content #outline .level-4 {
+    margin-left: 3em
+}
+#content #outline .level-5 {
+    margin-left: 4em
+}
+#content #outline .level-6 {
+    margin-left: 5em
+}
+#content #outline .level-7 {
+    margin-left: 6em
+}
+
+/************************************************
+ * Figures
+ */
+
+#content figure {
+    // Remove user agent imposed margins
+    // See http://gabrieleromanato.name/css-default-styles-of-the-figure-element/
+    margin: 0;
+    // Add top and bottom margins back
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+/**
+ * Figure images resized to fit within content 
+ * (with some margin) and centred
+ */
+#content figure img {
+    display: block;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/************************************************
+ * Figure and table captions
+ */
+
+#content table caption,
+#content figure figcaption,
+#content figure caption {
+    text-align: left;
+    font-weight: bold;
+}
+
+#content table caption {
+    margin-bottom: 1em;
+}
+
+#content figure caption,
+#content figure figcaption {
+    margin-top: 1em;
+}
+
+#content [data-label] {
+    display: inline-block;
+}
+
+
 /******************************************************
  * Stencil attributes
  *
- * Informational meta-attributes that are usually hidden
+ * Informational meta-attributes
  ******************************************************/
 #theme {
 	display: none;
 }
 
+#title {
+	margin: 1em 0;
+	font-size: 1.4em;
+	font-weight: bold;
+	text-align: left;
+	color: #333;
+}
+
+#description,
+#summary {
+	margin-bottom: 2em;
+}
 
 /******************************************************
  * Stencil directives
