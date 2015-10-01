@@ -321,6 +321,25 @@
 }
 
 /******************************************************
+ * Stencil flags and decorations
+ *
+ * Attributes and flags added during rendering
+ ******************************************************/
+
+/**
+ * Labels (for table and figure captions e.g. "Table 4") have no 
+ * separation form caption by default. So add in separating characters
+ * and space.
+ */
+[data-label]{
+    margin-right: 0.5em;
+}
+[data-label]:after{
+    content: ":";
+}
+
+
+/******************************************************
  * Printing
  ******************************************************/
 

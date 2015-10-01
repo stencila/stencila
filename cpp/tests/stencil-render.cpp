@@ -86,7 +86,7 @@ R"(<figure id="figure-a">
 		<img src="figure-b-hello-world-bMmxSpc" style="max-width:17cm;max-height:17cm">
 	</div>
 	<figcaption>
-		Hello world
+		<span data-label="figure-1">Figure 1</span>Hello world
 	</figcaption>
 </figure>)";
 	BOOST_CHECK_EQUAL(

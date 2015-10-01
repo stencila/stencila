@@ -42,17 +42,6 @@ var Stencil = function(){
 			);
 		});
 	}
-
-	// Decorate figure and table captions with their number
-	$content.find('table[data-index],figure[data-index]').each(function(){
-		var item = $(this);
-		var type = item.prop("tagName").toTitleCase();
-		var index = item.attr('data-index');
-		var caption = item.find('caption,figcaption');
-		if(caption){
-			caption.prepend('<span>'+type+' '+index+':</span>');
-		}
-	});
 };
 
 module.exports = {
