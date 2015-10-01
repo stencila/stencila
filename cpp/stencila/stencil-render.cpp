@@ -208,15 +208,17 @@ Stencil& Stencil::render(std::shared_ptr<Context> context){
 		// Attempt to find target using selector
 		Node target = select(selector);
 		if(target){
-			Node label = target.select("[data-label]");
-			if(label){
+			auto id = target.attr("id");
+			auto index = target.attr("data-index");
+			if(id.length() and index.length()){
+				std::string type = Stencila::title(target.name());
 				Node a = ref.append(
 					"a",
-					{{"href","#"+target.attr("id")}},
-					label.select(".type").text() + " " + label.select(".number").text()
+					{{"href","#"+id}},
+					type + " " + index
 				);
 			} else {
-				error(ref,"refer-unlabelled","Matched element does not have a label");
+				error(ref,"refer-unlabelled","Matched element does not have `id` and/or `index`");
 			}
 		} else {
 			error(ref,"refer-missing","No matching element found");

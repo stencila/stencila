@@ -4,7 +4,7 @@ var Component = require('../component.js');
 var Stencil = function(){
 	var $content = $('#content');
 
-	// Lazily load MathJax id there is math in the stencil
+	// Lazily load MathJax if there is math in the stencil
 	var mathSelector = 'script[type^="math/tex"],script[type^="math/asciimath"]';
 	if($content.find(mathSelector).length>0){
 		// This is the recommended method for dynamically loading MathJax:
@@ -42,6 +42,17 @@ var Stencil = function(){
 			);
 		});
 	}
+
+	// Decorate figure and table captions with their number
+	$content.find('table[data-index],figure[data-index]').each(function(){
+		var item = $(this);
+		var type = item.prop("tagName").toTitleCase();
+		var index = item.attr('data-index');
+		var caption = item.find('caption,figcaption');
+		if(caption){
+			caption.prepend('<span>'+type+' '+index+':</span>');
+		}
+	});
 };
 
 module.exports = {

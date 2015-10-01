@@ -1,4 +1,11 @@
 /**
+ * Augmentation of string prototype
+ */
+String.prototype.toTitleCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
+/**
  * Load a script from the current host of Stencila
  * Javascript and CSS
  */
