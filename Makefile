@@ -1022,8 +1022,10 @@ web-mathjax-clean:
 
 
 web-build: web/build/external/MathJax
-	cd web;\
-		gulp build
+	cd web; gulp build
+
+web-watch:
+	cd web; gulp watch
 
 web-deliver:
 	aws s3 sync web/build s3://get.stenci.la/web/

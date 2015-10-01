@@ -153,7 +153,10 @@ Html::Document Component_page_doc(const Type& component) {
 	body.append(
 		"script",
 		{{"type","application/javascript"}},
-		"window.Stencila || document.write(unescape('%3Cscript src=\"https://stenci.la"+js+"\"%3E%3C/script%3E'))"
+		std::string("if(!window.Stencila){") +
+			"window.StencilaHost=\"https://stenci.la\";" + 
+			"document.write(unescape('%3Cscript src=\"https://stenci.la"+js+"\"%3E%3C/script%3E'))" + 
+		"}"
 	);
 	
 	// Fallback to the CSS fallback! Remove the `unready` class from the root element is not already
