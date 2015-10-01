@@ -665,7 +665,7 @@ public:
 					auto title = match[1].str();
 					auto h1 = section.append("h1").text(title);
 					enter(section);
-					across(elem);
+					across(sol);
 				}
 				else if(is(ul_item)){
 					trace("ul_item");
@@ -754,6 +754,7 @@ public:
 				else if(is(directive_where)){
 					trace("directive_where");
 
+					enter_elem_if_needed();
 					node.attr("data-where",match[2].str());
 				}
 				else if(is(directive_attr)){

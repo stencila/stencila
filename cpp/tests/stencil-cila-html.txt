@@ -792,7 +792,7 @@ Get a blank line before
 where py
 	Then do this
 
-where py,r
+where py
 	Then do that
 
 Get a blank line after
@@ -803,7 +803,7 @@ Get a blank line after
 <div data-where="py">
 	Then do this
 </div>
-<div data-where="py,r">
+<div data-where="py">
 	Then do that
 </div>
 <p>

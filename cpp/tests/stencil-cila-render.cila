@@ -10,15 +10,15 @@ exec &b4EQBah
 
 `where` directive
 --------------------------------------------------
-where map
-	Render this
-where other
+where r
+	Don't render this
+where py
 	Don't render this
 --------------------------------------------------
-where map
-	Render this
+where r ~off
+	Don't render this
 
-where other ~off
+where py ~off
 	Don't render this
 --------------------------------------------------
 
