@@ -463,7 +463,7 @@ public:
 				"form|fieldset|label|input|select|textarea|button"
 			")\\b"),
 
-			section(">\\s*([ \\w-]+)"),
+			section(">\\s*(.+?)(\\n|$)"),
 
 			ul_item("-\\s*"),
 			ol_item("\\d+\\.\\s*"),
