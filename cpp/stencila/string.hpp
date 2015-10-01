@@ -44,6 +44,16 @@ std::string lower(const std::string& string);
 std::string upper(const std::string& string);
 
 /**
+ * Convert to title case with exceptions
+ */
+std::string title(const std::string& string, const std::vector<std::string>& exceptions);
+
+/**
+ * Convert to title case
+ */
+std::string title(const std::string& string);
+
+/**
  * Replace all occurrences of `what` in `string` with `with`
  */
 std::string& replace_all(std::string& string, const std::string& what, const std::string& with);

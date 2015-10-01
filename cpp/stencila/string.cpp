@@ -49,6 +49,25 @@ std::string upper(const std::string& string){
 	return boost::to_upper_copy(string);
 }
 
+std::string title(const std::string& string, const std::vector<std::string>& exceptions){
+	// Thanks to https://www.reddit.com/r/dailyprogrammer/comments/wjzly/7132012_challenge_76_easy_title_case/c5e5a64
+    std::string result = boost::to_lower_copy(string);
+    std::vector<std::string> words;
+    boost::split(words, result, boost::is_any_of(" "));
+    for(std::string& word : words) {
+        if(std::find(exceptions.begin(), exceptions.end(), word) == exceptions.end()) {
+            word[0] = std::toupper(word[0]);
+        }
+    }
+    result = boost::join(words, " ");
+    result[0] = std::toupper(result[0]);
+    return result;
+}
+
+std::string title(const std::string& string){
+	return title(string,{});
+}
+
 std::string& replace_all(std::string& string, const std::string& what, const std::string& with){
 	boost::replace_all(string,what,with);
 	return string;
