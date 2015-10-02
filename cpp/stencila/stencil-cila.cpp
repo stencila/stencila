@@ -494,7 +494,7 @@ public:
 			// `for` directive
 			directive_for("\\bfor\\s+(\\w+)\\s+in\\s+([^\\s}]+)"),
 			// `include` directive
-			directive_include("\\binclude\\s+([\\w\\./]+)(\\s+select\\s+([\\.\\#\\w\\-]+))?"),
+			directive_include("\\binclude\\s+([\\w\\./]+)(\\s+select\\s+([\\.\\#\\w\\-]+))?(\\s+(complete))?"),
 			// `set` directive
 			directive_set("\\bset\\s+([\\w]+)\\s+to\\s+([^\\s}]+)"),
 			// `include` modifier directives
@@ -780,6 +780,7 @@ public:
 					enter_elem_if_needed();
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " select " + match[3].str();
+					if(match[4].str()!="") args += " complete";
 					node.attr("data-include",args);
 				}
 				else if(is(directive_set)){
