@@ -1,4 +1,4 @@
-# Doxyfile 1.7.5.1
+# Doxyfile
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project.
@@ -745,6 +745,10 @@ FILTER_SOURCE_FILES    = NO
 # FILTER_SOURCE_FILES is enabled.
 
 FILTER_SOURCE_PATTERNS =
+
+
+# Markdown file to use for main page
+USE_MDFILE_AS_MAINPAGE = %(Edited by during build. See Makefile)%
 
 #---------------------------------------------------------------------------
 # configuration options related to source browsing

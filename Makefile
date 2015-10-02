@@ -576,13 +576,24 @@ $(BUILD)/cpp/docs/%.css: cpp/docs/%.css
 $(BUILD)/cpp/docs/%.html: cpp/docs/%.html
 	@mkdir -p $(BUILD)/cpp/docs
 	cp $< $@
-	
+
 cpp-docs: $(BUILD)/cpp/docs/Doxyfile $(BUILD)/cpp/docs/doxy.css \
 	      $(BUILD)/cpp/docs/doxy-header.html $(BUILD)/cpp/docs/doxy-footer.html
 	cd $(BUILD)/cpp/docs ;\
 	  sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile ;\
-	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/!' Doxyfile ;\
+	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/ $(ROOT)/cpp/README.md!' Doxyfile ;\
+	  sed -i 's!USE_MDFILE_AS_MAINPAGE = .*$$!USE_MDFILE_AS_MAINPAGE = $(ROOT)/cpp/README.md!' Doxyfile ;\
 	  doxygen Doxyfile
+
+# Requires a branch called "gh-pages":
+#	git checkout --orphan gh-pages
+#	git rm -rf .
+# and the "ghp-import" script
+# 	sudo pip install ghp-import
+cpp-docs-publish: cpp-docs
+	mkdir -p $(BUILD)/pages/cpp
+	cp -fr $(BUILD)/cpp/docs/html/. $(BUILD)/pages/cpp
+	ghp-import -m "Updated pages" -p $(BUILD)/pages
 
 # Remove everything except C++ requirements
 cpp-scrub:
