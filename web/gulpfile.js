@@ -32,20 +32,19 @@ function errorHandler() {
 }
 
 
-function style() {
-  types.forEach(function(type) {
-    gulp.src('./stencila/'+type+'/'+type+'.scss')
-        .pipe(sass({
-            outputStyle: 'compressed',
-            includePaths: require('node-normalize-scss').includePaths
-         })
-        .on('error', errorHandler))
-        .pipe(rename(type+'.min.css'))
-        .pipe(gulp.dest('./build'));
-  });
+function style(type,watch) {
+  gulp.src('./stencila/'+type+'/'+type+'.scss')
+    .pipe(sass({
+        outputStyle: watch?'expanded':'compressed',
+        includePaths: require('node-normalize-scss').includePaths
+     })
+    .on('error', errorHandler))
+    .pipe(rename(type+'.min.css'))
+    .pipe(gulp.dest('./build'));
 }
 
 function styles(watch) {
+  gutil.log('Compiling styles');
   types.forEach(function(type) {
     style(type,watch);
   });
@@ -84,7 +83,7 @@ function script(type,watch) {
 
   bundler.on('update', function() {
     bundle();
-    gutil.log('Bundling');
+    gutil.log('Bundling scripts');
   });
 
   return bundle();
@@ -112,7 +111,9 @@ gulp.task('build', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('**/*.scss', ['styles']);
+  gulp.watch('**/*.scss', function(){
+    styles(true);
+  });
   scripts(true);
 });
 
