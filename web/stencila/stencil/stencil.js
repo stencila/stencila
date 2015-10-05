@@ -1,6 +1,7 @@
 var Component = require('../component.js').Component;
 
 var NormalView = require('./normal-view.js').NormalView;
+var RevealView = require('./reveal-view.js').RevealView;
 var HtmlView = require('./html-view.js').HtmlView;
 
 class Stencil extends Component {
@@ -18,13 +19,15 @@ class Stencil extends Component {
 		var self = this;
 		var doc = $(document);
 		doc.bind('keydown', 'ctrl+r', function(){
-			console.log('ctrl+r');
 			self.render();
 			return false;
 		});
 		doc.bind('keydown', 'ctrl+shift+r', function(){
-			console.log('ctrl+shift+r');
 			self.restart();
+			return false;
+		});
+		doc.bind('keydown', 'F7', function(){
+			self.watch(RevealView);
 			return false;
 		});
 	}

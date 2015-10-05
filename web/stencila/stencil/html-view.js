@@ -15,7 +15,8 @@ class HtmlView extends View {
 }
 
 module.exports = {
-HtmlView};
+	HtmlView: HtmlView
+};
 
 
 
