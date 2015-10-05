@@ -31,7 +31,8 @@ class Component {
 		if(this.address.length && this.address[0]==='/') this.address=this.address.substr(1);
 
 		// Views of this component
-		this.views = [];
+		this.master = null;
+		this.slaves = [];
 
 		// Connection to session for this component
 		// If on localhost attempt to activate it immeadiately
@@ -40,13 +41,17 @@ class Component {
 	}
 
 	watch(klass){
-		this.views.push(new klass(this));
+		if(this.master) this.master.close();
+		this.master = new klass(this);
+		this.master.pull();
 	}
 
-	shout(){
-		this.views.forEach(function(view,index){
-			view.update();
-		});
+	pull(){
+		this.master.push();
+	}
+
+	push(){
+		this.master.pull();
 	}
 
 	activate(){

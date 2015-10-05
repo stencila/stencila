@@ -18,6 +18,7 @@ class Stencil extends Component {
 		// Return false to prevent bubbling up to the browser
 		var self = this;
 		var doc = $(document);
+		// Actions
 		doc.bind('keydown', 'ctrl+r', function(){
 			self.render();
 			return false;
@@ -26,8 +27,18 @@ class Stencil extends Component {
 			self.restart();
 			return false;
 		});
+		// Alternative views
+		doc.bind('keydown', 'F6', function(){
+			self.watch(NormalView);
+			return false;
+		});
 		doc.bind('keydown', 'F7', function(){
 			self.watch(RevealView);
+			return false;
+		});
+
+		doc.bind('keydown', 'F2', function(){
+			self.master.edit();
 			return false;
 		});
 	}
@@ -54,7 +65,7 @@ class Stencil extends Component {
 	set html(html){
 		this.content = html;
 		this.format = 'html';
-		this.shout();
+		this.push();
 	}
 
 
@@ -80,7 +91,7 @@ class Stencil extends Component {
 	set cila(cila){
 		this.content = cila;
 		this.format = 'cila';
-		this.shout();
+		this.push();
 	}
 
 	render(){

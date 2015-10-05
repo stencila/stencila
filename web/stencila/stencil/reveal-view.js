@@ -1,15 +1,19 @@
-var View = require('../view.js').View;
+var NormalView = require('./normal-view').NormalView;
 
-class RevealView extends View {
+class RevealView extends NormalView {
 
 	constructor(object){
 		super(object);
 
-		$('#content').addClass('reveal');
+		this.$root.addClass('reveal');
 	}
 
 	close(){
-		$('#content').removeClass('reveal');
+		this.$root.removeClass('reveal');
+	}
+
+	edit(){
+		this.$root.attr('contenteditable','true');
 	}
 }
 

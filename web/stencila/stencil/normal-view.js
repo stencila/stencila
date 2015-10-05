@@ -7,10 +7,9 @@ class NormalView extends View {
 	constructor(object){
 		super(object);
 		this.$root = $('#content');
-		this.update();
 	}
 
-	update(){
+	pull(){
 		var self = this;
 		self.object.html.then(function(html){
 			self.$root.html(html);
