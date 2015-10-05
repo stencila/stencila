@@ -3,6 +3,7 @@ var gulp = require('gulp');
 var gutil = require('gulp-util');
 var notify = require('gulp-notify');
 var rename = require('gulp-rename');
+var gif = require('gulp-if');
 var sourcemaps = require('gulp-sourcemaps');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
@@ -46,17 +47,17 @@ function style() {
 
 function styles(watch) {
   types.forEach(function(type) {
-    style(type,watch)
+    style(type,watch);
   });
 }
 
-// Scripts wathify-browserify-babelify-uglify-sourcemapify
+// Scripts watchify-browserify-babelify-uglify-sourcemapify
 // Thanks to 
 //  https://gist.github.com/wesbos/52b8fe7e972356e85b43
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others  
 function script(type,watch) {
-  var file = './stencila/'+type+'/'+type+'.js';
+  var file = './stencila/'+type+'/browser.js';
 
   var props = {
     entries: [file],
@@ -76,7 +77,7 @@ function script(type,watch) {
       .pipe(sourcemaps.init({
         loadMaps: true
       }))
-      .pipe(uglify())
+      .pipe(gif(!watch, uglify()))
       .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest('./build'));
   }
