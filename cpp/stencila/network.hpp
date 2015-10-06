@@ -106,9 +106,9 @@ private:
 	Session& session_(connection_hdl connection);
 
 	/**
-	 * Decode a URL by removing encodings like %20 for a space
+	 * Get the path requested by a connection
 	 */
-	static std::string decode_(const std::string& url);
+	static std::string path_(server::connection_ptr connection);
 
 	/**
 	 * Convert a URL path to a Component address by 

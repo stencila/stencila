@@ -99,25 +99,32 @@ Server::Session& Server::session_(connection_hdl hdl) {
 	return i->second;
 }
 
-std::string Server::decode_(const std::string& url) {
-	std::string decoded = url;
+std::string Server::path_(server::connection_ptr connection){
+	auto resource = connection->get_resource();
+	// Remove the leading '/'
+	auto path = resource.substr(1);
+	// Decode
 	// Currently this only converts spaces.
 	// More conversions will be required
-	boost::replace_all(decoded,"%20"," ");
-	return decoded;
+	boost::replace_all(path,"%20"," ");
+	// Remove query
+	std::size_t found =  path.find("?");
+    if(found > 0){
+    	path = path.substr(0,found);
+    }
+    return path;
 }
 
 std::string Server::address_(const std::string& path) {
 	std::string address = path;
-	if(address[0]=='/') address = address.substr(1);
 	if(address[address.length()-1]=='/') address = address.substr(0,address.length()-1);
 	return address;
 }
 
 void Server::open_(connection_hdl hdl) {
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	std::string path = connection->get_resource();
-	std::string address = address_(decode_(path));
+	auto path = path_(connection);
+	auto address = address_(path);
 	Session session = {address};
 	sessions_[hdl] = session;
 }
@@ -129,17 +136,9 @@ void Server::close_(connection_hdl hdl) {
 void Server::http_(connection_hdl hdl) {
 	// Get the connection 
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	// Get the request resource and decode it
-	// get_resource() returns "/" when there is no resource part in the URI
-	// (i.e. if the URI is just http://localhost/)
-	std::string resource = decode_(connection->get_resource());
-	// Extract query
-	std::string query;
-	std::size_t found =  resource.find("?");
-    if(found > 0){
-    	query = resource.substr(found+1);
-    	resource = resource.substr(0,found);
-    }
+	// Get the request path and corresponding Stencila address
+	std::string path = path_(connection);
+	std::string address = address_(path);
 	// Get request method
 	auto request = connection->get_request();
 	std::string method = request.get_method();
@@ -149,10 +148,10 @@ void Server::http_(connection_hdl hdl) {
 	http::status_code::value status = http::status_code::ok;
 	std::string content;
 	try {
-		if(resource=="/"){
+		if(path==""){
 			content = Component::index();
 		} 
-		else if(resource=="/extras"){
+		else if(path=="extras"){
 			content = Component::extras();
 		}
 		else {
@@ -161,7 +160,7 @@ void Server::http_(connection_hdl hdl) {
 			// memory (if not already) and (2) Static requests for component
 			// files
 			// Static requests are indicated by a "." anywhere in the url
-			bool dynamic = resource.find(".")==std::string::npos;
+			bool dynamic = path.find(".")==std::string::npos;
 			if(dynamic){
 				// Dynamic request
 				// 
@@ -171,38 +170,37 @@ void Server::http_(connection_hdl hdl) {
 				// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
 				// will cause a 404 error). 
 				// So, if no trailing slash, then redirect...
-				if(resource[resource.length()-1]!='/'){
+				if(path[path.length()-1]!='/'){
 					status = http::status_code::moved_permanently;
 					// Use full URI for redirection because multiple leading slashes can get
 					// squashed up otherwise
-					auto uri = url()+resource+"/";
+					auto uri = url()+"/"+path+"/";
 					connection->append_header("Location",uri);
 				}
 				// Provide the page content
 				else {
-					content = Component::page(address_(resource));
+					content = Component::page(address);
 				}
 			} else {
-				// Static request
-				std::string address = address_(resource);
-				std::string path = Component::locate(address);
-				if(path.length()==0){
+				// Static file request
+				std::string filesystem_path = Component::locate(address);
+				if(filesystem_path.length()==0){
 					// 404: not found
 					status = http::status_code::not_found;
 					content = "Not found\n address: "+address;
 				} else {
 					// Check to see if this is a directory
-					if(boost::filesystem::is_directory(path)){
+					if(boost::filesystem::is_directory(filesystem_path)){
 						// 403: forbidden
 						status = http::status_code::forbidden;
-						content = "Directory access is forbidden\n  path: "+path;		
+						content = "Directory access is forbidden\n  path: "+filesystem_path;		
 					}
 					else {
-						std::ifstream file(path);
+						std::ifstream file(filesystem_path);
 						if(not file.good()){
 							// 500 : internal server error
 							status = http::status_code::internal_server_error;
-							content = "File error\n  path: "+path;
+							content = "File error\n  path: "+filesystem_path;
 						} else {
 							// Read file into content string
 							// There may be a [more efficient way to read a file into a string](
@@ -214,7 +212,7 @@ void Server::http_(connection_hdl hdl) {
 							content = file_content;
 							// Determine and set the "Content-Type" header
 							std::string content_type;
-							std::string extension = boost::filesystem::path(path).extension().string();
+							std::string extension = boost::filesystem::path(filesystem_path).extension().string();
 							if(extension==".txt") content_type = "text/plain";
 							else if(extension==".css") content_type = "text/css";
 							else if(extension==".html") content_type = "text/html";
