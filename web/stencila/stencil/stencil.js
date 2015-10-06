@@ -1,3 +1,5 @@
+var utilties = require('../utilities.js');
+
 var Component = require('../component.js').Component;
 
 var NormalView = require('./normal-view.js').NormalView;
@@ -12,7 +14,10 @@ class Stencil extends Component {
 		this.content = $('#content').html();
 		this.format = 'html';
 
-		this.watch(NormalView);
+		// Start with view specfied in query or else NormalView
+		var view = utilties.query.param('view');
+		if(view==='' | view==='normal') this.watch(NormalView);
+		else if(view==='reveal') this.watch(RevealView);
 		
 		// Bind keypress event to do stuff with this stencil
 		// Return false to prevent bubbling up to the browser
@@ -27,7 +32,7 @@ class Stencil extends Component {
 			self.restart();
 			return false;
 		});
-		// Alternative views
+		// Views
 		doc.bind('keydown', 'F6', function(){
 			self.watch(NormalView);
 			return false;

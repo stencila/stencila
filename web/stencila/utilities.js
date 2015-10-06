@@ -5,6 +5,19 @@ String.prototype.toTitleCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
+var query = {
+	/**
+	 * Get query string parameter
+	 * Thanks to http://stackoverflow.com/a/901144/4625911
+	 */
+	param : function(name) {
+	    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+	        results = regex.exec(location.search);
+	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+};
+
 /**
  * Load a script from the current host of Stencila
  * Javascript and CSS
@@ -19,5 +32,6 @@ function load(source,callback){
 }
 
 module.exports = {
+	query: query,
 	load: load
 };
