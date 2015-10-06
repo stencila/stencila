@@ -23,7 +23,7 @@
     "gulp-uglify": "^1.4.1",
     "gulp-util": "^3.0.6",
     "jquery": "^2.1.4",
-    "jquery.hotkeys": "jeresig/jquery.hotkeys",
+    "jquery.hotkeys": "git://github.com/jeresig/jquery.hotkeys.git#457690b",
     "node-normalize-scss": "^1.0.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
