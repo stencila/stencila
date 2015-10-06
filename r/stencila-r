@@ -63,6 +63,11 @@ cat('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
 # Iterate over methods, applying them to the component
 for(command in commands){
 	if(!is.na(command)){
+		# If elipsis then sleep until Ctrl+C
+		if(command=='...'){
+			cat('\nSleeping (use Ctrl+C to exit)\n')
+			Sys.sleep(Inf)
+		}
 		# Get method and arguments
 		parts <- strsplit(command,':')[[1]]
 		method <- parts[1]

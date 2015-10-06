@@ -112,11 +112,7 @@ setRefClass(
 
         serve = function(wait=0){
             if(is.null(.context)) attach(Context())
-            url <- method_(.self,'Stencil_serve')
-            if(wait){
-                cat(url,'\n')
-                Sys.sleep(wait)
-            }
+            method_(.self,'Stencil_serve')
         },
         view = function(){
             if(is.null(.context)) attach(Context())

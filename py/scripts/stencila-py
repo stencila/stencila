@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 import sys
+import time
 
 import stencila
 
@@ -54,6 +55,10 @@ def main():
 
         # Iterate over methods, applying them to the component
         for command in commands:
+            # If elipsis then sleep until Ctrl+C
+            if command=='...':
+                print '\nSleeping (use Ctrl+C to exit)\n'
+                while True: time.sleep(0x7FFFFFFF)
             # Get method and arguments
             if ':' in command:
                 method, args = command.split(':')
