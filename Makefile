@@ -1003,6 +1003,26 @@ r-clean:
 #################################################################################################
 # Stencila web browser module
 
+# Install requirements
+web-requires:
+	cd web; npm install
+
+# ACE editor
+
+ACE_VERSION := aaa9e86
+
+web/build/external/ace:
+	# Install dependencies
+	cd web/other_modules/ace && npm install
+	# Create a "src-min-noconflict" build
+	cd web/other_modules/ace && node Makefile.dryice.js -m
+	# Copy the build to ./build
+	rm -rf web/build/external/ace
+	mkdir -p web/build/external
+	cp -rf web/other_modules/ace/build/src-min web/build/external/ace
+
+# MathJax
+
 MATHJAX_VERSION := 2.5.3
 
 $(RESOURCES)/MathJax-$(MATHJAX_VERSION).tar.gz:
@@ -1032,7 +1052,7 @@ web-mathjax-clean:
 	rm -rf web/build/external/MathJax
 
 
-web-build: web/build/external/MathJax
+web-build: web/build/external/MathJax web/build/external/ace
 	cd web; gulp build
 
 web-watch:
