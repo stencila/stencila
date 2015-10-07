@@ -39,10 +39,20 @@ div {text x 42}
 `attr` directive
 --------------------------------------------------
 set x to hello
+set y to true
+set z to false
+attr name
 attr name value x
+attr name value x given y
+attr name value x given z
 --------------------------------------------------
 set x to hello
+set y to true
+set z to false
+[name=true] attr name
 [name=hello] attr name value x
+[name=hello] attr name value x given y
+attr name value x given z
 --------------------------------------------------
 
 

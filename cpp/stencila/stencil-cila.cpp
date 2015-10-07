@@ -489,8 +489,8 @@ public:
 			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
 			// `where` directive
 			directive_where("\\b(where)\\s+(js|r|py)\\b"),
-			// `attr` directive        1          2               3
-			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+"+arg_expr+")?"),
+			// `attr` directive        1          2               3 4 5       6               7 8 9
+			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+"+arg_expr+")?(\\s+given\\s+"+arg_expr+")?"),
 			// `for` directive
 			directive_for("\\bfor\\s+(\\w+)\\s+in\\s+([^\\s}]+)"),
 			// `include` directive
@@ -765,6 +765,7 @@ public:
 					enter_elem_if_needed();
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " value " + match[3].str();
+					if(match[7].str()!="") args += " given " + match[7].str();
 					node.attr("data-attr",args);
 				}
 				else if(is(directive_for)){

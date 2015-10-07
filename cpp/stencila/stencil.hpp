@@ -505,7 +505,8 @@ public:
 	 */
 	struct Attr : Directive {
 		Name name;
-		Expression expression;
+		Expression value;
+		Expression given;
 
 		Attr(void);
 		Attr(const std::string& attribute);

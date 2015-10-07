@@ -854,6 +854,20 @@ else
 --------------------------------------------------
 
 
+`attr` directive <>
+--------------------------------------------------
+attr x
+attr x value y
+attr x value y given z
+attr x given z
+--------------------------------------------------
+<div data-attr="x"></div>
+<div data-attr="x value y"></div>
+<div data-attr="x value y given z"></div>
+<div data-attr="x given z"></div>
+--------------------------------------------------
+
+
 `text` directive normal <>
 --------------------------------------------------
 Unrendered {text 6*7} and rendered {text 6*7 42}.
