@@ -11,6 +11,11 @@
   },
   "author": "Stencila authors (https://github.com/stencila/stencila/blob/master/AUTHORS)",
   "license": "GPL-3.0",
+  "dependencies": {
+    "jquery": "^2.1.4",
+    "jquery.hotkeys": "git://github.com/jeresig/jquery.hotkeys.git#457690b",
+    "node-normalize-scss": "^1.0.3"
+  },
   "devDependencies": {
     "babelify": "^6.3.0",
     "browserify": "^11.2.0",
@@ -22,9 +27,6 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.4.1",
     "gulp-util": "^3.0.6",
-    "jquery": "^2.1.4",
-    "jquery.hotkeys": "git://github.com/jeresig/jquery.hotkeys.git#457690b",
-    "node-normalize-scss": "^1.0.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.4.0"
