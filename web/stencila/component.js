@@ -2,7 +2,7 @@
 global.$ = global.jQuery = require('jquery');
 require('jquery.hotkeys');
 
-var Connection = require('./connection').Connection;
+var Connection = require('./connection');
 
 class Component {
 	constructor(options){
@@ -70,7 +70,4 @@ class Component {
 	};
 }
 
-
-module.exports = {
-	Component: Component
-};
+module.exports = Component;

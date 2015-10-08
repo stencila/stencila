@@ -1,5 +1,5 @@
 var utilities = require('../utilities.js');
-var NormalView = require('./normal-view').NormalView;
+var NormalView = require('./normal-view');
 
 class RevealView extends NormalView {
 
@@ -50,9 +50,4 @@ class RevealView extends NormalView {
 	}
 }
 
-module.exports = {
-	RevealView: RevealView
-};
-
-
-
+module.exports = RevealView;

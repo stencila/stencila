@@ -1,4 +1,4 @@
-var Stencil = require('./stencil').Stencil;
+var Stencil = require('./stencil');
 
 window.Stencila = {
 	stencil: new Stencil()

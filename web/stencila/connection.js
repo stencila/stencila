@@ -136,6 +136,4 @@ class Connection {
     }
 }
 
-module.exports = {
-    Connection : Connection
-};
+module.exports = Connection;

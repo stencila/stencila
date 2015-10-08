@@ -1,10 +1,9 @@
-var utilties = require('../utilities.js');
+var utilties = require('../utilities');
 
-var Component = require('../component.js').Component;
-
-var NormalView = require('./normal-view.js').NormalView;
-var RevealView = require('./reveal-view.js').RevealView;
-var HtmlView = require('./html-view.js').HtmlView;
+var Component = require('../component');
+var NormalView = require('./normal-view');
+var RevealView = require('./reveal-view');
+var HtmlView = require('./html-view');
 
 class Stencil extends Component {
 
@@ -131,6 +130,4 @@ class Stencil extends Component {
 
 }
 
-module.exports = {
-	Stencil: Stencil
-};
+module.exports = Stencil;

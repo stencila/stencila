@@ -14,6 +14,4 @@ class View {
 	}
 }
 
-module.exports = {
-	View: View
-};
+module.exports = View;

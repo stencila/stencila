@@ -1,4 +1,4 @@
-var View = require('../view.js').View;
+var View = require('../view');
 
 class HtmlView extends View {
 
@@ -14,9 +14,4 @@ class HtmlView extends View {
 	}
 }
 
-module.exports = {
-	HtmlView: HtmlView
-};
-
-
-
+module.exports = HtmlView;
