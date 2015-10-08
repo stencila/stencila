@@ -147,7 +147,7 @@
 #content table {
     margin-top: 2em;
     margin-bottom: 2em;
-    width: 95%;
+    width: 98%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -167,37 +167,6 @@
 }
 
 /************************************************
- * Outline
- */
-
-#content #outline ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-#content #outline .level-1 {
-    margin-left: 0em
-}
-#content #outline .level-2 {
-    margin-left: 1em
-}
-#content #outline .level-3 {
-    margin-left: 2em
-}
-#content #outline .level-4 {
-    margin-left: 3em
-}
-#content #outline .level-5 {
-    margin-left: 4em
-}
-#content #outline .level-6 {
-    margin-left: 5em
-}
-#content #outline .level-7 {
-    margin-left: 6em
-}
-
-/************************************************
  * Figures
  */
 
@@ -208,6 +177,9 @@
     // Add top and bottom margins back
     margin-top: 1em;
     margin-bottom: 1em;
+    width: 98%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /**
@@ -241,8 +213,35 @@
     margin-top: 1em;
 }
 
-#content [data-label] {
-    display: inline-block;
+/************************************************
+ * Outline
+ */
+
+#content #outline ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#content #outline .level-1 {
+    margin-left: 0em
+}
+#content #outline .level-2 {
+    margin-left: 1em
+}
+#content #outline .level-3 {
+    margin-left: 2em
+}
+#content #outline .level-4 {
+    margin-left: 3em
+}
+#content #outline .level-5 {
+    margin-left: 4em
+}
+#content #outline .level-6 {
+    margin-left: 5em
+}
+#content #outline .level-7 {
+    margin-left: 6em
 }
 
 
@@ -319,6 +318,23 @@
     display: inherit;
 }
 
+/**
+ * Styling for par directives
+ */
+[data-par] {
+    display: block;
+    width: 90%;
+    margin: 0.5em auto 0.5em auto;
+}
+[data-par] label {
+    float: left;
+    width: 20em;
+}
+button.refresh {
+    display: block;
+    margin: 1em auto 1em auto;
+}
+
 /******************************************************
  * Stencil flags and decorations
  *
@@ -327,7 +343,7 @@
 
 /**
  * Labels (for table and figure captions e.g. "Table 4") have no 
- * separation form caption by default. So add in separating characters
+ * separation from caption. So add in separating characters
  * and space.
  */
 [data-label]{

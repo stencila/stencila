@@ -6,7 +6,12 @@ class NormalView extends View {
 
 	constructor(object){
 		super(object);
+		var self = this;
 		this.$root = $('#content');
+
+		this.$root.on('click','button.refresh',function(){
+			self.object.refresh();
+		});
 	}
 
 	pull(){
@@ -53,6 +58,15 @@ class NormalView extends View {
 				});
 			}
 		});
+	}
+
+	inputs(){
+		var inputs = {};
+		this.$root.find('input').each(function(index,elem){
+			elem = $(elem);
+			inputs[elem.attr('name')] = elem.val();
+		});
+		return inputs;
 	}
 }
 

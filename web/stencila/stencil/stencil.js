@@ -32,6 +32,10 @@ class Stencil extends Component {
 			self.restart();
 			return false;
 		});
+		doc.bind('keydown', 'ctrl+g', function(){
+			self.refresh();
+			return false;
+		});
 		// Views
 		doc.bind('keydown', 'F6', function(){
 			self.watch(NormalView);
@@ -111,6 +115,16 @@ class Stencil extends Component {
 	restart(){
 		var self = this;
 		self.execute("restart().html():string",[],function(html){
+			self.html = html;
+		});
+	}
+
+	/**
+	 * Refresh the stencil with user inputs
+	 */
+	refresh(){
+		var self = this;
+		self.execute("inputs({string,string}).render().html():string",[this.master.inputs()],function(html){
 			self.html = html;
 		});
 	}
