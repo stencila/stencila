@@ -7,6 +7,22 @@
 #include <stencila/stencil.hpp>
 #include <stencila/string.hpp>
 
+namespace {
+	// Generate a unique id (used below);
+	std::string id_unique(unsigned int length = 8){
+		static const char chars[] = 
+			"abcdefghijklmnopqrstuvwxyz"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"0123456789";
+		std::string id;
+		id.resize(length);
+		for(unsigned int index = 0; index < length; index++) {
+	        id[index] = chars[std::rand() % (sizeof(chars) - 1)];
+	    }
+	    return id;
+	}
+}
+
 namespace Stencila {
 
 Stencil& Stencil::attach(std::shared_ptr<Context> context){
@@ -212,21 +228,37 @@ Stencil& Stencil::render(std::shared_ptr<Context> context){
 	for(Node ref : filter("[data-refer]")){
 		ref.clear();
 		std::string selector = ref.attr("data-refer");
+		// Remove enclosing braces if necessary
+		if(selector.front()=='{') selector = selector.substr(1);
+		if(selector.back()=='}') selector.pop_back();
 		// Attempt to find target using selector
 		Node target = select(selector);
 		if(target){
+			auto tag = target.name();
 			auto id = target.attr("id");
 			auto index = target.attr("data-index");
-			if(id.length() and index.length()){
-				std::string type = Stencila::title(target.name());
-				Node a = ref.append(
-					"a",
-					{{"href","#"+id}},
-					type + " " + index
-				);
-			} else {
-				error(ref,"refer-unlabelled","Matched element does not have `id` and/or `index`");
+			// Add an id if target does not yet have one (it's necessary for href below)
+			if(id.length()==0){
+				// Because index could change on a rerender we do not make id dependent upon it
+				// (that would cause confusion and potentially conflicts)
+				id = id_unique();
+				target.attr("id",id);
 			}
+			// Create a reference string (e.g. Table 4)
+			std::string reference;
+			if(index.length()){
+				reference = Stencila::title(tag) + " " + index;
+			}
+			else {
+				// For now, just a dash
+				reference = "-";
+			}
+			// Create the link
+			Node a = ref.append(
+				"a",
+				{{"href","#"+id}},
+				reference
+			);
 		} else {
 			error(ref,"refer-missing","No matching element found");
 		}

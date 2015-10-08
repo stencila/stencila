@@ -1,46 +1,87 @@
 {
+	"build_systems":
+	[
+		{
+			"cmd":
+			[
+				"make",
+				"cpp-test",
+				"CPP_TEST=$file_base_name"
+			],
+			"name": "Stencila: run current C++ test",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
+				"cpp-tests"
+			],
+			"name": "Stencila: run all C++ tests",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
+				"r-tests"
+			],
+			"name": "Stencila: run all R tests",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
+				"r-package"
+			],
+			"name": "Stencila: make R package",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
+				"py-tests"
+			],
+			"name": "Stencila: run all Python tests",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
+				"py-package"
+			],
+			"name": "Stencila: make Python package",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
+				"js-tests"
+			],
+			"name": "Stencila: run all Javascript tests",
+			"working_dir": "."
+		}
+	],
 	"folders":
 	[
 		{
-			"path": ".",
-			"folder_exclude_patterns": ["build"]
+			"folder_exclude_patterns":
+			[
+				"build"
+			],
+			"path": "."
+		},
+		{
+			"path": "/home/nokome/.stencila"
 		}
 	],
-    "settings":
-    {
-        "sublimegdb_workingdir": "./build/current/cpp/tests",
-        "sublimegdb_commandline": "gdb --interpreter=mi --args ./test-to-debug"
-    },
-	"build_systems":
-    [
-        {
-            "name": "Stencila: run current C++ test",
-            "working_dir": ".",
-            "cmd": ["make","cpp-test","CPP_TEST=$file_base_name"]
-        },{
-            "name": "Stencila: run all C++ tests",
-            "working_dir": ".",
-            "cmd": ["make","cpp-tests"]
-        },{
-            "name": "Stencila: run all R tests",
-            "working_dir": ".",
-            "cmd": ["make","r-tests"]
-        },{
-            "name": "Stencila: make R package",
-            "working_dir": ".",
-            "cmd": ["make","r-package"]
-        },{
-            "name": "Stencila: run all Python tests",
-            "working_dir": ".",
-            "cmd": ["make","py-tests"]
-        },{
-            "name": "Stencila: make Python package",
-            "working_dir": ".",
-            "cmd": ["make","py-package"]
-        },{
-            "name": "Stencila: run all Javascript tests",
-            "working_dir": ".",
-            "cmd": ["make","js-tests"]
-        }
-    ]
+	"settings":
+	{
+		"sublimegdb_commandline": "gdb --interpreter=mi --args ./tests.exe --run_test=*_quick/*",
+		"sublimegdb_workingdir": "./build/current/cpp/tests"
+	}
 }
