@@ -44,10 +44,6 @@ class RevealView extends NormalView {
 			});
 		});
 	}
-
-	edit(){
-		this.$root.attr('contenteditable','true');
-	}
 }
 
 module.exports = RevealView;

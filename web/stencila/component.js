@@ -5,14 +5,15 @@ require('jquery.hotkeys');
 var Connection = require('./connection');
 
 class Component {
+
 	constructor(options){
-		// Set host and port
+		// Host and port
 		var location = window.location;
 		if(location.protocol==='file:') this.host = 'localfile';
 		else this.host = location.hostname;
 		this.port = location.port;
 
-		// Set address
+		// Address
 		this.address = null;
 		// ... from <meta> tag
 		var address = $('head meta[itemprop=address]');
@@ -27,28 +28,14 @@ class Component {
 			if(last.substr(last.length-1)=="-") this.address = path.substr(0,lastIndex);
 		}
 
-		// Views of this component
+		// Views
+		this.views = [];
 		this.master = null;
-		this.slaves = [];
 
 		// Connection to session for this component
 		// If on localhost attempt to activate it immeadiately
 		this.connection = null;
 		if(this.host=='localhost') this.activate();
-	}
-
-	watch(klass){
-		if(this.master) this.master.close();
-		this.master = new klass(this);
-		this.master.pull();
-	}
-
-	pull(){
-		this.master.push();
-	}
-
-	push(){
-		this.master.pull();
 	}
 
 	activate(){
@@ -67,7 +54,89 @@ class Component {
 
 	execute(method,args,callback){
 		this.connection.call(method,args,callback);
-	};
+	}
+
+	/**
+	 * Watch this component with a view
+	 * 
+	 * The new view will become the master
+	 */
+	watch(klass){
+		var view = new klass(this);
+		this.views.push(view);
+		this.master = view;
+	}
+
+	/**
+	 * Watch this component with a view
+	 * 
+	 * The new view will become the master
+	 */
+	toggle(klass){
+		var existing = null;
+		this.views.forEach(function(view){
+			if(view.constructor==klass){
+				existing = view;
+			}
+		});
+		if(!existing){
+			this.watch(klass);
+		}
+		else {
+			if(this.views.length>1){
+				existing.close();
+				this.views.splice(this.views.indexOf(existing), 1);
+				this.master = this.views[this.views.length-1];
+			}
+		}
+	}
+
+	/**
+	 * Hold a view as the master view
+	 */
+	hold(view){
+		this.master = view;
+	}
+
+	/**
+	 * Pull an update from the master view
+	 *
+	 * This method is normally used before sending an update of the 
+	 * component to remote.
+	 */
+	pull(){
+		this.master.push();
+	}
+
+	/**
+	 * Push an update to all views
+	 * 
+	 * This method will normally be used after receiving an update
+	 * of the component from remote. It gets each view to pull an update.
+	 */
+	push(){
+		this.views.forEach(function(view){
+			view.pull();
+		});
+	}
+
+	/**
+	 * Pull an update from master and push it to other views
+	 *
+	 * 
+	 * This method is called by the master view to keep other
+	 * views in sync.
+	 */
+	fling(){
+		this.master.push();
+		var self = this;
+		self.views.forEach(function(item){
+			if(item!==self.master){
+				item.pull();
+			}
+		});
+	}
+
 }
 
 module.exports = Component;

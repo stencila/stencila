@@ -1,17 +1,25 @@
-var View = require('../view');
+var CodeView = require('./code-view');
 
-class HtmlView extends View {
+class HtmlView extends CodeView {
 
-	constructor(object){
-		super(object);
-
-		this._root = $('#main').append('<div class="html-view"></div>');
-	}
-
-	update(){
-		this._object.html.then(function(html){
+	constructor(stencil){
+		super(stencil,{
+			name: 'html-view',
+			mode: 'html'
 		});
 	}
+
+	pull(){
+		var self = this;
+		self.stencil.html.then(function(html){
+			self.set(html);
+		});
+	}
+
+	push(){
+		this.stencil.html = this.get();
+	}
+
 }
 
 module.exports = HtmlView;

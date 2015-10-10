@@ -7,11 +7,21 @@ class NormalView extends View {
 	constructor(object){
 		super(object);
 		var self = this;
-		this.$root = $('#content');
+		self.$root = $('#content');
 
-		this.$root.on('click','button.refresh',function(){
+		self.$root.on('click','button.refresh',function(){
 			self.object.refresh();
 		});
+
+		self.$root.on('focus', function() {
+			self.object.hold(self);
+		});
+
+		self.$root.on('input', function() {
+			self.object.fling();
+		});
+
+		self.pull();
 	}
 
 	pull(){
@@ -58,6 +68,12 @@ class NormalView extends View {
 				});
 			}
 		});
+
+		self.$root.attr('contenteditable','true');
+	}
+
+	push(){
+		this.object.html = this.$root.html();
 	}
 
 	inputs(){

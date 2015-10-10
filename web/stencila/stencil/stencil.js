@@ -3,6 +3,7 @@ var utilties = require('../utilities');
 var Component = require('../component');
 var NormalView = require('./normal-view');
 var RevealView = require('./reveal-view');
+var CilaView = require('./cila-view');
 var HtmlView = require('./html-view');
 
 class Stencil extends Component {
@@ -22,6 +23,7 @@ class Stencil extends Component {
 		// Return false to prevent bubbling up to the browser
 		var self = this;
 		var doc = $(document);
+
 		// Actions
 		doc.bind('keydown', 'ctrl+r', function(){
 			self.render();
@@ -35,18 +37,22 @@ class Stencil extends Component {
 			self.refresh();
 			return false;
 		});
+
 		// Views
 		doc.bind('keydown', 'F6', function(){
-			self.watch(NormalView);
+			self.toggle(NormalView);
 			return false;
 		});
 		doc.bind('keydown', 'F7', function(){
-			self.watch(RevealView);
+			self.toggle(RevealView);
 			return false;
 		});
-
-		doc.bind('keydown', 'F2', function(){
-			self.master.edit();
+		doc.bind('keydown', 'F8', function(){
+			self.toggle(CilaView);
+			return false;
+		});
+		doc.bind('keydown', 'F9', function(){
+			self.toggle(HtmlView);
 			return false;
 		});
 	}
@@ -73,7 +79,6 @@ class Stencil extends Component {
 	set html(html){
 		this.content = html;
 		this.format = 'html';
-		this.push();
 	}
 
 
@@ -99,22 +104,35 @@ class Stencil extends Component {
 	set cila(cila){
 		this.content = cila;
 		this.format = 'cila';
-		this.push();
 	}
 
 	render(){
 		var self = this;
-		self.html.then(function(html){
-			self.execute("html(string).render().html():string",[html],function(html){
-				self.html = html;
+		self.pull();
+		if(self.format=='html'){
+			self.html.then(function(html){
+				self.execute("html(string).render().html():string",[html],function(html){
+					self.html = html;
+					self.push();
+				});
 			});
-		});
+		}
+		else if(self.format=='cila'){
+			self.cila.then(function(cila){
+				self.execute("cila(string).render().cila():string",[cila],function(cila){
+					self.cila = cila;
+					self.push();
+				});
+			});
+		}
 	}
 
 	restart(){
 		var self = this;
+		self.pull();
 		self.execute("restart().html():string",[],function(html){
 			self.html = html;
+			self.push();
 		});
 	}
 
@@ -123,8 +141,10 @@ class Stencil extends Component {
 	 */
 	refresh(){
 		var self = this;
-		self.execute("inputs({string,string}).render().html():string",[this.master.inputs()],function(html){
+		var inputs = self.master.inputs();
+		self.execute("inputs({string,string}).render().html():string",[inputs],function(html){
 			self.html = html;
+			self.push();
 		});
 	}
 
