@@ -1009,11 +1009,36 @@ web-requires:
 
 # ACE editor
 
-ACE_VERSION := aaa9e86
+ACE_VERSION := 0c66e1eda418477a9efbd0d3ef61698478cc607f
 
-web/build/external/ace:
+web/other_modules/ace-$(ACE_VERSION).tar.gz:
+	mkdir -p web/other_modules
+	wget --no-check-certificate -O $@ https://github.com/ajaxorg/ace/archive/$(ACE_VERSION).tar.gz
+
+web/other_modules/ace: web/other_modules/ace-$(ACE_VERSION).tar.gz
+	rm -rf $@
+	# Untar it
+	mkdir -p web/other_modules
+	tar xf $< -C web/other_modules
+	mv web/other_modules/ace-$(ACE_VERSION) $@
 	# Install dependencies
 	cd web/other_modules/ace && npm install
+
+web-ace-patch: web/other_modules/ace
+	# Add symbolic links to files
+	ln -sf "$$(pwd)/web/stencila/ace/mode/cila.js" web/other_modules/ace/lib/ace/mode/cila.js
+	ln -sf "$$(pwd)/web/stencila/ace/mode/cila_highlight_rules.js" web/other_modules/ace/lib/ace/mode/cila_highlight_rules.js
+	ln -sf "$$(pwd)/web/stencila/ace/theme/cilacon.js" web/other_modules/ace/lib/ace/theme/cilacon.js
+	ln -sf "$$(pwd)/web/stencila/ace/theme/cilacon.css" web/other_modules/ace/lib/ace/theme/cilacon.css
+	ln -sf "$$(pwd)/web/stencila/ace/snippets/cila.js" web/other_modules/ace/lib/ace/snippets/cila.js
+	ln -sf "$$(pwd)/web/stencila/ace/snippets/cila.snippets" web/other_modules/ace/lib/ace/snippets/cila.snippets
+	ln -sf "$$(pwd)/web/stencila/ace/cila.cila" web/other_modules/ace/demo/kitchen-sink/docs/cila.cila
+	# Add Cila and Cilacon to configuration
+	sed -i 's/Cirru/Cila:\["cila"\],\n    Cirru/' web/other_modules/ace/lib/ace/ext/modelist.js
+	sed -i 's/\["Clouds Midnight"/\["Cilacon","cilacon","dark"\],\n    ["Clouds Midnight"/' web/other_modules/ace/lib/ace/ext/themelist.js
+	sed -i 's/dark: \[/dark: \["cilacon",/' web/other_modules/ace/tool/mode_creator.js
+
+web-ace: web-ace-patch
 	# Create a "src-min-noconflict" build
 	cd web/other_modules/ace && node Makefile.dryice.js -m
 	# Copy the build to ./build
@@ -1021,15 +1046,16 @@ web/build/external/ace:
 	mkdir -p web/build/external
 	cp -rf web/other_modules/ace/build/src-min web/build/external/ace
 
+
 # MathJax
 
 MATHJAX_VERSION := 2.5.3
 
-$(RESOURCES)/MathJax-$(MATHJAX_VERSION).tar.gz:
+web/other_modules/MathJax-$(MATHJAX_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
 	wget --no-check-certificate -O $@ https://github.com/mathjax/MathJax/archive/$(MATHJAX_VERSION).tar.gz
 
-web/build/external/MathJax: $(RESOURCES)/MathJax-$(MATHJAX_VERSION).tar.gz
+web/build/external/MathJax: web/other_modules/MathJax-$(MATHJAX_VERSION).tar.gz
 	rm -rf $@
 	mkdir -p web/build/external
 	tar xf $< -C web/build/external
@@ -1046,13 +1072,14 @@ web-mathjax-shrink: web/build/external/MathJax
 		rm -rf jax/output/SVG ;\
 		rm -rf `find jax/output/HTML-CSS/fonts -mindepth 1 -maxdepth 1 ! -name 'STIX'`
 
-web-mathjax: web-mathjax-shrink
+web-mathjax: web/build/external/MathJax
 
 web-mathjax-clean:
 	rm -rf web/build/external/MathJax
 
 
-web-build: web/build/external/MathJax web/build/external/ace
+
+web-build:
 	cd web; gulp build
 
 web-watch:
