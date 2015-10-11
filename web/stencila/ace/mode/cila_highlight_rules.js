@@ -336,10 +336,9 @@ var CilaHighlightRules = function() {
                 regex: /{/,
                 next: 'start'
             },{
-                // Close brace, back to "plain" state
+                // Close brace, remain in this state
                 token: 'comment.cila-brace-close',
                 regex: /}/,
-                next: 'plain'
             },{
                 // Hyperlink shorthand
                 token: ['string.quoted','string','string.quoted','string','string.quoted'],
