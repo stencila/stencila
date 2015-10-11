@@ -418,6 +418,14 @@ var CilaHighlightRules = function() {
                 token: 'keyword.cila-warning',
                 regex: /(%\")([^\"]+)(\")(@\d+(,\d+)?)?/
             },
+            { 
+                // End of line so move to the next state in the stack
+                // This was not necessary on the ACE mode creator but is in production (?)
+                onMatch : function(value, currentState, stack){
+                    this.next = stack[0];
+                },
+                regex: /$/ 
+            } 
         ],
 
         'out':[
