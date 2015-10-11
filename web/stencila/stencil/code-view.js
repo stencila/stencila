@@ -2,7 +2,7 @@ var utilities = require('../utilities.js');
 
 class CodeView {
 
-	constructor(stencil,options){
+	constructor(stencil,options,more){
 		var self = this;
 		
 		this.stencil = stencil;
@@ -18,7 +18,7 @@ class CodeView {
 		utilities.load("/web/external/ace/ace.js", function(){
 			var editor = self.editor = ace.edit(id);
 			editor.getSession().setMode('ace/mode/' + options.mode);
-			editor.setTheme("ace/theme/monokai");
+			editor.setTheme("ace/theme/" + (options.theme || 'monokai'));
 
 			editor.setFontSize(14);
 			editor.setShowPrintMargin(false);
@@ -56,6 +56,8 @@ class CodeView {
 			editor.on('change', function() {
 				if(!self.silent) self.stencil.fling();
 			});
+			// More setup required by extending class
+			if(more) more.call(self);
 			// Now editor is set up pull content from stencil
 			self.pull();
 		});
