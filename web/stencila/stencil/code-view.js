@@ -69,9 +69,11 @@ class CodeView {
 	}
 
 	set(content){
+		var position = this.editor.getCursorPosition();
 		this.silent = true;
-		this.editor.setValue(content);
+		this.editor.setValue(content,1);
 		this.silent = false;
+		this.editor.moveCursorToPosition(position);
 	}
 
 	get(content){
