@@ -16,6 +16,7 @@ struct RenderingFixture {
 	RenderingFixture(void){
 		auto context = std::make_shared<MapContext>();
 		context->assign("a","A");
+		context->assign("z","true");
 		context->assign("none","");
 		context->assign("planets","Argabuthon Bartledan Bethselamin Earth Gagrakacka");
 		context->assign("numbers","1 2 3");
@@ -224,7 +225,7 @@ BOOST_AUTO_TEST_CASE(if_else){
 
 BOOST_AUTO_TEST_CASE(if_elif){
 	render(R"(
-		<div class="if-on" data-if="a" />
+		<div class="if-on" data-if="z" />
 		<div class="elif-off" data-elif="none" />
 	)");
 
@@ -236,7 +237,7 @@ BOOST_AUTO_TEST_CASE(if_elif_else){
 	render(R"(
 		<div class="if-off" data-if="none" />
 		<div class="elif-off" data-elif="none" />
-		<div class="elif-on" data-elif="a" />
+		<div class="elif-on" data-elif="z" />
 		<div class="else-off" data-else />
 	)");
 
