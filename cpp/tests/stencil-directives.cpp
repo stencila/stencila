@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(attr){
 
 	attr.parse("name value expression");
 	BOOST_CHECK_EQUAL(attr.name,"name");
-	BOOST_CHECK_EQUAL(attr.expression,"expression");
+	BOOST_CHECK_EQUAL(attr.value,"expression");
 }
 
 BOOST_AUTO_TEST_CASE(where){
