@@ -21,6 +21,16 @@ class CilaView extends CodeView {
 		var self = this;
 		self.stencil.cila.then(function(cila){
 			self.set(cila);
+			// Find lines which should be auto folded
+			var session = self.editor.getSession();
+			var outline = /^#outline/;
+			var included = /~incl/;
+			cila.split('\n').forEach(function(line,index){
+				if(outline.exec(line) || included.exec(line)){
+					var range = session.getFoldWidgetRange(index);
+					if(range) session.addFold("...",range);
+				}
+			});
 		});
 	}
 
