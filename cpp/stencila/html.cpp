@@ -87,7 +87,7 @@ std::string Fragment::tidy(const std::string& html){
 	// Don't wrap lines
 	ok = tidyOptSetInt(document,TidyWrapLen,0);
 	// Don't add newlines
-	ok = tidyOptSetBool(document,TidyVertSpace,no);
+	ok = tidyOptSetValue(document,TidyVertSpace,"auto");
 	//	Turn off adding a html-tidy <meta name="generator".. tag for itself
 	ok = tidyOptSetBool(document,TidyMark,no);
 	// Output as well formed XML since that is where is is going to

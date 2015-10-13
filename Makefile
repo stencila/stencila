@@ -249,25 +249,34 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
-TIDYHTML5_VERSION := 0bf0d85
+TIDYHTML5_VERSION := b4efe74
 
 $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/stencila/tidy-html5/tarball/$(TIDYHTML5_VERSION)
+	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/tarball/$(TIDYHTML5_VERSION)
 
 $(BUILD)/cpp/requires/tidy-html5: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/stencila-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
+	mv $(BUILD)/cpp/requires/htacg-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
 	touch $@
 
-# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
+TIDYHTML5_CMAKE_FLAGS = -DCMAKE_C_FLAGS="-O2 -fPIC"
+ifeq ($(OS), win)
+TIDYHTML5_CMAKE_FLAGS += -G "MSYS Makefiles"
+endif
 $(BUILD)/cpp/requires/tidy-html5-built.flag: $(BUILD)/cpp/requires/tidy-html5
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
-	  cmake -DCMAKE_C_FLAGS="-O2 -fPIC" ../..;\
-	  make
+	  cmake $(TIDYHTML5_CMAKE_FLAGS) ../..
+ifeq ($(OS), linux)
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+		make
+endif
 ifeq ($(OS), win)
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+		cmake --build . --config Release
+	# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/build/cmake/libtidys.a
 endif
 	touch $@
@@ -383,7 +392,7 @@ define CPP_LIBRARY_EXTRACT
 	mkdir -p $(BUILD)/cpp/library/objects/$2
 	cd $(BUILD)/cpp/library/objects/$2 ;\
 		ar x $(realpath $(BUILD)/cpp/requires)/$1 ;\
-		for filename in *.o; do mv $$filename ../$2-$$filename; done ;
+		for filename in *.o*; do mv $$filename ../$2-$$filename; done ;
 	rm -rf $(BUILD)/cpp/library/objects/$2
 endef
 
@@ -405,7 +414,7 @@ $(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 # Output list of contents to `files.txt` and `symbols.txt` for checking
 $(BUILD)/cpp/library/libstencila.a: $(BUILD)/cpp/library/objects
 	cd $(BUILD)/cpp/library ;\
-		$(AR) rc libstencila.a `find . -name "*.o"` ;\
+		$(AR) rc libstencila.a `find . -name "*.o*"` ;\
 		$(AR) t libstencila.a > files.txt ;\
 		nm -gC libstencila.a > symbols.txt
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
