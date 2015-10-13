@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(assign){
 BOOST_AUTO_TEST_CASE(test){
 	MapContext map;
 
-	map.assign("ok","1");
+	map.assign("ok","true");
 	BOOST_CHECK(map.test("ok"));
 	
 	map.assign("ok","");
