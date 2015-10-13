@@ -1090,7 +1090,7 @@ public:
 	 */
 	std::stringstream cila;
 
-	uint newlines = 0;
+	unsigned int newlines = 0;
 
 	/**
 	 * Add line context
