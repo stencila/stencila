@@ -21,8 +21,8 @@ Frame::Frame(void):
 
 Frame::Frame(const Frame& frame):
 	data_(new Data(*frame.data_)),
-	labels_(frame.labels_),
-	resize_(frame.rows(),frame.columns()){
+	labels_(frame.labels_){
+	resize_(frame.rows(),frame.columns());
 }
 
 Frame::Frame(const std::vector<std::string>& labels, unsigned int rows):
