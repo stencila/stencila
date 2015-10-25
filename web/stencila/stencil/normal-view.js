@@ -1,11 +1,8 @@
 var utilities = require('../utilities.js');
 
-var View = require('../view');
-
-class NormalView extends View {
+class NormalView {
 
 	constructor(object){
-		super(object);
 		var self = this;
 		self.$root = $('#content');
 
