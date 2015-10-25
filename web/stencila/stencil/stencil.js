@@ -11,6 +11,7 @@ class Stencil extends Component {
 	constructor(options){
 		super(options);
 
+		// Get the content from the page
 		this.content = $('#content').html();
 		this.format = 'html';
 
@@ -57,6 +58,14 @@ class Stencil extends Component {
 		});
 	}
 
+
+	/**********************************************************************************************
+	 * Content getting and setting
+	 *********************************************************************************************/
+
+	/**
+	 * Get the content of this stencil as HTML
+	 */
 	get html(){
 		var self = this;
 		return new Promise(function(resolve,reject){
@@ -76,12 +85,17 @@ class Stencil extends Component {
 		});
 	}
 
+	/**
+	 * Set the content of this stencil as HTML
+	 */
 	set html(html){
 		this.content = html;
 		this.format = 'html';
 	}
 
-
+	/**
+	 * Get the content of this stencil as Cila
+	 */
 	get cila(){
 		var self = this;
 		return new Promise(function(resolve,reject){
@@ -101,25 +115,43 @@ class Stencil extends Component {
 		});
 	}
 
+	/**
+	 * Set the content of this stencil as Cila
+	 */
 	set cila(cila){
 		this.content = cila;
 		this.format = 'cila';
 	}
 
+
+	/**********************************************************************************************
+	 * Rendering
+	 *********************************************************************************************/
+
+	/**
+	* Render this stencil
+	*/
 	render(){
 		var self = this;
+		// Pull from master view
 		self.pull();
 		if(self.format=='html'){
+			// Get HTML...
 			self.html.then(function(html){
+				// Execute remote rendering
 				self.execute("html(string).render().html():string",[html],function(html){
+					// Set HTML and update views
 					self.html = html;
 					self.push();
 				});
 			});
 		}
 		else if(self.format=='cila'){
+			// Get Cila...
 			self.cila.then(function(cila){
+				// Execute remote rendering
 				self.execute("cila(string).render().cila():string",[cila],function(cila){
+					// Set Cila and update views
 					self.cila = cila;
 					self.push();
 				});
@@ -127,6 +159,9 @@ class Stencil extends Component {
 		}
 	}
 
+	/**
+	 * Restart (re-read and render) this stencil
+	 */
 	restart(){
 		var self = this;
 		self.pull();
@@ -137,11 +172,15 @@ class Stencil extends Component {
 	}
 
 	/**
-	 * Refresh the stencil with user inputs
+	 * Refresh this stencil
+	 *
+	 * When a stencil is "refreshed" only user inputs are set
 	 */
 	refresh(){
 		var self = this;
+		// Get inputs from master
 		var inputs = self.master.inputs();
+		// Set inputs and render in session
 		self.execute("inputs({string,string}).render().html():string",[inputs],function(html){
 			self.html = html;
 			self.push();

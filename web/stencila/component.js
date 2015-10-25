@@ -4,6 +4,9 @@ require('jquery.hotkeys');
 
 var Connection = require('./connection');
 
+/**
+ * A Stencila component
+ */
 class Component {
 
 	constructor(options){
@@ -29,7 +32,10 @@ class Component {
 		}
 
 		// Views
+		// A list of views viewing this component
 		this.views = [];
+		// The view (from amongst the list) which is the current master view
+		// (i.e. which ccurrently controls the component)
 		this.master = null;
 
 		// Connection to session for this component
@@ -38,6 +44,14 @@ class Component {
 		if(this.host=='localhost') this.activate();
 	}
 
+	/**********************************************************************************************
+	 * Remote connection and method execution
+	 *********************************************************************************************/
+
+	/**
+	 * Activate this component by creating a connection to a new or
+	 * existing session
+	 */
 	activate(){
 		if(!this.connection){
 			var url = 'ws://'+this.host+':'+this.port+'/'+this.address;
@@ -45,6 +59,10 @@ class Component {
 		}
 	}
 
+	/**
+	 * Deactivate this component by closing the connection and
+	 * potentially stopping the session
+	 */
 	deactivate(){
 		if(this.connection){
 			this.connection.close();
@@ -52,9 +70,16 @@ class Component {
 		}
 	}
 
+	/**
+	 * Execute a method for this component in the remote session
+	 */
 	execute(method,args,callback){
 		this.connection.call(method,args,callback);
 	}
+
+	/**********************************************************************************************
+	 * Views
+	 *********************************************************************************************/
 
 	/**
 	 * Watch this component with a view
@@ -68,11 +93,12 @@ class Component {
 	}
 
 	/**
-	 * Watch this component with a view
+	 * Toggle a view for this component 
 	 * 
-	 * The new view will become the master
+	 * If the view already exists then 
 	 */
 	toggle(klass){
+		// Check if there is an existing view
 		var existing = null;
 		this.views.forEach(function(view){
 			if(view.constructor==klass){
@@ -80,10 +106,14 @@ class Component {
 			}
 		});
 		if(!existing){
+			// Does not exist
 			this.watch(klass);
 		}
 		else {
+			// If there is at least one other view...
 			if(this.views.length>1){
+				//.. close the existing of this view class
+				// and make the next one the master
 				existing.close();
 				this.views.splice(this.views.indexOf(existing), 1);
 				this.master = this.views[this.views.length-1];

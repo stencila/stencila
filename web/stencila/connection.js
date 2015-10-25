@@ -18,7 +18,7 @@ class Connection {
     }
 
     /**
-     * Connect
+     * Connect to remote
      * 
      * @param  {String} url URL to connect to
      */
@@ -47,21 +47,21 @@ class Connection {
     }
 
     /**
-     * Disconnect
+     * Disconnect from remote
      */
     disconnect(){
         this.socket.close();
     }
 
     /**
-     * Send data
+     * Send data to remote
      */
     send(data){
         this.socket.send(data);
     }
 
     /**
-     * Receive a message from the server
+     * Receive a message from remote
      * 
      * @param  {String} data
      */
