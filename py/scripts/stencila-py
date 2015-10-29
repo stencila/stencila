@@ -43,10 +43,16 @@ def main():
             print '  stencila-py core/themes/base compile'
             sys.exit()
 
-        # Get address, remove it from commands and grab component
-        address = commands.pop(0)
-        print 'Grabbing from      : '+magenta+address+reset
-        component = stencila.grab(address)
+        #Get target
+        target = commands.pop(0)
+        if target in ('stencil',):
+            print 'Creating new       : '+magenta+target+reset
+            if target=='stencil':
+                component = stencila.Stencil()
+            component.path(True)
+        else:
+            print 'Grabbing from      : '+magenta+target+reset
+            component = stencila.grab(target)
 
         # Confirm component address, path, type
         print 'Component address  : '+cyan+component.address()+reset
