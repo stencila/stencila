@@ -26,6 +26,8 @@ class CodeView {
 			// of lines exceeds this number a vertical scroll bar appears on the right
 			editor.setOption("minLines",5);
 			editor.setOption("maxLines",100000);
+			// Prevent warning message
+			editor.$blockScrolling = Infinity;
 			// Set indented wrapped lines
 			editor.setOptions({
 	            wrap: true,
