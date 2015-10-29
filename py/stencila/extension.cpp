@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 
+#include <stencila/component.hpp>
 #include <stencila/exception.hpp>
 
 #include <boost/python.hpp>
@@ -39,8 +40,11 @@ BOOST_PYTHON_MODULE(extension){
 	register_exception_translator<Stencila::Exception>(exception_translator);
     def("exception_test",exception_test);
 
-	// Define classes
+	// Define component classes
 	def_Component();
     def_Stencil();
     def_Theme();
+
+    // Declare component class types
+    Stencila::Component::classes();
 }
