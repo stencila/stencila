@@ -7,6 +7,7 @@ class NormalView {
 		self.stencil = stencil;
 
 		self.$el = $('#content');
+		self.$el.addClass('normal-view');
 
 		self.$el.on('click','button.refresh',function(){
 			self.stencil.refresh();
