@@ -49,14 +49,14 @@ def main():
             print 'Creating new       : '+magenta+target+reset
             if target=='stencil':
                 component = stencila.Stencil()
-            component.path(True)
+            component.path('')
         else:
             print 'Grabbing from      : '+magenta+target+reset
             component = stencila.grab(target)
 
         # Confirm component address, path, type
         print 'Component address  : '+cyan+component.address()+reset
-        print 'Component path     : '+cyan+component.path(False)+reset
+        print 'Component path     : '+cyan+component.path()+reset
         print 'Component type     : '+cyan+component.__class__.__name__+reset
 
         # Iterate over methods, applying them to the component

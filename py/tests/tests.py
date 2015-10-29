@@ -186,7 +186,6 @@ class StencilTests(unittest.TestCase):
         A shortcut method for testing rendering
         '''
         if context is None: context = Context()
-        if type(context) is dict: context = Context(context)
         return self.assertEqual(
             Stencil().html(inp).render(context).html(False,False).strip(),
             out

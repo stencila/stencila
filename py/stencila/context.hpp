@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 
@@ -64,7 +66,9 @@ private:
     boost::python::object call_(const char* name,Args... args){
         using namespace boost::python;
         try {
-            return context_.attr(name)(args...);
+            auto method = context_.attr(name);      
+            auto result = method(args...);
+            return result;
         }
         catch(error_already_set const &){
             PyObject *type,*value,*traceback;
@@ -94,15 +98,22 @@ private:
             }
             throw PythonException(message);
         }
+        catch(const std::exception& exc){
+            throw PythonException(exc.what());
+        }
+        catch(...){
+            throw PythonException("Unknown exception");
+        }
     }
 
     /**
      * Call a method of `context_` and return the result
      */
     template<typename Result,typename... Args>
-    Result call_(const char* name,Args... args){
+    Result get_(const char* name,Args... args){
         using namespace boost::python;
-        return extract<Result>(call_(name,args...));
+        auto result = call_(name,args...);
+        return extract<Result>(result);
     }
 
     /**
@@ -154,11 +165,11 @@ public:
     }
 
     std::string execute(const std::string& code, const std::string& id="", const std::string& format="", const std::string& width="", const std::string& height="", const std::string& units=""){
-        return call_<std::string>("execute",code,format,width,height,units);
+        return get_<std::string>("execute",code,format,width,height,units);
     }
 
     std::string interact(const std::string& code, const std::string& id=""){
-        return call_<std::string>("interact",code);
+        return get_<std::string>("interact",code);
     }
 
     void assign(const std::string& name, const std::string& expression){
@@ -170,15 +181,15 @@ public:
     };
 
     std::string write(const std::string& expression){
-        return call_<std::string>("write",expression);
+        return get_<std::string>("write",expression);
     }
 
     std::string paint(const std::string& format,const std::string& code){
-        return call_<std::string>("paint",format,code);
+        return get_<std::string>("paint",format,code);
     }
 
     bool test(const std::string& expression){
-        return call_<bool>("test",expression);
+        return get_<bool>("test",expression);
     }
 
     void mark(const std::string& expression){
@@ -186,7 +197,7 @@ public:
     }
 
     bool match(const std::string& expression){
-        return call_<bool>("match",expression);
+        return get_<bool>("match",expression);
     }
 
     void unmark(void){
@@ -194,11 +205,11 @@ public:
     }
 
     bool begin(const std::string& item,const std::string& items){
-        return call_<bool>("begin",item,items);
+        return get_<bool>("begin",item,items);
     }
 
     bool next(void){
-        return call_<bool>("next");
+        return get_<bool>("next");
     }
 
     void enter(const std::string& expression=""){

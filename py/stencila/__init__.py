@@ -2,6 +2,6 @@
 # version compatability
 # See http://python3porting.com/differences.html#imports
 
-from stencila.extension import Component, Stencil
-from stencila.component import grab
+from stencila.component import Component, grab
+from stencila.stencil import Stencil
 from stencila.context import Context, ContextError, Scope
