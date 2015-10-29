@@ -1,27 +1,37 @@
 var utilities = require('../utilities.js');
 var NormalView = require('./normal-view');
 
+var Exec = require('./directives/exec');
+var Text = require('./directives/text');
+
 class RevealView extends NormalView {
 
-	constructor(object){
-		super(object);
+	constructor(stencil){
+		super(stencil);
 
-		this.$root.addClass('reveal');
+		this.$el.addClass('reveal');
 	}
 
 	close(){
-		this.$root.removeClass('reveal');
+		this.$el.removeClass('reveal');
 	}
 
 	pull(){
 		super.pull();
 		var self = this;
 		utilities.load("/web/external/ace/ace.js", function(){
-			self.$root.find('[data-exec]').each(function(){
-				var elem = $(this);
-				// Add an id for ACE to work on
-				var id = 'reveal-exec-' + new Date().getTime() + Math.floor(Math.random()*100000);
-				elem.attr("id",id);
+
+			self.$el.find('[data-exec]').each(function(){
+				var $el = $(this);
+				// Create a new Exec directive
+				var dir = new Exec($el);
+
+				// Create editor
+				// Add an id to elem for ACE to work on
+				var id = 'reveal-exec-' + 
+					new Date().getTime() + 
+					Math.floor(Math.random()*100000);
+				$el.attr("id",id);
 				// Create an Ace Editor instance in the dialog
 				var editor = ace.edit(id);
 				editor.setFontSize(14);
@@ -42,6 +52,12 @@ class RevealView extends NormalView {
 				// Add padding before first and after last lines
 				editor.renderer.setScrollMargin(5,5,0,0);
 			});
+
+			self.$el.find('[data-text]').each(function(){
+				var $el = $(this);
+				var dir = new Text($el);
+			});
+
 		});
 	}
 }

@@ -2,20 +2,22 @@ var utilities = require('../utilities.js');
 
 class NormalView {
 
-	constructor(object){
+	constructor(stencil){
 		var self = this;
-		self.$root = $('#content');
+		self.stencil = stencil;
 
-		self.$root.on('click','button.refresh',function(){
-			self.object.refresh();
+		self.$el = $('#content');
+
+		self.$el.on('click','button.refresh',function(){
+			self.stencil.refresh();
 		});
 
-		self.$root.on('focus', function() {
-			self.object.hold(self);
+		self.$el.on('focus', function() {
+			self.stencil.hold(self);
 		});
 
-		self.$root.on('input', function() {
-			self.object.fling();
+		self.$el.on('input', function() {
+			self.stencil.fling();
 		});
 
 		self.pull();
@@ -23,12 +25,12 @@ class NormalView {
 
 	pull(){
 		var self = this;
-		self.object.html.then(function(html){
-			self.$root.html(html);
+		self.stencil.html.then(function(html){
+			self.$el.html(html);
 
 			// Lazily load MathJax if there is math in the stencil
 			var mathSelector = 'script[type^="math/tex"],script[type^="math/asciimath"]';
-			if(self.$root.find(mathSelector).length>0){
+			if(self.$el.find(mathSelector).length>0){
 				// This is the recommended method for dynamically loading MathJax:
 				//   https://docs.mathjax.org/en/latest/dynamic.html#loading-mathjax-dynamically
 				// Previous attempts using ReqjuireJS and $.getSript worked some of the time but
@@ -53,29 +55,47 @@ class NormalView {
 						function(){
 							// Hide math script elements which should now have been rendered into 
 							// separate display elements by MathJax
-							self.$root.find(mathSelector).each(function(){
+							self.$el.find(mathSelector).each(function(){
 								$(this).css('display','none');
 							});
 							// Ensure these MathJax elements are not
 							// editable when in Reveal mode. This needs to be done here
 							// when we know these elements are present
-							self.$root.find('.MathJax').attr('contenteditable','false');
+							self.$el.find('.MathJax').attr('contenteditable','false');
 						}
 					);
 				});
 			}
 		});
 
-		self.$root.attr('contenteditable','true');
+		self.$el.attr('contenteditable','true');
 	}
 
 	push(){
-		this.object.html = this.$root.html();
+		// Create a temporary DOM to modify
+		var dom = this.$el.clone();
+		// Get all MathJax "jax" elements (e.g. 
+		//    <script type="math/asciimath" id="MathJax-Element-2">e=m^2</script>
+		// ) and remove the id if it starts with MathJax
+		dom.find('script[type^="math/asciimath"],script[type^="math/tex"]').each(function(){
+			var elem = $(this);
+			if(/^MathJax/.exec(elem.attr('id'))) elem.removeAttr('id');
+			// Remove the css style added above to hide these
+			elem.removeAttr('style');
+		});
+		// Remove all elements which have been added
+		dom.find('.MathJax_Error, .MathJax_Preview, .MathJax').remove();
+		// Remove readonly atrributes added to inputs
+		dom.find('input').each(function(){
+			$(this).removeAttr('readonly');
+		});
+
+		this.stencil.html = dom.html();
 	}
 
 	inputs(){
 		var inputs = {};
-		this.$root.find('input').each(function(index,elem){
+		this.$el.find('input').each(function(index,elem){
 			elem = $(elem);
 			inputs[elem.attr('name')] = elem.val();
 		});
