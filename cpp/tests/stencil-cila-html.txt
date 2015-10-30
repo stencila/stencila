@@ -248,16 +248,16 @@ section
 <p>
 	Isolated from preceding
 </p>
-<p class="equation">
+<div data-equation="true">
 	<script type="math/asciimath; mode=display">e = mc^2</script>
-</p>
+</div>
 <p>
 	Isolated from following
 </p>
 <section>
-	<p class="equation">
+	<div data-equation="true">
 		<script type="math/asciimath; mode=display">Indented properly</script>
-	</p>
+	</div>
 </section>
 --------------------------------------------------
 

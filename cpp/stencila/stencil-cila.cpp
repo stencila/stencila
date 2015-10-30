@@ -687,8 +687,8 @@ public:
 					trace("pipe");
 					// Enter `<script>` and push into `asciimath` state
 					flush();
-					auto span = node.append("p",{{"class","equation"}});
-					auto script = span.append("script",{{"type","math/asciimath; mode=display"}});
+					auto div = node.append("div",{{"data-equation","true"}});
+					auto script = div.append("script",{{"type","math/asciimath; mode=display"}});
 					enter(script);
 					push(asciimath);
 				}
@@ -696,8 +696,8 @@ public:
 					trace("tex_open");
 					// Enter `<script>` and push into `tex` state
 					flush();
-					auto span = node.append("p",{{"class","equation"}});
-					auto script = span.append("script",{{"type","math/tex; mode=display"}});
+					auto div = node.append("div",{{"data-equation","true"}});
+					auto script = div.append("script",{{"type","math/tex; mode=display"}});
 					enter(script);
 					push(tex);
 				}
@@ -1254,7 +1254,7 @@ public:
 				}
 			}
 			// Equation paragraph
-			if(name=="p" and node.attr("class")=="equation"){
+			if(name=="div" and node.has("data-equation")){
 				auto script = node.select("script");
 				if(script){
 					auto type = script.attr("type");
