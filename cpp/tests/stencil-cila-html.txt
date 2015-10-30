@@ -419,6 +419,31 @@ ol .class
 --------------------------------------------------
 
 
+Decimal numbers and dashes at start of line don't get listified if no trailing space <>
+--------------------------------------------------
+-foo
+
+1.234
+
+- foo
+
+1. 234
+--------------------------------------------------
+<p>
+	-foo
+</p>
+<p>
+	1.234
+</p>
+<ul>
+	<li>foo</li>
+</ul>
+<ol>
+	<li>234</li>
+</ol>
+--------------------------------------------------
+
+
 Lists with items with attributes don't get shorthanded <>
 --------------------------------------------------
 ol
