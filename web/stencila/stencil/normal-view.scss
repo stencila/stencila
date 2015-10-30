@@ -128,12 +128,12 @@
     color: #BBB;
 }
 
-#content p.equation {
+#content data-equation {
     text-align: center;
 }
 
-#content p.equation script[type^="math/tex"],
-#content p.equation script[type^="math/asciimath"]{
+#content data-equation script[type^="math/tex"],
+#content data-equation script[type^="math/asciimath"]{
     display: block;
 }
 
