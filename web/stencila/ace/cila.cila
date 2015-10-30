@@ -65,9 +65,11 @@
 		
 			- A
 			- B
-			
 		
 	Only applies to start of line, this - and this 1. should not be highlighted.
+	Also must have space after - and . so these should not be highlighted:
+	    -foo
+	    1.234
 	
 > Elements and attributes
 

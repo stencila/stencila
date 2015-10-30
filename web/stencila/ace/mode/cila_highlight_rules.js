@@ -149,13 +149,13 @@ var CilaHighlightRules = function() {
                 next: 'plain',
             },{
                 // Unordered list shortcut
-                token: ['text','entity.other.attribute.cila-ul'],
-                regex: /(^\s*)?(-)/,
+                token: ['text','entity.other.attribute.cila-ul','text'],
+                regex: /(^\s*)?(-)(\s+)/,
                 next: 'plain',
             },{
                 // Ordered list shortcut
-                token: ['text','entity.other.attribute.cila-ol'],
-                regex: /(^\s*)?(\d+\.)/,
+                token: ['text','entity.other.attribute.cila-ol','text'],
+                regex: /(^\s*)?(\d+\.)(\s+)/,
                 next: 'plain',
             },
 
