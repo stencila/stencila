@@ -35,7 +35,6 @@ defaultSchema.addNodes([
   require('../packages/figure/StencilFigure')
 ]);
 
-console.log('defaultSchema', defaultSchema);
 
 // Importer
 // ----------------
@@ -125,6 +124,18 @@ Stencil.Prototype = function() {
     new Importer(this.schema).convert($content, this);
     // sets this.FORCE_TRANSACTIONS = true again
     this.documentDidLoad();
+  };
+
+  this.getTOCNodes = function() {
+    var tocNodes = [];
+    var contentNodes = this.get('body').nodes;
+    contentNodes.forEach(function(nodeId) {
+      var node = this.get(nodeId);
+      if (node.type === "heading") {
+        tocNodes.push(node);
+      }
+    }.bind(this));
+    return tocNodes;
   };
 };
 
