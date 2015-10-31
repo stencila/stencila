@@ -22,6 +22,8 @@ var CONFIG = {
       "paragraph": require('substance/packages/paragraph/ParagraphComponent'),
       "heading": require('substance/packages/heading/HeadingComponent'),
 
+      "stencil-exec": require('./packages/exec/StencilExecComponent'),
+
       // Panels
       "toc": require('substance/ui/TocPanel')
     },

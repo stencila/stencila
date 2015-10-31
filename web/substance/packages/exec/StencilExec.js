@@ -19,7 +19,7 @@ var StencilExec = DocumentNode.extend({
 });
 
 // declare editable components, so that we can enable ContainerEditor features
-StencilExec.static.components = [];
+StencilExec.static.components = ['spec'];
 
 StencilExec.static.blockType = true;
 
