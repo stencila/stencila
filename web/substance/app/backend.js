@@ -39,7 +39,7 @@ Backend.Prototype = function() {
   // ------------------
 
   this.getDocument = function(documentId, cb) {
-    this._request('GET', 'data/kitchensink.html', null, function(err, rawDoc) {
+    this._request('GET', 'data/kitchen-sink/index.html', null, function(err, rawDoc) {
       if (err) { console.error(err); cb(err); }
       var doc = new Stencil();
       doc.loadHtml(rawDoc);

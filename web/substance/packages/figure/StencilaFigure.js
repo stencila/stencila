@@ -57,7 +57,7 @@ Figure.static.toHtml = function(tagName, figure, converter) {
   var id = figure.id;
   var $el = $('<'+tagName+'>')
     .attr('id', id);
-
+    
   var $title = $('<title>')
     .append(converter.annotatedText([id, 'title']));
 

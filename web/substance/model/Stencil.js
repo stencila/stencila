@@ -14,14 +14,6 @@ var DocumentSchema = require('substance/model/DocumentSchema');
 var HtmlImporter = require('substance/model/HtmlImporter');
 var HtmlExporter = require('substance/model/HtmlExporter');
 
-var defaultNodes = [
-  require('substance/packages/paragraph/Paragraph'),
-  require('substance/packages/heading/Heading'),
-  require('substance/packages/emphasis/Emphasis'),
-  require('substance/packages/strong/Strong'),
-  require('substance/packages/link/Link')
-];
-
 // Default Schema
 // ----------------
 
@@ -31,7 +23,18 @@ defaultSchema.getDefaultTextType = function() {
   return "paragraph";
 };
 
-defaultSchema.addNodes(defaultNodes);
+defaultSchema.addNodes([
+  require('substance/packages/paragraph/Paragraph'),
+  require('substance/packages/heading/Heading'),
+  require('substance/packages/emphasis/Emphasis'),
+  require('substance/packages/strong/Strong'),
+  require('substance/packages/link/Link'),
+
+  // Stencil-specific nodes
+  require('../packages/exec/StencilExec')
+]);
+
+console.log('defaultSchema', defaultSchema);
 
 // Importer
 // ----------------
@@ -112,9 +115,13 @@ Stencil.Prototype = function() {
       nodes: []
     });
 
-    console.log('html', html);
     var $root = $(html);
-    new Importer(this.schema).convert($root, this);
+
+    var $content = $root.find('#content');
+    // console.log('contentEl', contentEl);
+
+
+    new Importer(this.schema).convert($content, this);
     // sets this.FORCE_TRANSACTIONS = true again
     this.documentDidLoad();
   };
