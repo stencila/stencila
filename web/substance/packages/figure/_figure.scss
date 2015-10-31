@@ -1,6 +1,13 @@
-.sc-stencil-exec {
-  background: #222;
-  color: rgba(255,255,255,0.9);
-  padding: 20px;
-  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+.sc-stencil-figure {
+  .source {
+    background: #2B303B;
+
+    color: rgba(255,255,255,0.9);
+    padding: 10px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;    
+  }
 }
+
+

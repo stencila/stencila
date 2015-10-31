@@ -20,6 +20,17 @@ StencilFigureComponent.Prototype = function() {
       .addClass('label').attr("contenteditable", false)
       .append(this.props.node.label)
     );
+
+    el.append($$('div')
+      .addClass('source')
+      .append(
+        $$(TextProperty, {
+          tagName: 'div',
+          path: [this.props.node.id, "source"]
+        })
+      )
+    );
+
     el.append($$('div')
       .addClass('figure-content')
       .attr('contenteditable', false)
