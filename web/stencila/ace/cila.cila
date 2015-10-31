@@ -132,8 +132,9 @@
 	exec
 		number = 6*7
 
-	out
-		{img}	    
+    out
+        {img [src=out/scatterplot-scatterplot-of-relation-b-7pWSnz.png] [style=max-width:12cm;max-height:12cm]}
+		
 
 	Language specific `exec` directives highlighted appropriately:
 
@@ -148,6 +149,7 @@
 	r
 		number <- 6*7
 		print(number)
+
 
 	Exec directive arguments; can be in any order
 
@@ -216,7 +218,7 @@
 		
 	On inline elements:
 	
-		{span if x<0 : Negative}{span elif x>0 : Positive}{span else Zero}
+		{span if x<0 Negative}{span elif x>0 Positive}{span else Zero}
 
 	With flags:
 	
