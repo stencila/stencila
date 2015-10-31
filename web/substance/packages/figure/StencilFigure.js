@@ -10,6 +10,7 @@ var StencilFigure = DocumentNode.extend({
     'source': 'string',
     'error': 'string',
     'image': 'string',
+    'label': 'string',
     'caption': 'string'
   }
 });
@@ -52,6 +53,11 @@ StencilFigure.static.fromHtml = function($el, converter) {
   var $caption = $el.find('figcaption,caption');
   if($caption){
     figure.caption = converter.annotatedText($caption, [id, $caption[0].tagName.toLowerCase()]);
+  }
+
+  var $label = $caption.find("[data-label]");
+  if ($label) {
+    figure.label = $label.text();
   }
 
   return figure;
