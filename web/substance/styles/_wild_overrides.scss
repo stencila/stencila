@@ -1,0 +1,245 @@
+/* TODO: The following styles need to be moved into component modules */
+
+/* CSL Styles
+-----------------------------------------------------*/
+
+.csl-entry {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  line-height: 25px;
+  padding: 5px 20px;
+}
+
+.csl-block {
+  padding:0.4em 0px 0.4em 0em;
+}
+
+.csl-left-margin {
+  float: left;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.csl-right-inline {
+  margin-left: 40px;
+}
+
+/* Content Tools
+-----------------------------------------------------*/
+
+
+/* Custom Scrollbar styles
+-----------------------------------------------------*/
+
+.scrollbar-component.comments .highlight {
+  background: #aaa;
+}
+
+.scrollbar-component.cite-bib-item .highlight, .scrollbar-component.bib-items .highlight {
+  background-color: $highlight-color-2;
+}
+
+
+/* Custom Annotation styles
+-----------------------------------------------------*/
+
+.container-annotation.comment.annotation-fragment {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.container-annotation.comment.annotation-fragment.active {
+  background: #aaa;
+}
+
+.annotation.citation {
+  background: rgba(145, 187, 4, 0.15);
+  border-bottom: 1px solid rgba(145, 187, 4, 0.6);
+  color: #495A11;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.annotation.citation:hover {
+  background: rgba(145, 187, 4, 0.2);
+}
+
+.annotation.citation.highlighted {
+  background: $highlight-color-1;
+}
+
+.annotation.bib-item-citation {
+  background: rgba(11, 157, 217, 0.075);
+  color: #1B6685;
+  border-bottom: 1px solid rgba(11, 157, 217, 0.4);
+  cursor: pointer;
+}
+
+.annotation.bib-item-citation:hover {
+  background: rgba(11, 157, 217, 0.15);
+}
+
+.annotation.bib-item-citation.highlighted {
+  background: $highlight-color-2;
+}
+
+
+/* Cite Panel
+-----------------------------------------------------*/
+
+.cite-panel-component .item {
+  cursor: pointer;
+  padding: 20px;
+  border-left: 2px solid transparent;
+
+  &.active { background: white; border-left: 2px solid #444; }
+  &:hover { background: white; }
+}
+
+/* Figure Item */
+
+.cite-panel-component .item.figure {
+
+  &.active { border-left: 2px solid rgba(145, 187, 4, 1); }
+
+  .title {
+    font-weight: 600;
+    padding-bottom: 10px;
+  }
+
+  img {
+    padding-right: 20px;
+    width: 70px;
+    float: left;
+  }
+}
+
+.cite-panel-component .item.bib-item {
+
+  &.active { background: white; border-left: 2px solid rgba(11, 157, 217, 1); }
+
+  .label {
+    padding-right: 5px;
+    float: left;
+    font-weight: 600;
+  }
+}
+
+/* Figures
+-----------------------------------------------------*/
+
+.figure img {
+  max-width: 100%;
+}
+
+/* Figure Node
+-----------------------------------------------------*/
+
+.content-node.figure {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+
+
+  .label {
+    color: #777;
+    padding-bottom: 10px;
+  }
+
+  .title {
+    font-size: 20px;
+    padding-bottom: 20px;
+    // font-weight: 600;
+  }
+
+  .description {
+    padding-top: 20px;
+    line-height: 20px;
+  }
+
+  .image {
+    padding-bottom: 20px;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+/* Custom Annotation styles
+-----------------------------------------------------*/
+
+/* Manage BibItem Component
+-----------------------------------------------------*/
+
+.manage-bib-items-panel {
+  .panel-content {
+    top: 40px;
+  }
+}
+
+/* Manage Collection Component
+-----------------------------------------------------*/
+
+.manage-collection-component {
+  background: green;
+}
+
+.manage-collection-component .content-node.figure.image_figure {
+
+  .figure-content {
+    float: left;
+    width: 40%;
+  }
+
+  .label,
+  .title,
+  .description {
+    padding-left: 30px;
+    float: right;
+    width: 60%;
+  }
+}
+
+/* Bibliography in manuscript area
+-----------------------------------------------------*/
+
+.bibliography-component {
+  cursor: not-allowed;
+}
+
+.bibliography-component .bib-item {
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+/* Document Cover
+-----------------------------------------------------*/
+
+.content-panel-component .document-cover {
+  margin-bottom: 30px;
+
+  .title {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: $heading-letterspacing;
+    line-height: 40px;
+  }
+
+  .abstract {
+    padding-top: 15px;
+    // color: #666;
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .authors {
+    font-size: 20px;
+    padding: 30px 0px;
+
+    .author {
+      display: block;
+      float: left;
+      margin-right: 20px;
+    }
+  }
+}

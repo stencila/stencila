@@ -1,0 +1,5 @@
+@import '_lens';
+
+.lc-writer {
+  @extend %lens;
+}

@@ -1,0 +1,45 @@
+// Lens styles
+// -------------------
+
+@import '../styles/stencil-writer';
+@import '../styles/stencil-reader';
+
+/* Integration styles */
+body,html {
+  overflow: hidden;
+}
+
+.menu {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 40px;
+  background: #5c6570;
+  
+  button {
+    color: rgba(255,255,255,0.6);
+    display: block;
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    padding: 0px 20px;
+
+    &.active {
+      background: rgba(0,0,0,0.1);
+      color: rgba(255,255,255,1);
+    }
+
+    &:hover {
+      color: rgba(255,255,255,1);
+    }
+  }
+}
+
+.context {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  top: 40px;
+}
