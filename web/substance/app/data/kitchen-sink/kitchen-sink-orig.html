@@ -1,0 +1,112 @@
+<h1>Heading 1</h1>
+
+<!-- 
+{
+  id: 'heading-jUayH'
+  type: 'heading',
+  level: 1,
+  content: 'Heading 1'
+}
+ -->
+
+<pre id="exec1", data-exec="r">
+x = 1
+</pre>
+
+<!-- 
+{
+  id: 
+  type: 'exec-directive',
+  source: 'x = 1',
+  errorMessage: ''
+}
+ -->
+
+<p id="p1">
+A paragraph <span data-start="yfhgey65" /> with rendered <span
+data-end="yfhgey65" /> text: <span data-text="x+1">2</span>. Here's an
+inline equation <script type="math/asciimath">e=mc^2</script>.
+<p>
+
+<!-- 
+{
+  id: 'p1'
+  type: 'paragraph',
+  level: 1,
+  content: 'A paragraph with rendered text: x+1. Here's an
+inline equation e=mc^2'
+}
+
+{
+  id:'comment'
+  type: 'comment',
+  startPath: ['p1', 'content'],
+  endPath: ['p1', 'content'],
+  startOffset: 5
+  endOffset: 10
+  value: '2'
+}
+
+{
+  id:'td1'
+  type: 'text-directive',
+  path: ['p1', 'content'],
+  startOffset: 12
+  endOffset: 15
+  value: '2',
+  errorMessage: 'x is undefined.'
+}
+
+{
+  id:'md1'
+  type: 'math-directive',
+  path: ['p1', 'content'],
+  startOffset: 20,
+  startOffset: 26
+}
+ -->
+
+<div data-equa="true">
+<script type="math/asciimath">e=mc^2</script>
+</div>
+
+<figure>
+<pre data-exec="r format png size 10x10cm">
+plot(x,x)
+</pre>
+<div data-out="true">
+<img src="hfehu.png">
+</div>
+<figcaption>Caption</figcaption>
+</figure>
+
+<!--
+{
+  id:'figure1'
+  type: 'stencila-figure',
+  lang: 'r',
+  format: 'png',
+  size: '10x10cm',
+  source: 'plot(x,x)',
+  imageSrc: 'hfehu.png',
+  caption: 'Caption',
+}
+-->
+
+<div id="yfhgey65" data-comment="@nokome at 2015-06-08T13:33:15">
+  Coming up with examples is harder that you would think!
+</div>
+
+<!--
+{
+  id:'yfhgey65'
+  type: 'comment',
+  content: 'Coming up with examples is harder that you would think!',
+  author: '@nokome',
+  createdAt: '2015-06-08T13:33:15'
+}
+ -->
+
+<div data-reply="@matt at 2015-06-08T18:35:22" data-comment-id="comment1">
+Yeah, I reckon.
+</div>

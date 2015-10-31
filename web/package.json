@@ -14,7 +14,13 @@
   "dependencies": {
     "jquery": "^2.1.4",
     "jquery.hotkeys": "git://github.com/jeresig/jquery.hotkeys.git#457690b",
-    "node-normalize-scss": "^1.0.3"
+    "node-normalize-scss": "^1.0.3",
+    "body-parser": "^1.12.4",
+    "cheerio": "^0.19.0",
+    "express": "*",
+    "lodash": "3.3.1",
+    "node-sass": "3.x",
+    "substance": "substance/substance#master"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
@@ -29,7 +35,8 @@
     "gulp-util": "^3.0.6",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.4.0"
+    "watchify": "^3.4.0",
+    "through2": "^2.0.0"
   },
   "browser": {
     "jquery.hotkeys": "./node_modules/jquery.hotkeys/jquery.hotkeys.js"
