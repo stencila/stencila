@@ -41,6 +41,9 @@ const std::vector<std::string> Stencil::directives = {
 	"data-click",
 	"data-call",
 
+	// Range selection
+	"data-begin","data-end",
+
 	// Comments
 	"data-comments","data-comment"
 };

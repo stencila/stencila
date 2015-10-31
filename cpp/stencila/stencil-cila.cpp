@@ -503,6 +503,8 @@ public:
 			directive_par("\\bpar\\s+([\\w]+)(\\s+type\\s+([\\w]+))?(\\s+value\\s+([^\\s}]+))?"),
 			// `when` directive
 			directive_when("\\bwhen\\s+([^\\s}]+)(\\s+then\\s+([\\w]+))?"),
+			// Range selection directives `begin`, `end`
+			directive_range("\\b(begin|end) +(\\d+)"),
 			// `comments` directive
 			directive_comments("\\bcomments\\b( +([\\#\\.\\w-]+))?"),
 			// `comment` directive
@@ -813,6 +815,14 @@ public:
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " then " + match[3].str();
 					node.attr("data-when",args);
+				}
+				else if(is(directive_range)){
+					trace("directive_range");
+
+					enter_elem_if_needed("span");
+					auto type = match[1].str();
+					auto id = match[2].str();
+					node.attr("data-"+type,string(id));
 				}
 				else if(is(directive_comments)){
 					trace("directive_comments");
@@ -1347,6 +1357,17 @@ public:
 				// Fresh line
 				newline(indent);
 			}
+
+			// Default element type depends on directive
+			auto default_tag = [](Node node) -> std::string {
+				if(
+					node.has("data-text") or 
+					node.has("data-refer") or 
+					node.has("data-begin") or
+					node.has("data-end")
+				) return "span";
+				else return "div";
+			};
 			
 			// Execute directives
 			if(node.has("data-exec")){
@@ -1397,15 +1418,15 @@ public:
 				for(auto attr : attribute_list){
 					if(Stencil::flag(attr)) flags++;
 				}
-				if(attributes==0 or flags==attributes or node.has("data-text") or node.has("data-refer")){
-					content(name);
+				if(attributes==0 or flags==attributes or default_tag(node)!="div"){
+					content("div");
 					space_required = true;
 				}
 			}
-			// <span>s don't need to specified if a `text` or `refer` directive
+			// <span>s don't need to specified for some directives
 			else if(name=="span"){
-				if(not (node.has("data-text") or node.has("data-refer"))){
-					content(name);
+				if(default_tag(node)!="span"){
+					content("span");
 					space_required = true;
 				}
 			}

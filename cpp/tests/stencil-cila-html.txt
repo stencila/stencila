@@ -999,6 +999,26 @@ call myfunc
 --------------------------------------------------
 
 
+`begin` & `end` directives <>
+--------------------------------------------------
+Some {begin 1}text{end 1} to be marked
+
+Can {begin 2} be {begin 3}overlapping{end 2} {end 3}
+
+Can {begin 4} be {begin 5} nested {end 4} {end 5}
+--------------------------------------------------
+<p>
+	Some <span data-begin="1"></span>text<span data-end="1"></span> to be marked
+</p>
+<p>
+	Can <span data-begin="2"></span> be <span data-begin="3"></span>overlapping<span data-end="2"></span> <span data-end="3"></span>
+</p>
+<p>
+	Can <span data-begin="4"></span> be <span data-begin="5"></span> nested <span data-end="4"></span> <span data-end="5"></span>
+</p>
+--------------------------------------------------
+
+
 `comments` directive <>
 --------------------------------------------------
 comments

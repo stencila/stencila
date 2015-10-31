@@ -266,6 +266,10 @@ var CilaHighlightRules = function() {
                         'keyword','text','support.function'],
                 regex: /\b(par)(\s+)([\w]+)(?:(\s+)(type)(\s+)([\w]+))?(?:(\s+)(value)(\s+)([^\s}]+))?/
             },{
+                // `begin` and `end` directives
+                token: ['keyword','text','variable.parameter'],
+                regex: /\b(begin|end)( +)(\d+)/
+            },{
                 // `comments` directive
                 token: ['keyword','text','variable.parameter'],
                 regex: /(\bcomments)(?:(\s+)([\#\.\w\-]+))?/
@@ -352,6 +356,12 @@ var CilaHighlightRules = function() {
                 token: 'string',
                 regex: /\bhttp(s)?:\/\/[^\s]+\b/
             },{
+                // Begin & end markers
+                token: 'comment.cila-begin-end',
+                regex: /(\[[\w-]+\]\>)|(\<\[[\w-]+\])/
+            },
+            
+            {
                 // Enter "empha" state
                 token: 'comment.cila-mark',
                 regex: /_/,

@@ -323,9 +323,9 @@
 		comment Arthur Dent at 2015-06-08T18:35:22
 			Another one
 
-	Comments can specifying the `on` argument:
+	Comments can be linked to {begin 1} ranges of content {end 1} like this:
 	
-	comments #target-of-comment
+	comments 1
 		comment @anon at 2015-06-08T20:34:45
 			A comment
 
