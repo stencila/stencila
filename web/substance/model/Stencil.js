@@ -31,7 +31,8 @@ defaultSchema.addNodes([
   require('substance/packages/link/Link'),
 
   // Stencil-specific nodes
-  require('../packages/exec/StencilExec')
+  require('../packages/exec/StencilExec'),
+  require('../packages/figure/StencilFigure')
 ]);
 
 console.log('defaultSchema', defaultSchema);
