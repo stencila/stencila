@@ -71,7 +71,7 @@
 		{
 			"folder_exclude_patterns":
 			[
-				"build"
+				"build","web/node_modules","web/other_modules","web/semantic"
 			],
 			"path": "."
 		},
