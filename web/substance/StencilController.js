@@ -123,6 +123,31 @@ LensController.Prototype = function() {
     }
   };
 
+
+  // Hande Writer state change updates
+  // --------------
+  //
+  // Here we update highlights
+
+  this.handleStateUpdate = function(newState) {
+    // var oldState = this.state;
+    var doc = this.getDocument();
+
+    function getActiveNodes(state) {
+      if (state.contextId === 'editSource') { 
+        return [ state.nodeId ];
+      }
+      return [];
+    }
+
+    var activeAnnos = getActiveNodes(newState);
+    // HACK: updates the highlights when state
+    // transition has finished
+    setTimeout(function() {
+      doc.setHighlights(activeAnnos);  
+    }, 0);
+  };
+
 };
 
 oo.inherit(LensController, Controller);

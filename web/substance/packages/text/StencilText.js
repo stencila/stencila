@@ -1,4 +1,3 @@
-
 var $ = require('substance/util/jquery');
 var Annotation = require('substance/model/Annotation');
 
@@ -13,6 +12,7 @@ var StencilText = Annotation.extend({
 });
 
 StencilText.static.components = [];
+StencilText.static.external = true;
 
 StencilText.static.matchElement = function($el) {
   return $el.attr('data-text');
@@ -27,7 +27,7 @@ StencilText.static.fromHtml = function($el, converter) {
     error: $el.attr('data-error'),
     output: $el.text()
   };
-  converter.customText(source);
+
   return node;
 };
 

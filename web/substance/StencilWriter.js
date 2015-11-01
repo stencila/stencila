@@ -9,6 +9,7 @@ var Toolbar = require('substance/ui/Toolbar');
 var WriterTools = require('./packages/writer/WriterTools');
 var ContainerEditor = require('substance/ui/ContainerEditor');
 var Component = require('substance/ui/Component');
+var docHelpers = require('substance/model/documentHelpers');
 var $$ = Component.$$;
 
 var CONFIG = {
@@ -24,11 +25,14 @@ var CONFIG = {
 
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
+
+      'stencil-text': require('./packages/text/StencilTextComponent'),
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
-      "toc": require('substance/ui/TocPanel')
-    },
+      'toc': require('substance/ui/TocPanel'),
+      'editSource': require('./packages/writer/EditSourcePanel')
+    }
   },
   body: {
     commands: [
@@ -64,6 +68,40 @@ StencilWriter.Prototype = function() {
     config: CONFIG
   };
 
+  this.onSelectionChanged = function(sel, surface) {
+    var config = this.getConfig();
+
+    function getActiveAnno(type) {
+      return docHelpers.getAnnotationsForSelection(doc, sel, type, config.containerId)[0];
+    }
+
+    if (surface.name !== config.containerId) return;
+    if (sel.isNull() || !sel.isPropertySelection()) {
+      return;
+    }
+    if (sel.equals(this.prevSelection)) {
+      return;
+    }
+    this.prevSelection = sel;
+    var doc = surface.getDocument();
+
+    // Annotation
+    var stencilText = getActiveAnno('stencil-text');
+    if (stencilText && stencilText.getSelection().equals(sel)) {
+      // Trigger state change
+      this.setState({
+        contextId: 'editSource',
+        nodeId: stencilText.id
+      });
+    } else {
+      if (this.state.contextId !== 'toc') {
+        this.setState({
+          contextId: "toc"
+        });
+      }
+    }
+  };
+
   this.render = function() {
     var doc = this.props.doc;
     var config = this.getConfig();
@@ -90,7 +128,7 @@ StencilWriter.Prototype = function() {
         ),
         // Resource (right column)
         $$('div').ref('resource')
-          .addClass("le-resource")
+          .addClass('le-resource')
           .append(
             $$(ContextToggles, {
               panelOrder: config.panelOrder,
@@ -107,7 +145,6 @@ StencilWriter.Prototype = function() {
     );
     return el;
   };
-
 };
 
 oo.inherit(StencilWriter, StencilController);
