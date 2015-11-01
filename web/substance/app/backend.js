@@ -38,18 +38,20 @@ Backend.Prototype = function() {
   // Document
   // ------------------
 
+  // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content
   this.getDocument = function(documentId, cb) {
     this._request('GET', 'data/kitchen-sink/index.html', null, function(err, rawDoc) {
       if (err) { console.error(err); cb(err); }
       var doc = new Stencil();
       doc.loadHtml(rawDoc);
+      doc.id = documentId;
       window.doc = doc;
       cb(null, doc);
     });
   };
 
   this.saveDocument = function(doc, cb) {
-    cb('Not supported in dev version');
+    cb('Not supported in dev version'y);
   };
 
   // Figure related

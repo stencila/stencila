@@ -24,6 +24,7 @@ var CONFIG = {
 
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
+      'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
       "toc": require('substance/ui/TocPanel')

@@ -15,6 +15,10 @@ var StencilFigure = DocumentNode.extend({
   }
 });
 
+StencilFigure.static.generatedProps = [
+  'image', 'error', 'label', 'index'
+];
+
 StencilFigure.static.components = ['caption'];
 
 StencilFigure.static.blockType = true;
