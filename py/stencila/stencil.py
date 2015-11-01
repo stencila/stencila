@@ -4,8 +4,11 @@ from stencila.context import Context
 
 class Stencil(extension.Stencil):
 
-    def __init__(self,string=""):
-        super(Stencil, self).__init__(string)
+    def __init__(self, initialiser=None):
+        if initialiser is not None:
+            super(Stencil, self).__init__(initialiser)
+        else:
+            super(Stencil, self).__init__()
 
         self.attach()
 
