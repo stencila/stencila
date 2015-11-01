@@ -1,14 +1,14 @@
 Package: stencila
 Type: Package
-Title: Tools for working with data
 Version: %(inserted by Makefile)%
 Date: %(inserted by Makefile)%
+Title: Documents powered by data
 Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/master/AUTHORS
-Maintainer: Nokome Bentley <nokome.bentley@stenci.la>
-Description: A package for doing stuff with data
+Maintainer: Nokome Bentley <nokome@stenci.la>
+Description: Code stuff in R, write stuff in markup or in the browser,... commit, share, publish. Repeat.
 License: BSD_3_clause + file LICENSE
 Depends:
-    Rcpp (>= 0.11.2),
+    Rcpp (>= 0.12.1),
     methods
 LinkingTo: Rcpp
 Collate:
