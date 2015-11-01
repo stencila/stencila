@@ -2,8 +2,9 @@
 
 #include <boost/filesystem.hpp>
 
-#include <stencila/stencil.hpp>
 #include <stencila/component-page.hpp>
+#include <stencila/json.hpp>
+#include <stencila/stencil.hpp>
 
 namespace Stencila {
 
@@ -52,7 +53,35 @@ std::string Stencil::request(Component* component,const std::string& verb,const 
 }
 
 std::string Stencil::request(const std::string& verb,const std::string& method,const std::string& body){
-	return "Stencil::request:"+verb+","+method+","+body;
+	Json::Document request;
+	if(verb!="GET"){
+		request.load(body);
+	}
+	Json::Document response = Json::Object();
+	
+	if(method=="content" and verb=="GET"){
+		response.append("format","html");
+		response.append("content",html());
+	}
+	else if(method=="render" and verb=="PUT"){
+		auto format = request["format"].as<std::string>();
+		auto content = request["content"].as<std::string>();
+
+		html(content).render();
+
+		response.append("format","html");
+		response.append("content",html());
+	}
+	else if(method=="save" and verb=="PUT"){
+		auto format = request["format"].as<std::string>();
+		auto content = request["content"].as<std::string>();
+
+		html(content).write();
+	}
+	else {
+		return "400";
+	}
+	return response.dump();
 }
 
 std::string Stencil::interact(const std::string& code){

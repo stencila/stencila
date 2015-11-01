@@ -155,15 +155,14 @@ void Server::http_(connection_hdl hdl) {
 		else {
 			// Resolve amongst the following requests 
 			// 	- GET a page for a component
-			// 	- GET, PUT or PATCH a component method - ends in a "!"
+			// 	- GET, PUT or PATCH a component method - contains a "@"
 			// 	- GET a static file - contains a "."
 			std::string address;
 			std::string method;
-			if(path.back()=='!'){
-				auto sep = path.rfind('/');
-				address = path.substr(0,sep);
-				method = path.substr(sep+1);
-				method.pop_back();
+			auto at = path.rfind('@');
+			if(at!=std::string::npos){
+				address = path.substr(0,at);
+				method = path.substr(at+1);
 			}
 			else {
 				if(path.back()=='/') address = path.substr(0,path.length()-1);
