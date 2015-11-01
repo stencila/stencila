@@ -58,6 +58,9 @@ App.Prototype = function() {
           onSave: function(doc, changes, cb) {
             // console.log('custom save handler in action...', doc.toHtml());
             _this.backend.saveDocument(doc, cb);
+          },
+          onRender: function(doc, cb) {
+            _this.backend.renderDocument(doc, cb);
           }
         }).ref('writer');
       } else {

@@ -1,34 +1,23 @@
-<!DOCTYPE html>
-<html>
-	<head>
-	</head>
-	<body>
-		<main id="main">
-			<div id="content">
-				<h1>Pearson product-moment correlation coefficient</h1>
-				<p>The Pearson product-moment correlation coefficient (sometimes referred to as the PPMCC or PCC or Pearson's r) is a measure of the linear correlation (dependence) between two variables X and Y, giving a value between +1 and −1 inclusive, where 1 is total positive correlation, 0 is no correlation, and −1 is begin 1</p>
-				<p>total negativeend 1 correlation. It is widely used in the sciences as a measure of the degree of linear dependence between two variables. It was developed by Karl Pearson from a related idea introduced by Francis Galton in the 1880s.</p>
-				<!--<p>
-					Pearson's correlation coefficient when applied to a population is commonly represented by the Greek letter <script type="math/asciimath">rho</script> (rho) and may be referred to as the population correlation coefficient or the population Pearson correlation coefficient. The formula for <script type="math/asciimath">rho</script> is:
-				</p>-->
-				<div data-equation="true"><script type="math/tex; mode=display">\rho_{X,Y}= \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y}</script></div>
+<h1>Pearson product-moment correlation coefficient</h1>
+<p>The Pearson product-moment correlation coefficient (sometimes referred to as the PPMCC or PCC or Pearson's r) is a measure of the linear correlation (dependence) between two variables X and Y, giving a value between +1 and −1 inclusive, where 1 is total positive correlation, 0 is no correlation, and −1 is begin 1</p>
+<p>total negativeend 1 correlation. It is widely used in the sciences as a measure of the degree of linear dependence between two variables. It was developed by Karl Pearson from a related idea introduced by Francis Galton in the 1880s.</p>
+<!--<p>
+	Pearson's correlation coefficient when applied to a population is commonly represented by the Greek letter <script type="math/asciimath">rho</script> (rho) and may be referred to as the population correlation coefficient or the population Pearson correlation coefficient. The formula for <script type="math/asciimath">rho</script> is:
+</p>-->
+<div data-equation="true"><script type="math/tex; mode=display">\rho_{X,Y}= \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y}</script></div>
 
-				<pre data-exec="r" data-hash="sA8DFs8">x &lt;- runif(100)
+<pre data-exec="r" data-hash="sA8DFs8">x &lt;- runif(100)
 y &lt;- runif(100)
 r &lt;- cor(x,y)
 r.test &lt;- cor.test(x,y)</pre>
-				<p>The Pearson's <script type="math/asciimath">rho</script> for <code>x</code> and <code>y</code> (two random variables, <span data-refer="#scatterplot"><a href="#scatterplot">Figure 1</a></span>) is <span data-text="round(r,2)" data-error="exception: object 'r' not found">-0.02</span> with a confidence interval of <span data-text="round(r.test$conf.int,3)" data-error="exception: object 'r.test' not found">-0.213, 0.18</span>.</p>
+<p>The Pearson's <script type="math/asciimath">rho</script> for <code>x</code> and <code>y</code> (two random variables, <span data-refer="#scatterplot"><a href="#scatterplot">Figure 1</a></span>) is <span data-text="round(r,2)" data-error="exception: object 'r' not found">-0.02</span> with a confidence interval of <span data-text="round(r.test$conf.int,3)" data-error="exception: object 'r.test' not found">-0.213, 0.18</span>.</p>
 
-				<figure id="scatterplot" data-index="1">
-					<pre data-exec="r format png size 12x12cm" data-hash="7pWSnz">par(mar=c(5,5,1,1))
+<figure id="scatterplot" data-index="1">
+	<pre data-exec="r format png size 12x12cm" data-hash="7pWSnz">par(mar=c(5,5,1,1))
 plot(x,y,pch=16,col=hsv(0,0,0,0.3),cex=1,xlab="X",ylab="Y",las=1)
 legend('topleft',legend=paste('r:',round(r,2)),bty='n')</pre>
-					<div data-out="true">
-						<img src="out/scatterplot-scatterplot-of-relation-b-7pWSnz.png" style="max-width:12cm;max-height:12cm">
-					</div>
-					<figcaption><span data-label="figure-1">Figure 1</span>Scatterplot of relation between X and Y</figcaption>
-				</figure>
-			</div>
-		</main>
-	</body>
-</html>
+	<div data-out="true">
+		<img src="out/scatterplot-scatterplot-of-relation-b-7pWSnz.png" style="max-width:12cm;max-height:12cm">
+	</div>
+	<figcaption><span data-label="figure-1">Figure 1</span>Scatterplot of relation between X and Y</figcaption>
+</figure>
