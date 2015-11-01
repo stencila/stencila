@@ -111,12 +111,6 @@ private:
 	static std::string path_(server::connection_ptr connection);
 
 	/**
-	 * Convert a URL path to a Component address by 
-	 * removing any leading or trailing forward slashes
-	 */
-	static std::string address_(const std::string& path);
-
-	/**
 	 * Open a connection
 	 * 
 	 * @param connection Connection handle

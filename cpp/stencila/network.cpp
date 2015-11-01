@@ -153,7 +153,6 @@ void Server::http_(connection_hdl hdl) {
 			content = Component::extras();
 		}
 		else if(method=="OPTIONS"){
-			//
 			connection->append_header("Access-Control-Allow-Origin","*");
 			connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
 			connection->append_header("Access-Control-Max-Age","1728000");

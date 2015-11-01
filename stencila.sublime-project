@@ -77,6 +77,9 @@
 		},
 		{
 			"path": "/home/nokome/.stencila"
+		},
+		{
+			"path": "web/node_modules/substance"
 		}
 	],
 	"settings":

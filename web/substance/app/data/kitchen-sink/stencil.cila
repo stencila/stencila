@@ -14,7 +14,7 @@ r &sA8DFs8
 	r <- cor(x,y)
 	r.test <- cor.test(x,y)
 
-The Pearson's |rho| for `x` and `y` (two random variables, {refer #scatterplot [Figure 1](#scatterplot)}) is {text round(r,2) -0.02} with a confidence interval of {text round(r.test$conf.int,3) -0.213, 0.18}.
+The Pearson's |rho| for `x` and `y` (two random variables, {refer #scatterplot [Figure 1](#scatterplot)} ) is {text round(r,2) -0.02} with a confidence interval of {text round(r.test$conf.int,3) -0.213, 0.18}.
 
 figure #scatterplot ^1
 
