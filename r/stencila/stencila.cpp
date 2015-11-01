@@ -20,13 +20,9 @@ STENCILA_R_FUNC Stencila_startup(void){
 	Stencila_R_CStackLimit();
 	#endif
 
+	// Initialise classes
 	Component::classes();
-
-	Component::class_(Component::RContextType, Component::Class(
-		"RContext",
-		RContext::page,
-		RContext::call
-	));
+	RContext::class_init();
 
 	return null;
 }
