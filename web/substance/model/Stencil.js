@@ -32,7 +32,8 @@ defaultSchema.addNodes([
 
   // Stencil-specific nodes
   require('../packages/exec/StencilExec'),
-  require('../packages/figure/StencilFigure')
+  require('../packages/figure/StencilFigure'),
+  require('../packages/text/StencilText')
 ]);
 
 

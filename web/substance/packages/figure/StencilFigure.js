@@ -52,7 +52,7 @@ StencilFigure.static.fromHtml = function($el, converter) {
 
   var $caption = $el.find('figcaption,caption');
   if($caption){
-    figure.caption = converter.annotatedText($caption, [id, $caption[0].tagName.toLowerCase()]);
+    figure.caption = converter.annotatedText($caption, [id, 'caption']);
   }
 
   var $label = $caption.find("[data-label]");
