@@ -23,7 +23,7 @@ Server::Server(void){
 	//   http://www.zaphoyd.com/websocketpp/manual/reference/logging
 	// for a full list
 	server_.clear_access_channels(websocketpp::log::alevel::all);
-	server_.set_access_channels(websocketpp::log::alevel::connect);
+	server_.set_access_channels(websocketpp::log::alevel::all);
 	server_.clear_error_channels(websocketpp::log::elevel::all);
 	server_.set_error_channels(websocketpp::log::elevel::warn);
 	server_.set_error_channels(websocketpp::log::elevel::rerror);
@@ -143,7 +143,7 @@ void Server::http_(connection_hdl hdl) {
 	http::status_code::value status = http::status_code::ok;
 	std::string content;
 	try {
-		// Path routing
+		// Routing
 		if(path==""){
 			// Index page
 			content = Component::index();
@@ -151,6 +151,12 @@ void Server::http_(connection_hdl hdl) {
 		else if(path=="extras"){
 			// Extra content for component pages
 			content = Component::extras();
+		}
+		else if(method=="OPTIONS"){
+			//
+			connection->append_header("Access-Control-Allow-Origin","*");
+			connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+			connection->append_header("Access-Control-Max-Age","1728000");
 		}
 		else {
 			// Resolve amongst the following requests 
