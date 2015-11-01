@@ -37,7 +37,7 @@ void def_Component(void){
             Component_path_get_overloads(
                 arg("ensure")=false,
                 "Get the component's working directory"
-            )[return_self<>()]
+            )
         )
         .def("path",
             static_cast<Component& (Component::*)(const std::string&)>(&Component::path),
