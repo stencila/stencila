@@ -47,7 +47,7 @@ StencilExec.static.fromHtml = function($el, converter) {
 
 // HtmlExporter
 
-StencilExec.static.toHtml = function(tagName, exec) {
+StencilExec.static.toHtml = function(exec) {
   var id = exec.id;
   var $el = $('<pre>')
     .attr('id', id)

@@ -30,6 +30,7 @@ App.Prototype = function() {
 
   this.render = function() {
     var el = $$('div').addClass('app');
+    var _this = this;
 
     el.append(
       $$('div').addClass('menu').append(
@@ -55,8 +56,8 @@ App.Prototype = function() {
             cb(null, fileUrl);  
           },
           onSave: function(doc, changes, cb) {
-            console.log('custom save handler in action...', doc.toHtml());
-            cb(null);
+            // console.log('custom save handler in action...', doc.toHtml());
+            _this.backend.saveDocument(doc, cb);
           }
         }).ref('writer');
       } else {

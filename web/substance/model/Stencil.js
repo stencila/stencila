@@ -14,10 +14,13 @@ var DocumentSchema = require('substance/model/DocumentSchema');
 var HtmlImporter = require('substance/model/HtmlImporter');
 var HtmlExporter = require('substance/model/HtmlExporter');
 
+var StencilDefaultNode = require('../packages/default/StencilDefaultNode');
+
 // Default Schema
 // ----------------
 
 var defaultSchema = new DocumentSchema("stencil", "0.1.0");
+
 
 defaultSchema.getDefaultTextType = function() {
   return "paragraph";
@@ -33,8 +36,11 @@ defaultSchema.addNodes([
   // Stencil-specific nodes
   require('../packages/exec/StencilExec'),
   require('../packages/figure/StencilFigure'),
-  require('../packages/text/StencilText')
+  require('../packages/text/StencilText'),
+  StencilDefaultNode
 ]);
+
+
 
 
 // Importer
@@ -49,6 +55,13 @@ Importer.Prototype = function() {
     this.initialize(doc, $rootEl);
     this.convertContainer($rootEl, 'body');
     this.finish();
+  };
+
+  this.defaultConverter = function($el, converter) {
+    /* jshint unused:false */
+    var node = StencilDefaultNode.static.fromHtml($el, converter);
+    node.type = 'stencil-default-node';
+    return node;
   };
 };
 
