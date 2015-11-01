@@ -115,16 +115,12 @@ std::string Server::path_(server::connection_ptr connection){
     return path;
 }
 
-std::string Server::address_(const std::string& path) {
-	std::string address = path;
-	if(address[address.length()-1]=='/') address = address.substr(0,address.length()-1);
-	return address;
-}
-
 void Server::open_(connection_hdl hdl) {
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
 	auto path = path_(connection);
-	auto address = address_(path);
+	std::string address;
+	if(path.back()=='/') address = path.substr(0,path.length()-1);
+	else address = path;
 	Session session = {address};
 	sessions_[hdl] = session;
 }
@@ -138,32 +134,44 @@ void Server::http_(connection_hdl hdl) {
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
 	// Get the request path and corresponding Stencila address
 	std::string path = path_(connection);
-	std::string address = address_(path);
-	// Get request method
+	// Get request verb (i.e. method)
 	auto request = connection->get_request();
-	std::string method = request.get_method();
+	std::string verb = request.get_method();
 	// Get the remote address
 	std::string remote = connection->get_remote_endpoint();
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
 	std::string content;
 	try {
+		// Path routing
 		if(path==""){
+			// Index page
 			content = Component::index();
 		} 
 		else if(path=="extras"){
+			// Extra content for component pages
 			content = Component::extras();
 		}
 		else {
-			// This server handles two types of requents for Components:
-			// (1) "Dynamic" requests where the component is loaded into
-			// memory (if not already) and (2) Static requests for component
-			// files
-			// Static requests are indicated by a "." anywhere in the url
-			bool dynamic = path.find(".")==std::string::npos;
-			if(dynamic){
-				// Dynamic request
-				// 
+			// Resolve amongst the following requests 
+			// 	- GET a page for a component
+			// 	- GET, PUT or PATCH a component method - ends in a "!"
+			// 	- GET a static file - contains a "."
+			std::string address;
+			std::string method;
+			if(path.back()=='!'){
+				auto sep = path.rfind('/');
+				address = path.substr(0,sep);
+				method = path.substr(sep+1);
+				method.pop_back();
+			}
+			else {
+				if(path.back()=='/') address = path.substr(0,path.length()-1);
+				else address = path;
+			}
+			bool file = path.find(".")!=std::string::npos;
+			if(not (method.length() or file)){
+				// Component interface request
 				// Components must be served with a trailing slash so that relative links work.
 				// For example, if a stencil with address "a/b/c" is served with the url "/a/b/c/"
 				// then a relative link within that stencil to an image "1.png" will resolved to "/a/b/c/1.png" (which
@@ -177,11 +185,16 @@ void Server::http_(connection_hdl hdl) {
 					auto uri = url()+"/"+path+"/";
 					connection->append_header("Location",uri);
 				}
-				// Provide the page content
 				else {
 					content = Component::page(address);
 				}
-			} else {
+			}
+			else if(method.length()){
+				// Component method request
+				std::string body = connection->get_request_body();
+				content = Component::request_dispatch(address,verb,method,body);
+			}
+			else if(file){
 				// Static file request
 				std::string filesystem_path = Component::locate(address);
 				if(filesystem_path.length()==0){
@@ -226,6 +239,9 @@ void Server::http_(connection_hdl hdl) {
 						}
 					}
 				}
+			}
+			else{
+				status = http::status_code::bad_request;
 			}
 		}
 	}
