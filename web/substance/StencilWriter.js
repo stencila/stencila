@@ -25,7 +25,6 @@ var CONFIG = {
 
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
-
       'stencil-text': require('./packages/text/StencilTextComponent'),
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 

@@ -1,15 +1,15 @@
 
 var $ = require('substance/util/jquery');
-var DocumentNode = require('substance/model/DocumentNode');
+var StencilNode = require('../../model/StencilNode');
 
 // Abstract interface
 // There are ImageFigures, TableFigures, VideoFigures
- 
+
 // <pre id="exec1", data-exec="r">
 // x = 1
 // </pre>
 
-var StencilExec = DocumentNode.extend({
+var StencilExec = StencilNode.extend({
   name: "stencil-exec",
   properties: {
     "source": "string",
@@ -20,6 +20,8 @@ var StencilExec = DocumentNode.extend({
 
 // declare editable components, so that we can enable ContainerEditor features
 StencilExec.static.components = ['spec'];
+
+StencilExec.static.generatedProps = ['error'];
 
 StencilExec.static.blockType = true;
 
