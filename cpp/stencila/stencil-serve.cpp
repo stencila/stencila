@@ -47,6 +47,14 @@ std::string Stencil::page(void) const {
 	return doc.dump();
 }
 
+std::string Stencil::request(Component* component,const std::string& verb,const std::string& method,const std::string& body){
+	return static_cast<Stencil&>(*component).request(verb, method, body);
+}
+
+std::string Stencil::request(const std::string& verb,const std::string& method,const std::string& body){
+	return "Stencil::request:"+verb+","+method+","+body;
+}
+
 std::string Stencil::interact(const std::string& code){
 	if(context_){
 		// Switch to stencil's directory

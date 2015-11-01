@@ -891,6 +891,34 @@ public:
 	std::string page(void) const;
 
 	/**
+	 * Respond to a web request to a stencil
+	 *
+	 * @param  component  A pointer to a stencil
+	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
+	 * @param  method     Name of method requested
+	 * @param  body       Request body (usually JSON)
+	 */
+	static std::string request(
+		Component* component,
+		const std::string& verb,
+		const std::string& method,
+		const std::string& body
+	);
+
+	/**
+	 * Respond to a web request to this stencil
+	 *
+	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
+	 * @param  method     Name of method requested
+	 * @param  body       Request body (usually JSON)
+	 */
+	std::string request(
+		const std::string& verb, 
+		const std::string& method,
+		const std::string& body
+	);
+
+	/**
 	 * Execute a call on a stencil
 	 *
 	 * @param  component  A pointer to a stencil
