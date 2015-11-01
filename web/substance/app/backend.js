@@ -75,14 +75,13 @@ Backend.Prototype = function() {
       // containing only the rendered content as json
       var tmp = new Stencil();
       tmp.loadHtml(result.content);
-      _.each(tmp.get('body').nodes, function(nodeId) {
-        var node = doc.get(nodeId);
-        var copy = tmp.get(nodeId);
-        if (!node) {
-          console.warn('Node not present in document', nodeId);
-          return;
-        }
-        if (node instanceof StencilNode) {
+      _.each(tmp.getNodes(), function(copy, nodeId) {
+        if (copy.constructor.static.generatedProps) {
+          var node = doc.get(nodeId);
+          if (!node) {
+            console.warn('Node not present in document', nodeId);
+            return;
+          }
           node.updateGeneratedProperties(copy);
         }
       });
