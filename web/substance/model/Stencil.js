@@ -41,8 +41,6 @@ defaultSchema.addNodes([
 ]);
 
 
-
-
 // Importer
 // ----------------
 
@@ -129,12 +127,7 @@ Stencil.Prototype = function() {
       nodes: []
     });
 
-    var $root = $(html);
-
-    var $content = $root.find('#content');
-    // console.log('contentEl', contentEl);
-
-
+    var $content = $('<div>').html(html);
     new Importer(this.schema).convert($content, this);
     // sets this.FORCE_TRANSACTIONS = true again
     this.documentDidLoad();

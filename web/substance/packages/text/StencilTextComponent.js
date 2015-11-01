@@ -1,23 +1,29 @@
 'use strict';
 
 var oo = require('substance/util/oo');
+var _ = require('substance/util/helpers');
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
+var StencilNodeComponent = require('../../StencilNodeComponent');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
 function StencilTextComponent() {
   AnnotationComponent.apply(this, arguments);
-
-  // this.props.node.connect(this, {
-  //   "label:changed": this.onLabelChanged
-  // });
 }
 
 StencilTextComponent.Prototype = function() {
 
+  // use StencilNodeComponent as a mixin
+  _.extend(this, StencilNodeComponent.prototype);
+
+  this.didMount = function() {
+    AnnotationComponent.prototype.didMount.call(this);
+    StencilNodeComponent.prototype.didMount.call(this);
+  };
+
   this.dispose = function() {
     AnnotationComponent.prototype.dispose.call(this);
-    this.props.node.disconnect(this);
+    StencilNodeComponent.prototype.dispose.call(this);
   };
 
   this.render = function() {
@@ -60,9 +66,10 @@ StencilTextComponent.Prototype = function() {
     e.stopPropagation();
   };
 
-  // this.onLabelChanged = function() {
-  //   this.rerender();
-  // };
+  this.dispose = function() {
+    AnnotationComponent.prototype.dispose.call(this);
+  };
+
 };
 
 oo.inherit(StencilTextComponent, AnnotationComponent);

@@ -1,5 +1,6 @@
 var $ = require('substance/util/jquery');
 var Annotation = require('substance/model/Annotation');
+var StencilNode = require('../../model/StencilNode');
 
 var StencilText = Annotation.extend({
   name: 'stencil-text',
@@ -8,11 +9,14 @@ var StencilText = Annotation.extend({
     'source': 'string',
     'error': 'string',
     'output': 'string'
-  }
+  },
+  updateGeneratedProperties: StencilNode.prototype.updateGeneratedProperties,
 });
 
 StencilText.static.components = [];
 StencilText.static.external = true;
+
+StencilText.static.generatedProps = ['error', 'output'];
 
 StencilText.static.matchElement = function($el) {
   return $el.attr('data-text');

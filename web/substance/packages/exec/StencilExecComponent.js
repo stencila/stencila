@@ -4,9 +4,10 @@ var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var TextProperty = require('substance/ui/TextPropertyComponent');
+var StencilNodeComponent = require('../../StencilNodeComponent');
 
 function StencilExecComponent() {
-  Component.apply(this, arguments);
+  StencilNodeComponent.apply(this, arguments);
 }
 
 StencilExecComponent.Prototype = function() {
@@ -25,6 +26,6 @@ StencilExecComponent.Prototype = function() {
   };
 };
 
-oo.inherit(StencilExecComponent, Component);
+oo.inherit(StencilExecComponent, StencilNodeComponent);
 
 module.exports = StencilExecComponent;

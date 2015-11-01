@@ -1,8 +1,8 @@
 
 var $ = require('substance/util/jquery');
-var DocumentNode = require('substance/model/DocumentNode');
+var StencilNode = require('../../model/StencilNode');
 
-var StencilFigure = DocumentNode.extend({
+var StencilFigure = StencilNode.extend({
   name: 'stencil-figure',
   properties: {
     'index': 'string',
@@ -73,7 +73,7 @@ StencilFigure.static.toHtml = function(figure, converter) {
   var $el = $('<figure>')
     .attr('id', id);
   if(figure.index) $el.attr('data-index',figure.index);
-    
+
   var $exec = $('<pre>')
     .attr('data-exec',figure.spec)
     .text(figure.source);

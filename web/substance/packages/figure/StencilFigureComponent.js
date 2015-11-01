@@ -4,9 +4,10 @@ var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var $$ = Component.$$;
+var StencilNodeComponent = require('../../StencilNodeComponent');
 
 function StencilFigureComponent() {
-  Component.apply(this, arguments);
+  StencilNodeComponent.apply(this, arguments);
 }
 
 StencilFigureComponent.Prototype = function() {
@@ -39,7 +40,7 @@ StencilFigureComponent.Prototype = function() {
           .addClass('image')
           .attr({
             contentEditable: false,
-            src: this.props.node.image
+            src: this.props.node.getDocument().url + "/" + this.props.node.image
           })
       )
     );
@@ -55,8 +56,9 @@ StencilFigureComponent.Prototype = function() {
     );
     return el;
   };
+
 };
 
-oo.inherit(StencilFigureComponent, Component);
+oo.inherit(StencilFigureComponent, StencilNodeComponent);
 
 module.exports = StencilFigureComponent;
