@@ -134,18 +134,8 @@ LensController.Prototype = function() {
     var doc = this.getDocument();
 
     function getActiveNodes(state) {
-      if (state.citationId) {
-        // TODO: targets only works for figures
-        // However if we click on a bib ref [1-4]
-        // it would maybe be useful to show all citations that
-        // reference 1,2,3, or 4.
-        var targets = doc.get(state.citationId).targets;
-        return [ state.citationId ].concat(targets);
-      }
-      if (state.bibItemId) {
-        // Get citations for a given target
-        var citations = Object.keys(doc.citationsIndex.get(state.bibItemId));
-        return citations;
+      if (state.contextId === 'editSource') { 
+        return [ state.nodeId ];
       }
       return [];
     }
