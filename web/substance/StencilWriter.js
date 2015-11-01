@@ -19,8 +19,11 @@ var CONFIG = {
       require('substance/ui/SaveCommand'),
     ],
     components: {
-      "paragraph": require('substance/packages/paragraph/ParagraphComponent'),
-      "heading": require('substance/packages/heading/HeadingComponent'),
+      'paragraph': require('substance/packages/paragraph/ParagraphComponent'),
+      'heading': require('substance/packages/heading/HeadingComponent'),
+
+      'stencil-exec': require('./packages/exec/StencilExecComponent'),
+      'stencil-figure': require('./packages/figure/StencilFigureComponent'),
 
       // Panels
       "toc": require('substance/ui/TocPanel')

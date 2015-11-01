@@ -10,6 +10,7 @@ var StencilFigure = DocumentNode.extend({
     'source': 'string',
     'error': 'string',
     'image': 'string',
+    'label': 'string',
     'caption': 'string'
   }
 });
@@ -54,10 +55,15 @@ StencilFigure.static.fromHtml = function($el, converter) {
     figure.caption = converter.annotatedText($caption, [id, $caption[0].tagName.toLowerCase()]);
   }
 
+  var $label = $caption.find("[data-label]");
+  if ($label) {
+    figure.label = $label.text();
+  }
+
   return figure;
 };
 
-StencilFigure.static.toHtml = function(tagName, figure, converter) {
+StencilFigure.static.toHtml = function(figure, converter) {
   var id = figure.id;
 
   var $el = $('<figure>')
@@ -78,7 +84,7 @@ StencilFigure.static.toHtml = function(tagName, figure, converter) {
     .append($img);
 
   var $caption = $('<figcaption>')
-    .append(converter.annotatedText([id, 'figcaption']));
+    .append(converter.annotatedText([id, 'caption']));
 
   return $el.append($exec, $out, $caption);
 };
