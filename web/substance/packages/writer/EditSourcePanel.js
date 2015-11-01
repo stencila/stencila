@@ -16,11 +16,34 @@ function EditSourcePanel() {
 EditSourcePanel.Prototype = function() {
 
   this.dispose = function() {
-    // TODO: dispose Ace editor instance
+    this.editor.destroy();
   };
 
   this.didMount = function() {
-    // TODO: inject Ace into editor (this.refs.panelContent)
+    var editor = this.editor = ace.edit('ace_editor');
+    editor.getSession().setMode('ace/mode/r');
+    editor.setTheme("ace/theme/monokai");
+
+    editor.setFontSize(14);
+    editor.setShowPrintMargin(false);
+    // Set the maximum number of lines for the code. When the number
+    // of lines exceeds this number a vertical scroll bar appears on the right
+    editor.setOption("minLines",5);
+    editor.setOption("maxLines",100000);
+    // Prevent warning message
+    editor.$blockScrolling = Infinity;
+    // Set indented wrapped lines
+    editor.setOptions({
+      wrap: true,
+      indentedSoftWrap: true,
+    });
+
+    var node = this.getNode();
+    editor.setValue(node.source,1);
+
+    editor.on('change', function() {
+        node.source = editor.getValue();
+    });
   };
 
   this.handleCancel = function(e) {
@@ -28,11 +51,14 @@ EditSourcePanel.Prototype = function() {
     this.send('switchContext', 'toc');
   };
 
-  this.render = function() {
+  this.getNode = function(){
     var doc = this.getDocument();
     var node = doc.get(this.props.nodeId);
+    return node;
+  };
 
-    console.log('le node', node.source);
+  this.render = function() {
+    var node = this.getNode();
 
     var headerEl = $$('div').addClass('dialog-header').append(
       $$('a').addClass('back').attr('href', '#')
@@ -42,8 +68,7 @@ EditSourcePanel.Prototype = function() {
     );
 
     var el = $$('div').addClass('sc-edit-source-panel panel dialog');
-    var panelContentEl = $$('div').addClass('panel-content').ref('panelContent');
-    panelContentEl.append('CODE EDITOR GOES HERE');
+    var panelContentEl = $$('div').attr('id','ace_editor').addClass('panel-content').ref('panelContent');
     
     el.append(headerEl);
     el.append(panelContentEl);
