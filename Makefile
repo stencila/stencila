@@ -882,6 +882,10 @@ $(R_BUILD)/stencila.$(R_DLL_EXT): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libs
 	$(CXX) -shared -o$@ $^ $(R_LDFLAGS) $(RCPP_LDFLAGS) -L$(BUILD)/cpp/library $(R_DLL_LIBS)
 r-dll: $(R_BUILD)/stencila.$(R_DLL_EXT)
 
+# Check DLL can be loaded
+r-dll-check: $(R_BUILD)/stencila.$(R_DLL_EXT)
+	Rscript -e "dyn.load('$(R_BUILD)/stencila.$(R_DLL_EXT)')"
+
 # Build DLL zip file
 ifeq ($(OS),win)
 # Extra DLLs needed on windows. These should be available from the MSYS2 install.
@@ -889,9 +893,9 @@ ifeq ($(OS),win)
 # (http://www.dependencywalker.com/) on stencila.dll
 R_DLL_EXTRA := $(patsubst %, /c/msys64/mingw64/bin/%, libeay32.dll libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll ssleay32.dll zlib1.dll)
 endif
-$(R_BUILD)/stencila-dll.zip: $(R_BUILD)/stencila.$(R_DLL_EXT)
+$(R_BUILD)/stencila-dll.zip: r-dll-check
 	rm -f $@
-	zip -j $@ $< $(R_DLL_EXTRA)
+	zip -j $@ $(R_BUILD)/stencila.$(R_DLL_EXT) $(R_DLL_EXTRA)
 r-dll-zip: $(R_BUILD)/stencila-dll.zip
 
 # Copy over DLL zip file
