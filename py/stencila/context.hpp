@@ -224,6 +224,7 @@ public:
         Context::class_(PythonContextType,{
             "PythonContext",
             page,
+            nullptr,
             call
         });
     }
