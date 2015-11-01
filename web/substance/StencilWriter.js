@@ -18,6 +18,7 @@ var CONFIG = {
       require('substance/ui/UndoCommand'),
       require('substance/ui/RedoCommand'),
       require('substance/ui/SaveCommand'),
+      require('./packages/writer/RenderCommand'),
     ],
     components: {
       'paragraph': require('substance/packages/paragraph/ParagraphComponent'),

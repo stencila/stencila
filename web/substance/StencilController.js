@@ -6,7 +6,6 @@ var oo = require('substance/util/oo');
 var Controller = require("substance/ui/Controller");
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
-var $ = require('substance/util/jquery');
 
 // Substance is i18n ready, but by now we did not need it
 // Thus, we configure I18n statically as opposed to loading
@@ -44,6 +43,30 @@ LensController.Prototype = function() {
         contextId: 'bib-items',
         bibItemId: bibItem.id
       });
+    }
+  };
+
+  this.renderDocument = function() {
+    var doc = this.getDocument();
+    var logger = this.getLogger();
+
+    if (!doc.__isRendering) {
+      logger.info('Rendering ...');
+      doc.__isRendering = true;
+      // Pass saving logic to the user defined callback if available
+      if (this.props.onRender) {
+        this.props.onRender(doc, function(err) {
+          doc.__isRendering = false;
+          if (err) {
+            logger.error(err.message || err.toString());
+          } else {
+            this.emit('document:rendered');
+            logger.info('No changes');
+          }
+        }.bind(this));
+      } else {
+        logger.error('renderDocument is not handled at the moment. Make sure onRender is passed in the props');
+      }
     }
   };
 
