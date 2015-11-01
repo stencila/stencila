@@ -1,9 +1,10 @@
 var Stencil = require('../model/Stencil');
 var oo = require('substance/util/oo');
 var $ = require('substance/util/jquery');
+var _ = require('substance/util/helpers');
 
 var Backend = function() {
-
+  this.apiUrl = "http://10.0.0.12:7373";
 };
 
 Backend.Prototype = function() {
@@ -37,13 +38,17 @@ Backend.Prototype = function() {
 
   // Document
   // ------------------
+  var DOC_ADDRESS = "//home/nokome/stencila/source/stencila/web/substance/app/data/kitchen-sink";
 
-  // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content
+  // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content?format=
   this.getDocument = function(documentId, cb) {
-    this._request('GET', 'data/kitchen-sink/index.html', null, function(err, rawDoc) {
+    var docAddress = DOC_ADDRESS;
+    this._request('GET', this.apiUrl + docAddress + "@content", null, function(err, resultStr) {
       if (err) { console.error(err); cb(err); }
+      var result = JSON.parse(resultStr);
+      debugger;
       var doc = new Stencil();
-      doc.loadHtml(rawDoc);
+      doc.loadHtml(result.content);
       doc.id = documentId;
       window.doc = doc;
       cb(null, doc);
