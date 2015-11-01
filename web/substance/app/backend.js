@@ -5,7 +5,6 @@ var Stencil = require('../model/Stencil');
 var StencilNode = require('../model/StencilNode');
 
 var Backend = function() {
-  this.apiUrl = "http://10.0.0.12:7373";
 };
 
 Backend.Prototype = function() {
@@ -39,17 +38,19 @@ Backend.Prototype = function() {
 
   // Document
   // ------------------
-  var DOC_ADDRESS = "//home/nokome/stencila/source/stencila/web/substance/app/data/kitchen-sink";
+  var DOC_URL = "http://10.0.0.12:7373//home/nokome/stencila/source/stencila/web/substance/app/data/kitchen-sink";
 
   // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content?format=
   this.getDocument = function(documentId, cb) {
-    var docAddress = DOC_ADDRESS;
-    this._request('GET', this.apiUrl + docAddress + "@content", null, function(err, resultStr) {
+    // TODO: we need a concept for generating the document URL
+    var docUrl = DOC_URL;
+    this._request('GET',  docUrl + "@content", null, function(err, resultStr) {
       if (err) { console.error(err); cb(err); }
       var result = JSON.parse(resultStr);
       var doc = new Stencil();
       doc.loadHtml(result.content);
       doc.id = documentId;
+      doc.url = docUrl;
       window.doc = doc;
       cb(null, doc);
     });
@@ -60,10 +61,10 @@ Backend.Prototype = function() {
   this.saveDocument = function(doc, cb) {
     // Save the document, get the rendered html and update
     // generated properties
-    var docAddress = DOC_ADDRESS;
+    var docUrl = DOC_URL;
 
     // EXPERIMENTAL: using @render endpoint to play around with generated properties
-    this._request('PUT', this.apiUrl + docAddress + "@render", {
+    this._request('PUT', docUrl + "@render", {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, resultStr) {
