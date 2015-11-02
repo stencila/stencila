@@ -80,6 +80,10 @@ StencilFigureComponent.Prototype = function() {
       )
       .key('description')
     );
+
+    if (this.props.node.error) {
+      el.addClass('sm-error');
+    }
     return el;
   };
 

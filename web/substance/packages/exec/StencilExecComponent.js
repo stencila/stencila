@@ -5,6 +5,7 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var StencilNodeComponent = require('../../StencilNodeComponent');
+var Icon = require('substance/ui/FontAwesomeIcon');
 
 function StencilExecComponent() {
   StencilNodeComponent.apply(this, arguments);
@@ -28,7 +29,11 @@ StencilExecComponent.Prototype = function() {
           .addClass('se-exec-button')
           .append(
             $$('span').addClass('se-label').append(this.i18n.t('exec-button-label')),
-            $$('span').addClass('se-action').append(this.i18n.t('edit-source-action'))
+            $$('span').addClass('se-action').append(
+              $$(Icon, {icon: 'fa-pencil'}),
+              ' ',
+              this.i18n.t('edit-source-action')
+            )
           )
           .on('click', this.onClickEdit)
           // Unfortunately we need to suppress mouse down, as otherwise
@@ -45,6 +50,11 @@ StencilExecComponent.Prototype = function() {
         }).addClass('se-exec-source')
       );
     }
+    
+    if (this.props.node.error) {
+      el.addClass('sm-error');
+    }
+
     return el;
   };
 

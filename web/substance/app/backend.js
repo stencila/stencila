@@ -109,6 +109,7 @@ Backend.Prototype = function() {
           node.updateGeneratedProperties(copy);
         }
       });
+      cb(null);
     });
   };
 

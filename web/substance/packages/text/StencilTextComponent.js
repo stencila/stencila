@@ -41,7 +41,7 @@ StencilTextComponent.Prototype = function() {
         .on('mousedown', this.onMouseDown)
         .append(this.props.node.output || "");
     } else {
-      el = $$('span').addClass('se-stencil-text');
+      el = $$('span').addClass('se-stencil-text stencil-text');
 
       if (this.revealSource()) {
         el.append(
@@ -49,10 +49,13 @@ StencilTextComponent.Prototype = function() {
           ' → '
         );
       }
-
       el.append(
         this.props.node.output
       );
+    }
+
+    if (this.props.node.error) {
+      el.addClass('sm-error');
     }
 
     return el;
