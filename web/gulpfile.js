@@ -19,7 +19,7 @@ var sass = require('gulp-sass');
 var jasmine = require('gulp-jasmine');
 
 // Types of components
-var types = ['stencil'];
+var types = ['app'];
 
 // Generic error handler creates a notifcation window
 function errorHandler() {
@@ -33,13 +33,15 @@ function errorHandler() {
 
 
 function style(type,watch) {
-  gulp.src('./stencila/'+type+'/'+type+'.scss')
+  var src = './substance/'+type+'/'+type+'.scss';
+
+  gulp.src(src)
     .pipe(sass({
         outputStyle: watch?'expanded':'compressed',
-        includePaths: require('node-normalize-scss').includePaths
+        //includePaths: require('node-normalize-scss').includePaths
      })
     .on('error', errorHandler))
-    .pipe(rename(type+'.min.css'))
+    .pipe(rename('stencil.min.css'))
     .pipe(gulp.dest('./build'));
 }
 
@@ -56,10 +58,10 @@ function styles(watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others  
 function script(type,watch) {
-  var file = './stencila/'+type+'/browser.js';
+  var src = './substance/'+type+'/'+type+'.js';
 
   var props = {
-    entries: [file],
+    entries: [src],
     debug : true,
     transform:  [babelify]
   };
@@ -70,9 +72,9 @@ function script(type,watch) {
     return bundler
       .bundle()
       .on('error',errorHandler)
-      .pipe(source(file))
+      .pipe(source(src))
       .pipe(buffer())
-      .pipe(rename(type+'.min.js'))
+      .pipe(rename('stencil.min.js'))
       .pipe(sourcemaps.init({
         loadMaps: true
       }))
@@ -90,8 +92,9 @@ function script(type,watch) {
 }
 
 function scripts(watch) {
+  gutil.log('Bundling scripts');
   types.forEach(function(type) {
-    script(type,watch)
+    script(type,watch);
   });
 }
 
