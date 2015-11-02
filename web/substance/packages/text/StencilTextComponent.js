@@ -27,16 +27,35 @@ StencilTextComponent.Prototype = function() {
   };
 
   this.render = function() {
-    return $$('span')
-      .addClass(this.getClassNames())
-      .attr({
-        "data-id": this.props.node.id,
-        "data-external": 1,
-        "contentEditable": false
-      })
-      .on('click', this.onClick)
-      .on('mousedown', this.onMouseDown)
-      .append(this.props.node.output || "");
+    var el;
+
+    if (this.isEditable()) {
+      el = $$('span')
+        .addClass(this.getClassNames())
+        .attr({
+          "data-id": this.props.node.id,
+          "data-external": 1,
+          "contentEditable": false
+        })
+        .on('click', this.onClick)
+        .on('mousedown', this.onMouseDown)
+        .append(this.props.node.output || "");
+    } else {
+      el = $$('span').addClass('se-stencil-text');
+
+      if (this.revealSource()) {
+        el.append(
+          $$('span').addClass('stencil-text-source').append(this.props.node.source),
+          ' → '
+        );
+      }
+
+      el.append(
+        this.props.node.output
+      );
+    }
+
+    return el;
   };
 
   this.getClassNames = function() {

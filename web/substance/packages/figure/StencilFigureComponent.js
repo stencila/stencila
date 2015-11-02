@@ -15,7 +15,8 @@ StencilFigureComponent.Prototype = function() {
   this.render = function() {
     var el = $$('div')
       .addClass("sc-stencil-figure content-node figure clearfix "+this.props.node.type)
-      .attr("data-id", this.props.node.id);
+      .attr("data-id", this.props.node.id)
+      .attr('id', this.props.node.id);
 
     el.append($$('div')
       .addClass('label').attr("contenteditable", false)

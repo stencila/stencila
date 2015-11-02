@@ -19,6 +19,7 @@ var CONFIG = {
     components: {
       "paragraph": require('substance/packages/paragraph/ParagraphComponent'),
       "heading": require('substance/packages/heading/HeadingComponent'),
+      "link": require('./packages/link/LinkComponent'),
       // Panels
       "toc": require('substance/ui/TocPanel')
     },

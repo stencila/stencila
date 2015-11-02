@@ -20,7 +20,7 @@ App.Prototype = function() {
 
   this.getInitialState = function() {
     return {
-      mode: "write"
+      mode: "plain"
     };
   };
 
