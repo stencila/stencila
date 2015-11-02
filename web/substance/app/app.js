@@ -7,20 +7,25 @@ var $$ = Component.$$;
 var Backend = require("./backend");
 var $ = require('substance/util/jquery');
 
+var Stencil = require('../model/Stencil');
+
 var StencilWriter = require('../StencilWriter');
 var StencilReader = require('../StencilReader');
 var StencilViewer = require('../StencilViewer');
 
 function App() {
-  Component.Root.apply(this, arguments);
+  Component.apply(this, arguments);
   this.backend = new Backend();
 }
 
 App.Prototype = function() {
 
   this.getInitialState = function() {
+    var doc = new Stencil();
+    doc.loadHtml(this.props.html);
     return {
-      mode: "write"
+      mode: "write",
+      doc: doc
     };
   };
 
@@ -94,19 +99,15 @@ App.Prototype = function() {
     return el;
   };
 
-  this.didMount = function() {
-    this.backend.getDocument('sample', function(err, doc) {
-      this.extendState({
-        doc: doc
-      });
-    }.bind(this));
-  };
 };
 
 oo.inherit(App, Component);
 
 $(function() {
-  Component.mount($$(App), $('#container'));
+  var content = $('#content');
+  var html = content.html() || '';
+  content.remove();
+  Component.mount($$(App,{"html":html}),$('body'));
 });
 
 
