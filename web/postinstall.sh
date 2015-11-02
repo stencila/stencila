@@ -35,9 +35,7 @@ if [ ! -e node_modules/ace/build/src-min ]; then
 	cd ../..
 fi
 
-if [ ! -e build/ace/src-min ]; then
+if [ ! -e build/ace ]; then
 	echo "Copying Ace editor build"
-	rm -rf build/ace
-	mkdir -p build/ace
 	cp -rf node_modules/ace/build/src-min build/ace
 fi

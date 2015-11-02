@@ -108,3 +108,23 @@ oo.inherit(App, Component);
 $(function() {
   Component.mount($$(App), $('#container'));
 });
+
+
+// Stencila global object is used to indicate that this script
+// has loaded successfully and helps dealing with the fallback
+// to an alternative host
+window.Stencila = {
+
+  // Dynamic loading of scripts
+  load : function(source, callback){
+    var head = document.getElementsByTagName("head")[0];
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = (window.StencilaHost || '') + source;
+    if(callback) script.onload = callback;
+    head.appendChild(script);
+  }
+
+};
+
+Stencila.load('/web/ace/ace.js');
