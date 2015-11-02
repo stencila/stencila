@@ -2,9 +2,11 @@ var oo = require('substance/util/oo');
 var $ = require('substance/util/jquery');
 var _ = require('substance/util/helpers');
 var Stencil = require('../model/Stencil');
-var StencilNode = require('../model/StencilNode');
 
 var Backend = function() {
+  this._getAddress();
+  // HACK: the doc address is hard-coded
+  this.address = "http://localhost:7373/core/stencils/examples/kitchensink"
 };
 
 Backend.Prototype = function() {
@@ -28,29 +30,44 @@ Backend.Prototype = function() {
         cb(err.responseText);
       }
     };
-
     if (data) {
       ajaxOpts.data = JSON.stringify(data);
     }
-
     $.ajax(ajaxOpts);
   };
 
+  this._getAddress = function() {
+    // Address
+    this.address = null;
+    // ... from <meta> tag
+    var address = $('head meta[itemprop=address]');
+    if(address.length) this.address = address.attr('content');
+    // ... or from url
+    if(!this.address) {
+      // Remove the leading /
+      var path = window.location.pathname.substr(1);
+      // Remove the last part of path if it is a title slug
+      var lastIndex = path.lastIndexOf('/');
+      var last = path.substr(lastIndex);
+      if(last.substr(last.length-1)=="-") this.address = path.substr(0,lastIndex);
+    }
+  };
+
+
   // Document
   // ------------------
-  var DOC_URL = "http://10.0.0.12:7373//home/nokome/stencila/source/stencila/web/substance/app/data/kitchen-sink";
 
   // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content?format=
   this.getDocument = function(documentId, cb) {
+    var address = this.address;
     // TODO: we need a concept for generating the document URL
-    var docUrl = DOC_URL;
-    this._request('GET',  docUrl + "@content", null, function(err, resultStr) {
+    this._request('GET',  this.address + "@content", null, function(err, resultStr) {
       if (err) { console.error(err); cb(err); }
       var result = JSON.parse(resultStr);
       var doc = new Stencil();
       doc.loadHtml(result.content);
       doc.id = documentId;
-      doc.url = docUrl;
+      doc.url = address;
       window.doc = doc;
       cb(null, doc);
     });
@@ -59,12 +76,15 @@ Backend.Prototype = function() {
   // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@save
   // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@render
   this.saveDocument = function(doc, cb) {
+    console.warn('Not implement yet.');
+    cb(null);
+  };
+
+  this.renderDocument = function(doc, cb) {
     // Save the document, get the rendered html and update
     // generated properties
-    var docUrl = DOC_URL;
-
     // EXPERIMENTAL: using @render endpoint to play around with generated properties
-    this._request('PUT', docUrl + "@render", {
+    this._request('PUT', this.address + "@render", {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, resultStr) {
@@ -86,7 +106,6 @@ Backend.Prototype = function() {
         }
       });
     });
-    console.warn('Not saving yet.');
   };
 
   // Figure related
