@@ -1,17 +1,21 @@
 'use strict';
 
 var oo = require('substance/util/oo');
+var _ = require('substance/util/helpers');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var Icon = require('substance/ui/FontAwesomeIcon');
 var $$ = Component.$$;
 var StencilNodeComponent = require('../../StencilNodeComponent');
+var StencilSourceComponent = require('../../StencilSourceComponent');
 
 function StencilFigureComponent() {
   StencilNodeComponent.apply(this, arguments);
 }
 
 StencilFigureComponent.Prototype = function() {
+
+  _.extend(this, StencilSourceComponent.prototype);
 
   this.render = function() {
     var el = $$('div')
@@ -22,7 +26,7 @@ StencilFigureComponent.Prototype = function() {
     el.append($$('div')
       .addClass('label').attr("contenteditable", false)
       .append(this.props.node.label)
-      .key('label')
+      .ref('label')
     );
 
     if (this.isEditable()) {
@@ -36,7 +40,7 @@ StencilFigureComponent.Prototype = function() {
               this.i18n.t('edit-source-action')
             )
           )
-          .on('click', this.onClickEdit)
+          .on('click', this.onEditSource)
           // Unfortunately we need to suppress mouse down, as otherwise
           // Surface will receive events leading to updating the selection
           .on('mousedown', this.onMouseDown)
@@ -52,7 +56,7 @@ StencilFigureComponent.Prototype = function() {
             path: [this.props.node.id, "source"]
           })
         )
-        .key('source')
+        .ref('source')
       );
     }
 
@@ -67,7 +71,7 @@ StencilFigureComponent.Prototype = function() {
             src: this.props.node.getDocument().url + "/" + this.props.node.image
           })
       )
-      .key('content')
+      .ref('content')
     );
     el.append($$('div')
       .addClass('description small')
@@ -78,24 +82,11 @@ StencilFigureComponent.Prototype = function() {
         })
         .addClass('caption')
       )
-      .key('description')
+      .ref('description')
     );
     return el;
   };
 
-  this.onClickEdit = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.send('switchState', {
-      contextId: 'editSource',
-      nodeId: this.props.node.id
-    });
-  };
-
-  this.onMouseDown = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  };
 
 };
 

@@ -10,8 +10,7 @@ var StencilText = Annotation.extend({
     'error': 'string',
     'output': 'string'
   },
-  updateGeneratedProperties: StencilNode.prototype.updateGeneratedProperties,
-});
+}, StencilNode.prototype);
 
 StencilText.static.components = [];
 StencilText.static.external = true;

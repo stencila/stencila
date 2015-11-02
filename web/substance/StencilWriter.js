@@ -28,6 +28,8 @@ var CONFIG = {
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),
+      'stencil-equation': require('./packages/math/StencilEquationComponent'),
+      'stencil-formula': require('./packages/math/StencilFormulaComponent'),
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
