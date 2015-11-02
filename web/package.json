@@ -18,7 +18,7 @@
     "express": "*",
     "font-awesome": "^4.4.0",
     "jquery": "^2.1.4",
-    "jquery.hotkeys": "git://github.com/jeresig/jquery.hotkeys.git#457690b",
+    "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
     "lodash": "3.3.1",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
