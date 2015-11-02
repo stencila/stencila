@@ -1016,41 +1016,8 @@ r-clean:
 #################################################################################################
 # Stencila web browser module
 
-# Install requirements
 web-requires:
 	cd web; npm install
-
-# MathJax
-
-MATHJAX_VERSION := 2.5.3
-
-web/other_modules/MathJax-$(MATHJAX_VERSION).tar.gz:
-	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/mathjax/MathJax/archive/$(MATHJAX_VERSION).tar.gz
-
-web/build/external/MathJax: web/other_modules/MathJax-$(MATHJAX_VERSION).tar.gz
-	rm -rf $@
-	mkdir -p web/build/external
-	tar xf $< -C web/build/external
-	mv web/build/external/MathJax-$(MATHJAX_VERSION) $@
-	touch $@
-
-# Shrink the size of MathJax, removing what is not needed
-#  https://github.com/mathjax/MathJax-docs/wiki/Guide%3A-reducing-size-of-a-mathjax-installation
-web-mathjax-shrink: web/build/external/MathJax
-	cd web/build/external/MathJax; \
-		rm -rf docs localization test unpacked .gitignore README-branch.txt README.md bower.json ;\
-		rm -rf `find config -name '*.js' ! -name 'TeX-MML-AM_HTMLorMML.js'`  ;\
-		rm -rf fonts/HTML-CSS ;\
-		rm -rf jax/output/SVG ;\
-		rm -rf `find jax/output/HTML-CSS/fonts -mindepth 1 -maxdepth 1 ! -name 'STIX'`
-
-web-mathjax: web/build/external/MathJax
-
-web-mathjax-clean:
-	rm -rf web/build/external/MathJax
-
-
 
 web-build:
 	cd web; gulp build

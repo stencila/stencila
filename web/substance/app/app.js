@@ -127,4 +127,12 @@ window.Stencila = {
 
 };
 
-Stencila.load('/web/ace/ace.js');
+window.Stencila.load('/web/ace/ace.js');
+
+window.MathJax = {
+  skipStartupTypeset: true,
+  showProcessingMessages: false,
+  showMathMenu: false,
+  "HTML-CSS": {preferredFont: "STIX"}
+};
+window.Stencila.load('/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML');
