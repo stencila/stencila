@@ -9,6 +9,7 @@ var $ = require('substance/util/jquery');
 
 var StencilWriter = require('../StencilWriter');
 var StencilReader = require('../StencilReader');
+var StencilViewer = require('../StencilViewer');
 
 function App() {
   Component.Root.apply(this, arguments);
@@ -19,6 +20,12 @@ App.Prototype = function() {
   this.openReader = function() {
     this.extendState({
       mode: 'read'
+    });
+  };
+
+  this.openPlain = function() {
+    this.extendState({
+      mode: 'plain'
     });
   };
 
@@ -41,7 +48,11 @@ App.Prototype = function() {
         $$('button')
           .addClass(this.state.mode ==='read' ? 'active': '')
           .on('click', this.openReader)
-          .append('Read')
+          .append('Read'),
+        $$('button')
+          .addClass(this.state.mode ==='plain' ? 'active': '')
+          .on('click', this.openPlain)
+          .append('Plain')
       )
     );
     
@@ -56,17 +67,20 @@ App.Prototype = function() {
             cb(null, fileUrl);  
           },
           onSave: function(doc, changes, cb) {
-            // console.log('custom save handler in action...', doc.toHtml());
             _this.backend.saveDocument(doc, cb);
           },
           onRender: function(doc, cb) {
             _this.backend.renderDocument(doc, cb);
           }
         }).ref('writer');
-      } else {
+      } else if (this.state.mode ==='read') {
         lensEl = $$(StencilReader, {
           doc: this.state.doc
         }).ref('reader');
+      } else {
+        lensEl = $$(StencilViewer, {
+          doc: this.state.doc
+        }).ref('viewer');
       }
       el.append($$('div').addClass('context').append(lensEl));
     }
@@ -76,7 +90,7 @@ App.Prototype = function() {
   this.didMount = function() {
     this.backend.getDocument('sample', function(err, doc) {
       this.setState({
-        mode: 'write',
+        mode: 'plain',
         doc: doc
       });
     }.bind(this));

@@ -4,6 +4,10 @@ var _ = require('substance/util/helpers');
 var Stencil = require('../model/Stencil');
 var StencilNode = require('../model/StencilNode');
 
+var CONFIG = {
+  host: 'http://localhost:7373'
+};
+
 var Backend = function() {
 };
 
@@ -38,7 +42,9 @@ Backend.Prototype = function() {
 
   // Document
   // ------------------
-  var DOC_URL = "http://10.0.0.12:7373//home/nokome/stencila/source/stencila/web/substance/app/data/kitchen-sink";
+
+  var DOC_URL = CONFIG.host+"/core/stencils/examples/kitchensink";
+  // var DOC_URL = 'data/kitchen-sink/index.html';
 
   // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content?format=
   this.getDocument = function(documentId, cb) {

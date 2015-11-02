@@ -17,6 +17,11 @@ StencilNodeComponent.Prototype = function() {
     this.props.node.disconnect(this);
   };
 
+  this.revealSource = function() {
+    var controller = this.context.controller;
+    return controller.state.revealSource;    
+  };
+
   this.onPropertiesChanged = function() {
     this.rerender();
   };
