@@ -52,6 +52,7 @@ LensController.Prototype = function() {
 
     if (!doc.__isRendering) {
       logger.info('Rendering ...');
+      
       doc.__isRendering = true;
       // Pass saving logic to the user defined callback if available
       if (this.props.onRender) {
@@ -60,7 +61,11 @@ LensController.Prototype = function() {
           if (err) {
             logger.error(err.message || err.toString());
           } else {
-            this.emit('document:rendered');
+            // HACK: this is there to update the RenderTool
+            // it only works because the current implementation
+            // in ToolManager updates all tools when document:saved
+            // is fired.
+            this.emit('document:saved');
             logger.info('No changes');
           }
         }.bind(this));

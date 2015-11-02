@@ -11,15 +11,36 @@ var $$ = Component.$$;
 
 function EditSourcePanel() {
   Panel.apply(this, arguments);
+
+  var controller = this.getController();
+  controller.connect(this, {
+    'document:saved': this.refresh
+  });
 }
 
 EditSourcePanel.Prototype = function() {
 
   this.dispose = function() {
+    var controller = this.getController();
+    controller.disconnect(this);
     this.editor.destroy();
   };
 
   this.didMount = function() {
+    this.initAce();
+  };
+
+  // Rerender to show the error message and also update Ace
+  this.refresh = function() {
+    var node = this.getNode();
+    var errorContainer = this.refs.errorContainer;
+    errorContainer.empty();
+    if (node.error) {
+      errorContainer.append($$('div').addClass('se-error').append(node.error));  
+    }
+  };
+
+  this.initAce = function() {
     var editor = this.editor = ace.edit('ace_editor');
     editor.getSession().setMode('ace/mode/r');
     editor.setTheme("ace/theme/monokai");
@@ -42,7 +63,7 @@ EditSourcePanel.Prototype = function() {
     editor.setValue(node.source,1);
 
     editor.on('change', function() {
-        node.source = editor.getValue();
+      node.source = editor.getValue();
     });
   };
 
@@ -68,7 +89,16 @@ EditSourcePanel.Prototype = function() {
     );
 
     var el = $$('div').addClass('sc-edit-source-panel panel dialog');
-    var panelContentEl = $$('div').addClass('panel-content').ref('panelContent').append(
+    var panelContentEl = $$('div').addClass('panel-content').ref('panelContent');
+
+    var errorContainerEl = $$('div').ref('errorContainer');
+    if (node.error) {
+      errorContainerEl.append(
+        $$('div').addClass('se-error').append(node.error)
+      );
+    }
+    panelContentEl.append(errorContainerEl);
+    panelContentEl.append(
       $$('div').attr('id','ace_editor')
     );
     
