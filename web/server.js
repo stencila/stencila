@@ -14,8 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // use static server
 app.use(express.static(path.join(__dirname, "substance/app/assets")));
-app.use('/ace', express.static(path.join(__dirname, "build/external/ace")));
-app.use('/MathJax', express.static(path.join(__dirname, "build/external/MathJax")));
+app.use('/web', express.static(path.join(__dirname, "build")));
 app.use('/data', express.static(path.join(__dirname, "substance/app/data")));
 app.use('/i18n', express.static(path.join(__dirname, "substance/i18n")));
 
