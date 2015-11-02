@@ -1,6 +1,6 @@
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 var StencilNodeComponent = require('../../StencilNodeComponent');
-var $$ = require('substance/ui/component').$$;
+var $$ = require('substance/ui/Component').$$;
 
 var LinkComponent = AnnotationComponent.extend({
 
