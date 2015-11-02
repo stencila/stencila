@@ -23,16 +23,32 @@ StencilFigureComponent.Prototype = function() {
       .key('label')
     );
 
-    el.append($$('div')
-      .addClass('source')
-      .append(
-        $$(TextProperty, {
-          tagName: 'div',
-          path: [this.props.node.id, "source"]
-        })
-      )
-      .key('source')
-    );
+    if (this.isEditable()) {
+      el.append(
+        $$('button')
+          .addClass('se-figure-edit-button')
+          .append(
+            $$('span').addClass('se-action').append(this.i18n.t('edit-source-action'))
+          )
+          .on('click', this.onClickEdit)
+          // Unfortunately we need to suppress mouse down, as otherwise
+          // Surface will receive events leading to updating the selection
+          .on('mousedown', this.onMouseDown)
+      );
+    }
+
+    if (this.revealSource()) {
+      el.append($$('div')
+        .addClass('source')
+        .append(
+          $$(TextProperty, {
+            tagName: 'div',
+            path: [this.props.node.id, "source"]
+          })
+        )
+        .key('source')
+      );
+    }
 
     el.append($$('div')
       .addClass('figure-content')
@@ -59,6 +75,20 @@ StencilFigureComponent.Prototype = function() {
       .key('description')
     );
     return el;
+  };
+
+  this.onClickEdit = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.send('switchState', {
+      contextId: 'editSource',
+      nodeId: this.props.node.id
+    });
+  };
+
+  this.onMouseDown = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
 };
