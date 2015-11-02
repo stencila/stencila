@@ -68,7 +68,9 @@ EditSourcePanel.Prototype = function() {
     );
 
     var el = $$('div').addClass('sc-edit-source-panel panel dialog');
-    var panelContentEl = $$('div').attr('id','ace_editor').addClass('panel-content').ref('panelContent');
+    var panelContentEl = $$('div').addClass('panel-content').ref('panelContent').append(
+      $$('div').attr('id','ace_editor')
+    );
     
     el.append(headerEl);
     el.append(panelContentEl);
