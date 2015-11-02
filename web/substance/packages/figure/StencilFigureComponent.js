@@ -3,6 +3,7 @@
 var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
+var Icon = require('substance/ui/FontAwesomeIcon');
 var $$ = Component.$$;
 var StencilNodeComponent = require('../../StencilNodeComponent');
 
@@ -15,7 +16,8 @@ StencilFigureComponent.Prototype = function() {
   this.render = function() {
     var el = $$('div')
       .addClass("sc-stencil-figure content-node figure clearfix "+this.props.node.type)
-      .attr("data-id", this.props.node.id);
+      .attr("data-id", this.props.node.id)
+      .attr('id', this.props.node.id);
 
     el.append($$('div')
       .addClass('label').attr("contenteditable", false)
@@ -28,7 +30,11 @@ StencilFigureComponent.Prototype = function() {
         $$('button')
           .addClass('se-figure-edit-button')
           .append(
-            $$('span').addClass('se-action').append(this.i18n.t('edit-source-action'))
+            $$('span').addClass('se-action').append(
+              $$(Icon, {icon: 'fa-pencil'}),
+              ' ',
+              this.i18n.t('edit-source-action')
+            )
           )
           .on('click', this.onClickEdit)
           // Unfortunately we need to suppress mouse down, as otherwise
