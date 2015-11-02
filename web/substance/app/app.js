@@ -17,6 +17,13 @@ function App() {
 }
 
 App.Prototype = function() {
+
+  this.getInitialState = function() {
+    return {
+      mode: "write"
+    };
+  };
+
   this.openReader = function() {
     this.extendState({
       mode: 'read'
@@ -55,7 +62,7 @@ App.Prototype = function() {
           .append('Plain')
       )
     );
-    
+
     if (this.state.doc) {
       var lensEl;
       if (this.state.mode === 'write') {
@@ -64,7 +71,7 @@ App.Prototype = function() {
           onUploadFile: function(file, cb) {
             console.log('custom file upload handler in action...');
             var fileUrl = window.URL.createObjectURL(file);
-            cb(null, fileUrl);  
+            cb(null, fileUrl);
           },
           onSave: function(doc, changes, cb) {
             _this.backend.saveDocument(doc, cb);
@@ -89,8 +96,7 @@ App.Prototype = function() {
 
   this.didMount = function() {
     this.backend.getDocument('sample', function(err, doc) {
-      this.setState({
-        mode: 'plain',
+      this.extendState({
         doc: doc
       });
     }.bind(this));
