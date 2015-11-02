@@ -1,4 +1,6 @@
 .sc-stencil-figure {
+  position: relative;
+
   .source {
     background: #2B303B;
 
@@ -9,6 +11,23 @@
     font-size: 13px;
     margin-bottom: 20px;
     font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;    
+  }
+
+  .se-action {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    color: #888;
+    padding: 10px;
+    cursor: pointer;
+
+    &:hover {
+      color: #222;
+    }
   }
 }
 
