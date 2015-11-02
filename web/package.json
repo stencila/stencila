@@ -1,7 +1,7 @@
 {
-  "name": "stencila",
+  "name": "stencila-web",
   "version": "0.18.0",
-  "description": "Web client interfaces to Stencila components",
+  "description": "Web browser interfaces to Stencila components",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -9,6 +9,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "./postinstall.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/stencila"
   },
   "author": "Stencila authors (https://github.com/stencila/stencila/blob/master/AUTHORS)",
   "license": "GPL-3.0",
