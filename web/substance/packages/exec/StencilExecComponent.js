@@ -1,10 +1,12 @@
 'use strict';
 
 var oo = require('substance/util/oo');
+var _ = require('substance/util/helpers');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var StencilNodeComponent = require('../../StencilNodeComponent');
+var StencilSourceComponent = require('../../StencilSourceComponent');
 var Icon = require('substance/ui/FontAwesomeIcon');
 
 function StencilExecComponent() {
@@ -12,6 +14,8 @@ function StencilExecComponent() {
 }
 
 StencilExecComponent.Prototype = function() {
+
+  _.extend(this, StencilSourceComponent.prototype);
 
   this.getClassNames = function() {
     return "sc-stencil-exec";
@@ -35,7 +39,7 @@ StencilExecComponent.Prototype = function() {
               this.i18n.t('edit-source-action')
             )
           )
-          .on('click', this.onClickEdit)
+          .on('click', this.onEditSource)
           // Unfortunately we need to suppress mouse down, as otherwise
           // Surface will receive events leading to updating the selection
           .on('mousedown', this.onMouseDown)
@@ -47,7 +51,9 @@ StencilExecComponent.Prototype = function() {
         $$(TextProperty, {
           tagName: 'div',
           path: [ this.props.node.id, "source"]
-        }).addClass('se-exec-source')
+        })
+        .addClass('se-exec-source')
+        .ref('source')
       );
     }
     
@@ -56,20 +62,6 @@ StencilExecComponent.Prototype = function() {
     }
 
     return el;
-  };
-
-  this.onClickEdit = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.send('switchState', {
-      contextId: 'editSource',
-      nodeId: this.props.node.id
-    });
-  };
-
-  this.onMouseDown = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
   };
 
 };

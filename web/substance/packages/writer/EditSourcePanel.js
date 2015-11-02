@@ -63,7 +63,7 @@ EditSourcePanel.Prototype = function() {
     editor.setValue(node.source,1);
 
     editor.on('change', function() {
-      node.source = editor.getValue();
+      node.setSource(editor.getValue());
     });
   };
 
@@ -101,7 +101,7 @@ EditSourcePanel.Prototype = function() {
     panelContentEl.append(
       $$('div').attr('id','ace_editor')
     );
-    
+
     el.append(headerEl);
     el.append(panelContentEl);
     return el;

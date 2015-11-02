@@ -19,6 +19,12 @@ StencilNode.Prototype = function() {
       this.emit('properties:changed');
     }
   };
+
+  this.setSource = function(source) {
+    this.source = source;
+    this.emit('source:changed');
+  };
+
 };
 
 OO.inherit(StencilNode, DocumentNode);

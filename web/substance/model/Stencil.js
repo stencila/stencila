@@ -37,6 +37,8 @@ defaultSchema.addNodes([
   require('../packages/exec/StencilExec'),
   require('../packages/figure/StencilFigure'),
   require('../packages/text/StencilText'),
+  require('../packages/math/StencilEquation'),
+  require('../packages/math/StencilFormula'),
   StencilDefaultNode
 ]);
 
