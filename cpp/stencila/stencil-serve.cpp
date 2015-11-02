@@ -38,14 +38,12 @@ std::string Stencil::page(void) const {
 		{"content",join(contexts(),",")}
 	});
 
-	// Add stencil content to the #main element
-	auto main = body.select("#main");
-	auto content = main.append("div",{
-		{"id","content"}
-	}," ");
-	content.append(*this);
+	// Add stencil content to the main element and give #content id
+	auto main = body.select("main");
+	main.attr("id","content");
+	main.append(*this);
 
-	return doc.dump();
+	return doc.dump(false);
 }
 
 std::string Stencil::request(Component* component,const std::string& verb,const std::string& method,const std::string& body){
