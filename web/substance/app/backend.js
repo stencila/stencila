@@ -81,14 +81,15 @@ Backend.Prototype = function() {
   };
 
   this.renderDocument = function(doc, cb) {
-    // Save the document, get the rendered html and update
-    // generated properties
-    // EXPERIMENTAL: using @render endpoint to play around with generated properties
+    doc.__isRendering = true;
     this._request('PUT', this.address + "@render", {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, resultStr) {
-      if (err) return cb(err);
+      if (err) {
+        doc.__isRendering = false;
+        return cb(err);
+      }
       var result = JSON.parse(resultStr);
       // creating a new document instance from the returned html
       // In future the server could provide a different format
@@ -105,6 +106,7 @@ Backend.Prototype = function() {
           node.updateGeneratedProperties(copy);
         }
       });
+      doc.__isRendering = false;
     });
   };
 
