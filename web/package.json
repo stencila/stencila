@@ -13,7 +13,7 @@
   "author": "Stencila authors (https://github.com/stencila/stencila/blob/master/AUTHORS)",
   "license": "GPL-3.0",
   "dependencies": {
-    "ace": "https://github.com/ajaxorg/ace/archive/0c66e1eda418477a9efbd0d3ef61698478cc607f.tar.gz",
+    "ace": "ajaxorg/ace#0c66e1ed",
     "body-parser": "^1.12.4",
     "cheerio": "^0.19.0",
     "express": "*",
