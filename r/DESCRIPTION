@@ -6,10 +6,9 @@ Title: Documents powered by data
 Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/master/AUTHORS
 Maintainer: Nokome Bentley <nokome@stenci.la>
 Description: Code stuff in R, write stuff in markup or in the browser,... commit, share, publish. Repeat.
-License: BSD_3_clause + file LICENSE
+License: GPL-3 + file LICENSE
 Depends:
     Rcpp (>= 0.12.1),
     methods
-LinkingTo: Rcpp
 Collate:
     'stencila.R'

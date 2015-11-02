@@ -1000,7 +1000,7 @@ $(R_BUILD)/testenv/stencila: $(R_BUILD)/$(R_PACKAGE_FILE)
 # Test the package by running unit tests
 r-tests: $(R_BUILD)/testenv/stencila $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;cd testenv ;\
-	    (Rscript -e ".libPaths('.'); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
+	    (Rscript -e ".libPaths(c('.',.libPaths()[1])); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
 
 # Install R on the local host
 # Not intended for development but rather 
