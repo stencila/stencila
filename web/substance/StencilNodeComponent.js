@@ -22,6 +22,10 @@ StencilNodeComponent.Prototype = function() {
     return controller.state.revealSource;    
   };
 
+  this.isEditable = function() {
+    return this.context.config.isEditable;
+  };
+
   this.onPropertiesChanged = function() {
     this.rerender();
   };
