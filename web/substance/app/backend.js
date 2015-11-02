@@ -77,23 +77,22 @@ Backend.Prototype = function() {
     });
   };
 
-  // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@save
-  // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@render
   this.saveDocument = function(doc, cb) {
-    console.warn('Not implement yet.');
-    cb(null);
+    this._request('PUT',  this.address + "@save", {
+      'format': 'html',
+      'content': doc.toHtml()
+    }, function(err, resultStr) {
+      if (err) { console.error(err); cb(err); }
+      cb(null);
+    });
   };
 
   this.renderDocument = function(doc, cb) {
-    doc.__isRendering = true;
     this._request('PUT', this.address + "@render", {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, resultStr) {
-      if (err) {
-        doc.__isRendering = false;
-        return cb(err);
-      }
+      if (err) { console.error(err); cb(err); }
       var result = JSON.parse(resultStr);
       // creating a new document instance from the returned html
       // In future the server could provide a different format
@@ -110,7 +109,6 @@ Backend.Prototype = function() {
           node.updateGeneratedProperties(copy);
         }
       });
-      doc.__isRendering = false;
     });
   };
 
