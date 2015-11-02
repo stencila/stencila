@@ -9,7 +9,6 @@ function StencilDefaultNodeComponent() {
 }
 
 StencilDefaultNodeComponent.Prototype = function() {
-
   this.render = function() {
     return $$('div')
       .attr('contenteditable', false)

@@ -17,12 +17,24 @@ StencilExecComponent.Prototype = function() {
   };
 
   this.render = function() {
-    return $$('div')
+    console.log('StencilExecComponent.render()');
+    var el = $$('div')
       .addClass(this.getClassNames())
-      .attr("data-id", this.props.node.id)
-      .append($$(TextProperty, {
-        path: [ this.props.node.id, "source"]
-      }));
+      .attr("data-id", this.props.node.id);
+
+    if (this.isEditable()) {
+      
+    }
+    
+    if (this.revealSource()) {
+      el.append(
+        $$(TextProperty, {
+          tagName: 'div',
+          path: [ this.props.node.id, "source"]
+        }).addClass('se-exec-source')
+      );
+    }
+    return el;
   };
 };
 

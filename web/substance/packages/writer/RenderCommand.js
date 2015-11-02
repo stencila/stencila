@@ -9,7 +9,6 @@ var RenderCommand = ControllerCommand.extend({
 
   getCommandState: function() {
     var doc = this.getDocument();
-    console.log(doc.__isRendering);
     return {
       disabled: doc.__isRendering,
       active: false

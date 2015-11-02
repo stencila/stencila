@@ -9,6 +9,7 @@ function StencilNode() {
 }
 
 StencilNode.Prototype = function() {
+
   this.updateGeneratedProperties = function(props) {
     var propNames = this.constructor.static.generatedProps;
     if (propNames) {

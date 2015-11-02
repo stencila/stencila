@@ -20,6 +20,7 @@ StencilFigureComponent.Prototype = function() {
     el.append($$('div')
       .addClass('label').attr("contenteditable", false)
       .append(this.props.node.label)
+      .key('label')
     );
 
     el.append($$('div')
@@ -30,6 +31,7 @@ StencilFigureComponent.Prototype = function() {
           path: [this.props.node.id, "source"]
         })
       )
+      .key('source')
     );
 
     el.append($$('div')
@@ -43,6 +45,7 @@ StencilFigureComponent.Prototype = function() {
             src: this.props.node.getDocument().url + "/" + this.props.node.image
           })
       )
+      .key('content')
     );
     el.append($$('div')
       .addClass('description small')
@@ -53,6 +56,7 @@ StencilFigureComponent.Prototype = function() {
         })
         .addClass('caption')
       )
+      .key('description')
     );
     return el;
   };
