@@ -59,7 +59,7 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 	
 	if(method=="content" and verb=="GET"){
 		response.append("format","html");
-		response.append("content",html());
+		response.append("content",html(false,false));
 	}
 	else if(method=="render" and verb=="PUT"){
 		auto format = request["format"].as<std::string>();
@@ -68,7 +68,7 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 		html(content).render();
 
 		response.append("format","html");
-		response.append("content",html());
+		response.append("content",html(false,false));
 	}
 	else if(method=="save" and verb=="PUT"){
 		auto format = request["format"].as<std::string>();
