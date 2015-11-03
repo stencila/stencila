@@ -65,9 +65,16 @@ private:
     template<typename... Args>
     boost::python::object call_(const char* name,Args... args){
         using namespace boost::python;
+
         try {
+            // Get the Python GIL (Global Interpretor Lock)
+            PyGILState_STATE py_gil_state = PyGILState_Ensure();
+            // Call the Python side context method
             auto method = context_.attr(name);      
             auto result = method(args...);
+            // Release the GIL
+            PyGILState_Release(py_gil_state);
+            
             return result;
         }
         catch(error_already_set const &){
