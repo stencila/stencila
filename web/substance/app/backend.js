@@ -8,9 +8,8 @@ var CONFIG = {
 };
 
 var Backend = function() {
+  this._getHost();
   this._getAddress();
-  // HACK: the doc address is hard-coded
-  this.address = "http://localhost:7373/core/stencils/examples/kitchensink"
 };
 
 Backend.Prototype = function() {
@@ -20,10 +19,10 @@ Backend.Prototype = function() {
   //
   // Deals with sending the authentication header, encoding etc.
 
-  this._request = function(method, url, data, cb) {
+  this._request = function(method, endpoint, data, cb) {
     var ajaxOpts = {
       type: method,
-      url: url,
+      url: 'http://'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
       contentType: "application/json; charset=UTF-8",
       // dataType: "json",
       success: function(data) {
@@ -38,6 +37,13 @@ Backend.Prototype = function() {
       ajaxOpts.data = JSON.stringify(data);
     }
     $.ajax(ajaxOpts);
+  };
+
+  this._getHost = function() {
+    var location = window.location;
+    if(location.protocol==='file:') this.host = 'localfile';
+    else this.host = location.hostname;
+    this.port = location.port;
   };
 
   this._getAddress = function() {
@@ -65,7 +71,7 @@ Backend.Prototype = function() {
   this.getDocument = function(documentId, cb) {
     var address = this.address;
     // TODO: we need a concept for generating the document URL
-    this._request('GET',  this.address + "@content", null, function(err, resultStr) {
+    this._request('GET', "content", null, function(err, resultStr) {
       if (err) { console.error(err); cb(err); }
       var result = JSON.parse(resultStr);
       var doc = new Stencil();
@@ -78,7 +84,7 @@ Backend.Prototype = function() {
   };
 
   this.saveDocument = function(doc, cb) {
-    this._request('PUT',  this.address + "@save", {
+    this._request('PUT', "save", {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, resultStr) {
@@ -88,7 +94,7 @@ Backend.Prototype = function() {
   };
 
   this.renderDocument = function(doc, cb) {
-    this._request('PUT', this.address + "@render", {
+    this._request('PUT', "render", {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, resultStr) {
