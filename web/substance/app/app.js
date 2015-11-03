@@ -103,13 +103,6 @@ App.Prototype = function() {
 
 oo.inherit(App, Component);
 
-$(function() {
-  var content = $('#content');
-  var html = content.html() || '';
-  content.remove();
-  Component.mount($$(App,{"html":html}),$('body'));
-});
-
 
 // Stencila global object is used to indicate that this script
 // has loaded successfully and helps dealing with the fallback
@@ -136,4 +129,9 @@ window.MathJax = {
   showMathMenu: false,
   "HTML-CSS": {preferredFont: "STIX"}
 };
-window.Stencila.load('/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML');
+window.Stencila.load('/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',function(){
+  var content = $('#content');
+  var html = content.html() || '';
+  content.remove();
+  Component.mount($$(App,{"html":html}),$('body'));
+});
