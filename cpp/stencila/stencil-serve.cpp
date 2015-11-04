@@ -64,8 +64,15 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 	else if(method=="render" and verb=="PUT"){
 		auto format = request["format"].as<std::string>();
 		auto content = request["content"].as<std::string>();
-
-		html(content).render();
+		if(content.length()){
+			if(format=="html") html(content);
+			else if(format=="cila") cila(content);
+			else {
+				response.append("error","format is not 'cila' or 'html'");
+			}
+		}
+		
+		render();
 
 		response.append("format","html");
 		response.append("content",html(false,false));
