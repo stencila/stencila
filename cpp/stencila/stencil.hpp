@@ -356,7 +356,9 @@ public:
 	/**
 	 * Remove attributes and elements added to a HTML node,
 	 * and its children, during rendering. Retains the rendering 
-	 * logic but discards the rendering results. The opposite of `strip`.
+	 * logic but discards the rendering results. The opposite of `scrub`.
+	 *
+	 * e.g. <span data-text="6*7">42</span>  ->  <span data-text="6*7"></span>
 	 */
 	static void clean(Node node);
 
@@ -368,7 +370,9 @@ public:
 	/**
 	 * Remove all directives from a HTML node and its children.
 	 * After scrubbing a node all the rendering logic is removed. However the rendered content and the 
-	 * rendering flags are still retained.
+	 * rendering flags are still retained. The opposite of 'clean'.
+	 *
+	 * e.g. <span data-text="6*7">42</span>  ->  <span>42</span>
 	 */
 	static void scrub(Node node);
 
@@ -381,6 +385,8 @@ public:
 	 * Remove all directives and flags from a HTML node and its children.
 	 * After stripping a node it should not have any traces of having been part of a stencil.
 	 * Only rendered content is retained. All directive and flag attributes are removed.
+	 *
+	 * e.g. <span data-if="2<1" data-off="true">Yes</span>  ->  <span>Yes</span>
 	 */
 	static void strip(Node node);
 
@@ -839,7 +845,7 @@ public:
 	Stencil& refresh(void);
 
 	/**
-	 * Read (in case of local file changes), strip and render this stencil
+	 * Re-read (in case of local file changes) and render this stencil
 	 */
 	Stencil& restart(void);
 
@@ -847,6 +853,47 @@ public:
 	 * @}
 	 */
 	
+
+	/**
+	 * @name Sanitization
+	 * @{
+	 */
+	
+	/**
+	 * List of allowed stencil element names
+	 */
+	static const std::vector<std::string> tags;
+
+	/**
+	 * Is the element tag name an allowed stencil element?
+	 */
+	static bool tag(const std::string& name);
+
+	/**
+	 * Sanitize the stencil to remove potenitally malicious elements
+	 * and attributes
+	 */
+	Stencil& sanitize(void);
+
+	/**
+	 * @}
+	 */
+
+
+	/**
+	 * Commit changes to this stencil
+	 * 
+	 * @param  message A commit message
+	 */
+	Stencil& commit(const std::string& message=""){
+		// Save the stencil..
+		write();
+		///...then commit it
+		Component::commit(message);
+		return *this;
+	}
+	
+
 	/**
 	 * @name Serving
 	 *
@@ -935,44 +982,6 @@ public:
 	/**
 	 * @}
 	 */
-
-	/**
-	 * @name Sanitization
-	 * @{
-	 */
-	
-	/**
-	 * List of allowed stencil element names?
-	 */
-	static const std::vector<std::string> tags;
-
-	/**
-	 * Is the element tag name an allowed stencil element?
-	 */
-	static bool tag(const std::string& name);
-
-	/**
-	 * Sanitize the stencil to remove potenitally malicious elements
-	 * and attributes
-	 */
-	Stencil& sanitize(void);
-
-	/**
-	 * @}
-	 */
-
-	/**
-	 * Commit changes to this stencil
-	 * 
-	 * @param  message A commit message
-	 */
-	Stencil& commit(const std::string& message=""){
-		// Save the stencil..
-		write();
-		///...then commit it
-		Component::commit(message);
-		return *this;
-	}
 
 private:
 
