@@ -4,4 +4,4 @@
 
 from stencila.component import Component, grab
 from stencila.stencil import Stencil
-from stencila.context import Context, ContextError, Scope
+from stencila.context import Context, Scope
