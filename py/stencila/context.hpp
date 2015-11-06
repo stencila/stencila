@@ -29,6 +29,13 @@ class PythonContext : public Context {
 public:
     
     PythonContext(boost::python::object context){
+        // This seems to fix #71 and is based on this answer http://stackoverflow.com/a/12118259/4625911
+        //      In general situations, the C library needs to call PyEval_InitThreads() 
+        //      to gain GIL before spawning any thread that invokes python callbacks. 
+        //      And the callbacks need to be surrounded with PyGILState_Ensure() and 
+        //      PyGILState_Release() to ensure safe execution.
+        PyEval_InitThreads();
+
         context_ = context;
     }
 
@@ -183,15 +190,16 @@ private:
     boost::python::object call_(const char* name,Args... args){
         using namespace boost::python;
 
+        // Get the Python GIL (Global Interpreter Lock). Ensure it
+        // is released for any of the branches below.
+        PyGILState_STATE py_gil_state = PyGILState_Ensure();
         try {
-            // Get the Python GIL (Global Interpreter Lock)
-            PyGILState_STATE py_gil_state = PyGILState_Ensure();
             // Call the Python side context method
             auto method = context_.attr(name);      
             auto result = method(args...);
+
             // Release the GIL
-            PyGILState_Release(py_gil_state);
-            
+            PyGILState_Release(py_gil_state);            
             return result;
         }
         catch(error_already_set const &){
@@ -221,12 +229,19 @@ private:
                     }
                 }
             }
+
+            // Release the GIL
+            PyGILState_Release(py_gil_state);
             throw PythonException(message);
         }
         catch(const std::exception& exc){
+            // Release the GIL
+            PyGILState_Release(py_gil_state);
             throw PythonException(exc.what());
         }
         catch(...){
+            // Release the GIL
+            PyGILState_Release(py_gil_state);
             throw PythonException("Unknown exception");
         }
     }
