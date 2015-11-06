@@ -52,7 +52,7 @@ std::string Stencil::request(Component* component,const std::string& verb,const 
 
 std::string Stencil::request(const std::string& verb,const std::string& method,const std::string& body){
 	Json::Document request;
-	if(verb!="GET"){
+	if(verb!="GET" and body.length()){
 		request.load(body);
 	}
 	Json::Document response = Json::Object();
