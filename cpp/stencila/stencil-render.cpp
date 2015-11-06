@@ -53,13 +53,16 @@ void Stencil::render(Node node, std::shared_ptr<Context> context){
 		//   Note that return is used so that only the first Stencila "data-xxx" will be 
 		//   considered and that directive will determine how/if children nodes are processed
 		for(std::string attr : node.attrs()){		
-			// Exec attributes check for hash changes before removing errors so
-			// are treated differently below.
 			if(attr=="data-exec"){
+				// Exec directives check for hash changes before being rexecuted.
+				// So don't remove errors or warnings, otherwise if the code has not been changed,
+				// and the directive is not re-executed, these will be lost
 				return Execute().render(*this,node,context);
 			} else {
-				// Remove any existing error attribute
+				// All other directives are always re-executed
+				// So, remove any existing error or waring flags
 				node.erase("data-error");
+				node.erase("data-warning");
 	
 				if(attr=="data-where") return Where().render(*this,node,context);
 				else if(attr=="data-attr") return Attr().render(*this,node,context);

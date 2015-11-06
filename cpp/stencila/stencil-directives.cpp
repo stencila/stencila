@@ -136,7 +136,13 @@ std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
 		// Update based on attrs
 		if(attrs){
 			for(auto attr : node.attrs()){
-				if(attr!="data-hash") key += attr+":"+node.attr(attr);
+				if(
+					// Obviously, don't include the hash attr
+					attr!="data-hash" and 
+					// Don't include attributes resulting from previous
+					// executions
+					attr!="data-error" and attr!="data-warning"
+				) key += attr+":"+node.attr(attr);
 			}
 		}
 		// Update based on text
@@ -287,6 +293,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 
 	// Remove any existing error attribute
 	node.erase("data-error");
+	node.erase("data-warning");
 
 	// Get code and return if zero length
 	std::string code = node.text();
