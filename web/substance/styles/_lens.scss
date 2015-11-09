@@ -76,5 +76,55 @@
   }
 }
 
-// TODO: Get rid one by one!
-@import '_wild_overrides';
+
+/* Custom Scrollbar styles
+-----------------------------------------------------*/
+
+.scrollbar-component.comments .highlight {
+  background: #aaa;
+}
+
+.scrollbar-component.cite-bib-item .highlight, .scrollbar-component.bib-items .highlight {
+  background-color: $highlight-color-2;
+}
+
+/* Figures
+-----------------------------------------------------*/
+
+.figure img {
+  max-width: 100%;
+}
+
+/* Figure Node
+-----------------------------------------------------*/
+
+.content-node.figure {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+
+
+  .label {
+    color: #777;
+    padding-bottom: 10px;
+  }
+
+  .title {
+    font-size: 20px;
+    padding-bottom: 20px;
+    // font-weight: 600;
+  }
+
+  .description {
+    padding-top: 20px;
+    line-height: 20px;
+  }
+
+  .image {
+    padding-bottom: 20px;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
