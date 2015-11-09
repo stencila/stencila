@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# A "postinstall" script used by npm
+# Handles things that npm can't do
+
+
+# font-awesome
 
 echo "Setting font-awesome 'fa-font-path' variable"
 sed -i.back 's!\$fa-font-path: .*$!\$fa-font-path: "/web/fonts/";!' node_modules/font-awesome/scss/_variables.scss
@@ -7,6 +12,10 @@ sed -i.back 's!\$fa-font-path: .*$!\$fa-font-path: "/web/fonts/";!' node_modules
 echo "Copying font-awesome fonts"
 mkdir -p build/fonts
 cp -f node_modules/font-awesome/fonts/* build/fonts
+
+
+# Ace editor
+# Building Ace is quite slow so this checks for a `ace-build.flag` first
 
 if [ ! -e node_modules/ace-built.flag ]; then
 	echo "Installing Ace editor"
@@ -36,6 +45,10 @@ if [ ! -e node_modules/ace-built.flag ]; then
 
 	touch node_modules/ace-built.flag
 fi
+
+# MathJax
+# Unfortunately using a dependecy like `"MathJax": "mathjax/MathJax#ba9afeb"` in
+# `package.json` did not work (npm fails) so here we manually download the tar
 
 if [ ! -e node_modules/mathjax ]; then
 	echo "Getting MathJax"
