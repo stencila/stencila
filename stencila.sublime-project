@@ -69,14 +69,12 @@
 	"folders":
 	[
 		{
+			"path": ".",
 			"folder_exclude_patterns":
 			[
-				"build","web/node_modules","web/other_modules","web/semantic"
-			],
-			"path": "."
-		},
-		{
-			"path": "/home/nokome/.stencila"
+				"build",
+				"web/node_modules"
+			]
 		},
 		{
 			"path": "web/node_modules/substance"
