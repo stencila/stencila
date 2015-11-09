@@ -1,5 +1,6 @@
-import extension
+import stencila.extension as extension
 
+from stencila.extension import Component
 
 def grab(address):
     '''
@@ -10,7 +11,8 @@ def grab(address):
     '''
     type, path = extension.grab(address)
     if type == 'Stencil':
-        return extension.Stencil(path)
+        from stencila.stencil import Stencil
+        return Stencil(path)
     elif type == 'Theme':
         return extension.Theme(path)
     else:

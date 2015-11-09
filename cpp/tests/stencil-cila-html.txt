@@ -37,7 +37,7 @@ section
 		r format png
 			plot(1,1)
 
-		figcaption One equals one
+		figcaption [[Figure 1]] One equals one
 --------------------------------------------------
 <section>
 	<p>
@@ -61,7 +61,7 @@ section
 plot(1,1)
 </pre>
 		<figcaption>
-			One equals one
+			<span data-label="figure-1">Figure 1</span>One equals one
 		</figcaption>
 	</figure>
 </section>
@@ -248,16 +248,16 @@ section
 <p>
 	Isolated from preceding
 </p>
-<p class="equation">
+<div data-equation="true">
 	<script type="math/asciimath; mode=display">e = mc^2</script>
-</p>
+</div>
 <p>
 	Isolated from following
 </p>
 <section>
-	<p class="equation">
+	<div data-equation="true">
 		<script type="math/asciimath; mode=display">Indented properly</script>
-	</p>
+	</div>
 </section>
 --------------------------------------------------
 
@@ -419,6 +419,31 @@ ol .class
 --------------------------------------------------
 
 
+Decimal numbers and dashes at start of line don't get listified if no trailing space <>
+--------------------------------------------------
+-foo
+
+1.234
+
+- foo
+
+1. 234
+--------------------------------------------------
+<p>
+	-foo
+</p>
+<p>
+	1.234
+</p>
+<ul>
+	<li>foo</li>
+</ul>
+<ol>
+	<li>234</li>
+</ol>
+--------------------------------------------------
+
+
 Lists with items with attributes don't get shorthanded <>
 --------------------------------------------------
 ol
@@ -554,6 +579,27 @@ A paragraph with a nested list inside it
 		<li>B Some text</li>
 	</ul>
 </p>
+--------------------------------------------------
+
+
+Caption labels <>
+--------------------------------------------------
+figure
+	figcaption [[Figure 1]] Plot of X versus Y
+
+table
+	caption [[Table 4]] X and Y by year
+--------------------------------------------------
+<figure>
+	<figcaption>
+		<span data-label="figure-1">Figure 1</span>Plot of X versus Y
+	</figcaption>
+</figure>
+<table>
+	<caption>
+		<span data-label="table-4">Table 4</span>X and Y by year
+	</caption>
+</table>
 --------------------------------------------------
 
 
@@ -792,7 +838,7 @@ Get a blank line before
 where py
 	Then do this
 
-where py,r
+where py
 	Then do that
 
 Get a blank line after
@@ -803,7 +849,7 @@ Get a blank line after
 <div data-where="py">
 	Then do this
 </div>
-<div data-where="py,r">
+<div data-where="py">
 	Then do that
 </div>
 <p>
@@ -830,6 +876,20 @@ else
 <div data-else="true">
 	Zero
 </div>
+--------------------------------------------------
+
+
+`attr` directive <>
+--------------------------------------------------
+attr x
+attr x value y
+attr x value y given z
+attr x given z
+--------------------------------------------------
+<div data-attr="x"></div>
+<div data-attr="x value y"></div>
+<div data-attr="x value y given z"></div>
+<div data-attr="x given z"></div>
 --------------------------------------------------
 
 
@@ -936,6 +996,26 @@ call myfunc
 <form data-call="myfunc">
 	<input name="arg1"><input name="arg2"><button type="submit">Calculate</button>
 </form>
+--------------------------------------------------
+
+
+`begin` & `end` directives <>
+--------------------------------------------------
+Some {begin 1}text{end 1} to be marked
+
+Can {begin 2} be {begin 3}overlapping{end 2} {end 3}
+
+Can {begin 4} be {begin 5} nested {end 4} {end 5}
+--------------------------------------------------
+<p>
+	Some <span data-begin="1"></span>text<span data-end="1"></span> to be marked
+</p>
+<p>
+	Can <span data-begin="2"></span> be <span data-begin="3"></span>overlapping<span data-end="2"></span> <span data-end="3"></span>
+</p>
+<p>
+	Can <span data-begin="4"></span> be <span data-begin="5"></span> nested <span data-end="4"></span> <span data-end="5"></span>
+</p>
 --------------------------------------------------
 
 

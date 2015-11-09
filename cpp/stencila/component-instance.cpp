@@ -20,11 +20,13 @@ void Component::classes(void){
 	class_(Component::StencilType, Class(
 		"Stencil",
 		Stencil::page,
+		Stencil::request,
 		Stencil::call
 	));
 	class_(Component::ThemeType, Class(
 		"Theme",
 		Theme::page,
+		nullptr,
 		Theme::call
 	));
 }

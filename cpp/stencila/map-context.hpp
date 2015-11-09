@@ -65,7 +65,7 @@ public:
 
 	bool test(const std::string& expression){
 		std::string value = get_(expression);
-		return value.length()>0;
+		return value=="true";
 	}
 
 	void mark(const std::string& expression){

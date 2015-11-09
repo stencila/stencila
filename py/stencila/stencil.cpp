@@ -12,11 +12,9 @@ using namespace boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_get_overloads,html,0,2)
 
-Stencil& Stencil_render(Stencil& self, object context){
-    // Use supplied Python Context to create a C++ side PythonContext
-    auto python_context = std::make_shared<PythonContext>(context);
-    // Render within this context
-    self.render(python_context);
+
+Stencil& Stencil_attach(Stencil& self, object context){
+    self.attach(std::make_shared<PythonContext>(context));
     return self;
 }
 
@@ -57,7 +55,12 @@ void def_Stencil(void){
         .def("keywords",&Stencil::keywords)
         .def("authors",&Stencil::authors)
 
-        .def("render",Stencil_render,return_self<>())
+        .def("attach",Stencil_attach,return_self<>())
+        .def("detach",&Stencil::detach,return_self<>())
+        .def("render",
+            static_cast<Stencil& (Stencil::*)(void)>(&Stencil::render),
+            return_self<>()
+        )
 
         .def("serve",&Stencil::serve,return_self<>())
         .def("view",&Stencil::view,return_self<>())

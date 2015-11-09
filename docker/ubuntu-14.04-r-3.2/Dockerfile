@@ -1,5 +1,9 @@
 FROM stencila/ubuntu-14.04
 
+# Turn off interactive installs
+# See https://github.com/phusion/baseimage-docker/issues/58
+ENV DEBIAN_FRONTEND noninteractive
+
 # Update system and install required system packages
 RUN apt-get update
 RUN apt-get install -y wget software-properties-common
@@ -8,24 +12,21 @@ RUN apt-get install -y wget software-properties-common
 RUN add-apt-repository 'deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/'
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 RUN apt-get update
-RUN apt-get install -y r-base=3.2.0-1trusty r-base-dev=3.2.0-1trusty r-recommended=3.2.0-1trusty
+RUN apt-get install -y r-base=3.2.2-1trusty0 r-base-dev=3.2.2-1trusty0 r-recommended=3.2.2-1trusty0
 
 # Do following install tasks in /tmp
 WORKDIR /tmp
 
-# Install Stencila R package requirements
-# Installing Rcpp using 
-#	RUN Rscript -e "install.packages('Rcpp',repos='http://cran.us.r-project.org')"
-# fails silently for some unknown reason
-RUN wget http://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_0.11.5.tar.gz
-RUN R CMD INSTALL Rcpp_0.11.5.tar.gz
+# Install Stencila R package dependencies
+RUN Rscript -e "install.packages('Rcpp',repo='http://cran.cnr.berkeley.edu/')"
 
-# Install Stencila R package
-RUN wget http://get.stenci.la/r/complete/x86_64-pc-linux-gnu/3.2/stencila_0.15.tar.gz
-RUN R CMD INSTALL stencila_0.16.tar.gz
+# Install Stencila R package using tar so that version can be specified
+# RUN gets cached is just using `install.packages('stencila',repo='http://get.stenci.la/r')`
+RUN wget http://get.stenci.la/r/src/contrib/stencila_0.18.tar.gz ; \
+    R CMD INSTALL stencila_0.18.tar.gz
 
 # Add Stencila CLI script to PATH
-RUN Rscript -e 'require(stencila); stencila:::install_cli()'
+RUN Rscript -e 'require(stencila); stencila:::install()'
 
 # Add a user (creating home and specifying shell) and
 # use it when running the container

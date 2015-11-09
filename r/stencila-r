@@ -49,11 +49,19 @@ if(length(commands)==0 | (length(commands)==1 & commands[1]=='help')){
 	quit('no')
 }
 
-# Get address, remove it from commands and grab component
-address <- commands[1]
-commands <- commands[-1]
-cat('Grabbing from      : ',magenta,address,reset,'\n',sep='')
-component <- grab(address)
+# Get target
+target <- commands[1]
+if(target %in% c('stencil')){
+	component <- 
+    cat('Creating new       : ',magenta,target,reset,'\n',sep='')
+    if(target=='stencil'){
+        component <- Stencil()
+    }
+    component$path('')
+} else {
+	cat('Grabbing from      : ',magenta,target,reset,'\n',sep='')
+	component <- grab(target)
+}
 
 # Confirm component address, path, type
 cat('Component address  : ',cyan,component$address(),reset,'\n',sep='')
@@ -61,8 +69,14 @@ cat('Component path     : ',cyan,component$path(),reset,'\n',sep='')
 cat('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
 
 # Iterate over methods, applying them to the component
+commands <- commands[-1]
 for(command in commands){
 	if(!is.na(command)){
+		# If elipsis then sleep until Ctrl+C
+		if(command=='...'){
+			cat('\nSleeping (use Ctrl+C to exit)\n')
+			Sys.sleep(Inf)
+		}
 		# Get method and arguments
 		parts <- strsplit(command,':')[[1]]
 		method <- parts[1]

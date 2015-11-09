@@ -249,25 +249,34 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
-TIDYHTML5_VERSION := 0bf0d85
+TIDYHTML5_VERSION := b4efe74
 
 $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/stencila/tidy-html5/tarball/$(TIDYHTML5_VERSION)
+	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/tarball/$(TIDYHTML5_VERSION)
 
 $(BUILD)/cpp/requires/tidy-html5: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/stencila-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
+	mv $(BUILD)/cpp/requires/htacg-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
 	touch $@
 
-# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
+TIDYHTML5_CMAKE_FLAGS = -DCMAKE_C_FLAGS="-O2 -fPIC"
+ifeq ($(OS), win)
+TIDYHTML5_CMAKE_FLAGS += -G "MSYS Makefiles"
+endif
 $(BUILD)/cpp/requires/tidy-html5-built.flag: $(BUILD)/cpp/requires/tidy-html5
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
-	  cmake -DCMAKE_C_FLAGS="-O2 -fPIC" ../..;\
-	  make
+	  cmake $(TIDYHTML5_CMAKE_FLAGS) ../..
+ifeq ($(OS), linux)
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+		make
+endif
 ifeq ($(OS), win)
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+		cmake --build . --config Release
+	# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/build/cmake/libtidys.a
 endif
 	touch $@
@@ -383,7 +392,7 @@ define CPP_LIBRARY_EXTRACT
 	mkdir -p $(BUILD)/cpp/library/objects/$2
 	cd $(BUILD)/cpp/library/objects/$2 ;\
 		ar x $(realpath $(BUILD)/cpp/requires)/$1 ;\
-		for filename in *.o; do mv $$filename ../$2-$$filename; done ;
+		for filename in *.o*; do mv $$filename ../$2-$$filename; done ;
 	rm -rf $(BUILD)/cpp/library/objects/$2
 endef
 
@@ -405,7 +414,7 @@ $(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 # Output list of contents to `files.txt` and `symbols.txt` for checking
 $(BUILD)/cpp/library/libstencila.a: $(BUILD)/cpp/library/objects
 	cd $(BUILD)/cpp/library ;\
-		$(AR) rc libstencila.a `find . -name "*.o"` ;\
+		$(AR) rc libstencila.a `find . -name "*.o*"` ;\
 		$(AR) t libstencila.a > files.txt ;\
 		nm -gC libstencila.a > symbols.txt
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
@@ -576,13 +585,24 @@ $(BUILD)/cpp/docs/%.css: cpp/docs/%.css
 $(BUILD)/cpp/docs/%.html: cpp/docs/%.html
 	@mkdir -p $(BUILD)/cpp/docs
 	cp $< $@
-	
+
 cpp-docs: $(BUILD)/cpp/docs/Doxyfile $(BUILD)/cpp/docs/doxy.css \
 	      $(BUILD)/cpp/docs/doxy-header.html $(BUILD)/cpp/docs/doxy-footer.html
 	cd $(BUILD)/cpp/docs ;\
 	  sed -i 's!PROJECT_NUMBER = .*$$!PROJECT_NUMBER = $(VERSION)!' Doxyfile ;\
-	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/!' Doxyfile ;\
+	  sed -i 's!INPUT = .*$$!INPUT = $(ROOT)/cpp/stencila/ $(ROOT)/cpp/README.md!' Doxyfile ;\
+	  sed -i 's!USE_MDFILE_AS_MAINPAGE = .*$$!USE_MDFILE_AS_MAINPAGE = $(ROOT)/cpp/README.md!' Doxyfile ;\
 	  doxygen Doxyfile
+
+# Requires a branch called "gh-pages":
+#	git checkout --orphan gh-pages
+#	git rm -rf .
+# and the "ghp-import" script
+# 	sudo pip install ghp-import
+cpp-docs-publish: cpp-docs
+	mkdir -p $(BUILD)/pages/cpp
+	cp -fr $(BUILD)/cpp/docs/html/. $(BUILD)/pages/cpp
+	ghp-import -m "Updated pages" -p $(BUILD)/pages
 
 # Remove everything except C++ requirements
 cpp-scrub:
@@ -862,6 +882,10 @@ $(R_BUILD)/stencila.$(R_DLL_EXT): $(R_PACKAGE_OBJECTS) $(BUILD)/cpp/library/libs
 	$(CXX) -shared -o$@ $^ $(R_LDFLAGS) $(RCPP_LDFLAGS) -L$(BUILD)/cpp/library $(R_DLL_LIBS)
 r-dll: $(R_BUILD)/stencila.$(R_DLL_EXT)
 
+# Check DLL can be loaded
+r-dll-check: $(R_BUILD)/stencila.$(R_DLL_EXT)
+	Rscript -e "dyn.load('$(R_BUILD)/stencila.$(R_DLL_EXT)')"
+
 # Build DLL zip file
 ifeq ($(OS),win)
 # Extra DLLs needed on windows. These should be available from the MSYS2 install.
@@ -869,9 +893,9 @@ ifeq ($(OS),win)
 # (http://www.dependencywalker.com/) on stencila.dll
 R_DLL_EXTRA := $(patsubst %, /c/msys64/mingw64/bin/%, libeay32.dll libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll ssleay32.dll zlib1.dll)
 endif
-$(R_BUILD)/stencila-dll.zip: $(R_BUILD)/stencila.$(R_DLL_EXT)
+$(R_BUILD)/stencila-dll.zip: r-dll-check
 	rm -f $@
-	zip -j $@ $< $(R_DLL_EXTRA)
+	zip -j $@ $(R_BUILD)/stencila.$(R_DLL_EXT) $(R_DLL_EXTRA)
 r-dll-zip: $(R_BUILD)/stencila-dll.zip
 
 # Copy over DLL zip file
@@ -976,7 +1000,7 @@ $(R_BUILD)/testenv/stencila: $(R_BUILD)/$(R_PACKAGE_FILE)
 # Test the package by running unit tests
 r-tests: $(R_BUILD)/testenv/stencila $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;cd testenv ;\
-	    (Rscript -e ".libPaths('.'); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
+	    (Rscript -e ".libPaths(c('.',.libPaths()[1])); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
 
 # Install R on the local host
 # Not intended for development but rather 
@@ -988,6 +1012,24 @@ r-install: $(R_BUILD)/$(R_PACKAGE_FILE)
 # Remove everything
 r-clean:
 	rm -rf $(BUILD)/r
+
+#################################################################################################
+# Stencila web browser module
+
+web-requires:
+	cd web; npm install
+
+web-build:
+	cd web; gulp build
+
+web-watch:
+	cd web; gulp watch
+
+web-deliver:
+	aws s3 sync web/build s3://get.stenci.la/web/
+
+web-clean:
+	rm -rf web/build
 
 #################################################################################################
 

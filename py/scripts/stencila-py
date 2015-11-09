@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 import sys
+import time
 
 import stencila
 
@@ -42,18 +43,28 @@ def main():
             print '  stencila-py core/themes/base compile'
             sys.exit()
 
-        # Get address, remove it from commands and grab component
-        address = commands.pop(0)
-        print 'Grabbing from      : '+magenta+address+reset
-        component = stencila.grab(address)
+        #Get target
+        target = commands.pop(0)
+        if target in ('stencil',):
+            print 'Creating new       : '+magenta+target+reset
+            if target=='stencil':
+                component = stencila.Stencil()
+            component.path('')
+        else:
+            print 'Grabbing from      : '+magenta+target+reset
+            component = stencila.grab(target)
 
         # Confirm component address, path, type
         print 'Component address  : '+cyan+component.address()+reset
-        print 'Component path     : '+cyan+component.path(False)+reset
+        print 'Component path     : '+cyan+component.path()+reset
         print 'Component type     : '+cyan+component.__class__.__name__+reset
 
         # Iterate over methods, applying them to the component
         for command in commands:
+            # If elipsis then sleep until Ctrl+C
+            if command=='...':
+                print '\nSleeping (use Ctrl+C to exit)\n'
+                while True: time.sleep(0x7FFFFFFF)
             # Get method and arguments
             if ':' in command:
                 method, args = command.split(':')

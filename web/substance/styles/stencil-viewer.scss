@@ -1,0 +1,16 @@
+.sc-stencil-viewer {
+  @extend %lens;
+
+  overflow: auto;
+
+  .se-main {
+    padding: 50px;
+    max-width: 900px;
+    margin: 0px auto;
+    overflow: hidden;
+
+    .se-toggle-reveal {
+      margin-bottom: 40px;
+    }
+  }
+}

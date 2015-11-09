@@ -7,6 +7,22 @@
 #include <stencila/stencil.hpp>
 #include <stencila/string.hpp>
 
+namespace {
+	// Generate a unique id (used below);
+	std::string id_unique(unsigned int length = 8){
+		static const char chars[] = 
+			"abcdefghijklmnopqrstuvwxyz"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"0123456789";
+		std::string id;
+		id.resize(length);
+		for(unsigned int index = 0; index < length; index++) {
+	        id[index] = chars[std::rand() % (sizeof(chars) - 1)];
+	    }
+	    return id;
+	}
+}
+
 namespace Stencila {
 
 Stencil& Stencil::attach(std::shared_ptr<Context> context){
@@ -37,13 +53,16 @@ void Stencil::render(Node node, std::shared_ptr<Context> context){
 		//   Note that return is used so that only the first Stencila "data-xxx" will be 
 		//   considered and that directive will determine how/if children nodes are processed
 		for(std::string attr : node.attrs()){		
-			// Exec attributes check for hash changes before removing errors so
-			// are treated differently below.
 			if(attr=="data-exec"){
+				// Exec directives check for hash changes before being rexecuted.
+				// So don't remove errors or warnings, otherwise if the code has not been changed,
+				// and the directive is not re-executed, these will be lost
 				return Execute().render(*this,node,context);
 			} else {
-				// Remove any existing error attribute
+				// All other directives are always re-executed
+				// So, remove any existing error or waring flags
 				node.erase("data-error");
+				node.erase("data-warning");
 	
 				if(attr=="data-where") return Where().render(*this,node,context);
 				else if(attr=="data-attr") return Attr().render(*this,node,context);
@@ -152,6 +171,13 @@ void Stencil::render(Node node, std::shared_ptr<Context> context){
 				std::string count_string = string(count);
 				// Set the index attribute on the node
 				node.attr("data-index",count_string);
+				// Add/modify label
+				Node label = caption.select("[data-label]");
+				if(not label){
+					label = caption.prepend("span");
+					label.attr("data-label",tag+"-"+count_string);
+				}
+				label.text(Stencila::title(tag)+" "+count_string);
 			}
 		}
 		// If return not yet hit then process children of this element
@@ -205,19 +231,37 @@ Stencil& Stencil::render(std::shared_ptr<Context> context){
 	for(Node ref : filter("[data-refer]")){
 		ref.clear();
 		std::string selector = ref.attr("data-refer");
+		// Remove enclosing braces if necessary
+		if(selector.front()=='{') selector = selector.substr(1);
+		if(selector.back()=='}') selector.pop_back();
 		// Attempt to find target using selector
 		Node target = select(selector);
 		if(target){
-			Node label = target.select("[data-label]");
-			if(label){
-				Node a = ref.append(
-					"a",
-					{{"href","#"+target.attr("id")}},
-					label.select(".type").text() + " " + label.select(".number").text()
-				);
-			} else {
-				error(ref,"refer-unlabelled","Matched element does not have a label");
+			auto tag = target.name();
+			auto id = target.attr("id");
+			auto index = target.attr("data-index");
+			// Add an id if target does not yet have one (it's necessary for href below)
+			if(id.length()==0){
+				// Because index could change on a rerender we do not make id dependent upon it
+				// (that would cause confusion and potentially conflicts)
+				id = id_unique();
+				target.attr("id",id);
 			}
+			// Create a reference string (e.g. Table 4)
+			std::string reference;
+			if(index.length()){
+				reference = Stencila::title(tag) + " " + index;
+			}
+			else {
+				// For now, just a dash
+				reference = "-";
+			}
+			// Create the link
+			Node a = ref.append(
+				"a",
+				{{"href","#"+id}},
+				reference
+			);
 		} else {
 			error(ref,"refer-missing","No matching element found");
 		}

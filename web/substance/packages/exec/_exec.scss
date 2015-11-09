@@ -1,0 +1,41 @@
+.sc-stencil-exec {
+
+  &.sm-error {
+    border: 1px solid #A20808;
+  }
+  // background: #2B303B;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  padding: 20px;
+  // color: #fff;
+
+  color: #777;
+  position: relative;
+
+  .se-action {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    color: #888;
+    padding: 10px;
+    cursor: pointer;
+
+    &:hover {
+      color: #222;
+    }
+  }
+
+  .se-exec-source {
+    background: #2B303B;
+    color: rgba(255,255,255,0.9);
+    padding: 10px;
+    font-size: 13px;
+
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    margin-bottom: 20px;    
+  }
+}

@@ -19,6 +19,12 @@ Frame::Frame(void):
 	resize_(0,0);
 }
 
+Frame::Frame(const Frame& frame):
+	data_(new Data(*frame.data_)),
+	labels_(frame.labels_){
+	resize_(frame.rows(),frame.columns());
+}
+
 Frame::Frame(const std::vector<std::string>& labels, unsigned int rows):
 	data_(new Data),
 	labels_(labels){
@@ -42,11 +48,6 @@ Frame::Frame(const std::vector<std::string>& labels, const std::vector<double>& 
 			operator()(row,col) = values[row*cols+col];
 		}
 	}
-}
-
-Frame::Frame(const Frame& frame):
-	data_(new Data(*frame.data_)),
-	labels_(frame.labels_){
 }
 
 Frame::~Frame(void){

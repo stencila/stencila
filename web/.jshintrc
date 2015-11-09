@@ -1,0 +1,13 @@
+{
+  "node": true,
+  "devel": true,
+  "latedef": true,
+  "undef": true,
+  "unused": true,
+  "sub": true,
+  "predef": [
+    "window",
+    "document",
+    "QUnit"
+  ]
+}

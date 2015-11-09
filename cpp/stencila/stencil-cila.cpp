@@ -7,6 +7,10 @@
 #include <stencila/html.hpp>
 #include <stencila/string.hpp>
 
+#if defined(STENCILA_CILA_PARSER_TRACE)
+	#include <iostream>
+#endif
+
 namespace Stencila {
 
 class CilaParser {
@@ -99,7 +103,12 @@ public:
 	std::deque<State> states;
 
 	/**
-	 * Beggining of input
+	 * Start of input
+	 */
+	std::string::const_iterator start;
+
+	/**
+	 * Current position of parsing in input string
 	 */
 	std::string::const_iterator begin;
 
@@ -184,6 +193,19 @@ public:
 	}
 
 	/**
+	 * Throw an error
+	 */
+	CilaParser& error(const std::string& message){
+		// Count number of lines from start
+		auto lines = std::count(start, begin, '\n');
+		std::string error = "An error occurred when parsing Cila.\n";
+		error += "  error: " + message + "\n";
+		error += "  line: " + string(lines) + "\n";
+		error += "  near: " + std::string(begin-10, begin+10);
+		STENCILA_THROW(Exception,error);
+	}
+
+	/**
 	 * Push into a parsing state
 	 */
 	void push(State to){
@@ -199,7 +221,9 @@ public:
 			#if defined(STENCILA_CILA_PARSER_TRACE)
 				trace_show();
 			#endif
-			throw std::runtime_error("Too few states to pop: "+boost::lexical_cast<std::string>(states.size()));
+			std::string states_list;
+			for(auto state : states) states_list += state_name(state) + ",";
+			error("too few states to pop\n  states: ["+states_list+"]");
 		}
 		states.pop_back();
 		state = states.back();
@@ -402,6 +426,7 @@ public:
 	CilaParser& parse(const std::string& cila){
 		// Initialise members...
 		// ... input
+		start = cila.cbegin();
 		begin = cila.cbegin();
 		end = cila.cend();
 		// ... states
@@ -438,10 +463,10 @@ public:
 				"form|fieldset|label|input|select|textarea|button"
 			")\\b"),
 
-			section(">\\s*([ \\w-]+)"),
+			section(">\\s*(.+?)(\\n|$)"),
 
-			ul_item("-\\s*"),
-			ol_item("\\d+\\.\\s*"),
+			ul_item("-\\s+"),
+			ol_item("\\d+\\.\\s+"),
 
 			attr("\\[([\\w-]+)=(.+?)\\]"),
 			id("#([\\w-]+)\\b"),
@@ -457,17 +482,19 @@ public:
 			// Directives with no argument
 			directive_noarg("\\b(each|else|default)\\b"),
 			// Directives with a single string argument
-			directive_str("\\b(where|icon|macro)\\s+([^\\s}]+)"),
+			directive_str("\\b(icon|macro)\\s+([^\\s}]+)"),
 			// Directives with a single expression argument
 			directive_expr("\\b(call|with|text|if|elif|switch|case|react|click)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
-			directive_selector("\\b(refer)\\s+([\\.\\#\\w\\-]+)"),
-			// `attr` directive        1          2               3
-			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+"+arg_expr+")?"),
+			directive_selector("\\b(refer)\\s+(([\\.\\#\\w\\-]+)|({[^}]+}))"),
+			// `where` directive
+			directive_where("\\b(where)\\s+(js|r|py)\\b"),
+			// `attr` directive        1          2               3 4 5       6               7 8 9
+			directive_attr("\\battr\\s+([\\w\\-]+)(\\s+value\\s+"+arg_expr+")?(\\s+given\\s+"+arg_expr+")?"),
 			// `for` directive
 			directive_for("\\bfor\\s+(\\w+)\\s+in\\s+([^\\s}]+)"),
 			// `include` directive
-			directive_include("\\binclude\\s+([\\w\\./]+)(\\s+select\\s+([\\.\\#\\w\\-]+))?"),
+			directive_include("\\binclude\\s+([\\w\\./]+)(\\s+select\\s+([\\.\\#\\w\\-]+))?(\\s+(complete))?"),
 			// `set` directive
 			directive_set("\\bset\\s+([\\w]+)\\s+to\\s+([^\\s}]+)"),
 			// `include` modifier directives
@@ -476,6 +503,8 @@ public:
 			directive_par("\\bpar\\s+([\\w]+)(\\s+type\\s+([\\w]+))?(\\s+value\\s+([^\\s}]+))?"),
 			// `when` directive
 			directive_when("\\bwhen\\s+([^\\s}]+)(\\s+then\\s+([\\w]+))?"),
+			// Range selection directives `begin`, `end`
+			directive_range("\\b(begin|end) +(\\d+)"),
 			// `comments` directive
 			directive_comments("\\bcomments\\b( +([\\#\\.\\w-]+))?"),
 			// `comment` directive
@@ -495,9 +524,11 @@ public:
 			off("~off"),
 			included("~incl"),
 
-			empha_open("(\\s)_(?=[^\\s])"),
+			label("\\[\\[(\\w+)\\s(\\d+)\\]\\]\\s"),
+
+			empha_open("_(?=[^\\s])"),
 			empha_close("_"),
-			strong_open("(\\s)\\*(?=[^\\s])"),
+			strong_open("\\*(?=[^\\s])"),
 			strong_close("\\*"),
 
 			backtick_escaped("\\\\`"),
@@ -620,14 +651,25 @@ public:
 					// Enter `<section>` move into `elem` state to allow
 					// for any further attributes
 					flush();
+
 					auto id = match[1].str();
+					// Replace punctuation
+					std::replace_if(id.begin(), id.end(), [](const char& c){
+						return not std::isalnum(c);
+					},'-');
+					// Remove consecutive dashes
+					auto new_end = std::unique(id.begin(), id.end(), [](char lhs, char rhs) {
+						return (lhs == rhs) && (lhs == '-');
+					});
+					id.erase(new_end, id.end());
+					// Make lowercase
 					boost::to_lower(id);
-					boost::replace_all(id," ","-");
+
 					auto section = node.append("section").attr("id",id);
 					auto title = match[1].str();
 					auto h1 = section.append("h1").text(title);
 					enter(section);
-					across(elem);
+					across(sol);
 				}
 				else if(is(ul_item)){
 					trace("ul_item");
@@ -647,8 +689,8 @@ public:
 					trace("pipe");
 					// Enter `<script>` and push into `asciimath` state
 					flush();
-					auto span = node.append("p",{{"class","equation"}});
-					auto script = span.append("script",{{"type","math/asciimath; mode=display"}});
+					auto div = node.append("div",{{"data-equation","true"}});
+					auto script = div.append("script",{{"type","math/asciimath; mode=display"}});
 					enter(script);
 					push(asciimath);
 				}
@@ -656,8 +698,8 @@ public:
 					trace("tex_open");
 					// Enter `<script>` and push into `tex` state
 					flush();
-					auto span = node.append("p",{{"class","equation"}});
-					auto script = span.append("script",{{"type","math/tex; mode=display"}});
+					auto div = node.append("div",{{"data-equation","true"}});
+					auto script = div.append("script",{{"type","math/tex; mode=display"}});
 					enter(script);
 					push(tex);
 				}
@@ -713,12 +755,19 @@ public:
 					else enter_elem_if_needed();
 					node.attr("data-"+directive,arg);
 				}
+				else if(is(directive_where)){
+					trace("directive_where");
+
+					enter_elem_if_needed();
+					node.attr("data-where",match[2].str());
+				}
 				else if(is(directive_attr)){
 					trace("directive_attr");
 
 					enter_elem_if_needed();
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " value " + match[3].str();
+					if(match[7].str()!="") args += " given " + match[7].str();
 					node.attr("data-attr",args);
 				}
 				else if(is(directive_for)){
@@ -734,6 +783,7 @@ public:
 					enter_elem_if_needed();
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " select " + match[3].str();
+					if(match[4].str()!="") args += " complete";
 					node.attr("data-include",args);
 				}
 				else if(is(directive_set)){
@@ -765,6 +815,14 @@ public:
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " then " + match[3].str();
 					node.attr("data-when",args);
+				}
+				else if(is(directive_range)){
+					trace("directive_range");
+
+					enter_elem_if_needed("span");
+					auto type = match[1].str();
+					auto id = match[2].str();
+					node.attr("data-"+type,string(id));
 				}
 				else if(is(directive_comments)){
 					trace("directive_comments");
@@ -905,6 +963,14 @@ public:
 					enter(script);
 					push(tex);
 				}
+				else if(is(label)){
+					trace("label");
+					// Flush text and append `<span data-label>`
+					flush();
+					auto type = match[1].str();
+					auto index = match[2].str();
+					node.append("span").attr("data-label",lower(type)+"-"+index).text(title(type)+" "+index);
+				}
 				else if(is(link)){
 					trace("link");
 					// Flush text and append `<a>`
@@ -1034,7 +1100,7 @@ public:
 	 */
 	std::stringstream cila;
 
-	uint newlines = 0;
+	unsigned int newlines = 0;
 
 	/**
 	 * Add line context
@@ -1147,7 +1213,12 @@ public:
 				else content("["+text+"]("+href+")");
 				return;
 			}
-
+			// Labels
+			if(name=="span" and node.has("data-label")){
+				auto label = trim(node.text());
+				content("[["+label+"]] ");
+				return;
+			}
 			// Lists with no attributes and children with no attributes
 			if((name=="ul" or name=="ol") and attributes==0 and children>0){
 				// Check all of the children can be represented by a dash ("-")
@@ -1193,7 +1264,7 @@ public:
 				}
 			}
 			// Equation paragraph
-			if(name=="p" and node.attr("class")=="equation"){
+			if(name=="div" and node.has("data-equation")){
 				auto script = node.select("script");
 				if(script){
 					auto type = script.attr("type");
@@ -1286,6 +1357,17 @@ public:
 				// Fresh line
 				newline(indent);
 			}
+
+			// Default element type depends on directive
+			auto default_tag = [](Node node) -> std::string {
+				if(
+					node.has("data-text") or 
+					node.has("data-refer") or 
+					node.has("data-begin") or
+					node.has("data-end")
+				) return "span";
+				else return "div";
+			};
 			
 			// Execute directives
 			if(node.has("data-exec")){
@@ -1336,15 +1418,15 @@ public:
 				for(auto attr : attribute_list){
 					if(Stencil::flag(attr)) flags++;
 				}
-				if(attributes==0 or flags==attributes or node.has("data-text") or node.has("data-refer")){
-					content(name);
+				if(attributes==0 or flags==attributes or default_tag(node)!="div"){
+					content("div");
 					space_required = true;
 				}
 			}
-			// <span>s don't need to specified if a `text` or `refer` directive
+			// <span>s don't need to specified for some directives
 			else if(name=="span"){
-				if(not (node.has("data-text") or node.has("data-refer"))){
-					content(name);
+				if(default_tag(node)!="span"){
+					content("span");
 					space_required = true;
 				}
 			}

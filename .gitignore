@@ -10,3 +10,7 @@ build
 # Ignore code editor and IDE project and workspace files
 *.sublime-workspace
 .Rhistory
+
+# Ignore Node.js modules
+node_modules
+npm-debug.log

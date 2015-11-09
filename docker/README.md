@@ -1,44 +1,52 @@
-![Stencila](http://static.stenci.la/img/logo-name-400x88.png)
+# Docker containers for using Stencila components.
 
-Docker containers for using Stencila components.
-
-# Images
-
-Images are built using [Automated Builds on Docker Hub](https://docs.docker.com/docker-hub/builds/) from the `Dockerfile`s in this repository. Currently, the available images are:
+Images are built using [Automated Builds on Docker Hub](https://docs.docker.com/docker-hub/builds/) from the `Dockerfiles` in this repository. Currently, the available images are:
 
 - [`stencila/ubuntu-14.04-python-2.7`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-python-2.7/)
-- [`stencila/ubuntu-14.04-r-3.1`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-r-3.1/)
+- [`stencila/ubuntu-14.04-r-3.2`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-r-3.2/)
+
+Check those links for current image build status. 
+
+Run an image with a Stencila session for a component like this:
+
+```sh
+sudo docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-r core/stencils/examples/kitchensink serve ...
+```
+
+The first time you do this may be slow because the image will need to be pulled from the Docker hub. Once the Docker image is running go to http://localhost:7373/core/stencils/examples/kitchensink. This might also be a little slow the first time because the Docker instance needs to `git clone` the kitchensink first.
+
+On Mac OSX (and probably Windows too?) you need to forward the 7373 port from the Docker VirtualBox VM through to host machine like this:
+
+```sh
+VBoxManage modifyvm "default" --natpf1 "tcp-port-7373,tcp,,7373,,7373";
+VBoxManage modifyvm "default" --natpf1 "udp-port-7373,udp,,7373,,7373";
+```
+
+When done kill the docker instance
+
+```sh
+sudo docker ps
+sudo docker kill <id-of-instance>
+```
 
 # Building and testing
 
-During development you might build and test an image like this before pushing and triggering an automated build
+You should build and test an image like this before pushing and triggering an automated build:
 
 ```sh
-cd ubuntu-14.04-r-3.1
-sudo docker build --tag stencila/ubuntu-14.04-r-3.1 .
-sudo docker run --interactive --tty stencila/ubuntu-14.04-r-3.1 /bin/bash
-sudo docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.1 stencila-r core/stencils/examples/kitchensink serve:Inf
-```
+cd ubuntu-14.04-r-3.2
 
-# Vagrant
+# Build an image
+sudo docker build --tag stencila/ubuntu-14.04-r-3.2 .
 
-There is a `Vagrantfile` for launching a [Vagrant](https://www.vagrantup.com/) virtual machine provisioned with Docker. It can be useful for building and testing Docker images.
+# Test it interactively
+sudo docker run --interactive --tty stencila/ubuntu-14.04-r-3.2 /bin/bash
 
-Start a VM,
+# Launch a Stencila R session with the kitchen sink example
+sudo docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-r core/stencils/examples/kitchensink serve ...
+open http://localhost:7373/core/stencils/examples/kitchensink
 
-```sh
-vagrant up
-```
-
-SSH into it and change into this directory,
- 
-```sh
-vagrant ssh
-cd /vagrant
-```
-
-and build and use an image (as above). When finished shutdown the VM with `halt`:
-
-```sh
-vagrant halt
+# When done kill the docker instance
+sudo docker ps
+sudo docker kill bc72075ae56d
 ```

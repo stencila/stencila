@@ -41,6 +41,9 @@ const std::vector<std::string> Stencil::directives = {
 	"data-click",
 	"data-call",
 
+	// Range selection
+	"data-begin","data-end",
+
 	// Comments
 	"data-comments","data-comment"
 };
@@ -133,7 +136,13 @@ std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
 		// Update based on attrs
 		if(attrs){
 			for(auto attr : node.attrs()){
-				if(attr!="data-hash") key += attr+":"+node.attr(attr);
+				if(
+					// Obviously, don't include the hash attr
+					attr!="data-hash" and 
+					// Don't include attributes resulting from previous
+					// executions
+					attr!="data-error" and attr!="data-warning"
+				) key += attr+":"+node.attr(attr);
 			}
 		}
 		// Update based on text
@@ -284,6 +293,7 @@ void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 
 	// Remove any existing error attribute
 	node.erase("data-error");
+	node.erase("data-warning");
 
 	// Get code and return if zero length
 	std::string code = node.text();
@@ -423,11 +433,12 @@ Stencil::Attr::Attr(Node node){
 }
 
 void Stencil::Attr::parse(const std::string& attribute){
-	static const boost::regex pattern("^([\\w-]+) +value +(.+)$");
+	static const boost::regex pattern("^([\\w-]+)(\\s+value\\s+([^\\s]+))?(\\s+given\\s+([^\\s]+))?$");
 	boost::smatch match;
 	if(boost::regex_search(attribute, match, pattern)) {
 		name = match[1].str();
-		expression = match[2].str();
+		value = match[3].str();
+		given = match[5].str();
 	} else {
 		throw DirectiveException("syntax",attribute);
 	}
@@ -439,8 +450,13 @@ void Stencil::Attr::parse(Node node){
 
 void Stencil::Attr::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
-	auto value = context->write(expression);
-	node.attr(name,value);
+	auto add = true;
+	if(given.length()) add = context->test(given);
+	if(add){
+		std::string val = "true";
+		if(value.length()) val = context->write(value);
+		node.attr(name,val);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

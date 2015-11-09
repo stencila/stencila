@@ -23,7 +23,7 @@ Server::Server(void){
 	//   http://www.zaphoyd.com/websocketpp/manual/reference/logging
 	// for a full list
 	server_.clear_access_channels(websocketpp::log::alevel::all);
-	server_.set_access_channels(websocketpp::log::alevel::connect);
+	server_.set_access_channels(websocketpp::log::alevel::all);
 	server_.clear_error_channels(websocketpp::log::elevel::all);
 	server_.set_error_channels(websocketpp::log::elevel::warn);
 	server_.set_error_channels(websocketpp::log::elevel::rerror);
@@ -99,25 +99,28 @@ Server::Session& Server::session_(connection_hdl hdl) {
 	return i->second;
 }
 
-std::string Server::decode_(const std::string& url) {
-	std::string decoded = url;
+std::string Server::path_(server::connection_ptr connection){
+	auto resource = connection->get_resource();
+	// Remove the leading '/'
+	auto path = resource.substr(1);
+	// Decode
 	// Currently this only converts spaces.
 	// More conversions will be required
-	boost::replace_all(decoded,"%20"," ");
-	return decoded;
-}
-
-std::string Server::address_(const std::string& path) {
-	std::string address = path;
-	if(address[0]=='/') address = address.substr(1);
-	if(address[address.length()-1]=='/') address = address.substr(0,address.length()-1);
-	return address;
+	boost::replace_all(path,"%20"," ");
+	// Remove query
+	std::size_t found =  path.find("?");
+    if(found > 0){
+    	path = path.substr(0,found);
+    }
+    return path;
 }
 
 void Server::open_(connection_hdl hdl) {
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	std::string path = connection->get_resource();
-	std::string address = address_(decode_(path));
+	auto path = path_(connection);
+	std::string address;
+	if(path.back()=='/') address = path.substr(0,path.length()-1);
+	else address = path;
 	Session session = {address};
 	sessions_[hdl] = session;
 }
@@ -129,80 +132,90 @@ void Server::close_(connection_hdl hdl) {
 void Server::http_(connection_hdl hdl) {
 	// Get the connection 
 	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	// Get the request resource and decode it
-	// get_resource() returns "/" when there is no resource part in the URI
-	// (i.e. if the URI is just http://localhost/)
-	std::string resource = decode_(connection->get_resource());
-	// Extract query
-	std::string query;
-	std::size_t found =  resource.find("?");
-    if(found > 0){
-    	query = resource.substr(found+1);
-    	resource = resource.substr(0,found);
-    }
-	// Get request method
+	// Get the request path and corresponding Stencila address
+	std::string path = path_(connection);
+	// Get request verb (i.e. method)
 	auto request = connection->get_request();
-	std::string method = request.get_method();
+	std::string verb = request.get_method();
 	// Get the remote address
 	std::string remote = connection->get_remote_endpoint();
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
 	std::string content;
 	try {
-		if(resource=="/"){
+		// Routing
+		if(verb=="OPTIONS"){
+			// Required por fre-flight CORS checks by browser
+		}
+		else if(verb=="GET" and path==""){
+			// Index page
 			content = Component::index();
 		} 
-		else if(resource=="/extras"){
+		else if(verb=="GET" and path=="extras"){
+			// Extra content for component pages
 			content = Component::extras();
 		}
 		else {
-			// This server handles two types of requents for Components:
-			// (1) "Dynamic" requests where the component is loaded into
-			// memory (if not already) and (2) Static requests for component
-			// files
-			// Static requests are indicated by a "." anywhere in the url
-			bool dynamic = resource.find(".")==std::string::npos;
-			if(dynamic){
-				// Dynamic request
-				// 
+			// Resolve amongst the following requests 
+			// 	- GET a page for a component
+			// 	- GET, PUT or PATCH a component method - contains a "@"
+			// 	- GET a static file - contains a "."
+			std::string address;
+			std::string method;
+			auto at = path.rfind('@');
+			if(at!=std::string::npos){
+				address = path.substr(0,at);
+				method = path.substr(at+1);
+			}
+			else {
+				if(path.back()=='/') address = path.substr(0,path.length()-1);
+				else address = path;
+			}
+			bool file = path.find(".")!=std::string::npos;
+			if(not (method.length() or file)){
+				// Component interface request
 				// Components must be served with a trailing slash so that relative links work.
 				// For example, if a stencil with address "a/b/c" is served with the url "/a/b/c/"
 				// then a relative link within that stencil to an image "1.png" will resolved to "/a/b/c/1.png" (which
 				// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
 				// will cause a 404 error). 
 				// So, if no trailing slash, then redirect...
-				if(resource[resource.length()-1]!='/'){
+				if(path[path.length()-1]!='/'){
 					status = http::status_code::moved_permanently;
 					// Use full URI for redirection because multiple leading slashes can get
 					// squashed up otherwise
-					auto uri = url()+resource+"/";
+					auto uri = url()+"/"+path+"/";
 					connection->append_header("Location",uri);
 				}
-				// Provide the page content
 				else {
-					content = Component::page(address_(resource));
+					content = Component::page(address);
 				}
-			} else {
-				// Static request
-				std::string address = address_(resource);
-				std::string path = Component::locate(address);
-				if(path.length()==0){
+			}
+			else if(method.length()){
+				// Component method request
+				std::string body = connection->get_request_body();
+				content = Component::request_dispatch(address,verb,method,body);
+			}
+			else if(file){
+				// Static file request
+				std::string filesystem_path = Component::locate(address);
+				if(filesystem_path.length()==0){
 					// 404: not found
 					status = http::status_code::not_found;
 					content = "Not found\n address: "+address;
 				} else {
 					// Check to see if this is a directory
-					if(boost::filesystem::is_directory(path)){
+					if(boost::filesystem::is_directory(filesystem_path)){
 						// 403: forbidden
 						status = http::status_code::forbidden;
-						content = "Directory access is forbidden\n  path: "+path;		
+						content = "Directory access is forbidden\n  path: "+filesystem_path;		
 					}
 					else {
-						std::ifstream file(path);
+						std::ifstream file(filesystem_path);
 						if(not file.good()){
 							// 500 : internal server error
 							status = http::status_code::internal_server_error;
-							content = "File error\n  path: "+path;
+							content = "File error\n  path: "+filesystem_path;
 						} else {
 							// Read file into content string
 							// There may be a [more efficient way to read a file into a string](
@@ -214,7 +227,7 @@ void Server::http_(connection_hdl hdl) {
 							content = file_content;
 							// Determine and set the "Content-Type" header
 							std::string content_type;
-							std::string extension = boost::filesystem::path(path).extension().string();
+							std::string extension = boost::filesystem::path(filesystem_path).extension().string();
 							if(extension==".txt") content_type = "text/plain";
 							else if(extension==".css") content_type = "text/css";
 							else if(extension==".html") content_type = "text/html";
@@ -229,6 +242,9 @@ void Server::http_(connection_hdl hdl) {
 					}
 				}
 			}
+			else{
+				status = http::status_code::bad_request;
+			}
 		}
 	}
 	catch(const std::exception& e){
@@ -239,6 +255,12 @@ void Server::http_(connection_hdl hdl) {
 		status = http::status_code::internal_server_error;
 		content = "Unknown exception";			
 	}
+	// Access control headers
+	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS 
+	connection->append_header("Access-Control-Allow-Origin","*");
+	connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+	connection->append_header("Access-Control-Allow-Headers","Content-Type");
+	connection->append_header("Access-Control-Max-Age","1728000");
 	// Replace the WebSocket++ "Server" header
 	connection->replace_header("Server","Stencila embedded");
 	// Set status and content

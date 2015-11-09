@@ -1,5 +1,7 @@
 #include <stencila/stencil.hpp>
 
+#include <iostream>
+
 namespace Stencila {
 
 Stencil::Input::Input(void){
@@ -19,7 +21,7 @@ void Stencil::Input::render(Stencil& stencil, Node node, std::shared_ptr<Context
 	parse(node);
 
 	// Update and check hash
-	auto hash = stencil.hash(node,true,false);
+	auto hash = stencil.hash(node);
 	if(hash==node.attr("data-hash")) return;
 	else {
 		node.attr("data-hash",hash);

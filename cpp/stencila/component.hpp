@@ -386,6 +386,19 @@ public:
 		Pageing pageing = nullptr;
 
 		/**
+		 * @name requesting
+		 * 
+		 * Requester function for class
+		 *
+		 * Used to respond to a web request on component 
+		 */
+		typedef std::string (*Requesting)(
+			Component* component, const std::string& verb,
+			const std::string& method, const std::string& body
+		);
+		Requesting requesting = nullptr;
+
+		/**
 		 * @name calling
 		 *
 		 * Calling function for the class
@@ -400,10 +413,11 @@ public:
 			defined(false){
 		}
 
-		Class(const char* name, Pageing pageing, Calling calling):
+		Class(const char* name, Pageing pageing, Requesting requesting, Calling calling):
 			defined(true),
 			name(name),
 			pageing(pageing),
+			requesting(requesting),
 			calling(calling){
 		}
 	};
@@ -654,6 +668,23 @@ public:
 	 * classes and `define()`d in `classes_`.
 	 */
 	static std::string page(const Component* component);
+
+	/**
+	 * Respond to a web request to a component address
+	 *
+	 * Gets the component and dispatches it's the `requesting` method
+	 *
+	 * @param  component  A pointer to a stencil
+	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
+	 * @param  method     Name of method requested
+	 * @param  body       Request body (usually JSON)
+	 */
+	static std::string request_dispatch(
+		const std::string& address,
+		const std::string& verb,
+		const std::string& method,
+		const std::string& body
+	);
 
 	/**
 	 * Process a message for the component at an address

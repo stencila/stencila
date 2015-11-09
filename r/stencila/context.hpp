@@ -61,11 +61,24 @@ public:
         return *this;
     }
 
+    static std::string request(Component* component, const std::string& verb, const std::string& method, const std::string& body){
+        return "";
+    }
+
     static std::string call(Component* component, const Call& call){
         return static_cast<RContext&>(*component).call(call);
     }
     // To provide access to Context::call
     using Context::call;
+
+    static void class_init(void){
+        Component::class_(RContextType,{
+            "RContext",
+            page,
+            request,
+            call
+        });
+    }
 
 private:
 
@@ -241,14 +254,6 @@ public:
 
     void exit(void){
         call_("exit");
-    }
-
-    static void class_(void){
-        Context::class_(RContextType,{
-            "RContext",
-            page,
-            call
-        });
     }
 };
 

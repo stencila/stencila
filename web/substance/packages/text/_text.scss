@@ -1,0 +1,26 @@
+// Match for writer and reader markup
+.stencil-text {
+  background: #ddd;
+  cursor: pointer;
+
+  &.highlighted {
+    background: #2B303B;
+    color: #fff;
+  }
+
+  &.sm-error {
+    background: #A20808;
+    color: rgba(255,255,255,0.9);
+  }
+}
+
+.se-stencil-text {
+  .stencil-text-source {
+    background: #2B303B;
+    color: #fff;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 13px;
+    padding: 1px;
+    vertical-align: middle;
+  }
+}

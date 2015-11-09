@@ -1,0 +1,338 @@
+
+
+> Text decoration
+
+	Some _emphasised_ text.
+
+	_emphasised_ at start of line.
+
+	Some *strong* text.
+
+	*strong* at start of line.
+
+	Text with `code` in it.
+
+	`code` at the start of a line.
+
+
+> Hyperlinks
+
+	An auto-link http://google.com.
+	A link [Google](http://google.com).
+
+
+> Math
+
+	Math |e=mc^2| in \(e=mc^2\) a paragraph.
+	
+	|at = the * start| of a paragraph.
+	
+	An equation,
+	
+		|theta(x)=1/(sqrt(2 pi sigma)) e^((x-mu)^2/(2 sigma^2))|
+
+> Section shorthands
+
+	> Sub-section
+	
+		A paragraph.
+	
+		> Sub-sub section
+
+			A paragraph.
+
+> List shorthands
+
+	Unordered lists have a starting dash:
+
+		- A
+		- B
+		- C
+		
+	Ordered lists have a starting number:
+	
+		1. One
+		2. Two
+	
+	Lists can be nested:
+	
+		1. One
+		
+			- A
+			- B
+			
+		2. Two
+		
+			- A
+			- B
+		
+	Only applies to start of line, this - and this 1. should not be highlighted.
+	Also must have space after - and . so these should not be highlighted:
+	    -foo
+	    1.234
+	
+> Elements and attributes
+
+	Standard HTML element names on the start of a line:
+	
+	div
+	p
+	div
+	
+	div
+	div #id
+	div #id .class
+	div #id .class for Text
+	
+	#id .class
+	
+	But attributes and directives are not parsed out of context:
+	
+	div Text #id and .class and for item in items should not be highlighted
+	
+	Text {span #id} more text
+	Text {#id} more text
+	Text {text x} more text
+
+	or after an opening brace for inline elements {span : contents}. But should not be highlighted within text: p, div .
+
+	Elements can have attributes:
+	
+	div #id .class
+	A link within {a [href=http://google.com]} text
+	
+	Those syntaxes should not be #high, .ligh, [ted] when in text.
+	
+	Attributes can apear at start of line or after braces:
+	
+	#id .class
+	{#id } {[attr1]}
+	
+> Flags
+
+	Directives can have flags following them that contain rendering information
+
+	if x<0 ~off Zero
+	else Non-zero
+	
+	Some flags can be applied to non-directive elements e.g.
+	
+	div ^0
+	figure ^0
+	
+	There can be multiple flags
+	
+	div &hash ^99 ~off !"error message" %"warning message"
+
+	
+> Execute directive
+
+	A generic `exec` directive highlighted as text only and following output:
+	
+	exec
+		number = 6*7
+
+    out
+        {img [src=out/scatterplot-scatterplot-of-relation-b-7pWSnz.png] [style=max-width:12cm;max-height:12cm]}
+		
+
+	Language specific `exec` directives highlighted appropriately:
+
+	js
+		var number = 6*7;
+		console.log(number);
+
+	py
+		number = 6*7
+		print number
+
+	r
+		number <- 6*7
+		print(number)
+
+
+	Exec directive arguments; can be in any order
+
+	r format png size 10x10cm const show
+		plot(1,1)
+
+	py const format text
+		print "Hello world"
+
+	Exec directives only have hash, error and warning flags
+
+	r const &hash !"error" %"warn"
+		plot(1,1)
+
+	Error and warning flags will often have location information in them
+	
+	r !"error"1
+		plot(1,1)
+
+	r !"error"@1,1 %"warn"@1,1
+		plot(1,1)
+
+> When directive
+
+	when r
+		This text
+		
+	when r,py
+		This text
+		
+	when 0
+		This text
+
+> With directive
+
+	with iris
+
+> Attr directive
+
+	{attr foo}
+	{attr foo value bar !"error: bar not found"}
+	
+> Text directive
+
+	{text foo}
+	{text foo !"error: foo not found"}
+
+> Refer directive
+
+	Refer to a specific figure {refer #figure-x-y}
+
+	Refer to the next table {refer table}
+	
+	Refer has a shorthand @a-figure or @a-table.
+
+> If directives
+
+	On block elements:
+	
+		if x<0
+			Negative
+		elif x>0
+			Positive
+		else
+			Zero
+		
+	On inline elements:
+	
+		{span if x<0 Negative}{span elif x>0 Positive}{span else Zero}
+
+	With flags:
+	
+	if x<0 !"error: x not found"
+		Negative
+	else ~off
+		No
+	
+
+> Switch directives
+
+	For example, today is 
+		span switch as.POSIXlt(Sys.time())$wday
+			span case 1
+				Monday
+			span case 2
+				Tuesday
+			span case 3
+				Wednesday
+			span case 4
+				Thursday
+			span case 5
+				Friday
+			span case 6
+				Saturday
+			span default 
+				Sunday
+
+
+> For directive
+
+	for name in c('apple','pear','avacado') !"error"
+		li {text name}
+
+
+> Include directive
+
+	Include another stencil
+	
+	include an/address/of/a/stencil
+	
+	Or just a part of it
+	
+	include an/address/of/a/stencil select figure
+	
+	A dot can be used to refer to the current stencil
+	
+	include . select #includee
+	
+	Include directives can set values of variables
+
+	include includee
+		set x to 1
+		set y to 2
+
+	Include directives can have modifiers:
+	
+	include . select #includee
+		delete #c
+
+	include . select #includee-with-dashes
+		replace #b
+			li #b mandarin	
+
+	include . select .class-includee
+		change #c
+			apple	
+
+	include . select #includee
+		before #c
+			li #d passionfruit	
+
+	include . select #includee
+		after #c
+			li turnip
+
+	include . select #includee
+		prepend #c
+			navel 
+
+	include . select #includee
+		append #c
+			 juice
+
+
+> Macro directive
+
+	macro my-macro
+		Hello world
+
+
+> Parameter directive
+
+	par x type number
+	par y type text value "y"
+	par y type expr value e=m*c^2
+
+
+> Comments
+
+	comments
+		comment @anon at 2015-06-08T13:33:15
+			A comment
+		comment Arthur Dent at 2015-06-08T18:35:22
+			Another one
+
+	Comments can be linked to {begin 1} ranges of content {end 1} like this:
+	
+	comments 1
+		comment @anon at 2015-06-08T20:34:45
+			A comment
+
+> Preformatted text
+
+    pre
+        div _fff_ 
+

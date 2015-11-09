@@ -1,0 +1,51 @@
+{
+  "name": "stencila-web",
+  "version": "0.18.0",
+  "description": "Web browser interfaces to Stencila components",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "sh postinstall.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/stencila"
+  },
+  "author": "Stencila authors (https://github.com/stencila/stencila/blob/master/AUTHORS)",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "ace": "ajaxorg/ace#0c66e1ed",
+    "body-parser": "^1.12.4",
+    "cheerio": "^0.19.0",
+    "express": "*",
+    "font-awesome": "^4.4.0",
+    "jquery": "^2.1.4",
+    "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
+    "lodash": "3.3.1",
+    "node-normalize-scss": "^1.0.3",
+    "node-sass": "3.x",
+    "substance": "substance/substance#master"
+  },
+  "devDependencies": {
+    "babelify": "^6.3.0",
+    "browserify": "^11.2.0",
+    "gulp": "^3.9.0",
+    "gulp-if": "^2.0.0",
+    "gulp-jasmine": "^2.1.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-sass": "^2.0.4",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.4.1",
+    "gulp-util": "^3.0.6",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.4.0",
+    "through2": "^2.0.0"
+  },
+  "browser": {
+    "jquery.hotkeys": "./node_modules/jquery.hotkeys/jquery.hotkeys.js"
+  }
+}

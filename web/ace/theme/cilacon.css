@@ -1,0 +1,170 @@
+/***********************************************************************************
+ * A custom theme for the Cila language
+ *
+ * Based on Monokai. 
+ * CSS in first section is a copy of Monokai.
+ * See bottom section for Cila specific CSS.
+ **********************************************************************************/
+
+.ace-cilacon .ace_gutter {
+  background: #2F3129;
+  color: #8F908A
+}
+
+.ace-cilacon .ace_print-margin {
+  width: 1px;
+  background: #555651
+}
+
+.ace-cilacon {
+  background-color: #272822;
+  color: #F8F8F2
+}
+
+.ace-cilacon .ace_cursor {
+  color: #F8F8F0
+}
+
+.ace-cilacon .ace_marker-layer .ace_selection {
+  background: #49483E
+}
+
+.ace-cilacon.ace_multiselect .ace_selection.ace_start {
+  box-shadow: 0 0 3px 0px #272822;
+}
+
+.ace-cilacon .ace_marker-layer .ace_step {
+  background: rgb(102, 82, 0)
+}
+
+.ace-cilacon .ace_marker-layer .ace_bracket {
+  margin: -1px 0 0 -1px;
+  border: 1px solid #49483E
+}
+
+.ace-cilacon .ace_marker-layer .ace_active-line {
+  background: #202020
+}
+
+.ace-cilacon .ace_gutter-active-line {
+  background-color: #272727
+}
+
+.ace-cilacon .ace_marker-layer .ace_selected-word {
+  border: 1px solid #49483E
+}
+
+.ace-cilacon .ace_invisible {
+  color: #52524d
+}
+
+.ace-cilacon .ace_entity.ace_name.ace_tag,
+.ace-cilacon .ace_keyword,
+.ace-cilacon .ace_meta.ace_tag,
+.ace-cilacon .ace_storage {
+  color: #F92672
+}
+
+.ace-cilacon .ace_punctuation,
+.ace-cilacon .ace_punctuation.ace_tag {
+  color: #fff
+}
+
+.ace-cilacon .ace_constant.ace_character,
+.ace-cilacon .ace_constant.ace_language,
+.ace-cilacon .ace_constant.ace_numeric,
+.ace-cilacon .ace_constant.ace_other {
+  color: #AE81FF
+}
+
+.ace-cilacon .ace_invalid {
+  color: #F8F8F0;
+  background-color: #F92672
+}
+
+.ace-cilacon .ace_invalid.ace_deprecated {
+  color: #F8F8F0;
+  background-color: #AE81FF
+}
+
+.ace-cilacon .ace_support.ace_constant,
+.ace-cilacon .ace_support.ace_function {
+  color: #66D9EF
+}
+
+.ace-cilacon .ace_fold {
+  background-color: #A6E22E;
+  border-color: #F8F8F2
+}
+
+.ace-cilacon .ace_storage.ace_type,
+.ace-cilacon .ace_support.ace_class,
+.ace-cilacon .ace_support.ace_type {
+  font-style: italic;
+  color: #66D9EF
+}
+
+.ace-cilacon .ace_entity.ace_name.ace_function,
+.ace-cilacon .ace_entity.ace_other,
+.ace-cilacon .ace_entity.ace_other.ace_attribute-name,
+.ace-cilacon .ace_variable {
+  color: #A6E22E
+}
+
+.ace-cilacon .ace_variable.ace_parameter {
+  font-style: italic;
+  color: #FD971F
+}
+
+.ace-cilacon .ace_string {
+  color: #E6DB74
+}
+
+.ace-cilacon .ace_comment {
+  color: #75715E
+}
+
+.ace-cilacon .ace_indent-guide {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAEklEQVQImWPQ0FD0ZXBzd/wPAAjVAoxeSgNeAAAAAElFTkSuQmCC) right repeat-y
+}
+
+
+/***********************************************************************************
+ * Cila custom styling follows
+ **********************************************************************************/
+
+.ace_cila-section-heading {
+  font-weight: bold;
+}
+
+/**
+ * Rendering flags as "pills"
+ * Unobtrusive, except for errors and warnings (`off` too?)
+ */
+.ace-cilacon .ace_cila-hash,
+.ace-cilacon .ace_cila-index,
+.ace-cilacon .ace_cila-off,
+.ace-cilacon .ace_cila-error,
+.ace-cilacon .ace_cila-warning {
+  /**
+   * Small amount of padding and negative margin to compensate
+   * This creates slight out-of-sync with cursor which is worse if
+   * you increase the amounts. Slight out-of-sync does not matter too 
+   * much for flags since they are not normally edited. The raiot of 
+   * margin to error determined through trial.
+   */
+  padding: 0 0.1em 0 0.1em;
+  margin: 0 -0.06em 0 -0.06em;
+  border-radius: 3px;
+  color: #999;
+  background-color: #444;
+}
+.ace-cilacon .ace_cila-error {
+  color: #EEE;
+  background-color: hsl(0, 95%, 55%);
+}
+.ace-cilacon .ace_cila-warning {
+  color: #EEE;
+  background-color: hsl(30, 95%, 55%);
+}
+

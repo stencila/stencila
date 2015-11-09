@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(load_and_dump){
 	)
 	CHECK(
 		"<div><script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script></div>",
-		"<div>\n\t<script type=\"math/asciimath; mode=display\">\nE=mc^2\n</script>\n</div>"
+		"<div>\n\t<script type=\"math/asciimath; mode=display\">E=mc^2\n</script>\n</div>"
 	)
 
 	#undef CHECK 

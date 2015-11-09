@@ -2,8 +2,9 @@
 
 #include <boost/filesystem.hpp>
 
-#include <stencila/stencil.hpp>
 #include <stencila/component-page.hpp>
+#include <stencila/json.hpp>
+#include <stencila/stencil.hpp>
 
 namespace Stencila {
 
@@ -37,14 +38,55 @@ std::string Stencil::page(void) const {
 		{"content",join(contexts(),",")}
 	});
 
-	// Add stencil content to the #main element
-	auto main = body.select("#main");
-	auto content = main.append("div",{
-		{"id","content"}
-	}," ");
-	content.append(*this);
+	// Add stencil content to the main element and give #content id
+	auto main = body.select("main");
+	main.attr("id","content");
+	main.append(*this);
 
-	return doc.dump();
+	return doc.dump(false);
+}
+
+std::string Stencil::request(Component* component,const std::string& verb,const std::string& method,const std::string& body){
+	return static_cast<Stencil&>(*component).request(verb, method, body);
+}
+
+std::string Stencil::request(const std::string& verb,const std::string& method,const std::string& body){
+	Json::Document request;
+	if(verb!="GET" and body.length()){
+		request.load(body);
+	}
+	Json::Document response = Json::Object();
+	
+	if(method=="content" and verb=="GET"){
+		response.append("format","html");
+		response.append("content",html(false,false));
+	}
+	else if(method=="render" and verb=="PUT"){
+		auto format = request["format"].as<std::string>();
+		auto content = request["content"].as<std::string>();
+		if(content.length()){
+			if(format=="html") html(content);
+			else if(format=="cila") cila(content);
+			else {
+				response.append("error","format is not 'cila' or 'html'");
+			}
+		}
+		
+		render();
+
+		response.append("format","html");
+		response.append("content",html(false,false));
+	}
+	else if(method=="save" and verb=="PUT"){
+		auto format = request["format"].as<std::string>();
+		auto content = request["content"].as<std::string>();
+
+		html(content).write();
+	}
+	else {
+		return "400";
+	}
+	return response.dump();
 }
 
 std::string Stencil::interact(const std::string& code){

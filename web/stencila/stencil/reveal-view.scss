@@ -1,0 +1,11 @@
+#content.reveal pre[data-exec] {
+    display: block;
+    color: #EEE;
+    background-color: #333;
+}
+
+#content.reveal [data-text] {
+    background-color: hsla(122, 100%, 77%, 0.5);
+    margin: -1px;
+    padding: 1px;
+}
