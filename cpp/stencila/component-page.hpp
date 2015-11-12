@@ -84,7 +84,7 @@ Html::Document Component_page_doc(const Type& component) {
 	 *
 	 * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
 	 */
-	std::string css = "/web/" + type + ".min.css";
+	std::string css = "/get/web/" + type + ".min.css";
 	head.append("link",{
 		{"rel","stylesheet"},
 		{"type","text/css"},
@@ -145,7 +145,7 @@ Html::Document Component_page_doc(const Type& component) {
 	body.append("main",{{"id","main"}});
 
 	// Load Stencila Javascript
-	std::string js = "/web/"+type+".min.js";
+	std::string js = "/get/web/"+type+".min.js";
 	// First attempt to load from host
 	body.append("script",{{"src",js}}," ");
 	// Fallback load from https://stenci.la. This is https:// not a "propocol relative URL" so that it 

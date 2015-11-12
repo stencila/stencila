@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // use static server
 app.use(express.static(__dirname));
-app.use('/web', express.static(path.join(__dirname, "build")));
+app.use('/get/web', express.static(path.join(__dirname, "build")));
 app.use('/i18n', express.static(path.join(__dirname, "substance/i18n")));
 
 // Backend

@@ -121,7 +121,7 @@ window.Stencila = {
 
 };
 
-window.Stencila.load('/web/ace/ace.js');
+window.Stencila.load('/get/web/ace/ace.js');
 
 window.MathJax = {
   skipStartupTypeset: true,
@@ -129,7 +129,7 @@ window.MathJax = {
   showMathMenu: false,
   "HTML-CSS": {preferredFont: "STIX"}
 };
-window.Stencila.load('/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',function(){
+window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',function(){
   var content = $('#content');
   var html = content.html() || '';
   content.remove();
