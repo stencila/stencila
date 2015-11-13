@@ -161,7 +161,7 @@ Stencil& Stencil::pdf(const std::string& direction, const std::string& path,cons
 
 Stencil& Stencil::compile(void){
 	auto home = boost::filesystem::path(path(true));
-	export_((home/"page.html").string());
+	export_((home/"index.html").string());
 	return *this;
 }
 
