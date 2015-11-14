@@ -36,24 +36,11 @@ Component::Repository* Component::repo(bool ensure) const {
 }
 
 std::string Component::clone(const std::string& address) {
-	std::string path = Host::store_path(address);
-	Repository repo;
-	repo.clone(
-		"https://stenci.la/"+address+".git",
-		path
-	);
-	return path;
+	return hub.clone(address);
 }
 
 std::string Component::fork(const std::string& from, const std::string& to) {
-	std::string path = Host::store_path(to);
-	Repository repo;
-	repo.clone(
-		"https://stenci.la/"+from+".git",
-		path
-	);
-	repo.remote("origin","");
-	return path;
+	return hub.fork(from,to);
 }
 
 bool Component::managed(void) const {

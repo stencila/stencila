@@ -7,7 +7,10 @@ namespace Stencila {
 class Hub {
 public:
 
-	typedef Json::Document Document;
+	/**
+	 * Construct a hub instance
+	 */
+	Hub(void);
 
 	/**
 	 * Sign in using username and password.
@@ -36,14 +39,15 @@ public:
 	 * 	 hub.signin("01gk9dO72VEt9iBOaGdims9ADecQyScaKdnaYjnDucH6bgSAvSvYZ+JQ4DkDiNWziBwJx6yXTH+fzKL6GKUA==");
 	 *
 	 * Instead, you should use the `signin()` method (i.e. the version
-	 * which takes no arguments) which tries to obtain a token from the environment variable `STENCILA_TOKEN`
+	 * which takes no arguments) which tries to obtain a token from the 
+	 * environment variable `STENCILA_HUB_TOKEN`
 	 * 
 	 * @param  token Token string obtained from https://stenci.la
 	 */
 	Hub& signin(const std::string& token);
 
 	/**
-	 * Sign in using user token defined in the environment variable `STENCILA_TOKEN`
+	 * Sign in using user token defined in the environment variable `STENCILA_HUB_TOKEN`
 	 *
 	 * This is the preferred method for signing into the Stencila hub 
 	 * using a remote machine not being used by a real person.  
@@ -68,7 +72,7 @@ public:
 	 * @param  path Path to the resource
 	 * @return A JSON document
 	 */
-	Document request(Http::Method method, const std::string& path);
+	Json::Document request(Http::Method method, const std::string& path);
 
 	/**
 	 * Get something from the hub
@@ -76,7 +80,7 @@ public:
 	 * @param  path Path to the resource
 	 * @return A JSON document
 	 */
-	Document get(const std::string& path);
+	Json::Document get(const std::string& path);
 
 	/**
 	 * Post something to the hub
@@ -84,7 +88,7 @@ public:
 	 * @param  path Path to the resource
 	 * @return A JSON document
 	 */
-	Document post(const std::string& path);
+	Json::Document post(const std::string& path);
 
 	/**
 	 * Delete something from the hub
@@ -92,13 +96,30 @@ public:
 	 * @param  path Path to the resource
 	 * @return A JSON document
 	 */
-	Document delete_(const std::string& path);
+	Json::Document delete_(const std::string& path);
+
+	/**
+	 * Clone a component repository from the hub
+	 * 
+	 * @param  address Address of component to be cloned
+	 * @return Path to newly cloned component
+	 */
+	std::string clone(const std::string& address);
+
+	/**
+	 * Fork a component repository from the hub
+	 * 
+	 * @param  from Address of component to be forked
+	 * @param  to Address to fork to
+	 * @return Path to new fork
+	 */
+	std::string fork(const std::string& from, const std::string& to);
 
 private:
 
 	Http::Client client_;
 
-	static const std::string root_;
+	std::string root_;
 
 	std::string username_;
 
