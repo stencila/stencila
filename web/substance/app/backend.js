@@ -22,7 +22,7 @@ Backend.Prototype = function() {
   this._request = function(method, endpoint, data, cb) {
     var ajaxOpts = {
       type: method,
-      url: 'http://'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
+      url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
       contentType: "application/json; charset=UTF-8",
       // dataType: "json",
       success: function(data) {
@@ -41,7 +41,8 @@ Backend.Prototype = function() {
 
   this._getHost = function() {
     var location = window.location;
-    if(location.protocol==='file:') this.host = 'localfile';
+    this.protocol = location.protocol;
+    if(this.protocol==='file:') this.host = 'localfile';
     else this.host = location.hostname;
     this.port = location.port;
   };
