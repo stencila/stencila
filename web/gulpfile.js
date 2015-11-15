@@ -19,7 +19,7 @@ var sass = require('gulp-sass');
 var jasmine = require('gulp-jasmine');
 
 // Types of components
-var types = ['app'];
+var types = ['stencil'];
 
 // Generic error handler creates a notifcation window
 function errorHandler() {
@@ -33,12 +33,12 @@ function errorHandler() {
 
 
 function style(type,watch) {
-  var src = './substance/'+type+'/'+type+'.scss';
+  var src = './stencila/'+type+'/'+type+'.scss';
 
   gulp.src(src)
     .pipe(sass({
         outputStyle: watch?'expanded':'compressed',
-        //includePaths: require('node-normalize-scss').includePaths
+        includePaths: require('node-normalize-scss').includePaths
      })
     .on('error', errorHandler))
     .pipe(rename('stencil.min.css'))
@@ -58,7 +58,7 @@ function styles(watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others  
 function script(type,watch) {
-  var src = './substance/'+type+'/'+type+'.js';
+  var src = './stencila/'+type+'/browser.js';
 
   var props = {
     entries: [src],

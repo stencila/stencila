@@ -69,7 +69,7 @@ class NormalView {
 			}
 		});
 
-		self.$el.attr('contenteditable','true');
+		//self.$el.attr('contenteditable','true');
 	}
 
 	push(){
