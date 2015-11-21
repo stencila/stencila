@@ -209,7 +209,7 @@ Start line text is treated as a paragraph
 --------------------------------------------------
 
 
-Auto-paragraphs have a preceding and following blank line <>
+Shorthand paragraphs have a preceding and following blank line <>
 --------------------------------------------------
 Paragraph 1
 
@@ -230,6 +230,24 @@ div Another one
 <div>
 	Another one
 </div>
+--------------------------------------------------
+
+
+Multiple line shorthand paragraphs >>
+--------------------------------------------------
+Paragraph 1. 
+Still paragraph 1.
+
+Paragraph 2. 
+Still paragraph 2. 
+And this.
+--------------------------------------------------
+<p>
+	Paragraph 1. Still paragraph 1.
+</p>
+<p>
+	Paragraph 2. Still paragraph 2. And this.
+</p>
 --------------------------------------------------
 
 
@@ -535,50 +553,45 @@ Lists can be nested <>
 
 Mixed list types can be nested >>
 --------------------------------------------------
-A paragraph with a nested list inside it
-	
-	- A
+- A
 
-		1. One
+	1. One
 
-			- alpha
-			- beta
+		- alpha
+		- beta
 
-		2. Two
+	2. Two
 
-			- delta
-			- gamma
+		- delta
+		- gamma
 
-		3. Three
+	3. Three
 
-	- B Some text
+- B Some text
 --------------------------------------------------
-<p>
-	A paragraph with a nested list inside it
-	<ul>
-		<li>
-			A
-			<ol>
-				<li>
-					One
-					<ul>
-						<li>alpha</li>
-						<li>beta</li>
-					</ul>
-				</li>
-				<li>
-					Two
-					<ul>
-						<li>delta</li>
-						<li>gamma</li>
-					</ul>
-				</li>
-				<li>Three</li>
-			</ol>
-		</li>
-		<li>B Some text</li>
-	</ul>
-</p>
+<ul>
+	<li>
+		A
+		<ol>
+			<li>
+				One
+				<ul>
+					<li>alpha</li>
+					<li>beta</li>
+				</ul>
+			</li>
+			<li>
+				Two
+				<ul>
+					<li>delta</li>
+					<li>gamma</li>
+				</ul>
+			</li>
+			<li>Three</li>
+		</ol>
+	</li>
+	<li>B Some text</li>
+</ul>
 --------------------------------------------------
 
 

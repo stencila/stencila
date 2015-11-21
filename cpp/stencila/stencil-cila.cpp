@@ -7,6 +7,8 @@
 #include <stencila/html.hpp>
 #include <stencila/string.hpp>
 
+//#define STENCILA_CILA_PARSER_TRACE 1
+
 #if defined(STENCILA_CILA_PARSER_TRACE)
 	#include <iostream>
 #endif
@@ -55,7 +57,12 @@ public:
 		flags,
 
 		/**
-		 * Text including shorthands and ilined elements
+		 * Paragraph state : looking for a blank line to end the paragraph
+		 */
+		para,
+
+		/**
+		 * Text including shorthands and inlined elements
 		 */
 		text,
 
@@ -180,6 +187,7 @@ public:
 			CASE(elem)
 			CASE(attrs)
 			CASE(flags)
+			CASE(para)
 			CASE(text)
 			CASE(empha)
 			CASE(strong)
@@ -355,7 +363,7 @@ public:
 
 	struct Trace {
 		State state;
-		int states = -1;
+		std::deque<State> states;
 		int nodes = -1;
 		std::string begin;
 		std::string regex = "<?>";
@@ -370,7 +378,7 @@ public:
 	void trace_new(void){
 		Trace current;
 		current.state = state;
-		current.states = states.size();
+		current.states = states;
 		current.nodes = nodes.size();
 		current.begin = *begin;
 		boost::replace_all(current.begin,"\t","\\t");
@@ -398,10 +406,11 @@ public:
 
 	void trace_show(void) const {
 		std::cout<<"-------------------Trace--------------------------------\n";
-		std::cout<<"state\tstates\tnodes\tbegin\tregex\t\tmatch\n";
+		std::cout<<"states                    \t\tnodes\t\tbegin\t\tregex\t\tmatch\n";
 		std::cout<<"--------------------------------------------------------\n";
 		for(auto item : traces){
-			std::cout<<state_name(item.state)<<"\t"<<item.states<<"\t"<<item.nodes<<"\t"<<item.begin<<"\t"
+			for(auto state : item.states) std::cout<<state_name(state)<<">";
+			std::cout<<"\t\t"<<item.nodes<<"\t\t"<<item.begin<<"\t\t"
 					<<item.regex<<"\t\t"<<item.match<<"\n";
 		}
 		std::cout<<"--------------------------------------------------------\n";
@@ -560,6 +569,14 @@ public:
 			trace_new();
 
 			if(state==sol){
+				// Check if currently under paragraph state
+				bool under_para = false;
+				if(states.size()>1){
+					if(states[states.size()-2]==para){
+						under_para = true;
+					}
+				}
+
 				// If this is not a blank line (zero or more spaces or tabs and nothing else)
 				if(not boost::regex_search(begin, end, blankline, boost::regex_constants::match_continuous)){
 					// Get indentation
@@ -576,6 +593,7 @@ public:
 						(nodes.back().indent=="none" or line_indent<=nodes.back().indent.size())
 					){
 						auto node_indent = nodes.back().indent.size();
+						if(under_para and indent.size()==node_indent) break;
 						if(ul_li and node.name()=="ul" and indent.size()==node_indent) break;
 						if(ol_li and node.name()=="ol" and indent.size()==node_indent) break;
 						exit();
@@ -630,12 +648,28 @@ public:
 				}
 				else if(is(blankline)){
 					trace("blank");
+					// If currently under the `para` state...
+					if(under_para){
+						// Exit paragraph element
+						exit();
+						// Pop out of `para` state and move across to `sol state
+						pop(); // sol
+						across(sol); // para -> sol
+					}
+					// Indicate that a new paragraph is needed for
+					// following text not otherwise matched
 					para_needed = true;
 				}
 				else {
-					trace("other");
-					// Move across into elem state
-					across(elem);
+					trace("none");
+					if(under_para){
+						// Move directly to `text` state
+						across(text);
+					}
+					else {
+						// Move across into `elem` state
+						across(elem);
+					}
 				}
 			}
 			else if(state==elem){
@@ -889,7 +923,7 @@ public:
 				else {
 					trace("none");
 					// If current state is under an `embed` state then 
-					// pop up to the `embed` otherwise move across to `text`
+					// pop up to the `embed` otherwise move to `para or `text` state
 					bool under_embed = false;
 					if(states.size()>1){
 						if(states[states.size()-2]==embed) under_embed = true;
@@ -897,13 +931,27 @@ public:
 					if(under_embed){
 						pop();
 					} else {
-						across(text);
+						// Is a paragraph necessary?
+						if(para_needed){
+							// Enter a paragraph element
+							enter("p");
+							// Move across to `para` state
+							across(para);
+						}
+						else {
+							// Move across to `text` state
+							across(text);
+						}
 					}
 				}
 			}
+			else if(state==para){
+				// In the para state we just need to push
+				// into `text` state to keep `para` in state stack
+				trace("default");
+				push(text);
+			}
 			else if(state==text){
-				// Enter a new paragraph if necessary
-				if(para_needed) enter("p");
 				// Any elements that are `enter()`ed from here on
 				// will be inlines so set indent to none.
 				indent = "none";
@@ -1007,7 +1055,7 @@ public:
 					across(sol);
 				}
 				else {
-					trace("other");
+					trace("char");
 					// Add character to buffer
 					add();
 				}
@@ -1075,6 +1123,7 @@ public:
 			}
 			else add();
 		}
+		trace_show();
 
 		// Flush any remaining beffer to the current element
 		flush();
