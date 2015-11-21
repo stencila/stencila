@@ -691,6 +691,22 @@ always has empty line before too
 --------------------------------------------------
 
 
+`exec` with following para <>
+--------------------------------------------------
+exec
+	some code
+
+Paragraph
+--------------------------------------------------
+<pre data-exec="exec">
+some code
+</pre>
+<p>
+	Paragraph
+</p>
+--------------------------------------------------
+
+
 `exec` with extra whitespace <<
 --------------------------------------------------
 exec
