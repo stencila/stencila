@@ -19,7 +19,7 @@ class RevealView extends NormalView {
 	pull(){
 		super.pull();
 		var self = this;
-		utilities.load("/web/external/ace/ace.js", function(){
+		utilities.load("/get/web/external/ace/ace.js", function(){
 
 			self.$el.find('[data-exec]').each(function(){
 				var $el = $(this);

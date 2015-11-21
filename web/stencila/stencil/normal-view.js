@@ -48,7 +48,7 @@ class NormalView {
 					'</script>'
 				);
 				// ...then load MathJax into head
-				utilities.load("/web/external/MathJax/MathJax.js?config=TeX-MML-AM_HTMLorMML", function(){
+				utilities.load("/get/web/external/MathJax/MathJax.js?config=TeX-MML-AM_HTMLorMML", function(){
 					// Render using 'Rerender' instead of 'Typeset'
 					// because math is already in <script type="math/..."> elements
 					MathJax.Hub.Queue(
