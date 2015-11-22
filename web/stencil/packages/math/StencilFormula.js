@@ -1,3 +1,5 @@
+var $ = require('substance/util/jquery');
+
 var Annotation = require('substance/model/Annotation');
 var StencilNode = require('../../model/StencilNode');
 var StencilEquation = require('./StencilEquation');
@@ -36,10 +38,10 @@ StencilFormula.static.fromHtml = function($el, converter) {
 };
 
 StencilFormula.static.toHtml = function(formula, converter) {
-  var id = equation.id;
+  var id = formula.id;
   var $el = $('<script>').attr('id', id)
-    .prop('type', equation.format)
-    .text(equation.source);
+    .prop('type', formula.format)
+    .text(formula.source);
   return $el;
 };
 
