@@ -4,7 +4,8 @@ var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
-var $ = require('substance/util/jquery');
+var $ = window.jQuery = require('substance/util/jquery');
+require('jquery.hotkeys');
 
 var Stencil = require('./model/Stencil');
 var StencilWriter = require('./StencilWriter');
@@ -102,6 +103,12 @@ App.Prototype = function() {
 
 oo.inherit(App, Component);
 
+var App_launch = function(){
+  var content = $('#content');
+  var html = content.html() || '';
+  content.remove();
+  Component.mount($$(App,{"html":html}),$('body'));
+};
 
 // Stencila global object is used to indicate that this script
 // has loaded successfully and helps dealing with the fallback
@@ -120,17 +127,20 @@ window.Stencila = {
 
 };
 
+// Load ACE editor
 window.Stencila.load('/get/web/ace/ace.js');
 
+// Configure and load MathJax
 window.MathJax = {
   skipStartupTypeset: true,
   showProcessingMessages: false,
   showMathMenu: false,
   "HTML-CSS": {preferredFont: "STIX"}
 };
-window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',function(){
-  var content = $('#content');
-  var html = content.html() || '';
-  content.remove();
-  Component.mount($$(App,{"html":html}),$('body'));
+window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML');
+
+// Launch Substance app when F2 is pressed
+$(document).bind('keydown', 'F2', function(){
+  App_launch();
+  return false;
 });
