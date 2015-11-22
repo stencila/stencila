@@ -23,9 +23,9 @@ var WriterTools = Component.extend({
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
         $$(RenderTool).append($$(Icon, {icon: 'fa-flash'}))
       ),
-      $$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-image'}),}).append(
+      /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-image'}),}).append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'}))
-      ),
+      ),*/
       $$(Toolbar.Group).addClass('float-right').append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
         $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
