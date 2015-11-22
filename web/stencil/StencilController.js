@@ -12,10 +12,10 @@ var $$ = Component.$$;
 // language files for the current locale
 var I18n = require('substance/ui/i18n');
 I18n.instance.load(require('substance/i18n/en'));
-I18n.instance.load(require('./i18n/en'));
+I18n.instance.load(require('../i18n/en'));
 // e.g. in german
 // I18n.instance.load(require('substance/ui/i18n/de'));
-// I18n.instance.load(require('./i18n/de'));
+// I18n.instance.load(require('../i18n/de'));
 
 function LensController(parent, params) {
   Controller.call(this, parent, params);

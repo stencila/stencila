@@ -4,14 +4,13 @@ var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
-var Backend = require("./backend");
 var $ = require('substance/util/jquery');
 
-var Stencil = require('../model/Stencil');
-
-var StencilWriter = require('../StencilWriter');
-var StencilReader = require('../StencilReader');
-var StencilViewer = require('../StencilViewer');
+var Stencil = require('./model/Stencil');
+var StencilWriter = require('./StencilWriter');
+var StencilReader = require('./StencilReader');
+var StencilViewer = require('./StencilViewer');
+var Backend = require("./stencil-backend");
 
 function App() {
   Component.apply(this, arguments);

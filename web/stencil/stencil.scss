@@ -1,9 +1,6 @@
-// Lens styles
-// -------------------
-
-@import '../styles/stencil-writer';
-@import '../styles/stencil-reader';
-@import '../styles/stencil-viewer';
+@import 'stencil-writer';
+@import 'stencil-reader';
+@import 'stencil-viewer';
 
 /* Integration styles */
 body,html {

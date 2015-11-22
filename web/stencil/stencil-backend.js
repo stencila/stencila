@@ -1,7 +1,7 @@
 var oo = require('substance/util/oo');
 var $ = require('substance/util/jquery');
 var _ = require('substance/util/helpers');
-var Stencil = require('../model/Stencil');
+var Stencil = require('./model/Stencil');
 
 var CONFIG = {
   host: 'http://localhost:7373'

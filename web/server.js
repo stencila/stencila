@@ -18,7 +18,7 @@ var handleError = function(err, res) {
 
 var renderSass = function(cb) {
   sass.render({
-    file: path.join(__dirname, "substance", "app", "app.scss"),
+    file: path.join(__dirname, 'stencil', 'stencil.scss'),
     sourceMap: true,
     outFile: 'app.css',
   }, cb);
@@ -31,22 +31,25 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Static files
 app.use(express.static(__dirname));
-app.use('/get/web', express.static(path.join(__dirname, "build")));
-app.use('/i18n', express.static(path.join(__dirname, "substance/i18n")));
+
+app.use('/i18n', express.static(path.join(__dirname, "i18n")));
+
+// Stencil HTML
+//app.get('/stencil', express.static(path.join(__dirname, "stencil", "index.html")));
 
 // Javascript
-app.get('/app.js', function (req, res, next) {
+app.get('/get/web/stencil.min.js', function (req, res, next) {
   browserify({ debug: true, cache: false })
-    .add(path.join(__dirname, "substance", "app", "app.js"))
+    .add(path.join(__dirname, 'stencil', 'stencil.js'))
     .bundle()
     .on('error', function(err){
-      handleError(err,res);
+      console.error(err);
     })
     .pipe(res);
 });
 
 // CSS
-app.get('/app.css', function(req, res) {
+app.get('/get/web/stencil.min.css', function(req, res) {
   renderSass(function(err, result) {
     if (err) return handleError(err, res);
     res.set('Content-Type', 'text/css');
@@ -55,13 +58,17 @@ app.get('/app.css', function(req, res) {
 });
 
 // CSS map
-app.get('/app.css.map', function(req, res) {
+app.get('/get/web/stencil.min.css.map', function(req, res) {
   renderSass(function(err, result) {
     if (err) return handleError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.map);
   });
 });
+
+// Everything else falls back to the `build` directory (e.g. fonts, MathJax)
+// So, you'll need to do a build first
+app.use('/get/web', express.static(path.join(__dirname, 'build')));
 
 // Serve app
 var port = process.env.PORT || 5000;
