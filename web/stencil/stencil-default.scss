@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
+
 /******************************************************
  * Stencil content
  ******************************************************/
@@ -13,7 +15,7 @@
     margin-right: auto;
 
     // Text
-    font-family: $sans;
+    font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
     font-size: 17px;
     line-height: 1.5em;
     text-align: justify;
@@ -68,7 +70,6 @@
 #content h4,
 #content h5,
 #content h6 {
-	font-family: $sans;
 	font-weight: bold;
 	color: #444;
     margin-top: 1em;
@@ -103,7 +104,7 @@
 #content kbd, 
 #content pre, 
 #content samp {
-	font-family: $mono;
+	font-family: 'Source Code Pro', mono;
 	font-size: 0.9em;
     background: #EFEFEF;
     border-radius: 3px;
@@ -119,7 +120,7 @@
 #content script[type^="math/tex"],
 #content script[type^="math/asciimath"] {
     display: inline;
-    font-family: $mono;
+    font-family: 'Source Code Pro', mono;
     color: #BBB;
 }
 

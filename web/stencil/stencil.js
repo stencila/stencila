@@ -103,12 +103,12 @@ App.Prototype = function() {
 
 oo.inherit(App, Component);
 
-var App_launch = function(){
+function App_launch(){
   var content = $('#content');
   var html = content.html() || '';
   content.remove();
   Component.mount($$(App,{"html":html}),$('body'));
-};
+}
 
 // Stencila global object is used to indicate that this script
 // has loaded successfully and helps dealing with the fallback
@@ -137,7 +137,21 @@ window.MathJax = {
   showMathMenu: false,
   "HTML-CSS": {preferredFont: "STIX"}
 };
-window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML');
+window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',function(){
+  // Initial render of MathJax
+  // Render using 'Rerender' instead of 'Typeset'
+  // because math is already in <script type="math/..."> elements
+  MathJax.Hub.Queue(
+    ["Rerender",MathJax.Hub,"content"],
+    function(){
+      // Hide math script elements which should now have been rendered into 
+      // separate display elements by MathJax
+      $('#content').find('script[type^="math/tex"],script[type^="math/asciimath"]').each(function(){
+        $(this).css('display','none');
+      });
+    }
+  );
+});
 
 // Launch Substance app when F2 is pressed
 $(document).bind('keydown', 'F2', function(){
