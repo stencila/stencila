@@ -103,7 +103,7 @@ App.Prototype = function() {
 
 oo.inherit(App, Component);
 
-function App_launch(){
+function AppLaunch(){
   var content = $('#content');
   var html = content.html() || '';
   content.remove();
@@ -130,14 +130,8 @@ window.Stencila = {
 // Load ACE editor
 window.Stencila.load('/get/web/ace/ace.js');
 
-// Configure and load MathJax
-window.MathJax = {
-  skipStartupTypeset: true,
-  showProcessingMessages: false,
-  showMathMenu: false,
-  "HTML-CSS": {preferredFont: "STIX"}
-};
-window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',function(){
+// Functions for adding and removing MathJax
+function MathJaxAdd(){
   // Initial render of MathJax
   // Render using 'Rerender' instead of 'Typeset'
   // because math is already in <script type="math/..."> elements
@@ -151,10 +145,33 @@ window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',f
       });
     }
   );
-});
+}
+function MathJaxRemove(){
+  var $content = $('#content');
+  // Get all MathJax "jax" elements (e.g. 
+  //    <script type="math/asciimath" id="MathJax-Element-2">e=m^2</script>
+  // ) and remove the id if it starts with MathJax
+  $content.find('script[type^="math/asciimath"],script[type^="math/tex"]').each(function(){
+    var elem = $(this);
+    if(/^MathJax/.exec(elem.attr('id'))) elem.removeAttr('id');
+    // Remove the css style added above to hide these
+    elem.removeAttr('style');
+  });
+  // Remove all elements which have been added
+  $content.find('.MathJax_Error, .MathJax_Preview, .MathJax').remove();
+}
+// Configure and load MathJax
+window.MathJax = {
+  skipStartupTypeset: true,
+  showProcessingMessages: false,
+  showMathMenu: false,
+  "HTML-CSS": {preferredFont: "STIX"}
+};
+window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',MathJaxAdd);
 
 // Launch Substance app when F2 is pressed
 $(document).bind('keydown', 'F2', function(){
-  App_launch();
+  MathJaxRemove();
+  AppLaunch();
   return false;
 });
