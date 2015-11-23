@@ -6,9 +6,10 @@
  */
 
 var express = require('express');
+var proxy = require('express-http-proxy');
+var url = require('url');
 var path = require('path');
 var sass = require('node-sass');
-var bodyParser = require('body-parser');
 var browserify = require("browserify");
 
 var handleError = function(err, res) {
@@ -26,16 +27,14 @@ var renderSass = function(cb) {
 
 
 var app = express();
-app.use(bodyParser.json({limit: '3mb'}));
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// Static files
-app.use(express.static(__dirname));
+// Home page
+app.get('/', function(req, res){
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-app.use('/i18n', express.static(path.join(__dirname, "i18n")));
-
-// Stencil HTML
-//app.get('/stencil', express.static(path.join(__dirname, "stencil", "index.html")));
+// Static components
+app.use('/static', express.static(__dirname));
 
 // Javascript
 app.get('/get/web/stencil.min.js', function (req, res, next) {
@@ -66,9 +65,26 @@ app.get('/get/web/stencil.min.css.map', function(req, res) {
   });
 });
 
-// Everything else falls back to the `build` directory (e.g. fonts, MathJax)
+// Everything else at `/get/web` falls back to the `build` directory (e.g. fonts, MathJax)
 // So, you'll need to do a build first
 app.use('/get/web', express.static(path.join(__dirname, 'build')));
+
+// Internationalization
+app.use('/i18n', express.static(path.join(__dirname, "i18n")));
+
+// Fallback to proxying to locally hosted components
+// Don't use bodyParser middleware in association with this proxying,
+// it seems to screw it up
+app.use('*', proxy('localhost:7373', {
+  forwardPath: function(req, res) {
+    var uri = req.params[0];
+    console.log('Proxying to http://localhost:7373'+uri);
+    return url.parse(uri).path;
+  },
+}));
+
+// Tell express no to set an Etag header
+app.set('etag', false);
 
 // Serve app
 var port = process.env.PORT || 5000;
