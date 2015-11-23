@@ -142,18 +142,21 @@ void Server::http_(connection_hdl hdl) {
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
 	std::string content;
+	std::string content_type = "text/plain";
 	try {
 		// Routing
 		if(verb=="OPTIONS"){
-			// Required por fre-flight CORS checks by browser
+			// Required for pre-flight CORS checks by browser
 		}
 		else if(verb=="GET" and path==""){
 			// Index page
 			content = Component::index();
+			content_type = "text/html";
 		} 
 		else if(verb=="GET" and path=="extras"){
 			// Extra content for component pages
 			content = Component::extras();
+			content_type = "text/html";
 		}
 		else {
 			// Resolve amongst the following requests 
@@ -189,12 +192,14 @@ void Server::http_(connection_hdl hdl) {
 				}
 				else {
 					content = Component::page(address);
+					content_type = "text/html";
 				}
 			}
 			else if(method.length()){
 				// Component method request
 				std::string body = connection->get_request_body();
 				content = Component::request_dispatch(address,verb,method,body);
+				content_type = "application/json";
 			}
 			else if(file){
 				// Static file request
@@ -226,7 +231,6 @@ void Server::http_(connection_hdl hdl) {
 							);
 							content = file_content;
 							// Determine and set the "Content-Type" header
-							std::string content_type;
 							std::string extension = boost::filesystem::path(filesystem_path).extension().string();
 							if(extension==".txt") content_type = "text/plain";
 							else if(extension==".css") content_type = "text/css";
@@ -237,7 +241,6 @@ void Server::http_(connection_hdl hdl) {
 							else if(extension==".js") content_type = "application/javascript";
 							else if(extension==".woff") content_type = "application/font-wof";
 							else if(extension==".tff") content_type = "application/font-ttf";
-							connection->append_header("Content-Type",content_type);
 						}
 					}
 				}
@@ -265,7 +268,10 @@ void Server::http_(connection_hdl hdl) {
 	connection->replace_header("Server","Stencila embedded");
 	// Set status and content
 	connection->set_status(status);
-	connection->set_body(content);
+	if(content.length()){
+		connection->set_body(content);
+		connection->append_header("Content-Type",content_type);
+	}
 }
 
 /**
