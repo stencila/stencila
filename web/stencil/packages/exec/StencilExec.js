@@ -2,13 +2,6 @@
 var $ = require('substance/util/jquery');
 var StencilNode = require('../../model/StencilNode');
 
-// Abstract interface
-// There are ImageFigures, TableFigures, VideoFigures
-
-// <pre id="exec1", data-exec="r">
-// x = 1
-// </pre>
-
 var StencilExec = StencilNode.extend({
   name: "stencil-exec",
   properties: {
