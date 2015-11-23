@@ -25,6 +25,8 @@ var CONFIG = {
       'heading': require('substance/packages/heading/HeadingComponent'),
       'link': require('./packages/link/LinkComponent'),
 
+      'stencil-title': require('./packages/title/StencilTitleComponent'),
+
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),
