@@ -68,11 +68,12 @@ StencilFigureComponent.Prototype = function() {
           .addClass('image')
           .attr({
             contentEditable: false,
-            src: this.props.node.getDocument().url + "/" + this.props.node.image
+            src: this.props.node.image
           })
       )
       .ref('content')
     );
+
     el.append($$('div')
       .addClass('description small')
       .append(
