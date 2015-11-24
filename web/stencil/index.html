@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Stencila development test page</title>
+    <title>Static test stencil</title>
     <meta charset="UTF-8">
     <link href='/get/web/stencil.min.css' rel='stylesheet' type='text/css'/>
   </head>
   <body>
 	<main id="content">
+		<div id="title">A simple test stencil</div>
 
-		<div id="title">A simple demonstration stencil for R</div>
 		<div id="description">This is a very simple little stencil for use in a R context. It has some paragraphs, inline math, equations and some execute and text directives</div>
+
 		<p>Pearson's correlation coefficient when applied to a population is commonly represented by the Greek letter <script type="math/asciimath">rho</script> (rho) and may be referred to as the population correlation coefficient or the population Pearson correlation coefficient. The formula for <script type="math/tex">\rho</script> is:<div data-equation="true"><script type="math/tex; mode=display">\rho_{X,Y}= \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y}</script></div></p>
+
 		<pre data-exec="r" data-hash="cf6SFzj">
 	x &lt;- 1:100
 	y &lt;- x + rnorm(length(x),0,10)
-	</pre>
+</pre>
+
 	</main>
 	<script src="/get/web/stencil.min.js"></script>
   </body>
