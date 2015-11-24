@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stencila web development server</title>
+    <meta charset="UTF-8">
+  </head>
+  <style type="text/css">
+    body {
+        font-family: mono;
+        line-height: 1.2em;
+        padding: 2em;
+    }
+    main {
+        max-width: 50em;
+        margin-left: auto;
+        margin-right: auto;
+    }
+  </style>
+  <body>
+    <main>
+        <p>
+            This is the Stencila development server for the `web` module. It bundles and compiles Javascript and CSS on the fly
+            for convenience during development.
+        <p>
+
+        <p>
+            Static HTML files that mimic the structure of Stencila components:
+        <p>
+        <ul>
+            <li>
+                <a href="/static/stencil/">http://localhost:5000/static/stencil/</a>
+            </li>
+        </ul>
+
+        <p>
+            Dynamic components, hosted in local R, Python etc sessions and listening to port 7373, can be proxied via this server.
+            The Javascript and CSS still gets generated on the fly but everything else gets passed on to the backend session. 
+            Make sure you add the trailing slash e.g.
+        <p>
+        <ul>
+            <li>
+                <a href="/demo/stencils/simple-r/">http://localhost:5000/demo/stencils/simple-r/</a>
+            </li>
+        </ul>
+    </main>
+  </body>
+</html>

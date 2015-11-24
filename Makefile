@@ -1025,6 +1025,9 @@ web-build:
 web-watch:
 	cd web; gulp watch
 
+web-devserve:
+	cd web; node server.js
+
 web-deliver:
 	aws s3 sync web/build s3://get.stenci.la/web/
 
