@@ -21,7 +21,7 @@ var renderSass = function(cb) {
   sass.render({
     file: path.join(__dirname, 'stencil', 'stencil.scss'),
     sourceMap: true,
-    outFile: 'app.css',
+    outFile: 'stencil.min.css',
   }, cb);
 };
 
