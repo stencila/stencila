@@ -3,9 +3,6 @@ var $ = require('substance/util/jquery');
 var _ = require('substance/util/helpers');
 var Stencil = require('./model/Stencil');
 
-var CONFIG = {
-  host: 'http://localhost:7373'
-};
 
 var Backend = function() {
   this._getHost();
@@ -23,8 +20,11 @@ Backend.Prototype = function() {
     var ajaxOpts = {
       type: method,
       url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
+      // Specify JSON as content type to send
       contentType: "application/json; charset=UTF-8",
-      // dataType: "json",
+      // Type of data expected back
+      // "json": Evaluates the response as JSON and returns a JavaScript object.
+      dataType: "json",
       success: function(data) {
         cb(null, data);
       },
@@ -68,13 +68,11 @@ Backend.Prototype = function() {
   // Document
   // ------------------
 
-  // http://10.0.0.12:7373/core/stencils/examples/kitchensink/@content?format=
   this.getDocument = function(documentId, cb) {
     var address = this.address;
     // TODO: we need a concept for generating the document URL
-    this._request('GET', "content", null, function(err, resultStr) {
+    this._request('GET', "content", null, function(err, result) {
       if (err) { console.error(err); cb(err); }
-      var result = JSON.parse(resultStr);
       var doc = new Stencil();
       doc.loadHtml(result.content);
       doc.id = documentId;
@@ -88,7 +86,7 @@ Backend.Prototype = function() {
     this._request('PUT', "save", {
       'format': 'html',
       'content': doc.toHtml()
-    }, function(err, resultStr) {
+    }, function(err, result) {
       if (err) { console.error(err); cb(err); }
       cb(null);
     });
@@ -98,9 +96,8 @@ Backend.Prototype = function() {
     this._request('PUT', "render", {
       'format': 'html',
       'content': doc.toHtml()
-    }, function(err, resultStr) {
+    }, function(err, result) {
       if (err) { console.error(err); cb(err); }
-      var result = JSON.parse(resultStr);
       // creating a new document instance from the returned html
       // In future the server could provide a different format
       // containing only the rendered content as json
