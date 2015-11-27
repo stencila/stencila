@@ -1025,6 +1025,9 @@ web-build:
 web-watch:
 	cd web; gulp watch
 
+web-examples:
+	stencila-r web/examples/a render write compile
+
 web-devserve:
 	cd web; node server.js
 
