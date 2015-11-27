@@ -161,21 +161,13 @@ void Server::http_(connection_hdl hdl) {
 		else {
 			// Resolve amongst the following requests 
 			// 	- GET a page for a component
-			// 	- GET, PUT or PATCH a component method - contains a "@"
+			// 	- GET, PUT or PATCH a component method - contains a "."
 			// 	- GET a static file - contains a "."
-			std::string address;
-			std::string method;
-			auto at = path.rfind('@');
-			if(at!=std::string::npos){
-				address = path.substr(0,at);
-				method = path.substr(at+1);
-			}
-			else {
-				if(path.back()=='/') address = path.substr(0,path.length()-1);
-				else address = path;
-			}
-			bool file = path.find(".")!=std::string::npos;
-			if(not (method.length() or file)){
+			boost::filesystem::path path_b = path;
+			std::string address = (path_b.parent_path() / path_b.stem()).string();
+			std::string extension = path_b.extension().string();
+
+			if(extension.length()==0){
 				// Component interface request
 				// Components must be served with a trailing slash so that relative links work.
 				// For example, if a stencil with address "a/b/c" is served with the url "/a/b/c/"
@@ -195,58 +187,58 @@ void Server::http_(connection_hdl hdl) {
 					content_type = "text/html";
 				}
 			}
-			else if(method.length()){
-				// Component method request
-				std::string body = connection->get_request_body();
-				content = Component::request_dispatch(address,verb,method,body);
-				content_type = "application/json";
-			}
-			else if(file){
-				// Static file request
-				std::string filesystem_path = Component::locate(address);
-				if(filesystem_path.length()==0){
-					// 404: not found
-					status = http::status_code::not_found;
-					content = "Not found\n address: "+address;
-				} else {
-					// Check to see if this is a directory
-					if(boost::filesystem::is_directory(filesystem_path)){
-						// 403: forbidden
-						status = http::status_code::forbidden;
-						content = "Directory access is forbidden\n  path: "+filesystem_path;		
-					}
-					else {
-						std::ifstream file(filesystem_path);
-						if(not file.good()){
-							// 500 : internal server error
-							status = http::status_code::internal_server_error;
-							content = "File error\n  path: "+filesystem_path;
-						} else {
-							// Read file into content string
-							// There may be a [more efficient way to read a file into a string](
-							// http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring)
-							std::string file_content(
-								(std::istreambuf_iterator<char>(file)),
-								(std::istreambuf_iterator<char>())
-							);
-							content = file_content;
-							// Determine and set the "Content-Type" header
-							std::string extension = boost::filesystem::path(filesystem_path).extension().string();
-							if(extension==".txt") content_type = "text/plain";
-							else if(extension==".css") content_type = "text/css";
-							else if(extension==".html") content_type = "text/html";
-							else if(extension==".png") content_type = "image/png";
-							else if(extension==".jpg" || extension==".jpeg") content_type = "image/jpg";
-							else if(extension==".svg") content_type = "image/svg+xml";
-							else if(extension==".js") content_type = "application/javascript";
-							else if(extension==".woff") content_type = "application/font-wof";
-							else if(extension==".tff") content_type = "application/font-ttf";
+			else {
+				// Determine a mime type; if non then treat as method
+				std::string mime_type;
+				if(extension==".txt") mime_type = "text/plain";
+				else if(extension==".css") mime_type = "text/css";
+				else if(extension==".html") mime_type = "text/html";
+				else if(extension==".png") mime_type = "image/png";
+				else if(extension==".jpg" || extension==".jpeg") mime_type = "image/jpg";
+				else if(extension==".svg") mime_type = "image/svg+xml";
+				else if(extension==".js") mime_type = "application/javascript";
+				else if(extension==".woff") mime_type = "application/font-wof";
+				else if(extension==".tff") mime_type = "application/font-ttf";
+				if(mime_type.length()) {
+					// Static file request
+					std::string filesystem_path = Component::locate(path);
+					if(filesystem_path.length()==0){
+						// 404: not found
+						status = http::status_code::not_found;
+						content = "Not found\n path: "+path;
+					} else {
+						// Check to see if this is a directory
+						if(boost::filesystem::is_directory(filesystem_path)){
+							// 403: forbidden
+							status = http::status_code::forbidden;
+							content = "Directory access is forbidden\n  path: "+filesystem_path;		
+						}
+						else {
+							std::ifstream file(filesystem_path);
+							if(not file.good()){
+								// 500 : internal server error
+								status = http::status_code::internal_server_error;
+								content = "File error\n  path: "+filesystem_path;
+							} else {
+								// Read file into content string
+								// There may be a [more efficient way to read a file into a string](
+								// http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring)
+								std::string file_content(
+									(std::istreambuf_iterator<char>(file)),
+									(std::istreambuf_iterator<char>())
+								);
+								content = file_content;
+								content_type = mime_type;
+							}
 						}
 					}
+				} else {
+					// Component method request
+					std::string method = extension.substr(1);
+					std::string body = connection->get_request_body();
+					content = Component::request_dispatch(address,verb,method,body);
+					content_type = "application/json";
 				}
-			}
-			else{
-				status = http::status_code::bad_request;
 			}
 		}
 	}

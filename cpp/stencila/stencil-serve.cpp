@@ -84,8 +84,9 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 		html(content).write();
 	}
 	else {
-		return "400";
+		throw RequestInvalidException();
 	}
+
 	return response.dump();
 }
 

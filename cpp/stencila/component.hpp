@@ -687,6 +687,11 @@ public:
 	);
 
 	/**
+	 * Exception for invalid requests (e.g wrong method name or HTTP method)
+	 */
+	class RequestInvalidException : public Exception {};
+
+	/**
 	 * Process a message for the component at an address
 	 *
 	 * We use [WAMP](http://wamp.ws/) as the message protocol.
