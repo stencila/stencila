@@ -96,17 +96,10 @@ Stencil& Stencil::read(const std::string& directory){
 Stencil& Stencil::write(const std::string& directory){
 	// Set this stencil's path using `Component::write`
 	Component::write(directory);
-	// Create a clone so mdifications can be made before writing to disk
+	// Create a clone so modifications can be made before writing to disk
 	// without affecting in-memory stencil
 	Stencil clone;
 	clone.append(*this);
-	// Remove any id's added by web browser front end
-	auto elems = clone.filter("[id]");
-	for(auto elem : elems){
-		if(elem.attr("id").find("_")>=0){
-			elem.erase("id");
-		}
-	}
 	// Write to the source file, default to HTML
 	if(source_=="stencil.cila") Component::write_to("stencil.cila",clone.cila());
 	else Component::write_to("stencil.html",clone.html(false,true));
