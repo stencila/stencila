@@ -1,16 +1,14 @@
 // Match for writer and reader markup
 .stencil-text {
-  background: #ddd;
+  color: $source-node-color;
   cursor: pointer;
 
   &.highlighted {
-    background: #2B303B;
-    color: #fff;
+    color: hsl(100, 90%, 40%);
   }
 
-  &.sm-error {
-    background: #A20808;
-    color: rgba(255,255,255,0.9);
+  &.error {
+    color: $error-node-color;
   }
 }
 

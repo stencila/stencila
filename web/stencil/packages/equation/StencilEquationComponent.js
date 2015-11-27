@@ -6,6 +6,7 @@ var _ = require('substance/util/helpers');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var $$ = Component.$$;
+
 var StencilNodeComponent = require('../../StencilNodeComponent');
 var StencilSourceComponent = require('../../StencilSourceComponent');
 
@@ -14,7 +15,6 @@ function StencilEquationComponent() {
 }
 
 StencilEquationComponent.Prototype = function() {
-
   _.extend(this, StencilSourceComponent.prototype);
 
   this._renderMathJax = function() {
@@ -43,7 +43,7 @@ StencilEquationComponent.Prototype = function() {
   this.render = function() {
     var node = this.props.node;
     var el = $$('div')
-      .addClass("sc-stencil-equation content-node clearfix " + node.type)
+      .addClass("stencil-equation " + node.type)
       .attr("data-id", node.id)
       .attr('contentEditable', false)
       .on('click', this.onEditSource)

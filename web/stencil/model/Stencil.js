@@ -1,12 +1,5 @@
 'use strict';
 
-// Substance Article
-// ----------------
-//
-// The default Article Implementation
-//
-// Uses well-defined HTML exchange representation
-
 var $ = require('substance/util/jquery');
 var OO = require('substance/util/oo');
 var Document = require('substance/model/Document');
@@ -21,12 +14,12 @@ var StencilDefaultNode = require('../packages/default/StencilDefaultNode');
 
 var defaultSchema = new DocumentSchema("stencil", "0.1.0");
 
-
 defaultSchema.getDefaultTextType = function() {
   return "paragraph";
 };
 
 defaultSchema.addNodes([
+  // General nodes
   require('substance/packages/paragraph/Paragraph'),
   require('substance/packages/heading/Heading'),
   require('substance/packages/emphasis/Emphasis'),
@@ -35,11 +28,15 @@ defaultSchema.addNodes([
 
   // Stencil-specific nodes
   require('../packages/title/StencilTitle'),
+  require('../packages/summary/StencilSummary'),
+
+  require('../packages/math/StencilMath'),
+  require('../packages/equation/StencilEquation'),
+
   require('../packages/exec/StencilExec'),
   require('../packages/figure/StencilFigure'),
   require('../packages/text/StencilText'),
-  require('../packages/math/StencilEquation'),
-  require('../packages/math/StencilFormula'),
+
   StencilDefaultNode
 ]);
 
@@ -91,7 +88,7 @@ Exporter.Prototype = function() {
 OO.inherit(Exporter, HtmlExporter);
 
 
-// Stencil Article
+// Stencil
 // ----------------
 
 var Stencil = function(schema) {

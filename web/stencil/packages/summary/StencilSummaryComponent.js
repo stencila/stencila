@@ -5,15 +5,15 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var TextProperty = require('substance/ui/TextPropertyComponent');
 
-function StencilTitleComponent() {
+function StencilSummaryComponent() {
   Component.apply(this, arguments);
 }
 
-StencilTitleComponent.Prototype = function() {
+StencilSummaryComponent.Prototype = function() {
 
   this.render = function() {
     return $$('div')
-      .addClass('stencil-title')
+      .addClass('stencil-summary')
       .attr("data-id", this.props.node.id)
       .append($$(TextProperty, {
         path: [ this.props.node.id, "content"]
@@ -22,6 +22,6 @@ StencilTitleComponent.Prototype = function() {
 
 };
 
-oo.inherit(StencilTitleComponent, Component);
+oo.inherit(StencilSummaryComponent, Component);
 
-module.exports = StencilTitleComponent;
+module.exports = StencilSummaryComponent;

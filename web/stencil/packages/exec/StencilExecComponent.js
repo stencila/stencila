@@ -14,11 +14,10 @@ function StencilExecComponent() {
 }
 
 StencilExecComponent.Prototype = function() {
-
   _.extend(this, StencilSourceComponent.prototype);
 
   this.getClassNames = function() {
-    return "sc-stencil-exec";
+    return "stencil-exec";
   };
 
   this.render = function() {
@@ -28,22 +27,20 @@ StencilExecComponent.Prototype = function() {
       .attr("contentEditable", false);
 
     if (this.isEditable()) {
-      el.append(
-        $$('button')
-          .addClass('se-exec-button')
+      var button = $$('button')
           .append(
-            $$('span').addClass('se-label').append(this.i18n.t('exec-button-label')),
-            $$('span').addClass('se-action').append(
-              $$(Icon, {icon: 'fa-pencil'}),
-              ' ',
-              this.i18n.t('edit-source-action')
-            )
+            $$(Icon, {icon: 'fa-flash'})
           )
-          .on('click', this.onEditSource)
-          // Unfortunately we need to suppress mouse down, as otherwise
+          // Bind click; we need to suppress mouse down, as otherwise
           // Surface will receive events leading to updating the selection
-          .on('mousedown', this.onMouseDown)
+          .on('click', this.onEditSource)
+          .on('mousedown', this.onMouseDown);
+      el.append(
+        button
       );
+      if (this.props.node.error) {
+        button.addClass('error');
+      }
     }
 
     if (this.revealSource()) {

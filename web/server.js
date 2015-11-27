@@ -33,8 +33,8 @@ app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Static components
-app.use('/static', express.static(__dirname));
+// Example components
+app.use('/examples', express.static(path.join(__dirname, "examples")));
 
 // Javascript
 app.get('/get/web/stencil.min.js', function (req, res, next) {

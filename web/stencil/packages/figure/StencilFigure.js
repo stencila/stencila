@@ -42,7 +42,7 @@ StencilFigure.static.fromHtml = function($el, converter) {
   };
 
   var $exec = $el.find('[data-exec]');
-  if($exec){
+  if($exec.length){
     figure.spec = $exec.attr('data-exec');
     figure.source = $exec.text();
     figure.hash = $exec.attr('data-hash');
@@ -50,17 +50,17 @@ StencilFigure.static.fromHtml = function($el, converter) {
   }
 
   var $img = $el.find('[data-out] img');
-  if($img){
+  if($img.length){
     figure.image = $img.attr('src');
   }
 
   var $caption = $el.find('figcaption,caption');
-  if($caption){
+  if($caption.length){
     figure.caption = converter.annotatedText($caption, [id, 'caption']);
   }
 
   var $label = $caption.find("[data-label]");
-  if ($label) {
+  if ($label.length) {
     figure.label = $label.text();
   }
 

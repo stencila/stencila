@@ -26,12 +26,15 @@ var CONFIG = {
       'link': require('./packages/link/LinkComponent'),
 
       'stencil-title': require('./packages/title/StencilTitleComponent'),
+      'stencil-summary': require('./packages/summary/StencilSummaryComponent'),
+
+      'stencil-math': require('./packages/math/StencilMathComponent'),
+      'stencil-equation': require('./packages/equation/StencilEquationComponent'),
 
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),
-      'stencil-equation': require('./packages/math/StencilEquationComponent'),
-      'stencil-formula': require('./packages/math/StencilFormulaComponent'),
+
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
@@ -53,6 +56,8 @@ var CONFIG = {
     ],
     textTypes: [
       {name: 'paragraph', data: {type: 'paragraph'}},
+      {name: 'title', data: {type: 'stencil-title'}},
+      {name: 'summary', data: {type: 'stencil-summary'}},
       {name: 'heading1',  data: {type: 'heading', level: 1}},
       {name: 'heading2',  data: {type: 'heading', level: 2}},
       {name: 'heading3',  data: {type: 'heading', level: 3}}

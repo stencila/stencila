@@ -21,7 +21,7 @@ var WriterTools = Component.extend({
         $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
         $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'})),
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
-        $$(RenderTool).append($$(Icon, {icon: 'fa-flash'}))
+        $$(RenderTool).append($$(Icon, {icon: 'fa-refresh'}))
       ),
       /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-image'}),}).append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'}))

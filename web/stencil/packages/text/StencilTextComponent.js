@@ -41,11 +41,11 @@ StencilTextComponent.Prototype = function() {
         .on('mousedown', this.onMouseDown)
         .append(this.props.node.output || "");
     } else {
-      el = $$('span').addClass('se-stencil-text stencil-text');
+      el = $$('span').addClass('stencil-text');
 
       if (this.revealSource()) {
         el.append(
-          $$('span').addClass('stencil-text-source').append(this.props.node.source),
+          $$('span').addClass('source').append(this.props.node.source),
           ' → '
         );
       }
@@ -55,7 +55,7 @@ StencilTextComponent.Prototype = function() {
     }
 
     if (this.props.node.error) {
-      el.addClass('sm-error');
+      el.addClass('error');
     }
 
     return el;

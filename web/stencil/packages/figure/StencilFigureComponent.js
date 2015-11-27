@@ -14,37 +14,46 @@ function StencilFigureComponent() {
 }
 
 StencilFigureComponent.Prototype = function() {
-
   _.extend(this, StencilSourceComponent.prototype);
 
   this.render = function() {
     var el = $$('div')
-      .addClass("sc-stencil-figure content-node figure clearfix "+this.props.node.type)
-      .attr("data-id", this.props.node.id)
-      .attr('id', this.props.node.id);
+      .addClass('stencil-figure')
+      .attr("data-id", this.props.node.id);
 
-    el.append($$('div')
-      .addClass('label').attr("contenteditable", false)
-      .append(this.props.node.label)
-      .ref('label')
+    el.append(
+      $$('div')
+        .addClass('header')
+        .append(
+          $$('span')
+            .addClass('label')
+            .attr("contenteditable", false)
+            .append(this.props.node.label)
+            .ref('label'),
+          $$(TextProperty, {
+            tagName: 'span',
+            path: [this.props.node.id, 'caption']
+          })
+            .addClass('caption')
+            .ref('caption')
+        )
     );
 
     if (this.isEditable()) {
-      el.append(
-        $$('button')
-          .addClass('se-figure-edit-button')
+      var button = $$('button')
           .append(
-            $$('span').addClass('se-action').append(
-              $$(Icon, {icon: 'fa-pencil'}),
-              ' ',
-              this.i18n.t('edit-source-action')
-            )
+            $$(Icon, {icon: 'fa-flash'})
           )
-          .on('click', this.onEditSource)
-          // Unfortunately we need to suppress mouse down, as otherwise
+          // Bind click; we need to suppress mouse down, as otherwise
           // Surface will receive events leading to updating the selection
-          .on('mousedown', this.onMouseDown)
+          .on('click', this.onEditSource)
+          .on('mousedown', this.onMouseDown);
+      el.append(
+        button
       );
+      if (this.props.node.error) {
+        button.addClass('error');
+      }
     }
 
     if (this.revealSource()) {
@@ -74,21 +83,6 @@ StencilFigureComponent.Prototype = function() {
       .ref('content')
     );
 
-    el.append($$('div')
-      .addClass('description small')
-      .append(
-        $$(TextProperty, {
-          tagName: 'div',
-          path: [this.props.node.id, "caption"]
-        })
-        .addClass('caption')
-      )
-      .ref('description')
-    );
-
-    if (this.props.node.error) {
-      el.addClass('sm-error');
-    }
     return el;
   };
 

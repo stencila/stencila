@@ -1,10 +1,10 @@
 // Font Awesome icons
 @import '../node_modules/font-awesome/scss/font-awesome.scss';
 
-// Substance base styles
+// Substance styles
+
 @import '../node_modules/substance/styles/base/index';
 
-// UI Components used
 @import '../node_modules/substance/styles/components/_controller';
 @import '../node_modules/substance/styles/components/_surface';
 @import '../node_modules/substance/styles/components/_panel';
@@ -16,11 +16,10 @@
 @import '../node_modules/substance/styles/components/_status_bar';
 @import '../node_modules/substance/styles/components/_text_property';
 @import '../node_modules/substance/styles/components/_annotation_tool';
-
 @import '../node_modules/substance/styles/components/_toolbar';
+
 @import '../node_modules/substance/packages/text/_switch_text_type_tool';
 
-// Nodes
 @import '../node_modules/substance/packages/paragraph/_paragraph';
 @import '../node_modules/substance/packages/heading/_heading';
 @import '../node_modules/substance/packages/blockquote/_blockquote';
@@ -31,11 +30,20 @@
 @import '../node_modules/substance/packages/emphasis/_emphasis';
 @import '../node_modules/substance/packages/strong/_strong';
 
+// Stencil node styles
+
+$source-node-color: hsl(100, 90%, 40%);
+$error-node-color: hsl(0, 90%, 40%);
+
 @import './packages/title/_title';
+@import './packages/summary/_summary';
+@import './packages/math/_math';
+@import './packages/equation/_equation';
 @import './packages/exec/_exec';
 @import './packages/figure/_figure';
 @import './packages/text/_text';
 @import './packages/default/_default';
+
 @import './packages/writer/_edit-source-panel.scss';
 
 

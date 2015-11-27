@@ -5,19 +5,17 @@ var _ = require('substance/util/helpers');
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
+
 var StencilNodeComponent = require('../../StencilNodeComponent');
 var StencilSourceComponent = require('../../StencilSourceComponent');
-var StencilEquationComponent = require('./StencilEquationComponent');
+var StencilEquationComponent = require('../equation/StencilEquationComponent');
 
-function StencilFormulaComponent() {
+function StencilMathComponent() {
   AnnotationComponent.apply(this, arguments);
 }
 
-StencilFormulaComponent.Prototype = function() {
-
-  // use StencilNodeComponent as a mixin
+StencilMathComponent.Prototype = function() {
   _.extend(this, StencilNodeComponent.prototype);
-
   _.extend(this, StencilSourceComponent.prototype);
 
   this.didMount = function() {
@@ -32,14 +30,14 @@ StencilFormulaComponent.Prototype = function() {
 
   this.render = function() {
     var el = $$('span')
-      .addClass(this.getClassNames() + " sc-formula")
+      .addClass(this.getClassNames() + " stencil-math")
       .attr({
         "data-id": this.props.node.id,
         "data-external": 1,
         "contentEditable": false
       })
       .on('click', this.onEditSource)
-      .on('mousedown', this.onMouseDown)
+      .on('mousedown', this.onMouseDown);
 
     el.append(StencilEquationComponent.prototype._renderMathJax.call(this));
     return el;
@@ -49,6 +47,6 @@ StencilFormulaComponent.Prototype = function() {
 
 };
 
-oo.inherit(StencilFormulaComponent, AnnotationComponent);
+oo.inherit(StencilMathComponent, AnnotationComponent);
 
-module.exports = StencilFormulaComponent;
+module.exports = StencilMathComponent;

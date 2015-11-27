@@ -1,5 +1,5 @@
-
 var $ = require('substance/util/jquery');
+
 var StencilNode = require('../../model/StencilNode');
 
 var StencilEquation = StencilNode.extend({
@@ -19,7 +19,6 @@ StencilEquation.static.components = [];
 
 StencilEquation.static.blockType = true;
 
-// data-equa="true"
 StencilEquation.static.matchElement = function($el) {
   return $el.is('div[data-equation]');
 };
