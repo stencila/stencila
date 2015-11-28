@@ -164,8 +164,9 @@ void Server::http_(connection_hdl hdl) {
 			// 	- GET, PUT or PATCH a component method - contains a "."
 			// 	- GET a static file - contains a "."
 			boost::filesystem::path path_b = path;
-			std::string address = (path_b.parent_path() / path_b.stem()).string();
 			std::string extension = path_b.extension().string();
+			std::string address = path.substr(0,path.rfind(extension));
+			if(address.back()=='/') address = address.substr(0,address.length()-1);
 
 			if(extension.length()==0){
 				// Component interface request
