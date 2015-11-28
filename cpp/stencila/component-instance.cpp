@@ -38,7 +38,12 @@ const Component::Class& Component::class_(Type type){
 }
 
 Component& Component::hold(Type type) {
-	instances_[address(true)] = {type,this};
+	auto this_address = address(true);
+	auto iterator = instances_.find(this_address);
+	if(iterator==instances_.end()){
+		Instance instance = {type,this};
+		instances_[this_address] = instance;
+	}	
 	return *this;
 }
 
