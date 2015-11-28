@@ -92,6 +92,13 @@ Backend.Prototype = function() {
     });
   };
 
+  this.activate = function(doc, cb){
+    this._request('PUT', 'activate', function(err, result) {
+      if (err) { console.error(err); cb(err); }
+      cb(null);
+    });
+  };
+
   this.renderDocument = function(doc, cb) {
     this._request('PUT', "render", {
       'format': 'html',
