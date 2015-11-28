@@ -100,6 +100,13 @@ Stencil& Stencil::write(const std::string& directory){
 	// without affecting in-memory stencil
 	Stencil clone;
 	clone.append(*this);
+	// Remove any id's added by web browser front end
+	auto elems = clone.filter("[id]");
+	for(auto elem : elems){
+		if(elem.attr("id").find("_")>=0){
+			elem.erase("id");
+		}
+	}
 	// Write to the source file, default to HTML
 	if(source_=="stencil.cila") Component::write_to("stencil.cila",clone.cila());
 	else Component::write_to("stencil.html",clone.html(false,true));
