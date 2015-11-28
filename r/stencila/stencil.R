@@ -36,8 +36,8 @@ setRefClass(
     ),
     contains = 'Component',
     methods = list(
-        initialize = function(initialiser=NULL,...){
-            callSuper(...)
+        initialize = function(initialiser=NULL,pointer=NULL,...){
+            callSuper(pointer,...)
             .context <<- NULL
             # Initialise from the argument
             if(!is.null(initialiser)) call_('Stencil_initialise',.pointer,toString(initialiser))
@@ -88,17 +88,28 @@ setRefClass(
         select = function(selector) method_(.self,'Stencil_select',selector),
 
         context = function(value){
-            if(missing(value)) .context
-            else attach(value)
+            if(missing(value)){
+                return(.context)
+            }
+            else if(is.null(value)){
+                # This is primarily for debugging purposes.
+                # Returns the C++ string representation of the context
+                return(
+                    method_(.self,'Stencil_context_get')
+                )
+            }
+            else {
+                attach(value)
+            }
         },
         attach = function(context){
             if(!is.null(context)) detach()
             if(inherits(context,'Context')) .context <<- context
             else .context <<- Context(context)
+            method_(.self,'Stencil_attach',.context)
             # Assign this stencil to the 'self' context
             # variable so it can be accessed from there
             assign('self',.self,envir=.context$top())
-            method_(.self,'Stencil_attach',context)
         },
         detach = function(){
             .context <<- NULL

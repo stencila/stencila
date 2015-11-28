@@ -58,6 +58,7 @@ STENCILA_R_FUNC Stencil_attach(SEXP self,SEXP context){
     STENCILA_R_END
 }
 STENCILA_R_EXEC0(Stencil,detach)
+STENCILA_R_GET(Stencil,context)
 
 STENCILA_R_EXEC0(Stencil,render)
 

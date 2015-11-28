@@ -214,10 +214,11 @@ setRefClass(
 #'
 #' @export
 grab <- function(address){
-	parts <- call_('Component_grab',address)
-	type <- parts[1]
-	address <- parts[2]
-	return(get(type)(address))
+	instance <- call_('Component_grab',address)
+	return(new(
+		instance$type,
+		pointer=instance$sexp
+	))
 }
 
 #' Get a list of held components

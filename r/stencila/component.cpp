@@ -1,4 +1,5 @@
 #include <stencila/component.hpp>
+#include <stencila/stencil.hpp>
 using namespace Stencila;
 
 #include "stencila.hpp"
@@ -70,10 +71,22 @@ STENCILA_R_FUNC Component_grab(SEXP address){
         Component::Instance instance = Component::get(
             as<std::string>(address)
         );
-        Rcpp::CharacterVector parts(2);
-        parts[0] = Component::type_name(instance.type());
-        parts[1] = instance.as<Component>().path();
-        return parts;
+        std::string type;
+        SEXP sexp;
+        switch(instance.type()){
+            case Component::StencilType:
+                type = "Stencil";
+                sexp = to<Stencil>(&instance.as<Stencil>(),"Stencil");
+                break;
+            default:
+                type = "Component";
+                sexp = to<Component>(&instance.as<Component>(),"Component");
+                break;
+        }
+        return Rcpp::List::create(
+            Rcpp::Named("type") = type,
+            Rcpp::Named("sexp") = sexp
+        );
     STENCILA_R_END
 }
 
