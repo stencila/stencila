@@ -308,7 +308,9 @@ Stencil& Stencil::render(const std::string& type){
 
 Stencil& Stencil::render(void){
 	if(context_) return render(context_);
-	else return render(std::string());
+	else {
+		STENCILA_THROW(Exception,"Stencil does not have an attached context");
+	}
 }
 
 Stencil& Stencil::refresh(void){
