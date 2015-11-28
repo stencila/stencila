@@ -103,7 +103,7 @@ Stencil& Stencil::write(const std::string& directory){
 	// Remove any id's added by web browser front end
 	auto elems = clone.filter("[id]");
 	for(auto elem : elems){
-		if(elem.attr("id").find("_")>=0){
+		if(elem.attr("id").find("_")!=std::string::npos){
 			elem.erase("id");
 		}
 	}
