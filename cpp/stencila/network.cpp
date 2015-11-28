@@ -197,7 +197,8 @@ void Server::http_(connection_hdl hdl) {
 				else if(extension==".jpg" || extension==".jpeg") mime_type = "image/jpg";
 				else if(extension==".svg") mime_type = "image/svg+xml";
 				else if(extension==".js") mime_type = "application/javascript";
-				else if(extension==".woff") mime_type = "application/font-wof";
+				else if(extension==".woff") mime_type = "application/font-woff";
+				else if(extension==".woff2") mime_type = "application/font-woff2";
 				else if(extension==".tff") mime_type = "application/font-ttf";
 				if(mime_type.length()) {
 					// Static file request
