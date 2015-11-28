@@ -171,13 +171,6 @@ void Stencil::render(Node node, std::shared_ptr<Context> context){
 				std::string count_string = string(count);
 				// Set the index attribute on the node
 				node.attr("data-index",count_string);
-				// Add/modify label
-				Node label = caption.select("[data-label]");
-				if(not label){
-					label = caption.prepend("span");
-					label.attr("data-label",tag+"-"+count_string);
-				}
-				label.text(Stencila::title(tag)+" "+count_string);
 			}
 		}
 		// If return not yet hit then process children of this element
@@ -309,7 +302,9 @@ Stencil& Stencil::render(const std::string& type){
 Stencil& Stencil::render(void){
 	if(context_) return render(context_);
 	else {
-		STENCILA_THROW(Exception,"Stencil does not have an attached context");
+		STENCILA_THROW(Exception,"Stencil does not have an attached context\n  stencil: "+
+			string(this)+"\n  context: "+context()
+		);
 	}
 }
 

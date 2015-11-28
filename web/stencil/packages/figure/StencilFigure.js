@@ -32,7 +32,7 @@ StencilFigure.static.fromHtml = function($el, converter) {
 
   var figure = {
     id: id,
-    index: $el.attr('data-index'),
+    index: '',
     spec: null,
     source: null,
     hash: null,
@@ -40,6 +40,8 @@ StencilFigure.static.fromHtml = function($el, converter) {
     image: null,
     caption: ''
   };
+
+  figure.index = $el.attr('data-index');
 
   var $exec = $el.find('[data-exec]');
   if($exec.length){
@@ -57,11 +59,6 @@ StencilFigure.static.fromHtml = function($el, converter) {
   var $caption = $el.find('figcaption,caption');
   if($caption.length){
     figure.caption = converter.annotatedText($caption, [id, 'caption']);
-  }
-
-  var $label = $caption.find("[data-label]");
-  if ($label.length) {
-    figure.label = $label.text();
   }
 
   return figure;

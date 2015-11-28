@@ -28,14 +28,13 @@ StencilFigureComponent.Prototype = function() {
           $$('span')
             .addClass('label')
             .attr("contenteditable", false)
-            .append(this.props.node.label)
+            .append('Figure '+this.props.node.index)
             .ref('label'),
           $$(TextProperty, {
             tagName: 'span',
             path: [this.props.node.id, 'caption']
           })
             .addClass('caption')
-            .ref('caption')
         )
     );
 
