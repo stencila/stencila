@@ -56,12 +56,19 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 		request.load(body);
 	}
 	Json::Document response = Json::Object();
+	std::string signature = verb + " " + method;
 	
-	if(method=="content" and verb=="GET"){
+	if(signature=="GET content"){
 		response.append("format","html");
 		response.append("content",html(false,false));
 	}
-	else if(method=="render" and verb=="PUT"){
+	else if(signature=="PUT content"){
+		auto format = request["format"].as<std::string>();
+		auto content = request["content"].as<std::string>();
+
+		html(content).write();
+	}
+	else if(signature=="PUT render"){
 		auto format = request["format"].as<std::string>();
 		auto content = request["content"].as<std::string>();
 		if(content.length()){
@@ -76,12 +83,6 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 
 		response.append("format","html");
 		response.append("content",html(false,false));
-	}
-	else if(method=="save" and verb=="PUT"){
-		auto format = request["format"].as<std::string>();
-		auto content = request["content"].as<std::string>();
-
-		html(content).write();
 	}
 	else {
 		throw RequestInvalidException();
