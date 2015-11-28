@@ -83,7 +83,7 @@ Backend.Prototype = function() {
   };
 
   this.saveDocument = function(doc, cb) {
-    this._request('PUT', "save", {
+    this._request('PUT', 'content', {
       'format': 'html',
       'content': doc.toHtml()
     }, function(err, result) {
