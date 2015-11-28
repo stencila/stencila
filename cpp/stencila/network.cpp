@@ -193,10 +193,12 @@ void Server::http_(connection_hdl hdl) {
 				if(extension==".txt") mime_type = "text/plain";
 				else if(extension==".css") mime_type = "text/css";
 				else if(extension==".html") mime_type = "text/html";
+				else if(extension==".ico") mime_type = "image/x-icon";
 				else if(extension==".png") mime_type = "image/png";
-				else if(extension==".jpg" || extension==".jpeg") mime_type = "image/jpg";
+				else if(extension==".jpg" or extension==".jpeg") mime_type = "image/jpg";
 				else if(extension==".svg") mime_type = "image/svg+xml";
 				else if(extension==".js") mime_type = "application/javascript";
+				else if(extension==".map") mime_type = "application/javascript";
 				else if(extension==".woff") mime_type = "application/font-woff";
 				else if(extension==".woff2") mime_type = "application/font-woff2";
 				else if(extension==".tff") mime_type = "application/font-ttf";
@@ -237,7 +239,13 @@ void Server::http_(connection_hdl hdl) {
 					// Component method request
 					std::string method = extension.substr(1);
 					std::string body = connection->get_request_body();
-					content = Component::request_dispatch(address,verb,method,body);
+					try {
+						content = Component::request_dispatch(address,verb,method,body);
+					}
+					catch (const Component::RequestInvalidException& e){
+						status = http::status_code::bad_request;
+						content = "Bad request\n  method: "+method+"\n  verb: "+verb;
+					}
 					content_type = "application/json";
 				}
 			}
