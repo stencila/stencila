@@ -33,7 +33,7 @@ function errorHandler() {
 
 
 function style(type,watch) {
-  var src = './stencila/'+type+'/'+type+'.scss';
+  var src = './'+type+'/'+type+'.scss';
 
   gulp.src(src)
     .pipe(sass({
@@ -58,7 +58,7 @@ function styles(watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others  
 function script(type,watch) {
-  var src = './stencila/'+type+'/browser.js';
+  var src = './'+type+'/'+type+'.js';
 
   var props = {
     entries: [src],
