@@ -21,6 +21,8 @@ module.exports = {
   'codeblock': 'Codeblock',
   'blockquote': 'Blockquote',
 
+  'cila': 'Cila',
+
   'exec-button-label': 'Evaluated Code',
   'edit-source-action': 'Edit Source',
 };
