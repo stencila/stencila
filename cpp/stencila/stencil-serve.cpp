@@ -52,15 +52,30 @@ std::string Stencil::request(Component* component,const std::string& verb,const 
 
 std::string Stencil::request(const std::string& verb,const std::string& method,const std::string& body){
 	Json::Document request;
-	if(verb!="GET" and body.length()){
+	if(verb=="GET"){
+		// FIXME
+		// Need to parse out request queries
+	}
+	else if(body.length()){
 		request.load(body);
 	}
 	Json::Document response = Json::Object();
 	std::string signature = verb + " " + method;
 	
-	if(signature=="GET content"){
-		response.append("format","html");
-		response.append("content",html(false,false));
+	// FIXME
+	// This is currently a POST but should be changed to a GET
+	// after fix above is done
+	if(signature=="POST content"){
+		auto format = request["format"].as<std::string>();
+
+		std::string content;
+		if(format=="html" or format=="") content = html(false,false);
+		else if(format=="cila") content = cila();
+		else {
+			response.append("error","format is not 'cila' or 'html'");
+		}
+		response.append("format",format);
+		response.append("content",content);
 	}
 	else if(signature=="PUT content"){
 		auto format = request["format"].as<std::string>();
