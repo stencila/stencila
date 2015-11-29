@@ -1,6 +1,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/thread.hpp>
+#include <boost/regex.hpp>
 
 #include <stencila/network.hpp>
 #include <stencila/string.hpp>
@@ -145,6 +146,9 @@ void Server::http_(connection_hdl hdl) {
 	std::string content_type = "text/plain";
 	try {
 		// Routing
+		boost::smatch match;
+		boost::regex method_regex("^(.+?)@([a-z0-9]+)$");
+		boost::regex file_regex("^(.+?)\\.([a-zA-Z0-9]+)$");
 		if(verb=="OPTIONS"){
 			// Required for pre-flight CORS checks by browser
 		}
@@ -158,98 +162,89 @@ void Server::http_(connection_hdl hdl) {
 			content = Component::extras();
 			content_type = "text/html";
 		}
-		else {
-			// Resolve amongst the following requests 
-			// 	- GET a page for a component
-			// 	- GET, PUT or PATCH a component method - contains a "."
-			// 	- GET a static file - contains a "."
-			boost::filesystem::path path_b = path;
-			std::string extension = path_b.extension().string();
-			std::string address = path.substr(0,path.rfind(extension));
-			if(address.back()=='/') address = address.substr(0,address.length()-1);
-
-			if(extension.length()==0){
-				// Component interface request
-				// Components must be served with a trailing slash so that relative links work.
-				// For example, if a stencil with address "a/b/c" is served with the url "/a/b/c/"
-				// then a relative link within that stencil to an image "1.png" will resolved to "/a/b/c/1.png" (which
-				// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
-				// will cause a 404 error). 
-				// So, if no trailing slash, then redirect...
-				if(path[path.length()-1]!='/'){
-					status = http::status_code::moved_permanently;
-					// Use full URI for redirection because multiple leading slashes can get
-					// squashed up otherwise
-					auto uri = url()+"/"+path+"/";
-					connection->append_header("Location",uri);
+		else if(boost::regex_match(path,match,method_regex)){
+			// Component method request
+			std::string address = match.str(1);
+			std::string method = match.str(2);
+			std::string body = connection->get_request_body();
+			try {
+				content = Component::request_dispatch(address,verb,method,body);
+				content_type = "application/json";
+			}
+			catch (const Component::RequestInvalidException& e){
+				status = http::status_code::bad_request;
+				content = "Bad request\n  method: "+method+"\n  verb: "+verb;
+			}
+		}
+		else if(verb=="GET" and boost::regex_match(path,match,file_regex)){
+			// Static file request
+			std::string filesystem_path = Component::locate(path);
+			if(filesystem_path.length()==0){
+				// 404: not found
+				status = http::status_code::not_found;
+				content = "Not found\n path: "+path;
+			} else {
+				// Check to see if this is a directory
+				if(boost::filesystem::is_directory(filesystem_path)){
+					// 403: forbidden
+					status = http::status_code::forbidden;
+					content = "Directory access is forbidden\n  path: "+filesystem_path;		
 				}
 				else {
-					content = Component::page(address);
-					content_type = "text/html";
+					std::ifstream file(filesystem_path);
+					if(not file.good()){
+						// 500 : internal server error
+						status = http::status_code::internal_server_error;
+						content = "File error\n  path: "+filesystem_path;
+					} else {
+						// Read file into content string
+						// There may be a [more efficient way to read a file into a string](
+						// http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring)
+						std::string file_content(
+							(std::istreambuf_iterator<char>(file)),
+							(std::istreambuf_iterator<char>())
+						);
+						content = file_content;
+						// Determine a content type
+						std::string extension = match.str(2);
+						if(extension=="txt") content_type = "text/plain";
+						else if(extension=="css") content_type = "text/css";
+						else if(extension=="html") content_type = "text/html";
+						else if(extension=="ico") content_type = "image/x-icon";
+						else if(extension=="png") content_type = "image/png";
+						else if(extension=="jpg" or extension=="jpeg") content_type = "image/jpg";
+						else if(extension=="svg") content_type = "image/svg+xml";
+						else if(extension=="js") content_type = "application/javascript";
+						else if(extension=="woff") content_type = "application/font-woff";
+						else if(extension=="woff2") content_type = "application/font-woff2";
+						else if(extension=="tff") content_type = "application/font-ttf";
+					}
 				}
+			}
+		}
+		else if (verb=="GET") {
+			// Component interface request
+			// Components must be served with a trailing slash so that relative links work.
+			// For example, if a stencil with address "a/b/c" is served with the url "/a/b/c/"
+			// then a relative link within that stencil to an image "1.png" will resolved to "/a/b/c/1.png" (which
+			// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
+			// will cause a 404 error). 
+			// So, if no trailing slash, then redirect...
+			if(path[path.length()-1]!='/'){
+				status = http::status_code::moved_permanently;
+				// Use full URI for redirection because multiple leading slashes can get
+				// squashed up otherwise
+				auto uri = url()+"/"+path+"/";
+				connection->append_header("Location",uri);
 			}
 			else {
-				// Determine a mime type; if non then treat as method
-				std::string mime_type;
-				if(extension==".txt") mime_type = "text/plain";
-				else if(extension==".css") mime_type = "text/css";
-				else if(extension==".html") mime_type = "text/html";
-				else if(extension==".ico") mime_type = "image/x-icon";
-				else if(extension==".png") mime_type = "image/png";
-				else if(extension==".jpg" or extension==".jpeg") mime_type = "image/jpg";
-				else if(extension==".svg") mime_type = "image/svg+xml";
-				else if(extension==".js") mime_type = "application/javascript";
-				else if(extension==".map") mime_type = "application/javascript";
-				else if(extension==".woff") mime_type = "application/font-woff";
-				else if(extension==".woff2") mime_type = "application/font-woff2";
-				else if(extension==".tff") mime_type = "application/font-ttf";
-				if(mime_type.length()) {
-					// Static file request
-					std::string filesystem_path = Component::locate(path);
-					if(filesystem_path.length()==0){
-						// 404: not found
-						status = http::status_code::not_found;
-						content = "Not found\n path: "+path;
-					} else {
-						// Check to see if this is a directory
-						if(boost::filesystem::is_directory(filesystem_path)){
-							// 403: forbidden
-							status = http::status_code::forbidden;
-							content = "Directory access is forbidden\n  path: "+filesystem_path;		
-						}
-						else {
-							std::ifstream file(filesystem_path);
-							if(not file.good()){
-								// 500 : internal server error
-								status = http::status_code::internal_server_error;
-								content = "File error\n  path: "+filesystem_path;
-							} else {
-								// Read file into content string
-								// There may be a [more efficient way to read a file into a string](
-								// http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring)
-								std::string file_content(
-									(std::istreambuf_iterator<char>(file)),
-									(std::istreambuf_iterator<char>())
-								);
-								content = file_content;
-								content_type = mime_type;
-							}
-						}
-					}
-				} else {
-					// Component method request
-					std::string method = extension.substr(1);
-					std::string body = connection->get_request_body();
-					try {
-						content = Component::request_dispatch(address,verb,method,body);
-					}
-					catch (const Component::RequestInvalidException& e){
-						status = http::status_code::bad_request;
-						content = "Bad request\n  method: "+method+"\n  verb: "+verb;
-					}
-					content_type = "application/json";
-				}
+				content = Component::page(path);
+				content_type = "text/html";
 			}
+		}
+		else {
+			status = http::status_code::bad_request;
+			content = "Unhandled request: "+verb+" "+path;
 		}
 	}
 	catch(const std::exception& e){
