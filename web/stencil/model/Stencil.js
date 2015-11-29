@@ -147,7 +147,6 @@ Stencil.Prototype = function() {
 
   this.getCila = function(cb) {
     window.__backend.cilaGet(this,function(error, result){
-      console.log(result);
       cb(result);
     });
   };

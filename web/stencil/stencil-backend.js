@@ -19,7 +19,7 @@ Backend.Prototype = function() {
   this._request = function(method, endpoint, data, cb) {
     var ajaxOpts = {
       type: method,
-      url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'.'+endpoint,
+      url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
       // Specify JSON as content type to send
       contentType: "application/json; charset=UTF-8",
       // Type of data expected back
