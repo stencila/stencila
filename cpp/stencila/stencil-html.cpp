@@ -4,11 +4,20 @@
 
 namespace Stencila {
 
-std::string Stencil::html(bool document,bool pretty) const {
+std::string Stencil::html(bool document, bool pretty) const {
 	if(not document){
 		// Return content only
 		// Place into a Html::Fragment
 		Html::Fragment frag = *this;
+		if(pretty){
+			// Clean ids added by frontend
+			auto elems = frag.filter("[id]");
+			for(auto elem : elems){
+				if(elem.attr("id").find("_")!=std::string::npos){
+					elem.erase("id");
+				}
+			}
+		}
 		auto html = frag.dump(pretty);
 		return trim(html);
 	} else {

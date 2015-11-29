@@ -67,9 +67,10 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 	// after fix above is done
 	if(signature=="POST content"){
 		auto format = request["format"].as<std::string>();
+		auto pretty = request["pretty"].as<bool>();
 
 		std::string content;
-		if(format=="html" or format=="") content = html(false,false);
+		if(format=="html" or format=="") content = html(false,pretty);
 		else if(format=="cila") content = cila();
 		else {
 			response.append("error","format is not 'cila' or 'html'");

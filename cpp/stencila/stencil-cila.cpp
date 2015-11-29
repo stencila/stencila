@@ -1205,7 +1205,15 @@ public:
 			auto children_list = node.children();
 			auto children = children_list.size();
 			auto attribute_list = node.attrs();
+			
+			// Count attributes, not including "special ids"
 			auto attributes = attribute_list.size();
+			for(auto attr : attribute_list){
+				auto value = node.attr(name);
+				if(name=="id" and value.find("_")!=std::string::npos){
+					attributes--;
+				}
+			}
 
 			// Remove an attribute already dealt with
 			auto erase_attr = [&](const std::string& attr){
@@ -1218,7 +1226,7 @@ public:
 			// default generation happens (that's why it's not an if,else if tree)
 			
 			// Refer directive shorthand
-			if(name=="span" and children==0 and attributes==1 and node.attr("data-refer").length()){
+			if(name=="span" and children==0 and attributes==1 and node.has("data-refer")){
 				auto value = node.attr("data-refer");
 				if(value[0]=='#'){
 					int spaces = std::count_if(value.begin(), value.end(),[](unsigned char c){ return std::isspace(c); });
@@ -1505,12 +1513,17 @@ public:
 						// Don't need to output id for macros
 					}
 					else {
-						if(space_required) content(" ");
 						if(name=="id"){
-							content("#"+value);
+							// Check this is not a temporary id added by JS frontend
+							if(value.find("_")==std::string::npos){
+								if(space_required) content(" ");
+								content("#"+value);
+								space_required = true;
+							}
 						}
 						else if(name=="class"){
 							// Get class attribute and split using spaces
+							if(space_required) content(" ");
 							std::vector<std::string> classes;
 							boost::split(classes,value,boost::is_any_of(" "));
 							int index = 0;
@@ -1519,11 +1532,13 @@ public:
 								if(name.length()) content("."+name);
 								index++;
 							}
+							space_required = true;
 						}
 						else {
+							if(space_required) content(" ");
 							content("["+name+"="+value+"]");
+							space_required = true;
 						}
-						space_required = true;
 					}
 				}
 
