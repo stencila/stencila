@@ -32,8 +32,8 @@
 
 // Stencil node styles
 
-$source-node-color: hsl(100, 90%, 40%);
-$error-node-color: hsl(0, 90%, 40%);
+$source-node-color: hsl(100, 95%, 40%);
+$error-node-color: hsl(0, 95%, 40%);
 
 @import './packages/title/_title';
 @import './packages/summary/_summary';

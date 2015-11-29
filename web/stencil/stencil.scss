@@ -51,6 +51,12 @@ body,html {
   */
 }
 
+.content-panel-component .panel-content-inner {
+  padding-right: 0;
+  padding: 2em;
+}
+
 .document-content {
   font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
+  text-align: justify;
 }
