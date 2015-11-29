@@ -16,6 +16,11 @@ var Backend = require("./stencil-backend");
 function App() {
   Component.apply(this, arguments);
   this.backend = new Backend();
+  // HACK
+  // Over in Stencil.getCila() I wanted access to the backend
+  // but didn't know how to get it form there. This is my temporary
+  // hack to get it. Feels to me like `Backend` should be merged into `Stencil`
+  window.__backend = this.backend;
 }
 
 App.Prototype = function() {

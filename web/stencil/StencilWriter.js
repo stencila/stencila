@@ -39,6 +39,7 @@ var CONFIG = {
 
       // Panels
       'toc': require('substance/ui/TocPanel'),
+      'cila': require('./packages/writer/CilaPanel'),
       'editSource': require('./packages/writer/EditSourcePanel')
     }
   },
@@ -63,7 +64,7 @@ var CONFIG = {
       {name: 'heading3',  data: {type: 'heading', level: 3}}
     ]
   },
-  panelOrder: ['toc'],
+  panelOrder: ['toc','cila'],
   containerId: 'body',
   isEditable: true
 };

@@ -144,6 +144,13 @@ Stencil.Prototype = function() {
     }.bind(this));
     return tocNodes;
   };
+
+  this.getCila = function(cb) {
+    window.__backend.cilaGet(this,function(error, result){
+      console.log(result);
+      cb(result);
+    });
+  };
 };
 
 OO.inherit(Stencil, Document);

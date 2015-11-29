@@ -124,6 +124,18 @@ Backend.Prototype = function() {
     });
   };
 
+  this.cilaGet = function(doc, cb){
+    // FIXME For compatability with C+++ backend
+    // this temporarily needs to be a POST but will
+    // eventually be a GET
+    this._request('POST', 'content', {
+      'format': 'cila'
+    }, function(err, result) {
+      if (err) { console.error(err); cb(err); }
+      cb(null,result.content);
+    });
+  };
+
   // Figure related
   // ------------------
 
