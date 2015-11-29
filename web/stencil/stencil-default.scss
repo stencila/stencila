@@ -124,12 +124,12 @@
     color: #BBB;
 }
 
-#content data-equation {
+#content [data-equation] {
     text-align: center;
 }
 
-#content data-equation script[type^="math/tex"],
-#content data-equation script[type^="math/asciimath"]{
+#content [data-equation] script[type^="math/tex"],
+#content [data-equation] script[type^="math/asciimath"]{
     display: block;
 }
 
