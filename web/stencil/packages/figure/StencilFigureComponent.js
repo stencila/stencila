@@ -30,11 +30,23 @@ StencilFigureComponent.Prototype = function() {
             .attr("contenteditable", false)
             .append('Figure '+this.props.node.index)
             .ref('label'),
+          /*
+          FIXME: 
+          This is causing the error "Property already registered."
+          when the stencil is rendered. The following non-editable
+          span is a temporary replacement
+
           $$(TextProperty, {
             tagName: 'span',
             path: [this.props.node.id, 'caption']
           })
             .addClass('caption')
+          */
+         $$('span')
+            .addClass('caption')
+            .attr("contenteditable", false)
+            .append(this.props.node.caption)
+            .ref('caption')
         )
     );
 
