@@ -45,8 +45,6 @@ var CONFIG = {
   },
   body: {
     commands: [
-      require('substance/ui/SelectAllCommand'),
-
       // Special commands
       require('substance/packages/embed/EmbedCommand'),
 

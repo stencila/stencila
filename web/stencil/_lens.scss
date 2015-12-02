@@ -8,17 +8,18 @@
 @import '../node_modules/substance/styles/components/_controller';
 @import '../node_modules/substance/styles/components/_surface';
 @import '../node_modules/substance/styles/components/_panel';
-@import '../node_modules/substance/styles/components/_content_panel';
-@import '../node_modules/substance/styles/components/_context_toggles';
-@import '../node_modules/substance/styles/components/_toc_panel';
+@import '../node_modules/substance/styles/components/_content-panel';
+@import '../node_modules/substance/styles/components/_context-toggles';
+@import '../node_modules/substance/styles/components/_context-section';
+@import '../node_modules/substance/styles/components/_dialog-header';
 @import '../node_modules/substance/styles/components/_scrollbar';
-@import '../node_modules/substance/styles/components/_toc_panel';
-@import '../node_modules/substance/styles/components/_status_bar';
-@import '../node_modules/substance/styles/components/_text_property';
-@import '../node_modules/substance/styles/components/_annotation_tool';
+@import '../node_modules/substance/styles/components/_toc-panel';
+@import '../node_modules/substance/styles/components/_status-bar';
+@import '../node_modules/substance/styles/components/_text-property';
 @import '../node_modules/substance/styles/components/_toolbar';
 
-@import '../node_modules/substance/packages/text/_switch_text_type_tool';
+
+@import '../node_modules/substance/packages/text/_switch-text-type-tool';
 
 @import '../node_modules/substance/packages/paragraph/_paragraph';
 @import '../node_modules/substance/packages/heading/_heading';
