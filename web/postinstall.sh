@@ -7,7 +7,7 @@
 # font-awesome
 
 echo "Setting font-awesome 'fa-font-path' variable"
-sed -i.back 's!\$fa-font-path: .*$!\$fa-font-path: "/get/web/fonts/";!' node_modules/font-awesome/scss/_variables.scss
+sed -i.back 's!\$fa-font-path: .*$!\$fa-font-path: "fonts";!' node_modules/font-awesome/scss/_variables.scss
 
 echo "Copying font-awesome fonts"
 mkdir -p build/fonts
