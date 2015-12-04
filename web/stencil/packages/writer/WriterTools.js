@@ -15,6 +15,8 @@ var LinkTool = require('substance/packages/link/LinkTool');
 var ActivateTool = require('./ActivateTool');
 var RenderTool = require('./RenderTool');
 
+var InsertTableTool = require('../table/InsertTableTool');
+
 var WriterTools = Component.extend({
   render: function() {
     return $$('div').append(
@@ -37,6 +39,9 @@ var WriterTools = Component.extend({
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
         $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
         $$(LinkTool).append($$(Icon, {icon: 'fa-link'}))
+      ),
+      $$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
+        $$(InsertTableTool).append($$(Icon, {icon: 'fa-table'}))
       )
     );
   }
