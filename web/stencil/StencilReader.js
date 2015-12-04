@@ -2,11 +2,11 @@
 
 var oo = require('substance/util/oo');
 var StencilController = require('./StencilController');
-var ContextToggles = require('substance/ui/ContextToggles');
 var ContentPanel = require("substance/ui/ContentPanel");
 var StatusBar = require("substance/ui/StatusBar");
 var ContainerAnnotator = require('substance/ui/ContainerAnnotator');
 var Component = require('substance/ui/Component');
+var ContextSection = require('substance/ui/ContextSection');
 var $$ = Component.$$;
 
 var CONFIG = {
@@ -22,10 +22,15 @@ var CONFIG = {
       "link": require('./packages/link/LinkComponent'),
       // Panels
       "toc": require('substance/ui/TocPanel')
-    },
+    }
   },
   body: {
     commands: [],
+  },
+  panels: {
+    'toc': {
+      hideContextToggles: true
+    }
   },
   panelOrder: ['toc'],
   containerId: 'body',
@@ -101,16 +106,12 @@ StencilReader.Prototype = function() {
             )
           ).ref('content')
         ),
-        // Resource (right column)
-        $$('div').ref('resource')
-          .addClass("le-resource")
-          .append(
-            $$(ContextToggles, {
-              panelOrder: config.panelOrder,
-              contextId: this.state.contextId
-            }).ref("context-toggles"),
-            this.renderContextPanel()
-          )
+        // Context (right column)
+        $$(ContextSection, {
+          panelProps: this._panelPropsFromState(),
+          contextId: this.state.contextId,
+          panelConfig: config.panels[this.state.contextId],
+        }).ref(this.state.contextId)
       )
     );
 

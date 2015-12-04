@@ -4,8 +4,6 @@ var $ = require('substance/util/jquery');
 var OO = require('substance/util/oo');
 var Document = require('substance/model/Document');
 var DocumentSchema = require('substance/model/DocumentSchema');
-var HtmlImporter = require('substance/model/HtmlImporter');
-var HtmlExporter = require('substance/model/HtmlExporter');
 
 var StencilDefaultNode = require('../packages/default/StencilDefaultNode');
 
@@ -25,6 +23,11 @@ defaultSchema.addNodes([
   require('substance/packages/emphasis/Emphasis'),
   require('substance/packages/strong/Strong'),
   require('substance/packages/link/Link'),
+  //require('substance/packages/list/List'),
+  require('substance/packages/table/Table'),
+  require('substance/packages/table/TableSection'),
+  require('substance/packages/table/TableRow'),
+  require('substance/packages/table/TableCell'),
 
   // Stencil-specific nodes
   require('../packages/title/StencilTitle'),
@@ -39,53 +42,6 @@ defaultSchema.addNodes([
 
   StencilDefaultNode
 ]);
-
-
-// Importer
-// ----------------
-
-function Importer(schema) {
-  Importer.super.call(this, { schema: schema });
-}
-
-Importer.Prototype = function() {
-  this.convert = function($rootEl, doc) {
-    this.initialize(doc, $rootEl);
-    this.convertContainer($rootEl, 'body');
-    this.finish();
-  };
-
-  this.defaultConverter = function($el, converter) {
-    /* jshint unused:false */
-    var node = StencilDefaultNode.static.fromHtml($el, converter);
-    node.type = 'stencil-default-node';
-    return node;
-  };
-};
-
-OO.inherit(Importer, HtmlImporter);
-
-// Exporter
-// ----------------
-
-function Exporter(schema) {
-  Exporter.super.call(this, { schema: schema });
-}
-
-Exporter.Prototype = function() {
-
-  this.convert = function(doc, options) {
-    this.initialize(doc, options);
-
-    var body = doc.get('body');
-    var bodyNodes = this.convertContainer(body);
-    var $el = $('<div>');
-    $el.append(bodyNodes);
-    return $el.html();
-  };
-};
-
-OO.inherit(Exporter, HtmlExporter);
 
 
 // Stencil
@@ -105,32 +61,6 @@ Stencil.Prototype = function() {
       id: "body",
       nodes: []
     });
-  };
-
-  this.toHtml = function() {
-    return new Exporter(this.schema).convert(this);
-  };
-
-  // replaces the content by loading from the given html
-  this.loadHtml = function(html) {
-    // Deletes all nodes (including container node 'body')
-    this.clear();
-
-    // Disable transaction enforcement until the import is finished
-    this.FORCE_TRANSACTIONS = false;
-
-    // Recreate body container
-    // TODO: find a better solution
-    this.create({
-      type: "container",
-      id: "body",
-      nodes: []
-    });
-
-    var $content = $('<div>').html(html);
-    new Importer(this.schema).convert($content, this);
-    // sets this.FORCE_TRANSACTIONS = true again
-    this.documentDidLoad();
   };
 
   this.getTOCNodes = function() {

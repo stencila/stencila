@@ -12,8 +12,6 @@ function StencilTextComponent() {
 }
 
 StencilTextComponent.Prototype = function() {
-
-  // use StencilNodeComponent as a mixin
   _.extend(this, StencilNodeComponent.prototype);
 
   this.didMount = function() {
@@ -39,9 +37,10 @@ StencilTextComponent.Prototype = function() {
         })
         .on('click', this.onClick)
         .on('mousedown', this.onMouseDown)
-        .append(this.props.node.output || "");
+        .append(this.props.node.output || "?");
     } else {
-      el = $$('span').addClass('stencil-text');
+      el = $$('span')
+        .addClass('stencil-text');
 
       if (this.revealSource()) {
         el.append(

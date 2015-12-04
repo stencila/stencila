@@ -22,8 +22,8 @@ RUN Rscript -e "install.packages('Rcpp',repo='http://cran.cnr.berkeley.edu/')"
 
 # Install Stencila R package using tar so that version can be specified
 # RUN gets cached is just using `install.packages('stencila',repo='http://get.stenci.la/r')`
-RUN wget http://get.stenci.la/r/src/contrib/stencila_0.19.tar.gz ; \
-    R CMD INSTALL stencila_0.19.tar.gz
+RUN wget http://get.stenci.la/r/src/contrib/stencila_0.20.tar.gz ; \
+    R CMD INSTALL stencila_0.20.tar.gz
 
 # Add Stencila CLI script to PATH
 RUN Rscript -e 'require(stencila); stencila:::install()'
