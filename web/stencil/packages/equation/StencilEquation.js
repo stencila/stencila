@@ -8,11 +8,10 @@ function StencilEquation(){
 
 StencilNode.extend(StencilEquation);
 
-StencilEquation.static.name = "stencil-exec";
+StencilEquation.static.name = "stencil-equation";
 
 StencilEquation.static.defineSchema({
   source: { type: "string", default: "" },
-  error: { type: "string", optional: true },
   format: "string"
 });
 
