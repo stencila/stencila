@@ -175,6 +175,11 @@ window.MathJax = {
 window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',MathJaxAdd);
 
 // Launch Substance app when F2 is pressed
+$(document).bind('keydown', 'f2', function() {
+  MathJaxRemove();
+  AppLaunch();
+  return false;
+});
 $(document).bind('keydown', 'ctrl+alt+w', function() {
   MathJaxRemove();
   AppLaunch();
