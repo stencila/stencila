@@ -1,13 +1,11 @@
 'use strict';
 
-var oo = require('substance/util/oo');
 var Panel = require('substance/ui/Panel');
 var Component = require('substance/ui/Component');
-var Icon = require('substance/ui/FontAwesomeIcon');
 var $$ = Component.$$;
 
 function CilaPanel() {
-  Panel.apply(this, arguments);
+  Component.apply(this, arguments);
 
   var doc = this.getDocument();
   doc.connect(this, {
@@ -24,10 +22,11 @@ CilaPanel.Prototype = function() {
   };
 
   this.render = function() {
-    var el = $$('div')
-      .addClass('sc-cila-panel panel')
+    var el = $$('div').addClass('sc-cila-panel')
       .append(
-        $$('div').attr('id','ace_editor')
+        $$(Panel).append(
+          $$('div').attr('id','ace_editor')
+        )
       );
     return el;
   };
@@ -37,7 +36,7 @@ CilaPanel.Prototype = function() {
   };
 
   this.initAce = function() {
-    var editor = this.editor = ace.edit('ace_editor');
+    var editor = this.editor = window.ace.edit('ace_editor');
     editor.getSession().setMode('ace/mode/cila');
     editor.setTheme("ace/theme/monokai");
 
@@ -75,6 +74,6 @@ CilaPanel.Prototype = function() {
 
 };
 
-oo.inherit(CilaPanel, Panel);
+Component.extend(CilaPanel);
 
 module.exports = CilaPanel;

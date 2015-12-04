@@ -2,12 +2,12 @@
 
 var oo = require('substance/util/oo');
 var StencilController = require('./StencilController');
-var ContextToggles = require('substance/ui/ContextToggles');
 var ContentPanel = require("substance/ui/ContentPanel");
 var StatusBar = require("substance/ui/StatusBar");
 var Toolbar = require('substance/ui/Toolbar');
 var WriterTools = require('./packages/writer/WriterTools');
 var ContainerEditor = require('substance/ui/ContainerEditor');
+var ContextSection = require('substance/ui/ContextSection');
 var Component = require('substance/ui/Component');
 var docHelpers = require('substance/model/documentHelpers');
 var $$ = Component.$$;
@@ -40,14 +40,13 @@ var CONFIG = {
       // Panels
       'toc': require('substance/ui/TocPanel'),
       'cila': require('./packages/writer/CilaPanel'),
-      'editSource': require('./packages/writer/EditSourcePanel')
+      'edit-source': require('./packages/writer/EditSourcePanel')
     }
   },
   body: {
     commands: [
       // Special commands
       require('substance/packages/embed/EmbedCommand'),
-
       require('substance/packages/text/SwitchTextTypeCommand'),
       require('substance/packages/strong/StrongCommand'),
       require('substance/packages/emphasis/EmphasisCommand'),
@@ -61,6 +60,17 @@ var CONFIG = {
       {name: 'heading2',  data: {type: 'heading', level: 2}},
       {name: 'heading3',  data: {type: 'heading', level: 3}}
     ]
+  },
+  panels: {
+    'toc': {
+      hideContextToggles: false
+    },
+    'cila': {
+      hideContextToggles: false
+    },
+    'edit-source': {
+      hideContextToggles: true
+    }
   },
   panelOrder: ['toc','cila'],
   containerId: 'body',
@@ -99,13 +109,13 @@ StencilWriter.Prototype = function() {
     if (stencilText && stencilText.getSelection().equals(sel)) {
       // Trigger state change
       this.setState({
-        contextId: 'editSource',
+        contextId: 'edit-source',
         nodeId: stencilText.id
       });
     } else {
       if (this.state.contextId !== 'toc') {
         this.setState({
-          contextId: "toc"
+          contextId: 'toc'
         });
       }
     }
@@ -136,15 +146,11 @@ StencilWriter.Prototype = function() {
           ).ref('content')
         ),
         // Resource (right column)
-        $$('div').ref('resource')
-          .addClass('le-resource')
-          .append(
-            $$(ContextToggles, {
-              panelOrder: config.panelOrder,
-              contextId: this.state.contextId
-            }).ref("context-toggles"),
-            this.renderContextPanel()
-          )
+        $$(ContextSection, {
+          panelProps: this._panelPropsFromState(),
+          contextId: this.state.contextId,
+          panelConfig: config.panels[this.state.contextId],
+        }).ref(this.state.contextId)
       )
     );
 

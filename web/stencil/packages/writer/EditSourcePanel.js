@@ -1,16 +1,16 @@
 'use strict';
 
-var oo = require('substance/util/oo');
 var Panel = require('substance/ui/Panel');
 var Component = require('substance/ui/Component');
-var Icon = require('substance/ui/FontAwesomeIcon');
+var Panel = require('substance/ui/Panel');
+var DialogHeader = require('substance/ui/DialogHeader');
 var $$ = Component.$$;
 
 // List existing bib items
 // -----------------
 
 function EditSourcePanel() {
-  Panel.apply(this, arguments);
+  Component.apply(this, arguments);
 
   var controller = this.getController();
   controller.connect(this, {
@@ -41,7 +41,7 @@ EditSourcePanel.Prototype = function() {
   };
 
   this.initAce = function() {
-    var editor = this.editor = ace.edit('ace_editor');
+    var editor = this.editor = window.ace.edit('ace_editor');
     editor.getSession().setMode('ace/mode/r');
     editor.setTheme("ace/theme/monokai");
 
@@ -81,32 +81,25 @@ EditSourcePanel.Prototype = function() {
   this.render = function() {
     var node = this.getNode();
 
-    var headerEl = $$('div').addClass('dialog-header').append(
-      $$('a').addClass('back').attr('href', '#')
-        .on('click', this.handleCancel)
-        .append($$(Icon, {icon: 'fa-chevron-left'})),
-      $$('div').addClass('label').append('Edit Source')
-    );
-
-    var el = $$('div').addClass('sc-edit-source-panel panel dialog');
-    var panelContentEl = $$('div').addClass('panel-content').ref('panelContent');
-
+    var panelEl = $$(Panel).ref('panelEl');
     var errorContainerEl = $$('div').ref('errorContainer');
     if (node.error) {
       errorContainerEl.append(
         $$('div').addClass('se-error').append(node.error)
       );
     }
-    panelContentEl.append(errorContainerEl);
-    panelContentEl.append(
+
+    panelEl.append(errorContainerEl);
+    panelEl.append(
       $$('div').attr('id','ace_editor')
     );
 
-    el.append(headerEl);
-    el.append(panelContentEl);
-    return el;
+    return $$('div').addClass('sc-edit-source-panel').append(
+      $$(DialogHeader, {label: 'Edit Source'}),
+      panelEl      
+    );
   };
 };
 
-oo.inherit(EditSourcePanel, Panel);
+Component.extend(EditSourcePanel);
 module.exports = EditSourcePanel;
