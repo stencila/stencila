@@ -9,7 +9,7 @@ function StencilMath() {
 
 InlineNode.extend(StencilMath, StencilNode);
 
-StencilMath.static.name = "stencil-exec";
+StencilMath.static.name = "stencil-math";
 
 StencilMath.static.defineSchema({
   'source': 'string',

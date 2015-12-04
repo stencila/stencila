@@ -1,8 +1,6 @@
 "use strict";
 
-var $ = require('substance/util/jquery');
 var BlockNode = require('substance/model/BlockNode');
-var helpers = require('substance/util/helpers');
 
 // Abstract interface
 // There are ImageFigures, TableFigures, VideoFigures
@@ -19,3 +17,4 @@ StencilDefaultNode.static.defineSchema({
   "html": "string"
 });
 
+module.exports = StencilDefaultNode;

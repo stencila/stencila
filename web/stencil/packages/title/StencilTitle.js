@@ -8,7 +8,7 @@ function StencilTitle() {
 
 TextNode.extend(StencilTitle);
 
-StencilTitle.static.name = "stencil-summary";
+StencilTitle.static.name = "stencil-title";
 
 StencilTitle.static.defineSchema({
   'content': 'text'
