@@ -12,7 +12,13 @@ var path = require('path');
 var sass = require('node-sass');
 var browserify = require("browserify");
 
-var handleError = function(err, res) {
+var handleBrowserifyError = function(err, res) {
+  console.error(err.message);
+  //This crashes server for some strange reason, so commented out
+  //res.send('console.log("Browserify error '+err.message+'");');
+};
+
+var handleSassError = function(err, res) {
   console.error(err);
   res.status(400).json(err);
 };
@@ -42,7 +48,7 @@ app.get('/get/web/stencil.min.js', function (req, res, next) {
     .add(path.join(__dirname, 'stencil', 'stencil.js'))
     .bundle()
     .on('error', function(err){
-      console.error(err);
+      handleBrowserifyError(err);
     })
     .pipe(res);
 });
@@ -50,7 +56,7 @@ app.get('/get/web/stencil.min.js', function (req, res, next) {
 // CSS
 app.get('/get/web/stencil.min.css', function(req, res) {
   renderSass(function(err, result) {
-    if (err) return handleError(err, res);
+    if (err) return handleSassError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.css);
   });
@@ -59,7 +65,7 @@ app.get('/get/web/stencil.min.css', function(req, res) {
 // CSS map
 app.get('/get/web/stencil.min.css.map', function(req, res) {
   renderSass(function(err, result) {
-    if (err) return handleError(err, res);
+    if (err) return handleSassError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.map);
   });

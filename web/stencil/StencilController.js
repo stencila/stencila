@@ -1,9 +1,8 @@
 'use strict';
 
 var _ = require('substance/util/helpers');
-
-var oo = require('substance/util/oo');
 var Controller = require("substance/ui/Controller");
+var omit = require('lodash/object/omit');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
@@ -17,7 +16,7 @@ I18n.instance.load(require('../i18n/en'));
 // I18n.instance.load(require('substance/ui/i18n/de'));
 // I18n.instance.load(require('../i18n/de'));
 
-function LensController(parent, params) {
+function StencilController(parent, params) {
   Controller.call(this, parent, params);
 
   this.handleApplicationKeyCombos = this.handleApplicationKeyCombos.bind(this);
@@ -30,7 +29,14 @@ function LensController(parent, params) {
   });
 }
 
-LensController.Prototype = function() {
+StencilController.Prototype = function() {
+
+  // Extract props needed for panel parametrization
+  this._panelPropsFromState = function() {
+    var props = omit(this.state, 'contextId');
+    props.doc = this.getDocument();
+    return props;
+  };
 
   // Action used by BibItemComponent when clicked on focus
   this.toggleBibItem = function(bibItem) {
@@ -162,7 +168,7 @@ LensController.Prototype = function() {
     var doc = this.getDocument();
 
     function getActiveNodes(state) {
-      if (state.contextId === 'editSource') { 
+      if (state.contextId === 'edit-source') { 
         return [ state.nodeId ];
       }
       return [];
@@ -178,6 +184,7 @@ LensController.Prototype = function() {
 
 };
 
-oo.inherit(LensController, Controller);
 
-module.exports = LensController;
+Controller.extend(StencilController);
+
+module.exports = StencilController;
