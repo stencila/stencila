@@ -24,6 +24,10 @@ defaultSchema.addNodes([
   require('substance/packages/strong/Strong'),
   require('substance/packages/link/Link'),
   //require('substance/packages/list/List'),
+  require('substance/packages/table/Table'),
+  require('substance/packages/table/TableSection'),
+  require('substance/packages/table/TableRow'),
+  require('substance/packages/table/TableCell'),
 
   // Stencil-specific nodes
   require('../packages/title/StencilTitle'),

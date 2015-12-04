@@ -50,7 +50,8 @@ var CONFIG = {
       require('substance/packages/text/SwitchTextTypeCommand'),
       require('substance/packages/strong/StrongCommand'),
       require('substance/packages/emphasis/EmphasisCommand'),
-      require('substance/packages/link/LinkCommand')
+      require('substance/packages/link/LinkCommand'),
+      require('./packages/table/InsertTableCommand'),
     ],
     textTypes: [
       {name: 'paragraph', data: {type: 'paragraph'}},
