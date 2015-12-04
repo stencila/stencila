@@ -42,7 +42,7 @@ app.get('/get/web/stencil.min.js', function (req, res, next) {
     .add(path.join(__dirname, 'stencil', 'stencil.js'))
     .bundle()
     .on('error', function(err){
-      console.error(err);
+      handleError(err, res)
     })
     .pipe(res);
 });
