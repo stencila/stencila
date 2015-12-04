@@ -1,12 +1,13 @@
 "use strict";
 
+var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilFigure() {
   StencilFigure.super.call(this, arguments);
 }
 
-StencilNode.extend(StencilFigure);
+DocumentNode.extend(StencilFigure, StencilNode);
 
 StencilFigure.static.name = "stencil-figure";
 
@@ -17,7 +18,7 @@ StencilFigure.static.defineSchema({
     'error': 'string',
     'image': 'string',
     'label': 'string',
-    'caption': 'string'
+    'caption': 'text'
 });
 
 StencilFigure.static.generatedProps = [
@@ -25,7 +26,5 @@ StencilFigure.static.generatedProps = [
 ];
 
 StencilFigure.static.isBlock = true;
-
-StencilFigure.static.components = ['caption'];
 
 module.exports = StencilFigure;
