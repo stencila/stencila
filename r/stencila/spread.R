@@ -4,7 +4,7 @@
 #' The spread holds the the variables representing the sheet.
 #' 
 #' @param envir The environment for the spread. Optional.
-#' @param closed Should the . Optional.
+#' @param closed Should this be a closed scope (i.e. not having a parent scope)? Optional.
 #'
 #' @export
 Spread <- function(envir, closed=FALSE){
