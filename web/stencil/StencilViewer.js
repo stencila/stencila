@@ -16,9 +16,9 @@ var CONFIG = {
       require('substance/ui/SaveCommand'),
     ],
     components: {
-      "paragraph": require('substance/packages/paragraph/ParagraphComponent'),
-      "heading": require('substance/packages/heading/HeadingComponent'),
-      "link": require('./packages/link/LinkComponent'),
+      'paragraph': require('substance/packages/paragraph/ParagraphComponent'),
+      'heading': require('substance/packages/heading/HeadingComponent'),
+      'link': require('./packages/link/LinkComponent'),
 
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),

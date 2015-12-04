@@ -10,7 +10,7 @@ StencilSourceComponent.Prototype = function() {
     e.preventDefault();
     e.stopPropagation();
     this.send('switchState', {
-      contextId: 'editSource',
+      contextId: 'edit-source',
       nodeId: this.props.node.id
     });
   };
