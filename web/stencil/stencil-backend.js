@@ -78,7 +78,8 @@ Backend.Prototype = function() {
       doc.id = documentId;
       doc.url = address;
       window.doc = doc;
-      cb(null, doc);
+      //cb(null, doc);
+      console.log(doc);
     });
   };
 
