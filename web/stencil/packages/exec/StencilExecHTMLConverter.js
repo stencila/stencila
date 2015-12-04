@@ -17,8 +17,8 @@ module.exports = {
 
   export: function(node, el, converter) {
     el
-    .attr('data-exec', exec.spec)
-    .attr('data-error', exec.error)
-    .text(exec.source);
+    .attr('data-exec', node.spec)
+    .attr('data-error', node.error)
+    .text(node.source);
   }
 };
