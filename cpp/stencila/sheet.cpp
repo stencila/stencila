@@ -62,6 +62,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     Html::Fragment frag("<table></table>");
     auto table = frag.select("table");
     auto tr = table.append("thead").append("tr");
+    tr.append("th");
     for(unsigned int col=0;col<cols;col++){
         tr.append("th").text(identify_col(col));
     }
