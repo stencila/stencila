@@ -5,7 +5,7 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var $ = window.$ = require('substance/util/jquery');
 
-var SheetComponent = require('./ui/SheetComponent');
+var SheetEditor = require('./ui/SheetEditor');
 var SheetHTMLImporter = require('./model/SheetHTMLImporter');
 
 function App() {
@@ -23,7 +23,7 @@ App.Prototype = function() {
     if (this.state.mode === "loading") {
       el.text('Loading...');
     } else {
-      el.append($$(SheetComponent, {
+      el.append($$(SheetEditor, {
         doc: this.state.doc
       }));
     }

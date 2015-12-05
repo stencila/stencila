@@ -1,15 +1,16 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
+var Controller = require('substance/ui/Controller');
 var CellComponent = require('./CellComponent');
 var Sheet = require('../model/Sheet');
 var $$ = Component.$$;
 
-function SheetComponent() {
-  SheetComponent.super.apply(this, arguments);
+function SheetEditor() {
+  SheetEditor.super.apply(this, arguments);
 }
 
-SheetComponent.Prototype = function() {
+SheetEditor.Prototype = function() {
 
   this.render = function() {
     // TODO this code is almost identical to the exporter
@@ -55,6 +56,6 @@ SheetComponent.Prototype = function() {
 
 };
 
-Component.extend(SheetComponent);
+Controller.extend(SheetEditor);
 
-module.exports = SheetComponent;
+module.exports = SheetEditor;
