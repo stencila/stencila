@@ -93,7 +93,7 @@ std::string Component::type_name(const Component::Type& type){
 		case PythonContextType: return "PythonContext";
 
 		case RContextType: return "RContext";
-		case RContextType: return "RSpread";
+		case RSpreadType: return "RSpread";
 		default: 
 			STENCILA_THROW(Exception,"`Component::type_name` has not been configured for type.\n type  "+string(type));
 		break;
