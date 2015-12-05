@@ -6,18 +6,21 @@ var $$ = Component.$$;
 
 function CilaPanel() {
   Component.apply(this, arguments);
-
-  var doc = this.getDocument();
-  doc.connect(this, {
-    'document:changed': this.handleDocumentChanged
-  });
 }
 
 CilaPanel.Prototype = function() {
 
+  this.didMount = function() {
+    var doc = this.getDocument();
+    doc.connect(this, {
+      'document:changed': this.handleDocumentChanged
+    });
+    this.initAce();
+  };
+
   this.dispose = function() {
-    var controller = this.getController();
-    controller.disconnect(this);
+    var doc = this.getDocument();
+    doc.disconnect(this);
     this.editor.destroy();
   };
 
@@ -29,10 +32,6 @@ CilaPanel.Prototype = function() {
         )
       );
     return el;
-  };
-
-  this.didMount = function() {
-    this.initAce();
   };
 
   this.initAce = function() {
@@ -72,6 +71,9 @@ CilaPanel.Prototype = function() {
     }.bind(this));
   };
 
+  this.getDocument = function() {
+    return this.context.controller.getDocument();
+  };
 };
 
 Component.extend(CilaPanel);

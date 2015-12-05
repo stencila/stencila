@@ -31,13 +31,6 @@ function StencilController(parent, params) {
 
 StencilController.Prototype = function() {
 
-  // Extract props needed for panel parametrization
-  this._panelPropsFromState = function() {
-    var props = omit(this.state, 'contextId');
-    props.doc = this.getDocument();
-    return props;
-  };
-
   // Action used by BibItemComponent when clicked on focus
   this.toggleBibItem = function(bibItem) {
     if (this.state.bibItemId === bibItem.id) {
@@ -58,7 +51,7 @@ StencilController.Prototype = function() {
 
     if (!doc.__isRendering) {
       logger.info('Rendering ...');
-      
+
       doc.__isRendering = true;
       // Pass saving logic to the user defined callback if available
       if (this.props.onRender) {
@@ -121,8 +114,8 @@ StencilController.Prototype = function() {
   };
 
   // Pass writer start
-  this._panelPropsFromState = function (state) {
-    var props = _.omit(state, 'contextId');
+  this._panelPropsFromState = function() {
+    var props = _.omit(this.state, 'contextId');
     props.doc = this.props.doc;
     return props;
   };
@@ -168,7 +161,7 @@ StencilController.Prototype = function() {
     var doc = this.getDocument();
 
     function getActiveNodes(state) {
-      if (state.contextId === 'edit-source') { 
+      if (state.contextId === 'edit-source') {
         return [ state.nodeId ];
       }
       return [];
@@ -178,7 +171,7 @@ StencilController.Prototype = function() {
     // HACK: updates the highlights when state
     // transition has finished
     setTimeout(function() {
-      doc.setHighlights(activeAnnos);  
+      doc.setHighlights(activeAnnos);
     }, 0);
   };
 

@@ -1,12 +1,13 @@
 "use strict";
 
+var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilExec() {
-  StencilExec.super.call(this, arguments);
+  StencilExec.super.apply(this, arguments);
 }
 
-StencilNode.extend(StencilExec);
+DocumentNode.extend(StencilExec, StencilNode);
 
 StencilExec.static.name = "stencil-exec";
 

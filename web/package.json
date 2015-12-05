@@ -27,11 +27,11 @@
     "lodash": "3.3.1",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
-    "substance": "substance/substance#v1.0.0-beta.2"
+    "substance": "substance/substance#92ecfa5f88e5f1f1af4d94215f7c498b4677e8bc"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
-    "browserify": "^11.2.0",
+    "browserify": "substance/node-browserify#d3caeb6dcdaa97a258d099c7231a57f0f60ec876",
     "express-http-proxy": "^0.6.0",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.0",

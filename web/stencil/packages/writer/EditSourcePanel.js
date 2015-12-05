@@ -11,33 +11,42 @@ var $$ = Component.$$;
 
 function EditSourcePanel() {
   Component.apply(this, arguments);
-
-  var controller = this.getController();
-  controller.connect(this, {
-    'document:saved': this.refresh
-  });
 }
 
 EditSourcePanel.Prototype = function() {
 
-  this.dispose = function() {
-    var controller = this.getController();
-    controller.disconnect(this);
-    this.editor.destroy();
-  };
-
   this.didMount = function() {
+    this.getController().connect(this, {
+      'document:saved': this.refresh
+    });
     this.initAce();
   };
 
-  // Rerender to show the error message and also update Ace
-  this.refresh = function() {
+  this.dispose = function() {
+    this.getController().disconnect(this);
+    this.editor.destroy();
+  };
+
+  this.render = function() {
     var node = this.getNode();
-    var errorContainer = this.refs.errorContainer;
-    errorContainer.empty();
+
+    var panelEl = $$(Panel).ref('panelEl');
+    var errorContainerEl = $$('div').ref('errorContainer');
     if (node.error) {
-      errorContainer.append($$('div').addClass('se-error').append(node.error));  
+      errorContainerEl.append(
+        $$('div').addClass('se-error').append(node.error)
+      );
     }
+
+    panelEl.append(errorContainerEl);
+    panelEl.append(
+      $$('div').attr('id','ace_editor')
+    );
+
+    return $$('div').addClass('sc-edit-source-panel').append(
+      $$(DialogHeader, {label: 'Edit Source'}),
+      panelEl
+    );
   };
 
   this.initAce = function() {
@@ -67,6 +76,16 @@ EditSourcePanel.Prototype = function() {
     });
   };
 
+  // Rerender to show the error message and also update Ace
+  this.refresh = function() {
+    var node = this.getNode();
+    var errorContainer = this.refs.errorContainer;
+    errorContainer.empty();
+    if (node.error) {
+      errorContainer.append($$('div').addClass('se-error').append(node.error));
+    }
+  };
+
   this.handleCancel = function(e) {
     e.preventDefault();
     this.send('switchContext', 'toc');
@@ -78,26 +97,12 @@ EditSourcePanel.Prototype = function() {
     return node;
   };
 
-  this.render = function() {
-    var node = this.getNode();
+  this.getController = function() {
+    return this.context.controller;
+  };
 
-    var panelEl = $$(Panel).ref('panelEl');
-    var errorContainerEl = $$('div').ref('errorContainer');
-    if (node.error) {
-      errorContainerEl.append(
-        $$('div').addClass('se-error').append(node.error)
-      );
-    }
-
-    panelEl.append(errorContainerEl);
-    panelEl.append(
-      $$('div').attr('id','ace_editor')
-    );
-
-    return $$('div').addClass('sc-edit-source-panel').append(
-      $$(DialogHeader, {label: 'Edit Source'}),
-      panelEl      
-    );
+  this.getDocument = function() {
+    return this.context.controller.getDocument();
   };
 };
 
