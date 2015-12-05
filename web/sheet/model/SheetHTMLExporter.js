@@ -25,6 +25,7 @@ StencilHTMLExporter.Prototype = function() {
     var thead = $$('thead').append('tr');
     tableEl.append(thead);
     var headerRow = thead.firstChild;
+    headerRow.append($$('th'));
     for (j = 0; j < ncols; j++) {
       headerRow.append($$('th').text(Sheet.static.getColumnName(j)));
     }

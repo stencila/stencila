@@ -15,12 +15,12 @@ defaultSchema.getDefaultTextType = function() {
 
 defaultSchema.addNodes([
   require('./Cell'),
-  // General nodes
-  require('substance/packages/emphasis/Emphasis'),
-  require('substance/packages/strong/Strong'),
-  require('substance/packages/link/Link'),
-  require('../../stencil/packages/math/StencilMath'),
-  require('../../stencil/packages/text/StencilText')
+//   // General nodes
+//   // require('substance/packages/emphasis/Emphasis'),
+//   // require('substance/packages/strong/Strong'),
+//   // require('substance/packages/link/Link'),
+//   // require('../../stencil/packages/math/StencilMath'),
+//   // require('../../stencil/packages/text/StencilText')
 ]);
 
 var Sheet = function(schema) {
@@ -72,9 +72,9 @@ Sheet.static.getColumnName = function(col) {
   do {
     var mod = col % ALPHABET.length;
     name += ALPHABET[mod];
-    col -= mod;
+    col -= ALPHABET.length;
   } while (col > 0);
-  return name.join('');
+  return name;
 };
 
 

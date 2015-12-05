@@ -14,7 +14,7 @@ module.exports = {
     node.value = el.text();
     var expr = el.attr('data-expr');
     if (expr) {
-      node.content = expr;
+      node.content = "=" + expr;
     } else {
       // in case of a text content node.value === node.content
       node.content = node.value;
@@ -27,7 +27,7 @@ module.exports = {
 
   export: function(node, el) {
     if (node.isExpression()) {
-      el.attr('data-expr', node.content);
+      el.attr('data-expr', node.getExpression());
     }
     el.text(node.getValue());
     if (node.alias) {

@@ -8,13 +8,22 @@ function Cell(){
 
 Cell.Prototype = function() {
   this.isExpression = function() {
-    return /^\s*=/.exec(this.content);
+    var match = /^\s*=/.exec(this.content);
+    return !!match;
   };
   this.getValue = function() {
     if (this.isExpression()) {
       return this.value;
     } else {
       return this.content;
+    }
+  };
+  this.getExpression = function() {
+    var match = /^\s*=\s*(.+)$/.exec(this.content);
+    if (match) {
+      return match[1];
+    } else {
+      return null;
     }
   };
 };
