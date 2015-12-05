@@ -127,33 +127,38 @@ StencilWriter.Prototype = function() {
     var config = this.getConfig();
     var el = $$('div').addClass('lc-writer sc-controller');
 
-    el.append(
-      $$('div').ref('workspace').addClass('le-workspace').append(
-        // Main (left column)
-        $$('div').ref('main').addClass("le-main").append(
-          $$(Toolbar).ref('toolbar').append($$(WriterTools)),
+    var workspace = $$('div').ref('workspace').addClass('le-workspace');
 
-          $$(ContentPanel).append(
-            // The full fledged document (ContainerEditor)
-            $$("div").ref('body').addClass('document-content').append(
-              $$(ContainerEditor, {
-                name: 'body',
-                containerId: config.containerId,
-                editable: false,
-                commands: config.body.commands,
-                textTypes: config.body.textTypes
-              }).ref('bodyEditor')
-            )
-          ).ref('content')
-        ),
-        // Resource (right column)
-        $$(ContextSection, {
-          panelProps: this._panelPropsFromState(),
-          contextId: this.state.contextId,
-          panelConfig: config.panels[this.state.contextId],
-        }).ref(this.state.contextId)
+    workspace.append(
+      // Main (left column)
+      $$('div').ref('main').addClass("le-main").append(
+        $$(Toolbar).ref('toolbar').append($$(WriterTools)),
+
+        $$(ContentPanel).append(
+          // The full fledged document (ContainerEditor)
+          $$("div").ref('body').addClass('document-content').append(
+            $$(ContainerEditor, {
+              name: 'body',
+              containerId: config.containerId,
+              editable: false,
+              commands: config.body.commands,
+              textTypes: config.body.textTypes
+            }).ref('bodyEditor')
+          )
+        ).ref('content')
       )
     );
+
+    workspace.append(
+      // Resource (right column)
+      $$(ContextSection, {
+        panelProps: this._panelPropsFromState(),
+        contextId: this.state.contextId,
+        panelConfig: config.panels[this.state.contextId],
+      }).ref(this.state.contextId)
+    );
+
+    el.append(workspace);
 
     // Status bar
     el.append(
