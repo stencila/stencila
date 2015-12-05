@@ -6,7 +6,7 @@
 
 #include <stencila/component.hpp>
 #include <stencila/html.hpp>
-//#include <stencila/spread.hpp>
+#include <stencila/spread.hpp>
 
 namespace Stencila {
 
@@ -196,6 +196,29 @@ public:
 	 */
 	static std::array<std::string,3> parse(const std::string& content);
 
+
+	/**
+	 * Attach a spread to this stencil
+	 *
+	 * @param spread Spread for rendering
+	 */
+	Sheet& attach(std::shared_ptr<Spread> spread);
+
+	/**
+	 * Detach the sheets's current spread
+	 */
+	Sheet& detach(void);
+
+
+	/**
+	 * Update a cell
+	 */
+	std::string update(const std::string& id);
+
+	/**
+	 * Update all cells
+	 */
+	Sheet& update(void);
 	
 
 private:
@@ -204,6 +227,11 @@ private:
 	 * A map of cells having content
 	 */
 	std::map<std::string,Cell> cells_;
+
+	/**
+	 * The current spread for this sheet
+	 */
+	std::shared_ptr<Spread> spread_ = nullptr;
 
 };
 

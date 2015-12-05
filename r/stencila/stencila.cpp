@@ -4,6 +4,7 @@
 
 #include "stencila.hpp"
 #include "context.hpp"
+#include "spread.hpp"
 
 using namespace Stencila;
 
@@ -23,6 +24,7 @@ STENCILA_R_FUNC Stencila_startup(void){
 	// Initialise classes
 	Component::classes();
 	RContext::class_init();
+	RSpread::class_init();
 
 	return null;
 }

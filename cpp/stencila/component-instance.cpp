@@ -84,12 +84,16 @@ Component::Type Component::type(const std::string& path_string){
 std::string Component::type_name(const Component::Type& type){
 	switch(type){
 		case NoneType: return "None";
+		
 		case ComponentType: return "Component";
 		case StencilType: return "Stencil";
 		case ThemeType: return "Theme";
 		case SheetType: return "Sheet";
+
 		case PythonContextType: return "PythonContext";
+
 		case RContextType: return "RContext";
+		case RSpreadType: return "RSpread";
 		default: 
 			STENCILA_THROW(Exception,"`Component::type_name` has not been configured for type.\n type  "+string(type));
 		break;
