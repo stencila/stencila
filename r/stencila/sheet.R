@@ -57,7 +57,7 @@ setRefClass(
 
         compile = function(){
             method_(.self,'Sheet_compile')
-        }
+        },
 
         attach = function(spread){
             .spread <<- spread
@@ -66,6 +66,6 @@ setRefClass(
         detach = function(){
             .spread <<- NULL
             method_(.self,'Spread_detach')
-        },
+        }
     )
 )

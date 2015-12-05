@@ -113,5 +113,3 @@ Spread <- function(envir, closed=FALSE) {
     
     self
 }
-
-
