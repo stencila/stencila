@@ -4,7 +4,7 @@ var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilFigure() {
-  StencilFigure.super.call(this, arguments);
+  StencilFigure.super.apply(this, arguments);
 }
 
 DocumentNode.extend(StencilFigure, StencilNode);
@@ -12,12 +12,12 @@ DocumentNode.extend(StencilFigure, StencilNode);
 StencilFigure.static.name = "stencil-figure";
 
 StencilFigure.static.defineSchema({
-    'index': 'string',
+    'index': { type: 'string', optional: true },
     'spec': 'string',
     'source': 'string',
-    'error': 'string',
-    'image': 'string',
-    'label': 'string',
+    'error': { type: 'string', optional: true },
+    'image': { type: 'string', default: "http://" },
+    'label': { type: 'string', optional: true },
     'caption': 'text'
 });
 

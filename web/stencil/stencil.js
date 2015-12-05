@@ -1,4 +1,5 @@
 'use strict';
+/* global MathJax */
 
 var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
@@ -7,11 +8,11 @@ var $$ = Component.$$;
 var $ = window.jQuery = require('substance/util/jquery');
 require('jquery.hotkeys');
 
-var Stencil = require('./model/Stencil');
 var StencilWriter = require('./StencilWriter');
 var StencilReader = require('./StencilReader');
 var StencilViewer = require('./StencilViewer');
 var Backend = require("./stencil-backend");
+var StencilHTMLImporter = require('./model/StencilHTMLImporter');
 
 function App() {
   Component.apply(this, arguments);
@@ -26,8 +27,8 @@ function App() {
 App.Prototype = function() {
 
   this.getInitialState = function() {
-    var doc = new Stencil();
-    doc.loadHtml(this.props.html);
+    var importer = new StencilHTMLImporter();
+    var doc = importer.importDocument(this.props.html);
     return {
       mode: "write",
       doc: doc
@@ -143,7 +144,7 @@ function MathJaxAdd(){
   MathJax.Hub.Queue(
     ["Rerender",MathJax.Hub,"content"],
     function(){
-      // Hide math script elements which should now have been rendered into 
+      // Hide math script elements which should now have been rendered into
       // separate display elements by MathJax
       $('#content').find('script[type^="math/tex"],script[type^="math/asciimath"]').each(function(){
         $(this).css('display','none');
@@ -153,7 +154,7 @@ function MathJaxAdd(){
 }
 function MathJaxRemove(){
   var $content = $('#content');
-  // Get all MathJax "jax" elements (e.g. 
+  // Get all MathJax "jax" elements (e.g.
   //    <script type="math/asciimath" id="MathJax-Element-2">e=m^2</script>
   // ) and remove the id if it starts with MathJax
   $content.find('script[type^="math/asciimath"],script[type^="math/tex"]').each(function(){

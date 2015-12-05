@@ -1,12 +1,12 @@
 'use strict';
 
-var TextNode = require('substance/model/TextNode');
+var TextBlock = require('substance/model/TextBlock');
 
 function StencilTitle() {
-  StencilTitle.super.call(this, arguments);
+  StencilTitle.super.apply(this, arguments);
 }
 
-TextNode.extend(StencilTitle);
+TextBlock.extend(StencilTitle);
 
 StencilTitle.static.name = "stencil-title";
 

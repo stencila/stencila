@@ -9,39 +9,39 @@ module.exports = {
     return el.is('figure');
   },
 
-  import: function(el, figure, converter) {
-    var $exec = el.find('[data-exec]');
-    if($exec.length){
-      figure.spec = $exec.attr('data-exec');
-      figure.source = $exec.text();
-      figure.hash = $exec.attr('data-hash');
-      figure.error = $exec.attr('data-error');
+  import: function(el, node, converter) {
+    var exec = el.find('[data-exec]');
+    if(exec){
+      node.spec = exec.attr('data-exec');
+      node.source = exec.text();
+      node.hash = exec.attr('data-hash');
+      node.error = exec.attr('data-error');
     }
 
-    var $img = el.find('[data-out] img');
-    if($img.length){
-      figure.image = $img.attr('src');
+    var img = el.find('[data-out] img');
+    if(img){
+      node.image = img.attr('src');
     }
 
-    var $caption = el.find('figcaption,caption');
-    if($caption.length){
-      figure.caption = converter.annotatedText($caption, [id, 'caption']);
+    var caption = el.find('figcaption,caption');
+    if(caption){
+      node.caption = converter.annotatedText(caption, [node.id, 'caption']);
     }
   },
 
-  export: function(figure, el, converter) {
+  export: function(node, el, converter) {
     var $$ = converter.$$;
 
-    if(figure.index) el.attr('data-index',figure.index);
+    if(node.index) el.attr('data-index', node.index);
 
     var exec = $$('<pre>')
-      .attr('data-exec',figure.spec)
-      .text(figure.source);
-    if(figure.hash) exec.attr('data-hash',figure.hash);
-    if(figure.error) exec.attr('data-error',figure.error);
+      .attr('data-exec', node.spec)
+      .text(node.source);
+    if(node.hash) exec.attr('data-hash', node.hash);
+    if(node.error) exec.attr('data-error', node.error);
 
     var img = $$('<img>')
-      .attr('src',figure.image);
+      .attr('src', node.image);
 
     var out = $$('<div>')
       .attr('data-out','true')
@@ -49,8 +49,8 @@ module.exports = {
 
     var caption = $$('<figcaption>')
       //FIXME: where does id come from?
-      .append(converter.annotatedText([id, 'caption']));
+      .append(converter.annotatedText([node.id, 'caption']));
 
-    return el.append(exec, out, caption);
+    el.append(exec, out, caption);
   }
 };

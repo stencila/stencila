@@ -4,7 +4,7 @@ var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilExec() {
-  StencilExec.super.call(this, arguments);
+  StencilExec.super.apply(this, arguments);
 }
 
 DocumentNode.extend(StencilExec, StencilNode);

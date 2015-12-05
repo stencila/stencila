@@ -4,7 +4,7 @@ var InlineNode = require('substance/model/InlineNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilText(){
-  StencilText.super.call(this, arguments);
+  StencilText.super.apply(this, arguments);
 }
 
 InlineNode.extend(StencilText, StencilNode);

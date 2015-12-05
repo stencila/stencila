@@ -3,7 +3,7 @@
 var TextNode = require('substance/model/TextNode');
 
 function StencilSummary() {
-  StencilSummary.super.call(this, arguments);
+  StencilSummary.super.apply(this, arguments);
 }
 
 TextNode.extend(StencilSummary);
