@@ -209,6 +209,10 @@ public:
 	 */
 	Sheet& detach(void);
 
+	/**
+	 * Update a cell
+	 */
+	std::string update(const std::string& id, Cell& cell);
 
 	/**
 	 * Update a cell
@@ -219,6 +223,18 @@ public:
 	 * Update all cells
 	 */
 	Sheet& update(void);
+
+	/**
+	 * List the ids of the non-empty cells in the sheet
+	 */
+	std::string list(void);
+
+	/**
+	 * Get the value of a cell
+	 * 
+	 * @param  id ID of cell
+	 */
+	std::string value(const std::string& id);
 	
 
 private:

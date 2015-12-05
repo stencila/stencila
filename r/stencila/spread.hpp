@@ -33,6 +33,13 @@ public:
     std::string get(const std::string& id){
         return call_<std::string>(".get",id);
     }
+
+    /**
+     * List cell ids
+     */
+    std::string list(void){
+        return call_<std::string>(".list");
+    }
     
     /**
      * Initialisation of this class

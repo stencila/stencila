@@ -61,11 +61,21 @@ setRefClass(
 
         attach = function(spread){
             .spread <<- spread
-            method_(.self,'Stencil_attach',.spread)
+            method_(.self,'Sheet_attach',.spread)
         },
         detach = function(){
             .spread <<- NULL
-            method_(.self,'Spread_detach')
+            method_(.self,'Sheet_detach')
+        },
+        update = function(){
+            method_(.self,'Sheet_update')
+        },
+
+        list = function(){
+            method_(.self,'Sheet_list')
+        },
+        value = function(id){
+            method_(.self,'Sheet_value',id)
         }
     )
 )

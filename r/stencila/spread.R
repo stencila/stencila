@@ -54,22 +54,23 @@ Spread <- function(envir, closed=FALSE) {
     # 
     #   spread$.set('J7','2*pi*radius','circumference')
     #
-    self$.set <- function(cell,expression,alias){
+    self$.set <- function(id,expression,alias=""){
         value <- tryCatch(
             eval(
                 parse(text=expression),
                 envir=self
             ),
-            error=function(error) error
+            error=identity
         )
         if(inherits(value,'error')){
-            stop(value$message,call.=F)
+            value <- paste("error:",value$message)
         }
-        assign(cell,value,envir=self)
-        if(!missing(alias)){
+
+        assign(id,value,envir=self)
+        if(alias!=""){
             assign(alias,value,envir=self)
         }
-        return("")
+        return(toString(value))
     }
 
 
