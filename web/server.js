@@ -23,11 +23,11 @@ var handleSassError = function(err, res) {
   res.status(400).json(err);
 };
 
-var renderSass = function(cb) {
+var renderSass = function(type,cb) {
   sass.render({
-    file: path.join(__dirname, 'stencil', 'stencil.scss'),
+    file: path.join(__dirname, type, type+'.scss'),
     sourceMap: true,
-    outFile: 'stencil.min.css',
+    outFile: type+'.min.css',
   }, cb);
 };
 
@@ -43,9 +43,9 @@ app.get('/', function(req, res){
 app.use('/examples', express.static(path.join(__dirname, "examples")));
 
 // Javascript
-app.get('/get/web/stencil.min.js', function (req, res, next) {
+app.get('/get/web/:type.min.js', function (req, res, next) {
   browserify({ debug: true, cache: false })
-    .add(path.join(__dirname, 'stencil', 'stencil.js'))
+    .add(path.join(__dirname, req.params.type, req.params.type+'.js'))
     .bundle()
     .on('error', function(err){
       handleBrowserifyError(err);
@@ -54,8 +54,8 @@ app.get('/get/web/stencil.min.js', function (req, res, next) {
 });
 
 // CSS
-app.get('/get/web/stencil.min.css', function(req, res) {
-  renderSass(function(err, result) {
+app.get('/get/web/:type.min.css', function(req, res) {
+  renderSass(req.params.type,function(err, result) {
     if (err) return handleSassError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.css);
@@ -63,8 +63,8 @@ app.get('/get/web/stencil.min.css', function(req, res) {
 });
 
 // CSS map
-app.get('/get/web/stencil.min.css.map', function(req, res) {
-  renderSass(function(err, result) {
+app.get('/get/web/:type.min.css.map', function(req, res) {
+  renderSass(req.params.type,function(err, result) {
     if (err) return handleSassError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.map);
