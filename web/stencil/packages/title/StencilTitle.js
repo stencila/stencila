@@ -1,33 +1,17 @@
 'use strict';
 
-var $ = require('substance/util/jquery');
-var TextNode = require('substance/model/TextNode');
+var TextBlock = require('substance/model/TextBlock');
 
-var StencilTitle = TextNode.extend({
-  name: 'stencil-title',
-  displayName: 'Title',
-  properties: {
-    'content': 'string'
-  }
+function StencilTitle() {
+  StencilTitle.super.apply(this, arguments);
+}
+
+TextBlock.extend(StencilTitle);
+
+StencilTitle.static.name = "stencil-title";
+
+StencilTitle.static.defineSchema({
+  'content': 'text'
 });
-
-StencilTitle.static.blockType = true;
-
-StencilTitle.static.matchElement = function($el) {
-  return $el.is('div#title');
-};
-
-StencilTitle.static.fromHtml = function($el, converter) {
-  return {
-    id: converter.defaultId($el, 'stencil-title'),
-    content: $el.text()
-  };
-};
-
-StencilTitle.static.toHtml = function(title, converter) {
-  return $('<div>')
-    .attr('id', title.id)
-    .text(title.content);
-};
 
 module.exports = StencilTitle;

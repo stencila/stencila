@@ -1,6 +1,5 @@
 'use strict';
 
-var $ = require('substance/util/jquery');
 var OO = require('substance/util/oo');
 var Document = require('substance/model/Document');
 var DocumentSchema = require('substance/model/DocumentSchema');
@@ -85,5 +84,4 @@ Stencil.Prototype = function() {
 OO.inherit(Stencil, Document);
 Stencil.schema = defaultSchema;
 
-Stencil.Importer = Importer;
 module.exports = Stencil;
