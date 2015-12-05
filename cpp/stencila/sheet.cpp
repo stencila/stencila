@@ -68,7 +68,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     }
     auto tbody = table.append("tbody");
     for(unsigned int row=0;row<rows;row++){
-        auto tr = table.append("tr");
+        auto tr = tbody.append("tr");
         tr.append("th").text(identify_row(row));
         for(unsigned int col=0;col<cols;col++){
             auto td = tr.append("td");
@@ -214,6 +214,31 @@ std::array<std::string,3> Sheet::parse(const std::string& content){
     else {
         STENCILA_THROW(Exception,"Error parsing content: \n  content: "+content);
     }
+}
+
+Sheet& Sheet::attach(std::shared_ptr<Spread> spread){
+    spread_ = spread;
+    return *this;
+}
+
+Sheet& Sheet::detach(void){
+    spread_ = nullptr;
+    return *this;
+}
+
+std::string Sheet::update(const std::string& id){
+    auto cell = cells_[id];
+    cell.value = spread_->set(id,cell.expression,cell.alias);
+    return cell.value;
+}
+
+Sheet& Sheet::update(void){
+    for(auto iter : cells_){
+        auto id = iter.first;
+        auto cell = iter.second;
+        cell.value = spread_->set(id,cell.expression,cell.alias);
+    }
+    return *this;
 }
 
 }

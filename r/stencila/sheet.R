@@ -13,12 +13,21 @@ Sheet <- function(initialiser=NULL) {
 setRefClass(
     'Sheet',
     contains = 'Component',
+    fields = list(
+        # A 'private' field for holding an R-side `Spread` used for execution.
+        # This is necessary to prevent garbage collection of the `Spread`
+        # when there is a C++-side `RSpread` which holds a pointer to it.
+        # A '.' prefix is used to signify this is a private field and to prevent
+        # a name clash with a method name below
+        .spread = 'ANY'
+    ),
     methods = list(
         initialize = function(initialiser=NULL,pointer=NULL,...){
             callSuper(pointer,...)
             if(!is.null(initialiser)){
                 call_('Sheet_initialise',.pointer,toString(initialiser))
             }
+            attach(Spread())
         },
 
         initialise = function(initialiser){
@@ -49,5 +58,14 @@ setRefClass(
         compile = function(){
             method_(.self,'Sheet_compile')
         }
+
+        attach = function(spread){
+            .spread <<- spread
+            method_(.self,'Stencil_attach',.spread)
+        },
+        detach = function(){
+            .spread <<- NULL
+            method_(.self,'Spread_detach')
+        },
     )
 )

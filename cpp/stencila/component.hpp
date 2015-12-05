@@ -341,13 +341,16 @@ public:
 	 */
 	enum Type {
 		NoneType,
+
 		ComponentType,
 		StencilType,
 		ThemeType,
 		SheetType,
 
 		PythonContextType,
-		RContextType
+		
+		RContextType,
+		RSpreadType
 	};
 
 	/**
