@@ -58,12 +58,12 @@ Sheet& Sheet::load(const std::string& string, const std::string& format) {
     return load(stream,format);
 }
 
-Sheet& Sheet::dump(std::ostream& stream) {
+Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
     // TODO
     return *this;
 }
 
-std::string Sheet::dump(void) {
+std::string Sheet::dump(const std::string& format) {
     // TODO
     return "";
 }
@@ -81,6 +81,16 @@ Sheet& Sheet::import(const std::string& path){
     return *this;
 }
 
+Sheet& Sheet::export_(const std::string& path){
+    std::string ext = boost::filesystem::extension(path);
+    if(ext==".tsv"){
+        std::ofstream file(path);
+        dump(file,"tsv");
+    }
+    else STENCILA_THROW(Exception,"File extension not valid for a sheet\n extension: "+ext);
+    return *this;
+}
+
 Sheet& Sheet::read(const std::string& directory){
     Component::read(directory);
     import("sheet.tsv");
@@ -89,6 +99,13 @@ Sheet& Sheet::read(const std::string& directory){
 
 Sheet& Sheet::write(const std::string& directory){
     // TODO
+    return *this;
+}
+
+Sheet& Sheet::compile(void){
+    auto home = boost::filesystem::path(path(true));
+    auto filepath = (home/"index.html").string();
+    export_(filepath);
     return *this;
 }
 

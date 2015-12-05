@@ -19,49 +19,56 @@ public:
 	~Sheet(void);
 
 	/**
-	 * Initialise a sheet
+	 * Initialise this sheet
 	 * 
 	 * @param  from A string indicating how the sheet is initialised
 	 */
 	Sheet& initialise(const std::string& from);
 
 	/**
-	 * Load the sheet from an input stream
+	 * Load this sheet from an input stream
 	 * 
 	 * @param  stream Input stream
 	 */
-	Sheet& load(std::istream& stream, const std::string& format);
+	Sheet& load(std::istream& stream, const std::string& format = "tsv");
 
 	/**
-	 * Load the sheet from a string
+	 * Load this sheet from a string
 	 * 
 	 * @param  stream Input stream
 	 */
-	Sheet& load(const std::string& string, const std::string& format);
+	Sheet& load(const std::string& string, const std::string& format = "tsv");
 
 	/**
-	 * Dump the sheet to an output stream
+	 * Dump this sheet to an output stream
 	 * 
 	 * @param  stream Output stream
 	 */
-	Sheet& dump(std::ostream& stream);
+	Sheet& dump(std::ostream& stream, const std::string& format = "tsv");
 
 	/**
-	 * Dump the sheet to a string
+	 * Dump this sheet to a string
 	 * 
-	 * @param  stream Output stream
+	 * @param  format Format for dump
 	 */
-	std::string dump(void);
+	std::string dump(const std::string& format = "tsv");
 
 	/**
-	 * Import the stencil content from a file
+	 * Import this stencil content from a file
 	 * 
 	 * @param  path Filesystem path to file
 	 */
 	Sheet& import(const std::string& path);
 
 	/**
-	 * Read the sheet from a directory
+	 * Export the stencil content to a file
+	 * 
+	 * @param  path Filesystem path to file
+	 */
+	Sheet& export_(const std::string& path);
+
+	/**
+	 * Read this sheet from a directory
 	 * 
 	 * @param  path Filesystem path to a directory. 
 	 *              If an empty string then the sheet's current path is used.
@@ -69,12 +76,19 @@ public:
 	Sheet& read(const std::string& path="");
 
 	/**
-	 * Write the sheet to a directory
+	 * Write this sheet to a directory
 	 * 
 	 * @param  path Filesystem path to a directory
 	 *              If an empty string then the sheet's current path is used.
 	 */
 	Sheet& write(const std::string& path="");
+
+	/**
+	 * Compile this sheet
+	 *
+	 * Export it as HTML to `index.html` in home directory
+	 */
+	Sheet& compile(void);
 
 	/**
 	 * A cell in the sheet; used to hold extra information other than
