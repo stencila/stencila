@@ -6,6 +6,8 @@ var $$ = Component.$$;
 var $ = window.$ = require('substance/util/jquery');
 
 var Sheet = require('./model/Sheet');
+var SheetComponent = require('./ui/SheetComponent');
+var SheetHTMLImporter = require('./model/SheetHTMLImporter');
 
 function App() {
 	Component.apply(this, arguments);
@@ -13,8 +15,20 @@ function App() {
 
 App.Prototype = function() {
 
+  this.getInitialState = function() {
+    var importer = new SheetHTMLImporter();
+    var doc = importer.importDocument(this.props.html);
+    return {
+      mode: "write",
+      doc: doc
+    };
+  };
+
   this.render = function() {
-    var el = $$('div');
+    var el = $$('div').addClass('app');
+    el.append($$(SheetComponent, {
+      doc: this.state.doc
+    }));
     return el;
   };
 
@@ -22,6 +36,11 @@ App.Prototype = function() {
 
 oo.inherit(App, Component);
 
-$(function() {
-  window.app = Component.mount($$(App), $('#content'));
-});
+function launch() {
+  var content = $('#content');
+  var html = content.html() || '';
+  content.remove();
+  Component.mount($$(App, {"html":html}), $('body'));
+}
+
+$(launch);

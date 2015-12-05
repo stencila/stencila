@@ -29,8 +29,8 @@ StencilHTMLImporter.Prototype = function() {
     return doc;
   };
 
-  this._getBlockConverterForElement = function(el) {
-    var converter = _super._getBlockConverterForElement.call(this, el);
+  this._getConverterForElement = function() {
+    var converter = _super._getConverterForElement.apply(this, arguments);
     converter = converter || StencilDefaultNodeHTMLConverter;
     return converter;
   };

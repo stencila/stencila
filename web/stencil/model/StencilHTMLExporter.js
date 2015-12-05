@@ -17,7 +17,6 @@ StencilHTMLExporter.Prototype = function() {
     var wrapper = this.$$("div").append(bodyNodes);
     return wrapper.html();
   };
-
 };
 
 HTMLExporter.extend(StencilHTMLExporter);
