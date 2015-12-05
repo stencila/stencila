@@ -7,7 +7,7 @@
 #' @param closed Should this be a closed scope (i.e. not having a parent scope)? Optional.
 #'
 #' @export
-Spread <- function(envir, closed=FALSE){
+Spread <- function(envir, closed=FALSE) {
     
     # Will this have the enclosing env as a parent?
     parent = if(closed) baseenv() else parent.frame()
@@ -42,11 +42,15 @@ Spread <- function(envir, closed=FALSE){
     #   spread$.set('B4','89.87')
     #   
     # This allows more meaningful variable names to be 
-    # assigned e.g. for a constant 89.87=radius
+    # assigned e.g. for a constant 
+    # 
+    #   89.87 = radius
     # 
     #   spread$.set('B4','89.87','radius')
     #
-    #  or, for an expression e.g. 89.87=2*pi*radius=circumference
+    #  or, for an expression e.g. 
+    #  
+    #   89.87 = 2*pi*radius = circumference
     # 
     #   spread$.set('J7','2*pi*radius','circumference')
     #
@@ -89,13 +93,25 @@ Spread <- function(envir, closed=FALSE){
     }
     
     
-    # List all cell values
+    # List all cell names
     #
     # Most likely to be used just for testing purposes
     self$.list <- function(){
       return(paste(ls(self),collapse=','))
     }
+
+    # List the dependencies of a cell
+    # 
+    # Parse a cell expression to obtain all it dependencies
+    # This will include variables and functions, some of which
+    # may not be in the sheet
+    self$.depends <- function(expression){
+        # Use the hand `all.names` function which does the 
+        # AST generation and walking for us
+        return(all.names(parse(text=expression)))
+    }
     
     self
 }
+
 
