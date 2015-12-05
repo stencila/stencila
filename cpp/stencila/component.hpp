@@ -344,6 +344,7 @@ public:
 		ComponentType,
 		StencilType,
 		ThemeType,
+		SheetType,
 
 		PythonContextType,
 		RContextType
