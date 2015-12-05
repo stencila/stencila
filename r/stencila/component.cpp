@@ -1,5 +1,6 @@
 #include <stencila/component.hpp>
 #include <stencila/stencil.hpp>
+#include <stencila/sheet.hpp>
 using namespace Stencila;
 
 #include "stencila.hpp"
@@ -77,6 +78,10 @@ STENCILA_R_FUNC Component_grab(SEXP address){
             case Component::StencilType:
                 type = "Stencil";
                 sexp = to<Stencil>(&instance.as<Stencil>(),"Stencil");
+                break;
+            case Component::SheetType:
+                type = "Sheet";
+                sexp = to<Sheet>(&instance.as<Sheet>(),"Sheet");
                 break;
             default:
                 type = "Component";
