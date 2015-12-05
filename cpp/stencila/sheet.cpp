@@ -73,9 +73,9 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
         for(unsigned int col=0;col<cols;col++){
             auto td = tr.append("td");
             auto id = identify(row,col);
-            auto celli = cells_.find(id);
-            if(celli!=cells_.end()){
-                auto& cell = celli->second;
+            auto iter = cells_.find(id);
+            if(iter!=cells_.end()){
+                auto& cell = iter->second;
                 td.text(cell.value);
                 if(cell.expression.length()) td.attr("data-expr",cell.expression);
                 if(cell.alias.length()) td.attr("data-alias",cell.alias);
@@ -115,13 +115,31 @@ Sheet& Sheet::load(const std::string& string, const std::string& format) {
 }
 
 Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
-    // TODO
+    if(format=="tsv"){
+        // TODO rows, cols
+        uint rows = 10;
+        uint cols = 10;
+        for(unsigned int row=0;row<rows;row++){
+            for(unsigned int col=0;col<cols;col++){
+                auto id = identify(row,col);
+                auto iter = cells_.find(id);
+                if(iter!=cells_.end()){
+                    auto& cell = iter->second;
+                    stream<<cell.value;
+                }
+                stream<<"\t";
+            }
+            stream<<"\n";
+        }
+    }
+    else STENCILA_THROW(Exception,"File extension not valid for a sheet\n extension: "+ext);
     return *this;
 }
 
 std::string Sheet::dump(const std::string& format) {
-    // TODO
-    return "";
+    std::ostringstream stream;
+    dump(stream,format);
+    return stream.str();
 }
 
 Sheet& Sheet::import(const std::string& path){
@@ -226,19 +244,33 @@ Sheet& Sheet::detach(void){
     return *this;
 }
 
+std::string Sheet::update(const std::string& id, Cell& cell){
+    auto expr = cell.expression.length()?cell.expression:cell.value;
+    if(expr.length()) cell.value = spread_->set(id,expr,cell.alias);
+    return cell.value;
+}
+
 std::string Sheet::update(const std::string& id){
-    auto cell = cells_[id];
-    cell.value = spread_->set(id,cell.expression,cell.alias);
+    auto& cell = cells_[id];
+    cell.value = update(id,cell);
     return cell.value;
 }
 
 Sheet& Sheet::update(void){
     for(auto iter : cells_){
         auto id = iter.first;
-        auto cell = iter.second;
-        cell.value = spread_->set(id,cell.expression,cell.alias);
+        auto& cell = cells_[id];
+        cell.value = update(id,cell);
     }
     return *this;
+}
+
+std::string Sheet::list(void){
+    return spread_->list();
+}
+
+std::string Sheet::value(const std::string& id){
+    return spread_->get(id);
 }
 
 }

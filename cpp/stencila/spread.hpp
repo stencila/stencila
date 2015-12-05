@@ -25,6 +25,8 @@ public:
 	 */
 	virtual std::string get(const std::string& id) = 0;
 
+	virtual std::string list(void) = 0;
+
 };
 
 }
