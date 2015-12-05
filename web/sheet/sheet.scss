@@ -1,0 +1,20 @@
+// Substance styles
+
+@import '../node_modules/substance/styles/base/index';
+
+// Basic sheet styling
+
+td, th {
+  min-width: 5rem;
+  height: 1.5rem;
+  border: 1px solid #AAA;
+  text-align: center;
+}
+
+th {
+  background: #BBB;
+}
+
+tr>th:first-child {
+  min-width: 3rem;
+}
