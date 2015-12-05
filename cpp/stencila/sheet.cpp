@@ -61,8 +61,14 @@ Sheet& Sheet::initialise(const std::string& from){
 Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     Html::Fragment frag("<table></table>");
     auto table = frag.select("table");
+    auto tr = table.append("thead").append("tr");
+    for(unsigned int col=0;col<cols;col++){
+        tr.append("th").text(identify_col(col));
+    }
+    auto tbody = table.append("tbody");
     for(unsigned int row=0;row<rows;row++){
         auto tr = table.append("tr");
+        tr.append("th").text(identify_row(row));
         for(unsigned int col=0;col<cols;col++){
             auto td = tr.append("td");
             auto id = identify(row,col);
@@ -177,7 +183,12 @@ Sheet& Sheet::compile(void){
     return *this;
 }
 
-std::string Sheet::identify(unsigned int row, unsigned int col){
+
+std::string Sheet::identify_row(unsigned int row){
+    return string(row+1);
+}
+
+std::string Sheet::identify_col(unsigned int col){
     std::string id;
     while(true){
         int mod = (col % 26) + 65;
@@ -186,12 +197,15 @@ std::string Sheet::identify(unsigned int row, unsigned int col){
         if(col > 0) col--;
         else if(col == 0) break;
     }
-    id += string(row+1);
     return id;
 }
 
+std::string Sheet::identify(unsigned int row, unsigned int col){
+    return identify_col(col)+identify_row(row);
+}
+
 std::array<std::string,3> Sheet::parse(const std::string& content){
-    static const boost::regex regex("(.*?)( = (.+?))?( = (.+?))?");
+    static const boost::regex regex("(.*?)( =(.+?))?( @(.+?))?");
     boost::smatch match;
     if(boost::regex_match(content,match,regex)){
         return {match.str(1),match.str(3),match.str(5)};

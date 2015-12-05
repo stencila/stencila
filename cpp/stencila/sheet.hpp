@@ -177,6 +177,16 @@ public:
 	};
 
 	/**
+	 * Generate an identifier for a row
+	 */
+	static std::string identify_row(unsigned int row);
+
+	/**
+	 * Generate an identifier for column
+	 */
+	static std::string identify_col(unsigned int col);
+
+	/**
 	 * Generate an identifier for a cell based on its position
 	 */
 	static std::string identify(unsigned int row, unsigned int col);
