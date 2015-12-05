@@ -5,9 +5,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-#include <iostream>
-
 #include <stencila/sheet.hpp>
+#include <stencila/component-page.hpp>
 #include <stencila/exception.hpp>
 
 namespace Stencila {
@@ -22,6 +21,32 @@ Sheet::Sheet(const std::string& from){
 Sheet::~Sheet(void){
 }
 
+
+Component::Type Sheet::type(void){
+    return SheetType;
+}
+
+std::string Sheet::title(void) const {
+    return "";
+}
+
+std::string Sheet::description(void) const {
+    return "";
+}
+
+std::vector<std::string> Sheet::keywords(void) const {
+    return {};
+}
+
+std::vector<std::string> Sheet::authors(void) const {
+    return {};
+}
+
+std::string Sheet::theme(void) const {
+    return "";
+}
+
+
 Sheet& Sheet::initialise(const std::string& from){
     if(boost::filesystem::exists(from)){
         read(from);
@@ -33,6 +58,26 @@ Sheet& Sheet::initialise(const std::string& from){
     return *this;
 }
 
+Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
+    Html::Fragment frag("<table></table>");
+    auto table = frag.select("table");
+    for(unsigned int row=0;row<rows;row++){
+        auto tr = table.append("tr");
+        for(unsigned int col=0;col<cols;col++){
+            auto td = tr.append("td");
+            auto id = identify(row,col);
+            auto celli = cells_.find(id);
+            if(celli!=cells_.end()){
+                auto& cell = celli->second;
+                td.text(cell.value);
+                if(cell.expression.length()) td.attr("data-expr",cell.expression);
+                if(cell.alias.length()) td.attr("data-alias",cell.alias);
+            }
+        }
+    }
+    return frag;
+}
+
 Sheet& Sheet::load(std::istream& stream, const std::string& format){
     unsigned int row = 0;
     std::string line;
@@ -41,10 +86,14 @@ Sheet& Sheet::load(std::istream& stream, const std::string& format){
         boost::split(cells,line,boost::is_any_of("\t"));
         unsigned int col = 0;
         for(auto cell : cells){
-            cells_[identify(row,col)] = {
+            auto id = identify(row,col);
+            auto parts = parse(cell);
+            cells_[id] = {
                 row,
                 col,
-                cell
+                parts[0],
+                parts[1],
+                parts[2]
             };
             col++;
         }
@@ -102,10 +151,29 @@ Sheet& Sheet::write(const std::string& directory){
     return *this;
 }
 
+std::string Sheet::page(const Component* component){
+    return static_cast<const Sheet&>(*component).page();
+}
+
+std::string Sheet::page(void) const {
+    // Get base document
+    Html::Document doc = Component_page_doc<Sheet>(*this);
+    Html::Node head = doc.find("head");
+    Html::Node body = doc.find("body");
+
+    // Add sheet to main#content
+    auto main = body.select("main");
+    main.attr("id","content");
+    main.append(html_table());
+
+    return doc.dump(false);
+}
+
 Sheet& Sheet::compile(void){
     auto home = boost::filesystem::path(path(true));
     auto filepath = (home/"index.html").string();
-    export_(filepath);
+    std::ofstream file(filepath);
+    file<<page();
     return *this;
 }
 

@@ -5,6 +5,7 @@
 #include <string>
 
 #include <stencila/component.hpp>
+#include <stencila/html.hpp>
 //#include <stencila/spread.hpp>
 
 namespace Stencila {
@@ -19,11 +20,72 @@ public:
 	~Sheet(void);
 
 	/**
+	 * @name Attributes
+	 *
+	 * Methods for obtaining or setting attributes of the sheet.
+	 *
+	 * Methods implemented in `stencil-attrs.cpp`
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Get the component type
+	 */
+	static Component::Type type(void);
+
+	/**
+	 * Get this sheets's title
+	 */
+	std::string title(void) const;
+
+	/**
+	 * Get this sheets's description
+	 */
+	std::string description(void) const;
+
+	/**
+	 * Get this sheets's keywords
+	 */
+	std::vector<std::string> keywords(void) const;
+
+	/**
+	 * Get this sheets's authors
+	 */
+	std::vector<std::string> authors(void) const;
+	
+	/**
+	 * Get the list of spread that are compatible with this sheets.
+	 *
+	 * Context compatability will be determined by the expressions used in 
+	 * sheets cells. Some expressions will be able to be used in multiple 
+	 * spread languages.
+	 */
+	std::vector<std::string> contexts(void) const;
+
+	/**
+	 * Get this sheets's theme
+	 *
+	 * @param versioned Should the theme be returned with a version (if specified)?
+	 */
+	std::string theme(void) const;
+
+	/**
+	 * @}
+	 */
+
+
+	/**
 	 * Initialise this sheet
 	 * 
 	 * @param  from A string indicating how the sheet is initialised
 	 */
 	Sheet& initialise(const std::string& from);
+
+	/**
+	 * Generate a HTML table for this sheet
+	 */
+	Html::Fragment html_table(unsigned int rows = 50, unsigned int cols = 20) const;
 
 	/**
 	 * Load this sheet from an input stream
@@ -84,6 +146,18 @@ public:
 	Sheet& write(const std::string& path="");
 
 	/**
+	 * Generate a web page for a sheet
+	 *
+	 * @param  component  A pointer to a sheet
+	 */
+	static std::string page(const Component* component);
+
+	/**
+	 * Generate a web page for this sheet
+	 */
+	std::string page(void) const;
+
+	/**
 	 * Compile this sheet
 	 *
 	 * Export it as HTML to `index.html` in home directory
@@ -97,7 +171,9 @@ public:
 	struct Cell {
 		unsigned int row;
 		unsigned int cell;
-		std::string content;
+		std::string value;
+		std::string expression;
+		std::string alias;
 	};
 
 	/**
