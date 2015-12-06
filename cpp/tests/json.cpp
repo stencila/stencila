@@ -40,6 +40,27 @@ BOOST_AUTO_TEST_CASE(get_object){
 	BOOST_CHECK_EQUAL(doc["e"]["e1"].as<int>(),42);
 }
 
+BOOST_AUTO_TEST_CASE(iterate){
+	Document doc(R"({
+		"a": false,
+		"b": 42,
+		"c": 3.14,
+		"d": [1,2,3]
+	})");
+	
+	auto iter = doc.begin();
+	BOOST_CHECK_EQUAL(iter.key().as<std::string>(),"a");
+	BOOST_CHECK_EQUAL((*iter).as<bool>(),false);
+	
+	++iter;
+	BOOST_CHECK_EQUAL(iter.key().as<std::string>(),"b");
+	BOOST_CHECK_EQUAL((*iter).as<int>(),42);
+	
+	++iter;
+	++iter;
+	++iter;
+	BOOST_CHECK(iter==doc.end());
+}
 BOOST_AUTO_TEST_CASE(get_array){
 	Document doc(R"([4,3,2,1])");
 	BOOST_CHECK_EQUAL(doc.size(),4u);

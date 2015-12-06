@@ -8,6 +8,15 @@
 namespace Stencila {
 namespace Json {
 
+Node::Node(const Node::Impl& impl):
+	pimpl_(new Impl(impl)){};
+
+Node::Node(Node::Impl& impl):
+	pimpl_(&impl){};
+
+Node::Node(Node::Impl* impl):
+	pimpl_(impl){};
+
 template<>
 bool Node::is<void>(void) const {
 	return pimpl_->isNull();
@@ -101,7 +110,54 @@ std::map<std::string,std::string> Node::as<std::map<std::string,std::string>>(vo
 	return result;
 }
 
-unsigned int Node::size(void) const{
+#define NODE_ITER_CAST(POINTER) static_cast<::Json::ValueIterator*>(POINTER)
+
+Node::iterator::~iterator(void){
+	delete NODE_ITER_CAST(pimpl_);
+}
+
+Node Node::iterator::operator*() { 
+	return **NODE_ITER_CAST(pimpl_);
+}
+
+Node::iterator& Node::iterator::operator++() {
+	++(*NODE_ITER_CAST(pimpl_));
+	return *this;
+}
+
+bool Node::iterator::operator==(const Node::iterator& other) {
+	return *NODE_ITER_CAST(pimpl_) == *NODE_ITER_CAST(other.pimpl_);
+}
+
+bool Node::iterator::operator!=(const Node::iterator& other) {
+	return *NODE_ITER_CAST(pimpl_) != *NODE_ITER_CAST(other.pimpl_);
+}
+
+Node Node::iterator::key(void) {
+	return NODE_ITER_CAST(pimpl_)->key();
+}
+
+#undef NODE_ITER_CAST
+
+
+Node::iterator Node::begin(void) const {
+	Node::iterator iter;
+	iter.pimpl_ = new ::Json::ValueIterator(
+		pimpl_->begin()
+	);
+	return iter;
+}
+
+Node::iterator Node::end(void) const {
+	Node::iterator iter;
+	iter.pimpl_ = new ::Json::ValueIterator(
+		pimpl_->end()
+	);
+	return iter;
+}
+
+
+unsigned int Node::size(void) const {
 	if(is<Object>() or is<Array>()) return pimpl_->size();
 	else return 0u;
 }
