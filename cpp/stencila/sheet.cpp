@@ -132,7 +132,7 @@ Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
             stream<<"\n";
         }
     }
-    else STENCILA_THROW(Exception,"File extension not valid for a sheet\n extension: "+ext);
+    else STENCILA_THROW(Exception,"File extension not valid for a sheet\n extension: "+format);
     return *this;
 }
 
@@ -202,6 +202,42 @@ Sheet& Sheet::compile(void){
     return *this;
 }
 
+std::string Sheet::serve(void){
+    return Component::serve(SheetType);
+}
+
+Sheet& Sheet::view(void){
+    Component::view(SheetType);
+    return *this;
+}
+
+std::string Sheet::request(Component* component,const std::string& verb,const std::string& method,const std::string& body){
+    return static_cast<Sheet&>(*component).request(verb, method, body);
+}
+
+std::string Sheet::request(const std::string& verb,const std::string& method,const std::string& body){
+    Json::Document request;
+    if(body.length()){
+        request.load(body);
+    }
+    Json::Document response = Json::Object();
+
+    if(verb=="PUT" and method=="update"){
+        for(auto iter=request.begin();iter!=request.end();){
+            auto id = iter.key().as<std::string>();
+            auto source = (*iter).as<std::string>();
+            auto new_value = update(id,source);
+            response.append(id,new_value);
+            ++iter;
+        }
+    }
+    else {
+        throw RequestInvalidException();
+    }
+
+    return response.dump();
+}
+
 
 std::string Sheet::identify_row(unsigned int row){
     return string(row+1);
@@ -247,6 +283,13 @@ Sheet& Sheet::detach(void){
 std::string Sheet::update(const std::string& id, Cell& cell){
     auto expr = cell.expression.length()?cell.expression:cell.value;
     if(expr.length()) cell.value = spread_->set(id,expr,cell.alias);
+    return cell.value;
+}
+
+std::string Sheet::update(const std::string& id, const std::string& source){
+    auto& cell = cells_[id];
+    cell.expression = source;
+    update(id,cell);
     return cell.value;
 }
 

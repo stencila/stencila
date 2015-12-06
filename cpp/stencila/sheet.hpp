@@ -165,6 +165,44 @@ public:
 	Sheet& compile(void);
 
 	/**
+	 * Serve this stencil
+	 */
+	std::string serve(void);
+
+	/**
+	 * View this stencil
+	 */
+	Sheet& view(void);
+
+	/**
+	 * Respond to a web request to a sheet
+	 *
+	 * @param  component  A pointer to a sheet
+	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
+	 * @param  method     Name of method requested
+	 * @param  body       Request body (usually JSON)
+	 */
+	static std::string request(
+		Component* component,
+		const std::string& verb,
+		const std::string& method,
+		const std::string& body
+	);
+
+	/**
+	 * Respond to a web request to this sheet
+	 *
+	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
+	 * @param  method     Name of method requested
+	 * @param  body       Request body (usually JSON)
+	 */
+	std::string request(
+		const std::string& verb, 
+		const std::string& method,
+		const std::string& body
+	);
+
+	/**
 	 * A cell in the sheet; used to hold extra information other than
 	 * it's content (e.g. equation)
 	 */
@@ -213,6 +251,11 @@ public:
 	 * Update a cell
 	 */
 	std::string update(const std::string& id, Cell& cell);
+
+	/**
+	 * Update a cell with new source
+	 */
+	std::string update(const std::string& id, const std::string& source);
 
 	/**
 	 * Update a cell

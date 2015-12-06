@@ -26,6 +26,9 @@ STENCILA_R_EXEC1(Sheet,write,std::string)
 
 STENCILA_R_EXEC0(Sheet,compile)
 
+STENCILA_R_RET0(Sheet,serve) 
+STENCILA_R_EXEC0(Sheet,view)
+
 STENCILA_R_FUNC Sheet_attach(SEXP self,SEXP spread){
     // Need to use `make_shared` here 
     STENCILA_R_BEGIN

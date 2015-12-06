@@ -33,7 +33,7 @@ void Component::classes(void){
 	class_(Component::SheetType, Class(
 		"Sheet",
 		Sheet::page,
-		nullptr,
+		Sheet::request,
 		nullptr
 	));
 }
