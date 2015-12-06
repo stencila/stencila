@@ -7,12 +7,16 @@
 td, th {
   min-width: 5rem;
   height: 1.5rem;
-  border: 1px solid #AAA;
+  border: 1px solid #CCC;
   text-align: center;
 }
 
 th {
-  background: #BBB;
+  background: #EEE;
+}
+
+td {
+  text-align: right;
 }
 
 tr>th:first-child {
