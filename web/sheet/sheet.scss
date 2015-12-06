@@ -5,8 +5,8 @@
 // Basic sheet styling
 
 td, th {
-  min-width: 5rem;
-  height: 1.5rem;
+  min-width: 5em;
+  padding: 0.1em 0.2em 0.1em 0.2em;
   border: 1px solid #CCC;
   text-align: center;
 }
