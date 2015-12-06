@@ -29,12 +29,6 @@ var Sheet = function(schema) {
 
 Sheet.Prototype = function() {
 
-  this.getCila = function(cb) {
-    window.__backend.cilaGet(this,function(error, result){
-      cb(result);
-    });
-  };
-
   this.getDimension = function() {
     var nrows = 0;
     var ncols = 0;
