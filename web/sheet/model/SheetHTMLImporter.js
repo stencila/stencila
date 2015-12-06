@@ -35,9 +35,11 @@ SheetHTMLImporter.Prototype = function() {
       var cellEls = rowEl.children;
       for (var j = 1; j < cellEls.length; j++) {
         var cellEl = cellEls[j];
-        var cell = this.convertElement(cellEl);
-        cell.row = i;
-        cell.col = j-1;
+        if (cellEl.text()) {
+          var cell = this.convertElement(cellEl);
+          cell.row = i;
+          cell.col = j-1;
+        }
       }
     }
     var doc = this.generateDocument();

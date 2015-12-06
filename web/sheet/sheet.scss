@@ -22,3 +22,12 @@ td {
 tr>th:first-child {
   min-width: 3rem;
 }
+
+td.display {
+  cursor: default;
+}
+
+td.display.expression {
+  background: #efefef;
+  font-style: italic;
+}

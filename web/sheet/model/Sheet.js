@@ -39,7 +39,7 @@ Sheet.Prototype = function() {
     var nrows = 0;
     var ncols = 0;
     _.each(this.getNodes(), function(node) {
-      if (node.type === "sheet-cell") {
+      if (node.content && node.type === "sheet-cell") {
         nrows = Math.max(nrows, node.row);
         ncols = Math.max(ncols, node.col);
       }
@@ -51,7 +51,7 @@ Sheet.Prototype = function() {
     var tableData = this.getDimension();
     var cells = {};
     _.each(this.getNodes(), function(node) {
-      if (node.type === "sheet-cell") {
+      if (node.content && node.type === "sheet-cell") {
         cells[[node.row, node.col]] = node;
       }
     });

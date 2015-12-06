@@ -14,40 +14,66 @@ CellComponent.Prototype = function() {
   this.render = function() {
     var node = this.props.node;
     var el = $$('td');
+
+    var isEditing = this.isEditing();
+    el.addClass(isEditing ? 'edit' : 'display');
+
+    if (!isEditing) {
+      el.on('dblclick', this.onDblClick);
+      el.on('click', this.onClick);
+    }
+
     if (node) {
-      if (node.isExpression()) {
-        // for expressions always show the value
-        // there should be a expression bar for editing the expressions
-        el.text(node.getValue());
+      var isExpression = node.isExpression();
+      el.addClass(isExpression ? 'expression' : 'text');
+      if (isEditing) {
+        var editor = $$(TextPropertyEditor, {
+          name: node.id,
+          path: [node.id, 'content'],
+          commands: []
+        }).ref('editor');
+        el.append(editor);
       } else {
-        if (this.state.isEditing) {
-          el.append($$(TextPropertyEditor, {
-            name: node.id,
-            path: [node.id, 'content'],
-            commands: []
-          }));
+        if (isExpression) {
+          el.text(node.value);
         } else {
           el.text(node.content);
         }
       }
+    } else {
+      el.addClass('empty');
     }
-    el.on('click', this.onClick);
+
     return el;
   };
 
-  this.onClick = function(e) {
-    var node = this.props.node;
+  this.getNode = function() {
+    return this.props.node;
+  };
+
+  this.isEditing = function() {
+    return this.state.isEditing;
+  };
+
+  this.initializeSelection = function() {
+    var editor = this.refs.editor;
+    if (editor) {
+      editor.selectAll();
+    }
+  };
+
+  this.onDblClick = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (this.state.isEditing) {
-      return;
-    }
+    this.send('activateCell', this);
+  };
 
-    if (node.isExpression()) {
-      // request a state change so that the expression bar will be shown.;
-      this.send('edit:expression', this.props.node.id);
+  this.onClick = function(e) {
+    if (!this.isEditing()) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.send('selectCell', this);
     }
-    this.setState({ isEditing: true });
   };
 
 };

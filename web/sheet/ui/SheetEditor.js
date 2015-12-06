@@ -8,15 +8,25 @@ var $$ = Component.$$;
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
+
+  this.handleActions({
+    'selectCell': this.onSelectCell,
+    'activateCell': this.onActivateCell,
+  });
 }
 
 SheetEditor.Prototype = function() {
+
+  this.didMount = function() {
+    // HACK: to override the hacky parent implementation
+  };
 
   this.render = function() {
     // TODO this code is almost identical to the exporter
     // we should try to share the code
 
     var doc = this.props.doc;
+    window._sheet = doc;
     var tableData = doc.getTableData();
     // always render a certain
     // TODO: make this configurable
@@ -28,7 +38,7 @@ SheetEditor.Prototype = function() {
     var i,j;
 
     // create header row
-    var thead = $$('thead')
+    var thead = $$('thead');
     var headerRow = $$('tr');
     headerRow.append($$('th'));
     for (j = 0; j < ncols; j++) {
@@ -52,6 +62,25 @@ SheetEditor.Prototype = function() {
     }
     el.append(tbody);
     return el;
+  };
+
+  this.onSelectCell = function(cell) {
+    if (this.activeCell && this.activeCell !== cell) {
+      this.activeCell.setState({ isEditing: false });
+    }
+    var node = cell.getNode();
+    if (node && node.isExpression()) {
+      console.log('Show expression bar.');
+    }
+  };
+
+  this.onActivateCell = function(cell) {
+    if (this.activeCell && this.activeCell !== cell) {
+      this.activeCell.setState({ isEditing: false });
+    }
+    this.activeCell = cell;
+    cell.setState({ isEditing: true });
+    cell.initializeSelection();
   };
 
 };
