@@ -13,6 +13,12 @@ namespace Stencila {
 class Sheet : public Component {
 public:
 
+	/**
+	 * @name Construction and destruction.
+	 * 
+	 * @{
+	 */
+	
 	Sheet(void);
 
 	Sheet(const std::string& from);
@@ -20,17 +26,20 @@ public:
 	~Sheet(void);
 
 	/**
+	 * @}
+	 */
+
+
+	/**
 	 * @name Attributes
 	 *
-	 * Methods for obtaining or setting attributes of the sheet.
-	 *
-	 * Methods implemented in `stencil-attrs.cpp`
+	 * Methods for obtaining attributes of the sheet.
 	 * 
 	 * @{
 	 */
 	
 	/**
-	 * Get the component type
+	 * Get the component type for sheets
 	 */
 	static Component::Type type(void);
 
@@ -55,18 +64,17 @@ public:
 	std::vector<std::string> authors(void) const;
 	
 	/**
-	 * Get the list of spread that are compatible with this sheets.
+	 * Get the list of spread types that are compatible with this sheet.
 	 *
-	 * Context compatability will be determined by the expressions used in 
+	 * Spreads provide the execution environment with with sheet calculations are performed.
+	 * Compatability will be determined by the expressions used in 
 	 * sheets cells. Some expressions will be able to be used in multiple 
 	 * spread languages.
 	 */
-	std::vector<std::string> contexts(void) const;
+	std::vector<std::string> spreads(void) const;
 
 	/**
 	 * Get this sheets's theme
-	 *
-	 * @param versioned Should the theme be returned with a version (if specified)?
 	 */
 	std::string theme(void) const;
 
@@ -74,6 +82,15 @@ public:
 	 * @}
 	 */
 
+
+	/**
+	 * @name Input and output
+	 *
+	 * Initialising, loading and dumping, reading and
+	 * writing and conversion to/from other formats.
+	 * 
+	 * @{
+	 */
 
 	/**
 	 * Initialise this sheet
@@ -160,9 +177,18 @@ public:
 	/**
 	 * Compile this sheet
 	 *
-	 * Export it as HTML to `index.html` in home directory
+	 * Export this sheet as HTML to `index.html` in home directory
 	 */
 	Sheet& compile(void);
+
+	/**
+	 * @}
+	 */
+	
+
+	/**
+	 * @name Serving
+	 */
 
 	/**
 	 * Serve this stencil
@@ -203,42 +229,102 @@ public:
 	);
 
 	/**
-	 * A cell in the sheet; used to hold extra information other than
-	 * it's content (e.g. equation)
+	 * @}
+	 */
+	
+
+	/**
+	 * @name Cells
+	 *
+	 * Cell contents, dependency analyses, updates etc
+	 */
+
+	/**
+	 * A cell in the sheet.
+	 *
+	 * Rather than make this `struct Cell` too complex, functionality is
+	 * implemented as `Sheet` methods.
 	 */
 	struct Cell {
+		/**
+		 * Row index of this cell
+		 */
 		unsigned int row;
-		unsigned int cell;
+
+		/**
+		 * Column index of this cell
+		 */
+		unsigned int col;
+
+		/**
+		 * Value of this cell
+		 *
+		 * Value may be empty if the cell has never been updated
+		 * or if it was updated and there was an error
+		 */
 		std::string value;
+
+		/**
+		 * Expression of this cell
+		 *
+		 * Expression may be empty if the cell is a constant.
+		 */
 		std::string expression;
+
+		/**
+		 * Alias for this cell
+		 *
+		 * Cells can have an alias. This is useful for writing more
+		 * meaningful and concise cell expression. For example, instead
+		 * of writing the expression for the area of a circle as,
+		 *
+		 *     = A1*A2^2
+		 *
+		 * it could be written as,
+		 *
+		 *     = pi*radius^2
+		 */
 		std::string alias;
 	};
 
 	/**
 	 * Generate an identifier for a row
+	 *
+	 * Rows are identified by digits; this method merely
+	 * converts an `int` to a `string`
 	 */
 	static std::string identify_row(unsigned int row);
 
 	/**
 	 * Generate an identifier for column
+	 *
+	 * Columns are identified by combinations of uppercase
+	 * letters `A,B,C,...Z,AA,AB...`
 	 */
 	static std::string identify_col(unsigned int col);
 
 	/**
 	 * Generate an identifier for a cell based on its position
+	 *
+	 * Combines `identify_col()` and `identify_row()` into something
+	 * like `AT45` (but note that `row` is always the first argument!)
 	 */
 	static std::string identify(unsigned int row, unsigned int col);
 
 	/**
 	 * Parse a cell content into it's parts
+	 *
+	 * Parse the string content of a cell (e.g. from a `.tsv` file) into the
+	 * parts `value`, `expression`, `alias`.
+	 *
+	 * @param content Cell content
 	 */
 	static std::array<std::string,3> parse(const std::string& content);
-
 
 	/**
 	 * Attach a spread to this stencil
 	 *
-	 * @param spread Spread for rendering
+	 * @param spread Spread for execution
 	 */
 	Sheet& attach(std::shared_ptr<Spread> spread);
 
@@ -248,14 +334,19 @@ public:
 	Sheet& detach(void);
 
 	/**
-	 * Update a cell
+	 * Update a cell within the spread
+	 *
+	 * Take the entire cell and set/update it's corresponding
+	 * variable within the spread environment
+	 *
+	 * @return The cell's current value
 	 */
 	std::string update(const std::string& id, Cell& cell);
 
 	/**
-	 * Update a cell with new source
+	 * Update a cell with new content and then within the spread
 	 */
-	std::string update(const std::string& id, const std::string& source);
+	std::string update(const std::string& id, const std::string& content);
 
 	/**
 	 * Update a cell

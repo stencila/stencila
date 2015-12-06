@@ -286,9 +286,9 @@ std::string Sheet::update(const std::string& id, Cell& cell){
     return cell.value;
 }
 
-std::string Sheet::update(const std::string& id, const std::string& source){
+std::string Sheet::update(const std::string& id, const std::string& content){
     auto& cell = cells_[id];
-    cell.expression = source;
+    cell.expression = content;
     update(id,cell);
     return cell.value;
 }
