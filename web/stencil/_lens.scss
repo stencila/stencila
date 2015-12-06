@@ -49,6 +49,7 @@ $error-node-color: hsl(0, 95%, 40%);
 @import './packages/writer/_cila-panel.scss';
 
 
+
 %lens {
   position: absolute;
   top: 0px;
@@ -73,9 +74,23 @@ $error-node-color: hsl(0, 95%, 40%);
 
       width: 60%;
       z-index: 30;
+
+      // Position content-panel
+      .sc-content-panel {
+        position: absolute;
+        top: 40px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+
+        .se-panel-content-inner {
+          padding: 40px;
+        }
+      }
+
     }
 
-    .le-resource {
+    .sc-context-section {
       position: relative;
       float: right;
       border-left: 1px solid #ddd;
