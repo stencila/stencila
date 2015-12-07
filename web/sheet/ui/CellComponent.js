@@ -51,8 +51,20 @@ CellComponent.Prototype = function() {
     return this.props.node;
   };
 
+  this.enableEditing = function() {
+    this.setState({
+      edit: true
+    });
+  };
+
+  this.disableEditing = function() {
+    this.setState({
+      edit: false
+    });
+  };
+
   this.isEditing = function() {
-    return this.state.isEditing;
+    return this.state.edit;
   };
 
   this.initializeSelection = function() {
@@ -65,14 +77,16 @@ CellComponent.Prototype = function() {
   this.onDblClick = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    this.send('activateCell', this);
+    this.enableEditing();
+    this.initializeSelection();
+    this.send('activatedCell', this);
   };
 
   this.onClick = function(e) {
     if (!this.isEditing()) {
       e.preventDefault();
       e.stopPropagation();
-      this.send('selectCell', this);
+      this.send('selectedCell', this);
     }
   };
 

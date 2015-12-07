@@ -13,7 +13,7 @@ function StencilHTMLExporter() {
 StencilHTMLExporter.Prototype = function() {
   this.exportDocument = function(doc) {
     var $$ = this.$$;
-    var tableData = doc.getTableData();
+    var tableData = doc.getTableData('sparse');
     // always render a certain
     // TODO: make this configurable
     var ncols = tableData.cols;
