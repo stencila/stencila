@@ -1,6 +1,7 @@
 'use strict';
 
 var oo = require('substance/util/oo');
+var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
 var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
@@ -17,6 +18,10 @@ CellComponent.Prototype = function() {
 
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
+
+    if (this.state.selected) {
+      el.addClass('selected');
+    }
 
     if (!isEditing) {
       el.on('dblclick', this.onDblClick);
@@ -51,14 +56,32 @@ CellComponent.Prototype = function() {
     return this.props.node;
   };
 
+  this.getDocument = function() {
+    return this.context.doc;
+  };
+
   this.enableEditing = function() {
-    this.setState({
-      edit: true
-    });
+    if (!this.props.node) {
+      var doc = this.getDocument();
+      var node = {
+        type: "sheet-cell",
+        id: uuid(),
+        row: new Number(this.attr('data-row')),
+        col: new Number(this.attr('data-col'))
+      };
+      doc.transaction(function(tx) {
+        tx.create(node);
+      });
+      node = doc.get(node.id);
+      this.extendProps({ node: node });
+    }
+    this.extendState({ edit: true });
+    this.initializeSelection();
+    this.send('activatedCell', this);
   };
 
   this.disableEditing = function() {
-    this.setState({
+    this.extendState({
       edit: false
     });
   };
@@ -78,8 +101,6 @@ CellComponent.Prototype = function() {
     e.preventDefault();
     e.stopPropagation();
     this.enableEditing();
-    this.initializeSelection();
-    this.send('activatedCell', this);
   };
 
   this.onClick = function(e) {

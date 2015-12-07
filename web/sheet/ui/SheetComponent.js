@@ -3,6 +3,7 @@
 var Component = require('substance/ui/Component');
 var CellComponent = require('./CellComponent');
 var Sheet = require('../model/Sheet');
+var $ = require('substance/util/jquery');
 var $$ = Component.$$;
 
 function SheetComponent() {
@@ -21,8 +22,8 @@ SheetComponent.Prototype = function() {
     // TODO: make this configurable
     var ncols = Math.max(52, tableData.cols);
     var nrows = Math.max(100, tableData.rows);
-    var el = $$('table')
-      .addClass("stencila-sheet");
+    var table = $$('table')
+      .addClass("sc-sheet");
 
     var i,j;
 
@@ -34,9 +35,9 @@ SheetComponent.Prototype = function() {
       headerRow.append($$('th').text(Sheet.static.getColumnName(j)));
     }
     thead.append(headerRow);
-    el.append(thead);
-    //
-    var tbody = $$('tbody');
+    table.append(thead);
+
+    var tbody = $$('tbody').ref('body');
     for (i = 0; i < nrows; i++) {
       var rowEl = $$('tr').attr('data-row', i);
       // first column is header
@@ -44,13 +45,50 @@ SheetComponent.Prototype = function() {
       // render all cells
       for (j = 0; j < ncols; j++) {
         var cell = tableData.cells[[i,j]];
-        var cellEl = $$(CellComponent, { node: cell }).attr('data-col', j-1);
+        var cellEl = $$(CellComponent, { node: cell })
+          .attr('data-row', i)
+          .attr('data-col', j);
         rowEl.append(cellEl);
       }
       tbody.append(rowEl);
     }
-    el.append(tbody);
-    return el;
+    table.append(tbody);
+
+    return table;
+  };
+
+  this._getRectangle = function(sel) {
+    var rows = this.refs.body.children;
+    // FIXME: due to lack of API in DOMElement
+    // we are using the native API here
+    var minRow = Math.min(sel[0], sel[2]);
+    var maxRow = Math.max(sel[0], sel[2]);
+    var minCol = Math.min(sel[1], sel[3]);
+    var maxCol = Math.max(sel[1], sel[3]);
+    var firstEl = rows[minRow].el.childNodes[minCol+1];
+    var lastEl = rows[maxRow].el.childNodes[maxCol+1];
+    // debugger;
+    var $firstEl = $(firstEl);
+    var $lastEl = $(lastEl);
+    var pos1 = $firstEl.position();
+    var pos2 = $lastEl.position();
+    var rect2 = lastEl.getBoundingClientRect();
+    var rect = {
+      top: pos1.top,
+      left: pos1.left,
+      height: pos2.top - pos1.top + rect2.height,
+      width: pos2.left - pos1.left + rect2.width
+    };
+    return rect;
+  };
+
+  this.getCellAt = function(row, col) {
+    var rows = this.refs.body.children;
+    var rowComp = rows[row];
+    if (rowComp) {
+      var cells = rowComp.children;
+      return cells[col+1];
+    }
   };
 
 };
