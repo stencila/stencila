@@ -57,6 +57,8 @@ SheetEditor.Prototype = function() {
     if (node && node.isExpression()) {
       console.log('Show expression bar.');
     }
+    this._rerenderSelection();
+    this.removeClass('edit');
   };
 
   this.onActivatedCell = function(cell) {
@@ -64,6 +66,8 @@ SheetEditor.Prototype = function() {
       this.activeCell.disableEditing();
     }
     this.activeCell = cell;
+    this._rerenderSelection();
+    this.addClass('edit');
   };
 
   this.onMouseDown = function(event) {
@@ -93,12 +97,14 @@ SheetEditor.Prototype = function() {
 
   this.onKeyDown = function(event) {
     var isEditing = this._isEditing();
-    console.log('####', event.keyCode);
+    // console.log('####', event.keyCode);
     var handled = false;
     // ESCAPE
     if (event.keyCode === 27) {
       if (this.activeCell) {
         this.activeCell.disableEditing();
+        this.removeClass('edit');
+        this._rerenderSelection();
       }
       handled = true;
     }
@@ -113,24 +119,6 @@ SheetEditor.Prototype = function() {
         this._selectNextCell(0, -1);
       } else {
         this._selectNextCell(0, 1);
-      }
-      handled = true;
-    }
-    // UP
-    else if (event.keyCode === 38) {
-      if (event.shiftKey) {
-        this._expandSelection(-1, 0);
-      } else {
-        this._selectNextCell(-1, 0);
-      }
-      handled = true;
-    }
-    // DOWN
-    else if (event.keyCode === 40) {
-      if (event.shiftKey) {
-        this._expandSelection(1, 0);
-      } else {
-        this._selectNextCell(1, 0);
       }
       handled = true;
     }
@@ -151,6 +139,24 @@ SheetEditor.Prototype = function() {
           this._expandSelection(0, 1);
         } else {
           this._selectNextCell(0, 1);
+        }
+        handled = true;
+      }
+      // UP
+      else if (event.keyCode === 38) {
+        if (event.shiftKey) {
+          this._expandSelection(-1, 0);
+        } else {
+          this._selectNextCell(-1, 0);
+        }
+        handled = true;
+      }
+      // DOWN
+      else if (event.keyCode === 40) {
+        if (event.shiftKey) {
+          this._expandSelection(1, 0);
+        } else {
+          this._selectNextCell(1, 0);
         }
         handled = true;
       }
@@ -236,6 +242,7 @@ SheetEditor.Prototype = function() {
     if (this.activeCell) {
       this.activeCell.disableEditing();
       this.activeCell = null;
+      this.removeClass('edit');
     }
     this.selection = sel;
     this._rerenderSelection();

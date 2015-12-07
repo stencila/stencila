@@ -40,11 +40,19 @@ td.display.expression {
 }
 
 td.edit {
+  position: relative;
   text-align: left;
   /* deactivate native selections */
   -webkit-user-select: default;
      -moz-user-select: default;
       -ms-user-select: default;
+}
+
+td.edit.expression .sc-text-property {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  white-space: nowrap !important;
 }
 
 .sc-sheet-editor {
@@ -56,4 +64,8 @@ td.edit {
   pointer-events:none;
   border: 2px solid blue;
   z-index: 1;
+}
+
+.sc-sheet-editor.edit .selection {
+  display:none;
 }
