@@ -15,19 +15,19 @@ function App() {
 App.Prototype = function() {
 
   this.getInitialState = function() {
-    return { mode: "loading" };
+    return { mode: "initial" };
   };
 
   this.render = function() {
     var el = $$('div').addClass('app');
-    if (this.state.mode === "loading") {
-      el.text('Loading...');
+    if (this.state.mode === "initial") {
+      el.html(this.props.html);
     } else {
+      console.log('Rendering sheet editor...');
       el.append($$(SheetEditor, {
         doc: this.state.doc
       }));
     }
-    console.log('Rendered App...');
     return el;
   };
 
@@ -37,8 +37,8 @@ App.Prototype = function() {
       // such as infinite loops during window.onload()
       setTimeout(function() {
         var importer = new SheetHTMLImporter();
-        console.log('Importing HTML...');
         var doc = importer.importDocument(this.props.html);
+        console.log('Imported sheet...');
         this.extendState({
           mode: 'writer',
           doc: doc

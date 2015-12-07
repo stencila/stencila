@@ -27,7 +27,7 @@
     "lodash": "3.3.1",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
-    "substance": "substance/substance#e8cc2d808b93380604a1829486403e125b0069af"
+    "substance": "substance/substance#4a95ecead71b2eab24353e1b6dd76f50adec7e4e"
   },
   "devDependencies": {
     "babelify": "^6.3.0",

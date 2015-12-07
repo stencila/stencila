@@ -4,6 +4,13 @@
 
 // Basic sheet styling
 
+table {
+  /* deactivate native selections */
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+}
+
 td, th {
   min-width: 5em;
   padding: 0.1em 0.2em 0.1em 0.2em;
@@ -21,4 +28,44 @@ td {
 
 tr>th:first-child {
   min-width: 3rem;
+}
+
+td.display {
+  cursor: default;
+}
+
+td.display.expression {
+  background-color: rgba(200, 200, 200, 0.5);
+  font-style: italic;
+}
+
+td.edit {
+  position: relative;
+  text-align: left;
+  /* deactivate native selections */
+  -webkit-user-select: default;
+     -moz-user-select: default;
+      -ms-user-select: default;
+}
+
+td.edit.expression .sc-text-property {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  white-space: nowrap !important;
+}
+
+.sc-sheet-editor {
+  position: relative;
+}
+
+.sc-sheet-editor .selection {
+  position: absolute;
+  pointer-events:none;
+  border: 2px solid blue;
+  z-index: 1;
+}
+
+.sc-sheet-editor.edit .selection {
+  display:none;
 }

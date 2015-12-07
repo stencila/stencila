@@ -29,11 +29,11 @@ var Sheet = function(schema) {
 
 Sheet.Prototype = function() {
 
-  this.getDimension = function() {
+  this._getDimension = function(nodes) {
     var nrows = 0;
     var ncols = 0;
-    _.each(this.getNodes(), function(node) {
-      if (node.type === "sheet-cell") {
+    _.each(nodes, function(node) {
+      if (node.content && node.type === "sheet-cell") {
         nrows = Math.max(nrows, node.row);
         ncols = Math.max(ncols, node.col);
       }
@@ -41,11 +41,17 @@ Sheet.Prototype = function() {
     return { rows: nrows+1, cols: ncols+1 };
   };
 
-  this.getTableData = function() {
-    var tableData = this.getDimension();
+  this.getTableData = function(mode) {
+    var nodes = this.getNodes();
+    if (mode === "sparse") {
+      nodes = nodes.filter(function(node) {
+        return node.type === "sheet-cell" && node.content;
+      });
+    }
+    var tableData = this._getDimension(nodes);
     var cells = {};
-    _.each(this.getNodes(), function(node) {
-      if (node.type === "sheet-cell") {
+    _.each(nodes, function(node) {
+      if (node.content && node.type === "sheet-cell") {
         cells[[node.row, node.col]] = node;
       }
     });
