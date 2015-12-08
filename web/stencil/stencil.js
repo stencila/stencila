@@ -1,4 +1,5 @@
 'use strict';
+/* global MathJax */
 
 var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
@@ -7,11 +8,12 @@ var $$ = Component.$$;
 var $ = window.jQuery = require('substance/util/jquery');
 require('jquery.hotkeys');
 
-var Stencil = require('./model/Stencil');
 var StencilWriter = require('./StencilWriter');
 var StencilReader = require('./StencilReader');
 var StencilViewer = require('./StencilViewer');
 var Backend = require("./stencil-backend");
+var StencilHTMLImporter = require('./model/StencilHTMLImporter');
+var importer = new StencilHTMLImporter();
 
 function App() {
   Component.apply(this, arguments);
@@ -26,8 +28,7 @@ function App() {
 App.Prototype = function() {
 
   this.getInitialState = function() {
-    var doc = new Stencil();
-    doc.loadHtml(this.props.html);
+    var doc = importer.importDocument(this.props.html);
     return {
       mode: "write",
       doc: doc
@@ -121,7 +122,7 @@ function AppLaunch(){
 window.Stencila = {
 
   // Dynamic loading of scripts
-  load : function(source, callback){
+  load : function(source, callback) {
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -129,7 +130,6 @@ window.Stencila = {
     if(callback) script.onload = callback;
     head.appendChild(script);
   }
-
 };
 
 // Load ACE editor
@@ -142,18 +142,18 @@ function MathJaxAdd(){
   // because math is already in <script type="math/..."> elements
   MathJax.Hub.Queue(
     ["Rerender",MathJax.Hub,"content"],
-    function(){
-      // Hide math script elements which should now have been rendered into 
+    function() {
+      // Hide math script elements which should now have been rendered into
       // separate display elements by MathJax
-      $('#content').find('script[type^="math/tex"],script[type^="math/asciimath"]').each(function(){
+      $('#content').find('script[type^="math/tex"],script[type^="math/asciimath"]').each(function() {
         $(this).css('display','none');
       });
     }
   );
 }
-function MathJaxRemove(){
+function MathJaxRemove() {
   var $content = $('#content');
-  // Get all MathJax "jax" elements (e.g. 
+  // Get all MathJax "jax" elements (e.g.
   //    <script type="math/asciimath" id="MathJax-Element-2">e=m^2</script>
   // ) and remove the id if it starts with MathJax
   $content.find('script[type^="math/asciimath"],script[type^="math/tex"]').each(function(){
@@ -165,6 +165,7 @@ function MathJaxRemove(){
   // Remove all elements which have been added
   $content.find('.MathJax_Error, .MathJax_Preview, .MathJax').remove();
 }
+
 // Configure and load MathJax
 window.MathJax = {
   skipStartupTypeset: true,
@@ -172,11 +173,9 @@ window.MathJax = {
   showMathMenu: false,
   "HTML-CSS": {preferredFont: "STIX"}
 };
-window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML',MathJaxAdd);
 
-// Launch Substance app when F2 is pressed
-$(document).bind('keydown', 'F2', function(){
-  MathJaxRemove();
-  AppLaunch();
-  return false;
+window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {  
+  $(function() {
+    AppLaunch();
+  });
 });

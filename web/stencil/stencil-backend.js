@@ -3,6 +3,10 @@ var $ = require('substance/util/jquery');
 var _ = require('substance/util/helpers');
 var Stencil = require('./model/Stencil');
 
+var StencilHTMLImporter = require('./model/StencilHTMLImporter');
+var StencilHTMLExporter = require('./model/StencilHTMLExporter');
+var importer = new StencilHTMLImporter();
+var exporter = new StencilHTMLExporter();
 
 var Backend = function() {
   this._getHost();
@@ -73,27 +77,28 @@ Backend.Prototype = function() {
     // TODO: we need a concept for generating the document URL
     this._request('GET', "content", null, function(err, result) {
       if (err) { console.error(err); cb(err); }
-      var doc = new Stencil();
-      doc.loadHtml(result.content);
+
+      var doc = importer.importDocument(result.content);
       doc.id = documentId;
       doc.url = address;
       window.doc = doc;
-      cb(null, doc);
+      //cb(null, doc);
+      console.log(doc);
     });
   };
 
   this.saveDocument = function(doc, cb) {
     this._request('PUT', 'content', {
       'format': 'html',
-      'content': doc.toHtml()
-    }, function(err, result) {
+      'content': exporter.exportDocument(doc)
+    }, function(err) {
       if (err) { console.error(err); cb(err); }
       cb(null);
     });
   };
 
   this.activate = function(doc, cb){
-    this._request('PUT', 'activate', function(err, result) {
+    this._request('PUT', 'activate', function(err) {
       if (err) { console.error(err); cb(err); }
       cb(null);
     });
@@ -102,7 +107,7 @@ Backend.Prototype = function() {
   this.renderDocument = function(doc, cb) {
     this._request('PUT', "render", {
       'format': 'html',
-      'content': doc.toHtml()
+      'content': exporter.exportDocument(doc)
     }, function(err, result) {
       if (err) { console.error(err); cb(err); }
       // creating a new document instance from the returned html

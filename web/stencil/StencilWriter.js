@@ -2,12 +2,12 @@
 
 var oo = require('substance/util/oo');
 var StencilController = require('./StencilController');
-var ContextToggles = require('substance/ui/ContextToggles');
 var ContentPanel = require("substance/ui/ContentPanel");
 var StatusBar = require("substance/ui/StatusBar");
 var Toolbar = require('substance/ui/Toolbar');
 var WriterTools = require('./packages/writer/WriterTools');
 var ContainerEditor = require('substance/ui/ContainerEditor');
+var ContextSection = require('substance/ui/ContextSection');
 var Component = require('substance/ui/Component');
 var docHelpers = require('substance/model/documentHelpers');
 var $$ = Component.$$;
@@ -38,22 +38,20 @@ var CONFIG = {
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
-      'toc': require('substance/ui/TocPanel'),
+      'toc': require('substance/ui/TOCPanel'),
       'cila': require('./packages/writer/CilaPanel'),
-      'editSource': require('./packages/writer/EditSourcePanel')
+      'edit-source': require('./packages/writer/EditSourcePanel')
     }
   },
   body: {
     commands: [
-      require('substance/ui/SelectAllCommand'),
-
       // Special commands
       require('substance/packages/embed/EmbedCommand'),
-
       require('substance/packages/text/SwitchTextTypeCommand'),
       require('substance/packages/strong/StrongCommand'),
       require('substance/packages/emphasis/EmphasisCommand'),
-      require('substance/packages/link/LinkCommand')
+      require('substance/packages/link/LinkCommand'),
+      require('./packages/table/InsertTableCommand'),
     ],
     textTypes: [
       {name: 'paragraph', data: {type: 'paragraph'}},
@@ -63,6 +61,17 @@ var CONFIG = {
       {name: 'heading2',  data: {type: 'heading', level: 2}},
       {name: 'heading3',  data: {type: 'heading', level: 3}}
     ]
+  },
+  panels: {
+    'toc': {
+      hideContextToggles: false
+    },
+    'cila': {
+      hideContextToggles: false
+    },
+    'edit-source': {
+      hideContextToggles: true
+    }
   },
   panelOrder: ['toc','cila'],
   containerId: 'body',
@@ -101,13 +110,13 @@ StencilWriter.Prototype = function() {
     if (stencilText && stencilText.getSelection().equals(sel)) {
       // Trigger state change
       this.setState({
-        contextId: 'editSource',
+        contextId: 'edit-source',
         nodeId: stencilText.id
       });
     } else {
       if (this.state.contextId !== 'toc') {
         this.setState({
-          contextId: "toc"
+          contextId: 'toc'
         });
       }
     }
@@ -118,37 +127,38 @@ StencilWriter.Prototype = function() {
     var config = this.getConfig();
     var el = $$('div').addClass('lc-writer sc-controller');
 
-    el.append(
-      $$('div').ref('workspace').addClass('le-workspace').append(
-        // Main (left column)
-        $$('div').ref('main').addClass("le-main").append(
-          $$(Toolbar).ref('toolbar').append($$(WriterTools)),
+    var workspace = $$('div').ref('workspace').addClass('le-workspace');
 
-          $$(ContentPanel).append(
-            // The full fledged document (ContainerEditor)
-            $$("div").ref('body').addClass('document-content').append(
-              $$(ContainerEditor, {
-                name: 'body',
-                containerId: config.containerId,
-                editable: false,
-                commands: config.body.commands,
-                textTypes: config.body.textTypes
-              }).ref('bodyEditor')
-            )
-          ).ref('content')
-        ),
-        // Resource (right column)
-        $$('div').ref('resource')
-          .addClass('le-resource')
-          .append(
-            $$(ContextToggles, {
-              panelOrder: config.panelOrder,
-              contextId: this.state.contextId
-            }).ref("context-toggles"),
-            this.renderContextPanel()
+    workspace.append(
+      // Main (left column)
+      $$('div').ref('main').addClass("le-main").append(
+        $$(Toolbar).ref('toolbar').append($$(WriterTools)),
+
+        $$(ContentPanel).append(
+          // The full fledged document (ContainerEditor)
+          $$("div").ref('body').addClass('document-content').append(
+            $$(ContainerEditor, {
+              name: 'body',
+              containerId: config.containerId,
+              editable: false,
+              commands: config.body.commands,
+              textTypes: config.body.textTypes
+            }).ref('bodyEditor')
           )
+        ).ref('content')
       )
     );
+
+    workspace.append(
+      // Resource (right column)
+      $$(ContextSection, {
+        panelProps: this._panelPropsFromState(),
+        contextId: this.state.contextId,
+        panelConfig: config.panels[this.state.contextId],
+      }).ref(this.state.contextId)
+    );
+
+    el.append(workspace);
 
     // Status bar
     el.append(

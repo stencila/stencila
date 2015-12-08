@@ -25,13 +25,14 @@
     "jquery": "^2.1.4",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
     "lodash": "3.3.1",
+    "MathJax": "nokome/MathJax#24b0e9e1bfbbc466970081084a97ad0ee3b8788b",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
-    "substance": "substance/substance#7b410016675b0dd879ab1581bfaa131b7873f92e"
+    "substance": "substance/substance#92ecfa5f88e5f1f1af4d94215f7c498b4677e8bc"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
-    "browserify": "^11.2.0",
+    "browserify": "substance/node-browserify#d3caeb6dcdaa97a258d099c7231a57f0f60ec876",
     "express-http-proxy": "^0.6.0",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.0",
