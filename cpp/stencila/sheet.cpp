@@ -1,6 +1,5 @@
 //http://www.boost.org/doc/libs/1_59_0/libs/graph/doc/
 //https://en.wikipedia.org/wiki/Topological_sorting
-
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
@@ -27,22 +26,27 @@ Component::Type Sheet::type(void){
 }
 
 std::string Sheet::title(void) const {
+    // TODO
     return "";
 }
 
 std::string Sheet::description(void) const {
+    // TODO
     return "";
 }
 
 std::vector<std::string> Sheet::keywords(void) const {
+    // TODO
     return {};
 }
 
 std::vector<std::string> Sheet::authors(void) const {
+    // TODO
     return {};
 }
 
 std::string Sheet::theme(void) const {
+    // TODO
     return "";
 }
 
@@ -93,15 +97,7 @@ Sheet& Sheet::load(std::istream& stream, const std::string& format){
         boost::split(cells,line,boost::is_any_of("\t"));
         unsigned int col = 0;
         for(auto cell : cells){
-            auto id = identify(row,col);
-            auto parts = parse(cell);
-            cells_[id] = {
-                row,
-                col,
-                parts[0],
-                parts[1],
-                parts[2]
-            };
+            update(identify(row,col),cell);
             col++;
         }
         row++;
@@ -167,7 +163,7 @@ Sheet& Sheet::export_(const std::string& path){
 
 Sheet& Sheet::read(const std::string& directory){
     Component::read(directory);
-    import("sheet.tsv");
+    import(path()+"/sheet.tsv");
     return *this;
 }
 
@@ -259,17 +255,6 @@ std::string Sheet::identify(unsigned int row, unsigned int col){
     return identify_col(col)+identify_row(row);
 }
 
-std::array<std::string,3> Sheet::parse(const std::string& content){
-    static const boost::regex regex("(.*?)( =(.+?))?( @(.+?))?");
-    boost::smatch match;
-    if(boost::regex_match(content,match,regex)){
-        return {match.str(1),match.str(3),match.str(5)};
-    }
-    else {
-        STENCILA_THROW(Exception,"Error parsing content: \n  content: "+content);
-    }
-}
-
 Sheet& Sheet::attach(std::shared_ptr<Spread> spread){
     spread_ = spread;
     return *this;
@@ -280,40 +265,67 @@ Sheet& Sheet::detach(void){
     return *this;
 }
 
-std::string Sheet::update(const std::string& id, Cell& cell){
-    auto expr = cell.expression.length()?cell.expression:cell.value;
-    if(expr.length()) cell.value = spread_->set(id,expr,cell.alias);
+std::array<std::string, 3> Sheet::parse(const std::string& content) {
+    auto content_clean = content;
+    boost::replace_all(content_clean,"\t"," ");
+
+    static const boost::regex regex("^ *([a-z]\\w*)? *= *(.+?) *$");
+    boost::smatch match;
+    if (boost::regex_match(content_clean, match, regex)) {
+        return {"", match.str(2), match.str(1)};
+    } else {
+        return {content_clean, "", ""};
+    }
+}
+
+std::string Sheet::update(const std::string& id, Cell& cell) {
+    if(spread_){
+        auto expr = cell.expression.length()?cell.expression:cell.value;
+        if(expr.length()) cell.value = spread_->set(id,expr,cell.alias);
+    }
     return cell.value;
 }
 
 std::string Sheet::update(const std::string& id, const std::string& content){
-    auto& cell = cells_[id];
-    cell.expression = content;
-    update(id,cell);
-    return cell.value;
+    Cell& cell = cells_[id];
+    auto parts = parse(content);
+    cell.value = parts[0];
+    cell.expression = parts[1];
+    cell.alias = parts[2];
+    return update(id,cell);
 }
 
-std::string Sheet::update(const std::string& id){
-    auto& cell = cells_[id];
-    cell.value = update(id,cell);
-    return cell.value;
-}
-
-Sheet& Sheet::update(void){
-    for(auto iter : cells_){
-        auto id = iter.first;
-        auto& cell = cells_[id];
-        cell.value = update(id,cell);
+Sheet& Sheet::update(void) {
+    for(std::map<std::string,Cell>::iterator iter=cells_.begin();iter!=cells_.end();iter++){
+        auto id = iter->first;
+        Cell& cell = iter->second;
+        update(id,cell);
     }
     return *this;
 }
 
-std::string Sheet::list(void){
-    return spread_->list();
+std::vector<std::string> Sheet::list(void){
+    if(not spread_) STENCILA_THROW(Exception,"No spread attached to this sheet");
+    return split(spread_->list(),",");
 }
 
-std::string Sheet::value(const std::string& id){
-    return spread_->get(id);
+std::string Sheet::value(const std::string& name){
+    if(not spread_) STENCILA_THROW(Exception,"No spread attached to this sheet");
+    return spread_->get(name);
+}
+
+Sheet& Sheet::clear(const std::string& id){
+    cells_.erase(id);
+    if(spread_){
+        spread_->clear(id);
+    }
+    return *this;
+}
+
+Sheet& Sheet::clear(void){
+    cells_.clear();
+    spread_->clear("");
+    return *this;
 }
 
 }

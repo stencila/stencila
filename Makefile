@@ -1027,6 +1027,7 @@ web-watch:
 
 web-examples:
 	stencila-r web/examples/a render write compile
+	stencila-r web/examples/b update compile
 
 web-devserve:
 	cd web; node server.js

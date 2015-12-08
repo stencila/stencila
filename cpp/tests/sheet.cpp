@@ -27,20 +27,29 @@ BOOST_AUTO_TEST_CASE(parse){
 	BOOST_CHECK_EQUAL(p0[1],"");
 	BOOST_CHECK_EQUAL(p0[2],"");
 
-	auto p1 = Sheet::parse("42");
-	BOOST_CHECK_EQUAL(p1[0],"42");
-	BOOST_CHECK_EQUAL(p1[1],"");
-	BOOST_CHECK_EQUAL(p1[2],"");
+	// Tabs are replaced with spaces
+	BOOST_CHECK_EQUAL(Sheet::parse("\tfoo\t\tbar\t")[0]," foo  bar ");
 
-	auto p2 = Sheet::parse("42 = 6*7");
-	BOOST_CHECK_EQUAL(p2[0],"42");
-	BOOST_CHECK_EQUAL(p2[1],"6*7");
-	BOOST_CHECK_EQUAL(p2[2],"");
+	// Spaces are significant before, after and within a constant
+	BOOST_CHECK_EQUAL(Sheet::parse("42")[0],"42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 42")[0]," 42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" foo bar ")[0]," foo bar ");
 
-	auto p3 = Sheet::parse("42 = 6*7 = answer");
-	BOOST_CHECK_EQUAL(p3[0],"42");
-	BOOST_CHECK_EQUAL(p3[1],"6*7");
-	BOOST_CHECK_EQUAL(p3[2],"answer");
+	// Expressions
+	for(auto content : {"= 6*7"," =6*7"," = 6*7  "}){
+		auto p = Sheet::parse(content);
+		BOOST_CHECK_EQUAL(p[0],"");
+		BOOST_CHECK_EQUAL(p[1],"6*7");
+		BOOST_CHECK_EQUAL(p[2],"");
+	}
+
+	// Expression with alias
+	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 "}){
+		auto p = Sheet::parse(content);
+		BOOST_CHECK_EQUAL(p[0],"");
+		BOOST_CHECK_EQUAL(p[1],"6*7");
+		BOOST_CHECK_EQUAL(p[2],"answer");
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()

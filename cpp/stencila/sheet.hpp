@@ -45,21 +45,43 @@ public:
 
 	/**
 	 * Get this sheets's title
+	 *
+	 * Title is specified by using the title alias e.g
+	 *
+	 *    A1: title = Project X workbook
+	 *
+	 * Usually the title will be in cell A1 but it does not need
+	 * to be.
 	 */
 	std::string title(void) const;
 
 	/**
 	 * Get this sheets's description
+	 *
+	 * Description is specified by using the description alias e.g.
+	 *
+	 *     A2: description = Simple calculations for special project X
 	 */
 	std::string description(void) const;
 
 	/**
 	 * Get this sheets's keywords
+	 *
+	 * Keywords are specified in a comma separated cell 
+	 * with the keyword alias e.g.
+	 *
+	 *     A3: keywords = calculations, project X
 	 */
 	std::vector<std::string> keywords(void) const;
 
 	/**
 	 * Get this sheets's authors
+	 *
+	 * Authors are specified using a comma separated cell. Author identfiers
+	 * can be combinations of plain text, email addresses, usernames (`@` prefixed) or ORCIDs
+	 * e.g.
+	 *
+	 *     A4: authors = Peter Pan, Tinker Bell tinker@bell.name, @captainhook, 0000-0003-1608-7967 
 	 */
 	std::vector<std::string> authors(void) const;
 	
@@ -247,16 +269,6 @@ public:
 	 */
 	struct Cell {
 		/**
-		 * Row index of this cell
-		 */
-		unsigned int row;
-
-		/**
-		 * Column index of this cell
-		 */
-		unsigned int col;
-
-		/**
 		 * Value of this cell
 		 *
 		 * Value may be empty if the cell has never been updated
@@ -278,14 +290,40 @@ public:
 		 * meaningful and concise cell expression. For example, instead
 		 * of writing the expression for the area of a circle as,
 		 *
-		 *     = A1*A2^2
+		 *     A1: 3.14
+		 *     A2: 5
+		 *     A3: = A1*A2^2
 		 *
 		 * it could be written as,
 		 *
-		 *     = pi*radius^2
+		 *     A1: radius = 3
+		 *     A2: pi = 3.14
+		 *     A3: area = pi*radius^2
+		 *
+		 * Aliases must begin with a lower case letter but can include
+		 * both upper and lower case letters, digits and the underscore symbol.
+		 * The following are valid aliases:
+		 *
+		 *     a, a1, correction_factor_2
+		 *
+		 * but theses are not:
+		 *
+		 *     A, 1a, correction-factor-2  
 		 */
 		std::string alias;
 	};
+
+	/**
+	 * Attach a spread to this stencil
+	 *
+	 * @param spread Spread for execution
+	 */
+	Sheet& attach(std::shared_ptr<Spread> spread);
+
+	/**
+	 * Detach the sheets's current spread
+	 */
+	Sheet& detach(void);
 
 	/**
 	 * Generate an identifier for a row
@@ -315,61 +353,73 @@ public:
 	 * Parse a cell content into it's parts
 	 *
 	 * Parse the string content of a cell (e.g. from a `.tsv` file) into the
-	 * parts `value`, `expression`, `alias`.
+	 * parts `value`, `expression`, `alias`. 
+	 * 
+	 * Tabs are converted to spaces. Spaces are insignificant before and after and alias
+	 * or expression. But they are significant at fron or end of a constant cell
+	 * 
+	 * If the content string does not match the
+	 * regex for `[<alias>] = <expression>` (ie optional alias), then it will be the
+	 * cell value (i.e. there is no invalid cell content except for a tab)
 	 *
 	 * @param content Cell content
 	 */
 	static std::array<std::string,3> parse(const std::string& content);
 
 	/**
-	 * Attach a spread to this stencil
+	 * Update a cell's variable/s within the spread
 	 *
-	 * @param spread Spread for execution
-	 */
-	Sheet& attach(std::shared_ptr<Spread> spread);
-
-	/**
-	 * Detach the sheets's current spread
-	 */
-	Sheet& detach(void);
-
-	/**
-	 * Update a cell within the spread
-	 *
-	 * Take the entire cell and set/update it's corresponding
-	 * variable within the spread environment
+	 * This method will set/update the cells corresponding
+	 * variable/s (id and potentially alias) within the spread environment
 	 *
 	 * @return The cell's current value
 	 */
 	std::string update(const std::string& id, Cell& cell);
 
 	/**
-	 * Update a cell with new content and then within the spread
+	 * Update a cell with new content and its variable/s within the spread
+	 *
+	 * This method parses the new content and then calls `update(id, cell)`
+	 *
+	 * @return The cell's current value
 	 */
 	std::string update(const std::string& id, const std::string& content);
 
 	/**
-	 * Update a cell
-	 */
-	std::string update(const std::string& id);
-
-	/**
-	 * Update all cells
+	 * Update all cells in this sheet
+	 *
+	 * This method might need to be called if for example a global variable
+	 * outside of the spread is altered
 	 */
 	Sheet& update(void);
 
 	/**
-	 * List the ids of the non-empty cells in the sheet
+	 * List the names of variables within the attached spread
+	 *
+	 * Variable names may include both ids (e.g. A1) and aliases (e.g. radius) 
 	 */
-	std::string list(void);
+	std::vector<std::string> list(void);
 
 	/**
-	 * Get the value of a cell
+	 * Get the value of a variable within the attached spread
 	 * 
-	 * @param  id ID of cell
+	 * @param  name Name of variable (id or alias)
 	 */
-	std::string value(const std::string& id);
-	
+	std::string value(const std::string& name);
+
+	/**
+	 * Clear a cell
+	 *
+	 * After calling this method the cell will have no content and
+	 * no corresponding id (e.g. BD45) or alias (e.g. total) in the spread.
+	 * To remove an alias from a cell `update()` it content
+	 */
+	Sheet& clear(const std::string& id);	
+
+	/**
+	 * Clear all cells
+	 */
+	Sheet& clear(void);
 
 private:
 
