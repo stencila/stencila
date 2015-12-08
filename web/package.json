@@ -25,6 +25,7 @@
     "jquery": "^2.1.4",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
     "lodash": "3.3.1",
+    "MathJax": "nokome/MathJax#24b0e9e1bfbbc466970081084a97ad0ee3b8788b",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
     "substance": "substance/substance#4a95ecead71b2eab24353e1b6dd76f50adec7e4e"

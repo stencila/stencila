@@ -7,7 +7,7 @@
 # font-awesome
 
 echo "Setting font-awesome 'fa-font-path' variable"
-sed -i.back 's!\$fa-font-path: .*$!\$fa-font-path: "/get/web/fonts/";!' node_modules/font-awesome/scss/_variables.scss
+sed -i.back 's!\$fa-font-path: .*$!\$fa-font-path: "fonts";!' node_modules/font-awesome/scss/_variables.scss
 
 echo "Copying font-awesome fonts"
 mkdir -p build/fonts
@@ -47,18 +47,6 @@ if [ ! -e node_modules/ace-built.flag ]; then
 fi
 
 # MathJax
-# Unfortunately using a dependecy like `"MathJax": "mathjax/MathJax#ba9afeb"` in
-# `package.json` did not work (npm fails) so here we manually download the tar
-
-if [ ! -e node_modules/mathjax ]; then
-	echo "Getting MathJax"
-	# It would be nice to just put this as a node dependency and let it download it
-	# but it did not like it for some strange reason
-	MATHJAX_VERSION=2.5.3
-	wget --no-check-certificate -O node_modules/mathjax.tar.gz https://github.com/mathjax/MathJax/archive/$MATHJAX_VERSION.tar.gz
-	tar xf node_modules/mathjax.tar.gz -C node_modules
-	mv node_modules/MathJax-$MATHJAX_VERSION node_modules/mathjax
-fi
 
 echo "Shrinking MathJax"
 #  See https://github.com/mathjax/MathJax-docs/wiki/Guide%3A-reducing-size-of-a-mathjax-installation
