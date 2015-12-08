@@ -1,6 +1,6 @@
 'use strict';
 
-var Panel = require('substance/ui/Panel');
+var ScrollPane = require('substance/ui/ScrollPane');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
@@ -27,7 +27,7 @@ CilaPanel.Prototype = function() {
   this.render = function() {
     var el = $$('div').addClass('sc-cila-panel')
       .append(
-        $$(Panel).append(
+        $$(ScrollPane).append(
           $$('div').attr('id','ace_editor')
         )
       );

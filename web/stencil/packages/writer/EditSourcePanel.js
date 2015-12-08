@@ -1,8 +1,7 @@
 'use strict';
 
-var Panel = require('substance/ui/Panel');
+var ScrollPane = require('substance/ui/ScrollPane');
 var Component = require('substance/ui/Component');
-var Panel = require('substance/ui/Panel');
 var DialogHeader = require('substance/ui/DialogHeader');
 var $$ = Component.$$;
 
@@ -30,7 +29,7 @@ EditSourcePanel.Prototype = function() {
   this.render = function() {
     var node = this.getNode();
 
-    var panelEl = $$(Panel).ref('panelEl');
+    var panelEl = $$(ScrollPane).ref('panelEl');
     var errorContainerEl = $$('div').ref('errorContainer');
     if (node.error) {
       errorContainerEl.append(
