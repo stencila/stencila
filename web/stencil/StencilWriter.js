@@ -38,7 +38,7 @@ var CONFIG = {
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
-      'toc': require('substance/ui/TocPanel'),
+      'toc': require('substance/ui/TOCPanel'),
       'cila': require('./packages/writer/CilaPanel'),
       'edit-source': require('./packages/writer/EditSourcePanel')
     }

@@ -21,7 +21,7 @@ var CONFIG = {
       "heading": require('substance/packages/heading/HeadingComponent'),
       "link": require('./packages/link/LinkComponent'),
       // Panels
-      "toc": require('substance/ui/TocPanel')
+      "toc": require('substance/ui/TOCPanel')
     }
   },
   body: {
