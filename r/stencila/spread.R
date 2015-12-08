@@ -44,13 +44,13 @@ Spread <- function(envir, closed=FALSE) {
     # This allows more meaningful variable names to be 
     # assigned e.g. for a constant 
     # 
-    #   89.87 = radius
+    #   radius = 89.87
     # 
     #   spread$.set('B4','89.87','radius')
     #
     #  or, for an expression e.g. 
     #  
-    #   89.87 = 2*pi*radius = circumference
+    #   circumference = 2*pi*radius
     # 
     #   spread$.set('J7','2*pi*radius','circumference')
     #
@@ -85,14 +85,17 @@ Spread <- function(envir, closed=FALSE) {
         return(text)
     }
     
-    # Clear a cell value
+    # Clear one or all cell values
     # 
     # Name could be a cell name e.g. F5 or and alias e.g. price
     self$.clear <- function(name){
-      remove(list=name,envir=self)
+      if(nchar(name)){
+        remove(list=name,envir=self)
+      } else {
+        remove(list=ls(self))
+      }
       return("")
     }
-    
     
     # List all cell names
     #

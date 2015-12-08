@@ -9,38 +9,45 @@ namespace Stencila {
 class RSpread : public Spread {
 public:
 
-    RSpread(SEXP sexp){
+    RSpread(SEXP sexp) {
         spread_ = Rcpp::Environment(sexp);
     }
 
-    virtual ~RSpread(void){
+    virtual ~RSpread(void) {
     }
 
     /**
-     * Set a cell value
+     * @name Spread interface implementation
      *
-     * @param id ID of the cell
-     */
-    std::string set(const std::string& id, const std::string& expression, const std::string& alias=""){
-        return call_<std::string>(".set",id,expression,alias);
-    }
-
-    /**
-     * Get a cell value
+     * For documentation on these methods see the base abstract class `Spread`
      *
-     * @param id ID of the cell
+     * @{
      */
-    std::string get(const std::string& id){
-        return call_<std::string>(".get",id);
+
+    std::string set(const std::string& id, const std::string& expression, const std::string& alias="") {
+        return call_<std::string>(".set", id, expression, alias);
     }
 
-    /**
-     * List cell ids
-     */
-    std::string list(void){
+    std::string get(const std::string& name) {
+        return call_<std::string>(".get", name);
+    }
+
+    std::string clear(const std::string& name) {
+        return call_<std::string>(".clear", name);
+    }
+
+    std::string list(void) {
         return call_<std::string>(".list");
     }
-    
+
+    std::string depends(const std::string& expression) {
+        return call_<std::string>(".depends", expression);
+    }
+
+    /**
+     * @}
+     */
+
     /**
      * Initialisation of this class
      */
