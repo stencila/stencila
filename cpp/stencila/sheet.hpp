@@ -44,6 +44,13 @@ class Sheet : public Component {
     static Component::Type type(void);
 
     /**
+     * Get a meta attribute of this sheet
+     * 
+     * @param  what Name of attribute
+     */
+    std::string meta(const std::string& what) const;
+
+    /**
      * Get this sheets's title
      *
      * Title is specified by using the title alias e.g

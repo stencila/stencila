@@ -6,6 +6,31 @@ BOOST_AUTO_TEST_SUITE(sheet_quick)
 
 using namespace Stencila;
 
+BOOST_AUTO_TEST_CASE(meta_attributes){
+	Sheet s1;
+	BOOST_CHECK_EQUAL(s1.title(),"");
+	BOOST_CHECK_EQUAL(s1.description(),"");
+	BOOST_CHECK_EQUAL(s1.authors().size(),0);
+	BOOST_CHECK_EQUAL(s1.keywords().size(),0);
+
+	Sheet s2;
+	s2.load("title = A title\tdescription = A description\tauthors = Peter Pan, @captainhook\tkeywords = data, is, gold");
+
+	BOOST_CHECK_EQUAL(s2.title(),"A title");
+	BOOST_CHECK_EQUAL(s2.description(),"A description");
+	
+	auto a = s2.authors();
+	BOOST_CHECK_EQUAL(a.size(),2);
+	BOOST_CHECK_EQUAL(a[0],"Peter Pan");
+	BOOST_CHECK_EQUAL(a[1],"@captainhook");
+
+	auto k = s2.keywords();
+	BOOST_CHECK_EQUAL(k.size(),3);
+	BOOST_CHECK_EQUAL(k[0],"data");
+	BOOST_CHECK_EQUAL(k[1],"is");
+	BOOST_CHECK_EQUAL(k[2],"gold");
+}
+
 BOOST_AUTO_TEST_CASE(identify){
 	BOOST_CHECK_EQUAL(Sheet::identify(0,0),"A1");
 	BOOST_CHECK_EQUAL(Sheet::identify(1,0),"A2");

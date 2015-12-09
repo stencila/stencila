@@ -29,24 +29,45 @@ Component::Type Sheet::type(void) {
     return SheetType;
 }
 
-std::string Sheet::title(void) const {
-    // TODO
+
+std::string Sheet::meta(const std::string& what) const {
+    for (auto iter : cells_) {
+        Cell& cell = iter.second;
+        if (cell.alias == what) {
+            return cell.expression;
+        }
+    }
     return "";
+}
+
+std::string Sheet::title(void) const {
+    return meta("title");
 }
 
 std::string Sheet::description(void) const {
-    // TODO
-    return "";
+    return meta("description");
 }
 
 std::vector<std::string> Sheet::keywords(void) const {
-    // TODO
-    return {};
+    auto content = meta("keywords");
+    if (content.length()) {
+        auto values = split(content, ",");
+        for (auto& value : values) trim(value);
+        return values;
+    } else {
+        return {};
+    }
 }
 
 std::vector<std::string> Sheet::authors(void) const {
-    // TODO
-    return {};
+    auto content = meta("authors");
+    if (content.length()) {
+        auto values = split(content, ",");
+        for (auto& value : values) trim(value);
+        return values;
+    } else {
+        return {};
+    }
 }
 
 std::string Sheet::theme(void) const {
