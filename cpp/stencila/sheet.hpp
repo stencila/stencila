@@ -318,6 +318,12 @@ class Sheet : public Component {
          *     A, 1a, correction-factor-2  
          */
         std::string alias;
+
+        /**
+         * Variables that this cell depends upon.
+         * Used to determine dependency graph
+         */
+        std::vector<std::string> depends;
     };
 
     /**

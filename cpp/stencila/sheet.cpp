@@ -306,7 +306,13 @@ std::array<std::string, 3> Sheet::parse(const std::string& content) {
 std::string Sheet::update(const std::string& id, Cell& cell) {
     if (spread_) {
         auto expr = cell.expression.length()?cell.expression:cell.value;
-        if (expr.length()) cell.value = spread_->set(id, expr, cell.alias);
+        if (expr.length()) {
+            cell.value = spread_->set(id, expr, cell.alias);
+        }
+        if (cell.expression.length()) {
+            auto depends = spread_->depends(cell.expression);
+            cell.depends = split(depends, ",");
+        }
     }
     return cell.value;
 }
