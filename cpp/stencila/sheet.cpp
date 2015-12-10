@@ -1,11 +1,9 @@
-//http://www.boost.org/doc/libs/1_59_0/libs/graph/doc/
-//https://en.wikipedia.org/wiki/Topological_sorting
-
 #include <vector>
 #include <string>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/graph/topological_sort.hpp>
 #include <boost/regex.hpp>
 
 #include <stencila/sheet.hpp>
@@ -121,8 +119,10 @@ Sheet& Sheet::load(std::istream& stream, const std::string& format) {
         std::vector<std::string> cells;
         boost::split(cells, line, boost::is_any_of("\t"));
         unsigned int col = 0;
-        for (auto cell : cells) {
-            update(identify(row, col), cell);
+        for (auto content : cells) {
+            // TODO, the initial execution of the cell's
+            // should not be done until order_ is determined
+            update(identify(row, col), content);
             col++;
         }
         row++;
@@ -303,34 +303,81 @@ std::array<std::string, 3> Sheet::parse(const std::string& content) {
     }
 }
 
-std::string Sheet::update(const std::string& id, Cell& cell) {
+std::string Sheet::update(const std::string& id, const std::string& content) {
+    // Get or create the cell
+    Cell& cell = cells_[id];
+    // Set its attributes
+    if (content.length()) {
+        auto parts = parse(content);
+        cell.value = parts[0];
+        cell.expression = parts[1];
+        cell.alias = parts[2];
+    }
+    // Create alias mapping if necessary
+    if (cell.alias.length()) {
+        aliases_[cell.alias] = id;
+    }
     if (spread_) {
+        // Set cell value
         auto expr = cell.expression.length()?cell.expression:cell.value;
         if (expr.length()) {
             cell.value = spread_->set(id, expr, cell.alias);
         }
         if (cell.expression.length()) {
-            auto depends = spread_->depends(cell.expression);
-            cell.depends = split(depends, ",");
+            // Get the list of variable names this cell depends upon
+            cell.depends = split(spread_->depends(cell.expression), ",");
+            // Replace cell aliases with cell ids
+            for (std::string& depend : cell.depends) {
+                auto iter = aliases_.find(depend);
+                if (iter != aliases_.end()) {
+                    depend = iter->second;
+                }
+            }
         }
     }
-    return cell.value;
-}
+    // Create vertex, or clear edges for existing vertex, in the dependency graph
+    Vertex vertex;
+    auto iter = vertices_.find(id);
+    if (iter == vertices_.end()) {
+        vertex =  boost::add_vertex(id, graph_);
+        vertices_[id] = vertex;
+    } else {
+        vertex = iter->second;
+        boost::clear_vertex(vertex, graph_);
+    }
+    // Create inward edges from cells that this one dependes upon
+    for (auto depend : cell.depends) {
+        Vertex vertex_from;
+        auto iter = vertices_.find(depend);
+        if (iter == vertices_.end()) {
+            vertex_from =  boost::add_vertex(depend, graph_);
+            vertices_[depend] = vertex_from;
+        } else {
+            vertex_from = iter->second;
+        }
+        boost::add_edge(vertex_from, vertex, graph_);
+    }
+    // Do topological sort to determine update order
+    std::vector<Vertex> vertices;
+    try {
+        topological_sort(graph_, std::back_inserter(vertices));
+    }
+    catch (const std::invalid_argument& ){
+        STENCILA_THROW(Exception, "There is cyclic dependency in cell\n id: "+id);
+    }
+    std::vector<std::string> ids;
+    for (auto vertex : vertices) {
+        ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
+    }
+    reverse(ids.begin(), ids.end());
+    order_ = ids;
 
-std::string Sheet::update(const std::string& id, const std::string& content) {
-    Cell& cell = cells_[id];
-    auto parts = parse(content);
-    cell.value = parts[0];
-    cell.expression = parts[1];
-    cell.alias = parts[2];
-    return update(id, cell);
+    return cell.value;
 }
 
 Sheet& Sheet::update(void) {
     for (std::map<std::string,Cell>::iterator iter = cells_.begin(); iter != cells_.end(); iter++) {
-        auto id = iter->first;
-        Cell& cell = iter->second;
-        update(id, cell);
+        update(iter->first);
     }
     return *this;
 }
@@ -345,8 +392,36 @@ std::string Sheet::value(const std::string& name) {
     return spread_->get(name);
 }
 
+std::vector<std::string> Sheet::depends(const std::string& id) {
+    auto iter = cells_.find(id);
+    if (iter == cells_.end()) {
+        STENCILA_THROW(Exception, "No cell with id\n  id: "+id);
+    }
+    return iter->second.depends;
+}
+
+std::vector<std::string> Sheet::order(void) {
+    return order_;
+}
+
+std::vector<std::string> Sheet::predecessors(const std::string& id) {
+    auto iter = std::find(order_.begin(), order_.end(), id);
+    if (iter == order_.end()) return {};
+    return std::vector<std::string>(order_.begin(), iter);
+}
+
+std::vector<std::string> Sheet::successors(const std::string& id) {
+    auto iter = std::find(order_.begin(), order_.end(), id);
+    if (iter == order_.end()) return {};
+    if (iter == order_.end()-1) return {};
+    return std::vector<std::string>(iter+1, order_.end());
+}
+
 Sheet& Sheet::clear(const std::string& id) {
+    auto& cell = cells_[id];
     cells_.erase(id);
+    aliases_.erase(cell.alias);
+    // TODO remove vertex from graph: 
     if (spread_) {
         spread_->clear(id);
     }
@@ -355,7 +430,11 @@ Sheet& Sheet::clear(const std::string& id) {
 
 Sheet& Sheet::clear(void) {
     cells_.clear();
-    spread_->clear("");
+    aliases_.clear();
+    // TODO clear graph: graph_ = Graph();
+    if (spread_) {
+        spread_->clear("");
+    }
     return *this;
 }
 

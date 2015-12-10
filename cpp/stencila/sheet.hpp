@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/graph/adjacency_list.hpp>
+
 #include <stencila/component.hpp>
 #include <stencila/html.hpp>
 #include <stencila/spread.hpp>
@@ -380,23 +382,16 @@ class Sheet : public Component {
     static std::array<std::string, 3> parse(const std::string& content);
 
     /**
-     * Update a cell's variable/s within the spread
-     *
-     * This method will set/update the cells corresponding
-     * variable/s (id and potentially alias) within the spread environment
-     *
-     * @return The cell's current value
-     */
-    std::string update(const std::string& id, Cell& cell);
-
-    /**
      * Update a cell with new content and its variable/s within the spread
      *
-     * This method parses the new content and then calls `update(id, cell)`
+     * This method parses the new content and will then set/update the cells corresponding
+     * variable/s (id and potentially alias) within the spread environment
      *
+     * @param id Cell's id
+     * @param content New content, or empty string if not changed
      * @return The cell's current value
      */
-    std::string update(const std::string& id, const std::string& content);
+    std::string update(const std::string& id, const std::string& content = "");
 
     /**
      * Update all cells in this sheet
@@ -421,6 +416,26 @@ class Sheet : public Component {
     std::string value(const std::string& name);
 
     /**
+     * Get a list of the cells that a cell depends upon (i.e. it's direct predecessors)
+     */
+    std::vector<std::string> depends(const std::string& id);
+
+    /**
+     * Get the topological sort order for the cells in this sheet
+     */
+    std::vector<std::string> order(void);
+
+    /**
+     * Get all predecessor cells for a cell
+     */
+    std::vector<std::string> predecessors(const std::string& id);
+
+    /**
+     * Get all successor cells for a cell
+     */
+    std::vector<std::string> successors(const std::string& id);
+
+    /**
      * Clear a cell
      *
      * After calling this method the cell will have no content and
@@ -441,9 +456,48 @@ class Sheet : public Component {
     std::map<std::string, Cell> cells_;
 
     /**
+     * A map of cell aliases to cell ids
+     *
+     * Used for normalising dependencies into ids only
+     */
+    std::map<std::string, std::string> aliases_;
+
+    /**
+     * Type for dependency graph
+     *
+     * Boost Graph Library does have a [`labelled_graph`](http://www.boost.org/doc/libs/1_58_0/boost/graph/labeled_graph.hpp)
+     * which could potentially incorporate the functionality provided by the `cells_` map. But `labelled_graph` is not well documented
+     * and seems to make working with BGL morre complicated. So for present, graph is used simply to provide a 
+     * mapping of the dependency graph and not store cell data.
+     */
+    typedef boost::adjacency_list<
+        boost::listS, boost::vecS, boost::directedS,
+        boost::property<boost::vertex_name_t, std::string>
+    > Graph;
+
+    typedef Graph::vertex_descriptor Vertex;
+
+    /**
+     * Variable (cell ids and aliases) dependency graph
+     */
+    Graph graph_;
+
+    /**
+     * A map of variable names to dependency graph vertex.
+     *
+     * Used to ease and quicken updates to the dependency tree
+     */
+    std::map<std::string, Graph::vertex_descriptor> vertices_;
+
+    /**
+     * Topological sort order of cells
+     */
+    std::vector<std::string> order_;
+
+    /**
      * The current spread for this sheet
      */
     std::shared_ptr<Spread> spread_ = nullptr;
 };
 
-} // namespace Stencila
+}  // namespace Stencila

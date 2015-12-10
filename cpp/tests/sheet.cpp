@@ -1,3 +1,6 @@
+#include <memory>
+
+#include <boost/regex.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/sheet.hpp>
@@ -5,6 +8,50 @@
 BOOST_AUTO_TEST_SUITE(sheet_quick)
 
 using namespace Stencila;
+
+class TestSpread : public Spread {
+ public:
+
+	std::string set(const std::string& id, const std::string& expression, const std::string& alias=""){
+		variables_[id] = expression;
+		if (alias.length()) variables_[alias] = expression;
+		return expression;
+	}
+
+	std::string get(const std::string& name){
+		return variables_[name];
+	}
+
+	std::string clear(const std::string& name){
+		if (name=="") {
+			variables_.clear();
+		} else {
+			variables_.erase(name);
+		}
+		return "";
+	}
+
+	std::string list(void){
+		std::vector<std::string> names;
+		for (auto iter : variables_) {
+			names.push_back(iter.first);
+		}
+		return join(names, ",");
+	}
+
+	std::string depends(const std::string& expression){
+	    std::vector<std::string> depends;
+	    boost::regex regex("\\w+");
+	    boost::sregex_token_iterator iter(expression.begin(), expression.end(), regex, 0);
+	    boost::sregex_token_iterator end;
+	    std::copy(iter, end, std::back_inserter(depends));
+		return join(depends, ",");
+	}
+
+ private:
+ 	std::map<std::string,std::string> variables_;
+};
+
 
 BOOST_AUTO_TEST_CASE(meta_attributes){
 	Sheet s1;
@@ -75,6 +122,42 @@ BOOST_AUTO_TEST_CASE(parse){
 		BOOST_CHECK_EQUAL(p[1],"6*7");
 		BOOST_CHECK_EQUAL(p[2],"answer");
 	}
+}
+
+BOOST_AUTO_TEST_CASE(dependency_graph){
+	Sheet s;
+	s.attach(std::make_shared<TestSpread>());
+	s.load(
+		"= A2\t= A1     \t= C2 \n"
+		"= C1\t= A1 + B1\t1\n"
+	);
+
+	// Initial checks for loading
+	BOOST_CHECK_EQUAL(join(s.list(), ","), "A1,A2,B1,B2,C1,C2");
+	BOOST_CHECK_EQUAL(s.value("A1"), "A2");
+	BOOST_CHECK_EQUAL(s.value("B2"), "A1 + B1");
+	BOOST_CHECK_EQUAL(s.value("C2"), "1");
+
+	// Check dependency graph
+	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "A1,B1");
+	BOOST_CHECK_EQUAL(join(s.order(), ","), "C2,C1,A2,A1,B1,B2");
+	
+	BOOST_CHECK_EQUAL(join(s.predecessors("A2"), ","), "C2,C1");
+	BOOST_CHECK_EQUAL(s.predecessors("C2").size(),0);
+	BOOST_CHECK_EQUAL(s.predecessors("foo").size(),0);
+
+	BOOST_CHECK_EQUAL(join(s.successors("B1"), ","), "B2");
+	BOOST_CHECK_EQUAL(s.successors("B2").size(),0);
+	BOOST_CHECK_EQUAL(s.successors("foo").size(),0);
+
+	// Change a cell
+	s.update("B2","= C2");
+	BOOST_CHECK_EQUAL(s.value("B2"), "C2");
+	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "C2");
+	BOOST_CHECK_EQUAL(join(s.order(), ","), "C2,B2,C1,A2,A1,B1");
+
+	// Create a circular dependency
+	BOOST_CHECK_THROW(s.update("B2","= A1 + B2"),Exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
