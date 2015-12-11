@@ -61,7 +61,12 @@ BOOST_AUTO_TEST_CASE(meta_attributes){
 	BOOST_CHECK_EQUAL(s1.keywords().size(),0);
 
 	Sheet s2;
-	s2.load("title = A title\tdescription = A description\tauthors = Peter Pan, @captainhook\tkeywords = data, is, gold");
+	s2.load(
+		"title = A title\n"
+		"description = A description\n"
+		"authors = Peter Pan, @captainhook\n"
+		"keywords = data, is, gold"
+	);
 
 	BOOST_CHECK_EQUAL(s2.title(),"A title");
 	BOOST_CHECK_EQUAL(s2.description(),"A description");
@@ -126,11 +131,12 @@ BOOST_AUTO_TEST_CASE(parse){
 
 BOOST_AUTO_TEST_CASE(dependency_graph){
 	Sheet s;
-	s.attach(std::make_shared<TestSpread>());
 	s.load(
 		"= A2\t= A1     \t= C2 \n"
 		"= C1\t= A1 + B1\t1\n"
 	);
+	s.attach(std::make_shared<TestSpread>());
+	s.update();
 
 	// Initial checks for loading
 	BOOST_CHECK_EQUAL(join(s.list(), ","), "A1,A2,B1,B2,C1,C2");

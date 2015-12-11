@@ -365,6 +365,14 @@ class Sheet : public Component {
     static std::string identify(unsigned int row, unsigned int col);
 
     /**
+     * Get the extent of the sheet (maximum row and colum indices having cells)
+     *
+     * @return  Row, column 0-based indices
+     */
+
+    std::array<unsigned int, 2> extent(void) const;
+
+    /**
      * Parse a cell content into it's parts
      *
      * Parse the string content of a cell (e.g. from a `.tsv` file) into the
@@ -382,16 +390,37 @@ class Sheet : public Component {
     static std::array<std::string, 3> parse(const std::string& content);
 
     /**
-     * Update a cell with new content and its variable/s within the spread
+     * Set the content of a cell
+     *
+     * Note that this method does not do any cell calculations
+     * That must be done in the `update()` methods (which take into accounc ell inter-dependencies)
+     * 
+     * @param  id      ID of the cell
+     * @param  content New content
+     */
+    Sheet& content(const std::string& id, const std::string& content);
+
+    /**
+     * Update cells with new content
      *
      * This method parses the new content and will then set/update the cells corresponding
-     * variable/s (id and potentially alias) within the spread environment
+     * variable/s (both id and optional alias) within the spread environment. Because of
+     * interdependencies between cells this method is designed to take batches of cell updates,
+     * analyse the dependency graph and then execute each cell expression.
      *
-     * @param id Cell's id
-     * @param content New content, or empty string if not changed
-     * @return The cell's current value
+     * @param cells Map of cell IDs and their contents
+     * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::string update(const std::string& id, const std::string& content = "");
+    std::vector<std::string> update(const std::map<std::string,std::string>& cells);
+
+    /**
+     * Update a single cell with new content
+     * 
+     * @param  id      ID of the cell
+     * @param  content Cell content
+     * @return         New value of the cell
+     */
+    std::string update(const std::string& id, const std::string& content);
 
     /**
      * Update all cells in this sheet
@@ -417,6 +446,8 @@ class Sheet : public Component {
 
     /**
      * Get a list of the cells that a cell depends upon (i.e. it's direct predecessors)
+     *
+     * @param id ID of the cell
      */
     std::vector<std::string> depends(const std::string& id);
 
@@ -427,11 +458,15 @@ class Sheet : public Component {
 
     /**
      * Get all predecessor cells for a cell
+     *
+     * @param id ID of the cell
      */
     std::vector<std::string> predecessors(const std::string& id);
 
     /**
      * Get all successor cells for a cell
+     *
+     * @param id ID of the cell
      */
     std::vector<std::string> successors(const std::string& id);
 
@@ -441,6 +476,8 @@ class Sheet : public Component {
      * After calling this method the cell will have no content and
      * no corresponding id (e.g. BD45) or alias (e.g. total) in the spread.
      * To remove an alias from a cell `update()` it content
+     *
+     * @param id ID of the cell
      */
     Sheet& clear(const std::string& id);
 

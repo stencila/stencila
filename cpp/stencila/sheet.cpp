@@ -22,11 +22,9 @@ Sheet::Sheet(const std::string& from) {
 Sheet::~Sheet(void) {
 }
 
-
 Component::Type Sheet::type(void) {
     return SheetType;
 }
-
 
 std::string Sheet::meta(const std::string& what) const {
     for (auto iter : cells_) {
@@ -119,10 +117,10 @@ Sheet& Sheet::load(std::istream& stream, const std::string& format) {
         std::vector<std::string> cells;
         boost::split(cells, line, boost::is_any_of("\t"));
         unsigned int col = 0;
-        for (auto content : cells) {
-            // TODO, the initial execution of the cell's
-            // should not be done until order_ is determined
-            update(identify(row, col), content);
+        for (auto cell : cells) {
+            if (cell.length()) {
+                content(identify(row, col), cell);
+            }
             col++;
         }
         row++;
@@ -137,9 +135,9 @@ Sheet& Sheet::load(const std::string& string, const std::string& format) {
 
 Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
     if (format == "tsv") {
-        // TODO rows, cols
-        uint rows = 10;
-        uint cols = 10;
+        auto extents = extent();
+        auto rows = extents[0];
+        auto cols = extents[1];
         for (unsigned int row = 0; row < rows; row++) {
             for (unsigned int col = 0; col < cols; col++) {
                 auto id = identify(row, col);
@@ -210,7 +208,13 @@ std::string Sheet::page(void) const {
     // Add sheet to main#content
     auto main = body.select("main");
     main.attr("id", "content");
-    main.append(html_table());
+    // Number of rows and columns should be neither too small not tool large
+    auto extents = extent();
+    auto rows = extents[0];
+    rows = std::min(std::max(rows+1, 50u), 200u);
+    auto cols = extents[1];
+    cols = std::min(std::max(cols+1, 20u), 100u);
+    main.append(html_table(rows, cols));
 
     return doc.dump(false);
 }
@@ -247,8 +251,8 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         for (auto iter = request.begin(); iter != request.end();) {
             auto id = iter.key().as<std::string>();
             auto source = (*iter).as<std::string>();
-            auto new_value = update(id, source);
-            response.append(id, new_value);
+            //TODOauto new_value = update(id, source);
+            //TODOresponse.append(id, new_value);
             ++iter;
         }
     }
@@ -280,6 +284,11 @@ std::string Sheet::identify(unsigned int row, unsigned int col) {
     return identify_col(col)+identify_row(row);
 }
 
+std::array<unsigned int, 2> Sheet::extent(void) const {
+    // TODO
+    return {10,10};
+}
+
 Sheet& Sheet::attach(std::shared_ptr<Spread> spread) {
     spread_ = spread;
     return *this;
@@ -303,28 +312,52 @@ std::array<std::string, 3> Sheet::parse(const std::string& content) {
     }
 }
 
-std::string Sheet::update(const std::string& id, const std::string& content) {
-    // Get or create the cell
-    Cell& cell = cells_[id];
-    // Set its attributes
-    if (content.length()) {
-        auto parts = parse(content);
-        cell.value = parts[0];
-        cell.expression = parts[1];
-        cell.alias = parts[2];
-    }
-    // Create alias mapping if necessary
-    if (cell.alias.length()) {
-        aliases_[cell.alias] = id;
-    }
-    if (spread_) {
-        // Set cell value
-        auto expr = cell.expression.length()?cell.expression:cell.value;
-        if (expr.length()) {
-            cell.value = spread_->set(id, expr, cell.alias);
+Sheet& Sheet::content(const std::string& id, const std::string& content) {
+    if(content.length()){
+        // Get or create the cell
+        Cell& cell = cells_[id];
+        // Set its attributes
+        if (content.length()) {
+            auto parts = parse(content);
+            cell.value = parts[0];
+            cell.expression = parts[1];
+            cell.alias = parts[2];
         }
-        if (cell.expression.length()) {
-            // Get the list of variable names this cell depends upon
+        // Create alias mapping if necessary
+        if (cell.alias.length()) {
+            aliases_[cell.alias] = id;
+        }
+    } else {
+        // Clear the cell
+        clear(id);
+    }
+    return *this;
+}
+
+std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& cells) {
+    // It is necessary to do multiple passes through the cells...
+    std::vector<std::string> updated;
+
+    if (cells.size()){
+        // First pass: set the content of each cell for alias mapping (required for dependency analysis)
+        for (auto iter : cells) {
+            auto id = iter.first;
+            auto contnt = iter.second;
+            content(id,contnt);
+            // Keep track of those with content (as opposed to those wich were cleared because content=="")
+            if (contnt.length()) updated.push_back(id);
+        }
+    } else {
+        // Updating all cells
+        for(auto iter : cells_) updated.push_back(iter.first);
+    }
+
+    // Second pass: updating of dependency graph
+    for (auto id : updated) {
+        // Get the cell
+        Cell& cell = cells_.at(id);
+        // Get the list of variable names this cell depends upon
+        if (cell.expression.length() and spread_) {
             cell.depends = split(spread_->depends(cell.expression), ",");
             // Replace cell aliases with cell ids
             for (std::string& depend : cell.depends) {
@@ -334,36 +367,38 @@ std::string Sheet::update(const std::string& id, const std::string& content) {
                 }
             }
         }
-    }
-    // Create vertex, or clear edges for existing vertex, in the dependency graph
-    Vertex vertex;
-    auto iter = vertices_.find(id);
-    if (iter == vertices_.end()) {
-        vertex =  boost::add_vertex(id, graph_);
-        vertices_[id] = vertex;
-    } else {
-        vertex = iter->second;
-        boost::clear_vertex(vertex, graph_);
-    }
-    // Create inward edges from cells that this one dependes upon
-    for (auto depend : cell.depends) {
-        Vertex vertex_from;
-        auto iter = vertices_.find(depend);
+        // Create vertex, or clear edges for existing vertex, in the dependency graph
+        Vertex vertex;
+        auto iter = vertices_.find(id);
         if (iter == vertices_.end()) {
-            vertex_from =  boost::add_vertex(depend, graph_);
-            vertices_[depend] = vertex_from;
+            vertex =  boost::add_vertex(id, graph_);
+            vertices_[id] = vertex;
         } else {
-            vertex_from = iter->second;
+            vertex = iter->second;
+            boost::clear_vertex(vertex, graph_);
         }
-        boost::add_edge(vertex_from, vertex, graph_);
+        // Create inward edges from cells that this one depends upon
+        for (auto depend : cell.depends) {
+            Vertex vertex_from;
+            auto iter = vertices_.find(depend);
+            if (iter == vertices_.end()) {
+                vertex_from =  boost::add_vertex(depend, graph_);
+                vertices_[depend] = vertex_from;
+            } else {
+                vertex_from = iter->second;
+            }
+            boost::add_edge(vertex_from, vertex, graph_);
+        }
     }
-    // Do topological sort to determine update order
+
+    // Topological sort to determine recalculation order
     std::vector<Vertex> vertices;
     try {
         topological_sort(graph_, std::back_inserter(vertices));
     }
-    catch (const std::invalid_argument& ){
-        STENCILA_THROW(Exception, "There is cyclic dependency in cell\n id: "+id);
+    catch (const std::invalid_argument& ) {
+        STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
+        // TODO should we create a graph visitor which shows what the cycle is?
     }
     std::vector<std::string> ids;
     for (auto vertex : vertices) {
@@ -372,13 +407,35 @@ std::string Sheet::update(const std::string& id, const std::string& content) {
     reverse(ids.begin(), ids.end());
     order_ = ids;
 
-    return cell.value;
+    // Iterate through topological sort order and once the first updated
+    // cell is hit, start recalculating subsequent cells
+    bool calculate = false;
+    for (auto id : order_) {
+        if (not calculate) {
+            if (std::find(updated.begin(), updated.end(), id) != updated.end()) {
+                calculate = true;
+            }
+        }
+        if (calculate) {
+            Cell& cell = cells_.at(id);
+            auto expr = cell.expression.length()?cell.expression:cell.value;
+            if (expr.length() and spread_) {
+                cell.value = spread_->set(id, expr, cell.alias);
+            }
+        }
+    }
+
+    return updated;
+}
+
+std::string Sheet::update(const std::string& id, const std::string& content){
+    update({{id,content}});
+    if (content.length()) return cells_[id].value;
+    return "";
 }
 
 Sheet& Sheet::update(void) {
-    for (std::map<std::string,Cell>::iterator iter = cells_.begin(); iter != cells_.end(); iter++) {
-        update(iter->first);
-    }
+    update({});
     return *this;
 }
 
@@ -418,10 +475,15 @@ std::vector<std::string> Sheet::successors(const std::string& id) {
 }
 
 Sheet& Sheet::clear(const std::string& id) {
-    auto& cell = cells_[id];
     cells_.erase(id);
-    aliases_.erase(cell.alias);
-    // TODO remove vertex from graph: 
+    auto alias = aliases_.find(id);
+    if(alias != aliases_.end()){
+        aliases_.erase(alias->second);
+    }
+    auto vertex = vertices_.find(id);
+    if(vertex != vertices_.end()){
+        boost::remove_vertex(vertex->second,graph_);
+    }
     if (spread_) {
         spread_->clear(id);
     }
@@ -431,7 +493,7 @@ Sheet& Sheet::clear(const std::string& id) {
 Sheet& Sheet::clear(void) {
     cells_.clear();
     aliases_.clear();
-    // TODO clear graph: graph_ = Graph();
+    graph_ = Graph();
     if (spread_) {
         spread_->clear("");
     }
