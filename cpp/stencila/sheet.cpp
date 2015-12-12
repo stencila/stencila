@@ -2,6 +2,7 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/xpressive/xpressive.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/graph/topological_sort.hpp>
 #include <boost/regex.hpp>
@@ -284,6 +285,46 @@ std::string Sheet::identify(unsigned int row, unsigned int col) {
     return identify_col(col)+identify_row(row);
 }
 
+boost::regex Sheet::id_regex("^([A-Z]+)([1-9][0-9]*)$");
+
+bool Sheet::is_id(const std::string& id){
+    return boost::regex_match(id, id_regex);
+}
+
+unsigned int Sheet::index_row(const std::string& row) {
+    return unstring<unsigned int>(row)-1;
+}
+
+unsigned int Sheet::index_col(const std::string& col) {
+    auto index = 0u;
+    auto rank = 1u;
+    for(char letter : col){
+        index += (col.length()-rank++)*26+(letter-65);
+    }
+    return index;
+}
+
+std::vector<std::string> Sheet::interpolate(
+    const std::string& col1, const std::string& row1, 
+    const std::string& col2, const std::string& row2
+) {
+    auto col1i = index_col(col1);
+    auto col2i = index_col(col2);
+    auto row1i = index_row(row1);
+    auto row2i = index_row(row2);
+    auto size = (col2i-col1i+1)*(row2i-row1i+1);
+    if (size<0) STENCILA_THROW(Exception, "Invalid cell range");
+
+    std::vector<std::string> cells(size);
+    auto index = 0u;
+    for (auto col = col1i; col <= col2i; col++) {
+        for (auto row = row1i; row <= row2i; row++) {
+            cells[index++] = identify(row,col);
+        }
+    }
+    return cells;
+}
+
 std::array<unsigned int, 2> Sheet::extent(void) const {
     // TODO
     return {10,10};
@@ -334,6 +375,53 @@ Sheet& Sheet::content(const std::string& id, const std::string& content) {
     return *this;
 }
 
+std::string Sheet::translate(const std::string& expression) {
+    using namespace boost::xpressive;
+    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
+
+    std::string translation;
+        
+    mark_tag col(1);
+    mark_tag row(2);
+    sregex id = (col = +range('A','Z')) >> (row = +digit);
+    sregex sequence = id >> ':' >> id;
+    sregex sunion = (sequence|id) >> '&' >> (sequence|id);
+    sregex anything = _;
+    sregex cells = sunion|sequence;
+    sregex root = +(cells|anything);
+
+    sregex_iterator iter(expression.begin(), expression.end(), root);
+    sregex_iterator end;
+    while (iter != end) {
+        const smatch& root_expr = *iter;
+        for(auto iter = root_expr.nested_results().begin(); iter != root_expr.nested_results().end(); iter++){
+            const smatch& sub_expr = *iter;
+            if(sub_expr.regex_id()==anything.regex_id()){
+                translation += sub_expr[0];
+            }
+            else {
+                for(auto iter = sub_expr.nested_results().begin(); iter != sub_expr.nested_results().end(); iter++){
+                    const smatch& cells_expr = *iter;
+                    if(cells_expr.regex_id()==sequence.regex_id()){
+                        auto parts = cells_expr.nested_results().begin();
+                        auto left = *(parts);
+                        auto right = *(++parts);
+                        auto ids = interpolate(left[col],left[row],right[col],right[row]);
+                        auto combo = spread_->collect(ids);
+                        translation += combo;
+                    }
+                    else if(cells_expr.regex_id()==sunion.regex_id()){
+                        STENCILA_THROW(Exception,"Cell union operator ('&') not yet implemented");
+                    }
+                }
+            }
+        }
+        ++iter;
+    }
+
+    return translation;
+}
+
 std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& cells) {
     // It is necessary to do multiple passes through the cells...
     std::vector<std::string> updated;
@@ -358,12 +446,18 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
         Cell& cell = cells_.at(id);
         // Get the list of variable names this cell depends upon
         if (cell.expression.length() and spread_) {
-            cell.depends = split(spread_->depends(cell.expression), ",");
-            // Replace cell aliases with cell ids
-            for (std::string& depend : cell.depends) {
+            auto spread_expr = translate(cell.expression);
+            auto depends = split(spread_->depends(spread_expr), ",");
+            cell.depends.clear();
+            for (std::string depend : depends) {
+                // Replace cell aliases with cell ids
                 auto iter = aliases_.find(depend);
                 if (iter != aliases_.end()) {
                     depend = iter->second;
+                }
+                // Remove anything that is not an id (e.g. function name)
+                if (is_id(depend)){
+                    cell.depends.push_back(depend);
                 }
             }
         }
@@ -417,10 +511,13 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
             }
         }
         if (calculate) {
-            Cell& cell = cells_.at(id);
+            auto iter = cells_.find(id);
+            if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+            Cell& cell = iter->second;
             auto expr = cell.expression.length()?cell.expression:cell.value;
             if (expr.length() and spread_) {
-                cell.value = spread_->set(id, expr, cell.alias);
+                auto spread_expr = translate(expr);
+                cell.value = spread_->set(id, spread_expr, cell.alias);
             }
         }
     }

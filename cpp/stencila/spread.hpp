@@ -48,6 +48,14 @@ public:
 	virtual std::string list(void) = 0;
 
 	/**
+	 * Collect a set of cells into an expression for the language
+	 * 
+	 * @param  cells List of cell ids
+	 * @return       An expression in the host language
+	 */
+	virtual std::string collect(const std::vector<std::string>& cells) = 0;
+
+	/**
 	 * List the dependencies of a cell expression
      *
      * Parse a cell expression to obtain all it dependencies

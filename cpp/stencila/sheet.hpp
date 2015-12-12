@@ -344,7 +344,7 @@ class Sheet : public Component {
      * Generate an identifier for a row
      *
      * Rows are identified by digits; this method merely
-     * converts an `int` to a `string`
+     * converts an `int` to a `string`. The inverse of `index_row`
      */
     static std::string identify_row(unsigned int row);
 
@@ -352,7 +352,7 @@ class Sheet : public Component {
      * Generate an identifier for column
      *
      * Columns are identified by combinations of uppercase
-     * letters `A,B,C,...Z,AA,AB...`
+     * letters `A,B,C,...Z,AA,AB...` The inverse of `index_col`
      */
     static std::string identify_col(unsigned int col);
 
@@ -365,11 +365,43 @@ class Sheet : public Component {
     static std::string identify(unsigned int row, unsigned int col);
 
     /**
+     * Regular expression used for identifiying and parsing cell IDs
+     */
+    static boost::regex id_regex;
+
+    /**
+     * Is a string a valid cell ID?
+     */
+    static bool is_id(const std::string& id);
+
+    /**
+     * Generate a row index from a row identifier.
+     *
+     * The inverse of `indentify_row`
+     */
+    static unsigned int index_row(const std::string& row);
+
+    /**
+     * Generate a column index from a column identifier.
+     *
+     * The inverse of `indentify_col`
+     */
+    static unsigned int index_col(const std::string& col);
+
+    /**
+     * Create a list of cell IDs that interpolate between the
+     * upper left and bottom right corners.
+     */
+    static std::vector<std::string> interpolate(
+        const std::string& col1, const std::string& row1,
+        const std::string& col2, const std::string& row2
+    );
+
+    /**
      * Get the extent of the sheet (maximum row and colum indices having cells)
      *
      * @return  Row, column 0-based indices
      */
-
     std::array<unsigned int, 2> extent(void) const;
 
     /**
@@ -388,6 +420,24 @@ class Sheet : public Component {
      * @param content Cell content
      */
     static std::array<std::string, 3> parse(const std::string& content);
+
+    /**
+     * Translate a sheet expression into an expression for the host language
+     * of the attached spread
+     * 
+     * At present the only expression parts required to be translated are
+     *   cell sequence `:` e.g. A1:A3 -> c(A1,A2,A3)
+     *   cell union    '&' e.g. A1&A2:A3&A4 -> c(A1,A2,A3,A4)
+     *
+     * Regexes are used to ensure this translation is only done for operators
+     * applied to cell ids. 
+     * 
+     * Note that '&' is used as the cell union operator although 
+     * in Excel and Libre Office a comma is used. Commas are more easily confused 
+     * with function argument delimiters. The ampersand, is used in some languages
+     * for set union (e.g. Python) although in R '&' is the logical "and" operator. 
+     */
+    std::string translate(const std::string& expression);
 
     /**
      * Set the content of a cell

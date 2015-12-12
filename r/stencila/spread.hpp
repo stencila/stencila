@@ -1,8 +1,11 @@
 #pragma once
 
+#include <vector>
+
 #include <Rcpp.h>
 
 #include <stencila/spread.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -38,6 +41,10 @@ public:
 
     std::string list(void) {
         return call_<std::string>(".list");
+    }
+
+    std::string collect(const std::vector<std::string>& cells) {
+        return "c(" + join(cells, ",") + ")";
     }
 
     std::string depends(const std::string& expression) {

@@ -39,6 +39,10 @@ class TestSpread : public Spread {
 		return join(names, ",");
 	}
 
+	std::string collect(const std::vector<std::string>& cells){
+		return "[" + join(cells, ",") + "]";
+	}
+
 	std::string depends(const std::string& expression){
 	    std::vector<std::string> depends;
 	    boost::regex regex("\\w+");
@@ -98,6 +102,28 @@ BOOST_AUTO_TEST_CASE(identify){
 	BOOST_CHECK_EQUAL(Sheet::identify(0,52),"BA1");
 }
 
+BOOST_AUTO_TEST_CASE(is_id){
+	BOOST_CHECK(Sheet::is_id("A1"));
+	BOOST_CHECK(Sheet::is_id("AZHGE136762"));
+
+	BOOST_CHECK(not Sheet::is_id("a1"));
+	BOOST_CHECK(not Sheet::is_id("1A"));
+	BOOST_CHECK(not Sheet::is_id("A0"));
+}
+
+BOOST_AUTO_TEST_CASE(index_col){
+	BOOST_CHECK_EQUAL(Sheet::index_col("A"),0);
+	BOOST_CHECK_EQUAL(Sheet::index_col("B"),1);
+	BOOST_CHECK_EQUAL(Sheet::index_col("AA"),26);
+	BOOST_CHECK_EQUAL(Sheet::index_col("AB"),27);
+}
+
+BOOST_AUTO_TEST_CASE(interpolate){
+	BOOST_CHECK_EQUAL(join(Sheet::interpolate("A","1","A","1"), ","),"A1");
+	BOOST_CHECK_EQUAL(join(Sheet::interpolate("A","1","A","3"), ","),"A1,A2,A3");
+	BOOST_CHECK_EQUAL(join(Sheet::interpolate("A","1","B","2"), ","),"A1,A2,B1,B2");
+}
+
 BOOST_AUTO_TEST_CASE(parse){
 	auto p0 = Sheet::parse("");
 	BOOST_CHECK_EQUAL(p0[0],"");
@@ -127,6 +153,20 @@ BOOST_AUTO_TEST_CASE(parse){
 		BOOST_CHECK_EQUAL(p[1],"6*7");
 		BOOST_CHECK_EQUAL(p[2],"answer");
 	}
+}
+
+BOOST_AUTO_TEST_CASE(translate){
+	Sheet s;
+	s.attach(std::make_shared<TestSpread>());
+
+	BOOST_CHECK_EQUAL(s.translate("A1"),"A1");
+	BOOST_CHECK_EQUAL(s.translate("A1:A3"),"[A1,A2,A3]");
+
+	// Cell unions not yet implemented
+	BOOST_CHECK_THROW(s.translate("A1&A2"),Exception); //"[A1,A2]"
+	BOOST_CHECK_THROW(s.translate("A1:B2&C3"),Exception); //"[A1,A2,B1,B2,C3]"
+
+	BOOST_CHECK_EQUAL(s.translate("func(A1:A3,A4)"),"func([A1,A2,A3],A4)");
 }
 
 BOOST_AUTO_TEST_CASE(dependency_graph){

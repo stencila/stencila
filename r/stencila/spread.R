@@ -110,9 +110,9 @@ Spread <- function(envir, closed=FALSE) {
     # This will include variables and functions, some of which
     # may not be in the sheet
     self$.depends <- function(expression){
-        # Use the hand `all.names` function which does the 
+        # Use the handy `all.names` function which does the 
         # AST generation and walking for us
-        return(all.names(parse(text=expression)))
+        return(paste(all.names(parse(text=expression)),collapse=","))
     }
     
     self

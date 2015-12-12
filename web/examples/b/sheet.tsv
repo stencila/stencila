@@ -1,4 +1,11 @@
-1.20	 =2*pi*A1
-3.40	 =A2*3
-	pi = 3.14
-	area =2*pi*A3^2
+"x"	"y"			"Means"
+1	0.90		"x"	= mean(A2:A11)
+2	2.68		"y"	= mean(B2:B11)
+3	3.52
+4	4.54			"Correlation"
+5	5.45		"coeff"	= cor(A2:A11,B2:B11)
+6	5.89		"test object"	= cor.test(A2:A11,B2:B11)
+7	7.80		"test p"	= E7$p.value
+8	8.98
+9	9.10		= plot(A2:A11,B2:B11)
+10	10.89
