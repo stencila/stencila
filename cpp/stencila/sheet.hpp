@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/regex.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
 #include <stencila/component.hpp>
