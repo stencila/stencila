@@ -30,8 +30,8 @@ Component::Type Sheet::type(void) {
 std::string Sheet::meta(const std::string& what) const {
     for (auto iter : cells_) {
         Cell& cell = iter.second;
-        if (cell.alias == what) {
-            return cell.expression;
+        if (cell.name == what) {
+            return cell.value;
         }
     }
     return "";
@@ -104,7 +104,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
                 auto& cell = iter->second;
                 td.text(cell.value);
                 if (cell.expression.length()) td.attr("data-expr", cell.expression);
-                if (cell.alias.length()) td.attr("data-alias", cell.alias);
+                if (cell.name.length()) td.attr("data-name", cell.name);
             }
         }
     }
@@ -340,16 +340,16 @@ Sheet& Sheet::detach(void) {
     return *this;
 }
 
-std::array<std::string, 3> Sheet::parse(const std::string& content) {
+std::array<std::string, 2> Sheet::parse(const std::string& content) {
     auto content_clean = content;
     boost::replace_all(content_clean, "\t", " ");
 
-    static const boost::regex regex("^ *([a-z]\\w*)? *= *(.+?) *$");
+    static const boost::regex regex("^ *(([a-z]\\w*) *= *)?(.+?) *$");
     boost::smatch match;
     if (boost::regex_match(content_clean, match, regex)) {
-        return {"", match.str(2), match.str(1)};
+        return {match.str(3), match.str(2)};
     } else {
-        return {content_clean, "", ""};
+        return {"", ""};
     }
 }
 
@@ -360,13 +360,12 @@ Sheet& Sheet::content(const std::string& id, const std::string& content) {
         // Set its attributes
         if (content.length()) {
             auto parts = parse(content);
-            cell.value = parts[0];
-            cell.expression = parts[1];
-            cell.alias = parts[2];
+            cell.expression = parts[0];
+            cell.name = parts[1];
         }
-        // Create alias mapping if necessary
-        if (cell.alias.length()) {
-            aliases_[cell.alias] = id;
+        // Create name mapping if necessary
+        if (cell.name.length()) {
+            names_[cell.name] = id;
         }
     } else {
         // Clear the cell
@@ -427,7 +426,7 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
     std::vector<std::string> updated;
 
     if (cells.size()){
-        // First pass: set the content of each cell for alias mapping (required for dependency analysis)
+        // First pass: set the content of each cell for name mapping (required for dependency analysis)
         for (auto iter : cells) {
             auto id = iter.first;
             auto contnt = iter.second;
@@ -450,9 +449,9 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
             auto depends = split(spread_->depends(spread_expr), ",");
             cell.depends.clear();
             for (std::string depend : depends) {
-                // Replace cell aliases with cell ids
-                auto iter = aliases_.find(depend);
-                if (iter != aliases_.end()) {
+                // Replace cell names with cell ids
+                auto iter = names_.find(depend);
+                if (iter != names_.end()) {
                     depend = iter->second;
                 }
                 // Remove anything that is not an id (e.g. function name)
@@ -517,7 +516,7 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
             auto expr = cell.expression.length()?cell.expression:cell.value;
             if (expr.length() and spread_) {
                 auto spread_expr = translate(expr);
-                cell.value = spread_->set(id, spread_expr, cell.alias);
+                cell.value = spread_->set(id, spread_expr, cell.name);
             }
         }
     }
@@ -573,9 +572,9 @@ std::vector<std::string> Sheet::successors(const std::string& id) {
 
 Sheet& Sheet::clear(const std::string& id) {
     cells_.erase(id);
-    auto alias = aliases_.find(id);
-    if(alias != aliases_.end()){
-        aliases_.erase(alias->second);
+    auto name = names_.find(id);
+    if(name != names_.end()){
+        names_.erase(name->second);
     }
     auto vertex = vertices_.find(id);
     if(vertex != vertices_.end()){
@@ -589,7 +588,7 @@ Sheet& Sheet::clear(const std::string& id) {
 
 Sheet& Sheet::clear(void) {
     cells_.clear();
-    aliases_.clear();
+    names_.clear();
     graph_ = Graph();
     if (spread_) {
         spread_->clear("");

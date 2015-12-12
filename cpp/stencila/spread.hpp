@@ -18,27 +18,28 @@ public:
 	virtual ~Spread(void) {};
 
 	/**
-	 * Assign a expression to a variable name (and potentially an alias)
+	 * Assign a expression to a cell id and potentially a cell name
 	 * 
 	 * @param id ID of the cell
 	 * @param expression Expression for the cell
-	 * @param alias Alias name for the cell
+	 * @param name Name for the cell
 	 */
-	virtual std::string set(const std::string& id, const std::string& expression, const std::string& alias="") = 0;
+	virtual std::string set(const std::string& id, const std::string& expression, const std::string& name="") = 0;
 
 	/**
 	 * Get a text representation of a variable in the spread
 	 * 
-	 * @param name Could be a cell id e.g. EF5 or and alias e.g. price
+	 * @param name Could be a cell id e.g. EF5 or and name e.g. price
 	 */
 	virtual std::string get(const std::string& name) = 0;
 
 	/**
-	 * Clear one or all cell values
+	 * Clear one or all cells
 	 * 
-     * @param name Could be a cell id e.g. EF5 or and alias e.g. price
+     * @param id ID of cell (if empty string clear all cells)
+     * @param name Name of cell
 	 */
-	virtual std::string clear(const std::string& name) = 0;
+	virtual std::string clear(const std::string& id = "", const std::string& name = "") = 0;
 
 	/**
 	 * List all the variables (ids and aliases) in the spread

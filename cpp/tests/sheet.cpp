@@ -12,9 +12,9 @@ using namespace Stencila;
 class TestSpread : public Spread {
  public:
 
-	std::string set(const std::string& id, const std::string& expression, const std::string& alias=""){
+	std::string set(const std::string& id, const std::string& expression, const std::string& name = ""){
 		variables_[id] = expression;
-		if (alias.length()) variables_[alias] = expression;
+		if (name.length()) variables_[name] = expression;
 		return expression;
 	}
 
@@ -22,11 +22,14 @@ class TestSpread : public Spread {
 		return variables_[name];
 	}
 
-	std::string clear(const std::string& name){
-		if (name=="") {
+	std::string clear(const std::string& id = "", const std::string& name = ""){
+		if (id=="") {
 			variables_.clear();
 		} else {
-			variables_.erase(name);
+			variables_.erase(id);
+			if (name.length()) {
+				variables_.erase(name);
+			}
 		}
 		return "";
 	}
@@ -56,7 +59,6 @@ class TestSpread : public Spread {
  	std::map<std::string,std::string> variables_;
 };
 
-
 BOOST_AUTO_TEST_CASE(meta_attributes){
 	Sheet s1;
 	BOOST_CHECK_EQUAL(s1.title(),"");
@@ -65,15 +67,19 @@ BOOST_AUTO_TEST_CASE(meta_attributes){
 	BOOST_CHECK_EQUAL(s1.keywords().size(),0);
 
 	Sheet s2;
+	s2.attach(std::make_shared<TestSpread>());
+	// Note that the TestSpread does not recognised wuotes, so setting of these
+	// attributes is a little different to normal (tehy are usually string expressions)
 	s2.load(
-		"title = A title\n"
-		"description = A description\n"
+		"title = A test sheet\n"
+		"description = A sheet used for testing\n"
 		"authors = Peter Pan, @captainhook\n"
 		"keywords = data, is, gold"
 	);
+	s2.update();
 
-	BOOST_CHECK_EQUAL(s2.title(),"A title");
-	BOOST_CHECK_EQUAL(s2.description(),"A description");
+	BOOST_CHECK_EQUAL(s2.title(),"A test sheet");
+	BOOST_CHECK_EQUAL(s2.description(),"A sheet used for testing");
 	
 	auto a = s2.authors();
 	BOOST_CHECK_EQUAL(a.size(),2);
@@ -128,30 +134,20 @@ BOOST_AUTO_TEST_CASE(parse){
 	auto p0 = Sheet::parse("");
 	BOOST_CHECK_EQUAL(p0[0],"");
 	BOOST_CHECK_EQUAL(p0[1],"");
-	BOOST_CHECK_EQUAL(p0[2],"");
 
 	// Tabs are replaced with spaces
-	BOOST_CHECK_EQUAL(Sheet::parse("\tfoo\t\tbar\t")[0]," foo  bar ");
+	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t")[0],"'foo  bar'");
 
-	// Spaces are significant before, after and within a constant
+	// Spaces are only significant within an expression
 	BOOST_CHECK_EQUAL(Sheet::parse("42")[0],"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 42")[0]," 42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" foo bar ")[0]," foo bar ");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 42")[0],"42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 'foo bar' ")[0],"'foo bar'");
 
-	// Expressions
-	for(auto content : {"= 6*7"," =6*7"," = 6*7  "}){
+	// Named cells
+	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
 		auto p = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(p[0],"");
-		BOOST_CHECK_EQUAL(p[1],"6*7");
-		BOOST_CHECK_EQUAL(p[2],"");
-	}
-
-	// Expression with alias
-	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 "}){
-		auto p = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(p[0],"");
-		BOOST_CHECK_EQUAL(p[1],"6*7");
-		BOOST_CHECK_EQUAL(p[2],"answer");
+		BOOST_CHECK_EQUAL(p[0],"6*7");
+		BOOST_CHECK_EQUAL(p[1],"answer");
 	}
 }
 
@@ -172,8 +168,8 @@ BOOST_AUTO_TEST_CASE(translate){
 BOOST_AUTO_TEST_CASE(dependency_graph){
 	Sheet s;
 	s.load(
-		"= A2\t= A1     \t= C2 \n"
-		"= C1\t= A1 + B1\t1\n"
+		"A2\tA1     \tC2 \n"
+		"C1\tA1 + B1\t1\n"
 	);
 	s.attach(std::make_shared<TestSpread>());
 	s.update();
@@ -197,13 +193,13 @@ BOOST_AUTO_TEST_CASE(dependency_graph){
 	BOOST_CHECK_EQUAL(s.successors("foo").size(),0);
 
 	// Change a cell
-	s.update("B2","= C2");
+	s.update("B2","C2");
 	BOOST_CHECK_EQUAL(s.value("B2"), "C2");
 	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "C2");
 	BOOST_CHECK_EQUAL(join(s.order(), ","), "C2,B2,C1,A2,A1,B1");
 
 	// Create a circular dependency
-	BOOST_CHECK_THROW(s.update("B2","= A1 + B2"),Exception);
+	BOOST_CHECK_THROW(s.update("B2","A1 + B2"),Exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

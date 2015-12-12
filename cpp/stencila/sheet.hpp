@@ -56,9 +56,9 @@ class Sheet : public Component {
     /**
      * Get this sheets's title
      *
-     * Title is specified by using the title alias e.g
+     * Title is specified by using the title name e.g
      *
-     *    A1: title = Project X workbook
+     *    A1: title = "Project X workbook"
      *
      * Usually the title will be in cell A1 but it does not need
      * to be.
@@ -68,9 +68,9 @@ class Sheet : public Component {
     /**
      * Get this sheets's description
      *
-     * Description is specified by using the description alias e.g.
+     * Description is specified by using the description name e.g.
      *
-     *     A2: description = Simple calculations for special project X
+     *     A2: description = "Simple calculations for special project X"
      */
     std::string description(void) const;
 
@@ -78,9 +78,9 @@ class Sheet : public Component {
      * Get this sheets's keywords
      *
      * Keywords are specified in a comma separated cell 
-     * with the keyword alias e.g.
+     * with the keyword name e.g.
      *
-     *     A3: keywords = calculations, project X
+     *     A3: keywords = "calculations, project X"
      */
     std::vector<std::string> keywords(void) const;
 
@@ -91,7 +91,7 @@ class Sheet : public Component {
      * can be combinations of plain text, email addresses, usernames (`@` prefixed) or ORCIDs
      * e.g.
      *
-     *     A4: authors = Peter Pan, Tinker Bell tinker@bell.name, @captainhook, 0000-0003-1608-7967 
+     *     A4: authors = "Peter Pan, Tinker Bell tinker@bell.name, @captainhook, 0000-0003-1608-7967"
      */
     std::vector<std::string> authors(void) const;
 
@@ -279,30 +279,27 @@ class Sheet : public Component {
      */
     struct Cell {
         /**
-         * Value of this cell
-         *
-         * Value may be empty if the cell has never been updated
-         * or if it was updated and there was an error
-         */
-        std::string value;
-
-        /**
          * Expression of this cell
          *
-         * Expression may be empty if the cell is a constant.
+         * All cells have an expression the expression may be a literal (e.g. "hello", 42, 3.14) or
+         * a formula (e.g. 2*sum(A1:B5)).
+         *
+         * Making all cell expressions means that it is slightly more burdensome for a user to write a
+         * cell with a text value because they must make it a string expression (i.e `"Hello world"` instead of just `Hello world`).
+         * But it makes a sheet a lot closer, and the user more familiar with, programming in the host language.
          */
         std::string expression;
 
         /**
-         * Alias for this cell
+         * Name for this cell
          *
-         * Cells can have an alias. This is useful for writing more
+         * Cells can have an name. This is useful for writing more
          * meaningful and concise cell expression. For example, instead
          * of writing the expression for the area of a circle as,
          *
-         *     A1: 3.14
-         *     A2: 5
-         *     A3: = A1*A2^2
+         *     A1: 5
+         *     A2: 3.14
+         *     A3: A1*A2^2
          *
          * it could be written as,
          *
@@ -310,9 +307,9 @@ class Sheet : public Component {
          *     A2: pi = 3.14
          *     A3: area = pi*radius^2
          *
-         * Aliases must begin with a lower case letter but can include
+         * Names must begin with a lower case letter but can include
          * both upper and lower case letters, digits and the underscore symbol.
-         * The following are valid aliases:
+         * The following are valid names:
          *
          *     a, a1, correction_factor_2
          *
@@ -320,13 +317,22 @@ class Sheet : public Component {
          *
          *     A, 1a, correction-factor-2  
          */
-        std::string alias;
+        std::string name;
 
         /**
          * Variables that this cell depends upon.
          * Used to determine dependency graph
          */
         std::vector<std::string> depends;
+
+        /**
+         * Value of this cell
+         *
+         * Value when expression is evaluated. 
+         * Value may be empty if the cell has never been updated
+         * or if it was updated and there was an error
+         */
+        std::string value;
     };
 
     /**
@@ -409,18 +415,14 @@ class Sheet : public Component {
      * Parse a cell content into it's parts
      *
      * Parse the string content of a cell (e.g. from a `.tsv` file) into the
-     * parts `value`, `expression`, `alias`. 
+     * parts `expression` and `name`. 
      * 
-     * Tabs are converted to spaces. Spaces are insignificant before and after and alias
-     * or expression. But they are significant at fron or end of a constant cell
-     * 
-     * If the content string does not match the
-     * regex for `[<alias>] = <expression>` (ie optional alias), then it will be the
-     * cell value (i.e. there is no invalid cell content except for a tab)
+     * Tabs are converted to spaces. Spaces are insignificant before and after an
+     * expression but are significant within an expression (i.e. expressions are trimmed)
      *
      * @param content Cell content
      */
-    static std::array<std::string, 3> parse(const std::string& content);
+    static std::array<std::string, 2> parse(const std::string& content);
 
     /**
      * Translate a sheet expression into an expression for the host language
@@ -455,7 +457,7 @@ class Sheet : public Component {
      * Update cells with new content
      *
      * This method parses the new content and will then set/update the cells corresponding
-     * variable/s (both id and optional alias) within the spread environment. Because of
+     * variable/s (both id and optional name) within the spread environment. Because of
      * interdependencies between cells this method is designed to take batches of cell updates,
      * analyse the dependency graph and then execute each cell expression.
      *
@@ -484,14 +486,14 @@ class Sheet : public Component {
     /**
      * List the names of variables within the attached spread
      *
-     * Variable names may include both ids (e.g. A1) and aliases (e.g. radius) 
+     * Variable names may include both ids (e.g. A1) and names (e.g. radius) 
      */
     std::vector<std::string> list(void);
 
     /**
      * Get the value of a variable within the attached spread
      * 
-     * @param  name Name of variable (id or alias)
+     * @param  name Name of variable (id or name)
      */
     std::string value(const std::string& name);
 
@@ -525,8 +527,8 @@ class Sheet : public Component {
      * Clear a cell
      *
      * After calling this method the cell will have no content and
-     * no corresponding id (e.g. BD45) or alias (e.g. total) in the spread.
-     * To remove an alias from a cell `update()` it content
+     * no corresponding id (e.g. BD45) or name (e.g. total) in the spread.
+     * To remove a name only from a cell `update()` it content
      *
      * @param id ID of the cell
      */
@@ -544,11 +546,11 @@ class Sheet : public Component {
     std::map<std::string, Cell> cells_;
 
     /**
-     * A map of cell aliases to cell ids
+     * A map of cell names to cell ids
      *
      * Used for normalising dependencies into ids only
      */
-    std::map<std::string, std::string> aliases_;
+    std::map<std::string, std::string> names_;
 
     /**
      * Type for dependency graph

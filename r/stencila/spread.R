@@ -54,7 +54,7 @@ Spread <- function(envir, closed=FALSE) {
     # 
     #   spread$.set('J7','2*pi*radius','circumference')
     #
-    self$.set <- function(id,expression,alias=""){
+    self$.set <- function(id,expression,name=""){
         value <- tryCatch(
             eval(
                 parse(text=expression),
@@ -67,8 +67,8 @@ Spread <- function(envir, closed=FALSE) {
         }
 
         assign(id,value,envir=self)
-        if(alias!=""){
-            assign(alias,value,envir=self)
+        if(name!=""){
+            assign(name,value,envir=self)
         }
         return(toString(value))
     }
@@ -76,7 +76,7 @@ Spread <- function(envir, closed=FALSE) {
 
     # Get a cell value
     # 
-    # Name could be a cell name e.g. F5 or and alias e.g. price
+    # Name could be a cell id e.g. F5 or and name e.g. price
     self$.get <- function(name){
         value <- get(name,envir=self)
         stream <- textConnection("text", "w")
@@ -87,17 +87,20 @@ Spread <- function(envir, closed=FALSE) {
     
     # Clear one or all cell values
     # 
-    # Name could be a cell name e.g. F5 or and alias e.g. price
-    self$.clear <- function(name){
-      if(nchar(name)){
-        remove(list=name,envir=self)
+    # Name could be a cell id e.g. F5 or and name e.g. price
+    self$.clear <- function(id="",name=""){
+      if(nchar(id)){
+        remove(list=id,envir=self)
+        if(nchar(name)){
+            remove(list=name,envir=self)
+        }
       } else {
         remove(list=ls(self))
       }
       return("")
     }
     
-    # List all cell names
+    # List all variable names
     #
     # Most likely to be used just for testing purposes
     self$.list <- function(){

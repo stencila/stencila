@@ -27,16 +27,16 @@ public:
      * @{
      */
 
-    std::string set(const std::string& id, const std::string& expression, const std::string& alias="") {
-        return call_<std::string>(".set", id, expression, alias);
+    std::string set(const std::string& id, const std::string& expression, const std::string& name = "") {
+        return call_<std::string>(".set", id, expression, name);
     }
 
     std::string get(const std::string& name) {
         return call_<std::string>(".get", name);
     }
 
-    std::string clear(const std::string& name) {
-        return call_<std::string>(".clear", name);
+    std::string clear(const std::string& id = "", const std::string& name = "") {
+        return call_<std::string>(".clear", id, name);
     }
 
     std::string list(void) {
