@@ -1,11 +1,14 @@
+title = "Test sheet"
+description = "For testing web browser interface"
+
 "x"	"y"			"Means"
-1	0.90		"x"	= mean(A2:A11)
-2	2.68		"y"	= mean(B2:B11)
+1	0.90		"x"	= mean(A5:A14)
+2	2.68		"y"	= mean(B5:B14)
 3	3.52
 4	4.54			"Correlation"
-5	5.45		"coeff"	= cor(A2:A11,B2:B11)
-6	5.89		"test object"	= cor.test(A2:A11,B2:B11)
-7	7.80		"test p"	= E7$p.value
+5	5.45		"coeff"	= cor(A5:A14,B5:B14)
+6	5.89		"test object"	= cor.test(A5:A14,B5:B14)
+7	7.80		"test p"	= E10$p.value
 8	8.98
-9	9.10		= plot(A2:A11,B2:B11)
+9	9.10		= plot(A5:A14,B5:B14)
 10	10.89
