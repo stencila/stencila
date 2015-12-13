@@ -102,9 +102,10 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
             auto iter = cells_.find(id);
             if (iter != cells_.end()) {
                 auto& cell = iter->second;
-                td.text(cell.value);
                 if (cell.expression.length()) td.attr("data-expr", cell.expression);
                 if (cell.name.length()) td.attr("data-name", cell.name);
+                if (cell.type.length()) td.attr("data-type", cell.type);
+                td.text(cell.value);
             }
         }
     }
@@ -422,104 +423,125 @@ std::string Sheet::translate(const std::string& expression) {
 }
 
 std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& cells) {
-    // It is necessary to do multiple passes through the cells...
-    std::vector<std::string> updated;
-
-    if (cells.size()){
-        // First pass: set the content of each cell for name mapping (required for dependency analysis)
-        for (auto iter : cells) {
-            auto id = iter.first;
-            auto contnt = iter.second;
-            content(id,contnt);
-            // Keep track of those with content (as opposed to those wich were cleared because content=="")
-            if (contnt.length()) updated.push_back(id);
-        }
-    } else {
-        // Updating all cells
-        for(auto iter : cells_) updated.push_back(iter.first);
-    }
-
-    // Second pass: updating of dependency graph
-    for (auto id : updated) {
-        // Get the cell
-        Cell& cell = cells_.at(id);
-        // Get the list of variable names this cell depends upon
-        if (cell.expression.length() and spread_) {
-            auto spread_expr = translate(cell.expression);
-            auto depends = split(spread_->depends(spread_expr), ",");
-            cell.depends.clear();
-            for (std::string depend : depends) {
-                // Replace cell names with cell ids
-                auto iter = names_.find(depend);
-                if (iter != names_.end()) {
-                    depend = iter->second;
-                }
-                // Remove anything that is not an id (e.g. function name)
-                if (is_id(depend)){
-                    cell.depends.push_back(depend);
-                }
-            }
-        }
-        // Create vertex, or clear edges for existing vertex, in the dependency graph
-        Vertex vertex;
-        auto iter = vertices_.find(id);
-        if (iter == vertices_.end()) {
-            vertex =  boost::add_vertex(id, graph_);
-            vertices_[id] = vertex;
-        } else {
-            vertex = iter->second;
-            boost::clear_vertex(vertex, graph_);
-        }
-        // Create inward edges from cells that this one depends upon
-        for (auto depend : cell.depends) {
-            Vertex vertex_from;
-            auto iter = vertices_.find(depend);
-            if (iter == vertices_.end()) {
-                vertex_from =  boost::add_vertex(depend, graph_);
-                vertices_[depend] = vertex_from;
-            } else {
-                vertex_from = iter->second;
-            }
-            boost::add_edge(vertex_from, vertex, graph_);
-        }
-    }
-
-    // Topological sort to determine recalculation order
-    std::vector<Vertex> vertices;
+    // Change to the sheet's directory
+    boost::filesystem::path current_path = boost::filesystem::current_path();
+    boost::filesystem::path path = boost::filesystem::path(Component::path(true));
     try {
-        topological_sort(graph_, std::back_inserter(vertices));
+        boost::filesystem::current_path(path);
+    } catch(const std::exception& exc){
+        STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
-    catch (const std::invalid_argument& ) {
-        STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
-        // TODO should we create a graph visitor which shows what the cycle is?
-    }
-    std::vector<std::string> ids;
-    for (auto vertex : vertices) {
-        ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
-    }
-    reverse(ids.begin(), ids.end());
-    order_ = ids;
 
-    // Iterate through topological sort order and once the first updated
-    // cell is hit, start recalculating subsequent cells
-    bool calculate = false;
-    for (auto id : order_) {
-        if (not calculate) {
-            if (std::find(updated.begin(), updated.end(), id) != updated.end()) {
-                calculate = true;
+    std::vector<std::string> updated;
+    try {
+
+        if (cells.size()){
+            // First pass: set the content of each cell for name mapping (required for dependency analysis)
+            for (auto iter : cells) {
+                auto id = iter.first;
+                auto contnt = iter.second;
+                content(id,contnt);
+                // Keep track of those with content (as opposed to those wich were cleared because content=="")
+                if (contnt.length()) updated.push_back(id);
+            }
+        } else {
+            // Updating all cells
+            for(auto iter : cells_) updated.push_back(iter.first);
+        }
+
+        // Second pass: updating of dependency graph
+        for (auto id : updated) {
+            // Get the cell
+            Cell& cell = cells_.at(id);
+            // Get the list of variable names this cell depends upon
+            if (cell.expression.length() and spread_) {
+                auto spread_expr = translate(cell.expression);
+                auto depends = split(spread_->depends(spread_expr), ",");
+                cell.depends.clear();
+                for (std::string depend : depends) {
+                    // Replace cell names with cell ids
+                    auto iter = names_.find(depend);
+                    if (iter != names_.end()) {
+                        depend = iter->second;
+                    }
+                    // Remove anything that is not an id (e.g. function name)
+                    if (is_id(depend)){
+                        cell.depends.push_back(depend);
+                    }
+                }
+            }
+            // Create vertex, or clear edges for existing vertex, in the dependency graph
+            Vertex vertex;
+            auto iter = vertices_.find(id);
+            if (iter == vertices_.end()) {
+                vertex =  boost::add_vertex(id, graph_);
+                vertices_[id] = vertex;
+            } else {
+                vertex = iter->second;
+                boost::clear_vertex(vertex, graph_);
+            }
+            // Create inward edges from cells that this one depends upon
+            for (auto depend : cell.depends) {
+                Vertex vertex_from;
+                auto iter = vertices_.find(depend);
+                if (iter == vertices_.end()) {
+                    vertex_from =  boost::add_vertex(depend, graph_);
+                    vertices_[depend] = vertex_from;
+                } else {
+                    vertex_from = iter->second;
+                }
+                boost::add_edge(vertex_from, vertex, graph_);
             }
         }
-        if (calculate) {
-            auto iter = cells_.find(id);
-            if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
-            Cell& cell = iter->second;
-            auto expr = cell.expression.length()?cell.expression:cell.value;
-            if (expr.length() and spread_) {
-                auto spread_expr = translate(expr);
-                cell.value = spread_->set(id, spread_expr, cell.name);
+
+        // Topological sort to determine recalculation order
+        std::vector<Vertex> vertices;
+        try {
+            topological_sort(graph_, std::back_inserter(vertices));
+        }
+        catch (const std::invalid_argument& ) {
+            STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
+            // TODO should we create a graph visitor which shows what the cycle is?
+        }
+        std::vector<std::string> ids;
+        for (auto vertex : vertices) {
+            ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
+        }
+        reverse(ids.begin(), ids.end());
+        order_ = ids;
+
+        // Iterate through topological sort order and once the first updated
+        // cell is hit, start recalculating subsequent cells
+        bool calculate = false;
+        for (auto id : order_) {
+            if (not calculate) {
+                if (std::find(updated.begin(), updated.end(), id) != updated.end()) {
+                    calculate = true;
+                }
+            }
+            if (calculate) {
+                auto iter = cells_.find(id);
+                if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+                Cell& cell = iter->second;
+                auto expr = cell.expression.length()?cell.expression:cell.value;
+                if (expr.length() and spread_) {
+                    auto spread_expr = translate(expr);
+                    auto type_value = spread_->set(id, spread_expr, cell.name);
+                    auto space = type_value.find(" ");
+                    cell.type = type_value.substr(0,space);
+                    cell.value = type_value.substr(space+1);
+                    updated.push_back(id);
+                }
             }
         }
+    } catch (...){
+        // Ensure return to current directory even if there is an exception
+        boost::filesystem::current_path(current_path);
+        throw;
     }
+
+    // Return to the current directory
+    boost::filesystem::current_path(current_path);
 
     return updated;
 }

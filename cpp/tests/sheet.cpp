@@ -15,7 +15,7 @@ class TestSpread : public Spread {
 	std::string set(const std::string& id, const std::string& expression, const std::string& name = ""){
 		variables_[id] = expression;
 		if (name.length()) variables_[name] = expression;
-		return expression;
+		return "string " + expression;
 	}
 
 	std::string get(const std::string& name){
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(meta_attributes){
 
 	Sheet s2;
 	s2.attach(std::make_shared<TestSpread>());
-	// Note that the TestSpread does not recognised wuotes, so setting of these
+	// Note that the TestSpread does not recognised quotes, so setting of these
 	// attributes is a little different to normal (tehy are usually string expressions)
 	s2.load(
 		"title = A test sheet\n"

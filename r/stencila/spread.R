@@ -55,6 +55,16 @@ Spread <- function(envir, closed=FALSE) {
     #   spread$.set('J7','2*pi*radius','circumference')
     #
     self$.set <- function(id,expression,name=""){
+        # Create a image file (only gets same to disk if the device is plotted on)
+        filename <- file.path("out",paste0(ifelse(nchar(name),name,id),".png"))
+        png(filename)
+        device <- dev.cur()
+        # Ensure that whever happens, the device gets turned off
+        on.exit(dev.off(device))
+        # Record the device state to detect any changes
+        device_before <- recordPlot()
+      
+        # Evaluate, capturing any error
         value <- tryCatch(
             eval(
                 parse(text=expression),
@@ -63,14 +73,37 @@ Spread <- function(envir, closed=FALSE) {
             error=identity
         )
         if(inherits(value,'error')){
-            value <- paste("error:",value$message)
+            value <- paste("Error: ",value$message)
         }
 
+        # Assign value to `id` and, optionally, to `name`
         assign(id,value,envir=self)
         if(name!=""){
             assign(name,value,envir=self)
         }
-        return(toString(value))
+        
+        # Determine type and string representation
+        # Check if device has changed
+        if(!identical(device_before,recordPlot())){
+            type <- 'image-url'
+            repr <- filename
+        }
+        else {
+            type <- class(value)
+            type <- switch(type,
+                numeric = 'real',
+                character = 'string',
+                type
+            )
+
+            if(type %in% c('integer','real','string')){
+                repr <- toString(value)
+            } else {
+                repr <- paste(capture.output(print(value)),collapse="\n")
+            }
+        }
+        
+        return(paste(type,repr))
     }
 
 

@@ -18,6 +18,10 @@ module.exports = {
     if (name) {
       node.name = name;
     }
+    var type = el.attr('data-type');
+    if (type) {
+      node.tipe = type;
+    }
     node.value = el.text();
   },
 
@@ -27,6 +31,9 @@ module.exports = {
     }
     if (node.name) {
       el.attr('data-name', node.name);
+    }
+    if (node.tipe) {
+      el.attr('data-type', node.tipe);
     }
     el.text(node.value);
   }

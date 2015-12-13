@@ -28,6 +28,7 @@ CellComponent.Prototype = function() {
     }
 
     if (node) {
+      el.addClass(node.tipe);
       if (isEditing) {
         var editor = $$(TextPropertyEditor, {
           name: node.id,
@@ -36,7 +37,20 @@ CellComponent.Prototype = function() {
         }).ref('editor');
         el.append(editor);
       } else {
-        el.text(node.value);
+        var type = node.tipe;
+        if (type=="integer" || type=="real" || type=="string"){
+          el.text(node.value);
+        } else if (type=="image-url"){
+          el.append(
+            $$('img')
+              .attr('src', node.value)
+          );
+        } else {
+          el.append(
+            $$('pre')
+              .text(node.value)
+          );
+        }
       }
     } else {
       el.addClass('empty');

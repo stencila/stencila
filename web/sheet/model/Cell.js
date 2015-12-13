@@ -19,11 +19,12 @@ Cell.static.name = "sheet-cell";
 Cell.static.defineSchema({
   expr: "text",
   name: { type: "string", optional: true },
+  tipe: { type: "string", optional: true },
   value: { type: "string", optional: true },
   row: "number",
   col: "number"
 });
 
-Cell.static.generatedProps = ['value'];
+Cell.static.generatedProps = ['tipe','value'];
 
 module.exports = Cell;

@@ -326,9 +326,17 @@ class Sheet : public Component {
         std::vector<std::string> depends;
 
         /**
+         * Type of this cell
+         *
+         * The type of object (e.g. integer, instance of a class, image) in the cell.
+         * Used for determining the display and interactions in the user interface.
+         */
+        std::string type;
+
+        /**
          * Value of this cell
          *
-         * Value when expression is evaluated. 
+         * Value when expression is evaluated. A string representation of the underlying object.
          * Value may be empty if the cell has never been updated
          * or if it was updated and there was an error
          */

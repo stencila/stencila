@@ -23,6 +23,7 @@ public:
 	 * @param id ID of the cell
 	 * @param expression Expression for the cell
 	 * @param name Name for the cell
+	 * @return     Type and text representation of cell value
 	 */
 	virtual std::string set(const std::string& id, const std::string& expression, const std::string& name="") = 0;
 
@@ -30,6 +31,7 @@ public:
 	 * Get a text representation of a variable in the spread
 	 * 
 	 * @param name Could be a cell id e.g. EF5 or and name e.g. price
+	 * @return     Type and text representation of cell value
 	 */
 	virtual std::string get(const std::string& name) = 0;
 
