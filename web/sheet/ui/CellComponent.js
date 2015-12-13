@@ -15,7 +15,6 @@ CellComponent.Prototype = function() {
   this.render = function() {
     var node = this.props.node;
     var el = $$('td');
-
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
 
@@ -29,21 +28,15 @@ CellComponent.Prototype = function() {
     }
 
     if (node) {
-      var isExpression = node.isExpression();
-      el.addClass(isExpression ? 'expression' : 'text');
       if (isEditing) {
         var editor = $$(TextPropertyEditor, {
           name: node.id,
-          path: [node.id, 'content'],
+          path: [node.id, 'expr'],
           commands: []
         }).ref('editor');
         el.append(editor);
       } else {
-        if (isExpression) {
-          el.text(node.value);
-        } else {
-          el.text(node.content);
-        }
+        el.text(node.value);
       }
     } else {
       el.addClass('empty');

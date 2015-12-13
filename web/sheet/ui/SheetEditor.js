@@ -54,7 +54,7 @@ SheetEditor.Prototype = function() {
       this.activeCell.disableEditing();
     }
     var node = cell.getNode();
-    if (node && node.isExpression()) {
+    if (node) {
       console.log('Show expression bar.');
     }
     this._rerenderSelection();

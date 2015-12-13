@@ -33,7 +33,7 @@ Sheet.Prototype = function() {
     var nrows = 0;
     var ncols = 0;
     _.each(nodes, function(node) {
-      if (node.content && node.type === "sheet-cell") {
+      if (node.type === "sheet-cell" && !node.empty()) {
         nrows = Math.max(nrows, node.row);
         ncols = Math.max(ncols, node.col);
       }
@@ -45,13 +45,13 @@ Sheet.Prototype = function() {
     var nodes = this.getNodes();
     if (mode === "sparse") {
       nodes = nodes.filter(function(node) {
-        return node.type === "sheet-cell" && node.content;
+        return node.type === "sheet-cell" && !node.empty();
       });
     }
     var tableData = this._getDimension(nodes);
     var cells = {};
     _.each(nodes, function(node) {
-      if (node.content && node.type === "sheet-cell") {
+      if (node.type === "sheet-cell" && !node.empty()) {
         cells[[node.row, node.col]] = node;
       }
     });

@@ -10,28 +10,24 @@ module.exports = {
   },
 
   import: function(el, node) {
-    // the rendered content
-    node.value = el.text();
     var expr = el.attr('data-expr');
     if (expr) {
-      node.content = "=" + expr;
-    } else {
-      // in case of a text content node.value === node.content
-      node.content = node.value;
+      node.expr = expr;
     }
     var name = el.attr('data-name');
     if (name) {
       node.name = name;
     }
+    node.value = el.text();
   },
 
   export: function(node, el) {
-    if (node.isExpression()) {
-      el.attr('data-expr', node.getExpression());
+    if (node.expr) {
+      el.attr('data-expr', node.expr);
     }
-    el.text(node.getValue());
     if (node.name) {
       el.attr('data-name', node.name);
     }
+    el.text(node.value);
   }
 };
