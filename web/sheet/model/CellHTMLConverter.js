@@ -19,9 +19,9 @@ module.exports = {
       // in case of a text content node.value === node.content
       node.content = node.value;
     }
-    var alias = el.attr('data-alias');
-    if (alias) {
-      node.alias = alias;
+    var name = el.attr('data-name');
+    if (name) {
+      node.name = name;
     }
   },
 
@@ -30,8 +30,8 @@ module.exports = {
       el.attr('data-expr', node.getExpression());
     }
     el.text(node.getValue());
-    if (node.alias) {
-      el.attr('data-alias', node.alias);
+    if (node.name) {
+      el.attr('data-name', node.name);
     }
   }
 };

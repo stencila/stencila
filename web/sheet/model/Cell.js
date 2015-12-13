@@ -34,7 +34,7 @@ Cell.static.name = "sheet-cell";
 
 Cell.static.defineSchema({
   content: "text",
-  alias: { type: "string", optional: true },
+  name: { type: "string", optional: true },
   value: { type: "string", optional: true },
   row: "number",
   col: "number"
