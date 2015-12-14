@@ -206,6 +206,18 @@ APPEND_VALUE(std::string)
 #undef APPEND_VALUE
 
 template<>
+Node Node::append(Document document){
+	pimpl_->append(*document.pimpl_);
+	return document;	
+}
+
+template<>
+Node Node::append(const std::string& name, Document document){
+	(*pimpl_)[name] = *document.pimpl_;
+	return document;	
+}
+
+template<>
 Node Node::append(Object){
 	JsonCpp::Value object(JsonCpp::objectValue);
 	pimpl_->append(object);
