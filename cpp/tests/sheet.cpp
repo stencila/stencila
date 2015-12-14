@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(translate){
 	BOOST_CHECK_EQUAL(s.translate("func(A1:A3,A4)"),"func([A1,A2,A3],A4)");
 }
 
-BOOST_AUTO_TEST_CASE(dependency_graph){
+BOOST_AUTO_TEST_CASE(dependencies_1){
 	Sheet s;
 	s.load(
 		"A2\tA1     \tC2 \n"
@@ -200,6 +200,47 @@ BOOST_AUTO_TEST_CASE(dependency_graph){
 
 	// Create a circular dependency
 	BOOST_CHECK_THROW(s.update("B2","A1 + B2"),Exception);
+}
+
+BOOST_AUTO_TEST_CASE(dependencies_2){
+	Sheet s;
+	s.load(
+		"0\tA1\n"
+		"0\tA2\n"
+	);
+	s.attach(std::make_shared<TestSpread>());
+	s.update();
+
+	BOOST_CHECK_EQUAL(join(s.depends("A1"), ","), "");
+	BOOST_CHECK_EQUAL(join(s.depends("A2"), ","), "");
+	BOOST_CHECK_EQUAL(join(s.depends("B1"), ","), "A1");
+	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "A2");
+	BOOST_CHECK_EQUAL(join(s.order(), ","), "A2,B2,A1,B1");
+
+	s.update("A1","0");
+	BOOST_CHECK_EQUAL(join(s.depends("A1"), ","), "");
+	BOOST_CHECK_EQUAL(join(s.order(), ","), "A2,B2,A1,B1");
+
+	s.update("B1","0");
+	BOOST_CHECK_EQUAL(join(s.depends("B1"), ","), "");
+	BOOST_CHECK_EQUAL(join(s.order(), ","), "B1,A2,B2,A1");
+}
+
+BOOST_AUTO_TEST_CASE(request){
+	Sheet s;
+	s.load(
+		"1\tA1\n"
+		"2\tA2\n"
+	);
+	s.attach(std::make_shared<TestSpread>());
+	s.update();
+
+	BOOST_CHECK_EQUAL(join(s.depends("B1"), ","), "A1");
+
+	BOOST_CHECK_EQUAL(
+		s.request("PUT","update",R"({"A1":"2"})"),
+		R"({"A1":{"type":"string","value":"2"},"B1":{"type":"string","value":"A1"}})"
+	);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -472,7 +472,7 @@ class Sheet : public Component {
      * @param cells Map of cell IDs and their contents
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::vector<std::string> update(const std::map<std::string,std::string>& cells);
+    std::map<std::string, std::array<std::string, 2>> update(const std::map<std::string,std::string>& cells);
 
     /**
      * Update a single cell with new content
@@ -481,7 +481,7 @@ class Sheet : public Component {
      * @param  content Cell content
      * @return         New value of the cell
      */
-    std::string update(const std::string& id, const std::string& content);
+    std::map<std::string, std::array<std::string, 2>> update(const std::string& id, const std::string& content);
 
     /**
      * Update all cells in this sheet
@@ -516,6 +516,14 @@ class Sheet : public Component {
      * Get the topological sort order for the cells in this sheet
      */
     std::vector<std::string> order(void);
+
+    /**
+     * Generate a Graphviz `dot` file of the dependency graph for this sheet
+     *
+     * @param path  File system path for the `.dot` file
+     * @param image Should the `dot` program be called to prdocue a PNG?
+     */
+    void graphviz(const std::string& path, bool image = true) const;
 
     /**
      * Get all predecessor cells for a cell
@@ -567,9 +575,13 @@ class Sheet : public Component {
      * which could potentially incorporate the functionality provided by the `cells_` map. But `labelled_graph` is not well documented
      * and seems to make working with BGL morre complicated. So for present, graph is used simply to provide a 
      * mapping of the dependency graph and not store cell data.
+     *
+     * Uses `boost::bidirectionalS` so that `boost::clear_in_edges` can be used in the `update()` method.
+     * An altrnative is to use `boost::directedS` which takes less memory and to use some alternative approach 
+     * in `update`. But this works.
      */
     typedef boost::adjacency_list<
-        boost::listS, boost::vecS, boost::directedS,
+        boost::listS, boost::vecS, boost::bidirectionalS,
         boost::property<boost::vertex_name_t, std::string>
     > Graph;
 

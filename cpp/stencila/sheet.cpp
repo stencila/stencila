@@ -4,12 +4,14 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/graph/graphviz.hpp>
 #include <boost/graph/topological_sort.hpp>
 #include <boost/regex.hpp>
 
 #include <stencila/sheet.hpp>
 #include <stencila/component-page.hpp>
 #include <stencila/exception.hpp>
+#include <stencila/helpers.hpp>
 
 namespace Stencila {
 
@@ -113,6 +115,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
 }
 
 Sheet& Sheet::load(std::istream& stream, const std::string& format) {
+    clear();
     unsigned int row = 0;
     std::string line;
     while (std::getline(stream, line)) {
@@ -250,12 +253,19 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
     Json::Document response = Json::Object();
 
     if (verb == "PUT" and method == "update") {
+        std::map<std::string,std::string> changed;
         for (auto iter = request.begin(); iter != request.end();) {
             auto id = iter.key().as<std::string>();
-            auto source = (*iter).as<std::string>();
-            //TODOauto new_value = update(id, source);
-            //TODOresponse.append(id, new_value);
+            auto content = (*iter).as<std::string>();
+            changed[id] = content;
             ++iter;
+        }
+        auto updates = update(changed);
+        for (auto update : updates) {
+            Json::Document cell = Json::Object();
+            cell.append("type", update.second[0]);
+            cell.append("value", update.second[1]);
+            response.append(update.first,cell);
         }
     }
     else {
@@ -422,7 +432,7 @@ std::string Sheet::translate(const std::string& expression) {
     return translation;
 }
 
-std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& cells) {
+std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<std::string,std::string>& cells) {
     // Change to the sheet's directory
     boost::filesystem::path current_path = boost::filesystem::current_path();
     boost::filesystem::path path = boost::filesystem::path(Component::path(true));
@@ -432,7 +442,8 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
-    std::vector<std::string> updated;
+    std::vector<std::string> changed;
+    std::map<std::string, std::array<std::string, 2>> updates;
     try {
 
         if (cells.size()){
@@ -442,15 +453,15 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
                 auto contnt = iter.second;
                 content(id,contnt);
                 // Keep track of those with content (as opposed to those wich were cleared because content=="")
-                if (contnt.length()) updated.push_back(id);
+                if (contnt.length()) changed.push_back(id);
             }
         } else {
             // Updating all cells
-            for(auto iter : cells_) updated.push_back(iter.first);
+            for (auto iter : cells_) changed.push_back(iter.first);
         }
 
         // Second pass: updating of dependency graph
-        for (auto id : updated) {
+        for (auto id : changed) {
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
@@ -465,7 +476,7 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
                         depend = iter->second;
                     }
                     // Remove anything that is not an id (e.g. function name)
-                    if (is_id(depend)){
+                    if (is_id(depend)) {
                         cell.depends.push_back(depend);
                     }
                 }
@@ -478,7 +489,7 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
                 vertices_[id] = vertex;
             } else {
                 vertex = iter->second;
-                boost::clear_vertex(vertex, graph_);
+                boost::clear_in_edges(vertex, graph_);
             }
             // Create inward edges from cells that this one depends upon
             for (auto depend : cell.depends) {
@@ -510,12 +521,12 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
         reverse(ids.begin(), ids.end());
         order_ = ids;
 
-        // Iterate through topological sort order and once the first updated
+        // Iterate through topological sort order and once the first changed
         // cell is hit, start recalculating subsequent cells
         bool calculate = false;
         for (auto id : order_) {
             if (not calculate) {
-                if (std::find(updated.begin(), updated.end(), id) != updated.end()) {
+                if (std::find(changed.begin(), changed.end(), id) != changed.end()) {
                     calculate = true;
                 }
             }
@@ -523,14 +534,16 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
                 auto iter = cells_.find(id);
                 if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
                 Cell& cell = iter->second;
-                auto expr = cell.expression.length()?cell.expression:cell.value;
-                if (expr.length() and spread_) {
-                    auto spread_expr = translate(expr);
+                if (cell.expression.length() and spread_) {
+                    auto spread_expr = translate(cell.expression);
                     auto type_value = spread_->set(id, spread_expr, cell.name);
                     auto space = type_value.find(" ");
                     cell.type = type_value.substr(0,space);
                     cell.value = type_value.substr(space+1);
-                    updated.push_back(id);
+                    updates[id] = {
+                        cell.type,
+                        cell.value
+                    };
                 }
             }
         }
@@ -543,13 +556,11 @@ std::vector<std::string> Sheet::update(const std::map<std::string,std::string>& 
     // Return to the current directory
     boost::filesystem::current_path(current_path);
 
-    return updated;
+    return updates;
 }
 
-std::string Sheet::update(const std::string& id, const std::string& content){
-    update({{id,content}});
-    if (content.length()) return cells_[id].value;
-    return "";
+std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::string& id, const std::string& content) {
+    return update({{id,content}});
 }
 
 Sheet& Sheet::update(void) {
@@ -577,6 +588,14 @@ std::vector<std::string> Sheet::depends(const std::string& id) {
 
 std::vector<std::string> Sheet::order(void) {
     return order_;
+}
+
+void Sheet::graphviz(const std::string& path, bool image) const {
+    std::ofstream file(path);
+    boost::write_graphviz(file, graph_,
+        boost::make_label_writer(boost::get(boost::vertex_name, graph_))
+    );
+    if(image) Helpers::execute("dot -Tpng "+path+" -o "+path+".png");
 }
 
 std::vector<std::string> Sheet::predecessors(const std::string& id) {
