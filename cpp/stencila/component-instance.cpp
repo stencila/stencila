@@ -67,6 +67,14 @@ std::vector<std::pair<std::string,std::string>> Component::held_list(void){
 	return list;
 }
 
+Component& Component::unhold(void) {
+	auto iterator = instances_.find(address());
+	if(iterator!=instances_.end()){
+		instances_.erase(iterator);
+	}
+	return *this;
+}
+
 Component::Type Component::type(const std::string& path_string){
 	boost::filesystem::path path(path_string);
 	for(auto file : {"stencil.html","stencil.cila"}){
@@ -102,7 +110,6 @@ std::string Component::type_name(const Component::Type& type){
 
 Component::Instance Component::get(const std::string& address,const std::string& version,const std::string& comparison){
 	Instance instance;
-
 	auto iterator = instances_.find(address);
 	if(iterator!=instances_.end()){
 		instance = iterator->second;

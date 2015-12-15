@@ -230,7 +230,7 @@ void Server::http_(connection_hdl hdl) {
 			// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
 			// will cause a 404 error). 
 			// So, if no trailing slash, then redirect...
-			if(path[path.length()-1]!='/'){
+			if(path.back()!='/'){
 				status = http::status_code::moved_permanently;
 				// Use full URI for redirection because multiple leading slashes can get
 				// squashed up otherwise
@@ -238,7 +238,11 @@ void Server::http_(connection_hdl hdl) {
 				connection->append_header("Location",uri);
 			}
 			else {
-				content = Component::page(path);
+				// Remove any trailing slashes in path to make it a
+				// component address
+				auto address = path;
+				if(address.back()=='/') address.pop_back();
+				content = Component::page(address);
 				content_type = "text/html";
 			}
 		}

@@ -220,15 +220,20 @@ class Sheet : public Component {
 
     /**
      * @name Serving
+     *
+     * Methods for serving a sheet over a nework.
+     * Overrides of `Component` methods as required.
+     *
+     * @{
      */
 
     /**
-     * Serve this stencil
+     * Serve this sheet
      */
     std::string serve(void);
 
     /**
-     * View this stencil
+     * View this sheet
      */
     Sheet& view(void);
 

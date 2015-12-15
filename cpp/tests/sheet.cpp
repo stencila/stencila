@@ -4,9 +4,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/sheet.hpp>
-
-BOOST_AUTO_TEST_SUITE(sheet_quick)
-
 using namespace Stencila;
 
 class TestSpread : public Spread {
@@ -58,6 +55,8 @@ class TestSpread : public Spread {
  private:
  	std::map<std::string,std::string> variables_;
 };
+
+BOOST_AUTO_TEST_SUITE(sheet_quick)
 
 BOOST_AUTO_TEST_CASE(meta_attributes){
 	Sheet s1;
@@ -243,4 +242,28 @@ BOOST_AUTO_TEST_CASE(request){
 	);
 }
 
+
 BOOST_AUTO_TEST_SUITE_END()
+
+
+
+BOOST_AUTO_TEST_SUITE(sheet_slow)
+
+BOOST_AUTO_TEST_CASE(view){
+	// Must be called to register classes
+	// before serving will work
+	Component::classes();
+
+	Sheet s;
+	s.load("Hello world\n");
+	s.attach(std::make_shared<TestSpread>());
+	s.update();
+	s.view();
+
+	BOOST_CHECK(s.held());
+
+	sleep(30);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+

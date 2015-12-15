@@ -195,9 +195,11 @@ std::string Component::index(void){
 			<body></body>
 		</html>
 	)");
-	auto list = page.select("body").append("ul");
+	auto ul = page.select("body").append("ul");
 	for(auto instance : instances_){
-		list.append("li",instance.first);
+		auto li = ul.append("li");
+		li.append("span",{{"class","type"}},type_name(instance.second.type()));
+		li.append("a",{{"href","./"+instance.first}},instance.first);
 	}
 	return page.dump();
 }

@@ -499,6 +499,11 @@ public:
 	bool held(void) const;
 
 	/**
+	 * No longer hold this component in the list of instances
+	 */
+	Component& unhold(void);
+
+	/**
 	 * Get a list of all components held with address and type strings
 	 */
 	static std::vector<std::pair<std::string,std::string>> held_list(void);
