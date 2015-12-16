@@ -467,9 +467,16 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
             // Get the list of variable names this cell depends upon
             if (cell.expression.length() and spread_) {
                 auto spread_expr = translate(cell.expression);
-                auto depends = split(spread_->depends(spread_expr), ",");
+                // There may be a syntax error in the expression
+                // so capture those and set dependencies to none
+                std::string depends;
+                try {
+                    depends = spread_->depends(spread_expr);
+                } catch(...) {
+                    depends = "";
+                }
                 cell.depends.clear();
-                for (std::string depend : depends) {
+                for (std::string depend : split(depends, ",")) {
                     // Replace cell names with cell ids
                     auto iter = names_.find(depend);
                     if (iter != names_.end()) {
@@ -536,7 +543,12 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                 Cell& cell = iter->second;
                 if (cell.expression.length() and spread_) {
                     auto spread_expr = translate(cell.expression);
-                    auto type_value = spread_->set(id, spread_expr, cell.name);
+                    std::string type_value;
+                    try {
+                        type_value = spread_->set(id, spread_expr, cell.name);
+                    } catch (const std::exception& exc) {
+                        type_value = exc.what();
+                    }
                     auto space = type_value.find(" ");
                     cell.type = type_value.substr(0,space);
                     cell.value = type_value.substr(space+1);

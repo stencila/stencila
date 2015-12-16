@@ -10,9 +10,15 @@ class TestSpread : public Spread {
  public:
 
 	std::string set(const std::string& id, const std::string& expression, const std::string& name = ""){
-		variables_[id] = expression;
-		if (name.length()) variables_[name] = expression;
-		return "string " + expression;
+		std::string value;
+		if(expression.find("error")!=std::string::npos) {
+			value = "There was an error!";
+		} else {
+			value = expression;
+		}
+		variables_[id] = value;
+		if (name.length()) variables_[name] = value;
+		return "string " + value;
 	}
 
 	std::string get(const std::string& name){
@@ -239,6 +245,11 @@ BOOST_AUTO_TEST_CASE(request){
 	BOOST_CHECK_EQUAL(
 		s.request("PUT","update",R"({"A1":"2"})"),
 		R"({"A1":{"type":"string","value":"2"},"B1":{"type":"string","value":"A1"}})"
+	);
+
+	BOOST_CHECK_EQUAL(
+		s.request("PUT","update",R"({"A1":"some error"})"),
+		R"({"A1":{"type":"string","value":"There was an error!"},"B1":{"type":"string","value":"A1"}})"
 	);
 }
 
