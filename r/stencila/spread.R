@@ -65,6 +65,7 @@ Spread <- function(envir, closed=FALSE) {
         device_before <- recordPlot()
       
         # Evaluate, capturing any error
+        type <- ''
         value <- tryCatch(
             eval(
                 parse(text=expression),
@@ -72,8 +73,12 @@ Spread <- function(envir, closed=FALSE) {
             ),
             error=identity
         )
+        repr <- ''
+
         if(inherits(value,'error')){
-            value <- paste("Error: ",value$message)
+            type <- 'error'
+            value <- NA
+            repr <- value$message
         }
 
         # Assign value to `id` and, optionally, to `name`
@@ -84,22 +89,24 @@ Spread <- function(envir, closed=FALSE) {
         
         # Determine type and string representation
         # Check if device has changed
-        if(!identical(device_before,recordPlot())){
-            type <- 'image-url'
-            repr <- filename
-        }
-        else {
-            type <- class(value)
-            type <- switch(type,
-                numeric = 'real',
-                character = 'string',
-                type
-            )
+        if(type == ''){
+            if(!identical(device_before,recordPlot())){
+                type <- 'image-url'
+                repr <- filename
+            }
+            else {
+                type <- class(value)
+                type <- switch(type,
+                    numeric = 'real',
+                    character = 'string',
+                    type
+                )
 
-            if(type %in% c('integer','real','string')){
-                repr <- toString(value)
-            } else {
-                repr <- paste(capture.output(print(value)),collapse="\n")
+                if(type %in% c('integer','real','string')){
+                    repr <- toString(value)
+                } else {
+                    repr <- paste(capture.output(print(value)),collapse="\n")
+                }
             }
         }
         
