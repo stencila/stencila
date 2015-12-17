@@ -250,29 +250,35 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
     if (body.length()) {
         request.load(body);
     }
-    Json::Document response = Json::Object();
 
     if (verb == "PUT" and method == "update") {
-        std::map<std::string,std::string> changed;
-        for (auto iter = request.begin(); iter != request.end();) {
-            auto id = iter.key().as<std::string>();
-            auto content = (*iter).as<std::string>();
-            changed[id] = content;
-            ++iter;
+        if(not request.is<Json::Array>()){
+            STENCILA_THROW(Exception, "Array required");
         }
+        std::map<std::string,std::string> changed;
+        for (unsigned int index = 0; index < request.size(); index++) {
+            auto cell = request[index];
+            auto id = cell["id"].as<std::string>();
+            auto content = cell["content"].as<std::string>();
+            changed[id] = content;
+        }
+
         auto updates = update(changed);
+
+        Json::Document response = Json::Array();
         for (auto update : updates) {
             Json::Document cell = Json::Object();
+            cell.append("id", update.first);
             cell.append("type", update.second[0]);
             cell.append("value", update.second[1]);
-            response.append(update.first,cell);
+            response.append(cell);
         }
-    }
-    else {
+        return response.dump();
+    } else {
         throw RequestInvalidException();
     }
 
-    return response.dump();
+    return "";
 }
 
 
@@ -365,7 +371,10 @@ std::array<std::string, 2> Sheet::parse(const std::string& content) {
 }
 
 Sheet& Sheet::content(const std::string& id, const std::string& content) {
-    if(content.length()){
+    if (not is_id(id)) {
+        STENCILA_THROW(Exception, "Not a valid cell identifier\n  id: "+id);
+    }
+    if (content.length()) {
         // Get or create the cell
         Cell& cell = cells_[id];
         // Set its attributes
