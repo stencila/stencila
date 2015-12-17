@@ -69,13 +69,36 @@ var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 Sheet.static.getColumnName = function(col) {
   var name = "";
-  do {
+  while(true) {
     var mod = col % ALPHABET.length;
-    name += ALPHABET[mod];
-    col -= ALPHABET.length;
-  } while (col > 0);
+    col = Math.floor(col/ALPHABET.length);
+    name = ALPHABET[mod] + name;
+    if (col > 0) col--;
+    else if (col === 0) break;
+  }
   return name;
 };
 
+Sheet.static.getColumnIndex = function(col) {
+    var index = 0;
+    var rank = 1;
+    _.each(col, function(letter) {
+        index += rank * ALPHABET.indexOf(letter);
+        rank++;
+    });
+    return index;
+};
+
+Sheet.static.getCellId = function(row,col) {
+  return Sheet.static.getColumnName(col)+(row+1);
+};
+
+Sheet.static.getRowCol = function(id) {
+  var match = /^([A-Z]+)([1-9][0-9]*)$/.exec(id);
+  return [
+    parseInt(match[2])-1,
+    Sheet.static.getColumnIndex(match[1])
+  ];
+};
 
 module.exports = Sheet;

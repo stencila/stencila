@@ -6,6 +6,8 @@ var Component = require('substance/ui/Component');
 var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
 
+var Sheet = require('../model/Sheet');
+
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
 }
@@ -70,11 +72,14 @@ CellComponent.Prototype = function() {
   this.enableEditing = function() {
     if (!this.props.node) {
       var doc = this.getDocument();
+      var row = new Number(this.attr('data-row'));
+      var col = new Number(this.attr('data-col'));
       var node = {
         type: "sheet-cell",
         id: uuid(),
-        row: new Number(this.attr('data-row')),
-        col: new Number(this.attr('data-col'))
+        row: row,
+        col: col,
+        cid: Sheet.static.getCellId(row,col)
       };
       doc.transaction(function(tx) {
         tx.create(node);

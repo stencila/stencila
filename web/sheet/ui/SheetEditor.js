@@ -5,6 +5,11 @@ var Controller = require('substance/ui/Controller');
 var SheetComponent = require('./SheetComponent');
 var $$ = Component.$$;
 
+var Sheet = require('../model/Sheet');
+
+var SheetRemoteEngine = require('../engine/SheetRemoteEngine');
+var engine = new SheetRemoteEngine();
+
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
 
@@ -110,6 +115,24 @@ SheetEditor.Prototype = function() {
     }
     // ENTER
     else if (event.keyCode === 13) {
+      if (this.activeCell) {
+        var cell = this.activeCell.props.node;
+        var sheet = this.refs.sheet;
+        engine.update([{
+          "id" : cell.cid,
+          "content" : cell.expr
+        }], function(error, updates){
+          for(var index = 0; index < updates.length; index++){
+            var update = updates[index];
+            var coords = Sheet.static.getRowCol(update.id);
+            var cellComponent = sheet.getCellAt(coords[0], coords[1]);
+            var cellNode = cellComponent.getNode();
+            cellNode.tipe = cell.type;
+            cellNode.value = update.value;
+            cellComponent.rerender();
+          }
+        });
+      }
       this._selectNextCell(1, 0);
       handled = true;
     }

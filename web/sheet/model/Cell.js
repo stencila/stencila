@@ -22,7 +22,8 @@ Cell.static.defineSchema({
   tipe: { type: "string", optional: true },
   value: { type: "string", optional: true },
   row: "number",
-  col: "number"
+  col: "number",
+  cid: "string"
 });
 
 Cell.static.generatedProps = ['tipe','value'];
