@@ -251,7 +251,50 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         request.load(body);
     }
 
-    if (verb == "PUT" and method == "update") {
+    // TODO: return error codes and messages instead of throwing exceptions
+
+    // TODO : should be a GET but don't currently deal with query strings for parameters
+    if (verb == "PUT" and method == "cell") {
+        Cell cell;
+        auto id = request["id"].as<std::string>();
+        if (id.length()) {
+            if (not is_id(id)) {
+                STENCILA_THROW(Exception, "Not a valid id"); 
+            }
+            else {
+                auto iter = cells_.find(id);
+                if (iter != cells_.end()) {
+                    cell = iter->second;
+                } else {
+                    STENCILA_THROW(Exception, "Not found");
+                }
+            }
+        }
+        else {
+            auto name = request["name"].as<std::string>();
+            if (name.length()) {
+                auto iter = names_.find(name);
+                if (iter != names_.end()) {
+                    cell = cells_[iter->second];
+                } else {
+                    STENCILA_THROW(Exception, "Not found");
+                }
+            } else {
+                STENCILA_THROW(Exception, "Either `id` or `name` parameters must be supplied");
+            }
+        }
+
+        Json::Document response = Json::Object();
+        response.append("id", id);
+        response.append("expression", cell.expression);
+        response.append("name", cell.name);
+        response.append("type", cell.type);
+        response.append("value", cell.value);
+
+        return response.dump();
+
+    } else if (verb == "PUT" and method == "update") {
+
         if(not request.is<Json::Array>()){
             STENCILA_THROW(Exception, "Array required");
         }
@@ -274,6 +317,7 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
             response.append(cell);
         }
         return response.dump();
+
     } else {
         throw RequestInvalidException();
     }
