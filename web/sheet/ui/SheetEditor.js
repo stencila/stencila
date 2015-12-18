@@ -127,7 +127,7 @@ SheetEditor.Prototype = function() {
             var coords = Sheet.static.getRowCol(update.id);
             var cellComponent = sheet.getCellAt(coords[0], coords[1]);
             var cellNode = cellComponent.getNode();
-            cellNode.tipe = cell.type;
+            cellNode.tipe = update.type;
             cellNode.value = update.value;
             cellComponent.rerender();
           }
