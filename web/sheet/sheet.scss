@@ -35,12 +35,29 @@ tr>th:first-child {
   min-width: 3rem;
 }
 
+
 td.display {
   cursor: default;
 }
 
+td.display.image-url {
+  position: relative;
+  img {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    border: 1px solid #EEE;
+    z-index: 1;
+  }
+}
+
 td.display.object {
   position: relative;
+  // Prevent from becoming too large
+  display: block;
+  max-height: 15em;
+  max-width: 30em;
+  overflow-y: scroll;
   background: #F8F8F8;
   span {
     position: absolute;
@@ -54,14 +71,12 @@ td.display.object {
     font-size: 12px;
   }
   pre {
+    margin-top: 20px;
     text-align: left;
   }
 }
 
-td.display.expression {
-  background-color: rgba(200, 200, 200, 0.5);
-  font-style: italic;
-}
+
 
 td.edit {
   position: relative;
