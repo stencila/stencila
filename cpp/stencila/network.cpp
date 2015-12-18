@@ -259,12 +259,14 @@ void Server::http_(connection_hdl hdl) {
 		status = http::status_code::internal_server_error;
 		content = "Unknown exception";			
 	}
-	// Access control headers
-	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS 
-	connection->append_header("Access-Control-Allow-Origin","*");
-	connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
-	connection->append_header("Access-Control-Allow-Headers","Content-Type");
-	connection->append_header("Access-Control-Max-Age","1728000");
+	#if 0
+		// Access control headers
+		// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS 
+		connection->append_header("Access-Control-Allow-Origin","*");
+		connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+		connection->append_header("Access-Control-Allow-Headers","Content-Type");
+		connection->append_header("Access-Control-Max-Age","1728000");
+	#endif
 	// Replace the WebSocket++ "Server" header
 	connection->replace_header("Server","Stencila embedded");
 	// Set status and content
