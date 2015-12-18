@@ -48,10 +48,16 @@ CellComponent.Prototype = function() {
               .attr('src', node.value)
           );
         } else {
-          el.append(
-            $$('pre')
-              .text(node.value)
-          );
+          el
+            .addClass('object')
+            .append(
+              $$('span')
+                .text(node.tipe)
+            )
+            .append(
+              $$('pre')
+                .text(node.value)
+            );
         }
       }
     } else {

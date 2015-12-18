@@ -39,6 +39,25 @@ td.display {
   cursor: default;
 }
 
+td.display.object {
+  position: relative;
+  background: #F8F8F8;
+  span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 0 0.1em 0 0.1em;
+    margin: 3px;
+    background: #FFE78A;
+    font-size: 12px;
+  }
+  pre {
+    text-align: left;
+  }
+}
+
 td.display.expression {
   background-color: rgba(200, 200, 200, 0.5);
   font-style: italic;
