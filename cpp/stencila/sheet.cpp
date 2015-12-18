@@ -293,6 +293,17 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
 
         return response.dump();
 
+    } else if (verb == "PUT" and method == "evaluate") {
+        auto expr = request["expr"].as<std::string>();
+
+        auto result = evaluate(expr);
+
+        Json::Document response = Json::Object();
+        response.append("type", result[0]);
+        response.append("value", result[1]);
+
+        return response.dump();
+
     } else if (verb == "PUT" and method == "update") {
 
         if(not request.is<Json::Array>()){
@@ -483,6 +494,35 @@ std::string Sheet::translate(const std::string& expression) {
     }
 
     return translation;
+}
+
+std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
+    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
+
+    // Change to the sheet's directory
+    boost::filesystem::path current_path = boost::filesystem::current_path();
+    boost::filesystem::path path = boost::filesystem::path(Component::path(true));
+    try {
+        boost::filesystem::current_path(path);
+    } catch(const std::exception& exc){
+        STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
+    }
+
+    try {
+        auto type_value = spread_->evaluate(translate(expression));
+        auto space = type_value.find(" ");
+        auto type = type_value.substr(0, space);
+        auto value = type_value.substr(space+1);
+        return {type, value};
+
+    } catch (...){
+        // Ensure return to current directory even if there is an exception
+        boost::filesystem::current_path(current_path);
+        throw;
+    }
+
+    // Return to the current directory
+    boost::filesystem::current_path(current_path);
 }
 
 std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<std::string,std::string>& cells) {

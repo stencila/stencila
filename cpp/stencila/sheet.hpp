@@ -456,6 +456,11 @@ class Sheet : public Component {
     std::string translate(const std::string& expression);
 
     /**
+     * Evaluate a sheet expression within the attached spread
+     */
+    std::array<std::string, 2> evaluate(const std::string& expression);
+
+    /**
      * Set the content of a cell
      *
      * Note that this method does not do any cell calculations

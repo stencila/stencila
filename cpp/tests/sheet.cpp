@@ -9,6 +9,10 @@ using namespace Stencila;
 class TestSpread : public Spread {
  public:
 
+	std::string evaluate(const std::string& expression){
+		return "";
+	}
+
 	std::string set(const std::string& id, const std::string& expression, const std::string& name = ""){
 		std::string value;
 		if(expression.find("error")!=std::string::npos) {

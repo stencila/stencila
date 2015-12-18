@@ -30,6 +30,64 @@ Spread <- function(envir, closed=FALSE) {
 
     # Use method names with leading dot to disaccosiated them from sheet variables
     
+    # Evaluate an expression
+    # 
+    # @param prefix A useful prefix to be added to any fies that may be produced from evaluation
+    # @param as_string Should the return value be a string? (set to false when used internally)
+    self$.evaluate <- function(expression, prefix, as_string = TRUE){
+        # Create a image file (only gets written to disk if the device is plotted on)
+        # Unique name uses prefix plus IOS 8601 datetime plus uniquizing randon number
+        unique <- paste0(prefix,'-',format(Sys.time(),format="%Y-%m-%dT%H:%M:%OS3"),'-',floor(runif(1)*10000))
+        filename <- file.path("out",paste0(unique,".png"))
+        png(filename)
+        device <- dev.cur()
+        # Ensure that whever happens, the device gets turned off
+        on.exit(dev.off(device))
+        # Record the device state to detect any changes
+        device_before <- recordPlot()
+
+        # Evaluate expression within this environment, capturing any errors
+        type <- ''
+        value <- tryCatch(
+            eval(
+                parse(text=expression),
+                envir=self
+            ),
+            error=identity
+        )
+        repr <- ''
+
+        # Determine type and string representation
+        # Check if device has changed
+        if(inherits(value,'error')){
+            type <- 'error'
+            repr <- value$message
+            value <- NA
+        } else {
+            if(!identical(device_before,recordPlot())){
+                type <- 'image-url'
+                repr <- filename
+            }
+            else {
+                type <- class(value)
+                type <- switch(type,
+                    numeric = 'real',
+                    character = 'string',
+                    type
+                )
+
+                if(type %in% c('integer','real','string')){
+                    repr <- toString(value)
+                } else {
+                    repr <- paste(capture.output(print(value)),collapse="\n")
+                }
+            }
+        }
+
+        if (as_string) return(paste(type,repr))
+        else return(list(type=type,value=value,repr=repr))
+    }
+    
     # Assign a expression to a variable name
     # 
     # This is the method that the sheet calls for every cell which
@@ -54,63 +112,19 @@ Spread <- function(envir, closed=FALSE) {
     # 
     #   spread$.set('J7','2*pi*radius','circumference')
     #
-    self$.set <- function(id,expression,name=""){
-        # Create a image file (only gets same to disk if the device is plotted on)
-        filename <- file.path("out",paste0(ifelse(nchar(name),name,id),".png"))
-        png(filename)
-        device <- dev.cur()
-        # Ensure that whever happens, the device gets turned off
-        on.exit(dev.off(device))
-        # Record the device state to detect any changes
-        device_before <- recordPlot()
-      
-        # Evaluate, capturing any error
-        type <- ''
-        value <- tryCatch(
-            eval(
-                parse(text=expression),
-                envir=self
-            ),
-            error=identity
+    self$.set <- function(id,expression,name=""){      
+        evaluation <- self$.evaluate(
+            expression,
+            prefix = ifelse(nchar(name),name,id),
+            as_string = FALSE
         )
-        repr <- ''
 
-        if(inherits(value,'error')){
-            type <- 'error'
-            value <- NA
-            repr <- value$message
-        }
-
-        # Assign value to `id` and, optionally, to `name`
-        assign(id,value,envir=self)
+        assign(id,evaluation$value,envir=self)
         if(name!=""){
-            assign(name,value,envir=self)
+            assign(name,evaluation$value,envir=self)
         }
         
-        # Determine type and string representation
-        # Check if device has changed
-        if(type == ''){
-            if(!identical(device_before,recordPlot())){
-                type <- 'image-url'
-                repr <- filename
-            }
-            else {
-                type <- class(value)
-                type <- switch(type,
-                    numeric = 'real',
-                    character = 'string',
-                    type
-                )
-
-                if(type %in% c('integer','real','string')){
-                    repr <- toString(value)
-                } else {
-                    repr <- paste(capture.output(print(value)),collapse="\n")
-                }
-            }
-        }
-        
-        return(paste(type,repr))
+        return(paste(evaluation$type,evaluation$repr))
     }
 
 

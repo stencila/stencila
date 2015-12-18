@@ -18,6 +18,14 @@ public:
 	virtual ~Spread(void) {};
 
 	/**
+	 * Evaluate an expresion
+	 * 
+	 * @param expression Expression in the host language
+	 * @return     Type and text representation of cell value
+	 */
+	virtual std::string evaluate(const std::string& expression) = 0;
+
+	/**
 	 * Assign a expression to a cell id and potentially a cell name
 	 * 
 	 * @param id ID of the cell

@@ -26,6 +26,10 @@ public:
      *
      * @{
      */
+    
+    std::string evaluate(const std::string& expression) {
+        return call_<std::string>(".evaluate", expression, "eval", true);
+    }
 
     std::string set(const std::string& id, const std::string& expression, const std::string& name = "") {
         return call_<std::string>(".set", id, expression, name);
