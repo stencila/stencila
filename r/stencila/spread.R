@@ -40,7 +40,7 @@ Spread <- function(envir, closed=FALSE) {
         unique <- paste0(prefix,'-',format(Sys.time(),format="%Y-%m-%dT%H:%M:%OS3"),'-',floor(runif(1)*10000))
         dir.create('out', showWarnings = FALSE)
         filename <- file.path("out",paste0(unique,".png"))
-        png(filename)
+        png(filename, width=400, height=400)
         device <- dev.cur()
         # Ensure that whever happens, the device gets turned off
         on.exit(dev.off(device))
