@@ -38,6 +38,7 @@ Spread <- function(envir, closed=FALSE) {
         # Create a image file (only gets written to disk if the device is plotted on)
         # Unique name uses prefix plus IOS 8601 datetime plus uniquizing randon number
         unique <- paste0(prefix,'-',format(Sys.time(),format="%Y-%m-%dT%H:%M:%OS3"),'-',floor(runif(1)*10000))
+        dir.create('out', showWarnings = FALSE)
         filename <- file.path("out",paste0(unique,".png"))
         png(filename)
         device <- dev.cur()
