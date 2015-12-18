@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
+
 // Substance styles
 
 @import '../node_modules/substance/styles/base/index';
@@ -5,6 +7,9 @@
 // Basic sheet styling
 
 table {
+  font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
+  font-size: 16px;
+
   /* deactivate native selections */
   -webkit-user-select: none;
      -moz-user-select: none;
