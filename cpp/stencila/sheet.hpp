@@ -134,7 +134,7 @@ class Sheet : public Component {
     /**
      * Generate a HTML table for this sheet
      */
-    Html::Fragment html_table(unsigned int rows = 50, unsigned int cols = 20) const;
+    Html::Fragment html_table(unsigned int rows = 0, unsigned int cols = 0) const;
 
     /**
      * Load this sheet from an input stream
@@ -407,6 +407,11 @@ class Sheet : public Component {
      * The inverse of `indentify_col`
      */
     static unsigned int index_col(const std::string& col);
+
+    /**
+     * Generate the row and column index from a cell identifier
+     */
+    static std::array<unsigned int, 2> index(const std::string& id);
 
     /**
      * Create a list of cell IDs that interpolate between the

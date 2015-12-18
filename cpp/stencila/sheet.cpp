@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive.hpp>
@@ -70,7 +71,6 @@ std::vector<std::string> Sheet::authors(void) const {
 }
 
 std::string Sheet::theme(void) const {
-    // TODO
     return "";
 }
 
@@ -87,6 +87,13 @@ Sheet& Sheet::initialise(const std::string& from) {
 }
 
 Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
+    if(rows==0 or cols==0){
+        // Generate some sensible defaults
+        auto extents = extent();
+        if (rows == 0) rows = std::max(std::min(extents[0]+11, 200u), 50u);
+        if (cols == 0) cols = std::max(std::min(extents[1]+11, 100u), 26u);
+    }
+
     Html::Fragment frag("<table></table>");
     auto table = frag.select("table");
     auto tr = table.append("thead").append("tr");
@@ -213,13 +220,7 @@ std::string Sheet::page(void) const {
     // Add sheet to main#content
     auto main = body.select("main");
     main.attr("id", "content");
-    // Number of rows and columns should be neither too small not tool large
-    auto extents = extent();
-    auto rows = extents[0];
-    rows = std::min(std::max(rows+1, 50u), 200u);
-    auto cols = extents[1];
-    cols = std::min(std::max(cols+1, 20u), 100u);
-    main.append(html_table(rows, cols));
+    main.append(html_table());
 
     return doc.dump(false);
 }
@@ -376,6 +377,15 @@ unsigned int Sheet::index_col(const std::string& col) {
     return index;
 }
 
+std::array<unsigned int, 2> Sheet::index(const std::string& id) {
+    boost::smatch match;
+    if(boost::regex_match(id, match, id_regex)){
+        return {index_row(match[2]),index_col(match[1])};
+    } else {
+        STENCILA_THROW(Exception, "Invalid id");
+    }
+}
+
 std::vector<std::string> Sheet::interpolate(
     const std::string& col1, const std::string& row1, 
     const std::string& col2, const std::string& row2
@@ -398,8 +408,14 @@ std::vector<std::string> Sheet::interpolate(
 }
 
 std::array<unsigned int, 2> Sheet::extent(void) const {
-    // TODO
-    return {10,10};
+    auto row = 0u;
+    auto col = 0u;
+    for(auto iter : cells_){
+        auto indices = index(iter.first);
+        row = std::max(row,indices[0]);
+        col = std::max(col,indices[1]);
+    }
+    return {row,col};
 }
 
 Sheet& Sheet::attach(std::shared_ptr<Spread> spread) {
