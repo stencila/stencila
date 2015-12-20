@@ -15,6 +15,9 @@ def grab(address):
         return Stencil(path)
     elif type == 'Theme':
         return extension.Theme(path)
+    elif type == 'Sheet':
+        from stencila.sheet import Sheet
+        return Sheet(path)
     else:
         raise Exception(
             'Unhandled type at address:\n  type:%s\n  address:%s' %

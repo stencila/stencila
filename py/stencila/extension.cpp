@@ -31,6 +31,7 @@ void exception_test(void){
 void def_Component(void);
 void def_Stencil(void);
 void def_Theme(void);
+void def_Sheet(void);
 
 BOOST_PYTHON_MODULE(extension){
 	// Declare converters
@@ -44,6 +45,7 @@ BOOST_PYTHON_MODULE(extension){
 	def_Component();
     def_Stencil();
     def_Theme();
+    def_Sheet();
 
     // Declare component class types
     Stencila::Component::classes();
