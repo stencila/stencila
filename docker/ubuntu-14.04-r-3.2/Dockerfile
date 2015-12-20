@@ -18,11 +18,11 @@ RUN apt-get install -y r-base=3.2.2-1trusty0 r-base-dev=3.2.2-1trusty0 r-recomme
 WORKDIR /tmp
 
 # Install Stencila R package dependencies
-RUN Rscript -e "install.packages('Rcpp',repo='http://cran.cnr.berkeley.edu/')"
+RUN Rscript -e "install.packages('Rcpp',repo='http://cran.us.r-project.org/')"
 
-# Install Stencila R package using tar so that version can be specified
-# RUN gets cached is just using `install.packages('stencila',repo='http://get.stenci.la/r')`
-RUN wget http://get.stenci.la/r/src/contrib/stencila_0.20.tar.gz ; \
+# Install Stencila R package using tar so that version can be specified.
+# RUN gets cached if we use `install.packages('stencila',repo='http://get.stenci.la/r')` instead
+RUN wget http://get.stenci.la/r/src/contrib/stencila_0.20.tar.gz  ; \
     R CMD INSTALL stencila_0.20.tar.gz
 
 # Add Stencila CLI script to PATH
