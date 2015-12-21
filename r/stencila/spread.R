@@ -9,7 +9,7 @@
 #' @export
 Spread <- function(envir, closed=FALSE) {
     
-    # Will this have the enclosing env as a parent?
+    # Should this have the enclosing env as a parent?
     parent = if(closed) baseenv() else parent.frame()
 
     # Create the new environment
@@ -28,11 +28,36 @@ Spread <- function(envir, closed=FALSE) {
 
     class(self) <- "Spread"
 
-    # Use method names with leading dot to disaccosiated them from sheet variables
+    # Use method names with leading dot to disassociate them from sheet variables (e.g. in
+    # use of `ls()` below)
+    
+    # Get the type and string representation of a value
+    self$.value <- function(value){
+        type <- class(value)
+        type <- switch(type,
+            numeric = 'real',
+            character = 'string',
+            type
+        )
+
+        if(type %in% c('integer','real','string')){
+            repr <- toString(value)
+        } else if (type=='ImageFile') {
+            repr <- value
+        }
+        else {
+            repr <- paste(capture.output(print(value)),collapse="\n")
+        }
+
+        list(
+            type = type,
+            repr = repr
+        )
+    }
     
     # Evaluate an expression
     # 
-    # @param prefix A useful prefix to be added to any fies that may be produced from evaluation
+    # @param prefix A useful prefix to be added to any files that may be produced from evaluation
     # @param as_string Should the return value be a string? (set to false when used internally)
     self$.evaluate <- function(expression, prefix, as_string = TRUE){
         # Create a image file (only gets written to disk if the device is plotted on)
@@ -66,23 +91,12 @@ Spread <- function(envir, closed=FALSE) {
             value <- NA
         } else {
             if(!identical(device_before,recordPlot())){
-                type <- 'image-url'
-                repr <- filename
+                value <- filename
+                class(value) <- 'ImageFile'
             }
-            else {
-                type <- class(value)
-                type <- switch(type,
-                    numeric = 'real',
-                    character = 'string',
-                    type
-                )
-
-                if(type %in% c('integer','real','string')){
-                    repr <- toString(value)
-                } else {
-                    repr <- paste(capture.output(print(value)),collapse="\n")
-                }
-            }
+            result <- self$.value(value)
+            type <- result$type
+            repr <- result$repr
         }
 
         if (as_string) return(paste(type,repr))
@@ -133,11 +147,19 @@ Spread <- function(envir, closed=FALSE) {
     # 
     # Name could be a cell id e.g. F5 or and name e.g. price
     self$.get <- function(name){
-        value <- get(name,envir=self)
-        stream <- textConnection("text", "w")
-        cat(paste(value,collapse=", "),file=stream)
-        close(stream)
-        return(text)
+        value <- tryCatch(
+            get(
+                name,
+                envir = self
+            ),
+            error = identity
+        )
+        if(inherits(value,'error')){
+            result <- "error Update required"
+        } else {
+            result <- self$.value(value)
+        }
+        return(paste(result$type,result$repr))
     }
     
     # Clear one or all cell values
@@ -171,6 +193,23 @@ Spread <- function(envir, closed=FALSE) {
         # Use the handy `all.names` function which does the 
         # AST generation and walking for us
         return(paste(all.names(parse(text=expression)),collapse=","))
+    }
+
+    # Read this spread from disk
+    self$.read <- function(path){
+        load(
+            file = path,
+            envir = self
+        )
+    }
+
+    # Write this spread to disk
+    self$.write <- function(path){
+        save(
+            list = ls(self),
+            file = path,
+            envir = self
+        )
     }
     
     self

@@ -689,6 +689,19 @@ Sheet& Sheet::update(void) {
     return *this;
 }
 
+Sheet& Sheet::restore(void) {
+    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
+    for (auto& iter : cells_) {
+        auto id = iter.first;
+        Cell& cell = iter.second;
+        auto result = spread_->get(id);
+        auto space = result.find(" ");
+        cell.type = result.substr(0,space);
+        cell.value = result.substr(space+1);
+    }
+    return *this;
+}
+
 std::vector<std::string> Sheet::list(void) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
     return split(spread_->list(), ",");

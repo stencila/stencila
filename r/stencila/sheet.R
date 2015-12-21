@@ -27,7 +27,11 @@ setRefClass(
             if(!is.null(initialiser)){
                 call_('Sheet_initialise',.pointer,toString(initialiser))
             }
+            # Attach a spread
             attach(Spread())
+            # Read again (done in C++ initialisation), this time
+            # skipping the base method and only reading spread
+            read(base_method=FALSE)
         },
 
         initialise = function(initialiser){
@@ -48,11 +52,23 @@ setRefClass(
             method_(.self,'Sheet_export',path)
         },
 
-        read = function(path=""){
-            method_(.self,'Sheet_read',path)
+        read = function(path="", base_method=TRUE){
+            if(base_method) method_(.self,'Sheet_read',path)
+
+            rdata <- file.path(.self$path(),'sheet.RData')
+            if (file.exists(rdata)) {
+                .spread$.read(rdata)
+                method_(.self,'Sheet_restore')
+            }
         },
         write = function(path=""){
             method_(.self,'Sheet_write',path)
+
+            if(!is.null(.spread)) {
+                .spread$.write(
+                    file.path(.self$path(),'sheet.RData')
+                )
+            }
         },
 
         compile = function(){

@@ -221,8 +221,8 @@ class Sheet : public Component {
     /**
      * @name Serving
      *
-     * Methods for serving a sheet over a nework.
-     * Overrides of `Component` methods as required.
+     * Methods for serving a sheet over a network.
+     * Overides of `Component` methods as required.
      *
      * @{
      */
@@ -469,7 +469,7 @@ class Sheet : public Component {
      * Set the content of a cell
      *
      * Note that this method does not do any cell calculations
-     * That must be done in the `update()` methods (which take into accounc ell inter-dependencies)
+     * That must be done using the `update()` methods (which take into account cell inter-dependencies)
      * 
      * @param  id      ID of the cell
      * @param  content New content
@@ -505,6 +505,15 @@ class Sheet : public Component {
      * outside of the spread is altered
      */
     Sheet& update(void);
+
+    /**
+     * Restore all cell types and values from the attached spread
+     *
+     * This method is used afer a spread for a specific host language
+     * has restored itself from file (e.g. by reading `sheet.RData`) to
+     * synchronise the data in the C++ `cells_` map.
+     */
+    Sheet& restore(void);
 
     /**
      * List the names of variables within the attached spread

@@ -40,6 +40,8 @@ STENCILA_R_EXEC0(Sheet,detach)
 
 STENCILA_R_EXEC0(Sheet,update)
 
+STENCILA_R_EXEC0(Sheet,restore)
+
 STENCILA_R_RET0(Sheet,list)
 
 STENCILA_R_RET1(Sheet,value,std::string)

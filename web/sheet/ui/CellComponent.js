@@ -42,7 +42,7 @@ CellComponent.Prototype = function() {
         var type = node.tipe;
         if (type=="integer" || type=="real" || type=="string"){
           el.text(node.value);
-        } else if (type=="image-url"){
+        } else if (type=="ImageFile"){
           el.append(
             $$('img')
               .attr('src', node.value)
