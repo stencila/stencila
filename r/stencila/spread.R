@@ -195,6 +195,20 @@ Spread <- function(envir, closed=FALSE) {
         return(paste(all.names(parse(text=expression)),collapse=","))
     }
 
+    # Store a string value
+    self$.store <- function(name, value){
+        assign(name, value, envir=self)
+    }
+
+    # Retrieve a string value
+    self$.retrieve <- function(name){
+        if(exists(name, envir=self)) {
+            get(name, envir=self)
+        } else {
+            ""
+        }
+    }
+
     # Read this spread from disk
     self$.read <- function(path){
         load(

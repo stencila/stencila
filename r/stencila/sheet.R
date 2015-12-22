@@ -58,7 +58,7 @@ setRefClass(
             rdata <- file.path(.self$path(),'sheet.RData')
             if (file.exists(rdata)) {
                 .spread$.read(rdata)
-                method_(.self,'Sheet_restore')
+                method_(.self,'Sheet_read_internals')
             }
         },
         write = function(path=""){

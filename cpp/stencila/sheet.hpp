@@ -187,6 +187,15 @@ class Sheet : public Component {
     Sheet& read(const std::string& path = "");
 
     /**
+     * Read internal values from the attached spread
+     *
+     * This method is used afer a spread for a specific host language
+     * has read itself from file (e.g. by reading `sheet.RData`) to
+     * synchronise the data in the C++ internals such as the `cells_` map.
+     */
+    Sheet& read_internals(void);
+
+    /**
      * Write this sheet to a directory
      * 
      * @param  path Filesystem path to a directory
@@ -507,15 +516,6 @@ class Sheet : public Component {
     Sheet& update(void);
 
     /**
-     * Restore all cell types and values from the attached spread
-     *
-     * This method is used afer a spread for a specific host language
-     * has restored itself from file (e.g. by reading `sheet.RData`) to
-     * synchronise the data in the C++ `cells_` map.
-     */
-    Sheet& restore(void);
-
-    /**
      * List the names of variables within the attached spread
      *
      * Variable names may include both ids (e.g. A1) and names (e.g. radius) 
@@ -632,6 +632,16 @@ class Sheet : public Component {
      * The current spread for this sheet
      */
     std::shared_ptr<Spread> spread_ = nullptr;
+
+    /**
+     * Update the `depends` list for a cell
+     */
+    void cell_depends_update_(Cell& cell);
+
+    /**
+     * Update `order_` : the topological sort order of cells
+     */
+    void order_update_(void);
 };
 
 }  // namespace Stencila

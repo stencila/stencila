@@ -55,6 +55,14 @@ public:
         return call_<std::string>(".depends", expression);
     }
 
+    void store(const std::string& name, const std::string& value) {
+        call_(".store", name, value);
+    }
+
+    std::string retrieve(const std::string& name) {
+        return call_<std::string>(".retrieve", name);
+    }
+
     /**
      * @}
      */

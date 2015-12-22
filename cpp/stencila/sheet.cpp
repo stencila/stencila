@@ -202,8 +202,67 @@ Sheet& Sheet::read(const std::string& directory) {
     return *this;
 }
 
+Sheet& Sheet::read_internals(void) {
+    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
+    // Get and parse dependencies
+    auto depends_string = spread_->retrieve("depends_");
+    std::map<std::string, std::vector<std::string>> depends;
+    for (const auto& line : split(depends_string, "\n")) {
+        auto space = line.find(" ");
+        auto id = line.substr(0,space);
+        auto list = split(line.substr(space+1), ",");
+        depends[id] = list;
+    }
+    // Get cell values and build dependency graph
+    graph_ = Graph();
+    for (auto& iter : cells_) {
+        auto id = iter.first;
+        Cell& cell = iter.second;
+        // Type and value
+        auto result = spread_->get(id);
+        auto space = result.find(" ");
+        cell.type = result.substr(0, space);
+        cell.value = result.substr(space+1);
+        // Depends
+        auto diter = depends.find(id);
+        if (diter != depends.end()) {
+            cell.depends = diter->second;
+        } else {
+            cell_depends_update_(cell);
+        }
+        // Create vertex in the dependency graph
+        Vertex vertex =  boost::add_vertex(id, graph_);
+        vertices_[id] = vertex;
+        // Create inward edges from cells that this one depends upon
+        for (auto depend : cell.depends) {
+            Vertex vertex_from;
+            auto iter = vertices_.find(depend);
+            if (iter == vertices_.end()) {
+                vertex_from =  boost::add_vertex(depend, graph_);
+                vertices_[depend] = vertex_from;
+            } else {
+                vertex_from = iter->second;
+            }
+            boost::add_edge(vertex_from, vertex, graph_);
+        }
+    }
+    // Recalculate `order_`
+    order_update_();
+
+    return *this;
+}
+
 Sheet& Sheet::write(const std::string& directory) {
-    // TODO
+    if (spread_) {
+        // Store dependendencies
+        std::string depends;
+        for (const auto& iter : cells_) {
+            if(iter.second.depends.size()) {
+                depends += iter.first + " " + join(iter.second.depends, ",") + "\n";
+            }
+        }
+        spread_->store("depends_", depends);
+    }
     return *this;
 }
 
@@ -574,29 +633,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
-            if (cell.expression.length() and spread_) {
-                auto spread_expr = translate(cell.expression);
-                // There may be a syntax error in the expression
-                // so capture those and set dependencies to none
-                std::string depends;
-                try {
-                    depends = spread_->depends(spread_expr);
-                } catch(...) {
-                    depends = "";
-                }
-                cell.depends.clear();
-                for (std::string depend : split(depends, ",")) {
-                    // Replace cell names with cell ids
-                    auto iter = names_.find(depend);
-                    if (iter != names_.end()) {
-                        depend = iter->second;
-                    }
-                    // Remove anything that is not an id (e.g. function name)
-                    if (is_id(depend)) {
-                        cell.depends.push_back(depend);
-                    }
-                }
-            }
+            cell_depends_update_(cell);
             // Create vertex, or clear edges for existing vertex, in the dependency graph
             Vertex vertex;
             auto iter = vertices_.find(id);
@@ -622,20 +659,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         }
 
         // Topological sort to determine recalculation order
-        std::vector<Vertex> vertices;
-        try {
-            topological_sort(graph_, std::back_inserter(vertices));
-        }
-        catch (const std::invalid_argument& ) {
-            STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
-            // TODO should we create a graph visitor which shows what the cycle is?
-        }
-        std::vector<std::string> ids;
-        for (auto vertex : vertices) {
-            ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
-        }
-        reverse(ids.begin(), ids.end());
-        order_ = ids;
+        order_update_();
 
         // Iterate through topological sort order and once the first changed
         // cell is hit, start recalculating subsequent cells
@@ -686,19 +710,6 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::strin
 
 Sheet& Sheet::update(void) {
     update({});
-    return *this;
-}
-
-Sheet& Sheet::restore(void) {
-    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
-    for (auto& iter : cells_) {
-        auto id = iter.first;
-        Cell& cell = iter.second;
-        auto result = spread_->get(id);
-        auto space = result.find(" ");
-        cell.type = result.substr(0,space);
-        cell.value = result.substr(space+1);
-    }
     return *this;
 }
 
@@ -769,6 +780,52 @@ Sheet& Sheet::clear(void) {
         spread_->clear("");
     }
     return *this;
+}
+
+void Sheet::cell_depends_update_(Cell& cell) {
+    if (cell.expression.length() and spread_) {
+        auto spread_expr = translate(cell.expression);
+        // There may be a syntax error in the expression
+        // so capture those and set dependencies to none
+        std::string depends;
+        try {
+            depends = spread_->depends(spread_expr);
+        } catch(...) {
+            depends = "";
+        }
+        cell.depends.clear();
+        for (std::string depend : split(depends, ",")) {
+            if (depends.length()) {
+                // Replace cell names with cell ids
+                auto iter = names_.find(depend);
+                if (iter != names_.end()) {
+                    depend = iter->second;
+                }
+                // Remove anything that is not an id (e.g. function name)
+                if (is_id(depend)) {
+                    cell.depends.push_back(depend);
+                }
+            }
+        }
+    }
+}
+
+void Sheet::order_update_(void) {
+    // Topological sort to determine recalculation order
+    std::vector<Vertex> vertices;
+    try {
+        topological_sort(graph_, std::back_inserter(vertices));
+    }
+    catch (const std::invalid_argument& ) {
+        STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
+        // TODO should we create a graph visitor which shows what the cycle is?
+    }
+    std::vector<std::string> ids;
+    for (auto vertex : vertices) {
+        ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
+    }
+    reverse(ids.begin(), ids.end());
+    order_ = ids;
 }
 
 }  // namespace Stencila
