@@ -39,6 +39,15 @@ CellComponent.Prototype = function() {
         }).ref('editor');
         el.append(editor);
       } else {
+        var name = node.name;
+        if (name) {
+          el.append(
+            $$('span')
+              .addClass('name')
+              .text(name)
+          );
+        }
+
         var type = node.tipe;
         if (type=="integer" || type=="real" || type=="string"){
           el.text(node.value);
@@ -52,6 +61,7 @@ CellComponent.Prototype = function() {
             .addClass('object')
             .append(
               $$('span')
+                .addClass('type')
                 .text(node.tipe)
             )
             .append(
