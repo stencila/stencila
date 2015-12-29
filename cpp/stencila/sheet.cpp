@@ -131,7 +131,7 @@ Sheet& Sheet::load(std::istream& stream, const std::string& format) {
         unsigned int col = 0;
         for (auto cell : cells) {
             if (cell.length()) {
-                content(identify(row, col), cell);
+                source(identify(row, col), cell);
             }
             col++;
         }
@@ -148,17 +148,21 @@ Sheet& Sheet::load(const std::string& string, const std::string& format) {
 Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
     if (format == "tsv") {
         auto extents = extent();
-        auto rows = extents[0];
-        auto cols = extents[1];
+        auto rows = extents[0] + 1;
+        auto cols = extents[1] + 1;
         for (unsigned int row = 0; row < rows; row++) {
+            std::vector<std::string> cells(cols);
+            unsigned int col_max = 0;
             for (unsigned int col = 0; col < cols; col++) {
-                auto id = identify(row, col);
-                auto iter = cells_.find(id);
-                if (iter != cells_.end()) {
-                    auto& cell = iter->second;
-                    stream << cell.value;
+                auto src = source(identify(row, col));
+                cells[col] = src;
+                if (src.length()) {
+                    col_max = col;
                 }
-                stream << "\t";
+            }
+            for (unsigned int col = 0; col <= col_max; col++) {
+                stream <<  cells[col];
+                if (col < col_max) stream << "\t";
             }
             stream << "\n";
         }
@@ -197,71 +201,59 @@ Sheet& Sheet::export_(const std::string& path) {
 }
 
 Sheet& Sheet::read(const std::string& directory) {
+    using namespace boost::filesystem;
+    // Call base method to set component path
     Component::read(directory);
-    import(path()+"/sheet.tsv");
-    return *this;
-}
-
-Sheet& Sheet::read_internals(void) {
-    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
-    // Get and parse dependencies
-    auto depends_string = spread_->retrieve("depends_");
-    std::map<std::string, std::vector<std::string>> depends;
-    for (const auto& line : split(depends_string, "\n")) {
-        auto space = line.find(" ");
-        auto id = line.substr(0,space);
-        auto list = split(line.substr(space+1), ",");
-        depends[id] = list;
+    // Read cell sources file
+    auto source_filename = path() + "/sheet.tsv";
+    if (exists(source_filename)) {
+        import(source_filename);
     }
-    // Get cell values and build dependency graph
-    graph_ = Graph();
-    for (auto& iter : cells_) {
-        auto id = iter.first;
-        Cell& cell = iter.second;
-        // Type and value
-        auto result = spread_->get(id);
-        auto space = result.find(" ");
-        cell.type = result.substr(0, space);
-        cell.value = result.substr(space+1);
-        // Depends
-        auto diter = depends.find(id);
-        if (diter != depends.end()) {
-            cell.depends = diter->second;
-        } else {
-            cell_depends_update_(cell);
-        }
-        // Create vertex in the dependency graph
-        Vertex vertex =  boost::add_vertex(id, graph_);
-        vertices_[id] = vertex;
-        // Create inward edges from cells that this one depends upon
-        for (auto depend : cell.depends) {
-            Vertex vertex_from;
-            auto iter = vertices_.find(depend);
-            if (iter == vertices_.end()) {
-                vertex_from =  boost::add_vertex(depend, graph_);
-                vertices_[depend] = vertex_from;
+    // Read cell contents file
+    auto contents_filename = path() + "/contents.tsv";
+    if (exists(contents_filename)) {
+        std::ifstream contents_file(contents_filename);
+        std::string line;
+        int count = 0;
+        while (std::getline(contents_file, line)) {
+            count++;
+            auto parts = split(line, "\t");
+            if (parts.size() == 3) {
+                auto id = parts[0];
+                auto iter = cells_.find(id);
+                if (iter != cells_.end()) {
+                    auto& cell = iter->second;
+                    auto type = parts[1];
+                    cell.type = type;
+                    auto value = parts[2];
+                    boost::replace_all(value, "\\n", "\n");
+                    cell.value = value;
+                }
             } else {
-                vertex_from = iter->second;
+                STENCILA_THROW(Exception, "Invalid number of columns\n  file: " + contents_filename + "\n  line: " + string(count));
             }
-            boost::add_edge(vertex_from, vertex, graph_);
         }
     }
-    // Recalculate `order_`
-    order_update_();
-
     return *this;
 }
 
 Sheet& Sheet::write(const std::string& directory) {
-    if (spread_) {
-        // Store dependendencies
-        std::string depends;
-        for (const auto& iter : cells_) {
-            if(iter.second.depends.size()) {
-                depends += iter.first + " " + join(iter.second.depends, ",") + "\n";
-            }
-        }
-        spread_->store("depends_", depends);
+    // Call base method to set component pth
+    Component::write(directory);
+    // Write cell sources file
+    export_(path() + "/sheet.tsv");
+    // Write cell contents file
+    boost::filesystem::create_directories(path() + "/out");
+    std::ofstream contents(path() + "/contents.tsv");
+    for (const auto& iter : cells_) {
+        auto id = iter.first;
+        auto cell = iter.second;
+        auto value = cell.value;
+        boost::replace_all(value, "\n", "\\n");
+        contents
+            << id << "\t"
+            << cell.type << "\t"
+            << value << "\n";
     }
     return *this;
 }
@@ -487,29 +479,29 @@ Sheet& Sheet::detach(void) {
     return *this;
 }
 
-std::array<std::string, 2> Sheet::parse(const std::string& content) {
-    auto content_clean = content;
-    boost::replace_all(content_clean, "\t", " ");
+std::array<std::string, 2> Sheet::parse(const std::string& source) {
+    auto source_clean = source;
+    boost::replace_all(source_clean, "\t", " ");
 
     static const boost::regex regex("^ *(([a-z]\\w*) *= *)?(.+?) *$");
     boost::smatch match;
-    if (boost::regex_match(content_clean, match, regex)) {
+    if (boost::regex_match(source_clean, match, regex)) {
         return {match.str(3), match.str(2)};
     } else {
         return {"", ""};
     }
 }
 
-Sheet& Sheet::content(const std::string& id, const std::string& content) {
+Sheet& Sheet::source(const std::string& id, const std::string& source) {
     if (not is_id(id)) {
         STENCILA_THROW(Exception, "Not a valid cell identifier\n  id: "+id);
     }
-    if (content.length()) {
+    if (source.length()) {
         // Get or create the cell
         Cell& cell = cells_[id];
         // Set its attributes
-        if (content.length()) {
-            auto parts = parse(content);
+        if (source.length()) {
+            auto parts = parse(source);
             cell.expression = parts[0];
             cell.name = parts[1];
         }
@@ -522,6 +514,19 @@ Sheet& Sheet::content(const std::string& id, const std::string& content) {
         clear(id);
     }
     return *this;
+}
+
+std::string Sheet::source(const std::string& id) {
+    const auto& iter = cells_.find(id);
+    if (iter != cells_.end()) {
+        const auto& cell = iter->second;
+        if (cell.name.length()) {
+            return cell.name + " = " + cell.expression;
+        } else {
+            return cell.expression;
+        }
+    }
+    return "";
 }
 
 std::string Sheet::translate(const std::string& expression) {
@@ -583,21 +588,22 @@ std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
+    std::string type;
+    std::string value;
     try {
         auto type_value = spread_->evaluate(translate(expression));
         auto space = type_value.find(" ");
-        auto type = type_value.substr(0, space);
-        auto value = type_value.substr(space+1);
-        return {type, value};
-
+        type = type_value.substr(0, space);
+        value = type_value.substr(space+1);
     } catch (...){
         // Ensure return to current directory even if there is an exception
         boost::filesystem::current_path(current_path);
         throw;
     }
-
     // Return to the current directory
     boost::filesystem::current_path(current_path);
+
+    return {type, value};
 }
 
 std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<std::string,std::string>& cells) {
@@ -610,30 +616,63 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
-    std::vector<std::string> changed;
     std::map<std::string, std::array<std::string, 2>> updates;
     try {
-
+        std::vector<std::string> source_update;
         if (cells.size()){
-            // First pass: set the content of each cell for name mapping (required for dependency analysis)
+            // First pass: set the source of each cell for name mapping (required for dependency analysis)
             for (auto iter : cells) {
                 auto id = iter.first;
-                auto contnt = iter.second;
-                content(id,contnt);
-                // Keep track of those with content (as opposed to those wich were cleared because content=="")
-                if (contnt.length()) changed.push_back(id);
+                auto source_ = iter.second;
+                source(id,source_);
+                source_update.push_back(id);
             }
         } else {
-            // Updating all cells
-            for (auto iter : cells_) changed.push_back(iter.first);
+            // Updating source for all cells
+            for (auto iter : cells_) source_update.push_back(iter.first);
+        }
+
+        // If necessary update dependency graph based on all cells
+        // not just those that have been updated
+        std::vector<std::string> dependency_update;
+        if (not prepared_) {
+            for (const auto& iter : cells_) {
+                dependency_update.push_back(iter.first);
+            }
+        } else {
+            dependency_update = source_update;
         }
 
         // Second pass: updating of dependency graph
-        for (auto id : changed) {
+        for (auto id : dependency_update) {
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
-            cell_depends_update_(cell);
+            if (cell.expression.length() and spread_) {
+                auto spread_expr = translate(cell.expression);
+                // There may be a syntax error in the expression
+                // so capture those and set dependencies to none
+                std::string depends;
+                try {
+                    depends = spread_->depends(spread_expr);
+                } catch(...) {
+                    depends = "";
+                }
+                cell.depends.clear();
+                for (std::string depend : split(depends, ",")) {
+                    if (depends.length()) {
+                        // Replace cell names with cell ids
+                        auto iter = names_.find(depend);
+                        if (iter != names_.end()) {
+                            depend = iter->second;
+                        }
+                        // Remove anything that is not an id (e.g. function name)
+                        if (is_id(depend)) {
+                            cell.depends.push_back(depend);
+                        }
+                    }
+                }
+            }
             // Create vertex, or clear edges for existing vertex, in the dependency graph
             Vertex vertex;
             auto iter = vertices_.find(id);
@@ -659,14 +698,30 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         }
 
         // Topological sort to determine recalculation order
-        order_update_();
+        std::vector<Vertex> vertices;
+        try {
+            topological_sort(graph_, std::back_inserter(vertices));
+        }
+        catch (const std::invalid_argument& ) {
+            STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
+            // TODO should we create a graph visitor which shows what the cycle is?
+        }
+        std::vector<std::string> ids;
+        for (auto vertex : vertices) {
+            ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
+        }
+        reverse(ids.begin(), ids.end());
+        order_ = ids;
 
-        // Iterate through topological sort order and once the first changed
+        // Next time, don't need to update all dependencies
+        if (not prepared_) prepared_ = true;
+
+        // Iterate through topological sort order and once the first source_update
         // cell is hit, start recalculating subsequent cells
         bool calculate = false;
         for (auto id : order_) {
             if (not calculate) {
-                if (std::find(changed.begin(), changed.end(), id) != changed.end()) {
+                if (std::find(source_update.begin(), source_update.end(), id) != source_update.end()) {
                     calculate = true;
                 }
             }
@@ -718,7 +773,7 @@ std::vector<std::string> Sheet::list(void) {
     return split(spread_->list(), ",");
 }
 
-std::string Sheet::value(const std::string& name) {
+std::string Sheet::content(const std::string& name) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
     return spread_->get(name);
 }
@@ -780,52 +835,6 @@ Sheet& Sheet::clear(void) {
         spread_->clear("");
     }
     return *this;
-}
-
-void Sheet::cell_depends_update_(Cell& cell) {
-    if (cell.expression.length() and spread_) {
-        auto spread_expr = translate(cell.expression);
-        // There may be a syntax error in the expression
-        // so capture those and set dependencies to none
-        std::string depends;
-        try {
-            depends = spread_->depends(spread_expr);
-        } catch(...) {
-            depends = "";
-        }
-        cell.depends.clear();
-        for (std::string depend : split(depends, ",")) {
-            if (depends.length()) {
-                // Replace cell names with cell ids
-                auto iter = names_.find(depend);
-                if (iter != names_.end()) {
-                    depend = iter->second;
-                }
-                // Remove anything that is not an id (e.g. function name)
-                if (is_id(depend)) {
-                    cell.depends.push_back(depend);
-                }
-            }
-        }
-    }
-}
-
-void Sheet::order_update_(void) {
-    // Topological sort to determine recalculation order
-    std::vector<Vertex> vertices;
-    try {
-        topological_sort(graph_, std::back_inserter(vertices));
-    }
-    catch (const std::invalid_argument& ) {
-        STENCILA_THROW(Exception, "There is cyclic dependency in the sheet");
-        // TODO should we create a graph visitor which shows what the cycle is?
-    }
-    std::vector<std::string> ids;
-    for (auto vertex : vertices) {
-        ids.push_back(boost::get(boost::vertex_name, graph_)[vertex]);
-    }
-    reverse(ids.begin(), ids.end());
-    order_ = ids;
 }
 
 }  // namespace Stencila

@@ -58,7 +58,6 @@ setRefClass(
             rdata <- file.path(.self$path(),'sheet.RData')
             if (file.exists(rdata)) {
                 .spread$.read(rdata)
-                method_(.self,'Sheet_read_internals')
             }
         },
         write = function(path=""){
@@ -90,8 +89,8 @@ setRefClass(
         list = function(){
             method_(.self,'Sheet_list')
         },
-        value = function(id){
-            method_(.self,'Sheet_value',id)
+        content = function(id){
+            method_(.self,'Sheet_content',id)
         }
     )
 )

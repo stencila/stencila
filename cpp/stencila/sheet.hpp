@@ -187,15 +187,6 @@ class Sheet : public Component {
     Sheet& read(const std::string& path = "");
 
     /**
-     * Read internal values from the attached spread
-     *
-     * This method is used afer a spread for a specific host language
-     * has read itself from file (e.g. by reading `sheet.RData`) to
-     * synchronise the data in the C++ internals such as the `cells_` map.
-     */
-    Sheet& read_internals(void);
-
-    /**
      * Write this sheet to a directory
      * 
      * @param  path Filesystem path to a directory
@@ -475,37 +466,44 @@ class Sheet : public Component {
     std::array<std::string, 2> evaluate(const std::string& expression);
 
     /**
-     * Set the content of a cell
+     * Get the source (expression and, optionally, name) for a cell
+     * 
+     * @param  id ID of the cell
+     */
+    std::string source(const std::string& id);
+
+    /**
+     * Set the source of a cell
      *
      * Note that this method does not do any cell calculations
      * That must be done using the `update()` methods (which take into account cell inter-dependencies)
      * 
      * @param  id      ID of the cell
-     * @param  content New content
+     * @param  source New source
      */
-    Sheet& content(const std::string& id, const std::string& content);
+    Sheet& source(const std::string& id, const std::string& source);
 
     /**
-     * Update cells with new content
+     * Update cells with new source
      *
-     * This method parses the new content and will then set/update the cells corresponding
+     * This method parses the new source and will then set/update the cells corresponding
      * variable/s (both id and optional name) within the spread environment. Because of
      * interdependencies between cells this method is designed to take batches of cell updates,
      * analyse the dependency graph and then execute each cell expression.
      *
-     * @param cells Map of cell IDs and their contents
+     * @param cells Map of cell IDs and their sources
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
     std::map<std::string, std::array<std::string, 2>> update(const std::map<std::string,std::string>& cells);
 
     /**
-     * Update a single cell with new content
+     * Update a single cell with new source
      * 
      * @param  id      ID of the cell
-     * @param  content Cell content
+     * @param  source Cell source
      * @return         New value of the cell
      */
-    std::map<std::string, std::array<std::string, 2>> update(const std::string& id, const std::string& content);
+    std::map<std::string, std::array<std::string, 2>> update(const std::string& id, const std::string& source);
 
     /**
      * Update all cells in this sheet
@@ -523,11 +521,11 @@ class Sheet : public Component {
     std::vector<std::string> list(void);
 
     /**
-     * Get the value of a variable within the attached spread
+     * Get the content (type+value) of a variable within the attached spread
      * 
      * @param  name Name of variable (id or name)
      */
-    std::string value(const std::string& name);
+    std::string content(const std::string& name);
 
     /**
      * Get a list of the cells that a cell depends upon (i.e. it's direct predecessors)
@@ -629,19 +627,15 @@ class Sheet : public Component {
     std::vector<std::string> order_;
 
     /**
+     * Has the dependency graph been initialised ?
+     */
+    bool prepared_ = false;
+
+    /**
      * The current spread for this sheet
      */
     std::shared_ptr<Spread> spread_ = nullptr;
 
-    /**
-     * Update the `depends` list for a cell
-     */
-    void cell_depends_update_(Cell& cell);
-
-    /**
-     * Update `order_` : the topological sort order of cells
-     */
-    void order_update_(void);
 };
 
 }  // namespace Stencila

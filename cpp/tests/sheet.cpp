@@ -62,6 +62,13 @@ class TestSpread : public Spread {
 		return join(depends, ",");
 	}
 
+	void store(const std::string& name, const std::string& value) {
+	}
+
+	std::string retrieve(const std::string& name) {
+		return "";
+	}
+
  private:
  	std::map<std::string,std::string> variables_;
 };
@@ -185,9 +192,9 @@ BOOST_AUTO_TEST_CASE(dependencies_1){
 
 	// Initial checks for loading
 	BOOST_CHECK_EQUAL(join(s.list(), ","), "A1,A2,B1,B2,C1,C2");
-	BOOST_CHECK_EQUAL(s.value("A1"), "A2");
-	BOOST_CHECK_EQUAL(s.value("B2"), "A1 + B1");
-	BOOST_CHECK_EQUAL(s.value("C2"), "1");
+	BOOST_CHECK_EQUAL(s.content("A1"), "A2");
+	BOOST_CHECK_EQUAL(s.content("B2"), "A1 + B1");
+	BOOST_CHECK_EQUAL(s.content("C2"), "1");
 
 	// Check dependency graph
 	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "A1,B1");
@@ -203,7 +210,7 @@ BOOST_AUTO_TEST_CASE(dependencies_1){
 
 	// Change a cell
 	s.update("B2","C2");
-	BOOST_CHECK_EQUAL(s.value("B2"), "C2");
+	BOOST_CHECK_EQUAL(s.content("B2"), "C2");
 	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "C2");
 	BOOST_CHECK_EQUAL(join(s.order(), ","), "C2,B2,C1,A2,A1,B1");
 
