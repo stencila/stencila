@@ -9,6 +9,10 @@ using namespace Stencila;
 class TestSpread : public Spread {
  public:
 
+ 	std::string import(const std::string& package) {
+ 		return "package " + package;
+ 	}
+
 	std::string evaluate(const std::string& expression){
 		return "";
 	}
@@ -149,22 +153,27 @@ BOOST_AUTO_TEST_CASE(interpolate){
 BOOST_AUTO_TEST_CASE(parse){
 	auto p0 = Sheet::parse("");
 	BOOST_CHECK_EQUAL(p0[0],"");
-	BOOST_CHECK_EQUAL(p0[1],"");
 
 	// Tabs are replaced with spaces
-	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t")[0],"'foo  bar'");
+	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t")[1],"'foo  bar'");
 
 	// Spaces are only significant within an expression
-	BOOST_CHECK_EQUAL(Sheet::parse("42")[0],"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 42")[0],"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 'foo bar' ")[0],"'foo bar'");
+	BOOST_CHECK_EQUAL(Sheet::parse("42")[1],"42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 42")[1],"42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 'foo bar' ")[1],"'foo bar'");
 
 	// Named cells
 	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
 		auto p = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(p[0],"6*7");
-		BOOST_CHECK_EQUAL(p[1],"answer");
+		BOOST_CHECK_EQUAL(p[0],"");
+		BOOST_CHECK_EQUAL(p[1],"6*7");
+		BOOST_CHECK_EQUAL(p[2],"answer");
 	}
+
+	// Import directive
+	auto pi = Sheet::parse("import ggplot2");
+	BOOST_CHECK_EQUAL(pi[0],"import");
+	BOOST_CHECK_EQUAL(pi[1],"ggplot2");
 }
 
 BOOST_AUTO_TEST_CASE(translate){

@@ -283,6 +283,16 @@ class Sheet : public Component {
      * implemented as `Sheet` methods.
      */
     struct Cell {
+
+        /**
+         * Directive for this cell
+         *
+         * Directives are "special" cells for doing things with a sheet.
+         * Most cells have a empty string for their directive and are treated
+         * as expressions in the host language
+         */
+        std::string directive;
+
         /**
          * Expression of this cell
          *
@@ -440,7 +450,7 @@ class Sheet : public Component {
      *
      * @param content Cell content
      */
-    static std::array<std::string, 2> parse(const std::string& content);
+    static std::array<std::string, 3> parse(const std::string& content);
 
     /**
      * Translate a sheet expression into an expression for the host language

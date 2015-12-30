@@ -27,6 +27,10 @@ public:
      * @{
      */
     
+    std::string import(const std::string& package) {
+        return call_<std::string>(".import", package);
+    }
+
     std::string evaluate(const std::string& expression) {
         return call_<std::string>(".evaluate", expression, "eval", true);
     }

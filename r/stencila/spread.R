@@ -30,6 +30,24 @@ Spread <- function(envir, closed=FALSE) {
 
     # Use method names with leading dot to disassociate them from sheet variables (e.g. in
     # use of `ls()` below)
+
+    # Import a package into this spread's environment
+    self$.import <- function(package){      
+        result <- tryCatch(
+            library(
+                package,
+                character.only=TRUE,
+                verbose=FALSE,
+                quietly=TRUE
+            ),
+            error=identity
+        )
+        if(inherits(result,'error')){
+            return(paste('error',result$message))
+        } else {
+            return(paste('package',package))
+        }
+    }
     
     # Get the type and string representation of a value
     self$.value <- function(value){
