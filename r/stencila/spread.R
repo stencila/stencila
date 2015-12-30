@@ -33,12 +33,17 @@ Spread <- function(envir, closed=FALSE) {
     
     # Get the type and string representation of a value
     self$.value <- function(value){
-        type <- class(value)
-        type <- switch(type,
-            numeric = 'real',
-            character = 'string',
-            type
-        )
+        classes <- class(value)
+
+        if (length(classes)==1) {
+            type <- switch(classes,
+                numeric = 'real',
+                character = 'string',
+                classes
+            )
+        } else {
+            type <- classes[1]
+        }
 
         if(type %in% c('integer','real','string')){
             repr <- toString(value)
@@ -83,14 +88,33 @@ Spread <- function(envir, closed=FALSE) {
         )
         repr <- ''
 
+        # ggplots need to be explicitly printed within
+        # the `recordPlot()` calls above and below
+        is_ggplot <- FALSE
+        if('ggplot' %in% class(value)) {
+            valueOrError <- tryCatch(
+                print(value),
+                error=identity
+            )
+            # If there was an error printing the ggplot
+            # (e.g. plot misspecification), then use the error
+            # handling code below, otherwise use image capturing code
+            # below
+            if(inherits(valueOrError,'error')){
+                value <- valueOrError
+            } else {
+                is_ggplot <- TRUE
+            }
+        }
+
         # Determine type and string representation
-        # Check if device has changed
         if(inherits(value,'error')){
             type <- 'error'
             repr <- value$message
             value <- NA
         } else {
-            if(!identical(device_before,recordPlot())){
+            # Check if device has changed
+            if(!identical(device_before,recordPlot()) | is_ggplot){
                 value <- filename
                 class(value) <- 'ImageFile'
             }
