@@ -263,12 +263,12 @@ BOOST_AUTO_TEST_CASE(request){
 	BOOST_CHECK_EQUAL(join(s.depends("B1"), ","), "A1");
 
 	BOOST_CHECK_EQUAL(
-		s.request("PUT","update",R"([{"id":"A1","content":"2"}])"),
+		s.request("PUT","update",R"([{"id":"A1","source":"2"}])"),
 		R"([{"id":"A1","type":"string","value":"2"},{"id":"B1","type":"string","value":"A1"}])"
 	);
 
 	BOOST_CHECK_EQUAL(
-		s.request("PUT","update",R"([{"id":"A1","content":"some error"}])"),
+		s.request("PUT","update",R"([{"id":"A1","source":"some error"}])"),
 		R"([{"id":"A1","type":"string","value":"There was an error!"},{"id":"B1","type":"string","value":"A1"}])"
 	);
 }
