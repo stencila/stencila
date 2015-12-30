@@ -120,7 +120,7 @@ SheetEditor.Prototype = function() {
         var sheet = this.refs.sheet;
         engine.update([{
           "id" : cell.cid,
-          "content" : cell.expr
+          "source" : cell.expr
         }], function(error, updates){
           for(var index = 0; index < updates.length; index++){
             var update = updates[index];

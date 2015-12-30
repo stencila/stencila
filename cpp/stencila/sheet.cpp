@@ -365,8 +365,8 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         for (unsigned int index = 0; index < request.size(); index++) {
             auto cell = request[index];
             auto id = cell["id"].as<std::string>();
-            auto content = cell["content"].as<std::string>();
-            changed[id] = content;
+            auto source = cell["source"].as<std::string>();
+            changed[id] = source;
         }
 
         auto updates = update(changed);
@@ -483,8 +483,9 @@ std::array<std::string, 3> Sheet::parse(const std::string& source) {
     auto source_clean = source;
     boost::replace_all(source_clean, "\t", " ");
 
-    static const boost::regex import_regex("^import +(\\w+)$");
-    static const boost::regex expression_regex("^ *(([a-z]\\w*) *= *)?(.+?) *$");
+    // `\\s*` at ends allows for trailing spaces or newlines
+    static const boost::regex import_regex("^import +(\\w+)\\s*$");
+    static const boost::regex expression_regex("^ *(([a-z]\\w*) *= *)?(.+?)\\s*$");
     boost::smatch match;
     if (boost::regex_match(source_clean, match, import_regex)) {
         return {"import", match.str(1), ""};
@@ -737,6 +738,10 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                 auto space = result.find(" ");
                 cell.type = result.substr(0, space);
                 cell.value = result.substr(space+1);
+                updates[id] = {
+                    cell.type,
+                    cell.value
+                };
             }
         }
 
@@ -786,8 +791,8 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
     return updates;
 }
 
-std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::string& id, const std::string& content) {
-    return update({{id,content}});
+std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::string& id, const std::string& source) {
+    return update({{id,source}});
 }
 
 Sheet& Sheet::update(void) {
