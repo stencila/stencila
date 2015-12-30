@@ -14,7 +14,7 @@ StencilText.static.name = "stencil-text";
 StencilText.static.defineSchema({
   'tagName': 'string',
   'source': 'string',
-  'error': 'string',
+  'error': { type: 'string', optional: true },
   'output': 'string'
 });
 
