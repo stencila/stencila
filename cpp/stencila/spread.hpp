@@ -85,23 +85,6 @@ public:
 	 */
 	virtual std::string depends(const std::string& expression) = 0;
 
-	/**
-	 * Store a string varable in this spread. Normally only used
-	 * for storing interal data for a sheet (e.g. `depends_`)
-	 * 
-	 * @param name  Name for varable
-	 * @param value String value for variable
-	 */
-	virtual void store(const std::string& name, const std::string& value) = 0;
-
-	/**
-	 * Retrieve a string vriable previously stored in this spread
-	 * 
-	 * @param  name Name of variable
-	 * @return      String value of variable
-	 */
-	virtual std::string retrieve(const std::string& name) = 0;
-
 };
 
 }
