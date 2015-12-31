@@ -466,6 +466,10 @@ public:
 			return type_;
 		}
 
+		Component* pointer(void) const {
+			return pointer_;
+		}
+
 		template<class Class=Component> 
 		Class& as(void) {
 			return *static_cast<Class*>(pointer_);

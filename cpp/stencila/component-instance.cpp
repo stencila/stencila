@@ -50,7 +50,14 @@ Component& Component::hold(Type type) {
 	if(iterator==instances_.end()){
 		Instance instance = {type,this};
 		instances_[this_address] = instance;
-	}	
+	} else {
+		auto existing = iterator->second.pointer();
+		if(existing!=this) {
+			STENCILA_THROW(Exception, 
+				"Attempting to hold another instance of a component.\n  address: " + this_address
+			);
+		}
+	}
 	return *this;
 }
 
