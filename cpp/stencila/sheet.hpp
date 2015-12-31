@@ -285,13 +285,13 @@ class Sheet : public Component {
     struct Cell {
 
         /**
-         * Directive for this cell
+         * Statement for this cell
          *
-         * Directives are "special" cells for doing things with a sheet.
-         * Most cells have a empty string for their directive and are treated
-         * as expressions in the host language
+         * Most cells have a empty string for their `statement` and are treated
+         * as simple expressions in the host language. Statements are used for
+         * "special" cells that require smething other than smple evaluation
          */
-        std::string directive;
+        std::string statement;
 
         /**
          * Expression of this cell

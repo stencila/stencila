@@ -507,7 +507,7 @@ Sheet& Sheet::source(const std::string& id, const std::string& source) {
         // Set its attributes
         if (source.length()) {
             auto parts = parse(source);
-            cell.directive = parts[0];
+            cell.statement = parts[0];
             cell.expression = parts[1];
             cell.name = parts[2];
         }
@@ -526,8 +526,8 @@ std::string Sheet::source(const std::string& id) {
     const auto& iter = cells_.find(id);
     if (iter != cells_.end()) {
         const auto& cell = iter->second;
-        if (cell.directive.length()) {
-            return cell.directive + " " + cell.expression;
+        if (cell.statement.length()) {
+            return cell.statement + " " + cell.expression;
         } else {
             if (cell.name.length()) {
                 return cell.name + " = " + cell.expression;
@@ -647,15 +647,15 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         // If necessary update dependency graph based on all cells
         // not just those that have been updated
         std::vector<std::string> dependency_update;
-        std::vector<std::string> directives_update;
+        std::vector<std::string> statements_update;
         if (not prepared_) {
             for (const auto& iter : cells_) {
                 dependency_update.push_back(iter.first);
-                directives_update.push_back(iter.first);
+                statements_update.push_back(iter.first);
             }
         } else {
             dependency_update = source_update;
-            directives_update = source_update;
+            statements_update = source_update;
         }
 
         // Second pass: updating of dependency graph
@@ -663,7 +663,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
-            if (cell.directive == "" and cell.expression.length()) {
+            if (cell.statement == "" and cell.expression.length()) {
                 auto spread_expr = translate(cell.expression);
                 // There may be a syntax error in the expression
                 // so capture those and set dependencies to none
@@ -728,12 +728,12 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         reverse(ids.begin(), ids.end());
         order_ = ids;
 
-        // Iterate through all directives_update cells and execute any direcives
-        for (const auto& id : directives_update) {
+        // Iterate through all statements_update cells and execute any direcives
+        for (const auto& id : statements_update) {
             auto iter = cells_.find(id);
             if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
             Cell& cell = iter->second;
-            if (cell.directive == "import") {
+            if (cell.statement == "import") {
                 auto result = spread_->import(cell.expression);
                 auto space = result.find(" ");
                 cell.type = result.substr(0, space);
@@ -761,7 +761,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                 auto iter = cells_.find(id);
                 if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
                 Cell& cell = iter->second;
-                if (cell.directive == "" and cell.expression.length()) {
+                if (cell.statement == "" and cell.expression.length()) {
                     auto spread_expr = translate(cell.expression);
                     std::string type_value;
                     try {
