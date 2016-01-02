@@ -18,12 +18,12 @@ public:
 	virtual ~Spread(void) {};
 
 	/**
-	 * Import a package
+	 * Execute some source in the spread
 	 * 
-	 * @param expression Expression in the host language
-	 * @return     Type and text representation of cell value
+	 * @param expression Source in the host language
+	 * @return     Type and text representation of any execution, otherwise empty string
 	 */
-	virtual std::string import(const std::string& package) = 0;
+	virtual std::string execute(const std::string& source) = 0;
 
 	/**
 	 * Evaluate an expresion
