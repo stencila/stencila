@@ -479,21 +479,17 @@ Sheet& Sheet::detach(void) {
     return *this;
 }
 
-std::array<std::string, 3> Sheet::parse(const std::string& source) {
+std::array<std::string, 2> Sheet::parse(const std::string& source) {
     auto source_clean = source;
     boost::replace_all(source_clean, "\t", " ");
 
     // `\\s*` at ends allows for trailing spaces or newlines
-    static const boost::regex import_regex("^import +(\\w+)\\s*$");
     static const boost::regex expression_regex("^ *(([a-z]\\w*) *= *)?(.+?)\\s*$");
     boost::smatch match;
-    if (boost::regex_match(source_clean, match, import_regex)) {
-        return {"import", match.str(1), ""};
-    }
-    else if (boost::regex_match(source_clean, match, expression_regex)) {
-        return {"", match.str(3), match.str(2)};
+    if (boost::regex_match(source_clean, match, expression_regex)) {
+        return {match.str(3), match.str(2)};
     } else {
-        return {"", "", ""};
+        return {"", ""};
     }
 }
 
@@ -507,9 +503,8 @@ Sheet& Sheet::source(const std::string& id, const std::string& source) {
         // Set its attributes
         if (source.length()) {
             auto parts = parse(source);
-            cell.statement = parts[0];
-            cell.expression = parts[1];
-            cell.name = parts[2];
+            cell.expression = parts[0];
+            cell.name = parts[1];
         }
         // Create name mapping if necessary
         if (cell.name.length()) {
@@ -526,8 +521,8 @@ std::string Sheet::source(const std::string& id) {
     const auto& iter = cells_.find(id);
     if (iter != cells_.end()) {
         const auto& cell = iter->second;
-        if (cell.statement.length()) {
-            return cell.statement + " " + cell.expression;
+        if (cell.statement) {
+            return cell.expression;
         } else {
             if (cell.name.length()) {
                 return cell.name + " = " + cell.expression;
@@ -663,7 +658,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
-            if (cell.statement == "" and cell.expression.length()) {
+            if (not cell.statement and cell.expression.length()) {
                 auto spread_expr = translate(cell.expression);
                 // There may be a syntax error in the expression
                 // so capture those and set dependencies to none
@@ -728,13 +723,14 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         reverse(ids.begin(), ids.end());
         order_ = ids;
 
-        // Iterate through all statements_update cells and execute any direcives
+        // Iterate through all statements_update cells and execute
         for (const auto& id : statements_update) {
             auto iter = cells_.find(id);
             if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
             Cell& cell = iter->second;
-            if (cell.statement == "import") {
-                auto result = spread_->import(cell.expression);
+            auto result = spread_->execute(cell.expression);
+            if (result.length()) {
+                cell.statement = true;
                 auto space = result.find(" ");
                 cell.type = result.substr(0, space);
                 cell.value = result.substr(space+1);
@@ -761,7 +757,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                 auto iter = cells_.find(id);
                 if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
                 Cell& cell = iter->second;
-                if (cell.statement == "" and cell.expression.length()) {
+                if (not cell.statement and cell.expression.length()) {
                     auto spread_expr = translate(cell.expression);
                     std::string type_value;
                     try {

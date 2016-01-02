@@ -285,13 +285,13 @@ class Sheet : public Component {
     struct Cell {
 
         /**
-         * Statement for this cell
+         * Is this cell a statement
          *
-         * Most cells have a empty string for their `statement` and are treated
-         * as simple expressions in the host language. Statements are used for
-         * "special" cells that require smething other than smple evaluation
+         * Most cells are simple expressions in the host language. Statements are used for
+         * "special" cells that require something other than simple evaluation. At present,
+         * only importing packages is support but other statemt types could be added.
          */
-        std::string statement;
+        bool statement = false;
 
         /**
          * Expression of this cell
@@ -450,7 +450,7 @@ class Sheet : public Component {
      *
      * @param content Cell content
      */
-    static std::array<std::string, 3> parse(const std::string& content);
+    static std::array<std::string, 2> parse(const std::string& content);
 
     /**
      * Translate a sheet expression into an expression for the host language

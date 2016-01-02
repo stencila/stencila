@@ -31,21 +31,27 @@ Spread <- function(envir, closed=FALSE) {
     # Use method names with leading dot to disassociate them from sheet variables (e.g. in
     # use of `ls()` below)
 
-    # Import a package into this spread's environment
-    self$.import <- function(package){      
-        result <- tryCatch(
-            library(
-                package,
-                character.only=TRUE,
-                verbose=FALSE,
-                quietly=TRUE
-            ),
-            error=identity
-        )
-        if(inherits(result,'error')){
-            return(paste('error',result$message))
+    # Execute source in this spread's environment
+    self$.execute <- function(source){
+        match = regmatches(source,regexec('library\\((\\w+)\\)',source))[[1]]
+        if (length(match)>0){
+            package <- match[2]
+            result <- tryCatch(
+                library(
+                    package,
+                    character.only=TRUE,
+                    verbose=FALSE,
+                    quietly=TRUE
+                ),
+                error=identity
+            )
+            if(inherits(result,'error')){
+                return(paste('error',result$message))
+            } else {
+                return(paste('import',package))
+            }
         } else {
-            return(paste('package',package))
+            return('')
         }
     }
     
