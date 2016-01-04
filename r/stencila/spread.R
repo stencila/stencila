@@ -89,15 +89,12 @@ Spread <- function(envir, closed=FALSE) {
     # @param prefix A useful prefix to be added to any files that may be produced from evaluation
     # @param as_string Should the return value be a string? (set to false when used internally)
     self$.evaluate <- function(expression, prefix, as_string = TRUE){
-        # Create a image file (only gets written to disk if the device is plotted on)
-        # Unique name uses prefix plus IOS 8601 datetime plus uniquizing randon number
-        unique <- paste0(prefix,'-',format(Sys.time(),format="%Y-%m-%dT%H:%M:%OS3"),'-',floor(runif(1)*10000))
         dir.create('out', showWarnings = FALSE)
-        filename <- file.path("out",paste0(unique,".png"))
+        filename <- file.path("out",paste0(prefix,".png"))
         png(filename, width=400, height=400)
         device <- dev.cur()
-        # Ensure that whever happens, the device gets turned off
-        on.exit(dev.off(device))
+        # Ensure that, whatever happens, the device gets turned off
+        #on.exit(dev.off(device))
         # Record the device state to detect any changes
         device_before <- recordPlot()
 
@@ -131,6 +128,18 @@ Spread <- function(envir, closed=FALSE) {
             }
         }
 
+        # Record and close device so it is written to disk
+        device_after <- recordPlot()
+        dev.off(device)
+        if(file.exists(filename)){
+            # Get MD5 hash to uniquely identify the image in case of changes
+            hash <- tools::md5sum(filename)
+            # Rename the file
+            new_filename <- file.path("out",paste0(prefix,'-',hash,'.png'))
+            file.rename(filename,new_filename)
+            filename <- new_filename
+        }
+
         # Determine type and string representation
         if(inherits(value,'error')){
             type <- 'error'
@@ -138,7 +147,7 @@ Spread <- function(envir, closed=FALSE) {
             value <- NA
         } else {
             # Check if device has changed
-            if(!identical(device_before,recordPlot()) | is_ggplot){
+            if(!identical(device_before,device_after) | is_ggplot){
                 value <- filename
                 class(value) <- 'ImageFile'
             }
