@@ -122,21 +122,24 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
 }
 
 Sheet& Sheet::load(std::istream& stream, const std::string& format) {
-    clear();
-    unsigned int row = 0;
-    std::string line;
-    while (std::getline(stream, line)) {
-        std::vector<std::string> cells;
-        boost::split(cells, line, boost::is_any_of("\t"));
-        unsigned int col = 0;
-        for (auto cell : cells) {
-            if (cell.length()) {
-                source(identify(row, col), cell);
+    if (format == "tsv") {
+        clear();
+        unsigned int row = 0;
+        std::string line;
+        while (std::getline(stream, line)) {
+            std::vector<std::string> cells;
+            boost::split(cells, line, boost::is_any_of("\t"));
+            unsigned int col = 0;
+            for (auto cell : cells) {
+                if (cell.length()) {
+                    source(identify(row, col), cell);
+                }
+                col++;
             }
-            col++;
+            row++;
         }
-        row++;
     }
+    else STENCILA_THROW(Exception, "File extension not valid for loading a sheet\n extension: "+format);
     return *this;
 }
 
@@ -167,7 +170,7 @@ Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
             stream << "\n";
         }
     }
-    else STENCILA_THROW(Exception, "File extension not valid for a sheet\n extension: "+format);
+    else STENCILA_THROW(Exception, "File extension not valid for dumping a sheet\n extension: "+format);
     return *this;
 }
 
@@ -204,35 +207,33 @@ Sheet& Sheet::read(const std::string& directory) {
     using namespace boost::filesystem;
     // Call base method to set component path
     Component::read(directory);
-    // Read cell sources file
-    auto source_filename = path() + "/sheet.tsv";
-    if (exists(source_filename)) {
-        import(source_filename);
-    }
-    // Read cell contents file
-    auto contents_filename = path() + "/contents.tsv";
-    if (exists(contents_filename)) {
-        std::ifstream contents_file(contents_filename);
-        std::string line;
-        int count = 0;
-        while (std::getline(contents_file, line)) {
-            count++;
-            auto parts = split(line, "\t");
-            if (parts.size() == 3) {
-                auto id = parts[0];
-                auto iter = cells_.find(id);
-                if (iter != cells_.end()) {
-                    auto& cell = iter->second;
-                    auto type = parts[1];
-                    cell.type = type;
-                    auto value = parts[2];
-                    boost::replace_all(value, "\\n", "\n");
-                    cell.value = value;
+    // Read cell source, types and values files
+    auto dir = path() + "/";
+    std::ifstream sources(dir + "sheet.tsv");
+    std::ifstream types(dir + "sheet-types.tsv");
+    std::ifstream values(dir + "sheet-values.tsv");
+    clear();
+    unsigned int row = 0;
+    std::string line;
+    while (std::getline(sources, line)) {
+        std::vector<std::string> source_values;
+        boost::split(source_values, line, boost::is_any_of("\t"));
+        unsigned int col = 0;
+        for (auto cell : source_values) {
+            if (cell.length()) {
+                auto id = identify(row, col);
+                source(id, cell);
+                Cell& cell = cells_[id];
+                if (types.good()) {
+                    types >> cell.type;
                 }
-            } else {
-                STENCILA_THROW(Exception, "Invalid number of columns\n  file: " + contents_filename + "\n  line: " + string(count));
+                if (values.good()) {
+                    values >> cell.value;
+                }
             }
+            col++;
         }
+        row++;
     }
     return *this;
 }
@@ -240,21 +241,45 @@ Sheet& Sheet::read(const std::string& directory) {
 Sheet& Sheet::write(const std::string& directory) {
     // Call base method to set component pth
     Component::write(directory);
-    // Write cell sources file
-    export_(path() + "/sheet.tsv");
-    // Write cell contents file
-    boost::filesystem::create_directories(path() + "/out");
-    std::ofstream contents(path() + "/contents.tsv");
-    for (const auto& iter : cells_) {
-        auto id = iter.first;
-        auto cell = iter.second;
-        auto value = cell.value;
-        boost::replace_all(value, "\n", "\\n");
-        contents
-            << id << "\t"
-            << cell.type << "\t"
-            << value << "\n";
+    // Write cell source, types and values files
+    auto dir = path() + "/";
+    std::ofstream sources(dir + "sheet.tsv");
+    std::ofstream types(dir + "sheet-types.tsv");
+    std::ofstream values(dir + "sheet-values.tsv");
+    auto extents = extent();
+    auto rows = extents[0] + 1;
+    auto cols = extents[1] + 1;
+    for (unsigned int row = 0; row < rows; row++) {
+        std::vector<std::array<std::string, 3>> cells(cols);
+        unsigned int col_max = 0;
+        for (unsigned int col = 0; col < cols; col++) {
+            auto id = identify(row, col);
+            auto src = source(id);
+            const Cell& cell = cells_[id];
+            cells[col] = {
+                src,
+                cell.type,
+                cell.value
+            };
+            if (src.length()) {
+                col_max = col;
+            }
+        }
+        for (unsigned int col = 0; col <= col_max; col++) {
+            sources <<  cells[col][0];
+            types <<  cells[col][1];
+            values <<  cells[col][2];
+            if (col < col_max) {
+                sources << "\t";
+                types << "\t";
+                values << "\t";
+            }
+        }
+        sources << "\n";
+        types << "\n";
+        values << "\n";
     }
+
     return *this;
 }
 
@@ -722,6 +747,9 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         }
         reverse(ids.begin(), ids.end());
         order_ = ids;
+
+        // Ensure output directory is present
+        boost::filesystem::create_directories(path / "out");
 
         // Iterate through all statements_update cells and execute
         for (const auto& id : statements_update) {
