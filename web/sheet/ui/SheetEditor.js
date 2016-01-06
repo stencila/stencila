@@ -118,9 +118,16 @@ SheetEditor.Prototype = function() {
       if (this.activeCell) {
         var cell = this.activeCell.props.node;
         var sheet = this.refs.sheet;
+        // Parse the cell source into name and expression
+        var matches = cell.source.match(/^ *(([a-z]\w*) *= *)?(.+?)\s*$/);
+        if (matches) {
+          cell.name = matches[2];
+          cell.expr = matches[3];
+        }
+        // Update the sheet with the new cell source
         engine.update([{
           "id" : cell.cid,
-          "source" : cell.expr
+          "source" : cell.source
         }], function(error, updates){
           for(var index = 0; index < updates.length; index++){
             var update = updates[index];

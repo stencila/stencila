@@ -34,7 +34,7 @@ CellComponent.Prototype = function() {
       if (isEditing) {
         var editor = $$(TextPropertyEditor, {
           name: node.id,
-          path: [node.id, 'expr'],
+          path: [node.id, 'source'],
           commands: []
         }).ref('editor');
         el.append(editor);

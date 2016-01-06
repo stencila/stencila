@@ -18,6 +18,11 @@ module.exports = {
     if (name) {
       node.name = name;
     }
+    if (node.name) {
+      node.source = node.name + ' = ' + node.expr;
+    } else {
+      node.source = node.expr;
+    }
     var type = el.attr('data-type');
     if (type) {
       node.tipe = type;
