@@ -151,6 +151,12 @@ class Sheet : public Component {
     Sheet& load(const std::string& string, const std::string& format = "tsv");
 
     /**
+     * Dump this sheet as script in host language
+     * @param  stream Output stream
+     */
+    Sheet& dump_script(std::ostream& stream, std::string assign = " = ", std::string termimate = "\n");
+
+    /**
      * Dump this sheet to an output stream
      * 
      * @param  stream Output stream

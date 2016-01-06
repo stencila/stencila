@@ -148,6 +148,35 @@ Sheet& Sheet::load(const std::string& string, const std::string& format) {
     return load(stream, format);
 }
 
+Sheet& Sheet::dump_script(std::ostream& stream, std::string assign, std::string terminate) {
+    // Ensure `order_` and `cell.statement` are inititialised
+    if(not prepared_) update();
+    // Statements at top
+    bool statements = false;
+    for (const auto& iter : cells_) {
+        const auto& cell = iter.second;
+        if (cell.statement and cell.expression.length()) {
+            stream  << translate(cell.expression)
+                    << terminate;
+            statements = true;
+        }
+    }
+    if (statements) {
+        stream << "\n";
+    }
+    // Cells...
+    for (const auto& id : order_) {
+        const auto& cell = cells_.at(id);
+        if (not cell.statement and cell.expression.length()) {
+            stream  << (cell.name.length()?cell.name:id)
+                    << assign
+                    << translate(cell.expression)
+                    << terminate;
+        }
+    }
+    return *this;
+}
+
 Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
     if (format == "tsv") {
         auto extents = extent();
@@ -169,8 +198,15 @@ Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
             }
             stream << "\n";
         }
+    } else if (format == "r" or format=="py") {
+        std::string assign = " = ";
+        std::string termimate = "\n";
+        if (format == "r") {
+            assign = " <- ";
+        }
+        dump_script(stream, assign, termimate);
     }
-    else STENCILA_THROW(Exception, "File extension not valid for dumping a sheet\n extension: "+format);
+    else STENCILA_THROW(Exception, "Format not valid for dumping a sheet\n format: "+format);
     return *this;
 }
 
@@ -195,9 +231,10 @@ Sheet& Sheet::import(const std::string& path) {
 
 Sheet& Sheet::export_(const std::string& path) {
     std::string ext = boost::filesystem::extension(path);
-    if (ext == ".tsv") {
+    if (ext == ".tsv" or ext == ".r" or ext == ".py") {
         std::ofstream file(path);
-        dump(file, "tsv");
+        auto format = ext.substr(1);
+        dump(file, format);
     }
     else STENCILA_THROW(Exception, "File extension not valid for a sheet\n extension: "+ext);
     return *this;
