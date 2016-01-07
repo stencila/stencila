@@ -165,17 +165,17 @@ CPP_REQUIRES_LIBS += git2
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
-CPP_NETLIB_VERSION := 0.11.1
+CPP_NETLIB_VERSION := 0.11.2
 
-$(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2:
+$(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ http://storage.googleapis.com/cpp-netlib-downloads/$(CPP_NETLIB_VERSION)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+	wget --no-check-certificate -O $@ https://github.com/cpp-netlib/cpp-netlib/archive/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
 	
-$(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+$(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
-	tar --bzip2 -xf $< -C $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/cpp-netlib-$(CPP_NETLIB_VERSION)-final $(BUILD)/cpp/requires/cpp-netlib
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/cpp-netlib-cpp-netlib-$(CPP_NETLIB_VERSION)-final $(BUILD)/cpp/requires/cpp-netlib
 	touch $@
 
 # cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
