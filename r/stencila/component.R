@@ -32,8 +32,16 @@ setRefClass(
 			get_set_(.self,'Component_managed_get','Component_managed_set',value)
 		},
 
+		#publish = function(){
+		#	method_(.self,'Component_publish')
+		#},
+
 		origin = function(){
 			get_(.self,'Component_origin_get')
+		},
+
+		sync = function(){
+			method_(.self,'Component_sync')
 		},
 
 		commit = function(message=""){

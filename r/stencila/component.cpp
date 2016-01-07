@@ -15,11 +15,11 @@ STENCILA_R_GET(Component,held)
 
 STENCILA_R_GETSET(Component,managed,bool)
 
-STENCILA_R_GET(Component,origin)
-
 //STENCILA_R_GET(Component,publish)
 
-//STENCILA_R_GET(Component,sync)
+STENCILA_R_GET(Component,origin)
+
+STENCILA_R_EXEC0(Component,sync)
 
 STENCILA_R_EXEC1(Component,commit,std::string)
 
