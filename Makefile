@@ -199,11 +199,11 @@ CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri
 cpp-requires-cpp-netlib: $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a
 
 
-PUGIXML_VERSION := 1.6
+PUGIXML_VERSION := 1.7
 
 $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ http://github.com/zeux/pugixml/releases/download/v$(PUGIXML_VERSION)/pugixml-$(PUGIXML_VERSION).tar.gz
+	wget --no-check-certificate -O $@ https://github.com/zeux/pugixml/archive/v$(PUGIXML_VERSION).tar.gz
 
 $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
