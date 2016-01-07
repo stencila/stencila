@@ -121,10 +121,7 @@ std::string Repository::remote(const std::string& name){
 }
 
 Repository& Repository::remote(const std::string& name,const std::string& url){
-	git_remote* remote = NULL;
-	STENCILA_GIT_TRY(git_remote_lookup(&remote, repo_, "origin"));
-	STENCILA_GIT_TRY(git_remote_set_url(remote,url.c_str()));
-	git_remote_free(remote);
+	STENCILA_GIT_TRY(git_remote_set_url(repo_, "origin", url.c_str()));
 	return *this;
 }
 
