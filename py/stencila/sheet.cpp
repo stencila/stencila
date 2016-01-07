@@ -4,6 +4,13 @@ using namespace boost::python;
 #include <stencila/sheet.hpp>
 using namespace Stencila;
 
+#include "spread.hpp"
+
+Sheet& Sheet_attach(Sheet& self, object context) {
+    self.attach(std::make_shared<PythonSpread>(context));
+    return self;
+}
+
 void def_Sheet(void){
     class_<Sheet,bases<Component>>("Sheet")
         .def(init<std::string>())
@@ -20,5 +27,10 @@ void def_Sheet(void){
         .def("view",&Sheet::view,return_self<>())
 
         .def("compile",&Sheet::compile,return_self<>())
+
+        .def("attach", Sheet_attach, return_self<>())
+        .def("detach", &Sheet::detach, return_self<>())
+
+        .def("update", static_cast<Sheet& (Sheet::*)(void)>(&Sheet::update), return_self<>())
     ;
 }
