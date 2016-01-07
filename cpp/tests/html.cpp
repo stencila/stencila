@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(xss){
 	BOOST_CHECK_THROW(
 		Document("'';!--\"<XSS>=&{()}"),
 		Stencila::Exception
-	)
+	);
 
 	// No Filter Evasion
 	CHECK(
