@@ -228,7 +228,7 @@ CPP_REQUIRES_LIBS += pugixml
 cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
 
 
-JSONCPP_VERSION := 1.6.2
+JSONCPP_VERSION := 1.6.5
 
 $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
