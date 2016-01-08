@@ -244,30 +244,52 @@ Sheet& Sheet::read(const std::string& directory) {
     using namespace boost::filesystem;
     // Call base method to set component path
     Component::read(directory);
+    // Local function for reading a TSV mostly as per
+    // http://dataprotocols.org/linear-tsv/
+    auto read = [](const std::string& path) {
+        std::vector<std::vector<std::string>> cells;
+        std::ifstream file(path);
+        std::string line;
+        while (std::getline(file, line)) {
+            std::vector<std::string> row;
+            boost::split(row, line, std::bind1st(std::equal_to<char>(), '\t'));
+            for(auto& value : row){
+                boost::replace_all(value, "\\\\", "\\");  // Must come first
+                boost::replace_all(value, "\\t", "\t");
+                boost::replace_all(value, "\\n", "\n");
+                boost::replace_all(value, "\\r", "\r");
+            }
+            cells.push_back(row);
+        }
+        return cells;
+    };
     // Read cell source, types and values files
-    auto dir = path() + "/";
-    std::ifstream sources(dir + "sheet.tsv");
-    std::ifstream types(dir + "sheet-types.tsv");
-    std::ifstream values(dir + "sheet-values.tsv");
+    auto dir = path() + "/"; 
+    auto sources = read(dir + "sheet.tsv");
+    auto types = read(dir + "sheet-types.tsv");
+    auto values = read(dir + "sheet-values.tsv");
+    // Local function for checking that types and values have a row/col
+    // and return an empty string if they don't
+    auto check = [](const std::vector<std::vector<std::string>>& cells, unsigned int row, unsigned int col) {
+        if (cells.size() > row) {
+            auto values = cells[row];
+            if (values.size() > col) {
+                return values[col];
+            }
+        }
+        return std::string();
+    };
+    // Set stuff
     clear();
     unsigned int row = 0;
-    std::string line;
-    while (std::getline(sources, line)) {
-        std::vector<std::string> source_values;
-        boost::split(source_values, line, boost::is_any_of("\t"));
+    for (const auto& strings : sources) {
         unsigned int col = 0;
-        for (auto cell : source_values) {
-            if (cell.length()) {
-                auto id = identify(row, col);
-                source(id, cell);
-                Cell& cell = cells_[id];
-                if (types.good()) {
-                    types >> cell.type;
-                }
-                if (values.good()) {
-                    values >> cell.value;
-                }
-            }
+        for (const auto& string : strings) {
+            auto id = identify(row, col);
+            Cell& cell = cells_[id];
+            source(id, string);
+            cell.type = check(types, row, col);
+            cell.value = check(values, row, col);
             col++;
         }
         row++;
@@ -278,6 +300,16 @@ Sheet& Sheet::read(const std::string& directory) {
 Sheet& Sheet::write(const std::string& directory) {
     // Call base method to set component pth
     Component::write(directory);
+    // Local function for escaping output mostly as per
+    // http://dataprotocols.org/linear-tsv/
+    auto escape = [](const std::string& value) {
+        std::string copy = value;
+        boost::replace_all(copy, "\t", "\\t");
+        boost::replace_all(copy, "\n", "\\n");
+        boost::replace_all(copy, "\r", "\\r");
+        boost::replace_all(copy, "\\", "\\\\");
+        return copy;
+    };
     // Write cell source, types and values files
     auto dir = path() + "/";
     std::ofstream sources(dir + "sheet.tsv");
@@ -294,9 +326,9 @@ Sheet& Sheet::write(const std::string& directory) {
             auto src = source(id);
             const Cell& cell = cells_[id];
             cells[col] = {
-                src,
-                cell.type,
-                cell.value
+                escape(src),
+                escape(cell.type),
+                escape(cell.value)
             };
             if (src.length()) {
                 col_max = col;
