@@ -31,6 +31,15 @@ stores <- function(){
 	.Call('Stencila_stores',PACKAGE='stencila')
 }
 
+#' Start the built in server
+#'
+#' @export
+#' @examples
+#'   stencila:::serve()
+serve <- function(){
+	.Call('Stencila_serve',PACKAGE='stencila')
+}
+
 ###########################################################################
 # Installation of packaged shared libraries (.so, .dll) and command line 
 # scripts

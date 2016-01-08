@@ -48,6 +48,15 @@ STENCILA_R_FUNC Stencila_stores(void){
 }
 
 /**
+ * Start the server
+ */
+STENCILA_R_FUNC Stencila_serve(void){
+	STENCILA_R_BEGIN
+		return Rcpp::wrap(Server::startup());
+	STENCILA_R_END
+}
+
+/**
  * Get the Stencila class name from the tag of an "externalpointer" in R
  *
  * This is used when converting an externalpointer returned from a call to a
