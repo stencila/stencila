@@ -327,7 +327,7 @@ public:
 	 * @{
 	 */
 	
-	 class Call;
+	class Call;
 
 	/**
 	 * An enumeration of `Component` classes
@@ -479,6 +479,16 @@ public:
 		Component* pointer_;
 		friend class Component;
 	};
+
+	/**
+	 * Instantiate a component
+	 *
+	 * A "callback" to a function in the host environment
+	 * e.g. R, Python which instantiates a component as necessary
+	 * for that environment (e.g. attaching a context)
+	 */
+	typedef Component* (*Instantiate) (const std::string& type, const std::string& path);
+	static Instantiate instantiate;
 
 	/**
 	 * Declare a component for retreival later

@@ -12,6 +12,7 @@ namespace Stencila {
 
 Component::Class Component::classes_[Component::types_];
 std::map<std::string,Component::Instance> Component::instances_;
+typename Component::Instantiate Component::instantiate = nullptr;
 
 void Component::class_(Type type, const Class& clas){
 	classes_[type] = clas;
@@ -131,22 +132,28 @@ Component::Instance Component::get(const std::string& address,const std::string&
 		Type type = Component::type(path);
 		if(type==NoneType){
 			STENCILA_THROW(Exception,"Path does not appear to be a Stencila component.\n  path: "+path);
-		} else if(type==ComponentType){
-			component = new Component;
-		} else if(type==StencilType){
-			Stencil* stencil = new Stencil;
-			stencil->read(path);
-			component = stencil;
-		} else if(type==ThemeType){
-			Theme* theme = new Theme;
-			theme->read(path);
-			component = theme;
-		} else if(type==SheetType){
-			Sheet* sheet = new Sheet;
-			sheet->read(path);
-			component = sheet;
 		} else {
-			STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
+			if (Component::instantiate) {
+				component = Component::instantiate(type_name(type), path);
+			} else {
+				if(type==ComponentType){
+					component = new Component;
+				} else if(type==StencilType){
+					Stencil* stencil = new Stencil;
+					stencil->read(path);
+					component = stencil;
+				} else if(type==ThemeType){
+					Theme* theme = new Theme;
+					theme->read(path);
+					component = theme;
+				} else if(type==SheetType){
+					Sheet* sheet = new Sheet;
+					sheet->read(path);
+					component = sheet;
+				} else {
+					STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
+				}
+			}
 		}
 		component->path(path);
 		component->hold(type);
