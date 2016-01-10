@@ -12,6 +12,8 @@ using namespace Stencila;
 void Stencila_R_CStackLimit(void);
 #endif
 
+Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type);
+
 /**
  * Start up function for the Stencila R module
  */
@@ -25,6 +27,8 @@ STENCILA_R_FUNC Stencila_startup(void){
 	Component::classes();
 	RContext::class_init();
 	RSpread::class_init();
+
+	Component::instantiate = Component_instantiate;
 
 	return null;
 }
