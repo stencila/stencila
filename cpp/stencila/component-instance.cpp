@@ -134,7 +134,7 @@ Component::Instance Component::get(const std::string& address,const std::string&
 			STENCILA_THROW(Exception,"Path does not appear to be a Stencila component.\n  path: "+path);
 		} else {
 			if (Component::instantiate) {
-				component = Component::instantiate(type_name(type), path);
+				component = Component::instantiate(address, path, type_name(type));
 			} else {
 				if(type==ComponentType){
 					component = new Component;

@@ -466,6 +466,10 @@ public:
 			return type_;
 		}
 
+		std::string type_name(void) const {
+			return Component::type_name(type_);
+		}
+
 		Component* pointer(void) const {
 			return pointer_;
 		}
@@ -487,7 +491,7 @@ public:
 	 * e.g. R, Python which instantiates a component as necessary
 	 * for that environment (e.g. attaching a context)
 	 */
-	typedef Component* (*Instantiate) (const std::string& type, const std::string& path);
+	typedef Component* (*Instantiate) (const std::string& address, const std::string& path, const std::string& type);
 	static Instantiate instantiate;
 
 	/**
