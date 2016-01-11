@@ -314,7 +314,7 @@ cpp-requires: $(BUILD)/cpp/requires
 # List of other libraries required. These are not included `libstencila.a`
 CPP_OTHER_LIBS := z crypto ssl
 ifeq ($(OS), linux)
-	CPP_OTHER_LIBS += rt pthread
+	CPP_OTHER_LIBS += rt pthread curl
 endif
 ifeq ($(OS), win)
 	CPP_OTHER_LIBS += ws2_32 mswsock ssh2
@@ -1046,13 +1046,16 @@ web-watch:
 
 web-examples:
 	stencila-r web/examples/a render write compile
-	stencila-r web/examples/b update compile
+	stencila-r web/examples/b update write compile
 
 web-devserve:
 	cd web; node server.js
 
+web-devserve-hub:
+	cd web; node server.js https://stenci.la
+
 web-devserve-hubdev:
-	cd web; node server.js http://localhost:7300/
+	cd web; node server.js http://localhost:7300
 
 web-deliver:
 	aws s3 sync web/build s3://get.stenci.la/web/

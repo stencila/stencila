@@ -31,6 +31,9 @@ install:
     # Install cmake >=2.8.8
     - sudo apt-get install cmake --force-yes --assume-yes --fix-broken
 
+    # Install C++ build dependencies
+    - sudo apt-get install libcurl4-openssl-dev --force-yes --assume-yes --fix-broken
+
     # Install Javascript build dependencies
     # `nodejs` and `npm` are already installed (http://docs.travis-ci.com/user/ci-environment/#Runtimes)
     # `uglifyjs` for minification
