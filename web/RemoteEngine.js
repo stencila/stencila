@@ -5,8 +5,11 @@ var RemoteEngine = function() {
 
   var location = window.location;
   this.protocol = location.protocol;
-  if(this.protocol==='file:') this.host = 'localfile';
+
+  if (location.hostname==='0.0.0.0' || location.hostname==='127.0.0.1') this.host = 'localhost';
+  else if (this.protocol==='file:') this.host = 'localfile';
   else this.host = location.hostname;
+
   this.port = location.port;
 
   // Address
@@ -24,9 +27,33 @@ var RemoteEngine = function() {
     if(last.substr(last.length-1)=="-") this.address = path.substr(0,lastIndex);
   }
 
+  this.active = false;
+
 };
 
 RemoteEngine.Prototype = function() {
+
+  this.activate = function() {
+    if (!this.active) {
+      this.request('PUT', 'activate', null, function(err, result) {
+        if (err) { console.error(err); }
+        else {
+          this.active = true;
+        }
+      }.bind(this));
+    }
+  };
+
+  this.deactivate = function() {
+    if (this.active) {
+      this.request('PUT', 'deactivate', null, function(err, result) {
+        if (err) { console.error(err); }
+        else {
+          this.active = false;
+        }
+      }.bind(this));
+    }
+  };
 
   this.request = function(method, endpoint, data, cb) {
     var ajaxOpts = {
