@@ -612,6 +612,25 @@ cpp-scrub:
 cpp-clean:
 	rm -rf $(BUILD)/cpp
 
+#################################################################################################
+# Stencila Docker images
+
+$(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfile docker/stencila-session.r r-package
+	@mkdir -p $(dir $@)
+	cp docker/ubuntu-14.04-r-3.2/Dockerfile $(dir $@)
+	cp docker/stencila-session.r $(dir $@)
+	cp $(BUILD)/r/3.2/stencila_*.tar.gz $(dir $@)/stencila.tar.gz
+	docker build --tag stencila/ubuntu-14.04-r-3.2:$(VERSION) $(dir $@)
+	docker tag --force stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila/ubuntu-14.04-r-3.2:latest
+	echo "stencila/ubuntu-14.04-r-3.2:$(VERSION)" > $@
+
+docker-build-r: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+
+docker-session-r: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+	docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila-session
+
+docker-interact-r: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+	docker run --interactive --tty stencila/ubuntu-14.04-r-3.2:$(VERSION) /bin/bash
 
 #################################################################################################
 # Stencila Javascript package
@@ -1031,6 +1050,9 @@ web-examples:
 
 web-devserve:
 	cd web; node server.js
+
+web-devserve-hubdev:
+	cd web; node server.js http://localhost:7300/
 
 web-deliver:
 	aws s3 sync web/build s3://get.stenci.la/web/

@@ -40,13 +40,16 @@ cd ubuntu-14.04-r-3.2
 sudo docker build --tag stencila/ubuntu-14.04-r-3.2 .
 
 # Test it interactively
-sudo docker run --interactive --tty stencila/ubuntu-14.04-r-3.2 /bin/bash
+sudo docker run --interactive --tty stencila/ubuntu-14.04-r-3.2 bash
 
 # Launch a Stencila R session with the kitchen sink example
 sudo docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-r demo/stencils/kitchen-sink serve ...
 open http://localhost:7373/demo/stencils/kitchen-sink
 
-# When done kill the docker instance
+# You can run a shell in that container to debug issues... 
 sudo docker ps
+docker exec --interactive --tty bc72075ae56d bash
+
+# When done kill the docker instance
 sudo docker kill bc72075ae56d
 ```
