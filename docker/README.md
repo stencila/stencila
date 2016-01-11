@@ -1,11 +1,9 @@
 # Docker containers for using Stencila components.
 
-Images are built using [Automated Builds on Docker Hub](https://docs.docker.com/docker-hub/builds/) from the `Dockerfiles` in this repository. Currently, the available images are:
+Images are built using the `Dockerfiles` in this directory. Currently, the available images are:
 
 - [`stencila/ubuntu-14.04-python-2.7`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-python-2.7/)
 - [`stencila/ubuntu-14.04-r-3.2`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-r-3.2/)
-
-Check those links for current image build status. 
 
 Run an image with a Stencila session for a component like this:
 
@@ -31,7 +29,7 @@ sudo docker kill <id-of-instance>
 
 # Building and testing
 
-You should build and test an image like this before pushing and triggering an automated build:
+You should build and test an image like this before pushing:
 
 ```sh
 cd ubuntu-14.04-r-3.2
