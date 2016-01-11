@@ -2,7 +2,16 @@
  * A development web server for the Stencila `web` module.
  *
  * Bundles Javascript and compiles SCSS on the fly so that a page refresh
- * can be used in development to load latest versions
+ * can be used in development to load latest versions. Proxies other
+ * requests to a Stencila component host (e.g. one started locally using `stencila-r serve`)
+ *
+ * Usage:
+ * 
+ *   node server.js
+ *
+ * Or, to proxy to a host other than http://localhost:7373 add the host's URL. e.g.
+ * 
+ *   node server.js https://stenci.la
  */
 
 var express = require('express');
@@ -78,13 +87,27 @@ app.use('/get/web', express.static(path.join(__dirname, 'build')));
 // Internationalization
 app.use('/i18n', express.static(path.join(__dirname, "i18n")));
 
-// Fallback to proxying to locally hosted components
+// Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
-app.use('*', proxy('localhost:7373', {
+var upstream = 'http://localhost:7373';
+if (process.argv[2]){
+  upstream = process.argv[2];
+}
+app.use('*', proxy(upstream, {
+  decorateRequest: function(req) {
+    if(upstream!=='http://localhost:7373') {
+      if (!process.env.STENCILA_TOKEN) {
+        console.error('Create an access token (e.g. at https://stenci.la/api/#!/Tokens/post_tokens) and copy its string into environment variable STENCILA_TOKEN');
+      } else {
+        req.headers['Authorization'] = 'Token ' + process.env.STENCILA_TOKEN;
+      }
+    }
+    return req;
+  },
   forwardPath: function(req, res) {
     var uri = req.params[0];
-    console.log('Proxying to http://localhost:7373'+uri);
+    console.log('Proxying to ' + upstream + uri);
     return url.parse(uri).path;
   },
 }));
