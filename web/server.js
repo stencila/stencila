@@ -97,10 +97,11 @@ if (process.argv[2]){
 app.use('*', proxy(upstream, {
   decorateRequest: function(req) {
     if(upstream!=='http://localhost:7373') {
-      if (!process.env.STENCILA_TOKEN) {
-        console.error('Create an access token (e.g. at https://stenci.la/api/#!/Tokens/post_tokens) and copy its string into environment variable STENCILA_TOKEN');
+      if (!process.env.STENCILA_HUB_TOKEN) {
+        console.error('Error no access token. Create an access token (e.g. at https://stenci.la/api/#!/Tokens/post_tokens) and copy its string into environment variable STENCILA_HUB_TOKEN');
+        process.exit(1);
       } else {
-        req.headers['Authorization'] = 'Token ' + process.env.STENCILA_TOKEN;
+        req.headers['Authorization'] = 'Token ' + process.env.STENCILA_HUB_TOKEN;
       }
     }
     return req;
