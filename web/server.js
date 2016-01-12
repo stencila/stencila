@@ -118,7 +118,7 @@ app.set('etag', false);
 // Serve app
 var port = process.env.PORT || 5000;
 app.listen(port, function(){
-  console.log("Running at http://127.0.0.1:"+port+"/");
+  console.log("Running at http://localhost:"+port+"/");
 });
 
 // Export app for requiring in test files
