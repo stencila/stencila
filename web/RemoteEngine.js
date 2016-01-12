@@ -39,6 +39,9 @@ RemoteEngine.Prototype = function() {
         if (err) { console.error(err); }
         else {
           this.active = true;
+          this.pingInterval = setInterval(function(){
+            this.ping();
+          }.bind(this), 3*60*1000);
         }
       }.bind(this));
     }
@@ -50,7 +53,16 @@ RemoteEngine.Prototype = function() {
         if (err) { console.error(err); }
         else {
           this.active = false;
+          clearInterval(this.pingInterval);
         }
+      }.bind(this));
+    }
+  };
+
+  this.ping = function() {
+    if (this.active) {
+      this.request('PUT', 'ping', null, function(err, result) {
+        if (err) { console.error(err); }
       }.bind(this));
     }
   };
