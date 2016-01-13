@@ -168,6 +168,11 @@ BOOST_AUTO_TEST_CASE(parse){
 		BOOST_CHECK_EQUAL(p[0],"6*7");
 		BOOST_CHECK_EQUAL(p[1],"answer");
 	}
+
+	// Leading equal is permissible but unessary
+	auto p = Sheet::parse("=42");
+	BOOST_CHECK_EQUAL(p[0],"42");
+	BOOST_CHECK_EQUAL(p[1],"");
 }
 
 BOOST_AUTO_TEST_CASE(translate){

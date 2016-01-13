@@ -578,7 +578,7 @@ std::array<std::string, 2> Sheet::parse(const std::string& source) {
     boost::replace_all(source_clean, "\t", " ");
 
     // `\\s*` at ends allows for trailing spaces or newlines
-    static const boost::regex expression_regex("^ *(([a-z]\\w*) *= *)?(.+?)\\s*$");
+    static const boost::regex expression_regex("^ *(([a-z]\\w*)? *= *)?(.+?)\\s*$");
     boost::smatch match;
     if (boost::regex_match(source_clean, match, expression_regex)) {
         return {match.str(3), match.str(2)};
