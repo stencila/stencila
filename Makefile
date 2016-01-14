@@ -210,22 +210,22 @@ $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	mv $(BUILD)/cpp/requires/pugixml-$(PUGIXML_VERSION) $(BUILD)/cpp/requires/pugixml
+	touch $@
 
 PUGIXML_CXX_FLAGS := -O2
 ifeq ($(OS), linux)
 	PUGIXML_CXX_FLAGS += -fPIC
 endif
-$(BUILD)/cpp/requires/pugixml-built.flag: $(BUILD)/cpp/requires/pugixml
+$(BUILD)/cpp/requires/pugixml/src/libpugixml.a: $(BUILD)/cpp/requires/pugixml
 	cd $</src ;\
 	  $(CXX) $(PUGIXML_CXX_FLAGS) -c pugixml.cpp ;\
 	  $(AR) rcs libpugixml.a pugixml.o
-	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 CPP_REQUIRES_LIBS += pugixml
 
-cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
+cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml/src/libpugixml.a
 
 
 JSONCPP_VERSION := 1.6.5
