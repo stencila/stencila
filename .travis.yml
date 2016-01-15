@@ -13,7 +13,7 @@ services:
 env:
     global:
         - secure: "IdWRjDeZgueABXWwR5dD/Y2UMDg5LbXOup09Yx7c72cxsYxtZli4LqSa+6oYooRYGh0IfHkGTx1VLYaohmFUMtKzAF6cjNoBY46g61QY3C5LSj3BmVvu9OVDq2+XMuZz39CDSUEg/miS9uD3W6NpMNtrVQAf/yzuCwo20Mg7h1Q=" # DOCKER_EMAIL
-        - secure: "ZtjjaZJp5Vi2ao4c9Jvhe8qLtIav7RNtn7DNrqjQcOPwNkkRBYJwUG+TcRzmSHBZYS2cN7xih0z5dGOM8iZsa8MxK3X40GYnDwmP8u+bAFBJ7+wS6KFMQbWTqqLOCquyqDnGCNmEvIjRtpgNkOdP7kKjYjmB/OnZKx4taRUUNK0=" # DOCKER_USER
+        - secure: "kciODef6f2M48C5+gHkFaaveMnenrPpE75yDW5of7L44E99zb5nVzvWedG8TXaqrLJlybv1pkKdUHYMUO3S+0oLw+ez4827sMO3NNz4odCR60mLVHAGkLTgPjv+OrF7G6aPDRy+d5jndBHhNrziPrSfuj9+F3dLLtCkva8Jhgis=" # DOCKER_USERNAME
         - secure: "p/eGwNKsY04as9DGyOZBFwMef6eKtw+mNC63TA/09CG4uS/oxQW2GjeHiqCKeP6UGjhEstV7op3m2Qep1WEDiWNbc8zfdSuYGkbxDnCaD0iyyDKOzrOOzR/yGXwOM6sCYnJ0RaBXfCXca+hPISc0ArK2Yhvp2xSfNUNEbbXIy4U=" # DOCKER_PASSWORD
 
 addons:
@@ -33,10 +33,6 @@ before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
     - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
     - sudo apt-get update -qq
-
-    # Attempts at docker login
-    # As per instrutions in Docker docs
-    - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
