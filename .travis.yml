@@ -12,9 +12,9 @@ services:
 
 env:
     global:
-        - secure: "p/eGwNKsY04as9DGyOZBFwMef6eKtw+mNC63TA/09CG4uS/oxQW2GjeHiqCKeP6UGjhEstV7op3m2Qep1WEDiWNbc8zfdSuYGkbxDnCaD0iyyDKOzrOOzR/yGXwOM6sCYnJ0RaBXfCXca+hPISc0ArK2Yhvp2xSfNUNEbbXIy4U="
         - secure: "IdWRjDeZgueABXWwR5dD/Y2UMDg5LbXOup09Yx7c72cxsYxtZli4LqSa+6oYooRYGh0IfHkGTx1VLYaohmFUMtKzAF6cjNoBY46g61QY3C5LSj3BmVvu9OVDq2+XMuZz39CDSUEg/miS9uD3W6NpMNtrVQAf/yzuCwo20Mg7h1Q="
         - secure: "ZtjjaZJp5Vi2ao4c9Jvhe8qLtIav7RNtn7DNrqjQcOPwNkkRBYJwUG+TcRzmSHBZYS2cN7xih0z5dGOM8iZsa8MxK3X40GYnDwmP8u+bAFBJ7+wS6KFMQbWTqqLOCquyqDnGCNmEvIjRtpgNkOdP7kKjYjmB/OnZKx4taRUUNK0="
+        - secure: "p/eGwNKsY04as9DGyOZBFwMef6eKtw+mNC63TA/09CG4uS/oxQW2GjeHiqCKeP6UGjhEstV7op3m2Qep1WEDiWNbc8zfdSuYGkbxDnCaD0iyyDKOzrOOzR/yGXwOM6sCYnJ0RaBXfCXca+hPISc0ArK2Yhvp2xSfNUNEbbXIy4U="
 
 addons:
     apt:
