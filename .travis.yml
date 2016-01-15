@@ -34,6 +34,12 @@ before_install:
     - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
     - sudo apt-get update -qq
 
+    # Attempts at docker login
+    # Without env vars; locally this gives "Error response from daemon: Wrong login/password, please try again"
+    - docker login -e foo@example.com -u fooo -p barty
+    # As per instrutions in Docker docs
+    - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
