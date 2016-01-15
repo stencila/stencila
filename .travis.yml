@@ -35,7 +35,7 @@ before_install:
     - sudo apt-get update -qq
 
     # Login to Docker
-    - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
