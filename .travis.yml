@@ -34,7 +34,7 @@ install:
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
     - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
-    - sudo pip install wheel virtualenv
+    - pip install wheel virtualenv
 
     # Install R build dependencies
     # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
