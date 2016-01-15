@@ -33,8 +33,11 @@ install:
 
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
-    - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
+    - sudo apt-get install python python-dev --force-yes --assume-yes --fix-broken
+    - curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python2.7
     - sudo -H pip install setuptools wheel virtualenv --upgrade
+    - python2.7 --version
+    - pip --version
 
     # Install R build dependencies
     # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
