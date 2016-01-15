@@ -35,6 +35,8 @@ install:
     # `wheel` for packaging; `virtualenv` for testing
     - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
     - pip install wheel virtualenv
+    # Attempt to fix "error: invalid command 'bdist_wheel'" potentially caused by incompatible version
+    - pip install setuptools --upgrade
 
     # Install R build dependencies
     # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
