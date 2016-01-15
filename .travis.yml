@@ -1,11 +1,20 @@
-language: cpp
-
 # Specify an Ubuntu Trusty VM
 sudo: required
 dist: trusty
 
+language: cpp
+
 compiler:
     - gcc
+
+services:
+    - docker
+
+env:
+    - secure: "p/eGwNKsY04as9DGyOZBFwMef6eKtw+mNC63TA/09CG4uS/oxQW2GjeHiqCKeP6UGjhEstV7op3m2Qep1WEDiWNbc8zfdSuYGkbxDnCaD0iyyDKOzrOOzR/yGXwOM6sCYnJ0RaBXfCXca+hPISc0ArK2Yhvp2xSfNUNEbbXIy4U="
+    - secure: "RqUrcjfzMrv3TcqyplGDKPDLW3WZZ5VpqHHFZlOohBBhI2t3l1dSJX5MLvQOX/ynfF7SGklYXRpzOEyJ/B2UGF8SRNp0n7F15tgCpOJbwty5XULSDSynuSFvIXrumz/unJXXLANszWS5et/ABAFS5xnZV5E7uehFELtC+Enc6R8="
+    - secure: "IdWRjDeZgueABXWwR5dD/Y2UMDg5LbXOup09Yx7c72cxsYxtZli4LqSa+6oYooRYGh0IfHkGTx1VLYaohmFUMtKzAF6cjNoBY46g61QY3C5LSj3BmVvu9OVDq2+XMuZz39CDSUEg/miS9uD3W6NpMNtrVQAf/yzuCwo20Mg7h1Q="
+    - secure: "ZtjjaZJp5Vi2ao4c9Jvhe8qLtIav7RNtn7DNrqjQcOPwNkkRBYJwUG+TcRzmSHBZYS2cN7xih0z5dGOM8iZsa8MxK3X40GYnDwmP8u+bAFBJ7+wS6KFMQbWTqqLOCquyqDnGCNmEvIjRtpgNkOdP7kKjYjmB/OnZKx4taRUUNK0="
 
 addons:
     apt:
@@ -24,6 +33,9 @@ before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
     - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
     - sudo apt-get update -qq
+
+    # Login to Docker
+    - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
@@ -62,3 +74,5 @@ script:
     # So temporarily skipping
     #- make py-tests
     - make r-tests
+    - make docker-r-deliver
+

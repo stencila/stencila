@@ -624,13 +624,16 @@ $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfi
 	docker tag --force stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila/ubuntu-14.04-r-3.2:latest
 	echo "stencila/ubuntu-14.04-r-3.2:$(VERSION)" > $@
 
-docker-build-r: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+docker-r-build: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
 
-docker-session-r: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+docker-r-session: docker-r-build
 	docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila-session
 
-docker-interact-r: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+docker-r-run: docker-r-build
 	docker run --interactive --tty stencila/ubuntu-14.04-r-3.2:$(VERSION) /bin/bash
+
+docker-r-deliver: docker-r-build
+	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
 
 #################################################################################################
 # Stencila Javascript package
