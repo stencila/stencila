@@ -76,3 +76,6 @@ script:
     - make r-tests
     - make docker-r-deliver
 
+notifications:
+  slack:
+    secure: CZPtz/N4r7w0Xy5HLATXgL0mAcmLe2aiHpQGy7rOKw6Ahkqsr+XJNH4jrnHhaH3cYx4BQYjgSxtw2ha6vwdcTEK0qEj/I1Sr4hGrjGC296gByKpRxgUeUanJ5x6byfbWrJsJskvwRZAvso3CFRRNlUlfuwX8LpjT38ocK0HY+BQ=
