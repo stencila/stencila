@@ -1,3 +1,4 @@
+#include <stencila/version.hpp>
 #include <stencila/component.hpp>
 #include <stencila/network.hpp>
 #include <stencila/host.hpp>
@@ -40,6 +41,19 @@ STENCILA_R_FUNC Stencila_shutdown(void){
 	// Shutdown server if it has been started
 	Server::shutdown();
 	return null;
+}
+
+
+STENCILA_R_FUNC Stencila_version(void){
+    STENCILA_R_BEGIN
+        return Rcpp::wrap(Stencila::version);
+    STENCILA_R_END
+}
+
+STENCILA_R_FUNC Stencila_commit(void){
+    STENCILA_R_BEGIN
+        return Rcpp::wrap(Stencila::commit);
+    STENCILA_R_END
 }
 
 /**

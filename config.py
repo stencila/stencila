@@ -14,6 +14,10 @@ def shell(command):
     return Popen(command, shell=True, stdout=PIPE, stderr=PIPE).communicate()[0].strip()
 
 
+# Get Stencila commit SHA-1
+def commit():
+    return shell('git rev-parse HEAD')
+
 # Get Stencila version number
 def version():
     # Get the long Git description

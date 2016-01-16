@@ -7,6 +7,8 @@ ROOT := $(realpath .)
 OS := $(shell ./config.py os)
 # Get the machine architecture e.g i386, x86_64
 ARCH := $(shell ./config.py arch)
+# Get Stencila commit
+COMMIT :=  $(shell ./config.py commit)
 # Get Stencila version
 VERSION :=  $(shell ./config.py version)
 # Is this a dirty build (i.e. changes since last commit)?
@@ -28,6 +30,7 @@ vars:
 	@echo ROOT: $(ROOT)
 	@echo OS: $(OS)
 	@echo ARCH: $(ARCH)
+	@echo COMMIT: $(COMMIT)
 	@echo VERSION: $(VERSION)
 	@echo DIRTY: $(DIRTY)
 	@echo BUILD: $(BUILD)
@@ -358,11 +361,12 @@ ifneq ($(CPP_VERSION_COMPILED),$(VERSION))
 DUMMY := $(shell rm -f $(CPP_VERSION_CPP))
 endif
 
-# Create version.cpp file with current version
+# Create version.cpp file with current version and commit
 $(CPP_VERSION_CPP):
 	@mkdir -p $(dir $@)
 	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
 	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
+	@echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(CPP_VERSION_CPP)
 
 # Compile version object file
 $(CPP_VERSION_O): $(CPP_VERSION_CPP)
@@ -372,6 +376,7 @@ cpp-library-version: $(CPP_VERSION_O)
 
 cpp-library-vars:
 	@echo VERSION: $(VERSION)
+	@echo COMMIT: $(COMMIT)
 	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
 
 
