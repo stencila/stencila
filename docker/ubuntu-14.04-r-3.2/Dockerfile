@@ -20,7 +20,7 @@ RUN apt-get install -y software-properties-common \
 RUN Rscript -e "install.packages(c('Rcpp','ggplot2','stringr','plyr','dplyr','reshape2'),repo='http://cran.us.r-project.org/')"
 
 # Install Stencila R package
-COPY stencila.tar.gz /tmp
+COPY stencila.tar.gz /tmp/stencila.tar.gz
 RUN R CMD INSTALL /tmp/stencila.tar.gz \
   && Rscript -e 'require(stencila); stencila:::install()'
 
