@@ -638,7 +638,12 @@ docker-r-run: docker-r-build
 	docker run --interactive --tty stencila/ubuntu-14.04-r-3.2:$(VERSION) /bin/bash
 
 docker-r-deliver: docker-r-build
+	# It's necessary to push both tags:
+	#   http://container-solutions.com/docker-latest-confusion/
+	#   https://github.com/docker/docker/issues/7336
 	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
+	docker push stencila/ubuntu-14.04-r-3.2:latest
+
 
 #################################################################################################
 # Stencila Javascript package
