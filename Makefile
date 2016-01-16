@@ -643,7 +643,13 @@ docker-r-deliver: docker-r-build
 	#   https://github.com/docker/docker/issues/7336
 	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
 	docker push stencila/ubuntu-14.04-r-3.2:latest
-
+	curl -u "Token:$$STENCILA_HUB_TOKEN" \
+	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
+	    \"package\": \"docker\", \
+	    \"flavour\": \"ubuntu-14.04-r-3.2\", \
+	    \"version\": \"$(VERSION)\", \
+	    \"commit\": \"$(COMMIT)\" \
+	   }" "https://stenci.la/builds"
 
 #################################################################################################
 # Stencila Javascript package
