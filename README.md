@@ -2,6 +2,8 @@
 
 ### Status
 
+[![Join the chat at https://gitter.im/stencila/stencila](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Issues:
 [![Ideas](https://badge.waffle.io/stencila/stencila.svg?label=0+-+Ideas&title=ideas)](http://waffle.io/stencila/stencila)
 [![Ready](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
