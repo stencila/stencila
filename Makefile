@@ -33,7 +33,8 @@ define DELIVERY_NOTIFY
 	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
 	    \"package\": \"$1\", \
 	    \"flavour\": \"$2\", \
-	    \"url\": \"$3\", \
+	    \"platform\": \"$3\", \
+	    \"url\": \"$4\", \
 	    \"version\": \"$(VERSION)\", \
 	    \"commit\": \"$(COMMIT)\" \
 	   }" "https://stenci.la/builds"
@@ -850,7 +851,7 @@ ifeq (dirty,$(DIRTY))
 else
 	$(eval PY_WHEEL := $(shell cat $(PY_BUILD)/latest.txt))
 	aws s3 cp $(PY_BUILD)/dist/$(PY_WHEEL) s3://get.stenci.la/py/
-	$(call DELIVERY_NOTIFY,py,$(PY_VERSION),http://get.stenci.la/py/$(PY_WHEEL))
+	$(call DELIVERY_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(PY_WHEEL))
 endif
 
 #################################################################################################
@@ -1037,7 +1038,7 @@ ifeq (dirty,$(DIRTY))
 else
 	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
 	aws s3 sync $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
-	$(call DELIVERY_NOTIFY,r,$(R_VERSION),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
+	$(call DELIVERY_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
 endif
 
 # Install package in a testenv directory
