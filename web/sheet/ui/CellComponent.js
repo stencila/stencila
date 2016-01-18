@@ -85,8 +85,13 @@ CellComponent.Prototype = function() {
     return this.context.doc;
   };
 
+  this.getDocumentSession = function() {
+    return this.context.documentSession;
+  };
+
   this.enableEditing = function() {
     if (!this.props.node) {
+      var docSession = this.getDocumentSession();
       var doc = this.getDocument();
       var row = new Number(this.attr('data-row'));
       var col = new Number(this.attr('data-col'));
@@ -97,7 +102,7 @@ CellComponent.Prototype = function() {
         col: col,
         cid: Sheet.static.getCellId(row,col)
       };
-      doc.transaction(function(tx) {
+      docSession.transaction(function(tx) {
         tx.create(node);
       });
       node = doc.get(node.id);

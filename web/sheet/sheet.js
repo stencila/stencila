@@ -57,7 +57,7 @@ function launch() {
   var content = $('#content');
   var html = content.html() || '';
   content.remove();
-  Component.mount($$(App, {"html":html}), $('body'));
+  Component.mount(App, {"html":html}, document.body);
 }
 
 $(launch);
