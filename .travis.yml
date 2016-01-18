@@ -34,7 +34,8 @@ before_install:
     # Add repository for R 
     ##- sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
     ##- sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
-    ##- sudo apt-get update -qq
+
+    - sudo apt-get update -qq
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
@@ -44,9 +45,8 @@ install:
 
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
-    - sudo apt-get install python python-dev --force-yes --assume-yes --fix-broken
-    - curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python2.7
-    - sudo -H pip install setuptools wheel virtualenv --upgrade
+    - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
+    - sudo -H pip install pip setuptools wheel virtualenv --upgrade
     - python2.7 --version
     - pip --version
 
