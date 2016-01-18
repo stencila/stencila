@@ -5,7 +5,9 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var $ = window.$ = require('substance/util/jquery');
 
-var SheetEditor = require('./ui/SheetEditor');
+// var SheetEditor = require('./ui/SheetEditor');
+var SheetWriter = require('./ui/SheetWriter');
+
 var SheetHTMLImporter = require('./model/SheetHTMLImporter');
 
 function App() {
@@ -23,8 +25,7 @@ App.Prototype = function() {
     if (this.state.mode === "initial") {
       el.html(this.props.html);
     } else {
-      console.log('Rendering sheet editor...');
-      el.append($$(SheetEditor, {
+      el.append($$(SheetWriter, {
         doc: this.state.doc
       }));
     }

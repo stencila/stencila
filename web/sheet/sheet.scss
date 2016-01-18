@@ -1,10 +1,31 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
+@import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
+
 
 // Substance styles
+// -----------------
 
 @import '../node_modules/substance/styles/base/index';
 
+// Substance modules
+// -----------------
+// 
+// For production we should only require what's needed
+@import '../node_modules/substance/styles/components/_all';
+@import '../node_modules/substance/packages/_all';
+
+.sc-sheet-writer {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
 // Basic sheet styling
+// -----------------
+// 
+// We should implement the reader in Substance Component style
 
 table {
   font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
@@ -83,12 +104,10 @@ td.display.object {
   }
 }
 
-
-
 td.edit {
   position: relative;
   text-align: left;
-  /* deactivate native selections */
+  // deactivate native selections
   -webkit-user-select: default;
      -moz-user-select: default;
       -ms-user-select: default;
