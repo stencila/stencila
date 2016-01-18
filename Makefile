@@ -33,6 +33,7 @@ define DELIVERY_NOTIFY
 	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
 	    \"package\": \"$1\", \
 	    \"flavour\": \"$2\", \
+	    \"url\": \"$3\", \
 	    \"version\": \"$(VERSION)\", \
 	    \"commit\": \"$(COMMIT)\" \
 	   }" "https://stenci.la/builds"
@@ -637,7 +638,7 @@ $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfi
 	@mkdir -p $(dir $@)
 	cp docker/ubuntu-14.04-r-3.2/Dockerfile $(dir $@)
 	cp docker/stencila-session.r $(dir $@)
-	cp $(BUILD)/r/3.2/stencila_*.tar.gz $(dir $@)/stencila.tar.gz
+	cp $(BUILD)/r/3.2/stencila_$(VERSION).tar.gz $(dir $@)/stencila.tar.gz
 	docker build --tag stencila/ubuntu-14.04-r-3.2:$(VERSION) $(dir $@)
 	docker tag --force stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila/ubuntu-14.04-r-3.2:latest
 	echo "stencila/ubuntu-14.04-r-3.2:$(VERSION)" > $@
@@ -998,7 +999,8 @@ r-package-check: $(R_BUILD)/stencila
 	  R CMD check stencila
 
 # Build the package
-R_PACKAGE_FILE := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT)
+R_PACKAGE_FILE_BUILT := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT) # What gets build by R CMD
+R_PACKAGE_FILE := stencila_$(VERSION).$(R_PACKAGE_EXT) # What we want it to be called (with non-standard-for-R version string)
 $(R_BUILD)/$(R_PACKAGE_FILE): $(R_BUILD)/stencila
 ifeq ($(OS),linux)
 	cd $(R_BUILD); R CMD build stencila
@@ -1006,6 +1008,7 @@ endif
 ifeq ($(OS),win)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
 endif
+	mv $(R_BUILD)/$(R_PACKAGE_FILE_BUILT) $(R_BUILD)/$(R_PACKAGE_FILE)
 r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 
 # Deposit package into local repository for mirroring to http://get.stenci.la/r
@@ -1030,6 +1033,7 @@ ifeq (dirty,$(DIRTY))
 else
 	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
 	aws s3 sync $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
+	$(call DELIVERY_NOTIFY,r,$(R_VERSION),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
 endif
 
 # Install package in a testenv directory
@@ -1088,7 +1092,7 @@ ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 sync web/build s3://get.stenci.la/web/
-	$(call DELIVERY_NOTIFY,web,)
+	$(call DELIVERY_NOTIFY,web)
 endif
 
 web-clean:
