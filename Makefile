@@ -850,8 +850,8 @@ ifeq (dirty,$(DIRTY))
 else
 	$(eval PY_WHEEL := $(shell cat $(PY_BUILD)/latest.txt))
 	aws s3 cp $(PY_BUILD)/dist/$(PY_WHEEL) s3://get.stenci.la/py/
+	$(call DELIVERY_NOTIFY,py,$(PY_VERSION),http://get.stenci.la/py/$(PY_WHEEL))
 endif
-
 
 #################################################################################################
 # Stencila R package
@@ -1018,12 +1018,16 @@ r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 # 	
 # See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
 r-repo: r-package
+ifeq (dirty,$(DIRTY))
+	$(error Local repo is not created for dirty versions: $(VERSION). Commit or stash and try again.)
+else
 	# Make R package repository sub directory
 	mkdir -p $(R_BUILD)/repo/$(R_REPO_DIR)
 	# Copy package there
 	cp $(R_BUILD)/$(R_PACKAGE_FILE) $(R_BUILD)/repo/$(R_REPO_DIR)
 	# Generate the PACKAGE file for the repo
 	Rscript -e "require(tools); tools::write_PACKAGES('$(R_BUILD)/repo/$(R_REPO_DIR)',type='$(R_REPO_TYPE)')"
+endif
 
 # Deliver R package to get.stenci.la
 # Requires http://aws.amazon.com/cli/ and access keys for get.stenci.la
