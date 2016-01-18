@@ -51,7 +51,7 @@ install:
     - pip2.7 --version
     - /usr/local/bin/pip2.7 --version
 
-    - sudo -H pip2.7 install pip setuptools wheel virtualenv --upgrade
+    - pip2.7 install pip setuptools wheel virtualenv --upgrade
     - pip2.7 show pip setuptools wheel virtualenv
 
     # Install R build dependencies
