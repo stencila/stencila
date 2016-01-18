@@ -26,6 +26,19 @@ ifndef RESOURCES
 	RESOURCES := build/resources
 endif
 
+# A function for notify the Stencila hub that
+# a build has been delivered
+define DELIVERY_NOTIFY
+	curl -u "Token:$$STENCILA_HUB_TOKEN" \
+	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
+	    \"package\": \"$1\", \
+	    \"flavour\": \"$2\", \
+	    \"version\": \"$(VERSION)\", \
+	    \"commit\": \"$(COMMIT)\" \
+	   }" "https://stenci.la/builds"
+endef
+
+# Show important Makefile variables
 vars:
 	@echo ROOT: $(ROOT)
 	@echo OS: $(OS)
@@ -643,13 +656,7 @@ docker-r-deliver: docker-r-build
 	#   https://github.com/docker/docker/issues/7336
 	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
 	docker push stencila/ubuntu-14.04-r-3.2:latest
-	curl -u "Token:$$STENCILA_HUB_TOKEN" \
-	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
-	    \"package\": \"docker\", \
-	    \"flavour\": \"ubuntu-14.04-r-3.2\", \
-	    \"version\": \"$(VERSION)\", \
-	    \"commit\": \"$(COMMIT)\" \
-	   }" "https://stenci.la/builds"
+	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-r-3.2)
 
 #################################################################################################
 # Stencila Javascript package
@@ -1077,7 +1084,12 @@ web-devserve-hubdev:
 	cd web; node server.js http://localhost:7300
 
 web-deliver:
+ifeq (dirty,$(DIRTY))
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
+else
 	aws s3 sync web/build s3://get.stenci.la/web/
+	$(call DELIVERY_NOTIFY,web,)
+endif
 
 web-clean:
 	rm -rf web/build
