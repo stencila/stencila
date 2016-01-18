@@ -70,8 +70,8 @@ script:
     ##- make vars
     ##- make cpp-tests-quick
     # Fails with "error: invalid command 'bdist_wheel'"
-    # So temporarily skipping
-    - make py-tests
+    - python2.7 py/setup.py --help bdist_wheel
+    ##- make py-tests
     ##- make r-tests
 
 after_success:
