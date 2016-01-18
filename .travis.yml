@@ -20,8 +20,14 @@ env:
 addons:
     apt:
         # Use apt addon to facilitate multi-OS build later https://docs.travis-ci.com/user/multi-os/
+        source:
+            - r-packages-trusty
         packages:
             - texlive-binaries # Temporary fix (?) for R bug http://bugs.debian.org/810963
+            - r-base
+            - r-base-dev
+            - libxml2-dev
+            - libcurl4-openssl-dev
 
 before_install:
     # Use this to prepare the system to install prerequisites or dependencies
@@ -30,27 +36,18 @@ before_install:
     - g++ --version
     - cmake --version
     - docker --version
-
-    # Add repository for R 
-    ##- sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-    ##- sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
-
-    - sudo apt-get update -qq
+    - python2.7 --version
+    - R --version
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
-
-    # Install C++ build dependencies
-    ##- sudo apt-get install libcurl4-openssl-dev --force-yes --assume-yes --fix-broken
 
     # Install Python build dependencies (python and python-dev already installed)
     - pip2.7 install --upgrade --user travis pip setuptools wheel virtualenv
     - pip2.7 show pip setuptools wheel virtualenv
 
     # Install R build dependencies
-    # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
-    ##- sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
-    ##- sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
+    - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
 before_script:
     # Use this to prepare your build for testing
@@ -64,14 +61,14 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    ##- make vars
-    ##- make cpp-tests-quick
+    - make vars
+    - make cpp-tests-quick
     - make py-tests
-    ##- make r-tests
+    - make r-tests
 
 after_success:
-    ##- docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    ##- make docker-r-deliver
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - make docker-r-deliver
 
 notifications:
   slack:
