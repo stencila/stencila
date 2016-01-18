@@ -44,15 +44,12 @@ install:
     ##- sudo apt-get install libcurl4-openssl-dev --force-yes --assume-yes --fix-broken
 
     # Install Python build dependencies
-    # `wheel` for packaging; `virtualenv` for testing
     - sudo apt-get install python python-dev --force-yes --assume-yes --fix-broken
     - python2.7 --version
 
-    - sudo apt-get purge python-pip --force-yes --assume-yes
-    - sudo pip uninstall pip
-    - curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py > get-pip.py
-    - sudo -H python2.7 get-pip.py
+    - which pip
     - pip --version
+    - /usr/local/bin/pip2.7 --version
 
     - sudo -H install pip setuptools wheel virtualenv --upgrade
     - pip show pip setuptools wheel virtualenv
