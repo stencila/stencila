@@ -32,15 +32,15 @@ before_install:
     - docker --version
 
     # Add repository for R 
-    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-    - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
-    - sudo apt-get update -qq
+    ##- sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+    ##- sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
+    ##- sudo apt-get update -qq
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
     # Install C++ build dependencies
-    - sudo apt-get install libcurl4-openssl-dev --force-yes --assume-yes --fix-broken
+    ##- sudo apt-get install libcurl4-openssl-dev --force-yes --assume-yes --fix-broken
 
     # Install Python build dependencies
     # `wheel` for packaging; `virtualenv` for testing
@@ -52,8 +52,8 @@ install:
 
     # Install R build dependencies
     # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
-    - sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
-    - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
+    ##- sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
+    ##- sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
 before_script:
     # Use this to prepare your build for testing
@@ -67,16 +67,16 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    - make vars
-    - make cpp-tests-quick
+    ##- make vars
+    ##- make cpp-tests-quick
     # Fails with "error: invalid command 'bdist_wheel'"
     # So temporarily skipping
-    #- make py-tests
-    - make r-tests
+    - make py-tests
+    ##- make r-tests
 
 after_success:
-    - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - make docker-r-deliver
+    ##- docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    ##- make docker-r-deliver
 
 notifications:
   slack:
