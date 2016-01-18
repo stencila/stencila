@@ -1037,7 +1037,7 @@ ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
-	aws s3 sync $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
+	aws s3 cp --recursive $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
 	$(call DELIVERY_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
 endif
 
@@ -1096,7 +1096,7 @@ web-deliver:
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
-	aws s3 sync web/build s3://get.stenci.la/web/
+	aws s3 cp --recursive web/build s3://get.stenci.la/web/
 	$(call DELIVERY_NOTIFY,web)
 endif
 

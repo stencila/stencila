@@ -12,6 +12,8 @@ services:
 
 env:
     global:
+        - secure: "hf1dcJfQcBVrfDW+cY0GI+YE+Dc14qhCEeO0QGLB+opGaXvWzqZlPz8bel4JDDNzHVcznwcDa8BOrxgBNqGOhK+r6YHa5x2y3xA9QHGcunv1gTbiJKQEkyK+sC0VSDb5ZgMFo5bT6F6WxPl+KurpScr3xxcKLNY0G5kGiPJYctc=" # AWS_ACCESS_KEY
+        - secure: "H/NL9e8eY+OONzvNxdLYHNTTWZhFx1AuUUq4bNT7adeySJhNxjKUexKnNvEZtXf/f6+6AghXckEhdCnWBGo8Jao6ssy2s/fRUgcXAU57ahd5VNFcnIzIGo4EtYP8o0C1iXRUBE/BmLuLxIVQboWtM3ARaMWXEtiipVXYJSXPJCE=" # AWS_SECRET_KEY
         - secure: "IdWRjDeZgueABXWwR5dD/Y2UMDg5LbXOup09Yx7c72cxsYxtZli4LqSa+6oYooRYGh0IfHkGTx1VLYaohmFUMtKzAF6cjNoBY46g61QY3C5LSj3BmVvu9OVDq2+XMuZz39CDSUEg/miS9uD3W6NpMNtrVQAf/yzuCwo20Mg7h1Q=" # DOCKER_EMAIL
         - secure: "kciODef6f2M48C5+gHkFaaveMnenrPpE75yDW5of7L44E99zb5nVzvWedG8TXaqrLJlybv1pkKdUHYMUO3S+0oLw+ez4827sMO3NNz4odCR60mLVHAGkLTgPjv+OrF7G6aPDRy+d5jndBHhNrziPrSfuj9+F3dLLtCkva8Jhgis=" # DOCKER_USERNAME
         - secure: "p/eGwNKsY04as9DGyOZBFwMef6eKtw+mNC63TA/09CG4uS/oxQW2GjeHiqCKeP6UGjhEstV7op3m2Qep1WEDiWNbc8zfdSuYGkbxDnCaD0iyyDKOzrOOzR/yGXwOM6sCYnJ0RaBXfCXca+hPISc0ArK2Yhvp2xSfNUNEbbXIy4U=" # DOCKER_PASSWORD
@@ -45,6 +47,9 @@ install:
     - sudo apt-get install r-base r-base-dev --force-yes --assume-yes --fix-broken
     - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
+    # Install build delivery dependencies
+    - pip2.7 install --upgrade --user awscli
+
 before_script:
     # Use this to prepare your build for testing
 
@@ -73,6 +78,8 @@ script:
 after_success:
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - make docker-r-deliver
+    - make py-deliver
+    - make r-deliver
 
 notifications:
   slack:
