@@ -49,7 +49,9 @@ install:
     - python2.7 --version
 
     - sudo apt-get purge python-pip --force-yes --assume-yes
-    - curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python2.7
+    - sudo pip uninstall pip
+    - curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py > get-pip.py
+    - sudo -H python2.7 get-pip.py
     - pip --version
 
     - sudo -H install pip setuptools wheel virtualenv --upgrade
