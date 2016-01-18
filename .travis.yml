@@ -51,12 +51,12 @@ install:
     - which pip2.7
     - pip2.7 --version
     - /usr/local/bin/pip2.7 --version
-
-    - sudo rm -f /opt/python/2.7.10/bin/pip*
-    - pip2.7 --version
+    - echo $PATH
+    - ls -la /usr/local/bin/
+    - sudo update-alternatives --config pip
 
     - sudo -H pip2.7 install pip setuptools wheel virtualenv --upgrade
-    - pip2.7 show pip setuptools wheel virtualenv
+    - /usr/local/bin/pip2.7 show pip setuptools wheel virtualenv
 
     # Install R build dependencies
     # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
