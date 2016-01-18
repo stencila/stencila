@@ -47,16 +47,12 @@ install:
     - sudo apt-get install python python-dev --force-yes --assume-yes --fix-broken
     - python2.7 --version
 
-    - which pip
     - which pip2.7
     - pip2.7 --version
     - /usr/local/bin/pip2.7 --version
-    - echo $PATH
-    - ls -la /usr/local/bin/
-    - sudo update-alternatives --config pip
 
     - sudo -H pip2.7 install pip setuptools wheel virtualenv --upgrade
-    - /usr/local/bin/pip2.7 show pip setuptools wheel virtualenv
+    - pip2.7 show pip setuptools wheel virtualenv
 
     # Install R build dependencies
     # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
