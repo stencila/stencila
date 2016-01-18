@@ -52,6 +52,8 @@ install:
     - pip2.7 --version
     - /usr/local/bin/pip2.7 --version
 
+    - sudo rm -f /opt/python/2.7.10/bin/pip*
+
     - sudo -H install pip2.7 setuptools wheel virtualenv --upgrade
     - pip2.7 show pip setuptools wheel virtualenv
 
