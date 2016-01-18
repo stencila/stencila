@@ -83,5 +83,8 @@ after_success:
     - make r-deliver
 
 notifications:
-  slack:
-    secure: CZPtz/N4r7w0Xy5HLATXgL0mAcmLe2aiHpQGy7rOKw6Ahkqsr+XJNH4jrnHhaH3cYx4BQYjgSxtw2ha6vwdcTEK0qEj/I1Sr4hGrjGC296gByKpRxgUeUanJ5x6byfbWrJsJskvwRZAvso3CFRRNlUlfuwX8LpjT38ocK0HY+BQ=
+    slack:
+        secure: CZPtz/N4r7w0Xy5HLATXgL0mAcmLe2aiHpQGy7rOKw6Ahkqsr+XJNH4jrnHhaH3cYx4BQYjgSxtw2ha6vwdcTEK0qEj/I1Sr4hGrjGC296gByKpRxgUeUanJ5x6byfbWrJsJskvwRZAvso3CFRRNlUlfuwX8LpjT38ocK0HY+BQ=
+    webhooks:
+        urls:
+            - secure: "c7sJb5i92rK48bkT/JEqjyrznBfLUAHcPr7vXTuFZGX5jn/g0tssCtsDiN08mvULuIJF2F2av/8SF9R2cSpeKkC69I9+YUn+uItq4zFISxzh7q3QfcWvQnbizCkjVDU+AxsTf4m9Kq3eatxwPNuAxRc6PGeaYQ5/NeMYFDkYGCk=" # Gitter
