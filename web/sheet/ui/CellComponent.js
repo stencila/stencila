@@ -52,10 +52,21 @@ CellComponent.Prototype = function() {
         if (type=="integer" || type=="real" || type=="string"){
           el.text(node.value);
         } else if (type=="ImageFile"){
-          el.append(
-            $$('img')
-              .attr('src', node.value)
-          );
+          if (!this.state.preview) {
+            el
+              .addClass('object')
+              .append(
+                $$('span')
+                  .addClass('type')
+                  .text('image')
+              );
+          } else {
+            el.append(
+              $$('img')
+                .attr('src', node.value)
+            );
+          }
+
         } else {
           el
             .addClass('object')
@@ -63,11 +74,14 @@ CellComponent.Prototype = function() {
               $$('span')
                 .addClass('type')
                 .text(node.tipe)
-            )
-            .append(
-              $$('pre')
-                .text(node.value)
             );
+
+          if (this.state.preview) {
+            el.addClass('preview');
+            el.append(
+              $$('pre').text(node.value)
+            );
+          }
         }
       }
     } else {
@@ -87,6 +101,12 @@ CellComponent.Prototype = function() {
 
   this.getDocumentSession = function() {
     return this.context.documentSession;
+  };
+
+  this.togglePreview = function() {
+    this.extendState({
+      preview: !this.state.preview
+    });
   };
 
   this.enableEditing = function() {

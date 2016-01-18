@@ -153,8 +153,11 @@ SheetEditor.Prototype = function() {
             cellComponent.rerender();
           }
         });
+        this._selectNextCell(1, 0);
+      } else {
+        this._activateCurrentCell();
       }
-      this._selectNextCell(1, 0);
+      
       handled = true;
     }
     // TAB
@@ -206,7 +209,7 @@ SheetEditor.Prototype = function() {
       }
       // SPACE
       else if (event.keyCode === 32) {
-        this._activateCurrentCell();
+        this._togglePreviewCell();
         handled = true;
       }
     }
@@ -297,6 +300,15 @@ SheetEditor.Prototype = function() {
     if (sel) {
       var rect = this.refs.sheet._getRectangle(sel);
       this.refs.selection.css(rect);
+    }
+  };
+
+  this._togglePreviewCell = function() {
+    var row = this.selection[0];
+    var col = this.selection[1];
+    var cell = this.refs.sheet.getCellAt(row, col);
+    if (cell) {
+      cell.togglePreview();
     }
   };
 

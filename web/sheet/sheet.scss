@@ -58,14 +58,6 @@ tr>th:first-child {
 
 td.display {
   cursor: default;
-  span.name {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 3px;
-    font-size: 12px;
-    color: #AAA;
-  }
 }
 
 td.display.ImageFile {
@@ -81,27 +73,7 @@ td.display.ImageFile {
 
 td.display.object {
   position: relative;
-  // Prevent from becoming too large
-  display: block;
-  max-height: 15em;
-  max-width: 30em;
-  overflow-y: scroll;
   background: #F8F8F8;
-  span.type {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border: 1px solid grey;
-    border-radius: 5px;
-    padding: 0 0.1em 0 0.1em;
-    margin: 3px;
-    background: #FFE78A;
-    font-size: 12px;
-  }
-  pre {
-    margin-top: 20px;
-    text-align: left;
-  }
 }
 
 td.edit {
