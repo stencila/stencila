@@ -33,6 +33,7 @@ before_install:
     # gave an old version 3.0.2 (2013-09-25)
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
     - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
+    - sudo apt-get update -qq
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
