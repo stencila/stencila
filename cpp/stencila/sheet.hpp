@@ -300,18 +300,25 @@ class Sheet : public Component {
         bool statement = false;
 
         /**
-         * Is this cell a literal expression? And if so, what kind.
+         * What kind of cell is this?
          *
-         * When parsing the source of a cell it may be detected to be a literal expression i.e. constant
+         * When parsing the source of a cell it may be detected to be a 
+         *
+         *     1 - named expression (eg. `pi = 3.14`)
+         *     2 - expression       (eg. `= 22/7`)
+         *     n - number literal   (eg. `42`)
+         *     s - string literal   (eg. `"foo"`)
+         *     d - date literal     (eg. `23/12/1978`) [not currently implemented]
+         *     z - implicit string  (eg. `foo bar`)
+         *     
          * This allows for various optimisations and for the definition of alternative types of literal expression
          * that may not necessarily be valid in the host language e.g. $1,000,000. The host context can be asked
          * to convert the literal to native time e.g. '23/12/1978' to a datetime.datetime in Python.
-         * A one character code is used to indicate the type of literal (more will be added over time):
          *
-         *  n : number 
-         *  s : string
+         * More kinds, to deal with alternative literals, are likely to be added in the future.
+         * It may be that the `statement` flag can also be incorporated into `kind`
          */
-        char literal = ' ';
+        char kind = 0;
 
         /**
          * Expression of this cell

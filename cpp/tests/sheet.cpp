@@ -169,35 +169,36 @@ BOOST_AUTO_TEST_CASE(parse){
 	// Named expressions
 	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
 		cell = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(cell.literal,' ');
+		BOOST_CHECK_EQUAL(cell.kind,1);
 		BOOST_CHECK_EQUAL(cell.name,"answer");
 		BOOST_CHECK_EQUAL(cell.expression,"6*7");
 	}
 
 	// Dynamic expressions
 	cell = Sheet::parse("=42");
+	BOOST_CHECK_EQUAL(cell.kind,2);
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 	BOOST_CHECK_EQUAL(cell.name,"");
 
 	// Literal expressions
 	cell = Sheet::parse("42");
-	BOOST_CHECK_EQUAL(cell.literal,'n');
+	BOOST_CHECK_EQUAL(cell.kind,'n');
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 
 	cell = Sheet::parse("3.14");
-	BOOST_CHECK_EQUAL(cell.literal,'n');
+	BOOST_CHECK_EQUAL(cell.kind,'n');
 	BOOST_CHECK_EQUAL(cell.expression,"3.14");
 
 	cell = Sheet::parse("\"Double quoted string with an escaped double quote \\\" inside it\"");
-	BOOST_CHECK_EQUAL(cell.literal,'s');
+	BOOST_CHECK_EQUAL(cell.kind,'s');
 	BOOST_CHECK_EQUAL(cell.expression,"\"Double quoted string with an escaped double quote \\\" inside it\"");
 
 	cell = Sheet::parse("\'Single quoted string with an escaped single quote \\\'' inside it\'");
-	BOOST_CHECK_EQUAL(cell.literal,'s');
+	BOOST_CHECK_EQUAL(cell.kind,'s');
 	BOOST_CHECK_EQUAL(cell.expression,"\'Single quoted string with an escaped single quote \\\'' inside it\'");
 
 	cell = Sheet::parse("An implicit string");
-	BOOST_CHECK_EQUAL(cell.literal,'s');
+	BOOST_CHECK_EQUAL(cell.kind,'z');
 	BOOST_CHECK_EQUAL(cell.expression,"\"An implicit string\"");
 }
 

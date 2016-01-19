@@ -111,7 +111,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
             auto iter = cells_.find(id);
             if (iter != cells_.end()) {
                 auto& cell = iter->second;
-                if (cell.literal != ' ') td.attr("data-literal", std::string(1,cell.literal));
+                if (cell.kind) td.attr("data-kind", std::string(1,cell.kind));
                 if (cell.expression.length()) td.attr("data-expr", cell.expression);
                 if (cell.name.length()) td.attr("data-name", cell.name);
                 if (cell.type.length()) td.attr("data-type", cell.type);
@@ -582,25 +582,29 @@ Sheet::Cell Sheet::parse(const std::string& source) {
 
         // `\s*` at ends allows for leading and trailing spaces or newlines
         // Commented quotes below are to stop SublimeText's string formatting on subsequent line
-        static const boost::regex expression_regex(R"(^\s*([a-z]\w*)? *= *(.+?)\s*$)");
+        static const boost::regex named_expression_regex(R"(^\s*([a-z]\w*) *= *(.+?)\s*$)");
+        static const boost::regex expression_regex(R"(^\s*= *(.+?)\s*$)");
         static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
         static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
         static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
 
         boost::smatch match;
-        if (boost::regex_match(source_clean, match, expression_regex)) {
-            cell.literal = ' ';
+        if (boost::regex_match(source_clean, match, named_expression_regex)) {
+            cell.kind = 1;
             cell.name = match.str(1);
             cell.expression = match.str(2);
+        } else if (boost::regex_match(source_clean, match, expression_regex)) {
+            cell.kind = 2;
+            cell.expression = match.str(1);
         } else if (boost::regex_match(source_clean, match, number_regex)) {
-            cell.literal = 'n';
+            cell.kind = 'n';
             cell.expression = match.str(1);
         } else if (boost::regex_match(source_clean, match, dq_string_regex) or
                    boost::regex_match(source_clean, match, sq_string_regex)) {
-            cell.literal = 's';
+            cell.kind = 's';
             cell.expression = match.str(1);
         } else {
-            cell.literal = 's';
+            cell.kind = 'z';
             cell.expression = "\"" + source + "\"";
         }
     }
@@ -635,7 +639,7 @@ std::string Sheet::source(const std::string& id) {
         const auto& cell = iter->second;
         if (cell.statement) {
             return cell.expression;
-        } else if (cell.literal != ' '){
+        } else if (cell.kind > 9) {
             return cell.expression;
         } else {
             if (cell.name.length()) {
