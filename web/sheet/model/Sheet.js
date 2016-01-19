@@ -1,8 +1,9 @@
 'use strict';
 
+var isNumber = require('lodash/lang/isNumber');
+var each = require('lodash/collection/each');
 var Document = require('substance/model/Document');
 var DocumentSchema = require('substance/model/DocumentSchema');
-var _ = require('substance/util/helpers');
 
 var defaultSchema = new DocumentSchema("stencila-sheet", "0.1.0");
 
@@ -32,8 +33,8 @@ Sheet.Prototype = function() {
   this._getDimension = function(nodes) {
     var nrows = 0;
     var ncols = 0;
-    _.each(nodes, function(node) {
-      if (node.type === "sheet-cell" && !node.empty()) {
+    each(nodes, function(node) {
+      if (node.type === "sheet-cell" && !node.isEmpty()) {
         nrows = Math.max(nrows, node.getRow());
         ncols = Math.max(ncols, node.getCol());
       }
@@ -45,13 +46,13 @@ Sheet.Prototype = function() {
     var nodes = this.getNodes();
     if (mode === "sparse") {
       nodes = nodes.filter(function(node) {
-        return node.type === "sheet-cell" && !node.empty();
+        return node.type === "sheet-cell" && !node.isEmpty();
       });
     }
     var tableData = this._getDimension(nodes);
     var cells = {};
-    _.each(nodes, function(node) {
-      if (node.type === "sheet-cell" && !node.empty()) {
+    each(nodes, function(node) {
+      if (node.type === "sheet-cell" && !node.isEmpty()) {
         cells[[node.getRow(), node.getCol()]] = node;
       }
     });
@@ -68,6 +69,9 @@ Sheet.static.schema = defaultSchema;
 var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 Sheet.static.getColumnName = function(col) {
+  if (!isNumber(col)) {
+    throw new Error('Illegal argument.');
+  }
   var name = "";
   while(true) {
     var mod = col % ALPHABET.length;
@@ -82,7 +86,7 @@ Sheet.static.getColumnName = function(col) {
 Sheet.static.getColumnIndex = function(col) {
   var index = 0;
   var rank = 1;
-  _.each(col, function(letter) {
+  each(col, function(letter) {
       index += rank * ALPHABET.indexOf(letter);
       rank++;
   });

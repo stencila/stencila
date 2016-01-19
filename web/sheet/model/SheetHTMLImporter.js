@@ -37,8 +37,8 @@ SheetHTMLImporter.Prototype = function() {
         var cellEl = cellEls[j];
         if (cellEl.text()) {
           var cell = this.convertElement(cellEl);
-          cell.setRow(i);
-          cell.setCol(j-1);
+          cell.row = i;
+          cell.col = j-1;
         }
       }
     }
