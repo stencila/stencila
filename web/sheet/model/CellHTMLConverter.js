@@ -10,36 +10,32 @@ module.exports = {
   },
 
   import: function(el, node) {
-    var expr = el.attr('data-expr');
-    if (expr) {
-      node.expr = expr;
+    var valueType = el.attr('data-type');
+    if (valueType) {
+      node.valueType = valueType;
     }
+    var expr = el.attr('data-expr');
     var name = el.attr('data-name');
     if (name) {
-      node.name = name;
-    }
-    if (node.name) {
-      node.source = node.name + ' = ' + node.expr;
+      node.source = node.name + '=' + node.expr;
     } else {
       node.source = node.expr;
-    }
-    var type = el.attr('data-type');
-    if (type) {
-      node.tipe = type;
     }
     node.value = el.text();
   },
 
   export: function(node, el) {
-    if (node.expr) {
-      el.attr('data-expr', node.expr);
+    if (node.valueType) {
+      el.attr('data-type', node.valueType);
     }
-    if (node.name) {
-      el.attr('data-name', node.name);
+
+    var name = node.getName();
+    if (name) {
+      el.attr('data-name', name);
     }
-    if (node.tipe) {
-      el.attr('data-type', node.tipe);
-    }
-    el.text(node.value);
+    el.attr('data-expr', node.source);
+
+    // using getValue() here as it is evaluated dynamically
+    el.text(node.getValue());
   }
 };

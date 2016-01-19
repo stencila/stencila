@@ -7,9 +7,37 @@ function Cell(){
 }
 
 Cell.Prototype = function() {
-  this.empty = function() {
-    return this.expr.length==0;
+
+  this.isEmpty = function() {
+    return !this.source;
   };
+
+  this.getName = function() {
+    var match = /^\s*([a-zA-Z0-9_@])=/.exec(this.source);
+    if (match) {
+      return match[1];
+    }
+  };
+
+  this.isPrimitive = function() {
+    switch(this.valueType) {
+      case 'string':
+      case 'real':
+      case 'int':
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  this.getValue = function() {
+    if (this.isPrimitive()) {
+      return this.source;
+    } else {
+      return this.value;
+    }
+  };
+
 };
 
 DocumentNode.extend(Cell);
@@ -17,16 +45,17 @@ DocumentNode.extend(Cell);
 Cell.static.name = "sheet-cell";
 
 Cell.static.defineSchema({
-  expr: { type: "string", optional: true },
-  name: { type: "string", optional: true },
-  source: "text", // Equivalent to `name` = `expr`; used as editing target
-  tipe: { type: "string", optional: true },
-  value: { type: "string", optional: true },
   row: "number",
   col: "number",
-  cid: "string"
+  source: "text", // the raw string content as you would see in TSV file
+
+  cid: "string", // such as A1?
+
+  // volatile data (derived from source)
+  value: { type: "string", optional: true }, // evaluated value
+  valueType: "string",
 });
 
-Cell.static.generatedProps = ['tipe','value'];
+Cell.static.generatedProps = ['value', 'valueType'];
 
 module.exports = Cell;
