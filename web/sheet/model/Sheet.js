@@ -80,13 +80,13 @@ Sheet.static.getColumnName = function(col) {
 };
 
 Sheet.static.getColumnIndex = function(col) {
-    var index = 0;
-    var rank = 1;
-    _.each(col, function(letter) {
-        index += rank * ALPHABET.indexOf(letter);
-        rank++;
-    });
-    return index;
+  var index = 0;
+  var rank = 1;
+  _.each(col, function(letter) {
+      index += rank * ALPHABET.indexOf(letter);
+      rank++;
+  });
+  return index;
 };
 
 Sheet.static.getCellId = function(row,col) {
