@@ -20,6 +20,7 @@ ObjectComponent.Prototype = function() {
     if (this.props.displayMode != 'clipped') {
       el.append($$('pre').text(this.node.value));
     }
+    return el;
   };
 };
 

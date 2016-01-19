@@ -1,7 +1,6 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var Controller = require('substance/ui/Controller');
 var SheetComponent = require('./SheetComponent');
 var $$ = Component.$$;
 
@@ -297,6 +296,6 @@ SheetEditor.Prototype = function() {
 
 };
 
-Controller.extend(SheetEditor);
+Component.extend(SheetEditor);
 
 module.exports = SheetEditor;

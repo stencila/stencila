@@ -18,6 +18,7 @@ var LinkTool = require('substance/packages/link/LinkTool');
 var SheetEditor = require('./SheetEditor');
 var Sheet = require('../model/Sheet');
 
+
 var CONFIG = {
   controller: {
     commands: [
@@ -36,7 +37,6 @@ var CONFIG = {
     commands: [
       // Special commands
       require('substance/packages/embed/EmbedCommand'),
-
       require('substance/packages/strong/StrongCommand'),
       require('substance/packages/emphasis/EmphasisCommand'),
       require('substance/packages/link/LinkCommand'),
@@ -97,10 +97,8 @@ SheetWriter.Prototype = function() {
         ),
         // Content Panel below
         $$(ScrollPane, {
-          // scrollbarType: 'substance',
           scrollbarPosition: 'left'
         }).ref('contentPanel').append(
-          // The full fledged document (ContainerEditor)
           $$('div').ref('main').addClass('document-content').append(
             $$(SheetEditor, {
               doc: this.props.doc

@@ -10,9 +10,9 @@ module.exports = {
   },
 
   import: function(el, node) {
-    var valueType = el.attr('data-type');
-    if (valueType) {
-      node.valueType = valueType;
+    var contentType = el.attr('data-type');
+    if (contentType) {
+      node.contentType = contentType;
     }
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
@@ -21,12 +21,13 @@ module.exports = {
     } else {
       node.source = node.expr;
     }
+
     node.value = el.text();
   },
 
   export: function(node, el) {
-    if (node.valueType) {
-      el.attr('data-type', node.valueType);
+    if (node.contentType) {
+      el.attr('data-type', node.contentType);
     }
 
     var name = node.getName();

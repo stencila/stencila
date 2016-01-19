@@ -15,7 +15,7 @@ CellTeaserComponent.Prototype = function() {
     
     el.append(
       $$('span').addClass('se-name').text(node),
-      $$('span').addClass('se-content-type').text(node.getContentType())
+      $$('span').addClass('se-content-type').text(node.contentType)
     );
   };
 };

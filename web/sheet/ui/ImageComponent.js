@@ -19,6 +19,7 @@ ImageComponent.Prototype = function() {
     el.append(
       $$('img').attr('src', node.value)
     );
+    return el;
   };
 };
 

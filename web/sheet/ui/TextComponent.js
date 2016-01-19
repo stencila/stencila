@@ -12,7 +12,8 @@ TextComponent.Prototype = function() {
 
   this.render = function() {
     var el = $$('div').addClass('sc-text');
-    el.text(this.node.value);
+    el.text(this.props.node.value);
+    return el;
   };
 };
 

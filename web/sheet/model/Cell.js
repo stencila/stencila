@@ -1,7 +1,6 @@
 "use strict";
 
 var DocumentNode = require('substance/model/DocumentNode');
-var Sheet = require('./Sheet');
 
 function Cell(){
   Cell.super.apply(this, arguments);
@@ -40,6 +39,7 @@ Cell.Prototype = function() {
   };
 
   this.getCellId = function() {
+    var Sheet = require('./Sheet');
     return Sheet.static.getCellId(this.row, this.col);
   };
 
@@ -72,8 +72,11 @@ Cell.static.name = "sheet-cell";
 Cell.static.defineSchema({
   source: "text", // the raw string content as you would see in TSV file
 
+  displayMode: {type: "string", optional: true},
+
   // volatile data derived from source
   value: { type: "string", optional: true }, // evaluated value
+  contentType: { type: "string", default: 'text' }
 });
 
 Cell.static.generatedProps = ['value'];

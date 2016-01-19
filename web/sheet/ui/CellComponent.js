@@ -40,7 +40,7 @@ CellComponent.Prototype = function() {
         el.append(editor);
       } else {
         // Render Cell content
-        var CellContentClass = componentRegistry.get(node.getContentType());
+        var CellContentClass = componentRegistry.get(node.contentType);
         var cellContent = $$(CellContentClass, {node: node, displayMode: this.state.displayMode});
         el.append(cellContent);
       }
