@@ -1,13 +1,8 @@
 <img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:300px">
 
-### Status
-
-Issues:
-[![Ideas](https://badge.waffle.io/stencila/stencila.svg?label=0+-+Ideas&title=ideas)](http://waffle.io/stencila/stencila)
+[![Issues](https://img.shields.io/github/issues-raw/badges/shields.svg)](http://waffle.io/stencila/stencila)
 [![Ready](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
 [![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
-
-Build:
 [![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
 
 ### Quick start
