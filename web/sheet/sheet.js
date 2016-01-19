@@ -2,14 +2,13 @@
 
 var Component = require('substance/ui/Component');
 var $ = window.$ = require('substance/util/jquery');
-
 var SheetWriter = require('./ui/SheetWriter');
 var SheetHTMLImporter = require('./model/SheetHTMLImporter');
+var SheetHTMLExporter = require('./model/SheetHTMLExporter');
 
 var SheetRemoteEngine = require('./engine/SheetRemoteEngine');
 var engine = new SheetRemoteEngine();
 
-// <body><menu><table></table></menu></body>
 function loadDocument() {
   var content = $('#content');
   var html = content.html() || '';
@@ -31,13 +30,10 @@ function activateSession(cb) {
 // At some point this may run on the server
 function renderStaticReadonlyVersion(doc) {
   var ghostEl = document.createElement('div');
-
   Component.mount(SheetWriter, {
     mode: 'read',
-    doc: doc,
-    api: 'http://localhost:5000/api'
+    doc: doc
   }, ghostEl);
-
   document.body.innerHTML = ghostEl.innerHTML;
 }
 
@@ -46,7 +42,12 @@ function renderInteractiveVersion(doc, mode) {
   Component.mount(SheetWriter, {
     mode: mode,
     doc: doc,
-    api: 'http://localhost:5000/api'
+    engine: engine,
+    onSave: function(doc, changes, cb) {
+      var exporter = new SheetHTMLExporter();
+      var html = exporter.exportDocument(doc);
+      engine.save(html);
+    }
   }, document.body);
 }
 
@@ -65,7 +66,6 @@ function launch() {
     renderInteractiveVersion(doc, 'read');
   }
 }
-
 
 window.activate = function() {
   engine.activate();

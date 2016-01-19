@@ -1,7 +1,6 @@
 'use strict';
 
 var oo = require('substance/util/oo');
-
 var RemoteEngine = require('../../RemoteEngine');
 
 function SheetRemoteEngine() {
@@ -15,6 +14,10 @@ SheetRemoteEngine.Prototype = function() {
       if (err) { console.error(err); cb(err); }
       cb(null, result);
     });
+  };
+
+  this.save = function(html, cb) {
+  	console.log('TODO: implement save in SheetRemoteEngine.js');
   };
 
 };
