@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(meta_attributes){
 	Sheet s2;
 	s2.attach(std::make_shared<TestSpread>());
 	// Note that the TestSpread does not recognised quotes, so setting of these
-	// attributes is a little different to normal (tehy are usually string expressions)
+	// attributes is a little different to normal (they are usually string expressions)
 	s2.load(
 		"title = A test sheet\n"
 		"description = A sheet used for testing\n"
@@ -151,28 +151,54 @@ BOOST_AUTO_TEST_CASE(interpolate){
 }
 
 BOOST_AUTO_TEST_CASE(parse){
-	auto p0 = Sheet::parse("");
-	BOOST_CHECK_EQUAL(p0[0],"");
+	Sheet::Cell cell;
+
+	// Empty source is ignored
+	BOOST_CHECK_EQUAL(Sheet::parse("").expression,"");
 
 	// Tabs are replaced with spaces
-	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t")[0],"'foo  bar'");
+	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t").expression,"'foo  bar'");
 
-	// Spaces are only significant within an expression
-	BOOST_CHECK_EQUAL(Sheet::parse("42")[0],"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 42")[0],"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 'foo bar' ")[0],"'foo bar'");
+	// Spaces are insignificant at ends of expressions...
+	BOOST_CHECK_EQUAL(Sheet::parse("42").expression,"42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 42").expression,"42");
+	BOOST_CHECK_EQUAL(Sheet::parse(" 'foo bar' ").expression,"'foo bar'");
+	// ... but not for implicit strings
+	BOOST_CHECK_EQUAL(Sheet::parse(" foo bar ").expression,"\" foo bar \"");
 
-	// Named cells
+	// Named expressions
 	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
-		auto p = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(p[0],"6*7");
-		BOOST_CHECK_EQUAL(p[1],"answer");
+		cell = Sheet::parse(content);
+		BOOST_CHECK_EQUAL(cell.literal,' ');
+		BOOST_CHECK_EQUAL(cell.name,"answer");
+		BOOST_CHECK_EQUAL(cell.expression,"6*7");
 	}
 
-	// Leading equal is permissible but unessary
-	auto p = Sheet::parse("=42");
-	BOOST_CHECK_EQUAL(p[0],"42");
-	BOOST_CHECK_EQUAL(p[1],"");
+	// Dynamic expressions
+	cell = Sheet::parse("=42");
+	BOOST_CHECK_EQUAL(cell.expression,"42");
+	BOOST_CHECK_EQUAL(cell.name,"");
+
+	// Literal expressions
+	cell = Sheet::parse("42");
+	BOOST_CHECK_EQUAL(cell.literal,'n');
+	BOOST_CHECK_EQUAL(cell.expression,"42");
+
+	cell = Sheet::parse("3.14");
+	BOOST_CHECK_EQUAL(cell.literal,'n');
+	BOOST_CHECK_EQUAL(cell.expression,"3.14");
+
+	cell = Sheet::parse("\"Double quoted string with an escaped double quote \\\" inside it\"");
+	BOOST_CHECK_EQUAL(cell.literal,'s');
+	BOOST_CHECK_EQUAL(cell.expression,"\"Double quoted string with an escaped double quote \\\" inside it\"");
+
+	cell = Sheet::parse("\'Single quoted string with an escaped single quote \\\'' inside it\'");
+	BOOST_CHECK_EQUAL(cell.literal,'s');
+	BOOST_CHECK_EQUAL(cell.expression,"\'Single quoted string with an escaped single quote \\\'' inside it\'");
+
+	cell = Sheet::parse("An implicit string");
+	BOOST_CHECK_EQUAL(cell.literal,'s');
+	BOOST_CHECK_EQUAL(cell.expression,"\"An implicit string\"");
 }
 
 BOOST_AUTO_TEST_CASE(translate){
@@ -192,8 +218,8 @@ BOOST_AUTO_TEST_CASE(translate){
 BOOST_AUTO_TEST_CASE(dependencies_1){
 	Sheet s;
 	s.load(
-		"A2\tA1     \tC2 \n"
-		"C1\tA1 + B1\t1\n"
+		"= A2\t= A1     \t= C2 \n"
+		"= C1\t= A1 + B1\t1\n"
 	);
 	s.attach(std::make_shared<TestSpread>());
 	s.update();
@@ -217,20 +243,20 @@ BOOST_AUTO_TEST_CASE(dependencies_1){
 	BOOST_CHECK_EQUAL(s.successors("foo").size(),0);
 
 	// Change a cell
-	s.update("B2","C2");
-	BOOST_CHECK_EQUAL(s.content("B2"), "C2");
+	s.update("B2","= C2");
+	BOOST_CHECK_EQUAL(s.source("B2"), "= C2");
 	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "C2");
 	BOOST_CHECK_EQUAL(join(s.order(), ","), "C2,B2,C1,A2,A1,B1");
 
 	// Create a circular dependency
-	BOOST_CHECK_THROW(s.update("B2","A1 + B2"),Exception);
+	BOOST_CHECK_THROW(s.update("B2","= A1 + B2"),Exception);
 }
 
 BOOST_AUTO_TEST_CASE(dependencies_2){
 	Sheet s;
 	s.load(
-		"0\tA1\n"
-		"0\tA2\n"
+		"0\t= A1\n"
+		"0\t= A2\n"
 	);
 	s.attach(std::make_shared<TestSpread>());
 	s.update();
@@ -253,8 +279,8 @@ BOOST_AUTO_TEST_CASE(dependencies_2){
 BOOST_AUTO_TEST_CASE(request){
 	Sheet s;
 	s.load(
-		"1\tA1\n"
-		"2\tA2\n"
+		"1\t= A1\n"
+		"2\t= A2\n"
 	);
 	s.attach(std::make_shared<TestSpread>());
 	s.update();
@@ -272,9 +298,7 @@ BOOST_AUTO_TEST_CASE(request){
 	);
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()
-
 
 
 BOOST_AUTO_TEST_SUITE(sheet_slow)
@@ -296,4 +320,3 @@ BOOST_AUTO_TEST_CASE(view){
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-

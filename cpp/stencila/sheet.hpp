@@ -291,13 +291,27 @@ class Sheet : public Component {
     struct Cell {
 
         /**
-         * Is this cell a statement
+         * Is this cell a statement?
          *
          * Most cells are simple expressions in the host language. Statements are used for
          * "special" cells that require something other than simple evaluation. At present,
-         * only importing packages is support but other statemt types could be added.
+         * only importing packages is support but other statement types could be added.
          */
         bool statement = false;
+
+        /**
+         * Is this cell a literal expression? And if so, what kind.
+         *
+         * When parsing the source of a cell it may be detected to be a literal expression i.e. constant
+         * This allows for various optimisations and for the definition of alternative types of literal expression
+         * that may not necessarily be valid in the host language e.g. $1,000,000. The host context can be asked
+         * to convert the literal to native time e.g. '23/12/1978' to a datetime.datetime in Python.
+         * A one character code is used to indicate the type of literal (more will be added over time):
+         *
+         *  n : number 
+         *  s : string
+         */
+        char literal = ' ';
 
         /**
          * Expression of this cell
@@ -320,7 +334,7 @@ class Sheet : public Component {
          *
          *     A1: 5
          *     A2: 3.14
-         *     A3: A1*A2^2
+         *     A3: = A1*A2^2
          *
          * it could be written as,
          *
@@ -456,7 +470,7 @@ class Sheet : public Component {
      *
      * @param content Cell content
      */
-    static std::array<std::string, 2> parse(const std::string& content);
+    static Cell parse(const std::string& content);
 
     /**
      * Translate a sheet expression into an expression for the host language

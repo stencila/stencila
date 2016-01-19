@@ -573,18 +573,37 @@ Sheet& Sheet::detach(void) {
     return *this;
 }
 
-std::array<std::string, 2> Sheet::parse(const std::string& source) {
-    auto source_clean = source;
-    boost::replace_all(source_clean, "\t", " ");
+Sheet::Cell Sheet::parse(const std::string& source) {
+    Cell cell;
+    if (source.length()){
+        auto source_clean = source;
+        boost::replace_all(source_clean, "\t", " ");
 
-    // `\\s*` at ends allows for trailing spaces or newlines
-    static const boost::regex expression_regex("^ *(([a-z]\\w*)? *= *)?(.+?)\\s*$");
-    boost::smatch match;
-    if (boost::regex_match(source_clean, match, expression_regex)) {
-        return {match.str(3), match.str(2)};
-    } else {
-        return {"", ""};
+        // `\s*` at ends allows for leading and trailing spaces or newlines
+        // Commented quotes below are to stop SublimeText's string formatting on subsequent line
+        static const boost::regex expression_regex(R"(^\s*([a-z]\w*)? *= *(.+?)\s*$)");
+        static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
+        static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
+        static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
+
+        boost::smatch match;
+        if (boost::regex_match(source_clean, match, expression_regex)) {
+            cell.literal = ' ';
+            cell.name = match.str(1);
+            cell.expression = match.str(2);
+        } else if (boost::regex_match(source_clean, match, number_regex)) {
+            cell.literal = 'n';
+            cell.expression = match.str(1);
+        } else if (boost::regex_match(source_clean, match, dq_string_regex) or
+                   boost::regex_match(source_clean, match, sq_string_regex)) {
+            cell.literal = 's';
+            cell.expression = match.str(1);
+        } else {
+            cell.literal = 's';
+            cell.expression = "\"" + source + "\"";
+        }
     }
+    return cell;
 }
 
 Sheet& Sheet::source(const std::string& id, const std::string& source) {
@@ -596,9 +615,7 @@ Sheet& Sheet::source(const std::string& id, const std::string& source) {
         Cell& cell = cells_[id];
         // Set its attributes
         if (source.length()) {
-            auto parts = parse(source);
-            cell.expression = parts[0];
-            cell.name = parts[1];
+            cell = parse(source);
         }
         // Create name mapping if necessary
         if (cell.name.length()) {
@@ -617,11 +634,13 @@ std::string Sheet::source(const std::string& id) {
         const auto& cell = iter->second;
         if (cell.statement) {
             return cell.expression;
+        } else if (cell.literal != ' '){
+            return cell.expression;
         } else {
             if (cell.name.length()) {
                 return cell.name + " = " + cell.expression;
             } else {
-                return cell.expression;
+                return "= " + cell.expression;
             }
         }
     }
