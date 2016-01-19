@@ -2,14 +2,9 @@
 
 var oo = require('substance/util/oo');
 var StencilController = require('./StencilController');
-var ContentPanel = require("substance/ui/ContentPanel");
-var StatusBar = require("substance/ui/StatusBar");
-var Toolbar = require('substance/ui/Toolbar');
-var WriterTools = require('./packages/writer/WriterTools');
-var ContainerEditor = require('substance/ui/ContainerEditor');
-var ContextSection = require('substance/ui/ContextSection');
-var Component = require('substance/ui/Component');
 var docHelpers = require('substance/model/documentHelpers');
+var WriterTools = require('./packages/writer/WriterTools');
+var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
 var CONFIG = {
@@ -73,19 +68,28 @@ var CONFIG = {
       hideContextToggles: true
     }
   },
-  panelOrder: ['toc','cila'],
+  tabOrder: ['toc','cila'],
   containerId: 'body',
-  isEditable: true
+  isEditable: false
 };
 
-function StencilWriter(parent, params) {
-  StencilController.call(this, parent, params);
+function StencilWriter() {
+  StencilWriter.super.apply(this, arguments);
 }
 
 StencilWriter.Prototype = function() {
 
-  this.static = {
-    config: CONFIG
+  var _super = Object.getPrototypeOf(this);
+
+  this._renderToolbar = function() {
+    return _super._renderToolbar.call(this).append(
+      $$(WriterTools)
+    );
+  };
+
+  this.render = function() {
+    return _super.render.call(this)
+      .addClass('sc-stencil-writer');
   };
 
   this.onSelectionChanged = function(sel, surface) {
@@ -121,53 +125,10 @@ StencilWriter.Prototype = function() {
       }
     }
   };
-
-  this.render = function() {
-    var doc = this.props.doc;
-    var config = this.getConfig();
-    var el = $$('div').addClass('lc-writer sc-controller');
-
-    var workspace = $$('div').ref('workspace').addClass('le-workspace');
-
-    workspace.append(
-      // Main (left column)
-      $$('div').ref('main').addClass("le-main").append(
-        $$(Toolbar).ref('toolbar').append($$(WriterTools)),
-
-        $$(ContentPanel).append(
-          // The full fledged document (ContainerEditor)
-          $$("div").ref('body').addClass('document-content').append(
-            $$(ContainerEditor, {
-              name: 'body',
-              containerId: config.containerId,
-              editable: false,
-              commands: config.body.commands,
-              textTypes: config.body.textTypes
-            }).ref('bodyEditor')
-          )
-        ).ref('content')
-      )
-    );
-
-    workspace.append(
-      // Resource (right column)
-      $$(ContextSection, {
-        panelProps: this._panelPropsFromState(),
-        contextId: this.state.contextId,
-        panelConfig: config.panels[this.state.contextId],
-      }).ref(this.state.contextId)
-    );
-
-    el.append(workspace);
-
-    // Status bar
-    el.append(
-      $$(StatusBar, {doc: doc}).ref('statusBar')
-    );
-    return el;
-  };
 };
 
 oo.inherit(StencilWriter, StencilController);
+
+StencilWriter.static.config = CONFIG;
 
 module.exports = StencilWriter;

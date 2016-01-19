@@ -5,31 +5,12 @@
 
 @import '../node_modules/substance/styles/base/index';
 
-@import '../node_modules/substance/styles/components/_controller';
-@import '../node_modules/substance/styles/components/_surface';
-@import '../node_modules/substance/styles/components/_panel';
-@import '../node_modules/substance/styles/components/_content-panel';
-@import '../node_modules/substance/styles/components/_context-toggles';
-@import '../node_modules/substance/styles/components/_context-section';
-@import '../node_modules/substance/styles/components/_dialog-header';
-@import '../node_modules/substance/styles/components/_scrollbar';
-@import '../node_modules/substance/styles/components/_toc-panel';
-@import '../node_modules/substance/styles/components/_status-bar';
-@import '../node_modules/substance/styles/components/_text-property';
-@import '../node_modules/substance/styles/components/_toolbar';
-
-
-@import '../node_modules/substance/packages/text/_switch-text-type-tool';
-
-@import '../node_modules/substance/packages/paragraph/_paragraph';
-@import '../node_modules/substance/packages/heading/_heading';
-@import '../node_modules/substance/packages/blockquote/_blockquote';
-@import '../node_modules/substance/packages/codeblock/_codeblock';
-@import '../node_modules/substance/packages/list/_list';
-@import '../node_modules/substance/packages/link/_link';
-@import '../node_modules/substance/packages/embed/_embed';
-@import '../node_modules/substance/packages/emphasis/_emphasis';
-@import '../node_modules/substance/packages/strong/_strong';
+// Substance modules
+// -----------------
+// 
+// For production we should only require what's needed
+@import '../node_modules/substance/styles/components/_all';
+@import '../node_modules/substance/packages/_all';
 
 // Stencil node styles
 
@@ -48,63 +29,29 @@ $error-node-color: hsl(0, 95%, 40%);
 @import './packages/writer/_edit-source-panel.scss';
 @import './packages/writer/_cila-panel.scss';
 
-
-
 %lens {
+
   position: absolute;
   top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
 
-  // Lens Layout
-  .le-workspace {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    //overflow: hidden; //Commented out so can scroll down cila panel
-    bottom: 25px;
-    top: 0px;
+  .se-main-section .se-content {
+    padding: 40px;
+  }
 
-    .le-main {
-      float: left;
-      height: 100%;
-      background: #fff;
-      position: relative;
-
-      width: 60%;
-      z-index: 30;
-
-      // Position content-panel
-      .sc-content-panel {
-        position: absolute;
-        top: 40px;
-        bottom: 0px;
-        left: 0px;
-        right: 0px;
-
-        .se-panel-content-inner {
-          padding: 40px;
-        }
-      }
-
-    }
-
-    .sc-context-section {
-      position: relative;
-      float: right;
-      border-left: 1px solid #ddd;
-      height: 100%;
-      background-color: #fafafa;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-      width: 40%;
-    }
+  .se-context-section {
+    border-left: 1px solid #ddd;
+    background-color: #fafafa;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
   }
 }
+
+
 .status-bar-component {
   // Keep on to of Cila panel
 }
-
 
 /* Custom Scrollbar styles
 -----------------------------------------------------*/
@@ -132,7 +79,6 @@ $error-node-color: hsl(0, 95%, 40%);
   margin-bottom: 20px;
   border: 1px solid #ddd;
 
-
   .label {
     color: #777;
     padding-bottom: 10px;
@@ -141,7 +87,6 @@ $error-node-color: hsl(0, 95%, 40%);
   .title {
     font-size: 20px;
     padding-bottom: 20px;
-    // font-weight: 600;
   }
 
   .description {

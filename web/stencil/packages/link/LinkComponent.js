@@ -1,3 +1,5 @@
+'use strict';
+
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 var StencilNodeComponent = require('../../StencilNodeComponent');
 var $$ = require('substance/ui/Component').$$;
@@ -14,11 +16,9 @@ LinkComponent.Prototype = function() {
     if (this.props.node.title) {
       titleComps.push(this.props.node.title);
     }
-
     if (!this.isEditable()) {
       el = $$('a').addClass('link annotation').attr('href', this.props.node.url).append(this.props.children);
     }
-
     return el.attr("title", titleComps.join(' | '));
   };
 
@@ -26,16 +26,14 @@ LinkComponent.Prototype = function() {
     AnnotationComponent.prototype.didMount.call(this);
     var node = this.props.node;
     this.doc = node.getDocument();
-    this.doc.getEventProxy('path').add([node.id, 'title'], this, this.rerender);
-    this.doc.getEventProxy('path').add([node.id, 'url'], this, this.rerender);
+    this.doc.getEventProxy('path').connect(this, [node.id, 'title'], this.rerender);
+    this.doc.getEventProxy('path').connect(this, [node.id, 'url'], this.rerender);
   };
 
   this.dispose = function() {
     AnnotationComponent.prototype.dispose.call(this);
-    this.doc.getEventProxy('path').remove([this.props.node.id, 'title'], this);
-    this.doc.getEventProxy('path').remove([this.props.node.id, 'url'], this);
+    this.doc.getEventProxy('path').disconnect(this);
   };
-
 };
 
 AnnotationComponent.extend(LinkComponent, StencilNodeComponent.prototype);

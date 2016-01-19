@@ -2,13 +2,13 @@
 
 var ControllerTool = require('substance/ui/ControllerTool');
 
-var ActivateTool = ControllerTool.extend({
+function ActivateTool() {
+  ActivateTool.super.apply(this, arguments);
+}
 
-  static: {
-    name: 'activate',
-    command: 'activate'
-  }
+ControllerTool.extend(ActivateTool);
 
-});
+ActivateTool.static.name = 'activate';
+ActivateTool.static.command = 'activate';
 
 module.exports = ActivateTool;

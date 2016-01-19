@@ -2,25 +2,29 @@
 
 var ControllerCommand = require('substance/ui/ControllerCommand');
 
-var ActivateCommand = ControllerCommand.extend({
-  static: {
-    name: 'activate'
-  },
+function ActivateCommand() {
+  ActivateCommand.super.apply(this, arguments);
+}
 
-  getCommandState: function() {
+ActivateCommand.Prototype = function() {
+  this.getCommandState = function() {
     var doc = this.getDocument();
     return {
       disabled: false,
       active: true
     };
-  },
+  };
 
-  execute: function() {
+  this.execute = function() {
     this.getController().activateDocument();
     return {
       status: 'component-activate-started'
     };
-  }
-});
+  };
+}:
+
+ControllerCommand.extend(ActivateCommand);
+
+ActivateCommand.static.name = 'activate';
 
 module.exports = ActivateCommand;

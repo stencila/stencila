@@ -2,7 +2,7 @@
 'use strict';
 
 var oo = require('substance/util/oo');
-var _ = require('substance/util/helpers');
+var extend = require('lodash/object/extend');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var $$ = Component.$$;
@@ -15,7 +15,7 @@ function StencilEquationComponent() {
 }
 
 StencilEquationComponent.Prototype = function() {
-  _.extend(this, StencilSourceComponent.prototype);
+  extend(this, StencilSourceComponent.prototype);
 
   this._renderMathJax = function() {
     var node = this.props.node;
@@ -79,8 +79,7 @@ StencilEquationComponent.Prototype = function() {
     MathJax.Hub.Queue(["Reprocess", MathJax.Hub, scriptComp.el]);
   };
 
-  // TODO: we need
-  this.onParseError = function() {
+  this.onParseError = function(message) {
     console.error("MathJax error", message);
     this.refs.error.$el.text(message[1]);
   };
