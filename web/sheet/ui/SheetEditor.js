@@ -7,6 +7,7 @@ var $$ = Component.$$;
 
 var Sheet = require('../model/Sheet');
 
+// TODO: Remove engine dependency, we should handle this on app level instead
 var SheetRemoteEngine = require('../engine/SheetRemoteEngine');
 var engine = new SheetRemoteEngine();
 
@@ -31,19 +32,6 @@ SheetEditor.Prototype = function() {
   this.render = function() {
     var el = $$('div').addClass('sc-sheet-editor');
     // FIXME: hackish addition of buttons for testing
-    el.append(
-      $$('div').addClass('actions')
-        .append(
-          $$('a').text('Activate').on('click',function(){
-            engine.activate();
-          })
-        )
-        .append(
-          $$('a').text('Deactivate').on('click',function(){
-            engine.deactivate();
-          })
-        )
-    );
     el.append(
       $$(SheetComponent, { doc: this.props.doc }).ref('sheet')
     );

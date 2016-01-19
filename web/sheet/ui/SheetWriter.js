@@ -12,13 +12,10 @@ var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
 var SaveTool = require('substance/ui/SaveTool');
 var StrongTool = require('substance/packages/strong/StrongTool');
-var SubscriptTool = require('substance/packages/subscript/SubscriptTool');
-var SuperscriptTool = require('substance/packages/superscript/SuperscriptTool');
 var CodeTool = require('substance/packages/code/CodeTool');
 var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var Icon = require('substance/ui/FontAwesomeIcon');
 var LinkTool = require('substance/packages/link/LinkTool');
-
 var SheetEditor = require('./SheetEditor');
 
 var $$ = Component.$$;
@@ -31,6 +28,7 @@ var CONFIG = {
       require('substance/ui/SaveCommand')
     ],
     components: {
+
     },
   },
   main: {
@@ -43,8 +41,7 @@ var CONFIG = {
       require('substance/packages/link/LinkCommand'),
       require('substance/packages/subscript/SubscriptCommand'),
       require('substance/packages/superscript/SuperscriptCommand'),
-      require('substance/packages/code/CodeCommand'),
-
+      require('substance/packages/code/CodeCommand')
     ],
     textTypes: [
     ]
@@ -52,14 +49,13 @@ var CONFIG = {
   isEditable: true
 };
 
-function LensWriter(parent, params) {
+function SheetWriter(parent, params) {
   SheetController.call(this, parent, params);
 }
 
-LensWriter.Prototype = function() {
+SheetWriter.Prototype = function() {
 
   this._renderMainSection = function() {
-    // var config = this.getConfig();
 
     return $$('div').ref('main').addClass('se-main-section').append(
       $$(SplitPane, {splitType: 'horizontal'}).append(
@@ -86,7 +82,7 @@ LensWriter.Prototype = function() {
           $$('div').ref('main').addClass('document-content').append(
             $$(SheetEditor, {
               doc: this.props.doc
-            })
+            }).ref('sheetEditor')
           )
         )
       ).ref('mainSectionSplitPane')
@@ -98,10 +94,9 @@ LensWriter.Prototype = function() {
       this._renderMainSection()
     );
   };
-
 };
 
-SheetController.extend(LensWriter);
-LensWriter.static.config = CONFIG;
+SheetController.extend(SheetWriter);
+SheetWriter.static.config = CONFIG;
 
-module.exports = LensWriter;
+module.exports = SheetWriter;
