@@ -101,8 +101,9 @@ CellComponent.Prototype = function() {
     if (!this.props.node) {
       var docSession = this.getDocumentSession();
       var doc = this.getDocument();
-      var row = new Number(this.attr('data-row'));
-      var col = new Number(this.attr('data-col'));
+      var row = parseInt(this.attr('data-row'), 10);
+      var col = parseInt(this.attr('data-col'), 10);
+
       var node = {
         type: "sheet-cell",
         id: uuid(),
