@@ -111,6 +111,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
             auto iter = cells_.find(id);
             if (iter != cells_.end()) {
                 auto& cell = iter->second;
+                if (cell.literal != ' ') td.attr("data-literal", std::string(1,cell.literal));
                 if (cell.expression.length()) td.attr("data-expr", cell.expression);
                 if (cell.name.length()) td.attr("data-name", cell.name);
                 if (cell.type.length()) td.attr("data-type", cell.type);
