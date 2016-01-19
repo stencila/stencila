@@ -87,6 +87,11 @@ StencilWriter.Prototype = function() {
     );
   };
 
+  this.render = function() {
+    return _super.render.call(this)
+      .addClass('sc-stencil-writer');
+  };
+
   this.onSelectionChanged = function(sel, surface) {
     var config = this.getConfig();
 
