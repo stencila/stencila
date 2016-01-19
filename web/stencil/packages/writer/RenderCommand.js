@@ -2,25 +2,31 @@
 
 var ControllerCommand = require('substance/ui/ControllerCommand');
 
-var RenderCommand = ControllerCommand.extend({
-  static: {
-    name: 'render'
-  },
+function RenderCommand() {
+  RenderCommand.super.apply(this, arguments);
+}
 
-  getCommandState: function() {
+RenderCommand.Prototype = function() {
+  this.getCommandState = function() {
     var doc = this.getDocument();
     return {
       disabled: doc.__isRendering,
       active: false
     };
-  },
+  };
 
-  execute: function() {
+  this.execute = function() {
     this.getController().renderDocument();
     return {
       status: 'render-process-started'
     };
-  }
-});
+  };
+
+};
+
+
+ControllerCommand.extend(RenderCommand);
+
+RenderCommand.static.name = 'render';
 
 module.exports = RenderCommand;

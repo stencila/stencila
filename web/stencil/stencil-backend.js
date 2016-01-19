@@ -1,8 +1,9 @@
+'use strict';
+
+var each = require('lodash/collection/each');
 var oo = require('substance/util/oo');
 var $ = require('substance/util/jquery');
-var _ = require('substance/util/helpers');
 var Stencil = require('./model/Stencil');
-
 var StencilHTMLImporter = require('./model/StencilHTMLImporter');
 var StencilHTMLExporter = require('./model/StencilHTMLExporter');
 var importer = new StencilHTMLImporter();
@@ -115,7 +116,7 @@ Backend.Prototype = function() {
       // containing only the rendered content as json
       var tmp = new Stencil();
       tmp.loadHtml(result.content);
-      _.each(tmp.getNodes(), function(copy, nodeId) {
+      each(tmp.getNodes(), function(copy, nodeId) {
         if (copy.constructor.static.generatedProps) {
           var node = doc.get(nodeId);
           if (!node) {

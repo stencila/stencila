@@ -1,7 +1,7 @@
 'use strict';
 
 var oo = require('substance/util/oo');
-var _ = require('substance/util/helpers');
+var extend = require('lodash/object/extend');
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
@@ -15,8 +15,10 @@ function StencilMathComponent() {
 }
 
 StencilMathComponent.Prototype = function() {
-  _.extend(this, StencilNodeComponent.prototype);
-  _.extend(this, StencilSourceComponent.prototype);
+
+  // mix-ins
+  extend(this, StencilNodeComponent.prototype);
+  extend(this, StencilSourceComponent.prototype);
 
   this.didMount = function() {
     AnnotationComponent.prototype.didMount.call(this);

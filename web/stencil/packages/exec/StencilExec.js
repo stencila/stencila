@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
@@ -12,9 +12,9 @@ DocumentNode.extend(StencilExec, StencilNode);
 StencilExec.static.name = "stencil-exec";
 
 StencilExec.static.defineSchema({
-  source: { type: "string", default: "" },
+  source: { type: "string", default: "" }
+  spec: "string",
   error: { type: "string", optional: true },
-  spec: "string"
 });
 
 StencilExec.static.generatedProps = ['error'];

@@ -1,4 +1,3 @@
-
 'use strict';
 
 var HTMLExporter = require('substance/model/HTMLExporter');

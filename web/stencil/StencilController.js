@@ -1,7 +1,7 @@
 'use strict';
 
-var _ = require('substance/util/helpers');
 var Controller = require("substance/ui/Controller");
+var extend = require('lodash/object/extend');
 var omit = require('lodash/object/omit');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
@@ -78,7 +78,7 @@ StencilController.Prototype = function() {
   this.getChildContext = function() {
     var childContext = Controller.prototype.getChildContext.call(this);
 
-    return _.extend(childContext, {
+    return extend(childContext, {
       i18n: I18n.instance
     });
   };
@@ -115,7 +115,7 @@ StencilController.Prototype = function() {
 
   // Pass writer start
   this._panelPropsFromState = function() {
-    var props = _.omit(this.state, 'contextId');
+    var props = omit(this.state, 'contextId');
     props.doc = this.props.doc;
     return props;
   };
