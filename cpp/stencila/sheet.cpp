@@ -638,7 +638,7 @@ std::string Sheet::source(const std::string& id) {
     if (iter != cells_.end()) {
         const auto& cell = iter->second;
         if (cell.statement) {
-            return cell.expression;
+            return "= " + cell.expression;
         } else if (cell.kind > 9) {
             return cell.expression;
         } else {
