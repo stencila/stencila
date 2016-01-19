@@ -5,7 +5,6 @@ var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
 var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
-
 var Sheet = require('../model/Sheet');
 
 function CellComponent() {
@@ -16,6 +15,7 @@ CellComponent.Prototype = function() {
 
   this.render = function() {
     var node = this.props.node;
+    var componentRegistry = this.context.componentRegistry;
     var el = $$('td');
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
@@ -39,55 +39,14 @@ CellComponent.Prototype = function() {
         }).ref('editor');
         el.append(editor);
       } else {
-        var name = node.name;
-        if (name) {
-          el.append(
-            $$('span')
-              .addClass('name')
-              .text(name)
-          );
-        }
-
-        var type = node.tipe;
-        if (type=="integer" || type=="real" || type=="string"){
-          el.text(node.value);
-        } else if (type=="ImageFile"){
-          if (!this.state.preview) {
-            el
-              .addClass('object')
-              .append(
-                $$('span')
-                  .addClass('type')
-                  .text('image')
-              );
-          } else {
-            el.append(
-              $$('img')
-                .attr('src', node.value)
-            );
-          }
-
-        } else {
-          el
-            .addClass('object')
-            .append(
-              $$('span')
-                .addClass('type')
-                .text(node.tipe)
-            );
-
-          if (this.state.preview) {
-            el.addClass('preview');
-            el.append(
-              $$('pre').text(node.value)
-            );
-          }
-        }
+        // Render Cell content
+        var CellContentClass = componentRegistry.get(node.getContentType());
+        var cellContent = $$(CellContentClass, {node: node, displayMode: this.state.displayMode});
+        el.append(cellContent);
       }
     } else {
       el.addClass('empty');
     }
-
     return el;
   };
 
@@ -109,6 +68,35 @@ CellComponent.Prototype = function() {
     });
   };
 
+  /**
+    There are 3 differnt display modes for cells
+
+    clipped: uses minimal space
+    expanded: displays all content available
+    overlay: displays all content available
+  */
+  this.toggleDisplayMode = function() {
+    var node = this.props.node;
+    var currentMode = this.node.get('displayMode');
+    var nextMode;
+    var docSession = this.getDocumentSession();
+
+    if (!currentMode || currentMode === 'overlay') {
+      nextMode = 'clipped';
+    } else if (currentMode === 'expanded') {
+      nextMode = 'overlay';
+    } else {
+      nextMode = 'expanded';
+    }
+
+    docSession.transaction(function(tx) {
+      tx.set([node.id, 'displayMode'], nextMode);
+    }.bind(this));
+  };
+
+  /**
+    Ad-hoc creates a node when editing is enabled for an empty cell
+  */
   this.enableEditing = function() {
     if (!this.props.node) {
       var docSession = this.getDocumentSession();
@@ -143,6 +131,9 @@ CellComponent.Prototype = function() {
     return this.state.edit;
   };
 
+  /**
+    Selects the full source text
+  */
   this.initializeSelection = function() {
     var editor = this.refs.editor;
     if (editor) {

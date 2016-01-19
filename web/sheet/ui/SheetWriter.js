@@ -26,8 +26,11 @@ var CONFIG = {
       require('substance/ui/SaveCommand')
     ],
     components: {
-
-    },
+      // Registry for different cell content types
+      'image': require('./ImageComponent'),
+      'object': require('./ObjectComponent'),
+      'text': require('./TextComponent')
+    }
   },
   main: {
     commands: [

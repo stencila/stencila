@@ -15,7 +15,6 @@ SheetComponent.Prototype = function() {
   this.render = function() {
     // TODO this code is almost identical to the exporter
     // we should try to share the code
-
     var doc = this.props.doc;
     var tableData = doc.getTableData('all');
     // always render a certain
@@ -24,7 +23,6 @@ SheetComponent.Prototype = function() {
     var nrows = Math.max(100, tableData.rows);
     var table = $$('table')
       .addClass("sc-sheet");
-
     var i,j;
 
     // create header row
