@@ -37,9 +37,8 @@ SheetHTMLImporter.Prototype = function() {
         var cellEl = cellEls[j];
         if (cellEl.text()) {
           var cell = this.convertElement(cellEl);
-          cell.row = i;
-          cell.col = j-1;
-          cell.cid = Sheet.static.getCellId(cell.row, cell.col);
+          cell.setRow(i);
+          cell.setCol(j-1);
         }
       }
     }

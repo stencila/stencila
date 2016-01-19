@@ -60,7 +60,7 @@ SheetWriter.Prototype = function() {
   this.onUpdateCell = function(cell, sheet) {
     // Update the sheet with the new cell source
     this.props.engine.update([{
-      "id" : cell.cid,
+      "id" : cell.getCellId(),
       "source" : cell.source
     }], function(error, updates) {
       for(var index = 0; index < updates.length; index++) {

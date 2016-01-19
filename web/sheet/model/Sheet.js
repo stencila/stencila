@@ -34,8 +34,8 @@ Sheet.Prototype = function() {
     var ncols = 0;
     _.each(nodes, function(node) {
       if (node.type === "sheet-cell" && !node.empty()) {
-        nrows = Math.max(nrows, node.row);
-        ncols = Math.max(ncols, node.col);
+        nrows = Math.max(nrows, node.getRow());
+        ncols = Math.max(ncols, node.getCol());
       }
     });
     return { rows: nrows+1, cols: ncols+1 };
@@ -52,7 +52,7 @@ Sheet.Prototype = function() {
     var cells = {};
     _.each(nodes, function(node) {
       if (node.type === "sheet-cell" && !node.empty()) {
-        cells[[node.row, node.col]] = node;
+        cells[[node.getRow(), node.getCol()]] = node;
       }
     });
     tableData.cells = cells;
