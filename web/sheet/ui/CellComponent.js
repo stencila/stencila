@@ -130,7 +130,7 @@ CellComponent.Prototype = function() {
     }
     this.extendState({ edit: true });
     this.initializeSelection();
-    this.send('activatedCell', this);
+    this.send('activateCell', this);
   };
 
   this.disableEditing = function() {
@@ -160,7 +160,7 @@ CellComponent.Prototype = function() {
     if (!this.isEditing()) {
       e.preventDefault();
       e.stopPropagation();
-      this.send('selectedCell', this);
+      this.send('selectCell', this);
     }
   };
 

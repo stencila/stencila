@@ -5,15 +5,13 @@ var Controller = require('substance/ui/Controller');
 var SheetComponent = require('./SheetComponent');
 var $$ = Component.$$;
 
-var Sheet = require('../model/Sheet');
-
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
 
   this.handleActions({
-    'selectedCell': this.onSelectedCell,
-    'activatedCell': this.onActivatedCell,
+    'selectCell': this.onSelectCell,
+    'activateCell': this.onActivateCell,
   });
 
   this.selection = [0,0,0,0];
@@ -52,7 +50,7 @@ SheetEditor.Prototype = function() {
     window.document.body.removeEventListener('keydown', this.onKeyDown, false);
   };
 
-  this.onSelectedCell = function(cell) {
+  this.onSelectCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
@@ -64,7 +62,7 @@ SheetEditor.Prototype = function() {
     this.removeClass('edit');
   };
 
-  this.onActivatedCell = function(cell) {
+  this.onActivateCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
