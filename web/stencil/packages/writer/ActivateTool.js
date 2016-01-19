@@ -9,6 +9,6 @@ function ActivateTool() {
 ControllerTool.extend(ActivateTool);
 
 ActivateTool.static.name = 'activate';
-ActivateTool.static.command: 'activate';
+ActivateTool.static.command = 'activate';
 
 module.exports = ActivateTool;

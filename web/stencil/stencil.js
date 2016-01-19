@@ -113,7 +113,7 @@ function AppLaunch(){
   var content = $('#content');
   var html = content.html() || '';
   content.remove();
-  Component.mount($$(App,{"html":html}),$('body'));
+  Component.mount(App, {"html":html}, $('body'));
 }
 
 // Stencila global object is used to indicate that this script
@@ -174,7 +174,7 @@ window.MathJax = {
   "HTML-CSS": {preferredFont: "STIX"}
 };
 
-window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {  
+window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {
   $(function() {
     AppLaunch();
   });
