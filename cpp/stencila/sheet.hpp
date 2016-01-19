@@ -313,7 +313,7 @@ class Sheet : public Component {
          *     
          * This allows for various optimisations and for the definition of alternative types of literal expression
          * that may not necessarily be valid in the host language e.g. $1,000,000. The host context can be asked
-         * to convert the literal to native time e.g. '23/12/1978' to a datetime.datetime in Python.
+         * to convert the literal to native types e.g. '23/12/1978' would be converted to a `datetime.datetime` in Python.
          *
          * More kinds, to deal with alternative literals, are likely to be added in the future.
          * It may be that the `statement` flag can also be incorporated into `kind`
