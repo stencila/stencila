@@ -7,9 +7,6 @@ var $$ = Component.$$;
 
 var Sheet = require('../model/Sheet');
 
-// TODO: Remove engine dependency, we should handle this on app level instead
-var SheetRemoteEngine = require('../engine/SheetRemoteEngine');
-var engine = new SheetRemoteEngine();
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
@@ -31,7 +28,6 @@ SheetEditor.Prototype = function() {
 
   this.render = function() {
     var el = $$('div').addClass('sc-sheet-editor');
-    // FIXME: hackish addition of buttons for testing
     el.append(
       $$(SheetComponent, { doc: this.props.doc }).ref('sheet')
     );
@@ -126,21 +122,9 @@ SheetEditor.Prototype = function() {
           cell.name = matches[2];
           cell.expr = matches[3];
         }
-        // Update the sheet with the new cell source
-        engine.update([{
-          "id" : cell.cid,
-          "source" : cell.source
-        }], function(error, updates){
-          for(var index = 0; index < updates.length; index++){
-            var update = updates[index];
-            var coords = Sheet.static.getRowCol(update.id);
-            var cellComponent = sheet.getCellAt(coords[0], coords[1]);
-            var cellNode = cellComponent.getNode();
-            cellNode.tipe = update.type;
-            cellNode.value = update.value;
-            cellComponent.rerender();
-          }
-        });
+
+        this.send('updateCell', cell, sheet);
+
         this._selectNextCell(1, 0);
       } else {
         this._activateCurrentCell();

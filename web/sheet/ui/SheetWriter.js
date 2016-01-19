@@ -6,7 +6,6 @@ var ScrollPane = require('substance/ui/ScrollPane');
 var Toolbar = require('substance/ui/Toolbar');
 var Component = require('substance/ui/Component');
 
-var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
@@ -17,8 +16,7 @@ var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var Icon = require('substance/ui/FontAwesomeIcon');
 var LinkTool = require('substance/packages/link/LinkTool');
 var SheetEditor = require('./SheetEditor');
-
-var $$ = Component.$$;
+var Sheet = require('../model/Sheet');
 
 var CONFIG = {
   controller: {
@@ -51,12 +49,33 @@ var CONFIG = {
 
 function SheetWriter(parent, params) {
   SheetController.call(this, parent, params);
+
+  this.handleActions({
+    'updateCell': this.onUpdateCell
+  });
 }
 
 SheetWriter.Prototype = function() {
 
-  this._renderMainSection = function() {
+  this.onUpdateCell = function(cell, sheet) {
+    // Update the sheet with the new cell source
+    this.props.engine.update([{
+      "id" : cell.cid,
+      "source" : cell.source
+    }], function(error, updates) {
+      for(var index = 0; index < updates.length; index++) {
+        var update = updates[index];
+        var coords = Sheet.static.getRowCol(update.id);
+        var cellComponent = sheet.getCellAt(coords[0], coords[1]);
+        var cellNode = cellComponent.getNode();
+        cellNode.tipe = update.type;
+        cellNode.value = update.value;
+        cellComponent.rerender();
+      }
+    });
+  };
 
+  this._renderMainSection = function() {
     return $$('div').ref('main').addClass('se-main-section').append(
       $$(SplitPane, {splitType: 'horizontal'}).append(
         // Menu Pane on top
