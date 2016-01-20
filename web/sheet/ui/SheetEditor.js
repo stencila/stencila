@@ -66,6 +66,16 @@ SheetEditor.Prototype = function() {
     window.removeEventListener('resize', this.onWindowResize);
   };
 
+  this.getSelection = function() {
+    return this.selection;
+  };
+
+  this.getDocumentSession = function() {
+    return this.context.documentSession;
+  };
+
+  // Action handlers
+
   this.selectCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
@@ -93,21 +103,7 @@ SheetEditor.Prototype = function() {
     }
   };
 
-  /**
-    Sometimes we get the content elements of a cell as a target
-    when we drag a selection. This method normalizes the target
-    and returns always the correct cell
-  */
-  this._getCellForDragTarget = function(target) {
-    var targetCell;
-    if ($(target).hasClass('se-cell')) {
-      targetCell = target;
-    } else {
-      targetCell = $(target).parents('.se-cell')[0];
-    }
-    if (!targetCell) throw Error('target cell could not be determined');
-    return targetCell;
-  };
+  // DOM event handlers
 
   this.onMouseDown = function(event) {
     this.isSelecting = true;
@@ -203,6 +199,15 @@ SheetEditor.Prototype = function() {
       this._deleteSelection();
       handled = true;
     }
+    else if (event.keyCode === 90 && (event.metaKey||event.ctrlKey)) {
+      if (event.shiftKey) {
+        this.getController().executeCommand('redo');
+      } else {
+        this.getController().executeCommand('undo');
+      }
+      handled = true;
+    }
+
     if (handled) {
       event.stopPropagation();
       event.preventDefault();
@@ -254,6 +259,28 @@ SheetEditor.Prototype = function() {
       event.stopPropagation();
       event.preventDefault();
     }
+  };
+
+  this.onWindowResize = function() {
+    this._rerenderSelection();
+  };
+
+  // private API
+
+  /**
+    Sometimes we get the content elements of a cell as a target
+    when we drag a selection. This method normalizes the target
+    and returns always the correct cell
+  */
+  this._getCellForDragTarget = function(target) {
+    var targetCell;
+    if ($(target).hasClass('se-cell')) {
+      targetCell = target;
+    } else {
+      targetCell = $(target).parents('.se-cell')[0];
+    }
+    if (!targetCell) throw Error('target cell could not be determined');
+    return targetCell;
   };
 
   this._isEditing = function() {
@@ -356,14 +383,6 @@ SheetEditor.Prototype = function() {
     this._rerenderSelection();
   };
 
-  this.getSelection = function() {
-    return this.selection;
-  };
-
-  this.getDocumentSession = function() {
-    return this.context.documentSession;
-  };
-
   this._rerenderSelection = function() {
     var sel = this.getSelection();
     if (sel) {
@@ -411,10 +430,6 @@ SheetEditor.Prototype = function() {
         }
       }
     }.bind(this));
-  };
-
-  this.onWindowResize = function() {
-    this._rerenderSelection();
   };
 
 };
