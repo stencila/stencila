@@ -1,7 +1,7 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var CellTeaserComponent = require('./CellTeaserComponent');
+var CellContentComponent = require('./CellContentComponent');
 var $$ = Component.$$;
 
 function TextComponent() {
@@ -11,12 +11,12 @@ function TextComponent() {
 TextComponent.Prototype = function() {
 
   this.render = function() {
-    var el = $$('div').addClass('sc-text');
+    var el = $$('div').addClass('sc-cell-content sc-text');
     el.text(this.props.node.content);
     return el;
   };
 };
 
-Component.extend(TextComponent);
+CellContentComponent.extend(TextComponent);
 
 module.exports = TextComponent;

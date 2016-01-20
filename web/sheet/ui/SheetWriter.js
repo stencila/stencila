@@ -70,9 +70,11 @@ SheetWriter.Prototype = function() {
         var coords = Sheet.static.getRowCol(update.id);
         var cellComponent = sheet.getCellAt(coords[0], coords[1]);
         var cellNode = cellComponent.getNode();
-        cellNode.tipe = update.type;
-        cellNode.value = update.value;
-        cellComponent.rerender();
+        if (cellNode) {
+          cellNode.valueType = update.type;
+          cellNode.value = update.value;
+          cellComponent.rerender();
+        }
       }
     });
   };

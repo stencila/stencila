@@ -42,8 +42,7 @@ CellComponent.Prototype = function() {
         // Render Cell content
         var CellContentClass = componentRegistry.get(cell.getContentType());
         var cellContent = $$(CellContentClass, {
-          node: cell,
-          displayMode: this.state.displayMode
+          node: cell
         });
         el.append(cellContent);
       }
@@ -51,6 +50,20 @@ CellComponent.Prototype = function() {
       el.addClass('empty');
     }
     return el;
+  };
+
+  // HACK: monkey patching the editor
+  // Will come up with a dedicated Cell editor instead
+  this.didRender = function() {
+    var editor = this.refs.editor;
+    if (editor) {
+      editor._handleEnterKey = function(event) {
+        this.disableEditing();
+        this.send('commitCell', this, 'enter');
+        event.stopPropagation();
+        event.preventDefault();
+      }.bind(this);
+    }
   };
 
   this.getNode = function() {
@@ -80,7 +93,7 @@ CellComponent.Prototype = function() {
   */
   this.toggleDisplayMode = function() {
     var node = this.props.node;
-    var currentMode = node.get('displayMode');
+    var currentMode = node.displayMode;
     var nextMode;
     var docSession = this.getDocumentSession();
 

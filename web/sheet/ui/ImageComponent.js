@@ -1,6 +1,7 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
+var CellContentComponent = require('./CellContentComponent');
 var CellTeaserComponent = require('./CellTeaserComponent');
 var $$ = Component.$$;
 
@@ -11,11 +12,12 @@ function ImageComponent() {
 ImageComponent.Prototype = function() {
 
   this.render = function() {
-    var el = $$('div').addClass('sc-object');
+    var node = this.props.node;
+    var el = $$('div').addClass('sc-cell-content sc-object');
     el.addClass(this.props.displayMode);
 
     // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: this.props.node}));
+    el.append($$(CellTeaserComponent, {node: node}));
     el.append(
       $$('img').attr('src', node.value)
     );
@@ -23,6 +25,6 @@ ImageComponent.Prototype = function() {
   };
 };
 
-Component.extend(ImageComponent);
+CellContentComponent.extend(ImageComponent);
 
 module.exports = ImageComponent;
