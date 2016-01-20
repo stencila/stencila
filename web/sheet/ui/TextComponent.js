@@ -12,7 +12,7 @@ TextComponent.Prototype = function() {
 
   this.render = function() {
     var el = $$('div').addClass('sc-cell-content sc-text');
-    el.text(this.props.node.value);
+    el.text(this.props.node.content);
     return el;
   };
 };

@@ -54,6 +54,10 @@ CellComponent.Prototype = function() {
           CellContentClass = ObjectComponent;
         }
         var cellContent = $$(CellContentClass, {
+          // HACK: having trouble with preservative rerendering
+          // when Components are use with the same props
+          // this hack forces a rerender
+          hack: Date.now(),
           node: cell
         });
         el.append(cellContent);

@@ -53,33 +53,30 @@ function SheetWriter(parent, params) {
   SheetController.call(this, parent, params);
 
   this.handleActions({
-    'updateCell': this.onUpdateCell
+    'updateCell': this.updateCell
   });
 }
 
 SheetWriter.Prototype = function() {
 
-  this.onUpdateCell = function(cell, sheet) {
-    // Update the sheet with the new cell source
-    this.props.engine.update([{
-      "id" : cell.getCellId(),
-      "source" : cell.content
-    }], function(error, updates) {
-      debugger;
-      for(var index = 0; index < updates.length; index++) {
-        var update = updates[index];
-        var coords = Sheet.static.getRowCol(update.id);
-        var cellComponent = sheet.getCellAt(coords[0], coords[1]);
-        var cellNode = cellComponent.getNode();
-        if (cellNode) {
-          if (cellNode.valueType !== update.type || cellNode.value !== update.value) {
-            cellNode.valueType = update.type;
-            cellNode.value = update.value;
-            cellComponent.rerender();
-          }
-        }
-      }
-    });
+  this.render = function() {
+    var el = $$('div').addClass('sc-sheet-controller sc-sheet-writer sc-controller').append(
+      this._renderMainSection()
+    );
+    if (this.state.error) {
+      // TODO: show error in overlay
+    }
+    return el;
+  };
+
+  this.didRender = function() {
+    if (this.state.error) {
+      var iframe = this.refs.error.el;
+      var doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(this.state.error);
+      doc.close();
+    }
   };
 
   this._renderMainSection = function() {
@@ -113,11 +110,38 @@ SheetWriter.Prototype = function() {
     );
   };
 
-  this.render = function() {
-    return $$('div').addClass('sc-sheet-controller sc-sheet-writer sc-controller').append(
-      this._renderMainSection()
-    );
+  this.updateCell = function(cell, sheet) {
+    // Update the sheet with the new cell source
+    this.props.engine.update([{
+      "id" : cell.getCellId(),
+      "source" : cell.content
+    }], function(error, updates) {
+      if (error) {
+        this.extendState({
+          error: error
+        });
+        return;
+      }
+      if (!updates) {
+        console.error('FIXME: did not receive updates.');
+        return;
+      }
+      for(var index = 0; index < updates.length; index++) {
+        var update = updates[index];
+        var coords = Sheet.static.getRowCol(update.id);
+        var cellComponent = sheet.getCellAt(coords[0], coords[1]);
+        var cellNode = cellComponent.getNode();
+        if (cellNode) {
+          if (cellNode.valueType !== update.type || cellNode.value !== update.value) {
+            cellNode.valueType = update.type;
+            cellNode.value = update.value;
+            cellComponent.rerender();
+          }
+        }
+      }
+    }.bind(this));
   };
+
 };
 
 SheetController.extend(SheetWriter);
