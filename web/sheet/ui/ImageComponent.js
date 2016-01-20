@@ -14,7 +14,7 @@ ImageComponent.Prototype = function() {
   this.render = function() {
     var node = this.props.node;
     var el = $$('div').addClass('sc-cell-content sc-object');
-    el.addClass(this.props.displayMode);
+    el.addClass(node.displayMode);
 
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));
