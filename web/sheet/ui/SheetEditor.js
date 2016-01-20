@@ -114,7 +114,7 @@ SheetEditor.Prototype = function() {
         var cell = this.activeCell.props.node;
         var sheet = this.refs.sheet;
         // Parse the cell source into name and expression
-        var matches = cell.source.match(/^ *(([a-z]\w*) *= *)?(.+?)\s*$/);
+        var matches = cell.content.match(/^ *(([a-z]\w*) *= *)?(.+?)\s*$/);
         if (matches) {
           cell.name = matches[2];
           cell.expr = matches[3];
@@ -126,7 +126,7 @@ SheetEditor.Prototype = function() {
       } else {
         this._activateCurrentCell();
       }
-      
+
       handled = true;
     }
     // TAB
@@ -192,11 +192,11 @@ SheetEditor.Prototype = function() {
     return !!this.activeCell;
   };
 
-  this._getPosition = function(el) {
+  this._getPosition = function(cellEl) {
     var row, col;
-    if (el.hasAttribute('data-col')) {
-      col = el.getAttribute('data-col');
-      row = el.parentNode.getAttribute('data-row');
+    if (cellEl.hasAttribute('data-col')) {
+      col = cellEl.getAttribute('data-col');
+      row = cellEl.parentNode.getAttribute('data-row');
     } else {
       throw new Error('FIXME!');
     }

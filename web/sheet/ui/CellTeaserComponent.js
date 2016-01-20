@@ -10,12 +10,12 @@ function CellTeaserComponent() {
 CellTeaserComponent.Prototype = function() {
 
   this.render = function() {
-    var node = this.props.node;
+    var cell = this.props.node;
     var el = $$('div').addClass('sc-cell-teaser');
-    
+    var name = cell.getName();
     el.append(
-      $$('span').addClass('se-name').text(node),
-      $$('span').addClass('se-content-type').text(node.contentType)
+      $$('span').addClass('se-name').text(name),
+      $$('span').addClass('se-content-type').text(cell.valueType)
     );
   };
 };

@@ -14,7 +14,7 @@ function CellComponent() {
 CellComponent.Prototype = function() {
 
   this.render = function() {
-    var node = this.props.node;
+    var cell = this.props.node;
     var componentRegistry = this.context.componentRegistry;
     var el = $$('td');
     var isEditing = this.isEditing();
@@ -29,19 +29,19 @@ CellComponent.Prototype = function() {
       el.on('click', this.onClick);
     }
 
-    if (node) {
-      el.addClass(node.tipe);
+    if (cell) {
+      el.addClass(cell.valueType);
       if (isEditing) {
         var editor = $$(TextPropertyEditor, {
-          name: node.id,
-          path: [node.id, 'source'],
+          name: cell.id,
+          path: [cell.id, 'content'],
           commands: []
         }).ref('editor');
         el.append(editor);
       } else {
         // Render Cell content
-        var CellContentClass = componentRegistry.get(node.contentType);
-        var cellContent = $$(CellContentClass, {node: node, displayMode: this.state.displayMode});
+        var CellContentClass = componentRegistry.get(cell.valueType);
+        var cellContent = $$(CellContentClass, {node: cell, displayMode: this.state.displayMode});
         el.append(cellContent);
       }
     } else {
