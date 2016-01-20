@@ -45,18 +45,8 @@ Cell.Prototype = function() {
 
   // row and col indexes are managed by Table
 
-  this.setRow = function(row) {
-    this.row = row;
-    return this;
-  };
-
   this.getRow = function() {
     return this.row;
-  };
-
-  this.setCol = function(col) {
-    this.col = col;
-    return this;
   };
 
   this.getCol = function() {
@@ -76,7 +66,14 @@ Cell.static.defineSchema({
 
   // volatile data derived from source
   value: { type: "string", optional: true }, // evaluated value
-  contentType: { type: "string", default: 'text' }
+  contentType: { type: "string", default: 'text' },
+
+  // volatile data derived from table
+  // ATM we need it as we set it during import
+  // TODO: we should try to remove that from the schema
+  row: "number",
+  col: "number"
+
 });
 
 Cell.static.generatedProps = ['value'];
