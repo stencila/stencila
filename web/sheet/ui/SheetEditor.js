@@ -82,6 +82,7 @@ SheetEditor.Prototype = function() {
 
   this.selectCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
+      this._commitCellContent(this.activeCell);
       this.activeCell.disableEditing();
     }
     this.removeClass('edit');
@@ -90,6 +91,7 @@ SheetEditor.Prototype = function() {
 
   this.activateCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
+      this._commitCellContent(this.activeCell);
       this.activeCell.disableEditing();
     }
     this.activeCell = cell;
