@@ -133,8 +133,10 @@ SheetWriter.Prototype = function() {
         var cellComponent = sheet.getCellAt(coords[0], coords[1]);
         var cellNode = cellComponent.getNode();
         if (cellNode) {
-          if (cellNode.valueType !== update.type || cellNode.value !== update.value) {
-            cellNode.valueType = update.type;
+          // FIXME: agree on a set of valueTypes
+          var valueType = Sheet.normalizeValueType(update.type);
+          if (cellNode.valueType !== valueType || cellNode.value !== update.value) {
+            cellNode.valueType = valueType;
             cellNode.value = update.value;
             cellComponent.rerender();
           }

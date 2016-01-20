@@ -109,4 +109,11 @@ Sheet.static.getRowCol = function(id) {
   ];
 };
 
+Sheet.normalizeValueType = function(type) {
+  if (type === 'ImageFile') {
+    return 'image';
+  }
+  return type;
+}
+
 module.exports = Sheet;

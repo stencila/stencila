@@ -1,5 +1,7 @@
 'use strict';
 
+var Sheet = require('./Sheet');
+
 module.exports = {
 
   type: 'sheet-cell',
@@ -16,10 +18,8 @@ module.exports = {
     var displayMode = el.attr('data-display-mode');
     var exprType = el.attr('data-kind');
     var valueType = el.attr('data-type');
-    // normalizing valueType
-    if (valueType === 'ImageFile') {
-      valueType = 'image';
-    }
+    // FIXME: we should agree on a set of valueTypes
+    valueType = Sheet.normalizeValueType(valueType);
     // strings
     if (exprType === 's') {
       node.content = textContent;
