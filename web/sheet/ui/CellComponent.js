@@ -50,6 +50,20 @@ CellComponent.Prototype = function() {
     return el;
   };
 
+  // HACK: monkey patching the editor
+  // Will come up with a dedicated Cell editor instead
+  this.didRender = function() {
+    var editor = this.refs.editor;
+    if (editor) {
+      editor._handleEnterKey = function(event) {
+        this.disableEditing();
+        this.send('commitCell', this, 'enter');
+        event.stopPropagation();
+        event.preventDefault();
+      }.bind(this);
+    }
+  };
+
   this.getNode = function() {
     return this.props.node;
   };

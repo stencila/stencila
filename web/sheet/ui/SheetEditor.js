@@ -9,15 +9,18 @@ function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
 
   this.handleActions({
-    'selectCell': this.onSelectCell,
-    'activateCell': this.onActivateCell,
+    'selectCell': this.selectCell,
+    'activateCell': this.activateCell,
+    'commitCell': this.commitCell,
   });
 
   this.selection = [0,0,0,0];
   this.startCellEl = null;
   this.endCellEl = null;
 
-  this.onKeyDown = this.onKeyDown.bind(this);
+  // binding this, as these handlers are attached to global DOM elements
+  this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
+  this.onGlobalKeypress = this.onGlobalKeypress.bind(this);
   this.onWindowResize = this.onWindowResize.bind(this);
 }
 
@@ -33,7 +36,9 @@ SheetEditor.Prototype = function() {
     );
     // react only to mousedowns on cells in display mode
     el.on('mousedown', 'td.display', this.onMouseDown);
-    el.on('keydown', this.onKeyDown);
+    if (this._isEditing()) {
+      el.on('keydown', this.onEditingKeyDown);
+    }
     return el;
   };
 
@@ -41,15 +46,18 @@ SheetEditor.Prototype = function() {
     // ATTENTION: we need to override the hacky parent implementation
 
     // HACK: without contenteditables we don't receive keyboard events on this level
-    window.document.body.addEventListener('keydown', this.onKeyDown, false);
-    window.onresize = this.onWindowResize.bind(this);
+    window.document.body.addEventListener('keydown', this.onGlobalKeydown, false);
+    window.document.body.addEventListener('keypress', this.onGlobalKeypress, false);
+    window.addEventListener('resize', this.onWindowResize, false);
   };
 
   this.dispose = function() {
-    window.document.body.removeEventListener('keydown', this.onKeyDown, false);
+    window.document.body.removeEventListener('keydown', this.onGlobalKeydown);
+    window.document.body.removeEventListener('keypress', this.onGlobalKeypress);
+    window.removeEventListener('resize', this.onWindowResize);
   };
 
-  this.onSelectCell = function(cell) {
+  this.selectCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
@@ -61,13 +69,23 @@ SheetEditor.Prototype = function() {
     this.removeClass('edit');
   };
 
-  this.onActivateCell = function(cell) {
+  this.activateCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
     this.activeCell = cell;
     this._rerenderSelection();
     this.addClass('edit');
+  };
+
+  this.commitCell = function(cell, key) {
+    this.activeCell = null;
+    this._commitCellContent(cell);
+    if (key === 'enter') {
+      this._selectNextCell(1, 0);
+    } else {
+      this.selectCell(cell);
+    }
   };
 
   this.onMouseDown = function(event) {
@@ -95,9 +113,85 @@ SheetEditor.Prototype = function() {
     this.endCellEl = null;
   };
 
-  this.onKeyDown = function(event) {
-    var isEditing = this._isEditing();
-    // console.log('####', event.keyCode);
+  /*
+    Will be bound to body element to receive events while not
+    editing a cell.
+
+    Note: these need to be done on keydown to prevent default browser
+    behavior.
+  */
+  this.onGlobalKeydown = function(event) {
+    if (this._isEditing()) return;
+    var handled = false;
+    // LEFT
+    if (event.keyCode === 37) {
+      if (event.shiftKey) {
+        this._expandSelection(0, -1);
+      } else {
+        this._selectNextCell(0, -1);
+      }
+      handled = true;
+    }
+    // RIGHT
+    else if (event.keyCode === 39) {
+      if (event.shiftKey) {
+        this._expandSelection(0, 1);
+      } else {
+        this._selectNextCell(0, 1);
+      }
+      handled = true;
+    }
+    // UP
+    else if (event.keyCode === 38) {
+      if (event.shiftKey) {
+        this._expandSelection(-1, 0);
+      } else {
+        this._selectNextCell(-1, 0);
+      }
+      handled = true;
+    }
+    // DOWN
+    else if (event.keyCode === 40) {
+      if (event.shiftKey) {
+        this._expandSelection(1, 0);
+      } else {
+        this._selectNextCell(1, 0);
+      }
+      handled = true;
+    }
+    // ENTER
+    else if (event.keyCode === 13) {
+      this._activateCurrentCell();
+      handled = true;
+    }
+    // SPACE
+    else if (event.keyCode === 32) {
+      console.log('Toggling view mode.');
+      this._togglePreviewCell();
+      handled = true;
+    }
+    if (handled) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+
+  /*
+    Will be bound to body element to receive events while not
+    editing a cell.
+
+    Note: only 'keypress' allows us to detect key events which
+    would result in content changes.
+  */
+  this.onGlobalKeypress = function(event) {
+    var character = String.fromCharCode(event.charCode);
+    if (character) {
+      console.log('TODO: overwrite cell content and activate cell editing.');
+    }
+  };
+
+  this.onEditingKeyDown = function(event) {
+    // console.log('####', event.keyCode, event);
     var handled = false;
     // ESCAPE
     if (event.keyCode === 27) {
@@ -110,77 +204,19 @@ SheetEditor.Prototype = function() {
     }
     // ENTER
     else if (event.keyCode === 13) {
-      if (this.activeCell) {
-        var cell = this.activeCell.props.node;
-        var sheet = this.refs.sheet;
-        // Parse the cell source into name and expression
-        var matches = cell.content.match(/^ *(([a-z]\w*) *= *)?(.+?)\s*$/);
-        if (matches) {
-          cell.name = matches[2];
-          cell.expr = matches[3];
-        }
-
-        this.send('updateCell', cell, sheet);
-
-        this._selectNextCell(1, 0);
-      } else {
-        this._activateCurrentCell();
-      }
-
+      this._commitCellContent(this.activeCell);
+      this._selectNextCell(1, 0);
       handled = true;
     }
     // TAB
     else if (event.keyCode === 9) {
+      this._commitCellContent(this.activeCell);
       if (event.shiftKey) {
         this._selectNextCell(0, -1);
       } else {
         this._selectNextCell(0, 1);
       }
       handled = true;
-    }
-    // Some things are only handled if not editing, such as left right navigation
-    else if (!isEditing) {
-      // LEFT
-      if (event.keyCode === 37) {
-        if (event.shiftKey) {
-          this._expandSelection(0, -1);
-        } else {
-          this._selectNextCell(0, -1);
-        }
-        handled = true;
-      }
-      // RIGHT
-      else if (event.keyCode === 39) {
-        if (event.shiftKey) {
-          this._expandSelection(0, 1);
-        } else {
-          this._selectNextCell(0, 1);
-        }
-        handled = true;
-      }
-      // UP
-      else if (event.keyCode === 38) {
-        if (event.shiftKey) {
-          this._expandSelection(-1, 0);
-        } else {
-          this._selectNextCell(-1, 0);
-        }
-        handled = true;
-      }
-      // DOWN
-      else if (event.keyCode === 40) {
-        if (event.shiftKey) {
-          this._expandSelection(1, 0);
-        } else {
-          this._selectNextCell(1, 0);
-        }
-        handled = true;
-      }
-      // SPACE
-      else if (event.keyCode === 32) {
-        this._togglePreviewCell();
-        handled = true;
-      }
     }
     if (handled) {
       event.stopPropagation();
@@ -190,6 +226,12 @@ SheetEditor.Prototype = function() {
 
   this._isEditing = function() {
     return !!this.activeCell;
+  };
+
+  this._commitCellContent = function(cell) {
+    var cellNode = cell.props.node;
+    var sheet = this.refs.sheet;
+    this.send('updateCell', cellNode, sheet);
   };
 
   this._getPosition = function(cellEl) {
