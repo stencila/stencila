@@ -83,6 +83,7 @@ std::string Component::page(const Component* component){
 std::string Component::request_dispatch(const std::string& address,const std::string& verb,const std::string& method,const std::string& body){
 	Instance instance = get(address);
 	if(not instance.exists()) return "404";
+	else if(method=="boot") return "{\"rights\":\"ALL\"}";
 	else return call(instance,&Class::requesting,verb,method,body);
 }
 
