@@ -16,6 +16,8 @@ module.exports = {
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
     var valueType = el.attr('data-type');
+    var displayMode = el.attr('data-display-mode');
+
     if (Sheet.isPrimitiveType(valueType)) {
       node.content = textContent;
     } else if (name) {
@@ -33,6 +35,7 @@ module.exports = {
     if (valueType) {
       node.valueType = valueType;
     }
+    node.displayMode = displayMode;
     node.value = textContent;
   },
 
@@ -45,6 +48,7 @@ module.exports = {
     if (node.valueType) {
       el.attr('data-type', node.valueType);
     }
+    el.attr('data-display-mode', node.displayMode)
     // using getValue() here as it is evaluated dynamically
     el.text(node.getValue());
   }
