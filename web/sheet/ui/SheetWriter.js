@@ -65,15 +65,18 @@ SheetWriter.Prototype = function() {
       "id" : cell.getCellId(),
       "source" : cell.content
     }], function(error, updates) {
+      debugger;
       for(var index = 0; index < updates.length; index++) {
         var update = updates[index];
         var coords = Sheet.static.getRowCol(update.id);
         var cellComponent = sheet.getCellAt(coords[0], coords[1]);
         var cellNode = cellComponent.getNode();
         if (cellNode) {
-          cellNode.valueType = update.type;
-          cellNode.value = update.value;
-          cellComponent.rerender();
+          if (cellNode.valueType !== update.type || cellNode.value !== update.value) {
+            cellNode.valueType = update.type;
+            cellNode.value = update.value;
+            cellComponent.rerender();
+          }
         }
       }
     });
