@@ -7,6 +7,9 @@ var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
 var Sheet = require('../model/Sheet');
 
+var TextContent = require('./TextComponent');
+var ObjectComponent = require('./ObjectComponent');
+
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
 }
@@ -40,7 +43,15 @@ CellComponent.Prototype = function() {
         el.append(editor);
       } else {
         // Render Cell content
-        var CellContentClass = componentRegistry.get(cell.getContentType());
+        var CellContentClass;
+        if (cell.isPrimitive()) {
+          CellContentClass = TextContent;
+        } else if (cell.valueType) {
+          CellContentClass = componentRegistry.get(cell.valueType);
+        }
+        if (!CellContentClass) {
+          CellContentClass = ObjectComponent;
+        }
         var cellContent = $$(CellContentClass, {node: cell, displayMode: this.state.displayMode});
         el.append(cellContent);
       }

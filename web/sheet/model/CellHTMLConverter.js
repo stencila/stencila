@@ -1,7 +1,5 @@
 'use strict';
 
-var Sheet = require('./Sheet');
-
 module.exports = {
 
   type: 'sheet-cell',
@@ -16,36 +14,41 @@ module.exports = {
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
     var valueType = el.attr('data-type');
-    if (Sheet.isPrimitiveType(valueType)) {
+    // string constant
+    if (valueType === 'string') {
       node.content = textContent;
-    } else if (name) {
-      node.content = node.name + '=' + node.expr;
-    } else {
+    }
+    // other primitives
+    else if (textContent === expr) {
       node.content = expr;
     }
-    node.valueType = valueType;
-    node.value = textContent;
-    if (name) {
-    } else if (expr) {
-    } else {
-      node.content = el.text();
-    }
-    if (valueType) {
+    // expressions
+    else {
+      if (name) {
+        node.content = name + '=' + expr;
+      } else {
+        node.content = '=' + expr;
+      }
       node.valueType = valueType;
+      node.value = textContent;
     }
-    node.value = textContent;
   },
 
   export: function(node, el) {
-    var name = node.getName();
-    if (name) {
-      el.attr('data-name', name);
+    var contentType = node.getContentType();
+    switch(contentType) {
+      case 'primitive':
+        el.text(node.content);
+        break;
+      case 'expression':
+        el.attr('data-expr', node.getExpression());
+        break;
+      case 'named-expression':
+        el.attr('data-name', node.getName());
+        el.attr('data-expr', node.getExpression());
+        break;
+      default:
+        throw new Error('Illegal content type.', contentType);
     }
-    el.attr('data-expr', node.content);
-    if (node.valueType) {
-      el.attr('data-type', node.valueType);
-    }
-    // using getValue() here as it is evaluated dynamically
-    el.text(node.getValue());
   }
 };
