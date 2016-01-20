@@ -2,8 +2,10 @@
 
 var Component = require('substance/ui/Component');
 var SheetComponent = require('./SheetComponent');
+var TableSelection = require('../model/TableSelection');
 var $$ = Component.$$;
 var $ = require('substance/util/jquery');
+
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
@@ -14,7 +16,14 @@ function SheetEditor() {
     'commitCell': this.commitCell,
   });
 
-  this.selection = [0,0,0,0];
+  // Shouldn't it be null rather?
+  this.selection = new TableSelection({
+    startRow: 0,
+    startCol: 0,
+    endRow: 0,
+    endCol: 0
+  });
+
   this.startCellEl = null;
   this.endCellEl = null;
 
@@ -266,57 +275,67 @@ SheetEditor.Prototype = function() {
     if (this.startCellEl) {
       var startPos = this._getPosition(this.startCellEl);
       var endPos = this._getPosition(this.endCellEl);
-      var minRow = Math.min(startPos.row, endPos.row);
-      var minCol = Math.min(startPos.col, endPos.col);
-      var maxRow = Math.max(startPos.row, endPos.row);
-      var maxCol = Math.max(startPos.col, endPos.col);
-      var sel = [minRow, minCol, maxRow, maxCol];
-      this.setSelection(sel);
+      var newSel = {};
+      newSel.startRow = Math.min(startPos.row, endPos.row);
+      newSel.startCol = Math.min(startPos.col, endPos.col);
+      newSel.endRow = Math.max(startPos.row, endPos.row);
+      newSel.endCol = Math.max(startPos.col, endPos.col);
+      this.setSelection(newSel);
     }
   };
 
   this._selectNextCell = function(rowDiff, colDiff) {
-    var sel = this.selection;
-    sel[0] = sel[0] + rowDiff;
+    var sel = this.selection.toJSON();
+
+    sel.startRow = sel.startRow + rowDiff;
     // TODO: also ensure upper bound
     if (rowDiff < 0) {
-      sel[0] = Math.max(0, sel[0]);
+      sel.startRow = Math.max(0, sel.startRow);
     }
-    sel[2] = sel[0];
-
-    sel[1] = sel[1] + colDiff;
+    sel.endRow = sel.startRow;
+    sel.startCol = sel.startCol + colDiff;
     // TODO: also ensure upper bound
     if (colDiff < 0) {
-      sel[1] = Math.max(0, sel[1]);
+      sel.startCol = Math.max(0, sel.startCol);
     }
-    sel[3] = sel[1];
+    sel.endCol = sel.startCol;
     this.setSelection(sel);
   };
 
   this._expandSelection = function(rowDiff, colDiff) {
-    var sel = this.selection;
-    sel[2] = sel[2] + rowDiff;
+    var sel = this.selection.toJSON();
+
+    sel.endRow = sel.endRow + rowDiff;
     // TODO: also ensure upper bound
     if (rowDiff < 0) {
-      sel[2] = Math.max(0, sel[2]);
+      sel.endRow = Math.max(0, sel.endRow);
     }
 
-    sel[3] = sel[3] + colDiff;
+    sel.endCol = sel.endCol + colDiff;
     // TODO: also ensure upper bound
     if (colDiff < 0) {
-      sel[3] = Math.max(0, sel[3]);
+      sel.endCol = Math.max(0, sel.endCol);
     }
+
+    sel.startRow = sel.startRow;
+    sel.endRow = sel.endRow;
 
     this.setSelection(sel);
   };
 
   this.setSelection = function(sel) {
+    console.log('sel', sel);
     if (this.activeCell) {
       this.activeCell.disableEditing();
       this.activeCell = null;
       this.removeClass('edit');
     }
-    this.selection = sel;
+    this.selection = new TableSelection(sel);
+    if (this.selection.isCollapsed()) {
+      // console.log('collapsed selection');
+      var cell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
+      console.log('le cell', cell);
+    }
     this._rerenderSelection();
   };
 

@@ -59,10 +59,11 @@ SheetComponent.Prototype = function() {
     var rows = this.refs.body.children;
     // FIXME: due to lack of API in DOMElement
     // we are using the native API here
-    var minRow = Math.min(sel[0], sel[2]);
-    var maxRow = Math.max(sel[0], sel[2]);
-    var minCol = Math.min(sel[1], sel[3]);
-    var maxCol = Math.max(sel[1], sel[3]);
+    var minRow = Math.min(sel.startRow, sel.endRow);
+    var maxRow = Math.max(sel.startRow, sel.endRow);
+    var minCol = Math.min(sel.startCol, sel.endCol);
+    var maxCol = Math.max(sel.startCol, sel.endCol);
+    
     var firstEl = rows[minRow].el.childNodes[minCol+1];
     var lastEl = rows[maxRow].el.childNodes[maxCol+1];
     // debugger;
