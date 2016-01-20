@@ -16,6 +16,18 @@ function CellComponent() {
 
 CellComponent.Prototype = function() {
 
+  this.willReceiveProps = function(newProps) {
+    var doc = this.getDocument();
+    this._disconnect();
+    if (newProps.node) {
+      doc.getEventProxy('path').connect(this, [newProps.node.id, 'content'], this.rerender);
+    }
+  };
+
+  this.dispose = function() {
+    this._disconnect();
+  };
+
   this.render = function() {
     var cell = this.props.node;
     var componentRegistry = this.context.componentRegistry;
@@ -182,6 +194,13 @@ CellComponent.Prototype = function() {
       e.preventDefault();
       e.stopPropagation();
       this.send('selectCell', this);
+    }
+  };
+
+  this._disconnect = function() {
+    var doc = this.getDocument();
+    if (this.props.node) {
+      doc.getEventProxy('path').disconnect(this);
     }
   };
 

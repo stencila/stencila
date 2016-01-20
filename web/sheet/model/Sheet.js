@@ -45,8 +45,12 @@ Sheet.Prototype = function() {
   this.getTableData = function(mode) {
     var nodes = this.getNodes();
     if (mode === "sparse") {
-      nodes = nodes.filter(function(node) {
-        return node.type === "sheet-cell" && !node.isEmpty();
+      var _nodes = nodes;
+      nodes = [];
+      each(_nodes, function(node) {
+        if (node.type === "sheet-cell" && !node.isEmpty()) {
+          nodes.push(node);
+        }
       });
     }
     var tableData = this._getDimension(nodes);

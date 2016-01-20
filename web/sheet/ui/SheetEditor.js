@@ -146,6 +146,7 @@ SheetEditor.Prototype = function() {
   */
   this.onGlobalKeydown = function(event) {
     if (this._isEditing()) return;
+    console.log('onGlobalKeydown()', 'keyCode=', event.keyCode);
     var handled = false;
     // LEFT
     if (event.keyCode === 37) {
@@ -185,16 +186,21 @@ SheetEditor.Prototype = function() {
     }
     // ENTER
     else if (event.keyCode === 13) {
-      if (this.selection.isCollapsed()) {
+      if (this.getSelection().isCollapsed()) {
         this._activateCurrentCell();
       }
       handled = true;
     }
     // SPACE
     else if (event.keyCode === 32) {
-      if (this.selection.isCollapsed()) {
+      if (this.getSelection().isCollapsed()) {
         this._toggleDisplayMode();
       }
+      handled = true;
+    }
+    // BACKSPACE | DELETE
+    else if (event.keyCode === 8 || event.keyCode === 46) {
+      this._deleteSelection();
       handled = true;
     }
     if (handled) {
@@ -288,7 +294,7 @@ SheetEditor.Prototype = function() {
   };
 
   this._selectNextCell = function(rowDiff, colDiff) {
-    var sel = this.selection.toJSON();
+    var sel = this.getSelection().toJSON();
 
     sel.startRow = sel.startRow + rowDiff;
     // TODO: also ensure upper bound
@@ -306,7 +312,7 @@ SheetEditor.Prototype = function() {
   };
 
   this._expandSelection = function(rowDiff, colDiff) {
-    var sel = this.selection.toJSON();
+    var sel = this.getSelection().toJSON();
 
     sel.endRow = sel.endRow + rowDiff;
     // TODO: also ensure upper bound
@@ -342,8 +348,16 @@ SheetEditor.Prototype = function() {
     this._rerenderSelection();
   };
 
+  this.getSelection = function() {
+    return this.selection;
+  };
+
+  this.getDocumentSession = function() {
+    return this.context.documentSession;
+  };
+
   this._rerenderSelection = function() {
-    var sel = this.selection;
+    var sel = this.getSelection();
     if (sel) {
       var rect = this.refs.sheet._getRectangle(sel);
       this.refs.selection.css(rect);
@@ -351,8 +365,9 @@ SheetEditor.Prototype = function() {
   };
 
   this._toggleDisplayMode = function() {
-    var row = this.selection.startRow;
-    var col = this.selection.startCol;
+    var sel = this.getSelection();
+    var row = sel.startRow;
+    var col = sel.startCol;
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
       cell.toggleDisplayMode();
@@ -361,12 +376,33 @@ SheetEditor.Prototype = function() {
   };
 
   this._activateCurrentCell = function() {
-    var row = this.selection.startRow;
-    var col = this.selection.startCol;
+    var sel = this.getSelection();
+    var row = sel.startRow;
+    var col = sel.startCol;
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
       cell.enableEditing();
     }
+  };
+
+  this._deleteSelection = function() {
+    var sel = this.getSelection();
+    var minRow = Math.min(sel.startRow, sel.endRow);
+    var maxRow = Math.max(sel.startRow, sel.endRow);
+    var minCol = Math.min(sel.startCol, sel.endCol);
+    var maxCol = Math.max(sel.startCol, sel.endCol);
+    var docSession = this.getDocumentSession();
+    docSession.transaction(function(tx) {
+      for (var row = minRow; row <= maxRow; row++) {
+        for (var col = minCol; col <= maxCol; col++) {
+          var cellComp = this.refs.sheet.getCellAt(row, col);
+          var cell = cellComp.props.node;
+          if (cell) {
+            tx.set([cell.id, 'content'], '');
+          }
+        }
+      }
+    }.bind(this));
   };
 
   this.onWindowResize = function() {
