@@ -74,14 +74,18 @@ SheetEditor.Prototype = function() {
     return this.context.documentSession;
   };
 
+  this.getController = function() {
+    return this.context.controller;
+  };
+
   // Action handlers
 
   this.selectCell = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
-    this._rerenderSelection();
     this.removeClass('edit');
+    this._rerenderSelection();
   };
 
   this.activateCell = function(cell) {
@@ -89,8 +93,8 @@ SheetEditor.Prototype = function() {
       this.activeCell.disableEditing();
     }
     this.activeCell = cell;
-    this._rerenderSelection();
     this.addClass('edit');
+    this._rerenderSelection();
   };
 
   this.commitCell = function(cell, key) {
@@ -101,6 +105,7 @@ SheetEditor.Prototype = function() {
     } else {
       this.selectCell(cell);
     }
+    this._rerenderSelection();
   };
 
   // DOM event handlers
