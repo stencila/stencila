@@ -357,6 +357,7 @@ SheetEditor.Prototype = function() {
     if (cell) {
       cell.toggleDisplayMode();
     }
+    this._rerenderSelection();
   };
 
   this._activateCurrentCell = function() {
