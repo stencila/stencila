@@ -11,14 +11,15 @@ function ObjectComponent() {
 ObjectComponent.Prototype = function() {
 
   this.render = function() {
+    var node = this.props.node;
     var el = $$('div').addClass('sc-object');
     el.addClass(this.props.displayMode);
 
     // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: this.props.node}));
+    el.append($$(CellTeaserComponent, {node: node}));
 
     if (this.props.displayMode != 'clipped') {
-      el.append($$('pre').text(this.node.value));
+      el.append($$('pre').text(node.value));
     }
     return el;
   };

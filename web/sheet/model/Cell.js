@@ -1,8 +1,9 @@
 "use strict";
 
 var DocumentNode = require('substance/model/DocumentNode');
+var includes = require('lodash/collection/includes');
 
-function Cell(){
+function Cell() {
   Cell.super.apply(this, arguments);
 }
 
@@ -51,6 +52,21 @@ Cell.Prototype = function() {
 
   this.getCol = function() {
     return this.col;
+  };
+
+  /**
+    Used to determine content rendering component (TextComponent, ImageComponent etc.)
+    
+    @return {String} 'text', 'image' or 'object'
+  */
+  this.getContentType = function() {
+    if (includes(['integer', 'real', 'string'], this.valueType)) {
+      return 'text';
+    } else if (this.valueTypetype === 'ImageFile') {
+      return 'image';
+    } else {
+      return 'object';
+    }
   };
 
 };

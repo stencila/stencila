@@ -17,6 +17,7 @@ CellTeaserComponent.Prototype = function() {
       $$('span').addClass('se-name').text(name),
       $$('span').addClass('se-content-type').text(cell.valueType)
     );
+    return el;
   };
 };
 
