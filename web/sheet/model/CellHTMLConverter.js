@@ -1,5 +1,7 @@
 'use strict';
 
+var Sheet = require('./Sheet');
+
 module.exports = {
 
   type: 'sheet-cell',
@@ -10,18 +12,28 @@ module.exports = {
   },
 
   import: function(el, node) {
+    var textContent = el.textContent;
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
-    if (name) {
+    var valueType = el.attr('data-type');
+    if (Sheet.isPrimitiveType(valueType)) {
+      node.content = textContent;
+    } else if (name) {
       node.content = node.name + '=' + node.expr;
     } else {
-      node.content = node.expr;
+      node.content = expr;
     }
-    var valueType = el.attr('data-type');
+    node.valueType = valueType;
+    node.value = textContent;
+    if (name) {
+    } else if (expr) {
+    } else {
+      node.content = el.text();
+    }
     if (valueType) {
       node.valueType = valueType;
     }
-    node.value = el.text();
+    node.value = textContent;
   },
 
   export: function(node, el) {

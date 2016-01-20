@@ -105,4 +105,14 @@ Sheet.static.getRowCol = function(id) {
   ];
 };
 
+var _primitives = {
+  'string': true,
+  'int': true,
+  'real': true
+};
+
+Sheet.isPrimitiveType = function(type) {
+  return !!_primitives[type];
+};
+
 module.exports = Sheet;
