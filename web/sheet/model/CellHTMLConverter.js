@@ -13,9 +13,13 @@ module.exports = {
     var textContent = el.textContent;
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
-    var valueType = el.attr('data-type');
     var displayMode = el.attr('data-display-mode');
     var exprType = el.attr('data-kind');
+    var valueType = el.attr('data-type');
+    // normalizing valueType
+    if (valueType === 'ImageFile') {
+      valueType = 'image';
+    }
     // strings
     if (exprType === 's') {
       node.content = textContent;
