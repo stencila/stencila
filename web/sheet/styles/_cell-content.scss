@@ -1,4 +1,12 @@
-
 .sc-cell-content {
+	position: relative;
+	&.overlay {
+		background: #fff;
+		position: absolute;
+		z-index: 2;
+	}
 
+	&.sc-text {
+		padding: 1px 3px;
+	}
 }

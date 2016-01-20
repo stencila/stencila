@@ -29,8 +29,7 @@ var CONFIG = {
     components: {
       // Registry for different cell content types
       'image': require('./ImageComponent'),
-      'object': require('./ObjectComponent'),
-      'text': require('./TextComponent')
+      'object': require('./ObjectComponent')
     }
   },
   main: {

@@ -360,15 +360,13 @@ SheetEditor.Prototype = function() {
     if (colDiff < 0) {
       sel.endCol = Math.max(0, sel.endCol);
     }
-
+    
     sel.startRow = sel.startRow;
     sel.endRow = sel.endRow;
-
     this.setSelection(sel);
   };
 
   this.setSelection = function(sel) {
-    console.log('sel', sel);
     if (this.activeCell) {
       this.activeCell.disableEditing();
       this.activeCell = null;
