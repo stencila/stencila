@@ -9,6 +9,13 @@ function SheetRemoteEngine() {
 
 SheetRemoteEngine.Prototype = function() {
 
+  this.boot = function(cb) {
+    this.request('PUT', 'boot', null, function(err, result) {
+      if (err) { console.error(err); cb(err); }
+      cb(null, result);
+    });
+  };
+
   this.update = function(cells, cb) {
     this.request('PUT', 'update', cells, function(err, result) {
       if (err) { console.error(err); cb(err); }

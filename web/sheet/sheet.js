@@ -20,9 +20,9 @@ function loadDocument() {
 }
 
 function activateSession(cb) {
-  console.log('activating session');
-  engine.activate(function(err, res) {
-    console.log('activate.res', res);
+  console.log('booting session');
+  engine.boot(function(err, res) {
+    console.log('boot.res', res);
     cb();
   });
 }
