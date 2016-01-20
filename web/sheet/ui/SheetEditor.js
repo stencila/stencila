@@ -178,7 +178,7 @@ SheetEditor.Prototype = function() {
       }
       // SPACE
       else if (event.keyCode === 32) {
-        this._togglePreviewCell();
+        this._toggleCellDisplayMode();
         handled = true;
       }
     }
@@ -272,12 +272,12 @@ SheetEditor.Prototype = function() {
     }
   };
 
-  this._togglePreviewCell = function() {
+  this._toggleCellDisplayMode = function() {
     var row = this.selection[0];
     var col = this.selection[1];
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
-      cell.togglePreview();
+      cell.toggleDisplayMode();
     }
   };
 

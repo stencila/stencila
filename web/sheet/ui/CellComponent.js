@@ -41,7 +41,10 @@ CellComponent.Prototype = function() {
       } else {
         // Render Cell content
         var CellContentClass = componentRegistry.get(cell.getContentType());
-        var cellContent = $$(CellContentClass, {node: cell, displayMode: this.state.displayMode});
+        var cellContent = $$(CellContentClass, {
+          node: cell,
+          displayMode: this.state.displayMode
+        });
         el.append(cellContent);
       }
     } else {
@@ -62,11 +65,11 @@ CellComponent.Prototype = function() {
     return this.context.documentSession;
   };
 
-  this.togglePreview = function() {
-    this.extendState({
-      preview: !this.state.preview
-    });
-  };
+  // this.togglePreview = function() {
+  //   this.extendState({
+  //     preview: !this.state.preview
+  //   });
+  // };
 
   /**
     There are 3 differnt display modes for cells
@@ -77,7 +80,7 @@ CellComponent.Prototype = function() {
   */
   this.toggleDisplayMode = function() {
     var node = this.props.node;
-    var currentMode = this.node.get('displayMode');
+    var currentMode = node.get('displayMode');
     var nextMode;
     var docSession = this.getDocumentSession();
 
