@@ -27,19 +27,19 @@ SheetComponent.Prototype = function() {
 
     // create header row
     var thead = $$('thead');
-    var headerRow = $$('tr');
-    headerRow.append($$('th'));
+    var headerRow = $$('tr').addClass('se-row');
+    headerRow.append($$('th').addClass('se-cell'));
     for (j = 0; j < ncols; j++) {
-      headerRow.append($$('th').text(Sheet.static.getColumnName(j)));
+      headerRow.append($$('th').text(Sheet.static.getColumnName(j)).addClass('se-cell'));
     }
     thead.append(headerRow);
     table.append(thead);
 
     var tbody = $$('tbody').ref('body');
     for (i = 0; i < nrows; i++) {
-      var rowEl = $$('tr').attr('data-row', i);
+      var rowEl = $$('tr').attr('data-row', i).addClass('se-row');
       // first column is header
-      rowEl.append($$('th').text(i+1));
+      rowEl.append($$('th').text(i+1).addClass('se-cell'));
       // render all cells
       for (j = 0; j < ncols; j++) {
         var cell = tableData.cells[[i,j]];

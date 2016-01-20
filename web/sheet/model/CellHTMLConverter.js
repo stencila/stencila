@@ -14,13 +14,14 @@ module.exports = {
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
     var valueType = el.attr('data-type');
+    var displayMode = el.attr('data-display-mode');
     // string constant
     if (valueType === 'string') {
       node.content = textContent;
     }
     // other primitives
     else if (textContent === expr) {
-      node.content = expr;
+      node.content = textContent;
     }
     // expressions
     else {
@@ -30,8 +31,8 @@ module.exports = {
         node.content = '=' + expr;
       }
       node.valueType = valueType;
-      node.value = textContent;
     }
+    node.value = textContent;
   },
 
   export: function(node, el) {
@@ -50,5 +51,6 @@ module.exports = {
       default:
         throw new Error('Illegal content type.', contentType);
     }
+    el.attr('data-display-mode', node.displayMode)
   }
 };

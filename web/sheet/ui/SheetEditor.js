@@ -3,7 +3,7 @@
 var Component = require('substance/ui/Component');
 var SheetComponent = require('./SheetComponent');
 var $$ = Component.$$;
-
+var $ = require('substance/util/jquery');
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
@@ -61,10 +61,6 @@ SheetEditor.Prototype = function() {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
-    var node = cell.getNode();
-    if (node) {
-      console.log('Show expression bar.');
-    }
     this._rerenderSelection();
     this.removeClass('edit');
   };
@@ -88,19 +84,39 @@ SheetEditor.Prototype = function() {
     }
   };
 
+  /**
+    Sometimes we get the content elements of a cell as a target
+    when we drag a selection. This method normalizes the target
+    and returns always the correct cell
+  */
+  this._getCellForDragTarget = function(target) {
+    var targetCell;
+    if ($(target).hasClass('se-cell')) {
+      targetCell = target;
+    } else {
+      targetCell = $(target).parent('.se-cell')[0];
+    }
+    if (!targetCell) throw Error('target cell could not be determined');
+    return targetCell;
+  };
+
   this.onMouseDown = function(event) {
     this.isSelecting = true;
     this.$el.on('mouseenter', 'td', this.onMouseEnter.bind(this));
     this.$el.one('mouseup', this.onMouseUp.bind(this));
     this.startCellEl = event.target;
+    if (!this.startCellEl.getAttribute('data-col')) {
+      throw new Error('mousedown on a non-cell element');
+    }
     this.endCellEl = this.startCellEl;
     this._updateSelection();
   };
 
   this.onMouseEnter = function(event) {
     if (!this.isSelecting) return;
-    if (this.endCellEl !== event.target) {
-      this.endCellEl = event.target;
+    var endCellEl = this._getCellForDragTarget(event.target);
+    if (this.endCellEl !== endCellEl) {
+      this.endCellEl = endCellEl;
       this._updateSelection();
     }
   };
@@ -116,7 +132,6 @@ SheetEditor.Prototype = function() {
   /*
     Will be bound to body element to receive events while not
     editing a cell.
-
     Note: these need to be done on keydown to prevent default browser
     behavior.
   */
@@ -167,7 +182,7 @@ SheetEditor.Prototype = function() {
     // SPACE
     else if (event.keyCode === 32) {
       console.log('Toggling view mode.');
-      this._togglePreviewCell();
+      this._toggleDisplayMode();
       handled = true;
     }
     if (handled) {
@@ -179,7 +194,6 @@ SheetEditor.Prototype = function() {
   /*
     Will be bound to body element to receive events while not
     editing a cell.
-
     Note: only 'keypress' allows us to detect key events which
     would result in content changes.
   */
@@ -314,12 +328,12 @@ SheetEditor.Prototype = function() {
     }
   };
 
-  this._togglePreviewCell = function() {
+  this._toggleDisplayMode = function() {
     var row = this.selection[0];
     var col = this.selection[1];
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
-      cell.togglePreview();
+      cell.toggleDisplayMode();
     }
   };
 
