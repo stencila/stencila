@@ -13,14 +13,18 @@ ImageComponent.Prototype = function() {
 
   this.render = function() {
     var node = this.props.node;
-    var el = $$('div').addClass('sc-cell-content sc-object');
+    var el = $$('div').addClass('sc-cell-content sc-image');
     el.addClass(node.displayMode);
 
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));
-    el.append(
-      $$('img').attr('src', node.value)
-    );
+
+    if (node.displayMode != 'clipped') {
+      el.append(
+        $$('img').attr('src', node.value)
+      );
+    }
+
     return el;
   };
 };

@@ -22,11 +22,16 @@ CellComponent.Prototype = function() {
     this._disconnect();
     if (newProps.node) {
       doc.getEventProxy('path').connect(this, [newProps.node.id, 'content'], this.rerender);
+      doc.getEventProxy('path').connect(this, [newProps.node.id, 'displayMode'], this.rerender);
     }
   };
 
   this.dispose = function() {
     this._disconnect();
+  };
+
+  this._toggleDisplayMode = function(e) {
+    console.log('toggle displaymode');
   };
 
   this.render = function() {
@@ -37,22 +42,35 @@ CellComponent.Prototype = function() {
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
 
-    if (this.props.selected) {
-      el.addClass('selected');
-
-      el.append(
-        $$('div').addClass('se-display-mode-toggle').append(
-          $$(Icon, {icon: 'fa-expand'})
-        )
-      );
-    }
 
     if (!isEditing) {
       el.on('dblclick', this.onDblClick);
-      el.on('click', this.onClick);
+      // el.on('click', this.onClick);
     }
 
     if (cell) {
+
+      // Mark as selected
+      if (this.props.selected) {
+        el.addClass('selected');
+        var icon;
+        
+        console.log('cell.displayMode', cell.displayMode);
+
+        if (cell.displayMode === 'clipped') {
+          icon = 'fa-expand';
+        } else if (cell.displayMode === 'expanded') {
+          icon = ' fa-dot-circle-o';
+        } else {
+          icon = 'fa-compress';
+        }
+        el.append(
+          $$('div').addClass('se-display-mode-toggle').append(
+            $$(Icon, {icon: icon})
+          ).on('mousdown', this._toggleDisplayMode)
+        );
+      }
+
       el.addClass(cell.valueType);
       if (isEditing) {
         var editor = $$(TextPropertyEditor, {
@@ -196,13 +214,13 @@ CellComponent.Prototype = function() {
     this.enableEditing();
   };
 
-  this.onClick = function(e) {
-    if (!this.isEditing()) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.send('selectCell', this);
-    }
-  };
+  // this.onClick = function(e) {
+  //   if (!this.isEditing()) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     this.send('selectCell', this);
+  //   }
+  // };
 
   this._disconnect = function() {
     var doc = this.getDocument();
