@@ -103,7 +103,7 @@ SheetEditor.Prototype = function() {
     if ($(target).hasClass('se-cell')) {
       targetCell = target;
     } else {
-      targetCell = $(target).parent('.se-cell')[0];
+      targetCell = $(target).parents('.se-cell')[0];
     }
     if (!targetCell) throw Error('target cell could not be determined');
     return targetCell;
@@ -340,10 +340,18 @@ SheetEditor.Prototype = function() {
       this.removeClass('edit');
     }
     this.selection = new TableSelection(sel);
+
+    // Reset
+    if (this.selectedCell) {
+      this.selectedCell.extendProps({
+        selected: false
+      });
+    }
     if (this.selection.isCollapsed()) {
-      // console.log('collapsed selection');
-      var cell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
-      console.log('le cell', cell);
+      this.selectedCell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
+      this.selectedCell.extendProps({
+        selected: true
+      });
     }
     this._rerenderSelection();
   };

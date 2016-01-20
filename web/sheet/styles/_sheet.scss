@@ -10,10 +10,11 @@
       -ms-user-select: none;
 
   .se-cell {
-    min-width: 5em;
-    padding: 0.1em 0.2em 0.1em 0.2em;
+    min-width: 100px;
+    padding: 1px 3px;
     border: 1px solid #CCC;
     text-align: center;
+    cursor: default;
   }
 
   th.se-cell {
@@ -27,26 +28,6 @@
   .se-row > .se-cell:first-child {
     min-width: 3em;
   }
-
-  // td.display {
-  //   cursor: default;
-  // }
-
-  // td.display.ImageFile {
-  //   position: relative;
-  //   img {
-  //     position: absolute;
-  //     top: 3px;
-  //     left: 3px;
-  //     border: 1px solid #EEE;
-  //     z-index: 1;
-  //   }
-  // }
-
-  // td.display.object {
-  //   position: relative;
-  //   background: #F8F8F8;
-  // }
 
   .se-cell.edit {
     position: relative;

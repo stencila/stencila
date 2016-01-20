@@ -6,6 +6,7 @@ var Component = require('substance/ui/Component');
 var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
 var Sheet = require('../model/Sheet');
+var Icon = require('substance/ui/FontAwesomeIcon');
 
 var TextContent = require('./TextComponent');
 var ObjectComponent = require('./ObjectComponent');
@@ -36,8 +37,14 @@ CellComponent.Prototype = function() {
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
 
-    if (this.state.selected) {
+    if (this.props.selected) {
       el.addClass('selected');
+
+      el.append(
+        $$('div').addClass('se-display-mode-toggle').append(
+          $$(Icon, {icon: 'fa-expand'})
+        )
+      );
     }
 
     if (!isEditing) {
