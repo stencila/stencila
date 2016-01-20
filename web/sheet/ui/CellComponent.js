@@ -94,12 +94,6 @@ CellComponent.Prototype = function() {
     return this.context.documentSession;
   };
 
-  // this.togglePreview = function() {
-  //   this.extendState({
-  //     preview: !this.state.preview
-  //   });
-  // };
-
   /**
     There are 3 differnt display modes for cells
 
@@ -109,6 +103,9 @@ CellComponent.Prototype = function() {
   */
   this.toggleDisplayMode = function() {
     var node = this.props.node;
+    // empty cells do not have a node
+    if (!node) return;
+
     var currentMode = node.displayMode;
     var nextMode;
     var docSession = this.getDocumentSession();
