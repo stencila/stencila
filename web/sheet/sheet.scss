@@ -1,7 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
 
-
 // Substance styles
 // -----------------
 
@@ -11,8 +10,15 @@
 // -----------------
 // 
 // For production we should only require what's needed
+
 @import '../node_modules/substance/styles/components/_all';
 @import '../node_modules/substance/packages/_all';
+
+// Stencila Sheets specific components
+// -----------------
+// 
+
+@import './styles/_save-tool';
 
 .sc-sheet-writer {
   position: absolute;

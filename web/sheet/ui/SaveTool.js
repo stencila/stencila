@@ -14,18 +14,7 @@ CommitMessagePrompt.Prototype = function() {
 
   this.onSave = function(e) {
     e.preventDefault();
-    this.props.tool.updateLink({
-      url: this.refs.url.$el.val()
-    });
-  };
-
-  // Tried setting .htmlProp('autofocus', true) in render
-  // But this only worked for the first time
-  this.didMount = function() {
-    // var $el = this.refs.url.$el;
-    // _.delay(function() {
-    //   $el.focus();
-    // }, 0);
+    this.props.tool.performSave();
   };
 
   this.onDelete = function(e) {
@@ -37,24 +26,21 @@ CommitMessagePrompt.Prototype = function() {
     var el = $$('div').addClass('se-prompt');
 
     el.append([
-      $$('div').addClass('se-prompt-title').append(this.i18n.t('hyperlink')),
+      $$('div').addClass('se-prompt-title').append('Save changes'),
       $$('input').attr({type: 'text', placeholder: 'Enter commit message', value: ''})
                  .ref('url')
-                 // This only works on the first load. Why?
-                 // Is this element even preserved when unmounted and rerendered?
-                 .htmlProp('autofocus', true)
-                 .on('change', this.onSave),
+                 .htmlProp('autofocus', true),
+                 // .on('change', this.onSave),
       $$('a').attr({href: '#'})
-             .addClass('se-delete-link')
-             .append(this.i18n.t('delete'))
-             .on('click', this.onDelete)
+             .addClass('se-save-btn')
+             .append(this.i18n.t('save'))
+             .on('click', this.onSave)
     ]);
     return el;
   };
 };
 
 Component.extend(CommitMessagePrompt);
-
 
 function SaveTool() {
   ControllerTool.apply(this, arguments);
@@ -86,32 +72,15 @@ SaveTool.Prototype = function() {
     this.setState(newState);
   };
 
-  this.updateLink = function(linkAttrs) {
-    var link = this.getLink();
-    // this.surface.transaction causes the prompt to close. If you don't want that
-    // e.g. when re-enabling link title editing, switch to use doc.transaction.
-    // QUESTION: Is it possible to use this.surface.transaction without causing the
-    // prompt to close. -> Probably by changing the update implementation above
-    // to preserve the showPrompt variable
-    this.getSurface().transaction(function(tx) {
-      tx.set([link.id, "url"], linkAttrs.url);
-      tx.set([link.id, "title"], linkAttrs.title);
-    });
-  };
-
-  this.deleteLink = function() {
-    var link = this.getLink();
-
-    this.getSurface().transaction(function(tx) {
-      tx.delete(link.id);
-    });
-    this.togglePrompt();
+  this.performSave = function() {
+    var ctrl = this.getController();
+    ctrl.saveDocument();
+    this.extendState({showPrompt: false});
   };
 
   this.getLink = function() {
     return this.getDocument().get(this.state.annotationId);
   };
-
 
   this.render = function() {
     var title = this.props.title || capitalize(this.getName());
@@ -121,36 +90,27 @@ SaveTool.Prototype = function() {
     }
 
     var el = $$('div')
-      .addClass('sc-link-tool se-tool')
+      .addClass('sc-save-tool se-tool')
       .attr('title', title);
 
     if (this.state.disabled) {
       el.addClass('sm-disabled');
     }
 
-    if (this.state.mode === 'edit') {
-      el.addClass('sm-active');
-    }
-
-    if (this.state.mode) {
-      el.addClass(this.state.mode);
-    }
-
-    var button = $$("button").on('click', this.onClick);
+    var button = $$('button').on('click', this.onClick);
 
     button.append(this.props.children);
     el.append(button);
 
     // When we are in edit mode showing the edit prompt
-    if (this.state.mode === 'edit' && this.state.showPrompt) {
-      // var link = this.getLink();
+    if (this.state.showPrompt) {
+      el.addClass('sm-active');
       var prompt = $$(CommitMessagePrompt, {tool: this});
       el.append(prompt);
     }
     return el;
   };
 };
-
 
 ControllerTool.extend(SaveTool);
 

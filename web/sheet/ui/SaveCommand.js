@@ -22,9 +22,8 @@ SaveCommand.Prototype = function() {
   },
 
   this.execute = function() {
-    this.getController().saveDocument();
     return {
-      status: 'saving-process-started'
+      status: 'save-requested'
     };
   };
 };

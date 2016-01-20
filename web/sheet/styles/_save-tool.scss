@@ -9,7 +9,7 @@
     @include border;
     
     position: absolute;
-    left: -150px;
+    left: -40px;
     top: 40px;
     z-index: 50000;
     width: 300px;
@@ -19,12 +19,9 @@
       font-weight: bold;
     }
 
-    a.se-delete-link {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      font-size: 13px;
-      color: red;
+    a.se-save-btn {      
+      display: inline-block;
+      padding-bottom: 10px;
     }
 
     input {
