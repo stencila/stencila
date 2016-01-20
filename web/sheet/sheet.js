@@ -16,6 +16,8 @@ function loadDocument() {
 
   var importer = new SheetHTMLImporter();
   var doc = importer.importDocument(html);
+  // Expose doc for debugging in the console
+  window.doc = doc;
   return doc;
 }
 
