@@ -12,8 +12,7 @@ CellTeaserComponent.Prototype = function() {
   this.render = function() {
     var cell = this.props.node;
     var el = $$('table').addClass('sc-cell-teaser');
-    var name = cell.getName();
-
+    var name = cell.getName() || '';
     el.append(
       $$('tr').append(
         $$('td').addClass('se-name').text(name),
