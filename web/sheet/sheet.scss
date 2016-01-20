@@ -109,7 +109,8 @@ td.edit.expression .sc-text-property {
 .sc-sheet-editor .selection {
   position: absolute;
   pointer-events:none;
-  border: 2px solid blue;
+  border: 2px solid #4285f4;
+  background: rgba(160, 195, 255, 0.15);
   z-index: 1;
 }
 
