@@ -1,0 +1,20 @@
+.sc-cell-teaser {
+
+	white-space: nowrap;
+	min-width: 150px;
+	overflow: hidden;
+
+	.se-name {
+		font-size: 12px;
+		color: #ccc;
+		padding-right: 10px;
+		float: left;
+	}
+
+	.se-content-type {
+		font-weight: 600;
+		font-size: 12px;
+		color: #FF9F00;
+		float: right;
+	}
+}

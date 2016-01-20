@@ -1,0 +1,17 @@
+.sc-sheet-editor {
+  position: relative;
+
+	.selection {
+	  position: absolute;
+	  pointer-events:none;
+	  border: 2px solid #4285f4;
+	  background: rgba(160, 195, 255, 0.15);
+	  z-index: 1;
+	}
+
+	// Can this work?
+	&.edit .selection {
+	  display:none;
+	}
+}
+

@@ -19,7 +19,6 @@ ObjectComponent.Prototype = function() {
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));
 
-    console.log('display mode', node.displayMode);
     if (node.displayMode != 'clipped') {
       el.append($$('pre').text(node.value));
     }
