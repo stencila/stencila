@@ -28,7 +28,6 @@ var RemoteEngine = function() {
   }
 
   this.active = false;
-
 };
 
 RemoteEngine.Prototype = function() {

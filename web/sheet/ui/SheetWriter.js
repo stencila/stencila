@@ -9,22 +9,21 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
-var SaveTool = require('substance/ui/SaveTool');
 var StrongTool = require('substance/packages/strong/StrongTool');
 var CodeTool = require('substance/packages/code/CodeTool');
 var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var Icon = require('substance/ui/FontAwesomeIcon');
 var LinkTool = require('substance/packages/link/LinkTool');
+var SaveTool = require('./SaveTool');
 var SheetEditor = require('./SheetEditor');
 var Sheet = require('../model/Sheet');
-
 
 var CONFIG = {
   controller: {
     commands: [
       require('substance/ui/UndoCommand'),
       require('substance/ui/RedoCommand'),
-      require('substance/ui/SaveCommand')
+      require('./SaveCommand')
     ],
     components: {
       // Registry for different cell content types
