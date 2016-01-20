@@ -185,13 +185,16 @@ SheetEditor.Prototype = function() {
     }
     // ENTER
     else if (event.keyCode === 13) {
-      this._activateCurrentCell();
+      if (this.selection.isCollapsed()) {
+        this._activateCurrentCell();
+      }
       handled = true;
     }
     // SPACE
     else if (event.keyCode === 32) {
-      console.log('Toggling view mode.');
-      this._toggleDisplayMode();
+      if (this.selection.isCollapsed()) {
+        this._toggleDisplayMode();
+      }
       handled = true;
     }
     if (handled) {
@@ -348,8 +351,8 @@ SheetEditor.Prototype = function() {
   };
 
   this._toggleDisplayMode = function() {
-    var row = this.selection[0];
-    var col = this.selection[1];
+    var row = this.selection.startRow;
+    var col = this.selection.startCol;
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
       cell.toggleDisplayMode();
@@ -357,8 +360,8 @@ SheetEditor.Prototype = function() {
   };
 
   this._activateCurrentCell = function() {
-    var row = this.selection[0];
-    var col = this.selection[1];
+    var row = this.selection.startRow;
+    var col = this.selection.startCol;
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
       cell.enableEditing();
