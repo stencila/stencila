@@ -105,6 +105,7 @@ SheetEditor.Prototype = function() {
     } else {
       this.selectCell(cell);
     }
+    this.removeClass('edit');
     this._rerenderSelection();
   };
 
