@@ -3,7 +3,7 @@
 var Component = require('substance/ui/Component');
 var SheetComponent = require('./SheetComponent');
 var $$ = Component.$$;
-
+var $ = require('substance/util/jquery');
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
@@ -61,10 +61,6 @@ SheetEditor.Prototype = function() {
     if (this.activeCell && this.activeCell !== cell) {
       this.activeCell.disableEditing();
     }
-    var node = cell.getNode();
-    if (node) {
-      console.log('Show expression bar.');
-    }
     this._rerenderSelection();
     this.removeClass('edit');
   };
@@ -88,19 +84,39 @@ SheetEditor.Prototype = function() {
     }
   };
 
+  /**
+    Sometimes we get the content elements of a cell as a target
+    when we drag a selection. This method normalizes the target
+    and returns always the correct cell
+  */
+  this._getCellForDragTarget = function(target) {
+    var targetCell;
+    if ($(target).hasClass('se-cell')) {
+      targetCell = target;
+    } else {
+      targetCell = $(target).parent('.se-cell')[0];
+    }
+    if (!targetCell) throw Error('target cell could not be determined');
+    return targetCell;
+  };
+
   this.onMouseDown = function(event) {
     this.isSelecting = true;
     this.$el.on('mouseenter', 'td', this.onMouseEnter.bind(this));
     this.$el.one('mouseup', this.onMouseUp.bind(this));
     this.startCellEl = event.target;
+    if (!this.startCellEl.getAttribute('data-col')) {
+      throw new Error('mousedown on a non-cell element');
+    }
     this.endCellEl = this.startCellEl;
     this._updateSelection();
   };
 
   this.onMouseEnter = function(event) {
     if (!this.isSelecting) return;
-    if (this.endCellEl !== event.target) {
-      this.endCellEl = event.target;
+    var endCellEl = this._getCellForDragTarget(event.target);
+    if (this.endCellEl !== endCellEl) {
+      this.endCellEl = endCellEl;
       this._updateSelection();
     }
   };

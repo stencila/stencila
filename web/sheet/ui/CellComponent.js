@@ -17,7 +17,7 @@ CellComponent.Prototype = function() {
     var cell = this.props.node;
     var componentRegistry = this.context.componentRegistry;
     var el = $$('td').addClass('se-cell');
-    
+
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
 
