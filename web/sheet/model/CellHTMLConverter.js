@@ -21,7 +21,8 @@ module.exports = {
     // FIXME: we should agree on a set of valueTypes
     valueType = Sheet.normalizeValueType(valueType);
     // strings
-    if (exprType === 's') {
+    // FIXME: provide a specification of 'data-kind'
+    if (exprType === 's' || exprType === 'z') {
       node.content = textContent;
     }
     // strings
