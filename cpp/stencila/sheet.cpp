@@ -108,14 +108,16 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
         for (unsigned int col = 0; col < cols; col++) {
             auto td = tr.append("td");
             auto id = identify(row, col);
-            auto iter = cells_.find(id);
+            const auto& iter = cells_.find(id);
             if (iter != cells_.end()) {
-                auto& cell = iter->second;
-                if (cell.kind) td.attr("data-kind", std::string(1, cell.kind));
-                if (cell.expression.length()) td.attr("data-expr", cell.expression);
-                if (cell.name.length()) td.attr("data-name", cell.name);
-                if (cell.type.length()) td.attr("data-type", cell.type);
-                td.text(cell.value);
+                const auto& cell = iter->second;
+                if (cell.kind > '0') {
+                    td.attr("data-kind", std::string(1, cell.kind));
+                    if (cell.kind == '2') td.attr("data-name", cell.name);
+                    if (cell.kind == '1' or cell.kind == '2') td.attr("data-expr", cell.expression);
+                    if (cell.kind <= '9' and cell.type.length()) td.attr("data-type", cell.type);
+                    td.text(cell.value);
+                }
             }
         }
     }
@@ -287,7 +289,7 @@ Sheet& Sheet::read(const std::string& directory) {
         unsigned int col = 0;
         for (const auto& string : strings) {
             // Ignore empty cells
-            if(string.length()){
+            if (string.length()) {
                 auto id = identify(row, col);
                 Cell& cell = cells_[id];
                 source(id, string);
@@ -587,8 +589,8 @@ Sheet::Cell Sheet::parse(const std::string& source) {
         // `\s*` at ends allows for leading and trailing spaces or newlines
         // Commented quotes below are to stop SublimeText's string formatting on subsequent line
         static const boost::regex blank_regex(R"(^\s*$)");
-        static const boost::regex named_expression_regex(R"(^\s*([a-z]\w*) *= *(.+?)\s*$)");
         static const boost::regex expression_regex(R"(^\s*= *(.+?)\s*$)");
+        static const boost::regex named_expression_regex(R"(^\s*([a-z]\w*) *= *(.+?)\s*$)");
         static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
         static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
         static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
@@ -596,15 +598,14 @@ Sheet::Cell Sheet::parse(const std::string& source) {
         boost::smatch match;
         if (boost::regex_match(source_clean, match, blank_regex)){
             cell.kind = '0';
-        }
-        else if (boost::regex_match(source_clean, match, named_expression_regex)) {
+        } else if (boost::regex_match(source_clean, match, expression_regex)) {
             cell.kind = '1';
+            cell.expression = match.str(1);
+        } else if (boost::regex_match(source_clean, match, named_expression_regex)) {
+            cell.kind = '2';
             cell.name = match.str(1);
             cell.expression = match.str(2);
-        } else if (boost::regex_match(source_clean, match, expression_regex)) {
-            cell.kind = '2';
-            cell.expression = match.str(1);
-        } else if (boost::regex_match(source_clean, match, number_regex)) {
+        }  else if (boost::regex_match(source_clean, match, number_regex)) {
             cell.kind = 'n';
             cell.expression = match.str(1);
         } else if (boost::regex_match(source_clean, match, dq_string_regex) or
@@ -859,7 +860,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                 cell.type = result.substr(0, space);
                 cell.value = result.substr(space+1);
                 updates[id] = {
-                    std::string(1,cell.kind),
+                    std::string(1, cell.kind),
                     cell.type,
                     cell.value
                 };

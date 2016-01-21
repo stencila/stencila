@@ -304,9 +304,9 @@ class Sheet : public Component {
          *
          * When parsing the source of a cell it may be detected to be a 
          *
-         *     '0' - empty source
-         *     '1' - named expression (eg. `pi = 3.14`)
-         *     '2' - expression       (eg. `= 22/7`)
+         *     '0' - empty or blank (only whitespace) source
+         *     '1' - expression       (eg. `= 22/7`)
+         *     '2' - named expression (eg. `pi = 3.14`)
          *     'n' - number literal   (eg. `42`)
          *     's' - string literal   (eg. `"foo"`)
          *     'd' - date literal     (eg. `23/12/1978`) [not currently implemented]
