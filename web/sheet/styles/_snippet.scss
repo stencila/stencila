@@ -1,0 +1,43 @@
+.sc-snippet {
+	position: absolute;
+	min-width: 300px;
+  z-index: 2;
+  background: #FFFFFF;
+  top: 30px;
+  font-size: 12px;
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+  text-align: left;
+
+  .se-documentation {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+
+    .se-signature {
+      font-size: 13px;
+      font-family: $font-family-code;
+    }
+
+    .se-parameters {
+      font-size: 11px;
+
+      .se-param-name {
+        font-family: $font-family-code;   
+        color: #888;
+        padding-right: 10px;
+      }
+    }
+  }
+
+  .se-label {
+    color: #888;
+  }
+
+  .se-example {
+    padding: 10px;
+
+    .se-example-code {
+      font-size: 13px;
+      font-family: $font-family-code;
+    }
+  }
+}

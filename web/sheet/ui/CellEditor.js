@@ -2,6 +2,7 @@
 
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
+var SnippetComponent = require('./SnippetComponent');
 
 /*
   The CellEditor is different to a regular TextPropertyEditor
@@ -17,8 +18,8 @@ CellEditor.Prototype = function() {
   this.render = function() {
     var el = $$('div');
     el.append(
-      $$('textarea')
-        .text(this.props.content)
+      $$('input')
+        .attr('value', this.props.content)
         .on('keydown', this.onKeydown)
         .on('keypress', this.onKeypress)
         .on('click', this.onClick)
@@ -26,10 +27,9 @@ CellEditor.Prototype = function() {
         .ref('editor')
     );
     if (this.state.snippet) {
-      el.append(
-        $$('div').ref(this.state.snippet)
-          .text('DESCRIPTION OF SNIPPET' + this.state.snippet)
-      );
+      el.append($$(SnippetComponent, {
+        snippet: require('../testSnippet')
+      }));
     }
     return el;
   };
