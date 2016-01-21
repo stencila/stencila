@@ -28,7 +28,8 @@ CellEditor.Prototype = function() {
     );
     if (this.state.snippet) {
       el.append($$(SnippetComponent, {
-        snippet: require('../testSnippet')
+        snippet: require('../testSnippet'),
+        paramIndex: this.state.paramIndex
       }));
     }
     return el;
@@ -112,7 +113,7 @@ CellEditor.Prototype = function() {
           var currentArg = this._detectCurrentArg(source.slice(argsPos));
           var newState = {
             snippet: snippet,
-            argIdx: currentArg.argIdx
+            paramIndex: currentArg.argIdx
           };
           // console.log('DETECTED SNIPPET', newState);
           this.setState(newState);

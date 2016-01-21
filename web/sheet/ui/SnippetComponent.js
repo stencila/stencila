@@ -1,6 +1,5 @@
 'use strict';
 
-var pluck = require('lodash/collection/pluck');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
@@ -11,12 +10,27 @@ function Signature() {
 Signature.Prototype = function() {
   this.render = function() {
     var snippet = this.props.snippet;
-    var params = pluck(snippet.parameters, 'name').join(', ');
+
+    var paramsEl = $$('span').addClass('se-signature-params');
+
+    snippet.parameters.forEach(function(param, i) {
+      var paramEl = $$('span').addClass('se-signature-param').append(param.name);
+
+      if (i === this.props.paramIndex) {
+        paramEl.addClass('sm-active');
+      }
+
+      paramsEl.append(paramEl);
+      if (i < snippet.parameters.length - 1) {
+        paramsEl.append(',');
+      }
+
+    }.bind(this));
 
     return $$('div').addClass('se-signature').append(
       $$('span').addClass('se-name').append(snippet.name),
       '(',
-      $$('span').append(params),
+      $$('span').append(paramsEl),
       ')'
     );
   };
@@ -37,19 +51,23 @@ SnippetComponent.Prototype = function() {
     // Parameter description
     var paramsEl = $$('table').addClass('se-parameters');
 
-    snippet.parameters.forEach(function(param) {
-      paramsEl.append(
-        $$('tr').append(
-          $$('td').addClass('se-param-name').append(param.name),
-          $$('td').addClass('se-param-descr').append(param.descr)
-        )
+    snippet.parameters.forEach(function(param, i) {
+
+      var paramEl = $$('tr').addClass('se-param').append(
+        $$('td').addClass('se-param-name').append(param.name),
+        $$('td').addClass('se-param-descr').append(param.descr)
       );
+
+      if (i === this.props.paramIndex) {
+        paramEl.addClass('sm-active');
+      }
+      paramsEl.append(paramEl);
     }.bind(this));
 
     // Documentation
     var docEl = $$('div').addClass('se-documentation');
     docEl.append(
-      $$(Signature, {snippet: snippet}),
+      $$(Signature, {snippet: snippet, paramIndex: this.props.paramIndex}),
       paramsEl,
       $$('div').addClass('se-summary').append(snippet.summary)
     );

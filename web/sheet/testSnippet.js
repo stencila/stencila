@@ -18,9 +18,9 @@ var testSnippet = {
 	  }
 	],
 	"examples": [
-		"sum(A1)",
+		"sum(A1, 100)",
 		"sum(A1:A10, 100)",
-		"sum(A1:G10, A2:G12, 14)"
+		"sum(A1:G10, A2:G12, 100)"
 	],
 	"see": [
 		"sumsq",
