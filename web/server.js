@@ -58,29 +58,29 @@ app.use('/examples', express.static(path.join(__dirname, "examples")));
 // Mimic the API at https://stenci.la
 // Snippets with id are read from local files
 app.get('/snippets/:id',  function (req, res, next) {
-  var dir = path.join(__dirname, '..', 'snippets', 'snippets');
-  var file_pattern = dir + '/'+req.params.id+'-*.json';
-  glob(file_pattern, function(err, files) {
-    if (files.length==0) return handleError('File not found: '+file_pattern, res);
-    var file = files[0];
-    fs.readFile(file, 'utf8', function (err, data) {
-      if (err) return handleError(err, res);
-      res.set('Content-Type', 'application/json');
-      res.send(data);
-    });
+  fs.readFile(path.join(__dirname, '..', 'snippets', 'snippets', req.params.id + '.json'), 'utf8', function (err, data) {
+    if (err) return handleError(err, res);
+    res.set('Content-Type', 'application/json');
+    res.send(data);
   });
 });
-// A list of snippets
+// List of snippets generated from list of snippet files
 app.get('/snippets',  function (req, res, next) {
-  res.set('Content-Type', 'application/json');
-  var json = JSON.stringify([
-      {
-        'id': 1,
-        'name': 'sum',
-        'summary': 'The sum of values'
-      }
-  ]);
-  res.send(json);
+  var dirname = path.join(__dirname, '..', 'snippets', 'snippets');
+  glob(dirname + '/*.json', function(err, files) {
+    res.set('Content-Type', 'application/json');
+    var snippets = [];
+    for(var i=0; i < files.length; i++){
+      var file = files[i];
+      var id = file.replace(dirname+'/','').replace('.json','');
+      snippets.push({
+        id: id,
+        summary: "A summary of the snippet"
+      });
+    }
+    var json = JSON.stringify(snippets);
+    res.send(json);
+  });
 });
 
 // Javascript

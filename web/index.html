@@ -10,6 +10,9 @@
         line-height: 1.2em;
         padding: 2em;
     }
+    h1 {
+        font-size: 1.2em;
+    }
     main {
         max-width: 50em;
         margin-left: auto;
@@ -19,31 +22,40 @@
   <body>
     <main>
         <p>
-            This is the Stencila development server for the `web` module. It bundles and compiles Javascript and CSS on the fly
-            for convenience during development.
+            This is the Stencila development server for the `web` module.
         <p>
 
+        <h1>Bundled JS and CSS</h1>
         <p>
-            Static HTML files that mimic the structure of Stencila components:
+            Bundles and compiles Javascript and CSS from local source files for convenience during development.
+        </p>
+
+        <h1>Snippets API</h1>
+        <p>
+            Mimics the snippets API based on the local source files in the <code>snippets/snippets</code> directory e.g. 
         <p>
         <ul>
-            <li>
-                Stencil: <a href="/examples/a/">http://localhost:5000/examples/a/</a>
-            </li>
-            <li>
-                Sheet: <a href="/examples/b/">http://localhost:5000/examples/b/</a>
-            </li>
+            <li><a href="/snippets">http://localhost:5000/snippets</a></li>
+            <li><a href="/snippets/sum">http://localhost:5000/snippets/sum</a></li>
         </ul>
 
+        <h1>Static examples</h1>
         <p>
-            Dynamic components, hosted in local R, Python etc sessions and listening to port 7373, can be proxied via this server.
-            The Javascript and CSS still gets generated on the fly but everything else gets passed on to the backend session. 
-            Make sure you add the trailing slash e.g.
+            Static HTML files that mimic the structure of Stencila components are available:
         <p>
         <ul>
-            <li>
-                <a href="/demo/stencils/simple-r/">http://localhost:5000/demo/stencils/simple-r/</a>
-            </li>
+            <li>Stencil: <a href="/examples/a/">http://localhost:5000/examples/a/</a></li>
+            <li>Sheet: <a href="/examples/b/">http://localhost:5000/examples/b/</a></li>
+        </ul>
+
+        <h1>Upstream proxy</h1>
+        <p>
+            All other requests are proxied to an upstream server, by default https://localhost:7373 (a locally running Stencila session) but overridable at the command line e.g. <code>node server.js https://stenci.la</code>.
+            This allows you to test the JS and SCSS using live Stencila components. The Javascript and CSS still gets generated on the fly from the local source but everything else gets passed on to the backend session. Make sure you add the trailing slash to avoid a redirect from the upstream e.g.
+        <p>
+        <ul>
+            <li><a href="/demo/stencils/simple-r/">http://localhost:5000/demo/stencils/simple-r/</a></li>
+            <li><a href="/demo/sheets/iris/">http://localhost:5000/demo/sheets/iris/</a></li>
         </ul>
     </main>
   </body>
