@@ -46,7 +46,7 @@ CellEditor.Prototype = function() {
   };
 
   this._getTextArea = function() {
-    return this.refs.editor.el;
+    return this.el.querySelector('input');
   };
 
   this.onKeydown = function(event) {

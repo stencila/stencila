@@ -70,13 +70,6 @@ SheetWriter.Prototype = function() {
   };
 
   this.didRender = function() {
-    if (this.state.error) {
-      var iframe = this.refs.error.el;
-      var doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(this.state.error);
-      doc.close();
-    }
   };
 
   this._renderMainSection = function() {
