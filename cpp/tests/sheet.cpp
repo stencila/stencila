@@ -173,14 +173,14 @@ BOOST_AUTO_TEST_CASE(parse){
 	// Named expressions
 	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
 		cell = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(cell.kind,'1');
+		BOOST_CHECK_EQUAL(cell.kind,'2');
 		BOOST_CHECK_EQUAL(cell.name,"answer");
 		BOOST_CHECK_EQUAL(cell.expression,"6*7");
 	}
 
 	// Dynamic expressions
 	cell = Sheet::parse("=42");
-	BOOST_CHECK_EQUAL(cell.kind,'2');
+	BOOST_CHECK_EQUAL(cell.kind,'1');
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 	BOOST_CHECK_EQUAL(cell.name,"");
 
@@ -292,19 +292,23 @@ BOOST_AUTO_TEST_CASE(request){
 
 	BOOST_CHECK_EQUAL(join(s.depends("B1"), ","), "A1");
 
+	// In the following we change A1; B1 is dependent upon it
+	// but due to this being a 'dumb' context its value does not
+	// change and so is filtered out from result of cells to be updated
+	
 	BOOST_CHECK_EQUAL(
 		s.request("PUT","update",R"([{"id":"A1","source":"2"}])"),
-		R"([{"id":"A1","kind":"n","type":"string","value":"2"},{"id":"B1","kind":"2","type":"string","value":"A1"}])"
+		R"([{"id":"A1","kind":"n","type":"string","value":"2"}])"
 	);
 
 	BOOST_CHECK_EQUAL(
 		s.request("PUT","update",R"([{"id":"A1","source":"some error"}])"),
-		R"([{"id":"A1","kind":"z","type":"error","value":"There was an error!"},{"id":"B1","kind":"2","type":"string","value":"A1"}])"
+		R"([{"id":"A1","kind":"z","type":"error","value":"There was an error!"}])"
 	);
 
 	BOOST_CHECK_EQUAL(
 		s.request("PUT","update",R"([{"id":"A1","source":""}])"),
-		R"([{"id":"B1","kind":"2","type":"string","value":"A1"}])"
+		R"([])"
 	);
 }
 
