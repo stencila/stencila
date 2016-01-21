@@ -20,14 +20,9 @@ module.exports = {
     var valueType = el.attr('data-type');
     // FIXME: we should agree on a set of valueTypes
     valueType = Sheet.normalizeValueType(valueType);
-    // strings
-    // FIXME: provide a specification of 'data-kind'
-    if (exprType === 's' || exprType === 'z') {
+    // primitives
+    if (exprType === 's' || exprType === 'z' || exprType === 'n') {
       node.content = textContent;
-    }
-    // strings
-    else if (exprType === 'n') {
-      node.content = expr;
     }
     // expressions
     else {
