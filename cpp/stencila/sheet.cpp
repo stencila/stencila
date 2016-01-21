@@ -892,6 +892,10 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                     // This is a temporary optimisation until dependency graph 
                     // walking is implemented
                 } else if (not cell.statement and cell.expression.length()) {
+                    // Store to detect any changes
+                    auto type = cell.type;
+                    auto value = cell.value;
+                    // Translate and execute
                     auto spread_expr = translate(cell.expression);
                     std::string type_value;
                     try {
@@ -900,13 +904,16 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                         type_value = exc.what();
                     }
                     auto space = type_value.find(" ");
-                    cell.type = type_value.substr(0,space);
+                    cell.type = type_value.substr(0, space);
                     cell.value = type_value.substr(space+1);
-                    updates[id] = {
-                        std::string(1,cell.kind),
-                        cell.type,
-                        cell.value
-                    };
+                    // Has there been a change? Note change in kind is not detected here!
+                    if(cell.type != type or cell.value != value){
+                        updates[id] = {
+                            std::string(1, cell.kind),
+                            cell.type,
+                            cell.value
+                        };
+                    }
                 }
             }
         }

@@ -524,10 +524,12 @@ class Sheet : public Component {
     /**
      * Update cells with new source
      *
-     * This method parses the new source and will then set/update the cells corresponding
+     * This method parses the new source and will then update the cells' corresponding
      * variable/s (both id and optional name) within the spread environment. Because of
      * interdependencies between cells this method is designed to take batches of cell updates,
-     * analyse the dependency graph and then execute each cell expression.
+     * analyse the dependency graph and then execute each cell expression. It returns a map of cells
+     * whose `type` or `value` has changed (some cells may have changed in the spread but if their string
+     * value has not changed then they will not be returned in the map)
      *
      * @param cells Map of cell IDs and their sources
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
