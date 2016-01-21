@@ -5,11 +5,7 @@ var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var Sheet = require('../model/Sheet');
-<<<<<<< HEAD
-=======
-var Icon = require('substance/ui/FontAwesomeIcon');
 var CellEditor = require('./CellEditor');
->>>>>>> origin/substance-dev
 
 var TextContent = require('./TextComponent');
 var ObjectComponent = require('./ObjectComponent');
