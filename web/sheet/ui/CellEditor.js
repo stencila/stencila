@@ -49,7 +49,7 @@ CellEditor.Prototype = function() {
   };
 
   this.onKeydown = function(event) {
-    console.log('CellEditor.onKeydown()', 'keyCode=', event.keyCode, event);
+    // console.log('CellEditor.onKeydown()', 'keyCode=', event.keyCode, event);
     var handled = false;
     // ENTER
     if (event.keyCode === 13) {
@@ -70,7 +70,7 @@ CellEditor.Prototype = function() {
   };
 
   this.onKeypress = function(event) {
-    console.log('CellEditor.onKeypress()', 'keyCode=', event.keyCode);
+    // console.log('CellEditor.onKeypress()', 'keyCode=', event.keyCode);
     var handled = false;
     if (handled) {
       event.stopPropagation();
@@ -78,11 +78,11 @@ CellEditor.Prototype = function() {
     }
   };
 
-  this.onClick = function(event) {
+  this.onClick = function() {
     this._detectSnippet();
   };
 
-  this.onChange = function(event) {
+  this.onChange = function() {
     this._detectSnippet();
   };
 
@@ -106,11 +106,16 @@ CellEditor.Prototype = function() {
         }
         if (lastMatch) {
           // console.log('DETECTED SNIPPET', lastMatch[1], lastMatch);
-          this.setState({
-            snippet: lastMatch[1],
-            startPos: lastMatch.index+1,
-            argsStartPos: lastMatch.index+lastMatch[0].length,
-          });
+          var snippet = lastMatch[1];
+          var startPos = lastMatch.index+1;
+          var argsPos = startPos + lastMatch[0].length;
+          var currentArg = this._detectCurrentArg(source.slice(argsPos));
+          var newState = {
+            snippet: snippet,
+            argIdx: currentArg.argIdx
+          };
+          // console.log('DETECTED SNIPPET', newState);
+          this.setState(newState);
         } else if (this.state.snippet) {
           this.extendState({
             snippet: false
@@ -120,15 +125,35 @@ CellEditor.Prototype = function() {
     }.bind(this));
   };
 
-  this._updateSnippet = function() {
-    setTimeout(function() {
-      var el = this._getTextArea();
-      var pos = el.selectionStart;
-      // TODO: check that we are inside the snippets arguments
-      if (pos < this.state.argsStartPos) {
-        this.setState({});
+  this._detectCurrentArg = function(str) {
+    // on each ',' increase counter
+    // on '(' skip content to allow for nested expressions
+    var argIdx = 0;
+    var stackCount = 0;
+    var skip = false;
+    for(var pos = 0; pos < str.length; pos++) {
+      var c = str[pos];
+      if (skip) {
+        if (c === '(') {
+          stackCount++;
+        } else if (c === ')') {
+          stackCount--;
+        }
+        if (stackCount === 0) {
+          skip = false;
+        }
       }
-    }.bind(this));
+      else if (c === ',') {
+        argIdx++;
+      }
+      else if (c === '(') {
+        stackCount++;
+        skip = true;
+      }
+    }
+    return {
+      argIdx: argIdx
+    };
   };
 
 };
