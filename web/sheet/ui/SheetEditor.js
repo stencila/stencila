@@ -13,7 +13,8 @@ function SheetEditor() {
   this.handleActions({
     'selectCell': this.selectCell,
     'activateCell': this.activateCell,
-    'commitCell': this.commitCell,
+    'commitCellChange': this.commitCellChange,
+    'discardCellChange': this.discardCellChange,
   });
 
   // Shouldn't it be null rather?
@@ -45,9 +46,6 @@ SheetEditor.Prototype = function() {
     );
     // react only to mousedowns on cells in display mode
     el.on('mousedown', 'td.display', this.onMouseDown);
-    if (this._isEditing()) {
-      el.on('keydown', this.onEditingKeyDown);
-    }
     return el;
   };
 
@@ -81,32 +79,38 @@ SheetEditor.Prototype = function() {
   // Action handlers
 
   this.selectCell = function(cell) {
-    if (this.activeCell && this.activeCell !== cell) {
-      this._commitCellContent(this.activeCell);
-      this.activeCell.disableEditing();
-    }
+    this._ensureActiveCellIsCommited(cell);
     this.removeClass('edit');
     this._rerenderSelection();
   };
 
   this.activateCell = function(cell) {
-    if (this.activeCell && this.activeCell !== cell) {
-      this._commitCellContent(this.activeCell);
-      this.activeCell.disableEditing();
-    }
+    this._ensureActiveCellIsCommited(cell);
     this.activeCell = cell;
     this.addClass('edit');
     this._rerenderSelection();
   };
 
-  this.commitCell = function(cell, key) {
-    this.activeCell = null;
-    this._commitCellContent(cell);
+  this.commitCellChange = function(content, key) {
+    if (!this.activeCell) {
+      console.warn('FIXME: expected to have an active cell.');
+    } else {
+      var cell = this.activeCell;
+      this.activeCell = null;
+      this._commitCellContent(cell, content);
+      cell.disableEditing();
+    }
     if (key === 'enter') {
       this._selectNextCell(1, 0);
-    } else {
-      this.selectCell(cell);
     }
+    this.removeClass('edit');
+    this._rerenderSelection();
+  };
+
+  this.discardCellChange = function() {
+    var cell = this.activeCell;
+    this.activeCell = null;
+    cell.disableEditing();
     this.removeClass('edit');
     this._rerenderSelection();
   };
@@ -149,74 +153,50 @@ SheetEditor.Prototype = function() {
     behavior.
   */
   this.onGlobalKeydown = function(event) {
-    if (this._isEditing()) return;
-    console.log('onGlobalKeydown()', 'keyCode=', event.keyCode);
+    // console.log('onGlobalKeydown()', 'keyCode=', event.keyCode);
     var handled = false;
-    // LEFT
-    if (event.keyCode === 37) {
-      if (event.shiftKey) {
-        this._expandSelection(0, -1);
-      } else {
-        this._selectNextCell(0, -1);
+
+    if (!this._isEditing()) {
+      // LEFT
+      if (event.keyCode === 37) {
+        if (event.shiftKey) {
+          this._expandSelection(0, -1);
+        } else {
+          this._selectNextCell(0, -1);
+        }
+        handled = true;
       }
-      handled = true;
-    }
-    // RIGHT
-    else if (event.keyCode === 39) {
-      if (event.shiftKey) {
-        this._expandSelection(0, 1);
-      } else {
-        this._selectNextCell(0, 1);
+      // RIGHT
+      else if (event.keyCode === 39) {
+        if (event.shiftKey) {
+          this._expandSelection(0, 1);
+        } else {
+          this._selectNextCell(0, 1);
+        }
+        handled = true;
       }
-      handled = true;
-    }
-    // UP
-    else if (event.keyCode === 38) {
-      if (event.shiftKey) {
-        this._expandSelection(-1, 0);
-      } else {
-        this._selectNextCell(-1, 0);
+      // UP
+      else if (event.keyCode === 38) {
+        if (event.shiftKey) {
+          this._expandSelection(-1, 0);
+        } else {
+          this._selectNextCell(-1, 0);
+        }
+        handled = true;
       }
-      handled = true;
-    }
-    // DOWN
-    else if (event.keyCode === 40) {
-      if (event.shiftKey) {
-        this._expandSelection(1, 0);
-      } else {
-        this._selectNextCell(1, 0);
+      // DOWN
+      else if (event.keyCode === 40) {
+        if (event.shiftKey) {
+          this._expandSelection(1, 0);
+        } else {
+          this._selectNextCell(1, 0);
+        }
+        handled = true;
       }
-      handled = true;
-    }
-    // ENTER
-    else if (event.keyCode === 13) {
-      if (this.getSelection().isCollapsed()) {
-        this._activateCurrentCell();
-      }
-      handled = true;
-    }
-    // SPACE
-    else if (event.keyCode === 32) {
-      if (this.getSelection().isCollapsed()) {
-        this._toggleDisplayMode();
-      }
-      handled = true;
-    }
-    // BACKSPACE | DELETE
-    else if (event.keyCode === 8 || event.keyCode === 46) {
-      this._deleteSelection();
-      handled = true;
-    }
-    else if (event.keyCode === 90 && (event.metaKey||event.ctrlKey)) {
-      if (event.shiftKey) {
-        this.getController().executeCommand('redo');
-      } else {
-        this.getController().executeCommand('undo');
-      }
-      handled = true;
     }
 
     if (handled) {
+      console.log('SheetEditor.onGlobalKeydown() handled event', event);
       event.stopPropagation();
       event.preventDefault();
     }
@@ -229,40 +209,47 @@ SheetEditor.Prototype = function() {
     would result in content changes.
   */
   this.onGlobalKeypress = function(event) {
-    var character = String.fromCharCode(event.charCode);
-    if (character) {
-      console.log('TODO: overwrite cell content and activate cell editing.');
-    }
-  };
-
-  this.onEditingKeyDown = function(event) {
-    // console.log('####', event.keyCode, event);
+    // console.log('onGlobalKeypress()', 'keyCode=', event.keyCode);
     var handled = false;
-    // ESCAPE
-    if (event.keyCode === 27) {
-      if (this.activeCell) {
-        this.activeCell.disableEditing();
-        this.removeClass('edit');
-        this._rerenderSelection();
+
+    if (!this._isEditing()) {
+      // ENTER
+      if (event.keyCode === 13) {
+        if (this.getSelection().isCollapsed()) {
+          this._activateCurrentCell();
+        }
+        handled = true;
       }
-      handled = true;
-    }
-    // ENTER
-    else if (event.keyCode === 13) {
-      this._commitCellContent(this.activeCell);
-      this._selectNextCell(1, 0);
-      handled = true;
-    }
-    // TAB
-    else if (event.keyCode === 9) {
-      this._commitCellContent(this.activeCell);
-      if (event.shiftKey) {
-        this._selectNextCell(0, -1);
+      // SPACE
+      else if (event.keyCode === 32) {
+        if (this.getSelection().isCollapsed()) {
+          this._toggleDisplayMode();
+        }
+        handled = true;
+      }
+      // BACKSPACE | DELETE
+      else if (event.keyCode === 8 || event.keyCode === 46) {
+        this._deleteSelection();
+        handled = true;
+      }
+      // undo/redo
+      else if (event.keyCode === 90 && (event.metaKey||event.ctrlKey)) {
+        if (event.shiftKey) {
+          this.getController().executeCommand('redo');
+        } else {
+          this.getController().executeCommand('undo');
+        }
+        handled = true;
       } else {
-        this._selectNextCell(0, 1);
+        var character = String.fromCharCode(event.charCode);
+        if (character) {
+          console.log('TODO: overwrite cell content and activate cell editing.');
+          handled = true;
+        }
       }
-      handled = true;
+
     }
+
     if (handled) {
       event.stopPropagation();
       event.preventDefault();
@@ -295,10 +282,23 @@ SheetEditor.Prototype = function() {
     return !!this.activeCell;
   };
 
-  this._commitCellContent = function(cell) {
+  this._commitCellContent = function(cell, content) {
     var cellNode = cell.props.node;
-    var sheet = this.refs.sheet;
-    this.send('updateCell', cellNode, sheet);
+    if (cellNode.content !== content) {
+      var sheet = this.refs.sheet;
+      this.getDocumentSession().transaction(function(tx) {
+        tx.set([cellNode.id, 'content'], content);
+      });
+      this.send('updateCell', cellNode, sheet);
+    }
+  };
+
+  this._ensureActiveCellIsCommited = function(cell) {
+    if (this.activeCell && this.activeCell !== cell) {
+      this._commitCellContent(this.activeCell,
+        this.activeCell.getCellEditorContent());
+      this.activeCell.disableEditing();
+    }
   };
 
   this._getPosition = function(cellEl) {
@@ -360,7 +360,7 @@ SheetEditor.Prototype = function() {
     if (colDiff < 0) {
       sel.endCol = Math.max(0, sel.endCol);
     }
-    
+
     sel.startRow = sel.startRow;
     sel.endRow = sel.endRow;
     this.setSelection(sel);

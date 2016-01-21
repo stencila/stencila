@@ -3,10 +3,10 @@
 var oo = require('substance/util/oo');
 var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
-var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
 var Sheet = require('../model/Sheet');
 var Icon = require('substance/ui/FontAwesomeIcon');
+var CellEditor = require('./CellEditor');
 
 var TextContent = require('./TextComponent');
 var ObjectComponent = require('./ObjectComponent');
@@ -42,7 +42,6 @@ CellComponent.Prototype = function() {
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
 
-
     if (!isEditing) {
       el.on('dblclick', this.onDblClick);
       // el.on('click', this.onClick);
@@ -54,7 +53,7 @@ CellComponent.Prototype = function() {
       if (this.props.selected) {
         el.addClass('selected');
         var icon;
-        
+
         console.log('cell.displayMode', cell.displayMode);
 
         if (cell.displayMode === 'clipped') {
@@ -73,12 +72,9 @@ CellComponent.Prototype = function() {
 
       el.addClass(cell.valueType);
       if (isEditing) {
-        var editor = $$(TextPropertyEditor, {
-          name: cell.id,
-          path: [cell.id, 'content'],
-          commands: []
-        }).ref('editor');
-        el.append(editor);
+        el.append($$(CellEditor, {
+          content: cell.content
+        }).ref('editor'));
       } else {
         // Render Cell content
         var CellContentClass;
@@ -103,20 +99,6 @@ CellComponent.Prototype = function() {
       el.addClass('empty');
     }
     return el;
-  };
-
-  // HACK: monkey patching the editor
-  // Will come up with a dedicated Cell editor instead
-  this.didRender = function() {
-    var editor = this.refs.editor;
-    if (editor) {
-      editor._handleEnterKey = function(event) {
-        this.disableEditing();
-        this.send('commitCell', this, 'enter');
-        event.stopPropagation();
-        event.preventDefault();
-      }.bind(this);
-    }
   };
 
   this.getNode = function() {
@@ -184,7 +166,6 @@ CellComponent.Prototype = function() {
       this.extendProps({ node: node });
     }
     this.extendState({ edit: true });
-    this.initializeSelection();
     this.send('activateCell', this);
   };
 
@@ -198,13 +179,9 @@ CellComponent.Prototype = function() {
     return this.state.edit;
   };
 
-  /**
-    Selects the full source text
-  */
-  this.initializeSelection = function() {
-    var editor = this.refs.editor;
-    if (editor) {
-      editor.selectAll();
+  this.getCellEditorContent = function() {
+    if (this.refs.editor) {
+      return this.refs.editor.getContent();
     }
   };
 
