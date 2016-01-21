@@ -304,12 +304,13 @@ class Sheet : public Component {
          *
          * When parsing the source of a cell it may be detected to be a 
          *
-         *     1 - named expression (eg. `pi = 3.14`)
-         *     2 - expression       (eg. `= 22/7`)
-         *     n - number literal   (eg. `42`)
-         *     s - string literal   (eg. `"foo"`)
-         *     d - date literal     (eg. `23/12/1978`) [not currently implemented]
-         *     z - implicit string  (eg. `foo bar`)
+         *     '0' - empty source
+         *     '1' - named expression (eg. `pi = 3.14`)
+         *     '2' - expression       (eg. `= 22/7`)
+         *     'n' - number literal   (eg. `42`)
+         *     's' - string literal   (eg. `"foo"`)
+         *     'd' - date literal     (eg. `23/12/1978`) [not currently implemented]
+         *     'z' - implicit string  (eg. `foo bar`)
          *     
          * This allows for various optimisations and for the definition of alternative types of literal expression
          * that may not necessarily be valid in the host language e.g. $1,000,000. The host context can be asked
@@ -318,7 +319,7 @@ class Sheet : public Component {
          * More kinds, to deal with alternative literals, are likely to be added in the future.
          * It may be that the `statement` flag can also be incorporated into `kind`
          */
-        char kind = 0;
+        unsigned char kind = '0';
 
         /**
          * Expression of this cell
@@ -531,7 +532,7 @@ class Sheet : public Component {
      * @param cells Map of cell IDs and their sources
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::map<std::string, std::array<std::string, 2>> update(const std::map<std::string,std::string>& cells);
+    std::map<std::string, std::array<std::string, 3>> update(const std::map<std::string,std::string>& cells);
 
     /**
      * Update a single cell with new source
@@ -540,7 +541,7 @@ class Sheet : public Component {
      * @param  source Cell source
      * @return         New value of the cell
      */
-    std::map<std::string, std::array<std::string, 2>> update(const std::string& id, const std::string& source);
+    std::map<std::string, std::array<std::string, 3>> update(const std::string& id, const std::string& source);
 
     /**
      * Update all cells in this sheet

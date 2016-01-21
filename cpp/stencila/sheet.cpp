@@ -111,7 +111,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
             auto iter = cells_.find(id);
             if (iter != cells_.end()) {
                 auto& cell = iter->second;
-                if (cell.kind) td.attr("data-kind", std::string(1,cell.kind));
+                if (cell.kind) td.attr("data-kind", std::string(1, cell.kind));
                 if (cell.expression.length()) td.attr("data-expr", cell.expression);
                 if (cell.name.length()) td.attr("data-name", cell.name);
                 if (cell.type.length()) td.attr("data-type", cell.type);
@@ -470,8 +470,9 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         for (auto update : updates) {
             Json::Document cell = Json::Object();
             cell.append("id", update.first);
-            cell.append("type", update.second[0]);
-            cell.append("value", update.second[1]);
+            cell.append("kind", update.second[0]);
+            cell.append("type", update.second[1]);
+            cell.append("value", update.second[2]);
             response.append(cell);
         }
         return response.dump();
@@ -582,6 +583,7 @@ Sheet::Cell Sheet::parse(const std::string& source) {
 
         // `\s*` at ends allows for leading and trailing spaces or newlines
         // Commented quotes below are to stop SublimeText's string formatting on subsequent line
+        static const boost::regex blank_regex(R"(^\s*$)");
         static const boost::regex named_expression_regex(R"(^\s*([a-z]\w*) *= *(.+?)\s*$)");
         static const boost::regex expression_regex(R"(^\s*= *(.+?)\s*$)");
         static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
@@ -589,12 +591,15 @@ Sheet::Cell Sheet::parse(const std::string& source) {
         static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
 
         boost::smatch match;
-        if (boost::regex_match(source_clean, match, named_expression_regex)) {
-            cell.kind = 1;
+        if (boost::regex_match(source_clean, match, blank_regex)){
+            cell.kind = '0';
+        }
+        else if (boost::regex_match(source_clean, match, named_expression_regex)) {
+            cell.kind = '1';
             cell.name = match.str(1);
             cell.expression = match.str(2);
         } else if (boost::regex_match(source_clean, match, expression_regex)) {
-            cell.kind = 2;
+            cell.kind = '2';
             cell.expression = match.str(1);
         } else if (boost::regex_match(source_clean, match, number_regex)) {
             cell.kind = 'n';
@@ -615,20 +620,13 @@ Sheet& Sheet::source(const std::string& id, const std::string& source) {
     if (not is_id(id)) {
         STENCILA_THROW(Exception, "Not a valid cell identifier\n  id: "+id);
     }
-    if (source.length()) {
-        // Get or create the cell
-        Cell& cell = cells_[id];
-        // Set its attributes
-        if (source.length()) {
-            cell = parse(source);
-        }
-        // Create name mapping if necessary
-        if (cell.name.length()) {
-            names_[cell.name] = id;
-        }
-    } else {
-        // Clear the cell
-        clear(id);
+    // Get or create the cell
+    Cell& cell = cells_[id];
+    // Set its attributes
+    cell = parse(source);
+    // Create name mapping if necessary
+    if (cell.name.length()) {
+        names_[cell.name] = id;
     }
     return *this;
 }
@@ -639,7 +637,7 @@ std::string Sheet::source(const std::string& id) {
         const auto& cell = iter->second;
         if (cell.statement) {
             return "= " + cell.expression;
-        } else if (cell.kind > 9) {
+        } else if (cell.kind > '9') {
             return cell.expression;
         } else {
             if (cell.name.length()) {
@@ -729,7 +727,7 @@ std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
     return {type, value};
 }
 
-std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<std::string,std::string>& cells) {
+std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<std::string,std::string>& cells) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
 
     // Change to the sheet's directory
@@ -741,7 +739,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
-    std::map<std::string, std::array<std::string, 2>> updates;
+    std::map<std::string, std::array<std::string, 3>> updates;
     try {
         std::vector<std::string> source_update;
         if (cells.size()){
@@ -776,7 +774,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
-            if (not cell.statement and cell.expression.length()) {
+            if (cell.kind != '0' and not cell.statement and cell.expression.length()) {
                 auto spread_expr = translate(cell.expression);
                 // There may be a syntax error in the expression
                 // so capture those and set dependencies to none
@@ -800,6 +798,8 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                         }
                     }
                 }
+            } else {
+                cell.depends.clear();
             }
             // Create vertex, or clear edges for existing vertex, in the dependency graph
             Vertex vertex;
@@ -856,6 +856,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                 cell.type = result.substr(0, space);
                 cell.value = result.substr(space+1);
                 updates[id] = {
+                    std::string(1,cell.kind),
                     cell.type,
                     cell.value
                 };
@@ -878,7 +879,11 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                 auto iter = cells_.find(id);
                 if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
                 Cell& cell = iter->second;
-                if (not cell.statement and cell.expression.length()) {
+                if(cell.kind == '0'){
+                    // If the cell source was made blank then clear it 
+                    // so that any dependeant cells will return an error
+                    clear(id);
+                } else if (not cell.statement and cell.expression.length()) {
                     auto spread_expr = translate(cell.expression);
                     std::string type_value;
                     try {
@@ -890,6 +895,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
                     cell.type = type_value.substr(0,space);
                     cell.value = type_value.substr(space+1);
                     updates[id] = {
+                        std::string(1,cell.kind),
                         cell.type,
                         cell.value
                     };
@@ -908,7 +914,7 @@ std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::map<s
     return updates;
 }
 
-std::map<std::string, std::array<std::string, 2>> Sheet::update(const std::string& id, const std::string& source) {
+std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::string& id, const std::string& source) {
     return update({{id,source}});
 }
 
