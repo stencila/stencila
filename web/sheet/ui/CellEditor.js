@@ -1,6 +1,7 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
+var $$ = Component.$$;
 
 /*
   The CellEditor is different to a regular TextPropertyEditor
@@ -13,6 +14,54 @@ function CellEditor() {
 
 CellEditor.Prototype = function() {
 
+  this.render = function() {
+    var el = $$('textarea')
+      .text(this.props.content)
+      .on('keydown', this.onKeydown)
+      .on('keypress', this.onKeypress);
+    return el;
+  };
+
+  this.didMount = function() {
+    this.el.selectionStart = 0;
+    this.el.selectionEnd = this.props.content.length;
+    this.$el.focus();
+  };
+
+  this.getContent = function() {
+    return this.el.value;
+  };
+
+  this.onKeydown = function(event) {
+    console.log('CellEditor.onKeydown()', 'keyCode=', event.keyCode, event);
+    var handled = false;
+    // ENTER
+    if (event.keyCode === 13) {
+      if (!event.ctrlKey && !event.shiftKey) {
+        this.send('commitCellChange', this.el.value, 'enter');
+        handled = true;
+      }
+    } else if (event.keyCode === 27) {
+      this.send('discardCellChange');
+      handled = true;
+    }
+    if (handled) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+
+  this.onKeypress = function(event) {
+    console.log('CellEditor.onKeypress()', 'keyCode=', event.keyCode);
+    var handled = false;
+    if (handled) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+
 };
+
+Component.extend(CellEditor);
 
 module.exports = CellEditor;
