@@ -25,10 +25,11 @@ CellEditor.Prototype = function() {
   this.didMount = function() {
     this.el.selectionStart = 0;
     this.el.selectionEnd = this.props.content.length;
+    this.$el.focus();
   };
 
   this.getContent = function() {
-    return this.el.textContent;
+    return this.el.value;
   };
 
   this.onKeydown = function(event) {
@@ -37,12 +38,10 @@ CellEditor.Prototype = function() {
     // ENTER
     if (event.keyCode === 13) {
       if (!event.ctrlKey && !event.shiftKey) {
-        console.log('TODO: commit cell change.');
-        this.send('commitCellChange', this.el.textContent, 'enter');
+        this.send('commitCellChange', this.el.value, 'enter');
         handled = true;
       }
     } else if (event.keyCode === 27) {
-      console.log('TODO: discard cell change.');
       this.send('discardCellChange');
       handled = true;
     }

@@ -16,12 +16,19 @@ ObjectComponent.Prototype = function() {
     var el = $$('div').addClass('sc-cell-content sc-object');
     el.addClass(node.displayMode);
 
-    // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: node}));
+    var isPrimitiveType = ['string', 'int', 'real'].indexOf(node.valueType)>=0;
 
-    if (node.displayMode != 'clipped') {
-      el.append($$('pre').text(node.value));
+    if (isPrimitiveType) {
+      el.text(node.value);
+    } else {
+      // Display cell teaser
+      el.append($$(CellTeaserComponent, {node: node}));
+
+      if (node.displayMode != 'clipped') {
+        el.append($$('pre').text(node.value));
+      }
     }
+
     return el;
   };
 };
