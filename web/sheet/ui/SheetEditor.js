@@ -196,7 +196,7 @@ SheetEditor.Prototype = function() {
     }
 
     if (handled) {
-      console.log('SheetEditor.onGlobalKeydown() handled event', event);
+      // console.log('SheetEditor.onGlobalKeydown() handled event', event);
       event.stopPropagation();
       event.preventDefault();
     }
