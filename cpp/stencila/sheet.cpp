@@ -286,11 +286,14 @@ Sheet& Sheet::read(const std::string& directory) {
     for (const auto& strings : sources) {
         unsigned int col = 0;
         for (const auto& string : strings) {
-            auto id = identify(row, col);
-            Cell& cell = cells_[id];
-            source(id, string);
-            cell.type = check(types, row, col);
-            cell.value = check(values, row, col);
+            // Ignore empty cells
+            if(string.length()){
+                auto id = identify(row, col);
+                Cell& cell = cells_[id];
+                source(id, string);
+                cell.type = check(types, row, col);
+                cell.value = check(values, row, col);
+            }
             col++;
         }
         row++;
@@ -870,8 +873,9 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
         // cell is hit, start recalculating subsequent cells
         bool calculate = false;
         for (auto id : order_) {
+            bool source_updated = std::find(source_update.begin(), source_update.end(), id) != source_update.end();
             if (not calculate) {
-                if (std::find(source_update.begin(), source_update.end(), id) != source_update.end()) {
+                if (source_updated) {
                     calculate = true;
                 }
             }
@@ -881,8 +885,12 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                 Cell& cell = iter->second;
                 if(cell.kind == '0'){
                     // If the cell source was made blank then clear it 
-                    // so that any dependeant cells will return an error
+                    // so that any dependant cells will return an error
                     clear(id);
+                } else if (not source_updated and cell.depends.size()==0) {
+                    // Don't need to do anything.
+                    // This is a temporary optimisation until dependency graph 
+                    // walking is implemented
                 } else if (not cell.statement and cell.expression.length()) {
                     auto spread_expr = translate(cell.expression);
                     std::string type_value;
