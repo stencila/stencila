@@ -375,17 +375,17 @@ SheetEditor.Prototype = function() {
     this.selection = new TableSelection(sel);
 
     // Reset
-    if (this.selectedCell) {
-      this.selectedCell.extendProps({
-        selected: false
-      });
-    }
-    if (this.selection.isCollapsed()) {
-      this.selectedCell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
-      this.selectedCell.extendProps({
-        selected: true
-      });
-    }
+    // if (this.selectedCell) {
+    //   this.selectedCell.extendProps({
+    //     selected: false
+    //   });
+    // }
+    // if (this.selection.isCollapsed()) {
+    //   this.selectedCell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
+    //   this.selectedCell.extendProps({
+    //     selected: true
+    //   });
+    // }
     this._rerenderSelection();
   };
 
@@ -404,6 +404,7 @@ SheetEditor.Prototype = function() {
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
       cell.toggleDisplayMode();
+      cell.rerender();
     }
     this._rerenderSelection();
   };
