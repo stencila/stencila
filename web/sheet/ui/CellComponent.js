@@ -6,10 +6,10 @@ var Component = require('substance/ui/Component');
 var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
 var Sheet = require('../model/Sheet');
-var Icon = require('substance/ui/FontAwesomeIcon');
 
 var TextContent = require('./TextComponent');
 var ObjectComponent = require('./ObjectComponent');
+var SnippetComponent = require('./SnippetComponent');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -30,9 +30,6 @@ CellComponent.Prototype = function() {
     this._disconnect();
   };
 
-  this._toggleDisplayMode = function(e) {
-    console.log('toggle displaymode');
-  };
 
   this.render = function() {
     var cell = this.props.node;
@@ -52,23 +49,28 @@ CellComponent.Prototype = function() {
 
       // Mark as selected
       if (this.props.selected) {
-        el.addClass('selected');
-        var icon;
-        
-        console.log('cell.displayMode', cell.displayMode);
 
-        if (cell.displayMode === 'clipped') {
-          icon = 'fa-expand';
-        } else if (cell.displayMode === 'expanded') {
-          icon = ' fa-dot-circle-o';
-        } else {
-          icon = 'fa-compress';
-        }
-        el.append(
-          $$('div').addClass('se-display-mode-toggle').append(
-            $$(Icon, {icon: icon})
-          ).on('mousdown', this._toggleDisplayMode)
-        );
+        el.append($$(SnippetComponent, {
+          snippet: require('../testSnippet')
+        }));
+
+        // el.addClass('selected');
+        // var icon;
+        
+        // console.log('cell.displayMode', cell.displayMode);
+
+        // if (cell.displayMode === 'clipped') {
+        //   icon = 'fa-expand';
+        // } else if (cell.displayMode === 'expanded') {
+        //   icon = ' fa-dot-circle-o';
+        // } else {
+        //   icon = 'fa-compress';
+        // }
+        // el.append(
+        //   $$('div').addClass('se-display-mode-toggle').append(
+        //     $$(Icon, {icon: icon})
+        //   ).on('mousdown', this._toggleDisplayMode)
+        // );
       }
 
       el.addClass(cell.valueType);
