@@ -1,0 +1,107 @@
+swagger: '2.0'
+  
+info:
+  title: Stencila Snippets Web API
+  version: 0.0
+  description: |
+    This is a part of the Stencila Web API at https://stenci.la/api 
+    that deals with snippets. It's here mainly to provide the `Snippet`
+    schema definition below against which snippets can be authored.
+    For the full set of paths associated with snippets see https://stenci.la/api.
+  
+paths:
+  
+definitions:
+  
+    Snippet:
+      description: Specification of a snippet
+      type: object
+      properties:
+        name:
+          description: Name of snippet
+          type: string
+          required: true
+        summary:
+          description: A short summary of the snippet
+          type: string
+          required: true
+        notes:
+          description: List of notes
+          type: array
+          items: 
+            type: string
+        examples:
+          description: List of other examples
+          type: array
+          items: 
+            type: string
+        see:
+          description: List of other related snippets
+          type: array
+          items: 
+            type: string
+        languages:
+          description: List of languages that this sippet can be used in
+          required: true
+          type: array
+          items: 
+            type: string
+        parameters:
+          description: List of parameters for this snippet
+          required: true
+          type: array
+          items:
+            schema:
+              type: object
+              properties:
+                required:
+                  description: Is the parameter required?
+                  type: bool
+                shape:
+                  description: |
+                    Permissible shape for the sheet cells used as arguments to this parameter.
+                    Valid values include `one` (a single cell e.g. `A1` or a literal value e.g. `428`),
+                    `list` (a list of cell IDs e.g. `A1:A5&G4`), `block` (a contiguous range of cells e.g. `A1:G10`).
+                    or a pipe (`|`) delimited list of those (e.g. `one|list`).
+                  type: string
+        code:
+          description: |
+            List of code generation specifications.
+            These specifications are what is used to actually generate the code snippet given
+            the parameters suppled by the user. We allow for multiple types of code generation
+            ranging from simple one line function calls to more complicated multi-line code.
+          required: true
+          type: array
+          items:
+            schema:
+              description: Each object should only have one of `call`, `subs`, `expr` or `func`
+              type: object
+              properties:
+                language:
+                  description: A pipe separated list of the languages this code can be used in
+                  type: string
+                call:
+                  description: |
+                    The name of a function to generate a simple call given the 
+                    parameters supplied i.e. name(par1,par2). 
+                    Example `sum`
+                  type: string
+                subs:
+                  description: |
+                    A "substitution" string with `${0}` like placeholders for parameters
+                    Example `sum(${0})`
+                  type: string
+                subs:
+                  description: |
+                    A javascript expression to be `eval`ed with pars in the scope.
+                    Example `'sum(' + pars[0] + ')'`
+                  type: string
+                subs:
+                  description: |
+                    A javascript function that takes `pars` as an argument.
+                    Example `function(pars){ return 'sum(' + par[0] + ')'; }`
+                    Will usually be used when it is neceesary to do more complicated
+                    generation of snippets based on the parameters (e.g. if they have been specified
+                    and what shape they are)
+                  type: string            
+          

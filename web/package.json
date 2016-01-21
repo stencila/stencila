@@ -34,6 +34,7 @@
     "babelify": "^6.3.0",
     "browserify": "substance/node-browserify#d3caeb6dcdaa97a258d099c7231a57f0f60ec876",
     "express-http-proxy": "^0.6.0",
+    "glob": "^6.0.4",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.0",
     "gulp-jasmine": "^2.1.0",

@@ -1,0 +1,45 @@
+{
+	"name": "sum",
+	"summary": "Returns the sum of values",
+	"notes": [
+		"If only a single number for `values` is supplied, `sum` returns `values`"
+	],
+	"examples": [
+		"sum(A1)",
+		"sum(A1:A10)",
+		"sum(A1:G10)"
+	],
+	"see": [
+		"sumsq",
+		"sumif",
+		"product"
+	],
+	"languages": [
+		"r",
+		"py"
+	],
+	"parameters": {
+		"values": {
+			"shape": "any",
+			"required": true
+		} 
+	},
+	"code": [
+		{
+			"language": "r",
+			"call": "sum"
+		},
+		{
+			"language": "r",
+			"subs": "sum(${0})"
+		},
+		{
+			"language": "jl",
+			"expr": "'sum(' + pars[0] + ')'"
+		},
+		{
+			"language": "hs",
+			"func": "function(pars){ return 'sum(' + par[0] + ')'; }"
+		}
+	]
+}

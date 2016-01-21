@@ -20,6 +20,9 @@ var url = require('url');
 var path = require('path');
 var sass = require('node-sass');
 var browserify = require("browserify");
+var fs = require('fs');
+var glob = require('glob');
+
 
 var handleBrowserifyError = function(err, res) {
   console.error(err.message);
@@ -27,7 +30,7 @@ var handleBrowserifyError = function(err, res) {
   //res.send('console.log("Browserify error '+err.message+'");');
 };
 
-var handleSassError = function(err, res) {
+var handleError = function(err, res) {
   console.error(err);
   res.status(400).json(err);
 };
@@ -51,6 +54,35 @@ app.get('/', function(req, res){
 // Example components
 app.use('/examples', express.static(path.join(__dirname, "examples")));
 
+// Snippets
+// Mimic the API at https://stenci.la
+// Snippets with id are read from local files
+app.get('/snippets/:id',  function (req, res, next) {
+  var dir = path.join(__dirname, '..', 'snippets', 'snippets');
+  var file_pattern = dir + '/'+req.params.id+'-*.json';
+  glob(file_pattern, function(err, files) {
+    if (files.length==0) return handleError('File not found: '+file_pattern, res);
+    var file = files[0];
+    fs.readFile(file, 'utf8', function (err, data) {
+      if (err) return handleError(err, res);
+      res.set('Content-Type', 'application/json');
+      res.send(data);
+    });
+  });
+});
+// A list of snippets
+app.get('/snippets',  function (req, res, next) {
+  res.set('Content-Type', 'application/json');
+  var json = JSON.stringify([
+      {
+        'id': 1,
+        'name': 'sum',
+        'summary': 'The sum of values'
+      }
+  ]);
+  res.send(json);
+});
+
 // Javascript
 app.get('/get/web/:type.min.js', function (req, res, next) {
   browserify({ debug: true, cache: false })
@@ -65,7 +97,7 @@ app.get('/get/web/:type.min.js', function (req, res, next) {
 // CSS
 app.get('/get/web/:type.min.css', function(req, res) {
   renderSass(req.params.type,function(err, result) {
-    if (err) return handleSassError(err, res);
+    if (err) return handleError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.css);
   });
@@ -74,7 +106,7 @@ app.get('/get/web/:type.min.css', function(req, res) {
 // CSS map
 app.get('/get/web/:type.min.css.map', function(req, res) {
   renderSass(req.params.type,function(err, result) {
-    if (err) return handleSassError(err, res);
+    if (err) return handleError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.map);
   });
