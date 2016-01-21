@@ -142,6 +142,7 @@ void Server::http_(connection_hdl hdl) {
 	std::string remote = connection->get_remote_endpoint();
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
+	std::string error;
 	std::string content;
 	std::string content_type = "text/plain";
 	try {
@@ -173,6 +174,7 @@ void Server::http_(connection_hdl hdl) {
 			}
 			catch (const Component::RequestInvalidException& e){
 				status = http::status_code::bad_request;
+				error = "session:bad-request";
 				content = "Bad request\n  method: "+method+"\n  verb: "+verb;
 			}
 		}
@@ -182,12 +184,14 @@ void Server::http_(connection_hdl hdl) {
 			if(filesystem_path.length()==0){
 				// 404: not found
 				status = http::status_code::not_found;
+				error = "session:unavailable";
 				content = "Not found\n path: "+path;
 			} else {
 				// Check to see if this is a directory
 				if(boost::filesystem::is_directory(filesystem_path)){
 					// 403: forbidden
 					status = http::status_code::forbidden;
+					error = "session:unauthorized";
 					content = "Directory access is forbidden\n  path: "+filesystem_path;		
 				}
 				else {
@@ -195,6 +199,7 @@ void Server::http_(connection_hdl hdl) {
 					if(not file.good()){
 						// 500 : internal server error
 						status = http::status_code::internal_server_error;
+						error = "session:internal";
 						content = "File error\n  path: "+filesystem_path;
 					} else {
 						// Read file into content string
@@ -248,15 +253,18 @@ void Server::http_(connection_hdl hdl) {
 		}
 		else {
 			status = http::status_code::bad_request;
+			error = "session:bad-request";
 			content = "Unhandled request: "+verb+" "+path;
 		}
 	}
 	catch(const std::exception& e){
 		status = http::status_code::internal_server_error;
+		error = "session:internal";
 		content = std::string(e.what());
 	}
 	catch(...){
 		status = http::status_code::internal_server_error;
+		error = "session:internal";
 		content = "Unknown exception";			
 	}
 	#if 0
@@ -267,6 +275,14 @@ void Server::http_(connection_hdl hdl) {
 		connection->append_header("Access-Control-Allow-Headers","Content-Type");
 		connection->append_header("Access-Control-Max-Age","1728000");
 	#endif
+	// If an error make content a JSON error object
+	if(error.length()){
+        Json::Document json = Json::Object();
+        json.append("error", error);
+        json.append("message", content);
+		content = json.dump();
+		content_type = "application/json";
+	}
 	// Replace the WebSocket++ "Server" header
 	connection->replace_header("Server","Stencila embedded");
 	// Set status and content
