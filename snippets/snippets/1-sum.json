@@ -18,28 +18,28 @@
 		"r",
 		"py"
 	],
-	"parameters": {
-		"values": {
-			"shape": "any",
-			"required": true
+	"parameters": [
+		{
+			"name": "values",
+			"description": "Number or cell or range of cells to sum up"
 		} 
-	},
+	],
 	"code": [
 		{
 			"language": "r",
 			"call": "sum"
 		},
 		{
-			"language": "r",
+			"language": "py",
 			"subs": "sum(${0})"
 		},
 		{
 			"language": "jl",
-			"expr": "'sum(' + pars[0] + ')'"
+			"expr": "'sum(' + exprs[0] + ')'"
 		},
 		{
 			"language": "hs",
-			"func": "function(pars){ return 'sum(' + par[0] + ')'; }"
+			"func": "function(pars){ return 'sum(' + pars[0].expr + ')'; }"
 		}
 	]
 }
