@@ -9,7 +9,6 @@ var CellEditor = require('./CellEditor');
 
 var TextContent = require('./TextComponent');
 var ObjectComponent = require('./ObjectComponent');
-var SnippetComponent = require('./SnippetComponent');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -45,14 +44,7 @@ CellComponent.Prototype = function() {
     }
 
     if (cell) {
-
       // Mark as selected
-      if (this.props.selected) {
-        el.append($$(SnippetComponent, {
-          snippet: require('../testSnippet')
-        }));
-      }
-
       el.addClass(cell.valueType);
       if (isEditing) {
         el.append($$(CellEditor, {
