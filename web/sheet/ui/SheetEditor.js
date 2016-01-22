@@ -16,8 +16,6 @@ function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
 
   this.handleActions({
-    'selectCell': this.selectCell,
-    'activateCell': this.activateCell,
     'commitCellChange': this.commitCellChange,
     'discardCellChange': this.discardCellChange,
   });
@@ -155,8 +153,9 @@ SheetEditor.Prototype = function() {
 
   this.setSelection = function(sel) {
     if (this.activeCell) {
-      this.activeCell.commit();
+      var cell = this.activeCell;
       this.activeCell = null;
+      cell.commit();
       this.removeClass('sm-edit');
     }
     this.selection = new TableSelection(sel);
@@ -169,13 +168,6 @@ SheetEditor.Prototype = function() {
   this.selectCell = function(cell) {
     this._ensureActiveCellIsCommited(cell);
     this.removeClass('sm-edit');
-    this._rerenderSelection();
-  };
-
-  this.activateCell = function(cell) {
-    this._ensureActiveCellIsCommited(cell);
-    this.activeCell = cell;
-    this.addClass('sm-edit');
     this._rerenderSelection();
   };
 
@@ -490,7 +482,11 @@ SheetEditor.Prototype = function() {
     var col = sel.startCol;
     var cellComp = this._getCellComponentAt(row, col);
     if (cellComp) {
+      this._ensureActiveCellIsCommited(cellComp);
+      this.activeCell = cellComp;
+      this.addClass('sm-edit');
       cellComp.enableEditing(initialContent);
+      this._rerenderSelection();
     }
   };
 

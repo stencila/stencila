@@ -1,5 +1,6 @@
 'use strict';
 
+var isString = require('lodash/lang/isString');
 var oo = require('substance/util/oo');
 var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
@@ -9,9 +10,6 @@ var CellEditor = require('./CellEditor');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
-
-  // need to call this as willReceiveProps is only called when updating props
-  this._connect();
 }
 
 CellComponent.Prototype = function() {
@@ -29,7 +27,7 @@ CellComponent.Prototype = function() {
 
     if (isEditing) {
       var content;
-      if (this.state.hasOwnProperty('initialContent')) {
+      if (isString(this.state.initialContent)) {
         content = this.state.initialContent;
       } else if (cell) {
         content = cell.content;
@@ -107,8 +105,10 @@ CellComponent.Prototype = function() {
     Ad-hoc creates a node when editing is enabled for an empty cell
   */
   this.enableEditing = function(initialContent) {
-    this.extendState({ edit: true, initialContent: initialContent });
-    this.send('activateCell', this);
+    this.extendState({
+      edit: true,
+      initialContent: initialContent
+    });
   };
 
   this.commit = function() {
@@ -160,14 +160,6 @@ CellComponent.Prototype = function() {
     e.stopPropagation();
     this.enableEditing();
   };
-
-  // this.onClick = function(e) {
-  //   if (!this.isEditing()) {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     this.send('selectCell', this);
-  //   }
-  // };
 
   this._connect = function() {
     var doc = this.getDocument();
