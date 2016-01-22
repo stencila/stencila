@@ -1,7 +1,7 @@
 'use strict';
 
 var oo = require('substance/util/oo');
-var _ = require('substance/util/helpers');
+var extend = require('lodash/object/extend');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var TextProperty = require('substance/ui/TextPropertyComponent');
@@ -14,7 +14,7 @@ function StencilExecComponent() {
 }
 
 StencilExecComponent.Prototype = function() {
-  _.extend(this, StencilSourceComponent.prototype);
+  extend(this, StencilSourceComponent.prototype);
 
   this.getClassNames = function() {
     return "stencil-exec";
@@ -53,7 +53,7 @@ StencilExecComponent.Prototype = function() {
         .ref('source')
       );
     }
-    
+
     if (this.props.node.error) {
       el.addClass('sm-error');
     }

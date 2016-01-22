@@ -39,7 +39,6 @@ SheetHTMLImporter.Prototype = function() {
           var cell = this.convertElement(cellEl);
           cell.row = i;
           cell.col = j-1;
-          cell.cid = Sheet.static.getCellId(cell.row, cell.col);
         }
       }
     }

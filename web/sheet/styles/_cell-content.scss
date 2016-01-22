@@ -1,0 +1,8 @@
+.sc-cell-content {
+	position: relative;
+	&.overlay {
+		background: #fff;
+		position: absolute;
+		z-index: 2;
+	}
+}

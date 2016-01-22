@@ -3,10 +3,12 @@
 var oo = require('substance/util/oo');
 var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
-var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 var $$ = Component.$$;
-
 var Sheet = require('../model/Sheet');
+var CellEditor = require('./CellEditor');
+
+var TextContent = require('./TextComponent');
+var ObjectComponent = require('./ObjectComponent');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -14,80 +16,63 @@ function CellComponent() {
 
 CellComponent.Prototype = function() {
 
+  this.willReceiveProps = function(newProps) {
+    var doc = this.getDocument();
+    this._disconnect();
+    if (newProps.node) {
+      doc.getEventProxy('path').connect(this, [newProps.node.id, 'content'], this.rerender);
+      doc.getEventProxy('path').connect(this, [newProps.node.id, 'displayMode'], this.rerender);
+    }
+  };
+
+  this.dispose = function() {
+    this._disconnect();
+  };
+
+
   this.render = function() {
-    var node = this.props.node;
-    var el = $$('td');
+    var cell = this.props.node;
+    var componentRegistry = this.context.componentRegistry;
+    var el = $$('td').addClass('se-cell');
+
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'edit' : 'display');
 
-    if (this.state.selected) {
-      el.addClass('selected');
-    }
-
     if (!isEditing) {
       el.on('dblclick', this.onDblClick);
-      el.on('click', this.onClick);
+      // el.on('click', this.onClick);
     }
 
-    if (node) {
-      el.addClass(node.tipe);
+    if (cell) {
+      // Mark as selected
+      el.addClass(cell.valueType);
       if (isEditing) {
-        var editor = $$(TextPropertyEditor, {
-          name: node.id,
-          path: [node.id, 'source'],
-          commands: []
-        }).ref('editor');
-        el.append(editor);
+        el.append($$(CellEditor, {
+          content: cell.content
+        }).ref('editor'));
       } else {
-        var name = node.name;
-        if (name) {
-          el.append(
-            $$('span')
-              .addClass('name')
-              .text(name)
-          );
+        // Render Cell content
+        var CellContentClass;
+        if (cell.isPrimitive()) {
+          CellContentClass = TextContent;
+        } else if (cell.valueType) {
+          CellContentClass = componentRegistry.get(cell.valueType);
         }
-
-        var type = node.tipe;
-        if (type=="integer" || type=="real" || type=="string"){
-          el.text(node.value);
-        } else if (type=="ImageFile"){
-          if (!this.state.preview) {
-            el
-              .addClass('object')
-              .append(
-                $$('span')
-                  .addClass('type')
-                  .text('image')
-              );
-          } else {
-            el.append(
-              $$('img')
-                .attr('src', node.value)
-            );
-          }
-
-        } else {
-          el
-            .addClass('object')
-            .append(
-              $$('span')
-                .addClass('type')
-                .text(node.tipe)
-            );
-
-          if (this.state.preview) {
-            el.addClass('preview');
-            el.append(
-              $$('pre').text(node.value)
-            );
-          }
+        if (!CellContentClass) {
+          CellContentClass = ObjectComponent;
         }
+        var cellContent = $$(CellContentClass, {
+          // HACK: having trouble with preservative rerendering
+          // when Components are use with the same props
+          // this hack forces a rerender
+          hack: Date.now(),
+          node: cell
+        });
+        el.append(cellContent);
       }
     } else {
       el.addClass('empty');
     }
-
     return el;
   };
 
@@ -103,18 +88,45 @@ CellComponent.Prototype = function() {
     return this.context.documentSession;
   };
 
-  this.togglePreview = function() {
-    this.extendState({
-      preview: !this.state.preview
-    });
+  /**
+    There are 3 differnt display modes for cells
+
+    clipped: uses minimal space
+    expanded: displays all content available
+    overlay: displays all content available
+  */
+  this.toggleDisplayMode = function() {
+    var node = this.props.node;
+    // empty cells do not have a node
+    if (!node) return;
+
+    var currentMode = node.displayMode;
+    var nextMode;
+    var docSession = this.getDocumentSession();
+
+    if (!currentMode || currentMode === 'overlay') {
+      nextMode = 'clipped';
+    } else if (currentMode === 'expanded') {
+      nextMode = 'overlay';
+    } else {
+      nextMode = 'expanded';
+    }
+
+    docSession.transaction(function(tx) {
+      tx.set([node.id, 'displayMode'], nextMode);
+    }.bind(this));
   };
 
+  /**
+    Ad-hoc creates a node when editing is enabled for an empty cell
+  */
   this.enableEditing = function() {
     if (!this.props.node) {
       var docSession = this.getDocumentSession();
       var doc = this.getDocument();
-      var row = new Number(this.attr('data-row'));
-      var col = new Number(this.attr('data-col'));
+      var row = parseInt(this.attr('data-row'), 10);
+      var col = parseInt(this.attr('data-col'), 10);
+
       var node = {
         type: "sheet-cell",
         id: uuid(),
@@ -129,8 +141,7 @@ CellComponent.Prototype = function() {
       this.extendProps({ node: node });
     }
     this.extendState({ edit: true });
-    this.initializeSelection();
-    this.send('activatedCell', this);
+    this.send('activateCell', this);
   };
 
   this.disableEditing = function() {
@@ -143,10 +154,9 @@ CellComponent.Prototype = function() {
     return this.state.edit;
   };
 
-  this.initializeSelection = function() {
-    var editor = this.refs.editor;
-    if (editor) {
-      editor.selectAll();
+  this.getCellEditorContent = function() {
+    if (this.refs.editor) {
+      return this.refs.editor.getContent();
     }
   };
 
@@ -156,11 +166,18 @@ CellComponent.Prototype = function() {
     this.enableEditing();
   };
 
-  this.onClick = function(e) {
-    if (!this.isEditing()) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.send('selectedCell', this);
+  // this.onClick = function(e) {
+  //   if (!this.isEditing()) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     this.send('selectCell', this);
+  //   }
+  // };
+
+  this._disconnect = function() {
+    var doc = this.getDocument();
+    if (this.props.node) {
+      doc.getEventProxy('path').disconnect(this);
     }
   };
 

@@ -15,7 +15,6 @@ SheetComponent.Prototype = function() {
   this.render = function() {
     // TODO this code is almost identical to the exporter
     // we should try to share the code
-
     var doc = this.props.doc;
     var tableData = doc.getTableData('all');
     // always render a certain
@@ -24,24 +23,23 @@ SheetComponent.Prototype = function() {
     var nrows = Math.max(100, tableData.rows);
     var table = $$('table')
       .addClass("sc-sheet");
-
     var i,j;
 
     // create header row
     var thead = $$('thead');
-    var headerRow = $$('tr');
-    headerRow.append($$('th'));
+    var headerRow = $$('tr').addClass('se-row');
+    headerRow.append($$('th').addClass('se-cell'));
     for (j = 0; j < ncols; j++) {
-      headerRow.append($$('th').text(Sheet.static.getColumnName(j)));
+      headerRow.append($$('th').text(Sheet.static.getColumnName(j)).addClass('se-cell'));
     }
     thead.append(headerRow);
     table.append(thead);
 
     var tbody = $$('tbody').ref('body');
     for (i = 0; i < nrows; i++) {
-      var rowEl = $$('tr').attr('data-row', i);
+      var rowEl = $$('tr').attr('data-row', i).addClass('se-row');
       // first column is header
-      rowEl.append($$('th').text(i+1));
+      rowEl.append($$('th').text(i+1).addClass('se-cell'));
       // render all cells
       for (j = 0; j < ncols; j++) {
         var cell = tableData.cells[[i,j]];
@@ -61,10 +59,11 @@ SheetComponent.Prototype = function() {
     var rows = this.refs.body.children;
     // FIXME: due to lack of API in DOMElement
     // we are using the native API here
-    var minRow = Math.min(sel[0], sel[2]);
-    var maxRow = Math.max(sel[0], sel[2]);
-    var minCol = Math.min(sel[1], sel[3]);
-    var maxCol = Math.max(sel[1], sel[3]);
+    var minRow = Math.min(sel.startRow, sel.endRow);
+    var maxRow = Math.max(sel.startRow, sel.endRow);
+    var minCol = Math.min(sel.startCol, sel.endCol);
+    var maxCol = Math.max(sel.startCol, sel.endCol);
+    
     var firstEl = rows[minRow].el.childNodes[minCol+1];
     var lastEl = rows[maxRow].el.childNodes[maxCol+1];
     // debugger;

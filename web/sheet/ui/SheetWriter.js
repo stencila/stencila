@@ -6,45 +6,42 @@ var ScrollPane = require('substance/ui/ScrollPane');
 var Toolbar = require('substance/ui/Toolbar');
 var Component = require('substance/ui/Component');
 
-var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
-var SaveTool = require('substance/ui/SaveTool');
 var StrongTool = require('substance/packages/strong/StrongTool');
-var SubscriptTool = require('substance/packages/subscript/SubscriptTool');
-var SuperscriptTool = require('substance/packages/superscript/SuperscriptTool');
 var CodeTool = require('substance/packages/code/CodeTool');
 var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var Icon = require('substance/ui/FontAwesomeIcon');
 var LinkTool = require('substance/packages/link/LinkTool');
-
+var SaveTool = require('./SaveTool');
 var SheetEditor = require('./SheetEditor');
+var Sheet = require('../model/Sheet');
 
-var $$ = Component.$$;
 
 var CONFIG = {
   controller: {
     commands: [
       require('substance/ui/UndoCommand'),
       require('substance/ui/RedoCommand'),
-      require('substance/ui/SaveCommand')
+      require('./SaveCommand')
     ],
     components: {
-    },
+      // Registry for different cell content types
+      'image': require('./ImageComponent'),
+      'object': require('./ObjectComponent')
+    }
   },
   main: {
     commands: [
       // Special commands
       require('substance/packages/embed/EmbedCommand'),
-
       require('substance/packages/strong/StrongCommand'),
       require('substance/packages/emphasis/EmphasisCommand'),
       require('substance/packages/link/LinkCommand'),
       require('substance/packages/subscript/SubscriptCommand'),
       require('substance/packages/superscript/SuperscriptCommand'),
-      require('substance/packages/code/CodeCommand'),
-
+      require('substance/packages/code/CodeCommand')
     ],
     textTypes: [
     ]
@@ -52,15 +49,30 @@ var CONFIG = {
   isEditable: true
 };
 
-function LensWriter(parent, params) {
+function SheetWriter(parent, params) {
   SheetController.call(this, parent, params);
+
+  this.handleActions({
+    'updateCell': this.updateCell
+  });
 }
 
-LensWriter.Prototype = function() {
+SheetWriter.Prototype = function() {
+
+  this.render = function() {
+    var el = $$('div').addClass('sc-sheet-controller sc-sheet-writer sc-controller').append(
+      this._renderMainSection()
+    );
+    if (this.state.error) {
+      // TODO: show error in overlay
+    }
+    return el;
+  };
+
+  this.didRender = function() {
+  };
 
   this._renderMainSection = function() {
-    // var config = this.getConfig();
-
     return $$('div').ref('main').addClass('se-main-section').append(
       $$(SplitPane, {splitType: 'horizontal'}).append(
         // Menu Pane on top
@@ -79,29 +91,55 @@ LensWriter.Prototype = function() {
         ),
         // Content Panel below
         $$(ScrollPane, {
-          // scrollbarType: 'substance',
           scrollbarPosition: 'left'
         }).ref('contentPanel').append(
-          // The full fledged document (ContainerEditor)
           $$('div').ref('main').addClass('document-content').append(
             $$(SheetEditor, {
               doc: this.props.doc
-            })
+            }).ref('sheetEditor')
           )
         )
       ).ref('mainSectionSplitPane')
     );
   };
 
-  this.render = function() {
-    return $$('div').addClass('sc-sheet-controller sc-sheet-writer sc-controller').append(
-      this._renderMainSection()
-    );
+  this.updateCell = function(cell, sheet) {
+    // Update the sheet with the new cell source
+    this.props.engine.update([{
+      "id" : cell.getCellId(),
+      "source" : cell.content
+    }], function(error, updates) {
+      if (error) {
+        this.extendState({
+          error: error
+        });
+        return;
+      }
+      if (!updates) {
+        console.error('FIXME: did not receive updates.');
+        return;
+      }
+      for(var index = 0; index < updates.length; index++) {
+        var update = updates[index];
+        var coords = Sheet.static.getRowCol(update.id);
+        var cellComponent = sheet.getCellAt(coords[0], coords[1]);
+        var cellNode = cellComponent.getNode();
+        if (cellNode) {
+          // FIXME: agree on a set of valueTypes
+          var valueType = Sheet.normalizeValueType(update.type);
+          if (cellNode.valueType !== valueType || cellNode.value !== update.value) {
+            cellNode.valueType = valueType;
+            cellNode.value = update.value;
+            cellComponent.rerender();
+          }
+        }
+      }
+    }.bind(this));
   };
 
 };
 
-SheetController.extend(LensWriter);
-LensWriter.static.config = CONFIG;
+SheetController.extend(SheetWriter);
+SheetWriter.static.config = CONFIG;
 
-module.exports = LensWriter;
+module.exports = SheetWriter;

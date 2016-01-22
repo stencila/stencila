@@ -1,0 +1,46 @@
+// Sheet Component
+
+.sc-sheet {
+  font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
+  font-size: 16px;
+
+  /* deactivate native selections */
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+
+  .se-cell {
+    min-width: 100px;
+    border: 1px solid #CCC;
+    text-align: center;
+    cursor: default;
+  }
+
+  th.se-cell {
+    background: #EEE;
+  }
+
+  td.se-cell {
+    text-align: right;
+  }
+
+  .se-row > .se-cell:first-child {
+    min-width: 3em;
+  }
+
+  .se-cell.edit {
+    position: relative;
+    text-align: left;
+    // deactivate native selections
+    -webkit-user-select: default;
+       -moz-user-select: default;
+        -ms-user-select: default;
+  }
+
+  .se-cell.edit.expression .sc-text-property {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    white-space: nowrap !important;
+  }
+}

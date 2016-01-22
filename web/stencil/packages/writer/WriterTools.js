@@ -1,3 +1,5 @@
+'use strict';
+
 var Toolbar = require('substance/ui/Toolbar');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;

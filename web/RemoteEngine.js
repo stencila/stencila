@@ -28,16 +28,15 @@ var RemoteEngine = function() {
   }
 
   this.active = false;
-
 };
 
 RemoteEngine.Prototype = function() {
-
-  this.activate = function() {
+  this.activate = function(cb) {
     if (!this.active) {
       this.request('PUT', 'activate', null, function(err, result) {
         if (err) { console.error(err); }
         else {
+          if (cb) cb(err, result);
           this.active = true;
           this.pingInterval = setInterval(function(){
             this.ping();

@@ -1,7 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
 
-
 // Substance styles
 // -----------------
 
@@ -11,8 +10,28 @@
 // -----------------
 // 
 // For production we should only require what's needed
+
 @import '../node_modules/substance/styles/components/_all';
 @import '../node_modules/substance/packages/_all';
+
+// Stencila Sheets specific components
+// -----------------
+// 
+
+@import './styles/_sheet';
+@import './styles/_cell';
+@import './styles/_cell-content';
+@import './styles/_image';
+@import './styles/_text';
+@import './styles/_object';
+@import './styles/_snippet';
+@import './styles/_cell-teaser';
+@import './styles/_save-tool';
+@import './styles/_sheet-editor';
+
+// Sheet Writer
+// -----------------
+// 
 
 .sc-sheet-writer {
   position: absolute;
@@ -22,87 +41,11 @@
   bottom: 0px;
 }
 
-// Basic sheet styling
+// Static content (before app SheetWriter has launched)
 // -----------------
 // 
-// We should implement the reader in Substance Component style
 
-table {
-  font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
-  font-size: 16px;
-
-  /* deactivate native selections */
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-}
-
-td, th {
-  min-width: 5em;
-  padding: 0.1em 0.2em 0.1em 0.2em;
-  border: 1px solid #CCC;
-  text-align: center;
-}
-
-th {
-  background: #EEE;
-}
-
-td {
-  text-align: right;
-}
-
-tr>th:first-child {
-  min-width: 3rem;
-}
-
-td.display {
-  cursor: default;
-}
-
-td.display.ImageFile {
-  position: relative;
-  img {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    border: 1px solid #EEE;
-    z-index: 1;
-  }
-}
-
-td.display.object {
-  position: relative;
-  background: #F8F8F8;
-}
-
-td.edit {
-  position: relative;
-  text-align: left;
-  // deactivate native selections
-  -webkit-user-select: default;
-     -moz-user-select: default;
-      -ms-user-select: default;
-}
-
-td.edit.expression .sc-text-property {
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  white-space: nowrap !important;
-}
-
-.sc-sheet-editor {
-  position: relative;
-}
-
-.sc-sheet-editor .selection {
-  position: absolute;
-  pointer-events:none;
-  border: 2px solid blue;
-  z-index: 1;
-}
-
-.sc-sheet-editor.edit .selection {
-  display:none;
+// Don't display the source format
+main#content {
+  display: none;
 }

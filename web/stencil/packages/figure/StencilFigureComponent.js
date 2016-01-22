@@ -1,7 +1,7 @@
 'use strict';
 
 var oo = require('substance/util/oo');
-var _ = require('substance/util/helpers');
+var extend = require('lodash/object/extend');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var Icon = require('substance/ui/FontAwesomeIcon');
@@ -14,7 +14,7 @@ function StencilFigureComponent() {
 }
 
 StencilFigureComponent.Prototype = function() {
-  _.extend(this, StencilSourceComponent.prototype);
+  extend(this, StencilSourceComponent.prototype);
 
   this.render = function() {
     var el = $$('div')
@@ -31,7 +31,7 @@ StencilFigureComponent.Prototype = function() {
             .append('Figure '+this.props.node.index)
             .ref('label'),
           /*
-          FIXME: 
+          FIXME:
           This is causing the error "Property already registered."
           when the stencil is rendered. The following non-editable
           span is a temporary replacement

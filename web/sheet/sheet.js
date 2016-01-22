@@ -1,64 +1,80 @@
 'use strict';
 
-var oo = require('substance/util/oo');
 var Component = require('substance/ui/Component');
-var $$ = Component.$$;
 var $ = window.$ = require('substance/util/jquery');
-
-// var SheetEditor = require('./ui/SheetEditor');
 var SheetWriter = require('./ui/SheetWriter');
-
 var SheetHTMLImporter = require('./model/SheetHTMLImporter');
+var SheetHTMLExporter = require('./model/SheetHTMLExporter');
 
-function App() {
-	Component.apply(this, arguments);
-}
+var SheetRemoteEngine = require('./engine/SheetRemoteEngine');
+var engine = new SheetRemoteEngine();
 
-App.Prototype = function() {
-
-  this.getInitialState = function() {
-    return { mode: "initial" };
-  };
-
-  this.render = function() {
-    var el = $$('div').addClass('app');
-    if (this.state.mode === "initial") {
-      el.html(this.props.html);
-    } else {
-      el.append($$(SheetWriter, {
-        doc: this.state.doc
-      }));
-    }
-    return el;
-  };
-
-  this.didMount = function() {
-    if (!this.state.doc) {
-      // we are doing this, so that we do not run into problems
-      // such as infinite loops during window.onload()
-      setTimeout(function() {
-        var importer = new SheetHTMLImporter();
-        var doc = importer.importDocument(this.props.html);
-        console.log('Imported sheet...');
-        this.extendState({
-          mode: 'writer',
-          doc: doc
-        });
-      }.bind(this));
-    }
-  };
-
-};
-
-oo.inherit(App, Component);
-
-window.Stencila = {};
-
-function launch() {
+function loadDocument() {
   var content = $('#content');
   var html = content.html() || '';
-  content.remove();
-  Component.mount(App, {"html":html}, document.body);
+  document.body.innerHTML = '';
+
+  var importer = new SheetHTMLImporter();
+  var doc = importer.importDocument(html);
+  // Expose doc for debugging in the console
+  window.doc = doc;
+  return doc;
+}
+
+function activateSession(cb) {
+  console.log('booting session');
+  engine.boot(function(err, res) {
+    console.log('boot.res', res);
+    cb();
+  });
+}
+
+// At some point this may run on the server
+function renderStaticReadonlyVersion(doc) {
+  var ghostEl = document.createElement('div');
+  Component.mount(SheetWriter, {
+    mode: 'read',
+    doc: doc
+  }, ghostEl);
+  document.body.innerHTML = ghostEl.innerHTML;
+}
+
+function renderInteractiveVersion(doc, mode) {
+  document.body.innerHTML = '';
+  Component.mount(SheetWriter, {
+    mode: mode,
+    doc: doc,
+    engine: engine,
+    onSave: function(doc, changes, cb) {
+      var exporter = new SheetHTMLExporter();
+      var html = exporter.exportDocument(doc);
+      engine.save(html);
+    }
+  }, document.body);
+}
+
+window.Stencila = {};
+window.isEditable = true;
+
+function launch() {
+  var doc = loadDocument();
+  if (window.isEditable) {
+    renderStaticReadonlyVersion(doc);
+    activateSession(function(err) {
+      if (err) throw new Error(err);
+      renderInteractiveVersion(doc, 'write');
+    });
+  } else {
+    renderInteractiveVersion(doc, 'read');
+  }
+}
+
+window.activate = function() {
+  engine.activate();
+}
+
+window.deactivate = function() {
+  engine.deactivate();
 }
 
 $(launch);

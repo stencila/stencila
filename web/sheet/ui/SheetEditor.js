@@ -1,28 +1,36 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var Controller = require('substance/ui/Controller');
 var SheetComponent = require('./SheetComponent');
+var TableSelection = require('../model/TableSelection');
 var $$ = Component.$$;
+var $ = require('substance/util/jquery');
 
-var Sheet = require('../model/Sheet');
-
-var SheetRemoteEngine = require('../engine/SheetRemoteEngine');
-var engine = new SheetRemoteEngine();
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
 
   this.handleActions({
-    'selectedCell': this.onSelectedCell,
-    'activatedCell': this.onActivatedCell,
+    'selectCell': this.selectCell,
+    'activateCell': this.activateCell,
+    'commitCellChange': this.commitCellChange,
+    'discardCellChange': this.discardCellChange,
   });
 
-  this.selection = [0,0,0,0];
+  // Shouldn't it be null rather?
+  this.selection = new TableSelection({
+    startRow: 0,
+    startCol: 0,
+    endRow: 0,
+    endCol: 0
+  });
+
   this.startCellEl = null;
   this.endCellEl = null;
 
-  this.onKeyDown = this.onKeyDown.bind(this);
+  // binding this, as these handlers are attached to global DOM elements
+  this.onGlobalKeydown = this.onGlobalKeydown.bind(this);
+  this.onGlobalKeypress = this.onGlobalKeypress.bind(this);
   this.onWindowResize = this.onWindowResize.bind(this);
 }
 
@@ -30,20 +38,6 @@ SheetEditor.Prototype = function() {
 
   this.render = function() {
     var el = $$('div').addClass('sc-sheet-editor');
-    // FIXME: hackish addition of buttons for testing
-    el.append(
-      $$('div').addClass('actions')
-        .append(
-          $$('a').text('Activate').on('click',function(){
-            engine.activate();
-          })
-        )
-        .append(
-          $$('a').text('Deactivate').on('click',function(){
-            engine.deactivate();
-          })
-        )
-    );
     el.append(
       $$(SheetComponent, { doc: this.props.doc }).ref('sheet')
     );
@@ -52,7 +46,6 @@ SheetEditor.Prototype = function() {
     );
     // react only to mousedowns on cells in display mode
     el.on('mousedown', 'td.display', this.onMouseDown);
-    el.on('keydown', this.onKeyDown);
     return el;
   };
 
@@ -60,48 +53,87 @@ SheetEditor.Prototype = function() {
     // ATTENTION: we need to override the hacky parent implementation
 
     // HACK: without contenteditables we don't receive keyboard events on this level
-    window.document.body.addEventListener('keydown', this.onKeyDown, false);
-    window.onresize = this.onWindowResize.bind(this);
+    window.document.body.addEventListener('keydown', this.onGlobalKeydown, false);
+    window.document.body.addEventListener('keypress', this.onGlobalKeypress, false);
+    window.addEventListener('resize', this.onWindowResize, false);
   };
 
   this.dispose = function() {
-    window.document.body.removeEventListener('keydown', this.onKeyDown, false);
+    window.document.body.removeEventListener('keydown', this.onGlobalKeydown);
+    window.document.body.removeEventListener('keypress', this.onGlobalKeypress);
+    window.removeEventListener('resize', this.onWindowResize);
   };
 
-  this.onSelectedCell = function(cell) {
-    if (this.activeCell && this.activeCell !== cell) {
-      this.activeCell.disableEditing();
-    }
-    var node = cell.getNode();
-    if (node) {
-      console.log('Show expression bar.');
-    }
-    this._rerenderSelection();
+  this.getSelection = function() {
+    return this.selection;
+  };
+
+  this.getDocumentSession = function() {
+    return this.context.documentSession;
+  };
+
+  this.getController = function() {
+    return this.context.controller;
+  };
+
+  // Action handlers
+
+  this.selectCell = function(cell) {
+    this._ensureActiveCellIsCommited(cell);
     this.removeClass('edit');
+    this._rerenderSelection();
   };
 
-  this.onActivatedCell = function(cell) {
-    if (this.activeCell && this.activeCell !== cell) {
-      this.activeCell.disableEditing();
-    }
+  this.activateCell = function(cell) {
+    this._ensureActiveCellIsCommited(cell);
     this.activeCell = cell;
-    this._rerenderSelection();
     this.addClass('edit');
+    this._rerenderSelection();
   };
+
+  this.commitCellChange = function(content, key) {
+    if (!this.activeCell) {
+      console.warn('FIXME: expected to have an active cell.');
+    } else {
+      var cell = this.activeCell;
+      this.activeCell = null;
+      this._commitCellContent(cell, content);
+      cell.disableEditing();
+    }
+    if (key === 'enter') {
+      this._selectNextCell(1, 0);
+    }
+    this.removeClass('edit');
+    this._rerenderSelection();
+  };
+
+  this.discardCellChange = function() {
+    var cell = this.activeCell;
+    this.activeCell = null;
+    cell.disableEditing();
+    this.removeClass('edit');
+    this._rerenderSelection();
+  };
+
+  // DOM event handlers
 
   this.onMouseDown = function(event) {
     this.isSelecting = true;
     this.$el.on('mouseenter', 'td', this.onMouseEnter.bind(this));
     this.$el.one('mouseup', this.onMouseUp.bind(this));
     this.startCellEl = event.target;
+    if (!this.startCellEl.getAttribute('data-col')) {
+      throw new Error('mousedown on a non-cell element');
+    }
     this.endCellEl = this.startCellEl;
     this._updateSelection();
   };
 
   this.onMouseEnter = function(event) {
     if (!this.isSelecting) return;
-    if (this.endCellEl !== event.target) {
-      this.endCellEl = event.target;
+    var endCellEl = this._getCellForDragTarget(event.target);
+    if (this.endCellEl !== endCellEl) {
+      this.endCellEl = endCellEl;
       this._updateSelection();
     }
   };
@@ -114,63 +146,17 @@ SheetEditor.Prototype = function() {
     this.endCellEl = null;
   };
 
-  this.onKeyDown = function(event) {
-    var isEditing = this._isEditing();
-    // console.log('####', event.keyCode);
+  /*
+    Will be bound to body element to receive events while not
+    editing a cell.
+    Note: these need to be done on keydown to prevent default browser
+    behavior.
+  */
+  this.onGlobalKeydown = function(event) {
+    // console.log('onGlobalKeydown()', 'keyCode=', event.keyCode);
     var handled = false;
-    // ESCAPE
-    if (event.keyCode === 27) {
-      if (this.activeCell) {
-        this.activeCell.disableEditing();
-        this.removeClass('edit');
-        this._rerenderSelection();
-      }
-      handled = true;
-    }
-    // ENTER
-    else if (event.keyCode === 13) {
-      if (this.activeCell) {
-        var cell = this.activeCell.props.node;
-        var sheet = this.refs.sheet;
-        // Parse the cell source into name and expression
-        var matches = cell.source.match(/^ *(([a-z]\w*) *= *)?(.+?)\s*$/);
-        if (matches) {
-          cell.name = matches[2];
-          cell.expr = matches[3];
-        }
-        // Update the sheet with the new cell source
-        engine.update([{
-          "id" : cell.cid,
-          "source" : cell.source
-        }], function(error, updates){
-          for(var index = 0; index < updates.length; index++){
-            var update = updates[index];
-            var coords = Sheet.static.getRowCol(update.id);
-            var cellComponent = sheet.getCellAt(coords[0], coords[1]);
-            var cellNode = cellComponent.getNode();
-            cellNode.tipe = update.type;
-            cellNode.value = update.value;
-            cellComponent.rerender();
-          }
-        });
-        this._selectNextCell(1, 0);
-      } else {
-        this._activateCurrentCell();
-      }
-      
-      handled = true;
-    }
-    // TAB
-    else if (event.keyCode === 9) {
-      if (event.shiftKey) {
-        this._selectNextCell(0, -1);
-      } else {
-        this._selectNextCell(0, 1);
-      }
-      handled = true;
-    }
-    // Some things are only handled if not editing, such as left right navigation
-    else if (!isEditing) {
+
+    if (!this._isEditing()) {
       // LEFT
       if (event.keyCode === 37) {
         if (event.shiftKey) {
@@ -207,27 +193,119 @@ SheetEditor.Prototype = function() {
         }
         handled = true;
       }
-      // SPACE
-      else if (event.keyCode === 32) {
-        this._togglePreviewCell();
+    }
+
+    if (handled) {
+      // console.log('SheetEditor.onGlobalKeydown() handled event', event);
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+
+  /*
+    Will be bound to body element to receive events while not
+    editing a cell.
+    Note: only 'keypress' allows us to detect key events which
+    would result in content changes.
+  */
+  this.onGlobalKeypress = function(event) {
+    // console.log('onGlobalKeypress()', 'keyCode=', event.keyCode);
+    var handled = false;
+
+    if (!this._isEditing()) {
+      // ENTER
+      if (event.keyCode === 13) {
+        if (this.getSelection().isCollapsed()) {
+          this._activateCurrentCell();
+        }
         handled = true;
       }
+      // SPACE
+      else if (event.keyCode === 32) {
+        if (this.getSelection().isCollapsed()) {
+          this._toggleDisplayMode();
+        }
+        handled = true;
+      }
+      // BACKSPACE | DELETE
+      else if (event.keyCode === 8 || event.keyCode === 46) {
+        this._deleteSelection();
+        handled = true;
+      }
+      // undo/redo
+      else if (event.keyCode === 90 && (event.metaKey||event.ctrlKey)) {
+        if (event.shiftKey) {
+          this.getController().executeCommand('redo');
+        } else {
+          this.getController().executeCommand('undo');
+        }
+        handled = true;
+      } else {
+        var character = String.fromCharCode(event.charCode);
+        if (character) {
+          console.log('TODO: overwrite cell content and activate cell editing.');
+          handled = true;
+        }
+      }
+
     }
+
     if (handled) {
       event.stopPropagation();
       event.preventDefault();
     }
   };
 
+  this.onWindowResize = function() {
+    this._rerenderSelection();
+  };
+
+  // private API
+
+  /**
+    Sometimes we get the content elements of a cell as a target
+    when we drag a selection. This method normalizes the target
+    and returns always the correct cell
+  */
+  this._getCellForDragTarget = function(target) {
+    var targetCell;
+    if ($(target).hasClass('se-cell')) {
+      targetCell = target;
+    } else {
+      targetCell = $(target).parents('.se-cell')[0];
+    }
+    if (!targetCell) throw Error('target cell could not be determined');
+    return targetCell;
+  };
+
   this._isEditing = function() {
     return !!this.activeCell;
   };
 
-  this._getPosition = function(el) {
+  this._commitCellContent = function(cell, content) {
+    var cellNode = cell.props.node;
+    if (cellNode.content !== content) {
+      var sheet = this.refs.sheet;
+      this.getDocumentSession().transaction(function(tx) {
+        tx.set([cellNode.id, 'content'], content);
+      });
+      this.send('updateCell', cellNode, sheet);
+    }
+  };
+
+  this._ensureActiveCellIsCommited = function(cell) {
+    if (this.activeCell && this.activeCell !== cell) {
+      this._commitCellContent(this.activeCell,
+        this.activeCell.getCellEditorContent());
+      this.activeCell.disableEditing();
+    }
+  };
+
+  this._getPosition = function(cellEl) {
     var row, col;
-    if (el.hasAttribute('data-col')) {
-      col = el.getAttribute('data-col');
-      row = el.parentNode.getAttribute('data-row');
+    if (cellEl.hasAttribute('data-col')) {
+      col = cellEl.getAttribute('data-col');
+      row = cellEl.parentNode.getAttribute('data-row');
     } else {
       throw new Error('FIXME!');
     }
@@ -241,47 +319,50 @@ SheetEditor.Prototype = function() {
     if (this.startCellEl) {
       var startPos = this._getPosition(this.startCellEl);
       var endPos = this._getPosition(this.endCellEl);
-      var minRow = Math.min(startPos.row, endPos.row);
-      var minCol = Math.min(startPos.col, endPos.col);
-      var maxRow = Math.max(startPos.row, endPos.row);
-      var maxCol = Math.max(startPos.col, endPos.col);
-      var sel = [minRow, minCol, maxRow, maxCol];
-      this.setSelection(sel);
+      var newSel = {};
+      newSel.startRow = Math.min(startPos.row, endPos.row);
+      newSel.startCol = Math.min(startPos.col, endPos.col);
+      newSel.endRow = Math.max(startPos.row, endPos.row);
+      newSel.endCol = Math.max(startPos.col, endPos.col);
+      this.setSelection(newSel);
     }
   };
 
   this._selectNextCell = function(rowDiff, colDiff) {
-    var sel = this.selection;
-    sel[0] = sel[0] + rowDiff;
+    var sel = this.getSelection().toJSON();
+
+    sel.startRow = sel.startRow + rowDiff;
     // TODO: also ensure upper bound
     if (rowDiff < 0) {
-      sel[0] = Math.max(0, sel[0]);
+      sel.startRow = Math.max(0, sel.startRow);
     }
-    sel[2] = sel[0];
-
-    sel[1] = sel[1] + colDiff;
+    sel.endRow = sel.startRow;
+    sel.startCol = sel.startCol + colDiff;
     // TODO: also ensure upper bound
     if (colDiff < 0) {
-      sel[1] = Math.max(0, sel[1]);
+      sel.startCol = Math.max(0, sel.startCol);
     }
-    sel[3] = sel[1];
+    sel.endCol = sel.startCol;
     this.setSelection(sel);
   };
 
   this._expandSelection = function(rowDiff, colDiff) {
-    var sel = this.selection;
-    sel[2] = sel[2] + rowDiff;
+    var sel = this.getSelection().toJSON();
+
+    sel.endRow = sel.endRow + rowDiff;
     // TODO: also ensure upper bound
     if (rowDiff < 0) {
-      sel[2] = Math.max(0, sel[2]);
+      sel.endRow = Math.max(0, sel.endRow);
     }
 
-    sel[3] = sel[3] + colDiff;
+    sel.endCol = sel.endCol + colDiff;
     // TODO: also ensure upper bound
     if (colDiff < 0) {
-      sel[3] = Math.max(0, sel[3]);
+      sel.endCol = Math.max(0, sel.endCol);
     }
 
+    sel.startRow = sel.startRow;
+    sel.endRow = sel.endRow;
     this.setSelection(sel);
   };
 
@@ -291,42 +372,75 @@ SheetEditor.Prototype = function() {
       this.activeCell = null;
       this.removeClass('edit');
     }
-    this.selection = sel;
+    this.selection = new TableSelection(sel);
+
+    // Reset
+    // if (this.selectedCell) {
+    //   this.selectedCell.extendProps({
+    //     selected: false
+    //   });
+    // }
+    // if (this.selection.isCollapsed()) {
+    //   this.selectedCell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
+    //   this.selectedCell.extendProps({
+    //     selected: true
+    //   });
+    // }
     this._rerenderSelection();
   };
 
   this._rerenderSelection = function() {
-    var sel = this.selection;
+    var sel = this.getSelection();
     if (sel) {
       var rect = this.refs.sheet._getRectangle(sel);
       this.refs.selection.css(rect);
     }
   };
 
-  this._togglePreviewCell = function() {
-    var row = this.selection[0];
-    var col = this.selection[1];
+  this._toggleDisplayMode = function() {
+    var sel = this.getSelection();
+    var row = sel.startRow;
+    var col = sel.startCol;
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
-      cell.togglePreview();
+      cell.toggleDisplayMode();
+      cell.rerender();
     }
+    this._rerenderSelection();
   };
 
   this._activateCurrentCell = function() {
-    var row = this.selection[0];
-    var col = this.selection[1];
+    var sel = this.getSelection();
+    var row = sel.startRow;
+    var col = sel.startCol;
     var cell = this.refs.sheet.getCellAt(row, col);
     if (cell) {
       cell.enableEditing();
     }
   };
 
-  this.onWindowResize = function() {
-    this._rerenderSelection();
+  this._deleteSelection = function() {
+    var sel = this.getSelection();
+    var minRow = Math.min(sel.startRow, sel.endRow);
+    var maxRow = Math.max(sel.startRow, sel.endRow);
+    var minCol = Math.min(sel.startCol, sel.endCol);
+    var maxCol = Math.max(sel.startCol, sel.endCol);
+    var docSession = this.getDocumentSession();
+    docSession.transaction(function(tx) {
+      for (var row = minRow; row <= maxRow; row++) {
+        for (var col = minCol; col <= maxCol; col++) {
+          var cellComp = this.refs.sheet.getCellAt(row, col);
+          var cell = cellComp.props.node;
+          if (cell) {
+            tx.set([cell.id, 'content'], '');
+          }
+        }
+      }
+    }.bind(this));
   };
 
 };
 
-Controller.extend(SheetEditor);
+Component.extend(SheetEditor);
 
 module.exports = SheetEditor;

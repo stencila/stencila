@@ -1,8 +1,9 @@
 'use strict';
 
+var isNumber = require('lodash/lang/isNumber');
+var each = require('lodash/collection/each');
 var Document = require('substance/model/Document');
 var DocumentSchema = require('substance/model/DocumentSchema');
-var _ = require('substance/util/helpers');
 
 var defaultSchema = new DocumentSchema("stencila-sheet", "0.1.0");
 
@@ -32,10 +33,10 @@ Sheet.Prototype = function() {
   this._getDimension = function(nodes) {
     var nrows = 0;
     var ncols = 0;
-    _.each(nodes, function(node) {
-      if (node.type === "sheet-cell" && !node.empty()) {
-        nrows = Math.max(nrows, node.row);
-        ncols = Math.max(ncols, node.col);
+    each(nodes, function(node) {
+      if (node.type === "sheet-cell" && !node.isEmpty()) {
+        nrows = Math.max(nrows, node.getRow());
+        ncols = Math.max(ncols, node.getCol());
       }
     });
     return { rows: nrows+1, cols: ncols+1 };
@@ -44,15 +45,19 @@ Sheet.Prototype = function() {
   this.getTableData = function(mode) {
     var nodes = this.getNodes();
     if (mode === "sparse") {
-      nodes = nodes.filter(function(node) {
-        return node.type === "sheet-cell" && !node.empty();
+      var _nodes = nodes;
+      nodes = [];
+      each(_nodes, function(node) {
+        if (node.type === "sheet-cell" && !node.isEmpty()) {
+          nodes.push(node);
+        }
       });
     }
     var tableData = this._getDimension(nodes);
     var cells = {};
-    _.each(nodes, function(node) {
-      if (node.type === "sheet-cell" && !node.empty()) {
-        cells[[node.row, node.col]] = node;
+    each(nodes, function(node) {
+      if (node.type === "sheet-cell" && !node.isEmpty()) {
+        cells[[node.getRow(), node.getCol()]] = node;
       }
     });
     tableData.cells = cells;
@@ -68,6 +73,9 @@ Sheet.static.schema = defaultSchema;
 var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 Sheet.static.getColumnName = function(col) {
+  if (!isNumber(col)) {
+    throw new Error('Illegal argument.');
+  }
   var name = "";
   while(true) {
     var mod = col % ALPHABET.length;
@@ -80,13 +88,13 @@ Sheet.static.getColumnName = function(col) {
 };
 
 Sheet.static.getColumnIndex = function(col) {
-    var index = 0;
-    var rank = 1;
-    _.each(col, function(letter) {
-        index += rank * ALPHABET.indexOf(letter);
-        rank++;
-    });
-    return index;
+  var index = 0;
+  var rank = 1;
+  each(col, function(letter) {
+      index += rank * ALPHABET.indexOf(letter);
+      rank++;
+  });
+  return index;
 };
 
 Sheet.static.getCellId = function(row,col) {
@@ -100,5 +108,12 @@ Sheet.static.getRowCol = function(id) {
     Sheet.static.getColumnIndex(match[1])
   ];
 };
+
+Sheet.normalizeValueType = function(type) {
+  if (type === 'ImageFile') {
+    return 'image';
+  }
+  return type;
+}
 
 module.exports = Sheet;

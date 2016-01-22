@@ -1,15 +1,13 @@
 'use strict';
 
-var _ = require('substance/util/helpers');
-
 module.exports = {
 
   updateGeneratedProperties : function(props) {
     var propNames = this.constructor.static.generatedProps;
     if (propNames) {
-      _.each(propNames, function(propName) {
+      propNames.forEach(function(propName) {
         this[propName] = props[propName];
-      }, this);
+      }.bind(this));
       this.emit('properties:changed');
     }
   },

@@ -2,13 +2,13 @@
 
 var ControllerTool = require('substance/ui/ControllerTool');
 
-var RenderTool = ControllerTool.extend({
+function RenderTool() {
+  RenderTool.super.apply(this, arguments);
+}
 
-  static: {
-    name: 'render',
-    command: 'render'
-  }
+ControllerTool.extend(RenderTool);
 
-});
+RenderTool.static.name = 'render';
+RenderTool.static.command = 'render';
 
 module.exports = RenderTool;

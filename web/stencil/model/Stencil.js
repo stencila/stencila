@@ -1,6 +1,6 @@
 'use strict';
 
-var OO = require('substance/util/oo');
+var oo = require('substance/util/oo');
 var Document = require('substance/model/Document');
 var DocumentSchema = require('substance/model/DocumentSchema');
 
@@ -81,7 +81,7 @@ Stencil.Prototype = function() {
   };
 };
 
-OO.inherit(Stencil, Document);
+oo.inherit(Stencil, Document);
 Stencil.schema = defaultSchema;
 
 module.exports = Stencil;
