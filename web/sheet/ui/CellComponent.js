@@ -4,7 +4,6 @@ var oo = require('substance/util/oo');
 var uuid = require('substance/util/uuid');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
-var Sheet = require('../model/Sheet');
 var CellEditor = require('./CellEditor');
 
 var TextContent = require('./TextComponent');
@@ -32,14 +31,22 @@ CellComponent.Prototype = function() {
       // el.on('click', this.onClick);
     }
 
-    if (cell) {
-      // Mark as selected
-      el.addClass(cell.valueType);
-      if (isEditing) {
-        el.append($$(CellEditor, {
-          content: cell.content
-        }).ref('editor'));
+    if (isEditing) {
+      var content;
+      if (this.state.hasOwnProperty('initialContent')) {
+        content = this.state.initialContent;
+      } else if (cell) {
+        content = cell.content;
       } else {
+        content = '';
+      }
+      el.append($$(CellEditor, {
+        content: content
+      }).ref('editor'));
+    } else {
+      if (cell) {
+        // Mark as selected
+        el.addClass(cell.valueType);
         // Render Cell content
         var CellContentClass;
         if (cell.isPrimitive()) {
@@ -58,10 +65,11 @@ CellComponent.Prototype = function() {
           node: cell
         });
         el.append(cellContent);
+      } else {
+        el.addClass('empty');
       }
-    } else {
-      el.addClass('empty');
     }
+
     return el;
   };
 
@@ -125,31 +133,40 @@ CellComponent.Prototype = function() {
   /**
     Ad-hoc creates a node when editing is enabled for an empty cell
   */
-  this.enableEditing = function() {
-    if (!this.props.node) {
-      var docSession = this.getDocumentSession();
-      var doc = this.getDocument();
-      var row = parseInt(this.attr('data-row'), 10);
-      var col = parseInt(this.attr('data-col'), 10);
-
-      var node = {
-        type: "sheet-cell",
-        id: uuid(),
-        row: row,
-        col: col,
-        cid: Sheet.static.getCellId(row,col)
-      };
-      docSession.transaction(function(tx) {
-        tx.create(node);
-      });
-      node = doc.get(node.id);
-      this.extendProps({ node: node });
-    }
-    this.extendState({ edit: true });
+  this.enableEditing = function(initialContent) {
+    this.extendState({ edit: true, initialContent: initialContent });
     this.send('activateCell', this);
   };
 
-  this.disableEditing = function() {
+  this.commit = function() {
+    var docSession = this.getDocumentSession();
+    var doc = this.getDocument();
+    var node = this.props.node;
+    var newContent = this.getCellEditorContent() || '';
+    if (!node) {
+      var row = parseInt(this.attr('data-row'), 10);
+      var col = parseInt(this.attr('data-col'), 10);
+      var id = uuid();
+      docSession.transaction(function(tx) {
+        tx.create({
+          type: "sheet-cell",
+          id: id,
+          row: row,
+          col: col,
+          content: newContent
+        });
+      });
+      node = doc.get(id);
+      this.extendProps({ node: node });
+    } else if (newContent !== node.content) {
+      docSession.transaction(function(tx) {
+        tx.set([this.props.node.id, 'content'], newContent);
+      });
+    }
+    this.extendState({ edit: false });
+  };
+
+  this.discard = function() {
     this.extendState({
       edit: false
     });
@@ -200,7 +217,7 @@ CellComponent.Prototype = function() {
     var doc = this.getDocument();
     if (this.props.node) {
       doc.getEventProxy('path').disconnect(this);
-      node.disconnect(this);
+      this.props.node.disconnect(this);
     }
   };
 

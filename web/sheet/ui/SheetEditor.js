@@ -134,7 +134,7 @@ SheetEditor.Prototype = function() {
 
   this.setSelection = function(sel) {
     if (this.activeCell) {
-      this.activeCell.disableEditing();
+      this.activeCell.commit();
       this.activeCell = null;
       this.removeClass('edit');
     }
@@ -176,8 +176,7 @@ SheetEditor.Prototype = function() {
     } else {
       var cell = this.activeCell;
       this.activeCell = null;
-      this._commitCellContent(cell, content);
-      cell.disableEditing();
+      cell.commit();
     }
     if (key === 'enter') {
       this._selectNextCell(1, 0);
@@ -189,7 +188,7 @@ SheetEditor.Prototype = function() {
   this.discardCellChange = function() {
     var cell = this.activeCell;
     this.activeCell = null;
-    cell.disableEditing();
+    cell.discard();
     this.removeClass('edit');
     this._rerenderSelection();
   };
@@ -323,7 +322,7 @@ SheetEditor.Prototype = function() {
     if (!this._isEditing()) {
       var character = String.fromCharCode(event.charCode);
       if (character) {
-        console.log('TODO: overwrite cell content and activate cell editing.');
+        this._activateCurrentCell(character);
         handled = true;
       }
     }
@@ -340,13 +339,11 @@ SheetEditor.Prototype = function() {
 
   this.onDocumentChange = function(change) {
     var cells = [];
-
     var doc = this.props.doc;
     each(change.created, function(nodeData) {
-      // HACK this does not work currently
-      // if (nodeData.type === 'sheet-cell') {
-      //   cells.push(nodeData);
-      // }
+      if (nodeData.type === 'sheet-cell') {
+        cells.push(nodeData);
+      }
     });
     each(change.deleted, function(nodeData) {
       if (nodeData.type === 'sheet-cell') {
@@ -359,7 +356,6 @@ SheetEditor.Prototype = function() {
         cells.push(cell);
       }
     });
-
     if (cells.length > 0) {
       this.send('updateCells', cells);
     }
@@ -387,20 +383,9 @@ SheetEditor.Prototype = function() {
     return !!this.activeCell;
   };
 
-  this._commitCellContent = function(cell, content) {
-    var cellNode = cell.props.node;
-    if (cellNode.content !== content) {
-      this.getDocumentSession().transaction(function(tx) {
-        tx.set([cellNode.id, 'content'], content);
-      });
-    }
-  };
-
   this._ensureActiveCellIsCommited = function(cell) {
     if (this.activeCell && this.activeCell !== cell) {
-      this._commitCellContent(this.activeCell,
-        this.activeCell.getCellEditorContent());
-      this.activeCell.disableEditing();
+      this.activeCell.commit();
     }
   };
 
@@ -489,13 +474,13 @@ SheetEditor.Prototype = function() {
     this._rerenderSelection();
   };
 
-  this._activateCurrentCell = function() {
+  this._activateCurrentCell = function(initialContent) {
     var sel = this.getSelection();
     var row = sel.startRow;
     var col = sel.startCol;
     var cellComp = this._getCellComponentAt(row, col);
     if (cellComp) {
-      cellComp.enableEditing();
+      cellComp.enableEditing(initialContent);
     }
   };
 
