@@ -19,22 +19,13 @@ function CellComponent() {
 
 CellComponent.Prototype = function() {
 
-  this.willReceiveProps = function(newProps) {
-    var doc = this.getDocument();
-    this._disconnect();
-    if (newProps.node) {
-      doc.getEventProxy('path').connect(this, [newProps.node.id, 'content'], this.rerender);
-      doc.getEventProxy('path').connect(this, [newProps.node.id, 'displayMode'], this.rerender);
-    }
-  };
-
   this.dispose = function() {
     this._disconnect();
   };
 
   this.render = function() {
     var cell = this.props.node;
-    var componentRegistry = this.context.componentRegistry;
+    // var componentRegistry = this.context.componentRegistry;
     var el = $$('td').addClass('se-cell');
 
     var isEditing = this.isEditing();
@@ -52,14 +43,6 @@ CellComponent.Prototype = function() {
         el.append($$(CellEditor, {
           content: cell.content
         }).ref('editor'));
-      } else {
-        // Render Cell content
-        if (this.renderContent) {
-          cellContent = this.renderContent();
-          el.append(cellContent);
-        } else {
-          throw new Error('renderContent missing in cell implementation');
-        }
       }
     } else {
       el.addClass('empty');

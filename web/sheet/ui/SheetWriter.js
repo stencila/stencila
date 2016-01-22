@@ -28,8 +28,13 @@ var CONFIG = {
     ],
     components: {
       // Registry for different cell content types
-      'image': require('./ImageComponent'),
-      'object': require('./ObjectComponent')
+      'string': require('./PrimitiveCell'),
+      'int': require('./PrimitiveCell'),
+      'real': require('./PrimitiveCell'),
+      'ImageFile': require('./ImageCell'),
+      'data.frame': require('./PreformattedCell'),
+      'matrix': require('./PreformattedCell'),
+      'lm': require('./PreformattedCell'),
     }
   },
   main: {

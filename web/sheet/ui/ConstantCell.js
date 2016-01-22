@@ -12,7 +12,7 @@ var $$ = Component.$$;
   '10'
   '10.5'
   'Hello world'
-  'Hell <strong>world</strong>'
+  'Hello <strong>world</strong>'
 */
 
 function ConstantComponent() {
@@ -20,9 +20,11 @@ function ConstantComponent() {
 }
 
 ConstantComponent.Prototype = function() {
-
+  var _super = Object.getPrototypeOf(this);
+  
   this.render = function() {
-    var el = $$('div').addClass('sc-cell sc-constant');
+    var el = _super.render.call(this);
+    el.addClass('sc-constant-cell');
     el.html(this.props.node.content);
     return el;
   };
