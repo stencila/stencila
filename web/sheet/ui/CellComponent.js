@@ -7,8 +7,6 @@ var $$ = Component.$$;
 var Sheet = require('../model/Sheet');
 var CellEditor = require('./CellEditor');
 
-var TextContent = require('./TextComponent');
-var ObjectComponent = require('./ObjectComponent');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -25,11 +23,10 @@ CellComponent.Prototype = function() {
 
   this.render = function() {
     var cell = this.props.node;
-    // var componentRegistry = this.context.componentRegistry;
     var el = $$('td').addClass('se-cell');
 
     var isEditing = this.isEditing();
-    el.addClass(isEditing ? 'edit' : 'display');
+    el.addClass(isEditing ? 'sm-edit' : 'sm-display');
 
     if (!isEditing) {
       el.on('dblclick', this.onDblClick);
@@ -38,7 +35,6 @@ CellComponent.Prototype = function() {
 
     if (cell) {
       // Mark as selected
-      el.addClass(cell.valueType);
       if (isEditing) {
         el.append($$(CellEditor, {
           content: cell.content
@@ -185,7 +181,7 @@ CellComponent.Prototype = function() {
     var doc = this.getDocument();
     if (this.props.node) {
       doc.getEventProxy('path').disconnect(this);
-      node.disconnect(this);
+      this.props.node.disconnect(this);
     }
   };
 

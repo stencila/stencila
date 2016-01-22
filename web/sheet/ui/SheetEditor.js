@@ -4,10 +4,13 @@ var each = require('lodash/collection/each');
 var Sheet = require('../model/Sheet');
 var TableSelection = require('../model/TableSelection');
 var Component = require('substance/ui/Component');
+
 var CellComponent = require('./CellComponent');
+var ExpressionCell = require('./ExpressionCell');
+var ConstantCell = require('./ConstantCell');
+
 var $$ = Component.$$;
 var $ = require('substance/util/jquery');
-
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);
@@ -47,15 +50,15 @@ SheetEditor.Prototype = function() {
       $$('div').addClass('selection').ref('selection')
     );
     // react only to mousedowns on cells in display mode
-    el.on('mousedown', 'td.display', this.onMouseDown);
+    el.on('mousedown', 'td.sm-display', this.onMouseDown);
     return el;
   };
 
-
   this._renderTable = function() {
-    // TODO this code is almost identical to the exporter
+    // TODO: this code is almost identical to the exporter
     // we should try to share the code
     var sheet = this.props.doc;
+    var componentRegistry = this.context.componentRegistry;
 
     // TODO: make this configurable
     var ncols = Math.max(52, sheet.getColumnCount());
@@ -84,7 +87,25 @@ SheetEditor.Prototype = function() {
       // render all cells
       for (j = 0; j < ncols; j++) {
         var cell = sheet.getCellAt(i, j);
-        var cellEl = $$(CellComponent, { node: cell })
+
+        // Render Cell content
+        var CellComponentClass;
+
+        if (cell) {
+          if (cell.isConstant()) {
+            CellComponentClass = ConstantCell;
+          } else if (cell.valueType) {
+            CellComponentClass = componentRegistry.get(cell.valueType);
+          } 
+
+          if (!CellComponentClass) {
+            CellComponentClass = ExpressionCell;
+          }
+        } else {
+          CellComponentClass = CellComponent;
+        }
+
+        var cellEl = $$(CellComponentClass, { node: cell })
           .attr('data-row', i)
           .attr('data-col', j);
         rowEl.append(cellEl);
@@ -136,22 +157,10 @@ SheetEditor.Prototype = function() {
     if (this.activeCell) {
       this.activeCell.disableEditing();
       this.activeCell = null;
-      this.removeClass('edit');
+      this.removeClass('sm-edit');
     }
     this.selection = new TableSelection(sel);
 
-    // Reset
-    // if (this.selectedCell) {
-    //   this.selectedCell.extendProps({
-    //     selected: false
-    //   });
-    // }
-    // if (this.selection.isCollapsed()) {
-    //   this.selectedCell = this.getCellAt(sel.startRow, sel.startCol);
-    //   this.selectedCell.extendProps({
-    //     selected: true
-    //   });
-    // }
     this._rerenderSelection();
   };
 
@@ -159,14 +168,14 @@ SheetEditor.Prototype = function() {
 
   this.selectCell = function(cell) {
     this._ensureActiveCellIsCommited(cell);
-    this.removeClass('edit');
+    this.removeClass('sm-edit');
     this._rerenderSelection();
   };
 
   this.activateCell = function(cell) {
     this._ensureActiveCellIsCommited(cell);
     this.activeCell = cell;
-    this.addClass('edit');
+    this.addClass('sm-edit');
     this._rerenderSelection();
   };
 
@@ -182,7 +191,7 @@ SheetEditor.Prototype = function() {
     if (key === 'enter') {
       this._selectNextCell(1, 0);
     }
-    this.removeClass('edit');
+    this.removeClass('sm-edit');
     this._rerenderSelection();
   };
 
@@ -190,13 +199,14 @@ SheetEditor.Prototype = function() {
     var cell = this.activeCell;
     this.activeCell = null;
     cell.disableEditing();
-    this.removeClass('edit');
+    this.removeClass('sm-edit');
     this._rerenderSelection();
   };
 
   // DOM event handlers
 
   this.onMouseDown = function(event) {
+    console.log('mouse down');
     this.isSelecting = true;
     this.$el.on('mouseenter', 'td', this.onMouseEnter.bind(this));
     this.$el.one('mouseup', this.onMouseUp.bind(this));
