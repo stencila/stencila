@@ -11,13 +11,10 @@ function StencilHTMLExporter() {
 }
 
 StencilHTMLExporter.Prototype = function() {
-  this.exportDocument = function(doc) {
+  this.exportDocument = function(sheet) {
     var $$ = this.$$;
-    var tableData = doc.getTableData('sparse');
-    // always render a certain
-    // TODO: make this configurable
-    var ncols = tableData.cols;
-    var nrows = tableData.rows;
+    var ncols = sheet.getColumnCount();
+    var nrows = sheet.getRowCount();
     var i,j;
 
     var tableEl = $$('table');
@@ -35,14 +32,23 @@ StencilHTMLExporter.Prototype = function() {
       var rowEl = $$('tr');
       rowEl.append($$('th').text(i+1));
       for (j = 0; j < ncols; j++) {
-        var cell = tableData.cells[[i,j]];
-        var cellEl = this.convertNode(cell);
+        var cell = sheet.getCellAt(i, j);
+        var cellEl = this.convertCell(cell);
         rowEl.append(cellEl);
       }
       tbody.append(rowEl);
     }
     tableEl.append(tbody);
     return tableEl.outerHTML;
+  };
+
+  this.convertCell = function(cell) {
+    var $$ = this.$$;
+    if (!cell) {
+      return $$('td');
+    } else {
+      return this.convertNode(cell);
+    }
   };
 
 };

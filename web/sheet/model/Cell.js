@@ -62,7 +62,7 @@ Cell.static.name = "sheet-cell";
 
 Cell.static.defineSchema({
   // plain text (aka source)
-  content: "text",
+  content: { type: "string", default: "" },
 
   // cell display mode
   displayMode: {type: "string", default: 'clipped'},

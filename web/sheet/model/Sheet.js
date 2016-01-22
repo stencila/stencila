@@ -26,44 +26,59 @@ defaultSchema.addNodes([
 
 var Sheet = function(schema) {
   Document.call(this, schema || defaultSchema);
+
+  this._matrix = null;
+  this._nrows = 0;
+  this._ncols = 0;
 };
 
 Sheet.Prototype = function() {
 
-  this._getDimension = function(nodes) {
+  this.getCellAt = function(rowIdx, colIdx) {
+    if (!this._matrix) this._computeMatrix();
+
+    var row = this._matrix[rowIdx]
+    if (row) {
+      return row[colIdx];
+    }
+    return null;
+  };
+
+  this.getRowCount = function() {
+    if (!this._matrix) this._computeMatrix();
+
+    return this._nrows;
+  };
+
+  this.getColumnCount = function() {
+    if (!this._matrix) this._computeMatrix();
+
+    return this._ncols;
+  };
+
+  this._computeMatrix = function() {
+    var matrix = [];
     var nrows = 0;
     var ncols = 0;
-    each(nodes, function(node) {
-      if (node.type === "sheet-cell" && !node.isEmpty()) {
-        nrows = Math.max(nrows, node.getRow());
-        ncols = Math.max(ncols, node.getCol());
-      }
-    });
-    return { rows: nrows+1, cols: ncols+1 };
-  };
-
-  this.getTableData = function(mode) {
-    var nodes = this.getNodes();
-    if (mode === "sparse") {
-      var _nodes = nodes;
-      nodes = [];
-      each(_nodes, function(node) {
-        if (node.type === "sheet-cell" && !node.isEmpty()) {
-          nodes.push(node);
+    each(this.getNodes(), function(node) {
+      if (node.type === "sheet-cell") {
+        var cell = node;
+        var rowIdx = cell.getRow();
+        var colIdx = cell.getCol();
+        var row = matrix[rowIdx];
+        if (!row) {
+          row = [];
+          matrix[rowIdx] = row;
         }
-      });
-    }
-    var tableData = this._getDimension(nodes);
-    var cells = {};
-    each(nodes, function(node) {
-      if (node.type === "sheet-cell" && !node.isEmpty()) {
-        cells[[node.getRow(), node.getCol()]] = node;
+        row[colIdx] = cell;
+        nrows = Math.max(nrows, rowIdx);
+        ncols = Math.max(ncols, colIdx);
       }
     });
-    tableData.cells = cells;
-    return tableData;
+    this._matrix = matrix;
+    this._nrows = nrows + 1;
+    this._ncols = ncols + 1;
   };
-
 };
 
 Document.extend(Sheet);
@@ -114,6 +129,6 @@ Sheet.normalizeValueType = function(type) {
     return 'image';
   }
   return type;
-}
+};
 
 module.exports = Sheet;

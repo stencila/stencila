@@ -53,7 +53,7 @@ function SheetWriter(parent, params) {
   SheetController.call(this, parent, params);
 
   this.handleActions({
-    'updateCell': this.updateCell
+    'updateCells': this.updateCells
   });
 }
 
@@ -67,9 +67,6 @@ SheetWriter.Prototype = function() {
       // TODO: show error in overlay
     }
     return el;
-  };
-
-  this.didRender = function() {
   };
 
   this._renderMainSection = function() {
@@ -95,6 +92,7 @@ SheetWriter.Prototype = function() {
         }).ref('contentPanel').append(
           $$('div').ref('main').addClass('document-content').append(
             $$(SheetEditor, {
+              mode: this.props.mode,
               doc: this.props.doc
             }).ref('sheetEditor')
           )
@@ -103,12 +101,15 @@ SheetWriter.Prototype = function() {
     );
   };
 
-  this.updateCell = function(cell, sheet) {
+  this.updateCells = function(cells) {
+    cells = cells.map(function(cell) {
+      return {
+        id: Sheet.static.getCellId(cell.row, cell.col),
+        source: cell.content || ''
+      };
+    });
     // Update the sheet with the new cell source
-    this.props.engine.update([{
-      "id" : cell.getCellId(),
-      "source" : cell.content
-    }], function(error, updates) {
+    this.props.engine.update(cells, function(error, updates) {
       if (error) {
         this.extendState({
           error: error
@@ -119,22 +120,26 @@ SheetWriter.Prototype = function() {
         console.error('FIXME: did not receive updates.');
         return;
       }
-      for(var index = 0; index < updates.length; index++) {
-        var update = updates[index];
-        var coords = Sheet.static.getRowCol(update.id);
-        var cellComponent = sheet.getCellAt(coords[0], coords[1]);
-        var cellNode = cellComponent.getNode();
-        if (cellNode) {
-          // FIXME: agree on a set of valueTypes
-          var valueType = Sheet.normalizeValueType(update.type);
-          if (cellNode.valueType !== valueType || cellNode.value !== update.value) {
-            cellNode.valueType = valueType;
-            cellNode.value = update.value;
-            cellComponent.rerender();
-          }
+      this._handleUpdates(updates);
+    }.bind(this));
+  };
+
+  this._handleUpdates = function(updates) {
+    var sheet = this.props.doc;
+    for(var index = 0; index < updates.length; index++) {
+      var update = updates[index];
+      var coords = Sheet.static.getRowCol(update.id);
+      var cell = sheet.getCellAt(coords[0], coords[1]);
+      if (cell) {
+        // FIXME: agree on a set of valueTypes
+        var valueType = Sheet.normalizeValueType(update.type);
+        if (cell.valueType !== valueType || cell.value !== update.value) {
+          cell.valueType = valueType;
+          cell.value = update.value;
+          cell.emit('cell:changed');
         }
       }
-    }.bind(this));
+    }
   };
 
 };

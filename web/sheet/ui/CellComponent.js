@@ -12,23 +12,12 @@ var ObjectComponent = require('./ObjectComponent');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
+
+  // need to call this as willReceiveProps is only called when updating props
+  this._connect();
 }
 
 CellComponent.Prototype = function() {
-
-  this.willReceiveProps = function(newProps) {
-    var doc = this.getDocument();
-    this._disconnect();
-    if (newProps.node) {
-      doc.getEventProxy('path').connect(this, [newProps.node.id, 'content'], this.rerender);
-      doc.getEventProxy('path').connect(this, [newProps.node.id, 'displayMode'], this.rerender);
-    }
-  };
-
-  this.dispose = function() {
-    this._disconnect();
-  };
-
 
   this.render = function() {
     var cell = this.props.node;
@@ -74,6 +63,22 @@ CellComponent.Prototype = function() {
       el.addClass('empty');
     }
     return el;
+  };
+
+  this.didMount = function() {
+    this._connect();
+  };
+
+  this.dispose = function() {
+    this._disconnect();
+  };
+
+  this.willReceiveProps = function() {
+    this._disconnect();
+  };
+
+  this.didReceiveProps = function() {
+    this._connect();
   };
 
   this.getNode = function() {
@@ -173,6 +178,15 @@ CellComponent.Prototype = function() {
   //     this.send('selectCell', this);
   //   }
   // };
+
+  this._connect = function() {
+    var doc = this.getDocument();
+    var node = this.props.node;
+    if (node) {
+      doc.getEventProxy('path').connect(this, [node.id, 'content'], this.rerender);
+      doc.getEventProxy('path').connect(this, [node.id, 'displayMode'], this.rerender);
+    }
+  };
 
   this._disconnect = function() {
     var doc = this.getDocument();

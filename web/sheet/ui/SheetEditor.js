@@ -1,8 +1,10 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
-var SheetComponent = require('./SheetComponent');
+var each = require('lodash/collection/each');
+var Sheet = require('../model/Sheet');
 var TableSelection = require('../model/TableSelection');
+var Component = require('substance/ui/Component');
+var CellComponent = require('./CellComponent');
 var $$ = Component.$$;
 var $ = require('substance/util/jquery');
 
@@ -39,7 +41,7 @@ SheetEditor.Prototype = function() {
   this.render = function() {
     var el = $$('div').addClass('sc-sheet-editor');
     el.append(
-      $$(SheetComponent, { doc: this.props.doc }).ref('sheet')
+      this._renderTable()
     );
     el.append(
       $$('div').addClass('selection').ref('selection')
@@ -49,8 +51,56 @@ SheetEditor.Prototype = function() {
     return el;
   };
 
+
+  this._renderTable = function() {
+    // TODO this code is almost identical to the exporter
+    // we should try to share the code
+    var sheet = this.props.doc;
+
+    // TODO: make this configurable
+    var ncols = Math.max(52, sheet.getColumnCount());
+    var nrows = Math.max(100, sheet.getRowCount());
+    var tableEl = $$('table').addClass("sc-sheet");
+
+    var i,j;
+
+    // create header row
+    var thead = $$('thead');
+    var headerRow = $$('tr').addClass('se-row');
+    headerRow.append($$('th').addClass('se-cell'));
+    for (j = 0; j < ncols; j++) {
+      headerRow.append($$('th').text(
+        Sheet.static.getColumnName(j)
+      ).addClass('se-cell'));
+    }
+    thead.append(headerRow);
+    tableEl.append(thead);
+
+    var tbody = $$('tbody').ref('body');
+    for (i = 0; i < nrows; i++) {
+      var rowEl = $$('tr').attr('data-row', i).addClass('se-row');
+      // first column is header
+      rowEl.append($$('th').text(i+1).addClass('se-cell'));
+      // render all cells
+      for (j = 0; j < ncols; j++) {
+        var cell = sheet.getCellAt(i, j);
+        var cellEl = $$(CellComponent, { node: cell })
+          .attr('data-row', i)
+          .attr('data-col', j);
+        rowEl.append(cellEl);
+      }
+      tbody.append(rowEl);
+    }
+    tableEl.append(tbody);
+
+    return tableEl;
+  };
+
   this.didMount = function() {
     // ATTENTION: we need to override the hacky parent implementation
+    this.props.doc.connect(this, {
+      'document:changed': this.onDocumentChange
+    });
 
     // HACK: without contenteditables we don't receive keyboard events on this level
     window.document.body.addEventListener('keydown', this.onGlobalKeydown, false);
@@ -59,6 +109,8 @@ SheetEditor.Prototype = function() {
   };
 
   this.dispose = function() {
+    this.props.doc.disconnect(this);
+
     window.document.body.removeEventListener('keydown', this.onGlobalKeydown);
     window.document.body.removeEventListener('keypress', this.onGlobalKeypress);
     window.removeEventListener('resize', this.onWindowResize);
@@ -72,8 +124,35 @@ SheetEditor.Prototype = function() {
     return this.context.documentSession;
   };
 
+  this.getSheet = function() {
+    return this.props.doc;
+  };
+
   this.getController = function() {
     return this.context.controller;
+  };
+
+  this.setSelection = function(sel) {
+    if (this.activeCell) {
+      this.activeCell.disableEditing();
+      this.activeCell = null;
+      this.removeClass('edit');
+    }
+    this.selection = new TableSelection(sel);
+
+    // Reset
+    // if (this.selectedCell) {
+    //   this.selectedCell.extendProps({
+    //     selected: false
+    //   });
+    // }
+    // if (this.selection.isCollapsed()) {
+    //   this.selectedCell = this.getCellAt(sel.startRow, sel.startCol);
+    //   this.selectedCell.extendProps({
+    //     selected: true
+    //   });
+    // }
+    this._rerenderSelection();
   };
 
   // Action handlers
@@ -193,6 +272,35 @@ SheetEditor.Prototype = function() {
         }
         handled = true;
       }
+      // ENTER
+      else if (event.keyCode === 13) {
+        if (this.getSelection().isCollapsed()) {
+          this._activateCurrentCell();
+        }
+        handled = true;
+      }
+      // SPACE
+      else if (event.keyCode === 32) {
+        if (this.getSelection().isCollapsed()) {
+          this._toggleDisplayMode();
+        }
+        handled = true;
+      }
+      // BACKSPACE | DELETE
+      else if (event.keyCode === 8 || event.keyCode === 46) {
+        console.log('DELETING');
+        this._deleteSelection();
+        handled = true;
+      }
+      // undo/redo
+      else if (event.keyCode === 90 && (event.metaKey||event.ctrlKey)) {
+        if (event.shiftKey) {
+          this.getController().executeCommand('redo');
+        } else {
+          this.getController().executeCommand('undo');
+        }
+        handled = true;
+      }
     }
 
     if (handled) {
@@ -213,41 +321,11 @@ SheetEditor.Prototype = function() {
     var handled = false;
 
     if (!this._isEditing()) {
-      // ENTER
-      if (event.keyCode === 13) {
-        if (this.getSelection().isCollapsed()) {
-          this._activateCurrentCell();
-        }
+      var character = String.fromCharCode(event.charCode);
+      if (character) {
+        console.log('TODO: overwrite cell content and activate cell editing.');
         handled = true;
       }
-      // SPACE
-      else if (event.keyCode === 32) {
-        if (this.getSelection().isCollapsed()) {
-          this._toggleDisplayMode();
-        }
-        handled = true;
-      }
-      // BACKSPACE | DELETE
-      else if (event.keyCode === 8 || event.keyCode === 46) {
-        this._deleteSelection();
-        handled = true;
-      }
-      // undo/redo
-      else if (event.keyCode === 90 && (event.metaKey||event.ctrlKey)) {
-        if (event.shiftKey) {
-          this.getController().executeCommand('redo');
-        } else {
-          this.getController().executeCommand('undo');
-        }
-        handled = true;
-      } else {
-        var character = String.fromCharCode(event.charCode);
-        if (character) {
-          console.log('TODO: overwrite cell content and activate cell editing.');
-          handled = true;
-        }
-      }
-
     }
 
     if (handled) {
@@ -258,6 +336,32 @@ SheetEditor.Prototype = function() {
 
   this.onWindowResize = function() {
     this._rerenderSelection();
+  };
+
+  this.onDocumentChange = function(change) {
+    var cells = [];
+
+    var doc = this.props.doc;
+    each(change.created, function(nodeData) {
+      if (nodeData.type === 'sheet-cell') {
+        cells.push(nodeData);
+      }
+    });
+    each(change.deleted, function(nodeData) {
+      if (nodeData.type === 'sheet-cell') {
+        cells.push(nodeData);
+      }
+    });
+    each(change.updated, function(props, id) {
+      var cell = doc.get(id);
+      if (cell && cell.type === 'sheet-cell') {
+        cells.push(cell);
+      }
+    });
+
+    if (cells.length > 0) {
+      this.send('updateCells', cells);
+    }
   };
 
   // private API
@@ -285,11 +389,9 @@ SheetEditor.Prototype = function() {
   this._commitCellContent = function(cell, content) {
     var cellNode = cell.props.node;
     if (cellNode.content !== content) {
-      var sheet = this.refs.sheet;
       this.getDocumentSession().transaction(function(tx) {
         tx.set([cellNode.id, 'content'], content);
       });
-      this.send('updateCell', cellNode, sheet);
     }
   };
 
@@ -366,33 +468,10 @@ SheetEditor.Prototype = function() {
     this.setSelection(sel);
   };
 
-  this.setSelection = function(sel) {
-    if (this.activeCell) {
-      this.activeCell.disableEditing();
-      this.activeCell = null;
-      this.removeClass('edit');
-    }
-    this.selection = new TableSelection(sel);
-
-    // Reset
-    // if (this.selectedCell) {
-    //   this.selectedCell.extendProps({
-    //     selected: false
-    //   });
-    // }
-    // if (this.selection.isCollapsed()) {
-    //   this.selectedCell = this.refs.sheet.getCellAt(sel.startRow, sel.startCol);
-    //   this.selectedCell.extendProps({
-    //     selected: true
-    //   });
-    // }
-    this._rerenderSelection();
-  };
-
   this._rerenderSelection = function() {
     var sel = this.getSelection();
     if (sel) {
-      var rect = this.refs.sheet._getRectangle(sel);
+      var rect = this._getRectangle(sel);
       this.refs.selection.css(rect);
     }
   };
@@ -401,10 +480,10 @@ SheetEditor.Prototype = function() {
     var sel = this.getSelection();
     var row = sel.startRow;
     var col = sel.startCol;
-    var cell = this.refs.sheet.getCellAt(row, col);
-    if (cell) {
-      cell.toggleDisplayMode();
-      cell.rerender();
+    var cellComp = this._getCellComponentAt(row, col);
+    if (cellComp) {
+      cellComp.toggleDisplayMode();
+      cellComp.rerender();
     }
     this._rerenderSelection();
   };
@@ -413,9 +492,9 @@ SheetEditor.Prototype = function() {
     var sel = this.getSelection();
     var row = sel.startRow;
     var col = sel.startCol;
-    var cell = this.refs.sheet.getCellAt(row, col);
-    if (cell) {
-      cell.enableEditing();
+    var cellComp = this._getCellComponentAt(row, col);
+    if (cellComp) {
+      cellComp.enableEditing();
     }
   };
 
@@ -426,17 +505,52 @@ SheetEditor.Prototype = function() {
     var minCol = Math.min(sel.startCol, sel.endCol);
     var maxCol = Math.max(sel.startCol, sel.endCol);
     var docSession = this.getDocumentSession();
+    var sheet = this.getSheet();
     docSession.transaction(function(tx) {
       for (var row = minRow; row <= maxRow; row++) {
         for (var col = minCol; col <= maxCol; col++) {
-          var cellComp = this.refs.sheet.getCellAt(row, col);
-          var cell = cellComp.props.node;
+          var cell = sheet.getCellAt(row, col);
           if (cell) {
             tx.set([cell.id, 'content'], '');
           }
         }
       }
     }.bind(this));
+  };
+
+  this._getCellComponentAt = function(row, col) {
+    var rows = this.refs.body.children;
+    var rowComp = rows[row];
+    if (rowComp) {
+      var cells = rowComp.children;
+      return cells[col+1];
+    }
+  };
+
+  this._getRectangle = function(sel) {
+    var rows = this.refs.body.children;
+    // FIXME: due to lack of API in DOMElement
+    // we are using the native API here
+    var minRow = Math.min(sel.startRow, sel.endRow);
+    var maxRow = Math.max(sel.startRow, sel.endRow);
+    var minCol = Math.min(sel.startCol, sel.endCol);
+    var maxCol = Math.max(sel.startCol, sel.endCol);
+
+    var firstEl = rows[minRow].el.childNodes[minCol+1];
+    var lastEl = rows[maxRow].el.childNodes[maxCol+1];
+    // debugger;
+    var $firstEl = $(firstEl);
+    var $lastEl = $(lastEl);
+    var pos1 = $firstEl.position();
+    var pos2 = $lastEl.position();
+    var rect2 = lastEl.getBoundingClientRect();
+    var rect = {
+      top: pos1.top,
+      left: pos1.left,
+      height: pos2.top - pos1.top + rect2.height,
+      width: pos2.left - pos1.left + rect2.width
+    };
+    return rect;
   };
 
 };

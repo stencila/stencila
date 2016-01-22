@@ -3,42 +3,6 @@
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
-function Signature() {
-  Signature.super.apply(this, arguments);
-}
-
-Signature.Prototype = function() {
-  this.render = function() {
-    var snippet = this.props.snippet;
-
-    var paramsEl = $$('span').addClass('se-signature-params');
-
-    snippet.parameters.forEach(function(param, i) {
-      var paramEl = $$('span').addClass('se-signature-param').append(param.name);
-
-      if (i === this.props.paramIndex) {
-        paramEl.addClass('sm-active');
-      }
-
-      paramsEl.append(paramEl);
-      if (i < snippet.parameters.length - 1) {
-        paramsEl.append(',');
-      }
-
-    }.bind(this));
-
-    return $$('div').addClass('se-signature').append(
-      $$('span').addClass('se-name').append(snippet.name),
-      '(',
-      $$('span').append(paramsEl),
-      ')'
-    );
-  };
-};
-
-Component.extend(Signature);
-
-
 function SnippetComponent() {
   SnippetComponent.super.apply(this, arguments);
 }
@@ -67,7 +31,7 @@ SnippetComponent.Prototype = function() {
     // Documentation
     var docEl = $$('div').addClass('se-documentation');
     docEl.append(
-      $$(Signature, {snippet: snippet, paramIndex: this.props.paramIndex}),
+      $$(SnippetComponent.Signature, {snippet: snippet, paramIndex: this.props.paramIndex}),
       paramsEl,
       $$('div').addClass('se-summary').append(snippet.summary)
     );
@@ -87,5 +51,40 @@ SnippetComponent.Prototype = function() {
 };
 
 Component.extend(SnippetComponent);
+
+SnippetComponent.Signature = function() {
+  SnippetComponent.Signature.super.apply(this, arguments);
+};
+
+SnippetComponent.Signature.Prototype = function() {
+  this.render = function() {
+    var snippet = this.props.snippet;
+
+    var paramsEl = $$('span').addClass('se-signature-params');
+
+    snippet.parameters.forEach(function(param, i) {
+      var paramEl = $$('span').addClass('se-signature-param').append(param.name);
+
+      if (i === this.props.paramIndex) {
+        paramEl.addClass('sm-active');
+      }
+
+      paramsEl.append(paramEl);
+      if (i < snippet.parameters.length - 1) {
+        paramsEl.append(',');
+      }
+
+    }.bind(this));
+
+    return $$('div').addClass('se-signature').append(
+      $$('span').addClass('se-name').append(snippet.name),
+      '(',
+      $$('span').append(paramsEl),
+      ')'
+    );
+  };
+};
+
+Component.extend(SnippetComponent.Signature);
 
 module.exports = SnippetComponent;
