@@ -69,16 +69,20 @@
                     "optional": {
                         "description": "Is the parameter optional?",
                         "type": "boolean"
-                    },
-                    "variadic": {
-                        "description": "Is the parameter variadic?",
-                        "type": "boolean"
                     }
                 },
                 "required":[
                     "name","description"
                 ]
             }
+        },
+        "variadic": {
+            "description": "Is the function variadic?",
+            "type": "boolean"
+        },
+        "return": {
+            "description": "A description of the return value",
+            "type": "string"
         },
         "code": {
             "id": "code",

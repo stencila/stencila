@@ -24,6 +24,8 @@
 			"description": "Number or cell or range of cells to sum up"
 		}
 	],
+	"variadic": true,
+	"return": "Sum of values",
 	"code": [
 		{
 			"language": "r",
