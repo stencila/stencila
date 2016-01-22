@@ -19,6 +19,19 @@ function CellComponent() {
 
 CellComponent.Prototype = function() {
 
+  this.willReceiveProps = function(newProps) {
+    var doc = this.getDocument();
+    this._disconnect();
+    if (newProps.node) {
+      doc.getEventProxy('path').connect(this, [newProps.node.id, 'content'], this.rerender);
+      doc.getEventProxy('path').connect(this, [newProps.node.id, 'displayMode'], this.rerender);
+    }
+  };
+
+  this.dispose = function() {
+    this._disconnect();
+  };
+
   this.render = function() {
     var cell = this.props.node;
     var componentRegistry = this.context.componentRegistry;
@@ -41,23 +54,12 @@ CellComponent.Prototype = function() {
         }).ref('editor'));
       } else {
         // Render Cell content
-        var CellContentClass;
-        if (cell.isPrimitive()) {
-          CellContentClass = TextContent;
-        } else if (cell.valueType) {
-          CellContentClass = componentRegistry.get(cell.valueType);
+        if (this.renderContent) {
+          cellContent = this.renderContent();
+          el.append(cellContent);
+        } else {
+          throw new Error('renderContent missing in cell implementation');
         }
-        if (!CellContentClass) {
-          CellContentClass = ObjectComponent;
-        }
-        var cellContent = $$(CellContentClass, {
-          // HACK: having trouble with preservative rerendering
-          // when Components are use with the same props
-          // this hack forces a rerender
-          hack: Date.now(),
-          node: cell
-        });
-        el.append(cellContent);
       }
     } else {
       el.addClass('empty');
