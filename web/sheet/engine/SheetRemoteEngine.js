@@ -19,7 +19,7 @@ SheetRemoteEngine.Prototype = function() {
         this.active = true;
         cb(null, result);
       }
-    });
+    }.bind(this));
   };
 
   this.update = function(cells, cb) {
