@@ -134,7 +134,7 @@ CellComponent.Prototype = function() {
     } else if (newContent !== node.content) {
       docSession.transaction(function(tx) {
         tx.set([this.props.node.id, 'content'], newContent);
-      });
+      }.bind(this));
     }
     this.extendState({ edit: false });
   };
