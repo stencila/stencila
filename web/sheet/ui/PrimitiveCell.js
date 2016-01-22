@@ -15,9 +15,12 @@ PrimitiveCell.Prototype = function() {
     var node = this.props.node;
     
     el.addClass('sc-primitive-cell');
-    el.addClass(node.displayMode);
+    
+    if (!this.isEditing()) {
+      el.addClass(node.displayMode);
+      el.append(node.value);
+    }
 
-    el.text(node.value);
     // TODO: maybe introduce displaymode expanded to show source also
     return el;
   };

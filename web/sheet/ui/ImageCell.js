@@ -20,13 +20,15 @@ ImageCell.Prototype = function() {
     el.addClass('sc-image-cell');
     el.addClass(node.displayMode);
 
-    // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: node}));
+    if (!this.isEditing()) {
+      // Display cell teaser
+      el.append($$(CellTeaserComponent, {node: node}));
 
-    if (node.displayMode != 'clipped') {
-      el.append(
-        $$('img').attr('src', node.value)
-      );
+      if (node.displayMode != 'clipped') {
+        el.append(
+          $$('img').attr('src', node.value)
+        );
+      }
     }
     return el;
   };

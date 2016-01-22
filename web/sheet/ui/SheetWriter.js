@@ -18,7 +18,6 @@ var SaveTool = require('./SaveTool');
 var SheetEditor = require('./SheetEditor');
 var Sheet = require('../model/Sheet');
 
-
 var CONFIG = {
   controller: {
     commands: [
@@ -32,9 +31,6 @@ var CONFIG = {
       'int': require('./PrimitiveCell'),
       'real': require('./PrimitiveCell'),
       'ImageFile': require('./ImageCell'),
-      'data.frame': require('./PreformattedCell'),
-      'matrix': require('./PreformattedCell'),
-      'lm': require('./PreformattedCell'),
       'error': require('./ErrorCell'),
     }
   },
@@ -147,7 +143,6 @@ SheetWriter.Prototype = function() {
       }
     }
   };
-
 };
 
 SheetController.extend(SheetWriter);

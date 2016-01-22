@@ -16,16 +16,18 @@ ErrorCell.Prototype = function() {
   this.render = function() {
     var el = _super.render.call(this);
     var node = this.props.node;
-    
     el.addClass('sc-error-cell');
-    el.addClass(node.displayMode);
 
-    // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: node}));
+    if (!this.isEditing()) {
+      el.addClass(node.displayMode);
 
-    el.append(
-      $$('div').addClass('se-error-message').append(node.value)
-    );
+      // Display cell teaser
+      el.append($$(CellTeaserComponent, {node: node}));
+
+      el.append(
+        $$('div').addClass('se-error-message').append(node.value)
+      );
+    }
     return el;
   };
 };

@@ -1,6 +1,10 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
 
+
+$default-cell-padding: 1px 3px;
+
+
 // Substance styles
 // -----------------
 
@@ -20,9 +24,10 @@
 
 @import './styles/_sheet';
 @import './styles/_cell';
-@import './styles/_image';
-@import './styles/_text';
-@import './styles/_error';
+@import './styles/_image-cell';
+@import './styles/_constant-cell';
+@import './styles/_error-cell';
+@import './styles/_expression-cell';
 @import './styles/_snippet';
 @import './styles/_cell-teaser';
 @import './styles/_save-tool';

@@ -25,7 +25,9 @@ ConstantComponent.Prototype = function() {
   this.render = function() {
     var el = _super.render.call(this);
     el.addClass('sc-constant-cell');
-    el.html(this.props.node.content);
+    if (!this.isEditing()) {
+      el.append(this.props.node.content);
+    }
     return el;
   };
 };

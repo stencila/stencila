@@ -97,7 +97,6 @@ SheetEditor.Prototype = function() {
           }
 
           if (!CellComponentClass) {
-            console.log('cell.valueType', cell.valueType, cell);
             CellComponentClass = ExpressionCell;
           }
         } else {
@@ -112,7 +111,6 @@ SheetEditor.Prototype = function() {
       tbody.append(rowEl);
     }
     tableEl.append(tbody);
-
     return tableEl;
   };
 
@@ -198,7 +196,6 @@ SheetEditor.Prototype = function() {
   // DOM event handlers
 
   this.onMouseDown = function(event) {
-    console.log('mouse down');
     this.isSelecting = true;
     this.$el.on('mouseenter', 'td', this.onMouseEnter.bind(this));
     this.$el.one('mouseup', this.onMouseUp.bind(this));

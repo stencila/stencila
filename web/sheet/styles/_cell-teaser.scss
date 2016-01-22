@@ -9,7 +9,7 @@
 		color: #ccc;
 		padding-right: 10px;
 		float: left;
-		padding: 1px 3px;
+		padding: $default-cell-padding;
 	}
 
 	.se-content-type {
@@ -17,6 +17,6 @@
 		font-size: 12px;
 		color: #FF9F00;
 		float: right;
-		padding: 1px 3px;
+		padding: $default-cell-padding;
 	}
 }

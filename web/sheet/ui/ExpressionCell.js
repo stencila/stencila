@@ -20,16 +20,19 @@ ExpressionCell.Prototype = function() {
   this.render = function() {
     var el = _super.render.call(this);
     var node = this.props.node;
-    
     el.addClass('sc-expression-cell');
-    el.addClass(node.displayMode);
 
-    // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: node}));
+    if (!this.isEditing()) {
+      el.addClass(node.displayMode);
 
-    if (node.displayMode != 'clipped') {
-      el.append($$('pre').text(node.value));
+      // Display cell teaser
+      el.append($$(CellTeaserComponent, {node: node}));
+
+      if (node.displayMode != 'clipped') {
+        el.append($$('pre').append(node.value));
+      }
     }
+
     return el;
   };
 };
