@@ -343,9 +343,10 @@ SheetEditor.Prototype = function() {
 
     var doc = this.props.doc;
     each(change.created, function(nodeData) {
-      if (nodeData.type === 'sheet-cell') {
-        cells.push(nodeData);
-      }
+      // HACK this does not work currently
+      // if (nodeData.type === 'sheet-cell') {
+      //   cells.push(nodeData);
+      // }
     });
     each(change.deleted, function(nodeData) {
       if (nodeData.type === 'sheet-cell') {
