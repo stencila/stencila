@@ -1,19 +1,23 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var CellContentComponent = require('./CellContentComponent');
+var CellComponent = require('./CellComponent');
 var CellTeaserComponent = require('./CellTeaserComponent');
 var $$ = Component.$$;
 
-function ImageComponent() {
-  ImageComponent.super.apply(this, arguments);
+function ImageCell() {
+  ImageCell.super.apply(this, arguments);
 }
 
-ImageComponent.Prototype = function() {
+ImageCell.Prototype = function() {
+
+  var _super = Object.getPrototypeOf(this);
 
   this.render = function() {
+    var el = _super.render.call(this);
     var node = this.props.node;
-    var el = $$('div').addClass('sc-cell-content sc-image');
+    
+    el.addClass('sc-image-cell');
     el.addClass(node.displayMode);
 
     // Display cell teaser
@@ -24,11 +28,10 @@ ImageComponent.Prototype = function() {
         $$('img').attr('src', node.value)
       );
     }
-
     return el;
   };
 };
 
-CellContentComponent.extend(ImageComponent);
+CellComponent.extend(ImageCell);
 
-module.exports = ImageComponent;
+module.exports = ImageCell;

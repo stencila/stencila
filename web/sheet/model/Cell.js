@@ -36,6 +36,11 @@ Cell.Prototype = function() {
   };
 
   this.isPrimitive = function() {
+    console.warn('isPrimitive is deprecated. Use isConstant');
+    return this.isConstant();
+  };
+
+  this.isConstant = function() {
     return this._contentType === "primitive";
   };
 

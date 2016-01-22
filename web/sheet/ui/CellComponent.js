@@ -6,8 +6,6 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var CellEditor = require('./CellEditor');
 
-var TextContent = require('./TextComponent');
-var ObjectComponent = require('./ObjectComponent');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -18,18 +16,16 @@ function CellComponent() {
 
 CellComponent.Prototype = function() {
 
+  this.dispose = function() {
+    this._disconnect();
+  };
+
   this.render = function() {
     var cell = this.props.node;
-    var componentRegistry = this.context.componentRegistry;
     var el = $$('td').addClass('se-cell');
 
     var isEditing = this.isEditing();
-    el.addClass(isEditing ? 'edit' : 'display');
-
-    if (!isEditing) {
-      el.on('dblclick', this.onDblClick);
-      // el.on('click', this.onClick);
-    }
+    el.addClass(isEditing ? 'sm-edit' : 'sm-display');
 
     if (isEditing) {
       var content;
@@ -44,30 +40,7 @@ CellComponent.Prototype = function() {
         content: content
       }).ref('editor'));
     } else {
-      if (cell) {
-        // Mark as selected
-        el.addClass(cell.valueType);
-        // Render Cell content
-        var CellContentClass;
-        if (cell.isPrimitive()) {
-          CellContentClass = TextContent;
-        } else if (cell.valueType) {
-          CellContentClass = componentRegistry.get(cell.valueType);
-        }
-        if (!CellContentClass) {
-          CellContentClass = ObjectComponent;
-        }
-        var cellContent = $$(CellContentClass, {
-          // HACK: having trouble with preservative rerendering
-          // when Components are use with the same props
-          // this hack forces a rerender
-          hack: Date.now(),
-          node: cell
-        });
-        el.append(cellContent);
-      } else {
-        el.addClass('empty');
-      }
+      el.on('dblclick', this.onDblClick);
     }
 
     return el;
