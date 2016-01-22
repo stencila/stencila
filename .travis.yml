@@ -53,6 +53,9 @@ install:
     - sudo apt-get install r-base r-base-dev --force-yes --assume-yes --fix-broken
     - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
 
+    # Install snippets build dependencies
+    - pip2.7 install -r snippets/requirements.txt
+
     # Install build delivery dependencies
     - pip2.7 install --upgrade --user awscli
 
@@ -83,7 +86,7 @@ script:
 
 after_success:
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - test $TRAVIS_PULL_REQUEST == "false" && make docker-r-deliver py-deliver r-deliver
+    - test $TRAVIS_PULL_REQUEST == "false" && make docker-r-deliver py-deliver r-deliver snippets-upload
 
 notifications:
     slack:

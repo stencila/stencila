@@ -1,0 +1,116 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "/",
+    "type": "object", 
+    "description": "Specification of a snippet", 
+    "properties": {
+        "name": {
+            "id": "name",
+            "description": "Name of snippet",
+            "type": "string"
+        },
+        "summary": {
+            "id": "summary",
+            "description": "A short summary of the snippet",
+            "type": "string"
+        },
+        "notes": {
+            "id": "notes",
+            "description": "List of notes",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },  
+        "languages": {
+            "id": "languages",
+            "description": "List of languages that this sippet can be used in",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "examples": {
+            "id": "examples",
+            "description": "List of other examples",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }            
+        },
+        "see": {
+            "id": "see",
+            "description": "List of other related snippets",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "parameters": {
+            "id": "parameters",
+            "description": "List of parameters for this snippet", 
+            "type": "array",
+            "items": {
+                "id": "parameter",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Name of the parameter",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Short description of the parameter",
+                        "type": "string"
+                    },
+                    "shape": {
+                        "description": "Permissible shape for the sheet cells used as arguments to this parameter. Valid values include `one` (a single cell e.g. `A1` or a literal value e.g. `428`), `block` (a contiguous range of cells e.g. `A1:G10`), a `list` (a list of cell IDs e.g. `A1:A5&G4`). `list` is the most generic (it includes `one` and `block`) and is the default.",
+                        "type": "string"
+                    }, 
+                    "optional": {
+                        "description": "Is the parameter optional?",
+                        "type": "boolean"
+                    },
+                    "variadic": {
+                        "description": "Is the parameter variadic?",
+                        "type": "boolean"
+                    }
+                },
+                "required":[
+                    "name","description"
+                ]
+            }
+        },
+        "code": {
+            "id": "code",
+            "description": "List of code generation specifications. These specifications are used to generate the code snippet given the parameter expressions suppled by the user.",
+            "type": "array", 
+            "items": {
+                "id": "generator",
+                "description": "Each object should only have one of `call`, `subs`, `expr` or `func`. These alternative methods for code generation are suited to alternative complexities of snippet code ranging from simple one line function calls to more complicated multi-line code. ",
+                "type": "object",
+                "properties": {
+                    "language": {
+                        "type": "string", 
+                        "description": "A pipe separated list of the languages that the generated snippet code can be used in "
+                    }, 
+                    "expr": {
+                        "type": "string", 
+                        "description": "A javascript expression to be evaluated against the array of parameter expression strings `exprs`. Example `'sum(' + exprs[0] + ')'` "
+                    }, 
+                    "call": {
+                        "type": "string", 
+                        "description": "The name of a function to generate a simple call given the  array of parameter expressions supplied by the user. Example `sum` "
+                    }, 
+                    "subs": {
+                        "type": "string", 
+                        "description": "A string with `${0}` like placeholders for parameter expressions. Useful for dealing with parameters which have names that differ between languages. Example of a weighted mean in R `weighted.mean(${0},w=${1})` and in Python `numpy.average(${0},weights=${1})`. "
+                    }, 
+                    "func": {
+                        "type": "string", 
+                        "description": "A javascript function that takes `pars` as an argument. Will usually be used when it is necessary to do more complicated generation of snippets based on the parameter expressions and other characteristics (e.g. shape). Example `function(pars){ return 'sum(' + pars[0].expr + ')'; }`."
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1068,6 +1068,18 @@ r-clean:
 	rm -rf $(BUILD)/r
 
 #################################################################################################
+# Stencila snippets
+
+snippets-env:
+	cd snippets && virtualenv env && . env/bin/activate && pip install -r requirements.txt
+
+snippets-validate:
+	cd snippets && . env/bin/activate && python snippets.py validate
+
+snippets-upload:
+	cd snippets && . env/bin/activate && python snippets.py upload
+
+#################################################################################################
 # Stencila web browser module
 
 web-requires:

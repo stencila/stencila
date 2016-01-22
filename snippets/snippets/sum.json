@@ -1,5 +1,5 @@
 {
-	"name": "sum",
+	"id": "sum",
 	"summary": "Returns the sum of values",
 	"notes": [
 		"If only a single number for `values` is supplied, `sum` returns `values`"
@@ -22,7 +22,7 @@
 		{
 			"name": "values",
 			"description": "Number or cell or range of cells to sum up"
-		} 
+		}
 	],
 	"code": [
 		{

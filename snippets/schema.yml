@@ -1,118 +1,149 @@
-swagger: '2.0'
-
-info:
-  title: Stencila Snippets Web API
-  version: 0.0
-  description: |
-    This is a part of the Stencila Web API at https://stenci.la/api 
-    that deals with snippets. It's here mainly to provide the `Snippet`
-    schema definition below against which snippets can be authored.
-    For the full set of paths associated with snippets see https://stenci.la/api.
-  
-paths:
-
 definitions:
-
     Snippet:
-      description: Specification of a snippet
-      type: object
-      properties:
-        name:
-          description: Name of snippet
-          type: string
-        summary:
-          description: A short summary of the snippet
-          type: string
-        notes:
-          description: List of notes
-          type: array
-          items: 
-            type: string
-        examples:
-          description: List of other examples
-          type: array
-          items: 
-            type: string
-        see:
-          description: List of other related snippets
-          type: array
-          items: 
-            type: string
-        languages:
-          description: List of languages that this sippet can be used in
-          type: array
-          items: 
-            type: string
-        parameters:
-          description: List of parameters for this snippet
-          required: true
-          type: array
-          items:
-            schema:
-              type: object
-              properties:
-                name:
-                  description: Name of the parameter
-                  type: string
-                description:
-                  description: Short description of the parameter
-                  type: string
-                shape:
-                  description: |
-                    Permissible shape for the sheet cells used as arguments to this parameter.
-                    Valid values include `one` (a single cell e.g. `A1` or a literal value e.g. `428`),
-                    `block` (a contiguous range of cells e.g. `A1:G10`), a `list` (a list of cell IDs e.g. `A1:A5&G4`).
-                    `list` is the most generic (it includes `one` and `block`) and is the default.
-                  type: string
-                  required: false
-                variadic:
-                  description: Is the parameter variadic?
-                  type: bool
-                  required: false
-                optional:
-                  description: Is the parameter optional?
-                  type: bool
-                  required: false
-        code:
-          description: |
-            List of code generation specifications.
-            These specifications are used to generate the code snippet given
-            the parameter expressions suppled by the user.
-          required: true
-          type: array
-          items:
-            schema:
-              description: |
-                Each object should only have one of `call`, `subs`, `expr` or `func`.
-                These alternative methods for code generation are suited to alternative complexities
-                of snippet code ranging from simple one line function calls to more complicated multi-line code.
-              type: object
-              properties:
-                language:
-                  description: |
-                    A pipe separated list of the languages that the generated snippet code can be used in
-                  type: string
-                call:
-                  description: |
-                    The name of a function to generate a simple call given the 
-                    array of parameter expressions supplied by the user. 
-                    Example `sum`
-                  type: string
-                subs:
-                  description: |
-                    A string with `${0}` like placeholders for parameter expressions.
-                    Useful for dealing with parameters which have names that differ between languages.
-                    Example of a weighted mean in R `weighted.mean(${0},w=${1})` and in Python `numpy.average(${0},weights=${1})`.
-                  type: string
-                expr:
-                  description: |
-                    A javascript expression to be evaluated against the array of parameter expression strings `exprs`.
-                    Example `'sum(' + exprs[0] + ')'`
-                  type: string
-                func:
-                  description: |
-                    A javascript function that takes `pars` as an argument.
-                    Will usually be used when it is necessary to do more complicated
-                    generation of snippets based on the parameter expressions and other characteristics (e.g. shape)
-                    Example `function(pars){ return 'sum(' + pars[0].expr + ')'; }`.
-                  type: string            
+        description: Specification of a snippet
+        properties:
+            code:
+                description: 'List of code generation specifications.
+
+                    These specifications are used to generate the code snippet given
+
+                    the parameter expressions suppled by the user.
+
+                    '
+                items:
+                    schema:
+                        description: 'Each object should only have one of `call`,
+                            `subs`, `expr` or `func`.
+
+                            These alternative methods for code generation are suited
+                            to alternative complexities
+
+                            of snippet code ranging from simple one line function
+                            calls to more complicated multi-line code.
+
+                            '
+                        properties:
+                            call:
+                                description: "The name of a function to generate a\
+                                    \ simple call given the \narray of parameter expressions\
+                                    \ supplied by the user. \nExample `sum`\n"
+                                type: string
+                            expr:
+                                description: 'A javascript expression to be evaluated
+                                    against the array of parameter expression strings
+                                    `exprs`.
+
+                                    Example `''sum('' + exprs[0] + '')''`
+
+                                    '
+                                type: string
+                            func:
+                                description: 'A javascript function that takes `pars`
+                                    as an argument.
+
+                                    Will usually be used when it is necessary to do
+                                    more complicated
+
+                                    generation of snippets based on the parameter
+                                    expressions and other characteristics (e.g. shape)
+
+                                    Example `function(pars){ return ''sum('' + pars[0].expr
+                                    + '')''; }`.
+
+                                    '
+                                type: string
+                            language:
+                                description: 'A pipe separated list of the languages
+                                    that the generated snippet code can be used in
+
+                                    '
+                                type: string
+                            subs:
+                                description: 'A string with `${0}` like placeholders
+                                    for parameter expressions.
+
+                                    Useful for dealing with parameters which have
+                                    names that differ between languages.
+
+                                    Example of a weighted mean in R `weighted.mean(${0},w=${1})`
+                                    and in Python `numpy.average(${0},weights=${1})`.
+
+                                    '
+                                type: string
+                        type: object
+                required: true
+                type: array
+            examples:
+                description: List of other examples
+                items:
+                    type: string
+                type: array
+            languages:
+                description: List of languages that this sippet can be used in
+                items:
+                    type: string
+                type: array
+            name:
+                description: Name of snippet
+                type: string
+            notes:
+                description: List of notes
+                items:
+                    type: string
+                type: array
+            parameters:
+                description: List of parameters for this snippet
+                items:
+                    schema:
+                        properties:
+                            description:
+                                description: Short description of the parameter
+                                type: string
+                            name:
+                                description: Name of the parameter
+                                type: string
+                            optional:
+                                description: Is the parameter optional?
+                                required: false
+                                type: bool
+                            shape:
+                                description: 'Permissible shape for the sheet cells
+                                    used as arguments to this parameter.
+
+                                    Valid values include `one` (a single cell e.g.
+                                    `A1` or a literal value e.g. `428`),
+
+                                    `block` (a contiguous range of cells e.g. `A1:G10`),
+                                    a `list` (a list of cell IDs e.g. `A1:A5&G4`).
+
+                                    `list` is the most generic (it includes `one`
+                                    and `block`) and is the default.
+
+                                    '
+                                required: false
+                                type: string
+                            variadic:
+                                description: Is the parameter variadic?
+                                required: false
+                                type: bool
+                        type: object
+                required: true
+                type: array
+            see:
+                description: List of other related snippets
+                items:
+                    type: string
+                type: array
+            summary:
+                description: A short summary of the snippet
+                type: string
+        type: object
+info:
+    description: "This is a part of the Stencila Web API at https://stenci.la/api\
+        \ \nthat deals with snippets. It's here mainly to provide the `Snippet`\n\
+        schema definition below against which snippets can be authored.\nFor the full\
+        \ set of paths associated with snippets see https://stenci.la/api.\n"
+    title: Stencila Snippets Web API
+    version: 0.0
+paths: null
+swagger: '2.0'
