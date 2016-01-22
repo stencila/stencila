@@ -30,6 +30,10 @@ var Sheet = function(schema) {
   this._matrix = null;
   this._nrows = 0;
   this._ncols = 0;
+
+  this.connect(this, {
+    'document:changed': this._onChange
+  });
 };
 
 Sheet.Prototype = function() {
@@ -37,9 +41,12 @@ Sheet.Prototype = function() {
   this.getCellAt = function(rowIdx, colIdx) {
     if (!this._matrix) this._computeMatrix();
 
-    var row = this._matrix[rowIdx]
+    var row = this._matrix[rowIdx];
     if (row) {
-      return row[colIdx];
+      var cellId = row[colIdx];
+      if (cellId) {
+        return this.get(cellId);
+      }
     }
     return null;
   };
@@ -57,27 +64,40 @@ Sheet.Prototype = function() {
   };
 
   this._computeMatrix = function() {
-    var matrix = [];
-    var nrows = 0;
-    var ncols = 0;
+    this._matrix = {};
+    this._nrows = 0;
+    this._ncols = 0;
     each(this.getNodes(), function(node) {
       if (node.type === "sheet-cell") {
-        var cell = node;
-        var rowIdx = cell.getRow();
-        var colIdx = cell.getCol();
-        var row = matrix[rowIdx];
-        if (!row) {
-          row = [];
-          matrix[rowIdx] = row;
-        }
-        row[colIdx] = cell;
-        nrows = Math.max(nrows, rowIdx);
-        ncols = Math.max(ncols, colIdx);
+        this._updateCellMatrix(node.row, node.col, node.id);
       }
-    });
-    this._matrix = matrix;
-    this._nrows = nrows + 1;
-    this._ncols = ncols + 1;
+    }.bind(this));
+  };
+
+  this._updateCellMatrix = function(rowIdx, colIdx, cellId) {
+    var row = this._matrix[rowIdx];
+    if (!row) {
+      row = {};
+      this._matrix[rowIdx] = row;
+    }
+    if (cellId) {
+      row[colIdx] = cellId;
+    } else {
+      delete row[colIdx];
+    }
+    this._nrows = Math.max(this._nrows, rowIdx+1);
+    this._ncols = Math.max(this._ncols, colIdx+1);
+  };
+
+  // updating the matrix whenever a cell has been created or deleted
+  this._onChange = function(change) {
+    if (!this._matrix) return;
+    each(change.created, function(cell) {
+      this._updateCellMatrix(cell.row, cell.col, cell.id);
+    }.bind(this));
+    each(change.deleted, function(cell) {
+      this._updateCellMatrix(cell.row, cell.col, null);
+    }.bind(this));
   };
 };
 

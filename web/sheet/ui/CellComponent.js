@@ -185,13 +185,22 @@ CellComponent.Prototype = function() {
     if (node) {
       doc.getEventProxy('path').connect(this, [node.id, 'content'], this.rerender);
       doc.getEventProxy('path').connect(this, [node.id, 'displayMode'], this.rerender);
+      node.connect(this, {
+        'cell:changed': this.rerender
+      });
     }
   };
+
+  // this._onCellChange = function() {
+  //   console.log('CELL CHANGED', this.props.node);
+  //   this.rerender();
+  // };
 
   this._disconnect = function() {
     var doc = this.getDocument();
     if (this.props.node) {
       doc.getEventProxy('path').disconnect(this);
+      node.disconnect(this);
     }
   };
 
