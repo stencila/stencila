@@ -3,6 +3,7 @@
 var SheetController = require('./SheetController');
 var SplitPane = require('substance/ui/SplitPane');
 var ScrollPane = require('substance/ui/ScrollPane');
+var StatusBar = require('substance/ui/StatusBar');
 var Toolbar = require('substance/ui/Toolbar');
 var Component = require('substance/ui/Component');
 
@@ -63,11 +64,11 @@ SheetWriter.Prototype = function() {
 
   this.render = function() {
     var el = $$('div').addClass('sc-sheet-controller sc-sheet-writer sc-controller').append(
-      this._renderMainSection()
+      $$(SplitPane, {splitType: 'horizontal', sizeB: 'inherit'}).append(
+        this._renderMainSection(),
+        $$(StatusBar, {doc: this.props.doc}).ref('statusBar')
+      ).ref('workspaceSplitPane')
     );
-    if (this.state.error) {
-      // TODO: show error in overlay
-    }
     return el;
   };
 
@@ -111,15 +112,13 @@ SheetWriter.Prototype = function() {
       };
     });
     // Update the sheet with the new cell source
-    this.props.engine.update(cells, function(error, updates) {
-      if (error) {
-        this.extendState({
-          error: error
-        });
+    this.props.engine.update(cells, function(err, updates) {
+      if (err) {
+        this.getLogger().error(err.message || err.toString());
         return;
       }
       if (!updates) {
-        console.error('FIXME: did not receive updates.');
+        console.error('FIXME: did not receive updates.', updates);
         return;
       }
       this._handleUpdates(updates);

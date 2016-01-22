@@ -34,13 +34,14 @@ RemoteEngine.Prototype = function() {
   this.activate = function(cb) {
     if (!this.active) {
       this.request('PUT', 'activate', null, function(err, result) {
-        if (err) { console.error(err); }
-        else {
-          if (cb) cb(err, result);
+        if (err) {
+          return cb(err);
+        } else {
           this.active = true;
           this.pingInterval = setInterval(function(){
             this.ping();
           }.bind(this), 3*60*1000);
+          if (cb) cb(err, result);
         }
       }.bind(this));
     }
@@ -49,8 +50,9 @@ RemoteEngine.Prototype = function() {
   this.deactivate = function() {
     if (this.active) {
       this.request('PUT', 'deactivate', null, function(err, result) {
-        if (err) { console.error(err); }
-        else {
+        if (err) {
+          console.error(err);
+        } else {
           this.active = false;
           clearInterval(this.pingInterval);
         }
@@ -80,7 +82,11 @@ RemoteEngine.Prototype = function() {
       },
       error: function(err) {
         console.error(err);
-        cb(err.responseText);
+        try {
+          cb(JSON.parse(err.responseText));
+        } catch(err) {
+          cb(err.responseText);
+        }
       }
     };
     if (data) {
