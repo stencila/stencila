@@ -1,7 +1,5 @@
 'use strict';
 
-var Sheet = require('./Sheet');
-
 module.exports = {
 
   type: 'sheet-cell',
@@ -18,8 +16,6 @@ module.exports = {
     var displayMode = el.attr('data-display-mode');
     var exprType = el.attr('data-kind');
     var valueType = el.attr('data-type');
-    // FIXME: we should agree on a set of valueTypes
-    valueType = Sheet.normalizeValueType(valueType);
     // primitives
     if (exprType === 's' || exprType === 'z' || exprType === 'n') {
       node.content = textContent;

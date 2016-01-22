@@ -99,6 +99,7 @@ SheetEditor.Prototype = function() {
           } 
 
           if (!CellComponentClass) {
+            console.log('cell.valueType', cell.valueType, cell);
             CellComponentClass = ExpressionCell;
           }
         } else {
