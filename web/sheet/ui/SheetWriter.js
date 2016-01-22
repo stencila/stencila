@@ -35,6 +35,7 @@ var CONFIG = {
       'data.frame': require('./PreformattedCell'),
       'matrix': require('./PreformattedCell'),
       'lm': require('./PreformattedCell'),
+      'error': require('./ErrorCell'),
     }
   },
   main: {
