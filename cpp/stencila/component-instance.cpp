@@ -6,6 +6,8 @@
 #include <stencila/stencil.hpp>
 #include <stencila/theme.hpp>
 #include <stencila/sheet.hpp>
+#include <stencila/function.hpp>
+
 #include <stencila/string.hpp>
 
 namespace Stencila {
@@ -35,6 +37,12 @@ void Component::classes(void){
 		"Sheet",
 		Sheet::page,
 		Sheet::request,
+		nullptr
+	));
+	class_(Component::FunctionType, Class(
+		"Function",
+		Function::page,
+		Function::request,
 		nullptr
 	));
 }
@@ -94,6 +102,9 @@ Component::Type Component::type(const std::string& path_string){
 	for(auto file : {"sheet.tsv"}){
 		if(boost::filesystem::exists(path/file)) return SheetType;
 	}
+	for(auto file : {"function.yaml","function.yml","function.json"}){
+		if(boost::filesystem::exists(path/file)) return SheetType;
+	}
 	return NoneType;
 }
 
@@ -105,6 +116,7 @@ std::string Component::type_name(const Component::Type& type){
 		case StencilType: return "Stencil";
 		case ThemeType: return "Theme";
 		case SheetType: return "Sheet";
+		case FunctionType: return "Function";
 
 		case PythonContextType: return "PythonContext";
 
@@ -150,6 +162,10 @@ Component::Instance Component::get(const std::string& address,const std::string&
 					Sheet* sheet = new Sheet;
 					sheet->read(path);
 					component = sheet;
+				} else if(type==FunctionType){
+					Function* function = new Function;
+					function->read(path);
+					component = function;
 				} else {
 					STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
 				}

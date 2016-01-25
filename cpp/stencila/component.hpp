@@ -346,6 +346,7 @@ public:
 		StencilType,
 		ThemeType,
 		SheetType,
+		FunctionType,
 
 		PythonContextType,
 		
