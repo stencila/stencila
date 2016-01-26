@@ -131,6 +131,10 @@ setRefClass(
             if(is.null(.context)) attach(Context())
             method_(.self,'Stencil_view')
         },
+        page = function(path){
+            if(missing(path)) method_(.self,'Stencil_page_get')
+            else method_(.self,'Stencil_page',path)
+        },
 
         docx = function(direction,path){
             method_(.self,'Stencil_docx',direction,path)

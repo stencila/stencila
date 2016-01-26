@@ -376,6 +376,11 @@ std::string Sheet::page(void) const {
     return doc.dump(false);
 }
 
+Sheet& Sheet::page(const std::string& filename) {
+    write_to(filename, page());
+    return *this;
+}
+
 Sheet& Sheet::compile(void) {
     auto home = boost::filesystem::path(path(true));
     auto filepath = (home/"index.html").string();

@@ -941,6 +941,12 @@ public:
 	std::string page(void) const;
 
 	/**
+	 * Generate a web page for this stencil and write it to a file
+	 * (usually index.html) in it's working directory
+	 */
+	Stencil& page(const std::string& filename);
+
+	/**
 	 * Respond to a web request to a stencil
 	 *
 	 * @param  component  A pointer to a stencil

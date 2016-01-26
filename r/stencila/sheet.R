@@ -70,8 +70,9 @@ setRefClass(
             }
         },
 
-        compile = function(){
-            method_(.self,'Sheet_compile')
+        page = function(path){
+            if(missing(path)) method_(.self,'Sheet_page_get')
+            else method_(.self,'Sheet_page',path)
         },
 
         attach = function(spread){

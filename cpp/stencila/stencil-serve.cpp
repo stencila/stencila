@@ -46,6 +46,11 @@ std::string Stencil::page(void) const {
 	return doc.dump(false);
 }
 
+Stencil& Stencil::page(const std::string& filename) {
+	write_to(filename, page());
+	return *this;
+}
+
 std::string Stencil::request(Component* component,const std::string& verb,const std::string& method,const std::string& body){
 	return static_cast<Stencil&>(*component).request(verb, method, body);
 }
