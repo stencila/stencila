@@ -50,6 +50,17 @@ public:
 	Stencil& initialise(const std::string& from);
 
 	/**
+	 * Restrict a stencil to elements that are currently supported
+	 * by the web front end.
+	 *
+	 * Currently this method is only partially implemented and 
+	 * must be called explicitly but in the future it may be called
+	 * implicityly when initialising or importing a stencil fron an 
+	 * external file.
+	 */
+	Stencil& restrict(void);
+
+	/**
 	 * Import the stencil content from a file
 	 * 
 	 * @param  path Filesystem path to file
