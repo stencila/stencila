@@ -91,7 +91,7 @@ R"(<figure id="figure-a">
 	</figcaption>
 </figure>)";
 	BOOST_CHECK_EQUAL(
-		stencil.html(),
+		stencil.html(false,true),
 		out
 	);
 }
