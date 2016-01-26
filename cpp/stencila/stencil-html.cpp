@@ -5,7 +5,14 @@
 namespace Stencila {
 
 std::string Stencil::html(bool document, bool pretty) const {
-	if(not document){
+	if (document) {
+		// Create a valid HTML document with title and
+		// content in body (but without other embellishments produced by page())
+		Html::Document doc;
+		doc.select("head title").text(title());
+		doc.select("body").append(*this);
+		return doc.dump(pretty);
+	} else {
 		// Return content only
 		// Place into a Html::Fragment
 		Html::Fragment frag = *this;
@@ -20,9 +27,6 @@ std::string Stencil::html(bool document, bool pretty) const {
 		}
 		auto html = frag.dump(pretty);
 		return trim(html);
-	} else {
-		// Return a complete HTML document
-		return page();
 	}
 }
 
