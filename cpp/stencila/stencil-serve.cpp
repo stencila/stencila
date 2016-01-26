@@ -98,7 +98,7 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 		render();
 
 		response.append("format","html");
-		response.append("content",html(false,false));
+		response.append("content",html());
 	}
 	else {
 		throw RequestInvalidException();

@@ -83,6 +83,8 @@ setRefClass(
         read = function(path="") method_(.self,'Stencil_read',path),
         write = function(path="") method_(.self,'Stencil_write',path),
 
+        restrict = function() method_(.self,'Stencil_restrict'),
+
         # Currently, rather than invoking multiple inheritance (i.e a stencil derived from a Html::Node)
         # implement these methods for Stencils and HtmlNodes separately
         select = function(selector) method_(.self,'Stencil_select',selector),
@@ -141,10 +143,6 @@ setRefClass(
         },
         preview = function(path){
             method_(.self,'Stencil_preview',path)
-        },
-        compile = function(){
-            attach(Context())
-            method_(.self,'Stencil_compile')
         }
     )
 )

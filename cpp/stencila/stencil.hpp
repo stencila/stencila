@@ -50,6 +50,17 @@ public:
 	Stencil& initialise(const std::string& from);
 
 	/**
+	 * Restrict a stencil to elements that are currently supported
+	 * by the web front end.
+	 *
+	 * Currently this method is only partially implemented and 
+	 * must be called explicitly but in the future it may be called
+	 * implicityly when initialising or importing a stencil fron an 
+	 * external file.
+	 */
+	Stencil& restrict(void);
+
+	/**
 	 * Import the stencil content from a file
 	 * 
 	 * @param  path Filesystem path to file
@@ -130,7 +141,7 @@ public:
 	/**
 	 * Get stencil content as HTML
 	 */
-	std::string html(bool document = false, bool pretty = true) const;
+	std::string html(bool document = false, bool pretty = false) const;
 
 	/**
 	 * Set stencil content as HTML
@@ -216,14 +227,6 @@ public:
 		const std::string& margin = "1cm"
 	);
 
-	/**
-	 * Compile this stencil
-	 *
-	 * Render this stencil and export it as HTML to `stencil.html` and
-	 * a create a preview image as `preview.png`
-	 */
-	Stencil& compile(void);
-	
 	/**
 	 * @}
 	 */
