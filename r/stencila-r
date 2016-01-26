@@ -28,6 +28,11 @@ if(terminal){
     reset <- NULL
 }
 
+# Output function
+# May be overridden below if -q option set
+out <- function(...) {
+    cat(...)
+}
 # Error function
 error <- function(...) {
     cat(green)
@@ -38,24 +43,47 @@ error <- function(...) {
 # Load package
 library(stencila,quietly=T)
 
-# Banner
-cat(green,'Stencila ',stencila:::version(),' CLI for R\n\n',reset,sep='')
-
 # Get the command line arguments
 commands <- commandArgs(trailingOnly=TRUE)
 
+# Set options
+options <- list(
+    help=FALSE
+)
+if(length(commands)>0 && substr(commands[1],1,1)=='-') {
+    # First command is actually list of options
+    # So pop them off the commands list
+    options_string = substr(commands[1],1,nchar(commands[1]))
+    commands <- commands[-1]
+    for(index in 1:nchar(options_string)){
+        option <- substr(options_string,index,index)
+        if(option=='q'){
+            out <- function(...){}
+        } else if (option=='h') {
+            options$help <- TRUE
+        }
+    }
+}
+# If no real commands then must provide help
+if(length(commands)==0) {
+    options$help <- TRUE
+}
+
+# Banner
+out(green,'Stencila ',stencila:::version(),' CLI for R\n\n',reset,sep='')
+
 # General help on usage
-if(length(commands)==0 | (length(commands)==1 & commands[1]=='help')){
-    cat(green)
-    cat('Usage:\n')
-    cat('  stencila-r help                                   \n')
-    cat('  stencila-r new <type> <method>[:<arg>,<arg>,...]  \n')
-    cat('  stencila-r <address> <method>[:<arg>,<arg>,...] ...\n')
-    cat('\n')
-    cat('Examples:\n')
-    cat('  stencila-r new stencil view ...\n')
-    cat('  stencila-r . update write\n')
-    cat('  stencila-r core/themes/base compile\n')
+if(options$help){
+    out(green)
+    out('Usage:\n')
+    out('  stencila-r -[options]                             \n')
+    out('  stencila-r new <type> <method>[:<arg>,<arg>,...]  \n')
+    out('  stencila-r <address> <method>[:<arg>,<arg>,...] ...\n')
+    out('\n')
+    out('Examples:\n')
+    out('  stencila-r new stencil view ...\n')
+    out('  stencila-r . update write\n')
+    out('  stencila-r core/themes/base compile\n')
     quit('no')
 }
 
@@ -69,7 +97,7 @@ if(target=="-"){
     }
     type <- commands[2]
     commands <- commands[-2]
-    cat('Creating new       : ',magenta,type,reset,'\n',sep='')
+    out('Creating new       : ',magenta,type,reset,'\n',sep='')
     if(type=='stencil'){
         component <- Stencil()
     }
@@ -81,15 +109,15 @@ if(target=="-"){
     }
     component$path('') # Ensure component is given a path
 } else {
-    cat('Grabbing from      : ',magenta,target,reset,'\n',sep='')
+    out('Grabbing from      : ',magenta,target,reset,'\n',sep='')
     component <- grab(target)
 }
 
 if(!is.null(component)){
     # Confirm component address, path, type
-    cat('Component address  : ',cyan,component$address(),reset,'\n',sep='')
-    cat('Component path     : ',cyan,component$path(),reset,'\n',sep='')
-    cat('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
+    out('Component address  : ',cyan,component$address(),reset,'\n',sep='')
+    out('Component path     : ',cyan,component$path(),reset,'\n',sep='')
+    out('Component type     : ',cyan,class(component)[1],reset,'\n',sep='')
 }
 
 # Iterate over methods, applying them to the component
@@ -98,7 +126,7 @@ for(command in commands){
     if(!is.na(command)){
         # If elipsis then sleep until Ctrl+C
         if(command=='...'){
-            cat('\nSleeping (use Ctrl+C to exit)\n')
+            out('\nSleeping (use Ctrl+C to exit)\n')
             Sys.sleep(Inf)
         }
         # Get method and arguments
@@ -121,12 +149,12 @@ for(command in commands){
         else call <- paste0(method,'()')
         if(!is.null(component)) call <- paste0('component$',call)
         # Execute call
-        cat('Running code       : ',blue,call,reset,'\n',sep='')
-        cat(yellow)
+        out('Running code       : ',blue,call,reset,'\n',sep='')
+        out(yellow)
         result <- eval(parse(text = call))
         # Only show if not null return and not the component
         if(!is.null(result) && !inherits(result,class(component)[1])) show(result)
-        cat(reset)
+        out(reset)
     }
 }
 
