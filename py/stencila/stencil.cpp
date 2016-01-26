@@ -64,7 +64,5 @@ void def_Stencil(void){
 
         .def("serve",&Stencil::serve,return_self<>())
         .def("view",&Stencil::view,return_self<>())
-
-        .def("compile",&Stencil::compile,return_self<>())
     ;
 }
