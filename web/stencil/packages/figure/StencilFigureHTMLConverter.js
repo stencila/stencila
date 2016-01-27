@@ -34,20 +34,20 @@ module.exports = {
 
     if(node.index) el.attr('data-index', node.index);
 
-    var exec = $$('<pre>')
+    var exec = $$('pre')
       .attr('data-exec', node.spec)
       .text(node.source);
     if(node.hash) exec.attr('data-hash', node.hash);
     if(node.error) exec.attr('data-error', node.error);
 
-    var img = $$('<img>')
+    var img = $$('img')
       .attr('src', node.image);
 
-    var out = $$('<div>')
+    var out = $$('div')
       .attr('data-out','true')
       .append(img);
 
-    var caption = $$('<figcaption>')
+    var caption = $$('figcaption')
       //FIXME: where does id come from?
       .append(converter.annotatedText([node.id, 'caption']));
 
