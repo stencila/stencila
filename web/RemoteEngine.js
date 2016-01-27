@@ -31,16 +31,22 @@ var RemoteEngine = function() {
 };
 
 RemoteEngine.Prototype = function() {
+
+  this.boot = function(cb) {
+    this._request('PUT', 'boot', null, function(err, result) {
+      if (err) return cb(err);
+      this._activated();
+      cb(null, result);
+    }.bind(this));
+  };
+
   this.activate = function(cb) {
     if (!this.active) {
-      this.request('PUT', 'activate', null, function(err, result) {
+      this._request('PUT', 'activate', null, function(err, result) {
         if (err) {
           return cb(err);
         } else {
-          this.active = true;
-          this.pingInterval = setInterval(function(){
-            this.ping();
-          }.bind(this), 3*60*1000);
+          this._activated();
           if (cb) cb(err, result);
         }
       }.bind(this));
@@ -49,7 +55,7 @@ RemoteEngine.Prototype = function() {
 
   this.deactivate = function() {
     if (this.active) {
-      this.request('PUT', 'deactivate', null, function(err, result) {
+      this._request('PUT', 'deactivate', null, function(err, result) {
         if (err) {
           console.error(err);
         } else {
@@ -62,13 +68,16 @@ RemoteEngine.Prototype = function() {
 
   this.ping = function() {
     if (this.active) {
-      this.request('PUT', 'ping', null, function(err, result) {
+      this._request('PUT', 'ping', null, function(err, result) {
         if (err) { console.error(err); }
       }.bind(this));
     }
   };
 
-  this.request = function(method, endpoint, data, cb) {
+  // Private, local, methods
+
+  this._request = function(method, endpoint, data, cb) {
+    var self = this;
     var ajaxOpts = {
       type: method,
       url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
@@ -82,10 +91,16 @@ RemoteEngine.Prototype = function() {
       },
       error: function(err) {
         console.error(err);
-        try {
-          cb(JSON.parse(err.responseText));
-        } catch(err) {
-          cb(err.responseText);
+        if(err.status==401){
+          $.get('/me/signin-dialog').done(function(data){
+            self._dialog(data);
+          });
+        } else {
+          try {
+            cb(JSON.parse(err.responseText));
+          } catch(err) {
+            cb(err.responseText);
+          }
         }
       }
     };
@@ -93,6 +108,19 @@ RemoteEngine.Prototype = function() {
       ajaxOpts.data = JSON.stringify(data);
     }
     $.ajax(ajaxOpts);
+  };
+
+  this._activated = function() {
+    this.active = true;
+    this.pingInterval = setInterval(function(){
+      this.ping();
+    }.bind(this), 3*60*1000);
+  };
+
+  this._dialog = function(content) {
+    var div = $('<div>')
+      .appendTo($('body'))
+      .html(content);
   };
 
 };
