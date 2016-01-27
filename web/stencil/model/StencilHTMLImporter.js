@@ -11,7 +11,8 @@ function StencilHTMLImporter() {
     schema: Stencil.schema,
     converters: converters,
     DocumentClass: Stencil,
-    containerId: 'body'
+    containerId: 'body',
+    idAttribute: 'data-uiid'
   });
 }
 
