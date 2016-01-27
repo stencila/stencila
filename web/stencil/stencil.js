@@ -114,6 +114,7 @@ function AppLaunch(){
   var html = content.html() || '';
   content.remove();
   Component.mount(App, {"html":html}, $('body'));
+  window.__backend.boot();
 }
 
 // Stencila global object is used to indicate that this script

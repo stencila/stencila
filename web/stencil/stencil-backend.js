@@ -98,8 +98,14 @@ Backend.Prototype = function() {
     });
   };
 
+  this.boot = function(){
+    this._request('PUT', 'boot', {}, function(err) {
+      if (err) { console.error(err); }
+    });
+  };
+
   this.activate = function(doc, cb){
-    this._request('PUT', 'activate', function(err) {
+    this._request('PUT', 'activate', {}, function(err) {
       if (err) { console.error(err); cb(err); }
       cb(null);
     });
@@ -133,7 +139,7 @@ Backend.Prototype = function() {
     // FIXME For compatability with C+++ backend
     // this temporarily needs to be a POST but will
     // eventually be a GET
-    this._request('POST', 'content', {
+    this._request('PUT', 'content', {
       'format': 'cila'
     }, function(err, result) {
       if (err) { console.error(err); cb(err); }
