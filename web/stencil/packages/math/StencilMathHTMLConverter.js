@@ -17,7 +17,7 @@ module.exports = {
 
   export: function(math, el, converter) {
     el
-      .prop('type', math.format)
+      .attr('type', math.format)
       .text(math.source);
   }
 };
