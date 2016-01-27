@@ -509,7 +509,7 @@ public:
 			// `include` modifier directives
 			directive_modifier("\\b(delete|replace|change|before|after|prepend|append)\\s+([\\.\\#\\w\\-]+)"),
 			// `par` directive
-			directive_par("\\bpar\\s+([\\w]+)(\\s+type\\s+([\\w]+))?(\\s+value\\s+([^\\s}]+))?"),
+			directive_par("\\bpar\\s+([\\w]+)(\\s+type\\s+([\\w]+))?(\\s+default\\s+([^\\s}]+))?"),
 			// `when` directive
 			directive_when("\\bwhen\\s+([^\\s}]+)(\\s+then\\s+([\\w]+))?"),
 			// Range selection directives `begin`, `end`
@@ -839,7 +839,7 @@ public:
 					enter_elem_if_needed();
 					auto args = match[1].str();
 					if(match[3].str()!="") args += " type " + match[3].str();
-					if(match[5].str()!="") args += " value " + match[5].str();
+					if(match[5].str()!="") args += " default " + match[5].str();
 					node.attr("data-par",args);
 				}
 				else if(is(directive_when)){

@@ -610,7 +610,7 @@ public:
 	struct Parameter : Directive {
 		Name name;
 		Name type;
-		Expression value;
+		Expression default_;
 
 		Parameter(void);
 		Parameter(const std::string& attribute);
