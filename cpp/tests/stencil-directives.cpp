@@ -170,27 +170,27 @@ BOOST_AUTO_TEST_CASE(par){
 		P p("x");
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"");
-		BOOST_CHECK_EQUAL(p.value,"");
+		BOOST_CHECK_EQUAL(p.default_,"");
 	}{
 		P p("x type number");
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"number");
-		BOOST_CHECK_EQUAL(p.value,"");
+		BOOST_CHECK_EQUAL(p.default_,"");
 	}{
-		P p("x type number value 42");
+		P p("x type number default 42");
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"number");
-		BOOST_CHECK_EQUAL(p.value,"42");
+		BOOST_CHECK_EQUAL(p.default_,"42");
 	}{
-		P p("x value 42");
+		P p("x default 42");
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"");
-		BOOST_CHECK_EQUAL(p.value,"42");
+		BOOST_CHECK_EQUAL(p.default_,"42");
 	}{
-		P p("x value pi*7*6");
+		P p("x default pi*7*6");
 		BOOST_CHECK_EQUAL(p.name,"x");
 		BOOST_CHECK_EQUAL(p.type,"");
-		BOOST_CHECK_EQUAL(p.value,"pi*7*6");
+		BOOST_CHECK_EQUAL(p.default_,"pi*7*6");
 	}{
 		try{
 			P p("x foo bar");

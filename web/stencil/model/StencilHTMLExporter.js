@@ -6,7 +6,8 @@ var converters = require('./StencilHTMLConverters');
 function StencilHTMLExporter() {
   StencilHTMLExporter.super.call(this, {
     converters: converters,
-    containerId: 'body'
+    containerId: 'body',
+    idAttribute: 'data-uiid'
   });
 }
 

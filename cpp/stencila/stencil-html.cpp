@@ -17,12 +17,10 @@ std::string Stencil::html(bool document, bool pretty) const {
 		// Place into a Html::Fragment
 		Html::Fragment frag = *this;
 		if(pretty){
-			// Clean ids added by frontend
-			auto elems = frag.filter("[id]");
+			// Clean temporary ids added by user interface
+			auto elems = frag.filter("[data-uiid]");
 			for(auto elem : elems){
-				if(elem.attr("id").find("_")!=std::string::npos){
-					elem.erase("id");
-				}
+				elem.erase("data-uiid");
 			}
 		}
 		auto html = frag.dump(pretty);

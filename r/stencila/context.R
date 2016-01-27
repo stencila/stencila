@@ -199,7 +199,7 @@ Context <- function(envir){
         if(type=='number') value <- as.numeric(value)
         else if(type=='date') value <- strptime(value,"%Y-%m-%d")
         else if(type=='datetime') value <- strptime(value,"%Y-%m-%d %H:%M:%S")
-        else if(type=='expr') value <- self$evaluate(value)
+        else value <- self$evaluate(value)
         # Now assign the variable
         assign(name,value,envir=self$top())
         return("")

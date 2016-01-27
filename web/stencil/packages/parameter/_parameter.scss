@@ -1,0 +1,16 @@
+.stencil-parameter {
+  margin: 1em 0 1em 0;
+}
+
+.stencil-parameter-name {
+  font-size: 0.9em;
+  font-weight: 700;
+  color: #777;
+}
+
+.stencil-parameter-value {
+  border: 1px solid #ECECEC;
+  border-radius: 3px;
+  padding: 0.2em;
+  color: $source-node-color;
+}

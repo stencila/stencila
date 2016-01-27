@@ -114,8 +114,7 @@ Backend.Prototype = function() {
       // creating a new document instance from the returned html
       // In future the server could provide a different format
       // containing only the rendered content as json
-      var tmp = new Stencil();
-      tmp.loadHtml(result.content);
+      var tmp = importer.importDocument(result.content);
       each(tmp.getNodes(), function(copy, nodeId) {
         if (copy.constructor.static.generatedProps) {
           var node = doc.get(nodeId);

@@ -23,6 +23,7 @@ $error-node-color: hsl(0, 95%, 40%);
 @import './packages/equation/_equation';
 @import './packages/exec/_exec';
 @import './packages/figure/_figure';
+@import './packages/parameter/_parameter';
 @import './packages/text/_text';
 @import './packages/default/_default';
 
@@ -38,7 +39,7 @@ $error-node-color: hsl(0, 95%, 40%);
   bottom: 0px;
 
   .se-main-section .se-content {
-    padding: 40px;
+    padding: 2em;
   }
 
   .se-context-section {
@@ -101,4 +102,19 @@ $error-node-color: hsl(0, 95%, 40%);
   img {
     max-width: 100%;
   }
+}
+
+.sc-heading.sm-level-1 {
+    font-size: 1.3em;
+    margin-top: 1.5em;
+}
+
+.sc-heading.sm-level-2 {
+    font-size: 1.2em;
+    margin-top: 1.5em;
+}
+
+.sc-heading.sm-level-3 {
+    font-size: 1.1em;
+    margin-top: 1.5em;
 }
