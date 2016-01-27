@@ -2,7 +2,7 @@
 
 module.exports = {
 
-  type: 'stencil-exec',
+  type: 'stencil-math',
   tagName: 'script',
 
   matchElement: function(el) {
