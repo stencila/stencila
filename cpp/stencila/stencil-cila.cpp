@@ -1210,7 +1210,7 @@ public:
 			auto attributes = attribute_list.size();
 			for(auto attr : attribute_list){
 				auto value = node.attr(name);
-				if(name=="id" and value.find("_")!=std::string::npos){
+				if(name=="data-uiid"){
 					attributes--;
 				}
 			}
@@ -1430,8 +1430,12 @@ public:
 				else return "div";
 			};
 			
+			// Ignore temporary UI ids
+			if(node.has("data-uiid")){
+				erase_attr("data-uiid");
+			}
 			// Execute directives
-			if(node.has("data-exec")){
+			else if(node.has("data-exec")){
 				content(node.attr("data-exec"));
 				space_required = true;
 
@@ -1514,12 +1518,9 @@ public:
 					}
 					else {
 						if(name=="id"){
-							// Check this is not a temporary id added by JS frontend
-							if(value.find("_")==std::string::npos){
-								if(space_required) content(" ");
-								content("#"+value);
-								space_required = true;
-							}
+							if(space_required) content(" ");
+							content("#"+value);
+							space_required = true;
 						}
 						else if(name=="class"){
 							// Get class attribute and split using spaces
