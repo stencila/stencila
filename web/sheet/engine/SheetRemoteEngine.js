@@ -12,7 +12,7 @@ function SheetRemoteEngine() {
 SheetRemoteEngine.Prototype = function() {
 
   this.update = function(cells, cb) {
-    this.request('PUT', 'update', cells, function(err, result) {
+    this._request('PUT', 'update', cells, function(err, result) {
       if (err) return cb(err);
       cb(null, result);
     });
