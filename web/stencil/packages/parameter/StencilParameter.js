@@ -16,9 +16,10 @@ StencilParameter.static.defineSchema({
     'tipe': { type: 'string', optional: true },
     'default': { type: 'string', optional: true },
     'value': { type: 'text', optional: true },
+    'error': { type: 'string', optional: true },
 });
 
-StencilParameter.static.generatedProps = [];
+StencilParameter.static.generatedProps = ['error'];
 
 StencilParameter.static.isBlock = true;
 

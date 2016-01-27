@@ -26,6 +26,8 @@ module.exports = {
       node.value = input.attr('value');
     }
 
+    node.error = el.attr('data-error');
+
   },
 
   export: function(node, el, converter) {
@@ -42,5 +44,7 @@ module.exports = {
           .attr('value',node.value)
       );
     }
+
+    if(node.error) el.attr('data-error', node.error);
   }
 };

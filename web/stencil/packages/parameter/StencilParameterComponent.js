@@ -14,20 +14,28 @@ function StencilParameterComponent() {
 StencilParameterComponent.Prototype = function() {
 
   this.render = function() {
+    var node = this.props.node;
     var el = $$('div')
       .addClass('stencil-parameter')
       .append(
         $$('div')
-          .addClass('stencil-parameter-name')
+          .addClass('name')
           .append($$(TextProperty, {
-            path: [ this.props.node.id, "name"]
+            path: [ node.id, "name"]
           })),
         $$('div')
-          .addClass('stencil-parameter-value')
+          .addClass('value')
           .append($$(TextProperty, {
-            path: [ this.props.node.id, "value"]
+            path: [ node.id, "value"]
           }))
       );
+    if(node.error){
+      el.append(
+        $$('div')
+          .addClass('error')
+          .text(node.error)
+      );
+    }
     return el;
   };
 
