@@ -23,7 +23,7 @@ module.exports = {
     //el = el.withTagName(text.tagName);
     el.attr('data-text',text.source);
     el.text(text.output);
-    //if(text.error) el.attr('data-error',text.error);
-    return el;
+    if(text.error) el.attr('data-error',text.error);
+    //return el;
   }
 };
