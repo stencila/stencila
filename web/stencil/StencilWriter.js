@@ -35,7 +35,7 @@ var CONFIG = {
 
       // Panels
       'toc': require('substance/ui/TOCPanel'),
-      'cila': require('./packages/writer/CilaPanel'),
+      //'cila': require('./packages/writer/CilaPanel'),
       'edit-source': require('./packages/writer/EditSourcePanel')
     }
   },
@@ -62,14 +62,14 @@ var CONFIG = {
     'toc': {
       hideContextToggles: false
     },
-    'cila': {
+    /*'cila': {
       hideContextToggles: false
-    },
+    },*/
     'edit-source': {
       hideContextToggles: true
     }
   },
-  tabOrder: ['toc','cila'],
+  tabOrder: ['toc',/*'cila'*/],
   containerId: 'body',
   isEditable: true
 };
