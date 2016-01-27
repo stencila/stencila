@@ -64,5 +64,13 @@ void def_Stencil(void){
 
         .def("serve",&Stencil::serve,return_self<>())
         .def("view",&Stencil::view,return_self<>())
+
+        .def("page",
+            static_cast<std::string (Stencil::*)(void) const>(&Stencil::page)
+        )
+        .def("page",
+            static_cast<Stencil& (Stencil::*)(const std::string&)>(&Stencil::page),
+            return_self<>()
+        )
     ;
 }
