@@ -70,7 +70,7 @@ var CONFIG = {
   },
   tabOrder: ['toc','cila'],
   containerId: 'body',
-  isEditable: false
+  isEditable: true
 };
 
 function StencilWriter() {
