@@ -26,6 +26,7 @@ var CONFIG = {
       'stencil-math': require('./packages/math/StencilMathComponent'),
       'stencil-equation': require('./packages/equation/StencilEquationComponent'),
 
+      'stencil-parameter': require('./packages/parameter/StencilParameterComponent'),
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),

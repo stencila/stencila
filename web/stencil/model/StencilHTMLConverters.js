@@ -11,6 +11,7 @@ module.exports = [
   require('../packages/exec/StencilExecHTMLConverter'),
   require('../packages/figure/StencilFigureHTMLConverter'),
   require('../packages/math/StencilMathHTMLConverter'),
+  require('../packages/parameter/StencilParameterHTMLConverter'),
   require('../packages/summary/StencilSummaryHTMLConverter'),
   require('../packages/text/StencilTextHTMLConverter'),
   require('../packages/title/StencilTitleHTMLConverter')
