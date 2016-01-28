@@ -1,6 +1,5 @@
 .stencil-figure {
 
-  margin: 2em 0 2em 0;
   border: 1px solid #E8E8E8;
   padding: 1em;
 
@@ -21,7 +20,11 @@
   }
 
   .image {
-    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    // Note that individual images may have max-height and max-width
+    // specified by the stencil author
   }
 
 }
