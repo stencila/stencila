@@ -60,3 +60,8 @@ body,html {
   font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
   text-align: justify;
 }
+
+.sc-toolbar {
+  // Hide overlowing toolbar icons when on small screens
+  overflow: hidden;
+}

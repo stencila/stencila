@@ -1,18 +1,26 @@
 .stencil-parameter {
-	margin: 1em 0 1em 0;
+	padding-bottom: 0.3em;
 	max-width: 20em;
 
+	.name,
+	.value {
+		display: inline-block;
+		min-width: 10em;
+		border: 1px solid #E0E0E0;
+		padding: 0.2em 1em;
+	}
+
 	.name {
-		font-size: 0.9em;
-		font-weight: 700;
-		color: #777;
+		background: #ECECEC;
+		border-radius: 3px 0 0 3px;
+		color: #555;
 	}
 
 	.value {
-		border: 1px solid #E0E0E0;
-		border-radius: 3px;
-		padding: 0.2em;
-		color: $source-node-color;
+		border-radius: 0 3px 3px 0;
+		padding: 0.2em 1em;
+		color: #777;
+		text-align: right;
 	}
 
 	.error {
