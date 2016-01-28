@@ -14,7 +14,7 @@ StencilMath.static.name = "stencil-math";
 StencilMath.static.defineSchema({
   'source': 'string',
   'format': 'string',
-  'error': 'string'
+  'error': { type:'string', optional: true }
 });
 
 StencilMath.static.generatedProps = ['error'];
