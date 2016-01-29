@@ -24,10 +24,10 @@ $default-cell-padding: 1px 3px;
 
 @import './styles/_sheet';
 @import './styles/_cell';
-@import './styles/_image-cell';
-@import './styles/_constant-cell';
-@import './styles/_error-cell';
-@import './styles/_expression-cell';
+@import './styles/_image';
+@import './styles/_constant';
+@import './styles/_error';
+@import './styles/_expression';
 @import './styles/_snippet';
 @import './styles/_cell-teaser';
 @import './styles/_save-tool';

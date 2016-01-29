@@ -7,6 +7,8 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var CellEditor = require('./CellEditor');
 
+var Expression = require('./Expression');
+var Constant = require('./Constant');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -19,9 +21,9 @@ CellComponent.Prototype = function() {
   };
 
   this.render = function() {
-    var cell = this.props.node;
+    var node = this.props.node;
     var el = $$('td').addClass('se-cell');
-
+    var componentRegistry = this.context.componentRegistry;
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'sm-edit' : 'sm-display');
 
@@ -29,8 +31,8 @@ CellComponent.Prototype = function() {
       var content;
       if (isString(this.state.initialContent)) {
         content = this.state.initialContent;
-      } else if (cell) {
-        content = cell.content;
+      } else if (node) {
+        content = node.content;
       } else {
         content = '';
       }
@@ -39,8 +41,22 @@ CellComponent.Prototype = function() {
       }).ref('editor'));
     } else {
       el.on('dblclick', this.onDblClick);
-    }
 
+      // Display node content
+      if (node) {
+        var CellContentClass;
+        if (node.isConstant()) {
+          CellContentClass = Constant;
+        } else if (node.valueType) {
+          CellContentClass = componentRegistry.get(node.valueType);
+        }
+        if (!CellContentClass) {
+          CellContentClass = Expression;
+        }
+        var cellContentEl = $$(CellContentClass, {node: node}).ref('content');
+        el.append(cellContentEl);
+      }
+    }
     return el;
   };
 
@@ -168,15 +184,19 @@ CellComponent.Prototype = function() {
       doc.getEventProxy('path').connect(this, [node.id, 'content'], this.rerender);
       doc.getEventProxy('path').connect(this, [node.id, 'displayMode'], this.rerender);
       node.connect(this, {
-        'cell:changed': this.rerender
+        'cell:changed': this._onCellChange // this.rerender
       });
     }
   };
 
-  // this._onCellChange = function() {
-  //   console.log('CELL CHANGED', this.props.node);
-  //   this.rerender();
-  // };
+  this._onCellChange = function() {
+    // Updating of cells currently does not work
+    // For an updated cell the VirutalDOM is computed correctly
+    // but not applied properly to the DOM.
+    console.log('CELL CHANGED', this.props.node);
+    debugger;
+    this.rerender();
+  };
 
   this._disconnect = function() {
     var doc = this.getDocument();

@@ -6,8 +6,6 @@ var TableSelection = require('../model/TableSelection');
 var Component = require('substance/ui/Component');
 
 var CellComponent = require('./CellComponent');
-var ExpressionCell = require('./ExpressionCell');
-var ConstantCell = require('./ConstantCell');
 
 var $$ = Component.$$;
 var $ = require('substance/util/jquery');
@@ -56,7 +54,6 @@ SheetEditor.Prototype = function() {
     // TODO: this code is almost identical to the exporter
     // we should try to share the code
     var sheet = this.props.doc;
-    var componentRegistry = this.context.componentRegistry;
 
     // TODO: make this configurable
     var ncols = Math.max(52, sheet.getColumnCount());
@@ -87,23 +84,7 @@ SheetEditor.Prototype = function() {
         var cell = sheet.getCellAt(i, j);
 
         // Render Cell content
-        var CellComponentClass;
-
-        if (cell) {
-          if (cell.isConstant()) {
-            CellComponentClass = ConstantCell;
-          } else if (cell.valueType) {
-            CellComponentClass = componentRegistry.get(cell.valueType);
-          }
-
-          if (!CellComponentClass) {
-            CellComponentClass = ExpressionCell;
-          }
-        } else {
-          CellComponentClass = CellComponent;
-        }
-
-        var cellEl = $$(CellComponentClass, { node: cell })
+        var cellEl = $$(CellComponent, { node: cell })
           .attr('data-row', i)
           .attr('data-col', j);
         rowEl.append(cellEl);
