@@ -21,9 +21,16 @@ module.exports = {
       node.name = 'unnamed';
     }
     
+    var label = el.find('label');
+    if (label) {
+      node.label = label.text();
+    }
+
     var input = el.find('input');
     if (input) {
       node.value = input.attr('value');
+    } else {
+      node.value = node.default;
     }
 
     node.error = el.attr('data-error');
@@ -38,6 +45,13 @@ module.exports = {
     if (node.default) source += ' default ' + node.default;
     el.attr('data-par', source);
     
+    if (node.label) {
+      el.append(
+        $$('label')
+          .text(node.label)
+      );
+    }
+
     if (node.value) {
       el.append(
         $$('input')
@@ -45,6 +59,8 @@ module.exports = {
       );
     }
 
-    if(node.error) el.attr('data-error', node.error);
+    if(node.error) {
+      el.attr('data-error', node.error);
+    }
   }
 };

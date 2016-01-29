@@ -15,6 +15,7 @@ StencilParameter.static.defineSchema({
     'name': 'text',
     'tipe': { type: 'string', optional: true },
     'default': { type: 'string', optional: true },
+    'label': { type: 'text', optional: true },
     'value': { type: 'text', optional: true },
     'error': { type: 'string', optional: true },
 });
