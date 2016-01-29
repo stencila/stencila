@@ -126,7 +126,7 @@ Stencil& Stencil::strip(void){
 	return *this;
 }
 
-std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
+std::string Stencil::hash(Node node, int effect, bool attrs, bool text, const std::string& extra){
 	std::size_t number;
 	// Normal, cumulative hash
 	if(effect==0 or effect==1){
@@ -148,6 +148,10 @@ std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
 		// Update based on text
 		if(text){
 			key += node.text();
+		}
+		// Update based on any extra text supplied
+		if(extra.length()){
+			key += extra;
 		}
 		// Create an integer hash of key
 		static std::hash<std::string> hasher;
@@ -713,11 +717,16 @@ void Stencil::Parameter::parse(Node node){
 void Stencil::Parameter::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
-	// Create a <label> element
+	// Create a <label> element if necessary 
+	// (an explicit <label> may already be presetn)
 	Node label = node.select("label");
-	if(not label) label = node.append("label",{
-		{"for",name+"-input"}
-	},name);
+	if(not label) {
+		label = node.append(
+			"label",
+			{{"for",name+"-input"}},
+			name
+		);
+	}
 
 	// Create an <input> element
 	Node input = node.select("input");
@@ -740,8 +749,11 @@ void Stencil::Parameter::render(Stencil& stencil, Node node, std::shared_ptr<Con
 		value = default_;
 		input.attr("value",value);
 	}
-	// Set value in the context
-	if(value.length()){
+
+	// Set value of the parameter within the context
+	auto hash = stencil.hash(node,1,true,true,value);
+	if(hash!=node.attr("data-hash")){
+		node.attr("data-hash",hash);
 		context->input(name,type,value);
 	}
 }

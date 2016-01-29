@@ -401,8 +401,14 @@ public:
 	/**
 	 * Create a hash of a string key. Used to keep track
 	 * of intra-stencil depenedencies
+	 *
+	 * @param effect Side effect of the hash calculation 
+	 *                   1: normal, updates the rolling hash
+	 *                   0: does not update the rolling hash
+	 *                  -1: volatile, always random, does update the rolling hash
+	 * @param extra Additional content to add to the uniqueness of the element
 	 */
-	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true);
+	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true, const std::string& extra = "");
 
 
 	struct Directive {
