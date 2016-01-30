@@ -26,7 +26,13 @@ void def_Sheet(void){
         .def("serve",&Sheet::serve,return_self<>())
         .def("view",&Sheet::view,return_self<>())
 
-        .def("compile",&Sheet::compile,return_self<>())
+        .def("page",
+            static_cast<std::string (Sheet::*)(void) const>(&Sheet::page)
+        )
+        .def("page",
+            static_cast<Sheet& (Sheet::*)(const std::string&)>(&Sheet::page),
+            return_self<>()
+        )
 
         .def("attach", Sheet_attach, return_self<>())
         .def("detach", &Sheet::detach, return_self<>())
