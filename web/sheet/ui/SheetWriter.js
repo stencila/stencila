@@ -28,11 +28,11 @@ var CONFIG = {
     ],
     components: {
       // Registry for different cell content types
-      'string': require('./PrimitiveCell'),
-      'int': require('./PrimitiveCell'),
-      'real': require('./PrimitiveCell'),
-      'ImageFile': require('./ImageCell'),
-      'error': require('./ErrorCell'),
+      'string': require('./Primitive'),
+      'int': require('./Primitive'),
+      'real': require('./Primitive'),
+      'ImageFile': require('./Image'),
+      'error': require('./Error')
     }
   },
   main: {
@@ -132,13 +132,10 @@ SheetWriter.Prototype = function() {
       var coords = Sheet.static.getRowCol(update.id);
       var cell = sheet.getCellAt(coords[0], coords[1]);
       if (cell) {
-        // FIXME: agree on a set of valueTypes
-        var valueType = Sheet.normalizeValueType(update.type);
-        if (cell.valueType !== valueType || cell.value !== update.value) {
-          cell.valueType = valueType;
-          cell.value = update.value;
-          cell.emit('cell:changed');
-        }
+        cell.valueType = update.type;
+        cell.value = update.value;
+        console.log('updated cell', cell);
+        cell.emit('cell:changed');
       }
     }
   };
