@@ -1,0 +1,66 @@
+@import 'stencil-writer';
+//@import 'stencil-reader';
+//@import 'stencil-viewer';
+
+/* Integration styles */
+body,html {
+ overflow: hidden;
+}
+
+.menu {
+  // Temporarily hidden
+  display: none;
+  /*
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 40px;
+  background: #5c6570;
+  
+  button {
+    color: rgba(255,255,255,0.6);
+    display: block;
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    padding: 0px 20px;
+
+    &.active {
+      background: rgba(0,0,0,0.1);
+      color: rgba(255,255,255,1);
+    }
+
+    &:hover {
+      color: rgba(255,255,255,1);
+    }
+  }
+  */
+}
+
+.context {
+  /*
+  Syles no longer required when menu hidden:
+  
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  top: 40px;
+  */
+}
+
+.content-panel-component .panel-content-inner {
+  padding-right: 0;
+  padding: 2em;
+}
+
+.document-content {
+  font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
+  text-align: justify;
+}
+
+.sc-toolbar {
+  // Hide overlowing toolbar icons when on small screens
+  overflow: hidden;
+}

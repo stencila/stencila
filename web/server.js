@@ -24,6 +24,14 @@ var fs = require('fs');
 var glob = require('glob');
 
 
+function nameToPath(name){
+  var matches = name.match(/(\w+)-?(\w+)?/);
+  var clas = matches[1];
+  var mode = matches[2];
+  var file = mode?(clas+'-'+mode):clas;
+  return path.join(__dirname, clas, file);
+}
+
 var handleBrowserifyError = function(err, res) {
   console.error(err.message);
   //This crashes server for some strange reason, so commented out
@@ -35,11 +43,11 @@ var handleError = function(err, res) {
   res.status(400).json(err);
 };
 
-var renderSass = function(type,cb) {
+var renderSass = function(name,cb) {
   sass.render({
-    file: path.join(__dirname, type, type+'.scss'),
+    file: nameToPath(name)+'.scss',
     sourceMap: true,
-    outFile: type+'.min.css',
+    outFile: name+'.min.css',
   }, cb);
 };
 
@@ -84,9 +92,9 @@ app.get('/snippets',  function (req, res, next) {
 });
 
 // Javascript
-app.get('/get/web/:type.min.js', function (req, res, next) {
+app.get('/get/web/:name.min.js', function (req, res, next) {
   browserify({ debug: true, cache: false })
-    .add(path.join(__dirname, req.params.type, req.params.type+'.js'))
+    .add(nameToPath(req.params.name)+'.js')
     .bundle()
     .on('error', function(err){
       handleBrowserifyError(err);
@@ -95,8 +103,8 @@ app.get('/get/web/:type.min.js', function (req, res, next) {
 });
 
 // CSS
-app.get('/get/web/:type.min.css', function(req, res) {
-  renderSass(req.params.type,function(err, result) {
+app.get('/get/web/:name.min.css', function(req, res) {
+  renderSass(req.params.name,function(err, result) {
     if (err) return handleError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.css);
@@ -104,8 +112,8 @@ app.get('/get/web/:type.min.css', function(req, res) {
 });
 
 // CSS map
-app.get('/get/web/:type.min.css.map', function(req, res) {
-  renderSass(req.params.type,function(err, result) {
+app.get('/get/web/:name.min.css.map', function(req, res) {
+  renderSass(req.params.name,function(err, result) {
     if (err) return handleError(err, res);
     res.set('Content-Type', 'text/css');
     res.send(result.map);

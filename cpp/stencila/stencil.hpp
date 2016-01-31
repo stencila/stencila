@@ -307,6 +307,11 @@ public:
 	 * Get this stencil's authors
 	 */
 	std::vector<std::string> authors(void) const;
+
+	/**
+	 * Get this stencil's mode
+	 */
+	std::string mode(void) const;
 	
 	/**
 	 * Get the list of rendering contexts that are compatible with this stencil.

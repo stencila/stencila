@@ -28,6 +28,7 @@
     "MathJax": "nokome/MathJax#24b0e9e1bfbbc466970081084a97ad0ee3b8788b",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
+    "semantic-ui-css": "2.1.8",
     "substance": "substance/substance#d9021a16e7fedc7498b0fcc80540152554bd00c9"
   },
   "devDependencies": {

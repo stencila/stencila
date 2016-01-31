@@ -19,7 +19,10 @@ var sass = require('gulp-sass');
 var jasmine = require('gulp-jasmine');
 
 // Types of components
-var types = ['stencil','sheet'];
+var types = [
+  'stencil/stencil','stencil/stencil-strict','stencil/stencil-free',
+  'sheet/sheet'
+];
 
 // Generic error handler creates a notifcation window
 function errorHandler() {
@@ -33,8 +36,8 @@ function errorHandler() {
 
 
 function style(type,watch) {
-  var src = './'+type+'/'+type+'.scss';
-  var dest = type+'.min.css';
+  var src = './'+type+'.scss';
+  var dest = type.split('/')[1]+'.min.css';
 
   gulp.src(src)
     .pipe(sass({
@@ -59,8 +62,8 @@ function styles(watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others  
 function script(type,watch) {
-  var src = './'+type+'/'+type+'.js';
-  var dest = type+'.min.js';
+  var src = './'+type+'.js';
+  var dest = type.split('/')[1]+'.min.js';
 
   var props = {
     entries: [src],
