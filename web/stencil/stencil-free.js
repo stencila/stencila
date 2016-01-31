@@ -32,8 +32,11 @@ window.stencil = new (function(){
     $.ajax({
         type: 'PUT',
         url: this.url+'@boot',
-        contentType: "application/json; charset=UTF-8",
-        data: JSON.stringify({})
+        headers: {
+            'Accept' : 'application/json; charset=utf-8',
+            'Content-Type': 'application/json; charset=utf-8'
+        },
+        data: JSON.stringify({}),
     }).done(function(data){
         console.log(data);
     });
@@ -59,7 +62,10 @@ window.stencil = new (function(){
         $.ajax({
             type: 'PUT',
             url: this.url+'@render',
-            contentType: "application/json; charset=UTF-8",
+            headers: {
+                'Accept' : 'application/json; charset=utf-8',
+                'Content-Type': 'application/json; charset=utf-8'
+            },
             data: JSON.stringify({
                 'format': 'html',
                 'content': $('#content').html()
