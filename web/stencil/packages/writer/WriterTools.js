@@ -30,20 +30,16 @@ var WriterTools = Component.extend({
         $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'}))
       ),
       $$(Toolbar.Group).append(
-        $$(ActivateTool).append($$(Icon, {icon: 'fa-power-off'})),
         $$(RenderTool).append($$(Icon, {icon: 'fa-refresh'})),
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'}))
       ),
-      /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-image'}),}).append(
-        $$(StrongTool).append($$(Icon, {icon: 'fa-bold'}))
-      ),*/
+      /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
+        $$(InsertTableTool).append($$(Icon, {icon: 'fa-table'}))
+      )*/
       $$(Toolbar.Group).addClass('float-right').append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
         $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
         $$(LinkTool).append($$(Icon, {icon: 'fa-link'}))
-      ),
-      $$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
-        $$(InsertTableTool).append($$(Icon, {icon: 'fa-table'}))
       )
     );
   }
