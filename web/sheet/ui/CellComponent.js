@@ -56,6 +56,11 @@ CellComponent.Prototype = function() {
         }
         var cellContentEl = $$(CellContentClass, {node: node}).ref('content');
         el.append(cellContentEl);
+
+        var displayMode = node.displayMode || CellContentClass.static.displayModes[0];
+        if (displayMode) {
+          el.addClass('sm-'+displayMode);
+        }
       }
     }
     return el;
@@ -102,20 +107,19 @@ CellComponent.Prototype = function() {
     if (!node) return;
 
     var currentMode = node.displayMode;
-    var nextMode;
-    var docSession = this.getDocumentSession();
-
-    if (!currentMode || currentMode === 'overlay') {
-      nextMode = 'clipped';
-    } else if (currentMode === 'expanded') {
-      nextMode = 'overlay';
-    } else {
-      nextMode = 'expanded';
+    var content = this.refs.content;
+    if (content) {
+      var modes = content.constructor.static.displayModes || [];
+      var idx = modes.indexOf(currentMode)+1;
+      if (modes.length > 0) {
+        idx = idx%modes.length;
+      }
+      var nextMode = modes[idx] || '';
+      var docSession = this.getDocumentSession();
+      docSession.transaction(function(tx) {
+        tx.set([node.id, 'displayMode'], nextMode);
+      }.bind(this));
     }
-
-    docSession.transaction(function(tx) {
-      tx.set([node.id, 'displayMode'], nextMode);
-    }.bind(this));
   };
 
   /**

@@ -11,17 +11,12 @@ Primitive.Prototype = function() {
   this.render = function() {
     var cell = this.props.node;
     var el = $$('table').addClass('sc-primitive');
-    // TODO: maybe introduce displaymode expanded to show source also
-    el.addClass(cell.displayMode);
-
     var tr = $$('tr');
-
     var name = cell.getName() || '';
     name += ' =';
     tr.append(
       $$('td').addClass('se-name').text(name)
     );
-
     var value = cell.value;
     if (value === undefined) {
       value = 'Loading';
@@ -34,4 +29,7 @@ Primitive.Prototype = function() {
 };
 
 Component.extend(Primitive);
+
+Primitive.static.displayModes = ['expanded'];
+
 module.exports = Primitive;

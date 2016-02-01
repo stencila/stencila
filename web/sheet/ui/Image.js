@@ -15,10 +15,7 @@ Image.Prototype = function() {
     // Using .sc-sheet-image instead of .sc-image so we don't have style
     // clashes with native Substance Image
     var el = $$('div').addClass('sc-sheet-image');
-    el.addClass(node.displayMode);
-    
     el.append($$(CellTeaserComponent, {node: node}));
-
     if (node.value !== undefined && node.displayMode !== 'clipped') {
       el.append(
         $$('img').attr('src', node.value)
@@ -29,5 +26,7 @@ Image.Prototype = function() {
 };
 
 Component.extend(Image);
+
+Image.static.displayModes = ['overlay', 'clipped', 'expanded'];
 
 module.exports = Image;

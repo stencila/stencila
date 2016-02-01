@@ -18,21 +18,19 @@ Expression.Prototype = function() {
   this.render = function() {
     var node = this.props.node;
     var el = $$('div').addClass('sc-expression');
-    el.addClass(node.displayMode);
-
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));
-
     if (node.value !== undefined && node.displayMode !== 'clipped') {
       el.append(
         $$('pre').append(node.value)
       );
     }
-
     return el;
   };
 };
 
 Component.extend(Expression);
+
+Expression.static.displayModes = ['clipped', 'expanded', 'overlay'];
 
 module.exports = Expression;

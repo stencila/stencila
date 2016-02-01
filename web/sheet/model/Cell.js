@@ -70,7 +70,7 @@ Cell.static.defineSchema({
   content: { type: "string", default: "" },
 
   // cell display mode
-  displayMode: {type: "string", default: 'clipped'},
+  displayMode: {type: "string", optional: true},
 
   // volatile data derived from table
   // ATM we need it as we set it during import

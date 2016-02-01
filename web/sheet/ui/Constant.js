@@ -18,7 +18,7 @@ function Constant() {
   Constant.super.apply(this, arguments);
 }
 
-Constant.Prototype = function() {  
+Constant.Prototype = function() {
   this.render = function() {
     var el = $$('div').addClass('sc-constant');
     el.append(this.props.node.content);
@@ -27,5 +27,7 @@ Constant.Prototype = function() {
 };
 
 Component.extend(Constant);
+
+Constant.static.displayModes = ['expanded'];
 
 module.exports = Constant;
