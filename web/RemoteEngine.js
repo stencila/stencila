@@ -81,8 +81,10 @@ RemoteEngine.Prototype = function() {
     var ajaxOpts = {
       type: method,
       url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'@'+endpoint,
-      // Specify JSON as content type to send
-      contentType: "application/json; charset=UTF-8",
+      headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept' : 'application/json; charset=utf-8'
+      },
       // Type of data expected back
       // "json": Evaluates the response as JSON and returns a JavaScript object.
       dataType: "json",
