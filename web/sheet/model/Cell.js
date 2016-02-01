@@ -14,7 +14,7 @@ Cell.Prototype = function() {
 
   this._updateDerivedProperties = function() {
     var content = this._content;
-    var match = /^\s*([a-zA-Z0-9_@]+)?=/.exec(content);
+    var match = /^\s*([a-zA-Z0-9_@]+)?\s*=/.exec(content);
     delete this._expr;
     delete this._name;
     if (match) {
