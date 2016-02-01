@@ -1,6 +1,9 @@
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
 
+body, html {
+  overflow: hidden;
+}
 
 $default-cell-padding: 1px 3px;
 
