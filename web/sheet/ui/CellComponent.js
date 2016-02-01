@@ -176,6 +176,7 @@ CellComponent.Prototype = function() {
     e.preventDefault();
     e.stopPropagation();
     this.enableEditing();
+    this.send('activateCurrentCell');
   };
 
   this._connect = function() {

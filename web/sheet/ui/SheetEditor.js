@@ -16,6 +16,7 @@ function SheetEditor() {
   this.handleActions({
     'commitCellChange': this.commitCellChange,
     'discardCellChange': this.discardCellChange,
+    'activateCurrentCell': this._activateCurrentCell
   });
 
   // Shouldn't it be null rather?
