@@ -29,7 +29,7 @@
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
     "semantic-ui-css": "2.1.8",
-    "substance": "substance/substance#d9021a16e7fedc7498b0fcc80540152554bd00c9"
+    "substance": "substance/substance#fe0ed41ac1b0e63f8b620f021a1c9ce7bcc19bea"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
