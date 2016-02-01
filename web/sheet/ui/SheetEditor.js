@@ -488,6 +488,7 @@ SheetEditor.Prototype = function() {
         }
       }
     }.bind(this));
+    this._rerenderSelection();
   };
 
   this._getCellComponentAt = function(row, col) {
