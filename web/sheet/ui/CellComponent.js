@@ -191,11 +191,6 @@ CellComponent.Prototype = function() {
   };
 
   this._onCellChange = function() {
-    // Updating of cells currently does not work
-    // For an updated cell the VirutalDOM is computed correctly
-    // but not applied properly to the DOM.
-    console.log('CELL CHANGED', this.props.node);
-    debugger;
     this.rerender();
   };
 
