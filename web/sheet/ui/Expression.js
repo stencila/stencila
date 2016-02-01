@@ -23,9 +23,12 @@ Expression.Prototype = function() {
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));
 
-    if (node.displayMode != 'clipped') {
-      el.append($$('pre').append(node.value));
+    if (node.value !== undefined && node.displayMode !== 'clipped') {
+      el.append(
+        $$('pre').append(node.value)
+      );
     }
+
     return el;
   };
 };

@@ -9,13 +9,26 @@ function Primitive() {
 
 Primitive.Prototype = function() {
   this.render = function() {
-    var node = this.props.node;
-    var el = $$('div').addClass('sc-primitive');
-
+    var cell = this.props.node;
+    var el = $$('table').addClass('sc-primitive');
     // TODO: maybe introduce displaymode expanded to show source also
-    el.addClass(node.displayMode);
-    el.append(node.value);
+    el.addClass(cell.displayMode);
 
+    var tr = $$('tr');
+
+    var name = cell.getName() || '';
+    name += ' =';
+    tr.append(
+      $$('td').addClass('se-name').text(name)
+    );
+
+    var value = cell.value;
+    if (value === undefined) {
+      value = 'Loading';
+    }
+    tr.append($$('td').addClass('se-value').text(value));
+
+    el.append(tr);
     return el;
   };
 };

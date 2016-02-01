@@ -19,7 +19,7 @@ Image.Prototype = function() {
     
     el.append($$(CellTeaserComponent, {node: node}));
 
-    if (node.displayMode != 'clipped') {
+    if (node.value !== undefined && node.displayMode !== 'clipped') {
       el.append(
         $$('img').attr('src', node.value)
       );

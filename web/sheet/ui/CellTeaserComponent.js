@@ -13,14 +13,23 @@ CellTeaserComponent.Prototype = function() {
     var cell = this.props.node;
     var el = $$('table').addClass('sc-cell-teaser');
     var name = cell.getName() || '';
-    el.append(
-      $$('tr').append(
-        $$('td').addClass('se-name').text(name),
+    var tr = $$('tr');
+    if (name) {
+      tr.append(
+        $$('td').addClass('se-name').text(name)
+      );
+    }
+    if (cell.value === undefined) {
+      tr.append($$('td').text('Loading...'));
+    } else if (cell.valueType) {
+      tr.append(
         $$('td').addClass('se-content-type').text(cell.valueType)
-      )
-    );
+      );
+    }
+    el.append(tr);
     return el;
   };
+
 };
 
 Component.extend(CellTeaserComponent);

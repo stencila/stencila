@@ -152,6 +152,7 @@ CellComponent.Prototype = function() {
       docSession.transaction(function(tx) {
         tx.set([this.props.node.id, 'content'], newContent);
       }.bind(this));
+      delete this.props.node.value;
     }
     this.extendState({ edit: false });
   };
