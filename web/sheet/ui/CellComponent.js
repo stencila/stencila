@@ -37,7 +37,8 @@ CellComponent.Prototype = function() {
         content = '';
       }
       el.append($$(CellEditor, {
-        content: content
+        content: content,
+        select: this.state.initialContent ? 'last' : 'all'
       }).ref('editor'));
     } else {
       el.on('dblclick', this.onDblClick);
