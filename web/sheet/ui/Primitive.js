@@ -18,10 +18,12 @@ Primitive.Prototype = function() {
       $$('td').addClass('se-name').text(name)
     );
     var value = cell.value;
+    var className = 'se-value';
     if (value === undefined) {
       value = 'Loading';
+      className = 'se-loading'
     }
-    tr.append($$('td').addClass('se-value').text(value));
+    tr.append($$('td').addClass(className).text(value));
 
     el.append(tr);
     return el;

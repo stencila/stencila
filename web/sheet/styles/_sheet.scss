@@ -13,7 +13,13 @@
     border: 1px solid #CCC;
     text-align: center;
     cursor: default;
+
+    input {
+      width: 100%;
+    }
   }
+
+
 
   th.se-cell {
     background: #EEE;

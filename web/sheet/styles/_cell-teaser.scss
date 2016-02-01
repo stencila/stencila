@@ -2,21 +2,25 @@
 	// Is a <table> element
 	min-width: 150px;
 	width: 100%;
-
 	
+	.se-loading {
+		font-size: 12px;
+		color: #ccc;
+		padding: $default-cell-padding;
+	}
+
 	.se-name {
 		font-size: 12px;
 		color: #ccc;
-		padding-right: 10px;
-		float: left;
+		text-align: left;
 		padding: $default-cell-padding;
 	}
 
 	.se-content-type {
+		text-align: right;
 		font-weight: 600;
 		font-size: 12px;
 		color: #FF9F00;
-		float: right;
 		padding: $default-cell-padding;
 	}
 }

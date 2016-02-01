@@ -20,7 +20,7 @@ CellTeaserComponent.Prototype = function() {
       );
     }
     if (cell.value === undefined) {
-      tr.append($$('td').text('Loading...'));
+      tr.append($$('td').addClass('se-loading').text('Loading...'));
     } else if (cell.valueType) {
       tr.append(
         $$('td').addClass('se-content-type').text(cell.valueType)
