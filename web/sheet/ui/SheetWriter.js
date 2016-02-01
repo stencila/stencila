@@ -138,6 +138,9 @@ SheetWriter.Prototype = function() {
         cell.emit('cell:changed');
       }
     }
+    if (updates.length > 0) {
+      this.refs.sheetEditor._rerenderSelection();
+    }
   };
 };
 
