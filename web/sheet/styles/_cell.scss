@@ -1,7 +1,8 @@
 .se-cell {
 	position: relative;
 
-  &.sm-overlay {
+  // The cell content element
+  &.sm-overlay > div {
     background: #fff;
     position: absolute;
     z-index: 2;
