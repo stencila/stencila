@@ -50,6 +50,9 @@ class Function : public Component {
      */
     std::string meta(const std::string& what) const;
 
+    std::string name(void) const;
+    Function& name(const std::string& name);
+
     /**
      * Get this sheets's title
      *
@@ -61,6 +64,7 @@ class Function : public Component {
      * to be.
      */
     std::string title(void) const;
+    Function& title(const std::string& title);
 
     /**
      * Get this sheets's description
@@ -80,6 +84,15 @@ class Function : public Component {
      *     A3: keywords = "calculations, project X"
      */
     std::vector<std::string> keywords(void) const;
+
+
+    struct Parameter {
+        std::string name;
+        std::string description;
+    };
+    std::vector<Parameter> parameters(void) const;
+
+    void parameter(const Parameter& parameter);
 
     /**
      * Get this sheets's authors
@@ -133,34 +146,34 @@ class Function : public Component {
      * 
      * @param  stream Input stream
      */
-    Function& load(std::istream& stream, const std::string& format = "tsv");
+    Function& load(std::istream& stream, const std::string& format = "yaml");
 
     /**
      * Load this sheet from a string
      * 
      * @param  stream Input stream
      */
-    Function& load(const std::string& string, const std::string& format = "tsv");
-
-    /**
-     * Dump this sheet as script in host language
-     * @param  stream Output stream
-     */
-    Function& dump_script(std::ostream& stream, std::string assign = " = ", std::string termimate = "\n");
+    Function& load(const std::string& string, const std::string& format = "yaml");
 
     /**
      * Dump this sheet to an output stream
      * 
      * @param  stream Output stream
      */
-    Function& dump(std::ostream& stream, const std::string& format = "tsv");
+    const Function& dump(std::ostream& stream, const std::string& format = "yaml") const;
 
     /**
      * Dump this sheet to a string
      * 
      * @param  format Format for dump
      */
-    std::string dump(const std::string& format = "tsv");
+    std::string dump(const std::string& format = "yaml") const;
+
+    /**
+     * JSON getter and setter
+     */
+    Function& json(const std::string& content);
+    std::string json(void) const;
 
     /**
      * Import this stencil content from a file
@@ -174,7 +187,7 @@ class Function : public Component {
      * 
      * @param  path Filesystem path to file
      */
-    Function& export_(const std::string& path);
+    const Function& export_(const std::string& path) const;
 
     /**
      * Read this sheet from a directory
@@ -282,11 +295,14 @@ class Function : public Component {
      */
     Function& detach(void);
 
+
  private:
-    /**
-     * Content of this function
-     */
-    Json::Document content_;
+
+    std::string name_;
+
+    std::string title_;
+
+    std::vector<Parameter> parameters_;
 
     /**
      * The current context for this function

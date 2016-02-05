@@ -31,8 +31,22 @@ std::string Function::meta(const std::string& what) const {
     return "";
 }
 
+std::string Function::name(void) const {
+    return name_;
+}
+
+Function& Function::name(const std::string& name) {
+    name_ = name;
+    return *this;
+}
+
 std::string Function::title(void) const {
-    return meta("title");
+    return title_;
+}
+
+Function& Function::title(const std::string& title) {
+    title_ = title;
+    return *this;
 }
 
 std::string Function::description(void) const {
@@ -49,6 +63,15 @@ std::vector<std::string> Function::keywords(void) const {
         return {};
     }
 }
+
+std::vector<Function::Parameter> Function::parameters(void) const {
+    return parameters_;
+}
+
+void Function::parameter(const Function::Parameter& parameter) {
+    parameters_.push_back(parameter);
+}
+
 
 std::vector<std::string> Function::authors(void) const {
     auto content = meta("authors");
@@ -89,18 +112,41 @@ Function& Function::load(const std::string& string, const std::string& format) {
     return load(stream, format);
 }
 
-Function& Function::dump(std::ostream& stream, const std::string& format) {
+const Function& Function::dump(std::ostream& stream, const std::string& format) const {
     if (format == "yaml") {
+
+    } else if (format == "json") {
+        Json::Document json;
+        json.append("name", name_);
+        json.append("title", title_);
+        Json::Document pars = Json::Array();
+        for(auto parameter : parameters_){
+            Json::Document par = Json::Object();
+            par.append("name",parameter.name);
+            par.append("description",parameter.description);
+            pars.append(par);
+        }
+        json.append("parameters",pars);
+        stream<<json.dump();
     } else if (format == "r" or format=="py") {
+
     }
     else STENCILA_THROW(Exception, "Format not valid for dumping a function\n format: "+format);
     return *this;
 }
 
-std::string Function::dump(const std::string& format) {
+std::string Function::dump(const std::string& format) const {
     std::ostringstream stream;
     dump(stream, format);
     return stream.str();
+}
+
+Function& Function::json(const std::string& content) {
+    return load(content, "json");
+}
+
+std::string Function::json(void) const {
+    return dump("json");
 }
 
 Function& Function::import(const std::string& path) {
@@ -116,7 +162,7 @@ Function& Function::import(const std::string& path) {
     return *this;
 }
 
-Function& Function::export_(const std::string& path) {
+const Function& Function::export_(const std::string& path) const {
     std::string ext = boost::filesystem::extension(path);
     if (ext == ".tsv" or ext == ".r" or ext == ".py") {
         std::ofstream file(path);
