@@ -2,7 +2,7 @@
 
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
-var SnippetComponent = require('./SnippetComponent');
+var FunctionComponent = require('./FunctionComponent');
 
 /*
   The CellEditor is different to a regular TextPropertyEditor
@@ -26,9 +26,9 @@ CellEditor.Prototype = function() {
         .on('input', this.onChange)
         .ref('editor')
     );
-    if (this.state.snippet) {
-      el.append($$(SnippetComponent, {
-        snippet: require('../testSnippet'),
+    if (this.state.func) {
+      el.append($$(FunctionComponent, {
+        func: require('../testFunction'),
         paramIndex: this.state.paramIndex
       }));
     }
@@ -67,7 +67,7 @@ CellEditor.Prototype = function() {
       this.send('discardCellChange');
       handled = true;
     } else if (event.keyCode >= 37 && event.keyCode <= 40) {
-      this._detectSnippet();
+      this._detectFunction();
     }
     if (handled) {
       event.stopPropagation();
@@ -85,19 +85,18 @@ CellEditor.Prototype = function() {
   };
 
   this.onClick = function() {
-    this._detectSnippet();
+    this._detectFunction();
   };
 
   this.onChange = function() {
-    this._detectSnippet();
+    this._detectFunction();
   };
 
-  // SNIPPETS SPIKE
 
-  var _SNIPPETS = ['sum', 'mean'];
-  var _SNIPPET_RE_STR = '\\b(' + _SNIPPETS.join('|') + ')[(]';
+  var _FUNCTIONS = ['sum', 'mean'];
+  var _FUNCTION_RE_STR = '\\b(' + _FUNCTIONS.join('|') + ')[(]';
 
-  this._detectSnippet = function() {
+  this._detectFunction = function() {
     setTimeout(function() {
       var el = this._getTextArea();
       var source = el.value;
@@ -105,26 +104,26 @@ CellEditor.Prototype = function() {
       // only if collapsed
       if (pos === el.selectionEnd) {
         source = source.slice(0, pos);
-        var re = new RegExp(_SNIPPET_RE_STR, 'gi');
+        var re = new RegExp(_FUNCTION_RE_STR, 'gi');
         var lastMatch, match;
         while ( (match = re.exec(source)) ) {
           lastMatch = match;
         }
         if (lastMatch) {
-          // console.log('DETECTED SNIPPET', lastMatch[1], lastMatch);
-          var snippet = lastMatch[1];
+          // console.log('DETECTED FUNCTION', lastMatch[1], lastMatch);
+          var func = lastMatch[1];
           var startPos = lastMatch.index+1;
           var argsPos = startPos + lastMatch[0].length;
           var currentArg = this._detectCurrentArg(source.slice(argsPos));
           var newState = {
-            snippet: snippet,
+            func: func,
             paramIndex: currentArg.argIdx
           };
-          // console.log('DETECTED SNIPPET', newState);
+          // console.log('DETECTED FUNCTION', newState);
           this.setState(newState);
-        } else if (this.state.snippet) {
+        } else if (this.state.func) {
           this.extendState({
-            snippet: false
+            func: false
           });
         }
       }

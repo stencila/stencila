@@ -3,19 +3,19 @@
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 
-function SnippetComponent() {
-  SnippetComponent.super.apply(this, arguments);
+function FunctionComponent() {
+  FunctionComponent.super.apply(this, arguments);
 }
 
-SnippetComponent.Prototype = function() {
+FunctionComponent.Prototype = function() {
   this.render = function() {
-    var snippet = this.props.snippet;
-    var el = $$('div').addClass('sc-snippet');
+    var func = this.props.func;
+    var el = $$('div').addClass('sc-function');
 
     // Parameter description
     var paramsEl = $$('table').addClass('se-parameters');
 
-    snippet.parameters.forEach(function(param, i) {
+    func.parameters.forEach(function(param, i) {
 
       var paramEl = $$('tr').addClass('se-param').append(
         $$('td').addClass('se-param-name').append(param.name),
@@ -31,9 +31,9 @@ SnippetComponent.Prototype = function() {
     // Documentation
     var docEl = $$('div').addClass('se-documentation');
     docEl.append(
-      $$(SnippetComponent.Signature, {snippet: snippet, paramIndex: this.props.paramIndex}),
+      $$(FunctionComponent.Signature, {func: func, paramIndex: this.props.paramIndex}),
       paramsEl,
-      $$('div').addClass('se-summary').append(snippet.summary)
+      $$('div').addClass('se-summary').append(func.summary)
     );
 
     el.append(docEl);
@@ -43,26 +43,26 @@ SnippetComponent.Prototype = function() {
       $$('div').addClass('se-example').append(
         $$('div').addClass('se-label').append('Example'),
         // Display first example
-        $$('div').addClass('se-example-code').append(snippet.examples[0])
+        $$('div').addClass('se-example-code').append(func.examples[0])
       )
     );
     return el;
   };
 };
 
-Component.extend(SnippetComponent);
+Component.extend(FunctionComponent);
 
-SnippetComponent.Signature = function() {
-  SnippetComponent.Signature.super.apply(this, arguments);
+FunctionComponent.Signature = function() {
+  FunctionComponent.Signature.super.apply(this, arguments);
 };
 
-SnippetComponent.Signature.Prototype = function() {
+FunctionComponent.Signature.Prototype = function() {
   this.render = function() {
-    var snippet = this.props.snippet;
+    var func = this.props.func;
 
     var paramsEl = $$('span').addClass('se-signature-params');
 
-    snippet.parameters.forEach(function(param, i) {
+    func.parameters.forEach(function(param, i) {
       var paramEl = $$('span').addClass('se-signature-param').append(param.name);
 
       if (i === this.props.paramIndex) {
@@ -70,14 +70,14 @@ SnippetComponent.Signature.Prototype = function() {
       }
 
       paramsEl.append(paramEl);
-      if (i < snippet.parameters.length - 1) {
+      if (i < func.parameters.length - 1) {
         paramsEl.append(',');
       }
 
     }.bind(this));
 
     return $$('div').addClass('se-signature').append(
-      $$('span').addClass('se-name').append(snippet.name),
+      $$('span').addClass('se-name').append(func.name),
       '(',
       $$('span').append(paramsEl),
       ')'
@@ -85,6 +85,6 @@ SnippetComponent.Signature.Prototype = function() {
   };
 };
 
-Component.extend(SnippetComponent.Signature);
+Component.extend(FunctionComponent.Signature);
 
-module.exports = SnippetComponent;
+module.exports = FunctionComponent;
