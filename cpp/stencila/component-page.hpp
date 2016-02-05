@@ -45,10 +45,6 @@ Html::Document Component_page_doc(const Type& component) {
 		{"itemprop","version"},
 		{"content",component.version()}
 	});
-	head.append("meta",{
-		{"itemprop","theme"},
-		{"content",component.theme()}
-	});
 
 	// Title is put in <title>
 	// Although we are creating an XHTML5 document, an empty title tag (i.e <title />)
