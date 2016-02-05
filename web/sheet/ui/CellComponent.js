@@ -7,6 +7,8 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var CellEditor = require('./CellEditor');
 
+var Expression = require('./Expression');
+var Constant = require('./Constant');
 
 function CellComponent() {
   CellComponent.super.apply(this, arguments);
@@ -19,9 +21,9 @@ CellComponent.Prototype = function() {
   };
 
   this.render = function() {
-    var cell = this.props.node;
+    var node = this.props.node;
     var el = $$('td').addClass('se-cell');
-
+    var componentRegistry = this.context.componentRegistry;
     var isEditing = this.isEditing();
     el.addClass(isEditing ? 'sm-edit' : 'sm-display');
 
@@ -29,18 +31,38 @@ CellComponent.Prototype = function() {
       var content;
       if (isString(this.state.initialContent)) {
         content = this.state.initialContent;
-      } else if (cell) {
-        content = cell.content;
+      } else if (node) {
+        content = node.content;
       } else {
         content = '';
       }
       el.append($$(CellEditor, {
-        content: content
+        content: content,
+        select: this.state.initialContent ? 'last' : 'all'
       }).ref('editor'));
     } else {
       el.on('dblclick', this.onDblClick);
-    }
 
+      // Display node content
+      if (node) {
+        var CellContentClass;
+        if (node.isConstant()) {
+          CellContentClass = Constant;
+        } else if (node.valueType) {
+          CellContentClass = componentRegistry.get(node.valueType);
+        }
+        if (!CellContentClass) {
+          CellContentClass = Expression;
+        }
+        var cellContentEl = $$(CellContentClass, {node: node}).ref('content');
+        el.append(cellContentEl);
+
+        var displayMode = node.displayMode || CellContentClass.static.displayModes[0];
+        if (displayMode) {
+          el.addClass('sm-'+displayMode);
+        }
+      }
+    }
     return el;
   };
 
@@ -85,20 +107,19 @@ CellComponent.Prototype = function() {
     if (!node) return;
 
     var currentMode = node.displayMode;
-    var nextMode;
-    var docSession = this.getDocumentSession();
-
-    if (!currentMode || currentMode === 'overlay') {
-      nextMode = 'clipped';
-    } else if (currentMode === 'expanded') {
-      nextMode = 'overlay';
-    } else {
-      nextMode = 'expanded';
+    var content = this.refs.content;
+    if (content) {
+      var modes = content.constructor.static.displayModes || [];
+      var idx = modes.indexOf(currentMode)+1;
+      if (modes.length > 0) {
+        idx = idx%modes.length;
+      }
+      var nextMode = modes[idx] || '';
+      var docSession = this.getDocumentSession();
+      docSession.transaction(function(tx) {
+        tx.set([node.id, 'displayMode'], nextMode);
+      }.bind(this));
     }
-
-    docSession.transaction(function(tx) {
-      tx.set([node.id, 'displayMode'], nextMode);
-    }.bind(this));
   };
 
   /**
@@ -135,6 +156,7 @@ CellComponent.Prototype = function() {
       docSession.transaction(function(tx) {
         tx.set([this.props.node.id, 'content'], newContent);
       }.bind(this));
+      delete this.props.node.value;
     }
     this.extendState({ edit: false });
   };
@@ -159,6 +181,7 @@ CellComponent.Prototype = function() {
     e.preventDefault();
     e.stopPropagation();
     this.enableEditing();
+    this.send('activateCurrentCell');
   };
 
   this._connect = function() {
@@ -168,15 +191,14 @@ CellComponent.Prototype = function() {
       doc.getEventProxy('path').connect(this, [node.id, 'content'], this.rerender);
       doc.getEventProxy('path').connect(this, [node.id, 'displayMode'], this.rerender);
       node.connect(this, {
-        'cell:changed': this.rerender
+        'cell:changed': this._onCellChange // this.rerender
       });
     }
   };
 
-  // this._onCellChange = function() {
-  //   console.log('CELL CHANGED', this.props.node);
-  //   this.rerender();
-  // };
+  this._onCellChange = function() {
+    this.rerender();
+  };
 
   this._disconnect = function() {
     var doc = this.getDocument();

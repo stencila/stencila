@@ -1,0 +1,15 @@
+Test sheet
+For testing web browser interface
+
+x	y		Means
+1	0.9		x	5.5
+2	2.68		y	5.975
+3	3.52
+4	4.54		Correlation
+5	5.45		coeff	0.993234937805829
+6	5.89		test object	\\n\\tPearson's product-moment correlation\\n\\ndata:  c(A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) and c(B5, B6, B7, B8, B9, B10, B11, B12, B13, B14)\\nt = 24.193, df = 8, p-value = 9.089e-09\\nalternative hypothesis: true correlation is not equal to 0\\n95 percent confidence interval:\\n 0.9705725 0.9984584\\nsample estimates:\\n      cor \\n0.9932349 \\n
+7	7.8		test p	9.08939989940905e-09
+8	8.98
+9	9.1
+10	10.89
+			Scatterplot	out/E15-26f102336a67ab27010885bcd3287171.png

@@ -1,5 +1,4 @@
 // Sheet Component
-
 .sc-sheet {
   font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
   font-size: 16px;
@@ -14,14 +13,18 @@
     border: 1px solid #CCC;
     text-align: center;
     cursor: default;
+
+    input {
+      font-family: $font-family-code;
+      width: 100%;
+      border: none;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
   }
 
   th.se-cell {
     background: #EEE;
-  }
-
-  td.se-cell {
-    text-align: right;
   }
 
   .se-row > .se-cell:first-child {

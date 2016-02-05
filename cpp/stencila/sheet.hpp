@@ -213,6 +213,12 @@ class Sheet : public Component {
     std::string page(void) const;
 
     /**
+     * Generate a web page for this sheet and write it to a file
+     * (usually index.html) in it's working directory
+     */
+    Sheet& page(const std::string& filename);
+
+    /**
      * Compile this sheet
      *
      * Export this sheet as HTML to `index.html` in home directory

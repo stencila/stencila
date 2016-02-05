@@ -38,7 +38,12 @@ CellEditor.Prototype = function() {
   this.didMount = function() {
     var el = this._getTextArea();
     el.focus();
-    el.select();
+    if (this.props.select === "all") {
+      el.select();
+    } else if (this.props.select === "last") {
+      var l = this.props.content.length;
+      el.setSelectionRange(l, l);
+    }
   };
 
   this.getContent = function() {

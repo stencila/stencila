@@ -14,6 +14,7 @@ module.exports = {
   },
 
   export: function(title, el, converter) {
-    el.text(title.content);
+    el.attr('id','title')
+      .text(title.content);
   }
 };

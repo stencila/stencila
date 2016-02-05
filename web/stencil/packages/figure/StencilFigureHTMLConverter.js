@@ -10,6 +10,16 @@ module.exports = {
   },
 
   import: function(el, node, converter) {
+    var index = el.attr('data-index');
+    if (index) {
+      node.index = index;
+    }
+
+    var caption = el.find('figcaption,caption');
+    if(caption){
+      node.caption = converter.annotatedText(caption, [node.id, 'caption']);
+    }
+
     var exec = el.find('[data-exec]');
     if(exec){
       node.spec = exec.attr('data-exec');
@@ -21,12 +31,9 @@ module.exports = {
     var img = el.find('[data-out] img');
     if(img){
       node.image = img.attr('src');
+      node.image_style = img.attr('style');
     }
 
-    var caption = el.find('figcaption,caption');
-    if(caption){
-      node.caption = converter.annotatedText(caption, [node.id, 'caption']);
-    }
   },
 
   export: function(node, el, converter) {
@@ -34,23 +41,24 @@ module.exports = {
 
     if(node.index) el.attr('data-index', node.index);
 
-    var exec = $$('<pre>')
+    var caption = $$('figcaption')
+      .text(node.caption);
+    el.append(caption);
+
+    var exec = $$('pre')
       .attr('data-exec', node.spec)
       .text(node.source);
     if(node.hash) exec.attr('data-hash', node.hash);
     if(node.error) exec.attr('data-error', node.error);
+    el.append(exec);
 
-    var img = $$('<img>')
+    var img = $$('img')
       .attr('src', node.image);
 
-    var out = $$('<div>')
+    var out = $$('div')
       .attr('data-out','true')
       .append(img);
+    el.append(out);
 
-    var caption = $$('<figcaption>')
-      //FIXME: where does id come from?
-      .append(converter.annotatedText([node.id, 'caption']));
-
-    el.append(exec, out, caption);
   }
 };

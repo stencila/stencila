@@ -50,6 +50,17 @@ public:
 	Stencil& initialise(const std::string& from);
 
 	/**
+	 * Restrict a stencil to elements that are currently supported
+	 * by the web front end.
+	 *
+	 * Currently this method is only partially implemented and 
+	 * must be called explicitly but in the future it may be called
+	 * implicityly when initialising or importing a stencil fron an 
+	 * external file.
+	 */
+	Stencil& restrict(void);
+
+	/**
 	 * Import the stencil content from a file
 	 * 
 	 * @param  path Filesystem path to file
@@ -130,7 +141,7 @@ public:
 	/**
 	 * Get stencil content as HTML
 	 */
-	std::string html(bool document = false, bool pretty = true) const;
+	std::string html(bool document = false, bool pretty = false) const;
 
 	/**
 	 * Set stencil content as HTML
@@ -217,14 +228,6 @@ public:
 	);
 
 	/**
-	 * Compile this stencil
-	 *
-	 * Render this stencil and export it as HTML to `stencil.html` and
-	 * a create a preview image as `preview.png`
-	 */
-	Stencil& compile(void);
-	
-	/**
 	 * @}
 	 */
 
@@ -304,6 +307,11 @@ public:
 	 * Get this stencil's authors
 	 */
 	std::vector<std::string> authors(void) const;
+
+	/**
+	 * Get this stencil's mode
+	 */
+	std::string mode(void) const;
 	
 	/**
 	 * Get the list of rendering contexts that are compatible with this stencil.
@@ -398,8 +406,14 @@ public:
 	/**
 	 * Create a hash of a string key. Used to keep track
 	 * of intra-stencil depenedencies
+	 *
+	 * @param effect Side effect of the hash calculation 
+	 *                   1: normal, updates the rolling hash
+	 *                   0: does not update the rolling hash
+	 *                  -1: volatile, always random, does update the rolling hash
+	 * @param extra Additional content to add to the uniqueness of the element
 	 */
-	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true);
+	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true, const std::string& extra = "");
 
 
 	struct Directive {
@@ -607,7 +621,7 @@ public:
 	struct Parameter : Directive {
 		Name name;
 		Name type;
-		Expression value;
+		Expression default_;
 
 		Parameter(void);
 		Parameter(const std::string& attribute);
@@ -936,6 +950,12 @@ public:
 	 * Generate a web page for this stencil
 	 */
 	std::string page(void) const;
+
+	/**
+	 * Generate a web page for this stencil and write it to a file
+	 * (usually index.html) in it's working directory
+	 */
+	Stencil& page(const std::string& filename);
 
 	/**
 	 * Respond to a web request to a stencil

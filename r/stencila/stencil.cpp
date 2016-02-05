@@ -23,6 +23,8 @@ STENCILA_R_GETSET(Stencil,source,std::string)
 STENCILA_R_EXEC1(Stencil,read,std::string)
 STENCILA_R_EXEC1(Stencil,write,std::string)
 
+STENCILA_R_EXEC0(Stencil,restrict)
+
 STENCILA_R_FUNC Stencil_html_get(SEXP self,SEXP pretty){
     STENCILA_R_BEGIN
         return wrap(from<Stencil>(self).html(
@@ -64,9 +66,10 @@ STENCILA_R_EXEC0(Stencil,render)
 
 STENCILA_R_RET0(Stencil,serve) 
 STENCILA_R_EXEC0(Stencil,view)
+STENCILA_R_GET(Stencil,page)
+STENCILA_R_EXEC1(Stencil,page,std::string)
 
 STENCILA_R_EXEC2(Stencil,docx,std::string,std::string)
 STENCILA_R_EXEC2(Stencil,markdown,std::string,std::string)
 STENCILA_R_EXEC2(Stencil,pdf,std::string,std::string)
 STENCILA_R_EXEC1(Stencil,preview,std::string)
-STENCILA_R_EXEC0(Stencil,compile)

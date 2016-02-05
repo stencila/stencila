@@ -196,12 +196,22 @@ Context <- function(envir){
         # simply assigned to the variable
         # For a full list of input types see
         #   https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input
-        if(type=='number') value <- as.numeric(value)
-        else if(type=='date') value <- strptime(value,"%Y-%m-%d")
-        else if(type=='datetime') value <- strptime(value,"%Y-%m-%d %H:%M:%S")
-        else if(type=='expr') value <- self$evaluate(value)
+        value_conv <- NULL
+        if(type=='number') value_conv <- suppressWarnings(as.numeric(value))
+        else if(type=='date') value_conv <- suppressWarnings(strptime(value,"%Y-%m-%d"))
+        else if(type=='datetime') value_conv <- suppressWarnings(strptime(value,"%Y-%m-%d %H:%M:%S"))
+        if(!is.null(value_conv)){
+            # Type was matched, check that conversion worked
+            if(is.na(value_conv)){
+                stop(paste('Could not convert value to type',type))
+            }
+        }
+        else {
+            # Type not matched so assume an expression
+            value_conv <- self$evaluate(value)
+        }
         # Now assign the variable
-        assign(name,value,envir=self$top())
+        assign(name,value_conv,envir=self$top())
         return("")
     }
 

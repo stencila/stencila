@@ -26,6 +26,7 @@ var CONFIG = {
       'stencil-math': require('./packages/math/StencilMathComponent'),
       'stencil-equation': require('./packages/equation/StencilEquationComponent'),
 
+      'stencil-parameter': require('./packages/parameter/StencilParameterComponent'),
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),
@@ -34,7 +35,7 @@ var CONFIG = {
 
       // Panels
       'toc': require('substance/ui/TOCPanel'),
-      'cila': require('./packages/writer/CilaPanel'),
+      //'cila': require('./packages/writer/CilaPanel'),
       'edit-source': require('./packages/writer/EditSourcePanel')
     }
   },
@@ -61,16 +62,16 @@ var CONFIG = {
     'toc': {
       hideContextToggles: false
     },
-    'cila': {
+    /*'cila': {
       hideContextToggles: false
-    },
+    },*/
     'edit-source': {
       hideContextToggles: true
     }
   },
-  tabOrder: ['toc','cila'],
+  tabOrder: ['toc',/*'cila'*/],
   containerId: 'body',
-  isEditable: false
+  isEditable: true
 };
 
 function StencilWriter() {

@@ -33,6 +33,10 @@ std::vector<std::string> Stencil::authors(void) const {
 	return authors;
 }
 
+std::string Stencil::mode(void) const {
+	return select("#mode").text();
+}
+
 std::vector<std::string> Stencil::contexts(void) const {
 	std::vector<std::string> contexts;
 	if(Node elem = select("#contexts")){

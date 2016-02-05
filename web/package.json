@@ -28,7 +28,8 @@
     "MathJax": "nokome/MathJax#24b0e9e1bfbbc466970081084a97ad0ee3b8788b",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
-    "substance": "substance/substance#0cf93a0c03a63e00fa129b2b45ccc2683b31a644"
+    "semantic-ui-css": "2.1.8",
+    "substance": "substance/substance#fe0ed41ac1b0e63f8b620f021a1c9ce7bcc19bea"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
@@ -39,6 +40,7 @@
     "gulp-if": "^2.0.0",
     "gulp-jasmine": "^2.1.0",
     "gulp-notify": "^2.2.0",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.4",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.4.1",

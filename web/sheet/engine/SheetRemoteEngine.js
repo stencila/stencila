@@ -11,16 +11,8 @@ function SheetRemoteEngine() {
 
 SheetRemoteEngine.Prototype = function() {
 
-  this.boot = function(cb) {
-    this.request('PUT', 'boot', null, function(err, result) {
-      if (err) return cb(err);
-      this.active = true;
-      cb(null, result);
-    }.bind(this));
-  };
-
   this.update = function(cells, cb) {
-    this.request('PUT', 'update', cells, function(err, result) {
+    this._request('PUT', 'update', cells, function(err, result) {
       if (err) return cb(err);
       cb(null, result);
     });
