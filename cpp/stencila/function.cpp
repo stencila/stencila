@@ -27,10 +27,6 @@ Component::Type Function::type(void) {
     return FunctionType;
 }
 
-std::string Function::meta(const std::string& what) const {
-    return "";
-}
-
 std::string Function::name(void) const {
     return name_;
 }
@@ -49,19 +45,40 @@ Function& Function::title(const std::string& title) {
     return *this;
 }
 
-std::string Function::description(void) const {
-    return meta("description");
+std::string Function::summary(void) const {
+    return summary_;
+}
+
+Function& Function::summary(const std::string& summary) {
+    summary_ = summary;
+    return *this;
 }
 
 std::vector<std::string> Function::keywords(void) const {
-    auto content = meta("keywords");
-    if (content.length()) {
-        auto values = split(content, ",");
-        for (auto& value : values) trim(value);
-        return values;
-    } else {
-        return {};
-    }
+    return keywords_;
+}
+
+Function& Function::keywords(const std::vector<std::string>& keywords) {
+    keywords_ = keywords;
+    return *this;
+}
+
+std::string Function::details(void) const {
+    return details_;
+}
+
+Function& Function::details(const std::string& details) {
+    details_ = details;
+    return *this;
+}
+
+std::vector<std::string> Function::authors(void) const {
+    return authors_;
+}
+
+Function& Function::authors(const std::vector<std::string>& authors) {
+    authors_ = authors;
+    return *this;
 }
 
 std::vector<Function::Parameter> Function::parameters(void) const {
@@ -71,23 +88,6 @@ std::vector<Function::Parameter> Function::parameters(void) const {
 void Function::parameter(const Function::Parameter& parameter) {
     parameters_.push_back(parameter);
 }
-
-
-std::vector<std::string> Function::authors(void) const {
-    auto content = meta("authors");
-    if (content.length()) {
-        auto values = split(content, ",");
-        for (auto& value : values) trim(value);
-        return values;
-    } else {
-        return {};
-    }
-}
-
-std::string Function::theme(void) const {
-    return "";
-}
-
 
 Function& Function::initialise(const std::string& from) {
     if (boost::filesystem::exists(from)) {

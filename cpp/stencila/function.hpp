@@ -33,57 +33,63 @@ class Function : public Component {
     /**
      * @name Attributes
      *
-     * Methods for obtaining attributes of the sheet.
+     * Methods for obtaining attributes of the function.
      * 
      * @{
      */
 
     /**
-     * Get the component type for sheets
+     * Get the component type for functions
      */
     static Component::Type type(void);
-
-    /**
-     * Get a meta attribute of this sheet
-     * 
-     * @param  what Name of attribute
-     */
-    std::string meta(const std::string& what) const;
 
     std::string name(void) const;
     Function& name(const std::string& name);
 
+
     /**
-     * Get this sheets's title
-     *
-     * Title is specified by using the title name e.g
-     *
-     *    A1: title = "Project X workbook"
-     *
-     * Usually the title will be in cell A1 but it does not need
-     * to be.
+     * Get this function's title
      */
     std::string title(void) const;
     Function& title(const std::string& title);
 
-    /**
-     * Get this sheets's description
-     *
-     * Description is specified by using the description name e.g.
-     *
-     *     A2: description = "Simple calculations for special project X"
-     */
-    std::string description(void) const;
 
     /**
-     * Get this sheets's keywords
-     *
-     * Keywords are specified in a comma separated cell 
-     * with the keyword name e.g.
-     *
-     *     A3: keywords = "calculations, project X"
+     * Get this function's summary
+     */
+    std::string summary(void) const;
+    Function& summary(const std::string& summary);
+
+
+    /**
+     * Get this function's description.
+     * 
+     * A simple alias for `summary` provided to meet
+     * the `Component` interface (e.g for use in page generation)
+     */
+    std::string description(void) const {
+        return summary();
+    }
+
+
+    /**
+     * Get this function's details
+     */
+    std::string details(void) const;
+    Function& details(const std::string& details);
+
+
+    /**
+     * Get this function's keywords
      */
     std::vector<std::string> keywords(void) const;
+    Function& keywords(const std::vector<std::string>& keywords);
+
+    /**
+     * Get this functions's authors
+      */
+    std::vector<std::string> authors(void) const;
+    Function& authors(const std::vector<std::string>& authors);
 
 
     struct Parameter {
@@ -93,32 +99,6 @@ class Function : public Component {
     std::vector<Parameter> parameters(void) const;
 
     void parameter(const Parameter& parameter);
-
-    /**
-     * Get this sheets's authors
-     *
-     * Authors are specified using a comma separated cell. Author identfiers
-     * can be combinations of plain text, email addresses, usernames (`@` prefixed) or ORCIDs
-     * e.g.
-     *
-     *     A4: authors = "Peter Pan, Tinker Bell tinker@bell.name, @captainhook, 0000-0003-1608-7967"
-     */
-    std::vector<std::string> authors(void) const;
-
-    /**
-     * Get the list of spread types that are compatible with this sheet.
-     *
-     * Spreads provide the execution environment with with sheet calculations are performed.
-     * Compatability will be determined by the expressions used in 
-     * sheets cells. Some expressions will be able to be used in multiple 
-     * spread languages.
-     */
-    std::vector<std::string> spreads(void) const;
-
-    /**
-     * Get this sheets's theme
-     */
-    std::string theme(void) const;
 
     /**
      * @}
@@ -135,35 +115,35 @@ class Function : public Component {
      */
 
     /**
-     * Initialise this sheet
+     * Initialise this function
      * 
-     * @param  from A string indicating how the sheet is initialised
+     * @param  from A string indicating how the function is initialised
      */
     Function& initialise(const std::string& from);
 
     /**
-     * Load this sheet from an input stream
+     * Load this function from an input stream
      * 
      * @param  stream Input stream
      */
     Function& load(std::istream& stream, const std::string& format = "yaml");
 
     /**
-     * Load this sheet from a string
+     * Load this function from a string
      * 
      * @param  stream Input stream
      */
     Function& load(const std::string& string, const std::string& format = "yaml");
 
     /**
-     * Dump this sheet to an output stream
+     * Dump this function to an output stream
      * 
      * @param  stream Output stream
      */
     const Function& dump(std::ostream& stream, const std::string& format = "yaml") const;
 
     /**
-     * Dump this sheet to a string
+     * Dump this function to a string
      * 
      * @param  format Format for dump
      */
@@ -190,37 +170,37 @@ class Function : public Component {
     const Function& export_(const std::string& path) const;
 
     /**
-     * Read this sheet from a directory
+     * Read this function from a directory
      * 
      * @param  path Filesystem path to a directory. 
-     *              If an empty string then the sheet's current path is used.
+     *              If an empty string then the function's current path is used.
      */
     Function& read(const std::string& path = "");
 
     /**
-     * Write this sheet to a directory
+     * Write this function to a directory
      * 
      * @param  path Filesystem path to a directory
-     *              If an empty string then the sheet's current path is used.
+     *              If an empty string then the function's current path is used.
      */
     Function& write(const std::string& path = "");
 
     /**
-     * Generate a web page for a sheet
+     * Generate a web page for a function
      *
-     * @param  component  A pointer to a sheet
+     * @param  component  A pointer to a function
      */
     static std::string page(const Component* component);
 
     /**
-     * Generate a web page for this sheet
+     * Generate a web page for this function
      */
     std::string page(void) const;
 
     /**
-     * Compile this sheet
+     * Compile this function
      *
-     * Export this sheet as HTML to `index.html` in home directory
+     * Export this function as HTML to `index.html` in home directory
      */
     Function& compile(void);
 
@@ -232,26 +212,26 @@ class Function : public Component {
     /**
      * @name Serving
      *
-     * Methods for serving a sheet over a network.
+     * Methods for serving a function over a network.
      * Overides of `Component` methods as required.
      *
      * @{
      */
 
     /**
-     * Serve this sheet
+     * Serve this function
      */
     std::string serve(void);
 
     /**
-     * View this sheet
+     * View this function
      */
     Function& view(void);
 
     /**
-     * Respond to a web request to a sheet
+     * Respond to a web request to a function
      *
-     * @param  component  A pointer to a sheet
+     * @param  component  A pointer to a function
      * @param  verb       HTML verb (a.k.a. method) e.g. POST
      * @param  method     Name of method requested
      * @param  body       Request body (usually JSON)
@@ -264,7 +244,7 @@ class Function : public Component {
     );
 
     /**
-     * Respond to a web request to this sheet
+     * Respond to a web request to this function
      *
      * @param  verb       HTML verb (a.k.a. method) e.g. POST
      * @param  method     Name of method requested
@@ -301,6 +281,14 @@ class Function : public Component {
     std::string name_;
 
     std::string title_;
+
+    std::string summary_;
+
+    std::vector<std::string> keywords_;
+
+    std::string details_;
+
+    std::vector<std::string> authors_;
 
     std::vector<Parameter> parameters_;
 

@@ -21,7 +21,7 @@ setRefClass(
         initialize = function(initializer=NULL){
             callSuper()
         },
-        content = function(content,format='native'){
+        load = function(content,format='native'){
             if(format=='native'){
                 # Content should be a function
                 if(mode(content)!='function'){
@@ -56,19 +56,24 @@ setRefClass(
                 } else {
                   docs <- list()
                 }
-                
+                print(docs)
+
                 # Convert the documentation list into a YAML string to pass
                 # to C++ side. This is done instead of using JSON because it is easier
                 # to generate th
                 rd_list <- list()
                 rd_list$name <- name
                 rd_list$title <- docs$title
+                rd_list$summary <- docs$description
+                rd_list$details <- docs$details
                 rd_list$examples <- docs$examples
                 rd_list$see <- docs$seealso
                 rd_list$references <- docs$references
-                rd_list$arguments <- docs$arguments
-                print(rd_list)
+                rd_list$parameters <- docs$arguments
+                rd_list$return <- docs$value
                 method_(.self,'Function_rd_set',rd_list)
+            } else {
+                method_(.self,'Function_load',content,format)
             }
         },
         json = function(content){
