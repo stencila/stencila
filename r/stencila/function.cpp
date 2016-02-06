@@ -55,6 +55,7 @@ STENCILA_R_FUNC Function_rd_set(SEXP self, SEXP rd){
         for(Rcpp::List::iterator iter = parameters.begin(); iter != parameters.end(); ++iter) {
             auto parameter = as<Rcpp::List>(*iter);
             auto name = as<std::string>(parameter["arg"]);
+            if(name=="list()") name = "...";
             auto description = as<std::string>(parameter["description"]);
             func.parameter({name,description});
         }

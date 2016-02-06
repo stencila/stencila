@@ -7,6 +7,8 @@
 #include <stencila/spread.hpp>
 #include <stencila/string.hpp>
 
+#include "stencila.hpp"
+
 namespace Stencila {
 
 class RSpread : public Spread {
@@ -57,6 +59,17 @@ public:
 
     std::string depends(const std::string& expression) {
         return call_<std::string>(".depends", expression);
+    }
+
+    std::vector<std::string> functions(void) {
+        return split(call_<std::string>(".functions"), ",");
+    }
+
+    Function function(const std::string& name) {
+        Rcpp::Function method = spread_.get(".function");
+        Rcpp::Language call(method,name);
+        Function func = from<Function>(call.eval());
+        return func;
     }
 
     /**

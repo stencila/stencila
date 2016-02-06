@@ -252,6 +252,18 @@ Spread <- function(envir, closed=FALSE) {
         return(paste(all.names(parse(text=expression)),collapse=","))
     }
 
+    # List functions
+    self$.functions <- function(){
+        paste(ls(baseenv()),collapse=",")
+    }
+
+    # Get a function
+    self$.function <- function(name){
+        func <- Function()
+        func$load(parse(name))
+        func$.pointer
+    }
+
     # Read this spread from disk
     self$.read <- function(path){
         load(
