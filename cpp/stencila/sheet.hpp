@@ -9,6 +9,7 @@
 #include <boost/graph/adjacency_list.hpp>
 
 #include <stencila/component.hpp>
+#include <stencila/function.hpp>
 #include <stencila/html.hpp>
 #include <stencila/spread.hpp>
 
@@ -622,6 +623,16 @@ class Sheet : public Component {
      * Clear all cells
      */
     Sheet& clear(void);
+
+    /**
+     * Get a list of functions that are available in this sheet's context
+     */
+    std::vector<std::string> functions(void) const;
+
+    /**
+     * Get a function definition from this sheet's context
+     */
+    Function function(const std::string& name) const;
 
  private:
     /**

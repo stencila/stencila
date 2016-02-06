@@ -453,6 +453,7 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
     } else if (verb == "PUT" and method == "evaluate") {
         auto expr = request["expr"].as<std::string>();
 
+
         auto result = evaluate(expr);
 
         Json::Document response = Json::Object();
@@ -487,6 +488,16 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         }
         return response.dump();
 
+    } else if (verb == "GET" and method == "functions") {
+        Json::Document response = Json::Array();
+        for (auto name : functions()){
+            response.append(name);
+        }
+        return response.dump();
+    }  else if (verb == "PUT" and method == "function") {
+        auto name = request["name"].as<std::string>();
+        auto func = function(name);
+        return func.json();
     } else {
         throw RequestInvalidException();
     }
@@ -1011,6 +1022,19 @@ Sheet& Sheet::clear(void) {
         spread_->clear("");
     }
     return *this;
+}
+
+std::vector<std::string> Sheet::functions(void) const {
+    if (spread_) {
+        return spread_->functions();
+    } else {
+        return {};
+    }
+}
+
+Function Sheet::function(const std::string& name) const {
+    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
+    return spread_->function(name);
 }
 
 }  // namespace Stencila

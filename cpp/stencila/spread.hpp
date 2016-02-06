@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stencila/component.hpp>
+#include <stencila/function.hpp>
 
 namespace Stencila {
 
@@ -84,6 +85,16 @@ public:
 	 * @return  Comma separated list of names
 	 */
 	virtual std::string depends(const std::string& expression) = 0;
+
+	/**
+	 * List the functions available in this spread
+	 */
+	virtual std::vector<std::string> functions(void) = 0;
+
+    /**
+     * Get a function definition
+     */
+	virtual Function function(const std::string& name) = 0;
 
 };
 
