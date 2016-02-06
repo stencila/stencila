@@ -20,6 +20,9 @@ setRefClass(
     methods = list(
         initialize = function(initializer=NULL){
             callSuper()
+            if(!is.null(initializer)) {
+                load(initializer)
+            }
         },
         load = function(content,format='native'){
             if(format=='native'){
