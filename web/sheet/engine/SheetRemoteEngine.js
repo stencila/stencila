@@ -12,23 +12,43 @@ function SheetRemoteEngine() {
 SheetRemoteEngine.Prototype = function() {
 
   /**
-   * Get a list of function names available in the sheet's context
+   * A list of function names currently available in the
+   * the sheet's context
    */
-  this.functions = function(cb) {
-    this._request('GET', 'functions', null, function(err, result) {
-      if (err) return cb(err);
-      cb(null, result);
-    });
+  this._functionList = null;
+
+  /**
+   * A dictionary of functions definitions used as 
+   * a cache
+   */
+  this._functionSpecs = {}
+
+  /**
+   * Get a list of function names
+   */
+  this.functionList = function(cb) {
+    if(this._functionList) {
+      cb(this._functionList);
+    } else {
+      this._request('GET', 'functions', null, function(err, result) {
+        this._functionList = result;
+        cb(result);
+      }.bind(this));
+    }
   };
 
   /**
-   * Get a function definition from the sheet's context
+   * Get a function definition
    */
-  this.function = function(name, cb) {
-    this._request('GET', 'function', {name:name}, function(err, result) {
-      if (err) return cb(err);
-      cb(null, result);
-    });
+  this.functionSpec = function(name, cb) {
+    if(this._functionSpecs[name]){
+      return this._functionSpecs[name];
+    } else {
+      this._request('PUT', 'function', {name:name}, function(err, result) {
+        this._functionSpecs[name] = result;
+        cb(result);
+      }.bind(this));
+    }
   };
 
   this.update = function(cells, cb) {

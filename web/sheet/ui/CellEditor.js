@@ -27,10 +27,12 @@ CellEditor.Prototype = function() {
         .ref('editor')
     );
     if (this.state.func) {
-      el.append($$(FunctionComponent, {
-        func: require('../testFunction'),
-        paramIndex: this.state.paramIndex
-      }));
+      window._engine.functionSpec(this.state.func, function(func){
+        el.append($$(FunctionComponent, {
+          func: func,
+          paramIndex: this.state.paramIndex
+        }));
+      }.bind(this));
     }
     return el;
   };
