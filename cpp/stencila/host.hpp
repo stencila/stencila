@@ -14,6 +14,14 @@ namespace Host {
 std::string env_var(const std::string& name);
 
 /**
+ * Set an environment variable
+ * 
+ * @param name  Name of variables
+ * @param value Value of variable
+ */
+void env_var(const std::string& name, const std::string& value);
+
+/**
  * Get the path to the user's Stencila store
  */
 std::string user_store(void);

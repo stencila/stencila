@@ -33,7 +33,7 @@ Component& Component::path(const std::string& path) {
 	std::string current_path = meta_->path;
 	std::string new_path = path;
 	// Absolutise and canonicalise the new path (to follow symlinks etc)
-	// so comparing apples wth appls below
+	// so comparing apples with apples below
 	if(new_path.length()>0) new_path = canonical(new_path).generic_string();
 	// If the current path is empty...
 	if(current_path.length()==0){
@@ -95,6 +95,16 @@ std::string Component::address(bool ensure){
 	if(not ensure) STENCILA_THROW(Exception,"Method must be called with a true value");
 	path(true);
 	return address();
+}
+
+Component& Component::address(const std::string& address) {
+	path(Host::stores()[0] + "/" + address);
+	return *this;
+}
+
+
+Component& Component::address(const char* address) {
+	return this->address(std::string(address));
 }
 
 std::string Component::locate(const std::string& address){
