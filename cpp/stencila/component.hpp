@@ -89,6 +89,18 @@ public:
 	std::string address(bool ensure);
 
 	/**
+	* Set this component's address
+	*/
+	Component& address(const std::string& address);
+
+	/**
+	* Set this component's address
+	*
+	* This overload prevents ambiguities with path(bool) when calling path("")
+	*/
+	Component& address(const char* address);
+
+	/**
 	 * Locate a component in the stores
 	 * i.e. convert an `address` into a `path`
 	 *
@@ -314,6 +326,30 @@ public:
 	/**
 	 * @}
 	 */
+	
+
+	/**
+	 * @name Snapshot
+	 *
+	 * Methods implemented in `component-snapshots.cpp`
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Take a snapshot of this component
+	 */
+	Component& store(void) const;
+
+	/** 
+	 * Restore this component from the last available snapshot
+	 */
+	Component& restore(void);
+
+	/**
+	 * @}
+	 */
+
 
 	/**
 	 * @name Instances
