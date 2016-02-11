@@ -27,11 +27,11 @@ $default-cell-padding: 1px 3px;
 
 @import './styles/_sheet';
 @import './styles/_cell';
-@import './styles/_image';
 @import './styles/_constant';
 @import './styles/_error';
 @import './styles/_expression';
-@import './styles/_primitive';
+@import './styles/_primitive-expression';
+@import './styles/_image-expression';
 @import './styles/_function';
 @import './styles/_cell-teaser';
 @import './styles/_save-tool';
