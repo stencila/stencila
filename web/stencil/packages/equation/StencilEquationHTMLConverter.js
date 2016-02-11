@@ -23,7 +23,7 @@ module.exports = {
     var $$ = converter.$$;
     el.attr('data-equation', 'true');
     el.append($$('script')
-      .prop('type', node.format)
+      .attr('type', node.format)
       .text(node.source)
     );
   }
