@@ -103,7 +103,7 @@ Function& Function::initialise(const std::string& from) {
 Function& Function::load(std::istream& stream, const std::string& format) {
     if (format == "yaml") {
     }
-    else STENCILA_THROW(Exception, "File extension not valid for loading a sheet\n extension: "+format);
+    else STENCILA_THROW(Exception, "File extension not valid for loading a function\n extension: "+format);
     return *this;
 }
 
