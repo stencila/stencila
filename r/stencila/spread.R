@@ -260,7 +260,7 @@ Spread <- function(envir, closed=FALSE) {
     # Get a function
     self$.function <- function(name){
         func <- Function()
-        func$load(parse(name))
+        func$load(name, format='name')
         func$.pointer
     }
 
