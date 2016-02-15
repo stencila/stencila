@@ -38,4 +38,3 @@ Component& Component::restore(void) {
 }
 
 }
-

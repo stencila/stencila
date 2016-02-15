@@ -177,6 +177,31 @@ public:
 	 */
 	Component& write(const std::string& path="");
 	
+
+	/**
+	 * Open a component from a path
+	 *
+	 * Includes checking whether the component can be restored
+	 * from a previous snapshot.
+	 */
+	template<class Class>
+	static Component* open(const std::string& path="");
+
+	/**
+	 * Save a component
+	 *
+	 * Writes component to disk as well as storing a snapshot if
+	 * appropriate.
+	 */
+	Component& save(void);
+
+	/**
+	 * Close a component
+	 * 
+	 * Similar to save but also 
+	 */
+	Component& close(void);
+
 	/**
 	 * @}
 	 */
@@ -339,7 +364,7 @@ public:
 	/**
 	 * Take a snapshot of this component
 	 */
-	Component& store(void) const;
+	Component& store(void);
 
 	/** 
 	 * Restore this component from the last available snapshot
@@ -852,5 +877,17 @@ protected:
  */
 template<class Type>
 Html::Document Component_page_doc(const Type& component);
+
+template<class Class>
+Component* Component::open(Component::Type type, const std::string& path) {
+	Class* component = new Class;
+	component->path(path);
+	if (Host::env_var("STENCILA_SESSION").length()) {
+		component->restore();
+	}
+	component->read();
+	component->hold(type);
+	return component;
+}
 
 }

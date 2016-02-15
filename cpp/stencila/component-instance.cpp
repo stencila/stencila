@@ -147,32 +147,22 @@ Component::Instance Component::get(const std::string& address,const std::string&
 		} else {
 			if (Component::instantiate) {
 				component = Component::instantiate(address, path, type_name(type));
+				component->path(path);
+				component->hold(type);
 			} else {
-				if(type==ComponentType){
-					component = new Component;
-				} else if(type==StencilType){
-					Stencil* stencil = new Stencil;
-					stencil->read(path);
-					component = stencil;
+				if(type==StencilType){
+					component = open<Stencil>(path);
 				} else if(type==ThemeType){
-					Theme* theme = new Theme;
-					theme->read(path);
-					component = theme;
+					component = open<Theme>(path);
 				} else if(type==SheetType){
-					Sheet* sheet = new Sheet;
-					sheet->read(path);
-					component = sheet;
+					component = open<Sheet>(path);
 				} else if(type==FunctionType){
-					Function* function = new Function;
-					function->read(path);
-					component = function;
+					component = open<Function>(path);
 				} else {
 					STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
 				}
 			}
 		}
-		component->path(path);
-		component->hold(type);
 		instance = {type,component};
 	}
 
