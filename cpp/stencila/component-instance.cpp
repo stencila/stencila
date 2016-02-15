@@ -151,13 +151,13 @@ Component::Instance Component::get(const std::string& address,const std::string&
 				component->hold(type);
 			} else {
 				if(type==StencilType){
-					component = open<Stencil>(path);
+					component = open<Stencil>(type, path);
 				} else if(type==ThemeType){
-					component = open<Theme>(path);
+					component = open<Theme>(type, path);
 				} else if(type==SheetType){
-					component = open<Sheet>(path);
+					component = open<Sheet>(type, path);
 				} else if(type==FunctionType){
-					component = open<Function>(path);
+					component = open<Function>(type, path);
 				} else {
 					STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
 				}
