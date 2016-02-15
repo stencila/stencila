@@ -176,31 +176,6 @@ public:
 	 * @param path Filesystem path to component
 	 */
 	Component& write(const std::string& path="");
-	
-
-	/**
-	 * Open a component from a path
-	 *
-	 * Includes checking whether the component can be restored
-	 * from a previous snapshot.
-	 */
-	template<class Class>
-	static Component* open(const std::string& path="");
-
-	/**
-	 * Save a component
-	 *
-	 * Writes component to disk as well as storing a snapshot if
-	 * appropriate.
-	 */
-	Component& save(void);
-
-	/**
-	 * Close a component
-	 * 
-	 * Similar to save but also 
-	 */
-	Component& close(void);
 
 	/**
 	 * @}
@@ -613,6 +588,30 @@ public:
 	 * @param comparison Version requirement comparision (e.g. >=, ==, >)
 	 */
 	static Instance get(const std::string& address, const std::string& version="",const std::string& comparison="==");
+
+	/**
+	 * Open a component from a path
+	 *
+	 * Includes checking whether the component can be restored
+	 * from a previous snapshot.
+	 */
+	template<class Class>
+	static Component* open(Type type, const std::string& path="");
+
+	/**
+	 * Save a component
+	 *
+	 * Writes component to disk as well as storing a snapshot if
+	 * appropriate.
+	 */
+	Component& save(void);
+
+	/**
+	 * Close a component
+	 * 
+	 * Similar to save but also 
+	 */
+	Component& close(void);
 
 	/** 
 	 * @}
