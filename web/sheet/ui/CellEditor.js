@@ -27,7 +27,7 @@ CellEditor.Prototype = function() {
         .ref('editor')
     );
     if (this.state.func) {
-      window._engine.functionSpec(this.state.func, function(func){
+      window._engine.function(this.state.func, function(func){
         el.append($$(FunctionComponent, {
           func: func,
           paramIndex: this.state.paramIndex

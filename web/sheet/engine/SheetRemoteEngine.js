@@ -26,7 +26,7 @@ SheetRemoteEngine.Prototype = function() {
   /**
    * Get a list of function names
    */
-  this.functionList = function(cb) {
+  this.functions = function(cb) {
     if(this._functionList) {
       cb(this._functionList);
     } else {
@@ -40,7 +40,7 @@ SheetRemoteEngine.Prototype = function() {
   /**
    * Get a function definition
    */
-  this.functionSpec = function(name, cb) {
+  this.function = function(name, cb) {
     if(this._functionSpecs[name]){
       return this._functionSpecs[name];
     } else {
