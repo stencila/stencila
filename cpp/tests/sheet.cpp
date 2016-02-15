@@ -4,6 +4,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stencila/sheet.hpp>
+#include <stencila/function.hpp>
 using namespace Stencila;
 
 class TestSpread : public Spread {
@@ -73,6 +74,14 @@ class TestSpread : public Spread {
 
 	std::string retrieve(const std::string& name) {
 		return "";
+	}
+
+	std::vector<std::string> functions(void) {
+		return {};
+	}
+
+	Function function(const std::string& name) {
+		return Function();
 	}
 
  private:
