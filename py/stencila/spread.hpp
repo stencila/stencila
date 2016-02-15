@@ -2,6 +2,7 @@
 #include <boost/python/raw_function.hpp>
 
 #include <stencila/spread.hpp>
+#include <stencila/function.hpp>
 
 namespace Stencila {
 
@@ -54,6 +55,14 @@ public:
 
     std::string depends(const std::string& expression) {
         return call_<std::string>("depends", expression);
+    }
+
+    std::vector<std::string> functions(void) {
+        return {};
+    }
+
+    Function function(const std::string& name) {
+        return Function();
     }
 
     /**
