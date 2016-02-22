@@ -377,10 +377,15 @@ public:
 
 	/**
 	 * Remove all directives from a HTML node and its children.
-	 * After scrubbing a node all the rendering logic is removed. However the rendered content and the 
-	 * rendering flags are still retained. The opposite of 'clean'.
+	 * After scrubbing all the rendering logic for a node is removed. However, the rendered content and the 
+	 * rendering flags are still retained. The opposite of 'clean'. Used by `for` and `include` directives
+	 * to reduce unecessary repetition of content.
+	 * 
+	 * Not applied to directives that have a `data-error` flag so that the
+	 * error can be seen by the user and rectified.
 	 *
 	 * e.g. <span data-text="6*7">42</span>  ->  <span>42</span>
+	 * e.g. <span data-text="foo" data-error="foo not found"></span>  ->  <span data-text="foo" data-error="foo not found"></span>
 	 */
 	static void scrub(Node node);
 

@@ -94,14 +94,19 @@ Stencil& Stencil::clean(void){
 }
 
 void Stencil::scrub(Node node){
-	// Remove elements : `exec` elements (which contain code) and elements that
-	// have been turned off `[data-off`]
+	// Remove `exec` directives and other directives that have been turned off (e.g. `if`, `case`)
+	// but not if they have an error.
 	for(Node child : node.filter("[data-exec],[data-off]")){
-		child.destroy();
+		if(not child.has("data-error")) child.destroy();
 	}
-	// Remove all directive attributes
+	// Remove all directive attributes for nodes without
+	// errors
 	for(auto attr : directives){
-		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
+		for(Node child : node.filter("["+attr+"]")){
+			if(not child.has("data-error")) {
+				child.erase(attr);
+			}
+		}
 	}
 }
 
@@ -657,7 +662,8 @@ void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> 
 		}
 		// Render the element
 		stencil.render(item,context);
-		// Scrub the elemet to prevent repetition of directives 
+		// Scrub the element to prevent unecessary repetition of directives within
+		// each item
 		scrub(item);
 		// Set index flag
 		item.attr("data-index",index);
