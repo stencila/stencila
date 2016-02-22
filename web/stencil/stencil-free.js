@@ -108,6 +108,15 @@ window.stencil = new (function(){
         });
     }
 
+    // Add "decorative" elements
+    $('table[data-index] caption, figure[data-index] caption, figure[data-index] figcaption').each(function(){
+        var caption = $(this);
+        var parent = caption.parent();
+        var type = parent.prop("tagName")=='TABLE'?'Table':'Figure';
+        var index = parent.attr('data-index');
+        caption.prepend('<span>'+type+' '+index+': ');
+    });
+
     // Add automatic styling to certain elements
     $('[data-par]').addClass('ui fluid labeled input');
     $('[data-par]>label').addClass('ui label');
