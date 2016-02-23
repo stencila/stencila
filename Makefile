@@ -1094,6 +1094,7 @@ web-watch:
 web-examples:
 	stencila-r web/examples/a render write page:"index.html"
 	stencila-r web/examples/b update write page:"index.html"
+	stencila-r web/examples/sheet-with-error update write page:"index.html"
 
 web-devserve:
 	cd web; node server.js
