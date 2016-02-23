@@ -62,35 +62,6 @@ app.get('/', function(req, res){
 // Example components
 app.use('/examples', express.static(path.join(__dirname, "examples")));
 
-// Snippets
-// Mimic the API at https://stenci.la
-// Snippets with id are read from local files
-app.get('/snippets/:id',  function (req, res, next) {
-  fs.readFile(path.join(__dirname, '..', 'snippets', 'snippets', req.params.id + '.json'), 'utf8', function (err, data) {
-    if (err) return handleError(err, res);
-    res.set('Content-Type', 'application/json');
-    res.send(data);
-  });
-});
-// List of snippets generated from list of snippet files
-app.get('/snippets',  function (req, res, next) {
-  var dirname = path.join(__dirname, '..', 'snippets', 'snippets');
-  glob(dirname + '/*.json', function(err, files) {
-    res.set('Content-Type', 'application/json');
-    var snippets = [];
-    for(var i=0; i < files.length; i++){
-      var file = files[i];
-      var id = file.replace(dirname+'/','').replace('.json','');
-      snippets.push({
-        id: id,
-        summary: "A summary of the snippet"
-      });
-    }
-    var json = JSON.stringify(snippets);
-    res.send(json);
-  });
-});
-
 // Javascript
 app.get('/get/web/:name.min.js', function (req, res, next) {
   browserify({ debug: true, cache: false })
