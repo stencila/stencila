@@ -27,4 +27,6 @@ Error.Prototype = function() {
 
 Component.extend(Error);
 
+Error.static.displayModes = ['expanded'];
+
 module.exports = Error;
