@@ -1,5 +1,7 @@
 'use strict';
 
+var Raven = require('raven-js');
+
 var Component = require('substance/ui/Component');
 var $ = window.$ = require('substance/util/jquery');
 var SheetWriter = require('./ui/SheetWriter');
@@ -57,15 +59,29 @@ window.Stencila = {};
 window.isEditable = true;
 
 function launch() {
-  var doc = loadDocument();
-  if (window.isEditable) {
-    renderStaticReadonlyVersion(doc);
-    activateSession(function(err) {
-      if (err) throw new Error(err);
-      renderInteractiveVersion(doc, 'write');
-    });
-  } else {
-    renderInteractiveVersion(doc, 'read');
+  Raven
+    .config(
+      'https://6329017160394100b21be92165555d72@app.getsentry.com/37250',{
+        ignoreUrls: [
+          // Ignore errors generated during development or on local sessions
+          /localhost/,
+          /127\.0\.0\.1/,
+        ]
+      })
+    .install();
+  try {
+    var doc = loadDocument();
+    if (window.isEditable) {
+      renderStaticReadonlyVersion(doc);
+      activateSession(function(err) {
+        if (err) throw new Error(err);
+        renderInteractiveVersion(doc, 'write');
+      });
+    } else {
+      renderInteractiveVersion(doc, 'read');
+    }
+  } catch(e) {
+    Raven.captureException(e)
   }
 }
 

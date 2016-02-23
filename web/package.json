@@ -17,6 +17,7 @@
   "author": "Stencila authors (https://github.com/stencila/stencila/blob/master/AUTHORS)",
   "license": "GPL-3.0",
   "dependencies": {
+    "MathJax": "nokome/MathJax#24b0e9e1bfbbc466970081084a97ad0ee3b8788b",
     "ace": "ajaxorg/ace#0c66e1ed",
     "body-parser": "^1.12.4",
     "cheerio": "^0.19.0",
@@ -25,9 +26,9 @@
     "jquery": "^2.1.4",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
     "lodash": "3.3.1",
-    "MathJax": "nokome/MathJax#24b0e9e1bfbbc466970081084a97ad0ee3b8788b",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
+    "raven-js": "^2.1.1",
     "semantic-ui-css": "2.1.8",
     "substance": "substance/substance#fe0ed41ac1b0e63f8b620f021a1c9ce7bcc19bea"
   },
