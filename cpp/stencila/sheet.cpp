@@ -925,7 +925,11 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
         // or has predecessors that have changed 
         std::vector<std::string> cells_updated;
         for (auto id : order_) {
-            Cell& cell = get_cell(id);
+            // An id may exist in order_ that is not a cell (e.g. if user enters = G5 when G% is blank)
+            // In that case, we don't need to do anything
+            auto iter = cells_.find(id);
+            if(iter == cells_.end()) continue;
+            Cell& cell = iter->second;
 
             // Does this cell need to be executed
             // Has this cell changed?
