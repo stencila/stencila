@@ -777,7 +777,7 @@ std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
     return {type, value};
 }
 
-std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<std::string,std::string>& cells) {
+std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<std::string,std::string>& changes) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
 
     // Change to the sheet's directory
@@ -789,69 +789,51 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
+    // The updates resulting from the changes
     std::map<std::string, std::array<std::string, 3>> updates;
     try {
-        std::vector<std::string> source_update;
-        if (cells.size()){
-            // First pass: set the source of each cell for name mapping (required for dependency analysis)
-            for (auto iter : cells) {
+        std::vector<std::string> cells_changed;
+        if (changes.size()){
+            // Set the source of each cell for parsing and 
+            // name mapping (required for dependency analysis below)
+            for (auto iter : changes) {
                 auto id = iter.first;
                 auto source_ = iter.second;
                 source(id,source_);
-                source_update.push_back(id);
+                cells_changed.push_back(id);
             }
         } else {
             // Updating source for all cells
-            for (auto iter : cells_) source_update.push_back(iter.first);
+            for (auto iter : cells_) {
+                cells_changed.push_back(iter.first);
+            }
         }
 
+        // Create list of cells for which dependency needs to be updated
         // If necessary update dependency graph based on all cells
         // not just those that have been updated
-        std::vector<std::string> dependency_update;
-        std::vector<std::string> statements_update;
+        std::vector<std::string> cells_dependency;
         if (not prepared_) {
             for (const auto& iter : cells_) {
-                dependency_update.push_back(iter.first);
-                statements_update.push_back(iter.first);
+                cells_dependency.push_back(iter.first);
             }
         } else {
-            dependency_update = source_update;
-            statements_update = source_update;
+            cells_dependency = cells_changed;
         }
 
-        // Second pass: updating of dependency graph
-        for (auto id : dependency_update) {
-            // Get the cell
-            Cell& cell = cells_.at(id);
-            // Get the list of variable names this cell depends upon
-            if (cell.expression.length()) {
-                auto spread_expr = translate(cell.expression);
-                // There may be a syntax error in the expression
-                // so capture those and set dependencies to none
-                std::string depends;
-                try {
-                    depends = spread_->depends(spread_expr);
-                } catch(...) {
-                    depends = "";
-                }
-                cell.depends.clear();
-                for (std::string depend : split(depends, ",")) {
-                    if (depends.length()) {
-                        // Replace cell names with cell ids
-                        auto iter = names_.find(depend);
-                        if (iter != names_.end()) {
-                            depend = iter->second;
-                        }
-                        // Remove anything that is not an id (e.g. function name)
-                        if (is_id(depend)) {
-                            cell.depends.push_back(depend);
-                        }
-                    }
-                }
-            } else {
-                cell.depends.clear();
-            }
-            // Create vertex, or clear edges for existing vertex, in the dependency graph
+        // Function used for error checking cell access by id
+        auto get_cell = [&](const std::string id) -> Cell& {
+            auto iter = cells_.find(id);
+            if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+            return iter->second;
+        };
+
+        // Update of dependency graph
+        std::vector<std::string> cells_requirements;
+        for (auto id : cells_dependency) {
+            Cell& cell = get_cell(id);
+
+            // Create vertex for the cell or clear edges for existing vertex
             Vertex vertex;
             auto iter = vertices_.find(id);
             if (iter == vertices_.end()) {
@@ -861,21 +843,57 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                 vertex = iter->second;
                 boost::clear_in_edges(vertex, graph_);
             }
-            // Create inward edges from cells that this one depends upon
-            for (auto depend : cell.depends) {
-                Vertex vertex_from;
-                auto iter = vertices_.find(depend);
-                if (iter == vertices_.end()) {
-                    vertex_from =  boost::add_vertex(depend, graph_);
-                    vertices_[depend] = vertex_from;
+            // Requirement and manual kind cells don't need to have dependencies
+            // determined
+            if (cell.kind==Cell::requirement_) {
+                cells_requirements.push_back(id);
+            } else if (cell.kind==Cell::manual_) {
+
+            } else {
+                // Get the list of variable names this cell depends upon
+                if (cell.expression.length()) {
+                    auto spread_expr = translate(cell.expression);
+                    // There may be a syntax error in the expression
+                    // so capture those and set dependencies to none
+                    std::string depends;
+                    try {
+                        depends = spread_->depends(spread_expr);
+                    } catch(...) {
+                        depends = "";
+                    }
+                    cell.depends.clear();
+                    for (std::string depend : split(depends, ",")) {
+                        if (depends.length()) {
+                            // Replace cell names with cell ids
+                            auto iter = names_.find(depend);
+                            if (iter != names_.end()) {
+                                depend = iter->second;
+                            }
+                            // Remove anything that is not an id (e.g. function name)
+                            if (is_id(depend)) {
+                                cell.depends.push_back(depend);
+                            }
+                        }
+                    }
                 } else {
-                    vertex_from = iter->second;
+                    cell.depends.clear();
                 }
-                boost::add_edge(vertex_from, vertex, graph_);
+                // Create inward edges from cells that this one depends upon
+                for (auto depend : cell.depends) {
+                    Vertex vertex_from;
+                    auto iter = vertices_.find(depend);
+                    if (iter == vertices_.end()) {
+                        vertex_from =  boost::add_vertex(depend, graph_);
+                        vertices_[depend] = vertex_from;
+                    } else {
+                        vertex_from = iter->second;
+                    }
+                    boost::add_edge(vertex_from, vertex, graph_);
+                }
             }
         }
 
-        // Topological sort to determine recalculation order
+        // Topological sort
         std::vector<Vertex> vertices;
         try {
             topological_sort(graph_, std::back_inserter(vertices));
@@ -891,75 +909,71 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
         reverse(ids.begin(), ids.end());
         order_ = ids;
 
-        // Ensure output directory is present
-        boost::filesystem::create_directories(path / "out");
-
-        // Iterate through all statements_update cells and execute
-        for (const auto& id : statements_update) {
-            auto iter = cells_.find(id);
-            if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
-            Cell& cell = iter->second;
-            auto result = spread_->execute(cell.expression);
-            if (result.length()) {
-                auto space = result.find(" ");
-                cell.type = result.substr(0, space);
-                cell.value = result.substr(space+1);
-                updates[id] = {
-                    cell.kind_string(),
-                    cell.type,
-                    cell.value
-                };
-            }
-        }
-
         // Next time, don't need to update all dependencies
         if (not prepared_) prepared_ = true;
 
-        // Iterate through topological sort order and once the first source_update
-        // cell is hit, start recalculating subsequent cells
-        bool calculate = false;
+        // Ensure output directory is present
+        boost::filesystem::create_directories(path / "out");
+
+        // Execute each requirement (amongst changed cells)
+        for (auto id : cells_requirements) {
+            Cell& cell = get_cell(id);
+            spread_->execute(cell.expression);
+        }
+
+        // Iterate through order and re-execute any cell that has changed itself
+        // or has predecessors that have changed 
+        std::vector<std::string> cells_updated;
         for (auto id : order_) {
-            bool source_updated = std::find(source_update.begin(), source_update.end(), id) != source_update.end();
-            if (not calculate) {
-                if (source_updated) {
-                    calculate = true;
+            Cell& cell = get_cell(id);
+
+            // Does this cell need to be executed
+            // Has this cell changed?
+            bool execute = std::find(cells_changed.begin(), cells_changed.end(), id) != cells_changed.end();
+            if(not execute) {
+                // Has any of it's immeadiate predecessors been updated?
+                auto vertex = vertices_[id];
+                boost::graph_traits<Graph>::in_edge_iterator edge_iter, edge_end;
+                for (boost::tie(edge_iter,edge_end) = in_edges(vertex, graph_); edge_iter != edge_end; ++edge_iter) {
+                    auto predecessor_vertex = boost::source(*edge_iter, graph_);
+                    auto predecessor_id = boost::get(boost::vertex_name, graph_)[predecessor_vertex];
+                    execute = std::find(cells_updated.begin(), cells_updated.end(), predecessor_id) != cells_updated.end();
+                    if (execute) break;
                 }
             }
-            if (calculate) {
-                auto iter = cells_.find(id);
-                if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
-                Cell& cell = iter->second;
-                if(cell.kind == Cell::blank_){
-                    // If the cell source was made blank then clear it 
-                    // so that any dependant cells will return an error
-                    clear(id);
-                } else if (not source_updated and cell.depends.size()==0) {
-                    // Don't need to do anything.
-                    // This is a temporary optimisation until dependency graph 
-                    // walking is implemented
-                } else if (cell.expression.length()) {
-                    // Store to detect any changes
-                    auto type = cell.type;
-                    auto value = cell.value;
-                    // Translate and execute
-                    auto spread_expr = translate(cell.expression);
-                    std::string type_value;
-                    try {
-                        type_value = spread_->set(id, spread_expr, cell.name);
-                    } catch (const std::exception& exc) {
-                        type_value = exc.what();
-                    }
-                    auto space = type_value.find(" ");
-                    cell.type = type_value.substr(0, space);
-                    cell.value = type_value.substr(space+1);
-                    // Has there been a change? Note change in kind is not detected here!
-                    if(cell.type != type or cell.value != value){
-                        updates[id] = {
-                            cell.kind_string(),
-                            cell.type,
-                            cell.value
-                        };
-                    }
+
+            // If don't need to execute this cell then continue loop
+            if(not execute) continue; 
+            
+            // Add to list of cells updated
+            cells_updated.push_back(id);
+
+            if(cell.kind == Cell::blank_){
+                // If the cell source was made blank then clear it 
+                // so that any dependant cells will return an error
+                spread_->clear(id);
+            } else if (cell.expression.length()) {
+                // Store to detect any changes
+                auto type = cell.type;
+                auto value = cell.value;
+                // Translate and execute
+                auto spread_expr = translate(cell.expression);
+                std::string type_value;
+                try {
+                    type_value = spread_->set(id, spread_expr, cell.name);
+                } catch (const std::exception& exc) {
+                    type_value = exc.what();
+                }
+                auto space = type_value.find(" ");
+                cell.type = type_value.substr(0, space);
+                cell.value = type_value.substr(space+1);
+                // Has there been a change? Note change in kind is not detected here!
+                if(cell.type != type or cell.value != value){
+                    updates[id] = {
+                        cell.kind_string(),
+                        cell.type,
+                        cell.value
+                    };
                 }
             }
         }
@@ -1002,7 +1016,7 @@ std::vector<std::string> Sheet::depends(const std::string& id) {
     return iter->second.depends;
 }
 
-std::vector<std::string> Sheet::order(void) {
+std::vector<std::string> Sheet::order(void) const {
     return order_;
 }
 
@@ -1027,26 +1041,11 @@ std::vector<std::string> Sheet::successors(const std::string& id) {
     return std::vector<std::string>(iter+1, order_.end());
 }
 
-Sheet& Sheet::clear(const std::string& id) {
-    cells_.erase(id);
-    auto name = names_.find(id);
-    if(name != names_.end()){
-        names_.erase(name->second);
-    }
-    auto vertex = vertices_.find(id);
-    if(vertex != vertices_.end()){
-        boost::remove_vertex(vertex->second,graph_);
-    }
-    if (spread_) {
-        spread_->clear(id);
-    }
-    return *this;
-}
-
 Sheet& Sheet::clear(void) {
     cells_.clear();
     names_.clear();
     graph_ = Graph();
+    order_.clear();
     if (spread_) {
         spread_->clear("");
     }

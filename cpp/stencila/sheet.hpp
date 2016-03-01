@@ -547,10 +547,10 @@ class Sheet : public Component {
      * whose `type` or `value` has changed (some cells may have changed in the spread but if their string
      * value has not changed then they will not be returned in the map)
      *
-     * @param cells Map of cell IDs and their sources
+     * @param changes Map of cell IDs and their sources
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::map<std::string, std::array<std::string, 3>> update(const std::map<std::string,std::string>& cells);
+    std::map<std::string, std::array<std::string, 3>> update(const std::map<std::string, std::string>& changes);
 
     /**
      * Update a single cell with new source
@@ -593,7 +593,7 @@ class Sheet : public Component {
     /**
      * Get the topological sort order for the cells in this sheet
      */
-    std::vector<std::string> order(void);
+    std::vector<std::string> order(void) const;
 
     /**
      * Generate a Graphviz `dot` file of the dependency graph for this sheet
@@ -616,17 +616,6 @@ class Sheet : public Component {
      * @param id ID of the cell
      */
     std::vector<std::string> successors(const std::string& id);
-
-    /**
-     * Clear a cell
-     *
-     * After calling this method the cell will have no content and
-     * no corresponding id (e.g. BD45) or name (e.g. total) in the spread.
-     * To remove a name only from a cell `update()` it content
-     *
-     * @param id ID of the cell
-     */
-    Sheet& clear(const std::string& id);
 
     /**
      * Clear all cells

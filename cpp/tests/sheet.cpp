@@ -320,6 +320,36 @@ BOOST_AUTO_TEST_CASE(dependencies_2){
 	BOOST_CHECK_EQUAL(join(s.order(), ","), "B1,A2,B2,A1");
 }
 
+BOOST_AUTO_TEST_CASE(update){
+	Sheet s;
+	s.attach(std::make_shared<TestSpread>());
+
+	std::map<std::string,std::string> changes;
+	std::map<std::string,std::array<std::string,3>> updates;
+
+	changes["A1"] = "1";
+	updates = s.update(changes);
+
+	BOOST_CHECK_EQUAL(updates.size(),1);
+	if(updates.size()==1){
+		auto cell = updates["A1"];
+		BOOST_CHECK_EQUAL(cell[0], "num");
+		BOOST_CHECK_EQUAL(cell[2], "1");
+	}
+
+	changes.clear();
+	changes["A2"] = "= A1";
+	updates = s.update(changes);
+
+	BOOST_CHECK_EQUAL(join(s.order(),","),"A1,A2");
+	BOOST_CHECK_EQUAL(join(s.depends("A2"),","),"A1");
+	BOOST_CHECK_EQUAL(updates.size(),1);
+	if(updates.size()==1){
+		auto cell = updates["A2"];
+		BOOST_CHECK_EQUAL(cell[0], "exp");
+	}
+}
+
 BOOST_AUTO_TEST_CASE(request){
 	Sheet s;
 	s.attach(std::make_shared<TestSpread>());
