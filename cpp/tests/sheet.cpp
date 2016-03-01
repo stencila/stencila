@@ -240,9 +240,9 @@ BOOST_AUTO_TEST_CASE(parse){
 	BOOST_CHECK_EQUAL(cell.kind, Cell::string_);
 	BOOST_CHECK_EQUAL(cell.expression,"\'Single quoted string with an escaped single quote \\\'' inside it\'");
 
-	cell = Sheet::parse("Some content");
-	BOOST_CHECK_EQUAL(cell.kind, Cell::content_);
-	BOOST_CHECK_EQUAL(cell.expression,"\"Some content\"");
+	cell = Sheet::parse("Some text");
+	BOOST_CHECK_EQUAL(cell.kind, Cell::text_);
+	BOOST_CHECK_EQUAL(cell.expression,"\"Some text\"");
 }
 
 BOOST_AUTO_TEST_CASE(translate){
