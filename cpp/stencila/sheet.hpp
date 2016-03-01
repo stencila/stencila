@@ -298,35 +298,42 @@ class Sheet : public Component {
     struct Cell {
 
         /**
-         * Is this cell a statement?
-         *
-         * Most cells are simple expressions in the host language. Statements are used for
-         * "special" cells that require something other than simple evaluation. At present,
-         * only importing packages is support but other statement types could be added.
+         * What kind of cell is this?
+         *     
+         * Alternative types of literal expression will be added in the future. Those may deal with literals that are
+         * not necessarily be valid in the host language e.g. $1,000,000. The host context can be asked
          */
-        bool statement = false;
+        enum Kind {
+            // empty or blank (only whitespace) source
+            blank_ = 0,
+
+            // expression       eg. `= 22/7`
+            expression_ = 1,
+            // mapping          eg. `~ my_matrix`
+            mapping_ = 2,
+            // requirement      eg. `^ library(ggplot2)`
+            requirement_ = 3,
+            // manual           eg. `: optim(...)`
+            manual_ = 4,
+            // test             eg. `? sum(A1:A10)==100`
+            test_ = 5,
+            // visualization    eg. `| A1:B10 as points`
+            visualization_ = 6,
+
+            // number literal eg. `42`
+            number_ = 10,
+            // string literal (single or double quoted) eg. `"foo"`
+            string_ = 11,
+
+            // content, potentially with markdown eg. `some _emphasis_ text`
+            content_ = 255
+
+        } kind = blank_;
 
         /**
-         * What kind of cell is this?
-         *
-         * When parsing the source of a cell it may be detected to be a 
-         *
-         *     '0' - empty or blank (only whitespace) source
-         *     '1' - expression       (eg. `= 22/7`)
-         *     '2' - named expression (eg. `pi = 3.14`)
-         *     'n' - number literal   (eg. `42`)
-         *     's' - string literal   (eg. `"foo"`)
-         *     'd' - date literal     (eg. `23/12/1978`) [not currently implemented]
-         *     'z' - implicit string  (eg. `foo bar`)
-         *     
-         * This allows for various optimisations and for the definition of alternative types of literal expression
-         * that may not necessarily be valid in the host language e.g. $1,000,000. The host context can be asked
-         * to convert the literal to native types e.g. '23/12/1978' would be converted to a `datetime.datetime` in Python.
-         *
-         * More kinds, to deal with alternative literals, are likely to be added in the future.
-         * It may be that the `statement` flag can also be incorporated into `kind`
+         * Get a string representing the kind of the cell
          */
-        unsigned char kind = '0';
+        std::string kind_string(void) const;
 
         /**
          * Expression of this cell

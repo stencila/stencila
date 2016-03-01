@@ -162,12 +162,42 @@ BOOST_AUTO_TEST_CASE(interpolate){
 }
 
 BOOST_AUTO_TEST_CASE(parse){
-	Sheet::Cell cell;
+	typedef Sheet::Cell Cell;
+	Cell cell;
+
+	// Basic detection of kind (one of each kind, more variants below)
+	#define CHECK(source,kind_) \
+		BOOST_CHECK_EQUAL(Sheet::parse(source).kind, kind_);
+
+	CHECK("", Cell::blank_)
+	CHECK("= 6*7", Cell::expression_)
+	CHECK("~ matrix", Cell::mapping_)
+	CHECK("^ library(foo)", Cell::requirement_)
+	CHECK(": optim()", Cell::manual_)
+	CHECK("? some_test()==0", Cell::test_)
+
+	#undef CHECK
+
+
+	// Optional name for all of the above
+	#define CHECK(source,kind_) \
+		cell = Sheet::parse(source); \
+		BOOST_CHECK_EQUAL(cell.name, "foo"); \
+		BOOST_CHECK_EQUAL(cell.expression, "42"); \
+		BOOST_CHECK_EQUAL(cell.kind, kind_);
+
+	CHECK("foo = 42", Cell::expression_)
+	CHECK("foo ~ 42", Cell::mapping_)
+	CHECK("foo ^ 42", Cell::requirement_)
+	CHECK("foo : 42", Cell::manual_)
+	CHECK("foo ? 42", Cell::test_)
+
+	#undef CHECK
 
 	// Empty or blank (only whitespace) source is ignored
-	BOOST_CHECK_EQUAL(Sheet::parse("").kind,'0');
-	BOOST_CHECK_EQUAL(Sheet::parse("\t").kind,'0');
-	BOOST_CHECK_EQUAL(Sheet::parse(" \t\n\t").kind,'0');
+	BOOST_CHECK_EQUAL(Sheet::parse("").kind, Cell::blank_);
+	BOOST_CHECK_EQUAL(Sheet::parse("\t").kind, Cell::blank_);
+	BOOST_CHECK_EQUAL(Sheet::parse(" \t\n\t").kind, Cell::blank_);
 
 	// Tabs are replaced with spaces
 	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t").expression,"'foo  bar'");
@@ -182,37 +212,37 @@ BOOST_AUTO_TEST_CASE(parse){
 	// Named expressions
 	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
 		cell = Sheet::parse(content);
-		BOOST_CHECK_EQUAL(cell.kind,'2');
-		BOOST_CHECK_EQUAL(cell.name,"answer");
-		BOOST_CHECK_EQUAL(cell.expression,"6*7");
+		BOOST_CHECK_EQUAL(cell.kind, Cell::expression_);
+		BOOST_CHECK_EQUAL(cell.name, "answer");
+		BOOST_CHECK_EQUAL(cell.expression, "6*7");
 	}
 
 	// Dynamic expressions
 	cell = Sheet::parse("=42");
-	BOOST_CHECK_EQUAL(cell.kind,'1');
+	BOOST_CHECK_EQUAL(cell.kind, Cell::expression_);
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 	BOOST_CHECK_EQUAL(cell.name,"");
 
 	// Literal expressions
 	cell = Sheet::parse("42");
-	BOOST_CHECK_EQUAL(cell.kind,'n');
+	BOOST_CHECK_EQUAL(cell.kind, Cell::number_);
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 
 	cell = Sheet::parse("3.14");
-	BOOST_CHECK_EQUAL(cell.kind,'n');
+	BOOST_CHECK_EQUAL(cell.kind, Cell::number_);
 	BOOST_CHECK_EQUAL(cell.expression,"3.14");
 
 	cell = Sheet::parse("\"Double quoted string with an escaped double quote \\\" inside it\"");
-	BOOST_CHECK_EQUAL(cell.kind,'s');
+	BOOST_CHECK_EQUAL(cell.kind, Cell::string_);
 	BOOST_CHECK_EQUAL(cell.expression,"\"Double quoted string with an escaped double quote \\\" inside it\"");
 
 	cell = Sheet::parse("\'Single quoted string with an escaped single quote \\\'' inside it\'");
-	BOOST_CHECK_EQUAL(cell.kind,'s');
+	BOOST_CHECK_EQUAL(cell.kind, Cell::string_);
 	BOOST_CHECK_EQUAL(cell.expression,"\'Single quoted string with an escaped single quote \\\'' inside it\'");
 
-	cell = Sheet::parse("An implicit string");
-	BOOST_CHECK_EQUAL(cell.kind,'z');
-	BOOST_CHECK_EQUAL(cell.expression,"\"An implicit string\"");
+	cell = Sheet::parse("Some content");
+	BOOST_CHECK_EQUAL(cell.kind, Cell::content_);
+	BOOST_CHECK_EQUAL(cell.expression,"\"Some content\"");
 }
 
 BOOST_AUTO_TEST_CASE(translate){
@@ -292,38 +322,44 @@ BOOST_AUTO_TEST_CASE(dependencies_2){
 
 BOOST_AUTO_TEST_CASE(request){
 	Sheet s;
-	s.load(
-		"1\t= A1\n"
-		"2\t= A2\n"
-	);
 	s.attach(std::make_shared<TestSpread>());
-	s.update();
 
-	BOOST_CHECK_EQUAL(join(s.depends("B1"), ","), "A1");
+	// Checking the response from update()
+	#define CHECK(in_,out_) \
+		BOOST_CHECK_EQUAL(s.request("PUT","update",in_), out_);
 
-	// In the following we change A1; B1 is dependent upon it
-	// but due to this being a 'dumb' context its value does not
-	// change and so is filtered out from result of cells to be updated
-	
-	BOOST_CHECK_EQUAL(
-		s.request("PUT","update",R"([{"id":"A1","source":"2"}])"),
-		R"([{"id":"A1","kind":"n","type":"string","value":"2"}])"
-	);
-
-	BOOST_CHECK_EQUAL(
-		s.request("PUT","update",R"([{"id":"A1","source":"some error"}])"),
-		R"([{"id":"A1","kind":"z","type":"error","value":"There was an error!"}])"
-	);
-
-	BOOST_CHECK_EQUAL(
-		s.request("PUT","update",R"([{"id":"A1","source":""}])"),
+	CHECK(
+		R"([{"id":"A1","source":""}])",
 		R"([])"
 	);
+	
+	CHECK(
+		R"([{"id":"A1","source":"2"}])",
+		R"([{"id":"A1","kind":"num","type":"string","value":"2"}])"
+	);
+
+	CHECK(
+		R"([{"id":"A1","source":"'string'"}])",
+		R"([{"id":"A1","kind":"str","type":"string","value":"'string'"}])"
+	);
+
+	CHECK(
+		R"([{"id":"A1","source":"= some error"}])",
+		R"([{"id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
+	);
+
+	CHECK(
+		R"([{"id":"A1","source":"~ matrix"}])",
+		R"([{"id":"A1","kind":"map","type":"string","value":"matrix"}])"
+	);
+
+	#undef CHECK
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
 
+#if 0
 BOOST_AUTO_TEST_SUITE(sheet_slow)
 
 BOOST_AUTO_TEST_CASE(view){
@@ -343,3 +379,4 @@ BOOST_AUTO_TEST_CASE(view){
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+#endif
