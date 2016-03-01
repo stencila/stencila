@@ -112,7 +112,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
             if (iter != cells_.end()) {
                 const auto& cell = iter->second;
                 if (cell.kind > '0') {
-                    td.attr("data-kind", std::string(1, cell.kind));
+                    td.attr("data-kind", cell.kind_string());
                     if (cell.kind == '2') td.attr("data-name", cell.name);
                     if (cell.kind == '1' or cell.kind == '2') td.attr("data-expr", cell.expression);
                     if (cell.kind <= '9' and cell.type.length()) td.attr("data-type", cell.type);
@@ -152,25 +152,25 @@ Sheet& Sheet::load(const std::string& string, const std::string& format) {
 }
 
 Sheet& Sheet::dump_script(std::ostream& stream, std::string assign, std::string terminate) {
-    // Ensure `order_` and `cell.statement` are inititialised
+    // Ensure `order_` and `cell.kind` are inititialised
     if(not prepared_) update();
-    // Statements at top
-    bool statements = false;
+    // Requirement cells first...
+    bool requirements = false;
     for (const auto& iter : cells_) {
         const auto& cell = iter.second;
-        if (cell.statement and cell.expression.length()) {
+        if (cell.kind==Cell::requirement_ and cell.expression.length()) {
             stream  << translate(cell.expression)
                     << terminate;
-            statements = true;
+            requirements = true;
         }
     }
-    if (statements) {
+    if (requirements) {
         stream << "\n";
     }
-    // Cells...
+    // ...then other cells
     for (const auto& id : order_) {
         const auto& cell = cells_.at(id);
-        if (not cell.statement and cell.expression.length()) {
+        if (not cell.kind==Cell::requirement_ and cell.expression.length()) {
             stream  << (cell.name.length()?cell.name:id)
                     << assign
                     << translate(cell.expression)
@@ -605,31 +605,51 @@ Sheet::Cell Sheet::parse(const std::string& source) {
         // `\s*` at ends allows for leading and trailing spaces or newlines
         // Commented quotes below are to stop SublimeText's string formatting on subsequent line
         static const boost::regex blank_regex(R"(^\s*$)");
-        static const boost::regex expression_regex(R"(^\s*= *(.+?)\s*$)");
-        static const boost::regex named_expression_regex(R"(^\s*([a-z]\w*) *= *(.+?)\s*$)");
+        
+        static const std::string name = R"(^\s*([a-z]\w*)? *)";
+        static const std::string expr = R"( *(.+?)\s*$)";
+        static const boost::regex expression_regex(name+"\\="+expr);
+        static const boost::regex mapping_regex(name+"\\~"+expr);
+        static const boost::regex requirement_regex(name+"\\^"+expr);
+        static const boost::regex manual_regex(name+"\\:"+expr);
+        static const boost::regex test_regex(name+"\\?"+expr);
+
         static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
         static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
         static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
 
         boost::smatch match;
         if (boost::regex_match(source_clean, match, blank_regex)){
-            cell.kind = '0';
+            cell.kind = Cell::blank_;
         } else if (boost::regex_match(source_clean, match, expression_regex)) {
-            cell.kind = '1';
-            cell.expression = match.str(1);
-        } else if (boost::regex_match(source_clean, match, named_expression_regex)) {
-            cell.kind = '2';
+            cell.kind = Cell::expression_;
             cell.name = match.str(1);
             cell.expression = match.str(2);
-        }  else if (boost::regex_match(source_clean, match, number_regex)) {
-            cell.kind = 'n';
+        } else if (boost::regex_match(source_clean, match, mapping_regex)) {
+            cell.kind = Cell::mapping_;
+            cell.name = match.str(1);
+            cell.expression = match.str(2);
+        } else if (boost::regex_match(source_clean, match, requirement_regex)) {
+            cell.kind = Cell::requirement_;
+            cell.name = match.str(1);
+            cell.expression = match.str(2);
+        }  else if (boost::regex_match(source_clean, match, manual_regex)) {
+            cell.kind = Cell::manual_;
+            cell.name = match.str(1);
+            cell.expression = match.str(2);
+        }  else if (boost::regex_match(source_clean, match, test_regex)) {
+            cell.kind = Cell::test_;
+            cell.name = match.str(1);
+            cell.expression = match.str(2);
+        } else if (boost::regex_match(source_clean, match, number_regex)) {
+            cell.kind = Cell::number_;
             cell.expression = match.str(1);
         } else if (boost::regex_match(source_clean, match, dq_string_regex) or
                    boost::regex_match(source_clean, match, sq_string_regex)) {
-            cell.kind = 's';
+            cell.kind = Cell::string_;
             cell.expression = match.str(1);
         } else {
-            cell.kind = 'z';
+            cell.kind = Cell::content_;
             cell.expression = "\"" + source + "\"";
         }
     }
@@ -655,16 +675,26 @@ std::string Sheet::source(const std::string& id) {
     const auto& iter = cells_.find(id);
     if (iter != cells_.end()) {
         const auto& cell = iter->second;
-        if (cell.statement) {
-            return "= " + cell.expression;
-        } else if (cell.kind > '9') {
+        if (cell.kind > 9) {
             return cell.expression;
         } else {
-            if (cell.name.length()) {
-                return cell.name + " = " + cell.expression;
-            } else {
-                return "= " + cell.expression;
+            std::string source = cell.expression;
+
+            std::string operat;
+            switch (cell.kind) {
+                case Cell::expression_: operat = "="; break;
+                case Cell::mapping_: operat = "~"; break;
+                case Cell::requirement_: operat = "^"; break;
+                case Cell::manual_: operat = ":"; break;
+                case Cell::test_: operat = "?"; break;
+                case Cell::visualization_: operat = "|"; break;
+                default: break;
             }
+            if (operat.length()) source.insert(0, operat + " ");
+
+            if (cell.name.length()) source.insert(0, cell.name + " ");
+
+            return source;
         }
     }
     return "";
@@ -794,7 +824,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
             // Get the cell
             Cell& cell = cells_.at(id);
             // Get the list of variable names this cell depends upon
-            if (cell.kind != '0' and not cell.statement and cell.expression.length()) {
+            if (cell.expression.length()) {
                 auto spread_expr = translate(cell.expression);
                 // There may be a syntax error in the expression
                 // so capture those and set dependencies to none
@@ -871,12 +901,11 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
             Cell& cell = iter->second;
             auto result = spread_->execute(cell.expression);
             if (result.length()) {
-                cell.statement = true;
                 auto space = result.find(" ");
                 cell.type = result.substr(0, space);
                 cell.value = result.substr(space+1);
                 updates[id] = {
-                    std::string(1, cell.kind),
+                    cell.kind_string(),
                     cell.type,
                     cell.value
                 };
@@ -908,7 +937,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                     // Don't need to do anything.
                     // This is a temporary optimisation until dependency graph 
                     // walking is implemented
-                } else if (not cell.statement and cell.expression.length()) {
+                } else if (cell.expression.length()) {
                     // Store to detect any changes
                     auto type = cell.type;
                     auto value = cell.value;
@@ -926,7 +955,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                     // Has there been a change? Note change in kind is not detected here!
                     if(cell.type != type or cell.value != value){
                         updates[id] = {
-                            std::string(1, cell.kind),
+                            cell.kind_string(),
                             cell.type,
                             cell.value
                         };
@@ -1035,6 +1064,25 @@ std::vector<std::string> Sheet::functions(void) const {
 Function Sheet::function(const std::string& name) const {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
     return spread_->function(name);
+}
+
+std::string Sheet::Cell::kind_string(void) const {
+    switch (kind) {
+        case Cell::blank_: return "bla";
+
+        case Cell::expression_: return "exp";
+        case Cell::mapping_: return "map";
+        case Cell::requirement_: return "req";
+        case Cell::manual_: return "man";
+        case Cell::test_: return "tes";
+        case Cell::visualization_: return "vis";
+
+        case Cell::number_: return "num";
+        case Cell::string_: return "str";
+        
+        case Cell::content_: return "con";
+    }
+    return "";
 }
 
 }  // namespace Stencila
