@@ -59,17 +59,17 @@ window.Stencila = {};
 window.isEditable = true;
 
 function launch() {
-  Raven
-    .config(
-      'https://6329017160394100b21be92165555d72@app.getsentry.com/37250',{
-        ignoreUrls: [
-          // Ignore errors generated during development or on local sessions
-          /localhost/,
-          /127\.0\.0\.1/,
-        ]
-      })
-    .install();
-  try {
+  // Raven
+  //   .config(
+  //     'https://6329017160394100b21be92165555d72@app.getsentry.com/37250',{
+  //       ignoreUrls: [
+  //         // Ignore errors generated during development or on local sessions
+  //         /localhost/,
+  //         /127\.0\.0\.1/,
+  //       ]
+  //     })
+  //   .install();
+  // try {
     var doc = loadDocument();
     if (window.isEditable) {
       renderStaticReadonlyVersion(doc);
@@ -80,9 +80,9 @@ function launch() {
     } else {
       renderInteractiveVersion(doc, 'read');
     }
-  } catch(e) {
-    Raven.captureException(e)
-  }
+  // } catch(e) {
+  //   Raven.captureException(e)
+  // }
 }
 
 window.activate = function() {

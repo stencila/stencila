@@ -1,32 +1,43 @@
 'use strict';
 
-var oo = require('substance/util/oo');
 var RemoteEngine = require('../../RemoteEngine');
 
 function SheetRemoteEngine() {
   SheetRemoteEngine.super.apply(this, arguments);
-
   window._engine = this;
 }
 
 SheetRemoteEngine.Prototype = function() {
 
   /**
-   * A list of function names currently available in the
-   * the sheet's context
-   */
-  this._functionList = null;
+    Gets the list of available functions.
+  */
+  this.getFunctionList = function() {
+    return this._functionList;
+  };
 
   /**
-   * A dictionary of functions definitions used as 
-   * a cache
-   */
-  this._functionSpecs = {}
+    A list of function names currently available in the
+    the sheet's context
+
+    TODO: remove hard-coded entries once updateFunction list
+    strategy is in place.
+  */
+  this._functionList = ['sum', 'mean'];
 
   /**
-   * Get a list of function names
-   */
-  this.functions = function(cb) {
+    A dictionary of functions definitions used as 
+    a cache
+  */
+  this._functionSpecs = {};
+
+  /**
+    Updates the cache of available functions
+
+    TODO: this should be run on app start and when new packages are
+          imported that expose more functions.
+  */
+  this.updateFunctionList = function(cb) {
     if(this._functionList) {
       cb(this._functionList);
     } else {
@@ -38,19 +49,24 @@ SheetRemoteEngine.Prototype = function() {
   };
 
   /**
-   * Get a function definition
-   */
+    Get a function definition
+  */
   this.function = function(name, cb) {
-    if(this._functionSpecs[name]){
-      return this._functionSpecs[name];
+    var cachedFunction = this._functionSpecs[name];
+    if (cachedFunction) {
+      cb(null, cachedFunction);
     } else {
       this._request('PUT', 'function', {name:name}, function(err, result) {
+        if (err) return cb(err);
         this._functionSpecs[name] = result;
-        cb(result);
+        cb(null, result);
       }.bind(this));
     }
   };
-
+  
+  /*
+    Updates given cells
+  */
   this.update = function(cells, cb) {
     this._request('PUT', 'update', cells, function(err, result) {
       if (err) return cb(err);

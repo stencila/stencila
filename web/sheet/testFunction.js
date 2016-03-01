@@ -1,18 +1,18 @@
-var testSnippet = {
+var testFunction = {
 	"name": "sum",
-	"summary": "Returns the sum of values.",
+	"title": "Returns the sum of values.",
 	"notes": [
 		"If only a single number for `values` is supplied, `sum` returns `values`"
 	],
 	"parameters": [
 		{
 			"name": "value1",
-	    "descr": "The first number or range to sum up."
+	    "description": "The first number or range to sum up."
 		},
 	  {
 	  	"shape": ["one", "block"],
 	    "name": "value2",
-	    "descr": "Additional numbers or ranges to add to value1",
+	    "description": "Additional numbers or ranges to add to value1",
 	    "variadic": true,
 	    "optional": true
 	  }
@@ -31,7 +31,7 @@ var testSnippet = {
 		"r",
 		"py"
 	]
-}
+};
 
 
-module.exports = testSnippet;
+module.exports = testFunction;

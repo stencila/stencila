@@ -8,45 +8,116 @@ function FunctionComponent() {
 }
 
 FunctionComponent.Prototype = function() {
+
+  // Lifecycle
+  // ------------------------------------
+
+  /*
+    Initial state signature
+  */
+  this.getInitialState = function() {
+    return {
+      func: null // the function specification: needs to be loaded from server
+    };
+  };
+
+  /*
+    Triggers loading of remote data needed for display
+  */
+  this._init = function() {
+    this._loadFunctionSpec();
+  };
+
+  /*
+    On initial mount
+  */
+  this.didMount = function() {
+    console.log('FunctionComponent.didmount');
+    this._init();
+  };
+
+  /*
+    When new props funcName, paramIndex are set 
+  */
+  this.willReceiveProps = function(newProps) {
+    if (this.props.funcName !== newProps.funcName) {
+      this.dispose();
+      this._init();
+    }
+  };
+
+  // Render
+  // ------------------------------------  
+
   this.render = function() {
-    var func = this.props.func;
     var el = $$('div').addClass('sc-function');
+    
+    var func = this.state.func;  
+    var funcName = this.props.funcName;
 
-    // Parameter description
-    var paramsEl = $$('table').addClass('se-parameters');
+    if (func) {
+      // Parameter description
+      var paramsEl = $$('table').addClass('se-parameters');
+      func.parameters.forEach(function(param, i) {
+        var paramEl = $$('tr').addClass('se-param').append(
+          $$('td').addClass('se-param-name').append(param.name),
+          $$('td').addClass('se-param-descr').append(param.description)
+        );
+        if (i === this.props.paramIndex) {
+          paramEl.addClass('sm-active');
+        }
+        paramsEl.append(paramEl);
+      }.bind(this));
 
-    func.parameters.forEach(function(param, i) {
-
-      var paramEl = $$('tr').addClass('se-param').append(
-        $$('td').addClass('se-param-name').append(param.name),
-        $$('td').addClass('se-param-descr').append(param.descr)
+      // Documentation
+      var docEl = $$('div').addClass('se-documentation');
+      docEl.append(
+        $$(FunctionComponent.Signature, {func: func, paramIndex: this.props.paramIndex}),
+        paramsEl,
+        $$('div').addClass('se-summary').append(func.title)
       );
 
-      if (i === this.props.paramIndex) {
-        paramEl.addClass('sm-active');
+      el.append(docEl);
+
+      // Example
+      var example;
+      if (func.examples) {
+        example = func.examples[0];
       }
-      paramsEl.append(paramEl);
-    }.bind(this));
 
-    // Documentation
-    var docEl = $$('div').addClass('se-documentation');
-    docEl.append(
-      $$(FunctionComponent.Signature, {func: func, paramIndex: this.props.paramIndex}),
-      paramsEl,
-      $$('div').addClass('se-summary').append(func.summary)
-    );
+      if (example) {
+        el.append(
+          $$('div').addClass('se-example').append(
+            $$('div').addClass('se-label').append('Example'),
+            // Display first example
+            $$('div').addClass('se-example-code').append(example)
+          )
+        );        
+      }
+    } else {
+      el.append('Loading function specification for '+ funcName);
+    }
 
-    el.append(docEl);
-
-    // Example
-    el.append(
-      $$('div').addClass('se-example').append(
-        $$('div').addClass('se-label').append('Example'),
-        // Display first example
-        $$('div').addClass('se-example-code').append(func.examples[0])
-      )
-    );
     return el;
+  };
+
+  // Utils
+  // ------------------------------------
+
+  this._loadFunctionSpec = function() {
+    var engine = this.context.engine;
+    var funcName = this.props.funcName;
+    console.log('loading funcName', funcName);
+    engine.function(funcName, function(err, func) {
+      if (err) {
+        console.error(funcName, 'could not be loaded');
+      }
+
+      console.log('loaded func', func);
+      this.setState({
+        func: func
+      });
+    }.bind(this));
   };
 };
 
@@ -73,7 +144,6 @@ FunctionComponent.Signature.Prototype = function() {
       if (i < func.parameters.length - 1) {
         paramsEl.append(',');
       }
-
     }.bind(this));
 
     return $$('div').addClass('se-signature').append(

@@ -3,6 +3,7 @@
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var FunctionComponent = require('./FunctionComponent');
+var SelectFunction = require('./SelectFunction');
 
 /*
   The CellEditor is different to a regular TextPropertyEditor
@@ -26,13 +27,16 @@ CellEditor.Prototype = function() {
         .on('input', this.onChange)
         .ref('editor')
     );
-    if (this.state.func) {
-      window._engine.function(this.state.func, function(func){
-        el.append($$(FunctionComponent, {
-          func: func,
-          paramIndex: this.state.paramIndex
-        }));
-      }.bind(this));
+    if (this.state.funcName) {
+      el.append($$(FunctionComponent, {
+        funcName: this.state.funcName,
+        paramIndex: this.state.paramIndex
+      }).ref('function')); // ref is needed so the component is not wiped on each keystroke
+    } else if (this.state.suggestedFunctions) {
+      // Render function name suggestor
+      el.append($$(SelectFunction, {
+        entries: this.state.suggestedFunctions
+      }).ref('selectFunction'));
     }
     return el;
   };
@@ -94,11 +98,36 @@ CellEditor.Prototype = function() {
     this._detectFunction();
   };
 
+  /*
+    Iterates over available function names and matches the current input string
 
-  var _FUNCTIONS = ['sum', 'mean'];
-  var _FUNCTION_RE_STR = '\\b(' + _FUNCTIONS.join('|') + ')[(]';
+    TODO: @nokome: the _matcher needs to be improved! Also you may want to
+          limit the number of suggested function names
+  */
+  this._matchFunctionNames = function(str) {
+    if (!str) return []; // don't match anything for an empty string
+    var _matcher = new RegExp('\^'+str, 'gi');
+
+    var matches = [];
+    var funcs = this._getAvailableFunctions();
+
+    funcs.forEach(function(funcName) {
+      if (_matcher.exec('='+funcName)) {
+        matches.push(funcName);
+      }
+    });
+    return matches;
+  };
+
+  this._getAvailableFunctions = function() {
+    var engine = this.context.engine;
+    return engine.getFunctionList();
+  };
 
   this._detectFunction = function() {
+    var _availableFuncs = this._getAvailableFunctions();
+    var _function_re_str = '\\b(' + _availableFuncs.join('|') + ')[(]';
+
     setTimeout(function() {
       var el = this._getTextArea();
       var source = el.value;
@@ -106,27 +135,37 @@ CellEditor.Prototype = function() {
       // only if collapsed
       if (pos === el.selectionEnd) {
         source = source.slice(0, pos);
-        var re = new RegExp(_FUNCTION_RE_STR, 'gi');
+        var re = new RegExp(_function_re_str, 'gi');
         var lastMatch, match;
         while ( (match = re.exec(source)) ) {
           lastMatch = match;
         }
+
         if (lastMatch) {
           // console.log('DETECTED FUNCTION', lastMatch[1], lastMatch);
-          var func = lastMatch[1];
+          var funcName = lastMatch[1];
           var startPos = lastMatch.index+1;
           var argsPos = startPos + lastMatch[0].length;
           var currentArg = this._detectCurrentArg(source.slice(argsPos));
           var newState = {
-            func: func,
+            funcName: funcName,
             paramIndex: currentArg.argIdx
           };
           // console.log('DETECTED FUNCTION', newState);
           this.setState(newState);
-        } else if (this.state.func) {
-          this.extendState({
-            func: false
-          });
+        } else {
+          // Check if any available function name matches partly so we can suggest it
+          var suggestedFunctions = this._matchFunctionNames(source);
+
+          if (suggestedFunctions.length > 0) {
+            this.setState({
+              suggestedFunctions: suggestedFunctions
+            });
+          } else {
+            this.setState({
+              funcName: false
+            });
+          }
         }
       }
     }.bind(this));

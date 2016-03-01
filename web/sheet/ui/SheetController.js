@@ -44,7 +44,8 @@ SheetController.Prototype = function() {
   this.getChildContext = function() {
     var childContext = Controller.prototype.getChildContext.call(this);
     return _.extend(childContext, {
-      i18n: I18n.instance
+      i18n: I18n.instance,
+      engine: this.props.engine
     });
   };
 
