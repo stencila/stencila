@@ -111,11 +111,11 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
             const auto& iter = cells_.find(id);
             if (iter != cells_.end()) {
                 const auto& cell = iter->second;
-                if (cell.kind > '0') {
+                if (cell.kind != Cell::blank_) {
                     td.attr("data-kind", cell.kind_string());
-                    if (cell.kind == '2') td.attr("data-name", cell.name);
-                    if (cell.kind == '1' or cell.kind == '2') td.attr("data-expr", cell.expression);
-                    if (cell.kind <= '9' and cell.type.length()) td.attr("data-type", cell.type);
+                    if (cell.name.length()) td.attr("data-name", cell.name);
+                    if (cell.expression.length()) td.attr("data-expr", cell.expression);
+                    if (cell.type.length()) td.attr("data-type", cell.type);
                     td.text(cell.value);
                 }
             }
@@ -929,7 +929,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                 auto iter = cells_.find(id);
                 if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
                 Cell& cell = iter->second;
-                if(cell.kind == '0'){
+                if(cell.kind == Cell::blank_){
                     // If the cell source was made blank then clear it 
                     // so that any dependant cells will return an error
                     clear(id);
