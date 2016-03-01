@@ -14,10 +14,10 @@ module.exports = {
     var expr = el.attr('data-expr');
     var name = el.attr('data-name');
     var displayMode = el.attr('data-display-mode');
-    var exprType = el.attr('data-kind');
+    var kind = el.attr('data-kind');
     var valueType = el.attr('data-type');
     // primitives
-    if (exprType === 's' || exprType === 'z' || exprType === 'n') {
+    if (kind === 'num' || kind === 'str' || kind === 'tex') {
       node.content = textContent;
     }
     // expressions

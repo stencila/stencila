@@ -325,13 +325,15 @@ class Sheet : public Component {
             // string literal (single or double quoted) eg. `"foo"`
             string_ = 11,
 
-            // content, potentially with markdown eg. `some _emphasis_ text`
-            content_ = 255
+            // text, potentially with markdown eg. `some _emphasis_ text`
+            text_ = 255
 
         } kind = blank_;
 
         /**
-         * Get a string representing the kind of the cell
+         * Get a string code for the kind of the cell
+         *
+         * Convention is to use the first three letters of the kind.
          */
         std::string kind_string(void) const;
 

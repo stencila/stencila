@@ -649,7 +649,7 @@ Sheet::Cell Sheet::parse(const std::string& source) {
             cell.kind = Cell::string_;
             cell.expression = match.str(1);
         } else {
-            cell.kind = Cell::content_;
+            cell.kind = Cell::text_;
             cell.expression = "\"" + source + "\"";
         }
     }
@@ -1080,7 +1080,7 @@ std::string Sheet::Cell::kind_string(void) const {
         case Cell::number_: return "num";
         case Cell::string_: return "str";
         
-        case Cell::content_: return "con";
+        case Cell::text_: return "tex";
     }
     return "";
 }
