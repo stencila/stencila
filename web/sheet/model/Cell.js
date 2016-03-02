@@ -14,19 +14,27 @@ Cell.Prototype = function() {
 
   this._updateDerivedProperties = function() {
     var content = this._content;
-    var match = /^\s*([a-zA-Z0-9_@]+)?\s*=/.exec(content);
+    var match = /^\s*([a-zA-Z0-9_@]+)?\s*(\=|\~|\^|\:|\?|\|)/.exec(content);
     delete this._expr;
     delete this._name;
     if (match) {
       if (match[1]) {
-        this._contentType = 'named-expression';
         this._name = match[1];
-      } else {
-        this._contentType = 'expression';
       }
+
+      var symbol = match[2];
+      if (symbol=='=') this.kind = 'exp';
+      else if (symbol=='~') this.kind = 'map';
+      else if (symbol=='^') this.kind = 'req';
+      else if (symbol==':') this.kind = 'man';
+      else if (symbol=='?') this.kind = 'tes';
+      else if (symbol=='|') this.kind = 'vis';
+
       this._expression = content.slice(match[0].length);
     } else {
-      this._contentType = 'primitive';
+      // In C++ we distinguish between different types of literals e.g. 'num, 'str'
+      // but for now, just use 'lit' in JS for "constant" lieteral expression cells.
+      this.kind = 'lit';
       this.value = content;
     }
   };
@@ -35,13 +43,36 @@ Cell.Prototype = function() {
     return this._name;
   };
 
-  this.isPrimitive = function() {
-    console.warn('isPrimitive is deprecated. Use isConstant');
-    return this.isConstant();
-  };
+  /**
+   * Get the source prefix for this cell
+   *
+   * The prefix is the name and symbol part of the cell
+   * source. e.g. for `answer = 42`, `answer =` is the prefix.
+   * Used for providing additional info on cells in UI.
+   */
+  this.getPrefix = function() {
+    var name = this.getName() || '';
+    var kind = this.kind;
+    var symbol = '';
+    if(kind) {
+      if (kind=='exp') symbol = '=';
+      else if (kind=='map') symbol = '~';
+      else if (kind=='req') symbol = '^';
+      else if (kind=='man') symbol = ':';
+      else if (kind=='tes') symbol = '?';
+      else if (kind=='vis') symbol = '|';
+      else symbol = '';
+    }
+    if (symbol) {
+      if (name) return name + ' ' + symbol;
+      else return symbol;
+    }
+    else if (name) return name;
+    else return '';
+  }
 
   this.isConstant = function() {
-    return this._contentType === "primitive";
+    return this.kind == 'lit';
   };
 
   // row and col indexes are managed by Table
@@ -66,6 +97,9 @@ DocumentNode.extend(Cell);
 Cell.static.name = "sheet-cell";
 
 Cell.static.defineSchema({
+  // Kind of cell e.g. expression, maping, requirement, test
+  kind: { type: "string", default: "" },
+
   // plain text (aka source)
   content: { type: "string", default: "" },
 

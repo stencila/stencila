@@ -10,25 +10,40 @@ module.exports = {
   },
 
   import: function(el, node) {
-    var textContent = el.textContent;
-    var expr = el.attr('data-expr');
     var name = el.attr('data-name');
-    var displayMode = el.attr('data-display-mode');
     var kind = el.attr('data-kind');
+    var expr = el.attr('data-expr');
+    var displayMode = el.attr('data-display-mode');
     var valueType = el.attr('data-type');
-    // primitives
-    if (kind === 'num' || kind === 'str' || kind === 'tex') {
-      node.content = textContent;
-    }
-    // expressions
+    var value = el.textContent;
+    
+    // This is repetative of what is in Cell.getPrefix()
+    // and it might be better just to have a Cell.getSource()
+    // function instead of generating here and then again elsewhere
+    var symbol = '';
+    if (kind=='exp') symbol = '=';
+    else if (kind=='map') symbol = '~';
+    else if (kind=='req') symbol = '^';
+    else if (kind=='man') symbol = ':';
+    else if (kind=='tes') symbol = '?';
+    else if (kind=='vis') symbol = '|';
     else {
-      if (name) {
-        node.content = name + '=' + expr;
-      } else {
-        node.content = '=' + expr;
-      }
+      kind = 'lit';
+      symbol = '';
     }
-    node.value = textContent;
+    node.kind = kind;
+
+    if (symbol) {
+      if (name) {
+        node.content = name + symbol + expr;
+      } else {
+        node.content = symbol + expr;
+      }
+    } else {
+      node.content = value;
+    }
+
+    node.value = value;
     node.valueType = valueType;
     node.displayMode = displayMode;
   },

@@ -12,21 +12,28 @@ CellTeaserComponent.Prototype = function() {
   this.render = function() {
     var cell = this.props.node;
     var el = $$('table').addClass('sc-cell-teaser');
-    var name = cell.getName() || '';
     var tr = $$('tr');
-    if (name) {
+    
+    var prefix = cell.getPrefix();
+    if (prefix) {
       tr.append(
-        $$('td').addClass('se-name').text(name)
+        $$('td').addClass('se-name').text(prefix)
       );
     }
-    if (cell.value === undefined) {
-      tr.append($$('td').addClass('se-loading').text('Loading...'));
-    } else if (cell.valueType) {
+
+    var value = cell.value;
+    var type = cell.valueType;
+    if (value === undefined) {
       tr.append(
-        $$('td').addClass('se-content-type').text(cell.valueType)
+        $$('td').addClass('se-loading').text('Loading...')
+      );
+    } else if (type) {
+      tr.append(
+        $$('td').addClass('se-content-type').text(type)
       );
     }
     el.append(tr);
+
     return el;
   };
 
