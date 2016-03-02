@@ -58,31 +58,33 @@ function renderInteractiveVersion(doc, mode) {
 window.Stencila = {};
 window.isEditable = true;
 
+function load() {
+  var doc = loadDocument();
+  if (window.isEditable) {
+    renderStaticReadonlyVersion(doc);
+    activateSession(function(err) {
+      if (err) throw new Error(err);
+      renderInteractiveVersion(doc, 'write');
+    });
+  } else {
+    renderInteractiveVersion(doc, 'read');
+  }
+}
+
+// Launch the app witexception reporting when not on localhost 
 function launch() {
-  // Raven
-  //   .config(
-  //     'https://6329017160394100b21be92165555d72@app.getsentry.com/37250',{
-  //       ignoreUrls: [
-  //         // Ignore errors generated during development or on local sessions
-  //         /localhost/,
-  //         /127\.0\.0\.1/,
-  //       ]
-  //     })
-  //   .install();
-  // try {
-    var doc = loadDocument();
-    if (window.isEditable) {
-      renderStaticReadonlyVersion(doc);
-      activateSession(function(err) {
-        if (err) throw new Error(err);
-        renderInteractiveVersion(doc, 'write');
-      });
-    } else {
-      renderInteractiveVersion(doc, 'read');
+  if (window.location.hostname.match(/localhost|(127\.0\.0\.1)/)) {
+    load();
+  } else {
+    Raven
+      .config('https://6329017160394100b21be92165555d72@app.getsentry.com/37250')
+      .install();
+    try {
+      load();
+    } catch(e) {
+      Raven.captureException(e)
     }
-  // } catch(e) {
-  //   Raven.captureException(e)
-  // }
+  }
 }
 
 window.activate = function() {
