@@ -13,7 +13,7 @@ module.exports = {
     var name = el.attr('data-name');
     var kind = el.attr('data-kind');
     var expr = el.attr('data-expr');
-    var displayMode = el.attr('data-display-mode');
+    var displayMode = el.attr('data-display');
     var valueType = el.attr('data-type');
     var value = el.textContent;
     
