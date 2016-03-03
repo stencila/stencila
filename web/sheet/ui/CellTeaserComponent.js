@@ -22,7 +22,7 @@ CellTeaserComponent.Prototype = function() {
     }
 
     var value = cell.value;
-    var type = cell.valueType;
+    var type = this.props.typeLabel || cell.valueType;
     if (value === undefined) {
       tr.append(
         $$('td').addClass('se-loading').text('Loading...')

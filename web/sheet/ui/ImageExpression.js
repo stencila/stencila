@@ -15,7 +15,12 @@ Image.Prototype = function() {
     // Using .sc-sheet-image instead of .sc-image so we don't have style
     // clashes with native Substance Image
     var el = $$('div').addClass('sc-sheet-image');
-    el.append($$(CellTeaserComponent, {node: node}));
+    if (node.displayMode === 'clipped') {
+      el.append($$(CellTeaserComponent, {
+        node: node,
+        typeLabel: 'image'
+      }));
+    }
     if (node.value !== undefined && node.displayMode !== 'clipped') {
       el.append(
         $$('img').attr('src', node.value)
