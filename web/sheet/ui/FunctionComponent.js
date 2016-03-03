@@ -116,16 +116,17 @@ FunctionComponent.Prototype = function() {
   // Utils
   // ------------------------------------
 
+  /**
+   * Load a function specification from the
+   * sheet execution engine
+   */
   this._loadFunctionSpec = function() {
     var engine = this.context.engine;
     var funcName = this.props.funcName;
-    console.log('loading funcName', funcName);
     engine.function(funcName, function(err, func) {
       if (err) {
         console.error(funcName, 'could not be loaded');
       }
-
-      console.log('loaded func', func);
       this.setState({
         func: func
       });
