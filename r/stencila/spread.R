@@ -253,8 +253,13 @@ Spread <- function(envir, closed=FALSE) {
     }
 
     # List functions
+    # 
+    # Currently only returns names which consist only of "word" (i.e alpha numerics)
+    # characters (i.e. ignore operator functions like "]<-" and those including a ".")
     self$.functions <- function(){
-        paste(ls(baseenv()),collapse=",")
+        names <- ls(baseenv())
+        names <- names[grep('^\\w+$',names,perl=T)]
+        paste(names,collapse=",")
     }
 
     # Get a function
