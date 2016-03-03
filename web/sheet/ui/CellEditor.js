@@ -106,7 +106,7 @@ CellEditor.Prototype = function() {
   */
   this._matchFunctionNames = function(str) {
     if (!str) return []; // don't match anything for an empty string
-    var _matcher = new RegExp('\^'+str, 'gi');
+    var _matcher = new RegExp('\^'+str, 'g');
 
     var matches = [];
     var funcs = this._getAvailableFunctions();
