@@ -53,6 +53,7 @@ function renderInteractiveVersion(doc, mode) {
       engine.save(html);
     }
   }, document.body);
+  engine.updateFunctionList();
 }
 
 window.Stencila = {};

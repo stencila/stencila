@@ -10,20 +10,10 @@ function SheetRemoteEngine() {
 SheetRemoteEngine.Prototype = function() {
 
   /**
-    Gets the list of available functions.
-  */
-  this.getFunctionList = function() {
-    return this._functionList;
-  };
-
-  /**
     A list of function names currently available in the
     the sheet's context
-
-    TODO: remove hard-coded entries once updateFunction list
-    strategy is in place.
   */
-  this._functionList = ['sum', 'mean'];
+  this._functionList = [];
 
   /**
     A dictionary of functions definitions used as 
@@ -32,26 +22,28 @@ SheetRemoteEngine.Prototype = function() {
   this._functionSpecs = {};
 
   /**
-    Updates the cache of available functions
+    Update the cache of available functions
 
     TODO: this should be run on app start and when new packages are
           imported that expose more functions.
   */
-  this.updateFunctionList = function(cb) {
-    if(this._functionList) {
-      cb(this._functionList);
-    } else {
-      this._request('GET', 'functions', null, function(err, result) {
-        this._functionList = result;
-        cb(result);
-      }.bind(this));
-    }
+  this.updateFunctionList = function() {
+    this._request('GET', 'functions', null, function(err, result) {
+      this._functionList = result;
+    }.bind(this));
   };
 
   /**
-    Get a function definition
+    Gets a list of available functions.
   */
-  this.function = function(name, cb) {
+  this.getFunctionList = function() {
+    return this._functionList;
+  };
+
+  /**
+    Get a function specification by name. 
+  */
+  this.getFunctionSpec = function(name, cb) {
     var cachedFunction = this._functionSpecs[name];
     if (cachedFunction) {
       cb(null, cachedFunction);

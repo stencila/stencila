@@ -123,7 +123,7 @@ FunctionComponent.Prototype = function() {
   this._loadFunctionSpec = function() {
     var engine = this.context.engine;
     var funcName = this.props.funcName;
-    engine.function(funcName, function(err, func) {
+    engine.getFunctionSpec(funcName, function(err, func) {
       if (err) {
         console.error(funcName, 'could not be loaded');
       }
