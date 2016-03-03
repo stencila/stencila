@@ -116,6 +116,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
                     if (cell.name.length()) td.attr("data-name", cell.name);
                     if (cell.expression.length()) td.attr("data-expr", cell.expression);
                     if (cell.type.length()) td.attr("data-type", cell.type);
+                    td.attr("data-display", cell.display());
                     td.text(cell.value);
                 }
             }
@@ -1086,6 +1087,14 @@ std::string Sheet::Cell::kind_string(void) const {
         case Cell::text_: return "tex";
     }
     return "";
+}
+
+std::string Sheet::Cell::display(void) const {
+    if (type=="ImageFile") {
+        return "overlay";
+    } else {
+        return "clipped";
+    }
 }
 
 }  // namespace Stencila

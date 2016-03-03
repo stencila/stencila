@@ -400,6 +400,14 @@ class Sheet : public Component {
          * or if it was updated and there was an error
          */
         std::string value;
+
+        /**
+         * Display mode for this cell
+         *
+         * Currently, a simplistic implementation that does not account for persistence,
+         * only default display mode for alternative cell value types.
+         */
+        std::string display(void) const;
     };
 
     /**
