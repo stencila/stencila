@@ -15,12 +15,12 @@ Primitive.Prototype = function() {
 
   this.render = function() {
     var cell = this.props.node;
-    var el = $$('table').addClass('sc-primitive');
-    var tr = $$('tr');
+
+    var el = $$('div').addClass('sc-primitive');
 
     var prefix = cell.getPrefix();
-    tr.append(
-      $$('td').addClass('se-name').text(prefix)
+    el.append(
+      $$('span').addClass('se-name').text(prefix)
     );
 
     var value = cell.value;
@@ -29,11 +29,10 @@ Primitive.Prototype = function() {
       value = 'Loading';
       className = 'se-loading'
     }
-    tr.append(
-      $$('td').addClass(className).text(value)
+    el.append(
+      $$('span').addClass(className).text(value)
     );
 
-    el.append(tr);
     return el;
   };
 
@@ -41,6 +40,6 @@ Primitive.Prototype = function() {
 
 Component.extend(Primitive);
 
-Primitive.static.displayModes = ['expanded'];
+Primitive.static.displayModes = ['expanded','clipped','overlay'];
 
 module.exports = Primitive;

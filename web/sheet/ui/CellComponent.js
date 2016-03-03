@@ -95,11 +95,11 @@ CellComponent.Prototype = function() {
   };
 
   /**
-    There are 3 differnt display modes for cells
+    There are 3 alternative display modes for cells
 
     clipped: uses minimal space
-    expanded: displays all content available
-    overlay: displays all content available
+    expanded: expands the height and width of the cell to display all content
+    overlay: displays content in an overlay that covers other cells
   */
   this.toggleDisplayMode = function() {
     var node = this.props.node;

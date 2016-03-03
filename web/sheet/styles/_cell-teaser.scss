@@ -1,6 +1,6 @@
 .sc-cell-teaser {
 	// Is a <table> element
-	min-width: 150px;
+	min-width: $cell-width;
 	width: 100%;
 	
 	.se-loading {
