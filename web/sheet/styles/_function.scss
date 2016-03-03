@@ -12,6 +12,10 @@
     padding: 10px;
     border-bottom: 1px solid #ddd;
 
+    .se-title {
+      font-weight: bold;
+    }
+
     .se-signature {
       font-size: 13px;
       font-family: $font-family-code;
