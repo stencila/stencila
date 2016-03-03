@@ -56,7 +56,16 @@ FunctionComponent.Prototype = function() {
     var funcName = this.props.funcName;
 
     if (func) {
-      // Parameter description
+      // Function signature
+      var signatureEl = $$(FunctionComponent.Signature, {
+        func: func, 
+        paramIndex: this.props.paramIndex
+      });
+
+      // Function title
+      var titleEl = $$('div').addClass('se-title').append(func.title);
+
+      // Parameter descriptions
       var paramsEl = $$('table').addClass('se-parameters');
       func.parameters.forEach(function(param, i) {
         var paramEl = $$('tr').addClass('se-param').append(
@@ -69,14 +78,17 @@ FunctionComponent.Prototype = function() {
         paramsEl.append(paramEl);
       }.bind(this));
 
+      // Summary
+      var summaryEl = $$('div').addClass('se-summary').append(func.summary||'');
+
       // Documentation
       var docEl = $$('div').addClass('se-documentation');
       docEl.append(
-        $$(FunctionComponent.Signature, {func: func, paramIndex: this.props.paramIndex}),
+        titleEl,
+        signatureEl,
         paramsEl,
-        $$('div').addClass('se-summary').append(func.title)
+        summaryEl
       );
-
       el.append(docEl);
 
       // Example
