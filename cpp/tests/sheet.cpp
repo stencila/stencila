@@ -101,13 +101,12 @@ BOOST_AUTO_TEST_CASE(meta_attributes){
 	s2.attach(std::make_shared<TestSpread>());
 	// Note that the TestSpread does not recognised quotes, so setting of these
 	// attributes is a little different to normal (they are usually string expressions)
-	s2.load(
-		"title = A test sheet\n"
-		"description = A sheet used for testing\n"
-		"authors = Peter Pan, @captainhook\n"
-		"keywords = data, is, gold"
-	);
-	s2.update();
+	s2.cells({
+		{"A1","title = A test sheet"},
+		{"A2","description = A sheet used for testing"},
+		{"A3","authors = Peter Pan, @captainhook"},
+		{"A4","keywords = data, is, gold"}
+	});
 
 	BOOST_CHECK_EQUAL(s2.title(),"A test sheet");
 	BOOST_CHECK_EQUAL(s2.description(),"A sheet used for testing");
@@ -166,8 +165,8 @@ BOOST_AUTO_TEST_CASE(parse){
 	Cell cell;
 
 	// Basic detection of kind (one of each kind, more variants below)
-	#define CHECK(source,kind_) \
-		BOOST_CHECK_EQUAL(Sheet::parse(source).kind, kind_);
+	#define CHECK(source_,kind_) \
+		BOOST_CHECK_EQUAL(cell.source(source_).kind, kind_);
 
 	CHECK("", Cell::blank_)
 	CHECK("= 6*7", Cell::expression_)
@@ -180,8 +179,8 @@ BOOST_AUTO_TEST_CASE(parse){
 
 
 	// Optional name for all of the above
-	#define CHECK(source,kind_) \
-		cell = Sheet::parse(source); \
+	#define CHECK(source_,kind_) \
+		cell.source(source_); \
 		BOOST_CHECK_EQUAL(cell.name, "foo"); \
 		BOOST_CHECK_EQUAL(cell.expression, "42"); \
 		BOOST_CHECK_EQUAL(cell.kind, kind_);
@@ -195,52 +194,52 @@ BOOST_AUTO_TEST_CASE(parse){
 	#undef CHECK
 
 	// Empty or blank (only whitespace) source is ignored
-	BOOST_CHECK_EQUAL(Sheet::parse("").kind, Cell::blank_);
-	BOOST_CHECK_EQUAL(Sheet::parse("\t").kind, Cell::blank_);
-	BOOST_CHECK_EQUAL(Sheet::parse(" \t\n\t").kind, Cell::blank_);
+	BOOST_CHECK_EQUAL(cell.source("").kind, Cell::blank_);
+	BOOST_CHECK_EQUAL(cell.source("\t").kind, Cell::blank_);
+	BOOST_CHECK_EQUAL(cell.source(" \t\n\t").kind, Cell::blank_);
 
 	// Tabs are replaced with spaces
-	BOOST_CHECK_EQUAL(Sheet::parse("\t'foo\t\tbar'\t").expression,"'foo  bar'");
+	BOOST_CHECK_EQUAL(cell.source("\t'foo\t\tbar'\t").expression,"'foo  bar'");
 
 	// Spaces are insignificant at ends of expressions...
-	BOOST_CHECK_EQUAL(Sheet::parse("42").expression,"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 42").expression,"42");
-	BOOST_CHECK_EQUAL(Sheet::parse(" 'foo bar' ").expression,"'foo bar'");
+	BOOST_CHECK_EQUAL(cell.source("42").expression,"42");
+	BOOST_CHECK_EQUAL(cell.source(" 42").expression,"42");
+	BOOST_CHECK_EQUAL(cell.source(" 'foo bar' ").expression,"'foo bar'");
 	// ... but not for implicit strings
-	BOOST_CHECK_EQUAL(Sheet::parse(" foo bar ").expression,"\" foo bar \"");
+	BOOST_CHECK_EQUAL(cell.source(" foo bar ").expression,"\" foo bar \"");
 
 	// Named expressions
 	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
-		cell = Sheet::parse(content);
+		cell.source(content);
 		BOOST_CHECK_EQUAL(cell.kind, Cell::expression_);
 		BOOST_CHECK_EQUAL(cell.name, "answer");
 		BOOST_CHECK_EQUAL(cell.expression, "6*7");
 	}
 
 	// Dynamic expressions
-	cell = Sheet::parse("=42");
+	cell.source("=42");
 	BOOST_CHECK_EQUAL(cell.kind, Cell::expression_);
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 	BOOST_CHECK_EQUAL(cell.name,"");
 
 	// Literal expressions
-	cell = Sheet::parse("42");
+	cell.source("42");
 	BOOST_CHECK_EQUAL(cell.kind, Cell::number_);
 	BOOST_CHECK_EQUAL(cell.expression,"42");
 
-	cell = Sheet::parse("3.14");
+	cell.source("3.14");
 	BOOST_CHECK_EQUAL(cell.kind, Cell::number_);
 	BOOST_CHECK_EQUAL(cell.expression,"3.14");
 
-	cell = Sheet::parse("\"Double quoted string with an escaped double quote \\\" inside it\"");
+	cell.source("\"Double quoted string with an escaped double quote \\\" inside it\"");
 	BOOST_CHECK_EQUAL(cell.kind, Cell::string_);
 	BOOST_CHECK_EQUAL(cell.expression,"\"Double quoted string with an escaped double quote \\\" inside it\"");
 
-	cell = Sheet::parse("\'Single quoted string with an escaped single quote \\\'' inside it\'");
+	cell.source("\'Single quoted string with an escaped single quote \\\'' inside it\'");
 	BOOST_CHECK_EQUAL(cell.kind, Cell::string_);
 	BOOST_CHECK_EQUAL(cell.expression,"\'Single quoted string with an escaped single quote \\\'' inside it\'");
 
-	cell = Sheet::parse("Some text");
+	cell.source("Some text");
 	BOOST_CHECK_EQUAL(cell.kind, Cell::text_);
 	BOOST_CHECK_EQUAL(cell.expression,"\"Some text\"");
 }
@@ -261,12 +260,11 @@ BOOST_AUTO_TEST_CASE(translate){
 
 BOOST_AUTO_TEST_CASE(dependencies_1){
 	Sheet s;
-	s.load(
-		"= A2\t= A1     \t= C2 \n"
-		"= C1\t= A1 + B1\t1\n"
-	);
 	s.attach(std::make_shared<TestSpread>());
-	s.update();
+	s.cells({
+		{"A1","= A2"},{"B1","= A1"},     {"C1","= C2"},
+		{"A2","= C1"},{"B2","= A1 + B1"},{"C2","1"}
+	});
 
 	// Initial checks for loading
 	BOOST_CHECK_EQUAL(join(s.list(), ","), "A1,A2,B1,B2,C1,C2");
@@ -288,7 +286,7 @@ BOOST_AUTO_TEST_CASE(dependencies_1){
 
 	// Change a cell
 	s.update("B2","= C2");
-	BOOST_CHECK_EQUAL(s.source("B2"), "= C2");
+	BOOST_CHECK_EQUAL(s.cell("B2").source(), "= C2");
 	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "C2");
 	BOOST_CHECK_EQUAL(join(s.order(), ","), "C2,B2,C1,A2,A1,B1");
 
@@ -298,12 +296,11 @@ BOOST_AUTO_TEST_CASE(dependencies_1){
 
 BOOST_AUTO_TEST_CASE(dependencies_2){
 	Sheet s;
-	s.load(
-		"0\t= A1\n"
-		"0\t= A2\n"
-	);
 	s.attach(std::make_shared<TestSpread>());
-	s.update();
+	s.cells({
+		{"A1","0"},{"B1","= A1"},
+		{"A2","0"},{"B2","= A2"},
+	});
 
 	BOOST_CHECK_EQUAL(join(s.depends("A1"), ","), "");
 	BOOST_CHECK_EQUAL(join(s.depends("A2"), ","), "");
@@ -324,29 +321,27 @@ BOOST_AUTO_TEST_CASE(update){
 	Sheet s;
 	s.attach(std::make_shared<TestSpread>());
 
-	std::map<std::string,std::string> changes;
-	std::map<std::string,std::array<std::string,3>> updates;
+	std::vector<Sheet::Cell> changes;
+	std::vector<Sheet::Cell> updates;
 
-	changes["A1"] = "1";
-	updates = s.update(changes);
+	updates = s.update("A1","1");
 
 	BOOST_CHECK_EQUAL(updates.size(),1);
 	if(updates.size()==1){
-		auto cell = updates["A1"];
-		BOOST_CHECK_EQUAL(cell[0], "num");
-		BOOST_CHECK_EQUAL(cell[2], "1");
+		auto cell = updates[0];
+		BOOST_CHECK_EQUAL(cell.id, "A1");
+		BOOST_CHECK_EQUAL(cell.kind_string(), "num");
+		BOOST_CHECK_EQUAL(cell.value, "1");
 	}
 
-	changes.clear();
-	changes["A2"] = "= A1";
-	updates = s.update(changes);
+	updates = s.update("A2", "=A1");
 
 	BOOST_CHECK_EQUAL(join(s.order(),","),"A1,A2");
 	BOOST_CHECK_EQUAL(join(s.depends("A2"),","),"A1");
 	BOOST_CHECK_EQUAL(updates.size(),1);
 	if(updates.size()==1){
-		auto cell = updates["A2"];
-		BOOST_CHECK_EQUAL(cell[0], "exp");
+		auto cell = updates[0];
+		BOOST_CHECK_EQUAL(cell.kind_string(), "exp");
 	}
 }
 
@@ -365,22 +360,22 @@ BOOST_AUTO_TEST_CASE(request){
 	
 	CHECK(
 		R"([{"id":"A1","source":"2"}])",
-		R"([{"id":"A1","kind":"num","type":"string","value":"2"}])"
+		R"([{"display":"clipped","id":"A1","kind":"num","type":"string","value":"2"}])"
 	);
 
 	CHECK(
 		R"([{"id":"A1","source":"'string'"}])",
-		R"([{"id":"A1","kind":"str","type":"string","value":"'string'"}])"
+		R"([{"display":"clipped","id":"A1","kind":"str","type":"string","value":"'string'"}])"
 	);
 
 	CHECK(
 		R"([{"id":"A1","source":"= some error"}])",
-		R"([{"id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
+		R"([{"display":"overlay","id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
 	);
 
 	CHECK(
 		R"([{"id":"A1","source":"~ matrix"}])",
-		R"([{"id":"A1","kind":"map","type":"string","value":"matrix"}])"
+		R"([{"display":"clipped","id":"A1","kind":"map","type":"string","value":"matrix"}])"
 	);
 
 	#undef CHECK

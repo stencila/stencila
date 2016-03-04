@@ -126,24 +126,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
 }
 
 Sheet& Sheet::load(std::istream& stream, const std::string& format) {
-    if (format == "tsv") {
-        clear();
-        unsigned int row = 0;
-        std::string line;
-        while (std::getline(stream, line)) {
-            std::vector<std::string> cells;
-            boost::split(cells, line, boost::is_any_of("\t"));
-            unsigned int col = 0;
-            for (auto cell : cells) {
-                if (cell.length()) {
-                    source(identify(row, col), cell);
-                }
-                col++;
-            }
-            row++;
-        }
-    }
-    else STENCILA_THROW(Exception, "File extension not valid for loading a sheet\n extension: "+format);
+    STENCILA_THROW(Exception, "File extension not valid for loading a sheet\n extension: "+format);
     return *this;
 }
 
@@ -190,9 +173,9 @@ Sheet& Sheet::dump(std::ostream& stream, const std::string& format) {
             std::vector<std::string> cells(cols);
             unsigned int col_max = 0;
             for (unsigned int col = 0; col < cols; col++) {
-                auto src = source(identify(row, col));
-                cells[col] = src;
-                if (src.length()) {
+                Cell* pointer = cell_pointer(row, col);
+                if (pointer) {
+                    cells[col] = pointer->source();
                     col_max = col;
                 }
             }
@@ -283,24 +266,27 @@ Sheet& Sheet::read(const std::string& directory) {
         }
         return std::string();
     };
-    // Set stuff
-    clear();
+    // Create a bunch of new cells
+    std::vector<Cell> cells;
     unsigned int row = 0;
     for (const auto& strings : sources) {
         unsigned int col = 0;
         for (const auto& string : strings) {
             // Ignore empty cells
             if (string.length()) {
-                auto id = identify(row, col);
-                Cell& cell = cells_[id];
-                source(id, string);
+                Cell cell;
+                cell.id = identify(row, col);
+                cell.source(string);
                 cell.type = check(types, row, col);
                 cell.value = check(values, row, col);
+                cells.push_back(cell);
             }
             col++;
         }
         row++;
     }
+    // Reset this sheet with those cells;
+    reset(cells);
     return *this;
 }
 
@@ -329,15 +315,13 @@ Sheet& Sheet::write(const std::string& directory) {
         std::vector<std::array<std::string, 3>> cells(cols);
         unsigned int col_max = 0;
         for (unsigned int col = 0; col < cols; col++) {
-            auto id = identify(row, col);
-            auto src = source(id);
-            const Cell& cell = cells_[id];
-            cells[col] = {
-                escape(src),
-                escape(cell.type),
-                escape(cell.value)
-            };
-            if (src.length()) {
+            auto pointer = cell_pointer(row, col);
+            if (pointer) {
+                cells[col] = {
+                    escape(pointer->source()),
+                    escape(pointer->type),
+                    escape(pointer->value)
+                };
                 col_max = col;
             }
         }
@@ -468,25 +452,31 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         if(not request.is<Json::Array>()){
             STENCILA_THROW(Exception, "Array required");
         }
-        std::map<std::string,std::string> changed;
+        std::vector<Cell> changed;
         for (unsigned int index = 0; index < request.size(); index++) {
-            auto cell = request[index];
-            auto id = cell["id"].as<std::string>();
-            auto source = cell["source"].as<std::string>();
-            changed[id] = source;
+            Cell cell;
+            auto json = request[index];
+            cell.id = json["id"].as<std::string>();
+            cell.source(
+                json["source"].as<std::string>()
+            );
+            cell.display(
+                json["display"].as<std::string>()
+            );
+            changed.push_back(cell);
         }
 
         auto updates = update(changed);
 
         Json::Document response = Json::Array();
-        for (auto update : updates) {
-            Json::Document cell = Json::Object();
-            cell.append("id", update.first);
-            cell.append("kind", update.second[0]);
-            cell.append("type", update.second[1]);
-            cell.append("value", update.second[2]);
-            cell.append("display", update.second[3]);
-            response.append(cell);
+        for (auto cell : updates) {
+            Json::Document json = Json::Object();
+            json.append("id", cell.id);
+            json.append("kind", cell.kind_string());
+            json.append("type", cell.type);
+            json.append("value", cell.value);
+            json.append("display", cell.display());
+            response.append(json);
         }
         return response.dump();
 
@@ -552,7 +542,7 @@ std::array<unsigned int, 2> Sheet::index(const std::string& id) {
     if(boost::regex_match(id, match, id_regex)){
         return {index_row(match[2]),index_col(match[1])};
     } else {
-        STENCILA_THROW(Exception, "Invalid id");
+        STENCILA_THROW(Exception, "Invalid cell id\n  id: "+id);
     }
 }
 
@@ -596,110 +586,6 @@ Sheet& Sheet::attach(std::shared_ptr<Spread> spread) {
 Sheet& Sheet::detach(void) {
     spread_ = nullptr;
     return *this;
-}
-
-Sheet::Cell Sheet::parse(const std::string& source) {
-    Cell cell;
-    if (source.length()){
-        auto source_clean = source;
-        boost::replace_all(source_clean, "\t", " ");
-
-        // `\s*` at ends allows for leading and trailing spaces or newlines
-        // Commented quotes below are to stop SublimeText's string formatting on subsequent line
-        static const boost::regex blank_regex(R"(^\s*$)");
-        
-        static const std::string name = R"(^\s*([a-z]\w*)? *)";
-        static const std::string expr = R"( *(.+?)\s*$)";
-        static const boost::regex expression_regex(name+"\\="+expr);
-        static const boost::regex mapping_regex(name+"\\~"+expr);
-        static const boost::regex requirement_regex(name+"\\^"+expr);
-        static const boost::regex manual_regex(name+"\\:"+expr);
-        static const boost::regex test_regex(name+"\\?"+expr);
-
-        static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
-        static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
-        static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
-
-        boost::smatch match;
-        if (boost::regex_match(source_clean, match, blank_regex)){
-            cell.kind = Cell::blank_;
-        } else if (boost::regex_match(source_clean, match, expression_regex)) {
-            cell.kind = Cell::expression_;
-            cell.name = match.str(1);
-            cell.expression = match.str(2);
-        } else if (boost::regex_match(source_clean, match, mapping_regex)) {
-            cell.kind = Cell::mapping_;
-            cell.name = match.str(1);
-            cell.expression = match.str(2);
-        } else if (boost::regex_match(source_clean, match, requirement_regex)) {
-            cell.kind = Cell::requirement_;
-            cell.name = match.str(1);
-            cell.expression = match.str(2);
-        }  else if (boost::regex_match(source_clean, match, manual_regex)) {
-            cell.kind = Cell::manual_;
-            cell.name = match.str(1);
-            cell.expression = match.str(2);
-        }  else if (boost::regex_match(source_clean, match, test_regex)) {
-            cell.kind = Cell::test_;
-            cell.name = match.str(1);
-            cell.expression = match.str(2);
-        } else if (boost::regex_match(source_clean, match, number_regex)) {
-            cell.kind = Cell::number_;
-            cell.expression = match.str(1);
-        } else if (boost::regex_match(source_clean, match, dq_string_regex) or
-                   boost::regex_match(source_clean, match, sq_string_regex)) {
-            cell.kind = Cell::string_;
-            cell.expression = match.str(1);
-        } else {
-            cell.kind = Cell::text_;
-            cell.expression = "\"" + source + "\"";
-        }
-    }
-    return cell;
-}
-
-Sheet& Sheet::source(const std::string& id, const std::string& source) {
-    if (not is_id(id)) {
-        STENCILA_THROW(Exception, "Not a valid cell identifier\n  id: "+id);
-    }
-    // Get or create the cell
-    Cell& cell = cells_[id];
-    // Set its attributes
-    cell = parse(source);
-    // Create name mapping if necessary
-    if (cell.name.length()) {
-        names_[cell.name] = id;
-    }
-    return *this;
-}
-
-std::string Sheet::source(const std::string& id) {
-    const auto& iter = cells_.find(id);
-    if (iter != cells_.end()) {
-        const auto& cell = iter->second;
-        if (cell.kind > 9) {
-            return cell.expression;
-        } else {
-            std::string source = cell.expression;
-
-            std::string operat;
-            switch (cell.kind) {
-                case Cell::expression_: operat = "="; break;
-                case Cell::mapping_: operat = "~"; break;
-                case Cell::requirement_: operat = "^"; break;
-                case Cell::manual_: operat = ":"; break;
-                case Cell::test_: operat = "?"; break;
-                case Cell::visualization_: operat = "|"; break;
-                default: break;
-            }
-            if (operat.length()) source.insert(0, operat + " ");
-
-            if (cell.name.length()) source.insert(0, cell.name + " ");
-
-            return source;
-        }
-    }
-    return "";
 }
 
 std::string Sheet::translate(const std::string& expression) {
@@ -779,8 +665,8 @@ std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
     return {type, value};
 }
 
-std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<std::string,std::string>& changes) {
-    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
+std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes) {
+    std::vector<Sheet::Cell> updates;
 
     // Change to the sheet's directory
     boost::filesystem::path current_path = boost::filesystem::current_path();
@@ -791,25 +677,39 @@ std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<s
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
-    // The updates resulting from the changes
-    std::map<std::string, std::array<std::string, 4>> updates;
     try {
         std::vector<std::string> cells_changed;
         if (changes.size()){
-            // Set the source of each cell for parsing and 
-            // name mapping (required for dependency analysis below)
-            for (auto iter : changes) {
-                auto id = iter.first;
-                auto source_ = iter.second;
-                source(id,source_);
+            // Updating only changed cells
+            // Need to copy the change into the existing (or
+            // newly created) cell
+            for (auto cell : changes) {
+                auto id = cell.id;
+                Cell* pointer = cell_pointer(id);
+                if(pointer){
+                    // Existing cell so copy over
+                    *pointer = cell;
+                    // TODO deal with any change in name by clearing the
+                    // name from the context and the name mapping
+                }
+                else {
+                    // New cell so insert
+                    cells_.insert({id,cell});
+                    // Store any name
+                    names_[cell.name] = id;
+                }
                 cells_changed.push_back(id);
             }
         } else {
-            // Updating source for all cells
-            for (auto iter : cells_) {
+            // Updating all existing cells
+            for (const auto& iter : cells_) {
                 cells_changed.push_back(iter.first);
             }
         }
+
+        // If no spread, don't go any further.
+        // This suffices for an initial read
+        if(not spread_) return updates;
 
         // Create list of cells for which dependency needs to be updated
         // If necessary update dependency graph based on all cells
@@ -823,17 +723,10 @@ std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<s
             cells_dependency = cells_changed;
         }
 
-        // Function used for error checking cell access by id
-        auto get_cell = [&](const std::string id) -> Cell& {
-            auto iter = cells_.find(id);
-            if(iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
-            return iter->second;
-        };
-
         // Update of dependency graph
         std::vector<std::string> cells_requirements;
         for (auto id : cells_dependency) {
-            Cell& cell = get_cell(id);
+            Cell& cell = Sheet::cell(id);
 
             // Create vertex for the cell or clear edges for existing vertex
             Vertex vertex;
@@ -919,7 +812,7 @@ std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<s
 
         // Execute each requirement (amongst changed cells)
         for (auto id : cells_requirements) {
-            Cell& cell = get_cell(id);
+            Cell& cell = Sheet::cell(id);
             spread_->execute(cell.expression);
         }
 
@@ -927,7 +820,7 @@ std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<s
         // or has predecessors that have changed 
         std::vector<std::string> cells_updated;
         for (auto id : order_) {
-            // An id may exist in order_ that is not a cell (e.g. if user enters = G5 when G% is blank)
+            // An id may exist in order_ that is not a cell (e.g. if user enters = G5 when G5 is blank)
             // In that case, we don't need to do anything
             auto iter = cells_.find(id);
             if(iter == cells_.end()) continue;
@@ -975,12 +868,11 @@ std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<s
                 cell.value = type_value.substr(space+1);
                 // Has there been a change? Note change in kind is not detected here!
                 if(cell.type != type or cell.value != value){
-                    updates[id] = {
-                        cell.kind_string(),
-                        cell.type,
-                        cell.value,
-                        cell.display()
-                    };
+                    // Create a copy of cell and give it an id for
+                    // identification in the return vector of updated cells
+                    Cell update = cell;
+                    update.id = id;
+                    updates.push_back(update);
                 }
             }
         }
@@ -996,8 +888,11 @@ std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<s
     return updates;
 }
 
-std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::string& id, const std::string& source) {
-    return update({{id,source}});
+std::vector<Sheet::Cell> Sheet::update(const std::string& id, const std::string& source) {
+    Cell cell;
+    cell.id = id,
+    cell.source(source);
+    return update({cell});
 }
 
 Sheet& Sheet::update(void) {
@@ -1053,9 +948,16 @@ Sheet& Sheet::clear(void) {
     names_.clear();
     graph_ = Graph();
     order_.clear();
+    prepared_ = false;
     if (spread_) {
         spread_->clear("");
     }
+    return *this;
+}
+
+Sheet& Sheet::reset(const std::vector<Sheet::Cell>& cells) {
+    clear();
+    update(cells);
     return *this;
 }
 
@@ -1091,12 +993,103 @@ std::string Sheet::Cell::kind_string(void) const {
     return "";
 }
 
-std::string Sheet::Cell::display(void) const {
-    if (type=="ImageFile" or type=="error") {
-        return "overlay";
+std::string Sheet::Cell::source(void) const {
+    if (kind > 9) {
+        return expression;
     } else {
-        return "clipped";
+        std::string source = expression;
+
+        std::string operat;
+        switch (kind) {
+            case expression_: operat = "="; break;
+            case mapping_: operat = "~"; break;
+            case requirement_: operat = "^"; break;
+            case manual_: operat = ":"; break;
+            case test_: operat = "?"; break;
+            case visualization_: operat = "|"; break;
+            default: break;
+        }
+        if (operat.length()) source.insert(0, operat + " ");
+
+        if (name.length()) source.insert(0, name + " ");
+
+        return source;
     }
+}
+
+Sheet::Cell& Sheet::Cell::source(const std::string& source) {
+    auto source_clean = source;
+    boost::replace_all(source_clean, "\t", " ");
+
+    // `\s*` at ends allows for leading and trailing spaces or newlines
+    // Commented quotes below are to stop SublimeText's string formatting on subsequent line
+    static const boost::regex blank_regex(R"(^\s*$)");
+    
+    static const std::string name_re = R"(^\s*([a-z]\w*)? *)";
+    static const std::string expr_re = R"( *(.+?)\s*$)";
+    static const boost::regex expression_regex(name_re+"\\="+expr_re);
+    static const boost::regex mapping_regex(name_re+"\\~"+expr_re);
+    static const boost::regex requirement_regex(name_re+"\\^"+expr_re);
+    static const boost::regex manual_regex(name_re+"\\:"+expr_re);
+    static const boost::regex test_regex(name_re+"\\?"+expr_re);
+
+    static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
+    static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
+    static const boost::regex sq_string_regex(R"(^\s*('(?:[^"\\]|\\.)*')\s*$)"); // '
+
+    boost::smatch match;
+    if (boost::regex_match(source_clean, match, blank_regex)){
+        kind = Cell::blank_;
+    } else if (boost::regex_match(source_clean, match, expression_regex)) {
+        kind = Cell::expression_;
+        name = match.str(1);
+        expression = match.str(2);
+    } else if (boost::regex_match(source_clean, match, mapping_regex)) {
+        kind = Cell::mapping_;
+        name = match.str(1);
+        expression = match.str(2);
+    } else if (boost::regex_match(source_clean, match, requirement_regex)) {
+        kind = Cell::requirement_;
+        name = match.str(1);
+        expression = match.str(2);
+    }  else if (boost::regex_match(source_clean, match, manual_regex)) {
+        kind = Cell::manual_;
+        name = match.str(1);
+        expression = match.str(2);
+    }  else if (boost::regex_match(source_clean, match, test_regex)) {
+        kind = Cell::test_;
+        name = match.str(1);
+        expression = match.str(2);
+    } else if (boost::regex_match(source_clean, match, number_regex)) {
+        kind = Cell::number_;
+        expression = match.str(1);
+    } else if (boost::regex_match(source_clean, match, dq_string_regex) or
+               boost::regex_match(source_clean, match, sq_string_regex)) {
+        kind = Cell::string_;
+        expression = match.str(1);
+    } else {
+        kind = Cell::text_;
+        expression = "\"" + source + "\"";
+    }
+
+    return *this;
+}
+
+std::string Sheet::Cell::display(void) const {
+    if (display_.length()){
+        return display_;
+    } else {
+        if (type=="ImageFile" or type=="error") {
+            return "overlay";
+        } else {
+            return "clipped";
+        }
+    }
+}
+
+Sheet::Cell& Sheet::Cell::display(const std::string& display) {
+    display_ = display;
+    return *this;
 }
 
 }  // namespace Stencila

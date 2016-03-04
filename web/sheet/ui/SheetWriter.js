@@ -108,7 +108,8 @@ SheetWriter.Prototype = function() {
     cells = cells.map(function(cell) {
       return {
         id: Sheet.static.getCellId(cell.row, cell.col),
-        source: cell.content || ''
+        source: cell.content || '',
+        display: cell.displayMode
       };
     });
     // Update the sheet with the new cell source

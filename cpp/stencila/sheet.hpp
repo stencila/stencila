@@ -298,6 +298,14 @@ class Sheet : public Component {
     struct Cell {
 
         /**
+         * Identifier for this cell (e.g. D5)
+         *
+         * Cuttently, only used in `update()` method for returning a `vector`
+         * of updates cells instead of a `map`
+         */
+        std::string id;
+
+        /**
          * What kind of cell is this?
          *     
          * Alternative types of literal expression will be added in the future. Those may deal with literals that are
@@ -402,13 +410,91 @@ class Sheet : public Component {
         std::string value;
 
         /**
-         * Display mode for this cell
+         * Get the source for this cell
+         */
+        std::string source(void) const;
+
+        /**
+         * Set the source for this cell
+         * 
+         * @param  source New source
+         */
+        Cell& source(const std::string& source);
+
+        /**
+         * Get the display mode for this cell
          *
-         * Currently, a simplistic implementation that does not account for persistence,
-         * only default display mode for alternative cell value types.
+         * Either the display mode specified for this cell, or the
+         * default display mode for the cell value type.
          */
         std::string display(void) const;
+
+        /**
+         * Set the display mode for this cell
+         *
+         * @param  display New display
+         */
+        Cell& display(const std::string& display);
+
+        /**
+         * Specific display mode for this cell
+         */
+        std::string display_;
     };
+
+    /**
+     * Set cells
+     */
+    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources) {
+        std::vector<Cell> cells;
+        for (auto source : sources) {
+            Cell cell;
+            auto id = source[0];
+            if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
+            cell.id = id;
+            cell.source(source[1]);
+            cells.push_back(cell);
+        }
+        return reset(cells);
+    }
+
+    /**
+     * Get a cell from this sheet
+     */
+    Cell& cell(const std::string& id) {
+        auto iter = cells_.find(id);
+        if (iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+        else return iter->second;
+    }
+
+    /**
+     * Get a cell from this sheet
+     */
+    Cell& cell(unsigned int row, unsigned int col) {
+        return cell(identify(row, col));
+    }
+
+    /**
+     * Get a cell pointer from this sheet
+     *
+     * Returns a `nullptr` if the cell does not exist
+     * instead of raising an error like `cell` does
+     */
+    Cell* cell_pointer(const std::string& id) {
+        auto iter = cells_.find(id);
+        if (iter == cells_.end()) return nullptr;
+        else return &iter->second;
+    }
+
+    /**
+     * Get a cell pointer from this sheet
+     *
+     * Returns a `nullptr` if the cell does not exist
+     * instead of raising an error like `cell` does
+     */
+    Cell* cell_pointer(unsigned int row, unsigned int col) {
+        return cell_pointer(identify(row, col));
+    }
 
     /**
      * Attach a spread to this stencil
@@ -528,25 +614,7 @@ class Sheet : public Component {
     std::array<std::string, 2> evaluate(const std::string& expression);
 
     /**
-     * Get the source (expression and, optionally, name) for a cell
-     * 
-     * @param  id ID of the cell
-     */
-    std::string source(const std::string& id);
-
-    /**
-     * Set the source of a cell
-     *
-     * Note that this method does not do any cell calculations
-     * That must be done using the `update()` methods (which take into account cell inter-dependencies)
-     * 
-     * @param  id      ID of the cell
-     * @param  source New source
-     */
-    Sheet& source(const std::string& id, const std::string& source);
-
-    /**
-     * Update cells with new source
+     * Update the sheet given changes to cells
      *
      * This method parses the new source and will then update the cells' corresponding
      * variable/s (both id and optional name) within the spread environment. Because of
@@ -558,16 +626,16 @@ class Sheet : public Component {
      * @param changes Map of cell IDs and their sources
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::map<std::string, std::array<std::string, 4>> update(const std::map<std::string, std::string>& changes);
+    std::vector<Cell> update(const std::vector<Cell>& changes);
 
     /**
      * Update a single cell with new source
      * 
      * @param  id      ID of the cell
-     * @param  source Cell source
+     * @param  source  Cell source
      * @return         New value of the cell
      */
-    std::map<std::string, std::array<std::string, 4>> update(const std::string& id, const std::string& source);
+    std::vector<Cell> update(const std::string& id, const std::string& source);
 
     /**
      * Update all cells in this sheet
@@ -629,6 +697,11 @@ class Sheet : public Component {
      * Clear all cells
      */
     Sheet& clear(void);
+
+    /**
+     * Reset this sheet with new cells
+     */
+    Sheet& reset(const std::vector<Cell>& cells);
 
     /**
      * Get a list of functions that are available in this sheet's context
