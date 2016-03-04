@@ -28,9 +28,10 @@ var CONFIG = {
     ],
     components: {
       // Registry for different cell content types
-      'string': require('./PrimitiveExpression'),
+      'boolean': require('./Boolean'),
       'integer': require('./PrimitiveExpression'),
       'real': require('./PrimitiveExpression'),
+      'string': require('./PrimitiveExpression'),
       'ImageFile': require('./ImageExpression'),
       'error': require('./Error')
     }
