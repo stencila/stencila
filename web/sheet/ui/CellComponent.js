@@ -57,7 +57,7 @@ CellComponent.Prototype = function() {
         var cellContentEl = $$(CellContentClass, {node: node}).ref('content');
         el.append(cellContentEl);
 
-        var displayMode = node.displayMode || CellContentClass.static.displayModes[0];
+        var displayMode = node.displayMode || 'clipped';
         if (displayMode) {
           el.addClass('sm-'+displayMode);
         }
@@ -109,7 +109,7 @@ CellComponent.Prototype = function() {
     var currentMode = node.displayMode;
     var content = this.refs.content;
     if (content) {
-      var modes = content.constructor.static.displayModes || [];
+      var modes = ['clipped', 'expanded', 'overlay'];
       var idx = modes.indexOf(currentMode)+1;
       if (modes.length > 0) {
         idx = idx%modes.length;

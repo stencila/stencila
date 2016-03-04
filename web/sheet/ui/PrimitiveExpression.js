@@ -40,6 +40,4 @@ Primitive.Prototype = function() {
 
 Component.extend(Primitive);
 
-Primitive.static.displayModes = ['expanded','clipped','overlay'];
-
 module.exports = Primitive;

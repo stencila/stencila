@@ -31,6 +31,4 @@ Expression.Prototype = function() {
 
 Component.extend(Expression);
 
-Expression.static.displayModes = ['clipped', 'expanded', 'overlay'];
-
 module.exports = Expression;

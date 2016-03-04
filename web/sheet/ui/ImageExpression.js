@@ -32,6 +32,4 @@ Image.Prototype = function() {
 
 Component.extend(Image);
 
-Image.static.displayModes = ['overlay', 'clipped', 'expanded'];
-
 module.exports = Image;

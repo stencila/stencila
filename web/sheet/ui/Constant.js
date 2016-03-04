@@ -28,6 +28,4 @@ Constant.Prototype = function() {
 
 Component.extend(Constant);
 
-Constant.static.displayModes = ['expanded'];
-
 module.exports = Constant;
