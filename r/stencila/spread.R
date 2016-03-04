@@ -60,7 +60,10 @@ Spread <- function(envir, closed=FALSE) {
         classes <- class(value)
 
         if (length(classes)==1) {
+            # Conversion of type names to standard
+            # names as required (default is to use native type name)
             type <- switch(classes,
+                logical = 'boolean',
                 numeric = 'real',
                 character = 'string',
                 classes
@@ -69,7 +72,9 @@ Spread <- function(envir, closed=FALSE) {
             type <- classes[1]
         }
 
-        if(type %in% c('integer','real','string')){
+        if(type=='boolean'){
+            repr <- if(value) 'true' else 'false'
+        } else if(type %in% c('integer','real','string')){
             repr <- toString(value)
         } else if (type=='ImageFile') {
             repr <- value
