@@ -485,6 +485,7 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
             cell.append("kind", update.second[0]);
             cell.append("type", update.second[1]);
             cell.append("value", update.second[2]);
+            cell.append("display", update.second[3]);
             response.append(cell);
         }
         return response.dump();
@@ -778,7 +779,7 @@ std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
     return {type, value};
 }
 
-std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<std::string,std::string>& changes) {
+std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::map<std::string,std::string>& changes) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
 
     // Change to the sheet's directory
@@ -791,7 +792,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
     }
 
     // The updates resulting from the changes
-    std::map<std::string, std::array<std::string, 3>> updates;
+    std::map<std::string, std::array<std::string, 4>> updates;
     try {
         std::vector<std::string> cells_changed;
         if (changes.size()){
@@ -977,7 +978,8 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
                     updates[id] = {
                         cell.kind_string(),
                         cell.type,
-                        cell.value
+                        cell.value,
+                        cell.display()
                     };
                 }
             }
@@ -994,7 +996,7 @@ std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::map<s
     return updates;
 }
 
-std::map<std::string, std::array<std::string, 3>> Sheet::update(const std::string& id, const std::string& source) {
+std::map<std::string, std::array<std::string, 4>> Sheet::update(const std::string& id, const std::string& source) {
     return update({{id,source}});
 }
 
@@ -1090,7 +1092,7 @@ std::string Sheet::Cell::kind_string(void) const {
 }
 
 std::string Sheet::Cell::display(void) const {
-    if (type=="ImageFile") {
+    if (type=="ImageFile" or type=="error") {
         return "overlay";
     } else {
         return "clipped";

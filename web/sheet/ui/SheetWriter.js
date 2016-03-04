@@ -132,8 +132,10 @@ SheetWriter.Prototype = function() {
       var coords = Sheet.static.getRowCol(update.id);
       var cell = sheet.getCellAt(coords[0], coords[1]);
       if (cell) {
+        cell.kind = update.kind;
         cell.valueType = update.type;
         cell.value = update.value;
+        cell.displayMode = update.display;
         console.log('updated cell', cell);
         cell.emit('cell:changed');
       }

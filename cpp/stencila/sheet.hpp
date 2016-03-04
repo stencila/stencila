@@ -558,7 +558,7 @@ class Sheet : public Component {
      * @param changes Map of cell IDs and their sources
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::map<std::string, std::array<std::string, 3>> update(const std::map<std::string, std::string>& changes);
+    std::map<std::string, std::array<std::string, 4>> update(const std::map<std::string, std::string>& changes);
 
     /**
      * Update a single cell with new source
@@ -567,7 +567,7 @@ class Sheet : public Component {
      * @param  source Cell source
      * @return         New value of the cell
      */
-    std::map<std::string, std::array<std::string, 3>> update(const std::string& id, const std::string& source);
+    std::map<std::string, std::array<std::string, 4>> update(const std::string& id, const std::string& source);
 
     /**
      * Update all cells in this sheet
