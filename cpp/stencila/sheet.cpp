@@ -1093,7 +1093,7 @@ std::string Sheet::Cell::display(void) const {
     if (display_.length()){
         return display_;
     } else {
-        if (type=="ImageFile" or type=="error") {
+        if (type=="ImageFile" or type=="html" or type=="error") {
             return "overlay";
         } else {
             return "clipped";
