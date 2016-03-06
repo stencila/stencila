@@ -20,6 +20,7 @@ CellEditor.Prototype = function() {
     var el = $$('div');
     el.append(
       $$('input')
+        .attr('spellcheck', 'false')
         .attr('value', this.props.content)
         .on('keydown', this.onKeydown)
         .on('keypress', this.onKeypress)
