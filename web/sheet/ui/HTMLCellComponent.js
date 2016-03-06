@@ -25,6 +25,10 @@ HTMLCellComponent.Prototype = function() {
     }
     el.addClass(className).html(value);
 
+    if(window.MathJax && window.MathJax.Hub) {
+      MathJax.Hub.Queue(["Rerender", MathJax.Hub, cell.id]);
+    }
+
     return el;
   };
 

@@ -11,6 +11,8 @@ var SheetHTMLExporter = require('./model/SheetHTMLExporter');
 var SheetRemoteEngine = require('./engine/SheetRemoteEngine');
 var engine = new SheetRemoteEngine();
 
+var utilities = require('../shared/utilities');
+
 function loadDocument() {
   var content = $('#content');
   var html = content.html() || '';
@@ -70,6 +72,21 @@ function load() {
   } else {
     renderInteractiveVersion(doc, 'read');
   }
+
+  // Asychronously load MathJax (it can't be required) and render
+  // script elements
+  window.MathJax = {
+    skipStartupTypeset: true,
+    showProcessingMessages: false,
+    showMathMenu: false,
+    "HTML-CSS": {preferredFont: "STIX"}
+  };
+  utilities.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {
+    MathJax.Hub.Queue(
+      ["Rerender",MathJax.Hub,"content"]
+    );
+  });
+
 }
 
 // Launch the app witexception reporting when not on localhost 
