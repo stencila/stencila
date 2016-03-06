@@ -22,9 +22,9 @@ module.exports = {
     var symbol = Cell.static.kindToSymbol(kind);
     if (symbol) {
       if (name) {
-        node.content = name + symbol + expr;
+        node.content = name + ' ' + symbol + ' ' + expr;
       } else {
-        node.content = symbol + expr;
+        node.content = symbol + ' ' + expr;
       }
     } else {
       node.content = value;
