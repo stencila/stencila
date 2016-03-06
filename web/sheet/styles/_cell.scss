@@ -28,6 +28,7 @@ $cell-width: 8em;
   }
 
   &.sm-overlay > div {
+    min-width: 20em;
     background: #fff;
     opacity: 0.98;
     position: absolute;
