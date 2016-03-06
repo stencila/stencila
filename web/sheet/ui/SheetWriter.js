@@ -32,6 +32,7 @@ var CONFIG = {
       'integer': require('./PrimitiveExpression'),
       'real': require('./PrimitiveExpression'),
       'string': require('./PrimitiveExpression'),
+      'html': require('./HTMLCellComponent'),
       'ImageFile': require('./ImageExpression'),
       'error': require('./Error')
     }

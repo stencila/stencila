@@ -170,10 +170,12 @@ BOOST_AUTO_TEST_CASE(parse){
 
 	CHECK("", Cell::blank_)
 	CHECK("= 6*7", Cell::expression_)
-	CHECK("~ matrix", Cell::mapping_)
+	CHECK(": matrix", Cell::mapping_)
 	CHECK("^ library(foo)", Cell::requirement_)
-	CHECK(": optim()", Cell::manual_)
+	CHECK("| optim()", Cell::manual_)
 	CHECK("? some_test()==0", Cell::test_)
+	CHECK("~ A1:C4 as points", Cell::visualization_)
+	CHECK("_ some *Cila*", Cell::cila_)
 
 	#undef CHECK
 
@@ -186,10 +188,12 @@ BOOST_AUTO_TEST_CASE(parse){
 		BOOST_CHECK_EQUAL(cell.kind, kind_);
 
 	CHECK("foo = 42", Cell::expression_)
-	CHECK("foo ~ 42", Cell::mapping_)
+	CHECK("foo : 42", Cell::mapping_)
 	CHECK("foo ^ 42", Cell::requirement_)
-	CHECK("foo : 42", Cell::manual_)
+	CHECK("foo | 42", Cell::manual_)
 	CHECK("foo ? 42", Cell::test_)
+	CHECK("foo ~ 42", Cell::visualization_)
+	CHECK("foo _ 42", Cell::cila_)
 
 	#undef CHECK
 
@@ -343,6 +347,16 @@ BOOST_AUTO_TEST_CASE(update){
 		auto cell = updates[0];
 		BOOST_CHECK_EQUAL(cell.kind_string(), "exp");
 	}
+
+	updates = s.update("A3", "_ *bold*");
+
+	BOOST_CHECK_EQUAL(updates.size(),1);
+	if(updates.size()==1){
+		auto cell = updates[0];
+		BOOST_CHECK_EQUAL(cell.kind_string(), "cil");
+		BOOST_CHECK_EQUAL(cell.type, "html");
+		BOOST_CHECK_EQUAL(cell.value, "<p><strong>bold</strong></p>");
+	}
 }
 
 BOOST_AUTO_TEST_CASE(request){
@@ -374,7 +388,7 @@ BOOST_AUTO_TEST_CASE(request){
 	);
 
 	CHECK(
-		R"([{"id":"A1","source":"~ matrix"}])",
+		R"([{"id":"A1","source":": matrix"}])",
 		R"([{"display":"clipped","id":"A1","kind":"map","type":"string","value":"matrix"}])"
 	);
 

@@ -14,7 +14,7 @@ Cell.Prototype = function() {
 
   this._updateDerivedProperties = function() {
     var content = this._content;
-    var match = /^\s*([a-zA-Z0-9_@]+)?\s*(\=|\~|\^|\:|\?|\|)/.exec(content);
+    var match = /^\s*([a-zA-Z0-9_@]+)?\s*(\=|\:|\^|\||\?|\~|\_)/.exec(content);
     delete this._expr;
     delete this._name;
     if (match) {
@@ -23,12 +23,7 @@ Cell.Prototype = function() {
       }
 
       var symbol = match[2];
-      if (symbol=='=') this.kind = 'exp';
-      else if (symbol=='~') this.kind = 'map';
-      else if (symbol=='^') this.kind = 'req';
-      else if (symbol==':') this.kind = 'man';
-      else if (symbol=='?') this.kind = 'tes';
-      else if (symbol=='|') this.kind = 'vis';
+      this.kind = Cell.static.symbolToKind(symbol);
 
       this._expression = content.slice(match[0].length);
     } else {
@@ -53,16 +48,7 @@ Cell.Prototype = function() {
   this.getPrefix = function() {
     var name = this.getName() || '';
     var kind = this.kind;
-    var symbol = '';
-    if(kind) {
-      if (kind=='exp') symbol = '=';
-      else if (kind=='map') symbol = '~';
-      else if (kind=='req') symbol = '^';
-      else if (kind=='man') symbol = ':';
-      else if (kind=='tes') symbol = '?';
-      else if (kind=='vis') symbol = '|';
-      else symbol = '';
-    }
+    var symbol = Cell.static.kindToSymbol(kind);
     if (symbol) {
       if (name) return name + ' ' + symbol;
       else return symbol;
@@ -72,7 +58,9 @@ Cell.Prototype = function() {
   }
 
   this.isConstant = function() {
-    return this.kind == 'lit';
+    return [
+      'exp','map','req','man','tes','vis','cil'
+    ].indexOf(this.kind)<0;
   };
 
   // row and col indexes are managed by Table
@@ -130,5 +118,27 @@ Object.defineProperty(Cell.prototype, 'content', {
     this._updateDerivedProperties();
   }
 });
+
+Cell.static.kindToSymbol = function(kind) {
+  if (kind=='exp') return '=';
+  else if (kind=='map') return ':';
+  else if (kind=='req') return '^';
+  else if (kind=='man') return '|';
+  else if (kind=='tes') return '?';
+  else if (kind=='vis') return '~';
+  else if (kind=='cil') return '_';
+  else return '';
+}
+
+Cell.static.symbolToKind = function(symbol) {
+  if (symbol=='=') return 'exp';
+  else if (symbol==':') return 'map';
+  else if (symbol=='^') return 'req';
+  else if (symbol=='|') return 'man';
+  else if (symbol=='?') return 'tes';
+  else if (symbol=='~') return 'vis';
+  else if (symbol=='_') return 'cil';
+  else return '';
+}
 
 module.exports = Cell;

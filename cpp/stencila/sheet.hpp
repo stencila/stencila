@@ -317,23 +317,25 @@ class Sheet : public Component {
 
             // expression       eg. `= 22/7`
             expression_ = 1,
-            // mapping          eg. `~ my_matrix`
+            // mapping          eg. `: my_matrix`
             mapping_ = 2,
             // requirement      eg. `^ library(ggplot2)`
             requirement_ = 3,
-            // manual           eg. `: optim(...)`
+            // manual           eg. `| optim(...)`
             manual_ = 4,
             // test             eg. `? sum(A1:A10)==100`
             test_ = 5,
-            // visualization    eg. `| A1:B10 as points`
+            // visualization    eg. `~ A1:B10 as points`
             visualization_ = 6,
+            // Cila             eg. `_ The *slope*, |b|, equals |y_2-y_1//x_2-x_1|`
+            cila_ = 7,
 
             // number literal eg. `42`
             number_ = 10,
             // string literal (single or double quoted) eg. `"foo"`
             string_ = 11,
 
-            // text, potentially with markdown eg. `some _emphasis_ text`
+            // text (default kind if nothing else matches)
             text_ = 255
 
         } kind = blank_;

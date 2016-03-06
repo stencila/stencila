@@ -13,6 +13,7 @@
 #include <stencila/component-page.hpp>
 #include <stencila/exception.hpp>
 #include <stencila/helpers.hpp>
+#include <stencila/stencil.hpp>
 
 namespace Stencila {
 
@@ -847,10 +848,16 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes) 
             // Add to list of cells updated
             cells_updated.push_back(id);
 
-            if(cell.kind == Cell::blank_){
+            if(cell.kind == Cell::blank_) {
                 // If the cell source was made blank then clear it 
                 // so that any dependant cells will return an error
                 spread_->clear(id);
+            } else if (cell.kind == Cell::cila_) {
+                // Convert source to HTML
+                auto html = Stencil().cila(cell.expression).html();
+                cell.value = html;
+                cell.type = "html";
+                updates.push_back(cell);
             } else if (cell.expression.length()) {
                 // Store to detect any changes
                 auto type = cell.type;
@@ -867,12 +874,8 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes) 
                 cell.type = type_value.substr(0, space);
                 cell.value = type_value.substr(space+1);
                 // Has there been a change? Note change in kind is not detected here!
-                if(cell.type != type or cell.value != value){
-                    // Create a copy of cell and give it an id for
-                    // identification in the return vector of updated cells
-                    Cell update = cell;
-                    update.id = id;
-                    updates.push_back(update);
+                if (cell.type != type or cell.value != value) {
+                    updates.push_back(cell);
                 }
             }
         }
@@ -984,6 +987,7 @@ std::string Sheet::Cell::kind_string(void) const {
         case Cell::manual_: return "man";
         case Cell::test_: return "tes";
         case Cell::visualization_: return "vis";
+        case Cell::cila_: return "cil";
 
         case Cell::number_: return "num";
         case Cell::string_: return "str";
@@ -1028,10 +1032,12 @@ Sheet::Cell& Sheet::Cell::source(const std::string& source) {
     static const std::string name_re = R"(^\s*([a-z]\w*)? *)";
     static const std::string expr_re = R"( *(.+?)\s*$)";
     static const boost::regex expression_regex(name_re+"\\="+expr_re);
-    static const boost::regex mapping_regex(name_re+"\\~"+expr_re);
+    static const boost::regex mapping_regex(name_re+"\\:"+expr_re);
     static const boost::regex requirement_regex(name_re+"\\^"+expr_re);
-    static const boost::regex manual_regex(name_re+"\\:"+expr_re);
+    static const boost::regex manual_regex(name_re+"\\|"+expr_re);
     static const boost::regex test_regex(name_re+"\\?"+expr_re);
+    static const boost::regex visualization_regex(name_re+"\\~"+expr_re);
+    static const boost::regex cila_regex(name_re+"\\_"+expr_re);
 
     static const boost::regex number_regex(R"(^\s*([-+]?[0-9]*\.?[0-9]+)\s*$)");
     static const boost::regex dq_string_regex(R"(^\s*("(?:[^"\\]|\\.)*")\s*$)"); // "
@@ -1052,12 +1058,20 @@ Sheet::Cell& Sheet::Cell::source(const std::string& source) {
         kind = Cell::requirement_;
         name = match.str(1);
         expression = match.str(2);
-    }  else if (boost::regex_match(source_clean, match, manual_regex)) {
+    } else if (boost::regex_match(source_clean, match, manual_regex)) {
         kind = Cell::manual_;
         name = match.str(1);
         expression = match.str(2);
-    }  else if (boost::regex_match(source_clean, match, test_regex)) {
+    } else if (boost::regex_match(source_clean, match, test_regex)) {
         kind = Cell::test_;
+        name = match.str(1);
+        expression = match.str(2);
+    } else if (boost::regex_match(source_clean, match, visualization_regex)) {
+        kind = Cell::visualization_;
+        name = match.str(1);
+        expression = match.str(2);
+    } else if (boost::regex_match(source_clean, match, cila_regex)) {
+        kind = Cell::cila_;
         name = match.str(1);
         expression = match.str(2);
     } else if (boost::regex_match(source_clean, match, number_regex)) {

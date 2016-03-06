@@ -1,5 +1,7 @@
 'use strict';
 
+var Cell = require('./Cell');
+
 module.exports = {
 
   type: 'sheet-cell',
@@ -17,22 +19,7 @@ module.exports = {
     var valueType = el.attr('data-type');
     var value = el.textContent;
     
-    // This is repetative of what is in Cell.getPrefix()
-    // and it might be better just to have a Cell.getSource()
-    // function instead of generating here and then again elsewhere
-    var symbol = '';
-    if (kind=='exp') symbol = '=';
-    else if (kind=='map') symbol = '~';
-    else if (kind=='req') symbol = '^';
-    else if (kind=='man') symbol = ':';
-    else if (kind=='tes') symbol = '?';
-    else if (kind=='vis') symbol = '|';
-    else {
-      kind = 'lit';
-      symbol = '';
-    }
-    node.kind = kind;
-
+    var symbol = Cell.static.kindToSymbol(kind);
     if (symbol) {
       if (name) {
         node.content = name + symbol + expr;
@@ -43,6 +30,7 @@ module.exports = {
       node.content = value;
     }
 
+    node.kind = kind;
     node.value = value;
     node.valueType = valueType;
     node.displayMode = displayMode;
