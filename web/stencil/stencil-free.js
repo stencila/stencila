@@ -1,6 +1,8 @@
 var $ = window.$ = window.jQuery = require('jquery');
 require('jquery.hotkeys');
 
+var utilities = require('../shared/utilities');
+
 window.Stencila = {};
 
 window.stencil = new (function(){
@@ -40,16 +42,6 @@ window.stencil = new (function(){
     }).done(function(data){
         console.log(data);
     });
-
-    // Dynamic loading of scripts
-    function load(source, callback) {
-        var head = document.getElementsByTagName("head")[0];
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src  = (window.StencilaHost || '') + source;
-        if(callback) script.onload = callback;
-        head.appendChild(script);
-    }
 
     // Update the stencil
     this.refresh = function() {
@@ -93,7 +85,7 @@ window.stencil = new (function(){
           showMathMenu: false,
           "HTML-CSS": {preferredFont: "STIX"}
         };
-        load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {
+        utilities.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {
           // Needs to be don each time stencil is updated
           MathJax.Hub.Queue(
             ["Rerender",MathJax.Hub,"content"],
