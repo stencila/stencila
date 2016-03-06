@@ -1,6 +1,6 @@
 'use strict';
 
-var RemoteEngine = require('../../RemoteEngine');
+var RemoteEngine = require('../../shared/RemoteEngine');
 
 function SheetRemoteEngine() {
   SheetRemoteEngine.super.apply(this, arguments);
