@@ -76,7 +76,7 @@ Spread <- function(envir, closed=FALSE) {
             repr <- if(value) 'true' else 'false'
         } else if(type %in% c('integer','real','string')){
             repr <- toString(value)
-        } else if (type=='ImageFile') {
+        } else if (type=='image_file') {
             repr <- value
         }
         else {
@@ -154,7 +154,7 @@ Spread <- function(envir, closed=FALSE) {
             # Check if device has changed
             if(!identical(device_before,device_after) | is_ggplot){
                 value <- filename
-                class(value) <- 'ImageFile'
+                class(value) <- 'image_file'
             }
             result <- self$.value(value)
             type <- result$type
