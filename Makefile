@@ -441,6 +441,9 @@ cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
 
 cpp-library: cpp-library-staticlib
 
+cpp-library-clean:
+	rm -rf $(BUILD)/cpp/library
+
 #################################################################################################
 # Stencila C++ package
 CPP_PACKAGE := stencila-$(OS)-$(ARCH)-$(VERSION).tar.gz
@@ -1067,17 +1070,6 @@ r-install: $(R_BUILD)/$(R_PACKAGE_FILE)
 r-clean:
 	rm -rf $(BUILD)/r
 
-#################################################################################################
-# Stencila snippets
-
-snippets-env:
-	cd snippets && virtualenv env && . env/bin/activate && pip install -r requirements.txt
-
-snippets-validate:
-	cd snippets && . env/bin/activate && python snippets.py validate
-
-snippets-upload:
-	cd snippets && . env/bin/activate && python snippets.py upload
 
 #################################################################################################
 # Stencila web browser module
