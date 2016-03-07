@@ -42,7 +42,7 @@ CommitMessagePrompt.Prototype = function() {
 
 Component.extend(CommitMessagePrompt);
 
-function SaveTool() {
+function CommitTool() {
   ControllerTool.apply(this, arguments);
 
   var ctrl = this.getController();
@@ -51,7 +51,7 @@ function SaveTool() {
   });
 }
 
-SaveTool.Prototype = function() {
+CommitTool.Prototype = function() {
 
   this.dispose = function() {
     var ctrl = this.getController();
@@ -112,9 +112,9 @@ SaveTool.Prototype = function() {
   };
 };
 
-ControllerTool.extend(SaveTool);
+ControllerTool.extend(CommitTool);
 
-SaveTool.static.name = 'save';
-SaveTool.static.command = 'save';
+CommitTool.static.name = 'save';
+CommitTool.static.command = 'save';
 
-module.exports = SaveTool;
+module.exports = CommitTool;

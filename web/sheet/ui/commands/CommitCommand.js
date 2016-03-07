@@ -7,11 +7,11 @@ var ControllerCommand = require('substance/ui/ControllerCommand');
   dialog where a commit message can be provided.
 */
 
-function SaveCommand() {
-  SaveCommand.super.apply(this, arguments);
+function CommitCommand() {
+  CommitCommand.super.apply(this, arguments);
 }
 
-SaveCommand.Prototype = function() {
+CommitCommand.Prototype = function() {
 
   this.getCommandState = function() {
     var doc = this.getDocument();
@@ -28,8 +28,8 @@ SaveCommand.Prototype = function() {
   };
 };
 
-ControllerCommand.extend(SaveCommand);
+ControllerCommand.extend(CommitCommand);
 
-SaveCommand.static.name = 'save';
+CommitCommand.static.name = 'save';
 
-module.exports = SaveCommand;
+module.exports = CommitCommand;

@@ -16,7 +16,7 @@ var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var Icon = require('substance/ui/FontAwesomeIcon');
 var LinkTool = require('substance/packages/link/LinkTool');
 
-var SaveTool = require('./tools/SaveTool');
+var SaveTool = require('./tools/CommitTool');
 
 var SheetEditor = require('./SheetEditor');
 var Sheet = require('../model/Sheet');
@@ -26,7 +26,7 @@ var CONFIG = {
     commands: [
       require('substance/ui/UndoCommand'),
       require('substance/ui/RedoCommand'),
-      require('./commands/SaveCommand')
+      require('./commands/CommitCommand')
     ],
     components: {
       // Registry for different cell content types
