@@ -4,13 +4,13 @@ var HTMLExporter = require('substance/model/HTMLExporter');
 var Sheet = require('./Sheet');
 var converters = require('./SheetConverters');
 
-function StencilHTMLExporter() {
-  StencilHTMLExporter.super.call(this, {
+function SheetHTMLExporter() {
+  SheetHTMLExporter.super.call(this, {
     converters: converters
   });
 }
 
-StencilHTMLExporter.Prototype = function() {
+SheetHTMLExporter.Prototype = function() {
   this.exportDocument = function(sheet) {
     var $$ = this.$$;
     var ncols = sheet.getColumnCount();
@@ -53,6 +53,6 @@ StencilHTMLExporter.Prototype = function() {
 
 };
 
-HTMLExporter.extend(StencilHTMLExporter);
+HTMLExporter.extend(SheetHTMLExporter);
 
-module.exports = StencilHTMLExporter;
+module.exports = SheetHTMLExporter;
