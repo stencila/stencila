@@ -68,14 +68,34 @@ RemoteEngine.Prototype = function() {
   };
 
   this.ping = function() {
-    if (this.active) {
-      this._request('PUT', 'ping', null, function(err, result) {
-        if (err) { console.error(err); }
-      }.bind(this));
-    }
+    this._request('PUT', 'ping');
   };
 
+  this.save = function(cb) {
+    this._call('save');
+  }
+
+  this.commit = function(message, cb) {
+    this._call('commit',[message]);
+  }
+
   // Private, local, methods
+
+  this._call = function(name, args, cb) {
+    args = args || [];
+    if(this.websocket) {
+      this.websocket.call(name, args, function(result) {
+        if (cb) cb(null, result);
+      });
+    } else {
+      this._request('PUT', name, args, function(err, result) {
+        if (cb) {
+          if (err) return cb(err);
+          cb(null, result);
+        }
+      });
+    }
+  }
 
   this._request = function(method, endpoint, data, cb) {
     var self = this;
@@ -90,7 +110,7 @@ RemoteEngine.Prototype = function() {
       // "json": Evaluates the response as JSON and returns a JavaScript object.
       dataType: "json",
       success: function(data) {
-        cb(null, data);
+        if (cb) cb(null, data);
       },
       error: function(err) {
         console.error(err);
@@ -99,10 +119,12 @@ RemoteEngine.Prototype = function() {
             self._dialog(data);
           });
         } else {
-          try {
-            cb(JSON.parse(err.responseText));
-          } catch(err) {
-            cb(err.responseText);
+          if (cb) {
+            try {
+              cb(JSON.parse(err.responseText));
+            } catch(err) {
+              cb(err.responseText);
+            }
           }
         }
       }

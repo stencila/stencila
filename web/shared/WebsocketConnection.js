@@ -88,7 +88,7 @@ WebsocketConnection.prototype.receive = function(data){
         }
     }
     else if(code==8){
-        throw message[4];
+        throw message;
     }
     else {
         throw "WebsocketConnection.receive. WAMP message type unknown/unhandled:"+code;

@@ -72,9 +72,6 @@ SheetRemoteEngine.Prototype = function() {
     }
   };
 
-  this.save = function(html, cb) {
-  	console.log('TODO: implement save in SheetRemoteEngine.js');
-  };
 };
 
 RemoteEngine.extend(SheetRemoteEngine);
