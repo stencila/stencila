@@ -80,11 +80,8 @@ public:
      * Initialisation of this class
      */
     static void class_init(void){
-        Component::class_(RSpreadType,{
-            "RSpread",
-            nullptr,
-            nullptr,
-            nullptr
+        Class::set(RSpreadType,{
+            "RSpread"
         });
     }
 

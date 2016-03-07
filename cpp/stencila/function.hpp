@@ -186,13 +186,6 @@ class Function : public Component {
     Function& write(const std::string& path = "");
 
     /**
-     * Generate a web page for a function
-     *
-     * @param  component  A pointer to a function
-     */
-    static std::string page(const Component* component);
-
-    /**
      * Generate a web page for this function
      */
     std::string page(void) const;
@@ -227,21 +220,6 @@ class Function : public Component {
      * View this function
      */
     Function& view(void);
-
-    /**
-     * Respond to a web request to a function
-     *
-     * @param  component  A pointer to a function
-     * @param  verb       HTML verb (a.k.a. method) e.g. POST
-     * @param  method     Name of method requested
-     * @param  body       Request body (usually JSON)
-     */
-    static std::string request(
-        Component* component,
-        const std::string& verb,
-        const std::string& method,
-        const std::string& body
-    );
 
     /**
      * Respond to a web request to this function

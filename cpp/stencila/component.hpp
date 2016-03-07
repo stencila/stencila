@@ -362,8 +362,6 @@ public:
 	 * 
 	 * @{
 	 */
-	
-	class Call;
 
 	/**
 	 * An enumeration of `Component` classes
@@ -399,94 +397,6 @@ public:
 	static const unsigned int types_ = 10;
 
 	/**
-	 * Structure repesenting a `Component` class.
-	 *
-	 * Serves as an entry in the `classes` array providing dynamic lookup
-	 * of type information, in particular, "virtual" functions.
-	 */
-	struct Class {
-
-		/**
-		 * Flag to indicate that the class has been defined
-		 */
-		bool defined = false;
-
-		/**
-		 * Name of the class 
-		 */
-		const char* name = "";
-
-		/**
-		 * @name pageing
-		 * 
-		 * Pageing function for class
-		 *
-		 * Used to serve a page for the component
-		 */
-		typedef std::string (*Pageing)(const Component* component);
-		Pageing pageing = nullptr;
-
-		/**
-		 * @name requesting
-		 * 
-		 * Requester function for class
-		 *
-		 * Used to respond to a web request on component 
-		 */
-		typedef std::string (*Requesting)(
-			Component* component, const std::string& verb,
-			const std::string& method, const std::string& body
-		);
-		Requesting requesting = nullptr;
-
-		/**
-		 * @name calling
-		 *
-		 * Calling function for the class
-		 *
-		 * Used to call a method for the component (usually remotely)
-		 */
-		typedef std::string (*Calling)(Component* component, const Call& call);
-		Calling calling = nullptr;
-
-		
-		Class(void):
-			defined(false){
-		}
-
-		Class(const char* name, Pageing pageing, Requesting requesting, Calling calling):
-			defined(true),
-			name(name),
-			pageing(pageing),
-			requesting(requesting),
-			calling(calling){
-		}
-	};
-
-	/**
-	 * Define a `Component` class
-	 *
-	 * This places an entry in `Component::classes_` so that information
-	 * on the class can be reteived later useing a `Type`
-	 * 
-	 * @param type `Type` for the class
-	 * @param clas `Class` object
-	 */
-	static void class_(Type type, const Class& clas);
-
-	/**
-	 * Obtain a `Class` definition
-	 *
-	 * @param type `Type` for the class
-	 */
-	static const Class& class_(Type type);
-
-	/**
-	 * Definition of all core component classes
-	 */
-	static void classes(void);
-
-	/**
 	 * Structure representing a `Component` instance currently
 	 * in memory.
 	 */
@@ -511,15 +421,106 @@ public:
 			return pointer_;
 		}
 
-		template<class Class=Component> 
-		Class& as(void) {
-			return *static_cast<Class*>(pointer_);
+		template<class Type> 
+		Type as(void) const {
+			return static_cast<Type>(pointer_);
 		}
+
 	private:
 		Type type_;
 		Component* pointer_;
-		friend class Component;
 	};
+
+	/**
+	 * Structure repesenting a `Component` class.
+	 *
+	 * Serves as an entry in the `classes` array providing dynamic lookup
+	 * of type information, in particular, "virtual" functions.
+	 */
+	struct Class {
+
+		/**
+		 * Flag to indicate that the class has been defined
+		 */
+		bool defined = false;
+
+		/**
+		 * Name of the class 
+		 */
+		const char* name = "";
+
+		/**
+		 * @name pageing
+		 * 
+		 * The method for generating a HTML page
+		 */
+		typedef std::string (*PageMethod)(const Instance& instance);
+		PageMethod page_method = nullptr;
+
+		/**
+		 * @name requesting
+		 * 
+		 * The method for handling HTTP requests
+		 */
+		typedef std::string (*RequestMethod)(
+			const Instance& instance, const std::string& verb,
+			const std::string& method, const std::string& body
+		);
+		RequestMethod request_method = nullptr;
+
+		/**
+		 * @name message_method
+		 * 
+		 * The method for handling Websocket messages
+		 */
+		typedef std::string (*MessageMethod)(
+			const Instance& instance, const std::string& message
+		);
+		MessageMethod message_method = nullptr;
+
+
+		Class(void):
+			defined(false){
+		}
+
+		Class(const char* name, PageMethod page_method = nullptr, RequestMethod request_method = nullptr, MessageMethod message_method = nullptr):
+			defined(true),
+			name(name),
+			page_method(page_method),
+			request_method(request_method),
+			message_method(message_method){
+		}
+
+		/**
+		 * Set a `Class` for a `Type`
+		 *
+		 * This places an entry in `Component::classes_` so that information
+		 * on the class can be reteived later useing a `Type`
+		 * 
+		 * @param type `Type` for the class
+		 * @param clas `Class` object
+		 */
+		static void set(Type type, const Class& clas);
+
+		/**
+		 * Get a `Class` for a `Type`
+		 *
+		 * @param type `Type` for the class
+		 */
+		static const Class& get(Type type);
+
+	 private:
+
+		/**
+		 * Array of classes that have been defined
+		 */
+		static Class classes_[types_];
+	};
+
+	/**
+	 * Definition of all core component classes
+	 */
+	static void classes(void);
 
 	/**
 	 * Instantiate a component
@@ -615,92 +616,7 @@ public:
 
 	/** 
 	 * @}
-	 */
-
-	/**
-	 * @name Calling
-	 *
-	 * Methods for dynamically calling methods of a component
-	 *
-	 * Methods implemented in `component-call.cpp`
-	 * 
-	 * @{
-	 */
-		
-	struct Call {
-		std::string what_;
-		Json::Document args_;
-		Json::Document kwargs_;
-	
-		Call(const std::string& what):
-			what_(what){
-		}
-	
-		Call(const std::string& what, const std::string& args):
-			what_(what),
-			args_(args){
-		}
-	
-		Call(const std::string& what, const std::string& args, const std::string& kwargs):
-			what_(what),
-			args_(args),
-			kwargs_(kwargs){
-		}
-	
-		std::string what(void) const {
-			return what_;
-		}
-	
-		unsigned int args(void) const {
-			return args_.size();
-		}
-	
-		template<typename Type=std::string>
-		Type arg(unsigned int index,const std::string& name="") const {
-			// Get argument string
-			std::string arg;
-			if(name.length()>0){
-				if(kwargs_.has(name)) return kwargs_[name].as<Type>();
-				else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
-			}
-			else if(args_.size()<index+1){
-				STENCILA_THROW(Exception,"Not enough arguments supplied");
-			}
-			else return args_[index].as<Type>();
-		}
-	};
-
-	/**
-	 * Call a "virtual" method of a component via an `Instance`
-	 *
-	 */
-	// Two versions are implemented below one for const Component, the other non-const.
-	// Although Supplied... seems uneccesary (why not just use Args...) template deduction
-	// failed without it.
-	template<typename Return,typename Class,typename... Args,typename... Supplied>
-	static Return call(const Instance& instance, Return (* Class::* method)(Component* component, Args... args), Supplied... supplied){
-		return (class_(instance.type_).*method)(instance.pointer_,supplied...);
-	}
-
-	template<typename Return,typename Class,typename... Args,typename... Supplied>
-	static Return call(const Instance& instance, Return (* Class::* method)(const Component* component, Args... args), Supplied... supplied){
-		return (class_(instance.type_).*method)(instance.pointer_,supplied...);
-	}
-
-	/**
-	 * Call a "virtual" method of a component via a component address
-	 */
-	template<typename Return,typename Class,typename... Args>
-	static Return call(const std::string& address, Return (* Class::* method)(const Component* component, Args... args), Args... args){
-		return call(get(address).as<Class>(),method,args...);
-	}
-
-	std::string call(const Call& call);
-
-	/**
-	 * @}
-	 */
-	
+	 */	
 
 	/**
 	 * @name Serving
@@ -747,20 +663,12 @@ public:
 	 *
 	 * @param  address Address of component
 	 */
-	static std::string page(const std::string& address);
-
-	/**
-	 * Generate a HTML page for a component
-	 *
-	 * This method should be overriden by derived
-	 * classes and `define()`d in `classes_`.
-	 */
-	static std::string page(const Component* component);
+	static std::string page_dispatch(const std::string& address);
 
 	/**
 	 * Respond to a web request to a component address
 	 *
-	 * Gets the component and dispatches it's the `requesting` method
+	 * Gets the component and dispatches to it's `request` method
 	 *
 	 * @param  component  A pointer to a stencil
 	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
@@ -775,29 +683,74 @@ public:
 	);
 
 	/**
-	 * Exception for invalid requests (e.g wrong method name or HTTP method)
+	 * Respond to a websocket message to a component address
+	 *
+	 * Gets the component and dispatches to it's `message` method
+	 *
+	 * @param  component  A pointer to a stencil
+	 * @param  message    Message text
+	 */
+	static std::string message_dispatch(const std::string& address, const std::string& message);
+
+	/**
+	 * Exception for when a dispathced method is not defined for a class
+	 */
+	class MethodUndefinedException : public Exception {
+	 public:
+	 	MethodUndefinedException(const std::string& name, const Instance& instance, const char* file=0, int line=0):
+	 		Exception(
+	 			std::string("Dynamic method has not been defined for component class.") + 
+					"\n  method: " + name +
+					"\n  class: " + instance.type_name(),
+				file,
+				line
+			){}
+	};
+
+	/**
+	 * Dispatcher methods. May be overidden by derived classes
+	 */
+	
+	template<class Class>
+	static std::string page_dispatcher(const Instance& instance);
+
+	template<class Class>
+	static std::string request_dispatcher(
+		const Instance& instance,		
+		const std::string& verb,
+		const std::string& method,
+		const std::string& body
+	);
+
+	template<class Class>
+	static std::string message_dispatcher(const Instance& instance, const std::string& message);
+
+	/**
+	 * Default implementations
+	 */
+
+	std::string page(void);
+
+	std::string request(const std::string& verb, const std::string& method, const std::string& body);
+
+	std::string message(const std::string& message);
+
+	std::string message(
+		const std::string& message, 
+		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
+	);
+
+	Json::Document call(const std::string& name, const Json::Document& args);
+
+	/**
+	 * Exception for invalid HTTP request (e.g wrong method name or HTTP method)
 	 */
 	class RequestInvalidException : public Exception {};
 
 	/**
-	 * Process a message for the component at an address
-	 *
-	 * We use [WAMP](http://wamp.ws/) as the message protocol.
-	 * Curently that is only partially implemented.
-	 * 
-	 * @param  address Address of component
-	 * @param  message A WAMP message
-	 * @return         A WAMP message
+	 * Exception for invalid Websocket message
 	 */
-	static std::string message(const std::string& address,const std::string& message);
-
-	/**
-	 * Process a message for a Component
-	 *
-	 * This method intentionally does nothing. It should be overriden by derived
-	 * classes and the overriding method `define()`d.
-	 */
-	static std::string message(Component* component, const std::string& message);
+	class MessageInvalidException : public Exception {};
 
 	/**
 	 * Generate a default index page for the server that is serving
@@ -852,14 +805,6 @@ protected:
 	mutable Meta* meta_;
 
 	/**
-	 * Array of classes that have been defined
-	 *
-	 * See `component.cpp` for definitions of core classes
-	 */
-	static Class classes_[types_];
-
-
-	/**
 	 * A lookup table of Component instances keyed by component address
 	 *
 	 * Provides a registry of Component instances that
@@ -876,6 +821,24 @@ protected:
  */
 template<class Type>
 Html::Document Component_page_doc(const Type& component);
+
+// Dispatching methods
+
+template<class Class>
+std::string Component::page_dispatcher(const Component::Instance& instance) {
+	return instance.as<const Class*>()->page();
+}
+
+template<class Class>
+std::string Component::request_dispatcher(const Component::Instance& instance, const std::string& verb, const std::string& method, const std::string& body) {
+	return instance.as<Class*>()->request(verb, method, body);
+}
+
+template<class Class>
+std::string Component::message_dispatcher(const Component::Instance& instance, const std::string& message) {
+	return instance.as<Class*>()->message(message);
+}
+
 
 template<class Class>
 Component* Component::open(Component::Type type, const std::string& path) {

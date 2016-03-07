@@ -852,7 +852,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 		//Check to see if this is a "self" include, otherwise obtain the includee
 		address.evaluate(context);
 		if(address.value==".") includee = node.root();
-		else includee = Component::get(address.value).as<Stencil>();
+		else includee = *(Component::get(address.value).as<Stencil*>());
 		// ...select from it
 		select.evaluate(context);
 		if(select.value.length()){

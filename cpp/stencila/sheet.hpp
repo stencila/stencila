@@ -206,7 +206,7 @@ class Sheet : public Component {
      *
      * @param  component  A pointer to a sheet
      */
-    static std::string page(const Component* component);
+    static std::string page(const Instance& instance);
 
     /**
      * Generate a web page for this sheet
@@ -251,21 +251,6 @@ class Sheet : public Component {
     Sheet& view(void);
 
     /**
-     * Respond to a web request to a sheet
-     *
-     * @param  component  A pointer to a sheet
-     * @param  verb       HTML verb (a.k.a. method) e.g. POST
-     * @param  method     Name of method requested
-     * @param  body       Request body (usually JSON)
-     */
-    static std::string request(
-        Component* component,
-        const std::string& verb,
-        const std::string& method,
-        const std::string& body
-    );
-
-    /**
      * Respond to a web request to this sheet
      *
      * @param  verb       HTML verb (a.k.a. method) e.g. POST
@@ -277,6 +262,10 @@ class Sheet : public Component {
         const std::string& method,
         const std::string& body
     );
+
+    std::string message(const std::string& message);
+
+    Json::Document call(const std::string& name, const Json::Document& args);
 
     /**
      * @}

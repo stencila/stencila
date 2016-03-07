@@ -9,6 +9,7 @@
 #include <boost/graph/topological_sort.hpp>
 #include <boost/regex.hpp>
 
+#include <stencila/debug.hpp>
 #include <stencila/sheet.hpp>
 #include <stencila/component-page.hpp>
 #include <stencila/exception.hpp>
@@ -344,8 +345,8 @@ Sheet& Sheet::write(const std::string& directory) {
     return *this;
 }
 
-std::string Sheet::page(const Component* component) {
-    return static_cast<const Sheet&>(*component).page();
+std::string Sheet::page(const Instance& instance) {
+    return instance.as<const Sheet*>()->page();
 }
 
 std::string Sheet::page(void) const {
@@ -384,14 +385,10 @@ Sheet& Sheet::view(void) {
     return *this;
 }
 
-std::string Sheet::request(Component* component, const std::string& verb, const std::string& method, const std::string& body) {
-    return static_cast<Sheet&>(*component).request(verb, method, body);
-}
-
 std::string Sheet::request(const std::string& verb, const std::string& method, const std::string& body) {
-    Json::Document request;
+    Json::Document args;
     if (body.length()) {
-        request.load(body);
+        args.load(body);
     }
 
     // TODO: return error codes and messages instead of throwing exceptions
@@ -399,7 +396,7 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
     // TODO : should be a GET but don't currently deal with query strings for parameters
     if (verb == "PUT" and method == "cell") {
         Cell cell;
-        auto id = request["id"].as<std::string>();
+        auto id = args["id"].as<std::string>();
         if (id.length()) {
             if (not is_id(id)) {
                 STENCILA_THROW(Exception, "Not a valid id"); 
@@ -414,7 +411,7 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
             }
         }
         else {
-            auto name = request["name"].as<std::string>();
+            auto name = args["name"].as<std::string>();
             if (name.length()) {
                 auto iter = names_.find(name);
                 if (iter != names_.end()) {
@@ -437,7 +434,7 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
         return response.dump();
 
     } else if (verb == "PUT" and method == "evaluate") {
-        auto expr = request["expr"].as<std::string>();
+        auto expr = args["expr"].as<std::string>();
 
 
         auto result = evaluate(expr);
@@ -450,13 +447,43 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
 
     } else if (verb == "PUT" and method == "update") {
 
-        if(not request.is<Json::Array>()){
-            STENCILA_THROW(Exception, "Array required");
+        return call("update", args).dump();
+
+    } else if (verb == "GET" and method == "functions") {
+        Json::Document response = Json::Array();
+        for (auto name : functions()){
+            response.append(name);
         }
+        return response.dump();
+    }  else if (verb == "PUT" and method == "function") {
+        auto name = args["name"].as<std::string>();
+        auto func = function(name);
+        return func.json();
+    } else {
+        throw RequestInvalidException();
+    }
+
+    return "";
+}
+
+std::string Sheet::message(const std::string& message) {
+    std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
+        return this->call(name, args);
+    };
+    return Component::message(message, &callback);
+}
+
+Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
+    if(name=="update"){
+        auto arg = args[0];
+        if(not arg.is<Json::Array>()){
+            STENCILA_THROW(Exception, "Array required as first argument");
+        }
+
         std::vector<Cell> changed;
-        for (unsigned int index = 0; index < request.size(); index++) {
+        for (unsigned int index = 0; index < arg.size(); index++) {
             Cell cell;
-            auto json = request[index];
+            auto json = arg[index];
             cell.id = json["id"].as<std::string>();
             cell.source(
                 json["source"].as<std::string>()
@@ -467,9 +494,9 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
             changed.push_back(cell);
         }
 
-        auto updates = update(changed);
+        std::vector<Cell> updates = update(changed);
 
-        Json::Document response = Json::Array();
+        Json::Document result = Json::Array();
         for (auto cell : updates) {
             Json::Document json = Json::Object();
             json.append("id", cell.id);
@@ -477,27 +504,13 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
             json.append("type", cell.type);
             json.append("value", cell.value);
             json.append("display", cell.display());
-            response.append(json);
+            result.append(json);
         }
-        return response.dump();
-
-    } else if (verb == "GET" and method == "functions") {
-        Json::Document response = Json::Array();
-        for (auto name : functions()){
-            response.append(name);
-        }
-        return response.dump();
-    }  else if (verb == "PUT" and method == "function") {
-        auto name = request["name"].as<std::string>();
-        auto func = function(name);
-        return func.json();
+        return result;
     } else {
-        throw RequestInvalidException();
+        STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
     }
-
-    return "";
 }
-
 
 std::string Sheet::identify_row(unsigned int row) {
     return string(row+1);

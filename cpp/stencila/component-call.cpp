@@ -2,6 +2,7 @@
 
 namespace Stencila {
 
+#if 0
 std::string Component::call(const Component::Call& call) {
 	auto what = call.what();
 	if(what=="list():array"){
@@ -33,5 +34,6 @@ std::string Component::call(const Component::Call& call) {
 	}
 	return "";
 }
+#endif
 
 }

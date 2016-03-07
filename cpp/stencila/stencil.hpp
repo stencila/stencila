@@ -945,13 +945,6 @@ public:
 	std::string interact(const std::string& code);
 
 	/**
-	 * Generate a web page for a stencil
-	 *
-	 * @param  component  A pointer to a stencil
-	 */
-	static std::string page(const Component* component);
-
-	/**
 	 * Generate a web page for this stencil
 	 */
 	std::string page(void) const;
@@ -961,21 +954,6 @@ public:
 	 * (usually index.html) in it's working directory
 	 */
 	Stencil& page(const std::string& filename);
-
-	/**
-	 * Respond to a web request to a stencil
-	 *
-	 * @param  component  A pointer to a stencil
-	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
-	 * @param  method     Name of method requested
-	 * @param  body       Request body (usually JSON)
-	 */
-	static std::string request(
-		Component* component,
-		const std::string& verb,
-		const std::string& method,
-		const std::string& body
-	);
 
 	/**
 	 * Respond to a web request to this stencil
@@ -990,19 +968,7 @@ public:
 		const std::string& body
 	);
 
-	/**
-	 * Execute a call on a stencil
-	 *
-	 * @param  component  A pointer to a stencil
-	 */
-	static std::string call(Component* component, const Call& call);
-
-	/**
-	 * Execute a call on this stencil
-	 * 
-	 * @param  call  A `Call` object
-	 */
-	std::string call(const Call& call);
+	Json::Document call(const std::string& name, const Json::Document& args);
 
 	/**
 	 * @}

@@ -247,7 +247,7 @@ void Server::http_(connection_hdl hdl) {
 				// component address
 				auto address = path;
 				if(address.back()=='/') address.pop_back();
-				content = Component::page(address);
+				content = Component::page_dispatch(address);
 				content_type = "text/html";
 			}
 		}
@@ -303,8 +303,8 @@ void Server::message_(connection_hdl hdl, server::message_ptr msg) {
 	std::string response;
 	try {
 		Session session = session_(hdl);
-		std::string request = msg->get_payload();
-		response = Component::message(session.address,request);
+		std::string message = msg->get_payload();
+		response = Component::message_dispatch(session.address, message);
 	}
 	// `Component::message()` should handle most exceptions and return a WAMP
 	// ERROR message. If for some reason that does not happen, the following returns

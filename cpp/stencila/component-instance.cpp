@@ -12,45 +12,47 @@
 
 namespace Stencila {
 
-Component::Class Component::classes_[Component::types_];
-std::map<std::string,Component::Instance> Component::instances_;
-typename Component::Instantiate Component::instantiate = nullptr;
+Component::Class Component::Class::classes_[Component::types_];
 
-void Component::class_(Type type, const Class& clas){
+void Component::Class::set(Type type, const Component::Class& clas){
 	classes_[type] = clas;
 }
 
-void Component::classes(void){
-	class_(Component::StencilType, Class(
-		"Stencil",
-		Stencil::page,
-		Stencil::request,
-		Stencil::call
-	));
-	class_(Component::ThemeType, Class(
-		"Theme",
-		Theme::page,
-		nullptr,
-		Theme::call
-	));
-	class_(Component::SheetType, Class(
-		"Sheet",
-		Sheet::page,
-		Sheet::request,
-		nullptr
-	));
-	class_(Component::FunctionType, Class(
-		"Function",
-		Function::page,
-		Function::request,
-		nullptr
-	));
-}
-
-const Component::Class& Component::class_(Type type){
+const Component::Class& Component::Class::get(Type type) {
 	const Class& clas = classes_[type];
 	if(not clas.defined) STENCILA_THROW(Exception,"Class with type enum has not been defined.\n  type: "+type_name(type));
 	return clas;
+}
+
+
+std::map<std::string,Component::Instance> Component::instances_;
+typename Component::Instantiate Component::instantiate = nullptr;
+
+void Component::classes(void){
+	Class::set(Component::StencilType, {
+		"Stencil",
+		Theme::page_dispatcher<Stencil>,
+		Theme::request_dispatcher<Stencil>,
+		Theme::message_dispatcher<Stencil>
+	});
+	Class::set(Component::ThemeType, {
+		"Theme",
+		Theme::page_dispatcher<Theme>,
+		Theme::request_dispatcher<Theme>,
+		Theme::message_dispatcher<Theme>
+	});
+	Class::set(Component::SheetType, {
+		"Sheet",
+		Sheet::page_dispatcher<Sheet>,
+		Sheet::request_dispatcher<Sheet>,
+		Sheet::message_dispatcher<Sheet>
+	});
+	Class::set(Component::FunctionType, {
+		"Function",
+		Function::page_dispatcher<Function>,
+		Function::request_dispatcher<Function>,
+		Function::message_dispatcher<Function>
+	});
 }
 
 Component& Component::hold(Type type) {
@@ -168,8 +170,7 @@ Component::Instance Component::get(const std::string& address,const std::string&
 
 	if(version.length()>0){
 		if(comparison.length()==0 or comparison=="=="){
-			Component& component = instance.as<Component>();
-			component.provide(version);
+			instance.as<Component*>()->provide(version);
 		} else {
 			STENCILA_THROW(Exception,"Version comparison operator not yet supported <"+comparison+">");
 		}

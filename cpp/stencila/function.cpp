@@ -188,10 +188,6 @@ Function& Function::write(const std::string& directory) {
     return *this;
 }
 
-std::string Function::page(const Component* component) {
-    return static_cast<const Function&>(*component).page();
-}
-
 std::string Function::page(void) const {
     // Get base document
     Html::Document doc = Component_page_doc<Function>(*this);
@@ -221,10 +217,6 @@ std::string Function::serve(void) {
 Function& Function::view(void) {
     Component::view(FunctionType);
     return *this;
-}
-
-std::string Function::request(Component* component, const std::string& verb, const std::string& method, const std::string& body) {
-    return static_cast<Function&>(*component).request(verb, method, body);
 }
 
 std::string Function::request(const std::string& verb, const std::string& method, const std::string& body) {
