@@ -1,6 +1,8 @@
 var oo = require('substance/util/oo');
 var $ = require('substance/util/jquery');
 
+var WebsocketConnection = require('./WebsocketConnection');
+
 var RemoteEngine = function() {
 
   var location = window.location;
@@ -28,6 +30,8 @@ var RemoteEngine = function() {
   }
 
   this.active = false;
+
+  this.websocket = null;
 };
 
 RemoteEngine.Prototype = function() {
@@ -35,20 +39,17 @@ RemoteEngine.Prototype = function() {
   this.boot = function(cb) {
     this._request('PUT', 'boot', null, function(err, result) {
       if (err) return cb(err);
-      this._activated();
-      cb(null, result);
+      this._activated(result);
+      if(cb) cb(null, result);
     }.bind(this));
   };
 
   this.activate = function(cb) {
     if (!this.active) {
       this._request('PUT', 'activate', null, function(err, result) {
-        if (err) {
-          return cb(err);
-        } else {
-          this._activated();
-          if (cb) cb(err, result);
-        }
+        if (err) return cb(err);
+        this._activated(result);
+        if (cb) cb(null, result);
       }.bind(this));
     }
   };
@@ -112,11 +113,29 @@ RemoteEngine.Prototype = function() {
     $.ajax(ajaxOpts);
   };
 
-  this._activated = function() {
-    this.active = true;
-    this.pingInterval = setInterval(function(){
-      this.ping();
-    }.bind(this), 3*60*1000);
+  /**
+   * Called when engine has been activated
+   *
+   * @param details Activation details
+   */
+  this._activated = function(details) {
+    if (details.session) {
+      var session = details.session;
+
+      this.active = true;
+      // Open a websocket connection to be used for
+      // certain remote method calls
+      if (session.websocket) {
+        this.websocket = new WebsocketConnection(session.websocket);
+      }
+      // Begin pinging if not on localhost or localfile so that
+      // session is kept alive
+      if(!(this.host === 'localhost' || this.host === 'localfile')) {
+        this.pingInterval = setInterval(function(){
+          this.ping();
+        }.bind(this), 3*60*1000);
+      }
+    }
   };
 
   this._dialog = function(content) {
