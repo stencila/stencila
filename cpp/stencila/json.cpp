@@ -110,6 +110,12 @@ std::map<std::string,std::string> Node::as<std::map<std::string,std::string>>(vo
 	return result;
 }
 
+template<>
+Document Node::as<Document>(void) const {
+	Document doc = *this;
+	return doc;
+}
+
 #define NODE_ITER_CAST(POINTER) static_cast<::Json::ValueIterator*>(POINTER)
 
 Node::iterator::~iterator(void){
@@ -318,8 +324,16 @@ std::string Node::dump(bool pretty) const {
 	}
 }
 
+const Node::Impl& Node::impl(void) const {
+	return *pimpl_;
+}
+
 Document::Document(void):
 	Node(new Impl){
+}
+
+Document::Document(const Node& other):
+	Node(new Impl(other.impl())){
 }
 
 Document::Document(const Document& other):
@@ -346,6 +360,11 @@ Document::Document(const std::string& json):
 
 Document::~Document(void){
 	delete pimpl_;
+}
+
+Document& Document::operator=(const Document& other) {
+	*pimpl_ = *other.pimpl_;
+	return *this;
 }
 
 Document& Document::read(std::istream& stream){

@@ -134,6 +134,11 @@ public:
 	*/
 	std::string dump(bool pretty = false) const;
 
+	/**
+	 * Get the implementation for this node
+	 */
+	const Impl& impl(void) const;
+
 protected:
 	Impl* pimpl_;
 };
@@ -146,6 +151,8 @@ public:
 
 	Document(void);
 
+	Document(const Node& other);
+
 	Document(const Document& other);
 
 	Document(const Object& object);
@@ -157,6 +164,8 @@ public:
 	Document(const std::string& json);
 
 	~Document(void);
+
+	Document& operator=(const Document& other);
 
 	Document& read(std::istream& stream);
 
