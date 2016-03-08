@@ -508,7 +508,7 @@ Json::Document Sheet::call(const std::string& name, const Json::Document& args) 
         }
         return result;
     } else {
-        STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
+        return Component::call(name, args);
     }
 }
 

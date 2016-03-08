@@ -153,7 +153,19 @@ std::string Component::message(const std::string& message, std::function<Json::D
 }
 
 Json::Document Component::call(const std::string& name, const Json::Document& args) {
-	return "{}";
+	Json::Document result;
+	if(name=="save"){
+
+	} else if (name=="commit") {
+		auto message = args[0].as<std::string>();
+		
+		auto id = commit(message);
+
+		result.append("id",id);
+	} else {
+        STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
+    }
+    return result;
 }
 
 std::string Component::index(void){
