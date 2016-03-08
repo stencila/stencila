@@ -29,7 +29,7 @@ endif
 # A function for notify the Stencila hub that
 # a build has been delivered
 define DELIVERY_NOTIFY
-	curl -u "Token:$$STENCILA_HUB_TOKEN" \
+	curl -u "Token:$$STENCILA_TOKEN" \
 	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
 	    \"package\": \"$1\", \
 	    \"flavour\": \"$2\", \

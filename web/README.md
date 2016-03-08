@@ -3,7 +3,7 @@ Web browser interfaces to Stencila components.
 For development you can use stenci.la as a backend by providing your user API token.
 
 ```bash
-STENCILA_HUB_TOKEN=mytoken node server.js https://stenci.la
+STENCILA_TOKEN=mytoken node server.js https://stenci.la
 ```
 
 When adding a new node type to a stencil you need to replicate the file structure in existing node directories (under `packages`) and then require those files into the right places:

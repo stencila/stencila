@@ -13,16 +13,20 @@ namespace Stencila {
 Hub hub;
 
 Hub::Hub(void){
-	std::string root = Host::env_var("STENCILA_HUB_ROOT");
-	if(root.length()!=0){
-		root_ = root;
+	std::string origin = Host::env_var("STENCILA_ORIGIN");
+	if(origin.length()){
+		origin_ = origin;
 	} else {
-		root_ = "https://stenci.la";
+		origin_ = "https://stenci.la";
 	}
 }
 
+std::string Hub::origin(void) const {
+	return origin_;
+}
+
 Hub& Hub::signin(const std::string& username, const std::string& password){
-	Http::Request request(Http::GET,root_+"/user/permit/");
+	Http::Request request(Http::GET,origin()+"/user/permit/");
 	request.auth_basic(username,password);
 	
 	auto response = client_.request(request);
@@ -34,7 +38,9 @@ Hub& Hub::signin(const std::string& username, const std::string& password){
 }
 
 Hub& Hub::signin(const std::string& token){
-	Http::Request request(Http::GET,root_+"/user/permit/");
+	Host::env_var("STENCILA_TOKEN", token);
+
+	Http::Request request(Http::GET,origin()+"/user/permit/");
 	request.header("Authorization","Token "+token);
 	
 	auto response = client_.request(request);
@@ -46,9 +52,13 @@ Hub& Hub::signin(const std::string& token){
 }
 
 Hub& Hub::signin(void){
-	std::string token = Host::env_var("STENCILA_HUB_TOKEN");
-	if(token.length()==0) STENCILA_THROW(Exception,"Environment variable STENCILA_HUB_TOKEN is not defined");
-	return signin(token);
+	return signin(token());
+}
+
+std::string Hub::token(void) const {
+	std::string token = Host::env_var("STENCILA_TOKEN");
+	if(token.length()) return token;
+	else return "None";
 }
 
 std::string Hub::username(void) const {
@@ -62,7 +72,7 @@ Hub& Hub::signout(void){
 }
 
 Json::Document Hub::request(Http::Method method, const std::string& path){
-	std::string url = root_ + "/" + path;
+	std::string url = origin() + "/" + path;
 	if(path.back()!='/') url += "/";
 	Http::Request request(method,url);
 	request.header("Authorization","Permit "+permit_);
@@ -87,7 +97,7 @@ std::string Hub::clone(const std::string& address) {
 	std::string path = Host::store_path(address);
 	Git::Repository repo;
 	repo.clone(
-		root_ + "/" + address + ".git",
+		origin() + "/" + address + ".git",
 		path
 	);
 	return path;
@@ -97,7 +107,7 @@ std::string Hub::fork(const std::string& from, const std::string& to) {
 	std::string path = Host::store_path(to);
 	Git::Repository repo;
 	repo.clone(
-		root_ + "/" + from + ".git",
+		origin() + "/" + from + ".git",
 		path
 	);
 	repo.remote("origin","");

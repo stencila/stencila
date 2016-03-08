@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_SUITE(hub_slow)
 
 BOOST_AUTO_TEST_CASE(signin){
 	// For this test you need to set the environment variables
-	// STENCILA_USERNAME and STENCILA_HUB_TOKEN (which should match of course!)
+	// STENCILA_USERNAME and STENCILA_TOKEN (which should match of course!)
 	std::string username = Host::env_var("STENCILA_USERNAME");
 
 	hub.signin();
