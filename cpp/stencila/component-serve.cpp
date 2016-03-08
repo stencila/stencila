@@ -89,14 +89,8 @@ std::string Component::page_dispatch(const std::string& address){
 
 std::string Component::request_dispatch(const std::string& address, const std::string& verb, const std::string& name, const std::string& body){
 	Instance instance = get(address);
-	if(not instance.exists()) return "404";
-	else if(name=="boot") {
-		Json::Document result = Json::Object();
-		result.append("rights", "ALL");
-		Json::Document session = Json::Object();
-		session.append("websocket", "ws://localhost:7373/" + address);
-		result.append("session", session);
-		return result.dump();
+	if(not instance.exists()) {
+		return "404";
 	} else {
 		auto method = Class::get(instance.type()).request_method;
 		if (method) {
@@ -109,8 +103,9 @@ std::string Component::request_dispatch(const std::string& address, const std::s
 
 std::string Component::message_dispatch(const std::string& address, const std::string& message) {
 	Instance instance = get(address);
-	if(not instance.exists()) return "404";
-	else {
+	if(not instance.exists()) {
+		return "404";
+	} else {
 		auto method = Class::get(instance.type()).message_method;
 		if (method) {
 			return method(instance, message);
@@ -124,8 +119,30 @@ std::string Component::page(void) {
 	return "";
 }
 
-std::string Component::request(const std::string& verb, const std::string& method, const std::string& body) {
-	return "";
+std::string Component::request(const std::string& verb, const std::string& name, const std::string& body) {
+	std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
+		return this->call(name, args);
+	};
+	return Component::request(verb, name, body, &callback);
+}
+
+std::string Component::request(
+	const std::string& verb, const std::string& name, const std::string& body,
+	std::function<Json::Document(const std::string&, const Json::Document&)>* callback
+) {
+    Json::Document args;
+    if (body.length()) {
+    	args.load(body);
+    }
+    Json::Document response;
+    try {
+        response = (*callback)(name, args);
+    } catch (const std::exception& exc) {
+        response.append("error", exc.what());
+    } catch (...) {
+        response.append("error", "Unknown exception");
+    }
+    return response.dump();
 }
 
 std::string Component::message(const std::string& message) {
@@ -154,14 +171,20 @@ std::string Component::message(const std::string& message, std::function<Json::D
 
 Json::Document Component::call(const std::string& name, const Json::Document& args) {
 	Json::Document result;
-	if(name=="save"){
-
+	if(name=="boot") {
+		result.append("rights", "ALL");
+		Json::Document session = Json::Object();
+		session.append("websocket", "ws://localhost:7373/" + address());
+		result.append("session", session);
+	} else if(name=="boot_restore"){
+		result = call("boot", args);
+		restore();
+	} else if(name=="store"){
+		store();
 	} else if (name=="commit") {
 		auto message = args[0].as<std::string>();
-		
 		auto id = commit(message);
-
-		result.append("id",id);
+		result.append("id", id);
 	} else {
         STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
     }

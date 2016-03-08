@@ -385,16 +385,23 @@ Sheet& Sheet::view(void) {
     return *this;
 }
 
-std::string Sheet::request(const std::string& verb, const std::string& method, const std::string& body) {
-    Json::Document args;
-    if (body.length()) {
-        args.load(body);
-    }
+std::string Sheet::request(const std::string& verb, const std::string& name, const std::string& body) {
+    std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
+        return this->call(name, args);
+    };
+    return Component::request(verb, name, body, &callback);
+}
 
-    // TODO: return error codes and messages instead of throwing exceptions
+std::string Sheet::message(const std::string& message) {
+    std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
+        return this->call(name, args);
+    };
+    return Component::message(message, &callback);
+}
 
-    // TODO : should be a GET but don't currently deal with query strings for parameters
-    if (verb == "PUT" and method == "cell") {
+Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
+
+    if (name == "cell") {
         Cell cell;
         auto id = args["id"].as<std::string>();
         if (id.length()) {
@@ -424,57 +431,40 @@ std::string Sheet::request(const std::string& verb, const std::string& method, c
             }
         }
 
-        Json::Document response = Json::Object();
-        response.append("id", id);
-        response.append("expression", cell.expression);
-        response.append("name", cell.name);
-        response.append("type", cell.type);
-        response.append("value", cell.value);
+        Json::Document result = Json::Object();
+        result.append("id", id);
+        result.append("expression", cell.expression);
+        result.append("name", cell.name);
+        result.append("type", cell.type);
+        result.append("value", cell.value);
+        return result;
 
-        return response.dump();
+    } else if (name == "evaluate") {
 
-    } else if (verb == "PUT" and method == "evaluate") {
         auto expr = args["expr"].as<std::string>();
+        auto returned = evaluate(expr);
+        Json::Document result = Json::Object();
+        result.append("type", returned[0]);
+        result.append("value", returned[1]);
+        return result;
 
+    } else if (name == "functions") {
 
-        auto result = evaluate(expr);
-
-        Json::Document response = Json::Object();
-        response.append("type", result[0]);
-        response.append("value", result[1]);
-
-        return response.dump();
-
-    } else if (verb == "PUT" and method == "update") {
-
-        return call("update", args).dump();
-
-    } else if (verb == "GET" and method == "functions") {
-        Json::Document response = Json::Array();
-        for (auto name : functions()){
-            response.append(name);
+        auto names = functions();
+        Json::Document result = Json::Array();
+        for (auto name : names){
+            result.append(name);
         }
-        return response.dump();
-    }  else if (verb == "PUT" and method == "function") {
+        return result;
+
+    }  else if (name == "function") {
+
         auto name = args["name"].as<std::string>();
         auto func = function(name);
         return func.json();
-    } else {
-        throw RequestInvalidException();
-    }
 
-    return "";
-}
+    } else  if (name == "update"){
 
-std::string Sheet::message(const std::string& message) {
-    std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
-        return this->call(name, args);
-    };
-    return Component::message(message, &callback);
-}
-
-Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
-    if(name=="update"){
         auto arg = args[0];
         if(not arg.is<Json::Array>()){
             STENCILA_THROW(Exception, "Array required as first argument");
@@ -507,6 +497,7 @@ Json::Document Sheet::call(const std::string& name, const Json::Document& args) 
             result.append(json);
         }
         return result;
+
     } else {
         return Component::call(name, args);
     }

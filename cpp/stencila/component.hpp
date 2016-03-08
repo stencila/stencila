@@ -731,7 +731,12 @@ public:
 
 	std::string page(void);
 
-	std::string request(const std::string& verb, const std::string& method, const std::string& body);
+	std::string request(const std::string& verb, const std::string& name, const std::string& body);
+
+	std::string request(
+		const std::string& verb, const std::string& name, const std::string& body, 
+		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
+	);
 
 	std::string message(const std::string& message);
 
