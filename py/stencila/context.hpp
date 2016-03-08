@@ -136,11 +136,8 @@ public:
      * Register the `PythonContext` class
      */
     static void class_(void){
-        Component::class_(PythonContextType,{
-            "PythonContext",
-            page,
-            nullptr,
-            call
+        Class::set(PythonContextType,{
+            "PythonContext"
         });
     }
 
@@ -158,15 +155,6 @@ public:
         Component::view(PythonContextType);
         return *this;
     }
-
-    /**
-     * Call a `PythonContext`
-     */
-    static std::string call(Component* component, const Call& call){
-        return static_cast<PythonContext&>(*component).call(call);
-    }
-    // To provide access to Context::call
-    using Context::call;
 
 private:
     /**
