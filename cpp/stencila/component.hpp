@@ -252,7 +252,7 @@ public:
 	 *
 	 * @param message Message to associate with the commit
 	 */
-	Component& commit(const std::string& message="");
+	std::string commit(const std::string& message="");
 
 	/**
 	 * Get a list of commits made to this component

@@ -29,19 +29,22 @@ STENCILA_R_FUNC Component_commits_get(SEXP self){
         auto commits = from<Component>(self).commits();
         // Convert to a data.frame
         unsigned int rows = commits.size();
+        Rcpp::CharacterVector id(rows);
         Rcpp::DatetimeVector time(rows);
         Rcpp::CharacterVector message(rows);
         Rcpp::CharacterVector name(rows);
         Rcpp::CharacterVector email(rows);
         for(unsigned int i=0;i<rows;i++){
         	auto& commit = commits[i];
-        	time[i] = commit.time;
+        	id[i] = commit.id;
+            time[i] = commit.time;
         	message[i] = commit.message;
         	name[i] = commit.name;
         	email[i] = commit.email;
         }
         return Rcpp::DataFrame::create(
-        	Rcpp::Named("time") = time,
+        	Rcpp::Named("id") = id,
+            Rcpp::Named("time") = time,
         	Rcpp::Named("message") = message,
         	Rcpp::Named("name") = name,
         	Rcpp::Named("email") = email,

@@ -55,6 +55,7 @@ public:
 class Commit {
 public:
 
+	std::string id;
 	std::string name;
 	std::string email;
 	time_t time;
@@ -150,7 +151,7 @@ public:
 	 * @param name    Name of the commit author
 	 * @param email   Email of the commit author
 	 */
-	void commit(const std::string& message="",const std::string& name="",const std::string& email="");
+	std::string commit(const std::string& message="",const std::string& name="",const std::string& email="");
 
 	/**
 	 * Checkout a specific tag 

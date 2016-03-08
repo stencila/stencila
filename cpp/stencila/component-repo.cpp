@@ -76,7 +76,7 @@ Component& Component::sync(void) {
 	return *this;
 }
 
-Component& Component::commit(const std::string& message) {
+std::string Component::commit(const std::string& message) {
 	std::string commit_message = message;
 	if(commit_message.length()==0) commit_message = "Updated";
 	// Get the name and email of the user
@@ -87,8 +87,7 @@ Component& Component::commit(const std::string& message) {
 	write();
 	// Get, or create, repository for the component and do the commit
 	Repository* repo = this->repo(true);
-	repo->commit(commit_message,name,email);
-	return *this;
+	return repo->commit(commit_message,name,email);
 }
 
 std::vector<Component::Commit> Component::commits(void) const {
