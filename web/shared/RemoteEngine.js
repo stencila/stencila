@@ -72,11 +72,11 @@ RemoteEngine.Prototype = function() {
   };
 
   this.save = function(cb) {
-    this._call('save');
+    this._call('save', null, cb);
   }
 
   this.commit = function(message, cb) {
-    this._call('commit',[message]);
+    this._call('commit',[message], cb);
   }
 
   // Private, local, methods
@@ -85,7 +85,7 @@ RemoteEngine.Prototype = function() {
     args = args || [];
     if(this.websocket) {
       this.websocket.call(name, args, function(result) {
-        if (cb) cb(null, result);
+        if (cb) cb(result);
       });
     } else {
       this._request('PUT', name, args, function(err, result) {
