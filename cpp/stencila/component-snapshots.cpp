@@ -32,7 +32,7 @@ Component& Component::restore(void) {
 		execute(command);
 	} catch (Stencila::Exception e) {
 		// Clumsily deal with failiure of command due to no exisiting snapshot
-		// for component
+		// for component by just skipping exception
 	}
 	return *this;
 }
