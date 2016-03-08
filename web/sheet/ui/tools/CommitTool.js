@@ -6,115 +6,62 @@ var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var ControllerTool = require('substance/ui/ControllerTool');
 
-function CommitMessagePrompt() {
-  Component.apply(this, arguments);
-}
-
-CommitMessagePrompt.Prototype = function() {
-
-  this.onSave = function(e) {
-    e.preventDefault();
-    this.props.tool.performSave();
-  };
-
-  this.onDelete = function(e) {
-    e.preventDefault();
-    this.props.tool.deleteLink();
-  };
-
-  this.render = function() {
-    var el = $$('div').addClass('se-prompt');
-
-    el.append([
-      $$('div').addClass('se-prompt-title').append('Save changes'),
-      $$('input').attr({type: 'text', placeholder: 'Enter commit message', value: ''})
-                 .ref('url')
-                 .htmlProp('autofocus', true),
-                 // .on('change', this.onSave),
-      $$('a').attr({href: '#'})
-             .addClass('se-save-btn')
-             .append(this.i18n.t('save'))
-             .on('click', this.onSave)
-    ]);
-    return el;
-  };
-};
-
-Component.extend(CommitMessagePrompt);
-
 function CommitTool() {
   ControllerTool.apply(this, arguments);
-
-  var ctrl = this.getController();
-  ctrl.connect(this, {
-    'command:executed': this.onCommandExecuted
-  });
 }
 
 CommitTool.Prototype = function() {
 
-  this.dispose = function() {
-    var ctrl = this.getController();
-    ctrl.disconnect(this);
-  };
-
-  this.onCommandExecuted = function(info, commandName) {
-    if (commandName === this.constructor.static.command) {
-      // Toggle the edit prompt when either edit is requested or a new link has been created
-      if (info.status === 'save-requested') {
-        this.togglePrompt();
-      }
-    }
-  };
-
-  this.togglePrompt = function() {
-    var newState = extend({}, this.state, {showPrompt: !this.state.showPrompt});
-    this.setState(newState);
-  };
-
-  this.performSave = function() {
-    var ctrl = this.getController();
-    ctrl.saveDocument();
-    this.extendState({showPrompt: false});
-  };
-
-  this.getLink = function() {
-    return this.getDocument().get(this.state.annotationId);
-  };
-
   this.render = function() {
-    var title = this.props.title || capitalize(this.getName());
-
-    if (this.state.mode) {
-      title = [capitalize(this.state.mode), title].join(' ');
-    }
-
     var el = $$('div')
-      .addClass('sc-save-tool se-tool')
-      .attr('title', title);
+      .addClass('se-tool se-commit-tool')
+      .attr('title', 'Commit');
 
     if (this.state.disabled) {
       el.addClass('sm-disabled');
     }
-
-    var button = $$('button').on('click', this.onClick);
-
-    button.append(this.props.children);
-    el.append(button);
-
-    // When we are in edit mode showing the edit prompt
-    if (this.state.showPrompt) {
-      el.addClass('sm-active');
-      var prompt = $$(CommitMessagePrompt, {tool: this});
-      el.append(prompt);
+    if (this.state.expanded) {
+      el.addClass('sm-expanded');
     }
+
+    var button = $$('button')
+      .append(this.props.children)
+      .on('click', function(){
+        this.extendState({
+          expanded: !this.state.expanded
+        });
+      }.bind(this));
+  
+    var input = $$('input')
+      .attr({
+          type: 'text', 
+          placeholder: 'Commit message', 
+          value: ''
+      })
+      .htmlProp('autofocus', true)
+      .on('change', function(event){
+        var message = event.target.value;
+        var controller = this.getController()
+        controller.getCommand('commit').execute(
+          message,
+          function(result){
+            var logger = controller.getLogger();
+            logger.log('New commit created: ' + result.id);
+          }
+        )
+        this.extendState({
+          expanded: false
+        });
+      }.bind(this));
+
+    el.append([button,input]);
+
     return el;
   };
 };
 
 ControllerTool.extend(CommitTool);
-
-CommitTool.static.name = 'save';
-CommitTool.static.command = 'save';
+CommitTool.static.name = 'commit';
+CommitTool.static.command = 'commit';
 
 module.exports = CommitTool;

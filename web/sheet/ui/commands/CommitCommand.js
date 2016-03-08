@@ -3,10 +3,8 @@
 var ControllerCommand = require('substance/ui/ControllerCommand');
 
 /**
-  Custom save command, which triggers opening a save/commit
-  dialog where a commit message can be provided.
-*/
-
+ * Commit the sheet
+ */
 function CommitCommand() {
   CommitCommand.super.apply(this, arguments);
 }
@@ -14,22 +12,22 @@ function CommitCommand() {
 CommitCommand.Prototype = function() {
 
   this.getCommandState = function() {
-    var doc = this.getDocument();
     return {
-      disabled: false, // !doc.__dirty,
+      disabled: false,
       active: false
     };
   },
 
-  this.execute = function() {
+  this.execute = function(message, callback) {
+    var engine = this.controller.props.engine;
+    engine.commit(message, callback);
     return {
-      status: 'save-requested'
+      status: 'commit-requested'
     };
   };
 };
 
 ControllerCommand.extend(CommitCommand);
-
-CommitCommand.static.name = 'save';
+CommitCommand.static.name = 'commit';
 
 module.exports = CommitCommand;

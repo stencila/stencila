@@ -37,7 +37,11 @@ $default-cell-padding: 1px 3px;
 @import './styles/_function';
 @import './styles/_select-function';
 @import './styles/_cell-teaser';
+
+@import './styles/_toolbar';
 @import './styles/_save-tool';
+@import './styles/_commit-tool';
+
 @import './styles/_sheet-editor';
 
 // Sheet Writer

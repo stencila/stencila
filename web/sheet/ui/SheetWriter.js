@@ -6,17 +6,18 @@ var ScrollPane = require('substance/ui/ScrollPane');
 var StatusBar = require('substance/ui/StatusBar');
 var Toolbar = require('substance/ui/Toolbar');
 var Component = require('substance/ui/Component');
-
 var $$ = Component.$$;
+var Icon = require('substance/ui/FontAwesomeIcon');
+
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
 var StrongTool = require('substance/packages/strong/StrongTool');
 var CodeTool = require('substance/packages/code/CodeTool');
 var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
-var Icon = require('substance/ui/FontAwesomeIcon');
 var LinkTool = require('substance/packages/link/LinkTool');
 
-var SaveTool = require('./tools/CommitTool');
+var SaveTool = require('./tools/SaveTool');
+var CommitTool = require('./tools/CommitTool');
 
 var SheetEditor = require('./SheetEditor');
 var Sheet = require('../model/Sheet');
@@ -26,6 +27,7 @@ var CONFIG = {
     commands: [
       require('substance/ui/UndoCommand'),
       require('substance/ui/RedoCommand'),
+      require('./commands/SaveCommand'),
       require('./commands/CommitCommand')
     ],
     components: {
@@ -41,6 +43,7 @@ var CONFIG = {
   },
   main: {
     commands: [
+      /* Not used ATM
       // Special commands
       require('substance/packages/embed/EmbedCommand'),
       require('substance/packages/strong/StrongCommand'),
@@ -49,6 +52,7 @@ var CONFIG = {
       require('substance/packages/subscript/SubscriptCommand'),
       require('substance/packages/superscript/SuperscriptCommand'),
       require('substance/packages/code/CodeCommand')
+      */
     ],
     textTypes: [
     ]
@@ -84,14 +88,15 @@ SheetWriter.Prototype = function() {
           $$(Toolbar.Group).append(
             $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
             $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'})),
-            $$(SaveTool).append($$(Icon, {icon: 'fa-save'}))
-          ),
+            $$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
+            $$(CommitTool).append($$(Icon, {icon: 'fa-compass'}))
+          )/* Not used ATM ,
           $$(Toolbar.Group).addClass('float-right').append(
             $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
             $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
             $$(LinkTool).append($$(Icon, {icon: 'fa-link'})),
             $$(CodeTool).append($$(Icon, {icon: 'fa-code'}))
-          )
+          )*/
         ),
         // Content Panel below
         $$(ScrollPane, {
