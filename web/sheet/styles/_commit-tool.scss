@@ -1,6 +1,10 @@
 .se-tool.se-commit-tool {
   button {
     display: inline-block;
+    padding: 0.5em;
+    .se-label {
+      padding-left: 0.5em;
+    }
   }
   input {
     display: none;

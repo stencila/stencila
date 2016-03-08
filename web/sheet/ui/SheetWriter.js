@@ -89,7 +89,7 @@ SheetWriter.Prototype = function() {
             $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
             $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'})),
             $$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
-            $$(CommitTool).append($$(Icon, {icon: 'fa-compass'}))
+            $$(CommitTool)
           )/* Not used ATM ,
           $$(Toolbar.Group).addClass('float-right').append(
             $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),

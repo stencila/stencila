@@ -1,10 +1,9 @@
 'use strict';
 
-var extend = require('lodash/object/extend');
-var capitalize = require('lodash/string/capitalize');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
 var ControllerTool = require('substance/ui/ControllerTool');
+var Icon = require('substance/ui/FontAwesomeIcon');
 
 function CommitTool() {
   ControllerTool.apply(this, arguments);
@@ -15,7 +14,6 @@ CommitTool.Prototype = function() {
   this.render = function() {
     var el = $$('div')
       .addClass('se-tool se-commit-tool')
-      .attr('title', 'Commit');
 
     if (this.state.disabled) {
       el.addClass('sm-disabled');
@@ -25,17 +23,23 @@ CommitTool.Prototype = function() {
     }
 
     var button = $$('button')
-      .append(this.props.children)
+      .append([
+        $$(Icon, {icon: 'fa-compass'}),
+        $$('span')
+          .addClass('se-label')
+          .text('Commit')
+      ])
       .on('click', function(){
         this.extendState({
           expanded: !this.state.expanded
         });
+        input.focus();
       }.bind(this));
   
     var input = $$('input')
       .attr({
           type: 'text', 
-          placeholder: 'Commit message', 
+          placeholder: 'Message', 
           value: ''
       })
       .htmlProp('autofocus', true)
