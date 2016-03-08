@@ -81,13 +81,13 @@ BOOST_AUTO_TEST_CASE(get){
 	BOOST_CHECK_EQUAL(c.versions()[0],"0.0.1");
 	BOOST_CHECK_EQUAL(c.versions()[1],"0.0.2");
 
-	Component& c0 = Component::get(c.address()).as<Component>();
+	Component& c0 = *Component::get(c.address()).as<Component*>();
 	BOOST_CHECK(boost::filesystem::exists(c.path()));
 	
-	Component& c1 = Component::get(c.address(),"0.0.1").as<Component>();
+	Component& c1 = *Component::get(c.address(),"0.0.1").as<Component*>();
 	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.at/0.0.1"));
 
-	Component& c2 = Component::get(c.address(),"0.0.2").as<Component>();
+	Component& c2 = *Component::get(c.address(),"0.0.2").as<Component*>();
 	BOOST_CHECK(boost::filesystem::exists(c.path()+"/.at/0.0.2"));
 
 	BOOST_CHECK_EQUAL(c0.address(),c1.address());
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(fork){
 }
 
 BOOST_AUTO_TEST_CASE(get_remote){
-	Component& c = Component::get("test").as<Component>();
+	Component& c = *Component::get("test").as<Component*>();
 	BOOST_CHECK_EQUAL(c.address(),"test");
 	BOOST_CHECK_EQUAL(c.origin(),"https://stenci.la/test.git");
 	c.destroy();

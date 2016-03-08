@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(get){
 	BOOST_CHECK(instance.exists());
 	BOOST_CHECK_EQUAL(instance.type(),Component::StencilType);
 
-	Stencil& s_ = instance.as<Stencil>();
+	Stencil& s_ = *instance.as<Stencil*>();
 	BOOST_CHECK_EQUAL(s.address(),s_.address());
 
 	s.unhold();

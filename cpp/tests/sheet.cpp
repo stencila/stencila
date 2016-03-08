@@ -368,27 +368,27 @@ BOOST_AUTO_TEST_CASE(request){
 		BOOST_CHECK_EQUAL(s.request("PUT","update",in_), out_);
 
 	CHECK(
-		R"([{"id":"A1","source":""}])",
+		R"([[{"id":"A1","source":""}]])",
 		R"([])"
 	);
 	
 	CHECK(
-		R"([{"id":"A1","source":"2"}])",
+		R"([[{"id":"A1","source":"2"}]])",
 		R"([{"display":"clipped","id":"A1","kind":"num","type":"string","value":"2"}])"
 	);
 
 	CHECK(
-		R"([{"id":"A1","source":"'string'"}])",
+		R"([[{"id":"A1","source":"'string'"}]])",
 		R"([{"display":"clipped","id":"A1","kind":"str","type":"string","value":"'string'"}])"
 	);
 
 	CHECK(
-		R"([{"id":"A1","source":"= some error"}])",
+		R"([[{"id":"A1","source":"= some error"}]])",
 		R"([{"display":"overlay","id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
 	);
 
 	CHECK(
-		R"([{"id":"A1","source":": matrix"}])",
+		R"([[{"id":"A1","source":": matrix"}]])",
 		R"([{"display":"clipped","id":"A1","kind":"map","type":"string","value":"matrix"}])"
 	);
 
