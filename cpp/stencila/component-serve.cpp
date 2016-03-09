@@ -174,6 +174,7 @@ Json::Document Component::call(const std::string& name, const Json::Document& ar
 	if(name=="boot") {
 		result.append("rights", "ALL");
 		Json::Document session = Json::Object();
+		session.append("local", true);
 		session.append("websocket", "ws://localhost:7373/" + address());
 		result.append("session", session);
 	} else if (name=="commit") {
