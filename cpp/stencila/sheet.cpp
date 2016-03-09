@@ -424,7 +424,12 @@ std::string Sheet::message(const std::string& message) {
 
 Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
 
-    if(name=="store"){
+    if(name=="write"){
+
+        write();
+        return "{}";
+
+    } else if(name=="store"){
 
         store();
         return "{}";
