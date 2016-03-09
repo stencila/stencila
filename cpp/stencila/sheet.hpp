@@ -202,9 +202,19 @@ class Sheet : public Component {
     Sheet& write(const std::string& path = "");
 
     /**
+     * Take a snapshot of this sheet
+     */
+    Sheet& store(void);
+
+    /** 
+     * Restore this sheet from the last available snapshot
+     */
+    Sheet& restore(void);
+
+    /**
      * Generate a web page for a sheet
      *
-     * @param  component  A pointer to a sheet
+     * @param  instance  A sheet instance
      */
     static std::string page(const Instance& instance);
 

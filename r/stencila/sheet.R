@@ -24,21 +24,12 @@ setRefClass(
     methods = list(
         initialize = function(initialiser=NULL,pointer=NULL,...){
             callSuper(pointer,...)
-            # TODO call attach spread first, so that read can work
+            # Attach a spread
+            attach(Spread())
+            # Initialise (includes read)
             if(!is.null(initialiser)){
                 call_('Sheet_initialise',.pointer,toString(initialiser))
             }
-            # Attach a spread
-            attach(Spread())
-            # TODO don't need to do this, will be done from C++
-            # Read again (done in C++ initialisation), this time
-            # skipping the base method and only reading spread
-            read(base_method=FALSE)
-        },
-
-        # TODO remove this
-        initialise = function(initialiser){
-            method_(.self,'Sheet_initialise',initialiser)
         },
 
         load = function(string,format='tsv'){
@@ -55,24 +46,18 @@ setRefClass(
             method_(.self,'Sheet_export',path)
         },
 
-        read = function(path="", base_method=TRUE){
-            if(base_method) method_(.self,'Sheet_read',path)
-
-            # TODO do this in C++ read() by calling `spread->read("sheet")`
-            rdata <- file.path(.self$path(),'sheet.RData')
-            if (file.exists(rdata)) {
-                .spread$.read(rdata)
-            }
+        read = function(path=""){
+            method_(.self,'Sheet_read',path)
         },
         write = function(path=""){
             method_(.self,'Sheet_write',path)
+        },
 
-            # TODO do this in C++ write() by calling `spread->write("sheet")`
-            if(!is.null(.spread)) {
-                .spread$.write(
-                    file.path(.self$path(),'sheet.RData')
-                )
-            }
+        store = function(){
+            method_(.self,'Sheet_store')
+        },
+        restore = function(){
+            method_(.self,'Sheet_restore')
         },
 
         page = function(path){

@@ -276,19 +276,25 @@ Spread <- function(envir, closed=FALSE) {
 
     # Read this spread from disk
     self$.read <- function(path){
-        load(
-            file = path,
-            envir = self
-        )
+        rdata = file.path(path,'context.RData')
+        if (file.exists(rdata)) {
+            load(
+                file = rdata,
+                envir = self
+            )
+        }
+        ''
     }
 
     # Write this spread to disk
     self$.write <- function(path){
+        rdata = file.path(path,'context.RData')
         save(
             list = ls(self),
-            file = path,
+            file = rdata,
             envir = self
         )
+        ''
     }
     
     self

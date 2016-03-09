@@ -72,6 +72,14 @@ public:
         return func;
     }
 
+    void read(const std::string& path) {
+        call_<std::string>(".read", path);
+    }
+
+    void write(const std::string& path) {
+        call_<std::string>(".write", path);
+    }
+
     /**
      * @}
      */

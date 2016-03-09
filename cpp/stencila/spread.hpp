@@ -96,6 +96,16 @@ public:
      */
 	virtual Function function(const std::string& name) = 0;
 
+	/**
+	 * Read this spread from file(s)
+	 */
+	virtual void read(const std::string& path) = 0;
+
+	/**
+	 * Write this spread to file(s)
+	 */
+	virtual void write(const std::string& path) = 0;
+
 };
 
 }

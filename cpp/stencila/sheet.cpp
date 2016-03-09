@@ -289,6 +289,12 @@ Sheet& Sheet::read(const std::string& directory) {
     }
     // Reset this sheet with those cells;
     reset(cells);
+
+    // If a context is attached then read that too
+    if(spread_) {
+        spread_->read(path());
+    }
+    
     return *this;
 }
 
@@ -342,6 +348,23 @@ Sheet& Sheet::write(const std::string& directory) {
         values << "\n";
     }
 
+    // If a context is attached then write that too
+    if(spread_) {
+        spread_->write(path());
+    }
+
+    return *this;
+}
+
+Sheet& Sheet::store(void) {
+    write();
+    Component::store();
+    return *this;
+}
+
+Sheet& Sheet::restore(void) {
+    Component::restore();
+    read();
     return *this;
 }
 
