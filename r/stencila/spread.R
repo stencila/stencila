@@ -234,7 +234,7 @@ Spread <- function(envir, closed=FALSE) {
             remove(list=name,envir=self)
         }
       } else {
-        remove(list=ls(self))
+        remove(list=ls(self),envir=self)
       }
       return("")
     }
