@@ -8,8 +8,8 @@ BOOST_AUTO_TEST_SUITE(component_snapshots)
 using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(store_restore){
-	Host::env_var("STENCILA_HUB_ROOT", "http://localhost:7300");
-	Host::env_var("STENCILA_HUB_TOKEN", "01awXxfNYHqcRDRJS42sG3dhZvfqsZLYr1nd5tX7T7Nm5DXFpnAz6BrqvHRZ17vd0Rr4ihw9p0iG/xk03RCA==");
+	Host::env_var("STENCILA_ORIGIN", "http://localhost:7300");
+	Host::env_var("STENCILA_TOKEN", "01awXxfNYHqcRDRJS42sG3dhZvfqsZLYr1nd5tX7T7Nm5DXFpnAz6BrqvHRZ17vd0Rr4ihw9p0iG/xk03RCA==");
 
 	Component c;
 

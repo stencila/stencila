@@ -1,39 +1,42 @@
+#include <iostream>
+
 #include <stencila/component.hpp>
 #include <stencila/hub.hpp>
 #include <stencila/helpers.hpp>
-
-#include <iostream>
 
 namespace Stencila {
 
 Component& Component::store(void) {
 	// FIXME: a temporary implementation using shell commands
 	using Helpers::execute;
-	auto tar = Host::temp_filename("tar.gz");
-	auto command = std::string("cd ") + Component::path(true) +
-		" && tar -czf " + tar + " *"
+	auto tar = Host::temp_filename("tgz");
+	auto command = std::string("cd ") + path(true) +
+		" && tar -czf " + tar + " *" +
 		" && curl -s -X POST -H 'Accept:application/json'" +
-			" -u Token:" + Host::env_var("STENCILA_HUB_TOKEN") +
+			" -u Token:" + hub.token() +
 			" -F 'file=@" + tar + "'" + 
-			" " + Host::env_var("STENCILA_HUB_ROOT") + "/" + Component::address(true) + "@snapshot > /dev/null";
+			" " + hub.origin() + "/" + address(true) + "@snapshot";
+
+	std::cout<<"Storing "<<std::flush;
 	execute(command);
+	std::cout<<std::endl;
+
 	return *this;
 }
 
 Component& Component::restore(void) {
 	// FIXME: a temporary implementation using shell commands
 	using Helpers::execute;
-	auto command = std::string("cd ") + Component::path(true) +
+	auto command = std::string("cd ") + path(true) +
 		" && curl -s -L -H 'Accept:application/json'" +
-			" -u Token:" + Host::env_var("STENCILA_HUB_TOKEN") +
-			" " + Host::env_var("STENCILA_HUB_ROOT") + "/" + Component::address(true) + "@snapshot" +
+			" -u Token:" + hub.token() +
+			" " + hub.origin() + "/" + address(true) + "@snapshot" +
 		" | tar -xz";
-	try {
-		execute(command);
-	} catch (Stencila::Exception e) {
-		// Clumsily deal with failiure of command due to no exisiting snapshot
-		// for component by just skipping exception
-	}
+
+	std::cout<<"Restoring "<<std::flush;
+	execute(command);
+	std::cout<<std::endl;
+
 	return *this;
 }
 
