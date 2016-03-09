@@ -424,7 +424,18 @@ std::string Sheet::message(const std::string& message) {
 
 Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
 
-    if (name == "cell") {
+    if(name=="store"){
+
+        store();
+        return "{}";
+
+    } else if(name=="restore"){
+
+        restore();
+        return "{}";
+
+    } else if (name == "cell") {
+
         Cell cell;
         auto id = args["id"].as<std::string>();
         if (id.length()) {
@@ -480,7 +491,7 @@ Json::Document Sheet::call(const std::string& name, const Json::Document& args) 
         }
         return result;
 
-    }  else if (name == "function") {
+    } else if (name == "function") {
 
         auto name = args["name"].as<std::string>();
         auto func = function(name);

@@ -176,11 +176,6 @@ Json::Document Component::call(const std::string& name, const Json::Document& ar
 		Json::Document session = Json::Object();
 		session.append("websocket", "ws://localhost:7373/" + address());
 		result.append("session", session);
-	} else if(name=="boot_restore"){
-		result = call("boot", args);
-		restore();
-	} else if(name=="store"){
-		store();
 	} else if (name=="commit") {
 		auto message = args[0].as<std::string>();
 		auto id = commit(message);
