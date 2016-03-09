@@ -20,8 +20,9 @@ function loadDocument() {
 
   var importer = new SheetHTMLImporter();
   var doc = importer.importDocument(html);
-  // Expose doc for debugging in the console
+  // Expose doc and engine for debugging in the console
   window.doc = doc;
+  window.engine = engine;
   return doc;
 }
 

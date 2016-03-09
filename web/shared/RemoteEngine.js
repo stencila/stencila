@@ -30,7 +30,7 @@ var RemoteEngine = function() {
   }
 
   this.active = false;
-
+  this.session = {};
   this.websocket = null;
 };
 
@@ -72,7 +72,11 @@ RemoteEngine.Prototype = function() {
   };
 
   this.save = function(cb) {
-    this._call('save', null, cb);
+    if (this.session.local) {
+      this._call('write', null, cb);
+    } else {
+      this._call('save', null, cb);
+    }
   }
 
   this.commit = function(message, cb) {
@@ -142,17 +146,16 @@ RemoteEngine.Prototype = function() {
    */
   this._activated = function(details) {
     if (details.session) {
-      var session = details.session;
-
       this.active = true;
+      this.session = details.session;
       // Open a websocket connection to be used for
       // certain remote method calls
-      if (session.websocket) {
-        this.websocket = new WebsocketConnection(session.websocket);
+      if (this.session.websocket) {
+        this.websocket = new WebsocketConnection(this.session.websocket);
       }
       // Begin pinging if not on localhost or localfile so that
       // session is kept alive
-      if(!(this.host === 'localhost' || this.host === 'localfile')) {
+      if(!this.session.local) {
         this.pingInterval = setInterval(function(){
           this.ping();
         }.bind(this), 3*60*1000);
