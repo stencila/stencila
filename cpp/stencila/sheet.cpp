@@ -415,7 +415,7 @@ std::string Sheet::request(const std::string& verb, const std::string& name, con
     return Component::request(verb, name, body, &callback);
 }
 
-std::string Sheet::message(const std::string& message) {
+Wamp::Message Sheet::message(const Wamp::Message& message) {
     std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
         return this->call(name, args);
     };

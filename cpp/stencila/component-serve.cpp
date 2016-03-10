@@ -101,17 +101,26 @@ std::string Component::request_dispatch(const std::string& address, const std::s
 	}
 }
 
-std::string Component::message_dispatch(const std::string& address, const std::string& message) {
-	Instance instance = get(address);
+std::string Component::message_dispatch(const std::string& message) {
+    Wamp::Message request(message);
+	Instance instance = get(request.procedure_address());
 	if(not instance.exists()) {
 		return "404";
 	} else {
-		auto method = Class::get(instance.type()).message_method;
-		if (method) {
-			return method(instance, message);
-		} else {
-			throw MethodUndefinedException("message", instance, __FILE__, __LINE__);
-		}
+	    Wamp::Message response;
+	    try {
+			auto method = Class::get(instance.type()).message_method;
+			if (method) {
+				response = method(instance, request);
+			} else {
+				throw MethodUndefinedException("message", instance, __FILE__, __LINE__);
+			}
+	    } catch (const std::exception& exc) {
+	        response = request.error(exc.what());
+	    } catch (...) {
+	        response = request.error("Unknown exception");
+	    }
+	    return response.dump();
 	}
 }
 
@@ -145,28 +154,22 @@ std::string Component::request(
     return response.dump();
 }
 
-std::string Component::message(const std::string& message) {
-	std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
-		return this->call(name, args);
-	};
-	return Component::message(message, &callback);
+Wamp::Message Component::message(const Wamp::Message& message) {
+	return message.result(
+        call(
+        	message.procedure_method(), 
+        	message.args()
+        )
+    );
 }
 
-std::string Component::message(const std::string& message, std::function<Json::Document(const std::string&, const Json::Document&)>* callback) {
-    Wamp::Message response;
-    Wamp::Call call(message);
-    try {
-        auto name = call.procedure();
-        auto args = call.args();
-        response = call.result(
-            (*callback)(name, args)
-        );
-    } catch (const std::exception& exc) {
-        response = call.error(exc.what());
-    } catch (...) {
-        response = call.error("Unknown exception");
-    }
-    return response.dump();
+Wamp::Message Component::message(const Wamp::Message& message, std::function<Json::Document(const std::string&, const Json::Document&)>* callback) {
+    return message.result(
+        (*callback)(
+        	message.procedure_method(), 
+        	message.args()
+        )
+    );
 }
 
 Json::Document Component::call(const std::string& name, const Json::Document& args) {

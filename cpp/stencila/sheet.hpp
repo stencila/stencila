@@ -273,7 +273,7 @@ class Sheet : public Component {
         const std::string& body
     );
 
-    std::string message(const std::string& message);
+    Wamp::Message message(const Wamp::Message& message);
 
     Json::Document call(const std::string& name, const Json::Document& args);
 

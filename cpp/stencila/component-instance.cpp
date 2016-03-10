@@ -31,27 +31,27 @@ typename Component::Instantiate Component::instantiate = nullptr;
 void Component::classes(void){
 	Class::set(Component::StencilType, {
 		"Stencil",
-		Theme::page_dispatcher<Stencil>,
-		Theme::request_dispatcher<Stencil>,
-		Theme::message_dispatcher<Stencil>
+		Theme::page_handler<Stencil>,
+		Theme::request_handler<Stencil>,
+		Theme::message_handler<Stencil>
 	});
 	Class::set(Component::ThemeType, {
 		"Theme",
-		Theme::page_dispatcher<Theme>,
-		Theme::request_dispatcher<Theme>,
-		Theme::message_dispatcher<Theme>
+		Theme::page_handler<Theme>,
+		Theme::request_handler<Theme>,
+		Theme::message_handler<Theme>
 	});
 	Class::set(Component::SheetType, {
 		"Sheet",
-		Sheet::page_dispatcher<Sheet>,
-		Sheet::request_dispatcher<Sheet>,
-		Sheet::message_dispatcher<Sheet>
+		Sheet::page_handler<Sheet>,
+		Sheet::request_handler<Sheet>,
+		Sheet::message_handler<Sheet>
 	});
 	Class::set(Component::FunctionType, {
 		"Function",
-		Function::page_dispatcher<Function>,
-		Function::request_dispatcher<Function>,
-		Function::message_dispatcher<Function>
+		Function::page_handler<Function>,
+		Function::request_handler<Function>,
+		Function::message_handler<Function>
 	});
 }
 

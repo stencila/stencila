@@ -12,6 +12,7 @@
 #include <stencila/html.hpp>
 #include <stencila/json.hpp>
 #include <stencila/string.hpp>
+#include <stencila/wamp.hpp>
 
 namespace Stencila {
 
@@ -471,10 +472,10 @@ public:
 		/**
 		 * @name message_method
 		 * 
-		 * The method for handling Websocket messages
+		 * The method for handling WAMP messages
 		 */
-		typedef std::string (*MessageMethod)(
-			const Instance& instance, const std::string& message
+		typedef Wamp::Message (*MessageMethod)(
+			const Instance& instance, const Wamp::Message& message
 		);
 		MessageMethod message_method = nullptr;
 
@@ -687,10 +688,9 @@ public:
 	 *
 	 * Gets the component and dispatches to it's `message` method
 	 *
-	 * @param  component  A pointer to a stencil
 	 * @param  message    Message text
 	 */
-	static std::string message_dispatch(const std::string& address, const std::string& message);
+	static std::string message_dispatch(const std::string& message);
 
 	/**
 	 * Exception for when a dispathced method is not defined for a class
@@ -708,14 +708,16 @@ public:
 	};
 
 	/**
-	 * Dispatcher methods. May be overidden by derived classes
+	 * Default handler methods. These handle a request made to an instance.
+	 * Usually just be casting the instance to the correct type and executing its realted
+	 * method. See default implementations below. May be overidden by derived classes
 	 */
 	
 	template<class Class>
-	static std::string page_dispatcher(const Instance& instance);
+	static std::string page_handler(const Instance& instance);
 
 	template<class Class>
-	static std::string request_dispatcher(
+	static std::string request_handler(
 		const Instance& instance,		
 		const std::string& verb,
 		const std::string& method,
@@ -723,10 +725,10 @@ public:
 	);
 
 	template<class Class>
-	static std::string message_dispatcher(const Instance& instance, const std::string& message);
+	static Wamp::Message message_handler(const Instance& instance, const Wamp::Message& message);
 
 	/**
-	 * Default implementations
+	 * Default implementation method
 	 */
 
 	std::string page(void);
@@ -738,10 +740,14 @@ public:
 		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
 	);
 
-	std::string message(const std::string& message);
+	Wamp::Message message(const Wamp::Message& message);
 
-	std::string message(
-		const std::string& message, 
+	/**
+	 * A simple method that provides derived component classes with a 
+	 * simple means of overloading this method by calling their own `call()` implementation. 
+	 */
+	Wamp::Message message(
+		const Wamp::Message& message, 
 		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
 	);
 
@@ -827,20 +833,19 @@ protected:
 template<class Type>
 Html::Document Component_page_doc(const Type& component);
 
-// Dispatching methods
 
 template<class Class>
-std::string Component::page_dispatcher(const Component::Instance& instance) {
+std::string Component::page_handler(const Component::Instance& instance) {
 	return instance.as<const Class*>()->page();
 }
 
 template<class Class>
-std::string Component::request_dispatcher(const Component::Instance& instance, const std::string& verb, const std::string& method, const std::string& body) {
+std::string Component::request_handler(const Component::Instance& instance, const std::string& verb, const std::string& method, const std::string& body) {
 	return instance.as<Class*>()->request(verb, method, body);
 }
 
 template<class Class>
-std::string Component::message_dispatcher(const Component::Instance& instance, const std::string& message) {
+Wamp::Message Component::message_handler(const Component::Instance& instance, const Wamp::Message& message) {
 	return instance.as<Class*>()->message(message);
 }
 
