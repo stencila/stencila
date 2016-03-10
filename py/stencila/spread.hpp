@@ -67,11 +67,11 @@ public:
         return Function();
     }
 
-    virtual void read(const std::string& path) {
+    void read(const std::string& path) {
         // TODO
     }
 
-    virtual void write(const std::string& path) {
+    void write(const std::string& path) {
         // TODO
     }
 

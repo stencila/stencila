@@ -84,6 +84,12 @@ class TestSpread : public Spread {
 		return Function();
 	}
 
+    void read(const std::string& path) {
+    }
+
+    void write(const std::string& path) {
+    }
+
  private:
  	std::map<std::string,std::string> variables_;
 };
