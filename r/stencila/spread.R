@@ -95,11 +95,11 @@ Spread <- function(envir, closed=FALSE) {
     # @param as_string Should the return value be a string? (set to false when used internally)
     self$.evaluate <- function(expression, prefix, as_string = TRUE){
         dir.create('out', showWarnings = FALSE)
-        filename <- file.path("out",paste0(prefix,".png"))
+
+        # Create an empty device for possible graphics produced below
+        filename <- file.path("out",paste0(prefix,"_temp.png"))
         png(filename, width=500, height=500)
         device <- dev.cur()
-        # Ensure that, whatever happens, the device gets turned off
-        #on.exit(dev.off(device))
         # Record the device state to detect any changes
         device_before <- recordPlot()
 
@@ -137,6 +137,8 @@ Spread <- function(envir, closed=FALSE) {
         device_after <- recordPlot()
         dev.off(device)
         if(file.exists(filename)){
+            # Remove any existing files with the prefix (but not the temp file)
+            file.remove(Sys.glob(file.path("out",paste0(prefix,"-*"))))
             # Get MD5 hash to uniquely identify the image in case of changes
             hash <- tools::md5sum(filename)
             # Rename the file
