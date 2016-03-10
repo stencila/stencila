@@ -58,11 +58,21 @@ public:
     }
 
     std::vector<std::string> functions(void) {
+        // TODO
         return {};
     }
 
     Function function(const std::string& name) {
+        // TODO
         return Function();
+    }
+
+    virtual void read(const std::string& path) {
+        // TODO
+    }
+
+    virtual void write(const std::string& path) {
+        // TODO
     }
 
     /**
