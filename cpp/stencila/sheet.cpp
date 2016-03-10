@@ -498,7 +498,7 @@ Json::Document Sheet::call(const std::string& name, const Json::Document& args) 
 
     } else if (name == "function") {
 
-        auto name = args["name"].as<std::string>();
+        auto name = args[0].as<std::string>();
         auto func = function(name);
         return func.json();
 
