@@ -1136,8 +1136,10 @@ std::string Sheet::Cell::display(void) const {
     if (display_.length()){
         return display_;
     } else {
-        if (type=="image_file" or type=="html" or type=="error") {
+        if (type=="image_file" or type=="html") {
             return "overlay";
+        } else if(type=="error") {
+            return "expanded";
         } else {
             return "clipped";
         }
