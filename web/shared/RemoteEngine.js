@@ -75,7 +75,7 @@ RemoteEngine.Prototype = function() {
     if (this.session.local) {
       this._call('write', [], cb);
     } else {
-      this._call('save', [], cb);
+      this._call('store', [], cb);
     }
   }
 
