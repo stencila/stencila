@@ -34,7 +34,12 @@ Component& Component::restore(void) {
 		" | tar -xz";
 
 	std::cout<<"Restoring "<<std::flush;
-	execute(command);
+	try {
+		execute(command);
+	} catch(...) {
+		// Temporarily deal with the situation where there is no snapshot
+		// by passing off this exceptions
+	}
 	std::cout<<std::endl;
 
 	return *this;
