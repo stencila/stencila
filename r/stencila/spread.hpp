@@ -4,6 +4,10 @@
 
 #include <Rcpp.h>
 
+// Undefine some macros that R defines which clash
+// with those used below
+#undef ERROR
+
 #include <stencila/spread.hpp>
 #include <stencila/string.hpp>
 
