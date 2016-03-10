@@ -45,6 +45,26 @@ WebsocketConnection.prototype.connect = function(url){
 }
 
 /**
+ * Wait until the socket is ready before doing
+ * something on it (usually a send)
+ */
+WebsocketConnection.prototype.wait = function(callback){
+    setTimeout(
+        function () {
+            if (this.socket.readyState === 1) {
+                if(callback){
+                    callback();
+                }
+                return
+            } else {
+                this.wait(this.socket, callback);
+            }
+        }.bind(this),
+        5
+    );
+}
+
+/**
  * Disconnect from remote
  */
 WebsocketConnection.prototype.disconnect = function(){
@@ -55,7 +75,9 @@ WebsocketConnection.prototype.disconnect = function(){
  * Send data to remote
  */
 WebsocketConnection.prototype.send = function(data){
-    this.socket.send(data);
+    this.wait(function(){
+        this.socket.send(data);
+    }.bind(this));
 }
 
 /**
