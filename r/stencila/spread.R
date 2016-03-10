@@ -96,7 +96,7 @@ Spread <- function(envir, closed=FALSE) {
     self$.evaluate <- function(expression, prefix, as_string = TRUE){
         dir.create('out', showWarnings = FALSE)
         filename <- file.path("out",paste0(prefix,".png"))
-        png(filename, width=800, height=800)
+        png(filename, width=500, height=500)
         device <- dev.cur()
         # Ensure that, whatever happens, the device gets turned off
         #on.exit(dev.off(device))
