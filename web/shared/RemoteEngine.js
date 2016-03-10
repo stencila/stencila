@@ -88,7 +88,7 @@ RemoteEngine.Prototype = function() {
   this._call = function(name, args, cb) {
     args = args || [];
     if(this.websocket) {
-      this.websocket.call(name, args, function(result) {
+      this.websocket.call(this.address+'@'+name, args, function(result) {
         if (cb) cb(result);
       });
     } else {

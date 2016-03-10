@@ -60,16 +60,9 @@ SheetRemoteEngine.Prototype = function() {
     Updates given cells
   */
   this.update = function(cells, cb) {
-    if(this.websocket) {
-      this.websocket.call('update',[cells],function(result) {
+    this._call('update',[cells],function(result) {
         cb(null, result);
-      });
-    } else {
-      this._request('PUT', 'update', cells, function(err, result) {
-        if (err) return cb(err);
-        cb(null, result);
-      });
-    }
+    });
   };
 
 };
