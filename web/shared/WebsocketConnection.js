@@ -57,7 +57,7 @@ WebsocketConnection.prototype.wait = function(callback){
                 }
                 return
             } else {
-                this.wait(this.socket, callback);
+                this.wait(callback);
             }
         }.bind(this),
         5
