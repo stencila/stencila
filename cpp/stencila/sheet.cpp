@@ -992,7 +992,8 @@ std::vector<std::string> Sheet::successors(const std::string& id) {
 Sheet& Sheet::clear(void) {
     cells_.clear();
     names_.clear();
-    graph_ = Graph();
+    vertices_.clear(); // COntainer pointers to graph_ vertices, so clear first!
+    graph_.clear();
     order_.clear();
     prepared_ = false;
     if (spread_) {
