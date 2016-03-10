@@ -1103,7 +1103,7 @@ ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 sync web/build s3://get.stenci.la/web/
-	$(call DELIVERY_NOTIFY,web)
+	$(call DELIVERY_NOTIFY,web,ES5)
 endif
 
 web-clean:
