@@ -73,9 +73,9 @@ RemoteEngine.Prototype = function() {
 
   this.save = function(cb) {
     if (this.session.local) {
-      this._call('write', null, cb);
+      this._call('write', [], cb);
     } else {
-      this._call('save', null, cb);
+      this._call('save', [], cb);
     }
   }
 
@@ -89,7 +89,9 @@ RemoteEngine.Prototype = function() {
     args = args || [];
     if(this.websocket) {
       this.websocket.call(this.address+'@'+name, args, function(result) {
-        if (cb) cb(result);
+        if (cb) {
+          cb(null, result);
+        }
       });
     } else {
       this._request('PUT', name, args, function(err, result) {

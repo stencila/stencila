@@ -28,7 +28,7 @@ SheetRemoteEngine.Prototype = function() {
           imported that expose more functions.
   */
   this.updateFunctionList = function() {
-    this._request('GET', 'functions', null, function(err, result) {
+    this._call('functions', [], function(err, result) {
       this._functionList = result;
     }.bind(this));
   };
@@ -48,7 +48,7 @@ SheetRemoteEngine.Prototype = function() {
     if (cachedFunction) {
       cb(null, cachedFunction);
     } else {
-      this._request('PUT', 'function', {name:name}, function(err, result) {
+      this._call('function', [name], function(err, result) {
         if (err) return cb(err);
         this._functionSpecs[name] = result;
         cb(null, result);
@@ -60,9 +60,15 @@ SheetRemoteEngine.Prototype = function() {
     Updates given cells
   */
   this.update = function(cells, cb) {
-    this._call('update',[cells],function(result) {
-        cb(null, result);
-    });
+    this._call('update', [cells], cb);
+  };
+
+  /**
+   * Override of `RemoteEngine._activated` which initialises `_functionList`
+   */
+  this._activated = function(details) {
+    this.super._activated.call(this, details);
+    this.updateFunctionList();
   };
 
 };

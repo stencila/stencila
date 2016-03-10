@@ -48,7 +48,7 @@ CommitTool.Prototype = function() {
         var controller = this.getController()
         controller.getCommand('commit').execute(
           message,
-          function(result){
+          function(err, result){
             var logger = controller.getLogger();
             logger.log('New commit created: ' + result.id);
           }
