@@ -8,7 +8,10 @@ namespace Stencila {
 namespace Wamp {
 
 /**
- * Very partial implementation of the WAMP protocol
+ * A WAMP message
+ *
+ * Currently only partially implemented focussing on the Remote Procedure Call (RPC)
+ * aspects.
  *
  * https://tools.ietf.org/html/draft-oberstet-hybi-tavendo-wamp-02
  */
@@ -48,12 +51,40 @@ class Message : public Json::Document {
         YIELD = 70
     };
 
+    static const char MESSAGE_TYPE = 0;
+
     /**
-     * Part identifiers
+     * [CALL, Request|id, Options|dict, Procedure|uri]
+     * [CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]
+     * [CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]
      */
-    enum {
-        code_ = 0
-    };
+    static const char CALL_REQUEST = 1;
+    static const char CALL_OPTIONS = 2;
+    static const char CALL_PROCEDURE = 3;
+    static const char CALL_ARGS = 4;
+    static const char CALL_KWARGS = 5;
+
+    /**
+     * [RESULT, CALL.Request|id, Details|dict]
+     * [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
+     * [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
+     */
+    static const char RESULT_REQUEST = 1;
+    static const char RESULT_DETAILS = 2;
+    static const char RESULT_ARGS_ = 3;
+    static const char RESULT_KWARGS = 4;
+        
+    /**
+     * [ERROR, CALL, CALL.Request|id, Details|dict, Error|uri]
+     * [ERROR, CALL, CALL.Request|id, Details|dict, Error|uri, Arguments|list]
+     * [ERROR, CALL, CALL.Request|id, Details|dict, Error|uri, Arguments|list, ArgumentsKw|dict]
+     */
+    static const char ERROR_TYPE = 1;
+    static const char ERROR_REQUEST = 2;
+    static const char ERROR_DETAILS = 3;
+    static const char ERROR_URI = 4;
+    static const char ERROR_ARGS = 5;
+    static const char ERROR_KWARGS = 6;
 
     /**
      * Constructors
@@ -69,31 +100,6 @@ class Message : public Json::Document {
      * Get the type of this message
      */
     Type type(void) const;
-};
-
-
-/**
- * A remote procedure call
- * 
- * [CALL, Request|id, Options|dict, Procedure|uri]
- * [CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]
- * [CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]
- */
-class Call : public Message {
- public:
-
-    Call(const std::string& source);
-
-    /**
-     * Part identifiers
-     */
-    enum {
-        request_ = 1,
-        options_ = 2,
-        procedure_ = 3,
-        args_ = 4,
-        kwargs_ = 5
-    };
 
     /**
      * Get the request id
@@ -101,34 +107,44 @@ class Call : public Message {
     int request(void) const;
 
     /**
-     * Get the procedure name
+     * Get the procedure identifier
      */
     std::string procedure(void) const;
 
     /**
-     * Get the list of arguments
+     * Split the procedure identifier into address and method parts
+     *
+     * e.g. `demo/sheets/iris@update` : {`demo/sheets/iris`,`update`}
+     */
+    std::array<std::string, 2> procedure_split(void) const;
+
+    /**
+     * Get the address part of the procedure identifier
+     */
+    std::string procedure_address(void) const;
+
+    /**
+     * Get the method part of the procedure identifier
+     */
+    std::string procedure_method(void) const;
+
+    /**
+     * Get the argument array
      */
     Json::Document args(void) const;
 
     /**
-     * Return a result
-     *
-     * The returned result includes the request id as per the specs:
-     * 
-     * [RESULT, CALL.Request|id, Details|dict]
-     * [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
-     * [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
+     * Get the keyword argument object
+     */
+    Json::Document kwargs(void) const;
+
+    /**
+     * Generate a result message
      */
     Message result(const Json::Document& result) const;
 
     /**
-     * Return an error
-     *
-     * The returned error includes the request id as per the specs:
-     * 
-     * [ERROR, CALL, CALL.Request|id, Details|dict, Error|uri]
-     * [ERROR, CALL, CALL.Request|id, Details|dict, Error|uri, Arguments|list]
-     * [ERROR, CALL, CALL.Request|id, Details|dict, Error|uri, Arguments|list, ArgumentsKw|dict]
+     * Generate a error message
      */
     Message error(const std::string& details) const;
 };
