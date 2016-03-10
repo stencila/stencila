@@ -94,9 +94,9 @@ void Server::restart_(void){
 	if(restarts_<max_restarts_) start();
 }
 
-Server::Session& Server::session_(connection_hdl hdl) {
-	auto i = sessions_.find(hdl);
-	if(i==sessions_.end()) STENCILA_THROW(Exception,"No such session");
+Server::Connection& Server::connection_(connection_hdl hdl) {
+	auto i = connections_.find(hdl);
+	if(i==connections_.end()) STENCILA_THROW(Exception,"No such connection");
 	return i->second;
 }
 
@@ -117,17 +117,12 @@ std::string Server::path_(server::connection_ptr connection){
 }
 
 void Server::open_(connection_hdl hdl) {
-	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	auto path = path_(connection);
-	std::string address;
-	if(path.back()=='/') address = path.substr(0,path.length()-1);
-	else address = path;
-	Session session = {address};
-	sessions_[hdl] = session;
+	Connection connection = {};
+	connections_[hdl] = connection;
 }
 
 void Server::close_(connection_hdl hdl) {
-	sessions_.erase(hdl);
+	connections_.erase(hdl);
 }
 
 void Server::http_(connection_hdl hdl) {
@@ -302,11 +297,10 @@ void Server::http_(connection_hdl hdl) {
 void Server::message_(connection_hdl hdl, server::message_ptr msg) {
 	std::string response;
 	try {
-		Session session = session_(hdl);
 		std::string message = msg->get_payload();
-		response = Component::message_dispatch(session.address, message);
+		response = Component::message_dispatch(message);
 	}
-	// `Component::message()` should handle most exceptions and return a WAMP
+	// `Component::message_dispatch()` should handle most exceptions and return a WAMP
 	// ERROR message. If for some reason that does not happen, the following returns
 	// a plain text error message...
 	catch(const std::exception& e){

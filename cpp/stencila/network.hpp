@@ -66,18 +66,19 @@ private:
 	unsigned int port_ = 7373;
 
 	/**
-	 * An active session. Each session is linked to a component.
-	 * This stores the component address that the session is related to.
+	 * An active websocket connection. Currently empty but could
+	 * be used to store connection information.
+	 * (A hangover from a previous approach of using one websocket connection
+	 * per component)
 	 */
-	struct Session {
-		std::string address;
+	struct Connection {
 	};
-	typedef std::map<connection_hdl,Session,std::owner_less<connection_hdl>> Sessions;
+	typedef std::map<connection_hdl,Connection,std::owner_less<connection_hdl>> Connections;
 	
 	/**
-	 * Mapping between a `connection_hdl` and a `Session`
+	 * Mapping between a `connection_hdl` and a `Connection`
 	 */
-	Sessions sessions_;
+	Connections connections_;
 
 	/**
 	 * Access log file
@@ -103,7 +104,7 @@ private:
 	/**
 	 * Get the `Session` for a given `connection_hdl`
 	 */
-	Session& session_(connection_hdl connection);
+	Connection& connection_(connection_hdl connection);
 
 	/**
 	 * Get the path requested by a connection
