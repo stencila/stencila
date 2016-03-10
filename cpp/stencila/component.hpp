@@ -179,6 +179,12 @@ public:
 	Component& write(const std::string& path="");
 
 	/**
+	 * Clean up output files by deleting the `out` directory, if any, in 
+	 * this comonent's path
+	 */
+	Component& vacuum(void);
+
+	/**
 	 * @}
 	 */
 

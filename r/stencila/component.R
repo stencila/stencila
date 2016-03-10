@@ -28,6 +28,10 @@ setRefClass(
 			get_(.self,'Component_held_get')
 		},
 
+		vacuum = function(){
+			method_(.self,'Component_vacuum')
+		},
+
 		managed = function(value){
 			get_set_(.self,'Component_managed_get','Component_managed_set',value)
 		},

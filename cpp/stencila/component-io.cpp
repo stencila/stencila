@@ -225,4 +225,15 @@ Component& Component::write(const std::string& path){
 	return *this;
 }
 
+Component& Component::vacuum(void) {
+	auto dir = path();
+	if (dir.length()) {
+		auto out = dir + "/out/";
+		if (boost::filesystem::exists(out)) {
+			boost::filesystem::remove_all(out);
+		}
+	}
+	return *this;
+}
+
 }

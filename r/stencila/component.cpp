@@ -13,6 +13,8 @@ STENCILA_R_GET(Component,address)
 
 STENCILA_R_GET(Component,held)
 
+STENCILA_R_EXEC0(Component,vacuum)
+
 STENCILA_R_GETSET(Component,managed,bool)
 
 //STENCILA_R_GET(Component,publish)
