@@ -446,34 +446,17 @@ class Sheet : public Component {
     /**
      * Set cells
      */
-    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources) {
-        std::vector<Cell> cells;
-        for (auto source : sources) {
-            Cell cell;
-            auto id = source[0];
-            if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
-            cell.id = id;
-            cell.source(source[1]);
-            cells.push_back(cell);
-        }
-        return reset(cells);
-    }
+    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources);
 
     /**
      * Get a cell from this sheet
      */
-    Cell& cell(const std::string& id) {
-        auto iter = cells_.find(id);
-        if (iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
-        else return iter->second;
-    }
+    Cell& cell(const std::string& id);
 
     /**
      * Get a cell from this sheet
      */
-    Cell& cell(unsigned int row, unsigned int col) {
-        return cell(identify(row, col));
-    }
+    Cell& cell(unsigned int row, unsigned int col);
 
     /**
      * Get a cell pointer from this sheet
@@ -481,11 +464,7 @@ class Sheet : public Component {
      * Returns a `nullptr` if the cell does not exist
      * instead of raising an error like `cell` does
      */
-    Cell* cell_pointer(const std::string& id) {
-        auto iter = cells_.find(id);
-        if (iter == cells_.end()) return nullptr;
-        else return &iter->second;
-    }
+    Cell* cell_pointer(const std::string& id);
 
     /**
      * Get a cell pointer from this sheet
@@ -493,9 +472,7 @@ class Sheet : public Component {
      * Returns a `nullptr` if the cell does not exist
      * instead of raising an error like `cell` does
      */
-    Cell* cell_pointer(unsigned int row, unsigned int col) {
-        return cell_pointer(identify(row, col));
-    }
+    Cell* cell_pointer(unsigned int row, unsigned int col);
 
     /**
      * Attach a spread to this stencil
@@ -625,9 +602,10 @@ class Sheet : public Component {
      * value has not changed then they will not be returned in the map)
      *
      * @param changes Map of cell IDs and their sources
+     * @param execute Should cell expressions be executed inthe context?
      * @return List of IDs of the cells that have changed (including updated cells and their successors)
      */
-    std::vector<Cell> update(const std::vector<Cell>& changes);
+    std::vector<Cell> update(const std::vector<Cell>& changes, bool execute = true);
 
     /**
      * Update a single cell with new source
@@ -698,11 +676,6 @@ class Sheet : public Component {
      * Clear all cells
      */
     Sheet& clear(void);
-
-    /**
-     * Reset this sheet with new cells
-     */
-    Sheet& reset(const std::vector<Cell>& cells);
 
     /**
      * Get a list of functions that are available in this sheet's context

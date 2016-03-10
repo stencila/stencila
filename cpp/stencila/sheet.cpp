@@ -288,7 +288,8 @@ Sheet& Sheet::read(const std::string& directory) {
         row++;
     }
     // Reset this sheet with those cells;
-    reset(cells);
+    clear();
+    update(cells, false);
 
     // If a context is attached then read that too
     if(spread_) {
@@ -622,6 +623,41 @@ std::array<unsigned int, 2> Sheet::extent(void) const {
     return {row,col};
 }
 
+Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
+    std::vector<Cell> cells;
+    for (auto source : sources) {
+        Cell cell;
+        auto id = source[0];
+        if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
+        cell.id = id;
+        cell.source(source[1]);
+        cells.push_back(cell);
+    }
+    clear();
+    update(cells);
+    return *this;
+}
+
+Sheet::Cell& Sheet::cell(const std::string& id) {
+    auto iter = cells_.find(id);
+    if (iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+    else return iter->second;
+}
+
+Sheet::Cell& Sheet::cell(unsigned int row, unsigned int col) {
+    return cell(identify(row, col));
+}
+
+Sheet::Cell* Sheet::cell_pointer(const std::string& id) {
+    auto iter = cells_.find(id);
+    if (iter == cells_.end()) return nullptr;
+    else return &iter->second;
+}
+
+Sheet::Cell* Sheet::cell_pointer(unsigned int row, unsigned int col) {
+    return cell_pointer(identify(row, col));
+}
+
 Sheet& Sheet::attach(std::shared_ptr<Spread> spread) {
     spread_ = spread;
     return *this;
@@ -709,7 +745,7 @@ std::array<std::string, 2> Sheet::evaluate(const std::string& expression) {
     return {type, value};
 }
 
-std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes) {
+std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, bool execute) {
     std::vector<Sheet::Cell> updates;
 
     // Change to the sheet's directory
@@ -753,7 +789,7 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes) 
 
         // If no spread, don't go any further.
         // This suffices for an initial read
-        if(not spread_) return updates;
+        if(not execute or not spread_) return updates;
 
         // Create list of cells for which dependency needs to be updated
         // If necessary update dependency graph based on all cells
@@ -992,19 +1028,13 @@ std::vector<std::string> Sheet::successors(const std::string& id) {
 Sheet& Sheet::clear(void) {
     cells_.clear();
     names_.clear();
-    vertices_.clear(); // COntainer pointers to graph_ vertices, so clear first!
+    vertices_.clear(); // Container pointers to graph_ vertices, so clear first!
     graph_.clear();
     order_.clear();
     prepared_ = false;
     if (spread_) {
         spread_->clear("");
     }
-    return *this;
-}
-
-Sheet& Sheet::reset(const std::vector<Sheet::Cell>& cells) {
-    clear();
-    update(cells);
     return *this;
 }
 
