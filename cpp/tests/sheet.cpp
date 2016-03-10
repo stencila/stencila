@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(request){
 
 	CHECK(
 		R"([[{"id":"A1","source":"= some error"}]])",
-		R"([{"display":"overlay","id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
+		R"([{"display":"expanded","id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
 	);
 
 	CHECK(
