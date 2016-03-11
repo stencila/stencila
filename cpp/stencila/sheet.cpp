@@ -1067,6 +1067,7 @@ std::string Sheet::Cell::source(void) const {
             case manual_: operat = ":"; break;
             case test_: operat = "?"; break;
             case visualization_: operat = "|"; break;
+            case cila_: operat = "_"; break;
             default: break;
         }
         if (operat.length()) source.insert(0, operat + " ");
