@@ -431,6 +431,11 @@ class Sheet : public Component {
         std::string display(void) const;
 
         /**
+         * Get the display mode specified, if any, for this cell.
+         */
+        std::string display_specified(void) const;
+
+        /**
          * Set the display mode for this cell
          *
          * @param  display New display
@@ -689,9 +694,27 @@ class Sheet : public Component {
 
  private:
     /**
+     * Custom comparison to have column first ordering and row ordering
+     * that is numeric, not string based (i.e "3" < "10")
+     */
+    struct IdComparison {
+        bool operator()(const std::string& id1, const std::string& id2) const {
+            auto in1 = Sheet::index(id1);
+            auto in2 = Sheet::index(id2);
+            // If same column, ...
+            if (in1[1] == in2[1]) {
+                // then compare row...
+                return in1[0] < in2[0];
+            }
+            // otherwise, compare column
+            return in1[1] < in2[1];
+        }
+    };
+
+    /**
      * A map of cells having content
      */
-    std::map<std::string, Cell> cells_;
+    std::map<std::string, Cell, IdComparison> cells_;
 
     /**
      * A map of cell names to cell ids

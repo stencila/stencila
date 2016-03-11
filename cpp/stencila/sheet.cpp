@@ -302,8 +302,9 @@ Sheet& Sheet::read(const std::string& directory) {
 Sheet& Sheet::write(const std::string& directory) {
     // Call base method to set component pth
     Component::write(directory);
-    // Local function for escaping output mostly as per
-    // http://dataprotocols.org/linear-tsv/
+    
+    // Local function for escaping output.
+    // Mostly as per http://dataprotocols.org/linear-tsv/
     auto escape = [](const std::string& value) {
         std::string copy = value;
         boost::replace_all(copy, "\t", "\\t");
@@ -312,41 +313,15 @@ Sheet& Sheet::write(const std::string& directory) {
         boost::replace_all(copy, "\\", "\\\\");
         return copy;
     };
-    // Write cell source, types and values files
+
+    // Write cell sources and outputs files
     auto dir = path() + "/";
     std::ofstream sources(dir + "sheet.tsv");
-    std::ofstream types(dir + "sheet-types.tsv");
-    std::ofstream values(dir + "sheet-values.tsv");
-    auto extents = extent();
-    auto rows = extents[0] + 1;
-    auto cols = extents[1] + 1;
-    for (unsigned int row = 0; row < rows; row++) {
-        std::vector<std::array<std::string, 3>> cells(cols);
-        unsigned int col_max = 0;
-        for (unsigned int col = 0; col < cols; col++) {
-            auto pointer = cell_pointer(row, col);
-            if (pointer) {
-                cells[col] = {
-                    escape(pointer->source()),
-                    escape(pointer->type),
-                    escape(pointer->value)
-                };
-                col_max = col;
-            }
-        }
-        for (unsigned int col = 0; col <= col_max; col++) {
-            sources <<  cells[col][0];
-            types <<  cells[col][1];
-            values <<  cells[col][2];
-            if (col < col_max) {
-                sources << "\t";
-                types << "\t";
-                values << "\t";
-            }
-        }
-        sources << "\n";
-        types << "\n";
-        values << "\n";
+    std::ofstream outputs(dir + "out/out.tsv");
+    for (const auto& iter : cells_) {
+        const auto& cell = iter.second;
+        sources << cell.id << "\t" << escape(cell.source()) << "\t" << cell.display_specified() << "\n";
+        outputs << cell.id << "\t" << escape(cell.type)     << "\t" << escape(cell.value) << "\n";
     }
 
     // If a context is attached then write that too
@@ -1168,13 +1143,17 @@ std::string Sheet::Cell::display(void) const {
         return display_;
     } else {
         if (type=="image_file" or type=="html") {
-            return "overlay";
+            return "ove";
         } else if(type=="error") {
-            return "expanded";
+            return "exp";
         } else {
-            return "clipped";
+            return "cli";
         }
     }
+}
+
+std::string Sheet::Cell::display_specified(void) const {
+    return display_;
 }
 
 Sheet::Cell& Sheet::Cell::display(const std::string& display) {
