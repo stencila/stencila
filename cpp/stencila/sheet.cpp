@@ -230,11 +230,11 @@ Sheet& Sheet::export_(const std::string& path) {
 }
 
 Sheet& Sheet::read(const std::string& directory) {
-    using namespace boost::filesystem;
     // Call base method to set component path
     Component::read(directory);
-    // Local function for reading a TSV mostly as per
-    // http://dataprotocols.org/linear-tsv/
+    
+    // Local function for reading a TSV.
+    // Mostly as per http://dataprotocols.org/linear-tsv/
     auto read = [](const std::string& path) {
         std::vector<std::vector<std::string>> cells;
         std::ifstream file(path);
@@ -252,41 +252,48 @@ Sheet& Sheet::read(const std::string& directory) {
         }
         return cells;
     };
+    
     // Read cell source, types and values files
     auto dir = path() + "/"; 
     auto sources = read(dir + "sheet.tsv");
-    auto types = read(dir + "sheet-types.tsv");
-    auto values = read(dir + "sheet-values.tsv");
-    // Local function for checking that types and values have a row/col
-    // and return an empty string if they don't
-    auto check = [](const std::vector<std::vector<std::string>>& cells, unsigned int row, unsigned int col) {
-        if (cells.size() > row) {
-            auto values = cells[row];
-            if (values.size() > col) {
-                return values[col];
+    auto outputs = read(dir + "out/out.tsv");
+    
+    // Local function for getting row of outputs for a cell
+    auto output = [&](const std::string& id) -> std::vector<std::string> {
+        // If outputs is different length to inputs then assume 
+        // they are invalid and return nothing
+        if (outputs.size() != sources.size()) return {};
+        // Search for id and return column if it exists
+        for(const auto& row : sources) {
+            if (row.size()) {
+                if (row[0] == id) {
+                    return row;
+                }
             }
         }
-        return std::string();
+        return {};
     };
-    // Create a bunch of new cells
+    
+    // Create a bunch of new cells from sources file, getting
+    // outputs for that cell if they are available
     std::vector<Cell> cells;
-    unsigned int row = 0;
-    for (const auto& strings : sources) {
-        unsigned int col = 0;
-        for (const auto& string : strings) {
-            // Ignore empty cells
-            if (string.length()) {
-                Cell cell;
-                cell.id = identify(row, col);
-                cell.source(string);
-                cell.type = check(types, row, col);
-                cell.value = check(values, row, col);
-                cells.push_back(cell);
-            }
-            col++;
+    for (const auto& row : sources) {
+        auto row_size = row.size();
+        if (row_size>1) {
+            auto id = row[0];
+            auto source = row[1];
+            Cell cell;
+            cell.id = id;
+            cell.source(source);
+            if (row_size>2) cell.display(row[2]);
+            auto outs = output(id);
+            auto outs_size = outs.size();
+            if (outs_size>1) cell.type = outs[1];
+            if (outs_size>2) cell.value = outs[2];
+            cells.push_back(cell);
         }
-        row++;
     }
+
     // Reset this sheet with those cells;
     clear();
     update(cells, false);
