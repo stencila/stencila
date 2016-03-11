@@ -13,7 +13,7 @@ Error.Prototype = function() {
     var node = this.props.node;
     var el = $$('div').addClass('sc-error');
     
-    el.addClass(node.displayMode);
+    el.addClass(node.getDisplayClass());
 
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));

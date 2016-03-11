@@ -20,7 +20,7 @@ Expression.Prototype = function() {
     var el = $$('div').addClass('sc-expression');
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}));
-    if (node.value !== undefined && node.displayMode !== 'clipped') {
+    if (node.value !== undefined && node.displayMode !== 'cli') {
       el.append(
         $$('pre').append(node.value)
       );

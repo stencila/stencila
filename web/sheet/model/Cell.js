@@ -63,6 +63,18 @@ Cell.Prototype = function() {
     ].indexOf(this.kind)<0;
   };
 
+  /**
+   * Get the class name related to the display mode
+   *
+   * Defaults to `sm-clipped`
+   */
+  this.getDisplayClass = function() {
+    if (this.displayMode=='exp') return 'sm-expanded';
+    if (this.displayMode=='ove') return 'sm-overlay';
+    if (this.displayMode=='cli') return 'sm-clipped';
+    return 'sm-clipped';
+  };
+
   // row and col indexes are managed by Table
 
   this.getRow = function() {
