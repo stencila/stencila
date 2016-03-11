@@ -264,7 +264,7 @@ Sheet& Sheet::read(const std::string& directory) {
         // they are invalid and return nothing
         if (outputs.size() != sources.size()) return {};
         // Search for id and return column if it exists
-        for(const auto& row : sources) {
+        for(const auto& row : outputs) {
             if (row.size()) {
                 if (row[0] == id) {
                     return row;
@@ -300,7 +300,7 @@ Sheet& Sheet::read(const std::string& directory) {
 
     // If a context is attached then read that too
     if(spread_) {
-        spread_->read(path());
+        spread_->read(path()+"/out/");
     }
     
     return *this;
@@ -333,7 +333,7 @@ Sheet& Sheet::write(const std::string& directory) {
 
     // If a context is attached then write that too
     if(spread_) {
-        spread_->write(path());
+        spread_->write(path()+"/out/");
     }
 
     return *this;
