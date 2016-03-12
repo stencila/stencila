@@ -45,6 +45,9 @@ setRefClass(
         export = function(path){
             method_(.self,'Sheet_export',path)
         },
+        graphviz = function(path){
+            method_(.self,'Sheet_graphviz',path)
+        },
 
         read = function(path=""){
             method_(.self,'Sheet_read',path)

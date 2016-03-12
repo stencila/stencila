@@ -21,6 +21,8 @@ STENCILA_R_FUNC Sheet_export(SEXP self,SEXP path){
     STENCILA_R_END
 }
 
+STENCILA_R_EXEC1(Sheet,graphviz,std::string)
+
 STENCILA_R_EXEC1(Sheet,read,std::string)
 STENCILA_R_EXEC1(Sheet,write,std::string)
 
