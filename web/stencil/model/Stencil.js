@@ -16,13 +16,19 @@ defaultSchema.getDefaultTextType = function() {
 };
 
 defaultSchema.addNodes([
-  // General nodes
-  require('substance/packages/paragraph/Paragraph'),
-  require('substance/packages/heading/Heading'),
+  // Substance nodes, in alphabetical order, from `substance/packages`
+  require('substance/packages/blockquote/Blockquote'),
+  require('substance/packages/code/Code'),
+  require('substance/packages/codeblock/Codeblock'),
   require('substance/packages/emphasis/Emphasis'),
-  require('substance/packages/strong/Strong'),
+  require('substance/packages/heading/Heading'),
+  require('substance/packages/image/Image'),
   require('substance/packages/link/Link'),
-  //require('substance/packages/list/List'),
+  require('substance/packages/list/List'),
+  require('substance/packages/paragraph/Paragraph'),
+  require('substance/packages/strong/Strong'),
+  require('substance/packages/subscript/Subscript'),
+  require('substance/packages/superscript/Superscript'),
   require('substance/packages/table/Table'),
   require('substance/packages/table/TableSection'),
   require('substance/packages/table/TableRow'),

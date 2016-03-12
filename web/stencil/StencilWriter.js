@@ -16,10 +16,20 @@ var CONFIG = {
       require('./packages/writer/RenderCommand'),
     ],
     components: {
-      'paragraph': require('substance/packages/paragraph/ParagraphComponent'),
+      // Substance components, in alphabetical order, from `substance/packages` 
+      // Note that not all Substance packages have components so they are not all listed here
+      'blockquote': require('substance/packages/blockquote/BlockquoteComponent'),
+      'codeblock': require('substance/packages/codeblock/CodeblockComponent'),
       'heading': require('substance/packages/heading/HeadingComponent'),
-      'link': require('./packages/link/LinkComponent'),
+      'image': require('substance/packages/image/ImageComponent'),
+      'link': require('substance/packages/link/LinkComponent'),
+      // These imports currently fail
+      //'list': require('substance/packages/list/ListComponent'),
+      //'list-item': require('substance/packages/list/ListItemComponent'),
+      'paragraph': require('substance/packages/paragraph/ParagraphComponent'),
+      'table': require('substance/packages/table/TableComponent'),
 
+      // Stencil components
       'stencil-title': require('./packages/title/StencilTitleComponent'),
       'stencil-summary': require('./packages/summary/StencilSummaryComponent'),
 
@@ -41,21 +51,25 @@ var CONFIG = {
   },
   body: {
     commands: [
-      // Special commands
       require('substance/packages/embed/EmbedCommand'),
       require('substance/packages/text/SwitchTextTypeCommand'),
       require('substance/packages/strong/StrongCommand'),
       require('substance/packages/emphasis/EmphasisCommand'),
       require('substance/packages/link/LinkCommand'),
-      require('./packages/table/InsertTableCommand'),
+      require('substance/packages/subscript/SubscriptCommand'),
+      require('substance/packages/superscript/SuperscriptCommand'),
+      require('substance/packages/code/CodeCommand'),
     ],
     textTypes: [
       {name: 'paragraph', data: {type: 'paragraph'}},
-      {name: 'title', data: {type: 'stencil-title'}},
-      {name: 'summary', data: {type: 'stencil-summary'}},
       {name: 'heading1',  data: {type: 'heading', level: 1}},
       {name: 'heading2',  data: {type: 'heading', level: 2}},
-      {name: 'heading3',  data: {type: 'heading', level: 3}}
+      {name: 'heading3',  data: {type: 'heading', level: 3}},
+      {name: 'codeblock', data: {type: 'codeblock'}},
+      {name: 'blockquote', data: {type: 'blockquote'}},
+
+      {name: 'title', data: {type: 'stencil-title'}},
+      {name: 'summary', data: {type: 'stencil-summary'}},
     ]
   },
   panels: {

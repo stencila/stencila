@@ -1,9 +1,16 @@
 module.exports = [
-  require('substance/packages/paragraph/ParagraphHTMLConverter'),
-  require('substance/packages/heading/HeadingHTMLConverter'),
-  require('substance/packages/strong/StrongHTMLConverter'),
+  // Substance converters, in alphabetical order, from `substance/packages`
+  require('substance/packages/blockquote/BlockquoteHTMLConverter'),
+  require('substance/packages/code/CodeHTMLConverter'),
+  require('substance/packages/codeblock/CodeblockHTMLConverter'),
   require('substance/packages/emphasis/EmphasisHTMLConverter'),
+  require('substance/packages/heading/HeadingHTMLConverter'),
+  require('substance/packages/image/ImageHTMLConverter'),
   require('substance/packages/link/LinkHTMLConverter'),
+  require('substance/packages/paragraph/ParagraphHTMLConverter'),
+  require('substance/packages/strong/StrongHTMLConverter'),
+  require('substance/packages/subscript/SubscriptHTMLConverter'),
+  require('substance/packages/superscript/SuperscriptHTMLConverter'),
   require('substance/packages/table/TableHTMLConverter'),
 
   // Stencil-specific converters
