@@ -76,7 +76,7 @@ Stencil.Prototype = function() {
   };
 
   this.getCila = function(cb) {
-    window.__backend.cilaGet(this,function(error, result){
+    window._engine.cilaGet(this,function(error, result){
       cb(result);
     });
   };

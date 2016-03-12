@@ -11,18 +11,16 @@ require('jquery.hotkeys');
 var StencilWriter = require('./StencilWriter');
 var StencilReader = require('./StencilReader');
 var StencilViewer = require('./StencilViewer');
-var Backend = require("./stencil-backend");
+
+var StencilRemoteEngine = require('./engine/StencilRemoteEngine');
+var engine = new StencilRemoteEngine();
+
 var StencilHTMLImporter = require('./model/StencilHTMLImporter');
 var importer = new StencilHTMLImporter();
 
 function App() {
   Component.apply(this, arguments);
-  this.backend = new Backend();
-  // HACK
-  // Over in Stencil.getCila() I wanted access to the backend
-  // but didn't know how to get it form there. This is my temporary
-  // hack to get it. Feels to me like `Backend` should be merged into `Stencil`
-  window.__backend = this.backend;
+  this.engine = engine;
 }
 
 App.Prototype = function() {
@@ -85,10 +83,10 @@ App.Prototype = function() {
             cb(null, fileUrl);
           },
           onSave: function(doc, changes, cb) {
-            _this.backend.saveDocument(doc, cb);
+            _this.engine.save(doc, cb);
           },
           onRender: function(doc, cb) {
-            _this.backend.renderDocument(doc, cb);
+            _this.engine.render(doc, cb);
           }
         }).ref('writer');
       } else if (this.state.mode ==='read') {
@@ -114,7 +112,7 @@ function AppLaunch(){
   var html = content.html() || '';
   content.remove();
   Component.mount(App, {"html":html}, $('body'));
-  window.__backend.boot();
+  engine.boot();
 }
 
 // Stencila global object is used to indicate that this script
