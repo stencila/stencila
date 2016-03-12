@@ -101,6 +101,18 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 		response.append("format","html");
 		response.append("content",html());
 	}
+	else if(signature=="PUT boot"){
+		response = Component::call("boot","{}");
+	}
+	else if(signature=="PUT write"){
+		write();
+	}
+	else if(signature=="PUT store"){
+		store();
+	}
+	else if(signature=="PUT restore"){
+		restore();
+	}
 	else {
 		throw RequestInvalidException();
 	}
