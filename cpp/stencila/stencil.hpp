@@ -102,6 +102,16 @@ public:
 	 */
 	Stencil& write(const std::string& path="");
 
+    /**
+     * Take a snapshot of this stencil
+     */
+    Stencil& store(void);
+
+    /** 
+     * Restore this stencil from the last available snapshot
+     */
+    Stencil& restore(void);
+
 	/**
 	 * @}
 	 */

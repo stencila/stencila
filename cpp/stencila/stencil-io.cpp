@@ -124,4 +124,16 @@ Stencil& Stencil::write(const std::string& directory){
 	return *this;
 }
 
+Stencil& Stencil::store(void) {
+    write();
+    Component::store();
+    return *this;
+}
+
+Stencil& Stencil::restore(void) {
+    Component::restore();
+    read();
+    return *this;
+}
+
 }
