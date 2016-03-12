@@ -380,22 +380,22 @@ BOOST_AUTO_TEST_CASE(request){
 	
 	CHECK(
 		R"([[{"id":"A1","source":"2"}]])",
-		R"([{"display":"clipped","id":"A1","kind":"num","type":"string","value":"2"}])"
+		R"([{"display":"cli","id":"A1","kind":"num","type":"string","value":"2"}])"
 	);
 
 	CHECK(
 		R"([[{"id":"A1","source":"'string'"}]])",
-		R"([{"display":"clipped","id":"A1","kind":"str","type":"string","value":"'string'"}])"
+		R"([{"display":"cli","id":"A1","kind":"str","type":"string","value":"'string'"}])"
 	);
 
 	CHECK(
 		R"([[{"id":"A1","source":"= some error"}]])",
-		R"([{"display":"expanded","id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
+		R"([{"display":"exp","id":"A1","kind":"exp","type":"error","value":"There was an error!"}])"
 	);
 
 	CHECK(
 		R"([[{"id":"A1","source":": matrix"}]])",
-		R"([{"display":"clipped","id":"A1","kind":"map","type":"string","value":"matrix"}])"
+		R"([{"display":"cli","id":"A1","kind":"map","type":"string","value":"matrix"}])"
 	);
 
 	#undef CHECK
