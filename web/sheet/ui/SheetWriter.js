@@ -11,10 +11,7 @@ var Icon = require('substance/ui/FontAwesomeIcon');
 
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
-var StrongTool = require('substance/packages/strong/StrongTool');
-var CodeTool = require('substance/packages/code/CodeTool');
-var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
-var LinkTool = require('substance/packages/link/LinkTool');
+var DisplayModeTool = require('./tools/DisplayModeTool');
 
 var SaveTool = require('./tools/SaveTool');
 var CommitTool = require('./tools/CommitTool');
@@ -80,6 +77,31 @@ SheetWriter.Prototype = function() {
     return el;
   };
 
+  /*
+    Called when the table selection is changed so we can
+    update the display mode tool accordingly.
+  */
+  this._onSelectionChanged = function(sel) {
+    var displayModeTool = this.refs.displayModeTool;
+    var doc = this.props.doc;
+    var cell;
+    if (sel.isCollapsed) {
+      cell = doc.getCellAt(sel.startRow, sel.startCol);
+    }
+    if (cell) {
+      displayModeTool.setState({
+        disabled: false,
+        cell: cell
+      });
+      return;
+    } else {
+      displayModeTool.setState({
+        disabled: true,
+        cell: null
+      });
+    }
+  };
+
   this._renderMainSection = function() {
     return $$('div').ref('main').addClass('se-main-section').append(
       $$(SplitPane, {splitType: 'horizontal'}).append(
@@ -90,13 +112,10 @@ SheetWriter.Prototype = function() {
             $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'})),
             $$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
             $$(CommitTool)
-          )/* Not used ATM ,
+          ),
           $$(Toolbar.Group).addClass('float-right').append(
-            $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
-            $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
-            $$(LinkTool).append($$(Icon, {icon: 'fa-link'})),
-            $$(CodeTool).append($$(Icon, {icon: 'fa-code'}))
-          )*/
+            $$(DisplayModeTool).ref('displayModeTool')
+          )
         ),
         // Content Panel below
         $$(ScrollPane, {
@@ -105,7 +124,8 @@ SheetWriter.Prototype = function() {
           $$('div').ref('main').addClass('document-content').append(
             $$(SheetEditor, {
               mode: this.props.mode,
-              doc: this.props.doc
+              doc: this.props.doc,
+              onSelectionChanged: this._onSelectionChanged.bind(this)
             }).ref('sheetEditor')
           )
         )

@@ -1,3 +1,5 @@
 .sc-toolbar {
-  overflow: hidden;
+  // We need to deactivate this otherwise the DisplayModeTool will not show the
+  // dropdown.
+  // overflow: hidden;
 }

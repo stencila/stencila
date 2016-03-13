@@ -140,7 +140,9 @@ SheetEditor.Prototype = function() {
       this.removeClass('sm-edit');
     }
     this.selection = new TableSelection(sel);
-
+    if (this.props.onSelectionChanged) {
+      this.props.onSelectionChanged(this.selection);
+    }
     this._rerenderSelection();
   };
 
@@ -341,6 +343,12 @@ SheetEditor.Prototype = function() {
     if (cells.length > 0) {
       this.send('updateCells', cells);
     }
+
+    // We update the selection on each document change
+    // E.g. this solves the situation where we update the display
+    // mode using the DisplayMode tool where no selection update
+    // is triggered.
+    this._rerenderSelection();  
   };
 
   // private API
@@ -452,6 +460,12 @@ SheetEditor.Prototype = function() {
     if (cellComp) {
       cellComp.toggleDisplayMode();
       cellComp.rerender();
+    }
+
+    // HACK: we need to emit an onSelectionChanged event so
+    // the DisplayModeTool reflects the updated displayMode
+    if (this.props.onSelectionChanged) {
+      this.props.onSelectionChanged(sel);
     }
     this._rerenderSelection();
   };
