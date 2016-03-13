@@ -1043,10 +1043,23 @@ class SheetGraphvizPropertyWriter {
     const Sheet* sheet_;
 };
 
-void Sheet::graphviz(const std::string& path, bool image) const {
-    std::ofstream file(path);
-    boost::write_graphviz(file, graph_, SheetGraphvizPropertyWriter(this));
-    if(image) Helpers::execute("dot -Tpng "+path+" -o "+path+".png");
+void Sheet::graphviz(const std::string& filepath, bool image) const {
+    std::string dot_filepath = filepath;
+    if (not dot_filepath.length()) {
+        auto p = path(true);
+        boost::filesystem::create_directories(p + "/out");
+        dot_filepath = p + "/out/graph.dot";
+    }
+    std::ofstream dot_file(dot_filepath);
+    boost::write_graphviz(dot_file, graph_, SheetGraphvizPropertyWriter(this));
+    if(image) {
+        boost::filesystem::path dot_filepath_p(dot_filepath);
+        std::string png_filepath = (
+            dot_filepath_p.parent_path() / 
+            dot_filepath_p.stem()
+        ).string() + ".png";
+        Helpers::execute("dot -Tpng "+dot_filepath+" -o "+png_filepath);
+    }
 }
 
 std::vector<std::string> Sheet::predecessors(const std::string& id) {

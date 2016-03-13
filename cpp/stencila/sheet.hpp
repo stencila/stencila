@@ -658,10 +658,10 @@ class Sheet : public Component {
     /**
      * Generate a Graphviz `dot` file of the dependency graph for this sheet
      *
-     * @param path  File system path for the `.dot` file
-     * @param image Should the `dot` program be called to prdocue a PNG?
+     * @param path  File system path for the `.dot` file. Defaults to `out/graph.dot`
+     * @param image Should the `dot` program be called to produce a PNG?
      */
-    void graphviz(const std::string& path, bool image = true) const;
+    void graphviz(const std::string& path = "", bool image = true) const;
 
     /**
      * Get all predecessor cells for a cell
