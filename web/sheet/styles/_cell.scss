@@ -33,10 +33,11 @@ $cell-width: 8em;
     opacity: 0.98;
     position: absolute;
     z-index: 2;
-    box-shadow: 1px 1px 10px 1px rgba(0,0,0,0.5);
+    white-space: nowrap;
+    box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.5);
   }
 
-  &.edit {
+  &.sm-edit {
     position: relative;
     text-align: left;
     // deactivate native selections
@@ -44,12 +45,16 @@ $cell-width: 8em;
        -moz-user-select: default;
         -ms-user-select: default;
 
-    &.expression .sc-text-property {
+    > div {
+      border: 2px solid #4285f4;
+      // to cover the cell border
+      top: -1px;
+      left: -1px;
       position: absolute;
-      top: 0px;
-      bottom: 0px;
-      white-space: nowrap !important;
+      width: 600px;
+      z-index: 3;
     }
+
 
   }
 

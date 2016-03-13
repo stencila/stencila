@@ -53,13 +53,11 @@ Sheet.Prototype = function() {
 
   this.getRowCount = function() {
     if (!this._matrix) this._computeMatrix();
-
     return this._nrows;
   };
 
   this.getColumnCount = function() {
     if (!this._matrix) this._computeMatrix();
-
     return this._ncols;
   };
 

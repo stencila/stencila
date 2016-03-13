@@ -5,6 +5,10 @@ var $$ = Component.$$;
 var FunctionComponent = require('./FunctionComponent');
 var SelectFunction = require('./SelectFunction');
 
+function regexpEscape(s) {
+  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 /*
   The CellEditor is different to a regular TextPropertyEditor
   in the regard that it doesn't update the document during editing,
@@ -107,7 +111,7 @@ CellEditor.Prototype = function() {
   */
   this._matchFunctionNames = function(str) {
     if (!str) return []; // don't match anything for an empty string
-    var _matcher = new RegExp('\^'+str, 'g');
+    var _matcher = new RegExp('\^'+regexpEscape(str), 'g');
 
     var matches = [];
     var funcs = this._getAvailableFunctions();
@@ -127,7 +131,7 @@ CellEditor.Prototype = function() {
 
   this._detectFunction = function() {
     var _availableFuncs = this._getAvailableFunctions();
-    var _function_re_str = '\\b(' + _availableFuncs.join('|') + ')[(]';
+    var _function_re_str = '\\b(' + regexpEscape(_availableFuncs.join('|')) + ')[(]';
 
     setTimeout(function() {
       var el = this._getTextArea();
