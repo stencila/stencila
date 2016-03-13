@@ -986,11 +986,66 @@ std::vector<std::string> Sheet::order(void) const {
     return order_;
 }
 
+
+class SheetGraphvizPropertyWriter {
+ public:
+    SheetGraphvizPropertyWriter(const Sheet* sheet):
+        sheet_(sheet) {}
+
+    template <class VertexOrEdge>
+    void operator()(std::ostream& out, const VertexOrEdge& v) const {
+        auto id = boost::get(boost::vertex_name, sheet_->graph_)[v];
+        const auto& cell = sheet_->cells_.at(id);
+
+        out << "[";
+
+        std::string label = id;
+        if (cell.name.length()) label = cell.name + " (" + id + ")";
+        else label = id;
+        out << "label=\"" << label << "\"";
+
+        std::string shape = "box";
+        if (cell.kind >= 10) {
+            shape = "circle"; 
+        }
+        out << ", shape=\"" << shape << "\"";
+
+        std::string fillcolor = "whitesmoke";
+        if (cell.kind == Sheet::Cell::expression_) {
+            fillcolor = "aliceblue"; 
+        }
+        else if (cell.kind == Sheet::Cell::mapping_) {
+            fillcolor = "gold"; 
+        }
+        else if (cell.kind == Sheet::Cell::requirement_) {
+            fillcolor = "pink"; 
+        }
+        else if (cell.kind == Sheet::Cell::manual_) {
+            fillcolor = "red"; 
+        }
+        else if (cell.kind == Sheet::Cell::test_) {
+            fillcolor = "orange"; 
+        }
+        else if (cell.kind == Sheet::Cell::visualization_) {
+            fillcolor = "palevioletred"; 
+        }
+        else if (cell.kind == Sheet::Cell::cila_) {
+            fillcolor = "yellowgreen"; 
+        }
+        else if (cell.kind >= 10) {
+            fillcolor = "gray"; 
+        }
+        out << ", style=\"filled\", fillcolor=\"" << fillcolor << "\"";
+
+        out << "]";
+    }
+ private:
+    const Sheet* sheet_;
+};
+
 void Sheet::graphviz(const std::string& path, bool image) const {
     std::ofstream file(path);
-    boost::write_graphviz(file, graph_,
-        boost::make_label_writer(boost::get(boost::vertex_name, graph_))
-    );
+    boost::write_graphviz(file, graph_, SheetGraphvizPropertyWriter(this));
     if(image) Helpers::execute("dot -Tpng "+path+" -o "+path+".png");
 }
 

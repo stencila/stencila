@@ -769,6 +769,8 @@ class Sheet : public Component {
      */
     std::shared_ptr<Spread> spread_ = nullptr;
 
+
+    friend class SheetGraphvizPropertyWriter;
 };
 
 }  // namespace Stencila
