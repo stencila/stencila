@@ -49,12 +49,7 @@ function renderInteractiveVersion(doc, mode) {
   Component.mount(SheetWriter, {
     mode: mode,
     doc: doc,
-    engine: engine,
-    onSave: function(doc, changes, cb) {
-      var exporter = new SheetHTMLExporter();
-      var html = exporter.exportDocument(doc);
-      engine.save(html);
-    }
+    engine: engine
   }, document.body);
 }
 
