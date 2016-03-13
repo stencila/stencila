@@ -155,7 +155,7 @@ class Sheet : public Component {
      * Dump this sheet as script in host language
      * @param  stream Output stream
      */
-    Sheet& dump_script(std::ostream& stream, std::string assign = " = ", std::string termimate = "\n");
+    Sheet& dump_script(std::ostream& stream, const std::vector<std::string>& symbols);
 
     /**
      * Dump this sheet to an output stream
