@@ -20,11 +20,16 @@ var RenderTool = require('./RenderTool');
 
 var InsertTableTool = require('../table/InsertTableTool');
 
-var WriterTools = Component.extend({
-  render: function() {
+function WriterTools() {
+  WriterTools.super.apply(this, arguments);
+}
+WriterTools.Prototype = function() {
+  this.render = function() {
     return $$('div').append(
       $$(Toolbar.Group).append(
-        $$(HomeTool)
+        $$(HomeTool, {
+          address: this.props.engine.address
+        })
       ),
       $$(Toolbar.Group).addClass('float-right').append(
         $$(SwitchTextTypeTool)
@@ -47,6 +52,6 @@ var WriterTools = Component.extend({
       )
     );
   }
-});
-
+};
+Component.extend(WriterTools);
 module.exports = WriterTools;

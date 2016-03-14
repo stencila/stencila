@@ -98,7 +98,9 @@ StencilWriter.Prototype = function() {
 
   this._renderToolbar = function() {
     return _super._renderToolbar.call(this).append(
-      $$(WriterTools)
+      $$(WriterTools,{
+        engine: this.props.engine
+      })
     );
   };
 

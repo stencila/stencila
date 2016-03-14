@@ -77,6 +77,7 @@ App.Prototype = function() {
       if (this.state.mode === 'write') {
         lensEl = $$(StencilWriter, {
           doc: this.state.doc,
+          engine: engine,
           onUploadFile: function(file, cb) {
             console.log('custom file upload handler in action...');
             var fileUrl = window.URL.createObjectURL(file);
