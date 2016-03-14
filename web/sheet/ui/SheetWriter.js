@@ -109,9 +109,10 @@ SheetWriter.Prototype = function() {
         $$(Toolbar).ref('toolbar').append(
           $$(Toolbar.Group).append(
             $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
-            $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'})),
-            $$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
-            $$(CommitTool)
+            $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'}))
+            // Removed for now, see #132
+            //$$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
+            //$$(CommitTool)
           ),
           $$(Toolbar.Group).addClass('float-right').append(
             $$(DisplayModeTool).ref('displayModeTool')
