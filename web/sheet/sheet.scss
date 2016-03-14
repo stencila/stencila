@@ -39,10 +39,11 @@ $default-cell-padding: 1px 3px;
 @import './styles/_cell-teaser';
 
 @import './styles/_toolbar';
-@import './styles/_home-tool';
 @import './styles/_save-tool';
 @import './styles/_display-mode-tool';
 @import './styles/_commit-tool';
+
+@import '../shared/tools/home/_home-tool';
 
 @import './styles/_sheet-editor';
 

@@ -21,7 +21,7 @@ HomeTool.Prototype = function() {
                 ),
             $$('span')
                 .addClass('se-address')
-                .text(this.props.address)
+                .text(this.props.address || '')
         )
     return el;
   };

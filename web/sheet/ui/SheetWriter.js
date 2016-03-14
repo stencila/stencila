@@ -12,7 +12,7 @@ var Icon = require('substance/ui/FontAwesomeIcon');
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
 
-var HomeTool = require('./tools/HomeTool');
+var HomeTool = require('../../shared/tools/home/HomeTool');
 var SaveTool = require('./tools/SaveTool');
 var CommitTool = require('./tools/CommitTool');
 var DisplayModeTool = require('./tools/DisplayModeTool');

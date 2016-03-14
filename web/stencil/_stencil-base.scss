@@ -30,6 +30,8 @@ $error-node-color: hsl(0, 95%, 40%);
 @import './packages/writer/_edit-source-panel.scss';
 @import './packages/writer/_cila-panel.scss';
 
+@import '../shared/tools/home/_home-tool.scss';
+
 %lens {
 
   position: absolute;

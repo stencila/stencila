@@ -14,6 +14,7 @@ var StrongTool = require('substance/packages/strong/StrongTool');
 var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var LinkTool = require('substance/packages/link/LinkTool');
 
+var HomeTool = require('../../../shared/tools/home/HomeTool');
 var ActivateTool = require('./ActivateTool');
 var RenderTool = require('./RenderTool');
 
@@ -23,13 +24,16 @@ var WriterTools = Component.extend({
   render: function() {
     return $$('div').append(
       $$(Toolbar.Group).append(
+        $$(HomeTool)
+      ),
+      $$(Toolbar.Group).addClass('float-right').append(
         $$(SwitchTextTypeTool)
       ),
-      $$(Toolbar.Group).append(
+      $$(Toolbar.Group).addClass('float-right').append(
         $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
         $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'}))
       ),
-      $$(Toolbar.Group).append(
+      $$(Toolbar.Group).addClass('float-right').append(
         $$(RenderTool).append($$(Icon, {icon: 'fa-refresh'})),
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'}))
       ),
