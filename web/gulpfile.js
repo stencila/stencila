@@ -103,6 +103,12 @@ function scripts(watch) {
   });
 }
 
+function images(watch) {
+  gutil.log('Copying images');
+  gulp.src('./images/**/*.{png,svg}')
+      .pipe(gulp.dest('./build/images'));
+}
+
 // Gulp tasks for the above
 
 gulp.task('styles', function() {
@@ -113,9 +119,14 @@ gulp.task('scripts', function() {
   return scripts();
 });
 
+gulp.task('images', function() {
+  return images();
+});
+
 gulp.task('build', function() {
   styles();
   scripts();
+  images();
 });
 
 gulp.task('watch', function() {
