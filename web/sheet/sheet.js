@@ -29,7 +29,8 @@ function renderStatic(doc) {
   var ghostEl = document.createElement('div');
   Component.mount(SheetWriter, {
     mode: 'read',
-    doc: doc
+    doc: doc,
+    engine: engine
   }, ghostEl);
   document.body.innerHTML = ghostEl.innerHTML;
 }

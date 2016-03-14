@@ -11,10 +11,11 @@ var Icon = require('substance/ui/FontAwesomeIcon');
 
 var UndoTool = require('substance/ui/UndoTool');
 var RedoTool = require('substance/ui/RedoTool');
-var DisplayModeTool = require('./tools/DisplayModeTool');
 
+var HomeTool = require('./tools/HomeTool');
 var SaveTool = require('./tools/SaveTool');
 var CommitTool = require('./tools/CommitTool');
+var DisplayModeTool = require('./tools/DisplayModeTool');
 
 var SheetEditor = require('./SheetEditor');
 var Sheet = require('../model/Sheet');
@@ -53,8 +54,7 @@ var CONFIG = {
     ],
     textTypes: [
     ]
-  },
-  isEditable: true
+  }
 };
 
 function SheetWriter(parent, params) {
@@ -108,13 +108,16 @@ SheetWriter.Prototype = function() {
         // Menu Pane on top
         $$(Toolbar).ref('toolbar').append(
           $$(Toolbar.Group).append(
+            $$(HomeTool, {
+              address: this.props.engine.address
+            }).ref('homeTool')
+          ),
+          $$(Toolbar.Group).addClass('float-right').append(
             $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
-            $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'}))
+            $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'})),
             // Removed for now, see #132
             //$$(SaveTool).append($$(Icon, {icon: 'fa-save'})),
             //$$(CommitTool)
-          ),
-          $$(Toolbar.Group).addClass('float-right').append(
             $$(DisplayModeTool).ref('displayModeTool')
           )
         ),
@@ -167,7 +170,6 @@ SheetWriter.Prototype = function() {
         cell.valueType = update.type;
         cell.value = update.value;
         cell.displayMode = update.display;
-        console.log('updated cell', cell);
         cell.emit('cell:changed');
       }
     }

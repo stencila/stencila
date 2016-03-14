@@ -91,6 +91,9 @@ app.get('/get/web/:name.min.css.map', function(req, res) {
   });
 });
 
+// Images
+app.use('/get/web/images', express.static(path.join(__dirname, 'images')));
+
 // Everything else at `/get/web` falls back to the `build` directory (e.g. fonts, MathJax)
 // So, you'll need to do a build first
 app.use('/get/web', express.static(path.join(__dirname, 'build')));

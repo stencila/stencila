@@ -75,7 +75,7 @@ DisplayModeTool.Prototype = function() {
     var toggleButton = $$('button')
       .on('click', this._toggleOptions)
       .append(
-        $$('span').addClass('se-label').append('Cell Mode: '),
+        //$$('span').addClass('se-label').append('Cell Mode: '),
         $$('span')
           .addClass('se-name')
           .append(this._getMode()),

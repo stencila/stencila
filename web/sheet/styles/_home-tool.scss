@@ -1,0 +1,16 @@
+.se-home-tool {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  img {
+  	height: 28px;
+  	width: 28px;
+  }
+  .se-address {
+  	margin-left: 0.5em;
+    font-size: 1.1em;
+    line-height: 1.1em;
+    font-weight: bold;
+    color: #555;
+  }
+}
