@@ -5,7 +5,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/graph/reverse_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
 #include <boost/regex.hpp>
 
@@ -1084,6 +1086,79 @@ std::vector<std::string> Sheet::successors(const std::string& id) {
     if (iter == order_.end()) return {};
     if (iter == order_.end()-1) return {};
     return std::vector<std::string>(iter+1, order_.end());
+}
+
+template<class Predecessors>
+class test_bfs_visitor : public boost::default_bfs_visitor {
+  public:
+    Predecessors& predecessors;
+
+    test_bfs_visitor(Predecessors& predecessors_):
+        predecessors(predecessors_){}
+
+    template <typename Vertex, typename Graph>
+    void discover_vertex(const Vertex& v, Graph& g) {
+      predecessors.push_back(v);
+    }
+};
+
+Json::Document Sheet::test(void) const {
+    // Reverse graph for predecessor analysis
+    auto reversed_graph = boost::make_reverse_graph(graph_);
+
+    Json::Document results;
+    int cells = 0;
+    int expressions = 0;
+    int tests = 0;
+    int passes = 0;
+    int fails = 0;
+    int errors = 0;
+    int covered = 0;
+    for(const auto& iter : cells_) {
+        const auto& id = iter.first;
+        const auto& cell = iter.second;
+        cells++;
+        if (cell.kind == Cell::test_) {
+            tests++;
+            if (cell.value == "true") {
+                passes++;
+            }
+            else if (cell.value == "false") {
+                fails++;
+            }
+            else if (cell.type == "error") {
+                errors++;
+            }
+
+            // Count test predecessors that are expressions
+            std::vector<Vertex> predecessors;
+            test_bfs_visitor<decltype(predecessors)> visitor(predecessors);
+            boost::breadth_first_search(
+                reversed_graph,
+                vertices_.at(id),
+                boost::visitor(visitor)
+            );
+            for(const auto& predecessor_vertex : predecessors) {
+                auto predecessor_id = boost::get(boost::vertex_name, reversed_graph)[predecessor_vertex];
+                if (predecessor_id == id) continue;
+                const auto& predecessor = cells_.at(predecessor_id);
+                if (predecessor.kind == Cell::expression_) {
+                    covered++;
+                }
+            }
+        } else if (cell.kind == Cell::expression_) {
+            expressions++;
+        }
+    }
+    results.append("cells", cells);
+    results.append("expressions", expressions);
+    results.append("tests", tests);
+    results.append("passes", passes);
+    results.append("fails", fails);
+    results.append("errors", errors);
+    results.append("covered", covered);
+    results.append("coverage", expressions>0?covered/double(expressions):0);
+    return results;
 }
 
 Sheet& Sheet::clear(void) {

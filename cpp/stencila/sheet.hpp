@@ -678,6 +678,17 @@ class Sheet : public Component {
     std::vector<std::string> successors(const std::string& id);
 
     /**
+     * Test this sheet
+     *
+     * Provide summary of tests and their coverage. Note that 
+     * this does not actually run the test cells (that is done on
+     * an as-needed basis using update), it just reports on them.
+     *
+     * @return A JSOn document containing test results
+     */
+    Json::Document test(void) const;
+
+    /**
      * Clear all cells
      */
     Sheet& clear(void);
@@ -741,6 +752,7 @@ class Sheet : public Component {
     > Graph;
 
     typedef Graph::vertex_descriptor Vertex;
+    typedef Graph::edge_descriptor Edge;
 
     /**
      * Variable (cell ids and aliases) dependency graph
@@ -752,7 +764,7 @@ class Sheet : public Component {
      *
      * Used to ease and quicken updates to the dependency tree
      */
-    std::map<std::string, Graph::vertex_descriptor> vertices_;
+    std::map<std::string, Vertex> vertices_;
 
     /**
      * Topological sort order of cells

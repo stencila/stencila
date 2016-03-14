@@ -80,6 +80,10 @@ setRefClass(
             method_(.self,'Sheet_update')
         },
 
+        test = function(){
+            method_(.self,'Sheet_test')
+        },
+
         list = function(){
             method_(.self,'Sheet_list')
         },

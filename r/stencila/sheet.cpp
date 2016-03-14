@@ -47,6 +47,14 @@ STENCILA_R_EXEC0(Sheet,detach)
 
 STENCILA_R_EXEC0(Sheet,update)
 
+STENCILA_R_FUNC Sheet_test(SEXP self){
+    STENCILA_R_BEGIN
+        return wrap(
+            from<Sheet>(self).test().dump()
+        );
+    STENCILA_R_END
+}
+
 STENCILA_R_RET0(Sheet,list)
 
 STENCILA_R_RET1(Sheet,content,std::string)
