@@ -13,29 +13,19 @@ var engine = new SheetRemoteEngine();
 
 var utilities = require('../shared/utilities');
 
-function loadDocument() {
-  var content = $('#content');
-  var html = content.html() || '';
-  document.body.innerHTML = '';
+// Required to indicate succesful loading of the JS
+// and that a fallback not required. Also used to hold
+// references to sheet and other debugging usefullnesses
+window.Stencila = {};
 
-  var importer = new SheetHTMLImporter();
-  var doc = importer.importDocument(html);
-  // Expose doc and engine for debugging in the console
-  window.doc = doc;
-  window.engine = engine;
-  return doc;
-}
-
-function activateSession(cb) {
-  console.log('booting session');
-  engine.boot(function(err, res) {
-    console.log('boot.res', res);
-    cb();
-  });
-}
-
-// At some point this may run on the server
-function renderStaticReadonlyVersion(doc) {
+/**
+ * Render a static version of the sheet document
+ * 
+ * This generates the HTML for the sheet. Eventually this may
+ * be done server side. Currently HTML is generated server side
+ * but using the backend `Sheet::page()` method.
+ */
+function renderStatic(doc) {
   var ghostEl = document.createElement('div');
   Component.mount(SheetWriter, {
     mode: 'read',
@@ -44,7 +34,12 @@ function renderStaticReadonlyVersion(doc) {
   document.body.innerHTML = ghostEl.innerHTML;
 }
 
-function renderInteractiveVersion(doc, mode) {
+/**
+ * Render a dynamic version of the sheet document
+ * 
+ * A dynamic version allows for cell updating etc
+ */
+function renderDynamic(doc, mode) {
   document.body.innerHTML = '';
   Component.mount(SheetWriter, {
     mode: mode,
@@ -53,20 +48,23 @@ function renderInteractiveVersion(doc, mode) {
   }, document.body);
 }
 
-window.Stencila = {};
-window.isEditable = true;
-
+/**
+ * Load the sheet
+ */
 function load() {
-  var doc = loadDocument();
-  if (window.isEditable) {
-    renderStaticReadonlyVersion(doc);
-    activateSession(function(err) {
-      if (err) throw new Error(err);
-      renderInteractiveVersion(doc, 'write');
-    });
-  } else {
-    renderInteractiveVersion(doc, 'read');
-  }
+  // Create sheet document from page HTML
+  var content = $('#content');
+  var html = content.html() || '';
+  document.body.innerHTML = '';
+  var importer = new SheetHTMLImporter();
+  var doc = importer.importDocument(html);
+
+  // Render the sheet document
+  renderStatic(doc);
+  engine.boot(function(err) {
+    if (err) throw new Error(err);
+    renderDynamic(doc, 'write');
+  });
 
   // Asychronously load MathJax (it can't be required) and render
   // script elements
@@ -82,30 +80,42 @@ function load() {
     );
   });
 
+  return doc;
 }
 
-// Launch the app witexception reporting when not on localhost 
-function launch() {
+/**
+ * Startup the app
+ */
+function startup() {
+  var doc;
   if (window.location.hostname.match(/localhost|(127\.0\.0\.1)/)) {
-    load();
+    doc = load();
   } else {
     Raven
       .config('https://6329017160394100b21be92165555d72@app.getsentry.com/37250')
       .install();
     try {
-      load();
+      doc = load();
     } catch(e) {
       Raven.captureException(e)
     }
   }
+  // Expose doc and engine for debugging in the console
+  window.Stencila.doc = doc;
+  window.Stencila.engine = engine;
 }
 
-window.activate = function() {
-  engine.activate();
+/**
+ * Shutdown the app
+ */
+function shutdown() {
+  engine.shutdown();
 }
 
-window.deactivate = function() {
-  engine.deactivate();
-}
 
-$(launch);
+// Run startup when document ready
+$(startup);
+// Run shutdown when page is unloaded
+window.onunload = function() {
+  shutdown();
+}

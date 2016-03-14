@@ -83,6 +83,28 @@ RemoteEngine.Prototype = function() {
     this._call('commit',[message], cb);
   }
 
+  /**
+   * Shutdown the remote component instance
+   */
+  this.shutdown = function() {
+    // Don't do anything for local sessions but if remote then do
+    // a `store()`
+    if (!this.session.local) {
+      if(this.websocket) {
+        this.websocket.call(this.address+'@store', [], function(result) {
+        });
+      } else {
+        $.ajax({
+          type: 'PUT',
+          url: this.protocol+'//'+this.host+':'+this.port+'/'+this.address+'@store',
+          // async is used so that request has time to be sent
+          // See http://stackoverflow.com/questions/1821625/ajax-request-with-jquery-on-page-unload
+          async: false
+        });
+      }
+    }
+  }
+
   // Private, local, methods
 
   this._call = function(name, args, cb) {
