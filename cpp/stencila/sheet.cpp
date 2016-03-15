@@ -341,7 +341,10 @@ Sheet& Sheet::write(const std::string& directory) {
     std::ofstream outputs(dir + "/out/out.tsv");
     for (const auto& iter : cells_) {
         const auto& cell = iter.second;
-        sources << cell.id << "\t" << escape(cell.source()) << "\t" << cell.display_specified() << "\n";
+        sources << cell.id << "\t" << escape(cell.source());
+        auto display = cell.display_specified();
+        if (display.length()) sources << "\t" << display;
+        sources << "\n";
         outputs << cell.id << "\t" << escape(cell.type)     << "\t" << escape(cell.value) << "\n";
     }
 
