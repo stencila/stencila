@@ -6,7 +6,13 @@ module.exports = {
   tagName: 'figure',
 
   matchElement: function(el) {
-    return el.is('figure');
+    if (el.is('figure')) {
+      if (el.find('[data-exec]')) {
+        return true
+      }
+      else return false;
+    }
+    return false;
   },
 
   import: function(el, node, converter) {
