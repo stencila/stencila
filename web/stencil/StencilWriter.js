@@ -19,7 +19,7 @@ var CONFIG = {
       // Substance components, in alphabetical order, from `substance/packages` 
       // Note that not all Substance packages have components so they are not all listed here
       'blockquote': require('substance/packages/blockquote/BlockquoteComponent'),
-      'codeblock': require('substance/packages/codeblock/CodeblockComponent'),
+      //'codeblock': require('substance/packages/codeblock/CodeblockComponent'),
       'heading': require('substance/packages/heading/HeadingComponent'),
       'image': require('substance/packages/image/ImageComponent'),
       'link': require('substance/packages/link/LinkComponent'),
@@ -65,7 +65,7 @@ var CONFIG = {
       {name: 'heading1',  data: {type: 'heading', level: 1}},
       {name: 'heading2',  data: {type: 'heading', level: 2}},
       {name: 'heading3',  data: {type: 'heading', level: 3}},
-      {name: 'codeblock', data: {type: 'codeblock'}},
+      //{name: 'codeblock', data: {type: 'codeblock'}},
       {name: 'blockquote', data: {type: 'blockquote'}},
 
       {name: 'title', data: {type: 'stencil-title'}},

@@ -19,7 +19,7 @@ defaultSchema.addNodes([
   // Substance nodes, in alphabetical order, from `substance/packages`
   require('substance/packages/blockquote/Blockquote'),
   require('substance/packages/code/Code'),
-  require('substance/packages/codeblock/Codeblock'),
+  //require('substance/packages/codeblock/Codeblock'),
   require('substance/packages/emphasis/Emphasis'),
   require('substance/packages/heading/Heading'),
   require('substance/packages/image/Image'),

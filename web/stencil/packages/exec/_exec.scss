@@ -24,12 +24,12 @@
   }
 
   .se-exec-source {
-    background: #2B303B;
-    color: rgba(255,255,255,0.9);
-    padding: 10px;
-    font-size: 13px;
-
+    margin-bottom: 2em;
+    border-radius: 3px;   
+    background: #333;
+    padding: 1em;
     font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    margin-bottom: 20px;    
+    font-size: 85%;
+    color: #EEE;
   }
 }

@@ -14,6 +14,7 @@ StencilExec.static.name = "stencil-exec";
 StencilExec.static.defineSchema({
   source: { type: "string", default: "" },
   spec: "string",
+  show: { type: "boolean", default: false },
   error: { type: "string", optional: true }
 });
 

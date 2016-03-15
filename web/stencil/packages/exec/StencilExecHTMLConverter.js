@@ -10,9 +10,12 @@ module.exports = {
   },
 
   import: function(el, node, converter) {
-    node.source = el.text();
+    var spec = el.attr('data-exec');
+    var matches = 'r show'.match(/(r|py) *(show)?/);
+    node.show = matches[2]?true:false;
+    node.spec = spec;
     node.error = el.attr('data-error');
-    node.spec = el.attr('data-exec');
+    node.source = el.text();
   },
 
   export: function(node, el, converter) {

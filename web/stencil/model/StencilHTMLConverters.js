@@ -2,7 +2,7 @@ module.exports = [
   // Substance converters, in alphabetical order, from `substance/packages`
   require('substance/packages/blockquote/BlockquoteHTMLConverter'),
   require('substance/packages/code/CodeHTMLConverter'),
-  require('substance/packages/codeblock/CodeblockHTMLConverter'),
+  //require('substance/packages/codeblock/CodeblockHTMLConverter'),
   require('substance/packages/emphasis/EmphasisHTMLConverter'),
   require('substance/packages/heading/HeadingHTMLConverter'),
   require('substance/packages/image/ImageHTMLConverter'),
