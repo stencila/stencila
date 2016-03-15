@@ -335,9 +335,10 @@ Sheet& Sheet::write(const std::string& directory) {
     };
 
     // Write cell sources and outputs files
-    auto dir = path() + "/";
-    std::ofstream sources(dir + "sheet.tsv");
-    std::ofstream outputs(dir + "out/out.tsv");
+    auto dir = path();
+    boost::filesystem::create_directories(dir+"/out");
+    std::ofstream sources(dir + "/sheet.tsv");
+    std::ofstream outputs(dir + "/out/out.tsv");
     for (const auto& iter : cells_) {
         const auto& cell = iter.second;
         sources << cell.id << "\t" << escape(cell.source()) << "\t" << cell.display_specified() << "\n";
@@ -346,7 +347,7 @@ Sheet& Sheet::write(const std::string& directory) {
 
     // If a context is attached then write that too
     if(spread_) {
-        spread_->write(path()+"/out/");
+        spread_->write(dir+"/out");
     }
 
     return *this;
