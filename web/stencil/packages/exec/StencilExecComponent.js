@@ -29,11 +29,12 @@ StencilExecComponent.Prototype = function() {
       .attr("contentEditable", false);
     
     if (node.show) {
+      this.editorId = Math.random().toString(36).replace(/[^a-z]+/g, '');
       el.append(
         $$('pre')
           .addClass('se-exec-source')
-          .attr('id','ace_editor')
-          .attr("contentEditable", true)
+          .attr('id',this.editorId)
+          .attr("contentEditable", false)
           .text(node.source)
       );
     } else {
@@ -72,6 +73,48 @@ StencilExecComponent.Prototype = function() {
     }
    
     return el;
+  };
+
+  this.didMount = function() {
+    var node = this.props.node;
+    if (node.show && window.ace) {
+      var editor = this.editor = window.ace.edit(this.editorId);
+
+      var mode = {
+        'cila': 'cila',
+        'html': 'html',
+        'js':   'javascript',
+        'py':   'python',
+        'r':    'r'           
+      }[node.lang] || 'text';
+      editor.getSession().setMode('ace/mode/'+mode);
+      
+      editor.setTheme("ace/theme/monokai");
+      editor.setFontSize(13);
+      editor.setShowPrintMargin(false);
+      // Add padding before first and after last lines
+      editor.renderer.setScrollMargin(5,5,0,0);
+      // Set the maximum number of lines for the code. When the number
+      // of lines exceeds this number a vertical scroll bar appears on the right
+      editor.setOption("minLines",1);
+      editor.setOption("maxLines",100);
+      // Prevent warning message
+      editor.$blockScrolling = Infinity;
+      // Make readonly as per https://github.com/ajaxorg/ace/issues/266#issuecomment-16367687
+      editor.setOptions({
+        readOnly: true,
+        highlightActiveLine: false,
+        highlightGutterLine: false,
+
+        wrap: true,
+        indentedSoftWrap: true,
+      });
+      editor.renderer.$cursorLayer.element.style.opacity = 0;
+      editor.textInput.getElement().disabled = true;
+      editor.commands.commmandKeyBinding = {};
+
+      editor.setValue(node.source,1);
+    }
   };
 
 };

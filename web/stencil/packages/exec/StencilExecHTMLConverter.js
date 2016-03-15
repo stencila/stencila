@@ -11,7 +11,8 @@ module.exports = {
 
   import: function(el, node, converter) {
     var spec = el.attr('data-exec');
-    var matches = 'r show'.match(/(r|py) *(show)?/);
+    var matches = 'r show'.match(/(exec|r|py) *(show)?/);
+    node.lang = matches[1];
     node.show = matches[2]?true:false;
     node.spec = spec;
     node.error = el.attr('data-error');
