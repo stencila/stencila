@@ -1,0 +1,16 @@
+/**
+ * Override Substance styles for link
+ *
+ * For consistency with code and dynamic text directives, 
+ * use a very light background and underline.
+ */
+
+$sc-link-hue: 230;
+
+.sc-link {
+    padding: 2px 0;
+    background: hsl($sc-link-hue,100%,98%);
+    border-bottom: 1px solid hsl($sc-link-hue,100%,95%);
+    color: hsl($sc-link-hue,100%,65%);
+    font-size: 85%;
+}

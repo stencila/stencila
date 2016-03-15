@@ -1,0 +1,7 @@
+/**
+ * Override Substance styles for image
+ */
+.sc-image {
+	display: block;
+    margin: 0 auto 20px auto;
+}

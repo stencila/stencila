@@ -17,6 +17,11 @@
 $source-node-color: hsl(100, 95%, 40%);
 $error-node-color: hsl(0, 95%, 40%);
 
+@import './packages/blockquote/_blockquote';
+@import './packages/code/_code';
+@import './packages/image/_image';
+@import './packages/link/_link';
+
 @import './packages/title/_title';
 @import './packages/summary/_summary';
 @import './packages/math/_math';
