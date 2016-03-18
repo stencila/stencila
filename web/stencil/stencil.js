@@ -4,7 +4,12 @@ window.Stencila = 1;
 	if(mode) mode = mode.content;
 	if(!mode){
 		if(window.location.host.match('stenci.la|localhost')){
-			mode = 'strict';
+			if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+				mode = 'free';
+			}
+			else {
+				mode = 'strict';
+			}
 		} else {
 			mode = 'free';
 		}
