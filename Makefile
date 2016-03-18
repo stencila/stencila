@@ -1012,7 +1012,7 @@ endif
 ifeq ($(OS),win)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
 endif
-	mv $(R_BUILD)/$(R_PACKAGE_FILE_BUILT) $(R_BUILD)/$(R_PACKAGE_FILE)
+	mv -f $(R_BUILD)/$(R_PACKAGE_FILE_BUILT) $(R_BUILD)/$(R_PACKAGE_FILE)
 r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 
 # Deposit package into local repository for mirroring to http://get.stenci.la/r
