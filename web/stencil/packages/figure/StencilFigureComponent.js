@@ -1,7 +1,7 @@
 'use strict';
 
 var oo = require('substance/util/oo');
-var _ = require('substance/util/helpers');
+var extend = require('lodash/object/extend');
 var Component = require('substance/ui/Component');
 var TextProperty = require('substance/ui/TextPropertyComponent');
 var Icon = require('substance/ui/FontAwesomeIcon');
@@ -14,29 +14,45 @@ function StencilFigureComponent() {
 }
 
 StencilFigureComponent.Prototype = function() {
-  _.extend(this, StencilSourceComponent.prototype);
+  extend(this, StencilSourceComponent.prototype);
 
   this.render = function() {
+    var node = this.props.node;
     var el = $$('div')
       .addClass('stencil-figure')
-      .attr("data-id", this.props.node.id);
+      .attr("data-id", node.id);
 
-    el.append(
-      $$('div')
-        .addClass('header')
-        .append(
-          $$('span')
-            .addClass('label')
-            .attr("contenteditable", false)
-            .append('Figure '+this.props.node.index)
-            .ref('label'),
-          $$(TextProperty, {
-            tagName: 'span',
-            path: [this.props.node.id, 'caption']
-          })
-            .addClass('caption')
-        )
-    );
+    if(node.caption){
+        var header = $$('div').addClass('header');
+        el.append(header);
+        if(node.index){
+          var label = $$('span')
+                .addClass('label')
+                .attr("contenteditable", false)
+                .append('Figure '+node.index)
+                .ref('label');
+          header.append(label);
+        }
+        header.append(
+            /*
+            FIXME:
+            This is causing the error "Property already registered."
+            when the stencil is rendered. The following non-editable
+            span is a temporary replacement
+
+            $$(TextProperty, {
+              tagName: 'span',
+              path: [node.id, 'caption']
+            })
+              .addClass('caption')
+            */
+           $$('span')
+              .addClass('caption')
+              .attr("contenteditable", false)
+              .append(node.caption)
+              .ref('caption')
+        );
+    }
 
     if (this.isEditable()) {
       var button = $$('button')
@@ -50,7 +66,7 @@ StencilFigureComponent.Prototype = function() {
       el.append(
         button
       );
-      if (this.props.node.error) {
+      if (node.error) {
         button.addClass('error');
       }
     }
@@ -61,7 +77,7 @@ StencilFigureComponent.Prototype = function() {
         .append(
           $$(TextProperty, {
             tagName: 'div',
-            path: [this.props.node.id, "source"]
+            path: [node.id, "source"]
           })
         )
         .ref('source')
@@ -76,7 +92,8 @@ StencilFigureComponent.Prototype = function() {
           .addClass('image')
           .attr({
             contentEditable: false,
-            src: this.props.node.image
+            src: node.image,
+            style: node.image_style
           })
       )
       .ref('content')

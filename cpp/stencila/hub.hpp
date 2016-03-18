@@ -13,6 +13,14 @@ public:
 	Hub(void);
 
 	/**
+	 * Get the origin for the hub (e.g. https://stenci.la, http::localhost:7300)
+	 *
+	 * Analagous to `window.location.origin` in a web browser. Set from the environment
+	 * variable `STENCILA_ORIGIN` on instantiation.
+	 */
+	std::string origin(void) const;
+
+	/**
 	 * Sign in using username and password.
 	 *
 	 * You should never use this method with a hardcoded password e.g.
@@ -40,14 +48,14 @@ public:
 	 *
 	 * Instead, you should use the `signin()` method (i.e. the version
 	 * which takes no arguments) which tries to obtain a token from the 
-	 * environment variable `STENCILA_HUB_TOKEN`
+	 * environment variable `STENCILA_TOKEN`
 	 * 
 	 * @param  token Token string obtained from https://stenci.la
 	 */
 	Hub& signin(const std::string& token);
 
 	/**
-	 * Sign in using user token defined in the environment variable `STENCILA_HUB_TOKEN`
+	 * Sign in using user token defined in the environment variable `STENCILA_TOKEN`
 	 *
 	 * This is the preferred method for signing into the Stencila hub 
 	 * using a remote machine not being used by a real person.  
@@ -60,6 +68,11 @@ public:
 	 * @return Username string
 	 */
 	std::string username(void) const;
+
+	/**
+	 * Get the token for the user that is currently signed in
+	 */
+	std::string token(void) const;
 
 	/**
 	 * Signout
@@ -119,7 +132,7 @@ private:
 
 	Http::Client client_;
 
-	std::string root_;
+	std::string origin_;
 
 	std::string username_;
 

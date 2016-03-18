@@ -94,9 +94,9 @@ void Server::restart_(void){
 	if(restarts_<max_restarts_) start();
 }
 
-Server::Session& Server::session_(connection_hdl hdl) {
-	auto i = sessions_.find(hdl);
-	if(i==sessions_.end()) STENCILA_THROW(Exception,"No such session");
+Server::Connection& Server::connection_(connection_hdl hdl) {
+	auto i = connections_.find(hdl);
+	if(i==connections_.end()) STENCILA_THROW(Exception,"No such connection");
 	return i->second;
 }
 
@@ -117,17 +117,12 @@ std::string Server::path_(server::connection_ptr connection){
 }
 
 void Server::open_(connection_hdl hdl) {
-	server::connection_ptr connection = server_.get_con_from_hdl(hdl);
-	auto path = path_(connection);
-	std::string address;
-	if(path.back()=='/') address = path.substr(0,path.length()-1);
-	else address = path;
-	Session session = {address};
-	sessions_[hdl] = session;
+	Connection connection = {};
+	connections_[hdl] = connection;
 }
 
 void Server::close_(connection_hdl hdl) {
-	sessions_.erase(hdl);
+	connections_.erase(hdl);
 }
 
 void Server::http_(connection_hdl hdl) {
@@ -142,6 +137,7 @@ void Server::http_(connection_hdl hdl) {
 	std::string remote = connection->get_remote_endpoint();
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
+	std::string error;
 	std::string content;
 	std::string content_type = "text/plain";
 	try {
@@ -173,6 +169,7 @@ void Server::http_(connection_hdl hdl) {
 			}
 			catch (const Component::RequestInvalidException& e){
 				status = http::status_code::bad_request;
+				error = "session:bad-request";
 				content = "Bad request\n  method: "+method+"\n  verb: "+verb;
 			}
 		}
@@ -182,12 +179,14 @@ void Server::http_(connection_hdl hdl) {
 			if(filesystem_path.length()==0){
 				// 404: not found
 				status = http::status_code::not_found;
+				error = "session:unavailable";
 				content = "Not found\n path: "+path;
 			} else {
 				// Check to see if this is a directory
 				if(boost::filesystem::is_directory(filesystem_path)){
 					// 403: forbidden
 					status = http::status_code::forbidden;
+					error = "session:unauthorized";
 					content = "Directory access is forbidden\n  path: "+filesystem_path;		
 				}
 				else {
@@ -195,6 +194,7 @@ void Server::http_(connection_hdl hdl) {
 					if(not file.good()){
 						// 500 : internal server error
 						status = http::status_code::internal_server_error;
+						error = "session:internal";
 						content = "File error\n  path: "+filesystem_path;
 					} else {
 						// Read file into content string
@@ -230,7 +230,7 @@ void Server::http_(connection_hdl hdl) {
 			// is what we want) but without the trailing slash will be resolved to "/a/b/1.png" (which 
 			// will cause a 404 error). 
 			// So, if no trailing slash, then redirect...
-			if(path[path.length()-1]!='/'){
+			if(path.back()!='/'){
 				status = http::status_code::moved_permanently;
 				// Use full URI for redirection because multiple leading slashes can get
 				// squashed up otherwise
@@ -238,29 +238,46 @@ void Server::http_(connection_hdl hdl) {
 				connection->append_header("Location",uri);
 			}
 			else {
-				content = Component::page(path);
+				// Remove any trailing slashes in path to make it a
+				// component address
+				auto address = path;
+				if(address.back()=='/') address.pop_back();
+				content = Component::page_dispatch(address);
 				content_type = "text/html";
 			}
 		}
 		else {
 			status = http::status_code::bad_request;
+			error = "session:bad-request";
 			content = "Unhandled request: "+verb+" "+path;
 		}
 	}
 	catch(const std::exception& e){
 		status = http::status_code::internal_server_error;
+		error = "session:internal";
 		content = std::string(e.what());
 	}
 	catch(...){
 		status = http::status_code::internal_server_error;
+		error = "session:internal";
 		content = "Unknown exception";			
 	}
-	// Access control headers
-	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS 
-	connection->append_header("Access-Control-Allow-Origin","*");
-	connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
-	connection->append_header("Access-Control-Allow-Headers","Content-Type");
-	connection->append_header("Access-Control-Max-Age","1728000");
+	#if 0
+		// Access control headers
+		// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS 
+		connection->append_header("Access-Control-Allow-Origin","*");
+		connection->append_header("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
+		connection->append_header("Access-Control-Allow-Headers","Content-Type");
+		connection->append_header("Access-Control-Max-Age","1728000");
+	#endif
+	// If an error make content a JSON error object
+	if(error.length()){
+        Json::Document json = Json::Object();
+        json.append("error", error);
+        json.append("message", content);
+		content = json.dump();
+		content_type = "application/json";
+	}
 	// Replace the WebSocket++ "Server" header
 	connection->replace_header("Server","Stencila embedded");
 	// Set status and content
@@ -280,11 +297,10 @@ void Server::http_(connection_hdl hdl) {
 void Server::message_(connection_hdl hdl, server::message_ptr msg) {
 	std::string response;
 	try {
-		Session session = session_(hdl);
-		std::string request = msg->get_payload();
-		response = Component::message(session.address,request);
+		std::string message = msg->get_payload();
+		response = Component::message_dispatch(message);
 	}
-	// `Component::message()` should handle most exceptions and return a WAMP
+	// `Component::message_dispatch()` should handle most exceptions and return a WAMP
 	// ERROR message. If for some reason that does not happen, the following returns
 	// a plain text error message...
 	catch(const std::exception& e){

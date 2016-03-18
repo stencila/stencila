@@ -1,56 +1,27 @@
+'use strict';
 
-var $ = require('substance/util/jquery');
+var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
-var StencilExec = StencilNode.extend({
-  name: "stencil-exec",
-  properties: {
-    "source": "string",
-    "error": "string",
-    "spec": "string"
-  }
-});
+function StencilExec() {
+  StencilExec.super.apply(this, arguments);
+}
 
-// declare editable components, so that we can enable ContainerEditor features
-StencilExec.static.components = ['spec'];
+DocumentNode.extend(StencilExec, StencilNode);
+
+StencilExec.static.name = "stencil-exec";
+
+StencilExec.static.defineSchema({
+  source: { type: "string", default: "" },
+  spec: "string",
+  lang: { type: "string", optional: true },
+  show: { type: "boolean", default: false },
+  error: { type: "string", optional: true }
+});
 
 StencilExec.static.generatedProps = ['error'];
 
-StencilExec.static.blockType = true;
-
-StencilExec.static.matchElement = function($el) {
-  return $el.is('pre') && $el.attr('data-exec');
-};
-
-// HtmlImporter
-
-StencilExec.static.fromHtml = function($el, converter) {
-  var id = converter.defaultId($el, 'stencil-exec');
-  var source = $el.text();
-  var error = $el.attr('data-error');
-  var spec = $el.attr('data-exec');
-
-  var exec = {
-    id: id,
-    source: source,
-    error: error,
-    spec: spec
-  };
-
-  return exec;
-};
-
-// HtmlExporter
-
-StencilExec.static.toHtml = function(exec) {
-  var id = exec.id;
-  var $el = $('<pre>')
-    .attr('id', id)
-    .attr('data-exec', exec.spec)
-    .attr('data-error', exec.error)
-    .text(exec.source);
-
-  return $el;
-};
+StencilExec.static.isBlock = true;
 
 module.exports = StencilExec;
+

@@ -8,6 +8,15 @@
 namespace Stencila {
 namespace Json {
 
+Node::Node(const Node::Impl& impl):
+	pimpl_(new Impl(impl)){};
+
+Node::Node(Node::Impl& impl):
+	pimpl_(&impl){};
+
+Node::Node(Node::Impl* impl):
+	pimpl_(impl){};
+
 template<>
 bool Node::is<void>(void) const {
 	return pimpl_->isNull();
@@ -101,7 +110,60 @@ std::map<std::string,std::string> Node::as<std::map<std::string,std::string>>(vo
 	return result;
 }
 
-unsigned int Node::size(void) const{
+template<>
+Document Node::as<Document>(void) const {
+	Document doc = *this;
+	return doc;
+}
+
+#define NODE_ITER_CAST(POINTER) static_cast<::Json::ValueIterator*>(POINTER)
+
+Node::iterator::~iterator(void){
+	delete NODE_ITER_CAST(pimpl_);
+}
+
+Node Node::iterator::operator*() { 
+	return **NODE_ITER_CAST(pimpl_);
+}
+
+Node::iterator& Node::iterator::operator++() {
+	++(*NODE_ITER_CAST(pimpl_));
+	return *this;
+}
+
+bool Node::iterator::operator==(const Node::iterator& other) {
+	return *NODE_ITER_CAST(pimpl_) == *NODE_ITER_CAST(other.pimpl_);
+}
+
+bool Node::iterator::operator!=(const Node::iterator& other) {
+	return *NODE_ITER_CAST(pimpl_) != *NODE_ITER_CAST(other.pimpl_);
+}
+
+Node Node::iterator::key(void) {
+	return NODE_ITER_CAST(pimpl_)->key();
+}
+
+#undef NODE_ITER_CAST
+
+
+Node::iterator Node::begin(void) const {
+	Node::iterator iter;
+	iter.pimpl_ = new ::Json::ValueIterator(
+		pimpl_->begin()
+	);
+	return iter;
+}
+
+Node::iterator Node::end(void) const {
+	Node::iterator iter;
+	iter.pimpl_ = new ::Json::ValueIterator(
+		pimpl_->end()
+	);
+	return iter;
+}
+
+
+unsigned int Node::size(void) const {
 	if(is<Object>() or is<Array>()) return pimpl_->size();
 	else return 0u;
 }
@@ -148,6 +210,18 @@ APPEND_VALUE(const char*)
 APPEND_VALUE(std::string)
 
 #undef APPEND_VALUE
+
+template<>
+Node Node::append(Document document){
+	pimpl_->append(*document.pimpl_);
+	return document;	
+}
+
+template<>
+Node Node::append(const std::string& name, Document document){
+	(*pimpl_)[name] = *document.pimpl_;
+	return document;	
+}
 
 template<>
 Node Node::append(Object){
@@ -250,8 +324,16 @@ std::string Node::dump(bool pretty) const {
 	}
 }
 
+const Node::Impl& Node::impl(void) const {
+	return *pimpl_;
+}
+
 Document::Document(void):
 	Node(new Impl){
+}
+
+Document::Document(const Node& other):
+	Node(new Impl(other.impl())){
 }
 
 Document::Document(const Document& other):
@@ -278,6 +360,11 @@ Document::Document(const std::string& json):
 
 Document::~Document(void){
 	delete pimpl_;
+}
+
+Document& Document::operator=(const Document& other) {
+	*pimpl_ = *other.pimpl_;
+	return *this;
 }
 
 Document& Document::read(std::istream& stream){

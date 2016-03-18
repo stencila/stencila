@@ -5,3 +5,4 @@
 from stencila.component import Component, grab
 from stencila.stencil import Stencil
 from stencila.context import Context, Scope
+from stencila.sheet import Sheet

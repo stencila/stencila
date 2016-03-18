@@ -1,0 +1,32 @@
+#title A title for this stencil
+#description A description of the stencil
+h1 Inputs
+par mult default 2 &rAlE8Di
+	{label [for=mult-input] mult}{input [name=mult] #mult-input [value=2]}
+par col default 'red' &bjnZe80
+	{label [for=col-input] col}{input [name=col] #col-input [value='red']}
+par pch default 16 &st7LXDG
+	{label [for=pch-input] pch}{input [name=pch] #pch-input [value=16]}
+par cex default 2 &xxwKTf
+	{label [for=cex-input] cex}{input [name=cex] #cex-input [value=2]}
+
+r volat &chFeu7
+	x <- runif(100)
+	y <- x + 0.1*rnorm(100)
+
+h1 Summary
+
+Mean x: {text mean(x) 0.524804521433543}
+
+Mean y: {text mean(y) 0.533192867881287}
+
+Corr(x,y): {text cor(x,y) 0.955253844191414}
+
+h1 Plot
+
+figure ^1
+	caption Plot of X versus Y
+
+	r format png &cvTB1k !"exception: object 'mult' not found"
+		plot(x,y*mult,col=col,pch=pch,cex=cex)
+		abline(0,1)

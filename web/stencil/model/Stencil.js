@@ -1,11 +1,8 @@
 'use strict';
 
-var $ = require('substance/util/jquery');
-var OO = require('substance/util/oo');
+var oo = require('substance/util/oo');
 var Document = require('substance/model/Document');
 var DocumentSchema = require('substance/model/DocumentSchema');
-var HtmlImporter = require('substance/model/HtmlImporter');
-var HtmlExporter = require('substance/model/HtmlExporter');
 
 var StencilDefaultNode = require('../packages/default/StencilDefaultNode');
 
@@ -19,12 +16,23 @@ defaultSchema.getDefaultTextType = function() {
 };
 
 defaultSchema.addNodes([
-  // General nodes
-  require('substance/packages/paragraph/Paragraph'),
-  require('substance/packages/heading/Heading'),
+  // Substance nodes, in alphabetical order, from `substance/packages`
+  require('substance/packages/blockquote/Blockquote'),
+  require('substance/packages/code/Code'),
+  //require('substance/packages/codeblock/Codeblock'),
   require('substance/packages/emphasis/Emphasis'),
-  require('substance/packages/strong/Strong'),
+  require('substance/packages/heading/Heading'),
+  require('substance/packages/image/Image'),
   require('substance/packages/link/Link'),
+  require('substance/packages/list/List'),
+  require('substance/packages/paragraph/Paragraph'),
+  require('substance/packages/strong/Strong'),
+  require('substance/packages/subscript/Subscript'),
+  require('substance/packages/superscript/Superscript'),
+  require('substance/packages/table/Table'),
+  require('substance/packages/table/TableSection'),
+  require('substance/packages/table/TableRow'),
+  require('substance/packages/table/TableCell'),
 
   // Stencil-specific nodes
   require('../packages/title/StencilTitle'),
@@ -34,58 +42,12 @@ defaultSchema.addNodes([
   require('../packages/equation/StencilEquation'),
 
   require('../packages/exec/StencilExec'),
+  require('../packages/parameter/StencilParameter'),
   require('../packages/figure/StencilFigure'),
   require('../packages/text/StencilText'),
 
   StencilDefaultNode
 ]);
-
-
-// Importer
-// ----------------
-
-function Importer(schema) {
-  Importer.super.call(this, { schema: schema });
-}
-
-Importer.Prototype = function() {
-  this.convert = function($rootEl, doc) {
-    this.initialize(doc, $rootEl);
-    this.convertContainer($rootEl, 'body');
-    this.finish();
-  };
-
-  this.defaultConverter = function($el, converter) {
-    /* jshint unused:false */
-    var node = StencilDefaultNode.static.fromHtml($el, converter);
-    node.type = 'stencil-default-node';
-    return node;
-  };
-};
-
-OO.inherit(Importer, HtmlImporter);
-
-// Exporter
-// ----------------
-
-function Exporter(schema) {
-  Exporter.super.call(this, { schema: schema });
-}
-
-Exporter.Prototype = function() {
-
-  this.convert = function(doc, options) {
-    this.initialize(doc, options);
-
-    var body = doc.get('body');
-    var bodyNodes = this.convertContainer(body);
-    var $el = $('<div>');
-    $el.append(bodyNodes);
-    return $el.html();
-  };
-};
-
-OO.inherit(Exporter, HtmlExporter);
 
 
 // Stencil
@@ -107,32 +69,6 @@ Stencil.Prototype = function() {
     });
   };
 
-  this.toHtml = function() {
-    return new Exporter(this.schema).convert(this);
-  };
-
-  // replaces the content by loading from the given html
-  this.loadHtml = function(html) {
-    // Deletes all nodes (including container node 'body')
-    this.clear();
-
-    // Disable transaction enforcement until the import is finished
-    this.FORCE_TRANSACTIONS = false;
-
-    // Recreate body container
-    // TODO: find a better solution
-    this.create({
-      type: "container",
-      id: "body",
-      nodes: []
-    });
-
-    var $content = $('<div>').html(html);
-    new Importer(this.schema).convert($content, this);
-    // sets this.FORCE_TRANSACTIONS = true again
-    this.documentDidLoad();
-  };
-
   this.getTOCNodes = function() {
     var tocNodes = [];
     var contentNodes = this.get('body').nodes;
@@ -146,14 +82,13 @@ Stencil.Prototype = function() {
   };
 
   this.getCila = function(cb) {
-    window.__backend.cilaGet(this,function(error, result){
+    window._engine.cilaGet(this,function(error, result){
       cb(result);
     });
   };
 };
 
-OO.inherit(Stencil, Document);
+oo.inherit(Stencil, Document);
 Stencil.schema = defaultSchema;
 
-Stencil.Importer = Importer;
 module.exports = Stencil;

@@ -12,6 +12,7 @@
 #include <stencila/html.hpp>
 #include <stencila/json.hpp>
 #include <stencila/string.hpp>
+#include <stencila/wamp.hpp>
 
 namespace Stencila {
 
@@ -89,6 +90,18 @@ public:
 	std::string address(bool ensure);
 
 	/**
+	* Set this component's address
+	*/
+	Component& address(const std::string& address);
+
+	/**
+	* Set this component's address
+	*
+	* This overload prevents ambiguities with path(bool) when calling path("")
+	*/
+	Component& address(const char* address);
+
+	/**
 	 * Locate a component in the stores
 	 * i.e. convert an `address` into a `path`
 	 *
@@ -164,7 +177,13 @@ public:
 	 * @param path Filesystem path to component
 	 */
 	Component& write(const std::string& path="");
-	
+
+	/**
+	 * Clean up output files by deleting the `out` directory, if any, in 
+	 * this comonent's path
+	 */
+	Component& vacuum(void);
+
 	/**
 	 * @}
 	 */
@@ -240,7 +259,7 @@ public:
 	 *
 	 * @param message Message to associate with the commit
 	 */
-	Component& commit(const std::string& message="");
+	std::string commit(const std::string& message="");
 
 	/**
 	 * Get a list of commits made to this component
@@ -314,6 +333,30 @@ public:
 	/**
 	 * @}
 	 */
+	
+
+	/**
+	 * @name Snapshot
+	 *
+	 * Methods implemented in `component-snapshots.cpp`
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Take a snapshot of this component
+	 */
+	Component& store(void);
+
+	/** 
+	 * Restore this component from the last available snapshot
+	 */
+	Component& restore(void);
+
+	/**
+	 * @}
+	 */
+
 
 	/**
 	 * @name Instances
@@ -326,8 +369,6 @@ public:
 	 * 
 	 * @{
 	 */
-	
-	 class Call;
 
 	/**
 	 * An enumeration of `Component` classes
@@ -341,12 +382,17 @@ public:
 	 */
 	enum Type {
 		NoneType,
+
 		ComponentType,
 		StencilType,
 		ThemeType,
+		SheetType,
+		FunctionType,
 
 		PythonContextType,
-		RContextType
+		
+		RContextType,
+		RSpreadType
 	};
 
 	/**
@@ -356,6 +402,41 @@ public:
 	 * value in the `Type` enumeration.
 	 */
 	static const unsigned int types_ = 10;
+
+	/**
+	 * Structure representing a `Component` instance currently
+	 * in memory.
+	 */
+	class Instance {
+	public:
+		Instance(void): type_(NoneType),pointer_(nullptr){};
+		Instance(Type type, Component* pointer): type_(type),pointer_(pointer){};
+
+		bool exists(void) const {
+			return pointer_;
+		}
+
+		Type type(void) const {
+			return type_;
+		}
+
+		std::string type_name(void) const {
+			return Component::type_name(type_);
+		}
+
+		Component* pointer(void) const {
+			return pointer_;
+		}
+
+		template<class Type> 
+		Type as(void) const {
+			return static_cast<Type>(pointer_);
+		}
+
+	private:
+		Type type_;
+		Component* pointer_;
+	};
 
 	/**
 	 * Structure repesenting a `Component` class.
@@ -378,67 +459,70 @@ public:
 		/**
 		 * @name pageing
 		 * 
-		 * Pageing function for class
-		 *
-		 * Used to serve a page for the component
+		 * The method for generating a HTML page
 		 */
-		typedef std::string (*Pageing)(const Component* component);
-		Pageing pageing = nullptr;
+		typedef std::string (*PageMethod)(const Instance& instance);
+		PageMethod page_method = nullptr;
 
 		/**
 		 * @name requesting
 		 * 
-		 * Requester function for class
-		 *
-		 * Used to respond to a web request on component 
+		 * The method for handling HTTP requests
 		 */
-		typedef std::string (*Requesting)(
-			Component* component, const std::string& verb,
+		typedef std::string (*RequestMethod)(
+			const Instance& instance, const std::string& verb,
 			const std::string& method, const std::string& body
 		);
-		Requesting requesting = nullptr;
+		RequestMethod request_method = nullptr;
 
 		/**
-		 * @name calling
-		 *
-		 * Calling function for the class
-		 *
-		 * Used to call a method for the component (usually remotely)
+		 * @name message_method
+		 * 
+		 * The method for handling WAMP messages
 		 */
-		typedef std::string (*Calling)(Component* component, const Call& call);
-		Calling calling = nullptr;
+		typedef Wamp::Message (*MessageMethod)(
+			const Instance& instance, const Wamp::Message& message
+		);
+		MessageMethod message_method = nullptr;
 
-		
+
 		Class(void):
 			defined(false){
 		}
 
-		Class(const char* name, Pageing pageing, Requesting requesting, Calling calling):
+		Class(const char* name, PageMethod page_method = nullptr, RequestMethod request_method = nullptr, MessageMethod message_method = nullptr):
 			defined(true),
 			name(name),
-			pageing(pageing),
-			requesting(requesting),
-			calling(calling){
+			page_method(page_method),
+			request_method(request_method),
+			message_method(message_method){
 		}
+
+		/**
+		 * Set a `Class` for a `Type`
+		 *
+		 * This places an entry in `Component::classes_` so that information
+		 * on the class can be reteived later useing a `Type`
+		 * 
+		 * @param type `Type` for the class
+		 * @param clas `Class` object
+		 */
+		static void set(Type type, const Class& clas);
+
+		/**
+		 * Get a `Class` for a `Type`
+		 *
+		 * @param type `Type` for the class
+		 */
+		static const Class& get(Type type);
+
+	 private:
+
+		/**
+		 * Array of classes that have been defined
+		 */
+		static Class classes_[types_];
 	};
-
-	/**
-	 * Define a `Component` class
-	 *
-	 * This places an entry in `Component::classes_` so that information
-	 * on the class can be reteived later useing a `Type`
-	 * 
-	 * @param type `Type` for the class
-	 * @param clas `Class` object
-	 */
-	static void class_(Type type, const Class& clas);
-
-	/**
-	 * Obtain a `Class` definition
-	 *
-	 * @param type `Type` for the class
-	 */
-	static const Class& class_(Type type);
 
 	/**
 	 * Definition of all core component classes
@@ -446,31 +530,14 @@ public:
 	static void classes(void);
 
 	/**
-	 * Structure representing a `Component` instance currently
-	 * in memory.
+	 * Instantiate a component
+	 *
+	 * A "callback" to a function in the host environment
+	 * e.g. R, Python which instantiates a component as necessary
+	 * for that environment (e.g. attaching a context)
 	 */
-	class Instance {
-	public:
-		Instance(void): type_(NoneType),pointer_(nullptr){};
-		Instance(Type type, Component* pointer): type_(type),pointer_(pointer){};
-
-		bool exists(void) const {
-			return pointer_;
-		}
-
-		Type type(void) const {
-			return type_;
-		}
-
-		template<class Class=Component> 
-		Class& as(void) {
-			return *static_cast<Class*>(pointer_);
-		}
-	private:
-		Type type_;
-		Component* pointer_;
-		friend class Component;
-	};
+	typedef Component* (*Instantiate) (const std::string& address, const std::string& path, const std::string& type);
+	static Instantiate instantiate;
 
 	/**
 	 * Declare a component for retreival later
@@ -493,6 +560,11 @@ public:
 	 * Is this component held?
 	 */
 	bool held(void) const;
+
+	/**
+	 * No longer hold this component in the list of instances
+	 */
+	Component& unhold(void);
 
 	/**
 	 * Get a list of all components held with address and type strings
@@ -525,94 +597,33 @@ public:
 	 */
 	static Instance get(const std::string& address, const std::string& version="",const std::string& comparison="==");
 
+	/**
+	 * Open a component from a path
+	 *
+	 * Includes checking whether the component can be restored
+	 * from a previous snapshot.
+	 */
+	template<class Class>
+	static Component* open(Type type, const std::string& path="");
+
+	/**
+	 * Save a component
+	 *
+	 * Writes component to disk as well as storing a snapshot if
+	 * appropriate.
+	 */
+	Component& save(void);
+
+	/**
+	 * Close a component
+	 * 
+	 * Similar to save but also 
+	 */
+	Component& close(void);
+
 	/** 
 	 * @}
-	 */
-
-	/**
-	 * @name Calling
-	 *
-	 * Methods for dynamically calling methods of a component
-	 *
-	 * Methods implemented in `component-call.cpp`
-	 * 
-	 * @{
-	 */
-		
-	struct Call {
-		std::string what_;
-		Json::Document args_;
-		Json::Document kwargs_;
-	
-		Call(const std::string& what):
-			what_(what){
-		}
-	
-		Call(const std::string& what, const std::string& args):
-			what_(what),
-			args_(args){
-		}
-	
-		Call(const std::string& what, const std::string& args, const std::string& kwargs):
-			what_(what),
-			args_(args),
-			kwargs_(kwargs){
-		}
-	
-		std::string what(void) const {
-			return what_;
-		}
-	
-		unsigned int args(void) const {
-			return args_.size();
-		}
-	
-		template<typename Type=std::string>
-		Type arg(unsigned int index,const std::string& name="") const {
-			// Get argument string
-			std::string arg;
-			if(name.length()>0){
-				if(kwargs_.has(name)) return kwargs_[name].as<Type>();
-				else STENCILA_THROW(Exception,"Argument \""+name+"\" not supplied");
-			}
-			else if(args_.size()<index+1){
-				STENCILA_THROW(Exception,"Not enough arguments supplied");
-			}
-			else return args_[index].as<Type>();
-		}
-	};
-
-	/**
-	 * Call a "virtual" method of a component via an `Instance`
-	 *
-	 */
-	// Two versions are implemented below one for const Component, the other non-const.
-	// Although Supplied... seems uneccesary (why not just use Args...) template deduction
-	// failed without it.
-	template<typename Return,typename Class,typename... Args,typename... Supplied>
-	static Return call(const Instance& instance, Return (* Class::* method)(Component* component, Args... args), Supplied... supplied){
-		return (class_(instance.type_).*method)(instance.pointer_,supplied...);
-	}
-
-	template<typename Return,typename Class,typename... Args,typename... Supplied>
-	static Return call(const Instance& instance, Return (* Class::* method)(const Component* component, Args... args), Supplied... supplied){
-		return (class_(instance.type_).*method)(instance.pointer_,supplied...);
-	}
-
-	/**
-	 * Call a "virtual" method of a component via a component address
-	 */
-	template<typename Return,typename Class,typename... Args>
-	static Return call(const std::string& address, Return (* Class::* method)(const Component* component, Args... args), Args... args){
-		return call(get(address).as<Class>(),method,args...);
-	}
-
-	std::string call(const Call& call);
-
-	/**
-	 * @}
-	 */
-	
+	 */	
 
 	/**
 	 * @name Serving
@@ -659,20 +670,12 @@ public:
 	 *
 	 * @param  address Address of component
 	 */
-	static std::string page(const std::string& address);
-
-	/**
-	 * Generate a HTML page for a component
-	 *
-	 * This method should be overriden by derived
-	 * classes and `define()`d in `classes_`.
-	 */
-	static std::string page(const Component* component);
+	static std::string page_dispatch(const std::string& address);
 
 	/**
 	 * Respond to a web request to a component address
 	 *
-	 * Gets the component and dispatches it's the `requesting` method
+	 * Gets the component and dispatches to it's `request` method
 	 *
 	 * @param  component  A pointer to a stencil
 	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
@@ -687,29 +690,84 @@ public:
 	);
 
 	/**
-	 * Exception for invalid requests (e.g wrong method name or HTTP method)
+	 * Respond to a websocket message to a component address
+	 *
+	 * Gets the component and dispatches to it's `message` method
+	 *
+	 * @param  message    Message text
+	 */
+	static std::string message_dispatch(const std::string& message);
+
+	/**
+	 * Exception for when a dispathced method is not defined for a class
+	 */
+	class MethodUndefinedException : public Exception {
+	 public:
+	 	MethodUndefinedException(const std::string& name, const Instance& instance, const char* file=0, int line=0):
+	 		Exception(
+	 			std::string("Dynamic method has not been defined for component class.") + 
+					"\n  method: " + name +
+					"\n  class: " + instance.type_name(),
+				file,
+				line
+			){}
+	};
+
+	/**
+	 * Default handler methods. These handle a request made to an instance.
+	 * Usually just be casting the instance to the correct type and executing its realted
+	 * method. See default implementations below. May be overidden by derived classes
+	 */
+	
+	template<class Class>
+	static std::string page_handler(const Instance& instance);
+
+	template<class Class>
+	static std::string request_handler(
+		const Instance& instance,		
+		const std::string& verb,
+		const std::string& method,
+		const std::string& body
+	);
+
+	template<class Class>
+	static Wamp::Message message_handler(const Instance& instance, const Wamp::Message& message);
+
+	/**
+	 * Default implementation method
+	 */
+
+	std::string page(void);
+
+	std::string request(const std::string& verb, const std::string& name, const std::string& body);
+
+	std::string request(
+		const std::string& verb, const std::string& name, const std::string& body, 
+		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
+	);
+
+	Wamp::Message message(const Wamp::Message& message);
+
+	/**
+	 * A simple method that provides derived component classes with a 
+	 * simple means of overloading this method by calling their own `call()` implementation. 
+	 */
+	Wamp::Message message(
+		const Wamp::Message& message, 
+		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
+	);
+
+	Json::Document call(const std::string& name, const Json::Document& args);
+
+	/**
+	 * Exception for invalid HTTP request (e.g wrong method name or HTTP method)
 	 */
 	class RequestInvalidException : public Exception {};
 
 	/**
-	 * Process a message for the component at an address
-	 *
-	 * We use [WAMP](http://wamp.ws/) as the message protocol.
-	 * Curently that is only partially implemented.
-	 * 
-	 * @param  address Address of component
-	 * @param  message A WAMP message
-	 * @return         A WAMP message
+	 * Exception for invalid Websocket message
 	 */
-	static std::string message(const std::string& address,const std::string& message);
-
-	/**
-	 * Process a message for a Component
-	 *
-	 * This method intentionally does nothing. It should be overriden by derived
-	 * classes and the overriding method `define()`d.
-	 */
-	static std::string message(Component* component, const std::string& message);
+	class MessageInvalidException : public Exception {};
 
 	/**
 	 * Generate a default index page for the server that is serving
@@ -764,14 +822,6 @@ protected:
 	mutable Meta* meta_;
 
 	/**
-	 * Array of classes that have been defined
-	 *
-	 * See `component.cpp` for definitions of core classes
-	 */
-	static Class classes_[types_];
-
-
-	/**
 	 * A lookup table of Component instances keyed by component address
 	 *
 	 * Provides a registry of Component instances that
@@ -788,5 +838,34 @@ protected:
  */
 template<class Type>
 Html::Document Component_page_doc(const Type& component);
+
+
+template<class Class>
+std::string Component::page_handler(const Component::Instance& instance) {
+	return instance.as<const Class*>()->page();
+}
+
+template<class Class>
+std::string Component::request_handler(const Component::Instance& instance, const std::string& verb, const std::string& method, const std::string& body) {
+	return instance.as<Class*>()->request(verb, method, body);
+}
+
+template<class Class>
+Wamp::Message Component::message_handler(const Component::Instance& instance, const Wamp::Message& message) {
+	return instance.as<Class*>()->message(message);
+}
+
+
+template<class Class>
+Component* Component::open(Component::Type type, const std::string& path) {
+	Class* component = new Class;
+	component->path(path);
+	if (Host::env_var("STENCILA_SESSION").length()) {
+		component->restore();
+	}
+	component->read();
+	component->hold(type);
+	return component;
+}
 
 }

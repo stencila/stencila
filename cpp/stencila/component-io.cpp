@@ -32,9 +32,15 @@ Component& Component::path(const std::string& path) {
 	if(not meta_) meta_ = new Meta;
 	std::string current_path = meta_->path;
 	std::string new_path = path;
-	// Absolutise and canonicalise the new path (to follow symlinks etc)
-	// so comparing apples wth appls below
-	if(new_path.length()>0) new_path = canonical(new_path).generic_string();
+	
+	// Create and canonicalise the new path (to follow symlinks etc)
+	// so comparing apples with apples below
+	if(new_path.length()>0) {
+		// Create the path if necessary (canonical won't work otherwise)
+		if(not exists(new_path)) create_directories(new_path);
+		new_path = canonical(new_path).string();
+	}
+
 	// If the current path is empty...
 	if(current_path.length()==0){
 		// If the new path is empty then...
@@ -42,10 +48,8 @@ Component& Component::path(const std::string& path) {
 			// Create a unique one
 			boost::filesystem::path unique = Host::temp_dirname();
 			create_directories(unique);
-			meta_->path = unique.generic_string();
+			meta_->path = unique.string();
 		} else {
-			// Create the path if necessary
-			if(not exists(new_path)) create_directories(new_path);
 			meta_->path = new_path;
 		}
 	} 
@@ -55,10 +59,6 @@ Component& Component::path(const std::string& path) {
 		if(new_path.length()>0){
 			// and they are different...
 			if(new_path != current_path){
-				// ensure new directory does not already exist
-				if(exists(new_path)) STENCILA_THROW(Exception,"New path already exists.\n  new: "+new_path+"\n  current: "+current_path);
-				// create necessary directories for the following rename operation
-				create_directories(new_path);
 				// move (i.e rename) existing path to the new path.
 				rename(current_path,new_path);
 				meta_->path = new_path;
@@ -95,6 +95,16 @@ std::string Component::address(bool ensure){
 	if(not ensure) STENCILA_THROW(Exception,"Method must be called with a true value");
 	path(true);
 	return address();
+}
+
+Component& Component::address(const std::string& address) {
+	path(Host::stores()[0] + "/" + address);
+	return *this;
+}
+
+
+Component& Component::address(const char* address) {
+	return this->address(std::string(address));
 }
 
 std::string Component::locate(const std::string& address){
@@ -212,6 +222,17 @@ Component& Component::read(const std::string& path){
 
 Component& Component::write(const std::string& path){
 	this->path(path);
+	return *this;
+}
+
+Component& Component::vacuum(void) {
+	auto dir = path();
+	if (dir.length()) {
+		auto out = dir + "/out/";
+		if (boost::filesystem::exists(out)) {
+			boost::filesystem::remove_all(out);
+		}
+	}
 	return *this;
 }
 

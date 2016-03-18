@@ -40,6 +40,7 @@ Commit::Commit(void){
 }
 
 Commit::Commit(const git_commit* commit){
+	id = git_oid_tostr_s(git_commit_id(commit));
 	const git_signature* author = git_commit_author(commit);
 	name = author->name;
 	email = author->email;
@@ -121,10 +122,7 @@ std::string Repository::remote(const std::string& name){
 }
 
 Repository& Repository::remote(const std::string& name,const std::string& url){
-	git_remote* remote = NULL;
-	STENCILA_GIT_TRY(git_remote_lookup(&remote, repo_, "origin"));
-	STENCILA_GIT_TRY(git_remote_set_url(remote,url.c_str()));
-	git_remote_free(remote);
+	STENCILA_GIT_TRY(git_remote_set_url(repo_, "origin", url.c_str()));
 	return *this;
 }
 
@@ -163,7 +161,7 @@ std::vector<Commit> Repository::commits(void){
 	return commits;
 }
 
-void Repository::commit(const std::string& message,const std::string& name,const std::string& email){
+std::string Repository::commit(const std::string& message,const std::string& name,const std::string& email){
 	// See https://github.com/libgit2/libgit2/blob/master/tests/clar_libgit2.c#L350
 	// for an example of how to do a commit. Much of the below is taken from there
 	
@@ -212,6 +210,8 @@ void Repository::commit(const std::string& message,const std::string& name,const
 	git_tree_free(tree);
 	git_index_free(index);
 	git_reference_free(ref);
+
+	return git_oid_tostr_s(&commit_oid);
 }
 
 void Repository::checkout(const std::string& ref){

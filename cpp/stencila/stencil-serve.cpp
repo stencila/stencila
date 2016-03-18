@@ -22,10 +22,6 @@ Stencil& Stencil::preview(const std::string& path){
 	return *this;
 }
 
-std::string Stencil::page(const Component* component){
-	return static_cast<const Stencil&>(*component).page();
-}
-
 std::string Stencil::page(void) const {
 	// Get base document
 	Html::Document doc = Component_page_doc<Stencil>(*this);
@@ -33,6 +29,10 @@ std::string Stencil::page(void) const {
 	Html::Node body = doc.find("body");
 
 	// Extra metadata
+	head.append("meta",{
+		{"itemprop","mode"},
+		{"content",mode()}
+	});
 	head.append("meta",{
 		{"itemprop","contexts"},
 		{"content",join(contexts(),",")}
@@ -46,8 +46,9 @@ std::string Stencil::page(void) const {
 	return doc.dump(false);
 }
 
-std::string Stencil::request(Component* component,const std::string& verb,const std::string& method,const std::string& body){
-	return static_cast<Stencil&>(*component).request(verb, method, body);
+Stencil& Stencil::page(const std::string& filename) {
+	write_to(filename, page());
+	return *this;
 }
 
 std::string Stencil::request(const std::string& verb,const std::string& method,const std::string& body){
@@ -98,7 +99,19 @@ std::string Stencil::request(const std::string& verb,const std::string& method,c
 		render();
 
 		response.append("format","html");
-		response.append("content",html(false,false));
+		response.append("content",html());
+	}
+	else if(signature=="PUT boot"){
+		response = Component::call("boot","{}");
+	}
+	else if(signature=="PUT write"){
+		write();
+	}
+	else if(signature=="PUT store"){
+		store();
+	}
+	else if(signature=="PUT restore"){
+		restore();
 	}
 	else {
 		throw RequestInvalidException();
@@ -131,11 +144,10 @@ std::string Stencil::interact(const std::string& code){
 	}
 }
 
-std::string Stencil::call(Component* component, const Call& call){
-	return static_cast<Stencil&>(*component).call(call);
-}
-
-std::string Stencil::call(const Call& call) {
+Json::Document Stencil::call(const std::string& name, const Json::Document& args) {
+	// TODO Apply new API here
+	
+	#if 0
 	auto what = call.what();
 	
 	// Getting content
@@ -218,6 +230,7 @@ std::string Stencil::call(const Call& call) {
 	}
 
 	else return Component::call(call);
+	#endif
 
 	return "";
 }

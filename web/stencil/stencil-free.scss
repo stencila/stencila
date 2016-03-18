@@ -1,0 +1,40 @@
+@import '../node_modules/semantic-ui-css/semantic.min';
+
+#content {
+	max-width:100%
+}
+
+[data-par] {
+	margin: 0.2em 0;
+}
+
+@media print {
+	#content {
+        // Remove minimum and maximum width specified previously
+        max-width: none;
+        min-width: none;
+
+		// Smaller and more compact text
+	    font-size: 11pt;
+	    line-height: 1.3em;
+
+	    // Darker
+	    color: #333;
+	}
+	
+	#content h1,
+	#content h2,
+	#content h3,
+	#content h4,
+	#content h5,
+    #content h6 {
+		// Avoid page breaks after
+		page-break-after: avoid;
+	}
+
+	#content figure,
+	#content table {
+		// Avoid pagebreaks within
+		page-break-inside: avoid;
+	}
+};

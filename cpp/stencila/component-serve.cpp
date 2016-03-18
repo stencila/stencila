@@ -1,9 +1,11 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
+#include <stencila/debug.hpp>
 #include <stencila/component.hpp>
 #include <stencila/network.hpp>
 #include <stencila/json.hpp>
+#include <stencila/wamp.hpp>
 
 namespace Stencila {
 
@@ -70,120 +72,122 @@ Component& Component::preview(Type type, const std::string& path) {
 	return *this;
 }
 
-std::string Component::page(const std::string& address){
+std::string Component::page_dispatch(const std::string& address){
 	Instance instance = get(address);
-	if(not instance.exists()) return "<html><head><title>Error</title></head><body>No component at address \""+address+"\"</body></html>";
-	else return call(instance,&Class::pageing);
+	if(not instance.exists()){
+		return "<html><head><title>Error</title></head><body>No component at address \""+address+"\"</body></html>";
+	}
+	else {
+		auto method = Class::get(instance.type()).page_method;
+		if (method) {
+			return method(instance);
+		} else {
+			throw MethodUndefinedException("page", instance, __FILE__, __LINE__);
+		}
+	}
 }
 
-std::string Component::page(const Component* component){
+std::string Component::request_dispatch(const std::string& address, const std::string& verb, const std::string& name, const std::string& body){
+	Instance instance = get(address);
+	if(not instance.exists()) {
+		return "404";
+	} else {
+		auto method = Class::get(instance.type()).request_method;
+		if (method) {
+			return method(instance, verb, name, body);
+		} else {
+			throw MethodUndefinedException("request", instance, __FILE__, __LINE__);
+		}
+	}
+}
+
+std::string Component::message_dispatch(const std::string& message) {
+    Wamp::Message request(message);
+	Instance instance = get(request.procedure_address());
+	if(not instance.exists()) {
+		return "404";
+	} else {
+	    Wamp::Message response;
+	    try {
+			auto method = Class::get(instance.type()).message_method;
+			if (method) {
+				response = method(instance, request);
+			} else {
+				throw MethodUndefinedException("message", instance, __FILE__, __LINE__);
+			}
+	    } catch (const std::exception& exc) {
+	        response = request.error(exc.what());
+	    } catch (...) {
+	        response = request.error("Unknown exception");
+	    }
+	    return response.dump();
+	}
+}
+
+std::string Component::page(void) {
 	return "";
 }
 
-std::string Component::request_dispatch(const std::string& address,const std::string& verb,const std::string& method,const std::string& body){
-	Instance instance = get(address);
-	if(not instance.exists()) return "404";
-	else return call(instance,&Class::requesting,verb,method,body);
+std::string Component::request(const std::string& verb, const std::string& name, const std::string& body) {
+	std::function<Json::Document(const std::string&, const Json::Document&)> callback = [&](const std::string& name, const Json::Document& args){
+		return this->call(name, args);
+	};
+	return Component::request(verb, name, body, &callback);
 }
 
-std::string Component::message(const std::string& address,const std::string& message){
-	using boost::format;
-
-	//WAMP basic spec is at https://github.com/tavendo/WAMP/blob/master/spec/basic.md
-	
-	// WAMP message codes used below.
-	// From https://github.com/tavendo/WAMP/blob/master/spec/basic.md#message-codes-and-direction
-	//static const int ERROR = 8;
-	static const int CALL = 48;
-	static const int RESULT = 50;
-	//static const int YIELD = 70;
-
-	//[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri]
-	//[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list]
-	//[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list, ArgumentsKw|dict]
-
-	try {
-		Instance instance = get(address);
-		if(not instance.exists()){
-			return "[8, 0, 0, {}, \"No component at address.\", [\"" + address + "\"]]";
-		} else {
-
-			Json::Document request(message);
-
-			int items = request.size();
-			if(items<1) STENCILA_THROW(Exception,"Malformed message.\n  message: "+message);
-
-			char code = request[0].as<int>();
-			if(code==CALL){
-				//[CALL, Request|id, Options|dict, Procedure|uri]
-				//[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]
-				//[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]
-				
-				if(items<2) STENCILA_THROW(Exception,"Malformed message.\n  message: "+message);
-				int id = request[1].as<int>();
-				
-				if(items<4) STENCILA_THROW(Exception,"Malformed message.\n  message: "+message);
-				std::string procedure = request[3].as<std::string>();
-
-				std::string args;
-				if(items>=5) args = request[4].dump();
-				else args = "[]";
-
-				std::string kwargs;
-				if(items>=6) kwargs = request[5].dump();
-				else kwargs = "{}";
-				
-				std::string result;
-				try {
-					Call call(procedure,args,kwargs);
-					result = Component::call(instance,&Class::calling,call);
-				}
-				catch(const std::exception& e){
-					std::string message = e.what();
-					// Escape quotes, newlines and tabs to prevent JSON parsing errors
-					boost::replace_all(message,"\"","\\\"");
-					boost::replace_all(message,"\n","\\n");
-					boost::replace_all(message,"\t","\\t");
-					return str(format("[8, 48, %d, {}, \"%s\"]")%id%message);
-				}
-				catch(...){
-					return str(format("[8, 48, %d, {}, \"unknown exception\"]")%id);         
-				}
-
-				//[RESULT, CALL.Request|id, Details|dict]
-				//[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
-				//[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
-				Json::Document response = Json::Array();
-				response.append(RESULT);
-				response.append(id);                                // CALL.Request|id
-				response.append(Json::Object());                    // Details|dict
-				std::vector<std::string> yield_args = {result};
-				response.append(yield_args);                        // YIELD.Arguments|list
-				return response.dump();
-			}
-			return "[8, 0 , 0,{},\"unhandle message code\"]";
-		}
-	}
-	// Most exceptions should be caught above and WAMP ERROR messages appropriate to the 
-	// request type returned. The following are failovers if that does not happen...
-	catch(const std::exception& e){
-		std::string message = e.what();
-		// Escape quotes, newlines and tabs to prevent JSON parsing errors
-		boost::replace_all(message,"\"","\\\"");
-		boost::replace_all(message,"\n","\\n");
-		boost::replace_all(message,"\t","\\t");
-		return std::string("[8, 0, 0, {}, \"") + message + "\"]";
-	}
-	catch(...){
-		return "[8, 0, 0, {}, \"unknown exception\"]";         
-	}
-	// This exception is intended to capture errors in coding above where none of the branches
-	// return a string
-	STENCILA_THROW(Exception,"Implementation error; message not handled properly");
+std::string Component::request(
+	const std::string& verb, const std::string& name, const std::string& body,
+	std::function<Json::Document(const std::string&, const Json::Document&)>* callback
+) {
+    Json::Document args;
+    if (body.length()) {
+    	args.load(body);
+    }
+    Json::Document response;
+    try {
+        response = (*callback)(name, args);
+    } catch (const std::exception& exc) {
+        response.append("error", exc.what());
+    } catch (...) {
+        response.append("error", "Unknown exception");
+    }
+    return response.dump();
 }
 
-std::string Component::message(Component* component, const std::string& message){
-	return "{}";
+Wamp::Message Component::message(const Wamp::Message& message) {
+	return message.result(
+        call(
+        	message.procedure_method(), 
+        	message.args()
+        )
+    );
+}
+
+Wamp::Message Component::message(const Wamp::Message& message, std::function<Json::Document(const std::string&, const Json::Document&)>* callback) {
+    return message.result(
+        (*callback)(
+        	message.procedure_method(), 
+        	message.args()
+        )
+    );
+}
+
+Json::Document Component::call(const std::string& name, const Json::Document& args) {
+	Json::Document result;
+	if(name=="boot") {
+		result.append("rights", "ALL");
+		Json::Document session = Json::Object();
+		session.append("local", true);
+		session.append("websocket", "ws://localhost:7373/" + address());
+		result.append("session", session);
+	} else if (name=="commit") {
+		auto message = args[0].as<std::string>();
+		auto id = commit(message);
+		result.append("id", id);
+	} else {
+        STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
+    }
+    return result;
 }
 
 std::string Component::index(void){
@@ -195,9 +199,11 @@ std::string Component::index(void){
 			<body></body>
 		</html>
 	)");
-	auto list = page.select("body").append("ul");
+	auto ul = page.select("body").append("ul");
 	for(auto instance : instances_){
-		list.append("li",instance.first);
+		auto li = ul.append("li");
+		li.append("span",{{"class","type"}},type_name(instance.second.type()));
+		li.append("a",{{"href","./"+instance.first}},instance.first);
 	}
 	return page.dump();
 }

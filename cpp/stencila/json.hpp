@@ -42,6 +42,11 @@ struct Array {};
  */
 class Node {
 public:
+	typedef ::Json::Value Impl;
+
+	Node(const Impl& impl);
+	Node(Impl& impl);
+	Node(Impl* impl);
 
 	/**
 	 * Is this Node of this type?
@@ -59,6 +64,28 @@ public:
 	 * Get the number of child nodes in this Node
 	 */
 	unsigned int size(void) const;
+
+	/**
+	 * Iterator
+	 *
+	 * A miinimal iterator class for iterating over JSON
+	 * nodes
+	 */
+	class iterator {
+	public:
+		~iterator(void);
+		Node operator*();
+		iterator& operator++();
+		bool operator==(const Node::iterator& other);
+		bool operator!=(const Node::iterator& other);
+		Node key(void);
+	private:
+		friend class Node;
+		void* pimpl_;
+	};
+
+	iterator begin(void) const;
+	iterator end(void) const;
 
 	/**
 	 * Does the object have a child node with the given name
@@ -107,15 +134,12 @@ public:
 	*/
 	std::string dump(bool pretty = false) const;
 
+	/**
+	 * Get the implementation for this node
+	 */
+	const Impl& impl(void) const;
+
 protected:
-	typedef ::Json::Value Impl;
-
-	Node(Impl& impl):
-		pimpl_(&impl){};
-
-	Node(Impl* impl):
-		pimpl_(impl){};
-
 	Impl* pimpl_;
 };
 
@@ -126,6 +150,8 @@ class Document : public Node {
 public:
 
 	Document(void);
+
+	Document(const Node& other);
 
 	Document(const Document& other);
 
@@ -138,6 +164,8 @@ public:
 	Document(const std::string& json);
 
 	~Document(void);
+
+	Document& operator=(const Document& other);
 
 	Document& read(std::istream& stream);
 

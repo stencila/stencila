@@ -24,6 +24,15 @@
 			"cmd":
 			[
 				"make",
+				"cpp-tests-quick"
+			],
+			"name": "Stencila: run quick C++ tests",
+			"working_dir": "."
+		},
+		{
+			"cmd":
+			[
+				"make",
 				"r-tests"
 			],
 			"name": "Stencila: run all R tests",

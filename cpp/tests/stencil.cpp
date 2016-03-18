@@ -2,10 +2,9 @@
 #include <boost/filesystem.hpp>
 
 #include <stencila/stencil.hpp>
+using namespace Stencila;
 
 BOOST_AUTO_TEST_SUITE(stencil_quick)
-
-using namespace Stencila;
 
 BOOST_AUTO_TEST_CASE(read){
 	std::string filename = (
@@ -65,15 +64,16 @@ BOOST_AUTO_TEST_CASE(write_empty){
 BOOST_AUTO_TEST_CASE(get){
 	Stencil s;
 	s.write();
-	s.hold(Component::StencilType); // Need to gold this so it is not duplicated on get
+	s.hold(Component::StencilType); // Need to hold this so it is not duplicated on get
 
 	auto instance = s.get(s.address());
 	BOOST_CHECK(instance.exists());
 	BOOST_CHECK_EQUAL(instance.type(),Component::StencilType);
 
-	Stencil& s_ = instance.as<Stencil>();
+	Stencil& s_ = *instance.as<Stencil*>();
 	BOOST_CHECK_EQUAL(s.address(),s_.address());
 
+	s.unhold();
 	s.destroy();
 }
 

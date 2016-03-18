@@ -16,6 +16,10 @@ std::string env_var(const std::string& name) {
 	return raw?raw:""; 
 }
 
+void env_var(const std::string& name, const std::string& value) {
+	setenv(name.c_str(), value.c_str(), 1); 
+}
+
 std::string user_store(void) {
 	using namespace boost::filesystem;
 	// Determine user's home directory. See:

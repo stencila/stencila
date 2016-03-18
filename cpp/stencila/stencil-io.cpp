@@ -32,6 +32,28 @@ Stencil& Stencil::initialise(const std::string& from){
 	return *this;
 }
 
+namespace {
+	struct restrict_walker {
+		void traverse(Xml::Node& node) {
+			for(auto child : node.children()){
+				traverse(child);
+				if(child.name()=="section") {
+					for(auto grandchild : child.children()) {
+						child.before(grandchild);
+					}
+					child.destroy();
+				}
+			}
+		}
+	};
+}
+
+Stencil& Stencil::restrict(void) {
+	restrict_walker walker;
+	walker.traverse(*this);
+	return *this;
+};
+
 Stencil& Stencil::import(const std::string& path){
 	if(not boost::filesystem::exists(path)){
 		STENCILA_THROW(Exception,"File <"+path+"> not found");
@@ -100,6 +122,18 @@ Stencil& Stencil::write(const std::string& directory){
 	if(source_=="stencil.cila") Component::write_to("stencil.cila",cila());
 	else Component::write_to("stencil.html",html());
 	return *this;
+}
+
+Stencil& Stencil::store(void) {
+    write();
+    Component::store();
+    return *this;
+}
+
+Stencil& Stencil::restore(void) {
+    Component::restore();
+    read();
+    return *this;
 }
 
 }

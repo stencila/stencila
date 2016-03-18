@@ -19,7 +19,10 @@ var sass = require('gulp-sass');
 var jasmine = require('gulp-jasmine');
 
 // Types of components
-var types = ['stencil'];
+var types = [
+  'stencil/stencil','stencil/stencil-strict','stencil/stencil-free',
+  'sheet/sheet'
+];
 
 // Generic error handler creates a notifcation window
 function errorHandler() {
@@ -33,7 +36,8 @@ function errorHandler() {
 
 
 function style(type,watch) {
-  var src = './'+type+'/'+type+'.scss';
+  var src = './'+type+'.scss';
+  var dest = type.split('/')[1]+'.min.css';
 
   gulp.src(src)
     .pipe(sass({
@@ -41,7 +45,7 @@ function style(type,watch) {
         includePaths: require('node-normalize-scss').includePaths
      })
     .on('error', errorHandler))
-    .pipe(rename('stencil.min.css'))
+    .pipe(rename(dest))
     .pipe(gulp.dest('./build'));
 }
 
@@ -58,7 +62,8 @@ function styles(watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others  
 function script(type,watch) {
-  var src = './'+type+'/'+type+'.js';
+  var src = './'+type+'.js';
+  var dest = type.split('/')[1]+'.min.js';
 
   var props = {
     entries: [src],
@@ -74,7 +79,7 @@ function script(type,watch) {
       .on('error',errorHandler)
       .pipe(source(src))
       .pipe(buffer())
-      .pipe(rename('stencil.min.js'))
+      .pipe(rename(dest))
       .pipe(sourcemaps.init({
         loadMaps: true
       }))
@@ -98,6 +103,12 @@ function scripts(watch) {
   });
 }
 
+function images(watch) {
+  gutil.log('Copying images');
+  gulp.src('./images/**/*.{png,svg}')
+      .pipe(gulp.dest('./build/images'));
+}
+
 // Gulp tasks for the above
 
 gulp.task('styles', function() {
@@ -108,9 +119,14 @@ gulp.task('scripts', function() {
   return scripts();
 });
 
+gulp.task('images', function() {
+  return images();
+});
+
 gulp.task('build', function() {
   styles();
   scripts();
+  images();
 });
 
 gulp.task('watch', function() {

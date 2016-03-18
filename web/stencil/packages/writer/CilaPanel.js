@@ -1,43 +1,41 @@
 'use strict';
 
-var oo = require('substance/util/oo');
-var Panel = require('substance/ui/Panel');
+var ScrollPane = require('substance/ui/ScrollPane');
 var Component = require('substance/ui/Component');
-var Icon = require('substance/ui/FontAwesomeIcon');
 var $$ = Component.$$;
 
 function CilaPanel() {
-  Panel.apply(this, arguments);
-
-  var doc = this.getDocument();
-  doc.connect(this, {
-    'document:changed': this.handleDocumentChanged
-  });
+  Component.apply(this, arguments);
 }
 
 CilaPanel.Prototype = function() {
 
+  this.didMount = function() {
+    var doc = this.getDocument();
+    doc.connect(this, {
+      'document:changed': this.handleDocumentChanged
+    });
+    this.initAce();
+  };
+
   this.dispose = function() {
-    var controller = this.getController();
-    controller.disconnect(this);
+    var doc = this.getDocument();
+    doc.disconnect(this);
     this.editor.destroy();
   };
 
   this.render = function() {
-    var el = $$('div')
-      .addClass('sc-cila-panel panel')
+    var el = $$('div').addClass('sc-cila-panel')
       .append(
-        $$('div').attr('id','ace_editor')
+        $$(ScrollPane).append(
+          $$('div').attr('id','ace_editor')
+        )
       );
     return el;
   };
 
-  this.didMount = function() {
-    this.initAce();
-  };
-
   this.initAce = function() {
-    var editor = this.editor = ace.edit('ace_editor');
+    var editor = this.editor = window.ace.edit('ace_editor');
     editor.getSession().setMode('ace/mode/cila');
     editor.setTheme("ace/theme/monokai");
 
@@ -73,8 +71,11 @@ CilaPanel.Prototype = function() {
     }.bind(this));
   };
 
+  this.getDocument = function() {
+    return this.context.controller.getDocument();
+  };
 };
 
-oo.inherit(CilaPanel, Panel);
+Component.extend(CilaPanel);
 
 module.exports = CilaPanel;

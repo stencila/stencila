@@ -7,6 +7,8 @@ ROOT := $(realpath .)
 OS := $(shell ./config.py os)
 # Get the machine architecture e.g i386, x86_64
 ARCH := $(shell ./config.py arch)
+# Get Stencila commit
+COMMIT :=  $(shell ./config.py commit)
 # Get Stencila version
 VERSION :=  $(shell ./config.py version)
 # Is this a dirty build (i.e. changes since last commit)?
@@ -24,10 +26,26 @@ ifndef RESOURCES
 	RESOURCES := build/resources
 endif
 
+# A function for notify the Stencila hub that
+# a build has been delivered
+define DELIVERY_NOTIFY
+	curl -u "Token:$$STENCILA_TOKEN" \
+	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
+	    \"package\": \"$1\", \
+	    \"flavour\": \"$2\", \
+	    \"platform\": \"$3\", \
+	    \"url\": \"$4\", \
+	    \"version\": \"$(VERSION)\", \
+	    \"commit\": \"$(COMMIT)\" \
+	   }" "https://stenci.la/builds"
+endef
+
+# Show important Makefile variables
 vars:
 	@echo ROOT: $(ROOT)
 	@echo OS: $(OS)
 	@echo ARCH: $(ARCH)
+	@echo COMMIT: $(COMMIT)
 	@echo VERSION: $(VERSION)
 	@echo DIRTY: $(DIRTY)
 	@echo BUILD: $(BUILD)
@@ -60,7 +78,7 @@ CPP_REQUIRES_INC_DIRS :=
 CPP_REQUIRES_LIB_DIRS := 
 CPP_REQUIRES_LIBS :=
 
-BOOST_VERSION := 1_58_0
+BOOST_VERSION := 1_60_0
 
 $(RESOURCES)/boost_$(BOOST_VERSION).tar.bz2:
 	mkdir -p $(RESOURCES)
@@ -127,7 +145,7 @@ CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex boost_thread
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
-LIBGIT2_VERSION := 0.22.3
+LIBGIT2_VERSION := 0.23.4
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -165,17 +183,17 @@ CPP_REQUIRES_LIBS += git2
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
-CPP_NETLIB_VERSION := 0.11.1
+CPP_NETLIB_VERSION := 0.11.2
 
-$(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2:
+$(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ http://storage.googleapis.com/cpp-netlib-downloads/$(CPP_NETLIB_VERSION)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+	wget --no-check-certificate -O $@ https://github.com/cpp-netlib/cpp-netlib/archive/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
 	
-$(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.bz2
+$(BUILD)/cpp/requires/cpp-netlib: $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
-	tar --bzip2 -xf $< -C $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/cpp-netlib-$(CPP_NETLIB_VERSION)-final $(BUILD)/cpp/requires/cpp-netlib
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/cpp-netlib-cpp-netlib-$(CPP_NETLIB_VERSION)-final $(BUILD)/cpp/requires/cpp-netlib
 	touch $@
 
 # cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
@@ -199,36 +217,36 @@ CPP_REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri
 cpp-requires-cpp-netlib: $(BUILD)/cpp/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a
 
 
-PUGIXML_VERSION := 1.6
+PUGIXML_VERSION := 1.7
 
 $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ http://github.com/zeux/pugixml/releases/download/v$(PUGIXML_VERSION)/pugixml-$(PUGIXML_VERSION).tar.gz
+	wget --no-check-certificate -O $@ https://github.com/zeux/pugixml/archive/v$(PUGIXML_VERSION).tar.gz
 
 $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
 	mv $(BUILD)/cpp/requires/pugixml-$(PUGIXML_VERSION) $(BUILD)/cpp/requires/pugixml
+	touch $@
 
 PUGIXML_CXX_FLAGS := -O2
 ifeq ($(OS), linux)
 	PUGIXML_CXX_FLAGS += -fPIC
 endif
-$(BUILD)/cpp/requires/pugixml-built.flag: $(BUILD)/cpp/requires/pugixml
+$(BUILD)/cpp/requires/pugixml/src/libpugixml.a: $(BUILD)/cpp/requires/pugixml
 	cd $</src ;\
 	  $(CXX) $(PUGIXML_CXX_FLAGS) -c pugixml.cpp ;\
 	  $(AR) rcs libpugixml.a pugixml.o
-	touch $@
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/pugixml/src
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/pugixml/src
 CPP_REQUIRES_LIBS += pugixml
 
-cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml-built.flag
+cpp-requires-pugixml: $(BUILD)/cpp/requires/pugixml/src/libpugixml.a
 
 
-JSONCPP_VERSION := 1.6.2
+JSONCPP_VERSION := 1.6.5
 
 $(RESOURCES)/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
@@ -249,17 +267,17 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/jsoncpp/dist
 cpp-requires-jsoncpp: $(BUILD)/cpp/requires/jsoncpp/dist
 
 
-TIDYHTML5_VERSION := b4efe74
+TIDYHTML5_VERSION := 5.1.25
 
 $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
 	mkdir -p $(RESOURCES)
-	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/tarball/$(TIDYHTML5_VERSION)
+	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/archive/$(TIDYHTML5_VERSION).tar.gz
 
 $(BUILD)/cpp/requires/tidy-html5: $(RESOURCES)/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p $(BUILD)/cpp/requires
 	rm -rf $@
 	tar xzf $< -C $(BUILD)/cpp/requires
-	mv $(BUILD)/cpp/requires/htacg-tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
+	mv $(BUILD)/cpp/requires/tidy-html5-$(TIDYHTML5_VERSION) $(BUILD)/cpp/requires/tidy-html5
 	touch $@
 
 TIDYHTML5_CMAKE_FLAGS = -DCMAKE_C_FLAGS="-O2 -fPIC"
@@ -288,7 +306,7 @@ CPP_REQUIRES_LIBS += tidys
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
 
-WEBSOCKETPP_VERSION := 0.5.1
+WEBSOCKETPP_VERSION := 0.6.0
 
 $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -314,7 +332,7 @@ cpp-requires: $(BUILD)/cpp/requires
 # List of other libraries required. These are not included `libstencila.a`
 CPP_OTHER_LIBS := z crypto ssl
 ifeq ($(OS), linux)
-	CPP_OTHER_LIBS += rt pthread
+	CPP_OTHER_LIBS += rt pthread curl
 endif
 ifeq ($(OS), win)
 	CPP_OTHER_LIBS += ws2_32 mswsock ssh2
@@ -358,11 +376,12 @@ ifneq ($(CPP_VERSION_COMPILED),$(VERSION))
 DUMMY := $(shell rm -f $(CPP_VERSION_CPP))
 endif
 
-# Create version.cpp file with current version
+# Create version.cpp file with current version and commit
 $(CPP_VERSION_CPP):
 	@mkdir -p $(dir $@)
 	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
 	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
+	@echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(CPP_VERSION_CPP)
 
 # Compile version object file
 $(CPP_VERSION_O): $(CPP_VERSION_CPP)
@@ -372,6 +391,7 @@ cpp-library-version: $(CPP_VERSION_O)
 
 cpp-library-vars:
 	@echo VERSION: $(VERSION)
+	@echo COMMIT: $(COMMIT)
 	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
 
 
@@ -420,6 +440,9 @@ $(BUILD)/cpp/library/libstencila.a: $(BUILD)/cpp/library/objects
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
 
 cpp-library: cpp-library-staticlib
+
+cpp-library-clean:
+	rm -rf $(BUILD)/cpp/library
 
 #################################################################################################
 # Stencila C++ package
@@ -612,6 +635,33 @@ cpp-scrub:
 cpp-clean:
 	rm -rf $(BUILD)/cpp
 
+#################################################################################################
+# Stencila Docker images
+
+$(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfile docker/stencila-session.r r-package
+	@mkdir -p $(dir $@)
+	cp docker/ubuntu-14.04-r-3.2/Dockerfile $(dir $@)
+	cp docker/stencila-session.r $(dir $@)
+	cp $(BUILD)/r/3.2/stencila_$(VERSION).tar.gz $(dir $@)/stencila.tar.gz
+	docker build --tag stencila/ubuntu-14.04-r-3.2:$(VERSION) $(dir $@)
+	docker tag --force stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila/ubuntu-14.04-r-3.2:latest
+	echo "stencila/ubuntu-14.04-r-3.2:$(VERSION)" > $@
+
+docker-r-build: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
+
+docker-r-session: docker-r-build
+	docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila-session
+
+docker-r-run: docker-r-build
+	docker run --interactive --tty stencila/ubuntu-14.04-r-3.2:$(VERSION) /bin/bash
+
+docker-r-deliver: docker-r-build
+	# It's necessary to push both tags:
+	#   http://container-solutions.com/docker-latest-confusion/
+	#   https://github.com/docker/docker/issues/7336
+	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
+	docker push stencila/ubuntu-14.04-r-3.2:latest
+	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-r-3.2)
 
 #################################################################################################
 # Stencila Javascript package
@@ -804,8 +854,8 @@ ifeq (dirty,$(DIRTY))
 else
 	$(eval PY_WHEEL := $(shell cat $(PY_BUILD)/latest.txt))
 	aws s3 cp $(PY_BUILD)/dist/$(PY_WHEEL) s3://get.stenci.la/py/
+	$(call DELIVERY_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(PY_WHEEL))
 endif
-
 
 #################################################################################################
 # Stencila R package
@@ -953,7 +1003,8 @@ r-package-check: $(R_BUILD)/stencila
 	  R CMD check stencila
 
 # Build the package
-R_PACKAGE_FILE := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT)
+R_PACKAGE_FILE_BUILT := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT) # What gets build by R CMD
+R_PACKAGE_FILE := stencila_$(VERSION).$(R_PACKAGE_EXT) # What we want it to be called (with non-standard-for-R version string)
 $(R_BUILD)/$(R_PACKAGE_FILE): $(R_BUILD)/stencila
 ifeq ($(OS),linux)
 	cd $(R_BUILD); R CMD build stencila
@@ -961,6 +1012,7 @@ endif
 ifeq ($(OS),win)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
 endif
+	mv $(R_BUILD)/$(R_PACKAGE_FILE_BUILT) $(R_BUILD)/$(R_PACKAGE_FILE)
 r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 
 # Deposit package into local repository for mirroring to http://get.stenci.la/r
@@ -970,12 +1022,16 @@ r-package: $(R_BUILD)/$(R_PACKAGE_FILE)
 # 	
 # See http://cran.r-project.org/doc/manuals/R-admin.html#Setting-up-a-package-repository
 r-repo: r-package
+ifeq (dirty,$(DIRTY))
+	$(error Local repo is not created for dirty versions: $(VERSION). Commit or stash and try again.)
+else
 	# Make R package repository sub directory
 	mkdir -p $(R_BUILD)/repo/$(R_REPO_DIR)
 	# Copy package there
 	cp $(R_BUILD)/$(R_PACKAGE_FILE) $(R_BUILD)/repo/$(R_REPO_DIR)
 	# Generate the PACKAGE file for the repo
 	Rscript -e "require(tools); tools::write_PACKAGES('$(R_BUILD)/repo/$(R_REPO_DIR)',type='$(R_REPO_TYPE)')"
+endif
 
 # Deliver R package to get.stenci.la
 # Requires http://aws.amazon.com/cli/ and access keys for get.stenci.la
@@ -984,7 +1040,8 @@ ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
 	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
-	aws s3 sync $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
+	aws s3 cp --recursive $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
+	$(call DELIVERY_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
 endif
 
 # Install package in a testenv directory
@@ -1013,6 +1070,7 @@ r-install: $(R_BUILD)/$(R_PACKAGE_FILE)
 r-clean:
 	rm -rf $(BUILD)/r
 
+
 #################################################################################################
 # Stencila web browser module
 
@@ -1026,13 +1084,27 @@ web-watch:
 	cd web; gulp watch
 
 web-examples:
-	stencila-r web/examples/a render write compile
+	stencila-r web/examples/a render write page:"index.html"
+	stencila-r web/examples/stencil-with-pars render write page:"index.html"
+	stencila-r web/examples/b update write page:"index.html"
+	stencila-r web/examples/sheet-with-error update write page:"index.html"
 
 web-devserve:
 	cd web; node server.js
 
+web-devserve-hub:
+	cd web; node server.js https://stenci.la
+
+web-devserve-hubdev:
+	cd web; node server.js http://localhost:7300
+
 web-deliver:
+ifeq (dirty,$(DIRTY))
+	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
+else
 	aws s3 sync web/build s3://get.stenci.la/web/
+	$(call DELIVERY_NOTIFY,web,ES5)
+endif
 
 web-clean:
 	rm -rf web/build

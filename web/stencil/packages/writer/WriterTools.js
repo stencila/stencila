@@ -1,3 +1,5 @@
+'use strict';
+
 var Toolbar = require('substance/ui/Toolbar');
 var Component = require('substance/ui/Component');
 var $$ = Component.$$;
@@ -12,27 +14,37 @@ var StrongTool = require('substance/packages/strong/StrongTool');
 var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
 var LinkTool = require('substance/packages/link/LinkTool');
 
+var HomeTool = require('../../../shared/tools/home/HomeTool');
 var ActivateTool = require('./ActivateTool');
 var RenderTool = require('./RenderTool');
 
-var WriterTools = Component.extend({
-  render: function() {
+var InsertTableTool = require('../table/InsertTableTool');
+
+function WriterTools() {
+  WriterTools.super.apply(this, arguments);
+}
+WriterTools.Prototype = function() {
+  this.render = function() {
     return $$('div').append(
       $$(Toolbar.Group).append(
+        $$(HomeTool, {
+          address: this.props.engine.address
+        })
+      ),
+      $$(Toolbar.Group).addClass('float-right').append(
         $$(SwitchTextTypeTool)
       ),
-      $$(Toolbar.Group).append(
+      $$(Toolbar.Group).addClass('float-right').append(
         $$(UndoTool).append($$(Icon, {icon: 'fa-undo'})),
         $$(RedoTool).append($$(Icon, {icon: 'fa-repeat'}))
       ),
-      $$(Toolbar.Group).append(
-        $$(ActivateTool).append($$(Icon, {icon: 'fa-power-off'})),
+      $$(Toolbar.Group).addClass('float-right').append(
         $$(RenderTool).append($$(Icon, {icon: 'fa-refresh'})),
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'}))
       ),
-      /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-image'}),}).append(
-        $$(StrongTool).append($$(Icon, {icon: 'fa-bold'}))
-      ),*/
+      /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
+        $$(InsertTableTool).append($$(Icon, {icon: 'fa-table'}))
+      )*/
       $$(Toolbar.Group).addClass('float-right').append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
         $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
@@ -40,6 +52,6 @@ var WriterTools = Component.extend({
       )
     );
   }
-});
-
+};
+Component.extend(WriterTools);
 module.exports = WriterTools;

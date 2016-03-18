@@ -1,93 +1,42 @@
+'use strict';
 
-var $ = require('substance/util/jquery');
+var DocumentNode = require('substance/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
-var StencilFigure = StencilNode.extend({
-  name: 'stencil-figure',
-  properties: {
-    'index': 'string',
+function StencilFigure() {
+  StencilFigure.super.apply(this, arguments);
+}
+
+DocumentNode.extend(StencilFigure, StencilNode);
+
+StencilFigure.static.name = "stencil-figure";
+
+StencilFigure.static.defineSchema({
     'spec': 'string',
     'source': 'string',
-    'error': 'string',
-    'image': 'string',
-    'label': 'string',
-    'caption': 'string'
-  }
+    'caption': 'text',
+
+    // Properties rendered by the backend
+    // 
+    // Index (ie. number) of the figure
+    'index': { type: 'string', optional: true },
+    // Rendered image 
+    'image': { type: 'string', default: "http://" },
+    // Image styling
+    // Currently, the size specified in the exec spec is
+    // applied to the image's style attribute
+    // In the future it could be parsed from the spec itself
+    // but this is currently the easiest way to do it.
+    'image_style': { type: 'string', optional: true },
+    // Any error associated with execution
+    'error': { type: 'string', optional: true },
+
 });
 
 StencilFigure.static.generatedProps = [
-  'image', 'error', 'label', 'index'
+  'index', 'image', 'image_style', 'error'
 ];
 
-StencilFigure.static.components = ['caption'];
-
-StencilFigure.static.blockType = true;
-
-StencilFigure.static.matchElement = function($el) {
-  return $el.is('figure');
-};
-
-StencilFigure.static.fromHtml = function($el, converter) {
-  var id = converter.defaultId($el, 'stencil-figure');
-
-  var figure = {
-    id: id,
-    index: '',
-    spec: null,
-    source: null,
-    hash: null,
-    error: null,
-    image: null,
-    caption: ''
-  };
-
-  figure.index = $el.attr('data-index');
-
-  var $exec = $el.find('[data-exec]');
-  if($exec.length){
-    figure.spec = $exec.attr('data-exec');
-    figure.source = $exec.text();
-    figure.hash = $exec.attr('data-hash');
-    figure.error = $exec.attr('data-error');
-  }
-
-  var $img = $el.find('[data-out] img');
-  if($img.length){
-    figure.image = $img.attr('src');
-  }
-
-  var $caption = $el.find('figcaption,caption');
-  if($caption.length){
-    figure.caption = converter.annotatedText($caption, [id, 'caption']);
-  }
-
-  return figure;
-};
-
-StencilFigure.static.toHtml = function(figure, converter) {
-  var id = figure.id;
-
-  var $el = $('<figure>')
-    .attr('id', id);
-  if(figure.index) $el.attr('data-index',figure.index);
-
-  var $exec = $('<pre>')
-    .attr('data-exec',figure.spec)
-    .text(figure.source);
-  if(figure.hash) $exec.attr('data-hash',figure.hash);
-  if(figure.error) $exec.attr('data-error',figure.error);
-
-  var $img = $('<img>')
-    .attr('src',figure.image);
-
-  var $out = $('<div>')
-    .attr('data-out','true')
-    .append($img);
-
-  var $caption = $('<figcaption>')
-    .append(converter.annotatedText([id, 'caption']));
-
-  return $el.append($exec, $out, $caption);
-};
+StencilFigure.static.isBlock = true;
 
 module.exports = StencilFigure;

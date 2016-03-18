@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(run) {
     	Stencil stencil;
     	if(direction=="<>" or direction==">>"){
     		stencil.cila(sections[1]);
-    		auto html = stencil.html()+'\n';
+    		auto html = stencil.html(false,true)+'\n';
     		#if STENCILA_CILA_HTML_SHOW_XML
                 exp<<stencil.xml()<<"\n--------------------------------------------------\n";
                 got<<stencil.xml()<<"\n--------------------------------------------------\n";

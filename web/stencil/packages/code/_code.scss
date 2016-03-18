@@ -1,0 +1,20 @@
+/**
+ * Override Substance styles for code
+ *
+ * Using padding and a grey shaded background does not work well because
+ * the padding can not be applied horizontally (due to the way that
+ * the cursor is inserted when editing).
+ *
+ * So, use a very light background and a different text color.
+ * Use red because blue used for links, green for dynamic text.
+ */
+
+$sc-code-hue: 0;
+
+.sc-code {
+    padding: 2px 0;
+    background: hsl($sc-code-hue,100%,98%);
+    border-bottom: 1px solid hsl($sc-code-hue,100%,95%);
+    color: hsl($sc-code-hue,100%,65%);
+    font-size: 85%;
+}

@@ -1,60 +1,71 @@
+branches:
+    only:
+        - master
+        - develop
+
+# Specify an Ubuntu Trusty VM
+sudo: required
+dist: trusty
+
 language: cpp
 
 compiler:
     - gcc
 
+services:
+    - docker
+
+env:
+    global:
+        - secure: "jeBNOe2fnzzkwTJDTAtsVE1T6fzftCEAa72eALKE+9g2Bc+m0kSLW2Q3pyo4ozfPeTuk62MDD7aSbJLWfm6clnIw9uERxouENWpasRY+x+2UwhY5bT8FZU+lZ46FJg0PTW8Z1yCbs6gnet/U0rpLpAKb3eLuymlEJsyBK3VSPyQ=" # AWS_ACCESS_KEY_ID
+        - secure: "ZMjOOsM7xc6QY0Xe3PVHxRtPvt6A8naD5k3O3EQtx8aNncLGDAgIhaJ1tKEPXRpFlMtY+5WNK1aMCFHRqCvxePHUxwZPtsBqHG+t9zua/bwjn7R5mnScqvFqVObdjJqMQDzGNN8Wfr+YJT5aibAuZamjioHUvhRmxYwG9lkzttM=" # AWS_SECRET_ACCESS_KEY
+        - secure: "cU1i+QgY/GMs0h8id+Wdjv6VrgcEnaPfsaYYROLqM4VosenGiUn7DAFNESq+fowRvSqDtAE5HhCOsJ2MHcCCntfvPH7A5rajarlw5I+3RbU2y3LZIeWhV657r5G0nhmdHJ3U3vstPc1kREfVltDJF7YKA+QB6MM0moJ5ZwjjfTg=" # AWS_DEFAULT_REGION
+        - secure: "IdWRjDeZgueABXWwR5dD/Y2UMDg5LbXOup09Yx7c72cxsYxtZli4LqSa+6oYooRYGh0IfHkGTx1VLYaohmFUMtKzAF6cjNoBY46g61QY3C5LSj3BmVvu9OVDq2+XMuZz39CDSUEg/miS9uD3W6NpMNtrVQAf/yzuCwo20Mg7h1Q=" # DOCKER_EMAIL
+        - secure: "kciODef6f2M48C5+gHkFaaveMnenrPpE75yDW5of7L44E99zb5nVzvWedG8TXaqrLJlybv1pkKdUHYMUO3S+0oLw+ez4827sMO3NNz4odCR60mLVHAGkLTgPjv+OrF7G6aPDRy+d5jndBHhNrziPrSfuj9+F3dLLtCkva8Jhgis=" # DOCKER_USERNAME
+        - secure: "p/eGwNKsY04as9DGyOZBFwMef6eKtw+mNC63TA/09CG4uS/oxQW2GjeHiqCKeP6UGjhEstV7op3m2Qep1WEDiWNbc8zfdSuYGkbxDnCaD0iyyDKOzrOOzR/yGXwOM6sCYnJ0RaBXfCXca+hPISc0ArK2Yhvp2xSfNUNEbbXIy4U=" # DOCKER_PASSWORD
+        - secure: "F5BpK0/kVkgecKnYdGxCAd+qBCao/uYyVE48aPkyJQYTCvigRec/Fvc31FfQh/9W4ugXB1ZoTWQ+XSofJwHkkE9WOgqOHxMPb9VTIsBM7K6rrs1eG8jwenC0Acus0OVDqUORs62qPW4WHKA2haDJDQh6DbLcxEanNPolqVptJSg=" # STENCILA_TOKEN
+
+addons:
+    apt:
+        # Use apt addon to facilitate multi-OS build later https://docs.travis-ci.com/user/multi-os/
+        packages:
+            - texlive-binaries # Temporary fix (?) for R bug http://bugs.debian.org/810963
+            - libxml2-dev
+            - libcurl4-openssl-dev
+
 before_install:
     # Use this to prepare the system to install prerequisites or dependencies
 
-    # Add PPA for g++4.8 (default is gcc 4.6 since this is Ubuntu 12.04)
-    - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test -y; fi
-
-    # Add PPA for cmake 2.8.11 (default is 2.8.7 since this is Ubuntu 12.04 and html-tidy needs >=2.8.8)
-    - sudo add-apt-repository -y ppa:kalakris/cmake -y
-
     # Add repository for R 
+    # Using `source r-packages-trusty` in addons.apt instead of this 
+    # gave an old version 3.0.2 (2013-09-25)
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-    - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu precise/"
-
+    - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
     - sudo apt-get update -qq
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
-    # Install g++4.8
-    - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    # Use g++4.8 as g++ (do this instead of redefining CXX as others do so that Boost.Build (b2) uses right one)
-    - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
-    # Display g++ version in log
-    - $CXX --version
-
-    # Install cmake >=2.8.8
-    - sudo apt-get install cmake --force-yes --assume-yes --fix-broken
-
-    # Install Javascript build dependencies
-    # `nodejs` and `npm` are already installed (http://docs.travis-ci.com/user/ci-environment/#Runtimes)
-    # `uglifyjs` for minification
-    - npm install -g uglify-js
-    # PhantomJS for testing. An old verson is installed already on Travis but this updates it to 2.0.0
-    # Based on https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to
-    - mkdir travis-phantomjs
-    - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
-    - tar -xvf $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs
-    - export PATH=$PWD/travis-phantomjs:$PATH
-    - phantomjs -v
-
-    # Install Python build dependencies
-    # `wheel` for packaging; `virtualenv` for testing
-    - sudo apt-get install python python-dev python-pip --force-yes --assume-yes --fix-broken
-    - sudo pip install wheel virtualenv
+    # Install Python build dependencies (python and python-dev already installed)
+    - pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv
 
     # Install R build dependencies
-    # `Rcpp` for compilation; `roxygen2` for packaging; `svUnit`, `XML` & `libxml2-dev` for testing
-    - sudo apt-get install r-base r-base-dev libxml2-dev --force-yes --assume-yes --fix-broken
+    - sudo apt-get install r-base r-base-dev --force-yes --assume-yes --fix-broken
     - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
+
+    # Install build delivery dependencies
+    - pip2.7 install --user travis --upgrade awscli
 
 before_script:
     # Use this to prepare your build for testing
+
+    # Confirm versions of key build tools
+    - g++ --version
+    - cmake --version
+    - docker --version
+    - python2.7 --version
+    - pip2.7 show pip setuptools wheel virtualenv
+    - R --version
 
     # Travis CI does a shallow clone of the current branch (`git clone --depth=50 --branch=develop ...`)
     # If the last tag was more than 50 commits in the past then the following `git describe` will fail and
@@ -67,6 +78,16 @@ before_script:
 script:
     - make vars
     - make cpp-tests-quick
-    - make js-tests
     - make py-tests
     - make r-tests
+
+after_success:
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - test $TRAVIS_PULL_REQUEST == "false" && make docker-r-deliver py-deliver r-deliver
+
+notifications:
+    slack:
+        secure: CZPtz/N4r7w0Xy5HLATXgL0mAcmLe2aiHpQGy7rOKw6Ahkqsr+XJNH4jrnHhaH3cYx4BQYjgSxtw2ha6vwdcTEK0qEj/I1Sr4hGrjGC296gByKpRxgUeUanJ5x6byfbWrJsJskvwRZAvso3CFRRNlUlfuwX8LpjT38ocK0HY+BQ=
+    webhooks:
+        urls:
+            - secure: "c7sJb5i92rK48bkT/JEqjyrznBfLUAHcPr7vXTuFZGX5jn/g0tssCtsDiN08mvULuIJF2F2av/8SF9R2cSpeKkC69I9+YUn+uItq4zFISxzh7q3QfcWvQnbizCkjVDU+AxsTf4m9Kq3eatxwPNuAxRc6PGeaYQ5/NeMYFDkYGCk=" # Gitter

@@ -1,0 +1,69 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
+@import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
+
+body, html {
+  overflow: hidden;
+}
+
+$default-cell-padding: 1px 3px;
+
+
+// Substance styles
+// -----------------
+
+@import '../node_modules/substance/styles/base/index';
+
+// Substance modules
+// -----------------
+// 
+// For production we should only require what's needed
+
+@import '../node_modules/substance/styles/components/_all';
+@import '../node_modules/substance/packages/_all';
+
+// Stencila Sheets specific components
+// -----------------
+// 
+
+@import './styles/_sheet';
+@import './styles/_cell';
+@import './styles/_constant';
+@import './styles/_error';
+@import './styles/_expression';
+@import './styles/_boolean';
+@import './styles/_primitive-expression';
+@import './styles/_html-cell';
+@import './styles/_image-expression';
+@import './styles/_function';
+@import './styles/_select-function';
+@import './styles/_cell-teaser';
+
+@import './styles/_toolbar';
+@import './styles/_save-tool';
+@import './styles/_display-mode-tool';
+@import './styles/_commit-tool';
+
+@import '../shared/tools/home/_home-tool';
+
+@import './styles/_sheet-editor';
+
+// Sheet Writer
+// -----------------
+// 
+
+.sc-sheet-writer {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+// Static content (before app SheetWriter has launched)
+// -----------------
+// 
+
+// Don't display the source format
+main#content {
+  display: none;
+}

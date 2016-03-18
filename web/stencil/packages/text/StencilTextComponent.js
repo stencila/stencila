@@ -1,7 +1,7 @@
 'use strict';
 
+var extend = require('lodash/object/extend');
 var oo = require('substance/util/oo');
-var _ = require('substance/util/helpers');
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 var StencilNodeComponent = require('../../StencilNodeComponent');
 var Component = require('substance/ui/Component');
@@ -12,9 +12,7 @@ function StencilTextComponent() {
 }
 
 StencilTextComponent.Prototype = function() {
-
-  // use StencilNodeComponent as a mixin
-  _.extend(this, StencilNodeComponent.prototype);
+  extend(this, StencilNodeComponent.prototype);
 
   this.didMount = function() {
     AnnotationComponent.prototype.didMount.call(this);
@@ -39,9 +37,10 @@ StencilTextComponent.Prototype = function() {
         })
         .on('click', this.onClick)
         .on('mousedown', this.onMouseDown)
-        .append(this.props.node.output || "");
+        .append(this.props.node.output || "?");
     } else {
-      el = $$('span').addClass('stencil-text');
+      el = $$('span')
+        .addClass('stencil-text');
 
       if (this.revealSource()) {
         el.append(

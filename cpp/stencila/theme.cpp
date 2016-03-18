@@ -141,10 +141,6 @@ Theme& Theme::preview(const std::string& path){
 	return *this;
 }
 
-std::string Theme::page(const Component* component){
-	return static_cast<const Theme&>(*component).page();
-}
-
 std::string Theme::page(void) const {
 	// Get base document
 	Html::Document doc = Component_page_doc<Theme>(*this);
@@ -167,13 +163,5 @@ std::string Theme::page(void) const {
 	return doc.dump();
 }
 
-std::string Theme::call(Component* component, const Call& call){
-	return static_cast<Theme&>(*component).call(call);
-}
-
-std::string Theme::call(const Call& call) {
-	auto what = call.what();
-	return "";
-}
 
 }

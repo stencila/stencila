@@ -1,0 +1,124 @@
+// Font Awesome icons
+@import '../node_modules/font-awesome/scss/font-awesome.scss';
+
+// Substance styles
+
+@import '../node_modules/substance/styles/base/index';
+
+// Substance modules
+// -----------------
+// 
+// For production we should only require what's needed
+@import '../node_modules/substance/styles/components/_all';
+@import '../node_modules/substance/packages/_all';
+
+// Stencil node styles
+
+$source-node-color: hsl(100, 95%, 40%);
+$error-node-color: hsl(0, 95%, 40%);
+
+@import './packages/blockquote/_blockquote';
+@import './packages/code/_code';
+@import './packages/image/_image';
+@import './packages/link/_link';
+
+@import './packages/title/_title';
+@import './packages/summary/_summary';
+@import './packages/math/_math';
+@import './packages/equation/_equation';
+@import './packages/exec/_exec';
+@import './packages/figure/_figure';
+@import './packages/parameter/_parameter';
+@import './packages/text/_text';
+@import './packages/default/_default';
+
+@import './packages/writer/_edit-source-panel.scss';
+@import './packages/writer/_cila-panel.scss';
+
+@import '../shared/tools/home/_home-tool.scss';
+
+%lens {
+
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+
+  .se-main-section .se-content {
+    padding: 2em;
+  }
+
+  .se-context-section {
+    border-left: 1px solid #ddd;
+    background-color: #fafafa;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+}
+
+
+.status-bar-component {
+  // Keep on to of Cila panel
+}
+
+/* Custom Scrollbar styles
+-----------------------------------------------------*/
+
+.scrollbar-component.comments .highlight {
+  background: #aaa;
+}
+
+.scrollbar-component.cite-bib-item .highlight, .scrollbar-component.bib-items .highlight {
+  background-color: $highlight-color-2;
+}
+
+/* Figures
+-----------------------------------------------------*/
+
+.figure img {
+  max-width: 100%;
+}
+
+/* Figure Node
+-----------------------------------------------------*/
+
+.content-node.figure {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+
+  .label {
+    color: #777;
+    padding-bottom: 10px;
+  }
+
+  .title {
+    font-size: 20px;
+    padding-bottom: 20px;
+  }
+
+  .description {
+    padding-top: 20px;
+    line-height: 20px;
+  }
+
+  .image {
+    padding-bottom: 20px;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.sc-heading.sm-level-1 {
+    font-size: 1.3em;
+}
+
+.sc-heading.sm-level-2 {
+    font-size: 1.2em;
+}
+
+.sc-heading.sm-level-3 {
+    font-size: 1.1em;
+}

@@ -133,31 +133,9 @@ public:
 	Theme& preview(const std::string& path);
 
 	/**
-	 * Generate a web page for a theme
-	 *
-	 * @param  component  A pointer to a theme
-	 */
-	static std::string page(const Component* component);
-
-	/**
 	 * Generate a web page for this theme
 	 */
 	std::string page(void) const;
-
-	/**
-	 * Execute a call on a theme
-	 *
-	 * @param  component  A pointer to a theme
-	 * @param  call       A `Call` object
-	 */
-	static std::string call(Component* component, const Call& call);
-
-	/**
-	 * Execute a call on this stencil
-	 * 
-	 * @param  call A `Call` object
-	 */
-	std::string call(const Call& call);
 
 	/**
 	 * @}

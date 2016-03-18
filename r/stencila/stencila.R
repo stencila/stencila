@@ -19,8 +19,17 @@ NULL
 #'
 #' @examples
 #'   stencila:::version()
-version <- function(){
-	as.character(utils::packageVersion("stencila"))
+version <- function(package=FALSE){
+	if(package) as.character(utils::packageVersion("stencila"))
+	else .Call('Stencila_version',PACKAGE='stencila')
+}
+
+#' Get the commit hash of the Stencila R package
+#'
+#' @examples
+#'   stencila:::commit()
+commit <- function(){
+	.Call('Stencila_commit',PACKAGE='stencila')
 }
 
 #' Get the Stencila stores
@@ -29,6 +38,15 @@ version <- function(){
 #'   stencila:::stores()
 stores <- function(){
 	.Call('Stencila_stores',PACKAGE='stencila')
+}
+
+#' Start the built in server
+#'
+#' @export
+#' @examples
+#'   stencila:::serve()
+serve <- function(){
+	.Call('Stencila_serve',PACKAGE='stencila')
 }
 
 ###########################################################################

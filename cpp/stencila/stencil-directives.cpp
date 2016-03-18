@@ -94,14 +94,19 @@ Stencil& Stencil::clean(void){
 }
 
 void Stencil::scrub(Node node){
-	// Remove elements : `exec` elements (which contain code) and elements that
-	// have been turned off `[data-off`]
+	// Remove `exec` directives and other directives that have been turned off (e.g. `if`, `case`)
+	// but not if they have an error.
 	for(Node child : node.filter("[data-exec],[data-off]")){
-		child.destroy();
+		if(not child.has("data-error")) child.destroy();
 	}
-	// Remove all directive attributes
+	// Remove all directive attributes for nodes without
+	// errors
 	for(auto attr : directives){
-		for(Node child : node.filter("["+attr+"]")) child.erase(attr);
+		for(Node child : node.filter("["+attr+"]")){
+			if(not child.has("data-error")) {
+				child.erase(attr);
+			}
+		}
 	}
 }
 
@@ -126,7 +131,7 @@ Stencil& Stencil::strip(void){
 	return *this;
 }
 
-std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
+std::string Stencil::hash(Node node, int effect, bool attrs, bool text, const std::string& extra){
 	std::size_t number;
 	// Normal, cumulative hash
 	if(effect==0 or effect==1){
@@ -148,6 +153,10 @@ std::string Stencil::hash(Node node, int effect, bool attrs, bool text){
 		// Update based on text
 		if(text){
 			key += node.text();
+		}
+		// Update based on any extra text supplied
+		if(extra.length()){
+			key += extra;
 		}
 		// Create an integer hash of key
 		static std::hash<std::string> hasher;
@@ -653,7 +662,8 @@ void Stencil::For::render(Stencil& stencil, Node node, std::shared_ptr<Context> 
 		}
 		// Render the element
 		stencil.render(item,context);
-		// Scrub the elemet to prevent repetition of directives 
+		// Scrub the element to prevent unecessary repetition of directives within
+		// each item
 		scrub(item);
 		// Set index flag
 		item.attr("data-index",index);
@@ -696,11 +706,11 @@ Stencil::Parameter::Parameter(Node node){
 
 void Stencil::Parameter::parse(const std::string& attribute){
 	boost::smatch match;
-	static const boost::regex pattern("^(\\w+)(\\s+type\\s+(\\w+))?(\\s+value\\s+(.+))?$");
+	static const boost::regex pattern("^(\\w+)(\\s+type\\s+(\\w+))?(\\s+default\\s+(.+))?$");
 	if(boost::regex_search(attribute, match, pattern)) {
 		name = match[1].str();
 		type = match[3].str();
-		value = match[5].str();
+		default_ = match[5].str();
 	} else {
 		throw DirectiveException("syntax",attribute);
 	}
@@ -713,11 +723,16 @@ void Stencil::Parameter::parse(Node node){
 void Stencil::Parameter::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
 
-	// Create a <label> element
+	// Create a <label> element if necessary 
+	// (an explicit <label> may already be presetn)
 	Node label = node.select("label");
-	if(not label) label = node.append("label",{
-		{"for",name+"-input"}
-	},name);
+	if(not label) {
+		label = node.append(
+			"label",
+			{{"for",name+"-input"}},
+			name
+		);
+	}
 
 	// Create an <input> element
 	Node input = node.select("input");
@@ -735,17 +750,18 @@ void Stencil::Parameter::render(Stencil& stencil, Node node, std::shared_ptr<Con
 		input.attr("type",input_type);
 	}
 	// Get current value, using default value if not defined
-	std::string current = input.attr("value");
-	if(not current.length() and value.length()){
-		current = value;
-		input.attr("value",current);
+	std::string value = input.attr("value");
+	if(not value.length() and default_.length()){
+		value = default_;
+		input.attr("value",value);
 	}
-	// Set value in the context
-	if(current.length()>0){
+
+	// Set value of the parameter within the context
+	auto hash = stencil.hash(node,1,true,true,value);
+	if(hash!=node.attr("data-hash")){
+		node.attr("data-hash",hash);
 		context->input(name,type,value);
 	}
-	// Render the input node
-	Stencil::Input(input).render(stencil,input,context);
 }
 
 std::vector<Stencil::Parameter> Stencil::pars(void) const {
@@ -836,7 +852,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 		//Check to see if this is a "self" include, otherwise obtain the includee
 		address.evaluate(context);
 		if(address.value==".") includee = node.root();
-		else includee = Component::get(address.value).as<Stencil>();
+		else includee = *(Component::get(address.value).as<Stencil*>());
 		// ...select from it
 		select.evaluate(context);
 		if(select.value.length()){
@@ -942,9 +958,9 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 		Stencil::Parameter parameter(par);
 		// Check to see if it has already be assigned
 		if(std::count(assigned.begin(),assigned.end(),parameter.name)==0){
-			if(parameter.value.length()){
+			if(parameter.default_.length()){
 				// Assign the default_ in the new frame
-				context->assign(parameter.name,parameter.value);
+				context->input(parameter.name,parameter.type,parameter.default_);
 			} else {
 				// Set an error
 				error(node,"required",parameter.name);

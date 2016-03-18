@@ -28,12 +28,24 @@ setRefClass(
 			get_(.self,'Component_held_get')
 		},
 
+		vacuum = function(){
+			method_(.self,'Component_vacuum')
+		},
+
 		managed = function(value){
 			get_set_(.self,'Component_managed_get','Component_managed_set',value)
 		},
 
+		#publish = function(){
+		#	method_(.self,'Component_publish')
+		#},
+
 		origin = function(){
 			get_(.self,'Component_origin_get')
+		},
+
+		sync = function(){
+			method_(.self,'Component_sync')
 		},
 
 		commit = function(message=""){
@@ -205,26 +217,42 @@ setRefClass(
 	)
 )
 
+#' List of component instances
+#' Need to be an environment to avoid the
+#' "cannot change value of locked binding" error
+#' when trying to change a package variable
+instances <- new.env()
+
+#' Instantiate a component
+#'
+#' This function is called by the C++ function 
+#' `Component::get` to create a new instance
+#'
+#' @export
+instantiate <- function(address, path, type) {
+	if (type=='Stencil') {
+		component <- Stencil(path)
+	} else if (type=='Sheet') {
+		component <- Sheet(path)
+	} else {
+		stop('Unhandled component type\n type:', type, '\n path:', path)
+	}
+	assign(address, component, envir=instances)
+	component$.pointer
+}
+
 #' Grab a component
 #' 
-#' This is functionally the same as the Stencila C++ method
-#' `Component::get` but will actually instantiate a new member of
-#' the retreived class. Not called `get` or `load` because those clash 
+#' This is functionally the same as the C++ function
+#' `Component::get` but first checks for a locally instantiated
+#' instance of the component. Not called `get` or `load` because those clash 
 #' with functions in the base package
 #'
 #' @export
 grab <- function(address){
-	instance <- call_('Component_grab',address)
-	return(new(
-		instance$type,
-		pointer=instance$sexp
-	))
-}
-
-#' Get a list of held components
-#' 
-#' See the Stencila C++ method `Component::held_list`.
-#' Mostly used for debugging so not exported.
-held_list <- function(){
-	call_('Component_held_list')
+	if(!exists(address, envir=instances)) {
+		call_('Component_grab', address)
+	}
+	# Component should now be instantiated and stored in `instances`
+	return(get(address, envir=instances))
 }

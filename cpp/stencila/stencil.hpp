@@ -50,6 +50,17 @@ public:
 	Stencil& initialise(const std::string& from);
 
 	/**
+	 * Restrict a stencil to elements that are currently supported
+	 * by the web front end.
+	 *
+	 * Currently this method is only partially implemented and 
+	 * must be called explicitly but in the future it may be called
+	 * implicityly when initialising or importing a stencil fron an 
+	 * external file.
+	 */
+	Stencil& restrict(void);
+
+	/**
 	 * Import the stencil content from a file
 	 * 
 	 * @param  path Filesystem path to file
@@ -91,6 +102,16 @@ public:
 	 */
 	Stencil& write(const std::string& path="");
 
+    /**
+     * Take a snapshot of this stencil
+     */
+    Stencil& store(void);
+
+    /** 
+     * Restore this stencil from the last available snapshot
+     */
+    Stencil& restore(void);
+
 	/**
 	 * @}
 	 */
@@ -130,7 +151,7 @@ public:
 	/**
 	 * Get stencil content as HTML
 	 */
-	std::string html(bool document = false, bool pretty = true) const;
+	std::string html(bool document = false, bool pretty = false) const;
 
 	/**
 	 * Set stencil content as HTML
@@ -217,14 +238,6 @@ public:
 	);
 
 	/**
-	 * Compile this stencil
-	 *
-	 * Render this stencil and export it as HTML to `stencil.html` and
-	 * a create a preview image as `preview.png`
-	 */
-	Stencil& compile(void);
-	
-	/**
 	 * @}
 	 */
 
@@ -304,6 +317,11 @@ public:
 	 * Get this stencil's authors
 	 */
 	std::vector<std::string> authors(void) const;
+
+	/**
+	 * Get this stencil's mode
+	 */
+	std::string mode(void) const;
 	
 	/**
 	 * Get the list of rendering contexts that are compatible with this stencil.
@@ -369,10 +387,15 @@ public:
 
 	/**
 	 * Remove all directives from a HTML node and its children.
-	 * After scrubbing a node all the rendering logic is removed. However the rendered content and the 
-	 * rendering flags are still retained. The opposite of 'clean'.
+	 * After scrubbing all the rendering logic for a node is removed. However, the rendered content and the 
+	 * rendering flags are still retained. The opposite of 'clean'. Used by `for` and `include` directives
+	 * to reduce unecessary repetition of content.
+	 * 
+	 * Not applied to directives that have a `data-error` flag so that the
+	 * error can be seen by the user and rectified.
 	 *
 	 * e.g. <span data-text="6*7">42</span>  ->  <span>42</span>
+	 * e.g. <span data-text="foo" data-error="foo not found"></span>  ->  <span data-text="foo" data-error="foo not found"></span>
 	 */
 	static void scrub(Node node);
 
@@ -398,8 +421,14 @@ public:
 	/**
 	 * Create a hash of a string key. Used to keep track
 	 * of intra-stencil depenedencies
+	 *
+	 * @param effect Side effect of the hash calculation 
+	 *                   1: normal, updates the rolling hash
+	 *                   0: does not update the rolling hash
+	 *                  -1: volatile, always random, does update the rolling hash
+	 * @param extra Additional content to add to the uniqueness of the element
 	 */
-	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true);
+	std::string hash(Node node, int effect=1, bool attrs=true, bool text=true, const std::string& extra = "");
 
 
 	struct Directive {
@@ -607,7 +636,7 @@ public:
 	struct Parameter : Directive {
 		Name name;
 		Name type;
-		Expression value;
+		Expression default_;
 
 		Parameter(void);
 		Parameter(const std::string& attribute);
@@ -926,31 +955,15 @@ public:
 	std::string interact(const std::string& code);
 
 	/**
-	 * Generate a web page for a stencil
-	 *
-	 * @param  component  A pointer to a stencil
-	 */
-	static std::string page(const Component* component);
-
-	/**
 	 * Generate a web page for this stencil
 	 */
 	std::string page(void) const;
 
 	/**
-	 * Respond to a web request to a stencil
-	 *
-	 * @param  component  A pointer to a stencil
-	 * @param  verb       HTML verb (a.k.a. method) e.g. POST
-	 * @param  method     Name of method requested
-	 * @param  body       Request body (usually JSON)
+	 * Generate a web page for this stencil and write it to a file
+	 * (usually index.html) in it's working directory
 	 */
-	static std::string request(
-		Component* component,
-		const std::string& verb,
-		const std::string& method,
-		const std::string& body
-	);
+	Stencil& page(const std::string& filename);
 
 	/**
 	 * Respond to a web request to this stencil
@@ -965,19 +978,7 @@ public:
 		const std::string& body
 	);
 
-	/**
-	 * Execute a call on a stencil
-	 *
-	 * @param  component  A pointer to a stencil
-	 */
-	static std::string call(Component* component, const Call& call);
-
-	/**
-	 * Execute a call on this stencil
-	 * 
-	 * @param  call  A `Call` object
-	 */
-	std::string call(const Call& call);
+	Json::Document call(const std::string& name, const Json::Document& args);
 
 	/**
 	 * @}

@@ -1,0 +1,29 @@
+.stencil-parameter {
+	padding-bottom: 0.3em;
+	width: 100%;
+
+	.name,
+	.value {
+		display: inline-block;
+		min-width: 10em;
+		border: 1px solid #E0E0E0;
+		padding: 0.2em 1em;
+	}
+
+	.name {
+		background: #ECECEC;
+		border-radius: 3px 0 0 3px;
+		color: #555;
+	}
+
+	.value {
+		border-radius: 0 3px 3px 0;
+		padding: 0.2em 1em;
+		color: #777;
+		text-align: right;
+	}
+
+	.error {
+		color: red;
+	}
+}

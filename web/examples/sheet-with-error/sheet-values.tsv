@@ -1,0 +1,4 @@
+A sheet with an intentional error in it
+For testing that frontend still loads when there is an error
+
+object 'an_intentional_error' not found
