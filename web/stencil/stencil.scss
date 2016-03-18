@@ -332,3 +332,16 @@
     display: inherit;
 }
 
+/**
+ * `exec` directives
+ * can be explicitly shown
+ */
+#content pre[data-exec*=" show"]{
+    display: block;
+    border-radius: 3px;
+    background: #333;
+    padding: 0.5em;
+    color: #DDD;
+    font-family: 'Source Code Pro', mono;
+    font-size: 0.9em;
+}
