@@ -55,20 +55,22 @@ SheetRemoteEngine.Prototype = function() {
       }.bind(this));
     }
   };
+
+  /**
+   * Override of `RemoteEngine.boot` which initialises `_functionList`
+   */
+  this.boot = function(cb) {
+    this.super.boot.call(this, function(err, result) {
+      if (this.active) this.updateFunctionList();
+      if (cb) cb();
+    }.bind(this));
+  };
   
   /*
     Updates given cells
   */
   this.update = function(cells, cb) {
     this._call('update', [cells], cb);
-  };
-
-  /**
-   * Override of `RemoteEngine._activated` which initialises `_functionList`
-   */
-  this._activated = function(details) {
-    this.super._activated.call(this, details);
-    this.updateFunctionList();
   };
 
 };

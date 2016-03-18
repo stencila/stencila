@@ -29,8 +29,9 @@ var RemoteEngine = function() {
     if(last.substr(last.length-1)=="-") this.address = path.substr(0,lastIndex);
   }
 
-  this.active = false;
+  this.rights = {};
   this.session = {};
+  this.active = false;
   this.websocket = null;
 };
 
@@ -169,9 +170,10 @@ RemoteEngine.Prototype = function() {
    * @param details Activation details
    */
   this._activated = function(details) {
+    this.rights = details.rights;
     if (details.session) {
-      this.active = true;
       this.session = details.session;
+      this.active = true;
       // Open a websocket connection to be used for
       // certain remote method calls
       if (this.session.websocket) {

@@ -27,12 +27,13 @@ window.Stencila = {};
  */
 function renderStatic(doc) {
   var ghostEl = document.createElement('div');
-  Component.mount(SheetWriter, {
+  var writer = Component.mount(SheetWriter, {
     mode: 'read',
     doc: doc,
     engine: engine
   }, ghostEl);
   document.body.innerHTML = ghostEl.innerHTML;
+  return writer;
 }
 
 /**
@@ -42,11 +43,12 @@ function renderStatic(doc) {
  */
 function renderDynamic(doc, mode) {
   document.body.innerHTML = '';
-  Component.mount(SheetWriter, {
+  var writer = Component.mount(SheetWriter, {
     mode: mode,
     doc: doc,
     engine: engine
   }, document.body);
+  return writer;
 }
 
 /**
@@ -61,11 +63,17 @@ function load() {
   var doc = importer.importDocument(html);
 
   // Render the sheet document
-  renderStatic(doc);
+  var writer = renderStatic(doc);
   engine.boot(function(err) {
-    if (err) throw new Error(err);
-    renderDynamic(doc, 'write');
-  });
+    var logger = writer.getLogger();
+    if (err) {
+      return logger.error(err.message || err.toString());
+    }
+    if (this.active) {
+      writer = renderDynamic(doc, 'write');
+    }
+    logger.info('Booted with rights: ' + this.rights.action || this.rights);
+  }.bind(engine));
 
   // Asychronously load MathJax (it can't be required) and render
   // script elements
@@ -81,7 +89,10 @@ function load() {
     );
   });
 
-  return doc;
+  // Expose doc and engine for debugging in the console
+  window.Stencila.doc = doc;
+  window.Stencila.writer = writer;
+  window.Stencila.engine = engine;
 }
 
 /**
@@ -90,20 +101,17 @@ function load() {
 function startup() {
   var doc;
   if (window.location.hostname.match(/localhost|(127\.0\.0\.1)/)) {
-    doc = load();
+    load();
   } else {
     Raven
       .config('https://6329017160394100b21be92165555d72@app.getsentry.com/37250')
       .install();
     try {
-      doc = load();
+      load();
     } catch(e) {
       Raven.captureException(e)
     }
   }
-  // Expose doc and engine for debugging in the console
-  window.Stencila.doc = doc;
-  window.Stencila.engine = engine;
 }
 
 /**
