@@ -1,86 +1,25 @@
 <img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:300px">
 
 [![Join the chat at https://gitter.im/stencila/stencila](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [![Issues](https://img.shields.io/github/issues-raw/badges/shields.svg)](http://waffle.io/stencila/stencila)
 [![Ready](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
 [![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
 [![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
 
-### Quick start
 
-Stencila is a platform for creating documents that are driven by data. The core engine is in C++ with thin wrappers in to R and Python (more languages to come). Here's a taste of what Stencila does, illustrated using the R package, but with similar functionality available in the other packages.
+Stencila is a platform for creating documents that are driven by data. The core engine is written in C++ with thin wrappers in to host languages, R and Python (Javascript, Julia and more languages to come), and browser based user interfaces in HTML, Javascript and SCSS. At present we focus on two types of documents,
 
-Install the R package from our R repository:
+- stencils - like traditional templates for embedding data analysis and presentation code but designed to also play friendly with what-you-see-is-what-you-get editing - think [RMarkdown](http://rmarkdown.rstudio.com/) meets [Jade](http://jade-lang.com/) meets Google Docs
 
-```r
-install.packages('stencila',repo='http://get.stenci.la/r')
-```
+- sheets - like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and with a bunch of other characteristics that make them fit in with modern software practices - think [R](https://www.r-project.org/) meets Google Sheets meets [git](https://git-scm.com/)
 
-There's an optional command line interface which you can install into your path:
+Stencila is designed to be used on locally (i.e on your computer) or remotely (i.e. in the cloud on someone else's computer). To install locally see the instructions below (sorry, only Linux is well supported at this stage) or try building one of the packages yourself. If you just want to see what this is all about, go to the hub at https://stenci.la where you can activate a stencil or sheet to play around with on someone else's computer!
 
-```r
-require(stencila)
-stencila:::install()
-```
-
-Stencila is based around stencils, you can create a stencil from strings, or files, of HTML or Cila (our stencil authoring language):
-
-```r
-# An empty stencil
-s <- Stencil()
-# A stencil from an HTML string
-s <- Stencil('html://The date is <span data-text="date()">')
-# A stencil from a Cila file
-s <- Stencil('file://stencil.cila')
-```
-
-Internally, stencils are represented by an XHTML tree structure that can be converted to/from HTML and Cila. You can set a stencil's content using HTML and get it back as Cila:
-
-```r
-# Set the stencil's content using HTML
-s$html('The date is <span data-text="date()">')
-# Get the stencil's content as Cila
-s$cila()
-[1] "The date is {text date()}"
-```
-
-Stencils are similar to other template formats and can be rendered to produce textual and graphical outputs. The key difference with stencils is that the output gets embedded within the stencil itself. Or, to express it the other way around, the rendered document retains the template logic.
-
-```r
-# Load some data on irises
-data(iris)
-# Create a stencil that calculates a summary statistic
-s <- Stencil('cila://The correlation between petal length and petal width was {text with(iris,cor(Petal.Length,Petal.Width))}.')
-# Render it
-s$render()
-# Get it's rendered content as HTML
-s$html()
-[1] "<p>\n\tThe correlation between petal length and petal width was <span data-text=\"with(iris,cor(Petal.Length,Petal.Width))\">0.962865431402796</span>.\n</p>"
-```
-
-Most templating engines separate the source (the template) from the target (the document). Stencils are [automorphic](https://en.wikipedia.org/wiki/Automorphism) the source (the stencil) is also the target (the stencil). And because stencil's are natively XHTML, this means that you can view, edit and re-render them in place, in your browser:
-
-```r
-s$view()
-```
-
-<img src="http://static.stenci.la/img/stencila-readme-screenshot.png">
-
-(We're currently doing some major refactoring of the front end Javascript so, depending on when you try this out, stencil editing may not work too well/at all).
-
+Things are still very "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila).
 
 ### Installing
 
 Head on over to the [releases page](https://github.com/stencila/stencila/releases) for instructions on installing the Stencila package for R or Python. Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
-
-### Versioning
-
-We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. It is still early days so the API will change frequently. Don't rely on API stability until the release of version 1.0.0.
-
-### Contributing
-
-We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the kanban board at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
 
 ### Building
 
@@ -106,8 +45,8 @@ The C++ libraries requires the usual build tool suspects e.g. make, cmake, git. 
 
 Provisioning scripts are available for Linux which install the necessary build tools. These scripts can be run on your machine or simply perused to see what is needed. Currently, provisioning scripts are provided for:
 
-* [Ubuntu 12.04](provision-ubuntu-build-12.04.sh)
-* [Ubuntu 14.04](provision-ubuntu-build-14.04.sh)
+* [Ubuntu 12.04](setup/ubuntu-build-12.04.sh)
+* [Ubuntu 14.04](setup/ubuntu-build-14.04.sh)
 
 ##### Windows
 
@@ -194,3 +133,11 @@ To work around this, run the `MinGW-w64 Win64 Shell` *as an administrator* and t
 cd /c/build/r/3.2
 R CMD INSTALL --build stencila
 ```
+
+### Versioning
+
+We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. It is still early days so the API will change frequently. Don't rely on API stability until the release of version 1.0.0.
+
+### Contributing
+
+We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the kanban board at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
