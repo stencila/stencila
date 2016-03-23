@@ -1,21 +1,22 @@
-<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:300px">
+<div align="center">
+	<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:250px">
+</div>
+
+Stencila is a platform for creating documents that are driven by data. At present we have two types of documents,
+
+- Stencils : like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think [RMarkdown](http://rmarkdown.rstudio.com/) meets [Jade](http://jade-lang.com/) meets Google Docs)
+
+- Sheets : like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up to for transparency, testability an version control while still maintaining accessibility (think [R](https://www.r-project.org/) meets Google Sheets meets [git](https://git-scm.com/))
+
+The core engine is written in C++ with thin wrappers in to host languages, e.g. R and Python (Javascript, Julia and more languages to come), and browser based user interfaces. Stencila is designed to be used on locally (i.e on your computer) or remotely (i.e. in the cloud on someone else's computer). To install locally see the instructions below (sorry, only Linux is well supported at this stage) or try building one of the packages yourself. If you just want to see what this is all about, go to the hub at https://stenci.la where you can activate a stencil or sheet to play around with on someone else's computer!
+
+Things are still very "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila).
 
 [![Join the chat at https://gitter.im/stencila/stencila](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Issues](https://img.shields.io/github/issues-raw/badges/shields.svg)](http://waffle.io/stencila/stencila)
 [![Ready](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
 [![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
 [![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
-
-
-Stencila is a platform for creating documents that are driven by data. The core engine is written in C++ with thin wrappers in to host languages, R and Python (Javascript, Julia and more languages to come), and browser based user interfaces in HTML, Javascript and SCSS. At present we focus on two types of documents,
-
-- stencils - like traditional templates for embedding data analysis and presentation code but designed to also play friendly with what-you-see-is-what-you-get editing - think [RMarkdown](http://rmarkdown.rstudio.com/) meets [Jade](http://jade-lang.com/) meets Google Docs
-
-- sheets - like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and with a bunch of other characteristics that make them fit in with modern software practices - think [R](https://www.r-project.org/) meets Google Sheets meets [git](https://git-scm.com/)
-
-Stencila is designed to be used on locally (i.e on your computer) or remotely (i.e. in the cloud on someone else's computer). To install locally see the instructions below (sorry, only Linux is well supported at this stage) or try building one of the packages yourself. If you just want to see what this is all about, go to the hub at https://stenci.la where you can activate a stencil or sheet to play around with on someone else's computer!
-
-Things are still very "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila).
 
 ### Installing
 
