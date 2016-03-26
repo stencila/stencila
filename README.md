@@ -6,9 +6,9 @@ Stencila is a platform for creating documents that are driven by data. At presen
 
 - Stencils : like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think [RMarkdown](http://rmarkdown.rstudio.com/) meets [Jade](http://jade-lang.com/) meets Google Docs)
 
-- Sheets : like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up to for transparency, testability an version control while still maintaining accessibility (think [R](https://www.r-project.org/) meets Google Sheets meets [git](https://git-scm.com/))
+- Sheets : like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up for transparency, testability and version control while still maintaining accessibility (think [R](https://www.r-project.org/) meets Google Sheets meets [git](https://git-scm.com/))
 
-The core engine is written in C++ with thin wrappers in to host languages, e.g. R and Python (Javascript, Julia and more languages to come), and browser based user interfaces. Stencila is designed to be used on locally (i.e on your computer) or remotely (i.e. in the cloud on someone else's computer). To install locally see the instructions below (sorry, only Linux is well supported at this stage) or try building one of the packages yourself. If you just want to see what this is all about, go to the hub at https://stenci.la where you can activate a stencil or sheet to play around with on someone else's computer!
+The core engine is written in C++ with thin wrappers into host languages, e.g. R and Python (Javascript, Julia and more languages to come), and browser based user interfaces. Stencila is designed to be used locally (i.e on your computer) or remotely (i.e. in the cloud, on someone else's computer). To install locally see the instructions below or build one of the packages yourself. If you just want to quickly see what this is all about, go to the hub at https://stenci.la where you can activate a stencil or a sheet to play around with (on someone else's computer!)
 
 Things are still very "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila).
 
@@ -20,7 +20,11 @@ Things are still very "beta" so please give us your suggestions by creating an [
 
 ### Installing
 
-Head on over to the [releases page](https://github.com/stencila/stencila/releases) for instructions on installing the Stencila package for R or Python. Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
+Head on over to the [releases page](https://github.com/stencila/stencila/releases) for instructions on installing the Stencila package for R or Python. At this stage, builds are only available for Linux 64 bit. If you are on a different operating system you can try building one of the packages yourself (instructions below). We have successfully built the R package on Windows 7 and hope to make this, and an OS X build, part of our regular build set soon.
+
+Alternatively, you can use one of the Docker images: [`stencila/ubuntu-14.04-python-2.7`](https://hub.docker.com/r/stencila/ubuntu-14.04-python-2.7/) or [`stencila/ubuntu-14.04-r-3.2`](https://hub.docker.com/r/stencila/ubuntu-14.04-r-3.2/) (see [docker/README.md](docker/README.md) for more..)
+
+Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
 
 ### Building
 
