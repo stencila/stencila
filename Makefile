@@ -198,7 +198,7 @@ $(BUILD)/cpp/requires/libzip: $(RESOURCES)/libzip-$(LIBZIP_VERSION).tar.gz
 	touch $@
 
 $(BUILD)/cpp/requires/libzip/lib/.libs/libzip.a: $(BUILD)/cpp/requires/libzip
-	cd $<  && ./configure --enable-shared --with-pic && make
+	cd $<  && ./configure --disable-shared --enable-static --with-pic && make
 
 CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libzip/lib
 CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libzip/lib/.libs
