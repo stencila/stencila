@@ -36,7 +36,7 @@ public:
 	}
 
 	~Component(void){
-		if(meta_) delete meta_;
+		delete meta_;
 	}
 
 	/**
