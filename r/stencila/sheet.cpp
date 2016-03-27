@@ -9,9 +9,12 @@ STENCILA_R_NEW(Sheet)
 STENCILA_R_EXEC1(Sheet,initialise,std::string)
 
 STENCILA_R_EXEC2(Sheet,load,std::string,std::string)
+
+STENCILA_R_EXEC2(Sheet,import,std::string,std::string)
+
+
 STENCILA_R_RET1(Sheet,dump,std::string)
 
-STENCILA_R_EXEC1(Sheet,import,std::string)
 STENCILA_R_FUNC Sheet_export(SEXP self,SEXP path){
 	// Need to wrap the `export` method manually
 	// because `export` is a keyword in C++

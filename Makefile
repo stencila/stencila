@@ -183,6 +183,31 @@ CPP_REQUIRES_LIBS += git2
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
 
 
+
+LIBZIP_VERSION := 1.1.2
+
+$(RESOURCES)/libzip-$(LIBZIP_VERSION).tar.gz:
+	mkdir -p $(RESOURCES)
+	wget -O $@ http://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz
+
+$(BUILD)/cpp/requires/libzip: $(RESOURCES)/libzip-$(LIBZIP_VERSION).tar.gz
+	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/libzip-$(LIBZIP_VERSION) $@
+	touch $@
+
+$(BUILD)/cpp/requires/libzip/lib/.libs/libzip.a: $(BUILD)/cpp/requires/libzip
+	cd $<  && ./configure --enable-shared --with-pic && make
+
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libzip/lib
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libzip/lib/.libs
+CPP_REQUIRES_LIBS += zip
+
+cpp-requires-libzip: $(BUILD)/cpp/requires/libzip/lib/.libs/libzip.a
+
+
+
 CPP_NETLIB_VERSION := 0.11.2
 
 $(RESOURCES)/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz:
@@ -425,6 +450,7 @@ $(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-client-connections.a,cppnetlib-client-connections)
 	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-uri.a,cppnetlib-uri)
 	$(call CPP_LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
+	$(call CPP_LIBRARY_EXTRACT,libzip/lib/.libs/libzip.a,zip)
 	$(call CPP_LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
 	$(call CPP_LIBRARY_EXTRACT,tidy-html5/build/cmake/libtidys.a,tidy)
 	touch $@

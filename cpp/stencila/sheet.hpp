@@ -138,18 +138,32 @@ class Sheet : public Component {
     Html::Fragment html_table(unsigned int rows = 0, unsigned int cols = 0) const;
 
     /**
-     * Load this sheet from an input stream
-     * 
-     * @param  stream Input stream
-     */
-    Sheet& load(std::istream& stream, const std::string& format = "tsv");
-
-    /**
      * Load this sheet from a string
      * 
      * @param  stream Input stream
+     * @param  format Format of content (e.g. csv, xlsx)
+     * @param  at     Cell to use as top-left
      */
-    Sheet& load(const std::string& string, const std::string& format = "tsv");
+    Sheet& load(const std::string& string, const std::string& format = "tsv", const std::string& at = "A1");
+
+    /**
+     * Load this sheet from an input stream
+     * 
+     * @param  stream Input stream
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  at     Cell to use as top-left
+     */
+    Sheet& load(std::istream& stream, const std::string& format = "tsv", const std::string& at = "A1");
+
+
+    /**
+     * Import this stencil content from a file
+     * 
+     * @param  path Filesystem path to file
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  at     Cell to use as top-left
+     */
+    Sheet& import(const std::string& path, const std::string& at = "A1");
 
     /**
      * Dump this sheet as script in host language
@@ -171,12 +185,28 @@ class Sheet : public Component {
      */
     std::string dump(const std::string& format = "tsv");
 
+
     /**
-     * Import this stencil content from a file
+     * Load separated values content into this sheet
      * 
-     * @param  path Filesystem path to file
+     * @param  stream Input stream
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  at     Cell to use as top-left
      */
-    Sheet& import(const std::string& path);
+    Sheet& load_separated(std::istream& stream, const std::string& format, const std::string& at = "A1");
+
+    /**
+     * Dump separated values from this sheet
+     * 
+     * @param  stream Output stream
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  start  Cell to use as top-left
+     * @param  end    Cell to use as bottom-right
+     */
+    Sheet& dump_separated(std::istream& stream, const std::string& format, const std::string& start = "A1", const std::string& end = "");
+
+
+    Sheet& load_xlsx(const std::string& path, const std::string& sheet, const std::string& at);
 
     /**
      * Export the stencil content to a file

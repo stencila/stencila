@@ -129,15 +129,34 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     return frag;
 }
 
-Sheet& Sheet::load(std::istream& stream, const std::string& format) {
-    STENCILA_THROW(Exception, "File extension not valid for loading a sheet\n extension: "+format);
+Sheet& Sheet::import(const std::string& path, const std::string& at) {
+    if (not boost::filesystem::exists(path)) {
+        STENCILA_THROW(Exception, "File not found\n path: "+path);
+    }
+    std::ifstream stream(path);
+    std::string ext = boost::filesystem::extension(path);
+    std::string format = ext.substr(1);
+    if(format=="xlsx") {
+        return load_xlsx(path, "sheet1", at);
+    } else {
+        return load(stream, format, at);
+    }
+}
+
+Sheet& Sheet::load(const std::string& string, const std::string& format, const std::string& at) {
+    std::istringstream stream(string);
+    return load(stream, format, at);
+}
+
+Sheet& Sheet::load(std::istream& stream, const std::string& format, const std::string& at) {
+    if(format=="tsv" or format=="csv") {
+        load_separated(stream, format, at);
+    } else {
+        STENCILA_THROW(Exception, "Format not valid for loading into a sheet\n format: "+format);
+    }
     return *this;
 }
 
-Sheet& Sheet::load(const std::string& string, const std::string& format) {
-    std::istringstream stream(string);
-    return load(stream, format);
-}
 
 Sheet& Sheet::dump_script(std::ostream& stream, const std::vector<std::string>& symbols) {
     auto assign = symbols[0];
@@ -216,19 +235,6 @@ std::string Sheet::dump(const std::string& format) {
     std::ostringstream stream;
     dump(stream, format);
     return stream.str();
-}
-
-Sheet& Sheet::import(const std::string& path) {
-    if (not boost::filesystem::exists(path)) {
-        STENCILA_THROW(Exception, "File not found\n path: "+path);
-    }
-    std::string ext = boost::filesystem::extension(path);
-    if (ext == ".tsv") {
-        std::ifstream file(path);
-        load(file, "tsv");
-    }
-    else STENCILA_THROW(Exception, "File extension not valid for a sheet\n extension: "+ext);
-    return *this;
 }
 
 Sheet& Sheet::export_(const std::string& path) {

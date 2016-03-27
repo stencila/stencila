@@ -39,12 +39,13 @@ setRefClass(
             method_(.self,'Sheet_dump',format)
         },
 
-        import = function(path){
-            method_(.self,'Sheet_import',path)
+        import = function(path, at="A1"){
+            method_(.self,'Sheet_import',path,at)
         },
         export = function(path){
             method_(.self,'Sheet_export',path)
         },
+
         graphviz = function(path=''){
             method_(.self,'Sheet_graphviz',path)
         },
