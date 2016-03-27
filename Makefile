@@ -349,8 +349,16 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
 
 cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
-$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-cpp-netlib cpp-requires-libgit2 cpp-requires-pugixml \
-   cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
+
+$(BUILD)/cpp/requires: \
+	cpp-requires-boost \
+	cpp-requires-cpp-netlib \
+	cpp-requires-libgit2 \
+	cpp-requires-libzip \
+	cpp-requires-pugixml \
+	cpp-requires-jsoncpp \
+	cpp-requires-tidy-html5 \
+	cpp-requires-websocketpp
 
 cpp-requires: $(BUILD)/cpp/requires
 
