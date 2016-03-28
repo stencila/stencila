@@ -2,24 +2,45 @@ import stencila.extension as extension
 
 from stencila.extension import Component
 
-def grab(address):
-    '''
-    Grab a component from an address
+# List of component instances
+# already instantiated
+instances = {}
 
-    Resolves the local path from the address and
-    the component type from the path.
+
+def instantiate(address, path, type):
     '''
-    type = extension.type(address)
+    Instantiate a component
+
+    This function is called by the C++ function
+    `Component::get` to create a new instance
+    '''
     if type == 'Stencil':
         from stencila.stencil import Stencil
-        return Stencil(address)
-    elif type == 'Theme':
-        return extension.Theme(address)
+        component = Stencil(path)
     elif type == 'Sheet':
         from stencila.sheet import Sheet
-        return Sheet(address)
+        component = Sheet(path)
     else:
-        raise Exception(
-            'Unhandled type at address:\n  type:%s\n  address:%s' %
-            (type, address)
-        )
+        raise Exception('Unhandled component type\n type:', type, '\n path:', path)
+
+    global instances
+    instances[address] = component
+
+    return component
+
+
+def grab(address):
+    '''
+    Grab a component
+
+    This is functionally the same as the C++ function
+    `Component::get` but first checks for a locally instantiated
+    instance of the component.
+    '''
+    global instances
+    if address not in instances:
+        extension.grab(address)
+
+    # Component should now be instantiated and stored in `instances`
+    # so return it from there
+    return instances[address]

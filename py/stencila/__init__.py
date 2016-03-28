@@ -2,7 +2,7 @@
 # version compatability
 # See http://python3porting.com/differences.html#imports
 
-from stencila.component import Component, grab
+from stencila.component import Component, instantiate, grab
 from stencila.stencil import Stencil
 from stencila.context import Context, Scope
 from stencila.sheet import Sheet

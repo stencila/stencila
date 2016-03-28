@@ -17,11 +17,28 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_read_overloads,read,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_write_overloads,write,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 
-std::string Component_type(std::string address){
+std::string Component_type(std::string address) {
     return Component::type_name(
         Component::type(address)
     );
 }
+
+Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type) {
+    return extract<Component*>(
+        import("stencila").attr("instantiate")(address, path, type)
+    );
+}
+
+std::vector<std::string> Component_grab(const std::string& address) {
+    Component::Instance instance = Component::get(address);
+    Component* component = instance.pointer();
+    return {
+        component->address(),
+        component->path(),
+        instance.type_name()
+    };
+}
+
 
 void def_Component(void){
     class_<Component,bases<>>("Component")
@@ -94,4 +111,5 @@ void def_Component(void){
     ;
 
     def("type", Component_type);
+    def("grab", Component_grab);
 }
