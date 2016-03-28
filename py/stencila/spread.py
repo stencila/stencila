@@ -34,7 +34,9 @@ class Spread:
         Private method used in methods below.
         '''
         tipe = type(value).__name__
-        if tipe == 'int':
+        if tipe == 'bool':
+            tipe = 'boolean'
+        elif tipe == 'int':
             tipe = 'integer'
         elif tipe == 'float':
             tipe = 'real'
@@ -44,7 +46,7 @@ class Spread:
         return (tipe, rep)
 
     # Following method implement the `Spread` interface
-    
+
     _import_regex = re.compile('import +(\w+)')
 
     def execute(self, source):
@@ -73,8 +75,13 @@ class Spread:
         value = self.variables[name]
         return self._content(value)
 
-    def clear(self):
-        self.variables = {}
+    def clear(self, id="", name=""):
+        if id:
+            del self.variables[id]
+            if name:
+                del self.variables[id]
+        else:
+            self.variables = {}
 
     def list(self):
         return ','.join(self.variables.keys())
