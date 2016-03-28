@@ -24,18 +24,20 @@ Boolean.Prototype = function() {
       $$('span').addClass('se-prefix').text(prefix)
     );
 
+    // Using lowercase below allows for alternative string representations
+    // in different languages eg. TRUE in R, True in Python, true in Javascript
     var value = cell.value;
     var icon;
     var className;
     if (value === undefined) {
       icon = 'spinner';
-      className = 'sm-loading'
+      className = 'sm-loading';
     }
-    else  if (value=='true') {
+    else  if (value.toLowerCase()=='true') {
       icon = 'check';
       className = 'sm-true';
     }
-    else if (value=='false') {
+    else if (value.toLowerCase()=='false') {
       icon = 'times';
       className = 'sm-false';
     }
