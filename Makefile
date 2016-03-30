@@ -428,6 +428,17 @@ cpp-library-vars:
 	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
 
 
+cpp-syntaxes:
+	flex --header-file=$(BUILD)/cpp/lexer.hpp --outfile $(BUILD)/cpp/lexer.cpp cpp/stencila/syntax/excel.l
+	lemon cpp/stencila/syntax/excel.y
+	mv cpp/stencila/syntax/excel.h $(BUILD)/cpp/parser.hpp
+	mv cpp/stencila/syntax/excel.c $(BUILD)/cpp/parser.cpp
+	mv cpp/stencila/syntax/excel.out $(BUILD)/cpp/parser.out
+	g++ -std=c++11 -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/ -c -o $(BUILD)/cpp/lexer.o $(BUILD)/cpp/lexer.cpp
+	g++ -std=c++11 -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/ -c -o $(BUILD)/cpp/paser.o $(BUILD)/cpp/parser.cpp
+	g++ -std=c++11 -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/ -o $(BUILD)/cpp/excel.exe $(BUILD)/cpp/lexer.o $(BUILD)/cpp/paser.o cpp/stencila/syntax/parser.cpp
+
+
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
