@@ -345,3 +345,13 @@
     font-family: 'Source Code Pro', mono;
     font-size: 0.9em;
 }
+
+/**
+ * Errors should be shown
+ */
+[data-error] {
+    display: inherit;
+    min-width: 1em;
+    min-height: 1em;
+    border: 1px solid red;
+}
