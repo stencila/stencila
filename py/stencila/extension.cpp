@@ -3,6 +3,7 @@
 
 #include <stencila/component.hpp>
 #include <stencila/exception.hpp>
+#include <stencila/network.hpp>
 
 #include <boost/python.hpp>
 
@@ -36,6 +37,10 @@ void def_Stencil(void);
 void def_Theme(void);
 void def_Sheet(void);
 
+void serve(void){
+	Server::startup();
+}
+
 BOOST_PYTHON_MODULE(extension){
 	// Declare converters
 	to_python_converter<std::vector<std::string>, vector_to_list<std::string>>();
@@ -55,4 +60,6 @@ BOOST_PYTHON_MODULE(extension){
 
     // Define the instantiation function
     Component::instantiate = Component_instantiate;
+
+    def("serve",serve);
 }
