@@ -23,11 +23,18 @@ std::string Component_type(std::string address) {
     );
 }
 
+
 Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type) {
-    return extract<Component*>(
-        import("stencila").attr("instantiate")(address, path, type)
-    );
+    // Because this may be called from another thread (e.g. the server thread)
+    // it is necessary to obtain the Python GIL before calling Python code
+    PyGILState_STATE py_gil_state = PyGILState_Ensure();
+    auto instantiate_function = import("stencila").attr("instantiate");
+    auto component_object = instantiate_function(address, path, type);
+    Component* component = extract<Component*>(component_object);
+    PyGILState_Release(py_gil_state);
+    return component;
 }
+
 
 std::vector<std::string> Component_grab(const std::string& address) {
     Component::Instance instance = Component::get(address);
