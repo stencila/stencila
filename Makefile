@@ -671,7 +671,12 @@ cpp-clean:
 
 #################################################################################################
 # Stencila Docker images
+#
+# When doing `docker push` note that it's necessary to push both version and latest tags:
+#   http://container-solutions.com/docker-latest-confusion/
+#   https://github.com/docker/docker/issues/7336
 
+# R
 $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfile docker/stencila-session.r r-package
 	@mkdir -p $(dir $@)
 	cp docker/ubuntu-14.04-r-3.2/Dockerfile $(dir $@)
@@ -683,19 +688,29 @@ $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfi
 
 docker-r-build: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
 
-docker-r-session: docker-r-build
-	docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila-session
-
-docker-r-run: docker-r-build
-	docker run --interactive --tty stencila/ubuntu-14.04-r-3.2:$(VERSION) /bin/bash
-
 docker-r-deliver: docker-r-build
-	# It's necessary to push both tags:
-	#   http://container-solutions.com/docker-latest-confusion/
-	#   https://github.com/docker/docker/issues/7336
 	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
 	docker push stencila/ubuntu-14.04-r-3.2:latest
 	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-r-3.2)
+
+
+# Python
+$(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt: docker/ubuntu-14.04-py-2.7/Dockerfile docker/stencila-session.py py-package
+	@mkdir -p $(dir $@)
+	cp docker/ubuntu-14.04-py-2.7/Dockerfile $(dir $@)
+	cp docker/stencila-session.py $(dir $@)
+	cp $(BUILD)/py/2.7/dist/stencila-$(VERSION_PY_WHEEL)-cp27-none-linux_x86_64.whl $(dir $@)/stencila-latest-cp27-none-linux_x86_64.whl
+	docker build --tag stencila/ubuntu-14.04-py-2.7:$(VERSION) $(dir $@)
+	docker tag --force stencila/ubuntu-14.04-py-2.7:$(VERSION) stencila/ubuntu-14.04-py-2.7:latest
+	echo "stencila/ubuntu-14.04-py-2.7:$(VERSION)" > $@
+
+docker-py-build: $(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt
+
+docker-py-deliver: docker-py-build
+	docker push stencila/ubuntu-14.04-py-2.7:$(VERSION)
+	docker push stencila/ubuntu-14.04-py-2.7:latest
+	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-py-2.7)
+
 
 #################################################################################################
 # Stencila Javascript package
@@ -820,7 +835,11 @@ PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-functio
 
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
 PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/boost/lib
-PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) $(CPP_OTHER_LIBS) 
+PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) $(CPP_OTHER_LIBS)
+
+# Stencila version number used in the Python wheel file name
+# Replace dashes with underscores
+VERSION_PY_WHEEL := $(subst -,_,$(VERSION))
 
 # Print Python related Makefile variables; useful for debugging
 py-vars:

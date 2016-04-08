@@ -2,8 +2,8 @@
 
 Images are built using the `Dockerfiles` in this directory. Currently, the available images are:
 
-- [`stencila/ubuntu-14.04-python-2.7`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-python-2.7/)
 - [`stencila/ubuntu-14.04-r-3.2`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-r-3.2/)
+- [`stencila/ubuntu-14.04-py-2.7`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-py-2.7/)
 
 Run an image with a Stencila session for a component like this:
 
