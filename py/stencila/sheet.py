@@ -30,7 +30,7 @@ class Sheet(extension.Sheet):
             pickle = os.path.join(self.path(), 'sheet.pkl')
             self._spread.write(pickle)
 
-    def write(self, path):
+    def write(self, path=""):
         super(Sheet, self).write(path)
         self.write_spread()
 
