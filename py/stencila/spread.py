@@ -21,11 +21,14 @@ class Spread:
         Evaluate an expression within the spread environment.
         Private method used in methods below.
         '''
-        value = eval(
-            expression,
-            self.packages,
-            self.variables
-        )
+        try:
+            value = eval(
+                expression,
+                self.packages,
+                self.variables
+            )
+        except Exception, exc:
+            value = exc
         return value
 
     def _content(self, value):
@@ -33,17 +36,20 @@ class Spread:
         Get the type and string representation of a value
         Private method used in methods below.
         '''
-        tipe = type(value).__name__
-        if tipe == 'bool':
-            tipe = 'boolean'
-        elif tipe == 'int':
-            tipe = 'integer'
-        elif tipe == 'float':
-            tipe = 'real'
-        elif tipe == 'str':
-            tipe = 'string'
-        rep = repr(value)
-        return (tipe, rep)
+        if isinstance(value,Exception):
+            return ('error', str(value))
+        else:
+            tipe = type(value).__name__
+            if tipe == 'bool':
+                tipe = 'boolean'
+            elif tipe == 'int':
+                tipe = 'integer'
+            elif tipe == 'float':
+                tipe = 'real'
+            elif tipe == 'str':
+                tipe = 'string'
+            rep = repr(value)
+            return (tipe, rep)
 
     # Following method implement the `Spread` interface
 
