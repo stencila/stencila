@@ -7,32 +7,10 @@ from stencila.spread import Spread
 class Sheet(extension.Sheet):
 
     def __init__(self, initialiser=None):
-        if initialiser is not None:
-            super(Sheet, self).__init__(initialiser)
-        else:
-            super(Sheet, self).__init__()
-        self._spread = None
+        super(Sheet, self).__init__()
         self.attach()
-        self.read_spread()
-
-    def read_spread(self):
-        if self._spread:
-            pickle = os.path.join(self.path(), 'sheet.pkl')
-            if os.path.exists(pickle):
-                self._spread.read(pickle)
-
-    def read(self, path="", base=True):
-        super(Sheet, self).read(path)
-        self.read_spread()
-
-    def write_spread(self):
-        if self._spread:
-            pickle = os.path.join(self.path(), 'sheet.pkl')
-            self._spread.write(pickle)
-
-    def write(self, path=""):
-        super(Sheet, self).write(path)
-        self.write_spread()
+        if initialiser is not None:
+            self.initialise(initialiser)
 
     def spread(self):
         if hasattr(self, '_spread'):
