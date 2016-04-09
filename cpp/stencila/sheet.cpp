@@ -292,7 +292,7 @@ Sheet& Sheet::read(const std::string& directory) {
         }
         return {};
     };
-    
+
     // Create a bunch of new cells from sources file, getting
     // outputs for that cell if they are available
     std::vector<Cell> cells;
@@ -1179,7 +1179,7 @@ Sheet& Sheet::clear(void) {
     order_.clear();
     prepared_ = false;
     if (spread_) {
-        spread_->clear("");
+        spread_->clear();
     }
     return *this;
 }
