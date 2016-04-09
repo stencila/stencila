@@ -83,7 +83,7 @@ script:
 
 after_success:
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - test $TRAVIS_PULL_REQUEST == "false" && make docker-r-deliver py-deliver r-deliver
+    - test $TRAVIS_PULL_REQUEST == "false" && make docker-py-deliver docker-r-deliver py-deliver r-deliver
 
 notifications:
     slack:

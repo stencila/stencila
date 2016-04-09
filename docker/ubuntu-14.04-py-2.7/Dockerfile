@@ -5,14 +5,14 @@ FROM ubuntu:14.04
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install Python and other requirements
-# System packages for scipy etc are installed here so that
-# dependencies are installed but are then upgraded using pip
-# Curl is required
+# The lines following the `python2.7..` line are for installing requirements
+# for scipy, matplotlib
 RUN apt-get update \
   && apt-get install -y \
-       python2.7 python2.7-dev python-pip \
-       python-scipy python-matplotlib \
-       curl \
+    python2.7 python2.7-dev python-pip \
+    libblas-dev liblapack-dev gfortran \
+    libfreetype6-dev libpng-dev pkg-config libcairo2 libcairo2-dev libffi6 libffi-dev \
+    curl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -21,7 +21,7 @@ RUN pip install --upgrade pip
 
 # Install popular packages
 RUN pip install --upgrade \
-	numpy scipy pandas matplotlib ggplot
+	numpy scipy pandas cairocffi matplotlib ggplot
 
 # Install Stencila R package
 COPY stencila-latest-cp27-none-linux_x86_64.whl /tmp/stencila-0.00-cp27-none-linux_x86_64.whl
