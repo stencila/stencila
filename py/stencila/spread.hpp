@@ -4,6 +4,7 @@
 #include <stencila/spread.hpp>
 #include <stencila/function.hpp>
 
+
 namespace Stencila {
 
 class PythonSpread : public Spread {
@@ -68,11 +69,11 @@ public:
     }
 
     void read(const std::string& path) {
-        // TODO
+        call_("read", path);
     }
 
     void write(const std::string& path) {
-        // TODO
+        call_("write", path);
     }
 
     /**

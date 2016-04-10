@@ -2,6 +2,7 @@ import ast
 import importlib
 import pickle
 import re
+import os
 
 
 class Spread:
@@ -52,6 +53,7 @@ class Spread:
             return (tipe, rep)
 
     # Following method implement the `Spread` interface
+    # Most of them must return a string
 
     _import_regex = re.compile('import +(\w+)')
 
@@ -88,6 +90,7 @@ class Spread:
                 del self.variables[id]
         else:
             self.variables = {}
+        return ''
 
     def list(self):
         return ','.join(self.variables.keys())
@@ -100,10 +103,15 @@ class Spread:
         return ','.join(collector.names)
 
     def read(self, path):
-        pickle.load(path)
+        path = os.path.join(path, 'context.pkl')
+        if os.path.exists(path):
+            file = open(path)
+            self.variables = pickle.load(file)
 
     def write(self, path):
-        pass
+        file = open(os.path.join(path, 'context.pkl'), 'w')
+        pickle.dump(self.variables, file)
+        file.close()
 
 
 class SpreadNameCollector(ast.NodeVisitor):
