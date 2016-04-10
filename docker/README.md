@@ -5,15 +5,21 @@ Images are built using the `Dockerfiles` in this directory. Currently, the avail
 - [`stencila/ubuntu-14.04-r-3.2`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-r-3.2/)
 - [`stencila/ubuntu-14.04-py-2.7`](https://registry.hub.docker.com/u/stencila/ubuntu-14.04-py-2.7/)
 
-Run an image with a Stencila session for a component like this:
+Run a docker container with one of these images, binding port 7373:
 
 ```sh
-sudo docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-r demo/stencils/kitchen-sink serve ...
+docker run --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-session
 ```
 
-The first time you do this may be slow because the image will need to be pulled from the Docker hub. Once the Docker image is running go to http://localhost:7373/demo/stencils/kitchen-sink. This might also be a little slow the first time because the Docker instance needs to `git clone` the stencil first.
+The first time you do this may be slow because the image will need to be pulled from the Docker hub. This command will launch a session in the host language (in this example R), import the Stencila package and start the embedded HTTP/Websocket server. To access a component (e.g. a sheet), open the component's URL in your browser:
 
-On Mac OSX (and probably Windows too?) you need to forward the 7373 port from the Docker VirtualBox VM through to host machine like this:
+```
+http://localhost:7373/demo/sheets/simple-r/
+```
+
+This might also be a little slow the first time because the Docker instance needs to `git clone` the component into the Docker container before serving it.
+
+You may have to use an IP address instead of `localhost` to access the Docker container. On Mac OSX (and probably Windows too?) you need to forward the 7373 port from the Docker VirtualBox VM through to host machine like this:
 
 ```sh
 VBoxManage modifyvm "default" --natpf1 "tcp-port-7373,tcp,,7373,,7373";
@@ -40,9 +46,9 @@ sudo docker build --tag stencila/ubuntu-14.04-r-3.2 .
 # Test it interactively
 sudo docker run --interactive --tty stencila/ubuntu-14.04-r-3.2 bash
 
-# Launch a Stencila R session with the kitchen sink example
-sudo docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-r demo/stencils/kitchen-sink serve ...
-open http://localhost:7373/demo/stencils/kitchen-sink
+# Launch a Stencila R session and open a demo component
+sudo docker run --publish=7373:7373 stencila/ubuntu-14.04-r-3.2 stencila-session
+open http://localhost:7373/demo/stencils/ggplot2-diamonds/
 
 # You can run a shell in that container to debug issues... 
 sudo docker ps
