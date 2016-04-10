@@ -24,7 +24,7 @@ RUN pip install --upgrade \
 	numpy scipy pandas cairocffi matplotlib ggplot
 
 # Install Stencila R package
-COPY stencila-latest-cp27-none-linux_x86_64.whl /tmp/stencila-0.00-cp27-none-linux_x86_64.whl
+COPY stencila.whl /tmp/stencila-0.00-cp27-none-linux_x86_64.whl
 RUN pip install /tmp/stencila-0.00-cp27-none-linux_x86_64.whl
 
 # Install Stencila session script

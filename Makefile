@@ -699,7 +699,7 @@ $(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt: docker/ubuntu-14.04-py-2.7/Docker
 	@mkdir -p $(dir $@)
 	cp docker/ubuntu-14.04-py-2.7/Dockerfile $(dir $@)
 	cp docker/stencila-session.py $(dir $@)
-	cp $(BUILD)/py/2.7/dist/stencila-$(VERSION_PY_WHEEL)-cp27-none-linux_x86_64.whl $(dir $@)/stencila-latest-cp27-none-linux_x86_64.whl
+	cp $(BUILD)/py/2.7/dist/$$(cat build/current/py/2.7/latest.txt) $(dir $@)/stencila.whl
 	docker build --tag stencila/ubuntu-14.04-py-2.7:$(VERSION) $(dir $@)
 	docker tag --force stencila/ubuntu-14.04-py-2.7:$(VERSION) stencila/ubuntu-14.04-py-2.7:latest
 	echo "stencila/ubuntu-14.04-py-2.7:$(VERSION)" > $@
