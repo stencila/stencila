@@ -35,13 +35,21 @@ Component::Type Sheet::type(void) {
 }
 
 std::string Sheet::meta(const std::string& what) const {
-    for (auto iter : cells_) {
-        Cell& cell = iter.second;
-        if (cell.name == what) {
-            return cell.value;
-        }
+    // Look first in named cells
+    auto iter = names_.find(what);
+    if (iter != names_.end()){
+        return cells_.at(iter->second).value;
+    }
+    // Otherwise in meta information
+    auto meta = meta_.find(what);
+    if (meta != meta_.end()){
+        return meta->second;
     }
     return "";
+}
+
+std::string Sheet::language(void) const {
+    return meta("language");
 }
 
 std::string Sheet::title(void) const {
@@ -248,6 +256,8 @@ Sheet& Sheet::export_(const std::string& path) {
     return *this;
 }
 
+boost::regex read_meta("^#([\\w-]+)$");
+
 Sheet& Sheet::read(const std::string& directory) {
     // Call base method to set component path
     Component::read(directory);
@@ -299,17 +309,23 @@ Sheet& Sheet::read(const std::string& directory) {
     for (const auto& row : sources) {
         auto row_size = row.size();
         if (row_size>1) {
-            auto id = row[0];
-            auto source = row[1];
-            Cell cell;
-            cell.id = id;
-            cell.source(source);
-            if (row_size>2) cell.display(row[2]);
-            auto outs = output(id);
-            auto outs_size = outs.size();
-            if (outs_size>1) cell.type = outs[1];
-            if (outs_size>2) cell.value = outs[2];
-            cells.push_back(cell);
+            auto first = row[0];
+            boost::smatch match;
+            if (boost::regex_match(first, match, read_meta)){
+                meta_[match[1]] = row[1];
+            } else {
+                Cell cell;
+                cell.id = row[0];
+                cell.source(row[1]);
+                if (row_size>2) cell.display(row[2]);
+
+                auto outs = output(cell.id);
+                auto outs_size = outs.size();
+                if (outs_size>1) cell.type = outs[1];
+                if (outs_size>2) cell.value = outs[2];
+
+                cells.push_back(cell);
+            }
         }
     }
 
@@ -328,6 +344,11 @@ Sheet& Sheet::read(const std::string& directory) {
 Sheet& Sheet::write(const std::string& directory) {
     // Call base method to set component pth
     Component::write(directory);
+
+    auto dir = path();
+    boost::filesystem::create_directories(dir+"/out");
+    std::ofstream sources(dir + "/sheet.tsv");
+    std::ofstream outputs(dir + "/out/out.tsv");
     
     // Local function for escaping output.
     // Mostly as per http://dataprotocols.org/linear-tsv/
@@ -340,18 +361,21 @@ Sheet& Sheet::write(const std::string& directory) {
         return copy;
     };
 
+    // Write meta
+    for (auto iter : meta_) {
+        sources << "#" << iter.first << "\t" << escape(iter.second) << "\n";
+    }
+
     // Write cell sources and outputs files
-    auto dir = path();
-    boost::filesystem::create_directories(dir+"/out");
-    std::ofstream sources(dir + "/sheet.tsv");
-    std::ofstream outputs(dir + "/out/out.tsv");
     for (const auto& iter : cells_) {
         const auto& cell = iter.second;
+        
         sources << cell.id << "\t" << escape(cell.source());
         auto display = cell.display_specified();
         if (display.length()) sources << "\t" << display;
         sources << "\n";
-        outputs << cell.id << "\t" << escape(cell.type)     << "\t" << escape(cell.value) << "\n";
+
+        outputs << cell.id << "\t" << escape(cell.type) << "\t" << escape(cell.value) << "\n";
     }
 
     // If a context is attached then write that too

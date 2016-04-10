@@ -32,6 +32,7 @@ void def_Sheet(void){
             ]
         )
 
+        .def("language",&Sheet::language)
         .def("title",&Sheet::title)
         .def("description",&Sheet::description)
         .def("keywords",&Sheet::keywords)

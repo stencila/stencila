@@ -55,6 +55,11 @@ class Sheet : public Component {
     std::string meta(const std::string& what) const;
 
     /**
+     * Get the language used in this sheet's cells.
+     */
+    std::string language(void) const;
+
+    /**
      * Get this sheets's title
      *
      * Title is specified by using the title name e.g
@@ -734,6 +739,13 @@ class Sheet : public Component {
     Function function(const std::string& name) const;
 
  private:
+    /**
+     * Meta information on the sheet
+     *
+     * e.g. language, title, keywords
+     */
+    std::map<std::string, std::string> meta_;
+
     /**
      * Custom comparison to have column first ordering and row ordering
      * that is numeric, not string based (i.e "3" < "10")
