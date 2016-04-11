@@ -48,8 +48,8 @@ std::string Sheet::meta(const std::string& what) const {
     return "";
 }
 
-std::string Sheet::language(void) const {
-    return meta("language");
+std::string Sheet::environ(void) const {
+    return meta("environ");
 }
 
 std::string Sheet::title(void) const {

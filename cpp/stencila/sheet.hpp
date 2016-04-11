@@ -55,9 +55,14 @@ class Sheet : public Component {
     std::string meta(const std::string& what) const;
 
     /**
-     * Get the language used in this sheet's cells.
+     * Get the execution environment for this component
+     *
+     * Use "environ" rather than "language" because language
+     * could later be used to describe the natural language e.g. "en"
+     * and for any one programming language (e.g. Python) 
+     * there may be more than one environment (e.g. py-2.7, py-3.4)
      */
-    std::string language(void) const;
+    std::string environ(void) const;
 
     /**
      * Get this sheets's title
