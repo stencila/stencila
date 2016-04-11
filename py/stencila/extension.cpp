@@ -37,8 +37,8 @@ void def_Stencil(void);
 void def_Theme(void);
 void def_Sheet(void);
 
-void serve(void){
-	Server::startup();
+std::string serve(void){
+	return Server::startup().origin();
 }
 
 BOOST_PYTHON_MODULE(extension){

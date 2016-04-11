@@ -70,7 +70,7 @@ STENCILA_R_FUNC Stencila_stores(void){
  */
 STENCILA_R_FUNC Stencila_serve(void){
 	STENCILA_R_BEGIN
-		return Rcpp::wrap(Server::startup());
+		return Rcpp::wrap(Server::startup().origin());
 	STENCILA_R_END
 }
 

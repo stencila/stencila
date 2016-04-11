@@ -45,8 +45,20 @@ Server::Server(void){
 	restarts_ = 0;
 }
 
-std::string Server::url(void) const {
-	return "http://localhost:"+string(port_);
+std::string Server::hostname(void) const {
+	return "localhost";
+}
+
+std::string Server::port(void) const {
+	return string(port_);
+}
+
+std::string Server::origin(const std::string& scheme) const {
+	return scheme + "://" + hostname() + ":" + port();
+}
+
+std::string Server::url(const std::string& scheme, const std::string& path) const {
+	return origin(scheme) + "/" + path;
 }
 
 void Server::start(void){
@@ -70,14 +82,21 @@ void Server::stop(void){
 Server* server_instance_ = 0;
 boost::thread* server_thread_ = 0;
 
-std::string Server::startup(void) {
+const Server& Server::startup(void) {
 	if(not server_instance_){
 		server_instance_ = new Server();
 		server_thread_ = new boost::thread([](){
 			server_instance_->start();
 		});
 	}
-	return server_instance_->url();
+	return *server_instance_;
+}
+
+const Server& Server::instance(void) {
+	if (not server_instance_) {
+		STENCILA_THROW(Exception, "Server not yet started");
+	}
+	return *server_instance_;
 }
 
 void Server::shutdown(void) {
@@ -233,9 +252,8 @@ void Server::http_(connection_hdl hdl) {
 			if(path.back()!='/'){
 				status = http::status_code::moved_permanently;
 				// Use full URI for redirection because multiple leading slashes can get
-				// squashed up otherwise
-				auto uri = url()+"/"+path+"/";
-				connection->append_header("Location",uri);
+				// squashed up into one otherwise
+				connection->append_header("Location", "http://" + path + "/");
 			}
 			else {
 				// Remove any trailing slashes in path to make it a

@@ -10,10 +10,11 @@
 namespace Stencila {
 
 std::string Component::serve(Type type){
+	// Hold this component
 	hold(type);
-	// URL should include trailing slash to avoid redictions
-	// and provide proper serving
-	return Server::startup() + "/" + address() + "/";
+	// Start server and return URL for this component including trailing
+	// slash to avoid redictions and provide for relative URLs in links
+	return Server::startup().url("http",address()+"/");
 }
 
 Component& Component::view(Type type){
@@ -178,7 +179,7 @@ Json::Document Component::call(const std::string& name, const Json::Document& ar
 		result.append("rights", "ALL");
 		Json::Document session = Json::Object();
 		session.append("local", true);
-		session.append("websocket", "ws://localhost:7373/" + address());
+		session.append("websocket", Server::instance().url("ws",address()));
 		result.append("session", session);
 	} else if (name=="commit") {
 		auto message = args[0].as<std::string>();
