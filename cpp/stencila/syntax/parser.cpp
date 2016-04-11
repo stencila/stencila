@@ -1,32 +1,27 @@
 #include <cstdlib>
-#include <iostream>
 #include <string>
 #include <vector>
 
-#include "lexer.hpp"
-#include "parser.hpp"
-
-#include <stencila/syntax/syntax.hpp>
-using namespace Stencila::Syntax;
-
-#include <stencila/syntax/r.hpp>
- 
-void* ParseAlloc(void* (*allocProc)(size_t));
-void Parse(void* lemon, int, char*, Parser* parser);
-void ParseFree(void* lemon, void(*freeProc)(void*));
+#include <stencila/syntax/parser.hpp>
 
 namespace Stencila {
 namespace Syntax {
 
-void Parser::parse(const std::string& line) {
+void Parser::init(ParseAlloc parse_alloc, Parse parse, ParseFree parse_free) {
+    parse_alloc_ = parse_alloc;
+    parse_ = parse;
+    parse_free_ = parse_free;
+}
+
+void Parser::parse(const std::string& string) {
     // Create the Flex lexer and get it to
-    // scan the line
+    // scan the string
     yyscan_t lexer;
     yylex_init(&lexer);
-    YY_BUFFER_STATE buffer_state = yy_scan_string(line.c_str(), lexer);
+    YY_BUFFER_STATE buffer_state = yy_scan_string(string.c_str(), lexer);
 
     // Create the Lemon parser
-    void* lemon = ParseAlloc(malloc);
+    void* lemon = parse_alloc_(malloc);
 
     // Due to an interaction between the memory management
     // of Flex and Lemon it is neccessary to do `strdup(yyget_text(lexer))`
@@ -38,38 +33,24 @@ void Parser::parse(const std::string& line) {
     while (int code = yylex(lexer)) {
         char* text = strdup(yyget_text(lexer));
         texts.push_back(text);
-        Parse(lemon, code, text, this);
+        parse_(lemon, code, text, this);
     }
-    Parse(lemon, 0, NULL, this);
+    parse_(lemon, 0, NULL, this);
 
     // Clean up the lexer
     yy_delete_buffer(buffer_state, lexer);
     yylex_destroy(lexer);
 
     // Cleanup the lemon
-    ParseFree(lemon, free);
+    parse_free_(lemon, free);
 
     // Cleanup the duplicated strings
     for (auto text : texts) free(text);
 }
 
-void Parser::show(void) const {
-    std::cout<<message<<std::endl;
-    if (root) {
-        TreeGenerator(std::cout).visit(root);
-        std::cout << std::endl << std::endl;
-        RGenerator(std::cout, "excel").visit(root);
-    }
+const Node* Parser::tree(void) const {
+    return root_;
 }
 
 }
-}
-
-int main() {
-    std::string line;
-    std::getline(std::cin, line);
-    Parser parser;
-    parser.parse(line);
-    parser.show();
-    return 0;
 }

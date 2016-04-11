@@ -2,7 +2,7 @@
   #include <cassert>
   #include <iostream>
 
-  #include <stencila/syntax/syntax.hpp>
+  #include <stencila/syntax/tree.hpp>
   using namespace Stencila::Syntax;
 }
 
@@ -29,7 +29,6 @@
 %left TIMES DIVIDE.
 
 start ::= expr(e). {
-  parser->message = "finished";
   parser->root = e;
 }
 
