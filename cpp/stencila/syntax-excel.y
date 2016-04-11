@@ -2,7 +2,8 @@
   #include <cassert>
   #include <iostream>
 
-  #include <stencila/syntax/tree.hpp>
+  #include <stencila/syntax-tree.hpp>
+  #include <stencila/syntax-parser.hpp>
   using namespace Stencila::Syntax;
 }
 
@@ -29,7 +30,7 @@
 %left TIMES DIVIDE.
 
 start ::= expr(e). {
-  parser->root = e;
+  parser->root(e);
 }
 
 expr(a) ::= FUNCTION(b) PAREN_L args(c) PAREN_R. {

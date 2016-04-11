@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <stencila/syntax/tree.hpp>
+#include <stencila/syntax-tree.hpp>
 
 namespace Stencila {
 namespace Syntax {
@@ -31,9 +31,14 @@ class Parser {
     void parse(const std::string& string);
 
     /**
-     * Get sytax tree created dring parsing
+     * Get syntax tree root created during parsing
      */
-    const Node* tree(void) const;
+    const Node* root(void) const;
+
+    /**
+     * Set syntax tree root during parsing
+     */
+    void root(Node* node);
 
  protected:
     /**

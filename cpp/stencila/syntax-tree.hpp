@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 #include <boost/algorithm/string.hpp>
 
@@ -17,8 +18,7 @@ struct Node {
 struct Boolean : Node {
     bool value;
 
-    explicit Boolean(const char* string):
-        Node(number) {
+    explicit Boolean(const char* string) {
         std::string v = string;
         boost::algorithm::to_lower(v);
         if (v == "true") {
@@ -38,7 +38,6 @@ struct Number : Node {
     std::string value;
 
     explicit Number(const char* value):
-        Node(number),
         value(value) {}
 
     ~Number(void){
@@ -49,7 +48,6 @@ struct String : Node {
     std::string value;
 
     explicit String(const char* value):
-        Node(string),
         value(value) {}
 
     ~String(void){
@@ -60,7 +58,6 @@ struct Identifier : Node {
     std::string value;
 
     explicit Identifier(const char* value):
-        Node(identifier),
         value(value) {}
 
     ~Identifier(void){
@@ -72,7 +69,8 @@ struct Range : Node {
     Node* last;
 
     Range(Node* first, Node* last):
-        Node(range), first(first), last(last) {}
+        first(first),
+        last(last) {}
 
     ~Range(void){
     }
@@ -84,7 +82,6 @@ struct Binary : Node {
     Node* right;
 
     Binary(char symbol, Node* left, Node* right):
-        Node(binary),
         symbol(symbol),
         left(left),
         right(right) {}
@@ -109,13 +106,11 @@ struct Call : Node {
     bool borrowed;
 
     Call(const std::string& function, Node* arg, bool borrowed = false):
-        Node(call),
         function(function),
         arguments(1, arg),
         borrowed(borrowed) {}
 
     Call(const std::string& function, const std::vector<Node*>& args, bool borrowed = false):
-        Node(call),
         function(function),
         arguments(args),
         borrowed(borrowed) {}

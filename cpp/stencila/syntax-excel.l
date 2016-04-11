@@ -1,5 +1,5 @@
 %{
-  #include "parser.hpp"
+  #include "syntax-excel.h"
 %}
 
 %option reentrant warn
