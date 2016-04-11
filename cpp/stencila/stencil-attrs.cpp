@@ -37,20 +37,26 @@ std::string Stencil::mode(void) const {
 	return select("#mode").text();
 }
 
-std::vector<std::string> Stencil::contexts(void) const {
-	std::vector<std::string> contexts;
-	if(Node elem = select("#contexts")){
-		// A #contexts node found so use that
+std::string Stencil::environ(void) const {
+	auto list = environs();
+	if (list.size()) return list.front();
+	else return "";
+}
+
+std::vector<std::string> Stencil::environs(void) const {
+	std::vector<std::string> environs;
+	if(Node elem = select("#environs")){
+		// A #environs node found so use that
 		auto text = elem.text();
-		contexts = split(text,",");
-		for(auto& context : contexts) trim(context);
+		environs = split(text,",");
+		for(auto& environ : environs) trim(environ);
 	} else {
 		// Count the number of exec directives of each type
 		std::map<std::string,int> counts;
 		for(auto exec : execs()){
-			for(auto context : exec.contexts){
-				if(counts.find(context)==counts.end()) counts[context] = 1;
-				else counts[context] += 1;
+			for(auto environ : exec.contexts){
+				if(counts.find(environ)==counts.end()) counts[environ] = 1;
+				else counts[environ] += 1;
 			}
 		}
 		// Sort in decending order of count
@@ -60,10 +66,10 @@ std::vector<std::string> Stencil::contexts(void) const {
 			return a.second > b.second;
 		};
 		std::sort(sorted.begin(), sorted.end(), cmp);
-		for(auto pair : sorted) contexts.push_back(pair.first);
+		for(auto pair : sorted) environs.push_back(pair.first);
 
 	}   
-	return contexts;
+	return environs;
 }
 
 std::string Stencil::theme(bool versioned) const {

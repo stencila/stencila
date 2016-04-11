@@ -54,6 +54,7 @@ void def_Stencil(void){
         .def("description",&Stencil::description)
         .def("keywords",&Stencil::keywords)
         .def("authors",&Stencil::authors)
+        .def("environ",&Stencil::environ)
 
         .def("attach",Stencil_attach,return_self<>())
         .def("detach",&Stencil::detach,return_self<>())
