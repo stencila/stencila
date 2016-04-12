@@ -71,8 +71,8 @@ setRefClass(
         authors = function(){
             get_(.self,'Stencil_authors_get')
         },
-        contexts = function(){
-            get_(.self,'Stencil_contexts_get')
+        environs = function(){
+            get_(.self,'Stencil_environs_get')
         },
 
         import = function(path) method_(.self,'Stencil_import',path),

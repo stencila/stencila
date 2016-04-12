@@ -18,11 +18,11 @@ test.Stencil.html <- function(){
   checkEquals('<p>\n\tfoo\n</p>',s$html())
 }
 
-test.Stencil.contexts <- function(){
+test.Stencil.environs <- function(){
   s <- Stencil()
-  checkEquals(length(s$contexts()),0)
+  checkEquals(length(s$environs()),0)
   s$cila('r\n\ta <- 1\n')
-  checkEquals(s$contexts(),'r')
+  checkEquals(s$environs(),'r')
 }
 
 render <- function(stencil,context=list()){
