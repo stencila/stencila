@@ -30,13 +30,14 @@ public:
 	}
 
 	const char* what(void) const throw() {
-		std::ostringstream stream;
 		if(file_){
-			stream << message_ << "\n  location: " << file_ << " " << line_;
+			std::ostringstream stream;
+			stream << message_ << "\n  location: " << file_ << " " << line_ << std::flush;
+			std::string what = stream.str();
+			return what.c_str();
 		} else {
-			stream << message_;
+			return message_.c_str();
 		}
-		return stream.str().c_str();
 	}
 };
 
