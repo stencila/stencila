@@ -331,7 +331,7 @@ CPP_REQUIRES_LIBS += tidys
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
 
-WEBSOCKETPP_VERSION := 0.6.0
+WEBSOCKETPP_VERSION := 0.7.0
 
 $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	mkdir -p $(RESOURCES)
