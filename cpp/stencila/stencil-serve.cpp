@@ -34,8 +34,8 @@ std::string Stencil::page(void) const {
 		{"content",mode()}
 	});
 	head.append("meta",{
-		{"itemprop","contexts"},
-		{"content",join(contexts(),",")}
+		{"itemprop","environs"},
+		{"content",join(environs(),",")}
 	});
 
 	// Add stencil content to the main element and give #content id

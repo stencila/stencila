@@ -266,35 +266,35 @@ Stencil& Stencil::render(std::shared_ptr<Context> context){
 }
 
 Stencil& Stencil::render(const std::string& type){
-	// Get the list of context that are compatible with this stencil
-	auto types = contexts();
+	// Get the list of environment that are compatible with this stencil
+	auto types = environs();
 	// Use the first in the list if type has not been specified
 	std::string use;
 	if(type.length()==0){
 		if(types.size()==0){
-			STENCILA_THROW(Exception,"No default context type for this stencil; please specify one.");
+			STENCILA_THROW(Exception,"No default environment type for this stencil; please specify one.");
 		}
 		else use = types[0];
 	} else {
 		use = type;
 	}
-	// Render the stencil in the corresponding context type
+	// Render the stencil in the corresponding environment type
 	if(use=="py"){
 		#if STENCILA_PYTHON_CONTEXT
 			return render(new PythonContext);
 		#else
-			STENCILA_THROW(Exception,"Stencila has not been compiled with support for Python contexts");
+			STENCILA_THROW(Exception,"Stencila has not been compiled with support for Python environments");
 		#endif
 	}
 	else if(use=="r"){
 		#if STENCILA_R_CONTEXT
 			return render(new RContext);
 		#else
-			STENCILA_THROW(Exception,"Stencila has not been compiled with support for R contexts");
+			STENCILA_THROW(Exception,"Stencila has not been compiled with support for R environments");
 		#endif
 	}
 	else {
-	   STENCILA_THROW(Exception,"Unrecognised context type: "+type); 
+	   STENCILA_THROW(Exception,"Unrecognised environment: "+type); 
 	}
 	return *this;
 }
