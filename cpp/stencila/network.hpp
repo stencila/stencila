@@ -76,6 +76,11 @@ private:
 	 * Implementation of server
 	 */
 	server server_;
+
+	/**
+	 * Hostname for the server
+	 */
+	std::string hostname_ = "localhost";
 	
 	/**
 	 * Port number for the server

@@ -46,7 +46,7 @@ Server::Server(void){
 }
 
 std::string Server::hostname(void) const {
-	return "localhost";
+	return hostname_;
 }
 
 std::string Server::port(void) const {
@@ -65,7 +65,22 @@ void Server::start(void){
 	try {
 		server_.listen(port_);
 		server_.start_accept();
+
+		#if 0
+		// Currently unused code for getting port number if ever this is automatically assigned
+		// and not fixed at 7373 as it is currently
+		// Note that local address can't be obtained here. 
+		// See https://github.com/zaphoyd/websocketpp/issues/543#issuecomment-208283011
+		websocketpp::lib::asio::error_code error;
+		auto endpoint = server_.get_local_endpoint(error);
+		if (error) {
+			STENCILA_THROW(Exception, "Error getting local endpoint" + string(error));
+		}
+		port_ = string(endpoint.port());
+		#endif
+
 		server_.run();
+		
 	} catch (std::exception const & e) {
         error_log_ << "[XXXX-XX-XX XX:XX:XX] [exception]" << e.what() << std::endl;
         restart_();
@@ -152,8 +167,14 @@ void Server::http_(connection_hdl hdl) {
 	// Get request verb (i.e. method)
 	auto request = connection->get_request();
 	std::string verb = request.get_method();
-	// Get the remote address
+	// Get the remote and local addresses
 	std::string remote = connection->get_remote_endpoint();
+	auto local_endpoint = connection->get_raw_socket().local_endpoint();
+	std::string local_address = local_endpoint.address().to_string();
+	// Convert IP6 to IP4. boost::asio:ip::address has a `to_v4` method
+	// but I found that it hung, so do the conversion on the string.
+	boost::replace_first(local_address, "::ffff:", "");
+	std::string local_port = string(local_endpoint.port());
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
 	std::string error;
@@ -252,8 +273,11 @@ void Server::http_(connection_hdl hdl) {
 			if(path.back()!='/'){
 				status = http::status_code::moved_permanently;
 				// Use full URI for redirection because multiple leading slashes can get
-				// squashed up into one otherwise
-				connection->append_header("Location", "http://" + path + "/");
+				// squashed up into one otherwise. Redirect to the request local address and port.
+				connection->append_header(
+					"Location", 
+					"http://" + local_address + ":" + local_port + "/" + path + "/"
+				);
 			}
 			else {
 				// Remove any trailing slashes in path to make it a

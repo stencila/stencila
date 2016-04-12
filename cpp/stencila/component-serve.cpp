@@ -178,8 +178,13 @@ Json::Document Component::call(const std::string& name, const Json::Document& ar
 	if(name=="boot") {
 		result.append("rights", "ALL");
 		Json::Document session = Json::Object();
+		// Indicate a local session
 		session.append("local", true);
-		session.append("websocket", Server::instance().url("ws",address()));
+		// Return empty string for websocket URL to indicate that the 
+		// client should construct the websocket URL from the hostname of the 
+		// window. We do this because, from here, we can't find out what address this
+		// request was made on. It won't necessarily be localhost.
+		session.append("websocket", "");
 		result.append("session", session);
 	} else if (name=="commit") {
 		auto message = args[0].as<std::string>();
