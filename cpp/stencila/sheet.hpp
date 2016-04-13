@@ -667,7 +667,7 @@ class Sheet : public Component {
      * This method might need to be called if for example a global variable
      * outside of the spread is altered
      */
-    Sheet& update(void);
+    Sheet& update(bool execute = true);
 
     /**
      * List the names of variables within the attached spread

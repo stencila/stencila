@@ -13,6 +13,7 @@ Sheet& Sheet_attach(Sheet& self, object context) {
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_read,read,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_write,write,0,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_update_overloads,update,0,1)
 
 void def_Sheet(void){
     class_<Sheet,bases<Component>>("Sheet")
@@ -52,6 +53,11 @@ void def_Sheet(void){
         .def("attach", Sheet_attach, return_self<>())
         .def("detach", &Sheet::detach, return_self<>())
 
-        .def("update", static_cast<Sheet& (Sheet::*)(void)>(&Sheet::update), return_self<>())
+        .def("update",
+            static_cast<Sheet& (Sheet::*)(bool)>(&Sheet::update),
+            Sheet_update_overloads()[
+                return_self<>()
+            ]
+        )
     ;
 }

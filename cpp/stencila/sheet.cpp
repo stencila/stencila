@@ -289,9 +289,6 @@ Sheet& Sheet::read(const std::string& directory) {
     
     // Local function for getting row of outputs for a cell
     auto output = [&](const std::string& id) -> std::vector<std::string> {
-        // If outputs is different length to inputs then assume 
-        // they are invalid and return nothing
-        if (outputs.size() != sources.size()) return {};
         // Search for id and return column if it exists
         for(const auto& row : outputs) {
             if (row.size()) {
@@ -303,9 +300,9 @@ Sheet& Sheet::read(const std::string& directory) {
         return {};
     };
 
-    // Create a bunch of new cells from sources file, getting
-    // outputs for that cell if they are available
-    std::vector<Cell> cells;
+    // Reset this sheet with new cells from source file and 
+    // outputs (e.g. type, value) if they are available
+    clear();
     for (const auto& row : sources) {
         auto row_size = row.size();
         if (row_size>1) {
@@ -324,14 +321,14 @@ Sheet& Sheet::read(const std::string& directory) {
                 if (outs_size>1) cell.type = outs[1];
                 if (outs_size>2) cell.value = outs[2];
 
-                cells.push_back(cell);
+                cells_[cell.id] = cell;
+                if (cell.name.length()) names_[cell.name] = cell.id;
             }
         }
     }
 
-    // Reset this sheet with those cells;
-    clear();
-    update(cells, false);
+    // Update dependency graph, names etc but don't execute
+    update(false);
 
     // If a context is attached then read that too
     if(spread_) {
@@ -502,10 +499,13 @@ Json::Document Sheet::call(const std::string& name, const Json::Document& args) 
 
         Json::Document result = Json::Object();
         result.append("id", id);
+        result.append("kind", cell.kind_string());
         result.append("expression", cell.expression);
+        result.append("depends", cell.depends);
         result.append("name", cell.name);
         result.append("type", cell.type);
         result.append("value", cell.value);
+        result.append("display", cell.display());
         return result;
 
     } else if (name == "evaluate") {
@@ -782,30 +782,29 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
     boost::filesystem::path path = boost::filesystem::path(Component::path(true));
     try {
         boost::filesystem::current_path(path);
-    } catch(const std::exception& exc){
+    } catch(const std::exception& exc) {
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
     try {
         std::vector<std::string> cells_changed;
-        if (changes.size()){
+        if (changes.size()) {
             // Updating only changed cells
             // Need to copy the change into the existing (or
             // newly created) cell
             for (auto cell : changes) {
                 auto id = cell.id;
                 Cell* pointer = cell_pointer(id);
-                if(pointer){
+                if (pointer) {
                     // Existing cell so copy over
                     *pointer = cell;
                     // TODO deal with any change in name by clearing the
                     // name from the context and the name mapping
-                }
-                else {
+                } else {
                     // New cell so insert
                     cells_.insert({id,cell});
                     // Store any name
-                    names_[cell.name] = id;
+                    if (cell.name.length()) names_[cell.name] = id;
                 }
                 cells_changed.push_back(id);
             }
@@ -815,10 +814,6 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
                 cells_changed.push_back(iter.first);
             }
         }
-
-        // If no spread, don't go any further.
-        // This suffices for an initial read
-        if(not execute or not spread_) return updates;
 
         // Create list of cells for which dependency needs to be updated
         // If necessary update dependency graph based on all cells
@@ -916,6 +911,10 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
         // Next time, don't need to update all dependencies
         if (not prepared_) prepared_ = true;
 
+        // If not executing (e.g. for initial read) then leave don't
+        // go any further
+        if (not execute) return updates;
+
         // Ensure output directory is present
         boost::filesystem::create_directories(path / "out");
 
@@ -935,23 +934,23 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
             if(iter == cells_.end()) continue;
             Cell& cell = iter->second;
 
-            // Does this cell need to be executed
-            // Has this cell changed?
-            bool execute = std::find(cells_changed.begin(), cells_changed.end(), id) != cells_changed.end();
-            if(not execute) {
-                // Has any of it's immeadiate predecessors been updated?
+            // Does this cell need to be executed...
+            // ...has this cell changed?
+            bool execute_cell = std::find(cells_changed.begin(), cells_changed.end(), id) != cells_changed.end();
+            if(not execute_cell) {
+                // ...has any of it's immeadiate predecessors been updated?
                 auto vertex = vertices_[id];
                 boost::graph_traits<Graph>::in_edge_iterator edge_iter, edge_end;
                 for (boost::tie(edge_iter,edge_end) = in_edges(vertex, graph_); edge_iter != edge_end; ++edge_iter) {
                     auto predecessor_vertex = boost::source(*edge_iter, graph_);
                     auto predecessor_id = boost::get(boost::vertex_name, graph_)[predecessor_vertex];
-                    execute = std::find(cells_updated.begin(), cells_updated.end(), predecessor_id) != cells_updated.end();
-                    if (execute) break;
+                    execute_cell = std::find(cells_updated.begin(), cells_updated.end(), predecessor_id) != cells_updated.end();
+                    if (execute_cell) break;
                 }
             }
 
             // If don't need to execute this cell then continue loop
-            if(not execute) continue; 
+            if(not execute_cell) continue; 
             
             // Add to list of cells updated
             cells_updated.push_back(id);
@@ -1006,8 +1005,8 @@ std::vector<Sheet::Cell> Sheet::update(const std::string& id, const std::string&
     return update({cell});
 }
 
-Sheet& Sheet::update(void) {
-    update({});
+Sheet& Sheet::update(bool execute) {
+    update({},execute);
     return *this;
 }
 
