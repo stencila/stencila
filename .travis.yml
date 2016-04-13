@@ -84,8 +84,8 @@ script:
 
 after_success:
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - test $TRAVIS_PULL_REQUEST == "false" && make docker-py-deliver
-    - test $TRAVIS_PULL_REQUEST == "false" && make docker-r-deliver
+    - test $TRAVIS_PULL_REQUEST == "false" && docker pull stencila/ubuntu-14.04-py-2.7 && make docker-py-deliver
+    - test $TRAVIS_PULL_REQUEST == "false" && docker pull stencila/ubuntu-14.04-r-3.2 && make docker-r-deliver
     - test $TRAVIS_PULL_REQUEST == "false" && make py-deliver
     - test $TRAVIS_PULL_REQUEST == "false" && make r-deliver
 
