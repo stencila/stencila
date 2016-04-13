@@ -77,9 +77,9 @@ before_script:
 
 script:
     - make vars
-    - make cpp-tests-quick
-    - make py-tests
-    - make r-tests
+    - make cpp-tests-quick -j2
+    - make py-tests -j2
+    - make r-tests -j2
 
 after_success:
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
