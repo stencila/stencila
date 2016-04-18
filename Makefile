@@ -472,12 +472,17 @@ $(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o: $(BUILD)/cpp/library/gen
 	 		  											$(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<
 
+# List of parsing related object files used in library and tests
+CPP_PARSER_YS := $(notdir $(wildcard cpp/stencila/syntax-*.y))
+CPP_PARSER_OS := $(patsubst syntax-%.y, $(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o,$(CPP_PARSER_YS)) \
+				$(patsubst syntax-%.y, $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o,$(CPP_PARSER_YS)) \
+				$(patsubst syntax-%.y, $(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o,$(CPP_PARSER_YS))
+
 # List of all Stencila library object files
-CPP_LIBRARY_OBJECTS := $(patsubst syntax-%.y,$(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o,$(notdir $(wildcard cpp/stencila/syntax-*.y))) \
+CPP_LIBRARY_OS := $(CPP_PARSER_OS) \
 					   $(patsubst %.cpp,$(BUILD)/cpp/library/objects/stencila-%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
 					   $(CPP_VERSION_O)
-cpp-library-objects: $(CPP_LIBRARY_OBJECTS)
-
+cpp-library-objects: $(CPP_LIBRARY_OS)
 
 # Extract object files from requirement libraries
 # Care may be required to ensure no name clashes in object files
@@ -571,11 +576,9 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 # This needs to be done (instead of linking to libstencila.a) so that coverage statistics
 # can be generated for these files
 # $(realpath $<) is used for consistency of paths in coverage reports
-CPP_TEST_STENCILA_OS := $(wildcard $(BUILD)/cpp/library/objects/stencila-syntax-*-lexer.o) \
-					   	$(wildcard $(BUILD)/cpp/library/objects/stencila-syntax-*-parser.o) \
-					   	$(wildcard $(BUILD)/cpp/library/objects/stencila-syntax-*-parse.o) \
-					   	$(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
-					    $(CPP_VERSION_O)
+CPP_TEST_STENCILA_OS := $(CPP_PARSER_OS) \
+						$(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
+						$(CPP_VERSION_O)
 $(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
