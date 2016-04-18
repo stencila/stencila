@@ -32,6 +32,8 @@ addons:
             - texlive-binaries # Temporary fix (?) for R bug http://bugs.debian.org/810963
             - libxml2-dev
             - libcurl4-openssl-dev
+            - flex
+            - lemon
 
 before_install:
     # Use this to prepare the system to install prerequisites or dependencies
