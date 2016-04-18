@@ -451,6 +451,7 @@ cpp-library-excel:
 	$(call cpp-library-parser,excel)
 	$(call cpp-library-lexer,excel)
 
+
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
