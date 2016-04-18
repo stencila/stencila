@@ -2,6 +2,7 @@
   #include "syntax-excel.h"
 %}
 
+%option prefix="Excel"
 %option reentrant warn
 %option noyywrap
 

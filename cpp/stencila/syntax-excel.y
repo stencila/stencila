@@ -7,6 +7,8 @@
   using namespace Stencila::Syntax;
 }
 
+%name Excel
+
 %extra_argument { Parser* parser }
 
 %token_type { char* }
@@ -81,6 +83,10 @@ expr(e) ::= STRING(v). {
 
 expr(a) ::= id(b) COLON id(c). {
   a = new Range(b,c);
+}
+
+expr(a) ::= id(b). {
+  a = b;
 }
 
 id(a) ::= IDENTIFIER(id). {

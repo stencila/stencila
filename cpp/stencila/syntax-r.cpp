@@ -1,15 +1,13 @@
-#pragma once
-
 #include <map>
 
 #include <boost/algorithm/string.hpp>
 
-#include <stencila/syntax/r.hpp>
+#include <stencila/syntax-r.hpp>
 
 namespace Stencila {
 namespace Syntax {
 
-virtual const Node* RGenerator::translate_excel_call(const Call* call, bool* created) {
+const Node* RGenerator::translate_excel_call(const Call* call, bool* created) {
     // Create a copy of the call which we can modify here
     Node* rcall;
     auto name = call->function;

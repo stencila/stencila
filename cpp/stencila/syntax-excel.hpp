@@ -1,13 +1,13 @@
 #pragma once
 
-#include <stencila/syntax/parser.hpp>
+#include <stencila/syntax-parser.hpp>
 
 namespace Stencila {
 namespace Syntax {
 
 class ExcelParser : public Parser {
  public:
-    ExcelParser(void);
+    const Node* parse(const std::string& string);
 };
 
 }

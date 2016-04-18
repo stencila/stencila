@@ -5,8 +5,7 @@
 			"cmd":
 			[
 				"make",
-				"cpp-test",
-				"CPP_TEST=$file_base_name"
+				"cpp-test-$file_base_name"
 			],
 			"name": "Stencila: run current C++ test",
 			"working_dir": "."

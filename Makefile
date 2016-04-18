@@ -428,40 +428,56 @@ cpp-library-vars:
 	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
 
 
-define cpp-library-lexer
-	flex --header-file=$(BUILD)/cpp/library/syntax-$1-lexer.hpp \
-	     --outfile     $(BUILD)/cpp/library/syntax-$1-lexer.cpp \
-	                   cpp/stencila/syntax-$1.l
-	$(CXX) -fPIC -I$(BUILD)/cpp/library -c \
-	    -o $(BUILD)/cpp/library/objects/stencila-syntax-$1-lexer.o \
-	       $(BUILD)/cpp/library/syntax-$1-lexer.cpp
-endef
-
-define cpp-library-parser
-	lemon cpp/stencila/syntax-$1.y
-	mv cpp/stencila/syntax-$1.h $(BUILD)/cpp/library/
-	mv cpp/stencila/syntax-$1.c $(BUILD)/cpp/library/
-	mv cpp/stencila/syntax-$1.out $(BUILD)/cpp/library/
-	$(CXX) -std=c++11 -fPIC $(CPP_REQUIRES_INC_DIRS) -Icpp -I$(BUILD)/cpp/library -c \
-	    -o $(BUILD)/cpp/library/objects/stencila-syntax-$1-parser.o \
-	       $(BUILD)/cpp/library/syntax-$1.c
-endef
-
-cpp-library-excel:
-	$(call cpp-library-parser,excel)
-	$(call cpp-library-lexer,excel)
-
-
-# Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
 	CPP_LIBRARY_FLAGS +=-fPIC
 endif
-CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/stencila-%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_O)
-$(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
+
+# General object file builds
+$(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/library/objects
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
+
+# Various pattern rules for library object files...
+
+# Generate syntax parser using Lemon
+$(BUILD)/cpp/library/generated/syntax-%-parser.cpp: cpp/stencila/syntax-%.y
+	@mkdir -p $(dir $@)
+	lemon $<
+	mv cpp/stencila/syntax-$*.h $(dir $@)
+	mv cpp/stencila/syntax-$*.c $@
+	mv cpp/stencila/syntax-$*.out $(dir $@)
+
+$(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o: $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
+	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -Wno-unused-variable -o$@ -c $<	
+.PRECIOUS: $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o
+
+# Generate syntax lexer using Flex
+$(BUILD)/cpp/library/generated/syntax-%-lexer.cpp: cpp/stencila/syntax-%.l
+	@mkdir -p $(dir $@)
+	flex --outfile $@ --header-file=$(dir $@)syntax-$*-lexer.hpp $<
+
+$(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o: $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
+	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp -I$(BUILD)/cpp/library/generated -o$@ -c $<	
+.PRECIOUS: $(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o
+
+# Generate the `parse()` method by using the temlate .cxx file
+$(BUILD)/cpp/library/generated/syntax-%-parse.cpp: cpp/stencila/syntax-parser-parse.cxx
+	@mkdir -p $(dir $@)
+	sed -e 's!{lang}!$*!' -e 's!{lang-title}!\u$*!' cpp/stencila/syntax-parser-parse.cxx > $@
+
+# Compile lexer and parser source
+$(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o: $(BUILD)/cpp/library/generated/syntax-%-parse.cpp \
+														$(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o \
+	 		  											$(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o
+	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<
+
+# List of all Stencila library object files
+CPP_LIBRARY_OBJECTS := $(patsubst syntax-%.y,$(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o,$(notdir $(wildcard cpp/stencila/syntax-*.y))) \
+					   $(patsubst %.cpp,$(BUILD)/cpp/library/objects/stencila-%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
+					   $(CPP_VERSION_O)
+cpp-library-objects: $(CPP_LIBRARY_OBJECTS)
+
 
 # Extract object files from requirement libraries
 # Care may be required to ensure no name clashes in object files
@@ -473,8 +489,7 @@ define CPP_LIBRARY_EXTRACT
 	rm -rf $(BUILD)/cpp/library/objects/$2
 endef
 
-$(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
-	@mkdir -p $@
+$(BUILD)/cpp/library/objects/requires-objects.flag: $(BUILD)/cpp/requires
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_system.a,boost-system)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_filesystem.a,boost-filesystem)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
@@ -486,11 +501,12 @@ $(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
 	$(call CPP_LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
 	$(call CPP_LIBRARY_EXTRACT,tidy-html5/build/cmake/libtidys.a,tidy)
 	touch $@
+cpp-requires-objects: $(BUILD)/cpp/library/objects/requires-objects.flag
 
 # Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
 # into a single static library.
 # Output list of contents to `files.txt` and `symbols.txt` for checking
-$(BUILD)/cpp/library/libstencila.a: $(BUILD)/cpp/library/objects
+$(BUILD)/cpp/library/libstencila.a: cpp-library-objects cpp-requires-objects
 	cd $(BUILD)/cpp/library ;\
 		$(AR) rc libstencila.a `find . -name "*.o*"` ;\
 		$(AR) t libstencila.a > files.txt ;\
@@ -547,7 +563,7 @@ CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 # Compile a test file into an object file
 # $(realpath $<) is used for consistency of paths in coverage reports
 CPP_TEST_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/tests/*.cpp)))
-$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
@@ -555,8 +571,12 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp $(BUILD)/cpp/requires
 # This needs to be done (instead of linking to libstencila.a) so that coverage statistics
 # can be generated for these files
 # $(realpath $<) is used for consistency of paths in coverage reports
-CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) $(CPP_VERSION_O)
-$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires 
+CPP_TEST_STENCILA_OS := $(wildcard $(BUILD)/cpp/library/objects/stencila-syntax-*-lexer.o) \
+					   	$(wildcard $(BUILD)/cpp/library/objects/stencila-syntax-*-parser.o) \
+					   	$(wildcard $(BUILD)/cpp/library/objects/stencila-syntax-*-parse.o) \
+					   	$(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
+					    $(CPP_VERSION_O)
+$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
@@ -569,11 +589,11 @@ $(BUILD)/cpp/tests/%: cpp/tests/%
 
 # Compile a single test file into an executable
 $(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS)
-	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $^ $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS)
-	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $^ $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Make test executable precious so they are kept despite
 # being intermediaries for test runs
@@ -587,17 +607,14 @@ $(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe $(CPP_TEST_INPUTS)
 		ulimit -v 2097152; (./$(notdir $<)) || (exit 1)
 
 # Run a single test suite by specifying in command line e.g.
-# 	make cpp-test CPP_TEST=stencil-cila
+# 	make cpp-test-stencil-cila
 # Creates a symlink so the debugger picks this test as the one
 # to debug
-ifndef CPP_TEST
-  CPP_TEST := tests
-endif
-cpp-test: build-current $(BUILD)/cpp/tests/$(CPP_TEST).exe $(CPP_TEST_INPUTS)
+cpp-test-%: $(BUILD)/cpp/tests/%.exe $(CPP_TEST_INPUTS)
 	cd $(BUILD)/cpp/tests/ ;\
-		ln -sfT $(CPP_TEST).exe test-to-debug ;\
+		ln -sfT $*.exe test-to-debug ;\
 		ulimit -v 2097152 ;\
-		(./$(CPP_TEST).exe) || (exit 1)
+		(./$*.exe) || (exit 1)
 
 # Run quick tests only
 cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe $(CPP_TEST_INPUTS)
@@ -874,7 +891,7 @@ $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 	@mkdir -p $(PY_BUILD)/stencila
 	cp $< $@
 
-$(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(BUILD)/cpp/requires
+$(PY_BUILD)/objects/%.o: py/stencila/%.cpp
 	@mkdir -p $(PY_BUILD)/objects
 	$(CXX) $(PY_CXX_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(PY_INCLUDE_DIR) -o$@ -c $<
 
@@ -998,7 +1015,7 @@ endif
 
 # Compile each cpp file
 R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
-$(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires
+$(R_BUILD)/objects/%.o: r/stencila/%.cpp
 	@mkdir -p $(R_BUILD)/objects
 	$(CXX) $(R_COMPILE_FLAGS) -o$@ -c $<
 	

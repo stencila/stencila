@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#include <stencila/syntax/generator.hpp>
+#include <stencila/syntax-generator.hpp>
 
 namespace Stencila {
 namespace Syntax {

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <memory>
 
-#include <stencila/syntax/tree.hpp>
+#include <stencila/syntax-tree.hpp>
 
 namespace Stencila {
 namespace Syntax {
@@ -13,6 +15,7 @@ namespace Syntax {
  */
 class Generator {
  public:
+
     /**
      * Visit a node of a syntax tree
      *
@@ -70,8 +73,20 @@ class Generator {
  */
 class StreamGenerator : public Generator {
  public:
+
     StreamGenerator(std::ostream& stream):
         stream_(stream) {}
+
+    template<typename Arg>
+    void out(Arg arg) {
+        stream_<<arg;
+    }
+
+    template<typename Arg,typename... Args>
+    void out(Arg arg, Args... args) {
+        out(arg);
+        out(args...);
+    }
 
  protected:
     std::ostream& stream_;
@@ -84,31 +99,35 @@ class StreamGenerator : public Generator {
  */
 class TreeGenerator : public StreamGenerator {
  public:
-    TreeGenerator(std::ostream& stream):
-        StreamGenerator(stream) {}
+
+    using StreamGenerator::StreamGenerator;
 
     void visit_boolean(const Boolean* boolean) {
-        line() << "boolean " << boolean->value << "\n";
+        line("boolean ",boolean->value);
     }
 
     void visit_number(const Number* number) {
-        line() << "number " << number->value << "\n";
+        line("number ", number->value);
     }
 
     void visit_string(const String* string) {
-        line() << "string " << string->value << "\n";
+        line("string ", string->value);
     }
 
     void visit_identifier(const Identifier* node) {
-        line() << "identifier " << node->value << "\n";
+        line("identifier ", node->value);
     }
 
     void visit_range(const Range* node) {
-        line() << "range " << node->value << "\n";
+        line("range ", node->first);
+        indent();
+        visit(node->first);
+        visit(node->last);
+        outdent();
     }
 
     void visit_binary(const Binary* binary) {
-        line() << "binary " << binary->symbol << "\n";
+        line("binary ", binary->symbol);
         indent();
         visit(binary->left);
         visit(binary->right);
@@ -116,14 +135,16 @@ class TreeGenerator : public StreamGenerator {
     }
 
     void visit_call(const Call* call) {
-        line() << "call " << call->function << "\n";
+        line("call ", call->function);
         indent();
         for (auto arg : call->arguments) visit(arg);
         outdent();
     }
 
-    std::ostream& line(void) {
+    template<typename... Args>
+    void line(Args... args) {
         stream_ << indent_;
+        out(args...);
     }
 
     void indent(void) {
@@ -152,34 +173,42 @@ class TreeGenerator : public StreamGenerator {
  */
 class CodeGenerator : public StreamGenerator {
  public:
-    CodeGenerator(std::ostream& stream, const std::string& source):
-        StreamGenerator(stream), source_(source) {}
+
+    using StreamGenerator::StreamGenerator;
+
+
+    using Generator::visit;
+    
+    void visit(const Node* node, const std::string& source) {
+        source_ = source;
+        visit(node);
+    }
 
     virtual void visit_boolean(const Boolean* node) {
-        stream_ << node->value;
+        out(node->value);
     }
 
     virtual void visit_number(const Number* node) {
-        stream_ << node->value;
+        out(node->value);
     }
 
     virtual void visit_string(const String * node) {
-        stream_ << node->value;
+        out(node->value);
     }
 
     virtual void visit_identifier(const Identifier* node) {
-        stream_ << node->value;
+        out(node->value);
     }
 
     virtual void visit_range(const Range* node) {
         visit(node->first);
-        stream_ << ":";
+        out(":");
         visit(node->last);
     }
 
     virtual void visit_binary(const Binary* node) {
         visit(node->left);
-        stream_ << node->symbol;
+        out(node->symbol);
         visit(node->right);
     }
 
@@ -197,13 +226,13 @@ class CodeGenerator : public StreamGenerator {
         }
         // Do actual code generation for the translated call
         if (auto call = dynamic_cast<const Call*>(node)) {
-            stream_ << call->function << "(";
+            out(call->function, "(");
             auto last = call->arguments.back();
             for (auto arg : call->arguments) {
                 visit(arg);
-                if (arg != last) stream_ << ",";
+                if (arg != last) out(",");
             }
-            stream_ << ")";
+            out(")");
         } else {
             visit(node);
         }
