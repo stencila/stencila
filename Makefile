@@ -448,20 +448,22 @@ $(BUILD)/cpp/library/generated/syntax-%-parser.cpp: cpp/stencila/syntax-%.y
 	mv cpp/stencila/syntax-$*.c $@
 	mv cpp/stencila/syntax-$*.out $(dir $@)
 
+# Compile syntax parser
 $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o: $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -Wno-unused-variable -o$@ -c $<	
-.PRECIOUS: $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o
 
 # Generate syntax lexer using Flex
 $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp: cpp/stencila/syntax-%.l
 	@mkdir -p $(dir $@)
 	flex --outfile $@ --header-file=$(dir $@)syntax-$*-lexer.hpp $<
 
+# Compile syntax lexer
 $(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o: $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp -I$(BUILD)/cpp/library/generated -o$@ -c $<	
-.PRECIOUS: $(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o
 
-# Generate the `parse()` method by using the temlate .cxx file
+# Generate the `parse()` method by using the template .cxx file
 $(BUILD)/cpp/library/generated/syntax-%-parse.cpp: cpp/stencila/syntax-parser-parse.cxx
 	@mkdir -p $(dir $@)
 	sed -e 's!{lang}!$*!' -e 's!{lang-title}!\u$*!' cpp/stencila/syntax-parser-parse.cxx > $@
