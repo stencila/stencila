@@ -8,19 +8,19 @@
 namespace Stencila {
 namespace Syntax {
 
-class RGenerator : public CodeGenerator {
+class ExcelToRGenerator : public CodeGenerator {
  public:
     using CodeGenerator::CodeGenerator;
 
     /**
      * Translate an Excel call to an R call
      */
-    virtual const Node* translate_excel_call(const Call* call, bool* created);
+    void visit_call(const Call* call);
 
     /**
      * Map for translating Excel function names to R function names
      */
-    static const std::map<std::string, std::string> excel_function_map;
+    static const std::map<std::string, std::string> function_map;
 
 };
 

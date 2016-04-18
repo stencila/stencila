@@ -176,14 +176,6 @@ class CodeGenerator : public StreamGenerator {
 
     using StreamGenerator::StreamGenerator;
 
-
-    using Generator::visit;
-    
-    void visit(const Node* node, const std::string& source) {
-        source_ = source;
-        visit(node);
-    }
-
     virtual void visit_boolean(const Boolean* node) {
         out(node->value);
     }
@@ -212,48 +204,20 @@ class CodeGenerator : public StreamGenerator {
         visit(node->right);
     }
 
-    virtual void visit_call(const Call* call) {
-        // Translate call based on source language
-        // The translation will often be a modified Call
-        // node but may need to be another type of Node
-        const Node* node;
-        bool created = true;
-        if (source_ == "excel") {
-            node = translate_excel_call(call, &created);
-        } else {
-            node = call;
-            created = false;
-        }
-        // Do actual code generation for the translated call
-        if (auto call = dynamic_cast<const Call*>(node)) {
-            out(call->function, "(");
-            auto last = call->arguments.back();
-            for (auto arg : call->arguments) {
-                visit(arg);
-                if (arg != last) out(",");
-            }
-            out(")");
-        } else {
-            visit(node);
-        }
-        // Cleanup
-        if (created) delete node;
+    virtual void visit_call(const Call* node) {
+        out(node->function, "(");
+        visit_call_args(node->arguments);
+        out(")");
     }
 
-    /**
-     * Translate a call to an excel function into the target language
-     * 
-     * @param  call    Call node to translate
-     * @param  created Flag to indicate if a new node was created (and thus needs to be deleted)
-     */
-    virtual const Node* translate_excel_call(const Call* call, bool* created) {
-        // Default, do no translation
-        *created = false;
-        return call;
+    virtual void visit_call_args(const std::vector<Node*>& arguments, const std::string& separator=",") {
+        auto last = arguments.back();
+        for (auto arg : arguments) {
+            visit(arg);
+            if (arg != last) out(separator);
+        }
     }
 
- protected:
-    std::string source_;
 };
 
 }

@@ -96,29 +96,16 @@ struct Call : Node {
     std::string function;
     std::vector<Node*> arguments;
 
-    /**
-     * Are the arguments borrowed from another Call?
-     *
-     * When constructing a Call using the arguments of another Call
-     * borrowed must be set to `true` so that the arguments are not 
-     * deleted on destruction of this call.
-     */
-    bool borrowed;
-
-    Call(const std::string& function, Node* arg, bool borrowed = false):
+    Call(const std::string& function, Node* arg):
         function(function),
-        arguments(1, arg),
-        borrowed(borrowed) {}
+        arguments(1, arg) {}
 
-    Call(const std::string& function, const std::vector<Node*>& args, bool borrowed = false):
+    Call(const std::string& function, const std::vector<Node*>& args):
         function(function),
-        arguments(args),
-        borrowed(borrowed) {}
+        arguments(args) {}
 
     ~Call(void) {
-        if (not borrowed) {
-            for (auto arg : arguments) delete arg;
-        }
+        for (auto arg : arguments) delete arg;
     }
 };
 

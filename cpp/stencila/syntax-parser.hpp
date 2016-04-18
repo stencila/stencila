@@ -14,6 +14,11 @@ class Parser {
  public:
 
     /**
+     * Destructor
+     */
+    ~Parser(void);
+
+    /**
      * Get syntax tree root created during parsing
      */
     const Node* root(void) const;

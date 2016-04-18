@@ -15,8 +15,8 @@ void check(const std::string& in, const std::string& out) {
 	auto n = p.parse(in);
 	
 	std::ostringstream str;
-	RGenerator g(str);
-	g.visit(n,"excel");
+	ExcelToRGenerator g(str);
+	g.visit(n);
 	
 	BOOST_CHECK_EQUAL(str.str(),out);
 }
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(excel_to_r){
 
 	check("1+2", "1+2");
 	check("1-2", "1-2");
-	check("10*35", "10*35");
+	check("1*2", "1*2");
 	check("1/2", "1/2");
 
 	check("A1", "A1");

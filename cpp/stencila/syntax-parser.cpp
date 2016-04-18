@@ -7,6 +7,10 @@
 namespace Stencila {
 namespace Syntax {
 
+Parser::~Parser(void) {
+	delete root_;
+}
+
 const Node* Parser::root(void) const {
     return root_;
 }

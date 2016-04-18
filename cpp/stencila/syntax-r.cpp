@@ -7,21 +7,22 @@
 namespace Stencila {
 namespace Syntax {
 
-const Node* RGenerator::translate_excel_call(const Call* call, bool* created) {
-    // Create a copy of the call which we can modify here
-    Node* rcall;
+void ExcelToRGenerator::visit_call(const Call* call) {
     auto name = call->function;
-    auto args = call->arguments;
-
+    auto argv = call->arguments;
+    auto argc = call->arguments.size();
     // Calls that require more sophisticated translation
     if (name == "AVERAGE" or name == "AVG") {
-        if (args.size() == 1) return new Call("mean", args, true);
-        else return new Call("mean", new Call("c", args, true));
+        out("mean(");
+        if (argc > 1) out("c(");
+        visit_call_args(argv);
+        if (argc > 1) out(")");
+        out(")");
     } 
     else {
         // Simple translation of function names
-        auto trans = excel_function_map.find(name);
-        if (trans != excel_function_map.end()) {
+        auto trans = function_map.find(name);
+        if (trans != function_map.end()) {
             // Translation found, use it.
             name = trans->second;
         } else {
@@ -29,10 +30,10 @@ const Node* RGenerator::translate_excel_call(const Call* call, bool* created) {
             // lower case R functions. So, this is the fallback...
             boost::to_lower(name);
         }
-        return new Call(name, args, true);
+        out(name, "(");
+        visit_call_args(argv);
+        out(")");
     }
-
-    return rcall;
 }
 
 /**
@@ -43,7 +44,7 @@ const Node* RGenerator::translate_excel_call(const Call* call, bool* created) {
  *
  * TODO : Fix up these mapping
  */
-const std::map<std::string, std::string> RGenerator::excel_function_map = {
+const std::map<std::string, std::string> ExcelToRGenerator::function_map = {
     {"ABS", "abs"},
     {"ADDRESS", ""},  // perhaps assign but there is probably a better way
     {"AND", "all"},  // more literally would be the & and && R operators
