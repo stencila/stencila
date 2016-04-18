@@ -428,6 +428,30 @@ cpp-library-vars:
 	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
 
 
+define cpp-library-lexer
+	flex --header-file=$(BUILD)/cpp/library/syntax-$1-lexer.hpp \
+	     --outfile     $(BUILD)/cpp/library/syntax-$1-lexer.cpp \
+	                   cpp/stencila/syntax-$1.l
+	$(CXX) -fPIC -I$(BUILD)/cpp/library -c \
+	    -o $(BUILD)/cpp/library/objects/stencila-syntax-$1-lexer.o \
+	       $(BUILD)/cpp/library/syntax-$1-lexer.cpp
+endef
+
+define cpp-library-parser
+	lemon cpp/stencila/syntax-$1.y
+	mv cpp/stencila/syntax-$1.h $(BUILD)/cpp/library/
+	mv cpp/stencila/syntax-$1.c $(BUILD)/cpp/library/
+	mv cpp/stencila/syntax-$1.out $(BUILD)/cpp/library/
+	$(CXX) -std=c++11 -fPIC $(CPP_REQUIRES_INC_DIRS) -Icpp -I$(BUILD)/cpp/library -c \
+	    -o $(BUILD)/cpp/library/objects/stencila-syntax-$1-parser.o \
+	       $(BUILD)/cpp/library/syntax-$1.c
+endef
+
+cpp-library-excel:
+	$(call cpp-library-parser,excel)
+	$(call cpp-library-lexer,excel)
+
+
 # Compile Stencila C++ files into object files
 CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
 ifeq ($(OS), linux)
