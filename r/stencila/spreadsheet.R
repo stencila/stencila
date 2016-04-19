@@ -13,14 +13,19 @@
 # Function to throw a not yet implemented error
 nyi <- function() {
     stop(
-        paste(
+        paste0(
+            'Spreadsheet compatability function {', 
             sys.calls()[[sys.nframe()-1]][[1]],
-            "not yet implemented. See https://github.com/stencila/stencila/issues/172"
+            '} not yet implemented. See https://github.com/stencila/stencila/issues/172'
         ),
         call.=F
     )
 }
 
+# Function to assert a required argument
+required <- function(name){
+    stop(paste0('Parameter {',name,'} is required'),call.=F)
+}
 
 #' Returns the absolute value of a number
 #'
@@ -208,8 +213,53 @@ AVERAGEA <- function(...){nyi()}
 #' Returns the average (arithmetic mean) of all the cells in a range that meet a given criteria
 #'
 #' @family Spreadsheet statistical
+#'
+#' @param range             Required. One or more cells to average, including numbers or names, arrays, 
+#'                            or references that contain numbers.
+#' @param criteria          Required. The criteria in the form of a number, expression, cell reference, 
+#'                            or text that defines which cells are averaged. For example, criteria can be 
+#'                            expressed as 32, "32", ">32", "apples", or B4.
+#' @param average_range     Optional. The actual set of cells to average. If omitted, range is used.
+#'
+#' @examples 
+#' AVERAGEIF(1:10, 5)
+#' AVERAGEIF(1:10, "5")
+#' AVERAGEIF(1:10, "<5")
+#' AVERAGEIF(1:10, "<5", 10:1)
+#' 
 #' @export
-AVERAGEIF <- function(...){nyi()}
+AVERAGEIF <- function(range, criteria, average_range){
+    if (missing(range)) required('range')
+    if (missing(criteria)) required('criteria')
+    if (length(criteria)!=1) stop('Argument {criteria} should have a length of 1')
+    if (missing(average_range)) average_range = range
+    
+    # Determine the type of criteria
+    if (is.character(criteria)){
+      # Could be a character or an expression, find out...
+      value <- tryCatch(eval(parse(text=criteria)), error=identity)
+      if (inherits(value,'error')) {
+        # Parsing failed so it (could be) an (incomplete) expression
+        # which we need to make complete by pasteing it on to range
+        # and then evaluate it
+        selected <- tryCatch(eval(parse(text=paste0('range',criteria))), error=identity)
+        if (inherits(selected,'error')) {
+          stop(paste0('Error when evaluating the criteria {',criteria,'}'))
+        }
+      } else {
+        # Parsing suceeded so just use the value e.g. "32", "apples"
+        selected <- range==value
+      }
+    } else {
+      # Criteria is probably a number e.g. 32 so compare to range values
+      selected <- range==criteria
+    }
+    
+    # Prevent cycling over selected if it's shorter than average range
+    selected <- selected[1:length(average_range)]
+
+    mean(average_range[selected])
+}
 
 
 #' Returns the average (arithmetic mean) of all cells that meet multiple criteria.
