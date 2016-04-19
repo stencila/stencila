@@ -3,6 +3,8 @@
 #include <zip.h>
 
 #include <stencila/sheet.hpp>
+#include <stencila/syntax-excel.hpp>
+#include <stencila/syntax-r.hpp>
 
 namespace Stencila {
 
@@ -39,13 +41,6 @@ Xml::Document get_xml(zip* archive, const std::string& name) {
     return content;
 }
 
-std::string xl_to_r(const std::string& xl) {
-    auto r = xl;
-    replace_all(r, "SUM(", "sum(");
-    replace_all(r, "AVERAGE(", "mean(");
-    return r;
-}
-
 }
 
 Sheet& Sheet::load_xlsx(const std::string& path, const std::string& sheet, const std::string& at) {
@@ -57,23 +52,25 @@ Sheet& Sheet::load_xlsx(const std::string& path, const std::string& sheet, const
     }
 
     // Load shared strings
-    auto strings_xml = get_xml(archive, "xl/sharedStrings.xml").find("sst");
-    auto strings_count = unstring<unsigned int>(strings_xml.attr("count"));
-    auto strings_elems = strings_xml.children();
-    if (strings_count != strings_elems.size()) {
-        STENCILA_THROW(Exception, "Incompatible count and elements\n  count: " + string(strings_count) + "\n  elements:" + string(strings_elems.size()));
-    }
-    std::vector<std::string> strings(strings_count);
-    int index = 0;
-    for (auto string : strings_elems) {
-        strings[index++] = string.find("t").text();
+    std::vector<std::string> strings;
+    for (auto string : get_xml(archive, "xl/sharedStrings.xml").filter("sst si t")) {
+        strings.push_back(string.text());
     }
 
     // Load the worksheet data
     auto worksheet = get_xml(archive, "xl/worksheets/" + sheet + ".xml");
     auto data = worksheet.find("sheetData");
 
-    std::cout << data.dump(true);
+
+    // Formula translation function
+    // TODO select correct generator
+    Syntax::ExcelParser parser;
+    Syntax::ExcelToRSheetGenerator generator;
+    auto translate = [&](const std::string& formula){
+        return formula;
+        // TODO Right now, this is not doing any translation!
+        //return generator.generate(parser.parse(formula));
+    };
 
     // Iterate over rows and columns and create cells
     std::vector<Cell> cells;
@@ -89,7 +86,7 @@ Sheet& Sheet::load_xlsx(const std::string& path, const std::string& sheet, const
             // or cell value
             std::string source;
             if (formula.length()) {
-                source = "= " + xl_to_r(formula);
+                source = "= " + translate(formula);
             } else {
                 if (type == "s") {
                     auto index = unstring<unsigned int>(value);
