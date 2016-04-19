@@ -16,6 +16,7 @@ const Node* Parser::root(void) const {
 }
 
 void Parser::root(Node* root) {
+    delete root_;
     root_ = root;
 }
 

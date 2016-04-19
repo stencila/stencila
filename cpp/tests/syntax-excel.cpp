@@ -10,34 +10,43 @@ using namespace Stencila::Syntax;
 
 BOOST_AUTO_TEST_SUITE(syntax_excel_quick)
 
-void check(const std::string& in, const std::string& out) {
-	ExcelParser p;
-	auto n = p.parse(in);
-	
-	std::ostringstream str;
-	ExcelToRGenerator g(str);
-	g.visit(n);
-	
-	BOOST_CHECK_EQUAL(str.str(),out);
+ExcelParser parser;
+
+BOOST_AUTO_TEST_CASE(excel_to_rsheet){
+	ExcelToRSheetGenerator generator;
+	#define _(in,out) BOOST_CHECK_EQUAL(generator.generate(parser.parse(in)),out);
+
+	_("42", "42");
+	_("3.14", "3.14");
+
+	_("1+2", "1+2");
+	_("1-2", "1-2");
+	_("1*2", "1*2");
+	_("1/2", "1/2");
+	_("1^2", "1^2");
+	_("1=2", "1==2");
+	_("1<>2", "1!=2");
+
+	_("A1", "A1");
+	_("$A1", "$A1");
+	_("A$1", "A$1");
+	_("$A$1", "$A$1");
+	_("A1*B1", "A1*B1");
+
+	_("A1:B10", "A1:B10");
+
+	_("SUM(A1:B10)", "SUM(A1:B10)");
+	_("AVERAGE(A1:B10)", "AVERAGE(A1:B10)");
+	_("AVERAGE(A1:A10,B1:B10)", "AVERAGE(A1:A10,B1:B10)");
 }
 
 BOOST_AUTO_TEST_CASE(excel_to_r){
-	check("42", "42");
-	check("3.14", "3.14");
+	ExcelToRGenerator generator;
+	#define _(in,out) BOOST_CHECK_EQUAL(generator.generate(parser.parse(in)),out);
 
-	check("1+2", "1+2");
-	check("1-2", "1-2");
-	check("1*2", "1*2");
-	check("1/2", "1/2");
-
-	check("A1", "A1");
-	check("A1*B1", "A1*B1");
-
-	check("A1:B10", "A1:B10");
-
-	check("SUM(A1:B10)", "sum(A1:B10)");
-	check("AVERAGE(A1:B10)", "mean(A1:B10)");
-	check("AVERAGE(A1:A10,B1:B10)", "mean(c(A1:A10,B1:B10))");
+	_("SUM(A1:B10)", "sum(A1:B10)");
+	_("AVERAGE(A1:B10)", "mean(A1:B10)");
+	_("AVERAGE(A1:A10,B1:B10)", "mean(c(A1:A10,B1:B10))");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

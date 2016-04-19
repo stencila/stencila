@@ -77,6 +77,14 @@ class StreamGenerator : public Generator {
     StreamGenerator(std::ostream& stream):
         stream_(stream) {}
 
+    StreamGenerator(void):
+        stringstream_(new std::ostringstream),
+        stream_(*stringstream_) {}
+
+    ~StreamGenerator(void){
+        delete stringstream_;
+    }
+
     template<typename Arg>
     void out(Arg arg) {
         stream_<<arg;
@@ -88,7 +96,19 @@ class StreamGenerator : public Generator {
         out(args...);
     }
 
+    std::string generate(const Node* node) {
+        if (stringstream_) {
+            stringstream_->str("");
+            stringstream_->clear();
+            visit(node);
+            return stringstream_->str();
+        } else {
+            STENCILA_THROW(Exception, "StreamGenerator initialised with an external stream");
+        }
+    }
+
  protected:
+    std::ostringstream* stringstream_ = nullptr;
     std::ostream& stream_;
 };
 
