@@ -667,9 +667,9 @@ Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
     return *this;
 }
 
-Sheet::Cell& Sheet::cell(const std::string& id) {
+Sheet::Cell& Sheet::cell(const std::string& id) throw(CellEmptyError) {
     auto iter = cells_.find(id);
-    if (iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+    if (iter == cells_.end()) STENCILA_THROW(CellEmptyError, "Cell is empty\n id: "+id)
     else return iter->second;
 }
 

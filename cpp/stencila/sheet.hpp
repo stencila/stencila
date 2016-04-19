@@ -488,6 +488,10 @@ class Sheet : public Component {
         std::string display_;
     };
 
+    struct CellEmptyError : public Exception {
+        using Exception::Exception;
+    };
+
     /**
      * Set cells
      */
@@ -496,7 +500,7 @@ class Sheet : public Component {
     /**
      * Get a cell from this sheet
      */
-    Cell& cell(const std::string& id);
+    Cell& cell(const std::string& id) throw(CellEmptyError);
 
     /**
      * Get a cell from this sheet

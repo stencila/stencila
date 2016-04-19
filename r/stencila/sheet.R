@@ -64,6 +64,10 @@ setRefClass(
             method_(.self,'Sheet_restore')
         },
 
+        cell = function(id){
+            call_('Sheet_cell',.pointer,id)
+        },
+
         page = function(path){
             if(missing(path)) method_(.self,'Sheet_page_get')
             else method_(.self,'Sheet_page',path)

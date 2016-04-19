@@ -34,6 +34,25 @@ STENCILA_R_EXEC0(Sheet,restore)
 
 STENCILA_R_EXEC0(Sheet,compile)
 
+STENCILA_R_FUNC Sheet_cell(SEXP self, SEXP id){
+    STENCILA_R_BEGIN
+        try {
+            auto cell = from<Sheet>(self).cell(
+                as<std::string>(id)
+            );
+            return Rcpp::List::create(
+                Rcpp::Named("id") = cell.id,
+                Rcpp::Named("kind") = cell.kind_string(),
+                Rcpp::Named("name") = cell.name,
+                Rcpp::Named("formula") = cell.expression,
+                Rcpp::Named("value") = cell.value
+            );
+        } catch(const Sheet::CellEmptyError& error) {
+            return null;
+        }
+    STENCILA_R_END
+}
+
 STENCILA_R_RET0(Sheet,serve) 
 STENCILA_R_EXEC0(Sheet,view)
 STENCILA_R_GET(Sheet,page)
