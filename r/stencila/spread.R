@@ -231,7 +231,7 @@ Spread <- function(envir, closed=FALSE) {
     # Name could be a cell id e.g. F5 or and name e.g. price
     self$.clear <- function(id="",name=""){
       if(nchar(id)){
-        remove(list=id,envir=self)
+        suppressWarnings(remove(list=id,envir=self))
         if(nchar(name)){
             remove(list=name,envir=self)
         }
