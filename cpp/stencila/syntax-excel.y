@@ -20,7 +20,6 @@
 %destructor args { delete $$; }
 
 %left 
-  EQUALS
   PAREN_L PAREN_R 
   SQUARE_L SQUARE_R 
   CURLY_L CURLY_R 
@@ -28,8 +27,14 @@
   FUNCTION
 .
 
+%left EQUAL LT GT LTE GTE NEQUAL.
+%left AMPER.
 %left PLUS MINUS.
 %left TIMES DIVIDE.
+%left CARET.
+%left PERCENT.
+%left COMMA.
+%left COLON.
 
 start ::= expr(e). {
   parser->root(e);
@@ -54,20 +59,49 @@ args(a) ::= . {
 
 
 expr(e) ::= expr(l) PLUS expr(r). {
-  e = new Binary('+',l,r);
+  e = new Binary("+",l,r);
 }
 
 expr(e) ::= expr(l) MINUS expr(r). {
-  e = new Binary('-',l,r);
+  e = new Binary("-",l,r);
 }
 
 expr(e) ::= expr(l) TIMES expr(r). {
-  e = new Binary('*',l,r);
+  e = new Binary("*",l,r);
 }
 
 expr(e) ::= expr(l) DIVIDE expr(r). {
-  e = new Binary('/',l,r);
+  e = new Binary("/",l,r);
 }
+
+expr(e) ::= expr(l) CARET expr(r). {
+  e = new Binary("^",l,r);
+}
+
+expr(e) ::= expr(l) LT expr(r). {
+  e = new Binary("<",l,r);
+}
+
+expr(e) ::= expr(l) GT expr(r). {
+  e = new Binary(">",l,r);
+}
+
+expr(e) ::= expr(l) EQUAL expr(r). {
+  e = new Binary("==",l,r);
+}
+
+expr(e) ::= expr(l) LTE expr(r). {
+  e = new Binary("<=",l,r);
+}
+
+expr(e) ::= expr(l) GTE expr(r). {
+  e = new Binary(">=",l,r);
+}
+
+expr(e) ::= expr(l) NEQUAL expr(r). {
+  e = new Binary("!=",l,r);
+}
+
 
 expr(e) ::= BOOLEAN(v). {
   e = new Boolean(v);
@@ -81,6 +115,7 @@ expr(e) ::= STRING(v). {
   e = new String(v);
 }
 
+
 expr(a) ::= id(b) COLON id(c). {
   a = new Range(b,c);
 }
@@ -93,10 +128,10 @@ id(a) ::= IDENTIFIER(id). {
   a = new Identifier(id);
 }
 
+
 expr ::= UNRECOGNIZED(b). {
   STENCILA_THROW(Stencila::Exception, std::string("Unrecognised character: ") + b);
 }
-
 
 %syntax_error {  
   STENCILA_THROW(Stencila::Exception, "Excel parser syntax error");

@@ -9,18 +9,25 @@
 %%
 
 "TRUE"|"FALSE"            return BOOLEAN;
-
 ((\.[0-9]+)|([0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?))%?     return NUMBER;
 
-[A-Z]+[0-9]+              return IDENTIFIER;
+\$?[A-Z]+\$?[0-9]+        return IDENTIFIER;
 [A-Z]+                    return FUNCTION;
 
-"="                       return EQUALS;
+"="                       return EQUAL;
 "+"                       return PLUS;
 "-"                       return MINUS;
 "*"                       return TIMES;
 "/"                       return DIVIDE;
+"^"                       return CARET;
+"<"                       return LT;
+">"                       return GT;
+"<="                      return LTE;
+">="                      return GTE;
+"<>"                      return NEQUAL;
 
+"%"                       return PERCENT;
+"&"                       return AMPER;
 ","                       return COMMA;
 ":"                       return COLON;
 

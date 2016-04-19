@@ -145,6 +145,7 @@ class TreeGenerator : public StreamGenerator {
     void line(Args... args) {
         stream_ << indent_;
         out(args...);
+        stream_ << "\n";
     }
 
     void indent(void) {

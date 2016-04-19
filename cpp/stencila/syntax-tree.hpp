@@ -77,11 +77,11 @@ struct Range : Node {
 };
 
 struct Binary : Node {
-    char symbol;
+    std::string symbol;
     Node* left;
     Node* right;
 
-    Binary(char symbol, Node* left, Node* right):
+    Binary(const std::string& symbol, Node* left, Node* right):
         symbol(symbol),
         left(left),
         right(right) {}
