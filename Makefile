@@ -446,7 +446,7 @@ $(BUILD)/cpp/library/generated/syntax-%-parser.cpp: cpp/stencila/syntax-%.y
 	lemon $<
 	mv cpp/stencila/syntax-$*.h $(dir $@)
 	mv cpp/stencila/syntax-$*.c $@
-	mv cpp/stencila/syntax-$*.out $(dir $@)
+	rm cpp/stencila/syntax-$*.out
 
 # Compile syntax parser
 $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o: $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
@@ -515,7 +515,7 @@ cpp-requires-objects: $(BUILD)/cpp/library/objects/requires-objects.flag
 # Output list of contents to `files.txt` and `symbols.txt` for checking
 $(BUILD)/cpp/library/libstencila.a: cpp-library-objects cpp-requires-objects
 	cd $(BUILD)/cpp/library ;\
-		$(AR) rc libstencila.a `find . -name "*.o*"` ;\
+		$(AR) rc libstencila.a `find . -name "*.o"` ;\
 		$(AR) t libstencila.a > files.txt ;\
 		nm -gC libstencila.a > symbols.txt
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
