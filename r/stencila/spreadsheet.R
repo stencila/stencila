@@ -1240,8 +1240,8 @@ FIXED <- function(...){nyi()}
 #'
 #' @family Spreadsheet compatibility
 #' @export
-FLOOR <- function(x){
-    floor(x)
+FLOOR <- function(x,significance){
+    floor(x/significance)*significance
 }
 
 
