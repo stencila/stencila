@@ -150,8 +150,8 @@ public:
 	Response request(
 		Method method,
 		const std::string& url,
-		const std::map<std::string,std::string>& params = {},
-		const std::map<std::string,std::string>& headers = {}
+		const std::map<std::string,std::string>& params = std::map<std::string,std::string>{},
+		const std::map<std::string,std::string>& headers = std::map<std::string,std::string>{}
 	);
 
 	/**
@@ -159,8 +159,8 @@ public:
 	 */
 	Response get(
 		const std::string& url,
-		const std::map<std::string,std::string>& params = {},
-		const std::map<std::string,std::string>& headers = {}
+		const std::map<std::string,std::string>& params = std::map<std::string,std::string>{},
+		const std::map<std::string,std::string>& headers = std::map<std::string,std::string>{}
 	);
 
 	/**
@@ -168,8 +168,8 @@ public:
 	 */
 	Response post(
 		const std::string& url,
-		const std::map<std::string,std::string>& params = {},
-		const std::map<std::string,std::string>& headers = {},
+		const std::map<std::string,std::string>& params = std::map<std::string,std::string>{},
+		const std::map<std::string,std::string>& headers = std::map<std::string,std::string>{},
 		const std::string& body = ""
 	);
 
