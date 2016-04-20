@@ -2,18 +2,18 @@ branches:
     only:
         - master
         - develop
+        - travis-mac
 
-# Specify an Ubuntu Trusty VM
-sudo: required
-dist: trusty
+matrix:
+  include:
+    - os: osx
+    - os: linux
+      dist: trusty
+      sudo: required
+      services:
+        - docker
 
-language: cpp
-
-compiler:
-    - gcc
-
-services:
-    - docker
+language: generic
 
 env:
     global:
