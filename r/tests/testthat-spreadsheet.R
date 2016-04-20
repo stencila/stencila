@@ -4,9 +4,16 @@
 
 library(stencila)
 
+# Import the xlsx into a sheet but don't execut it so it's
+# values are still retained
 sheet <- Sheet()
 sheet$import('spreadsheet.xlsx', execute=FALSE)
 
+# Update the cells holding data so that their values are available
+# when executing
+sheet$update('J10:O50')
+
+tests <- 0
 fails <- 0
 for (row in 10:500) {
 	name <- sheet$cell(paste0('A',row))
@@ -15,7 +22,8 @@ for (row in 10:500) {
 			test <- sheet$cell(paste0(col,row))
 			if (!is.null(test)) {
 				if (nchar(test$formula)>0) {
-
+					tests <- tests + 1
+					
 					got <- sheet$evaluate(test$formula)
 					
 					# Convert spreadsheet calculated value to same
@@ -46,3 +54,5 @@ for (row in 10:500) {
 		}
 	}
 }
+cat('Tests',tests,'\n')
+cat('Fails',fails,'\n')
