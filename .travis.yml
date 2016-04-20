@@ -47,6 +47,7 @@ before_install:
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 
     # On OSX install R 
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/science; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install R; fi
 
