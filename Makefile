@@ -399,6 +399,16 @@ cpp-helpers-uglifyjs:
 #################################################################################################
 # Stencila C++ library
 
+# C++ compiler options when compiling Stencila source into libstencila.a or 
+# language packages
+# 
+# -Wno-unknown-pragmas : for clang, prevents lots of warings
+# -Wno-missing-braces : for clang, unecessary, see http://stackoverflow.com/a/13905432/4625911
+CPP_FLAGS := --std=c++11 -O2 -Wall -Wno-unknown-pragmas -Wno-missing-braces
+ifeq ($(OS), linux)
+	CPP_FLAGS += -fPIC
+endif
+
 # Get version compiled into library
 CPP_VERSION_CPP := $(BUILD)/cpp/library/version.cpp
 CPP_VERSION_O := $(BUILD)/cpp/library/version.o
@@ -419,7 +429,7 @@ $(CPP_VERSION_CPP):
 # Compile version object file
 $(CPP_VERSION_O): $(CPP_VERSION_CPP)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
 cpp-library-version: $(CPP_VERSION_O)
 
 cpp-library-vars:
@@ -427,16 +437,10 @@ cpp-library-vars:
 	@echo COMMIT: $(COMMIT)
 	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
 
-
-CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
-ifeq ($(OS), linux)
-	CPP_LIBRARY_FLAGS +=-fPIC
-endif
-
 # General object file builds
 $(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/library/objects
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
 
 # Various pattern rules for library object files...
 
@@ -451,7 +455,7 @@ $(BUILD)/cpp/library/generated/syntax-%-parser.cpp: cpp/stencila/syntax-%.y
 # Compile syntax parser
 $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o: $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -Wno-unused-variable -o$@ -c $<	
+	$(CXX) $(CPP_FLAGS) -Wno-unused-variable -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<	
 
 # Generate syntax lexer using Flex
 $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp: cpp/stencila/syntax-%.l
@@ -461,7 +465,7 @@ $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp: cpp/stencila/syntax-%.l
 # Compile syntax lexer
 $(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o: $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp -I$(BUILD)/cpp/library/generated -o$@ -c $<	
+	$(CXX) $(CPP_FLAGS) -Wno-deprecated-register -Wno-unused-function -Icpp -I$(BUILD)/cpp/library/generated -o$@ -c $<	
 
 # Generate the `parse()` method by using the template .cxx file
 $(BUILD)/cpp/library/generated/syntax-%-parse.cpp: cpp/stencila/syntax-parser-parse.cxx
@@ -472,7 +476,7 @@ $(BUILD)/cpp/library/generated/syntax-%-parse.cpp: cpp/stencila/syntax-parser-pa
 $(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o: $(BUILD)/cpp/library/generated/syntax-%-parse.cpp \
 														$(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o \
 	 		  											$(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<
 
 # List of parsing related object files used in library and tests
 CPP_PARSER_YS := $(notdir $(wildcard cpp/stencila/syntax-*.y))
@@ -877,8 +881,6 @@ PY_BOOST_PYTHON_LIB := boost_python
 PY_PACKAGE_PYS := $(patsubst %.py,$(PY_BUILD)/stencila/%.py,$(notdir $(wildcard py/stencila/*.py)))
 PY_PACKAGE_OBJECTS := $(patsubst %.cpp,$(PY_BUILD)/objects/%.o,$(notdir $(wildcard py/stencila/*.cpp)))
 
-PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
-
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
 PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/boost/lib
 PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) $(CPP_OTHER_LIBS)
@@ -898,7 +900,7 @@ $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 
 $(PY_BUILD)/objects/%.o: py/stencila/%.cpp
 	@mkdir -p $(PY_BUILD)/objects
-	$(CXX) $(PY_CXX_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(PY_INCLUDE_DIR) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(PY_INCLUDE_DIR) -o$@ -c $<
 
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
@@ -1012,17 +1014,11 @@ r-vars:
 	@echo RCPP_CXXFLAGS : $(RCPP_CXXFLAGS)
 	@echo RCPP_LDFLAGS : $(RCPP_LDFLAGS)
 
-R_COMPILE_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 \
-				-Icpp $(CPP_REQUIRES_INC_DIRS) $(R_CPPFLAGS) $(RCPP_CXXFLAGS)
-ifeq ($(OS),linux)
-R_COMPILE_FLAGS += -fPIC
-endif
-
 # Compile each cpp file
 R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
 $(R_BUILD)/objects/%.o: r/stencila/%.cpp
 	@mkdir -p $(R_BUILD)/objects
-	$(CXX) $(R_COMPILE_FLAGS) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) $(R_CPPFLAGS) $(RCPP_CXXFLAGS) -o$@ -c $<
 	
 # Build DLL
 R_DLL_LIBS := stencila $(CPP_OTHER_LIBS)
