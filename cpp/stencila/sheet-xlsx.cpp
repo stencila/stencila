@@ -85,7 +85,7 @@ Sheet& Sheet::load_xlsx(const std::string& path, const std::string& sheet, const
                 source = "= " + translate(formula);
             } else {
                 if (type == "s") {
-                    auto index = unstring<unsigned int>(value);
+                    int index = unstring<int>(value);
                     if (index < 0 or index >= strings.size()) {
                         STENCILA_THROW(Exception, "Shared string index is bad\n  index: " + value + "\n  size:" + string(strings.size()));
                     }

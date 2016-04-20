@@ -18,7 +18,7 @@ struct Node {
 struct Boolean : Node {
     bool value;
 
-    explicit Boolean(const char* string) {
+    explicit Boolean(const std::string& string) {
         std::string v = string;
         boost::algorithm::to_lower(v);
         if (v == "true") {
@@ -26,7 +26,7 @@ struct Boolean : Node {
         } else if (v == "false") {
             value = false;
         } else {
-            STENCILA_THROW(Exception, "Invalid string value for Boolean.\n  value: " + value);
+            STENCILA_THROW(Exception, "Invalid string value for Boolean.\n  value: " + string);
         }
     }
 

@@ -664,11 +664,12 @@ std::vector<std::string> Sheet::interpolate(
     const std::string& col1, const std::string& row1, 
     const std::string& col2, const std::string& row2
 ) {
-    auto col1i = index_col(col1);
-    auto col2i = index_col(col2);
-    auto row1i = index_row(row1);
-    auto row2i = index_row(row2);
-    auto size = (col2i-col1i+1)*(row2i-row1i+1);
+    // For size check to work, these need to be ints, not uints
+    int col1i = index_col(col1);
+    int col2i = index_col(col2);
+    int row1i = index_row(row1);
+    int row2i = index_row(row2);
+    int size = (col2i-col1i+1)*(row2i-row1i+1);
     if (size<0) STENCILA_THROW(Exception, "Invalid cell range");
 
     std::vector<std::string> cells(size);

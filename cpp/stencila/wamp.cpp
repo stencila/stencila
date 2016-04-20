@@ -40,7 +40,7 @@ std::string Message::procedure(void) const {
 
 std::array<std::string, 2> Message::procedure_split(void) const {
     auto proc = procedure();
-    auto pos = proc.find('@');
+    int pos = proc.find('@');
     if (pos>=0){
         return {
             proc.substr(0,pos),
