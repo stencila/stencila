@@ -16,6 +16,8 @@ namespace Syntax {
 class ExcelToRSheetGenerator : public CodeGenerator {
  public:
     using CodeGenerator::CodeGenerator;
+
+    void visit_call(const Call* call);
 };
 
 /**

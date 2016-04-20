@@ -3083,8 +3083,14 @@ SYD <- function(...){nyi()}
 #' Converts its arguments to text
 #'
 #' @family Spreadsheet text
+#'
+#' In Excel this function is called "T" but that name
+#' clashes with Rs `T` i.e the alias for `TRUE`. In 
+#' `ExcelToRSheetGenerator` function calls to `T` are translated
+#' into `TEXT`
+#'
 #' @export
-T <- function(...){nyi()}
+TEXT <- function(...){nyi()}
 
 
 #' Returns the tangent of a number
