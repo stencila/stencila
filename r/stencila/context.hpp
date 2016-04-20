@@ -116,14 +116,17 @@ private:
     }
 
     template<
+        typename Result = std::string,
         typename... Args
     >
-    SEXP call_(const char* name,Args... args){
+    Result call_(const char* name, Args... args) {
+        SEXP result;
+
         #ifdef STENCILA_R_EMBED
             // Generate a call expression
             std::string call = id_+"$"+name+"("+arguments(args...)+")";
             try {
-                return r_.parseEval(call);
+                result = r_.parseEval(call);
             }
             catch(const std::runtime_error& exc) {
                 // Rinside::parseEval throws a std::runtime_error with a message similar to "Error evaluating: context4233$execute(..." 
@@ -138,16 +141,9 @@ private:
         #else
             Rcpp::Function func = context_.get(name);
             Rcpp::Language call(func,args...);
-            return call.eval();
+            result = call.eval();
         #endif
-    }
 
-    template<
-        typename Result,
-        typename... Args
-    >
-    Result call_(const char* name,Args... args){
-        SEXP result = call_(name,args...);
         // Currently, this function only handles strings returned from R and then casts those
         // using boost::lexical_cast. I got serious errors of the form:
         //    memory access violation at address: 0x7fff712beff8: no mapping at fault address
