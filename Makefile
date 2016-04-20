@@ -404,6 +404,7 @@ cpp-helpers-uglifyjs:
 # 
 # -Wno-unknown-pragmas : for clang, prevents lots of warings
 # -Wno-missing-braces : for clang, unecessary, see http://stackoverflow.com/a/13905432/4625911
+# -Wno-unused-local-typedefs : because boost defines quite a lot of these
 CPP_FLAGS := --std=c++11 -O2 -Wall -Wno-unknown-pragmas -Wno-missing-braces
 ifeq ($(OS), linux)
 	CPP_FLAGS += -fPIC
@@ -862,13 +863,9 @@ js-clean:
 ifndef PY_VERSION
   PY_VERSION := $(shell ./config.py py_version)
 endif
-
+PY_EXE := python$(PY_VERSION)
 PY_BUILD := $(BUILD)/py/$(PY_VERSION)
-
-ifeq ($(OS), linux)
-  PY_INCLUDE_DIR := /usr/include/python$(PY_VERSION)
-  PY_EXE := python$(PY_VERSION)
-endif
+PY_INCLUDES := $(shell python$(PY_VERSION)-config --includes)
 
 PY_BOOST_PYTHON_LIB := boost_python
 #ifeq $(or $(if $(OS),3.0), $(if $(OS),3.0)
@@ -897,7 +894,7 @@ $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 
 $(PY_BUILD)/objects/%.o: py/stencila/%.cpp
 	@mkdir -p $(PY_BUILD)/objects
-	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(PY_INCLUDE_DIR) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) $(PY_INCLUDES) -o$@ -c $<
 
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
