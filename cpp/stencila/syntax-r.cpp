@@ -10,7 +10,6 @@ namespace Syntax {
 void ExcelToRSheetGenerator::visit_call(const Call* call) {
     auto name = call->function;
     auto argv = call->arguments;
-    auto argc = call->arguments.size();
     // To prevent a name clash with R's `T` (alias of `TRUE`)
     // translate calls to T() to TEXT()
     if (name == "T") {

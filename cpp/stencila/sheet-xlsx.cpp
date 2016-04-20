@@ -86,7 +86,7 @@ Sheet& Sheet::load_xlsx(const std::string& path, const std::string& sheet, const
             } else {
                 if (type == "s") {
                     int index = unstring<int>(value);
-                    if (index < 0 or index >= strings.size()) {
+                    if (index < 0 or index >= int(strings.size())) {
                         STENCILA_THROW(Exception, "Shared string index is bad\n  index: " + value + "\n  size:" + string(strings.size()));
                     }
                     source = strings[index];
