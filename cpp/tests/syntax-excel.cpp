@@ -35,9 +35,13 @@ BOOST_AUTO_TEST_CASE(excel_to_rsheet){
 
 	_("A1:B10", "A1:B10");
 
+	// Most function calls are not modified
 	_("SUM(A1:B10)", "SUM(A1:B10)");
 	_("AVERAGE(A1:B10)", "AVERAGE(A1:B10)");
 	_("AVERAGE(A1:A10,B1:B10)", "AVERAGE(A1:A10,B1:B10)");
+
+	//...but some need to be
+	_("T(A1)", "TEXT(A1)");
 }
 
 BOOST_AUTO_TEST_CASE(excel_to_r){

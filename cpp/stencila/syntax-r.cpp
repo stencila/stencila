@@ -17,6 +17,8 @@ void ExcelToRSheetGenerator::visit_call(const Call* call) {
         out("TEXT(");
         visit_call_args(argv);
         out(")");
+    } else {
+        CodeGenerator::visit_call(call);
     }
 }
 
