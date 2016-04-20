@@ -593,9 +593,14 @@ std::string Sheet::identify(unsigned int row, unsigned int col) {
 }
 
 boost::regex Sheet::id_regex("^([A-Z]+)([1-9][0-9]*)$");
+boost::regex Sheet::range_regex("^([A-Z]+[1-9][0-9]*):([A-Z]+[1-9][0-9]*)$");
 
-bool Sheet::is_id(const std::string& id){
-    return boost::regex_match(id, id_regex);
+bool Sheet::is_id(const std::string& string){
+    return boost::regex_match(string, id_regex);
+}
+
+bool Sheet::is_range(const std::string& string){
+    return boost::regex_match(string, range_regex);
 }
 
 unsigned int Sheet::index_row(const std::string& row) {
@@ -617,6 +622,23 @@ std::array<unsigned int, 2> Sheet::index(const std::string& id) {
         return {index_row(match[2]),index_col(match[1])};
     } else {
         STENCILA_THROW(Exception, "Invalid cell id\n  id: "+id);
+    }
+}
+
+std::array<unsigned int, 4> Sheet::range(const std::string& range) {
+    boost::smatch match;
+    if(boost::regex_match(range, match, id_regex)){
+        auto tl = index(range);
+        return {tl[0],tl[1],tl[0],tl[1]};
+    } else if (boost::regex_match(range, match, range_regex)) {
+        auto tl = index(match[1]);
+        auto br = index(match[2]);
+        if (tl[0]>br[0] or tl[1]>br[1]) {
+            STENCILA_THROW(Exception, "Invalid cell range\n  range: "+range);
+        }
+        return {tl[0],tl[1],br[0],br[1]};
+    } else {
+        STENCILA_THROW(Exception, "Invalid cell range\n  range: "+range);
     }
 }
 
@@ -652,21 +674,6 @@ std::array<unsigned int, 2> Sheet::extent(void) const {
     return {row,col};
 }
 
-Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
-    std::vector<Cell> cells;
-    for (auto source : sources) {
-        Cell cell;
-        auto id = source[0];
-        if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
-        cell.id = id;
-        cell.source(source[1]);
-        cells.push_back(cell);
-    }
-    clear();
-    update(cells);
-    return *this;
-}
-
 Sheet::Cell& Sheet::cell(const std::string& id) throw(CellEmptyError) {
     auto iter = cells_.find(id);
     if (iter == cells_.end()) STENCILA_THROW(CellEmptyError, "Cell is empty\n id: "+id)
@@ -687,6 +694,35 @@ Sheet::Cell* Sheet::cell_pointer(unsigned int row, unsigned int col) {
     return cell_pointer(identify(row, col));
 }
 
+
+Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
+    std::vector<Cell> cells;
+    for (auto source : sources) {
+        Cell cell;
+        auto id = source[0];
+        if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
+        cell.id = id;
+        cell.source(source[1]);
+        cells.push_back(cell);
+    }
+    clear();
+    update(cells);
+    return *this;
+}
+
+std::vector<Sheet::Cell> Sheet::cells(const std::string& string) {
+    auto indices = range(string);
+    std::vector<Cell> cells;
+    for (auto row = indices[0]; row <= indices[2]; row++) {
+        for (auto col = indices[1]; col <= indices[3]; col++) {
+            if (auto cell = cell_pointer(identify(row,col))){
+                cells.push_back(*cell);
+            }
+        }
+    }
+    return cells;
+}
+
 Sheet& Sheet::attach(std::shared_ptr<Spread> spread) {
     spread_ = spread;
     return *this;
@@ -705,7 +741,7 @@ std::string Sheet::translate(const std::string& expression) {
         
     mark_tag col(1);
     mark_tag row(2);
-    sregex id = (col = +range('A','Z')) >> (row = +digit);
+    sregex id = (col = +boost::xpressive::range('A','Z')) >> (row = +digit);
     sregex sequence = id >> ':' >> id;
     sregex sunion = (sequence|id) >> '&' >> (sequence|id);
     sregex anything = _;
@@ -1003,6 +1039,12 @@ std::vector<Sheet::Cell> Sheet::update(const std::string& id, const std::string&
     cell.id = id,
     cell.source(source);
     return update({cell});
+}
+
+Sheet& Sheet::update(const std::string& range) {
+    if (range.length()==0) update();
+    else update(cells(range));
+    return *this;
 }
 
 Sheet& Sheet::update(bool execute) {

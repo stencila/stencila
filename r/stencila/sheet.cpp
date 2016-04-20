@@ -67,7 +67,9 @@ STENCILA_R_FUNC Sheet_attach(SEXP self,SEXP spread){
 }
 STENCILA_R_EXEC0(Sheet,detach)
 
-STENCILA_R_EXEC0(Sheet,update)
+STENCILA_R_RET1(Sheet,translate,std::string)
+
+STENCILA_R_EXEC1(Sheet,update,std::string)
 
 STENCILA_R_FUNC Sheet_test(SEXP self){
     STENCILA_R_BEGIN

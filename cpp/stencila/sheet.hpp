@@ -500,10 +500,6 @@ class Sheet : public Component {
         using Exception::Exception;
     };
 
-    /**
-     * Set cells
-     */
-    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources);
 
     /**
      * Get a cell from this sheet
@@ -530,6 +526,17 @@ class Sheet : public Component {
      * instead of raising an error like `cell` does
      */
     Cell* cell_pointer(unsigned int row, unsigned int col);
+
+    /**
+     * Get cells from this sheets using an id (e.g. A1)
+     * or range (e.g. A1:A10)
+     */
+    std::vector<Cell> cells(const std::string& range);
+
+    /**
+     * Set cells
+     */
+    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources);
 
     /**
      * Attach a spread to this stencil
@@ -568,14 +575,24 @@ class Sheet : public Component {
     static std::string identify(unsigned int row, unsigned int col);
 
     /**
-     * Regular expression used for identifiying and parsing cell IDs
+     * Regular expression used for cell identifiers (e.g. A1)
      */
     static boost::regex id_regex;
 
     /**
-     * Is a string a valid cell ID?
+     * Regular expression used for cell ranges (e.g. A1:A10)
+     */
+    static boost::regex range_regex;
+
+    /**
+     * Is a string a valid cell identifier?
      */
     static bool is_id(const std::string& id);
+
+    /**
+     * Is a string a valid cell range?
+     */
+    static bool is_range(const std::string& range);
 
     /**
      * Generate a row index from a row identifier.
@@ -595,6 +612,11 @@ class Sheet : public Component {
      * Generate the row and column index from a cell identifier
      */
     static std::array<unsigned int, 2> index(const std::string& id);
+
+    /**
+     * Generate the range row and column indices from a cell range
+     */
+    static std::array<unsigned int, 4> range(const std::string& range);
 
     /**
      * Create a list of cell IDs that interpolate between the
@@ -672,6 +694,13 @@ class Sheet : public Component {
      * @return         New value of the cell
      */
     std::vector<Cell> update(const std::string& id, const std::string& source);
+
+    /**
+     * Update a cell, or range of cells with existing source i.e. recaluclate
+     * 
+     * @param  range  Cell range or identifier
+     */
+    Sheet& update(const std::string& range);
 
     /**
      * Update all cells in this sheet

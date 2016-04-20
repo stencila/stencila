@@ -81,14 +81,19 @@ setRefClass(
             .spread <<- NULL
             method_(.self,'Sheet_detach')
         },
-        update = function(){
-            method_(.self,'Sheet_update')
+        update = function(range){
+            method_(.self,'Sheet_update',range)
+        },
+        translate = function(expression){
+            method_(.self,'Sheet_translate',expression)
         },
         evaluate = function(expression){
+            # Translate RSheet syntax
+            translated <- translate(expression)
             # Call the evaluate method of context directly
             # so that there is no conversion to text
             # The context API should be improved to make this easier
-            .spread$.evaluate(expression,prefix='',as_string=FALSE)$value
+            .spread$.evaluate(translated,prefix='',as_string=FALSE)$value
         },
 
         test = function(){
