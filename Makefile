@@ -1216,7 +1216,7 @@ web-clean:
 # Deliver packages after a succesful build
 # The env vars $DOCKER_EMAIL etc need to be set in .travis.yml
 travis-success:
-	docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+	docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
 	docker pull stencila/ubuntu-14.04-py-2.7 && make docker-py-deliver
 	docker pull stencila/ubuntu-14.04-r-3.2 && make docker-r-deliver
 	make py-deliver
