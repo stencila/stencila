@@ -190,14 +190,14 @@ private:
 
 Response get(
 	const std::string& url,
-	const std::map<std::string,std::string>& params = {},
-	const std::map<std::string,std::string>& headers = {}
+	const std::map<std::string,std::string>& params = std::map<std::string,std::string>{},
+	const std::map<std::string,std::string>& headers = std::map<std::string,std::string>{}
 );
 
 Response post(
 	const std::string& url,
-	const std::map<std::string,std::string>& params = {},
-	const std::map<std::string,std::string>& headers = {},
+	const std::map<std::string,std::string>& params = std::map<std::string,std::string>{},
+	const std::map<std::string,std::string>& headers = std::map<std::string,std::string>{},
 	const std::string& body = ""
 );
 
