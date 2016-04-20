@@ -1077,7 +1077,6 @@ $(R_PACKAGE_DESC): r/DESCRIPTION
 	cp $< $@
 
 # Finalise the package directory
-R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
 $(R_BUILD)/stencila: $(R_PACKAGE_DLL) $(R_PACKAGE_CLI) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
 	# Edit package version and date using sed:
 	#	.* = anything, any number of times
@@ -1085,7 +1084,7 @@ $(R_BUILD)/stencila: $(R_PACKAGE_DLL) $(R_PACKAGE_CLI) $(R_PACKAGE_RS) $(R_PACKA
 	# The $ needs to be doubled for escaping make
 	# ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
 	sed -i 's!Version: .*$$!Version: $(R_PACKAGE_VERSION)!' $(R_PACKAGE_DESC)
-	sed -i 's!Date: .*$$!Date: $(R_PACKAGE_DATE)!' $(R_PACKAGE_DESC)
+	sed -i 's!Date: .*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' $(R_PACKAGE_DESC)
 	# Run roxygen to generate Rd files and NAMESPACE file
 	cd $(R_BUILD) ;\
 		rm -f stencila/man/*.Rd ;\
@@ -1210,6 +1209,18 @@ endif
 
 web-clean:
 	rm -rf web/build
+
+#################################################################################################
+# Travis CI specific recipes
+
+# Deliver packages after a succesful build
+# The env vars $DOCKER_EMAIL etc need to be set in .travis.yml
+travis-success:
+	docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+	docker pull stencila/ubuntu-14.04-py-2.7 && make docker-py-deliver
+	docker pull stencila/ubuntu-14.04-r-3.2 && make docker-r-deliver
+	make py-deliver
+	make r-deliver
 
 #################################################################################################
 
