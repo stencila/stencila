@@ -2176,12 +2176,12 @@ MMULT <- function(...){nyi()}
 MOD <- function(...){nyi()}
 
 
-#' Returns the most common value in a data set NOTE:In Excel 2007, this is aStatisticalfunction.
+#' Returns the most common value in a data set
 #'
 #' @family Spreadsheet compatibility
 #' @export
 MODE <- function(...){
-    mode(c(...))
+    MODE.SNGL(...)
 }
 
 
@@ -2196,7 +2196,13 @@ MODE.MULT <- function(...){nyi()}
 #'
 #' @family Spreadsheet statistical
 #' @export
-MODE.SNGL <- function(...){nyi()}
+MODE.SNGL <- function(...){
+    # Implementation thanks to @jmarhee
+    # https://gist.github.com/jmarhee/8530768
+    x <- c(...)
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+}
 
 
 #' Converts a serial number to a month
