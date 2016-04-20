@@ -58,7 +58,7 @@ install:
     - pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv
 
     # R build dependencies
-    - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
+    - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),repos='http://cran.us.r-project.org')"
 
     # Build delivery dependencies
     - pip2.7 install --user travis --upgrade awscli
