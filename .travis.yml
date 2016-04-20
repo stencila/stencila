@@ -28,7 +28,11 @@ env:
 addons:
     apt:
         # Use apt addon to facilitate multi-OS build later https://docs.travis-ci.com/user/multi-os/
+        sources:
+            - r-packages-trusty
         packages:
+            - python2.7-dev
+            - r-base
             - texlive-binaries # Temporary fix (?) for R bug http://bugs.debian.org/810963
             - libxml2-dev
             - libcurl4-openssl-dev
@@ -40,13 +44,6 @@ before_install:
 
     # Use a python2.7 with UCS4 : https://github.com/travis-ci/travis-ci/issues/4948#issuecomment-165779970
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
-
-    # Add repository for R 
-    # Using `source r-packages-trusty` in addons.apt instead of this 
-    # gave an old version 3.0.2 (2013-09-25)
-    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-    - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
-    - sudo apt-get update -qq
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
