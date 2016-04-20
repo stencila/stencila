@@ -847,25 +847,25 @@ template<class Type>
 Html::Document Component_page_doc(const Type& component);
 
 
-template<class Class>
+template<class Class_>
 std::string Component::page_handler(const Component::Instance& instance) {
-	return instance.as<const Class*>()->page();
+	return instance.as<const Class_*>()->page();
 }
 
-template<class Class>
+template<class Class_>
 std::string Component::request_handler(const Component::Instance& instance, const std::string& verb, const std::string& method, const std::string& body) {
-	return instance.as<Class*>()->request(verb, method, body);
+	return instance.as<Class_*>()->request(verb, method, body);
 }
 
-template<class Class>
+template<class Class_>
 Wamp::Message Component::message_handler(const Component::Instance& instance, const Wamp::Message& message) {
-	return instance.as<Class*>()->message(message);
+	return instance.as<Class_*>()->message(message);
 }
 
 
-template<class Class>
+template<class Class_>
 Component* Component::open(Component::Type type, const std::string& path) {
-	Class* component = new Class;
+	Class_* component = new Class_;
 	component->path(path);
 	if (Host::env_var("STENCILA_SESSION").length()) {
 		component->restore();
