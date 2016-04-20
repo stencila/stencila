@@ -137,7 +137,7 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     return frag;
 }
 
-Sheet& Sheet::import(const std::string& path, const std::string& at) {
+Sheet& Sheet::import(const std::string& path, const std::string& at, bool execute) {
     if (not boost::filesystem::exists(path)) {
         STENCILA_THROW(Exception, "File not found\n path: "+path);
     }
@@ -145,7 +145,7 @@ Sheet& Sheet::import(const std::string& path, const std::string& at) {
     std::string ext = boost::filesystem::extension(path);
     std::string format = ext.substr(1);
     if(format=="xlsx") {
-        return load_xlsx(path, "sheet1", at);
+        return load_xlsx(path, "sheet1", at, execute);
     } else {
         return load(stream, format, at);
     }

@@ -172,8 +172,9 @@ class Sheet : public Component {
      * @param  path Filesystem path to file
      * @param  format Format of content (e.g. tsv, csv)
      * @param  at     Cell to use as top-left
+     * @param  execute Should the imported cells be executed?
      */
-    Sheet& import(const std::string& path, const std::string& at = "A1");
+    Sheet& import(const std::string& path, const std::string& at = "A1", bool execute = true);
 
     /**
      * Dump this sheet as script in host language
@@ -215,8 +216,15 @@ class Sheet : public Component {
      */
     Sheet& dump_separated(std::istream& stream, const std::string& format, const std::string& start = "A1", const std::string& end = "");
 
-
-    Sheet& load_xlsx(const std::string& path, const std::string& sheet, const std::string& at);
+    /**
+     * Load cells from an Office Open XML Spreadsheet (.xlsx) file into this sheet
+     * 
+     * @param  path Path to the .xlsx file
+     * @param  sheet The sheet to load from
+     * @param  at     Cell to use as top-left
+     * @param  execute Should the loaded cells be executed?
+     */
+    Sheet& load_xlsx(const std::string& path, const std::string& sheet, const std::string& at, bool execute = true);
 
     /**
      * Export the stencil content to a file

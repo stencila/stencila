@@ -39,8 +39,8 @@ setRefClass(
             method_(.self,'Sheet_dump',format)
         },
 
-        import = function(path, at="A1"){
-            method_(.self,'Sheet_import',path,at)
+        import = function(path, at="A1", execute=T){
+            method_(.self,'Sheet_import',path,at,execute)
         },
         export = function(path){
             method_(.self,'Sheet_export',path)
@@ -83,6 +83,12 @@ setRefClass(
         },
         update = function(){
             method_(.self,'Sheet_update')
+        },
+        evaluate = function(expression){
+            # Call the evaluate method of context directly
+            # so that there is no conversion to text
+            # The context API should be improved to make this easier
+            .spread$.evaluate(expression,prefix='',as_string=FALSE)$value
         },
 
         test = function(){
