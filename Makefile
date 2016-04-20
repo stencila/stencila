@@ -563,11 +563,8 @@ endif
 # 		-g (debug symbols)
 # 		-O0 (no optimizations, so coverage is valid)
 # 		--coverage (for coverage instrumentation)
-CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
-                       -g -O0 --coverage -Icpp $(CPP_REQUIRES_INC_DIRS)
-
+CPP_TEST_COMPILE := $(CXX) $(CPP_FLAGS) -g -O0 --coverage -Icpp $(CPP_REQUIRES_INC_DIRS)
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
-
 CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) $(CPP_OTHER_LIBS) boost_unit_test_framework boost_timer boost_chrono gcov
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 

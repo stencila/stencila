@@ -64,7 +64,7 @@ public:
 			for(auto name : names_) file_<<name<<separator_;
 		}
 		file_<<"\n";
-		return this;
+		return *this;
 	}
 
 	template<typename Data>
