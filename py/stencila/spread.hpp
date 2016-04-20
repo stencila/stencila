@@ -1,16 +1,19 @@
+#pragma once
+
+#include <vector>
+#include <string>
+
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 
 #include <stencila/spread.hpp>
 #include <stencila/function.hpp>
 
-
 namespace Stencila {
 
 class PythonSpread : public Spread {
-public:
-
-    PythonSpread(boost::python::object spread) {
+ public:
+    explicit PythonSpread(boost::python::object spread) {
         spread_ = spread;
         PyEval_InitThreads();
     }
@@ -25,29 +28,29 @@ public:
      *
      * @{
      */
-    
+
     std::string execute(const std::string& source) {
-        return call_<std::string>("execute", source);
+        return call_("execute", source);
     }
 
     std::string evaluate(const std::string& expression) {
-        return call_<std::string>("evaluate", expression);
+        return call_("evaluate", expression);
     }
 
     std::string set(const std::string& id, const std::string& expression, const std::string& name = "") {
-        return call_<std::string>("set", id, expression, name);
+        return call_("set", id, expression, name);
     }
 
     std::string get(const std::string& name) {
-        return call_<std::string>("get", name);
+        return call_("get", name);
     }
 
     std::string clear(const std::string& id = "", const std::string& name = "") {
-        return call_<std::string>("clear", id, name);
+        return call_("clear", id, name);
     }
 
     std::string list(void) {
-        return call_<std::string>("list");
+        return call_("list");
     }
 
     std::string collect(const std::vector<std::string>& cells) {
@@ -55,7 +58,7 @@ public:
     }
 
     std::string depends(const std::string& expression) {
-        return call_<std::string>("depends", expression);
+        return call_("depends", expression);
     }
 
     std::vector<std::string> functions(void) {
@@ -80,7 +83,7 @@ public:
      * @}
      */
 
-private:
+ private:
     /**
      * A boost::python object which represents this spread on the Python side
      */
@@ -92,9 +95,13 @@ private:
      * This method is copied from `PythonContext::call_` (with tidy-ups!) : this code
      * should probably be shared somehow (e.g. by having a common base class)
      */
-    template<typename... Args>
-    boost::python::object call_(const char* name, Args... args) {
+    template<
+        typename Result = std::string,
+        typename... Args
+    >
+    Result call_(const char* name, Args... args) {
         using namespace boost::python;
+        object result;
 
         // Get the Python GIL (Global Interpreter Lock). Ensure it
         // is released for any of the branches below.
@@ -102,35 +109,36 @@ private:
         try {
             // Call the Python side context method
             auto method = spread_.attr(name);
-            auto result = method(args...);
+            result = method(args...);
 
             // Release the GIL
-            PyGILState_Release(py_gil_state);  
-            return result;
+            PyGILState_Release(py_gil_state);
         }
         catch(error_already_set const &) {
             // Get the error
-            PyObject *type,*value,*traceback;
-            PyErr_Fetch(&type,&value,&traceback);
+            PyObject *type, *value, *traceback;
+            PyErr_Fetch(&type, &value, &traceback);
             // Construct a message
             std::string message;
-            if(value){
+            if (value) {
                 extract<std::string> value_string(value);
                 // Check a string can be extracted from the PyObject
-                if(value_string.check()){
+                if (value_string.check()) {
                     message += value_string() +":\n";
                 }
             }
             // There may not be a traceback (e.g. if a syntax error)
-            if(value and traceback){
+            if (value and traceback) {
                 handle<> type_handle(type);
                 handle<> value_handle(allow_null(value));
                 handle<> traceback_handle(allow_null(traceback));
-                object formatted_list = boost::python::import("traceback").attr("format_exception")(type_handle,value_handle,traceback_handle);
-                for(int i=0;i<len(formatted_list);i++){
+                object formatted_list = import("traceback").attr("format_exception")(
+                    type_handle, value_handle, traceback_handle
+                );
+                for (int i = 0; i < len(formatted_list); i++) {
                     extract<std::string> line_string(formatted_list[i]);
                     // Check a string can be extracted from the PyObject
-                    if(line_string.check()){
+                    if (line_string.check()) {
                         message += line_string();
                     }
                 }
@@ -150,17 +158,9 @@ private:
             PyGILState_Release(py_gil_state);
             STENCILA_THROW(Exception, "Unknown exception");
         }
-    }
 
-    /**
-     * Call a method on the Python side and get the return value
-     */
-    template<typename Result, typename... Args>
-    Result call_(const char* name, Args... args){
-        auto result = call_(name,args...);
-        return  boost::python::extract<Result>(result);
+        return  extract<Result>(result);
     }
-
 };
 
 }
