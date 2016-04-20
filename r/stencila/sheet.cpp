@@ -10,7 +10,7 @@ STENCILA_R_EXEC1(Sheet,initialise,std::string)
 
 STENCILA_R_EXEC2(Sheet,load,std::string,std::string)
 
-STENCILA_R_EXEC2(Sheet,import,std::string,std::string)
+STENCILA_R_EXEC3(Sheet,import,std::string,std::string,bool)
 
 
 STENCILA_R_RET1(Sheet,dump,std::string)
