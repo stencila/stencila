@@ -7,11 +7,11 @@ branches:
 matrix:
   include:
     - os: osx
-    - os: linux
-      dist: trusty
-      sudo: required
-      services:
-        - docker
+    #- os: linux
+    #  dist: trusty
+    #  sudo: required
+    #  services:
+    #    - docker
 
 language: generic
 
@@ -45,6 +45,10 @@ before_install:
 
     # Use a python2.7 with UCS4 : https://github.com/travis-ci/travis-ci/issues/4948#issuecomment-165779970
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+
+    # On OSX install R 
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/science; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install R; fi
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
