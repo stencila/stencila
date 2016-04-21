@@ -7,11 +7,11 @@ branches:
 matrix:
   include:
     - os: osx
-    - os: linux
-      dist: trusty
-      sudo: required
-      services:
-        - docker
+    #- os: linux
+    #  dist: trusty
+    #  sudo: required
+    #  services:
+    #    - docker
 
 language: generic
 
