@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+#include "Python.h"
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 

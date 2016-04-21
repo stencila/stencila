@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "Python.h"
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 
