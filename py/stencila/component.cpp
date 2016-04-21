@@ -3,6 +3,7 @@
 
 #include <stencila/component.hpp>
 
+#include "Python.h"
 #include <boost/python.hpp>
 
 using namespace Stencila;

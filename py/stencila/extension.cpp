@@ -5,6 +5,7 @@
 #include <stencila/exception.hpp>
 #include <stencila/network.hpp>
 
+#include "Python.h"
 #include <boost/python.hpp>
 
 using namespace Stencila;

@@ -5,6 +5,7 @@
 
 #include "context.hpp"
 
+#include "Python.h"
 #include <boost/python.hpp>
 
 using namespace Stencila;
