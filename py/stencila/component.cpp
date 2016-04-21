@@ -3,11 +3,7 @@
 
 #include <stencila/component.hpp>
 
-#include "Python.h"
-#include <boost/python.hpp>
-
-using namespace Stencila;
-using namespace boost::python;
+#include "extension.hpp"
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_path_set_overloads,path,1,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_path_get_overloads,path,1,1)

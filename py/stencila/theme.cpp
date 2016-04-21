@@ -1,12 +1,7 @@
 #include <stencila/theme.hpp>
 
+#include "extension.hpp"
 #include "context.hpp"
-
-#include "Python.h"
-#include <boost/python.hpp>
-
-using namespace Stencila;
-using namespace boost::python;
 
 void def_Theme(void){
     class_<Theme,bases<Component>>("Theme")

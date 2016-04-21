@@ -3,13 +3,8 @@
 
 #include <stencila/stencil.hpp>
 
+#include "extension.hpp"
 #include "context.hpp"
-
-#include "Python.h"
-#include <boost/python.hpp>
-
-using namespace Stencila;
-using namespace boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_get_overloads,html,0,2)
 

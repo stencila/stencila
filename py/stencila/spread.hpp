@@ -3,12 +3,10 @@
 #include <vector>
 #include <string>
 
-#include "Python.h"
-#include <boost/python.hpp>
-#include <boost/python/raw_function.hpp>
-
 #include <stencila/spread.hpp>
 #include <stencila/function.hpp>
+
+#include "extension.hpp"
 
 namespace Stencila {
 

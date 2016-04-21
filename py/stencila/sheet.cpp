@@ -1,10 +1,6 @@
-#include "Python.h"
-#include <boost/python.hpp>
-using namespace boost::python;
-
 #include <stencila/sheet.hpp>
-using namespace Stencila;
 
+#include "extension.hpp"
 #include "spread.hpp"
 
 Sheet& Sheet_attach(Sheet& self, object context) {

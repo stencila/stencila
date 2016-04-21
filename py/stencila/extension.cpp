@@ -5,11 +5,7 @@
 #include <stencila/exception.hpp>
 #include <stencila/network.hpp>
 
-#include "Python.h"
-#include <boost/python.hpp>
-
-using namespace Stencila;
-using namespace boost::python;
+#include "extension.hpp"
 
 Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format);
 

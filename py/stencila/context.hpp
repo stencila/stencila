@@ -2,12 +2,10 @@
 
 #include <iostream>
 
-#include "Python.h"
-#include <boost/python.hpp>
-#include <boost/python/raw_function.hpp>
-
 #include <stencila/context.hpp>
 #include <stencila/exception.hpp>
+
+#include "extension.hpp"
 
 // Experimental feature for embedding Python within a 
 // binary for use outside of the Stencila Python package
