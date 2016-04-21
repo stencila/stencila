@@ -50,6 +50,7 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; brew link --force openssl; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/science; brew install R; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install lemon; fi
     # GNU sed because OSX sed is old and does not have same behaviour as Linux sed
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install --default-names gnu-sed; fi
 
