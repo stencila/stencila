@@ -365,7 +365,7 @@ ifeq ($(OS), linux)
 	CPP_OTHER_LIBS += rt pthread curl
 endif
 ifeq ($(OS), osx)
-	CPP_OTHER_LIBS += -framework CoreFoundation curl
+	CPP_OTHER_LIBS += curl
 endif
 ifeq ($(OS), win)
 	CPP_OTHER_LIBS += ws2_32 mswsock ssh2
