@@ -502,13 +502,13 @@ cpp-requires-objects: $(BUILD)/cpp/library/objects/requires-objects.flag
 
 # Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
 # into a single static library.
-# Output list of contents to `files.txt` and `symbols.txt` for checking
+# To output lists of contents for checking:
+# 		ar t libstencila.a > files.txt 
+#		nm -gC libstencila.a > symbols.txt  # C demangles but is an invalid option on OS X
 $(BUILD)/cpp/library/libstencila.a: cpp-library-objects cpp-requires-objects
-	cd $(BUILD)/cpp/library ;\
-		$(AR) rc libstencila.a `find . -name "*.o"` ;\
-		$(AR) t libstencila.a > files.txt ;\
-		nm -gC libstencila.a > symbols.txt
+	cd $(BUILD)/cpp/library  && $(AR) rc libstencila.a `find . -name "*.o"`
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
+
 
 cpp-library: cpp-library-staticlib
 
