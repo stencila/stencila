@@ -403,6 +403,16 @@ public:
 	static const unsigned int types_ = 10;
 
 	/**
+	 * Convert a type to it's name string
+	 */
+	static std::string type_to_string(const Type& type);
+
+	/**
+	 * Convert a type name string to a type
+	 */
+	static Type type_from_string(std::string string);
+
+	/**
 	 * Structure representing a `Component` instance currently
 	 * in memory.
 	 */
@@ -420,7 +430,7 @@ public:
 		}
 
 		std::string type_name(void) const {
-			return Component::type_name(type_);
+			return Component::type_to_string(type_);
 		}
 
 		Component* pointer(void) const {
@@ -531,7 +541,7 @@ public:
 	/**
 	 * Construct a component from string content
 	 */
-	static std::shared_ptr<Component> create(const std::string& type, const std::string& content, const std::string& format = "json");
+	static Component* create(const std::string& type, const std::string& content, const std::string& format = "json");
 
 	/**
 	 * Instantiate a component
@@ -540,7 +550,7 @@ public:
 	 * e.g. R, Python which instantiates a component as necessary
 	 * for that environment (e.g. attaching a context)
 	 */
-	typedef Component* (*Instantiate) (const std::string& address, const std::string& path, const std::string& type);
+	typedef Component* (*Instantiate) (const std::string& type, const std::string& content, const std::string& format);
 	static Instantiate instantiate;
 
 	/**
@@ -581,13 +591,6 @@ public:
 	 * @param  path Filesystem path to component
 	 */
 	static Type type(const std::string& path);
-
-	/**
-	 * Get the name of the component type
-	 * 
-	 * @param  type
-	 */
-	static std::string type_name(const Type& type);
 
 	/**
 	 * Get a component with a given address, and optionally, a version requirement

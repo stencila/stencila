@@ -338,6 +338,24 @@ Sheet& Sheet::read(const std::string& directory) {
     return *this;
 }
 
+Sheet& Sheet::read(const std::string& content, const std::string& format) {
+    if (format == "json") {
+        // As a temporary implementation write the JSON to file
+        // and read from there
+        Json::Document json(content);
+        auto format = json["format"].as<std::string>();
+        if (format != "tsv") {
+            STENCILA_THROW(Exception, "Unknown content format.\n  format:" + format);
+        }
+        auto tsv = json["content"].as<std::string>();
+        write_to("sheet.tsv", tsv);
+        read("");
+    } else {
+        STENCILA_THROW(Exception, "Unknown format.\n  format:" + format);
+    }
+    return *this;
+}
+
 Sheet& Sheet::write(const std::string& directory) {
     // Call base method to set component pth
     Component::write(directory);

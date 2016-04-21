@@ -32,7 +32,7 @@ Html::Document Component_page_doc(const Type& component) {
 	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-itemprop 
 	// These are used by `Stencila.launch()` Javascript function to display the
 	// component
-	auto type = lower(Component::type_name(component.type()));
+	auto type = lower(Component::type_to_string(component.type()));
 	head.append("meta",{
 		{"itemprop","type"},
 		{"content",type}

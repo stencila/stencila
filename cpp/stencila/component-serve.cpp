@@ -208,7 +208,7 @@ std::string Component::index(void){
 	auto ul = page.select("body").append("ul");
 	for(auto instance : instances_){
 		auto li = ul.append("li");
-		li.append("span",{{"class","type"}},type_name(instance.second.type()));
+		li.append("span",{{"class","type"}},type_to_string(instance.second.type()));
 		li.append("a",{{"href","./"+instance.first}},instance.first);
 	}
 	return page.dump();

@@ -242,6 +242,11 @@ class Sheet : public Component {
     Sheet& read(const std::string& path = "");
 
     /**
+     * Read this sheet from a string
+     */
+    Sheet& read(const std::string& content, const std::string& format);
+
+    /**
      * Write this sheet to a directory
      * 
      * @param  path Filesystem path to a directory

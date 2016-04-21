@@ -183,6 +183,7 @@ void Server::http_(connection_hdl hdl) {
 	try {
 		// Routing
 		boost::smatch match;
+		boost::regex type_regex("^(stencils|sheets)$");
 		boost::regex method_regex("^(.+?)@([a-z0-9]+)$");
 		boost::regex file_regex("^(.+?)\\.([a-zA-Z0-9]+)$");
 		if(verb=="OPTIONS"){
@@ -197,6 +198,14 @@ void Server::http_(connection_hdl hdl) {
 			// Extra content for component pages
 			content = Component::extras();
 			content_type = "text/html";
+		}
+		else if(verb=="POST" and boost::regex_match(path,match,type_regex)){
+			std::string type = match.str(1);
+			type.pop_back();
+			std::string body = connection->get_request_body();
+			auto component = Component::create(type, body, "json");
+			status = http::status_code::created;
+			connection->append_header("Location",component->address());
 		}
 		else if(boost::regex_match(path,match,method_regex)){
 			// Component method request
