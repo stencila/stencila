@@ -47,7 +47,7 @@ before_install:
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 
     # Install system level requirements for OSX (equivalent to addons.apt.packages on Linux)
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; ./setup/travis-osx-before-install.sh; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./setup/travis-osx-before-install.sh; fi
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
