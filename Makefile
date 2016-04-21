@@ -404,8 +404,11 @@ cpp-helpers-uglifyjs:
 # 
 # -Wno-unknown-pragmas : for clang, prevents lots of warings
 # -Wno-missing-braces : for clang, unecessary, see http://stackoverflow.com/a/13905432/4625911
-# -Wno-unused-local-typedefs : because boost defines quite a lot of these
-CPP_FLAGS := --std=c++11 -O2 -Wall -Wno-unknown-pragmas -Wno-missing-braces -Wno-unused-local-typedefs
+# -Wno-unused-local-typedefs : because boost defines quite a lot of local typedefs
+# -Wno-unknown-warning-option : because clang doesn't know -Wno-unused-local-typedefs
+CPP_FLAGS := --std=c++11 -O2 -Wall \
+			   -Wno-unknown-pragmas -Wno-missing-braces -Wno-unused-local-typedefs \
+			   -Wno-unknown-warning-option
 ifeq ($(OS), linux)
 	CPP_FLAGS += -fPIC
 endif
