@@ -117,15 +117,14 @@ endif
 #   --prefix=.  - so that boost installs into its own directory
 #   link=static - so that get statically compiled instead of dynamically compiled libraries
 BOOST_B2_FLAGS := -d0 --prefix=. link=static install
-ifeq ($(OS), linux)
-	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
-	BOOST_B2_FLAGS += cxxflags=-fPIC
-endif
 ifeq ($(OS), win)
 	# b2 must be called with "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
 	# b2 must be called with "release" build otherwise defaults to debug AND release, which with "system" causes an 
 	#   error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
 	BOOST_B2_FLAGS += --layout=system release toolset=gcc
+else
+	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
+	BOOST_B2_FLAGS += cxxflags=-fPIC
 endif
 
 $(BUILD)/cpp/requires/boost-built.flag: $(BUILD)/cpp/requires/boost
@@ -162,11 +161,10 @@ $(BUILD)/cpp/requires/libgit2: $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip
 #  	BUILD_CLAR=OFF - do not build tests
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
 LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
-ifeq ($(OS), linux)
-	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
-endif
 ifeq ($(OS), win)
 	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
+else
+	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 $(BUILD)/cpp/requires/libgit2-built.flag: $(BUILD)/cpp/requires/libgit2
 	cd $< ;\
@@ -256,7 +254,7 @@ $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	touch $@
 
 PUGIXML_CXX_FLAGS := -O2
-ifeq ($(OS), linux)
+ifneq ($(OS), win)
 	PUGIXML_CXX_FLAGS += -fPIC
 endif
 $(BUILD)/cpp/requires/pugixml/src/libpugixml.a: $(BUILD)/cpp/requires/pugixml
@@ -312,15 +310,14 @@ endif
 $(BUILD)/cpp/requires/tidy-html5-built.flag: $(BUILD)/cpp/requires/tidy-html5
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
 	  cmake $(TIDYHTML5_CMAKE_FLAGS) ../..
-ifeq ($(OS), linux)
-	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
-		make
-endif
 ifeq ($(OS), win)
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
 		cmake --build . --config Release
 	# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/build/cmake/libtidys.a
+else
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+		make
 endif
 	touch $@
 
@@ -409,7 +406,7 @@ cpp-helpers-uglifyjs:
 CPP_FLAGS := --std=c++11 -O2 -Wall \
 			   -Wno-unknown-pragmas -Wno-missing-braces -Wno-unused-local-typedefs \
 			   -Wno-unknown-warning-option
-ifeq ($(OS), linux)
+ifneq ($(OS), win)
 	CPP_FLAGS += -fPIC
 endif
 
@@ -962,6 +959,12 @@ R_DLL_EXT := so
 R_REPO_DIR := src/contrib
 R_REPO_TYPE := source
 endif
+ifeq ($(OS),osx)
+R_PACKAGE_EXT := tar.gz
+R_DLL_EXT := so
+R_REPO_DIR := src/contrib
+R_REPO_TYPE := source
+endif
 ifeq ($(OS),win)
 R_PACKAGE_EXT := zip
 R_DLL_EXT := dll
@@ -1082,11 +1085,10 @@ r-package-check: $(R_BUILD)/stencila
 R_PACKAGE_FILE_BUILT := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT) # What gets build by R CMD
 R_PACKAGE_FILE := stencila_$(VERSION).$(R_PACKAGE_EXT) # What we want it to be called (with non-standard-for-R version string)
 $(R_BUILD)/$(R_PACKAGE_FILE): $(R_BUILD)/stencila
-ifeq ($(OS),linux)
-	cd $(R_BUILD); R CMD build stencila
-endif
 ifeq ($(OS),win)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
+else
+	cd $(R_BUILD); R CMD build stencila
 endif
 ifneq ($(R_BUILD)/$(R_PACKAGE_FILE_BUILT),$(R_BUILD)/$(R_PACKAGE_FILE))
 	mv $(R_BUILD)/$(R_PACKAGE_FILE_BUILT) $(R_BUILD)/$(R_PACKAGE_FILE)
