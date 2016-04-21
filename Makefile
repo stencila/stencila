@@ -413,40 +413,25 @@ ifeq ($(OS), linux)
 	CPP_FLAGS += -fPIC
 endif
 
-# Get version compiled into library
-CPP_VERSION_CPP := $(BUILD)/cpp/library/version.cpp
-CPP_VERSION_O := $(BUILD)/cpp/library/version.o
-CPP_VERSION_COMPILED := $(shell grep -s -Po "(?<=Stencila::version = \")([^\"]+)" $(CPP_VERSION_CPP))
-
-# Delete version.cpp if it is out of date
-ifneq ($(CPP_VERSION_COMPILED),$(VERSION))
-DUMMY := $(shell rm -f $(CPP_VERSION_CPP))
+# Compile version.o
+CPP_VERSION_TXT := $(BUILD)/cpp/library/generated/version.txt
+CPP_VERSION_CPP := $(BUILD)/cpp/library/generated/version.cpp
+CPP_VERSION_O := $(BUILD)/cpp/library/objects/version.o
+$(CPP_VERSION_O):
+ifneq ($(shell if [ -e "$(CPP_VERSION_TXT)" ]; then cat "$(CPP_VERSION_TXT)"; else echo ""; fi),$(VERSION))
+	@mkdir -p $(dir $@)
+	echo "$(VERSION)" > $(CPP_VERSION_TXT)
+	echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
+	echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
+	echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(CPP_VERSION_CPP)
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(CPP_VERSION_CPP)
 endif
+.PHONY: $(CPP_VERSION_O)
 
-# Create version.cpp file with current version and commit
-$(CPP_VERSION_CPP):
-	@mkdir -p $(dir $@)
-	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
-	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
-	@echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(CPP_VERSION_CPP)
-
-# Compile version object file
-$(CPP_VERSION_O): $(CPP_VERSION_CPP)
-	@mkdir -p $(dir $@)
-	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
-cpp-library-version: $(CPP_VERSION_O)
-
-cpp-library-vars:
-	@echo VERSION: $(VERSION)
-	@echo COMMIT: $(COMMIT)
-	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
-
-# General object file builds
+# Compile C++ source files
 $(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/library/objects
 	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
-
-# Various pattern rules for library object files...
 
 # Generate syntax parser using Lemon
 $(BUILD)/cpp/library/generated/syntax-%-parser.cpp: cpp/stencila/syntax-%.y
