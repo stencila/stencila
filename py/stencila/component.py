@@ -1,30 +1,41 @@
 import stencila.extension as extension
 
-from stencila.extension import Component
+from extension import Component
 
 # List of component instances
 # already instantiated
 instances = {}
 
 
-def instantiate(address, path, type):
+def instantiate(type, content, format):
     '''
     Instantiate a component
 
-    This function is called by the C++ function
-    `Component::get` to create a new instance
+    This function is called by the C++ functions
+    `Component::create` and `Component::get` to create a new instance
     '''
-    if type == 'Stencil':
+    type = type.lower()
+    if type == 'stencil':
         from stencila.stencil import Stencil
-        component = Stencil(path)
-    elif type == 'Sheet':
+        component = Stencil()
+        if format == 'path':
+            component.read(content)
+        else:
+            raise Exception('Unhandled instantiation format\n  format: ' + format)
+    elif type == 'sheet':
         from stencila.sheet import Sheet
-        component = Sheet(path)
+        component = Sheet()
+        if format == 'path':
+            component.read(content)
+        elif format == 'json':
+            component.read(content, 'json')
+        else:
+            raise Exception('Unhandled instantiation format\n  format: ' + format)
     else:
         raise Exception('Unhandled component type\n type:', type, '\n path:', path)
 
     global instances
-    instances[address] = component
+    instances[component.address()] = component
 
     return component
 

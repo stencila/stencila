@@ -10,7 +10,7 @@
 using namespace Stencila;
 using namespace boost::python;
 
-Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type);
+Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format);
 
 // Define converters
 template<typename Type>

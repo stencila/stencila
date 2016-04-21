@@ -21,11 +21,16 @@ void def_Sheet(void){
         .def("initialise",&Sheet::initialise,return_self<>())
 
         .def("read",
-            &Sheet::read,
+            static_cast<Sheet& (Sheet::*)(const std::string&)>(&Sheet::read),
             Sheet_read()[
                 return_self<>()
             ]
         )
+        .def("read",
+            static_cast<Sheet& (Sheet::*)(const std::string&, const std::string&)>(&Sheet::read),
+            return_self<>()
+        )
+
         .def("write",
             &Sheet::write,
             Sheet_write()[

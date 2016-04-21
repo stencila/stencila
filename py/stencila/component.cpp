@@ -12,24 +12,18 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_path_set_overloads,path,1,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_path_get_overloads,path,1,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_destroy_overloads,destroy,0,0)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_create_overloads,create,1,2)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_delete_overloads,delete_,1,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_delete_file_overloads,delete_file,1,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_read_overloads,read,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_write_overloads,write,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 
-std::string Component_type(std::string address) {
-    return Component::type_name(
-        Component::type(address)
-    );
-}
 
-
-Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type) {
+Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format) {
     // Because this may be called from another thread (e.g. the server thread)
     // it is necessary to obtain the Python GIL before calling Python code
     PyGILState_STATE py_gil_state = PyGILState_Ensure();
     auto instantiate_function = import("stencila").attr("instantiate");
-    auto component_object = instantiate_function(address, path, type);
+    auto component_object = instantiate_function(type, content, format);
     Component* component = extract<Component*>(component_object);
     PyGILState_Release(py_gil_state);
     return component;
@@ -68,25 +62,10 @@ void def_Component(void){
                 "Set the component's working directory"
             )[return_self<>()]
         )
-        
-        .def("destroy",
-            static_cast<Component& (Component::*)(void)>(&Component::destroy),
-            Component_destroy_overloads(
-                "Destroy the component's working directory"
-            )[return_self<>()]
-        )
 
-        .def("create",
-            static_cast<Component& (Component::*)(const std::string&,const std::string&)>(&Component::create),
-            Component_create_overloads(
-                (arg("path"),arg("content")),
-                "Create a file in the component's working directory"
-            )[return_self<>()]
-        )
-        
-        .def("delete",
-            static_cast<Component& (Component::*)(const std::string&)>(&Component::delete_),
-            Component_delete_overloads(
+        .def("delete_file",
+            static_cast<Component& (Component::*)(const std::string&)>(&Component::delete_file),
+            Component_delete_file_overloads(
                 arg("path"),
                 "Delete a file in the component's working directory"
             )[return_self<>()]
@@ -108,6 +87,13 @@ void def_Component(void){
             )[return_self<>()]
         )
 
+        .def("destroy",
+            static_cast<Component& (Component::*)(void)>(&Component::destroy),
+            Component_destroy_overloads(
+                "Destroy the component's working directory"
+            )[return_self<>()]
+        )
+
         .def("commit",
             &Component::commit,
             Component_commit_overloads(
@@ -117,6 +103,5 @@ void def_Component(void){
         )
     ;
 
-    def("type", Component_type);
     def("grab", Component_grab);
 }
