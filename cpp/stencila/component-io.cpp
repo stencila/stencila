@@ -160,28 +160,12 @@ std::vector<Component::File> Component::list(const std::string& subdirectory){
 	return files;
 }
 
-Component& Component::destroy(void){
-	boost::filesystem::path path_full = Component::path();
-	if(boost::filesystem::exists(path_full)){
-		boost::filesystem::remove_all(path_full);
-	}
-	return *this;
-}
-
-Component& Component::create(const std::string& path,const std::string& content){
-	boost::filesystem::path path_full(Component::path(true));
-	path_full /= path;
-	if(not boost::filesystem::exists(path_full)){
-		std::ofstream file(path_full.string());
-		file<<content;
-		file.close();
-	}
-	return *this;
-}
-
 Component& Component::write_to(const std::string& path, const std::string& content){
-	boost::filesystem::path path_full(Component::path(true));
+	boost::filesystem::path path_full = Component::path(true);
 	path_full /= path;
+	if (not boost::filesystem::exists(path_full.parent_path())) {
+		boost::filesystem::create_directories(path_full.parent_path());
+	}
 	std::ofstream file(path_full.string());
 	file<<content;
 	file.close();
@@ -189,7 +173,7 @@ Component& Component::write_to(const std::string& path, const std::string& conte
 }
 
 std::string Component::read_from(const std::string& path) const {
-	boost::filesystem::path path_full(Component::path());
+	boost::filesystem::path path_full = Component::path();
 	path_full /= path;
 	std::ifstream file(path_full.string());
 	std::stringstream stream;
@@ -197,7 +181,7 @@ std::string Component::read_from(const std::string& path) const {
 	return stream.str();
 }
 
-Component& Component::delete_(const std::string& path){
+Component& Component::delete_file(const std::string& path){
 	boost::filesystem::path path_full = Component::path();
 	path_full /= path;
 	if(boost::filesystem::exists(path_full)){
@@ -232,6 +216,14 @@ Component& Component::vacuum(void) {
 		if (boost::filesystem::exists(out)) {
 			boost::filesystem::remove_all(out);
 		}
+	}
+	return *this;
+}
+
+Component& Component::destroy(void){
+	boost::filesystem::path path_full = Component::path();
+	if(boost::filesystem::exists(path_full)){
+		boost::filesystem::remove_all(path_full);
 	}
 	return *this;
 }

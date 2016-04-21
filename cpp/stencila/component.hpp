@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -23,21 +24,26 @@ namespace Stencila {
 class Component {
 public:
 
-	Component(void):
-		meta_(nullptr){
-	}
+	/**
+	 * @name Construction and destruction
+	 *
+	 * Methods implemented in `component.cpp`
+	 * 
+	 * @{
+	 */
 
-	Component(const Component& other):
-		meta_(nullptr){
-	}
+	Component(void);
 
-	Component(const std::string& address){
-		initialise(address);
-	}
+	Component(const Component& other);
 
-	~Component(void){
-		delete meta_;
-	}
+	Component(const std::string& address);
+
+	~Component(void);
+
+	/**
+	 * @}
+	 */
+	
 
 	/**
 	 * @name Input and output
@@ -124,18 +130,6 @@ public:
 	std::vector<File> list(const std::string& subdirectory="");
 
 	/**
-	 * Destroy the component's entire working directory
-	 */
-	Component& destroy(void);
-
-	/**
-	 * Create a file within the component's working directory
-	 * 
-	 * @param path Filesystem path within the working directory
-	 */
-	Component& create(const std::string& path, const std::string& content="\n");
-
-	/**
 	 * Read a file withing the component's working directory
 	 * 
 	 * @param  path    Filesystem path within the working directory
@@ -153,7 +147,7 @@ public:
 	/**
 	 * Delete a file within the component's working directory
 	 */
-	Component& delete_(const std::string& path);
+	Component& delete_file(const std::string& path);
 
 	/**
 	 * Read the component from a directory
@@ -183,6 +177,11 @@ public:
 	 * this comonent's path
 	 */
 	Component& vacuum(void);
+
+	/**
+	 * Destroy the component's entire working directory
+	 */
+	Component& destroy(void);
 
 	/**
 	 * @}
@@ -528,6 +527,11 @@ public:
 	 * Definition of all core component classes
 	 */
 	static void classes(void);
+
+	/**
+	 * Construct a component from string content
+	 */
+	static std::shared_ptr<Component> create(const std::string& type, const std::string& content, const std::string& format = "json");
 
 	/**
 	 * Instantiate a component

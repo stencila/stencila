@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(destroy_empty){
  */
 BOOST_AUTO_TEST_CASE(destroy_transient){
 	Component c;
-	c.create("foo.txt");
+	c.write_to("foo.txt","");
 	std::string path = c.path();
 	c.destroy();
 	BOOST_CHECK(not boost::filesystem::exists(path));
