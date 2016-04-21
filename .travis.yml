@@ -46,11 +46,12 @@ before_install:
     # Use a python2.7 with UCS4 : https://github.com/travis-ci/travis-ci/issues/4948#issuecomment-165779970
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 
-    # Install requirements for OSX (equivalent to addons.apt.packages on Linux) 
+    # Install requirements for OSX (equivalent to addons.apt.packages on Linux)
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; brew link --force openssl; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/science; brew install R; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install lemon; fi
+    # GNU sed because OSX sed is old and does not have same behaviour as Linux sed
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install --default-names gnu-sed; fi
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
