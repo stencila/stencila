@@ -947,7 +947,7 @@ endif
 # If R_VERSION is not defined then get it
 ifndef R_VERSION
   # Version number excludes any patch number
-  R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'\\\\.')[[1]][1],sep='.')" )
+  R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'.',fixed=T)[[1]][1],sep='.')" )
 endif
 
 # Shortcut to the R build directory
