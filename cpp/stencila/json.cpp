@@ -267,7 +267,9 @@ Node Node::append(const std::string& name,Array){
 		return array; \
 	}
 
-APPEND_VECTOR(bool)
+// clang++ on OS X does not like this because no converter to JsonCpp
+//APPEND_VECTOR(bool)
+
 APPEND_VECTOR(int)
 APPEND_VECTOR(unsigned int)
 APPEND_VECTOR(float)
