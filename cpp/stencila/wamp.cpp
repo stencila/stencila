@@ -1,3 +1,5 @@
+#include <array>
+
 #include <stencila/string.hpp>
 #include <stencila/wamp.hpp>
 
