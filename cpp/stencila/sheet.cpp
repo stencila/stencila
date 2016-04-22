@@ -729,12 +729,22 @@ Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
 }
 
 std::vector<Sheet::Cell> Sheet::cells(const std::string& string) {
-    auto indices = range(string);
     std::vector<Cell> cells;
-    for (auto row = indices[0]; row <= indices[2]; row++) {
-        for (auto col = indices[1]; col <= indices[3]; col++) {
-            if (auto cell = cell_pointer(identify(row,col))){
-                cells.push_back(*cell);
+    boost::smatch matches;
+    boost::regex name_regex("^#([\\w_]+)$");
+    if (boost::regex_match(string, matches, name_regex)) {
+        auto name = matches[1];
+        auto iter = names_.find(name);
+        if (iter != names_.end()) {
+            cells.push_back(cells_.at(iter->second));
+        }
+    } else {
+        auto indices = range(string);
+        for (auto row = indices[0]; row <= indices[2]; row++) {
+            for (auto col = indices[1]; col <= indices[3]; col++) {
+                if (auto cell = cell_pointer(identify(row,col))) {
+                    cells.push_back(*cell);
+                }
             }
         }
     }

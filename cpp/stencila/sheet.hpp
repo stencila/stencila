@@ -530,7 +530,7 @@ class Sheet : public Component {
 
     /**
      * Get cells from this sheets using an id (e.g. A1)
-     * or range (e.g. A1:A10)
+     * , range (e.g. A1:A10) or name (e.g. #price)
      */
     std::vector<Cell> cells(const std::string& range);
 
