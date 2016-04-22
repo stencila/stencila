@@ -229,16 +229,30 @@ instances <- new.env()
 #' `Component::get` to create a new instance
 #'
 #' @export
-instantiate <- function(address, path, type) {
-	if (type=='Stencil') {
-		component <- Stencil(path)
-	} else if (type=='Sheet') {
-		component <- Sheet(path)
+instantiate <- function(type, content, format) {
+	if (type=='stencil') {
+		component <- Stencil()
+		if (format == 'path') {
+			component$read(content)
+		} else {
+			stop('Unhandled stencil format\n  format: ', format)
+		}
+	} else if (type=='sheet') {
+		component <- Sheet()
+		if (format == 'path') {
+			component$read(content)
+		} else if (format == 'json') {
+			component$read(content, 'json')
+		} else {
+			stop('Unhandled sheet format\n  format: ', format)
+		}
 	} else {
-		stop('Unhandled component type\n type:', type, '\n path:', path)
+		stop('Unhandled component type\n  type: ', type)
 	}
-	assign(address, component, envir=instances)
-	component$.pointer
+	
+	assign(component$address(), component, envir=instances)
+	
+	return(component$.pointer)
 }
 
 #' Grab a component

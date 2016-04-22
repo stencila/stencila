@@ -8,7 +8,7 @@ Sheet& Sheet_attach(Sheet& self, object context) {
     return self;
 }
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_read,read,0,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_read_overloads,read,0,2)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_write,write,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Sheet_update_overloads,update,0,1)
 
@@ -18,16 +18,11 @@ void def_Sheet(void){
         .def("initialise",&Sheet::initialise,return_self<>())
 
         .def("read",
-            static_cast<Sheet& (Sheet::*)(const std::string&)>(&Sheet::read),
-            Sheet_read()[
+            &Sheet::read,
+            Sheet_read_overloads()[
                 return_self<>()
             ]
         )
-        .def("read",
-            static_cast<Sheet& (Sheet::*)(const std::string&, const std::string&)>(&Sheet::read),
-            return_self<>()
-        )
-
         .def("write",
             &Sheet::write,
             Sheet_write()[

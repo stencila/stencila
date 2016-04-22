@@ -107,11 +107,13 @@ class Spread:
         if os.path.exists(path):
             file = open(path)
             self.variables = pickle.load(file)
+        return ''
 
     def write(self, path):
         file = open(os.path.join(path, 'context.pkl'), 'w')
         pickle.dump(self.variables, file)
         file.close()
+        return ''
 
 
 class SpreadNameCollector(ast.NodeVisitor):

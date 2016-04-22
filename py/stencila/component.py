@@ -14,6 +14,7 @@ def instantiate(type, content, format):
     This function is called by the C++ functions
     `Component::create` and `Component::get` to create a new instance
     '''
+    print type, content, format
     type = type.lower()
     if type == 'stencil':
         from stencila.stencil import Stencil
@@ -21,7 +22,7 @@ def instantiate(type, content, format):
         if format == 'path':
             component.read(content)
         else:
-            raise Exception('Unhandled instantiation format\n  format: ' + format)
+            raise Exception('Unhandled stencil format\n  format: ' + format)
     elif type == 'sheet':
         from stencila.sheet import Sheet
         component = Sheet()
@@ -30,9 +31,9 @@ def instantiate(type, content, format):
         elif format == 'json':
             component.read(content, 'json')
         else:
-            raise Exception('Unhandled instantiation format\n  format: ' + format)
+            raise Exception('Unhandled stencil format\n  format: ' + format)
     else:
-        raise Exception('Unhandled component type\n type:', type, '\n path:', path)
+        raise Exception('Unhandled component type\n type:', type)
 
     global instances
     instances[component.address()] = component

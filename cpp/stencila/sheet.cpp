@@ -259,88 +259,85 @@ Sheet& Sheet::export_(const std::string& path) {
 
 boost::regex read_meta("^#([\\w-]+)$");
 
-Sheet& Sheet::read(const std::string& directory) {
-    // Call base method to set component path
-    Component::read(directory);
-    
-    // Local function for reading a TSV.
-    // Mostly as per http://dataprotocols.org/linear-tsv/
-    auto read = [](const std::string& path) {
-        std::vector<std::vector<std::string>> cells;
-        std::ifstream file(path);
-        std::string line;
-        while (std::getline(file, line)) {
-            std::vector<std::string> row;
-            boost::split(row, line, std::bind1st(std::equal_to<char>(), '\t'));
-            for(auto& value : row){
-                boost::replace_all(value, "\\\\", "\\");  // Must come first
-                boost::replace_all(value, "\\t", "\t");
-                boost::replace_all(value, "\\n", "\n");
-                boost::replace_all(value, "\\r", "\r");
+Sheet& Sheet::read(const std::string& content, const std::string& format) {
+    if (format == "" or format == "path") {
+
+        // Call base method to set component path
+        Component::read(content);
+        
+        // Local function for reading a TSV.
+        // Mostly as per http://dataprotocols.org/linear-tsv/
+        auto read = [](const std::string& path) {
+            std::vector<std::vector<std::string>> cells;
+            std::ifstream file(path);
+            std::string line;
+            while (std::getline(file, line)) {
+                std::vector<std::string> row;
+                boost::split(row, line, std::bind1st(std::equal_to<char>(), '\t'));
+                for(auto& value : row){
+                    boost::replace_all(value, "\\\\", "\\");  // Must come first
+                    boost::replace_all(value, "\\t", "\t");
+                    boost::replace_all(value, "\\n", "\n");
+                    boost::replace_all(value, "\\r", "\r");
+                }
+                cells.push_back(row);
             }
-            cells.push_back(row);
-        }
-        return cells;
-    };
-    
-    // Read cell source, types and values files
-    auto dir = path() + "/"; 
-    auto sources = read(dir + "sheet.tsv");
-    auto outputs = read(dir + "out/out.tsv");
-    
-    // Local function for getting row of outputs for a cell
-    auto output = [&](const std::string& id) -> std::vector<std::string> {
-        // Search for id and return column if it exists
-        for(const auto& row : outputs) {
-            if (row.size()) {
-                if (row[0] == id) {
-                    return row;
+            return cells;
+        };
+        
+        // Read cell source, types and values files
+        auto dir = path() + "/"; 
+        auto sources = read(dir + "sheet.tsv");
+        auto outputs = read(dir + "out/out.tsv");
+        
+        // Local function for getting row of outputs for a cell
+        auto output = [&](const std::string& id) -> std::vector<std::string> {
+            // Search for id and return column if it exists
+            for(const auto& row : outputs) {
+                if (row.size()) {
+                    if (row[0] == id) {
+                        return row;
+                    }
+                }
+            }
+            return {};
+        };
+
+        // Reset this sheet with new cells from source file and 
+        // outputs (e.g. type, value) if they are available
+        clear();
+        for (const auto& row : sources) {
+            auto row_size = row.size();
+            if (row_size>1) {
+                auto first = row[0];
+                boost::smatch match;
+                if (boost::regex_match(first, match, read_meta)){
+                    meta_[match[1]] = row[1];
+                } else {
+                    Cell cell;
+                    cell.id = row[0];
+                    cell.source(row[1]);
+                    if (row_size>2) cell.display(row[2]);
+
+                    auto outs = output(cell.id);
+                    auto outs_size = outs.size();
+                    if (outs_size>1) cell.type = outs[1];
+                    if (outs_size>2) cell.value = outs[2];
+
+                    cells_[cell.id] = cell;
+                    if (cell.name.length()) names_[cell.name] = cell.id;
                 }
             }
         }
-        return {};
-    };
 
-    // Reset this sheet with new cells from source file and 
-    // outputs (e.g. type, value) if they are available
-    clear();
-    for (const auto& row : sources) {
-        auto row_size = row.size();
-        if (row_size>1) {
-            auto first = row[0];
-            boost::smatch match;
-            if (boost::regex_match(first, match, read_meta)){
-                meta_[match[1]] = row[1];
-            } else {
-                Cell cell;
-                cell.id = row[0];
-                cell.source(row[1]);
-                if (row_size>2) cell.display(row[2]);
+        // Update dependency graph, names etc but don't execute
+        update(false);
 
-                auto outs = output(cell.id);
-                auto outs_size = outs.size();
-                if (outs_size>1) cell.type = outs[1];
-                if (outs_size>2) cell.value = outs[2];
-
-                cells_[cell.id] = cell;
-                if (cell.name.length()) names_[cell.name] = cell.id;
-            }
+        // If a context is attached then read that too
+        if(spread_) {
+            spread_->read(path()+"/out/");
         }
-    }
-
-    // Update dependency graph, names etc but don't execute
-    update(false);
-
-    // If a context is attached then read that too
-    if(spread_) {
-        spread_->read(path()+"/out/");
-    }
-    
-    return *this;
-}
-
-Sheet& Sheet::read(const std::string& content, const std::string& format) {
-    if (format == "json") {
+    } else if (format == "json") {
         // As a temporary implementation write the JSON to file
         // and read from there
         Json::Document json(content);
@@ -350,10 +347,11 @@ Sheet& Sheet::read(const std::string& content, const std::string& format) {
         }
         auto tsv = json["content"].as<std::string>();
         write_to("sheet.tsv", tsv);
-        read("");
+        read("", "path");
     } else {
         STENCILA_THROW(Exception, "Unknown format.\n  format:" + format);
     }
+    
     return *this;
 }
 

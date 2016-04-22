@@ -13,7 +13,7 @@ using namespace Stencila;
 void Stencila_R_CStackLimit(void);
 #endif
 
-Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type);
+Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format);
 
 /**
  * Start up function for the Stencila R module

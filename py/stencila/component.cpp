@@ -18,12 +18,23 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format) {
     // Because this may be called from another thread (e.g. the server thread)
     // it is necessary to obtain the Python GIL before calling Python code
+    // and ensure it ALWAYS gets released!
     PyGILState_STATE py_gil_state = PyGILState_Ensure();
-    auto instantiate_function = import("stencila").attr("instantiate");
-    auto component_object = instantiate_function(type, content, format);
-    Component* component = extract<Component*>(component_object);
-    PyGILState_Release(py_gil_state);
-    return component;
+    try {
+        auto instantiate_function = import("stencila").attr("instantiate");
+        auto component_object = instantiate_function(type, content, format);
+        Component* component = extract<Component*>(component_object);
+        PyGILState_Release(py_gil_state);
+        return component;
+    } 
+    catch(const std::exception& exc) {
+        PyGILState_Release(py_gil_state);
+        STENCILA_THROW(Exception, exc.what());
+    }
+    catch(...) {
+        PyGILState_Release(py_gil_state);
+        STENCILA_THROW(Exception, "Unknown exception");
+    }
 }
 
 

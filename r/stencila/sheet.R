@@ -50,8 +50,8 @@ setRefClass(
             method_(.self,'Sheet_graphviz',path)
         },
 
-        read = function(path=""){
-            method_(.self,'Sheet_read',path)
+        read = function(content='', format=''){
+            method_(.self, 'Sheet_read', content, format)
         },
         write = function(path=""){
             method_(.self,'Sheet_write',path)

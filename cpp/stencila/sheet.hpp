@@ -234,17 +234,13 @@ class Sheet : public Component {
     Sheet& export_(const std::string& path);
 
     /**
-     * Read this sheet from a directory
+     * Read this sheet from a directory or string content
      * 
-     * @param  path Filesystem path to a directory. 
-     *              If an empty string then the sheet's current path is used.
+     * @param  content Filesystem path to a directory or string content
+     *                 If an empty string and format is empty or "path" then the sheet's current path is used.
+     * @param  format Format of content e.g. `path`, `json`
      */
-    Sheet& read(const std::string& path = "");
-
-    /**
-     * Read this sheet from a string
-     */
-    Sheet& read(const std::string& content, const std::string& format);
+    Sheet& read(const std::string& content = "", const std::string& format = "");
 
     /**
      * Write this sheet to a directory
