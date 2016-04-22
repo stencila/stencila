@@ -230,6 +230,7 @@ instances <- new.env()
 #'
 #' @export
 instantiate <- function(type, content, format) {
+	type <- tolower(type)
 	if (type=='stencil') {
 		component <- Stencil()
 		if (format == 'path') {
@@ -259,7 +260,7 @@ instantiate <- function(type, content, format) {
 #' 
 #' This is functionally the same as the C++ function
 #' `Component::get` but first checks for a locally instantiated
-#' instance of the component. Not called `get` or `load` because those clash 
+#' instance of the component. Not called `get` or `load` because those clash
 #' with functions in the base package
 #'
 #' @export

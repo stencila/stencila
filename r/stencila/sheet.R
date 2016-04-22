@@ -81,7 +81,7 @@ setRefClass(
             .spread <<- NULL
             method_(.self,'Sheet_detach')
         },
-        update = function(range){
+        update = function(range=''){
             method_(.self,'Sheet_update',range)
         },
         translate = function(expression){
