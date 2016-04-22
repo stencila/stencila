@@ -27,12 +27,6 @@ class ComponentTests(unittest.TestCase):
     # def test_path(self):
     #    self.assertRegex(self.component.path("").path(), "~")
 
-    def test_create(self):
-        self.component.create("README.txt")
-
-    def test_destroy(self):
-        self.component.delete("README.txt")
-
     def test_read(self):
         self.component.path("")
         self.component.read()
