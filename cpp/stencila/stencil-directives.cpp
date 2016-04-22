@@ -2,6 +2,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/sheet.hpp>
 #include <stencila/string.hpp>
 
 namespace Stencila {
@@ -847,31 +848,59 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 	if(not lock) {
 		// Clear the included node
 		included.clear();
-		//Obtain the included stencil...
+		//Obtain the included component...
+		Instance instance;
 		Node includee;
 		//Check to see if this is a "self" include, otherwise obtain the includee
 		address.evaluate(context);
-		if(address.value==".") includee = node.root();
-		else includee = *(Component::get(address.value).as<Stencil*>());
-		// ...select from it
 		select.evaluate(context);
-		if(select.value.length()){
-			// ...append the selected nodes.
-			for(Node node : includee.filter(select.value)){
-				// Append the node first to get a copy of it which can be modified
-				Node appended = included.append(node);
-				// Remove `macro` declaration if any so that element gets rendered
-				appended.erase("data-macro");
-				// Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
-				// This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
-				// selecting all those instances where the macro was previously included.
-				appended.erase("id");
+		if(address.value==".") includee = node.root();
+		else instance = Component::get(address.value);
+
+		if (address.value=="." or instance.type()==StencilType) {
+			if (address.value != ".") {
+				includee = *instance.as<Stencil*>();
 			}
-		} else {
-			// ...append the entire includee. 
-			// No attempt is made to remove macros when included an entire includee.
-			// Must add each child because includee is a document (see `Node::append(const Document& doc)`)
-			for(auto child : includee.children()) included.append(child);
+			// ...select from it
+			if (select.value.length()) {
+				// ...append the selected nodes.
+				for(Node node : includee.filter(select.value)){
+					// Append the node first to get a copy of it which can be modified
+					Node appended = included.append(node);
+					// Remove `macro` declaration if any so that element gets rendered
+					appended.erase("data-macro");
+					// Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
+					// This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
+					// selecting all those instances where the macro was previously included.
+					appended.erase("id");
+				}
+			} else {
+				// ...append the entire includee. 
+				// No attempt is made to remove macros when included an entire includee.
+				// Must add each child because includee is a document (see `Node::append(const Document& doc)`)
+				for(auto child : includee.children()) included.append(child);
+			}
+		} else if (instance.type()==SheetType) {
+			auto sheet = instance.as<Sheet*>();
+			if (select.value.length()) {
+				auto cells = sheet->cells(select.value);
+				if (cells.size() == 1) {
+					const auto& cell = cells[0];
+					if (cell.type == "image_file") {
+						auto url = "/" + sheet->address() + "/" + cell.value;
+						included.append("img", {{"src", url}});
+					} else {
+						included.append("span", cell.value);
+					}
+				} else if (cells.size() > 1) {
+					auto table = included.append("table");
+					for (const auto& cell : cells) {
+						auto tr = table.append("tr");
+						auto td = tr.append("td");
+						td.text(cell.value);
+					}
+				}
+			}
 		}
 
 		//Apply modifiers
