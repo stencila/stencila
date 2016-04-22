@@ -14,7 +14,6 @@ def instantiate(type, content, format):
     This function is called by the C++ functions
     `Component::create` and `Component::get` to create a new instance
     '''
-    print type, content, format
     type = type.lower()
     if type == 'stencil':
         from stencila.stencil import Stencil
