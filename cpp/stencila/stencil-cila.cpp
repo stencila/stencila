@@ -503,7 +503,7 @@ public:
 			// `for` directive
 			directive_for("\\bfor\\s+(\\w+)\\s+in\\s+([^\\s}]+)"),
 			// `include` directive
-			directive_include("\\binclude\\s+([\\w\\-\\./]+)(\\s+select\\s+([\\.\\#\\w\\-]+))?(\\s+(complete))?"),
+			directive_include("\\binclude\\s+([\\w\\-\\./]+)(\\s+select\\s+([\\.\\#\\w\\-\\:]+))?(\\s+(complete))?"),
 			// `set` directive
 			directive_set("\\bset\\s+([\\w]+)\\s+to\\s+([^\\s}]+)"),
 			// `include` modifier directives
