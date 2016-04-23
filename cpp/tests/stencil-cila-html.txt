@@ -616,6 +616,30 @@ table
 --------------------------------------------------
 
 
+Block code <>
+--------------------------------------------------
+code
+	Plain text
+
+code r
+	# Some R code
+	answer <- 6 * 7
+
+code html
+	<a href="http//stenci.la">Stencila</a>
+--------------------------------------------------
+<pre><code data-code="">Plain text
+</code></pre>
+<pre><code data-code="r">
+# Some R code
+answer &lt;- 6 * 7
+</code></pre>
+<pre><code data-code="html">
+&lt;a href="http//stenci.la"&gt;Stencila&lt;/a&gt;
+</code></pre>
+--------------------------------------------------
+
+
 `exec` <>
 --------------------------------------------------
 exec

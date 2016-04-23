@@ -481,12 +481,13 @@ public:
 			id("#([\\w-]+)\\b"),
 			clas("\\.([\\w-]+)\\b"),
 			
-			// Directives with embedded content and associated
+			// Directives with embedded content
 			exec_open("\\b(exec|cila|js|html|r|py)\\b((\\s+format\\s+[^\\s]+)?(\\s+size\\s+[^\\s]+)?(\\s+const)?(\\s+volat)?(\\s+show)?)"),
 			out("\\bout\\b"),
 			on_open("\\bon\\b\\s+(\\w+)(\\n|$)"),
 			style_open("\\b(style|css)\\b(\\n|$)"),
 			pre_open("\\b(pre)\\b(\\n|$)"),
+			code_open("\\bcode(\\s+(\\w+))?(\\n|$)"),
 
 			// Directives with no argument
 			directive_noarg("\\b(each|else|default)\\b"),
@@ -645,6 +646,17 @@ public:
 
 					enter_across("pre",embed);
 					push(flags);
+				}
+				else if(is(code_open)){
+					trace("code");
+
+					enter("pre");
+					enter_across("code",embed);
+					push(flags);
+
+					auto lang = match[2].str();
+					boost::to_lower(lang);
+					node.attr("data-code",lang);
 				}
 				else if(is(blankline)){
 					trace("blank");
@@ -1100,6 +1112,7 @@ public:
 				if(content_line.length()>0 and indent_line.length()<=indent.length()){
 					// Exit and pop. Note that `begin` is not shifted along at all
 					// so that the line can be processed by `sol`
+					if (node.name()=="code") exit();
 					exit();
 					across(sol);
 				} else {
@@ -1397,6 +1410,7 @@ public:
 				name=="form" or
 
 				node.has("data-exec") or node.has("data-out") or
+				node.has("data-code") or
 				node.has("data-where") or node.has("data-with") or 
 				node.has("data-for") or node.has("data-switch") or 
 				node.has("data-include") or node.has("data-macro") or
@@ -1470,7 +1484,19 @@ public:
 			}
 			// Preformatted elements
 			else if(name=="pre"){
-				content("pre");
+				if (children==1 and children_list[0].name()=="code") {
+					// Block code
+					// Because of the way `embedded = true` works
+					// don't need to unwrap the <code> element just
+					// emit it as the tag name
+					content("code");
+
+					auto lang = children_list[0].attr("data-code");
+					if (lang.length()) content(" " + lang);
+					erase_attr("data-code");
+				} else {
+					content("pre");
+				}
 				space_required = true;
 				embedded = true;
 			}
@@ -1626,7 +1652,7 @@ public:
 						// Trim white space (it should never be significant when at start or end)
 						// Normally code will start and end with a new line (that is how it is created when parsed)
 						// so remove those, and any other whitespace, for consistent Cila generation
-						boost::trim(code);
+						boost::trim_if(code, boost::is_any_of(" \t\n"));
 						if(code.length()>0){
 							// Split into lines
 							std::vector<std::string> lines;
