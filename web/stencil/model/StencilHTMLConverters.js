@@ -14,6 +14,7 @@ module.exports = [
   require('substance/packages/table/TableHTMLConverter'),
 
   // Stencil-specific converters
+  require('../packages/codeblock/StencilCodeblockHTMLConverter'),
   require('../packages/equation/StencilEquationHTMLConverter'),
   require('../packages/exec/StencilExecHTMLConverter'),
   require('../packages/figure/StencilFigureHTMLConverter'),

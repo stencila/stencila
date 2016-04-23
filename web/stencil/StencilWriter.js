@@ -35,6 +35,7 @@ var CONFIG = {
 
       'stencil-math': require('./packages/math/StencilMathComponent'),
       'stencil-equation': require('./packages/equation/StencilEquationComponent'),
+      'stencil-codeblock': require('./packages/codeblock/StencilCodeblockComponent'),
 
       'stencil-parameter': require('./packages/parameter/StencilParameterComponent'),
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
