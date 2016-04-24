@@ -45,10 +45,10 @@ Component& Component::path(const std::string& path) {
 	if(current_path.length()==0){
 		// If the new path is empty then...
 		if(new_path.length()==0){
-			// Create a unique one
-			boost::filesystem::path unique = Host::temp_dirname();
-			create_directories(unique);
-			meta_->path = unique.string();
+			// Create a unique one in the temp directory
+			auto path = temp_directory_path() / "stencila" / unique_path("%%%%%%%%%%%%%%%%");
+			create_directories(path);
+			meta_->path = path.string();
 		} else {
 			meta_->path = new_path;
 		}
@@ -76,19 +76,28 @@ std::string Component::address(void) const {
 	using namespace boost::filesystem;
 	std::string path = this->path();
 	// Is path in any of the stores?
+	// If so return a global address
 	if(path.length()>0){
 		for(auto store : Host::stores()){
 			if(path.length()>store.length()){
 				if(path.substr(0,store.length())==store){
-					// Component is in a store
 					return path.substr(store.length()+1);
 				}
 			}
 		}
 	}
-	// Component is not in a store so return a "local" address 
-	// i.e. a canonicalised path
-	return boost::filesystem::canonical(path).generic_string();
+	// Is the path in the temporary directory?
+	// If so return a temporary address
+	auto tmp = (temp_directory_path() / "stencila").string();
+	if (path.length()>tmp.length()) {
+		if (path.substr(0, tmp.length()) == tmp) {
+			return "!" + path.substr(tmp.length()+1);
+		}
+	}
+
+	// None of the above so return a "local" address 
+	// i.e. a canonicalised path prepended with an asterisk
+	return "*" + canonical(path).generic_string();
 }
 
 std::string Component::address(bool ensure){
@@ -102,7 +111,6 @@ Component& Component::address(const std::string& address) {
 	return *this;
 }
 
-
 Component& Component::address(const char* address) {
 	return this->address(std::string(address));
 }
@@ -110,18 +118,22 @@ Component& Component::address(const char* address) {
 std::string Component::locate(const std::string& address){
 	using namespace boost::filesystem;
 	if(address.length()>0){
-		// Check if this is an address explicty declared as a local path...
-		bool local = false;
-		if(address[0]=='/' or address[0]=='.') local = true;
-		else if(address.length()>=2){
-			if(address[1]==':') local = true;
-		}
-		if(local){
+		if(address[0]=='*'){
+			// A local address (i.e. address maps to a path on the local filesystem)
 			// Check the local path actually exists on the filesystem
-			if(exists(address)){
-				return canonical(address).generic_string();
+			auto path = address.substr(1);
+			if(exists(path)){
+				return canonical(path).generic_string();
 			}
-			else STENCILA_THROW(Exception,"Local address (leading '/', '.', or 'x:') does not correspond to a local filesystem path:\n  address: "+address);
+			else STENCILA_THROW(Exception,"Local address does not correspond to a local filesystem path:\n  address: "+address);
+		}
+		else if(address[0]=='!'){
+			// A temporary address (i.e. address maps to a path in the temporary directory)
+			auto path = temp_directory_path() / "stencila " / address.substr(1);
+			if(exists(path)){
+				return canonical(path).generic_string();
+			}
+			else STENCILA_THROW(Exception,"Temporary address does not correspond to a temporary directory path:\n  address: "+address);
 		}
 		else {
 			// Could be a local path or an address within a store
@@ -131,7 +143,7 @@ std::string Component::locate(const std::string& address){
 			} else {
 				// Not a local path so search in stores
 				for(std::string store : Host::stores()){
-					auto path = boost::filesystem::path(store)/address;
+					auto path = boost::filesystem::path(store) / address;
 					if(exists(path)) return path.generic_string();
 				}
 			}
