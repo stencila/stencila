@@ -281,12 +281,7 @@ void Server::http_(connection_hdl hdl) {
 			// So, if no trailing slash, then redirect...
 			if(path.back()!='/'){
 				status = http::status_code::moved_permanently;
-				// Use full URI for redirection because multiple leading slashes can get
-				// squashed up into one otherwise. Redirect to the request local address and port.
-				connection->append_header(
-					"Location", 
-					"http://" + local_address + ":" + local_port + "/" + path + "/"
-				);
+				connection->append_header("Location", "/" + path + "/");
 			}
 			else {
 				// Remove any trailing slashes in path to make it a
