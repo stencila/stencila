@@ -205,7 +205,7 @@ void Server::http_(connection_hdl hdl) {
 			std::string body = connection->get_request_body();
 			auto component = Component::create(type, body, "json");
 			status = http::status_code::created;
-			connection->append_header("Location",component->address());
+			connection->append_header("Location","/"+component->address()+"/");
 		}
 		else if(boost::regex_match(path,match,method_regex)){
 			// Component method request
