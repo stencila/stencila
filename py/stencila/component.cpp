@@ -15,6 +15,13 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_write_overloads,write,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Component_commit_overloads,commit,0,1)
 
 
+std::string Component_type(const std::string& address) {
+    return Component::type_to_string(
+        Component::type(address)
+    );
+}
+
+
 Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format) {
     // Because this may be called from another thread (e.g. the server thread)
     // it is necessary to obtain the Python GIL before calling Python code
@@ -51,6 +58,10 @@ std::vector<std::string> Component_grab(const std::string& address) {
 
 void def_Component(void){
     class_<Component,bases<>>("Component")
+
+        .def("type", Component_type).staticmethod("type")
+        
+        .def("grab", Component_grab).staticmethod("grab")
 
         .def("address",
             static_cast<std::string (Component::*)(void) const>(&Component::address)
@@ -110,6 +121,4 @@ void def_Component(void){
             )[return_self<>()]
         )
     ;
-
-    def("grab", Component_grab);
 }

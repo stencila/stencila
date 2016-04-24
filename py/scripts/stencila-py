@@ -22,7 +22,7 @@ def main():
         reset = '\x1b[0m' if terminal else ''
 
         # Banner
-        print green+'Stencila CLI for Python\n'+reset
+        print green+'Stencila '+stencila.version()+' CLI for Python\n'+reset
 
         # Get the command line arguments
         if len(sys.argv) >= 2:
@@ -35,20 +35,23 @@ def main():
             len(commands) == 1 and commands[0] == 'help'
         ):
             print 'Usage:'
-            print '  stencila-py help                                   '
+            print '  stencila-py help                                    '
             print '  stencila-py <address> <method>[:<arg>,<arg>,...] ...'
+            print '  stencila-py stencil|sheet <method>[:<arg>,<arg>,...] ...'
             print ''
             print 'Examples:'
             print '  stencila-py . render export:index.html'
-            print '  stencila-py core/themes/base compile'
+            print '  stencila-py sheet view ...'
             sys.exit()
 
         #Get target
         target = commands.pop(0)
-        if target in ('stencil',):
+        if target in ('stencil', 'sheet'):
             print 'Creating new       : '+magenta+target+reset
-            if target=='stencil':
+            if target == 'stencil':
                 component = stencila.Stencil()
+            elif target == 'sheet':
+                component = stencila.Sheet()
             component.path('')
         else:
             print 'Grabbing from      : '+magenta+target+reset
@@ -62,7 +65,7 @@ def main():
         # Iterate over methods, applying them to the component
         for command in commands:
             # If elipsis then sleep until Ctrl+C
-            if command=='...':
+            if command == '...':
                 print '\nSleeping (use Ctrl+C to exit)\n'
                 while True: time.sleep(0x7FFFFFFF)
             # Get method and arguments

@@ -1,6 +1,4 @@
-import stencila.extension as extension
-
-from extension import Component
+from stencila.extension import Component
 
 # List of component instances
 # already instantiated
@@ -50,7 +48,9 @@ def grab(address):
     '''
     global instances
     if address not in instances:
-        extension.grab(address)
+        # Because the entered address could be an alias e.g. `.`, or local
+        # filesystem path, use the resolved address as the key for `instances`
+        address = Component.grab(address)[0]
 
     # Component should now be instantiated and stored in `instances`
     # so return it from there

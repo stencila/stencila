@@ -266,7 +266,9 @@ instantiate <- function(type, content, format) {
 #' @export
 grab <- function(address){
 	if(!exists(address, envir=instances)) {
-		call_('Component_grab', address)
+		# Because the entered address could be an alias e.g. `.`, or local
+		# filesystem path, use the resolved address as the key for `instances`
+		address = call_('Component_grab', address)$address
 	}
 	# Component should now be instantiated and stored in `instances`
 	return(get(address, envir=instances))

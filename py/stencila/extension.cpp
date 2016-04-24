@@ -1,13 +1,12 @@
 #include <string>
 #include <vector>
 
+#include <stencila/version.hpp>
 #include <stencila/component.hpp>
 #include <stencila/exception.hpp>
 #include <stencila/network.hpp>
 
 #include "extension.hpp"
-
-Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format);
 
 // Define converters
 template<typename Type>
@@ -34,6 +33,12 @@ void def_Stencil(void);
 void def_Theme(void);
 void def_Sheet(void);
 
+Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format);
+
+std::string version_(void) {
+	return Stencila::version;
+}
+
 std::string serve(void){
 	return Server::startup().origin();
 }
@@ -58,5 +63,7 @@ BOOST_PYTHON_MODULE(extension){
     // Define the instantiation function
     Component::instantiate = Component_instantiate;
 
-    def("serve",serve);
+    def("version", version_);
+
+    def("serve", serve);
 }
