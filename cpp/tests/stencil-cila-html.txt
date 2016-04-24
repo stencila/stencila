@@ -184,6 +184,21 @@ Inlines with attributes, directives and flags <>
 --------------------------------------------------
 
 
+Autolink at end of para <>
+--------------------------------------------------
+A para https://github.com/stencila/stencila/issues
+
+Next para
+--------------------------------------------------
+<p>
+	A para <a href="https://github.com/stencila/stencila/issues">https://github.com/stencila/stencila/issues</a>
+</p>
+<p>
+	Next para
+</p>
+--------------------------------------------------
+
+
 Blocks with attributes, directives and flags <>
 --------------------------------------------------
 .class #id [attr=value]

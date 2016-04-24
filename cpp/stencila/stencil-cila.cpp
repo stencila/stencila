@@ -551,7 +551,7 @@ public:
 			tex_close("\\\\\\)"),
 
 			link("(\\[)([^\\]]*)(\\]\\()([^\\)]+)(\\))"),
-			autolink("\\bhttp(s)?://[^ ]+\\b"),
+			autolink("\\bhttp(s)?://[^ }\\n]+"),
 			autoemail("[a-zA-Z0-9_-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+"),
 
 			at_escaped("\\\\@"),
