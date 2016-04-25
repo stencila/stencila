@@ -1,5 +1,6 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include <stencila/stencil.hpp>
 #include <stencila/sheet.hpp>
@@ -887,8 +888,14 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 				if (cells.size() == 1) {
 					const auto& cell = cells[0];
 					if (cell.type == "image_file") {
-						auto url = "/" + sheet->address() + "/" + cell.value;
-						included.append("img", {{"src", url}});
+						// Copy the image across to the stencil's own out directory
+						// This is consistent with how other values are inserted into the 
+						// stencils HTML and means this stencil is self contained
+						boost::filesystem::create_directories(stencil.path(true)+"/out");
+						auto from = sheet->path() + "/" + cell.value;
+						auto to = stencil.path() + "/" + cell.value;
+						boost::filesystem::copy_file(from, to);
+						included.append("img", {{"src", cell.value}});
 					} else {
 						included.append("span", cell.value);
 					}
