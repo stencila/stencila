@@ -33,6 +33,21 @@ sudo docker ps
 sudo docker kill <id-of-instance>
 ```
 
+# Debugging
+
+If you want to see a bit more of what's going on inside the R session inside the Docker container you can start the container in interactive mode:
+
+```
+docker run --publish=7373:7373 --interactive --tty stencila/ubuntu-14.04-r-3.2 bash
+```
+
+Then inside the container, at the bash prompt, start a session in the background and tail the embedded server's logs:
+
+```
+stencila-session &
+tail -f /tmp/stencila/logs/server-*.log
+```
+
 # Building and testing
 
 You should build and test an image like this before pushing:
