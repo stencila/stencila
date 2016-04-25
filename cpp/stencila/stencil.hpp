@@ -191,7 +191,6 @@ public:
 	 * @}
 	 */
 
-
 	/**
 	 * @name Conversion to/from other formats
 	 *
@@ -203,6 +202,18 @@ public:
 	 * @{
 	 */
 	
+	/**
+	 * Get stencil as JSON
+	 */
+	std::string json(void) const;
+
+	/**
+	 * Set stencil using JSON
+	 * 
+	 * @param json A string of JSON
+	 */
+	Stencil& json(const std::string& json);
+
 	/**
 	 * Convert to/from a Microsoft Word document
 	 * 

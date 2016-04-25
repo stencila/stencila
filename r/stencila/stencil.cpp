@@ -37,6 +37,8 @@ STENCILA_R_SET(Stencil,html,std::string)
 
 STENCILA_R_GETSET(Stencil,cila,std::string)
 
+STENCILA_R_GETSET(Stencil,json,std::string)
+
 STENCILA_R_GET(Stencil,title)
 STENCILA_R_GET(Stencil,description)
 STENCILA_R_GET(Stencil,keywords)

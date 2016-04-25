@@ -235,6 +235,8 @@ instantiate <- function(type, content, format) {
 		component <- Stencil()
 		if (format == 'path') {
 			component$read(content)
+		} else if (format == 'json') {
+			component$json(content)
 		} else {
 			stop('Unhandled stencil format\n  format: ', format)
 		}

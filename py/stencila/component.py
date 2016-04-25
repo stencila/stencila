@@ -18,6 +18,8 @@ def instantiate(type, content, format):
         component = Stencil()
         if format == 'path':
             component.read(content)
+        elif format == 'json':
+            component.json(content)
         else:
             raise Exception('Unhandled stencil format\n  format: ' + format)
     elif type == 'sheet':

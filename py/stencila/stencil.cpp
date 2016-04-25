@@ -35,6 +35,14 @@ void def_Stencil(void){
             return_self<>()
         )
 
+        .def("json",
+            static_cast<std::string (Stencil::*)(void) const>(&Stencil::json)
+        )
+        .def("json",
+            static_cast<Stencil& (Stencil::*)(const std::string&)>(&Stencil::json),
+            return_self<>()
+        )
+
         .def("source",
             static_cast<std::string (Stencil::*)(void) const>(&Stencil::source)
         )

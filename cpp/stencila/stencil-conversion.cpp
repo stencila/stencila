@@ -3,10 +3,32 @@
 #include <boost/filesystem.hpp> 
 
 #include <stencila/stencil.hpp>
+#include <stencila/json.hpp>
 #include <stencila/string.hpp>
 #include <stencila/helpers.hpp>
 
 namespace Stencila {
+
+std::string Stencil::json(void) const {
+	Json::Document json;
+	json.append("format","cila");
+	json.append("content",cila());
+	return json.dump();
+}
+
+Stencil& Stencil::json(const std::string& string) {
+	Json::Document json(string);
+	auto format = json["format"].as<std::string>();
+	auto content = json["content"].as<std::string>();
+	if (format == "cila") {
+		cila(content);
+	} else if (format == "html") {
+		html(content);
+	} else {
+	    STENCILA_THROW(Exception, "Unknown content format for a stencil.\n  format:" + format);
+	}
+	return *this;
+}
 
 Stencil& Stencil::docx(const std::string& direction, const std::string& path) {
 	if(direction!="to") STENCILA_THROW(Exception,"Conversion direction not yet implemented.\n  direction: "+direction);
