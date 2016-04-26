@@ -249,7 +249,7 @@ var CilaHighlightRules = function() {
                 // `include` directive
                 token: ['keyword','text','variable.parameter.cila-address','text',
                         'keyword','text','storage.type.cila-selector'],
-                regex: /\b(include)(\s+)([\w\./]+)(?:(\s+)(select)(\s+)([\.\#\w\-]+))?/
+                regex: /\b(include)(\s+)([/\w\-]+)(?:(\s+)(select)(\s+)([\.\#\w\-\:]+))?/
             },{
                 // `set` directive
                 token: ['keyword','text','variable.parameter.cila-name','text',
