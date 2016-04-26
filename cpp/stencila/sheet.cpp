@@ -330,8 +330,8 @@ Sheet& Sheet::read(const std::string& content, const std::string& format) {
             }
         }
 
-        // Update dependency graph, names etc but don't execute
-        update(false);
+        // Update dependency graph and cell values
+        update();
 
         // If a context is attached then read that too
         if(spread_) {
