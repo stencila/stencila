@@ -24,7 +24,9 @@ Server::Server(void){
 	//   http://www.zaphoyd.com/websocketpp/manual/reference/logging
 	// for a full list
 	server_.clear_access_channels(websocketpp::log::alevel::all);
-	server_.set_access_channels(websocketpp::log::alevel::all);
+	server_.set_access_channels(websocketpp::log::alevel::http);
+	server_.set_access_channels(websocketpp::log::alevel::connect);
+	server_.set_access_channels(websocketpp::log::alevel::disconnect);
 	server_.clear_error_channels(websocketpp::log::elevel::all);
 	server_.set_error_channels(websocketpp::log::elevel::warn);
 	server_.set_error_channels(websocketpp::log::elevel::rerror);
