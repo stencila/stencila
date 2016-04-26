@@ -202,6 +202,8 @@ void Server::http_(connection_hdl hdl) {
 			content_type = "text/html";
 		}
 		else if(verb=="POST" and boost::regex_match(path,match,type_regex)){
+			// Create a new component
+			// e.g. POST /sheets
 			std::string type = match.str(1);
 			type.pop_back();
 			std::string body = connection->get_request_body();
@@ -211,6 +213,7 @@ void Server::http_(connection_hdl hdl) {
 		}
 		else if(boost::regex_match(path,match,method_regex)){
 			// Component method request
+			// e.g. /demo/sheets/simple-r@update
 			std::string address = match.str(1);
 			std::string method = match.str(2);
 			std::string body = connection->get_request_body();
@@ -228,10 +231,18 @@ void Server::http_(connection_hdl hdl) {
 			// Static file request
 			std::string filesystem_path = Component::locate(path);
 			if(filesystem_path.length()==0){
-				// 404: not found
-				status = http::status_code::not_found;
-				error = "session:unavailable";
-				content = "Not found\n path: "+path;
+				boost::regex get_web_regex("^get/web/.+$");
+				if (boost::regex_match(path,get_web_regex)) {
+					// If request is for files from the `web` module then
+					// since they are not available locally, temporarily redirect to stenci.la
+					status = http::status_code::found;
+					connection->append_header("Location","https://stenci.la/"+path);
+				} else {
+					// Otherwise, 404: not found
+					status = http::status_code::not_found;
+					error = "session:unavailable";
+					content = "Not found\n path: "+path;
+				}
 			} else {
 				// Check to see if this is a directory
 				if(boost::filesystem::is_directory(filesystem_path)){
