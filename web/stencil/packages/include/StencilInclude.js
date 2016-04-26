@@ -9,12 +9,13 @@ function StencilInclude() {
 DocumentNode.extend(StencilInclude, StencilNode);
 
 StencilInclude.static.name = "stencil-include";
-
+StencilInclude.static.directive = 'include';
 StencilInclude.static.defineSchema({
-  source: { type: "string", default: "" },
+  source:  { type: "string", default: "" },
+  error:   { type: "string", default: "" },
   content: { type: "string", default: "" }
 });
-
+StencilInclude.static.generatedProps = ['error', 'content'];
 StencilInclude.static.isBlock = true;
 
 module.exports = StencilInclude;
