@@ -30,7 +30,7 @@ def instantiate(type, content, format):
         elif format == 'json':
             component.read(content, 'json')
         else:
-            raise Exception('Unhandled stencil format\n  format: ' + format)
+            raise Exception('Unhandled sheet format\n  format: ' + format)
     else:
         raise Exception('Unhandled component type\n type:', type)
 
