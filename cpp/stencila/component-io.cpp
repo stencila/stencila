@@ -129,7 +129,7 @@ std::string Component::locate(const std::string& address){
 		}
 		else if(address[0]=='!'){
 			// A temporary address (i.e. address maps to a path in the temporary directory)
-			auto path = temp_directory_path() / "stencila " / address.substr(1);
+			auto path = temp_directory_path() / "stencila" / address.substr(1);
 			if(exists(path)){
 				return canonical(path).generic_string();
 			}
