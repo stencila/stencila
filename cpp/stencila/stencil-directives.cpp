@@ -894,7 +894,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 						boost::filesystem::create_directories(stencil.path(true)+"/out");
 						auto from = sheet->path() + "/" + cell.value;
 						auto to = stencil.path() + "/" + cell.value;
-						boost::filesystem::copy_file(from, to);
+						boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
 						included.append("img", {{"src", cell.value}});
 					} else {
 						included.append("span", cell.value);
