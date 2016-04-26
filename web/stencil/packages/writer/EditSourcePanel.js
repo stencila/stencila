@@ -49,8 +49,11 @@ EditSourcePanel.Prototype = function() {
   };
 
   this.initAce = function() {
+    var node = this.getNode();
+    var source = node.getSource();
+
     var editor = this.editor = window.ace.edit('ace_editor');
-    editor.getSession().setMode('ace/mode/r');
+    editor.getSession().setMode('ace/mode/'+source.lang);
     editor.setTheme("ace/theme/monokai");
 
     editor.setFontSize(14);
@@ -67,8 +70,7 @@ EditSourcePanel.Prototype = function() {
       indentedSoftWrap: true,
     });
 
-    var node = this.getNode();
-    editor.setValue(node.source,1);
+    editor.setValue(source.code,1);
 
     editor.on('change', function() {
       node.setSource(editor.getValue());
