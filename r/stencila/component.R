@@ -240,6 +240,7 @@ instantiate <- function(type, content, format) {
 		} else {
 			stop('Unhandled stencil format\n  format: ', format)
 		}
+		component$render()
 	} else if (type=='sheet') {
 		component <- Sheet()
 		if (format == 'path') {
