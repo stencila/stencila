@@ -900,9 +900,17 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 						included.append("span", cell.value);
 					}
 				} else if (cells.size() > 1) {
+					// Convert cell select into table.
+					// This code assumes that cells come in row order first
 					auto table = included.append("table");
+					int row = -1;
+					Node tr;
 					for (const auto& cell : cells) {
-						auto tr = table.append("tr");
+						auto index = Sheet::index(cell.id);
+						if (index[0]!=row) {
+							tr = table.append("tr");
+							row = index[0];
+						}
 						auto td = tr.append("td");
 						td.text(cell.value);
 					}
