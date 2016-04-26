@@ -41,6 +41,7 @@ if [ ! -e node_modules/ace-built.flag ]; then
 	cd ../..
 
 	echo "Copying Ace editor build"
+	rm -rf build/ace
 	cp -rf node_modules/ace/build/src-min build/ace
 
 	touch node_modules/ace-built.flag
