@@ -80,40 +80,29 @@ Html::Document Component_page_doc(const Type& component) {
 	 *
 	 * Links to CSS stylesheets are [placed in the head](http://developer.yahoo.com/performance/rules.html#css_top) 
 	 */
-	std::string css = "/get/web/" + type + ".min.css";
-	head.append("link",{
-		{"rel","stylesheet"},
-		{"type","text/css"},
-		{"href",css}
-	}," ");
 
 	// A fallback function to load the theme CSS from http://stenci.la if it is not served from the 
 	// host of this HTML (e.g. file:// or some non-Stencila-aware server)
-	std::string fallback = "(function(c){";
-	// Local variables
-	fallback += "var d=document,s,i,l;";
-	// Check to see if the theme stylesheet has been loaded
-	// The theme CSS will not necessarily be the first stylesheet and no all stylesheets have `href`
-	// The try block is to avoid the security error raised by Firefox for accessing cross domain stylesheets
-	// If this happens it means the theme CSS was not loaded from the current domain so do not return
-	// See http://stackoverflow.com/questions/21642277/security-error-the-operation-is-insecure-in-firefox-document-stylesheets
-	// Note use of `!=` instead of `<` to avoid escaping in generated HTML
-	fallback += "s=d.styleSheets;for(i=0;i!=s.length;i++){if((s[i].href||'').match(c)){try{if(s[i].cssRules.length)return;}catch(e){}}}";
-	// If still in the function the stylesheet must not have been loaded so create
-	// a new <link> to the theme CSS on http://stenci.la
-	fallback += "l=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href='https://stenci.la'+c;";
 	// To prevent flash of unstyled content (FOUC) while the new <link> is loading make the document class 'unready'
 	// and then remove this class when the style is loaded (there is a fallback to this fallback at end of document).
 	// See http://www.techrepublic.com/blog/web-designer/how-to-prevent-flash-of-unstyled-content-on-your-websites/
+	std::string fallback = "function css_fallback(c){";
+	fallback += "var d=document,l;";
+	fallback += "l=d.createElement('link');l.rel='stylesheet';l.type='text/css';l.href=c;";
 	fallback += "d.documentElement.className='unready';l.onload=function(){d.documentElement.className='';};";
-	// Append new link to head
 	fallback += "d.getElementsByTagName('head')[0].appendChild(l);";
-	// Call the function
-	fallback += "})('"+css+"');";
+	fallback += "};";
 	// Add CSS fallback Javascript
 	head.append("script",{{"type","application/javascript"}},fallback);
 	// Add CSS fallback style for the unready document
 	head.append("style",{{"type","text/css"}},".unready{display:none;}");
+
+	head.append("link",{
+		{"rel", "stylesheet"},
+		{"type", "text/css"},
+		{"href", "/get/web/" + type + ".min.css"},
+		{"onerror", "css_fallback('https://stenci.la/get/web/" + type + ".min.css')"}
+	}," ");
 
 	/**
 	 * Authors are inserted as `<a rel="author" ...>` elements within an `<address>` element.
