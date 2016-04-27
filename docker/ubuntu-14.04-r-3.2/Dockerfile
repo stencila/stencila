@@ -5,8 +5,9 @@ FROM ubuntu:14.04
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install R
-RUN apt-get install -y software-properties-common \
-  && add-apt-repository 'deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/' \
+RUN apt-get update \
+  && apt-get install -y software-properties-common \
+  && apt-add-repository 'deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/' \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9 \
   && apt-get update \
   && apt-get install -y \
