@@ -99,6 +99,40 @@ Sheet& Sheet::initialise(const std::string& from) {
     return *this;
 }
 
+std::string Sheet::content(const std::string& format) {
+    // A preliminary implementation which ignores the
+    // format argument and just outputs long form TSV
+    std::ostringstream stream;
+
+    // Local function for escaping output.
+    // Mostly as per http://dataprotocols.org/linear-tsv/
+    auto escape = [](const std::string& value) {
+        std::string copy = value;
+        boost::replace_all(copy, "\t", "\\t");
+        boost::replace_all(copy, "\n", "\\n");
+        boost::replace_all(copy, "\r", "\\r");
+        boost::replace_all(copy, "\\", "\\\\");
+        return copy;
+    };
+
+    // Write meta
+    for (auto iter : meta_) {
+        stream << "#" << iter.first << "\t" << escape(iter.second) << "\n";
+    }
+
+    // Write cell sources
+    for (const auto& iter : cells_) {
+        const auto& cell = iter.second;
+
+        stream << cell.id << "\t" << escape(cell.source());
+        auto display = cell.display_specified();
+        if (display.length()) stream << "\t" << display;
+        stream << "\n";
+    }
+
+    return stream.str();
+}
+
 Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     if(rows==0 or cols==0){
         // Generate some sensible defaults
@@ -467,8 +501,15 @@ Wamp::Message Sheet::message(const Wamp::Message& message) {
 }
 
 Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
+    if(name=="content"){
 
-    if(name=="write"){
+        Json::Document result = Json::Object();
+        result.append("format", "tsv");
+        result.append("content", content());
+        return result;
+
+    } 
+    else if(name=="write"){
 
         write();
         return "{}";
@@ -1083,11 +1124,6 @@ Sheet& Sheet::update(bool execute) {
 std::vector<std::string> Sheet::list(void) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
     return split(spread_->list(), ",");
-}
-
-std::string Sheet::content(const std::string& name) {
-    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
-    return spread_->get(name);
 }
 
 std::vector<std::string> Sheet::depends(const std::string& id) {

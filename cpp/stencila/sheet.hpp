@@ -143,6 +143,11 @@ class Sheet : public Component {
     Sheet& initialise(const std::string& from);
 
     /**
+     * Get this sheet's content
+     */
+    std::string content(const std::string& format = "tsv");
+
+    /**
      * Generate a HTML table for this sheet
      */
     Html::Fragment html_table(unsigned int rows = 0, unsigned int cols = 0) const;
@@ -717,13 +722,6 @@ class Sheet : public Component {
      * Variable names may include both ids (e.g. A1) and names (e.g. radius) 
      */
     std::vector<std::string> list(void);
-
-    /**
-     * Get the content (type+value) of a variable within the attached spread
-     * 
-     * @param  name Name of variable (id or name)
-     */
-    std::string content(const std::string& name);
 
     /**
      * Get a list of the cells that a cell depends upon (i.e. it's direct predecessors)
