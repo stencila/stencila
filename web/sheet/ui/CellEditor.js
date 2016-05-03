@@ -131,7 +131,7 @@ CellEditor.Prototype = function() {
 
   this._detectFunction = function() {
     var _availableFuncs = this._getAvailableFunctions();
-    var _function_re_str = '\\b(' + regexpEscape(_availableFuncs.join('|')) + ')[(]';
+    var _function_re_str = '\\b(' + _availableFuncs.map(regexpEscape).join('|') + ')[(]';
 
     setTimeout(function() {
       var el = this._getTextArea();
@@ -147,7 +147,6 @@ CellEditor.Prototype = function() {
         }
 
         if (lastMatch) {
-          // console.log('DETECTED FUNCTION', lastMatch[1], lastMatch);
           var funcName = lastMatch[1];
           var startPos = lastMatch.index+1;
           var argsPos = startPos + lastMatch[0].length;
@@ -156,7 +155,6 @@ CellEditor.Prototype = function() {
             funcName: funcName,
             paramIndex: currentArg.argIdx
           };
-          // console.log('DETECTED FUNCTION', newState);
           this.setState(newState);
         } else {
           // Check if any available function name matches partly so we can suggest it
