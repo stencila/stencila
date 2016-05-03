@@ -18,6 +18,8 @@ var HomeTool = require('../../../shared/tools/home/HomeTool');
 var ActivateTool = require('./ActivateTool');
 var RenderTool = require('./RenderTool');
 
+var StencilExecInsertTool = require('../exec/StencilExecInsertTool');
+var StencilTextInsertTool = require('../text/StencilTextInsertTool');
 var StencilIncludeInsertTool = require('../include/StencilIncludeInsertTool');
 
 function WriterTools() {
@@ -43,7 +45,9 @@ WriterTools.Prototype = function() {
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'}))
       ),
       $$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
-        $$(StencilIncludeInsertTool).append($$(Icon, {icon: 'fa-cog'}),' include')
+        $$(StencilExecInsertTool).append($$(Icon, {icon: 'fa-play'}),' execute'),
+        $$(StencilTextInsertTool).append($$(Icon, {icon: 'fa-font'}),' text'),
+        $$(StencilIncludeInsertTool).append($$(Icon, {icon: 'fa-arrow-circle-right'}),' include')
       ),
       $$(Toolbar.Group).addClass('float-right').append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
@@ -51,7 +55,7 @@ WriterTools.Prototype = function() {
         $$(LinkTool).append($$(Icon, {icon: 'fa-link'}))
       )
     );
-  }
+  };
 };
 Component.extend(WriterTools);
 module.exports = WriterTools;

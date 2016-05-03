@@ -63,6 +63,8 @@ var CONFIG = {
       require('substance/packages/superscript/SuperscriptCommand'),
       require('substance/packages/code/CodeCommand'),
 
+      require('./packages/exec/StencilExecInsertCommand'),
+      require('./packages/text/StencilTextInsertCommand'),
       require('./packages/include/StencilIncludeInsertCommand'),
     ],
     textTypes: [
