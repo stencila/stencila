@@ -20,6 +20,7 @@ var RenderTool = require('./RenderTool');
 
 var StencilExecInsertTool = require('../exec/StencilExecInsertTool');
 var StencilTextInsertTool = require('../text/StencilTextInsertTool');
+var StencilFigureInsertTool = require('../figure/StencilFigureInsertTool');
 var StencilIncludeInsertTool = require('../include/StencilIncludeInsertTool');
 
 function WriterTools() {
@@ -47,6 +48,7 @@ WriterTools.Prototype = function() {
       $$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
         $$(StencilExecInsertTool).append($$(Icon, {icon: 'fa-play'}),' execute'),
         $$(StencilTextInsertTool).append($$(Icon, {icon: 'fa-font'}),' text'),
+        $$(StencilFigureInsertTool).append($$(Icon, {icon: 'fa-bar-chart'}),' figure'),
         $$(StencilIncludeInsertTool).append($$(Icon, {icon: 'fa-arrow-circle-right'}),' include')
       ),
       $$(Toolbar.Group).addClass('float-right').append(

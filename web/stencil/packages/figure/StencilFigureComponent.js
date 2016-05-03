@@ -18,9 +18,15 @@ StencilFigureComponent.Prototype = function() {
 
   this.render = function() {
     var node = this.props.node;
+
     var el = $$('div')
       .addClass('stencil-figure')
       .attr("data-id", node.id);
+
+    var icon = $$(Icon, {icon: 'fa-bar-chart'});
+    icon.on('click', this.onEditSource)
+        .on('mousedown', this.onMouseDown);
+    el.append(icon);
 
     if(node.caption){
         var header = $$('div').addClass('header');
@@ -54,38 +60,8 @@ StencilFigureComponent.Prototype = function() {
         );
     }
 
-    if (this.isEditable()) {
-      var button = $$('button')
-          .append(
-            $$(Icon, {icon: 'fa-flash'})
-          )
-          // Bind click; we need to suppress mouse down, as otherwise
-          // Surface will receive events leading to updating the selection
-          .on('click', this.onEditSource)
-          .on('mousedown', this.onMouseDown);
-      el.append(
-        button
-      );
-      if (node.error) {
-        button.addClass('error');
-      }
-    }
-
-    if (this.revealSource()) {
-      el.append($$('div')
-        .addClass('source')
-        .append(
-          $$(TextProperty, {
-            tagName: 'div',
-            path: [node.id, "source"]
-          })
-        )
-        .ref('source')
-      );
-    }
-
     el.append($$('div')
-      .addClass('figure-content')
+      .addClass('content')
       .attr('contenteditable', false)
       .append(
         $$('img')
@@ -97,7 +73,13 @@ StencilFigureComponent.Prototype = function() {
           })
       )
       .ref('content')
+      .on('click', this.onEditSource)
+      .on('mousedown', this.onMouseDown)
     );
+
+    if (node.error) {
+      el.addClass('error');
+    }
 
     return el;
   };

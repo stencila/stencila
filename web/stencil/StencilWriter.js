@@ -65,6 +65,7 @@ var CONFIG = {
 
       require('./packages/exec/StencilExecInsertCommand'),
       require('./packages/text/StencilTextInsertCommand'),
+      require('./packages/figure/StencilFigureInsertCommand'),
       require('./packages/include/StencilIncludeInsertCommand'),
     ],
     textTypes: [
