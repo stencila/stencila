@@ -182,9 +182,14 @@ RemoteEngine.Prototype = function() {
       if (this.session.websocket) {
         ws = this.session.websocket;
       } else {
-        // If the Websocket URL is not specified then construct it from
-        // current location and address
-        ws = 'ws://' + this.host + ':' + this.port + '/' + this.address; 
+        // If the Websocket URL is not specified (local or docker hosted) then construct it from
+        // current location and address. But when using the devserver don't
+        // do that because it does not know how to proxy websockets - assume 7373 in that case
+        if (this.host==='localhost' && this.port==='5000') {
+          ws = 'ws://' + this.host + ':7373/' + this.address; 
+        } else {
+          ws = 'ws://' + this.host + ':' + this.port + '/' + this.address;
+        }
       }
       this.websocket = new WebsocketConnection(ws);
       // Begin pinging if not on localhost or localfile so that
