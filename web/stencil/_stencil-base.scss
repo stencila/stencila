@@ -17,6 +17,29 @@
 $source-node-color: hsl(100, 95%, 40%);
 $error-node-color: hsl(0, 95%, 40%);
 
+$stencil-node-ok-hue: 100;
+$stencil-node-ok-color: hsla($stencil-node-ok-hue, 90%, 50%, 0.7);
+
+$stencil-node-error-hue: 10;
+$stencil-node-error-color: hsla($stencil-node-error-hue, 90%, 50%, 0.7);
+
+.stencil-block-node {
+  position: relative;
+  width: 100%;
+  min-height: 1em;
+  margin-bottom: 20px;
+  border: 1px dashed $stencil-node-ok-color;
+  border-radius: 3px;
+  padding: 0.5em;
+
+  i.fa {
+    position: absolute;
+    top: 0;
+    left: -17px;
+    color: $stencil-node-ok-color;
+  }
+}
+
 @import './packages/blockquote/_blockquote';
 @import './packages/code/_code';
 @import './packages/codeblock/_codeblock';
