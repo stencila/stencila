@@ -1,0 +1,18 @@
+/**
+ * This and font files from https://google-webfonts-helper.herokuapp.com/fonts
+ * but with SVG support for legacy iOS removed because that file is quite large (~60k)
+ */
+
+/* source-code-pro-regular - latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/source-code-pro-v6-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local('Source Code Pro'), local('SourceCodePro-Regular'),
+       url('./fonts/source-code-pro-v6-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('./fonts/source-code-pro-v6-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('./fonts/source-code-pro-v6-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('./fonts/source-code-pro-v6-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       ;
+}
