@@ -109,6 +109,12 @@ function images(watch) {
       .pipe(gulp.dest('./build/images'));
 }
 
+function fonts(watch) {
+  gutil.log('Copying fonts');
+  gulp.src('./fonts/**/*')
+      .pipe(gulp.dest('./build/fonts'));
+}
+
 // Gulp tasks for the above
 
 gulp.task('styles', function() {
@@ -123,10 +129,15 @@ gulp.task('images', function() {
   return images();
 });
 
+gulp.task('fonts', function() {
+  return fonts();
+});
+
 gulp.task('build', function() {
   styles();
   scripts();
   images();
+  fonts();
 });
 
 gulp.task('watch', function() {
