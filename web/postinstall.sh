@@ -54,10 +54,10 @@ echo "Shrinking MathJax"
 cd node_modules/mathjax
 	rm -rf docs localization test unpacked .gitignore README-branch.txt README.md bower.json
 	rm -rf `find config -name '*.js' ! -name 'TeX-MML-AM_HTMLorMML.js'`
-	rm -rf fonts/HTML-CSS
 	rm -rf jax/output/SVG
-	rm -rf `find jax/output/HTML-CSS/fonts -mindepth 1 -maxdepth 1 ! -name 'STIX'`
+	rm -rf `find jax/output/HTML-CSS/fonts -mindepth 1 -maxdepth 1 ! -name 'STIX' ! -name 'TeX'`
 cd ../..
 
 echo "Copying MathJax build"
+rm -rf build/mathjax
 cp -rf node_modules/mathjax build/mathjax
