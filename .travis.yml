@@ -32,8 +32,8 @@ addons:
         packages:
             - python2.7
             - python2.7-dev
-            - r-base=3.2.5-1trusty0
-            - r-base-dev=3.2.5-1trusty0
+            - "r-base=3.2.5-1trusty0"
+            - "r-base-dev=3.2.5-1trusty0"
             - libxml2-dev
             - libcurl4-openssl-dev
             - flex
