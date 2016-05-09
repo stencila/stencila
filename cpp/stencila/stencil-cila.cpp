@@ -496,7 +496,7 @@ public:
 			// Directives with a single expression argument
 			directive_expr("\\b(call|with|text|if|elif|switch|case|react|click)\\s+([^\\s}]+)"),
 			// Directives with a single selector argument
-			directive_selector("\\b(refer)\\s+(([\\.\\#\\w\\-]+)|({[^}]+}))"),
+			directive_selector("\\b(refer)\\s+([^\\n}]+)"),
 			// `where` directive
 			directive_where("\\b(where)\\s+(js|r|py)\\b"),
 			// `attr` directive        1          2               3 4 5       6               7 8 9
