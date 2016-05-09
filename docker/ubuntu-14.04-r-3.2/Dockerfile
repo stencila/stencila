@@ -11,9 +11,9 @@ RUN apt-get update \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9 \
   && apt-get update \
   && apt-get install -y \
-  	r-base=3.2.3-1trusty0 \
-  	r-base-dev=3.2.3-1trusty0 \
-  	r-recommended=3.2.3-1trusty0 \
+  	r-base=3.2.5-1trusty0 \
+  	r-base-dev=3.2.5-1trusty0 \
+  	r-recommended=3.2.5-1trusty0 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
