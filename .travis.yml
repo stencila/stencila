@@ -32,8 +32,6 @@ addons:
         packages:
             - python2.7
             - python2.7-dev
-            - "r-base=3.2.5-1trusty0"
-            - "r-base-dev=3.2.5-1trusty0"
             - libxml2-dev
             - libcurl4-openssl-dev
             - flex
@@ -55,6 +53,7 @@ install:
     - pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv
 
     # R build dependencies
+    - sudo apt-get install r-base=3.2.* r-base-dev=3.2.*
     - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),repos='http://cran.us.r-project.org')"
 
     # Build delivery dependencies
