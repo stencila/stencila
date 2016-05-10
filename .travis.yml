@@ -97,7 +97,7 @@ after_success:
             make py-deliver
             make r-deliver
             if [[ "$DOCKER_BUILDS" == "true" ]]; then
-                docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
+                docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                 make docker-py-deliver
                 make docker-r-deliver
             fi
