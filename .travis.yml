@@ -1,3 +1,5 @@
+language: generic
+
 branches:
     only:
         - master
@@ -5,14 +7,23 @@ branches:
 
 matrix:
   include:
+
     - os: linux
       dist: trusty
       sudo: required
+      env:
+        - R_VERSION=3.2
+        - DOCKER_BUILDS=true
       services:
         - docker
-    #- os: osx
 
-language: generic
+    - os: linux
+      dist: trusty
+      sudo: required
+      env:
+        - R_VERSION=3.3
+
+    #- os: osx
 
 env:
     global:
@@ -47,14 +58,11 @@ install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
     # Install system level requirements
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then ./setup/travis-osx-install.sh; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./setup/travis-trusty-install.sh; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then ./setup/travis-osx-build.sh; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./setup/travis-trusty-build.sh; fi
 
     # Python build dependencies
     - pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv
-
-    # R build dependencies
-    - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),repos='http://cran.us.r-project.org')"
 
     # Build delivery dependencies
     - pip2.7 install --user travis --upgrade awscli
@@ -85,9 +93,19 @@ script:
     - make cpp-tests-quick -j2
     - make py-tests -j2
     - make r-tests -j2
+    - if [[ "DOCKER_BUILDS" == "true"]]; then make docker-build; fi
 
 after_success:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]]; then make travis-success; fi
+    - | 
+        if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
+            make py-deliver
+            make r-deliver
+            if [[ "DOCKER_BUILDS" == "true"]]; then
+                docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
+                docker pull stencila/ubuntu-14.04-py-2.7 && make docker-py-deliver
+                docker pull stencila/ubuntu-14.04-r-3.2 && make docker-r-deliver
+            fi
+        fi
 
 notifications:
     slack:

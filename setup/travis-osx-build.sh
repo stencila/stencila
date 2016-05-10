@@ -23,6 +23,7 @@ export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
 # R
 brew tap homebrew/science
 brew install R
+Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cran.us.r-project.org/')"
 
 # Lemon parser (Flex already installed)
 brew install lemon

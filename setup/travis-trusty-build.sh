@@ -1,12 +1,31 @@
 #!/usr/bin/env bash
 
-# Shell script for provisioning Ubuntu 14.04 in similar way as on Travis CI
-# Useful for trying things out instead of cycles of editing+pushing `../.travis.yml`
+# Shell script for provisioning a Travis CI Ubuntu 14.04 VM to build Stencila
+# Much of this could be integrated into `../.travis.yml` but having it in a
+# separate script reduces clutter there and allows for testing of this setup in Vagrant first
 
 export DEBIAN_FRONTEND=noninteractive
 
-# Currently just setting up Python to try and work out why that is failing here:
-#   https://travis-ci.org/stencila/stencila/builds/102494415
-sudo apt-get install python python-dev --force-yes --assume-yes --fix-broken
-curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python2.7
-sudo -H pip install setuptools wheel virtualenv --upgrade
+
+# Add additional package repositories
+sudo apt-get install -yq software-properties-common
+
+sudo add-apt-repository 'deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/' \
+  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+
+sudo apt-get update
+
+
+# Python
+
+
+# R
+
+: ${R_VERSION:=3.3}
+
+sudo apt-get install -yq --no-install-recommends --no-install-suggests \
+	r-base-core=$R_VERSION* \
+	r-base-dev=$R_VERSION* \
+	r-recommended=$R_VERSION* \
+
+Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cran.us.r-project.org/')"
