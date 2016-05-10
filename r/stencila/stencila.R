@@ -74,22 +74,32 @@ load_dll <- function(){
 	}
 }
 
+dll_path <- function(){
+	plat <- R.version$platform
+	if(grepl('linux',plat)) os <- 'linux' 
+	else if(grepl('mingw',plat)) os <- 'win'
+	else warning("Stencila DLL is not available for this operating system, sorry.")
+	
+	arch <- R.version$arch
+	r_version <- paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
+
+	# Use the full Stencila version from the VERSION file. Can't use the `version()`
+	# function because the DLL is not yet loaded
+	stencila_version <- readLines(file.path(system.file(package='stencila'),'bin','VERSION'))[1]
+
+	file.path(os,arch,r_version,paste0('stencila-',stencila_version,'.zip'))
+}
+
 #' Download the Stencila dynamically linked libary (DLL)
 #'
 #'   \code{ sudo Rscript -e 'require(stencila); stencila:::get_dll()' }
 #'
 get_dll <- function(){
-	# Determine URL
-	plat <- R.version$platform
-	if(grepl('linux',plat)) os <- 'linux' 
-	else if(grepl('mingw',plat)) os <- 'win'
-	else warning("Stencila DLL is not available for this operating system; sorry.")
-	arch <- R.version$arch
-	r_version <- paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
-	stencila_version <- version()
-	url <- paste0('http://get.stenci.la/r/dll/',file.path(os,arch,r_version),'/stencila-',stencila_version,'.zip')
-	# Determine path to put it
-	zip <- file.path(system.file(package='stencila'),'bin','stencila-dll.zip')
+	path <- dll_path()
+	# URL to get it from
+	url <- paste0('http://get.stenci.la/r/dll/',path)
+	# Path to put it to
+	zip <- file.path(system.file(package='stencila'),'bin',path)
 	# Download it!
 	message(" - downloading: ",url)
 	result <- tryCatch(download.file(url,zip),error=identity)
@@ -112,7 +122,7 @@ install_dll <- function(get=TRUE,load=TRUE){
 	if(have_dll()) return(invisible(TRUE))
 	message("Installing Stencila DLL")
 	# See if it is available locally in the `bin` dir
-	zip <- file.path(system.file(package='stencila'),'bin','stencila-dll.zip')
+	zip <- file.path(system.file(package='stencila'),'bin',dll_path())
 	message(" - looking for: ",zip)
 	# Get the DLL if it is not avialable locally
 	if(!file.exists(zip)){

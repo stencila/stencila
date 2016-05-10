@@ -980,9 +980,7 @@ R_REPO_TYPE := win.binary
 endif
 
 # Path to files delivered to http:://get.stenci.la
-R_UNIQUE_PATH := $(OS)/$(ARCH)/$(R_VERSION)/stencila-$(R_PACKAGE_VERSION)
-R_DLL_PATH := r/dll/$(R_UNIQUE_PATH).zip
-R_BUNDLE_PATH := r/bundle/$(R_UNIQUE_PATH).$(R_PACKAGE_EXT)
+R_DLL_PATH := $(OS)/$(ARCH)/$(R_VERSION)/stencila-$(VERSION).zip
 
 # Platform dependent variables
 R_CPPFLAGS := $(shell R CMD config --cppflags)
@@ -998,7 +996,6 @@ r-vars:
 	@echo R_PACKAGE_EXT : $(R_PACKAGE_EXT)
 	@echo R_DLL_EXT : $(R_DLL_EXT)
 	@echo R_DLL_PATH : $(R_DLL_PATH)
-	@echo R_BUNDLE_PATH : $(R_BUNDLE_PATH)
 	@echo R_REPO_DIR : $(R_REPO_DIR)
 	@echo R_REPO_TYPE : $(R_REPO_TYPE)
 	@echo R_CPPFLAGS : $(R_CPPFLAGS)
@@ -1036,9 +1033,9 @@ $(R_BUILD)/stencila-dll.zip: r-dll-check
 r-dll-zip: $(R_BUILD)/stencila-dll.zip
 
 # Copy over DLL zip file
-R_PACKAGE_DLL := $(R_BUILD)/stencila/inst/bin/stencila-dll.zip
+R_PACKAGE_DLL := $(R_BUILD)/stencila/inst/bin/$(R_DLL_PATH)
 $(R_PACKAGE_DLL): $(R_BUILD)/stencila-dll.zip
-	@mkdir -p $(R_BUILD)/stencila/inst/bin
+	mkdir -p $(dir $@)
 	cp $< $@
 
 # Copy over `stencila-r`
@@ -1073,6 +1070,8 @@ $(R_BUILD)/stencila: $(R_PACKAGE_DLL) $(R_PACKAGE_CLI) $(R_PACKAGE_RS) $(R_PACKA
 	# ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
 	sed -i 's!Version: .*$$!Version: $(R_PACKAGE_VERSION)!' $(R_PACKAGE_DESC)
 	sed -i 's!Date: .*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' $(R_PACKAGE_DESC)
+	# Create VERSION file
+	echo "$(VERSION)" > $(R_BUILD)/stencila/inst/bin/VERSION
 	# Run roxygen to generate Rd files and NAMESPACE file
 	cd $(R_BUILD) ;\
 		rm -f stencila/man/*.Rd ;\
@@ -1126,7 +1125,7 @@ r-deliver: $(R_BUILD)/stencila-dll.zip r-repo
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
-	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
+	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/r/dll/$(R_DLL_PATH)
 	aws s3 cp --recursive $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
 	$(call DELIVERY_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
 endif
