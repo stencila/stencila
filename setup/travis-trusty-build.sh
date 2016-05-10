@@ -45,4 +45,4 @@ sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 	r-base-core=$R_VERSION.* \
 	r-base-dev=$R_VERSION.*
 
-sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cloud.r-project.org/')"
+sudo Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','svUnit'),repo='http://cloud.r-project.org/')"
