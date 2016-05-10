@@ -10,8 +10,8 @@ export DEBIAN_FRONTEND=noninteractive
 # Add additional package repositories
 sudo apt-get install -yq software-properties-common
 
-sudo add-apt-repository 'deb http://cloud.r-project.org/bin/linux/ubuntu trusty/' \
-  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+sudo add-apt-repository 'deb http://cloud.r-project.org/bin/linux/ubuntu trusty/'
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
 sudo apt-get update
 
