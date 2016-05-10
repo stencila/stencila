@@ -22,7 +22,7 @@ matrix:
       dist: trusty
       sudo: required
       env:
-        - PY_VERSION=3.4
+        #- PY_VERSION=3.4
         - R_VERSION=3.3
 
     #- os: osx
