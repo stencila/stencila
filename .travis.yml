@@ -11,16 +11,18 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
-      env:
-        - R_VERSION=3.2
-        - DOCKER_BUILDS=true
       services:
         - docker
+      env:
+        - DOCKER_BUILDS=true
+        - PY_VERSION=2.7
+        - R_VERSION=3.2
 
     - os: linux
       dist: trusty
       sudo: required
       env:
+        - PY_VERSION=3.4
         - R_VERSION=3.3
 
     #- os: osx
@@ -38,11 +40,7 @@ env:
 addons:
     apt:
         # Install system level requirements for Linux
-        sources:
-            - r-packages-trusty
         packages:
-            - python2.7
-            - python2.7-dev
             - libxml2-dev
             - libcurl4-openssl-dev
             - flex
@@ -61,12 +59,6 @@ install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then ./setup/travis-osx-build.sh; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./setup/travis-trusty-build.sh; fi
 
-    # Python build dependencies
-    - pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv
-
-    # Build delivery dependencies
-    - pip2.7 install --user travis --upgrade awscli
-
 before_script:
     # Use this to prepare your build for testing
 
@@ -74,8 +66,8 @@ before_script:
     - openssl version
     - g++ --version
     - cmake --version
-    - python2.7 --version
-    - pip2.7 show pip setuptools wheel virtualenv
+    - python --version
+    - pip show pip setuptools wheel virtualenv
     - R --version
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker --version; fi
 

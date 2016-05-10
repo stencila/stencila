@@ -10,7 +10,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Add additional package repositories
 sudo apt-get install -yq software-properties-common
 
-sudo add-apt-repository 'deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/' \
+sudo add-apt-repository 'deb http://cloud.r-project.org/bin/linux/ubuntu trusty/' \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
 sudo apt-get update
@@ -18,13 +18,31 @@ sudo apt-get update
 
 # Python
 
+: ${PY_VERSION:=2.7}
+
+if [[ "$PY_VERSION" == "2.7" ]]; then
+	sudo apt-get install -yq --no-install-recommends --no-install-suggests \
+		python2.7=$PY_VERSION.* \
+		python2.7-dev=$PY_VERSION.* \
+		python-pip
+
+	pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv awscli
+else
+	sudo apt-get install -yq --no-install-recommends --no-install-suggests \
+		python3=$PY_VERSION.* \
+		python3-dev=$PY_VERSION.* \
+		python3-pip
+
+	pip3 install --user travis --upgrade pip setuptools wheel virtualenv awscli
+fi
+
 
 # R
 
 : ${R_VERSION:=3.3}
 
 sudo apt-get install -yq --no-install-recommends --no-install-suggests \
-	r-base-core=$R_VERSION* \
-	r-base-dev=$R_VERSION*
+	r-base-core=$R_VERSION.* \
+	r-base-dev=$R_VERSION.*
 
-sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cran.us.r-project.org/')"
+sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cloud.r-project.org/')"
