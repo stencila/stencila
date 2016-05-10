@@ -25,7 +25,6 @@ sudo apt-get update
 
 sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 	r-base-core=$R_VERSION* \
-	r-base-dev=$R_VERSION* \
-	r-recommended=$R_VERSION* \
+	r-base-dev=$R_VERSION*
 
-Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cran.us.r-project.org/')"
+sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit'),repo='http://cran.us.r-project.org/')"
