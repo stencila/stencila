@@ -379,6 +379,7 @@ cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
 $(BUILD)/cpp/requires: \
 	cpp-requires-boost \
+	cpp-requires-cmark \
 	cpp-requires-cpp-netlib \
 	cpp-requires-libgit2 \
 	cpp-requires-libzip \
