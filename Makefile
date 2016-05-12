@@ -11,6 +11,8 @@ ARCH := $(shell ./config.py arch)
 COMMIT :=  $(shell ./config.py commit)
 # Get Stencila version
 VERSION :=  $(shell ./config.py version)
+# Get count of commits since last tag
+COMMIT_COUNT := $(shell git rev-list  `git rev-list --tags --no-walk --max-count=1`..HEAD --count)
 # Is this a dirty build (i.e. changes since last commit)?
 DIRTY := $(findstring dirty,$(VERSION))
 
@@ -46,6 +48,7 @@ vars:
 	@echo OS: $(OS)
 	@echo ARCH: $(ARCH)
 	@echo COMMIT: $(COMMIT)
+	@echo COMMIT_COUNT: $(COMMIT_COUNT)
 	@echo VERSION: $(VERSION)
 	@echo DIRTY: $(DIRTY)
 	@echo BUILD: $(BUILD)
@@ -142,6 +145,33 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/boost/lib
 CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex boost_thread 
 
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
+
+
+CMARK_VERSION := 0.25.2
+
+$(RESOURCES)/cmark-$(CMARK_VERSION).tar.gz:
+	mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O $@ https://github.com/jgm/cmark/archive/$(CMARK_VERSION).tar.gz
+
+$(BUILD)/cpp/requires/cmark: $(RESOURCES)/cmark-$(CMARK_VERSION).tar.gz
+	mkdir -p $(BUILD)/cpp/requires
+	tar xzf $< -C $(BUILD)/cpp/requires
+	rm -rf $@
+	mv $(BUILD)/cpp/requires/cmark-$(CMARK_VERSION) $@
+	touch $@
+
+$(BUILD)/cpp/requires/cmark/build/src/libcmark.a: $(BUILD)/cpp/requires/cmark
+	mkdir -p $</build
+	cd $</build ;\
+		cmake .. -DCMAKE_C_FLAGS=-fPIC ;\
+		make ;\
+		rm src/libcmark.so* # Prevent linking to shared library
+
+cpp-requires-cmark: $(BUILD)/cpp/requires/cmark/build/src/libcmark.a
+
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/cmark/src -I$(BUILD)/cpp/requires/cmark/build/src
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/cmark/build/src
+CPP_REQUIRES_LIBS += cmark
 
 
 LIBGIT2_VERSION := 0.23.4
