@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <stencila/xml.hpp>
+
 struct cmark_node;
 
 namespace Stencila {
@@ -41,6 +43,13 @@ class Document {
    * Get content as a HTML string
    */
   std::string html(void) const;
+
+  /**
+   * Set content from a HTML document
+   * 
+   * @param  doc Document (actually an `Xml::Document` at present)
+   */
+  Document& html_doc(Xml::Document& doc);
 
   /**
    * Get content as a Latex string
