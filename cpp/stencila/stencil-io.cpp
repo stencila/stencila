@@ -59,13 +59,14 @@ Stencil& Stencil::import(const std::string& path){
 		STENCILA_THROW(Exception,"File <"+path+"> not found");
 	}
 	std::string ext = boost::filesystem::extension(path);
-	if(ext==".html" or ext==".cila"){
+	if(ext==".html" or ext==".cila" or ext==".rmd"){
 		std::ifstream file(path);
 		std::stringstream stream;
 		stream<<file.rdbuf();
 		std::string content = stream.str();
 		if(ext==".html") html(content); 
 		else if(ext==".cila") cila(content);
+		else if(ext==".rmd") rmd(content);
 	}
 	else STENCILA_THROW(Exception,"File extension <"+ext+"> not valid for a Stencil");
 	return *this;
@@ -99,7 +100,7 @@ Stencil& Stencil::read(const std::string& directory){
 	Component::read(directory);
 	// Search for a stencil.html and stencil.cila files
 	std::vector<fs::path> files;
-	for(std::string file : {"stencil.html","stencil.cila"}){
+	for(std::string file : {"stencil.html","stencil.cila","stencil.rmd"}){
 		fs::path filename = fs::path(path()) / file;
 		if(fs::exists(filename)) files.push_back(filename);
 	}
@@ -119,7 +120,8 @@ Stencil& Stencil::write(const std::string& directory){
 	// Set this stencil's path using `Component::write`
 	Component::write(directory);
 	// Write to the source file, default to HTML
-	if(source_=="stencil.cila") Component::write_to("stencil.cila",cila());
+	if(source_=="stencil.cila") Component::write_to("stencil.cila", cila());
+	else if(source_=="stencil.rmd") Component::write_to("stencil.rmd", rmd());
 	else Component::write_to("stencil.html",html());
 	return *this;
 }
