@@ -863,9 +863,12 @@ py-tests: $(wildcard py/tests/*.py) $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/
 	cp py/tests/*.py $(PY_BUILD)/testenv/tests
 	cd $(PY_BUILD)/testenv/tests ;\
 		. ../bin/activate ;\
-		(coverage run --source=stencila --module py.test)||(exit 1) ;\
-		sed -i "s!$(ROOT)/$(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages!$(ROOT)/py!g" .coverage ;\
-		coverage report
+		(py.test)||(exit 1)
+		# This coverage seems to break C++ converage reports on codecov so
+		# temporarily commented out
+		#(coverage run --source=stencila --module py.test)||(exit 1) ;\
+		#sed -i "s!$(ROOT)/$(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages!$(ROOT)/py!g" .coverage ;\
+		#coverage report
 
 py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/latest.txt
 	cd $(PY_BUILD) ;\
