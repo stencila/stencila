@@ -24,7 +24,7 @@ setup(
     author_email='nokome.bentley@stenci.la',
 
     url='http://stenci.la',
-    license='BSD 3-clause Licence',
+    license='GPLv3',
 
     packages=[
         'stencila'
