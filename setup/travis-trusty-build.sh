@@ -26,14 +26,14 @@ if [[ "$PY_VERSION" == "2.7" ]]; then
 		python2.7-dev=$PY_VERSION.* \
 		python-pip
 
-	pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv awscli
+	pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv coverage awscli
 else
 	sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 		python3=$PY_VERSION.* \
 		python3-dev=$PY_VERSION.* \
 		python3-pip
 
-	pip3 install --user travis --upgrade pip setuptools wheel virtualenv awscli
+	pip3 install --user travis --upgrade pip setuptools wheel virtualenv coverage awscli
 fi
 
 
