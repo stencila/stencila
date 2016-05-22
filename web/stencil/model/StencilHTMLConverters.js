@@ -20,6 +20,7 @@ module.exports = [
   require('../packages/figure/StencilFigureHTMLConverter'),
   require('../packages/include/StencilIncludeHTMLConverter'),
   require('../packages/math/StencilMathHTMLConverter'),
+  require('../packages/out/StencilOutHTMLConverter'),
   require('../packages/parameter/StencilParameterHTMLConverter'),
   require('../packages/summary/StencilSummaryHTMLConverter'),
   require('../packages/text/StencilTextHTMLConverter'),

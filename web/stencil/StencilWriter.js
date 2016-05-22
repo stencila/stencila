@@ -40,6 +40,7 @@ var CONFIG = {
 
       'stencil-parameter': require('./packages/parameter/StencilParameterComponent'),
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
+      'stencil-out': require('./packages/out/StencilOutComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
       'stencil-include': require('./packages/include/StencilIncludeComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),
