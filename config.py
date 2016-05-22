@@ -42,14 +42,22 @@ def version():
     return version
 
 
-# Get the operating system  e.g. linux, win
 def os():
-    os = shell('uname -o').lower()
-    if os == 'gnu/linux':
-        os = 'linux'
-    elif os == 'msys':
-        os = 'win'
-    return os
+    '''
+    Get the operating system  e.g. linux, win
+
+    The option `-o` is illegal on Mac OS X so use `-s` instead
+    See https://en.wikipedia.org/wiki/Uname
+    '''
+    os = shell('uname -s').lower()
+    if os == 'linux':
+        return 'linux'
+    elif os == 'darwin':
+        return 'osx'
+    elif 'mingw' in os or 'msys' in os:
+        return 'win'
+    else:
+        raise OSError('Unrecognised operating system name')
 
 
 # Get the machine architecture e.g i386, x86_64

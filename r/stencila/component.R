@@ -229,29 +229,49 @@ instances <- new.env()
 #' `Component::get` to create a new instance
 #'
 #' @export
-instantiate <- function(address, path, type) {
-	if (type=='Stencil') {
-		component <- Stencil(path)
-	} else if (type=='Sheet') {
-		component <- Sheet(path)
+instantiate <- function(type, content, format) {
+	type <- tolower(type)
+	if (type=='stencil') {
+		component <- Stencil()
+		if (format == 'path') {
+			component$read(content)
+		} else if (format == 'json') {
+			component$json(content)
+		} else {
+			stop('Unhandled stencil format\n  format: ', format)
+		}
+		component$render()
+	} else if (type=='sheet') {
+		component <- Sheet()
+		if (format == 'path') {
+			component$read(content)
+		} else if (format == 'json') {
+			component$read(content, 'json')
+		} else {
+			stop('Unhandled sheet format\n  format: ', format)
+		}
 	} else {
-		stop('Unhandled component type\n type:', type, '\n path:', path)
+		stop('Unhandled component type\n  type: ', type)
 	}
-	assign(address, component, envir=instances)
-	component$.pointer
+	
+	assign(component$address(), component, envir=instances)
+	
+	return(component$.pointer)
 }
 
 #' Grab a component
 #' 
 #' This is functionally the same as the C++ function
 #' `Component::get` but first checks for a locally instantiated
-#' instance of the component. Not called `get` or `load` because those clash 
+#' instance of the component. Not called `get` or `load` because those clash
 #' with functions in the base package
 #'
 #' @export
 grab <- function(address){
 	if(!exists(address, envir=instances)) {
-		call_('Component_grab', address)
+		# Because the entered address could be an alias e.g. `.`, or local
+		# filesystem path, use the resolved address as the key for `instances`
+		address = call_('Component_grab', address)$address
 	}
 	# Component should now be instantiated and stored in `instances`
 	return(get(address, envir=instances))

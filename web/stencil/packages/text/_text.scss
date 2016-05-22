@@ -1,6 +1,7 @@
-// Match for writer and reader markup
 .stencil-text {
-  color: $source-node-color;
+  background: hsla($stencil-node-ok-hue, 90%, 50%, 0.5);
+  border-bottom: 1px dashed hsl($stencil-node-ok-hue, 50%, 50%);
+  color: hsl($stencil-node-ok-hue, 50%, 50%);
   cursor: pointer;
 
   &.highlighted {
@@ -8,17 +9,8 @@
   }
 
   &.error {
-    color: $error-node-color;
-  }
-}
-
-.se-stencil-text {
-  .stencil-text-source {
-    background: #2B303B;
-    color: #fff;
-    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 13px;
-    padding: 1px;
-    vertical-align: middle;
+    background: hsla($stencil-node-error-hue, 90%, 50%, 0.5);
+    border-bottom: 1px dashed hsl($stencil-node-error-hue, 50%, 50%);
+    color: hsl($stencil-node-error-hue, 50%, 50%);
   }
 }

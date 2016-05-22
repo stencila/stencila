@@ -25,9 +25,24 @@ public:
 	Server(void);
 
 	/**
-	 * Get the URL for this `Server`
+	 * Get the hostname for this `Server`
 	 */
-	std::string url(void) const;
+	std::string hostname(void) const;
+
+	/**
+	 * Get the port for this `Server`
+	 */
+	std::string port(void) const;
+
+	/**
+	 * Get the origin (scheme+hostname+port) for this `Server`
+	 */
+	std::string origin(const std::string& scheme = "http") const;
+
+	/**
+	 * Get a URL for a scheme and path
+	 */
+	std::string url(const std::string& scheme, const std::string& path) const;
 
 	/**
 	 * Start the server
@@ -42,7 +57,13 @@ public:
 	/**
 	 * Start server instance
 	 */
-	static std::string startup(void);
+	static const Server& startup(void);
+
+
+	/**
+	 * Get the current server instance
+	 */
+	static const Server& instance(void);
 
 	/**
 	 * Stop server instance
@@ -55,6 +76,11 @@ private:
 	 * Implementation of server
 	 */
 	server server_;
+
+	/**
+	 * Hostname for the server
+	 */
+	std::string hostname_ = "localhost";
 	
 	/**
 	 * Port number for the server

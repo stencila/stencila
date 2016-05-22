@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -23,21 +24,26 @@ namespace Stencila {
 class Component {
 public:
 
-	Component(void):
-		meta_(nullptr){
-	}
+	/**
+	 * @name Construction and destruction
+	 *
+	 * Methods implemented in `component.cpp`
+	 * 
+	 * @{
+	 */
 
-	Component(const Component& other):
-		meta_(nullptr){
-	}
+	Component(void);
 
-	Component(const std::string& address){
-		initialise(address);
-	}
+	Component(const Component& other);
 
-	~Component(void){
-		if(meta_) delete meta_;
-	}
+	Component(const std::string& address);
+
+	~Component(void);
+
+	/**
+	 * @}
+	 */
+	
 
 	/**
 	 * @name Input and output
@@ -124,18 +130,6 @@ public:
 	std::vector<File> list(const std::string& subdirectory="");
 
 	/**
-	 * Destroy the component's entire working directory
-	 */
-	Component& destroy(void);
-
-	/**
-	 * Create a file within the component's working directory
-	 * 
-	 * @param path Filesystem path within the working directory
-	 */
-	Component& create(const std::string& path, const std::string& content="\n");
-
-	/**
 	 * Read a file withing the component's working directory
 	 * 
 	 * @param  path    Filesystem path within the working directory
@@ -153,7 +147,7 @@ public:
 	/**
 	 * Delete a file within the component's working directory
 	 */
-	Component& delete_(const std::string& path);
+	Component& delete_file(const std::string& path);
 
 	/**
 	 * Read the component from a directory
@@ -183,6 +177,11 @@ public:
 	 * this comonent's path
 	 */
 	Component& vacuum(void);
+
+	/**
+	 * Destroy the component's entire working directory
+	 */
+	Component& destroy(void);
 
 	/**
 	 * @}
@@ -404,6 +403,16 @@ public:
 	static const unsigned int types_ = 10;
 
 	/**
+	 * Convert a type to it's name string
+	 */
+	static std::string type_to_string(const Type& type);
+
+	/**
+	 * Convert a type name string to a type
+	 */
+	static Type type_from_string(std::string string);
+
+	/**
 	 * Structure representing a `Component` instance currently
 	 * in memory.
 	 */
@@ -421,7 +430,7 @@ public:
 		}
 
 		std::string type_name(void) const {
-			return Component::type_name(type_);
+			return Component::type_to_string(type_);
 		}
 
 		Component* pointer(void) const {
@@ -530,13 +539,18 @@ public:
 	static void classes(void);
 
 	/**
+	 * Construct a component from string content
+	 */
+	static Component* create(const std::string& type, const std::string& content, const std::string& format = "json");
+
+	/**
 	 * Instantiate a component
 	 *
 	 * A "callback" to a function in the host environment
 	 * e.g. R, Python which instantiates a component as necessary
 	 * for that environment (e.g. attaching a context)
 	 */
-	typedef Component* (*Instantiate) (const std::string& address, const std::string& path, const std::string& type);
+	typedef Component* (*Instantiate) (const std::string& type, const std::string& content, const std::string& format);
 	static Instantiate instantiate;
 
 	/**
@@ -577,13 +591,6 @@ public:
 	 * @param  path Filesystem path to component
 	 */
 	static Type type(const std::string& path);
-
-	/**
-	 * Get the name of the component type
-	 * 
-	 * @param  type
-	 */
-	static std::string type_name(const Type& type);
 
 	/**
 	 * Get a component with a given address, and optionally, a version requirement
@@ -840,25 +847,25 @@ template<class Type>
 Html::Document Component_page_doc(const Type& component);
 
 
-template<class Class>
+template<class Class_>
 std::string Component::page_handler(const Component::Instance& instance) {
-	return instance.as<const Class*>()->page();
+	return instance.as<const Class_*>()->page();
 }
 
-template<class Class>
+template<class Class_>
 std::string Component::request_handler(const Component::Instance& instance, const std::string& verb, const std::string& method, const std::string& body) {
-	return instance.as<Class*>()->request(verb, method, body);
+	return instance.as<Class_*>()->request(verb, method, body);
 }
 
-template<class Class>
+template<class Class_>
 Wamp::Message Component::message_handler(const Component::Instance& instance, const Wamp::Message& message) {
-	return instance.as<Class*>()->message(message);
+	return instance.as<Class_*>()->message(message);
 }
 
 
-template<class Class>
+template<class Class_>
 Component* Component::open(Component::Type type, const std::string& path) {
-	Class* component = new Class;
+	Class_* component = new Class_;
 	component->path(path);
 	if (Host::env_var("STENCILA_SESSION").length()) {
 		component->restore();

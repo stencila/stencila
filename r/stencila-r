@@ -77,13 +77,12 @@ if(options$help){
     out(green)
     out('Usage:\n')
     out('  stencila-r -[options]                             \n')
-    out('  stencila-r new <type> <method>[:<arg>,<arg>,...]  \n')
+    out('  stencila-r <type> <method>[:<arg>,<arg>,...]  \n')
     out('  stencila-r <address> <method>[:<arg>,<arg>,...] ...\n')
     out('\n')
     out('Examples:\n')
-    out('  stencila-r new stencil view ...\n')
+    out('  stencila-r stencil view ...\n')
     out('  stencila-r . update write\n')
-    out('  stencila-r core/themes/base compile\n')
     quit('no')
 }
 
@@ -91,21 +90,16 @@ if(options$help){
 target <- commands[1]
 if(target=="-"){
     component <- NULL
-} else if(target=="new"){
-    if(length(commands)<2){
-        error('Must supply a component type (i.e. stencil, sheet etc) e.g.\n  stencila-r new sheet view ...\n')
-    }
-    type <- commands[2]
-    commands <- commands[-2]
-    out('Creating new       : ',magenta,type,reset,'\n',sep='')
-    if(type=='stencil'){
+} else if(target %in% c('stencil','sheet')){
+    out('Creating new       : ',magenta,target,reset,'\n',sep='')
+    if(target=='stencil'){
         component <- Stencil()
     }
-    else if(type=='sheet'){
+    else if(target=='sheet'){
         component <- Sheet()
     }
     else {
-        error('Unknown component type:',type)
+        error('Unknown component type:',target)
     }
     component$path('') # Ensure component is given a path
 } else {
@@ -147,10 +141,10 @@ for(command in commands){
         # Construct call
         if(!is.null(args_formatted)) call <- paste0(method,'(',args_formatted,')')
         else call <- paste0(method,'()')
-        if(!is.null(component)) call <- paste0('component$',call)
         # Execute call
-        out('Running code       : ',blue,call,reset,'\n',sep='')
+        out('Running method     : ',blue,call,reset,'\n',sep='')
         out(yellow)
+        if(!is.null(component)) call <- paste0('component$',call)
         result <- eval(parse(text = call))
         # Only show if not null return and not the component
         if(!is.null(result) && !inherits(result,class(component)[1])) show(result)

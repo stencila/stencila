@@ -4,14 +4,16 @@ var $ = require('substance/util/jquery');
 var WebsocketConnection = require('./WebsocketConnection');
 
 var RemoteEngine = function() {
-
   var location = window.location;
+  
+  // Protocol
   this.protocol = location.protocol;
 
-  if (location.hostname==='0.0.0.0' || location.hostname==='127.0.0.1') this.host = 'localhost';
-  else if (this.protocol==='file:') this.host = 'localfile';
+  // Host
+  if (this.protocol==='file:') this.host = 'localfile';
   else this.host = location.hostname;
 
+  // Port
   this.port = location.port;
 
   // Address
@@ -78,11 +80,11 @@ RemoteEngine.Prototype = function() {
     } else {
       this._call('store', [], cb);
     }
-  }
+  };
 
   this.commit = function(message, cb) {
     this._call('commit',[message], cb);
-  }
+  };
 
   /**
    * Shutdown the remote component instance
@@ -104,7 +106,7 @@ RemoteEngine.Prototype = function() {
         });
       }
     }
-  }
+  };
 
   // Private, local, methods
 
@@ -124,7 +126,7 @@ RemoteEngine.Prototype = function() {
         }
       });
     }
-  }
+  };
 
   this._request = function(method, endpoint, data, cb) {
     var self = this;
@@ -176,9 +178,20 @@ RemoteEngine.Prototype = function() {
       this.active = true;
       // Open a websocket connection to be used for
       // certain remote method calls
+      var ws;
       if (this.session.websocket) {
-        this.websocket = new WebsocketConnection(this.session.websocket);
+        ws = this.session.websocket;
+      } else {
+        // If the Websocket URL is not specified (local or docker hosted) then construct it from
+        // current location and address. But when using the devserver don't
+        // do that because it does not know how to proxy websockets - assume 7373 in that case
+        if (this.host==='localhost' && this.port==='5000') {
+          ws = 'ws://' + this.host + ':7373/' + this.address; 
+        } else {
+          ws = 'ws://' + this.host + ':' + this.port + '/' + this.address;
+        }
       }
+      this.websocket = new WebsocketConnection(ws);
       // Begin pinging if not on localhost or localfile so that
       // session is kept alive
       if(!this.session.local) {

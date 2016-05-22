@@ -24,7 +24,9 @@ Server::Server(void){
 	//   http://www.zaphoyd.com/websocketpp/manual/reference/logging
 	// for a full list
 	server_.clear_access_channels(websocketpp::log::alevel::all);
-	server_.set_access_channels(websocketpp::log::alevel::all);
+	server_.set_access_channels(websocketpp::log::alevel::http);
+	server_.set_access_channels(websocketpp::log::alevel::connect);
+	server_.set_access_channels(websocketpp::log::alevel::disconnect);
 	server_.clear_error_channels(websocketpp::log::elevel::all);
 	server_.set_error_channels(websocketpp::log::elevel::warn);
 	server_.set_error_channels(websocketpp::log::elevel::rerror);
@@ -45,15 +47,42 @@ Server::Server(void){
 	restarts_ = 0;
 }
 
-std::string Server::url(void) const {
-	return "http://localhost:"+string(port_);
+std::string Server::hostname(void) const {
+	return hostname_;
+}
+
+std::string Server::port(void) const {
+	return string(port_);
+}
+
+std::string Server::origin(const std::string& scheme) const {
+	return scheme + "://" + hostname() + ":" + port();
+}
+
+std::string Server::url(const std::string& scheme, const std::string& path) const {
+	return origin(scheme) + "/" + path;
 }
 
 void Server::start(void){
 	try {
 		server_.listen(port_);
 		server_.start_accept();
+
+		#if 0
+		// Currently unused code for getting port number if ever this is automatically assigned
+		// and not fixed at 7373 as it is currently
+		// Note that local address can't be obtained here. 
+		// See https://github.com/zaphoyd/websocketpp/issues/543#issuecomment-208283011
+		websocketpp::lib::asio::error_code error;
+		auto endpoint = server_.get_local_endpoint(error);
+		if (error) {
+			STENCILA_THROW(Exception, "Error getting local endpoint" + string(error));
+		}
+		port_ = string(endpoint.port());
+		#endif
+
 		server_.run();
+		
 	} catch (std::exception const & e) {
         error_log_ << "[XXXX-XX-XX XX:XX:XX] [exception]" << e.what() << std::endl;
         restart_();
@@ -70,14 +99,21 @@ void Server::stop(void){
 Server* server_instance_ = 0;
 boost::thread* server_thread_ = 0;
 
-std::string Server::startup(void) {
+const Server& Server::startup(void) {
 	if(not server_instance_){
 		server_instance_ = new Server();
 		server_thread_ = new boost::thread([](){
 			server_instance_->start();
 		});
 	}
-	return server_instance_->url();
+	return *server_instance_;
+}
+
+const Server& Server::instance(void) {
+	if (not server_instance_) {
+		STENCILA_THROW(Exception, "Server not yet started");
+	}
+	return *server_instance_;
 }
 
 void Server::shutdown(void) {
@@ -133,8 +169,14 @@ void Server::http_(connection_hdl hdl) {
 	// Get request verb (i.e. method)
 	auto request = connection->get_request();
 	std::string verb = request.get_method();
-	// Get the remote address
+	// Get the remote and local addresses
 	std::string remote = connection->get_remote_endpoint();
+	auto local_endpoint = connection->get_raw_socket().local_endpoint();
+	std::string local_address = local_endpoint.address().to_string();
+	// Convert IP6 to IP4. boost::asio:ip::address has a `to_v4` method
+	// but I found that it hung, so do the conversion on the string.
+	boost::replace_first(local_address, "::ffff:", "");
+	std::string local_port = string(local_endpoint.port());
 	// Response variables
 	http::status_code::value status = http::status_code::ok;
 	std::string error;
@@ -143,6 +185,7 @@ void Server::http_(connection_hdl hdl) {
 	try {
 		// Routing
 		boost::smatch match;
+		boost::regex type_regex("^(stencils|sheets)$");
 		boost::regex method_regex("^(.+?)@([a-z0-9]+)$");
 		boost::regex file_regex("^(.+?)\\.([a-zA-Z0-9]+)$");
 		if(verb=="OPTIONS"){
@@ -158,8 +201,19 @@ void Server::http_(connection_hdl hdl) {
 			content = Component::extras();
 			content_type = "text/html";
 		}
+		else if(verb=="POST" and boost::regex_match(path,match,type_regex)){
+			// Create a new component
+			// e.g. POST /sheets
+			std::string type = match.str(1);
+			type.pop_back();
+			std::string body = connection->get_request_body();
+			auto component = Component::create(type, body, "json");
+			status = http::status_code::created;
+			connection->append_header("Location","/"+component->address()+"/");
+		}
 		else if(boost::regex_match(path,match,method_regex)){
 			// Component method request
+			// e.g. /demo/sheets/simple-r@update
 			std::string address = match.str(1);
 			std::string method = match.str(2);
 			std::string body = connection->get_request_body();
@@ -177,10 +231,18 @@ void Server::http_(connection_hdl hdl) {
 			// Static file request
 			std::string filesystem_path = Component::locate(path);
 			if(filesystem_path.length()==0){
-				// 404: not found
-				status = http::status_code::not_found;
-				error = "session:unavailable";
-				content = "Not found\n path: "+path;
+				boost::regex get_web_regex("^get/web/.+$");
+				if (boost::regex_match(path,get_web_regex)) {
+					// If request is for files from the `web` module then
+					// since they are not available locally, temporarily redirect to stenci.la
+					status = http::status_code::found;
+					connection->append_header("Location","https://stenci.la/"+path);
+				} else {
+					// Otherwise, 404: not found
+					status = http::status_code::not_found;
+					error = "session:unavailable";
+					content = "Not found\n path: "+path;
+				}
 			} else {
 				// Check to see if this is a directory
 				if(boost::filesystem::is_directory(filesystem_path)){
@@ -232,10 +294,7 @@ void Server::http_(connection_hdl hdl) {
 			// So, if no trailing slash, then redirect...
 			if(path.back()!='/'){
 				status = http::status_code::moved_permanently;
-				// Use full URI for redirection because multiple leading slashes can get
-				// squashed up otherwise
-				auto uri = url()+"/"+path+"/";
-				connection->append_header("Location",uri);
+				connection->append_header("Location", "/" + path + "/");
 			}
 			else {
 				// Remove any trailing slashes in path to make it a

@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(getting){
 
 	auto r2 = get(
 		"https://httpbin.org/get",
-		{},
+		std::map<std::string,std::string>{},
 		{{"Header","Value"}}
 	);
 	BOOST_CHECK_EQUAL(r2.body(),"");

@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_SUITE(component_quick)
 
 using namespace Stencila;
 
-boost::regex temp_path_pattern("/tmp/stencila/[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$");
+boost::regex temp_path_pattern("/tmp/stencila/[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}$");
 
 /**
  * @class Component
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(destroy_empty){
  */
 BOOST_AUTO_TEST_CASE(destroy_transient){
 	Component c;
-	c.create("foo.txt");
+	c.write_to("foo.txt","");
 	std::string path = c.path();
 	c.destroy();
 	BOOST_CHECK(not boost::filesystem::exists(path));

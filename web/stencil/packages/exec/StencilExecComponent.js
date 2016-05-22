@@ -16,15 +16,11 @@ function StencilExecComponent() {
 StencilExecComponent.Prototype = function() {
   extend(this, StencilSourceComponent.prototype);
 
-  this.getClassNames = function() {
-    return "stencil-exec";
-  };
-
   this.render = function() {
     var node = this.props.node;
 
     var el = $$('div')
-      .addClass(this.getClassNames())
+      .addClass('stencil-exec')
       .attr("data-id", node.id)
       .attr("contentEditable", false);
     
@@ -38,37 +34,15 @@ StencilExecComponent.Prototype = function() {
           .text(node.source)
       );
     } else {
+              
+      el.append($$(Icon, {icon: 'fa-play'}))
+      // Bind click; we need to suppress mouse down, as otherwise
+      // Surface will receive events leading to updating the selection
+      .on('click', this.onEditSource)
+      .on('mousedown', this.onMouseDown);
 
-      if (this.isEditable()) {
-        var button = $$('button')
-            .append(
-              $$(Icon, {icon: 'fa-flash'})
-            )
-            // Bind click; we need to suppress mouse down, as otherwise
-            // Surface will receive events leading to updating the selection
-            .on('click', this.onEditSource)
-            .on('mousedown', this.onMouseDown);
-        el.append(
-          button
-        );
-        if (this.props.node.error) {
-          button.addClass('error');
-        }
-      }
-
-      if (this.revealSource()) {
-        el.append(
-          $$(TextProperty, {
-            tagName: 'div',
-            path: [ this.props.node.id, "source"]
-          })
-          .addClass('se-exec-source')
-          .ref('source')
-        );
-      }
-
-      if (this.props.node.error) {
-        el.addClass('sm-error');
+      if (node.error) {
+        el.addClass('stencil-node-error');
       }
     }
    

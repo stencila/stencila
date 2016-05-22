@@ -191,7 +191,6 @@ public:
 	 * @}
 	 */
 
-
 	/**
 	 * @name Conversion to/from other formats
 	 *
@@ -203,6 +202,18 @@ public:
 	 * @{
 	 */
 	
+	/**
+	 * Get stencil as JSON
+	 */
+	std::string json(void) const;
+
+	/**
+	 * Set stencil using JSON
+	 * 
+	 * @param json A string of JSON
+	 */
+	Stencil& json(const std::string& json);
+
 	/**
 	 * Convert to/from a Microsoft Word document
 	 * 
@@ -322,15 +333,20 @@ public:
 	 * Get this stencil's mode
 	 */
 	std::string mode(void) const;
+
+	/**
+	 * Get the preferred execution environment for this stencil
+	 */
+	std::string environ(void) const;
 	
 	/**
-	 * Get the list of rendering contexts that are compatible with this stencil.
+	 * Get the list of execution environments that are compatible with this stencil.
 	 *
-	 * Context compatability will be determined by the expressions used in 
-	 * stencil directives like `data-with`,`data-text` etc. Some expressions
-	 * will be able to be used in multiple contexts.
+	 * Environment compatability will be determined by the expressions used in 
+	 * stencil directives such as `data-with`,`data-text` etc. Some expressions
+	 * will be able to be used in multiple environments.
 	 */
-	std::vector<std::string> contexts(void) const;
+	std::vector<std::string> environs(void) const;
 
 	/**
 	 * Get this stencil's theme

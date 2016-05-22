@@ -174,21 +174,7 @@ window.MathJax = {
 window.Stencila.load('/get/web/mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML', function() {
   window.Stencila.load('/get/web/ace/ace.js', function() {
     $(function() {
-      if(window.location.host.match('stenci.la|localhost')){
-        if(window.location.host.match('localhost')){
-          console.info('If necessary, use 127.0.0.1:'+window.location.port+' to prevent Stencil UI loading');
-        }
-        AppLaunch();
-      } else {
-        // At present, some stencils hosted elsewhere (e.g. github.io and file://)
-        // may not have content (e.g. sections, tables) that can yet be rendered by the full editor/viewer UI
-        console.info('Not loading Stencil UI. Use stenci.la or localhost:'+window.location.port+' if you would like it.');
-        // Override some of the integration styles and do MathJax rendering only
-        $('html,body').css({
-          overflow: 'auto'
-        });
-        MathJaxAdd();
-      }
+      AppLaunch();
     });
   });
 });

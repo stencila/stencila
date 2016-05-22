@@ -14,10 +14,13 @@ module.exports = [
   require('substance/packages/table/TableHTMLConverter'),
 
   // Stencil-specific converters
+  require('../packages/codeblock/StencilCodeblockHTMLConverter'),
   require('../packages/equation/StencilEquationHTMLConverter'),
   require('../packages/exec/StencilExecHTMLConverter'),
   require('../packages/figure/StencilFigureHTMLConverter'),
+  require('../packages/include/StencilIncludeHTMLConverter'),
   require('../packages/math/StencilMathHTMLConverter'),
+  require('../packages/out/StencilOutHTMLConverter'),
   require('../packages/parameter/StencilParameterHTMLConverter'),
   require('../packages/summary/StencilSummaryHTMLConverter'),
   require('../packages/text/StencilTextHTMLConverter'),

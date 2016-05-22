@@ -1,19 +1,31 @@
+language: generic
+
 branches:
     only:
         - master
         - develop
 
-# Specify an Ubuntu Trusty VM
-sudo: required
-dist: trusty
+matrix:
+  include:
 
-language: cpp
+    - os: linux
+      dist: trusty
+      sudo: required
+      services:
+        - docker
+      env:
+        - DOCKER_BUILDS=true
+        - PY_VERSION=2.7
+        - R_VERSION=3.2
 
-compiler:
-    - gcc
+    - os: linux
+      dist: trusty
+      sudo: required
+      env:
+        #- PY_VERSION=3.4
+        - R_VERSION=3.3
 
-services:
-    - docker
+    #- os: osx
 
 env:
     global:
@@ -27,45 +39,37 @@ env:
 
 addons:
     apt:
-        # Use apt addon to facilitate multi-OS build later https://docs.travis-ci.com/user/multi-os/
+        # Install system level requirements for Linux
         packages:
-            - texlive-binaries # Temporary fix (?) for R bug http://bugs.debian.org/810963
             - libxml2-dev
             - libcurl4-openssl-dev
+            - flex
+            - lemon
 
 before_install:
     # Use this to prepare the system to install prerequisites or dependencies
 
-    # Add repository for R 
-    # Using `source r-packages-trusty` in addons.apt instead of this 
-    # gave an old version 3.0.2 (2013-09-25)
-    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-    - sudo add-apt-repository "deb http://cran.us.r-project.org/bin/linux/ubuntu trusty/"
-    - sudo apt-get update -qq
+    # Use a python2.7 with UCS4 : https://github.com/travis-ci/travis-ci/issues/4948#issuecomment-165779970
+    - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 
 install:
     # Use this to install any prerequisites or dependencies necessary to run your build
 
-    # Install Python build dependencies (python and python-dev already installed)
-    - pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv
-
-    # Install R build dependencies
-    - sudo apt-get install r-base r-base-dev --force-yes --assume-yes --fix-broken
-    - sudo Rscript -e "install.packages(c('Rcpp','roxygen2','svUnit','XML'),lib='/usr/lib/R/library',repos='http://cran.us.r-project.org')"
-
-    # Install build delivery dependencies
-    - pip2.7 install --user travis --upgrade awscli
+    # Install system level requirements
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then ./setup/travis-osx-build.sh; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./setup/travis-trusty-build.sh; fi
 
 before_script:
     # Use this to prepare your build for testing
 
-    # Confirm versions of key build tools
+    # Confirm versions of key build tools and dependencies
+    - openssl version
     - g++ --version
     - cmake --version
-    - docker --version
-    - python2.7 --version
-    - pip2.7 show pip setuptools wheel virtualenv
+    - python --version
+    - pip show pip setuptools wheel virtualenv
     - R --version
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker --version; fi
 
     # Travis CI does a shallow clone of the current branch (`git clone --depth=50 --branch=develop ...`)
     # If the last tag was more than 50 commits in the past then the following `git describe` will fail and
@@ -77,13 +81,27 @@ before_script:
 
 script:
     - make vars
-    - make cpp-tests-quick
-    - make py-tests
-    - make r-tests
+    - make cpp-requires
+    - make cpp-tests-quick -j2
+    - make py-tests -j2
+    - make r-tests -j2
+    - |
+        if [[ "$DOCKER_BUILDS" == "true" ]]; then
+            docker pull stencila/ubuntu-14.04-py-2.7 && make docker-py-build
+            docker pull stencila/ubuntu-14.04-r-3.2 && make docker-r-build
+        fi
 
 after_success:
-    - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - test $TRAVIS_PULL_REQUEST == "false" && make docker-r-deliver py-deliver r-deliver
+    - | 
+        if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+            make py-deliver
+            make r-deliver
+            if [[ "$DOCKER_BUILDS" == "true" ]]; then
+                docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                make docker-py-deliver
+                make docker-r-deliver
+            fi
+        fi
 
 notifications:
     slack:

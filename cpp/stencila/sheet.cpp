@@ -1,3 +1,4 @@
+#include <array>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -35,13 +36,21 @@ Component::Type Sheet::type(void) {
 }
 
 std::string Sheet::meta(const std::string& what) const {
-    for (auto iter : cells_) {
-        Cell& cell = iter.second;
-        if (cell.name == what) {
-            return cell.value;
-        }
+    // Look first in named cells
+    auto iter = names_.find(what);
+    if (iter != names_.end()){
+        return cells_.at(iter->second).value;
+    }
+    // Otherwise in meta information
+    auto meta = meta_.find(what);
+    if (meta != meta_.end()){
+        return meta->second;
     }
     return "";
+}
+
+std::string Sheet::environ(void) const {
+    return meta("environ");
 }
 
 std::string Sheet::title(void) const {
@@ -90,6 +99,40 @@ Sheet& Sheet::initialise(const std::string& from) {
     return *this;
 }
 
+std::string Sheet::content(const std::string& format) {
+    // A preliminary implementation which ignores the
+    // format argument and just outputs long form TSV
+    std::ostringstream stream;
+
+    // Local function for escaping output.
+    // Mostly as per http://dataprotocols.org/linear-tsv/
+    auto escape = [](const std::string& value) {
+        std::string copy = value;
+        boost::replace_all(copy, "\t", "\\t");
+        boost::replace_all(copy, "\n", "\\n");
+        boost::replace_all(copy, "\r", "\\r");
+        boost::replace_all(copy, "\\", "\\\\");
+        return copy;
+    };
+
+    // Write meta
+    for (auto iter : meta_) {
+        stream << "#" << iter.first << "\t" << escape(iter.second) << "\n";
+    }
+
+    // Write cell sources
+    for (const auto& iter : cells_) {
+        const auto& cell = iter.second;
+
+        stream << cell.id << "\t" << escape(cell.source());
+        auto display = cell.display_specified();
+        if (display.length()) stream << "\t" << display;
+        stream << "\n";
+    }
+
+    return stream.str();
+}
+
 Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     if(rows==0 or cols==0){
         // Generate some sensible defaults
@@ -129,15 +172,34 @@ Html::Fragment Sheet::html_table(unsigned int rows, unsigned int cols) const {
     return frag;
 }
 
-Sheet& Sheet::load(std::istream& stream, const std::string& format) {
-    STENCILA_THROW(Exception, "File extension not valid for loading a sheet\n extension: "+format);
+Sheet& Sheet::import(const std::string& path, const std::string& at, bool execute) {
+    if (not boost::filesystem::exists(path)) {
+        STENCILA_THROW(Exception, "File not found\n path: "+path);
+    }
+    std::ifstream stream(path);
+    std::string ext = boost::filesystem::extension(path);
+    std::string format = ext.substr(1);
+    if(format=="xlsx") {
+        return load_xlsx(path, "sheet1", at, execute);
+    } else {
+        return load(stream, format, at);
+    }
+}
+
+Sheet& Sheet::load(const std::string& string, const std::string& format, const std::string& at) {
+    std::istringstream stream(string);
+    return load(stream, format, at);
+}
+
+Sheet& Sheet::load(std::istream& stream, const std::string& format, const std::string& at) {
+    if(format=="tsv" or format=="csv") {
+        load_separated(stream, format, at);
+    } else {
+        STENCILA_THROW(Exception, "Format not valid for loading into a sheet\n format: "+format);
+    }
     return *this;
 }
 
-Sheet& Sheet::load(const std::string& string, const std::string& format) {
-    std::istringstream stream(string);
-    return load(stream, format);
-}
 
 Sheet& Sheet::dump_script(std::ostream& stream, const std::vector<std::string>& symbols) {
     auto assign = symbols[0];
@@ -218,19 +280,6 @@ std::string Sheet::dump(const std::string& format) {
     return stream.str();
 }
 
-Sheet& Sheet::import(const std::string& path) {
-    if (not boost::filesystem::exists(path)) {
-        STENCILA_THROW(Exception, "File not found\n path: "+path);
-    }
-    std::string ext = boost::filesystem::extension(path);
-    if (ext == ".tsv") {
-        std::ifstream file(path);
-        load(file, "tsv");
-    }
-    else STENCILA_THROW(Exception, "File extension not valid for a sheet\n extension: "+ext);
-    return *this;
-}
-
 Sheet& Sheet::export_(const std::string& path) {
     std::string ext = boost::filesystem::extension(path);
     if (ext == ".tsv" or ext == ".r" or ext == ".py") {
@@ -242,78 +291,99 @@ Sheet& Sheet::export_(const std::string& path) {
     return *this;
 }
 
-Sheet& Sheet::read(const std::string& directory) {
-    // Call base method to set component path
-    Component::read(directory);
-    
-    // Local function for reading a TSV.
-    // Mostly as per http://dataprotocols.org/linear-tsv/
-    auto read = [](const std::string& path) {
-        std::vector<std::vector<std::string>> cells;
-        std::ifstream file(path);
-        std::string line;
-        while (std::getline(file, line)) {
-            std::vector<std::string> row;
-            boost::split(row, line, std::bind1st(std::equal_to<char>(), '\t'));
-            for(auto& value : row){
-                boost::replace_all(value, "\\\\", "\\");  // Must come first
-                boost::replace_all(value, "\\t", "\t");
-                boost::replace_all(value, "\\n", "\n");
-                boost::replace_all(value, "\\r", "\r");
+boost::regex read_meta("^#([\\w-]+)$");
+
+Sheet& Sheet::read(const std::string& content, const std::string& format) {
+    if (format == "" or format == "path") {
+
+        // Call base method to set component path
+        Component::read(content);
+        
+        // Local function for reading a TSV.
+        // Mostly as per http://dataprotocols.org/linear-tsv/
+        auto read = [](const std::string& path) {
+            std::vector<std::vector<std::string>> cells;
+            std::ifstream file(path);
+            std::string line;
+            while (std::getline(file, line)) {
+                std::vector<std::string> row;
+                boost::split(row, line, std::bind1st(std::equal_to<char>(), '\t'));
+                for(auto& value : row){
+                    boost::replace_all(value, "\\\\", "\\");  // Must come first
+                    boost::replace_all(value, "\\t", "\t");
+                    boost::replace_all(value, "\\n", "\n");
+                    boost::replace_all(value, "\\r", "\r");
+                }
+                cells.push_back(row);
             }
-            cells.push_back(row);
-        }
-        return cells;
-    };
-    
-    // Read cell source, types and values files
-    auto dir = path() + "/"; 
-    auto sources = read(dir + "sheet.tsv");
-    auto outputs = read(dir + "out/out.tsv");
-    
-    // Local function for getting row of outputs for a cell
-    auto output = [&](const std::string& id) -> std::vector<std::string> {
-        // If outputs is different length to inputs then assume 
-        // they are invalid and return nothing
-        if (outputs.size() != sources.size()) return {};
-        // Search for id and return column if it exists
-        for(const auto& row : outputs) {
-            if (row.size()) {
-                if (row[0] == id) {
-                    return row;
+            return cells;
+        };
+        
+        // Read cell source, types and values files
+        auto dir = path() + "/"; 
+        auto sources = read(dir + "sheet.tsv");
+        auto outputs = read(dir + "out/out.tsv");
+        
+        // Local function for getting row of outputs for a cell
+        auto output = [&](const std::string& id) -> std::vector<std::string> {
+            // Search for id and return column if it exists
+            for(const auto& row : outputs) {
+                if (row.size()) {
+                    if (row[0] == id) {
+                        return row;
+                    }
+                }
+            }
+            return {};
+        };
+
+        // Reset this sheet with new cells from source file and 
+        // outputs (e.g. type, value) if they are available
+        clear();
+        for (const auto& row : sources) {
+            auto row_size = row.size();
+            if (row_size>1) {
+                auto first = row[0];
+                boost::smatch match;
+                if (boost::regex_match(first, match, read_meta)){
+                    meta_[match[1]] = row[1];
+                } else {
+                    Cell cell;
+                    cell.id = row[0];
+                    cell.source(row[1]);
+                    if (row_size>2) cell.display(row[2]);
+
+                    auto outs = output(cell.id);
+                    auto outs_size = outs.size();
+                    if (outs_size>1) cell.type = outs[1];
+                    if (outs_size>2) cell.value = outs[2];
+
+                    cells_[cell.id] = cell;
+                    if (cell.name.length()) names_[cell.name] = cell.id;
                 }
             }
         }
-        return {};
-    };
-    
-    // Create a bunch of new cells from sources file, getting
-    // outputs for that cell if they are available
-    std::vector<Cell> cells;
-    for (const auto& row : sources) {
-        auto row_size = row.size();
-        if (row_size>1) {
-            auto id = row[0];
-            auto source = row[1];
-            Cell cell;
-            cell.id = id;
-            cell.source(source);
-            if (row_size>2) cell.display(row[2]);
-            auto outs = output(id);
-            auto outs_size = outs.size();
-            if (outs_size>1) cell.type = outs[1];
-            if (outs_size>2) cell.value = outs[2];
-            cells.push_back(cell);
+
+        // Update dependency graph and cell values
+        update();
+
+        // If a context is attached then read that too
+        if(spread_) {
+            spread_->read(path()+"/out/");
         }
-    }
-
-    // Reset this sheet with those cells;
-    clear();
-    update(cells, false);
-
-    // If a context is attached then read that too
-    if(spread_) {
-        spread_->read(path()+"/out/");
+    } else if (format == "json") {
+        // As a temporary implementation write the JSON to file
+        // and read from there
+        Json::Document json(content);
+        auto format = json["format"].as<std::string>();
+        if (format != "tsv") {
+            STENCILA_THROW(Exception, "Unknown content format.\n  format:" + format);
+        }
+        auto tsv = json["content"].as<std::string>();
+        write_to("sheet.tsv", tsv);
+        read("", "path");
+    } else {
+        STENCILA_THROW(Exception, "Unknown format.\n  format:" + format);
     }
     
     return *this;
@@ -322,6 +392,11 @@ Sheet& Sheet::read(const std::string& directory) {
 Sheet& Sheet::write(const std::string& directory) {
     // Call base method to set component pth
     Component::write(directory);
+
+    auto dir = path();
+    boost::filesystem::create_directories(dir+"/out");
+    std::ofstream sources(dir + "/sheet.tsv");
+    std::ofstream outputs(dir + "/out/out.tsv");
     
     // Local function for escaping output.
     // Mostly as per http://dataprotocols.org/linear-tsv/
@@ -334,18 +409,21 @@ Sheet& Sheet::write(const std::string& directory) {
         return copy;
     };
 
+    // Write meta
+    for (auto iter : meta_) {
+        sources << "#" << iter.first << "\t" << escape(iter.second) << "\n";
+    }
+
     // Write cell sources and outputs files
-    auto dir = path();
-    boost::filesystem::create_directories(dir+"/out");
-    std::ofstream sources(dir + "/sheet.tsv");
-    std::ofstream outputs(dir + "/out/out.tsv");
     for (const auto& iter : cells_) {
         const auto& cell = iter.second;
+        
         sources << cell.id << "\t" << escape(cell.source());
         auto display = cell.display_specified();
         if (display.length()) sources << "\t" << display;
         sources << "\n";
-        outputs << cell.id << "\t" << escape(cell.type)     << "\t" << escape(cell.value) << "\n";
+
+        outputs << cell.id << "\t" << escape(cell.type) << "\t" << escape(cell.value) << "\n";
     }
 
     // If a context is attached then write that too
@@ -423,8 +501,15 @@ Wamp::Message Sheet::message(const Wamp::Message& message) {
 }
 
 Json::Document Sheet::call(const std::string& name, const Json::Document& args) {
+    if(name=="content"){
 
-    if(name=="write"){
+        Json::Document result = Json::Object();
+        result.append("format", "tsv");
+        result.append("content", content());
+        return result;
+
+    } 
+    else if(name=="write"){
 
         write();
         return "{}";
@@ -472,10 +557,13 @@ Json::Document Sheet::call(const std::string& name, const Json::Document& args) 
 
         Json::Document result = Json::Object();
         result.append("id", id);
+        result.append("kind", cell.kind_string());
         result.append("expression", cell.expression);
+        result.append("depends", cell.depends);
         result.append("name", cell.name);
         result.append("type", cell.type);
         result.append("value", cell.value);
+        result.append("display", cell.display());
         return result;
 
     } else if (name == "evaluate") {
@@ -563,9 +651,14 @@ std::string Sheet::identify(unsigned int row, unsigned int col) {
 }
 
 boost::regex Sheet::id_regex("^([A-Z]+)([1-9][0-9]*)$");
+boost::regex Sheet::range_regex("^([A-Z]+[1-9][0-9]*):([A-Z]+[1-9][0-9]*)$");
 
-bool Sheet::is_id(const std::string& id){
-    return boost::regex_match(id, id_regex);
+bool Sheet::is_id(const std::string& string){
+    return boost::regex_match(string, id_regex);
+}
+
+bool Sheet::is_range(const std::string& string){
+    return boost::regex_match(string, range_regex);
 }
 
 unsigned int Sheet::index_row(const std::string& row) {
@@ -590,15 +683,33 @@ std::array<unsigned int, 2> Sheet::index(const std::string& id) {
     }
 }
 
+std::array<unsigned int, 4> Sheet::range(const std::string& range) {
+    boost::smatch match;
+    if(boost::regex_match(range, match, id_regex)){
+        auto tl = index(range);
+        return {tl[0],tl[1],tl[0],tl[1]};
+    } else if (boost::regex_match(range, match, range_regex)) {
+        auto tl = index(match[1]);
+        auto br = index(match[2]);
+        if (tl[0]>br[0] or tl[1]>br[1]) {
+            STENCILA_THROW(Exception, "Invalid cell range\n  range: "+range);
+        }
+        return {tl[0],tl[1],br[0],br[1]};
+    } else {
+        STENCILA_THROW(Exception, "Invalid cell range\n  range: "+range);
+    }
+}
+
 std::vector<std::string> Sheet::interpolate(
     const std::string& col1, const std::string& row1, 
     const std::string& col2, const std::string& row2
 ) {
-    auto col1i = index_col(col1);
-    auto col2i = index_col(col2);
-    auto row1i = index_row(row1);
-    auto row2i = index_row(row2);
-    auto size = (col2i-col1i+1)*(row2i-row1i+1);
+    // For size check to work, these need to be ints, not uints
+    int col1i = index_col(col1);
+    int col2i = index_col(col2);
+    int row1i = index_row(row1);
+    int row2i = index_row(row2);
+    int size = (col2i-col1i+1)*(row2i-row1i+1);
     if (size<0) STENCILA_THROW(Exception, "Invalid cell range");
 
     std::vector<std::string> cells(size);
@@ -622,24 +733,9 @@ std::array<unsigned int, 2> Sheet::extent(void) const {
     return {row,col};
 }
 
-Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
-    std::vector<Cell> cells;
-    for (auto source : sources) {
-        Cell cell;
-        auto id = source[0];
-        if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
-        cell.id = id;
-        cell.source(source[1]);
-        cells.push_back(cell);
-    }
-    clear();
-    update(cells);
-    return *this;
-}
-
-Sheet::Cell& Sheet::cell(const std::string& id) {
+Sheet::Cell& Sheet::cell(const std::string& id) throw(CellEmptyError) {
     auto iter = cells_.find(id);
-    if (iter == cells_.end()) STENCILA_THROW(Exception, "Cell does not exist\n id: "+id)
+    if (iter == cells_.end()) STENCILA_THROW(CellEmptyError, "Cell is empty\n id: "+id)
     else return iter->second;
 }
 
@@ -655,6 +751,45 @@ Sheet::Cell* Sheet::cell_pointer(const std::string& id) {
 
 Sheet::Cell* Sheet::cell_pointer(unsigned int row, unsigned int col) {
     return cell_pointer(identify(row, col));
+}
+
+
+Sheet& Sheet::cells(const std::vector<std::array<std::string, 2>>& sources) {
+    std::vector<Cell> cells;
+    for (auto source : sources) {
+        Cell cell;
+        auto id = source[0];
+        if (not is_id(id)) STENCILA_THROW(Exception, "Not a valid id\n id: "+id)
+        cell.id = id;
+        cell.source(source[1]);
+        cells.push_back(cell);
+    }
+    clear();
+    update(cells);
+    return *this;
+}
+
+std::vector<Sheet::Cell> Sheet::cells(const std::string& string) {
+    std::vector<Cell> cells;
+    boost::smatch matches;
+    boost::regex name_regex("^#([\\w_]+)$");
+    if (boost::regex_match(string, matches, name_regex)) {
+        auto name = matches[1];
+        auto iter = names_.find(name);
+        if (iter != names_.end()) {
+            cells.push_back(cells_.at(iter->second));
+        }
+    } else {
+        auto indices = range(string);
+        for (auto row = indices[0]; row <= indices[2]; row++) {
+            for (auto col = indices[1]; col <= indices[3]; col++) {
+                if (auto cell = cell_pointer(identify(row,col))) {
+                    cells.push_back(*cell);
+                }
+            }
+        }
+    }
+    return cells;
 }
 
 Sheet& Sheet::attach(std::shared_ptr<Spread> spread) {
@@ -675,7 +810,7 @@ std::string Sheet::translate(const std::string& expression) {
         
     mark_tag col(1);
     mark_tag row(2);
-    sregex id = (col = +range('A','Z')) >> (row = +digit);
+    sregex id = (col = +boost::xpressive::range('A','Z')) >> (row = +digit);
     sregex sequence = id >> ':' >> id;
     sregex sunion = (sequence|id) >> '&' >> (sequence|id);
     sregex anything = _;
@@ -752,30 +887,29 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
     boost::filesystem::path path = boost::filesystem::path(Component::path(true));
     try {
         boost::filesystem::current_path(path);
-    } catch(const std::exception& exc){
+    } catch(const std::exception& exc) {
         STENCILA_THROW(Exception,"Error changing to directory\n  path: "+path.string());
     }
 
     try {
         std::vector<std::string> cells_changed;
-        if (changes.size()){
+        if (changes.size()) {
             // Updating only changed cells
             // Need to copy the change into the existing (or
             // newly created) cell
             for (auto cell : changes) {
                 auto id = cell.id;
                 Cell* pointer = cell_pointer(id);
-                if(pointer){
+                if (pointer) {
                     // Existing cell so copy over
                     *pointer = cell;
                     // TODO deal with any change in name by clearing the
                     // name from the context and the name mapping
-                }
-                else {
+                } else {
                     // New cell so insert
                     cells_.insert({id,cell});
                     // Store any name
-                    names_[cell.name] = id;
+                    if (cell.name.length()) names_[cell.name] = id;
                 }
                 cells_changed.push_back(id);
             }
@@ -785,10 +919,6 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
                 cells_changed.push_back(iter.first);
             }
         }
-
-        // If no spread, don't go any further.
-        // This suffices for an initial read
-        if(not execute or not spread_) return updates;
 
         // Create list of cells for which dependency needs to be updated
         // If necessary update dependency graph based on all cells
@@ -886,6 +1016,10 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
         // Next time, don't need to update all dependencies
         if (not prepared_) prepared_ = true;
 
+        // If not executing (e.g. for initial read) then leave don't
+        // go any further
+        if (not execute) return updates;
+
         // Ensure output directory is present
         boost::filesystem::create_directories(path / "out");
 
@@ -905,23 +1039,23 @@ std::vector<Sheet::Cell> Sheet::update(const std::vector<Sheet::Cell>& changes, 
             if(iter == cells_.end()) continue;
             Cell& cell = iter->second;
 
-            // Does this cell need to be executed
-            // Has this cell changed?
-            bool execute = std::find(cells_changed.begin(), cells_changed.end(), id) != cells_changed.end();
-            if(not execute) {
-                // Has any of it's immeadiate predecessors been updated?
+            // Does this cell need to be executed...
+            // ...has this cell changed?
+            bool execute_cell = std::find(cells_changed.begin(), cells_changed.end(), id) != cells_changed.end();
+            if(not execute_cell) {
+                // ...has any of it's immeadiate predecessors been updated?
                 auto vertex = vertices_[id];
                 boost::graph_traits<Graph>::in_edge_iterator edge_iter, edge_end;
                 for (boost::tie(edge_iter,edge_end) = in_edges(vertex, graph_); edge_iter != edge_end; ++edge_iter) {
                     auto predecessor_vertex = boost::source(*edge_iter, graph_);
                     auto predecessor_id = boost::get(boost::vertex_name, graph_)[predecessor_vertex];
-                    execute = std::find(cells_updated.begin(), cells_updated.end(), predecessor_id) != cells_updated.end();
-                    if (execute) break;
+                    execute_cell = std::find(cells_updated.begin(), cells_updated.end(), predecessor_id) != cells_updated.end();
+                    if (execute_cell) break;
                 }
             }
 
             // If don't need to execute this cell then continue loop
-            if(not execute) continue; 
+            if(not execute_cell) continue; 
             
             // Add to list of cells updated
             cells_updated.push_back(id);
@@ -976,19 +1110,20 @@ std::vector<Sheet::Cell> Sheet::update(const std::string& id, const std::string&
     return update({cell});
 }
 
-Sheet& Sheet::update(void) {
-    update({});
+Sheet& Sheet::update(const std::string& range) {
+    if (range.length()==0) update();
+    else update(cells(range));
+    return *this;
+}
+
+Sheet& Sheet::update(bool execute) {
+    update({},execute);
     return *this;
 }
 
 std::vector<std::string> Sheet::list(void) {
     if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
     return split(spread_->list(), ",");
-}
-
-std::string Sheet::content(const std::string& name) {
-    if (not spread_) STENCILA_THROW(Exception, "No spread attached to this sheet");
-    return spread_->get(name);
 }
 
 std::vector<std::string> Sheet::depends(const std::string& id) {
@@ -1173,7 +1308,7 @@ Sheet& Sheet::clear(void) {
     order_.clear();
     prepared_ = false;
     if (spread_) {
-        spread_->clear("");
+        spread_->clear();
     }
     return *this;
 }

@@ -184,6 +184,21 @@ Inlines with attributes, directives and flags <>
 --------------------------------------------------
 
 
+Autolink at end of para <>
+--------------------------------------------------
+A para https://github.com/stencila/stencila/issues
+
+Next para
+--------------------------------------------------
+<p>
+	A para <a href="https://github.com/stencila/stencila/issues">https://github.com/stencila/stencila/issues</a>
+</p>
+<p>
+	Next para
+</p>
+--------------------------------------------------
+
+
 Blocks with attributes, directives and flags <>
 --------------------------------------------------
 .class #id [attr=value]
@@ -613,6 +628,30 @@ table
 		<span data-label="table-4">Table 4</span>X and Y by year
 	</caption>
 </table>
+--------------------------------------------------
+
+
+Block code <>
+--------------------------------------------------
+code
+	Plain text
+
+code r
+	# Some R code
+	answer <- 6 * 7
+
+code html
+	<a href="http//stenci.la">Stencila</a>
+--------------------------------------------------
+<pre><code data-code="">Plain text
+</code></pre>
+<pre><code data-code="r">
+# Some R code
+answer &lt;- 6 * 7
+</code></pre>
+<pre><code data-code="html">
+&lt;a href="http//stenci.la"&gt;Stencila&lt;/a&gt;
+</code></pre>
 --------------------------------------------------
 
 

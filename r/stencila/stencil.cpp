@@ -37,11 +37,13 @@ STENCILA_R_SET(Stencil,html,std::string)
 
 STENCILA_R_GETSET(Stencil,cila,std::string)
 
+STENCILA_R_GETSET(Stencil,json,std::string)
+
 STENCILA_R_GET(Stencil,title)
 STENCILA_R_GET(Stencil,description)
 STENCILA_R_GET(Stencil,keywords)
 STENCILA_R_GET(Stencil,authors)
-STENCILA_R_GET(Stencil,contexts)
+STENCILA_R_GET(Stencil,environs)
 
 STENCILA_R_FUNC Stencil_select(SEXP self,SEXP selector){
     STENCILA_R_BEGIN

@@ -1,0 +1,27 @@
+{
+  "name": "stencila",
+  "version": "0.21.0",
+  "description": "Documents powered by data",
+  "keywords": [
+  	"data", "driven", "documents"
+  ],
+  "homepage": "https://stenci.la",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "license": "GPL-3.0",
+  "author": {
+    "name" : "Stencila authors",
+    "url" : "https://github.com/stencila/stencila/AUTHORS"
+  },
+  "files": [
+  	"web"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/stencila"
+  },
+  "scripts": {
+  	"install":"cd web && npm install"
+  }
+}

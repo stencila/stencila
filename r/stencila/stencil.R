@@ -58,6 +58,9 @@ setRefClass(
         cila = function(value){
             get_set_(.self,'Stencil_cila_get','Stencil_cila_set',value)
         },
+        json = function(value){
+            get_set_(.self,'Stencil_json_get','Stencil_json_set',value)
+        },
 
         title = function(){
             get_(.self,'Stencil_title_get')
@@ -71,8 +74,8 @@ setRefClass(
         authors = function(){
             get_(.self,'Stencil_authors_get')
         },
-        contexts = function(){
-            get_(.self,'Stencil_contexts_get')
+        environs = function(){
+            get_(.self,'Stencil_environs_get')
         },
 
         import = function(path) method_(.self,'Stencil_import',path),

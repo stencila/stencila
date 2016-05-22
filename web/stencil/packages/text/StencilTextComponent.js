@@ -76,10 +76,11 @@ StencilTextComponent.Prototype = function() {
     e.stopPropagation();
     var node = this.props.node;
     var surface = this.context.surface;
-
     surface.setSelection(node.getSelection());
-    var controller = this.context.controller;
-    controller.emit('edit:source', node);
+    this.send('switchState', {
+      contextId: 'edit-source',
+      nodeId: node.id
+    });
   };
 
   this.onClick = function(e) {

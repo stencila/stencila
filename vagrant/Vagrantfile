@@ -36,12 +36,12 @@ Vagrant.configure("2") do |config|
     end
 
     # For building on Ubuntu 14.04 LTS (Trusty Tahr) 64 bit
-    # using a provisioning script similar to that used for Travis CI 
+    # using the provisioning script used for Travis CI 
     config.vm.define "travis-trusty-build" do |platform|
         platform.vm.box = "ubuntu/trusty64"
         platform.vm.provision "shell", path: "../setup/travis-trusty-build.sh"
         platform.vm.provider "virtualbox" do |provider|
-            provider.name = "stencila-ubuntu-14.04-64-build"
+            provider.name = "travis-trusty-build"
             provider.memory = 1024
         end
         platform.vm.synced_folder "../", "/stencila"

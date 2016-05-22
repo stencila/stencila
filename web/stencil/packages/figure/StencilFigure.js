@@ -14,7 +14,7 @@ StencilFigure.static.name = "stencil-figure";
 StencilFigure.static.defineSchema({
     'spec': 'string',
     'source': 'string',
-    'caption': 'text',
+    'caption': {type: 'text', default: 'Caption'},
 
     // Properties rendered by the backend
     // 

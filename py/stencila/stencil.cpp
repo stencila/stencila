@@ -3,12 +3,8 @@
 
 #include <stencila/stencil.hpp>
 
+#include "extension.hpp"
 #include "context.hpp"
-
-#include <boost/python.hpp>
-
-using namespace Stencila;
-using namespace boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Stencil_html_get_overloads,html,0,2)
 
@@ -39,6 +35,14 @@ void def_Stencil(void){
             return_self<>()
         )
 
+        .def("json",
+            static_cast<std::string (Stencil::*)(void) const>(&Stencil::json)
+        )
+        .def("json",
+            static_cast<Stencil& (Stencil::*)(const std::string&)>(&Stencil::json),
+            return_self<>()
+        )
+
         .def("source",
             static_cast<std::string (Stencil::*)(void) const>(&Stencil::source)
         )
@@ -54,6 +58,7 @@ void def_Stencil(void){
         .def("description",&Stencil::description)
         .def("keywords",&Stencil::keywords)
         .def("authors",&Stencil::authors)
+        .def("environ",&Stencil::environ)
 
         .def("attach",Stencil_attach,return_self<>())
         .def("detach",&Stencil::detach,return_self<>())

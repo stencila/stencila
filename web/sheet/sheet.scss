@@ -1,5 +1,6 @@
-@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
-@import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css);
+@import '../fonts/lato';
+@import '../fonts/source-code-pro';
+@import '../node_modules/font-awesome/scss/font-awesome';
 
 body, html {
   overflow: hidden;

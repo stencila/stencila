@@ -1,4 +1,5 @@
-@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic|Source+Code+Pro);
+@import '../fonts/lato';
+@import '../fonts/source-code-pro';
 
 /******************************************************
  * Stencil content
@@ -344,4 +345,14 @@
     color: #DDD;
     font-family: 'Source Code Pro', mono;
     font-size: 0.9em;
+}
+
+/**
+ * Errors should be shown
+ */
+[data-error] {
+    display: inherit;
+    min-width: 1em;
+    min-height: 1em;
+    border: 1px solid red;
 }

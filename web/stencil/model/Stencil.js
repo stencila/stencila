@@ -40,10 +40,13 @@ defaultSchema.addNodes([
 
   require('../packages/math/StencilMath'),
   require('../packages/equation/StencilEquation'),
+  require('../packages/codeblock/StencilCodeblock'),
 
   require('../packages/exec/StencilExec'),
+  require('../packages/out/StencilOut'),
   require('../packages/parameter/StencilParameter'),
   require('../packages/figure/StencilFigure'),
+  require('../packages/include/StencilInclude'),
   require('../packages/text/StencilText'),
 
   StencilDefaultNode

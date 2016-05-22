@@ -1,7 +1,9 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include <stencila/stencil.hpp>
+#include <stencila/sheet.hpp>
 #include <stencila/string.hpp>
 
 namespace Stencila {
@@ -847,31 +849,73 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 	if(not lock) {
 		// Clear the included node
 		included.clear();
-		//Obtain the included stencil...
+		//Obtain the included component...
+		Instance instance;
 		Node includee;
 		//Check to see if this is a "self" include, otherwise obtain the includee
 		address.evaluate(context);
-		if(address.value==".") includee = node.root();
-		else includee = *(Component::get(address.value).as<Stencil*>());
-		// ...select from it
 		select.evaluate(context);
-		if(select.value.length()){
-			// ...append the selected nodes.
-			for(Node node : includee.filter(select.value)){
-				// Append the node first to get a copy of it which can be modified
-				Node appended = included.append(node);
-				// Remove `macro` declaration if any so that element gets rendered
-				appended.erase("data-macro");
-				// Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
-				// This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
-				// selecting all those instances where the macro was previously included.
-				appended.erase("id");
+		if(address.value==".") includee = node.root();
+		else instance = Component::get(address.value);
+
+		if (address.value=="." or instance.type()==StencilType) {
+			if (address.value != ".") {
+				includee = *instance.as<Stencil*>();
 			}
-		} else {
-			// ...append the entire includee. 
-			// No attempt is made to remove macros when included an entire includee.
-			// Must add each child because includee is a document (see `Node::append(const Document& doc)`)
-			for(auto child : includee.children()) included.append(child);
+			// ...select from it
+			if (select.value.length()) {
+				// ...append the selected nodes.
+				for(Node node : includee.filter(select.value)){
+					// Append the node first to get a copy of it which can be modified
+					Node appended = included.append(node);
+					// Remove `macro` declaration if any so that element gets rendered
+					appended.erase("data-macro");
+					// Remove "id=xxxx" attribute if any to prevent duplicate ids in a single document (http://www.w3.org/TR/html5/dom.html#the-id-attribute; although many browsers allow it)
+					// This is particularly important when including a macro with an id. If the id is not removed, subsequent include elements which select for the same id to this one will end up
+					// selecting all those instances where the macro was previously included.
+					appended.erase("id");
+				}
+			} else {
+				// ...append the entire includee. 
+				// No attempt is made to remove macros when included an entire includee.
+				// Must add each child because includee is a document (see `Node::append(const Document& doc)`)
+				for(auto child : includee.children()) included.append(child);
+			}
+		} else if (instance.type()==SheetType) {
+			auto sheet = instance.as<Sheet*>();
+			if (select.value.length()) {
+				auto cells = sheet->cells(select.value);
+				if (cells.size() == 1) {
+					const auto& cell = cells[0];
+					if (cell.type == "image_file") {
+						// Copy the image across to the stencil's own out directory
+						// This is consistent with how other values are inserted into the 
+						// stencils HTML and means this stencil is self contained
+						boost::filesystem::create_directories(stencil.path(true)+"/out");
+						auto from = sheet->path() + "/" + cell.value;
+						auto to = stencil.path() + "/" + cell.value;
+						boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
+						included.append("img", {{"src", cell.value}});
+					} else {
+						included.append("span", cell.value);
+					}
+				} else if (cells.size() > 1) {
+					// Convert cell select into table.
+					// This code assumes that cells come in row order first
+					auto table = included.append("table");
+					int row = -1;
+					Node tr;
+					for (const auto& cell : cells) {
+						auto index = Sheet::index(cell.id);
+						if (index[0]!=row) {
+							tr = table.append("tr");
+							row = index[0];
+						}
+						auto td = tr.append("td");
+						td.text(cell.value);
+					}
+				}
+			}
 		}
 
 		//Apply modifiers

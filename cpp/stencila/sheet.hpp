@@ -55,6 +55,16 @@ class Sheet : public Component {
     std::string meta(const std::string& what) const;
 
     /**
+     * Get the execution environment for this component
+     *
+     * Use "environ" rather than "language" because language
+     * could later be used to describe the natural language e.g. "en"
+     * and for any one programming language (e.g. Python) 
+     * there may be more than one environment (e.g. py-2.7, py-3.4)
+     */
+    std::string environ(void) const;
+
+    /**
      * Get this sheets's title
      *
      * Title is specified by using the title name e.g
@@ -133,23 +143,43 @@ class Sheet : public Component {
     Sheet& initialise(const std::string& from);
 
     /**
+     * Get this sheet's content
+     */
+    std::string content(const std::string& format = "tsv");
+
+    /**
      * Generate a HTML table for this sheet
      */
     Html::Fragment html_table(unsigned int rows = 0, unsigned int cols = 0) const;
 
     /**
-     * Load this sheet from an input stream
-     * 
-     * @param  stream Input stream
-     */
-    Sheet& load(std::istream& stream, const std::string& format = "tsv");
-
-    /**
      * Load this sheet from a string
      * 
      * @param  stream Input stream
+     * @param  format Format of content (e.g. csv, xlsx)
+     * @param  at     Cell to use as top-left
      */
-    Sheet& load(const std::string& string, const std::string& format = "tsv");
+    Sheet& load(const std::string& string, const std::string& format = "tsv", const std::string& at = "A1");
+
+    /**
+     * Load this sheet from an input stream
+     * 
+     * @param  stream Input stream
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  at     Cell to use as top-left
+     */
+    Sheet& load(std::istream& stream, const std::string& format = "tsv", const std::string& at = "A1");
+
+
+    /**
+     * Import this stencil content from a file
+     * 
+     * @param  path Filesystem path to file
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  at     Cell to use as top-left
+     * @param  execute Should the imported cells be executed?
+     */
+    Sheet& import(const std::string& path, const std::string& at = "A1", bool execute = true);
 
     /**
      * Dump this sheet as script in host language
@@ -171,12 +201,35 @@ class Sheet : public Component {
      */
     std::string dump(const std::string& format = "tsv");
 
+
     /**
-     * Import this stencil content from a file
+     * Load separated values content into this sheet
      * 
-     * @param  path Filesystem path to file
+     * @param  stream Input stream
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  at     Cell to use as top-left
      */
-    Sheet& import(const std::string& path);
+    Sheet& load_separated(std::istream& stream, const std::string& format, const std::string& at = "A1");
+
+    /**
+     * Dump separated values from this sheet
+     * 
+     * @param  stream Output stream
+     * @param  format Format of content (e.g. tsv, csv)
+     * @param  start  Cell to use as top-left
+     * @param  end    Cell to use as bottom-right
+     */
+    Sheet& dump_separated(std::istream& stream, const std::string& format, const std::string& start = "A1", const std::string& end = "");
+
+    /**
+     * Load cells from an Office Open XML Spreadsheet (.xlsx) file into this sheet
+     * 
+     * @param  path Path to the .xlsx file
+     * @param  sheet The sheet to load from
+     * @param  at     Cell to use as top-left
+     * @param  execute Should the loaded cells be executed?
+     */
+    Sheet& load_xlsx(const std::string& path, const std::string& sheet, const std::string& at, bool execute = true);
 
     /**
      * Export the stencil content to a file
@@ -186,12 +239,13 @@ class Sheet : public Component {
     Sheet& export_(const std::string& path);
 
     /**
-     * Read this sheet from a directory
+     * Read this sheet from a directory or string content
      * 
-     * @param  path Filesystem path to a directory. 
-     *              If an empty string then the sheet's current path is used.
+     * @param  content Filesystem path to a directory or string content
+     *                 If an empty string and format is empty or "path" then the sheet's current path is used.
+     * @param  format Format of content e.g. `path`, `json`
      */
-    Sheet& read(const std::string& path = "");
+    Sheet& read(const std::string& content = "", const std::string& format = "");
 
     /**
      * Write this sheet to a directory
@@ -448,15 +502,15 @@ class Sheet : public Component {
         std::string display_;
     };
 
-    /**
-     * Set cells
-     */
-    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources);
+    struct CellEmptyError : public Exception {
+        using Exception::Exception;
+    };
+
 
     /**
      * Get a cell from this sheet
      */
-    Cell& cell(const std::string& id);
+    Cell& cell(const std::string& id) throw(CellEmptyError);
 
     /**
      * Get a cell from this sheet
@@ -478,6 +532,17 @@ class Sheet : public Component {
      * instead of raising an error like `cell` does
      */
     Cell* cell_pointer(unsigned int row, unsigned int col);
+
+    /**
+     * Get cells from this sheets using an id (e.g. A1)
+     * , range (e.g. A1:A10) or name (e.g. #price)
+     */
+    std::vector<Cell> cells(const std::string& range);
+
+    /**
+     * Set cells
+     */
+    Sheet& cells(const std::vector<std::array<std::string, 2>>& sources);
 
     /**
      * Attach a spread to this stencil
@@ -516,14 +581,24 @@ class Sheet : public Component {
     static std::string identify(unsigned int row, unsigned int col);
 
     /**
-     * Regular expression used for identifiying and parsing cell IDs
+     * Regular expression used for cell identifiers (e.g. A1)
      */
     static boost::regex id_regex;
 
     /**
-     * Is a string a valid cell ID?
+     * Regular expression used for cell ranges (e.g. A1:A10)
+     */
+    static boost::regex range_regex;
+
+    /**
+     * Is a string a valid cell identifier?
      */
     static bool is_id(const std::string& id);
+
+    /**
+     * Is a string a valid cell range?
+     */
+    static bool is_range(const std::string& range);
 
     /**
      * Generate a row index from a row identifier.
@@ -543,6 +618,11 @@ class Sheet : public Component {
      * Generate the row and column index from a cell identifier
      */
     static std::array<unsigned int, 2> index(const std::string& id);
+
+    /**
+     * Generate the range row and column indices from a cell range
+     */
+    static std::array<unsigned int, 4> range(const std::string& range);
 
     /**
      * Create a list of cell IDs that interpolate between the
@@ -622,12 +702,19 @@ class Sheet : public Component {
     std::vector<Cell> update(const std::string& id, const std::string& source);
 
     /**
+     * Update a cell, or range of cells with existing source i.e. recaluclate
+     * 
+     * @param  range  Cell range or identifier
+     */
+    Sheet& update(const std::string& range);
+
+    /**
      * Update all cells in this sheet
      *
      * This method might need to be called if for example a global variable
      * outside of the spread is altered
      */
-    Sheet& update(void);
+    Sheet& update(bool execute = true);
 
     /**
      * List the names of variables within the attached spread
@@ -635,13 +722,6 @@ class Sheet : public Component {
      * Variable names may include both ids (e.g. A1) and names (e.g. radius) 
      */
     std::vector<std::string> list(void);
-
-    /**
-     * Get the content (type+value) of a variable within the attached spread
-     * 
-     * @param  name Name of variable (id or name)
-     */
-    std::string content(const std::string& name);
 
     /**
      * Get a list of the cells that a cell depends upon (i.e. it's direct predecessors)
@@ -704,6 +784,13 @@ class Sheet : public Component {
     Function function(const std::string& name) const;
 
  private:
+    /**
+     * Meta information on the sheet
+     *
+     * e.g. language, title, keywords
+     */
+    std::map<std::string, std::string> meta_;
+
     /**
      * Custom comparison to have column first ordering and row ordering
      * that is numeric, not string based (i.e "3" < "10")

@@ -39,18 +39,19 @@ setRefClass(
             method_(.self,'Sheet_dump',format)
         },
 
-        import = function(path){
-            method_(.self,'Sheet_import',path)
+        import = function(path, at="A1", execute=T){
+            method_(.self,'Sheet_import',path,at,execute)
         },
         export = function(path){
             method_(.self,'Sheet_export',path)
         },
+
         graphviz = function(path=''){
             method_(.self,'Sheet_graphviz',path)
         },
 
-        read = function(path=""){
-            method_(.self,'Sheet_read',path)
+        read = function(content='', format=''){
+            method_(.self, 'Sheet_read', content, format)
         },
         write = function(path=""){
             method_(.self,'Sheet_write',path)
@@ -61,6 +62,10 @@ setRefClass(
         },
         restore = function(){
             method_(.self,'Sheet_restore')
+        },
+
+        cell = function(id){
+            call_('Sheet_cell',.pointer,id)
         },
 
         page = function(path){
@@ -76,8 +81,19 @@ setRefClass(
             .spread <<- NULL
             method_(.self,'Sheet_detach')
         },
-        update = function(){
-            method_(.self,'Sheet_update')
+        update = function(range=''){
+            method_(.self,'Sheet_update',range)
+        },
+        translate = function(expression){
+            method_(.self,'Sheet_translate',expression)
+        },
+        evaluate = function(expression){
+            # Translate RSheet syntax
+            translated <- translate(expression)
+            # Call the evaluate method of context directly
+            # so that there is no conversion to text
+            # The context API should be improved to make this easier
+            .spread$.evaluate(translated,prefix='',as_string=FALSE)$value
         },
 
         test = function(){

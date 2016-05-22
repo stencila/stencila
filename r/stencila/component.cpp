@@ -73,10 +73,10 @@ STENCILA_R_EXEC2(Component,merge,std::string,std::string)
 STENCILA_R_EXEC1(Component,lop,std::string)
 
 
-Component* Component_instantiate(const std::string& address, const std::string& path, const std::string& type){
+Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format) {
     Rcpp::Environment stencila("package:stencila");
     Rcpp::Function func = stencila["instantiate"];
-    SEXP component = func(address, path, type);
+    SEXP component = func(type, content, format);
     return &from<Component>(component);
 }
 

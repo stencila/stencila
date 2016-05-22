@@ -10,10 +10,11 @@
 namespace Stencila {
 
 std::string Component::serve(Type type){
+	// Hold this component
 	hold(type);
-	// URL should include trailing slash to avoid redictions
-	// and provide proper serving
-	return Server::startup() + "/" + address() + "/";
+	// Start server and return URL for this component including trailing
+	// slash to avoid redictions and provide for relative URLs in links
+	return Server::startup().url("http",address()+"/");
 }
 
 Component& Component::view(Type type){
@@ -177,8 +178,13 @@ Json::Document Component::call(const std::string& name, const Json::Document& ar
 	if(name=="boot") {
 		result.append("rights", "ALL");
 		Json::Document session = Json::Object();
+		// Indicate a local session
 		session.append("local", true);
-		session.append("websocket", "ws://localhost:7373/" + address());
+		// Return empty string for websocket URL to indicate that the 
+		// client should construct the websocket URL from the hostname of the 
+		// window. We do this because, from here, we can't find out what address this
+		// request was made on. It won't necessarily be localhost.
+		session.append("websocket", "");
 		result.append("session", session);
 	} else if (name=="commit") {
 		auto message = args[0].as<std::string>();
@@ -202,7 +208,7 @@ std::string Component::index(void){
 	auto ul = page.select("body").append("ul");
 	for(auto instance : instances_){
 		auto li = ul.append("li");
-		li.append("span",{{"class","type"}},type_name(instance.second.type()));
+		li.append("span",{{"class","type"}},type_to_string(instance.second.type()));
 		li.append("a",{{"href","./"+instance.first}},instance.first);
 	}
 	return page.dump();

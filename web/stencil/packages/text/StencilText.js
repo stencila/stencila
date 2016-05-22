@@ -9,13 +9,13 @@ function StencilText(){
 
 InlineNode.extend(StencilText, StencilNode);
 
-StencilText.static.name = "stencil-text";
+StencilText.static.name = 'stencil-text';
 
 StencilText.static.defineSchema({
-  'tagName': 'string',
-  'source': 'string',
-  'error': { type: 'string', optional: true },
-  'output': 'string'
+  'tagName': { type: 'string', optional: true },
+  'source':  { type: 'string', optional: true },
+  'error':   { type: 'string', optional: true },
+  'output':  { type: 'string', optional: true }
 });
 
 StencilText.static.generatedProps = ['error', 'output'];

@@ -1,13 +1,14 @@
+#include <memory>
 #include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <stencila/component.hpp>
 #include <stencila/stencil.hpp>
 #include <stencila/theme.hpp>
 #include <stencila/sheet.hpp>
 #include <stencila/function.hpp>
-
 #include <stencila/string.hpp>
 
 namespace Stencila {
@@ -20,7 +21,7 @@ void Component::Class::set(Type type, const Component::Class& clas){
 
 const Component::Class& Component::Class::get(Type type) {
 	const Class& clas = classes_[type];
-	if(not clas.defined) STENCILA_THROW(Exception,"Class with type enum has not been defined.\n  type: "+type_name(type));
+	if(not clas.defined) STENCILA_THROW(Exception,"Class with type enum has not been defined.\n  type: "+type_to_string(type));
 	return clas;
 }
 
@@ -80,7 +81,7 @@ bool Component::held(void) const {
 std::vector<std::pair<std::string,std::string>> Component::held_list(void){
 	std::vector<std::pair<std::string,std::string>> list;
 	for(auto instance : instances_){
-		list.push_back({instance.first,type_name(instance.second.type())});
+		list.push_back({instance.first,type_to_string(instance.second.type())});
 	}
 	return list;
 }
@@ -110,7 +111,7 @@ Component::Type Component::type(const std::string& path_string){
 	return NoneType;
 }
 
-std::string Component::type_name(const Component::Type& type){
+std::string Component::type_to_string(const Component::Type& type){
 	switch(type){
 		case NoneType: return "None";
 		
@@ -125,9 +126,28 @@ std::string Component::type_name(const Component::Type& type){
 		case RContextType: return "RContext";
 		case RSpreadType: return "RSpread";
 		default: 
-			STENCILA_THROW(Exception,"`Component::type_name` has not been configured for type.\n type  "+string(type));
+			STENCILA_THROW(Exception,"`Component::type_to_string` has not been configured for type.\n type  "+string(type));
 		break;
 	}
+}
+
+Component::Type Component::type_from_string(std::string string) {
+
+	boost::algorithm::to_lower(string);
+	if (string == "stencil") return StencilType;
+	if (string == "sheet") return SheetType;
+	if (string == "function") return FunctionType;
+
+	STENCILA_THROW(Exception,"Unknown type.\n type  " + string);
+}
+
+Component* Component::create(const std::string& type, const std::string& content, const std::string& format) {
+	if (not Component::instantiate) STENCILA_THROW(Exception, "Component::instantiate is not defined!");
+
+	auto component = Component::instantiate(type, content, format);
+	component->hold(type_from_string(type));
+
+    return component;
 }
 
 Component::Instance Component::get(const std::string& address,const std::string& version,const std::string& comparison){
@@ -148,7 +168,7 @@ Component::Instance Component::get(const std::string& address,const std::string&
 			STENCILA_THROW(Exception,"Path does not appear to be a Stencila component.\n  path: "+path);
 		} else {
 			if (Component::instantiate) {
-				component = Component::instantiate(address, path, type_name(type));
+				component = Component::instantiate(type_to_string(type), path, "path");
 				component->path(path);
 				component->hold(type);
 			} else {
@@ -161,7 +181,7 @@ Component::Instance Component::get(const std::string& address,const std::string&
 				} else if(type==FunctionType){
 					component = open<Function>(type, path);
 				} else {
-					STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_name(type));
+					STENCILA_THROW(Exception,"Type of component at path is not currently handled by `Component::get`.\n  path: "+path+"\n  type: "+type_to_string(type));
 				}
 			}
 		}

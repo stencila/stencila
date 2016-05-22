@@ -1,12 +1,12 @@
 #include <string>
 #include <vector>
 
+#include <stencila/version.hpp>
 #include <stencila/component.hpp>
 #include <stencila/exception.hpp>
+#include <stencila/network.hpp>
 
-#include <boost/python.hpp>
-
-using namespace boost::python;
+#include "extension.hpp"
 
 // Define converters
 template<typename Type>
@@ -19,11 +19,11 @@ struct vector_to_list {
 };
 
 // Define exception translation
-void exception_translator(const Stencila::Exception& exception){
+void exception_translator(const Exception& exception){
 	PyErr_SetString(PyExc_RuntimeError, exception.what());
 }
 void exception_test(void){
-	throw Stencila::Exception("Testing, testing, 1, 2, 3.");
+	throw Exception("Testing, testing, 1, 2, 3.");
 }
 
 // Forward declarations of functions defined in other
@@ -33,12 +33,22 @@ void def_Stencil(void);
 void def_Theme(void);
 void def_Sheet(void);
 
+Component* Component_instantiate(const std::string& type, const std::string& content, const std::string& format);
+
+std::string version_(void) {
+	return Stencila::version;
+}
+
+std::string serve(void){
+	return Server::startup().origin();
+}
+
 BOOST_PYTHON_MODULE(extension){
 	// Declare converters
 	to_python_converter<std::vector<std::string>, vector_to_list<std::string>>();
 
 	// Declare exception translation
-	register_exception_translator<Stencila::Exception>(exception_translator);
+	register_exception_translator<Exception>(exception_translator);
     def("exception_test",exception_test);
 
 	// Define component classes
@@ -48,5 +58,12 @@ BOOST_PYTHON_MODULE(extension){
     def_Sheet();
 
     // Declare component class types
-    Stencila::Component::classes();
+    Component::classes();
+
+    // Define the instantiation function
+    Component::instantiate = Component_instantiate;
+
+    def("version", version_);
+
+    def("serve", serve);
 }

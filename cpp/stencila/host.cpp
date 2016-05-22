@@ -42,10 +42,13 @@ std::string user_store(void) {
 	}
 	// Create stencila directory within user's directory
 	// Naming to fit the OS specific convention
+	std::string stencila = "stencila";
 	#if defined(__linux__)
-		std::string stencila = ".stencila";
+		stencila = ".stencila";
+	#elif defined(__APPLE__)
+		stencila = ".stencila";
 	#elif defined(_WIN32)
-		std::string stencila = "Stencila";
+		stencila = "Stencila";
 	#endif
 	auto dir = path(home) / stencila;
 	if(not exists(dir)) create_directories(dir);

@@ -13,6 +13,7 @@ var CONFIG = {
       require('substance/ui/UndoCommand'),
       require('substance/ui/RedoCommand'),
       require('substance/ui/SaveCommand'),
+
       require('./packages/writer/RenderCommand'),
     ],
     components: {
@@ -35,10 +36,13 @@ var CONFIG = {
 
       'stencil-math': require('./packages/math/StencilMathComponent'),
       'stencil-equation': require('./packages/equation/StencilEquationComponent'),
+      'stencil-codeblock': require('./packages/codeblock/StencilCodeblockComponent'),
 
       'stencil-parameter': require('./packages/parameter/StencilParameterComponent'),
       'stencil-exec': require('./packages/exec/StencilExecComponent'),
+      'stencil-out': require('./packages/out/StencilOutComponent'),
       'stencil-figure': require('./packages/figure/StencilFigureComponent'),
+      'stencil-include': require('./packages/include/StencilIncludeComponent'),
       'stencil-text': require('./packages/text/StencilTextComponent'),
 
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
@@ -59,6 +63,11 @@ var CONFIG = {
       require('substance/packages/subscript/SubscriptCommand'),
       require('substance/packages/superscript/SuperscriptCommand'),
       require('substance/packages/code/CodeCommand'),
+
+      require('./packages/exec/StencilExecInsertCommand'),
+      require('./packages/text/StencilTextInsertCommand'),
+      require('./packages/figure/StencilFigureInsertCommand'),
+      require('./packages/include/StencilIncludeInsertCommand'),
     ],
     textTypes: [
       {name: 'paragraph', data: {type: 'paragraph'}},

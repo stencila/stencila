@@ -44,14 +44,14 @@ BOOST_AUTO_TEST_CASE(provide){
 
 	Component c;
 	
-	c.create("version-0.0.1.txt","0.0.1");
+	c.write_to("version-0.0.1.txt","0.0.1");
 		BOOST_CHECK(exists(c.path()+"/version-0.0.1.txt"));
 	c.commit();
 	c.version("0.0.1");
 
-	c.delete_("version-0.0.1.txt");
+	c.delete_file("version-0.0.1.txt");
 		BOOST_CHECK(not exists(c.path()+"/version-0.0.1.txt"));
-	c.create("version-0.0.2.txt","0.0.2");
+	c.write_to("version-0.0.2.txt","0.0.2");
 		BOOST_CHECK(exists(c.path()+"/version-0.0.2.txt"));
 	c.commit();
 	c.version("0.0.2");

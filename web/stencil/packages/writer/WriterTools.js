@@ -18,7 +18,10 @@ var HomeTool = require('../../../shared/tools/home/HomeTool');
 var ActivateTool = require('./ActivateTool');
 var RenderTool = require('./RenderTool');
 
-var InsertTableTool = require('../table/InsertTableTool');
+var StencilExecInsertTool = require('../exec/StencilExecInsertTool');
+var StencilTextInsertTool = require('../text/StencilTextInsertTool');
+var StencilFigureInsertTool = require('../figure/StencilFigureInsertTool');
+var StencilIncludeInsertTool = require('../include/StencilIncludeInsertTool');
 
 function WriterTools() {
   WriterTools.super.apply(this, arguments);
@@ -42,16 +45,19 @@ WriterTools.Prototype = function() {
         $$(RenderTool).append($$(Icon, {icon: 'fa-refresh'})),
         $$(SaveTool).append($$(Icon, {icon: 'fa-save'}))
       ),
-      /*$$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
-        $$(InsertTableTool).append($$(Icon, {icon: 'fa-table'}))
-      )*/
+      $$(Toolbar.Dropdown, {label: $$(Icon, {icon: 'fa-plus'}),}).append(
+        $$(StencilExecInsertTool).append($$(Icon, {icon: 'fa-play'}),' execute'),
+        $$(StencilTextInsertTool).append($$(Icon, {icon: 'fa-font'}),' text'),
+        $$(StencilFigureInsertTool).append($$(Icon, {icon: 'fa-bar-chart'}),' figure'),
+        $$(StencilIncludeInsertTool).append($$(Icon, {icon: 'fa-arrow-circle-right'}),' include')
+      ),
       $$(Toolbar.Group).addClass('float-right').append(
         $$(StrongTool).append($$(Icon, {icon: 'fa-bold'})),
         $$(EmphasisTool).append($$(Icon, {icon: 'fa-italic'})),
         $$(LinkTool).append($$(Icon, {icon: 'fa-link'}))
       )
     );
-  }
+  };
 };
 Component.extend(WriterTools);
 module.exports = WriterTools;

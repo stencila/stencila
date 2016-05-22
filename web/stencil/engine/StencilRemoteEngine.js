@@ -1,5 +1,7 @@
 'use strict';
 
+var each = require('lodash/collection/each');
+
 var RemoteEngine = require('../../shared/RemoteEngine');
 
 var StencilHTMLImporter = require('../model/StencilHTMLImporter');

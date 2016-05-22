@@ -2,6 +2,7 @@ import ast
 import importlib
 import pickle
 import re
+import os
 
 
 class Spread:
@@ -21,11 +22,14 @@ class Spread:
         Evaluate an expression within the spread environment.
         Private method used in methods below.
         '''
-        value = eval(
-            expression,
-            self.packages,
-            self.variables
-        )
+        try:
+            value = eval(
+                expression,
+                self.packages,
+                self.variables
+            )
+        except Exception, exc:
+            value = exc
         return value
 
     def _content(self, value):
@@ -33,18 +37,24 @@ class Spread:
         Get the type and string representation of a value
         Private method used in methods below.
         '''
-        tipe = type(value).__name__
-        if tipe == 'int':
-            tipe = 'integer'
-        elif tipe == 'float':
-            tipe = 'real'
-        elif tipe == 'str':
-            tipe = 'string'
-        rep = repr(value)
-        return (tipe, rep)
+        if isinstance(value,Exception):
+            return ('error', str(value))
+        else:
+            tipe = type(value).__name__
+            if tipe == 'bool':
+                tipe = 'boolean'
+            elif tipe == 'int':
+                tipe = 'integer'
+            elif tipe == 'float':
+                tipe = 'real'
+            elif tipe == 'str':
+                tipe = 'string'
+            rep = repr(value)
+            return (tipe, rep)
 
     # Following method implement the `Spread` interface
-    
+    # Most of them must return a string
+
     _import_regex = re.compile('import +(\w+)')
 
     def execute(self, source):
@@ -73,8 +83,14 @@ class Spread:
         value = self.variables[name]
         return self._content(value)
 
-    def clear(self):
-        self.variables = {}
+    def clear(self, id="", name=""):
+        if id:
+            del self.variables[id]
+            if name:
+                del self.variables[id]
+        else:
+            self.variables = {}
+        return ''
 
     def list(self):
         return ','.join(self.variables.keys())
@@ -87,10 +103,17 @@ class Spread:
         return ','.join(collector.names)
 
     def read(self, path):
-        pickle.load(path)
+        path = os.path.join(path, 'context.pkl')
+        if os.path.exists(path):
+            file = open(path)
+            self.variables = pickle.load(file)
+        return ''
 
     def write(self, path):
-        pass
+        file = open(os.path.join(path, 'context.pkl'), 'w')
+        pickle.dump(self.variables, file)
+        file.close()
+        return ''
 
 
 class SpreadNameCollector(ast.NodeVisitor):

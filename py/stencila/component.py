@@ -1,25 +1,59 @@
-import stencila.extension as extension
-
 from stencila.extension import Component
+
+# List of component instances
+# already instantiated
+instances = {}
+
+
+def instantiate(type, content, format):
+    '''
+    Instantiate a component
+
+    This function is called by the C++ functions
+    `Component::create` and `Component::get` to create a new instance
+    '''
+    type = type.lower()
+    if type == 'stencil':
+        from stencila.stencil import Stencil
+        component = Stencil()
+        if format == 'path':
+            component.read(content)
+        elif format == 'json':
+            component.json(content)
+        else:
+            raise Exception('Unhandled stencil format\n  format: ' + format)
+    elif type == 'sheet':
+        from stencila.sheet import Sheet
+        component = Sheet()
+        if format == 'path':
+            component.read(content)
+        elif format == 'json':
+            component.read(content, 'json')
+        else:
+            raise Exception('Unhandled sheet format\n  format: ' + format)
+    else:
+        raise Exception('Unhandled component type\n type:', type)
+
+    global instances
+    instances[component.address()] = component
+
+    return component
+
 
 def grab(address):
     '''
-    Grab a component from an address
+    Grab a component
 
-    Resolves the local path from the address and
-    the component type from the path.
+    This is functionally the same as the C++ function
+    `Component::get` but first checks for a locally instantiated
+    instance of the component.
     '''
-    type = extension.type(address)
-    if type == 'Stencil':
-        from stencila.stencil import Stencil
-        return Stencil(address)
-    elif type == 'Theme':
-        return extension.Theme(address)
-    elif type == 'Sheet':
-        from stencila.sheet import Sheet
-        return Sheet(address)
-    else:
-        raise Exception(
-            'Unhandled type at address:\n  type:%s\n  address:%s' %
-            (type, address)
-        )
+    global instances
+    if address not in instances:
+        # Because the entered address could be an alias e.g. `.`, or local
+        # filesystem path, use the resolved address as the key for `instances`
+        address = Component.grab(address)[0]
+
+    # Component should now be instantiated and stored in `instances`
+    # so return it from there
+    return instances[address]

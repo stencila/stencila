@@ -219,8 +219,8 @@ BOOST_AUTO_TEST_CASE(parse){
 	BOOST_CHECK_EQUAL(cell.source(" foo bar ").expression,"\" foo bar \"");
 
 	// Named expressions
-	for(auto content : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
-		cell.source(content);
+	for(auto source : {"answer = 6*7"," answer =6*7"," answer= 6*7 ","answer=6*7"}){
+		cell.source(source);
 		BOOST_CHECK_EQUAL(cell.kind, Cell::expression_);
 		BOOST_CHECK_EQUAL(cell.name, "answer");
 		BOOST_CHECK_EQUAL(cell.expression, "6*7");
@@ -278,9 +278,9 @@ BOOST_AUTO_TEST_CASE(dependencies_1){
 
 	// Initial checks for loading
 	BOOST_CHECK_EQUAL(join(s.list(), ","), "A1,A2,B1,B2,C1,C2");
-	BOOST_CHECK_EQUAL(s.content("A1"), "A2");
-	BOOST_CHECK_EQUAL(s.content("B2"), "A1 + B1");
-	BOOST_CHECK_EQUAL(s.content("C2"), "1");
+	BOOST_CHECK_EQUAL(s.cell("A1").value, "A2");
+	BOOST_CHECK_EQUAL(s.cell("B2").value, "A1 + B1");
+	BOOST_CHECK_EQUAL(s.cell("C2").value, "1");
 
 	// Check dependency graph
 	BOOST_CHECK_EQUAL(join(s.depends("B2"), ","), "A1,B1");

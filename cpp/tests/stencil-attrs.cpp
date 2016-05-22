@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(general){
 				<div id="keywords">a,b,cd<div>
 				<div class="author">Arthur Dent</div>
 				<div class="author">Slartibartfast</div>
-				<div id="contexts">r,py</div>
+				<div id="environs">r,py</div>
 				<div id="theme">inter-galatic-journal/theme</div>
 				<p class="advice">Don't panic!</p>
 			</main>
@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE(general){
 	BOOST_CHECK_EQUAL(s.keywords().size(),3u);
 	BOOST_CHECK_EQUAL(s.keywords()[1],"b");
 
-	BOOST_CHECK_EQUAL(s.contexts().size(),2u);
-	BOOST_CHECK_EQUAL(s.contexts()[0],"r");
-	BOOST_CHECK_EQUAL(s.contexts()[1],"py");
+	BOOST_CHECK_EQUAL(s.environs().size(),2u);
+	BOOST_CHECK_EQUAL(s.environs()[0],"r");
+	BOOST_CHECK_EQUAL(s.environs()[1],"py");
 
 	BOOST_CHECK_EQUAL(s.authors().size(),2u);
 	BOOST_CHECK_EQUAL(s.authors()[1],"Slartibartfast");
@@ -46,43 +46,43 @@ BOOST_AUTO_TEST_CASE(general){
 	s.destroy();
 }
 
-BOOST_AUTO_TEST_CASE(contexts){
+BOOST_AUTO_TEST_CASE(environs){
 	{
 		Stencil s;
-		BOOST_CHECK_EQUAL(s.contexts().size(),0u);
+		BOOST_CHECK_EQUAL(s.environs().size(),0u);
 	}{
 		Stencil s(R"(html://
-			<div id="contexts">r,py</div>
+			<div id="environs">r,py</div>
 			<pre data-exec="foo"></pre>
 		)");
 
-		BOOST_CHECK_EQUAL(s.contexts().size(),2u);
-		BOOST_CHECK_EQUAL(s.contexts()[0],"r");
-		BOOST_CHECK_EQUAL(s.contexts()[1],"py");
+		BOOST_CHECK_EQUAL(s.environs().size(),2u);
+		BOOST_CHECK_EQUAL(s.environs()[0],"r");
+		BOOST_CHECK_EQUAL(s.environs()[1],"py");
 	}{
 		Stencil s(R"(html://
 			<pre data-exec="r"></pre>
 		)");
-		BOOST_CHECK_EQUAL(s.contexts().size(),1u);
-		BOOST_CHECK_EQUAL(s.contexts()[0],"r");
+		BOOST_CHECK_EQUAL(s.environs().size(),1u);
+		BOOST_CHECK_EQUAL(s.environs()[0],"r");
 	}{
 		Stencil s(R"(html://
 			<pre data-exec="r,py"></pre>
 			<pre data-exec="py"></pre>
 			<pre data-exec="py,r"></pre>
 		)");
-		BOOST_CHECK_EQUAL(s.contexts().size(),2u);
-		BOOST_CHECK_EQUAL(s.contexts()[0],"py");
-		BOOST_CHECK_EQUAL(s.contexts()[1],"r");
+		BOOST_CHECK_EQUAL(s.environs().size(),2u);
+		BOOST_CHECK_EQUAL(s.environs()[0],"py");
+		BOOST_CHECK_EQUAL(s.environs()[1],"r");
 	}{
 		Stencil s(R"(html://
 			<pre data-exec="r"></pre>
 			<pre data-exec="py"></pre>
 			<pre data-exec="py"></pre> 
 		)");
-		BOOST_CHECK_EQUAL(s.contexts().size(),2u);
-		BOOST_CHECK_EQUAL(s.contexts()[0],"py");
-		BOOST_CHECK_EQUAL(s.contexts()[1],"r");
+		BOOST_CHECK_EQUAL(s.environs().size(),2u);
+		BOOST_CHECK_EQUAL(s.environs()[0],"py");
+		BOOST_CHECK_EQUAL(s.environs()[1],"r");
 	}
 }
 

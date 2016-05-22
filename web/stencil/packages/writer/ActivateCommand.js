@@ -21,7 +21,7 @@ ActivateCommand.Prototype = function() {
       status: 'component-activate-started'
     };
   };
-}:
+};
 
 ControllerCommand.extend(ActivateCommand);
 

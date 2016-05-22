@@ -11,6 +11,8 @@ ARCH := $(shell ./config.py arch)
 COMMIT :=  $(shell ./config.py commit)
 # Get Stencila version
 VERSION :=  $(shell ./config.py version)
+# Get count of commits since last tag
+COMMIT_COUNT := $(shell git rev-list  `git rev-list --tags --no-walk --max-count=1`..HEAD --count)
 # Is this a dirty build (i.e. changes since last commit)?
 DIRTY := $(findstring dirty,$(VERSION))
 
@@ -46,6 +48,7 @@ vars:
 	@echo OS: $(OS)
 	@echo ARCH: $(ARCH)
 	@echo COMMIT: $(COMMIT)
+	@echo COMMIT_COUNT: $(COMMIT_COUNT)
 	@echo VERSION: $(VERSION)
 	@echo DIRTY: $(DIRTY)
 	@echo BUILD: $(BUILD)
@@ -117,15 +120,14 @@ endif
 #   --prefix=.  - so that boost installs into its own directory
 #   link=static - so that get statically compiled instead of dynamically compiled libraries
 BOOST_B2_FLAGS := -d0 --prefix=. link=static install
-ifeq ($(OS), linux)
-	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
-	BOOST_B2_FLAGS += cxxflags=-fPIC
-endif
 ifeq ($(OS), win)
 	# b2 must be called with "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
 	# b2 must be called with "release" build otherwise defaults to debug AND release, which with "system" causes an 
 	#   error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
 	BOOST_B2_FLAGS += --layout=system release toolset=gcc
+else
+	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
+	BOOST_B2_FLAGS += cxxflags=-fPIC
 endif
 
 $(BUILD)/cpp/requires/boost-built.flag: $(BUILD)/cpp/requires/boost
@@ -145,6 +147,33 @@ CPP_REQUIRES_LIBS += boost_filesystem boost_system boost_regex boost_thread
 cpp-requires-boost: $(BUILD)/cpp/requires/boost-built.flag
 
 
+CMARK_VERSION := 0.25.2
+
+$(RESOURCES)/cmark-$(CMARK_VERSION).tar.gz:
+	mkdir -p $(RESOURCES)
+	wget --no-check-certificate -O $@ https://github.com/jgm/cmark/archive/$(CMARK_VERSION).tar.gz
+
+$(BUILD)/cpp/requires/cmark: $(RESOURCES)/cmark-$(CMARK_VERSION).tar.gz
+	mkdir -p $(BUILD)/cpp/requires
+	tar xzf $< -C $(BUILD)/cpp/requires
+	rm -rf $@
+	mv $(BUILD)/cpp/requires/cmark-$(CMARK_VERSION) $@
+	touch $@
+
+$(BUILD)/cpp/requires/cmark/build/src/libcmark.a: $(BUILD)/cpp/requires/cmark
+	mkdir -p $</build
+	cd $</build ;\
+		cmake .. -DCMAKE_C_FLAGS=-fPIC ;\
+		make ;\
+		rm src/libcmark.so* # Prevent linking to shared library
+
+cpp-requires-cmark: $(BUILD)/cpp/requires/cmark/build/src/libcmark.a
+
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/cmark/src -I$(BUILD)/cpp/requires/cmark/build/src
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/cmark/build/src
+CPP_REQUIRES_LIBS += cmark
+
+
 LIBGIT2_VERSION := 0.23.4
 
 $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip:
@@ -162,11 +191,10 @@ $(BUILD)/cpp/requires/libgit2: $(RESOURCES)/libgit2-$(LIBGIT2_VERSION).zip
 #  	BUILD_CLAR=OFF - do not build tests
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
 LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
-ifeq ($(OS), linux)
-	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
-endif
 ifeq ($(OS), win)
 	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
+else
+	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 $(BUILD)/cpp/requires/libgit2-built.flag: $(BUILD)/cpp/requires/libgit2
 	cd $< ;\
@@ -181,6 +209,31 @@ CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libgit2/build
 CPP_REQUIRES_LIBS += git2
 
 cpp-requires-libgit2: $(BUILD)/cpp/requires/libgit2-built.flag
+
+
+
+LIBZIP_VERSION := 1.1.2
+
+$(RESOURCES)/libzip-$(LIBZIP_VERSION).tar.gz:
+	mkdir -p $(RESOURCES)
+	wget -O $@ http://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz
+
+$(BUILD)/cpp/requires/libzip: $(RESOURCES)/libzip-$(LIBZIP_VERSION).tar.gz
+	mkdir -p $(BUILD)/cpp/requires
+	rm -rf $@
+	tar xzf $< -C $(BUILD)/cpp/requires
+	mv $(BUILD)/cpp/requires/libzip-$(LIBZIP_VERSION) $@
+	touch $@
+
+$(BUILD)/cpp/requires/libzip/lib/.libs/libzip.a: $(BUILD)/cpp/requires/libzip
+	cd $<  && ./configure --disable-shared --enable-static --with-pic && make
+
+CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/libzip/lib
+CPP_REQUIRES_LIB_DIRS += -L$(BUILD)/cpp/requires/libzip/lib/.libs
+CPP_REQUIRES_LIBS += zip
+
+cpp-requires-libzip: $(BUILD)/cpp/requires/libzip/lib/.libs/libzip.a
+
 
 
 CPP_NETLIB_VERSION := 0.11.2
@@ -231,7 +284,7 @@ $(BUILD)/cpp/requires/pugixml: $(RESOURCES)/pugixml-$(PUGIXML_VERSION).tar.gz
 	touch $@
 
 PUGIXML_CXX_FLAGS := -O2
-ifeq ($(OS), linux)
+ifneq ($(OS), win)
 	PUGIXML_CXX_FLAGS += -fPIC
 endif
 $(BUILD)/cpp/requires/pugixml/src/libpugixml.a: $(BUILD)/cpp/requires/pugixml
@@ -287,15 +340,14 @@ endif
 $(BUILD)/cpp/requires/tidy-html5-built.flag: $(BUILD)/cpp/requires/tidy-html5
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
 	  cmake $(TIDYHTML5_CMAKE_FLAGS) ../..
-ifeq ($(OS), linux)
-	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
-		make
-endif
 ifeq ($(OS), win)
 	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
 		cmake --build . --config Release
 	# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 	objcopy --localize-symbols=cpp/requires/tidy-html5-localize-symbols.txt $(BUILD)/cpp/requires/tidy-html5/build/cmake/libtidys.a
+else
+	cd $(BUILD)/cpp/requires/tidy-html5/build/cmake ;\
+		make
 endif
 	touch $@
 
@@ -306,7 +358,7 @@ CPP_REQUIRES_LIBS += tidys
 cpp-requires-tidy-html5: $(BUILD)/cpp/requires/tidy-html5-built.flag
 
 
-WEBSOCKETPP_VERSION := 0.6.0
+WEBSOCKETPP_VERSION := 0.7.0
 
 $(RESOURCES)/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	mkdir -p $(RESOURCES)
@@ -324,8 +376,17 @@ CPP_REQUIRES_INC_DIRS += -I$(BUILD)/cpp/requires/websocketpp
 
 cpp-requires-websocketpp: $(BUILD)/cpp/requires/websocketpp-built.flag
 
-$(BUILD)/cpp/requires: cpp-requires-boost cpp-requires-cpp-netlib cpp-requires-libgit2 cpp-requires-pugixml \
-   cpp-requires-jsoncpp cpp-requires-tidy-html5 cpp-requires-websocketpp
+
+$(BUILD)/cpp/requires: \
+	cpp-requires-boost \
+	cpp-requires-cmark \
+	cpp-requires-cpp-netlib \
+	cpp-requires-libgit2 \
+	cpp-requires-libzip \
+	cpp-requires-pugixml \
+	cpp-requires-jsoncpp \
+	cpp-requires-tidy-html5 \
+	cpp-requires-websocketpp
 
 cpp-requires: $(BUILD)/cpp/requires
 
@@ -333,6 +394,9 @@ cpp-requires: $(BUILD)/cpp/requires
 CPP_OTHER_LIBS := z crypto ssl
 ifeq ($(OS), linux)
 	CPP_OTHER_LIBS += rt pthread curl
+endif
+ifeq ($(OS), osx)
+	CPP_OTHER_LIBS += curl
 endif
 ifeq ($(OS), win)
 	CPP_OTHER_LIBS += ws2_32 mswsock ssh2
@@ -366,45 +430,85 @@ cpp-helpers-uglifyjs:
 #################################################################################################
 # Stencila C++ library
 
-# Get version compiled into library
-CPP_VERSION_CPP := $(BUILD)/cpp/library/version.cpp
-CPP_VERSION_O := $(BUILD)/cpp/library/version.o
-CPP_VERSION_COMPILED := $(shell grep -s -Po "(?<=Stencila::version = \")([^\"]+)" $(CPP_VERSION_CPP))
-
-# Delete version.cpp if it is out of date
-ifneq ($(CPP_VERSION_COMPILED),$(VERSION))
-DUMMY := $(shell rm -f $(CPP_VERSION_CPP))
+# C++ compiler options when compiling Stencila source into libstencila.a or 
+# language packages
+# 
+# -Wno-unknown-pragmas : for clang, prevents lots of warings
+# -Wno-missing-braces : for clang, unecessary, see http://stackoverflow.com/a/13905432/4625911
+# -Wno-unused-local-typedefs : because boost defines quite a lot of local typedefs
+# -Wno-unknown-warning-option : because clang doesn't know -Wno-unused-local-typedefs
+CPP_FLAGS := --std=c++11 -O2 -Wall \
+			   -Wno-unknown-pragmas -Wno-missing-braces -Wno-unused-local-typedefs \
+			   -Wno-unknown-warning-option
+ifneq ($(OS), win)
+	CPP_FLAGS += -fPIC
 endif
 
-# Create version.cpp file with current version and commit
-$(CPP_VERSION_CPP):
+# Compile version.o
+CPP_VERSION_TXT := $(BUILD)/cpp/library/generated/version.txt
+CPP_VERSION_CPP := $(BUILD)/cpp/library/generated/version.cpp
+CPP_VERSION_O := $(BUILD)/cpp/library/objects/version.o
+$(CPP_VERSION_O):
+ifneq ($(shell if [ -e "$(CPP_VERSION_TXT)" ]; then cat "$(CPP_VERSION_TXT)"; else echo ""; fi),$(VERSION))
 	@mkdir -p $(dir $@)
-	@echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
-	@echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
-	@echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(CPP_VERSION_CPP)
-
-# Compile version object file
-$(CPP_VERSION_O): $(CPP_VERSION_CPP)
-	@mkdir -p $(dir $@)
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
-cpp-library-version: $(CPP_VERSION_O)
-
-cpp-library-vars:
-	@echo VERSION: $(VERSION)
-	@echo COMMIT: $(COMMIT)
-	@echo CPP_VERSION_COMPILED: $(CPP_VERSION_COMPILED)
-
-
-# Compile Stencila C++ files into object files
-CPP_LIBRARY_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2
-ifeq ($(OS), linux)
-	CPP_LIBRARY_FLAGS +=-fPIC
+	echo "$(VERSION)" > $(CPP_VERSION_TXT)
+	echo "#include <stencila/version.hpp>" > $(CPP_VERSION_CPP)
+	echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(CPP_VERSION_CPP)
+	echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(CPP_VERSION_CPP)
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $(CPP_VERSION_CPP)
 endif
-CPP_LIBRARY_CPPS := $(wildcard cpp/stencila/*.cpp)
-CPP_LIBRARY_OBJECTS := $(patsubst %.cpp,$(BUILD)/cpp/library/objects/stencila-%.o,$(notdir $(CPP_LIBRARY_CPPS))) $(CPP_VERSION_O)
-$(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires
+.PHONY: $(CPP_VERSION_O)
+
+# Compile C++ source files
+$(BUILD)/cpp/library/objects/stencila-%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/library/objects
-	$(CXX) $(CPP_LIBRARY_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -o$@ -c $<
+
+# Generate syntax parser using Lemon
+$(BUILD)/cpp/library/generated/syntax-%-parser.cpp: cpp/stencila/syntax-%.y
+	@mkdir -p $(dir $@)
+	lemon $<
+	mv cpp/stencila/syntax-$*.h $(dir $@)
+	mv cpp/stencila/syntax-$*.c $@
+	rm cpp/stencila/syntax-$*.out
+
+# Compile syntax parser
+$(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o: $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CPP_FLAGS) -Wno-unused-variable -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<	
+
+# Generate syntax lexer using Flex
+$(BUILD)/cpp/library/generated/syntax-%-lexer.cpp: cpp/stencila/syntax-%.l
+	@mkdir -p $(dir $@)
+	flex --outfile $@ --header-file=$(dir $@)syntax-$*-lexer.hpp $<
+
+# Compile syntax lexer
+$(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o: $(BUILD)/cpp/library/generated/syntax-%-lexer.cpp $(BUILD)/cpp/library/generated/syntax-%-parser.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CPP_FLAGS) -Wno-deprecated-register -Wno-unused-function -Icpp -I$(BUILD)/cpp/library/generated -o$@ -c $<	
+
+# Generate the `parse()` method by using the template .cxx file
+$(BUILD)/cpp/library/generated/syntax-%-parse.cpp: cpp/stencila/syntax-parser-parse.cxx
+	@mkdir -p $(dir $@)
+	sed -e 's!{lang}!$*!' -e 's!{lang-title}!\u$*!' cpp/stencila/syntax-parser-parse.cxx > $@
+
+# Compile lexer and parser source
+$(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o: $(BUILD)/cpp/library/generated/syntax-%-parse.cpp \
+														$(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o \
+	 		  											$(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(BUILD)/cpp/library/generated -o$@ -c $<
+
+# List of parsing related object files used in library and tests
+CPP_PARSER_YS := $(notdir $(wildcard cpp/stencila/syntax-*.y))
+CPP_PARSER_OS := $(patsubst syntax-%.y, $(BUILD)/cpp/library/objects/stencila-syntax-%-lexer.o,$(CPP_PARSER_YS)) \
+				$(patsubst syntax-%.y, $(BUILD)/cpp/library/objects/stencila-syntax-%-parser.o,$(CPP_PARSER_YS)) \
+				$(patsubst syntax-%.y, $(BUILD)/cpp/library/objects/stencila-syntax-%-parse.o,$(CPP_PARSER_YS))
+
+# List of all Stencila library object files
+CPP_LIBRARY_OS := $(CPP_PARSER_OS) \
+					   $(patsubst %.cpp,$(BUILD)/cpp/library/objects/stencila-%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
+					   $(CPP_VERSION_O)
+cpp-library-objects: $(CPP_LIBRARY_OS)
 
 # Extract object files from requirement libraries
 # Care may be required to ensure no name clashes in object files
@@ -416,28 +520,30 @@ define CPP_LIBRARY_EXTRACT
 	rm -rf $(BUILD)/cpp/library/objects/$2
 endef
 
-$(BUILD)/cpp/library/objects: $(CPP_LIBRARY_OBJECTS) $(BUILD)/cpp/requires
-	@mkdir -p $@
+$(BUILD)/cpp/library/objects/requires-objects.flag: $(BUILD)/cpp/requires
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_system.a,boost-system)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_filesystem.a,boost-filesystem)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_thread.a,boost-thread)
+	$(call CPP_LIBRARY_EXTRACT,cmark/build/src/libcmark.a,cmark)
 	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-client-connections.a,cppnetlib-client-connections)
 	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-uri.a,cppnetlib-uri)
 	$(call CPP_LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
+	$(call CPP_LIBRARY_EXTRACT,libzip/lib/.libs/libzip.a,zip)
 	$(call CPP_LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
 	$(call CPP_LIBRARY_EXTRACT,tidy-html5/build/cmake/libtidys.a,tidy)
 	touch $@
+cpp-requires-objects: $(BUILD)/cpp/library/objects/requires-objects.flag
 
 # Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
 # into a single static library.
-# Output list of contents to `files.txt` and `symbols.txt` for checking
-$(BUILD)/cpp/library/libstencila.a: $(BUILD)/cpp/library/objects
-	cd $(BUILD)/cpp/library ;\
-		$(AR) rc libstencila.a `find . -name "*.o*"` ;\
-		$(AR) t libstencila.a > files.txt ;\
-		nm -gC libstencila.a > symbols.txt
+# To output lists of contents for checking:
+# 		ar t libstencila.a > files.txt 
+#		nm -gC libstencila.a > symbols.txt  # C demangles but is an invalid option on OS X
+$(BUILD)/cpp/library/libstencila.a: cpp-library-objects cpp-requires-objects
+	cd $(BUILD)/cpp/library  && $(AR) rc libstencila.a `find . -name "*.o"`
 cpp-library-staticlib: $(BUILD)/cpp/library/libstencila.a
+
 
 cpp-library: cpp-library-staticlib
 
@@ -478,18 +584,19 @@ endif
 # 		-g (debug symbols)
 # 		-O0 (no optimizations, so coverage is valid)
 # 		--coverage (for coverage instrumentation)
-CPP_TEST_COMPILE := $(CXX) --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function \
-                       -g -O0 --coverage -Icpp $(CPP_REQUIRES_INC_DIRS)
-
+CPP_TEST_COMPILE := $(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS)
 CPP_TEST_LIB_DIRS := $(CPP_REQUIRES_LIB_DIRS)
-
-CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) $(CPP_OTHER_LIBS) boost_unit_test_framework boost_timer boost_chrono gcov
+CPP_TEST_LIBS := $(CPP_REQUIRES_LIBS) $(CPP_OTHER_LIBS) boost_unit_test_framework boost_timer boost_chrono
+ifeq ($(OS), linux)
+CPP_TEST_COMPILE += -g -O0 --coverage
+CPP_TEST_LIBS += gcov
+endif
 CPP_TEST_LIBS := $(patsubst %, -l%,$(CPP_TEST_LIBS))
 
 # Compile a test file into an object file
 # $(realpath $<) is used for consistency of paths in coverage reports
 CPP_TEST_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/%.o,$(notdir $(wildcard cpp/tests/*.cpp)))
-$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp $(BUILD)/cpp/requires
+$(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
@@ -497,8 +604,10 @@ $(BUILD)/cpp/tests/%.o: cpp/tests/%.cpp $(BUILD)/cpp/requires
 # This needs to be done (instead of linking to libstencila.a) so that coverage statistics
 # can be generated for these files
 # $(realpath $<) is used for consistency of paths in coverage reports
-CPP_TEST_STENCILA_OS := $(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) $(CPP_VERSION_O)
-$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp $(BUILD)/cpp/requires 
+CPP_TEST_STENCILA_OS := $(CPP_PARSER_OS) \
+						$(patsubst %.cpp,$(BUILD)/cpp/tests/stencila/%.o,$(notdir $(wildcard cpp/stencila/*.cpp))) \
+						$(CPP_VERSION_O)
+$(BUILD)/cpp/tests/stencila/%.o: cpp/stencila/%.cpp
 	@mkdir -p $(BUILD)/cpp/tests/stencila
 	$(CPP_TEST_COMPILE) -o$@ -c $(realpath $<)
 
@@ -511,11 +620,11 @@ $(BUILD)/cpp/tests/%: cpp/tests/%
 
 # Compile a single test file into an executable
 $(BUILD)/cpp/tests/%.exe: $(BUILD)/cpp/tests/%.o $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS)
-	$(CPP_TEST_COMPILE) -o$@ $< $(BUILD)/cpp/tests/tests.o $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $^ $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Compile all test files into an executable
 $(BUILD)/cpp/tests/tests.exe: $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS)
-	$(CPP_TEST_COMPILE) -o$@ $(CPP_TEST_OS) $(CPP_TEST_STENCILA_OS) $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
+	$(CPP_TEST_COMPILE) -o$@ $^ $(CPP_TEST_LIB_DIRS) $(CPP_TEST_LIBS)
 
 # Make test executable precious so they are kept despite
 # being intermediaries for test runs
@@ -529,17 +638,14 @@ $(BUILD)/cpp/tests/%: $(BUILD)/cpp/tests/%.exe $(CPP_TEST_INPUTS)
 		ulimit -v 2097152; (./$(notdir $<)) || (exit 1)
 
 # Run a single test suite by specifying in command line e.g.
-# 	make cpp-test CPP_TEST=stencil-cila
+# 	make cpp-test-stencil-cila
 # Creates a symlink so the debugger picks this test as the one
 # to debug
-ifndef CPP_TEST
-  CPP_TEST := tests
-endif
-cpp-test: build-current $(BUILD)/cpp/tests/$(CPP_TEST).exe $(CPP_TEST_INPUTS)
+cpp-test-%: $(BUILD)/cpp/tests/%.exe $(CPP_TEST_INPUTS)
 	cd $(BUILD)/cpp/tests/ ;\
-		ln -sfT $(CPP_TEST).exe test-to-debug ;\
+		ln -sfT $*.exe test-to-debug ;\
 		ulimit -v 2097152 ;\
-		(./$(CPP_TEST).exe) || (exit 1)
+		(./$*.exe) || (exit 1)
 
 # Run quick tests only
 cpp-tests-quick: $(BUILD)/cpp/tests/tests.exe $(CPP_TEST_INPUTS)
@@ -637,7 +743,12 @@ cpp-clean:
 
 #################################################################################################
 # Stencila Docker images
+#
+# When doing `docker push` note that it's necessary to push both version and latest tags:
+#   http://container-solutions.com/docker-latest-confusion/
+#   https://github.com/docker/docker/issues/7336
 
+# R
 $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfile docker/stencila-session.r r-package
 	@mkdir -p $(dir $@)
 	cp docker/ubuntu-14.04-r-3.2/Dockerfile $(dir $@)
@@ -649,19 +760,29 @@ $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfi
 
 docker-r-build: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
 
-docker-r-session: docker-r-build
-	docker run --detach --publish=7373:7373 stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila-session
-
-docker-r-run: docker-r-build
-	docker run --interactive --tty stencila/ubuntu-14.04-r-3.2:$(VERSION) /bin/bash
-
 docker-r-deliver: docker-r-build
-	# It's necessary to push both tags:
-	#   http://container-solutions.com/docker-latest-confusion/
-	#   https://github.com/docker/docker/issues/7336
 	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
 	docker push stencila/ubuntu-14.04-r-3.2:latest
 	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-r-3.2)
+
+
+# Python
+$(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt: docker/ubuntu-14.04-py-2.7/Dockerfile docker/stencila-session.py py-package
+	@mkdir -p $(dir $@)
+	cp docker/ubuntu-14.04-py-2.7/Dockerfile $(dir $@)
+	cp docker/stencila-session.py $(dir $@)
+	cp $(BUILD)/py/2.7/dist/$$(cat $(BUILD)/py/2.7/latest.txt) $(dir $@)/stencila.whl
+	docker build --tag stencila/ubuntu-14.04-py-2.7:$(VERSION) $(dir $@)
+	docker tag --force stencila/ubuntu-14.04-py-2.7:$(VERSION) stencila/ubuntu-14.04-py-2.7:latest
+	echo "stencila/ubuntu-14.04-py-2.7:$(VERSION)" > $@
+
+docker-py-build: $(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt
+
+docker-py-deliver: docker-py-build
+	docker push stencila/ubuntu-14.04-py-2.7:$(VERSION)
+	docker push stencila/ubuntu-14.04-py-2.7:latest
+	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-py-2.7)
+
 
 #################################################################################################
 # Stencila Javascript package
@@ -766,13 +887,9 @@ js-clean:
 ifndef PY_VERSION
   PY_VERSION := $(shell ./config.py py_version)
 endif
-
+PY_EXE := python$(PY_VERSION)
 PY_BUILD := $(BUILD)/py/$(PY_VERSION)
-
-ifeq ($(OS), linux)
-  PY_INCLUDE_DIR := /usr/include/python$(PY_VERSION)
-  PY_EXE := python$(PY_VERSION)
-endif
+PY_INCLUDES := $(shell python$(PY_VERSION)-config --includes)
 
 PY_BOOST_PYTHON_LIB := boost_python
 #ifeq $(or $(if $(OS),3.0), $(if $(OS),3.0)
@@ -782,11 +899,13 @@ PY_BOOST_PYTHON_LIB := boost_python
 PY_PACKAGE_PYS := $(patsubst %.py,$(PY_BUILD)/stencila/%.py,$(notdir $(wildcard py/stencila/*.py)))
 PY_PACKAGE_OBJECTS := $(patsubst %.cpp,$(PY_BUILD)/objects/%.o,$(notdir $(wildcard py/stencila/*.cpp)))
 
-PY_CXX_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 -fPIC
-
 PY_SETUP_EXTRA_OBJECTS := $(patsubst $(PY_BUILD)/%,%,$(PY_PACKAGE_OBJECTS))
 PY_SETUP_LIB_DIRS := ../../cpp/library ../../cpp/requires/boost/lib
-PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) $(CPP_OTHER_LIBS) 
+PY_SETUP_LIBS := stencila $(PY_BOOST_PYTHON_LIB) python$(PY_VERSION) $(CPP_OTHER_LIBS)
+
+# Stencila version number used in the Python wheel file name
+# Replace dashes with underscores
+VERSION_PY_WHEEL := $(subst -,_,$(VERSION))
 
 # Print Python related Makefile variables; useful for debugging
 py-vars:
@@ -797,9 +916,9 @@ $(PY_BUILD)/stencila/%.py: py/stencila/%.py
 	@mkdir -p $(PY_BUILD)/stencila
 	cp $< $@
 
-$(PY_BUILD)/objects/%.o: py/stencila/%.cpp $(BUILD)/cpp/requires
+$(PY_BUILD)/objects/%.o: py/stencila/%.cpp
 	@mkdir -p $(PY_BUILD)/objects
-	$(CXX) $(PY_CXX_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) -I$(PY_INCLUDE_DIR) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) $(PY_INCLUDES) -o$@ -c $<
 
 # Copy setup.py to build directory and run it from there
 # Create and touch a `dummy.cpp` for setup.py to build
@@ -863,7 +982,7 @@ endif
 # If R_VERSION is not defined then get it
 ifndef R_VERSION
   # Version number excludes any patch number
-  R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'\\\\.')[[1]][1],sep='.')" )
+  R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'.',fixed=T)[[1]][1],sep='.')" )
 endif
 
 # Shortcut to the R build directory
@@ -879,6 +998,12 @@ R_DLL_EXT := so
 R_REPO_DIR := src/contrib
 R_REPO_TYPE := source
 endif
+ifeq ($(OS),osx)
+R_PACKAGE_EXT := tar.gz
+R_DLL_EXT := so
+R_REPO_DIR := src/contrib
+R_REPO_TYPE := source
+endif
 ifeq ($(OS),win)
 R_PACKAGE_EXT := zip
 R_DLL_EXT := dll
@@ -887,9 +1012,7 @@ R_REPO_TYPE := win.binary
 endif
 
 # Path to files delivered to http:://get.stenci.la
-R_UNIQUE_PATH := $(OS)/$(ARCH)/$(R_VERSION)/stencila-$(R_PACKAGE_VERSION)
-R_DLL_PATH := r/dll/$(R_UNIQUE_PATH).zip
-R_BUNDLE_PATH := r/bundle/$(R_UNIQUE_PATH).$(R_PACKAGE_EXT)
+R_DLL_PATH := $(OS)/$(ARCH)/$(R_VERSION)/stencila-$(VERSION).zip
 
 # Platform dependent variables
 R_CPPFLAGS := $(shell R CMD config --cppflags)
@@ -905,7 +1028,6 @@ r-vars:
 	@echo R_PACKAGE_EXT : $(R_PACKAGE_EXT)
 	@echo R_DLL_EXT : $(R_DLL_EXT)
 	@echo R_DLL_PATH : $(R_DLL_PATH)
-	@echo R_BUNDLE_PATH : $(R_BUNDLE_PATH)
 	@echo R_REPO_DIR : $(R_REPO_DIR)
 	@echo R_REPO_TYPE : $(R_REPO_TYPE)
 	@echo R_CPPFLAGS : $(R_CPPFLAGS)
@@ -913,17 +1035,11 @@ r-vars:
 	@echo RCPP_CXXFLAGS : $(RCPP_CXXFLAGS)
 	@echo RCPP_LDFLAGS : $(RCPP_LDFLAGS)
 
-R_COMPILE_FLAGS := --std=c++11 -Wall -Wno-unused-local-typedefs -Wno-unused-function -O2 \
-				-Icpp $(CPP_REQUIRES_INC_DIRS) $(R_CPPFLAGS) $(RCPP_CXXFLAGS)
-ifeq ($(OS),linux)
-R_COMPILE_FLAGS += -fPIC
-endif
-
 # Compile each cpp file
 R_PACKAGE_OBJECTS := $(patsubst %.cpp,$(R_BUILD)/objects/%.o,$(notdir $(wildcard r/stencila/*.cpp)))
-$(R_BUILD)/objects/%.o: r/stencila/%.cpp $(BUILD)/cpp/requires
+$(R_BUILD)/objects/%.o: r/stencila/%.cpp
 	@mkdir -p $(R_BUILD)/objects
-	$(CXX) $(R_COMPILE_FLAGS) -o$@ -c $<
+	$(CXX) $(CPP_FLAGS) -Icpp $(CPP_REQUIRES_INC_DIRS) $(R_CPPFLAGS) $(RCPP_CXXFLAGS) -o$@ -c $<
 	
 # Build DLL
 R_DLL_LIBS := stencila $(CPP_OTHER_LIBS)
@@ -949,9 +1065,9 @@ $(R_BUILD)/stencila-dll.zip: r-dll-check
 r-dll-zip: $(R_BUILD)/stencila-dll.zip
 
 # Copy over DLL zip file
-R_PACKAGE_DLL := $(R_BUILD)/stencila/inst/bin/stencila-dll.zip
+R_PACKAGE_DLL := $(R_BUILD)/stencila/inst/bin/$(R_DLL_PATH)
 $(R_PACKAGE_DLL): $(R_BUILD)/stencila-dll.zip
-	@mkdir -p $(R_BUILD)/stencila/inst/bin
+	mkdir -p $(dir $@)
 	cp $< $@
 
 # Copy over `stencila-r`
@@ -967,8 +1083,8 @@ $(R_BUILD)/stencila/R/%.R: r/stencila/%.R
 	cp $< $@
 
 # Copy over each unit test file
-R_PACKAGE_TESTS := $(patsubst %, $(R_BUILD)/stencila/inst/unitTests/%, $(notdir $(wildcard r/tests/*.R)))
-$(R_BUILD)/stencila/inst/unitTests/%.R: r/tests/%.R
+R_PACKAGE_TESTS := $(patsubst %, $(R_BUILD)/stencila/inst/unitTests/%, $(notdir $(wildcard r/tests/*.R) $(wildcard r/tests/*.xlsx)))
+$(R_BUILD)/stencila/inst/unitTests/%: r/tests/%
 	@mkdir -p $(R_BUILD)/stencila/inst/unitTests
 	cp $< $@
 
@@ -978,7 +1094,6 @@ $(R_PACKAGE_DESC): r/DESCRIPTION
 	cp $< $@
 
 # Finalise the package directory
-R_PACKAGE_DATE := $(shell date --utc +%Y-%m-%dT%H:%M:%SZ)
 $(R_BUILD)/stencila: $(R_PACKAGE_DLL) $(R_PACKAGE_CLI) $(R_PACKAGE_RS) $(R_PACKAGE_TESTS) $(R_PACKAGE_DESC)
 	# Edit package version and date using sed:
 	#	.* = anything, any number of times
@@ -986,7 +1101,9 @@ $(R_BUILD)/stencila: $(R_PACKAGE_DLL) $(R_PACKAGE_CLI) $(R_PACKAGE_RS) $(R_PACKA
 	# The $ needs to be doubled for escaping make
 	# ISO 8601 date/time stamp used: http://en.wikipedia.org/wiki/ISO_8601
 	sed -i 's!Version: .*$$!Version: $(R_PACKAGE_VERSION)!' $(R_PACKAGE_DESC)
-	sed -i 's!Date: .*$$!Date: $(R_PACKAGE_DATE)!' $(R_PACKAGE_DESC)
+	sed -i 's!Date: .*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' $(R_PACKAGE_DESC)
+	# Create VERSION file
+	echo "$(VERSION)" > $(R_BUILD)/stencila/inst/bin/VERSION
 	# Run roxygen to generate Rd files and NAMESPACE file
 	cd $(R_BUILD) ;\
 		rm -f stencila/man/*.Rd ;\
@@ -1006,11 +1123,10 @@ r-package-check: $(R_BUILD)/stencila
 R_PACKAGE_FILE_BUILT := stencila_$(R_PACKAGE_VERSION).$(R_PACKAGE_EXT) # What gets build by R CMD
 R_PACKAGE_FILE := stencila_$(VERSION).$(R_PACKAGE_EXT) # What we want it to be called (with non-standard-for-R version string)
 $(R_BUILD)/$(R_PACKAGE_FILE): $(R_BUILD)/stencila
-ifeq ($(OS),linux)
-	cd $(R_BUILD); R CMD build stencila
-endif
 ifeq ($(OS),win)
 	cd $(R_BUILD); R CMD INSTALL --build stencila
+else
+	cd $(R_BUILD); R CMD build stencila
 endif
 ifneq ($(R_BUILD)/$(R_PACKAGE_FILE_BUILT),$(R_BUILD)/$(R_PACKAGE_FILE))
 	mv $(R_BUILD)/$(R_PACKAGE_FILE_BUILT) $(R_BUILD)/$(R_PACKAGE_FILE)
@@ -1041,7 +1157,7 @@ r-deliver: $(R_BUILD)/stencila-dll.zip r-repo
 ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
 else
-	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/$(R_DLL_PATH)
+	aws s3 cp $(R_BUILD)/stencila-dll.zip s3://get.stenci.la/r/dll/$(R_DLL_PATH)
 	aws s3 cp --recursive $(R_BUILD)/repo/$(R_REPO_DIR) s3://get.stenci.la/r/$(R_REPO_DIR)
 	$(call DELIVERY_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(R_REPO_DIR)/$(R_PACKAGE_FILE))
 endif
@@ -1059,7 +1175,8 @@ $(R_BUILD)/testenv/stencila: $(R_BUILD)/$(R_PACKAGE_FILE)
 # Test the package by running unit tests
 r-tests: $(R_BUILD)/testenv/stencila $(R_BUILD)/$(R_PACKAGE_FILE)
 	cd $(R_BUILD) ;cd testenv ;\
-	    (Rscript -e ".libPaths(c('.',.libPaths()[1])); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)
+	    (Rscript -e ".libPaths(c('.',.libPaths()[1])); library(stencila); setwd('stencila/unitTests/'); source('do-svUnit.R'); quit(save='no',status=fails);") || (exit 1)  ;\
+	    (Rscript -e ".libPaths(c('.',.libPaths()[1])); setwd('stencila/unitTests/'); source('testthat-spreadsheet.R'); quit(save='no',status=fails);") || (exit 1)
 
 # Install R on the local host
 # Not intended for development but rather 
