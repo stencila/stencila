@@ -102,6 +102,9 @@ public:
 
 	const Node operator[](const unsigned int& index) const;
 
+	template<typename Type>
+	Type get(const std::string& name) const;
+
 	template<class Type>
 	Node append(Type value);
 
@@ -142,6 +145,14 @@ public:
 protected:
 	Impl* pimpl_;
 };
+
+template<typename Type>
+Type Node::get(const std::string& name) const {
+	if (has(name)) return (*this)[name].as<Type>();
+	else {
+		STENCILA_THROW(Exception, "No property with name.\n  name: "+name);
+	}
+}
 
 /**
  * A JSON Document
