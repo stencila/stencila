@@ -45,11 +45,16 @@ class Document {
   std::string html(void) const;
 
   /**
+   * Get content as a HTML document
+   */
+  Xml::Document html_doc(void) const;
+
+  /**
    * Set content from a HTML document
    * 
    * @param  doc Document (actually an `Xml::Document` at present)
    */
-  Document& html_doc(Xml::Document& doc);
+  Document& html_doc(const Xml::Document& doc);
 
   /**
    * Get content as a Latex string

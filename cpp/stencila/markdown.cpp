@@ -34,13 +34,137 @@ namespace {
     return string;
   }
 
-  // Building a cmark document from Xml::Nodes 
-  void build_tree(cmark_node* parent, Xml::Node xnode) {
+  // Building a XML document from cmark nodes
+  void build_html_tree(Xml::Node parent, cmark_node* cnode) {
+    Xml::Node node;
+
+    cmark_node_type cnode_type = cmark_node_get_type(cnode);
+    switch (cnode_type) {
+      case CMARK_NODE_DOCUMENT:
+        node = parent;
+      break;
+
+      case CMARK_NODE_BLOCK_QUOTE:
+        node = parent.append("blockquote");
+      break;
+
+      case CMARK_NODE_LIST:
+      {
+        auto list_type = cmark_node_get_list_type(cnode);
+        if (list_type == CMARK_ORDERED_LIST) {
+          node = parent.append("ol");
+        } else {
+          node = parent.append("ul");
+        }
+      }
+      break;
+
+      case CMARK_NODE_ITEM:
+        node = parent.append("li");
+      break;
+
+      case CMARK_NODE_CODE_BLOCK:
+      {
+        auto pre = parent.append("pre");
+        node = pre.append("code");
+        std::string info = cmark_node_get_fence_info(cnode);
+        if (info.length()) node.attr("class", info);
+        node.text(cmark_node_get_literal(cnode));
+      }
+      break;
+
+      case CMARK_NODE_PARAGRAPH:
+      {
+        // Unwrap paragraph nodes that are below `blockquote` and `li`
+        if (parent.name()=="blockquote" or parent.name()=="li") {
+          node = parent;
+        } else {
+          node = parent.append("p");
+        }
+      }
+      break;
+
+      case CMARK_NODE_HEADING:
+      {
+        auto level = cmark_node_get_heading_level(cnode);
+        node = parent.append("h"+string(level));
+      }
+      break;
+      
+      case CMARK_NODE_TEXT:
+        parent.append_text(cmark_node_get_literal(cnode));
+      break;
+
+      case CMARK_NODE_CODE:
+        node = parent.append("code");
+        node.text(cmark_node_get_literal(cnode));
+      break;
+
+      case CMARK_NODE_EMPH:
+        node = parent.append("em");
+      break;
+
+      case CMARK_NODE_STRONG:
+        node = parent.append("strong");
+      break;
+
+      case CMARK_NODE_LINK:
+      case CMARK_NODE_IMAGE:
+      {
+        std::string url_attr;
+        if (cnode_type == CMARK_NODE_LINK) {
+          node = parent.append("a");
+          url_attr = "href";
+        } else {
+          node = parent.append("img");
+          url_attr = "src";
+        }
+        std::string url = cmark_node_get_url(cnode);
+        if (url.length()) {
+          node.attr(url_attr, url);
+        }
+        std::string title = cmark_node_get_title(cnode);
+        if (title.length()) {
+          node.attr("title", title);
+        }
+      }
+      break;
+
+      case CMARK_NODE_HTML_BLOCK:
+      case CMARK_NODE_HTML_INLINE:
+        parent.append_xml(cmark_node_get_literal(cnode));
+      break;
+
+      default:
+        // Fallback for node types not yet handled above so that 
+        // content is not lost
+        node = parent.append("div");
+      break;
+    }
+
+    if (node) {
+      cmark_node* child = cmark_node_first_child(cnode);
+      cmark_node* last = cmark_node_last_child(cnode);
+      while (child) {
+        build_html_tree(node, child);
+        if (child == last) break;
+        child = cmark_node_next(child);
+      }
+    }
+  }
+
+  // Building a cmark document from XML nodes 
+  void build_cmark_tree(cmark_node* parent, Xml::Node xnode) {
     cmark_node* node;
-    if (xnode.is_text()) {
+    if (xnode.is_document()) {
+      for (auto child : xnode.children()) build_cmark_tree(parent, child);
+      return;
+    }
+    else if (xnode.is_text()) {
       node = cmark_node_new(CMARK_NODE_TEXT);
       cmark_node_set_literal(node, xnode.text().c_str());
-    } else {
+    } 
+    else {
       bool build_children = true;
       auto tag = xnode.name();
       if (tag == "blockquote") {
@@ -114,7 +238,7 @@ namespace {
       }
 
       if (build_children) {
-        for (auto child : xnode.children()) build_tree(node, child);
+        for (auto child : xnode.children()) build_cmark_tree(node, child);
       }
     }
 
@@ -202,10 +326,16 @@ std::string Document::html(void) const {
   return root_?wrap_render(cmark_render_html(root_, CMARK_OPT_DEFAULT)):"";
 }
 
-Document& Document::html_doc(Xml::Document& doc) {
+Xml::Document Document::html_doc(void) const {
+  Xml::Document doc;
+  build_html_tree(doc, root_);
+  return doc;
+}
+
+Document& Document::html_doc(const Xml::Document& doc) {
   if (root_) cmark_node_free(root_);
   root_ = cmark_node_new(CMARK_NODE_DOCUMENT);
-  for (auto child : doc.children()) build_tree(root_, child);
+  build_cmark_tree(root_, doc);
   cmark_consolidate_text_nodes(root_);
   return *this;
 }
