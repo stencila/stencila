@@ -525,6 +525,7 @@ $(BUILD)/cpp/library/objects/requires-objects.flag: $(BUILD)/cpp/requires
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_filesystem.a,boost-filesystem)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
 	$(call CPP_LIBRARY_EXTRACT,boost/lib/libboost_thread.a,boost-thread)
+	$(call CPP_LIBRARY_EXTRACT,cmark/build/src/libcmark.a,cmark)
 	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-client-connections.a,cppnetlib-client-connections)
 	$(call CPP_LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-uri.a,cppnetlib-uri)
 	$(call CPP_LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
