@@ -855,6 +855,7 @@ $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila: $(PY_BUILD)/
 	@mkdir -p $(PY_BUILD);
 	cd $(PY_BUILD) ;\
 		. testenv/bin/activate ;\
+		pip install pytest coverage ;\
 		pip install --upgrade --force-reinstall dist/`cat latest.txt`
 
 py-tests: $(wildcard py/tests/*.py) $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages/stencila
@@ -863,7 +864,7 @@ py-tests: $(wildcard py/tests/*.py) $(PY_BUILD)/testenv/lib/python$(PY_VERSION)/
 	cd $(PY_BUILD)/testenv/tests ;\
 		. ../bin/activate ;\
 		(coverage run --source=stencila --module py.test)||(exit 1) ;\
-		sed -i "s!/usr/local/lib/python2.7/dist-packages!$(ROOT)/py!g" .coverage ;\
+		sed -i "s!$(ROOT)/$(PY_BUILD)/testenv/lib/python$(PY_VERSION)/site-packages!$(ROOT)/py!g" .coverage ;\
 		coverage report
 
 py-install: $(PY_BUILD)/testenv/bin/activate $(PY_BUILD)/latest.txt

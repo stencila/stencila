@@ -1,8 +1,6 @@
 import unittest
 
 import stencila
-from stencila import *
-
 
 class ExceptionTests(unittest.TestCase):
 
@@ -83,7 +81,7 @@ class ContextTests(unittest.TestCase):
     '''
 
     def test_execute(self):
-        c = Context()
+        c = stencila.Context()
         c.execute('''
 a = 1.2
 b = 3.4
@@ -92,17 +90,17 @@ c = a+b
         self.assertEqual(c.get('c'), 4.6)
 
     def test_assign(self):
-        c = Context()
+        c = stencila.Context()
         c.assign('x', '4*3')
         self.assertEqual(c.get('x'), 12)
 
     def test_input(self):
-        c = Context()
+        c = stencila.Context()
         c.input('x', 'number', '42')
         self.assertEqual(c.get('x'), 42)
 
     def test_write(self):
-        c = Context()
+        c = stencila.Context()
         self.assertEqual(c.set('x', 42).write('x'), '42')
         self.assertEqual(c.set('x', [1, 2, 3]).write('x'), '[1, 2, 3]')
         self.assertEqual(c.set('x', 'foo').write('x'), 'foo')
@@ -111,14 +109,14 @@ c = a+b
         pass
 
     def test_test(self):
-        c = Context()
+        c = stencila.Context()
         c.set('x', 42)
         self.assertTrue(c.test('x==42'))
         self.assertTrue(c.test('x==6*7'))
         self.assertTrue(c.test('x!=43'))
 
     def test_mark_match_unmark(self):
-        c = Context()
+        c = stencila.Context()
         c.set('x', 42)
 
         c.mark('x')
@@ -130,7 +128,7 @@ c = a+b
         self.assertRaises(Exception, c.match, 'foo')
 
     def test_begin_next(self):
-        c = Context()
+        c = stencila.Context()
         self.assertTrue(c.begin('fruit', '["apple", "pear", "kiwifruit"]'))
         self.assertEqual(c.get('fruit'), 'apple')
         self.assertTrue(c.next())
@@ -140,7 +138,7 @@ c = a+b
         self.assertFalse(c.next())
 
     def test_enter_exit(self):
-        c = Context()
+        c = stencila.Context()
         c.set('x', {'a': 42, 'b': 'foo'})
         c.enter('x')
         self.assertEqual(c.get('a'), 42)
@@ -183,9 +181,9 @@ class StencilTests(unittest.TestCase):
         A shortcut method for testing rendering
         '''
         if context is None:
-            context = Context()
+            context = stencila.Context()
         return self.assertEqual(
-            Stencil().html(inp).render(context).html(False, False).strip(),
+            stencila.Stencil().html(inp).render(context).html(False, False).strip(),
             out
         )
 
