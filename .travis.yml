@@ -83,7 +83,7 @@ script:
     - make vars
     - make cpp-requires
     - make cpp-tests-quick -j2
-    - make py-tests -j2
+    - make -C py setup build cover
     - make r-tests -j2
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
