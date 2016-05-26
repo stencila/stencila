@@ -81,7 +81,7 @@ before_script:
 
 script:
     - make vars
-    - make cpp-requires
+    - make cpp-requires cpp-library
     - make cpp-tests-quick -j2
     - make -C py setup build cover
     - make r-tests -j2

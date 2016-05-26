@@ -37,7 +37,7 @@ ifeq (dirty,$(DIRTY))
 	$(error Delivery is not done for dirty versions. Commit or stash and try again.)
 else
 	aws s3 cp dist/$(WHEEL_FILE) s3://get.stenci.la/py/
-	#$(call DELIVER_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(WHEEL_FILE))
+	$(call DELIVER_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(WHEEL_FILE))
 endif
 
 # Clean up
