@@ -84,7 +84,7 @@ script:
     - make build/current
     - make cpp-requires cpp-library
     - make cpp-tests-quick -j2
-    - make -C py setup build cover
+    - make -C py build cover
     - make r-tests -j2
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
@@ -95,7 +95,7 @@ script:
 after_success:
     - bash <(curl -s https://codecov.io/bash)
     - | 
-        if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+        if [[ "TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make py-deliver
             make r-deliver
             if [[ "$DOCKER_BUILDS" == "true" ]]; then
