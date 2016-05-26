@@ -3,7 +3,7 @@ language: generic
 branches:
     only:
         - master
-        - develop
+        - py-build
 
 matrix:
   include:
@@ -81,6 +81,7 @@ before_script:
 
 script:
     - make vars
+    - make build/current
     - make cpp-requires cpp-library
     - make cpp-tests-quick -j2
     - make -C py setup build cover
