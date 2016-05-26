@@ -16,9 +16,9 @@ vars:
 
 # Assert that the repository is not dirty i.e. no uncommitted changes
 define ASSERT_CLEAN
-	ifeq ($(findstring dirty,$(shell git describe --dirty)),dirty)
-	  $(error Uncommitted changes. Commit or stash and then try again.)
-	endif
+ifeq ($(findstring dirty,$(shell git describe --dirty)),dirty)
+	$(error Uncommitted changes. Commit or stash and then try again.)
+endif
 endef
 
 # Notify the Stencila hub that a build has been delivered
