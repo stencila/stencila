@@ -194,7 +194,6 @@ class StencilTests(unittest.TestCase):
             ('c', 'c'),
             ((1, 2, 3), '(1, 2, 3)'),
             ([1, 2, 3], '[1, 2, 3]'),
-            ({'a': 1, 'b': 2, 'c': 3}, "{'a': 1, 'c': 3, 'b': 2}"),
         ):
             self.renderCheck(
                 '<div data-text="value"></div>',

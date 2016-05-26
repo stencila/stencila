@@ -1,0 +1,6 @@
+build
+dist
+stencila.egg-info
+.tox
+.coverage
+coverage.xml

@@ -1,27 +1,21 @@
 '''
-Setup script for Stencila Python package.
+Setup script for the Stencila Python package.
 
-For creating binary packages:
+To create binary package wheel:
     python setup.py bdist_wheel
 
-There has been a lot of confusion and contention around Python packaging e.g.
-    http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/
-    http://cournape.wordpress.com/2012/06/23/why-setuptools-does-not-matter-to-me/
-    http://blog.ziade.org/2012/09/10/dear-django-help-python-packaging/
-
-The Python Packaging User Guide recommends using setuptools (https://python-packaging-user-guide.readthedocs.org/en/latest/current.html)
-and bdist_wheel
+The Python Packaging User Guide recommends using setuptools and bdist_wheel (
+https://python-packaging-user-guide.readthedocs.org/en/latest/current.html)
 '''
-import os
+import subprocess
 from setuptools import setup, Extension
 
 setup(
-    # See http://docs.python.org/distutils/apiref.html for a full list of optional arguments
     name='stencila',
-    version=os.getenv('VERSION', None),
+    version=subprocess.check_output('../version.sh', shell=True),
 
     author='Nokome Bentley',
-    author_email='nokome.bentley@stenci.la',
+    author_email='nokome@stenci.la',
 
     url='http://stenci.la',
     license='GPLv3',
@@ -30,23 +24,39 @@ setup(
         'stencila'
     ],
 
-    # Compile the final extension module here rather than in wscript
-    # This ensure that the wheel and extension module that is produced has the correct binary naming
-    # convention.
-    # Another way around this is described here http://lucumr.pocoo.org/2014/1/27/python-on-wheels/#building-wheels .
-    # The method used here appears to produce a wheel layout that is more similar to expected for a 
-    # binary distribution.
     ext_modules=[
         Extension(
             'stencila.extension',
-            ['dummy.cpp'],
-            extra_objects=os.getenv('EXTRA_OBJECTS','').split(),
-            library_dirs=os.getenv('LIBRARY_DIRS','').split(),
-            libraries=os.getenv('LIBRARIES','').split()
+            sources=[
+                'stencila/extension.cpp',
+
+                'stencila/component.cpp',
+                'stencila/context.cpp',
+                'stencila/sheet.cpp',
+                'stencila/spread.cpp',
+                'stencila/stencil.cpp',
+            ],
+            include_dirs=[
+                '../cpp',
+                '../build/current/cpp/requires/boost',
+                '../build/current/cpp/requires/websocketpp'
+            ],
+            extra_compile_args=[
+                '--std=c++11', '-Wno-unused-local-typedefs'
+            ],
+            library_dirs=[
+                '../build/current/cpp/library',
+                '../build/current/cpp/requires/boost/lib'
+            ],
+            libraries=[
+                'stencila',
+                'boost_python',
+                'ssl',
+                'curl'
+            ]
         ),
     ],
 
-    # Install CLI
     scripts=[
         'scripts/stencila-py'
     ]

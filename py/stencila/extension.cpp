@@ -54,7 +54,6 @@ BOOST_PYTHON_MODULE(extension){
 	// Define component classes
 	def_Component();
     def_Stencil();
-    def_Theme();
     def_Sheet();
 
     // Declare component class types

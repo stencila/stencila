@@ -3,7 +3,6 @@ language: generic
 branches:
     only:
         - master
-        - develop
 
 matrix:
   include:
@@ -81,9 +80,10 @@ before_script:
 
 script:
     - make vars
-    - make cpp-requires
+    - make build/current
+    - make cpp-requires cpp-library
     - make cpp-tests-quick -j2
-    - make py-tests -j2
+    - make -C py build cover
     - make r-tests -j2
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
@@ -92,9 +92,9 @@ script:
         fi
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash) -X coveragepy
     - | 
-        if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+        if [[ "TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make py-deliver
             make r-deliver
             if [[ "$DOCKER_BUILDS" == "true" ]]; then
