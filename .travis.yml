@@ -93,7 +93,7 @@ script:
         fi
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash) -X coveragepy
     - | 
         if [[ "TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make py-deliver
