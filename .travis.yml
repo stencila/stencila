@@ -3,7 +3,6 @@ language: generic
 branches:
     only:
         - master
-        - py-build
 
 matrix:
   include:
