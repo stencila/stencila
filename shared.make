@@ -7,19 +7,14 @@ endif
 # Get the machine architecture e.g i386, x86_64
 ARCH := $(shell uname -m)
 
+# Check if the repository is dirty i.e. has uncommitted changes
+DIRTY = $(findstring dirty,$(shell git describe --dirty))
+
 # Show defined variables
 vars:
 	@echo OS : $(OS)
 	@echo ARCH : $(ARCH)
-	@echo Git describe : $(shell git describe --long --dirty)
-	@echo Clean? : $(findstring dirty,$(shell git describe --dirty))
-
-# Assert that the repository is not dirty i.e. no uncommitted changes
-define ASSERT_CLEAN
-ifeq ($(findstring dirty,$(shell git describe --dirty)),dirty)
-	$(error Uncommitted changes. Commit or stash and then try again.)
-endif
-endef
+	@echo DIRTY : $(DIRTY)
 
 # Notify the Stencila hub that a build has been delivered
 define DELIVER_NOTIFY
