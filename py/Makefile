@@ -34,7 +34,7 @@ install:
 # Deliver package
 deliver:
 	$(call ASSERT_CLEAN)
-	#aws s3 cp dist/$(WHEEL_FILE) s3://get.stenci.la/py/
+	aws s3 cp dist/$(WHEEL_FILE) s3://get.stenci.la/py/
 	#$(call DELIVER_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(WHEEL_FILE))
 
 # Clean up

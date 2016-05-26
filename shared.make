@@ -9,8 +9,10 @@ ARCH := $(shell uname -m)
 
 # Show defined variables
 vars:
-	@echo OS: $(OS)
-	@echo ARCH: $(ARCH)
+	@echo OS : $(OS)
+	@echo ARCH : $(ARCH)
+	@echo Git describe : $(shell git describe --long --dirty)
+	@echo Clean? : $(findstring dirty,$(shell git describe --dirty))
 
 # Assert that the repository is not dirty i.e. no uncommitted changes
 define ASSERT_CLEAN
