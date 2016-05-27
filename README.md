@@ -1,5 +1,7 @@
 <div align="center">
-	<a href="https://stenci.la/about"><img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
+	<a href="https://stenci.la/about">
+		<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
+	</a>
 </div>
 
 Stencila is a platform for creating documents that are driven by data. At present we have two types of documents,
