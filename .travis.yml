@@ -87,7 +87,7 @@ script:
     - make build/current
     - make cpp-requires cpp-library
     - make cpp-tests-quick -j2
-    - make -C node build cover
+    - make -C node setup build cover
     - make -C py build cover
     - make r-tests -j2
     - |

@@ -2,6 +2,12 @@ all: build pack test cover
 
 .PHONY: build pack test cover
 
+# Install dependencies
+# The packages `yamljs` and `nunjucks` are in `package.json`
+# but need to be installed before `wrap.js` is run
+setup:
+	npm install yamljs nunjucks
+
 # Build extension
 build:
 	mkdir -p .wrap & node wrap.js
