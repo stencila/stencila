@@ -16,8 +16,8 @@ vars:
 	@echo ARCH : $(ARCH)
 	@echo DIRTY : $(DIRTY)
 
-# Notify the Stencila hub that a build has been delivered
-define DELIVER_NOTIFY
+# Notify the Stencila hub that a build has been published
+define PUBLISH_NOTIFY
 	curl -u "Token:$$STENCILA_TOKEN" \
 	  -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "{ \
 	    \"package\": \"$1\", \

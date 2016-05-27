@@ -31,13 +31,13 @@ cover:
 install:
 	pip install --upgrade --force-reinstall dist/$(WHEEL_FILE)
 
-# Deliver package
-deliver:
+# Publish package
+publish:
 ifeq (dirty,$(DIRTY))
-	$(error Delivery is not done for dirty versions. Commit or stash and try again.)
+	$(error Publish not done for dirty versions. Commit or stash and try again.)
 else
 	aws s3 cp dist/$(WHEEL_FILE) s3://get.stenci.la/py/
-	$(call DELIVER_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(WHEEL_FILE))
+	$(call PUBLISH_NOTIFY,py,$(PY_VERSION),$(OS)/$(ARCH),http://get.stenci.la/py/$(WHEEL_FILE))
 endif
 
 # Clean up
