@@ -999,44 +999,6 @@ r-clean:
 
 
 #################################################################################################
-# Stencila web browser module
-
-web-requires:
-	cd web; npm install
-
-web-build:
-	cd web; gulp build
-
-web-watch:
-	cd web; gulp watch
-
-web-examples:
-	stencila-r web/examples/a render write page:"index.html"
-	stencila-r web/examples/stencil-with-pars render write page:"index.html"
-	stencila-r web/examples/b update write page:"index.html"
-	stencila-r web/examples/sheet-with-error update write page:"index.html"
-
-web-devserve:
-	cd web; node server.js
-
-web-devserve-hub:
-	cd web; node server.js https://stenci.la
-
-web-devserve-hubdev:
-	cd web; node server.js http://localhost:7300
-
-web-deliver:
-ifeq (dirty,$(DIRTY))
-	$(error Delivery is not done for dirty versions: $(VERSION). Commit or stash and try again.)
-else
-	aws s3 sync web/build s3://get.stenci.la/web/
-	$(call DELIVERY_NOTIFY,web,ES5)
-endif
-
-web-clean:
-	rm -rf web/build
-
-#################################################################################################
 
 # Clean everything!
 clean:
