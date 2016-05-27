@@ -65,6 +65,7 @@ before_script:
     - openssl version
     - g++ --version
     - cmake --version
+    - node --version
     - python --version
     - pip show pip setuptools wheel virtualenv
     - R --version
@@ -83,6 +84,7 @@ script:
     - make build/current
     - make cpp-requires cpp-library
     - make cpp-tests-quick -j2
+    - make -C node install cover
     - make -C py build cover
     - make r-tests -j2
     - |
