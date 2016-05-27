@@ -6,7 +6,6 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
-
 # Add additional package repositories
 sudo apt-get install -yq software-properties-common
 
@@ -18,9 +17,11 @@ sudo apt-get update
 
 # Node
 
-curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-sudo apt-get install -yq --no-install-recommends --no-install-suggests \
-	nodejs
+: ${NODE_VERSION:=2.7}
+
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash
+nvm install $NODE_VERSION
+nvm use $NODE_VERSION
 
 
 # Python
@@ -28,20 +29,16 @@ sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 : ${PY_VERSION:=2.7}
 
 if [[ "$PY_VERSION" == "2.7" ]]; then
-	sudo apt-get install -yq --no-install-recommends --no-install-suggests \
-		python2.7=$PY_VERSION.* \
-		python2.7-dev=$PY_VERSION.* \
-		python-pip
-
-	pip2.7 install --user travis --upgrade pip setuptools wheel virtualenv tox awscli
+	PY_VERSION_BASE=2.7
 else
-	sudo apt-get install -yq --no-install-recommends --no-install-suggests \
-		python3=$PY_VERSION.* \
-		python3-dev=$PY_VERSION.* \
-		python3-pip
-
-	pip3 install --user travis --upgrade pip setuptools wheel virtualenv tox awscli
+	PY_VERSION_BASE=3
 fi
+
+sudo apt-get install -yq --no-install-recommends --no-install-suggests \
+	python$PY_VERSION_BASE=$PY_VERSION.* \
+	python$PY_VERSION_BASE-dev=$PY_VERSION.* \
+	python$PY_VERSION_BASE-pip
+pip$PY_VERSION_BASE install --user travis --upgrade pip setuptools wheel virtualenv tox awscli
 
 
 # R

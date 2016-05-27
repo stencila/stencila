@@ -14,6 +14,7 @@ matrix:
         - docker
       env:
         - DOCKER_BUILDS=true
+        - NODE_VERSION=4.4
         - PY_VERSION=2.7
         - R_VERSION=3.2
 
