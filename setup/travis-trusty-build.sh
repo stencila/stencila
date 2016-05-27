@@ -16,10 +16,10 @@ sudo apt-get update
 
 
 # Node
+# nvm is already installed
 
-: ${NODE_VERSION:=2.7}
+: ${NODE_VERSION:=4.4}
 
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash
 nvm install $NODE_VERSION
 nvm use $NODE_VERSION
 
