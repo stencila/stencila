@@ -15,11 +15,11 @@ nunjucks.configure({
 ['component', 'stencil', 'sheet'].forEach(function(name){
 	var spec = yaml.load('../meta/'+name+'.yaml');
 	fs.writeFile(
-		'build/' + name + '.hpp',
+		'.wrap/' + name + '.hpp',
 		nunjucks.render('class.hxx', spec)
 	);
 	fs.writeFile(
-		'build/' + name + '.js',
+		'.wrap/' + name + '.js',
 		nunjucks.render('class.jsx', spec)
 	);
 });

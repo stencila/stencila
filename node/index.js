@@ -1,6 +1,9 @@
 var Context = require('./context.js');
 
-var extension = require('./build/Release/extension');
+var binary = require('node-pre-gyp');
+var path = require('path');
+var extension_path = binary.find(path.resolve(path.join(__dirname,'./package.json')));
+var extension = require(extension_path);
 
 var Stencil = function(){
   var instance = extension.Stencil();

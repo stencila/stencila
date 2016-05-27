@@ -1,16 +1,30 @@
 {
+  "name": "stencila-node",
+  "version": "0.0.0",
+  "main": "./index.js",
+  "dependencies": {
+    "node-pre-gyp": "^0.6.28"
+  },
   "devDependencies": {
+    "aws-sdk": "^2.3.16",
     "istanbul": "^0.4.3",
     "nan": "^2.3.3",
     "node-gyp": "^3.3.1",
+    "node-pre-gyp": "^0.6.28",
     "nunjucks": "^2.4.2",
     "tape": "^4.5.1",
     "yamljs": "^0.2.7"
   },
   "scripts": {
-    "install": "mkdir -p build & node wrap.js & node-gyp configure build",
+    "install": "node-pre-gyp install --fallback-to-build",
     "test": "node tests",
     "cover": "node_modules/.bin/istanbul cover tests"
+  },
+  "binary": {
+    "module_name": "extension",
+    "module_path": "./lib/binding/",
+    "host": "https://get.stenci.la.s3-us-west-2.amazonaws.com",
+    "remote_path": "./node"
   },
   "bin": {
     "stencila-node": "./stencila-node.js"

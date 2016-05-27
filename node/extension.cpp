@@ -3,8 +3,8 @@
 #include <nan.h>
 
 #include "context.hpp"
-#include "build/stencil.hpp"
-#include "build/sheet.hpp"
+#include ".wrap/stencil.hpp"
+#include ".wrap/sheet.hpp"
 
 void init(v8::Handle<v8::Object> exports) {
   // Register stencila classes

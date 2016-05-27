@@ -1,16 +1,21 @@
-all: setup build test
+all: build pack test cover
 
-.PHONY: setup build test
-
-# Install requirements
-install:
-	npm install
+.PHONY: build pack test cover
 
 # Build extension
 build:
-	@mkdir -p build
-	node wrap.js
-	node-gyp configure build
+	mkdir -p .wrap & node wrap.js
+	npm install --build-from-source
+
+# Create package
+package:
+	./node_modules/.bin/node-pre-gyp package
+
+# Publish package
+publish:
+	export node_pre_gyp_accessKeyId="$$AWS_ACCESS_KEY" ;\
+	export node_pre_gyp_secretAccessKey="$$AWS_SECRET_KEY" ;\
+	./node_modules/.bin/node-pre-gyp publish
 
 # Run tests
 test:
@@ -20,6 +25,10 @@ test:
 cover:
 	npm run cover
 
+# Install package globally
+install:
+	npm install -g
+
 # Clean up
 clean:
-	rm -rf build coverage
+	rm -rf build coverage .wrap
