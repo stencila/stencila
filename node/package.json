@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "main": "./index.js",
   "dependencies": {
+    "colors": "^1.1.2",
     "node-pre-gyp": "^0.6.28"
   },
   "devDependencies": {
