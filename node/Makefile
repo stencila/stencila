@@ -3,7 +3,7 @@ all: setup build test
 .PHONY: setup build test
 
 # Install requirements
-setup:
+install:
 	npm install
 
 # Build extension
@@ -19,3 +19,7 @@ test:
 # Run tests with coverage
 cover:
 	npm run cover
+
+# Clean up
+clean:
+	rm -rf build coverage

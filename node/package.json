@@ -8,7 +8,12 @@
     "yamljs": "^0.2.7"
   },
   "scripts": {
+    "preinstall": "mkdir -p build & node wrap.js",
+    "install": "node-gyp configure build",
     "test": "node tests",
     "cover": "node_modules/.bin/istanbul cover tests"
+  },
+  "bin" : {
+    "stencila-node" : "./stencila-node.js"
   }
 }
