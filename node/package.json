@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "istanbul": "^0.4.3",
+    "nan": "^2.3.3",
+    "node-gyp": "^3.3.1",
+    "nunjucks": "^2.4.2",
+    "tape": "^4.5.1",
+    "yamljs": "^0.2.7"
+  },
+  "scripts": {
+    "test": "node tests",
+    "cover": "node_modules/.bin/istanbul cover tests"
+  }
+}
