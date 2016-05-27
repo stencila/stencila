@@ -27,11 +27,8 @@ test('render', function (assert) {
     ['switch x\n\tcase 42\n\tcase 0', 
      'switch x\n\tcase 42\n\tcase 0 ~off'],
 
-    //['for item in ["apple","pear","banana"]\n\tli {text item}', 
-    // ''],
-
-    //['with {"a":10}\n\t{text x*a}', 
-    // 'with {"a":10}\n\t{text x*a 420}'],
+    ['for item in ["apple","pear","banana"]\n\tli {text item}', 
+     'for item in ["apple","pear","banana"]\n\tli each\n\t\t{text item}\n\tli ^0\n\t\t{span apple}\n\tli ^1\n\t\t{span pear}\n\tli ^2\n\t\t{span banana}'],
 
   ].forEach(function(item){
     assert.equal(

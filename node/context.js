@@ -151,12 +151,13 @@ Context.prototype.unmark = function(){
 
 /**
  * Begin a loop.
- * Used by stencil `for` elements e.g. `<ul data-for="planet:planets"><li data-each data-text="planet" /></ul>`
+ * Used by stencil `for` elements e.g. `<ul data-for="planet in planets"><li data-each data-text="planet" /></ul>`
  * 
  * @param  item  Name given to each item
- * @param  items An array of items
+ * @param  items An expression evaluating to an array
  */
-Context.prototype.begin = function(item, items){
+Context.prototype.begin = function(item, expression){
+  var items = this.evaluate_(expression);
   if(items.length>0){
     this.push_();
     this.set_('_item_',item);
@@ -171,12 +172,12 @@ Context.prototype.begin = function(item, items){
 
 /**
  * Steps the current loop to the next item. 
- * Used by stencil `for` elements. See stencil `render`ing methods.
+ * Used by stencil `for` elements. See stencil rendering methods.
  *
- * If there are more items to iterate over this method should return `true`.
+ * If there are more items to iterate over this method should return `1`.
  * When there are no more items, this method should do any clean up required 
  * (e.g popping the loop scope off a scope stack) when ending a loop, 
- * and return `false`. 
+ * and return `0`. 
  */
 Context.prototype.next = function(){
   var items = this.get_('_items_');
