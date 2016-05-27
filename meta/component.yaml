@@ -2,6 +2,14 @@ name: Component
 
 attrs:
 
+  - name: address
+    type: property
+    return: std::string
+
+  - name: path
+    type: property
+    return: std::string
+
   - name: read
 
   - name: write

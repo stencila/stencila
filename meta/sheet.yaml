@@ -1,4 +1,10 @@
 name: Sheet
 bases: [Component]
 
-attrs: []
+attrs:
+
+  - name: serve
+    abstract: false
+
+  - name: view
+    abstract: false

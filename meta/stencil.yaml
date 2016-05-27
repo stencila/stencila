@@ -25,3 +25,6 @@ attrs:
 
   - name: serve
     abstract: false
+
+  - name: view
+    abstract: false
