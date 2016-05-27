@@ -14,8 +14,9 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
 sudo apt-get update
 
-
 # Node
+# See https://github.com/travis-ci/travis-ci/issues/2311#issuecomment-171180704
+# and https://github.com/mapbox/node-pre-gyp#travis-os-x-gochas
 
 : ${NODE_VERSION:=4.4}
 
@@ -23,24 +24,27 @@ rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.n
 source ~/.nvm/nvm.sh
 nvm install $NODE_VERSION
 nvm use $NODE_VERSION
-
+nvm alias default $NODE_VERSION
 
 # Python
 
 : ${PY_VERSION:=2.7}
 
 if [[ "$PY_VERSION" == "2.7" ]]; then
-	PY_VERSION_BASE=2.7
+	PY_PACKAGE=python2.7
+	PY_PIP_PACKAGE=python-pip
+	PY_PIP=pip2.7
 else
-	PY_VERSION_BASE=3
+	PY_PACKAGE=python3
+	PY_PIP_PACKAGE=python3-pip
+	PY_PIP=pip3
 fi
 
 sudo apt-get install -yq --no-install-recommends --no-install-suggests \
-	python$PY_VERSION_BASE=$PY_VERSION.* \
-	python$PY_VERSION_BASE-dev=$PY_VERSION.* \
-	python$PY_VERSION_BASE-pip
-pip$PY_VERSION_BASE install --user travis --upgrade pip setuptools wheel virtualenv tox awscli
-
+	$PY_PACKAGE=$PY_VERSION.* \
+	$PY_PACKAGE-dev=$PY_VERSION.* \
+	$PY_PIP_PACKAGE
+$PY_PIP install --user travis --upgrade pip setuptools wheel virtualenv tox awscli
 
 # R
 
