@@ -16,6 +16,13 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 sudo apt-get update
 
 
+# Node
+
+curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+sudo apt-get install -yq --no-install-recommends --no-install-suggests \
+	nodejs
+
+
 # Python
 
 : ${PY_VERSION:=2.7}
