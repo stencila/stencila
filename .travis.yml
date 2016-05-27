@@ -99,7 +99,7 @@ script:
 after_success:
     - bash <(curl -s https://codecov.io/bash) -X coveragepy
     - | 
-        if [[ "TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+        if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make -C node publish
             make -C py publish
             make r-deliver
