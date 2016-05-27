@@ -1,0 +1,27 @@
+name: Stencil
+bases: [Component]
+
+attrs:
+
+  - name: cila
+    type: property
+    return: std::string
+    brief: Get or set the content of this stencil as a Cila string
+
+  - name: html
+    type: property
+    return: std::string
+    brief: Get or set the content of this stencil as a HTML string
+
+  - name: json
+    type: property
+    return: std::string
+    brief: Get or set the content of this stencil as a JSON string
+    details: |
+
+  - name: render
+    type: method
+    return: self
+
+  - name: serve
+    abstract: false

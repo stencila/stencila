@@ -1,0 +1,10 @@
+name: Component
+
+attrs:
+
+  - name: read
+
+  - name: write
+
+  - name: serve
+    abstract: true

@@ -1,0 +1,4 @@
+name: Sheet
+bases: [Component]
+
+attrs: []
