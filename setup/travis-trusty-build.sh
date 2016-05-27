@@ -16,10 +16,11 @@ sudo apt-get update
 
 
 # Node
-# nvm is already installed
 
 : ${NODE_VERSION:=4.4}
 
+rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm
+source ~/.nvm/nvm.sh
 nvm install $NODE_VERSION
 nvm use $NODE_VERSION
 
