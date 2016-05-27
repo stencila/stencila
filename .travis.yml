@@ -58,6 +58,8 @@ install:
     # Install system level requirements
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then ./setup/travis-osx-build.sh; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./setup/travis-trusty-build.sh; fi
+    # Source nvm here so node is available later on
+    - source ~/.nvm/nvm.sh
 
 before_script:
     # Use this to prepare your build for testing
