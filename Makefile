@@ -66,13 +66,6 @@ build/current:
 	@ln -sfT $(OS)/$(ARCH) build/current
 build-current: build/current
 
-# During development symlink the `stencila.js` into the 
-# Stencila store so it can be served by the embedded server.
-# Call this with STORE variable e.g.
-#    make build-serve STORE=../../store
-build-serve: build/current
-	ln -sfT $(ROOT)/build/current $(STORE)/build
-
 #################################################################################################
 # C++ requirements
 
@@ -401,31 +394,6 @@ endif
 ifeq ($(OS), win)
 	CPP_OTHER_LIBS += ws2_32 mswsock ssh2
 endif
-
-#################################################################################################
-# C++ helpers
-# These helpers are currently used by the C++ module via system calls. As such they are not required
-# to compile Stencila modules but rather provide additional functionality. In the long term the
-# system calls to these helpers will be replaced by integrating C++ compatible libraries or replacement code
-
-# PhantomJS is used in `stencil-formats.cpp` for translating ASCIIMath to MathML and for
-# creating thumbnails.
-# Instead of using PhantomJS, the translation from ASCIIMath to MathML could be done by porting the ASCIIMath.js code to C++
-cpp-helpers-phantomjs:
-	cd /usr/local/share ;\
-		sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 ;\
-		sudo tar xjf phantomjs-1.9.8-linux-x86_64.tar.bz2 ;\
-		sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs ;\
-		sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs ;\
-
-# Sass is used for `make`ing themes (compiling SCSS into minified CSS)
-# Instead of using node-sass, libsass could be used in C++ directly
-cpp-helpers-sass:
-	sudo npm install node-sass -g
-
-# UglifyJS is used for `make`ing themes (compiling JS into minified JS)
-cpp-helpers-uglifyjs:
-	sudo npm install uglify-js -g
 
 #################################################################################################
 # Stencila C++ library
