@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:250px">
+	<a href="https://stenci.la/about"><img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
 </div>
 
 Stencila is a platform for creating documents that are driven by data. At present we have two types of documents,
@@ -16,15 +16,24 @@ Things are still very "beta" so please give us your suggestions by creating an [
 [![Issues](https://img.shields.io/github/issues-raw/badges/shields.svg)](http://waffle.io/stencila/stencila)
 [![Ready](https://badge.waffle.io/stencila/stencila.svg?label=1+-+Ready&title=ready)](http://waffle.io/stencila/stencila)
 [![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
-[![Build](https://travis-ci.org/stencila/stencila.svg?branch=develop)](https://travis-ci.org/stencila/stencila)
+[![Build](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
+[![codecov](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
 
 ### Installing
 
 Head on over to the [releases page](https://github.com/stencila/stencila/releases) for instructions on installing the Stencila package for R or Python. At this stage, builds are only available for Linux 64 bit. If you are on a different operating system you can try building one of the packages yourself (instructions below). We have successfully built the R package on Windows 7 and hope to make this, and an OS X build, part of our regular build set soon.
 
-Alternatively, you can use one of the Docker images: [`stencila/ubuntu-14.04-python-2.7`](https://hub.docker.com/r/stencila/ubuntu-14.04-python-2.7/) or [`stencila/ubuntu-14.04-r-3.2`](https://hub.docker.com/r/stencila/ubuntu-14.04-r-3.2/) (see [docker/README.md](docker/README.md) for more..)
+Alternatively, you can use one of the Docker images: [`stencila/ubuntu-14.04-python-2.7`](https://hub.docker.com/r/stencila/ubuntu-14.04-python-2.7/) or [`stencila/ubuntu-14.04-r-3.2`](https://hub.docker.com/r/stencila/ubuntu-14.04-r-3.2/) (see [docker/README.md](docker/README.md) for more...)
 
 Stencila components are placed in a "store" on your machine. The default Stencila store is `~/.stencila` but you can use other store directories and specify them in a semicolon separated list in an environment variable `STENCILA_STORES`.
+
+### Contributing
+
+We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Or, visit the kanban board at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) to see which issues are ready to be tackled and what's being worked on.
+
+Occasionally, bounties are put on issues. Rather than duplicating effort we ask 
+
+Please also not that we have a [code of conduct](CONDUCT.md).
 
 ### Building
 
@@ -143,6 +152,3 @@ R CMD INSTALL --build stencila
 
 We are using [semantic version numbers](http://semver.org/) so versions like "0.y.z" indicate that the library is still in initial development phase. It is still early days so the API will change frequently. Don't rely on API stability until the release of version 1.0.0.
 
-### Contributing
-
-We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Even better, visit the kanban board at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) or [huboard.com/stencila/stencila](https://huboard.com/stencila/stencila) to see which issues are ready to be tackled.
