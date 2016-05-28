@@ -1,0 +1,4 @@
+NAMESPACE
+man
+*.Rcheck
+*.tar.gz

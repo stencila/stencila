@@ -1,14 +1,29 @@
 Package: stencila
 Type: Package
-Version: %(inserted by Makefile)%
-Date: %(inserted by Makefile)%
+Version: 0.22.0.107088809
+Date: 2016-05-28T13:46:19Z
 Title: Documents powered by data
-Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/master/AUTHORS
+Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/
+    master/AUTHORS
 Maintainer: Nokome Bentley <nokome@stenci.la>
-Description: Code stuff in R, write stuff in markup or in the browser,... commit, share, publish. Repeat.
+Description: Code stuff in R, write stuff in markup or in the browser,...
+    commit, share, publish. Repeat.
 License: GPL-3
 Depends:
     Rcpp (>= 0.12.1),
     methods
 Collate:
     'stencila.R'
+    'component.R'
+    'context.R'
+    'function.R'
+    'html-node.R'
+    'hub.R'
+    'iterators.R'
+    'sheet.R'
+    'spread.R'
+    'spreadsheet.R'
+    'stencil.R'
+    'syntax.R'
+    'theme.R'
+RoxygenNote: 5.0.0
