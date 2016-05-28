@@ -5,7 +5,11 @@ ifeq ($(OS),darwin)
 endif
 
 # Get the machine architecture e.g i386, x86_64
-ARCH := $(shell uname -m)
+ARCH = $(shell uname -m)
+
+# Stencila version and commit
+VERSION = $(shell $(dir $(lastword $(MAKEFILE_LIST)))version.sh)
+COMMIT = $(shell git rev-parse HEAD)
 
 # Check if the repository is dirty i.e. has uncommitted changes
 DIRTY = $(findstring dirty,$(shell git describe --dirty))
@@ -14,6 +18,8 @@ DIRTY = $(findstring dirty,$(shell git describe --dirty))
 vars:
 	@echo OS : $(OS)
 	@echo ARCH : $(ARCH)
+	@echo VERSION : $(VERSION)
+	@echo COMMIT : $(COMMIT)
 	@echo DIRTY : $(DIRTY)
 
 # Notify the Stencila hub that a build has been published
