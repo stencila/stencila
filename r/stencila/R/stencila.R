@@ -79,13 +79,10 @@ dll_path <- function(){
 	if(grepl('linux',plat)) os <- 'linux' 
 	else if(grepl('mingw',plat)) os <- 'win'
 	else warning("Stencila DLL is not available for this operating system, sorry.")
-	
+
 	arch <- R.version$arch
 	r_version <- paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
-
-	# Use the full Stencila version from the VERSION file. Can't use the `version()`
-	# function because the DLL is not yet loaded
-	stencila_version <- readLines(file.path(system.file(package='stencila'),'bin','VERSION'))[1]
+	stencila_version <- utils::packageVersion("stencila")
 
 	file.path(os,arch,r_version,paste0('stencila-',stencila_version,'.zip'))
 }
