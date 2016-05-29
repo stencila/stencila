@@ -2,16 +2,19 @@ include ../shared.make
 
 
 build:
-	sed -i 's!Version: .*$$!Version: $(shell ../version.sh r)!' DESCRIPTION
-	sed -i 's!Date: .*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' DESCRIPTION
-	Rscript -e "library(roxygen2); roxygenize('.');"
-	R CMD check .
+	sed -i 's!Version: .*$$!Version: $(shell ../version.sh r)!' stencila/DESCRIPTION
+	sed -i 's!Date: .*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' stencila/DESCRIPTION
+	Rscript -e "library(roxygen2); roxygenize('stencila');"
+	R CMD check stencila
 ifeq ($(OS),win)
-	R CMD INSTALL --build .
+	R CMD INSTALL --build stencila
 else
-	R CMD build .
+	R CMD build stencila
 endif
 
-# Clean files created during build
+install:
+	R CMD INSTALL stencila
+	sudo Rscript -e 'library(stencila); stencila:::install()'
+
 clean:
 	rm -rf NAMESPACE man *.Rcheck *.tar.gz
