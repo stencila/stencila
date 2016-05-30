@@ -4,6 +4,8 @@ all: build
 
 .PHONY: build
 
+VERSION := $(shell ../version.sh node)
+
 # Install dependencies
 # The packages `yamljs` and `nunjucks` are in `package.json`
 # but need to be installed before `wrap.js` is run

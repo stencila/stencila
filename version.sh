@@ -34,12 +34,18 @@ fi
 
 # Append commit SHA if necessary
 if [ "$COMMITS" != "0" ]; then
-  if [ "$LANG" = "r" ]; then
-  	# In R the build component needs to be another decimal
-    VERSION=$VERSION.$((0x$COMMIT))
+  if [ "$LANG" = "node" ]; then
+  	# For Node.js, since version goes in commited file `package.json`
+  	# don't add build meta data
+    VERSION=$VERSION
   else
-  	# For everything else the SHA is OK
-    VERSION=$VERSION+$COMMIT
+  	if [ "$LANG" = "r" ]; then
+	  	# In R the build component needs to be another decimal
+	    VERSION=$VERSION.$((0x$COMMIT))
+	  else
+	  	# For everything else the SHA is OK
+	    VERSION=$VERSION+$COMMIT
+	  fi
   fi
 fi
 
