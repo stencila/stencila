@@ -6,21 +6,26 @@ VERSION := $(shell ../version.sh r)
 R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'.',fixed=T)[[1]][1],sep='.')" )
 
 ifeq ($(OS),win)
-	PACKAGE_EXT := zip
-	DLL_EXT := dll
-	REPO_DIR := bin/windows/contrib/$(VERSION)
-	REPO_TYPE := win.binary
+	PACKAGE_EXT = zip
+	DLL_EXT = dll
+	REPO_DIR = bin/windows/contrib/$(VERSION)
+	REPO_TYPE = win.binary
 	# Extra DLLs needed on windows. These should be available from the MSYS2 install.
 	# List of extra DLLs required can be determined by running Dependency Walker
 	# (http://www.dependencywalker.com/) on stencila.dll
-	DLL_EXTRAS := $(patsubst %, /c/msys64/mingw64/bin/%, \
+	DLL_EXTRAS = $(patsubst %, /c/msys64/mingw64/bin/%, \
 		libeay32.dll libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll ssleay32.dll zlib1.dll)
 else
-	PACKAGE_EXT := tar.gz
-	DLL_EXT := so
-	REPO_DIR := src/contrib
-	REPO_TYPE := source
+	PACKAGE_EXT = tar.gz
+	DLL_EXT = so
+	REPO_DIR = src/contrib
+	REPO_TYPE = source
 endif
+
+# Filenames of dll, zipped dll and package
+DLL = stencila.$(DLL_EXT)
+ZIP = stencila-$(VERSION)-r-$(R_VERSION)-$(OS)-$(ARCH).zip
+PACKAGE = stencila_$(VERSION).$(PACKAGE_EXT)
 
 CPP_FLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()")
 LD_FLAGS := $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()")
@@ -28,9 +33,9 @@ LD_FLAGS := $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()
 # List of object files to be compiled
 OBJECTS = $(patsubst extension/%.cpp,build/%.o,$(wildcard extension/*.cpp))
 
-# Filenames of dll and zipped dll
-DLL := stencila.$(DLL_EXT)
-ZIP := stencila-$(VERSION)-r-$(R_VERSION)-$(OS)-$(ARCH).zip
+# Install requirements for build
+setup:
+	sudo Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','RUnit'),repo='http://cloud.r-project.org/')"
 
 # Compile an extension file
 build/%.o: extension/%.cpp
@@ -60,6 +65,24 @@ ifeq ($(OS),win)
 	R CMD INSTALL --build stencila
 else
 	R CMD build stencila
+endif
+
+# Test the package
+test:
+	STENCILA_R_BUILD=$(realpath build) R CMD check stencila
+
+# Publish package into a local R repository for mirroring to http://get.stenci.la/r
+publish:
+ifeq (dirtyo,$(DIRTY))
+	$(error Publish is not done for dirty versions. Commit or stash and try again.)
+else
+	mkdir -p build/repo/$(REPO_DIR)
+	cp $(PACKAGE) build/repo/$(REPO_DIR)
+	Rscript -e "require(tools); tools::write_PACKAGES('build/repo/$(REPO_DIR)',type='$(REPO_TYPE)')"
+
+	#aws s3 cp build/$(ZIP) s3://get.stenci.la/r/dll/
+	#aws s3 cp --recursive build/repo/$(REPO_DIR) s3://get.stenci.la/r/$(REPO_DIR)
+	#$(call PUBLISH_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(REPO_DIR)/$(PACKAGE))
 endif
 
 # Install package
