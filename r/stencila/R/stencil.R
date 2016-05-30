@@ -20,7 +20,7 @@ NULL
 #' stencil <- Stencil('html://Pi has a value of: <span data-text="pi"/>')
 #' # ... which is equivalent to
 #' stencil <- Stencil()
-#' stencil$html <- 'Pi has a value of: <span data-text="pi"/>'
+#' stencil$html('Pi has a value of: <span data-text="pi"/>')
 Stencil <- function(initialiser=NULL) {
     new('Stencil',initialiser)
 }

@@ -64,7 +64,7 @@ else
 endif
 
 install:
-	R CMD INSTALL stencila
+	STENCILA_R_BUILD=$(realpath build) R CMD INSTALL stencila
 	sudo Rscript -e 'library(stencila); stencila:::install()'
 
 clean:

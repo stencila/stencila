@@ -16,14 +16,6 @@
 #' @param container The container object to iterate over
 #' 
 #' @export
-#'
-#' @examples
-#' i <- iterate(c(1,2,3))
-#' i$step() # -> 1
-#' i$step() # -> 2
-#' i$more() # -> TRUE
-#' i$step() # -> 3
-#' i$more() # -> FALSE
 iterate <- function(container){
     UseMethod('iterate')
 }

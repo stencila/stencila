@@ -17,11 +17,13 @@ NULL
 
 #' Get the version of the Stencila R package
 #'
+#' @param Should the version be obtained from the DLL? Default FALSE
+#'
 #' @examples
 #'   stencila:::version()
-version <- function(package=FALSE){
-	if(package) as.character(utils::packageVersion("stencila"))
-	else .Call('Stencila_version',PACKAGE='stencila')
+version <- function(dll=FALSE){
+	if(dll) .Call('Stencila_version',PACKAGE='stencila')
+	else as.character(utils::packageVersion("stencila"))
 }
 
 #' Get the commit hash of the Stencila R package
@@ -77,7 +79,7 @@ serve <- function(){
 	}
 }
 
-.onDetach <- function(libname, pkgname){
+.onDetach <- function(lib){
 	# Call C++ shutdown function
 	.Call('Stencila_shutdown',PACKAGE='stencila')
 }

@@ -1,12 +1,12 @@
 # Installation and loading of packaged shared libraries (.so, .dll) and 
 # command line scripts
 
-#' Is the Stencila dynamically linked library already loaded?
+# Is the Stencila dynamically linked library already loaded?
 have_dll <- function(){
 	'stencila' %in% unlist(lapply(library.dynam(),function(x) x[["name"]]))
 }
 
-#' Load the Stencila dynamically linked library
+# Load the Stencila dynamically linked library
 load_dll <- function(){
 	# Check that the DLL is not already loaded
 	if(have_dll()){
@@ -23,7 +23,7 @@ load_dll <- function(){
 	}
 }
 
-#' Get the file name of the zipped Stencila dynamically linked library for this platform
+# Get the file name of the zipped Stencila dynamically linked library for this platform
 name_dll <- function(){
 	stencila_version <- utils::packageVersion("stencila")
 
@@ -44,6 +44,8 @@ name_dll <- function(){
 #'
 #' The environment variable `STENCILA_R_BUILD` can be set to tell the installation to
 #' get the zipped DLL from a local build directory
+#'
+#' @param download Should the DLL be downloaded if it is not available locally? Default TRUE
 get_dll <- function(download=TRUE){
 	ok <- TRUE
 	name <- name_dll()
@@ -70,7 +72,7 @@ get_dll <- function(download=TRUE){
 				ok <- FALSE
 			}
 		} else {
-			ok <- FLASE
+			ok <- FALSE
 		}
 	}
 	invisible(ok)
@@ -80,6 +82,8 @@ get_dll <- function(download=TRUE){
 #'
 #'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_dll()' }
 #'
+#' @param download Should the DLL be downloaded if it is not available locally? Default TRUE
+#' @param download Should the DLL be loaded into the user environment? Default TRUE
 install_dll <- function(download=TRUE,load=TRUE){
 	# Check the DLL is not already loaded (you get a segfault if
 	# you try to write over it when it is loaded alrady!)

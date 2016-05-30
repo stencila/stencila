@@ -10,18 +10,6 @@
 #'    http://www.burns-stat.com/spreadsheet-r-vector/
 #'    http://www.rforexcelusers.com/r-functions-excel-formulas/
 
-# Function to throw a not yet implemented error
-nyi <- function() {
-    stop(
-        paste0(
-            'Spreadsheet compatability function {', 
-            sys.calls()[[sys.nframe()-1]][[1]],
-            '} not yet implemented. See https://github.com/stencila/stencila/issues/172'
-        ),
-        call.=F
-    )
-}
-
 # Function to assert a required argument
 required <- function(name){
     stop(paste0('Parameter {',name,'} is required'),call.=F)
@@ -29,6 +17,7 @@ required <- function(name){
 
 #' Returns the absolute value of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ABS <- function(x){
@@ -52,6 +41,7 @@ ABS <- function(x){
 
 #' Returns the arccosine of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ACOS <- function(x){
@@ -61,6 +51,7 @@ ACOS <- function(x){
 
 #' Returns the inverse hyperbolic cosine of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ACOSH <- function(x){
@@ -112,6 +103,7 @@ ACOSH <- function(x){
 
 #' Returns TRUE if all of its arguments are TRUE
 #'
+#' @param ... Zero or more logical vectors
 #' @family Spreadsheet logical
 #' @export
 AND <- function(...){
@@ -142,6 +134,7 @@ AND <- function(...){
 
 #' Returns the arcsine of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ASIN <- function(x){
@@ -151,6 +144,7 @@ ASIN <- function(x){
 
 #' Returns the inverse hyperbolic sine of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ASINH <- function(x){
@@ -160,6 +154,7 @@ ASINH <- function(x){
 
 #' Returns the arctangent of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ATAN <- function(x){
@@ -169,6 +164,7 @@ ATAN <- function(x){
 
 #' Returns the arctangent from x- and y-coordinates
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ATAN2 <- function(x,y){
@@ -177,6 +173,7 @@ ATAN2 <- function(x,y){
 
 #' Returns the inverse hyperbolic tangent of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 ATANH <- function(x){
@@ -640,6 +637,7 @@ CONCATENATE <- function(...){
 
 #' Returns the cosine of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 COS <- function(x){
@@ -649,6 +647,7 @@ COS <- function(x){
 
 #' Returns the hyperbolic cosine of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 COSH <- function(x){
@@ -1168,6 +1167,7 @@ COSH <- function(x){
 
 #' Returnseraised to the power of a given number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 EXP <- function(x){
@@ -1979,6 +1979,7 @@ HARMEAN <- function(...){
 
 #' Returns the natural logarithm of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 LN <- function(x){
@@ -1988,6 +1989,7 @@ LN <- function(x){
 
 #' Returns the logarithm of a number to a specified base
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 LOG <- function(x, base){
@@ -1996,6 +1998,7 @@ LOG <- function(x, base){
 
 #' Returns the base-10 logarithm of a number
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 LOG10 <- function(x){
@@ -2751,9 +2754,11 @@ RANDBETWEEN <- function(lower,upper){
 
 #' Rounds a number to a specified number of digits
 #'
+#' @param x Number
+#' @param digits Number of digits to round to, defaults to 0
 #' @family Spreadsheet math and trigonometry
 #' @export
-ROUND <- function(x, digits){
+ROUND <- function(x, digits = 0){
     round(x, digits)
 }
 
@@ -2928,6 +2933,7 @@ ROUND <- function(x, digits){
 
 #' Returns a positive square root
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 SQRT <- function(x){
@@ -2937,6 +2943,7 @@ SQRT <- function(x){
 
 #' Returns the square root of (number * pi)
 #'
+#' @param x Number
 #' @family Spreadsheet math and trigonometry
 #' @export
 SQRTPI <- function(x){
