@@ -50,134 +50,6 @@ serve <- function(){
 }
 
 ###########################################################################
-# Installation of packaged shared libraries (.so, .dll) and command line 
-# scripts
-###########################################################################
-
-have_dll <- function(){
-	'stencila' %in% unlist(lapply(library.dynam(),function(x) x[["name"]]))
-}
-
-load_dll <- function(){
-	# Check that the DLL is not already loaded
-	if(have_dll()){
-		invisible(TRUE)
-	}
-	else {
-		# Attempt to load the DLL
-		result <- tryCatch(library.dynam('stencila','stencila',.libPaths()),error=identity)
-		if(inherits(result,'simpleError')){
-			invisible(FALSE)
-		} else {
-			invisible(TRUE)
-		}
-	}
-}
-
-dll_path <- function(){
-	plat <- R.version$platform
-	if(grepl('linux',plat)) os <- 'linux' 
-	else if(grepl('mingw',plat)) os <- 'win'
-	else warning("Stencila DLL is not available for this operating system, sorry.")
-
-	arch <- R.version$arch
-	r_version <- paste(R.version$major,strsplit(R.version$minor,'\\.')[[1]][1],sep='.')
-	stencila_version <- utils::packageVersion("stencila")
-
-	file.path(os,arch,r_version,paste0('stencila-',stencila_version,'.zip'))
-}
-
-#' Download the Stencila dynamically linked libary (DLL)
-#'
-#'   \code{ sudo Rscript -e 'require(stencila); stencila:::get_dll()' }
-#'
-get_dll <- function(){
-	path <- dll_path()
-	# URL to get it from
-	url <- paste0('http://get.stenci.la/r/dll/',path)
-	# Path to put it to
-	zip <- file.path(system.file(package='stencila'),'bin',path)
-	# Download it!
-	message(" - downloading: ",url)
-	result <- tryCatch(download.file(url,zip),error=identity)
-	if(inherits(result,'simpleError')){
-		warning("Stencila DLL could not be downloaded. Please ensure you are connected to the internet and try again.")
-		invisible(FALSE)
-	}
-	else {
-		invisible(TRUE)
-	}
-}
-
-#' Install the Stencila dynamically linked libary (DLL)
-#'
-#'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_dll()' }
-#'
-install_dll <- function(get=TRUE,load=TRUE){
-	# Check the DLL is not already loaded (you get a segfault if
-	# you try to write over it when it is loaded alrady!)
-	if(have_dll()) return(invisible(TRUE))
-	message("Installing Stencila DLL")
-	# See if it is available locally in the `bin` dir
-	zip <- file.path(system.file(package='stencila'),'bin',dll_path())
-	message(" - looking for: ",zip)
-	# Get the DLL if it is not avialable locally
-	if(!file.exists(zip)){
-		if(get){
-			got <- get_dll()
-			if(!got) return(invisible(FALSE))
-		}
-		else {
-			return(invisible(FALSE))
-		}
-	}
-	# Determine where to put the DLL
-	libs_dir <- file.path(system.file(package='stencila'),'libs')
-	if(grepl('mingw',R.version$platform)){
-		if(R.version$arch=='x86_64') libs_dir <- file.path(libs_dir,'x64')
-		else libs_dir <- file.path(libs_dir,'i386')
-	}
-	dir.create(libs_dir, recursive = TRUE, showWarnings = FALSE)
-	# Unzip the DLL into the `libs` dir
-	message(" - unzipping to: ",libs_dir)
-	unzip(zip, exdir = libs_dir, overwrite = TRUE)
-	# Now, load it!
-	if(load){
-		load_dll()
-		# ... and call the start up function
-		.Call('Stencila_startup',PACKAGE='stencila')
-	}
-
-	invisible(TRUE)
-}
-
-#' Install `stencila-r` on the system path
-#'
-#' On Linux this function creates a symlink to `stencila-r` in `/usr/local/bin`. 
-#' Use R as a superuser (e.g. with `sudo`) to run this function e.g :
-#'
-#'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_cli()' }
-#'
-install_cli <- function(){
-	src <- file.path(system.file(package='stencila'),'bin','stencila-r')
-	dest <- file.path('/usr/local/bin','stencila-r')
-	suppressWarnings(file.remove(dest))
-	ok <- file.symlink(src,dest)
-	if(ok) cat('Stencila CLI(command line interface) for R installed to:',dest,'\n')
-}
-
-#' Install extra Stencila scripts
-#'
-#' On Linux, use R as a superuser (e.g. with `sudo`) to run this function e.g :
-#'
-#'   \code{ sudo Rscript -e 'require(stencila); stencila:::install()' }
-#'
-install <- function(){
-	install_dll()
-	install_cli()
-}
-
-###########################################################################
 # Package startup and shutdown hooks
 ###########################################################################
 
@@ -191,7 +63,7 @@ install <- function(){
 		# Since R does a test install first, don't attempt to download the DLL
 		# when doing this (otherwise the download is done twice
 		# i.e. this will only work for the package which already has the DLL bundled in the `bin` dir
-		install_dll(get=FALSE,load=TRUE)
+		install_dll(download=FALSE,load=TRUE)
 	}
 }
 
