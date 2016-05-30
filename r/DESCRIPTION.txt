@@ -1,7 +1,7 @@
 Package: stencila
 Type: Package
-Version: 0.22.0.103801532
-Date: 2016-05-30T00:48:50Z
+Version:
+Date:
 Title: Documents powered by data
 Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/
     master/AUTHORS
@@ -12,19 +12,3 @@ License: GPL-3
 Depends:
     Rcpp (>= 0.12.1),
     methods
-RoxygenNote: 5.0.0
-Collate:
-    'stencila.R'
-    'component.R'
-    'context.R'
-    'function.R'
-    'html-node.R'
-    'hub.R'
-    'install.R'
-    'iterators.R'
-    'sheet.R'
-    'spread.R'
-    'spreadsheet.R'
-    'stencil.R'
-    'syntax.R'
-    'theme.R'

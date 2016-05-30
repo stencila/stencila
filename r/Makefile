@@ -52,8 +52,9 @@ build/$(ZIP): build/$(DLL)
 
 # Build package
 build: build/$(ZIP)
-	sed -i 's!Version: .*$$!Version: $(VERSION)!' stencila/DESCRIPTION
-	sed -i 's!Date: .*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' stencila/DESCRIPTION
+	cp DESCRIPTION.txt stencila/DESCRIPTION
+	sed -i 's!Version:.*$$!Version: $(VERSION)!' stencila/DESCRIPTION
+	sed -i 's!Date:.*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' stencila/DESCRIPTION
 	Rscript -e "library(roxygen2); roxygenize('stencila');"
 	STENCILA_R_BUILD=$(realpath build) R CMD check stencila
 ifeq ($(OS),win)
