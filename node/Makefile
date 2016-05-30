@@ -47,4 +47,4 @@ install:
 
 # Clean up
 clean:
-	rm -rf build coverage .wrap
+	rm -rf build lib coverage .wrap

@@ -8,16 +8,15 @@
       "include_dirs": [
         "<!(node -e \"require('nan')\")",
         ".",
-        "./build",
         "../cpp",
-        "../cpp/requires/boost"
+        "../cpp/build/requires/boost"
       ],
       "link_settings": {
         "libraries": [
           "-lstencila"
         ],
         "ldflags": [
-          "-L../cpp/library/"
+          "-L../../cpp/build/library"
         ]
       }
     },

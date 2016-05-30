@@ -38,15 +38,15 @@ setup(
             ],
             include_dirs=[
                 '../cpp',
-                '../cpp/requires/boost',
-                '../cpp/requires/websocketpp'
+                '../cpp/build/requires/boost',
+                '../cpp/build/requires/websocketpp'
             ],
             extra_compile_args=[
                 '--std=c++11', '-Wno-unused-local-typedefs'
             ],
             library_dirs=[
-                '../cpp/library',
-                '../cpp/requires/boost/lib'
+                '../cpp/build/library',
+                '../cpp/build/requires/boost/lib'
             ],
             libraries=[
                 'stencila',

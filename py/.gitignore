@@ -2,5 +2,6 @@ build
 dist
 stencila.egg-info
 .tox
+tests/__pycache__
 .coverage
 coverage.xml
