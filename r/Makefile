@@ -35,7 +35,7 @@ OBJECTS = $(patsubst extension/%.cpp,build/%.o,$(wildcard extension/*.cpp))
 
 # Install requirements for build
 setup:
-	sudo Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','RUnit'),repo='http://cloud.r-project.org/')"
+	sudo Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','RUnit','covr'),repo='http://cloud.r-project.org/')"
 
 # Compile an extension file
 build/%.o: extension/%.cpp
@@ -59,7 +59,7 @@ build: build/$(ZIP)
 	cp DESCRIPTION.txt stencila/DESCRIPTION
 	sed -i 's!Version:.*$$!Version: $(VERSION)!' stencila/DESCRIPTION
 	sed -i 's!Date:.*$$!Date: $(shell date -u +%Y-%m-%dT%H:%M:%SZ)!' stencila/DESCRIPTION
-	Rscript -e "library(roxygen2); roxygenize('stencila');"
+	Rscript -e "roxygen2::roxygenize('stencila');"
 	STENCILA_R_BUILD=$(realpath build) R CMD check stencila
 ifeq ($(OS),win)
 	R CMD INSTALL --build stencila
@@ -71,24 +71,28 @@ endif
 test:
 	STENCILA_R_BUILD=$(realpath build) R CMD check stencila
 
+# Run tests with coverage
+cover:
+	Rscript -e 'cov<-covr::package_coverage("stencila"); cat(covr:::to_codecov(cov),file="coverage.json"); print(cov)'
+
 # Publish package into a local R repository for mirroring to http://get.stenci.la/r
 publish:
-ifeq (dirtyo,$(DIRTY))
+ifeq (dirty,$(DIRTY))
 	$(error Publish is not done for dirty versions. Commit or stash and try again.)
 else
 	mkdir -p build/repo/$(REPO_DIR)
 	cp $(PACKAGE) build/repo/$(REPO_DIR)
-	Rscript -e "require(tools); tools::write_PACKAGES('build/repo/$(REPO_DIR)',type='$(REPO_TYPE)')"
+	Rscript -e "tools::write_PACKAGES('build/repo/$(REPO_DIR)',type='$(REPO_TYPE)')"
 
-	#aws s3 cp build/$(ZIP) s3://get.stenci.la/r/dll/
-	#aws s3 cp --recursive build/repo/$(REPO_DIR) s3://get.stenci.la/r/$(REPO_DIR)
-	#$(call PUBLISH_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(REPO_DIR)/$(PACKAGE))
+	aws s3 cp build/$(ZIP) s3://get.stenci.la/r/dll/
+	aws s3 cp --recursive build/repo/$(REPO_DIR) s3://get.stenci.la/r/$(REPO_DIR)
+	$(call PUBLISH_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(REPO_DIR)/$(PACKAGE))
 endif
 
 # Install package
 install:
 	STENCILA_R_BUILD=$(realpath build) R CMD INSTALL stencila
-	sudo Rscript -e 'library(stencila); stencila:::install()'
+	sudo Rscript -e 'stencila::install()'
 
 # Clean up after build
 clean:

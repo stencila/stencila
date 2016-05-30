@@ -12,3 +12,5 @@ License: GPL-3
 Depends:
     Rcpp (>= 0.12.1),
     methods
+Suggests:
+	RUnit

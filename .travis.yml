@@ -89,7 +89,7 @@ script:
     - make cpp-tests-quick -j2
     - make -C node setup build cover
     - make -C py build cover
-    - make r-tests -j2
+    - make -C r setup build cover
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
             docker pull stencila/ubuntu-14.04-py-2.7 && make docker-py-build
@@ -102,7 +102,7 @@ after_success:
         if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make -C node publish
             make -C py publish
-            make r-deliver
+            make -C r publish
             if [[ "$DOCKER_BUILDS" == "true" ]]; then
                 docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                 make docker-py-deliver
