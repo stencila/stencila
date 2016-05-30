@@ -67,6 +67,13 @@ else
 	R CMD build stencila
 endif
 
+# Build package complete with zipped DLL
+# Used for easier installation into Docker images
+build-complete:
+	cp -f build/$(ZIP) stencila/inst/bin
+	tar -czf stencila_$(VERSION)_complete.tar.gz stencila
+	rm stencila/inst/bin/*.zip
+
 # Test the package
 test:
 	STENCILA_R_BUILD=$(realpath build) R CMD check stencila
@@ -96,4 +103,4 @@ install:
 
 # Clean up after build
 clean:
-	rm -rf build stencila/NAMESPACE stencila/man stencila.Rcheck
+	rm -rf build stencila/NAMESPACE stencila/man stencila.Rcheck stencila_*.tar.gz

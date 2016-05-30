@@ -709,49 +709,6 @@ cpp-scrub:
 cpp-clean:
 	rm -rf $(BUILD)/cpp
 
-#################################################################################################
-# Stencila Docker images
-#
-# When doing `docker push` note that it's necessary to push both version and latest tags:
-#   http://container-solutions.com/docker-latest-confusion/
-#   https://github.com/docker/docker/issues/7336
-
-# R
-$(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt: docker/ubuntu-14.04-r-3.2/Dockerfile docker/stencila-session.r r-package
-	@mkdir -p $(dir $@)
-	cp docker/ubuntu-14.04-r-3.2/Dockerfile $(dir $@)
-	cp docker/stencila-session.r $(dir $@)
-	cp $(BUILD)/r/3.2/stencila_$(VERSION).tar.gz $(dir $@)/stencila.tar.gz
-	docker build --tag stencila/ubuntu-14.04-r-3.2:$(VERSION) $(dir $@)
-	docker tag --force stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila/ubuntu-14.04-r-3.2:latest
-	echo "stencila/ubuntu-14.04-r-3.2:$(VERSION)" > $@
-
-docker-r-build: $(BUILD)/docker/ubuntu-14.04-r-3.2/image.txt
-
-docker-r-deliver: docker-r-build
-	docker push stencila/ubuntu-14.04-r-3.2:$(VERSION)
-	docker push stencila/ubuntu-14.04-r-3.2:latest
-	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-r-3.2)
-
-
-# Python
-$(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt: docker/ubuntu-14.04-py-2.7/Dockerfile docker/stencila-session.py
-	@mkdir -p $(dir $@)
-	cp docker/ubuntu-14.04-py-2.7/Dockerfile $(dir $@)
-	cp docker/stencila-session.py $(dir $@)
-	cp $(shell ls -rt py/dist/*.whl | tail -n 1) $(dir $@)/stencila.whl
-	docker build --tag stencila/ubuntu-14.04-py-2.7:$(VERSION) $(dir $@)
-	docker tag --force stencila/ubuntu-14.04-py-2.7:$(VERSION) stencila/ubuntu-14.04-py-2.7:latest
-	echo "stencila/ubuntu-14.04-py-2.7:$(VERSION)" > $@
-
-docker-py-build: $(BUILD)/docker/ubuntu-14.04-py-2.7/image.txt
-
-docker-py-deliver: docker-py-build
-	docker push stencila/ubuntu-14.04-py-2.7:$(VERSION)
-	docker push stencila/ubuntu-14.04-py-2.7:latest
-	$(call DELIVERY_NOTIFY,docker,ubuntu-14.04-py-2.7)
-
-#################################################################################################
 
 # Clean everything!
 clean:
