@@ -7,7 +7,7 @@ library(stencila)
 # Import the xlsx into a sheet but don't execut it so it's
 # values are still retained
 sheet <- Sheet()
-sheet$import('spreadsheet.xlsx', execute=FALSE)
+sheet$import('spreadsheet/spreadsheet.xlsx', execute=FALSE)
 
 # Update the cells holding data so that their values are available
 # when executing
