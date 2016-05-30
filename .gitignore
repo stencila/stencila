@@ -1,6 +1,3 @@
-# Ignore build directory
-build
-
 # Ignore Vagrant cache
 .vagrant
 

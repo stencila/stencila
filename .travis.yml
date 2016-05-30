@@ -83,10 +83,8 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    - make vars
-    - make build/current
-    - make cpp-requires cpp-library
-    - make cpp-tests-quick -j2
+    - make -C cpp requires
+    - make -C cpp library tests-quick -j2
     - make -C node setup build cover
     - make -C py build cover
     - make -C r setup build cover

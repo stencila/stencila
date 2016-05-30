@@ -3,4 +3,5 @@ stencila/NAMESPACE
 stencila/man
 stencila.Rcheck
 stencila_*.tar.gz
+build
 coverage.json

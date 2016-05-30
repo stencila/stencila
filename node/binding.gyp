@@ -7,16 +7,17 @@
       "cflags_cc!": ["-fno-exceptions"],
       "include_dirs": [
         "<!(node -e \"require('nan')\")",
-        ".", "./build",
+        ".",
+        "./build",
         "../cpp",
-        "../build/current/cpp/requires/boost"
+        "../cpp/requires/boost"
       ],
       "link_settings": {
         "libraries": [
           "-lstencila"
         ],
         "ldflags": [
-          "-L../../build/current/cpp/library/"
+          "-L../cpp/library/"
         ]
       }
     },

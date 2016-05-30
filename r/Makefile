@@ -41,13 +41,13 @@ setup:
 build/%.o: extension/%.cpp
 	@mkdir -p build
 	$(CXX) $(CPP_FLAGS) -fPIC -std=c++11 -I../cpp \
-	   -I../build/current/cpp/requires/boost \
-	   -I../build/current/cpp/requires/websocketpp \
-	   -I../build/current/cpp/requires/cpp-netlib -o$@ -c $<
+	   -I../cpp/requires/boost \
+	   -I../cpp/requires/websocketpp \
+	   -I../cpp/requires/cpp-netlib -o$@ -c $<
 	
 # Create dll and check it can be loaded
 build/$(DLL): $(OBJECTS)
-	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../build/current/cpp/library -lstencila -lssl -lcurl
+	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../cpp/library -lstencila -lssl -lcurl
 	Rscript -e "dyn.load('build/$(DLL)')"
 
 # Create zipped dll
