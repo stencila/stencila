@@ -3,7 +3,6 @@ include ../shared.make
 .PHONY: build
 
 VERSION := $(shell ../version.sh r)
-
 R_VERSION := $(shell Rscript -e "cat(R.version\$$major,strsplit(R.version\$$minor,'.',fixed=T)[[1]][1],sep='.')" )
 
 ifeq ($(OS),win)
@@ -33,7 +32,7 @@ OBJECTS = $(patsubst extension/%.cpp,build/%.o,$(wildcard extension/*.cpp))
 DLL := stencila.$(DLL_EXT)
 ZIP := stencila-$(VERSION)-r-$(R_VERSION)-$(OS)-$(ARCH).zip
 
-# Compile an exension file
+# Compile an extension file
 build/%.o: extension/%.cpp
 	@mkdir -p build
 	$(CXX) $(CPP_FLAGS) -fPIC -std=c++11 -I../cpp \
@@ -63,10 +62,11 @@ else
 	R CMD build stencila
 endif
 
+# Install package
 install:
 	STENCILA_R_BUILD=$(realpath build) R CMD INSTALL stencila
 	sudo Rscript -e 'library(stencila); stencila:::install()'
 
+# Clean up after build
 clean:
 	rm -rf build stencila/NAMESPACE stencila/man stencila.Rcheck
-

@@ -125,7 +125,7 @@ install_dll <- function(download=TRUE,load=TRUE){
 #'   \code{ sudo Rscript -e 'require(stencila); stencila:::install_cli()' }
 #'
 install_cli <- function(){
-	src <- file.path(system.file(package='stencila'),'bin','stencila-r')
+	src <- file.path(system.file(package='stencila'),'bin','stencila-r.R')
 	dest <- file.path('/usr/local/bin','stencila-r')
 	suppressWarnings(file.remove(dest))
 	ok <- file.symlink(src,dest)
