@@ -10,9 +10,12 @@ PY_VERSION := $(shell python -c "import sys; sys.stdout.write('%s.%s' % (sys.ver
 # Get the filename of the latest wheel
 WHEEL_FILE = $(shell cd dist ; ls -rt *.whl | tail -n 1)
 
+# For access to tox when it is installed under the user scheme
+PATH := ~/.local/bin:$(PATH)
+
 # Install build requirements
 setup:
-	pip install setuptools wheel tox
+	pip install --user setuptools wheel tox
 
 # Build package
 build:
@@ -20,11 +23,11 @@ build:
 
 # Run tests
 test:
-	tox --installpkg dist/$(WHEEL_FILE)
+	PATH=$(PATH) tox --installpkg dist/$(WHEEL_FILE)
 
 # Run coverage
 cover:
-	tox -e cover --installpkg dist/$(WHEEL_FILE)
+	PATH=$(PATH) tox -e cover --installpkg dist/$(WHEEL_FILE)
 	sed -i "s!.tox/cover/lib/python2.7/site-packages/stencila/!py/stencila/!g" coverage.xml
 
 # Install package

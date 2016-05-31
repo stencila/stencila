@@ -3,6 +3,8 @@
 # Shell script for provisioning a Travis CI Ubuntu 14.04 VM to build Stencila
 # Much of this could be integrated into `../.travis.yml` but having it in a
 # separate script reduces clutter there and allows for testing of this setup in Vagrant first
+# To allow for testing on a Vagrant Trusty VM, this script also installs some system 
+# packages that are already available on a Travis VM (e.g. git)
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -13,6 +15,11 @@ sudo add-apt-repository 'deb http://cloud.r-project.org/bin/linux/ubuntu trusty/
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
 sudo apt-get update
+
+# General
+sudo apt-get install -yq --no-install-recommends --no-install-suggests \
+	git \
+	libcurl4-openssl-dev
 
 # Node
 # See https://github.com/travis-ci/travis-ci/issues/2311#issuecomment-171180704
@@ -44,7 +51,7 @@ sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 	$PY_PACKAGE=$PY_VERSION.* \
 	$PY_PACKAGE-dev=$PY_VERSION.* \
 	$PY_PIP_PACKAGE
-$PY_PIP install --user travis --upgrade pip setuptools wheel virtualenv tox awscli
+$PY_PIP install --user travis --upgrade pip awscli
 
 # R
 
@@ -53,4 +60,4 @@ $PY_PIP install --user travis --upgrade pip setuptools wheel virtualenv tox awsc
 sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 	r-base-core=$R_VERSION.* \
 	r-base-dev=$R_VERSION.* \
-	texlive-latex-base
+	texlive
