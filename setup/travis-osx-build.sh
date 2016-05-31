@@ -20,11 +20,20 @@ export OPENSSL_ROOT_DIR=$(brew --prefix openssl)
 export OPENSSL_LIB_DIR=$(brew --prefix openssl)"/lib"
 export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
 
+# Lemon parser (Flex already installed)
+brew install lemon
+
+# Node
+# See https://github.com/mapbox/node-pre-gyp#travis-os-x-gochas
+
+: ${NODE_VERSION:=4.4}
+
+rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm
+source ~/.nvm/nvm.sh
+nvm install $NODE_VERSION
+nvm use $NODE_VERSION
+
 # R
 brew tap homebrew/science
 brew install R
 Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','svUnit'),repo='http://cloud.r-project.org/')"
-
-# Lemon parser (Flex already installed)
-brew install lemon
-
