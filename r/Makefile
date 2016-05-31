@@ -27,8 +27,11 @@ DLL = stencila.$(DLL_EXT)
 ZIP = stencila-$(VERSION)-r-$(R_VERSION)-$(OS)-$(ARCH).zip
 PACKAGE = stencila_$(VERSION).$(PACKAGE_EXT)
 
-CPP_FLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()")
-LD_FLAGS := $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()")
+# Compiler and linker flags
+# These can't be prevaluated (using :=) because Rcpp may not be installed
+# until after setup
+CPP_FLAGS = $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()")
+LD_FLAGS = $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()")
 
 # List of object files to be compiled
 OBJECTS = $(patsubst extension/%.cpp,build/%.o,$(wildcard extension/*.cpp))
