@@ -21,7 +21,7 @@ RUN pip install --upgrade pip
 
 # Install popular packages
 RUN pip install --upgrade \
-	numpy scipy pandas cairocffi matplotlib ggplot
+	numpy scipy pandas cairocffi matplotlib ggplot==0.6.8
 
 # Install Stencila R package
 COPY stencila.whl /tmp/stencila-0.00-cp27-none-linux_x86_64.whl
