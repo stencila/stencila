@@ -11,7 +11,7 @@ VERSION := $(shell ../version.sh docker)
 # R
 r-build:
 	cp stencila-session.r ubuntu-14.04-r-3.2
-	cp $(shell ls -rt ../r/stencila_*_complete.tar.gz | tail -n 1) ubuntu-14.04-r-3.2/stencila.tar.gz
+	cp $(shell ls -rt ../r/stencila_*_bundle.tar.gz | tail -n 1) ubuntu-14.04-r-3.2/stencila.tar.gz
 	docker build --tag stencila/ubuntu-14.04-r-3.2:$(VERSION) ubuntu-14.04-r-3.2
 	docker tag --force stencila/ubuntu-14.04-r-3.2:$(VERSION) stencila/ubuntu-14.04-r-3.2:latest
 

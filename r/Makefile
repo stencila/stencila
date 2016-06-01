@@ -70,11 +70,11 @@ else
 	R CMD build stencila
 endif
 
-# Build package complete with zipped DLL
+# Bundle zipped DLL into package
 # Used for easier installation into Docker images
-build-complete:
+bundle:
 	cp -f build/$(ZIP) stencila/inst/bin
-	tar -czf stencila_$(VERSION)_complete.tar.gz stencila
+	tar -czf stencila_$(VERSION)_bundle.tar.gz stencila
 	rm stencila/inst/bin/*.zip
 
 # Test the package
