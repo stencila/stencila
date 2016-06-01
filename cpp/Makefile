@@ -12,7 +12,7 @@ BOOST_VERSION := 1_60_0
 
 resources/boost_$(BOOST_VERSION).tar.bz2:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ http://prdownloads.sourceforge.net/boost/boost_$(BOOST_VERSION).tar.bz2
+	wget -q --no-check-certificate -O $@ http://prdownloads.sourceforge.net/boost/boost_$(BOOST_VERSION).tar.bz2
 
 build/requires/boost: resources/boost_$(BOOST_VERSION).tar.bz2
 	mkdir -p build/requires
@@ -77,7 +77,7 @@ CMARK_VERSION := 0.25.2
 
 resources/cmark-$(CMARK_VERSION).tar.gz:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/jgm/cmark/archive/$(CMARK_VERSION).tar.gz
+	wget -q --no-check-certificate -O $@ https://github.com/jgm/cmark/archive/$(CMARK_VERSION).tar.gz
 
 build/requires/cmark: resources/cmark-$(CMARK_VERSION).tar.gz
 	mkdir -p build/requires
@@ -108,7 +108,7 @@ LIBGIT2_VERSION := 0.23.4
 
 resources/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/libgit2/libgit2/archive/v$(LIBGIT2_VERSION).zip
+	wget -q --no-check-certificate -O $@ https://github.com/libgit2/libgit2/archive/v$(LIBGIT2_VERSION).zip
 
 build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).zip
 	mkdir -p build/requires
@@ -146,7 +146,7 @@ LIBZIP_VERSION := 1.1.2
 
 resources/libzip-$(LIBZIP_VERSION).tar.gz:
 	mkdir -p resources
-	wget -O $@ http://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz
+	wget -q -O $@ http://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz
 
 build/requires/libzip: resources/libzip-$(LIBZIP_VERSION).tar.gz
 	mkdir -p build/requires
@@ -170,7 +170,7 @@ CPP_NETLIB_VERSION := 0.11.2
 
 resources/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/cpp-netlib/cpp-netlib/archive/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
+	wget -q --no-check-certificate -O $@ https://github.com/cpp-netlib/cpp-netlib/archive/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
 	
 build/requires/cpp-netlib: resources/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
 	mkdir -p build/requires
@@ -204,7 +204,7 @@ PUGIXML_VERSION := 1.7
 
 resources/pugixml-$(PUGIXML_VERSION).tar.gz:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/zeux/pugixml/archive/v$(PUGIXML_VERSION).tar.gz
+	wget -q --no-check-certificate -O $@ https://github.com/zeux/pugixml/archive/v$(PUGIXML_VERSION).tar.gz
 
 build/requires/pugixml: resources/pugixml-$(PUGIXML_VERSION).tar.gz
 	mkdir -p build/requires
@@ -233,7 +233,7 @@ JSONCPP_VERSION := 1.6.5
 
 resources/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/archive/$(JSONCPP_VERSION).tar.gz
+	wget -q --no-check-certificate -O $@ https://github.com/open-source-parsers/jsoncpp/archive/$(JSONCPP_VERSION).tar.gz
 
 build/requires/jsoncpp/dist: resources/jsoncpp-$(JSONCPP_VERSION).tar.gz
 	mkdir -p build/requires
@@ -254,7 +254,7 @@ TIDYHTML5_VERSION := 5.1.25
 
 resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/archive/$(TIDYHTML5_VERSION).tar.gz
+	wget -q --no-check-certificate -O $@ https://github.com/htacg/tidy-html5/archive/$(TIDYHTML5_VERSION).tar.gz
 
 build/requires/tidy-html5: resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mkdir -p build/requires
@@ -292,7 +292,7 @@ WEBSOCKETPP_VERSION := 0.7.0
 
 resources/websocketpp-$(WEBSOCKETPP_VERSION).zip:
 	mkdir -p resources
-	wget --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).zip
+	wget -q --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).zip
 
 build/requires/websocketpp-built.flag: resources/websocketpp-$(WEBSOCKETPP_VERSION).zip
 	rm -rf build/requires/websocketpp
