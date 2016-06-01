@@ -1,7 +1,10 @@
 # Get the operating system  e.g. linux
 OS := $(shell uname -s | tr A-Z a-z)
 ifeq ($(OS),darwin)
-    OS := 'osx'
+    OS := osx
+endif
+ifneq (,$(findstring mingw,$(OS)))
+	OS := win
 endif
 
 # Get the machine architecture e.g i386, x86_64
