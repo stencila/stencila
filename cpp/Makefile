@@ -38,8 +38,7 @@ build/requires/boost: resources/boost_$(BOOST_VERSION).tar.bz2
 #   --with-libraries - so that only those libraries that are needed are built
 BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,timer,thread
 ifeq ($(OS), win)
-	# bootstrap.sh must be called with mingw specified as toolset otherwise errors occur
-	BOOST_BOOTSTRAP_FLAGS += --with-toolset=mingw
+	BOOST_BOOTSTRAP_FLAGS += gcc
 endif
 
 # Boost is built with:
@@ -58,11 +57,11 @@ else
 endif
 
 build/requires/boost-built.flag: build/requires/boost
-	cd $< ; ./bootstrap.sh $(BOOST_BOOTSTRAP_FLAGS)
+	cd $< ; ./bootstrap.sh gcc $(BOOST_BOOTSTRAP_FLAGS)
 ifeq ($(OS), win)
 	# Under MSYS, project-config.jam must be edited to fix [this error](http://stackoverflow.com/a/5244844/1583041) 
 	# The spaces are important so that we don't clobber the python setup in this config file
-	sed -i "s!mingw !gcc !" $</project-config.jam
+	#sed -i "s!mingw !gcc !" $</project-config.jam
 endif
 	cd $< ; ./b2 $(BOOST_B2_FLAGS)
 	touch $@
@@ -87,10 +86,14 @@ build/requires/cmark: resources/cmark-$(CMARK_VERSION).tar.gz
 	mv build/requires/cmark-$(CMARK_VERSION) $@
 	touch $@
 
+CMARK_CMAKE_FLAGS := -DCMAKE_C_FLAGS=-fPIC
+ifeq ($(OS), win)
+	CMARK_CMAKE_FLAGS += -G "MSYS Makefiles"
+endif
 build/requires/cmark/build/src/libcmark.a: build/requires/cmark
 	mkdir -p $</build
 	cd $</build ;\
-		cmake .. -DCMAKE_C_FLAGS=-fPIC ;\
+		cmake .. $(CMARK_CMAKE_FLAGS) ;\
 		make ;\
 		rm src/libcmark.so* # Prevent linking to shared library
 

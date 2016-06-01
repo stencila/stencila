@@ -9,3 +9,7 @@ environment:
 
 install:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
+
+build_script:
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp requires library"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp tests-quick -j2"
