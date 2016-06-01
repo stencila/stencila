@@ -1,0 +1,11 @@
+branches:
+  only:
+    - win-build
+
+version: '{build}'
+
+environment:
+  - PATH: C:\msys64\usr\bin;C:\msys64\mingw32\bin;C:\Windows\System32;C:\Windows;%PATH%
+
+install:
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
