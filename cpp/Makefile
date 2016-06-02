@@ -103,7 +103,7 @@ REQUIRES_LIB_DIRS += -Lbuild/requires/cmark/build/src
 REQUIRES_LIBS += cmark
 
 
-LIBGIT2_VERSION := 0.23.4
+LIBGIT2_VERSION := 0.24.0
 
 resources/libgit2-$(LIBGIT2_VERSION).zip:
 	mkdir -p resources
@@ -226,7 +226,7 @@ REQUIRES_LIBS += pugixml
 requires-pugixml: build/requires/pugixml/src/libpugixml.a
 
 
-JSONCPP_VERSION := 1.6.5
+JSONCPP_VERSION := 1.7.2
 
 resources/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p resources
@@ -305,7 +305,24 @@ REQUIRES_INC_DIRS += -Ibuild/requires/websocketpp
 
 requires-websocketpp: build/requires/websocketpp-built.flag
 
+ifeq ($(OS), win)
+requires-binary:
+	pacman -S --noconfirm \
+		   mingw-w64-x86_64-boost=1.60.0 \
+		   mingw-w64-x86_64-libgit2=0.24.0 \
+		   mingw-w64-x86_64-libzip=1.1.2  \
+		   mingw-w64-x86_64-jsoncpp=1.7.2
 
+REQUIRES_INC_DIRS += -I/mingw64/include -I/mingw64/lib/libzip/include/
+REQUIRES_LIB_DIRS += -L/mingw64/lib
+
+build/requires: requires-binary \
+	requires-cmark \
+	requires-pugixml \
+	requires-tidy-html5 \
+	requires-websocketpp
+
+else
 build/requires: \
 	requires-boost \
 	requires-cmark \
@@ -316,7 +333,8 @@ build/requires: \
 	requires-jsoncpp \
 	requires-tidy-html5 \
 	requires-websocketpp
-	
+endif
+
 requires: build/requires
 
 # List of other libraries required. These are not included `libstencila.a`
