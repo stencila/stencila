@@ -25,7 +25,7 @@ matrix:
         #- PY_VERSION=3.4
         - R_VERSION=3.3
 
-    #- os: osx
+    - os: osx
 
 env:
     global:
