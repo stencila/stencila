@@ -3,7 +3,10 @@ OS := $(shell uname -s | tr A-Z a-z)
 ifeq ($(OS),darwin)
     OS := osx
 endif
-ifneq (,$(findstring mingw,$(OS)))
+ifeq ($(findstring msys,$(OS)),msys)
+	OS := win
+endif
+ifeq ($(findstring mingw,$(OS)),mingw)
 	OS := win
 endif
 

@@ -86,16 +86,15 @@ build/requires/cmark: resources/cmark-$(CMARK_VERSION).tar.gz
 	mv build/requires/cmark-$(CMARK_VERSION) $@
 	touch $@
 
-CMARK_CMAKE_FLAGS := -DCMAKE_C_FLAGS=-fPIC
-ifeq ($(OS), win)
-	CMARK_CMAKE_FLAGS += -G "MSYS Makefiles"
+CMARK_CMAKE_FLAGS := 
+ifneq ($(OS), win)
+	CMARK_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 build/requires/cmark/build/src/libcmark.a: build/requires/cmark
 	mkdir -p $</build
 	cd $</build ;\
 		cmake .. $(CMARK_CMAKE_FLAGS) ;\
-		make ;\
-		rm src/libcmark.so* # Prevent linking to shared library
+		make libcmark_static
 
 requires-cmark: build/requires/cmark/build/src/libcmark.a
 
@@ -121,9 +120,7 @@ build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).zip
 #  	BUILD_CLAR=OFF - do not build tests
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
 LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
-ifeq ($(OS), win)
-	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
-else
+ifneq ($(OS), win)
 	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 build/requires/libgit2-built.flag: build/requires/libgit2
@@ -185,7 +182,7 @@ CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMA
 # Under MSYS some additional CMake flags need to be specified
 # The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
 ifeq ($(OS), win)
-CPP_NETLIB_CMAKE_FLAGS += -G "MSYS Makefiles" -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
+CPP_NETLIB_CMAKE_FLAGS += -DOPENSSL_ROOT_DIR=/usr/ssl -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
 endif
 build/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: build/requires/cpp-netlib
 	cd build/requires/cpp-netlib; \
@@ -263,16 +260,18 @@ build/requires/tidy-html5: resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	mv build/requires/tidy-html5-$(TIDYHTML5_VERSION) build/requires/tidy-html5
 	touch $@
 
-TIDYHTML5_CMAKE_FLAGS = -DCMAKE_C_FLAGS="-O2 -fPIC"
-ifeq ($(OS), win)
-TIDYHTML5_CMAKE_FLAGS += -G "MSYS Makefiles"
+TIDYHTML5_CMAKE_FLAGS :=
+ifneq ($(OS), win)
+TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2 -fPIC"
+else
+TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2"
 endif
 build/requires/tidy-html5-built.flag: build/requires/tidy-html5
 	cd build/requires/tidy-html5/build/cmake ;\
 	  cmake $(TIDYHTML5_CMAKE_FLAGS) ../..
 ifeq ($(OS), win)
 	cd build/requires/tidy-html5/build/cmake ;\
-		cmake --build . --config Release
+		cmake --build . --config Release --target tidy-static
 	# Under MSYS2 there are lots of multiple definition errors for localize symbols in the library
 	objcopy --localize-symbols=requires/tidy-html5-localize-symbols.txt build/requires/tidy-html5/build/cmake/libtidys.a
 else
@@ -317,7 +316,7 @@ build/requires: \
 	requires-jsoncpp \
 	requires-tidy-html5 \
 	requires-websocketpp
-
+	
 requires: build/requires
 
 # List of other libraries required. These are not included `libstencila.a`
