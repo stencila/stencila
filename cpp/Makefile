@@ -87,7 +87,9 @@ build/requires/cmark: resources/cmark-$(CMARK_VERSION).tar.gz
 	touch $@
 
 CMARK_CMAKE_FLAGS := 
-ifneq ($(OS), win)
+ifeq ($(OS), win)
+	CMARK_CMAKE_FLAGS += -G "Unix Makefiles"
+else
 	CMARK_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 build/requires/cmark/build/src/libcmark.a: build/requires/cmark
@@ -120,7 +122,9 @@ build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).zip
 #  	BUILD_CLAR=OFF - do not build tests
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
 LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
-ifneq ($(OS), win)
+ifeq ($(OS), win)
+	LIBGIT2_CMAKE_FLAGS += -G "Unix Makefiles"
+else
 	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 build/requires/libgit2-built.flag: build/requires/libgit2
@@ -182,7 +186,7 @@ CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMA
 # Under MSYS some additional CMake flags need to be specified
 # The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
 ifeq ($(OS), win)
-CPP_NETLIB_CMAKE_FLAGS += -DOPENSSL_ROOT_DIR=/usr/ssl -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
+CPP_NETLIB_CMAKE_FLAGS += -G "Unix Makefiles" -DOPENSSL_ROOT_DIR=/usr/ssl -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
 endif
 build/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: build/requires/cpp-netlib
 	cd build/requires/cpp-netlib; \
@@ -261,10 +265,10 @@ build/requires/tidy-html5: resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	touch $@
 
 TIDYHTML5_CMAKE_FLAGS :=
-ifneq ($(OS), win)
-TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2 -fPIC"
+ifeq ($(OS), win)
+TIDYHTML5_CMAKE_FLAGS += -G "Unix Makefiles" -DCMAKE_C_FLAGS="-O2"
 else
-TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2"
+TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2 -fPIC"
 endif
 build/requires/tidy-html5-built.flag: build/requires/tidy-html5
 	cd build/requires/tidy-html5/build/cmake ;\
