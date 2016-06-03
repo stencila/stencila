@@ -301,7 +301,7 @@ build/requires/websocketpp: resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz
 	mkdir -p build/requires
 	rm -rf $@
 	tar xzf $< -C build/requires
-	mv websocketpp-$(WEBSOCKETPP_VERSION) $@
+	mv build/requires/websocketpp-$(WEBSOCKETPP_VERSION) $@
 	touch $@
 
 REQUIRES_INC_DIRS += -Ibuild/requires/websocketpp
