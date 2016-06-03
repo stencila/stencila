@@ -105,16 +105,16 @@ REQUIRES_LIB_DIRS += -Lbuild/requires/cmark/build/src
 REQUIRES_LIBS += cmark
 
 
-LIBGIT2_VERSION := 0.24.0
+LIBGIT2_VERSION := 0.24.1
 
-resources/libgit2-$(LIBGIT2_VERSION).zip:
+resources/libgit2-$(LIBGIT2_VERSION).tar.gz:
 	mkdir -p resources
-	wget -q --no-check-certificate -O $@ https://github.com/libgit2/libgit2/archive/v$(LIBGIT2_VERSION).zip
+	wget -q --no-check-certificate -O $@ https://github.com/libgit2/libgit2/archive/v$(LIBGIT2_VERSION).tar.gz
 
-build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).zip
+build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).tar.gz
 	mkdir -p build/requires
-	unzip -qo $< -d build/requires
 	rm -rf $@
+	tar xzf $< -C build/requires
 	mv build/requires/libgit2-$(LIBGIT2_VERSION) $@
 	touch $@
 
@@ -293,21 +293,20 @@ requires-tidy-html5: build/requires/tidy-html5-built.flag
 
 WEBSOCKETPP_VERSION := 0.7.0
 
-resources/websocketpp-$(WEBSOCKETPP_VERSION).zip:
+resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz:
 	mkdir -p resources
-	wget -q --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).zip
+	wget -q --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).tar.gz
 
-build/requires/websocketpp-built.flag: resources/websocketpp-$(WEBSOCKETPP_VERSION).zip
-	rm -rf build/requires/websocketpp
-	unzip -qo $< -d build/requires
-	cd build/requires ;\
-	  mv websocketpp-$(WEBSOCKETPP_VERSION) websocketpp ;\
-	  touch websocketpp
+build/requires/websocketpp: resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz
+	mkdir -p build/requires
+	rm -rf $@
+	tar xzf $< -C build/requires
+	mv websocketpp-$(WEBSOCKETPP_VERSION) $@
 	touch $@
 
 REQUIRES_INC_DIRS += -Ibuild/requires/websocketpp
 
-requires-websocketpp: build/requires/websocketpp-built.flag
+requires-websocketpp: build/requires/websocketpp
 
 ifeq ($(OS), win)
 requires-binary:
