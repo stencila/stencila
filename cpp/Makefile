@@ -87,7 +87,9 @@ build/requires/cmark: resources/cmark-$(CMARK_VERSION).tar.gz
 	touch $@
 
 CMARK_CMAKE_FLAGS := 
-ifneq ($(OS), win)
+ifeq ($(OS), win)
+	CMARK_CMAKE_FLAGS += -G "Unix Makefiles"
+else
 	CMARK_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 build/requires/cmark/build/src/libcmark.a: build/requires/cmark
@@ -103,16 +105,16 @@ REQUIRES_LIB_DIRS += -Lbuild/requires/cmark/build/src
 REQUIRES_LIBS += cmark
 
 
-LIBGIT2_VERSION := 0.23.4
+LIBGIT2_VERSION := 0.24.1
 
-resources/libgit2-$(LIBGIT2_VERSION).zip:
+resources/libgit2-$(LIBGIT2_VERSION).tar.gz:
 	mkdir -p resources
-	wget -q --no-check-certificate -O $@ https://github.com/libgit2/libgit2/archive/v$(LIBGIT2_VERSION).zip
+	wget -q --no-check-certificate -O $@ https://github.com/libgit2/libgit2/archive/v$(LIBGIT2_VERSION).tar.gz
 
-build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).zip
+build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).tar.gz
 	mkdir -p build/requires
-	unzip -qo $< -d build/requires
 	rm -rf $@
+	tar xzf $< -C build/requires
 	mv build/requires/libgit2-$(LIBGIT2_VERSION) $@
 	touch $@
 
@@ -120,7 +122,9 @@ build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).zip
 #  	BUILD_CLAR=OFF - do not build tests
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
 LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
-ifneq ($(OS), win)
+ifeq ($(OS), win)
+	LIBGIT2_CMAKE_FLAGS += -G "Unix Makefiles"
+else
 	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
 build/requires/libgit2-built.flag: build/requires/libgit2
@@ -182,7 +186,7 @@ CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMA
 # Under MSYS some additional CMake flags need to be specified
 # The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
 ifeq ($(OS), win)
-CPP_NETLIB_CMAKE_FLAGS += -DOPENSSL_ROOT_DIR=/usr/ssl -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
+CPP_NETLIB_CMAKE_FLAGS += -G "Unix Makefiles" -DOPENSSL_ROOT_DIR=/usr/ssl -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
 endif
 build/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: build/requires/cpp-netlib
 	cd build/requires/cpp-netlib; \
@@ -226,7 +230,7 @@ REQUIRES_LIBS += pugixml
 requires-pugixml: build/requires/pugixml/src/libpugixml.a
 
 
-JSONCPP_VERSION := 1.6.5
+JSONCPP_VERSION := 1.7.2
 
 resources/jsoncpp-$(JSONCPP_VERSION).tar.gz:
 	mkdir -p resources
@@ -261,10 +265,10 @@ build/requires/tidy-html5: resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 	touch $@
 
 TIDYHTML5_CMAKE_FLAGS :=
-ifneq ($(OS), win)
-TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2 -fPIC"
+ifeq ($(OS), win)
+TIDYHTML5_CMAKE_FLAGS += -G "Unix Makefiles" -DCMAKE_C_FLAGS="-O2"
 else
-TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2"
+TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2 -fPIC"
 endif
 build/requires/tidy-html5-built.flag: build/requires/tidy-html5
 	cd build/requires/tidy-html5/build/cmake ;\
@@ -289,23 +293,39 @@ requires-tidy-html5: build/requires/tidy-html5-built.flag
 
 WEBSOCKETPP_VERSION := 0.7.0
 
-resources/websocketpp-$(WEBSOCKETPP_VERSION).zip:
+resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz:
 	mkdir -p resources
-	wget -q --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).zip
+	wget -q --no-check-certificate -O $@ https://github.com/zaphoyd/websocketpp/archive/$(WEBSOCKETPP_VERSION).tar.gz
 
-build/requires/websocketpp-built.flag: resources/websocketpp-$(WEBSOCKETPP_VERSION).zip
-	rm -rf build/requires/websocketpp
-	unzip -qo $< -d build/requires
-	cd build/requires ;\
-	  mv websocketpp-$(WEBSOCKETPP_VERSION) websocketpp ;\
-	  touch websocketpp
+build/requires/websocketpp: resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz
+	mkdir -p build/requires
+	rm -rf $@
+	tar xzf $< -C build/requires
+	mv build/requires/websocketpp-$(WEBSOCKETPP_VERSION) $@
 	touch $@
 
 REQUIRES_INC_DIRS += -Ibuild/requires/websocketpp
 
-requires-websocketpp: build/requires/websocketpp-built.flag
+requires-websocketpp: build/requires/websocketpp
 
+ifeq ($(OS), win)
+requires-binary:
+	pacman -S --noconfirm \
+		   mingw-w64-x86_64-boost=1.60.0 \
+		   mingw-w64-x86_64-libgit2=0.24.0 \
+		   mingw-w64-x86_64-libzip=1.1.2
 
+REQUIRES_INC_DIRS += -I/mingw64/include -I/mingw64/lib/libzip/include/
+REQUIRES_LIB_DIRS += -L/mingw64/lib
+
+build/requires: requires-binary \
+	requires-cmark \
+	requires-pugixml \
+	requires-jsoncpp \
+	requires-tidy-html5 \
+	requires-websocketpp
+
+else
 build/requires: \
 	requires-boost \
 	requires-cmark \
@@ -316,7 +336,8 @@ build/requires: \
 	requires-jsoncpp \
 	requires-tidy-html5 \
 	requires-websocketpp
-	
+endif
+
 requires: build/requires
 
 # List of other libraries required. These are not included `libstencila.a`
