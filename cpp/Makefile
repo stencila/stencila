@@ -306,15 +306,16 @@ requires-websocketpp: build/requires/websocketpp
 ifeq ($(OS), win)
 requires-binary:
 	pacman -S --noconfirm \
-		   mingw-w64-x86_64-boost=1.60.0 \
-		   mingw-w64-x86_64-libgit2=0.24.0 \
-		   mingw-w64-x86_64-libzip=1.1.2
+		   mingw-w64-x86_64-boost=1.60.0
 
 REQUIRES_INC_DIRS += -I/mingw64/include -I/mingw64/lib/libzip/include/
 REQUIRES_LIB_DIRS += -L/mingw64/lib
 
 build/requires: requires-binary \
 	requires-cmark \
+	requires-cpr \
+	requires-libgit2 \
+	requires-libzip \
 	requires-pugixml \
 	requires-jsoncpp \
 	requires-tidy-html5 \
