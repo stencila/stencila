@@ -1,12 +1,11 @@
 #include <boost/network/utils/base64/encode.hpp>
 
+#include <cpr.h>
+
 #include <stencila/git.hpp>
 #include <stencila/host.hpp>
 #include <stencila/hub.hpp>
-#include <stencila/http-client.hpp>
 #include <stencila/json.hpp>
-
-#include <iostream>
 
 namespace Stencila {
 
@@ -25,7 +24,14 @@ std::string Hub::origin(void) const {
 	return origin_;
 }
 
+std::string Hub::url(const std::string& path) const {
+	std::string url = origin() + "/" + path;
+	if(path.back()!='/') url += "/";
+	return url;
+}
+
 Hub& Hub::signin(const std::string& username, const std::string& password){
+	/*
 	Http::Request request(Http::GET,origin()+"/user/permit/");
 	request.auth_basic(username,password);
 	
@@ -33,11 +39,12 @@ Hub& Hub::signin(const std::string& username, const std::string& password){
 	Json::Document doc(response.body());
 	username_ = doc["username"].as<std::string>();
 	permit_ = doc["permit"].as<std::string>();
-	
+	*/
 	return *this;
 }
 
 Hub& Hub::signin(const std::string& token){
+	/*
 	Host::env_var("STENCILA_TOKEN", token);
 
 	Http::Request request(Http::GET,origin()+"/user/permit/");
@@ -47,7 +54,7 @@ Hub& Hub::signin(const std::string& token){
 	Json::Document doc(response.body());
 	username_ = doc["username"].as<std::string>();
 	permit_ = doc["permit"].as<std::string>();
-	
+	*/
 	return *this;
 }
 
@@ -71,26 +78,37 @@ Hub& Hub::signout(void){
 	return *this;
 }
 
-Json::Document Hub::request(Http::Method method, const std::string& path){
-	std::string url = origin() + "/" + path;
-	if(path.back()!='/') url += "/";
-	Http::Request request(method,url);
-	request.header("Authorization","Permit "+permit_);
-	auto response = client_.request(request);
-	Json::Document doc(response.body());
-	return doc;
-}
-
 Json::Document Hub::get(const std::string& path){
-	return request(Http::GET,path);
+	auto response = cpr::Get(
+		cpr::Url{url(path)},
+		cpr::Header{
+			{"Authorization", "Permit "+permit_},
+			{"Accept", "application/json"}
+		}
+	);
+	return Json::Document(response.text);
 }
 
 Json::Document Hub::post(const std::string& path){
-	return request(Http::POST,path);
+	auto response = cpr::Post(
+		cpr::Url{url(path)},
+		cpr::Header{
+			{"Authorization", "Permit "+permit_},
+			{"Accept", "application/json"}
+		}
+	);
+	return Json::Document(response.text);
 }
 
 Json::Document Hub::delete_(const std::string& path){
-	return request(Http::DELETE_,path);
+	auto response = cpr::Delete(
+		cpr::Url{url(path)},
+		cpr::Header{
+			{"Authorization", "Permit "+permit_},
+			{"Accept", "application/json"}
+		}
+	);
+	return Json::Document(response.text);
 }
 
 std::string Hub::clone(const std::string& address) {

@@ -1,5 +1,5 @@
 #pragma once
-#include <stencila/http-client.hpp>
+
 #include <stencila/json.hpp>
 
 namespace Stencila {
@@ -19,6 +19,11 @@ public:
 	 * variable `STENCILA_ORIGIN` on instantiation.
 	 */
 	std::string origin(void) const;
+
+	/**
+	 * Get the URL for a path on the hub
+	 */
+	std::string url(const std::string& path) const;
 
 	/**
 	 * Sign in using username and password.
@@ -80,14 +85,6 @@ public:
 	Hub& signout(void);
 
 	/**
-	 * Make a HTTP request to the hub
-	 * 
-	 * @param  path Path to the resource
-	 * @return A JSON document
-	 */
-	Json::Document request(Http::Method method, const std::string& path);
-
-	/**
 	 * Get something from the hub
 	 * 
 	 * @param  path Path to the resource
@@ -129,8 +126,6 @@ public:
 	std::string fork(const std::string& from, const std::string& to);
 
 private:
-
-	Http::Client client_;
 
 	std::string origin_;
 

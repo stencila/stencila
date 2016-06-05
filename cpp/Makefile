@@ -166,39 +166,34 @@ REQUIRES_LIBS += zip
 requires-libzip: build/requires/libzip/lib/.libs/libzip.a
 
 
+CPR_VERSION := 1.2.0
 
-CPP_NETLIB_VERSION := 0.11.2
-
-resources/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz:
-	mkdir -p resources
-	wget -q --no-check-certificate -O $@ https://github.com/cpp-netlib/cpp-netlib/archive/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
-	
-build/requires/cpp-netlib: resources/cpp-netlib-$(CPP_NETLIB_VERSION)-final.tar.gz
+build/requires/cpr:
 	mkdir -p build/requires
-	rm -rf $@
-	tar xzf $< -C build/requires
-	mv build/requires/cpp-netlib-cpp-netlib-$(CPP_NETLIB_VERSION)-final build/requires/cpp-netlib
-	touch $@
+	git clone https://github.com/whoshuu/cpr.git $@
+	cd $@ && git checkout $(CPR_VERSION)
 
-# cpp-netlib needs to be compiled with OPENSSL_NO_SSL2 defined because SSL2 is insecure and depreciated and on
-# some systems (e.g. Ubuntu) OpenSSL is compiled with no support for it
-CPP_NETLIB_CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC"
-# Under MSYS some additional CMake flags need to be specified
-# The "-I/usr/include" in -DCMAKE_CXX_FLAGS seems uncessary but it's not
+CPR_CMAKE_FLAGS := -DBUILD_CPR_TESTS=OFF
 ifeq ($(OS), win)
-CPP_NETLIB_CMAKE_FLAGS += -G "Unix Makefiles" -DOPENSSL_ROOT_DIR=/usr/ssl -DOPENSSL_INCLUDE_DIR=/usr/include/ -DOPENSSL_LIBRARIES=/usr/lib/ -DCMAKE_CXX_FLAGS="-DOPENSSL_NO_SSL2 -O2 -fPIC -I/usr/include"
+	CPR_CMAKE_FLAGS += -G "Unix Makefiles"
+else
+	CPR_CMAKE_FLAGS += -DCMAKE_CXX_FLAGS=-fPIC
 endif
-build/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a: build/requires/cpp-netlib
-	cd build/requires/cpp-netlib; \
-		export BOOST_ROOT=../boost ; \
-		cmake $(CPP_NETLIB_CMAKE_FLAGS); \
-		make cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri
+build/requires/cpr/build/lib/libcpr.a: build/requires/cpr
+	cd build/requires/cpr ;\
+		git submodule update --init --recursive ;\
+		mkdir -p build ;\
+		cd build ;\
+		cmake .. $(CPR_CMAKE_FLAGS) ;\
+		cmake --build .
 
-REQUIRES_INC_DIRS += -Ibuild/requires/cpp-netlib/
-REQUIRES_LIB_DIRS += -Lbuild/requires/cpp-netlib/libs/network/src
-REQUIRES_LIBS += cppnetlib-client-connections cppnetlib-uri
 
-requires-cpp-netlib: build/requires/cpp-netlib/libs/network/src/libcppnetlib-client-connections.a
+REQUIRES_INC_DIRS += -Ibuild/requires/cpr/include
+REQUIRES_LIB_DIRS += -Lbuild/requires/cpr/build/lib
+REQUIRES_LIBS += cpr
+
+requires-cpr: build/requires/cpr/build/lib/libcpr.a
+
 
 
 PUGIXML_VERSION := 1.7
@@ -329,7 +324,7 @@ else
 build/requires: \
 	requires-boost \
 	requires-cmark \
-	requires-cpp-netlib \
+	requires-cpr \
 	requires-libgit2 \
 	requires-libzip \
 	requires-pugixml \
@@ -452,8 +447,7 @@ build/library/objects/requires-objects.flag: build/requires
 	$(call LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
 	$(call LIBRARY_EXTRACT,boost/lib/libboost_thread.a,boost-thread)
 	$(call LIBRARY_EXTRACT,cmark/build/src/libcmark.a,cmark)
-	$(call LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-client-connections.a,cppnetlib-client-connections)
-	$(call LIBRARY_EXTRACT,cpp-netlib/libs/network/src/libcppnetlib-uri.a,cppnetlib-uri)
+	$(call LIBRARY_EXTRACT,cpr/build/lib/libcpr.a,cpr)
 	$(call LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
 	$(call LIBRARY_EXTRACT,libzip/lib/.libs/libzip.a,zip)
 	$(call LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
