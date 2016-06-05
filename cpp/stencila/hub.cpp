@@ -1,5 +1,3 @@
-#include <boost/network/utils/base64/encode.hpp>
-
 #include <cpr.h>
 
 #include <stencila/git.hpp>
