@@ -29,8 +29,9 @@ BOOST_AUTO_TEST_CASE(html) {
 }
 
 BOOST_AUTO_TEST_CASE(html_doc_get) {
-  for(auto pair : std::vector<std::array<std::string,2>>{
+  std::vector<std::array<std::string,2>> tests = {
 
+    std::array<std::string,2>
     {"> blockquote1\n", "<blockquote>blockquote1</blockquote>"},
 
     {"  - a\n  - b\n", "<ul><li>a</li><li>b</li></ul>"},
@@ -69,17 +70,19 @@ BOOST_AUTO_TEST_CASE(html_doc_get) {
 
     // This currently throws a Start-end tags mismatch exception, needs debugging
     //{"Some <span class=\"foo\">inline</span> HTML.", "Some <span class=\"foo\">inline</span> HTML."}
+  };
 
-  }) {
-      Markdown::Document md(pair[0]);
+  for(auto test : tests) {
+      Markdown::Document md(test[0]);
       Xml::Document html = md.html_doc();
-      BOOST_CHECK_EQUAL(html.dump(),pair[1]);
+      BOOST_CHECK_EQUAL(html.dump(),test[1]);
   }
 }
 
 BOOST_AUTO_TEST_CASE(html_doc_set) {
-  for(auto pair : std::vector<std::array<std::string,2>>{
+  std::vector<std::array<std::string,2>> tests = {
     
+    std::array<std::string,2>
     {"<blockquote>blockquote1</blockquote>", "> blockquote1\n"},
 
     {"<ul><li>a</li><li>b</li></ul>", "  - a\n  - b\n"},
@@ -111,12 +114,13 @@ BOOST_AUTO_TEST_CASE(html_doc_set) {
 
     {"<div>A block HTML element</div>", "<div>A block HTML element</div>\n"},
     {"<p>An <span>inline HTML</span> element</p>", "An <span>inline HTML</span> element\n"}
+  };
 
-  }) {
-      Xml::Document html(pair[0]);
+  for(auto test : tests) {
+      Xml::Document html(test[0]);
       Markdown::Document md;
       md.html_doc(html);
-      BOOST_CHECK_EQUAL(md.md(),pair[1]);
+      BOOST_CHECK_EQUAL(md.md(),test[1]);
   }
 }
 
