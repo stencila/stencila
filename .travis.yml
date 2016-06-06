@@ -3,6 +3,7 @@ language: generic
 branches:
     only:
         - master
+        - releases
 
 matrix:
   include:

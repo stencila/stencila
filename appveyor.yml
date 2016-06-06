@@ -1,6 +1,7 @@
 branches:
   only:
-    - win-build
+    - master
+    - releases
 
 version: '{build}'
 
