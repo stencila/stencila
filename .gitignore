@@ -5,7 +5,7 @@
 .sandbox
 
 # Ignore code editor and IDE project and workspace files
-*.sublime-workspace
+*.sublime-*
 .Rhistory
 
 # Ignore Node.js modules
