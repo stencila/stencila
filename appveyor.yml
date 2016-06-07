@@ -14,4 +14,6 @@ install:
 
 build_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp requires library"
-  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp tests-quick -j2"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp tests-quick"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py setup build"
+
