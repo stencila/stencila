@@ -6,6 +6,8 @@
 #include <stencila/context.hpp>
 #include <stencila/xml.hpp>
 
+#undef environ
+
 namespace Stencila {
 
 class Stencil : public Component, public Xml::Document {

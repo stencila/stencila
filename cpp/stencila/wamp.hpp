@@ -5,6 +5,9 @@
 
 #include <stencila/json.hpp>
 
+#undef ERROR
+#undef REGISTERED
+
 namespace Stencila {
 namespace Wamp {
 

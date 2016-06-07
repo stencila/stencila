@@ -13,6 +13,8 @@
 #include <stencila/html.hpp>
 #include <stencila/spread.hpp>
 
+#undef environ
+
 namespace Stencila {
 
 class Sheet : public Component {
