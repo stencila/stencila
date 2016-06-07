@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include <stdio.h>
+#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 
@@ -17,7 +17,18 @@ std::string env_var(const std::string& name) {
 }
 
 void env_var(const std::string& name, const std::string& value) {
-	setenv(name.c_str(), value.c_str(), 1); 
+	#if defined(_WIN32)
+		// setenv not available under mingw so use putenv
+		// Based on http://mingw.5.n7.nabble.com/Building-GNU-Global-setenv-is-missing-tp7511p7534.html
+		std::string puts = name + "=" + value;
+		char* putc = new char[puts.size()+1];
+		std::copy(puts.begin(), puts.end(), putc);
+		if(putenv(putc) != EXIT_SUCCESS){
+		  delete[] putc;
+		}
+	#else
+		setenv(name.c_str(), value.c_str(), 1);
+	#endif
 }
 
 std::string user_store(void) {
