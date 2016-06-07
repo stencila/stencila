@@ -10,6 +10,10 @@
 #include <stencila/string.hpp>
 #include <stencila/xml.hpp>
 
+#if defined(_WIN32)
+	// Tell cmark we will link to it statically
+	#define CMARK_STATIC_DEFINE
+#endif
 #include <cmark.h>
 
 namespace Stencila {

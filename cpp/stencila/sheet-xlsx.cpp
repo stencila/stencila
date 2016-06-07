@@ -1,5 +1,10 @@
 #include <iostream>
 
+#if defined(_WIN32)
+	// Need to let libzip know that it will be linked statically
+	// See http://www.nih.at/listarchive/libzip-discuss/msg00432.html
+	#define ZIP_EXTERN
+#endif
 #include <zip.h>
 
 #include <stencila/sheet.hpp>
