@@ -1,4 +1,8 @@
-#include <cpr.h>
+// HACK
+// CPR is currently not building on windows so this
+// just comments it out. May be fixed or replaced with something
+// else
+//#include <cpr.h>
 
 #include <stencila/git.hpp>
 #include <stencila/host.hpp>
@@ -77,6 +81,7 @@ Hub& Hub::signout(void){
 }
 
 Json::Document Hub::get(const std::string& path){
+	/*
 	auto response = cpr::Get(
 		cpr::Url{url(path)},
 		cpr::Header{
@@ -85,9 +90,12 @@ Json::Document Hub::get(const std::string& path){
 		}
 	);
 	return Json::Document(response.text);
+	*/
+	return "";
 }
 
 Json::Document Hub::post(const std::string& path){
+	/*
 	auto response = cpr::Post(
 		cpr::Url{url(path)},
 		cpr::Header{
@@ -96,9 +104,12 @@ Json::Document Hub::post(const std::string& path){
 		}
 	);
 	return Json::Document(response.text);
+	*/
+	return "";
 }
 
 Json::Document Hub::delete_(const std::string& path){
+	/*
 	auto response = cpr::Delete(
 		cpr::Url{url(path)},
 		cpr::Header{
@@ -107,6 +118,8 @@ Json::Document Hub::delete_(const std::string& path){
 		}
 	);
 	return Json::Document(response.text);
+	*/
+	return "";
 }
 
 std::string Hub::clone(const std::string& address) {

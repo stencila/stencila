@@ -145,6 +145,11 @@ REQUIRES_INC_DIRS += -Ibuild/requires/libgit2/include
 REQUIRES_LIB_DIRS += -Lbuild/requires/libgit2/build
 REQUIRES_LIBS += git2
 
+ifeq ($(OS), win)
+	REQUIRES_LIB_DIRS += -Lbuild/requires/libgit2/build/deps/winhttp
+	REQUIRES_LIBS += winhttp crypt32 rpcrt4 ole32
+endif
+
 requires-libgit2: build/requires/libgit2-built.flag
 
 ###############################################################################
@@ -161,25 +166,30 @@ build/requires/libzip: resources/libzip-$(LIBZIP_VERSION).tar.gz
 	tar xzf $< -C build/requires
 	mv build/requires/libzip-$(LIBZIP_VERSION) $@
 	touch $@
+	
+# Patch CMake config to compile static library
+build/requires/libzip/lib/CMakeLists.txt: build/requires/libzip
+	sed -i "s!ADD_LIBRARY(zip SHARED!ADD_LIBRARY(zip!" $@
 
 LIBZIP_CMAKE_FLAGS :=
 ifeq ($(OS), win)
-	LIBZIP_CMAKE_FLAGS += -G "MSYS Makefiles" -DZIP_EXTERN
+	LIBZIP_CMAKE_FLAGS += -G "MSYS Makefiles"
 else
 	LIBZIP_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
-build/requires/libzip/lib/.libs/libzip.a: build/requires/libzip
-	cd $< ;\
+build/requires/libzip/build/lib/libzip.a: build/requires/libzip/lib/CMakeLists.txt
+	cd build/requires/libzip ;\
 	  mkdir -p build ;\
 	  cd build ;\
 	  cmake .. $(LIBZIP_CMAKE_FLAGS);\
-	  cmake --build .
+	  cmake --build . --target zip
+	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/libzip/lib
-REQUIRES_LIB_DIRS += -Lbuild/requires/libzip/lib/.libs
+REQUIRES_INC_DIRS += -Ibuild/requires/libzip/lib -Ibuild/requires/libzip/build
+REQUIRES_LIB_DIRS += -Lbuild/requires/libzip/build/lib
 REQUIRES_LIBS += zip
 
-requires-libzip: build/requires/libzip/lib/.libs/libzip.a
+requires-libzip: build/requires/libzip/build/lib/libzip.a
 
 ###############################################################################
 
@@ -204,11 +214,17 @@ build/requires/cpr/build/lib/libcpr.a: build/requires/cpr
 		cmake .. $(CPR_CMAKE_FLAGS) ;\
 		cmake --build .
 
+# Currently cpr build fails to build on Windows
+# so temporarily skip it	
+ifeq ($(OS), win)
+.PHONY: requires-cpr
+else
 REQUIRES_INC_DIRS += -Ibuild/requires/cpr/include
 REQUIRES_LIB_DIRS += -Lbuild/requires/cpr/build/lib
 REQUIRES_LIBS += cpr
 
 requires-cpr: build/requires/cpr/build/lib/libcpr.a
+endif
 
 ###############################################################################
 
@@ -434,6 +450,12 @@ LIBRARY_OS := $(PARSER_OS) \
 					   $(VERSION_O)
 library-objects: $(LIBRARY_OS)
 
+# Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
+# into a single static library.
+# To output lists of contents for checking:
+# 		ar t libstencila.a > files.txt 
+#		nm -gC libstencila.a > symbols.txt  # C demangles but is an invalid option on OS X
+
 # Extract object files from requirement libraries
 # Care may be required to ensure no name clashes in object files
 define LIBRARY_EXTRACT
@@ -444,29 +466,21 @@ define LIBRARY_EXTRACT
 	rm -rf build/library/objects/$2
 endef
 
-build/library/objects/requires-objects.flag: build/requires
+build/library/libstencila.a: build/requires library-objects
 	$(call LIBRARY_EXTRACT,boost/lib/libboost_system.a,boost-system)
 	$(call LIBRARY_EXTRACT,boost/lib/libboost_filesystem.a,boost-filesystem)
 	$(call LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
 	$(call LIBRARY_EXTRACT,boost/lib/libboost_thread.a,boost-thread)
 	$(call LIBRARY_EXTRACT,cmark/build/src/libcmark.a,cmark)
-	$(call LIBRARY_EXTRACT,cpr/build/lib/libcpr.a,cpr)
 	$(call LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
-	$(call LIBRARY_EXTRACT,libzip/lib/.libs/libzip.a,zip)
+	$(call LIBRARY_EXTRACT,libzip/build/lib/libzip.a,zip)
 	$(call LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
 	$(call LIBRARY_EXTRACT,tidy-html5/build/cmake/libtidys.a,tidy)
-	touch $@
-requires-objects: build/library/objects/requires-objects.flag
-
-# Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
-# into a single static library.
-# To output lists of contents for checking:
-# 		ar t libstencila.a > files.txt 
-#		nm -gC libstencila.a > symbols.txt  # C demangles but is an invalid option on OS X
-build/library/libstencila.a: library-objects requires-objects
-	cd build/library  && $(AR) rc libstencila.a `find . -name "*.o"`
+ifneq ($(OS), win)
+	$(call LIBRARY_EXTRACT,cpr/build/lib/libcpr.a,cpr)
+endif
+	cd build/library  && $(AR) rc libstencila.a `find . -name "*.o*"`
 library-staticlib: build/library/libstencila.a
-
 
 library: library-staticlib
 
