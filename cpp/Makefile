@@ -7,6 +7,7 @@ REQUIRES_INC_DIRS :=
 REQUIRES_LIB_DIRS := 
 REQUIRES_LIBS :=
 
+###############################################################################
 
 BOOST_VERSION := 1_60_0
 
@@ -35,21 +36,22 @@ build/requires/boost: resources/boost_$(BOOST_VERSION).tar.bz2
 #   based on one that bootstrap.sh produces.
 
 # Boost is configured with:
+#   --with-toolset=mingw - for build under MinGW64 shell
 #   --with-libraries - so that only those libraries that are needed are built
 BOOST_BOOTSTRAP_FLAGS := --with-libraries=atomic,chrono,date_time,filesystem,program_options,python,regex,system,test,timer,thread
 ifeq ($(OS), win)
-	BOOST_BOOTSTRAP_FLAGS += gcc
+	BOOST_BOOTSTRAP_FLAGS += gcc --with-toolset=mingw
 endif
 
 # Boost is built with:
-#   --d0 		- supress all informational messages (reduces verbosity which is useful on CI servers)
+#   -d0 		- supress all informational messages (reduces verbosity which is useful on CI servers)
 #   --prefix=.  - so that boost installs into its own directory
 #   link=static - so that get statically compiled instead of dynamically compiled libraries
 BOOST_B2_FLAGS := -d0 --prefix=. link=static install
 ifeq ($(OS), win)
-	# b2 must be called with "system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
-	# b2 must be called with "release" build otherwise defaults to debug AND release, which with "system" causes an 
-	#   error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
+	# system" layout of library names and header locations (otherwise it defaults to 'versioned' on Windows)
+	# "release" build otherwise defaults to debug AND release, which with "system" causes an 
+	#     error (http://boost.2283326.n4.nabble.com/atomic-building-with-layout-system-mingw-bug-7482-td4640920.html)
 	BOOST_B2_FLAGS += --layout=system release toolset=gcc
 else
 	# cxxflags=-fPIC - so that the statically compiled library has position independent code for use in shared libraries
@@ -59,9 +61,11 @@ endif
 build/requires/boost-built.flag: build/requires/boost
 	cd $< ; ./bootstrap.sh gcc $(BOOST_BOOTSTRAP_FLAGS)
 ifeq ($(OS), win)
-	# Under MSYS, project-config.jam must be edited to fix [this error](http://stackoverflow.com/a/5244844/1583041) 
+	# Under MinGW64 shell, project-config.jam must be edited to fix [this error](http://stackoverflow.com/a/5244844/1583041) 
 	# The spaces are important so that we don't clobber the python setup in this config file
-	#sed -i "s!mingw !gcc !" $</project-config.jam
+	sed -i "s!mingw !gcc !" $</project-config.jam
+	# Under MinGW64 shell, pyconfig.h root can't be found unless we explicitly define include dir
+	sed -i "s!using python : 2.7 .*\$$!using python : 2.7 : C:/msys64/mingw64 : C:/msys64/mingw64/include/python2.7 ;!" $</project-config.jam
 endif
 	cd $< ; ./b2 $(BOOST_B2_FLAGS)
 	touch $@
@@ -72,6 +76,7 @@ REQUIRES_LIBS += boost_filesystem boost_system boost_regex boost_thread
 
 requires-boost: build/requires/boost-built.flag
 
+###############################################################################
 
 CMARK_VERSION := 0.25.2
 
@@ -88,7 +93,7 @@ build/requires/cmark: resources/cmark-$(CMARK_VERSION).tar.gz
 
 CMARK_CMAKE_FLAGS := 
 ifeq ($(OS), win)
-	CMARK_CMAKE_FLAGS += -G "Unix Makefiles"
+	CMARK_CMAKE_FLAGS += -G "MSYS Makefiles"
 else
 	CMARK_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
@@ -104,6 +109,7 @@ REQUIRES_INC_DIRS += -Ibuild/requires/cmark/src -Ibuild/requires/cmark/build/src
 REQUIRES_LIB_DIRS += -Lbuild/requires/cmark/build/src
 REQUIRES_LIBS += cmark
 
+###############################################################################
 
 LIBGIT2_VERSION := 0.24.1
 
@@ -123,7 +129,7 @@ build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).tar.gz
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
 LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
 ifeq ($(OS), win)
-	LIBGIT2_CMAKE_FLAGS += -G "Unix Makefiles"
+	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
 else
 	LIBGIT2_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
 endif
@@ -141,7 +147,7 @@ REQUIRES_LIBS += git2
 
 requires-libgit2: build/requires/libgit2-built.flag
 
-
+###############################################################################
 
 LIBZIP_VERSION := 1.1.2
 
@@ -156,8 +162,18 @@ build/requires/libzip: resources/libzip-$(LIBZIP_VERSION).tar.gz
 	mv build/requires/libzip-$(LIBZIP_VERSION) $@
 	touch $@
 
+LIBZIP_CMAKE_FLAGS :=
+ifeq ($(OS), win)
+	LIBZIP_CMAKE_FLAGS += -G "MSYS Makefiles" -DZIP_EXTERN
+else
+	LIBZIP_CMAKE_FLAGS += -DCMAKE_C_FLAGS=-fPIC
+endif
 build/requires/libzip/lib/.libs/libzip.a: build/requires/libzip
-	cd $<  && ./configure --disable-shared --enable-static --with-pic && make
+	cd $< ;\
+	  mkdir -p build ;\
+	  cd build ;\
+	  cmake .. $(LIBZIP_CMAKE_FLAGS);\
+	  cmake --build .
 
 REQUIRES_INC_DIRS += -Ibuild/requires/libzip/lib
 REQUIRES_LIB_DIRS += -Lbuild/requires/libzip/lib/.libs
@@ -165,6 +181,7 @@ REQUIRES_LIBS += zip
 
 requires-libzip: build/requires/libzip/lib/.libs/libzip.a
 
+###############################################################################
 
 CPR_VERSION := 1.2.0
 
@@ -175,7 +192,7 @@ build/requires/cpr:
 
 CPR_CMAKE_FLAGS := -DBUILD_CPR_TESTS=OFF
 ifeq ($(OS), win)
-	CPR_CMAKE_FLAGS += -G "Unix Makefiles"
+	CPR_CMAKE_FLAGS += -G "MSYS Makefiles"
 else
 	CPR_CMAKE_FLAGS += -DCMAKE_CXX_FLAGS=-fPIC
 endif
@@ -187,14 +204,13 @@ build/requires/cpr/build/lib/libcpr.a: build/requires/cpr
 		cmake .. $(CPR_CMAKE_FLAGS) ;\
 		cmake --build .
 
-
 REQUIRES_INC_DIRS += -Ibuild/requires/cpr/include
 REQUIRES_LIB_DIRS += -Lbuild/requires/cpr/build/lib
 REQUIRES_LIBS += cpr
 
 requires-cpr: build/requires/cpr/build/lib/libcpr.a
 
-
+###############################################################################
 
 PUGIXML_VERSION := 1.7
 
@@ -224,6 +240,7 @@ REQUIRES_LIBS += pugixml
 
 requires-pugixml: build/requires/pugixml/src/libpugixml.a
 
+###############################################################################
 
 JSONCPP_VERSION := 1.7.2
 
@@ -245,6 +262,7 @@ REQUIRES_INC_DIRS += -Ibuild/requires/jsoncpp/dist
 
 requires-jsoncpp: build/requires/jsoncpp/dist
 
+###############################################################################
 
 TIDYHTML5_VERSION := 5.1.25
 
@@ -261,7 +279,7 @@ build/requires/tidy-html5: resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz
 
 TIDYHTML5_CMAKE_FLAGS :=
 ifeq ($(OS), win)
-TIDYHTML5_CMAKE_FLAGS += -G "Unix Makefiles" -DCMAKE_C_FLAGS="-O2"
+TIDYHTML5_CMAKE_FLAGS += -G "MSYS Makefiles" -DCMAKE_C_FLAGS="-O2"
 else
 TIDYHTML5_CMAKE_FLAGS += -DCMAKE_C_FLAGS="-O2 -fPIC"
 endif
@@ -285,6 +303,7 @@ REQUIRES_LIBS += tidys
 
 requires-tidy-html5: build/requires/tidy-html5-built.flag
 
+###############################################################################
 
 WEBSOCKETPP_VERSION := 0.7.0
 
@@ -303,25 +322,8 @@ REQUIRES_INC_DIRS += -Ibuild/requires/websocketpp
 
 requires-websocketpp: build/requires/websocketpp
 
-ifeq ($(OS), win)
-requires-binary:
-	pacman -S --noconfirm \
-		   mingw-w64-x86_64-boost=1.60.0
+###############################################################################
 
-REQUIRES_INC_DIRS += -I/mingw64/include -I/mingw64/lib/libzip/include/
-REQUIRES_LIB_DIRS += -L/mingw64/lib
-
-build/requires: requires-binary \
-	requires-cmark \
-	requires-cpr \
-	requires-libgit2 \
-	requires-libzip \
-	requires-pugixml \
-	requires-jsoncpp \
-	requires-tidy-html5 \
-	requires-websocketpp
-
-else
 build/requires: \
 	requires-boost \
 	requires-cmark \
@@ -332,9 +334,9 @@ build/requires: \
 	requires-jsoncpp \
 	requires-tidy-html5 \
 	requires-websocketpp
-endif
 
 requires: build/requires
+
 
 # List of other libraries required. These are not included `libstencila.a`
 OTHER_LIBS := z crypto ssl
