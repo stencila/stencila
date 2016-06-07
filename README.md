@@ -34,11 +34,9 @@ Stencila components are placed in a "store" on your machine. The default Stencil
 
 We appreciate any help with Stencila development! The [issues list](https://github.com/stencila/stencila/issues) is a good place for contributing ideas. Or, visit the kanban board at [waffle.io/stencila/stencila](https://waffle.io/stencila/stencila) to see which issues are ready to be tackled and what's being worked on.
 
-Occasionally, bounties are put on issues. Rather than duplicating effort we ask 
-
-Please also not that we have a [code of conduct](CONDUCT.md).
-
 ### Building
+
+*The 0.23 release due in a couple of days makes some bug changes to the build system. So none of the following will work on `master` right now. Updated docs to come soon!*
 
 #### Building quick start
 
