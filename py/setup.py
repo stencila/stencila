@@ -9,10 +9,20 @@ https://python-packaging-user-guide.readthedocs.org/en/latest/current.html)
 '''
 import subprocess
 from setuptools import setup, Extension
+import sys
+
+libraries=[
+	'stencila',
+	'boost_python',
+]
+if sys.platform == "win32" :
+	libraries += 'z curl ssh2 ssl crypto gdi32 ws2_32 mswsock winhttp crypt32 rpcrt4 ole32'.split()
+else:
+	libraries += 'curl ssl'.split()
 
 setup(
     name='stencila',
-    version=subprocess.check_output('../version.sh', shell=True),
+    version=subprocess.check_output('bash ../version.sh', shell=True),
 
     author='Nokome Bentley',
     author_email='nokome@stenci.la',
@@ -42,18 +52,16 @@ setup(
                 '../cpp/build/requires/websocketpp'
             ],
             extra_compile_args=[
-                '--std=c++11', '-Wno-unused-local-typedefs'
+                '--std=c++11', '-Wno-unused-local-typedefs',
+				# Define BOOST_PYTHON_STATIC_LIB otherwise on Windows
+				# dynamic linkage is assumed for the Boost.python library
+				'-DBOOST_PYTHON_STATIC_LIB'
             ],
             library_dirs=[
                 '../cpp/build/library',
                 '../cpp/build/requires/boost/lib'
             ],
-            libraries=[
-                'stencila',
-                'boost_python',
-                'ssl',
-                'curl'
-            ]
+            libraries=libraries
         ),
     ],
 
