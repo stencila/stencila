@@ -33,6 +33,11 @@ PACKAGE = stencila_$(VERSION).$(PACKAGE_EXT)
 CPP_FLAGS = $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()")
 LD_FLAGS = $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()")
 
+LINK_FLAGS :=
+ifeq ($(OS), osx)
+LINK_FLAGS += -Wl,-framework -Wl,CoreFoundation
+endif
+
 # List of object files to be compiled
 OBJECTS = $(patsubst extension/%.cpp,build/%.o,$(wildcard extension/*.cpp))
 
@@ -50,7 +55,7 @@ build/%.o: extension/%.cpp
 	
 # Create dll and check it can be loaded
 build/$(DLL): $(OBJECTS)
-	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../cpp/build/library -lstencila -lssl -lcurl
+	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../cpp/build/library -lstencila -lssl -lcurl $(LINK_FLAGS)
 	Rscript -e "dyn.load('build/$(DLL)')"
 
 # Create zipped dll

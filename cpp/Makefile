@@ -530,6 +530,11 @@ TEST_LIBS += gcov
 endif
 TEST_LIBS := $(patsubst %, -l%,$(TEST_LIBS))
 
+TEST_LDFLAGS :=
+ifeq ($(OS), osx)
+TEST_LDFLAGS += -Wl,-framework -Wl,CoreFoundation
+endif
+
 # Compile a test file into an object file
 # $(realpath $<) is used for consistency of paths in coverage reports
 TEST_OS := $(patsubst %.cpp,build/tests/%.o,$(notdir $(wildcard tests/*.cpp)))
@@ -557,11 +562,11 @@ build/tests/%: tests/%
 
 # Compile a single test file into an executable
 build/tests/%.exe: build/tests/%.o build/tests/tests.o $(TEST_STENCILA_OS)
-	$(TEST_COMPILE) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS)
+	$(TEST_COMPILE) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS) $(TEST_LDFLAGS)
 
 # Compile all test files into an executable
 build/tests/tests.exe: $(TEST_OS) $(TEST_STENCILA_OS)
-	$(TEST_COMPILE) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS)
+	$(TEST_COMPILE) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS) $(TEST_LDFLAGS)
 
 # Make test executable precious so they are kept despite
 # being intermediaries for test runs

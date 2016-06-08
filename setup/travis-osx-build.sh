@@ -23,6 +23,11 @@ export OPENSSL_INCLUDE_DIR=$(brew --prefix openssl)"/include"
 # Lemon parser (Flex already installed)
 brew install lemon
 
+# Python
+# Allow pip installed package executables to be found
+# See http://stackoverflow.com/a/35899029/4625911
+export PATH=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin:$PATH
+
 # Node
 # See https://github.com/mapbox/node-pre-gyp#travis-os-x-gochas
 
