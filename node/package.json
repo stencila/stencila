@@ -11,7 +11,6 @@
     "istanbul": "^0.4.3",
     "nan": "^2.3.3",
     "node-gyp": "^3.3.1",
-    "node-pre-gyp": "^0.6.28",
     "nunjucks": "^2.4.2",
     "tape": "^4.5.1",
     "yamljs": "^0.2.7"
