@@ -85,7 +85,8 @@ before_script:
 
 script:
     - make -C cpp requires
-    - make -C cpp library tests-quick -j2
+    - make -C cpp library -j2
+    - make -C cpp tests-quick -j2
     - make -C node setup build cover
     - make -C py setup build cover
     - make -C r setup build cover
