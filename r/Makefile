@@ -35,7 +35,7 @@ LD_FLAGS = $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()"
 
 LINK_FLAGS :=
 ifeq ($(OS), osx)
-LINK_FLAGS += -Wl,-framework -Wl,CoreFoundation
+LINK_FLAGS += -Wl,-framework -Wl,CoreFoundation -Wl,-framework -Wl,Security
 endif
 
 # List of object files to be compiled

@@ -13,5 +13,5 @@ install:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
 
 build_script:
-  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp requires library"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp setup build"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py setup build"

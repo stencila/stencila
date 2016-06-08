@@ -351,8 +351,7 @@ build/requires: \
 	requires-tidy-html5 \
 	requires-websocketpp
 
-requires: build/requires
-
+setup: build/requires
 
 # List of other libraries required. These are not included `libstencila.a`
 OTHER_LIBS := z curl ssl crypto
@@ -482,7 +481,7 @@ endif
 	cd build/library  && $(AR) rc libstencila.a `find . -name "*.o*"`
 library-staticlib: build/library/libstencila.a
 
-library: library-staticlib
+build: library-staticlib
 
 library-clean:
 	rm -rf build/library
@@ -532,7 +531,7 @@ TEST_LIBS := $(patsubst %, -l%,$(TEST_LIBS))
 
 TEST_LDFLAGS :=
 ifeq ($(OS), osx)
-TEST_LDFLAGS += -Wl,-framework -Wl,CoreFoundation
+TEST_LDFLAGS += -Wl,-framework -Wl,CoreFoundation -Wl,-framework -Wl,Security
 endif
 
 # Compile a test file into an object file
@@ -596,6 +595,7 @@ tests-quick: build/tests/tests.exe $(TEST_INPUTS)
 
 # Run all tests
 test: tests-quick
+cover: tests-quick
 
 # Run all tests and report results and coverage to XML files
 # Requires python, xsltproc and [gcovr](http://gcovr.com/guide.html):

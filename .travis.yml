@@ -84,22 +84,36 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    - make -C cpp requires
-    - make -C cpp library -j2
-    - make -C cpp tests-quick -j2
-    - make -C node setup build cover
-    - make -C py setup build cover
-    - make -C r setup build cover
+    # Setup and build each module
+    - make -C cpp setup -j2
+    - make -C cpp build -j2
+    - make -C node setup build
+    - make -C py setup build
+    - make -C r setup build
+
+    # Build Docker images
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
             docker pull stencila/ubuntu-14.04-py-2.7 && make -C docker py-build
             docker pull stencila/ubuntu-14.04-r-3.2 && make -C r bundle && make -C docker r-build
         fi
 
+    # Test modules (currently only on Linux)
+    - |
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+            make -C cpp cover -j2
+            make -C node cover
+            make -C py cover
+            make -C r cover
+        fi
+
 after_success:
+    # Publish coverage reports to codecov.io
     - bash <(curl -s https://codecov.io/bash) -X coveragepy
+
+    # Publish builds (currently only on Linux)
     - | 
-        if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make -C node publish
             make -C py publish
             make -C r publish
