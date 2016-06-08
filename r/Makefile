@@ -55,7 +55,7 @@ build/%.o: extension/%.cpp
 	
 # Create dll and check it can be loaded
 build/$(DLL): $(OBJECTS)
-	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../cpp/build/library -lstencila -lssl -lcurl $(LINK_FLAGS)
+	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../cpp/build/library -lstencila -lcurl -lssl -lcrypto $(LINK_FLAGS)
 	Rscript -e "dyn.load('build/$(DLL)')"
 
 # Create zipped dll

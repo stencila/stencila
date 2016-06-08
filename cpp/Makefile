@@ -355,12 +355,12 @@ requires: build/requires
 
 
 # List of other libraries required. These are not included `libstencila.a`
-OTHER_LIBS := z crypto ssl
+OTHER_LIBS := z curl ssl crypto
 ifeq ($(OS), linux)
-	OTHER_LIBS += rt pthread curl
+	OTHER_LIBS += rt pthread
 endif
 ifeq ($(OS), osx)
-	OTHER_LIBS += curl
+	OTHER_LIBS += iconv
 endif
 ifeq ($(OS), win)
 	OTHER_LIBS += ws2_32 mswsock ssh2

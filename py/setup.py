@@ -11,14 +11,9 @@ import subprocess
 from setuptools import setup, Extension
 import sys
 
-libraries=[
-	'stencila',
-	'boost_python',
-]
-if sys.platform == "win32" :
-	libraries += 'z curl ssh2 ssl crypto gdi32 ws2_32 mswsock winhttp crypt32 rpcrt4 ole32'.split()
-else:
-	libraries += 'curl ssl'.split()
+libraries = 'stencila boost_python z curl ssl crypto'.split()
+if sys.platform == 'win32':
+    libraries += 'ssh2 gdi32 ws2_32 mswsock winhttp crypt32 rpcrt4 ole32'.split()
 
 setup(
     name='stencila',
@@ -53,9 +48,9 @@ setup(
             ],
             extra_compile_args=[
                 '--std=c++11', '-Wno-unused-local-typedefs',
-				# Define BOOST_PYTHON_STATIC_LIB otherwise on Windows
-				# dynamic linkage is assumed for the Boost.python library
-				'-DBOOST_PYTHON_STATIC_LIB'
+                # Define BOOST_PYTHON_STATIC_LIB otherwise on Windows
+                # dynamic linkage is assumed for the Boost.python library
+                '-DBOOST_PYTHON_STATIC_LIB'
             ],
             library_dirs=[
                 '../cpp/build/library',
