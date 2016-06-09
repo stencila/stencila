@@ -101,7 +101,7 @@ else
 
 	aws s3 cp build/$(ZIP) s3://get.stenci.la/r/dll/
 	aws s3 cp --recursive build/repo/$(REPO_DIR) s3://get.stenci.la/r/$(REPO_DIR)
-	$(call PUBLISH_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/$(REPO_DIR)/$(PACKAGE))
+	$(call PUBLISH_NOTIFY,r,$(R_VERSION),$(OS)/$(ARCH),http://get.stenci.la/r/$(REPO_DIR)/$(PACKAGE))
 endif
 
 # Install package
