@@ -1,10 +1,5 @@
 language: generic
 
-branches:
-    only:
-        - master
-        - releases
-
 matrix:
   include:
 
@@ -84,27 +79,33 @@ before_script:
     - git describe --tags --dirty --long
 
 script:
-    # Setup and build each module
+    # It's better to keep these as separate items so that the build continues instead of failing if one fails
+    # The OS switches allow us to turn on only what is working for either Linus or OSX
+
+    # C++ module
     - make -C cpp setup -j2
     - make -C cpp build -j2
-    - make -C node setup build
-    - make -C py setup build
-    - make -C r setup build
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C cpp cover -j2; fi
 
-    # Build Docker images
-    - |
-        if [[ "$DOCKER_BUILDS" == "true" ]]; then
+    # Node.js module
+    - make -C node setup
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C node build; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C node cover; fi
+
+    # Python module
+    - make -C py setup
+    - make -C py build
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C py cover; fi
+
+    # R module
+    - make -C r setup
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r build; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r cover; fi
+
+    # Docker module
+    - | if [[ "$DOCKER_BUILDS" == "true" ]]; then
             docker pull stencila/ubuntu-14.04-py-2.7 && make -C docker py-build
             docker pull stencila/ubuntu-14.04-r-3.2 && make -C r bundle && make -C docker r-build
-        fi
-
-    # Test modules (currently only on Linux)
-    - |
-        if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
-            make -C cpp cover -j2
-            make -C node cover
-            make -C py cover
-            make -C r cover
         fi
 
 after_success:
@@ -112,8 +113,7 @@ after_success:
     - bash <(curl -s https://codecov.io/bash) -X coveragepy
 
     # Publish builds (currently only on Linux)
-    - | 
-        if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+    - | if [[ "$TRAVIS_OS_NAME" == "linux" ]] && ([[ "$TRAVIS_BRANCH" == "master" ]] || [[ "$TRAVIS_BRANCH" == "releases" ]]) && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
             make -C node publish
             make -C py publish
             make -C r publish

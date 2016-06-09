@@ -1,8 +1,3 @@
-branches:
-  only:
-    - master
-    - releases
-
 version: '{build}'
 
 environment:
