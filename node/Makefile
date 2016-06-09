@@ -23,7 +23,7 @@ package:
 	./node_modules/.bin/node-pre-gyp package
 
 # Publish package
-publish:
+publish: package
 ifeq (dirty,$(DIRTY))
 	$(error Publish not done for dirty versions. Commit or stash and try again.)
 else
