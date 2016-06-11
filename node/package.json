@@ -16,14 +16,14 @@
     "yamljs": "^0.2.7"
   },
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "node-pre-gyp install",
     "test": "node tests",
     "cover": "node_modules/.bin/istanbul cover tests"
   },
   "binary": {
     "module_name": "extension",
     "module_path": "./lib/binding/",
-    "host": "https://s3-us-west-2.amazonaws.com/get.stenci.la",
+    "host": "http://get.stenci.la.s3-us-west-2.amazonaws.com",
     "remote_path": "./node"
   },
   "bin": {
