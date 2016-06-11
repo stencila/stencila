@@ -194,6 +194,55 @@ public:
 	 */
 
 	/**
+	 * @name Rmarkdown parsing and generation
+	 *
+	 * Methods implemented in `stencil-rmd.cpp`
+	 * 
+	 * @{
+	 */
+
+	/**
+	 * Get stencil content as Rmarkdown
+	 */
+	std::string rmd(void) const;
+
+	/**
+	 * Set stencil content using Rmarkdown
+	 * 
+	 * @param rmd A string of Rmarkdown code
+	 */
+	Stencil& rmd(const std::string& rmd);
+
+	/**
+	 * @}
+	 */
+
+
+	/**
+	 * @name Jupyter notebook (`.ipynb` JSON files) parsing and generation
+	 *
+	 * Methods implemented in `stencil-jnb.cpp`
+	 * 
+	 * @{
+	 */
+
+	/**
+	 * Get stencil content as Jupyter notebook JSON
+	 */
+	std::string jnb(void) const;
+
+	/**
+	 * Set stencil content using Jupyter notebook JSON
+	 * 
+	 * @param jnb A string of Jupyter notebook JSON
+	 */
+	Stencil& jnb(const std::string& jnb);
+
+	/**
+	 * @}
+	 */
+
+	/**
 	 * @name Conversion to/from other formats
 	 *
 	 * Methods implemented in `stencil-conversion.cpp`

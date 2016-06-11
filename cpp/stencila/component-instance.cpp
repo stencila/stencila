@@ -96,7 +96,7 @@ Component& Component::unhold(void) {
 
 Component::Type Component::type(const std::string& path_string){
 	boost::filesystem::path path(path_string);
-	for(auto file : {"stencil.html","stencil.cila"}){
+	for(auto file : {"stencil.html","stencil.cila","stencil.rmd"}){
 		if(boost::filesystem::exists(path/file)) return StencilType;
 	}
 	for(auto file : {"theme.css","theme.scss","theme.js"}){
