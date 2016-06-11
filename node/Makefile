@@ -4,7 +4,8 @@ all: build
 
 .PHONY: build
 
-VERSION := $(shell ../version.sh node)
+VERSION = $(shell ../version.sh node)
+NODE_VERSION = $(shell node --version)
 
 # Install dependencies
 # The packages `yamljs` and `nunjucks` are in `package.json`
