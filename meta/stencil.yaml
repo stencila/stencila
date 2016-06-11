@@ -17,7 +17,6 @@ attrs:
     type: property
     return: std::string
     brief: Get or set the content of this stencil as a JSON string
-    details: |
 
   - name: render
     type: method
