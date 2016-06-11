@@ -23,7 +23,7 @@
   "binary": {
     "module_name": "extension",
     "module_path": "./lib/binding/",
-    "host": "https://get.stenci.la.s3-us-west-2.amazonaws.com",
+    "host": "https://s3-us-west-2.amazonaws.com/get.stenci.la",
     "remote_path": "./node"
   },
   "bin": {
