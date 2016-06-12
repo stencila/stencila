@@ -1,6 +1,9 @@
+#include <boost/regex.hpp>
+
 #include <stencila/debug.hpp>
 #include <stencila/markdown.hpp>
 #include <stencila/stencil.hpp>
+#include <stencila/string.hpp>
 
 namespace Stencila {
 
@@ -11,17 +14,51 @@ std::string Stencil::rmd(void) const {
     Xml::Document temp;
     auto pre = temp.append("pre");
     auto code = pre.append("code");
-    std::string info = "r ";
-    // TODO reconstruct info string from exec settings
-    // Execute exec(node);
-    // if (exec.off) {
-    //    info += " eval=FALSE,";
-    // }
-    // The extra holds stuff that the exec settings don't deal with
-    // The StencilExecComponent needs to retain that.
-    if (exec.has("data-extra")) {
-      info += exec.attr("data-extra");
+    std::string info = "r";
+    // Create an execute directive and use it to construct a set of
+    // options
+    Execute dir;
+    try {
+      dir.parse(exec);
     }
+    catch(const Exception& e) {
+      code.attr("data-error", e.what());
+    }
+
+    std::vector<std::string> options;
+    if (dir.off) {
+      options.push_back("eval=FALSE");
+    }
+    if (dir.show) {
+      options.push_back("echo=TRUE");
+    }
+    if (dir.format.expr.length()) {
+      options.push_back("dev=\""+dir.format.expr+"\"");
+    }
+    if (dir.width.expr.length()) {
+      static const boost::regex pattern("^(\\d+)(px|mm|cm|in)?$");
+      boost::smatch matches;
+      if (boost::regex_search(dir.width.expr, matches, pattern)) {
+        // TODO convert other dimensions to inches as necessary
+        options.push_back("fig.width=" + matches[1]);
+      }
+    }
+    if (dir.height.expr.length()) {
+      static const boost::regex pattern("^(\\d+)(px|mm|cm|in)?$");
+      boost::smatch matches;
+      if (boost::regex_search(dir.height.expr, matches, pattern)) {
+        // TODO convert other dimensions to inches as necessary
+        options.push_back("fig.height=" + matches[1]);
+      }
+    }
+    if (exec.has("data-extra")) {
+      options.push_back(exec.attr("data-extra"));
+    }
+
+    if (options.size()) {
+      info += " " + join(options, ", ");
+    }
+
     code.attr("class", "{" + info + "}");
     code.text(exec.text());
     exec.before(pre);
@@ -72,6 +109,7 @@ Stencil& Stencil::rmd(const std::string& rmd) {
     auto info = code.attr("class");
     if (info == "{r}" or info.substr(0,3) == "{r ") {
       std::string exec = "r";
+      std::vector<std::string> unhandled;
       if (info.length()>3) {
         std::string options = info.substr(3);
         if (options.back() == '}') options.pop_back();
@@ -82,12 +120,12 @@ Stencil& Stencil::rmd(const std::string& rmd) {
             auto option = trim(word.substr(0,equal));
             auto value = trim(word.substr(equal+1));
             // eval:   whether to evaluate the chunk
-            if (option == "eval" and (value == "FALSE" or value == "F")) {
-              exec += " off";
+            if (option == "eval") {
+              if (value == "FALSE" or value == "F") exec += " off";
             }
             // echo:   whether to include R source code in the output file
-            else if (option == "echo" and (value == "TRUE" or value == "T")) {
-              exec += " show";
+            else if (option == "echo") {
+              if (value == "TRUE" or value == "T") exec += " show";
             }
             // dev: the function name which will be used as a graphical device to record plots
             else if (option == "dev") {
@@ -103,17 +141,21 @@ Stencil& Stencil::rmd(const std::string& rmd) {
             else if (option == "fig.height" or option == "out.height") {
               exec += " height " + value + "in";
             }
+            else {
+              unhandled.push_back(trim(word));
+            }
           }
         }
       }
       // Remove the code block so struture is as expected for
-      // stencil exec directives: pre[data-exec]
-      // Store the options string for writing back to md
+      // stencil exec directives: pre[data-exec]  
       auto pre = code.parent();
       pre.attr("data-exec", exec);
-      pre.attr("data-rmd", info);
       pre.text(code.text());
       code.destroy();
+      // Store the unhandled option strings so it can be used 
+      // for writing back to rmd
+      if (unhandled.size()) pre.attr("data-extra", join(unhandled,", "));
     }
   }
 

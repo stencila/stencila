@@ -570,6 +570,7 @@ public:
 		Flag constant = false;
 		Flag volatil = false;
 		Flag show = false;
+		Flag off = false;
 
 		Execute(void);
 		Execute(const std::string& attribute);

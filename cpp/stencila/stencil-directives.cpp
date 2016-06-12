@@ -236,6 +236,7 @@ void Stencil::Execute::parse(const std::string& attribute){
 		"(\\s+(const))?" \
 		"(\\s+(volat))?" \
 		"(\\s+(show))?" \
+		"(\\s+(off))?" \
 		"$"
 	);
 	if(boost::regex_search(attribute, match, pattern)) {
@@ -268,6 +269,7 @@ void Stencil::Execute::parse(const std::string& attribute){
 		constant = match[24].str()=="const";
 		volatil = match[26].str()=="volat";
 		show = match[28].str()=="show";
+		off = match[30].str()=="off";
 	} else {
 		throw DirectiveException("syntax",attribute);
 	}
@@ -279,6 +281,9 @@ void Stencil::Execute::parse(Node node){
 
 void Stencil::Execute::render(Stencil& stencil, Node node, std::shared_ptr<Context> context){
 	parse(node);
+
+	// If off don't do anything
+	if(off) return;
 
 	// Check that the context accepts the declared contexts types
 	bool accepted = false;

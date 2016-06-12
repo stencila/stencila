@@ -32,11 +32,14 @@ BOOST_AUTO_TEST_CASE(to_from){
         }
       ]
     })", 
-      R"()"
+      R"(<p>
+	some <em>markdown</em>
+</p>
+<pre data-exec="r">x &lt;- 6 * 7</pre>)"
     },
   }) {
     s.jnb(pair[0]);
-    BOOST_CHECK_EQUAL(s.html(), pair[1]);
+    BOOST_CHECK_EQUAL(s.html(false,true), pair[1]);
   }
 }
 
