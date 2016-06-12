@@ -1222,8 +1222,7 @@ public:
 			// Count attributes, not including "special ids"
 			auto attributes = attribute_list.size();
 			for(auto attr : attribute_list){
-				auto value = node.attr(name);
-				if(name=="data-uiid"){
+				if(attr=="data-uiid"){
 					attributes--;
 				}
 			}
@@ -1448,8 +1447,9 @@ public:
 			if(node.has("data-uiid")){
 				erase_attr("data-uiid");
 			}
+
 			// Execute directives
-			else if(node.has("data-exec")){
+			if(node.has("data-exec")){
 				content(node.attr("data-exec"));
 				space_required = true;
 

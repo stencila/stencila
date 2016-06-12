@@ -1115,6 +1115,26 @@ comments #target-of-comment
 --------------------------------------------------
 
 
+UI ids are handled properly <<
+--------------------------------------------------
+Para 1
+
+Para 2
+
+r
+	a=1
+	b=2
+	c=3
+--------------------------------------------------
+<p data-uiid="paragraph-ec17d5a089e15b3215888fe6b46287a5">Para 1</p>
+<p data-uiid="paragraph-ad91571ec3d1beb15615fd97f9a5731d">Para 2</p>
+<pre data-uiid="stencil-exec-505d9a61a92e6db7266932076b41242e" data-exec="r">a=1
+b=2
+c=3
+</pre>
+--------------------------------------------------
+
+
 End test. Insert new tests above this <>
 --------------------------------------------------
 Because the end of file format is a bit tricky.
