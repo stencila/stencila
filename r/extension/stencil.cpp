@@ -36,6 +36,7 @@ STENCILA_R_FUNC Stencil_html_get(SEXP self,SEXP pretty){
 STENCILA_R_SET(Stencil,html,std::string)
 
 STENCILA_R_GETSET(Stencil,cila,std::string)
+STENCILA_R_GETSET(Stencil,rmd,std::string)
 
 STENCILA_R_GETSET(Stencil,json,std::string)
 

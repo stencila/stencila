@@ -58,6 +58,9 @@ setRefClass(
         cila = function(value){
             get_set_(.self,'Stencil_cila_get','Stencil_cila_set',value)
         },
+        rmd = function(value){
+            get_set_(.self,'Stencil_rmd_get','Stencil_rmd_set',value)
+        },
         json = function(value){
             get_set_(.self,'Stencil_json_get','Stencil_json_set',value)
         },
