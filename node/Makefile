@@ -11,13 +11,13 @@ NODE_VERSION = $(shell node --version)
 # The packages `yamljs` and `nunjucks` are in `package.json`
 # but need to be installed before `wrap.js` is run
 setup:
-	npm install yamljs nunjucks node-pre-gyp
+	npm install yamljs nunjucks
 
 # Build extension
 build:
 	sed -i 's!"version": .*$$!"version": "$(VERSION)",!' package.json
 	mkdir -p .wrap & node wrap.js
-	./node_modules/.bin/node-pre-gyp build
+	npm install --build-from-source
 
 # Create package
 package:
