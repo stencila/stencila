@@ -22,6 +22,12 @@ attrs:
     type: method
     return: self
 
+  - name: read
+    abstract: false
+
+  - name: write
+    abstract: false
+
   - name: serve
     abstract: false
 

@@ -11,8 +11,13 @@ attrs:
     return: std::string
 
   - name: read
+    abstract: true
 
   - name: write
+    abstract: true
 
   - name: serve
+    abstract: true
+
+  - name: view
     abstract: true

@@ -20,16 +20,16 @@ This is still in very initial development, but here's a quick snippet of what's 
 undefined
 > var s = stencila.Stencil('.')
 undefined
-> # Set Cila content and render it
+> // Set Cila content and render it
 > s.cila('exec\n\t_scope_.x=6*7;\n\np {text x}')
 > s.render()
 {}
-> # What does the content look like now?
+> // What does the content look like now?
 > s.cila();
 'exec &b2TLp2r\n\t_scope_.x=6*7;\n\n{text x 42}'
 > s.html()
 '<pre data-exec="exec" data-hash="b2TLp2r">\n_scope_.x=6*7;\n</pre><p><span data-text="x">42</span></p>'
-> # View it in the browser
+> // View it in the browser
 > s.view()
 ```
 
