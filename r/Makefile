@@ -107,7 +107,7 @@ endif
 # Install package
 install:
 	STENCILA_R_BUILD=$(realpath build) R CMD INSTALL stencila
-	sudo Rscript -e 'stencila::install()'
+	sudo Rscript -e 'stencila:::install()'
 
 # Clean up after build
 clean:
