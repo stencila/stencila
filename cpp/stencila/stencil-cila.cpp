@@ -1133,10 +1133,9 @@ public:
 					// Shift along
 					begin += match_local.position() + match_local.length();
 				}
-				// If this is a blankline we need to let paragraphs know
-				if(boost::regex_search(begin, end, blankline, boost::regex_constants::match_continuous)){
-					para_needed = true;
-				}
+				// Any following text needs to be a new paragraph (unless specifically declared
+				// otherwise)
+				para_needed = true;
 			}
 			else add();
 		}

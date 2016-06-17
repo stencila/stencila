@@ -746,6 +746,51 @@ some code
 --------------------------------------------------
 
 
+`exec` with text following without separating space >>
+--------------------------------------------------
+exec
+	some code
+Paragraph
+--------------------------------------------------
+<pre data-exec="exec">
+some code
+</pre>
+<p>
+	Paragraph
+</p>
+--------------------------------------------------
+
+
+`exec` with explicit para following without separating space >>
+--------------------------------------------------
+exec
+	some code
+p Paragraph
+--------------------------------------------------
+<pre data-exec="exec">
+some code
+</pre>
+<p>
+	Paragraph
+</p>
+--------------------------------------------------
+
+
+`exec` with explicit div following without separating space >>
+--------------------------------------------------
+exec
+	some code
+div foo
+--------------------------------------------------
+<pre data-exec="exec">
+some code
+</pre>
+<div>
+	foo
+</div>
+--------------------------------------------------
+
+
 `exec` with extra whitespace <<
 --------------------------------------------------
 exec
