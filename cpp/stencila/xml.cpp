@@ -237,7 +237,14 @@ Node& Node::move(Node& to) {
 
 void Node::destroy(void) {
 	pimpl_->parent().remove_child(*pimpl_);
-}  
+}
+
+Node Node::replace(const std::string& tag, const Attributes& attributes, const std::string& text) {
+	auto replacement = parent().append(tag, attributes, text);
+	before(replacement);
+	destroy();
+	return replacement;
+}
 
 Node Node::root(void){
 	return pimpl_->root();

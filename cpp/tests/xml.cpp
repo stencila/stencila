@@ -100,6 +100,15 @@ BOOST_AUTO_TEST_CASE(clear){
 	BOOST_CHECK(not doc.find("p","id","slartybarfast"));
 }
 
+BOOST_AUTO_TEST_CASE(replace){
+	Document doc("<p>Foo</p>");
+	auto p = doc.find("p");
+	auto span = p.replace("span", {}, p.text());
+	BOOST_CHECK(not doc.find("p"));
+	BOOST_CHECK(span.text() == "Foo");
+	BOOST_CHECK_EQUAL(doc.find("span").text(), "Foo");
+}
+
 /*
  * Test the translation of CSS selectors to XPath
  * 
