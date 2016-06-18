@@ -240,10 +240,24 @@ void Node::destroy(void) {
 }
 
 Node Node::replace(const std::string& tag, const Attributes& attributes, const std::string& text) {
-	auto replacement = parent().append(tag, attributes, text);
-	before(replacement);
-	destroy();
-	return replacement;
+	auto parent = pimpl_->parent();
+	auto child = parent.insert_child_before(pugi::node_element, *pimpl_);
+
+	child.set_name(tag.c_str());
+	for(auto attribute : attributes){
+		child.append_attribute(attribute.first.c_str()) = attribute.second.c_str();
+	}
+	if(text.length()>0) {
+		child.append_child(pugi::node_pcdata).set_value(text.c_str());
+	}
+
+	parent.remove_child(*pimpl_);
+
+	return child;
+}
+
+Node Node::replace(const std::string& tag, const std::string& text) {
+	return replace(tag, {}, tag);
 }
 
 Node Node::root(void){

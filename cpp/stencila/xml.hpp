@@ -356,6 +356,13 @@ public:
 	Node replace(const std::string& tag, const Attributes& attributes, const std::string& text = "");
 
 	/**
+	 * Replace an XML node with another
+	 * 
+	 * @return New node
+	 */
+	 Node replace(const std::string& tag, const std::string& text = "");
+
+	/**
 	 * @}
 	 */
 	

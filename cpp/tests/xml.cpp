@@ -107,6 +107,8 @@ BOOST_AUTO_TEST_CASE(replace){
 	BOOST_CHECK(not doc.find("p"));
 	BOOST_CHECK(span.text() == "Foo");
 	BOOST_CHECK_EQUAL(doc.find("span").text(), "Foo");
+	BOOST_CHECK_EQUAL(doc.children().size(), 1);
+	BOOST_CHECK_EQUAL(doc.dump(), "<span>Foo</span>");
 }
 
 /*
