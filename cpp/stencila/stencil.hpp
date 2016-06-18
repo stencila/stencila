@@ -37,6 +37,35 @@ public:
 	}
 
 	/**
+	 * @name Schema
+	 *
+	 * Methods implemented in `stencil-schema.cpp`
+	 * 
+	 * @{
+	 */
+	
+	/**
+	 * Get the schema of this stencil
+	 */
+	std::string schema(void) const;
+
+	/**
+	 * Set the schema of this stencil
+	 */
+	Stencil& schema(const std::string& schema);
+
+	/**
+	 * Change the structure of this stencil's content so that it conforms to it's schema
+	 * 
+	 * @param schema Schema to conform to
+	 */
+	Stencil& conform(const std::string& schema = "");
+
+	/**
+	 * @}
+	 */
+
+	/**
 	 * @name Input and output
 	 *
 	 * Methods implemented in `stencil-io.cpp`
@@ -1053,6 +1082,11 @@ public:
 	 */
 
 private:
+
+	/**
+	 * The schema applied to the content of this stencil
+	 */
+	std::string schema_;
 
 	/**
 	 * The source file for this stencil within its `path()`

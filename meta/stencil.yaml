@@ -3,6 +3,26 @@ bases: [Component]
 
 attrs:
 
+  - name: schema
+    type: property
+    return: std::string
+    default: ""
+    brief: Indicates the schema that this stencil's content adheres to
+    details: |
+      The content of a stencil can be any form of XML tree (i.e. nodes having attributes and parent/child relationships). The `schema` attribute is used to keep track of which schema the content is expected to conform to (see the `conform` method). Schema is used in a broad sense and does not have to be a standard XML schema. Instead, we use schema codes like "rmd" to indicate to the `conform` method that it needs to simplify the content such that it can be written as RMarkdown.
+
+  - name: conform
+    type: method
+    params:
+      - name: schema
+        default: ""
+        brief: Schema to conform to
+        details: |
+          Specifying a value other than `""` for this parameter will set the `schema` property of the stencil. ie. `stencil.conform("rmd")` is equivalent to `stencil.schema("rmd").conform()`.
+    brief: Change the structure of this stencil's content so that it conforms to it's schema
+    details: |
+      This method is used by the `write` and `export` methods to ensure that the stencil can be written the specified file format eg. `export("report.rmd")`. Users won't usually need to call it themselves.
+
   - name: cila
     type: property
     return: std::string

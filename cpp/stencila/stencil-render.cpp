@@ -219,6 +219,9 @@ Stencil& Stencil::render(std::shared_ptr<Context> context){
 	// Render root element within context
 	render(*this,context);
 
+	// Ensure conformance with the schema
+	conform();
+
 	// Finalise rendering
 	// Render refer directives
 	for(Node ref : filter("[data-refer]")){
