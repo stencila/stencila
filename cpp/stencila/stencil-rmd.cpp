@@ -1,6 +1,5 @@
 #include <boost/regex.hpp>
 
-#include <stencila/debug.hpp>
 #include <stencila/markdown.hpp>
 #include <stencila/stencil.hpp>
 #include <stencila/string.hpp>
