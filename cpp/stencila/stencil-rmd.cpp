@@ -9,6 +9,21 @@ namespace Stencila {
 
 std::string Stencil::rmd(void) const {
   Xml::Document modified = *this;
+  // "Unwrap" any exec directives within  a `figure` element
+  // and extract the `caption` or `figcaption` to put in
+  // the `fig.cap` option and "unwrap"
+  for (auto exec : modified.filter("figure>[data-exec]")) {
+    auto figure = exec.parent();
+    auto caption = figure.select("figcaption,caption");
+    if (caption) {
+      auto extra = exec.attr("data-extra");
+      if (extra.length()) extra += ", ";
+      extra += "fig.cap=\"" + caption.text() + "\"";
+      exec.attr("data-extra", extra);
+    }
+    figure.after(exec);
+    figure.destroy();
+  }
   // Convert exec directives to code chunks
   for (auto exec : modified.filter("[data-exec]")) {
     Xml::Document temp;
@@ -16,7 +31,7 @@ std::string Stencil::rmd(void) const {
     auto code = pre.append("code");
     std::string info = "r";
     // Create an execute directive and use it to construct a set of
-    // options
+    // chunk options
     Execute dir;
     try {
       dir.parse(exec);
@@ -60,7 +75,7 @@ std::string Stencil::rmd(void) const {
     }
 
     code.attr("class", "{" + info + "}");
-    code.text(exec.text());
+    code.text(trim(exec.text()));
     exec.before(pre);
     exec.destroy();
   }
@@ -110,6 +125,8 @@ Stencil& Stencil::rmd(const std::string& rmd) {
     if (info == "{r}" or info.substr(0,3) == "{r ") {
       std::string exec = "r";
       std::vector<std::string> unhandled;
+      bool figure = false;
+      std::string figure_caption;
       if (info.length()>3) {
         std::string options = info.substr(3);
         if (options.back() == '}') options.pop_back();
@@ -119,6 +136,20 @@ Stencil& Stencil::rmd(const std::string& rmd) {
           if (equal != std::string::npos) {
             auto option = trim(word.substr(0,equal));
             auto value = trim(word.substr(equal+1));
+            // Option valuses are R expressions
+            // Do psuedo-evaluation of the value by stripping quotes around string expressions
+            // Proper R evalution could be dne but then would require an R context
+            // be available during this conversion.
+            // TODO We could enable evaluation if a R context was attached and fallback to this
+            // if not.
+            if (value.length()) {
+              char first = value.front();
+              char last = value.back();
+              if ((first == '"' and last == '"') or (first == '\'' and last == '\'') ) {
+                value = value.substr(1,value.length()-2);
+              }
+            }
+
             // eval:   whether to evaluate the chunk
             if (option == "eval") {
               if (value == "FALSE" or value == "F") exec += " off";
@@ -129,17 +160,22 @@ Stencil& Stencil::rmd(const std::string& rmd) {
             }
             // dev: the function name which will be used as a graphical device to record plots
             else if (option == "dev") {
-              // value is usually a single or double quoted string literal so remove those
-              value = value.substr(1,value.length()-2);
+              figure = true;
               exec += " format " + value;
             }
             // fig.width, fig.height: (both are 7; numeric) width and height of the plot, to be used in the graphics device (in inches) 
             // out.width, out.height: (NULL; character) width and height of the plot in the final output file (can be different with its real fig.width and fig.height, i.e. plots can be scaled in the output document)
             else if (option == "fig.width" or option == "out.width") {
+              figure = true;
               exec += " width " + value + "in";
             }
             else if (option == "fig.height" or option == "out.height") {
+              figure = true;
               exec += " height " + value + "in";
+            }
+            else if (option == "fig.cap") {
+              figure = true;
+              figure_caption = value;
             }
             else {
               unhandled.push_back(trim(word));
@@ -156,6 +192,13 @@ Stencil& Stencil::rmd(const std::string& rmd) {
       // Store the unhandled option strings so it can be used 
       // for writing back to rmd
       if (unhandled.size()) pre.attr("data-extra", join(unhandled,", "));
+      // Wrap in a `figure` element and caption if appropriate
+      if (figure) {
+        auto figure = pre.wrap("figure");
+        if (figure_caption.length()) {
+          figure.prepend("figcaption", figure_caption);
+        }
+      }
     }
   }
 
