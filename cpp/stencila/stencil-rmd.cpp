@@ -24,6 +24,11 @@ std::string Stencil::rmd(void) const {
     yaml += extra_;
   }
 
+  // Remove any UI ids
+  for (auto elem : modified.filter("[data-uiid]")) {
+    elem.erase("data-uiid");
+  }
+
   // "Unwrap" any exec directives within  a `figure` element
   // and extract the `caption` or `figcaption` to put in
   // the `fig.cap` option and "unwrap"
