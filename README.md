@@ -20,7 +20,7 @@ Stencila is a platform for creating documents that are driven by data,
 
 - Sheets : like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up for transparency, testability and version control while still maintaining accessibility (think [R](https://www.r-project.org/) meets Google Sheets meets [git](https://git-scm.com/))
 
-The core engine is written in C++ with thin wrappers into host languages, e.g. R and Python (Javascript, Julia and more languages to come), and browser based user interfaces. Stencila is designed to be used locally (i.e on your computer) or remotely (i.e. in the cloud, on someone else's computer). To install locally see the instructions below or build one of the packages yourself. If you just want to quickly see what this is all about, 
+The core engine is written in C++ with thin wrappers into host languages, e.g. R and Python (Javascript, Julia and more languages to come), and browser based user interfaces. Stencila is designed to be used locally (i.e on your computer) or remotely (i.e. in the cloud, on someone else's computer). To install locally see the instructions below or build one of the packages yourself.
 
 ### Status
 
