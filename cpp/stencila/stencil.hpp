@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <thread>
 
 #include <stencila/component.hpp>
 #include <stencila/context.hpp>
@@ -124,7 +125,15 @@ public:
 	 *              If an empty string then the stencil's current path is used.
 	 */
 	Stencil& read(const std::string& path="");
-	
+
+	/**
+	 * Watch for changes in the source file for this stencil
+	 * 
+	 * @param  on Turn watching on? (use `false` to turn a watch off)
+	 * @param  render Should the stencil be rendered on each re-read?
+	 */
+	Stencil& watch(bool on = true, bool render = true);
+
 	/**
 	 * Write the stencil to a directory
 	 * 
@@ -1093,6 +1102,32 @@ private:
 	 * directory. One of `stencil.cila` or `stencil.html`
 	 */
 	std::string source_;
+
+	/**
+	 * A watcher for stencil's used to implement threaded
+	 * watching using the `watch()` method
+	 */
+	struct Watcher {
+		Stencil* stencil;
+		std::time_t modified;
+		bool on;
+		std::thread thread;
+
+		// Constructor and destructor
+		Watcher(Stencil* _stencil);
+		~Watcher(void);
+		// Given destructor, it is necessary to reinstate the implicit move constructor
+		// See http://stackoverflow.com/a/27474070/4625911
+		Watcher(Watcher&&) = default;
+
+		// Run this watcher
+		void run(void);
+	};
+
+	/**
+	 * Watchers for each stencil
+	 */
+	static std::map<Stencil*, Watcher> watchers_;
 
 	/**
 	 * Any metadata that needs be retained for this stencil

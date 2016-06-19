@@ -116,6 +116,44 @@ Stencil& Stencil::read(const std::string& directory){
 	return *this;
 }
 
+Stencil::Watcher::Watcher(Stencil* _stencil):
+	stencil(_stencil),
+	modified(0),
+	on(true),
+	thread(&Watcher::run, this) {
+}
+
+Stencil::Watcher::~Watcher(void) {
+	on = false;
+	thread.join();
+}
+
+void Stencil::Watcher::run(void) {
+	while (on) {
+		auto file_path = boost::filesystem::path(stencil->path()) / stencil->source();
+		auto write_time = boost::filesystem::last_write_time(file_path);
+		if (write_time > modified) {
+			if (modified > 0) {
+				stencil->read();
+				stencil->render();
+			}
+			modified = write_time;
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+}
+
+Stencil& Stencil::watch(bool on, bool render) {
+	if (on) {
+		watchers_.emplace(this, this);
+	} else {
+		watchers_.erase(this);
+	}
+	return *this;
+}
+
+std::map<Stencil*, Stencil::Watcher> Stencil::watchers_;
+
 Stencil& Stencil::write(const std::string& directory){
 	// Set this stencil's path using `Component::write`
 	Component::write(directory);

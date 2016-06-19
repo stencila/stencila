@@ -45,6 +45,20 @@ attrs:
   - name: read
     abstract: false
 
+  - name: watch
+    type: method
+    return: self
+    brief: Watch for changes in the source file for this stencil
+    params:
+      - name: on
+        type: bool
+        default: true
+        brief: Turn watching on? (use `false` to turn a watch off)
+      - name: render
+        type: bool
+        default: true
+        brief: Should the stencil be rendered on each re-read?
+
   - name: write
     abstract: false
 

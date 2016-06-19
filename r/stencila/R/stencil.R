@@ -87,6 +87,7 @@ setRefClass(
             get_set_(.self,'Stencil_source_get','Stencil_source_set',filename)
         },
         read = function(path="") method_(.self,'Stencil_read',path),
+        watch = function(on=TRUE, render=TRUE) method_(.self,'Stencil_watch',on,render),
         write = function(path="") method_(.self,'Stencil_write',path),
 
         restrict = function() method_(.self,'Stencil_restrict'),
