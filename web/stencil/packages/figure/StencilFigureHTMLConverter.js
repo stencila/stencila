@@ -32,6 +32,7 @@ module.exports = {
       node.source = exec.text();
       node.hash = exec.attr('data-hash');
       node.error = exec.attr('data-error');
+      node.extra = exec.attr('data-extra');
     }
 
     var img = el.find('[data-out] img');
@@ -56,6 +57,9 @@ module.exports = {
       .text(node.source);
     if(node.hash) exec.attr('data-hash', node.hash);
     if(node.error) exec.attr('data-error', node.error);
+    if (node.extra) {
+      el.attr('data-extra', node.extra);
+    }
     el.append(exec);
 
     var img = $$('img')

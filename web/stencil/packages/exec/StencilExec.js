@@ -16,7 +16,8 @@ StencilExec.static.defineSchema({
   spec: "string",
   lang: { type: "string", optional: true },
   show: { type: "boolean", default: false },
-  error: { type: "string", optional: true }
+  error: { type: "string", optional: true },
+  extra: { type: "string", optional: true }
 });
 
 StencilExec.static.generatedProps = ['error'];

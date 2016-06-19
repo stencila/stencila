@@ -16,6 +16,7 @@ module.exports = {
     node.show = matches[2]?true:false;
     node.spec = spec;
     node.error = el.attr('data-error');
+    node.extra = el.attr('data-extra');
     node.source = el.text();
   },
 
@@ -25,6 +26,9 @@ module.exports = {
      .text(node.source);
     if (node.error) {
       el.attr('data-error', node.error);
+    }
+    if (node.extra) {
+      el.attr('data-extra', node.extra);
     }
   }
 };

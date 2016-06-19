@@ -30,7 +30,8 @@ StencilFigure.static.defineSchema({
     'image_style': { type: 'string', optional: true },
     // Any error associated with execution
     'error': { type: 'string', optional: true },
-
+    // Extra meta-data associated with the element
+    'extra': { type: 'string', optional: true },
 });
 
 StencilFigure.static.generatedProps = [
