@@ -589,13 +589,13 @@ test-%: build/tests/%.exe $(TEST_INPUTS)
 		(./$*.exe) || (exit 1)
 
 # Run quick tests only
-tests-quick: build/tests/tests.exe $(TEST_INPUTS)
+test-quick: build/tests/tests.exe $(TEST_INPUTS)
 	cd build/tests/ ;\
 		ulimit -v 2097152; (./tests.exe --run_test=*_quick/*) || (exit 1)
 
 # Run all tests
-test: tests-quick
-cover: tests-quick
+test: test-quick
+cover: test-quick
 
 # Run all tests and report results and coverage to XML files
 # Requires python, xsltproc and [gcovr](http://gcovr.com/guide.html):
