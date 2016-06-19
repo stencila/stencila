@@ -9,6 +9,21 @@ namespace Stencila {
 
 std::string Stencil::rmd(void) const {
   Xml::Document modified = *this;
+
+  // YAML frontmatter
+  std::string yaml;
+  // Add title to yaml and remove from main doc
+  std::string title;
+  auto title_node = modified.select("#title");
+  if (title_node) {
+    yaml += "title: " + title_node.text() + "\n";
+    title_node.destroy();
+  }
+  // Add any extra metadata that has been stored
+  if (extra_.length()) {
+    yaml += extra_;
+  }
+
   // "Unwrap" any exec directives within  a `figure` element
   // and extract the `caption` or `figcaption` to put in
   // the `fig.cap` option and "unwrap"
@@ -90,15 +105,53 @@ std::string Stencil::rmd(void) const {
     text.before(code);
     text.destroy();
   }
-  return Markdown::Document()
-    .html_doc(modified)
-    .md();
+
+  std::string rmd;
+  if (yaml.length()) {
+    rmd += "---\n" + yaml + "---\n\n";
+  }
+  rmd += Markdown::Document().html_doc(modified).md();
+
+  return rmd;
 }
 
 Stencil& Stencil::rmd(const std::string& rmd) {
+  // Extract YAML frontmatter and remove from Markdown
+  std::string rmd_clean;
+  std::string title;
+  const boost::regex frontmatter_re("-{3,}\\n(.+)-{3,}\\n");
+  boost::smatch matches;
+  if (boost::regex_search(rmd, matches, frontmatter_re)) {
+    auto yaml = matches[1];
+    // Store the frontmatter so it can be written later
+    extra_ = "";
+    // Right now we don't try to parse the YAML properly,
+    // just remove what we need
+    for (std::string line : split(yaml, "\n")) {
+      line = trim(line);
+      if (line.length()) {
+        const boost::regex title_re("^title\\s*:\\s*(.+)$");
+        boost::smatch matches;
+        if (boost::regex_match(line, matches, title_re)) {
+          title = matches[1];
+        } else {
+          extra_ += line + "\n";
+        }
+      }
+    }
+    rmd_clean = rmd.substr(matches[0].length());
+  } else {
+    rmd_clean = rmd;
+  }
+
   // Parse markdown, convert to a HTML document and set this stencil's content
-  Markdown::Document md(rmd);
+  Markdown::Document md(rmd_clean);
   static_cast<Xml::Document&>(*this) = md.html_doc();
+
+  // Add the title if there was one in the frontmatter
+  if (title.length()) {
+    prepend("div", {{"id", "title"}}, title);
+  }
 
   /*
   Find code blocks and convert to execute directives.

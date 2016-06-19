@@ -1095,6 +1095,12 @@ private:
 	std::string source_;
 
 	/**
+	 * Any metadata that needs be retained for this stencil
+	 * and which can not be put into content
+	 */
+	std::string extra_;
+
+	/**
 	 * The current rendering context for this stencil
 	 */
 	std::shared_ptr<Context> context_ = nullptr;

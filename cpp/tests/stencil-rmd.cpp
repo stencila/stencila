@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(from_to){
 		{"``` {r fig.width=10, fig.height=10}\n```\n", "<figure><pre data-exec=\"r width 10in height 10in\"></pre></figure>"},
 		{"``` {r fig.width=10, unsupported.option=2}\n```\n", "<figure><pre data-exec=\"r width 10in\" data-extra=\"unsupported.option=2\"></pre></figure>"},
 		{"``` {r fig.cap=\"Yo\"}\n```\n", "<figure><figcaption>Yo</figcaption><pre data-exec=\"r\"></pre></figure>"},
-		
+
 		// Inline code
 		{"`r x`\n", "<p><span data-text=\"x\"></span></p>"}
 	};
@@ -64,6 +64,22 @@ BOOST_AUTO_TEST_CASE(to){
 		s.cila(pair[0]);
 		BOOST_CHECK_EQUAL(s.rmd(), pair[1]);
 	}
+}
+
+// Meta data should be retained
+BOOST_AUTO_TEST_CASE(meta){
+	Stencil s;
+	std::string rmd = 
+R"(---
+title: My story
+option: foo
+---
+
+Once upon...
+)";
+	s.rmd(rmd);
+	BOOST_CHECK_EQUAL(s.html(), "<div id=\"title\">My story</div><p>Once upon...</p>");
+	BOOST_CHECK_EQUAL(s.rmd(), rmd);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
