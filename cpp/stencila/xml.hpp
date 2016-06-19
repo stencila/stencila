@@ -360,7 +360,12 @@ public:
 	 * 
 	 * @return New node
 	 */
-	 Node replace(const std::string& tag, const std::string& text = "");
+	Node replace(const std::string& tag, const std::string& text = "");
+
+	/**
+	 * Wrap this node with another element
+	 */
+	Node wrap(const std::string& tag);
 
 	/**
 	 * @}

@@ -260,6 +260,13 @@ Node Node::replace(const std::string& tag, const std::string& text) {
 	return replace(tag, {}, tag);
 }
 
+Node Node::wrap(const std::string& tag) {
+	auto wrapper = pimpl_->parent().insert_child_before(pugi::node_element, *pimpl_);
+	wrapper.set_name(tag.c_str());
+	wrapper.append_move(*pimpl_);
+	return wrapper;
+}
+
 Node Node::root(void){
 	return pimpl_->root();
 }
