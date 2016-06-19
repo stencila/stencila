@@ -54,7 +54,7 @@ build/%.o: extension/%.cpp
 	   -I../cpp/build/requires/cpp-netlib -o$@ -c $<
 	
 # Create dll and check it can be loaded
-build/$(DLL): $(OBJECTS)
+build/$(DLL): $(OBJECTS) ../cpp/build/library/libstencila.a
 	$(CXX) -shared -o$@ $^ $(LD_FLAGS) -L../cpp/build/library -lstencila -lcurl -lssl -lcrypto $(LINK_FLAGS)
 	Rscript -e "dyn.load('build/$(DLL)')"
 
