@@ -95,12 +95,29 @@ WebsocketConnection.prototype.receive = function(data){
         throw 'WebsocketConnection.receive. Error parsing WAMP message data.\n  data:'+data+'\n  error:'+error;
     }
     // Act on WAMP code
+    var callback;
     var code = message[0];
-    if(code==50){
+    if (code == 8){
+        // [ERROR, ...]
+        throw message;
+    }
+    else if (code == 33) {
+        // [SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]
+        console.info('WebsocketConnection.SUBSCRIBED', message);
+    }
+    else if (code == 36) {
+        // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict]
+        console.info('WebsocketConnection.EVENT', message);
+        callback = this.callbacks['event'];
+        if(callback){
+            callback(message[3]);
+        }
+    }
+    else if (code == 50){
         // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
         var id = message[1];
-        console.info('WebsocketConnection.receive. id: '+this.id);
-        var callback = this.callbacks[id];
+        console.info('WebsocketConnection.RESULT' + message);
+        callback = this.callbacks[id];
         if(callback){
             var results = message[3];
             // WAMP allows for muliple returns
@@ -109,16 +126,13 @@ WebsocketConnection.prototype.receive = function(data){
             callback(result);
         }
     }
-    else if(code==8){
-        throw message;
-    }
     else {
-        throw "WebsocketConnection.receive. WAMP message type unknown/unhandled:"+code;
+        throw "WAMP message type unknown/unhandled:"+code;
     }
-}
+};
 
 /**
- * Make a remote procedure call
+ * Make a WAMP remote procedure call (RPC)
  * See https://github.com/tavendo/WAMP/blob/master/spec/basic.md#call-1
  * 
  * @param  {String}   method   Name of method to call
@@ -153,6 +167,18 @@ WebsocketConnection.prototype.call = function(method,args,callback){
     // Send WAMP
     console.info('WebsocketConnection.call. id: '+this.id+' method: '+method);
     this.send(JSON.stringify(wamp));
-}
+};
+
+WebsocketConnection.prototype.subscribe = function(topic, callback){
+    console.info('WebsocketConnection.subscribe. topic: ' + topic);
+    this.id++;
+    this.send(JSON.stringify([
+        32,         // SUBSCRIBE
+        this.id,    // Request|id
+        {},         // Options|dict
+        topic       // Topic|uri
+    ]));
+    this.callbacks['event'] = callback;
+};
 
 module.exports = WebsocketConnection;

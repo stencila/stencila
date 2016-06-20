@@ -148,6 +148,16 @@ class Message : public Json::Document {
     Message result(const Json::Document& result) const;
 
     /**
+     * Create a subscribed message
+     */
+    static Message subscribed(int request, int subscription);
+
+    /**
+     * Create an event message
+     */
+    static Message event(const Json::Document& event);
+
+    /**
      * Generate a error message
      */
     Message error(const std::string& details) const;

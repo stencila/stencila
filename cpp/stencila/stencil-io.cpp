@@ -136,6 +136,14 @@ void Stencil::Watcher::run(void) {
 			if (modified > 0) {
 				stencil->read();
 				stencil->render();
+
+				Json::Document event;
+				event.append("name", "updated");
+				Json::Document details = Json::Object();
+				details.append("format", "html");
+				details.append("content", stencil->html());
+				event.append("details", details);
+				stencil->notify(event);
 			}
 			modified = write_time;
 		}

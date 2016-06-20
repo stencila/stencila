@@ -50,6 +50,12 @@ public:
 	void start(void);
 
 	/**
+	 * Send a websocket message  to a connection
+	 * identfied by `id`
+	 */
+	void send(uint id, const std::string& message);
+
+	/**
 	 * Stop the server
 	 */
 	void stop(void);
@@ -63,7 +69,7 @@ public:
 	/**
 	 * Get the current server instance
 	 */
-	static const Server& instance(void);
+	static Server& instance(void);
 
 	/**
 	 * Stop server instance
@@ -92,19 +98,19 @@ private:
 	unsigned int port_ = 7373;
 
 	/**
-	 * An active websocket connection. Currently empty but could
-	 * be used to store connection information.
-	 * (A hangover from a previous approach of using one websocket connection
-	 * per component)
+	 * Mapping between a `connection_hdl` and a connection id
 	 */
-	struct Connection {
-	};
-	typedef std::map<connection_hdl,Connection,std::owner_less<connection_hdl>> Connections;
-	
+	std::map<uint, connection_hdl> connections_;
+
 	/**
-	 * Mapping between a `connection_hdl` and a `Connection`
+	 * Last connection id that was assigned
 	 */
-	Connections connections_;
+	uint id_last_ = 0;
+
+	/**
+	 * Mapping between a connection id and a `connection_hdl`
+	 */
+	std::map<connection_hdl, uint, std::owner_less<connection_hdl> > ids_;
 
 	/**
 	 * Access log file
@@ -126,11 +132,6 @@ private:
 	 * Restart the server after an otherwise unhandled exception
 	 */
 	void restart_(void);
-
-	/**
-	 * Get the `Session` for a given `connection_hdl`
-	 */
-	Connection& connection_(connection_hdl connection);
 
 	/**
 	 * Get the path requested by a connection
@@ -159,12 +160,12 @@ private:
 	void http_(connection_hdl connection);
 
 	/**
-	 * Handle a websocket message
+	 * Receive a websocket message
 	 * 
 	 * @param connection Connection handle
 	 * @param message Message pointer
 	 */
-	void message_(connection_hdl connection, server::message_ptr message);
+	void receive_(connection_hdl connection, server::message_ptr message);
 
 };
 

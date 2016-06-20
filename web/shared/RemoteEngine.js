@@ -192,6 +192,10 @@ RemoteEngine.Prototype = function() {
         }
       }
       this.websocket = new WebsocketConnection(ws);
+      // Subscribe to the component
+      this.websocket.subscribe(this.address, function(event) {
+        this.event_(event);
+      }.bind(this));
       // Begin pinging if not on localhost or localfile so that
       // session is kept alive
       if(!this.session.local) {
@@ -200,6 +204,9 @@ RemoteEngine.Prototype = function() {
         }.bind(this), 3*60*1000);
       }
     }
+  };
+
+  this.event_ = function(event) {
   };
 
   this._dialog = function(content) {

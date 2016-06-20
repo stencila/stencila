@@ -75,6 +75,10 @@ App.Prototype = function() {
     if (this.state.doc) {
       var lensEl;
       if (this.state.mode === 'write') {
+        // For handling events the engine needs to know
+        // how to update the doc! HACK
+        engine.doc = this.state.doc;
+
         lensEl = $$(StencilWriter, {
           doc: this.state.doc,
           engine: engine,

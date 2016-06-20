@@ -102,26 +102,39 @@ std::string Component::request_dispatch(const std::string& address, const std::s
 	}
 }
 
-std::string Component::message_dispatch(const std::string& message) {
-    Wamp::Message request(message);
+std::string Component::message_dispatch(const std::string& message, uint connection) {
+	Wamp::Message request(message);
 	Instance instance = get(request.procedure_address());
 	if(not instance.exists()) {
 		return "404";
 	} else {
-	    Wamp::Message response;
-	    try {
-			auto method = Class::get(instance.type()).message_method;
-			if (method) {
-				response = method(instance, request);
-			} else {
-				throw MethodUndefinedException("message", instance, __FILE__, __LINE__);
+		Wamp::Message response;
+		try {
+			switch (request.type()) {
+				case request.CALL: {
+					auto method = Class::get(instance.type()).message_method;
+					if (method) {
+						response = method(instance, request);
+					} else {
+						throw MethodUndefinedException("message", instance, __FILE__, __LINE__);
+					}
+				} break;
+
+				case request.SUBSCRIBE: {
+					subscribers_[instance.pointer()].push_back(connection);
+					response = Wamp::Message::subscribed(request.request(), connection);
+				} break;
+
+				default:
+					STENCILA_THROW(Exception, "Unhandled message type\n  type: " + string(request.type()));
+				break;
 			}
-	    } catch (const std::exception& exc) {
-	        response = request.error(exc.what());
-	    } catch (...) {
-	        response = request.error("Unknown exception");
-	    }
-	    return response.dump();
+		} catch (const std::exception& exc) {
+			response = request.error(exc.what());
+		} catch (...) {
+			response = request.error("Unknown exception");
+		}
+		return response.dump();
 	}
 }
 
@@ -140,38 +153,53 @@ std::string Component::request(
 	const std::string& verb, const std::string& name, const std::string& body,
 	std::function<Json::Document(const std::string&, const Json::Document&)>* callback
 ) {
-    Json::Document args;
-    if (body.length()) {
-    	args.load(body);
-    }
-    Json::Document response;
-    try {
-        response = (*callback)(name, args);
-    } catch (const std::exception& exc) {
-        response.append("error", exc.what());
-    } catch (...) {
-        response.append("error", "Unknown exception");
-    }
-    return response.dump();
+	Json::Document args;
+	if (body.length()) {
+		args.load(body);
+	}
+	Json::Document response;
+	try {
+		response = (*callback)(name, args);
+	} catch (const std::exception& exc) {
+		response.append("error", exc.what());
+	} catch (...) {
+		response.append("error", "Unknown exception");
+	}
+	return response.dump();
 }
 
 Wamp::Message Component::message(const Wamp::Message& message) {
 	return message.result(
-        call(
-        	message.procedure_method(), 
-        	message.args()
-        )
-    );
+		call(
+			message.procedure_method(), 
+			message.args()
+		)
+	);
 }
 
 Wamp::Message Component::message(const Wamp::Message& message, std::function<Json::Document(const std::string&, const Json::Document&)>* callback) {
-    return message.result(
-        (*callback)(
-        	message.procedure_method(), 
-        	message.args()
-        )
-    );
+	return message.result(
+		(*callback)(
+			message.procedure_method(), 
+			message.args()
+		)
+	);
 }
+
+const Component& Component::notify(const Json::Document& event) const {
+	auto subscribers = subscribers_[this];
+	if (subscribers.size()) {
+		auto wamp = Wamp::Message::event(event);
+		auto json = wamp.dump();
+		auto& server = Server::instance();
+		for (auto subscriber : subscribers) {
+			server.send(subscriber, json);
+		}
+	}
+	return *this;
+}
+
+std::map<const Component* const, std::vector<uint> > Component::subscribers_;
 
 Json::Document Component::call(const std::string& name, const Json::Document& args) {
 	Json::Document result;
@@ -191,9 +219,9 @@ Json::Document Component::call(const std::string& name, const Json::Document& ar
 		auto id = commit(message);
 		result.append("id", id);
 	} else {
-        STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
-    }
-    return result;
+		STENCILA_THROW(Exception, "Unhandled method name.\n  name: " + name); 
+	}
+	return result;
 }
 
 std::string Component::index(void){

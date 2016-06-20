@@ -85,6 +85,24 @@ Message Message::result(const Json::Document& value) const {
     return result;
 }
 
+
+Message Message::subscribed(int request, int subscription) {
+    // [SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]
+    Message event(SUBSCRIBED);
+    event.append(request);
+    event.append(subscription);
+    return event;
+}
+
+Message Message::event(const Json::Document& details) {
+    // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict]
+    Message event(EVENT);
+    event.append(0);
+    event.append(0);
+    event.append(details);
+    return event;
+}
+
 Message Message::error(const std::string& uri) const {
     Message error(ERROR);
     error.append(int(type()));

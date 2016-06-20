@@ -697,13 +697,14 @@ public:
 	);
 
 	/**
-	 * Respond to a websocket message to a component address
+	 * Respond to a websocket message to a component
 	 *
-	 * Gets the component and dispatches to it's `message` method
+	 * Resolves the component and dispatches to it's `message` method
 	 *
 	 * @param  message    Message text
+	 * @param  connection Connection id
 	 */
-	static std::string message_dispatch(const std::string& message);
+	static std::string message_dispatch(const std::string& message, uint connection = 0);
 
 	/**
 	 * Exception for when a dispathced method is not defined for a class
@@ -763,6 +764,13 @@ public:
 		const Wamp::Message& message, 
 		std::function<Json::Document(const std::string&, const Json::Document&)>* callback
 	);
+
+	/**
+	 * Notify subscribers to this component of an event
+	 * 
+	 * @param  event Event string
+	 */
+	const Component& notify(const Json::Document& event) const;
 
 	Json::Document call(const std::string& name, const Json::Document& args);
 
@@ -836,7 +844,12 @@ protected:
 	 * in this registry, they have to be registered first using
 	 * the `declare()` method
 	 */
-	static std::map<std::string,Instance> instances_;
+	static std::map<std::string, Instance> instances_;
+
+	/**
+	 * A map of subscribers for each component
+	 */
+	static std::map<const Component* const, std::vector<uint> > subscribers_;
 
 };
 

@@ -19,7 +19,7 @@ Server::Server(void){
 	server_.set_open_handler(bind(&Server::open_,this,_1));
 	server_.set_close_handler(bind(&Server::close_,this,_1));
 	server_.set_http_handler(bind(&Server::http_,this,_1));
-	server_.set_message_handler(bind(&Server::message_,this,_1,_2));
+	server_.set_message_handler(bind(&Server::receive_,this,_1,_2));
 	// Only log some things. See
 	//   http://www.zaphoyd.com/websocketpp/manual/reference/logging
 	// for a full list
@@ -109,7 +109,7 @@ const Server& Server::startup(void) {
 	return *server_instance_;
 }
 
-const Server& Server::instance(void) {
+Server& Server::instance(void) {
 	if (not server_instance_) {
 		STENCILA_THROW(Exception, "Server not yet started");
 	}
@@ -130,12 +130,6 @@ void Server::restart_(void){
 	if(restarts_<max_restarts_) start();
 }
 
-Server::Connection& Server::connection_(connection_hdl hdl) {
-	auto i = connections_.find(hdl);
-	if(i==connections_.end()) STENCILA_THROW(Exception,"No such connection");
-	return i->second;
-}
-
 std::string Server::path_(server::connection_ptr connection){
 	auto resource = connection->get_resource();
 	// Remove the leading '/'
@@ -153,12 +147,15 @@ std::string Server::path_(server::connection_ptr connection){
 }
 
 void Server::open_(connection_hdl hdl) {
-	Connection connection = {};
-	connections_[hdl] = connection;
+	auto id = ++id_last_;
+	ids_[hdl] = id;
+	connections_[id] = hdl;
 }
 
 void Server::close_(connection_hdl hdl) {
-	connections_.erase(hdl);
+	auto id = ids_[hdl];
+	ids_.erase(hdl);
+	connections_.erase(id);
 }
 
 void Server::http_(connection_hdl hdl) {
@@ -348,16 +345,17 @@ void Server::http_(connection_hdl hdl) {
 }
 
 /**
- * Handle a websocket message
+ * Receive a websocket message
  * 
  * @param hdl Connection handle
  * @param msg Message pointer
  */
-void Server::message_(connection_hdl hdl, server::message_ptr msg) {
+void Server::receive_(connection_hdl hdl, server::message_ptr msg) {
 	std::string response;
 	try {
 		std::string message = msg->get_payload();
-		response = Component::message_dispatch(message);
+		uint id = ids_[hdl];
+		response = Component::message_dispatch(message, id);
 	}
 	// `Component::message_dispatch()` should handle most exceptions and return a WAMP
 	// ERROR message. If for some reason that does not happen, the following returns
@@ -368,7 +366,14 @@ void Server::message_(connection_hdl hdl, server::message_ptr msg) {
 	catch(...){
 		response = "Internal server error : unknown exception";			
 	}
-	server_.send(hdl,response,opcode::text);
+	if (response.length()) {
+		server_.send(hdl, response, opcode::text);
+	}
+}
+
+void Server::send(uint id, const std::string& message) {
+	connection_hdl hdl = connections_[id];
+	server_.send(hdl, message, opcode::text);
 }
 
 } // namespace Stencila

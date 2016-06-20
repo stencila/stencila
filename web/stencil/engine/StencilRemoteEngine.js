@@ -29,22 +29,8 @@ StencilRemoteEngine.Prototype = function() {
       'content': exporter.exportDocument(doc)
     }, function(err, result) {
       if (err) callback(err);
-      // Create a new document instance from the returned html
-      // In future the server could provide a different format
-      // containing only the rendered content as json
-      var tmp = importer.importDocument(result.content);
-      each(tmp.getNodes(), function(copy, nodeId) {
-        if (copy.constructor.static.generatedProps) {
-          var node = doc.get(nodeId);
-          if (!node) {
-            console.warn('Node not present in document', nodeId);
-            return;
-          }
-          node.updateGeneratedProperties(copy);
-        }
-      });
-      callback(null);
-    });
+      this.update_(doc, result, callback);
+    }.bind(this));
   };
 
   this.cilaGet = function(doc, cb){
@@ -57,6 +43,32 @@ StencilRemoteEngine.Prototype = function() {
       if (err) { console.error(err); cb(err); }
       cb(null,result.content);
     });
+  };
+
+  this.update_ = function(doc, update, callback) {
+    // Create a new document instance from the returned html
+    // In future the server could provide a different format
+    // containing only the rendered content as json
+    var tmp = importer.importDocument(update.content);
+    each(tmp.getNodes(), function(copy, nodeId) {
+      if (copy.constructor.static.generatedProps) {
+        var node = doc.get(nodeId);
+        if (!node) {
+          console.warn('Node not present in document', nodeId);
+          return;
+        }
+        node.updateGeneratedProperties(copy);
+      }
+    });
+    callback(null);
+  };
+
+  this.event_ = function(event) {
+    if (event.name == 'updated') {
+      this.update_(this.doc, event.details, function(err, result){});
+    } else {
+      throw 'Unhandled event: ' + event.name;
+    }
   };
 
 };
