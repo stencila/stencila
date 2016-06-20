@@ -24,9 +24,9 @@ The core engine is written in C++ with thin wrappers into host languages, e.g. R
 
 ### Status
 
-Things are still *very* "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila).
+Things are still *very* "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila). See [releases](https://github.com/stencila/stencila/releases) for what we've been working on lately and [milestones](https://github.com/stencila/stencila/milestones) for what we've got planned.
 
-The various modules are in various states of development for various operating systems. Here's a summary of what is and isn't working on [Travis CI](https://travis-ci.org/stencila/stencila) (for Linux and Mac) and [Appveyor](https://ci.appveyor.com/project/nokome/stencila) (Windows): ✓ indicates a Makefile recipe is implemented and working, a ✗ means its been implemented and is failing (an hopefully has an associated issue number), blank means it hasn't been attempted. 
+The various modules are in various states of development for various operating systems. Here's a summary of what is and isn't working on [Travis CI](https://travis-ci.org/stencila/stencila) (for Linux and Mac) and [Appveyor](https://ci.appveyor.com/project/nokome/stencila) (Windows): ✓ indicates a Makefile recipe is implemented and working, a ✗ means its been implemented and is failing (an hopefully has an associated issue number), blank means it hasn't been attempted. See the relevant module `Makefile` for what `setup`, `build`, `test`, `cover` and `publish` actually do. Code coverage statistics for each module are available on [Codecov](https://codecov.io/gh/stencila/stencila).
 
                | Linux | Mac   | Win. 
 -------------- |:-----:|:-----:|:-----:
@@ -58,9 +58,6 @@ The various modules are in various states of development for various operating s
 `cover`        | ✓     |       |      
 `publish`      | ✓     |       |
 
-See the relevant module `Makefile` for what `setup`, `build`, `test`, `cover` and `publish` actually do.
-
-Code coverage statistics for each module are available https://codecov.io/gh/stencila/stencila.
 
 ### Installing
 
