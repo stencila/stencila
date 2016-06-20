@@ -37,7 +37,7 @@ class Document {
   /**
    * Get content as a Markdown string 
    */
-  std::string md(int width = 100) const;
+  std::string md(int width = 0) const;
 
   /**
    * Get content as a HTML string

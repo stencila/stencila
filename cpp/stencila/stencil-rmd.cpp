@@ -114,7 +114,7 @@ std::string Stencil::rmd(void) const {
   if (yaml.length()) {
     rmd += "---\n" + yaml + "---\n\n";
   }
-  rmd += Markdown::Document().html_doc(modified).md(0);
+  rmd += Markdown::Document().html_doc(modified).md();
 
   return rmd;
 }
