@@ -704,7 +704,7 @@ public:
 	 * @param  message    Message text
 	 * @param  connection Connection id
 	 */
-	static std::string message_dispatch(const std::string& message, uint connection = 0);
+	static std::string message_dispatch(const std::string& message, int connection = 0);
 
 	/**
 	 * Exception for when a dispathced method is not defined for a class
@@ -849,7 +849,7 @@ protected:
 	/**
 	 * A map of subscribers for each component
 	 */
-	static std::map<const Component* const, std::vector<uint> > subscribers_;
+	static std::map<const Component* const, std::vector<int> > subscribers_;
 
 };
 

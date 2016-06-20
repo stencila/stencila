@@ -102,7 +102,7 @@ std::string Component::request_dispatch(const std::string& address, const std::s
 	}
 }
 
-std::string Component::message_dispatch(const std::string& message, uint connection) {
+std::string Component::message_dispatch(const std::string& message, int connection) {
 	Wamp::Message request(message);
 	Instance instance = get(request.procedure_address());
 	if(not instance.exists()) {
@@ -199,7 +199,7 @@ const Component& Component::notify(const Json::Document& event) const {
 	return *this;
 }
 
-std::map<const Component* const, std::vector<uint> > Component::subscribers_;
+std::map<const Component* const, std::vector<int> > Component::subscribers_;
 
 Json::Document Component::call(const std::string& name, const Json::Document& args) {
 	Json::Document result;

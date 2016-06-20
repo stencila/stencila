@@ -354,7 +354,7 @@ void Server::receive_(connection_hdl hdl, server::message_ptr msg) {
 	std::string response;
 	try {
 		std::string message = msg->get_payload();
-		uint id = ids_[hdl];
+		int id = ids_[hdl];
 		response = Component::message_dispatch(message, id);
 	}
 	// `Component::message_dispatch()` should handle most exceptions and return a WAMP
@@ -371,7 +371,7 @@ void Server::receive_(connection_hdl hdl, server::message_ptr msg) {
 	}
 }
 
-void Server::send(uint id, const std::string& message) {
+void Server::send(int id, const std::string& message) {
 	// The connection may have close, so check first
 	auto iter = connections_.find(id);
 	if (iter != connections_.end()) {

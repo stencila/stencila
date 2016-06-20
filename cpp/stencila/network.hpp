@@ -53,7 +53,7 @@ public:
 	 * Send a websocket message  to a connection
 	 * identfied by `id`
 	 */
-	void send(uint id, const std::string& message);
+	void send(int id, const std::string& message);
 
 	/**
 	 * Stop the server
@@ -100,17 +100,17 @@ private:
 	/**
 	 * Mapping between a `connection_hdl` and a connection id
 	 */
-	std::map<uint, connection_hdl> connections_;
+	std::map<int, connection_hdl> connections_;
 
 	/**
 	 * Last connection id that was assigned
 	 */
-	uint id_last_ = 0;
+	int id_last_ = 0;
 
 	/**
 	 * Mapping between a connection id and a `connection_hdl`
 	 */
-	std::map<connection_hdl, uint, std::owner_less<connection_hdl> > ids_;
+	std::map<connection_hdl, int, std::owner_less<connection_hdl> > ids_;
 
 	/**
 	 * Access log file
