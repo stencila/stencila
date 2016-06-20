@@ -183,6 +183,7 @@ Stencil& Stencil::rmd(const std::string& rmd) {
       std::string exec = "r";
       std::vector<std::string> unhandled;
       bool figure = false;
+      std::string figure_format;
       std::string figure_caption;
       if (info.length()>3) {
         std::string options = info.substr(3);
@@ -218,7 +219,7 @@ Stencil& Stencil::rmd(const std::string& rmd) {
             // dev: the function name which will be used as a graphical device to record plots
             else if (option == "dev") {
               figure = true;
-              exec += " format " + value;
+              figure_format = value;
             }
             // fig.width, fig.height: (both are 7; numeric) width and height of the plot, to be used in the graphics device (in inches) 
             // out.width, out.height: (NULL; character) width and height of the plot in the final output file (can be different with its real fig.width and fig.height, i.e. plots can be scaled in the output document)
@@ -239,6 +240,13 @@ Stencil& Stencil::rmd(const std::string& rmd) {
             }
           }
         }
+      }
+      // Ensure format setting is set for figures
+      if (figure) {
+        if (figure_format.length() == 0) {
+          figure_format = "png";
+        }
+        exec += " format " + figure_format;
       }
       // Remove the code block so struture is as expected for
       // stencil exec directives: pre[data-exec]  
