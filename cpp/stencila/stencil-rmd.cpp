@@ -60,12 +60,6 @@ std::string Stencil::rmd(void) const {
     }
 
     std::vector<std::string> options;
-    if (dir.off) {
-      options.push_back("eval=FALSE");
-    }
-    if (dir.show) {
-      options.push_back("echo=TRUE");
-    }
     if (dir.format.expr.length()) {
       options.push_back("dev=\""+dir.format.expr+"\"");
     }
@@ -84,6 +78,12 @@ std::string Stencil::rmd(void) const {
         // TODO convert other dimensions to inches as necessary
         options.push_back("fig.height=" + matches[1]);
       }
+    }
+    if (dir.show) {
+      options.push_back("echo=TRUE");
+    }
+    if (dir.off) {
+      options.push_back("eval=FALSE");
     }
     if (exec.has("data-extra")) {
       options.push_back(exec.attr("data-extra"));
@@ -114,7 +114,7 @@ std::string Stencil::rmd(void) const {
   if (yaml.length()) {
     rmd += "---\n" + yaml + "---\n\n";
   }
-  rmd += Markdown::Document().html_doc(modified).md();
+  rmd += Markdown::Document().html_doc(modified).md(0);
 
   return rmd;
 }
