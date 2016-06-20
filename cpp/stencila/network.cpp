@@ -372,8 +372,12 @@ void Server::receive_(connection_hdl hdl, server::message_ptr msg) {
 }
 
 void Server::send(uint id, const std::string& message) {
-	connection_hdl hdl = connections_[id];
-	server_.send(hdl, message, opcode::text);
+	// The connection may have close, so check first
+	auto iter = connections_.find(id);
+	if (iter != connections_.end()) {
+		connection_hdl hdl = iter->second;
+		server_.send(hdl, message, opcode::text);
+	}
 }
 
 } // namespace Stencila
