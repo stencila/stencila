@@ -29,7 +29,7 @@ publish:
 ifeq (dirty,$(DIRTY))
 	$(error Publish not done for dirty versions. Commit or stash and try again.)
 else
-	aws s3 sync web/build s3://get.stenci.la/web/
+	aws s3 sync build s3://get.stenci.la/web/
 	$(call PUBLISH_NOTIFY,web,ES5)
 endif
 
