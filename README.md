@@ -10,7 +10,7 @@
 [![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
 [![Travis](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/github/stencila/stencila?branch=master&svg=true)](https://ci.appveyor.com/project/nokome/stencila)
-[![codecov](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
+[![codecov](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila) (Urgh, yes it's too low! Working on it...)
 
 ### About
 
