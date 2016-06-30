@@ -539,7 +539,7 @@ endif
 TEST_OS := $(patsubst %.cpp,build/tests/%.o,$(notdir $(wildcard tests/*.cpp)))
 build/tests/%.o: tests/%.cpp
 	@mkdir -p build/tests
-	$(TEST_COMPILE) -o$@ -c $(realpath $<)
+	$(CXX) $(FLAGS) -I. $(REQUIRES_INC_DIRS) -o$@ -c $(realpath $<)
 
 # Compile a stencila source file into an object file
 # This needs to be done (instead of linking to libstencila.a) so that coverage statistics
@@ -561,11 +561,11 @@ build/tests/%: tests/%
 
 # Compile a single test file into an executable
 build/tests/%.exe: build/tests/%.o build/tests/tests.o $(TEST_STENCILA_OS)
-	$(TEST_COMPILE) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS) $(TEST_LDFLAGS)
+	$(CXX) $(FLAGS) -I. $(REQUIRES_INC_DIRS) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS) $(TEST_LDFLAGS)
 
 # Compile all test files into an executable
 build/tests/tests.exe: $(TEST_OS) $(TEST_STENCILA_OS)
-	$(TEST_COMPILE) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS) $(TEST_LDFLAGS)
+	$(CXX) $(FLAGS) -I. $(REQUIRES_INC_DIRS) -o$@ $^ $(TEST_LIB_DIRS) $(TEST_LIBS) $(TEST_LDFLAGS)
 
 # Make test executable precious so they are kept despite
 # being intermediaries for test runs
