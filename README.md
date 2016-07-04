@@ -10,7 +10,7 @@
 [![Doing](https://badge.waffle.io/stencila/stencila.svg?label=2+-+Doing&title=doing)](http://waffle.io/stencila/stencila)
 [![Travis](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/github/stencila/stencila?branch=master&svg=true)](https://ci.appveyor.com/project/nokome/stencila)
-[![codecov](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila) (Urgh, yes it's too low! Working on it...)
+[![codecov](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)<sup><a name="codecov-footnote"> Note</a></sup>
 
 ### About
 
@@ -26,7 +26,9 @@ The core engine is written in C++ with thin wrappers into host languages, e.g. R
 
 Things are still *very* "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila). See [releases](https://github.com/stencila/stencila/releases) for what we've been working on lately and [milestones](https://github.com/stencila/stencila/milestones) for what we've got planned.
 
-The various modules are in various states of development for various operating systems. Here's a summary of what is and isn't working on [Travis CI](https://travis-ci.org/stencila/stencila) (for Linux and Mac) and [Appveyor](https://ci.appveyor.com/project/nokome/stencila) (Windows): ✓ indicates a Makefile recipe is implemented and working, a ✗ means its been implemented and is failing (an hopefully has an associated issue number), blank means it hasn't been attempted. See the relevant module `Makefile` for what `setup`, `build`, `test`, `cover` and `publish` actually do. Code coverage statistics for each module are available on [Codecov](https://codecov.io/gh/stencila/stencila).
+The various modules are in various states of development for various operating systems. Here's a summary of what is and isn't working on [Travis CI](https://travis-ci.org/stencila/stencila) (for Linux and Mac) and [Appveyor](https://ci.appveyor.com/project/nokome/stencila) (Windows): ✓ indicates a Makefile recipe is implemented and working, a ✗ means its been implemented and is failing (an hopefully has an associated issue number), blank means it hasn't been attempted. See the relevant module `Makefile` for what `setup`, `build`, `test`, `cover` and `publish` actually do. 
+
+Code coverage statistics for each module are available on [Codecov](https://codecov.io/gh/stencila/stencila). <b id="codecov-note">Note: </b> Code coverage is currently very low. We're working on improving that but also don't place too high a priority on code coverage while version < 1.0.0 and thus the API is changing (because tests need to get rewritten a lot!).
 
                | Linux | Mac   | Win. 
 -------------- |:-----:|:-----:|:-----:
