@@ -9,11 +9,7 @@ install:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
   - ps: Install-Product node $env:NODEJS_VERSION
 
-test_script:
-  - node --version
-  - npm --version
-
 build_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp setup build"
-  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C node setup build"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C node setup"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py setup build"

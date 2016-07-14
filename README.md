@@ -40,8 +40,8 @@ Code coverage statistics for each module are available on [Codecov](https://code
 `publish`      | ✓     |       | 
                |
 **Node.js**    | 4.4   |       |
-`setup`        | ✓     | ✓     |     
-`build`        | ✓     | ✗ #196|     
+`setup`        | ✓     | ✓     | ✓     
+`build`        | ✓     | ✗ #196| ✗ #203     
 `test`         | ✓     |       |
 `cover`        | ✓     |       |      
 `publish`      | ✓     |       | 
