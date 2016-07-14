@@ -912,7 +912,7 @@ void Stencil::Include::render(Stencil& stencil, Node node, std::shared_ptr<Conte
 					Node tr;
 					for (const auto& cell : cells) {
 						auto index = Sheet::index(cell.id);
-						if (index[0]!=row) {
+						if (int(index[0])!=row) {
 							tr = table.append("tr");
 							row = index[0];
 						}

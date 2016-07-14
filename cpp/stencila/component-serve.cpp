@@ -19,14 +19,16 @@ std::string Component::serve(Type type){
 
 Component& Component::view(Type type){
 	std::string url = serve(type);
+	int result = 0;
 	#if defined(_WIN32) || defined(_WIN64)
 	   ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
 	#elif __APPLE__
-		std::system(("open \""+url+"\"").c_str());
+		result = std::system(("open \""+url+"\"").c_str());
 	#elif __linux
 		// Open using xdg-open with all output redirected to null device
-		std::system(("2>/dev/null 1>&2 xdg-open \""+url+"\"").c_str());
+		result = std::system(("2>/dev/null 1>&2 xdg-open \""+url+"\"").c_str());
 	#endif
+	if (result != 0) STENCILA_THROW(Exception, "Error opening URL.\n  url: " + url);
 	return *this;
 }
 

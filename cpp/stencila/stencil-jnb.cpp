@@ -14,7 +14,7 @@ Stencil& Stencil::jnb(const std::string& jnb) {
   // TODO : get ["metadata"]["language_info"]
   if (not json.has("cells")) STENCILA_THROW(Exception, "Missing 'cells'");
   auto cells = json["cells"];
-  for (int index=0; index<cells.size(); index++) {
+  for (unsigned int index=0; index<cells.size(); index++) {
     auto cell = cells[index];
     auto cell_type = cell.get<std::string>("cell_type");
     auto source = cell.get<std::string>("source");
