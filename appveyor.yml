@@ -3,10 +3,17 @@ version: '{build}'
 environment:
   PATH: C:\msys64\mingw64\bin;C:\msys64\usr\bin;C:\Windows\System32;C:\Windows;%PATH%
   MSYSTEM: MINGW64
+  NODEJS_VERSION: 4.4
 
 install:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
+  - ps: Install-Product node $env:NODEJS_VERSION
+
+test_script:
+  - node --version
+  - npm --version
 
 build_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp setup build"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C node setup build"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py setup build"
