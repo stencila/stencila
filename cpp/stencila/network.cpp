@@ -1,6 +1,7 @@
+#include <thread>
+
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/thread.hpp>
 #include <boost/regex.hpp>
 
 #include <stencila/network.hpp>
@@ -97,12 +98,12 @@ void Server::stop(void){
 }
 
 Server* server_instance_ = 0;
-boost::thread* server_thread_ = 0;
+std::thread* server_thread_ = 0;
 
 const Server& Server::startup(void) {
 	if(not server_instance_){
 		server_instance_ = new Server();
-		server_thread_ = new boost::thread([](){
+		server_thread_ = new std::thread([](){
 			server_instance_->start();
 		});
 	}
