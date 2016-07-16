@@ -14,12 +14,45 @@ execute_process(
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different version.cpp.txt version.cpp
 )
 
+# Generate syntax lexer using Flex and parser using Lemon
+function(generate_syntax lang)
+	add_custom_command(
+		OUTPUT ${CMAKE_BINARY_DIR}/syntax-${lang}-lexer.hpp ${CMAKE_BINARY_DIR}/syntax-${lang}-lexer.cpp
+		COMMAND flex --outfile syntax-${lang}-lexer.cpp --header-file=syntax-${lang}-lexer.hpp ../stencila/syntax-${lang}.l
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		DEPENDS stencila/syntax-${lang}.l
+	)
+	set_source_files_properties(${CMAKE_BINARY_DIR}/syntax-${lang}-lexer.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-function)
+	add_custom_command(
+		OUTPUT ${CMAKE_BINARY_DIR}/syntax-${lang}-parser.h ${CMAKE_BINARY_DIR}/syntax-${lang}-parser.cpp
+		COMMAND cp ../stencila/syntax-${lang}.y .
+		COMMAND lemon syntax-${lang}.y
+		COMMAND mv syntax-${lang}.c syntax-${lang}-parser.cpp
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		DEPENDS stencila/syntax-${lang}.y
+	)
+	# Jump through hoops to get title case language
+	string(SUBSTRING ${lang} 0 1 lang_first)
+	string(TOUPPER ${lang_first} lang_first)
+	string(REGEX REPLACE "^.(.*)" "${lang_first}\\1" lang_title "${lang}")
+	add_custom_command(
+		OUTPUT ${CMAKE_BINARY_DIR}/syntax-${lang}-parse.cpp
+		COMMAND sed -e 's!{lang}!${lang}!' -e 's!{lang-title}!${lang_title}!' ../stencila/syntax-parser-parse.cxx > syntax-${lang}-parse.cpp
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		DEPENDS stencila/syntax-parser-parse.cxx
+	)
+endfunction(generate_syntax)
+
+generate_syntax(excel)
 
 # Compile Stencila source files into a static library
 file(GLOB_RECURSE SOURCES stencila/*.cpp)
 add_library(stencila_sources STATIC 
 	${SOURCES}
 	${CMAKE_BINARY_DIR}/version.cpp
+	${CMAKE_BINARY_DIR}/syntax-excel-lexer.cpp
+	${CMAKE_BINARY_DIR}/syntax-excel-parser.cpp
+	${CMAKE_BINARY_DIR}/syntax-excel-parse.cpp
 )
 
 # Compiler options
@@ -42,6 +75,7 @@ endif()
 # Include directories
 target_include_directories(stencila_sources PUBLIC
 	.
+	${CMAKE_BINARY_DIR}
 	${CMAKE_BINARY_DIR}/requires/boost
 	${CMAKE_BINARY_DIR}/requires/cmark/src ${CMAKE_BINARY_DIR}/requires/cmark/build/src
 	${CMAKE_BINARY_DIR}/requires/cpr/include

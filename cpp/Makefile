@@ -49,47 +49,6 @@ ifneq ($(OS), win)
 	FLAGS += -fPIC
 endif
 
-# Generate syntax parser using Lemon
-build/library/generated/syntax-%-parser.cpp: stencila/syntax-%.y
-	@mkdir -p $(dir $@)
-	lemon $<
-	mv stencila/syntax-$*.h $(dir $@)
-	mv stencila/syntax-$*.c $@
-	rm stencila/syntax-$*.out
-
-# Compile syntax parser
-build/library/objects/stencila-syntax-%-parser.o: build/library/generated/syntax-%-parser.cpp
-	@mkdir -p $(dir $@)
-	$(CXX) $(FLAGS) -Wno-unused-variable -I. $(REQUIRES_INC_DIRS) -Ibuild/library/generated -o$@ -c $<	
-
-# Generate syntax lexer using Flex
-build/library/generated/syntax-%-lexer.cpp: stencila/syntax-%.l
-	@mkdir -p $(dir $@)
-	flex --outfile $@ --header-file=$(dir $@)syntax-$*-lexer.hpp $<
-
-# Compile syntax lexer
-build/library/objects/stencila-syntax-%-lexer.o: build/library/generated/syntax-%-lexer.cpp build/library/generated/syntax-%-parser.cpp
-	@mkdir -p $(dir $@)
-	$(CXX) $(FLAGS) -Wno-deprecated-register -Wno-unused-function -I. -Ibuild/library/generated -o$@ -c $<	
-
-# Generate the `parse()` method by using the template .cxx file
-build/library/generated/syntax-%-parse.cpp: stencila/syntax-parser-parse.cxx
-	@mkdir -p $(dir $@)
-	sed -e 's!{lang}!$*!' -e 's!{lang-title}!\u$*!' stencila/syntax-parser-parse.cxx > $@
-
-# Compile lexer and parser source
-build/library/objects/stencila-syntax-%-parse.o: build/library/generated/syntax-%-parse.cpp \
-														build/library/objects/stencila-syntax-%-lexer.o \
-	 		  											build/library/objects/stencila-syntax-%-parser.o
-	$(CXX) $(FLAGS) -I. $(REQUIRES_INC_DIRS) -Ibuild/library/generated -o$@ -c $<
-
-# List of parsing related object files used in library and tests
-PARSER_YS := $(notdir $(wildcard stencila/syntax-*.y))
-PARSER_OS := $(patsubst syntax-%.y, build/library/objects/stencila-syntax-%-lexer.o,$(PARSER_YS)) \
-				$(patsubst syntax-%.y, build/library/objects/stencila-syntax-%-parser.o,$(PARSER_YS)) \
-				$(patsubst syntax-%.y, build/library/objects/stencila-syntax-%-parse.o,$(PARSER_YS))
-
-
 build:
 	cd build && cmake .. && cmake --build .
 
