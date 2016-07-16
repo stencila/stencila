@@ -1,4 +1,6 @@
-all: library
+all: build
+
+.PHONY: build
 
 include ../shared.make
 
@@ -382,27 +384,6 @@ ifneq ($(OS), win)
 	FLAGS += -fPIC
 endif
 
-# Compile version.o
-VERSION_TXT := build/library/generated/version.txt
-VERSION_CPP := build/library/generated/version.cpp
-VERSION_O := build/library/objects/version.o
-$(VERSION_O):
-ifneq ($(shell if [ -e "$(VERSION_TXT)" ]; then cat "$(VERSION_TXT)"; else echo ""; fi),$(VERSION))
-	@mkdir -p build/library/objects
-	@mkdir -p build/library/generated/
-	echo "$(VERSION)" > $(VERSION_TXT)
-	echo "#include <stencila/version.hpp>" > $(VERSION_CPP)
-	echo "const std::string Stencila::version = \"$(VERSION)\";" >> $(VERSION_CPP)
-	echo "const std::string Stencila::commit = \"$(COMMIT)\";" >> $(VERSION_CPP)
-	$(CXX) $(FLAGS) -I. $(REQUIRES_INC_DIRS) -o$@ -c $(VERSION_CPP)
-endif
-.PHONY: $(VERSION_O)
-
-# Compile C++ source files
-build/library/objects/stencila-%.o: stencila/%.cpp
-	@mkdir -p build/library/objects
-	$(CXX) $(FLAGS) -I. $(REQUIRES_INC_DIRS) -o$@ -c $<
-
 # Generate syntax parser using Lemon
 build/library/generated/syntax-%-parser.cpp: stencila/syntax-%.y
 	@mkdir -p $(dir $@)
@@ -443,45 +424,9 @@ PARSER_OS := $(patsubst syntax-%.y, build/library/objects/stencila-syntax-%-lexe
 				$(patsubst syntax-%.y, build/library/objects/stencila-syntax-%-parser.o,$(PARSER_YS)) \
 				$(patsubst syntax-%.y, build/library/objects/stencila-syntax-%-parse.o,$(PARSER_YS))
 
-# List of all Stencila library object files
-LIBRARY_OS := $(PARSER_OS) \
-					   $(patsubst %.cpp,build/library/objects/stencila-%.o,$(notdir $(wildcard stencila/*.cpp))) \
-					   $(VERSION_O)
-library-objects: $(LIBRARY_OS)
 
-# Archive all object files (Stencila .cpp files and those extracted from requirements libraries)
-# into a single static library.
-# To output lists of contents for checking:
-# 		ar t libstencila.a > files.txt 
-#		nm -gC libstencila.a > symbols.txt  # C demangles but is an invalid option on OS X
-
-# Extract object files from requirement libraries
-# Care may be required to ensure no name clashes in object files
-define LIBRARY_EXTRACT
-	mkdir -p build/library/objects/$2
-	cd build/library/objects/$2 ;\
-		ar x $(realpath build/requires)/$1 ;\
-		for filename in *.o*; do mv $$filename ../$2-$$filename; done ;
-	rm -rf build/library/objects/$2
-endef
-
-build/library/libstencila.a: build/requires library-objects
-	$(call LIBRARY_EXTRACT,boost/lib/libboost_system.a,boost-system)
-	$(call LIBRARY_EXTRACT,boost/lib/libboost_filesystem.a,boost-filesystem)
-	$(call LIBRARY_EXTRACT,boost/lib/libboost_regex.a,boost-regex)
-	$(call LIBRARY_EXTRACT,boost/lib/libboost_thread.a,boost-thread)
-	$(call LIBRARY_EXTRACT,cmark/build/src/libcmark.a,cmark)
-	$(call LIBRARY_EXTRACT,libgit2/build/libgit2.a,git2)
-	$(call LIBRARY_EXTRACT,libzip/build/lib/libzip.a,zip)
-	$(call LIBRARY_EXTRACT,pugixml/src/libpugixml.a,pugixml)
-	$(call LIBRARY_EXTRACT,tidy-html5/build/cmake/libtidys.a,tidy)
-ifneq ($(OS), win)
-	$(call LIBRARY_EXTRACT,cpr/build/lib/libcpr.a,cpr)
-endif
-	cd build/library  && $(AR) rc libstencila.a `find . -name "*.o*"`
-library-staticlib: build/library/libstencila.a
-
-build: library-staticlib
+build:
+	cd build && cmake .. && cmake --build .
 
 library-clean:
 	rm -rf build/library
