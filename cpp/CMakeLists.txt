@@ -14,6 +14,7 @@ execute_process(
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different version.cpp.txt version.cpp
 )
 
+
 # Compile Stencila source files into a static library
 file(GLOB_RECURSE SOURCES stencila/*.cpp)
 add_library(stencila_sources STATIC 
@@ -74,6 +75,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		"ADDLIB " ${CMAKE_BINARY_DIR}/libstencila_sources.a "\n"
 		"ADDLIB " ${BOOST_FILESYSTEM} "\n"
 		"ADDLIB " ${BOOST_SYSTEM} "\n"
+		"ADDLIB " ${BOOST_REGEX} "\n"
 		"ADDLIB " ${CMARK} "\n"
 		"ADDLIB " ${CPR} "\n"
 		"ADDLIB " ${LIBGIT2} "\n"
