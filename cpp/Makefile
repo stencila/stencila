@@ -10,7 +10,7 @@ setup:
 	$(MAKE) -f requires/jsoncpp.make jsoncpp
 	$(MAKE) -f requires/libgit2.make libgit2
 	$(MAKE) -f requires/libzip.make libzip
-	$(MAKE) -f requires/cpr.make cpr
+#	$(MAKE) -f requires/cpr.make cpr
 	$(MAKE) -f requires/pugixml.make pugixml
 	$(MAKE) -f requires/tidy-html5.make tidy-html5
 	$(MAKE) -f requires/websocketpp.make websocketpp

@@ -12,7 +12,7 @@ include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_BINARY_DIR}/requires/boost
 	${CMAKE_BINARY_DIR}/requires/cmark/src ${CMAKE_BINARY_DIR}/requires/cmark/build/src
-	${CMAKE_BINARY_DIR}/requires/cpr/include
+#	${CMAKE_BINARY_DIR}/requires/cpr/include
 	${CMAKE_BINARY_DIR}/requires/jsoncpp/dist
 	${CMAKE_BINARY_DIR}/requires/libgit2/include
 	${CMAKE_BINARY_DIR}/requires/libzip/lib ${CMAKE_BINARY_DIR}/requires/libzip/build
@@ -106,7 +106,7 @@ set(BOOST_SYSTEM     ${CMAKE_BINARY_DIR}/requires/boost/lib/libboost_system.a)
 set(BOOST_REGEX      ${CMAKE_BINARY_DIR}/requires/boost/lib/libboost_regex.a)
 set(BOOST_UNITTEST   ${CMAKE_BINARY_DIR}/requires/boost/lib/libboost_unit_test_framework.a)
 set(CMARK            ${CMAKE_BINARY_DIR}/requires/cmark/build/src/libcmark.a)
-set(CPR              ${CMAKE_BINARY_DIR}/requires/cpr/build/lib/libcpr.a)
+#set(CPR              ${CMAKE_BINARY_DIR}/requires/cpr/build/lib/libcpr.a)
 set(LIBGIT2          ${CMAKE_BINARY_DIR}/requires/libgit2/build/libgit2.a)
 set(LIBZIP           ${CMAKE_BINARY_DIR}/requires/libzip/build/lib/libzip.a)
 set(PUGIXML          ${CMAKE_BINARY_DIR}/requires/pugixml/src/libpugixml.a)
@@ -125,7 +125,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		"ADDLIB " ${BOOST_SYSTEM} "\n"
 		"ADDLIB " ${BOOST_REGEX} "\n"
 		"ADDLIB " ${CMARK} "\n"
-		"ADDLIB " ${CPR} "\n"
 		"ADDLIB " ${LIBGIT2} "\n"
 		"ADDLIB " ${LIBZIP} "\n"		
 		"ADDLIB " ${PUGIXML} "\n"
@@ -146,7 +145,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	# Combine static libraries with libtool
 	add_custom_command(
 		OUTPUT ${CMAKE_BINARY_DIR}/libstencila.a
-		COMMAND libtool -static -o libstencila.a $<TARGET_FILE:stencila_sources> ${BOOST_FILESYSTEM} ${BOOST_SYSTEM} ${BOOST_REGEX} ${CMARK} ${CPR} ${LIBGIT2} ${LIBZIP} ${PUGIXML} ${TIDY}
+		COMMAND libtool -static -o libstencila.a $<TARGET_FILE:stencila_sources> ${BOOST_FILESYSTEM} ${BOOST_SYSTEM} ${BOOST_REGEX} ${CMARK} ${LIBGIT2} ${LIBZIP} ${PUGIXML} ${TIDY}
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		DEPENDS stencila_sources
 	)
@@ -168,7 +167,7 @@ target_compile_options(tests PUBLIC
 	-g -O0 --coverage
 )
 target_link_libraries(tests
-	${BOOST_FILESYSTEM} ${BOOST_SYSTEM} ${BOOST_REGEX} ${CMARK} ${CPR} ${LIBGIT2} ${LIBZIP} ${PUGIXML} ${TIDY}
+	${BOOST_FILESYSTEM} ${BOOST_SYSTEM} ${BOOST_REGEX} ${CMARK} ${LIBGIT2} ${LIBZIP} ${PUGIXML} ${TIDY}
 	${BOOST_UNITTEST}
 	pthread z curl ssl crypto
 	gcov
