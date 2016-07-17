@@ -29,7 +29,7 @@ build/requires/boost: resources/boost_$(BOOST_VERSION).tar.bz2
 # Boost is configured with:
 #   --with-toolset=mingw - for build under MinGW64 shell
 #   --with-libraries - so that only those libraries that are needed are built
-BOOST_BOOTSTRAP_FLAGS := --with-libraries=filesystem,python,regex,system,test,thread
+BOOST_BOOTSTRAP_FLAGS := --with-libraries=filesystem,python,regex,system,test
 ifeq ($(OS), win)
 	BOOST_BOOTSTRAP_FLAGS += gcc --with-toolset=mingw
 endif
