@@ -53,7 +53,7 @@ setup(
                 '-DBOOST_PYTHON_STATIC_LIB'
             ],
             library_dirs=[
-                '../cpp/build/library',
+                '../cpp/build/',
                 '../cpp/build/requires/boost/lib'
             ],
             libraries=libraries

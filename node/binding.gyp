@@ -26,7 +26,7 @@
           "-lstencila"
         ],
         "ldflags": [
-          "-L../../cpp/build/library"
+          "-L../../cpp/build"
         ]
       }
     },
