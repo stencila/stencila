@@ -89,11 +89,19 @@ BOOST_AUTO_TEST_CASE(tidy){
 	)
 	CHECK(
 		"<pre>\ncode</pre>",
-		"<pre>\ncode</pre>"
+		#if defined(_WIN32)
+			"<pre>\r\ncode</pre>"
+		#else
+			"<pre>\ncode</pre>"
+		#endif
 	)
 	CHECK(
 		"<pre>\n\ncode\n\n</pre>",
-		"<pre>\n\ncode\n\n</pre>"
+		#if defined(_WIN32)
+			"<pre>\r\n\r\ncode\r\n\r\n</pre>"
+		#else
+			"<pre>\n\ncode\n\n</pre>"
+		#endif
 	)
 
 
@@ -415,8 +423,10 @@ BOOST_AUTO_TEST_CASE(doc_pretty){
 }
 
 BOOST_AUTO_TEST_CASE(doc_write_read){
-	auto tempfile = "/tmp/"+boost::filesystem::unique_path().string();
-
+	std::string tempfile = (
+		boost::filesystem::temp_directory_path()/boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.xml")
+	).string();
+	
 	Document doc1;
 	doc1.find("body").append("p",{{"class","message"}},"Don't panic!");
 	doc1.write(tempfile);

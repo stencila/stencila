@@ -36,7 +36,9 @@ BOOST_AUTO_TEST_CASE(path_get_ensure){
 BOOST_AUTO_TEST_CASE(path_set_empty){
 	Component c;
 	c.path("");
+	#if !defined(_WIN32)
 	BOOST_CHECK(boost::regex_match(c.path(),temp_path_pattern));
+	#endif
 	BOOST_CHECK(boost::filesystem::exists(c.path()));
 	c.destroy();
 }
@@ -85,7 +87,9 @@ BOOST_AUTO_TEST_CASE(path_change){
 BOOST_AUTO_TEST_CASE(write_path_empty){
 	Component c;
 	c.write();
+	#if !defined(_WIN32)
 	BOOST_CHECK(boost::regex_match(c.path(),temp_path_pattern));
+	#endif
 	c.destroy();
 }
 

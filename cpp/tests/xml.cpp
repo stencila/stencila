@@ -237,7 +237,9 @@ BOOST_AUTO_TEST_CASE(load_dump){
 BOOST_AUTO_TEST_CASE(write_read){
 	Document doc;
 	doc.load(test_content);
-	auto tempfile = "/tmp/"+boost::filesystem::unique_path().string();
+	std::string tempfile = (
+		boost::filesystem::temp_directory_path()/boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.xml")
+	).string();
 	doc.write(tempfile);
 	doc.read(tempfile);
 	BOOST_CHECK_EQUAL(doc.dump(),test_content);
