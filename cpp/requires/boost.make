@@ -1,3 +1,5 @@
+include ../shared.make
+
 BOOST_VERSION := 1_60_0
 
 resources/boost_$(BOOST_VERSION).tar.bz2:
@@ -59,9 +61,4 @@ endif
 	cd $< ; ./b2 $(BOOST_B2_FLAGS)
 	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/boost/include
-REQUIRES_LIB_DIRS += -Lbuild/requires/boost/lib
-REQUIRES_LIBS += boost_filesystem boost_system boost_regex boost_thread 
-
-requires-boost: build/requires/boost-built.flag
-
+boost: build/requires/boost-built.flag

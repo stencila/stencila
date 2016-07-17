@@ -1,3 +1,5 @@
+include ../shared.make
+
 TIDYHTML5_VERSION := 5.1.25
 
 resources/tidy-html5-$(TIDYHTML5_VERSION).tar.gz:
@@ -31,8 +33,4 @@ else
 endif
 	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/tidy-html5/include
-REQUIRES_LIB_DIRS += -Lbuild/requires/tidy-html5/build/cmake
-REQUIRES_LIBS += tidys
-
-requires-tidy-html5: build/requires/tidy-html5-built.flag
+tidy-html5: build/requires/tidy-html5-built.flag

@@ -1,3 +1,5 @@
+include ../shared.make
+
 CPR_VERSION := 1.2.0
 
 build/requires/cpr:
@@ -19,14 +21,4 @@ build/requires/cpr/build/lib/libcpr.a: build/requires/cpr
 		cmake .. $(CPR_CMAKE_FLAGS) ;\
 		cmake --build .
 
-# Currently cpr build fails to build on Windows
-# so temporarily skip it	
-ifeq ($(OS), win)
-.PHONY: requires-cpr
-else
-REQUIRES_INC_DIRS += -Ibuild/requires/cpr/include
-REQUIRES_LIB_DIRS += -Lbuild/requires/cpr/build/lib
-REQUIRES_LIBS += cpr
-
-requires-cpr: build/requires/cpr/build/lib/libcpr.a
-endif
+cpr: build/requires/cpr/build/lib/libcpr.a

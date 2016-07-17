@@ -14,7 +14,7 @@ endif
 ARCH = $(shell uname -m)
 
 # Stencila version and commit
-VERSION = $(shell $(dir $(lastword $(MAKEFILE_LIST)))version.sh)
+VERSION := $(shell $(dir $(lastword $(MAKEFILE_LIST)))version.sh)
 COMMIT = $(shell git rev-parse HEAD)
 
 # Check if the repository is dirty i.e. has uncommitted changes

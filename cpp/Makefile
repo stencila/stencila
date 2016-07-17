@@ -4,31 +4,34 @@ all: setup build cover
 
 .PHONY: setup build test cover clean
 
-# Collect necessary include and lib directories and library names
-REQUIRES_INC_DIRS := 
-REQUIRES_LIB_DIRS := 
-REQUIRES_LIBS :=
+setup:
+	$(MAKE) -f requires/boost.make boost
+	$(MAKE) -f requires/cmark.make cmark
+	$(MAKE) -f requires/jsoncpp.make jsoncpp
+	$(MAKE) -f requires/libgit2.make libgit2
+	$(MAKE) -f requires/libzip.make libzip
+	$(MAKE) -f requires/cpr.make cpr
+	$(MAKE) -f requires/pugixml.make pugixml
+	$(MAKE) -f requires/tidy-html5.make tidy-html5
+	$(MAKE) -f requires/websocketpp.make websocketpp
 
-include requires/boost.make
-include requires/cmark.make
-include requires/jsoncpp.make
-include requires/libgit2.make
-include requires/libzip.make
-include requires/cpr.make
-include requires/pugixml.make
-include requires/tidy-html5.make
-include requires/websocketpp.make
+build:
+	cd build && cmake .. && cmake --build .
 
-setup: \
-	requires-boost \
-	requires-cmark \
-	requires-cpr \
-	requires-libgit2 \
-	requires-libzip \
-	requires-pugixml \
-	requires-jsoncpp \
-	requires-tidy-html5 \
-	requires-websocketpp
+test:
+ifeq ($(OS), linux)
+	cd build && ulimit -v 2097152 && (./tests --run_test="*_quick/*") || (exit 1)
+endif
+
+cover: test
+
+clean:
+	rm -rf build
+
+
+
+
+
 
 # List of other libraries required. These are not included `libstencila.a`
 OTHER_LIBS := z curl ssl crypto
@@ -48,12 +51,6 @@ FLAGS := --std=c++11 -O2 -Wall \
 ifneq ($(OS), win)
 	FLAGS += -fPIC
 endif
-
-build:
-	cd build && cmake .. && cmake --build .
-
-library-clean:
-	rm -rf build/library
 
 #################################################################################################
 # Stencila C++ package
@@ -157,58 +154,6 @@ test-%: build/tests/%.exe $(TEST_INPUTS)
 		ulimit -v 2097152 ;\
 		(./$*.exe) || (exit 1)
 
-# Run quick tests only
-test-quick: build/tests/tests.exe $(TEST_INPUTS)
-	cd build/tests/ ;\
-		ulimit -v 2097152; (./tests.exe --run_test=*_quick/*) || (exit 1)
-
-# Run all tests
-test: test-quick
-cover: test-quick
-
-# Run all tests and report results and coverage to XML files
-# Requires python, xsltproc and [gcovr](http://gcovr.com/guide.html):
-#   sudo apt-get install xsltproc
-#   sudo pip install gcovr
-# Use of 
-#   gcovr --root . --filter='.*/stencila/.*'
-# below seems to be necessary when there are different source and build directories to
-# only produce coverage reports for files in 'stencila' 
-
-# Run all tests and generate coverage stats
-tests-coverage: build/tests/tests.exe
-	cd build/tests ;\
-	  # Run all tests \
-	  ./tests.exe;\
-	  # Produce coverage stats using gcovr helper for gcov \
-	  gcovr --root . --filter='.*/stencila/.*'
-
-# Run all tests and report results to Junit compatible XML files and coverage X
-# to Cobertura comparible XML files
-build/tests/boost-test-to-junit.xsl: tests/boost-test-to-junit.xsl
-	cp $< $@
-tests-xml: build/tests/tests.exe build/tests/boost-test-to-junit.xsl
-	cd build/tests ;\
-	  # Run all tests with reporting to XML file \
-	  ./tests.exe --report_format=xml --report_level=detailed --log_format=xml --log_level=test_suite > boost-test-out.xml 2>&1 ;\
-	  # Because redirecting stdout and stderr to one file need to wrap in an outer tag \
-	  python -c "print '<xml>',file('boost-test-out.xml').read(),'</xml>'" > boost-test.xml ;\
-	  # Convert to Junit XML format \
-	  xsltproc --output junit.xml boost-test-to-junit.xsl boost-test.xml ;\
-	  # Produce coverage report \
-	  gcovr --root $(ROOT) --filter='.*/stencila/.*' --xml --output=coverage.xml
-
-# Run all tests and create coverage to HTML files
-# Useful for examining coverage during local development 
-tests-html: build/tests/tests.exe
-	cd build/tests ;\
-	  # Run all tests \
-	  ./tests.exe;\
-	  # Produce coverage report \
-	  gcovr --root $(ROOT) --filter='.*/stencila/.*' --html --html-details --output=coverage.html
-
-tests-clean:
-	rm -rf build/tests
 
 
 #################################################################################################
@@ -243,13 +188,3 @@ docs-publish: docs
 	mkdir -p build/pages/cpp
 	cp -fr build/docs/html/. build/pages/cpp
 	ghp-import -m "Updated pages" -p build/pages
-
-#################################################################################################
-
-# Remove everything except C++ requirements
-scrub:
-	rm -rf build/library build/tests build/docs
-
-# Clen up build
-clean:
-	rm -rf build

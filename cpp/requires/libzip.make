@@ -1,3 +1,5 @@
+include ../shared.make
+
 LIBZIP_VERSION := 1.1.2
 
 resources/libzip-$(LIBZIP_VERSION).tar.gz:
@@ -29,8 +31,4 @@ build/requires/libzip/build/lib/libzip.a: build/requires/libzip/lib/CMakeLists.t
 	  cmake --build . --target zip
 	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/libzip/lib -Ibuild/requires/libzip/build
-REQUIRES_LIB_DIRS += -Lbuild/requires/libzip/build/lib
-REQUIRES_LIBS += zip
-
-requires-libzip: build/requires/libzip/build/lib/libzip.a
+libzip: build/requires/libzip/build/lib/libzip.a

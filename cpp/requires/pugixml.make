@@ -1,3 +1,5 @@
+include ../shared.make
+
 PUGIXML_VERSION := 1.7
 
 resources/pugixml-$(PUGIXML_VERSION).tar.gz:
@@ -20,8 +22,4 @@ build/requires/pugixml/src/libpugixml.a: build/requires/pugixml
 	  $(CXX) $(PUGIXML_CXX_FLAGS) -c pugixml.cpp ;\
 	  $(AR) rcs libpugixml.a pugixml.o
 
-REQUIRES_INC_DIRS += -Ibuild/requires/pugixml/src
-REQUIRES_LIB_DIRS += -Lbuild/requires/pugixml/src
-REQUIRES_LIBS += pugixml
-
-requires-pugixml: build/requires/pugixml/src/libpugixml.a
+pugixml: build/requires/pugixml/src/libpugixml.a

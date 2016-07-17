@@ -1,3 +1,5 @@
+include ../shared.make
+
 LIBGIT2_VERSION := 0.24.1
 
 resources/libgit2-$(LIBGIT2_VERSION).tar.gz:
@@ -28,13 +30,4 @@ build/requires/libgit2-built.flag: build/requires/libgit2
 	  cmake --build .
 	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/libgit2/include
-REQUIRES_LIB_DIRS += -Lbuild/requires/libgit2/build
-REQUIRES_LIBS += git2
-
-ifeq ($(OS), win)
-	REQUIRES_LIB_DIRS += -Lbuild/requires/libgit2/build/deps/winhttp
-	REQUIRES_LIBS += winhttp crypt32 rpcrt4 ole32
-endif
-
-requires-libgit2: build/requires/libgit2-built.flag
+libgit2: build/requires/libgit2-built.flag

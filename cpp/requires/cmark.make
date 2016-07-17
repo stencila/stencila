@@ -1,3 +1,5 @@
+include ../shared.make
+
 CMARK_VERSION := 0.25.2
 
 resources/cmark-$(CMARK_VERSION).tar.gz:
@@ -23,8 +25,4 @@ build/requires/cmark/build/src/libcmark.a: build/requires/cmark
 		cmake .. $(CMARK_CMAKE_FLAGS) ;\
 		make libcmark_static
 
-requires-cmark: build/requires/cmark/build/src/libcmark.a
-
-REQUIRES_INC_DIRS += -Ibuild/requires/cmark/src -Ibuild/requires/cmark/build/src
-REQUIRES_LIB_DIRS += -Lbuild/requires/cmark/build/src
-REQUIRES_LIBS += cmark
+cmark: build/requires/cmark/build/src/libcmark.a

@@ -1,3 +1,5 @@
+include ../shared.make
+
 JSONCPP_VERSION := 1.7.2
 
 resources/jsoncpp-$(JSONCPP_VERSION).tar.gz:
@@ -14,6 +16,4 @@ build/requires/jsoncpp/dist: resources/jsoncpp-$(JSONCPP_VERSION).tar.gz
 			python amalgamate.py ;
 	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/jsoncpp/dist
-
-requires-jsoncpp: build/requires/jsoncpp/dist
+jsoncpp: build/requires/jsoncpp/dist

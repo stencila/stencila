@@ -1,3 +1,5 @@
+include ../shared.make
+
 WEBSOCKETPP_VERSION := 0.7.0
 
 resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz:
@@ -11,6 +13,4 @@ build/requires/websocketpp: resources/websocketpp-$(WEBSOCKETPP_VERSION).tar.gz
 	mv build/requires/websocketpp-$(WEBSOCKETPP_VERSION) $@
 	touch $@
 
-REQUIRES_INC_DIRS += -Ibuild/requires/websocketpp
-
-requires-websocketpp: build/requires/websocketpp
+websocketpp: build/requires/websocketpp
