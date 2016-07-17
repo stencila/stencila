@@ -167,15 +167,26 @@ add_executable(tests
 	${CMAKE_BINARY_DIR}/syntax-excel-parser.cpp
 	${CMAKE_BINARY_DIR}/syntax-excel-parse.cpp
 )
-target_compile_options(tests PUBLIC
-	-g -O0 --coverage
-)
 target_link_libraries(tests
 	${BOOST_FILESYSTEM} ${BOOST_SYSTEM} ${BOOST_REGEX} ${CMARK} ${LIBGIT2} ${LIBZIP} ${PUGIXML} ${TIDY}
 	${BOOST_UNITTEST}
-	pthread z curl ssl crypto
-	gcov
+	z curl ssl crypto
 )
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	target_compile_options(tests PUBLIC
+		-g -O0 --coverage
+	)
+	target_link_libraries(tests
+		rt pthread
+		gcov
+	)
+endif()
+if(WIN32)
+	target_link_libraries(tests
+		ws2_32 mswsock ssh2
+	)
+endif()
+
 set_target_properties(tests
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
@@ -186,8 +197,3 @@ file(
 		 tests/html-doc-1.html
 	DESTINATION ${CMAKE_BINARY_DIR}/tests
 )
-
-#ifeq ($(OS), win)
-#	REQUIRES_LIB_DIRS += -Lbuild/requires/libgit2/build/deps/winhttp
-#	REQUIRES_LIBS += winhttp crypt32 rpcrt4 ole32
-#endif

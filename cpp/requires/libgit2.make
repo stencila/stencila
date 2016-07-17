@@ -16,7 +16,8 @@ build/requires/libgit2: resources/libgit2-$(LIBGIT2_VERSION).tar.gz
 # For build options see https://libgit2.github.com/docs/guides/build-and-link/
 #  	BUILD_CLAR=OFF - do not build tests
 #  	BUILD_SHARED_LIBS=OFF - do not build shared library
-LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF
+#  	WINHTTP=OFF - use libcurl instead of winhttp
+LIBGIT2_CMAKE_FLAGS := -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=OFF -DWINHTTP=OFF
 ifeq ($(OS), win)
 	LIBGIT2_CMAKE_FLAGS += -G "MSYS Makefiles"
 else
