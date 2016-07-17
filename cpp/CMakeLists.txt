@@ -27,13 +27,17 @@ add_compile_options(
 	-std=c++11 -O2
 	-Wall -Wno-unused-variable
 )
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	add_compile_options(
 		-Wno-unknown-pragmas # prevents many warnings
 		-Wno-missing-braces # prevents unecessary warnings, see http://stackoverflow.com/a/13905432/4625911
 	)
 endif()
-if(NOT WIN32)
+if(WIN32)
+	add_compile_options(
+		-Wno-strict-aliasing # prevents warnings in boost/thread/win32/shared_mutex.hpp
+	)
+else()
 	add_compile_options(
 		-fPIC # because eventually linked into shared dynamic libraries
 	)	
@@ -113,7 +117,7 @@ set(PUGIXML          ${CMAKE_BINARY_DIR}/requires/pugixml/src/libpugixml.a)
 set(TIDY             ${CMAKE_BINARY_DIR}/requires/tidy-html5/build/cmake/libtidys.a)
 
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR MSYS)
 	# Use an ar script to combine static libraries
 	# This is safer than extracting all the object files in each library (using `ar -x ...`)
 	# and then combining them because it avoids the potential for name clashes causing some

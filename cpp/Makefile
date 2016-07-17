@@ -15,8 +15,13 @@ setup:
 	$(MAKE) -f requires/tidy-html5.make tidy-html5
 	$(MAKE) -f requires/websocketpp.make websocketpp
 
+
+CMAKE_FLAGS :=
+ifeq ($(OS), win)
+	CMAKE_FLAGS += -G "MSYS Makefiles"
+endif
 build:
-	cd build && cmake .. && cmake --build .
+	cd build && cmake .. $(CMAKE_FLAGS) && cmake --build .
 
 test:
 ifeq ($(OS), linux)
