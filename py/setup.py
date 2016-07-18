@@ -47,7 +47,7 @@ setup(
                 '../cpp/build/requires/websocketpp'
             ],
             extra_compile_args=[
-                '--std=c++11', '-Wno-unused-local-typedefs',
+                '--std=c++11', '-Wno-unused-local-typedefs', '-Wno-deprecated-declarations',
                 # Define BOOST_PYTHON_STATIC_LIB otherwise on Windows
                 # dynamic linkage is assumed for the Boost.python library
                 '-DBOOST_PYTHON_STATIC_LIB'

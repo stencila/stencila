@@ -23,11 +23,11 @@ build:
 
 # Run tests
 test:
-	PATH=$(PATH) tox --installpkg dist/$(WHEEL_FILE)
+	export PATH=$(PATH) ; tox --installpkg dist/$(WHEEL_FILE)
 
 # Run coverage
 cover:
-	PATH=$(PATH) tox -e cover --installpkg dist/$(WHEEL_FILE)
+	export PATH=$(PATH) ; tox -e cover --installpkg dist/$(WHEEL_FILE)
 	sed -i "s!.tox/cover/lib/python2.7/site-packages/stencila/!py/stencila/!g" coverage.xml
 
 # Install package
