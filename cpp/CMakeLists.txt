@@ -167,6 +167,9 @@ add_executable(tests
 	${CMAKE_BINARY_DIR}/syntax-excel-parser.cpp
 	${CMAKE_BINARY_DIR}/syntax-excel-parse.cpp
 )
+target_compile_options(tests PUBLIC
+	-Wno-sign-compare
+)
 target_link_libraries(tests
 	${BOOST_FILESYSTEM} ${BOOST_SYSTEM} ${BOOST_REGEX} ${CMARK} ${LIBGIT2} ${LIBZIP} ${PUGIXML} ${TIDY}
 	${BOOST_UNITTEST}

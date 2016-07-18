@@ -26,6 +26,8 @@ build:
 test:
 ifeq ($(OS), linux)
 	cd build/tests && ulimit -v 2097152 && (./tests --run_test="*_quick/*") || (exit 1)
+else ifeq ($(OS), win)
+	cd build/tests && (./tests.exe --run_test="*_quick/*") || (exit 1)
 endif
 
 cover: test
