@@ -4,6 +4,11 @@
 #' @name stencila
 #' @aliases stencila stencila-package
 #' @author Nokome Bentley <nokome.bentley@@stenci.la>
+#'
+#' @import grDevices
+#' @import methods
+#' @import stats
+#' @import utils
 NULL
 
 # This file has to be 'sourced' before other files in the package.
