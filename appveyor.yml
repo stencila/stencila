@@ -17,8 +17,6 @@ build_script:
 test_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp test"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py test"
-# Disable automatic tests
-test: off
 
 artifacts:
   - path: py\dist\*.whl
