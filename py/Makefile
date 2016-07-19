@@ -24,7 +24,7 @@ ifeq ($(OS), win)
 # So as a workaround specify an *absolute* path to a temporary build directory
 # (should not be `build` since `bdist_wheel` deletes this directory which means
 # a fresh rebuild each time). See http://stackoverflow.com/questions/38449052/bdist-wheel-not-working-under-msys2/38449669
-	python setup.py bdist_wheel --bdist-dir=$PWD/build-temp
+	python setup.py bdist_wheel --bdist-dir=$(pwd)/build-temp
 else
 	python setup.py bdist_wheel
 endif
