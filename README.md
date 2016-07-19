@@ -26,31 +26,29 @@ The core engine is written in C++ with thin wrappers into host languages, e.g. R
 
 Things are still *very* "beta" so please give us your suggestions by creating an [issue](https://github.com/stencila/stencila/issues) or chatting with us on [Gitter](https://gitter.im/stencila/stencila). See [releases](https://github.com/stencila/stencila/releases) for what we've been working on lately and [milestones](https://github.com/stencila/stencila/milestones) for what we've got planned.
 
-The various modules are in various states of development for various operating systems. Here's a summary of what is and isn't working on [Travis CI](https://travis-ci.org/stencila/stencila) (for Linux and Mac) and [Appveyor](https://ci.appveyor.com/project/nokome/stencila) (Windows): ✓ indicates a Makefile recipe is implemented and working, a ✗ means its been implemented and is failing (an hopefully has an associated issue number), blank means it hasn't been attempted. See the relevant module `Makefile` for what `setup`, `build`, `test`, `cover` and `publish` actually do. 
-
-Code coverage statistics for each module are available on [Codecov](https://codecov.io/gh/stencila/stencila). <b name="codecov-note">Note: </b> Code coverage is currently very low. We're working on improving that but also don't place too high a priority on code coverage while version < 1.0.0 and thus the API is changing (because tests need to get rewritten a lot!).
+The various modules are in various states of development for various operating systems. Here's a summary of what is and isn't working on [Travis CI](https://travis-ci.org/stencila/stencila) (for Linux and Mac) and [Appveyor](https://ci.appveyor.com/project/nokome/stencila) (Windows): "✓" indicates a Makefile recipe is implemented and working, a "✗"" means its been implemented and is failing (an hopefully has an associated issue number), a "-" means not attempted for the particular OS, a blank means it hasn't been attempted. See the relevant module `Makefile` for what `setup`, `build`, `test`, `cover` and `publish` actually do. 
 
                | Linux | Mac   | Win. 
 -------------- |:-----:|:-----:|:-----:
 **C++**        |
 `setup`        | ✓     | ✓     | ✓     
 `build`        | ✓     | ?     | ✓     
-`test`         | ✓     |       | ✗ #199   
-`cover`        | ✓     |       |      
-`publish`      | ✓     |       | 
+`test`         | ✓     |       | ✓     
+`cover`        | ✓     |       | -     
+`publish`      |       |       |       
                |
-**Node.js**    | 4.4   |       |
+**Node.js**    | 4.4   |       | 4.4
 `setup`        | ✓     | ✓     | ✓     
 `build`        | ✓     | ✗ #196| ✗ #203     
 `test`         | ✓     |       |
 `cover`        | ✓     |       |      
 `publish`      | ✓     |       | 
                |
-**Python**     | 2.7   |       |
+**Python**     | 2.7   | 2.7   | 2.7
 `setup`        | ✓     | ✓     | ✓     
 `build`        | ✓     | ✓     | ✓     
-`test`         | ✓     |       | ✗ #200
-`cover`        | ✓     |       |      
+`test`         | ✓     |       | ✓     
+`cover`        | ✓     |       | -     
 `publish`      | ✓     |       | 
                |
 **R**          | 3.2, 3.3|     |
@@ -60,6 +58,8 @@ Code coverage statistics for each module are available on [Codecov](https://code
 `cover`        | ✓     |       |      
 `publish`      | ✓     |       |
 
+
+Code coverage statistics for each module are available on [Codecov](https://codecov.io/gh/stencila/stencila). <b name="codecov-note">Note: </b> Code coverage is currently very low. We're working on improving that but also don't place too high a priority on code coverage while version < 1.0.0 and thus the API is changing (because tests need to get rewritten a lot!).
 
 ### Installing
 
