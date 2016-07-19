@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 import stencila
 
@@ -19,7 +20,11 @@ class ComponentTests(unittest.TestCase):
         self.component = stencila.Component()
 
     def tearDown(self):
-        self.component.destroy()
+        # As in C++ tests the destoy method fails due to
+        # "Acesss is denied" to the .git directory of the
+        # component. So currently skipped in Windows
+        if sys.platform != 'win32':
+            self.component.destroy()
 
     # self.assertRegex not in all versions of Python
     # def test_path(self):
