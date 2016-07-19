@@ -10,6 +10,15 @@ install:
   - ps: Install-Product node $env:NODEJS_VERSION
 
 build_script:
-  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp setup build test"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp setup build"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C node setup"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py setup build"
+
+test_script:
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp test"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py test"
+# Disable automatic tests
+test: off
+
+artifacts:
+  - path: py\dist\*.whl
