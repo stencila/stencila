@@ -19,6 +19,8 @@ setup(
     name='stencila',
     version=subprocess.check_output('bash ../version.sh', shell=True),
 
+    description='Documents powered by data',
+
     author='Nokome Bentley',
     author_email='nokome@stenci.la',
 
