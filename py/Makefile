@@ -17,13 +17,20 @@ PATH := ~/.local/bin:$(PATH)
 setup:
 	pip install --user setuptools wheel tox
 
-# Build package
+# Build package 
 build:
 	python setup.py bdist_wheel
 
 # Run tests
 test:
+ifeq ($(OS), win)
+# Virtalenv fails to install on MSYS2 (see issue #200)
+# So this workaround installs the stancila package and runs tests "manually" (i.e. not using tox/virtualenv)
+	pip install --user --upgrade --force-reinstall dist/$(WHEEL_FILE)
+	python tests/test_stencila.py
+else
 	export PATH=$(PATH) ; tox --installpkg dist/$(WHEEL_FILE)
+endif
 
 # Run coverage
 cover:
@@ -32,7 +39,7 @@ cover:
 
 # Install package
 install:
-	pip install --upgrade --force-reinstall dist/$(WHEEL_FILE)
+	pip install --user --upgrade --force-reinstall dist/$(WHEEL_FILE)
 
 # Publish package
 publish:
