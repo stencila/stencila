@@ -43,7 +43,7 @@ OBJECTS = $(patsubst extension/%.cpp,build/%.o,$(wildcard extension/*.cpp))
 
 # Install requirements for build
 setup:
-	sudo Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','RUnit','covr'),repo='http://cloud.r-project.org/')"
+	Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','RUnit','covr'),repo='http://cloud.r-project.org/')"
 
 # Compile an extension file
 build/%.o: extension/%.cpp
@@ -107,7 +107,7 @@ endif
 # Install package
 install:
 	STENCILA_R_BUILD=$(realpath build) R CMD INSTALL stencila
-	sudo Rscript -e 'stencila:::install()'
+	Rscript -e 'stencila:::install()'
 
 # Clean up after build
 clean:
