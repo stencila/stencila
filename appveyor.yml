@@ -7,16 +7,29 @@ environment:
 
 install:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
+  # Install Node.js
   - ps: Install-Product node $env:NODEJS_VERSION
+  # Install R
+  - ps: (New-Object System.Net.WebClient).DownloadFile("https://cloud.r-project.org/bin/windows/base/R-3.3.1-win.exe","C:\R-win.exe")
+  - ps: Start-Process -FilePath C:\R-win.exe -ArgumentList "/VERYSILENT /DIR=C:\R" -NoNewWindow -Wait
+  - ps: $env:PATH = 'C:\R\bin\x64;' + $env:PATH
+
+before_build:
+  # Confirm installs
+  - python2 --version
+  - python3 --version
+  - Rscript -e "sessionInfo()"
 
 build_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp setup build"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C node setup"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py setup build"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C r setup build"
 
 test_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C cpp test"
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C py test"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && make -C r test"
 
 artifacts:
   - path: py\dist\*.whl
