@@ -9,9 +9,11 @@ install:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./setup/appveyor-build.sh"
   # Install Node.js
   - ps: Install-Product node $env:NODEJS_VERSION
-  # Install R
+  # Install R and Rtools
   - ps: (New-Object System.Net.WebClient).DownloadFile("https://cloud.r-project.org/bin/windows/base/R-3.3.1-win.exe","C:\R-win.exe")
   - ps: Start-Process -FilePath C:\R-win.exe -ArgumentList "/VERYSILENT /DIR=C:\R" -NoNewWindow -Wait
+  - ps: (New-Object System.Net.WebClient).DownloadFile("https://cloud.r-project.org/bin/windows/Rtools/Rtools34.exe","C:\Rtools.exe")
+  - ps: Start-Process -FilePath C:\Rtools.exe -ArgumentList "/VERYSILENT" -NoNewWindow -Wait
   - ps: $env:PATH = 'C:\R\bin\x64;' + $env:PATH
 
 before_build:
