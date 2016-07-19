@@ -76,7 +76,7 @@ class RObjectGenerator : public Generator {
             return list;
         } else if (auto deriv = dynamic_cast<const Call*>(node)) {
             auto args = Rcpp::List(deriv->arguments.size());
-            uint index = 0;
+            unsigned int index = 0;
             for (const Node* arg : deriv->arguments) {
                 args[index++] = generate(arg, mode);
             }
