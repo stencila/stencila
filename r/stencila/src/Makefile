@@ -3,7 +3,7 @@
 # Compiler
 CXX=g++
 CXX_FLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()") \
-	-std=c++11 \
+	-std=c++11 -fPIC \
 	-I../../../cpp \
 	-I../../../cpp/build/requires/boost \
 	-I../../../cpp/build/requires/websocketpp
@@ -11,7 +11,7 @@ CXX_FLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlag
 # Linker
 LD=g++
 LD_FLAGS := $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()")
-LD_LIBS := -L../../../cpp/build -lstencila -lcurl -lssl -lcrypto -lws2_32 -lmswsock -lssh2 -lz
+LD_LIBS := -L../../../cpp/build -lstencila -lcurl -lssl -lcrypto
 
 # List of compiled object files
 OBJECTS = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
