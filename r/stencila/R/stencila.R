@@ -9,6 +9,7 @@
 #' @import methods
 #' @import stats
 #' @import utils
+#' @import Rcpp
 #'
 #' @useDynLib stencila
 NULL
