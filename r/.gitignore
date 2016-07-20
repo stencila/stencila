@@ -1,7 +1,13 @@
 stencila/DESCRIPTION
 stencila/NAMESPACE
+stencila/inst/libs/
 stencila/man
+stencila/src/*.o
+stencila/src/*.dll
+stencila/src/*.so
 stencila.Rcheck
 stencila_*.tar.gz
-build
+stencila_*.zip
+stencila/tests/RUnit.txt
+stencila/tests/out
 coverage.json
