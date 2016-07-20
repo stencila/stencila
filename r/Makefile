@@ -6,6 +6,20 @@ all: setup build test
 # R-specific version format
 VERSION := $(shell ../version.sh r)
 
+# Variables used below for packaging and publishing
+ifeq ($(OS),win)
+	PACKAGE_EXT = zip
+	DLL_EXT = dll
+	REPO_DIR = bin/windows/contrib/$(VERSION)
+	REPO_TYPE = win.binary
+else
+	PACKAGE_EXT = tar.gz
+	DLL_EXT = so
+	REPO_DIR = src/contrib
+	REPO_TYPE = source
+endif
+PACKAGE = stencila_$(VERSION).$(PACKAGE_EXT)
+
 # Install requirements for build
 setup:
 	Rscript -e "install.packages(c('Rcpp','codetools','roxygen2','RUnit','covr'),repo='http://cloud.r-project.org/')"
@@ -19,7 +33,18 @@ build:
 ifeq ($(OS),win)
 	R CMD INSTALL --build --no-multiarch stencila
 else
-	R CMD build stencila
+# On Linux to create a pre-compiled package do the following...
+# Use `INSTALL` to compile the package and create .so in `src`
+	R CMD INSTALL stencila
+# Create a copy of the package which moves the .so to /inst/libs...
+	rm -rf stencila-temp
+	cp -r stencila stencila-temp
+	mkdir -p stencila-temp/inst/libs
+	cp stencila-temp/src/stencila.so stencila-temp/inst/libs
+# ... and has no `src` so no attempt is made to compile it on install
+	rm -rf stencila-temp/src
+# Finally, create a .tar.gz package
+	R CMD build stencila-temp
 endif
 
 # Check package
@@ -27,29 +52,19 @@ endif
 check:
 	R CMD check stencila
 
-# Run tests (does a local install first)
+# Run tests 
+# Note that this installs the package and thus on Linux will recompile it
 test:
 	R CMD INSTALL stencila
 	cd stencila/tests && Rscript test-runit.R
 	cd stencila/tests && Rscript test-spreadsheet.R
 
 # Run tests with coverage
+# Note that this installs the package and thus on Linux will recompile it
 cover:
 	Rscript -e 'cov<-covr::package_coverage("stencila"); cat(covr:::to_codecov(cov),file="coverage.json"); print(cov)'
 
 # Publish package into a local R repository for mirroring to http://get.stenci.la/r
-ifeq ($(OS),win)
-	PACKAGE_EXT = zip
-	DLL_EXT = dll
-	REPO_DIR = bin/windows/contrib/$(VERSION)
-	REPO_TYPE = win.binary
-else
-	PACKAGE_EXT = tar.gz
-	DLL_EXT = so
-	REPO_DIR = src/contrib
-	REPO_TYPE = source
-endif
-PACKAGE = stencila_$(VERSION).$(PACKAGE_EXT)
 publish:
 ifeq (dirty,$(DIRTY))
 	$(error Publish is not done for dirty versions. Commit or stash and try again.)
