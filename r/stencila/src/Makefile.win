@@ -1,0 +1,42 @@
+# A makefile for Windows
+# This is necessary (instead of just providing a Makevars file with PKG_CPPFLAGS etc) to be able to 
+# specify the same compiler as used to compile libstencila.a for binary compatability
+# (by default the R build systems attempts to use the version of MinGW installed under Rtools). 
+
+# Compiler
+CXX=g++
+CXX_FLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlags()") \
+	-std=c++11 \
+	-I../../../cpp \
+	-I../../../cpp/build/requires/boost \
+	-I../../../cpp/build/requires/websocketpp \
+	-I/mingw64/include/
+
+# Linker
+LD=g++
+LD_FLAGS := $(shell R CMD config --ldflags) $(shell Rscript -e "Rcpp:::LdFlags()")
+LD_LIBS := -L../../../cpp/build -lstencila -lcurl -lssl -lcrypto -lws2_32 -lmswsock -lssh2 -lz
+
+# List of compiled object files
+OBJECTS = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+
+# List of extra DLLs needed on windows. These should be available from the MSYS2 install.
+# List can be determined by running Dependency Walker (http://www.dependencywalker.com/) on the stencila.dll file installed
+# in the R library e.g. c:\r\library\stencila\libs\x64\STENCILA.DLL
+DLLS = $(patsubst %, ../inst/libs/x64/%, \
+		libeay32.dll libgcc_s_seh-1.dll \
+		libcurl-4.dll libidn-11.dll libiconv-2.dll libintl-8.dll libnghttp2-14.dll librtmp-1.dll \
+		libgmp-10.dll libgnutls-30.dll libhogweed-4-2.dll libnettle-6-2.dll libp11-kit-0.dll libffi-6.dll libtasn1-6.dll \
+		libssh2-1.dll libstdc++-6.dll libwinpthread-1.dll ssleay32.dll zlib1.dll)
+
+all: extension.dll $(DLLS)
+
+%.o: %.cpp
+	$(CXX) $(CXX_FLAGS) -c -o$@ $<
+
+extension.dll: $(OBJECTS)
+	$(LD) $(LD_FLAGS) -shared -o$@ $^ $(LD_LIBS)
+
+../inst/libs/x64/%.dll: /c/msys64/mingw64/bin/%.dll
+	cp $< $@
+

@@ -11,7 +11,7 @@
 #include <stencila/spread.hpp>
 #include <stencila/string.hpp>
 
-#include "stencila.hpp"
+#include "extension.hpp"
 
 namespace Stencila {
 

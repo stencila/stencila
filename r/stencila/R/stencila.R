@@ -9,6 +9,8 @@
 #' @import methods
 #' @import stats
 #' @import utils
+#'
+#' @useDynLib extension
 NULL
 
 # This file has to be 'sourced' before other files in the package.

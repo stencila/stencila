@@ -3,7 +3,7 @@
 #include <stencila/network.hpp>
 #include <stencila/host.hpp>
 
-#include "stencila.hpp"
+#include "extension.hpp"
 #include "context.hpp"
 #include "spread.hpp"
 

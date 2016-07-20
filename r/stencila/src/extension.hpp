@@ -79,7 +79,12 @@ const decltype(R_NilValue) null = R_NilValue;
 #define STENCILA_R_TO(TYPE,POINTER) \
 	to<TYPE>(POINTER,#TYPE)
 
-#define STENCILA_R_FUNC extern "C" SEXP
+// Export functions
+#if defined(_WIN32)
+	#define STENCILA_R_FUNC extern "C" __declspec(dllexport) SEXP
+#else
+	#define STENCILA_R_FUNC extern "C" SEXP
+#endif
 
 // Define try/catch blocks
 // STENCILA_R_TRY and STENCILA_R_CATCH based on BEGIN_RCPP and END_RCPP macros.

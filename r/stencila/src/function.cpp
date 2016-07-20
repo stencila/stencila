@@ -1,7 +1,7 @@
 #include <stencila/function.hpp>
 using namespace Stencila;
 
-#include "stencila.hpp"
+#include "extension.hpp"
 #include "context.hpp"
 
 // Component interface

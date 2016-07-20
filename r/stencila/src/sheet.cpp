@@ -1,7 +1,7 @@
 #include <stencila/sheet.hpp>
 using namespace Stencila;
 
-#include "stencila.hpp"
+#include "extension.hpp"
 #include "spread.hpp"
 
 STENCILA_R_NEW(Sheet)

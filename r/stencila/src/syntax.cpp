@@ -9,7 +9,7 @@
 using namespace Stencila; 
 using namespace Stencila::Syntax;
 
-#include "stencila.hpp"
+#include "extension.hpp"
 
 namespace {
 
