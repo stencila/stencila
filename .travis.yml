@@ -106,7 +106,7 @@ script:
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
             docker pull stencila/ubuntu-14.04-py-2.7 && make -C docker py-build
-            docker pull stencila/ubuntu-14.04-r-3.2 && make -C r bundle && make -C docker r-build
+            docker pull stencila/ubuntu-14.04-r-3.2 && make -C docker r-build
         fi
 
 after_success:
