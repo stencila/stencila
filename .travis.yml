@@ -99,7 +99,7 @@ script:
 
     # R module
     - sudo make -C r setup
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r build; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo make -C r build; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r cover; fi
 
     # Docker module
