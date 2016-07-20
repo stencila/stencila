@@ -10,7 +10,7 @@
 #' @import stats
 #' @import utils
 #'
-#' @useDynLib extension
+#' @useDynLib stencila
 NULL
 
 # This file has to be 'sourced' before other files in the package.
@@ -78,12 +78,9 @@ serve <- function(){
 
 .onAttach <- function(libname, pkgname){
 	# Call C++ startup function
-	# Protect from failiure so this function, which is called during packages installation,
+	# Protect from failure so this function, which is called during packages installation,
 	# does not fail
-	result <- tryCatch(.Call('Stencila_startup',PACKAGE='stencila'),error=identity)
-	if(inherits(result,'simpleError')){
-		warning("Stencila DLL does not appear to be installed. Please run `stencila:::install_dll()`.")
-	}
+	try(.Call('Stencila_startup',PACKAGE='stencila'),silent=TRUE)
 }
 
 .onDetach <- function(lib){
@@ -93,7 +90,7 @@ serve <- function(){
 
 .onUnload <- function(libpath){
 	# Unload the DLL
-	tryCatch(library.dynam.unload('stencila',system.file(package='stencila')),silent=TRUE)
+	library.dynam.unload('stencila',system.file(package='stencila'))
 }
 
 ###########################################################################

@@ -29,14 +29,15 @@ DLLS = $(patsubst %, ../inst/libs/x64/%, \
 		libgmp-10.dll libgnutls-30.dll libhogweed-4-2.dll libnettle-6-2.dll libp11-kit-0.dll libffi-6.dll libtasn1-6.dll \
 		libssh2-1.dll libstdc++-6.dll libwinpthread-1.dll ssleay32.dll zlib1.dll)
 
-all: extension.dll $(DLLS)
+all: stencila.dll $(DLLS)
 
 %.o: %.cpp
 	$(CXX) $(CXX_FLAGS) -c -o$@ $<
 
-extension.dll: $(OBJECTS)
+stencila.dll: $(OBJECTS)
 	$(LD) $(LD_FLAGS) -shared -o$@ $^ $(LD_LIBS)
 
 ../inst/libs/x64/%.dll: /c/msys64/mingw64/bin/%.dll
+	@mkdir -p ../inst/libs/x64
 	cp $< $@
 
