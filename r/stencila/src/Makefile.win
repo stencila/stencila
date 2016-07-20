@@ -9,8 +9,7 @@ CXX_FLAGS := $(shell R CMD config --cppflags) $(shell Rscript -e "Rcpp:::CxxFlag
 	-std=c++11 \
 	-I../../../cpp \
 	-I../../../cpp/build/requires/boost \
-	-I../../../cpp/build/requires/websocketpp \
-	-I/mingw64/include/
+	-I../../../cpp/build/requires/websocketpp
 
 # Linker
 LD=g++
