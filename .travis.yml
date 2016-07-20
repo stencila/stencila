@@ -98,7 +98,7 @@ script:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C py cover; fi
 
     # R module
-    - make -C r setup
+    - sudo make -C r setup
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r build; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r cover; fi
 
