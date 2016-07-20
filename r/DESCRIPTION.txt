@@ -8,7 +8,7 @@ Author: The authors of Stencila. See https://raw.github.com/stencila/stencila/
 Maintainer: Nokome Bentley <nokome@stenci.la>
 Description: Documents powered by data.
 License: GPL-3
-Depends:
-    Rcpp (>= 0.12.1)
 Imports:
+    Rcpp (>= 0.12.1),
     methods
+LinkingTo: Rcpp
