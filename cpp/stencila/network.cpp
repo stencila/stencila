@@ -250,7 +250,9 @@ void Server::http_(connection_hdl hdl) {
 					content = "Directory access is forbidden\n  path: "+filesystem_path;		
 				}
 				else {
-					std::ifstream file(filesystem_path);
+					// Read file in binary mode (necessary esp for image files
+					// on Windows)
+					std::ifstream file(filesystem_path, std::ios::binary);
 					if(not file.good()){
 						// 500 : internal server error
 						status = http::status_code::internal_server_error;
