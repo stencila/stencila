@@ -273,6 +273,7 @@ void Server::http_(connection_hdl hdl) {
 						else if(extension=="css") content_type = "text/css";
 						else if(extension=="html") content_type = "text/html";
 						else if(extension=="ico") content_type = "image/x-icon";
+						else if(extension=="gif") content_type = "image/gif";
 						else if(extension=="png") content_type = "image/png";
 						else if(extension=="jpg" or extension=="jpeg") content_type = "image/jpg";
 						else if(extension=="svg") content_type = "image/svg+xml";
