@@ -147,7 +147,7 @@ for(command in commands){
         if(!is.null(component)) call <- paste0('component$',call)
         result <- eval(parse(text = call))
         # Only show if not null return and not the component
-        if(!is.null(result) && !inherits(result,class(component)[1])) show(result)
+        if(!is.null(result) && !inherits(result,class(component)[1])) methods:::show(result)
         out(reset)
     }
 }
