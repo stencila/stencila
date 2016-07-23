@@ -158,14 +158,26 @@ endif()
 # Final combined static library
 add_custom_target(stencila ALL DEPENDS ${CMAKE_BINARY_DIR}/libstencila.a)
 
-# Test executable
-add_executable(tests 
+# Compile sources with coverage instrumentation for tests
+# Compiling these separately from ${TESTS} ensures that
+# covergare is not calculated for test files themselves
+add_library(test_objects OBJECT
 	${SOURCES}
-	${TESTS}
 	${CMAKE_BINARY_DIR}/version.cpp
 	${CMAKE_BINARY_DIR}/syntax-excel-lexer.cpp
 	${CMAKE_BINARY_DIR}/syntax-excel-parser.cpp
 	${CMAKE_BINARY_DIR}/syntax-excel-parse.cpp
+)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	target_compile_options(test_objects PUBLIC
+		-g -O0 --coverage
+	)
+endif()
+
+# Compile a test executable
+add_executable(tests 
+	${TESTS}
+	$<TARGET_OBJECTS:test_objects>
 )
 target_compile_options(tests PUBLIC
 	-Wno-sign-compare
@@ -176,9 +188,6 @@ target_link_libraries(tests
 	z curl ssl crypto
 )
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	target_compile_options(tests PUBLIC
-		-g -O0 --coverage
-	)
 	target_link_libraries(tests
 		rt pthread
 		gcov
@@ -189,11 +198,12 @@ if(WIN32)
 		ws2_32 mswsock ssh2
 	)
 endif()
-
 set_target_properties(tests
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
 )
+
+# Copy non-source-code files to test directory 
 file(
 	COPY tests/stencil-cila-html.txt
 		 tests/stencil-cila-render.cila
