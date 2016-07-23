@@ -1,7 +1,7 @@
 'use strict';
 
-var ControllerTool = require('substance/ui/ControllerTool');
-var Component = require('substance/ui/Component');
+var ControllerTool = require('substance-fe0ed/ui/ControllerTool');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
 function HomeTool() {

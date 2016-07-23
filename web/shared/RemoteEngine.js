@@ -1,5 +1,5 @@
-var oo = require('substance/util/oo');
-var $ = require('substance/util/jquery');
+var oo = require('substance-fe0ed/util/oo');
+var $ = require('substance-fe0ed/util/jquery');
 
 var WebsocketConnection = require('./WebsocketConnection');
 

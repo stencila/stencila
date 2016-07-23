@@ -1,6 +1,6 @@
 'use strict';
 
-var ControllerTool = require('substance/ui/ControllerTool');
+var ControllerTool = require('substance-fe0ed/ui/ControllerTool');
 
 function ActivateTool() {
   ActivateTool.super.apply(this, arguments);

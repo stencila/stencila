@@ -1,6 +1,6 @@
 "use strict";
 
-var SurfaceTool = require('substance/ui/SurfaceTool');
+var SurfaceTool = require('substance-fe0ed/ui/SurfaceTool');
 
 function StencilFigureInsertTool() {
   StencilFigureInsertTool.super.apply(this, arguments);

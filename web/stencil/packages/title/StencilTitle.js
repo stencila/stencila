@@ -1,6 +1,6 @@
 'use strict';
 
-var TextBlock = require('substance/model/TextBlock');
+var TextBlock = require('substance-fe0ed/model/TextBlock');
 
 function StencilTitle() {
   StencilTitle.super.apply(this, arguments);

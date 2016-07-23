@@ -1,6 +1,6 @@
 'use strict';
 
-var HTMLExporter = require('substance/model/HTMLExporter');
+var HTMLExporter = require('substance-fe0ed/model/HTMLExporter');
 var converters = require('./StencilHTMLConverters');
 
 function StencilHTMLExporter() {

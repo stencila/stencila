@@ -1,7 +1,7 @@
 'use strict';
 
-var oo = require('substance/util/oo');
-var Component = require('substance/ui/Component');
+var oo = require('substance-fe0ed/util/oo');
+var Component = require('substance-fe0ed/ui/Component');
 
 function StencilNodeComponent() {
   Component.apply(this, arguments);

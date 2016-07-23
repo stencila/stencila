@@ -1,10 +1,10 @@
 /* global MathJax */
 'use strict';
 
-var oo = require('substance/util/oo');
+var oo = require('substance-fe0ed/util/oo');
 var extend = require('lodash/object/extend');
-var Component = require('substance/ui/Component');
-var TextProperty = require('substance/ui/TextPropertyComponent');
+var Component = require('substance-fe0ed/ui/Component');
+var TextProperty = require('substance-fe0ed/ui/TextPropertyComponent');
 var $$ = Component.$$;
 
 var StencilNodeComponent = require('../../StencilNodeComponent');

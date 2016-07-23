@@ -2,8 +2,8 @@
 
 var Raven = require('raven-js');
 
-var Component = require('substance/ui/Component');
-var $ = window.$ = require('substance/util/jquery');
+var Component = require('substance-fe0ed/ui/Component');
+var $ = window.$ = require('substance-fe0ed/util/jquery');
 var SheetWriter = require('./ui/SheetWriter');
 var SheetHTMLImporter = require('./model/SheetHTMLImporter');
 var SheetHTMLExporter = require('./model/SheetHTMLExporter');

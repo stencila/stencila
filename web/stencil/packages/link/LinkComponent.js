@@ -1,8 +1,8 @@
 'use strict';
 
-var AnnotationComponent = require('substance/ui/AnnotationComponent');
+var AnnotationComponent = require('substance-fe0ed/ui/AnnotationComponent');
 var StencilNodeComponent = require('../../StencilNodeComponent');
-var $$ = require('substance/ui/Component').$$;
+var $$ = require('substance-fe0ed/ui/Component').$$;
 
 function LinkComponent(){
   LinkComponent.super.apply(this, arguments);

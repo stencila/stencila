@@ -1,9 +1,9 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
-var ControllerTool = require('substance/ui/ControllerTool');
-var Icon = require('substance/ui/FontAwesomeIcon');
+var ControllerTool = require('substance-fe0ed/ui/ControllerTool');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 
 function CommitTool() {
   ControllerTool.apply(this, arguments);

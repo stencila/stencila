@@ -1,8 +1,8 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
-var Icon = require('substance/ui/FontAwesomeIcon');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 
 /**
  * Displays cells which have a boolean (true/false)

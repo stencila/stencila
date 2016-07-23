@@ -1,16 +1,16 @@
 'use strict';
 
 var SheetController = require('./SheetController');
-var SplitPane = require('substance/ui/SplitPane');
-var ScrollPane = require('substance/ui/ScrollPane');
-var StatusBar = require('substance/ui/StatusBar');
-var Toolbar = require('substance/ui/Toolbar');
-var Component = require('substance/ui/Component');
+var SplitPane = require('substance-fe0ed/ui/SplitPane');
+var ScrollPane = require('substance-fe0ed/ui/ScrollPane');
+var StatusBar = require('substance-fe0ed/ui/StatusBar');
+var Toolbar = require('substance-fe0ed/ui/Toolbar');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
-var Icon = require('substance/ui/FontAwesomeIcon');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 
-var UndoTool = require('substance/ui/UndoTool');
-var RedoTool = require('substance/ui/RedoTool');
+var UndoTool = require('substance-fe0ed/ui/UndoTool');
+var RedoTool = require('substance-fe0ed/ui/RedoTool');
 
 var HomeTool = require('../../shared/tools/home/HomeTool');
 var SaveTool = require('./tools/SaveTool');
@@ -23,8 +23,8 @@ var Sheet = require('../model/Sheet');
 var CONFIG = {
   controller: {
     commands: [
-      require('substance/ui/UndoCommand'),
-      require('substance/ui/RedoCommand'),
+      require('substance-fe0ed/ui/UndoCommand'),
+      require('substance-fe0ed/ui/RedoCommand'),
       require('./commands/SaveCommand'),
       require('./commands/CommitCommand')
     ],
@@ -43,13 +43,13 @@ var CONFIG = {
     commands: [
       /* Not used ATM
       // Special commands
-      require('substance/packages/embed/EmbedCommand'),
-      require('substance/packages/strong/StrongCommand'),
-      require('substance/packages/emphasis/EmphasisCommand'),
-      require('substance/packages/link/LinkCommand'),
-      require('substance/packages/subscript/SubscriptCommand'),
-      require('substance/packages/superscript/SuperscriptCommand'),
-      require('substance/packages/code/CodeCommand')
+      require('substance-fe0ed'/packages/embed/EmbedCommand'),
+      require('substance-fe0ed'/packages/strong/StrongCommand'),
+      require('substance-fe0ed'/packages/emphasis/EmphasisCommand'),
+      require('substance-fe0ed'/packages/link/LinkCommand'),
+      require('substance-fe0ed'/packages/subscript/SubscriptCommand'),
+      require('substance-fe0ed'/packages/superscript/SuperscriptCommand'),
+      require('substance-fe0ed'/packages/code/CodeCommand')
       */
     ],
     textTypes: [

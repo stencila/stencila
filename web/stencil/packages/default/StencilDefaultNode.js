@@ -1,6 +1,6 @@
 "use strict";
 
-var BlockNode = require('substance/model/BlockNode');
+var BlockNode = require('substance-fe0ed/model/BlockNode');
 
 function StencilDefaultNode() {
   StencilDefaultNode.super.apply(this, arguments);

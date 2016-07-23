@@ -1,6 +1,6 @@
 'use strict';
 
-var SurfaceCommand = require('substance/ui/SurfaceCommand');
+var SurfaceCommand = require('substance-fe0ed/ui/SurfaceCommand');
 var createTable = require('./createTable');
 
 // TODO: this should go into substance/packages/table/

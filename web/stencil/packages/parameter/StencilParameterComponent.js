@@ -1,10 +1,10 @@
 'use strict';
 
-var oo = require('substance/util/oo');
-var Component = require('substance/ui/Component');
+var oo = require('substance-fe0ed/util/oo');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 var StencilNodeComponent = require('../../StencilNodeComponent');
-var TextProperty = require('substance/ui/TextPropertyComponent');
+var TextProperty = require('substance-fe0ed/ui/TextPropertyComponent');
 
 
 function StencilParameterComponent() {

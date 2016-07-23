@@ -1,8 +1,8 @@
 'use strict';
 
-var TwoPanelController = require('substance/ui/TwoPanelController');
+var TwoPanelController = require('substance-fe0ed/ui/TwoPanelController');
 
-var I18n = require('substance/ui/i18n');
+var I18n = require('substance-fe0ed/ui/i18n');
 I18n.instance.load(require('../i18n/en'));
 
 function StencilController() {

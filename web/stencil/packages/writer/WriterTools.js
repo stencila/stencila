@@ -1,18 +1,18 @@
 'use strict';
 
-var Toolbar = require('substance/ui/Toolbar');
-var Component = require('substance/ui/Component');
+var Toolbar = require('substance-fe0ed/ui/Toolbar');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
-var Icon = require('substance/ui/FontAwesomeIcon');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 
-var SwitchTextTypeTool = require('substance/packages/text/SwitchTextTypeTool');
-var UndoTool = require('substance/ui/UndoTool');
-var RedoTool = require('substance/ui/RedoTool');
-var SaveTool = require('substance/ui/SaveTool');
-var StrongTool = require('substance/packages/strong/StrongTool');
-var EmphasisTool = require('substance/packages/emphasis/EmphasisTool');
-var LinkTool = require('substance/packages/link/LinkTool');
+var SwitchTextTypeTool = require('substance-fe0ed/packages/text/SwitchTextTypeTool');
+var UndoTool = require('substance-fe0ed/ui/UndoTool');
+var RedoTool = require('substance-fe0ed/ui/RedoTool');
+var SaveTool = require('substance-fe0ed/ui/SaveTool');
+var StrongTool = require('substance-fe0ed/packages/strong/StrongTool');
+var EmphasisTool = require('substance-fe0ed/packages/emphasis/EmphasisTool');
+var LinkTool = require('substance-fe0ed/packages/link/LinkTool');
 
 var HomeTool = require('../../../shared/tools/home/HomeTool');
 var ActivateTool = require('./ActivateTool');

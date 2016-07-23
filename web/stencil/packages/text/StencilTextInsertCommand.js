@@ -1,8 +1,8 @@
 'use strict';
 
-var SurfaceCommand = require('substance/ui/SurfaceCommand');
-var helpers = require('substance/model/documentHelpers');
-var uuid = require('substance/util/uuid');
+var SurfaceCommand = require('substance-fe0ed/ui/SurfaceCommand');
+var helpers = require('substance-fe0ed/model/documentHelpers');
+var uuid = require('substance-fe0ed/util/uuid');
 
 function StencilTextInsertCommand() {
   StencilTextInsertCommand.super.apply(this, arguments);

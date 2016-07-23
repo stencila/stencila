@@ -1,6 +1,6 @@
 'use strict';
 
-var oo = require('substance/util/oo');
+var oo = require('substance-fe0ed/util/oo');
 
 /**
   Immutable representation of a table selection

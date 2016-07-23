@@ -1,8 +1,8 @@
 'use strict';
 
-var ScrollPane = require('substance/ui/ScrollPane');
-var Component = require('substance/ui/Component');
-var DialogHeader = require('substance/ui/DialogHeader');
+var ScrollPane = require('substance-fe0ed/ui/ScrollPane');
+var Component = require('substance-fe0ed/ui/Component');
+var DialogHeader = require('substance-fe0ed/ui/DialogHeader');
 var $$ = Component.$$;
 
 // List existing bib items

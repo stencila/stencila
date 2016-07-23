@@ -1,6 +1,6 @@
 "use strict";
 
-var SurfaceTool = require('substance/ui/SurfaceTool');
+var SurfaceTool = require('substance-fe0ed/ui/SurfaceTool');
 
 // TODO: this should go into substance/packages/table/
 function InsertTableTool() {

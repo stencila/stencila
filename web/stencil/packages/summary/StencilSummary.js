@@ -1,6 +1,6 @@
 'use strict';
 
-var TextNode = require('substance/model/TextNode');
+var TextNode = require('substance-fe0ed/model/TextNode');
 
 function StencilSummary() {
   StencilSummary.super.apply(this, arguments);

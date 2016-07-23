@@ -1,17 +1,17 @@
 'use strict';
 
-var _ = require('substance/util/helpers');
+var _ = require('substance-fe0ed/util/helpers');
 var omit = require('lodash/object/omit');
-var Controller = require('substance/ui/Controller');
+var Controller = require('substance-fe0ed/ui/Controller');
 
 // Substance is i18n ready, but by now we did not need it
 // Thus, we configure I18n statically as opposed to loading
 // language files for the current locale
-var I18n = require('substance/ui/i18n');
-I18n.instance.load(require('substance/i18n/en'));
+var I18n = require('substance-fe0ed/ui/i18n');
+I18n.instance.load(require('substance-fe0ed/i18n/en'));
 I18n.instance.load(require('../../i18n/en'));
 // e.g. in german
-// I18n.instance.load(require('substance/ui/i18n/de'));
+// I18n.instance.load(require('substance-fe0ed'/ui/i18n/de'));
 // I18n.instance.load(require('./i18n/de'));
 
 function SheetController(parent, params) {

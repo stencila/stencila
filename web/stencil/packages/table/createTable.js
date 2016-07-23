@@ -1,6 +1,6 @@
 "use strict";
 
-var uuid = require('substance/util/uuid');
+var uuid = require('substance-fe0ed/util/uuid');
 
 // TODO: this should go into substance/packages/table/
 function createTable(tx, args) {

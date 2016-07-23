@@ -1,10 +1,10 @@
 'use strict';
 
-var oo = require('substance/util/oo');
+var oo = require('substance-fe0ed/util/oo');
 var extend = require('lodash/object/extend');
-var Component = require('substance/ui/Component');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
-var Icon = require('substance/ui/FontAwesomeIcon');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 
 var StencilNodeComponent = require('../../StencilNodeComponent');
 var StencilSourceComponent = require('../../StencilSourceComponent');

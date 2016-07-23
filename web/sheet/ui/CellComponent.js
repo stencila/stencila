@@ -1,9 +1,9 @@
 'use strict';
 
 var isString = require('lodash/lang/isString');
-var oo = require('substance/util/oo');
-var uuid = require('substance/util/uuid');
-var Component = require('substance/ui/Component');
+var oo = require('substance-fe0ed/util/oo');
+var uuid = require('substance-fe0ed/util/uuid');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 var CellEditor = require('./CellEditor');
 

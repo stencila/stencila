@@ -1,6 +1,6 @@
 'use strict';
 
-var HTMLExporter = require('substance/model/HTMLExporter');
+var HTMLExporter = require('substance-fe0ed/model/HTMLExporter');
 var Sheet = require('./Sheet');
 var converters = require('./SheetConverters');
 

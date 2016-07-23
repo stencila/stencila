@@ -1,6 +1,6 @@
 'use strict';
 
-var InlineNode = require('substance/model/InlineNode');
+var InlineNode = require('substance-fe0ed/model/InlineNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilText(){

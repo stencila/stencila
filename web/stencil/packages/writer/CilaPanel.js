@@ -1,7 +1,7 @@
 'use strict';
 
-var ScrollPane = require('substance/ui/ScrollPane');
-var Component = require('substance/ui/Component');
+var ScrollPane = require('substance-fe0ed/ui/ScrollPane');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
 function CilaPanel() {

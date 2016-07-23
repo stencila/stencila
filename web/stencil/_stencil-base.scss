@@ -3,14 +3,14 @@
 
 // Substance styles
 
-@import '../node_modules/substance/styles/base/index';
+@import '../node_modules/substance-fe0ed/styles/base/index';
 
 // Substance modules
 // -----------------
 // 
 // For production we should only require what's needed
-@import '../node_modules/substance/styles/components/_all';
-@import '../node_modules/substance/packages/_all';
+@import '../node_modules/substance-fe0ed/styles/components/_all';
+@import '../node_modules/substance-fe0ed/packages/_all';
 
 // Stencil node styles
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var ControllerCommand = require('substance/ui/ControllerCommand');
+var ControllerCommand = require('substance-fe0ed/ui/ControllerCommand');
 
 /**
  * Commit the sheet

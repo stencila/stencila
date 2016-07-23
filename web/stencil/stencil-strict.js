@@ -1,11 +1,11 @@
 'use strict';
 /* global MathJax */
 
-var oo = require('substance/util/oo');
-var Component = require('substance/ui/Component');
+var oo = require('substance-fe0ed/util/oo');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
-var $ = window.$ = window.jQuery = require('substance/util/jquery');
+var $ = window.$ = window.jQuery = require('substance-fe0ed/util/jquery');
 require('jquery.hotkeys');
 
 var StencilWriter = require('./StencilWriter');

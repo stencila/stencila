@@ -2,8 +2,8 @@
 
 var isNumber = require('lodash/lang/isNumber');
 var each = require('lodash/collection/each');
-var Document = require('substance/model/Document');
-var DocumentSchema = require('substance/model/DocumentSchema');
+var Document = require('substance-fe0ed/model/Document');
+var DocumentSchema = require('substance-fe0ed/model/DocumentSchema');
 
 var defaultSchema = new DocumentSchema("stencila-sheet", "0.1.0");
 
@@ -17,9 +17,9 @@ defaultSchema.getDefaultTextType = function() {
 defaultSchema.addNodes([
   require('./Cell'),
 //   // General nodes
-//   // require('substance/packages/emphasis/Emphasis'),
-//   // require('substance/packages/strong/Strong'),
-//   // require('substance/packages/link/Link'),
+//   // require('substance-fe0ed'/packages/emphasis/Emphasis'),
+//   // require('substance-fe0ed'/packages/strong/Strong'),
+//   // require('substance-fe0ed'/packages/link/Link'),
 //   // require('../../stencil/packages/math/StencilMath'),
 //   // require('../../stencil/packages/text/StencilText')
 ]);

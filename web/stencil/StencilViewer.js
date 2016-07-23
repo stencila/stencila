@@ -1,23 +1,23 @@
 'use strict';
 
-var oo = require('substance/util/oo');
+var oo = require('substance-fe0ed/util/oo');
 var StencilController = require('./StencilController');
-var ContainerAnnotator = require('substance/ui/ContainerAnnotator');
-var Component = require('substance/ui/Component');
-var Icon = require('substance/ui/FontAwesomeIcon');
+var ContainerAnnotator = require('substance-fe0ed/ui/ContainerAnnotator');
+var Component = require('substance-fe0ed/ui/Component');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 
 var $$ = Component.$$;
 
 var CONFIG = {
   controller: {
     commands: [
-      require('substance/ui/UndoCommand'),
-      require('substance/ui/RedoCommand'),
-      require('substance/ui/SaveCommand'),
+      require('substance-fe0ed/ui/UndoCommand'),
+      require('substance-fe0ed/ui/RedoCommand'),
+      require('substance-fe0ed/ui/SaveCommand'),
     ],
     components: {
-      'paragraph': require('substance/packages/paragraph/ParagraphComponent'),
-      'heading': require('substance/packages/heading/HeadingComponent'),
+      'paragraph': require('substance-fe0ed/packages/paragraph/ParagraphComponent'),
+      'heading': require('substance-fe0ed/packages/heading/HeadingComponent'),
       'link': require('./packages/link/LinkComponent'),
 
       'stencil-exec': require('./packages/exec/StencilExecComponent'),

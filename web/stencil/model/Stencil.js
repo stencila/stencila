@@ -1,8 +1,8 @@
 'use strict';
 
-var oo = require('substance/util/oo');
-var Document = require('substance/model/Document');
-var DocumentSchema = require('substance/model/DocumentSchema');
+var oo = require('substance-fe0ed/util/oo');
+var Document = require('substance-fe0ed/model/Document');
+var DocumentSchema = require('substance-fe0ed/model/DocumentSchema');
 
 var StencilDefaultNode = require('../packages/default/StencilDefaultNode');
 
@@ -17,22 +17,22 @@ defaultSchema.getDefaultTextType = function() {
 
 defaultSchema.addNodes([
   // Substance nodes, in alphabetical order, from `substance/packages`
-  require('substance/packages/blockquote/Blockquote'),
-  require('substance/packages/code/Code'),
-  //require('substance/packages/codeblock/Codeblock'),
-  require('substance/packages/emphasis/Emphasis'),
-  require('substance/packages/heading/Heading'),
-  require('substance/packages/image/Image'),
-  require('substance/packages/link/Link'),
-  require('substance/packages/list/List'),
-  require('substance/packages/paragraph/Paragraph'),
-  require('substance/packages/strong/Strong'),
-  require('substance/packages/subscript/Subscript'),
-  require('substance/packages/superscript/Superscript'),
-  require('substance/packages/table/Table'),
-  require('substance/packages/table/TableSection'),
-  require('substance/packages/table/TableRow'),
-  require('substance/packages/table/TableCell'),
+  require('substance-fe0ed/packages/blockquote/Blockquote'),
+  require('substance-fe0ed/packages/code/Code'),
+  //require('substance-fe0ed/packages/codeblock/Codeblock'),
+  require('substance-fe0ed/packages/emphasis/Emphasis'),
+  require('substance-fe0ed/packages/heading/Heading'),
+  require('substance-fe0ed/packages/image/Image'),
+  require('substance-fe0ed/packages/link/Link'),
+  require('substance-fe0ed/packages/list/List'),
+  require('substance-fe0ed/packages/paragraph/Paragraph'),
+  require('substance-fe0ed/packages/strong/Strong'),
+  require('substance-fe0ed/packages/subscript/Subscript'),
+  require('substance-fe0ed/packages/superscript/Superscript'),
+  require('substance-fe0ed/packages/table/Table'),
+  require('substance-fe0ed/packages/table/TableSection'),
+  require('substance-fe0ed/packages/table/TableRow'),
+  require('substance-fe0ed/packages/table/TableCell'),
 
   // Stencil-specific nodes
   require('../packages/title/StencilTitle'),

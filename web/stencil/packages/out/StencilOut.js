@@ -1,6 +1,6 @@
 'use strict';
 
-var DocumentNode = require('substance/model/DocumentNode');
+var DocumentNode = require('substance-fe0ed/model/DocumentNode');
 var StencilNode = require('../../model/StencilNode');
 
 function StencilOut() {

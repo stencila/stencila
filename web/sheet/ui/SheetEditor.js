@@ -3,12 +3,12 @@
 var each = require('lodash/collection/each');
 var Sheet = require('../model/Sheet');
 var TableSelection = require('../model/TableSelection');
-var Component = require('substance/ui/Component');
+var Component = require('substance-fe0ed/ui/Component');
 
 var CellComponent = require('./CellComponent');
 
 var $$ = Component.$$;
-var $ = require('substance/util/jquery');
+var $ = require('substance-fe0ed/util/jquery');
 
 function SheetEditor() {
   SheetEditor.super.apply(this, arguments);

@@ -1,34 +1,34 @@
 'use strict';
 
-var oo = require('substance/util/oo');
+var oo = require('substance-fe0ed/util/oo');
 var StencilController = require('./StencilController');
-var docHelpers = require('substance/model/documentHelpers');
+var docHelpers = require('substance-fe0ed/model/documentHelpers');
 var WriterTools = require('./packages/writer/WriterTools');
-var Component = require('substance/ui/Component');
+var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
 var CONFIG = {
   controller: {
     commands: [
-      require('substance/ui/UndoCommand'),
-      require('substance/ui/RedoCommand'),
-      require('substance/ui/SaveCommand'),
+      require('substance-fe0ed/ui/UndoCommand'),
+      require('substance-fe0ed/ui/RedoCommand'),
+      require('substance-fe0ed/ui/SaveCommand'),
 
       require('./packages/writer/RenderCommand'),
     ],
     components: {
       // Substance components, in alphabetical order, from `substance/packages` 
       // Note that not all Substance packages have components so they are not all listed here
-      'blockquote': require('substance/packages/blockquote/BlockquoteComponent'),
-      //'codeblock': require('substance/packages/codeblock/CodeblockComponent'),
-      'heading': require('substance/packages/heading/HeadingComponent'),
-      'image': require('substance/packages/image/ImageComponent'),
-      'link': require('substance/packages/link/LinkComponent'),
+      'blockquote': require('substance-fe0ed/packages/blockquote/BlockquoteComponent'),
+      //'codeblock': require('substance-fe0ed/packages/codeblock/CodeblockComponent'),
+      'heading': require('substance-fe0ed/packages/heading/HeadingComponent'),
+      'image': require('substance-fe0ed/packages/image/ImageComponent'),
+      'link': require('substance-fe0ed/packages/link/LinkComponent'),
       // These imports currently fail
-      //'list': require('substance/packages/list/ListComponent'),
-      //'list-item': require('substance/packages/list/ListItemComponent'),
-      'paragraph': require('substance/packages/paragraph/ParagraphComponent'),
-      'table': require('substance/packages/table/TableComponent'),
+      //'list': require('substance-fe0ed/packages/list/ListComponent'),
+      //'list-item': require('substance-fe0ed/packages/list/ListItemComponent'),
+      'paragraph': require('substance-fe0ed/packages/paragraph/ParagraphComponent'),
+      'table': require('substance-fe0ed/packages/table/TableComponent'),
 
       // Stencil components
       'stencil-title': require('./packages/title/StencilTitleComponent'),
@@ -48,21 +48,21 @@ var CONFIG = {
       'stencil-default-node': require('./packages/default/StencilDefaultNodeComponent'),
 
       // Panels
-      'toc': require('substance/ui/TOCPanel'),
+      'toc': require('substance-fe0ed/ui/TOCPanel'),
       //'cila': require('./packages/writer/CilaPanel'),
       'edit-source': require('./packages/writer/EditSourcePanel')
     }
   },
   body: {
     commands: [
-      require('substance/packages/embed/EmbedCommand'),
-      require('substance/packages/text/SwitchTextTypeCommand'),
-      require('substance/packages/strong/StrongCommand'),
-      require('substance/packages/emphasis/EmphasisCommand'),
-      require('substance/packages/link/LinkCommand'),
-      require('substance/packages/subscript/SubscriptCommand'),
-      require('substance/packages/superscript/SuperscriptCommand'),
-      require('substance/packages/code/CodeCommand'),
+      require('substance-fe0ed/packages/embed/EmbedCommand'),
+      require('substance-fe0ed/packages/text/SwitchTextTypeCommand'),
+      require('substance-fe0ed/packages/strong/StrongCommand'),
+      require('substance-fe0ed/packages/emphasis/EmphasisCommand'),
+      require('substance-fe0ed/packages/link/LinkCommand'),
+      require('substance-fe0ed/packages/subscript/SubscriptCommand'),
+      require('substance-fe0ed/packages/superscript/SuperscriptCommand'),
+      require('substance-fe0ed/packages/code/CodeCommand'),
 
       require('./packages/exec/StencilExecInsertCommand'),
       require('./packages/text/StencilTextInsertCommand'),

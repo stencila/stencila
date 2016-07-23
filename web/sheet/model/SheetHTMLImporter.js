@@ -1,7 +1,7 @@
 'use strict';
 
-var HTMLImporter = require('substance/model/HTMLImporter');
-var DefaultDOMElement = require('substance/ui/DefaultDOMElement');
+var HTMLImporter = require('substance-fe0ed/model/HTMLImporter');
+var DefaultDOMElement = require('substance-fe0ed/ui/DefaultDOMElement');
 var Sheet = require('./Sheet');
 var converters = require('./SheetConverters');
 

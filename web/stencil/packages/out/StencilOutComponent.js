@@ -1,8 +1,8 @@
 'use strict';
 
-var oo = require('substance/util/oo');
-var Component = require('substance/ui/Component');
-var Icon = require('substance/ui/FontAwesomeIcon');
+var oo = require('substance-fe0ed/util/oo');
+var Component = require('substance-fe0ed/ui/Component');
+var Icon = require('substance-fe0ed/ui/FontAwesomeIcon');
 var $$ = Component.$$;
 var StencilNodeComponent = require('../../StencilNodeComponent');
 

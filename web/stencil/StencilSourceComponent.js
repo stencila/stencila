@@ -1,6 +1,6 @@
 'use strict';
 
-var oo = require('substance/util/oo');
+var oo = require('substance-fe0ed/util/oo');
 
 // Mix-in for components of nodes which have an editable source property.
 function StencilSourceComponent() {}
