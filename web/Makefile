@@ -8,10 +8,10 @@ setup:
 	npm install
 
 build:
-	gulp build
+	./node_modules/.bin/gulp build
 
 watch:
-	gulp watch
+	./node_modules/.bin/gulp watch
 
 examples:
 	stencila-r examples/a render write page:"index.html"
