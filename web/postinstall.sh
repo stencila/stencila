@@ -3,6 +3,9 @@
 # A "postinstall" script used by npm
 # Handles things that npm can't do
 
+# Additional substance version
+./node_modules/.bin/niv substance/substance#fe0ed41ac1b0e63f8b620f021a1c9ce7bcc19bea --destination substance-fe0ed
+
 
 # font-awesome
 

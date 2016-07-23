@@ -13,7 +13,7 @@
     "node-sass": "3.x",
     "raven-js": "^2.1.1",
     "semantic-ui-css": "2.1.8",
-    "substance": "substance/substance#fe0ed41ac1b0e63f8b620f021a1c9ce7bcc19bea"
+    "substance": "substance/substance#5001dd199bd53d12207870d570b85a2d33de45b7"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
@@ -29,6 +29,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.4.1",
     "gulp-util": "^3.0.6",
+    "npm-install-version": "^5.0.5",
     "through2": "^2.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
@@ -36,5 +37,8 @@
   },
   "browser": {
     "jquery.hotkeys": "./node_modules/jquery.hotkeys/jquery.hotkeys.js"
+  },
+  "scripts" : {
+    "postinstall": "./postinstall.sh"
   }
 }
