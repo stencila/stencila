@@ -13,7 +13,7 @@
     "node-sass": "3.x",
     "raven-js": "^2.1.1",
     "semantic-ui-css": "2.1.8",
-    "substance": "substance/substance#5001dd199bd53d12207870d570b85a2d33de45b7"
+    "substance": "stencila/substance#develop"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
