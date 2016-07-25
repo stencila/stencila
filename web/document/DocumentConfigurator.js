@@ -29,7 +29,9 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/heading/HeadingPackage'));
   this.import(require('substance/packages/image/ImagePackage'));
   this.import(require('substance/packages/link/LinkPackage'));
-  this.import(require('substance/packages/list/ListPackage'));
+  this.import(require('substance/packages/list/ListPackage'),{
+    enableMacro: true
+  });
   this.import(require('substance/packages/paragraph/ParagraphPackage'));
   this.import(require('substance/packages/strong/StrongPackage'));
   this.import(require('substance/packages/subscript/SubscriptPackage'));
