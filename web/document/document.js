@@ -24,7 +24,7 @@ window.onload = function() {
   // display orginal content on any error
   //try {
     var DocumentApp = require('./DocumentApp');
-    window.app = DocumentApp.static.mount({
+    window.app = DocumentApp.mount({
       html: html
     }, document.body);
   //} catch (error) {
