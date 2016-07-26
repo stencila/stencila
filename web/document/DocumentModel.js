@@ -11,6 +11,8 @@ var Document = require('substance/model/Document');
 var DocumentModel = function(schema) {
   DocumentModel.super.call(this, schema || DocumentModel.schema);
 
+  this.rights = 'write';
+
   // Create a root body container node for the document
   this.create({
     type: "container",

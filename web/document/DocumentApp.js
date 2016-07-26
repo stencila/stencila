@@ -19,7 +19,7 @@ var exporter = new DocumentHTMLExporter({
   configurator: configurator
 });
 
-var DocumentEditor = require('./DocumentEditor');
+var VisualEditor = require('./editors/visual/VisualEditor');
 
 /**
  * User application for a Stencila Document
@@ -41,7 +41,7 @@ DocumentApp.Prototype = function() {
     var doc = importer.importDocument(this.props.html);
     var documentSession = new DocumentSession(doc);
     return {
-      mode: 'write',
+      doc: doc,
       documentSession: documentSession
     };
   };
@@ -55,10 +55,12 @@ DocumentApp.Prototype = function() {
   this.render = function($$) {
     var el = $$('div').addClass('document-app');
 
-    // Render the document editor
+    // Render the visual WYSIWYG editor
     el.append(
-      $$(DocumentEditor, {
-        mode: this.state.mode,
+      $$(VisualEditor, {
+        // Props of document that afftect editor
+        rights: this.state.doc.rights,
+        // Other required props
         documentSession: this.state.documentSession,
         configurator: configurator
       }).ref('editor')

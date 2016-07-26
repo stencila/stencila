@@ -2,5 +2,9 @@
 @import '../fonts/source-code-pro';
 @import '../node_modules/font-awesome/scss/font-awesome.scss';
 
+$stencila-green-hue: 93;
+$stencila-green-saturation: 90%;
+$stencila-green-lightness: 50%;
+
 @import 'content';
-@import 'toolbars';
+@import 'toolsets';

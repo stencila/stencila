@@ -29,15 +29,17 @@ Toolset.Prototype = function() {
       var tool = this.props.toolRegistry.get(name);
       if (!tool.options.overlay) {
         var state = this.props.commandStates[name];
-        disabled = disabled && state.disabled;
+        state.name = name; // A necessary hack at time of writing
         tools.push(
           $$(tool.Class, state)
         );
+        disabled = disabled && state.disabled;
       }
     }.bind(this));
 
     var el = $$("div").addClass('sc-toolset');
     if (disabled) el.addClass('sm-disabled');
+    if (this.props.top) el.setStyle('top', this.props.top +'px');
     el.append(tools);
 
     return el;

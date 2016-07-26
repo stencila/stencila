@@ -1,0 +1,79 @@
+/**
+ * Stencila `DocumentEditor` tool sets
+ */
+
+.sc-toolset {
+
+	background: hsl($stencila-green-hue, 80%, 50%);
+	opacity: 0.95;
+	border-radius: 5px;
+
+	&.sm-disabled {
+		display: none;
+	}
+	
+	.se-tool {
+		
+		display: inline-block;
+		margin: 0 0.1em;
+
+		button {
+			height: 2.5em;
+			width: 2.5em;
+			background: none;
+			outline: none;
+			border: none;
+			color: white;
+			
+			i {
+				font-size: 1.5em;
+			}
+		}
+
+		// Disabled tool icons
+		&.sm-disabled button i {
+			color: hsl($stencila-green-hue, 80%, 60%);
+		}
+
+		// Active tool icons
+		&.sm-active button i {
+			color: hsl($stencila-green-hue, 100%, 60%);
+		}
+
+		// Hide
+		.se-mode {
+			display: none;
+		}
+	}
+}
+
+/**
+ * Document toolset
+ */
+.document-toolset {
+	position: fixed;
+	top: 1em;
+	right: 1em;
+}
+
+/**
+ * Node toolset
+ * 
+ * Should appear in the margin to the left of the caret
+ */
+.node-toolset {
+	position: fixed;
+	top: 3em;
+	left: 1em;
+}
+
+/**
+ * Annotation toolset
+ * 
+ * Should appear as a modal above the current caret position
+ */
+.annotation-toolset {
+	position: fixed;
+	top: 1em;
+	left: 1em;
+}

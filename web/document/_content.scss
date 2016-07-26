@@ -203,6 +203,7 @@
 }
 
 // No outline on editable nodes
+.content,
 [contenteditable="true"] {
 	outline: none;
 }
