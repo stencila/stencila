@@ -38,20 +38,8 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/superscript/SuperscriptPackage'));
   this.import(require('substance/packages/table/TablePackage'));
 
-  // Add VisualEditor tools and commands
-  this.addCommand('reveal', require('./editors/visual/RevealCommand'));
-  this.addTool('reveal', require('./editors/visual/RevealTool'));
-  this.addLabel('reveal', {
-    'en': 'Reveal'
-  });
-  this.addIcon('reveal', { 'fontawesome': 'fa-eye'});
-
-  this.addCommand('edit', require('./editors/visual/EditCommand'));
-  this.addTool('edit', require('./editors/visual/EditTool'));
-  this.addLabel('edit', {
-    'en': 'Edit'
-  });
-  this.addIcon('edit', { 'fontawesome': 'fa-edit'});
+  // Import editor packages
+  this.import(require('./editors/visual/VisualEditorPackage'));
 
 }
 

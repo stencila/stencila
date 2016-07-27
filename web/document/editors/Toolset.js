@@ -28,8 +28,7 @@ Toolset.Prototype = function() {
     this.props.toolList.forEach(function(name) {
       var tool = this.props.toolRegistry.get(name);
       if (!tool.options.overlay) {
-        var state = this.props.commandStates[name];
-        state.name = name; // A necessary hack at time of writing
+        var state = this._getCommandState(name);
         tools.push(
           $$(tool.Class, state)
         );
@@ -44,6 +43,15 @@ Toolset.Prototype = function() {
 
     return el;
   };
+
+  // Private methods
+
+  this._getCommandState = function(name){
+      var state = this.props.commandStates[name];
+      if (!state) throw new Error('Command {' + name + '} not found');
+      state.name = name; // A necessary hack at time of writing
+      return state;
+  }
 
 };
 

@@ -8,8 +8,26 @@
 	opacity: 0.95;
 	border-radius: 5px;
 
+		display: flex;
+		flex-direction: column;
+
 	&.sm-disabled {
 		display: none;
+	}
+
+	.se-group {
+		display: flex;
+		flex-direction: column;
+
+		max-height: 0em;
+	    transition: max-height 0.3s;
+	    overflow: hidden;
+
+		&.sm-enabled {
+			// Override this below for each group so 
+			// it just fits the number of tools (so no apparent delay in animation)
+			max-height: 100em;
+		}
 	}
 	
 	.se-tool {
@@ -37,7 +55,7 @@
 
 		// Active tool icons
 		&.sm-active button i {
-			color: hsl($stencila-green-hue, 100%, 60%);
+			color: hsl($stencila-green-hue, 15%, 50%);
 		}
 
 		// Hide
@@ -50,10 +68,14 @@
 /**
  * Document toolset
  */
-.document-toolset {
+.sc-overall-toolset {
 	position: fixed;
-	top: 1em;
+	top: 2em;
 	right: 1em;
+
+	.se-edit-group.sm-enabled {
+		max-height: 20em;
+	}
 }
 
 /**

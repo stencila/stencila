@@ -63,7 +63,7 @@ DocumentApp.Prototype = function() {
         // Other required props
         documentSession: this.state.documentSession,
         configurator: configurator
-      }).ref('editor')
+      }).ref('visualEditor')
     );
 
     return el;

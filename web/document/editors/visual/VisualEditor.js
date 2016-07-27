@@ -4,6 +4,7 @@ var AbstractEditor = require('substance/ui/AbstractEditor');
 var ContainerEditor = require('substance/ui/ContainerEditor');
 
 var Toolset = require('../Toolset');
+var OverallToolset = require('./OverallToolset');
 
 /**
  * A editor for a Stencila Document
@@ -54,36 +55,38 @@ VisualEditor.Prototype = function() {
 
     // A Toolset for whole document commands
     el.append(
-      $$(Toolset, {
-        toolList: ['reveal', 'edit', 'undo', 'redo'],
-        toolRegistry: toolRegistry,
+      $$(OverallToolset,{
+        reveal: this.state.reveal,
+        edit: this.state.edit,
         commandStates: commandStates
-      }).addClass('document-toolset')
-        .ref('document_toolset')
+      }).ref('overallToolset')
     );
 
-    // A Toolset to change the node type
-    el.append(
-      $$(Toolset, {
-        toolList: ['switch-text-type'],
-        toolRegistry: toolRegistry,
-        commandStates: commandStates
-      }).addClass('node-toolset')
-        .ref('node_toolset')
-    );
+    if (this.state.edit) {
 
-    // A Toolset for annotation commands
-    // This should only appear when there is a user text selection or when the cursor
-    // is on an existing annoation
-    el.append(
-      $$(Toolset, {
-        toolList: ['emphasis', 'strong', 'subscript', 'superscript', 'code', 'link'],
-        toolRegistry: toolRegistry,
-        commandStates: commandStates
-      }).addClass('annotation-toolset')
-        .ref('annotation_toolset')
-    );
+      // A Toolset to change the node type
+      el.append(
+        $$(Toolset, {
+          toolList: ['switch-text-type'],
+          toolRegistry: toolRegistry,
+          commandStates: commandStates
+        }).addClass('node-toolset')
+          .ref('node_toolset')
+      );
 
+      // A Toolset for annotation commands
+      // This should only appear when there is a user text selection or when the cursor
+      // is on an existing annoation
+      el.append(
+        $$(Toolset, {
+          toolList: ['emphasis', 'strong', 'subscript', 'superscript', 'code', 'link'],
+          toolRegistry: toolRegistry,
+          commandStates: commandStates
+        }).addClass('annotation-toolset')
+          .ref('annotation_toolset')
+      );
+
+    }
     
     // A ContainerEditor for the content of the document
     var content = $$(ContainerEditor, {
@@ -106,7 +109,7 @@ VisualEditor.Prototype = function() {
    */
   this._documentSessionUpdated = function() {
     var commandStates = this.commandManager.getCommandStates();
-    ['document_toolset', 'node_toolset', 'annotation_toolset'].forEach(function(name) {
+    ['overallToolset', 'node_toolset', 'annotation_toolset'].forEach(function(name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
