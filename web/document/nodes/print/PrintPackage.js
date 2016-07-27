@@ -5,6 +5,7 @@ var PrintHTMLConverter = require('./PrintHTMLConverter');
 var PrintXMLConverter = require('./PrintXMLConverter');
 var PrintComponent = require('./PrintComponent');
 var PrintCommand = require('./PrintCommand');
+var PrintMacro = require('./PrintMacro');
 var PrintTool = require('./PrintTool');
 
 module.exports = {
@@ -15,6 +16,7 @@ module.exports = {
     config.addConverter('xml', PrintXMLConverter);
     config.addComponent('print', PrintComponent);
     config.addCommand('print', PrintCommand);
+    config.addMacro(new PrintMacro());
     config.addTool('print', PrintTool);
     config.addIcon('print', { 'fontawesome': 'fa-eyedropper' });
     config.addLabel('print', {

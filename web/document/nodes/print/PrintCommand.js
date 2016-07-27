@@ -39,6 +39,7 @@ PrintCommand.Prototype = function() {
     return {
       type: 'print',
       source: text,
+      status: 'uneval',
       content: '?'
     };
   };
