@@ -118,7 +118,6 @@
 	.sc-link {
 		@include annotation($link-hue);
 		text-decoration: none;
-		cursor: pointer;
 	}
 
 	code,

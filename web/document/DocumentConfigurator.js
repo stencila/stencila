@@ -38,6 +38,14 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/superscript/SuperscriptPackage'));
   this.import(require('substance/packages/table/TablePackage'));
 
+
+  // Stencila annotation nodes
+
+  // Link (overrides of Substance command and tool)
+  this.addCommand('link', require('../../nodes/link/LinkCommand'), {nodeType: 'link'});
+  this.addTool('link', require('../../nodes/link/LinkTool'));
+
+
   // Import editor packages
   this.import(require('./editors/visual/VisualEditorPackage'));
 

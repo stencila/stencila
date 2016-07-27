@@ -2,14 +2,16 @@
  * Stencila `DocumentEditor` tool sets
  */
 
+ @import 'nodes/link/link-tool'; 
+
 .sc-toolset {
 
 	background: hsl($stencila-green-hue, 80%, 50%);
 	opacity: 0.95;
 	border-radius: 5px;
 
-		display: flex;
-		flex-direction: column;
+	display: flex;
+	flex-direction: column;
 
 	&.sm-disabled {
 		display: none;
@@ -94,8 +96,10 @@
  * 
  * Should appear as a modal above the current caret position
  */
-.annotation-toolset {
+.sc-annotation-toolset {
 	position: fixed;
 	top: 1em;
 	left: 1em;
+
+	flex-direction: row;
 }

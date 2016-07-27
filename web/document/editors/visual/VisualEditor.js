@@ -5,6 +5,7 @@ var ContainerEditor = require('substance/ui/ContainerEditor');
 
 var Toolset = require('../Toolset');
 var OverallToolset = require('./OverallToolset');
+var AnnotationToolset = require('./AnnotationToolset');
 
 /**
  * A editor for a Stencila Document
@@ -71,19 +72,17 @@ VisualEditor.Prototype = function() {
           toolRegistry: toolRegistry,
           commandStates: commandStates
         }).addClass('node-toolset')
-          .ref('node_toolset')
+          .ref('nodeToolset')
       );
 
       // A Toolset for annotation commands
       // This should only appear when there is a user text selection or when the cursor
       // is on an existing annoation
       el.append(
-        $$(Toolset, {
-          toolList: ['emphasis', 'strong', 'subscript', 'superscript', 'code', 'link'],
+        $$(AnnotationToolset, {
           toolRegistry: toolRegistry,
           commandStates: commandStates
-        }).addClass('annotation-toolset')
-          .ref('annotation_toolset')
+        }).ref('annotationToolset')
       );
 
     }
@@ -109,7 +108,7 @@ VisualEditor.Prototype = function() {
    */
   this._documentSessionUpdated = function() {
     var commandStates = this.commandManager.getCommandStates();
-    ['overallToolset', 'node_toolset', 'annotation_toolset'].forEach(function(name) {
+    ['overallToolset', 'nodeToolset', 'annotationToolset'].forEach(function(name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
@@ -119,7 +118,7 @@ VisualEditor.Prototype = function() {
     var nodeId = selection.getNodeId();
     var el = document.querySelector('[data-id='+nodeId+']');
     var rect = el.getBoundingClientRect();
-    this.refs.node_toolset.extendProps({
+    this.refs.nodeToolset.extendProps({
       top: rect.top
     });
   };
