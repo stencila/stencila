@@ -2,8 +2,6 @@
  * Stencila `DocumentEditor` tool sets
  */
 
- @import 'nodes/link/link-tool'; 
-
 .sc-toolset {
 
 	background: hsl($stencila-green-hue, 80%, 50%);
@@ -21,7 +19,7 @@
 		display: flex;
 		flex-direction: column;
 
-		max-height: 0em;
+		max-height: 0;
 	    transition: max-height 0.3s;
 	    overflow: hidden;
 
@@ -60,7 +58,34 @@
 			color: hsl($stencila-green-hue, 15%, 50%);
 		}
 
-		// Hide
+		.se-details {
+			display: inline-block;
+			line-height: normal;
+			
+			max-width: 0;
+			overflow: hidden;
+			transition: max-width 0.5s;
+
+			&.sm-enabled {
+				max-width: 10em;
+			}
+
+			input {
+				outline: none;
+				border: none;
+				border-radius: 3px;
+				padding: 0.2em;
+
+			    background: hsla(0,0%,100%,0.5);
+			    line-height: 1em;
+			    height: 1em;
+			    font-size: 1em;
+			    margin-right: 0.3em;
+			}
+
+		}
+
+		// Hide the Substance added tool mode
 		.se-mode {
 			display: none;
 		}
@@ -72,8 +97,8 @@
  */
 .sc-overall-toolset {
 	position: fixed;
-	top: 2em;
-	right: 1em;
+	top: 1em;
+	right: 0.5em;
 
 	.se-edit-group.sm-enabled {
 		max-height: 20em;

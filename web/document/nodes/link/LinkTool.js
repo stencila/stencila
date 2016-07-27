@@ -22,16 +22,24 @@ LinkTool.Prototype = function() {
     var el = _super.render.call(this, $$)
       .addClass('sc-link-tool');
 
+    var url = '';
     if (this.props.active) {
       var session = this.context.documentSession;
       var link = documentHelpers.getPropertyAnnotationsForSelection(session.getDocument(), session.getSelection(), {
         type: 'link'
       })[0];
+      url = link.url;
+    }
 
-      el.append(
+    // Render details even if not active so that expansion
+    // animation works 
+    var details = $$('span')
+      .addClass('se-details')
+      .ref('details')
+      .append(
         $$('input')
           .attr({
-            value: link.url,
+            value: url,
             placeholder: 'Paste or type a URL'
           })
           .on('change', function(event){
@@ -54,8 +62,8 @@ LinkTool.Prototype = function() {
           .append('O')
         */
       );
-
-    }
+    if (this.props.active) details.addClass('sm-enabled');
+    el.append(details);
 
     return el;
   };

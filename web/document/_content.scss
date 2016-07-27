@@ -6,12 +6,25 @@
  * Selectors often have two rows reflecting each of these applications.
  */
 
+@mixin annotation($hue) {
+	padding: 1px 0;
+	background: hsl($hue,100%,95%);
+	border-bottom: 1px solid hsl($hue,100%,90%);
+	color: hsl($hue,100%,65%);
+}
+$link-hue: 230;
+$code-hue: 0;
+$print-hue: 93;
+
+	
 #content,
 [data-id=content] {
 
 	max-width: 50em;
 	margin-left: auto;
 	margin-right: auto;
+
+	padding: 1em;
 
 	/**
 	 * CSS reset based on http://meyerweb.com/eric/tools/css/reset/ v2.0
@@ -83,14 +96,6 @@
 	 * 
 	 * 
 	 */
-	@mixin annotation($hue) {
-		padding: 1px 0;
-		background: hsl($hue,100%,98%);
-		border-bottom: 1px solid hsl($hue,100%,95%);
-		color: hsl($hue,100%,65%);
-	}
-	$link-hue: 230;
-	$code-hue: 0;
 
 	em,
 	.sc-emphasis {
@@ -104,25 +109,29 @@
 
 	sub,
 	.sc-subscript {
-	  vertical-align: sub;
-	  font-size: smaller;
+	 	vertical-align: sub;
+	 	font-size: smaller;
 	}
 
 	sup,
 	.sc-superscript {
-	  vertical-align: super;
-	  font-size: smaller;
+	  	vertical-align: super;
+	 	font-size: smaller;
 	}
 
 	a,
 	.sc-link {
-		@include annotation($link-hue);
+		color: hsl($link-hue,100%,65%);
 		text-decoration: none;
 	}
 
 	code,
 	.sc-code {
-		@include annotation($code-hue);
+		// Use a shaded background but don't colour text
+		// so that a `code` node can also be a `link`
+		padding: 1px 0;
+		background: hsl(0,0%,93%);
+		border-bottom: 1px solid hsl(0,0%,90%);
 		font-family: $mono-font-family;
 	}
 
@@ -165,11 +174,11 @@
 	 */
 	blockquote,
 	.sc-blockquote {
-	    margin-bottom: 20px;
-	    border: 0 solid #CCC;
-	    border-width: 0 2px;
-	    padding: 0 20px;
-	    font-style: italic;
+		margin-bottom: 20px;
+		border: 0 solid #CCC;
+		border-width: 0 2px;
+		padding: 0 20px;
+		font-style: italic;
 	}
 
 	/**
@@ -198,7 +207,6 @@
 		left: -20px;
 	  }
 	}
-
 }
 
 // No outline on editable nodes
@@ -207,3 +215,12 @@
 	outline: none;
 }
 
+
+.sc-visual-editor.sm-reveal {
+
+	.sc-print {
+		@include annotation($print-hue);
+		min-width: 2em;
+	}
+
+}

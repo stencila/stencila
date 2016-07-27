@@ -42,8 +42,10 @@ function DocumentConfigurator() {
   // Stencila annotation nodes
 
   // Link (overrides of Substance command and tool)
-  this.addCommand('link', require('../../nodes/link/LinkCommand'), {nodeType: 'link'});
-  this.addTool('link', require('../../nodes/link/LinkTool'));
+  this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
+  this.addTool('link', require('./nodes/link/LinkTool'));
+
+  this.import(require('./nodes/print/PrintPackage'));
 
 
   // Import editor packages

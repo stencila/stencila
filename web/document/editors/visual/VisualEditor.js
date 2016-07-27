@@ -2,6 +2,7 @@
 
 var AbstractEditor = require('substance/ui/AbstractEditor');
 var ContainerEditor = require('substance/ui/ContainerEditor');
+var documentHelpers = require('substance/model/documentHelpers');
 
 var Toolset = require('../Toolset');
 var OverallToolset = require('./OverallToolset');
@@ -38,20 +39,13 @@ VisualEditor.Prototype = function() {
     var toolRegistry = configurator.getToolRegistry();
     var commandStates = this.commandManager.getCommandStates();
 
-    var el = $$('div').addClass('document-editor');
+    var el = $$('div').addClass('sc-visual-editor');
 
     // Toggle classes to match state and update
     // the extracted command states so relevant tools are
     // updated accordingly
-    console.log(this.state);
-    console.log(commandStates.edit);
     ['reveal', 'edit'].forEach(function(item) {
-      var on = this.state[item];
-      if (on) {
-        el.addClass(item);
-      } else {
-        el.removeClass(item);
-      }
+      if (this.state[item]) el.addClass('sm-'+item);
     }.bind(this));
 
     // A Toolset for whole document commands
@@ -75,9 +69,7 @@ VisualEditor.Prototype = function() {
           .ref('nodeToolset')
       );
 
-      // A Toolset for annotation commands
-      // This should only appear when there is a user text selection or when the cursor
-      // is on an existing annoation
+      // A toolset for inline nodes (`Annotations` and `InlineNodes`)
       el.append(
         $$(AnnotationToolset, {
           toolRegistry: toolRegistry,

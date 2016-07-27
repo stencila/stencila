@@ -53,7 +53,7 @@ DocumentApp.Prototype = function() {
   * @return     {VirtualNode}  Virtual node to be added to the DOM 
   */
   this.render = function($$) {
-    var el = $$('div').addClass('document-app');
+    var el = $$('div').addClass('sc-document-app');
 
     // Render the visual WYSIWYG editor
     el.append(
