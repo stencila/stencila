@@ -64,3 +64,14 @@ cd ../..
 echo "Copying MathJax build"
 rm -rf build/mathjax
 cp -rf node_modules/mathjax build/mathjax
+
+
+# KaTeX
+# Currently CSS files are not bundled into the npm install for katex
+# See https://github.com/Khan/KaTeX/issues/148
+# So download build with compiled CSS and fonts into build/katex
+
+echo "Getting KaTeX CSS & fonts"
+
+curl -o build/katex.tar.gz -L https://github.com/Khan/KaTeX/releases/download/v0.6.0/katex.tar.gz
+tar xzf build/katex.tar.gz -C build
