@@ -107,12 +107,14 @@ VisualEditor.Prototype = function() {
     }.bind(this));
 
     var selection = this.documentSession.getSelection();
-    var nodeId = selection.getNodeId();
-    var el = document.querySelector('[data-id='+nodeId+']');
-    var rect = el.getBoundingClientRect();
-    this.refs.nodeToolset.extendProps({
-      top: rect.top
-    });
+    if (selection.getType() === 'property') {
+      var nodeId = selection.getNodeId();
+      var el = document.querySelector('[data-id='+nodeId+']');
+      var rect = el.getBoundingClientRect();
+      this.refs.nodeToolset.extendProps({
+        top: rect.top
+      });
+    }
   };
 
 };

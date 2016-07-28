@@ -6,5 +6,9 @@ $stencila-green-hue: 93;
 $stencila-green-saturation: 90%;
 $stencila-green-lightness: 50%;
 
+body {
+	padding-top: 3em;
+}
+
 @import 'content';
 @import 'toolsets';

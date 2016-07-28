@@ -20,7 +20,7 @@ PrintTool.Prototype = function() {
     var el = _super.render.call(this, $$)
       .addClass('sc-print-tool');
 
-    var source = '';
+    var source = null;
     if (this.props.active) {
       var session = this.context.documentSession;
       var print = documentHelpers.getPropertyAnnotationsForSelection(session.getDocument(), session.getSelection(), {
