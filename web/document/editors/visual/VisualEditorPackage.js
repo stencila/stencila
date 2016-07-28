@@ -13,7 +13,6 @@ module.exports = {
     config.addIcon('commit', { 'fontawesome': 'fa-dot-circle-o'});
 
     // Edit
-    config.addCommand('edit', require('./EditCommand'));
     config.addTool('edit', require('./EditTool'));
     config.addLabel('edit', {
       'en': 'Edit'
@@ -29,7 +28,6 @@ module.exports = {
     config.addIcon('fork', { 'fontawesome': 'fa-code-fork'});
 
     // Reveal
-    config.addCommand('reveal', require('./RevealCommand'));
     config.addTool('reveal', require('./RevealTool'));
     config.addLabel('reveal', {
       'en': 'Reveal'

@@ -24,12 +24,16 @@ OverallToolset.Prototype = function() {
     var el = $$('div').addClass('sc-toolset sc-overall-toolset');
 
     el.append(
-      $$(RevealTool, this._getCommandState('reveal'))
-        .ref('revealTool'),
+      $$(RevealTool, {
+        name: 'reveal',
+        active: this.parent.state.reveal
+      }).ref('revealTool'),
       $$(RefreshTool, this._getCommandState('refresh'))
         .ref('refreshTool'),
-      $$(EditTool, this._getCommandState('edit'))
-        .ref('editTool')
+      $$(EditTool, {
+        name: 'edit',
+        active: this.parent.state.edit
+      }).ref('editTool')
     );
 
     var editGroup = $$('div')

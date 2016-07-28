@@ -15,6 +15,14 @@ var AnnotationToolset = require('./AnnotationToolset');
  */
 function VisualEditor() {
   VisualEditor.super.apply(this, arguments);
+
+  /**
+   * Bind to events
+   */
+  this.handleActions({
+    'edit-toggle': this._editToggle,
+    'reveal-toggle': this._revealToggle
+  });
 }
 
 VisualEditor.Prototype = function() {
@@ -116,6 +124,24 @@ VisualEditor.Prototype = function() {
       });
     }
   };
+
+  /**
+   * Toggle the `reveal` state
+   */
+  this._revealToggle = function() {
+    this.extendState({
+      reveal: !this.state.reveal
+    })
+  }
+
+  /**
+   * Toggle the `edit` state
+   */
+  this._editToggle = function() {
+    this.extendState({
+      edit: !this.state.edit
+    })
+  }
 
 };
 
