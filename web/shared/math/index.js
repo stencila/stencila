@@ -20,18 +20,22 @@ module.exports = {
    * Render math markup into HTML
    *
    * @param      {string}  source    The source markup 
-   * @param      {string}  language  The language ('tex' or 'asciimath')
+   * @param      {string}  language  The language ('tex' (default) or 'asciimath')
+   * @param      {string}  display   The display mode ('inline' (default) or 'block')
    * @return     {string}  Rendered math HTML
    */
-  render: function(source, language) {
+  render: function(source, language, display) {
     language = language || 'tex';
+    display = display || 'inline';
     var tex;
     if (language === 'tex' || language === 'latex') {
       tex = source;
     } else {
       tex = window.AMTparseAMtoTeX(source);
     }
-    return katex.renderToString(tex);
+    return katex.renderToString(tex, {
+      displayMode: display === 'block'
+    });
   }
 
 };
