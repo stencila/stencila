@@ -36,8 +36,7 @@ MathTool.Prototype = function() {
       display = node.display;
     }
 
-    console.log('render');
-
+    // Render the tool
     return $$('div')
       .addClass('se-tool sc-math-tool')
       .addClass('sc-math-tool')
@@ -49,7 +48,7 @@ MathTool.Prototype = function() {
             $$('i')
               .addClass('fa fa-' + (language === 'asciimath' ? 'motorcycle' : 'car'))
           ).on('click', function(event) {
-            // Create a node, if necessary, or toggle the language
+            // Create a node if necessary, or toggle the language
             if (!node) {
               if (!this.props.disabled) this.performAction();
             } else {
