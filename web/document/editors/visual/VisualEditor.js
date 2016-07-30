@@ -6,7 +6,7 @@ var documentHelpers = require('substance/model/documentHelpers');
 
 var Toolset = require('../Toolset');
 var OverallToolset = require('./OverallToolset');
-var AnnotationToolset = require('./AnnotationToolset');
+var TextToolset = require('./TextToolset');
 
 /**
  * A editor for a Stencila Document
@@ -74,15 +74,15 @@ VisualEditor.Prototype = function() {
           toolRegistry: toolRegistry,
           commandStates: commandStates
         }).addClass('node-toolset')
-          .ref('nodeToolset')
+          .ref('blockToolset')
       );
 
       // A toolset for inline nodes (`Annotations` and `InlineNodes`)
       el.append(
-        $$(AnnotationToolset, {
+        $$(TextToolset, {
           toolRegistry: toolRegistry,
           commandStates: commandStates
-        }).ref('annotationToolset')
+        }).ref('textToolset')
       );
 
     }
@@ -108,7 +108,7 @@ VisualEditor.Prototype = function() {
    */
   this._documentSessionUpdated = function() {
     var commandStates = this.commandManager.getCommandStates();
-    ['overallToolset', 'nodeToolset', 'annotationToolset'].forEach(function(name) {
+    ['overallToolset', 'blockToolset', 'textToolset'].forEach(function(name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
@@ -119,7 +119,7 @@ VisualEditor.Prototype = function() {
       var nodeId = selection.getNodeId();
       var el = document.querySelector('[data-id='+nodeId+']');
       var rect = el.getBoundingClientRect();
-      this.refs.nodeToolset.extendProps({
+      this.refs.blockToolset.extendProps({
         top: rect.top
       });
     }

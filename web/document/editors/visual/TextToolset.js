@@ -7,7 +7,7 @@ var documentHelpers = require('substance/model/documentHelpers');
 
 var Toolset = require('../Toolset');
 
-function AnnotationToolset() {
+function TextToolset() {
   Component.apply(this, arguments);
 
   this.tools = [
@@ -16,11 +16,11 @@ function AnnotationToolset() {
   ];
 }
 
-AnnotationToolset.Prototype = function() {
+TextToolset.Prototype = function() {
 
   this.render = function($$) {
 
-    var el = $$('div').addClass('sc-toolset sc-annotation-toolset');
+    var el = $$('div').addClass('sc-toolset sc-text-toolset');
 
     var disabled = true;
     this.tools.forEach(function(name) {
@@ -39,6 +39,6 @@ AnnotationToolset.Prototype = function() {
 
 };
 
-Toolset.extend(AnnotationToolset);
+Toolset.extend(TextToolset);
 
-module.exports = AnnotationToolset;
+module.exports = TextToolset;

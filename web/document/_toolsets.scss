@@ -8,9 +8,6 @@
 	opacity: 0.95;
 	border-radius: 5px;
 
-	display: flex;
-	flex-direction: column;
-
 	&.sm-disabled {
 		display: none;
 	}
@@ -36,8 +33,8 @@
 		margin: 0 0.1em;
 
 		button {
-			height: 2.5em;
-			width: 2.5em;
+			height: 2.2em;
+			width: 2.2em;
 			background: none;
 			outline: none;
 			border: none;
@@ -67,20 +64,19 @@
 			transition: max-width 0.5s;
 
 			&.sm-enabled {
-				max-width: 10em;
+				max-width: 20em;
 			}
 
 			input {
 				outline: none;
 				border: none;
-				border-radius: 3px;
 				padding: 0.2em;
 
 			    background: hsla(0,0%,100%,0.5);
-			    line-height: 1em;
-			    height: 1em;
+			    line-height: 100%;
+			    height: 2em;
 			    font-size: 1em;
-			    margin-right: 0.3em;
+			    margin: 0 0.2em;
 			}
 
 		}
@@ -100,31 +96,38 @@
 	top: 1em;
 	right: 0.5em;
 
+	display: flex;
+	flex-direction: column;
+
 	.se-edit-group.sm-enabled {
 		max-height: 20em;
 	}
 }
 
 /**
- * Node toolset
+ * Block toolset
  * 
- * Should appear in the margin to the left of the caret
+ * Should appear in the margin to the left of the cursor
  */
-.node-toolset {
+.sc-block-toolset {
 	position: fixed;
 	top: 3em;
 	left: 1em;
 }
 
 /**
- * Annotation toolset
+ * Text toolset
  * 
- * Should appear as a modal above the current caret position
+ * Should appear as a modal above the current cursor position
  */
-.sc-annotation-toolset {
+.sc-text-toolset {
 	position: fixed;
 	top: 1em;
 	left: 1em;
 
-	flex-direction: row;
+	max-width: 80%;
+
+	.se-tool {
+		float: left;
+	}
 }
