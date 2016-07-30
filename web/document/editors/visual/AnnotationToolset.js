@@ -9,6 +9,11 @@ var Toolset = require('../Toolset');
 
 function AnnotationToolset() {
   Component.apply(this, arguments);
+
+  this.tools = [
+    'emphasis', 'strong', 'subscript', 'superscript', 'code', 
+    'link', 'math', 'print'
+  ];
 }
 
 AnnotationToolset.Prototype = function() {
@@ -17,14 +22,8 @@ AnnotationToolset.Prototype = function() {
 
     var el = $$('div').addClass('sc-toolset sc-annotation-toolset');
 
-    // This should only appear when there is a user text selection or when the cursor
-    // is on an existing annotation
-    var session = this.context.documentSession;
-    var text = documentHelpers.getTextForSelection(session.getDocument(), session.getSelection());
-    if (!text.length) return el;
-
     var disabled = true;
-    ['emphasis', 'strong', 'subscript', 'superscript', 'code', 'link', 'print'].forEach(function(name) {
+    this.tools.forEach(function(name) {
       var tool = this.props.toolRegistry.get(name);
       var state = this._getCommandState(name);
       el.append(

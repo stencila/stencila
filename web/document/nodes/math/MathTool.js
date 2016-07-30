@@ -2,6 +2,7 @@
 
 var Tool = require('substance/ui/Tool');
 var documentHelpers = require('substance/model/documentHelpers');
+var insertText = require('substance/model/transform/insertText');
 
 /**
  * A tool used for CRUD on `Math` nodes
@@ -38,23 +39,42 @@ MathTool.Prototype = function() {
 
     // Render the tool
     return $$('div')
-      .addClass('se-tool sc-math-tool')
-      .addClass('sc-math-tool')
+      .addClass(
+        'se-tool sc-math-tool' +
+        (this.props.disabled ? ' sm-disabled' : '') +
+        (this.props.active   ? ' sm-active'   : '')
+      )
       .append(
         $$('button')
           .ref('language')
-          .addClass('se-display')
+          .addClass('se-language')
           .append(
             $$('i')
               .addClass('fa fa-' + (language === 'asciimath' ? 'motorcycle' : 'car'))
           ).on('click', function(event) {
-            // Create a node if necessary, or toggle the language
+            // Create a node if necessary, or toggle the language, or change to plain text
             if (!node) {
               if (!this.props.disabled) this.performAction();
             } else {
-              session.transaction(function(tx) {
-                tx.set([node.id, 'language'], language === 'asciimath' ? 'tex' : 'asciimath');
-              });
+              var next;
+              if (language === 'asciimath') {
+                session.transaction(function(tx) {
+                  tx.set([node.id, 'language'], language === 'asciimath' ? 'tex' : 'asciimath');
+                });
+              }
+              else if (language == 'tex') {
+                session.transaction(function(tx) {
+                  tx.delete(node.id);
+                  var result = insertText(tx, {
+                    selection: session.getSelection(),
+                    text: node.source
+                  });
+                  // TODO
+                  // Set the selection to the newly inserted text so that it can be toggled
+                  // baka again to ASCIIMath
+                });
+              }
+              
             }
             event.preventDefault();
             event.stopPropagation();

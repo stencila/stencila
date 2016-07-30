@@ -33,7 +33,7 @@ LinkTool.Prototype = function() {
 
     // Render details even if not active so that expansion
     // animation works 
-    var details = $$('span')
+    var details = $$('div')
       .addClass('se-details')
       .ref('details')
       .append(

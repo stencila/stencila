@@ -1,7 +1,8 @@
 'use strict';
 
 var InlineNodeCommand = require('substance/ui/InlineNodeCommand');
-var helpers = require('substance/model/documentHelpers');
+var documentHelpers = require('substance/model/documentHelpers');
+
 
 function PrintCommand() {
   PrintCommand.super.call(this, {
@@ -12,27 +13,23 @@ function PrintCommand() {
 
 PrintCommand.Prototype = function() {
 
-  /**
-   * TODO
-   * 
-   * Currently, if the tool is selected while on an existing `Print`
-   * node then the node gets deleted and this new one inserted.
-   * Probably need to override `execute` and if current selection
-   * is a `Print` node then toggle it (i.e. make content plain text)
-   */
+  this.getCommandState = function(props, context) {
+    // Active if a print node is selected, disabled if no node and no
+    // text selected.
+    var annos = props.selectionState.getAnnotationsForType(this.getNodeType());
+    var text = documentHelpers.getTextForSelection(
+      props.selectionState.document,
+      props.selectionState.selection
+    );
+    return {
+      disabled: (annos.length == 0) && (text.length == 0),
+      active: annos.length > 0
+    };
+  };
 
-  /**
-   * Override of `super.createNodeData`
-   * 
-   * Used when inserting a new node.
-   *
-   * @param      {<type>}  tx      The transmit
-   * @param      {<type>}  args    The arguments
-   * @return     {Object}  { description_of_the_return_value }
-   */
   this.createNodeData = function(tx, args) {
   	// Create source from current selection
-    var text = helpers.getTextForSelection(
+    var text = documentHelpers.getTextForSelection(
     	tx.document,
     	args.selection
     );
