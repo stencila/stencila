@@ -3,7 +3,6 @@
 var Component = require('substance/ui/Component');
 var Tool = require('substance/ui/Tool');
 
-var Toolset = require('../Toolset');
 var RevealTool = require('./RevealTool');
 var RefreshTool = require('./RefreshTool');
 var EditTool = require('./EditTool');
@@ -20,6 +19,7 @@ function OverallToolset() {
 OverallToolset.Prototype = function() {
 
   this.render = function($$) {
+    var toolRegistry = this.context.toolRegistry;
 
     var el = $$('div').addClass('sc-toolset sc-overall-toolset');
 
@@ -60,8 +60,20 @@ OverallToolset.Prototype = function() {
     return el;
   };
 
+  /**
+   * Convieience method to deal with necessary hack
+   * to add command name to state for Substance `Tools` to render
+   * icons
+   */
+  this._getCommandState = function(name){
+      var state = this.context.commandManager.getCommandStates()[name];
+      if (!state) throw new Error('Command {' + name + '} not found');
+      state.name = name; // A necessary hack at time of writing
+      return state;
+  }
+
 };
 
-Toolset.extend(OverallToolset);
+Component.extend(OverallToolset);
 
 module.exports = OverallToolset;

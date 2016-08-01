@@ -4,8 +4,8 @@
 
 .sc-toolset {
 
-	background: hsl($stencila-green-hue, 80%, 50%);
-	opacity: 0.95;
+	background: hsl(0, 0%, 5%);
+	opacity: 0.85;
 	border-radius: 5px;
 
 	&.sm-disabled {
@@ -38,32 +38,31 @@
 			background: none;
 			outline: none;
 			border: none;
-			color: white;
 			
 			i {
+				color: hsl(0, 0%, 90%);
 				font-size: 1.5em;
 			}
 		}
 
 		// Disabled tool icons
 		&.sm-disabled button i {
-			color: hsl($stencila-green-hue, 80%, 60%);
+			color: hsl(0, 0%, 20%);
 		}
 
 		// Active tool icons
 		&.sm-active button i {
-			color: hsl($stencila-green-hue, 15%, 50%);
+			color: hsl($stencila-green-hue, 100%, 50%);
 		}
 
 		.se-details {
-			display: inline-block;
-			line-height: normal;
-			
+			display: none;
 			max-width: 0;
 			overflow: hidden;
 			transition: max-width 0.5s;
 
 			&.sm-enabled {
+				display: inline-block;
 				max-width: 20em;
 			}
 
@@ -71,10 +70,8 @@
 				outline: none;
 				border: none;
 				padding: 0.2em;
-
-			    background: hsla(0,0%,100%,0.5);
-			    line-height: 100%;
-			    height: 2em;
+				background: none;
+			    color: hsl(0, 0%, 100%);
 			    font-size: 1em;
 			    margin: 0 0.2em;
 			}
@@ -105,29 +102,17 @@
 }
 
 /**
- * Block toolset
+ * Block tool
  * 
  * Should appear in the margin to the left of the cursor
  */
-.sc-block-toolset {
+.sc-block-tool {
 	position: fixed;
 	top: 3em;
 	left: 1em;
-}
 
-/**
- * Text toolset
- * 
- * Should appear as a modal above the current cursor position
- */
-.sc-text-toolset {
-	position: fixed;
-	top: 1em;
-	left: 1em;
-
-	max-width: 80%;
-
-	.se-tool {
-		float: left;
+	.se-options {
+		display: flex;
+		flex-direction: column;
 	}
 }

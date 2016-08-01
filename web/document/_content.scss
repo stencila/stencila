@@ -6,6 +6,8 @@
  * Selectors often have two rows reflecting each of these applications.
  */
 
+@import '../shared/math/index';
+
 @mixin annotation($hue) {
 	padding: 1px 0;
 	background: hsl($hue,100%,95%);
@@ -136,6 +138,15 @@ $print-hue: 93;
 	}
 
 	/**
+	 * Math
+	 */
+	.sc-math {
+		.sm-error {
+			color: hsl(0,70%,70%);
+		}
+	}
+
+	/**
 	 * Headings
 	 */
 	h1, h2, h3, h4, h5, h6,
@@ -207,6 +218,20 @@ $print-hue: 93;
 		left: -20px;
 	  }
 	}
+
+	/**
+	 * Discussions
+	 */
+	.sc-discuss-mark {
+		background: hsl(50, 100%, 75%);
+	}
+
+	.sc-discuss-comment {
+		position: absolute;
+		right: 1em;
+
+		border: 1px solid grey;
+	}
 }
 
 // No outline on editable nodes
@@ -216,11 +241,31 @@ $print-hue: 93;
 }
 
 
-.sc-visual-editor.sm-reveal {
+// Specific styling for content when in visual editor
+.sc-visual-editor {
 
-	.sc-print {
-		@include annotation($print-hue);
-		min-width: 2em;
+	.sc-isolated-node {
+		.se-slug {
+			display: none;
+		}
+	}
+
+	&.sm-reveal {
+
+		.sc-print {
+			@include annotation($print-hue);
+			min-width: 2em;
+		}
+
+	}
+
+	&.sm-edit {
+
+		.sc-inline-node.sm-math.sm-selected,
+		.sc-inline-node.sm-math.sm-selected .katex-display {
+			background: #BBB;
+		}
+
 	}
 
 }

@@ -1,12 +1,13 @@
 'use strict';
 
 var AbstractEditor = require('substance/ui/AbstractEditor');
+var ScrollPane = require('substance/ui/ScrollPane');
 var ContainerEditor = require('substance/ui/ContainerEditor');
-var documentHelpers = require('substance/model/documentHelpers');
 
-var Toolset = require('../Toolset');
 var OverallToolset = require('./OverallToolset');
 var TextToolset = require('./TextToolset');
+var BlockTool = require('./BlockTool');
+var Overlayer = require('./Overlayer');
 
 /**
  * A editor for a Stencila Document
@@ -60,29 +61,15 @@ VisualEditor.Prototype = function() {
     el.append(
       $$(OverallToolset,{
         reveal: this.state.reveal,
-        edit: this.state.edit,
-        commandStates: commandStates
+        edit: this.state.edit
       }).ref('overallToolset')
     );
 
     if (this.state.edit) {
 
-      // A Toolset to change the node type
+      // A tool to change the block node type
       el.append(
-        $$(Toolset, {
-          toolList: ['switch-text-type'],
-          toolRegistry: toolRegistry,
-          commandStates: commandStates
-        }).addClass('node-toolset')
-          .ref('blockToolset')
-      );
-
-      // A toolset for inline nodes (`Annotations` and `InlineNodes`)
-      el.append(
-        $$(TextToolset, {
-          toolRegistry: toolRegistry,
-          commandStates: commandStates
-        }).ref('textToolset')
+        $$(BlockTool).ref('blockTool')
       );
 
     }
@@ -94,7 +81,15 @@ VisualEditor.Prototype = function() {
       commands: configurator.getSurfaceCommandNames(),
       textTypes: configurator.getTextTypes()
     }).ref('content');
-    el.append(content);
+    
+
+    el.append(
+      $$(ScrollPane, {
+        scrollbarType: 'native',
+        scrollbarPosition: 'right',
+        overlay: Overlayer,
+      }).append(content)
+    );
 
     return el;
   };
@@ -108,7 +103,7 @@ VisualEditor.Prototype = function() {
    */
   this._documentSessionUpdated = function() {
     var commandStates = this.commandManager.getCommandStates();
-    ['overallToolset', 'blockToolset', 'textToolset'].forEach(function(name) {
+    ['overallToolset', 'blockTool'].forEach(function(name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
@@ -119,7 +114,7 @@ VisualEditor.Prototype = function() {
       var nodeId = selection.getNodeId();
       var el = document.querySelector('[data-id='+nodeId+']');
       var rect = el.getBoundingClientRect();
-      this.refs.blockToolset.extendProps({
+      this.refs.blockTool.extendProps({
         top: rect.top
       });
     }

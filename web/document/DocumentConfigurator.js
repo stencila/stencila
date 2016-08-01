@@ -45,8 +45,11 @@ function DocumentConfigurator() {
   this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
   this.addTool('link', require('./nodes/link/LinkTool'));
 
+  this.import(require('./nodes/math/MathPackage'));
   this.import(require('./nodes/print/PrintPackage'));
+  this.import(require('./nodes/mark/MarkPackage'));
 
+  this.import(require('./nodes/execute/ExecutePackage'));
 
   // Import editor packages
   this.import(require('./editors/visual/VisualEditorPackage'));

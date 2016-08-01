@@ -1,13 +1,25 @@
+// Fonts
 @import '../fonts/lato';
 @import '../fonts/source-code-pro';
 @import '../node_modules/font-awesome/scss/font-awesome.scss';
+
+// Substance styles
+// Generally we only using Substance styles that are "non-visual" and
+// more related to implementing functionality (e.g. positioning) of
+// Substance components
+@import '../node_modules/substance/styles/components/scroll-pane';
+@import '../node_modules/substance/styles/components/overlay';
+
 
 $stencila-green-hue: 93;
 $stencila-green-saturation: 90%;
 $stencila-green-lightness: 50%;
 
-body {
-	padding-top: 3em;
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 @import 'content';
