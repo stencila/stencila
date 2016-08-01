@@ -45,8 +45,6 @@ VisualEditor.Prototype = function() {
    */
   this.render = function($$) {
     var configurator = this.props.configurator;
-    var toolRegistry = configurator.getToolRegistry();
-    var commandStates = this.commandManager.getCommandStates();
 
     var el = $$('div').addClass('sc-visual-editor');
 
@@ -65,30 +63,23 @@ VisualEditor.Prototype = function() {
       }).ref('overallToolset')
     );
 
-    if (this.state.edit) {
-
-      // A tool to change the block node type
-      el.append(
-        $$(BlockTool).ref('blockTool')
-      );
-
-    }
-    
-    // A ContainerEditor for the content of the document
-    var content = $$(ContainerEditor, {
-      containerId: 'content',
-      disabled: !this.state.edit,
-      commands: configurator.getSurfaceCommandNames(),
-      textTypes: configurator.getTextTypes()
-    }).ref('content');
-    
-
     el.append(
+      // A `ScrollPane` to manage overlays and other positioning
       $$(ScrollPane, {
         scrollbarType: 'native',
         scrollbarPosition: 'right',
         overlay: Overlayer,
-      }).append(content)
+      })
+        .ref('scrollPane')
+        .append(
+          // A  ContainerEditor  for the content of the document
+          $$(ContainerEditor, {
+            containerId: 'content',
+            disabled: !this.state.edit,
+            commands: configurator.getSurfaceCommandNames(),
+            textTypes: configurator.getTextTypes()
+          }).ref('content')
+        )
     );
 
     return el;
@@ -103,21 +94,11 @@ VisualEditor.Prototype = function() {
    */
   this._documentSessionUpdated = function() {
     var commandStates = this.commandManager.getCommandStates();
-    ['overallToolset', 'blockTool'].forEach(function(name) {
+    ['overallToolset'].forEach(function(name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
     }.bind(this));
-
-    var selection = this.documentSession.getSelection();
-    if (selection.getType() === 'property') {
-      var nodeId = selection.getNodeId();
-      var el = document.querySelector('[data-id='+nodeId+']');
-      var rect = el.getBoundingClientRect();
-      this.refs.blockTool.extendProps({
-        top: rect.top
-      });
-    }
   };
 
   /**
