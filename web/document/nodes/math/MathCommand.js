@@ -21,8 +21,12 @@ MathCommand.Prototype = function() {
       props.selectionState.document,
       props.selectionState.selection
     );
+    var textSelected = false;
+    if (text) {
+      if (text.length > 0) textSelected = true;
+    }
     return {
-      disabled: (annos.length == 0) && (text.length == 0),
+      disabled: (annos.length == 0) && !textSelected,
       active: annos.length > 0
     };
   };

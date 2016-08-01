@@ -7,6 +7,20 @@
 // Generally we only using Substance styles that are "non-visual" and
 // more related to implementing functionality (e.g. positioning) of
 // Substance components
+$local-selection-color: #A3CDFD;
+$collaborator-color-1: #A4E57A;
+$collaborator-color-2: #BC90FF;
+$collaborator-color-3: #D6BB4C;
+$collaborator-color-4: #BAA6A0;
+$collaborator-color-5: #7BB5B3;
+$collaborator-color-6: #FF7B7B;
+$collaborator-color-7: #A0CC00;
+$collaborator-color-8: #89CAFF;
+$collaborator-color-9: #FF9FBF;
+$collaborator-color-10: #FFB533;
+@import '../node_modules/substance/styles/components/text-property';
+@import '../node_modules/substance/styles/components/inline-node';
+@import '../node_modules/substance/styles/components/isolated-node';
 @import '../node_modules/substance/styles/components/scroll-pane';
 @import '../node_modules/substance/styles/components/overlay';
 

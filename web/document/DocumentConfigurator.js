@@ -24,7 +24,6 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/base/BasePackage'));
   this.import(require('substance/packages/blockquote/BlockquotePackage'));
   this.import(require('substance/packages/code/CodePackage'));
-  this.import(require('substance/packages/codeblock/CodeblockPackage'));
   this.import(require('substance/packages/emphasis/EmphasisPackage'));
   this.import(require('substance/packages/heading/HeadingPackage'));
   this.import(require('substance/packages/image/ImagePackage'));
@@ -38,12 +37,14 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/superscript/SuperscriptPackage'));
   this.import(require('substance/packages/table/TablePackage'));
 
-
-  // Stencila annotation nodes
-
-  // Link (overrides of Substance command and tool)
+  // "Overrides" of Substance nodes
+  // Link (overrides of command and tool)
   this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
   this.addTool('link', require('./nodes/link/LinkTool'));
+  // Codeblock (deals with language in import/export and component)
+  this.import(require('./nodes/codeblock/CodeblockPackage'));
+
+  // Import Stencila node packages
 
   this.import(require('./nodes/math/MathPackage'));
   this.import(require('./nodes/print/PrintPackage'));

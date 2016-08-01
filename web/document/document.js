@@ -1,5 +1,7 @@
 'use strict';
 
+var code = require('../shared/code');
+
 /**
  * Stencila Document entry point
  * 
@@ -27,6 +29,10 @@ window.onload = function() {
     window.app = DocumentApp.mount({
       html: html
     }, document.body);
+
+    // Load ACE editor
+    code.loadAce();
+
   //} catch (error) {
   //  content.style.display = 'block';
   //  console.error(error);

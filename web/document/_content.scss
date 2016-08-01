@@ -18,21 +18,15 @@ $link-hue: 230;
 $code-hue: 0;
 $print-hue: 93;
 
-	
-#content,
-[data-id=content] {
-
-	max-width: 50em;
-	margin-left: auto;
-	margin-right: auto;
-
-	padding: 1em;
+#content {
 
 	/**
 	 * CSS reset based on http://meyerweb.com/eric/tools/css/reset/ v2.0
 	 * 
 	 * Necessary so that plain `p` and `div.sc-paragraph` have exactly
-	 * the same styles as defined below
+	 * the same styles as defined below. Some of these resets interfere
+	 * with ACE Editor (and potentially other components) so don't apply
+	 * in visual editor elemtent.
 	 */
 	div, span, applet, object, iframe,
 	h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -74,6 +68,16 @@ $print-hue: 93;
 		border-collapse: collapse;
 		border-spacing: 0;
 	}
+}
+
+#content,
+[data-id=content] {
+
+	max-width: 50em;
+	margin-left: auto;
+	margin-right: auto;
+
+	padding: 1em;
 
 	// Typography
 	$sans-font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
@@ -243,12 +247,6 @@ $print-hue: 93;
 
 // Specific styling for content when in visual editor
 .sc-visual-editor {
-
-	.sc-isolated-node {
-		.se-slug {
-			display: none;
-		}
-	}
 
 	&.sm-reveal {
 
