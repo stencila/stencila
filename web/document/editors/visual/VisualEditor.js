@@ -5,8 +5,6 @@ var ScrollPane = require('substance/ui/ScrollPane');
 var ContainerEditor = require('substance/ui/ContainerEditor');
 
 var OverallToolset = require('./OverallToolset');
-var TextToolset = require('./TextToolset');
-var BlockTool = require('./BlockTool');
 var Overlayer = require('./Overlayer');
 
 /**

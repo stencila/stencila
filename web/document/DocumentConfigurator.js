@@ -44,6 +44,16 @@ function DocumentConfigurator() {
   // Codeblock (deals with language in import/export and component)
   this.import(require('./nodes/codeblock/CodeblockPackage'));
 
+  // Icons, not defined in Substance packages but used in our `BlockToolset`
+  this.addIcon('heading', { 'fontawesome': 'fa-header' });
+  this.addIcon('paragraph', { 'fontawesome': 'fa-paragraph' });
+  this.addIcon('list', { 'fontawesome': 'fa-list' });
+  this.addIcon('table', { 'fontawesome': 'fa-table' });
+  this.addIcon('image', { 'fontawesome': 'fa-image' });
+  this.addIcon('blockquote', { 'fontawesome': 'fa-quote-right' });
+  this.addIcon('codeblock', { 'fontawesome': 'fa-code' });
+
+
   // Import Stencila node packages
 
   this.import(require('./nodes/math/MathPackage'));

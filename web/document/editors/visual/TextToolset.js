@@ -15,9 +15,10 @@ function TextToolset() {
 TextToolset.Prototype = function() {
 
   this.render = function($$) {
-    var el = $$('div').addClass('sc-toolset sc-text-toolset');
+    var el = $$('div')
+      .addClass('sc-toolset sc-text-toolset');
 
-    var disabled = true;
+    var enabled = false;
     var toolRegistry = this.context.toolRegistry;
     var commandStates = this.context.commandManager.getCommandStates();
     this.tools.forEach(function(name) {
@@ -27,10 +28,10 @@ TextToolset.Prototype = function() {
       el.append(
         $$(tool.Class, state).ref(name)
       );
-      disabled = disabled && state.disabled;
+      enabled = enabled || !state.disabled;
     }.bind(this));
 
-    if (disabled) el.addClass('sm-disabled');
+    if (enabled) el.addClass('sm-enabled');
 
     return el;
   };

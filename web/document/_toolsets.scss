@@ -4,12 +4,14 @@
 
 .sc-toolset {
 
+	display: none;
+
 	background: hsl(0, 0%, 5%);
 	opacity: 0.9;
 	border-radius: 5px;
 
-	&.sm-disabled {
-		display: none;
+	&.sm-enabled {
+		display: block;
 	}
 
 	.se-group {
@@ -103,16 +105,16 @@
 	}
 }
 
+.sc-text-toolset {
+
+}
+
 /**
- * Block tool
+ * Block toolset
  * 
  * Should appear in the margin to the left of the cursor
  */
-.sc-block-tool {
-	position: fixed;
-	top: 3em;
-	left: 1em;
-
+.sc-block-toolset {
 	.se-options {
 		display: flex;
 		flex-direction: column;
