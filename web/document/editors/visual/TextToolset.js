@@ -1,14 +1,14 @@
 'use strict';
 
-var Overlay = require('substance/ui/Overlay');
+var Component = require('substance/ui/Component');
 var Tool = require('substance/ui/Tool');
 
 function TextToolset() {
-  Overlay.apply(this, arguments);
+  Component.apply(this, arguments);
 
   this.tools = [
     'emphasis', 'strong', 'subscript', 'superscript', 'code', 
-    'link', 'math', 'print'
+    'link', 'math', 'print', 'mark'
   ];
 }
 
@@ -38,6 +38,6 @@ TextToolset.Prototype = function() {
 
 };
 
-Overlay.extend(TextToolset);
+Component.extend(TextToolset);
 
 module.exports = TextToolset;
