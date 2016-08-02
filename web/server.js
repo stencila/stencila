@@ -101,6 +101,11 @@ app.use('/get/web', express.static(path.join(__dirname, 'build')));
 // Internationalization
 app.use('/i18n', express.static(path.join(__dirname, "i18n")));
 
+// Deal with favicon to prevent uneeded error messages when no upstream proxy
+app.get('/favicon.ico', function(req, res) {
+  res.sendStatus(404);
+});
+
 // Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
@@ -127,7 +132,7 @@ app.use('*', proxy(upstream, {
   },
 }));
 
-// Tell express no to set an Etag header
+// Tell express not to set an Etag header
 app.set('etag', false);
 
 // Serve app
