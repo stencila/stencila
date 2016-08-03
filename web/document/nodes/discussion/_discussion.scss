@@ -1,0 +1,69 @@
+.sc-discussion {
+	// Take the discussion out of the flow
+	// of the document (e.g. so it's not selected on cursor movements)
+	display: none;
+
+	&.sm-displayed {
+		// Display discussion to right of screen
+		// (but may overlap content if naroow screen)
+		display: block;
+		position: absolute;
+		right: 1em;
+	}
+
+	z-index: $z-index-discussion;
+	background: #FFF;
+	border: 1px solid black;
+	border-radius: 5px;
+	box-shadow: 2px 2px 10px 0px hsla(0,0%,0%,0.9);
+
+	& > .se-header,
+	& > .se-footer {
+		background: #222;
+		padding: 0.1em 0.5em;
+		@extend .clearfix;
+
+		button {
+			background: none;
+		    outline: none;
+		    border: none;
+		    font-size: 1.3em;
+		}
+	}
+
+	& > .se-header {
+		border-radius: 5px 5px 0 0;
+
+		button.se-icon {
+			float: left;
+			color: hsl($stencila-green-hue, 100%, 50%);
+		}
+
+		button.se-hide {
+			float: right;
+			color: #DDD;
+		}
+	}
+
+	& > .se-footer {
+		border-radius: 0 0 5px 5px;
+
+		button.se-add {
+			float: right;
+			color: #DDD;
+		}
+	}
+
+	// Hide slugs (not relevant for this out-of-flow component?)
+	& > .se-slug {
+		display: none;
+	}
+
+	// Remove default styling when selected
+	& > .se-container {
+		outline: none !important;
+		// Due to the heavy header and footer (?) discussions don't
+		// look ood unless they have a minimum height;
+		min-height: 10em;
+	}
+}

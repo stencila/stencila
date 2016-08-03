@@ -1,0 +1,37 @@
+.sc-comment {
+  width: 20em;
+
+  font-size: 90%;
+
+  & > .se-header {
+
+    background: #EEE;
+    padding: 0.1em 0.5em 0 0.5em;
+
+    .se-who {
+      display: inline-block;
+      color: #888;
+    }
+
+    .se-when {
+      display: inline-block;
+      float: right;
+      color: #AAA;
+    }
+  }
+
+  // Hide slugs (not relevant for this out-of-flow component?)
+  & > .se-slug {
+    display: none;
+  }
+
+  .sc-container-editor {
+    padding: 0.5em;
+
+    line-height: 1.1em;
+
+    .sc-paragraph:last-child {
+        padding: 0;
+    }
+  }
+}

@@ -55,12 +55,14 @@ function DocumentConfigurator() {
 
 
   // Import Stencila node packages
-
   this.import(require('./nodes/math/MathPackage'));
-  this.import(require('./nodes/print/PrintPackage'));
-  this.import(require('./nodes/mark/MarkPackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));
+  this.import(require('./nodes/print/PrintPackage'));
+
+  this.import(require('./nodes/mark/MarkPackage'));
+  this.import(require('./nodes/discussion/DiscussionPackage'));
+  this.import(require('./nodes/comment/CommentPackage'));
 
   // Import editor packages
   this.import(require('./editors/visual/VisualEditorPackage'));
