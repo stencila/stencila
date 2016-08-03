@@ -16,7 +16,7 @@ function BlockToolset() {
   ];
 
   this.secondaryTypes = [
-    'title'
+    'title', 'summary'
   ];
 }
 

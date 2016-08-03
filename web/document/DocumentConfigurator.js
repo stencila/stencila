@@ -62,6 +62,7 @@ function DocumentConfigurator() {
 
   // Import Stencila node packages, in "order of appearance"
   this.import(require('./nodes/title/TitlePackage'));
+  this.import(require('./nodes/summary/SummaryPackage'));
   this.import(require('./nodes/math/MathPackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));

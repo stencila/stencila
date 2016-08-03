@@ -140,6 +140,7 @@ $print-hue: 93;
 	// Elements for which there is a style in `nodes` folder
 
 	@import 'nodes/title/title';
+	@import 'nodes/summary/summary';
 
 	@import 'nodes/math/math';
 	@import 'nodes/codeblock/codeblock';
