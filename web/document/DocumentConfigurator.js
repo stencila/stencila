@@ -28,14 +28,20 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/heading/HeadingPackage'));
   this.import(require('substance/packages/image/ImagePackage'));
   this.import(require('substance/packages/link/LinkPackage'));
-  this.import(require('substance/packages/list/ListPackage'),{
-    enableMacro: true
-  });
+
+  // There is currently (circa beta4) limited supported for lists
+  // in Substance (including missing converters; no ordered support etc) 
+  // so not including lists at this time
+  // this.import(require('substance/packages/list/ListPackage'),{
+  //   enableMacro: true
+  // });
+  
   this.import(require('substance/packages/paragraph/ParagraphPackage'));
   this.import(require('substance/packages/strong/StrongPackage'));
   this.import(require('substance/packages/subscript/SubscriptPackage'));
   this.import(require('substance/packages/superscript/SuperscriptPackage'));
   this.import(require('substance/packages/table/TablePackage'));
+
 
   // "Overrides" of Substance nodes
   // Link (overrides of command and tool)
