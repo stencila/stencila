@@ -24,17 +24,11 @@ $collaborator-color-10: #FFB533;
 @import '../node_modules/substance/styles/components/scroll-pane';
 @import '../node_modules/substance/styles/components/overlay';
 
-
+// Stencila styles
 $stencila-green-hue: 93;
 $stencila-green-saturation: 90%;
 $stencila-green-lightness: 50%;
-
-html {
-  box-sizing: border-box;
-}
-*, *:before, *:after {
-  box-sizing: inherit;
-}
-
+$z-index-discussion: 100;
+@import 'resets';
 @import 'content';
 @import 'toolsets';

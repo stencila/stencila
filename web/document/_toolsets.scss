@@ -1,5 +1,5 @@
 /**
- * Stencila `DocumentEditor` tool sets
+ * Stencila `VisualEditor` tool sets
  */
 
 .sc-toolset {
@@ -8,6 +8,8 @@
 
 	background: hsl(0, 0%, 5%);
 	opacity: 0.9;
+	box-shadow: 2px 2px 10px 0px hsla(0,0%,0%,0.9);
+
 	border-radius: 5px;
 
 	&.sm-enabled {
@@ -115,8 +117,16 @@
  * Should appear in the margin to the left of the cursor
  */
 .sc-block-toolset {
-	.se-options {
-		display: flex;
-		flex-direction: column;
+
+	.se-tool {
+		display: none;
+	}
+	.se-tool.sm-active {
+		display: inline-block;
+	}
+	&.sm-expanded {
+		.se-tool {
+			display: inline-block;
+		}
 	}
 }
