@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>A document</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta itemprop="type" content="document">
+    <meta itemprop="address" content="/home/nokome/stencila/source/stencila/web/examples/document-design">
+    <meta itemprop="contexts" content="r">
+    <link rel="stylesheet" type="text/css" href="/get/web/document.min.css">
+</head>
+
+<body>
+
+    <main id="content">
+
+        <div id="title">User interface design for Stencila Documents</div>
+
+        <h1>Introduction</h1>
+
+        <p>This is an example Stencila document for informal testing of the browser user application in `web/document`.</p>
+
+        <h2>Title</h2>
+
+        <p>A document can have an optional <em>title</em>. Right now, you can change any text block into a title, but in the future we need to ensure that there is only one title -in a document - if you change a block to a title then any existing title should automatically convert to a paragraph</p>
+
+        <h1>Paragraphs</h1>
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+        <h1>Annotations</h1>
+
+        <p>Lorem <strong>strong</strong> dolor sit amet, <em>emphasis</em> adipisicing elit, sed do <a href="http://stenci.la">link</a> tempor incididunt ut <code>code</code> et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non <sub>proident</sub>, sunt in <sup>culpa</sup> qui officia deserunt mollit anim id est laborum.</p>
+
+
+        <h1>Math</h1>
+
+        <p>Documents can include math like this, <script type="math/asciimath">E = mc^2</script>, this <script type="math/asciimath">pi</script>, or this <script type="math/asciimath">c = sqrt{a^2+b^2}</script>. If you select some math the math tool will appear and you can edit the source markup. Math can be written using <a href="http://asicmath.org">ASCIIMath</a> (the default) or <a href="https://en.wikipedia.org/wiki/TeX"><script type="math/tex">T_EX</script></a> (see that, math in a link!) math markup lnguages. The math tool has a toggle for the language.</p>
+
+        <p>Math can be displayed in inline mode (the default) like this <script type="math/tex">\int_0^\infty x^2 dx</script> or in block mode which renders math centered on it's own line with some symbols made larger, like this: <script type="math/tex;display=block">\int_0^\infty x^2 dx</script></p>
+
+        <p>Macros are defined for math. Use delimiting pipes | for ASCIIMath and dollars $ for TeX e.g. <code>|x^2|</code> and <code>$x^2$</code>. The regular expressions for the macros are quite strict: they require non-space characters at each end and, for TeX, no digit after the opening dollar. That allows you to write things like <code>$2 $3</code>, <code>$2,$3</code>, <code>||</code> without it being converted into math. At the moment macros search all text in a paragraph for a match so if you type in this paragraph the characters in the `code` nodes above will get converted to math.
+
+
+        <h1>Images</h1>
+
+        <p>Image elements can't be inline</p>
+        <img src="http://static.stenci.la/img/logo-name-tagline-500.png">
+
+        <h1>Headings</h1>
+        <h1>Heading1</h1>
+        <h2>Heading2</h2>
+        <h3>Heading3</h3>
+        <h4>Heading4</h4>
+        <h5>Heading5</h5>
+        <h6>Heading6</h6>
+
+        <h1>Blockquote</h1>
+
+        <blockquote>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</blockquote>
+
+
+        <h1>Code block</h1>
+
+        <pre><code>var a = 1;</code></pre>
+
+        <pre><code class="js">var a = 1;
+console.log(a);
+// A comment
+</code></pre>
+
+        <h1>List</h1>
+
+        List macro: asterisk followed by a space "* ".
+
+        <ul>
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li>Item 3</li>
+        </ul>
+
+
+        <h1>Discussions</h1>
+
+        <p>Discussions can <span data-mark="discussion-1">go over several</span> paragraphs</p>
+
+        <p>When you comment on a selection of text, a new <em>discussion</em> is created. The discussion node is inserted into the document after the current block node. That allows use to generate a code based representation of the dicsussion that is close to it's subject, not at the end of the document. Although the discussion is inserted into the man flow of the document it appears to the right when the mark is selected.</p>
+
+        <div data-discussion="open" id="discussion-1">
+            <div data-comment="@peter at 2016-08-03T16:19:00Z">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <div data-comment="@mary at 2016-08-03T04:19:00Z">
+                <p>I'm not sure what you mean?</p>
+            </div>
+        </div>
+
+        <p>Comments can contain the same elements as the main document. For example, <span data-mark="discussion-2">here is a discussion</span> which has several comments with math, images and paint directives.</p>
+
+      <div data-discussion="open" id="discussion-2">
+            <div data-comment="@peter at 2016-08-02T16:19:00Z">
+                <p>I think the equation should actually be</p>
+                <p><script type="math/asciimath">y = sqrt{x^{2sigma}}//pi</script></p>
+            </div>
+            <div data-comment="@mary at 2016-08-03T04:19:00Z">
+                <p>I disagree, I found this picture that may be useful for understanding it's derivation...</p>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/PSM_V37_D105_English_tabby_cat.jpg/320px-PSM_V37_D105_English_tabby_cat.jpg">
+            </div>
+        </div>
+
+        
+        <h1>Execute directive</h1>
+
+        <pre data-execute="r">x = 1
+b = 2
+        </pre>
+
+
+        <h1>Print directive</h1>
+
+        <p> A print directive <span data-print="6*7">42</span>. </p>
+
+    </main>
+
+    <script src="/get/web/document.min.js">
+    </script>
+
+</body>
+
+</html>
