@@ -51,11 +51,11 @@ The various modules are in various states of development for various operating s
 `cover`        | ✓     |       | -     
 `publish`      | ✓     |       | 
                |
-**R**          | 3.2, 3.3|     |
-`setup`        | ✓     | ✓     |     
-`build`        | ✓     | ✗ #197|     
-`test`         | ✓     |       |
-`cover`        | ✓     |       |      
+**R**          | 3.2, 3.3|     | 3.3
+`setup`        | ✓     | ✓     | ✓
+`build`        | ✓     | ✗ #197| ✓
+`test`         | ✓     |       | ✓
+`cover`        | ✓     |       | -
 `publish`      | ✓     |       |
 
 
