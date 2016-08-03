@@ -57,12 +57,15 @@ Overlayer.Prototype = function() {
       }
     }
     if(!position) {
-      console.warn('No selection rectangle provided, attempting to get one');
       var surface = this.context.surfaceManager.getFocusedSurface();
       var selection = surface.getSelection();
-      var componentEl = document.querySelector('[data-id=' + selection.getNodeId() + ']');
+      var nodeId = selection.getNodeId();
+      console.warn('No selection rectangle provided for {' + nodeId + '}, attempting to get one');
+      var componentEl = document.querySelector('[data-id=' + nodeId + ']');
       var containerEl = this.context.scrollPane.refs.content.el.el;
-      position = getRelativeBoundingRect(componentEl, containerEl);
+      if (componentEl && containerEl) {
+        position = getRelativeBoundingRect(componentEl, containerEl);
+      }
     }
 
     if (position) {

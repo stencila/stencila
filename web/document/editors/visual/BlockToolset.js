@@ -29,10 +29,10 @@ BlockToolset.Prototype = function() {
 
     el.addClass('sm-enabled');
 
-    ['heading', 'paragraph', 'list', 'table', 'image', 'blockquote', 'codeblock',
+    ['title','heading', 'paragraph', 'list', 'table', 'image', 'blockquote', 'codeblock',
      'execute'].forEach(function(type) {
       var active = selected.type==type;
-      var disabled = active || !this._canChange(selected, type);
+      var disabled = !this._canChange(selected, type);
       el.append(
         $$(BlockTool, {
           name: type,
@@ -141,11 +141,9 @@ BlockToolset.Prototype = function() {
         var nodeId = selected.node.id;
 
         // Create the new node
-        args.node = {
-          type: type,
-          source: ''
-        }
-        var newNode = tx.create(args.node);
+        var newNode = tx.create(node = {
+          type: type
+        });
 
         // Hide the old node, show the new node
         var container = tx.get(args.containerId);
@@ -186,7 +184,12 @@ function BlockTool() {
 BlockTool.Prototype = function() {
 
   this.performAction = function() {
-    this.parent.changeType(this.props.name);
+    if (this.props.active) {
+      this.parent.addClass('sm-expanded');
+    }
+    else {
+      this.parent.changeType(this.props.name);
+    }
   }
 
 };

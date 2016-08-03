@@ -54,7 +54,8 @@ function DocumentConfigurator() {
   this.addIcon('codeblock', { 'fontawesome': 'fa-code' });
 
 
-  // Import Stencila node packages
+  // Import Stencila node packages, in "order of appearance"
+  this.import(require('./nodes/title/TitlePackage'));
   this.import(require('./nodes/math/MathPackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));
