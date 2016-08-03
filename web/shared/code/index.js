@@ -8,14 +8,18 @@ var loadAce = function() {
 }
 
 var attachAceEditor = function(el, language, content, callback) {
+  // If no language defined, default to plain text
+  if (typeof language !== 'string' || language === '') language = 'text';
   function _attach() {
     var editor = this.editor = window.ace.edit(el);
 
     // Convert language tag to ACE mode if necessary
+    // If no conversion defined here will use mode = language
     var mode = {
-      '': 'text',
+      'cpp':  'c_cpp',
       'js':   'javascript',
       'py':   'python',
+      'r':    'r',
     }[language] || language;
     editor.getSession().setMode('ace/mode/'+mode);
     editor.setTheme("ace/theme/monokai");
