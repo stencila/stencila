@@ -41,28 +41,18 @@ $print-hue: 93;
 	padding: 1em;
 
 	// Typography
-	$sans-font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
-	$mono-font-family: 'Source Code Pro', mono;
 	font-family: $sans-font-family;
 	font-size: 17px;
 	line-height: 1.5em;
 	text-align: justify;
 	color: #333333;
 
-	/**
-	 * Paragraph
-	 */
+	// 
 
 	p,
 	.sc-paragraph {
 		padding-bottom: 1em;
 	}
-
-	/**
-	 * Annotations
-	 * 
-	 * 
-	 */
 
 	em,
 	.sc-emphasis {
@@ -102,18 +92,6 @@ $print-hue: 93;
 		font-family: $mono-font-family;
 	}
 
-	/**
-	 * Math
-	 */
-	.sc-math {
-		.sm-error {
-			color: hsl(0,70%,70%);
-		}
-	}
-
-	/**
-	 * Headings
-	 */
 	h1, h2, h3, h4, h5, h6,
 	.sc-heading {
 		font-weight: bold;
@@ -134,10 +112,7 @@ $print-hue: 93;
 		font-size: 1.1em;
 	}
 
-	/**
-	 * Image
-	 */
-	 img,
+	img,
 	.sc-image {
 	  position: relative;
 	  max-width: 100%;
@@ -145,9 +120,6 @@ $print-hue: 93;
 	  margin: 0px auto;
 	}
 
-	/**
-	 * Block quote
-	 */
 	blockquote,
 	.sc-blockquote {
 		margin-bottom: 20px;
@@ -157,22 +129,7 @@ $print-hue: 93;
 		font-style: italic;
 	}
 
-	/**
-	 * Code block
-	 */
-	pre>code,
-	.sc-codeblock {
-		font-family: $mono-font-family;
-		font-size: 0.9em;
-		background: #222;
-		color: #CCC;
-		border-radius: 3px;
-		padding: 0 3px;
-	}
-
-	/**
-	 * Lists
-	 */
+	li,
 	.sc-list-item {
 	  margin: 0 0 0 1em;
 	  position: relative;
@@ -183,8 +140,18 @@ $print-hue: 93;
 		left: -20px;
 	  }
 	}
-}
 
+	// Elements for which there is a style in `nodes` folder
+
+	@import 'nodes/title/title';
+
+	@import 'nodes/math/math';
+	@import 'nodes/codeblock/codeblock';
+	
+	@import 'nodes/mark/mark';
+	@import 'nodes/discussion/discussion';
+	@import 'nodes/comment/comment';
+}
 
 // Specific styling for content
 // when in the `VisualEditor`
@@ -213,8 +180,4 @@ $print-hue: 93;
 		}
 
 	}
-
-	@import 'nodes/mark/mark';
-	@import 'nodes/discussion/discussion';
-	@import 'nodes/comment/comment';
 }
