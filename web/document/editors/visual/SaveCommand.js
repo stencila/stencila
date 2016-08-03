@@ -16,9 +16,8 @@ SaveCommand.Prototype = function() {
   };
 
   this.execute = function(props, context) {
-    return {
-      status: null
-    };
+    context.doc.save();
+    return true;
   };
 
 };

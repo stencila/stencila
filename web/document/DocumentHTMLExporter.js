@@ -23,7 +23,7 @@ DocumentHTMLExporter.Prototype = function() {
    * Export a Stencila Document to HTML
    */
   this.exportDocument = function(doc) {
-    var bodyNodes = this.convertContainer(doc.get('body'));
+    var bodyNodes = this.convertContainer(doc.get('content'));
     var wrapper = this.$$("div").append(bodyNodes);
     return wrapper.html();
   };

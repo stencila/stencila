@@ -3,21 +3,11 @@
 var Component = require('substance/ui/Component');
 var DocumentSession = require('substance/model/DocumentSession');
 
+var DocumentModel = require('./DocumentModel');
+
 // Instantiate a configurator
 var DocumentConfigurator = require('./DocumentConfigurator');
 var configurator = new DocumentConfigurator();
-
-// Instantiate an importer
-var DocumentHTMLImporter = require('./DocumentHTMLImporter');
-var importer = new DocumentHTMLImporter({
-  configurator: configurator
-});
-
-// Instantiate an exporter
-var DocumentHTMLExporter = require('./DocumentHTMLExporter');
-var exporter = new DocumentHTMLExporter({
-  configurator: configurator
-});
 
 var VisualEditor = require('./editors/visual/VisualEditor');
 
@@ -38,7 +28,7 @@ DocumentApp.Prototype = function() {
   * @return     {Object}  The initial state.
   */
   this.getInitialState = function() {
-    var doc = importer.importDocument(this.props.html);
+    var doc = DocumentModel.import(this.props.html);
     var documentSession = new DocumentSession(doc);
     return {
       doc: doc,
