@@ -32,13 +32,18 @@
 	}
 	
 	.se-tool {
-		
 		display: inline-block;
-		margin: 0 0.1em;
+
+		/**
+		 * When using `overflow:hidden` the height of the
+		 * parent element changes without this
+		 * See http://stackoverflow.com/questions/20310690/overflowhidden-on-inline-block-adds-height-to-parent
+		 */
+		vertical-align: top;
 
 		button {
-			height: 2.2em;
-			width: 2.2em;
+			height: 2.3em;
+			width: 2.3em;
 			background: none;
 			outline: none;
 			border: none;
@@ -118,15 +123,28 @@
  */
 .sc-block-toolset {
 
-	.se-tool {
-		display: none;
+	.se-tool,
+	&.sm-expanded .se-extension .se-tool {
+		max-width: 0;
+		overflow: hidden;
+		transition: max-width 0.5s;
 	}
+
+	&.sm-expanded .se-tool,
+	&.sm-expanded.sm-extended .se-extension .se-tool {
+		max-width: 2.5em;
+	}
+
 	.se-tool.sm-active {
+		max-width: 2.5em;
+	}
+
+	.se-tool.se-extend i {
+		color: hsl(200, 100%, 50%);
+	}
+
+	.se-extension {
 		display: inline-block;
 	}
-	&.sm-expanded {
-		.se-tool {
-			display: inline-block;
-		}
-	}
+
 }

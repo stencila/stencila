@@ -9,11 +9,30 @@ var includes = require('substance/node_modules/lodash/includes');
 
 function BlockToolset() {
   BlockToolset.super.apply(this, arguments);
+
+  this.primaryTypes = [
+    'heading', 'paragraph', 'list', 'table', 'image', 'blockquote', 'codeblock',
+    'execute'
+  ];
+
+  this.secondaryTypes = [
+    'title'
+  ];
 }
 
 BlockToolset.Prototype = function() {
 
   var _super = BlockToolset.super.prototype;
+
+  /**
+   * Method override for custom display state
+   */
+  this.getInitialState = function() {
+    return {
+      expanded: false,
+      extended: false
+    }
+  }
 
   this.render = function($$) {
     var el = $$('div')
@@ -29,18 +48,57 @@ BlockToolset.Prototype = function() {
 
     el.addClass('sm-enabled');
 
-    ['title','heading', 'paragraph', 'list', 'table', 'image', 'blockquote', 'codeblock',
-     'execute'].forEach(function(type) {
+    if (this.state.expanded) el.addClass('sm-expanded');
+
+    this.primaryTypes.forEach(function(type) {
       var active = selected.type==type;
       var disabled = !this._canChange(selected, type);
       el.append(
         $$(BlockTool, {
+          toolset: this,
           name: type,
           disabled: disabled,
           active: active
-        })
+        }).ref(type+'Tool')
       );
     }.bind(this));
+
+    if (this.state.extended) el.addClass('sm-extended');
+    el.append(
+      $$('div')
+        .addClass('se-tool se-extend')
+        .append(
+          $$('button')
+            .append(
+              $$('i')
+                .addClass(this.state.extended ? 'fa fa-chevron-left' : 'fa fa-ellipsis-h')
+            )
+            .on('click', function() {
+              this.extendState({
+                extended: !this.state.extended
+              })
+            }.bind(this))
+        )
+    );
+
+    var extension = $$('div')
+      .ref('extension')
+      .addClass('se-extension');
+    this.secondaryTypes.forEach(function(type) {
+      var active = selected.type==type;
+      var disabled = !this._canChange(selected, type);
+      extension.append(
+        $$(BlockTool, {
+          toolset: this,
+          name: type,
+          disabled: disabled,
+          active: active
+        }).ref(type+'Tool')
+      );
+    }.bind(this));
+    el.append(
+      extension
+    );
 
     return el;
   }
@@ -185,10 +243,12 @@ BlockTool.Prototype = function() {
 
   this.performAction = function() {
     if (this.props.active) {
-      this.parent.addClass('sm-expanded');
+      this.props.toolset.extendState({
+        expanded: !this.props.toolset.state.expanded
+      });
     }
     else {
-      this.parent.changeType(this.props.name);
+      this.props.toolset.changeType(this.props.name);
     }
   }
 
