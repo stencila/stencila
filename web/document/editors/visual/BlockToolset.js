@@ -214,7 +214,7 @@ BlockToolset.Prototype = function() {
         var nodeId = selected.node.id;
 
         // Create the new node
-        var newNode = tx.create(node = {
+        var newNode = tx.create({
           type: type
         });
 

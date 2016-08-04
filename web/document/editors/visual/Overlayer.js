@@ -48,15 +48,15 @@ Overlayer.Prototype = function() {
     // At time of writing `Surface.getBoundingRectangleForSelection` was experimental and
     // sometimes created a hints.rectangle that was an empty object (e.g. for node selections). This checks for that
     // and if necessary tries to work out it's own selection rectangle
-    var position= null;
+    var selected = null;
     if (hints) {
       if (hints.rectangle) {
         if (hints.rectangle.top) {
-          position = hints.rectangle;
+          selected = hints.rectangle;
         }
       }
     }
-    if(!position) {
+    if (!selected) {
       var surface = this.context.surfaceManager.getFocusedSurface();
       var selection = surface.getSelection();
       var nodeId = selection.getNodeId();
@@ -64,23 +64,23 @@ Overlayer.Prototype = function() {
       var componentEl = document.querySelector('[data-id=' + nodeId + ']');
       var containerEl = this.context.scrollPane.refs.content.el.el;
       if (componentEl && containerEl) {
-        position = getRelativeBoundingRect(componentEl, containerEl);
+        selected = getRelativeBoundingRect(componentEl, containerEl);
       }
     }
 
-    if (position) {
+    if (selected) {
       var overlay = {
         height: this.el.htmlProp('offsetHeight'),
         width: this.el.htmlProp('offsetWidth')
       };
 
-      // By default, aligned top/center to the position
-      var top = position.top - overlay.height;
-      var left = position.left + position.width/2 - overlay.width/2;
+      // By default, aligned top/center to the selected
+      var top = selected.top - overlay.height - 3;
+      var left = selected.left + selected.width/2 - overlay.width/2;
       // Must not exceed left bound
       left = Math.max(left, 0);
       // Must not exceed right bound
-      var maxLeftPos = position.left + position.width + position.right - overlay.width;
+      var maxLeftPos = selected.left + selected.width + selected.right - overlay.width;
       left = Math.min(left, maxLeftPos);
       
       // Change position
