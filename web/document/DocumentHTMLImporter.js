@@ -3,6 +3,7 @@
 var HTMLImporter = require('substance/model/HTMLImporter');
 
 var DocumentModel = require('./DocumentModel');
+var DefaultHTMLConverter = require('./nodes/default/DefaultHTMLConverter')
 
 /**
  * Imports HTML into a Stencila Document
@@ -29,10 +30,19 @@ DocumentHTMLImporter.Prototype = function() {
    */
   this.convertDocument = function(els) {
     // The `containerId` argument should have the same
-    // value as the `containerId` used by `ContainerEditor` in
-    // `DocumentEditor`
+    // value as the `containerId` used by `ContainerEditor`
     this.convertContainer(els, 'content');
   };
+
+  /**
+   * Method override to provide a default for
+   * importing HTM elements not matched by `converters` 
+   */
+  this.defaultConverter = function(el, converter) {
+    var nodeData = DefaultHTMLConverter.createNodeData();
+    DefaultHTMLConverter.import(el, nodeData, converter);
+    return nodeData;
+  }
 
 };
 

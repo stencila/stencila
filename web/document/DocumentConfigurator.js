@@ -74,6 +74,8 @@ function DocumentConfigurator() {
   this.import(require('./nodes/discussion/DiscussionPackage'));
   this.import(require('./nodes/comment/CommentPackage'));
 
+  this.import(require('./nodes/default/DefaultPackage'));
+
   // Import editor packages
   this.import(require('./editors/visual/VisualEditorPackage'));
 
