@@ -1,11 +1,12 @@
 var Component = require('substance/ui/Component');
-var Tool = require('substance/ui/Tool');
 var switchTextType = require('substance/model/transform/switchTextType');
 var insertNode = require('substance/model/transform/insertNode');
 var deleteNode = require('substance/model/transform/deleteNode');
 var uuid = require('substance/util/uuid');
 var includes = require('substance/node_modules/lodash/includes');
 
+var BlockTool = require('../../ui/BlockTool');
+var ImageTool = require('../../nodes/image/ImageTool');
 
 function BlockToolset() {
   BlockToolset.super.apply(this, arguments);
@@ -52,14 +53,28 @@ BlockToolset.Prototype = function() {
 
     this.primaryTypes.forEach(function(type) {
       var active = selected.type==type;
-      var disabled = !this._canChange(selected, type);
-      el.append(
-        $$(BlockTool, {
+      var disabled = !active && !this._canChange(selected, type);
+      var tool;
+      if (type == 'image') {
+        tool = $$(ImageTool, {
+          toolset: this,
+          name: type,
+          disabled: disabled,
+          active: active,
+          node: selected.node
+        });
+      } else {
+        tool = $$(BlockTool, {
           toolset: this,
           name: type,
           disabled: disabled,
           active: active
-        }).ref(type+'Tool')
+        });
+      }
+      tool
+        .ref(type+'Tool');
+      el.append(
+        tool
       );
     }.bind(this));
 
@@ -226,36 +241,5 @@ BlockToolset.Prototype = function() {
 };
 
 Component.extend(BlockToolset);
-
-
-/**
- * A class of `Tool` which instead of running a command
- * calls the `Blockset.changeType()` method to change the type
- * node
- *
- * @class      BlockTool (name)
- */
-function BlockTool() {
-  BlockTool.super.apply(this, arguments);
-}
-
-BlockTool.Prototype = function() {
-
-  this.performAction = function() {
-    if (this.props.active) {
-      this.props.toolset.extendState({
-        expanded: !this.props.toolset.state.expanded
-      });
-    }
-    else {
-      this.props.toolset.changeType(this.props.name);
-    }
-  }
-
-};
-
-Tool.extend(BlockTool);
-
-
 
 module.exports = BlockToolset;

@@ -47,6 +47,8 @@ function DocumentConfigurator() {
   // Link (overrides of command and tool)
   this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
   this.addTool('link', require('./nodes/link/LinkTool'));
+  // Image (editing tool)
+  this.addTool('image', require('./nodes/image/ImageTool'));
   // Codeblock (deals with language in import/export and component)
   this.import(require('./nodes/codeblock/CodeblockPackage'));
 

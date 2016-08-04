@@ -66,15 +66,6 @@
 
 		.se-details {
 			display: none;
-			max-width: 0;
-			overflow: hidden;
-			transition: max-width 0.5s;
-			background: #222;
-
-			&.sm-enabled {
-				display: inline-block;
-				max-width: 20em;
-			}
 
 			input {
 				outline: none;
@@ -82,10 +73,15 @@
 				padding: 0.2em;
 				background: none;
 			    color: hsl(0, 0%, 100%);
-			    font-size: 1em;
-			    margin: 0 0.2em;
+			    font-size: 80%;
+			    font-family: mono;
+    			vertical-align: bottom;
+    			width: 30em;
 			}
+		}
 
+		&.sm-active .se-details {
+			display: inline-block;
 		}
 
 		// Hide the Substance added tool mode
@@ -137,6 +133,10 @@
 
 	.se-tool.sm-active {
 		max-width: 2.5em;
+	}
+
+	.se-tool.sm-active.sc-image-tool {
+		max-width: 35em;
 	}
 
 	.se-tool.se-extend i {
