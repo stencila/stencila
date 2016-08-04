@@ -54,13 +54,34 @@ var renderSass = function(name,cb) {
 
 var app = express();
 
+// Paths specific to development
+
 // Home page
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Example components
+// Examples
 app.use('/examples', express.static(path.join(__dirname, "examples")));
+
+// Test HTML snippets are served up with the associated CSS and JS
+// These pages are intended fo interactive testing of one node type
+app.get('/tests/:type/*', function (req, res, next) {
+  fs.readFile(path.join(__dirname, req.path, 'index.html'), "utf8", function (err, data) {
+    if(err) return res.send(err);
+    // Generate a simple page with necessary CSS and JS
+    var type = req.params.type;
+    var page = '<!DOCTYPE html><html><head>';
+    page += '<link rel="stylesheet" type="text/css" href="/get/web/' + type + '.min.css">';
+    page += '<script src="/get/web/' + type + '.min.js"></script>';
+    page += '</head><body><main id="content">' + data + '</main></body></html>';
+    res.set('Content-Type', 'text/html');
+    res.send(page);
+  })
+});
+
+
+// Paths that normally get served statically...
 
 // Javascript
 app.get('/get/web/:name.min.js', function (req, res, next) {
@@ -106,6 +127,7 @@ app.get('/favicon.ico', function(req, res) {
   res.sendStatus(404);
 });
 
+
 // Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
@@ -131,6 +153,7 @@ app.use('*', proxy(upstream, {
     return url.parse(uri).path;
   },
 }));
+
 
 // Tell express not to set an Etag header
 app.set('etag', false);

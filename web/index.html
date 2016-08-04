@@ -25,21 +25,30 @@
             This is the Stencila development server for the `web` module.
         <p>
 
-        <h1>Bundled JS and CSS</h1>
+        <h1>Test snippets</h1>
         <p>
-            Bundles and compiles Javascript and CSS from local source files for convenience during development.
-        </p>
+            Snippets for individual node types are wrapped and served up with the correct JS and CSS.
+            These are good for development of individual node types - without the distraction of a larger document containing many nodes type (several of which might also be calling out for attention). e.g.
+        <p>
+        <ul>
+            <li><a href="/tests/document/nodes/codeblock">/tests/document/nodes/codeblock</a></li>
+            <li><a href="/tests/document/nodes/math">/tests/document/nodes/math</a></li>
+        </ul>
 
         <h1>Static examples</h1>
         <p>
             Static HTML files that mimic the structure of Stencila components are available:
         <p>
         <ul>
-            <li>Document: <a href="/examples/document-design/">http://localhost:5000/examples/document-design/</a></li>
-            <li>Stencil: <a href="/examples/a/">http://localhost:5000/examples/a/</a></li>
-            <li>Sheet: <a href="/examples/b/">http://localhost:5000/examples/b/</a></li>
-            <li><a href="/examples/sheet-with-error/">http://localhost:5000/examples/sheet-with-error/</a></li>
+            <li>Document: <a href="/examples/document-design/">/examples/document-design/</a></li>
+            <li>Stencil: <a href="/examples/a/">/examples/a/</a></li>
+            <li>Sheet: <a href="/examples/b/">/examples/b/</a></li>
         </ul>
+
+        <h1>Bundled JS and CSS</h1>
+        <p>
+            Bundles and compiles Javascript and CSS from local source files for convenience during development.
+        </p>
 
         <h1>Upstream proxy</h1>
         <p>
@@ -47,9 +56,9 @@
             This allows you to test the JS and SCSS using live Stencila components. The Javascript and CSS still gets generated on the fly from the local source but everything else gets passed on to the backend session. Make sure you add the trailing slash to avoid a redirect from the upstream e.g.
         <p>
         <ul>
-            <li><a href="/demo/stencils/simple-r/">http://localhost:5000/demo/stencils/simple-r/</a></li>
-            <li><a href="/demo/sheets/simple-r/">http://localhost:5000/demo/sheets/simple-r/</a></li>
-            <li><a href="/demo/sheets/iris/">http://localhost:5000/demo/sheets/iris/</a></li>
+            <li><a href="/demo/stencils/simple-r/">/demo/stencils/simple-r/</a></li>
+            <li><a href="/demo/sheets/simple-r/">/demo/sheets/simple-r/</a></li>
+            <li><a href="/demo/sheets/iris/">/demo/sheets/iris/</a></li>
         </ul>
     </main>
   </body>
