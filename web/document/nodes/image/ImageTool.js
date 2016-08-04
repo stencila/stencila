@@ -30,7 +30,8 @@ ImageTool.Prototype = function() {
             $$('input')
               .attr({
                 value: src,
-                placeholder: 'Paste or type a URL'
+                placeholder: 'Paste or type a URL',
+                spellcheck: 'false'
               })
               .on('change', function(event){
                 var session = this.context.documentSession;
