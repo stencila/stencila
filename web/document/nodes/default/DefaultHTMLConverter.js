@@ -18,7 +18,7 @@ module.exports = {
 
   /**
    * Used by `DocumentHTMLImporter.defaultConverter` but given that
-   * matching everything, it may not be necessary 
+   * matching everything, it may not be necessary because we never get there!
    */
   createNodeData: function(){
     return {
