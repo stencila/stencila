@@ -67,12 +67,14 @@
 		.se-details {
 			display: none;
 
+			color: hsl(200, 100%, 50%);
+
 			input {
 				outline: none;
 				border: none;
 				padding: 0.2em;
 				background: none;
-			    color: hsl(0, 0%, 100%);
+				color: hsl(200, 100%, 50%);
 			    font-size: 80%;
 			    font-family: mono;
     			vertical-align: bottom;
@@ -133,6 +135,15 @@
 
 	.se-tool.sm-active {
 		max-width: 2.5em;
+	}
+
+	// Custom max widths for tools that need to be wider
+	// than the default
+	.se-tool.sm-active.sc-heading-tool {
+		max-width: 3.5em;
+		span {
+			margin-right: 0.5em;
+		}
 	}
 
 	.se-tool.sm-active.sc-image-tool {

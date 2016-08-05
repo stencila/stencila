@@ -44,6 +44,11 @@ function DocumentConfigurator() {
 
 
   // "Overrides" of Substance nodes
+  // Label for a plain old heading (ie. not numbered)
+  this.addLabel('heading', {
+    en: 'Heading',
+    de: 'Überschrift'
+  });
   // Link (overrides of command and tool)
   this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
   this.addTool('link', require('./nodes/link/LinkTool'));

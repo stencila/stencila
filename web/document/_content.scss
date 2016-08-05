@@ -45,11 +45,6 @@ $print-hue: 93;
 	text-align: justify;
 	color: #333333;
 
-	p,
-	.sc-paragraph {
-		padding-bottom: 1em;
-	}
-
 	em,
 	.sc-emphasis {
 		font-style: italic;
@@ -88,26 +83,6 @@ $print-hue: 93;
 		font-family: $mono-font-family;
 	}
 
-	h1, h2, h3, h4, h5, h6,
-	.sc-heading {
-		font-weight: bold;
-	}
-
-	h1,
-	.sc-heading.sm-level-1 {
-		font-size: 1.3em;
-	}
-
-	h2,
-	.sc-heading.sm-level-2 {
-		font-size: 1.2em;
-	}
-
-	h3,
-	.sc-heading.sm-level-3 {
-		font-size: 1.1em;
-	}
-
 	img,
 	.sc-image {
 	  position: relative;
@@ -138,9 +113,12 @@ $print-hue: 93;
 	}
 
 	// Elements for which there is a style in `nodes` folder
+	// In order of usual appearance
 
 	@import 'nodes/title/title';
 	@import 'nodes/summary/summary';
+	@import 'nodes/heading/heading';
+	@import 'nodes/paragraph/paragraph';
 
 	@import 'nodes/math/math';
 	@import 'nodes/codeblock/codeblock';

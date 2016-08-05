@@ -6,7 +6,9 @@ var uuid = require('substance/util/uuid');
 var includes = require('substance/node_modules/lodash/includes');
 
 var BlockTool = require('../../ui/BlockTool');
+var HeadingTool = require('../../nodes/heading/HeadingTool');
 var ImageTool = require('../../nodes/image/ImageTool');
+
 
 function BlockToolset() {
   BlockToolset.super.apply(this, arguments);
@@ -55,7 +57,16 @@ BlockToolset.Prototype = function() {
       var active = selected.type==type;
       var disabled = !active && !this._canChange(selected, type);
       var tool;
-      if (type == 'image') {
+      // Temporary if switch to be replaced by map
+      if (type == 'heading') {
+        tool = $$(HeadingTool, {
+          toolset: this,
+          name: type,
+          disabled: disabled,
+          active: active,
+          node: selected.node
+        });
+      } else if (type == 'image') {
         tool = $$(ImageTool, {
           toolset: this,
           name: type,
