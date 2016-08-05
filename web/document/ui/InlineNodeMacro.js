@@ -10,8 +10,6 @@ function InlineNodeMacro () {
 InlineNodeMacro.Prototype = function() {
 
   this.appliesTo = ['paragraph'];
-
-  this.regex =  /\$\{(.+)\}/;
   
   /**
    * Create an object with the data for the new node
@@ -27,6 +25,10 @@ InlineNodeMacro.Prototype = function() {
   };
 
   this.execute = function(props, context) {
+    if (!this.regex) {
+      throw new Error('Must define `this.regex` for InlineNodeMacro class');
+    }
+
     if (this.appliesTo.indexOf(props.node.type) === -1) {
       return false;
     }
