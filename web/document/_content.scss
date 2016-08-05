@@ -83,14 +83,6 @@ $print-hue: 93;
 		font-family: $mono-font-family;
 	}
 
-	img,
-	.sc-image {
-	  position: relative;
-	  max-width: 100%;
-	  display: block;
-	  margin: 0px auto;
-	}
-
 	blockquote,
 	.sc-blockquote {
 		margin-bottom: 20px;
@@ -121,6 +113,8 @@ $print-hue: 93;
 	@import 'nodes/paragraph/paragraph';
 
 	@import 'nodes/math/math';
+
+	@import 'nodes/image/image';
 	@import 'nodes/codeblock/codeblock';
 	
 	@import 'nodes/mark/mark';
