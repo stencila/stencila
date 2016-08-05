@@ -7,3 +7,6 @@
 <p>Math can be displayed in inline mode (the default) like this <script type="math/tex">\int_0^\infty x^2 dx</script> or in block mode which renders math centered on it's own line with some symbols made larger, like this: <script type="math/tex;display=block">\int_0^\infty x^2 dx</script></p>
 
 <p>Math with errors is not displayed in normal mode but is displayed in red in reveal mode: <script type="math/tex">E = mc^</script> (similar to print directives). ASCIIMath is more permissive then TeX.</p>
+
+
+<p>Macros are defined for math. Use delimiting pipes | for ASCIIMath and dollars $ for TeX e.g. <code>|x^2|</code> and <code>$x^2$</code>. The regular expressions for the macros are quite strict: they require non-space characters at each end and, for TeX, no digit after the opening dollar. That allows you to write things like <code>$2 $3</code>, <code>$2,$3</code>, <code>||</code> without it being converted into math. At the moment macros search all text in a paragraph for a match so if you type in this paragraph the characters in the `code` nodes above will get converted to math.
