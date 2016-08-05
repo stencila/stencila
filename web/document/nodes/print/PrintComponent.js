@@ -2,14 +2,14 @@
 
 var Component = require('substance/ui/Component');
 
-function Print() {
-  Print.super.apply(this, arguments);
+function PrintComponent() {
+  PrintComponent.super.apply(this, arguments);
 }
 
-Print.Prototype = function() {
+PrintComponent.Prototype = function() {
 
   this.didMount = function() {
-    this.props.node.on('source:changed', this.rerender, this);
+    this.props.node.on('content:changed', this.rerender, this);
   };
 
   this.dispose = function() {
@@ -18,14 +18,13 @@ Print.Prototype = function() {
 
   this.render = function($$) {
     var node = this.props.node;
-    var el = $$('span')
-      .addClass('sc-print')
+    return $$('span')
+      .addClass('sc-print' + (node.error ? ' sm-error' : ''))
       .append(node.content.length ? node.content : ' ');
-    return el;
   };
 
 };
 
-Component.extend(Print);
+Component.extend(PrintComponent);
 
-module.exports = Print;
+module.exports = PrintComponent;

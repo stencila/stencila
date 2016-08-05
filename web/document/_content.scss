@@ -6,18 +6,8 @@
  * Selectors often have two rows reflecting each of these applications.
  */
 
+// Math element styling
 @import '../shared/math/index';
-
-@mixin annotation($hue) {
-	padding: 1px 0;
-	background: hsl($hue,100%,95%);
-	border-bottom: 1px solid hsl($hue,100%,90%);
-	color: hsl($hue,100%,65%);
-}
-$link-hue: 230;
-$code-hue: 0;
-$print-hue: 93;
-
 
 // Style when "plain" HTML
 #content {
@@ -69,7 +59,7 @@ $print-hue: 93;
 
 	a,
 	.sc-link {
-		color: hsl($link-hue,100%,65%);
+		color: hsl(230,100%,65%);
 		text-decoration: none;
 	}
 
@@ -94,9 +84,15 @@ $print-hue: 93;
 		left: -20px;
 	  }
 	}
+}
 
-	// Elements for which there is a style in `nodes` folder
-	// In order of usual appearance
+// Elements for which there is a style in `nodes` folder.
+// In order of usual appearance.
+// Imported within content for specificity.
+// Directly under `.sc-visual-editor` (not additional `content`) so that `&.sm-reveal
+// can be used.
+#content,
+.sc-visual-editor {
 
 	@import 'nodes/title/title';
 	@import 'nodes/summary/summary';
@@ -108,6 +104,8 @@ $print-hue: 93;
 	@import 'nodes/image/image';
 	@import 'nodes/blockquote/blockquote';
 	@import 'nodes/codeblock/codeblock';
+
+	@import 'nodes/print/print';
 	
 	@import 'nodes/mark/mark';
 	@import 'nodes/discussion/discussion';
@@ -124,15 +122,6 @@ $print-hue: 93;
 	&,
 	[contenteditable="true"] {
 		outline: none;
-	}
-
-	&.sm-reveal {
-
-		.sc-print {
-			@include annotation($print-hue);
-			min-width: 2em;
-		}
-
 	}
 
 	&.sm-edit {

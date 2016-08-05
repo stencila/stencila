@@ -1,0 +1,7 @@
+<div id="title">Test for print directive</div>
+
+<p>Print directives evaluate an expression in the document's execution context and insert the text representation of the result in to the document. Here is a print of the current time: <span data-print="new Date()"></span>.</p>
+
+<p>If there is an error in the expression (e.g syntax or logic error) the print directive will not be shown in normal mode but appears red in reveal mode: <span data-print="foobar" data-error="true">ReferenceError: foobar is not defined</span>.</p>
+
+<p>A macro is available for the print directive: <code>${expression}<code>.</p>

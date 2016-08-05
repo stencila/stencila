@@ -13,9 +13,7 @@ PrintMacro.Prototype = function() {
   this.createNodeData = function(match) {
 	return {
       type: 'print',
-      source: match[4].trim(),
-      status: 'uneval',
-      content: '?'
+      source: match[4].trim()
     };
   };
 

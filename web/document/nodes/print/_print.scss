@@ -1,0 +1,29 @@
+@mixin print-colors($hue) {
+  background: hsl($hue,100%,90%);
+  border-bottom: 1px solid hsl($hue,100%,80%);
+  color: hsl($hue,100%,40%);
+}
+
+.sc-print {
+  &.sm-error {
+    // Not displayed
+    display: none;
+  }
+}
+
+&.sm-reveal {
+
+  .sc-print {
+    min-width: 2em;
+    padding: 1px 0;
+    @include print-colors(90);
+
+    &.sm-error {
+      // Dislayed in red
+      display: inherit;
+      @include print-colors(0);
+    }
+
+  }
+
+}

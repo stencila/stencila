@@ -44,6 +44,7 @@ PrintTool.Prototype = function() {
             session.transaction(function(tx) {
               tx.set([print.id, 'source'], event.target.value);
             });
+            print.refresh();
           })
       );
     if (this.props.active) details.addClass('sm-enabled');
