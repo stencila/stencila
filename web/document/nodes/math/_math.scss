@@ -5,6 +5,15 @@
 }
 
 .sc-math {
+
+  // Turn of slection highlighting of
+  // individual math elements.
+  & *::-moz-selection {
+    background: none;
+  } 
+  & *::selection {
+    background: none;
+  } 
 	
   &.sm-error {
     // Not displayed
