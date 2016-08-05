@@ -17,7 +17,7 @@ window.onload = function() {
   var reveal = (params.reveal || '0') != '0';
   var edit = (params.edit || '0') != '0';
 
-  if (statico) {
+  if (!statico) {
 
     // Get the document content DOM element
     var content = document.getElementById('content');
