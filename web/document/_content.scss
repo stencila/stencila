@@ -83,15 +83,6 @@ $print-hue: 93;
 		font-family: $mono-font-family;
 	}
 
-	blockquote,
-	.sc-blockquote {
-		margin-bottom: 20px;
-		border: 0 solid #CCC;
-		border-width: 0 2px;
-		padding: 0 20px;
-		font-style: italic;
-	}
-
 	li,
 	.sc-list-item {
 	  margin: 0 0 0 1em;
@@ -115,6 +106,7 @@ $print-hue: 93;
 	@import 'nodes/math/math';
 
 	@import 'nodes/image/image';
+	@import 'nodes/blockquote/blockquote';
 	@import 'nodes/codeblock/codeblock';
 	
 	@import 'nodes/mark/mark';
