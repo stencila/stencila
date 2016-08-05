@@ -24,12 +24,8 @@ MathComponent.Prototype = function() {
     var node = this.props.node;
 
     var el = $$('span')
-      .addClass('sc-math sm-'+node.language)
+      .addClass('sc-math sm-' + node.language)
       .ref('math');
-
-    if (node.display === 'block') {
-      el.addClass('sm-block');
-    }
 
     try {
       el.html(
@@ -37,8 +33,11 @@ MathComponent.Prototype = function() {
       );
     } catch(error) {
       el.addClass('sm-error')
-        .append(error.message)
-      ;
+        .text(error.message);
+    }
+
+    if (node.display === 'block') {
+      el.addClass('sm-block');
     }
 
     return el;

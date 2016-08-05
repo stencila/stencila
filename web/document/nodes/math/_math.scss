@@ -1,5 +1,28 @@
+@mixin math-colors($hue) {
+  background: hsl($hue,100%,90%);
+  border-bottom: 1px solid hsl($hue,100%,80%);
+  color: hsl($hue,100%,40%);
+}
+
 .sc-math {
-	.sm-error {
-		color: hsl(0,70%,70%);
-	}
+	
+  &.sm-error {
+    // Not displayed
+    display: none;
+  }
+
+}
+
+&.sm-reveal {
+
+  .sc-math {
+
+    &.sm-error {
+      // Dislayed in red
+      display: inherit;
+      @include math-colors(0);
+    }
+
+  }
+
 }

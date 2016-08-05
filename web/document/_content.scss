@@ -123,13 +123,4 @@
 	[contenteditable="true"] {
 		outline: none;
 	}
-
-	&.sm-edit {
-
-		.sc-inline-node.sm-math.sm-selected,
-		.sc-inline-node.sm-math.sm-selected .katex-display {
-			background: #BBB;
-		}
-
-	}
 }
