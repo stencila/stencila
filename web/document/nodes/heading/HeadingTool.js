@@ -28,15 +28,14 @@ HeadingTool.Prototype = function() {
               .ref('level')
               .text(''+node.level)
               .on('click', function(event){
-                event.stopPropagation();
                 event.preventDefault();
                 // FIXME
-                // 1. On click the tool disappears (but not if no transaction)
-                // 2. Although the transaction seems to work, the
+                // Although the transaction seems to work, the
                 //    heading is not rerendered (click on it again and level is updated)
-                var session = this.context.documentSession;
-                session.transaction(function(tx) {
+                var surface = this.context.surfaceManager.getFocusedSurface();
+                surface.transaction(function(tx, args) {
                   tx.set([node.id, 'level'], node.level==6 ? 1 : node.level+1);
+                  return args;
                 });
               }.bind(this))
           )
