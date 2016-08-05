@@ -8,6 +8,7 @@ var includes = require('substance/node_modules/lodash/includes');
 var BlockTool = require('../../ui/BlockTool');
 var HeadingTool = require('../../nodes/heading/HeadingTool');
 var ImageTool = require('../../nodes/image/ImageTool');
+var CodeblockTool = require('../../nodes/codeblock/CodeblockTool');
 
 
 function BlockToolset() {
@@ -21,6 +22,12 @@ function BlockToolset() {
   this.secondaryTypes = [
     'title', 'summary', 'default'
   ];
+
+  this.tools = {
+    'heading' : HeadingTool,
+    'image' : ImageTool,
+    'codeblock': CodeblockTool
+  };
 }
 
 BlockToolset.Prototype = function() {
@@ -54,36 +61,16 @@ BlockToolset.Prototype = function() {
     if (this.state.expanded) el.addClass('sm-expanded');
 
     this.primaryTypes.forEach(function(type) {
+      var ToolClass = this.tools[type] || BlockTool;
       var active = selected.type==type;
       var disabled = !active && !this._canChange(selected, type);
-      var tool;
-      // Temporary if switch to be replaced by map
-      if (type == 'heading') {
-        tool = $$(HeadingTool, {
-          toolset: this,
-          name: type,
-          disabled: disabled,
-          active: active,
-          node: selected.node
-        });
-      } else if (type == 'image') {
-        tool = $$(ImageTool, {
-          toolset: this,
-          name: type,
-          disabled: disabled,
-          active: active,
-          node: selected.node
-        });
-      } else {
-        tool = $$(BlockTool, {
-          toolset: this,
-          name: type,
-          disabled: disabled,
-          active: active
-        });
-      }
-      tool
-        .ref(type+'Tool');
+      var tool = $$(ToolClass, {
+        toolset: this,
+        name: type,
+        disabled: disabled,
+        active: active,
+        node: selected.node
+      }).ref(type+'Tool');
       el.append(
         tool
       );

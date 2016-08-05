@@ -21,6 +21,20 @@ var attachAceEditor = function(el, content, options, callback) {
   }
 }
 
+var setAceEditorMode = function(editor, language) {
+  // Convert language tag to ACE mode if necessary
+  // If no language defined, default to plain text
+  // If no conversion defined here will use mode = language
+  if (typeof language !== 'string' || language === '') language = 'text';
+  var mode = {
+    'cpp':  'c_cpp',
+    'js':   'javascript',
+    'py':   'python',
+    'r':    'r',
+  }[language] || language;
+  editor.getSession().setMode('ace/mode/' + mode);  
+}
+
 var updateAceEditor = function(editor, options) {
 
   // Stuff that is not yet actually an option
@@ -36,18 +50,7 @@ var updateAceEditor = function(editor, options) {
   // Prevent warning message
   editor.$blockScrolling = Infinity;
 
-  // Convert language tag to ACE mode if necessary
-  // If no language defined, default to plain text
-  // If no conversion defined here will use mode = language
-  var language = options.language;
-  if (typeof language !== 'string' || language === '') language = 'text';
-  var mode = {
-    'cpp':  'c_cpp',
-    'js':   'javascript',
-    'py':   'python',
-    'r':    'r',
-  }[language] || language;
-  editor.getSession().setMode('ace/mode/' + mode);
+  setAceEditorMode(editor, options.language);
 
   editor.setFontSize(options.fontSize || 16);
 
@@ -82,5 +85,6 @@ var updateAceEditor = function(editor, options) {
 module.exports = {
   loadAce: loadAce,
   attachAceEditor: attachAceEditor,
+  setAceEditorMode: setAceEditorMode,
   updateAceEditor: updateAceEditor
 }

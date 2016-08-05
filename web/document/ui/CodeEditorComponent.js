@@ -68,7 +68,8 @@ CodeEditorComponent.Prototype = function() {
       }.bind(this)
     );
 
-    node.on('source:changed', this._onContentChanged, this);
+    node.on('language:changed', this._onLanguageChanged, this);
+    node.on('source:changed', this._onSourceChanged, this);
   };
 
   this.shouldRerender = function() {
@@ -97,10 +98,20 @@ CodeEditorComponent.Prototype = function() {
   };
 
   /**
+   * When the node's language changes, update the 
+   * editor (if this wasn't the source of the update)
+   */
+  this._onLanguageChanged = function(change, info) {
+    if (info.source !== this && this.editor) {
+      code.setAceEditorMode(this.editor, this.props.node.language);
+    }
+  }
+
+  /**
    * When the node's source changes, update the 
    * editor (if this wasn't the source of the update)
    */
-  this._onContentChanged = function(change, info) {
+  this._onSourceChanged = function(change, info) {
     if (info.source !== this && this.editor) {
       this.editor.setValue(this.props.node.source, -1);
     }
