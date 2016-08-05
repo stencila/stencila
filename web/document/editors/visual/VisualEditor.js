@@ -33,8 +33,8 @@ VisualEditor.Prototype = function() {
   */
   this.getInitialState = function() {
     return {
-      reveal: false,
-      edit: this.props.rights=='write'
+      reveal: this.props.reveal,
+      edit: this.props.edit && this.props.rights=='write'
     };
   };
 

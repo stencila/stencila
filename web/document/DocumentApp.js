@@ -48,7 +48,10 @@ DocumentApp.Prototype = function() {
     // Render the visual WYSIWYG editor
     el.append(
       $$(VisualEditor, {
-        // Props of document that afftect editor
+        // Parameters of the app
+        reveal: this.props.reveal,
+        edit: this.props.edit,
+        // Props of document that affect editor
         rights: this.state.doc.rights,
         // Other required props
         documentSession: this.state.documentSession,
