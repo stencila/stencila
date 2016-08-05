@@ -87,9 +87,9 @@ MathTool.Prototype = function() {
               .ref('source')
               .addClass('se-source')
               .attr({
-                value: source,
                 placeholder: 'AsciiMath expression'
               })
+              .val(source)
               .on('input', function(event) {
                 // Update "on-the-fly" (`input` event instead of `change` event) 
                 // so user to that user can see live updates of rendered
