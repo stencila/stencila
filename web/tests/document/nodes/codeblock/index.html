@@ -1,0 +1,104 @@
+<p>Codeblock will usually come between paragraphs and be of varying lengths and languages...</p>
+
+<pre><code>A single line of plain text</code></pre>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+<pre><code class="r"># A R snippet (from the dplyr vignette)
+
+by_tailnum <- group_by(flights, tailnum)
+delay <- summarise(by_tailnum,
+  count = n(),
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE))
+delay <- filter(delay, count > 20, dist < 2000)
+
+# Interestingly, the average delay is only slightly related to the
+# average distance flown by a plane.
+ggplot(delay, aes(dist, delay)) +
+  geom_point(aes(size = count), alpha = 1/2) +
+  geom_smooth() +
+  scale_size_area()
+</code></pre>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+<pre><code class="js">// Javascript; totally meta!
+
+'use strict';
+
+var CodeEditorComponent = require('../../ui/CodeEditorComponent');
+
+
+function CodeblockComponent() {
+  CodeblockComponent.super.apply(this, arguments);
+
+  this.editor = null;
+}
+
+CodeblockComponent.Prototype = function() {
+
+  var _super = CodeblockComponent.super.prototype;
+
+  this.render = function($$) {
+    var el = _super.render.call(this, $$);
+    el.addClass('sc-codeblock');
+    return el;
+  };
+
+};
+
+CodeEditorComponent.extend(CodeblockComponent);
+
+CodeblockComponent.fullWidth = true;
+
+module.exports = CodeblockComponent;
+</code></pre>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+<pre><code class="py"># Some Python code
+
+import unittest
+import sys
+
+import stencila
+
+class ExceptionTests(unittest.TestCase):
+
+    def test_translation(self):
+        try:
+            stencila.extension.exception_test()
+        except Exception, e:
+            self.assertEqual(str(e), "Testing, testing, 1, 2, 3.")
+        else:
+            raise
+
+
+class ComponentTests(unittest.TestCase):
+
+    def setUp(self):
+        self.component = stencila.Component()
+
+    def tearDown(self):
+        # As in C++ tests the destoy method fails due to
+        # "Acesss is denied" to the .git directory of the
+        # component. So currently skipped in Windows
+        if sys.platform != 'win32':
+            self.component.destroy()
+</code></pre>

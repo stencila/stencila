@@ -28,24 +28,46 @@ CodeEditorComponent.Prototype = function() {
       .append(
         $$('pre')
           .ref('editor')
-          .append(node.source)
+          .text(node.source)
       );
     return el;
   };
 
   this.didMount = function() {
     var node = this.props.node;
+
     // Attach ACE editor (allows for asynchronous loading of ACE)
     code.attachAceEditor(
       this.refs.editor.getNativeElement(),
-      node.language,
-      null,
+      node.source,
+      {
+        language: node.language,
+        fontSize: 14,
+        // FIXME
+        // This does not update when the editor state is changed (e.g editing turned from off to on)
+        // Probably needs a custom event like `_onContentChanged` below
+        readOnly: !this.context.controller.state.edit
+      },
       function(editor) {
         // When editor has been created...
+
+        // Additional options
+        // ESC keypress
+        editor.commands.addCommand({
+          name: 'escape',
+          bindKey: {win: 'Escape', mac: 'Escape'},
+          exec: function(editor) {
+            this.send('escape');
+            editor.blur();
+          }.bind(this),
+          readOnly: true
+        });
+
         editor.on('blur', this._onEditorBlur.bind(this));
         this.editor = editor;
       }.bind(this)
     );
+
     node.on('source:changed', this._onContentChanged, this);
   };
 

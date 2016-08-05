@@ -5,8 +5,6 @@ var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 
 function CodeblockComponent() {
   CodeblockComponent.super.apply(this, arguments);
-
-  this.editor = null;
 }
 
 CodeblockComponent.Prototype = function() {
