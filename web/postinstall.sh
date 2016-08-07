@@ -75,3 +75,17 @@ echo "Getting KaTeX CSS & fonts"
 
 curl -o build/katex.tar.gz -L https://github.com/Khan/KaTeX/releases/download/v0.6.0/katex.tar.gz
 tar xzf build/katex.tar.gz -C build
+
+
+# EmojiOne
+# Allow PNGs to be served locally
+
+echo "Copying EmojiOne PNGs"
+
+rm -rf build/emojione
+mkdir -p build/emojione
+cp -rf node_modules/emojione/assets/png build/emojione/png
+
+
+ 
+

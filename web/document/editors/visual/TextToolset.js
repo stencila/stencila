@@ -8,7 +8,7 @@ function TextToolset() {
 
   this.tools = [
     'emphasis', 'strong', 'subscript', 'superscript', 'code', 
-    'link', 'math', 'print', 'mark'
+    'link', 'math', 'print', 'mark', 'emoji'
   ];
 }
 

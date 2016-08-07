@@ -3,6 +3,7 @@
     "ace": "ajaxorg/ace#0c66e1ed",
     "body-parser": "^1.12.4",
     "cheerio": "^0.19.0",
+    "emojione": "^2.2.6",
     "express": "*",
     "font-awesome": "^4.4.0",
     "jquery": "^2.1.4",

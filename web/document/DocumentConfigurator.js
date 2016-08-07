@@ -66,6 +66,7 @@ function DocumentConfigurator() {
   this.import(require('./nodes/summary/SummaryPackage'));
   this.import(require('./nodes/heading/HeadingPackage'));
   this.import(require('./nodes/math/MathPackage'));
+  this.import(require('./nodes/emoji/EmojiPackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));
   this.import(require('./nodes/print/PrintPackage'));
