@@ -67,18 +67,34 @@
 		.se-details {
 			display: none;
 
-			color: hsl(200, 100%, 50%);
+			$details-color: hsl(200, 100%, 50%);
+
+			color: $details-color;
+
+			button i {
+				color: $details-color;
+			}
 
 			input {
+				margin-left: 0.5em;
 				outline: none;
 				border: none;
-				padding: 0.2em;
 				background: none;
-				color: hsl(200, 100%, 50%);
+
+				padding: 0.2em;
+				color: $details-color;
 			    font-size: 80%;
 			    font-family: mono;
-    			vertical-align: bottom;
+    			vertical-align: text-bottom;
     			width: 30em;
+			}
+
+			select {
+				outline: none;
+				border: none;
+				background: none;
+
+				color: $details-color;
 			}
 		}
 
@@ -140,14 +156,29 @@
 	// Custom max widths for tools that need to be wider
 	// than the default
 	.se-tool.sm-active.sc-heading-tool {
-		max-width: 3.5em;
-		span {
-			margin-right: 0.5em;
+		max-width: 5em;
+
+		// Make H icon and number close together
+		button {
+			padding-right: 0;
+		}
+		select {
+			font-size: 120%;
+			option {
+				padding-left: 0;
+			}
 		}
 	}
 
 	.se-tool.sm-active.sc-image-tool {
 		max-width: 35em;
+	}
+
+	.se-tool.sm-active.sc-codeblock-tool {
+		max-width: 10em;
+		input {
+			width: 5em;
+		}
 	}
 
 	.se-tool.se-extend i {

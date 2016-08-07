@@ -25,7 +25,6 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/blockquote/BlockquotePackage'));
   this.import(require('substance/packages/code/CodePackage'));
   this.import(require('substance/packages/emphasis/EmphasisPackage'));
-  this.import(require('substance/packages/heading/HeadingPackage'));
   this.import(require('substance/packages/image/ImagePackage'));
   this.import(require('substance/packages/link/LinkPackage'));
 
@@ -44,11 +43,6 @@ function DocumentConfigurator() {
 
 
   // "Overrides" of Substance nodes
-  // Label for a plain old heading (ie. not numbered)
-  this.addLabel('heading', {
-    en: 'Heading',
-    de: 'Überschrift'
-  });
   // Link (overrides of command and tool)
   this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
   this.addTool('link', require('./nodes/link/LinkTool'));
@@ -70,6 +64,7 @@ function DocumentConfigurator() {
   // Import Stencila node packages, in "order of appearance"
   this.import(require('./nodes/title/TitlePackage'));
   this.import(require('./nodes/summary/SummaryPackage'));
+  this.import(require('./nodes/heading/HeadingPackage'));
   this.import(require('./nodes/math/MathPackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));

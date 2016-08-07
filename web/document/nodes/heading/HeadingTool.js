@@ -1,9 +1,11 @@
 'use strict';
 
+var map = require('substance/node_modules/lodash/map');
+
 var BlockTool = require('../../ui/BlockTool');
 
 /**
- * A tool to edit heading (change the heading level)
+ * A tool to edit `Heading` nodes (change the heading level)
  *
  * @class      HeadingTool (name)
  */
@@ -24,18 +26,19 @@ HeadingTool.Prototype = function() {
           .ref('details')
           .addClass('se-details')
           .append(
-            $$('span')
+            $$('select')
               .ref('level')
-              .text(''+node.level)
-              .on('click', function(event){
-                event.preventDefault();
-                // FIXME
-                // Although the transaction seems to work, the
-                //    heading is not rerendered (click on it again and level is updated)
+              .append(map([1,2,3,4,5,6], function(level){
+                var option = $$('option')
+                  .val(level)
+                  .html(level);
+                if (level == node.level) option.attr('selected', true);
+                return option;
+              }))
+              .on('change', function(event){
                 var surface = this.context.surfaceManager.getFocusedSurface();
-                surface.transaction(function(tx, args) {
-                  tx.set([node.id, 'level'], node.level==6 ? 1 : node.level+1);
-                  return args;
+                surface.transaction(function(tx) {
+                  tx.set([node.id, 'level'], parseInt(event.target.value));
                 });
               }.bind(this))
           )
