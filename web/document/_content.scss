@@ -6,7 +6,7 @@
  * Selectors often have two rows reflecting each of these applications.
  */
 
-// Math element styling
+// Import rendered math styling
 @import '../shared/math/index';
 
 // Style when "plain" HTML
@@ -57,16 +57,6 @@
 	 	font-size: smaller;
 	}
 
-	code,
-	.sc-code {
-		// Use a shaded background but don't colour text
-		// so that a `code` node can also be a `link`
-		padding: 1px 0;
-		background: hsl(0,0%,93%);
-		border-bottom: 1px solid hsl(0,0%,90%);
-		font-family: $mono-font-family;
-	}
-
 	li,
 	.sc-list-item {
 	  margin: 0 0 0 1em;
@@ -94,6 +84,7 @@
 	@import 'nodes/paragraph/paragraph';
 
 	@import 'nodes/link/link';
+	@import 'nodes/code/code';
 	@import 'nodes/math/math';
 	@import 'nodes/emoji/emoji';
 

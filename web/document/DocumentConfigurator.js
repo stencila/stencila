@@ -23,7 +23,6 @@ function DocumentConfigurator() {
   // Import Substance packages, in alphabetical order
   this.import(require('substance/packages/base/BasePackage'));
   this.import(require('substance/packages/blockquote/BlockquotePackage'));
-  this.import(require('substance/packages/code/CodePackage'));
   this.import(require('substance/packages/emphasis/EmphasisPackage'));
   
   // There is currently (circa beta4) limited supported for lists
@@ -40,10 +39,6 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/table/TablePackage'));
 
 
-  // "Overrides" of Substance nodes
-  // Codeblock (deals with language in import/export and component)
-  this.import(require('./nodes/codeblock/CodeblockPackage'));
-
   // Icons, not defined in Substance packages but used in our `BlockToolset`
   this.addIcon('heading', { 'fontawesome': 'fa-header' });
   this.addIcon('paragraph', { 'fontawesome': 'fa-paragraph' });
@@ -57,10 +52,14 @@ function DocumentConfigurator() {
   this.import(require('./nodes/title/TitlePackage'));
   this.import(require('./nodes/summary/SummaryPackage'));
   this.import(require('./nodes/heading/HeadingPackage'));
+
+  this.import(require('./nodes/code/CodePackage'));
   this.import(require('./nodes/link/LinkPackage'));
   this.import(require('./nodes/math/MathPackage'));
   this.import(require('./nodes/emoji/EmojiPackage'));
+
   this.import(require('./nodes/image/ImagePackage'));
+  this.import(require('./nodes/codeblock/CodeblockPackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));
   this.import(require('./nodes/print/PrintPackage'));

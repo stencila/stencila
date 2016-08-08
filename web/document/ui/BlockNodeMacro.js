@@ -42,19 +42,6 @@ BlockNodeMacro.Prototype = function() {
     }.bind(this));
   }
 
-  /**
-   * Create an object with the data for the new node
-   * 
-   * Should be overidden by derived classes.
-   * Analagous to the method with the same name
-   * in `substance/ui/InlineNodeCommand`.
-   *
-   * @param      {<type>}  match   The match
-   */
-  this.createNodeData = function(match) {
-    throw new Error('This method is abstract.');
-  };
-
 };
 
 Macro.extend(BlockNodeMacro);
