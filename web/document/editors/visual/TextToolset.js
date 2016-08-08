@@ -11,6 +11,10 @@ function TextToolset() {
     'link', 'mark',
     'math', 'print', 'emoji'
   ];
+
+  this.inlineNodetools = [
+    'math', 'print', 'emoji'
+  ];
 }
 
 TextToolset.Prototype = function() {
@@ -22,22 +26,28 @@ TextToolset.Prototype = function() {
     var enabled = false;
     var toolRegistry = this.context.toolRegistry;
     var commandStates = this.context.commandManager.getCommandStates();
+
     this.tools.forEach(function(name) {
       var tool = toolRegistry.get(name);
+      var session = this.context.documentSession;
+      var sel = session.getSelection();
       
       var props = commandStates[name];
-      // Add command name to `props`
-      // A necessary hack at time of writing for icons to render in Substance tools
+      // Don't enable `InlineNodeTools` if there is no selected text
+      if (!props.disabled && (this.inlineNodetools.indexOf(name) > -1) && sel && !sel.isNull() && sel.isPropertySelection()) {
+        if (sel.getStartOffset() == sel.getEndOffset()) {
+          props.disabled = true;
+        }
+      }
+      // Add command name to `props` (a necessary hack at time of writing for icons to render in Substance tools)
       props.name = name;
       // Add the first selected node of this type to `props`
       props.node = null;
       if (props.active) {
-        var session = this.context.documentSession;
         props.node = documentHelpers.getPropertyAnnotationsForSelection(
           session.getDocument(),
-          session.getSelection(), {
-            type: name
-          }
+          sel,
+          {type: name}
         )[0];
       }
 
