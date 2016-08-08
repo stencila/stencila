@@ -2,6 +2,8 @@
 
 var IsolatedNodeComponent = require('substance/ui/IsolatedNodeComponent');
 var ContainerEditor = require('substance/ui/ContainerEditor');
+var deleteNode = require('substance/model/transform/deleteNode');
+var each = require('substance/node_modules/lodash/each');
 
 var moment = require('moment');
 
@@ -103,11 +105,21 @@ DiscussionComponent.Prototype = function() {
             $$('button')
               .ref('add')
               .addClass('se-add')
+              .attr('title', 'Add comment to discussion')
               .append(
                 $$('i')
                   .addClass('fa fa-reply')
               )
-              .on('click', this.onAddClicked, this)
+              .on('click', this.onAddClicked, this),
+            $$('button')
+              .ref('delete')
+              .addClass('se-delete')
+              .attr('title', 'Delete discussion')
+              .append(
+                $$('i')
+                  .addClass('fa fa-trash')
+              )
+              .on('click', this.onDeleteClicked, this)
           )
     );
   }
@@ -170,6 +182,30 @@ DiscussionComponent.Prototype = function() {
       return args;
     });
 
+  }
+
+  /**
+   * Event method for deleting this discussion and associated `Mark`
+   */
+  this.onDeleteClicked = function() {
+    var discussion = this.props.node;
+    var session = this.context.documentSession;
+    // Destroy this component first
+    this.remove();
+    session.transaction(function(tx, args) {
+
+      // Delete the discussion and associated mark
+      deleteNode(tx, { nodeId: discussion.id });
+      each(session.doc.getNodes(), function(node) {
+        if (node.type === 'mark' && node.target === discussion.id) {
+          deleteNode(tx, { nodeId: node.id });
+        }
+      });
+      // Return a null selection
+      args.selection = tx.createSelection(null);
+      return args;
+
+    }.bind(this));
   }
 
 };

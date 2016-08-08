@@ -59,6 +59,11 @@
 			float: right;
 			color: #DDD;
 		}
+
+		button.se-delete {
+			float: left;
+			color: hsl(0, 100%, 60%);
+		}
 	}
 
 	// Hide slugs (not relevant for this out-of-flow component?)

@@ -147,9 +147,8 @@ BlockToolset.Prototype = function() {
         node = document.get(
           selection.getNodeId()
         );
-        type = node.type;
-        if (type === 'heading') {
-          level = node.level;
+        if (node) {
+          type = node.type;
         }
       }
     }
