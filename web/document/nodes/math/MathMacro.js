@@ -13,7 +13,7 @@ MathMacro.Prototype = function() {
   // must be followed/preceded by a non-space character. For TeX, the first
   // dollar must not be followed by a digit.
   //                2                   5                     
-  this.regex =  /(\|(\S|(\S.*\S))\|)|(\$(([^0-9\s])|([^0-9\s].*\S))\$)$/;
+  this.regex =  /(\|(\S|(\S.*\S))\|)|(\$(([^0-9\s])|([^0-9\s].*\S))\$)/;
   
   this.createNodeData = function(match) {
     var source, language, display;
