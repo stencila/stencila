@@ -59,7 +59,7 @@ BlockNodeMacro.Prototype = function() {
         // Set the selection
         var path;
         if (newNode.isText()) path = newNode.getTextPath();
-        else path = [newNode.id()];
+        else path = [newNode.id];
         args.selection = tx.createSelection(path, 0);
 
         return args;

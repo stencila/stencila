@@ -25,8 +25,7 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/blockquote/BlockquotePackage'));
   this.import(require('substance/packages/code/CodePackage'));
   this.import(require('substance/packages/emphasis/EmphasisPackage'));
-  this.import(require('substance/packages/image/ImagePackage'));
-
+  
   // There is currently (circa beta4) limited supported for lists
   // in Substance (including missing converters; no ordered support etc) 
   // so not including lists at this time
@@ -42,8 +41,6 @@ function DocumentConfigurator() {
 
 
   // "Overrides" of Substance nodes
-  // Image (editing tool)
-  this.addTool('image', require('./nodes/image/ImageTool'));
   // Codeblock (deals with language in import/export and component)
   this.import(require('./nodes/codeblock/CodeblockPackage'));
 
@@ -52,7 +49,6 @@ function DocumentConfigurator() {
   this.addIcon('paragraph', { 'fontawesome': 'fa-paragraph' });
   this.addIcon('list', { 'fontawesome': 'fa-list' });
   this.addIcon('table', { 'fontawesome': 'fa-table' });
-  this.addIcon('image', { 'fontawesome': 'fa-image' });
   this.addIcon('blockquote', { 'fontawesome': 'fa-quote-right' });
   this.addIcon('codeblock', { 'fontawesome': 'fa-code' });
 
@@ -64,6 +60,7 @@ function DocumentConfigurator() {
   this.import(require('./nodes/link/LinkPackage'));
   this.import(require('./nodes/math/MathPackage'));
   this.import(require('./nodes/emoji/EmojiPackage'));
+  this.import(require('./nodes/image/ImagePackage'));
 
   this.import(require('./nodes/execute/ExecutePackage'));
   this.import(require('./nodes/print/PrintPackage'));
