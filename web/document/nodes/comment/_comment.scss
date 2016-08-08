@@ -1,14 +1,11 @@
 [data-comment] {
-  margin: 1em 0;
-  background: #EEE;
-  border-radius: 5px;
-  padding: 0 1em;
-  font-size: 80%;
+  // So that there is no "flash" of content appearance befor Javascript is fully loaded
+  // don't display comments when static mode
+  display: none;
 }
 
 .sc-comment {
-  width: 20em;
-
+  max-width: 30em;
   font-size: 90%;
 
   & > .se-header {

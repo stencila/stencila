@@ -11,7 +11,13 @@
 		// (but may overlap content if naroow screen)
 		display: block;
 		position: absolute;
+		// These positons are fallbacks but are overiden in styles placed on 
+		// individual discussion elements by Javascript
+		top: 1em;
 		right: 1em;
+		// Prevent bashing up against side when dynamically positioned
+		margin-left: 1em;
+		margin-right: 1em;
 	}
 
 	z-index: $z-index-discussion;
@@ -35,7 +41,6 @@
 	}
 
 	& > .se-header {
-		border-radius: 5px 5px 0 0;
 
 		button.se-icon {
 			float: left;
@@ -49,7 +54,6 @@
 	}
 
 	& > .se-footer {
-		border-radius: 0 0 5px 5px;
 
 		button.se-add {
 			float: right;

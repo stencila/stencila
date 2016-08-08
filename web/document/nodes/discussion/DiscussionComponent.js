@@ -24,7 +24,7 @@ DiscussionComponent.Prototype = function() {
   this.getInitialState = function() {
     return {
       displayed: false,
-      top: null
+      markPosition: null
     }
   }
 
@@ -37,12 +37,40 @@ DiscussionComponent.Prototype = function() {
   }
 
   /**
-   * Method override to reflect custom display state
+   * Method override to render component
    */
   this.render = function($$) {
+    // Calculate postion based on the size of the margin for the
+    // document content. Calculations done using ems assuming 16px em size.
+    var content = document.querySelector('.content');
+    var em = 16;
+    var top, left, right;
+    if (content) {
+      var rect = content.getBoundingClientRect();
+      var margin = parseInt(window.getComputedStyle(content).getPropertyValue('margin-right').match(/\d+/));
+      if (margin >= 20*em) {
+        top = em + 'px';
+        left = rect.right + 'px';
+        right = 'inherit';
+      } else {
+        if (this.state.markPosition) {
+          top = this.state.markPosition.top + this.state.markPosition.height + em + 'px';
+        } else {
+          top = 'inherit';
+        }
+        left = 'inherit';
+        right = margin + 'px';
+      }
+    } else {
+      // Fallback to top-right
+      top = em + 'px';
+      right = em + 'px';
+    }
     return _super.render.call(this, $$)
       .addClass('sc-discussion ' + (this.state.displayed ? 'sm-displayed' : ''))
-      .css('top', (this.state.top ? this.state.top + 'px' : ''))
+      .css('top', top)
+      .css('left', left)
+      .css('right', right)
       .insertAt(0,
         $$('div')
           .ref('header')
@@ -94,7 +122,7 @@ DiscussionComponent.Prototype = function() {
   this.onMarkSelected = function(event) {
     this.extendState({
       displayed: event.detail.discussionId == this.props.node.id,
-      top: event.detail.markPosition.top
+      markPosition: event.detail.markPosition
     });
   }
 
