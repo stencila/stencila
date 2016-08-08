@@ -26,7 +26,6 @@ function DocumentConfigurator() {
   this.import(require('substance/packages/code/CodePackage'));
   this.import(require('substance/packages/emphasis/EmphasisPackage'));
   this.import(require('substance/packages/image/ImagePackage'));
-  this.import(require('substance/packages/link/LinkPackage'));
 
   // There is currently (circa beta4) limited supported for lists
   // in Substance (including missing converters; no ordered support etc) 
@@ -43,9 +42,6 @@ function DocumentConfigurator() {
 
 
   // "Overrides" of Substance nodes
-  // Link (overrides of command and tool)
-  this.addCommand('link', require('./nodes/link/LinkCommand'), {nodeType: 'link'});
-  this.addTool('link', require('./nodes/link/LinkTool'));
   // Image (editing tool)
   this.addTool('image', require('./nodes/image/ImageTool'));
   // Codeblock (deals with language in import/export and component)
@@ -65,6 +61,7 @@ function DocumentConfigurator() {
   this.import(require('./nodes/title/TitlePackage'));
   this.import(require('./nodes/summary/SummaryPackage'));
   this.import(require('./nodes/heading/HeadingPackage'));
+  this.import(require('./nodes/link/LinkPackage'));
   this.import(require('./nodes/math/MathPackage'));
   this.import(require('./nodes/emoji/EmojiPackage'));
 

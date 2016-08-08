@@ -57,12 +57,6 @@
 	 	font-size: smaller;
 	}
 
-	a,
-	.sc-link {
-		color: hsl(230,100%,65%);
-		text-decoration: none;
-	}
-
 	code,
 	.sc-code {
 		// Use a shaded background but don't colour text
@@ -99,6 +93,7 @@
 	@import 'nodes/heading/heading';
 	@import 'nodes/paragraph/paragraph';
 
+	@import 'nodes/link/link';
 	@import 'nodes/math/math';
 	@import 'nodes/emoji/emoji';
 
