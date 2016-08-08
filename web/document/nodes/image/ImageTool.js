@@ -35,9 +35,8 @@ ImageTool.Prototype = function() {
               })
               .on('change', function(event){
                 var session = this.context.documentSession;
-                var nodeId = this.props.node.id;
                 session.transaction(function(tx) {
-                  tx.set([nodeId, 'src'], event.target.value);
+                  tx.set([this.props.node.id, 'src'], event.target.value);
                 });
               }.bind(this))
           )

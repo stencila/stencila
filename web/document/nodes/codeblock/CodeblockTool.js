@@ -34,10 +34,9 @@ CodeblockTool.Prototype = function() {
               })
               .val(node.language)
               .on('change', function(event){
-                var surface = this.context.surfaceManager.getFocusedSurface();
-                surface.transaction(function(tx, args) {
+                var session = this.context.documentSession;
+                session.transaction(function(tx, args) {
                   tx.set([node.id, 'language'], event.target.value);
-                  return args;
                 });
               }.bind(this))
           )

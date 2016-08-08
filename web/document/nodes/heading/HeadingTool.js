@@ -36,8 +36,8 @@ HeadingTool.Prototype = function() {
                 return option;
               }))
               .on('change', function(event){
-                var surface = this.context.surfaceManager.getFocusedSurface();
-                surface.transaction(function(tx) {
+                var session = this.context.documentSession;
+                session.transaction(function(tx) {
                   tx.set([node.id, 'level'], parseInt(event.target.value));
                 });
               }.bind(this))
