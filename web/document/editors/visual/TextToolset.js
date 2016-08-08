@@ -1,14 +1,14 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var Tool = require('substance/ui/Tool');
 
 function TextToolset() {
   Component.apply(this, arguments);
 
   this.tools = [
     'emphasis', 'strong', 'subscript', 'superscript', 'code', 
-    'link', 'math', 'print', 'mark', 'emoji'
+    'link', 'mark',
+    'math', 'print', 'emoji'
   ];
 }
 
@@ -28,7 +28,11 @@ TextToolset.Prototype = function() {
       el.append(
         $$(tool.Class, state).ref(name)
       );
-      enabled = enabled || !state.disabled;
+      // An active `Mark` node does not "count" towards enabling the toolbar
+      // (because the associated discussion comes up instead)
+      if (!(name === 'mark' && state.active)) {
+        enabled = enabled || !state.disabled;
+      }
     }.bind(this));
 
     if (enabled) el.addClass('sm-enabled');
