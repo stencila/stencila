@@ -17,7 +17,6 @@ EmojiCommand.Prototype = function() {
     // Active if a math node is selected, disabled if no node and no
     // text selected.
     var annos = props.selectionState.getAnnotationsForType(this.getNodeType());
-    var text = '';
     var text = documentHelpers.getTextForSelection(
       props.selectionState.document,
       props.selectionState.selection
