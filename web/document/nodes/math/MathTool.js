@@ -1,11 +1,12 @@
 'use strict';
 
 var Tool = require('substance/ui/Tool');
-var documentHelpers = require('substance/model/documentHelpers');
-var insertText = require('substance/model/transform/insertText');
+var map = require('substance/node_modules/lodash/map');
 
 /**
- * A tool used for CRUD on `Math` nodes
+ * A tool for editing `Math` nodes
+ * 
+ * Updates the node's `source` property on the `input` event to allow for live updating.
  *
  * @class      MathTool (name)
  */
@@ -18,105 +19,70 @@ MathTool.Prototype = function() {
   var _super = MathTool.super.prototype;
 
   this.render = function($$) {
-
-    // Get details from the currently selected math node (if any)
-    var node = null;
-    var source = '';
-    var language = 'asciimath';
-    var display = 'inline'
-    if (this.props.active) {
-      var session = this.context.documentSession;
-      node = documentHelpers.getPropertyAnnotationsForSelection(
-        session.getDocument(),
-        session.getSelection(), {
-          type: 'math'
-        }
-      )[0];
-      source = node.source;
-      language = node.language;
-      display = node.display;
-    }
-
-    // Render the tool
-    return $$('div')
-      .addClass(
-        'se-tool sc-math-tool' +
-        (this.props.disabled ? ' sm-disabled' : '') +
-        (this.props.active   ? ' sm-active'   : '')
-      )
+    var node = this.props.node;
+    var language = node ? node.language : 'asciimath';
+    var display = node ? node.display : 'inline';
+    return _super.render.call(this, $$)
+      .addClass('sc-math-tool')
       .append(
-        $$('button')
-          .ref('language')
-          .addClass('se-language')
-          .append(
-            $$('i')
-              .addClass('fa fa-' + (language === 'asciimath' ? 'motorcycle' : 'car'))
-          ).on('click', function(event) {
-            // Create a node if necessary, or toggle the language, or change to plain text
-            if (!node) {
-              if (!this.props.disabled) this.performAction();
-            } else {
-              var next;
-              if (language === 'asciimath') {
-                session.transaction(function(tx) {
-                  tx.set([node.id, 'language'], language === 'asciimath' ? 'tex' : 'asciimath');
-                });
-              }
-              else if (language == 'tex') {
-                session.transaction(function(tx) {
-                  tx.delete(node.id);
-                  var result = insertText(tx, {
-                    selection: session.getSelection(),
-                    text: node.source
-                  });
-                  // TODO
-                  // Set the selection to the newly inserted text so that it can be toggled
-                  // baka again to ASCIIMath
-                });
-              }
-              
-            }
-            event.preventDefault();
-            event.stopPropagation();
-          }),
         $$('div')
           .ref('details')
-          .addClass('se-details' + (this.props.active ? ' sm-enabled' : ''))
+          .addClass('se-details')
           .append(
             $$('input')
               .ref('source')
               .addClass('se-source')
               .attr({
-                placeholder: 'AsciiMath expression'
+                placeholder: 'Math markup expression',
+                title: 'Math markup'
               })
-              .val(source)
+              .val(node ? node.source : null)
               .on('input', function(event) {
-                // Update "on-the-fly" (`input` event instead of `change` event) 
-                // so user to that user can see live updates of rendered
-                // math as they change the source
+                var session = this.context.documentSession;
                 session.transaction(function(tx) {
                   tx.set([node.id, 'source'], event.target.value);
                 });
-                event.preventDefault();
-                event.stopPropagation();
-              }),
-            $$('button')
+              }.bind(this)),
+            $$('select')
+              .ref('language')
+              .addClass('se-language')
+              .append(map([['asciimath','AM'],['tex','TeX']], function(item){
+                var option = $$('option')
+                  .val(item[0])
+                  .html(item[1]);
+                if (item[0] == language) option.attr('selected', true);
+                return option;
+              }))
+              .on('change', function(event) {
+                var session = this.context.documentSession;
+                session.transaction(function(tx) {
+                  tx.set([node.id, 'language'], event.target.value);
+                });
+              }.bind(this)),
+            $$('select')
               .ref('display')
               .addClass('se-display')
-              .append(
-                $$('i')
-                  .addClass('fa fa-' + (display === 'block' ? 'square' : 'minus'))
-              )
-              .on('click', function(event) {
-                // Toggle the display mode between block and inline
+              .append(map([['inline','Inline'],['block','Block']], function(item){
+                var option = $$('option')
+                  .val(item[0])
+                  .html(item[1]);
+                if (item[0] == display) option.attr('selected', true);
+                return option;
+              }))
+              .on('change', function(event) {
+                var session = this.context.documentSession;
                 session.transaction(function(tx) {
-                  tx.set([node.id, 'display'], display === 'block' ? 'inline' : 'block');
+                  tx.set([node.id, 'display'], event.target.value);
                 });
-                event.preventDefault();
-                event.stopPropagation();
-              })
+              }.bind(this))
           )
       );
+  };
+
+  this.shouldRerender = function(props) {
+    // Do not re-render if the node has not changed.
+    // This prevents the input box being updated during live editing
+    return (this.props.node === null) || (props.node !== this.props.node);
   };
 
 };

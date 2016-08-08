@@ -1,6 +1,7 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
+var documentHelpers = require('substance/model/documentHelpers');
 
 function TextToolset() {
   Component.apply(this, arguments);
@@ -23,15 +24,31 @@ TextToolset.Prototype = function() {
     var commandStates = this.context.commandManager.getCommandStates();
     this.tools.forEach(function(name) {
       var tool = toolRegistry.get(name);
-      var state = commandStates[name];
-      state.name = name; // A necessary hack at time of writing for icons to render in Substance tools
+      
+      var props = commandStates[name];
+      // Add command name to `props`
+      // A necessary hack at time of writing for icons to render in Substance tools
+      props.name = name;
+      // Add the first selected node of this type to `props`
+      props.node = null;
+      if (props.active) {
+        var session = this.context.documentSession;
+        props.node = documentHelpers.getPropertyAnnotationsForSelection(
+          session.getDocument(),
+          session.getSelection(), {
+            type: name
+          }
+        )[0];
+      }
+
       el.append(
-        $$(tool.Class, state).ref(name)
+        $$(tool.Class, props).ref(name)
       );
+
       // An active `Mark` node does not "count" towards enabling the toolbar
       // (because the associated discussion comes up instead)
-      if (!(name === 'mark' && state.active)) {
-        enabled = enabled || !state.disabled;
+      if (!(name === 'mark' && props.active)) {
+        enabled = enabled || !props.disabled;
       }
     }.bind(this));
 

@@ -1,12 +1,16 @@
 'use strict';
 
 var AnnotationTool = require('substance/ui/AnnotationTool');
-var documentHelpers = require('substance/model/documentHelpers');
 
 /**
+ * A tool for editing `Print` nodes
+ * 
  * A link tool used instead of `substance/packages/link/EditLinkTool`
  * It implements both the on/off of the link annotation as well
  * as it's editing
+ * 
+ * Updates the node `source` property on the `change` event so that
+ * errors don't get generated for incomplete input
  *
  * @class      LinkTool (name)
  */
@@ -19,53 +23,45 @@ LinkTool.Prototype = function() {
   var _super = LinkTool.super.prototype;
 
   this.render = function($$) {
-    var el = _super.render.call(this, $$)
-      .addClass('sc-link-tool');
-
-    var url = '';
-    if (this.props.active) {
-      var session = this.context.documentSession;
-      var link = documentHelpers.getPropertyAnnotationsForSelection(session.getDocument(), session.getSelection(), {
-        type: 'link'
-      })[0];
-      url = link.url;
-    }
-
-    // Render details even if not active so that expansion
-    // animation works 
-    var details = $$('div')
-      .addClass('se-details')
-      .ref('details')
+    var node = this.props.node;
+    return _super.render.call(this, $$)
+      .addClass('sc-link-tool')
       .append(
-        $$('input')
-          .attr({
-            value: url,
-            placeholder: 'Paste or type a URL'
-          })
-          .on('change', function(event){
-            // FIXME
-            // This transaction does not appear in the document content
-            // until after some other user action there.
-            session.transaction(function(tx) {
-              tx.set([link.id, 'url'], event.target.value);
-            });
-          })
-
-        // Link to open the URL (unecessary? as thus currently not implemented)
-        /*
-        $$('a')
-          .attr({
-            href: link.url,
-            title: 'Open link',
-            target: '_blank'
-          })
-          .append('O')
-        */
+        $$('div')
+          .ref('details')
+          .addClass('se-details')
+          .append(
+            $$('input')
+              .ref('url')
+              .addClass('se-url')
+              .attr({
+                placeholder: 'URL address',
+                title: 'Link URL'
+              })
+              .val(node ? node.url : null)
+              .on('change', function(event){
+                var session = this.context.documentSession;
+                session.transaction(function(tx) {
+                  tx.set([node.id, 'url'], event.target.value);
+                }.bind(this));
+              }),
+            $$('a')
+              .ref('open')
+              .addClass('se-open')
+              .attr({
+                href: node ? node.url : null,
+                title: 'Open link',
+                target: '_blank'
+              })
+              .append(
+                $$('button')
+                  .append(
+                    $$('i')
+                      .addClass('fa fa-external-link-square')
+                  )
+              )
+          )
       );
-    if (this.props.active) details.addClass('sm-enabled');
-    el.append(details);
-
-    return el;
   };
 
 };

@@ -1,10 +1,12 @@
 'use strict';
 
 var AnnotationTool = require('substance/ui/AnnotationTool');
-var documentHelpers = require('substance/model/documentHelpers');
 
 /**
- * A tool used for CRUD on `Print` nodes
+ * A tool for editing `Print` nodes
+ * 
+ * Updates the node's `source` property on the `change` event so that
+ * errors don't get generated for incomplete input
  *
  * @class      PrintTool (name)
  */
@@ -17,40 +19,31 @@ PrintTool.Prototype = function() {
   var _super = PrintTool.super.prototype;
 
   this.render = function($$) {
-    var el = _super.render.call(this, $$)
-      .addClass('sc-print-tool');
-
-    var source = null;
-    if (this.props.active) {
-      var session = this.context.documentSession;
-      var print = documentHelpers.getPropertyAnnotationsForSelection(session.getDocument(), session.getSelection(), {
-        type: 'print'
-      })[0];
-      source = print.source;
-    }
-
-    // Render details even if not active so that expansion
-    // animation works 
-    var details = $$('span')
-      .addClass('se-details')
-      .ref('details')
+    var node = this.props.node;
+    return _super.render.call(this, $$)
+      .addClass('sc-print-tool')
       .append(
-        $$('input')
-          .attr({
-            value: source,
-            placeholder: 'A host language expression'
-          })
-          .on('change', function(event){
-            session.transaction(function(tx) {
-              tx.set([print.id, 'source'], event.target.value);
-            });
-            print.refresh();
-          })
+        $$('div')
+          .ref('details')
+          .addClass('se-details')
+          .append(
+            $$('input')
+              .ref('source')
+              .addClass('se-source')
+              .attr({
+                placeholder: 'Host language expression',
+                title: 'Expression to print'
+              })
+              .val(node ? node.source : null)
+              .on('change', function(event){
+                var session = this.context.documentSession;
+                session.transaction(function(tx) {
+                  tx.set([node.id, 'source'], event.target.value);
+                });
+                node.refresh();
+              }.bind(this))
+          )
       );
-    if (this.props.active) details.addClass('sm-enabled');
-    el.append(details);
-
-    return el;
   };
 
 };
