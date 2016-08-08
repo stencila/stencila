@@ -72,6 +72,7 @@ app.get('/tests/:type/*', function (req, res, next) {
     // Generate a simple page with necessary CSS and JS
     var type = req.params.type;
     var page = '<!DOCTYPE html>\n<html><head>';
+    page += '<meta name="viewport" content="width=device-width, initial-scale=1">';
     page += '<link rel="stylesheet" type="text/css" href="/get/web/' + type + '.min.css">';
     page += '<script src="/get/web/' + type + '.min.js"></script>';
     page += '</head><body><main id="content">' + data + '</main></body></html>';
