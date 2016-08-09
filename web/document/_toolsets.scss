@@ -127,6 +127,11 @@
 
 .sc-text-toolset {
 
+	// To save horizontal space don't show disabled buttons
+	.se-tool.sm-disabled {
+		display: none;
+	}
+
 }
 
 /**
