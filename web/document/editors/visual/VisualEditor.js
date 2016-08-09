@@ -6,6 +6,7 @@ var ContainerEditor = require('substance/ui/ContainerEditor');
 
 var OverallToolset = require('./OverallToolset');
 var Overlayer = require('./Overlayer');
+var MacroManager = require('../../ui/MacroManager');
 
 /**
  * A editor for a Stencila Document
@@ -15,9 +16,12 @@ var Overlayer = require('./Overlayer');
 function VisualEditor() {
   VisualEditor.super.apply(this, arguments);
 
-  /**
-   * Bind to events
-   */
+  // Use custom MacroManager
+  this.macroManager.context.documentSession.off(this.macroManager);
+  delete this.macroManager;
+  this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
+
+  // Bind to events
   this.handleActions({
     'edit-toggle': this._editToggle,
     'reveal-toggle': this._revealToggle
