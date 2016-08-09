@@ -10,12 +10,12 @@ var AnnotationMacro = require('../../ui/AnnotationMacro');
  * Note that this is different to Markdown which uses double asterisk or double underscores
  * for "strong emphasis" (here, strong means "strong importance" https://developer.mozilla.org/en/docs/Web/HTML/Element/strong#Emphasis_vs._Strong)
  *
- * @class      CodeMacro (name)
+ * @class      StrongMacro (name)
  */
-function CodeMacro () {
+function StrongMacro () {
 };
 
-CodeMacro.Prototype = function() {
+StrongMacro.Prototype = function() {
 
   this.appliesTo = [];
 
@@ -30,6 +30,6 @@ CodeMacro.Prototype = function() {
 
 };
 
-AnnotationMacro.extend(CodeMacro);
+AnnotationMacro.extend(StrongMacro);
 
-module.exports = CodeMacro;
+module.exports = StrongMacro;

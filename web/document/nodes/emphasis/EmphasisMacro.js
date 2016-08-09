@@ -9,12 +9,12 @@ var AnnotationMacro = require('../../ui/AnnotationMacro');
  * 
  * Note that this is different to Markdown which uses single asterisk or single underscores.
  * 
- * @class      CodeMacro (name)
+ * @class      EmphasisMacro (name)
  */
-function CodeMacro () {
+function EmphasisMacro () {
 };
 
-CodeMacro.Prototype = function() {
+EmphasisMacro.Prototype = function() {
 
   this.appliesTo = [];
 
@@ -29,6 +29,6 @@ CodeMacro.Prototype = function() {
 
 };
 
-AnnotationMacro.extend(CodeMacro);
+AnnotationMacro.extend(EmphasisMacro);
 
-module.exports = CodeMacro;
+module.exports = EmphasisMacro;
