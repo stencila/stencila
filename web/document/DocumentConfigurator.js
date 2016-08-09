@@ -33,7 +33,6 @@ function DocumentConfigurator() {
   // });
   
   this.import(require('substance/packages/paragraph/ParagraphPackage'));
-  this.import(require('substance/packages/strong/StrongPackage'));
   this.import(require('substance/packages/subscript/SubscriptPackage'));
   this.import(require('substance/packages/superscript/SuperscriptPackage'));
   this.import(require('substance/packages/table/TablePackage'));
@@ -53,6 +52,7 @@ function DocumentConfigurator() {
   this.import(require('./nodes/summary/SummaryPackage'));
   this.import(require('./nodes/heading/HeadingPackage'));
 
+  this.import(require('./nodes/strong/StrongPackage'));
   this.import(require('./nodes/code/CodePackage'));
   this.import(require('./nodes/link/LinkPackage'));
   this.import(require('./nodes/math/MathPackage'));

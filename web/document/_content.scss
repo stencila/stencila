@@ -40,11 +40,6 @@
 		font-style: italic;
 	}
 
-	strong,
-	.sc-strong {
-		font-weight: bold;
-	}
-
 	sub,
 	.sc-subscript {
 	 	vertical-align: sub;
@@ -83,6 +78,7 @@
 	@import 'nodes/heading/heading';
 	@import 'nodes/paragraph/paragraph';
 
+	@import 'nodes/strong/strong';
 	@import 'nodes/link/link';
 	@import 'nodes/code/code';
 	@import 'nodes/math/math';
