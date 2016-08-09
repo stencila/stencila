@@ -17,31 +17,43 @@ function CodeEditorComponent() {
   CodeEditorComponent.super.apply(this, arguments);
 
   this.editor = null;
+
+  // In `this._onCodeChanged` and `this._onLanguageChanged`, these custom props
+  // are not on `this.props` for some reason. So, "store" them here.
+  this.codeProperty = this.props.codeProperty;
+  this.languageProperty = this.props.languageProperty;
 }
 
 CodeEditorComponent.Prototype = function() {
 
   this.render = function($$) {
     var node = this.props.node;
-    var el = $$('div')
+    return $$('div')
       .addClass('sc-code-editor')
       .append(
         $$('pre')
           .ref('editor')
-          .text(node.source)
+          .text(node[this.props.codeProperty])
       );
-    return el;
   };
 
   this.didMount = function() {
     var node = this.props.node;
 
+    // Resolve the language for the code
+    var language;
+    if (this.props.languageProperty) {
+      language = node[this.props.languageProperty];
+    } else {
+      language = this.props.language;
+    }
+
     // Attach ACE editor (allows for asynchronous loading of ACE)
     code.attachAceEditor(
       this.refs.editor.getNativeElement(),
-      node.source,
+      node[this.props.codeProperty],
       {
-        language: node.language,
+        language: language,
         fontSize: 14,
         // FIXME
         // This does not update when the editor state is changed (e.g editing turned from off to on)
@@ -68,8 +80,8 @@ CodeEditorComponent.Prototype = function() {
       }.bind(this)
     );
 
-    node.on('language:changed', this._onLanguageChanged, this);
-    node.on('source:changed', this._onSourceChanged, this);
+    node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this);
+    if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this);
   };
 
   this.shouldRerender = function() {
@@ -87,33 +99,35 @@ CodeEditorComponent.Prototype = function() {
    * the node's source
    */
   this._onEditorBlur = function() {
-    var editor = this.editor;
-    var nodeId = this.props.node.id;
-    var source = editor.getValue();
-    if (source !== this.props.node.source) {
+    var node = this.props.node;
+    var codeProperty = this.codeProperty;
+    var code = this.editor.getValue();
+    if (code !== this.props.node[codeProperty]) {
       this.context.surface.transaction(function(tx) {
-        tx.set([nodeId, 'source'], source);
+        tx.set([node.id, codeProperty], code);
       }, { source: this, skipSelection: true });
     }
   };
+
+  /**
+   * When the node's code changes, update the 
+   * editor (if this wasn't the source of the update)
+   */
+  this._onCodeChanged = function(change, info) {
+    var codeProperty = this.codeProperty;
+    if (info.source !== this && this.editor) {
+      this.editor.setValue(this.props.node[codeProperty], -1);
+    }
+  }
 
   /**
    * When the node's language changes, update the 
    * editor (if this wasn't the source of the update)
    */
   this._onLanguageChanged = function(change, info) {
+    var languageProperty = this.languageProperty;
     if (info.source !== this && this.editor) {
-      code.setAceEditorMode(this.editor, this.props.node.language);
-    }
-  }
-
-  /**
-   * When the node's source changes, update the 
-   * editor (if this wasn't the source of the update)
-   */
-  this._onSourceChanged = function(change, info) {
-    if (info.source !== this && this.editor) {
-      this.editor.setValue(this.props.node.source, -1);
+      code.setAceEditorMode(this.editor, this.props.node[languageProperty]);
     }
   }
 

@@ -3,7 +3,9 @@
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 
 
-function CodeblockComponent() {
+function CodeblockComponent(parent, props) {
+  props.codeProperty = 'source';
+  props.languageProperty = 'language';
   CodeblockComponent.super.apply(this, arguments);
 }
 
@@ -12,9 +14,8 @@ CodeblockComponent.Prototype = function() {
   var _super = CodeblockComponent.super.prototype;
 
   this.render = function($$) {
-    var el = _super.render.call(this, $$);
-    el.addClass('sc-codeblock');
-    return el;
+    return _super.render.call(this, $$)
+      .addClass('sc-codeblock');
   };
 
 };
