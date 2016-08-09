@@ -23,7 +23,6 @@ function DocumentConfigurator() {
   // Import Substance packages, in alphabetical order
   this.import(require('substance/packages/base/BasePackage'));
   this.import(require('substance/packages/blockquote/BlockquotePackage'));
-  this.import(require('substance/packages/emphasis/EmphasisPackage'));
   
   // There is currently (circa beta4) limited supported for lists
   // in Substance (including missing converters; no ordered support etc) 
@@ -52,6 +51,7 @@ function DocumentConfigurator() {
   this.import(require('./nodes/summary/SummaryPackage'));
   this.import(require('./nodes/heading/HeadingPackage'));
 
+  this.import(require('./nodes/emphasis/EmphasisPackage'));
   this.import(require('./nodes/strong/StrongPackage'));
   this.import(require('./nodes/code/CodePackage'));
   this.import(require('./nodes/link/LinkPackage'));

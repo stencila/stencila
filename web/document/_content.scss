@@ -35,11 +35,6 @@
 	text-align: justify;
 	color: #333333;
 
-	em,
-	.sc-emphasis {
-		font-style: italic;
-	}
-
 	sub,
 	.sc-subscript {
 	 	vertical-align: sub;
@@ -78,6 +73,7 @@
 	@import 'nodes/heading/heading';
 	@import 'nodes/paragraph/paragraph';
 
+	@import 'nodes/emphasis/emphasis';
 	@import 'nodes/strong/strong';
 	@import 'nodes/link/link';
 	@import 'nodes/code/code';
