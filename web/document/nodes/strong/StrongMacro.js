@@ -22,7 +22,6 @@ CodeMacro.Prototype = function() {
   this.regex =  /\*([^\*]+)\*/;
   
   this.createNodeData = function(match) {
-  	console.log(match[0]);
     return {
       type: 'strong',
       text: match[1]
