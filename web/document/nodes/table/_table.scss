@@ -1,0 +1,32 @@
+table {
+	width: 100%;
+	background: #FFF;
+	margin: 1em 0em;
+	border: 1px solid #CCC;
+	box-shadow: none;
+	border-radius: 3px;
+	text-align: left;
+	border-collapse: separate;
+	border-spacing: 0px;
+
+	caption {
+		text-align: left;
+		margin-bottom: 1em;
+		font-weight: bold;
+	}
+
+	thead, th {
+		background: #EEE;
+	}
+
+	tr {
+		td, th {
+			padding: 0.5em;
+			border-top: 1px solid #DDD;
+			border-right: 1px solid #DDD;
+			td:last-child {
+				border-right: none;
+			}
+		}
+	}
+}

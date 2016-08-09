@@ -1,5 +1,9 @@
-.sc-default {
-  border: 1px solid #F3F3F3;
-  padding: 10px;
-  cursor: not-allowed;
+.sc-isolated-node.sm-default-style.sm-default {
+	& > .se-slug {
+		height: 1px;
+	}
+
+	& > .se-container {
+	}
 }
+

@@ -34,30 +34,6 @@
 	line-height: 1.5em;
 	text-align: justify;
 	color: #333333;
-
-	sub,
-	.sc-subscript {
-	 	vertical-align: sub;
-	 	font-size: smaller;
-	}
-
-	sup,
-	.sc-superscript {
-	  	vertical-align: super;
-	 	font-size: smaller;
-	}
-
-	li,
-	.sc-list-item {
-	  margin: 0 0 0 1em;
-	  position: relative;
-
-	  &.sm-unordered:before {
-		position: absolute;
-		content: "•";
-		left: -20px;
-	  }
-	}
 }
 
 // Elements for which there is a style in `nodes` folder.
@@ -75,11 +51,15 @@
 
 	@import 'nodes/emphasis/emphasis';
 	@import 'nodes/strong/strong';
+	@import 'nodes/subscript/subscript';
+	@import 'nodes/superscript/superscript';
 	@import 'nodes/link/link';
 	@import 'nodes/code/code';
 	@import 'nodes/math/math';
 	@import 'nodes/emoji/emoji';
 
+	@import 'nodes/list/list';
+	@import 'nodes/table/table';
 	@import 'nodes/image/image';
 	@import 'nodes/blockquote/blockquote';
 	@import 'nodes/codeblock/codeblock';
