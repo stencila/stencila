@@ -23,12 +23,10 @@ AnnotationMacro.Prototype = function() {
       });
 
       // Create annotation
-      tx.create({
-        type: data.type,
-        path: newText.selection.path,
-        startOffset: newText.selection.startOffset - newText.text.length,
-        endOffset: newText.selection.endOffset
-      });
+      data.path = newText.selection.path;
+      data.startOffset = newText.selection.startOffset - newText.text.length;
+      data.endOffset = newText.selection.endOffset;
+      tx.create(data);
 
       // Insert a space to end the annotation
       // CHECK Is there a better way to do this?
