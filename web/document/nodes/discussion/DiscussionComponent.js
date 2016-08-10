@@ -46,15 +46,17 @@ DiscussionComponent.Prototype = function() {
     // document content. Calculations done using ems assuming 16px em size.
     var content = document.querySelector('.content');
     var em = 16;
-    var top, left, right;
+    var position, top, left, right;
     if (content) {
       var rect = content.getBoundingClientRect();
       var margin = parseInt(window.getComputedStyle(content).getPropertyValue('margin-right').match(/\d+/));
       if (margin >= 20*em) {
+        position = 'fixed';
         top = em + 'px';
         left = rect.right + 'px';
         right = 'inherit';
       } else {
+        position = 'absolute';
         if (this.state.markPosition) {
           top = this.state.markPosition.top + this.state.markPosition.height + em + 'px';
         } else {
@@ -65,14 +67,18 @@ DiscussionComponent.Prototype = function() {
       }
     } else {
       // Fallback to top-right
+      position = 'fixed';
       top = em + 'px';
       right = em + 'px';
     }
     return _super.render.call(this, $$)
       .addClass('sc-discussion ' + (this.state.displayed ? 'sm-displayed' : ''))
-      .css('top', top)
-      .css('left', left)
-      .css('right', right)
+      .css({
+        position: position,
+        top: top,
+        left: left,
+        right: right
+      })
       .insertAt(0,
         $$('div')
           .ref('header')

@@ -7,10 +7,10 @@
 	display: none;
 
 	&.sm-displayed {
-		// Display discussion to right of screen
-		// (but may overlap content if naroow screen)
+		// Display discussion to right of screen so for longer documents
+		// always visible as scrolling
 		display: block;
-		position: absolute;
+		position: fixed;
 		// These positons are fallbacks but are overiden in styles placed on 
 		// individual discussion elements by Javascript
 		top: 1em;
