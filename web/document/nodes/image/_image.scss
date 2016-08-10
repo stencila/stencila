@@ -21,14 +21,14 @@ img,
 		}
 	}
 
-	// When seleted place outline around image, not container
+	// When selected place outline around image, not container
 	&.sm-selected {
 		& > .se-container {
 			background: none;
 			outline: none;
 		}
 		img {
-			outline: 2px solid $local-selection-color;
+			@extend .stencila-selected;
 		}
 	}
 }

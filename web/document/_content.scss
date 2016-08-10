@@ -75,11 +75,15 @@
 
 // Specific styling for content
 // when in the `VisualEditor`
-.sc-visual-editor [data-id=content] {
+.sc-visual-editor {
 
 	// No outline on editable nodes
-	&,
 	[contenteditable="true"] {
 		outline: none;
+	}
+
+	.sc-isolated-node.sm-default-style.sm-selected > .se-container, 
+	.sc-isolated-node.sm-default-style.sm-co-selected > .se-container {
+		@extend .stencila-selected;
 	}
 }

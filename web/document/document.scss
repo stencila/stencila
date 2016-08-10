@@ -7,7 +7,7 @@
 // Generally we only using Substance styles that are "non-visual" and
 // more related to implementing functionality (e.g. positioning) of
 // Substance components
-$local-selection-color: #A3CDFD;
+$local-selection-color: hsla(93, 100%, 70%, 0.5);
 $collaborator-color-1: #A4E57A;
 $collaborator-color-2: #BC90FF;
 $collaborator-color-3: #D6BB4C;
@@ -31,6 +31,12 @@ $stencila-green-hue: 93;
 $stencila-green-saturation: 90%;
 $stencila-green-lightness: 50%;
 $z-index-discussion: 100;
+
+.stencila-selected {
+	background: hsla($stencila-green-hue, 100%, 85%, 0.5);
+	outline: 2px solid hsla($stencila-green-hue, 100%, 70%, 0.5);
+}
+
 @import 'resets';
 @import 'content';
 @import 'toolsets';
