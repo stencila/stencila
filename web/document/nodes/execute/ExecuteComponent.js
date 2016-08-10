@@ -2,10 +2,10 @@
 
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 
-function ExecuteComponent() {
+function ExecuteComponent(parent, props) {
   props.codeProperty = 'source';
   props.languageProperty = 'language';
-  ExecuteComponent.super.apply(this, arguments);
+  ExecuteComponent.super.call(this, parent, props);
 }
 
 ExecuteComponent.Prototype = function() {
