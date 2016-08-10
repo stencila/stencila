@@ -1,4 +1,21 @@
 .sc-isolated-node.sm-default-style.sm-default {
+
+	&.sm-selected > .se-container {
+		padding: 3px;
+		margin: -3px;
+	}
+
+	.sc-code-editor {
+		.ace_editor {
+			border-radius: 5px;
+		}
+	}
+	&.sm-not-selected {
+		.sc-code-editor {
+			display: none;
+		}
+	}
+
 	& > .se-slug {
 		height: 1px;
 	}

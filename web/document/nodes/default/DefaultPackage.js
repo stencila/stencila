@@ -13,9 +13,9 @@ module.exports = {
     config.addConverter('html', DefaultHTMLConverter);
     config.addConverter('xml', DefaultXMLConverter);
     config.addComponent('default', DefaultComponent);
-    config.addIcon('default', { 'fontawesome': 'fa-lemon-o' });
+    config.addIcon('default', { 'fontawesome': 'fa-circle-o' });
     config.addLabel('default', {
-      en: 'Default'
+      en: 'Default node'
     });
   }
 };

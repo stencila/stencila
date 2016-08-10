@@ -9,6 +9,7 @@ var BlockTool = require('../../ui/BlockTool');
 var HeadingTool = require('../../nodes/heading/HeadingTool');
 var ImageTool = require('../../nodes/image/ImageTool');
 var CodeblockTool = require('../../nodes/codeblock/CodeblockTool');
+var DefaultTool = require('../../nodes/default/DefaultTool');
 
 
 function BlockToolset() {
@@ -26,7 +27,8 @@ function BlockToolset() {
   this.tools = {
     'heading' : HeadingTool,
     'image' : ImageTool,
-    'codeblock': CodeblockTool
+    'codeblock': CodeblockTool,
+    'default': DefaultTool
   };
 }
 
@@ -58,23 +60,13 @@ BlockToolset.Prototype = function() {
 
     el.addClass('sm-enabled');
 
+
     if (this.state.expanded) el.addClass('sm-expanded');
 
     this.primaryTypes.forEach(function(type) {
-      var ToolClass = this.tools[type] || BlockTool;
-      var active = selected.type==type;
-      var disabled = !active && !this._canChange(selected, type);
-      var tool = $$(ToolClass, {
-        toolset: this,
-        name: type,
-        disabled: disabled,
-        active: active,
-        node: selected.node
-      }).ref(type+'Tool');
-      el.append(
-        tool
-      );
+      this._addTool(selected, type, el, $$)
     }.bind(this));
+
 
     if (this.state.extended) el.addClass('sm-extended');
     el.append(
@@ -98,17 +90,9 @@ BlockToolset.Prototype = function() {
       .ref('extension')
       .addClass('se-extension');
     this.secondaryTypes.forEach(function(type) {
-      var active = selected.type==type;
-      var disabled = !this._canChange(selected, type);
-      extension.append(
-        $$(BlockTool, {
-          toolset: this,
-          name: type,
-          disabled: disabled,
-          active: active
-        }).ref(type+'Tool')
-      );
+      this._addTool(selected, type, extension, $$)
     }.bind(this));
+
     el.append(
       extension
     );
@@ -157,6 +141,22 @@ BlockToolset.Prototype = function() {
       type: type,
       node: node
     };
+  }
+
+  this._addTool = function(selected, type, el, $$) {
+    var ToolClass = this.tools[type] || BlockTool;
+    var active = selected.type==type;
+    var disabled = !active && !this._canChange(selected, type);
+    var tool = $$(ToolClass, {
+      toolset: this,
+      name: type,
+      disabled: disabled,
+      active: active,
+      node: selected.node
+    }).ref(type+'Tool');
+    el.append(
+      tool
+    );
   }
 
   /**

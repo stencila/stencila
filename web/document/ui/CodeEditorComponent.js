@@ -31,7 +31,7 @@ CodeEditorComponent.Prototype = function() {
     return $$('div')
       .addClass('sc-code-editor')
       .append(
-        $$('pre')
+        $$('div')
           .ref('editor')
           .text(node[this.props.codeProperty])
       );
@@ -54,7 +54,7 @@ CodeEditorComponent.Prototype = function() {
       node[this.props.codeProperty],
       {
         language: language,
-        fontSize: 14,
+        fontSize: 15,
         // FIXME
         // This does not update when the editor state is changed (e.g editing turned from off to on)
         // Probably needs a custom event like `_onContentChanged` below

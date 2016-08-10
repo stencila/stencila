@@ -185,6 +185,10 @@
 		}
 	}
 
+	.se-tool.sm-active.sc-default-tool {
+		max-width: 6em;
+	}
+
 	.se-tool.se-extend i {
 		color: hsl(200, 100%, 50%);
 	}
