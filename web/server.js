@@ -24,34 +24,6 @@ var fs = require('fs');
 var glob = require('glob');
 
 
-function nameToPath(name){
-  var matches = name.match(/(\w+)-?(\w+)?/);
-  var clas = matches[1];
-  var mode = matches[2];
-  var file = mode?(clas+'-'+mode):clas;
-  return path.join(__dirname, clas, file);
-}
-
-var handleBrowserifyError = function(err, res) {
-  console.error(err.message);
-  //This crashes server for some strange reason, so commented out
-  //res.send('console.log("Browserify error '+err.message+'");');
-};
-
-var handleError = function(err, res) {
-  console.error(err);
-  res.status(400).json(err);
-};
-
-var renderSass = function(name,cb) {
-  sass.render({
-    file: nameToPath(name)+'.scss',
-    sourceMap: true,
-    outFile: name+'.min.css',
-  }, cb);
-};
-
-
 var app = express();
 
 // Paths specific to development
@@ -84,33 +56,50 @@ app.get('/tests/:type/*', function (req, res, next) {
 
 // Paths that normally get served statically...
 
+function nameToPath(name){
+  var matches = name.match(/(\w+)-?(\w+)?/);
+  var clas = matches[1];
+  var mode = matches[2];
+  var file = mode?(clas+'-'+mode):clas;
+  return path.join(__dirname, clas, file);
+}
+
 // Javascript
 app.get('/get/web/:name.min.js', function (req, res, next) {
-  browserify({ debug: true, cache: false })
+  browserify({
+    debug: true,
+    cache: false
+  })
     .add(nameToPath(req.params.name)+'.js')
     .bundle()
-    .on('error', function(err){
-      handleBrowserifyError(err);
+    .on('error', function(err) {
+      console.error(err.message);
+      res.send('console.error("Browserify error: ' + err.message + '");');
     })
     .pipe(res);
 });
 
 // CSS
+function sassify(name, output, res) {
+  sass.render({
+    file: nameToPath(name)+'.scss',
+    sourceMap: true,
+    outFile: name+'.min.css',
+  }, function(err, result){
+    if (err) {
+      console.error(err);
+      res.status(500).json(err);
+      return;
+    }
+    res.set('Content-Type', 'text/css');
+    res.send(result[output]);
+  });
+}
 app.get('/get/web/:name.min.css', function(req, res) {
-  renderSass(req.params.name,function(err, result) {
-    if (err) return handleError(err, res);
-    res.set('Content-Type', 'text/css');
-    res.send(result.css);
-  });
+  sassify(req.params.name, 'css', res);
 });
-
-// CSS map
 app.get('/get/web/:name.min.css.map', function(req, res) {
-  renderSass(req.params.name,function(err, result) {
-    if (err) return handleError(err, res);
-    res.set('Content-Type', 'text/css');
-    res.send(result.map);
-  });
+  sassify(req.params.name, 'map', res);
 });
 
 // Images
