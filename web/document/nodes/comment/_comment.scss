@@ -9,25 +9,27 @@
   font-size: 90%;
 
   & > .se-header {
-
-    background: #EEE;
+    background: #dcdcdc;
     padding: 0.1em 0.5em 0 0.5em;
+    color: #777;
 
     .se-who {
       display: inline-block;
-      color: #888;
     }
 
     .se-when {
       display: inline-block;
       float: right;
-      color: #AAA;
     }
   }
 
   // Hide slugs (not relevant for this out-of-flow component?)
   & > .se-slug {
     display: none;
+  }
+
+  & > .se-container.sm-disabled {
+    background: #f1f1f1;
   }
 
   .sc-container-editor {

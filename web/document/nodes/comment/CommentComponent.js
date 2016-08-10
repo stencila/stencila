@@ -24,10 +24,19 @@ CommentComponent.Prototype = function() {
   }
 
   /**
+   * Method override to disable the comment unless the current user
+   * is the original author of the comment
+   */
+  this.isDisabled = function() {
+    return this.props.node.who !== ('@' + this.context.doc.user);
+  }
+
+  /**
    * Method override so no blocker is rendered over this
    * `IsolatedNodeComponent` (requires two clicks to begin editing)
    */
   this.shouldRenderBlocker = function() {
+    // CHECK Is this method needed?
     return false;
   }
 
