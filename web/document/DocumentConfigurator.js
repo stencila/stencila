@@ -14,7 +14,8 @@ var Configurator = require('substance/util/Configurator');
 function DocumentConfigurator() {
   DocumentConfigurator.super.apply(this, arguments);
 
-  // Define the schema (used by importer)
+  // Define the schema (used by `getSchema()` to generate a `DocumentSchema` based on this
+  // and the nodes added below by imports)
   this.defineSchema({
     name: 'stencila-document',
     defaultTextType: 'paragraph'
