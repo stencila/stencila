@@ -95,11 +95,6 @@ VisualEditor.Prototype = function() {
     return el;
   };
 
-  this.didMount = function() {
-    var editor = this.refs.containerEditor;
-    if (editor.isEmpty()) editor.onCreateText();
-  }
-
   /**
    * Update editor when document session is updated.
    * 
