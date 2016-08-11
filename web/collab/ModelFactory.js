@@ -5,20 +5,18 @@ var oo = require('substance/util/oo');
 var DocumentModel = require('../document/DocumentModel');
 
 /**
- * A factory for creating Stencila components based on the
+ * A factory for creating Stencila component models based on the
  * schema name
  * 
- * Used by `./SnapshotEngine`. The "Document" in `DocumentFactory`
- * refers to a Substance `Document` and this factor can create
- * all types of Stencila components
+ * Used by `./SnapshotEngine`.
  *
- * @class      DocumentFactory (name)
+ * @class      ModelFactory (name)
  * @param      {<type>}  config  The configuration
  */
-function DocumentFactory(config) {
+function ModelFactory(config) {
 }
 
-DocumentFactory.Prototype = function() {
+ModelFactory.Prototype = function() {
 
   this.create = function(schemaName) {
     if (schemaName === 'stencila-document') {
@@ -30,6 +28,6 @@ DocumentFactory.Prototype = function() {
 
 };
 
-oo.initClass(DocumentFactory);
+oo.initClass(ModelFactory);
 
-module.exports = DocumentFactory;
+module.exports = ModelFactory;

@@ -3,9 +3,9 @@
 var ChangeStoreBase = require('substance/collab/ChangeStore');
 
 /**
- * Stores changes to Stencila component sessions.
+ * Stores changes to Stencila component jams.
  * 
- * Used to sync component sessions across collaborators.
+ * Used to sync component jam sessions across collaborators.
  *
  * @class      ChangeStore (name)
  */

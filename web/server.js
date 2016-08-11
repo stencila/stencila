@@ -128,22 +128,22 @@ app.get('/favicon.ico', function(req, res) {
 
 // Collaboration server
 
+var JamStore = require('./collab/JamStore');
 var ChangeStore = require('./collab/ChangeStore');
-var DocumentStore = require('./collab/DocumentStore');
-var DocumentFactory = require('./collab/DocumentFactory');
+var ModelFactory = require('./collab/ModelFactory');
 var SnapshotEngine = require('./collab/SnapshotEngine');
 
 var DocumentEngine = require('substance/collab/DocumentEngine');
 var CollabServer = require('substance/collab/CollabServer');
 var DocumentServer = require('substance/collab/DocumentServer');
 
-var documentStore = new DocumentStore();
+var documentStore = new JamStore();
 var changeStore = new ChangeStore();
 
 var snapshotEngine = new SnapshotEngine({
   documentStore: documentStore,
   changeStore: changeStore,
-  documentFactory: new DocumentFactory()
+  modelFactory: new ModelFactory()
 });
 
 var documentEngine = new DocumentEngine({
@@ -159,7 +159,7 @@ var collabServer = new CollabServer({
 collabServer.bind(wsServer);
 
 var documentServer = new DocumentServer({
-  path: '/session',
+  path: '/jam',
   documentEngine: documentEngine
 });
 documentServer.bind(app);

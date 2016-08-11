@@ -26,6 +26,8 @@ var VisualEditor = require('./editors/visual/VisualEditor');
 function DocumentApp() {
   Component.apply(this, arguments);
 
+  this.address = 'default';
+
   // Override capability settings based on rights
   // TODO
   this.reveal = this.props.reveal;
@@ -126,8 +128,9 @@ DocumentApp.Prototype = function() {
 
     } else {
 
-      // Get the document from the `DocumentServer`...
-      this.documentClient.getDocument('session/default@edit', function(err, documentRecord) {
+      // Get the component jam from the `DocumentServer`...
+      var jamId = this.address + '?jam=comment';
+      this.documentClient.getDocument('jam/' + jamId, function(err, componentJam) {
 
         // ... display any errors
         if (err) {
@@ -141,13 +144,13 @@ DocumentApp.Prototype = function() {
         }
 
         // ... import the JSON
-        this.importJSON(documentRecord.data);
+        this.importJSON(componentJam.data);
 
         // ... create a new collaborative document session and add it to state
         // to trigger rerendering
         var documentSession = new CollabSession(this.doc, {
-          documentId: documentRecord.documentId,
-          version: documentRecord.version,
+          documentId: componentJam.documentId,
+          version: componentJam.version,
           collabClient: this.collabClient
         });
         this.setState({
