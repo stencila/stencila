@@ -24,7 +24,7 @@ $collaborator-color-10: #FFB533;
 @import '../node_modules/substance/styles/components/scroll-pane';
 @import '../node_modules/substance/styles/components/overlay';
 
-// Stencila styles
+
 $sans-font-family: 'Lato', Helvetica, Arial, Verdana, sans-serif;
 $mono-font-family: 'Source Code Pro', mono;
 $stencila-green-hue: 93;
@@ -32,11 +32,14 @@ $stencila-green-saturation: 90%;
 $stencila-green-lightness: 50%;
 $z-index-discussion: 100;
 
+// Application styles
+@import 'app';
+@import 'toolsets';
+
+// Document styles
 .stencila-selected {
 	background: hsla($stencila-green-hue, 100%, 85%, 0.5);
 	outline: 2px solid hsla($stencila-green-hue, 100%, 70%, 0.5);
 }
-
 @import 'resets';
 @import 'content';
-@import 'toolsets';

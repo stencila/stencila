@@ -11,12 +11,21 @@ var code = require('../shared/code');
  * content 
  */
 window.onload = function() {
-  // Check parameters for options
+  // Check URL parameters for options with defaults
+  // determined by host.
+  // Note: thses may be overidden in the `DocumentApp` depending
+  // upon user rights for the document
   var params = utilities.location.params();
-  var statico = (params.static || '0') != '0';
-  var reveal = (params.reveal || '0') != '0';
-  var edit = (params.edit || '0') != '0';
-  var collab = (params.collab || '1') != '0';
+  var local = (window.host === 'localhost:7373') ? '1' : '0';
+  // Static/dynamic (Javasctpit loaded or not) defaults to dynamic
+  var statico = (params.static || '0') !== '0';
+  // Reveal, comment and edit modes default to `on` when
+  // local and `off` otherwise
+  var reveal = (params.reveal || local) !== '0';
+  var comment = (params.comment || local) !== '0';
+  var edit = (params.edit || local) !== '0';
+  // Collaboration defaults to `off` when local and `on` otherwise
+  var collab = (params.collab || (local === '0')) !== '0';
 
   if (!statico) {
 
@@ -37,7 +46,9 @@ window.onload = function() {
       var DocumentApp = require('./DocumentApp');
       window.app = DocumentApp.mount({
         html: html,
+        local: local !== '0',
         reveal: reveal,
+        comment: comment,
         edit: edit,
         collab: collab
       }, document.body);

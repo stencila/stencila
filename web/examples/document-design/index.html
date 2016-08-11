@@ -23,6 +23,10 @@
 
         <p>This is an example Stencila document for informal testing of the browser user application in `web/document`.</p>
 
+
+        Reveal mode: lets you see directives, including errors
+        Edit mode: lets you edit. usually edit with reveal on,but can turn it off if you want to focus on the prose and don't want the distractions of code.
+
         <h2>Title</h2>
 
         <p>A document can have an optional <em>title</em> (like this document does!). Right now, you can change any text block into a title, but in the future we need to ensure that there is only one title in a document - if you change a block to a title then any existing title should automatically convert to a paragraph.</p>
@@ -69,6 +73,42 @@
         <h1>Lists</h1>
 
         <p>Currently, support for lists in Substance is limited. We'll incorporate lists into Stencila documents when that improves.</p>
+
+        <p> An unordered list</p>        
+
+        <ul>
+            <li>Apple</li>
+            <li>Pear</li>
+            <li>Guava</li>
+        </ul>
+
+        <p> An ordered list</p>
+
+        <ol>
+            <li>First</li>
+            <li>Second</li>
+            <li>Third</li>
+        </ol>
+
+        
+        <h1> Tables </h1>
+
+        <table>
+            <tbody>
+                <tr><td>Cell 1</td><td>Cell 2</td></tr>
+                <tr><td>Cell 3</td><td>Cell 4</td></tr>
+            </tbody>
+        </table>
+
+
+        <h1> A div </h1>
+
+        <div>
+            <p>Para 1</p>
+            <p>Para 2</p>
+            <p>Para 3</p>
+        </div>
+
 
 
         <h1>Blockquote</h1>
@@ -125,6 +165,7 @@ b = 2
         <h1>Print directive</h1>
 
         <p> A print directive <span data-print="6*7">42</span>. </p>
+
 
     </main>
 

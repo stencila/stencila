@@ -2,7 +2,13 @@
 
 var ChangeStoreBase = require('substance/collab/ChangeStore');
 
-
+/**
+ * Stores changes to Stencila component sessions.
+ * 
+ * Used to sync component sessions across collaborators.
+ *
+ * @class      ChangeStore (name)
+ */
 function ChangeStore() {
   ChangeStore.super.apply(this, arguments);
 
@@ -21,7 +27,7 @@ ChangeStore.Prototype = function() {
   this._getVersion = function(documentId) {
     console.log('ChangeStore._getVersion ' + documentId);
     var changes = this._changes[documentId];
-    return changes ? (changes.length+1) : 1;
+    return changes ? changes.length : 0;
   };
 
   this._getChanges = function(documentId) {
@@ -30,7 +36,7 @@ ChangeStore.Prototype = function() {
   };
 
   this._addChange = function(documentId, change) {
-    console.log('ChangeStore._addChange ' + documentId + JSON.stringify(change));
+    console.log('ChangeStore._addChange ' + documentId);
     if (!this._changes[documentId]) {
       this._changes[documentId] = [];
     }

@@ -27,6 +27,13 @@ module.exports = {
     });
     config.addIcon('fork', { 'fontawesome': 'fa-code-fork'});
 
+    // Comment
+    config.addTool('comment', require('./CommentTool'));
+    config.addLabel('comment', {
+      'en': 'Comment'
+    });
+    config.addIcon('comment', { 'fontawesome': 'fa-comment-o'});
+
     // Reveal
     config.addTool('reveal', require('./RevealTool'));
     config.addLabel('reveal', {

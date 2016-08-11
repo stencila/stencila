@@ -3,8 +3,9 @@
 var Component = require('substance/ui/Component');
 var Tool = require('substance/ui/Tool');
 
-var RevealTool = require('./RevealTool');
 var RefreshTool = require('./RefreshTool');
+var RevealTool = require('./RevealTool');
+var CommentTool = require('./CommentTool');
 var EditTool = require('./EditTool');
 var SaveTool = require('./SaveTool');
 var CommitTool = require('./CommitTool');
@@ -24,12 +25,16 @@ OverallToolset.Prototype = function() {
     var el = $$('div').addClass('sc-toolset sc-overall-toolset');
 
     el.append(
+      $$(RefreshTool, this._getCommandState('refresh'))
+        .ref('refreshTool'),
       $$(RevealTool, {
         name: 'reveal',
         active: this.parent.state.reveal
       }).ref('revealTool'),
-      $$(RefreshTool, this._getCommandState('refresh'))
-        .ref('refreshTool'),
+      $$(CommentTool, {
+        name: 'comment',
+        active: this.parent.state.comment
+      }).ref('commentTool'),
       $$(EditTool, {
         name: 'edit',
         active: this.parent.state.edit

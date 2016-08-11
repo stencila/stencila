@@ -23,8 +23,9 @@ function VisualEditor() {
 
   // Bind to events
   this.handleActions({
+    'reveal-toggle': this._revealToggle,
+    'comment-toggle': this._commentToggle,
     'edit-toggle': this._editToggle,
-    'reveal-toggle': this._revealToggle
   });
 }
 
@@ -37,12 +38,14 @@ VisualEditor.Prototype = function() {
   */
   this.getInitialState = function() {
     // Initially, if in edit mode, then also turn on reveal mode
-    // (user can turn off edit later if they want to)
+    // and comment mode (user can turn off these later if they want to)
     // See also `this._editToggle`
-    var edit = this.props.edit && this.props.rights=='write';
+    var edit = this.props.edit;
     var reveal = this.props.reveal || edit;
+    var comment = this.props.comment || edit;
     return {
       reveal: reveal,
+      comment: comment,
       edit: edit
     };
   };
@@ -85,12 +88,17 @@ VisualEditor.Prototype = function() {
             disabled: !this.state.edit,
             commands: configurator.getSurfaceCommandNames(),
             textTypes: configurator.getTextTypes()
-          }).ref('content')
+          }).ref('containerEditor')
         )
     );
 
     return el;
   };
+
+  this.didMount = function() {
+    var editor = this.refs.containerEditor;
+    if (editor.isEmpty()) editor.onCreateText();
+  }
 
   /**
    * Update editor when document session is updated.
@@ -118,6 +126,15 @@ VisualEditor.Prototype = function() {
   }
 
   /**
+   * Toggle the `comment` state
+   */
+  this._commentToggle = function() {
+    this.extendState({
+      comment: !this.state.comment
+    })
+  }
+
+  /**
    * Toggle the `edit` state. If edit mode is getting turned on
    * then reveal mode is also automatically turned on.
    */
@@ -125,6 +142,7 @@ VisualEditor.Prototype = function() {
     var edit = !this.state.edit;
     this.extendState({
       reveal: edit || this.state.reveal,
+      comment: edit || this.state.comment,
       edit: edit
     })
   }

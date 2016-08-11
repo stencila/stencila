@@ -126,6 +126,46 @@ app.get('/favicon.ico', function(req, res) {
 });
 
 
+// Collaboration server
+
+var ChangeStore = require('./collab/ChangeStore');
+var DocumentStore = require('./collab/DocumentStore');
+var DocumentFactory = require('./collab/DocumentFactory');
+var SnapshotEngine = require('./collab/SnapshotEngine');
+
+var DocumentEngine = require('substance/collab/DocumentEngine');
+var CollabServer = require('substance/collab/CollabServer');
+var DocumentServer = require('substance/collab/DocumentServer');
+
+var documentStore = new DocumentStore();
+var changeStore = new ChangeStore();
+
+var snapshotEngine = new SnapshotEngine({
+  documentStore: documentStore,
+  changeStore: changeStore,
+  documentFactory: new DocumentFactory()
+});
+
+var documentEngine = new DocumentEngine({
+  documentStore: documentStore,
+  changeStore: changeStore,
+  snapshotEngine: snapshotEngine
+});
+
+var collabServer = new CollabServer({
+  heartbeat: 30*1000,
+  documentEngine: documentEngine
+});
+collabServer.bind(wsServer);
+
+var documentServer = new DocumentServer({
+  path: '/session',
+  documentEngine: documentEngine
+});
+documentServer.bind(app);
+
+
+
 // Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
@@ -152,42 +192,13 @@ app.use('*', proxy(upstream, {
   },
 }));
 
+
+
 // Tell express not to set an Etag header
 app.set('etag', false);
 
 // Delegate http requests to express app
 httpServer.on('request', app);
-
-
-
-// Collaboration server
-
-var ChangeStore = require('./collab/ChangeStore');
-var DocumentStore = require('./collab/DocumentStore');
-var DocumentEngine = require('substance/collab/DocumentEngine');
-var CollabServer = require('substance/collab/CollabServer');
-
-var documentEngine = new DocumentEngine({
-  schemas: {
-    'stencila-document': {
-      name: 'stencila-document',
-      version: '1.0.0'
-    }
-  },
-  documentStore: new DocumentStore(),
-  changeStore: new ChangeStore()
-});
-
-var collabServer = new CollabServer({
-  heartbeat: 30*1000,
-  documentEngine: documentEngine
-});
-
-collabServer.bind(wsServer);
-
-
-
-
 
 // Serve app
 var host = 'localhost';

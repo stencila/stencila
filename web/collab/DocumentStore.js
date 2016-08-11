@@ -3,12 +3,25 @@
 var DocumentStoreBase = require('substance/collab/DocumentStore');
 var extend = require('lodash/object/extend');
 
-
+/**
+ * Stores Stencila component sessions.
+ * 
+ * Used to sync component sessions across collaborators.
+ *
+ * @class      DocumentStore (name)
+ * @param      {<type>}  config  The configuration
+ */
 function DocumentStore(config) {
   DocumentStore.super.apply(this, arguments);
 
   this._documents = {
-    default : {}
+    
+    'default@edit' : {
+      id: 'default@edit',
+      schemaName: 'stencila-document',
+      version: 0
+    }
+    
   };
 }
 
@@ -24,7 +37,6 @@ DocumentStore.Prototype = function() {
     delete this._documents[documentId];
   };
 
-  // Get document record
   this._getDocument = function(documentId) {
     console.log('DocumentStore._getDocument ' + documentId);
     return this._documents[documentId];

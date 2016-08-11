@@ -19,7 +19,7 @@ var DocumentModel = function(schema) {
   // Create a root body container node for the document
   this.create({
     type: "container",
-    id: "body",
+    id: "content",
     nodes: []
   });
 };
