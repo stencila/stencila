@@ -1,8 +1,12 @@
 /*
 ASCIIMathTeXImg.js
 
-Obtained from https://github.com/asciimath/asciimathml/blob/master/asciimath-based/ASCIIMathTeXImg.js
-at #f649ba49f639b7e5322d6552193226c03e88ba7e
+Based on https://github.com/asciimath/asciimathml/blob/master/asciimath-based/ASCIIMathTeXImg.js
+at #f649ba49f639b7e5322d6552193226c03e88ba7e with folllowing changes:
+
+- converted to a CommonJS module
+  (allows use in Node.js instead of requiring that `window` is present) 
+
 
 Based on ASCIIMathML, Version 1.4.7 Aug 30, 2005, (c) Peter Jipsen http://www.chapman.edu/~jipsen
 Modified with TeX conversion for IMG rendering Sept 6, 2006 (c) David Lippman http://www.pierce.ctc.edu/dlippman
@@ -28,10 +32,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-//var AMTcgiloc = '';     //set to the URL of your LaTex renderer
-var noMathRender = false;
+module.exports = (function() {
 
-(function() {
 var config = {
   translateOnLoad: true,      //true to autotranslate
   mathcolor: "",              // defaults to back, or specify any other color
@@ -998,46 +1000,12 @@ var AMnoMathML = true;
 
 AMinitSymbols();
 
-window.translate = translate;
-window.AMTconfig = config;
-window.AMprocessNode = AMprocessNode;
-window.AMparseMath = AMparseMath;
-window.AMTparseMath = AMparseMath;
-window.AMTparseAMtoTeX = AMTparseAMtoTeX;
+return {
+  AMTconfig: config,
+  AMprocessNode: AMprocessNode,
+  AMparseMath: AMparseMath,
+  AMTparseMath: AMparseMath,
+  AMTparseAMtoTeX: AMTparseAMtoTeX
+};
 
-function generic(){
-  if (config.translateOnLoad) {
-      translate();
-  }
-}
-
-//setup onload function
-if(typeof window.addEventListener != 'undefined'){
-  //.. gecko, safari, konqueror and standard
-  window.addEventListener('load', generic, false);
-}
-else if(typeof document.addEventListener != 'undefined'){
-  //.. opera 7
-  document.addEventListener('load', generic, false);
-}
-else if(typeof window.attachEvent != 'undefined'){
-  //.. win/ie
-  window.attachEvent('onload', generic);
-}else{
-  //.. mac/ie5 and anything else that gets this far
-  //if there's an existing onload function
-  if(typeof window.onload == 'function'){
-    //store it
-    var existing = onload;
-    //add new onload handler
-    window.onload = function(){
-      //call existing onload function
-      existing();
-      //call generic onload function
-      generic();
-    };
-  }else{
-    window.onload = generic;
-  }
-}
 })();

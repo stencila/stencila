@@ -12,7 +12,7 @@
  */
 
 var katex = require('katex');
-require('./ASCIIMathTeXImg');
+var am = require('./ASCIIMathTeXImg');
 
 module.exports = {
     
@@ -31,7 +31,7 @@ module.exports = {
     if (language === 'tex' || language === 'latex') {
       tex = source;
     } else {
-      tex = window.AMTparseAMtoTeX(source);
+      tex = am.AMTparseAMtoTeX(source);
     }
     return katex.renderToString(tex, {
       displayMode: display === 'block'
