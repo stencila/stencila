@@ -23,6 +23,14 @@ var browserify = require("browserify");
 var fs = require('fs');
 var glob = require('glob');
 
+var http = require('http');
+var ws = require('ws');
+
+var httpServer = http.createServer();
+var wsServer = new ws.Server({ server: httpServer });
+
+
+// Main application
 
 var app = express();
 
@@ -144,14 +152,48 @@ app.use('*', proxy(upstream, {
   },
 }));
 
-
 // Tell express not to set an Etag header
 app.set('etag', false);
 
+// Delegate http requests to express app
+httpServer.on('request', app);
+
+
+
+// Collaboration server
+
+var ChangeStore = require('./collab/ChangeStore');
+var DocumentStore = require('./collab/DocumentStore');
+var DocumentEngine = require('substance/collab/DocumentEngine');
+var CollabServer = require('substance/collab/CollabServer');
+
+var documentEngine = new DocumentEngine({
+  schemas: {
+    'stencila-document': {
+      name: 'stencila-document',
+      version: '1.0.0'
+    }
+  },
+  documentStore: new DocumentStore(),
+  changeStore: new ChangeStore()
+});
+
+var collabServer = new CollabServer({
+  heartbeat: 30*1000,
+  documentEngine: documentEngine
+});
+
+collabServer.bind(wsServer);
+
+
+
+
+
 // Serve app
+var host = 'localhost';
 var port = process.env.PORT || 5000;
-app.listen(port, function(){
-  console.log("Running at http://localhost:"+port+"/");
+httpServer.listen(port, host, function(){
+  console.log("Running at http://localhost:" + httpServer.address().port + "/");
 });
 
 // Export app for requiring in test files

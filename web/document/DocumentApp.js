@@ -2,6 +2,9 @@
 
 var Component = require('substance/ui/Component');
 var DocumentSession = require('substance/model/DocumentSession');
+var CollabClient = require('substance/collab/CollabClient');
+var CollabSession = require('substance/collab/CollabSession');
+var WebSocketConnection = require('substance/collab/WebSocketConnection');
 
 var DocumentModel = require('./DocumentModel');
 
@@ -18,23 +21,30 @@ var VisualEditor = require('./editors/visual/VisualEditor');
  */
 function DocumentApp() {
   Component.apply(this, arguments);
+
+  this.doc = DocumentModel.import(this.props.html);
+
+  if (this.props.collab) {
+    this.collabConn = new WebSocketConnection({
+      wsUrl: 'ws://localhost:5000'
+    });
+
+    this.collabClient = new CollabClient({
+      connection: this.collabConn
+    });
+
+    this.documentSession = new CollabSession(this.doc, {
+      documentId: 'default',
+      version: 1,
+      collabClient: this.collabClient
+    });
+  } else {
+    this.documentSession = new DocumentSession(this.doc);
+  }
+
 }
 
 DocumentApp.Prototype = function() {
-
-  /**
-  * Get the initial state of the application
-  *
-  * @return     {Object}  The initial state.
-  */
-  this.getInitialState = function() {
-    var doc = DocumentModel.import(this.props.html);
-    var documentSession = new DocumentSession(doc);
-    return {
-      doc: doc,
-      documentSession: documentSession
-    };
-  };
 
   /**
   * Render the application
@@ -51,10 +61,11 @@ DocumentApp.Prototype = function() {
         // Parameters of the app
         reveal: this.props.reveal,
         edit: this.props.edit,
+        collab: this.props.collab,
         // Props of document that affect editor
-        rights: this.state.doc.rights,
+        rights: this.doc.rights,
         // Other required props
-        documentSession: this.state.documentSession,
+        documentSession: this.documentSession,
         configurator: configurator
       }).ref('visualEditor')
     );

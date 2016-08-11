@@ -16,6 +16,7 @@ window.onload = function() {
   var statico = (params.static || '0') != '0';
   var reveal = (params.reveal || '0') != '0';
   var edit = (params.edit || '0') != '0';
+  var collab = (params.collab || '1') != '0';
 
   if (!statico) {
 
@@ -37,7 +38,8 @@ window.onload = function() {
       window.app = DocumentApp.mount({
         html: html,
         reveal: reveal,
-        edit: edit
+        edit: edit,
+        collab: collab
       }, document.body);
 
       // Load ACE editor

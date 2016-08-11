@@ -9,14 +9,15 @@
     "jquery": "^2.1.4",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
     "katex": "0.6.0",
-    "lodash": "3.3.1",
+    "lodash": "^3.3.1",
     "mathjax": "^2.6.1",
     "moment": "^2.14.1",
     "node-normalize-scss": "^1.0.3",
     "node-sass": "3.x",
     "raven-js": "^2.1.1",
     "semantic-ui-css": "2.1.8",
-    "substance": "stencila/substance#develop"
+    "substance": "stencila/substance#develop",
+    "ws": "^1.1.1"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
