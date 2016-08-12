@@ -102,6 +102,10 @@ script:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo make -C r build; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r cover; fi
 
+    # Web module
+    - sudo make -C web setup
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C web cover; fi
+
     # Docker module
     - |
         if [[ "$DOCKER_BUILDS" == "true" ]]; then
