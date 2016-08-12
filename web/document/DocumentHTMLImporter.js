@@ -15,9 +15,7 @@ function DocumentHTMLImporter(options) {
     // Required configuration for an importer
     DocumentClass: DocumentModel,
     schema: options.configurator.getSchema(),
-    converters: options.configurator.getConverterRegistry().get('html'),
-    // Override the default name for the id attribute
-    idAttribute: 'data-uiid'
+    converters: options.configurator.getConverterRegistry().get('html')
   });
 }
 
@@ -36,7 +34,7 @@ DocumentHTMLImporter.Prototype = function() {
 
   /**
    * Method override to provide a default for
-   * importing HTM elements not matched by `converters` 
+   * importing HTML elements not matched by `converters` 
    */
   this.defaultConverter = function(el, converter) {
     var nodeData = DefaultHTMLConverter.createNodeData();

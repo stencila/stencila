@@ -11,9 +11,7 @@ var DocumentModel = require('./DocumentModel');
  */
 function DocumentHTMLExporter(options) {
   DocumentHTMLExporter.super.call(this, {
-    converters: options.configurator.getConverterRegistry().get('html'),
-    // Override the default name for the id attribute
-    idAttribute: 'data-uiid'
+    converters: options.configurator.getConverterRegistry().get('html')
   });
 }
 
