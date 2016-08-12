@@ -16,8 +16,14 @@ function JamStore(config) {
 
   this._jams = {
     
-    'default@edit' : {
-      id: 'default@edit',
+    'default:comment' : {
+      id: 'default:comment',
+      schemaName: 'stencila-document',
+      version: 0
+    },
+
+    'default:edit' : {
+      id: 'default:edit',
       schemaName: 'stencila-document',
       version: 0
     }

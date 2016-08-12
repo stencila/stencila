@@ -71,7 +71,8 @@ function DocumentConfigurator() {
 
   this.import(require('./nodes/default/DefaultPackage'));
 
-  // Import editor packages
+  // Import UI packages
+  this.import(require('./tools/ToolsPackage'));
   this.import(require('./editors/visual/VisualEditorPackage'));
 
 }

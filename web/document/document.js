@@ -24,8 +24,8 @@ window.onload = function() {
   var reveal = (params.reveal || local) !== '0';
   var comment = (params.comment || local) !== '0';
   var edit = (params.edit || local) !== '0';
-  // Collaboration defaults to `off` when local and `on` otherwise
-  var collab = (params.collab || (local === '0')) !== '0';
+  // Collaboration jam session defaults to `null`
+  var jam = params.jam || null;
 
   if (!statico) {
 
@@ -50,7 +50,7 @@ window.onload = function() {
         reveal: reveal,
         comment: comment,
         edit: edit,
-        collab: collab
+        jam: jam
       }, document.body);
 
       // Load ACE editor

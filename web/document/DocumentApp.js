@@ -24,45 +24,53 @@ var VisualEditor = require('./editors/visual/VisualEditor');
  * @class      DocumentApp (name)
  */
 function DocumentApp() {
-  Component.apply(this, arguments);
+  DocumentApp.super.apply(this, arguments);
 
   this.address = 'default';
 
-  // Override capability settings based on rights
-  // TODO
-  this.reveal = this.props.reveal;
-  this.comment = this.props.comment;
-  this.edit = this.props.edit;
-
-  // Collaboration setting `off` unless remote and comment or edit 
-  // capabilities (in which case as set by caller)
-  this.collab = false;
-  if (!this.props.local && (this.comment || this.edit)) {
-    this.collab = this.props.collab;
+  // Collaboration jam session is always null if a local
+  // session and  `edit` or `comment` as necessary if remote
+  this.jam = this.props.jam;
+  if (this.props.local) {
+    this.jam = null;
+  } else if (!this.jam) {
+    if (this.edit) this.jam = 'edit';
+    else if (this.comment) this.jam = 'comment';
   }
 
-  if (this.collab) {
+  // Setup collaboration
+  this.jamClient = new DocumentClient({
+    httpUrl: 'http://localhost:5000/'
+  });
+  this.collabConn = new WebSocketConnection({
+    wsUrl: 'ws://localhost:5000/'
+  });
+  this.collabClient = new CollabClient({
+    connection: this.collabConn
+  });
 
-    this.documentClient = new DocumentClient({
-      httpUrl: 'http://localhost:5000/'
-    });
-
-    this.collabConn = new WebSocketConnection({
-      wsUrl: 'ws://localhost:5000/'
-    });
-
-    this.collabClient = new CollabClient({
-      connection: this.collabConn
-    });
-
-  }
+  // Bind to events
+  this.handleActions({
+    'reveal-toggle': this.toggleReveal,
+    'comment-toggle': this.toggleComment,
+    'edit-toggle': this.toggleEdit,
+  });
 
 }
 
 DocumentApp.Prototype = function() {
 
   this.getInitialState = function() {
+    // Initially, if in edit mode, then also turn on reveal mode
+    // and comment mode (user can turn off these later if they want to)
+    // See also `this.toggleEdit`
+    var edit = this.props.edit;
+    var reveal = this.props.reveal || edit;
+    var comment = this.props.comment || edit;
     return {
+      reveal: reveal,
+      comment: comment,
+      edit: edit,
       documentSession: null,
       message: null
     };
@@ -79,13 +87,22 @@ DocumentApp.Prototype = function() {
 
     if (this.state.documentSession) {
       // Render the visual WYSIWYG editor
+      var session = null;
+      var jam = null;
+      if (this.jam) {
+        jam = {
+          name: this.jam,
+          people : Object.keys(this.state.documentSession.collaborators).length + 1
+        };
+      }
       el.append(
         $$(VisualEditor, {
-          // Capability settings
-          reveal: this.reveal,
-          comment: this.comment,
-          edit: this.edit,
-          collab: this.collab,
+          // Document state
+          session: session,
+          jam: jam,
+          reveal: this.state.reveal,
+          comment: this.state.comment,
+          edit: this.state.edit,
           // Other required props
           documentSession: this.state.documentSession,
           configurator: configurator
@@ -114,7 +131,7 @@ DocumentApp.Prototype = function() {
   };
 
   this.didMount = function() {
-    if (!this.collab) {
+    if (!this.jam) {
 
       // Import the HTML provided from the page into a new document
       this.importHTML(this.props.html);
@@ -122,45 +139,66 @@ DocumentApp.Prototype = function() {
       // Create a new document session and add it to state to trigger
       // rerendering
       var documentSession = new DocumentSession(this.doc);
-      this.setState({
+      this.extendState({
         documentSession: documentSession
       });
 
     } else {
 
-      // Get the component jam from the `DocumentServer`...
-      var jamId = this.address + '?jam=comment';
-      this.documentClient.getDocument('jam/' + jamId, function(err, componentJam) {
-
-        // ... display any errors
-        if (err) {
-          console.error(err);
-          return this.extendState({
-            message: {
-              type: 'error',
-              string: 'Unable to get document: ' + err
-            }
-          });
-        }
-
-        // ... import the JSON
-        this.importJSON(componentJam.data);
-
-        // ... create a new collaborative document session and add it to state
-        // to trigger rerendering
-        var documentSession = new CollabSession(this.doc, {
-          documentId: componentJam.documentId,
-          version: componentJam.version,
-          collabClient: this.collabClient
-        });
-        this.setState({
-          documentSession: documentSession
-        });
-
-      }.bind(this));
+      // Load initial Jam
+      this.loadJam(this.jam);
 
     }
   };
+
+  this.loadJam = function(jam) {
+    this.jam = jam;
+
+    this.extendState({
+      documentSession: null
+    });
+
+    // Get the component jam from the `DocumentServer`...
+    var jamId = this.address + ':' + this.jam;
+    this.jamClient.getDocument('jam/' + jamId, function(err, componentJam) {
+
+      // ... display any errors
+      if (err) {
+        console.error(err);
+        return this.extendState({
+          message: {
+            type: 'error',
+            string: 'Unable to get document: ' + err
+          }
+        });
+      }
+
+      // ... import the JSON
+      this.importJSON(componentJam.data);
+
+      // ... create a new collaborative document session and add it to state
+      // to trigger rerendering
+      var documentSession = new CollabSession(this.doc, {
+        documentId: componentJam.documentId,
+        version: componentJam.version,
+        collabClient: this.collabClient
+      });
+      this.extendState({
+        documentSession: documentSession
+      });
+
+    }.bind(this));
+  };
+
+  this.requireJam = function(capability) {
+    if (!this.props.local) {
+      if (capability == 'edit' && this.jam != 'edit') {
+        this.loadJam('edit');
+      } else if (capability == 'comment' && !(this.jam == 'comment' || this.jam == 'edit')) {
+        this.loadJam('comment');
+      }
+    }
+  }
 
   this.importJSON = function(content) {
     this.doc = new DocumentModel();
@@ -186,6 +224,39 @@ DocumentApp.Prototype = function() {
     });
     return htmlExporter.exportDocument(this.doc);
   };
+
+  /**
+   * Toggle the `reveal` state
+   */
+  this.toggleReveal = function() {
+    this.extendState({
+      reveal: !this.state.reveal
+    })
+  }
+
+  /**
+   * Toggle the `comment` state
+   */
+  this.toggleComment = function() {
+    this.extendState({
+      comment: !this.state.comment
+    });
+    if (this.state.comment) this.requireJam('comment');
+  }
+
+  /**
+   * Toggle the `edit` state. If edit mode is getting turned on
+   * then reveal mode is also automatically turned on.
+   */
+  this.toggleEdit = function() {
+    var edit = !this.state.edit;
+    this.extendState({
+      reveal: edit || this.state.reveal,
+      comment: edit || this.state.comment,
+      edit: edit
+    });
+    if (this.state.edit) this.requireJam('edit');
+  }
 
 };
 

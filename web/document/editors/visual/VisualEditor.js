@@ -4,7 +4,7 @@ var AbstractEditor = require('substance/ui/AbstractEditor');
 var ScrollPane = require('substance/ui/ScrollPane');
 var ContainerEditor = require('substance/ui/ContainerEditor');
 
-var OverallToolset = require('./OverallToolset');
+var DocumentToolset = require('../../DocumentToolset');
 var Overlayer = require('./Overlayer');
 var MacroManager = require('../../ui/MacroManager');
 
@@ -20,35 +20,9 @@ function VisualEditor() {
   this.macroManager.context.documentSession.off(this.macroManager);
   delete this.macroManager;
   this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
-
-  // Bind to events
-  this.handleActions({
-    'reveal-toggle': this._revealToggle,
-    'comment-toggle': this._commentToggle,
-    'edit-toggle': this._editToggle,
-  });
 }
 
 VisualEditor.Prototype = function() {
-
-  /**
-  * Get the initial state of the editor
-  *
-  * @return     {Object}  The initial state.
-  */
-  this.getInitialState = function() {
-    // Initially, if in edit mode, then also turn on reveal mode
-    // and comment mode (user can turn off these later if they want to)
-    // See also `this._editToggle`
-    var edit = this.props.edit;
-    var reveal = this.props.reveal || edit;
-    var comment = this.props.comment || edit;
-    return {
-      reveal: reveal,
-      comment: comment,
-      edit: edit
-    };
-  };
 
   /**
    * Render this editor
@@ -58,18 +32,20 @@ VisualEditor.Prototype = function() {
 
     var el = $$('div').addClass('sc-visual-editor');
 
-    // Toggle classes to match state and update
-    // the extracted command states so relevant tools are
-    // updated accordingly
+    // Toggle classes to match properties
     ['reveal', 'edit'].forEach(function(item) {
-      if (this.state[item]) el.addClass('sm-'+item);
+      if (this.props[item]) el.addClass('sm-'+item);
     }.bind(this));
 
-    // A Toolset for whole document commands
+    // Document toolset (becuase of the way in which
+    // tools and commands work, this has to go here, under an `AbstractEditor`,
+    // instead of under the `DocumentApp`)
     el.append(
-      $$(OverallToolset,{
-        reveal: this.state.reveal,
-        edit: this.state.edit
+      $$(DocumentToolset,{
+        jam: this.props.jam,
+        reveal: this.props.reveal,
+        comment: this.props.comment,
+        edit: this.props.edit
       }).ref('overallToolset')
     );
 
@@ -85,7 +61,7 @@ VisualEditor.Prototype = function() {
           // A  ContainerEditor  for the content of the document
           $$(ContainerEditor, {
             containerId: 'content',
-            disabled: !this.state.edit,
+            disabled: !this.props.edit,
             commands: configurator.getSurfaceCommandNames(),
             textTypes: configurator.getTextTypes()
           }).ref('containerEditor')
@@ -110,37 +86,6 @@ VisualEditor.Prototype = function() {
       });
     }.bind(this));
   };
-
-  /**
-   * Toggle the `reveal` state
-   */
-  this._revealToggle = function() {
-    this.extendState({
-      reveal: !this.state.reveal
-    })
-  }
-
-  /**
-   * Toggle the `comment` state
-   */
-  this._commentToggle = function() {
-    this.extendState({
-      comment: !this.state.comment
-    })
-  }
-
-  /**
-   * Toggle the `edit` state. If edit mode is getting turned on
-   * then reveal mode is also automatically turned on.
-   */
-  this._editToggle = function() {
-    var edit = !this.state.edit;
-    this.extendState({
-      reveal: edit || this.state.reveal,
-      comment: edit || this.state.comment,
-      edit: edit
-    })
-  }
 
 };
 
