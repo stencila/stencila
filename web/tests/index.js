@@ -1,0 +1,1 @@
+require('./document/nodes/paragraph');

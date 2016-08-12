@@ -33,7 +33,9 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.4.1",
     "gulp-util": "^3.0.6",
+    "istanbul": "^0.4.4",
     "npm-install-version": "^5.0.5",
+    "tape": "^4.6.0",
     "through2": "^2.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
@@ -43,6 +45,8 @@
     "jquery.hotkeys": "./node_modules/jquery.hotkeys/jquery.hotkeys.js"
   },
   "scripts": {
-    "postinstall": "./postinstall.sh"
+    "postinstall": "./postinstall.sh",
+    "test": "node tests",
+    "cover": "node_modules/.bin/istanbul cover tests"
   }
 }

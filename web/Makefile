@@ -25,6 +25,14 @@ devserve:
 devserve-hub:
 	node server.js https://stenci.la
 
+# Run tests
+test:
+	npm test
+
+# Run tests with coverage
+cover:
+	npm run cover
+
 publish:
 ifeq (dirty,$(DIRTY))
 	$(error Publish not done for dirty versions. Commit or stash and try again.)
