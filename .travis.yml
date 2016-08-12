@@ -65,6 +65,7 @@ before_script:
     - g++ --version
     - cmake --version
     - node --version
+    - npm --version
     - python --version
     - pip show pip setuptools wheel virtualenv
     - R --version
@@ -103,7 +104,7 @@ script:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C r cover; fi
 
     # Web module
-    - sudo make -C web setup
+    - make -C web setup
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C web cover; fi
 
     # Docker module
