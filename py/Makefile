@@ -33,7 +33,7 @@ endif
 test:
 ifeq ($(OS), win)
 # Virtalenv fails to install on MSYS2 (see issue #200)
-# So this workaround installs the stancila package and runs tests "manually" (i.e. not using tox/virtualenv)
+# So this workaround installs the Stencila package and runs tests "manually" (i.e. not using tox/virtualenv)
 	pip install --user --upgrade --force-reinstall dist/$(WHEEL_FILE)
 	python tests/test_stencila.py
 else
