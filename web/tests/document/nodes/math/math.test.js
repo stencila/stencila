@@ -14,15 +14,15 @@ test('MathHTMLConverter', function (assert) {
 
   var input = 
     '<p data-id="p1">' + 
-      '<span data-id="m1" data-math="asciimath">x &lt; 1</span> .' +
-      '<span data-id="m2" data-math="tex">y &gt; 2</span> .' +
+      '<span data-id="m1" data-math="asciimath">x = 1</span> .' +
+      '<span data-id="m2" data-math="tex">y = 2</span> .' +
       '<span data-id="m3" data-math="tex block">\\pi</span> .' + 
     '</p>';
 
   var output = 
     '<p data-id="p1">' + 
-      '<span data-id="m1" data-math="asciimath">x &lt; 1</span> .' +
-      '<span data-id="m2" data-math="tex">y &gt; 2</span> .' +
+      '<span data-id="m1" data-math="asciimath">x = 1</span> .' +
+      '<span data-id="m2" data-math="tex">y = 2</span> .' +
       '<span data-id="m3" data-math="tex block">\\pi</span> .' +
     '</p>';
 
@@ -37,13 +37,13 @@ test('MathHTMLConverter', function (assert) {
   assert.equal(m1.type, 'math');
   assert.equal(m1.language, 'asciimath');
   assert.equal(m1.display, 'inline');
-  assert.equal(m1.source, 'x < 1');
+  assert.equal(m1.source, 'x = 1');
 
   var m2 = doc.get('m2').toJSON();
   assert.equal(m2.type, 'math');
   assert.equal(m2.language, 'tex');
   assert.equal(m2.display, 'inline');
-  assert.equal(m2.source, 'y > 2');
+  assert.equal(m2.source, 'y = 2');
 
   var m3 = doc.get('m3').toJSON();
   assert.equal(m3.type, 'math');
