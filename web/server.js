@@ -45,7 +45,7 @@ app.get('/', function(req, res){
 app.get('/tests', function (req, res, next) {
   res.send(
     '<!DOCTYPE html>\n<html><head></head><body>' + 
-    '<script src="tests-bundle.js"></script>' + 
+    'Yo! Open up a console (Ctrl+Shift+I) to see tests results. <script src="tests-bundle.js"></script>' + 
     '</body></html>'
   );
 });

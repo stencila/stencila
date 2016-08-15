@@ -29,6 +29,10 @@ serve-dev-hub:
 test:
 	npm test
 
+# Run tests in node with debugger
+test-debug:
+	node-debug  tests
+
 # Run tests with coverage
 cover:
 	npm run cover
