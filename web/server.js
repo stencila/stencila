@@ -41,10 +41,29 @@ app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Examples
-app.use('/examples', express.static(path.join(__dirname, "examples")));
+// Tests
+app.get('/tests', function (req, res, next) {
+  res.send(
+    '<!DOCTYPE html>\n<html><head></head><body>' + 
+    '<script src="tests/index.js"></script>' + 
+    '</body></html>'
+  );
+});
+app.get('/tests/index.js', function (req, res, next) {
+  browserify({
+    debug: true,
+    cache: false
+  })
+    .add(path.join(__dirname, 'tests/index.js'))
+    .bundle()
+    .on('error', function(err) {
+      console.error(err.message);
+      res.send('console.error("Browserify error: ' + err.message + '");');
+    })
+    .pipe(res);
+});
 
-// Test HTML snippets are served up with the associated CSS and JS
+// Test HTML pages are served up with the associated CSS and JS
 // These pages are intended fo interactive testing of one node type
 app.get('/tests/:type/*', function (req, res, next) {
   fs.readFile(path.join(__dirname, req.path, 'index.html'), "utf8", function (err, data) {
@@ -61,6 +80,8 @@ app.get('/tests/:type/*', function (req, res, next) {
   })
 });
 
+// Examples
+app.use('/examples', express.static(path.join(__dirname, "examples")));
 
 // Paths that normally get served statically...
 
@@ -128,17 +149,18 @@ app.get('/favicon.ico', function(req, res) {
 
 // Collaboration server
 
-var JamStore = require('./collab/JamStore');
+var DocumentStore = require('./collab/DocumentStore');
 var ChangeStore = require('./collab/ChangeStore');
 var ModelFactory = require('./collab/ModelFactory');
 var SnapshotEngine = require('./collab/SnapshotEngine');
+var DocumentEngine = require('./collab/DocumentEngine');
 
-var DocumentEngine = require('substance/collab/DocumentEngine');
 var CollabServer = require('substance/collab/CollabServer');
 var DocumentServer = require('substance/collab/DocumentServer');
 
-var documentStore = new JamStore();
+var documentStore = new DocumentStore();
 var changeStore = new ChangeStore();
+var modelFactory = new ModelFactory();
 
 var snapshotEngine = new SnapshotEngine({
   documentStore: documentStore,
@@ -149,7 +171,8 @@ var snapshotEngine = new SnapshotEngine({
 var documentEngine = new DocumentEngine({
   documentStore: documentStore,
   changeStore: changeStore,
-  snapshotEngine: snapshotEngine
+  snapshotEngine: snapshotEngine,
+  modelFactory: modelFactory
 });
 
 var collabServer = new CollabServer({
