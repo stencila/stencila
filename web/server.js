@@ -45,11 +45,11 @@ app.get('/', function(req, res){
 app.get('/tests', function (req, res, next) {
   res.send(
     '<!DOCTYPE html>\n<html><head></head><body>' + 
-    '<script src="tests/index.js"></script>' + 
+    '<script src="tests-bundle.js"></script>' + 
     '</body></html>'
   );
 });
-app.get('/tests/index.js', function (req, res, next) {
+app.get('/tests-bundle.js', function (req, res, next) {
   browserify({
     debug: true,
     cache: false
