@@ -21,7 +21,7 @@ function SnapshotEngine(config) {
 SnapshotEngine.Prototype = function() {
 
   this._createDocumentInstance = function(schemaName) {
-    return this.modelFactory.create(schemaName);
+    return this.modelFactory.createDocument(schemaName);
   };
 
 };
