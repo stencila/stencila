@@ -1,4 +1,4 @@
-require('./document/nodes/paragraph');
-require('./document/nodes/strong');
-require('./document/nodes/math');
-require('./document/nodes/emoji');
+var glob = require('glob');
+glob.sync(__dirname + '/**/*.test.js').forEach(function(path){
+	require(path);
+});

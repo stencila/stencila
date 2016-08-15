@@ -36,6 +36,17 @@ var app = express();
 
 // Paths specific to development
 
+// Enable mockery in development so that developers don't
+// neeed to have netwrok services installed and running
+var mockery = require('mockery');
+// Require `fakeredis` before enabling `mockery` so that
+// fakeredis can itself load properly
+mockery.registerMock('redis', require('fakeredis'));
+mockery.enable({
+  warnOnReplace: false,
+  warnOnUnregistered: false
+});
+
 // Home page
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -51,10 +62,10 @@ app.get('/tests', function (req, res, next) {
 });
 app.get('/tests-bundle.js', function (req, res, next) {
   browserify({
+    entries: glob.sync('tests/**/*.test.js'),
     debug: true,
     cache: false
   })
-    .add(path.join(__dirname, 'tests/index.js'))
     .bundle()
     .on('error', function(err) {
       console.error(err.message);
