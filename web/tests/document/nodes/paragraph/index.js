@@ -11,7 +11,7 @@ test('ParagraphHTMLConverter', function (assert) {
   var converter = new TestDocumentHTMLConverter(config);
 
   var content = 
-  	'<p data-id="p1">Para 1</p>' + 
+    '<p data-id="p1">Para 1</p>' + 
     '<p data-id="p2">Para 2</p>';
 
 
