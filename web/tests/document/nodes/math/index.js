@@ -5,7 +5,6 @@ var TestDocumentHTMLConverter = require('../../../helpers/TestDocumentHTMLConver
 
 var config = new TestConfigurator([
   require('../../../../document/nodes/math/MathPackage'),
-
   require('../../../../document/nodes/paragraph/ParagraphPackage')
 ]);
 
@@ -13,13 +12,21 @@ var config = new TestConfigurator([
 test('MathHTMLConverter', function (assert) {
   var converter = new TestDocumentHTMLConverter(config);
 
-  var content = 
-  	'<p data-id="p1">' + 
-  		'Surround <script data-id="m1" type="math/asciimath">x < 1</script> .' + 
-    	'Surround <script data-id="m2" type="math/tex">y > 2</script> .' + 
+  var input = 
+    '<p data-id="p1">' + 
+      '<span data-id="m1" data-math="asciimath">x &lt; 1</span> .' +
+      '<span data-id="m2" data-math="tex">y &gt; 2</span> .' +
+      '<span data-id="m3" data-math="tex block">\\pi</span> .' + 
     '</p>';
 
-  var doc = converter.import(content+'\n');
+  var output = 
+    '<p data-id="p1">' + 
+      '<span data-id="m1" data-math="asciimath">x &lt; 1</span> .' +
+      '<span data-id="m2" data-math="tex">y &gt; 2</span> .' +
+      '<span data-id="m3" data-math="tex block">\\pi</span> .' +
+    '</p>';
+
+  var doc = converter.import(input+'\n');
 
   assert.deepEqual(
     doc.get('content').toJSON(), 
@@ -29,18 +36,23 @@ test('MathHTMLConverter', function (assert) {
   var m1 = doc.get('m1').toJSON();
   assert.equal(m1.type, 'math');
   assert.equal(m1.language, 'asciimath');
+  assert.equal(m1.display, 'inline');
   assert.equal(m1.source, 'x < 1');
 
   var m2 = doc.get('m2').toJSON();
   assert.equal(m2.type, 'math');
   assert.equal(m2.language, 'tex');
+  assert.equal(m2.display, 'inline');
   assert.equal(m2.source, 'y > 2');
 
-
-  var html = converter.export(doc);
+  var m3 = doc.get('m3').toJSON();
+  assert.equal(m3.type, 'math');
+  assert.equal(m3.language, 'tex');
+  assert.equal(m3.display, 'block');
+  assert.equal(m3.source, '\\pi');
   
   assert.equal(
-  	html, content
+  	converter.export(doc), output
   )
 
   assert.end();

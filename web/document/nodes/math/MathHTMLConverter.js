@@ -4,24 +4,24 @@
 module.exports = {
 
   type: 'math',
-  tagName: 'script',
+  tagName: 'span',
 
   matchElement: function(el) {
-    return el.is('script[type^="math/"]');
+    return el.is('[data-math]');
   },
 
   import: function(el, node, converter) {
-    var type = el.attr('type');
-    var match = type.match(/math\/(\w+)(\;display=(\w+))?/);
+    var spec = el.attr('data-math');
+    var match = spec.match(/(\w+)(\s+(\w+))?/);
     node.language = match[1];
     node.display = match[3];
     node.source = el.text();
   },
 
   export: function(node, el, converter) {
-    var type = 'math/' + node.language;
-    if (node.display === 'block') type += ';display=block';
-    el.attr('type', type);
+    var spec = node.language;
+    if (node.display === 'block') spec += ' block';
+    el.attr('data-math', spec);
     el.text(node.source);
   }
 
