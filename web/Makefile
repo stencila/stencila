@@ -19,11 +19,14 @@ examples:
 	stencila-r examples/b update write page:"index.html"
 	stencila-r examples/sheet-with-error update write page:"index.html"
 
-serve-dev:
+serve:
 	node server.js
 
+serve-dev:
+	node server.js --dev
+
 serve-dev-hub:
-	node server.js https://stenci.la
+	node server.js --dev --upstream=https://stenci.la
 
 # Run tests
 test:
