@@ -31,14 +31,14 @@ DocumentStore.Prototype = function() {
       args.documentId = uuid();
     }
 
-    this.client.exists(args.documentId, function(err, exists) {
+    this.client.exists(args.documentId + ':record', function(err, exists) {
       if (exists) {
         return cb(new Err('DocumentStore.CreateError', {
           message: 'Could not create because document already exists.'
         }));
       }
 
-      this.client.set(args.documentId, JSON.stringify(args), function(err, result) {
+      this.client.set(args.documentId + ':record', JSON.stringify(args), function(err, result) {
         cb(err, args);
       })
 
@@ -46,23 +46,23 @@ DocumentStore.Prototype = function() {
   };
 
   this.documentExists = function(documentId, cb) {
-    this.client.exists(documentId, function(err, exists) {
+    this.client.exists(documentId + ':record', function(err, exists) {
       cb(err, Boolean(exists));
     });
   };
 
   this.getDocument = function(documentId, cb) {
-    this.client.get(documentId, function(err, result) {
+    this.client.get(documentId + ':record', function(err, result) {
       cb(err, JSON.parse(result));
     });
   };
 
   this.updateDocument = function(documentId, props, cb) {
-    this.client.get(documentId, function(err, result) {
+    this.client.get(documentId + ':record', function(err, result) {
       if (err) cb(err);
       var updated = JSON.parse(result);
       extend(updated, props);
-      this.client.set(documentId, JSON.stringify(updated), function(err, result) {
+      this.client.set(documentId + ':record', JSON.stringify(updated), function(err, result) {
         cb(err, updated);
       });
     }.bind(this));
@@ -71,9 +71,9 @@ DocumentStore.Prototype = function() {
   this.deleteDocument = function(documentId, cb) {
     this.client.multi()
       // `GET` the document
-      .get(documentId)
+      .get(documentId + ':record')
       // `DEL`ete the document
-      .del(documentId)
+      .del(documentId + ':record')
       // Return the first reply, the one from `GET`
       .exec(function(err, replies) {
         if (err) return cb(err);

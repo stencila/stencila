@@ -41,7 +41,7 @@ ChangeStore.Prototype = function() {
     }
 
     // `RPUSH` returns the new size of the list (just what we need!)
-    this.client.rpush(args.documentId, JSON.stringify(args.change), function(err, size) {
+    this.client.rpush(args.documentId + ':changes', JSON.stringify(args.change), function(err, size) {
       if (err) return cb(err);
       cb(null, size);
     }.bind(this));
@@ -76,7 +76,7 @@ ChangeStore.Prototype = function() {
     }
 
     // `LLEN` return length of list
-    this.client.llen(args.documentId, function(err, version) {
+    this.client.llen(args.documentId + ':changes', function(err, version) {
       if (err) return cb(err);
       // For `toVersion`, use latest version (all changes) or changes UP TO specified version (so 
       // a document version can be reconstructed) See `substance/collab/ChangeStore` which uses an 
@@ -85,7 +85,7 @@ ChangeStore.Prototype = function() {
       if (args.toVersion) toVersion = args.toVersion - 1
       else toVersion = version;
       // `LRANGE` returns and array of strings so JSONize them
-      this.client.lrange(args.documentId, args.sinceVersion, toVersion, function(err, changes){
+      this.client.lrange(args.documentId + ':changes', args.sinceVersion, toVersion, function(err, changes){
         if (err) return cb(err);
         cb(null, {
           version: version,
@@ -103,7 +103,7 @@ ChangeStore.Prototype = function() {
    */
   this.getVersion = function(documentId, cb) {
     // `LLEN` return length of list
-    this.client.llen(documentId, function(err, version) {
+    this.client.llen(documentId + ':changes', function(err, version) {
       if (err) return cb(err);
       cb(null, version);
     });
@@ -124,9 +124,9 @@ ChangeStore.Prototype = function() {
 
     this.client.multi()
       // `LLEN` return length of list
-      .llen(documentId)
+      .llen(documentId + ':changes')
       // `DEL`ete the list
-      .del(documentId)
+      .del(documentId + ':changes')
       // Return the first reply, the one from `LLEN`
       .exec(function(err, replies) {
         if (err) return cb(err);
