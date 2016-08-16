@@ -166,16 +166,19 @@ var ModelFactory = require('./collab/ModelFactory');
 var SnapshotEngine = require('./collab/SnapshotEngine');
 var DocumentEngine = require('./collab/DocumentEngine');
 
+var SnapshotStore = require('substance/collab/SnapshotStore');
 var CollabServer = require('substance/collab/CollabServer');
 var DocumentServer = require('substance/collab/DocumentServer');
 
 var documentStore = new DocumentStore();
 var changeStore = new ChangeStore();
+var snapshotStore = new SnapshotStore();
 var modelFactory = new ModelFactory();
 
 var snapshotEngine = new SnapshotEngine({
   documentStore: documentStore,
   changeStore: changeStore,
+  snapshotStore: snapshotStore,
   modelFactory: new ModelFactory()
 });
 

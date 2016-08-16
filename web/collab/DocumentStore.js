@@ -4,9 +4,9 @@ var DocumentStoreBase = require('substance/collab/DocumentStore');
 var extend = require('lodash/object/extend');
 
 /**
- * Stores Stencila component jams.
+ * Stores Stencila group sessions.
  * 
- * Used to sync component jam sessions across collaborators.
+ * Used to sync group sessions across collaborators.
  *
  * @class      DocumentStore (name)
  * @param      {<type>}  config  The configuration
