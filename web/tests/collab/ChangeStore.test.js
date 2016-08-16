@@ -17,7 +17,7 @@ if (typeof window === 'undefined') {
   var ChangeStore = require('../../collab/ChangeStore');
   var store = new ChangeStore();
 
-  test('ChangeStore.addChange', function(assert) {
+  test('ChangeStore.addChange', function(t) {
 
     store.addChange({
       documentId: 'test-doc-1',
@@ -25,18 +25,18 @@ if (typeof window === 'undefined') {
         ops: [{some: 'operation'}]
       }
     }, function(err, version) {
-      assert.equal(err, null);
-      assert.equal(version, 1);
+      t.equal(err, null);
+      t.equal(version, 1);
 
       store.getChanges({
         documentId: 'test-doc-1',
         sinceVersion: 0
       }, function(err, result) {
-        assert.equal(err, null);
-        assert.equal(result.changes.length, 1);
-        assert.deepEqual(result.changes,[{"ops":[{"some":"operation"}]}]);
-        assert.equal(result.version, 1);
-        assert.end();
+        t.equal(err, null);
+        t.equal(result.changes.length, 1);
+        t.deepEqual(result.changes,[{"ops":[{"some":"operation"}]}]);
+        t.equal(result.version, 1);
+        t.end();
       });
     });
 
@@ -46,51 +46,51 @@ if (typeof window === 'undefined') {
         ops: [{some: 'operation'}]
       }
     }, function(err, version) {
-      assert.equal(err, null);
-      assert.equal(version, 1);
+      t.equal(err, null);
+      t.equal(version, 1);
     });
 
   });
 
-  test("ChangeStore.getChanges Return changes of test-doc-1", function(assert) {
+  test("ChangeStore.getChanges Return changes of test-doc-1", function(t) {
     var args = {
       documentId: 'test-doc-1',
       sinceVersion: 0
     };
     store.getChanges(args, function(err, result) {
-      assert.notOk(err, 'Should not error');
-      assert.equal(result.changes.length, 1, 'Should be only one change');
-      assert.equal(result.version, 1, 'Document version should be 1');
-      assert.end();
+      t.notOk(err, 'Should not error');
+      t.equal(result.changes.length, 1, 'Should be only one change');
+      t.equal(result.version, 1, 'Document version should be 1');
+      t.end();
     });
   });
 
-  test("ChangeStore.getChanges Return all changes of test-doc-2 by not specifying sinceVersion", function(assert) {
+  test("ChangeStore.getChanges Return all changes of test-doc-2 by not specifying sinceVersion", function(t) {
     var args = {
       documentId: 'test-doc-2'
     };
     store.getChanges(args, function(err, result) {
-      assert.notOk(err, 'Should not error');
-      assert.equal(result.changes.length, 1, 'Should be only one change');
-      assert.equal(result.version, 1, 'Document version should be 1');
-      assert.end();
+      t.notOk(err, 'Should not error');
+      t.equal(result.changes.length, 1, 'Should be only one change');
+      t.equal(result.version, 1, 'Document version should be 1');
+      t.end();
     });
   });
 
-  test("ChangeStore.getChanges Should return no changes if sinceVersion = actual version", function(assert) {
+  test("ChangeStore.getChanges Should return no changes if sinceVersion = actual version", function(t) {
     var args = {
       documentId: 'test-doc-2',
       sinceVersion: 1
     };
     store.getChanges(args, function(err, result) {
-      assert.notOk(err, 'Should not error');
-      assert.equal(result.changes.length, 0, 'Should have zero changes');
-      assert.equal(result.version, 1, 'Document version should be 1');
-      assert.end();
+      t.notOk(err, 'Should not error');
+      t.equal(result.changes.length, 0, 'Should have zero changes');
+      t.equal(result.version, 1, 'Document version should be 1');
+      t.end();
     });
   });
 
-  test("ChangeStore.getChanges Return changes of test-doc-2 between version 1 and version 2", function(assert) {
+  test("ChangeStore.getChanges Return changes of test-doc-2 between version 1 and version 2", function(t) {
     // Add two changes
     store.addChange({
       documentId: 'test-doc-2',
@@ -98,103 +98,103 @@ if (typeof window === 'undefined') {
         ops: [{some: 'operation2'}],
       }
     }, function(err, result) {
-      assert.equal(result, 2, 'Latest version should be 2');
+      t.equal(result, 2, 'Latest version should be 2');
       store.addChange({
         documentId: 'test-doc-2',
         change: {
           ops: [{some: 'operation3'}],
         }
       }, function(err, result) {
-        assert.equal(result, 3, 'Latest version should be 3');
+        t.equal(result, 3, 'Latest version should be 3');
         var args = {
           documentId: 'test-doc-2',
           sinceVersion: 1,
           toVersion: 2
         };
         store.getChanges(args, function(err, result) {
-          assert.notOk(err, 'Should not error');
-          assert.equal(result.changes.length, 1, 'Should be only one change');
-          assert.equal(result.changes[0].ops[0].some, 'operation2', 'Should be correct operation');
-          assert.equal(result.version, 3, 'Latest version should be 3');
-          assert.end();
+          t.notOk(err, 'Should not error');
+          t.equal(result.changes.length, 1, 'Should be only one change');
+          t.equal(result.changes[0].ops[0].some, 'operation2', 'Should be correct operation');
+          t.equal(result.version, 3, 'Latest version should be 3');
+          t.end();
         });
       });
     });
   });
 
-  test("ChangeStore.getChanges Invalid use of getChanges sinceVersion argument", function(assert) {
+  test("ChangeStore.getChanges Invalid use of getChanges sinceVersion argument", function(t) {
     var args = {
       documentId: 'test-doc-1',
       sinceVersion: -5
     };
     store.getChanges(args, function(err) {
-      assert.equal(err.name, 'ChangeStore.ReadError', 'Should give a read error as invalid version provided');
-      assert.end();
+      t.equal(err.name, 'ChangeStore.ReadError', 'Should give a read error as invalid version provided');
+      t.end();
     });
   });
 
-  test("ChangeStore.getChanges Invalid use of getChanges toVersion argument", function(assert) {
+  test("ChangeStore.getChanges Invalid use of getChanges toVersion argument", function(t) {
     var args = {
       documentId: 'test-doc-1',
       toVersion: -3
     };
     store.getChanges(args, function(err) {
-      assert.equal(err.name, 'ChangeStore.ReadError', 'Should give a read error as invalid version provided');
-      assert.end();
+      t.equal(err.name, 'ChangeStore.ReadError', 'Should give a read error as invalid version provided');
+      t.end();
     });
   });
 
-  test("ChangeStore.getChanges Invalid use of getChanges version arguments", function(assert) {
+  test("ChangeStore.getChanges Invalid use of getChanges version arguments", function(t) {
     var args = {
       documentId: 'test-doc-1',
       sinceVersion: 2,
       toVersion: 1
     };
     store.getChanges(args, function(err) {
-      assert.equal(err.name, 'ChangeStore.ReadError', 'Should give a read error as invalid version provided');
-      assert.end();
+      t.equal(err.name, 'ChangeStore.ReadError', 'Should give a read error as invalid version provided');
+      t.end();
     });
   });
 
 
-  test("ChangeStore.getVersion should return version", function(assert) {
+  test("ChangeStore.getVersion should return version", function(t) {
     store.getVersion('test-doc-1', function(err, version) {
-      assert.equal(err, null);
-      assert.equal(version, 1);
-      assert.end();
+      t.equal(err, null);
+      t.equal(version, 1);
+      t.end();
     });
   });
 
-  test("ChangeStore.getVersion should return version==0 if no changes are found", function(assert) {
+  test("ChangeStore.getVersion should return version==0 if no changes are found", function(t) {
     store.getVersion('not-existing-doc', function(err, version) {
-      assert.equal(err, null);
-      assert.equal(version, 0, 'Document version should equal 0');
-      assert.end();
+      t.equal(err, null);
+      t.equal(version, 0, 'Document version should equal 0');
+      t.end();
     });
   });
 
 
-  test("ChangeStore.deleteChanges of test doc", function(assert) {
+  test("ChangeStore.deleteChanges of test doc", function(t) {
     store.deleteChanges('test-doc-1', function(err, changeCount) {
-      assert.notOk(err, 'Should not error');
-      assert.equal(changeCount, 1, 'There should be 1 deleted change');
+      t.notOk(err, 'Should not error');
+      t.equal(changeCount, 1, 'There should be 1 deleted change');
       store.getChanges({
         documentId: 'test-doc-1',
         sinceVersion: 0
       }, function(err, result) {
-        assert.notOk(err, 'Should not error');
-        assert.equal(result.changes.length, 0, 'There should not be changes anymore');
-        assert.equal(result.version, 0, 'Document version should be 0');
-        assert.end();
+        t.notOk(err, 'Should not error');
+        t.equal(result.changes.length, 0, 'There should not be changes anymore');
+        t.equal(result.version, 0, 'Document version should be 0');
+        t.end();
       });
     });
   });
 
-  test("ChangeStore.deleteChanges of not existing doc", function(assert) {
+  test("ChangeStore.deleteChanges of not existing doc", function(t) {
     store.deleteChanges('not-existing-doc', function(err, changeCount) {
-      assert.notOk(err, 'Should not error');
-      assert.equal(changeCount, 0, 'There should be 0 deleted changes');
-      assert.end();
+      t.notOk(err, 'Should not error');
+      t.equal(changeCount, 0, 'There should be 0 deleted changes');
+      t.end();
     });
   });
 
