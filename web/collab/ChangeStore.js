@@ -1,10 +1,10 @@
 'use strict';
 
-var ChangeStoreBase = require('substance/collab/ChangeStore');
 var Err = require('substance/util/SubstanceError');
 
-var redis = require('redis');
 var map = require('lodash/collection/map');
+
+var Store = require('./Store');
 
 /**
  * Stores changes to Stencila group sessions.
@@ -15,9 +15,6 @@ var map = require('lodash/collection/map');
  */
 function ChangeStore() {
   ChangeStore.super.apply(this, arguments);
-
-  // TODO Replace temporary host and port
-  this.client = redis.createClient();
 }
 
 ChangeStore.Prototype = function() {
@@ -137,6 +134,6 @@ ChangeStore.Prototype = function() {
 
 };
 
-ChangeStoreBase.extend(ChangeStore);
+Store.extend(ChangeStore);
 
 module.exports = ChangeStore;

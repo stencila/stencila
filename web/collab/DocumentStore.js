@@ -1,11 +1,11 @@
 'use strict';
 
-var DocumentStoreBase = require('substance/collab/DocumentStore');
 var Err = require('substance/util/SubstanceError');
 var uuid = require('substance/util/uuid');
 
-var redis = require('redis');
 var extend = require('lodash/object/extend');
+
+var Store = require('./Store');
 
 /**
  * Stores Stencila group sessions.
@@ -17,8 +17,6 @@ var extend = require('lodash/object/extend');
  */
 function DocumentStore(config) {
   DocumentStore.super.apply(this, arguments);
-
-  this.client = redis.createClient();
 }
 
 DocumentStore.Prototype = function() {
@@ -103,6 +101,6 @@ DocumentStore.Prototype = function() {
 };
 
 
-DocumentStoreBase.extend(DocumentStore);
+Store.extend(DocumentStore);
 
 module.exports = DocumentStore;

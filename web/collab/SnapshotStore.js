@@ -1,15 +1,14 @@
 'use strict';
 
-var oo = require('substance/util/oo');
 var Err = require('substance/util/SubstanceError');
 
-var redis = require('redis');
+var Store = require('./Store');
 
 /*
   Implements Substance SnapshotStore API using Redis hashes
 */
 function SnapshotStore() {
-  this.client = redis.createClient();
+  SnapshotStore.super.apply(this, arguments);
 }
 
 SnapshotStore.Prototype = function() {
@@ -151,5 +150,6 @@ SnapshotStore.Prototype = function() {
 };
 
 
-oo.initClass(SnapshotStore);
+Store.extend(SnapshotStore);
+
 module.exports = SnapshotStore;
