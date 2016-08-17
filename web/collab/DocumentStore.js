@@ -32,6 +32,8 @@ DocumentStore.Prototype = function() {
     }
 
     this.client.exists(args.documentId + ':record', function(err, exists) {
+      if (err) return cb(err);
+
       if (exists) {
         return cb(new Err('DocumentStore.CreateError', {
           message: 'Could not create because document already exists.'
@@ -53,13 +55,24 @@ DocumentStore.Prototype = function() {
 
   this.getDocument = function(documentId, cb) {
     this.client.get(documentId + ':record', function(err, result) {
-      cb(err, JSON.parse(result));
+      if(err) return cb(err);
+      if (result === null) {
+        return cb(new Err('DocumentStore.ReadError', {
+          message: 'Document could not be found.'
+        }));
+      }
+      cb(null, JSON.parse(result));
     });
   };
 
   this.updateDocument = function(documentId, props, cb) {
     this.client.get(documentId + ':record', function(err, result) {
       if (err) cb(err);
+      if (result === null) {
+        return cb(new Err('DocumentStore.UpdateError', {
+          message: 'Document does not exist.'
+        }));
+      }
       var updated = JSON.parse(result);
       extend(updated, props);
       this.client.set(documentId + ':record', JSON.stringify(updated), function(err, result) {
@@ -77,7 +90,13 @@ DocumentStore.Prototype = function() {
       // Return the first reply, the one from `GET`
       .exec(function(err, replies) {
         if (err) return cb(err);
-        cb(null, JSON.parse(replies[0]));
+        var doc = replies[0];
+        if (doc === null) {
+          return cb(new Err('DocumentStore.DeleteError', {
+            message: 'Document does not exist.'
+          }));
+        }
+        cb(null, JSON.parse(doc));
       });
   };
  
