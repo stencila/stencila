@@ -61,11 +61,11 @@ var app = express();
 
 var DocumentStore = require('./collab/DocumentStore');
 var ChangeStore = require('./collab/ChangeStore');
+var SnapshotStore = require('./collab/SnapshotStore');
 var ModelFactory = require('./collab/ModelFactory');
 var SnapshotEngine = require('./collab/SnapshotEngine');
 var DocumentEngine = require('./collab/DocumentEngine');
 
-var SnapshotStore = require('substance/collab/SnapshotStore');
 var CollabServer = require('substance/collab/CollabServer');
 var DocumentServer = require('substance/collab/DocumentServer');
 
