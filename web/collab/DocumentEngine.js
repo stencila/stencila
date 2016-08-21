@@ -22,7 +22,7 @@ DocumentEngine.Prototype = function() {
       } else {
         // Otherwise, we need to create a group session by importing the document...
         
-        var address = 'tests/document/nodes/paragraph';
+        var address = 'tests/document/nodes/all';
 
         // Resolve the Stencila address into a Stencila component type
         // TODO
