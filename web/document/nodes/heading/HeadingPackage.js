@@ -9,6 +9,7 @@
 
 var Heading = require('substance/packages/heading/Heading');
 var HeadingComponent = require('./HeadingComponent');
+var HeadingMarkdownComponent = require('./HeadingMarkdownComponent');
 var HeadingHTMLConverter = require('substance/packages/heading/HeadingHTMLConverter');
 var HeadingXMLConverter = require('substance/packages/heading/HeadingXMLConverter');
 var HeadingMacro = require('./HeadingMacro');
@@ -18,6 +19,7 @@ module.exports = {
   configure: function(config) {
     config.addNode(Heading);
     config.addComponent('heading', HeadingComponent);
+    config.addComponent('heading-markdown', HeadingMarkdownComponent);
     config.addConverter('html', HeadingHTMLConverter);
     config.addConverter('xml', HeadingXMLConverter);
     config.addMacro(new HeadingMacro());

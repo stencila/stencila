@@ -22,7 +22,8 @@
 
 // Style shared between "plain" HTML and `VisualEditor`
 #content,
-.sc-visual-editor [data-id=content] {
+.sc-visual-editor [data-id=content],
+.sc-code-editor [data-id=content] {
 
 	max-width: 50em;
 	margin-left: auto;
@@ -42,7 +43,8 @@
 // Directly under `.sc-visual-editor` (not additional `content`) so that `&.sm-reveal
 // can be used.
 #content,
-.sc-visual-editor {
+.sc-visual-editor,
+.sc-code-editor {
 
 	@import 'nodes/title/title';
 	@import 'nodes/summary/summary';
@@ -73,8 +75,7 @@
 	@import 'nodes/default/default';
 }
 
-// Specific styling for content
-// when in the `VisualEditor`
+// Specific styling for content when in the `VisualEditor`
 .sc-visual-editor {
 
 	// No outline on editable nodes
@@ -87,3 +88,15 @@
 		@extend .stencila-selected;
 	}
 }
+
+// Specific styling for content when in the `CodeEditor`
+.sc-code-editor [data-id=content] {
+
+	background: #292929;
+
+	font-family: $mono-font-family;
+	line-height: 1.5em;
+	text-align: none;
+	color: #DDD;
+}
+

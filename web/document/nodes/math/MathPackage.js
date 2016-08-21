@@ -4,6 +4,7 @@ var Math = require('./Math');
 var MathHTMLConverter = require('./MathHTMLConverter');
 var MathXMLConverter = require('./MathXMLConverter');
 var MathComponent = require('./MathComponent');
+var MathMarkdownComponent = require('./MathMarkdownComponent');
 var MathCommand = require('./MathCommand');
 var MathMacro = require('./MathMacro');
 var MathTool = require('./MathTool');
@@ -15,6 +16,7 @@ module.exports = {
     config.addConverter('html', MathHTMLConverter);
     config.addConverter('xml', MathXMLConverter);
     config.addComponent('math', MathComponent);
+    config.addComponent('math-markdown', MathMarkdownComponent);
     config.addCommand('math', MathCommand);
     config.addMacro(new MathMacro());
     config.addTool('math', MathTool);
