@@ -2,10 +2,10 @@
 
 var Component = require('substance/ui/Component');
 var DocumentSession = require('substance/model/DocumentSession');
-var DocumentClient = require('substance/collab/DocumentClient');
 var CollabClient = require('substance/collab/CollabClient');
 var CollabSession = require('substance/collab/CollabSession');
 var WebSocketConnection = require('substance/collab/WebSocketConnection');
+var request = require('substance/util/request');
 
 var DocumentModel = require('./DocumentModel');
 var DocumentJSONConverter = require('./DocumentJSONConverter');
@@ -17,6 +17,7 @@ var DocumentConfigurator = require('./DocumentConfigurator');
 var configurator = new DocumentConfigurator();
 
 var VisualEditor = require('./editors/visual/VisualEditor');
+var CodeEditor = require('./editors/code/CodeEditor');
 
 /**
  * User application for a Stencila Document
@@ -38,17 +39,6 @@ function DocumentApp() {
     else if (this.comment) this.jam = 'comment';
   }
 
-  // Setup collaboration
-  this.jamClient = new DocumentClient({
-    httpUrl: 'http://localhost:5000/'
-  });
-  this.collabConn = new WebSocketConnection({
-    wsUrl: 'ws://localhost:5000/'
-  });
-  this.collabClient = new CollabClient({
-    connection: this.collabConn
-  });
-
   // Bind to events
   this.handleActions({
     'reveal-toggle': this.toggleReveal,
@@ -64,10 +54,12 @@ DocumentApp.Prototype = function() {
     // Initially, if in edit mode, then also turn on reveal mode
     // and comment mode (user can turn off these later if they want to)
     // See also `this.toggleEdit`
+    var view = this.props.view;
     var edit = this.props.edit;
     var reveal = this.props.reveal || edit;
     var comment = this.props.comment || edit;
     return {
+      view: view,
       reveal: reveal,
       comment: comment,
       edit: edit,
@@ -86,7 +78,7 @@ DocumentApp.Prototype = function() {
     var el = $$('div').addClass('sc-document-app');
 
     if (this.state.documentSession) {
-      // Render the visual WYSIWYG editor
+
       var session = null;
       var jam = null;
       if (this.jam) {
@@ -95,19 +87,26 @@ DocumentApp.Prototype = function() {
           people : Object.keys(this.state.documentSession.collaborators).length + 1
         };
       }
-      el.append(
-        $$(VisualEditor, {
-          // Document state
-          session: session,
-          jam: jam,
-          reveal: this.state.reveal,
-          comment: this.state.comment,
-          edit: this.state.edit,
-          // Other required props
-          documentSession: this.state.documentSession,
-          configurator: configurator
-        }).ref('visualEditor')
-      );
+      var editorProps =  {
+        // Document state
+        session: session,
+        jam: jam,
+        reveal: this.state.reveal,
+        comment: this.state.comment,
+        edit: this.state.edit,
+        // Other required props
+        documentSession: this.state.documentSession,
+        configurator: configurator
+      };
+
+      var view;
+      if (this.state.view === 'visual') {
+        view = $$(VisualEditor, editorProps).ref('visualEditor');
+      } else {
+        view = $$(CodeEditor, editorProps).ref('codeEditor');
+      }
+      el.append(view);
+
     } else {
       el
         .addClass('sm-loading')
@@ -160,7 +159,7 @@ DocumentApp.Prototype = function() {
 
     // Get the component jam from the `DocumentServer`...
     var jamId = this.address + ':' + this.jam;
-    this.jamClient.getDocument('jam/' + jamId, function(err, componentJam) {
+    request('GET', '/jam/' + jamId, null, function(err, componentJam) {
 
       // ... display any errors
       if (err) {
@@ -178,6 +177,12 @@ DocumentApp.Prototype = function() {
 
       // ... create a new collaborative document session and add it to state
       // to trigger rerendering
+      this.collabConn = new WebSocketConnection({
+        wsUrl: 'ws://localhost:5000/'
+      });
+      this.collabClient = new CollabClient({
+        connection: this.collabConn
+      });
       var documentSession = new CollabSession(this.doc, {
         documentId: componentJam.documentId,
         version: componentJam.version,
@@ -188,6 +193,7 @@ DocumentApp.Prototype = function() {
       });
 
     }.bind(this));
+
   };
 
   this.requireJam = function(capability) {
@@ -224,6 +230,15 @@ DocumentApp.Prototype = function() {
     });
     return htmlExporter.exportDocument(this.doc);
   };
+
+  /**
+   * Change the editor
+   */
+  this.changeEditor = function(editor) {
+    this.extendState({
+      editor: editor
+    })
+  }
 
   /**
    * Toggle the `reveal` state

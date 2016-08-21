@@ -19,6 +19,8 @@ window.onload = function() {
   var local = (window.host === 'localhost:7373') ? '1' : '0';
   // Static/dynamic (Javasctpit loaded or not) defaults to dynamic
   var statico = (params.static || '0') !== '0';
+  // View defaults to visual
+  var view = params.view || 'visual';
   // Reveal, comment and edit modes default to `on` when
   // local and `off` otherwise
   var reveal = (params.reveal || local) !== '0';
@@ -47,6 +49,7 @@ window.onload = function() {
       window.app = DocumentApp.mount({
         html: html,
         local: local !== '0',
+        view: view,
         reveal: reveal,
         comment: comment,
         edit: edit,
