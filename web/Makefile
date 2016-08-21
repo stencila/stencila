@@ -22,11 +22,8 @@ examples:
 serve:
 	node server.js
 
-serve-dev:
-	node server.js --dev
-
-serve-dev-hub:
-	node server.js --dev --upstream=https://stenci.la
+serve-hub:
+	node server.js --upstream=https://stenci.la
 
 # Run tests
 test:
