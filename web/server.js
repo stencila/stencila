@@ -73,7 +73,8 @@ app.get('/tests', function (req, res, next) {
 });
 app.get('/tests-bundle.js', function (req, res, next) {
   browserify({
-    entries: glob.sync('tests/**/*.test.js'),
+    // Don't include collab tests when in browser
+    entries: glob.sync('tests/document/**/*.test.js'),
     debug: true,
     cache: false
   })
