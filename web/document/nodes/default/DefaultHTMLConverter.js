@@ -2,6 +2,8 @@
 
 var uuid = require('substance/util/uuid');
 
+var sanitize = require('./sanitize');
+
 module.exports = {
 
   type: 'default',
@@ -35,7 +37,7 @@ module.exports = {
     // Instead of using the prepopulated element,
     // we create a new one from the HTML stored in the node
     var wrapper = converter.$$('div');
-    wrapper.html(node.html);
+    wrapper.html(sanitize(node.html));
     el = wrapper.children[0]
     el.attr('data-id', node.id);
     return el;

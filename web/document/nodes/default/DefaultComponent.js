@@ -3,6 +3,7 @@
 var Component = require('substance/ui/Component');
 
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
+var sanitize = require('./sanitize');
 
 function DefaultComponent() {
   DefaultComponent.super.apply(this, arguments);
@@ -36,7 +37,7 @@ DefaultComponent.Prototype = function() {
         .ref('display')
         .addClass('se-display')
         .attr('contenteditable', false)
-        .html(node.html)
+        .html(sanitize(node.html))
     );
   };
 
