@@ -34,7 +34,9 @@ module.exports = {
   export: function(node, el, converter) {
     // Instead of using the prepopulated element,
     // we create a new one from the HTML stored in the node
-    el = converter.$$(node.html);
+    var wrapper = converter.$$('div');
+    wrapper.html(node.html);
+    el = wrapper.children[0]
     el.attr('data-id', node.id);
     return el;
   },
