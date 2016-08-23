@@ -48,7 +48,7 @@ window.onload = function() {
       var snapshot = document.getElementById('snapshot');
       if (snapshot) { 
         format = 'snapshot';
-        data = JSON.parse(he.unencode(snapshot.textContent || snapshot.innerHTML));
+        data = JSON.parse(he.decode(snapshot.textContent || snapshot.innerHTML));
       } else {
         console.error('Neither #content or #snapshot is available to initialize the document');
       }
