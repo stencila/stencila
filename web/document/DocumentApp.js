@@ -132,10 +132,10 @@ DocumentApp.Prototype = function() {
 
     } else {
 
-      // ... import the JSON
+      // Import the JSON
       this.importJSON(this.props.data.data);
 
-      // ... create a new collaborative document session and add it to state
+      // Create a new collaborative document session and add it to state
       // to trigger rerendering
       var collabConn = new WebSocketConnection({
         wsUrl: this.props.data.collabUrl
