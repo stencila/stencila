@@ -15,8 +15,6 @@ DocumentEngine.Prototype = function() {
 
   /**
    * Create a document
-   * 
-   * 
    */
   this.createDocument = function(args, cb) {
     // We start with version 1 because version 0 is assumed to be empty and
@@ -60,6 +58,13 @@ DocumentEngine.Prototype = function() {
 
     }.bind(this));
 
+  };
+
+  /**
+   * List all documentIds
+   */
+  this.listDocuments = function(cb) {
+    this.documentStore.listDocuments(cb);
   };
 
 };

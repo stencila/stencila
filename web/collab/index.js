@@ -1,7 +1,6 @@
-var CollabServer = require('substance/collab/CollabServer');
-var DocumentServer = require('substance/collab/DocumentServer');
-
 var ws = require('ws');
+
+var CollabServer = require('substance/collab/CollabServer');
 
 var DocumentStore = require('./DocumentStore');
 var ChangeStore = require('./ChangeStore');
@@ -9,6 +8,7 @@ var SnapshotStore = require('./SnapshotStore');
 var ModelFactory = require('./ModelFactory');
 var SnapshotEngine = require('./SnapshotEngine');
 var DocumentEngine = require('./DocumentEngine');
+var DocumentServer = require('./DocumentServer');
 
 /**
  * Instantiates 

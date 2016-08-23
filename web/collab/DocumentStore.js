@@ -1,9 +1,10 @@
 'use strict';
 
+var extend = require('lodash/object/extend');
+var map = require('lodash/collection/map');
+
 var Err = require('substance/util/SubstanceError');
 var uuid = require('substance/util/uuid');
-
-var extend = require('lodash/object/extend');
 
 var Store = require('./Store');
 
@@ -48,6 +49,16 @@ DocumentStore.Prototype = function() {
   this.documentExists = function(documentId, cb) {
     this.client.exists(documentId + ':record', function(err, exists) {
       cb(err, Boolean(exists));
+    });
+  };
+
+  this.listDocuments = function(cb) {
+    this.client.keys('*:record', function(err, result) {
+      // Strip ':record' off keys to give just documentIds
+      var documentIds = map(result, function(key) {
+        return key.slice(0, -7);
+      });
+      cb(err, documentIds);
     });
   };
 
