@@ -10,9 +10,18 @@ var ModelFactory = require('./ModelFactory');
 var SnapshotEngine = require('./SnapshotEngine');
 var DocumentEngine = require('./DocumentEngine');
 
-
-var bind = function(httpServer, expressApp, path) {
-  path = path || '/';
+/**
+ * Instantiates 
+ *  - a `CollabServer` and binds it to a HTTP server, and 
+ *  - a `DocumentServer` and binds it to an endpoint on an Express application
+ *
+ * @param      {<type>}  httpServer  The http server
+ * @param      {<type>}  expressApp  The express application
+ * @param      {<type>}  endpoint        The endpoint
+ * @return     {Object}  { description_of_the_return_value }
+ */
+var bind = function(httpServer, expressApp, endpoint) {
+  endpoint = endpoint || '/';
 
   var documentStore = new DocumentStore();
   var changeStore = new ChangeStore();
@@ -44,7 +53,7 @@ var bind = function(httpServer, expressApp, path) {
   collabServer.bind(websocketServer);
 
   var documentServer = new DocumentServer({
-    path: path,
+    path: endpoint,
     documentEngine: documentEngine
   });
   documentServer.bind(expressApp);

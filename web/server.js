@@ -92,26 +92,32 @@ function page(res, componentType, dataType, data) {
 }
 
 // Collaboration server
-var collab = require('./collab').bind(httpServer, app);
+var collab = require('./collab').bind(httpServer, app, '/collab');
 
-// Request for collaboration room for a test file
+// Request for a live collaboration clone for a test file
+// This simulates what is done on via the hub: the collaboration `DocumentServer` is requested to
+// create a new collab session for a document (in production content supplied, here read from file)
+// and the client is passed back the initial snapshot JSON data and the Websocket URL for updates
+// (ie. in production there is no direct HTTP connection between the client and the collaboration
+// `DocumentServer`, only a Websocket connection to the `CollabServer`)
 app.get('/tests/:type/*@all', function(req, res) {
   var matches = req.path.match(/\/([^\@]+)(\@(\w+))?/);
   var address = matches[1];
   var clone = matches[3];
-  // Get the details for the clone (i.e. collab document data, version etc)
+  // TODO currently limited to Stencila Documents. Will need to resolve component type later
   var schemaName = 'stencila-document';
   var documentId = address + '@' + clone;
+  // Get the details for the clone (i.e. collab document data, version etc)
   // Check if it already exsts
   collab.documentStore.documentExists(documentId, function(err, exists) {
     if (exists) {
       // yep, just get latest snapshot
       collab.snapshotEngine.getSnapshot({ documentId: documentId }, cb);
     } else {
-      // nope, read in from local file and create a new collab document
+      // nope, read in from local file, convert to JSON data,...
       collab.modelFactory.readDocument(schemaName, path.join(address, 'index.html'), function(err, data) {
         if (err) cb(err);
-
+        // ...and create a new document with the JSON data
         collab.documentEngine.createDocument({
           schemaName: schemaName,
           documentId: documentId,
