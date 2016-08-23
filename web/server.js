@@ -24,6 +24,7 @@ var browserify = require("browserify");
 var fs = require('fs');
 var glob = require('glob');
 var http = require('http');
+var he = require('he');
 
 var opts =  {
   "realredis"  : false
@@ -94,7 +95,11 @@ function page(res, componentType, dataType, data) {
   page += '<script src="/get/web/' + componentType + '.min.js"></script>';
   page += '</head><body>';
   if (dataType === 'html') page += '<main id="content">' + data + '</main>';
-  else page += '<script id="snapshot" type="application/json">' + JSON.stringify(data) + '</script>';
+  else {
+    // Do HTML encoding of JSON data to avoid XSS attacks as suggested at
+    // https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#HTML_entity_encoding
+    page += '<script id="snapshot" type="application/json">' + he.encode(JSON.stringify(data)) + '</script>';
+  }
   page += '</body></html>';
   res.set('Content-Type', 'text/html');
   res.send(page);

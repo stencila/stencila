@@ -6,6 +6,7 @@
     "emojione": "^2.2.6",
     "express": "*",
     "font-awesome": "^4.4.0",
+    "he": "^1.1.0",
     "jquery": "^2.1.4",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#457690b",
     "katex": "0.6.0",
@@ -17,6 +18,7 @@
     "node-sass": "3.x",
     "raven-js": "^2.1.1",
     "redis": "^2.6.2",
+    "sanitize-html": "^1.13.0",
     "semantic-ui-css": "2.1.8",
     "substance": "stencila/substance#develop",
     "ws": "^1.1.1"
