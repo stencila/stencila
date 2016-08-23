@@ -17,6 +17,22 @@ DocumentEngine.Prototype = function() {
    * Create a document
    */
   this.createDocument = function(args, cb) {
+    // If necessary, convert the document content to JSON
+    if (args.format && args.format !== 'json'){
+      this.modelFactory.convertDocument(args.schemaName, args.format, args.content, function(err, content) {
+        if (err) return cb(new Err('ConvertError', { message: err }));
+
+        this.createDocument({
+          schemaName: args.schemaName,
+          documentId: args.documentId, 
+          format: 'json',
+          content: content
+        }, cb);
+
+      }.bind(this));
+      return;
+    }
+
     // We start with version 1 because version 0 is assumed to be empty and
     // is treated specially by Substance `SnapshotEngine`
     var version = 1;
@@ -47,7 +63,7 @@ DocumentEngine.Prototype = function() {
         this.snapshotEngine.snapshotStore.saveSnapshot({
           documentId: documentRecord.documentId,
           version: documentRecord.version,
-          data: args.data
+          data: args.content
         }, function(err, snapshot) {
           if(err) return cb(new Err('ShapshotError', { message: err }));
 

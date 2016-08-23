@@ -204,7 +204,7 @@ DocumentApp.Prototype = function() {
   this.toggleComment = function() {
     var comment = !this.state.comment;
     if (comment) {
-      this.switchClone('all');
+      this.switchClone('live');
     }
     this.extendState({
       comment: comment
@@ -218,7 +218,7 @@ DocumentApp.Prototype = function() {
   this.toggleEdit = function() {
     var edit = !this.state.edit;
     if (edit) {
-      this.switchClone('all');
+      this.switchClone('live');
     }
     this.extendState({
       reveal: edit || this.state.reveal,

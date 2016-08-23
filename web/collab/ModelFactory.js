@@ -50,7 +50,9 @@ ModelFactory.Prototype = function() {
   /**
    * Convert a Stencila component from HTML to JSON
    */
-  this.convertDocument = function(schemaName, html, cb) {
+  this.convertDocument = function(schemaName, format, content, cb) {
+    if (format !== 'html') throw new Error('Unhandled format: '+ format);
+
     var importer;
     var exporter;
     if (schemaName === 'stencila-document') {
@@ -62,30 +64,10 @@ ModelFactory.Prototype = function() {
 
     // Force importer to create a new document. See https://github.com/substance/substance/issues/765
     importer.createDocument();
-    var doc = importer.importDocument(html);
+    var doc = importer.importDocument(content);
     var data = exporter.exportDocument(doc);
     cb(null, data);
   };
-
-
-  /**
-   * Read a Stencila component from a local file and convert to JSON
-   * 
-   * This method is probably only going to be used during development
-   * to create a document from a test file
-   */
-  this.readDocument = function(schemaName, path, cb) {
-    fs.readFile(path, "utf8", function (err, content) {
-      if (err) return cb(new Err('ReadError', { message: err }));
-
-      this.convertDocument(schemaName, content, function(err, data) {
-        if (err) return cb(new Err('ConvertError', { message: err }));
-
-        cb(null, data);
-      });
-    }.bind(this));
-  };
-
 
 };
 

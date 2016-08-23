@@ -114,7 +114,7 @@ var collab = require('./collab').bind(httpServer, app, '/collab');
 // and the client is passed back the initial snapshot JSON data and the Websocket URL for updates
 // (ie. in production there is no direct HTTP connection between the client and the collaboration
 // `DocumentServer`, only a Websocket connection to the `CollabServer`)
-app.get('/tests/:type/*@all', function(req, res) {
+app.get('/tests/:type/*@live', function(req, res) {
   var matches = req.path.match(/\/([^\@]+)(\@(\w+))?/);
   var address = matches[1];
   var clone = matches[3];
@@ -123,25 +123,30 @@ app.get('/tests/:type/*@all', function(req, res) {
   var documentId = address + '@' + clone;
   // Get the details for the clone (i.e. collab document data, version etc)
   // Check if it already exsts
-  collab.documentStore.documentExists(documentId, function(err, exists) {
+  var documentEngine = collab.documentEngine;
+  documentEngine.documentExists(documentId, function(err, exists) {
+    if (err) return cb(new Err('ExistsError', { message: err }));
+
     if (exists) {
       // yep, just get latest snapshot
-      collab.snapshotEngine.getSnapshot({ documentId: documentId }, cb);
+      documentEngine.getDocument({ documentId: documentId }, cb);
     } else {
       // nope, read in from local file, convert to JSON data,...
-      collab.modelFactory.readDocument(schemaName, path.join(address, 'index.html'), function(err, data) {
-        if (err) cb(err);
-        // ...and create a new document with the JSON data
-        collab.documentEngine.createDocument({
+      fs.readFile(path.join(address, 'index.html'), "utf8", function (err, content) {
+        if (err) return cb(new Err('ReadError', { message: err }));
+
+        // ... create a new document from HTML
+        documentEngine.createDocument({
           schemaName: schemaName,
           documentId: documentId,
-          data: data
+          format: 'html',
+          content: content
         }, cb);
       });
     }
   });
   var cb = function(err, snapshot) {
-    if (err) res.send(err.message);
+    if (err) return res.send(err.message);
     // Add the URL for the collaboration websocket
     snapshot.collabUrl = 'ws://localhost:5000/';
     page(res, req.params.type, 'json', snapshot);
