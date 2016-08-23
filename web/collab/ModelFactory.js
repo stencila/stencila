@@ -60,6 +60,8 @@ ModelFactory.Prototype = function() {
       throw new Error('Unhandled schema: '+ schemaName);
     }
 
+    // Force importer to create a new document. See https://github.com/substance/substance/issues/765
+    importer.createDocument();
     var doc = importer.importDocument(html);
     var data = exporter.exportDocument(doc);
     cb(null, data);
