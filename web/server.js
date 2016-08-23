@@ -50,6 +50,14 @@ mockery.enable({
 var httpServer = http.createServer();
 var app = express();
 
+// Middleware to prevent browser caching of any of the following endpoints
+app.use(function (req, res, next) {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
+  next();
+});
+
 // Home page
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -236,9 +244,6 @@ app.use('*', proxy(upstream, {
   },
 }));
 
-
-// Tell express not to set an Etag header
-app.set('etag', false);
 
 // Delegate http requests to express app
 httpServer.on('request', app);
