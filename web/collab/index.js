@@ -11,7 +11,8 @@ var SnapshotEngine = require('./SnapshotEngine');
 var DocumentEngine = require('./DocumentEngine');
 
 
-var bind = function(httpServer, expressApp) {
+var bind = function(httpServer, expressApp, path) {
+  path = path || '/';
 
   var documentStore = new DocumentStore();
   var changeStore = new ChangeStore();
@@ -43,10 +44,21 @@ var bind = function(httpServer, expressApp) {
   collabServer.bind(websocketServer);
 
   var documentServer = new DocumentServer({
-    path: '/jam',
+    path: path,
     documentEngine: documentEngine
   });
   documentServer.bind(expressApp);
+
+  return {
+    documentStore: documentStore,
+    changeStore: changeStore,
+    snapshotStore: snapshotStore,
+    modelFactory: modelFactory,
+    snapshotEngine: snapshotEngine,
+    documentEngine: documentEngine,
+    collabServer: collabServer,
+    documentServer: documentServer
+  };
 
 }
 

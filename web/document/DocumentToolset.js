@@ -4,6 +4,7 @@ var Component = require('substance/ui/Component');
 var Tool = require('substance/ui/Tool');
 
 
+//var EditorTool = require('./tools/EditorTool');
 var JamTool = require('./tools/JamTool');
 var RefreshTool = require('./tools/RefreshTool');
 var RevealTool = require('./tools/RevealTool');
@@ -25,6 +26,9 @@ DocumentToolset.Prototype = function() {
     var el = $$('div')
       .addClass('sc-toolset sc-overall-toolset')
       .append(
+
+        //$$(EditorTool, {
+        //}).ref('editorTool'),
 
         $$(JamTool, {
           jam: this.props.jam

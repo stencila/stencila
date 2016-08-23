@@ -50,7 +50,6 @@ mockery.enable({
 var httpServer = http.createServer();
 var app = express();
 
-
 // Home page
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -78,20 +77,63 @@ app.get('/tests-bundle.js', function (req, res, next) {
     .pipe(res);
 });
 
+// Generate a simple page for a component with necessary CSS and JS
+function page(res, componentType, dataType, data) {
+  var page = '<!DOCTYPE html>\n<html><head>';
+  page += '<meta name="viewport" content="width=device-width, initial-scale=1">';
+  page += '<link rel="stylesheet" type="text/css" href="/get/web/' + componentType + '.min.css">';
+  page += '<script src="/get/web/' + componentType + '.min.js"></script>';
+  page += '</head><body>';
+  if (dataType === 'html') page += '<main id="content">' + data + '</main>';
+  else page += '<script id="snapshot" type="application/json">' + JSON.stringify(data) + '</script>';
+  page += '</body></html>';
+  res.set('Content-Type', 'text/html');
+  res.send(page);
+}
+
+// Collaboration server
+var collab = require('./collab').bind(httpServer, app);
+
+// Request for collaboration room for a test file
+app.get('/tests/:type/*@all', function(req, res) {
+  var matches = req.path.match(/\/([^\@]+)(\@(\w+))?/);
+  var address = matches[1];
+  var clone = matches[3];
+  // Get the details for the clone (i.e. collab document data, version etc)
+  var schemaName = 'stencila-document';
+  var documentId = address + '@' + clone;
+  // Check if it already exsts
+  collab.documentStore.documentExists(documentId, function(err, exists) {
+    if (exists) {
+      // yep, just get latest snapshot
+      collab.snapshotEngine.getSnapshot({ documentId: documentId }, cb);
+    } else {
+      // nope, read in from local file and create a new collab document
+      collab.modelFactory.readDocument(schemaName, path.join(address, 'index.html'), function(err, data) {
+        if (err) cb(err);
+
+        collab.documentEngine.createDocument({
+          schemaName: schemaName,
+          documentId: documentId,
+          data: data
+        }, cb);
+      });
+    }
+  });
+  var cb = function(err, snapshot) {
+    if (err) res.send(err.message);
+    // Add the URL for the collaboration websocket
+    snapshot.collabUrl = 'ws://localhost:5000/';
+    page(res, req.params.type, 'json', snapshot);
+  };
+});
+
 // Test HTML pages are served up with the associated CSS and JS
 // These pages are intended fo interactive testing of one node type
 app.get('/tests/:type/*', function (req, res, next) {
-  fs.readFile(path.join(__dirname, req.path, 'index.html'), "utf8", function (err, data) {
+  fs.readFile(path.join(__dirname, req.path, 'index.html'), "utf8", function (err, content) {
     if(err) return res.send(err);
-    // Generate a simple page with necessary CSS and JS
-    var type = req.params.type;
-    var page = '<!DOCTYPE html>\n<html><head>';
-    page += '<meta name="viewport" content="width=device-width, initial-scale=1">';
-    page += '<link rel="stylesheet" type="text/css" href="/get/web/' + type + '.min.css">';
-    page += '<script src="/get/web/' + type + '.min.js"></script>';
-    page += '</head><body><main id="content">' + data + '</main></body></html>';
-    res.set('Content-Type', 'text/html');
-    res.send(page);
+    page(res, req.params.type, 'html', content);
   })
 });
 
@@ -160,11 +202,6 @@ app.use('/i18n', express.static(path.join(__dirname, "i18n")));
 app.get('/favicon.ico', function(req, res) {
   res.sendStatus(404);
 });
-
-
-// Collaboration server
-var collab = require('./collab');
-collab.bind(httpServer, app);
 
 
 // Fallback to proxying to hosted components

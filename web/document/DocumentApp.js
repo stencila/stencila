@@ -27,18 +27,6 @@ var CodeEditor = require('./editors/code/CodeEditor');
 function DocumentApp() {
   DocumentApp.super.apply(this, arguments);
 
-  this.address = 'default';
-
-  // Collaboration jam session is always null if a local
-  // session and  `edit` or `comment` as necessary if remote
-  this.jam = this.props.jam;
-  if (this.props.local) {
-    this.jam = null;
-  } else if (!this.jam) {
-    if (this.edit) this.jam = 'edit';
-    else if (this.comment) this.jam = 'comment';
-  }
-
   // Bind to events
   this.handleActions({
     'reveal-toggle': this.toggleReveal,
@@ -80,17 +68,17 @@ DocumentApp.Prototype = function() {
     if (this.state.documentSession) {
 
       var session = null;
-      var jam = null;
-      if (this.jam) {
-        jam = {
-          name: this.jam,
+      var clone = null;
+      if (this.props.clone) {
+        clone = {
+          name: this.props.clone,
           people : Object.keys(this.state.documentSession.collaborators).length + 1
         };
       }
       var editorProps =  {
         // Document state
         session: session,
-        jam: jam,
+        clone: clone,
         reveal: this.state.reveal,
         comment: this.state.comment,
         edit: this.state.edit,
@@ -130,10 +118,10 @@ DocumentApp.Prototype = function() {
   };
 
   this.didMount = function() {
-    if (!this.jam) {
+    if (this.props.format === 'html') {
 
       // Import the HTML provided from the page into a new document
-      this.importHTML(this.props.html);
+      this.importHTML(this.props.data);
 
       // Create a new document session and add it to state to trigger
       // rerendering
@@ -144,67 +132,28 @@ DocumentApp.Prototype = function() {
 
     } else {
 
-      // Load initial Jam
-      this.loadJam(this.jam);
-
-    }
-  };
-
-  this.loadJam = function(jam) {
-    this.jam = jam;
-
-    this.extendState({
-      documentSession: null
-    });
-
-    // Get the component jam from the `DocumentServer`...
-    var jamId = this.address + ':' + this.jam;
-    request('GET', '/jam/' + jamId, null, function(err, componentJam) {
-
-      // ... display any errors
-      if (err) {
-        console.error(err);
-        return this.extendState({
-          message: {
-            type: 'error',
-            string: 'Unable to get document: ' + err
-          }
-        });
-      }
-
       // ... import the JSON
-      this.importJSON(componentJam.data);
+      this.importJSON(this.props.data.data);
 
       // ... create a new collaborative document session and add it to state
       // to trigger rerendering
-      this.collabConn = new WebSocketConnection({
-        wsUrl: 'ws://localhost:5000/'
+      var collabConn = new WebSocketConnection({
+        wsUrl: this.props.data.collabUrl
       });
-      this.collabClient = new CollabClient({
-        connection: this.collabConn
+      var collabClient = new CollabClient({
+        connection: collabConn
       });
       var documentSession = new CollabSession(this.doc, {
-        documentId: componentJam.documentId,
-        version: componentJam.version,
-        collabClient: this.collabClient
+        documentId: this.props.data.documentId,
+        version: this.props.data.version,
+        collabClient: collabClient
       });
       this.extendState({
         documentSession: documentSession
       });
 
-    }.bind(this));
-
-  };
-
-  this.requireJam = function(capability) {
-    if (!this.props.local) {
-      if (capability == 'edit' && this.jam != 'edit') {
-        this.loadJam('edit');
-      } else if (capability == 'comment' && !(this.jam == 'comment' || this.jam == 'edit')) {
-        this.loadJam('comment');
-      }
     }
-  }
+  };
 
   this.importJSON = function(content) {
     this.doc = new DocumentModel();
@@ -253,10 +202,13 @@ DocumentApp.Prototype = function() {
    * Toggle the `comment` state
    */
   this.toggleComment = function() {
+    var comment = !this.state.comment;
+    if (comment) {
+      this.switchClone('all');
+    }
     this.extendState({
-      comment: !this.state.comment
+      comment: comment
     });
-    if (this.state.comment) this.requireJam('comment');
   }
 
   /**
@@ -265,12 +217,28 @@ DocumentApp.Prototype = function() {
    */
   this.toggleEdit = function() {
     var edit = !this.state.edit;
+    if (edit) {
+      this.switchClone('all');
+    }
     this.extendState({
       reveal: edit || this.state.reveal,
       comment: edit || this.state.comment,
       edit: edit
     });
-    if (this.state.edit) this.requireJam('edit');
+  }
+
+  /**
+   * Switch to a different clone (if necessary)
+   *
+   * @param      {string}  clone   The clone
+   */
+  this.switchClone = function(clone) {
+    if (this.props.clone !== clone) {
+      this.extendState({
+        documentSession: null
+      });
+      window.location = window.location + '@' + clone;
+    }
   }
 
 };

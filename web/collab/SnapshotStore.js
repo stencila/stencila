@@ -37,7 +37,7 @@ SnapshotStore.Prototype = function() {
       // Return undefined if none
       if(!exists) return cb(null, undefined);
 
-      // Get the available versios
+      // Get the available versions
       this.client.hkeys(documentId + ':snapshots', function(err, availableVersions) {
         if (err) return cb(err);
 
