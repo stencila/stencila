@@ -8,6 +8,11 @@ function RefreshTool() {
 }
 
 RefreshTool.Prototype = function() {
+
+  this.getTitle = function() {
+    return 'Refresh computations; not yet implemented :(';
+  };
+
 };
 
 Tool.extend(RefreshTool);

@@ -14,9 +14,14 @@ function RevealTool() {
 
 RevealTool.Prototype = function() {
 
-	this.onClick = function() {
-		this.send('reveal-toggle');
-	}
+  this.getTitle = function() {
+    if (this.props.active) return 'Don\'t show computations and comments';
+    else return 'Show computations and comments';
+  };
+
+  this.onClick = function() {
+    this.send('reveal-toggle');
+  }
 
 };
 

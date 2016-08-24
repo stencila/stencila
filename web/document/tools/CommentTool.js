@@ -14,9 +14,9 @@ function CommentTool() {
 
 CommentTool.Prototype = function() {
 
-	this.onClick = function() {
-		this.send('comment-toggle');
-	}
+  this.onClick = function() {
+    this.send('comment-toggle');
+  }
 
 };
 

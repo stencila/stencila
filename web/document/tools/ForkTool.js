@@ -8,6 +8,11 @@ function ForkTool() {
 }
 
 ForkTool.Prototype = function() {
+
+  this.getTitle = function() {
+    return 'Create a fork of this document; not yet implemented :(';
+  };
+
 };
 
 Tool.extend(ForkTool);

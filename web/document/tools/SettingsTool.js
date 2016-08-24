@@ -8,6 +8,11 @@ function SettingsTool() {
 }
 
 SettingsTool.Prototype = function() {
+
+  this.getTitle = function() {
+    return 'Change settings for this document; not yet implemented :(';
+  };
+
 };
 
 Tool.extend(SettingsTool);

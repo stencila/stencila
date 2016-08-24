@@ -14,9 +14,18 @@ function EditTool() {
 
 EditTool.Prototype = function() {
 
-	this.onClick = function() {
-		this.send('edit-toggle');
-	}
+  this.getTitle = function() {
+    if (this.props.active) return 'Turn off editing';
+    else return 'Turn on editing';
+  };
+
+  this.renderIcon = function($$) {
+    return $$('i').addClass('fa fa-pencil');
+  };
+  
+  this.onClick = function() {
+    this.send('edit-toggle');
+  }
 
 };
 

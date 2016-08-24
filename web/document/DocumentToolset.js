@@ -43,11 +43,14 @@ DocumentToolset.Prototype = function() {
           active: this.props.reveal
         }).ref('revealTool'),
 
+        // Currently not used
+        /*
         $$(CommentTool, {
           name: 'comment',
           active: this.props.comment
         }).ref('commentTool'),
-
+        */
+        
         $$(EditTool, {
           name: 'edit',
           active: this.props.edit
