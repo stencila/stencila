@@ -68,17 +68,17 @@ DocumentApp.Prototype = function() {
     if (this.state.documentSession) {
 
       var session = null;
-      var clone = null;
-      if (this.props.clone) {
-        clone = {
-          name: this.props.clone,
+      var copy = null;
+      if (this.props.copy) {
+        copy = {
+          name: this.props.copy,
           people : Object.keys(this.state.documentSession.collaborators).length + 1
         };
       }
       var editorProps =  {
         // Document state
         session: session,
-        clone: clone,
+        copy: copy,
         reveal: this.state.reveal,
         comment: this.state.comment,
         edit: this.state.edit,
@@ -228,16 +228,16 @@ DocumentApp.Prototype = function() {
   }
 
   /**
-   * Switch to a different clone (if necessary)
+   * Switch to a different copy (if necessary)
    *
-   * @param      {string}  clone   The clone
+   * @param      {string}  copy   The copy
    */
-  this.switchClone = function(clone) {
-    if (this.props.clone !== clone) {
+  this.switchClone = function(copy) {
+    if (this.props.copy !== copy) {
       this.extendState({
         documentSession: null
       });
-      window.location = window.location + '@' + clone;
+      window.location = window.location + '@' + copy;
     }
   }
 

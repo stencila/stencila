@@ -5,7 +5,7 @@ var Tool = require('substance/ui/Tool');
 
 
 //var EditorTool = require('./tools/EditorTool');
-var JamTool = require('./tools/JamTool');
+var CopyTool = require('./tools/CopyTool');
 var RefreshTool = require('./tools/RefreshTool');
 var RevealTool = require('./tools/RevealTool');
 var CommentTool = require('./tools/CommentTool');
@@ -30,9 +30,9 @@ DocumentToolset.Prototype = function() {
         //$$(EditorTool, {
         //}).ref('editorTool'),
 
-        $$(JamTool, {
-          jam: this.props.jam
-        }).ref('jamTool'),
+        $$(CopyTool, {
+          copy: this.props.copy
+        }).ref('copyTool'),
 
         $$(RefreshTool, this._getCommandState('refresh'))
           .ref('refreshTool'),

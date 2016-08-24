@@ -12,11 +12,11 @@ var code = require('../shared/code');
  * content 
  */
 window.onload = function() {
-  // Get `address` and `clone` from the path
+  // Get `address` and `copy` from the path
   var path = window.location.pathname;
   var matches = path.match(/([^\@]+)(\@(\w+))?/);
   var address = matches[1];
-  var clone = matches[3];
+  var copy = matches[3];
   // Check URL parameters for options with defaults
   // determined by host.
   // Note: thses may be overidden in the `DocumentApp` depending
@@ -60,7 +60,7 @@ window.onload = function() {
       var DocumentApp = require('./DocumentApp');
       window.app = DocumentApp.mount({
         address: address,
-        clone: clone,
+        copy: copy,
         format: format,
         data: data,
         local: local !== '0',

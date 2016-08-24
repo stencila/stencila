@@ -39,7 +39,7 @@ CodeEditor.Prototype = function() {
     // instead of under the `DocumentApp`)
     el.append(
       $$(DocumentToolset,{
-        jam: this.props.jam,
+        copy: this.props.copy,
         reveal: this.props.reveal,
         comment: this.props.comment,
         edit: this.props.edit
