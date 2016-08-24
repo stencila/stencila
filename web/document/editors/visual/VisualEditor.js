@@ -46,7 +46,7 @@ VisualEditor.Prototype = function() {
         reveal: this.props.reveal,
         comment: this.props.comment,
         edit: this.props.edit
-      }).ref('overallToolset')
+      }).ref('documentToolser')
     );
 
     el.append(
@@ -80,7 +80,7 @@ VisualEditor.Prototype = function() {
    */
   this._documentSessionUpdated = function() {
     var commandStates = this.commandManager.getCommandStates();
-    ['overallToolset'].forEach(function(name) {
+    ['documentToolser'].forEach(function(name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
