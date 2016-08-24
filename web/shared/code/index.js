@@ -9,7 +9,7 @@ var loadAce = function() {
 
 var attachAceEditor = function(el, content, options, callback) {
   function _attach() {
-    var editor = this.editor = window.ace.edit(el);
+    var editor = window.ace.edit(el);
     updateAceEditor(editor, options);
     if (content) editor.setValue(content,1);
     callback(editor);
