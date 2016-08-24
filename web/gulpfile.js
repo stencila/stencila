@@ -20,6 +20,7 @@ var jasmine = require('gulp-jasmine');
 
 // Types of components
 var types = [
+  'document/document',
   'stencil/stencil','stencil/stencil-strict','stencil/stencil-free',
   'sheet/sheet'
 ];
