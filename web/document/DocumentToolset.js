@@ -4,7 +4,7 @@ var Component = require('substance/ui/Component');
 var Tool = require('substance/ui/Tool');
 
 
-//var EditorTool = require('./tools/EditorTool');
+var ViewTool = require('./tools/ViewTool');
 var CopyTool = require('./tools/CopyTool');
 var RefreshTool = require('./tools/RefreshTool');
 var RevealTool = require('./tools/RevealTool');
@@ -27,12 +27,13 @@ DocumentToolset.Prototype = function() {
       .addClass('sc-toolset sc-overall-toolset')
       .append(
 
-        //$$(EditorTool, {
-        //}).ref('editorTool'),
-
         $$(CopyTool, {
           copy: this.props.copy
         }).ref('copyTool'),
+
+        $$(ViewTool, {
+          view: this.props.view
+        }).ref('viewTool'),
 
         $$(RefreshTool, this._getCommandState('refresh'))
           .ref('refreshTool'),

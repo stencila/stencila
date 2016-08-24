@@ -40,6 +40,7 @@ CodeEditor.Prototype = function() {
     el.append(
       $$(DocumentToolset,{
         copy: this.props.copy,
+        view: this.props.view,
         reveal: this.props.reveal,
         comment: this.props.comment,
         edit: this.props.edit

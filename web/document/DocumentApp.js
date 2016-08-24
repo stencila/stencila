@@ -29,6 +29,7 @@ function DocumentApp() {
 
   // Bind to events
   this.handleActions({
+    'view-toggle': this.toggleView,
     'reveal-toggle': this.toggleReveal,
     'comment-toggle': this.toggleComment,
     'edit-toggle': this.toggleEdit,
@@ -79,6 +80,7 @@ DocumentApp.Prototype = function() {
         // Document state
         session: session,
         copy: copy,
+        view: this.state.view,
         reveal: this.state.reveal,
         comment: this.state.comment,
         edit: this.state.edit,
@@ -181,11 +183,11 @@ DocumentApp.Prototype = function() {
   };
 
   /**
-   * Change the editor
+   * Toggle the view
    */
-  this.changeEditor = function(editor) {
+  this.toggleView = function(editor) {
     this.extendState({
-      editor: editor
+      view: (this.state.view === 'visual') ? 'code' : 'visual'
     })
   }
 
