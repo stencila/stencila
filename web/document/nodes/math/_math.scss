@@ -22,16 +22,16 @@
 
 }
 
-&.sm-reveal {
+&.sm-reveal .sc-math {
 
-  .sc-math {
-
-    &.sm-error {
-      // Dislayed in red
-      display: inherit;
-      @include math-colors(0);
-    }
-
+  &.sm-error {
+    // Dislayed in red
+    display: inherit;
+    @include math-colors(0);
   }
 
+}
+
+&.sc-code-editor .sc-math {
+  color: hsl(90,100%,50%);
 }

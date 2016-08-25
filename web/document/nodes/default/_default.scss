@@ -1,4 +1,4 @@
-.sc-isolated-node.sm-default-style.sm-default {
+&.sc-visual-editor .sc-isolated-node.sm-default-style.sm-default {
 
 	&.sm-selected > .se-container {
 		padding: 3px;
@@ -19,8 +19,12 @@
 	& > .se-slug {
 		height: 1px;
 	}
-
-	& > .se-container {
-	}
 }
 
+&.sc-code-editor .sc-isolated-node.sm-default-style.sm-default {
+
+	& > .se-slug {
+		display: none;
+	}
+
+}

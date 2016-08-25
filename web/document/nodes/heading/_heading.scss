@@ -48,3 +48,12 @@ h6,
 	font-size: 1em;
 	color: #999;
 }
+
+&.sc-code-editor {
+	.sc-heading {
+		margin: inherit;
+		font-weight: inherit;
+		font-size: inherit;
+		color: hsl(340,70%,50%);
+	}
+}
