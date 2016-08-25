@@ -160,7 +160,7 @@ DiscussionComponent.Prototype = function() {
    */
   this.onAddClicked = function() {
     var discussion = this.props.node;
-    var user = this.context.doc.user;
+    var user = this.context.documentSession.config.user;
     var surface = this.context.surfaceManager.getFocusedSurface();
     surface.transaction(function(tx, args) {
       // Create a new comment

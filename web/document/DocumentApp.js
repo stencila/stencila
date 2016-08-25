@@ -133,22 +133,28 @@ DocumentApp.Prototype = function() {
       });
 
     } else {
+      var user = this.props.data.user;
+      var rights = this.props.data.rights;
+      var collabUrl = this.props.data.collabUrl;
+      var snapshot = this.props.data.snapshot;
 
       // Import the JSON
-      this.importJSON(this.props.data.data);
+      this.importJSON(snapshot.data);
 
       // Create a new collaborative document session and add it to state
       // to trigger rerendering
       var collabConn = new WebSocketConnection({
-        wsUrl: this.props.data.collabUrl
+        wsUrl: collabUrl
       });
       var collabClient = new CollabClient({
         connection: collabConn
       });
       var documentSession = new CollabSession(this.doc, {
-        documentId: this.props.data.documentId,
-        version: this.props.data.version,
-        collabClient: collabClient
+        documentId: snapshot.documentId,
+        version: snapshot.version,
+        collabClient: collabClient,
+        user: user,
+        rights: rights
       });
       this.extendState({
         documentSession: documentSession

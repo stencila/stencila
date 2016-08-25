@@ -96,9 +96,16 @@ function page(res, componentType, dataType, data) {
   page += '</head><body>';
   if (dataType === 'html') page += '<main id="content">' + data + '</main>';
   else {
+    // Simulate what is done on hub
+    var payload = {
+      user: 'develop',
+      rights: 'UPDATE',
+      collabUrl: 'ws://localhost:5000/',
+      snapshot: data
+    };
     // Do HTML encoding of JSON data to avoid XSS attacks as suggested at
     // https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#HTML_entity_encoding
-    page += '<script id="snapshot" type="application/json">' + he.encode(JSON.stringify(data)) + '</script>';
+    page += '<script id="data" type="application/json">' + he.encode(JSON.stringify(payload)) + '</script>';
   }
   page += '</body></html>';
   res.set('Content-Type', 'text/html');
@@ -147,8 +154,6 @@ app.get('/tests/:type/*@live', function(req, res) {
   });
   var cb = function(err, snapshot) {
     if (err) return res.send(err.message);
-    // Add the URL for the collaboration websocket
-    snapshot.collabUrl = 'ws://localhost:5000/';
     page(res, req.params.type, 'json', snapshot);
   };
 });

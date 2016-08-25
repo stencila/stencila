@@ -37,12 +37,13 @@ MarkCommand.Prototype = function() {
       var discussionId;
       surface.transaction(function(tx, args) {
         // Create the new discussion with an initial comment
+        var user = context.documentSession.config.user;
         var paragraph =  tx.create({
           type: 'paragraph'
         });
         var comment =  tx.create({
           type: 'comment',
-          who: '@' + context.doc.user,
+          who: '@' + user,
           when: moment().format(),
           nodes: [paragraph.id]
         });

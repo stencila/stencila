@@ -45,12 +45,12 @@ window.onload = function() {
       data = content.innerHTML;
       content.style.display = 'none';
     } else {
-      var snapshot = document.getElementById('snapshot');
-      if (snapshot) { 
-        format = 'snapshot';
-        data = JSON.parse(he.decode(snapshot.textContent || snapshot.innerHTML));
+      var data = document.getElementById('data');
+      if (data) { 
+        format = 'json';
+        data = JSON.parse(he.decode(data.textContent || data.innerHTML));
       } else {
-        console.error('Neither #content or #snapshot is available to initialize the document');
+        console.error('Neither #content or #data is available to initialize the document');
       }
     }
 

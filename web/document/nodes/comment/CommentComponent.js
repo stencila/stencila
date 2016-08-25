@@ -28,7 +28,8 @@ CommentComponent.Prototype = function() {
    * is the original author of the comment
    */
   this.isDisabled = function() {
-    return this.props.node.who !== ('@' + this.context.doc.user);
+    var user = this.context.documentSession.config.user;
+    return this.props.node.who !== ('@' + user);
   }
 
   /**
