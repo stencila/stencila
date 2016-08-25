@@ -16,16 +16,67 @@ var ForkTool = require('./tools/ForkTool');
 var SettingsTool = require('./tools/SettingsTool');
 
 
+
+function SizerTool() {
+  SizerTool.super.apply(this, arguments);
+}
+
+SizerTool.Prototype = function() {
+
+  var _super = SizerTool.super.prototype;
+
+  this.getClassNames = function() {
+    return _super.getClassNames.call(this) + ' se-sizer-tool';
+  }
+
+  this.renderIcon = function($$) {
+    return $$('i')
+      .addClass(
+        'fa fa-' + (this.props.maximized ? 'chevron-up' : 'circle')
+      );
+  };
+
+  this.getTitle = function() {
+    return (this.props.maximized ? 'Minimize' : 'Maximize');
+  };
+
+  this.onClick = function() {
+    this.send('toggle-maximized');
+  }
+
+};
+
+Tool.extend(SizerTool);
+
+
+
+
 function DocumentToolset() {
   DocumentToolset.super.apply(this, arguments);
+
+  this.handleActions({
+    'toggle-maximized': this.toggleMaximized
+  });
+
 }
 
 DocumentToolset.Prototype = function() {
 
+  this.getInitialState = function() {
+    return {
+      maximized: true
+    };
+  };
+
   this.render = function($$) {
     var el = $$('div')
-      .addClass('sc-toolset sc-overall-toolset')
+      .addClass('sc-toolset sc-document-toolset')
+      .addClass(this.state.maximized ? 'sm-maximized' : 'sm-minimized')
       .append(
+
+        $$(SizerTool, {
+          maximized: this.state.maximized
+        }).ref('sizerTool'),
 
         $$(CopyTool, {
           copy: this.props.copy
@@ -58,7 +109,7 @@ DocumentToolset.Prototype = function() {
       );
 
     var editGroup = $$('div')
-      .addClass('se-group se-edit-group')
+      .addClass('se-edit-group')
       .ref('editGroup')
       .append(
         $$(Tool, this._getCommandState('undo')),
@@ -91,6 +142,15 @@ DocumentToolset.Prototype = function() {
       if (!state) throw new Error('Command {' + name + '} not found');
       state.name = name; // A necessary hack at time of writing
       return state;
+  }
+
+  /**
+   * Toggle the `maximized` state
+   */
+  this.toggleMaximized = function() {
+    this.extendState({
+      maximized: !this.state.maximized
+    })
   }
 
 };
