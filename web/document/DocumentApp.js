@@ -128,6 +128,11 @@ DocumentApp.Prototype = function() {
       // Create a new document session and add it to state to trigger
       // rerendering
       var documentSession = new DocumentSession(this.doc);
+      // For code compatability when using a `CollabSession`
+      documentSession.config = {
+        user: null,
+        rights: null
+      };
       this.extendState({
         documentSession: documentSession
       });
