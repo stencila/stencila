@@ -85,12 +85,12 @@
 
 // Specific styling for content when in the `CodeEditor`
 .sc-code-editor [data-id=content] {
-
 	background: #292929;
+	padding: 0.75em;
 
 	font-family: $mono-font-family;
 	line-height: 1.5em;
-	text-align: none;
+	text-align: left;
 	color: #DDD;
 }
 

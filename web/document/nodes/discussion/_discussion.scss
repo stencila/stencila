@@ -1,7 +1,8 @@
 [data-discussion] {
+	display: none;
 }
 
-.sc-discussion {
+&.sc-visual-editor .sc-discussion {
 	// Take the discussion out of the flow
 	// of the document (e.g. so it's not selected on cursor movements)
 	display: none;
@@ -75,7 +76,22 @@
 	& > .se-container {
 		outline: none !important;
 		// Due to the heavy header and footer (?) discussions don't
-		// look ood unless they have a minimum height;
+		// look good unless they have a minimum height
 		min-height: 10em;
+	}
+}
+
+&.sc-code-editor .sc-discussion {
+	display: block;
+
+	// Hide slugs
+	& > .se-slug {
+		display: none;
+	}
+
+	// Remove outline and make full width
+	& > .se-container {
+		outline: none !important;
+		width: 100%;
 	}
 }

@@ -1,10 +1,11 @@
 [data-comment] {
-  // So that there is no "flash" of content appearance befor Javascript is fully loaded
+  // So that there is no "flash" of content appearance before Javascript is fully loaded
   // don't display comments when static mode
   display: none;
 }
 
-.sc-comment {
+&.sc-visual-editor .sc-comment {
+  min-width: 20em;
   max-width: 30em;
   font-size: 90%;
 
@@ -40,5 +41,37 @@
     .sc-paragraph:last-child {
         padding: 0;
     }
+  }
+}
+
+&.sc-code-editor .sc-comment {
+
+  & > .se-header {
+    .se-who {
+      display: inline-block;
+      color: #666;
+    }
+
+    .se-when {
+      display: inline-block;
+      color: #666;
+      margin-left: 1em;
+    }
+  }
+
+  // Hide slugs
+  & > .se-slug {
+    display: none;
+  }
+
+  // Remove outline and make full width
+  & > .se-container {
+    outline: none !important;
+    width: 100%;
+  }
+
+  .sc-container-editor {
+    color: #AAA;
+    font-style: italic;
   }
 }
