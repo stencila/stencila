@@ -33,14 +33,17 @@ ImageTool.Prototype = function() {
                 placeholder: 'Paste or type a URL',
                 spellcheck: 'false'
               })
-              .on('change', function(event){
-                var session = this.context.documentSession;
-                session.transaction(function(tx) {
-                  tx.set([this.props.node.id, 'src'], event.target.value);
-                });
-              }.bind(this))
+              .on('change', this.onChange.bind(this))
           )
       );
+  };
+
+  this.onChange = function(event) {
+    var node = this.props.node;
+    var session = this.context.documentSession;
+    session.transaction(function(tx) {
+      tx.set([node.id, 'src'], event.target.value);
+    });
   };
 
 };
