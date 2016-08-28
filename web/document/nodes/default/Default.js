@@ -10,7 +10,7 @@ BlockNode.extend(Default);
 
 Default.define({
   type: 'default',
-  html: 'string'
+  html: {type: 'string', default: ''}
 });
 
 module.exports = Default;
