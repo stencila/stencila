@@ -7,10 +7,8 @@ function EmojiMacro () {
 };
 
 EmojiMacro.Prototype = function() {
-
-  // First semicolon must not be followed by space,
-  // last semicolon must not be preceeded by space                   
-  this.regex =  /\:(\S|(\S.*\S))\:/;
+                  
+  this.regex =  /\:([a-z0-9_]+)\:/;
   
   this.createNodeData = function(match) {
     var name = match[1];    
