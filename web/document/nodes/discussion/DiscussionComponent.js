@@ -107,7 +107,7 @@ DiscussionComponent.Prototype = function() {
         // Place vertically aligned with centre of mark and left side to left of content
         position = 'absolute';
         if (this.state.markPosition) {
-          top = (this.state.markPosition.top + this.state.markPosition.height/2 - 5*em) + 'px';
+          top = Math.max(0,this.state.markPosition.top + this.state.markPosition.height/2 - 5*em) + 'px';
         } else {
           top = em + 'px';
         }
