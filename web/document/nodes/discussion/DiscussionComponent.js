@@ -111,7 +111,7 @@ DiscussionComponent.Prototype = function() {
         } else {
           top = em + 'px';
         }
-        left = (contentRect.right + em) + 'px';
+        left = (contentRect.width + em) + 'px';
         right = 'inherit';
       } else {
         // Not enough room in margin
