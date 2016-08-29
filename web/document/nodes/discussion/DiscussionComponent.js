@@ -42,43 +42,8 @@ DiscussionComponent.Prototype = function() {
    * Method override to render component
    */
   this.render = function($$) {
-    // Calculate postion based on the size of the margin for the
-    // document content. Calculations done using ems assuming 16px em size.
-    var content = document.querySelector('.content');
-    var em = 16;
-    var position, top, left, right;
-    if (content) {
-      var rect = content.getBoundingClientRect();
-      var margin = parseInt(window.getComputedStyle(content).getPropertyValue('margin-right').match(/\d+/));
-      if (margin >= 20*em) {
-        position = 'fixed';
-        top = em + 'px';
-        left = rect.right + 'px';
-        right = 'inherit';
-      } else {
-        position = 'absolute';
-        if (this.state.markPosition) {
-          top = this.state.markPosition.top + this.state.markPosition.height + em + 'px';
-        } else {
-          top = 'inherit';
-        }
-        left = 'inherit';
-        right = margin + 'px';
-      }
-    } else {
-      // Fallback to top-right
-      position = 'fixed';
-      top = em + 'px';
-      right = em + 'px';
-    }
-    return _super.render.call(this, $$)
+    var el = _super.render.call(this, $$)
       .addClass('sc-discussion ' + (this.state.displayed ? 'sm-displayed' : ''))
-      .css({
-        position: position,
-        top: top,
-        left: left,
-        right: right
-      })
       .insertAt(0,
         $$('div')
           .ref('header')
@@ -128,12 +93,58 @@ DiscussionComponent.Prototype = function() {
               .on('click', this.onDeleteClicked, this)
           )
     );
+    // Calculate position based on the size of the margin for the
+    // document content. Calculations done using ems assuming 16px em size.
+    // TODO Get height discussion element so can centre it next to the mark
+    var content = document.querySelector('.se-content');
+    var em = 16;
+    var position, top, left, right;
+    if (content) {
+      var contentRect = content.getBoundingClientRect();
+      var margin = parseInt(window.getComputedStyle(content).getPropertyValue('margin-right').match(/\d+/));
+      if (margin >= 20*em) {
+        // Room to place the discussion in the right margin.
+        // Place vertically aligned with centre of mark and left side to left of content
+        position = 'fixed';
+        if (this.state.markPosition) {
+          top = (this.state.markPosition.top + this.state.markPosition.height/2 - 5*em) + 'px';
+        } else {
+          top = em + 'px';
+        }
+        left = (contentRect.right + em) + 'px';
+        right = 'inherit';
+      } else {
+        // Not enough room in margin
+        // Place below the mark with right side (almost) aligned to right of content
+        position = 'fixed';
+        if (this.state.markPosition) {
+          top = (this.state.markPosition.top + this.state.markPosition.height + em) + 'px';
+        } else {
+          top = em + 'px';
+        }
+        left = 'inherit';
+        right = (margin + em)+ 'px';
+      }
+    } else {
+      // Fallback to top-right
+      position = 'fixed';
+      top = em + 'px';
+      right = em + 'px';
+    }
+    el.css({
+        position: position,
+        top: top,
+        left: left,
+        right: right
+      });
+      
+    return el;
   }
 
 
   /**
-   * Event method to change display state any
-   * mark is selected
+   * Event method to change display state. Called when any
+   * mark is selected.
    *
    * @param      {<type>}  event   The event
    */
@@ -145,8 +156,7 @@ DiscussionComponent.Prototype = function() {
   }
 
   /**
-   * Event method for when the hide button
-   * is clicked.
+   * Event method for when the hide button is clicked.
    */
   this.onHideClicked = function() {
     this.extendState({
@@ -155,8 +165,7 @@ DiscussionComponent.Prototype = function() {
   }
 
   /**
-   * Event method for when the add buttin
-   * is clicked.
+   * Event method for when the add button is clicked.
    */
   this.onAddClicked = function() {
     var discussion = this.props.node;

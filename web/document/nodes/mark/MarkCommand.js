@@ -2,6 +2,7 @@
 
 var AnnotationCommand = require('substance/ui/AnnotationCommand');
 var uuid = require('substance/util/uuid');
+var getRelativeBoundingRect = require('substance/util/getRelativeBoundingRect');
 
 var moment = require('moment');
 
@@ -69,11 +70,23 @@ MarkCommand.Prototype = function() {
       });
 
       // CHECK
-      // Better way to do this?
+      // Hackity, hack, hack
+      // Better way to do this?!!#%@#!
+      var position;
+      var componentEl = document.querySelector('[data-id=' + mark.id + ']');
+      var containerEl = context.surfaceManager.surfaces.content.parent.el.el;
+      if (componentEl && containerEl) {
+        position = getRelativeBoundingRect(componentEl, containerEl);
+      } else {
+        position = {
+          top: 1,
+          right: 1
+        }
+      }
       document.dispatchEvent(new CustomEvent('mark:selected', {
         detail: {
           discussionId: discussionId,
-          markPosition: {top: '1em'},
+          markPosition: position
         }
       }));
 
