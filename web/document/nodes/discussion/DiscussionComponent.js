@@ -105,7 +105,7 @@ DiscussionComponent.Prototype = function() {
       if (margin >= 20*em) {
         // Room to place the discussion in the right margin.
         // Place vertically aligned with centre of mark and left side to left of content
-        position = 'fixed';
+        position = 'absolute';
         if (this.state.markPosition) {
           top = (this.state.markPosition.top + this.state.markPosition.height/2 - 5*em) + 'px';
         } else {
@@ -116,7 +116,7 @@ DiscussionComponent.Prototype = function() {
       } else {
         // Not enough room in margin
         // Place below the mark with right side (almost) aligned to right of content
-        position = 'fixed';
+        position = 'absolute';
         if (this.state.markPosition) {
           top = (this.state.markPosition.top + this.state.markPosition.height + em) + 'px';
         } else {
@@ -126,7 +126,7 @@ DiscussionComponent.Prototype = function() {
         right = (margin + em)+ 'px';
       }
     } else {
-      // Fallback to top-right
+      // Fallback to top-right of screen
       position = 'fixed';
       top = em + 'px';
       right = em + 'px';
