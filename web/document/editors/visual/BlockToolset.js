@@ -16,7 +16,7 @@ function BlockToolset() {
   BlockToolset.super.apply(this, arguments);
 
   this.primaryTypes = [
-    'heading', 'paragraph', 'table', 'image', 'blockquote', 'codeblock',
+    'heading', 'paragraph', 'image', 'blockquote', 'codeblock',
     'execute'
   ];
 
