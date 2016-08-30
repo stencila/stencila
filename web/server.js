@@ -113,7 +113,7 @@ function page(res, componentType, dataType, data) {
 }
 
 // Collaboration server
-var collab = require('./collab').bind(httpServer, app, '/collab');
+var collab = require('./collab').bind(httpServer, app, '/collab/');
 
 // Request for a live collaboration clone for a test file
 // This simulates what is done on via the hub: the collaboration `DocumentServer` is requested to
