@@ -41,13 +41,14 @@ DocumentServer.Prototype = function() {
   };
 
   /**
-   * Method override to use path as documentId and return a simple 404 if document
+   * Method override to use path as documentId add format parameter and return a simple 404 if document
    * does not exist instead of returning and printing error
    */
   this._getDocument = function(req, res, next) {
     var documentId = req.path.slice(this.path.length);
     this.engine.getDocument({
-      documentId: documentId
+      documentId: documentId,
+      format: req.query.format || 'json'
     }, function(err, result) {
       if (err) return res.status(404).send();
       res.json(result);

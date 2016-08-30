@@ -15,7 +15,7 @@ var DocumentHTMLImporter = require('../document/DocumentHTMLImporter');
 var documentHTMLImporter = new DocumentHTMLImporter({ configurator: documentConfigurator });
 
 var DocumentHTMLExporter = require('../document/DocumentHTMLExporter');
-var DocumentHTMLExporter = new DocumentHTMLExporter({ configurator: documentConfigurator });
+var documentHTMLExporter = new DocumentHTMLExporter({ configurator: documentConfigurator });
 
 var DocumentJSONConverter = require('../document/DocumentJSONConverter');
 var documentJsonConverter = new DocumentJSONConverter();
@@ -48,9 +48,9 @@ ModelFactory.Prototype = function() {
   };
 
   /**
-   * Convert a Stencila component from HTML to JSON
+   * Import a Stencila component from HTML to JSON
    */
-  this.convertDocument = function(schemaName, format, content, cb) {
+  this.importDocument = function(schemaName, format, content, cb) {
     if (format !== 'html') throw new Error('Unhandled format: '+ format);
 
     var importer;
@@ -66,6 +66,31 @@ ModelFactory.Prototype = function() {
     importer.createDocument();
     var doc = importer.importDocument(content);
     var data = exporter.exportDocument(doc);
+    cb(null, data);
+  };
+
+  /**
+   * Export a Stencila component frm JSON to HTML
+   */
+  this.exportDocument = function(schemaName, format, content, cb) {
+    if (format !== 'html') throw new Error('Unhandled format: '+ format);
+
+    var importer;
+    var exporter;
+    if (schemaName === 'stencila-document') {
+      importer = documentJsonConverter;
+      exporter = documentHTMLExporter;
+    } else {
+      throw new Error('Unhandled schema: '+ schemaName);
+    }
+
+    var doc = this.createDocument(schemaName);
+    importer.importDocument(doc, content);
+    var data = exporter.exportDocument(doc);
+
+    // Remove "data-id" attributes
+    data = data.replace(/ data-id=\".+?\"/g, '');
+
     cb(null, data);
   };
 

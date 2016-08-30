@@ -19,7 +19,7 @@ DocumentEngine.Prototype = function() {
   this.createDocument = function(args, cb) {
     // If necessary, convert the document content to JSON
     if (args.format && args.format !== 'json'){
-      this.modelFactory.convertDocument(args.schemaName, args.format, args.content, function(err, content) {
+      this.modelFactory.importDocument(args.schemaName, args.format, args.content, function(err, content) {
         if (err) return cb(new Err('ConvertError', { message: err }));
 
         this.createDocument({
@@ -74,6 +74,24 @@ DocumentEngine.Prototype = function() {
 
     }.bind(this));
 
+  };
+
+  /**
+   * Get a document
+   */
+  this.getDocument = function(args, cb) {
+    var format = args.format || 'json';
+    this.snapshotEngine.getSnapshot(args, function(err, snapshot) {
+      if (format == 'html') {
+        this.modelFactory.exportDocument(snapshot.data.schema.name, 'html', snapshot.data, function(err, content) {
+            snapshot.data = content;
+            cb(err, snapshot);
+        });
+      }
+      else {
+        cb(err, snapshot);
+      }
+    }.bind(this));
   };
 
   /**
