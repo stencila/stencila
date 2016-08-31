@@ -25,15 +25,15 @@ serve:
 serve-hub:
 	node server.js --upstream=https://stenci.la
 
-# Run tests
+lint:
+	./node_modules/.bin/gulp lint
+
 test:
 	npm test
 
-# Run tests in node with debugger
 test-debug:
 	node-debug  tests
 
-# Run tests with coverage
 cover:
 	npm run cover
 

@@ -14,6 +14,8 @@ var watchify = require('watchify');
 var babelify = require('babelify');
 var uglify = require('gulp-uglify');
 var sass = require('gulp-sass');
+var sassLint = require('gulp-sass-lint');
+
 
 // Test dependencies
 var jasmine = require('gulp-jasmine');
@@ -147,6 +149,21 @@ gulp.task('watch', function() {
   });
   scripts(true);
 });
+
+gulp.task('lint:sass', function () {
+  return gulp.src([
+    './document/*.scss'
+  ])
+  .pipe(sassLint({
+    //configFile: '.sass-lint.yml'
+  }))
+  .pipe(sassLint.format())
+  .pipe(sassLint.failOnError());
+});
+
+gulp.task('lint', [
+  'lint:sass'
+]);
 
 gulp.task('test', ['build'], function () {
   return gulp.src('tests/jasmine/**/*.js')
