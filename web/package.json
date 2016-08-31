@@ -54,6 +54,7 @@
   },
   "scripts": {
     "postinstall": "./postinstall.sh",
+    "lint": "gulp lint",
     "test": "tape 'tests/**/*.test.js' | tap-spec",
     "cover": "istanbul cover tests"
   }

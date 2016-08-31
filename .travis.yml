@@ -105,6 +105,7 @@ script:
 
     # Web module
     - make -C web setup
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C web lint; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C web cover; fi
 
     # Docker module
