@@ -155,7 +155,9 @@ gulp.task('lint:sass', function () {
     './document/*.scss'
   ])
   .pipe(sassLint({
-    //configFile: '.sass-lint.yml'
+    files: {
+      ignore: 'document/_resets.scss'
+    }
   }))
   .pipe(sassLint.format())
   .pipe(sassLint.failOnError());

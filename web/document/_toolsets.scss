@@ -1,219 +1,215 @@
-/**
- * Stencila `VisualEditor` tool sets
- */
+// Stencila `VisualEditor` tool sets
 
 .sc-toolset {
 
-	display: none;
+  display: none;
 
-	background: hsl(0, 0%, 5%);
-	opacity: 0.9;
-	box-shadow: 2px 2px 10px 0px hsla(0,0%,0%,0.3);
+  background: hsl(0, 0%, 5%);
+  opacity: .9;
+  box-shadow: 2px 2px 10px 0 hsla(0, 0%, 0%, .3);
 
-	border-radius: 5px;
+  border-radius: 5px;
 
-	&.sm-enabled {
-		display: block;
-	}
+  &.sm-enabled {
+    display: block;
+  }
 
-	.se-group {
-		display: flex;
-		flex-direction: column;
+  .se-group {
+    display: flex;
+    flex-direction: column;
 
-		max-height: 0;
-	    transition: max-height 0.3s;
-	    overflow: hidden;
+    max-height: 0;
+    transition: max-height .3s;
+    overflow: hidden;
 
-		&.sm-enabled {
-			// Override this below for each group so 
-			// it just fits the number of tools (so no apparent delay in animation)
-			max-height: 100em;
-		}
-	}
-	
-	.se-tool {
-		display: inline-block;
+    &.sm-enabled {
+      // Override this below for each group so 
+      // it just fits the number of tools (so no apparent delay in animation)
+      max-height: 100em;
+    }
+  }
 
-		/**
-		 * When using `overflow:hidden` the height of the
-		 * parent element changes without this
-		 * See http://stackoverflow.com/questions/20310690/overflowhidden-on-inline-block-adds-height-to-parent
-		 */
-		vertical-align: top;
+  .se-tool {
+    display: inline-block;
 
-		button {
-			height: 2.3em;
-			width: 2.3em;
-			background: none;
-			outline: none;
-			border: none;
-			
-			i {
-				color: hsl(0, 0%, 90%);
-				font-size: 1.5em;
-			}
-		}
+    // When using `overflow:hidden` the height of the
+    // parent element changes without this
+    // See http://stackoverflow.com/questions/20310690/overflowhidden-on-inline-block-adds-height-to-parent
+    vertical-align: top;
 
-		// Disabled tool icons
-		&.sm-disabled button i {
-			color: hsl(0, 0%, 20%);
-		}
+    button {
+      height: 2.3em;
+      width: 2.3em;
+      background: none;
+      outline: none;
+      border: 0;
 
-		// Active tool icons
-		&.sm-active button i {
-			color: hsl($stencila-green-hue, 100%, 50%);
-		}
+      i {
+        color: hsl(0, 0%, 90%);
+        font-size: 1.5em;
+      }
+    }
 
-		.se-details {
-			display: none;
+    // Disabled tool icons
+    &.sm-disabled button i {
+      color: hsl(0, 0%, 20%);
+    }
 
-			$details-color: hsl(200, 100%, 50%);
+    // Active tool icons
+    &.sm-active button i {
+      color: hsl($stencila-green-hue, 100%, 50%);
+    }
 
-			color: $details-color;
+    .se-details {
+      display: none;
 
-			button i {
-				color: $details-color;
-			}
+      $details-color: hsl(200, 100%, 50%);
 
-			input {
-				margin-left: 0.5em;
-				outline: none;
-				border: none;
-				background: none;
+      color: $details-color;
 
-				padding: 0.2em;
-				color: $details-color;
-			    font-size: 80%;
-			    font-family: mono;
-    			vertical-align: text-bottom;
-			}
+      button i {
+        color: $details-color;
+      }
 
-			select {
-				outline: none;
-				border: none;
-				background: none;
+      input {
+        margin-left: .5em;
+        outline: none;
+        border: 0;
+        background: none;
 
-				color: $details-color;
-			}
-		}
+        padding: .2em;
+        color: $details-color;
+        font-size: 80%;
+        font-family: mono;
+        vertical-align: text-bottom;
+      }
 
-		&.sm-active .se-details {
-			display: inline-block;
-		}
+      select {
+        outline: none;
+        border: 0;
+        background: none;
 
-		// Hide the Substance added tool mode
-		.se-mode {
-			display: none;
-		}
-	}
+        color: $details-color;
+      }
+    }
+
+    &.sm-active .se-details {
+      display: inline-block;
+    }
+
+    // Hide the Substance added tool mode
+    .se-mode {
+      display: none;
+    }
+  }
 }
 
-/**
- * Document toolset
- */
+// Document toolset
 .sc-document-toolset {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-	position: relative;
-	top: 0.5em;
-	left: 0.5em;
-	z-index: 300;
+  position: relative;
+  top: .5em;
+  left: .5em;
+  z-index: 300;
 
-	width: 2em;
-	overflow: hidden;
+  width: 2em;
+  overflow: hidden;
 
-	&.sm-minimized {
-		max-height: 2em;
-	}
-	&.sm-maximized {
-		max-height: 30em;
-	}
-	transition: max-height 0.8s;
+  &.sm-minimized {
+    max-height: 2em;
+  }
 
-	.se-edit-group {
-		display: inline-block;
-		width: 2em;
-		overflow: hidden;
+  &.sm-maximized {
+    max-height: 30em;
+  }
+  transition: max-height .8s;
 
-		max-height: 0;
-		&.sm-enabled {
-			max-height: 10em;
-		}
-		transition: max-height 0.5s;
-	}
+  .se-edit-group {
+    display: inline-block;
+    width: 2em;
+    overflow: hidden;
+
+    max-height: 0;
+
+    &.sm-enabled {
+      max-height: 10em;
+    }
+    transition: max-height .5s;
+  }
 }
 
 .sc-text-toolset {
 
-	// To save horizontal space don't show disabled buttons
-	.se-tool.sm-disabled {
-		display: none;
-	}
+  // To save horizontal space don't show disabled buttons
+  .se-tool.sm-disabled {
+    display: none;
+  }
 
 }
 
-/**
- * Block toolset
- * 
- * Should appear in the margin to the left of the cursor
- */
+// Block toolset
+// Should appear in the margin to the left of the cursor
 .sc-block-toolset {
 
-	.se-tool,
-	&.sm-expanded .se-extension .se-tool {
-		max-width: 0;
-		overflow: hidden;
-		transition: max-width 0.5s;
-	}
+  .se-tool,
+  &.sm-expanded .se-extension .se-tool {
+    max-width: 0;
+    overflow: hidden;
+    transition: max-width .5s;
+  }
 
-	&.sm-expanded .se-tool,
-	&.sm-expanded.sm-extended .se-extension .se-tool {
-		max-width: 2.5em;
-	}
+  &.sm-expanded .se-tool,
+  &.sm-expanded.sm-extended .se-extension .se-tool {
+    max-width: 2.5em;
+  }
 
-	.se-tool.sm-active {
-		max-width: 2.5em;
-	}
+  .se-tool.sm-active {
+    max-width: 2.5em;
+  }
 
-	// Custom max widths for tools that need to be wider
-	// than the default
-	.se-tool.sm-active.sc-heading-tool {
-		max-width: 5em;
+  // Custom max widths for tools that need to be wider
+  // than the default
+  .se-tool.sm-active.sc-heading-tool {
+    max-width: 5em;
 
-		// Make H icon and number close together
-		button {
-			padding-right: 0;
-		}
-		select {
-			font-size: 120%;
-			option {
-				padding-left: 0;
-			}
-		}
-	}
+    // Make H icon and number close together
+    button {
+      padding-right: 0;
+    }
 
-	.se-tool.sm-active.sc-image-tool {
-		max-width: 35em;
-	}
+    select {
+      font-size: 120%;
 
-	.se-tool.sm-active.sc-codeblock-tool {
-		max-width: 10em;
-		input {
-			width: 5em;
-		}
-	}
+      option {
+        padding-left: 0;
+      }
+    }
+  }
 
-	.se-tool.sm-active.sc-default-tool {
-		max-width: 6em;
-	}
+  .se-tool.sm-active.sc-image-tool {
+    max-width: 35em;
+  }
 
-	.se-tool.se-extend i {
-		color: hsl(200, 100%, 50%);
-	}
+  .se-tool.sm-active.sc-codeblock-tool {
+    max-width: 10em;
 
-	.se-extension {
-		display: inline-block;
-	}
+    input {
+      width: 5em;
+    }
+  }
+
+  .se-tool.sm-active.sc-default-tool {
+    max-width: 6em;
+  }
+
+  .se-tool.se-extend i {
+    color: hsl(200, 100%, 50%);
+  }
+
+  .se-extension {
+    display: inline-block;
+  }
 
 }

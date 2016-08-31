@@ -1,23 +1,23 @@
 // Fonts
 @import '../fonts/lato';
 @import '../fonts/source-code-pro';
-@import '../node_modules/font-awesome/scss/font-awesome.scss';
+@import '../node_modules/font-awesome/scss/font-awesome';
 
 // Substance styles
 // Generally we only using Substance styles that are "non-visual" and
 // more related to implementing functionality (e.g. positioning) of
 // Substance components
-$local-selection-color: hsla(93, 100%, 70%, 0.5);
-$collaborator-color-1: #A4E57A;
-$collaborator-color-2: #BC90FF;
-$collaborator-color-3: #D6BB4C;
-$collaborator-color-4: #BAA6A0;
-$collaborator-color-5: #7BB5B3;
-$collaborator-color-6: #FF7B7B;
-$collaborator-color-7: #A0CC00;
-$collaborator-color-8: #89CAFF;
-$collaborator-color-9: #FF9FBF;
-$collaborator-color-10: #FFB533;
+$local-selection-color: hsla(93, 100%, 70%, .5);
+$collaborator-color-1: #a4e57a;
+$collaborator-color-2: #bc90ff;
+$collaborator-color-3: #d6bb4c;
+$collaborator-color-4: #baa6a0;
+$collaborator-color-5: #7bb5b3;
+$collaborator-color-6: #ff7b7b;
+$collaborator-color-7: #a0cc00;
+$collaborator-color-8: #89caff;
+$collaborator-color-9: #ff9fbf;
+$collaborator-color-10: #ffb533;
 @import '../node_modules/substance/styles/components/text-property';
 @import '../node_modules/substance/styles/components/inline-node';
 @import '../node_modules/substance/styles/components/isolated-node';
@@ -39,8 +39,8 @@ $z-index-discussion: 100;
 
 // Document styles
 .stencila-selected {
-	background: hsla($stencila-green-hue, 100%, 85%, 0.5);
-	outline: 2px solid hsla($stencila-green-hue, 100%, 70%, 0.5);
+  background: hsla($stencila-green-hue, 100%, 85%, .5);
+  outline: 2px solid hsla($stencila-green-hue, 100%, 70%, .5);
 }
 @import 'resets';
 @import 'content';
