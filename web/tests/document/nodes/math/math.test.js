@@ -8,29 +8,29 @@ var config = new TestConfigurator([
   require('../../../../document/nodes/paragraph/ParagraphPackage')
 ]);
 
-
 test('MathHTMLConverter', function (assert) {
+
   var converter = new TestDocumentHTMLConverter(config);
 
-  var input = 
-    '<p data-id="p1">' + 
-      '<span data-id="m1" data-math="asciimath">x = 1</span> .' +
-      '<span data-id="m2" data-math="tex">y = 2</span> .' +
-      '<span data-id="m3" data-math="tex block">\\pi</span> .' + 
-    '</p>';
-
-  var output = 
-    '<p data-id="p1">' + 
+  var input =
+    '<p data-id="p1">' +
       '<span data-id="m1" data-math="asciimath">x = 1</span> .' +
       '<span data-id="m2" data-math="tex">y = 2</span> .' +
       '<span data-id="m3" data-math="tex block">\\pi</span> .' +
     '</p>';
 
-  var doc = converter.import(input+'\n');
+  var output =
+    '<p data-id="p1">' +
+      '<span data-id="m1" data-math="asciimath">x = 1</span> .' +
+      '<span data-id="m2" data-math="tex">y = 2</span> .' +
+      '<span data-id="m3" data-math="tex block">\\pi</span> .' +
+    '</p>';
+
+  var doc = converter.import(input + '\n');
 
   assert.deepEqual(
-    doc.get('content').toJSON(), 
-    { id: 'content', type: 'container', nodes: [ 'p1'] }
+    doc.get('content').toJSON(),
+    { id: 'content', type: 'container', nodes: [ 'p1' ] }
   );
 
   var m1 = doc.get('m1').toJSON();
@@ -50,10 +50,11 @@ test('MathHTMLConverter', function (assert) {
   assert.equal(m3.language, 'tex');
   assert.equal(m3.display, 'block');
   assert.equal(m3.source, '\\pi');
-  
+
   assert.equal(
-  	converter.export(doc), output
-  )
+    converter.export(doc), output
+  );
 
   assert.end();
+
 });

@@ -10,7 +10,8 @@ var PrintTool = require('./PrintTool');
 
 module.exports = {
   name: 'print',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Print);
     config.addConverter('html', PrintHTMLConverter);
     config.addConverter('xml', PrintXMLConverter);
@@ -22,5 +23,6 @@ module.exports = {
     config.addLabel('print', {
       en: ''
     });
+
   }
 };

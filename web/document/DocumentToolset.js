@@ -3,55 +3,60 @@
 var Component = require('substance/ui/Component');
 var Tool = require('substance/ui/Tool');
 
-
 var ViewTool = require('./tools/ViewTool');
 var CopyTool = require('./tools/CopyTool');
 var RefreshTool = require('./tools/RefreshTool');
 var RevealTool = require('./tools/RevealTool');
-var CommentTool = require('./tools/CommentTool');
+// var CommentTool = require('./tools/CommentTool');
 var EditTool = require('./tools/EditTool');
 var SaveTool = require('./tools/SaveTool');
 var CommitTool = require('./tools/CommitTool');
 var ForkTool = require('./tools/ForkTool');
 var SettingsTool = require('./tools/SettingsTool');
 
+function SizerTool () {
 
-
-function SizerTool() {
   SizerTool.super.apply(this, arguments);
+
 }
 
-SizerTool.Prototype = function() {
+SizerTool.Prototype = function () {
 
   var _super = SizerTool.super.prototype;
 
-  this.getClassNames = function() {
-    return _super.getClassNames.call(this) + ' se-sizer-tool';
-  }
+  this.getClassNames = function () {
 
-  this.renderIcon = function($$) {
+    return _super.getClassNames.call(this) + ' se-sizer-tool';
+
+  };
+
+  this.renderIcon = function ($$) {
+
     return $$('i')
       .addClass(
         'fa fa-' + (this.props.maximized ? 'chevron-up' : 'circle')
       );
+
   };
 
-  this.getTitle = function() {
+  this.getTitle = function () {
+
     return (this.props.maximized ? 'Minimize' : 'Maximize');
+
   };
 
-  this.onClick = function() {
+  this.onClick = function () {
+
     this.send('toggle-maximized');
-  }
+
+  };
 
 };
 
 Tool.extend(SizerTool);
 
+function DocumentToolset () {
 
-
-
-function DocumentToolset() {
   DocumentToolset.super.apply(this, arguments);
 
   this.handleActions({
@@ -60,15 +65,18 @@ function DocumentToolset() {
 
 }
 
-DocumentToolset.Prototype = function() {
+DocumentToolset.Prototype = function () {
 
-  this.getInitialState = function() {
+  this.getInitialState = function () {
+
     return {
       maximized: true
     };
+
   };
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var el = $$('div')
       .addClass('sc-toolset sc-document-toolset')
       .addClass(this.state.maximized ? 'sm-maximized' : 'sm-minimized')
@@ -101,7 +109,7 @@ DocumentToolset.Prototype = function() {
           active: this.props.comment
         }).ref('commentTool'),
         */
-        
+
         $$(EditTool, {
           name: 'edit',
           active: this.props.edit
@@ -118,7 +126,9 @@ DocumentToolset.Prototype = function() {
         $$(CommitTool, this._getCommandState('commit'))
       );
     if (this.props.edit) {
+
       editGroup.addClass('sm-enabled');
+
     }
     el.append(editGroup);
 
@@ -130,6 +140,7 @@ DocumentToolset.Prototype = function() {
     );
 
     return el;
+
   };
 
   /**
@@ -137,21 +148,25 @@ DocumentToolset.Prototype = function() {
    * to add command name to state for Substance `Tools` to render
    * icons
    */
-  this._getCommandState = function(name){
-      var state = this.context.commandManager.getCommandStates()[name];
-      if (!state) throw new Error('Command {' + name + '} not found');
-      state.name = name; // A necessary hack at time of writing
-      return state;
-  }
+  this._getCommandState = function (name) {
+
+    var state = this.context.commandManager.getCommandStates()[name];
+    if (!state) throw new Error('Command {' + name + '} not found');
+    state.name = name; // A necessary hack at time of writing
+    return state;
+
+  };
 
   /**
    * Toggle the `maximized` state
    */
-  this.toggleMaximized = function() {
+  this.toggleMaximized = function () {
+
     this.extendState({
       maximized: !this.state.maximized
-    })
-  }
+    });
+
+  };
 
 };
 

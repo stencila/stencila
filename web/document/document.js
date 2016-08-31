@@ -6,15 +6,16 @@ var code = require('../shared/code');
 
 /**
  * Stencila Document entry point
- * 
+ *
  * Initialises the `DocumentApp` from the content on the page.
  * Any uncaught exceptions result in a fallback to the original
- * content 
+ * content
  */
-window.onload = function() {
+window.onload = function () {
+
   // Get `address` and `copy` from the path
   var path = window.location.pathname;
-  var matches = path.match(/([^\@]+)(\@(\w+))?/);
+  var matches = path.match(/([^@]+)(@(\w+))?/);
   var address = matches[1];
   var copy = matches[3];
   // Check URL parameters for options with defaults
@@ -41,43 +42,51 @@ window.onload = function() {
     var data = null;
     var content = document.getElementById('content');
     if (content) {
+
       format = 'html';
       data = content.innerHTML;
       content.style.display = 'none';
+
     } else {
-      var data = document.getElementById('data');
-      if (data) { 
+
+      var dataElem = document.getElementById('data');
+      if (dataElem) {
+
         format = 'json';
-        data = JSON.parse(he.decode(data.textContent || data.innerHTML));
+        data = JSON.parse(he.decode(dataElem.textContent || dataElem.innerHTML));
+
       } else {
+
         console.error('Neither #content or #data is available to initialize the document');
+
       }
+
     }
 
-    // Mount application on page and fallback to 
+    // Mount application on page and fallback to
     // display orginal content on any error
-    //try {
-      var DocumentApp = require('./DocumentApp');
-      window.app = DocumentApp.mount({
-        address: address,
-        copy: copy,
-        format: format,
-        data: data,
-        local: local !== '0',
-        view: view,
-        reveal: reveal,
-        comment: comment,
-        edit: edit
-      }, document.body);
+    // try {
+    var DocumentApp = require('./DocumentApp');
+    window.app = DocumentApp.mount({
+      address: address,
+      copy: copy,
+      format: format,
+      data: data,
+      local: local !== '0',
+      view: view,
+      reveal: reveal,
+      comment: comment,
+      edit: edit
+    }, document.body);
 
       // Load ACE editor
-      code.loadAce();
+    code.loadAce();
 
-    //} catch (error) {
+    // } catch (error) {
     //  content.style.display = 'block';
     //  console.error(error);
-    //}
-  
+    // }
+
   }
 
 };

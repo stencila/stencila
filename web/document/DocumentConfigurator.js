@@ -4,14 +4,15 @@ var Configurator = require('substance/util/Configurator');
 
 /**
  * A "configurator" for a document.
- * 
+ *
  * Uses the Substance package mechanism to reduce repetition.
  * See `substance/util/AbstractConfigurator` for inherited methods
  * used by `DocumentHTMLImporter`, `DocumentEditor` etc
  *
  * @class      DocumentConfigurator (name)
  */
-function DocumentConfigurator() {
+function DocumentConfigurator () {
+
   DocumentConfigurator.super.apply(this, arguments);
 
   // Define the schema (used by `getSchema()` to generate a `DocumentSchema` based on this
@@ -30,11 +31,11 @@ function DocumentConfigurator() {
   this.import(require('./nodes/emphasis/EmphasisPackage'));
   this.import(require('./nodes/strong/StrongPackage'));
   this.import(require('./nodes/subscript/SubscriptPackage'));
-  this.import(require('./nodes/superscript/SuperscriptPackage')); 
+  this.import(require('./nodes/superscript/SuperscriptPackage'));
   this.import(require('./nodes/code/CodePackage'));
   this.import(require('./nodes/link/LinkPackage'));
   this.import(require('./nodes/math/MathPackage'));
-  this.import(require('./nodes/emoji/EmojiPackage')); 
+  this.import(require('./nodes/emoji/EmojiPackage'));
 
   this.import(require('./nodes/image/ImagePackage'));
   this.import(require('./nodes/blockquote/BlockquotePackage'));
@@ -66,28 +67,32 @@ function DocumentConfigurator() {
 
 }
 
-DocumentConfigurator.Prototype = function() {
+DocumentConfigurator.Prototype = function () {
 
   /**
    * Gets the file client
-   * 
+   *
    * Method required by `AbstractEditor._initialize`
    *
    * @return     {<type>}  The file client.
    */
-  this.getFileClient = function() {
+  this.getFileClient = function () {
+
     return null;
+
   };
 
   /**
    * Gets the save handler.
    *
    * Method required by `AbstractEditor._initialize`
-   * 
+   *
    * @return     {<type>}  The save handler.
    */
-  this.getSaveHandler = function() {
+  this.getSaveHandler = function () {
+
     return null;
+
   };
 
 };

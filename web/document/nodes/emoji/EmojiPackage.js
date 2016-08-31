@@ -11,7 +11,8 @@ var EmojiTool = require('./EmojiTool');
 
 module.exports = {
   name: 'emoji',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Emoji);
     config.addConverter('html', EmojiHTMLConverter);
     config.addConverter('xml', EmojiXMLConverter);
@@ -24,5 +25,6 @@ module.exports = {
     config.addLabel('emoji', {
       en: 'Emoji'
     });
+
   }
 };

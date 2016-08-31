@@ -2,14 +2,16 @@
 
 var BlockNode = require('substance/model/BlockNode');
 
-function Execute() {
+function Execute () {
+
   Execute.super.apply(this, arguments);
+
 }
 
 BlockNode.extend(Execute);
 
 Execute.define({
-  type: "execute",
+  type: 'execute',
   language: { type: 'string', default: '' },
   show: { type: 'boolean', default: false },
   error: { type: 'string', optional: true },

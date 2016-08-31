@@ -2,23 +2,29 @@
 
 var Command = require('substance/ui/Command');
 
-function ForkCommand() {
+function ForkCommand () {
+
   ForkCommand.super.apply(this, arguments);
+
 }
 
-ForkCommand.Prototype = function() {
+ForkCommand.Prototype = function () {
 
-  this.getCommandState = function(props, context) {
+  this.getCommandState = function (props, context) {
+
     return {
       disabled: false,
       active: false
     };
+
   };
 
-  this.execute = function(props, context) {
+  this.execute = function (props, context) {
+
     return {
       status: null
     };
+
   };
 
 };

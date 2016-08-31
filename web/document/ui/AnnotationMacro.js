@@ -2,16 +2,16 @@
 
 var Macro = require('./Macro');
 var replaceText = require('substance/model/transform/replaceText');
-var insertText = require('substance/model/transform/insertText');
 
 function AnnotationMacro () {
 }
 
-AnnotationMacro.Prototype = function() {
-  
-  this.performAction = function(match, props, context) {
+AnnotationMacro.Prototype = function () {
+
+  this.performAction = function (match, props, context) {
+
     var surface = context.surfaceManager.getSurface(props.selection.surfaceId);
-    surface.transaction(function(tx, args) {
+    surface.transaction(function (tx, args) {
 
       var data = this.createNodeData(match);
 
@@ -31,7 +31,7 @@ AnnotationMacro.Prototype = function() {
       // Insert a space to end the annotation
       // CHECK Is there a better way to do this?
       // When you create a selection at end of `newText` it is still annotated
-      tx.update(newText.selection.path, { insert: { offset: newText.selection.startOffset, value: ' ' } } );
+      tx.update(newText.selection.path, { insert: { offset: newText.selection.startOffset, value: ' ' } });
 
       // Put selection just after annotation
       args.selection = tx.createSelection(newText.selection.path, newText.selection.endOffset + 1);
@@ -39,6 +39,7 @@ AnnotationMacro.Prototype = function() {
       return args;
 
     }.bind(this));
+
   };
 
 };

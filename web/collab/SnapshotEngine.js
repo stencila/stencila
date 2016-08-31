@@ -4,7 +4,7 @@ var SnapshotEngineBase = require('substance/collab/SnapshotEngine');
 
 /**
  * Handles computation of snapshots for Stencila component sessions.
- * 
+ *
  * This extends `substance/collab/SnapshotEngine` to handle the creation of
  * alternative document model types (at time of writing this base class seemed
  * to be able to only create one type of document based on a configurator)
@@ -12,16 +12,20 @@ var SnapshotEngineBase = require('substance/collab/SnapshotEngine');
  * @class      SnapshotEngine (name)
  * @param      {<type>}  config  The configuration
  */
-function SnapshotEngine(config) {
+function SnapshotEngine (config) {
+
   SnapshotEngine.super.apply(this, arguments);
 
   this.modelFactory = config.modelFactory;
+
 }
 
-SnapshotEngine.Prototype = function() {
+SnapshotEngine.Prototype = function () {
 
-  this._createDocumentInstance = function(schemaName) {
+  this._createDocumentInstance = function (schemaName) {
+
     return this.modelFactory.createDocument(schemaName);
+
   };
 
 };

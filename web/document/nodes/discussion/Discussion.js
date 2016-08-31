@@ -2,8 +2,10 @@
 
 var Container = require('substance/model/Container');
 
-function Discussion() {
+function Discussion () {
+
   Discussion.super.apply(this, arguments);
+
 }
 
 Container.extend(Discussion);

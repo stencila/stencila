@@ -2,16 +2,18 @@
 
 var BlockNode = require('substance/model/BlockNode');
 
-function Codeblock() {
+function Codeblock () {
+
   Codeblock.super.apply(this, arguments);
+
 }
 
 BlockNode.extend(Codeblock);
 
-Codeblock.define({  
+Codeblock.define({
   type: 'codeblock',
-  language:   { type: "string", default: "" },
-  source:   { type: "string", default: "" },
+  language: { type: 'string', default: '' },
+  source: { type: 'string', default: '' }
 });
 
 module.exports = Codeblock;

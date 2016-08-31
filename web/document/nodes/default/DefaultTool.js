@@ -7,15 +7,18 @@ var BlockTool = require('../../ui/BlockTool');
  *
  * @class      DefaultTool (name)
  */
-function DefaultTool() {
+function DefaultTool () {
+
   DefaultTool.super.apply(this, arguments);
+
 }
 
-DefaultTool.Prototype = function() {
+DefaultTool.Prototype = function () {
 
   var _super = DefaultTool.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var node = this.props.node;
     return _super.render.call(this, $$)
       .addClass('sc-default-tool')
@@ -32,11 +35,14 @@ DefaultTool.Prototype = function() {
                 $$('i')
                   .addClass('fa fa-pencil')
               )
-              .on('click', function(event){
+              .on('click', function (event) {
+
                 node.emit('edit:toggle');
-              }.bind(this))
+
+              })
           )
       );
+
   };
 
 };

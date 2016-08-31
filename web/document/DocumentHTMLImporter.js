@@ -3,48 +3,53 @@
 var HTMLImporter = require('substance/model/HTMLImporter');
 
 var DocumentModel = require('./DocumentModel');
-var DefaultHTMLConverter = require('./nodes/default/DefaultHTMLConverter')
+var DefaultHTMLConverter = require('./nodes/default/DefaultHTMLConverter');
 
 /**
  * Imports HTML into a Stencila Document
  *
  * @class      HTMLImporter (name)
  */
-function DocumentHTMLImporter(options) {
+function DocumentHTMLImporter (options) {
+
   DocumentHTMLImporter.super.call(this, {
     // Required configuration for an importer
     DocumentClass: DocumentModel,
     schema: options.configurator.getSchema(),
     converters: options.configurator.getConverterRegistry().get('html')
   });
+
 }
 
-DocumentHTMLImporter.Prototype = function() {
+DocumentHTMLImporter.Prototype = function () {
 
   /**
    * Convert HTML into a Stencila Document
    *
    * This method must be provided when extending HTMLImporter
    */
-  this.convertDocument = function(els) {
+  this.convertDocument = function (els) {
+
     // The `containerId` argument should have the same
     // value as the `containerId` used by `ContainerEditor`
     this.convertContainer(els, 'content');
+
   };
 
   /**
    * Method override to provide a default for
-   * importing HTML elements not matched by `converters` 
+   * importing HTML elements not matched by `converters`
    */
-  this.defaultConverter = function(el, converter) {
+  this.defaultConverter = function (el, converter) {
+
     var nodeData = DefaultHTMLConverter.createNodeData();
     DefaultHTMLConverter.import(el, nodeData, converter);
     return nodeData;
-  }
+
+  };
 
 };
 
 HTMLImporter.extend(DocumentHTMLImporter);
-
 
 module.exports = DocumentHTMLImporter;

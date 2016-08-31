@@ -3,26 +3,29 @@
 var InlineNodeCommand = require('substance/ui/InlineNodeCommand');
 var documentHelpers = require('substance/model/documentHelpers');
 
+function PrintCommand () {
 
-function PrintCommand() {
   PrintCommand.super.call(this, {
-  	name: 'print',
-  	nodeType: 'print'
+    name: 'print',
+    nodeType: 'print'
   });
+
 }
 
-PrintCommand.Prototype = function() {
+PrintCommand.Prototype = function () {
 
-  this.createNodeData = function(tx, args) {
-  	// Create source from current selection
+  this.createNodeData = function (tx, args) {
+
+    // Create source from current selection
     var text = documentHelpers.getTextForSelection(
-    	tx.document,
-    	args.selection
+      tx.document,
+      args.selection
     );
     return {
       type: 'print',
       source: text
     };
+
   };
 
 };

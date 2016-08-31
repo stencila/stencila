@@ -10,7 +10,8 @@ var StrongMacro = require('./StrongMacro');
 
 module.exports = {
   name: 'strong',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Strong);
     config.addConverter('html', StrongHTMLConverter);
     config.addConverter('xml', StrongXMLConverter);
@@ -24,5 +25,6 @@ module.exports = {
       en: 'Strong',
       de: 'Starke'
     });
+
   }
 };

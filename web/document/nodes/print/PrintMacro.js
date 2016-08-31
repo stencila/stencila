@@ -2,19 +2,20 @@
 
 var InlineNodeMacro = require('../../ui/InlineNodeMacro');
 
-
 function PrintMacro () {
 };
 
-PrintMacro.Prototype = function() {
+PrintMacro.Prototype = function () {
 
-  this.regex =  /((\{print\s+)|(\$\{))(.+)\}/;
-  
-  this.createNodeData = function(match) {
-	return {
+  this.regex = /((\{print\s+)|(\$\{))(.+)\}/;
+
+  this.createNodeData = function (match) {
+
+    return {
       type: 'print',
       source: match[4].trim()
     };
+
   };
 
 };

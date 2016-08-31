@@ -2,19 +2,23 @@
 
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 
-function ExecuteComponent(parent, props) {
+function ExecuteComponent (parent, props) {
+
   props.codeProperty = 'source';
   props.languageProperty = 'language';
   ExecuteComponent.super.call(this, parent, props);
+
 }
 
-ExecuteComponent.Prototype = function() {
+ExecuteComponent.Prototype = function () {
 
   var _super = ExecuteComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     return _super.render.call(this, $$)
       .addClass('sc-execute');
+
   };
 
 };

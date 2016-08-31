@@ -2,17 +2,21 @@
 
 var TextBlockComponent = require('substance/ui/TextBlockComponent');
 
-function SummaryComponent() {
+function SummaryComponent () {
+
   SummaryComponent.super.apply(this, arguments);
+
 }
 
-SummaryComponent.Prototype = function() {
+SummaryComponent.Prototype = function () {
 
   var _super = SummaryComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     return _super.render.call(this, $$)
                         .addClass('sc-summary');
+
   };
 
 };

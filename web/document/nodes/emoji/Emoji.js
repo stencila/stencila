@@ -2,8 +2,10 @@
 
 var InlineNode = require('substance/model/InlineNode');
 
-function Emoji() {
+function Emoji () {
+
   Emoji.super.apply(this, arguments);
+
 }
 
 InlineNode.extend(Emoji);

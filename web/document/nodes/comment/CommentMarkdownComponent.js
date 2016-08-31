@@ -4,13 +4,16 @@ var IsolatedNodeComponent = require('substance/ui/IsolatedNodeComponent');
 
 var CommentComponent = require('./CommentComponent');
 
-function CommentMarkdownComponent() {
+function CommentMarkdownComponent () {
+
   CommentMarkdownComponent.super.apply(this, arguments);
+
 }
 
-CommentMarkdownComponent.Prototype = function() {
+CommentMarkdownComponent.Prototype = function () {
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var node = this.props.node;
     return IsolatedNodeComponent.prototype.render.call(this, $$)
       .insertAt(0,
@@ -29,11 +32,11 @@ CommentMarkdownComponent.Prototype = function() {
               .text(node.when)
           )
       );
-  }
+
+  };
 
 };
 
 CommentComponent.extend(CommentMarkdownComponent);
-
 
 module.exports = CommentMarkdownComponent;

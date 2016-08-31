@@ -11,8 +11,8 @@ var DocumentEngine = require('./DocumentEngine');
 var DocumentServer = require('./DocumentServer');
 
 /**
- * Instantiates 
- *  - a `CollabServer` and binds it to a HTTP server, and 
+ * Instantiates
+ *  - a `CollabServer` and binds it to a HTTP server, and
  *  - a `DocumentServer` and binds it to an endpoint on an Express application
  *
  * @param      {<type>}  httpServer  The http server
@@ -20,7 +20,8 @@ var DocumentServer = require('./DocumentServer');
  * @param      {<type>}  endpoint        The endpoint
  * @return     {Object}  { description_of_the_return_value }
  */
-var bind = function(httpServer, expressApp, endpoint) {
+var bind = function (httpServer, expressApp, endpoint) {
+
   endpoint = endpoint || '/';
 
   var documentStore = new DocumentStore();
@@ -47,7 +48,7 @@ var bind = function(httpServer, expressApp, endpoint) {
   });
 
   var collabServer = new CollabServer({
-    heartbeat: 30*1000,
+    heartbeat: 30 * 1000,
     documentEngine: documentEngine
   });
   collabServer.bind(websocketServer);
@@ -69,7 +70,7 @@ var bind = function(httpServer, expressApp, endpoint) {
     documentServer: documentServer
   };
 
-}
+};
 
 module.exports = {
   bind: bind

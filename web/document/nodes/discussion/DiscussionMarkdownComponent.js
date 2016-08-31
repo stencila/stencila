@@ -3,20 +3,24 @@
 var IsolatedNodeComponent = require('substance/ui/IsolatedNodeComponent');
 var ContainerEditor = require('substance/ui/ContainerEditor');
 
-function DiscussionMarkdownComponent() {
+function DiscussionMarkdownComponent () {
+
   DiscussionMarkdownComponent.super.apply(this, arguments);
 
   this.ContentClass = ContainerEditor;
+
 }
 
-DiscussionMarkdownComponent.Prototype = function() {
+DiscussionMarkdownComponent.Prototype = function () {
 
   var _super = DiscussionMarkdownComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     return _super.render.call(this, $$)
       .addClass('sc-discussion');
-  }
+
+  };
 
 };
 

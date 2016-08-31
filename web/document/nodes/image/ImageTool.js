@@ -7,15 +7,18 @@ var BlockTool = require('../../ui/BlockTool');
  *
  * @class      ImageTool (name)
  */
-function ImageTool() {
+function ImageTool () {
+
   ImageTool.super.apply(this, arguments);
+
 }
 
-ImageTool.Prototype = function() {
+ImageTool.Prototype = function () {
 
   var _super = ImageTool.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     // For placeholder to work override Substance's
     // default for src
     var src = this.props.node.src;
@@ -36,14 +39,19 @@ ImageTool.Prototype = function() {
               .on('change', this.onChange.bind(this))
           )
       );
+
   };
 
-  this.onChange = function(event) {
+  this.onChange = function (event) {
+
     var node = this.props.node;
     var session = this.context.documentSession;
-    session.transaction(function(tx) {
+    session.transaction(function (tx) {
+
       tx.set([node.id, 'src'], event.target.value);
+
     });
+
   };
 
 };

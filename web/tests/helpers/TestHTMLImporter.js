@@ -2,18 +2,22 @@
 
 var HTMLImporter = require('substance/model/HTMLImporter');
 
-function TestHTMLImporter(DocumentClass, converters) {
+function TestHTMLImporter (DocumentClass, converters) {
+
   TestHTMLImporter.super.call(this, {
     DocumentClass: DocumentClass,
     schema: DocumentClass.schema,
     converters: converters
   });
+
 }
 
-TestHTMLImporter.Prototype = function() {
+TestHTMLImporter.Prototype = function () {
 
-  this.convertDocument = function(els) {
+  this.convertDocument = function (els) {
+
     this.convertContainer(els, 'content');
+
   };
 
 };

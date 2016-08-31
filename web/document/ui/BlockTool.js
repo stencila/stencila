@@ -7,26 +7,32 @@ var Tool = require('substance/ui/Tool');
  *
  * @class      BlockTool (name)
  */
-function BlockTool() {
+function BlockTool () {
+
   BlockTool.super.apply(this, arguments);
+
 }
 
-BlockTool.Prototype = function() {
+BlockTool.Prototype = function () {
 
-  this.performAction = function() {
+  this.performAction = function () {
+
     if (this.props.active) {
+
       this.props.toolset.extendState({
         expanded: !this.props.toolset.state.expanded
       });
-    }
-    else {
+
+    } else {
+
       this.props.toolset.changeType(this.props.name);
+
     }
-  }
+
+  };
 
 };
 
 Tool.extend(BlockTool);
-
 
 module.exports = BlockTool;

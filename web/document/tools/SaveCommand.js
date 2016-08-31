@@ -2,22 +2,28 @@
 
 var Command = require('substance/ui/Command');
 
-function SaveCommand() {
+function SaveCommand () {
+
   SaveCommand.super.apply(this, arguments);
+
 }
 
-SaveCommand.Prototype = function() {
+SaveCommand.Prototype = function () {
 
-  this.getCommandState = function(props, context) {
+  this.getCommandState = function (props, context) {
+
     return {
       disabled: false,
       active: false
     };
+
   };
 
-  this.execute = function(props, context) {
+  this.execute = function (props, context) {
+
     context.doc.save();
     return true;
+
   };
 
 };

@@ -8,7 +8,7 @@ var DiscussionMarkdownComponent = require('./DiscussionMarkdownComponent');
 
 module.exports = {
   name: 'discussion',
-  configure: function(config) {
+  configure: function (config) {
 
     config.addNode(Discussion);
     config.addConverter('html', DiscussionHTMLConverter);
@@ -19,5 +19,6 @@ module.exports = {
     config.addLabel('discussion', {
       en: 'Discussion'
     });
+
   }
 };

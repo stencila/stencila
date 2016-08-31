@@ -7,7 +7,8 @@ var SummaryXMLConverter = require('./SummaryXMLConverter');
 
 module.exports = {
   name: 'summary',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Summary);
     config.addComponent('summary', SummaryComponent);
     config.addConverter('html', SummaryHTMLConverter);
@@ -16,11 +17,12 @@ module.exports = {
       name: 'summary',
       data: {type: 'summary'}
     });
-    config.addIcon('summary', { 'fontawesome': 'fa-circle-o' })
+    config.addIcon('summary', { 'fontawesome': 'fa-circle-o' });
     config.addStyle(__dirname, '_summary.scss');
     config.addLabel('summary', {
       en: 'Summary',
       de: 'Summary'
     });
+
   }
 };

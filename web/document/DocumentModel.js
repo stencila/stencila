@@ -11,18 +11,20 @@ var configurator = new DocumentConfigurator();
  * @class      Document (name)
  * @param      {<type>}  schema  The schema
  */
-var DocumentModel = function(schema) {
+var DocumentModel = function (schema) {
+
   DocumentModel.super.call(this, schema || DocumentModel.schema);
 
   // Create a root body container node for the document
   this.create({
-    type: "container",
-    id: "content",
+    type: 'container',
+    id: 'content',
     nodes: []
   });
+
 };
 
-DocumentModel.Prototype = function() {
+DocumentModel.Prototype = function () {
 };
 
 DocumentModel.schema = configurator.getSchema();

@@ -2,7 +2,7 @@
 
 module.exports = {
   name: 'visualEditor',
-  configure: function(config) {
+  configure: function (config) {
 
     // Adds the 'overlay' component. This is necessary
     // config for how `ScrollPane` works but because of our inplementation
@@ -10,4 +10,4 @@ module.exports = {
     config.addComponent('overlay', require('./Overlayer'));
 
   }
-}
+};

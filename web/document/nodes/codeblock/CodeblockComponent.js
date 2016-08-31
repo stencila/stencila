@@ -2,20 +2,23 @@
 
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 
+function CodeblockComponent (parent, props) {
 
-function CodeblockComponent(parent, props) {
   props.codeProperty = 'source';
   props.languageProperty = 'language';
   CodeblockComponent.super.apply(this, arguments);
+
 }
 
-CodeblockComponent.Prototype = function() {
+CodeblockComponent.Prototype = function () {
 
   var _super = CodeblockComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     return _super.render.call(this, $$)
       .addClass('sc-codeblock');
+
   };
 
 };

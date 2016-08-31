@@ -9,15 +9,18 @@ var BlockTool = require('../../ui/BlockTool');
  *
  * @class      HeadingTool (name)
  */
-function HeadingTool() {
+function HeadingTool () {
+
   HeadingTool.super.apply(this, arguments);
+
 }
 
-HeadingTool.Prototype = function() {
+HeadingTool.Prototype = function () {
 
   var _super = HeadingTool.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var node = this.props.node;
     return _super.render.call(this, $$)
       .addClass('sc-heading-tool')
@@ -28,21 +31,28 @@ HeadingTool.Prototype = function() {
           .append(
             $$('select')
               .ref('level')
-              .append(map([1,2,3,4,5,6], function(level){
+              .append(map([1, 2, 3, 4, 5, 6], function (level) {
+
                 var option = $$('option')
                   .val(level)
                   .html(level);
-                if (level == node.level) option.attr('selected', true);
+                if (level === node.level) option.attr('selected', true);
                 return option;
+
               }))
-              .on('change', function(event){
+              .on('change', function (event) {
+
                 var session = this.context.documentSession;
-                session.transaction(function(tx) {
+                session.transaction(function (tx) {
+
                   tx.set([node.id, 'level'], parseInt(event.target.value));
+
                 });
+
               }.bind(this))
           )
       );
+
   };
 
 };

@@ -10,7 +10,8 @@ var EmphasisMacro = require('./EmphasisMacro');
 
 module.exports = {
   name: 'emphasis',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Emphasis);
     config.addConverter('html', EmphasisHTMLConverter);
     config.addConverter('xml', EmphasisXMLConverter);
@@ -24,5 +25,6 @@ module.exports = {
       en: 'Emphasis',
       de: 'Betonung'
     });
+
   }
 };

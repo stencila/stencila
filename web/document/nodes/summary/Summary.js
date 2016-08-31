@@ -2,8 +2,10 @@
 
 var TextBlock = require('substance/model/TextBlock');
 
-function Summary() {
+function Summary () {
+
   Summary.super.apply(this, arguments);
+
 }
 
 TextBlock.extend(Summary);

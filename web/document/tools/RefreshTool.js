@@ -2,15 +2,18 @@
 
 var Tool = require('substance/ui/Tool');
 
+function RefreshTool () {
 
-function RefreshTool() {
   RefreshTool.super.apply(this, arguments);
+
 }
 
-RefreshTool.Prototype = function() {
+RefreshTool.Prototype = function () {
 
-  this.getTitle = function() {
+  this.getTitle = function () {
+
     return 'Refresh computations; not yet implemented :(';
+
   };
 
 };

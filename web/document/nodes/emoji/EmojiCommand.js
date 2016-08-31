@@ -3,18 +3,20 @@
 var InlineNodeCommand = require('substance/ui/InlineNodeCommand');
 var documentHelpers = require('substance/model/documentHelpers');
 
+function EmojiCommand () {
 
-function EmojiCommand() {
   EmojiCommand.super.call(this, {
-  	name: 'emoji',
-  	nodeType: 'emoji'
+    name: 'emoji',
+    nodeType: 'emoji'
   });
+
 }
 
-EmojiCommand.Prototype = function() {
+EmojiCommand.Prototype = function () {
 
-  this.createNodeData = function(tx, args) {
-  	// Create emoji node with name set to current selection
+  this.createNodeData = function (tx, args) {
+
+    // Create emoji node with name set to current selection
     var text = documentHelpers.getTextForSelection(
       tx.document,
       args.selection
@@ -23,6 +25,7 @@ EmojiCommand.Prototype = function() {
       type: 'emoji',
       name: text
     };
+
   };
 
 };

@@ -1,4 +1,8 @@
 var glob = require('glob');
-glob.sync(__dirname + '/**/*.test.js').forEach(function(path){
-	require(path);
+var path = require('path');
+
+glob.sync(path.join(__dirname, '/**/*.test.js')).forEach(function (pathname) {
+
+  require(pathname);
+
 });

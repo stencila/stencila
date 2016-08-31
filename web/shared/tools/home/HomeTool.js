@@ -4,26 +4,30 @@ var ControllerTool = require('substance-fe0ed/ui/ControllerTool');
 var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
-function HomeTool() {
-  HomeTool.super.apply(this, arguments);
-}
-HomeTool.Prototype = function() {
+function HomeTool () {
 
-  this.render = function() {
+  HomeTool.super.apply(this, arguments);
+
+}
+HomeTool.Prototype = function () {
+
+  this.render = function () {
+
     var el = $$('div')
         .addClass('se-tool se-home-tool')
         .append(
             $$('a')
-                .attr('href','https://stenci.la')
+                .attr('href', 'https://stenci.la')
                 .append(
                     $$('img')
-                        .attr('src','/get/web/images/logo.svg')
+                        .attr('src', '/get/web/images/logo.svg')
                 ),
             $$('span')
                 .addClass('se-address')
                 .text(this.props.address || '')
-        )
+        );
     return el;
+
   };
 
 };

@@ -3,18 +3,20 @@
 var InlineNodeCommand = require('substance/ui/InlineNodeCommand');
 var documentHelpers = require('substance/model/documentHelpers');
 
+function MathCommand () {
 
-function MathCommand() {
   MathCommand.super.call(this, {
-  	name: 'math',
-  	nodeType: 'math'
+    name: 'math',
+    nodeType: 'math'
   });
+
 }
 
-MathCommand.Prototype = function() {
+MathCommand.Prototype = function () {
 
-  this.createNodeData = function(tx, args) {
-  	// Create math node with source set to current selection
+  this.createNodeData = function (tx, args) {
+
+    // Create math node with source set to current selection
     var text = documentHelpers.getTextForSelection(
       tx.document,
       args.selection
@@ -23,6 +25,7 @@ MathCommand.Prototype = function() {
       type: 'math',
       source: text
     };
+
   };
 
 };

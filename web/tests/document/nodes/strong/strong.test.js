@@ -7,22 +7,22 @@ var config = new TestConfigurator([
   require('../../../../document/nodes/strong/StrongPackage'),
 
   require('../../../../document/nodes/paragraph/ParagraphPackage'),
-  require('../../../../document/nodes/emphasis/EmphasisPackage'),
+  require('../../../../document/nodes/emphasis/EmphasisPackage')
 ]);
 
-
 test('StrongHTMLConverter', function (assert) {
+
   var converter = new TestDocumentHTMLConverter(config);
 
-  var content = 
-    '<p data-id="p1">' + 
+  var content =
+    '<p data-id="p1">' +
       'Some <strong data-id="s1">strong</strong> text.' +
-      // The following space between `em` and `strong` is necessary to get order of export the 
+      // The following space between `em` and `strong` is necessary to get order of export the
       // same as import (because both annotations have same start offset)
       'Some <em data-id="e1"> <strong data-id="s2">strong and emphasised</strong></em> text.' +
     '</p>';
 
-  var doc = converter.import(content+'\n');
+  var doc = converter.import(content + '\n');
 
   var s1 = doc.get('s1').toJSON();
   assert.equal(s1.type, 'strong');
@@ -35,10 +35,11 @@ test('StrongHTMLConverter', function (assert) {
   assert.equal(s2.endOffset, 44);
 
   var html = converter.export(doc);
-  
+
   assert.equal(
     html, content
-  )
+  );
 
   assert.end();
+
 });

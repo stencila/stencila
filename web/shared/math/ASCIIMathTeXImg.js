@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*
 ASCIIMathTeXImg.js
 

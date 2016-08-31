@@ -2,12 +2,13 @@
 
 var Tool = require('substance/ui/Tool');
 
+function CommitTool () {
 
-function CommitTool() {
   CommitTool.super.apply(this, arguments);
+
 }
 
-CommitTool.Prototype = function() {
+CommitTool.Prototype = function () {
 };
 
 Tool.extend(CommitTool);

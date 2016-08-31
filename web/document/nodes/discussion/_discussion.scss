@@ -31,7 +31,7 @@
 	& > .se-footer {
 		background: #222;
 		padding: 0.1em 0.5em;
-		@extend .clearfix;
+		@extend %clearfix;
 
 		button {
 			background: none;

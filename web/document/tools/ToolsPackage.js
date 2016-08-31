@@ -2,7 +2,7 @@
 
 module.exports = {
   name: 'tools',
-  configure: function(config) {
+  configure: function (config) {
 
     // Commit
     config.addCommand('commit', require('./CommitCommand'));
@@ -10,14 +10,14 @@ module.exports = {
     config.addLabel('commit', {
       'en': 'Commit'
     });
-    config.addIcon('commit', { 'fontawesome': 'fa-dot-circle-o'});
+    config.addIcon('commit', { 'fontawesome': 'fa-dot-circle-o' });
 
     // Edit
     config.addTool('edit', require('./EditTool'));
     config.addLabel('edit', {
       'en': 'Edit'
     });
-    config.addIcon('edit', { 'fontawesome': 'fa-pencil'});
+    config.addIcon('edit', { 'fontawesome': 'fa-pencil' });
 
     // Fork
     config.addCommand('fork', require('./ForkCommand'));
@@ -25,21 +25,21 @@ module.exports = {
     config.addLabel('fork', {
       'en': 'Fork'
     });
-    config.addIcon('fork', { 'fontawesome': 'fa-code-fork'});
+    config.addIcon('fork', { 'fontawesome': 'fa-code-fork' });
 
     // Comment
     config.addTool('comment', require('./CommentTool'));
     config.addLabel('comment', {
       'en': 'Comment'
     });
-    config.addIcon('comment', { 'fontawesome': 'fa-comment-o'});
+    config.addIcon('comment', { 'fontawesome': 'fa-comment-o' });
 
     // Reveal
     config.addTool('reveal', require('./RevealTool'));
     config.addLabel('reveal', {
       'en': 'Reveal'
     });
-    config.addIcon('reveal', { 'fontawesome': 'fa-eye'});
+    config.addIcon('reveal', { 'fontawesome': 'fa-eye' });
 
     // Refresh
     config.addCommand('refresh', require('./RefreshCommand'));
@@ -47,7 +47,7 @@ module.exports = {
     config.addLabel('refresh', {
       'en': 'Refresh'
     });
-    config.addIcon('refresh', { 'fontawesome': 'fa-refresh'});
+    config.addIcon('refresh', { 'fontawesome': 'fa-refresh' });
 
     // Save
     config.addCommand('save', require('./SaveCommand'));
@@ -55,7 +55,7 @@ module.exports = {
     config.addLabel('save', {
       'en': 'Save'
     });
-    config.addIcon('save', { 'fontawesome': 'fa-save'});
+    config.addIcon('save', { 'fontawesome': 'fa-save' });
 
     // Settings
     config.addCommand('settings', require('./SettingsCommand'));
@@ -63,7 +63,7 @@ module.exports = {
     config.addLabel('settings', {
       'en': 'Settings'
     });
-    config.addIcon('settings', { 'fontawesome': 'fa-cog'});
+    config.addIcon('settings', { 'fontawesome': 'fa-cog' });
 
   }
-}
+};

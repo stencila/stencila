@@ -2,8 +2,10 @@
 
 var TextBlock = require('substance/model/TextBlock');
 
-function Title() {
+function Title () {
+
   Title.super.apply(this, arguments);
+
 }
 
 TextBlock.extend(Title);

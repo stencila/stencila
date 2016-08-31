@@ -11,7 +11,8 @@ var MathTool = require('./MathTool');
 
 module.exports = {
   name: 'math',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Math);
     config.addConverter('html', MathHTMLConverter);
     config.addConverter('xml', MathXMLConverter);
@@ -26,5 +27,6 @@ module.exports = {
     config.addLabel('math', {
       en: 'Math'
     });
+
   }
 };

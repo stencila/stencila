@@ -13,35 +13,40 @@ var MacroManager = require('../../ui/MacroManager');
  *
  * @class      VisualEditor (name)
  */
-function VisualEditor() {
+function VisualEditor () {
+
   VisualEditor.super.apply(this, arguments);
 
   // Use custom MacroManager
   this.macroManager.context.documentSession.off(this.macroManager);
   delete this.macroManager;
   this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
+
 }
 
-VisualEditor.Prototype = function() {
+VisualEditor.Prototype = function () {
 
   /**
    * Render this editor
    */
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var configurator = this.props.configurator;
 
     var el = $$('div').addClass('sc-visual-editor');
 
     // Toggle classes to match properties
-    ['reveal', 'edit'].forEach(function(item) {
-      if (this.props[item]) el.addClass('sm-'+item);
+    ['reveal', 'edit'].forEach(function (item) {
+
+      if (this.props[item]) el.addClass('sm-' + item);
+
     }.bind(this));
 
     // Document toolset (becuase of the way in which
     // tools and commands work, this has to go here, under an `AbstractEditor`,
     // instead of under the `DocumentApp`)
     el.append(
-      $$(DocumentToolset,{
+      $$(DocumentToolset, {
         copy: this.props.copy,
         view: this.props.view,
         reveal: this.props.reveal,
@@ -55,7 +60,7 @@ VisualEditor.Prototype = function() {
       $$(ScrollPane, {
         scrollbarType: 'native',
         scrollbarPosition: 'right',
-        overlay: Overlayer,
+        overlay: Overlayer
       })
         .ref('scrollPane')
         .append(
@@ -70,27 +75,31 @@ VisualEditor.Prototype = function() {
     );
 
     return el;
+
   };
 
   /**
    * Update editor when document session is updated.
-   * 
+   *
    * This is an override of `AbstractEditor._documentSessionUpdated`
    * that instead of updating a single toolbar updates our multiple
    * toolsets.
    */
-  this._documentSessionUpdated = function() {
+  this._documentSessionUpdated = function () {
+
     var commandStates = this.commandManager.getCommandStates();
-    ['documentToolset'].forEach(function(name) {
+    ['documentToolset'].forEach(function (name) {
+
       this.refs[name].extendProps({
         commandStates: commandStates
       });
+
     }.bind(this));
+
   };
 
 };
 
 AbstractEditor.extend(VisualEditor);
-
 
 module.exports = VisualEditor;

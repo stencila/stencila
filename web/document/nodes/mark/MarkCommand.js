@@ -6,15 +6,16 @@ var getRelativeBoundingRect = require('substance/util/getRelativeBoundingRect');
 
 var moment = require('moment');
 
+function MarkCommand () {
 
-function MarkCommand() {
   MarkCommand.super.call(this, {
     name: 'mark',
     nodeType: 'mark'
   });
+
 }
 
-MarkCommand.Prototype = function() {
+MarkCommand.Prototype = function () {
 
   /**
    * Override `AnnotationCommand.getAnnotationData` to be able to provide
@@ -22,27 +23,32 @@ MarkCommand.Prototype = function() {
    *
    * @return     {Object}  The annotation data.
    */
-  this.getAnnotationData = function() {
+  this.getAnnotationData = function () {
+
     return {
       target: uuid('discussion')
     };
+
   };
 
-  this.execute = function(props, context) {
+  this.execute = function (props, context) {
+
     var result = MarkCommand.super.prototype.execute.call(this, props, context);
     var mark = result.anno;
-    
+
     // Create a new `Discussion` node after the end of the current selection
-    if (result.mode == 'create') {
+    if (result.mode === 'create') {
+
       var surface = context.surfaceManager.getSurface(props.selection.surfaceId);
       var discussionId;
-      surface.transaction(function(tx, args) {
+      surface.transaction(function (tx, args) {
+
         // Create the new discussion with an initial comment
         var user = context.documentSession.config.user;
-        var paragraph =  tx.create({
+        var paragraph = tx.create({
           type: 'paragraph'
         });
-        var comment =  tx.create({
+        var comment = tx.create({
           type: 'comment',
           who: '@' + user,
           when: moment().format(),
@@ -67,6 +73,7 @@ MarkCommand.Prototype = function() {
         discussionId = discussion.id;
 
         return args;
+
       });
 
       // CHECK
@@ -76,14 +83,18 @@ MarkCommand.Prototype = function() {
       var componentEl = document.querySelector('[data-id=' + mark.id + ']');
       var containerEl = context.surfaceManager.surfaces.content.parent.el.el;
       if (componentEl && containerEl) {
+
         position = getRelativeBoundingRect(componentEl, containerEl);
+
       } else {
+
         position = {
           top: 1,
           right: 1
-        }
+        };
+
       }
-      document.dispatchEvent(new CustomEvent('mark:selected', {
+      document.dispatchEvent(new window.CustomEvent('mark:selected', {
         detail: {
           discussionId: discussionId,
           markPosition: position
@@ -91,13 +102,14 @@ MarkCommand.Prototype = function() {
       }));
 
       return true;
+
     }
 
     return false;
-  }
+
+  };
 
 };
-
 
 AnnotationCommand.extend(MarkCommand);
 

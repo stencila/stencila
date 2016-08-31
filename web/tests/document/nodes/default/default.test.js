@@ -9,23 +9,22 @@ var config = new TestConfigurator([
 var converter = new TestDocumentHTMLConverter(config);
 
 var Document = require('../../../../document/DocumentModel');
-var Default = require('../../../../document/nodes/default/Default');
 var DefaultComponent = require('../../../../document/nodes/default/DefaultComponent');
 
 test('DefaultHTMLConverter', function (t) {
 
-  var input = 
+  var input =
     '<div data-id="d1">' +
      'This is <span>div</span> number 1.' +
     '</div>';
 
   var output = input;
 
-  var doc = converter.import(input+'\n');
+  var doc = converter.import(input + '\n');
 
   t.deepEqual(
-    doc.get('content').toJSON(), 
-    { id: 'content', type: 'container', nodes: [ 'd1'] }
+    doc.get('content').toJSON(),
+    { id: 'content', type: 'container', nodes: [ 'd1' ] }
   );
 
   var d1 = doc.get('d1').toJSON();
@@ -34,30 +33,36 @@ test('DefaultHTMLConverter', function (t) {
 
   t.equal(
     converter.export(doc), output
-  )
-  
+  );
+
   t.end();
+
 });
 
 test('DefaultHTMLConverter should sanitize before export', function (t) {
+
   var doc = new Document();
-  var d1 = doc.create({ type: 'default', id: 'd1', html: '<script>cracked()</script>' });
-  
-  t.equal(converter.export(doc),'');
-  
+  doc.create({ type: 'default', id: 'd1', html: '<script>cracked()</script>' });
+
+  t.equal(converter.export(doc), '');
+
   t.end();
+
 });
 
-function displayed(html) {
+function displayed (html) {
+
   var doc = new Document();
   var d1 = doc.create({ type: 'default', id: 'd1', html: html });
   var comp = new DefaultComponent();
   comp.setProps({ node: d1 });
-  var display = comp.find('.se-display'); 
+  var display = comp.find('.se-display');
   return display.html();
+
 }
 
 test('DefaultComponent should display HTML', function (t) {
+
   var html;
 
   html = '<div data-id="d1" data-arbitrary="foo"></div>';
@@ -67,11 +72,14 @@ test('DefaultComponent should display HTML', function (t) {
   t.equal(displayed(html), html);
 
   t.end();
+
 });
 
 test('DefaultComponent should sanitize HTML', function (t) {
+
   t.equal(displayed('<script>cracked()</script>'), '');
   t.equal(displayed('<div onmouseover="cracked()" data-print="6*7">content</div>'), '<div data-print="6*7">content</div>');
 
   t.end();
+
 });

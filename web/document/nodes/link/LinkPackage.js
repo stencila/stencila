@@ -10,7 +10,8 @@ var LinkMacro = require('./LinkMacro');
 
 module.exports = {
   name: 'link',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Link);
     config.addComponent('link', LinkComponent);
     config.addConverter('html', LinkHTMLConverter);
@@ -19,10 +20,11 @@ module.exports = {
     config.addTool('link', LinkTool);
     config.addMacro(new LinkMacro());
     config.addStyle(__dirname, '_link.scss');
-    config.addIcon('link', { 'fontawesome': 'fa-link'});
+    config.addIcon('link', { 'fontawesome': 'fa-link' });
     config.addLabel('link', {
       en: 'Link',
       de: 'Link'
     });
+
   }
 };

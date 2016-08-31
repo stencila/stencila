@@ -2,28 +2,38 @@
 
 var InlineNode = require('substance/model/InlineNode');
 
-function Print() {
+function Print () {
+
   Print.super.apply(this, arguments);
 
   if (!this.content) this.refresh();
+
 }
 
-Print.Prototype = function() {
+Print.Prototype = function () {
 
-  this.refresh = function() {
+  this.refresh = function () {
+
     if (this.source) {
+
       // TODO
       // Evaluate the source within the document's current
       // context
       try {
-        this.content = eval(this.source).toString();
+
+        this.content = eval(this.source).toString(); // eslint-disable-line no-eval
         this.error = false;
+
       } catch (error) {
+
         this.content = error.toString();
         this.error = true;
+
       }
       this.emit('content:changed');
+
     }
+
   };
 
 };

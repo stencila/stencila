@@ -4,15 +4,18 @@ var Component = require('substance/ui/Component');
 
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 
-function DefaultMarkdownComponent() {
+function DefaultMarkdownComponent () {
+
   DefaultMarkdownComponent.super.apply(this, arguments);
+
 }
 
-DefaultMarkdownComponent.Prototype = function() {
+DefaultMarkdownComponent.Prototype = function () {
 
   var _super = DefaultMarkdownComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var node = this.props.node;
     return _super.render.call(this, $$)
       .addClass('sc-default')
@@ -21,9 +24,10 @@ DefaultMarkdownComponent.Prototype = function() {
           node: node,
           codeProperty: 'html',
           languageProperty: null,
-          language: 'html',
+          language: 'html'
         }).ref('code')
       );
+
   };
 
 };

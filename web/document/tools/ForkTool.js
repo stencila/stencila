@@ -2,15 +2,18 @@
 
 var Tool = require('substance/ui/Tool');
 
+function ForkTool () {
 
-function ForkTool() {
   ForkTool.super.apply(this, arguments);
+
 }
 
-ForkTool.Prototype = function() {
+ForkTool.Prototype = function () {
 
-  this.getTitle = function() {
+  this.getTitle = function () {
+
     return 'Create a fork of this document; not yet implemented :(';
+
   };
 
 };

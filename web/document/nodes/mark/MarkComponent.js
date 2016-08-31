@@ -3,26 +3,30 @@
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 var getRelativeBoundingRect = require('substance/util/getRelativeBoundingRect');
 
+function MarkComponent () {
 
-function MarkComponent() {
   MarkComponent.super.apply(this, arguments);
+
 }
 
-MarkComponent.Prototype = function() {
+MarkComponent.Prototype = function () {
 
   var _super = MarkComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var el = _super.render.call(this, $$);
     el.on('click', this._selected, this);
     return el;
-  }
+
+  };
 
   /**
    * When a mark is selected notify the associated `DiscussionComponent`
    * to show itself
    */
-  this._selected = function() {
+  this._selected = function () {
+
     // CHECK
     // Is there a better way to do this rather than having a
     // document based event?
@@ -30,13 +34,15 @@ MarkComponent.Prototype = function() {
       this.el.el,
       this.context.scrollPane.refs.content.el.el
     );
-    document.dispatchEvent(new CustomEvent('mark:selected', {
+    document.dispatchEvent(new window.CustomEvent('mark:selected', {
       detail: {
         discussionId: this.props.node.target,
-        markPosition: position,
+        markPosition: position
       }
     }));
-  }
+
+  };
+
 };
 
 AnnotationComponent.extend(MarkComponent);

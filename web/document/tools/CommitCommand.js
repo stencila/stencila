@@ -4,26 +4,32 @@ var Command = require('substance/ui/Command');
 
 /**
  * Command for refreshing a Stencila Document
- * 
+ *
  * @class      CommitCommand (name)
  */
-function CommitCommand() {
+function CommitCommand () {
+
   CommitCommand.super.apply(this, arguments);
+
 }
 
-CommitCommand.Prototype = function() {
+CommitCommand.Prototype = function () {
 
-  this.getCommandState = function(props, context) {
+  this.getCommandState = function (props, context) {
+
     return {
       disabled: false,
       active: false
     };
+
   };
 
-  this.execute = function(props, context) {
+  this.execute = function (props, context) {
+
     return {
       status: null
     };
+
   };
 
 };

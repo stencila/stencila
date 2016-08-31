@@ -4,7 +4,7 @@ var AnnotationMacro = require('../../ui/AnnotationMacro');
 
 /**
  * A macro for creating `Code` nodes
- * 
+ *
  * Uses Markdown syntax of enclosing backticks.
  *
  * @class      CodeMacro (name)
@@ -12,17 +12,19 @@ var AnnotationMacro = require('../../ui/AnnotationMacro');
 function CodeMacro () {
 };
 
-CodeMacro.Prototype = function() {
+CodeMacro.Prototype = function () {
 
   this.appliesTo = [];
 
-  this.regex =  /\`([^\`]+)\`/;
-  
-  this.createNodeData = function(match) {
+  this.regex = /`([^`]+)`/;
+
+  this.createNodeData = function (match) {
+
     return {
       type: 'code',
       text: match[1]
     };
+
   };
 
 };

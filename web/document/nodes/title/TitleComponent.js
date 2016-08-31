@@ -2,17 +2,21 @@
 
 var TextBlockComponent = require('substance/ui/TextBlockComponent');
 
-function TitleComponent() {
+function TitleComponent () {
+
   TitleComponent.super.apply(this, arguments);
+
 }
 
-TitleComponent.Prototype = function() {
+TitleComponent.Prototype = function () {
 
   var _super = TitleComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     return _super.render.call(this, $$)
                         .addClass('sc-title');
+
   };
 
 };

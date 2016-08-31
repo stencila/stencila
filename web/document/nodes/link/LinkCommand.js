@@ -9,11 +9,13 @@ var AnnotationCommand = require('substance/ui/AnnotationCommand');
  *
  * @class      LinkCommand (name)
  */
-function LinkCommand() {
+function LinkCommand () {
+
   LinkCommand.super.apply(this, arguments);
+
 }
 
-LinkCommand.Prototype = function() {
+LinkCommand.Prototype = function () {
 };
 
 AnnotationCommand.extend(LinkCommand);

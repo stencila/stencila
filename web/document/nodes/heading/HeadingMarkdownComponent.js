@@ -2,22 +2,26 @@
 
 var HeadingComponent = require('./HeadingComponent');
 
-function HeadingMarkdownComponent() {
+function HeadingMarkdownComponent () {
+
   HeadingMarkdownComponent.super.apply(this, arguments);
+
 }
 
-HeadingMarkdownComponent.Prototype = function() {
+HeadingMarkdownComponent.Prototype = function () {
 
   var _super = HeadingMarkdownComponent.super.prototype;
 
-  this.render = function($$) {
+  this.render = function ($$) {
+
     var node = this.props.node;
     return _super.render.call(this, $$)
       .insertAt(0,
         $$('span')
           .ref('level')
-          .text(Array(node.level+1).join('#') + ' ')
+          .text(Array(node.level + 1).join('#') + ' ')
       );
+
   };
 
 };

@@ -8,7 +8,7 @@ var DefaultMarkdownComponent = require('./DefaultMarkdownComponent');
 
 module.exports = {
   name: 'default',
-  configure: function(config) {
+  configure: function (config) {
 
     config.addNode(Default);
     config.addConverter('html', DefaultHTMLConverter);
@@ -19,5 +19,6 @@ module.exports = {
     config.addLabel('default', {
       en: 'Default node'
     });
+
   }
 };

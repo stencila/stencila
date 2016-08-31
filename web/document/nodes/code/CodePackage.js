@@ -11,7 +11,8 @@ var CodeMacro = require('./CodeMacro');
 
 module.exports = {
   name: 'code',
-  configure: function(config) {
+  configure: function (config) {
+
     config.addNode(Code);
     config.addConverter('html', CodeHTMLConverter);
     config.addConverter('xml', CodeXMLConverter);
@@ -26,5 +27,6 @@ module.exports = {
       en: 'Code',
       de: 'Code'
     });
+
   }
 };
