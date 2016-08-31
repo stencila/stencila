@@ -28,7 +28,7 @@ img,
 			outline: none;
 		}
 		img {
-			@extend .stencila-selected;
+			@extend %stencila-selected;
 		}
 	}
 }
