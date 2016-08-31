@@ -15,6 +15,7 @@ var babelify = require('babelify');
 var uglify = require('gulp-uglify');
 var sass = require('gulp-sass');
 var sassLint = require('gulp-sass-lint');
+var eslint = require('gulp-eslint');
 
 
 // Test dependencies
@@ -150,6 +151,17 @@ gulp.task('watch', function() {
   scripts(true);
 });
 
+gulp.task('lint:js', function() {
+  return gulp.src([
+    './collab/**/*.js',
+    './document/**/*.js',
+    './shared/**/*.js',
+    './tests/**/*.js'
+  ]).pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+});
+
 gulp.task('lint:sass', function () {
   return gulp.src([
     './document/*.scss'
@@ -164,6 +176,7 @@ gulp.task('lint:sass', function () {
 });
 
 gulp.task('lint', [
+  'lint:js',
   'lint:sass'
 ]);
 

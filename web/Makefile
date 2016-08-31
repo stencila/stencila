@@ -26,7 +26,7 @@ serve-hub:
 	node server.js --upstream=https://stenci.la
 
 lint:
-	npm lint
+	npm run lint
 
 test:
 	npm test
