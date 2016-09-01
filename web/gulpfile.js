@@ -202,7 +202,7 @@ gulp.task('lint:js', function () {
 gulp.task('lint:sass', function () {
 
   return gulp.src([
-    './document/*.scss'
+    './document/**/*.scss'
   ])
   .pipe(sassLint({
     files: {

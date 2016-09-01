@@ -11,7 +11,7 @@
 
   & > .se-header {
     background: #dcdcdc;
-    padding: 0.1em 0.5em 0 0.5em;
+    padding: .1em .5em 0;
     color: #777;
 
     .se-who {
@@ -34,12 +34,12 @@
   }
 
   .sc-container-editor {
-    padding: 0.5em;
+    padding: .5em;
 
     line-height: 1.1em;
 
     .sc-paragraph:last-child {
-        padding: 0;
+      padding: 0;
     }
   }
 }
@@ -71,7 +71,7 @@
   }
 
   .sc-container-editor {
-    color: #AAA;
+    color: #aaa;
     font-style: italic;
   }
 }

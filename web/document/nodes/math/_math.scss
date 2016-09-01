@@ -1,20 +1,17 @@
 @mixin math-colors($hue) {
-  background: hsl($hue,100%,90%);
-  border-bottom: 1px solid hsl($hue,100%,80%);
-  color: hsl($hue,100%,40%);
+  background: hsl($hue, 100%, 90%);
+  border-bottom: 1px solid hsl($hue, 100%, 80%);
+  color: hsl($hue, 100%, 40%);
 }
 
 .sc-math {
 
   // Turn of slection highlighting of
   // individual math elements.
-  & *::-moz-selection {
+  *::selection {
     background: none;
-  } 
-  & *::selection {
-    background: none;
-  } 
-	
+  }
+
   &.sm-error {
     // Not displayed
     display: none;
@@ -25,13 +22,12 @@
 &.sm-reveal .sc-math {
 
   &.sm-error {
-    // Dislayed in red
-    display: inherit;
     @include math-colors(0);
+    display: inherit;
   }
 
 }
 
 &.sc-code-editor .sc-math {
-  color: hsl(90,100%,50%);
+  color: hsl(90, 100%, 50%);
 }

@@ -1,12 +1,12 @@
 [data-mark],
 .sc-mark {
-	// Marks are not normally displayed...
+  // Marks are not normally displayed...
 }
 
 
 &.sm-reveal {
   .sc-mark {
-  	// ... except in reveal mode
+    // ... except in reveal mode
     background: hsl(50, 100%, 75%);
   }
 }

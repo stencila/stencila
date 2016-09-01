@@ -1,34 +1,34 @@
-.codeblock {
-	margin: 1em 0;
-	background: #222;
-	border-radius: 3px;
+%codeblock {
+  margin: 1em 0;
+  background: #222;
+  border-radius: 3px;
 
-	font-family: $mono-font-family;
-	font-size: 0.9em;
-	color: #CCC;
+  font-family: $mono-font-family;
+  font-size: .9em;
+  color: #ccc;
 }
 
 pre {
-	@extend .codeblock;
+  @extend %codeblock;
 
-	padding: 0.5em 1em;
-	line-height: 100%;
+  padding: .5em 1em;
+  line-height: 100%;
 
-	code {
-		background: none;
-		border: none;
-	}
+  code {
+    background: none;
+    border: 0;
+  }
 }
 
 .sc-isolated-node.sm-default-style.sm-codeblock {
-	@extend .codeblock;
+  @extend %codeblock;
 
-	& > .se-slug {
-		height: 1px;
-	}
+  & > .se-slug {
+    height: 1px;
+  }
 
-	// Remove the user agent margin on pre
-	pre {
-		margin: 0;
-	} 
+  // Remove the user agent margin on pre
+  pre {
+    margin: 0;
+  }
 }

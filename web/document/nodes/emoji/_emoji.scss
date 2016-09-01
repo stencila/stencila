@@ -1,13 +1,13 @@
 @import '../../../node_modules/emojione/assets/css/emojione';
 
-i[class^=emoji-],
+[class^='emoji-'],
 .sc-emoji {
   // The `.emojione` class is added to `img` elements here
   // so there is no need to do a lot more for now.
   &.sm-unknown {
     $hue: 60;
-    background: hsl($hue,100%,60%);
-    border-bottom: 1px solid hsl($hue,100%,40%);
-    color: hsl($hue,100%,20%);
+    background: hsl($hue, 100%, 60%);
+    border-bottom: 1px solid hsl($hue, 100%, 40%);
+    color: hsl($hue, 100%, 20%);
   }
 }

@@ -1,38 +1,40 @@
 img,
 .sc-isolated-node.sm-default-style.sm-image {
 
-	// Centered with small vertical margin
-	display: block;
-	margin: 1rem auto;
+  // Centered with small vertical margin
+  display: block;
+  margin: 1rem auto;
 
-	// No larger than container
-	max-width: 100%;
+  // No larger than container
+  max-width: 100%;
 
-	& > .se-slug {
-		height: 1px;
-	}
+  & > .se-slug {
+    height: 1px;
+  }
 
-	& > .se-container {
-		display: block;
-		// Turn off margin from top level `img` selector
-		// (otherwise get two effective margins)
-		img {
-			margin: 0 auto;
-		}
-	}
+  & > .se-container {
+    display: block;
 
-	// When selected place outline around image, not container
-	&.sm-selected {
-		& > .se-container {
-			background: none;
-			outline: none;
-		}
-		img {
-			@extend %stencila-selected;
-		}
-	}
+    // Turn off margin from top level `img` selector
+    // (otherwise get two effective margins)
+    img {
+      margin: 0 auto;
+    }
+  }
+
+  // When selected place outline around image, not container
+  &.sm-selected {
+    & > .se-container {
+      background: none;
+      outline: none;
+    }
+
+    img {
+      @extend %stencila-selected;
+    }
+  }
 }
 
 &.sc-code-editor .sc-image {
-	color: hsl(170,70%,50%);
+  color: hsl(170, 70%, 50%);
 }
