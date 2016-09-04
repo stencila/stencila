@@ -26,6 +26,7 @@
   "devDependencies": {
     "babelify": "^6.3.0",
     "browserify": "substance/node-browserify#d3caeb6dcdaa97a258d099c7231a57f0f60ec876",
+    "debug": "^2.2.0",
     "eslint": "^3.4.0",
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-promise": "^2.0.1",
@@ -46,6 +47,8 @@
     "gulp-util": "^3.0.6",
     "istanbul": "^0.4.4",
     "mockery": "^1.7.0",
+    "nightmare": "^2.6.1",
+    "nightmare-real-mouse": "^1.0.0",
     "npm-install-version": "^5.0.5",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.0",
@@ -60,7 +63,9 @@
   "scripts": {
     "postinstall": "./postinstall.sh",
     "lint": "gulp lint",
-    "test": "tape 'tests/**/*.test.js' | tap-spec",
+    "test": "tape tests | tap-spec",
+    "test-unit": "tape tests/unit.js | tap-spec",
+    "test-fun": "tape tests/functional.js | tap-spec",
     "cover": "istanbul cover tests"
   }
 }

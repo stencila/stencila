@@ -58,6 +58,14 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Function used to override the above no caching headers
+// Useful for JS and CSS that is used multiple times during functional tests
+function caching (res, seconds) {
+  res.header('Cache-Control', 'max-age=' + seconds);
+  res.header('Expires', new Date(Date.now() + seconds).toUTCString());
+  res.header('Pragma', 'cache');
+}
+
 // Home page
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -181,6 +189,7 @@ function nameToPath (name) {
 
 // Javascript
 app.get('/get/web/:name.min.js', function (req, res, next) {
+  caching(res, 60);
   browserify({
     debug: true,
     cache: false
@@ -211,6 +220,7 @@ function sassify (name, output, res) {
   });
 }
 app.get('/get/web/:name.min.css', function (req, res) {
+  caching(res, 60);
   sassify(req.params.name, 'css', res);
 });
 app.get('/get/web/:name.min.css.map', function (req, res) {

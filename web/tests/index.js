@@ -1,8 +1,4 @@
-var glob = require('glob');
-var path = require('path');
+// Run all tests
 
-glob.sync(path.join(__dirname, '/**/*.test.js')).forEach(function (pathname) {
-
-  require(pathname);
-
-});
+require('./unit.js')
+require('./functional.js')
