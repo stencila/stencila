@@ -53,7 +53,14 @@ install:
 
     # Install system level requirements
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then ./setup/travis-osx-build.sh; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./setup/travis-trusty-build.sh; fi
+    - |
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]];
+          then ./setup/travis-trusty-build.sh;
+          # Although "sh -e /etc/init.d/xvfb start" is recommended it does not seem to be available on this setup
+          # See https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
+          export DISPLAY=:99.0
+          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
+        fi
     # Source nvm here so node is available later on
     - source ~/.nvm/nvm.sh
 

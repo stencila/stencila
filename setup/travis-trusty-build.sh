@@ -63,10 +63,6 @@ sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 	texlive
 
 # Web
-# Xvfb setup for functional tests with Electron
-# See https://github.com/electron/electron/blob/master/docs/tutorial/testing-on-headless-ci.md
-#     https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
+# Xvfb for functional tests with Electron
 
 sudo apt-get install -yq xvfb
-export DISPLAY=:99.0
-sh -e /etc/init.d/xvfb start
