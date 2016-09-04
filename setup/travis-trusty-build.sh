@@ -65,7 +65,8 @@ sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 # Web
 # Xvfb setup for functional tests with Electron
 # See https://github.com/electron/electron/blob/master/docs/tutorial/testing-on-headless-ci.md
+#     https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
 
 sudo apt-get install -yq xvfb
-export DISPLAY=':99.0'
-Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+export DISPLAY=:99.0
+sh -e /etc/init.d/xvfb start
