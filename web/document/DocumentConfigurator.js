@@ -12,7 +12,6 @@ var Configurator = require('substance/util/Configurator');
  * @class      DocumentConfigurator (name)
  */
 function DocumentConfigurator () {
-
   DocumentConfigurator.super.apply(this, arguments);
 
   // Define the schema (used by `getSchema()` to generate a `DocumentSchema` based on this
@@ -64,11 +63,9 @@ function DocumentConfigurator () {
 
   // CHECK Is this needed?
   this.import(require('substance/packages/base/BasePackage'));
-
 }
 
 DocumentConfigurator.Prototype = function () {
-
   /**
    * Gets the file client
    *
@@ -77,9 +74,7 @@ DocumentConfigurator.Prototype = function () {
    * @return     {<type>}  The file client.
    */
   this.getFileClient = function () {
-
     return null;
-
   };
 
   /**
@@ -90,11 +85,8 @@ DocumentConfigurator.Prototype = function () {
    * @return     {<type>}  The save handler.
    */
   this.getSaveHandler = function () {
-
     return null;
-
   };
-
 };
 
 Configurator.extend(DocumentConfigurator);

@@ -12,7 +12,6 @@ var code = require('../shared/code');
  * content
  */
 window.onload = function () {
-
   // Get `address` and `copy` from the path
   var path = window.location.pathname;
   var matches = path.match(/([^@]+)(@(\w+))?/);
@@ -35,32 +34,23 @@ window.onload = function () {
   var edit = (params.edit || local) !== '0';
 
   if (!statico) {
-
     // Get document data as HTML content or a JSON snapshot
     // for rerendering by the `DocumentApp` and then hide content element (if any)
     var format = null;
     var data = null;
     var content = document.getElementById('content');
     if (content) {
-
       format = 'html';
       data = content.innerHTML;
       content.style.display = 'none';
-
     } else {
-
       var dataElem = document.getElementById('data');
       if (dataElem) {
-
         format = 'json';
         data = JSON.parse(he.decode(dataElem.textContent || dataElem.innerHTML));
-
       } else {
-
         console.error('Neither #content or #data is available to initialize the document');
-
       }
-
     }
 
     // Mount application on page and fallback to
@@ -86,7 +76,5 @@ window.onload = function () {
     //  content.style.display = 'block';
     //  console.error(error);
     // }
-
   }
-
 };

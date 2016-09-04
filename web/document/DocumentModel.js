@@ -12,7 +12,6 @@ var configurator = new DocumentConfigurator();
  * @param      {<type>}  schema  The schema
  */
 var DocumentModel = function (schema) {
-
   DocumentModel.super.call(this, schema || DocumentModel.schema);
 
   // Create a root body container node for the document
@@ -21,7 +20,6 @@ var DocumentModel = function (schema) {
     id: 'content',
     nodes: []
   });
-
 };
 
 DocumentModel.Prototype = function () {
