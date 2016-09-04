@@ -3,9 +3,7 @@
 var InlineNode = require('substance/model/InlineNode');
 
 function Math () {
-
   Math.super.apply(this, arguments);
-
 }
 
 InlineNode.extend(Math);

@@ -7,7 +7,6 @@ module.exports = {
     ],
     "rules": {
         "indent": ["error", 2],
-        "padded-blocks": ["error", "always"],
         "semi": ["error", "always"],
     }
 };

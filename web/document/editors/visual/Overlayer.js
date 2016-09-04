@@ -16,7 +16,6 @@ var BlockToolset = require('./BlockToolset');
  * @class      Overlayer (name)
  */
 function Overlayer () {
-
   Overlayer.super.apply(this, arguments);
 
   /**
@@ -26,13 +25,10 @@ function Overlayer () {
    */
   this.top = 0;
   this.left = 0;
-
 }
 
 Overlayer.Prototype = function () {
-
   this.render = function ($$) {
-
     var el = $$('div')
       .addClass('sc-overlay')
       .css('top', this.top + 'px')
@@ -42,31 +38,22 @@ Overlayer.Prototype = function () {
       $$(BlockToolset).ref('blockToolset')
     );
     return el;
-
   };
 
   // Override of `position()` method
   this.position = function (hints) {
-
     // At time of writing `Surface.getBoundingRectangleForSelection` was experimental and
     // sometimes created a hints.rectangle that was an empty object (e.g. for node selections). This checks for that
     // and if necessary tries to work out it's own selection rectangle
     var selected = null;
     if (hints) {
-
       if (hints.rectangle) {
-
         if (hints.rectangle.top) {
-
           selected = hints.rectangle;
-
         }
-
       }
-
     }
     if (!selected) {
-
       var surface = this.context.surfaceManager.getFocusedSurface();
       var selection = surface.getSelection();
       var nodeId = selection.getNodeId();
@@ -74,15 +61,11 @@ Overlayer.Prototype = function () {
       var componentEl = document.querySelector('[data-id=' + nodeId + ']');
       var containerEl = this.context.scrollPane.refs.content.el.el;
       if (componentEl && containerEl) {
-
         selected = getRelativeBoundingRect(componentEl, containerEl);
-
       }
-
     }
 
     if (selected) {
-
       var overlay = {
         height: this.el.htmlProp('offsetHeight'),
         width: this.el.htmlProp('offsetWidth')
@@ -104,15 +87,10 @@ Overlayer.Prototype = function () {
       // Store position for next rendering
       this.top = top;
       this.left = left;
-
     } else {
-
       console.warn('No selection rectangle to position overlay');
-
     }
-
   };
-
 };
 
 Overlay.extend(Overlayer);

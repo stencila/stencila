@@ -7,12 +7,9 @@ function AnnotationMacro () {
 }
 
 AnnotationMacro.Prototype = function () {
-
   this.performAction = function (match, props, context) {
-
     var surface = context.surfaceManager.getSurface(props.selection.surfaceId);
     surface.transaction(function (tx, args) {
-
       var data = this.createNodeData(match);
 
       // Replace matched text
@@ -37,11 +34,8 @@ AnnotationMacro.Prototype = function () {
       args.selection = tx.createSelection(newText.selection.path, newText.selection.endOffset + 1);
 
       return args;
-
     }.bind(this));
-
   };
-
 };
 
 Macro.extend(AnnotationMacro);

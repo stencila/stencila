@@ -29,18 +29,15 @@ var types = [
 
 // Generic error handler creates a notifcation window
 function errorHandler () {
-
   var args = Array.prototype.slice.call(arguments);
   notify.onError({
     title: 'Compile Error',
     message: '<%= error.message %>'
   }).apply(this, args);
   this.emit('end'); // Keep gulp from hanging on this task
-
 }
 
 function style (type, watch) {
-
   var src = './' + type + '.scss';
   var dest = type.split('/')[1] + '.min.css';
 
@@ -52,18 +49,13 @@ function style (type, watch) {
     .on('error', errorHandler))
     .pipe(rename(dest))
     .pipe(gulp.dest('./build'));
-
 }
 
 function styles (watch) {
-
   gutil.log('Compiling styles');
   types.forEach(function (type) {
-
     style(type, watch);
-
   });
-
 }
 
 // Scripts watchify-browserify-babelify-uglify-sourcemapify
@@ -72,7 +64,6 @@ function styles (watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others
 function script (type, watch) {
-
   var src = './' + type + '.js';
   var dest = type.split('/')[1] + '.min.js';
 
@@ -85,7 +76,6 @@ function script (type, watch) {
   var bundler = watch ? watchify(browserify(props)) : browserify(props);
 
   function bundle () {
-
     return bundler
       .bundle()
       .on('error', errorHandler)
@@ -98,95 +88,68 @@ function script (type, watch) {
       .pipe(gif(!watch, uglify()))
       .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest('./build'));
-
   }
 
   bundler.on('update', function () {
-
     bundle();
     gutil.log('Bundling scripts');
-
   });
 
   return bundle();
-
 }
 
 function scripts (watch) {
-
   gutil.log('Bundling scripts');
   types.forEach(function (type) {
-
     script(type, watch);
-
   });
-
 }
 
 function images (watch) {
-
   gutil.log('Copying images');
   gulp.src('./images/**/*.{png,svg}')
       .pipe(gulp.dest('./build/images'));
-
 }
 
 function fonts (watch) {
-
   gutil.log('Copying fonts');
   gulp.src('./fonts/**/*')
       .pipe(gulp.dest('./build/fonts'));
-
 }
 
 // Gulp tasks for the above
 
 gulp.task('styles', function () {
-
   return styles();
-
 });
 
 gulp.task('scripts', function () {
-
   return scripts();
-
 });
 
 gulp.task('images', function () {
-
   return images();
-
 });
 
 gulp.task('fonts', function () {
-
   return fonts();
-
 });
 
 gulp.task('build', function () {
-
   styles();
   scripts();
   images();
   fonts();
-
 });
 
 gulp.task('watch', function () {
-
   gulp.watch('**/*.scss', function () {
-
     styles(true);
-
   });
   scripts(true);
-
 });
 
 gulp.task('lint:js', function () {
-
   return gulp.src([
     './*.js',
     './collab/**/*.js',
@@ -196,11 +159,9 @@ gulp.task('lint:js', function () {
   ]).pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
-
 });
 
 gulp.task('lint:sass', function () {
-
   return gulp.src([
     './document/**/*.scss'
   ])
@@ -211,7 +172,6 @@ gulp.task('lint:sass', function () {
   }))
   .pipe(sassLint.format())
   .pipe(sassLint.failOnError());
-
 });
 
 gulp.task('lint', [
@@ -220,10 +180,8 @@ gulp.task('lint', [
 ]);
 
 gulp.task('test', ['build'], function () {
-
   return gulp.src('tests/jasmine/**/*.js')
     .pipe(jasmine());
-
 });
 
 gulp.task('default', ['watch']);

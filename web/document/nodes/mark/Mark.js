@@ -13,9 +13,7 @@ var PropertyAnnotation = require('substance/model/PropertyAnnotation');
  * @class      Mark (name)
  */
 function Mark () {
-
   Mark.super.apply(this, arguments);
-
 }
 
 Mark.Prototype = function () {

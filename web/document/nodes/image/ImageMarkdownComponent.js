@@ -4,15 +4,11 @@ var Component = require('substance/ui/Component');
 var TextPropertyComponent = require('substance/ui/TextPropertyComponent');
 
 function ImageMarkdownComponent () {
-
   ImageMarkdownComponent.super.apply(this, arguments);
-
 }
 
 ImageMarkdownComponent.Prototype = function () {
-
   this.render = function ($$) {
-
     var node = this.props.node;
     return $$('span')
       .addClass('sc-image')
@@ -24,9 +20,7 @@ ImageMarkdownComponent.Prototype = function () {
         }),
         ')'
       );
-
   };
-
 };
 
 Component.extend(ImageMarkdownComponent);

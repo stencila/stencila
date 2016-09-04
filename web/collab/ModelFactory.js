@@ -29,44 +29,32 @@ function ModelFactory (config) {
 }
 
 ModelFactory.Prototype = function () {
-
   /**
    * Create a new, empty Stencila component from the `schemaName`
    *
    * @param      {string}         schemaName  The schema name
    */
   this.createDocument = function (schemaName) {
-
     if (schemaName === 'stencila-document') {
-
       return new DocumentModel();
-
     } else {
-
       throw new Error('Unhandled schema: ' + schemaName);
-
     }
-
   };
 
   /**
    * Import a Stencila component from HTML to JSON
    */
   this.importDocument = function (schemaName, format, content, cb) {
-
     if (format !== 'html') throw new Error('Unhandled format: ' + format);
 
     var importer;
     var exporter;
     if (schemaName === 'stencila-document') {
-
       importer = documentHTMLImporter;
       exporter = documentJsonConverter;
-
     } else {
-
       throw new Error('Unhandled schema: ' + schemaName);
-
     }
 
     // Force importer to create a new document. See https://github.com/substance/substance/issues/765
@@ -74,27 +62,21 @@ ModelFactory.Prototype = function () {
     var doc = importer.importDocument(content);
     var data = exporter.exportDocument(doc);
     cb(null, data);
-
   };
 
   /**
    * Export a Stencila component frm JSON to HTML
    */
   this.exportDocument = function (schemaName, format, content, cb) {
-
     if (format !== 'html') throw new Error('Unhandled format: ' + format);
 
     var importer;
     var exporter;
     if (schemaName === 'stencila-document') {
-
       importer = documentJsonConverter;
       exporter = documentHTMLExporter;
-
     } else {
-
       throw new Error('Unhandled schema: ' + schemaName);
-
     }
 
     var doc = this.createDocument(schemaName);
@@ -105,9 +87,7 @@ ModelFactory.Prototype = function () {
     data = data.replace(/ data-id=".+?"/g, '');
 
     cb(null, data);
-
   };
-
 };
 
 oo.initClass(ModelFactory);

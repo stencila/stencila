@@ -11,7 +11,6 @@ var LinkMacro = require('./LinkMacro');
 module.exports = {
   name: 'link',
   configure: function (config) {
-
     config.addNode(Link);
     config.addComponent('link', LinkComponent);
     config.addConverter('html', LinkHTMLConverter);
@@ -25,6 +24,5 @@ module.exports = {
       en: 'Link',
       de: 'Link'
     });
-
   }
 };

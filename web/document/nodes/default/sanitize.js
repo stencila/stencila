@@ -8,7 +8,6 @@ var sanitizeHtml = require('sanitize-html');
  * @param      {<type>}  html    The html
  */
 var sanitize = function (html) {
-
   return sanitizeHtml(html, {
     allowedTags: [
       'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br',
@@ -25,7 +24,6 @@ var sanitize = function (html) {
       '*': [ 'data-*' ]
     }
   });
-
 };
 
 module.exports = sanitize;

@@ -10,7 +10,6 @@ var AnnotationTool = require('substance/ui/AnnotationTool');
 module.exports = {
   name: 'mark',
   configure: function (config) {
-
     config.addNode(Mark);
     config.addConverter('html', MarkHTMLConverter);
     config.addConverter('xml', MarkXMLConverter);
@@ -21,6 +20,5 @@ module.exports = {
     config.addLabel('mark', {
       en: 'Comment'
     });
-
   }
 };

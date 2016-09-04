@@ -15,21 +15,17 @@ function LinkMacro () {
 };
 
 LinkMacro.Prototype = function () {
-
   this.appliesTo = [];
 
   this.regex = /\[([^\]]+)\]\(([^\)]+)\)/;
 
   this.createNodeData = function (match) {
-
     return {
       type: 'link',
       text: match[1],
       url: match[2]
     };
-
   };
-
 };
 
 AnnotationMacro.extend(LinkMacro);

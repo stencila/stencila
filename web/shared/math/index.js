@@ -25,23 +25,17 @@ module.exports = {
    * @return     {string}  Rendered math HTML
    */
   render: function (source, language, display) {
-
     language = language || 'tex';
     display = display || 'inline';
     var tex;
     if (language === 'tex' || language === 'latex') {
-
       tex = source;
-
     } else {
-
       tex = am.AMTparseAMtoTeX(source);
-
     }
     return katex.renderToString(tex, {
       displayMode: display === 'block'
     });
-
   }
 
 };

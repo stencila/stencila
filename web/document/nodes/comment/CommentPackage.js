@@ -9,7 +9,6 @@ var CommentMarkdownComponent = require('./CommentMarkdownComponent');
 module.exports = {
   name: 'comment',
   configure: function (config) {
-
     config.addNode(Comment);
     config.addConverter('html', CommentHTMLConverter);
     config.addConverter('xml', CommentXMLConverter);
@@ -19,6 +18,5 @@ module.exports = {
     config.addLabel('comment', {
       en: 'Comment'
     });
-
   }
 };

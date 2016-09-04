@@ -8,7 +8,6 @@ var config = new TestConfigurator([
 ]);
 
 test('ParagraphHTMLConverter', function (assert) {
-
   var converter = new TestDocumentHTMLConverter(config);
 
   var content =
@@ -39,5 +38,4 @@ test('ParagraphHTMLConverter', function (assert) {
   );
 
   assert.end();
-
 });

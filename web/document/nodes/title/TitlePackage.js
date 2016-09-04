@@ -8,7 +8,6 @@ var TitleXMLConverter = require('./TitleXMLConverter');
 module.exports = {
   name: 'title',
   configure: function (config) {
-
     config.addNode(Title);
     config.addComponent('title', TitleComponent);
     config.addConverter('html', TitleHTMLConverter);
@@ -23,6 +22,5 @@ module.exports = {
       en: 'Title',
       de: 'Title'
     });
-
   }
 };

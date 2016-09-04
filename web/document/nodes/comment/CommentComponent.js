@@ -6,24 +6,19 @@ var ContainerEditor = require('substance/ui/ContainerEditor');
 var moment = require('moment');
 
 function CommentComponent () {
-
   CommentComponent.super.apply(this, arguments);
 
   this.ContentClass = ContainerEditor;
-
 }
 
 CommentComponent.Prototype = function () {
-
   var _super = CommentComponent.super.prototype;
 
   /**
    * Method override for custom class names
    */
   this.getClassNames = function () {
-
     return 'sc-comment';
-
   };
 
   /**
@@ -31,10 +26,8 @@ CommentComponent.Prototype = function () {
    * is the original author of the comment
    */
   this.isDisabled = function () {
-
     var user = this.context.documentSession.config.user;
     return this.props.node.who !== ('@' + user);
-
   };
 
   /**
@@ -42,17 +35,14 @@ CommentComponent.Prototype = function () {
    * `IsolatedNodeComponent` (requires two clicks to begin editing)
    */
   this.shouldRenderBlocker = function () {
-
     // CHECK Is this method needed?
     return false;
-
   };
 
   /**
    * Method ovveride to add additional elements
    */
   this.render = function ($$) {
-
     var node = this.props.node;
     return _super.render.call(this, $$)
       .insertAt(0,
@@ -71,9 +61,7 @@ CommentComponent.Prototype = function () {
               .text(moment(node.when).fromNow())
           )
       );
-
   };
-
 };
 
 IsolatedNodeComponent.extend(CommentComponent);

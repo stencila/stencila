@@ -15,23 +15,19 @@ var MacroManager = require('../../ui/MacroManager');
  * @class      CodeEditor (name)
  */
 function CodeEditor () {
-
   CodeEditor.super.apply(this, arguments);
 
   // Use custom MacroManager
   this.macroManager.context.documentSession.off(this.macroManager);
   delete this.macroManager;
   this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
-
 }
 
 CodeEditor.Prototype = function () {
-
   /**
    * Render this editor
    */
   this.render = function ($$) {
-
     var configurator = this.props.configurator;
 
     var el = $$('div').addClass('sc-code-editor');
@@ -55,10 +51,8 @@ CodeEditor.Prototype = function () {
     // for this code editor's language (currently just Markdown)
     var componentRegistry = configurator.getComponentRegistry();
     each(Object.keys(configurator.config.nodes), function (nodeType) {
-
       var component = componentRegistry.get(nodeType + '-markdown');
       if (component) componentRegistry.add(nodeType, component);
-
     });
     this.componentRegistry = componentRegistry;
 
@@ -81,7 +75,6 @@ CodeEditor.Prototype = function () {
     );
 
     return el;
-
   };
 
   /**
@@ -92,18 +85,13 @@ CodeEditor.Prototype = function () {
    * toolsets.
    */
   this._documentSessionUpdated = function () {
-
     var commandStates = this.commandManager.getCommandStates();
     ['overallToolset'].forEach(function (name) {
-
       this.refs[name].extendProps({
         commandStates: commandStates
       });
-
     }.bind(this));
-
   };
-
 };
 
 AbstractEditor.extend(CodeEditor);

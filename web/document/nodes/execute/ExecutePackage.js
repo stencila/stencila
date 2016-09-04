@@ -8,7 +8,6 @@ var ExecuteXMLConverter = require('./ExecuteXMLConverter');
 module.exports = {
   name: 'execute',
   configure: function (config) {
-
     config.addNode(Execute);
     config.addComponent('execute', ExecuteComponent);
     config.addConverter('html', ExecuteHTMLConverter);
@@ -21,6 +20,5 @@ module.exports = {
     config.addLabel('execute', {
       en: 'Execute'
     });
-
   }
 };

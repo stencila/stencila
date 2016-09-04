@@ -11,17 +11,13 @@ var AnnotationTool = require('substance/ui/AnnotationTool');
  * @class      PrintTool (name)
  */
 function PrintTool () {
-
   PrintTool.super.apply(this, arguments);
-
 }
 
 PrintTool.Prototype = function () {
-
   var _super = PrintTool.super.prototype;
 
   this.render = function ($$) {
-
     var node = this.props.node;
     return _super.render.call(this, $$)
       .addClass('sc-print-tool')
@@ -39,21 +35,15 @@ PrintTool.Prototype = function () {
               })
               .val(node ? node.source : null)
               .on('change', function (event) {
-
                 var session = this.context.documentSession;
                 session.transaction(function (tx) {
-
                   tx.set([node.id, 'source'], event.target.value);
-
                 });
                 node.refresh();
-
               }.bind(this))
           )
       );
-
   };
-
 };
 
 AnnotationTool.extend(PrintTool);

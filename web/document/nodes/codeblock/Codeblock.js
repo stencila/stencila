@@ -3,9 +3,7 @@
 var BlockNode = require('substance/model/BlockNode');
 
 function Codeblock () {
-
   Codeblock.super.apply(this, arguments);
-
 }
 
 BlockNode.extend(Codeblock);

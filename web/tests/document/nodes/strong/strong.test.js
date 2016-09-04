@@ -11,7 +11,6 @@ var config = new TestConfigurator([
 ]);
 
 test('StrongHTMLConverter', function (assert) {
-
   var converter = new TestDocumentHTMLConverter(config);
 
   var content =
@@ -41,5 +40,4 @@ test('StrongHTMLConverter', function (assert) {
   );
 
   assert.end();
-
 });

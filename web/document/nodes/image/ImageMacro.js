@@ -24,18 +24,14 @@ function ImageMacro () {
 };
 
 ImageMacro.Prototype = function () {
-
   this.regex = /^!\[\]\(([^\)]*)\)$/;
 
   this.createNodeData = function (match) {
-
     return {
       type: 'image',
       src: match[1]
     };
-
   };
-
 };
 
 BlockNodeMacro.extend(ImageMacro);

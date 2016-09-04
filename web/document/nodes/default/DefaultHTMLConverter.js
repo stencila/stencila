@@ -15,9 +15,7 @@ module.exports = {
    * then this will probably match everything in the HTML document.
    */
   matchElement: function () {
-
     return true;
-
   },
 
   /**
@@ -25,22 +23,17 @@ module.exports = {
    * matching everything, it may not be necessary because we never get there!
    */
   createNodeData: function () {
-
     return {
       type: 'default',
       id: uuid('default')
     };
-
   },
 
   import: function (el, node) {
-
     node.html = el.outerHTML;
-
   },
 
   export: function (node, el, converter) {
-
     // Instead of using the prepopulated element,
     // we create a new one from the HTML stored in the node
     var wrapper = converter.$$('div');
@@ -48,7 +41,6 @@ module.exports = {
     el = wrapper.children[0];
     el.attr('data-id', node.id);
     return el;
-
   }
 
 };

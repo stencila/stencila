@@ -4,26 +4,18 @@ var Component = require('substance/ui/Component');
 var TextPropertyComponent = require('substance/ui/TextPropertyComponent');
 
 function MathCodeComponent () {
-
   MathCodeComponent.super.apply(this, arguments);
-
 }
 
 MathCodeComponent.Prototype = function () {
-
   this.render = function ($$) {
-
     var node = this.props.node;
 
     var delim;
     if (node.language === 'asciimath') {
-
       delim = '|';
-
     } else {
-
       delim = '$';
-
     }
 
     return $$('span')
@@ -36,9 +28,7 @@ MathCodeComponent.Prototype = function () {
         }),
         delim
       );
-
   };
-
 };
 
 Component.extend(MathCodeComponent);

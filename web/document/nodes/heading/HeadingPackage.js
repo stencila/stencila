@@ -17,7 +17,6 @@ var HeadingMacro = require('./HeadingMacro');
 module.exports = {
   name: 'heading',
   configure: function (config) {
-
     config.addNode(Heading);
     config.addComponent('heading', HeadingComponent);
     config.addComponent('heading-markdown', HeadingMarkdownComponent);
@@ -33,6 +32,5 @@ module.exports = {
       en: 'Heading',
       de: 'Überschrift'
     });
-
   }
 };

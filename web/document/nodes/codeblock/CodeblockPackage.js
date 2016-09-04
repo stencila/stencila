@@ -8,7 +8,6 @@ var CodeblockXMLConverter = require('./CodeblockXMLConverter');
 module.exports = {
   name: 'codeblock',
   configure: function (config) {
-
     config.addNode(Codeblock);
     config.addComponent('codeblock', CodeblockComponent);
     config.addConverter('html', CodeblockHTMLConverter);
@@ -22,6 +21,5 @@ module.exports = {
       en: 'Codeblock',
       de: 'Codeblock'
     });
-
   }
 };

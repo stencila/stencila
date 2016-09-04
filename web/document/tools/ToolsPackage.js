@@ -3,7 +3,6 @@
 module.exports = {
   name: 'tools',
   configure: function (config) {
-
     // Commit
     config.addCommand('commit', require('./CommitCommand'));
     config.addTool('commit', require('./CommitTool'));
@@ -64,6 +63,5 @@ module.exports = {
       'en': 'Settings'
     });
     config.addIcon('settings', { 'fontawesome': 'fa-cog' });
-
   }
 };

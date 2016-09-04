@@ -15,20 +15,16 @@ function EmphasisMacro () {
 };
 
 EmphasisMacro.Prototype = function () {
-
   this.appliesTo = [];
 
   this.regex = /_([^_]+)_/;
 
   this.createNodeData = function (match) {
-
     return {
       type: 'emphasis',
       text: match[1]
     };
-
   };
-
 };
 
 AnnotationMacro.extend(EmphasisMacro);

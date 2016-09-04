@@ -5,7 +5,6 @@ var oo = require('substance/util/oo');
 var redis = require('redis');
 
 function Store () {
-
   // TODO Share client across stores
   // TODO Read in a Redis config
   var config = {
@@ -15,7 +14,6 @@ function Store () {
     }
   };
   this.client = redis.createClient(config.redis);
-
 }
 
 Store.Prototype = function () {

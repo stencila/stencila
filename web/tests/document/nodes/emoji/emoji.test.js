@@ -9,7 +9,6 @@ var config = new TestConfigurator([
 ]);
 
 test('EmojiHTMLConverter', function (assert) {
-
   var converter = new TestDocumentHTMLConverter(config);
 
   var input =
@@ -44,6 +43,5 @@ test('EmojiHTMLConverter', function (assert) {
   );
 
   assert.end();
-
 });
 

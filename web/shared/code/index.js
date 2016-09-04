@@ -1,39 +1,26 @@
 var utilities = require('../utilities');
 
 var loadAce = function () {
-
   utilities.load('/get/web/ace/ace.js', function () {
-
     document.dispatchEvent(new window.Event('ace:loaded'));
-
   });
-
 };
 
 var attachAceEditor = function (el, content, options, callback) {
-
   function _attach () {
-
     var editor = window.ace.edit(el);
     updateAceEditor(editor, options);
     if (content) editor.setValue(content, 1);
     callback(editor);
-
   }
   if (window.ace) {
-
     _attach();
-
   } else {
-
     document.addEventListener('ace:loaded', _attach, false);
-
   }
-
 };
 
 var setAceEditorMode = function (editor, language) {
-
   // Convert language tag to ACE mode if necessary
   // If no language defined, default to plain text
   // If no conversion defined here will use mode = language
@@ -45,11 +32,9 @@ var setAceEditorMode = function (editor, language) {
     'r': 'r'
   }[language] || language;
   editor.getSession().setMode('ace/mode/' + mode);
-
 };
 
 var updateAceEditor = function (editor, options) {
-
   // Stuff that is not yet actually an option
   editor.setTheme('ace/theme/monokai');
   editor.setShowPrintMargin(false);
@@ -74,7 +59,6 @@ var updateAceEditor = function (editor, options) {
 
   // TODO complete implementation of turning back on. commands etc
   if (options.readOnly) {
-
     // Make readonly as per https://github.com/ajaxorg/ace/issues/266#issuecomment-16367687
     editor.setOptions({
       readOnly: true,
@@ -84,9 +68,7 @@ var updateAceEditor = function (editor, options) {
     editor.renderer.$cursorLayer.element.style.opacity = 0;
     editor.textInput.getElement().disabled = true;
     editor.commands.commmandKeyBinding = {};
-
   } else {
-
     editor.setOptions({
       readOnly: false,
       highlightActiveLine: true,
@@ -94,9 +76,7 @@ var updateAceEditor = function (editor, options) {
     });
     editor.renderer.$cursorLayer.element.style.opacity = 1;
     editor.textInput.getElement().disabled = false;
-
   }
-
 };
 
 module.exports = {

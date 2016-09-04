@@ -5,14 +5,10 @@ var Component = require('substance-fe0ed/ui/Component');
 var $$ = Component.$$;
 
 function HomeTool () {
-
   HomeTool.super.apply(this, arguments);
-
 }
 HomeTool.Prototype = function () {
-
   this.render = function () {
-
     var el = $$('div')
         .addClass('se-tool se-home-tool')
         .append(
@@ -27,9 +23,7 @@ HomeTool.Prototype = function () {
                 .text(this.props.address || '')
         );
     return el;
-
   };
-
 };
 ControllerTool.extend(HomeTool);
 

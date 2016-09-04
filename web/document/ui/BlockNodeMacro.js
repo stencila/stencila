@@ -7,14 +7,11 @@ function BlockNodeMacro () {
 };
 
 BlockNodeMacro.Prototype = function () {
-
   this.appliesTo = ['paragraph'];
 
   this.performAction = function (match, props, context) {
-
     var surface = context.surfaceManager.getSurface(props.selection.surfaceId);
     surface.transaction(function (tx, args) {
-
       // Create the new node
       var newNode = tx.create(
         this.createNodeData(match)
@@ -24,10 +21,8 @@ BlockNodeMacro.Prototype = function () {
       var container = tx.get(args.containerId);
       var pos = container.getPosition(props.node.id);
       if (pos >= 0) {
-
         container.hide(props.node.id);
         container.show(newNode.id, pos);
-
       }
 
       // Delete the old node
@@ -40,11 +35,8 @@ BlockNodeMacro.Prototype = function () {
       args.selection = tx.createSelection(path, 0);
 
       return args;
-
     }.bind(this));
-
   };
-
 };
 
 Macro.extend(BlockNodeMacro);

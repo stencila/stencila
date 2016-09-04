@@ -9,26 +9,18 @@ var Tool = require('substance/ui/Tool');
  * @class      RevealTool (name)
  */
 function RevealTool () {
-
   RevealTool.super.apply(this, arguments);
-
 }
 
 RevealTool.Prototype = function () {
-
   this.getTitle = function () {
-
     if (this.props.active) return 'Don\'t show computations and comments';
     else return 'Show computations and comments';
-
   };
 
   this.onClick = function () {
-
     this.send('reveal-toggle');
-
   };
-
 };
 
 Tool.extend(RevealTool);

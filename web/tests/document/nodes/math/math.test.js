@@ -9,7 +9,6 @@ var config = new TestConfigurator([
 ]);
 
 test('MathHTMLConverter', function (assert) {
-
   var converter = new TestDocumentHTMLConverter(config);
 
   var input =
@@ -56,5 +55,4 @@ test('MathHTMLConverter', function (assert) {
   );
 
   assert.end();
-
 });

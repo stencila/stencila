@@ -13,20 +13,16 @@ function CodeMacro () {
 };
 
 CodeMacro.Prototype = function () {
-
   this.appliesTo = [];
 
   this.regex = /`([^`]+)`/;
 
   this.createNodeData = function (match) {
-
     return {
       type: 'code',
       text: match[1]
     };
-
   };
-
 };
 
 AnnotationMacro.extend(CodeMacro);

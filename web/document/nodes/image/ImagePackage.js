@@ -11,7 +11,6 @@ var ImageTool = require('./ImageTool');
 module.exports = {
   name: 'image',
   configure: function (config) {
-
     config.addNode(Image);
     config.addComponent('image', ImageComponent);
     config.addComponent('image-markdown', ImageMarkdownComponent);
@@ -25,6 +24,5 @@ module.exports = {
       en: 'Image',
       de: 'Überschrift'
     });
-
   }
 };

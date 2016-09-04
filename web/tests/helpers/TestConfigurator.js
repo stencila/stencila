@@ -8,15 +8,11 @@ var Configurator = require('substance/util/Configurator');
  * @class      TestConfigurator (name)
  */
 function TestConfigurator (packages) {
-
   TestConfigurator.super.apply(this, arguments);
 
   packages.forEach(function (packag) {
-
     this.import(packag);
-
   }.bind(this));
-
 }
 
 TestConfigurator.Prototype = function () {

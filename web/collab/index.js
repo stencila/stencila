@@ -21,7 +21,6 @@ var DocumentServer = require('./DocumentServer');
  * @return     {Object}  { description_of_the_return_value }
  */
 var bind = function (httpServer, expressApp, endpoint) {
-
   endpoint = endpoint || '/';
 
   var documentStore = new DocumentStore();
@@ -69,7 +68,6 @@ var bind = function (httpServer, expressApp, endpoint) {
     collabServer: collabServer,
     documentServer: documentServer
   };
-
 };
 
 module.exports = {

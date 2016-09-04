@@ -9,7 +9,6 @@ var CodeblockTool = require('../../nodes/codeblock/CodeblockTool');
 var DefaultTool = require('../../nodes/default/DefaultTool');
 
 function BlockToolset () {
-
   BlockToolset.super.apply(this, arguments);
 
   this.primaryTypes = [
@@ -27,25 +26,20 @@ function BlockToolset () {
     'codeblock': CodeblockTool,
     'default': DefaultTool
   };
-
 }
 
 BlockToolset.Prototype = function () {
-
   /**
    * Method override for custom display state
    */
   this.getInitialState = function () {
-
     return {
       expanded: false,
       extended: false
     };
-
   };
 
   this.render = function ($$) {
-
     var el = $$('div')
       .addClass('sc-toolset sc-block-toolset');
 
@@ -62,9 +56,7 @@ BlockToolset.Prototype = function () {
     if (this.state.expanded) el.addClass('sm-expanded');
 
     this.primaryTypes.forEach(function (type) {
-
       this._addTool(selected, type, el, $$);
-
     }.bind(this));
 
     if (this.state.extended) el.addClass('sm-extended');
@@ -78,11 +70,9 @@ BlockToolset.Prototype = function () {
                 .addClass(this.state.extended ? 'fa fa-chevron-left' : 'fa fa-ellipsis-h')
             )
             .on('click', function () {
-
               this.extendState({
                 extended: !this.state.extended
               });
-
             }.bind(this))
         )
     );
@@ -91,9 +81,7 @@ BlockToolset.Prototype = function () {
       .ref('extension')
       .addClass('se-extension');
     this.secondaryTypes.forEach(function (type) {
-
       this._addTool(selected, type, extension, $$);
-
     }.bind(this));
 
     el.append(
@@ -101,11 +89,9 @@ BlockToolset.Prototype = function () {
     );
 
     return el;
-
   };
 
   this._getSelection = function () {
-
     // CHECK
     // There is more than one way to get the current selection and document, including
     // via `this.context.documentSession`. Is geeting thes via `surface` the best way?
@@ -118,52 +104,36 @@ BlockToolset.Prototype = function () {
     var type = null;
     var node = null;
     if (selection.isContainerSelection()) {
-
       // Container selections are selections over
       // multiple blocks, so don't enable
       enabled = false;
-
     } else if (selection.isNodeSelection() || selection.isPropertySelection()) {
-
       if (selection.isPropertySelection()) {
-
         // A selection which is bound to a property (e.g. the content of a paragraph)
         // Only enable if the selection is zero length and at the start of the text
         if (selection.getStartOffset() === 0 && selection.getEndOffset() === 0) {
-
           enabled = true;
-
         }
-
       } else {
-
         enabled = true;
-
       }
       if (enabled) {
-
         node = document.get(
           selection.getNodeId()
         );
         if (node) {
-
           type = node.type;
-
         }
-
       }
-
     }
     return {
       selection: selection,
       type: type,
       node: node
     };
-
   };
 
   this._addTool = function (selected, type, el, $$) {
-
     var ToolClass = this.tools[type] || BlockTool;
     var active = selected.type === type;
     var disabled = !active && !this._canChange(selected, type);
@@ -177,7 +147,6 @@ BlockToolset.Prototype = function () {
     el.append(
       tool
     );
-
   };
 
   /**
@@ -188,26 +157,18 @@ BlockToolset.Prototype = function () {
    * @return     {boolean}  True if able to change, False otherwise.
    */
   this._canChange = function (selected, type) {
-
     var node = selected.node;
     var schema = this.context.doc.getSchema();
     if (node.isText()) {
-
       if (schema.isInstanceOf(type, 'text')) {
-
         // Allow `switchTextType`
         return true;
-
       } else if (node.getText().length === 0) {
-
         // If empty allow replacement
         return true;
-
       }
-
     }
     return false;
-
   };
 
   /**
@@ -217,7 +178,6 @@ BlockToolset.Prototype = function () {
    * @param      {<type>}  type    The type
    */
   this.changeType = function (type) {
-
     // CHECK
     // This method is analgous to a `Command.execute` method.
     // Here, instead of having a separate command, we have just integrated it
@@ -227,17 +187,13 @@ BlockToolset.Prototype = function () {
     var selection = surface.getSelection();
     var schema = surface.getDocument().getSchema();
     surface.transaction(function (tx, args) {
-
       if (selected.node.isInstanceOf('text') && schema.isInstanceOf(type, 'text')) {
-
         // Can do a plain `switchTextType`
         args.data = {
           type: type
         };
         return switchTextType(tx, args);
-
       } else {
-
         // Do a node replacement
         // This is similar to `substance/model/transform/switchTextType` but does
         // not rquire text nodes and does not transfer annotations.
@@ -252,10 +208,8 @@ BlockToolset.Prototype = function () {
         var container = tx.get(args.containerId);
         var pos = container.getPosition(nodeId);
         if (pos >= 0) {
-
           container.hide(nodeId);
           container.show(newNode.id, pos);
-
         }
 
         // Delete the old node
@@ -266,13 +220,9 @@ BlockToolset.Prototype = function () {
         args.node = newNode;
 
         return args;
-
       }
-
     });
-
   };
-
 };
 
 Component.extend(BlockToolset);

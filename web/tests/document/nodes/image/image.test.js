@@ -9,7 +9,6 @@ var config = new TestConfigurator([
 ]);
 
 test.skip('ImageHTMLConverter', function (assert) {
-
   var converter = new TestDocumentHTMLConverter(config);
 
   var input =
@@ -40,6 +39,5 @@ test.skip('ImageHTMLConverter', function (assert) {
   );
 
   assert.end();
-
 });
 

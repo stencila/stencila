@@ -14,32 +14,26 @@ var MacroManager = require('../../ui/MacroManager');
  * @class      VisualEditor (name)
  */
 function VisualEditor () {
-
   VisualEditor.super.apply(this, arguments);
 
   // Use custom MacroManager
   this.macroManager.context.documentSession.off(this.macroManager);
   delete this.macroManager;
   this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
-
 }
 
 VisualEditor.Prototype = function () {
-
   /**
    * Render this editor
    */
   this.render = function ($$) {
-
     var configurator = this.props.configurator;
 
     var el = $$('div').addClass('sc-visual-editor');
 
     // Toggle classes to match properties
     ['reveal', 'edit'].forEach(function (item) {
-
       if (this.props[item]) el.addClass('sm-' + item);
-
     }.bind(this));
 
     // Document toolset (becuase of the way in which
@@ -75,7 +69,6 @@ VisualEditor.Prototype = function () {
     );
 
     return el;
-
   };
 
   /**
@@ -86,18 +79,13 @@ VisualEditor.Prototype = function () {
    * toolsets.
    */
   this._documentSessionUpdated = function () {
-
     var commandStates = this.commandManager.getCommandStates();
     ['documentToolset'].forEach(function (name) {
-
       this.refs[name].extendProps({
         commandStates: commandStates
       });
-
     }.bind(this));
-
   };
-
 };
 
 AbstractEditor.extend(VisualEditor);

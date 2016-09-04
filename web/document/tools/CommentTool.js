@@ -9,19 +9,13 @@ var Tool = require('substance/ui/Tool');
  * @class      CommentTool (name)
  */
 function CommentTool () {
-
   CommentTool.super.apply(this, arguments);
-
 }
 
 CommentTool.Prototype = function () {
-
   this.onClick = function () {
-
     this.send('comment-toggle');
-
   };
-
 };
 
 Tool.extend(CommentTool);

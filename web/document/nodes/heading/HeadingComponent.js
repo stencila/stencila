@@ -11,25 +11,17 @@ var HeadingComponentBase = require('substance/packages/heading/HeadingComponent'
  * @class      HeadingComponent (name)
  */
 function HeadingComponent () {
-
   HeadingComponent.super.apply(this, arguments);
-
 }
 
 HeadingComponent.Prototype = function () {
-
   this.didMount = function () {
-
     this.props.node.on('level:changed', this.rerender, this);
-
   };
 
   this.dispose = function () {
-
     this.props.node.off(this);
-
   };
-
 };
 
 HeadingComponentBase.extend(HeadingComponent);

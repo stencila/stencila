@@ -22,21 +22,17 @@ function HeadingMacro () {
 };
 
 HeadingMacro.Prototype = function () {
-
   this.appliesTo = ['paragraph', 'heading'];
 
   this.regex = /^(#+)\s+(.*?)$/;
 
   this.createNodeData = function (match) {
-
     return {
       type: 'heading',
       level: match[1].length,
       content: match[2]
     };
-
   };
-
 };
 
 BlockNodeMacro.extend(HeadingMacro);

@@ -13,21 +13,15 @@ var SnapshotEngineBase = require('substance/collab/SnapshotEngine');
  * @param      {<type>}  config  The configuration
  */
 function SnapshotEngine (config) {
-
   SnapshotEngine.super.apply(this, arguments);
 
   this.modelFactory = config.modelFactory;
-
 }
 
 SnapshotEngine.Prototype = function () {
-
   this._createDocumentInstance = function (schemaName) {
-
     return this.modelFactory.createDocument(schemaName);
-
   };
-
 };
 
 SnapshotEngineBase.extend(SnapshotEngine);

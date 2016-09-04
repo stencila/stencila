@@ -10,9 +10,7 @@ var AnnotationCommand = require('substance/ui/AnnotationCommand');
  * @class      LinkCommand (name)
  */
 function LinkCommand () {
-
   LinkCommand.super.apply(this, arguments);
-
 }
 
 LinkCommand.Prototype = function () {

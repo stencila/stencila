@@ -16,20 +16,16 @@ function StrongMacro () {
 };
 
 StrongMacro.Prototype = function () {
-
   this.appliesTo = [];
 
   this.regex = /\*([^\*]+)\*/;
 
   this.createNodeData = function (match) {
-
     return {
       type: 'strong',
       text: match[1]
     };
-
   };
-
 };
 
 AnnotationMacro.extend(StrongMacro);

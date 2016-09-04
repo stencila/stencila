@@ -3,9 +3,7 @@
 var Container = require('substance/model/Container');
 
 function Comment () {
-
   Comment.super.apply(this, arguments);
-
 }
 
 Container.extend(Comment);
