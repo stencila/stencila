@@ -61,3 +61,11 @@ sudo apt-get install -yq --no-install-recommends --no-install-suggests \
 	r-base-core=$R_VERSION.* \
 	r-base-dev=$R_VERSION.* \
 	texlive
+
+# Web
+# Xvfb setup for functional tests with Electron
+# See https://github.com/electron/electron/blob/master/docs/tutorial/testing-on-headless-ci.md
+
+sudo apt-get install -yq xvfb
+export DISPLAY=':99.0'
+Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
