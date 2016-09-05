@@ -20,7 +20,11 @@ module.exports = {
   },
 
   export: function (node, el, converter) {
-    el.text(node.content);
+    var spec = node.who + ' at ' + node.when;
+    el.attr('data-comment', spec);
+    node.getChildren().forEach(function (child) {
+      el.append(converter.convertNode(child));
+    });
   }
 
 };

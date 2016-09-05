@@ -10,17 +10,18 @@ module.exports = {
   },
 
   import: function (el, node, converter) {
-    var id = el.attr('id');
-    node.id = id;
-    // TODO
-    // Only import comments
+    node.id = el.attr('id');
     el.getChildren().forEach(function (child) {
       node.nodes.push(converter.convertElement(child).id);
     });
   },
 
   export: function (node, el, converter) {
-    el.text(node.content);
+    el.attr('data-discussion', '');
+    el.attr('id', node.id);
+    node.getChildren().forEach(function (child) {
+      el.append(converter.convertNode(child));
+    });
   }
 
 };
