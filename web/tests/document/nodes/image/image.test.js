@@ -8,11 +8,11 @@ var config = new TestConfigurator([
   require('../../../../document/nodes/paragraph/ParagraphPackage')
 ]);
 
-test.skip('ImageHTMLConverter', function (assert) {
+test('ImageHTMLConverter', function (assert) {
   var converter = new TestDocumentHTMLConverter(config);
 
   var input =
-    '<img data-id="i1" src="https://unsplash.it/200">' + // void non-closing tag will fail until https://github.com/substance/substance/pull/764/commits/1151df11ee6671f7701fab6b7c368beb1d6210ba is merged into Substance
+    '<img data-id="i1" src="https://unsplash.it/200">' + // void non-closing tag
     '<img data-id="i2" src="https://unsplash.it/400"/>'; // self-closing tag
 
   var output =
