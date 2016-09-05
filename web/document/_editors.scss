@@ -1,3 +1,12 @@
+// Use the same layout for "static" content as in the visual
+// editor (below)
+#content {
+  margin: 1em;
+  max-width: 50em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .sc-visual-editor,
 .sc-code-editor {
   // The layout for a Substance ScollPane is complex and not necessarily intuitve
