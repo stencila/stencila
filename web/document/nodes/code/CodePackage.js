@@ -21,7 +21,6 @@ module.exports = {
     config.addTool('code', AnnotationTool);
     config.addMacro(new CodeMacro());
     config.addIcon('code', { 'fontawesome': 'fa-code' });
-    config.addStyle(__dirname, '_code.scss');
     config.addLabel('code', {
       en: 'Code',
       de: 'Code'

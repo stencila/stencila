@@ -17,7 +17,6 @@ module.exports = {
       data: {type: 'summary'}
     });
     config.addIcon('summary', { 'fontawesome': 'fa-circle-o' });
-    config.addStyle(__dirname, '_summary.scss');
     config.addLabel('summary', {
       en: 'Summary',
       de: 'Summary'

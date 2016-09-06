@@ -18,7 +18,6 @@ module.exports = {
     config.addConverter('xml', ImageXMLConverter);
     config.addMacro(new ImageMacro());
     config.addTool('image', ImageTool);
-    config.addStyle(__dirname, '_image.scss');
     config.addIcon('image', { 'fontawesome': 'fa-image' });
     config.addLabel('image', {
       en: 'Image',

@@ -19,7 +19,6 @@ module.exports = {
     config.addTool('strong', AnnotationTool);
     config.addMacro(new StrongMacro());
     config.addIcon('strong', { 'fontawesome': 'fa-bold' });
-    config.addStyle(__dirname, '_strong.scss');
     config.addLabel('strong', {
       en: 'Strong',
       de: 'Starke'

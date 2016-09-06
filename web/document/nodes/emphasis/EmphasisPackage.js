@@ -19,7 +19,6 @@ module.exports = {
     config.addTool('emphasis', AnnotationTool);
     config.addMacro(new EmphasisMacro());
     config.addIcon('emphasis', { 'fontawesome': 'fa-italic' });
-    config.addStyle(__dirname, '_emphasis.scss');
     config.addLabel('emphasis', {
       en: 'Emphasis',
       de: 'Betonung'

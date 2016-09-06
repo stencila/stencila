@@ -17,7 +17,6 @@ module.exports = {
       data: {type: 'title'}
     });
     config.addIcon('title', { 'fontawesome': 'fa-asterisk' });
-    config.addStyle(__dirname, '_title.scss');
     config.addLabel('title', {
       en: 'Title',
       de: 'Title'
