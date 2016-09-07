@@ -2,12 +2,12 @@
 
 var AnnotationComponent = require('substance/ui/AnnotationComponent');
 
-function CodeCodeComponent () {
-  CodeCodeComponent.super.apply(this, arguments);
+function CodeMarkdownComponent () {
+  CodeMarkdownComponent.super.apply(this, arguments);
 }
 
-CodeCodeComponent.Prototype = function () {
-  var _super = CodeCodeComponent.super.prototype;
+CodeMarkdownComponent.Prototype = function () {
+  var _super = CodeMarkdownComponent.super.prototype;
 
   this.render = function ($$) {
     var el = _super.render.call(this, $$);
@@ -15,6 +15,6 @@ CodeCodeComponent.Prototype = function () {
   };
 };
 
-AnnotationComponent.extend(CodeCodeComponent);
+AnnotationComponent.extend(CodeMarkdownComponent);
 
-module.exports = CodeCodeComponent;
+module.exports = CodeMarkdownComponent;
