@@ -40,8 +40,9 @@ Overlayer.Prototype = function () {
     return el;
   };
 
-  // Override of `position()` method
+  // Override of `position()` method to determin a position for this overlay
   this.position = function (hints) {
+    // Get selection rectangle so that overlay can be positioned relative to it
     // At time of writing `Surface.getBoundingRectangleForSelection` was experimental and
     // sometimes created a hints.rectangle that was an empty object (e.g. for node selections). This checks for that
     // and if necessary tries to work out it's own selection rectangle
@@ -56,12 +57,16 @@ Overlayer.Prototype = function () {
     if (!selected) {
       var surface = this.context.surfaceManager.getFocusedSurface();
       var selection = surface.getSelection();
-      var nodeId = selection.getNodeId();
-      console.warn('No selection rectangle provided for {' + nodeId + '}, attempting to get one');
-      var componentEl = document.querySelector('[data-id=' + nodeId + ']');
-      var containerEl = this.context.scrollPane.refs.content.el.el;
-      if (componentEl && containerEl) {
-        selected = getRelativeBoundingRect(componentEl, containerEl);
+      if (selection) {
+        if (selection.isNodeSelection()) {
+          var nodeId = selection.getNodeId();
+          console.warn('No selection rectangle provided for {' + nodeId + '}, attempting to get one');
+          var componentEl = document.querySelector('[data-id=' + nodeId + ']');
+          var containerEl = this.context.scrollPane.refs.content.el.el;
+          if (componentEl && containerEl) {
+            selected = getRelativeBoundingRect(componentEl, containerEl);
+          }
+        }
       }
     }
 
