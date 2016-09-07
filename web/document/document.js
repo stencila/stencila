@@ -1,6 +1,8 @@
 'use strict';
 
 var he = require('he');
+var Raven = require('raven-js');
+
 var utilities = require('../shared/utilities');
 var code = require('../shared/code');
 
@@ -53,28 +55,37 @@ window.onload = function () {
       }
     }
 
-    // Mount application on page and fallback to
-    // display orginal content on any error
-    // try {
-    var DocumentApp = require('./DocumentApp');
-    window.app = DocumentApp.mount({
-      address: address,
-      copy: copy,
-      format: format,
-      data: data,
-      local: local !== '0',
-      view: view,
-      reveal: reveal,
-      comment: comment,
-      edit: edit
-    }, document.body);
+    var load = function () {
+      // Mount application on page and fallback to
+      // display orginal content on any error
+      var DocumentApp = require('./DocumentApp');
+      window.app = DocumentApp.mount({
+        address: address,
+        copy: copy,
+        format: format,
+        data: data,
+        local: local !== '0',
+        view: view,
+        reveal: reveal,
+        comment: comment,
+        edit: edit
+      }, document.body);
 
       // Load ACE editor
-    code.loadAce();
+      code.loadAce();
+    };
 
-    // } catch (error) {
-    //  content.style.display = 'block';
-    //  console.error(error);
-    // }
+    if (window.location.hostname.match(/localhost|(127\.0\.0\.1)/)) {
+      load();
+    } else {
+      Raven
+        .config('https://6329017160394100b21be92165555d72@app.getsentry.com/37250')
+        .install();
+      try {
+        load();
+      } catch (e) {
+        Raven.captureException(e);
+      }
+    }
   }
 };
