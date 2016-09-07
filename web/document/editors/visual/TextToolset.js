@@ -12,7 +12,7 @@ function TextToolset () {
     'math', 'print', 'emoji'
   ];
 
-  this.inlineNodetools = [
+  this.inlineNodeTools = [
     'math', 'print', 'emoji'
   ];
 }
@@ -33,7 +33,7 @@ TextToolset.Prototype = function () {
 
       var props = commandStates[name];
       // Don't enable `InlineNodeTools` if there is no selected text
-      if (!props.disabled && (this.inlineNodetools.indexOf(name) > -1) && sel && !sel.isNull() && sel.isPropertySelection()) {
+      if (!props.disabled && (this.inlineNodeTools.indexOf(name) > -1) && sel && !sel.isNull() && sel.isPropertySelection()) {
         if (sel.getStartOffset() === sel.getEndOffset()) {
           props.disabled = true;
         }

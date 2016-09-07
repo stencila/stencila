@@ -1,4 +1,4 @@
-<p>When you comment on a selection of text, a new <em>discussion</em> is created. The discussion node is inserted into the document after the current block node. That allows use to generate a code based representation of the dicsussion that is close to it's subject, not at the end of the document. Although the discussion is inserted into the man flow of the document it appears to the right when the mark is selected.</p>
+<p>When you comment on a selection of text, a new <span data-mark="discussion-1">discussion</span> is created. The discussion node is inserted into the document after the current block node. That allows use to generate a code based representation of the dicsussion that is close to it's subject, not at the end of the document. Although the discussion is inserted into the man flow of the document it appears to the right when the mark is selected.</p>
 
 <div data-discussion="open" id="discussion-1">
     <div data-comment="@peter at 2016-08-03T16:19:00Z">
@@ -24,3 +24,13 @@
         <p>Aaaah, I see <span data-emoji="">:rolling_eyes:</span>.<em>So</em> much clearer now. When I make pi and sigma both 1, then y equals <span data-print="Math.sqrt(Math.pow(1,2*1))/3.14"></span></p>
     </div>
 </div>
+
+<p data-id="paragraph-test-1">Paragraph for adding <span data-mark="discussion-test-1" data-id="mark-test-1">comment</span> in functional test</p>
+
+<div data-discussion="open" data-id="discussion-test-1" id="discussion-test-1">
+    <div data-comment="@peter at 2016-08-02T16:19:00Z">
+        <p>First comment</p>
+    </div>
+</div>
+
+<p data-id="paragraph-test-2">Paragraph for adding <strong data-id="strong-test-1">discussion</strong> in functional test.</p>

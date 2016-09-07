@@ -5,7 +5,7 @@ var MarkHTMLConverter = require('./MarkHTMLConverter');
 var MarkXMLConverter = require('./MarkXMLConverter');
 var MarkCommand = require('./MarkCommand');
 var MarkComponent = require('./MarkComponent');
-var AnnotationTool = require('substance/ui/AnnotationTool');
+var MarkTool = require('./MarkTool');
 
 module.exports = {
   name: 'mark',
@@ -15,7 +15,7 @@ module.exports = {
     config.addConverter('xml', MarkXMLConverter);
     config.addComponent('mark', MarkComponent);
     config.addCommand('mark', MarkCommand);
-    config.addTool('mark', AnnotationTool);
+    config.addTool('mark', MarkTool);
     config.addIcon('mark', { 'fontawesome': 'fa-comment-o' });
     config.addLabel('mark', {
       en: 'Comment'

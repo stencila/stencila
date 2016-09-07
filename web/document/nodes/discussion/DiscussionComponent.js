@@ -164,11 +164,11 @@ DiscussionComponent.Prototype = function () {
   /**
    * Event method for when the add button is clicked.
    */
-  this.onAddClicked = function () {
+  this.onAddClicked = function (event) {
     var discussion = this.props.node;
-    var user = this.context.documentSession.config.user;
-    var surface = this.context.surfaceManager.getFocusedSurface();
-    surface.transaction(function (tx, args) {
+    var session = this.context.documentSession;
+    var user = session.config.user;
+    session.transaction(function (tx, args) {
       // Create a new comment
       var paragraph = tx.create({
         type: 'paragraph'
@@ -182,12 +182,6 @@ DiscussionComponent.Prototype = function () {
       // Append to the end of the discussion
       discussion.show(comment.id);
 
-      // FIXME
-      // The first time the add button is clicked the new comment appears but
-      // seems like the whole discussion is selected. Then subsequent clicks
-      // don't add anything. Seems to be reated to selection.
-      console.warn('FIXME');
-
       args.node = paragraph;
       args.selection = tx.createSelection([paragraph.id, 'content'], 0, 0);
 
@@ -198,7 +192,7 @@ DiscussionComponent.Prototype = function () {
   /**
    * Event method for deleting this discussion and associated `Mark`
    */
-  this.onDeleteClicked = function () {
+  this.onDeleteClicked = function (event) {
     var discussion = this.props.node;
     var session = this.context.documentSession;
     // Destroy this component first
@@ -215,6 +209,9 @@ DiscussionComponent.Prototype = function () {
       args.selection = tx.createSelection(null);
       return args;
     });
+
+    event.preventDefault();
+    event.stopPropagation();
   };
 };
 
