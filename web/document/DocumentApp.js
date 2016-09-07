@@ -211,7 +211,7 @@ DocumentApp.Prototype = function () {
   this.toggleComment = function () {
     var comment = !this.state.comment;
     if (comment) {
-      this.switchClone('live');
+      this.switchCopy('live');
     }
     this.extendState({
       comment: comment
@@ -225,7 +225,7 @@ DocumentApp.Prototype = function () {
   this.toggleEdit = function () {
     var edit = !this.state.edit;
     if (edit) {
-      this.switchClone('live');
+      this.switchCopy('live');
     }
     this.extendState({
       reveal: edit || this.state.reveal,
@@ -239,7 +239,7 @@ DocumentApp.Prototype = function () {
    *
    * @param      {string}  copy   The copy
    */
-  this.switchClone = function (copy) {
+  this.switchCopy = function (copy) {
     if (this.props.copy !== copy) {
       this.extendState({
         documentSession: null
