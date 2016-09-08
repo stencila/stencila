@@ -6,6 +6,21 @@ function Execute () {
   Execute.super.apply(this, arguments);
 }
 
+Execute.Prototype = function () {
+  this.refresh = function () {
+    if (this.source) {
+      try {
+        this.document.execute(this.source);
+        this.error = false;
+      } catch (error) {
+        this.error = true;
+        throw error;
+      }
+      this.emit('content:changed');
+    }
+  };
+};
+
 BlockNode.extend(Execute);
 
 Execute.define({

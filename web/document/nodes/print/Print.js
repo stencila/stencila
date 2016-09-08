@@ -15,7 +15,7 @@ Print.Prototype = function () {
       // Evaluate the source within the document's current
       // context
       try {
-        this.content = eval(this.source).toString(); // eslint-disable-line no-eval
+        this.content = this.document.write(this.source);
         this.error = false;
       } catch (error) {
         this.content = error.toString();

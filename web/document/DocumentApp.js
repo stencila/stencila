@@ -15,6 +15,8 @@ var DocumentHTMLExporter = require('./DocumentHTMLExporter');
 var DocumentConfigurator = require('./DocumentConfigurator');
 var configurator = new DocumentConfigurator();
 
+var JavascriptContext = require('../contexts/JavascriptContext').default;
+
 var VisualEditor = require('./editors/visual/VisualEditor');
 var CodeEditor = require('./editors/code/CodeEditor');
 
@@ -119,33 +121,26 @@ DocumentApp.Prototype = function () {
     var documentSession;
 
     if (this.props.format === 'html') {
-      // Import the HTML provided from the page into a new document
+      // Import the HTML provided
       doc = this.importHTML(this.props.data);
 
-      // Create a new document session
+      // Create a new local document session
       documentSession = new DocumentSession(doc);
       // For code compatability with a `CollabSession` ...
       documentSession.config = {
         user: null,
         rights: null
       };
-
-      // Extend state to trigger rerendering
-      this.extendState({
-        doc: doc,
-        documentSession: documentSession
-      });
     } else {
       var user = this.props.data.user;
       var rights = this.props.data.rights;
       var collabUrl = this.props.data.collabUrl;
       var snapshot = this.props.data.snapshot;
 
-      // Import the JSON
+      // Import the JSON provided
       doc = this.importJSON(snapshot.data);
 
-      // Create a new collaborative document session and add it to state
-      // to trigger rerendering
+      // Create a new collaborative document session
       var collabConn = new WebSocketConnection({
         wsUrl: collabUrl
       });
@@ -159,13 +154,18 @@ DocumentApp.Prototype = function () {
         user: user,
         rights: rights
       });
-
-      // Extend state to trigger rerendering
-      this.extendState({
-        doc: doc,
-        documentSession: documentSession
-      });
     }
+
+    // Define execution contexts for document
+    doc.contexts = [
+      new JavascriptContext()
+    ];
+
+    // Extend state to trigger rerendering
+    this.extendState({
+      doc: doc,
+      documentSession: documentSession
+    });
   };
 
   // Import / export methods

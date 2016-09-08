@@ -23,6 +23,14 @@ var DocumentModel = function (schema) {
 };
 
 DocumentModel.Prototype = function () {
+  this.execute = function (expression, context) {
+    context = context || this.contexts[0];
+    return context.execute(expression);
+  };
+
+  this.write = function (expression) {
+    return this.contexts[0].write(expression);
+  };
 };
 
 DocumentModel.schema = configurator.getSchema();
