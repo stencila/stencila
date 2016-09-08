@@ -115,21 +115,24 @@ DocumentApp.Prototype = function () {
   };
 
   this.didMount = function () {
+    var doc;
     var documentSession;
 
     if (this.props.format === 'html') {
       // Import the HTML provided from the page into a new document
-      this.importHTML(this.props.data);
+      doc = this.importHTML(this.props.data);
 
-      // Create a new document session and add it to state to trigger
-      // rerendering
-      documentSession = new DocumentSession(this.doc);
-      // For code compatability when using a `CollabSession`
+      // Create a new document session
+      documentSession = new DocumentSession(doc);
+      // For code compatability with a `CollabSession` ...
       documentSession.config = {
         user: null,
         rights: null
       };
+
+      // Extend state to trigger rerendering
       this.extendState({
+        doc: doc,
         documentSession: documentSession
       });
     } else {
@@ -139,7 +142,7 @@ DocumentApp.Prototype = function () {
       var snapshot = this.props.data.snapshot;
 
       // Import the JSON
-      this.importJSON(snapshot.data);
+      doc = this.importJSON(snapshot.data);
 
       // Create a new collaborative document session and add it to state
       // to trigger rerendering
@@ -149,42 +152,48 @@ DocumentApp.Prototype = function () {
       var collabClient = new CollabClient({
         connection: collabConn
       });
-      documentSession = new CollabSession(this.doc, {
+      documentSession = new CollabSession(doc, {
         documentId: snapshot.documentId,
         version: snapshot.version,
         collabClient: collabClient,
         user: user,
         rights: rights
       });
+
+      // Extend state to trigger rerendering
       this.extendState({
+        doc: doc,
         documentSession: documentSession
       });
     }
   };
 
+  // Import / export methods
+
   this.importJSON = function (content) {
-    this.doc = new DocumentModel();
+    var doc = new DocumentModel();
     var jsonConverter = new DocumentJSONConverter();
-    return jsonConverter.importDocument(this.doc, content);
+    jsonConverter.importDocument(doc, content);
+    return doc;
   };
 
-  this.exportJSON = function (content) {
+  this.exportJSON = function (doc) {
     var jsonConverter = new DocumentJSONConverter();
-    return jsonConverter.exportDocument(this.doc);
+    return jsonConverter.exportDocument(doc);
   };
 
   this.importHTML = function (content) {
     var htmlImporter = new DocumentHTMLImporter({
       configurator: configurator
     });
-    this.doc = htmlImporter.importDocument(content);
+    return htmlImporter.importDocument(content);
   };
 
-  this.exportHTML = function () {
+  this.exportHTML = function (doc) {
     var htmlExporter = new DocumentHTMLExporter({
       configurator: configurator
     });
-    return htmlExporter.exportDocument(this.doc);
+    return htmlExporter.exportDocument(doc);
   };
 
   /**
