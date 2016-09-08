@@ -20,6 +20,7 @@ var url = require('url');
 var path = require('path');
 var sass = require('node-sass');
 var browserify = require('browserify');
+var babel = require('babelify');
 var fs = require('fs');
 var glob = require('glob');
 var http = require('http');
@@ -191,8 +192,9 @@ function nameToPath (name) {
 app.get('/get/web/:name.min.js', function (req, res, next) {
   caching(res, 60);
   browserify({
-    debug: true,
-    cache: false
+    debug: true
+  }).transform(babel, {
+    presets: ['es2015']
   })
     .add(nameToPath(req.params.name) + '.js')
     .bundle()
