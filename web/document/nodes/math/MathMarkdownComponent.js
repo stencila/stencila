@@ -1,7 +1,7 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var TextPropertyComponent = require('substance/ui/TextPropertyComponent');
+var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 
 function MathCodeComponent () {
   MathCodeComponent.super.apply(this, arguments);
@@ -22,7 +22,7 @@ MathCodeComponent.Prototype = function () {
       .addClass('sc-math')
       .append(
         delim,
-        $$(TextPropertyComponent, {
+        $$(TextPropertyEditor, {
           path: [ node.id, 'source' ],
           withoutBreak: true
         }),

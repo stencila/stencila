@@ -1,7 +1,7 @@
 'use strict';
 
 var Component = require('substance/ui/Component');
-var TextPropertyComponent = require('substance/ui/TextPropertyComponent');
+var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
 
 function ImageMarkdownComponent () {
   ImageMarkdownComponent.super.apply(this, arguments);
@@ -14,7 +14,7 @@ ImageMarkdownComponent.Prototype = function () {
       .addClass('sc-image')
       .append(
         '![](',
-        $$(TextPropertyComponent, {
+        $$(TextPropertyEditor, {
           path: [ node.id, 'src' ],
           withoutBreak: true
         }),

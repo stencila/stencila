@@ -30,4 +30,8 @@
 
 &.sc-code-editor .sc-math {
   color: hsl(90, 100%, 50%);
+
+  div {
+    display: inline;
+  }
 }

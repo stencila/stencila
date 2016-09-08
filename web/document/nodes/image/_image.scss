@@ -37,4 +37,8 @@ img,
 
 &.sc-code-editor .sc-image {
   color: hsl(170, 70%, 50%);
+
+  div {
+    display: inline;
+  }
 }
