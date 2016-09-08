@@ -11,6 +11,8 @@
   },
   "devDependencies": {
     "eslint": "^3.4.0",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-standard": "^2.0.0",
     "glob": "^7.0.6",
     "istanbul": "^0.4.5",
     "tap-spec": "^4.1.1",
