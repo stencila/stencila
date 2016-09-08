@@ -95,6 +95,11 @@ script:
     - make -C cpp build -j2
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C cpp cover -j2; fi
 
+    # Javascript module
+    - make -C js setup
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C js lint; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C js cover; fi
+
     # Node.js module
     - make -C node setup
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make -C node build; fi

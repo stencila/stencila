@@ -15,7 +15,7 @@ var DocumentHTMLExporter = require('./DocumentHTMLExporter');
 var DocumentConfigurator = require('./DocumentConfigurator');
 var configurator = new DocumentConfigurator();
 
-var JavascriptContext = require('../contexts/JavascriptContext').default;
+var JavascriptContext = require('../contexts/JavascriptContext');
 
 var VisualEditor = require('./editors/visual/VisualEditor');
 var CodeEditor = require('./editors/code/CodeEditor');

@@ -1,0 +1,19 @@
+{
+  "name": "js",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "tape 'tests/**/*.test.js' | tap-spec",
+    "cover": "istanbul cover tests"
+  },
+  "dependencies": {
+    "d3": "^4.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^3.4.0",
+    "glob": "^7.0.6",
+    "istanbul": "^0.4.5",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.6.0"
+  }
+}
