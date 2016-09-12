@@ -47,6 +47,7 @@
     "express-http-proxy": "^0.10.0",
     "fakeredis": "^1.0.3",
     "glob": "^7.0.6",
+    "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
     "gulp-if": "^2.0.1",
     "gulp-notify": "^2.2.0",
