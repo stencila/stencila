@@ -5,6 +5,8 @@
 [![Dependency status](https://david-dm.org/stencila/web.svg)](https://david-dm.org/stencila/web)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
+Web browser user interfaces for Stencila components.
+
 ### Development
 
 Most development tasks can be run directly using Javascript tooling (`npm` etc) or via `make` wrapper recipes.
@@ -20,6 +22,10 @@ Run functional tests only                               | `npm run test-fun`    
 Run tests with coverage                                 | `npm run cover`       | `make cover`
 Build                                                   | `gulp build`          | `make build`
 Clean                                                   | `rm -rf build`        | `make clean`
+
+#### Developing
+
+After installing dependencies run `npm start` to start the development server and head over to [http://localhost:5000](http://localhost:5000) where there are links to test pages. On these test pages, the Javascript and SCSS are bundled on the fly so that any changes you make are available with a browser refresh.
 
 #### Testing
 
