@@ -31,7 +31,11 @@ test('math.translate ASCIIMath to TeX', function (t) {
     ['a//b', '{a}/{b}'],
     ['a-:b', '{a}\\div{b}'],
 
-    ['a_1 b^2 c_(2,3)', '{a}_{{1}}{b}^{{2}}{c}_{{{2},{3}}}'],
+    ['a_1', '{a}_{{1}}'],
+    ['a^1', '{a}^{{1}}'],
+    ['a_1^2', '{{a}_{{1}}^{{2}}}'],
+    ['a_{1,2}', '{a}_{{{1},{2}}}'],
+    ['a_(1,2)', '{a}_{{{1},{2}}}'],
 
     ['sum x', '\\sum{x}'],
     ['prod x', '\\prod{x}'],
@@ -39,6 +43,13 @@ test('math.translate ASCIIMath to TeX', function (t) {
     ['sqrt{x+y}', '\\sqrt{{{x}+{y}}}'],
 
     ['hat x bar x vec x', '\\hat{{x}}\\overline{{x}}\\vec{{x}}'],
+
+    ['root a b', '{\\sqrt[{a}]{{b}}}'],
+    ['abs -1', '{\\left|-\\right|}{1}'],
+    ['cancel', '\\cancel{}'],
+
+    ['|_', '{\\mid}_{}'],
+    ['_|', '_{\\mid}'],
 
     ['and', '{\\quad\\text{and}\\quad}'],
     ['if', '{\\quad\\text{if}\\quad}'],

@@ -12,7 +12,7 @@
  */
 
 var katex = require('katex');
-var am = require('./ASCIIMathTeXImg');
+var am = require('./asciimath');
 
 /**
  * Translate between math markup languages
