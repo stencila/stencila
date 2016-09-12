@@ -1,0 +1,97 @@
+[data-discussion] {
+  display: none;
+}
+
+&.sc-visual-editor .sc-discussion {
+  // Take the discussion out of the flow
+  // of the document (e.g. so it's not selected on cursor movements)
+  display: none;
+
+  &.sm-displayed {
+    // Display discussion to right of screen so for longer documents
+    // always visible as scrolling
+    display: block;
+    position: fixed;
+    // These positons are fallbacks but are overiden in styles placed on 
+    // individual discussion elements by Javascript
+    top: 1em;
+    right: 1em;
+    // Prevent bashing up against side when dynamically positioned
+    margin-left: 1em;
+    margin-right: 1em;
+  }
+
+  z-index: $z-index-discussion;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px 0 hsla(0, 0%, 0%, .9);
+
+  & > .se-header,
+  & > .se-footer {
+    @extend %clearfix;
+    background: #222;
+    padding: .1em .5em;
+
+    button {
+      background: none;
+      outline: none;
+      border: 0;
+      font-size: 1.3em;
+    }
+  }
+
+  & > .se-header {
+
+    .se-icon {
+      float: left;
+      color: hsl($stencila-green-hue, 100%, 50%);
+    }
+
+    .se-hide {
+      float: right;
+      color: #ddd;
+    }
+  }
+
+  & > .se-footer {
+
+    .se-add {
+      float: right;
+      color: #ddd;
+    }
+
+    .se-delete {
+      float: left;
+      color: hsl(0, 100%, 60%);
+    }
+  }
+
+  // Hide slugs (not relevant for this out-of-flow component?)
+  & > .se-slug {
+    display: none;
+  }
+
+  // Remove default styling when selected
+  & > .se-container {
+    outline: none !important;
+    // Due to the heavy header and footer (?) discussions don't
+    // look good unless they have a minimum height
+    min-height: 10em;
+  }
+}
+
+&.sc-code-editor .sc-discussion {
+  display: block;
+
+  // Hide slugs
+  & > .se-slug {
+    display: none;
+  }
+
+  // Remove outline and make full width
+  & > .se-container {
+    outline: none !important;
+    width: 100%;
+  }
+}

@@ -1,0 +1,6 @@
+/**
+ * CSS import of KaTeX CSS (which imports fonts too)
+ * 
+ * We be served from the `build` directory. See `postinstall.sh`.
+ */
+@import 'katex/katex.min.css';

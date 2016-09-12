@@ -1,0 +1,34 @@
+ul,
+.sc-list.sm-unordered {
+  padding: 0;
+  list-style-type: disc;
+
+  li,
+  .sc-list-item {
+    margin: 0 0 0 1em;
+    position: relative;
+
+    &::before {
+      position: absolute;
+      left: -1em;
+      //content: "•";
+    }
+  }
+}
+
+ol,
+.sc-list.sm-ordered {
+  padding: 0;
+  list-style-type: decimal;
+
+  li,
+  .sc-list-item {
+    margin: 0 0 0 1em;
+    position: relative;
+
+    &::before {
+      position: absolute;
+      left: -1em;
+    }
+  }
+}

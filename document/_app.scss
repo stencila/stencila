@@ -1,0 +1,15 @@
+.sc-document-app {
+
+  &.sm-loading {
+
+    i {
+      display: block;
+      position: relative;
+      margin: 0 auto;
+      top: 40vh;
+      color: hsla($stencila-green-hue, 100%, 50%, .9);
+      font-size: 60px;
+    }
+  }
+
+}

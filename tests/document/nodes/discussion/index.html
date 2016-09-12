@@ -1,0 +1,36 @@
+<p>When you comment on a selection of text, a new <span data-mark="discussion-1">discussion</span> is created. The discussion node is inserted into the document after the current block node. That allows use to generate a code based representation of the dicsussion that is close to it's subject, not at the end of the document. Although the discussion is inserted into the man flow of the document it appears to the right when the mark is selected.</p>
+
+<div data-discussion="open" id="discussion-1">
+    <div data-comment="@peter at 2016-08-03T16:19:00Z">
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essellum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+    <div data-comment="@mary at 2016-08-03T04:19:00Z">
+        <p>I'm not sure what you mean?</p>
+    </div>
+</div>
+
+<p>Comments can contain the same elements as the main document. For example, <span data-mark="discussion-2">here is a discussion</span> which has several comments with math, images and paint directives.</p>
+
+<div data-discussion="open" id="discussion-2">
+    <div data-comment="@peter at 2016-08-02T16:19:00Z">
+        <p>I think the equation should actually be</p>
+        <p><span data-math="asciimath">y = sqrt{x^{2sigma}}//pi</span></p>
+    </div>
+    <div data-comment="@mary at 2016-08-03T04:19:00Z">
+        <p>No, I don't think so. I found this picture that may help you understand it's derivation better...</p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/PSM_V37_D105_English_tabby_cat.jpg/320px-PSM_V37_D105_English_tabby_cat.jpg">
+    </div>
+    <div data-comment="@peter at 2016-08-03T04:30:00Z">
+        <p>Aaaah, I see <span data-emoji="">:rolling_eyes:</span>.<em>So</em> much clearer now. When I make pi and sigma both 1, then y equals <span data-print="Math.sqrt(Math.pow(1,2*1))/3.14"></span></p>
+    </div>
+</div>
+
+<p data-id="paragraph-test-1">Paragraph for adding <span data-mark="discussion-test-1" data-id="mark-test-1">comment</span> in functional test</p>
+
+<div data-discussion="open" data-id="discussion-test-1" id="discussion-test-1">
+    <div data-comment="@peter at 2016-08-02T16:19:00Z">
+        <p>First comment</p>
+    </div>
+</div>
+
+<p data-id="paragraph-test-2">Paragraph for adding <strong data-id="strong-test-1">discussion</strong> in functional test.</p>

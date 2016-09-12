@@ -1,0 +1,64 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.sc-heading {
+  margin: 1em 0;
+  font-weight: bold;
+  color: #555;
+}
+
+h1,
+.sc-heading.sm-level-1 {
+  font-size: 1.3em;
+}
+
+// For levels 2-3, increasing indent
+// and reduction in font size
+
+h2,
+.sc-heading.sm-level-2 {
+  margin-left: 1rem;
+  font-size: 1.2em;
+}
+
+h3,
+.sc-heading.sm-level-3 {
+  margin-left: 2rem;
+  font-size: 1.1em;
+}
+
+// For level 4 onwards, no reduction in font
+// size, instead make lighter
+
+h4,
+.sc-heading.sm-level-4 {
+  margin-left: 3rem;
+  font-size: 1em;
+  color: #777;
+}
+
+h5,
+.sc-heading.sm-level-5 {
+  margin-left: 4rem;
+  font-size: 1em;
+  color: #888;
+}
+
+h6,
+.sc-heading.sm-level-6 {
+  margin-left: 5rem;
+  font-size: 1em;
+  color: #999;
+}
+
+&.sc-code-editor {
+  .sc-heading {
+    margin: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    color: hsl(340, 70%, 50%);
+  }
+}

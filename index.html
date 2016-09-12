@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stencila web development server</title>
+    <meta charset="UTF-8">
+  </head>
+  <style type="text/css">
+    body {
+        font-family: Helvetica;
+        line-height: 1.2em;
+        padding: 2em;
+    }
+    h1 {
+        font-size: 1.2em;
+    }
+    main {
+        max-width: 50em;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    code {
+        background: #EEE;
+        border-radius: 3px;
+        padding: 1px;
+        margin: -1px;
+    }
+  </style>
+  <body>
+    <main>
+        <p>
+            This is the Stencila development server for the <code>/web</code> module.
+        <p>
+
+
+        <h1>Javascript tests</h1>
+        <p>
+            The test suite can be run in the browser <a href="/tests">here</a>. (You can also run then in Node.js using <code> make test</code>, <code>npm test</code>, or <code>node tests</code>)
+        </p>
+
+        <h1>Test pages</h1>
+        <p>
+            Snippets for individual node types are wrapped and served up with the correct JS and CSS.
+            These are good for development of individual node types - without the distraction of a larger document containing many nodes type (several of which might also be calling out for attention). e.g.
+        <p>
+        <ul>
+            <li><a href="/tests/document/nodes/codeblock">/tests/document/nodes/codeblock</a></li>
+            <li><a href="/tests/document/nodes/math">/tests/document/nodes/math</a></li>
+        </ul>
+
+        <h1>Static examples</h1>
+        <p>
+            Static HTML files that mimic the structure of Stencila components are available:
+        <p>
+        <ul>
+            <li>Document: <a href="/examples/document-design/">/examples/document-design/</a></li>
+            <li>Stencil: <a href="/examples/a/">/examples/a/</a></li>
+            <li>Sheet: <a href="/examples/b/">/examples/b/</a></li>
+        </ul>
+
+        <h1>Other</h1>
+        <p>
+            This server bundles and compiles Javascript and CSS from local source files for convenience during development.
+        </p>
+        <p>
+            All other requests are proxied to an upstream server, by default https://localhost:7373 (a locally running Stencila session) but overridable at the command line e.g. <code>node server.js https://stenci.la</code>.
+            This allows you to test the JS and SCSS using live Stencila components. The Javascript and CSS still gets generated on the fly from the local source but everything else gets passed on to the backend session. Make sure you add the trailing slash to avoid a redirect from the upstream e.g.
+        <p>
+        <ul>
+            <li><a href="/demo/stencils/simple-r/">/demo/stencils/simple-r/</a></li>
+            <li><a href="/demo/sheets/simple-r/">/demo/sheets/simple-r/</a></li>
+            <li><a href="/demo/sheets/iris/">/demo/sheets/iris/</a></li>
+        </ul>
+    </main>
+  </body>
+</html>
