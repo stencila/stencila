@@ -1,8 +1,9 @@
 ## `stencila/web`
 
-[![Travis](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web)
-[![codecov](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
-[![Join the chat at https://gitter.im/stencila/stencila](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web)
+[![Code coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
+[![Dependency status](https://david-dm.org/stencila/web.svg)](https://david-dm.org/stencila/web)
+[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
 ### Development
 
