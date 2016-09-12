@@ -1,0 +1,21 @@
+language: node_js
+
+node_js:
+    - 6
+
+cache:
+  directories:
+    - node_modules
+    - build
+
+script:
+    - make cover
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+
+    webhooks:
+        urls:
+            - secure: "c7sJb5i92rK48bkT/JEqjyrznBfLUAHcPr7vXTuFZGX5jn/g0tssCtsDiN08mvULuIJF2F2av/8SF9R2cSpeKkC69I9+YUn+uItq4zFISxzh7q3QfcWvQnbizCkjVDU+AxsTf4m9Kq3eatxwPNuAxRc6PGeaYQ5/NeMYFDkYGCk=" # Gitter
