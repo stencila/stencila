@@ -3,8 +3,8 @@
 var he = require('he');
 var Raven = require('raven-js');
 
-var utilities = require('../shared/utilities');
-var code = require('../shared/code');
+var location = require('../utilities/location');
+var code = require('../utilities/code');
 
 /**
  * Stencila Document entry point
@@ -23,7 +23,7 @@ window.onload = function () {
   // determined by host.
   // Note: thses may be overidden in the `DocumentApp` depending
   // upon user rights for the document
-  var params = utilities.location.params();
+  var params = location.params();
   var local = (window.host === 'localhost:7373') ? '1' : '0';
   // Static/dynamic (Javasctpit loaded or not) defaults to dynamic
   var statico = (params.static || '0') !== '0';

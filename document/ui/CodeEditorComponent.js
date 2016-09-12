@@ -2,7 +2,7 @@
 
 var Component = require('substance/ui/Component');
 
-var code = require('../../shared/code');
+var code = require('../../utilities/code');
 
 /**
  * A `Component` for editing a node's `source` code

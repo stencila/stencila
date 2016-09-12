@@ -2,7 +2,7 @@
 
 var Component = require('substance/ui/Component');
 
-var math = require('../../../shared/math');
+var math = require('../../../utilities/math');
 
 function MathComponent () {
   MathComponent.super.apply(this, arguments);

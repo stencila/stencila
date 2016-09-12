@@ -1,17 +1,5 @@
-'use strict';
-
-// Dynamic loading of scripts
-function load (source, callback) {
-  var head = document.getElementsByTagName('head')[0];
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = (window.StencilaHost || '') + source;
-  if (callback) script.onload = callback;
-  head.appendChild(script);
-};
-
 // Utilities related to `document.location`
-var location = {
+module.exports = {
 
   /**
    * Get the parameters of the query (`search`) part of the location
@@ -34,9 +22,4 @@ var location = {
     return params;
   }
 
-};
-
-module.exports = {
-  load: load,
-  location: location
 };

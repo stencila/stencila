@@ -8,7 +8,7 @@
  * - in the future may use MathJax as a fallback to any things
  *   that KaTex does not handle (see http://www.intmath.com/blog/mathematics/katex-with-asciimathml-input-and-mathjax-fallback-9456)
  *
- * @module shared/math
+ * @module utilities/math
  */
 
 var katex = require('katex');
