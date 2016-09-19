@@ -4,7 +4,7 @@ var Component = require('substance/ui/Component');
 
 var emojione = require('emojione');
 // Consistent with making everying served locally (for offline use etc)...
-emojione.imagePathPNG = '/get/web/emojione/png/';
+emojione.imagePathPNG = '/web/emojione/png/';
 
 function EmojiComponent () {
   EmojiComponent.super.apply(this, arguments);

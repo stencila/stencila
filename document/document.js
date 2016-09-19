@@ -21,10 +21,10 @@ window.onload = function () {
   var copy = matches[3];
   // Check URL parameters for options with defaults
   // determined by host.
-  // Note: thses may be overidden in the `DocumentApp` depending
+  // Note: these may be overidden in the `DocumentApp` depending
   // upon user rights for the document
   var params = location.params();
-  var local = (window.host === 'localhost:7373') ? '1' : '0';
+  var local = (window.host === 'localhost:2000') ? '1' : '0';
   // Static/dynamic (Javasctpit loaded or not) defaults to dynamic
   var statico = (params.static || '0') !== '0';
   // View defaults to visual
@@ -40,7 +40,7 @@ window.onload = function () {
     // for rerendering by the `DocumentApp` and then hide content element (if any)
     var format = null;
     var data = null;
-    var content = document.getElementById('content');
+    var content = document.getElementById('main');
     if (content) {
       format = 'html';
       data = content.innerHTML;

@@ -16,6 +16,7 @@
 
 var express = require('express');
 var proxy = require('express-http-proxy');
+var cors = require('cors');
 var url = require('url');
 var path = require('path');
 var sass = require('node-sass');
@@ -59,6 +60,9 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Middleware to allow CORS (for example for requests for fonts from localhost:2000)
+app.use(cors());
+
 // Function used to override the above no caching headers
 // Useful for JS and CSS that is used multiple times during functional tests
 function caching (res, seconds) {
@@ -99,16 +103,16 @@ app.get('/tests-bundle.js', function (req, res, next) {
 function page (res, componentType, dataType, data) {
   var page = '<!DOCTYPE html>\n<html><head>';
   page += '<meta name="viewport" content="width=device-width, initial-scale=1">';
-  page += '<link rel="stylesheet" type="text/css" href="/get/web/' + componentType + '.min.css">';
-  page += '<script src="/get/web/' + componentType + '.min.js"></script>';
+  page += '<link rel="stylesheet" type="text/css" href="/web/' + componentType + '.min.css">';
+  page += '<script src="/web/' + componentType + '.min.js"></script>';
   page += '</head><body>';
-  if (dataType === 'html') page += '<main id="content">' + data + '</main>';
+  if (dataType === 'html') page += '<main id="main">' + data + '</main>';
   else {
     // Simulate what is done on hub
     var payload = {
       user: 'develop',
       rights: 'UPDATE',
-      collabUrl: 'ws://localhost:5000/',
+      collabUrl: 'ws://localhost:9000/',
       snapshot: data
     };
     // Do HTML encoding of JSON data to avoid XSS attacks as suggested at
@@ -189,7 +193,7 @@ function nameToPath (name) {
 }
 
 // Javascript
-app.get('/get/web/:name.min.js', function (req, res, next) {
+app.get('/web/:name.min.js', function (req, res, next) {
   caching(res, 60);
   browserify({
     debug: true
@@ -221,23 +225,20 @@ function sassify (name, output, res) {
     res.send(result[output]);
   });
 }
-app.get('/get/web/:name.min.css', function (req, res) {
+app.get('/web/:name.min.css', function (req, res) {
   caching(res, 60);
   sassify(req.params.name, 'css', res);
 });
-app.get('/get/web/:name.min.css.map', function (req, res) {
+app.get('/web/:name.min.css.map', function (req, res) {
   sassify(req.params.name, 'map', res);
 });
 
 // Images
-app.use('/get/web/images', express.static(path.join(__dirname, 'images')));
+app.use('/web/images', express.static(path.join(__dirname, 'images')));
 
-// Everything else at `/get/web` falls back to the `build` directory (e.g. fonts, MathJax)
+// Everything else at `/web` falls back to the `build` directory (e.g. fonts, MathJax)
 // So, you'll need to do a build first
-app.use('/get/web', express.static(path.join(__dirname, 'build')));
-
-// Internationalization
-app.use('/i18n', express.static(path.join(__dirname, 'i18n')));
+app.use('/web', express.static(path.join(__dirname, 'build')));
 
 // Deal with favicon to prevent uneeded error messages when no upstream proxy
 app.get('/favicon.ico', function (req, res) {
@@ -247,13 +248,13 @@ app.get('/favicon.ico', function (req, res) {
 // Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
-var upstream = 'http://localhost:7373';
+var upstream = 'http://localhost:2000';
 if (opts.upstream) {
   upstream = opts.upstream;
 }
 app.use('*', proxy(upstream, {
   decorateRequest: function (req) {
-    if (upstream !== 'http://localhost:7373') {
+    if (upstream !== 'http://localhost:2000') {
       if (!process.env.STENCILA_TOKEN) {
         console.error('Error no access token. Create an access token (e.g. at https://stenci.la/api/#!/Tokens/post_tokens) and copy its string into environment variable STENCILA_TOKEN');
         process.exit(1);
@@ -275,7 +276,7 @@ httpServer.on('request', app);
 
 // Serve app
 var host = 'localhost';
-var port = process.env.PORT || 5000;
+var port = process.env.PORT || 9000;
 httpServer.listen(port, host, function () {
   console.log('Running at http://localhost:' + httpServer.address().port + '/');
 });

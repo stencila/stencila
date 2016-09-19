@@ -7,7 +7,7 @@ test('Blockquote behaviour', function (t) {
   Nightmare({
     typeInterval: 5
   })
-    .goto('http://localhost:5000/tests/document/nodes/blockquote?edit=1')
+    .goto('http://localhost:9000/tests/document/nodes/blockquote?edit=1')
     .wait('.sc-visual-editor')
     .realClick('[data-id="blockquote-2"]')
     .type('[data-id="blockquote-2"]', 'in the ignorance of experts')

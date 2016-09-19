@@ -6,7 +6,7 @@ test('Add to an existing discussion', function (t) {
   Nightmare({
     typeInterval: 20
   })
-    .goto('http://localhost:5000/tests/document/nodes/discussion?edit=1')
+    .goto('http://localhost:9000/tests/document/nodes/discussion?edit=1')
     .wait('.sc-visual-editor')
     // Click on mark
     .realClick('.sc-visual-editor [data-id="mark-test-1"]')
@@ -36,7 +36,7 @@ test('Create a new discussion', function (t) {
   Nightmare({
     typeInterval: 20
   })
-    .goto('http://localhost:5000/tests/document/nodes/discussion?edit=1')
+    .goto('http://localhost:9000/tests/document/nodes/discussion?edit=1')
     .wait('.sc-visual-editor')
     // Double click to select some test and get inline toolset
     .realClick('.sc-visual-editor [data-id="paragraph-test-2"] [data-id="strong-test-1"]')

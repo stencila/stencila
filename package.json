@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "ace": "ajaxorg/ace#0c66e1ed",
+    "cors": "^2.8.1",
     "emojione": "^2.2.6",
     "font-awesome": "^4.6.3",
     "he": "^1.1.0",

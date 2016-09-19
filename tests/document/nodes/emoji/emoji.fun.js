@@ -7,7 +7,7 @@ test('Emoji behaviour', function (t) {
   Nightmare({
     typeInterval: 5
   })
-    .goto('http://localhost:5000/tests/document/nodes/emoji?edit=1')
+    .goto('http://localhost:9000/tests/document/nodes/emoji?edit=1')
     .wait('.sc-visual-editor')
     .realClick('[data-id="paragraph-5"]')
     .type('[data-id="paragraph-5"]', 'A :rocket: to the moon')

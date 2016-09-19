@@ -1,7 +1,7 @@
 var load = require('../load');
 
 var loadAce = function () {
-  load.script('/get/web/ace/ace.js', function () {
+  load.script('/web/ace/ace.js', function () {
     document.dispatchEvent(new window.Event('ace:loaded'));
   });
 };
