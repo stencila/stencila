@@ -1,5 +1,7 @@
 // Run functional tests (`*.fun.js`)
 
+require('../babelize');
+
 var glob = require('glob');
 var path = require('path');
 var test = require('tape');

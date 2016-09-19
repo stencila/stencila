@@ -1,4 +1,10 @@
 {
+
+	"settings": {
+		"tab_size": 2,
+		"translate_tabs_to_spaces": true
+	},
+
 	"folders":
 	[
 		{
@@ -7,6 +13,12 @@
 				"node_modules",
 				"build",
 				"coverage"
+			]
+		},
+		{
+			"path": "node_modules/substance",
+			"folder_exclude_patterns": [
+				"node_modules"
 			]
 		}
 	]

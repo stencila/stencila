@@ -13,6 +13,7 @@
  *
  *   node server.js --upstream=https://stenci.la
  */
+require('./babelize');
 
 var express = require('express');
 var proxy = require('express-http-proxy');

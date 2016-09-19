@@ -1,5 +1,7 @@
 // Run unit tests (`*.test.js`)
 
+require('../babelize');
+
 var glob = require('glob');
 var path = require('path');
 
