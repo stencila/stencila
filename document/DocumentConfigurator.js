@@ -1,6 +1,9 @@
 'use strict';
 
-import Configurator from 'substance/util/Configurator';
+import Configurator from 'substance/util/Configurator'
+
+import SubscriptPackage from './nodes/subscript/SubscriptPackage'
+import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 
 /**
  * A "configurator" for a document.
@@ -30,8 +33,8 @@ class DocumentConfigurator extends Configurator {
     this.import(require('./nodes/paragraph/ParagraphPackage'))
     this.import(require('./nodes/emphasis/EmphasisPackage'))
     this.import(require('./nodes/strong/StrongPackage'))
-    this.import(require('./nodes/subscript/SubscriptPackage'))
-    this.import(require('./nodes/superscript/SuperscriptPackage'))
+    this.import(SubscriptPackage)
+    this.import(SuperscriptPackage)
     this.import(require('./nodes/code/CodePackage'))
     this.import(require('./nodes/link/LinkPackage'))
     this.import(require('./nodes/math/MathPackage'))
