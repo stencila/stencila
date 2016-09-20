@@ -28,7 +28,7 @@ var glob = require('glob');
 var http = require('http');
 var he = require('he');
 
-var Err = require('substance/util/SubstanceError');
+var Err = require('substance/util/SubstanceError').default;
 
 var opts = {
   'realredis': false
@@ -180,9 +180,6 @@ app.get('/tests/:type/*', function (req, res, next) {
   });
 });
 
-// Examples
-app.use('/examples', express.static(path.join(__dirname, 'examples')));
-
 // Paths that normally get served statically...
 
 function nameToPath (name) {
@@ -196,12 +193,11 @@ function nameToPath (name) {
 // Javascript
 app.get('/web/:name.min.js', function (req, res, next) {
   caching(res, 60);
-  browserify({
+  browserify(nameToPath(req.params.name) + '.js', {
     debug: true
   }).transform(babel, {
     presets: ['es2015']
   })
-    .add(nameToPath(req.params.name) + '.js')
     .bundle()
     .on('error', function (err) {
       console.error(err.message);
