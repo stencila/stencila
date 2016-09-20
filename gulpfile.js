@@ -1,7 +1,6 @@
 // Gulp dependencies
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var notify = require('gulp-notify');
 var rename = require('gulp-rename');
 var gif = require('gulp-if');
 var sourcemaps = require('gulp-sourcemaps');
@@ -19,32 +18,22 @@ var eslint = require('gulp-eslint');
 
 // Types of components
 var types = [
-  'document/document',
-  'stencil/stencil', 'stencil/stencil-strict', 'stencil/stencil-free',
-  'sheet/sheet'
+  'document'
 ];
 
 // Generic error handler creates a notifcation window
-function errorHandler () {
-  var args = Array.prototype.slice.call(arguments);
-  notify.onError({
-    title: 'Compile Error',
-    message: '<%= error.message %>'
-  }).apply(this, args);
+function errorHandler (err) {
+  gutil.log(err);
   this.emit('end'); // Keep gulp from hanging on this task
 }
 
 function style (type, watch) {
-  var src = './' + type + '.scss';
-  var dest = type.split('/')[1] + '.min.css';
-
-  gulp.src(src)
+  gulp.src('./' + type + '/' + type + '.scss')
     .pipe(sass({
-      outputStyle: watch ? 'expanded' : 'compressed',
-      includePaths: require('node-normalize-scss').includePaths
+      outputStyle: watch ? 'expanded' : 'compressed'
     })
     .on('error', errorHandler))
-    .pipe(rename(dest))
+    .pipe(rename(type + '.min.css'))
     .pipe(gulp.dest('./build'));
 }
 
@@ -61,24 +50,19 @@ function styles (watch) {
 //  https://gist.github.com/danharper/3ca2273125f500429945
 // and others
 function script (type, watch) {
-  var src = './' + type + '.js';
-  var dest = type.split('/')[1] + '.min.js';
-
-  var props = {
-    entries: [src],
-    debug: true,
-    transform: [babelify]
-  };
-
-  var bundler = watch ? watchify(browserify(props)) : browserify(props);
+  var bundler = browserify('./' + type + '/' + type + '.js', {
+    debug: true
+  });
 
   function bundle () {
     return bundler
+      .transform(babelify, {
+        presets: ['es2015']
+      })
       .bundle()
       .on('error', errorHandler)
-      .pipe(source(src))
+      .pipe(source('./' + type + '.min.js'))
       .pipe(buffer())
-      .pipe(rename(dest))
       .pipe(sourcemaps.init({
         loadMaps: true
       }))
@@ -87,12 +71,16 @@ function script (type, watch) {
       .pipe(gulp.dest('./build'));
   }
 
-  bundler.on('update', function () {
+  if (watch) {
+    bundler = watchify(bundler);
+    bundler.on('update', function () {
+      gutil.log('Bundling ' + type);
+      bundle();
+    });
     bundle();
-    gutil.log('Bundling scripts');
-  });
-
-  return bundle();
+  } else {
+    return bundle();
+  }
 }
 
 function scripts (watch) {
