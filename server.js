@@ -107,7 +107,7 @@ function page (res, componentType, dataType, data) {
   page += '<link rel="stylesheet" type="text/css" href="/web/' + componentType + '.min.css">';
   page += '<script src="/web/' + componentType + '.min.js"></script>';
   page += '</head><body>';
-  if (dataType === 'html') page += '<main id="main">' + data + '</main>';
+  if (dataType === 'html') page += '<main id="content">' + data + '</main>';
   else {
     // Simulate what is done on hub
     var payload = {

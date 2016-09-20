@@ -41,16 +41,13 @@ function DocumentApp () {
 DocumentApp.Prototype = function () {
   this.getInitialState = function () {
     // Initially, if in edit mode, then also turn on reveal mode
-    // and comment mode (user can turn off these later if they want to)
     // See also `this.toggleEdit`
-    var view = this.props.view;
-    var edit = this.props.edit;
-    var reveal = this.props.reveal || edit;
-    var comment = this.props.comment || edit;
+    var view = this.props.view || 'visual';
+    var edit = (this.props.edit === '1') || this.props.local;
+    var reveal = (this.props.reveal === '1') || edit;
     return {
       view: view,
       reveal: reveal,
-      comment: comment,
       edit: edit,
       documentSession: null,
       message: null
@@ -261,4 +258,4 @@ DocumentApp.Prototype = function () {
 
 Component.extend(DocumentApp);
 
-module.exports = DocumentApp;
+export default DocumentApp;
