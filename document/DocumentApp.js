@@ -12,7 +12,7 @@ var DocumentHTMLImporter = require('./DocumentHTMLImporter');
 var DocumentHTMLExporter = require('./DocumentHTMLExporter');
 
 // Instantiate a configurator
-var DocumentConfigurator = require('./DocumentConfigurator');
+import DocumentConfigurator from './DocumentConfigurator';
 var configurator = new DocumentConfigurator();
 
 // FIXME context is likely to live in `js` package
