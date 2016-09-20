@@ -1,8 +1,8 @@
 'use strict';
 
-var Document = require('substance/model/Document');
+import Document from 'substance/model/Document'
 
-var DocumentConfigurator = require('./DocumentConfigurator');
+import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator();
 
 /**

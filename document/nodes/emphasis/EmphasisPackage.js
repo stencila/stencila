@@ -1,11 +1,11 @@
 'use strict';
 
-var Emphasis = require('substance/packages/emphasis/Emphasis');
-var EmphasisHTMLConverter = require('substance/packages/emphasis/EmphasisHTMLConverter');
-var EmphasisXMLConverter = require('substance/packages/emphasis/EmphasisXMLConverter');
-var AnnotationComponent = require('substance/ui/AnnotationComponent');
-var AnnotationCommand = require('substance/ui/AnnotationCommand');
-var AnnotationTool = require('substance/ui/AnnotationTool');
+import Emphasis from 'substance/packages/emphasis/Emphasis'
+import EmphasisHTMLConverter from 'substance/packages/emphasis/EmphasisHTMLConverter'
+import EmphasisXMLConverter from 'substance/packages/emphasis/EmphasisXMLConverter'
+import AnnotationComponent from 'substance/ui/AnnotationComponent'
+import AnnotationCommand from 'substance/ui/AnnotationCommand'
+import AnnotationTool from 'substance/ui/AnnotationTool'
 var EmphasisMacro = require('./EmphasisMacro');
 
 module.exports = {

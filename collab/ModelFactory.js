@@ -4,7 +4,7 @@ var oo = require('substance/util/oo');
 
 var DocumentModel = require('../document/DocumentModel');
 
-var DocumentConfigurator = require('../document/DocumentConfigurator');
+import DocumentConfigurator from '../document/DocumentConfigurator'
 var documentConfigurator = new DocumentConfigurator();
 
 var DocumentHTMLImporter = require('../document/DocumentHTMLImporter');

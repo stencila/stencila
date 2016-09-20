@@ -1,6 +1,6 @@
 'use strict';
 
-var HeadingComponentBase = require('substance/packages/heading/HeadingComponent');
+import HeadingComponentBase from 'substance/packages/heading/HeadingComponent'
 
 /**
  * A component for `Heading` nodes

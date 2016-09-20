@@ -1,6 +1,6 @@
 'use strict';
 
-var TextBlock = require('substance/model/TextBlock');
+import TextBlock from 'substance/model/TextBlock'
 
 function Title () {
   Title.super.apply(this, arguments);

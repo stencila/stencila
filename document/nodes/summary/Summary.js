@@ -1,6 +1,6 @@
 'use strict';
 
-var TextBlock = require('substance/model/TextBlock');
+import TextBlock from 'substance/model/TextBlock'
 
 function Summary () {
   Summary.super.apply(this, arguments);

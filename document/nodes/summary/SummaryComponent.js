@@ -1,6 +1,6 @@
 'use strict';
 
-var TextBlockComponent = require('substance/ui/TextBlockComponent');
+import TextBlockComponent from 'substance/ui/TextBlockComponent'
 
 function SummaryComponent () {
   SummaryComponent.super.apply(this, arguments);

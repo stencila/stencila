@@ -7,11 +7,11 @@
  *  - provide a label for a plain old heading (ie. not numbered)
  */
 
-var Heading = require('substance/packages/heading/Heading');
+import Heading from 'substance/packages/heading/Heading'
 var HeadingComponent = require('./HeadingComponent');
 var HeadingMarkdownComponent = require('./HeadingMarkdownComponent');
-var HeadingHTMLConverter = require('substance/packages/heading/HeadingHTMLConverter');
-var HeadingXMLConverter = require('substance/packages/heading/HeadingXMLConverter');
+import HeadingHTMLConverter from 'substance/packages/heading/HeadingHTMLConverter'
+import HeadingXMLConverter from 'substance/packages/heading/HeadingXMLConverter'
 var HeadingMacro = require('./HeadingMacro');
 
 module.exports = {

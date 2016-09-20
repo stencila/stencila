@@ -1,23 +1,21 @@
 'use strict';
 
-var Configurator = require('substance/util/Configurator');
+import Configurator from 'substance/util/Configurator'
 
 /**
  * A "configurator" for loading individual packages during testing.
  *
  * @class      TestConfigurator (name)
  */
-function TestConfigurator (packages) {
-  TestConfigurator.super.apply(this, arguments);
+class TestConfigurator extends Configurator {
 
-  packages.forEach(function (packag) {
-    this.import(packag);
-  }.bind(this));
+  constructor (packages) {
+    super()
+    packages.forEach((packag) => {
+      this.import(packag)
+    })
+  }
+
 }
 
-TestConfigurator.Prototype = function () {
-};
-
-Configurator.extend(TestConfigurator);
-
-module.exports = TestConfigurator;
+export default TestConfigurator

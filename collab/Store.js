@@ -1,6 +1,6 @@
 'use strict';
 
-var oo = require('substance/util/oo');
+import oo from 'substance/util/oo'
 
 var redis = require('redis');
 
