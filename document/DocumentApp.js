@@ -21,6 +21,8 @@ var configurator = new DocumentConfigurator();
 var VisualEditor = require('./editors/visual/VisualEditor');
 var CodeEditor = require('./editors/code/CodeEditor');
 
+var code = require('../utilities/code');
+
 /**
  * User application for a Stencila Document
  *
@@ -153,6 +155,8 @@ DocumentApp.Prototype = function () {
         rights: rights
       });
     }
+
+    code.loadAce();
 
     // Define execution contexts for document
     doc.contexts = [

@@ -18,7 +18,7 @@ var eslint = require('gulp-eslint');
 
 // Types of components
 var types = [
-  'document'
+  'document', 'sheet', 'context', 'session'
 ];
 
 // Generic error handler creates a notifcation window

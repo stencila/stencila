@@ -5,7 +5,6 @@ var he = require('he');
 var Raven = require('raven-js');
 
 var location = require('./utilities/location');
-var code = require('./utilities/code');
 
 /**
  * Stencila browser application entry point
@@ -43,21 +42,16 @@ export default function browser (App) {
         }
       }
 
-      var load = function () {
-        // Mount application on page
-        window.app = App.mount(props, document.body);
-        // Load ACE editor
-        code.loadAce();
-      };
+      if (!App) return;
 
       if (props.local) {
-        load();
+        window.app = App.mount(props, document.body);
       } else {
         Raven
           .config('https://6329017160394100b21be92165555d72@app.getsentry.com/37250')
           .install();
         try {
-          load();
+          window.app = App.mount(props, document.body);
         } catch (e) {
           Raven.captureException(e);
         }
