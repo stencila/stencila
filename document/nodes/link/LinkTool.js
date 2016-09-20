@@ -1,6 +1,6 @@
 'use strict';
 
-var AnnotationTool = require('substance/ui/AnnotationTool');
+import AnnotationTool from 'substance/ui/AnnotationTool'
 
 /**
  * A tool for editing `Print` nodes

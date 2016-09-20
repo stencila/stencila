@@ -10,4 +10,4 @@
  * @class      DocumentJSONConverter (name)
  */
 
-module.exports = require('substance/model/JSONConverter');
+module.exports = require('substance/model/JSONConverter').default;

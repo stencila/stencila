@@ -1,7 +1,7 @@
 'use strict';
 
-var IsolatedNodeComponent = require('substance/ui/IsolatedNodeComponent');
-var ContainerEditor = require('substance/ui/ContainerEditor');
+import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
+import ContainerEditor from 'substance/ui/ContainerEditor'
 
 function DiscussionMarkdownComponent () {
   DiscussionMarkdownComponent.super.apply(this, arguments);

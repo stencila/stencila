@@ -1,6 +1,6 @@
-var Component = require('substance/ui/Component');
-var switchTextType = require('substance/model/transform/switchTextType');
-var deleteNode = require('substance/model/transform/deleteNode');
+import Component from 'substance/ui/Component'
+import switchTextType from 'substance/model/transform/switchTextType'
+import deleteNode from 'substance/model/transform/deleteNode'
 
 var BlockTool = require('../../ui/BlockTool');
 var HeadingTool = require('../../nodes/heading/HeadingTool');

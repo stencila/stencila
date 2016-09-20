@@ -1,6 +1,6 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
+import Component from 'substance/ui/Component'
 
 var CodeEditorComponent = require('../../ui/CodeEditorComponent');
 var sanitize = require('./sanitize');

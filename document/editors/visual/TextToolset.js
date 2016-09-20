@@ -1,7 +1,7 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
-var documentHelpers = require('substance/model/documentHelpers');
+import Component from 'substance/ui/Component'
+import documentHelpers from 'substance/model/documentHelpers'
 
 function TextToolset () {
   Component.apply(this, arguments);

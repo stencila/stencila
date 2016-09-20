@@ -1,6 +1,6 @@
 'use strict';
 
-var HTMLImporter = require('substance/model/HTMLImporter');
+import HTMLImporter from 'substance/model/HTMLImporter'
 
 function TestHTMLImporter (DocumentClass, converters) {
   TestHTMLImporter.super.call(this, {

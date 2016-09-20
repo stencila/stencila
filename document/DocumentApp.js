@@ -1,10 +1,10 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
-var DocumentSession = require('substance/model/DocumentSession');
-var CollabClient = require('substance/collab/CollabClient');
-var CollabSession = require('substance/collab/CollabSession');
-var WebSocketConnection = require('substance/collab/WebSocketConnection');
+import Component from 'substance/ui/Component'
+import DocumentSession from 'substance/model/DocumentSession'
+import CollabClient from 'substance/collab/CollabClient'
+import CollabSession from 'substance/collab/CollabSession'
+import WebSocketConnection from 'substance/collab/WebSocketConnection'
 
 var DocumentModel = require('./DocumentModel');
 var DocumentJSONConverter = require('./DocumentJSONConverter');

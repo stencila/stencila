@@ -3,8 +3,8 @@
 var extend = require('lodash/extend');
 var map = require('lodash/map');
 
-var Err = require('substance/util/SubstanceError');
-var uuid = require('substance/util/uuid');
+import Err from 'substance/util/SubstanceError'
+import uuid from 'substance/util/uuid'
 
 var Store = require('./Store');
 

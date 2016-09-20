@@ -1,6 +1,6 @@
 'use strict';
 
-var AnnotationComponent = require('substance/ui/AnnotationComponent');
+import AnnotationComponent from 'substance/ui/AnnotationComponent'
 
 function CodeMarkdownComponent () {
   CodeMarkdownComponent.super.apply(this, arguments);

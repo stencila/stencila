@@ -1,4 +1,4 @@
-var Tool = require('substance/ui/Tool');
+import Tool from 'substance/packages/tools/Tool'
 
 /**
  * A class of `Tool` which instead of running a command

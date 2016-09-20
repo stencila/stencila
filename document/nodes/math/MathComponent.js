@@ -1,6 +1,6 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
+import Component from 'substance/ui/Component'
 
 var math = require('../../../utilities/math');
 

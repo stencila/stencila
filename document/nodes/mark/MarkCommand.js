@@ -1,8 +1,8 @@
 'use strict';
 
-var AnnotationCommand = require('substance/ui/AnnotationCommand');
-var uuid = require('substance/util/uuid');
-var getRelativeBoundingRect = require('substance/util/getRelativeBoundingRect');
+import AnnotationCommand from 'substance/ui/AnnotationCommand'
+import uuid from 'substance/util/uuid'
+import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 
 var moment = require('moment');
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var LinkComponentBase = require('substance/packages/link/LinkComponent');
+import LinkComponentBase from 'substance/packages/link/LinkComponent'
 
 /**
  * A component for `Link` nodes

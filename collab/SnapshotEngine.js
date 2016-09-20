@@ -1,6 +1,6 @@
 'use strict';
 
-var SnapshotEngineBase = require('substance/collab/SnapshotEngine');
+import SnapshotEngineBase from 'substance/collab/SnapshotEngine'
 
 /**
  * Handles computation of snapshots for Stencila component sessions.

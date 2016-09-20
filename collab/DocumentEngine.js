@@ -1,8 +1,8 @@
 'use strict';
 
-var DocumentEngineBase = require('substance/collab/DocumentEngine');
-var ObjectOperation = require('substance/model/data/ObjectOperation');
-var Err = require('substance/util/SubstanceError');
+import DocumentEngineBase from 'substance/collab/DocumentEngine'
+import ObjectOperation from 'substance/model/data/ObjectOperation'
+import Err from 'substance/util/SubstanceError'
 
 function DocumentEngine (config) {
   DocumentEngine.super.apply(this, arguments);

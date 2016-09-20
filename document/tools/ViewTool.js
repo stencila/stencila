@@ -1,6 +1,6 @@
 'use strict';
 
-var Tool = require('substance/ui/Tool');
+import Tool from 'substance/packages/tools/Tool'
 
 /**
  * Tool for changing the view (e.g. visual, code)

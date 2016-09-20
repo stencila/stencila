@@ -1,6 +1,6 @@
 'use strict';
 
-var Container = require('substance/model/Container');
+import Container from 'substance/model/Container'
 
 function Discussion () {
   Discussion.super.apply(this, arguments);

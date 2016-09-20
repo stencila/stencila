@@ -1,6 +1,6 @@
 'use strict';
 
-var HTMLExporter = require('substance/model/HTMLExporter');
+import HTMLExporter from 'substance/model/HTMLExporter'
 
 function TestHTMLExporter (DocumentClass, converters) {
   TestHTMLExporter.super.call(this, {

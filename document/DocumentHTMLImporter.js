@@ -1,6 +1,6 @@
 'use strict';
 
-var HTMLImporter = require('substance/model/HTMLImporter');
+import HTMLImporter from 'substance/model/HTMLImporter'
 
 var DocumentModel = require('./DocumentModel');
 var DefaultHTMLConverter = require('./nodes/default/DefaultHTMLConverter');

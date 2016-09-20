@@ -1,6 +1,6 @@
 'use strict';
 
-var InlineNode = require('substance/model/InlineNode');
+import InlineNode from 'substance/model/InlineNode'
 
 function Math () {
   Math.super.apply(this, arguments);

@@ -1,12 +1,12 @@
 'use strict';
 
-var Code = require('substance/packages/code/Code');
-var CodeHTMLConverter = require('substance/packages/code/CodeHTMLConverter');
-var CodeXMLConverter = require('substance/packages/code/CodeXMLConverter');
-var AnnotationComponent = require('substance/ui/AnnotationComponent');
+import Code from 'substance/packages/code/Code'
+import CodeHTMLConverter from 'substance/packages/code/CodeHTMLConverter'
+import CodeXMLConverter from 'substance/packages/code/CodeXMLConverter'
+import AnnotationComponent from 'substance/ui/AnnotationComponent'
 var CodeMarkdownComponent = require('./CodeMarkdownComponent');
-var AnnotationCommand = require('substance/ui/AnnotationCommand');
-var AnnotationTool = require('substance/ui/AnnotationTool');
+import AnnotationCommand from 'substance/ui/AnnotationCommand'
+import AnnotationTool from 'substance/ui/AnnotationTool'
 var CodeMacro = require('./CodeMacro');
 
 module.exports = {

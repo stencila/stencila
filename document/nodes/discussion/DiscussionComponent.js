@@ -1,9 +1,9 @@
 'use strict';
 
-var IsolatedNodeComponent = require('substance/ui/IsolatedNodeComponent');
-var ContainerEditor = require('substance/ui/ContainerEditor');
-var deleteNode = require('substance/model/transform/deleteNode');
-var each = require('substance/node_modules/lodash/each');
+import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
+import ContainerEditor from 'substance/ui/ContainerEditor'
+import deleteNode from 'substance/model/transform/deleteNode'
+import each from 'substance/node_modules/lodash/each'
 
 var moment = require('moment');
 

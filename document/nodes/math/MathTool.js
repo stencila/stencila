@@ -1,7 +1,7 @@
 'use strict';
 
-var Tool = require('substance/ui/Tool');
-var map = require('substance/node_modules/lodash/map');
+import Tool from 'substance/packages/tools/Tool'
+import map from 'substance/node_modules/lodash/map'
 
 /**
  * A tool for editing `Math` nodes

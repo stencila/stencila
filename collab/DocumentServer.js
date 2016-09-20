@@ -1,6 +1,6 @@
 'use strict';
 
-var DocumentServerBase = require('substance/collab/DocumentServer');
+import DocumentServerBase from 'substance/collab/DocumentServer'
 
 /**
  * A custom `DocumentServer` to match our custom `DocumentEngine`.

@@ -1,6 +1,6 @@
 'use strict';
 
-var PropertyAnnotation = require('substance/model/PropertyAnnotation');
+import PropertyAnnotation from 'substance/model/PropertyAnnotation'
 
 /**
  * <span data-mark="discuss-1">...</span>

@@ -1,6 +1,6 @@
 var test = require('tape');
 
-var TestConfigurator = require('../../../helpers/TestConfigurator');
+import TestConfigurator from '../../../helpers/TestConfigurator'
 var TestDocumentHTMLConverter = require('../../../helpers/TestDocumentHTMLConverter');
 
 var config = new TestConfigurator([

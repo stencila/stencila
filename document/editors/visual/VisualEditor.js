@@ -1,8 +1,8 @@
 'use strict';
 
-var AbstractEditor = require('substance/ui/AbstractEditor');
-var ScrollPane = require('substance/ui/ScrollPane');
-var ContainerEditor = require('substance/ui/ContainerEditor');
+import AbstractEditor from 'substance/ui/AbstractEditor'
+import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
+import ContainerEditor from 'substance/ui/ContainerEditor'
 
 var DocumentToolset = require('../../DocumentToolset');
 var Overlayer = require('./Overlayer');

@@ -1,6 +1,6 @@
 'use strict';
 
-var uuid = require('substance/util/uuid');
+import uuid from 'substance/util/uuid'
 
 var sanitize = require('./sanitize');
 

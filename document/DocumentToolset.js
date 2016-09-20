@@ -1,7 +1,7 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
-var Tool = require('substance/ui/Tool');
+import Component from 'substance/ui/Component'
+import Tool from 'substance/packages/tools/Tool'
 
 var ViewTool = require('./tools/ViewTool');
 var CopyTool = require('./tools/CopyTool');

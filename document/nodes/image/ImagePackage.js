@@ -1,10 +1,10 @@
 'use strict';
 
-var Image = require('substance/packages/image/Image');
-var ImageComponent = require('substance/packages/image/ImageComponent');
+import Image from 'substance/packages/image/Image'
+import ImageComponent from 'substance/packages/image/ImageComponent'
 var ImageMarkdownComponent = require('./ImageMarkdownComponent');
-var ImageHTMLConverter = require('substance/packages/image/ImageHTMLConverter');
-var ImageXMLConverter = require('substance/packages/image/ImageXMLConverter');
+import ImageHTMLConverter from 'substance/packages/image/ImageHTMLConverter'
+import ImageXMLConverter from 'substance/packages/image/ImageXMLConverter'
 var ImageMacro = require('./ImageMacro');
 var ImageTool = require('./ImageTool');
 

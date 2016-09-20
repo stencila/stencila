@@ -1,6 +1,6 @@
 'use strict';
 
-var Err = require('substance/util/SubstanceError');
+import Err from 'substance/util/SubstanceError'
 
 var Store = require('./Store');
 

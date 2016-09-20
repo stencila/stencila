@@ -1,6 +1,6 @@
 'use strict';
 
-var MacroManagerBase = require('substance/ui/MacroManager');
+import MacroManagerBase from 'substance/ui/MacroManager'
 
 /**
  * A custom `MacroManager` which excludes text in existing annotations

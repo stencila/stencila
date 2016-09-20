@@ -1,6 +1,6 @@
 'use strict';
 
-var AnnotationCommand = require('substance/ui/AnnotationCommand');
+import AnnotationCommand from 'substance/ui/AnnotationCommand'
 
 /**
  * A link annotation command used instead of

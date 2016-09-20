@@ -1,6 +1,6 @@
 'use strict';
 
-var map = require('substance/node_modules/lodash/map');
+import map from 'substance/node_modules/lodash/map'
 
 var BlockTool = require('../../ui/BlockTool');
 

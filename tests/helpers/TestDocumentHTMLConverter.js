@@ -1,4 +1,4 @@
-var oo = require('substance/util/oo');
+import oo from 'substance/util/oo'
 
 var DocumentModel = require('../../document/DocumentModel');
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var IsolatedNodeComponent = require('substance/ui/IsolatedNodeComponent');
+import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 
 var CommentComponent = require('./CommentComponent');
 

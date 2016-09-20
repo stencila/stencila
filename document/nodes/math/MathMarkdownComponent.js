@@ -1,7 +1,7 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
-var TextPropertyEditor = require('substance/ui/TextPropertyEditor');
+import Component from 'substance/ui/Component'
+import TextPropertyEditor from 'substance/ui/TextPropertyEditor'
 
 function MathCodeComponent () {
   MathCodeComponent.super.apply(this, arguments);

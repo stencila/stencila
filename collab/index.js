@@ -1,6 +1,6 @@
 var ws = require('ws');
 
-var CollabServer = require('substance/collab/CollabServer');
+import CollabServer from 'substance/collab/CollabServer'
 
 var DocumentStore = require('./DocumentStore');
 var ChangeStore = require('./ChangeStore');

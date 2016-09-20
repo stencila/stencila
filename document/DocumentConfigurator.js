@@ -30,7 +30,6 @@ class DocumentConfigurator extends Configurator {
     this.import(require('./nodes/paragraph/ParagraphPackage'))
     this.import(require('./nodes/emphasis/EmphasisPackage'))
     this.import(require('./nodes/strong/StrongPackage'))
-    return ;
     this.import(require('./nodes/subscript/SubscriptPackage'))
     this.import(require('./nodes/superscript/SuperscriptPackage'))
     this.import(require('./nodes/code/CodePackage'))
@@ -64,7 +63,7 @@ class DocumentConfigurator extends Configurator {
     this.addIcon('codeblock', { 'fontawesome': 'fa-code' })
 
     // CHECK Is this needed?
-    this.import(require('substance/packages/base/BasePackage'))
+    this.import(require('substance/packages/base/BasePackage').default)
   }
 
   /**

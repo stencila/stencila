@@ -1,1 +1,1 @@
-module.exports = require('substance/packages/subscript/SubscriptPackage');
+module.exports = require('substance/packages/subscript/SubscriptPackage').default;

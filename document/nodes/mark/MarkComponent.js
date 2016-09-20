@@ -1,7 +1,7 @@
 'use strict';
 
-var AnnotationComponent = require('substance/ui/AnnotationComponent');
-var getRelativeBoundingRect = require('substance/util/getRelativeBoundingRect');
+import AnnotationComponent from 'substance/ui/AnnotationComponent'
+import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 
 function MarkComponent () {
   MarkComponent.super.apply(this, arguments);

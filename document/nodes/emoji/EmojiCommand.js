@@ -1,7 +1,7 @@
 'use strict';
 
-var InlineNodeCommand = require('substance/ui/InlineNodeCommand');
-var documentHelpers = require('substance/model/documentHelpers');
+import InlineNodeCommand from 'substance/ui/InlineNodeCommand'
+import documentHelpers from 'substance/model/documentHelpers'
 
 function EmojiCommand () {
   EmojiCommand.super.call(this, {

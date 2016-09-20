@@ -1,6 +1,6 @@
 'use strict';
 
-var Component = require('substance/ui/Component');
+import Component from 'substance/ui/Component'
 
 var emojione = require('emojione');
 // Consistent with making everying served locally (for offline use etc)...

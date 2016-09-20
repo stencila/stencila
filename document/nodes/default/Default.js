@@ -1,6 +1,6 @@
 'use strict';
 
-var BlockNode = require('substance/model/BlockNode');
+import BlockNode from 'substance/model/BlockNode'
 
 function Default () {
   Default.super.apply(this, arguments);

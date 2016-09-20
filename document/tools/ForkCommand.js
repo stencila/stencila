@@ -1,6 +1,6 @@
 'use strict';
 
-var Command = require('substance/ui/Command');
+import Command from 'substance/ui/Command'
 
 function ForkCommand () {
   ForkCommand.super.apply(this, arguments);

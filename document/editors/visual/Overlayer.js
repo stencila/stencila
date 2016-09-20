@@ -1,7 +1,7 @@
 'use strict';
 
-var Overlay = require('substance/ui/Overlay');
-var getRelativeBoundingRect = require('substance/util/getRelativeBoundingRect');
+import Overlay from 'substance/ui/OverlayContainer'
+import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 
 var TextToolset = require('./TextToolset');
 var BlockToolset = require('./BlockToolset');
