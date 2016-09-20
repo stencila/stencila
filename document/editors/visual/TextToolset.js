@@ -23,11 +23,11 @@ TextToolset.Prototype = function () {
       .addClass('sc-toolset sc-text-toolset');
 
     var enabled = false;
-    var toolRegistry = this.context.toolRegistry;
+    var tools = this.context.tools.get('default');
     var commandStates = this.context.commandManager.getCommandStates();
 
     this.tools.forEach(function (name) {
-      var tool = toolRegistry.get(name);
+      var tool = tools.get(name);
       var session = this.context.documentSession;
       var sel = session.getSelection();
 
@@ -40,6 +40,7 @@ TextToolset.Prototype = function () {
       }
       // Add command name to `props` (a necessary hack at time of writing for icons to render in Substance tools)
       props.name = name;
+      props.icon = name;
       // Add the first selected node of this type to `props`
       props.node = null;
       if (props.active) {
