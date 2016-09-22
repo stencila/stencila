@@ -9,7 +9,7 @@ import AnnotationTool from 'substance/ui/AnnotationTool'
 
 export default {
   name: 'subscript',
-  configure: function(config) {
+  configure: function (config) {
     config.addNode(Subscript);
     config.addConverter('html', SubscriptHTMLConverter);
     config.addConverter('xml', SubscriptXMLConverter);
