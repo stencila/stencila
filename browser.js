@@ -25,6 +25,8 @@ export default function browser (App) {
     extend(props, params)
     // Check if `?static=1`
     if (params.static !== '1') {
+      if (!App) return;
+
       // Get component as HTML content or a JSON snapshot data
       // for rerendering by the `App` and then hide content element (if any)
       var content = document.getElementById('content');
@@ -41,8 +43,6 @@ export default function browser (App) {
           throw Error('Neither #content or #data is available to initialize the component');
         }
       }
-
-      if (!App) return;
 
       if (props.local) {
         window.app = App.mount(props, document.body);
