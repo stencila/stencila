@@ -79,6 +79,7 @@
     "moment": "^2.14.1",
     "raven-js": "^3.7.0",
     "sanitize-html": "^1.13.0",
+    "semantic-ui-css": "^2.2.4",
     "substance": "stencila/substance#develop",
     "ws": "^1.1.1"
   }

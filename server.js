@@ -230,6 +230,9 @@ app.get('/web/:name.min.css.map', function (req, res) {
   sassify(req.params.name, 'map', res);
 });
 
+// Semantic UI
+app.use('/web/themes', express.static(path.join(__dirname, 'node_modules/semantic-ui-css/themes')));
+
 // Images
 app.use('/web/images', express.static(path.join(__dirname, 'images')));
 
