@@ -13,7 +13,7 @@
     "test": "tape tests | tap-spec",
     "test-unit": "tape tests/unit.js | tap-spec",
     "test-fun": "tape tests/functional.js | tap-spec",
-    "cover": "istanbul cover tests"
+    "cover": "babel-node ./node_modules/.bin/istanbul cover tests"
   },
   "repository": {
     "type": "git",
@@ -59,7 +59,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
-    "istanbul": "^0.4.5",
+    "istanbul": "^1.1.0-alpha.1",
     "mockery": "^1.7.0",
     "nightmare": "^2.7.0",
     "nightmare-real-mouse": "^1.0.0",
