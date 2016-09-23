@@ -1,18 +1,12 @@
 import TextBlockComponent from 'substance/ui/TextBlockComponent'
 
-function SummaryComponent () {
-  SummaryComponent.super.apply(this, arguments)
-}
+class SummaryComponent extends TextBlockComponent {
 
-SummaryComponent.Prototype = function () {
-  var _super = SummaryComponent.super.prototype
-
-  this.render = function ($$) {
-    return _super.render.call(this, $$)
-                        .addClass('sc-summary')
+  render ($$) {
+    return super.render($$).addClass('sc-summary')
   }
+
 }
 
-TextBlockComponent.extend(SummaryComponent)
 
 export default SummaryComponent
