@@ -6,14 +6,9 @@ import test from 'tape'
 
 // Don't run in browser
 if (typeof window === 'undefined') {
-  import mockery from 'mockery'
-  mockery.registerMock('redis', require('fakeredis'));
-  mockery.enable({
-    warnOnReplace: false,
-    warnOnUnregistered: false
-  });
+  require('../helpers/mockery')
 
-  import SnapshotStore from '../../collab/SnapshotStore'
+  var SnapshotStore = require('../../collab/SnapshotStore')
   var store = new SnapshotStore();
 
   test('SnapshotStore.saveSnapshot Store a snapshot', function (t) {

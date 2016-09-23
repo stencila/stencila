@@ -6,14 +6,9 @@ import test from 'tape'
 
 // Don't run in browser
 if (typeof window === 'undefined') {
-  import mockery from 'mockery'
-  mockery.registerMock('redis', require('fakeredis'));
-  mockery.enable({
-    warnOnReplace: false,
-    warnOnUnregistered: false
-  });
+  require('../helpers/mockery')
 
-  import ChangeStore from '../../collab/ChangeStore'
+  var ChangeStore = require('../../collab/ChangeStore')
   var store = new ChangeStore();
 
   test('ChangeStore.addChange', function (t) {
