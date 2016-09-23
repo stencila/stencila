@@ -1,9 +1,11 @@
 // Run unit tests (`*.test.js`)
 
-require('../babelize')
+// Require so THIS file does not need a babelize before it
+// (allows tests to be run without babel-node)
+const glob = require('glob')
+const path = require('path')
 
-import glob from 'glob'
-import path from 'path'
+require('../babelize')
 
 glob.sync(path.join(__dirname, '/**/*.test.js')).forEach(function (pathname) {
   require(pathname)

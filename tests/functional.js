@@ -1,11 +1,12 @@
 // Run functional tests (`*.fun.js`)
 
+// Require so THIS file does not need a babelize before it
+// (allows tests to be run without babel-node)
+const glob = require('glob')
+const path = require('path')
+const test = require('tape')
+
 require('../babelize')
-
-import glob from 'glob'
-import path from 'path'
-import test from 'tape'
-
 require('../server')
 
 // Require all functional tests
