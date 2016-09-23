@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AnnotationTool from 'substance/ui/AnnotationTool'
 
@@ -15,14 +15,14 @@ import AnnotationTool from 'substance/ui/AnnotationTool'
  * @class      LinkTool (name)
  */
 function LinkTool () {
-  LinkTool.super.apply(this, arguments);
+  LinkTool.super.apply(this, arguments)
 }
 
 LinkTool.Prototype = function () {
-  var _super = LinkTool.super.prototype;
+  var _super = LinkTool.super.prototype
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .addClass('sc-link-tool')
       .append(
@@ -39,10 +39,10 @@ LinkTool.Prototype = function () {
               })
               .val(node ? node.url : null)
               .on('change', function (event) {
-                var session = this.context.documentSession;
+                var session = this.context.documentSession
                 session.transaction(function (tx) {
-                  tx.set([node.id, 'url'], event.target.value);
-                });
+                  tx.set([node.id, 'url'], event.target.value)
+                })
               }),
             $$('a')
               .ref('open')
@@ -60,10 +60,10 @@ LinkTool.Prototype = function () {
                   )
               )
           )
-      );
-  };
-};
+      )
+  }
+}
 
-AnnotationTool.extend(LinkTool);
+AnnotationTool.extend(LinkTool)
 
-module.exports = LinkTool;
+module.exports = LinkTool

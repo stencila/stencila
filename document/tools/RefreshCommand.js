@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 import Command from 'substance/ui/Command'
 
 function RefreshCommand () {
-  RefreshCommand.super.apply(this, arguments);
+  RefreshCommand.super.apply(this, arguments)
 }
 
 RefreshCommand.Prototype = function () {
@@ -11,31 +11,31 @@ RefreshCommand.Prototype = function () {
     return {
       disabled: false,
       active: false
-    };
-  };
+    }
+  }
 
   this.execute = function (props, context) {
-    var doc = context.doc;
-    var annotations = doc.getIndex('annotations');
+    var doc = context.doc
+    var annotations = doc.getIndex('annotations')
     var refresh = function (node) {
       if (node.refresh) {
-        node.refresh();
+        node.refresh()
       }
       if (node.hasChildren()) {
         node.getChildren().forEach(function (child) {
-          refresh(child);
-        });
+          refresh(child)
+        })
       } else if (node.isText()) {
         annotations.get(node.getTextPath()).forEach(function (child) {
-          refresh(child);
-        });
+          refresh(child)
+        })
       }
-    };
-    refresh(doc.get('content'));
-    return true;
-  };
-};
+    }
+    refresh(doc.get('content'))
+    return true
+  }
+}
 
-Command.extend(RefreshCommand);
+Command.extend(RefreshCommand)
 
-module.exports = RefreshCommand;
+module.exports = RefreshCommand

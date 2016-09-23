@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Macro from './Macro'
 import deleteNode from 'substance/model/transform/deleteNode'
@@ -7,38 +7,38 @@ function BlockNodeMacro () {
 };
 
 BlockNodeMacro.Prototype = function () {
-  this.appliesTo = ['paragraph'];
+  this.appliesTo = ['paragraph']
 
   this.performAction = function (match, props, context) {
-    var surface = context.surfaceManager.getSurface(props.selection.surfaceId);
+    var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
     surface.transaction(function (tx, args) {
       // Create the new node
       var newNode = tx.create(
         this.createNodeData(match)
-      );
+      )
 
       // Hide the old node, show the new node
-      var container = tx.get(args.containerId);
-      var pos = container.getPosition(props.node.id);
+      var container = tx.get(args.containerId)
+      var pos = container.getPosition(props.node.id)
       if (pos >= 0) {
-        container.hide(props.node.id);
-        container.show(newNode.id, pos);
+        container.hide(props.node.id)
+        container.show(newNode.id, pos)
       }
 
       // Delete the old node
-      deleteNode(tx, { nodeId: props.node.id });
+      deleteNode(tx, { nodeId: props.node.id })
 
       // Set the selection
-      var path;
-      if (newNode.isText()) path = newNode.getTextPath();
-      else path = [newNode.id];
-      args.selection = tx.createSelection(path, 0);
+      var path
+      if (newNode.isText()) path = newNode.getTextPath()
+      else path = [newNode.id]
+      args.selection = tx.createSelection(path, 0)
 
-      return args;
-    }.bind(this));
-  };
-};
+      return args
+    }.bind(this))
+  }
+}
 
-Macro.extend(BlockNodeMacro);
+Macro.extend(BlockNodeMacro)
 
-module.exports = BlockNodeMacro;
+module.exports = BlockNodeMacro

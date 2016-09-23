@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import HTMLExporter from 'substance/model/HTMLExporter'
 
@@ -7,17 +7,17 @@ function TestHTMLExporter (DocumentClass, converters) {
     DocumentClass: DocumentClass,
     schema: DocumentClass.schema,
     converters: converters
-  });
+  })
 }
 
 TestHTMLExporter.Prototype = function () {
   this.exportDocument = function (doc) {
-    var bodyNodes = this.convertContainer(doc.get('content'));
-    var wrapper = this.$$('div').append(bodyNodes);
-    return wrapper.html();
-  };
-};
+    var bodyNodes = this.convertContainer(doc.get('content'))
+    var wrapper = this.$$('div').append(bodyNodes)
+    return wrapper.html()
+  }
+}
 
-HTMLExporter.extend(TestHTMLExporter);
+HTMLExporter.extend(TestHTMLExporter)
 
-module.exports = TestHTMLExporter;
+module.exports = TestHTMLExporter

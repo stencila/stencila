@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Tool from 'substance/packages/tools/Tool'
 
@@ -9,16 +9,16 @@ import Tool from 'substance/packages/tools/Tool'
  * @class      CommentTool (name)
  */
 function CommentTool () {
-  CommentTool.super.apply(this, arguments);
+  CommentTool.super.apply(this, arguments)
 }
 
 CommentTool.Prototype = function () {
   this.onClick = function () {
-    this.send('comment-toggle');
-  };
-};
+    this.send('comment-toggle')
+  }
+}
 
-Tool.extend(CommentTool);
+Tool.extend(CommentTool)
 
-module.exports = CommentTool;
+module.exports = CommentTool
 

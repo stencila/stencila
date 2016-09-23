@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import HTMLExporter from 'substance/model/HTMLExporter'
 
@@ -10,7 +10,7 @@ import HTMLExporter from 'substance/model/HTMLExporter'
 function DocumentHTMLExporter (options) {
   DocumentHTMLExporter.super.call(this, {
     converters: options.configurator.getConverterRegistry().get('html')
-  });
+  })
 }
 
 DocumentHTMLExporter.Prototype = function () {
@@ -18,12 +18,12 @@ DocumentHTMLExporter.Prototype = function () {
    * Export a Stencila Document to HTML
    */
   this.exportDocument = function (doc) {
-    var bodyNodes = this.convertContainer(doc.get('content'));
-    var wrapper = this.$$('div').append(bodyNodes);
-    return wrapper.html();
-  };
-};
+    var bodyNodes = this.convertContainer(doc.get('content'))
+    var wrapper = this.$$('div').append(bodyNodes)
+    return wrapper.html()
+  }
+}
 
-HTMLExporter.extend(DocumentHTMLExporter);
+HTMLExporter.extend(DocumentHTMLExporter)
 
-module.exports = DocumentHTMLExporter;
+module.exports = DocumentHTMLExporter

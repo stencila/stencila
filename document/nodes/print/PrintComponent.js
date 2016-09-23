@@ -1,28 +1,28 @@
-'use strict';
+'use strict'
 
 import Component from 'substance/ui/Component'
 
 function PrintComponent () {
-  PrintComponent.super.apply(this, arguments);
+  PrintComponent.super.apply(this, arguments)
 }
 
 PrintComponent.Prototype = function () {
   this.didMount = function () {
-    this.props.node.on('content:changed', this.rerender, this);
-  };
+    this.props.node.on('content:changed', this.rerender, this)
+  }
 
   this.dispose = function () {
-    this.props.node.off(this);
-  };
+    this.props.node.off(this)
+  }
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return $$('span')
       .addClass('sc-print' + (node.error ? ' sm-error' : ''))
-      .append(node.content.length ? node.content : ' ');
-  };
-};
+      .append(node.content.length ? node.content : ' ')
+  }
+}
 
-Component.extend(PrintComponent);
+Component.extend(PrintComponent)
 
-module.exports = PrintComponent;
+module.exports = PrintComponent

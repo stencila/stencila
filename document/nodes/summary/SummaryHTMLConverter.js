@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
 
@@ -6,15 +6,15 @@ module.exports = {
   tagName: 'div',
 
   matchElement: function (el) {
-    return el.is('#summary');
+    return el.is('#summary')
   },
 
   import: function (el, node, converter) {
-    node.content = converter.annotatedText(el, [node.id, 'content']);
+    node.content = converter.annotatedText(el, [node.id, 'content'])
   },
 
   export: function (node, el, converter) {
     el.attr('id', 'summary')
-      .append(converter.annotatedText([node.id, 'content']));
+      .append(converter.annotatedText([node.id, 'content']))
   }
-};
+}

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
@@ -6,16 +6,16 @@ function PrintMacro () {
 };
 
 PrintMacro.Prototype = function () {
-  this.regex = /((\{print\s+)|(\$\{))(.+)\}/;
+  this.regex = /((\{print\s+)|(\$\{))(.+)\}/
 
   this.createNodeData = function (match) {
     return {
       type: 'print',
       source: match[4].trim()
-    };
-  };
-};
+    }
+  }
+}
 
-InlineNodeMacro.extend(PrintMacro);
+InlineNodeMacro.extend(PrintMacro)
 
-module.exports = PrintMacro;
+module.exports = PrintMacro

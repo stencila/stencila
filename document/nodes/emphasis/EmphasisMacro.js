@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AnnotationMacro from '../../ui/AnnotationMacro'
 
@@ -15,18 +15,18 @@ function EmphasisMacro () {
 };
 
 EmphasisMacro.Prototype = function () {
-  this.appliesTo = [];
+  this.appliesTo = []
 
-  this.regex = /_([^_]+)_/;
+  this.regex = /_([^_]+)_/
 
   this.createNodeData = function (match) {
     return {
       type: 'emphasis',
       text: match[1]
-    };
-  };
-};
+    }
+  }
+}
 
-AnnotationMacro.extend(EmphasisMacro);
+AnnotationMacro.extend(EmphasisMacro)
 
-module.exports = EmphasisMacro;
+module.exports = EmphasisMacro

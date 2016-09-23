@@ -1,6 +1,6 @@
 import test from 'tape'
 import Nightmare from 'nightmare'
-require('nightmare-real-mouse')(Nightmare);
+require('nightmare-real-mouse')(Nightmare)
 
 test('Add to an existing discussion', function (t) {
   Nightmare({
@@ -19,18 +19,18 @@ test('Add to an existing discussion', function (t) {
     .type('.sc-visual-editor [data-id="discussion-test-1"] .sc-comment:last-child .sc-paragraph', 'One, one, one')
     // Get the typed text
     .evaluate(function () {
-      return document.querySelector('.sc-visual-editor [data-id="discussion-test-1"] .sc-comment:last-child .sc-paragraph').innerText.trim();
+      return document.querySelector('.sc-visual-editor [data-id="discussion-test-1"] .sc-comment:last-child .sc-paragraph').innerText.trim()
     })
     .end()
     .then(function (result) {
-      t.equal(result, 'One, one, one');
-      t.end();
+      t.equal(result, 'One, one, one')
+      t.end()
     })
     .catch(function (error) {
-      t.notOk(error);
-      t.end();
-    });
-});
+      t.notOk(error)
+      t.end()
+    })
+})
 
 test('Create a new discussion', function (t) {
   Nightmare({
@@ -52,15 +52,15 @@ test('Create a new discussion', function (t) {
     .type('.sc-visual-editor .sc-discussion:last-child .sc-paragraph', 'Testing, 1, 2, 3')
     // Get the typed text
     .evaluate(function () {
-      return document.querySelector('.sc-visual-editor .sc-discussion:last-child .sc-paragraph').innerText.trim();
+      return document.querySelector('.sc-visual-editor .sc-discussion:last-child .sc-paragraph').innerText.trim()
     })
     .end()
     .then(function (result) {
-      t.equal(result, 'Testing, 1, 2, 3');
-      t.end();
+      t.equal(result, 'Testing, 1, 2, 3')
+      t.end()
     })
     .catch(function (error) {
-      t.notOk(error);
-      t.end();
-    });
-});
+      t.notOk(error)
+      t.end()
+    })
+})

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Component from 'substance/ui/Component'
 import Tool from 'substance/packages/tools/Tool'
@@ -15,48 +15,48 @@ import ForkTool from './tools/ForkTool'
 import SettingsTool from './tools/SettingsTool'
 
 function SizerTool () {
-  SizerTool.super.apply(this, arguments);
+  SizerTool.super.apply(this, arguments)
 }
 
 SizerTool.Prototype = function () {
-  var _super = SizerTool.super.prototype;
+  var _super = SizerTool.super.prototype
 
   this.getClassNames = function () {
-    return _super.getClassNames.call(this) + ' se-sizer-tool';
-  };
+    return _super.getClassNames.call(this) + ' se-sizer-tool'
+  }
 
   this.renderIcon = function ($$) {
     return $$('i')
       .addClass(
         'fa fa-' + (this.props.maximized ? 'chevron-up' : 'circle')
-      );
-  };
+      )
+  }
 
   this.getTitle = function () {
-    return (this.props.maximized ? 'Minimize' : 'Maximize');
-  };
+    return (this.props.maximized ? 'Minimize' : 'Maximize')
+  }
 
   this.onClick = function () {
-    this.send('toggle-maximized');
-  };
-};
+    this.send('toggle-maximized')
+  }
+}
 
-Tool.extend(SizerTool);
+Tool.extend(SizerTool)
 
 function DocumentToolset () {
-  DocumentToolset.super.apply(this, arguments);
+  DocumentToolset.super.apply(this, arguments)
 
   this.handleActions({
     'toggle-maximized': this.toggleMaximized
-  });
+  })
 }
 
 DocumentToolset.Prototype = function () {
   this.getInitialState = function () {
     return {
       maximized: true
-    };
-  };
+    }
+  }
 
   this.render = function ($$) {
     var el = $$('div')
@@ -96,7 +96,7 @@ DocumentToolset.Prototype = function () {
           name: 'edit',
           active: this.props.edit
         }).ref('editTool')
-      );
+      )
 
     var editGroup = $$('div')
       .addClass('se-edit-group')
@@ -106,21 +106,21 @@ DocumentToolset.Prototype = function () {
         $$(Tool, this._getCommandState('redo')),
         $$(SaveTool, this._getCommandState('save')),
         $$(CommitTool, this._getCommandState('commit'))
-      );
+      )
     if (this.props.edit) {
-      editGroup.addClass('sm-enabled');
+      editGroup.addClass('sm-enabled')
     }
-    el.append(editGroup);
+    el.append(editGroup)
 
     el.append(
       $$(ForkTool, this._getCommandState('fork'))
         .ref('forkTool'),
       $$(SettingsTool, this._getCommandState('settings'))
         .ref('settingsTool')
-    );
+    )
 
-    return el;
-  };
+    return el
+  }
 
   /**
    * Convieience method to deal with necessary hack
@@ -128,11 +128,11 @@ DocumentToolset.Prototype = function () {
    * icons
    */
   this._getCommandState = function (name) {
-    var state = this.context.commandManager.getCommandStates()[name];
-    if (!state) throw new Error('Command {' + name + '} not found');
-    state.name = name; // A necessary hack at time of writing
-    return state;
-  };
+    var state = this.context.commandManager.getCommandStates()[name]
+    if (!state) throw new Error('Command {' + name + '} not found')
+    state.name = name // A necessary hack at time of writing
+    return state
+  }
 
   /**
    * Toggle the `maximized` state
@@ -140,10 +140,10 @@ DocumentToolset.Prototype = function () {
   this.toggleMaximized = function () {
     this.extendState({
       maximized: !this.state.maximized
-    });
-  };
-};
+    })
+  }
+}
 
-Component.extend(DocumentToolset);
+Component.extend(DocumentToolset)
 
-module.exports = DocumentToolset;
+module.exports = DocumentToolset

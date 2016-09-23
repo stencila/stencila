@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AnnotationMacro from '../../ui/AnnotationMacro'
 
@@ -15,19 +15,19 @@ function LinkMacro () {
 };
 
 LinkMacro.Prototype = function () {
-  this.appliesTo = [];
+  this.appliesTo = []
 
-  this.regex = /\[([^\]]+)\]\(([^\)]+)\)/;
+  this.regex = /\[([^\]]+)\]\(([^\)]+)\)/
 
   this.createNodeData = function (match) {
     return {
       type: 'link',
       text: match[1],
       url: match[2]
-    };
-  };
-};
+    }
+  }
+}
 
-AnnotationMacro.extend(LinkMacro);
+AnnotationMacro.extend(LinkMacro)
 
-module.exports = LinkMacro;
+module.exports = LinkMacro

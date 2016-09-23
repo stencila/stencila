@@ -1,3 +1,3 @@
 // Run all tests
-require('./unit');
-require('./functional');
+require('./unit')
+require('./functional')

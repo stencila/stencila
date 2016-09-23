@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./CommentHTMLConverter');
+module.exports = require('./CommentHTMLConverter')

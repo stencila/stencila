@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
@@ -6,29 +6,29 @@ import ContainerEditor from 'substance/ui/ContainerEditor'
 import moment from 'moment'
 
 function CommentComponent () {
-  CommentComponent.super.apply(this, arguments);
+  CommentComponent.super.apply(this, arguments)
 
-  this.ContentClass = ContainerEditor;
+  this.ContentClass = ContainerEditor
 }
 
 CommentComponent.Prototype = function () {
-  var _super = CommentComponent.super.prototype;
+  var _super = CommentComponent.super.prototype
 
   /**
    * Method override for custom class names
    */
   this.getClassNames = function () {
-    return 'sc-comment';
-  };
+    return 'sc-comment'
+  }
 
   /**
    * Method override to disable the comment unless the current user
    * is the original author of the comment
    */
   this.isDisabled = function () {
-    var user = this.context.documentSession.config.user;
-    return this.props.node.who !== ('@' + user);
-  };
+    var user = this.context.documentSession.config.user
+    return this.props.node.who !== ('@' + user)
+  }
 
   /**
    * Method override so no blocker is rendered over this
@@ -36,14 +36,14 @@ CommentComponent.Prototype = function () {
    */
   this.shouldRenderBlocker = function () {
     // CHECK Is this method needed?
-    return false;
-  };
+    return false
+  }
 
   /**
    * Method ovveride to add additional elements
    */
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .insertAt(0,
         $$('div')
@@ -60,10 +60,10 @@ CommentComponent.Prototype = function () {
               .addClass('se-when')
               .text(moment(node.when).fromNow())
           )
-      );
-  };
-};
+      )
+  }
+}
 
-IsolatedNodeComponent.extend(CommentComponent);
+IsolatedNodeComponent.extend(CommentComponent)
 
-module.exports = CommentComponent;
+module.exports = CommentComponent

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AbstractEditor from 'substance/ui/AbstractEditor'
 import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
@@ -15,12 +15,12 @@ import MacroManager from '../../ui/MacroManager'
  * @class      CodeEditor (name)
  */
 function CodeEditor () {
-  CodeEditor.super.apply(this, arguments);
+  CodeEditor.super.apply(this, arguments)
 
   // Use custom MacroManager
-  this.macroManager.context.documentSession.off(this.macroManager);
-  delete this.macroManager;
-  this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
+  this.macroManager.context.documentSession.off(this.macroManager)
+  delete this.macroManager
+  this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros())
 }
 
 CodeEditor.Prototype = function () {
@@ -28,9 +28,9 @@ CodeEditor.Prototype = function () {
    * Render this editor
    */
   this.render = function ($$) {
-    var configurator = this.props.configurator;
+    var configurator = this.props.configurator
 
-    var el = $$('div').addClass('sc-code-editor');
+    var el = $$('div').addClass('sc-code-editor')
 
     // Document toolset (becuase of the way in which
     // tools and commands work, this has to go here, under an `AbstractEditor`,
@@ -43,18 +43,18 @@ CodeEditor.Prototype = function () {
         comment: this.props.comment,
         edit: this.props.edit
       }).ref('overallToolset')
-    );
+    )
 
     // Change the `ComponentRegistry` used by the `ContainerEditor`
     // to decide which components to render for each mode type by
     // replacing the "defult" component type with the component type
     // for this code editor's language (currently just Markdown)
-    var componentRegistry = configurator.getComponentRegistry();
+    var componentRegistry = configurator.getComponentRegistry()
     each(Object.keys(configurator.config.nodes), function (nodeType) {
-      var component = componentRegistry.get(nodeType + '-markdown');
-      if (component) componentRegistry.add(nodeType, component);
-    });
-    this.componentRegistry = componentRegistry;
+      var component = componentRegistry.get(nodeType + '-markdown')
+      if (component) componentRegistry.add(nodeType, component)
+    })
+    this.componentRegistry = componentRegistry
 
     el.append(
       // A `ScrollPane` to manage overlays and other positioning
@@ -72,10 +72,10 @@ CodeEditor.Prototype = function () {
             textTypes: configurator.getTextTypes()
           }).ref('containerEditor')
         )
-    );
+    )
 
-    return el;
-  };
+    return el
+  }
 
   /**
    * Update editor when document session is updated.
@@ -89,11 +89,11 @@ CodeEditor.Prototype = function () {
     ['overallToolset'].forEach(function (name) {
       this.refs[name].extendProps({
         commandStates: commandStates
-      });
-    }.bind(this));
-  };
-};
+      })
+    }.bind(this))
+  }
+}
 
-AbstractEditor.extend(CodeEditor);
+AbstractEditor.extend(CodeEditor)
 
-module.exports = CodeEditor;
+module.exports = CodeEditor

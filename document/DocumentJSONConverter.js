@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Imports/exports a document from/to JSON
@@ -10,4 +10,4 @@
  * @class      DocumentJSONConverter (name)
  */
 
-module.exports = require('substance/model/JSONConverter').default;
+module.exports = require('substance/model/JSONConverter').default

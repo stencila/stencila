@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 import Command from 'substance/ui/Command'
 
 function ForkCommand () {
-  ForkCommand.super.apply(this, arguments);
+  ForkCommand.super.apply(this, arguments)
 }
 
 ForkCommand.Prototype = function () {
@@ -11,16 +11,16 @@ ForkCommand.Prototype = function () {
     return {
       disabled: false,
       active: false
-    };
-  };
+    }
+  }
 
   this.execute = function (props, context) {
     return {
       status: null
-    };
-  };
-};
+    }
+  }
+}
 
-Command.extend(ForkCommand);
+Command.extend(ForkCommand)
 
-module.exports = ForkCommand;
+module.exports = ForkCommand

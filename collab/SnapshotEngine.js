@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import SnapshotEngineBase from 'substance/collab/SnapshotEngine'
 
@@ -13,17 +13,17 @@ import SnapshotEngineBase from 'substance/collab/SnapshotEngine'
  * @param      {<type>}  config  The configuration
  */
 function SnapshotEngine (config) {
-  SnapshotEngine.super.apply(this, arguments);
+  SnapshotEngine.super.apply(this, arguments)
 
-  this.modelFactory = config.modelFactory;
+  this.modelFactory = config.modelFactory
 }
 
 SnapshotEngine.Prototype = function () {
   this._createDocumentInstance = function (schemaName) {
-    return this.modelFactory.createDocument(schemaName);
-  };
-};
+    return this.modelFactory.createDocument(schemaName)
+  }
+}
 
-SnapshotEngineBase.extend(SnapshotEngine);
+SnapshotEngineBase.extend(SnapshotEngine)
 
-module.exports = SnapshotEngine;
+module.exports = SnapshotEngine

@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
 import test from 'tape'
 
 import math from '../../../utilities/math'
 
 test('math.translate Tex to TeX', function (t) {
-  t.equal(math.translate('\\pi', 'tex', 'tex'), '\\pi');
-  t.end();
-});
+  t.equal(math.translate('\\pi', 'tex', 'tex'), '\\pi')
+  t.end()
+})
 
 test('math.translate ASCIIMath to TeX', function (t) {
   [
@@ -62,15 +62,15 @@ test('math.translate ASCIIMath to TeX', function (t) {
     ['bb "Aa"', '{\\mathbf{\\text{Aa}}}']
 
   ].forEach(function (pair) {
-    t.equal(math.translate(pair[0], 'am', 'tex'), pair[1]);
-  });
-  t.end();
-});
+    t.equal(math.translate(pair[0], 'am', 'tex'), pair[1])
+  })
+  t.end()
+})
 
 test('math.render', function (t) {
-  var html;
-  html = math.render('x');
-  var start = '<span class="katex"><span class="katex-mathml"><math>';
-  t.equal(html.substr(0, start.length), start);
-  t.end();
-});
+  var html
+  html = math.render('x')
+  var start = '<span class="katex"><span class="katex-mathml"><math>'
+  t.equal(html.substr(0, start.length), start)
+  t.end()
+})

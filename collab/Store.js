@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import oo from 'substance/util/oo'
 
@@ -12,13 +12,13 @@ function Store () {
       // host
       // port
     }
-  };
-  this.client = redis.createClient(config.redis);
+  }
+  this.client = redis.createClient(config.redis)
 }
 
 Store.Prototype = function () {
-};
+}
 
-oo.initClass(Store);
+oo.initClass(Store)
 
-module.exports = Store;
+module.exports = Store

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Emphasis from 'substance/packages/emphasis/Emphasis'
 import EmphasisHTMLConverter from 'substance/packages/emphasis/EmphasisHTMLConverter'
@@ -11,17 +11,17 @@ import EmphasisMacro from './EmphasisMacro'
 module.exports = {
   name: 'emphasis',
   configure: function (config) {
-    config.addNode(Emphasis);
-    config.addConverter('html', EmphasisHTMLConverter);
-    config.addConverter('xml', EmphasisXMLConverter);
-    config.addComponent('emphasis', AnnotationComponent);
-    config.addCommand('emphasis', AnnotationCommand, { nodeType: 'emphasis' });
-    config.addTool('emphasis', AnnotationTool);
-    config.addMacro(new EmphasisMacro());
-    config.addIcon('emphasis', { 'fontawesome': 'fa-italic' });
+    config.addNode(Emphasis)
+    config.addConverter('html', EmphasisHTMLConverter)
+    config.addConverter('xml', EmphasisXMLConverter)
+    config.addComponent('emphasis', AnnotationComponent)
+    config.addCommand('emphasis', AnnotationCommand, { nodeType: 'emphasis' })
+    config.addTool('emphasis', AnnotationTool)
+    config.addMacro(new EmphasisMacro())
+    config.addIcon('emphasis', { 'fontawesome': 'fa-italic' })
     config.addLabel('emphasis', {
       en: 'Emphasis',
       de: 'Betonung'
-    });
+    })
   }
-};
+}

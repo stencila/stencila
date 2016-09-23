@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AnnotationMacro from '../../ui/AnnotationMacro'
 
@@ -16,18 +16,18 @@ function StrongMacro () {
 };
 
 StrongMacro.Prototype = function () {
-  this.appliesTo = [];
+  this.appliesTo = []
 
-  this.regex = /\*([^\*]+)\*/;
+  this.regex = /\*([^\*]+)\*/
 
   this.createNodeData = function (match) {
     return {
       type: 'strong',
       text: match[1]
-    };
-  };
-};
+    }
+  }
+}
 
-AnnotationMacro.extend(StrongMacro);
+AnnotationMacro.extend(StrongMacro)
 
-module.exports = StrongMacro;
+module.exports = StrongMacro

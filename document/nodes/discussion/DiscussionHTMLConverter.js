@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
 
@@ -6,22 +6,22 @@ module.exports = {
   tagName: 'div',
 
   matchElement: function (el) {
-    return el.is('[data-discussion]');
+    return el.is('[data-discussion]')
   },
 
   import: function (el, node, converter) {
-    node.id = el.attr('id');
+    node.id = el.attr('id')
     el.getChildren().forEach(function (child) {
-      node.nodes.push(converter.convertElement(child).id);
-    });
+      node.nodes.push(converter.convertElement(child).id)
+    })
   },
 
   export: function (node, el, converter) {
-    el.attr('data-discussion', '');
-    el.attr('id', node.id);
+    el.attr('data-discussion', '')
+    el.attr('id', node.id)
     node.getChildren().forEach(function (child) {
-      el.append(converter.convertNode(child));
-    });
+      el.append(converter.convertNode(child))
+    })
   }
 
-};
+}

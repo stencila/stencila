@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
 
@@ -6,17 +6,17 @@ module.exports = {
   tagName: 'span',
 
   matchElement: function (el) {
-    return el.is('[data-emoji]');
+    return el.is('[data-emoji]')
   },
 
   import: function (el, node, converter) {
-    var match = el.text().match(/:?([^:]+):?/);
-    node.name = match[1];
+    var match = el.text().match(/:?([^:]+):?/)
+    node.name = match[1]
   },
 
   export: function (node, el, converter) {
-    el.attr('data-emoji', '');
-    el.text(':' + node.name + ':');
+    el.attr('data-emoji', '')
+    el.text(':' + node.name + ':')
   }
 
-};
+}

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import HTMLImporter from 'substance/model/HTMLImporter'
 
@@ -16,7 +16,7 @@ function DocumentHTMLImporter (options) {
     DocumentClass: DocumentModel,
     schema: options.configurator.getSchema(),
     converters: options.configurator.getConverterRegistry().get('html')
-  });
+  })
 }
 
 DocumentHTMLImporter.Prototype = function () {
@@ -28,20 +28,20 @@ DocumentHTMLImporter.Prototype = function () {
   this.convertDocument = function (els) {
     // The `containerId` argument should have the same
     // value as the `containerId` used by `ContainerEditor`
-    this.convertContainer(els, 'content');
-  };
+    this.convertContainer(els, 'content')
+  }
 
   /**
    * Method override to provide a default for
    * importing HTML elements not matched by `converters`
    */
   this.defaultConverter = function (el, converter) {
-    var nodeData = DefaultHTMLConverter.createNodeData();
-    DefaultHTMLConverter.import(el, nodeData, converter);
-    return nodeData;
-  };
-};
+    var nodeData = DefaultHTMLConverter.createNodeData()
+    DefaultHTMLConverter.import(el, nodeData, converter)
+    return nodeData
+  }
+}
 
-HTMLImporter.extend(DocumentHTMLImporter);
+HTMLImporter.extend(DocumentHTMLImporter)
 
-module.exports = DocumentHTMLImporter;
+module.exports = DocumentHTMLImporter

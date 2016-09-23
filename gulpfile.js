@@ -1,30 +1,30 @@
 // Gulp dependencies
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var rename = require('gulp-rename');
-var gif = require('gulp-if');
-var sourcemaps = require('gulp-sourcemaps');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
+var gulp = require('gulp')
+var gutil = require('gulp-util')
+var rename = require('gulp-rename')
+var gif = require('gulp-if')
+var sourcemaps = require('gulp-sourcemaps')
+var source = require('vinyl-source-stream')
+var buffer = require('vinyl-buffer')
 
 // Build dependencies
-var browserify = require('browserify');
-var watchify = require('watchify');
-var babelify = require('babelify');
-var uglify = require('gulp-uglify');
-var sass = require('gulp-sass');
-var sassLint = require('gulp-sass-lint');
-var eslint = require('gulp-eslint');
+var browserify = require('browserify')
+var watchify = require('watchify')
+var babelify = require('babelify')
+var uglify = require('gulp-uglify')
+var sass = require('gulp-sass')
+var sassLint = require('gulp-sass-lint')
+var eslint = require('gulp-eslint')
 
 // Types of components
 var types = [
   'document', 'sheet', 'context', 'session'
-];
+]
 
 // Generic error handler creates a notifcation window
 function errorHandler (err) {
-  gutil.log(err);
-  this.emit('end'); // Keep gulp from hanging on this task
+  gutil.log(err)
+  this.emit('end') // Keep gulp from hanging on this task
 }
 
 function style (type, watch) {
@@ -34,14 +34,14 @@ function style (type, watch) {
     })
     .on('error', errorHandler))
     .pipe(rename(type + '.min.css'))
-    .pipe(gulp.dest('./build'));
+    .pipe(gulp.dest('./build'))
 }
 
 function styles (watch) {
-  gutil.log('Compiling styles');
+  gutil.log('Compiling styles')
   types.forEach(function (type) {
-    style(type, watch);
-  });
+    style(type, watch)
+  })
 }
 
 // Scripts watchify-browserify-babelify-uglify-sourcemapify
@@ -52,7 +52,7 @@ function styles (watch) {
 function script (type, watch) {
   var bundler = browserify('./' + type + '/' + type + '.js', {
     debug: true
-  });
+  })
 
   function bundle () {
     return bundler
@@ -68,71 +68,71 @@ function script (type, watch) {
       }))
       .pipe(gif(!watch, uglify()))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest('./build'));
+      .pipe(gulp.dest('./build'))
   }
 
   if (watch) {
-    bundler = watchify(bundler);
+    bundler = watchify(bundler)
     bundler.on('update', function () {
-      gutil.log('Bundling ' + type);
-      bundle();
-    });
-    bundle();
+      gutil.log('Bundling ' + type)
+      bundle()
+    })
+    bundle()
   } else {
-    return bundle();
+    return bundle()
   }
 }
 
 function scripts (watch) {
-  gutil.log('Bundling scripts');
+  gutil.log('Bundling scripts')
   types.forEach(function (type) {
-    script(type, watch);
-  });
+    script(type, watch)
+  })
 }
 
 function images (watch) {
-  gutil.log('Copying images');
+  gutil.log('Copying images')
   gulp.src('./images/**/*.{png,svg}')
-      .pipe(gulp.dest('./build/images'));
+      .pipe(gulp.dest('./build/images'))
 }
 
 function fonts (watch) {
-  gutil.log('Copying fonts');
+  gutil.log('Copying fonts')
   gulp.src('./fonts/**/*')
-      .pipe(gulp.dest('./build/fonts'));
+      .pipe(gulp.dest('./build/fonts'))
 }
 
 // Gulp tasks for the above
 
 gulp.task('styles', function () {
-  return styles();
-});
+  return styles()
+})
 
 gulp.task('scripts', function () {
-  return scripts();
-});
+  return scripts()
+})
 
 gulp.task('images', function () {
-  return images();
-});
+  return images()
+})
 
 gulp.task('fonts', function () {
-  return fonts();
-});
+  return fonts()
+})
 
 gulp.task('build', function () {
-  styles();
-  scripts();
-  images();
-  fonts();
-});
+  styles()
+  scripts()
+  images()
+  fonts()
+})
 
 gulp.task('watch', function () {
   gulp.watch('**/*.scss', function () {
-    styles(true);
-  });
-  scripts(true);
-});
+    styles(true)
+  })
+  scripts(true)
+})
 
 gulp.task('lint:js', function () {
   return gulp.src([
@@ -143,8 +143,8 @@ gulp.task('lint:js', function () {
     './tests/**/*.js'
   ]).pipe(eslint())
     .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-});
+    .pipe(eslint.failAfterError())
+})
 
 gulp.task('lint:sass', function () {
   return gulp.src([
@@ -156,12 +156,12 @@ gulp.task('lint:sass', function () {
     }
   }))
   .pipe(sassLint.format())
-  .pipe(sassLint.failOnError());
-});
+  .pipe(sassLint.failOnError())
+})
 
 gulp.task('lint', [
   'lint:js',
   'lint:sass'
-]);
+])
 
-gulp.task('default', ['watch']);
+gulp.task('default', ['watch'])

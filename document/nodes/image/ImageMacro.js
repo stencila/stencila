@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import BlockNodeMacro from '../../ui/BlockNodeMacro'
 
@@ -24,16 +24,16 @@ function ImageMacro () {
 };
 
 ImageMacro.Prototype = function () {
-  this.regex = /^!\[\]\(([^\)]*)\)$/;
+  this.regex = /^!\[\]\(([^\)]*)\)$/
 
   this.createNodeData = function (match) {
     return {
       type: 'image',
       src: match[1]
-    };
-  };
-};
+    }
+  }
+}
 
-BlockNodeMacro.extend(ImageMacro);
+BlockNodeMacro.extend(ImageMacro)
 
-module.exports = ImageMacro;
+module.exports = ImageMacro

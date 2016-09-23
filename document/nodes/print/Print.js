@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
 import InlineNode from 'substance/model/InlineNode'
 
 function Print () {
-  Print.super.apply(this, arguments);
+  Print.super.apply(this, arguments)
 
-  if (!this.content) this.refresh();
+  if (!this.content) this.refresh()
 }
 
 Print.Prototype = function () {
@@ -15,24 +15,24 @@ Print.Prototype = function () {
       // Evaluate the source within the document's current
       // context
       try {
-        this.content = this.document.write(this.source);
-        this.error = false;
+        this.content = this.document.write(this.source)
+        this.error = false
       } catch (error) {
-        this.content = error.toString();
-        this.error = true;
+        this.content = error.toString()
+        this.error = true
       }
-      this.emit('content:changed');
+      this.emit('content:changed')
     }
-  };
-};
+  }
+}
 
-InlineNode.extend(Print);
+InlineNode.extend(Print)
 
 Print.define({
   type: 'print',
   source: { type: 'string', optional: true },
   error: { type: 'boolean', default: false },
   content: { type: 'string', optional: true }
-});
+})
 
-module.exports = Print;
+module.exports = Print

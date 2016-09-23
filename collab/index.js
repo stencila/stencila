@@ -21,42 +21,42 @@ import DocumentServer from './DocumentServer'
  * @return     {Object}  { description_of_the_return_value }
  */
 var bind = function (httpServer, expressApp, endpoint) {
-  endpoint = endpoint || '/';
+  endpoint = endpoint || '/'
 
-  var documentStore = new DocumentStore();
-  var changeStore = new ChangeStore();
-  var snapshotStore = new SnapshotStore();
-  var modelFactory = new ModelFactory();
+  var documentStore = new DocumentStore()
+  var changeStore = new ChangeStore()
+  var snapshotStore = new SnapshotStore()
+  var modelFactory = new ModelFactory()
 
   var snapshotEngine = new SnapshotEngine({
     documentStore: documentStore,
     changeStore: changeStore,
     snapshotStore: snapshotStore,
     modelFactory: new ModelFactory()
-  });
+  })
 
   var documentEngine = new DocumentEngine({
     documentStore: documentStore,
     changeStore: changeStore,
     snapshotEngine: snapshotEngine,
     modelFactory: modelFactory
-  });
+  })
 
   var websocketServer = new ws.Server({
     server: httpServer
-  });
+  })
 
   var collabServer = new CollabServer({
     heartbeat: 30 * 1000,
     documentEngine: documentEngine
-  });
-  collabServer.bind(websocketServer);
+  })
+  collabServer.bind(websocketServer)
 
   var documentServer = new DocumentServer({
     path: endpoint,
     documentEngine: documentEngine
-  });
-  documentServer.bind(expressApp);
+  })
+  documentServer.bind(expressApp)
 
   return {
     documentStore: documentStore,
@@ -67,9 +67,9 @@ var bind = function (httpServer, expressApp, endpoint) {
     documentEngine: documentEngine,
     collabServer: collabServer,
     documentServer: documentServer
-  };
-};
+  }
+}
 
 module.exports = {
   bind: bind
-};
+}

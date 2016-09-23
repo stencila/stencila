@@ -1,7 +1,7 @@
 import test from 'tape'
 import Nightmare from 'nightmare'
-var realMouse = require('nightmare-real-mouse');
-realMouse(Nightmare);
+var realMouse = require('nightmare-real-mouse')
+realMouse(Nightmare)
 
 test('Blockquote behaviour', function (t) {
   Nightmare({
@@ -12,15 +12,15 @@ test('Blockquote behaviour', function (t) {
     .realClick('[data-id="blockquote-2"]')
     .type('[data-id="blockquote-2"]', 'in the ignorance of experts')
     .evaluate(function () {
-      return document.querySelector('[data-id="blockquote-2"]').innerText.trim();
+      return document.querySelector('[data-id="blockquote-2"]').innerText.trim()
     })
     .end()
     .then(function (result) {
-      t.equal(result, 'Science is the belief...in the ignorance of experts');
-      t.end();
+      t.equal(result, 'Science is the belief...in the ignorance of experts')
+      t.end()
     })
     .catch(function (error) {
-      t.notOk(error);
-      t.end();
-    });
-});
+      t.notOk(error)
+      t.end()
+    })
+})

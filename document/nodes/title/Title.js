@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
 import TextBlock from 'substance/model/TextBlock'
 
 function Title () {
-  Title.super.apply(this, arguments);
+  Title.super.apply(this, arguments)
 }
 
-TextBlock.extend(Title);
+TextBlock.extend(Title)
 
-Title.type = 'title';
+Title.type = 'title'
 
-module.exports = Title;
+module.exports = Title

@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
 import Container from 'substance/model/Container'
 
 function Discussion () {
-  Discussion.super.apply(this, arguments);
+  Discussion.super.apply(this, arguments)
 }
 
-Container.extend(Discussion);
+Container.extend(Discussion)
 
 Discussion.define({
   type: 'discussion',
   status: { type: 'string', default: 'open' },
   nodes: { type: ['id'], default: [] }
-});
+})
 
-module.exports = Discussion;
+module.exports = Discussion

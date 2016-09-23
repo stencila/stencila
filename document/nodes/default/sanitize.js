@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-var sanitizeHtml = require('sanitize-html');
+var sanitizeHtml = require('sanitize-html')
 
 /**
  * Apply HTML sanitization rules for `Default` nodes
@@ -23,8 +23,8 @@ var sanitize = function (html) {
       img: [ 'src', 'data-*' ],
       '*': [ 'data-*' ]
     }
-  });
-};
+  })
+}
 
-module.exports = sanitize;
+module.exports = sanitize
 

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
 
@@ -7,15 +7,15 @@ module.exports = {
 
   matchElement: function (el) {
     if (el.is('pre') && el.children.length === 1) {
-      return el.children[0].is('code');
+      return el.children[0].is('code')
     }
-    return false;
+    return false
   },
 
   import: function (el, node, converter) {
-    var code = el.find('code');
-    node.language = code.attr('class');
-    node.source = code.text().trim();
+    var code = el.find('code')
+    node.language = code.attr('class')
+    node.source = code.text().trim()
   },
 
   export: function (node, el, converter) {
@@ -24,6 +24,6 @@ module.exports = {
       converter.$$('code')
         .addClass(node.language)
         .text(node.source)
-    );
+    )
   }
-};
+}

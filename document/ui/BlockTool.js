@@ -8,7 +8,7 @@ import Tool from 'substance/packages/tools/Tool'
  * @class      BlockTool (name)
  */
 function BlockTool () {
-  BlockTool.super.apply(this, arguments);
+  BlockTool.super.apply(this, arguments)
 }
 
 BlockTool.Prototype = function () {
@@ -16,13 +16,13 @@ BlockTool.Prototype = function () {
     if (this.props.active) {
       this.props.toolset.extendState({
         expanded: !this.props.toolset.state.expanded
-      });
+      })
     } else {
-      this.props.toolset.changeType(this.props.name);
+      this.props.toolset.changeType(this.props.name)
     }
-  };
-};
+  }
+}
 
-Tool.extend(BlockTool);
+Tool.extend(BlockTool)
 
-module.exports = BlockTool;
+module.exports = BlockTool

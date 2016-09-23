@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Subscript from 'substance/packages/subscript/Subscript'
 import SubscriptHTMLConverter from 'substance/packages/subscript/SubscriptHTMLConverter'
@@ -10,18 +10,18 @@ import AnnotationTool from 'substance/ui/AnnotationTool'
 export default {
   name: 'subscript',
   configure: function (config) {
-    config.addNode(Subscript);
-    config.addConverter('html', SubscriptHTMLConverter);
-    config.addConverter('xml', SubscriptXMLConverter);
-    config.addComponent('subscript', AnnotationComponent);
-    config.addCommand('subscript', AnnotationCommand, { nodeType: 'subscript' });
-    config.addTool('subscript', AnnotationTool);
-    config.addIcon('subscript', { 'fontawesome': 'fa-subscript' });
+    config.addNode(Subscript)
+    config.addConverter('html', SubscriptHTMLConverter)
+    config.addConverter('xml', SubscriptXMLConverter)
+    config.addComponent('subscript', AnnotationComponent)
+    config.addCommand('subscript', AnnotationCommand, { nodeType: 'subscript' })
+    config.addTool('subscript', AnnotationTool)
+    config.addIcon('subscript', { 'fontawesome': 'fa-subscript' })
     config.addLabel('subscript', {
       en: 'Subscript',
       de: 'Tiefgestellt'
-    });
+    })
   },
   Subscript: Subscript,
   SubscriptHTMLConverter: SubscriptHTMLConverter
-};
+}

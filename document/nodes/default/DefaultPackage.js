@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Default from './Default'
 import DefaultHTMLConverter from './DefaultHTMLConverter'
@@ -9,14 +9,14 @@ import DefaultMarkdownComponent from './DefaultMarkdownComponent'
 module.exports = {
   name: 'default',
   configure: function (config) {
-    config.addNode(Default);
-    config.addConverter('html', DefaultHTMLConverter);
-    config.addConverter('xml', DefaultXMLConverter);
-    config.addComponent('default', DefaultComponent);
-    config.addComponent('default-markdown', DefaultMarkdownComponent);
-    config.addIcon('default', { 'fontawesome': 'fa-circle-o' });
+    config.addNode(Default)
+    config.addConverter('html', DefaultHTMLConverter)
+    config.addConverter('xml', DefaultXMLConverter)
+    config.addComponent('default', DefaultComponent)
+    config.addComponent('default-markdown', DefaultMarkdownComponent)
+    config.addIcon('default', { 'fontawesome': 'fa-circle-o' })
     config.addLabel('default', {
       en: 'Default node'
-    });
+    })
   }
-};
+}

@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./EmojiHTMLConverter');
+module.exports = require('./EmojiHTMLConverter')

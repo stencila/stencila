@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import BlockTool from '../../ui/BlockTool'
 
@@ -8,17 +8,17 @@ import BlockTool from '../../ui/BlockTool'
  * @class      ImageTool (name)
  */
 function ImageTool () {
-  ImageTool.super.apply(this, arguments);
+  ImageTool.super.apply(this, arguments)
 }
 
 ImageTool.Prototype = function () {
-  var _super = ImageTool.super.prototype;
+  var _super = ImageTool.super.prototype
 
   this.render = function ($$) {
     // For placeholder to work override Substance's
     // default for src
-    var src = this.props.node.src;
-    if (src === 'http://') src = '';
+    var src = this.props.node.src
+    if (src === 'http://') src = ''
     return _super.render.call(this, $$)
       .addClass('sc-image-tool')
       .append(
@@ -34,18 +34,18 @@ ImageTool.Prototype = function () {
               })
               .on('change', this.onChange.bind(this))
           )
-      );
-  };
+      )
+  }
 
   this.onChange = function (event) {
-    var node = this.props.node;
-    var session = this.context.documentSession;
+    var node = this.props.node
+    var session = this.context.documentSession
     session.transaction(function (tx) {
-      tx.set([node.id, 'src'], event.target.value);
-    });
-  };
-};
+      tx.set([node.id, 'src'], event.target.value)
+    })
+  }
+}
 
-BlockTool.extend(ImageTool);
+BlockTool.extend(ImageTool)
 
-module.exports = ImageTool;
+module.exports = ImageTool

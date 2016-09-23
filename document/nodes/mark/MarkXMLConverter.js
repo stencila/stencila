@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./MarkHTMLConverter');
+module.exports = require('./MarkHTMLConverter')

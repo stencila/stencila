@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AnnotationTool from 'substance/ui/AnnotationTool'
 
@@ -11,14 +11,14 @@ import AnnotationTool from 'substance/ui/AnnotationTool'
  * @class      PrintTool (name)
  */
 function PrintTool () {
-  PrintTool.super.apply(this, arguments);
+  PrintTool.super.apply(this, arguments)
 }
 
 PrintTool.Prototype = function () {
-  var _super = PrintTool.super.prototype;
+  var _super = PrintTool.super.prototype
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .addClass('sc-print-tool')
       .append(
@@ -35,17 +35,17 @@ PrintTool.Prototype = function () {
               })
               .val(node ? node.source : null)
               .on('change', function (event) {
-                var session = this.context.documentSession;
+                var session = this.context.documentSession
                 session.transaction(function (tx) {
-                  tx.set([node.id, 'source'], event.target.value);
-                });
-                node.refresh();
+                  tx.set([node.id, 'source'], event.target.value)
+                })
+                node.refresh()
               }.bind(this))
           )
-      );
-  };
-};
+      )
+  }
+}
 
-AnnotationTool.extend(PrintTool);
+AnnotationTool.extend(PrintTool)
 
-module.exports = PrintTool;
+module.exports = PrintTool

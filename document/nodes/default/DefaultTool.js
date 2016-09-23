@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import BlockTool from '../../ui/BlockTool'
 
@@ -8,14 +8,14 @@ import BlockTool from '../../ui/BlockTool'
  * @class      DefaultTool (name)
  */
 function DefaultTool () {
-  DefaultTool.super.apply(this, arguments);
+  DefaultTool.super.apply(this, arguments)
 }
 
 DefaultTool.Prototype = function () {
-  var _super = DefaultTool.super.prototype;
+  var _super = DefaultTool.super.prototype
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .addClass('sc-default-tool')
       .append(
@@ -32,13 +32,13 @@ DefaultTool.Prototype = function () {
                   .addClass('fa fa-pencil')
               )
               .on('click', function (event) {
-                node.emit('edit:toggle');
+                node.emit('edit:toggle')
               })
           )
-      );
-  };
-};
+      )
+  }
+}
 
-BlockTool.extend(DefaultTool);
+BlockTool.extend(DefaultTool)
 
-module.exports = DefaultTool;
+module.exports = DefaultTool

@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
 import InlineNode from 'substance/model/InlineNode'
 
 function Math () {
-  Math.super.apply(this, arguments);
+  Math.super.apply(this, arguments)
 }
 
-InlineNode.extend(Math);
+InlineNode.extend(Math)
 
 Math.define({
   type: 'math',
@@ -14,6 +14,6 @@ Math.define({
   language: { type: 'string', default: 'asciimath' },
   display: { type: 'string', default: 'inline' },
   error: { type: 'string', optional: true }
-});
+})
 
-module.exports = Math;
+module.exports = Math

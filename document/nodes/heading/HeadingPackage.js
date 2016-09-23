@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * A package for `Heading` nodes that is necessary (instead of using Substance's) to:
@@ -17,19 +17,19 @@ import HeadingMacro from './HeadingMacro'
 module.exports = {
   name: 'heading',
   configure: function (config) {
-    config.addNode(Heading);
-    config.addComponent('heading', HeadingComponent);
-    config.addComponent('heading-markdown', HeadingMarkdownComponent);
-    config.addConverter('html', HeadingHTMLConverter);
-    config.addConverter('xml', HeadingXMLConverter);
-    config.addMacro(new HeadingMacro());
+    config.addNode(Heading)
+    config.addComponent('heading', HeadingComponent)
+    config.addComponent('heading-markdown', HeadingMarkdownComponent)
+    config.addConverter('html', HeadingHTMLConverter)
+    config.addConverter('xml', HeadingXMLConverter)
+    config.addMacro(new HeadingMacro())
     config.addTextType({
       name: 'heading',
       data: {type: 'heading', level: 1}
-    });
+    })
     config.addLabel('heading', {
       en: 'Heading',
       de: 'Überschrift'
-    });
+    })
   }
-};
+}

@@ -1,21 +1,21 @@
-'use strict';
+'use strict'
 
 import Component from 'substance/ui/Component'
 import TextPropertyEditor from 'substance/ui/TextPropertyEditor'
 
 function MathCodeComponent () {
-  MathCodeComponent.super.apply(this, arguments);
+  MathCodeComponent.super.apply(this, arguments)
 }
 
 MathCodeComponent.Prototype = function () {
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
 
-    var delim;
+    var delim
     if (node.language === 'asciimath') {
-      delim = '|';
+      delim = '|'
     } else {
-      delim = '$';
+      delim = '$'
     }
 
     return $$('span')
@@ -27,10 +27,10 @@ MathCodeComponent.Prototype = function () {
           withoutBreak: true
         }),
         delim
-      );
-  };
-};
+      )
+  }
+}
 
-Component.extend(MathCodeComponent);
+Component.extend(MathCodeComponent)
 
-module.exports = MathCodeComponent;
+module.exports = MathCodeComponent

@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 import Component from 'substance/ui/Component'
 
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
 function DefaultMarkdownComponent () {
-  DefaultMarkdownComponent.super.apply(this, arguments);
+  DefaultMarkdownComponent.super.apply(this, arguments)
 }
 
 DefaultMarkdownComponent.Prototype = function () {
-  var _super = DefaultMarkdownComponent.super.prototype;
+  var _super = DefaultMarkdownComponent.super.prototype
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .addClass('sc-default')
       .append(
@@ -22,12 +22,12 @@ DefaultMarkdownComponent.Prototype = function () {
           languageProperty: null,
           language: 'html'
         }).ref('code')
-      );
-  };
-};
+      )
+  }
+}
 
-Component.extend(DefaultMarkdownComponent);
+Component.extend(DefaultMarkdownComponent)
 
-DefaultMarkdownComponent.fullWidth = true;
+DefaultMarkdownComponent.fullWidth = true
 
-module.exports = DefaultMarkdownComponent;
+module.exports = DefaultMarkdownComponent

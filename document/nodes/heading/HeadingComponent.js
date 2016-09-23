@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import HeadingComponentBase from 'substance/packages/heading/HeadingComponent'
 
@@ -11,19 +11,19 @@ import HeadingComponentBase from 'substance/packages/heading/HeadingComponent'
  * @class      HeadingComponent (name)
  */
 function HeadingComponent () {
-  HeadingComponent.super.apply(this, arguments);
+  HeadingComponent.super.apply(this, arguments)
 }
 
 HeadingComponent.Prototype = function () {
   this.didMount = function () {
-    this.props.node.on('level:changed', this.rerender, this);
-  };
+    this.props.node.on('level:changed', this.rerender, this)
+  }
 
   this.dispose = function () {
-    this.props.node.off(this);
-  };
-};
+    this.props.node.off(this)
+  }
+}
 
-HeadingComponentBase.extend(HeadingComponent);
+HeadingComponentBase.extend(HeadingComponent)
 
-module.exports = HeadingComponent;
+module.exports = HeadingComponent

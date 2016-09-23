@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 import Command from 'substance/ui/Command'
 
 function SettingsCommand () {
-  SettingsCommand.super.apply(this, arguments);
+  SettingsCommand.super.apply(this, arguments)
 }
 
 SettingsCommand.Prototype = function () {
@@ -11,16 +11,16 @@ SettingsCommand.Prototype = function () {
     return {
       disabled: false,
       active: false
-    };
-  };
+    }
+  }
 
   this.execute = function (props, context) {
     return {
       status: null
-    };
-  };
-};
+    }
+  }
+}
 
-Command.extend(SettingsCommand);
+Command.extend(SettingsCommand)
 
-module.exports = SettingsCommand;
+module.exports = SettingsCommand

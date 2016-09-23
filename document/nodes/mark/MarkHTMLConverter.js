@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
 
@@ -6,15 +6,15 @@ module.exports = {
   tagName: 'span',
 
   matchElement: function (el) {
-    return el.is('[data-mark]');
+    return el.is('[data-mark]')
   },
 
   import: function (el, node, converter) {
-    node.target = el.attr('data-mark');
+    node.target = el.attr('data-mark')
   },
 
   export: function (node, el, converter) {
-    el.attr('data-mark', node.target);
+    el.attr('data-mark', node.target)
   }
 
-};
+}

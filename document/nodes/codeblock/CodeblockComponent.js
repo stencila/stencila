@@ -1,24 +1,24 @@
-'use strict';
+'use strict'
 
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
 function CodeblockComponent (parent, props) {
-  props.codeProperty = 'source';
-  props.languageProperty = 'language';
-  CodeblockComponent.super.apply(this, arguments);
+  props.codeProperty = 'source'
+  props.languageProperty = 'language'
+  CodeblockComponent.super.apply(this, arguments)
 }
 
 CodeblockComponent.Prototype = function () {
-  var _super = CodeblockComponent.super.prototype;
+  var _super = CodeblockComponent.super.prototype
 
   this.render = function ($$) {
     return _super.render.call(this, $$)
-      .addClass('sc-codeblock');
-  };
-};
+      .addClass('sc-codeblock')
+  }
+}
 
-CodeEditorComponent.extend(CodeblockComponent);
+CodeEditorComponent.extend(CodeblockComponent)
 
-CodeblockComponent.fullWidth = true;
+CodeblockComponent.fullWidth = true
 
-module.exports = CodeblockComponent;
+module.exports = CodeblockComponent

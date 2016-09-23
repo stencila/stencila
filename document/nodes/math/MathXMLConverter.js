@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./MathHTMLConverter');
+module.exports = require('./MathHTMLConverter')

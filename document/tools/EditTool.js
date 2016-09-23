@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Tool from 'substance/packages/tools/Tool'
 
@@ -9,25 +9,25 @@ import Tool from 'substance/packages/tools/Tool'
  * @class      EditTool (name)
  */
 function EditTool () {
-  EditTool.super.apply(this, arguments);
+  EditTool.super.apply(this, arguments)
 }
 
 EditTool.Prototype = function () {
   this.getTitle = function () {
-    if (this.props.active) return 'Turn off editing';
-    else return 'Turn on editing';
-  };
+    if (this.props.active) return 'Turn off editing'
+    else return 'Turn on editing'
+  }
 
   this.renderIcon = function ($$) {
-    return $$('i').addClass('fa fa-pencil');
-  };
+    return $$('i').addClass('fa fa-pencil')
+  }
 
   this.onClick = function () {
-    this.send('edit-toggle');
-  };
-};
+    this.send('edit-toggle')
+  }
+}
 
-Tool.extend(EditTool);
+Tool.extend(EditTool)
 
-module.exports = EditTool;
+module.exports = EditTool
 

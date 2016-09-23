@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import InlineNodeCommand from 'substance/ui/InlineNodeCommand'
 import documentHelpers from 'substance/model/documentHelpers'
@@ -7,7 +7,7 @@ function MathCommand () {
   MathCommand.super.call(this, {
     name: 'math',
     nodeType: 'math'
-  });
+  })
 }
 
 MathCommand.Prototype = function () {
@@ -16,14 +16,14 @@ MathCommand.Prototype = function () {
     var text = documentHelpers.getTextForSelection(
       tx.document,
       args.selection
-    );
+    )
     return {
       type: 'math',
       source: text
-    };
-  };
-};
+    }
+  }
+}
 
-InlineNodeCommand.extend(MathCommand);
+InlineNodeCommand.extend(MathCommand)
 
-module.exports = MathCommand;
+module.exports = MathCommand

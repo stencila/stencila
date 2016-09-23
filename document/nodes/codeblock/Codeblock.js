@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 import BlockNode from 'substance/model/BlockNode'
 
 function Codeblock () {
-  Codeblock.super.apply(this, arguments);
+  Codeblock.super.apply(this, arguments)
 }
 
-BlockNode.extend(Codeblock);
+BlockNode.extend(Codeblock)
 
 Codeblock.define({
   type: 'codeblock',
   language: { type: 'string', default: '' },
   source: { type: 'string', default: '' }
-});
+})
 
-module.exports = Codeblock;
+module.exports = Codeblock
 

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Mark from './Mark'
 import MarkHTMLConverter from './MarkHTMLConverter'
@@ -10,15 +10,15 @@ import MarkTool from './MarkTool'
 module.exports = {
   name: 'mark',
   configure: function (config) {
-    config.addNode(Mark);
-    config.addConverter('html', MarkHTMLConverter);
-    config.addConverter('xml', MarkXMLConverter);
-    config.addComponent('mark', MarkComponent);
-    config.addCommand('mark', MarkCommand);
-    config.addTool('mark', MarkTool);
-    config.addIcon('mark', { 'fontawesome': 'fa-comment-o' });
+    config.addNode(Mark)
+    config.addConverter('html', MarkHTMLConverter)
+    config.addConverter('xml', MarkXMLConverter)
+    config.addComponent('mark', MarkComponent)
+    config.addCommand('mark', MarkCommand)
+    config.addTool('mark', MarkTool)
+    config.addIcon('mark', { 'fontawesome': 'fa-comment-o' })
     config.addLabel('mark', {
       en: 'Comment'
-    });
+    })
   }
-};
+}

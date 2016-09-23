@@ -1,73 +1,73 @@
-'use strict';
+'use strict'
 
 import Component from 'substance/ui/Component'
 import documentHelpers from 'substance/model/documentHelpers'
 
 function TextToolset () {
-  Component.apply(this, arguments);
+  Component.apply(this, arguments)
 
   this.tools = [
     'emphasis', 'strong', 'subscript', 'superscript', 'code',
     'link', 'mark',
     'math', 'print', 'emoji'
-  ];
+  ]
 
   this.inlineNodeTools = [
     'math', 'print', 'emoji'
-  ];
+  ]
 }
 
 TextToolset.Prototype = function () {
   this.render = function ($$) {
     var el = $$('div')
-      .addClass('sc-toolset sc-text-toolset');
+      .addClass('sc-toolset sc-text-toolset')
 
-    var enabled = false;
-    var tools = this.context.tools.get('default');
-    var commandStates = this.context.commandManager.getCommandStates();
+    var enabled = false
+    var tools = this.context.tools.get('default')
+    var commandStates = this.context.commandManager.getCommandStates()
 
     this.tools.forEach(function (name) {
-      var tool = tools.get(name);
-      var session = this.context.documentSession;
-      var sel = session.getSelection();
+      var tool = tools.get(name)
+      var session = this.context.documentSession
+      var sel = session.getSelection()
 
-      var props = commandStates[name];
+      var props = commandStates[name]
       // Don't enable `InlineNodeTools` if there is no selected text
       if (!props.disabled && (this.inlineNodeTools.indexOf(name) > -1) && sel && !sel.isNull() && sel.isPropertySelection()) {
         if (sel.getStartOffset() === sel.getEndOffset()) {
-          props.disabled = true;
+          props.disabled = true
         }
       }
       // Add command name to `props` (a necessary hack at time of writing for icons to render in Substance tools)
-      props.name = name;
-      props.icon = name;
+      props.name = name
+      props.icon = name
       // Add the first selected node of this type to `props`
-      props.node = null;
+      props.node = null
       if (props.active) {
         props.node = documentHelpers.getPropertyAnnotationsForSelection(
           session.getDocument(),
           sel,
           {type: name}
-        )[0];
+        )[0]
       }
 
       el.append(
         $$(tool.Class, props).ref(name)
-      );
+      )
 
       // An active `Mark` node does not "count" towards enabling the toolbar
       // (because the associated discussion comes up instead)
       if (!(name === 'mark' && props.active)) {
-        enabled = enabled || !props.disabled;
+        enabled = enabled || !props.disabled
       }
-    }.bind(this));
+    }.bind(this))
 
-    if (enabled) el.addClass('sm-enabled');
+    if (enabled) el.addClass('sm-enabled')
 
-    return el;
-  };
-};
+    return el
+  }
+}
 
-Component.extend(TextToolset);
+Component.extend(TextToolset)
 
-module.exports = TextToolset;
+module.exports = TextToolset

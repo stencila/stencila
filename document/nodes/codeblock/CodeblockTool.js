@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import BlockTool from '../../ui/BlockTool'
 
@@ -10,14 +10,14 @@ import BlockTool from '../../ui/BlockTool'
  * @class      CodeblockTool (name)
  */
 function CodeblockTool () {
-  CodeblockTool.super.apply(this, arguments);
+  CodeblockTool.super.apply(this, arguments)
 }
 
 CodeblockTool.Prototype = function () {
-  var _super = CodeblockTool.super.prototype;
+  var _super = CodeblockTool.super.prototype
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .addClass('sc-codeblock-tool')
       .append(
@@ -33,16 +33,16 @@ CodeblockTool.Prototype = function () {
               })
               .val(node.language)
               .on('change', function (event) {
-                var session = this.context.documentSession;
+                var session = this.context.documentSession
                 session.transaction(function (tx, args) {
-                  tx.set([node.id, 'language'], event.target.value);
-                });
+                  tx.set([node.id, 'language'], event.target.value)
+                })
               }.bind(this))
           )
-      );
-  };
-};
+      )
+  }
+}
 
-BlockTool.extend(CodeblockTool);
+BlockTool.extend(CodeblockTool)
 
-module.exports = CodeblockTool;
+module.exports = CodeblockTool

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Command from 'substance/ui/Command'
 
@@ -8,7 +8,7 @@ import Command from 'substance/ui/Command'
  * @class      CommitCommand (name)
  */
 function CommitCommand () {
-  CommitCommand.super.apply(this, arguments);
+  CommitCommand.super.apply(this, arguments)
 }
 
 CommitCommand.Prototype = function () {
@@ -16,16 +16,16 @@ CommitCommand.Prototype = function () {
     return {
       disabled: false,
       active: false
-    };
-  };
+    }
+  }
 
   this.execute = function (props, context) {
     return {
       status: null
-    };
-  };
-};
+    }
+  }
+}
 
-Command.extend(CommitCommand);
+Command.extend(CommitCommand)
 
-module.exports = CommitCommand;
+module.exports = CommitCommand

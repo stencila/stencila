@@ -6,11 +6,11 @@ require('babel-register')({
   // Override that behaviourso that substance ins compiled
   ignore: function (filename) {
     if (filename.match('.*/node_modules/substance/.+')) {
-      return false;
+      return false
     } else if (filename.match('.*/node_modules/.+')) {
-      return true;
+      return true
     } else {
-      return false;
+      return false
     }
   }
-});
+})

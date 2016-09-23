@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
 import TextBlock from 'substance/model/TextBlock'
 
 function Summary () {
-  Summary.super.apply(this, arguments);
+  Summary.super.apply(this, arguments)
 }
 
-TextBlock.extend(Summary);
+TextBlock.extend(Summary)
 
-Summary.type = 'summary';
+Summary.type = 'summary'
 
-module.exports = Summary;
+module.exports = Summary

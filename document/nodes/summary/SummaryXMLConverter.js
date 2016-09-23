@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./SummaryHTMLConverter');
+module.exports = require('./SummaryHTMLConverter')

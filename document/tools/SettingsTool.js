@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 import Tool from 'substance/packages/tools/Tool'
 
 function SettingsTool () {
-  SettingsTool.super.apply(this, arguments);
+  SettingsTool.super.apply(this, arguments)
 }
 
 SettingsTool.Prototype = function () {
   this.getTitle = function () {
-    return 'Change settings for this document; not yet implemented :(';
-  };
-};
+    return 'Change settings for this document; not yet implemented :('
+  }
+}
 
-Tool.extend(SettingsTool);
+Tool.extend(SettingsTool)
 
-module.exports = SettingsTool;
+module.exports = SettingsTool
 

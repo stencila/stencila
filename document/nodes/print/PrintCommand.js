@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import InlineNodeCommand from 'substance/ui/InlineNodeCommand'
 import documentHelpers from 'substance/model/documentHelpers'
@@ -7,7 +7,7 @@ function PrintCommand () {
   PrintCommand.super.call(this, {
     name: 'print',
     nodeType: 'print'
-  });
+  })
 }
 
 PrintCommand.Prototype = function () {
@@ -16,14 +16,14 @@ PrintCommand.Prototype = function () {
     var text = documentHelpers.getTextForSelection(
       tx.document,
       args.selection
-    );
+    )
     return {
       type: 'print',
       source: text
-    };
-  };
-};
+    }
+  }
+}
 
-InlineNodeCommand.extend(PrintCommand);
+InlineNodeCommand.extend(PrintCommand)
 
-module.exports = PrintCommand;
+module.exports = PrintCommand

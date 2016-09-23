@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Configurator from 'substance/util/Configurator'
 
@@ -17,14 +17,14 @@ import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 class DocumentConfigurator extends Configurator {
 
   constructor () {
-    super();
+    super()
 
     // Define the schema (used by `getSchema()` to generate a `DocumentSchema` based on this
     // and the nodes added below by imports)
     this.defineSchema({
       name: 'stencila-document',
       defaultTextType: 'paragraph'
-    });
+    })
 
     // Import node packages, in "order of appearance"
     this.import(require('./nodes/title/TitlePackage'))

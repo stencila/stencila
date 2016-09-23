@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import InlineNodeCommand from 'substance/ui/InlineNodeCommand'
 import documentHelpers from 'substance/model/documentHelpers'
@@ -7,7 +7,7 @@ function EmojiCommand () {
   EmojiCommand.super.call(this, {
     name: 'emoji',
     nodeType: 'emoji'
-  });
+  })
 }
 
 EmojiCommand.Prototype = function () {
@@ -16,14 +16,14 @@ EmojiCommand.Prototype = function () {
     var text = documentHelpers.getTextForSelection(
       tx.document,
       args.selection
-    );
+    )
     return {
       type: 'emoji',
       name: text
-    };
-  };
-};
+    }
+  }
+}
 
-InlineNodeCommand.extend(EmojiCommand);
+InlineNodeCommand.extend(EmojiCommand)
 
-module.exports = EmojiCommand;
+module.exports = EmojiCommand

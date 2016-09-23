@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import PropertyAnnotation from 'substance/model/PropertyAnnotation'
 
@@ -13,17 +13,17 @@ import PropertyAnnotation from 'substance/model/PropertyAnnotation'
  * @class      Mark (name)
  */
 function Mark () {
-  Mark.super.apply(this, arguments);
+  Mark.super.apply(this, arguments)
 }
 
 Mark.Prototype = function () {
-};
+}
 
-PropertyAnnotation.extend(Mark);
+PropertyAnnotation.extend(Mark)
 
 Mark.define({
   type: 'mark',
   target: { type: 'string', default: '' }
-});
+})
 
-module.exports = Mark;
+module.exports = Mark

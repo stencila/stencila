@@ -1,20 +1,20 @@
-'use strict';
+'use strict'
 
 import EmojiComponent from './EmojiComponent'
 
 function EmojiMarkdownComponent () {
-  EmojiMarkdownComponent.super.apply(this, arguments);
+  EmojiMarkdownComponent.super.apply(this, arguments)
 }
 
 EmojiMarkdownComponent.Prototype = function () {
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return $$('span')
       .addClass('sc-emoji')
-      .text(':' + node.name + ':');
-  };
-};
+      .text(':' + node.name + ':')
+  }
+}
 
-EmojiComponent.extend(EmojiMarkdownComponent);
+EmojiComponent.extend(EmojiMarkdownComponent)
 
-module.exports = EmojiMarkdownComponent;
+module.exports = EmojiMarkdownComponent

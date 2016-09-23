@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Tool from 'substance/packages/tools/Tool'
 
@@ -8,36 +8,36 @@ import Tool from 'substance/packages/tools/Tool'
  * @class      ViewTool (name)
  */
 function ViewTool () {
-  ViewTool.super.apply(this, arguments);
+  ViewTool.super.apply(this, arguments)
 }
 
 ViewTool.Prototype = function () {
-  var _super = ViewTool.super.prototype;
+  var _super = ViewTool.super.prototype
 
   this.getClassNames = function () {
-    return _super.getClassNames.call(this) + ' se-view-tool';
-  };
+    return _super.getClassNames.call(this) + ' se-view-tool'
+  }
 
   this.renderIcon = function ($$) {
-    var el = $$('i');
+    var el = $$('i')
     if (this.props.view === 'code') {
-      el.addClass('fa fa-file-code-o');
+      el.addClass('fa fa-file-code-o')
     } else {
-      el.addClass('fa fa-file-text-o');
+      el.addClass('fa fa-file-text-o')
     }
-    return el;
-  };
+    return el
+  }
 
   this.getTitle = function () {
-    return 'Toggle view. Current: ' + this.props.view;
-  };
+    return 'Toggle view. Current: ' + this.props.view
+  }
 
   this.onClick = function () {
-    this.send('view-toggle');
-  };
-};
+    this.send('view-toggle')
+  }
+}
 
-Tool.extend(ViewTool);
+Tool.extend(ViewTool)
 
-module.exports = ViewTool;
+module.exports = ViewTool
 

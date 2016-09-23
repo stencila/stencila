@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Tool from 'substance/packages/tools/Tool'
 
@@ -10,14 +10,14 @@ import Tool from 'substance/packages/tools/Tool'
  * @class      EmojiTool (name)
  */
 function EmojiTool () {
-  EmojiTool.super.apply(this, arguments);
+  EmojiTool.super.apply(this, arguments)
 }
 
 EmojiTool.Prototype = function () {
-  var _super = EmojiTool.super.prototype;
+  var _super = EmojiTool.super.prototype
 
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return _super.render.call(this, $$)
       .addClass('sc-emoji-tool')
       .append(
@@ -34,22 +34,22 @@ EmojiTool.Prototype = function () {
               })
               .val(node ? node.name : null)
               .on('input', function (event) {
-                var session = this.context.documentSession;
+                var session = this.context.documentSession
                 session.transaction(function (tx) {
-                  tx.set([node.id, 'name'], event.target.value);
-                });
+                  tx.set([node.id, 'name'], event.target.value)
+                })
               }.bind(this))
           )
-      );
-  };
+      )
+  }
 
   this.shouldRerender = function (props) {
     // Do not re-render if the node has not changed.
     // This prevents the input box being updated during live editing
-    return (this.props.node === null) || (props.node !== this.props.node);
-  };
-};
+    return (this.props.node === null) || (props.node !== this.props.node)
+  }
+}
 
-Tool.extend(EmojiTool);
+Tool.extend(EmojiTool)
 
-module.exports = EmojiTool;
+module.exports = EmojiTool

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import AnnotationMacro from '../../ui/AnnotationMacro'
 
@@ -13,18 +13,18 @@ function CodeMacro () {
 };
 
 CodeMacro.Prototype = function () {
-  this.appliesTo = [];
+  this.appliesTo = []
 
-  this.regex = /`([^`]+)`/;
+  this.regex = /`([^`]+)`/
 
   this.createNodeData = function (match) {
     return {
       type: 'code',
       text: match[1]
-    };
-  };
-};
+    }
+  }
+}
 
-AnnotationMacro.extend(CodeMacro);
+AnnotationMacro.extend(CodeMacro)
 
-module.exports = CodeMacro;
+module.exports = CodeMacro

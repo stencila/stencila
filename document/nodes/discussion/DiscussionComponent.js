@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
@@ -8,15 +8,15 @@ import each from 'substance/node_modules/lodash/each'
 import moment from 'moment'
 
 function DiscussionComponent () {
-  DiscussionComponent.super.apply(this, arguments);
+  DiscussionComponent.super.apply(this, arguments)
 
-  this.ContentClass = ContainerEditor;
+  this.ContentClass = ContainerEditor
 
-  document.addEventListener('mark:selected', this.onMarkSelected.bind(this));
+  document.addEventListener('mark:selected', this.onMarkSelected.bind(this))
 }
 
 DiscussionComponent.Prototype = function () {
-  var _super = DiscussionComponent.super.prototype;
+  var _super = DiscussionComponent.super.prototype
 
   /**
    * Method override for custom display state
@@ -25,16 +25,16 @@ DiscussionComponent.Prototype = function () {
     return {
       displayed: false,
       markPosition: null
-    };
-  };
+    }
+  }
 
   /**
    * Method override so no blocker is rendered over this
    * `IsolatedNodeComponent` (requires two clicks to begin editing)
    */
   this.shouldRenderBlocker = function () {
-    return false;
-  };
+    return false
+  }
 
   /**
    * Method override to render component
@@ -90,54 +90,54 @@ DiscussionComponent.Prototype = function () {
               )
               .on('click', this.onDeleteClicked, this)
           )
-    );
+    )
     // Calculate position based on the size of the margin for the
     // document content. Calculations done using ems assuming 16px em size.
     // TODO Get height discussion element so can centre it next to the mark
-    var content = document.querySelector('.se-content');
-    var em = 16;
-    var position, top, left, right;
+    var content = document.querySelector('.se-content')
+    var em = 16
+    var position, top, left, right
     if (content) {
-      var contentRect = content.getBoundingClientRect();
-      var margin = parseInt(window.getComputedStyle(content).getPropertyValue('margin-right').match(/\d+/));
+      var contentRect = content.getBoundingClientRect()
+      var margin = parseInt(window.getComputedStyle(content).getPropertyValue('margin-right').match(/\d+/))
       if (margin >= 20 * em) {
         // Room to place the discussion in the right margin.
         // Place vertically aligned with centre of mark and left side to left of content
-        position = 'absolute';
+        position = 'absolute'
         if (this.state.markPosition) {
-          top = Math.max(0, this.state.markPosition.top + this.state.markPosition.height / 2 - 5 * em) + 'px';
+          top = Math.max(0, this.state.markPosition.top + this.state.markPosition.height / 2 - 5 * em) + 'px'
         } else {
-          top = em + 'px';
+          top = em + 'px'
         }
-        left = (contentRect.width + em) + 'px';
-        right = 'inherit';
+        left = (contentRect.width + em) + 'px'
+        right = 'inherit'
       } else {
         // Not enough room in margin
         // Place below the mark with right side (almost) aligned to right of content
-        position = 'absolute';
+        position = 'absolute'
         if (this.state.markPosition) {
-          top = (this.state.markPosition.top + this.state.markPosition.height + em) + 'px';
+          top = (this.state.markPosition.top + this.state.markPosition.height + em) + 'px'
         } else {
-          top = em + 'px';
+          top = em + 'px'
         }
-        left = 'inherit';
-        right = (margin + em) + 'px';
+        left = 'inherit'
+        right = (margin + em) + 'px'
       }
     } else {
       // Fallback to top-right of screen
-      position = 'fixed';
-      top = em + 'px';
-      right = em + 'px';
+      position = 'fixed'
+      top = em + 'px'
+      right = em + 'px'
     }
     el.css({
       position: position,
       top: top,
       left: left,
       right: right
-    });
+    })
 
-    return el;
-  };
+    return el
+  }
 
   /**
    * Event method to change display state. Called when any
@@ -149,8 +149,8 @@ DiscussionComponent.Prototype = function () {
     this.extendState({
       displayed: event.detail.discussionId === this.props.node.id,
       markPosition: event.detail.markPosition
-    });
-  };
+    })
+  }
 
   /**
    * Event method for when the hide button is clicked.
@@ -158,63 +158,63 @@ DiscussionComponent.Prototype = function () {
   this.onHideClicked = function () {
     this.extendState({
       displayed: false
-    });
-  };
+    })
+  }
 
   /**
    * Event method for when the add button is clicked.
    */
   this.onAddClicked = function (event) {
-    var discussion = this.props.node;
-    var session = this.context.documentSession;
-    var user = session.config.user;
+    var discussion = this.props.node
+    var session = this.context.documentSession
+    var user = session.config.user
     session.transaction(function (tx, args) {
       // Create a new comment
       var paragraph = tx.create({
         type: 'paragraph'
-      });
+      })
       var comment = tx.create({
         type: 'comment',
         who: '@' + user,
         when: moment().format(),
         nodes: [paragraph.id]
-      });
+      })
       // Append to the end of the discussion
-      discussion.show(comment.id);
+      discussion.show(comment.id)
 
-      args.node = paragraph;
-      args.selection = tx.createSelection([paragraph.id, 'content'], 0, 0);
+      args.node = paragraph
+      args.selection = tx.createSelection([paragraph.id, 'content'], 0, 0)
 
-      return args;
-    });
-  };
+      return args
+    })
+  }
 
   /**
    * Event method for deleting this discussion and associated `Mark`
    */
   this.onDeleteClicked = function (event) {
-    var discussion = this.props.node;
-    var session = this.context.documentSession;
+    var discussion = this.props.node
+    var session = this.context.documentSession
     // Destroy this component first
-    this.remove();
+    this.remove()
     session.transaction(function (tx, args) {
       // Delete the discussion and associated mark
-      deleteNode(tx, { nodeId: discussion.id });
+      deleteNode(tx, { nodeId: discussion.id })
       each(session.doc.getNodes(), function (node) {
         if (node.type === 'mark' && node.target === discussion.id) {
-          deleteNode(tx, { nodeId: node.id });
+          deleteNode(tx, { nodeId: node.id })
         }
-      });
+      })
       // Return a null selection
-      args.selection = tx.createSelection(null);
-      return args;
-    });
+      args.selection = tx.createSelection(null)
+      return args
+    })
 
-    event.preventDefault();
-    event.stopPropagation();
-  };
-};
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}
 
-IsolatedNodeComponent.extend(DiscussionComponent);
+IsolatedNodeComponent.extend(DiscussionComponent)
 
-module.exports = DiscussionComponent;
+module.exports = DiscussionComponent

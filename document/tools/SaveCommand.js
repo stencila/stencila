@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 import Command from 'substance/ui/Command'
 
 function SaveCommand () {
-  SaveCommand.super.apply(this, arguments);
+  SaveCommand.super.apply(this, arguments)
 }
 
 SaveCommand.Prototype = function () {
@@ -11,15 +11,15 @@ SaveCommand.Prototype = function () {
     return {
       disabled: false,
       active: false
-    };
-  };
+    }
+  }
 
   this.execute = function (props, context) {
-    context.doc.save();
-    return true;
-  };
-};
+    context.doc.save()
+    return true
+  }
+}
 
-Command.extend(SaveCommand);
+Command.extend(SaveCommand)
 
-module.exports = SaveCommand;
+module.exports = SaveCommand

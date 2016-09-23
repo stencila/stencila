@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 import Document from 'substance/model/Document'
 
 import DocumentConfigurator from './DocumentConfigurator'
-var configurator = new DocumentConfigurator();
+var configurator = new DocumentConfigurator()
 
 /**
  * A Stencila Document data model
@@ -12,29 +12,29 @@ var configurator = new DocumentConfigurator();
  * @param      {<type>}  schema  The schema
  */
 var DocumentModel = function (schema) {
-  DocumentModel.super.call(this, schema || DocumentModel.schema);
+  DocumentModel.super.call(this, schema || DocumentModel.schema)
 
   // Create a root body container node for the document
   this.create({
     type: 'container',
     id: 'content',
     nodes: []
-  });
-};
+  })
+}
 
 DocumentModel.Prototype = function () {
   this.execute = function (expression, context) {
-    context = context || this.contexts[0];
-    return context.execute(expression);
-  };
+    context = context || this.contexts[0]
+    return context.execute(expression)
+  }
 
   this.write = function (expression) {
-    return this.contexts[0].write(expression);
-  };
-};
+    return this.contexts[0].write(expression)
+  }
+}
 
-DocumentModel.schema = configurator.getSchema();
+DocumentModel.schema = configurator.getSchema()
 
-Document.extend(DocumentModel);
+Document.extend(DocumentModel)
 
-module.exports = DocumentModel;
+module.exports = DocumentModel

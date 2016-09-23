@@ -1,16 +1,16 @@
-'use strict';
+'use strict'
 
 import InlineNode from 'substance/model/InlineNode'
 
 function Emoji () {
-  Emoji.super.apply(this, arguments);
+  Emoji.super.apply(this, arguments)
 }
 
-InlineNode.extend(Emoji);
+InlineNode.extend(Emoji)
 
 Emoji.define({
   type: 'emoji',
   name: { type: 'string' }
-});
+})
 
-module.exports = Emoji;
+module.exports = Emoji

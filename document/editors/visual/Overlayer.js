@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Overlay from 'substance/ui/OverlayContainer'
 import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
@@ -16,15 +16,15 @@ import BlockToolset from './BlockToolset'
  * @class      Overlayer (name)
  */
 function Overlayer () {
-  Overlayer.super.apply(this, arguments);
+  Overlayer.super.apply(this, arguments)
 
   /**
    * Keep track of position because this can be lost
    * when this overlay is rerendered but without `position()`
    * being called for certain documents events.
    */
-  this.top = 0;
-  this.left = 0;
+  this.top = 0
+  this.left = 0
 }
 
 Overlayer.Prototype = function () {
@@ -32,13 +32,13 @@ Overlayer.Prototype = function () {
     var el = $$('div')
       .addClass('sc-overlay')
       .css('top', this.top + 'px')
-      .css('left', this.left + 'px');
+      .css('left', this.left + 'px')
     el.append(
       $$(TextToolset).ref('textToolset'),
       $$(BlockToolset).ref('blockToolset')
-    );
-    return el;
-  };
+    )
+    return el
+  }
 
   // Override of `position()` method to determin a position for this overlay
   this.position = function (hints) {
@@ -46,25 +46,25 @@ Overlayer.Prototype = function () {
     // At time of writing `Surface.getBoundingRectangleForSelection` was experimental and
     // sometimes created a hints.rectangle that was an empty object (e.g. for node selections). This checks for that
     // and if necessary tries to work out it's own selection rectangle
-    var selected = null;
+    var selected = null
     if (hints) {
       if (hints.rectangle) {
         if (hints.rectangle.top) {
-          selected = hints.rectangle;
+          selected = hints.rectangle
         }
       }
     }
     if (!selected) {
-      var surface = this.context.surfaceManager.getFocusedSurface();
-      var selection = surface.getSelection();
+      var surface = this.context.surfaceManager.getFocusedSurface()
+      var selection = surface.getSelection()
       if (selection) {
         if (selection.isNodeSelection()) {
-          var nodeId = selection.getNodeId();
-          console.warn('No selection rectangle provided for {' + nodeId + '}, attempting to get one');
-          var componentEl = document.querySelector('[data-id=' + nodeId + ']');
-          var containerEl = this.context.scrollPane.refs.content.el.el;
+          var nodeId = selection.getNodeId()
+          console.warn('No selection rectangle provided for {' + nodeId + '}, attempting to get one')
+          var componentEl = document.querySelector('[data-id=' + nodeId + ']')
+          var containerEl = this.context.scrollPane.refs.content.el.el
           if (componentEl && containerEl) {
-            selected = getRelativeBoundingRect(componentEl, containerEl);
+            selected = getRelativeBoundingRect(componentEl, containerEl)
           }
         }
       }
@@ -74,30 +74,30 @@ Overlayer.Prototype = function () {
       var overlay = {
         height: this.el.htmlProp('offsetHeight'),
         width: this.el.htmlProp('offsetWidth')
-      };
+      }
 
       // By default, aligned top/center to the selected
-      var top = selected.top - overlay.height - 3;
-      var left = selected.left + selected.width / 2 - overlay.width / 2;
+      var top = selected.top - overlay.height - 3
+      var left = selected.left + selected.width / 2 - overlay.width / 2
       // Must not exceed left bound
-      left = Math.max(left, 0);
+      left = Math.max(left, 0)
       // Must not exceed right bound
-      var maxLeftPos = selected.left + selected.width + selected.right - overlay.width;
-      left = Math.min(left, maxLeftPos);
+      var maxLeftPos = selected.left + selected.width + selected.right - overlay.width
+      left = Math.min(left, maxLeftPos)
 
       // Change position
-      this.el.css('top', top);
-      this.el.css('left', left);
+      this.el.css('top', top)
+      this.el.css('left', left)
 
       // Store position for next rendering
-      this.top = top;
-      this.left = left;
+      this.top = top
+      this.left = left
     } else {
-      console.warn('No selection rectangle to position overlay');
+      console.warn('No selection rectangle to position overlay')
     }
-  };
-};
+  }
+}
 
-Overlay.extend(Overlayer);
+Overlay.extend(Overlayer)
 
-module.exports = Overlayer;
+module.exports = Overlayer

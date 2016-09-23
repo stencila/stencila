@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
@@ -11,18 +11,18 @@ MathMacro.Prototype = function () {
   // must be followed/preceded by a non-space character. For TeX, the first
   // dollar must not be followed by a digit.
   //                2                   5
-  this.regex = /(\|(\S|(\S.*\S))\|)|(\$(([^0-9\s])|([^0-9\s].*\S))\$)/;
+  this.regex = /(\|(\S|(\S.*\S))\|)|(\$(([^0-9\s])|([^0-9\s].*\S))\$)/
 
   this.createNodeData = function (match) {
-    var source, language, display;
+    var source, language, display
     if (match[2]) {
-      source = match[2];
-      language = 'asciimath';
+      source = match[2]
+      language = 'asciimath'
     } else if (match[5]) {
-      source = match[5];
-      language = 'tex';
+      source = match[5]
+      language = 'tex'
     } else {
-      throw new Error('No match!');
+      throw new Error('No match!')
     }
 
     return {
@@ -30,10 +30,10 @@ MathMacro.Prototype = function () {
       source: source,
       language: language,
       display: display
-    };
-  };
-};
+    }
+  }
+}
 
-InlineNodeMacro.extend(MathMacro);
+InlineNodeMacro.extend(MathMacro)
 
-module.exports = MathMacro;
+module.exports = MathMacro

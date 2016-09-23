@@ -1,1 +1,1 @@
-module.exports = require('substance/packages/blockquote/BlockquotePackage').default;
+module.exports = require('substance/packages/blockquote/BlockquotePackage').default

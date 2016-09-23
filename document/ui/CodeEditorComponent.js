@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import Component from 'substance/ui/Component'
 
@@ -17,38 +17,38 @@ import code from '../../utilities/code'
  * @class      CodeEditorComponent (name)
  */
 function CodeEditorComponent () {
-  CodeEditorComponent.super.apply(this, arguments);
+  CodeEditorComponent.super.apply(this, arguments)
 
-  this.editor = null;
-  this.editorMute = false;
+  this.editor = null
+  this.editorMute = false
 
   // In `this._onCodeChanged` and `this._onLanguageChanged`, these custom props
   // are not on `this.props` for some reason. So, "store" them here.
-  this.codeProperty = this.props.codeProperty;
-  this.languageProperty = this.props.languageProperty;
+  this.codeProperty = this.props.codeProperty
+  this.languageProperty = this.props.languageProperty
 }
 
 CodeEditorComponent.Prototype = function () {
   this.render = function ($$) {
-    var node = this.props.node;
+    var node = this.props.node
     return $$('div')
       .addClass('sc-code-editor')
       .append(
         $$('div')
           .ref('editor')
           .text(node[this.props.codeProperty])
-      );
-  };
+      )
+  }
 
   this.didMount = function () {
-    var node = this.props.node;
+    var node = this.props.node
 
     // Resolve the language for the code
-    var language;
+    var language
     if (this.props.languageProperty) {
-      language = node[this.props.languageProperty];
+      language = node[this.props.languageProperty]
     } else {
-      language = this.props.language;
+      language = this.props.language
     }
 
     // Attach ACE editor (allows for asynchronous loading of ACE)
@@ -67,7 +67,7 @@ CodeEditorComponent.Prototype = function () {
         // When editor has been created...
 
         // For consistency and simplicity use single character newlines
-        editor.getSession().setNewLineMode('unix');
+        editor.getSession().setNewLineMode('unix')
 
         // Additional options
         // ESC keypress
@@ -75,58 +75,58 @@ CodeEditorComponent.Prototype = function () {
           name: 'escape',
           bindKey: {win: 'Escape', mac: 'Escape'},
           exec: function (editor) {
-            this.send('escape');
-            editor.blur();
+            this.send('escape')
+            editor.blur()
           }.bind(this),
           readOnly: true
-        });
+        })
 
         // editor.on('blur', this._onEditorBlur.bind(this));
-        editor.on('change', this._onEditorChange.bind(this));
-        this.editor = editor;
+        editor.on('change', this._onEditorChange.bind(this))
+        this.editor = editor
       }.bind(this)
-    );
+    )
 
-    node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this);
-    if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this);
-  };
+    node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this)
+    if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this)
+  }
 
   this.shouldRerender = function () {
     // Don't rerender as that would destroy editor
-    return false;
-  };
+    return false
+  }
 
   this.dispose = function () {
-    this.props.node.off(this);
-    this.editor.destroy();
-  };
+    this.props.node.off(this)
+    this.editor.destroy()
+  }
 
   /**
    * When there is a change in the editor, convert the change into a Substance change
    */
   this._onEditorChange = function (change) {
-    if (this.editorMute) return;
+    if (this.editorMute) return
 
     // For determining the position of changes...
     var length = function (lines) {
-      var chars = 0;
+      var chars = 0
       for (var i = 0, l = lines.length; i < l; i++) {
-        chars += lines[i].length;
+        chars += lines[i].length
       }
-      return chars + (lines.length - 1);
-    };
+      return chars + (lines.length - 1)
+    }
 
     // Get the start position of the change
-    var start = 0;
+    var start = 0
     if (change.start.row > 0) {
-      start = length(this.editor.getSession().getLines(0, change.start.row - 1)) + 1;
+      start = length(this.editor.getSession().getLines(0, change.start.row - 1)) + 1
     }
-    start += change.start.column;
+    start += change.start.column
 
     // Apply as a Substance update to the code property of the node
-    var surface = this.context.surface;
-    var node = this.props.node;
-    var codeProperty = this.codeProperty;
+    var surface = this.context.surface
+    var node = this.props.node
+    var codeProperty = this.codeProperty
     if (change.action === 'insert') {
       surface.transaction(function (tx) {
         tx.update([node.id, codeProperty], {
@@ -134,11 +134,11 @@ CodeEditorComponent.Prototype = function () {
             offset: start,
             value: change.lines.join('\n')
           }
-        });
+        })
       }, {
         source: this,
         skipSelection: true
-      });
+      })
     } else if (change.action === 'remove') {
       surface.transaction(function (tx) {
         tx.update([node.id, codeProperty], {
@@ -146,15 +146,15 @@ CodeEditorComponent.Prototype = function () {
             start: start,
             end: start + length(change.lines)
           }
-        });
+        })
       }, {
         source: this,
         skipSelection: true
-      });
+      })
     } else {
-      throw new Error('Unhandled change:' + JSON.stringify(change));
+      throw new Error('Unhandled change:' + JSON.stringify(change))
     }
-  };
+  }
 
   /**
    * When the node's code property changes, update the
@@ -162,78 +162,78 @@ CodeEditorComponent.Prototype = function () {
    * the Substance change into an Ace change
    */
   this._onCodeChanged = function (change, info) {
-    var codeProperty = this.codeProperty;
+    var codeProperty = this.codeProperty
     if (info.source !== this && this.editor) {
       // Ignore editor chnage events
-      this.editorMute = true;
+      this.editorMute = true
 
-      var session = this.editor.getSession();
-      var doc = session.getDocument();
+      var session = this.editor.getSession()
+      var doc = session.getDocument()
 
       // Function to convert Substance offset to an Ace row/column position
       var offsetToPos = function (offset) {
-        var row = 0;
-        var col = offset;
+        var row = 0
+        var col = offset
         doc.getAllLines().forEach(function (line) {
           if (col <= line.length) {
-            return;
+            return
           }
-          row += 1;
-          col -= line.length + 1;
-        });
+          row += 1
+          col -= line.length + 1
+        })
         return {
           row: row,
           column: col
-        };
-      };
+        }
+      }
 
       // Apply each change
       change.ops.forEach(function (op) {
-        var diff = op.diff;
+        var diff = op.diff
         if (diff.type === 'insert') {
           doc.insert(
             offsetToPos(diff.pos),
             diff.str
-          );
+          )
         } else if (diff.type === 'delete') {
           // FIXME Deletion is not working properly and triggers the `setValue` fallback below
-          var Range = window.ace.require('ace/range').Range;
+          var Range = window.ace.require('ace/range').Range
           doc.remove(Range.fromPoints(
             offsetToPos(diff.pos),
             offsetToPos(diff.pos + diff.str.length)
-          ));
+          ))
         } else {
-          throw new Error('Unhandled diff:' + JSON.stringify(diff));
+          throw new Error('Unhandled diff:' + JSON.stringify(diff))
         }
-      });
+      })
 
       // Check that editor text is what it should be
-      var editorText = this.editor.getValue();
-      var nodeText = this.props.node[codeProperty];
+      var editorText = this.editor.getValue()
+      var nodeText = this.props.node[codeProperty]
       if (editorText !== nodeText) {
-        console.error('Code editor content does not match node code content. Falling back to `setValue`');
-        this.editor.setValue(nodeText, -1);
+        console.error('Code editor content does not match node code content. Falling back to `setValue`')
+        this.editor.setValue(nodeText, -1)
       }
 
       // No longer ignore editor events
-      this.editorMute = false;
+      this.editorMute = false
     }
-  };
+  }
 
   /**
    * When the node's language changes, update the
    * editor (if this wasn't the source of the update)
    */
   this._onLanguageChanged = function (change, info) {
-    var languageProperty = this.languageProperty;
+    var languageProperty = this.languageProperty
     if (info.source !== this && this.editor) {
-      code.setAceEditorMode(this.editor, this.props.node[languageProperty]);
+      code.setAceEditorMode(this.editor, this.props.node[languageProperty])
     }
-  };
-};
+  }
+}
 
-Component.extend(CodeEditorComponent);
+Component.extend(CodeEditorComponent)
 
-CodeEditorComponent.fullWidth = true;
+CodeEditorComponent.fullWidth = true
 
-module.exports = CodeEditorComponent;
+module.exports = CodeEditorComponent
