@@ -1,5 +1,3 @@
-'use strict'
-
 import HTMLExporter from 'substance/model/HTMLExporter'
 
 function TestHTMLExporter (DocumentClass, converters) {

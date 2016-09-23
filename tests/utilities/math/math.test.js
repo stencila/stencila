@@ -1,5 +1,3 @@
-'use strict'
-
 import test from 'tape'
 
 import math from '../../../utilities/math'

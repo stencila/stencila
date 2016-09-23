@@ -1,5 +1,3 @@
-'use strict'
-
 import map from 'substance/node_modules/lodash/map'
 
 import BlockTool from '../../ui/BlockTool'

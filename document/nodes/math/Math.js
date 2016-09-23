@@ -1,5 +1,3 @@
-'use strict'
-
 import InlineNode from 'substance/model/InlineNode'
 
 function Math () {

@@ -1,5 +1,3 @@
-'use strict'
-
 import BlockNodeMacro from '../../ui/BlockNodeMacro'
 
 /**

@@ -1,5 +1,3 @@
-'use strict'
-
 import AnnotationMacro from '../../ui/AnnotationMacro'
 
 /**

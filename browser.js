@@ -1,5 +1,3 @@
-'use strict'
-
 import extend from 'lodash/extend'
 import he from 'he'
 var Raven = require('raven-js')

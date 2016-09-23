@@ -1,5 +1,3 @@
-'use strict'
-
 import TextBlockComponent from 'substance/ui/TextBlockComponent'
 
 function TitleComponent () {

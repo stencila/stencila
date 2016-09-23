@@ -1,5 +1,3 @@
-'use strict'
-
 import Code from 'substance/packages/code/Code'
 import CodeHTMLConverter from 'substance/packages/code/CodeHTMLConverter'
 import CodeXMLConverter from 'substance/packages/code/CodeXMLConverter'

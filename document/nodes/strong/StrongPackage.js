@@ -1,5 +1,3 @@
-'use strict'
-
 import Strong from 'substance/packages/strong/Strong'
 import StrongHTMLConverter from 'substance/packages/strong/StrongHTMLConverter'
 import StrongXMLConverter from 'substance/packages/strong/StrongXMLConverter'

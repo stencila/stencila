@@ -1,5 +1,3 @@
-'use strict'
-
 import Command from 'substance/ui/Command'
 
 function ForkCommand () {

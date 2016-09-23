@@ -1,5 +1,3 @@
-'use strict'
-
 import Overlay from 'substance/ui/OverlayContainer'
 import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 

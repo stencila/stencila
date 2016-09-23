@@ -1,5 +1,3 @@
-'use strict'
-
 import Macro from './Macro'
 import replaceText from 'substance/model/transform/replaceText'
 

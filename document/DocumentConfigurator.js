@@ -1,5 +1,3 @@
-'use strict'
-
 import Configurator from 'substance/util/Configurator'
 
 import TitlePackage from './nodes/title/TitlePackage'

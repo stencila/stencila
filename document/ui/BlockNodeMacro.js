@@ -1,5 +1,3 @@
-'use strict'
-
 import Macro from './Macro'
 import deleteNode from 'substance/model/transform/deleteNode'
 

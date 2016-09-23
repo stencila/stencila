@@ -1,5 +1,3 @@
-'use strict'
-
 import Component from 'substance/ui/Component'
 import DocumentSession from 'substance/model/DocumentSession'
 import CollabClient from 'substance/collab/CollabClient'

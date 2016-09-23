@@ -1,5 +1,3 @@
-'use strict'
-
 import Emoji from './Emoji'
 import EmojiHTMLConverter from './EmojiHTMLConverter'
 import EmojiXMLConverter from './EmojiXMLConverter'

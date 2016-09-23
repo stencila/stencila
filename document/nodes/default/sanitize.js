@@ -1,5 +1,3 @@
-'use strict'
-
 var sanitizeHtml = require('sanitize-html')
 
 /**

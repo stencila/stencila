@@ -1,5 +1,3 @@
-'use strict'
-
 import Image from 'substance/packages/image/Image'
 import ImageComponent from 'substance/packages/image/ImageComponent'
 import ImageMarkdownComponent from './ImageMarkdownComponent'

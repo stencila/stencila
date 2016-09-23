@@ -1,5 +1,3 @@
-'use strict'
-
 import uuid from 'substance/util/uuid'
 
 import sanitize from './sanitize'

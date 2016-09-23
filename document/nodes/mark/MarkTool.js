@@ -1,5 +1,3 @@
-'use strict'
-
 import AnnotationTool from 'substance/ui/AnnotationTool'
 
 function MarkTool () {

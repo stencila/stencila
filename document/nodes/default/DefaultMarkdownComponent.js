@@ -1,5 +1,3 @@
-'use strict'
-
 import Component from 'substance/ui/Component'
 
 import CodeEditorComponent from '../../ui/CodeEditorComponent'

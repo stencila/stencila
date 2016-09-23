@@ -1,5 +1,3 @@
-'use strict'
-
 import BlockNode from 'substance/model/BlockNode'
 
 function Default () {

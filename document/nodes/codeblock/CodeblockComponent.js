@@ -1,5 +1,3 @@
-'use strict'
-
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
 function CodeblockComponent (parent, props) {

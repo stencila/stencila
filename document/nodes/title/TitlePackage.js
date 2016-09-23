@@ -1,5 +1,3 @@
-'use strict'
-
 import Title from './Title'
 import TitleComponent from './TitleComponent'
 import TitleHTMLConverter from './TitleHTMLConverter'

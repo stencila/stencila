@@ -1,5 +1,3 @@
-'use strict'
-
 import LinkComponentBase from 'substance/packages/link/LinkComponent'
 
 /**

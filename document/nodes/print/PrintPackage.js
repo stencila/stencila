@@ -1,5 +1,3 @@
-'use strict'
-
 import Print from './Print'
 import PrintHTMLConverter from './PrintHTMLConverter'
 import PrintXMLConverter from './PrintXMLConverter'

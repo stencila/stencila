@@ -1,5 +1,3 @@
-'use strict'
-
 import Comment from './Comment'
 import CommentHTMLConverter from './CommentHTMLConverter'
 import CommentXMLConverter from './CommentXMLConverter'

@@ -1,5 +1,3 @@
-'use strict'
-
 import HeadingComponent from './HeadingComponent'
 
 function HeadingMarkdownComponent () {

@@ -1,5 +1,3 @@
-'use strict'
-
 import PropertyAnnotation from 'substance/model/PropertyAnnotation'
 
 /**

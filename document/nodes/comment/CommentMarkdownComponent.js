@@ -1,5 +1,3 @@
-'use strict'
-
 import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 
 import CommentComponent from './CommentComponent'

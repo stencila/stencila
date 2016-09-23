@@ -1,5 +1,3 @@
-'use strict'
-
 import Macro from './Macro'
 import insertInlineNode from 'substance/model/transform/insertInlineNode'
 

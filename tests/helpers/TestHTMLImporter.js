@@ -1,5 +1,3 @@
-'use strict'
-
 import HTMLImporter from 'substance/model/HTMLImporter'
 
 function TestHTMLImporter (DocumentClass, converters) {

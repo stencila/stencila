@@ -1,5 +1,3 @@
-'use strict'
-
 import CommitCommand from './CommitCommand'
 import CommitTool from './CommitTool'
 import EditTool from './EditTool'

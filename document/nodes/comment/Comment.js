@@ -1,5 +1,3 @@
-'use strict'
-
 import Container from 'substance/model/Container'
 
 function Comment () {

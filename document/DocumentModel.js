@@ -1,5 +1,3 @@
-'use strict'
-
 import Document from 'substance/model/Document'
 
 import DocumentConfigurator from './DocumentConfigurator'

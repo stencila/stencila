@@ -1,5 +1,3 @@
-'use strict'
-
 import Codeblock from './Codeblock'
 import CodeblockComponent from './CodeblockComponent'
 import CodeblockHTMLConverter from './CodeblockHTMLConverter'

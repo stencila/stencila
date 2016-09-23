@@ -1,5 +1,3 @@
-'use strict'
-
 import Err from 'substance/util/SubstanceError'
 
 import map from 'lodash/map'

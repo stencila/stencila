@@ -1,5 +1,3 @@
-'use strict'
-
 /*
  * HTML converter for Print node.
  */

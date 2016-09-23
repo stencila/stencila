@@ -1,5 +1,3 @@
-'use strict'
-
 import extend from 'lodash/extend'
 import map from 'lodash/map'
 

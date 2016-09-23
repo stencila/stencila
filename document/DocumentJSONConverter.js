@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Imports/exports a document from/to JSON
  *

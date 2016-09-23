@@ -1,5 +1,3 @@
-'use strict'
-
 import oo from 'substance/util/oo'
 
 function Macro () {

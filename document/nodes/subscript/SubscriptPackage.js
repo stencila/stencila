@@ -1,5 +1,3 @@
-'use strict'
-
 import Subscript from 'substance/packages/subscript/Subscript'
 import SubscriptHTMLConverter from 'substance/packages/subscript/SubscriptHTMLConverter'
 import SubscriptXMLConverter from 'substance/packages/subscript/SubscriptXMLConverter'

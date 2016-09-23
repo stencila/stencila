@@ -1,5 +1,3 @@
-'use strict'
-
 import Emphasis from 'substance/packages/emphasis/Emphasis'
 import EmphasisHTMLConverter from 'substance/packages/emphasis/EmphasisHTMLConverter'
 import EmphasisXMLConverter from 'substance/packages/emphasis/EmphasisXMLConverter'

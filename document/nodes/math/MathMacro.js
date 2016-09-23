@@ -1,5 +1,3 @@
-'use strict'
-
 import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
 function MathMacro () {

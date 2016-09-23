@@ -1,5 +1,3 @@
-'use strict'
-
 import Mark from './Mark'
 import MarkHTMLConverter from './MarkHTMLConverter'
 import MarkXMLConverter from './MarkXMLConverter'

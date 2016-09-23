@@ -1,5 +1,3 @@
-'use strict'
-
 import EmojiComponent from './EmojiComponent'
 
 function EmojiMarkdownComponent () {

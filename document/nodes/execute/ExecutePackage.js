@@ -1,5 +1,3 @@
-'use strict'
-
 import Execute from './Execute'
 import ExecuteComponent from './ExecuteComponent'
 import ExecuteHTMLConverter from './ExecuteHTMLConverter'

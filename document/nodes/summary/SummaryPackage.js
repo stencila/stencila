@@ -1,5 +1,3 @@
-'use strict'
-
 import Summary from './Summary'
 import SummaryComponent from './SummaryComponent'
 import SummaryHTMLConverter from './SummaryHTMLConverter'

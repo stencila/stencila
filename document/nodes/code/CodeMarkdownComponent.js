@@ -1,5 +1,3 @@
-'use strict'
-
 import AnnotationComponent from 'substance/ui/AnnotationComponent'
 
 function CodeMarkdownComponent () {

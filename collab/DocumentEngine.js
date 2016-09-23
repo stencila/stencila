@@ -1,5 +1,3 @@
-'use strict'
-
 import DocumentEngineBase from 'substance/collab/DocumentEngine'
 import ObjectOperation from 'substance/model/data/ObjectOperation'
 import Err from 'substance/util/SubstanceError'

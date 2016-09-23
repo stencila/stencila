@@ -1,5 +1,3 @@
-'use strict'
-
 import Math from './Math'
 import MathHTMLConverter from './MathHTMLConverter'
 import MathXMLConverter from './MathXMLConverter'

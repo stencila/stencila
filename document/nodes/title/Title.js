@@ -1,5 +1,3 @@
-'use strict'
-
 import TextBlock from 'substance/model/TextBlock'
 
 function Title () {

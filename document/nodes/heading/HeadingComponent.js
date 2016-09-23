@@ -1,5 +1,3 @@
-'use strict'
-
 import HeadingComponentBase from 'substance/packages/heading/HeadingComponent'
 
 /**

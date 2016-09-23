@@ -1,5 +1,3 @@
-'use strict'
-
 import Discussion from './Discussion'
 import DiscussionHTMLConverter from './DiscussionHTMLConverter'
 import DiscussionXMLConverter from './DiscussionXMLConverter'

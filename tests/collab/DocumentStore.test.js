@@ -1,5 +1,3 @@
-'use strict'
-
 // Tests based (heavily!) on Substance `testDocumentStore.js`
 
 import test from 'tape'

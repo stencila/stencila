@@ -1,5 +1,3 @@
-'use strict'
-
 import MacroManagerBase from 'substance/ui/MacroManager'
 
 /**

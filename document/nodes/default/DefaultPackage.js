@@ -1,5 +1,3 @@
-'use strict'
-
 import Default from './Default'
 import DefaultHTMLConverter from './DefaultHTMLConverter'
 import DefaultXMLConverter from './DefaultXMLConverter'

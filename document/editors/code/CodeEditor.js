@@ -1,5 +1,3 @@
-'use strict'
-
 import AbstractEditor from 'substance/ui/AbstractEditor'
 import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
 import ContainerEditor from 'substance/ui/ContainerEditor'

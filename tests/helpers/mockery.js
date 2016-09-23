@@ -1,5 +1,3 @@
-'use strict'
-
 var mockery = require('mockery')
 
 mockery.registerMock('redis', require('fakeredis'))

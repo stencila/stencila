@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * A package for `Heading` nodes that is necessary (instead of using Substance's) to:
  *

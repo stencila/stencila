@@ -1,5 +1,3 @@
-'use strict'
-
 import Superscript from 'substance/packages/superscript/Superscript'
 import SuperscriptHTMLConverter from 'substance/packages/superscript/SuperscriptHTMLConverter'
 import SuperscriptXMLConverter from 'substance/packages/superscript/SuperscriptXMLConverter'

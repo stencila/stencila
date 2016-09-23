@@ -1,5 +1,3 @@
-'use strict'
-
 import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 import deleteNode from 'substance/model/transform/deleteNode'

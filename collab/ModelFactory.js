@@ -1,5 +1,3 @@
-'use strict'
-
 import oo from 'substance/util/oo'
 
 import DocumentModel from '../document/DocumentModel'
