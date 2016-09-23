@@ -45,4 +45,4 @@ MathComponent.Prototype = function () {
 
 Component.extend(MathComponent)
 
-module.exports = MathComponent
+export default MathComponent

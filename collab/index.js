@@ -70,6 +70,6 @@ var bind = function (httpServer, expressApp, endpoint) {
   }
 }
 
-module.exports = {
+export default {
   bind: bind
 }

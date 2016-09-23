@@ -227,4 +227,4 @@ BlockToolset.Prototype = function () {
 
 Component.extend(BlockToolset)
 
-module.exports = BlockToolset
+export default BlockToolset

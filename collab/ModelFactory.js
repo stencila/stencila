@@ -92,4 +92,4 @@ ModelFactory.Prototype = function () {
 
 oo.initClass(ModelFactory)
 
-module.exports = ModelFactory
+export default ModelFactory

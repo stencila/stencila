@@ -45,4 +45,4 @@ CodeblockTool.Prototype = function () {
 
 BlockTool.extend(CodeblockTool)
 
-module.exports = CodeblockTool
+export default CodeblockTool

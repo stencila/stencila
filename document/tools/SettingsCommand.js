@@ -23,4 +23,4 @@ SettingsCommand.Prototype = function () {
 
 Command.extend(SettingsCommand)
 
-module.exports = SettingsCommand
+export default SettingsCommand

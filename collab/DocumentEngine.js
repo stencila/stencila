@@ -97,4 +97,4 @@ DocumentEngine.Prototype = function () {
 
 DocumentEngineBase.extend(DocumentEngine)
 
-module.exports = DocumentEngine
+export default DocumentEngine

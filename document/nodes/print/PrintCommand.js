@@ -26,4 +26,4 @@ PrintCommand.Prototype = function () {
 
 InlineNodeCommand.extend(PrintCommand)
 
-module.exports = PrintCommand
+export default PrintCommand

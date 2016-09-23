@@ -9,7 +9,7 @@ import MathCommand from './MathCommand'
 import MathMacro from './MathMacro'
 import MathTool from './MathTool'
 
-module.exports = {
+export default {
   name: 'math',
   configure: function (config) {
     config.addNode(Math)

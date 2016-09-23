@@ -41,4 +41,4 @@ DefaultTool.Prototype = function () {
 
 BlockTool.extend(DefaultTool)
 
-module.exports = DefaultTool
+export default DefaultTool

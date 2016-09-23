@@ -110,4 +110,4 @@ DocumentStore.Prototype = function () {
 
 Store.extend(DocumentStore)
 
-module.exports = DocumentStore
+export default DocumentStore

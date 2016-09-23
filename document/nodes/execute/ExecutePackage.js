@@ -5,7 +5,7 @@ import ExecuteComponent from './ExecuteComponent'
 import ExecuteHTMLConverter from './ExecuteHTMLConverter'
 import ExecuteXMLConverter from './ExecuteXMLConverter'
 
-module.exports = {
+export default {
   name: 'execute',
   configure: function (config) {
     config.addNode(Execute)

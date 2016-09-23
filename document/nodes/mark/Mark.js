@@ -26,4 +26,4 @@ Mark.define({
   target: { type: 'string', default: '' }
 })
 
-module.exports = Mark
+export default Mark

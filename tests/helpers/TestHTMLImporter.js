@@ -18,4 +18,4 @@ TestHTMLImporter.Prototype = function () {
 
 HTMLImporter.extend(TestHTMLImporter)
 
-module.exports = TestHTMLImporter
+export default TestHTMLImporter

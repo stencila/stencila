@@ -25,4 +25,4 @@ ImageMarkdownComponent.Prototype = function () {
 
 Component.extend(ImageMarkdownComponent)
 
-module.exports = ImageMarkdownComponent
+export default ImageMarkdownComponent

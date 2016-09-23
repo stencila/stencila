@@ -25,4 +25,4 @@ PrintComponent.Prototype = function () {
 
 Component.extend(PrintComponent)
 
-module.exports = PrintComponent
+export default PrintComponent

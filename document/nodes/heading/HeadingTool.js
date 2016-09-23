@@ -47,4 +47,4 @@ HeadingTool.Prototype = function () {
 
 BlockTool.extend(HeadingTool)
 
-module.exports = HeadingTool
+export default HeadingTool

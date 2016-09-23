@@ -30,4 +30,4 @@ Component.extend(DefaultMarkdownComponent)
 
 DefaultMarkdownComponent.fullWidth = true
 
-module.exports = DefaultMarkdownComponent
+export default DefaultMarkdownComponent

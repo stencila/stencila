@@ -29,4 +29,4 @@ TestDocumentHTMLConverter.Prototype = function () {
 
 oo.initClass(TestDocumentHTMLConverter)
 
-module.exports = TestDocumentHTMLConverter
+export default TestDocumentHTMLConverter

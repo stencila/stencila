@@ -7,7 +7,7 @@ import MarkCommand from './MarkCommand'
 import MarkComponent from './MarkComponent'
 import MarkTool from './MarkTool'
 
-module.exports = {
+export default {
   name: 'mark',
   configure: function (config) {
     config.addNode(Mark)

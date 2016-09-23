@@ -26,5 +26,5 @@ var sanitize = function (html) {
   })
 }
 
-module.exports = sanitize
+export default sanitize
 

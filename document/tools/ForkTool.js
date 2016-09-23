@@ -14,5 +14,5 @@ ForkTool.Prototype = function () {
 
 Tool.extend(ForkTool)
 
-module.exports = ForkTool
+export default ForkTool
 

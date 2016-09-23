@@ -19,4 +19,4 @@ ExecuteComponent.Prototype = function () {
 
 CodeEditorComponent.extend(ExecuteComponent)
 
-module.exports = ExecuteComponent
+export default ExecuteComponent

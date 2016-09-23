@@ -25,5 +25,5 @@ RevealTool.Prototype = function () {
 
 Tool.extend(RevealTool)
 
-module.exports = RevealTool
+export default RevealTool
 

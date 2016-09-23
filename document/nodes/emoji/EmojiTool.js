@@ -52,4 +52,4 @@ EmojiTool.Prototype = function () {
 
 Tool.extend(EmojiTool)
 
-module.exports = EmojiTool
+export default EmojiTool

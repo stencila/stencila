@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('./DiscussionHTMLConverter')
+export default require('./DiscussionHTMLConverter')

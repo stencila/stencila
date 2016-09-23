@@ -13,4 +13,4 @@ Default.define({
   html: {type: 'string', default: ''}
 })
 
-module.exports = Default
+export default Default

@@ -6,7 +6,7 @@ import DiscussionXMLConverter from './DiscussionXMLConverter'
 import DiscussionComponent from './DiscussionComponent'
 import DiscussionMarkdownComponent from './DiscussionMarkdownComponent'
 
-module.exports = {
+export default {
   name: 'discussion',
   configure: function (config) {
     config.addNode(Discussion)

@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('./DefaultHTMLConverter')
+export default require('./DefaultHTMLConverter')

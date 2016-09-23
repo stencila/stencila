@@ -18,4 +18,4 @@ PrintMacro.Prototype = function () {
 
 InlineNodeMacro.extend(PrintMacro)
 
-module.exports = PrintMacro
+export default PrintMacro

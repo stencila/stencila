@@ -19,4 +19,4 @@ EmojiMacro.Prototype = function () {
 
 InlineNodeMacro.extend(EmojiMacro)
 
-module.exports = EmojiMacro
+export default EmojiMacro

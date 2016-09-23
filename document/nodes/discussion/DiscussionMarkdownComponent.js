@@ -20,4 +20,4 @@ DiscussionMarkdownComponent.Prototype = function () {
 
 IsolatedNodeComponent.extend(DiscussionMarkdownComponent)
 
-module.exports = DiscussionMarkdownComponent
+export default DiscussionMarkdownComponent

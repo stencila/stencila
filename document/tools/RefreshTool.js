@@ -14,5 +14,5 @@ RefreshTool.Prototype = function () {
 
 Tool.extend(RefreshTool)
 
-module.exports = RefreshTool
+export default RefreshTool
 

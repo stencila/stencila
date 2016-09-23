@@ -26,4 +26,4 @@ HeadingComponent.Prototype = function () {
 
 HeadingComponentBase.extend(HeadingComponent)
 
-module.exports = HeadingComponent
+export default HeadingComponent

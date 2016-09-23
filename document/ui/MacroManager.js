@@ -63,4 +63,4 @@ MacroManager.Prototype = function () {
 
 MacroManagerBase.extend(MacroManager)
 
-module.exports = MacroManager
+export default MacroManager

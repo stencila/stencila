@@ -26,4 +26,4 @@ DocumentHTMLExporter.Prototype = function () {
 
 HTMLExporter.extend(DocumentHTMLExporter)
 
-module.exports = DocumentHTMLExporter
+export default DocumentHTMLExporter

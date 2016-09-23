@@ -39,5 +39,5 @@ ViewTool.Prototype = function () {
 
 Tool.extend(ViewTool)
 
-module.exports = ViewTool
+export default ViewTool
 

@@ -29,5 +29,5 @@ EditTool.Prototype = function () {
 
 Tool.extend(EditTool)
 
-module.exports = EditTool
+export default EditTool
 

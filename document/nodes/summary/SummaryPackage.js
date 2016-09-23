@@ -5,7 +5,7 @@ import SummaryComponent from './SummaryComponent'
 import SummaryHTMLConverter from './SummaryHTMLConverter'
 import SummaryXMLConverter from './SummaryXMLConverter'
 
-module.exports = {
+export default {
   name: 'summary',
   configure: function (config) {
     config.addNode(Summary)

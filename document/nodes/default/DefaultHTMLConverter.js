@@ -4,7 +4,7 @@ import uuid from 'substance/util/uuid'
 
 import sanitize from './sanitize'
 
-module.exports = {
+export default {
 
   type: 'default',
 

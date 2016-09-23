@@ -40,4 +40,4 @@ EmojiComponent.Prototype = function () {
 
 Component.extend(EmojiComponent)
 
-module.exports = EmojiComponent
+export default EmojiComponent

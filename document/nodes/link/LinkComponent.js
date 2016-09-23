@@ -26,4 +26,4 @@ LinkComponent.Prototype = function () {
 
 LinkComponentBase.extend(LinkComponent)
 
-module.exports = LinkComponent
+export default LinkComponent

@@ -26,4 +26,4 @@ MathCommand.Prototype = function () {
 
 InlineNodeCommand.extend(MathCommand)
 
-module.exports = MathCommand
+export default MathCommand

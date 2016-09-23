@@ -15,4 +15,4 @@ Comment.define({
   nodes: { type: ['id'], default: [] }
 })
 
-module.exports = Comment
+export default Comment

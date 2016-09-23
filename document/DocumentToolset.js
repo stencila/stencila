@@ -146,4 +146,4 @@ DocumentToolset.Prototype = function () {
 
 Component.extend(DocumentToolset)
 
-module.exports = DocumentToolset
+export default DocumentToolset

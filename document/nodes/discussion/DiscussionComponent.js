@@ -217,4 +217,4 @@ DiscussionComponent.Prototype = function () {
 
 IsolatedNodeComponent.extend(DiscussionComponent)
 
-module.exports = DiscussionComponent
+export default DiscussionComponent

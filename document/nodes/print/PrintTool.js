@@ -48,4 +48,4 @@ PrintTool.Prototype = function () {
 
 AnnotationTool.extend(PrintTool)
 
-module.exports = PrintTool
+export default PrintTool

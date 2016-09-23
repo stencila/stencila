@@ -29,4 +29,4 @@ InlineNodeMacro.Prototype = function () {
 
 Macro.extend(InlineNodeMacro)
 
-module.exports = InlineNodeMacro
+export default InlineNodeMacro

@@ -14,7 +14,7 @@ import HeadingHTMLConverter from 'substance/packages/heading/HeadingHTMLConverte
 import HeadingXMLConverter from 'substance/packages/heading/HeadingXMLConverter'
 import HeadingMacro from './HeadingMacro'
 
-module.exports = {
+export default {
   name: 'heading',
   configure: function (config) {
     config.addNode(Heading)

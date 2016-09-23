@@ -16,4 +16,4 @@ Math.define({
   error: { type: 'string', optional: true }
 })
 
-module.exports = Math
+export default Math

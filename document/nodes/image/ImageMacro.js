@@ -36,4 +36,4 @@ ImageMacro.Prototype = function () {
 
 BlockNodeMacro.extend(ImageMacro)
 
-module.exports = ImageMacro
+export default ImageMacro

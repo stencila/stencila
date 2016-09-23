@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+export default {
 
   type: 'discussion',
   tagName: 'div',

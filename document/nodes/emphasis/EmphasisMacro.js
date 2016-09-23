@@ -29,4 +29,4 @@ EmphasisMacro.Prototype = function () {
 
 AnnotationMacro.extend(EmphasisMacro)
 
-module.exports = EmphasisMacro
+export default EmphasisMacro

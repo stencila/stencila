@@ -11,5 +11,5 @@ CommitTool.Prototype = function () {
 
 Tool.extend(CommitTool)
 
-module.exports = CommitTool
+export default CommitTool
 

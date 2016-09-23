@@ -36,4 +36,4 @@ MathMacro.Prototype = function () {
 
 InlineNodeMacro.extend(MathMacro)
 
-module.exports = MathMacro
+export default MathMacro

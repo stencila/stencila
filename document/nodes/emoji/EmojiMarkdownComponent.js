@@ -17,4 +17,4 @@ EmojiMarkdownComponent.Prototype = function () {
 
 EmojiComponent.extend(EmojiMarkdownComponent)
 
-module.exports = EmojiMarkdownComponent
+export default EmojiMarkdownComponent

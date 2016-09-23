@@ -22,4 +22,4 @@ SaveCommand.Prototype = function () {
 
 Command.extend(SaveCommand)
 
-module.exports = SaveCommand
+export default SaveCommand

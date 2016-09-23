@@ -22,4 +22,4 @@ HeadingMarkdownComponent.Prototype = function () {
 
 HeadingComponent.extend(HeadingMarkdownComponent)
 
-module.exports = HeadingMarkdownComponent
+export default HeadingMarkdownComponent

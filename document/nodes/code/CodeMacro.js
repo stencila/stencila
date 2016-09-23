@@ -27,4 +27,4 @@ CodeMacro.Prototype = function () {
 
 AnnotationMacro.extend(CodeMacro)
 
-module.exports = CodeMacro
+export default CodeMacro

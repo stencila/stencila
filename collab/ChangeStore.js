@@ -132,4 +132,4 @@ ChangeStore.Prototype = function () {
 
 Store.extend(ChangeStore)
 
-module.exports = ChangeStore
+export default ChangeStore

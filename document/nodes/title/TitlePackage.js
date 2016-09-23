@@ -5,7 +5,7 @@ import TitleComponent from './TitleComponent'
 import TitleHTMLConverter from './TitleHTMLConverter'
 import TitleXMLConverter from './TitleXMLConverter'
 
-module.exports = {
+export default {
   name: 'title',
   configure: function (config) {
     config.addNode(Title)

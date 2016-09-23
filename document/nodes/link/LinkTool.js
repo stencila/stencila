@@ -66,4 +66,4 @@ LinkTool.Prototype = function () {
 
 AnnotationTool.extend(LinkTool)
 
-module.exports = LinkTool
+export default LinkTool

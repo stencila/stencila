@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('./TitleHTMLConverter')
+export default require('./TitleHTMLConverter')

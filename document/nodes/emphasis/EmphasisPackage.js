@@ -8,7 +8,7 @@ import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import AnnotationTool from 'substance/ui/AnnotationTool'
 import EmphasisMacro from './EmphasisMacro'
 
-module.exports = {
+export default {
   name: 'emphasis',
   configure: function (config) {
     config.addNode(Emphasis)

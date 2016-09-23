@@ -6,7 +6,7 @@ import DefaultXMLConverter from './DefaultXMLConverter'
 import DefaultComponent from './DefaultComponent'
 import DefaultMarkdownComponent from './DefaultMarkdownComponent'
 
-module.exports = {
+export default {
   name: 'default',
   configure: function (config) {
     config.addNode(Default)

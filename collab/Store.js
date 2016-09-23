@@ -21,4 +21,4 @@ Store.Prototype = function () {
 
 oo.initClass(Store)
 
-module.exports = Store
+export default Store

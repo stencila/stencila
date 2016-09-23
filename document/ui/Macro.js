@@ -51,4 +51,4 @@ Macro.Prototype = function () {
 
 oo.initClass(Macro)
 
-module.exports = Macro
+export default Macro

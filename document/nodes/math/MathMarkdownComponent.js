@@ -33,4 +33,4 @@ MathCodeComponent.Prototype = function () {
 
 Component.extend(MathCodeComponent)
 
-module.exports = MathCodeComponent
+export default MathCodeComponent

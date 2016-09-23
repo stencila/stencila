@@ -14,5 +14,5 @@ SettingsTool.Prototype = function () {
 
 Tool.extend(SettingsTool)
 
-module.exports = SettingsTool
+export default SettingsTool
 

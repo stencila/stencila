@@ -3,7 +3,7 @@
 /*
  * HTML converter for Print node.
  */
-module.exports = {
+export default {
 
   type: 'print',
   tagName: 'span',

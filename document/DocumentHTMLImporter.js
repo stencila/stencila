@@ -44,4 +44,4 @@ DocumentHTMLImporter.Prototype = function () {
 
 HTMLImporter.extend(DocumentHTMLImporter)
 
-module.exports = DocumentHTMLImporter
+export default DocumentHTMLImporter

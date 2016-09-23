@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+export default {
   name: 'visualEditor',
   configure: function (config) {
     // Adds the 'overlay' component. This is necessary

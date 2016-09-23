@@ -17,4 +17,4 @@ CodeMarkdownComponent.Prototype = function () {
 
 AnnotationComponent.extend(CodeMarkdownComponent)
 
-module.exports = CodeMarkdownComponent
+export default CodeMarkdownComponent

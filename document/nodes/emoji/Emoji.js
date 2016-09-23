@@ -13,4 +13,4 @@ Emoji.define({
   name: { type: 'string' }
 })
 
-module.exports = Emoji
+export default Emoji

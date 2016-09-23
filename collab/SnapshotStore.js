@@ -143,4 +143,4 @@ SnapshotStore.Prototype = function () {
 
 Store.extend(SnapshotStore)
 
-module.exports = SnapshotStore
+export default SnapshotStore

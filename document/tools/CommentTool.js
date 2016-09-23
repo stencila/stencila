@@ -20,5 +20,5 @@ CommentTool.Prototype = function () {
 
 Tool.extend(CommentTool)
 
-module.exports = CommentTool
+export default CommentTool
 

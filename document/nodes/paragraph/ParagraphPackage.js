@@ -1,1 +1,1 @@
-module.exports = require('substance/packages/paragraph/ParagraphPackage').default
+export default require('substance/packages/paragraph/ParagraphPackage').default

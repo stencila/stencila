@@ -23,4 +23,4 @@ ForkCommand.Prototype = function () {
 
 Command.extend(ForkCommand)
 
-module.exports = ForkCommand
+export default ForkCommand

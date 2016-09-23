@@ -26,4 +26,4 @@ EmojiCommand.Prototype = function () {
 
 InlineNodeCommand.extend(EmojiCommand)
 
-module.exports = EmojiCommand
+export default EmojiCommand

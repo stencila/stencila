@@ -5,7 +5,7 @@ import CodeblockComponent from './CodeblockComponent'
 import CodeblockHTMLConverter from './CodeblockHTMLConverter'
 import CodeblockXMLConverter from './CodeblockXMLConverter'
 
-module.exports = {
+export default {
   name: 'codeblock',
   configure: function (config) {
     config.addNode(Codeblock)

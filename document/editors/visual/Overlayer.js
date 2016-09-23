@@ -100,4 +100,4 @@ Overlayer.Prototype = function () {
 
 Overlay.extend(Overlayer)
 
-module.exports = Overlayer
+export default Overlayer

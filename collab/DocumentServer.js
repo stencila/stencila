@@ -76,4 +76,4 @@ DocumentServer.Prototype = function () {
 
 DocumentServerBase.extend(DocumentServer)
 
-module.exports = DocumentServer
+export default DocumentServer

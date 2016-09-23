@@ -87,4 +87,4 @@ MathTool.Prototype = function () {
 
 Tool.extend(MathTool)
 
-module.exports = MathTool
+export default MathTool

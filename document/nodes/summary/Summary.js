@@ -10,4 +10,4 @@ TextBlock.extend(Summary)
 
 Summary.type = 'summary'
 
-module.exports = Summary
+export default Summary

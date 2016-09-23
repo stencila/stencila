@@ -30,4 +30,4 @@ LinkMacro.Prototype = function () {
 
 AnnotationMacro.extend(LinkMacro)
 
-module.exports = LinkMacro
+export default LinkMacro

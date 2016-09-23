@@ -9,7 +9,7 @@ import EmojiCommand from './EmojiCommand'
 import EmojiMacro from './EmojiMacro'
 import EmojiTool from './EmojiTool'
 
-module.exports = {
+export default {
   name: 'emoji',
   configure: function (config) {
     config.addNode(Emoji)

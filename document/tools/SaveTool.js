@@ -11,5 +11,5 @@ SaveTool.Prototype = function () {
 
 Tool.extend(SaveTool)
 
-module.exports = SaveTool
+export default SaveTool
 

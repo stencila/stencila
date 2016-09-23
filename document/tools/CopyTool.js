@@ -42,5 +42,5 @@ CopyTool.Prototype = function () {
 
 Tool.extend(CopyTool)
 
-module.exports = CopyTool
+export default CopyTool
 

@@ -33,4 +33,4 @@ CommentMarkdownComponent.Prototype = function () {
 
 CommentComponent.extend(CommentMarkdownComponent)
 
-module.exports = CommentMarkdownComponent
+export default CommentMarkdownComponent

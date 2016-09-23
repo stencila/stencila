@@ -6,7 +6,7 @@ import CommentXMLConverter from './CommentXMLConverter'
 import CommentComponent from './CommentComponent'
 import CommentMarkdownComponent from './CommentMarkdownComponent'
 
-module.exports = {
+export default {
   name: 'comment',
   configure: function (config) {
     config.addNode(Comment)

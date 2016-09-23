@@ -9,7 +9,7 @@ import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import AnnotationTool from 'substance/ui/AnnotationTool'
 import CodeMacro from './CodeMacro'
 
-module.exports = {
+export default {
   name: 'code',
   configure: function (config) {
     config.addNode(Code)

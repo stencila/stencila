@@ -21,4 +21,4 @@ CodeEditorComponent.extend(CodeblockComponent)
 
 CodeblockComponent.fullWidth = true
 
-module.exports = CodeblockComponent
+export default CodeblockComponent

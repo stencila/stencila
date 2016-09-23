@@ -37,4 +37,4 @@ DocumentModel.schema = configurator.getSchema()
 
 Document.extend(DocumentModel)
 
-module.exports = DocumentModel
+export default DocumentModel

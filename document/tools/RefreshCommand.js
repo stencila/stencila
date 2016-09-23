@@ -38,4 +38,4 @@ RefreshCommand.Prototype = function () {
 
 Command.extend(RefreshCommand)
 
-module.exports = RefreshCommand
+export default RefreshCommand

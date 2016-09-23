@@ -66,4 +66,4 @@ CommentComponent.Prototype = function () {
 
 IsolatedNodeComponent.extend(CommentComponent)
 
-module.exports = CommentComponent
+export default CommentComponent

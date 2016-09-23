@@ -96,4 +96,4 @@ CodeEditor.Prototype = function () {
 
 AbstractEditor.extend(CodeEditor)
 
-module.exports = CodeEditor
+export default CodeEditor

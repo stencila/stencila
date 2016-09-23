@@ -40,4 +40,4 @@ AnnotationMacro.Prototype = function () {
 
 Macro.extend(AnnotationMacro)
 
-module.exports = AnnotationMacro
+export default AnnotationMacro

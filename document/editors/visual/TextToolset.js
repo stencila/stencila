@@ -70,4 +70,4 @@ TextToolset.Prototype = function () {
 
 Component.extend(TextToolset)
 
-module.exports = TextToolset
+export default TextToolset

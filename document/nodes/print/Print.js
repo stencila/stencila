@@ -35,4 +35,4 @@ Print.define({
   content: { type: 'string', optional: true }
 })
 
-module.exports = Print
+export default Print

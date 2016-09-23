@@ -8,7 +8,7 @@ import PrintCommand from './PrintCommand'
 import PrintMacro from './PrintMacro'
 import PrintTool from './PrintTool'
 
-module.exports = {
+export default {
   name: 'print',
   configure: function (config) {
     config.addNode(Print)

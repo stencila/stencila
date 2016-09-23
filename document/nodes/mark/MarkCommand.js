@@ -97,4 +97,4 @@ MarkCommand.Prototype = function () {
 
 AnnotationCommand.extend(MarkCommand)
 
-module.exports = MarkCommand
+export default MarkCommand

@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+export default {
 
   type: 'title',
   tagName: 'div',

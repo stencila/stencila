@@ -39,4 +39,4 @@ MarkComponent.Prototype = function () {
 
 AnnotationComponent.extend(MarkComponent)
 
-module.exports = MarkComponent
+export default MarkComponent

@@ -28,4 +28,4 @@ CommitCommand.Prototype = function () {
 
 Command.extend(CommitCommand)
 
-module.exports = CommitCommand
+export default CommitCommand

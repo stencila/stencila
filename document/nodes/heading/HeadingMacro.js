@@ -37,4 +37,4 @@ HeadingMacro.Prototype = function () {
 
 BlockNodeMacro.extend(HeadingMacro)
 
-module.exports = HeadingMacro
+export default HeadingMacro

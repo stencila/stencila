@@ -30,4 +30,4 @@ StrongMacro.Prototype = function () {
 
 AnnotationMacro.extend(StrongMacro)
 
-module.exports = StrongMacro
+export default StrongMacro

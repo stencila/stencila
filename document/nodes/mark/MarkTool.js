@@ -14,4 +14,4 @@ MarkTool.Prototype = function () {
 
 AnnotationTool.extend(MarkTool)
 
-module.exports = MarkTool
+export default MarkTool

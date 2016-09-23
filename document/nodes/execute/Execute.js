@@ -32,4 +32,4 @@ Execute.define({
   source: { type: 'string', default: '' }
 })
 
-module.exports = Execute
+export default Execute

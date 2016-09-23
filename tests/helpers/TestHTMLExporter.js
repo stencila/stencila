@@ -20,4 +20,4 @@ TestHTMLExporter.Prototype = function () {
 
 HTMLExporter.extend(TestHTMLExporter)
 
-module.exports = TestHTMLExporter
+export default TestHTMLExporter

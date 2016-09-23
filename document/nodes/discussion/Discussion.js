@@ -14,4 +14,4 @@ Discussion.define({
   nodes: { type: ['id'], default: [] }
 })
 
-module.exports = Discussion
+export default Discussion

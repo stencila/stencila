@@ -10,4 +10,4 @@ TextBlock.extend(Title)
 
 Title.type = 'title'
 
-module.exports = Title
+export default Title

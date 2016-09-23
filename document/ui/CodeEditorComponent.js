@@ -236,4 +236,4 @@ Component.extend(CodeEditorComponent)
 
 CodeEditorComponent.fullWidth = true
 
-module.exports = CodeEditorComponent
+export default CodeEditorComponent

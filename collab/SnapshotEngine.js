@@ -26,4 +26,4 @@ SnapshotEngine.Prototype = function () {
 
 SnapshotEngineBase.extend(SnapshotEngine)
 
-module.exports = SnapshotEngine
+export default SnapshotEngine

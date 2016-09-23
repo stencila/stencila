@@ -17,4 +17,4 @@ SummaryComponent.Prototype = function () {
 
 TextBlockComponent.extend(SummaryComponent)
 
-module.exports = SummaryComponent
+export default SummaryComponent

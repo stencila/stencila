@@ -8,7 +8,7 @@ import ImageXMLConverter from 'substance/packages/image/ImageXMLConverter'
 import ImageMacro from './ImageMacro'
 import ImageTool from './ImageTool'
 
-module.exports = {
+export default {
   name: 'image',
   configure: function (config) {
     config.addNode(Image)

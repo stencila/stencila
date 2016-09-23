@@ -14,5 +14,5 @@ Codeblock.define({
   source: { type: 'string', default: '' }
 })
 
-module.exports = Codeblock
+export default Codeblock
 

@@ -6,7 +6,7 @@ import LinkHTMLConverter from 'substance/packages/link/LinkHTMLConverter'
 import LinkXMLConverter from 'substance/packages/link/LinkXMLConverter'
 import LinkMacro from './LinkMacro'
 
-module.exports = {
+export default {
   name: 'link',
   configure: function (config) {
     config.addNode(Link)

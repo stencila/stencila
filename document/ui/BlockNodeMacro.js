@@ -41,4 +41,4 @@ BlockNodeMacro.Prototype = function () {
 
 Macro.extend(BlockNodeMacro)
 
-module.exports = BlockNodeMacro
+export default BlockNodeMacro

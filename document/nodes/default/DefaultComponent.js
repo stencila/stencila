@@ -56,4 +56,4 @@ Component.extend(DefaultComponent)
 
 DefaultComponent.fullWidth = true
 
-module.exports = DefaultComponent
+export default DefaultComponent

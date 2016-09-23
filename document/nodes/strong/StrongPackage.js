@@ -8,7 +8,7 @@ import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import AnnotationTool from 'substance/ui/AnnotationTool'
 import StrongMacro from './StrongMacro'
 
-module.exports = {
+export default {
   name: 'strong',
   configure: function (config) {
     config.addNode(Strong)

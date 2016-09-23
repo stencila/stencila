@@ -48,4 +48,4 @@ ImageTool.Prototype = function () {
 
 BlockTool.extend(ImageTool)
 
-module.exports = ImageTool
+export default ImageTool

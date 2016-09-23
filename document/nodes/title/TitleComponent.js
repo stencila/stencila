@@ -17,4 +17,4 @@ TitleComponent.Prototype = function () {
 
 TextBlockComponent.extend(TitleComponent)
 
-module.exports = TitleComponent
+export default TitleComponent
