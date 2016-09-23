@@ -13,6 +13,8 @@
  *
  *   node server.js --upstream=https://stenci.la
  */
+'use strict'
+
 require('./babelize')
 
 var express = require('express')

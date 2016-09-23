@@ -1,4 +1,5 @@
 // Run unit tests (`*.test.js`)
+'use strict'
 
 // Require so THIS file does not need a babelize before it
 // (allows tests to be run without babel-node)
