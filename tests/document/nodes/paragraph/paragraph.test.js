@@ -3,8 +3,10 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
+import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+
 var config = new TestConfigurator([
-  require('../../../../document/nodes/paragraph/ParagraphPackage')
+  ParagraphPackage
 ])
 
 test('ParagraphHTMLConverter', function (assert) {

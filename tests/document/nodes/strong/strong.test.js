@@ -3,11 +3,14 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-var config = new TestConfigurator([
-  require('../../../../document/nodes/strong/StrongPackage'),
+import StrongPackage from '../../../../document/nodes/strong/StrongPackage'
+import EmphasisPackage from '../../../../document/nodes/emphasis/EmphasisPackage'
+import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
 
-  require('../../../../document/nodes/paragraph/ParagraphPackage'),
-  require('../../../../document/nodes/emphasis/EmphasisPackage')
+var config = new TestConfigurator([
+  StrongPackage,
+  EmphasisPackage,
+  ParagraphPackage
 ])
 
 test('StrongHTMLConverter', function (assert) {

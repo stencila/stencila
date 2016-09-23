@@ -3,9 +3,12 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
+import MathPackage from '../../../../document/nodes/math/MathPackage'
+import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+
 var config = new TestConfigurator([
-  require('../../../../document/nodes/math/MathPackage'),
-  require('../../../../document/nodes/paragraph/ParagraphPackage')
+  MathPackage,
+  ParagraphPackage
 ])
 
 test('MathHTMLConverter', function (assert) {

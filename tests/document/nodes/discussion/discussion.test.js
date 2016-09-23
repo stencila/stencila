@@ -3,11 +3,16 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
+import DiscussionPackage from '../../../../document/nodes/discussion/DiscussionPackage'
+import CommentPackage from '../../../../document/nodes/comment/CommentPackage'
+import MarkPackage from '../../../../document/nodes/mark/MarkPackage'
+import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+
 var config = new TestConfigurator([
-  require('../../../../document/nodes/discussion/DiscussionPackage'),
-  require('../../../../document/nodes/comment/CommentPackage'),
-  require('../../../../document/nodes/mark/MarkPackage'),
-  require('../../../../document/nodes/paragraph/ParagraphPackage')
+  DiscussionPackage,
+  CommentPackage,
+  MarkPackage,
+  ParagraphPackage
 ])
 
 test('DiscussionHTMLConverter import/export', function (t) {

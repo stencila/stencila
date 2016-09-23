@@ -3,9 +3,12 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
+import EmojiPackage from '../../../../document/nodes/emoji/EmojiPackage'
+import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+
 var config = new TestConfigurator([
-  require('../../../../document/nodes/emoji/EmojiPackage'),
-  require('../../../../document/nodes/paragraph/ParagraphPackage')
+  EmojiPackage,
+  ParagraphPackage
 ])
 
 test('EmojiHTMLConverter', function (assert) {

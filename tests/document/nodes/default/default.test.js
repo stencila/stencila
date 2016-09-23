@@ -3,9 +3,8 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-var config = new TestConfigurator([
-  require('../../../../document/nodes/default/DefaultPackage')
-])
+import DefaultPackage from '../../../../document/nodes/default/DefaultPackage'
+var config = new TestConfigurator([DefaultPackage])
 var converter = new TestDocumentHTMLConverter(config)
 
 import Document from '../../../../document/DocumentModel'

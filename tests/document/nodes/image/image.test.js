@@ -3,9 +3,12 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
+import ImagePackage from '../../../../document/nodes/image/ImagePackage'
+import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+
 var config = new TestConfigurator([
-  require('../../../../document/nodes/image/ImagePackage'),
-  require('../../../../document/nodes/paragraph/ParagraphPackage')
+  ImagePackage,
+  ParagraphPackage
 ])
 
 test('ImageHTMLConverter', function (assert) {
