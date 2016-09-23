@@ -8,7 +8,7 @@ import test from 'tape'
 if (typeof window === 'undefined') {
   require('../helpers/mockery')
 
-  var DocumentStore = require('../../collab/DocumentStore')
+  var DocumentStore = require('../../collab/DocumentStore').default
   var store = new DocumentStore()
 
   test('DocumentStore.createDocument', function (t) {
