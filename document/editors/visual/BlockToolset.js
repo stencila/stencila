@@ -2,11 +2,11 @@ import Component from 'substance/ui/Component'
 import switchTextType from 'substance/model/transform/switchTextType'
 import deleteNode from 'substance/model/transform/deleteNode'
 
-var BlockTool = require('../../ui/BlockTool');
-var HeadingTool = require('../../nodes/heading/HeadingTool');
-var ImageTool = require('../../nodes/image/ImageTool');
-var CodeblockTool = require('../../nodes/codeblock/CodeblockTool');
-var DefaultTool = require('../../nodes/default/DefaultTool');
+import BlockTool from '../../ui/BlockTool'
+import HeadingTool from '../../nodes/heading/HeadingTool'
+import ImageTool from '../../nodes/image/ImageTool'
+import CodeblockTool from '../../nodes/codeblock/CodeblockTool'
+import DefaultTool from '../../nodes/default/DefaultTool'
 
 function BlockToolset () {
   BlockToolset.super.apply(this, arguments);

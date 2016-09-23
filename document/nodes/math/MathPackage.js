@@ -1,13 +1,13 @@
 'use strict';
 
-var Math = require('./Math');
-var MathHTMLConverter = require('./MathHTMLConverter');
-var MathXMLConverter = require('./MathXMLConverter');
-var MathComponent = require('./MathComponent');
-var MathMarkdownComponent = require('./MathMarkdownComponent');
-var MathCommand = require('./MathCommand');
-var MathMacro = require('./MathMacro');
-var MathTool = require('./MathTool');
+import Math from './Math'
+import MathHTMLConverter from './MathHTMLConverter'
+import MathXMLConverter from './MathXMLConverter'
+import MathComponent from './MathComponent'
+import MathMarkdownComponent from './MathMarkdownComponent'
+import MathCommand from './MathCommand'
+import MathMacro from './MathMacro'
+import MathTool from './MathTool'
 
 module.exports = {
   name: 'math',

@@ -1,10 +1,10 @@
 'use strict';
 
-var extend = require('lodash/extend');
-var he = require('he');
+import extend from 'lodash/extend'
+import he from 'he'
 var Raven = require('raven-js');
 
-var location = require('./utilities/location');
+import location from './utilities/location'
 
 /**
  * Stencila browser application entry point

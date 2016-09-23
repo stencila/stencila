@@ -1,6 +1,6 @@
 'use strict';
 
-var Macro = require('./Macro');
+import Macro from './Macro'
 import insertInlineNode from 'substance/model/transform/insertInlineNode'
 
 function InlineNodeMacro () {

@@ -2,7 +2,7 @@
 
 import Component from 'substance/ui/Component'
 
-var CodeEditorComponent = require('../../ui/CodeEditorComponent');
+import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
 function DefaultMarkdownComponent () {
   DefaultMarkdownComponent.super.apply(this, arguments);

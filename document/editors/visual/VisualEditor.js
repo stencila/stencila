@@ -2,9 +2,9 @@ import AbstractEditor from 'substance/ui/AbstractEditor'
 import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 
-var DocumentToolset = require('../../DocumentToolset');
-var Overlayer = require('./Overlayer');
-var MacroManager = require('../../ui/MacroManager');
+import DocumentToolset from '../../DocumentToolset'
+import Overlayer from './Overlayer'
+import MacroManager from '../../ui/MacroManager'
 
 /**
  * A editor for a Stencila Document

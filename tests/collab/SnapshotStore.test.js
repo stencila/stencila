@@ -2,18 +2,18 @@
 
 // Tests based (heavily!) on Substance `testSnapshotStore.js`
 
-var test = require('tape');
+import test from 'tape'
 
 // Don't run in browser
 if (typeof window === 'undefined') {
-  var mockery = require('mockery');
+  import mockery from 'mockery'
   mockery.registerMock('redis', require('fakeredis'));
   mockery.enable({
     warnOnReplace: false,
     warnOnUnregistered: false
   });
 
-  var SnapshotStore = require('../../collab/SnapshotStore');
+  import SnapshotStore from '../../collab/SnapshotStore'
   var store = new SnapshotStore();
 
   test('SnapshotStore.saveSnapshot Store a snapshot', function (t) {

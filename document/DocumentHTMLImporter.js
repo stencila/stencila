@@ -2,8 +2,8 @@
 
 import HTMLImporter from 'substance/model/HTMLImporter'
 
-var DocumentModel = require('./DocumentModel');
-var DefaultHTMLConverter = require('./nodes/default/DefaultHTMLConverter');
+import DocumentModel from './DocumentModel'
+import DefaultHTMLConverter from './nodes/default/DefaultHTMLConverter'
 
 /**
  * Imports HTML into a Stencila Document

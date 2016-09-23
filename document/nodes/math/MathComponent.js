@@ -2,7 +2,7 @@
 
 import Component from 'substance/ui/Component'
 
-var math = require('../../../utilities/math');
+import math from '../../../utilities/math'
 
 function MathComponent () {
   MathComponent.super.apply(this, arguments);

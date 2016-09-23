@@ -2,9 +2,9 @@
 
 require('../babelize');
 
-var glob = require('glob');
-var path = require('path');
-var test = require('tape');
+import glob from 'glob'
+import path from 'path'
+import test from 'tape'
 
 require('../server');
 

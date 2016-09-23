@@ -2,7 +2,7 @@
 
 import Err from 'substance/util/SubstanceError'
 
-var Store = require('./Store');
+import Store from './Store'
 
 /*
   Implements Substance SnapshotStore API using Redis hashes

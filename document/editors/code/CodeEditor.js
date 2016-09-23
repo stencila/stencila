@@ -4,10 +4,10 @@ import AbstractEditor from 'substance/ui/AbstractEditor'
 import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 
-var each = require('lodash/each');
+import each from 'lodash/each'
 
-var DocumentToolset = require('../../DocumentToolset');
-var MacroManager = require('../../ui/MacroManager');
+import DocumentToolset from '../../DocumentToolset'
+import MacroManager from '../../ui/MacroManager'
 
 /**
  * A editor for a Stencila Document

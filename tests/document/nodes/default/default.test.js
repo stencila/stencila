@@ -1,15 +1,15 @@
-var test = require('tape');
+import test from 'tape'
 
 import TestConfigurator from '../../../helpers/TestConfigurator'
-var TestDocumentHTMLConverter = require('../../../helpers/TestDocumentHTMLConverter');
+import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
 var config = new TestConfigurator([
   require('../../../../document/nodes/default/DefaultPackage')
 ]);
 var converter = new TestDocumentHTMLConverter(config);
 
-var Document = require('../../../../document/DocumentModel');
-var DefaultComponent = require('../../../../document/nodes/default/DefaultComponent');
+import Document from '../../../../document/DocumentModel'
+import DefaultComponent from '../../../../document/nodes/default/DefaultComponent'
 
 test('DefaultHTMLConverter', function (t) {
   var input =

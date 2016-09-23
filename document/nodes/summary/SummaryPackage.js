@@ -1,9 +1,9 @@
 'use strict';
 
-var Summary = require('./Summary');
-var SummaryComponent = require('./SummaryComponent');
-var SummaryHTMLConverter = require('./SummaryHTMLConverter');
-var SummaryXMLConverter = require('./SummaryXMLConverter');
+import Summary from './Summary'
+import SummaryComponent from './SummaryComponent'
+import SummaryHTMLConverter from './SummaryHTMLConverter'
+import SummaryXMLConverter from './SummaryXMLConverter'
 
 module.exports = {
   name: 'summary',

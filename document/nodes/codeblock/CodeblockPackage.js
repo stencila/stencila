@@ -1,9 +1,9 @@
 'use strict';
 
-var Codeblock = require('./Codeblock');
-var CodeblockComponent = require('./CodeblockComponent');
-var CodeblockHTMLConverter = require('./CodeblockHTMLConverter');
-var CodeblockXMLConverter = require('./CodeblockXMLConverter');
+import Codeblock from './Codeblock'
+import CodeblockComponent from './CodeblockComponent'
+import CodeblockHTMLConverter from './CodeblockHTMLConverter'
+import CodeblockXMLConverter from './CodeblockXMLConverter'
 
 module.exports = {
   name: 'codeblock',

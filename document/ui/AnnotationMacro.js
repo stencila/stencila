@@ -1,6 +1,6 @@
 'use strict';
 
-var Macro = require('./Macro');
+import Macro from './Macro'
 import replaceText from 'substance/model/transform/replaceText'
 
 function AnnotationMacro () {

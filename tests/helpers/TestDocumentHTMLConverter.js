@@ -1,9 +1,9 @@
 import oo from 'substance/util/oo'
 
-var DocumentModel = require('../../document/DocumentModel');
+import DocumentModel from '../../document/DocumentModel'
 
-var TestHTMLImporter = require('./TestHTMLImporter');
-var TestHTMLExporter = require('./TestHTMLExporter');
+import TestHTMLImporter from './TestHTMLImporter'
+import TestHTMLExporter from './TestHTMLExporter'
 
 function TestDocumentHTMLConverter (config) {
   var converters = config.getConverterRegistry().get('html');

@@ -1,5 +1,5 @@
-var test = require('tape');
-var Nightmare = require('nightmare');
+import test from 'tape'
+import Nightmare from 'nightmare'
 var realMouse = require('nightmare-real-mouse');
 realMouse(Nightmare);
 

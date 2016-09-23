@@ -3,8 +3,8 @@
 import Overlay from 'substance/ui/OverlayContainer'
 import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 
-var TextToolset = require('./TextToolset');
-var BlockToolset = require('./BlockToolset');
+import TextToolset from './TextToolset'
+import BlockToolset from './BlockToolset'
 
 /**
  * Overlay toolsets over the current slection

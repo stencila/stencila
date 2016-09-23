@@ -1,10 +1,10 @@
 'use strict';
 
-var Comment = require('./Comment');
-var CommentHTMLConverter = require('./CommentHTMLConverter');
-var CommentXMLConverter = require('./CommentXMLConverter');
-var CommentComponent = require('./CommentComponent');
-var CommentMarkdownComponent = require('./CommentMarkdownComponent');
+import Comment from './Comment'
+import CommentHTMLConverter from './CommentHTMLConverter'
+import CommentXMLConverter from './CommentXMLConverter'
+import CommentComponent from './CommentComponent'
+import CommentMarkdownComponent from './CommentMarkdownComponent'
 
 module.exports = {
   name: 'comment',

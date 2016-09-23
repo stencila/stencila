@@ -1,13 +1,13 @@
 'use strict';
 
-var Emoji = require('./Emoji');
-var EmojiHTMLConverter = require('./EmojiHTMLConverter');
-var EmojiXMLConverter = require('./EmojiXMLConverter');
-var EmojiComponent = require('./EmojiComponent');
-var EmojiMarkdownComponent = require('./EmojiMarkdownComponent');
-var EmojiCommand = require('./EmojiCommand');
-var EmojiMacro = require('./EmojiMacro');
-var EmojiTool = require('./EmojiTool');
+import Emoji from './Emoji'
+import EmojiHTMLConverter from './EmojiHTMLConverter'
+import EmojiXMLConverter from './EmojiXMLConverter'
+import EmojiComponent from './EmojiComponent'
+import EmojiMarkdownComponent from './EmojiMarkdownComponent'
+import EmojiCommand from './EmojiCommand'
+import EmojiMacro from './EmojiMacro'
+import EmojiTool from './EmojiTool'
 
 module.exports = {
   name: 'emoji',

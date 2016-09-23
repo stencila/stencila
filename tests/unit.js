@@ -2,8 +2,8 @@
 
 require('../babelize');
 
-var glob = require('glob');
-var path = require('path');
+import glob from 'glob'
+import path from 'path'
 
 glob.sync(path.join(__dirname, '/**/*.test.js')).forEach(function (pathname) {
   require(pathname);

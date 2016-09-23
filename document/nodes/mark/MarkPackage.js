@@ -1,11 +1,11 @@
 'use strict';
 
-var Mark = require('./Mark');
-var MarkHTMLConverter = require('./MarkHTMLConverter');
-var MarkXMLConverter = require('./MarkXMLConverter');
-var MarkCommand = require('./MarkCommand');
-var MarkComponent = require('./MarkComponent');
-var MarkTool = require('./MarkTool');
+import Mark from './Mark'
+import MarkHTMLConverter from './MarkHTMLConverter'
+import MarkXMLConverter from './MarkXMLConverter'
+import MarkCommand from './MarkCommand'
+import MarkComponent from './MarkComponent'
+import MarkTool from './MarkTool'
 
 module.exports = {
   name: 'mark',

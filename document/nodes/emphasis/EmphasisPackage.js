@@ -6,7 +6,7 @@ import EmphasisXMLConverter from 'substance/packages/emphasis/EmphasisXMLConvert
 import AnnotationComponent from 'substance/ui/AnnotationComponent'
 import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import AnnotationTool from 'substance/ui/AnnotationTool'
-var EmphasisMacro = require('./EmphasisMacro');
+import EmphasisMacro from './EmphasisMacro'
 
 module.exports = {
   name: 'emphasis',

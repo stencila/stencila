@@ -4,10 +4,10 @@ import Code from 'substance/packages/code/Code'
 import CodeHTMLConverter from 'substance/packages/code/CodeHTMLConverter'
 import CodeXMLConverter from 'substance/packages/code/CodeXMLConverter'
 import AnnotationComponent from 'substance/ui/AnnotationComponent'
-var CodeMarkdownComponent = require('./CodeMarkdownComponent');
+import CodeMarkdownComponent from './CodeMarkdownComponent'
 import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import AnnotationTool from 'substance/ui/AnnotationTool'
-var CodeMacro = require('./CodeMacro');
+import CodeMacro from './CodeMacro'
 
 module.exports = {
   name: 'code',

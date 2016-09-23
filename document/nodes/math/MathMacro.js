@@ -1,6 +1,6 @@
 'use strict';
 
-var InlineNodeMacro = require('../../ui/InlineNodeMacro');
+import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
 function MathMacro () {
 };

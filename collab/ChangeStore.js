@@ -2,9 +2,9 @@
 
 import Err from 'substance/util/SubstanceError'
 
-var map = require('lodash/map');
+import map from 'lodash/map'
 
-var Store = require('./Store');
+import Store from './Store'
 
 /**
  * Stores changes to Stencila group sessions.

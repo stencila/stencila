@@ -2,7 +2,7 @@
 
 import uuid from 'substance/util/uuid'
 
-var sanitize = require('./sanitize');
+import sanitize from './sanitize'
 
 module.exports = {
 

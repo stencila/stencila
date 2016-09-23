@@ -1,12 +1,12 @@
 'use strict';
 
-var extend = require('lodash/extend');
-var map = require('lodash/map');
+import extend from 'lodash/extend'
+import map from 'lodash/map'
 
 import Err from 'substance/util/SubstanceError'
 import uuid from 'substance/util/uuid'
 
-var Store = require('./Store');
+import Store from './Store'
 
 /**
  * Stores Stencila group sessions.

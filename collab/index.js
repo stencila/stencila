@@ -1,14 +1,14 @@
-var ws = require('ws');
+import ws from 'ws'
 
 import CollabServer from 'substance/collab/CollabServer'
 
-var DocumentStore = require('./DocumentStore');
-var ChangeStore = require('./ChangeStore');
-var SnapshotStore = require('./SnapshotStore');
-var ModelFactory = require('./ModelFactory');
-var SnapshotEngine = require('./SnapshotEngine');
-var DocumentEngine = require('./DocumentEngine');
-var DocumentServer = require('./DocumentServer');
+import DocumentStore from './DocumentStore'
+import ChangeStore from './ChangeStore'
+import SnapshotStore from './SnapshotStore'
+import ModelFactory from './ModelFactory'
+import SnapshotEngine from './SnapshotEngine'
+import DocumentEngine from './DocumentEngine'
+import DocumentServer from './DocumentServer'
 
 /**
  * Instantiates

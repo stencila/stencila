@@ -2,7 +2,7 @@
 
 import map from 'substance/node_modules/lodash/map'
 
-var BlockTool = require('../../ui/BlockTool');
+import BlockTool from '../../ui/BlockTool'
 
 /**
  * A tool to edit `Heading` nodes (change the heading level)

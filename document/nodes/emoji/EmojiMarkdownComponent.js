@@ -1,6 +1,6 @@
 'use strict';
 
-var EmojiComponent = require('./EmojiComponent');
+import EmojiComponent from './EmojiComponent'
 
 function EmojiMarkdownComponent () {
   EmojiMarkdownComponent.super.apply(this, arguments);

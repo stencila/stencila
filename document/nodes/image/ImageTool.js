@@ -1,6 +1,6 @@
 'use strict';
 
-var BlockTool = require('../../ui/BlockTool');
+import BlockTool from '../../ui/BlockTool'
 
 /**
  * A tool to edit images

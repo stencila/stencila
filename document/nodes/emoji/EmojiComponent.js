@@ -2,7 +2,7 @@
 
 import Component from 'substance/ui/Component'
 
-var emojione = require('emojione');
+import emojione from 'emojione'
 // Consistent with making everying served locally (for offline use etc)...
 emojione.imagePathPNG = '/web/emojione/png/';
 

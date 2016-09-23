@@ -2,7 +2,7 @@
 
 import oo from 'substance/util/oo'
 
-var redis = require('redis');
+import redis from 'redis'
 
 function Store () {
   // TODO Share client across stores

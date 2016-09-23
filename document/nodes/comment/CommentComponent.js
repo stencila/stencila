@@ -3,7 +3,7 @@
 import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 
-var moment = require('moment');
+import moment from 'moment'
 
 function CommentComponent () {
   CommentComponent.super.apply(this, arguments);

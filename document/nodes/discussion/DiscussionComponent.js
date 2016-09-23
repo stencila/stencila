@@ -5,7 +5,7 @@ import ContainerEditor from 'substance/ui/ContainerEditor'
 import deleteNode from 'substance/model/transform/deleteNode'
 import each from 'substance/node_modules/lodash/each'
 
-var moment = require('moment');
+import moment from 'moment'
 
 function DiscussionComponent () {
   DiscussionComponent.super.apply(this, arguments);

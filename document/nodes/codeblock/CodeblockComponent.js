@@ -1,6 +1,6 @@
 'use strict';
 
-var CodeEditorComponent = require('../../ui/CodeEditorComponent');
+import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
 function CodeblockComponent (parent, props) {
   props.codeProperty = 'source';

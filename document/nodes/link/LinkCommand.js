@@ -1,5 +1,3 @@
-'use strict';
-
 import AnnotationCommand from 'substance/ui/AnnotationCommand'
 
 /**
@@ -9,13 +7,7 @@ import AnnotationCommand from 'substance/ui/AnnotationCommand'
  *
  * @class      LinkCommand (name)
  */
-function LinkCommand () {
-  LinkCommand.super.apply(this, arguments);
+class LinkCommand extends AnnotationCommand {
 }
 
-LinkCommand.Prototype = function () {
-};
-
-AnnotationCommand.extend(LinkCommand);
-
-module.exports = LinkCommand;
+export default LinkCommand

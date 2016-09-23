@@ -2,7 +2,7 @@
 
 import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
 
-var CommentComponent = require('./CommentComponent');
+import CommentComponent from './CommentComponent'
 
 function CommentMarkdownComponent () {
   CommentMarkdownComponent.super.apply(this, arguments);

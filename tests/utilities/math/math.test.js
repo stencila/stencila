@@ -1,8 +1,8 @@
 'use strict';
 
-var test = require('tape');
+import test from 'tape'
 
-var math = require('../../../utilities/math');
+import math from '../../../utilities/math'
 
 test('math.translate Tex to TeX', function (t) {
   t.equal(math.translate('\\pi', 'tex', 'tex'), '\\pi');

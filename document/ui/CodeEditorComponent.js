@@ -2,7 +2,7 @@
 
 import Component from 'substance/ui/Component'
 
-var code = require('../../utilities/code');
+import code from '../../utilities/code'
 
 /**
  * A `Component` for editing a node's `source` code

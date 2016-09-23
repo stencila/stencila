@@ -1,10 +1,10 @@
 'use strict';
 
-var Default = require('./Default');
-var DefaultHTMLConverter = require('./DefaultHTMLConverter');
-var DefaultXMLConverter = require('./DefaultXMLConverter');
-var DefaultComponent = require('./DefaultComponent');
-var DefaultMarkdownComponent = require('./DefaultMarkdownComponent');
+import Default from './Default'
+import DefaultHTMLConverter from './DefaultHTMLConverter'
+import DefaultXMLConverter from './DefaultXMLConverter'
+import DefaultComponent from './DefaultComponent'
+import DefaultMarkdownComponent from './DefaultMarkdownComponent'
 
 module.exports = {
   name: 'default',

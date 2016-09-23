@@ -1,6 +1,6 @@
 'use strict';
 
-var BlockNodeMacro = require('../../ui/BlockNodeMacro');
+import BlockNodeMacro from '../../ui/BlockNodeMacro'
 
 /**
  * A macro for creating and modifying headings

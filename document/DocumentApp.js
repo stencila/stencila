@@ -6,22 +6,22 @@ import CollabClient from 'substance/collab/CollabClient'
 import CollabSession from 'substance/collab/CollabSession'
 import WebSocketConnection from 'substance/collab/WebSocketConnection'
 
-var DocumentModel = require('./DocumentModel');
-var DocumentJSONConverter = require('./DocumentJSONConverter');
-var DocumentHTMLImporter = require('./DocumentHTMLImporter');
-var DocumentHTMLExporter = require('./DocumentHTMLExporter');
+import DocumentModel from './DocumentModel'
+import DocumentJSONConverter from './DocumentJSONConverter'
+import DocumentHTMLImporter from './DocumentHTMLImporter'
+import DocumentHTMLExporter from './DocumentHTMLExporter'
 
 // Instantiate a configurator
 import DocumentConfigurator from './DocumentConfigurator';
 var configurator = new DocumentConfigurator();
 
 // FIXME context is likely to live in `js` package
-// var JavascriptContext = require('../contexts/JavascriptContext');
+// import JavascriptContext from '../contexts/JavascriptContext'
 
-var VisualEditor = require('./editors/visual/VisualEditor');
-var CodeEditor = require('./editors/code/CodeEditor');
+import VisualEditor from './editors/visual/VisualEditor'
+import CodeEditor from './editors/code/CodeEditor'
 
-var code = require('../utilities/code');
+import code from '../utilities/code'
 
 /**
  * User application for a Stencila Document

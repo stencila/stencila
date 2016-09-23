@@ -8,11 +8,11 @@
  */
 
 import Heading from 'substance/packages/heading/Heading'
-var HeadingComponent = require('./HeadingComponent');
-var HeadingMarkdownComponent = require('./HeadingMarkdownComponent');
+import HeadingComponent from './HeadingComponent'
+import HeadingMarkdownComponent from './HeadingMarkdownComponent'
 import HeadingHTMLConverter from 'substance/packages/heading/HeadingHTMLConverter'
 import HeadingXMLConverter from 'substance/packages/heading/HeadingXMLConverter'
-var HeadingMacro = require('./HeadingMacro');
+import HeadingMacro from './HeadingMacro'
 
 module.exports = {
   name: 'heading',

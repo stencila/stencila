@@ -1,9 +1,9 @@
 'use strict';
 
-var Title = require('./Title');
-var TitleComponent = require('./TitleComponent');
-var TitleHTMLConverter = require('./TitleHTMLConverter');
-var TitleXMLConverter = require('./TitleXMLConverter');
+import Title from './Title'
+import TitleComponent from './TitleComponent'
+import TitleHTMLConverter from './TitleHTMLConverter'
+import TitleXMLConverter from './TitleXMLConverter'
 
 module.exports = {
   name: 'title',

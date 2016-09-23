@@ -1,6 +1,6 @@
 'use strict';
 
-var HeadingComponent = require('./HeadingComponent');
+import HeadingComponent from './HeadingComponent'
 
 function HeadingMarkdownComponent () {
   HeadingMarkdownComponent.super.apply(this, arguments);

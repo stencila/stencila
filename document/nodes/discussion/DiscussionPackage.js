@@ -1,10 +1,10 @@
 'use strict';
 
-var Discussion = require('./Discussion');
-var DiscussionHTMLConverter = require('./DiscussionHTMLConverter');
-var DiscussionXMLConverter = require('./DiscussionXMLConverter');
-var DiscussionComponent = require('./DiscussionComponent');
-var DiscussionMarkdownComponent = require('./DiscussionMarkdownComponent');
+import Discussion from './Discussion'
+import DiscussionHTMLConverter from './DiscussionHTMLConverter'
+import DiscussionXMLConverter from './DiscussionXMLConverter'
+import DiscussionComponent from './DiscussionComponent'
+import DiscussionMarkdownComponent from './DiscussionMarkdownComponent'
 
 module.exports = {
   name: 'discussion',

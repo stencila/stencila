@@ -2,18 +2,18 @@
 
 import oo from 'substance/util/oo'
 
-var DocumentModel = require('../document/DocumentModel');
+import DocumentModel from '../document/DocumentModel'
 
 import DocumentConfigurator from '../document/DocumentConfigurator'
 var documentConfigurator = new DocumentConfigurator();
 
-var DocumentHTMLImporter = require('../document/DocumentHTMLImporter');
+import DocumentHTMLImporter from '../document/DocumentHTMLImporter'
 var documentHTMLImporter = new DocumentHTMLImporter({ configurator: documentConfigurator });
 
-var DocumentHTMLExporter = require('../document/DocumentHTMLExporter');
+import DocumentHTMLExporter from '../document/DocumentHTMLExporter'
 var documentHTMLExporter = new DocumentHTMLExporter({ configurator: documentConfigurator });
 
-var DocumentJSONConverter = require('../document/DocumentJSONConverter');
+import DocumentJSONConverter from '../document/DocumentJSONConverter'
 var documentJsonConverter = new DocumentJSONConverter();
 
 /**

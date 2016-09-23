@@ -1,6 +1,6 @@
 'use strict';
 
-var Macro = require('./Macro');
+import Macro from './Macro'
 import deleteNode from 'substance/model/transform/deleteNode'
 
 function BlockNodeMacro () {

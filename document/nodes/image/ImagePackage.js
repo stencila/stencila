@@ -2,11 +2,11 @@
 
 import Image from 'substance/packages/image/Image'
 import ImageComponent from 'substance/packages/image/ImageComponent'
-var ImageMarkdownComponent = require('./ImageMarkdownComponent');
+import ImageMarkdownComponent from './ImageMarkdownComponent'
 import ImageHTMLConverter from 'substance/packages/image/ImageHTMLConverter'
 import ImageXMLConverter from 'substance/packages/image/ImageXMLConverter'
-var ImageMacro = require('./ImageMacro');
-var ImageTool = require('./ImageTool');
+import ImageMacro from './ImageMacro'
+import ImageTool from './ImageTool'
 
 module.exports = {
   name: 'image',

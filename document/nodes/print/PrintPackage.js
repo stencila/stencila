@@ -1,12 +1,12 @@
 'use strict';
 
-var Print = require('./Print');
-var PrintHTMLConverter = require('./PrintHTMLConverter');
-var PrintXMLConverter = require('./PrintXMLConverter');
-var PrintComponent = require('./PrintComponent');
-var PrintCommand = require('./PrintCommand');
-var PrintMacro = require('./PrintMacro');
-var PrintTool = require('./PrintTool');
+import Print from './Print'
+import PrintHTMLConverter from './PrintHTMLConverter'
+import PrintXMLConverter from './PrintXMLConverter'
+import PrintComponent from './PrintComponent'
+import PrintCommand from './PrintCommand'
+import PrintMacro from './PrintMacro'
+import PrintTool from './PrintTool'
 
 module.exports = {
   name: 'print',

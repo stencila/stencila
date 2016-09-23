@@ -3,16 +3,16 @@
 import Component from 'substance/ui/Component'
 import Tool from 'substance/packages/tools/Tool'
 
-var ViewTool = require('./tools/ViewTool');
-var CopyTool = require('./tools/CopyTool');
-var RefreshTool = require('./tools/RefreshTool');
-var RevealTool = require('./tools/RevealTool');
-// var CommentTool = require('./tools/CommentTool');
-var EditTool = require('./tools/EditTool');
-var SaveTool = require('./tools/SaveTool');
-var CommitTool = require('./tools/CommitTool');
-var ForkTool = require('./tools/ForkTool');
-var SettingsTool = require('./tools/SettingsTool');
+import ViewTool from './tools/ViewTool'
+import CopyTool from './tools/CopyTool'
+import RefreshTool from './tools/RefreshTool'
+import RevealTool from './tools/RevealTool'
+// import CommentTool from './tools/CommentTool'
+import EditTool from './tools/EditTool'
+import SaveTool from './tools/SaveTool'
+import CommitTool from './tools/CommitTool'
+import ForkTool from './tools/ForkTool'
+import SettingsTool from './tools/SettingsTool'
 
 function SizerTool () {
   SizerTool.super.apply(this, arguments);

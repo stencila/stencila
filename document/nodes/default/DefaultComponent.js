@@ -2,8 +2,8 @@
 
 import Component from 'substance/ui/Component'
 
-var CodeEditorComponent = require('../../ui/CodeEditorComponent');
-var sanitize = require('./sanitize');
+import CodeEditorComponent from '../../ui/CodeEditorComponent'
+import sanitize from './sanitize'
 
 function DefaultComponent () {
   DefaultComponent.super.apply(this, arguments);

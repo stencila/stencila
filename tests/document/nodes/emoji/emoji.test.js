@@ -1,7 +1,7 @@
-var test = require('tape');
+import test from 'tape'
 
 import TestConfigurator from '../../../helpers/TestConfigurator'
-var TestDocumentHTMLConverter = require('../../../helpers/TestDocumentHTMLConverter');
+import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
 var config = new TestConfigurator([
   require('../../../../document/nodes/emoji/EmojiPackage'),

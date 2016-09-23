@@ -6,7 +6,7 @@ import StrongXMLConverter from 'substance/packages/strong/StrongXMLConverter'
 import AnnotationComponent from 'substance/ui/AnnotationComponent'
 import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import AnnotationTool from 'substance/ui/AnnotationTool'
-var StrongMacro = require('./StrongMacro');
+import StrongMacro from './StrongMacro'
 
 module.exports = {
   name: 'strong',

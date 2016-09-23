@@ -1,9 +1,9 @@
 'use strict';
 
-var Execute = require('./Execute');
-var ExecuteComponent = require('./ExecuteComponent');
-var ExecuteHTMLConverter = require('./ExecuteHTMLConverter');
-var ExecuteXMLConverter = require('./ExecuteXMLConverter');
+import Execute from './Execute'
+import ExecuteComponent from './ExecuteComponent'
+import ExecuteHTMLConverter from './ExecuteHTMLConverter'
+import ExecuteXMLConverter from './ExecuteXMLConverter'
 
 module.exports = {
   name: 'execute',

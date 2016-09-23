@@ -4,7 +4,7 @@ import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import uuid from 'substance/util/uuid'
 import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 
-var moment = require('moment');
+import moment from 'moment'
 
 function MarkCommand () {
   MarkCommand.super.call(this, {

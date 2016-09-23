@@ -1,6 +1,6 @@
 'use strict';
 
-var AnnotationMacro = require('../../ui/AnnotationMacro');
+import AnnotationMacro from '../../ui/AnnotationMacro'
 
 /**
  * A macro for creating `Strong` nodes

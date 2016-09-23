@@ -2,18 +2,18 @@
 
 // Tests based (heavily!) on Substance `testDocumentStore.js`
 
-var test = require('tape');
+import test from 'tape'
 
 // Don't run in browser
 if (typeof window === 'undefined') {
-  var mockery = require('mockery');
+  import mockery from 'mockery'
   mockery.registerMock('redis', require('fakeredis'));
   mockery.enable({
     warnOnReplace: false,
     warnOnUnregistered: false
   });
 
-  var DocumentStore = require('../../collab/DocumentStore');
+  import DocumentStore from '../../collab/DocumentStore'
   var store = new DocumentStore();
 
   test('DocumentStore.createDocument', function (t) {

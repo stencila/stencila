@@ -1,12 +1,10 @@
-'use strict';
-
 import Link from 'substance/packages/link/Link'
-var LinkComponent = require('./LinkComponent');
-var LinkCommand = require('./LinkCommand');
-var LinkTool = require('./LinkTool');
+import LinkComponent from './LinkComponent'
+import LinkCommand from './LinkCommand'
+import LinkTool from './LinkTool'
 import LinkHTMLConverter from 'substance/packages/link/LinkHTMLConverter'
 import LinkXMLConverter from 'substance/packages/link/LinkXMLConverter'
-var LinkMacro = require('./LinkMacro');
+import LinkMacro from './LinkMacro'
 
 module.exports = {
   name: 'link',

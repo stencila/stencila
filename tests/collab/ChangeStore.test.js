@@ -2,18 +2,18 @@
 
 // Tests based (heavily!) on Substance `testChangeStore.js`
 
-var test = require('tape');
+import test from 'tape'
 
 // Don't run in browser
 if (typeof window === 'undefined') {
-  var mockery = require('mockery');
+  import mockery from 'mockery'
   mockery.registerMock('redis', require('fakeredis'));
   mockery.enable({
     warnOnReplace: false,
     warnOnUnregistered: false
   });
 
-  var ChangeStore = require('../../collab/ChangeStore');
+  import ChangeStore from '../../collab/ChangeStore'
   var store = new ChangeStore();
 
   test('ChangeStore.addChange', function (t) {
