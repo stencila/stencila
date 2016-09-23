@@ -1,1 +1,1 @@
-export default require('substance/packages/paragraph/ParagraphPackage').default
+export {default} from 'substance/packages/paragraph/ParagraphPackage'

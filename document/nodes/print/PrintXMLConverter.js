@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./PrintHTMLConverter')
+export {default} from './PrintHTMLConverter'

@@ -2,8 +2,36 @@
 
 import Configurator from 'substance/util/Configurator'
 
+import TitlePackage from './nodes/title/TitlePackage'
+import SummaryPackage from './nodes/summary/SummaryPackage'
+import HeadingPackage from './nodes/heading/HeadingPackage'
+import ParagraphPackage from './nodes/paragraph/ParagraphPackage'
+import EmphasisPackage from './nodes/emphasis/EmphasisPackage'
+import StrongPackage from './nodes/strong/StrongPackage'
 import SubscriptPackage from './nodes/subscript/SubscriptPackage'
 import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
+import CodePackage from './nodes/code/CodePackage'
+import LinkPackage from './nodes/link/LinkPackage'
+import MathPackage from './nodes/math/MathPackage'
+import EmojiPackage from './nodes/emoji/EmojiPackage'
+
+import ImagePackage from './nodes/image/ImagePackage'
+import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
+import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
+
+import ExecutePackage from './nodes/execute/ExecutePackage'
+import PrintPackage from './nodes/print/PrintPackage'
+
+import MarkPackage from './nodes/mark/MarkPackage'
+import DiscussionPackage from './nodes/discussion/DiscussionPackage'
+import CommentPackage from './nodes/comment/CommentPackage'
+
+import DefaultPackage from './nodes/default/DefaultPackage'
+
+import ToolsPackage from './tools/ToolsPackage'
+import VisualEditorPackage from './editors/visual/VisualEditorPackage'
+
+import BasePackage from 'substance/packages/base/BasePackage'
 
 /**
  * A "configurator" for a document.
@@ -27,35 +55,35 @@ class DocumentConfigurator extends Configurator {
     })
 
     // Import node packages, in "order of appearance"
-    this.import(require('./nodes/title/TitlePackage'))
-    this.import(require('./nodes/summary/SummaryPackage'))
-    this.import(require('./nodes/heading/HeadingPackage'))
-    this.import(require('./nodes/paragraph/ParagraphPackage'))
-    this.import(require('./nodes/emphasis/EmphasisPackage'))
-    this.import(require('./nodes/strong/StrongPackage'))
+    this.import(TitlePackage)
+    this.import(SummaryPackage)
+    this.import(HeadingPackage)
+    this.import(ParagraphPackage)
+    this.import(EmphasisPackage)
+    this.import(StrongPackage)
     this.import(SubscriptPackage)
     this.import(SuperscriptPackage)
-    this.import(require('./nodes/code/CodePackage'))
-    this.import(require('./nodes/link/LinkPackage'))
-    this.import(require('./nodes/math/MathPackage'))
-    this.import(require('./nodes/emoji/EmojiPackage'))
+    this.import(CodePackage)
+    this.import(LinkPackage)
+    this.import(MathPackage)
+    this.import(EmojiPackage)
 
-    this.import(require('./nodes/image/ImagePackage'))
-    this.import(require('./nodes/blockquote/BlockquotePackage'))
-    this.import(require('./nodes/codeblock/CodeblockPackage'))
+    this.import(ImagePackage)
+    this.import(BlockquotePackage)
+    this.import(CodeblockPackage)
 
-    this.import(require('./nodes/execute/ExecutePackage'))
-    this.import(require('./nodes/print/PrintPackage'))
+    this.import(ExecutePackage)
+    this.import(PrintPackage)
 
-    this.import(require('./nodes/mark/MarkPackage'))
-    this.import(require('./nodes/discussion/DiscussionPackage'))
-    this.import(require('./nodes/comment/CommentPackage'))
+    this.import(MarkPackage)
+    this.import(DiscussionPackage)
+    this.import(CommentPackage)
 
-    this.import(require('./nodes/default/DefaultPackage'))
+    this.import(DefaultPackage)
 
     // Import UI packages
-    this.import(require('./tools/ToolsPackage'))
-    this.import(require('./editors/visual/VisualEditorPackage'))
+    this.import(ToolsPackage)
+    this.import(VisualEditorPackage)
 
     // Icons, not defined in Substance packages but used in our `BlockToolset`
     this.addIcon('heading', { 'fontawesome': 'fa-header' })
@@ -66,7 +94,7 @@ class DocumentConfigurator extends Configurator {
     this.addIcon('codeblock', { 'fontawesome': 'fa-code' })
 
     // CHECK Is this needed?
-    this.import(require('substance/packages/base/BasePackage').default)
+    this.import(BasePackage)
   }
 
   /**

@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./TitleHTMLConverter')
+export {default} from './TitleHTMLConverter'

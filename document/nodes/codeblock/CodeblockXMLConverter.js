@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./CodeblockHTMLConverter')
+export {default} from './CodeblockHTMLConverter'

@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./MarkHTMLConverter')
+export {default} from './MarkHTMLConverter'

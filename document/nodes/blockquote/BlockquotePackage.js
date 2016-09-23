@@ -1,1 +1,1 @@
-export default require('substance/packages/blockquote/BlockquotePackage').default
+export {default} from 'substance/packages/blockquote/BlockquotePackage'

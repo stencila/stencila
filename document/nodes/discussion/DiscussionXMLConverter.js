@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./DiscussionHTMLConverter')
+export {default} from './DiscussionHTMLConverter'

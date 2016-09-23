@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./MathHTMLConverter')
+export {default} from './MathHTMLConverter'

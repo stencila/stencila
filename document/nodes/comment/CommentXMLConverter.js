@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./CommentHTMLConverter')
+export {default} from './CommentHTMLConverter'

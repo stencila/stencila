@@ -1,3 +1,3 @@
 'use strict'
 
-export default require('./EmojiHTMLConverter')
+export {default} from './EmojiHTMLConverter'
