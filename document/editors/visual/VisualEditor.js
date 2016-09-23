@@ -1,5 +1,3 @@
-'use strict';
-
 import AbstractEditor from 'substance/ui/AbstractEditor'
 import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
 import ContainerEditor from 'substance/ui/ContainerEditor'
@@ -13,20 +11,21 @@ var MacroManager = require('../../ui/MacroManager');
  *
  * @class      VisualEditor (name)
  */
-function VisualEditor () {
-  VisualEditor.super.apply(this, arguments);
+class VisualEditor extends AbstractEditor {
 
-  // Use custom MacroManager
-  this.macroManager.context.documentSession.off(this.macroManager);
-  delete this.macroManager;
-  this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
-}
+  constructor (...args) {
+    super(...args)
 
-VisualEditor.Prototype = function () {
+    // Use custom MacroManager
+    this.macroManager.context.documentSession.off(this.macroManager);
+    delete this.macroManager;
+    this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros());
+  }
+
   /**
    * Render this editor
    */
-  this.render = function ($$) {
+  render ($$) {
     var configurator = this.props.configurator;
 
     var el = $$('div').addClass('sc-visual-editor');
@@ -69,7 +68,7 @@ VisualEditor.Prototype = function () {
     );
 
     return el;
-  };
+  }
 
   /**
    * Update editor when document session is updated.
@@ -78,16 +77,14 @@ VisualEditor.Prototype = function () {
    * that instead of updating a single toolbar updates our multiple
    * toolsets.
    */
-  this._documentSessionUpdated = function () {
+  _documentSessionUpdated () {
     var commandStates = this.commandManager.getCommandStates();
     ['documentToolset'].forEach(function (name) {
       this.refs[name].extendProps({
         commandStates: commandStates
       });
-    }.bind(this));
-  };
-};
+    }.bind(this))
+  }
+}
 
-AbstractEditor.extend(VisualEditor);
-
-module.exports = VisualEditor;
+export default VisualEditor
