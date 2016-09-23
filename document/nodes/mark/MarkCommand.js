@@ -1,32 +1,31 @@
-'use strict'
-
 import AnnotationCommand from 'substance/ui/AnnotationCommand'
 import uuid from 'substance/util/uuid'
 import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
 
 import moment from 'moment'
 
-function MarkCommand () {
-  MarkCommand.super.call(this, {
-    name: 'mark',
-    nodeType: 'mark'
-  })
-}
+class MarkCommand extends AnnotationCommand {
 
-MarkCommand.Prototype = function () {
+  constructor () {
+    super({
+      name: 'mark',
+      nodeType: 'mark'
+    })
+  }
+
   /**
    * Override `AnnotationCommand.getAnnotationData` to be able to provide
    * a `target` for the mark
    *
    * @return     {Object}  The annotation data.
    */
-  this.getAnnotationData = function () {
+  getAnnotationData () {
     return {
       target: uuid('discussion')
     }
   }
 
-  this.execute = function (props, context) {
+  execute (props, context) {
     var result = MarkCommand.super.prototype.execute.call(this, props, context)
     var mark = result.anno
 
@@ -94,7 +93,5 @@ MarkCommand.Prototype = function () {
     return false
   }
 }
-
-AnnotationCommand.extend(MarkCommand)
 
 export default MarkCommand

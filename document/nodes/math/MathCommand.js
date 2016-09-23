@@ -1,17 +1,16 @@
-'use strict'
-
 import InlineNodeCommand from 'substance/ui/InlineNodeCommand'
 import documentHelpers from 'substance/model/documentHelpers'
 
-function MathCommand () {
-  MathCommand.super.call(this, {
-    name: 'math',
-    nodeType: 'math'
-  })
-}
+class MathCommand extends InlineNodeCommand {
 
-MathCommand.Prototype = function () {
-  this.createNodeData = function (tx, args) {
+  constructor () {
+    super({
+      name: 'math',
+      nodeType: 'math'
+    })
+  }
+
+  createNodeData (tx, args) {
     // Create math node with source set to current selection
     var text = documentHelpers.getTextForSelection(
       tx.document,
@@ -22,8 +21,7 @@ MathCommand.Prototype = function () {
       source: text
     }
   }
-}
 
-InlineNodeCommand.extend(MathCommand)
+}
 
 export default MathCommand
