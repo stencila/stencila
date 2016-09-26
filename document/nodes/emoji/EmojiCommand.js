@@ -1,4 +1,4 @@
-import InlineNodeCommand from 'substance/ui/InlineNodeCommand'
+import InlineNodeCommand from 'substance/packages/inline-node/InsertInlineNodeCommand'
 import documentHelpers from 'substance/model/documentHelpers'
 
 class EmojiCommand extends InlineNodeCommand {

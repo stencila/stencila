@@ -38,7 +38,7 @@ Macro.Prototype = function () {
    *
    * Should be overidden by derived classes.
    * Analagous to the method with the same name
-   * in `substance/ui/InlineNodeCommand`.
+   * in `packages/inline-node/InsertInlineNodeCommand`.
    *
    * @param      {<type>}  match   The match
    */
