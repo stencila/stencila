@@ -1,4 +1,4 @@
-import IsolatedNodeComponent from 'substance/ui/IsolatedNodeComponent'
+import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 import deleteNode from 'substance/model/transform/deleteNode'
 import each from 'substance/node_modules/lodash/each'
