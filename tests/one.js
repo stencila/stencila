@@ -9,7 +9,7 @@ require('../babelize')
 if (args.length) {
   let file = args[0]
   if (path.isAbsolute(file)) {
-    file = path.relative(__dirname, file)
+    file = './' + path.relative(__dirname, file)
   } else {
     file = './' + file
   }
