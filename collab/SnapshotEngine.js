@@ -10,18 +10,17 @@ import SnapshotEngineBase from 'substance/collab/SnapshotEngine'
  * @class      SnapshotEngine (name)
  * @param      {<type>}  config  The configuration
  */
-function SnapshotEngine (config) {
-  SnapshotEngine.super.apply(this, arguments)
+class SnapshotEngine extends SnapshotEngineBase {
 
-  this.modelFactory = config.modelFactory
-}
+  constructor (config) {
+    super(config)
 
-SnapshotEngine.Prototype = function () {
-  this._createDocumentInstance = function (schemaName) {
+    this.modelFactory = config.modelFactory
+  }
+
+  _createDocumentInstance (schemaName) {
     return this.modelFactory.createDocument(schemaName)
   }
 }
-
-SnapshotEngineBase.extend(SnapshotEngine)
 
 export default SnapshotEngine

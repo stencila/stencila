@@ -5,18 +5,14 @@ import Store from './Store'
 /*
   Implements Substance SnapshotStore API using Redis hashes
 */
-function SnapshotStore () {
-  SnapshotStore.super.apply(this, arguments)
-}
-
-SnapshotStore.Prototype = function () {
+class SnapshotStore extends Store {
   /*
     Get Snapshot by documentId and version. If no version is provided
     the highest version available is returned
 
     @return {Object} snapshot record
   */
-  this.getSnapshot = function (args, cb) {
+  getSnapshot (args, cb) {
     if (!args || !args.documentId) {
       return cb(new Err('InvalidArgumentsError', {
         message: 'args require a documentId'
@@ -81,7 +77,7 @@ SnapshotStore.Prototype = function () {
 
     Please note that an existing snapshot will be overwritten.
   */
-  this.saveSnapshot = function (args, cb) {
+  saveSnapshot (args, cb) {
     var snapshot = {
       documentId: args.documentId,
       version: args.version,
@@ -95,7 +91,7 @@ SnapshotStore.Prototype = function () {
   /*
     Removes a snapshot and returns it
   */
-  this.deleteSnaphot = function (documentId, version, cb) {
+  deleteSnaphot (documentId, version, cb) {
     this.client.multi()
       .hget(documentId + ':snapshots', version)
       .hdel(documentId + ':snapshots', version)
@@ -117,7 +113,7 @@ SnapshotStore.Prototype = function () {
     Deletes all snapshots for a document and returns
     the number of snapshots deleted
   */
-  this.deleteSnapshotsForDocument = function (documentId, cb) {
+  deleteSnapshotsForDocument (documentId, cb) {
     this.client.multi()
       .hlen(documentId + ':snapshots')
       .del(documentId + ':snapshots')
@@ -132,13 +128,11 @@ SnapshotStore.Prototype = function () {
   /*
     Returns true if a snapshot exists for a certain version
   */
-  this.snapshotExists = function (documentId, version, cb) {
+  snapshotExists (documentId, version, cb) {
     this.client.hexists(documentId + ':snapshots', version, function (err, result) {
       cb(err, Boolean(result))
     })
   }
 }
-
-Store.extend(SnapshotStore)
 
 export default SnapshotStore

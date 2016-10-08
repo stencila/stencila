@@ -7,12 +7,8 @@ import DocumentServerBase from 'substance/collab/DocumentServer'
  * @class      DocumentServer (name)
  * @param      {<type>}  config  The configuration
  */
-function DocumentServer (config) {
-  DocumentServer.super.apply(this, arguments)
-}
-
-DocumentServer.Prototype = function () {
-  this.bind = function (app) {
+class DocumentServer extends DocumentServerBase {
+  bind (app) {
     // These bindings allow for path to be '/' (the bindings in the base class don't)
     app.post(this.path, this._createDocument.bind(this))
     app.get(this.path, this._listDocuments.bind(this))
@@ -23,7 +19,7 @@ DocumentServer.Prototype = function () {
   /**
    * Method override to deal with extra arguments
    */
-  this._createDocument = function (req, res, next) {
+  _createDocument (req, res, next) {
     this.engine.createDocument({
       schemaName: req.body.schemaName,
       documentId: req.body.documentId,
@@ -39,7 +35,7 @@ DocumentServer.Prototype = function () {
    * Method override to use path as documentId add format parameter and return a simple 404 if document
    * does not exist instead of returning and printing error
    */
-  this._getDocument = function (req, res, next) {
+  _getDocument (req, res, next) {
     var documentId = req.path.slice(this.path.length)
     this.engine.getDocument({
       documentId: documentId,
@@ -53,7 +49,7 @@ DocumentServer.Prototype = function () {
   /**
    * Method to provide a list of documents (useful for debugging)
    */
-  this._listDocuments = function (req, res, next) {
+  _listDocuments (req, res, next) {
     this.engine.listDocuments(function (err, result) {
       if (err) return next(err)
       res.json(result)
@@ -63,7 +59,7 @@ DocumentServer.Prototype = function () {
   /**
    * Method override to use path as documentId
    */
-  this._deleteDocument = function (req, res, next) {
+  _deleteDocument (req, res, next) {
     var documentId = req.path.slice(this.path.length)
     this.engine.deleteDocument(documentId, function (err, result) {
       if (err) return next(err)
@@ -71,7 +67,5 @@ DocumentServer.Prototype = function () {
     })
   }
 }
-
-DocumentServerBase.extend(DocumentServer)
 
 export default DocumentServer

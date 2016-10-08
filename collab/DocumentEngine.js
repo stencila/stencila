@@ -2,17 +2,16 @@ import DocumentEngineBase from 'substance/collab/DocumentEngine'
 import ObjectOperation from 'substance/model/data/ObjectOperation'
 import Err from 'substance/util/SubstanceError'
 
-function DocumentEngine (config) {
-  DocumentEngine.super.apply(this, arguments)
+class DocumentEngine extends DocumentEngineBase {
+  constructor (config) {
+    super(config)
 
-  this.modelFactory = config.modelFactory
-}
-
-DocumentEngine.Prototype = function () {
+    this.modelFactory = config.modelFactory
+  }
   /**
    * Create a document
    */
-  this.createDocument = function (args, cb) {
+  createDocument (args, cb) {
     // If necessary, convert the document content to JSON
     if (args.format && args.format !== 'json') {
       this.modelFactory.importDocument(args.schemaName, args.format, args.content, function (err, content) {
@@ -71,7 +70,7 @@ DocumentEngine.Prototype = function () {
   /**
    * Get a document
    */
-  this.getDocument = function (args, cb) {
+  getDocument (args, cb) {
     var format = args.format || 'json'
     this.snapshotEngine.getSnapshot(args, function (err, snapshot) {
       if (format === 'html') {
@@ -88,7 +87,7 @@ DocumentEngine.Prototype = function () {
   /**
    * List all documentIds
    */
-  this.listDocuments = function (cb) {
+  listDocuments (cb) {
     this.documentStore.listDocuments(cb)
   }
 }

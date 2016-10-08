@@ -14,15 +14,11 @@ import Store from './Store'
  * @class      DocumentStore (name)
  * @param      {<type>}  config  The configuration
  */
-function DocumentStore (config) {
-  DocumentStore.super.apply(this, arguments)
-}
-
-DocumentStore.Prototype = function () {
+class DocumentStore extends Store {
   /**
    * Create a new document record and return it
    */
-  this.createDocument = function (args, cb) {
+  createDocument (args, cb) {
     if (!args.documentId) {
       args.documentId = uuid()
     }
@@ -42,13 +38,13 @@ DocumentStore.Prototype = function () {
     }.bind(this))
   }
 
-  this.documentExists = function (documentId, cb) {
+  documentExists (documentId, cb) {
     this.client.exists(documentId + ':record', function (err, exists) {
       cb(err, Boolean(exists))
     })
   }
 
-  this.listDocuments = function (cb) {
+  listDocuments (cb) {
     this.client.keys('*:record', function (err, result) {
       // Strip ':record' off keys to give just documentIds
       var documentIds = map(result, function (key) {
@@ -58,7 +54,7 @@ DocumentStore.Prototype = function () {
     })
   }
 
-  this.getDocument = function (documentId, cb) {
+  getDocument (documentId, cb) {
     this.client.get(documentId + ':record', function (err, result) {
       if (err) return cb(err)
       if (result === null) {
@@ -70,7 +66,7 @@ DocumentStore.Prototype = function () {
     })
   }
 
-  this.updateDocument = function (documentId, props, cb) {
+  updateDocument (documentId, props, cb) {
     this.client.get(documentId + ':record', function (err, result) {
       if (err) cb(err)
       if (result === null) {
@@ -86,7 +82,7 @@ DocumentStore.Prototype = function () {
     }.bind(this))
   }
 
-  this.deleteDocument = function (documentId, cb) {
+  deleteDocument (documentId, cb) {
     this.client.multi()
       // `GET` the document
       .get(documentId + ':record')
@@ -105,7 +101,5 @@ DocumentStore.Prototype = function () {
       })
   }
 }
-
-Store.extend(DocumentStore)
 
 export default DocumentStore

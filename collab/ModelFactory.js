@@ -1,5 +1,3 @@
-import oo from 'substance/util/oo'
-
 import DocumentModel from '../document/DocumentModel'
 
 import DocumentConfigurator from '../document/DocumentConfigurator'
@@ -23,16 +21,13 @@ var documentJsonConverter = new DocumentJSONConverter()
  * @class      ModelFactory (name)
  * @param      {<type>}  config  The configuration
  */
-function ModelFactory (config) {
-}
-
-ModelFactory.Prototype = function () {
+class ModelFactory {
   /**
    * Create a new, empty Stencila component from the `schemaName`
    *
    * @param      {string}         schemaName  The schema name
    */
-  this.createDocument = function (schemaName) {
+  createDocument (schemaName) {
     if (schemaName === 'stencila-document') {
       return new DocumentModel()
     } else {
@@ -43,7 +38,7 @@ ModelFactory.Prototype = function () {
   /**
    * Import a Stencila component from HTML to JSON
    */
-  this.importDocument = function (schemaName, format, content, cb) {
+  importDocument (schemaName, format, content, cb) {
     if (format !== 'html') throw new Error('Unhandled format: ' + format)
 
     var importer
@@ -65,7 +60,7 @@ ModelFactory.Prototype = function () {
   /**
    * Export a Stencila component frm JSON to HTML
    */
-  this.exportDocument = function (schemaName, format, content, cb) {
+  exportDocument (schemaName, format, content, cb) {
     if (format !== 'html') throw new Error('Unhandled format: ' + format)
 
     var importer
@@ -87,7 +82,5 @@ ModelFactory.Prototype = function () {
     cb(null, data)
   }
 }
-
-oo.initClass(ModelFactory)
 
 export default ModelFactory

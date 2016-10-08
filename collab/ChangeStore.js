@@ -11,17 +11,13 @@ import Store from './Store'
  *
  * @class      ChangeStore (name)
  */
-function ChangeStore () {
-  ChangeStore.super.apply(this, arguments)
-}
-
-ChangeStore.Prototype = function () {
+class ChangeStore extends Store {
   /**
    * Add a change and return the new version
    *
    * @param      {<type>}    args    The arguments
    */
-  this.addChange = function (args, cb) {
+  addChange (args, cb) {
     if (!args.documentId) {
       return cb(new Err('ChangeStore.CreateError', {
         message: 'No documentId provided'
@@ -47,7 +43,7 @@ ChangeStore.Prototype = function () {
     @param {String} args.documentId The document id
     @param {Number} args.sinceVersion Since which version
   */
-  this.getChanges = function (args, cb) {
+  getChanges (args, cb) {
     if (!args.sinceVersion) {
       args.sinceVersion = 0
     }
@@ -94,7 +90,7 @@ ChangeStore.Prototype = function () {
    *
    * @param      {<type>}    documentId      The document identifier
    */
-  this.getVersion = function (documentId, cb) {
+  getVersion (documentId, cb) {
     // `LLEN` return length of list
     this.client.llen(documentId + ':changes', function (err, version) {
       if (err) return cb(err)
@@ -108,7 +104,7 @@ ChangeStore.Prototype = function () {
    *
    * @param      {<type>}    documentId  The document identifier
    */
-  this.deleteChanges = function (documentId, cb) {
+  deleteChanges (documentId, cb) {
     if (!documentId) {
       return cb(new Err('ChangeStore.DeleteError', {
         message: 'No documentId provided'
@@ -127,7 +123,5 @@ ChangeStore.Prototype = function () {
       })
   }
 }
-
-Store.extend(ChangeStore)
 
 export default ChangeStore
