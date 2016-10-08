@@ -6,14 +6,10 @@ import MacroManagerBase from 'substance/ui/MacroManager'
  *
  * @class      MacroManager (name)
  */
-function MacroManager () {
-  MacroManager.super.apply(this, arguments)
-}
-
-MacroManager.Prototype = function () {
+class MacroManager extends MacroManagerBase {
   // This function is from `substance/ui/MacroManager` except for the part
   // labelled as "Modification" below
-  this.executeMacros = function (update, info) {
+  executeMacros (update, info) {
     var change = update.change
     if (!change) {
       return
@@ -58,7 +54,5 @@ MacroManager.Prototype = function () {
     }
   }
 }
-
-MacroManagerBase.extend(MacroManager)
 
 export default MacroManager
