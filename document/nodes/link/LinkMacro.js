@@ -9,23 +9,24 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
  *
  * @class      LinkMacro (name)
  */
-function LinkMacro () {
-};
+class LinkMacro extends AnnotationMacro {
 
-LinkMacro.Prototype = function () {
-  this.appliesTo = []
+  static get appliesTo () {
+    return []
+  }
 
-  this.regex = /\[([^\]]+)\]\(([^\)]+)\)/
+  static get regex () {
+    return /\[([^\]]+)\]\(([^\)]+)\)/
+  }
 
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'link',
       text: match[1],
       url: match[2]
     }
   }
-}
 
-AnnotationMacro.extend(LinkMacro)
+}
 
 export default LinkMacro

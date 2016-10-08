@@ -8,20 +8,16 @@ import LinkComponentBase from 'substance/packages/link/LinkComponent'
  *
  * @class      LinkComponent (name)
  */
-function LinkComponent () {
-  LinkComponent.super.apply(this, arguments)
-}
+class LinkComponent extends LinkComponentBase {
 
-LinkComponent.Prototype = function () {
-  this.didMount = function () {
+  didMount () {
     this.props.node.on('url:changed', this.rerender, this)
   }
 
-  this.dispose = function () {
+  dispose () {
     this.props.node.off(this)
   }
-}
 
-LinkComponentBase.extend(LinkComponent)
+}
 
 export default LinkComponent

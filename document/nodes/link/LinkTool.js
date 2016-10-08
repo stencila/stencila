@@ -12,16 +12,11 @@ import AnnotationTool from 'substance/ui/AnnotationTool'
  *
  * @class      LinkTool (name)
  */
-function LinkTool () {
-  LinkTool.super.apply(this, arguments)
-}
+class LinkTool extends AnnotationTool {
 
-LinkTool.Prototype = function () {
-  var _super = LinkTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render($$)
       .addClass('sc-link-tool')
       .append(
         $$('div')
@@ -60,8 +55,7 @@ LinkTool.Prototype = function () {
           )
       )
   }
-}
 
-AnnotationTool.extend(LinkTool)
+}
 
 export default LinkTool

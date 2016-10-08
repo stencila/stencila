@@ -7,7 +7,6 @@ import AnnotationCommand from 'substance/ui/AnnotationCommand'
  *
  * @class      LinkCommand (name)
  */
-class LinkCommand extends AnnotationCommand {
-}
+class LinkCommand extends AnnotationCommand {}
 
 export default LinkCommand
