@@ -23,6 +23,7 @@ Run tests with coverage                                 | `npm run cover`       
 Build                                                   | `gulp build`          | `make build`
 Clean                                                   | `rm -rf build`        | `make clean`
 
+
 #### Developing
 
 After installing dependencies run `npm start` to start the development server and head over to [http://localhost:5000](http://localhost:5000) where there are links to test pages. On these test pages, the Javascript and SCSS are bundled on the fly so that any changes you make are available with a browser refresh.
@@ -30,4 +31,13 @@ After installing dependencies run `npm start` to start the development server an
 #### Testing
 
 Unit tests (`*.test.js`) and functional tests (`*.fun.js`) live in the `tests` folder and are written using the [`tape`](https://github.com/substack/tape) test harness. The functional tests use [`nightmare`](https://github.com/segmentio/nightmare) to simulate user flows in the browser. They run more slowly, so you might not want to run them as often as the unit tests.
+
+The script`tests/one.js` runs a single test file. Like `tests/unit.js` and `tests/functional.js` it runs `require('babel-register')` so that transpilation is done on the fly. You can run it using any of the following commands, providing the test file either as an absolute path, or as a path relative to the `tests` folder. e.g.
+
+```
+make test-one/collab/ChangeStore.test.js
+node tests/one collab/ChangeStore.test.js
+npm run test-one -- collab/ChangeStore.test.js
+```
+
 

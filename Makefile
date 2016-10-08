@@ -29,6 +29,9 @@ test-unit:
 test-fun:
 	npm run test-fun
 
+test-one/%:
+	node tests/one $*
+
 test-debug:
 	node-debug tests
 

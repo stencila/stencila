@@ -21,5 +21,33 @@
 				"node_modules"
 			]
 		}
+	],
+
+	"build_systems":
+	[
+		{
+			"name": "Lint: check for lint",
+			"cmd":
+			[
+				"make", "lint"
+			],
+			"working_dir": "."
+		},
+		{
+			"name": "Test all: run all tests",
+			"cmd":
+			[
+				"make", "test"
+			],
+			"working_dir": "."
+		},
+		{
+			"name": "Test one: run one test file",
+			"cmd":
+			[
+				"make", "test-one/$file"
+			],
+			"working_dir": "."
+		},
 	]
 }
