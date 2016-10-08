@@ -11,10 +11,10 @@ build:
 watch:
 	./node_modules/.bin/gulp watch
 
-serve:
+run:
 	node server.js
 
-serve-hub:
+run-hub:
 	node server.js --upstream=https://stenci.la
 
 lint:
