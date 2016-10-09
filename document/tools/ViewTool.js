@@ -32,4 +32,3 @@ class ViewTool extends Tool {
 }
 
 export default ViewTool
-

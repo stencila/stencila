@@ -13,9 +13,6 @@ import DocumentHTMLExporter from './DocumentHTMLExporter'
 import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator()
 
-// FIXME context is likely to live in `js` package
-// import JavascriptContext from '../contexts/JavascriptContext'
-
 import VisualEditor from './editors/visual/VisualEditor'
 import CodeEditor from './editors/code/CodeEditor'
 
