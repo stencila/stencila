@@ -8,5 +8,4 @@ class SummaryComponent extends TextBlockComponent {
 
 }
 
-
 export default SummaryComponent

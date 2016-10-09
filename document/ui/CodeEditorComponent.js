@@ -16,7 +16,7 @@ import code from '../../utilities/code'
  */
 class CodeEditorComponent extends Component {
 
-  constructor(...args) {
+  constructor (...args) {
     super(...args)
 
     this.editor = null
