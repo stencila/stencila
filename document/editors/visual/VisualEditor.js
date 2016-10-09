@@ -77,7 +77,7 @@ class VisualEditor extends AbstractEditor {
    * that instead of updating a single toolbar updates our multiple
    * toolsets.
    */
-  _documentSessionUpdated () {
+  documentSessionUpdated () {
     var commandStates = this.commandManager.getCommandStates();
     ['documentToolset'].forEach(function (name) {
       this.refs[name].extendProps({

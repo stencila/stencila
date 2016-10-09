@@ -26,7 +26,7 @@ class MarkCommand extends AnnotationCommand {
   }
 
   execute (props, context) {
-    var result = MarkCommand.super.prototype.execute.call(this, props, context)
+    var result = super.execute(props, context)
     var mark = result.anno
 
     // Create a new `Discussion` node after the end of the current selection

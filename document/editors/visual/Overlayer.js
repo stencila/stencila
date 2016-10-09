@@ -39,6 +39,10 @@ class Overlayer extends Overlay {
     return el
   }
 
+  isVisible () {
+    return true
+  }
+
   // Override of `position()` method to determin a position for this overlay
   position (hints) {
     // Get selection rectangle so that overlay can be positioned relative to it
