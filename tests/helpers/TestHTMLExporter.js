@@ -1,21 +1,20 @@
 import HTMLExporter from 'substance/model/HTMLExporter'
 
-function TestHTMLExporter (DocumentClass, converters) {
-  TestHTMLExporter.super.call(this, {
-    DocumentClass: DocumentClass,
-    schema: DocumentClass.schema,
-    converters: converters
-  })
-}
+class TestHTMLExporter extends HTMLExporter {
 
-TestHTMLExporter.Prototype = function () {
-  this.exportDocument = function (doc) {
+  constructor (DocumentClass, converters) {
+    super({
+      DocumentClass: DocumentClass,
+      schema: DocumentClass.schema,
+      converters: converters
+    })
+  }
+
+  exportDocument (doc) {
     var bodyNodes = this.convertContainer(doc.get('content'))
     var wrapper = this.$$('div').append(bodyNodes)
     return wrapper.html()
   }
 }
-
-HTMLExporter.extend(TestHTMLExporter)
 
 export default TestHTMLExporter

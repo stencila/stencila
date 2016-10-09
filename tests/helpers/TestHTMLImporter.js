@@ -1,19 +1,18 @@
 import HTMLImporter from 'substance/model/HTMLImporter'
 
-function TestHTMLImporter (DocumentClass, converters) {
-  TestHTMLImporter.super.call(this, {
-    DocumentClass: DocumentClass,
-    schema: DocumentClass.schema,
-    converters: converters
-  })
-}
+class TestHTMLImporter extends HTMLImporter {
 
-TestHTMLImporter.Prototype = function () {
-  this.convertDocument = function (els) {
+  constructor (DocumentClass, converters) {
+    super({
+      DocumentClass: DocumentClass,
+      schema: DocumentClass.schema,
+      converters: converters
+    })
+  }
+
+  convertDocument (els) {
     this.convertContainer(els, 'content')
   }
 }
-
-HTMLImporter.extend(TestHTMLImporter)
 
 export default TestHTMLImporter

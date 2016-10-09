@@ -1,32 +1,29 @@
-import oo from 'substance/util/oo'
-
 import DocumentModel from '../../document/DocumentModel'
 
 import TestHTMLImporter from './TestHTMLImporter'
 import TestHTMLExporter from './TestHTMLExporter'
 
-function TestDocumentHTMLConverter (config) {
-  var converters = config.getConverterRegistry().get('html')
-  this.importer = new TestHTMLImporter(
-    DocumentModel,
-    converters
-  )
-  this.exporter = new TestHTMLExporter(
-    DocumentModel,
-    converters
-  )
-}
+class TestDocumentHTMLConverter {
 
-TestDocumentHTMLConverter.Prototype = function () {
-  this.import = function (html) {
+  constructor (config) {
+    var converters = config.getConverterRegistry().get('html')
+    this.importer = new TestHTMLImporter(
+      DocumentModel,
+      converters
+    )
+    this.exporter = new TestHTMLExporter(
+      DocumentModel,
+      converters
+    )
+  }
+
+  import (html) {
     return this.importer.importDocument(html)
   }
 
-  this.export = function (doc) {
+  export (doc) {
     return this.exporter.exportDocument(doc)
   }
 }
-
-oo.initClass(TestDocumentHTMLConverter)
 
 export default TestDocumentHTMLConverter
