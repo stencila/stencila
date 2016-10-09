@@ -1,7 +1,7 @@
 // Run functional tests (`*.fun.js`)
 'use strict'
 
-// Require so THIS file does not need a babelize before it
+// Requires (instead of imports) so that THIS file does not need a babelize before it
 // (allows tests to be run without babel-node)
 const glob = require('glob')
 const path = require('path')
