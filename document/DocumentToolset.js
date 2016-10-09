@@ -1,6 +1,7 @@
 import Component from 'substance/ui/Component'
 import Tool from 'substance/packages/tools/Tool'
 
+import SizerTool from './tools/SizerTool'
 import ViewTool from './tools/ViewTool'
 import CopyTool from './tools/CopyTool'
 import RefreshTool from './tools/RefreshTool'
@@ -12,35 +13,17 @@ import CommitTool from './tools/CommitTool'
 import ForkTool from './tools/ForkTool'
 import SettingsTool from './tools/SettingsTool'
 
-class SizerTool extends Tool {
-
-  getClassNames () {
-    return super.getClassNames.call(this) + ' se-sizer-tool'
-  }
-
-  renderIcon ($$) {
-    return $$('i')
-      .addClass(
-        'fa fa-' + (this.props.maximized ? 'chevron-up' : 'circle')
-      )
-  }
-
-  getTitle () {
-    return (this.props.maximized ? 'Minimize' : 'Maximize')
-  }
-
-  onClick () {
-    this.send('toggle-maximized')
-  }
-}
-
 class DocumentToolset extends Component {
 
   constructor (...args) {
     super(...args)
 
     this.handleActions({
-      'toggle-maximized': this.toggleMaximized
+      'toggle-maximized': () => {
+        this.extendState({
+          maximized: !this.state.maximized
+        })
+      }
     })
   }
 
@@ -51,6 +34,14 @@ class DocumentToolset extends Component {
   }
 
   render ($$) {
+    let commandStates = this.context.commandManager.getCommandStates()
+    function toolProps (name) {
+      let toolProps = Object.assign({}, commandStates[name])
+      toolProps.name = name
+      toolProps.icon = name
+      return toolProps
+    }
+
     var el = $$('div')
       .addClass('sc-toolset sc-document-toolset')
       .addClass(this.state.maximized ? 'sm-maximized' : 'sm-minimized')
@@ -68,24 +59,18 @@ class DocumentToolset extends Component {
           view: this.props.view
         }).ref('viewTool'),
 
-        $$(RefreshTool, this._getCommandState('refresh'))
+        $$(RefreshTool, toolProps('refresh'))
           .ref('refreshTool'),
 
         $$(RevealTool, {
           name: 'reveal',
+          icon: 'reveal',
           active: this.props.reveal
         }).ref('revealTool'),
 
-        // Currently not used
-        /*
-        $$(CommentTool, {
-          name: 'comment',
-          active: this.props.comment
-        }).ref('commentTool'),
-        */
-
         $$(EditTool, {
           name: 'edit',
+          icon: 'edit',
           active: this.props.edit
         }).ref('editTool')
       )
@@ -94,10 +79,10 @@ class DocumentToolset extends Component {
       .addClass('se-edit-group')
       .ref('editGroup')
       .append(
-        $$(Tool, this._getCommandState('undo')),
-        $$(Tool, this._getCommandState('redo')),
-        $$(SaveTool, this._getCommandState('save')),
-        $$(CommitTool, this._getCommandState('commit'))
+        $$(Tool, toolProps('undo')),
+        $$(Tool, toolProps('redo')),
+        $$(SaveTool, toolProps('save')),
+        $$(CommitTool, toolProps('commit'))
       )
     if (this.props.edit) {
       editGroup.addClass('sm-enabled')
@@ -105,35 +90,15 @@ class DocumentToolset extends Component {
     el.append(editGroup)
 
     el.append(
-      $$(ForkTool, this._getCommandState('fork'))
+      $$(ForkTool, toolProps('fork'))
         .ref('forkTool'),
-      $$(SettingsTool, this._getCommandState('settings'))
+      $$(SettingsTool, toolProps('settings'))
         .ref('settingsTool')
     )
 
     return el
   }
 
-  /**
-   * Convieience method to deal with necessary hack
-   * to add command name to state for Substance `Tools` to render
-   * icons
-   */
-  _getCommandState (name) {
-    var state = this.context.commandManager.getCommandStates()[name]
-    if (!state) throw new Error('Command {' + name + '} not found')
-    state.name = name // A necessary hack at time of writing
-    return state
-  }
-
-  /**
-   * Toggle the `maximized` state
-   */
-  toggleMaximized () {
-    this.extendState({
-      maximized: !this.state.maximized
-    })
-  }
 }
 
 export default DocumentToolset

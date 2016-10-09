@@ -9,4 +9,3 @@ class RefreshTool extends Tool {
 }
 
 export default RefreshTool
-

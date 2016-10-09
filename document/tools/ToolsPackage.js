@@ -1,3 +1,6 @@
+import UndoCommand from 'substance/packages/base/UndoCommand'
+import RedoCommand from 'substance/packages/base/RedoCommand'
+
 import CommitCommand from './CommitCommand'
 import CommitTool from './CommitTool'
 import EditTool from './EditTool'
@@ -29,6 +32,14 @@ export default {
       'en': 'Edit'
     })
     config.addIcon('edit', { 'fontawesome': 'fa-pencil' })
+
+    // Undo
+    config.addCommand('undo', UndoCommand)
+    config.addIcon('undo', { 'fontawesome': 'fa-undo' })
+
+    // Redo
+    config.addCommand('redo', RedoCommand)
+    config.addIcon('redo', { 'fontawesome': 'fa-repeat' })
 
     // Fork
     config.addCommand('fork', ForkCommand)

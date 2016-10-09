@@ -83,16 +83,13 @@ class DocumentConfigurator extends Configurator {
     this.import(ToolsPackage)
     this.import(VisualEditorPackage)
 
-    // Icons, not defined in Substance packages but used in our `BlockToolset`
+    // Icons, not defined in above packages but used in toolsets
     this.addIcon('heading', { 'fontawesome': 'fa-header' })
     this.addIcon('paragraph', { 'fontawesome': 'fa-paragraph' })
     this.addIcon('list', { 'fontawesome': 'fa-list' })
     this.addIcon('table', { 'fontawesome': 'fa-table' })
     this.addIcon('blockquote', { 'fontawesome': 'fa-quote-right' })
     this.addIcon('codeblock', { 'fontawesome': 'fa-code' })
-
-    // CHECK Is this needed?
-    this.import(BasePackage)
   }
 
   /**

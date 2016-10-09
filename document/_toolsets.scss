@@ -29,7 +29,8 @@
     }
   }
 
-  .se-tool {
+  .se-tool,
+  .sc-tool {
     display: inline-block;
 
     // When using `overflow:hidden` the height of the
@@ -50,7 +51,7 @@
       }
 
       // Disabled tool icons
-      &.sm-disabled i {
+      &[disabled='true'] i {
         color: hsl(0, 0%, 20%);
       }
 

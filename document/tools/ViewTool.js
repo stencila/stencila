@@ -7,26 +7,17 @@ import Tool from 'substance/packages/tools/Tool'
  */
 class ViewTool extends Tool {
 
-  getClassNames () {
-    return super.getClassNames.call(this) + ' se-view-tool'
-  }
-
-  renderIcon ($$) {
-    var el = $$('i')
-    if (this.props.view === 'code') {
-      el.addClass('fa fa-file-code-o')
-    } else {
-      el.addClass('fa fa-file-text-o')
-    }
-    return el
-  }
-
-  getTitle () {
-    return 'Toggle view. Current: ' + this.props.view
-  }
-
-  onClick () {
-    this.send('view-toggle')
+  render ($$) {
+    return $$('div').attr({
+      'class': 'sc-tool sc-view-tool',
+      'title': 'Toggle view. Current: ' + this.props.view
+    }).append(
+      $$('button').append(
+        $$('i').addClass(this.props.view === 'code' ? 'fa fa-file-code-o' : 'fa fa-file-text-o')
+      ).on('click', () => {
+        this.send('view-toggle')
+      })
+    )
   }
 
 }
