@@ -48,16 +48,16 @@
         color: hsl(0, 0%, 90%);
         font-size: 1.5em;
       }
-    }
 
-    // Disabled tool icons
-    &.sm-disabled button i {
-      color: hsl(0, 0%, 20%);
-    }
+      // Disabled tool icons
+      &.sm-disabled i {
+        color: hsl(0, 0%, 20%);
+      }
 
-    // Active tool icons
-    &.sm-active button i {
-      color: hsl($stencila-green-hue, 100%, 50%);
+      // Active tool icons
+      &.sm-active i {
+        color: hsl($stencila-green-hue, 100%, 50%);
+      }
     }
 
     .se-details {
