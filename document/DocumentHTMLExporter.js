@@ -5,23 +5,20 @@ import HTMLExporter from 'substance/model/HTMLExporter'
  *
  * @class      HTMLExporter (name)
  */
-function DocumentHTMLExporter (options) {
-  DocumentHTMLExporter.super.call(this, {
-    converters: options.configurator.getConverterRegistry().get('html')
-  })
-}
-
-DocumentHTMLExporter.Prototype = function () {
+class DocumentHTMLExporter extends HTMLExporter {
+  constructor (options) {
+    super({
+      converters: options.configurator.getConverterRegistry().get('html')
+    })
+  }
   /**
    * Export a Stencila Document to HTML
    */
-  this.exportDocument = function (doc) {
+  exportDocument (doc) {
     var bodyNodes = this.convertContainer(doc.get('content'))
     var wrapper = this.$$('div').append(bodyNodes)
     return wrapper.html()
   }
 }
-
-HTMLExporter.extend(DocumentHTMLExporter)
 
 export default DocumentHTMLExporter

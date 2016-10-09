@@ -26,20 +26,21 @@ import code from '../utilities/code'
  *
  * @class      DocumentApp (name)
  */
-function DocumentApp () {
-  DocumentApp.super.apply(this, arguments)
+class DocumentApp extends Component {
 
-  // Bind to events
-  this.handleActions({
-    'view-toggle': this.toggleView,
-    'reveal-toggle': this.toggleReveal,
-    'comment-toggle': this.toggleComment,
-    'edit-toggle': this.toggleEdit
-  })
-}
+  constructor (...args) {
+    super(...args)
 
-DocumentApp.Prototype = function () {
-  this.getInitialState = function () {
+    // Bind to events
+    this.handleActions({
+      'view-toggle': this.toggleView,
+      'reveal-toggle': this.toggleReveal,
+      'comment-toggle': this.toggleComment,
+      'edit-toggle': this.toggleEdit
+    })
+  }
+
+  getInitialState () {
     // Initially, if in edit mode, then also turn on reveal mode
     // See also `this.toggleEdit`
     var view = this.props.view || 'visual'
@@ -60,7 +61,7 @@ DocumentApp.Prototype = function () {
   * @param      {Function}  $$ Function for creating virtual nodes
   * @return     {VirtualNode}  Virtual node to be added to the DOM
   */
-  this.render = function ($$) {
+  render ($$) {
     var el = $$('div').addClass('sc-document-app')
 
     if (this.state.documentSession) {
@@ -114,7 +115,7 @@ DocumentApp.Prototype = function () {
     return el
   }
 
-  this.didMount = function () {
+  didMount () {
     var doc
     var documentSession
 
@@ -170,26 +171,26 @@ DocumentApp.Prototype = function () {
 
   // Import / export methods
 
-  this.importJSON = function (content) {
+  importJSON (content) {
     var doc = new DocumentModel()
     var jsonConverter = new DocumentJSONConverter()
     jsonConverter.importDocument(doc, content)
     return doc
   }
 
-  this.exportJSON = function (doc) {
+  exportJSON (doc) {
     var jsonConverter = new DocumentJSONConverter()
     return jsonConverter.exportDocument(doc)
   }
 
-  this.importHTML = function (content) {
+  importHTML (content) {
     var htmlImporter = new DocumentHTMLImporter({
       configurator: configurator
     })
     return htmlImporter.importDocument(content)
   }
 
-  this.exportHTML = function (doc) {
+  exportHTML (doc) {
     var htmlExporter = new DocumentHTMLExporter({
       configurator: configurator
     })
@@ -199,7 +200,7 @@ DocumentApp.Prototype = function () {
   /**
    * Toggle the view
    */
-  this.toggleView = function (editor) {
+  toggleView (editor) {
     this.extendState({
       view: (this.state.view === 'visual') ? 'code' : 'visual'
     })
@@ -208,7 +209,7 @@ DocumentApp.Prototype = function () {
   /**
    * Toggle the `reveal` state
    */
-  this.toggleReveal = function () {
+  toggleReveal () {
     this.extendState({
       reveal: !this.state.reveal
     })
@@ -217,7 +218,7 @@ DocumentApp.Prototype = function () {
   /**
    * Toggle the `comment` state
    */
-  this.toggleComment = function () {
+  toggleComment () {
     var comment = !this.state.comment
     if (comment) {
       this.switchCopy('live')
@@ -231,7 +232,7 @@ DocumentApp.Prototype = function () {
    * Toggle the `edit` state. If edit mode is getting turned on
    * then reveal mode is also automatically turned on.
    */
-  this.toggleEdit = function () {
+  toggleEdit () {
     var edit = !this.state.edit
     if (edit) {
       this.switchCopy('live')
@@ -248,7 +249,7 @@ DocumentApp.Prototype = function () {
    *
    * @param      {string}  copy   The copy
    */
-  this.switchCopy = function (copy) {
+  switchCopy (copy) {
     if (this.props.copy !== copy) {
       this.extendState({
         documentSession: null
@@ -257,7 +258,5 @@ DocumentApp.Prototype = function () {
     }
   }
 }
-
-Component.extend(DocumentApp)
 
 export default DocumentApp

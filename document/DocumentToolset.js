@@ -12,51 +12,45 @@ import CommitTool from './tools/CommitTool'
 import ForkTool from './tools/ForkTool'
 import SettingsTool from './tools/SettingsTool'
 
-function SizerTool () {
-  SizerTool.super.apply(this, arguments)
-}
+class SizerTool extends Tool {
 
-SizerTool.Prototype = function () {
-  var _super = SizerTool.super.prototype
-
-  this.getClassNames = function () {
-    return _super.getClassNames.call(this) + ' se-sizer-tool'
+  getClassNames () {
+    return super.getClassNames.call(this) + ' se-sizer-tool'
   }
 
-  this.renderIcon = function ($$) {
+  renderIcon ($$) {
     return $$('i')
       .addClass(
         'fa fa-' + (this.props.maximized ? 'chevron-up' : 'circle')
       )
   }
 
-  this.getTitle = function () {
+  getTitle () {
     return (this.props.maximized ? 'Minimize' : 'Maximize')
   }
 
-  this.onClick = function () {
+  onClick () {
     this.send('toggle-maximized')
   }
 }
 
-Tool.extend(SizerTool)
+class DocumentToolset extends Component {
 
-function DocumentToolset () {
-  DocumentToolset.super.apply(this, arguments)
+  constructor () {
+    super(arguments)
 
-  this.handleActions({
-    'toggle-maximized': this.toggleMaximized
-  })
-}
+    this.handleActions({
+      'toggle-maximized': this.toggleMaximized
+    })
+  }
 
-DocumentToolset.Prototype = function () {
-  this.getInitialState = function () {
+  getInitialState () {
     return {
       maximized: true
     }
   }
 
-  this.render = function ($$) {
+  render ($$) {
     var el = $$('div')
       .addClass('sc-toolset sc-document-toolset')
       .addClass(this.state.maximized ? 'sm-maximized' : 'sm-minimized')
@@ -125,7 +119,7 @@ DocumentToolset.Prototype = function () {
    * to add command name to state for Substance `Tools` to render
    * icons
    */
-  this._getCommandState = function (name) {
+  _getCommandState (name) {
     var state = this.context.commandManager.getCommandStates()[name]
     if (!state) throw new Error('Command {' + name + '} not found')
     state.name = name // A necessary hack at time of writing
@@ -135,13 +129,11 @@ DocumentToolset.Prototype = function () {
   /**
    * Toggle the `maximized` state
    */
-  this.toggleMaximized = function () {
+  toggleMaximized () {
     this.extendState({
       maximized: !this.state.maximized
     })
   }
 }
-
-Component.extend(DocumentToolset)
 
 export default DocumentToolset
