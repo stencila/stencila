@@ -81,7 +81,7 @@
     "raven-js": "^3.7.0",
     "sanitize-html": "^1.13.0",
     "semantic-ui-css": "^2.2.4",
-    "substance": "stencila/substance#develop",
+    "substance": "stencila/substance#677bd7fc4ce002c9d7ae2b6d8bc2a833ff908878",
     "ws": "^1.1.1"
   }
 }
