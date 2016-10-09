@@ -24,7 +24,8 @@ var url = require('url')
 var path = require('path')
 var sass = require('node-sass')
 var browserify = require('browserify')
-var babel = require('babelify')
+var babelify = require('babelify')
+var watchify = require('watchify')
 var fs = require('fs')
 var glob = require('glob')
 var http = require('http')
@@ -193,13 +194,27 @@ function nameToPath (name) {
 }
 
 // Javascript
+// Incremental builds with browserify and watchify (https://github.com/substack/watchify)
+function bundler (source) {
+  return browserify({
+    entries: [source],
+    debug: true,
+    cache: {},
+    packageCache: {},
+    plugin: [watchify]
+  }).transform(babelify, {
+    presets: ['es2015'],
+    // Substance needs to be transformed
+    global: true,
+    ignore: /\/node_modules\/(?!substance\/)/
+  })
+}
+var bundlers = {
+  'document': bundler('document/document.js')
+}
 app.get('/web/:name.min.js', function (req, res, next) {
   caching(res, 60)
-  browserify(nameToPath(req.params.name) + '.js', {
-    debug: true
-  }).transform(babel, {
-    presets: ['es2015']
-  })
+  bundlers[req.params.name]
     .bundle()
     .on('error', function (err) {
       console.error(err.message)
