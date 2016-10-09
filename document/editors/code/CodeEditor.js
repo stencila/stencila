@@ -12,20 +12,21 @@ import MacroManager from '../../ui/MacroManager'
  *
  * @class      CodeEditor (name)
  */
-function CodeEditor () {
-  CodeEditor.super.apply(this, arguments)
+class CodeEditor extends AbstractEditor {
 
-  // Use custom MacroManager
-  this.macroManager.context.documentSession.off(this.macroManager)
-  delete this.macroManager
-  this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros())
-}
+  constructor (...args) {
+    super(...args)
 
-CodeEditor.Prototype = function () {
+    // Use custom MacroManager
+    this.macroManager.context.documentSession.off(this.macroManager)
+    delete this.macroManager
+    this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros())
+  }
+
   /**
    * Render this editor
    */
-  this.render = function ($$) {
+  render ($$) {
     var configurator = this.props.configurator
 
     var el = $$('div').addClass('sc-code-editor')
@@ -82,7 +83,7 @@ CodeEditor.Prototype = function () {
    * that instead of updating a single toolbar updates our multiple
    * toolsets.
    */
-  this._documentSessionUpdated = function () {
+  _documentSessionUpdated () {
     var commandStates = this.commandManager.getCommandStates();
     ['overallToolset'].forEach(function (name) {
       this.refs[name].extendProps({
@@ -90,8 +91,7 @@ CodeEditor.Prototype = function () {
       })
     }.bind(this))
   }
-}
 
-AbstractEditor.extend(CodeEditor)
+}
 
 export default CodeEditor

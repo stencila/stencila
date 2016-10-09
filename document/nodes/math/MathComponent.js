@@ -2,22 +2,19 @@ import Component from 'substance/ui/Component'
 
 import math from '../../../utilities/math'
 
-function MathComponent () {
-  MathComponent.super.apply(this, arguments)
-}
+class MathComponent extends Component {
 
-MathComponent.Prototype = function () {
-  this.didMount = function () {
+  didMount () {
     this.props.node.on('source:changed', this.rerender, this)
     this.props.node.on('language:changed', this.rerender, this)
     this.props.node.on('display:changed', this.rerender, this)
   }
 
-  this.dispose = function () {
+  dispose () {
     this.props.node.off(this)
   }
 
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
 
     var el = $$('span')
@@ -39,8 +36,7 @@ MathComponent.Prototype = function () {
 
     return el
   }
-}
 
-Component.extend(MathComponent)
+}
 
 export default MathComponent

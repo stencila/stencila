@@ -3,22 +3,17 @@ import Component from 'substance/ui/Component'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import sanitize from './sanitize'
 
-function DefaultComponent () {
-  DefaultComponent.super.apply(this, arguments)
-}
+class DefaultComponent extends Component {
 
-DefaultComponent.Prototype = function () {
-  var _super = DefaultComponent.super.prototype
-
-  this.getInitialState = function () {
+  getInitialState () {
     return {
       edit: false
     }
   }
 
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    var el = _super.render.call(this, $$)
+    var el = super.render.call(this, $$)
       .addClass('sc-default')
     if (this.state.edit) {
       var code = $$(CodeEditorComponent, {
@@ -38,19 +33,18 @@ DefaultComponent.Prototype = function () {
     )
   }
 
-  this.didMount = function () {
+  didMount () {
     this.props.node.on('html:changed', this.rerender, this)
     this.props.node.on('edit:toggle', this._onEditToggle, this)
   }
 
-  this._onEditToggle = function () {
+  _onEditToggle () {
     this.extendState({
       edit: !this.state.edit
     })
   }
-}
 
-Component.extend(DefaultComponent)
+}
 
 DefaultComponent.fullWidth = true
 

@@ -1,11 +1,9 @@
 import TextBlock from 'substance/model/TextBlock'
 
-function Summary () {
-  Summary.super.apply(this, arguments)
-}
+class Summary extends TextBlock {}
 
-TextBlock.extend(Summary)
-
-Summary.type = 'summary'
+Summary.define({
+  type: 'summary'
+})
 
 export default Summary

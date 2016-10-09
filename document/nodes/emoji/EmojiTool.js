@@ -7,16 +7,11 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      EmojiTool (name)
  */
-function EmojiTool () {
-  EmojiTool.super.apply(this, arguments)
-}
+class EmojiTool extends Tool {
 
-EmojiTool.Prototype = function () {
-  var _super = EmojiTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-emoji-tool')
       .append(
         $$('div')
@@ -41,13 +36,11 @@ EmojiTool.Prototype = function () {
       )
   }
 
-  this.shouldRerender = function (props) {
+  shouldRerender (props) {
     // Do not re-render if the node has not changed.
     // This prevents the input box being updated during live editing
     return (this.props.node === null) || (props.node !== this.props.node)
   }
 }
-
-Tool.extend(EmojiTool)
 
 export default EmojiTool

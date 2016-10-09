@@ -8,16 +8,11 @@ import AnnotationTool from 'substance/ui/AnnotationTool'
  *
  * @class      PrintTool (name)
  */
-function PrintTool () {
-  PrintTool.super.apply(this, arguments)
-}
+class PrintTool extends AnnotationTool {
 
-PrintTool.Prototype = function () {
-  var _super = PrintTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-print-tool')
       .append(
         $$('div')
@@ -43,7 +38,5 @@ PrintTool.Prototype = function () {
       )
   }
 }
-
-AnnotationTool.extend(PrintTool)
 
 export default PrintTool

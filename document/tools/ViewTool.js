@@ -5,18 +5,13 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      ViewTool (name)
  */
-function ViewTool () {
-  ViewTool.super.apply(this, arguments)
-}
+class ViewTool extends Tool {
 
-ViewTool.Prototype = function () {
-  var _super = ViewTool.super.prototype
-
-  this.getClassNames = function () {
-    return _super.getClassNames.call(this) + ' se-view-tool'
+  getClassNames () {
+    return super.getClassNames.call(this) + ' se-view-tool'
   }
 
-  this.renderIcon = function ($$) {
+  renderIcon ($$) {
     var el = $$('i')
     if (this.props.view === 'code') {
       el.addClass('fa fa-file-code-o')
@@ -26,16 +21,15 @@ ViewTool.Prototype = function () {
     return el
   }
 
-  this.getTitle = function () {
+  getTitle () {
     return 'Toggle view. Current: ' + this.props.view
   }
 
-  this.onClick = function () {
+  onClick () {
     this.send('view-toggle')
   }
-}
 
-Tool.extend(ViewTool)
+}
 
 export default ViewTool
 

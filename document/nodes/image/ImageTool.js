@@ -5,19 +5,14 @@ import BlockTool from '../../ui/BlockTool'
  *
  * @class      ImageTool (name)
  */
-function ImageTool () {
-  ImageTool.super.apply(this, arguments)
-}
+class ImageTool extends BlockTool {
 
-ImageTool.Prototype = function () {
-  var _super = ImageTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     // For placeholder to work override Substance's
     // default for src
     var src = this.props.node.src
     if (src === 'http://') src = ''
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-image-tool')
       .append(
         $$('div')
@@ -35,7 +30,7 @@ ImageTool.Prototype = function () {
       )
   }
 
-  this.onChange = function (event) {
+  onChange (event) {
     var node = this.props.node
     var session = this.context.documentSession
     session.transaction(function (tx) {
@@ -43,7 +38,5 @@ ImageTool.Prototype = function () {
     })
   }
 }
-
-BlockTool.extend(ImageTool)
 
 export default ImageTool

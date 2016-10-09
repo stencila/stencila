@@ -11,11 +11,7 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
  */
 class LinkMacro extends AnnotationMacro {
 
-  static get appliesTo () {
-    return []
-  }
-
-  static get regex () {
+  get regex () {
     return /\[([^\]]+)\]\(([^\)]+)\)/
   }
 

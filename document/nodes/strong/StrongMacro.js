@@ -10,22 +10,19 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
  *
  * @class      StrongMacro (name)
  */
-function StrongMacro () {
-};
+class StrongMacro extends AnnotationMacro {
 
-StrongMacro.Prototype = function () {
-  this.appliesTo = []
+  get regex () {
+    return /\*([^\*]+)\*/
+  }
 
-  this.regex = /\*([^\*]+)\*/
-
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'strong',
       text: match[1]
     }
   }
-}
 
-AnnotationMacro.extend(StrongMacro)
+}
 
 export default StrongMacro

@@ -1,18 +1,14 @@
 import EmojiComponent from './EmojiComponent'
 
-function EmojiMarkdownComponent () {
-  EmojiMarkdownComponent.super.apply(this, arguments)
-}
+class EmojiMarkdownComponent extends EmojiComponent {
 
-EmojiMarkdownComponent.Prototype = function () {
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
     return $$('span')
       .addClass('sc-emoji')
       .text(':' + node.name + ':')
   }
-}
 
-EmojiComponent.extend(EmojiMarkdownComponent)
+}
 
 export default EmojiMarkdownComponent

@@ -13,20 +13,21 @@ import BlockToolset from './BlockToolset'
  *
  * @class      Overlayer (name)
  */
-function Overlayer () {
-  Overlayer.super.apply(this, arguments)
+class Overlayer extends Overlay {
 
-  /**
-   * Keep track of position because this can be lost
-   * when this overlay is rerendered but without `position()`
-   * being called for certain documents events.
-   */
-  this.top = 0
-  this.left = 0
-}
+  constructor (...args) {
+    super(...args)
 
-Overlayer.Prototype = function () {
-  this.render = function ($$) {
+    /**
+     * Keep track of position because this can be lost
+     * when this overlay is rerendered but without `position()`
+     * being called for certain documents events.
+     */
+    this.top = 0
+    this.left = 0
+  }
+
+  render ($$) {
     var el = $$('div')
       .addClass('sc-overlay')
       .css('top', this.top + 'px')
@@ -39,7 +40,7 @@ Overlayer.Prototype = function () {
   }
 
   // Override of `position()` method to determin a position for this overlay
-  this.position = function (hints) {
+  position (hints) {
     // Get selection rectangle so that overlay can be positioned relative to it
     // At time of writing `Surface.getBoundingRectangleForSelection` was experimental and
     // sometimes created a hints.rectangle that was an empty object (e.g. for node selections). This checks for that
@@ -95,7 +96,5 @@ Overlayer.Prototype = function () {
     }
   }
 }
-
-Overlay.extend(Overlayer)
 
 export default Overlayer

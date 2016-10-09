@@ -4,20 +4,17 @@ import emojione from 'emojione'
 // Consistent with making everying served locally (for offline use etc)...
 emojione.imagePathPNG = '/web/emojione/png/'
 
-function EmojiComponent () {
-  EmojiComponent.super.apply(this, arguments)
-}
+class EmojiComponent extends Component {
 
-EmojiComponent.Prototype = function () {
-  this.didMount = function () {
+  didMount () {
     this.props.node.on('name:changed', this.rerender, this)
   }
 
-  this.dispose = function () {
+  dispose () {
     this.props.node.off(this)
   }
 
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
     var el = $$('span')
       .addClass('sc-emoji')
@@ -35,7 +32,5 @@ EmojiComponent.Prototype = function () {
     return el
   }
 }
-
-Component.extend(EmojiComponent)
 
 export default EmojiComponent

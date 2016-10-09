@@ -1,15 +1,9 @@
 import HeadingComponent from './HeadingComponent'
 
-function HeadingMarkdownComponent () {
-  HeadingMarkdownComponent.super.apply(this, arguments)
-}
-
-HeadingMarkdownComponent.Prototype = function () {
-  var _super = HeadingMarkdownComponent.super.prototype
-
-  this.render = function ($$) {
+class HeadingMarkdownComponent extends HeadingComponent {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .insertAt(0,
         $$('span')
           .ref('level')
@@ -17,7 +11,5 @@ HeadingMarkdownComponent.Prototype = function () {
       )
   }
 }
-
-HeadingComponent.extend(HeadingMarkdownComponent)
 
 export default HeadingMarkdownComponent

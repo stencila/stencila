@@ -1,21 +1,19 @@
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
-function CodeblockComponent (parent, props) {
-  props.codeProperty = 'source'
-  props.languageProperty = 'language'
-  CodeblockComponent.super.apply(this, arguments)
-}
+class CodeblockComponent extends CodeEditorComponent {
 
-CodeblockComponent.Prototype = function () {
-  var _super = CodeblockComponent.super.prototype
+  constructor (parent, props) {
+    props.codeProperty = 'source'
+    props.languageProperty = 'language'
+    super(parent, props)
+  }
 
-  this.render = function ($$) {
-    return _super.render.call(this, $$)
+  render ($$) {
+    return super.render.call(this, $$)
       .addClass('sc-codeblock')
   }
-}
 
-CodeEditorComponent.extend(CodeblockComponent)
+}
 
 CodeblockComponent.fullWidth = true
 

@@ -1,10 +1,6 @@
 import InlineNode from 'substance/model/InlineNode'
 
-function Emoji () {
-  Emoji.super.apply(this, arguments)
-}
-
-InlineNode.extend(Emoji)
+class Emoji extends InlineNode {}
 
 Emoji.define({
   type: 'emoji',

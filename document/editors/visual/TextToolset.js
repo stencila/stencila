@@ -1,22 +1,23 @@
 import Component from 'substance/ui/Component'
 import documentHelpers from 'substance/model/documentHelpers'
 
-function TextToolset () {
-  Component.apply(this, arguments)
+class TextToolset extends Component {
 
-  this.tools = [
-    'emphasis', 'strong', 'subscript', 'superscript', 'code',
-    'link', 'mark',
-    'math', 'print', 'emoji'
-  ]
+  constructor (...args) {
+    super(...args)
 
-  this.inlineNodeTools = [
-    'math', 'print', 'emoji'
-  ]
-}
+    this.tools = [
+      'emphasis', 'strong', 'subscript', 'superscript', 'code',
+      'link', 'mark',
+      'math', 'print', 'emoji'
+    ]
 
-TextToolset.Prototype = function () {
-  this.render = function ($$) {
+    this.inlineNodeTools = [
+      'math', 'print', 'emoji'
+    ]
+  }
+
+  render ($$) {
     var el = $$('div')
       .addClass('sc-toolset sc-text-toolset')
 
@@ -64,8 +65,7 @@ TextToolset.Prototype = function () {
 
     return el
   }
-}
 
-Component.extend(TextToolset)
+}
 
 export default TextToolset

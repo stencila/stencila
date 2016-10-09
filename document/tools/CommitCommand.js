@@ -5,25 +5,21 @@ import Command from 'substance/ui/Command'
  *
  * @class      CommitCommand (name)
  */
-function CommitCommand () {
-  CommitCommand.super.apply(this, arguments)
-}
+class CommitCommand extends Command {
 
-CommitCommand.Prototype = function () {
-  this.getCommandState = function (props, context) {
+  getCommandState (props, context) {
     return {
       disabled: false,
       active: false
     }
   }
 
-  this.execute = function (props, context) {
+  execute (props, context) {
     return {
       status: null
     }
   }
-}
 
-Command.extend(CommitCommand)
+}
 
 export default CommitCommand

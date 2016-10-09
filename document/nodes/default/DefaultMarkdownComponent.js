@@ -2,16 +2,11 @@ import Component from 'substance/ui/Component'
 
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
-function DefaultMarkdownComponent () {
-  DefaultMarkdownComponent.super.apply(this, arguments)
-}
+class DefaultMarkdownComponent extends Component {
 
-DefaultMarkdownComponent.Prototype = function () {
-  var _super = DefaultMarkdownComponent.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-default')
       .append(
         $$(CodeEditorComponent, {
@@ -22,9 +17,8 @@ DefaultMarkdownComponent.Prototype = function () {
         }).ref('code')
       )
   }
-}
 
-Component.extend(DefaultMarkdownComponent)
+}
 
 DefaultMarkdownComponent.fullWidth = true
 

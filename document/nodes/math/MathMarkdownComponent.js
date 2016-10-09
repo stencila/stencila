@@ -1,12 +1,9 @@
 import Component from 'substance/ui/Component'
 import TextPropertyEditor from 'substance/ui/TextPropertyEditor'
 
-function MathCodeComponent () {
-  MathCodeComponent.super.apply(this, arguments)
-}
+class MathMarkdownComponent extends Component {
 
-MathCodeComponent.Prototype = function () {
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
 
     var delim
@@ -27,8 +24,7 @@ MathCodeComponent.Prototype = function () {
         delim
       )
   }
+
 }
 
-Component.extend(MathCodeComponent)
-
-export default MathCodeComponent
+export default MathMarkdownComponent

@@ -8,20 +8,14 @@ import HeadingComponentBase from 'substance/packages/heading/HeadingComponent'
  *
  * @class      HeadingComponent (name)
  */
-function HeadingComponent () {
-  HeadingComponent.super.apply(this, arguments)
-}
-
-HeadingComponent.Prototype = function () {
-  this.didMount = function () {
+class HeadingComponent extends HeadingComponentBase {
+  didMount () {
     this.props.node.on('level:changed', this.rerender, this)
   }
 
-  this.dispose = function () {
+  dispose () {
     this.props.node.off(this)
   }
 }
-
-HeadingComponentBase.extend(HeadingComponent)
 
 export default HeadingComponent

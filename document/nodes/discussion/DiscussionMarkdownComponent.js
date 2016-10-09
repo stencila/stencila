@@ -1,21 +1,18 @@
 import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 
-function DiscussionMarkdownComponent () {
-  DiscussionMarkdownComponent.super.apply(this, arguments)
+class DiscussionMarkdownComponent extends IsolatedNodeComponent {
 
-  this.ContentClass = ContainerEditor
-}
+  constructor (...args) {
+    super(...args)
 
-DiscussionMarkdownComponent.Prototype = function () {
-  var _super = DiscussionMarkdownComponent.super.prototype
+    this.ContentClass = ContainerEditor
+  }
 
-  this.render = function ($$) {
-    return _super.render.call(this, $$)
+  render ($$) {
+    return super.render.call(this, $$)
       .addClass('sc-discussion')
   }
 }
-
-IsolatedNodeComponent.extend(DiscussionMarkdownComponent)
 
 export default DiscussionMarkdownComponent

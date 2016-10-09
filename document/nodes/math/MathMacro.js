@@ -1,17 +1,17 @@
 import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
-function MathMacro () {
-};
+class MathMacro extends InlineNodeMacro {
 
-MathMacro.Prototype = function () {
-  // Allow for both AsciiMath pipe delimeters (|) and
-  // TeX dollar ($) delimiters. In both cases the start and end delimiters
-  // must be followed/preceded by a non-space character. For TeX, the first
-  // dollar must not be followed by a digit.
-  //                2                   5
-  this.regex = /(\|(\S|(\S.*\S))\|)|(\$(([^0-9\s])|([^0-9\s].*\S))\$)/
+  get regex () {
+    // Allow for both AsciiMath pipe delimeters (|) and
+    // TeX dollar ($) delimiters. In both cases the start and end delimiters
+    // must be followed/preceded by a non-space character. For TeX, the first
+    // dollar must not be followed by a digit.
+    //                2                   5
+    return /(\|(\S|(\S.*\S))\|)|(\$(([^0-9\s])|([^0-9\s].*\S))\$)/
+  }
 
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     var source, language, display
     if (match[2]) {
       source = match[2]
@@ -30,8 +30,7 @@ MathMacro.Prototype = function () {
       display: display
     }
   }
-}
 
-InlineNodeMacro.extend(MathMacro)
+}
 
 export default MathMacro

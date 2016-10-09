@@ -9,22 +9,19 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
  *
  * @class      EmphasisMacro (name)
  */
-function EmphasisMacro () {
-};
+class EmphasisMacro extends AnnotationMacro {
 
-EmphasisMacro.Prototype = function () {
-  this.appliesTo = []
+  get regex () {
+    return /_([^_]+)_/
+  }
 
-  this.regex = /_([^_]+)_/
-
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'emphasis',
       text: match[1]
     }
   }
-}
 
-AnnotationMacro.extend(EmphasisMacro)
+}
 
 export default EmphasisMacro

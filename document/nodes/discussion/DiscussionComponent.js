@@ -5,21 +5,20 @@ import each from 'substance/node_modules/lodash/each'
 
 import moment from 'moment'
 
-function DiscussionComponent () {
-  DiscussionComponent.super.apply(this, arguments)
+class DiscussionComponent extends IsolatedNodeComponent {
 
-  this.ContentClass = ContainerEditor
+  constructor (...args) {
+    super(...args)
 
-  document.addEventListener('mark:selected', this.onMarkSelected.bind(this))
-}
+    this.ContentClass = ContainerEditor
 
-DiscussionComponent.Prototype = function () {
-  var _super = DiscussionComponent.super.prototype
+    document.addEventListener('mark:selected', this.onMarkSelected.bind(this))
+  }
 
   /**
    * Method override for custom display state
    */
-  this.getInitialState = function () {
+  getInitialState () {
     return {
       displayed: false,
       markPosition: null
@@ -30,15 +29,15 @@ DiscussionComponent.Prototype = function () {
    * Method override so no blocker is rendered over this
    * `IsolatedNodeComponent` (requires two clicks to begin editing)
    */
-  this.shouldRenderBlocker = function () {
+  shouldRenderBlocker () {
     return false
   }
 
   /**
    * Method override to render component
    */
-  this.render = function ($$) {
-    var el = _super.render.call(this, $$)
+  render ($$) {
+    var el = super.render.call(this, $$)
       .addClass('sc-discussion ' + (this.state.displayed ? 'sm-displayed' : ''))
       .insertAt(0,
         $$('div')
@@ -143,7 +142,7 @@ DiscussionComponent.Prototype = function () {
    *
    * @param      {<type>}  event   The event
    */
-  this.onMarkSelected = function (event) {
+  onMarkSelected (event) {
     this.extendState({
       displayed: event.detail.discussionId === this.props.node.id,
       markPosition: event.detail.markPosition
@@ -153,7 +152,7 @@ DiscussionComponent.Prototype = function () {
   /**
    * Event method for when the hide button is clicked.
    */
-  this.onHideClicked = function () {
+  onHideClicked () {
     this.extendState({
       displayed: false
     })
@@ -162,7 +161,7 @@ DiscussionComponent.Prototype = function () {
   /**
    * Event method for when the add button is clicked.
    */
-  this.onAddClicked = function (event) {
+  onAddClicked (event) {
     var discussion = this.props.node
     var session = this.context.documentSession
     var user = session.config.user
@@ -190,7 +189,7 @@ DiscussionComponent.Prototype = function () {
   /**
    * Event method for deleting this discussion and associated `Mark`
    */
-  this.onDeleteClicked = function (event) {
+  onDeleteClicked (event) {
     var discussion = this.props.node
     var session = this.context.documentSession
     // Destroy this component first
@@ -212,7 +211,5 @@ DiscussionComponent.Prototype = function () {
     event.stopPropagation()
   }
 }
-
-IsolatedNodeComponent.extend(DiscussionComponent)
 
 export default DiscussionComponent

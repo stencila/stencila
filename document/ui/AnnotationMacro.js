@@ -1,11 +1,9 @@
 import Macro from './Macro'
 import replaceText from 'substance/model/transform/replaceText'
 
-function AnnotationMacro () {
-}
+class AnnotationMacro extends Macro {
 
-AnnotationMacro.Prototype = function () {
-  this.performAction = function (match, props, context) {
+  performAction (match, props, context) {
     var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
     surface.transaction(function (tx, args) {
       var data = this.createNodeData(match)
@@ -34,8 +32,7 @@ AnnotationMacro.Prototype = function () {
       return args
     }.bind(this))
   }
-}
 
-Macro.extend(AnnotationMacro)
+}
 
 export default AnnotationMacro

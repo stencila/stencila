@@ -1,10 +1,6 @@
 import InlineNode from 'substance/model/InlineNode'
 
-function Math () {
-  Math.super.apply(this, arguments)
-}
-
-InlineNode.extend(Math)
+class Math extends InlineNode {}
 
 Math.define({
   type: 'math',

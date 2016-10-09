@@ -7,6 +7,7 @@ import MacroManagerBase from 'substance/ui/MacroManager'
  * @class      MacroManager (name)
  */
 class MacroManager extends MacroManagerBase {
+
   // This function is from `substance/ui/MacroManager` except for the part
   // labelled as "Modification" below
   executeMacros (update, info) {
@@ -53,6 +54,7 @@ class MacroManager extends MacroManagerBase {
       }
     }
   }
+
 }
 
 export default MacroManager

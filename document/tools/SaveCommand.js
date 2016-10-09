@@ -1,23 +1,19 @@
 import Command from 'substance/ui/Command'
 
-function SaveCommand () {
-  SaveCommand.super.apply(this, arguments)
-}
+class SaveCommand extends Command {
 
-SaveCommand.Prototype = function () {
-  this.getCommandState = function (props, context) {
+  getCommandState (props, context) {
     return {
       disabled: false,
       active: false
     }
   }
 
-  this.execute = function (props, context) {
+  execute (props, context) {
     context.doc.save()
     return true
   }
-}
 
-Command.extend(SaveCommand)
+}
 
 export default SaveCommand

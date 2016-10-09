@@ -7,12 +7,9 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      BlockTool (name)
  */
-function BlockTool () {
-  BlockTool.super.apply(this, arguments)
-}
+class BlockTool extends Tool {
 
-BlockTool.Prototype = function () {
-  this.performAction = function () {
+  performAction () {
     if (this.props.active) {
       this.props.toolset.extendState({
         expanded: !this.props.toolset.state.expanded
@@ -21,8 +18,7 @@ BlockTool.Prototype = function () {
       this.props.toolset.changeType(this.props.name)
     }
   }
-}
 
-Tool.extend(BlockTool)
+}
 
 export default BlockTool

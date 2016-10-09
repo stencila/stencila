@@ -1,26 +1,22 @@
 import Component from 'substance/ui/Component'
 
-function PrintComponent () {
-  PrintComponent.super.apply(this, arguments)
-}
+class PrintComponent extends Component {
 
-PrintComponent.Prototype = function () {
-  this.didMount = function () {
+  didMount () {
     this.props.node.on('content:changed', this.rerender, this)
   }
 
-  this.dispose = function () {
+  dispose () {
     this.props.node.off(this)
   }
 
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
     return $$('span')
       .addClass('sc-print' + (node.error ? ' sm-error' : ''))
       .append(node.content.length ? node.content : ' ')
   }
-}
 
-Component.extend(PrintComponent)
+}
 
 export default PrintComponent

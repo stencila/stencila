@@ -1,13 +1,13 @@
 import Macro from './Macro'
 import deleteNode from 'substance/model/transform/deleteNode'
 
-function BlockNodeMacro () {
-};
+class BlockNodeMacro extends Macro {
 
-BlockNodeMacro.Prototype = function () {
-  this.appliesTo = ['paragraph']
+  get appliesTo () {
+    return ['paragraph']
+  }
 
-  this.performAction = function (match, props, context) {
+  performAction (match, props, context) {
     var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
     surface.transaction(function (tx, args) {
       // Create the new node
@@ -35,8 +35,7 @@ BlockNodeMacro.Prototype = function () {
       return args
     }.bind(this))
   }
-}
 
-Macro.extend(BlockNodeMacro)
+}
 
 export default BlockNodeMacro

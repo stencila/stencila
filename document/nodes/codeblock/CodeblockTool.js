@@ -7,16 +7,11 @@ import BlockTool from '../../ui/BlockTool'
  *
  * @class      CodeblockTool (name)
  */
-function CodeblockTool () {
-  CodeblockTool.super.apply(this, arguments)
-}
+class CodeblockTool extends BlockTool {
 
-CodeblockTool.Prototype = function () {
-  var _super = CodeblockTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-codeblock-tool')
       .append(
         $$('div')
@@ -40,7 +35,5 @@ CodeblockTool.Prototype = function () {
       )
   }
 }
-
-BlockTool.extend(CodeblockTool)
 
 export default CodeblockTool

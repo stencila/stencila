@@ -5,16 +5,11 @@ import BlockTool from '../../ui/BlockTool'
  *
  * @class      DefaultTool (name)
  */
-function DefaultTool () {
-  DefaultTool.super.apply(this, arguments)
-}
+class DefaultTool extends BlockTool {
 
-DefaultTool.Prototype = function () {
-  var _super = DefaultTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-default-tool')
       .append(
         $$('div')
@@ -36,7 +31,5 @@ DefaultTool.Prototype = function () {
       )
   }
 }
-
-BlockTool.extend(DefaultTool)
 
 export default DefaultTool

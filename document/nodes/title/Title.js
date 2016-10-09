@@ -1,11 +1,9 @@
 import TextBlock from 'substance/model/TextBlock'
 
-function Title () {
-  Title.super.apply(this, arguments)
-}
+class Title extends TextBlock {}
 
-TextBlock.extend(Title)
-
-Title.type = 'title'
+Title.define({
+  type: 'title'
+})
 
 export default Title

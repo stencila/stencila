@@ -7,22 +7,19 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
  *
  * @class      CodeMacro (name)
  */
-function CodeMacro () {
-};
+class CodeMacro extends AnnotationMacro {
 
-CodeMacro.Prototype = function () {
-  this.appliesTo = []
+  get regex () {
+    return /`([^`]+)`/
+  }
 
-  this.regex = /`([^`]+)`/
-
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'code',
       text: match[1]
     }
   }
-}
 
-AnnotationMacro.extend(CodeMacro)
+}
 
 export default CodeMacro

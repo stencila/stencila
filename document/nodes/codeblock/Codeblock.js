@@ -1,10 +1,6 @@
 import BlockNode from 'substance/model/BlockNode'
 
-function Codeblock () {
-  Codeblock.super.apply(this, arguments)
-}
-
-BlockNode.extend(Codeblock)
+class Codeblock extends BlockNode {}
 
 Codeblock.define({
   type: 'codeblock',

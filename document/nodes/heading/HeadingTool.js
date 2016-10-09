@@ -7,16 +7,11 @@ import BlockTool from '../../ui/BlockTool'
  *
  * @class      HeadingTool (name)
  */
-function HeadingTool () {
-  HeadingTool.super.apply(this, arguments)
-}
+class HeadingTool extends BlockTool {
 
-HeadingTool.Prototype = function () {
-  var _super = HeadingTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-heading-tool')
       .append(
         $$('div')
@@ -42,7 +37,5 @@ HeadingTool.Prototype = function () {
       )
   }
 }
-
-BlockTool.extend(HeadingTool)
 
 export default HeadingTool

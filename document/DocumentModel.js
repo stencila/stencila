@@ -10,6 +10,7 @@ var configurator = new DocumentConfigurator()
  * @param      {<type>}  schema  The schema
  */
 class DocumentModel extends Document {
+
   constructor (schema) {
     super(schema || DocumentModel.schema)
 
@@ -21,10 +22,6 @@ class DocumentModel extends Document {
     })
   }
 
-  static get schema () {
-    configurator.getSchema()
-  }
-
   execute (expression, context) {
     context = context || this.contexts[0]
     return context.execute(expression)
@@ -34,5 +31,7 @@ class DocumentModel extends Document {
     return this.contexts[0].write(expression)
   }
 }
+
+DocumentModel.schema = configurator.getSchema()
 
 export default DocumentModel

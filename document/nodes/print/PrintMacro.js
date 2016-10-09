@@ -1,19 +1,18 @@
 import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
-function PrintMacro () {
-};
+class PrintMacro extends InlineNodeMacro {
 
-PrintMacro.Prototype = function () {
-  this.regex = /((\{print\s+)|(\$\{))(.+)\}/
+  get regex () {
+    return /((\{print\s+)|(\$\{))(.+)\}/
+  }
 
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'print',
       source: match[4].trim()
     }
   }
-}
 
-InlineNodeMacro.extend(PrintMacro)
+}
 
 export default PrintMacro

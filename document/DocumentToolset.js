@@ -36,8 +36,8 @@ class SizerTool extends Tool {
 
 class DocumentToolset extends Component {
 
-  constructor () {
-    super(arguments)
+  constructor (...args) {
+    super(...args)
 
     this.handleActions({
       'toggle-maximized': this.toggleMaximized

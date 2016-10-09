@@ -8,38 +8,39 @@ import ImageTool from '../../nodes/image/ImageTool'
 import CodeblockTool from '../../nodes/codeblock/CodeblockTool'
 import DefaultTool from '../../nodes/default/DefaultTool'
 
-function BlockToolset () {
-  BlockToolset.super.apply(this, arguments)
+class BlockToolset extends Component {
 
-  this.primaryTypes = [
-    'heading', 'paragraph', 'image', 'blockquote', 'codeblock',
-    'execute'
-  ]
+  constructor (...args) {
+    super(...args)
 
-  this.secondaryTypes = [
-    'title', 'summary', 'default'
-  ]
+    this.primaryTypes = [
+      'heading', 'paragraph', 'image', 'blockquote', 'codeblock',
+      'execute'
+    ]
 
-  this.tools = {
-    'heading': HeadingTool,
-    'image': ImageTool,
-    'codeblock': CodeblockTool,
-    'default': DefaultTool
+    this.secondaryTypes = [
+      'title', 'summary', 'default'
+    ]
+
+    this.tools = {
+      'heading': HeadingTool,
+      'image': ImageTool,
+      'codeblock': CodeblockTool,
+      'default': DefaultTool
+    }
   }
-}
 
-BlockToolset.Prototype = function () {
   /**
    * Method override for custom display state
    */
-  this.getInitialState = function () {
+  getInitialState () {
     return {
       expanded: false,
       extended: false
     }
   }
 
-  this.render = function ($$) {
+  render ($$) {
     var el = $$('div')
       .addClass('sc-toolset sc-block-toolset')
 
@@ -91,7 +92,7 @@ BlockToolset.Prototype = function () {
     return el
   }
 
-  this._getSelection = function () {
+  _getSelection () {
     // CHECK
     // There is more than one way to get the current selection and document, including
     // via `this.context.documentSession`. Is geeting thes via `surface` the best way?
@@ -133,7 +134,7 @@ BlockToolset.Prototype = function () {
     }
   }
 
-  this._addTool = function (selected, type, el, $$) {
+  _addTool (selected, type, el, $$) {
     var ToolClass = this.tools[type] || BlockTool
     var active = selected.type === type
     var disabled = !active && !this._canChange(selected, type)
@@ -156,7 +157,7 @@ BlockToolset.Prototype = function () {
    * @param      {<type>}   type      The type
    * @return     {boolean}  True if able to change, False otherwise.
    */
-  this._canChange = function (selected, type) {
+  _canChange (selected, type) {
     var node = selected.node
     var schema = this.context.doc.getSchema()
     if (node.isText()) {
@@ -177,7 +178,7 @@ BlockToolset.Prototype = function () {
    *
    * @param      {<type>}  type    The type
    */
-  this.changeType = function (type) {
+  changeType (type) {
     // CHECK
     // This method is analgous to a `Command.execute` method.
     // Here, instead of having a separate command, we have just integrated it
@@ -224,7 +225,5 @@ BlockToolset.Prototype = function () {
     })
   }
 }
-
-Component.extend(BlockToolset)
 
 export default BlockToolset

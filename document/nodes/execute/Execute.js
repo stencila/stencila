@@ -1,11 +1,8 @@
 import BlockNode from 'substance/model/BlockNode'
 
-function Execute () {
-  Execute.super.apply(this, arguments)
-}
+class Execute extends BlockNode {
 
-Execute.Prototype = function () {
-  this.refresh = function () {
+  refresh () {
     if (this.source) {
       try {
         this.document.execute(this.source)
@@ -17,9 +14,8 @@ Execute.Prototype = function () {
       this.emit('content:changed')
     }
   }
-}
 
-BlockNode.extend(Execute)
+}
 
 Execute.define({
   type: 'execute',

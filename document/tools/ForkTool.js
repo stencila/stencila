@@ -1,16 +1,12 @@
 import Tool from 'substance/packages/tools/Tool'
 
-function ForkTool () {
-  ForkTool.super.apply(this, arguments)
-}
+class ForkTool extends Tool {
 
-ForkTool.Prototype = function () {
-  this.getTitle = function () {
+  getTitle () {
     return 'Create a fork of this document; not yet implemented :('
   }
-}
 
-Tool.extend(ForkTool)
+}
 
 export default ForkTool
 

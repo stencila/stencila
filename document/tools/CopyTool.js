@@ -8,18 +8,13 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      CopyTool (name)
  */
-function CopyTool () {
-  CopyTool.super.apply(this, arguments)
-}
+class CopyTool extends Tool {
 
-CopyTool.Prototype = function () {
-  var _super = CopyTool.super.prototype
-
-  this.getClassNames = function () {
-    return _super.getClassNames.call(this) + ' se-copy-tool'
+  getClassNames () {
+    return super.getClassNames.call(this) + ' se-copy-tool'
   }
 
-  this.renderIcon = function ($$) {
+  renderIcon ($$) {
     var el = $$('i')
     if (this.props.copy) {
       el.addClass('fa fa-users')
@@ -29,16 +24,15 @@ CopyTool.Prototype = function () {
     return el
   }
 
-  this.getTitle = function () {
+  getTitle () {
     if (this.props.copy) {
       return 'You\'re working on the "' + this.props.copy.name + '" copy with ' + (this.props.copy.people - 1) + ' others'
     } else {
       return 'Master or local copy'
     }
   }
-}
 
-Tool.extend(CopyTool)
+}
 
 export default CopyTool
 

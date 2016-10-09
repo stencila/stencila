@@ -1,20 +1,19 @@
 import InlineNodeMacro from '../../ui/InlineNodeMacro'
 
-function EmojiMacro () {
-};
+class EmojiMacro extends InlineNodeMacro {
 
-EmojiMacro.Prototype = function () {
-  this.regex = /:([a-z0-9_]+):/
+  get regex () {
+    return /:([a-z0-9_]+):/
+  }
 
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     var name = match[1]
     return {
       type: 'emoji',
       name: name
     }
   }
-}
 
-InlineNodeMacro.extend(EmojiMacro)
+}
 
 export default EmojiMacro

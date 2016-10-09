@@ -1,15 +1,11 @@
 import AnnotationTool from 'substance/ui/AnnotationTool'
 
-function MarkTool () {
-  MarkTool.super.apply(this, arguments)
-}
+class MarkTool extends AnnotationTool {
 
-MarkTool.Prototype = function () {
-  this.getClassNames = function () {
+  getClassNames () {
     return 'sc-mark-tool'
   }
-}
 
-AnnotationTool.extend(MarkTool)
+}
 
 export default MarkTool

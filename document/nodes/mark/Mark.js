@@ -10,14 +10,7 @@ import PropertyAnnotation from 'substance/model/PropertyAnnotation'
  *
  * @class      Mark (name)
  */
-function Mark () {
-  Mark.super.apply(this, arguments)
-}
-
-Mark.Prototype = function () {
-}
-
-PropertyAnnotation.extend(Mark)
+class Mark extends PropertyAnnotation {}
 
 Mark.define({
   type: 'mark',

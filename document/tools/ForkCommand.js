@@ -1,24 +1,20 @@
 import Command from 'substance/ui/Command'
 
-function ForkCommand () {
-  ForkCommand.super.apply(this, arguments)
-}
+class ForkCommand extends Command {
 
-ForkCommand.Prototype = function () {
-  this.getCommandState = function (props, context) {
+  getCommandState (props, context) {
     return {
       disabled: false,
       active: false
     }
   }
 
-  this.execute = function (props, context) {
+  execute (props, context) {
     return {
       status: null
     }
   }
-}
 
-Command.extend(ForkCommand)
+}
 
 export default ForkCommand

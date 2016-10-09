@@ -16,15 +16,17 @@ import BlockNodeMacro from '../../ui/BlockNodeMacro'
  *
  * @class      HeadingMacro (name)
  */
-function HeadingMacro () {
-};
+class HeadingMacro extends BlockNodeMacro {
 
-HeadingMacro.Prototype = function () {
-  this.appliesTo = ['paragraph', 'heading']
+  get appliesTo () {
+    return ['paragraph', 'heading']
+  }
 
-  this.regex = /^(#+)\s+(.*?)$/
+  get regex () {
+    return /^(#+)\s+(.*?)$/
+  }
 
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'heading',
       level: match[1].length,
@@ -32,7 +34,5 @@ HeadingMacro.Prototype = function () {
     }
   }
 }
-
-BlockNodeMacro.extend(HeadingMacro)
 
 export default HeadingMacro

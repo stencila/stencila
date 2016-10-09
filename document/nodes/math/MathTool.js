@@ -8,18 +8,13 @@ import map from 'substance/node_modules/lodash/map'
  *
  * @class      MathTool (name)
  */
-function MathTool () {
-  MathTool.super.apply(this, arguments)
-}
+class MathTool extends Tool {
 
-MathTool.Prototype = function () {
-  var _super = MathTool.super.prototype
-
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
     var language = node ? node.language : 'asciimath'
     var display = node ? node.display : 'inline'
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .addClass('sc-math-tool')
       .append(
         $$('div')
@@ -76,13 +71,11 @@ MathTool.Prototype = function () {
       )
   }
 
-  this.shouldRerender = function (props) {
+  shouldRerender (props) {
     // Do not re-render if the node has not changed.
     // This prevents the input box being updated during live editing
     return (this.props.node === null) || (props.node !== this.props.node)
   }
 }
-
-Tool.extend(MathTool)
 
 export default MathTool

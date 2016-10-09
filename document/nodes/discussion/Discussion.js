@@ -1,10 +1,6 @@
 import Container from 'substance/model/Container'
 
-function Discussion () {
-  Discussion.super.apply(this, arguments)
-}
-
-Container.extend(Discussion)
+class Discussion extends Container {}
 
 Discussion.define({
   type: 'discussion',

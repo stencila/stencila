@@ -1,16 +1,12 @@
 import Tool from 'substance/packages/tools/Tool'
 
-function SettingsTool () {
-  SettingsTool.super.apply(this, arguments)
-}
+class SettingsTool extends Tool {
 
-SettingsTool.Prototype = function () {
-  this.getTitle = function () {
+  getTitle () {
     return 'Change settings for this document; not yet implemented :('
   }
-}
 
-Tool.extend(SettingsTool)
+}
 
 export default SettingsTool
 

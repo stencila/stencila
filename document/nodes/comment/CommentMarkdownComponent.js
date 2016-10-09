@@ -2,12 +2,9 @@ import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNode
 
 import CommentComponent from './CommentComponent'
 
-function CommentMarkdownComponent () {
-  CommentMarkdownComponent.super.apply(this, arguments)
-}
+class CommentMarkdownComponent extends CommentComponent {
 
-CommentMarkdownComponent.Prototype = function () {
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
     return IsolatedNodeComponent.prototype.render.call(this, $$)
       .insertAt(0,
@@ -27,8 +24,7 @@ CommentMarkdownComponent.Prototype = function () {
           )
       )
   }
-}
 
-CommentComponent.extend(CommentMarkdownComponent)
+}
 
 export default CommentMarkdownComponent

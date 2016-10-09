@@ -1,13 +1,8 @@
 import InlineNode from 'substance/model/InlineNode'
 
-function Print () {
-  Print.super.apply(this, arguments)
+class Print extends InlineNode {
 
-  if (!this.content) this.refresh()
-}
-
-Print.Prototype = function () {
-  this.refresh = function () {
+  refresh () {
     if (this.source) {
       // TODO
       // Evaluate the source within the document's current
@@ -22,9 +17,8 @@ Print.Prototype = function () {
       this.emit('content:changed')
     }
   }
-}
 
-InlineNode.extend(Print)
+}
 
 Print.define({
   type: 'print',

@@ -3,19 +3,18 @@ import ContainerEditor from 'substance/ui/ContainerEditor'
 
 import moment from 'moment'
 
-function CommentComponent () {
-  CommentComponent.super.apply(this, arguments)
+class CommentComponent extends IsolatedNodeComponent {
 
-  this.ContentClass = ContainerEditor
-}
+  constructor (...args) {
+    super(...args)
 
-CommentComponent.Prototype = function () {
-  var _super = CommentComponent.super.prototype
+    this.ContentClass = ContainerEditor
+  }
 
   /**
    * Method override for custom class names
    */
-  this.getClassNames = function () {
+  getClassNames () {
     return 'sc-comment'
   }
 
@@ -23,7 +22,7 @@ CommentComponent.Prototype = function () {
    * Method override to disable the comment unless the current user
    * is the original author of the comment
    */
-  this.isDisabled = function () {
+  isDisabled () {
     var user = this.context.documentSession.config.user
     return this.props.node.who !== ('@' + user)
   }
@@ -32,7 +31,7 @@ CommentComponent.Prototype = function () {
    * Method override so no blocker is rendered over this
    * `IsolatedNodeComponent` (requires two clicks to begin editing)
    */
-  this.shouldRenderBlocker = function () {
+  shouldRenderBlocker () {
     // CHECK Is this method needed?
     return false
   }
@@ -40,9 +39,9 @@ CommentComponent.Prototype = function () {
   /**
    * Method ovveride to add additional elements
    */
-  this.render = function ($$) {
+  render ($$) {
     var node = this.props.node
-    return _super.render.call(this, $$)
+    return super.render.call(this, $$)
       .insertAt(0,
         $$('div')
           .ref('header')
@@ -61,7 +60,5 @@ CommentComponent.Prototype = function () {
       )
   }
 }
-
-IsolatedNodeComponent.extend(CommentComponent)
 
 export default CommentComponent

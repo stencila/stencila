@@ -14,20 +14,21 @@ import code from '../../utilities/code'
  *
  * @class      CodeEditorComponent (name)
  */
-function CodeEditorComponent () {
-  CodeEditorComponent.super.apply(this, arguments)
+class CodeEditorComponent extends Component {
 
-  this.editor = null
-  this.editorMute = false
+  constructor(...args) {
+    super(...args)
 
-  // In `this._onCodeChanged` and `this._onLanguageChanged`, these custom props
-  // are not on `this.props` for some reason. So, "store" them here.
-  this.codeProperty = this.props.codeProperty
-  this.languageProperty = this.props.languageProperty
-}
+    this.editor = null
+    this.editorMute = false
 
-CodeEditorComponent.Prototype = function () {
-  this.render = function ($$) {
+    // In `this._onCodeChanged` and `this._onLanguageChanged`, these custom props
+    // are not on `this.props` for some reason. So, "store" them here.
+    this.codeProperty = this.props.codeProperty
+    this.languageProperty = this.props.languageProperty
+  }
+
+  render ($$) {
     var node = this.props.node
     return $$('div')
       .addClass('sc-code-editor')
@@ -38,7 +39,7 @@ CodeEditorComponent.Prototype = function () {
       )
   }
 
-  this.didMount = function () {
+  didMount () {
     var node = this.props.node
 
     // Resolve the language for the code
@@ -89,12 +90,12 @@ CodeEditorComponent.Prototype = function () {
     if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this)
   }
 
-  this.shouldRerender = function () {
+  shouldRerender () {
     // Don't rerender as that would destroy editor
     return false
   }
 
-  this.dispose = function () {
+  dispose () {
     this.props.node.off(this)
     this.editor.destroy()
   }
@@ -102,7 +103,7 @@ CodeEditorComponent.Prototype = function () {
   /**
    * When there is a change in the editor, convert the change into a Substance change
    */
-  this._onEditorChange = function (change) {
+  _onEditorChange (change) {
     if (this.editorMute) return
 
     // For determining the position of changes...
@@ -159,7 +160,7 @@ CodeEditorComponent.Prototype = function () {
    * editor (if this wasn't the source of the update) by translating
    * the Substance change into an Ace change
    */
-  this._onCodeChanged = function (change, info) {
+  _onCodeChanged (change, info) {
     var codeProperty = this.codeProperty
     if (info.source !== this && this.editor) {
       // Ignore editor chnage events
@@ -222,15 +223,13 @@ CodeEditorComponent.Prototype = function () {
    * When the node's language changes, update the
    * editor (if this wasn't the source of the update)
    */
-  this._onLanguageChanged = function (change, info) {
+  _onLanguageChanged (change, info) {
     var languageProperty = this.languageProperty
     if (info.source !== this && this.editor) {
       code.setAceEditorMode(this.editor, this.props.node[languageProperty])
     }
   }
 }
-
-Component.extend(CodeEditorComponent)
 
 CodeEditorComponent.fullWidth = true
 

@@ -1,18 +1,15 @@
 import Command from 'substance/ui/Command'
 
-function RefreshCommand () {
-  RefreshCommand.super.apply(this, arguments)
-}
+class RefreshCommand extends Command {
 
-RefreshCommand.Prototype = function () {
-  this.getCommandState = function (props, context) {
+  getCommandState (props, context) {
     return {
       disabled: false,
       active: false
     }
   }
 
-  this.execute = function (props, context) {
+  execute (props, context) {
     var doc = context.doc
     var annotations = doc.getIndex('annotations')
     var refresh = function (node) {
@@ -32,8 +29,7 @@ RefreshCommand.Prototype = function () {
     refresh(doc.get('content'))
     return true
   }
-}
 
-Command.extend(RefreshCommand)
+}
 
 export default RefreshCommand

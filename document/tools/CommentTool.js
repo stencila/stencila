@@ -6,17 +6,13 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      CommentTool (name)
  */
-function CommentTool () {
-  CommentTool.super.apply(this, arguments)
-}
+class CommentTool extends Tool {
 
-CommentTool.Prototype = function () {
-  this.onClick = function () {
+  onClick () {
     this.send('comment-toggle')
   }
-}
 
-Tool.extend(CommentTool)
+}
 
 export default CommentTool
 

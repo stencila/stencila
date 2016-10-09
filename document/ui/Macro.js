@@ -1,16 +1,14 @@
-import oo from 'substance/util/oo'
+class Macro {
 
-function Macro () {
-};
+  get appliesTo () {
+    return []
+  }
 
-Macro.Prototype = function () {
-  this.appliesTo = []
+  get regex () {
+    throw new Error('This method is abstract.')
+  }
 
-  this.execute = function (props, context) {
-    if (!this.regex) {
-      throw new Error('Must define `this.regex` for Macro class')
-    }
-
+  execute (props, context) {
     if (this.appliesTo.length > 0 && this.appliesTo.indexOf(props.node.type) === -1) {
       return false
     }
@@ -29,7 +27,7 @@ Macro.Prototype = function () {
    *
    * @param      {<type>}  match   The match
    */
-  this.performAction = function (match, props, context) {
+  performAction (match, props, context) {
     throw new Error('This method is abstract.')
   }
 
@@ -42,11 +40,9 @@ Macro.Prototype = function () {
    *
    * @param      {<type>}  match   The match
    */
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     throw new Error('This method is abstract.')
   }
 }
-
-oo.initClass(Macro)
 
 export default Macro

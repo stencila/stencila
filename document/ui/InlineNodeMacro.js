@@ -1,11 +1,9 @@
 import Macro from './Macro'
 import insertInlineNode from 'substance/model/transform/insertInlineNode'
 
-function InlineNodeMacro () {
-};
+class InlineNodeMacro extends Macro {
 
-InlineNodeMacro.Prototype = function () {
-  this.performAction = function (match, props, context) {
+  performAction (match, props, context) {
     var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
     surface.transaction(function (tx, args) {
       var sel = tx.createSelection(props.path, match.index, match.index + match[0].length)
@@ -23,8 +21,7 @@ InlineNodeMacro.Prototype = function () {
       }
     }.bind(this))
   }
-}
 
-Macro.extend(InlineNodeMacro)
+}
 
 export default InlineNodeMacro

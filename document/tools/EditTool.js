@@ -6,26 +6,22 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      EditTool (name)
  */
-function EditTool () {
-  EditTool.super.apply(this, arguments)
-}
+class EditTool extends Tool {
 
-EditTool.Prototype = function () {
-  this.getTitle = function () {
+  getTitle () {
     if (this.props.active) return 'Turn off editing'
     else return 'Turn on editing'
   }
 
-  this.renderIcon = function ($$) {
+  renderIcon ($$) {
     return $$('i').addClass('fa fa-pencil')
   }
 
-  this.onClick = function () {
+  onClick () {
     this.send('edit-toggle')
   }
-}
 
-Tool.extend(EditTool)
+}
 
 export default EditTool
 

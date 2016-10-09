@@ -6,22 +6,18 @@ import Tool from 'substance/packages/tools/Tool'
  *
  * @class      RevealTool (name)
  */
-function RevealTool () {
-  RevealTool.super.apply(this, arguments)
-}
+class RevealTool extends Tool {
 
-RevealTool.Prototype = function () {
-  this.getTitle = function () {
+  getTitle () {
     if (this.props.active) return 'Don\'t show computations and comments'
     else return 'Show computations and comments'
   }
 
-  this.onClick = function () {
+  onClick () {
     this.send('reveal-toggle')
   }
-}
 
-Tool.extend(RevealTool)
+}
 
 export default RevealTool
 

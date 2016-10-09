@@ -1,16 +1,12 @@
 import Tool from 'substance/packages/tools/Tool'
 
-function RefreshTool () {
-  RefreshTool.super.apply(this, arguments)
-}
+class RefreshTool extends Tool {
 
-RefreshTool.Prototype = function () {
-  this.getTitle = function () {
+  getTitle () {
     return 'Refresh computations; not yet implemented :('
   }
-}
 
-Tool.extend(RefreshTool)
+}
 
 export default RefreshTool
 

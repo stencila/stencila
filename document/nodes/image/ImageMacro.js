@@ -18,20 +18,19 @@ import BlockNodeMacro from '../../ui/BlockNodeMacro'
  *
  * @class      ImageMacro (name)
  */
-function ImageMacro () {
-};
+class ImageMacro extends BlockNodeMacro {
 
-ImageMacro.Prototype = function () {
-  this.regex = /^!\[\]\(([^\)]*)\)$/
+  get regex () {
+    return /^!\[\]\(([^\)]*)\)$/
+  }
 
-  this.createNodeData = function (match) {
+  createNodeData (match) {
     return {
       type: 'image',
       src: match[1]
     }
   }
-}
 
-BlockNodeMacro.extend(ImageMacro)
+}
 
 export default ImageMacro

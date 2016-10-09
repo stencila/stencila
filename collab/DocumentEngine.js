@@ -3,11 +3,13 @@ import ObjectOperation from 'substance/model/data/ObjectOperation'
 import Err from 'substance/util/SubstanceError'
 
 class DocumentEngine extends DocumentEngineBase {
+
   constructor (config) {
     super(config)
 
     this.modelFactory = config.modelFactory
   }
+
   /**
    * Create a document
    */
@@ -91,7 +93,5 @@ class DocumentEngine extends DocumentEngineBase {
     this.documentStore.listDocuments(cb)
   }
 }
-
-DocumentEngineBase.extend(DocumentEngine)
 
 export default DocumentEngine
