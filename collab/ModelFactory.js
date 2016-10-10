@@ -1,13 +1,10 @@
 import DocumentModel from '../document/DocumentModel'
 
-import DocumentConfigurator from '../document/DocumentConfigurator'
-var documentConfigurator = new DocumentConfigurator()
-
 import DocumentHTMLImporter from '../document/DocumentHTMLImporter'
-var documentHTMLImporter = new DocumentHTMLImporter({ configurator: documentConfigurator })
+var documentHTMLImporter = new DocumentHTMLImporter()
 
 import DocumentHTMLExporter from '../document/DocumentHTMLExporter'
-var documentHTMLExporter = new DocumentHTMLExporter({ configurator: documentConfigurator })
+var documentHTMLExporter = new DocumentHTMLExporter()
 
 import DocumentJSONConverter from '../document/DocumentJSONConverter'
 var documentJsonConverter = new DocumentJSONConverter()

@@ -1,14 +1,20 @@
 import HTMLExporter from 'substance/model/HTMLExporter'
 
+import DocumentModel from './DocumentModel'
+import DocumentConfigurator from './DocumentConfigurator'
+
 /**
  * Exports a Stencila Document to HTML
  *
  * @class      HTMLExporter (name)
  */
 class DocumentHTMLExporter extends HTMLExporter {
-  constructor (options) {
+  constructor () {
+    let configurator = new DocumentConfigurator()
     super({
-      converters: options.configurator.getConverterRegistry().get('html')
+      DocumentClass: DocumentModel,
+      schema: configurator.getSchema(),
+      converters: configurator.getConverterRegistry().get('html')
     })
   }
   /**

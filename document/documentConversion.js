@@ -1,4 +1,3 @@
-import DocumentConfigurator from './DocumentConfigurator'
 import DocumentModel from './DocumentModel'
 import DocumentJSONConverter from './DocumentJSONConverter'
 import DocumentHTMLImporter from './DocumentHTMLImporter'
@@ -17,16 +16,12 @@ function exportJSON (doc) {
 }
 
 function importHTML (content) {
-  let htmlImporter = new DocumentHTMLImporter({
-    configurator: new DocumentConfigurator()
-  })
+  let htmlImporter = new DocumentHTMLImporter()
   return htmlImporter.importDocument(content)
 }
 
 function exportHTML (doc) {
-  let htmlExporter = new DocumentHTMLExporter({
-    configurator: new DocumentConfigurator()
-  })
+  let htmlExporter = new DocumentHTMLExporter()
   let html = htmlExporter.exportDocument(doc)
   html = html.replace(/ data-id=".+?"/g, '')
   return html

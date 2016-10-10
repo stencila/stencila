@@ -1,6 +1,7 @@
 import HTMLImporter from 'substance/model/HTMLImporter'
 
 import DocumentModel from './DocumentModel'
+import DocumentConfigurator from './DocumentConfigurator'
 import DefaultHTMLConverter from './nodes/default/DefaultHTMLConverter'
 
 /**
@@ -10,12 +11,13 @@ import DefaultHTMLConverter from './nodes/default/DefaultHTMLConverter'
  */
 class DocumentHTMLImporter extends HTMLImporter {
 
-  constructor (options) {
+  constructor () {
+    let configurator = new DocumentConfigurator()
     super({
       // Required configuration for an importer
       DocumentClass: DocumentModel,
-      schema: options.configurator.getSchema(),
-      converters: options.configurator.getConverterRegistry().get('html')
+      schema: configurator.getSchema(),
+      converters: configurator.getConverterRegistry().get('html')
     })
   }
 
