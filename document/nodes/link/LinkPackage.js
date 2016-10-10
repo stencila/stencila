@@ -2,8 +2,8 @@ import Link from 'substance/packages/link/Link'
 import LinkComponent from './LinkComponent'
 import LinkCommand from './LinkCommand'
 import LinkTool from './LinkTool'
-import LinkHTMLConverter from 'substance/packages/link/LinkHTMLConverter'
-import LinkXMLConverter from 'substance/packages/link/LinkXMLConverter'
+import LinkHTMLConverter from './LinkHTMLConverter'
+import LinkXMLConverter from './LinkXMLConverter'
 import LinkMacro from './LinkMacro'
 
 export default {
