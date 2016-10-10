@@ -27,7 +27,9 @@ function exportHTML (doc) {
   let htmlExporter = new DocumentHTMLExporter({
     configurator: new DocumentConfigurator()
   })
-  return htmlExporter.exportDocument(doc)
+  let html = htmlExporter.exportDocument(doc)
+  html = html.replace(/ data-id=".+?"/g, '')
+  return html
 }
 
 export {
