@@ -4,14 +4,11 @@ import CollabClient from 'substance/collab/CollabClient'
 import CollabSession from 'substance/collab/CollabSession'
 import WebSocketConnection from 'substance/collab/WebSocketConnection'
 
-import DocumentModel from './DocumentModel'
-import DocumentJSONConverter from './DocumentJSONConverter'
-import DocumentHTMLImporter from './DocumentHTMLImporter'
-import DocumentHTMLExporter from './DocumentHTMLExporter'
+import RemoteDocument from 'stencila/src/document/RemoteDocument'
 
-// Instantiate a configurator
 import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator()
+import {importJSON, importHTML} from './documentConversion'
 
 import VisualEditor from './editors/visual/VisualEditor'
 import CodeEditor from './editors/code/CodeEditor'
@@ -118,7 +115,7 @@ class DocumentApp extends Component {
 
     if (this.props.format === 'html') {
       // Import the HTML provided
-      doc = this.importHTML(this.props.data)
+      doc = importHTML(this.props.data)
 
       // Create a new local document session
       documentSession = new DocumentSession(doc)
@@ -134,7 +131,7 @@ class DocumentApp extends Component {
       var snapshot = this.props.data.snapshot
 
       // Import the JSON provided
-      doc = this.importJSON(snapshot.data)
+      doc = importJSON(snapshot.data)
 
       // Create a new collaborative document session
       var collabConn = new WebSocketConnection({
@@ -152,6 +149,8 @@ class DocumentApp extends Component {
       })
     }
 
+    documentSession.remote = new RemoteDocument(this.props.url)
+
     code.loadAce()
 
     // Define execution contexts for document
@@ -164,34 +163,6 @@ class DocumentApp extends Component {
       doc: doc,
       documentSession: documentSession
     })
-  }
-
-  // Import / export methods
-
-  importJSON (content) {
-    var doc = new DocumentModel()
-    var jsonConverter = new DocumentJSONConverter()
-    jsonConverter.importDocument(doc, content)
-    return doc
-  }
-
-  exportJSON (doc) {
-    var jsonConverter = new DocumentJSONConverter()
-    return jsonConverter.exportDocument(doc)
-  }
-
-  importHTML (content) {
-    var htmlImporter = new DocumentHTMLImporter({
-      configurator: configurator
-    })
-    return htmlImporter.importDocument(content)
-  }
-
-  exportHTML (doc) {
-    var htmlExporter = new DocumentHTMLExporter({
-      configurator: configurator
-    })
-    return htmlExporter.exportDocument(doc)
   }
 
   /**

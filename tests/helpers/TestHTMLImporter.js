@@ -2,10 +2,10 @@ import HTMLImporter from 'substance/model/HTMLImporter'
 
 class TestHTMLImporter extends HTMLImporter {
 
-  constructor (DocumentClass, converters) {
+  constructor (DocumentClass, schema, converters) {
     super({
       DocumentClass: DocumentClass,
-      schema: DocumentClass.schema,
+      schema: schema,
       converters: converters
     })
   }

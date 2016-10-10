@@ -2,10 +2,10 @@ import HTMLExporter from 'substance/model/HTMLExporter'
 
 class TestHTMLExporter extends HTMLExporter {
 
-  constructor (DocumentClass, converters) {
+  constructor (DocumentClass, schema, converters) {
     super({
       DocumentClass: DocumentClass,
-      schema: DocumentClass.schema,
+      schema: schema,
       converters: converters
     })
   }

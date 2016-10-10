@@ -1,5 +1,7 @@
 import Command from 'substance/ui/Command'
 
+import {exportHTML} from '../documentConversion'
+
 class SaveCommand extends Command {
 
   getCommandState (props, context) {
@@ -10,7 +12,10 @@ class SaveCommand extends Command {
   }
 
   execute (props, context) {
-    context.doc.save()
+    context.documentSession.remote.save(
+      exportHTML(context.doc),
+      'html'
+    )
     return true
   }
 

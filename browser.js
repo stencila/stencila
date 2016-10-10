@@ -13,10 +13,18 @@ export default function browser (App) {
     // Is this a local host?
     const hostname = window.location.hostname
     props.local = hostname === 'localhost' || hostname === '127.0.0.1'
-    // Get `address` and `copy` from the path
+    // Try to get descriptors from the <head>
+    let id = document.querySelector('meta[name=id]')
+    if (id) props.id = id.content
+    let address = document.querySelector('meta[name=address]')
+    if (address) props.address = address.content
+    let url = document.querySelector('meta[name=url]')
+    if (url) props.url = url.content
+    // Fallback to getting `url`, `address` and `copy` from the path
     var path = window.location.pathname
-    var matches = path.match(/([^@]+)(@(\w+))?/)
-    props.address = matches[1]
+    var matches = path.match(/\/([^@]+)(@(\w+))?/)
+    if (!props.url) props.url = window.location.origin + '/' + matches[1]
+    if (!props.address) props.address = matches[1]
     props.copy = matches[3]
     // Update with URL query parameters
     var params = location.params()

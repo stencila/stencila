@@ -6,13 +6,16 @@ import TestHTMLExporter from './TestHTMLExporter'
 class TestDocumentHTMLConverter {
 
   constructor (config) {
-    var converters = config.getConverterRegistry().get('html')
+    let converters = config.getConverterRegistry().get('html')
+    let schema = config.getSchema()
     this.importer = new TestHTMLImporter(
       DocumentModel,
+      schema,
       converters
     )
     this.exporter = new TestHTMLExporter(
       DocumentModel,
+      schema,
       converters
     )
   }

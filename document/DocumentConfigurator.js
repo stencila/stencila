@@ -29,8 +29,6 @@ import DefaultPackage from './nodes/default/DefaultPackage'
 import ToolsPackage from './tools/ToolsPackage'
 import VisualEditorPackage from './editors/visual/VisualEditorPackage'
 
-import BasePackage from 'substance/packages/base/BasePackage'
-
 /**
  * A "configurator" for a document.
  *
