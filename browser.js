@@ -25,21 +25,18 @@ export default function browser (App) {
     if (params.static !== '1') {
       if (!App) return
 
-      // Get component as HTML content or a JSON snapshot data
-      // for rerendering by the `App` and then hide content element (if any)
-      var content = document.getElementById('content')
-      if (content) {
-        props.format = 'html'
-        props.data = content.innerHTML
-        content.style.display = 'none'
-      } else {
-        var dataElem = document.getElementById('data')
-        if (dataElem) {
-          props.format = 'json'
-          props.data = JSON.parse(he.decode(dataElem.textContent || dataElem.innerHTML))
+      // Get component data from page for rerendering by the `App` and then hide it
+      var data = document.getElementById('data')
+      if (data) {
+        props.format = data.getAttribute('data-format')
+        if (props.format === 'html') {
+          props.data = data.innerHTML
         } else {
-          throw Error('Neither #content or #data is available to initialize the component')
+          props.data = JSON.parse(he.decode(data.textContent || data.innerHTML))
         }
+        data.style.display = 'none'
+      } else {
+        throw Error('#data is not available to initialize the component')
       }
 
       if (props.local) {
