@@ -4,9 +4,11 @@ import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
 import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+import LinkPackage from '../../../../document/nodes/link/LinkPackage'
 
 var config = new TestConfigurator([
-  ParagraphPackage
+  ParagraphPackage,
+  LinkPackage
 ])
 
 test('ParagraphHTMLConverter', function (assert) {
@@ -41,3 +43,38 @@ test('ParagraphHTMLConverter', function (assert) {
 
   assert.end()
 })
+
+test('ParagraphHTMLConverter with HTML encoded characters', function (assert) {
+  var converter = new TestDocumentHTMLConverter(config)
+
+  var input =
+    '<p data-id="p1"> < " & </p>' +
+    '<p data-id="p2"> &lt; &quot; &amp; </p>' +
+    '<p data-id="p3"><a data-id="l1" href="">&lt; " &</a></p>'
+
+  var output =
+    '<p data-id="p1"> &lt; &quot; &amp; </p>' +
+    '<p data-id="p2"> &lt; &quot; &amp; </p>' +
+    '<p data-id="p3"><a data-id="l1" href="">&lt; &quot; &amp;</a></p>'
+
+  var doc = converter.import(input)
+
+  assert.deepEqual(
+    doc.get('p1').toJSON(),
+    { id: 'p1', type: 'paragraph', content: ' < " & ' }
+  )
+
+  assert.deepEqual(
+    doc.get('p2').toJSON(),
+    { id: 'p2', type: 'paragraph', content: ' < " & ' }
+  )
+
+  var html = converter.export(doc)
+
+  assert.equal(
+    html, output
+  )
+
+  assert.end()
+})
+
