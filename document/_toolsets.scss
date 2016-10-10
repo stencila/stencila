@@ -156,7 +156,7 @@
 
   .se-tool,
   &.sm-expanded .se-extension .se-tool {
-    max-width: 0;
+    //max-width: 0;
     overflow: hidden;
     transition: max-width .5s;
   }

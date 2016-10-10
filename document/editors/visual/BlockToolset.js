@@ -141,6 +141,7 @@ class BlockToolset extends Component {
     var tool = $$(ToolClass, {
       toolset: this,
       name: type,
+      icon: type,
       disabled: disabled,
       active: active,
       node: selected.node
