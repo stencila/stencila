@@ -14,7 +14,7 @@ Most development tasks can be run directly using Javascript tooling (`npm` etc) 
 Task                                                    |`npm` et al            | `make`          |
 ------------------------------------------------------- |-----------------------|-----------------|    
 Install and setup dependencies                          | `npm install`         | `make setup`
-Run the development server                              | `npm start`           | `make serve`
+Run the development server                              | `npm start`           | `make run`
 Check code for lint                                     | `npm run lint`        | `make lint`
 Run all tests                                           | `npm test`            | `make test`
 Run unit tests only                                     | `npm run test-unit`   | `make test-unit`
