@@ -5,12 +5,13 @@ realMouse(Nightmare)
 
 test('Emoji behaviour', function (t) {
   Nightmare({
-    typeInterval: 5
+    typeInterval: 10
   })
     .goto('http://localhost:9000/tests/document/nodes/emoji?edit=1')
     .wait('.sc-visual-editor')
     .realClick('[data-id="paragraph-5"]')
     .type('[data-id="paragraph-5"]', 'A :rocket: to the moon')
+    .wait(300)
     .evaluate(function () {
       var code = document.querySelector('[data-id="paragraph-5"] .sc-code')
       var emoji = document.querySelector('[data-id="paragraph-5"] .sc-emoji img.emojione')
