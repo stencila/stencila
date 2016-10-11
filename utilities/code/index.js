@@ -1,4 +1,4 @@
-var load = require('../load')
+import load from '../load'
 
 var loadAce = function () {
   load.script('/web/ace/ace.js', function () {
