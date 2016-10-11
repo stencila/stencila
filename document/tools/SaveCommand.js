@@ -12,10 +12,8 @@ class SaveCommand extends Command {
   }
 
   execute (props, context) {
-    context.documentSession.remote.save(
-      exportHTML(context.doc),
-      'html'
-    )
+    let html = exportHTML(context.doc)
+    context.documentSession.remote.save(html, 'html')
     return true
   }
 
