@@ -4,8 +4,6 @@ import CollabClient from 'substance/collab/CollabClient'
 import CollabSession from 'substance/collab/CollabSession'
 import WebSocketConnection from 'substance/collab/WebSocketConnection'
 
-import RemoteDocument from 'stencila/src/document/RemoteDocument'
-
 import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator()
 import {importJSON, importHTML} from './documentConversion'
@@ -149,7 +147,7 @@ class DocumentApp extends Component {
       })
     }
 
-    documentSession.remote = new RemoteDocument(this.props.url)
+    //documentSession.remote = new RemoteDocument(this.props.url)
 
     code.loadAce()
 

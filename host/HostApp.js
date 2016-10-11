@@ -1,13 +1,11 @@
 import Component from 'substance/ui/Component'
 
-import RemoteHost from 'stencila/src/host/RemoteHost'
-
 class HostApp extends Component {
 
   getInitialState () {
     let host = this.props.data
     return {
-      host: new RemoteHost(host.url)
+      //host: new RemoteHost(host.url)
     }
   }
 

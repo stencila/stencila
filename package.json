@@ -38,6 +38,7 @@
   "devDependencies": {
     "babel-cli": "^6.14.0",
     "babel-preset-es2015": "^6.14.0",
+    "babel-preset-es2015-rollup": "^1.2.0",
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "cors": "^2.8.1",
@@ -64,6 +65,13 @@
     "mockery": "^1.7.0",
     "nightmare": "^2.7.0",
     "nightmare-real-mouse": "^1.0.0",
+    "rollup": "^0.36.3",
+    "rollup-plugin-babel": "^2.6.1",
+    "rollup-plugin-commonjs": "^5.0.4",
+    "rollup-plugin-eslint": "^3.0.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-plugin-replace": "^1.1.1",
+    "rollup-plugin-uglify": "^1.0.1",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.0",
     "vinyl-buffer": "^1.0.0",
@@ -81,7 +89,6 @@
     "raven-js": "^3.7.0",
     "sanitize-html": "^1.13.0",
     "semantic-ui-css": "^2.2.4",
-    "stencila": "stencila/js#master",
     "substance": "stencila/substance#e445d6b7754b5f52ec1ed37e3114994a953cecb9",
     "ws": "^1.1.1"
   }
