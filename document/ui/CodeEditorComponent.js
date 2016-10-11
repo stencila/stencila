@@ -1,6 +1,6 @@
 import Component from 'substance/ui/Component'
 
-import code from '../../utilities/code'
+import code from '../../utilities/code/index'
 
 /**
  * A `Component` for editing a node's `source` code

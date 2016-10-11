@@ -13,7 +13,7 @@ import {importJSON, importHTML} from './documentConversion'
 import VisualEditor from './editors/visual/VisualEditor'
 import CodeEditor from './editors/code/CodeEditor'
 
-import code from '../utilities/code'
+import code from '../utilities/code/index'
 
 /**
  * User application for a Stencila Document

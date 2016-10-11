@@ -11,8 +11,8 @@
  * @module utilities/math
  */
 
-var katex = require('katex');
-var am = require('./asciimath');
+var katex = require('katex')
+var am = require('./asciimath')
 
 /**
  * Translate between math markup languages
@@ -23,21 +23,21 @@ var am = require('./asciimath');
  * @return     {string}  Markup translated to the target language
  */
 var translate = function (markup, source, target) {
-  source = source || 'asciimath';
-  target = target || 'tex';
+  source = source || 'asciimath'
+  target = target || 'tex'
 
   if (target === 'tex') {
     if (source === 'tex' || source === 'latex') {
-      return markup;
+      return markup
     } else if (source === 'am' || source === 'asciimath') {
-      return am.toTeX(markup);
+      return am.toTeX(markup)
     } else {
-      throw Error('Unhandled conversion from {' + source + '} to {' + target + '}');
+      throw Error('Unhandled conversion from {' + source + '} to {' + target + '}')
     }
   } else {
-    throw Error('Unhandled target language {' + target + '}');
+    throw Error('Unhandled target language {' + target + '}')
   }
-};
+}
 
 /**
  * Render math markup into HTML
@@ -48,16 +48,16 @@ var translate = function (markup, source, target) {
  * @return     {string}  Rendered math HTML
  */
 var render = function (markup, language, display) {
-  language = language || 'tex';
-  display = display || 'inline';
+  language = language || 'tex'
+  display = display || 'inline'
 
-  var tex = translate(markup, language, 'tex');
+  var tex = translate(markup, language, 'tex')
   return katex.renderToString(tex, {
     displayMode: display === 'block'
-  });
-};
+  })
+}
 
-module.exports = {
+export default {
   translate: translate,
   render: render
-};
+}

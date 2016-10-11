@@ -1,6 +1,6 @@
 import Component from 'substance/ui/Component'
 
-import math from '../../../utilities/math'
+import math from '../../../utilities/math/index'
 
 class MathComponent extends Component {
 
