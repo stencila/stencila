@@ -7,8 +7,9 @@
   <style type="text/css">
     body {
         font-family: Helvetica;
-        line-height: 1.2em;
+        line-height: 1.4em;
         padding: 2em;
+        color: #555;
     }
     h1 {
         font-size: 1.2em;
@@ -24,42 +25,51 @@
         padding: 1px;
         margin: -1px;
     }
+    img {
+        width: 250px;
+        display: block;
+        margin: 0 auto;
+    }
+    a {
+        text-decoration: none;
+        color: #315bf5;
+    }
   </style>
   <body>
     <main>
-        <p>
-            This is the Stencila development server for the <code>/web</code> module.
-        <p>
+        <img src="/web/images/logo-name-beta.svg">
 
-
-        <h1>Javascript tests</h1>
-        <p>
-            The test suite can be run in the browser <a href="/tests">here</a>. (You can also run them in Node.js using <code> make test</code>, <code>npm test</code>, or <code>node tests</code>)
-        </p>
+        <p>This is the development server for the Stencila <code>web</code> module. It bundles and compiles Javascript and CSS and serves up static content like images and fonts.</p>
 
         <h1>Test pages</h1>
         <p>
-            Snippets for individual node types are wrapped and served up with the correct JS and CSS.
-            These are good for development of individual node types - without the distraction of a larger document containing many nodes type (several of which might also be calling out for attention). e.g.
+            Test documents for individual node types are wrapped with necessary HTML and served up by the development server along with the necessary compiled JS and CSS files. These are useful for informal testing during development e.g.
         <p>
         <ul>
+            <li><a href="/tests/document/nodes/all">/tests/document/nodes/all</a></li>
             <li><a href="/tests/document/nodes/codeblock">/tests/document/nodes/codeblock</a></li>
+            <li><a href="/tests/document/nodes/image">/tests/document/nodes/image</a></li>
             <li><a href="/tests/document/nodes/math">/tests/document/nodes/math</a></li>
         </ul>
 
-        <h1>Other</h1>
+        <h1>Javascript host</h1>
+
+        <p>When you ran <code>npm start</code> to run this server, a Stencila Javascript Host was started at <a href="http://127.0.0.1:2000">http://127.0.0.1:2000</a> (or another port if that one wasn't available). That host can be used for testing communication between the front end and the back end. When accessing the host it will proxy requests to JS and CSS to this development server (anything under <code>/web</code> actually). So, you can still work on, and reload JS and SCSS, but with the additional benefit of having backend functionality like saving to disk and updating dynamic aspects of documents (e.g. execute and print directives).</p>
+
+        <p>For example, you can access the above pages via the Javascript Host using the <code>file://</code> address scheme. This allows you to edit those documents and then save them to disk. e.g. </p>
+        <p>&nbsp;&nbsp;<a href="http://127.0.0.1:2000/file://tests/document/nodes/all/index.html">http://127.0.0.1:2000/file://tests/document/nodes/all/index.html</a><p>
+
+        <p>You can also create a new component using the <code>new://</code> address scheme e.g.</p>
+        <p>&nbsp;&nbsp;<a href="http://127.0.0.1:2000/new://document">http://127.0.0.1:2000/new://document</a></p> 
+        <p>or the short equivalent</p>
+        <p>&nbsp;&nbsp;<a href="http://127.0.0.1:2000/+document">http://127.0.0.1:2000/+document</a></p>
+
+        <h1>Unit tests</h1>
         <p>
-            This server bundles and compiles Javascript and CSS from local source files for convenience during development.
+            The test suite can be run in the browser <a href="/tests">here</a> (you can also run them in Node.js using <code> make test</code> or <code>npm test</code>)
         </p>
-        <p>
-            All other requests are proxied to an upstream server, by default https://localhost:7373 (a locally running Stencila session) but overridable at the command line e.g. <code>node server.js https://stenci.la</code>.
-            This allows you to test the JS and SCSS using live Stencila components. The Javascript and CSS still gets generated on the fly from the local source but everything else gets passed on to the backend session. Make sure you add the trailing slash to avoid a redirect from the upstream e.g.
-        <p>
-        <ul>
-            <li><a href="/demo/stencils/simple-r/">/demo/stencils/simple-r/</a></li>
-            <li><a href="/demo/sheets/simple-r/">/demo/sheets/simple-r/</a></li>
-            <li><a href="/demo/sheets/iris/">/demo/sheets/iris/</a></li>
-        </ul>
+            
+        </p>
     </main>
   </body>
 </html>

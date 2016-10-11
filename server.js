@@ -112,7 +112,7 @@ function page (res, componentType, dataType, data) {
   page += '<link rel="stylesheet" type="text/css" href="/web/' + componentType + '.min.css">'
   page += '<script src="/web/' + componentType + '.min.js"></script>'
   page += '</head><body>'
-  if (dataType === 'html') page += '<main id="content">' + data + '</main>'
+  if (dataType === 'html') page += '<main id="data" data-format="html">' + data + '</main>'
   else {
     // Simulate what is done on hub
     var payload = {
@@ -123,7 +123,7 @@ function page (res, componentType, dataType, data) {
     }
     // Do HTML encoding of JSON data to avoid XSS attacks as suggested at
     // https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#HTML_entity_encoding
-    page += '<script id="data" type="application/json">' + he.encode(JSON.stringify(payload)) + '</script>'
+    page += '<script id="data" data-format="json" type="application/json">' + he.encode(JSON.stringify(payload)) + '</script>'
   }
   page += '</body></html>'
   res.set('Content-Type', 'text/html')
