@@ -4,7 +4,8 @@ require('nightmare-real-mouse')(Nightmare)
 
 test('Add to an existing discussion', function (t) {
   Nightmare({
-    typeInterval: 10
+    typeInterval: 10,
+    waitTimeout: 60000
   })
     .goto('http://localhost:9000/tests/document/nodes/discussion?edit=1')
     .wait('.sc-visual-editor')
@@ -18,6 +19,7 @@ test('Add to an existing discussion', function (t) {
     .realClick('.sc-visual-editor [data-id="discussion-test-1"] .sc-comment:last-child .sc-paragraph')
     .type('.sc-visual-editor [data-id="discussion-test-1"] .sc-comment:last-child .sc-paragraph', 'One, one, one')
     // Get the typed text
+    .wait(100)
     .evaluate(function () {
       return document.querySelector('.sc-visual-editor [data-id="discussion-test-1"] .sc-comment:last-child .sc-paragraph').innerText.trim()
     })
@@ -34,7 +36,8 @@ test('Add to an existing discussion', function (t) {
 
 test('Create a new discussion', function (t) {
   Nightmare({
-    typeInterval: 10
+    typeInterval: 10,
+    waitTimeout: 60000
   })
     .goto('http://localhost:9000/tests/document/nodes/discussion?edit=1')
     .wait('.sc-visual-editor')
@@ -51,6 +54,7 @@ test('Create a new discussion', function (t) {
     .realClick('.sc-visual-editor .sc-discussion:last-child .sc-paragraph')
     .type('.sc-visual-editor .sc-discussion:last-child .sc-paragraph', 'Testing, 1, 2, 3')
     // Get the typed text
+    .wait(100)
     .evaluate(function () {
       return document.querySelector('.sc-visual-editor .sc-discussion:last-child .sc-paragraph').innerText.trim()
     })
