@@ -11,7 +11,7 @@ User interfaces for Stencila components. If you just want to use these interface
 
 ### Install
 
-Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles. But, if you want to help out with development (:thumbs_up:) ...
+Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles. But, if you want to help out with development (:thumbsup:) ...
 
 ```
 npm install stencila/web
@@ -39,7 +39,7 @@ document <- Document$new()
 document$view()
 ```
 
-..., or install the [Javascript](https://github.com/stencila/js)
+..., or install the [Javascript](https://github.com/stencila/js) package and then,
 
 ```js
 var stencila = require('stencila')
@@ -48,7 +48,7 @@ var document = new stencila.Document()
 document.view()
 ```
 
-... you get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The brower in turn loads the [`document.js`](document/document.js) and [`document.scss`](document/document.scss) from this repo.
+You get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The brower in turn loads the [`document.js`](document/document.js) and [`document.scss`](document/document.scss) from this repo.
 
 ### Discuss
 
