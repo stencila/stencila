@@ -6,7 +6,7 @@ realMouse(Nightmare)
 test('Blockquote behaviour', function (t) {
   Nightmare({
     typeInterval: 10,
-    loadTimeout: 60000
+    gotoTimeout: 60000
   })
     .goto('http://localhost:9000/tests/document/nodes/blockquote?edit=1')
     .wait('.sc-visual-editor')

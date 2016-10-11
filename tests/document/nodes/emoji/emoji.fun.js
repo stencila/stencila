@@ -6,7 +6,7 @@ realMouse(Nightmare)
 test('Emoji behaviour', function (t) {
   Nightmare({
     typeInterval: 10,
-    loadTimeout: 60000
+    gotoTimeout: 60000
   })
     .goto('http://localhost:9000/tests/document/nodes/emoji?edit=1')
     .wait('.sc-visual-editor')

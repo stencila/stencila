@@ -5,7 +5,7 @@ require('nightmare-real-mouse')(Nightmare)
 test('Add to an existing discussion', function (t) {
   Nightmare({
     typeInterval: 10,
-    loadTimeout: 60000
+    gotoTimeout: 60000
   })
     .goto('http://localhost:9000/tests/document/nodes/discussion?edit=1')
     .wait('.sc-visual-editor')
@@ -37,7 +37,7 @@ test('Add to an existing discussion', function (t) {
 test('Create a new discussion', function (t) {
   Nightmare({
     typeInterval: 10,
-    loadTimeout: 60000
+    gotoTimeout: 60000
   })
     .goto('http://localhost:9000/tests/document/nodes/discussion?edit=1')
     .wait('.sc-visual-editor')
