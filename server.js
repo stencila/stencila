@@ -33,6 +33,8 @@ var he = require('he')
 
 var Err = require('substance/util/SubstanceError').default
 
+var stencila = require('stencila')
+
 var opts = {
   'realredis': false
 }
@@ -210,7 +212,8 @@ function bundler (source) {
   })
 }
 var bundlers = {
-  'document': bundler('document/document.js')
+  'document': bundler('document/document.js'),
+  'host': bundler('host/host.js')
 }
 app.get('/web/:name.min.js', function (req, res, next) {
   caching(res, 60)
@@ -252,19 +255,20 @@ app.use('/web/themes', express.static(path.join(__dirname, 'node_modules/semanti
 
 // Images
 app.use('/web/images', express.static(path.join(__dirname, 'images')))
+app.get('/favicon.ico', function (req, res) {
+  res.sendFile(path.join(__dirname, 'images/favicon.ico'))
+})
 
 // Everything else at `/web` falls back to the `build` directory (e.g. fonts, MathJax)
 // So, you'll need to do a build first
 app.use('/web', express.static(path.join(__dirname, 'build')))
 
-// Deal with favicon to prevent uneeded error messages when no upstream proxy
-app.get('/favicon.ico', function (req, res) {
-  res.sendStatus(404)
-})
-
 // Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
+stencila.host.serve()
+console.log(stencila.host.title + ' is at ' + stencila.host.url)
+
 var upstream = 'http://localhost:2000'
 if (opts.upstream) {
   upstream = opts.upstream
@@ -292,11 +296,9 @@ app.use('*', proxy(upstream, {
 httpServer.on('request', app)
 
 // Serve app
-var host = 'localhost'
+var host = '127.0.0.1'
 var port = process.env.PORT || 9000
 httpServer.listen(port, host, function () {
-  console.log('Running at http://localhost:' + httpServer.address().port + '/')
+  var url = 'http://' + httpServer.address().address + ':' + httpServer.address().port
+  console.log('Stencila web development server is at ' + url)
 })
-
-// Export app for requiring in test files
-module.exports = app

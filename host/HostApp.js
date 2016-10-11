@@ -14,13 +14,9 @@ class HostApp extends Component {
   render ($$) {
     let host = this.props.data
 
-    let el = $$('div').addClass('ui container')
-
-    el.append(
-      $$('div').addClass('ui segment').text(
-        JSON.stringify(host.manifest)
-      )
-    )
+    let el = $$('div').addClass('ui container').css({
+      'margin-top': '10%'
+    })
 
     el.append(
       $$('form').addClass('ui form').append(
@@ -28,7 +24,7 @@ class HostApp extends Component {
           $$('input').attr({
             type: 'text',
             name: 'address',
-            placeholder: 'Enter a component address'
+            placeholder: 'Enter a component address e.g. +document'
           })
         )
       ).on('submit', (event) => {

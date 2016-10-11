@@ -23,9 +23,13 @@ export default function browser (App) {
     // Fallback to getting `url`, `address` and `copy` from the path
     var path = window.location.pathname
     var matches = path.match(/\/([^@]+)(@(\w+))?/)
-    if (!props.url) props.url = window.location.origin + '/' + matches[1]
-    if (!props.address) props.address = matches[1]
-    props.copy = matches[3]
+    if (matches) {
+      if (!props.url) props.url = window.location.origin + '/' + matches[1]
+      if (!props.address) props.address = matches[1]
+      props.copy = matches[3]
+    } else {
+      if (!props.url) props.url = window.location.origin
+    }
     // Update with URL query parameters
     var params = location.params()
     extend(props, params)
