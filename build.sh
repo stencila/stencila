@@ -35,9 +35,9 @@ if [ ! -e build/katex ]; then
 fi
 
 
-# Examples
-echo "Building examples"
-mkdir -p build/examples/document/nodes
+# Test examples
+echo "Building test examples"
+mkdir -p build/tests/document/nodes
 for example in 'nodes/all' 'nodes/blockquote' 'nodes/codeblock' 'nodes/default' \
                'nodes/discussion' 'nodes/emoji' 'nodes/emphasis'  'nodes/heading' \
                'nodes/image' 'nodes/link' 'nodes/math' 'nodes/paragraph' 'nodes/print' \
@@ -55,5 +55,5 @@ do
     <script src="../../../document.min.js"></script>
     </main>
   </body>
-</html>') > build/examples/document/$example.html
+</html>') > build/tests/document/$example.html
 done

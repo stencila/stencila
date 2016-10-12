@@ -1,3 +1,4 @@
+import path from 'path'
 import test from 'tape'
 import Nightmare from 'nightmare'
 var realMouse = require('nightmare-real-mouse')
@@ -8,7 +9,7 @@ test('Emoji behaviour', function (t) {
     typeInterval: 10,
     gotoTimeout: 60000
   })
-    .goto('http://localhost:9000/tests/document/nodes/emoji?edit=1')
+    .goto('file://' + path.resolve('build/tests/document/nodes/emoji.html') + '?edit=1')
     .wait('.sc-visual-editor')
     .realClick('[data-id="paragraph-5"]')
     .type('[data-id="paragraph-5"]', 'A :rocket: to the moon')

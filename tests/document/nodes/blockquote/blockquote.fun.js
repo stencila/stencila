@@ -1,3 +1,4 @@
+import path from 'path'
 import test from 'tape'
 import Nightmare from 'nightmare'
 var realMouse = require('nightmare-real-mouse')
@@ -8,7 +9,7 @@ test('Blockquote behaviour', function (t) {
     typeInterval: 10,
     gotoTimeout: 60000
   })
-    .goto('http://localhost:9000/tests/document/nodes/blockquote?edit=1')
+    .goto('file://' + path.resolve('build/tests/document/nodes/blockquote.html') + '?edit=1')
     .wait('.sc-visual-editor')
     .realClick('[data-id="blockquote-2"]')
     .type('[data-id="blockquote-2"]', 'in the ignorance of experts')
