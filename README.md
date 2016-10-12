@@ -56,24 +56,40 @@ We love feedback. Create a [new issue](https://github.com/stencila/web/issues/ne
 
 ### Develop
 
+To get started...
+
+```sh
+# Install dependencies
+npm install
+
+# Build Javascript, CSS and other "static" files in the `build` folder 
+npm run build
+
+# Open one of the built test pages e.g.
+open build/tests/document/nodes/image.html
+
+# Hack on Javascript and SCSS and rebuild on changes
+gulp watch
+```
+
+There is a folder for each Stencila component class (e.g. `Document`, `Sheet`, `Host`) with corresponsing Javascript and SASS entry points e.g. [`document/document.js`](document/document.js), [`document/document.scss`](document/document.scss). Each of those folders is essentially a single page application based on the [Substance](https://github.com/substance/substance) library.
+
+There is also a development server which you can run using `npm start` and visit at [http://127.0.0.1:9000](http://127.0.0.1:9000) where there is more info and links to test pages. On these test pages, the Javascript and SCSS are bundled on the fly so that any changes you make are available with a browser refresh. The development server uses [`watchify`](https://github.com/substack/watchify) to do incremental builds - the first time you load a page the build will take some time (>10s), but subsequent page reloads will be much faster (<3s).
+
 Most development tasks can be run directly using Javascript tooling (`npm` etc) or via `make` wrapper recipes.
 
-Task                                                    | `npm` et al           | `make`          |
+Task                                                    | `npm`, `gulp` et al   | `make`          |
 ------------------------------------------------------- |-----------------------|-----------------|    
 Install and setup dependencies                          | `npm install`         | `make setup`
 Run the development server                              | `npm start`           | `make run`
-Check code for lint                                     | `npm run lint`        | `make lint`
+Check code for lint                                     | `gulp lint`           | `make lint`
 Run all tests                                           | `npm test`            | `make test`
 Run unit tests only                                     | `npm run test-unit`   | `make test-unit`
 Run functional tests only                               | `npm run test-fun`    | `make test-fun`
 Run tests with coverage                                 | `npm run cover`       | `make cover`
-Build                                                   | `gulp build`          | `make build`
-Clean                                                   | `rm -rf build`        | `make clean`
+Build                                                   | `npm run build`       | `make build`
+Clean                                                   | `gulp clean`          | `make clean`
 
-
-After running `npm install` to install dependencies, run `npm start` to start the development server and head over to [http://127.0.0.1:9000](http://127.0.0.1:9000) where there is more info and links to test pages. On these test pages, the Javascript and SCSS are bundled on the fly so that any changes you make are available with a browser refresh. The development server uses [`watchify`](https://github.com/substack/watchify) to do incremental builds - the first time you load a page the build will take some time (>10s), but subsequent page reloads will be much faster (<3s).
-
-This repo has a folder for each Stencila component class (e.g. `Document`, `Sheet`, `Host`) with corresponsing Javascript and SASS entry points e.g. [`document/document.js`](document/document.js), [`document/document.scss`](document/document.scss). Each of those folders is essentially a single page application based on the [Substance](https://github.com/substance/substance) library.
 
 ### Test
 
