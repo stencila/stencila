@@ -201,7 +201,9 @@ class DocumentApp extends Component {
   toggleEdit () {
     var edit = !this.state.edit
     if (edit) {
-      this.switchCopy('live')
+      // FIXME This is turned off for cases like file:// where there will be no live copy
+      // available
+      // this.switchCopy('live')
     }
     this.extendState({
       reveal: edit || this.state.reveal,
