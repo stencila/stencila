@@ -6,7 +6,7 @@ import test from 'tape'
 if (typeof window === 'undefined') {
   require('../helpers/mockery')
 
-  var ChangeStore = require('../../collab/ChangeStore').default
+  var ChangeStore = require('../../src/collab/ChangeStore').default
   var store = new ChangeStore()
 
   test('ChangeStore.addChange', function (t) {

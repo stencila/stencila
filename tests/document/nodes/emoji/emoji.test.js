@@ -3,8 +3,8 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-import EmojiPackage from '../../../../document/nodes/emoji/EmojiPackage'
-import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+import EmojiPackage from '../../../../src/document/nodes/emoji/EmojiPackage'
+import ParagraphPackage from '../../../../src/document/nodes/paragraph/ParagraphPackage'
 
 var config = new TestConfigurator([
   EmojiPackage,

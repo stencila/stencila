@@ -6,7 +6,7 @@ import test from 'tape'
 if (typeof window === 'undefined') {
   require('../helpers/mockery')
 
-  var SnapshotStore = require('../../collab/SnapshotStore').default
+  var SnapshotStore = require('../../src/collab/SnapshotStore').default
   var store = new SnapshotStore()
 
   test('SnapshotStore.saveSnapshot Store a snapshot', function (t) {

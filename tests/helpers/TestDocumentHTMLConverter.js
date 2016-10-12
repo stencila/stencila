@@ -1,4 +1,4 @@
-import DocumentModel from '../../document/DocumentModel'
+import DocumentModel from '../../src/document/DocumentModel'
 
 import TestHTMLImporter from './TestHTMLImporter'
 import TestHTMLExporter from './TestHTMLExporter'

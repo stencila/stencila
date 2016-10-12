@@ -3,9 +3,9 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-import StrongPackage from '../../../../document/nodes/strong/StrongPackage'
-import EmphasisPackage from '../../../../document/nodes/emphasis/EmphasisPackage'
-import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+import StrongPackage from '../../../../src/document/nodes/strong/StrongPackage'
+import EmphasisPackage from '../../../../src/document/nodes/emphasis/EmphasisPackage'
+import ParagraphPackage from '../../../../src/document/nodes/paragraph/ParagraphPackage'
 
 var config = new TestConfigurator([
   StrongPackage,

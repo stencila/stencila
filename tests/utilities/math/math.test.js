@@ -1,6 +1,6 @@
 import test from 'tape'
 
-import math from '../../../utilities/math'
+import math from '../../../src/utilities/math'
 
 test('math.translate Tex to TeX', function (t) {
   t.equal(math.translate('\\pi', 'tex', 'tex'), '\\pi')

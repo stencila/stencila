@@ -3,12 +3,12 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-import DefaultPackage from '../../../../document/nodes/default/DefaultPackage'
+import DefaultPackage from '../../../../src/document/nodes/default/DefaultPackage'
 var config = new TestConfigurator([DefaultPackage])
 var converter = new TestDocumentHTMLConverter(config)
 
-import Document from '../../../../document/DocumentModel'
-import DefaultComponent from '../../../../document/nodes/default/DefaultComponent'
+import Document from '../../../../src/document/DocumentModel'
+import DefaultComponent from '../../../../src/document/nodes/default/DefaultComponent'
 
 test('DefaultHTMLConverter', function (t) {
   var input =

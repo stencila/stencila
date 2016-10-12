@@ -23,7 +23,7 @@ var types = [
 ]
 
 function style (type, dev) {
-  gulp.src('./' + type + '/' + type + '.scss')
+  gulp.src('./src/' + type + '/' + type + '.scss')
     .pipe(sass({
       outputStyle: dev ? 'expanded' : 'compressed'
     })
@@ -62,7 +62,7 @@ function bundler (source, dev) {
 }
 
 let bundlers = {
-  'document': bundler('document/document.js')
+  'document': bundler('./src/document/document.js')
 }
 
 function script (type, dev) {
@@ -123,10 +123,8 @@ function lintJs () {
   gutil.log('Linting JS')
   gulp.src([
     './*.js',
-    './collab/**/*.js',
-    './document/**/*.js',
-    './tests/**/*.js',
-    './utilities/**/*.js'
+    './src/**/*.js',
+    './tests/**/*.js'
   ]).pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError())
@@ -135,11 +133,11 @@ function lintJs () {
 function lintSass () {
   gutil.log('Linting SASS')
   gulp.src([
-    './document/**/*.scss'
+    './src/**/*.scss'
   ])
   .pipe(sassLint({
     files: {
-      ignore: 'document/_resets.scss'
+      ignore: '_resets.scss'
     }
   }))
   .pipe(sassLint.format())

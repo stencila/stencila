@@ -48,7 +48,7 @@ var document = new stencila.Document()
 document.view()
 ```
 
-You get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The brower in turn loads the [`document.js`](document/document.js) and [`document.scss`](document/document.scss) from this repo.
+You get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The brower in turn loads the [`document.js`](src/document/document.js) and [`src/document.scss`](document/document.scss) from this repo.
 
 ### Discuss
 
@@ -72,7 +72,7 @@ open build/tests/document/nodes/image.html
 gulp watch
 ```
 
-There is a folder for each Stencila component class (e.g. `Document`, `Sheet`, `Host`) with corresponsing Javascript and SASS entry points e.g. [`document/document.js`](document/document.js), [`document/document.scss`](document/document.scss). Each of those folders is essentially a single page application based on the [Substance](https://github.com/substance/substance) library.
+There is a folder for each Stencila component class (e.g. `Document`, `Sheet`, `Host`) with corresponsing Javascript and SASS entry points e.g. [`src/document/document.js`](src/document/document.js), [`src/document/document.scss`](src/document/document.scss). Each of those folders is essentially a single page application based on the [Substance](https://github.com/substance/substance) library.
 
 There is also a development server which you can run using `npm start` and visit at [http://127.0.0.1:9000](http://127.0.0.1:9000) where there is more info and links to test pages. On these test pages, the Javascript and SCSS are bundled on the fly so that any changes you make are available with a browser refresh. The development server uses [`watchify`](https://github.com/substack/watchify) to do incremental builds - the first time you load a page the build will take some time (>10s), but subsequent page reloads will be much faster (<3s).
 

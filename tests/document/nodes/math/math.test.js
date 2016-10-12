@@ -3,8 +3,8 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-import MathPackage from '../../../../document/nodes/math/MathPackage'
-import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+import MathPackage from '../../../../src/document/nodes/math/MathPackage'
+import ParagraphPackage from '../../../../src/document/nodes/paragraph/ParagraphPackage'
 
 var config = new TestConfigurator([
   MathPackage,

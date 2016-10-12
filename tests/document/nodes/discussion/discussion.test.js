@@ -3,10 +3,10 @@ import test from 'tape'
 import TestConfigurator from '../../../helpers/TestConfigurator'
 import TestDocumentHTMLConverter from '../../../helpers/TestDocumentHTMLConverter'
 
-import DiscussionPackage from '../../../../document/nodes/discussion/DiscussionPackage'
-import CommentPackage from '../../../../document/nodes/comment/CommentPackage'
-import MarkPackage from '../../../../document/nodes/mark/MarkPackage'
-import ParagraphPackage from '../../../../document/nodes/paragraph/ParagraphPackage'
+import DiscussionPackage from '../../../../src/document/nodes/discussion/DiscussionPackage'
+import CommentPackage from '../../../../src/document/nodes/comment/CommentPackage'
+import MarkPackage from '../../../../src/document/nodes/mark/MarkPackage'
+import ParagraphPackage from '../../../../src/document/nodes/paragraph/ParagraphPackage'
 
 var config = new TestConfigurator([
   DiscussionPackage,
