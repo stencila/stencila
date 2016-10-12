@@ -1,4 +1,4 @@
-var sanitizeHtml = require('sanitize-html')
+import sanitizeHtml from 'sanitize-html'
 
 /**
  * Apply HTML sanitization rules for `Default` nodes

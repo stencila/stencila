@@ -11,8 +11,8 @@
  * @module utilities/math
  */
 
-var katex = require('katex')
-var am = require('./asciimath')
+import katex from 'katex'
+import am from './asciimath'
 
 /**
  * Translate between math markup languages

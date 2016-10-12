@@ -1,6 +1,6 @@
 import extend from 'lodash/extend'
 import he from 'he'
-var Raven = require('raven-js')
+import Raven from 'raven-js'
 
 import location from './utilities/location'
 

@@ -10,6 +10,8 @@ at #f649ba49f639b7e5322d6552193226c03e88ba7e with folllowing changes:
 - Removed unused functions related to translating document nodes, `newcommand` and `newsymbol`; 
   only retain ASCIIMath to TeX conversion functions
 
+- converted to an ES6 module
+
 
 Based on ASCIIMathML, Version 1.4.7 Aug 30, 2005, (c) Peter Jipsen http://www.chapman.edu/~jipsen
 Modified with TeX conversion for IMG rendering Sept 6, 2006 (c) David Lippman http://www.pierce.ctc.edu/dlippman
@@ -34,8 +36,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
-module.exports = (function() {
 
 var config = {
   translateOnLoad: true,      //true to autotranslate
@@ -853,9 +853,7 @@ function AMTparseAMtoTeX(str) {
 
 AMinitSymbols();
 
-return {
+export default {
   config: config,
   toTeX: AMTparseAMtoTeX
-};
-
-})();
+}
