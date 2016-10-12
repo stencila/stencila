@@ -18,63 +18,75 @@ var eslint = require('gulp-eslint')
 
 // Types of components
 var types = [
-  'document', 'sheet', 'context', 'session'
+  'document'
 ]
 
-// Generic error handler creates a notifcation window
-function errorHandler (err) {
-  gutil.log(err)
-  this.emit('end') // Keep gulp from hanging on this task
-}
-
-function style (type, watch) {
+function style (type, dev) {
   gulp.src('./' + type + '/' + type + '.scss')
     .pipe(sass({
-      outputStyle: watch ? 'expanded' : 'compressed'
+      outputStyle: dev ? 'expanded' : 'compressed'
     })
-    .on('error', errorHandler))
+    .on('error', function (err) {
+      gutil.log(err)
+      this.emit('end') // Keep gulp from hanging on this task
+    }))
     .pipe(rename(type + '.min.css'))
     .pipe(gulp.dest('./build'))
 }
 
-function styles (watch) {
+function styles (dev) {
   gutil.log('Compiling styles')
   types.forEach(function (type) {
-    style(type, watch)
+    style(type, dev)
   })
 }
 
-// Scripts watchify-browserify-babelify-uglify-sourcemapify
-// Thanks to
-//  https://gist.github.com/wesbos/52b8fe7e972356e85b43
-//  https://gist.github.com/danharper/3ca2273125f500429945
-// and others
-function script (type, watch) {
-  var bundler = browserify('./' + type + '/' + type + '.js', {
-    debug: true
+/**
+ * Get a script bundler for a source file
+ *
+ * @param  {string} source The source file to bundle
+ * @return {Object}        A browserify bundler
+ */
+function bundler (source, dev) {
+  return browserify(source, {
+    debug: dev,
+    cache: {},
+    packageCache: {}
+  }).transform(babelify, {
+    presets: ['es2015'],
+    // Substance needs to be transformed
+    global: true,
+    ignore: /\/node_modules\/(?!substance\/)/
   })
+}
 
+let bundlers = {
+  'document': bundler('document/document.js')
+}
+
+function script (type, dev) {
+  let bundler = bundlers[type]
   function bundle () {
+    gutil.log('Bundling ' + type + '.js')
     return bundler
-      .transform(babelify, {
-        presets: ['es2015']
-      })
       .bundle()
-      .on('error', errorHandler)
+      .on('error', function (err) {
+        gutil.log(err)
+        this.emit('end') // Keep gulp from hanging on this task
+      })
       .pipe(source('./' + type + '.min.js'))
       .pipe(buffer())
-      .pipe(sourcemaps.init({
-        loadMaps: true
-      }))
-      .pipe(gif(!watch, uglify()))
-      .pipe(sourcemaps.write('.'))
+      //.pipe(sourcemaps.init({
+      //  loadMaps: true
+      //}))
+      //.pipe(gif(!dev, uglify()))
+      //.pipe(sourcemaps.write('.'))
       .pipe(gulp.dest('./build'))
   }
 
-  if (watch) {
+  if (dev) {
     bundler = watchify(bundler)
     bundler.on('update', function () {
-      gutil.log('Bundling ' + type)
       bundle()
     })
     bundle()
@@ -83,71 +95,45 @@ function script (type, watch) {
   }
 }
 
-function scripts (watch) {
+function scripts (dev) {
   gutil.log('Bundling scripts')
   types.forEach(function (type) {
-    script(type, watch)
+    script(type, dev)
   })
 }
 
-function images (watch) {
+function images () {
   gutil.log('Copying images')
   gulp.src('./images/**/*.{png,svg}')
       .pipe(gulp.dest('./build/images'))
+  gulp.src('./node_modules/emojione/assets/png/*')
+      .pipe(gulp.dest('./build/emojione/png'))
 }
 
-function fonts (watch) {
+function fonts () {
   gutil.log('Copying fonts')
   gulp.src('./fonts/**/*')
       .pipe(gulp.dest('./build/fonts'))
+  gulp.src('./node_modules/font-awesome/fonts/*')
+      .pipe(gulp.dest('./build/fonts'))
 }
 
-// Gulp tasks for the above
-
-gulp.task('styles', function () {
-  return styles()
-})
-
-gulp.task('scripts', function () {
-  return scripts()
-})
-
-gulp.task('images', function () {
-  return images()
-})
-
-gulp.task('fonts', function () {
-  return fonts()
-})
-
-gulp.task('build', function () {
-  styles()
-  scripts()
-  images()
-  fonts()
-})
-
-gulp.task('watch', function () {
-  gulp.watch('**/*.scss', function () {
-    styles(true)
-  })
-  scripts(true)
-})
-
-gulp.task('lint:js', function () {
-  return gulp.src([
+function lintJs () {
+  gutil.log('Linting JS')
+  gulp.src([
     './*.js',
     './collab/**/*.js',
     './document/**/*.js',
-    './shared/**/*.js',
-    './tests/**/*.js'
+    './tests/**/*.js',
+    './utilities/**/*.js'
   ]).pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError())
-})
+}
 
-gulp.task('lint:sass', function () {
-  return gulp.src([
+function lintSass () {
+  gutil.log('Linting SASS')
+  gulp.src([
     './document/**/*.scss'
   ])
   .pipe(sassLint({
@@ -157,11 +143,47 @@ gulp.task('lint:sass', function () {
   }))
   .pipe(sassLint.format())
   .pipe(sassLint.failOnError())
+}
+
+// Gulp tasks
+
+gulp.task('styles', function () {
+  styles()
+})
+
+gulp.task('scripts', function () {
+  scripts()
+})
+
+gulp.task('images', function () {
+  images()
+})
+
+gulp.task('fonts', function () {
+  fonts()
+})
+
+gulp.task('lint:js', function () {
+  lintJs()
+})
+
+gulp.task('lint:sass', function () {
+  lintSass()
 })
 
 gulp.task('lint', [
-  'lint:js',
-  'lint:sass'
+  'lint:js', 'lint:sass'
 ])
 
-gulp.task('default', ['watch'])
+gulp.task('build', [
+  'styles', 'scripts', 'fonts', 'images'
+])
+
+gulp.task('watch', function () {
+  gulp.watch('**/*.scss', function () {
+    styles(true)
+  })
+  scripts(true)
+})
+
+gulp.task('default', ['build', 'watch'])

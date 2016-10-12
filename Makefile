@@ -6,13 +6,13 @@ setup:
 	npm install
 
 build:
-	./node_modules/.bin/gulp build
+	npm run build
 
 watch:
-	./node_modules/.bin/gulp watch
+	npm run watch
 
 run:
-	node server.js
+	npm start
 
 run-hub:
 	node server.js --upstream=https://stenci.la
