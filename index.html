@@ -39,7 +39,7 @@
     <main>
         <img src="/web/images/logo-name-beta.svg">
 
-        <p>This is the development server for the Stencila <code>web</code> module. It bundles and compiles Javascript and CSS and serves up static content like images and fonts.</p>
+        <p>This is the development server for the Stencila <code>web</code> package. It bundles and compiles Javascript and CSS on the fly and serves static content from the <code>build</code> folder (you will need to run <code>make build</code> first). It also provides a backend for realtime collaboration and proxies requests to/from Stencila hosts running in R, Python or Node.js sessions.</p>
 
         <h1>Test pages</h1>
         <p>
@@ -52,11 +52,13 @@
             <li><a href="/tests/document/nodes/math">/tests/document/nodes/math</a></li>
         </ul>
 
-        <h1>Javascript host</h1>
+        <h1>Stencila hosts</h1>
 
-        <p>When you ran <code>npm start</code> to run this server, a Stencila Javascript Host was started at <a href="http://127.0.0.1:2000">http://127.0.0.1:2000</a> (or another port if that one wasn't available). That host can be used for testing communication between the front end and the back end. When accessing the host it will proxy requests to JS and CSS to this development server (anything under <code>/web</code> actually). So, you can still work on, and reload JS and SCSS, but with the additional benefit of having backend functionality like saving to disk and updating dynamic aspects of documents (e.g. execute and print directives).</p>
+        <p>The Stencila packages for R, Python and Node.js each provide an embedded host which is served at <a href="http://127.0.0.1:2000">http://127.0.0.1:2000</a> (or another port if that one wasn't available). Normally, those hosts use the static Javascript and CSS from this repo (built by running <code>make build</code>)</p>
 
-        <p>For example, you can access the above pages via the Javascript Host using the <code>file://</code> address scheme. This allows you to edit those documents and then save them to disk. e.g. </p>
+        <p>However, you can also run those host in development mode so that they will proxy requests for JS and CSS to this development server (anything under <code>/web</code> actually). That allows you to work on code in this repo, but with the additional benefit of having backend functionality like saving to disk and updating dynamic aspects of documents (e.g. execute and print directives).</p>
+
+        <p>For example, you can access the above test pages using the <code>file://</code> address scheme. This allows you to edit those documents and then save them to disk. e.g. </p>
         <p>&nbsp;&nbsp;<a href="http://127.0.0.1:2000/file://tests/document/nodes/all/index.html">http://127.0.0.1:2000/file://tests/document/nodes/all/index.html</a><p>
 
         <p>You can also create a new component using the <code>new://</code> address scheme e.g.</p>

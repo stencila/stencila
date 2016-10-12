@@ -1,5 +1,5 @@
 /**
- * A development web server for the Stencila `web` module.
+ * A development server for the Stencila `web` package.
  *
  * Bundles Javascript and compiles SCSS on the fly so that a page refresh
  * can be used in development to load latest versions. Proxies other
@@ -129,7 +129,6 @@ function page (res, componentType, dataType, data) {
 }
 
 // Collaboration server
-var collab = require('./collab').default.bind(httpServer, app, '/collab/')
 
 // Request for a live collaboration clone for a test file
 // This simulates what is done on via the hub: the collaboration `DocumentServer` is requested to
@@ -137,6 +136,7 @@ var collab = require('./collab').default.bind(httpServer, app, '/collab/')
 // and the client is passed back the initial snapshot JSON data and the Websocket URL for updates
 // (ie. in production there is no direct HTTP connection between the client and the collaboration
 // `DocumentServer`, only a Websocket connection to the `CollabServer`)
+var collab = require('./collab').default.bind(httpServer, app, '/collab/')
 app.get('/tests/:type/*@live', function (req, res) {
   var matches = req.path.match(/\/([^@]+)(@(\w+))?/)
   var address = matches[1]
@@ -185,14 +185,6 @@ app.get('/tests/:type/*', function (req, res, next) {
 
 // Paths that normally get served statically...
 
-function nameToPath (name) {
-  var matches = name.match(/(\w+)-?(\w+)?/)
-  var clas = matches[1]
-  var mode = matches[2]
-  var file = mode ? (clas + '-' + mode) : clas
-  return path.join(__dirname, clas, file)
-}
-
 // Javascript
 // Incremental builds with browserify and watchify (https://github.com/substack/watchify)
 function bundler (source) {
@@ -227,7 +219,7 @@ app.get('/web/:name.min.js', function (req, res, next) {
 // CSS
 function sassify (name, output, res) {
   sass.render({
-    file: nameToPath(name) + '.scss',
+    file: name + '/' + name + '.scss',
     sourceMap: true,
     outFile: name + '.min.css'
   }, function (err, result) {
@@ -248,16 +240,12 @@ app.get('/web/:name.min.css.map', function (req, res) {
   sassify(req.params.name, 'map', res)
 })
 
-// Semantic UI
-app.use('/web/themes', express.static(path.join(__dirname, 'node_modules/semantic-ui-css/themes')))
-
-// Images
-app.use('/web/images', express.static(path.join(__dirname, 'images')))
+// Favicon
 app.get('/favicon.ico', function (req, res) {
   res.sendFile(path.join(__dirname, 'images/favicon.ico'))
 })
 
-// Everything else at `/web` falls back to the `build` directory (e.g. fonts, MathJax)
+// Everything else at `/web` falls back to the `build` directory (e.g. fonts)
 // So, you'll need to do a build first
 app.use('/web', express.static(path.join(__dirname, 'build')))
 
