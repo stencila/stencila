@@ -136,7 +136,7 @@ function page (res, componentType, dataType, data) {
 // and the client is passed back the initial snapshot JSON data and the Websocket URL for updates
 // (ie. in production there is no direct HTTP connection between the client and the collaboration
 // `DocumentServer`, only a Websocket connection to the `CollabServer`)
-var collab = require('./collab').default.bind(httpServer, app, '/collab/')
+var collab = require('./src/collab').default.bind(httpServer, app, '/collab/')
 app.get('/tests/:type/*@live', function (req, res) {
   var matches = req.path.match(/\/([^@]+)(@(\w+))?/)
   var address = matches[1]
@@ -202,8 +202,8 @@ function bundler (source) {
   })
 }
 var bundlers = {
-  'document': bundler('document/document.js'),
-  'host': bundler('host/host.js')
+  'document': bundler('src/document/document.js'),
+  'host': bundler('src/host/host.js')
 }
 app.get('/web/:name.min.js', function (req, res, next) {
   caching(res, 60)
@@ -219,7 +219,7 @@ app.get('/web/:name.min.js', function (req, res, next) {
 // CSS
 function sassify (name, output, res) {
   sass.render({
-    file: name + '/' + name + '.scss',
+    file: './src/' + name + '/' + name + '.scss',
     sourceMap: true,
     outFile: name + '.min.css'
   }, function (err, result) {

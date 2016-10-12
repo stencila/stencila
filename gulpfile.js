@@ -105,7 +105,7 @@ function scripts (dev) {
 
 function images () {
   gutil.log('Copying images')
-  gulp.src('./images/**/*.{png,svg}')
+  gulp.src('./images/**/*')
       .pipe(gulp.dest('./build/images'))
   gulp.src('./node_modules/emojione/assets/png/*')
       .pipe(gulp.dest('./build/emojione/png'))
