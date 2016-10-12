@@ -19,7 +19,7 @@ npm install stencila/web
 
 ### Use
 
-The browser based user interfaces in this repo don't do much by themselves. To use them, you'll want to connect to a Stencila host running in an R, Python or Node.js session. For example, to use the Stencila Document interface you could...
+The browser based user interfaces in this repo don't do much by themselves. To use them, you'll want to connect to a Stencila host running in an R, Python or Node.js session. For example, to use the Stencila Document user interface in this repo you could...
 
 ... install the [Python](https://github.com/stencila/py) package and then,
 
@@ -30,7 +30,7 @@ document = Document()
 document.view()
 ```
 
-..., or install the [R](https://github.com/stencila/r) package and then,
+... or, install the [R](https://github.com/stencila/r) package and then, or
 
 ```r
 library(stencila)
@@ -39,7 +39,7 @@ document <- Document$new()
 document$view()
 ```
 
-..., or install the [Javascript](https://github.com/stencila/js) package and then,
+... or, install the [Javascript](https://github.com/stencila/js) package and then,
 
 ```js
 var stencila = require('stencila')
@@ -48,7 +48,7 @@ var document = new stencila.Document()
 document.view()
 ```
 
-You get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The brower in turn loads the [`document.js`](src/document/document.js) and [`src/document.scss`](document/document.scss) from this repo.
+You get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The browser in turn loads the [`document.js`](src/document/document.js) and [`document.scss`](src/document/document.scss) built from this repo.
 
 ### Discuss
 
