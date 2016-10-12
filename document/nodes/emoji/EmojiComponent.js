@@ -3,7 +3,7 @@ import Component from 'substance/ui/Component'
 import emojione from 'emojione'
 // Consistent with making everying served locally (for offline use etc)...
 if (typeof window !== 'undefined') {
-  emojione.imagePathPNG = (window.stencila.root || '/web') + '/emojione/png/'
+  emojione.imagePathPNG = ((window.stencila && window.stencila.root) || '/web') + '/emojione/png/'
 }
 
 class EmojiComponent extends Component {
