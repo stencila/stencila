@@ -33,8 +33,6 @@ var he = require('he')
 
 var Err = require('substance/util/SubstanceError').default
 
-var stencila = require('stencila')
-
 var opts = {
   'realredis': false
 }
@@ -266,9 +264,6 @@ app.use('/web', express.static(path.join(__dirname, 'build')))
 // Fallback to proxying to hosted components
 // Don't use bodyParser middleware in association with this proxying,
 // it seems to screw it up
-stencila.host.serve()
-console.log(stencila.host.title + ' is at ' + stencila.host.url)
-
 var upstream = 'http://localhost:2000'
 if (opts.upstream) {
   upstream = opts.upstream
