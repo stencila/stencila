@@ -1,7 +1,7 @@
 import load from '../load'
 
 var loadAce = function () {
-  load.script('/web/ace/ace.js', function () {
+  load.script((window.stencila.root || '/web') + '/ace/ace.js', function () {
     document.dispatchEvent(new window.Event('ace:loaded'))
   })
 }
