@@ -15,6 +15,7 @@ var uglify = require('gulp-uglify')
 var sass = require('gulp-sass')
 var sassLint = require('gulp-sass-lint')
 var eslint = require('gulp-eslint')
+var rm = require('gulp-rm')
 
 // Types of components
 var types = [
@@ -145,6 +146,11 @@ function lintSass () {
   .pipe(sassLint.failOnError())
 }
 
+function clean () {
+  return gulp.src('build/**/*', {read: false})
+    .pipe(rm())
+}
+
 // Gulp tasks
 
 gulp.task('styles', function () {
@@ -178,6 +184,10 @@ gulp.task('lint', [
 gulp.task('build', [
   'styles', 'scripts', 'fonts', 'images'
 ])
+
+gulp.task('clean', function () {
+  clean()
+})
 
 gulp.task('watch', function () {
   gulp.watch('**/*.scss', function () {
