@@ -4,7 +4,9 @@
 
 require('babel-register')({
   // es2015 preset for `import` and `export` support
-  presets: [ 'es2015' ],
+  // Using `require` here seems to fix "Couldn't find preset "es2015" relative to directory"
+  // bug (https://github.com/laravel/elixir/issues/354#issuecomment-251304711)
+  presets: [ require('babel-preset-es2015') ],
   // By default, `babel-register` ignores everything in `node-modules`
   // See https://babeljs.io/docs/usage/require/
   // Override that behaviour so that substance is transpiled
