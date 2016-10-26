@@ -34,6 +34,11 @@ if [ ! -e build/katex ]; then
 	rm build/katex.tar.gz
 fi
 
+# Sematic UI
+if [ ! -e build/themes/default ]; then
+  echo "Copying Semantic UI default theme"
+  cp -rf node_modules/semantic-ui-css/themes build
+fi
 
 # Test examples
 echo "Building test examples"
