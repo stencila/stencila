@@ -9,7 +9,11 @@ import Tool from 'substance/packages/tools/Tool'
  */
 class BlockTool extends Tool {
 
-  performAction () {
+  render ($$) {
+    return super.render($$).addClass(this.props.active ? 'sm-active' : '')
+  }
+
+  executeCommand () {
     if (this.props.active) {
       this.props.toolset.extendState({
         expanded: !this.props.toolset.state.expanded
