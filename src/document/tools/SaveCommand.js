@@ -13,7 +13,7 @@ class SaveCommand extends Command {
 
   execute (props, context) {
     let html = exportHTML(context.doc)
-    context.documentSession.remote.save(html, 'html')
+    context.doc.client.save(html)
     return true
   }
 
