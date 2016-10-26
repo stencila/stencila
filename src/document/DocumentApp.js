@@ -4,9 +4,12 @@ import CollabClient from 'substance/collab/CollabClient'
 import CollabSession from 'substance/collab/CollabSession'
 import WebSocketConnection from 'substance/collab/WebSocketConnection'
 
+import HostClient from '../host/HostClient'
+
 import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator()
 import {importJSON, importHTML} from './documentConversion'
+import DocumentClient from './DocumentClient'
 
 import VisualEditor from './editors/visual/VisualEditor'
 import CodeEditor from './editors/code/CodeEditor'
@@ -57,7 +60,6 @@ class DocumentApp extends Component {
     var el = $$('div').addClass('sc-document-app')
 
     if (this.state.documentSession) {
-      var session = null
       var copy = null
       if (this.props.copy) {
         copy = {
@@ -67,7 +69,6 @@ class DocumentApp extends Component {
       }
       var editorProps = {
         // Document state
-        session: session,
         copy: copy,
         view: this.state.view,
         reveal: this.state.reveal,
@@ -147,14 +148,10 @@ class DocumentApp extends Component {
       })
     }
 
-    //documentSession.remote = new RemoteDocument(this.props.url)
+    doc.client = new DocumentClient(this.props.url)
+    doc.host = new HostClient('http://' + this.props.host)
 
     code.loadAce()
-
-    // Define execution contexts for document
-    doc.contexts = [
-      // new JavascriptContext()
-    ]
 
     // Extend state to trigger rerendering
     this.extendState({
