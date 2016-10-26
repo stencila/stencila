@@ -10,9 +10,10 @@ import location from './utilities/location'
 export default function browser (App) {
   window.onload = function () {
     let props = {}
-    // Is this a local host?
+    props.host = window.location.host
+    // Is this a local host? Under electron, hostname is empty
     const hostname = window.location.hostname
-    props.local = hostname === 'localhost' || hostname === '127.0.0.1'
+    props.local = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === ''
     // Try to get descriptors from the <head>
     let id = document.querySelector('meta[name=id]')
     if (id) props.id = id.content
@@ -47,8 +48,6 @@ export default function browser (App) {
           props.data = JSON.parse(he.decode(data.textContent || data.innerHTML))
         }
         data.style.display = 'none'
-      } else {
-        throw Error('#data is not available to initialize the component')
       }
 
       if (props.local) {
