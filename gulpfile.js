@@ -19,7 +19,7 @@ var rm = require('gulp-rm')
 
 // Types of components
 var types = [
-  'document'
+  'host', 'document'
 ]
 
 function style (type, dev) {
@@ -62,6 +62,7 @@ function bundler (source, dev) {
 }
 
 let bundlers = {
+  'host': bundler('./src/host/host.js'),
   'document': bundler('./src/document/document.js')
 }
 
