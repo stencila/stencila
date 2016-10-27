@@ -203,7 +203,8 @@ function bundler (source) {
 }
 var bundlers = {
   'document': bundler('src/document/document.js'),
-  'host': bundler('src/host/host.js')
+  'host': bundler('src/host/host.js'),
+  'folder': bundler('src/folder/folder.js')
 }
 app.get('/web/:name.min.js', function (req, res, next) {
   caching(res, 60)
