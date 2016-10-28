@@ -3,7 +3,7 @@
 		<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
 	</a>
 	<br>
-	<a href="#about">About</a>&nbsp; | <a href="#install">Install</a>&nbsp; | &nbsp;<a href="#discuss">Discuss</a>&nbsp; | &nbsp;<a href="#develop">Develop</a>
+	<a href="#about">About</a>&nbsp; | &nbsp;<a href="#install">Install</a>&nbsp; | &nbsp;<a href="#discuss">Discuss</a>&nbsp; | &nbsp;<a href="#develop">Develop</a>
 	<br>
 </div>
 
@@ -50,7 +50,7 @@ If you would like to help out with development, great! Please see the roadmaps a
 
 ### Museum
 
-As with many sotware projects, Stencila has evoled a lot as we have learned what works and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
+As with many sotware projects, Stencila has evolved a lot as we have learned what works and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
 
 #### [`triassic`](https://github.com/stencila/stencila/tree/triassic) c. 2012-2013. 305 commits
 
