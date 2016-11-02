@@ -3,7 +3,7 @@
 		<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
 	</a>
 	<br>
-	<a href="#about">About</a>&nbsp;.&nbsp;<a href="#packages">Packages</a>&nbsp;.&nbsp;<a href="#discuss">Discuss</a>&nbsp;.&nbsp;<a href="#develop">Develop</a>
+	<a href="#about">About</a>&nbsp;|&nbsp;<a href="#packages">Packages</a>&nbsp;|&nbsp;<a href="#discuss">Discuss</a>&nbsp;|&nbsp;<a href="#develop">Develop</a>
 	<br>
 </div>
 
