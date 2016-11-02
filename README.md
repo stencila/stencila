@@ -1,6 +1,6 @@
 <div align="center">
 	<a href="https://stenci.la/about">
-		<img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name.svg" alt="Stencila">
+		<img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name.png" alt="Stencila">
 	</a>
 	<br>
 	<a href="#about">About</a>&nbsp;|&nbsp;<a href="#packages">Packages</a>&nbsp;|&nbsp;<a href="#discuss">Discuss</a>&nbsp;|&nbsp;<a href="#develop">Develop</a>
@@ -17,7 +17,7 @@
 
 Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. So, for example if you're a Python coder, you'll probably be most interested in the `py` package. Or, if you just want a quick way to get started with a desktop client, check out the `electron` package. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
 
-We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. Confused?[Talk to us](https://gitter.im/stencila/stencila). Really.
+We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. Confused? [Talk to us](https://gitter.im/stencila/stencila). Really.
 
 Currently, four packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
 
