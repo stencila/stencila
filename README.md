@@ -3,32 +3,34 @@
 		<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
 	</a>
 	<br>
-	<a href="#about">About</a>&nbsp; | &nbsp;<a href="#install">Install</a>&nbsp; | &nbsp;<a href="#discuss">Discuss</a>&nbsp; | &nbsp;<a href="#develop">Develop</a>
+	<a href="#about">About</a>&nbsp;.&nbsp;<a href="#packages">Packages</a>&nbsp;.&nbsp;<a href="#discuss">Discuss</a>&nbsp;.&nbsp;<a href="#develop">Develop</a>
 	<br>
 </div>
 
 ### About
 
-[Stencila](http://stenci.la) is a platform for creating, collaborating on, and sharing data driven documents. The platform is made up of an ecosystem of packages. There are currently four packages that expose the platform in alternative host languages: 
+[Stencila](http://stenci.la) is a platform for creating, collaborating on, and sharing data driven content. Content that is **transparent** and **reproducible**. Content that is **composable** and **versionable**. Content that is **accessible** to a variety of users.
 
-- [node](https://github.com/stencila/node) : Stencila in Node.js
-- [py](https://github.com/stencila/py) : Stencila in Python
-- [r](https://github.com/stencila/r) : Stencila in R
-- [cpp](https://github.com/stencila/cpp) : Stencila in C++
+### Packages
 
-Browser based user interfaces are provided by the `web` package: 
+Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. So, for example if you're a Python coder, you'll probably be most interested in the `py` package. Or, if you just want a quick way to get started with a desktop client, check out the `electron` package. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
 
-- [web](https://github.com/stencila/web)
+We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress.
 
-There is also a cross platform desktop application based on the `node` package using [Electron](http://electron.atom.io/)
+Currently, four packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
 
-- [electron](https://github.com/stencila/electron)
+- [node](https://github.com/stencila/node) : Stencila for Node.js
+- [py](https://github.com/stencila/py) : Stencila for Python
+- [r](https://github.com/stencila/r) : Stencila for R
+- [cpp](https://github.com/stencila/cpp): Stencila for C++
 
-This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
+All these packages make use of the browser based user interfaces provided by the `web` package: 
 
-### Install
+- [web](https://github.com/stencila/web) : Stencila in the browser
 
-We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. But see the individual packages for installation instructions.
+A cross platform desktop application is provided by the `electron` package:
+
+- [electron](https://github.com/stencila/electron) : Stencila on the desktop
 
 ### Discuss
 
@@ -47,10 +49,9 @@ If you would like to help out with development, great! Please see the roadmaps a
 [r](https://github.com/stencila/r) | [![Build status](https://travis-ci.org/stencila/r.svg?branch=master)](https://travis-ci.org/stencila/r) | [![Test coverage](https://codecov.io/gh/stencila/r/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/r)
 [web](https://github.com/stencila/web) | [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web) | [![Test coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
 
-
 ### Museum
 
-As with many sotware projects, Stencila has evolved a lot as we have learned what works and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
+As with many software projects, Stencila has evolved a lot as we have learned what works and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
 
 #### [`triassic`](https://github.com/stencila/stencila/tree/triassic) c. 2012-2013. 305 commits
 
