@@ -1,6 +1,6 @@
 <div align="center">
 	<a href="https://stenci.la/about">
-		<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:200px">
+		<img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name.svg" alt="Stencila">
 	</a>
 	<br>
 	<a href="#about">About</a>&nbsp;|&nbsp;<a href="#packages">Packages</a>&nbsp;|&nbsp;<a href="#discuss">Discuss</a>&nbsp;|&nbsp;<a href="#develop">Develop</a>
@@ -9,13 +9,15 @@
 
 ### About
 
-[Stencila](http://stenci.la) is a platform for creating, collaborating on, and sharing data driven content. Content that is **transparent** and **reproducible**. Content that is **composable** and **versionable**. Content that is **accessible** to a variety of users.
+[Stencila](http://stenci.la) is a platform for creating, collaborating on, and sharing data driven content. Content that is **transparent** and **reproducible** like [RMarkdown](https://github.com/rstudio/rmarkdown) and [Jupyter](http://jupyter.org/). Content that can be **versioned** and **composed** just like we do with open source software using tools like [CRAN](https://cran.r-project.org/web/packages/available_packages_by_name.html), [PyPi](https://pypi.python.org/pypi) and [NPM](https://www.npmjs.com/). And above all, content that is as **accessible** to non-coders as [Google Docs](https://en.wikipedia.org/wiki/Google_Docs,_Sheets_and_Slides) and [Micrsoft Office](https://en.wikipedia.org/wiki/Microsoft_Office).
+
+<img src="https://raw.githubusercontent.com/stencila/stencila/master/images/document-screenshot.png" alt="Stencila Document">
 
 ### Packages
 
 Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. So, for example if you're a Python coder, you'll probably be most interested in the `py` package. Or, if you just want a quick way to get started with a desktop client, check out the `electron` package. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
 
-We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress.
+We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. Confused?[Talk to us](https://gitter.im/stencila/stencila). Really.
 
 Currently, four packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
 
