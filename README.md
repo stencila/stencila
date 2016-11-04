@@ -53,8 +53,20 @@ Want to help out with development? Great, there's a lot to do! Please see the ro
 
 ### Museum
 
-As with many software projects, Stencila has evolved a lot as we have learned what works and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
+As with many software projects, Stencila has evolved a lot as we have learned what works, and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
 
-#### [`triassic`](https://github.com/stencila/stencila/tree/triassic) c. 2012-2013. 305 commits
+#### [`triassic`](https://github.com/stencila/stencila/tree/triassic) branch c. 2012-2013. 305 commits
 
-#### [`jurassic`](https://github.com/stencila/stencila/tree/jurassic) c. 2014-2016. 2414 commits
+Initial explorations and experiments. This branch, introduces `Stencils` (what we now call `Documents`) as data-driven, programmable documents. Stencils contain directives such as `script` (for executing code), `text` (for evaluating expressions and rendering them as text), and `for` (for repeating content over data items). The in-memory representation of a `Stencil` is a HTML tree with directives as element attributes and with non-destructive rendering e.g. `<span data-text="6*7">42</span>`. This type of rendering means that `Stencils` are effectively automorphic (both the source template and the target document) and is what allows them to be rendered by computers and edited by humans. A mark up language called *Stem* (later renamed to *Cila*) was developed as an alternative to HTML for authoring. Stem/Cila attempts to take the combine the simplicity of [Markdown](https://daringfireball.net/projects/markdown/) with the flexibility of web templating languages like [Slim](http://slim-lang.com/).  
+
+In addition, this branch includes work on abstractions for data tables and queries on them (like in [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) and [blaze](http://blaze.readthedocs.io/en/latest/index.html)). 
+
+The implementation strategy was to develop mostly in C++ (making the most of libraries such as [pugixml](http://pugixml.org/) and [tidy-html5](https://github.com/htacg/tidy-html5)) and then expose this functionality using thin wrappers in host languages, initially R and Python. This branch includes some initial work on browser-based user interfaces. 
+
+#### [`jurassic`](https://github.com/stencila/stencila/tree/jurassic) branch c. 2014-2016. 2414 commits
+
+Clean up and focus. This branch started as a fresh slate to remove the experiments, cleanup the implementation and focus on `Stencils` as the central part of the platform. This branch also marks the start (and probably the end) of [releases for this repository](https://github.com/stencila/stencila/releases). Releases 0.1 to 0.4 really just set things up. Execution contexts for rendering stencils in R and Python were introduced in [0.5](https://github.com/stencila/stencila/releases/tag/0.5) and *Stem* was re-released as *Cila* in [0.6](https://github.com/stencila/stencila/releases/tag/0.6). Releases 0.7 to 0.18 were mostly incremental improvements (although together they add up to big improvements in reliability and usability!)
+
+Release [0.19](https://github.com/stencila/stencila/releases/tag/0.19) was an important step because it was the first to use [Substance](http://substance.io) for the [user interfaces](https://twitter.com/_substance/status/661440688211501056).
+
+#### [`master`](https://github.com/stencila/stencila/tree/master) branch c. 2016-
