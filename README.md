@@ -1,11 +1,18 @@
-## `stencila/web`
+## `stencila/web` : [Stencila](https://stenci.la) in the Browser
+
+<div align="center">
+  <a href="#about">About</a>&nbsp;|&nbsp;<a href="#install">Install</a>&nbsp;|&nbsp;<a href="#use">Use</a>&nbsp;|&nbsp;<a href="#discuss">Discuss</a>&nbsp;|&nbsp;<a href="#develop">Develop</a>
+  <br>
+</div>
 
 [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web)
 [![Code coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
 [![Dependency status](https://david-dm.org/stencila/web.svg)](https://david-dm.org/stencila/web)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
-User interfaces for Stencila components. If you just want to use these interfaces see our packages for [R](https://github.com/stencila/r), [Python](https://github.com/stencila/py) and [Javascript](https://github.com/stencila/js). These interfaces talk to hosts in those packages to allow you to do things like evaluate expressions, execute blocks of code, save documents to disk, make Git commits etc. But, if you'd like to help out or have some feedback, read on!
+This repository is part of the Stencila platform. See our umbrella repository [stencila/stencila](https://github.com/stencila/stencila) for more details.
+
+This repos provides in-browser, user interfaces for Stencila components. If you just want to use these interfaces see our packages for [R](https://github.com/stencila/r), [Python](https://github.com/stencila/py) and [Node.js](https://github.com/stencila/node). These interfaces talk to hosts in those packages to allow you to do things like evaluate expressions, execute blocks of code, save documents to disk, make Git commits etc. But, if you'd like to help out or have some feedback, read on!
 
 ![Screenshot](images/screenshot.png)
 
@@ -19,9 +26,7 @@ npm install stencila/web
 
 ### Use
 
-The browser based user interfaces in this repo don't do much by themselves. To use them, you'll want to connect to a Stencila host running in an R, Python or Node.js session. For example, to use the Stencila Document user interface in this repo you could...
-
-... install the [Python](https://github.com/stencila/py) package and then,
+The browser based user interfaces in this repo don't do much by themselves. To use them, you'll want to connect to a Stencila host running in an R, Python or Node.js session. For example, to use the Stencila Document user interface in this repo you could install the [Python](https://github.com/stencila/py) package and then,
 
 ```py
 from stencila import Document
@@ -30,25 +35,7 @@ document = Document()
 document.view()
 ```
 
-... or, install the [R](https://github.com/stencila/r) package and then, or
-
-```r
-library(stencila)
-
-document <- Document$new()
-document$view()
-```
-
-... or, install the [Javascript](https://github.com/stencila/js) package and then,
-
-```js
-var stencila = require('stencila')
-
-var document = new stencila.Document()
-document.view()
-```
-
-You get the idea. The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The browser in turn loads the [`document.js`](src/document/document.js) and [`document.scss`](src/document/document.scss) built from this repo.
+The `view` method ensures the host is serving and then opens up a browser at the URL of the newly created document. The browser in turn loads the [`document.js`](src/document/document.js) and [`document.scss`](src/document/document.scss) built from this repo.
 
 ### Discuss
 
@@ -56,7 +43,7 @@ We love feedback. Create a [new issue](https://github.com/stencila/web/issues/ne
 
 ### Develop
 
-To get started...
+To get started with development...
 
 ```sh
 # Install dependencies
