@@ -4,6 +4,7 @@
   "description": "Web browser interfaces for Stencila components",
   "main": "index.js",
   "directories": {
+    "build": "build",
     "test": "tests"
   },
   "scripts": {
