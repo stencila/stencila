@@ -3,9 +3,8 @@
   "version": "0.1.1",
   "description": "Web browser interfaces for Stencila components",
   "main": "index.js",
-  "directories": {
-    "build": "build",
-    "test": "tests"
+  "files": {
+    "build": "build"
   },
   "scripts": {
     "lint": "gulp lint",
