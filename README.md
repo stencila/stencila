@@ -13,7 +13,7 @@ This repos provides in-browser, user interfaces for Stencila components. If you 
 
 ### Install
 
-Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles. But, if you want to help out with development (:thumbsup:) ...
+Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles from https://unpkg.com/stencila-web/. But, if you want to help out with development (:thumbsup:) ...
 
 ```
 npm install stencila/web
@@ -86,3 +86,13 @@ npm run test-one -- collab/ChangeStore.test.js
 ```
 
 Tests are automatically run on [Travis](https://travis-ci.org/stencila/web) with code coverage statistics available at [Codecov](https://codecov.io/gh/stencila/web).
+
+### Publish
+
+To publish a new version to NPM and have it served by the [unpkg](https://unpkg.com/#/) CDN,
+
+```sh
+npm build
+npm version {major|minor|patch}
+npm publish
+```
