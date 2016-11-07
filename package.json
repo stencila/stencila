@@ -25,13 +25,12 @@
     "data",
     "documents",
     "sheets",
-    "contexts",
     "sessions",
     "reproducibility",
     "science"
   ],
   "author": "",
-  "license": "GPL-3.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/stencila/web/issues"
   },
