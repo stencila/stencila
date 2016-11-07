@@ -48,9 +48,9 @@ function styles (dev) {
  * @param  {string} source The source file to bundle
  * @return {Object}        A browserify bundler
  */
-function bundler (source, dev) {
+function bundler (source) {
   return browserify(source, {
-    debug: dev,
+    debug: true, // To get mapping with original pre-bundled files
     cache: {},
     packageCache: {}
   }).transform(babelify, {
@@ -78,11 +78,13 @@ function script (type, dev) {
       })
       .pipe(source('./' + type + '.min.js'))
       .pipe(buffer())
-      //.pipe(sourcemaps.init({
-      //  loadMaps: true
-      //}))
-      //.pipe(gif(!dev, uglify()))
-      //.pipe(sourcemaps.write('.'))
+      .pipe(sourcemaps.init({ loadMaps: true })) // Load source map from browserify
+      .pipe(gif(!dev, uglify({ // Uglify if not in development
+        output: {
+          ascii_only: true // Avoid issue with escaped UTF8 characters in Katex See https://github.com/mishoo/UglifyJS2/issues/54
+        }
+      })))
+      .pipe(sourcemaps.write('./')) // Write source maps
       .pipe(gulp.dest('./build'))
   }
 
