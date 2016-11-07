@@ -1,9 +1,4 @@
-## `stencila/web` : [Stencila](https://stenci.la) in the Browser
-
-<div align="center">
-  <a href="#about">About</a>&nbsp;|&nbsp;<a href="#install">Install</a>&nbsp;|&nbsp;<a href="#use">Use</a>&nbsp;|&nbsp;<a href="#discuss">Discuss</a>&nbsp;|&nbsp;<a href="#develop">Develop</a>
-  <br>
-</div>
+## `stencila/web` : Stencila in the browser
 
 [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web)
 [![Code coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
