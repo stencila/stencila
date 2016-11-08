@@ -17,6 +17,7 @@ class Execute extends BlockNode {
           this.document.session.execute(this.source).then(result => {
             this.duration = (timer.now() - t0) / 1000
             this.result = result
+            this.emit('changed')
           })
         } catch (error) {
           this.result = {
@@ -24,9 +25,9 @@ class Execute extends BlockNode {
               '0': error.toString()
             }
           }
+          this.emit('changed')
           throw error
         }
-        this.emit('changed')
       }
     }
   }
