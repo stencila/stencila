@@ -40,7 +40,7 @@ We love feedback. Chat with members of the community on [Gitter](https://gitter.
 
 ### Develop
 
-Want to help out with development? Great, there's a lot to do! Please see the roadmaps and issues for each of the repos:
+Want to help out with development? Great, there's a lot to do! To get started, [get in touch](https://gitter.im/stencila/stencila) or checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1).
 
                | Build status | Test coverage | Issues
 -------------- |:------------:|:-------------:|:------:
@@ -67,7 +67,7 @@ The implementation strategy in this branch (and the next) was to develop mostly 
 
 Clean up and focus. This branch started as a fresh slate to remove the experiments, cleanup the implementation and focus on `Stencils` as the central part of the platform. This branch also marks the start (and probably the end) of [releases for this repository](https://github.com/stencila/stencila/releases). Releases 0.1 to 0.4 really just set things up. Execution contexts for rendering stencils in R and Python were introduced in [0.5](https://github.com/stencila/stencila/releases/tag/0.5) and *Stem* was re-released as *Cila* in [0.6](https://github.com/stencila/stencila/releases/tag/0.6). Releases 0.7 to 0.18 were mostly incremental improvements (although together they add up to big improvements in reliability and usability!). 
 
-Release [0.19](https://github.com/stencila/stencila/releases/tag/0.19) was an important because it was the first to use [Substance](http://substance.io) and was thus a big step up in for our browser-based [user interfaces](https://twitter.com/_substance/status/661440688211501056). We went on to leverage Substance and the execution contexts we had already developed to introduce [`Sheets`](https://stenci.la/stencila/blog/introducing-sheets/) in [0.21](https://github.com/stencila/stencila/releases/tag/0.21).
+Release [0.19](https://github.com/stencila/stencila/releases/tag/0.19) was an important because it was the first to use [Substance](http://substance.io) and was thus a big step up for our browser-based [user interfaces](https://twitter.com/_substance/status/661440688211501056). We went on to leverage Substance and the execution contexts we had already developed to introduce [`Sheets`](https://stenci.la/stencila/blog/introducing-sheets/) in [0.21](https://github.com/stencila/stencila/releases/tag/0.21).
 
 Subsequent releases focused on interoperability including introducing a Node.js package in [0.23](https://github.com/stencila/stencila/releases/tag/0.23) and RMarkdown support for stencils, via the [CommonMark C implementation](https://github.com/jgm/cmark), in [0.24](https://github.com/stencila/stencila/releases/tag/0.24).
 
