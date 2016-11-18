@@ -15,9 +15,17 @@
 
 ### Packages
 
-Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. So, for example if you're a Python coder, you'll probably be most interested in the `py` package. Or, if you just want a quick way to get started with a desktop client, check out the `electron` package. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
+Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. For example, if you just want a quick way to get started, check out the [desktop application](https://github.com/stencila/electron); but if you're a Python coder, the [`py`](https://github.com/stencila/py) package, will probably be more your thing. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
 
-We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. Confused? [Talk to us](https://gitter.im/stencila/stencila). (Really, do it! :smile:)
+We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. So if you're confused or what more info [talk to us](https://gitter.im/stencila/stencila). (Really, do it! :smile:)
+
+A cross platform desktop application is provided by the `electron` package:
+
+- [electron](https://github.com/stencila/electron) : Stencila on the desktop
+
+Browser-based user interfaces are provided by the `web` package: 
+
+- [web](https://github.com/stencila/web) : Stencila in the browser
 
 Currently, four packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
 
@@ -26,13 +34,7 @@ Currently, four packages expose the platform in alternative host languages (pack
 - [r](https://github.com/stencila/r) : Stencila for R
 - [cpp](https://github.com/stencila/cpp): Stencila for C++
 
-All these packages make use of the browser based user interfaces provided by the `web` package: 
-
-- [web](https://github.com/stencila/web) : Stencila in the browser
-
-A cross platform desktop application is provided by the `electron` package:
-
-- [electron](https://github.com/stencila/electron) : Stencila on the desktop
+These packages are in various stages of development. Together they act as an ecosystem of peers with differing capabilities. The `node` package is the current focus for implementation mainly because it can be easily integrated into the `electron` package and made available as a desktop application. But we aim to implement the same capabilities in the other language packages so that eventually can each be used standalone.
 
 ### Discuss
 
@@ -53,24 +55,16 @@ Want to help out with development? Great, there's a lot to do! To get started, [
 
 ### Museum
 
-As with many software projects, Stencila has evolved a lot as we have learned what works, and what doesn't. Two independent branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
+As with many software projects, Stencila has evolved a lot as we have learned what works, and what doesn't. Two older branches have been preserved in this repo for historical interest (and because they contain a significant amount of work and some useful code!):
 
 #### [`triassic`](https://github.com/stencila/stencila/tree/triassic) branch c. 2012-2013. 305 commits
 
-Initial explorations and experiments. This branch, introduces `Stencils` (what we now call `Documents`) as data-driven, programmable documents. Stencils are HTML documents containing directives such as `script` (for executing code) and `text` (for evaluating expressions and rendering them as text) encoded as element attributes e.g. `<span data-text="6*7">42</span>`. Rendering of a Stencil is done non-destructively and in-place, meaning that `Stencils` are effectively automorphic (both the source template and the target document) and allowing them to be simultaneously rendered by computers and edited by humans. 
-
-A mark up language called *Stem* (later renamed to *Cila*) was developed as an alternative to HTML for authoring. Stem/Cila attempts to take the combine the simplicity of [Markdown](https://daringfireball.net/projects/markdown/) with the flexibility of web templating languages like [Slim](http://slim-lang.com/).  In addition, this branch includes work on abstractions for data tables and queries on them (like in [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) and [blaze](http://blaze.readthedocs.io/en/latest/index.html)). 
-
-The implementation strategy in this branch (and the next) was to develop mostly in C++ (making the most of libraries such as [pugixml](http://pugixml.org/) and [tidy-html5](https://github.com/htacg/tidy-html5)) and then expose this functionality using thin wrappers in host languages, initially R and Python. This branch also includes some initial work on browser-based user interfaces. 
+Initial explorations and experiments. This branch, introduces `Stencils` (what we now call `Documents`) as data-driven, programmable documents. Stencils are HTML documents containing directives such as `script` (for executing code) and `text` (for evaluating expressions and rendering them as text) encoded as element attributes e.g. `<span data-text="6*7">42</span>`. A mark up language called *Stem* (later renamed to *Cila*) was developed as an alternative to HTML for authoring. Stem attempts to take the combine the simplicity of [Markdown](https://daringfireball.net/projects/markdown/) with the flexibility of web templating languages like [Slim](http://slim-lang.com/).  In addition, this branch includes work on abstractions for data tables and queries on them (like in [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) and [blaze](http://blaze.readthedocs.io/en/latest/index.html)). The implementation strategy in this branch (and the next) was to develop mostly in C++ (making the most of libraries such as [pugixml](http://pugixml.org/) and [tidy-html5](https://github.com/htacg/tidy-html5)) and then expose this functionality using thin wrappers in host languages, initially R and Python. This branch also includes some initial work on browser-based user interfaces. 
 
 #### [`jurassic`](https://github.com/stencila/stencila/tree/jurassic) branch c. 2014-2016. 2414 commits
 
-Clean up and focus. This branch started as a fresh slate to remove the experiments, cleanup the implementation and focus on `Stencils` as the central part of the platform. This branch also marks the start (and probably the end) of [releases for this repository](https://github.com/stencila/stencila/releases). Releases 0.1 to 0.4 really just set things up. Execution contexts for rendering stencils in R and Python were introduced in [0.5](https://github.com/stencila/stencila/releases/tag/0.5) and *Stem* was re-released as *Cila* in [0.6](https://github.com/stencila/stencila/releases/tag/0.6). Releases 0.7 to 0.18 were mostly incremental improvements (although together they add up to big improvements in reliability and usability!). 
-
-Release [0.19](https://github.com/stencila/stencila/releases/tag/0.19) was an important because it was the first to use [Substance](http://substance.io) and was thus a big step up for our browser-based [user interfaces](https://twitter.com/_substance/status/661440688211501056). We went on to leverage Substance and the execution contexts we had already developed to introduce [`Sheets`](https://stenci.la/stencila/blog/introducing-sheets/) in [0.21](https://github.com/stencila/stencila/releases/tag/0.21).
-
-Subsequent releases focused on interoperability including introducing a Node.js package in [0.23](https://github.com/stencila/stencila/releases/tag/0.23) and RMarkdown support for stencils, via the [CommonMark C implementation](https://github.com/jgm/cmark), in [0.24](https://github.com/stencila/stencila/releases/tag/0.24).
+Clean up and focus. This branch started as a fresh slate to remove the experiments, cleanup the implementation and focus on `Stencils` as the central part of the platform. This branch also marks the start (and probably the end) of [releases for this repository](https://github.com/stencila/stencila/releases). Releases 0.1 to 0.4 really just set things up. Execution contexts for rendering stencils in R and Python were introduced in [0.5](https://github.com/stencila/stencila/releases/tag/0.5) and *Stem* was re-released as *Cila* in [0.6](https://github.com/stencila/stencila/releases/tag/0.6). Releases 0.7 to 0.18 were mostly incremental improvements (although together they add up to big improvements in reliability and usability!). Release [0.19](https://github.com/stencila/stencila/releases/tag/0.19) was an important because it was the first to use [Substance](http://substance.io) and was thus a big step up for our browser-based [user interfaces](https://twitter.com/_substance/status/661440688211501056). We went on to leverage Substance and the execution contexts we had already developed to introduce [`Sheets`](https://stenci.la/stencila/blog/introducing-sheets/) in [0.21](https://github.com/stencila/stencila/releases/tag/0.21). Subsequent releases focused on interoperability including introducing a Node.js package in [0.23](https://github.com/stencila/stencila/releases/tag/0.23) and RMarkdown support for stencils in [0.24](https://github.com/stencila/stencila/releases/tag/0.24).
 
 #### [`master`](https://github.com/stencila/stencila/tree/master) branch c. 2016-
 
-The implementation strategy we had been using (core in C++ with wrappers for various languages) had advantages (a single fast implementation deployed to various languages) but a few significant problems. Prime amongst these was that it was difficult for others to contribute to. The current strategy is to use a decoupled, more modular architecture with packages linked via network communications rather than an underlying C++ core. This also opens up some exciting possibilities for distributed and polyglot computing.
+The implementation strategy we had been using (core in C++ with wrappers for various languages) had advantages (a single fast implementation deployed to various languages) but a few significant problems. Prime amongst these problems was that it was difficult for others to contribute code, particularly those who specialized in a single higher level language e.g R. To address these issues, our current strategy is to use a decoupled, modular architecture with various packages linked via network communications rather than an underlying C++ core. This also opens up some exciting possibilities for distributed and polyglot computing.
