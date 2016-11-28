@@ -45,7 +45,7 @@ class HostApp extends Component {
     )
 
     if (data) {
-      let components = $$('div').addClass('ui list')
+      let components = $$('div').addClass('components ui list')
       for (let component of data.components) {
         components.append(
           $$('div').addClass('ui item').append(
@@ -56,7 +56,7 @@ class HostApp extends Component {
                   href: component.url,
                   target: '_blank'
                 }).text(
-                  component.title || component.address
+                  component.title || component.short || component.address || 'Remote'
                 )
               ),
               $$('span').text(component.type || '')
@@ -66,7 +66,7 @@ class HostApp extends Component {
       }
       el.append(components)
 
-      let schemes = $$('div').addClass('ui horizontal list')
+      let schemes = $$('div').addClass('schemes ui horizontal list')
       for (let scheme in data.schemes) {
         let details = data.schemes[scheme]
         schemes.append(
@@ -80,10 +80,13 @@ class HostApp extends Component {
       }
       el.append(
         $$('div').addClass('ui segment')
-          .append(schemes)
+          .append(
+            $$('h4').text('Schemes'),
+            schemes
+          )
       )
 
-      let formats = $$('div').addClass('ui horizontal list')
+      let formats = $$('div').addClass('formats ui horizontal list')
       for (let format of data.formats) {
         formats.append(
           $$('div').addClass('ui item').append(
@@ -93,9 +96,15 @@ class HostApp extends Component {
           )
         )
       }
-      el.append(formats)
+      el.append(
+        $$('div').addClass('ui segment')
+          .append(
+            $$('h4').text('Formats'),
+            formats
+          )
+      )
 
-      let peers = $$('div').addClass('ui horizontal list')
+      let peers = $$('div').addClass('peers ui list')
       for (let peer of data.peers) {
         peers.append(
           $$('div').addClass('ui item').append(
@@ -117,15 +126,12 @@ class HostApp extends Component {
           )
         )
       }
-      el.append(peers)
       el.append(
-        $$('button').addClass('ui button')
-          .text('Discover')
-          .on('click', () => {
-            host.discover().then(() => {
-              this.refresh()
-            })
-          })
+        $$('div').addClass('ui segment')
+          .append(
+            $$('h4').text('Peers'),
+            peers
+          )
       )
     }
 
