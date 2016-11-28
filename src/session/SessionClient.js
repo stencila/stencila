@@ -2,9 +2,10 @@ import ComponentClient from '../component/ComponentClient'
 
 class SessionClient extends ComponentClient {
 
-  execute (code) {
+  execute (code, pipes) {
     return this.call('execute', {
-      code: code
+      code: code || '',
+      pipes: pipes || []
     })
   }
 

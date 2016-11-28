@@ -43,7 +43,7 @@ export default function browser (App) {
       if (data) {
         props.format = data.getAttribute('data-format')
         if (props.format === 'html') {
-          props.data = data.innerHTML
+          props.data = data.outerHTML
         } else {
           props.data = JSON.parse(he.decode(data.textContent || data.innerHTML))
         }

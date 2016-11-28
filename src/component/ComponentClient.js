@@ -4,6 +4,10 @@ class ComponentClient {
     this._url = url
   }
 
+  get url () {
+    this._url
+  }
+
   request (method, url, data) {
     return new Promise((resolve, reject) => {
       var request = new window.XMLHttpRequest()

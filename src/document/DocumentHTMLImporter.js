@@ -26,10 +26,9 @@ class DocumentHTMLImporter extends HTMLImporter {
    *
    * This method must be provided when extending HTMLImporter
    */
-  convertDocument (els) {
-    // The `containerId` argument should have the same
-    // value as the `containerId` used by `ContainerEditor`
-    this.convertContainer(els, 'content')
+  convertDocument (el) {
+    this.convertContainer(el.find('.content').children, 'content')
+    this.convertContainer(el.find('.sessions').children, 'sessions')
   }
 
   /**

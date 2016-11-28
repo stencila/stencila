@@ -26,6 +26,8 @@ import CommentPackage from './nodes/comment/CommentPackage'
 
 import DefaultPackage from './nodes/default/DefaultPackage'
 
+import SessionPackage from '../shared/nodes/session/SessionPackage'
+
 import ToolsPackage from './tools/ToolsPackage'
 import VisualEditorPackage from './editors/visual/VisualEditorPackage'
 
@@ -75,6 +77,8 @@ class DocumentConfigurator extends Configurator {
     this.import(DiscussionPackage)
     this.import(CommentPackage)
 
+    this.import(SessionPackage)
+    
     this.import(DefaultPackage)
 
     // Import UI packages

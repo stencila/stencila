@@ -4,19 +4,21 @@ class Execute extends BlockNode {
 
   refresh () {
     if (this.source) {
-      // Check list of sessions and open a new session if necessary
-      if (!this.document.session) {
-        this.document.host.new('session-' + this.language).then(session => {
-          this.document.session = session
-          this.refresh()
-        })
-      } else {
+      this.document.session(this.language).then(session => {
         try {
           let timer = window.performance
           let t0 = timer.now()
-          this.document.session.execute(this.source).then(result => {
+          session.execute(this.source, this.document.pipeline).then(result => {
             this.duration = (timer.now() - t0) / 1000
             this.result = result
+
+            // Update the pipline with the pipes from the session
+            debugger
+            this.document.pipeline = {}
+            result.pipes.forEach(name => {
+              this.document.pipeline[name] = session._url
+            })
+
             this.emit('changed')
           })
         } catch (error) {
@@ -28,7 +30,7 @@ class Execute extends BlockNode {
           this.emit('changed')
           throw error
         }
-      }
+      })
     }
   }
 

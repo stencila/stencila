@@ -37,14 +37,21 @@ class ExecuteComponent extends Component {
           node: node,
           codeProperty: 'source',
           languageProperty: 'language'
-        })
+        }).ref('editor')
       )
 
     var errors = node.result.errors
     if (errors) {
-      el.append(
-        $$('div').text(errors.toString())
-      )
+      let session = this.refs.editor.editor.getSession()
+      let annotations = Object.keys(errors).map((row, index) => {
+        return {
+          row: row,
+          column: 0,
+          text: errors[row],
+          type: 'error'
+        }
+      })
+      session.setAnnotations(annotations)
     }
 
     var output = node.result.output

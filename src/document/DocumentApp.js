@@ -148,6 +148,7 @@ class DocumentApp extends Component {
       })
     }
 
+    doc.documentSession = documentSession
     doc.client = new DocumentClient(this.props.url)
     doc.host = new HostClient('http://' + this.props.host)
 
