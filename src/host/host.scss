@@ -1,5 +1,13 @@
 @import '../../node_modules/semantic-ui-css/semantic';
 
+.sc-host {
+  margin-top: 1em;
+
+  .se-form {
+    margin-top: 3em;
+  }
+}
+
 .components {
   margin-bottom: 15em !important;
 }
