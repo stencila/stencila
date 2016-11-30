@@ -11,7 +11,7 @@ var attachAceEditor = function (el, content, options, callback) {
     var editor = window.ace.edit(el)
     updateAceEditor(editor, options)
     if (content) editor.setValue(content, 1)
-    callback(editor)
+    if (callback) callback(editor)
   }
   if (window.ace) {
     _attach()
@@ -35,6 +35,8 @@ var setAceEditorMode = function (editor, language) {
 }
 
 var updateAceEditor = function (editor, options) {
+  options = options || {}
+
   // Stuff that is not yet actually an option
   editor.setTheme('ace/theme/monokai')
   editor.setShowPrintMargin(false)
@@ -48,13 +50,13 @@ var updateAceEditor = function (editor, options) {
   // Prevent warning message
   editor.$blockScrolling = Infinity
 
-  setAceEditorMode(editor, options.language)
+  setAceEditorMode(editor, options.language || 'text')
 
   editor.setFontSize(options.fontSize || 16)
 
   // Set the maximum number of lines for the code. When the number
   // of lines exceeds this number a vertical scroll bar appears on the right
-  editor.setOption('minLines', 1)
+  editor.setOption('minLines', options.minLines || 1)
   editor.setOption('maxLines', options.maxLines || Infinity)
 
   // TODO complete implementation of turning back on. commands etc
