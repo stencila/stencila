@@ -13,7 +13,6 @@ class Execute extends BlockNode {
             this.result = result
 
             // Update the pipline with the pipes from the session
-            debugger
             this.document.pipeline = {}
             result.pipes.forEach(name => {
               this.document.pipeline[name] = session._url
