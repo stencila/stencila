@@ -11,6 +11,13 @@ This repos provides in-browser, user interfaces for Stencila components. If you 
 
 ![Screenshot](images/screenshot.png)
 
+### Status
+
+![](http://blog.stenci.la/wip.png)
+
+This is very much a work in progress. See our [main repo](https://github.com/stencila/stencila) for more details.
+
+
 ### Install
 
 Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles from https://unpkg.com/stencila-web/. But, if you want to help out with development (:thumbsup:) ...
