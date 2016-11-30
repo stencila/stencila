@@ -62,8 +62,10 @@ function bundler (source) {
 }
 
 let bundlers = {
+  'document': bundler('./src/document/document.js'),
+  'folder': bundler('./src/folder/folder.js'),
   'host': bundler('./src/host/host.js'),
-  'document': bundler('./src/document/document.js')
+  'session': bundler('./src/session/session.js')
 }
 
 function script (type, dev) {

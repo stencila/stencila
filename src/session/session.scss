@@ -1,0 +1,30 @@
+@import '../../node_modules/semantic-ui-css/semantic';
+
+.sc-session-app {
+  margin: 0 auto;
+  padding: 1em;
+  max-width: 60em;
+}
+
+.sc-execution-code {
+  margin: 0 auto;
+  border-radius: 5px 5px 0 0;
+}
+
+.se-execution-output {
+  padding: 1em;
+
+  border: 1px solid #DDD;
+  border-radius: 0 0 5px 5px;
+
+  pre {
+    margin: 0 0 0 2em;
+  }
+
+  img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+}
