@@ -60,16 +60,17 @@ class DocumentApp extends Component {
     var el = $$('div').addClass('sc-document-app')
 
     if (this.state.documentSession) {
-      var copy = null
-      if (this.props.copy) {
-        copy = {
-          name: this.props.copy,
-          people: Object.keys(this.state.documentSession.collaborators).length + 1
+      var version = null
+      if (this.props.version) {
+        version = {
+          name: this.props.version,
+          // TODO Fix this. Will only have collaborators on documentSession if this is a "@live" version
+          people: 0 // Object.keys(this.state.documentSession.collaborators).length + 1
         }
       }
       var editorProps = {
         // Document state
-        copy: copy,
+        version: version,
         view: this.state.view,
         reveal: this.state.reveal,
         comment: this.state.comment,
@@ -199,7 +200,7 @@ class DocumentApp extends Component {
   toggleEdit () {
     var edit = !this.state.edit
     if (edit) {
-      // FIXME This is turned off for cases like file:// where there will be no live copy
+      // FIXME This is turned off for cases like file:// where there will be no live version
       // available
       // this.switchCopy('live')
     }

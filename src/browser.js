@@ -21,13 +21,13 @@ export default function browser (App) {
     if (address) props.address = address.content
     let url = document.querySelector('meta[name=url]')
     if (url) props.url = url.content
-    // Fallback to getting `url`, `address` and `copy` from the path
+    // Fallback to getting `url`, `address` and `version` from the path
     var path = window.location.pathname
     var matches = path.match(/\/([^@]+)(@(\w+))?/)
     if (matches) {
       if (!props.url) props.url = window.location.origin + '/' + matches[1]
       if (!props.address) props.address = matches[1]
-      props.copy = matches[3]
+      props.version = matches[3]
     } else {
       if (!props.url) props.url = window.location.origin
     }
