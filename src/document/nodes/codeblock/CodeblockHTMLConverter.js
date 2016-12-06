@@ -11,16 +11,15 @@ export default {
   },
 
   import: function (el, node, converter) {
+    node.language = el.attr('class') || 'text'
     var code = el.find('code')
-    node.language = code.attr('class')
     node.source = code.text().trim()
   },
 
   export: function (node, el, converter) {
-    el
-    .append(
+    if (node.language && node.language !== 'text') el.addClass(node.language)
+    el.append(
       converter.$$('code')
-        .addClass(node.language)
         .text(node.source)
     )
   }
