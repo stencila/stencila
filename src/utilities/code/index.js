@@ -26,6 +26,7 @@ var setAceEditorMode = function (editor, language) {
   // If no conversion defined here will use mode = language
   if (typeof language !== 'string' || language === '') language = 'text'
   var mode = {
+    'bash': 'sh',
     'cpp': 'c_cpp',
     'js': 'javascript',
     'py': 'python',
