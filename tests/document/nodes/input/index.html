@@ -1,0 +1,21 @@
+<div id="title">Test for input directive</div>
+
+<p>Here is an input which sets a document variable:</p>
+
+<p>
+  <input name="a" type="number" data-type="float">
+</p>
+
+<p>
+  <input name="b" type="number" data-type="float">
+</p>
+
+<p>And here is an execute directive which uses that variable and produces some output: </p>
+
+<pre data-execute="c = r(b)">
+b^2
+</pre>
+
+<pre data-execute="r(a,c)">
+plot(a,b+c)
+</pre>

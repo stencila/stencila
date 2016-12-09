@@ -13,7 +13,7 @@ class ExecuteComponent extends Component {
 
             $$('input')
               .attr({
-                value: node.language,
+                value: node.name + '=' + node.language,
                 placeholder: 'Execution language',
                 spellcheck: 'false'
               })
@@ -57,15 +57,15 @@ class ExecuteComponent extends Component {
     var output = node.result.output
     if (output) {
       let format = output.format
-      let content = output.content
+      let value = output.value
       let outputEl
       if (format === 'png') {
         outputEl = $$('img').attr({
-          src: content
+          src: value
         })
       } else if (format === 'csv') {
         let table = ''
-        content.split('\n').forEach(function (row) {
+        value.split('\n').forEach(function (row) {
           table += '<tr>'
           row.split(',').forEach(function (cell) {
             table += '<td>' + cell + '</td>'
@@ -74,7 +74,7 @@ class ExecuteComponent extends Component {
         })
         outputEl = $$('table').html(table)
       } else {
-        outputEl = $$('pre').text(content || '')
+        outputEl = $$('pre').text(value || '')
       }
       el.append(outputEl)
     }

@@ -1,0 +1,32 @@
+import BlockTool from '../../ui/BlockTool'
+
+class CodeblockTool extends BlockTool {
+
+  render ($$) {
+    var node = this.props.node
+    return super.render.call(this, $$)
+      .addClass('sc-codeblock-tool')
+      .append(
+        $$('div')
+          .ref('details')
+          .addClass('se-details')
+          .append(
+            $$('input')
+              .ref('language')
+              .attr({
+                placeholder: 'Enter the code language',
+                spellcheck: 'false'
+              })
+              .val(node.language)
+              .on('change', function (event) {
+                var session = this.context.documentSession
+                session.transaction(function (tx, args) {
+                  tx.set([node.id, 'language'], event.target.value)
+                })
+              }.bind(this))
+          )
+      )
+  }
+}
+
+export default CodeblockTool

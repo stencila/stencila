@@ -17,6 +17,7 @@ import ImagePackage from './nodes/image/ImagePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 
+import InputPackage from './nodes/input/InputPackage'
 import ExecutePackage from './nodes/execute/ExecutePackage'
 import PrintPackage from './nodes/print/PrintPackage'
 
@@ -70,6 +71,7 @@ class DocumentConfigurator extends Configurator {
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
 
+    this.import(InputPackage)
     this.import(ExecutePackage)
     this.import(PrintPackage)
 

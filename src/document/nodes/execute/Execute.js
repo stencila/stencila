@@ -8,17 +8,16 @@ class Execute extends BlockNode {
         try {
           let timer = window.performance
           let t0 = timer.now()
-          session.execute(this.source, this.document.pipeline).then(result => {
+          let args = this.document.variables
+          session.execute(this.source, args).then(result => {
             this.duration = (timer.now() - t0) / 1000
-            this.result = result
 
-            // Update the pipline with the pipes from the session
-            this.document.pipeline = {}
-            result.pipes.forEach(name => {
-              this.document.pipeline[name] = session._url
-            })
-
-            this.emit('changed')
+            if (this.name) {
+              this.document.setVariable(this.name, result.output)
+            } else {
+              this.result = result
+              this.emit('changed')
+            }
           })
         } catch (error) {
           this.result = {
@@ -37,7 +36,9 @@ class Execute extends BlockNode {
 
 Execute.define({
   type: 'execute',
+  name: { type: 'string', default: null },
   language: { type: 'string', default: '' },
+  depends: { type: 'string', default: '' }, // Comma separated list, can it be an array?
   show: { type: 'boolean', default: false },
   extra: { type: 'string', optional: true },
   source: { type: 'string', default: '' },

@@ -3,6 +3,8 @@ import Document from 'substance/model/Document'
 import DocumentConfigurator from './DocumentConfigurator'
 import SessionClient from '../session/SessionClient'
 
+import Execute from './nodes/execute/Execute'
+
 /**
  * A Stencila Document data model
  *
@@ -32,9 +34,31 @@ class DocumentModel extends Document {
       nodes: []
     })
 
-    // The data pipeline
-    this.pipeline = {
-      'default': null // The default pipe
+    this.variables = {}
+  }
+
+  /**
+   * Set one of the document's variables
+   *
+   * @param {[type]} name  [description]
+   * @param {[type]} value [description]
+   */
+  setVariable (name, value) {
+    this.variables[name] = value
+    this.refresh(name)
+  }
+
+  /**
+   * Refresh the document
+   */
+  refresh (variable) {
+    // TODO : only execute nodes that are dependent upon the variable
+    for (let id in this.getNodes()) {
+      let node = this.get(id)
+      if (node instanceof Execute) {
+        // TODO : allow for more than one dependency
+        if (node.depends.split(',').indexOf(variable) > -1) node.refresh()
+      }
     }
   }
 
@@ -49,19 +73,25 @@ class DocumentModel extends Document {
   session (language) {
     // TODO put this into a new container node for "sessions" - could be reused in Sheets
     // TODO check for existing session for language
+    let match = null
     let sessionNodes = this.get('sessions').getChildren()
-    if (sessionNodes.length) {
-      let sessionNode = sessionNodes[0] // TODO - search for right type of session
-      let sessionClient = new SessionClient(sessionNode.url)
+    sessionNodes.forEach(sessionNode => {
+      if (sessionNode.language === language) {
+        match = sessionNode
+      }
+    })
+    if (match) {
+      let sessionClient = new SessionClient(match.url)
       return Promise.resolve(sessionClient)
     } else {
       return new Promise((resolve, reject) => {
-        this.host.new('session-' + language).then(sessionClient => {
+        this.host.new(language + '-session').then(sessionClient => {
           this.documentSession.transaction(tx => {
             let sessionNode = tx.create({
               type: 'session',
               // TODO - populate with the session data e.g. language, url etc
-              url: sessionClient._url
+              url: sessionClient._url,
+              language: language
             })
             let sessions = tx.get('sessions')
             sessions.show(sessionNode)
