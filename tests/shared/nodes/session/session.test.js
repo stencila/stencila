@@ -25,7 +25,7 @@ test('SessionHTMLConverter', function (assert) {
 
   assert.deepEqual(
     doc.get('s1').toJSON(),
-    { id: 's1', type: 'session', url: 'url' }
+    { id: 's1', language: '', type: 'session', url: 'url' }
   )
 
   var html = converter.export(doc)
