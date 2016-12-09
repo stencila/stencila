@@ -35,17 +35,13 @@ class SessionApp extends Component {
   render ($$) {
     let data = this.props.data
 
-    let el = $$('div')
-      .addClass('sc-session-app')
-
-    let type = {
-      'js-session': 'JasvascriptSession',
-      'r-session': 'RSession',
-      'py-session': 'PythonSession'
-    }[data.type] || data.type || 'Session'
+    let el = $$('div').addClass('sc-session-app ui container')
 
     el.append(
-      $$('h4').text(type + ' ' + data.id),
+      $$('h1').append(
+        $$('i').addClass('ui icon terminal'),
+        $$('span').text(data.short || data.address)
+      ),
       $$(ExecutionComponent, {
         node: this.state.execution
       }).ref('current')
@@ -55,8 +51,16 @@ class SessionApp extends Component {
   }
 
   execute () {
-    let source = this.refs['current'].refs['code'].editor.getValue()
-    this.state.client.execute(source).then(result => {
+    let current = this.refs['current']
+    let code = current.refs['code'].editor.getValue()
+
+    this.state.client.execute(code, {
+      input: {
+        type: current.refs['inputType'].val(),
+        format: current.refs['inputFormat'].val(),
+        value: current.refs['inputValue'].val()
+      }
+    }).then(result => {
       this.state.execution.result = result
       this.rerender()
     })

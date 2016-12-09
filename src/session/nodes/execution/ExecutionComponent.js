@@ -23,7 +23,7 @@ class CodeSubcomponent extends Component {
   didMount () {
     code.loadAce()
     code.attachAceEditor(this.refs.pre.getNativeElement(), '', {
-      language: 'r', // TODO: set based on the current session language
+      language: 'sql', // TODO: set based on the current session language
       minLines: 1
     }, editor => {
       editor.commands.addCommand({
@@ -58,6 +58,25 @@ class ExecutionComponent extends Component {
     let el = $$('div')
       .addClass('sc-execution')
 
+    let input = $$('div').append(
+      $$('select')
+        .ref('inputType')
+        .append(
+          $$('option').attr('value', 'bool').text('Boolean'),
+          $$('option').attr('value', 'int').text('Integer'),
+          $$('option').attr('value', 'table').text('Table')
+        ),
+      $$('select')
+        .ref('inputFormat')
+        .append(
+          $$('option').attr('value', 'str').text('String'),
+          $$('option').attr('value', 'csv').text('CSV')
+        ),
+      $$('textarea')
+        .ref('inputValue')
+        .addClass('se-execution-input')
+    )
+
     let code = $$(CodeSubcomponent, node.code).ref('code')
 
     let output = $$('div')
@@ -87,22 +106,27 @@ class ExecutionComponent extends Component {
         // Otherwise, display the content
         let out = result.output
         if (out) {
+          let type = out.type
           let format = out.format
-          let content = out.content
+          let value = out.value
+          output.append(
+            $$('div').text(type || ''),
+            $$('div').text(format || '')
+          )
           if (format === 'png') {
             output.append(
-              $$('img').attr('src', content)
+              $$('img').attr('src', value)
             )
           } else {
             output.append(
-              $$('pre').text(content || '')
+              $$('pre').text(value || '')
             )
           }
         }
       }
     }
 
-    el.append(code, output)
+    el.append(input, code, output)
     return el
   }
 
