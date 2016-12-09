@@ -19,9 +19,14 @@ class FolderApp extends Component {
     let url = data.url
     let list = this.state.list
 
-    let el = $$('div').addClass('ui container').css({
-      'margin-top': '10%'
-    })
+    let el = $$('div').addClass('ui container')
+
+    el.append(
+      $$('h1').append(
+        $$('i').addClass('ui icon folder'),
+        $$('span').text(data.short || data.address)
+      )
+    )
 
     if (list) {
       let items = $$('div').addClass('ui list')
