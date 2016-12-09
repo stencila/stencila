@@ -3,6 +3,10 @@ import SessionClient from '../session/SessionClient'
 
 class HostClient extends ComponentClient {
 
+  call (name, args) {
+    return this.request('POST', this._url + '/!' + name, args)
+  }
+
   open (address) {
     return this.request('GET', this._url + '/' + address)
   }
@@ -17,6 +21,10 @@ class HostClient extends ComponentClient {
           reject(error)
         })
     })
+  }
+
+  discover () {
+    return this.call('discover')
   }
 
 }
