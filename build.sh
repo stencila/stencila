@@ -55,8 +55,10 @@ do
     <link rel="stylesheet" type="text/css" href="../../../document.min.css">
   </head>
   <body>
-    <main id="data" data-format="html">') tests/document/$example/index.html <(echo '
-  	<script>window.stencila = {root: "../../.."}</script>
+    <main id="data" data-format="html">
+      <div class="content">') tests/document/$example/index.html <(echo '
+  	  </div>
+    <script>window.stencila = {root: "../../.."}</script>
     <script src="../../../document.min.js"></script>
     </main>
   </body>

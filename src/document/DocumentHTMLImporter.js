@@ -27,8 +27,10 @@ class DocumentHTMLImporter extends HTMLImporter {
    * This method must be provided when extending HTMLImporter
    */
   convertDocument (el) {
-    this.convertContainer(el.find('.content').children, 'content')
-    this.convertContainer(el.find('.sessions').children, 'sessions')
+    let content = el.find('.content')
+    if (content) this.convertContainer(content.children, 'content')
+    let sessions = el.find('.sessions')
+    if (sessions) this.convertContainer(sessions.children, 'sessions')
   }
 
   /**
