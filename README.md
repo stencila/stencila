@@ -44,6 +44,29 @@ We love feedback. Chat with members of the community on [Gitter](https://gitter.
 
 Want to help out with development? Great, there's a lot to do! To get started, [get in touch](https://gitter.im/stencila/stencila) or checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1).
 
+##### Development status
+
+Stencila is made of of several `Component` classes. Examples of component classes include `Document`, `Sheet`, and `Folder`. These classes are implemented separately in each of the language packages (e.g. the `py` package). The long term aim is to have all component classes implemented in each of the language packages. That would allow each of those packages to be used standalone (in the meantime, because the packages can act as a [network of peers](http://blog.stenci.la/diverse-peers/), you can workaround this by installing one of the other packages). The `web` package implements the user interfaces for each component class.
+
+Class                       | Description                                   | `node`       | `py`         | `r`          | `web` UI         
+--------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:
+`Component`                 | Base class for all components					| ✓            | ✓            | ✓            |             
+`Host`                      | Serves and orchestrates other components      | ✓            | ✓            | ✓            | ✓            
+`Folder`                    | A filesystem folder                           | ✓            |              |              | ✓            
+`Document`                  | A document                                    | ✓            | ✓            |              | ✓            
+`Sheet`                     | A spreadsheet                                 |              |              |              |             
+`Session`                   | Base class for sessions                       | ✓            | ✓            | ✓            | ✓            
+&nbsp;&nbsp;`BashSession`   | A Bash session                                | ✓            |              |              | ^            
+&nbsp;&nbsp;`JsSession`     | A Javascript session                          | ✓            | -            | -            | ^            
+&nbsp;&nbsp;`PySession`     | A Python session                              | -            | ✓            | -            | ^            
+&nbsp;&nbsp;`RSession`      | A R session                                   | -            | -            | ✓            | ^            
+&nbsp;&nbsp;`SqliteSession` | A SQLite session                              |              |              | ✓            | ^            
+
+Key: ✓ = inplemented to some degree, - = will probably never be implemented, ^ = provided by the above
+
+
+##### Build status, test coverage and issues
+
                | Build status | Test coverage | Issues
 -------------- |:------------:|:-------------:|:------:
 [cpp](https://github.com/stencila/cpp) | [![Build status](https://travis-ci.org/stencila/cpp.svg?branch=master)](https://travis-ci.org/stencila/cpp) | [![Test coverage](https://codecov.io/gh/stencila/cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/cpp) | [![Issues](http://img.shields.io/github/issues/stencila/cpp.svg)]( https://github.com/stencila/cpp/issues )
@@ -52,6 +75,7 @@ Want to help out with development? Great, there's a lot to do! To get started, [
 [py](https://github.com/stencila/py) | [![Build status](https://travis-ci.org/stencila/py.svg?branch=master)](https://travis-ci.org/stencila/py) | [![Test coverage](https://codecov.io/gh/stencila/py/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/py) | [![Issues](http://img.shields.io/github/issues/stencila/py.svg)]( https://github.com/stencila/py/issues )
 [r](https://github.com/stencila/r) | [![Build status](https://travis-ci.org/stencila/r.svg?branch=master)](https://travis-ci.org/stencila/r) | [![Test coverage](https://codecov.io/gh/stencila/r/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/r) | [![Issues](http://img.shields.io/github/issues/stencila/r.svg)]( https://github.com/stencila/r/issues )
 [web](https://github.com/stencila/web) | [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web) | [![Test coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web) | [![Issues](http://img.shields.io/github/issues/stencila/web.svg)]( https://github.com/stencila/web/issues )
+
 
 ### Museum
 
