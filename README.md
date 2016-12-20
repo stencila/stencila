@@ -44,7 +44,7 @@ We love feedback. Chat with members of the community on [Gitter](https://gitter.
 
 Want to help out with development? Great, there's a lot to do! To get started, [get in touch](https://gitter.im/stencila/stencila) or checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1).
 
-##### Development status
+#### Development status
 
 Stencila is made of of several `Component` classes. Examples of component classes include `Document`, `Sheet`, and `Folder`. These classes are implemented separately in each of the language packages (e.g. the `py` package). The long term aim is to have all component classes implemented in each of the language packages. That would allow each of those packages to be used standalone (in the meantime, because the packages can act as a [network of peers](http://blog.stenci.la/diverse-peers/), you can workaround this by installing one of the other packages). The `web` package implements the user interfaces for each component class.
 
@@ -65,7 +65,7 @@ Class                       | Description                                   | `n
 Key: ✓ = inplemented to some degree, - = will probably never be implemented, ^ = provided by the above
 
 
-##### Build status, test coverage and issues
+#### Build status, test coverage and issues
 
                | Build status | Test coverage | Issues
 -------------- |:------------:|:-------------:|:------:
