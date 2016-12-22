@@ -1,0 +1,15 @@
+language: node_js
+
+node_js:
+  - 6
+
+cache:
+  directories:
+    - node_modules
+
+script:
+  - make lint
+  - make cover
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

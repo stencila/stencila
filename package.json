@@ -1,0 +1,44 @@
+{
+  "name": "stencila-js",
+  "version": "0.1.0",
+  "description": "Stencila components for Javascript",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint *.js src tests",
+    "test": "tape tests | tap-spec",
+    "cover": "istanbul cover tests",
+    "docs": "documentation build --config docs/docs.yml --output docs --format html",
+    "docs-serve": "documentation serve --config docs/docs.yml --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/js.git"
+  },
+  "keywords": [
+    "data",
+    "documents",
+    "sheets",
+    "contexts",
+    "sessions",
+    "reproducibility",
+    "science"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/js/issues"
+  },
+  "homepage": "https://github.com/stencila/js#readme",
+  "devDependencies": {
+    "d3": "^4.4.0",
+    "documentation": "^4.0.0-beta16",
+    "eslint": "^3.12.2",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-standard": "^2.0.1",
+    "glob": "^7.1.1",
+    "istanbul": "^0.4.5",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.6.3"
+  }
+}
