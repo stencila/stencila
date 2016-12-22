@@ -5,7 +5,7 @@
 [![Dependency status](https://david-dm.org/stencila/js.svg)](https://david-dm.org/stencila/js)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
-This package contains code that is shared amongst other Stencila Javascript-based packages: `[node](https://github.com/stencila/node)`, the package for Node.js, and `[web](https://github.com/stencila/node)`, the package for web browsers. By putting stuff here, we don't have to implement it twice in each of those packages. Stuff = 
+This package contains code that is shared amongst other Stencila Javascript-based packages: [`node`](https://github.com/stencila/node) (the package for Node.js) and [`web`](https://github.com/stencila/node) (the package for web browsers):
 
 - data `pack` and `unpack` functions for transferring data between Javascript and other languages
 - a `JsSession` class for executing code in Javascript
