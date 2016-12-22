@@ -7,7 +7,7 @@
 
 This package contains code that is shared amongst other Stencila Javascript-based packages: [`node`](https://github.com/stencila/node) (the package for Node.js) and [`web`](https://github.com/stencila/node) (the package for web browsers):
 
-- data `pack` and `unpack` functions for transferring data between Javascript and other languages
+- data `pack` and `unpack` functions for transferring data over the wire and between languages
 - a `JsSession` class for executing code in Javascript
 
 ### Install
