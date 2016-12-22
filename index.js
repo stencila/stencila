@@ -1,6 +1,8 @@
-const packing = require('./src/packing')
+const {pack, unpack} = require('./src/packing')
+const JsSession = require('./src/JsSession')
 
 module.exports = {
-  pack: packing.pack,
-  unpack: packing.unpack
+  pack: pack,
+  unpack: unpack,
+  JsSession: JsSession
 }
