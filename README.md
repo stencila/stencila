@@ -27,8 +27,9 @@ Browser-based user interfaces are provided by the `web` package:
 
 - [web](https://github.com/stencila/web) : Stencila in the browser
 
-Currently, four packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
+Currently, five packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
 
+- [js](https://github.com/stencila/js) : Stencila for Javascript (code shared by the `node` and `web` packages)
 - [node](https://github.com/stencila/node) : Stencila for Node.js
 - [py](https://github.com/stencila/py) : Stencila for Python
 - [r](https://github.com/stencila/r) : Stencila for R
@@ -71,6 +72,7 @@ Key: ✓ = inplemented to some degree, - = will probably never be implemented, ^
 -------------- |:------------:|:-------------:|:------:
 [cpp](https://github.com/stencila/cpp) | [![Build status](https://travis-ci.org/stencila/cpp.svg?branch=master)](https://travis-ci.org/stencila/cpp) | [![Test coverage](https://codecov.io/gh/stencila/cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/cpp) | [![Issues](http://img.shields.io/github/issues/stencila/cpp.svg)]( https://github.com/stencila/cpp/issues )
 [electron](https://github.com/stencila/electron) | [![Build status](https://travis-ci.org/stencila/electron.svg?branch=master)](https://travis-ci.org/stencila/electron) | - | [![Issues](http://img.shields.io/github/issues/stencila/electron.svg)]( https://github.com/stencila/electron/issues )
+[js](https://github.com/stencila/js) | [![Build status](https://travis-ci.org/stencila/js.svg?branch=master)](https://travis-ci.org/stencila/js) | - | [![Issues](http://img.shields.io/github/issues/stencila/js.svg)]( https://github.com/stencila/js/issues )
 [node](https://github.com/stencila/node) | [![Build status](https://travis-ci.org/stencila/node.svg?branch=master)](https://travis-ci.org/stencila/node) | [![Test coverage](https://codecov.io/gh/stencila/node/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/node) | [![Issues](http://img.shields.io/github/issues/stencila/node.svg)]( https://github.com/stencila/node/issues )
 [py](https://github.com/stencila/py) | [![Build status](https://travis-ci.org/stencila/py.svg?branch=master)](https://travis-ci.org/stencila/py) | [![Test coverage](https://codecov.io/gh/stencila/py/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/py) | [![Issues](http://img.shields.io/github/issues/stencila/py.svg)]( https://github.com/stencila/py/issues )
 [r](https://github.com/stencila/r) | [![Build status](https://travis-ci.org/stencila/r.svg?branch=master)](https://travis-ci.org/stencila/r) | [![Test coverage](https://codecov.io/gh/stencila/r/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/r) | [![Issues](http://img.shields.io/github/issues/stencila/r.svg)]( https://github.com/stencila/r/issues )
