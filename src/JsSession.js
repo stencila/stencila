@@ -8,6 +8,16 @@ const {pack, unpack} = require('./packing')
  */
 class JsSession {
 
+  /**
+   * Execute a chunk of code
+   *
+   * @param  {String} code   The code chunk
+   * @param  {Object} inputs An object with data packages
+   * @return {Object}        An object with any `errors` and `outputs`
+   *
+   * @example
+   * session.execute('Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}`)
+   */
   execute (code, inputs) {
     code = code || ''
     inputs = inputs || {}
