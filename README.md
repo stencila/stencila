@@ -30,7 +30,7 @@ We love feedback. Create a [new issue](https://github.com/stencila/js/issues/new
 
 Most development tasks can be run directly from `npm` or via `make` wrapper recipes.
 
-Task                                                    |`npm` et al            | `make`          |
+Task                                                    |`npm`                  | `make`          |
 ------------------------------------------------------- |-----------------------|-----------------|    
 Install and setup dependencies                          | `npm install`         | `make setup`
 Check code for lint                                     | `npm run lint`        | `make lint`
