@@ -1,5 +1,6 @@
 import ws from 'ws'
 
+import CollabServerConfigurator from 'substance/collab/CollabServerConfigurator'
 import CollabServer from 'substance/collab/CollabServer'
 
 import DocumentStore from './DocumentStore'
@@ -46,15 +47,18 @@ var bind = function (httpServer, expressApp, endpoint) {
     server: httpServer
   })
 
+  let collabServerConfigurator = new CollabServerConfigurator()
+  collabServerConfigurator.documentEngine = documentEngine
+
   var collabServer = new CollabServer({
     heartbeat: 30 * 1000,
-    documentEngine: documentEngine
+    configurator: collabServerConfigurator
   })
   collabServer.bind(websocketServer)
 
   var documentServer = new DocumentServer({
     path: endpoint,
-    documentEngine: documentEngine
+    configurator: collabServerConfigurator
   })
   documentServer.bind(expressApp)
 

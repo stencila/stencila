@@ -198,7 +198,7 @@ function bundler (source) {
     presets: ['es2015'],
     // Substance needs to be transformed
     global: true,
-    ignore: /\/node_modules\/(?!substance\/)/
+    ignore: /\/node_modules\/(?!(substance|lodash-es)\/)/
   })
 }
 var bundlers = {
