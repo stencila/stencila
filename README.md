@@ -51,20 +51,20 @@ Stencila is made of of several `Component` classes. Examples of component classe
 
 The `web` package implements some of the component classes (`web` impl below) but is focused on user interfaces for each component class (`web` UI below) and communicates with implementations in each of the language packages.
 
-Class                       | Description                                   | `node`       | `py`         | `r`          | `web` impl  | `web` UI         
---------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:|:------------:
-`Component`                 | Base class for all components					| ✓            | ✓            | ✓            |             
+                            | Description                                   | `node`       | `py`         | `r`          | `web` impl  | `web` UI         
+--------------              |--------------                                 |:------------:|:------------:|:------------:|:-----------:|:------------:
+`Component`                 | Base class for all components					| ✓            | ✓            | ✓            |             |
 `Host`                      | Serves and orchestrates other components      | ✓            | ✓            | ✓            |             | ✓            
 `Folder`                    | A filesystem folder                           | ✓            |              |              |             | ✓            
 `Document`                  | A document                                    | ✓            | ✓            |              |             | ✓            
 `Sheet`                     | A spreadsheet                                 |              |              |              |             |             
 `Session`                   | Base class for sessions                       | ✓            | ✓            | ✓            |             | ✓            
 &nbsp;&nbsp;`BashSession`   | A Bash session                                | ✓            |              |              |             | ^            
-&nbsp;&nbsp;`JsSession`     | A Javascript session                          | ✓ (`js`)     | -            | -            | ✓ (`js`)    | ^            
+&nbsp;&nbsp;`JsSession`     | A Javascript session                          | ✓            | -            | -            | ✓           | ^            
 &nbsp;&nbsp;`PySession`     | A Python session                              | -            | ✓            | -            |             | ^            
 &nbsp;&nbsp;`RSession`      | A R session                                   | -            | -            | ✓            |             | ^            
 &nbsp;&nbsp;`SqliteSession` | A SQLite session                              |              |              | ✓            |             | ^            
-`pack`,`unpack`             | Data serialization                            | ✓ (`js`)     |              | ✓            | ✓ (`js`)    | -          
+`pack`,`unpack`             | Data serialization                            | ✓            | ✓            | ✓            | ✓           | -          
 
 Key: ✓ = implemented to some degree, - = will probably never be implemented, ^ = provided by the above
 
