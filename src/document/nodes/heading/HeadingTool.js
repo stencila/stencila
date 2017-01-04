@@ -1,4 +1,4 @@
-import map from 'substance/node_modules/lodash/map'
+import map from 'lodash/map'
 
 import BlockTool from '../../ui/BlockTool'
 

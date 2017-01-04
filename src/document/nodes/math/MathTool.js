@@ -1,5 +1,5 @@
 import Tool from 'substance/packages/tools/Tool'
-import map from 'substance/node_modules/lodash/map'
+import map from 'lodash/map'
 
 /**
  * A tool for editing `Math` nodes

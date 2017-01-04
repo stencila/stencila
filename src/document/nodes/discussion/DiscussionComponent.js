@@ -1,7 +1,7 @@
 import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
 import Editing from 'substance/model/Editing'
-import each from 'substance/node_modules/lodash/each'
+import each from 'lodash/each'
 
 import moment from 'moment'
 
