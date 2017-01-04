@@ -7,11 +7,11 @@ require('babel-register')({
   // Using `require` here seems to fix "Couldn't find preset "es2015" relative to directory"
   // bug (https://github.com/laravel/elixir/issues/354#issuecomment-251304711)
   presets: [ require('babel-preset-es2015') ],
-  // By default, `babel-register` ignores everything in `node-modules`
+  // By default, `babel-register` ignores everything in `node_modules`
   // See https://babeljs.io/docs/usage/require/
-  // Override that behaviour so that substance is transpiled
+  // Override that behaviour so that substance and other modules that need to be transpiled, are
   ignore: function (filename) {
-    if (filename.match('.*/substance/.+')) {
+    if (filename.match('.*/node_modules/(substance|lodash-es)/.+')) {
       return false
     } else if (filename.match('.*/node_modules/.+')) {
       return true
