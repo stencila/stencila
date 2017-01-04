@@ -1,5 +1,5 @@
 import Macro from './Macro'
-import deleteNode from 'substance/model/transform/deleteNode'
+import Editing from 'substance/model/Editing'
 
 class BlockNodeMacro extends Macro {
 
@@ -24,7 +24,8 @@ class BlockNodeMacro extends Macro {
       }
 
       // Delete the old node
-      deleteNode(tx, { nodeId: props.node.id })
+      let editing = new Editing()
+      editing.deleteNode(tx, props.node.id, args.containerId)
 
       // Set the selection
       var path

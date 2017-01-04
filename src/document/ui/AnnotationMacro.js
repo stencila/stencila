@@ -1,5 +1,5 @@
 import Macro from './Macro'
-import replaceText from 'substance/model/transform/replaceText'
+import Editing from 'substance/model/Editing'
 
 class AnnotationMacro extends Macro {
 
@@ -10,7 +10,8 @@ class AnnotationMacro extends Macro {
 
       // Replace matched text
       var selection = tx.createSelection(props.path, match.index, match.index + match[0].length)
-      var newText = replaceText(tx, {
+      let editing = new Editing()
+      var newText = editing.replaceText(tx, {
         selection: selection,
         text: data.text
       })

@@ -1,6 +1,5 @@
 import Component from 'substance/ui/Component'
-import switchTextType from 'substance/model/transform/switchTextType'
-import deleteNode from 'substance/model/transform/deleteNode'
+import Editing from 'substance/model/Editing'
 
 import BlockTool from '../../ui/BlockTool'
 import HeadingTool from '../../nodes/heading/HeadingTool'
@@ -194,7 +193,8 @@ class BlockToolset extends Component {
         args.data = {
           type: type
         }
-        return switchTextType(tx, args)
+        let editing = new Editing()
+        return editing.switchTextType(tx, args)
       } else {
         // Do a node replacement
         // This is similar to `substance/model/transform/switchTextType` but does
@@ -215,7 +215,8 @@ class BlockToolset extends Component {
         }
 
         // Delete the old node
-        deleteNode(tx, { nodeId: nodeId })
+        let editing = new Editing()
+        editing.deleteNode(tx, nodeId, args.containerId)
 
         // Select the new node
         args.selection = tx.createSelection([newNode.id], selection.startOffset, selection.endOffset)

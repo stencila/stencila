@@ -1,6 +1,6 @@
 import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
 import ContainerEditor from 'substance/ui/ContainerEditor'
-import deleteNode from 'substance/model/transform/deleteNode'
+import Editing from 'substance/model/Editing'
 import each from 'substance/node_modules/lodash/each'
 
 import moment from 'moment'
@@ -196,10 +196,11 @@ class DiscussionComponent extends IsolatedNodeComponent {
     this.remove()
     session.transaction(function (tx, args) {
       // Delete the discussion and associated mark
-      deleteNode(tx, { nodeId: discussion.id })
+      let editing = new Editing()
+      editing.deleteNode(tx, { nodeId: discussion.id })
       each(session.doc.getNodes(), function (node) {
         if (node.type === 'mark' && node.target === discussion.id) {
-          deleteNode(tx, { nodeId: node.id })
+          editing.deleteNode(tx, { nodeId: node.id })
         }
       })
       // Return a null selection

@@ -1,5 +1,5 @@
 import Macro from './Macro'
-import insertInlineNode from 'substance/model/transform/insertInlineNode'
+import Editing from 'substance/model/Editing'
 
 class InlineNodeMacro extends Macro {
 
@@ -9,7 +9,8 @@ class InlineNodeMacro extends Macro {
       var sel = tx.createSelection(props.path, match.index, match.index + match[0].length)
       // Insert a new node (there is no need to delete the matched text, that is
       // done for us)
-      insertInlineNode(tx, {
+      let editing = new Editing()
+      editing.insertInlineNode(tx, {
         selection: sel,
         node: this.createNodeData(match)
       })
