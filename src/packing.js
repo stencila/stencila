@@ -39,7 +39,7 @@ function pack (thing) {
       if (onlyObjects && thing.length > 0) {
         type = 'tab'
         format = 'csv'
-        value = d3.csvFormat(thing)
+        value = d3.csvFormat(thing) + '\n'
       } else {
         format = 'json'
         value = JSON.stringify(thing)

@@ -49,8 +49,8 @@ test('pack works for Arrays', function (t) {
 })
 
 test('pack works for an array of objects', function (t) {
-  check(t, [{a: 1}, {a: 2}, {a: 3}], 'tab', 'csv', 'a\n1\n2\n3')
-  check(t, [{a: 1, b: 'x'}, {a: 2, b: 'y'}, {a: 3, b: 'z'}], 'tab', 'csv', 'a,b\n1,x\n2,y\n3,z')
+  check(t, [{a: 1}, {a: 2}, {a: 3}], 'tab', 'csv', 'a\n1\n2\n3\n')
+  check(t, [{a: 1, b: 'x'}, {a: 2, b: 'y'}, {a: 3, b: 'z'}], 'tab', 'csv', 'a,b\n1,x\n2,y\n3,z\n')
   t.end()
 })
 
@@ -104,8 +104,8 @@ test('unpack works for arrays', function (t) {
 
 test('unpack works for tabular data', function (t) {
   let result = JSON.stringify([ { a: '1', b: 'x' }, { a: '2', b: 'y' }, { a: '3', b: 'z' } ])
-  t.equal(JSON.stringify(unpack({type: 'tab', format: 'csv', value: 'a,b\n1,x\n2,y\n3,z'})), result)
-  t.equal(JSON.stringify(unpack({type: 'tab', format: 'tsv', value: 'a\tb\n1\tx\n2\ty\n3\tz'})), result)
+  t.equal(JSON.stringify(unpack({type: 'tab', format: 'csv', value: 'a,b\n1,x\n2,y\n3,z\n'})), result)
+  t.equal(JSON.stringify(unpack({type: 'tab', format: 'tsv', value: 'a\tb\n1\tx\n2\ty\n3\tz\n'})), result)
   t.throws(() => unpack({type: 'tab', format: 'foo', value: 'bar'}))
   t.end()
 })
