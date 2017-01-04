@@ -8,37 +8,27 @@ export default {
   },
 
   import: function (el, node, converter) {
-    var spec = el.attr('data-execute')
-
-    var matches = spec.match(/((\w+) *= *)?(\w+)(\((.+?)\))? *(show)?/)
-    node.name = matches[2]
-    node.language = matches[3]
-    node.depends = matches[5]
-    node.show = matches[6]
-
-    node.error = el.attr('data-error')
+    node.session = el.attr('data-execute')
+    node.inputs = el.attr('data-input')
+    node.output = el.attr('data-output')
+    node.errors = el.attr('data-error')
     node.extra = el.attr('data-extra')
-    node.source = el.text()
+    node.code = el.text()
   },
 
   export: function (node, el, converter) {
-    var spec = node.language
-    if (node.name) {
-      spec = node.name + ' = ' + spec
-    }
-    if (node.show) {
-      spec += ' show'
-    }
-    el.attr('data-execute', spec)
+    el.attr('data-execute', node.session)
 
-    if (node.error) {
+    /*
+    if (node.inputs) {
       el.attr('data-error', node.error)
     }
 
     if (node.extra) {
       el.attr('data-extra', node.extra)
     }
+    */
 
-    el.text(node.source)
+    el.text(node.code)
   }
 }

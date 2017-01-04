@@ -64,7 +64,7 @@ class ExecutionComponent extends Component {
         .append(
           $$('option').attr('value', 'bool').text('Boolean'),
           $$('option').attr('value', 'int').text('Integer'),
-          $$('option').attr('value', 'table').text('Table')
+          $$('option').attr('value', 'tab').text('Table')
         ),
       $$('select')
         .ref('inputFormat')
@@ -86,7 +86,7 @@ class ExecutionComponent extends Component {
     let result = node.result
     if (result) {
       let errors = result.errors
-      if (errors) {
+      if (errors && errors.length) {
         // If errors in the result then display as annotations in code...
         let session = this.refs.code.editor.getSession()
         let annotations = Object.keys(errors).map((row, index) => {

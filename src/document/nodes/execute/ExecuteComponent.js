@@ -35,7 +35,7 @@ class ExecuteComponent extends Component {
 
         $$(CodeEditorComponent, {
           node: node,
-          codeProperty: 'source',
+          codeProperty: 'code',
           languageProperty: 'language'
         }).ref('editor')
       )

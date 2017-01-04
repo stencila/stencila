@@ -3,17 +3,19 @@ import BlockNode from 'substance/model/BlockNode'
 class Execute extends BlockNode {
 
   refresh () {
-    if (this.source) {
-      this.document.session(this.language).then(session => {
+    if (this.code) {
+      // Get the session
+      this.document.session(this.session).then(session => {
         try {
           let timer = window.performance
           let t0 = timer.now()
-          let args = this.document.variables
-          session.execute(this.source, args).then(result => {
+          let inputs = this.document.variables
+          // Call `session.execute()` with code and inputs
+          session.execute(this.code, inputs).then(result => {
             this.duration = (timer.now() - t0) / 1000
 
-            if (this.name) {
-              this.document.setVariable(this.name, result.output)
+            if (this.output) {
+              this.document.setVariable(this.output, result.output)
             } else {
               this.result = result
               this.emit('changed')
@@ -36,12 +38,16 @@ class Execute extends BlockNode {
 
 Execute.define({
   type: 'execute',
-  name: { type: 'string', default: null },
-  language: { type: 'string', default: '' },
-  depends: { type: 'string', default: '' }, // Comma separated list, can it be an array?
-  show: { type: 'boolean', default: false },
+
+  session: { type: 'string', default: '' },
+
+  inputs: { type: 'object', default: {} },
+  output: { type: 'string', default: '' },
+
   extra: { type: 'string', optional: true },
-  source: { type: 'string', default: '' },
+
+  code: { type: 'string', default: '' },
+
   result: { type: 'object', default: {} },
   duration: { type: 'number', default: 0 }
 })
