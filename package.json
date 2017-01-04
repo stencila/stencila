@@ -1,7 +1,7 @@
 {
   "name": "stencila-web",
   "version": "0.1.4",
-  "description": "Web browser interfaces for Stencila components",
+  "description": "Stencila in the browser",
   "main": "index.js",
   "files": {
     "build": "build"
