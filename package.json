@@ -15,7 +15,7 @@
     "test-unit": "tape tests/unit.js | tap-spec",
     "test-fun": "tape tests/functional.js | tap-spec",
     "test-one": "node tests/one.js",
-    "cover": "babel-node ./node_modules/.bin/istanbul cover tests"
+    "cover": "istanbul cover tests"
   },
   "repository": {
     "type": "git",
