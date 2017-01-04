@@ -1,5 +1,5 @@
 import Component from 'substance/ui/Component'
-import DocumentSession from 'substance/model/DocumentSession'
+import EditorSession from 'substance/model/EditorSession'
 import CollabClient from 'substance/collab/CollabClient'
 import CollabSession from 'substance/collab/CollabSession'
 import WebSocketConnection from 'substance/collab/WebSocketConnection'
@@ -118,7 +118,7 @@ class DocumentApp extends Component {
       doc = importHTML(this.props.data)
 
       // Create a new local document session
-      documentSession = new DocumentSession(doc)
+      documentSession = new EditorSession(doc)
       // For code compatability with a `CollabSession` ...
       documentSession.config = {
         user: null,
