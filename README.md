@@ -51,8 +51,8 @@ Stencila is made of of several `Component` classes. Examples of component classe
 
 The `web` package implements some of the component classes (`web` impl below) but is focused on user interfaces for each component class (`web` UI below) and communicates with implementations in each of the language packages.
 
-                            | Description                                   | `node`       | `py`         | `r`          | `web` impl  | `web` UI         
---------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:------------:
+Class                       | Description                                   | `node`       | `py`         | `r`          | `web` impl  | `web` UI         
+--------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:|:------------:
 `Component`                 | Base class for all components					| ✓            | ✓            | ✓            |             
 `Host`                      | Serves and orchestrates other components      | ✓            | ✓            | ✓            |             | ✓            
 `Folder`                    | A filesystem folder                           | ✓            |              |              |             | ✓            
