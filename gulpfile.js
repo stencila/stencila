@@ -55,9 +55,9 @@ function bundler (source) {
     packageCache: {}
   }).transform(babelify, {
     presets: ['es2015'],
-    // Substance needs to be transformed
+    // Substance and lodash-es need to be transformed
     global: true,
-    ignore: /\/node_modules\/(?!substance\/)/
+    ignore: /\/node_modules\/(?!(substance|lodash-es)\/)/
   })
 }
 
