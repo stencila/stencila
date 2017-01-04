@@ -29,6 +29,7 @@ import DefaultPackage from './nodes/default/DefaultPackage'
 
 import SessionPackage from '../shared/nodes/session/SessionPackage'
 
+import ButtonPackage from 'substance/packages/button/ButtonPackage'
 import ToolsPackage from './tools/ToolsPackage'
 import VisualEditorPackage from './editors/visual/VisualEditorPackage'
 
@@ -52,6 +53,9 @@ class DocumentConfigurator extends Configurator {
       name: 'stencila-document',
       defaultTextType: 'paragraph'
     })
+
+    // At present, need at least the 'default' tool group before adding tools via imports below
+    this.addToolGroup('default')
 
     // Import node packages, in "order of appearance"
     this.import(TitlePackage)
@@ -80,10 +84,11 @@ class DocumentConfigurator extends Configurator {
     this.import(CommentPackage)
 
     this.import(SessionPackage)
-    
+
     this.import(DefaultPackage)
 
     // Import UI packages
+    this.import(ButtonPackage)
     this.import(ToolsPackage)
     this.import(VisualEditorPackage)
 
