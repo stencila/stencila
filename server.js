@@ -202,6 +202,7 @@ function bundler (source) {
   })
 }
 var bundlers = {
+  'datatable': bundler('./src/datatable/datatable.js'),
   'document': bundler('src/document/document.js'),
   'folder': bundler('src/folder/folder.js'),
   'host': bundler('src/host/host.js'),
