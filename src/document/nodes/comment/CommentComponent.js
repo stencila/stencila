@@ -23,7 +23,7 @@ class CommentComponent extends IsolatedNodeComponent {
    * is the original author of the comment
    */
   isDisabled () {
-    var user = this.context.documentSession.config.user
+    var user = this.context.editorSession.config.user
     return this.props.node.who !== ('@' + user)
   }
 

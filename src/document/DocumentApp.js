@@ -76,7 +76,7 @@ class DocumentApp extends Component {
         comment: this.state.comment,
         edit: this.state.edit,
         // Other required props
-        documentSession: this.state.documentSession,
+        editorSession: this.state.documentSession,
         configurator: configurator
       }
 
@@ -118,7 +118,9 @@ class DocumentApp extends Component {
       doc = importHTML(this.props.data)
 
       // Create a new local document session
-      documentSession = new EditorSession(doc)
+      documentSession = new EditorSession(doc, {
+        configurator: configurator
+      })
       // For code compatability with a `CollabSession` ...
       documentSession.config = {
         user: null,

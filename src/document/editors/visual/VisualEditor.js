@@ -17,9 +17,9 @@ class VisualEditor extends AbstractEditor {
     super(...args)
 
     // Use custom MacroManager
-    this.macroManager.context.documentSession.off(this.macroManager)
+    this.macroManager.context.editorSession.off(this.macroManager)
     delete this.macroManager
-    this.macroManager = new MacroManager(this.getMacroContext(), this.props.configurator.getMacros())
+    this.macroManager = new MacroManager(this.props.editorSession._context, this.props.configurator.getMacros())
   }
 
   /**
