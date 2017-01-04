@@ -9,7 +9,7 @@ let d3 = require('d3')
 function pack (thing) {
   let type = typeof thing
   let format = 'text'
-  let value
+  let value = thing
 
   if (thing === null) {
     type = 'null'
@@ -25,7 +25,6 @@ function pack (thing) {
     value = thing.toString()
   } else if (type === 'string') {
     type = 'str'
-    value = thing.toString()
   } else if (type === 'object') {
     type = thing.constructor === Array ? 'arr' : 'obj'
     // Arrays of objects get converted to tabular data
