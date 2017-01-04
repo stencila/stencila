@@ -1,4 +1,4 @@
-import Image from 'substance/packages/image/Image'
+import ImageNode from 'substance/packages/image/ImageNode'
 import ImageComponent from 'substance/packages/image/ImageComponent'
 import ImageMarkdownComponent from './ImageMarkdownComponent'
 import ImageHTMLConverter from 'substance/packages/image/ImageHTMLConverter'
@@ -9,7 +9,7 @@ import ImageTool from './ImageTool'
 export default {
   name: 'image',
   configure: function (config) {
-    config.addNode(Image)
+    config.addNode(ImageNode)
     config.addComponent('image', ImageComponent)
     config.addComponent('image-markdown', ImageMarkdownComponent)
     config.addConverter('html', ImageHTMLConverter)
