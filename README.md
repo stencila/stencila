@@ -47,23 +47,26 @@ Want to help out with development? Great, there's a lot to do! To get started, [
 
 #### Development status
 
-Stencila is made of of several `Component` classes. Examples of component classes include `Document`, `Sheet`, and `Folder`. These classes are implemented separately in each of the language packages (e.g. the `py` package). The long term aim is to have all component classes implemented in each of the language packages. That would allow each of those packages to be used standalone (in the meantime, because the packages can act as a [network of peers](http://blog.stenci.la/diverse-peers/), you can workaround this by installing one of the other packages). The `web` package implements the user interfaces for each component class.
+Stencila is made of of several `Component` classes. Examples of component classes include `Document`, `Sheet`, and `Folder`. These classes are implemented separately in each of the language packages (e.g. the `py` package). The long term aim is to have all component classes implemented in each of the language packages. That would allow each of those packages to be used standalone (in the meantime, because the packages can act as a [network of peers](http://blog.stenci.la/diverse-peers/), you can workaround this by installing one of the other packages). 
 
-Class                       | Description                                   | `node`       | `py`         | `r`          | `web` UI         
---------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:
+The `web` package implements some of the component classes (`web` impl below) but is focused on user interfaces for each component class (`web` UI below) and communicates with implementations in each of the language packages.
+
+                            | Description                                   | `node`       | `py`         | `r`          | `web` impl  | `web` UI         
+--------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:------------:
 `Component`                 | Base class for all components					| ✓            | ✓            | ✓            |             
-`Host`                      | Serves and orchestrates other components      | ✓            | ✓            | ✓            | ✓            
-`Folder`                    | A filesystem folder                           | ✓            |              |              | ✓            
-`Document`                  | A document                                    | ✓            | ✓            |              | ✓            
-`Sheet`                     | A spreadsheet                                 |              |              |              |             
-`Session`                   | Base class for sessions                       | ✓            | ✓            | ✓            | ✓            
-&nbsp;&nbsp;`BashSession`   | A Bash session                                | ✓            |              |              | ^            
-&nbsp;&nbsp;`JsSession`     | A Javascript session                          | ✓            | -            | -            | ^            
-&nbsp;&nbsp;`PySession`     | A Python session                              | -            | ✓            | -            | ^            
-&nbsp;&nbsp;`RSession`      | A R session                                   | -            | -            | ✓            | ^            
-&nbsp;&nbsp;`SqliteSession` | A SQLite session                              |              |              | ✓            | ^            
+`Host`                      | Serves and orchestrates other components      | ✓            | ✓            | ✓            |             | ✓            
+`Folder`                    | A filesystem folder                           | ✓            |              |              |             | ✓            
+`Document`                  | A document                                    | ✓            | ✓            |              |             | ✓            
+`Sheet`                     | A spreadsheet                                 |              |              |              |             |             
+`Session`                   | Base class for sessions                       | ✓            | ✓            | ✓            |             | ✓            
+&nbsp;&nbsp;`BashSession`   | A Bash session                                | ✓            |              |              |             | ^            
+&nbsp;&nbsp;`JsSession`     | A Javascript session                          | ✓ (`js`)     | -            | -            | ✓ (`js`)    | ^            
+&nbsp;&nbsp;`PySession`     | A Python session                              | -            | ✓            | -            |             | ^            
+&nbsp;&nbsp;`RSession`      | A R session                                   | -            | -            | ✓            |             | ^            
+&nbsp;&nbsp;`SqliteSession` | A SQLite session                              |              |              | ✓            |             | ^            
+`pack`,`unpack`             | Data serialization                            | ✓ (`js`)     |              | ✓            | ✓ (`js`)    | -          
 
-Key: ✓ = inplemented to some degree, - = will probably never be implemented, ^ = provided by the above
+Key: ✓ = implemented to some degree, - = will probably never be implemented, ^ = provided by the above
 
 
 #### Build status, test coverage and issues
