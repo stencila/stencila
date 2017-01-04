@@ -4,7 +4,7 @@ import Nightmare from 'nightmare'
 var realMouse = require('nightmare-real-mouse')
 realMouse(Nightmare)
 
-test('Emoji behaviour', function (t) {
+test.skip('Emoji behaviour', function (t) {
   Nightmare({
     typeInterval: 10,
     gotoTimeout: 60000

@@ -3,7 +3,7 @@ import test from 'tape'
 import Nightmare from 'nightmare'
 require('nightmare-real-mouse')(Nightmare)
 
-test('Add to an existing discussion', function (t) {
+test.skip('Add to an existing discussion', function (t) {
   Nightmare({
     typeInterval: 10,
     gotoTimeout: 60000
