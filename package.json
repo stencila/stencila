@@ -1,6 +1,6 @@
 {
   "name": "stencila-js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stencila components for Javascript",
   "main": "index.js",
   "scripts": {
@@ -29,8 +29,10 @@
     "url": "https://github.com/stencila/js/issues"
   },
   "homepage": "https://github.com/stencila/js#readme",
+  "dependencies": {
+    "d3": "^4.4.0"
+  },
   "devDependencies": {
-    "d3": "^4.4.0",
     "documentation": "^4.0.0-beta16",
     "eslint": "^3.12.2",
     "eslint-config-standard": "^6.2.1",
