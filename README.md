@@ -29,6 +29,8 @@ We love feedback. Create a [new issue](https://github.com/stencila/js/issues/new
 
 ### Develop
 
+Want to help out with development? Great, there's a lot to do! To get started, read our contributor [code of conduct](CONDUCT.md), then [get in touch](https://gitter.im/stencila/stencila) or checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1).
+
 Most development tasks can be run directly from `npm` or via `make` wrapper recipes.
 
 Task                                                    |`npm`                  | `make`          |
