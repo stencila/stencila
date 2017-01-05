@@ -1,5 +1,6 @@
 ## `stencila/js` : Stencila for Javascript
 
+[![NPM](http://img.shields.io/npm/v/stencila-js.svg?style=flat)](https://www.npmjs.com/package/stencila-js)
 [![Build status](https://travis-ci.org/stencila/js.svg?branch=master)](https://travis-ci.org/stencila/js)
 [![Code coverage](https://codecov.io/gh/stencila/js/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/js)
 [![Dependency status](https://david-dm.org/stencila/js.svg)](https://david-dm.org/stencila/js)
