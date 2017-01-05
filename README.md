@@ -1,5 +1,6 @@
 ## `stencila/web` : Stencila in the browser
 
+[![NPM](http://img.shields.io/npm/v/stencila-web.svg?style=flat)](https://www.npmjs.com/package/stencila-web)
 [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web)
 [![Code coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
 [![Dependency status](https://david-dm.org/stencila/web.svg)](https://david-dm.org/stencila/web)
@@ -20,10 +21,10 @@ This is very much a work in progress. See our [main repo](https://github.com/ste
 
 ### Install
 
-Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles from https://unpkg.com/stencila-web/. But, if you want to help out with development (:thumbsup:) ...
+Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles from https://unpkg.com/stencila-web/. But, if you want to have a local copy...
 
 ```
-npm install stencila/web
+npm install stencila-web
 ```
 
 ### Use
