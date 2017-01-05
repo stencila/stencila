@@ -81,4 +81,6 @@ Key: ✓ = implemented to some degree, - = will probably never be implemented, ^
 [r](https://github.com/stencila/r) | | [![Build status](https://travis-ci.org/stencila/r.svg?branch=master)](https://travis-ci.org/stencila/r) | [![Test coverage](https://codecov.io/gh/stencila/r/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/r) | [![Issues](http://img.shields.io/github/issues/stencila/r.svg)]( https://github.com/stencila/r/issues )
 [web](https://github.com/stencila/web) | [![NPM](http://img.shields.io/npm/v/stencila-web.svg?style=flat)](https://www.npmjs.com/package/stencila-web) | [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web) | [![Test coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web) | [![Issues](http://img.shields.io/github/issues/stencila/web.svg)]( https://github.com/stencila/web/issues )
 
+#### Branches
+
 [HISTORY.md](HISTORY.md) provides some background to the [`triassic`](https://github.com/stencila/stencila/tree/triassic) and [`jurassic`](https://github.com/stencila/stencila/tree/jurassic) branches in this repo.
