@@ -21,6 +21,8 @@ export default function browser (App) {
     if (address) props.address = address.content
     let url = document.querySelector('meta[name=url]')
     if (url) props.url = url.content
+    let statico = document.querySelector('meta[name=static]')
+    if (statico) props.static = statico.content
     // Fallback to getting `url`, `address` and `version` from the path
     var path = window.location.pathname
     var matches = path.match(/\/([^@]+)(@(\w+))?/)
@@ -34,10 +36,9 @@ export default function browser (App) {
     // Update with URL query parameters
     var params = location.params()
     extend(props, params)
-    // Check if `?static=1`
-    if (params.static !== '1') {
+    // Check if `static`
+    if (props.static !== '1') {
       if (!App) return
-
       // Get component data from page for rerendering by the `App` and then hide it
       var data = document.getElementById('data')
       if (data) {
@@ -49,7 +50,7 @@ export default function browser (App) {
         }
         data.style.display = 'none'
       }
-
+      // If not local then capture any errors
       if (props.local) {
         window.app = App.mount(props, document.body)
       } else {
