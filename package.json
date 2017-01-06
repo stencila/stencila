@@ -1,6 +1,6 @@
 {
   "name": "stencila-web",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Stencila in the browser",
   "main": "index.js",
   "files": {
