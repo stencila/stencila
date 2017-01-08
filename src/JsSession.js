@@ -28,6 +28,13 @@ class JsSession {
       scope[name] = unpack(inputs[name])
     }
 
+    // Ignore trailing newline
+    // This is of importance because if the last line is empty then there will be
+    // no output. But often a trailing newline will be supplied by user interfaces.
+    if (code.slice(-1) === '\n') {
+      code = code.slice(0, -1)
+    }
+
     // Generate a function body
     let body = 'with(scope) {\n'
     let lines = code.split('\n')
@@ -43,7 +50,7 @@ class JsSession {
     try {
       func = Function('scope', body) // eslint-disable-line no-new-func
     } catch (e) {
-      // Catch and syntax error
+      // Catch a syntax error
       error = e
     }
 

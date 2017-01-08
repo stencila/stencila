@@ -6,7 +6,7 @@ const test = require('tape')
 test('JsSession.execute with no inputs, no errors and no output', function (t) {
   let s = new JsSession()
 
-  t.deepEqual(s.execute('let x = 3\n'), {errors: {}, output: null}, 'assign')
+  t.deepEqual(s.execute('let x = 3\n\n'), {errors: {}, output: null}, 'assign')
   t.end()
 })
 
@@ -15,6 +15,8 @@ test('JsSession.execute with no inputs, no errors', function (t) {
 
   t.deepEqual(s.execute('42'), {errors: {}, output: pack(42)}, 'just an evaluation')
   t.deepEqual(s.execute('let x = 3\nx*3'), {errors: {}, output: pack(9)}, 'assign and return')
+  t.deepEqual(s.execute('let x = 3\nx\n\n'), {errors: {}, output: null}, 'empty last line so no output')
+  t.deepEqual(s.execute('42\n'), {errors: {}, output: pack(42)}, 'trailing newline ignores, so output')
   t.end()
 })
 
