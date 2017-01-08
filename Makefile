@@ -38,13 +38,8 @@ test-debug:
 cover:
 	npm run cover
 
-publish:
-ifeq (dirty,$(DIRTY))
-	$(error Publish not done for dirty versions. Commit or stash and try again.)
-else
-	aws s3 sync build s3://get.stenci.la/web/
-	$(call PUBLISH_NOTIFY,web,ES5)
-endif
+publish: build
+	npm publish
 
 clean:
 	rm -rf build
