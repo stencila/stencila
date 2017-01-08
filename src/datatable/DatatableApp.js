@@ -5,7 +5,6 @@ import Datatable from './Datatable'
 import DatatableConfigurator from './DatatableConfigurator'
 // import GridEditor from './editors/grid/GridEditor'
 // import CodeEditorComponent from '../document/ui/CodeEditorComponent'
-import code from '../utilities/code'
 
 class DatatableApp extends Component {
 
@@ -43,8 +42,6 @@ class DatatableApp extends Component {
   didMount () {
     // Load initial datatable
     this.loadDatatable(this.props.data, this.props.format)
-    // Load ACE editor
-    code.loadAce()
   }
 
   /**

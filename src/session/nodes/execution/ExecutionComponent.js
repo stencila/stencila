@@ -21,7 +21,6 @@ class CodeSubcomponent extends Component {
   }
 
   didMount () {
-    code.loadAce()
     code.attachAceEditor(this.refs.pre.getNativeElement(), '', {
       language: 'sql', // TODO: set based on the current session language
       minLines: 1

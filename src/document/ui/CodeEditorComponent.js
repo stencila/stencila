@@ -33,7 +33,7 @@ class CodeEditorComponent extends Component {
     return $$('div')
       .addClass('sc-code-editor')
       .append(
-        $$('div')
+        $$('pre')
           .ref('editor')
           .text(node[this.props.codeProperty])
       )

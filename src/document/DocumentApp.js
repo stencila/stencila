@@ -14,8 +14,6 @@ import DocumentClient from './DocumentClient'
 import VisualEditor from './editors/visual/VisualEditor'
 import CodeEditor from './editors/code/CodeEditor'
 
-import code from '../utilities/code/index'
-
 /**
  * User application for a Stencila Document
  *
@@ -39,7 +37,9 @@ class DocumentApp extends Component {
     // Initially, if in edit mode, then also turn on reveal mode
     // See also `this.toggleEdit`
     var view = this.props.view || 'visual'
-    var edit = (this.props.edit === '1') || this.props.local
+    var edit = this.props.edit
+    if (typeof edit === 'undefined' && this.props.local) edit = '1'
+    edit = edit === '1'
     var reveal = (this.props.reveal === '1') || edit
     return {
       view: view,
@@ -154,8 +154,6 @@ class DocumentApp extends Component {
     doc.documentSession = documentSession
     doc.client = new DocumentClient(this.props.url)
     doc.host = new HostClient('http://' + this.props.host)
-
-    code.loadAce()
 
     // Extend state to trigger rerendering
     this.extendState({

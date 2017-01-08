@@ -1,23 +1,25 @@
-import load from '../load'
+// This module gets loaded as part of the collab code
+// run in Node.js. But `brace` needs `window` so fails there. Protect from that...
+let ace
+if (typeof window !== 'undefined') {
+  ace = require('brace')
 
-var loadAce = function () {
-  load.script(((window.stencila && window.stencila.root) || '/web') + '/ace/ace.js', function () {
-    document.dispatchEvent(new window.Event('ace:loaded'))
-  })
+  require('brace/mode/c_cpp')
+  require('brace/mode/javascript')
+  require('brace/mode/json')
+  require('brace/mode/html')
+  require('brace/mode/python')
+  require('brace/mode/r')
+  require('brace/mode/sh')
+
+  require('brace/theme/monokai')
 }
 
 var attachAceEditor = function (el, content, options, callback) {
-  function _attach () {
-    var editor = window.ace.edit(el)
-    updateAceEditor(editor, options)
-    if (content) editor.setValue(content, 1)
-    if (callback) callback(editor)
-  }
-  if (window.ace) {
-    _attach()
-  } else {
-    document.addEventListener('ace:loaded', _attach, false)
-  }
+  var editor = ace.edit(el)
+  updateAceEditor(editor, options)
+  if (content) editor.setValue(content, 1)
+  if (callback) callback(editor)
 }
 
 var setAceEditorMode = function (editor, language) {
@@ -83,7 +85,6 @@ var updateAceEditor = function (editor, options) {
 }
 
 export default {
-  loadAce: loadAce,
   attachAceEditor: attachAceEditor,
   setAceEditorMode: setAceEditorMode,
   updateAceEditor: updateAceEditor

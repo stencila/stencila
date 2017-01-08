@@ -5,24 +5,6 @@
  
 mkdir -p build
 
-# Ace editor
-if [ ! -e build/ace ]; then
-	echo "Installing Ace editor"
-	cd node_modules/ace
-		npm install
-	cd ../..
-
-	echo "Building Ace editor"
-	cd node_modules/ace
-		node Makefile.dryice.js -m
-	cd ../..
-
-	echo "Copying Ace editor build"
-	rm -rf build/ace
-	cp -rf node_modules/ace/build/src-min build/ace
-
-fi
-
 # KaTeX
 # Currently CSS files are not bundled into the npm install for katex
 # See https://github.com/Khan/KaTeX/issues/148
