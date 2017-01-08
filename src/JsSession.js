@@ -70,7 +70,6 @@ class JsSession {
       // Parse the error stack to get message and line number
       let lines = error.stack.split('\n')
       let message = lines[0]
-      console.log(lines[1])
       let match = lines[1].match(/<anonymous>:(\d+):\d+/)
       let line = 0
       if (match) line = parseInt(match[1]) - 3
