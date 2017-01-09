@@ -80,8 +80,11 @@ class CodeEditorComponent extends Component {
           readOnly: true
         })
 
-        // editor.on('blur', this._onEditorBlur.bind(this));
-        editor.on('change', this._onEditorChange.bind(this))
+        // The `_onEditorChange` method is better in that it allows for realtime collab
+        // of code editors. But it is currently causing problems so using `_onEditorBlur` for now.
+        // editor.on('change', this._onEditorChange.bind(this))
+        editor.on('blur', this._onEditorBlur.bind(this))
+
         this.editor = editor
       }.bind(this)
     )
@@ -98,6 +101,19 @@ class CodeEditorComponent extends Component {
   dispose () {
     this.props.node.off(this)
     this.editor.destroy()
+  }
+
+  /**
+   * When the editor looses focus, set the code content to the editor content
+   *
+   * It is better to use `_onEditorChange` but at the time of writing that was not
+   * working properly.
+   */
+  _onEditorBlur () {
+    let editorSession = this.context.editorSession
+    editorSession.transaction(tx => {
+      tx.set([this.props.node.id, this.codeProperty], this.editor.getValue())
+    })
   }
 
   /**
@@ -123,28 +139,26 @@ class CodeEditorComponent extends Component {
     start += change.start.column
 
     // Apply as a Substance update to the code property of the node
-    var surface = this.context.surface
+    var editorSession = this.context.editorSession
     var node = this.props.node
     var codeProperty = this.codeProperty
     if (change.action === 'insert') {
-      surface.transaction(function (tx) {
+      editorSession.transaction(function (tx) {
         tx.update([node.id, codeProperty], {
-          insert: {
-            offset: start,
-            value: change.lines.join('\n')
-          }
+          type: 'insert',
+          start: start,
+          text: change.lines.join('\n')
         })
       }, {
         source: this,
         skipSelection: true
       })
     } else if (change.action === 'remove') {
-      surface.transaction(function (tx) {
+      editorSession.transaction(function (tx) {
         tx.update([node.id, codeProperty], {
-          delete: {
-            start: start,
-            end: start + length(change.lines)
-          }
+          type: 'delete',
+          start: start,
+          end: start + length(change.lines)
         })
       }, {
         source: this,
@@ -163,7 +177,7 @@ class CodeEditorComponent extends Component {
   _onCodeChanged (change, info) {
     var codeProperty = this.codeProperty
     if (info.source !== this && this.editor) {
-      // Ignore editor chnage events
+      // Ignore editor change events
       this.editorMute = true
 
       var session = this.editor.getSession()
