@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint *.js src tests",
     "test": "tape tests | tap-spec",
+    "test-bundle": "browserify tests/*.test.js > tests/bundle.temp.js",
     "test-browser": "browserify tests/*.test.js | testling",
     "cover": "istanbul cover tests",
     "docs": "documentation build --config docs/docs.yml --output docs --format html",

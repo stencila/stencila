@@ -3,3 +3,4 @@
 /npm-debug.log
 /coverage
 /*.sublime-workspace
+/tests/bundle.temp.js

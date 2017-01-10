@@ -9,6 +9,9 @@ lint:
 test:
 	npm test
 
+test-bundle:
+	npm run test-bundle
+
 test-browser:
 	npm run test-browser
 
