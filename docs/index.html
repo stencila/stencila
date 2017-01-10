@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8' />
-  <title>stencila-js 0.2.0 | Documentation</title>
+  <title>stencila-js 0.3.0 | Documentation</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' type='text/css' rel='stylesheet' />
   <link href='assets/style.css' type='text/css' rel='stylesheet' />
@@ -14,7 +14,7 @@
       <div class='fixed xs-hide fix-3 overflow-auto max-height-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>stencila-js</h3>
-          <div class='mb1'><code>0.2.0</code></div>
+          <div class='mb1'><code>0.3.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -65,6 +65,16 @@
                   href='#unpack'
                   class="">
                   unpack
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#need'
+                  class="">
+                  need
                   
                 </a>
                 
@@ -356,6 +366,90 @@ session.execute(<span class="hljs-string">'foo'</span>) <span class="hljs-commen
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code>anything</code>:
         A Javascript object
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='need'>
+      need
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>A <code>require</code> function for the browser</p>
+<p>We call it <code>need</code> to avoid confusion but, when in the browser, it is included in the scope of <code>JsSession#execute</code>
+as <code>require</code>.</p>
+<p>As an alternative approach see <a href="https://github.com/maxogden/browser-module-sandbox">https://github.com/maxogden/browser-module-sandbox</a> (used by <a href="http://requirebin.com/">http://requirebin.com/</a> and others)
+It involves putting each module's source, as well as your own source, into a <code>&#x3C;script></code> within an <code>&#x3C;iframe></code>.
+This seems to have a couple of issues for our use case (a) each module gets parsed every call to <code>JsSession#execute</code>
+(b) needs some message passing to get results of evaluation back from the <code>&#x3C;iframe></code>. This current approach
+is far simpler but this type of alternative might need to be looked at in the future.</p>
+
+
+  <div class='pre p1 fill-light mt0'>need(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>, version: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>)</code>
+	    Module name
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>version</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>)</code>
+	    Version needed, defaults to "latest"
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></code>:
+        The module
 
       
     
