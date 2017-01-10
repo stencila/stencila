@@ -28,19 +28,20 @@ let session = new JsSession()
 // Evaluate an expression...
 session.execute('6*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
 
-// Output is the value of the last line,
+// Output is the value of the last line
 session.execute('let x = 6\nx*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
 
-// If the last line is blank there is no output (this is intended for code chunks that have side effects e.g. set up data),
+// If the last line is blank there is no output 
+// (this is intended for code chunks that have side effects e.g. set up data)
 session.execute('let x = 6\nx*7\n\n') // { errors: {}, output: null }
 
-// You can specify input variables (that are local to that call) as a data pack,
-session.execute('Math.PI*radius', {radius:pack(21.4)}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
+// You can specify input variables (that are local to that call) as a data pack
+session.execute('Math.PI*radius', {radius: pack(21.4)}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
 session.execute('radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
 
-// You can also assign global variables which are available in subsequent calls,
-session.execute('globals.foo = "bar"\n\n') # { errors: {}, output: null }
-session.execute('foo') # { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }
+// You can also assign global variables which are available in subsequent calls
+session.execute('globals.foo = "bar"\n\n') // { errors: {}, output: null }
+session.execute('foo') // { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }
 ```
 
 More documentation is available at https://stencila.github.io/js.
