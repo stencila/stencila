@@ -36,3 +36,20 @@ test('JsSession.execute with errors', function (t) {
   t.deepEqual(s.execute('for'), {errors: { 0: 'SyntaxError: Unexpected token for' }, output: null})
   t.end()
 })
+
+test('JsSession has globals', function (t) {
+  let s = new JsSession()
+
+  s.execute('globals.foo = 42')
+  t.equal(s.globals.foo, 42, 'can assign from execute')
+
+  t.deepEqual(s.execute('globals.foo'), {errors: {}, output: pack(42)}, 'can access from execute')
+
+  t.deepEqual(s.execute('foo'), s.execute('globals.foo'), 'can acess from execute directly (scoped within globals)')
+
+  t.deepEqual(s.execute('foo', {foo: pack('bar')}), {errors: {}, output: pack('bar')}, 'inputs (locals) mask globals')
+
+  t.deepEqual(s.execute('foo'), s.execute('globals.foo'), 'inputs only mask globals per call')
+
+  t.end()
+})

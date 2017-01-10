@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8' />
-  <title>stencila-js 0.1.0 | Documentation</title>
+  <title>stencila-js 0.1.2 | Documentation</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' type='text/css' rel='stylesheet' />
   <link href='assets/style.css' type='text/css' rel='stylesheet' />
@@ -14,7 +14,7 @@
       <div class='fixed xs-hide fix-3 overflow-auto max-height-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>stencila-js</h3>
-          <div class='mb1'><code>0.1.0</code></div>
+          <div class='mb1'><code>0.1.2</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -22,26 +22,6 @@
             type='text' />
           <div id='toc'>
             <ul class='list-reset h5 py1-ul'>
-              
-                
-                <li><a
-                  href='#pack'
-                  class="">
-                  pack
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#unpack'
-                  class="">
-                  unpack
-                  
-                </a>
-                
-                </li>
               
                 
                 <li><a
@@ -70,6 +50,26 @@
                 
                 </li>
               
+                
+                <li><a
+                  href='#pack'
+                  class="">
+                  pack
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#unpack'
+                  class="">
+                  unpack
+                  
+                </a>
+                
+                </li>
+              
             </ul>
           </div>
           <div class='mt1 h6 quiet'>
@@ -78,6 +78,170 @@
         </div>
       </div>
       <div class='fix-margin-3'>
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='jssession'>
+      JsSession
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>A Javascript session</p>
+<p>Implements the Stencila <code>Session</code> API for executing chunks
+of Javascript code. The main (and currently, only!) method is <code>execute</code>.
+It takes a chunck of code and, optionally, any inputs (i.e. arguments).
+It returns any errors and an output value (i.e. return value).
+See the examples given below.</p>
+
+
+  <div class='pre p1 fill-light mt0'>new JsSession()</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='JsSession#execute'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>execute(code, inputs)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Execute a chunk of code</p>
+
+
+  <div class='pre p1 fill-light mt0'>execute(code: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>, inputs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>code</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>)</code>
+	    The code chunk
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>inputs</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+	    An object with a data package for each input variable
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></code>:
+        An object with any 
+<code>errors</code>
+ (an object with line numbers as keys) and 
+<code>outputs</code>
+ (
+a data package)
+
+      
+    
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'># Evaluate an expression...
+
+session.execute('6*7') # { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
+
+# Output is the value of the last line,
+
+session.execute('let x = 6\nx*7') # { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
+
+# If the last line is blank there is no output (this is intended for code chunks that have side effects e.g. set up data),
+
+session.execute('let x = 6\nx*7\n\n') # { errors: {}, output: null }
+
+# You can specify input variables (that are local to that call),
+
+session.execute('Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) # { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
+session.execute('radius') # { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
+
+# You can also assign global variables which are available in subsequent calls,
+
+session.execute('globals.foo = "bar"\n\n') # { errors: {}, output: null }
+session.execute('foo') # { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }</pre>
+    
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
+
+  
+
+  
+</section>
+
+          
         
           
             <section class='p2 mb2 clearfix bg-white minishadow'>
@@ -207,145 +371,6 @@
   
 
   
-
-  
-
-  
-</section>
-
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='jssession'>
-      JsSession
-    </h3>
-    
-    
-  </div>
-  
-
-  <p>A Javascript session</p>
-<p>Implements the Stencila <code>Session</code> API for executing chunks
-of Javascript code</p>
-
-
-  <div class='pre p1 fill-light mt0'>new JsSession()</div>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
-    <div class="clearfix">
-  
-    <div class='border-bottom' id='JsSession#execute'>
-      <div class="clearfix small pointer toggle-sibling">
-        <div class="py1 contain">
-            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>execute(code, inputs)</span>
-        </div>
-      </div>
-      <div class="clearfix display-none toggle-target">
-        <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-
-  <p>Execute a chunk of code</p>
-
-
-  <div class='pre p1 fill-light mt0'>execute(code: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>, inputs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></div>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-    <div class='py1 quiet mt1 prose-big'>Parameters</div>
-    <div class='prose'>
-      
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>code</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>)</code>
-	    The code chunk
-
-          </div>
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>inputs</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
-	    An object with data packages
-
-          </div>
-          
-        </div>
-      
-    </div>
-  
-
-  
-
-  
-    
-      <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></code>:
-        An object with any 
-<code>errors</code>
- and 
-<code>outputs</code>
-
-      
-    
-  
-
-  
-
-  
-    <div class='py1 quiet mt1 prose-big'>Example</div>
-    
-      
-      <pre class='p1 overflow-auto round fill-light'>session.execute(<span class="hljs-string">'Math.PI*radius'</span>, {<span class="hljs-attr">radius</span>:{<span class="hljs-attr">type</span>:<span class="hljs-string">'flt'</span>, <span class="hljs-attr">format</span>:<span class="hljs-string">'text'</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">'21.4'</span>}}<span class="hljs-string">`)</span></pre>
-    
-  
-
-  
-
-  
-
-  
-</section>
-
-      </div>
-    </div>
-  
-</div>
 
   
 
