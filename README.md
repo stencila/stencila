@@ -18,7 +18,8 @@ The `JsSession.execute()` method is really just a fancy `eval` with some extra f
 - transpiles Javascript to [ES2015(ES6)](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015)
 - provides a `global` scope for persistence of session variables across calls
 - unpacks input arguments into a local scope for each call
-- returns errors by line number 
+- returns errors by line number
+- provides a `require` function for requiring NPM modules when in the browser
 
 ### Install
 

@@ -75,3 +75,13 @@ test('JsSession will transform code to ES2015(ES6)', function (t) {
 
   t.end()
 })
+
+if (typeof window !== 'undefined') {
+  test('JsSession can dynamically require NPM modules', t => {
+    let s = new JsSession()
+
+    t.deepEqual(s.execute('let isNumber = require("is-number")\nisNumber(1)'), {errors: {}, output: pack(true)})
+
+    t.end()
+  })
+}

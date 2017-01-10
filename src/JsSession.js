@@ -1,6 +1,7 @@
 const buble = require('buble')
 
 const {pack, unpack} = require('./packing')
+const require_ = typeof window !== 'undefined' ? require('./need') : require
 
 /**
  * A Javascript session
@@ -18,7 +19,7 @@ class JsSession {
 
     if (typeof this.options.transform === 'undefined') {
       // By default transform code chunks whenin the browser
-      this.options.transform = !(typeof window === 'undefined')
+      this.options.transform = typeof window !== 'undefined'
     }
 
     this.globals = {}
@@ -92,7 +93,7 @@ class JsSession {
     // Create a function to be executed with locals and globals
     let func = null
     try {
-      func = Function('locals', 'globals', body) // eslint-disable-line no-new-func
+      func = Function('require', 'locals', 'globals', body) // eslint-disable-line no-new-func
     } catch (e) {
       // Catch a syntax error (not caught above if no transformation)
       error = e
@@ -102,7 +103,7 @@ class JsSession {
     let output = null
     if (func) {
       try {
-        output = func(locals, this.globals)
+        output = func(require_, locals, this.globals)
       } catch (e) {
         // Catch any errors
         error = e
