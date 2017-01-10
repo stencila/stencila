@@ -1,3 +1,8 @@
+// So we can run tests in Node.js, when not in the browser, use a XMLHttpRequest emulator
+if (typeof window === 'undefined') {
+  var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
+}
+
 let cache = {}
 
 /**
