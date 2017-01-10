@@ -3,6 +3,18 @@ const JsSession = require('../src/JsSession')
 
 const test = require('tape')
 
+test('JsSession can be constructed with options', t => {
+  let s1 = new JsSession()
+  let s2 = new JsSession({
+    transform: true
+  })
+
+  t.equal(s1.options.transform, typeof window !== 'undefined', 'transform defaults to true in browser, false otherwise')
+  t.equal(s2.options.transform, true)
+
+  t.end()
+})
+
 test('JsSession.execute with no inputs, no errors and no output', function (t) {
   let s = new JsSession()
 
@@ -50,6 +62,16 @@ test('JsSession has globals', function (t) {
   t.deepEqual(s.execute('foo', {foo: pack('bar')}), {errors: {}, output: pack('bar')}, 'inputs (locals) mask globals')
 
   t.deepEqual(s.execute('foo'), s.execute('globals.foo'), 'inputs only mask globals per call')
+
+  t.end()
+})
+
+test('JsSession will transform code to ES2015(ES6)', function (t) {
+  let s = new JsSession({
+    transform: true
+  })
+
+  t.deepEqual(s.execute('Math.max(...[1,3,2])'), {errors: {}, output: pack(3)})
 
   t.end()
 })

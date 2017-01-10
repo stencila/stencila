@@ -1,3 +1,5 @@
+const buble = require('buble')
+
 const {pack, unpack} = require('./packing')
 
 /**
@@ -11,7 +13,14 @@ const {pack, unpack} = require('./packing')
  */
 class JsSession {
 
-  constructor () {
+  constructor (options) {
+    this.options = options || {}
+
+    if (typeof this.options.transform === 'undefined') {
+      // By default transform code chunks whenin the browser
+      this.options.transform = !(typeof window === 'undefined')
+    }
+
     this.globals = {}
   }
 
@@ -46,6 +55,8 @@ class JsSession {
     code = code || ''
     inputs = inputs || {}
 
+    let error = null
+
     // Add inputs to `locals` i.e. the execution's local scope
     let locals = {}
     for (let name in inputs) {
@@ -59,6 +70,16 @@ class JsSession {
       code = code.slice(0, -1)
     }
 
+    // Transform the code
+    if (this.options.transform) {
+      try {
+        code = buble.transform(code).code
+      } catch (e) {
+        // Catch a syntax error
+        error = e
+      }
+    }
+
     // Generate a function body
     let body = 'with(globals){ with(locals){\n'
     let lines = code.split('\n')
@@ -70,11 +91,10 @@ class JsSession {
 
     // Create a function to be executed with locals and globals
     let func = null
-    let error = null
     try {
       func = Function('locals', 'globals', body) // eslint-disable-line no-new-func
     } catch (e) {
-      // Catch a syntax error
+      // Catch a syntax error (not caught above if no transformation)
       error = e
     }
 

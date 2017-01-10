@@ -9,6 +9,9 @@ lint:
 test:
 	npm test
 
+test-browser:
+	npm run test-browser
+
 cover:
 	npm run cover
 

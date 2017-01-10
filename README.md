@@ -8,10 +8,17 @@
 
 This package contains code that is shared amongst other Stencila Javascript-based packages: [`node`](https://github.com/stencila/node) (the package for Node.js) and [`web`](https://github.com/stencila/node) (the package for web browsers):
 
-- a `JsSession` class for executing code in Javascript
+- a `JsSession` class for executing chunks of Javascript code
 - data `pack` and `unpack` functions for transferring data over the wire and between languages
 
 See [this blog post](http://blog.stenci.la/chunks-n-funcs/) for more on the approach and how it's used within Stencila Documents.
+
+The `JsSession` class just provides a fancy `eval` with some extra functionality including:
+
+- transpiles Javascript to [ES2015(ES6)](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015)
+- provides a `global` scope for persistence of session variables across calls
+- unpacks input arguments into a local scope for each call
+- returns errors by line number 
 
 ### Install
 
@@ -63,9 +70,10 @@ Task                                                    |`npm`                  
 Install and setup dependencies                          | `npm install`         | `make setup`
 Check code for lint                                     | `npm run lint`        | `make lint`
 Run tests                                               | `npm test`            | `make test`
+Run tests in the browser                                | `npm run test-browser`| `make test-browser`
 Run tests with coverage                                 | `npm run cover`       | `make cover`
 Build documentation                                     | `npm run docs`        | `make docs`
 Serve and watch docs for updates                        | `npm run docs-serve`  | `make docs-serve`
 Clean                                                   |                       | `make clean`
 
-Tests live in the `tests` folder and are written using the [`tape`](https://github.com/substack/tape) test harness. And, in another breathtaking display of naming logic, documentation lives in the `docs` folder. Docs are published using Github Pages, so to update them after making changes run `make docs`, commit the updated docs and do a `git push`.
+Tests live in the `tests` folder and are written using the [`tape`](https://github.com/substack/tape) test harness. And, in further breathtaking displays of naming logic, documentation lives in the `docs` folder and uses [documentation.js](http://documentation.js.org). Docs are published using Github Pages, so to update them after making changes run `make docs`, commit the updated docs and do a `git push`.
