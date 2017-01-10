@@ -13,7 +13,7 @@ This package contains code that is shared amongst other Stencila Javascript-base
 
 See [this blog post](http://blog.stenci.la/chunks-n-funcs/) for more on the approach and how it's used within Stencila Documents.
 
-The `JsSession` class just provides a fancy `eval` with some extra functionality including:
+The `JsSession.execute()` method is really just a fancy `eval` with some extra functionality including:
 
 - transpiles Javascript to [ES2015(ES6)](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015)
 - provides a `global` scope for persistence of session variables across calls
@@ -29,8 +29,10 @@ npm install stencila-js --save
 ### Use
 
 ```js
+const stencilaJs = require('stencila-js')
+
 // Create a session
-let session = new JsSession()
+let session = new stencilaJs.JsSession()
 
 // Evaluate an expression...
 session.execute('6*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
