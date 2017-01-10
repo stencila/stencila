@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8' />
-  <title>stencila-js 0.1.2 | Documentation</title>
+  <title>stencila-js 0.2.0 | Documentation</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' type='text/css' rel='stylesheet' />
   <link href='assets/style.css' type='text/css' rel='stylesheet' />
@@ -14,7 +14,7 @@
       <div class='fixed xs-hide fix-3 overflow-auto max-height-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>stencila-js</h3>
-          <div class='mb1'><code>0.1.2</code></div>
+          <div class='mb1'><code>0.2.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -200,27 +200,22 @@ a data package)
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'># Evaluate an expression...
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-comment">// Evaluate an expression...</span>
+session.execute(<span class="hljs-string">'6*7'</span>) <span class="hljs-comment">// { errors: {}, output: { type: 'int', format: 'text', value: '42' } }</span>
 
-session.execute('6*7') # { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
+<span class="hljs-comment">// Output is the value of the last line,</span>
+session.execute(<span class="hljs-string">'let x = 6\nx*7'</span>) <span class="hljs-comment">// { errors: {}, output: { type: 'int', format: 'text', value: '42' } }</span>
 
-# Output is the value of the last line,
+<span class="hljs-comment">// If the last line is blank there is no output (this is intended for code chunks that have side effects e.g. set up data),</span>
+session.execute(<span class="hljs-string">'let x = 6\nx*7\n\n'</span>) <span class="hljs-comment">// { errors: {}, output: null }</span>
 
-session.execute('let x = 6\nx*7') # { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
+<span class="hljs-comment">// You can specify input variables (that are local to that call),</span>
+session.execute(<span class="hljs-string">'Math.PI*radius'</span>, {<span class="hljs-attr">radius</span>:{<span class="hljs-attr">type</span>:<span class="hljs-string">'flt'</span>, <span class="hljs-attr">format</span>:<span class="hljs-string">'text'</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">'21.4'</span>}}) <span class="hljs-comment">// { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }</span>
+session.execute(<span class="hljs-string">'radius'</span>) <span class="hljs-comment">// { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }</span>
 
-# If the last line is blank there is no output (this is intended for code chunks that have side effects e.g. set up data),
-
-session.execute('let x = 6\nx*7\n\n') # { errors: {}, output: null }
-
-# You can specify input variables (that are local to that call),
-
-session.execute('Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) # { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
-session.execute('radius') # { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
-
-# You can also assign global variables which are available in subsequent calls,
-
-session.execute('globals.foo = "bar"\n\n') # { errors: {}, output: null }
-session.execute('foo') # { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }</pre>
+<span class="hljs-comment">// You can also assign global variables which are available in subsequent calls,</span>
+session.execute(<span class="hljs-string">'globals.foo = "bar"\n\n'</span>) <span class="hljs-comment">// { errors: {}, output: null }</span>
+session.execute(<span class="hljs-string">'foo'</span>) <span class="hljs-comment">// { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }</span></pre>
     
   
 
