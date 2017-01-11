@@ -4,15 +4,17 @@ class InputComponent extends Component {
 
   render ($$) {
     let node = this.props.node
-    return $$('input')
+    let el = $$('input')
       .addClass('sc-input')
       .attr({
         name: node.name,
-        type: node.displayType
+        type: node.type_
       })
       .on('change', event => {
         node.setValue(event.target.value)
       })
+    if (node.value) el.attr('value', node.value)
+    return el
   }
 
 }
