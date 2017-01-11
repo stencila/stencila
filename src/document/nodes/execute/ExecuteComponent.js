@@ -10,33 +10,52 @@ class ExecuteComponent extends Component {
       .append(
         $$('div')
           .append(
-
             $$('input')
               .attr({
-                value: node.name + '=' + node.language,
+                value: node.session,
                 placeholder: 'Execution language',
                 spellcheck: 'false'
               })
-              .on('change', (event) => {
-                this.context.documentSession.transaction(function (tx, args) {
-                  tx.set([node.id, 'language'], event.target.value)
+              .on('change', event => {
+                this.context.editorSession.transaction(function (tx, args) {
+                  tx.set([node.id, 'session'], event.target.value)
                 })
               }),
-
+            $$('input')
+              .attr({
+                value: node.input,
+                placeholder: 'Input',
+                spellcheck: 'false'
+              })
+              .on('change', event => {
+                this.context.editorSession.transaction(function (tx, args) {
+                  tx.set([node.id, 'input'], event.target.value)
+                })
+              }),
+            $$('input')
+              .attr({
+                value: node.output,
+                placeholder: 'Output',
+                spellcheck: 'false'
+              })
+              .on('change', event => {
+                this.context.editorSession.transaction(function (tx, args) {
+                  tx.set([node.id, 'output'], event.target.value)
+                })
+              }),
             $$('button')
               .text('refresh')
-              .on('click', (event) => {
+              .on('click', event => {
                 node.refresh()
               }),
-
             $$('span')
               .text(node.duration.toString())
           ),
 
-        $$(CodeEditorComponent, {
+        $$(ExecuteCodeEditorComponent, {
           node: node,
           codeProperty: 'code',
-          languageProperty: 'language'
+          languageProperty: 'session'
         }).ref('editor')
       )
 
@@ -89,6 +108,18 @@ class ExecuteComponent extends Component {
     })
   }
 
+}
+
+/**
+ * A code editor component which refreshes the node when the editor
+ * looses focus. This is a temporary hack. Ideally, we want a refresh to occur
+ * when the `node.code` changes, not when the editor looses focus.
+ */
+class ExecuteCodeEditorComponent extends CodeEditorComponent {
+  _onEditorBlur () {
+    super._onEditorBlur()
+    this.props.node.refresh()
+  }
 }
 
 export default ExecuteComponent

@@ -2,14 +2,24 @@ import BlockNode from 'substance/model/BlockNode'
 
 class Execute extends BlockNode {
 
+  /**
+   * Refresh this directive by executing code
+   *
+   * The code is executed in an appropriate session
+   */
   refresh () {
     if (this.code) {
       // Get the session
-      this.document.session(this.session).then(session => {
+      this.document.getSession(this.session).then(session => {
         try {
           let timer = window.performance
           let t0 = timer.now()
-          let inputs = this.document.variables
+          // Pack input for sending
+          let inputs = {}
+          for (let variable of this.input.split(',')) {
+            let pack = this.document.variables[variable]
+            if (pack) inputs[variable] = pack
+          }
           // Call `session.execute()` with code and inputs
           session.execute(this.code, inputs).then(result => {
             this.duration = (timer.now() - t0) / 1000
@@ -40,12 +50,9 @@ Execute.define({
   type: 'execute',
 
   session: { type: 'string', default: '' },
-
-  inputs: { type: 'object', default: {} },
+  input: { type: 'string', default: '' },
   output: { type: 'string', default: '' },
-
   extra: { type: 'string', optional: true },
-
   code: { type: 'string', default: '' },
 
   result: { type: 'object', default: {} },
