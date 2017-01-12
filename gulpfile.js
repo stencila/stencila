@@ -57,7 +57,7 @@ function bundler (source) {
     presets: ['es2015'],
     // Substance and lodash-es need to be transformed
     global: true,
-    ignore: /\/node_modules\/(?!(substance|lodash-es)\/)/
+    ignore: /\/node_modules\/(?!(substance|lodash-es|stencila-js)\/)/
   })
 }
 

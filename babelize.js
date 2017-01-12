@@ -11,7 +11,7 @@ require('babel-register')({
   // See https://babeljs.io/docs/usage/require/
   // Override that behaviour so that substance and other modules that need to be transpiled, are
   ignore: function (filename) {
-    if (filename.match('.*/node_modules/(substance|lodash-es)/.+')) {
+    if (filename.match('.*/node_modules/(substance|lodash-es|stencila-js)/.+')) {
       return false
     } else if (filename.match('.*/node_modules/.+')) {
       return true
