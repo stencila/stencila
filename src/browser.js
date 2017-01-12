@@ -15,7 +15,7 @@ export default function browser (App) {
     const hostname = window.location.hostname
     props.local = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
     // Try to get descriptors from the <head>
-    ['id', 'address', 'url', 'static', 'edit'].forEach(function (item) {
+    ['id', 'address', 'url', 'static', 'naked', 'edit'].forEach(function (item) {
       let elem = document.querySelector('meta[name=' + item + ']')
       if (elem) props[item] = elem.content
     })

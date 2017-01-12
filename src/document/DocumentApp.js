@@ -36,13 +36,15 @@ class DocumentApp extends Component {
   getInitialState () {
     // Initially, if in edit mode, then also turn on reveal mode
     // See also `this.toggleEdit`
-    var view = this.props.view || 'visual'
-    var edit = this.props.edit
+    let view = this.props.view || 'visual'
+    let edit = this.props.edit
     if (typeof edit === 'undefined' && this.props.local) edit = '1'
     edit = edit === '1'
-    var reveal = (this.props.reveal === '1') || edit
+    let reveal = (this.props.reveal === '1') || edit
+    let naked = (this.props.naked === '1') || reveal
     return {
       view: view,
+      naked: naked,
       reveal: reveal,
       edit: edit,
       documentSession: null,
@@ -71,6 +73,7 @@ class DocumentApp extends Component {
       var editorProps = {
         // Document state
         version: version,
+        naked: this.state.naked,
         view: this.state.view,
         reveal: this.state.reveal,
         comment: this.state.comment,
@@ -150,6 +153,9 @@ class DocumentApp extends Component {
         rights: rights
       })
     }
+
+    // Initialise the document (for variables dependencies etc)
+    doc.initialize()
 
     doc.documentSession = documentSession
     doc.client = new DocumentClient(this.props.url)

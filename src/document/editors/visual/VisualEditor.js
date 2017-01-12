@@ -31,9 +31,9 @@ class VisualEditor extends AbstractEditor {
     var el = $$('div').addClass('sc-visual-editor');
 
     // Toggle classes to match properties
-    ['reveal', 'edit'].forEach(function (item) {
+    ['naked', 'reveal', 'edit'].forEach(item => {
       if (this.props[item]) el.addClass('sm-' + item)
-    }.bind(this))
+    })
 
     // Document toolset (becuase of the way in which
     // tools and commands work, this has to go here, under an `AbstractEditor`,

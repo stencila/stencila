@@ -29,4 +29,11 @@
     }
 
   }
+
+  &.sm-naked {
+    // Hide toolsets when "naked"
+    .sc-toolset {
+      display: none;
+    }
+  }
 }
