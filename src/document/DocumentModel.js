@@ -69,8 +69,12 @@ class DocumentModel extends Document {
       if (node instanceof Execute) {
         // TODO : allow for more than one dependency
         if (typeof variable === 'undefined' || node.input.split(',').indexOf(variable) > -1) node.refresh()
-      } else if (node instanceof Output) {
-        if (typeof variable === 'undefined' || node.value.split(',').indexOf(variable) > -1) node.refresh()
+      }
+    }
+    for (let id in this.getNodes()) {
+      let node = this.get(id)
+      if (node instanceof Output) {
+        node.refresh()
       }
     }
   }
