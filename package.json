@@ -1,6 +1,6 @@
 {
   "name": "stencila-js",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Stencila components for Javascript",
   "main": "index.js",
   "scripts": {
