@@ -8,6 +8,7 @@ if (typeof window !== 'undefined') {
   require('brace/mode/javascript')
   require('brace/mode/json')
   require('brace/mode/html')
+  require('brace/mode/markdown')
   require('brace/mode/python')
   require('brace/mode/r')
   require('brace/mode/sh')
@@ -31,6 +32,7 @@ var setAceEditorMode = function (editor, language) {
     'bash': 'sh',
     'cpp': 'c_cpp',
     'js': 'javascript',
+    'md': 'markdown',
     'py': 'python',
     'r': 'r'
   }[language] || language
