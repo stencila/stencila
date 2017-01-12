@@ -85,8 +85,8 @@ class JsSession {
     let body = 'with(globals){ with(locals){\n'
     let lines = code.split('\n')
     for (let index = 0; index < lines.length; index++) {
-      if ((index === lines.length - 1) && (lines[index].trim().length > 0)) body += 'return ' + lines[index] + ';\n'
-      else body += lines[index] + ';\n'
+      if ((index === lines.length - 1) && (lines[index].trim().length > 0)) body += 'return ' + lines[index] + '\n'
+      else body += lines[index] + '\n'
     }
     body += '}}\n'
 
