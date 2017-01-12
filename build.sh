@@ -37,12 +37,13 @@ do
     <link rel="stylesheet" type="text/css" href="../../../document.min.css">
   </head>
   <body>
-    <main id="data" data-format="html">
-      <div class="content">') tests/document/$example/index.html <(echo '
+    <main>
+      <div id="data" data-format="html">
+        <div class="content">') tests/document/$example/index.html <(echo '</div>
   	  </div>
+    </main>
     <script>window.stencila = {root: "../../.."}</script>
     <script src="../../../document.min.js"></script>
-    </main>
   </body>
 </html>') > build/tests/document/$example.html
 done
