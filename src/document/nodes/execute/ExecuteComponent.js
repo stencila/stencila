@@ -7,6 +7,7 @@ class ExecuteComponent extends Component {
     let node = this.props.node
     let el = super.render.call(this, $$)
       .addClass('sc-execute')
+      .addClass(node.show ? 'sm-show' : '')
       .append(
         $$('div')
           .append(

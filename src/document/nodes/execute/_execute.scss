@@ -1,0 +1,17 @@
+.sc-isolated-node > .se-slug {
+  height: 0;
+}
+
+[data-execute],
+.sc-execute {
+  display: none;
+
+  &[data-show='true'],
+  &.sm-show {
+    display: block;
+  }
+}
+
+&.sm-reveal .sc-execute {
+  display: block;
+}

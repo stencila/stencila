@@ -52,6 +52,7 @@ Execute.define({
   session: { type: 'string', default: '' },
   input: { type: 'string', default: '' },
   output: { type: 'string', default: '' },
+  show: { type: 'bool', default: false },
   extra: { type: 'string', optional: true },
   code: { type: 'string', default: '' },
 
