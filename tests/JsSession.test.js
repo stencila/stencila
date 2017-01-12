@@ -20,7 +20,7 @@ test('JsSession.execute with no inputs, no errors and no output', function (t) {
 
   t.deepEqual(s.execute('let x = 3\n\n'), {errors: {}, output: null}, 'assign')
 
-  t.deepEqual(s.execute('// Multiple lines and comments\nlet x = {\na:1\n\n}\n'), {errors: {}, output: null}, 'assign')
+  t.deepEqual(s.execute('// Multiple lines and comments\nlet x = {\na:1\n\n}\n\n'), {errors: {}, output: null}, 'assign')
 
   t.end()
 })
