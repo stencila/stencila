@@ -1,6 +1,9 @@
 // So we can run tests in Node.js, when not in the browser, use a XMLHttpRequest emulator
+let XHR
 if (typeof window === 'undefined') {
-  var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
+  XHR = require('xmlhttprequest').XMLHttpRequest
+} else {
+  XHR = XMLHttpRequest
 }
 
 let cache = {}
@@ -28,7 +31,7 @@ function need (name, version) {
   if (cache[id]) {
     return cache[id]
   } else {
-    let request = new XMLHttpRequest()
+    let request = new XHR()
     request.open('GET', `https://wzrd.in/bundle/${id}/`, false)
     request.send(null)
     if (request.status === 200) {
