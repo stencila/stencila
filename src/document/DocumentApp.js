@@ -154,9 +154,6 @@ class DocumentApp extends Component {
       })
     }
 
-    // Initialise the document (for variables dependencies etc)
-    doc.initialize()
-
     doc.documentSession = documentSession
     doc.client = new DocumentClient(this.props.url)
     doc.host = new HostClient('http://' + this.props.host)
@@ -166,6 +163,10 @@ class DocumentApp extends Component {
       doc: doc,
       documentSession: documentSession
     })
+
+    // Initialise the document (for variables dependencies etc)
+    // CHECK : where is the best place to do this; here?
+    doc.initialize()
   }
 
   /**

@@ -19,6 +19,7 @@ import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 
 import InputPackage from './nodes/input/InputPackage'
 import SelectPackage from './nodes/select/SelectPackage'
+import OutputPackage from './nodes/output/OutputPackage'
 import ExecutePackage from './nodes/execute/ExecutePackage'
 import PrintPackage from './nodes/print/PrintPackage'
 
@@ -78,6 +79,7 @@ class DocumentConfigurator extends Configurator {
 
     this.import(InputPackage)
     this.import(SelectPackage)
+    this.import(OutputPackage)
     this.import(ExecutePackage)
     this.import(PrintPackage)
 
