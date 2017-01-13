@@ -16,10 +16,14 @@ class Output extends InlineNode {
         content = value.toString()
       }
     }
-    this.document.documentSession.transaction(tx => {
-      tx.set([this.id, 'content'], content)
-      this.emit('content:changed') // CHECK: I thought that tx.set would emit this event; seems not.
-    })
+    // CHECK
+    // This is how I thought this should be done....
+    // this.document.documentSession.transaction(tx => {
+    //   tx.set([this.id, 'content'], content)
+    // })
+    // This is what works...
+    this.content = content
+    this.emit('content:changed')
   }
 
 }

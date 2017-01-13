@@ -10,47 +10,24 @@ class ExecuteComponent extends Component {
       .addClass(node.show ? 'sm-show' : '')
       .append(
         $$('div')
+          .addClass('se-tools')
           .append(
-            $$('input')
-              .attr({
-                value: node.session,
-                placeholder: 'Execution language',
-                spellcheck: 'false'
-              })
-              .on('change', event => {
-                this.context.editorSession.transaction(function (tx, args) {
-                  tx.set([node.id, 'session'], event.target.value)
-                })
-              }),
-            $$('input')
-              .attr({
-                value: node.input,
-                placeholder: 'Input',
-                spellcheck: 'false'
-              })
-              .on('change', event => {
-                this.context.editorSession.transaction(function (tx, args) {
-                  tx.set([node.id, 'input'], event.target.value)
-                })
-              }),
-            $$('input')
-              .attr({
-                value: node.output,
-                placeholder: 'Output',
-                spellcheck: 'false'
-              })
-              .on('change', event => {
-                this.context.editorSession.transaction(function (tx, args) {
-                  tx.set([node.id, 'output'], event.target.value)
-                })
-              }),
             $$('button')
-              .text('refresh')
+              .append(
+                $$('i').addClass('fa fa-play')
+              )
               .on('click', event => {
                 node.refresh()
               }),
-            $$('span')
-              .text(node.duration.toString())
+            $$('input')
+              .attr({
+                value: node.getCall(),
+                placeholder: 'output = context(input, input, ...)',
+                spellcheck: 'false'
+              })
+              .on('change', event => {
+                node.setCall(event.target.value)
+              })
           ),
 
         $$(ExecuteCodeEditorComponent, {

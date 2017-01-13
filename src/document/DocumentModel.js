@@ -63,12 +63,14 @@ class DocumentModel extends Document {
    * Refresh the document
    */
   refresh (variable) {
-    // TODO : only execute nodes that are dependent upon the variable
+    // TODO : This is a simple hack. Needs a dependency graph and a topological sort
+    // for order of refresh and detection of circularities
     for (let id in this.getNodes()) {
       let node = this.get(id)
       if (node instanceof Execute) {
-        // TODO : allow for more than one dependency
-        if (typeof variable === 'undefined' || node.input.split(',').indexOf(variable) > -1) node.refresh()
+        if (typeof variable === 'undefined' || node.input.split(',').indexOf(variable) > -1) {
+          node.refresh()
+        }
       }
     }
     for (let id in this.getNodes()) {

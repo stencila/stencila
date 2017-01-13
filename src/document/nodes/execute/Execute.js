@@ -2,6 +2,23 @@ import BlockNode from 'substance/model/BlockNode'
 
 class Execute extends BlockNode {
 
+  getCall () {
+    let call = `${this.session}(${this.input})`
+    if (this.output) call = `${this.output} = ${call}`
+    return call
+  }
+
+  setCall (call) {
+    let match = call.match(/(([\w_]+) *= *)?(\w+)\(([^(]*)\)/)
+    if (match) {
+      this.output = match[2]
+      this.session = match[3]
+      this.input = match[4]
+    } else {
+      throw new Error('Invalid format for call')
+    }
+  }
+
   /**
    * Refresh this directive by executing code
    *
@@ -26,10 +43,11 @@ class Execute extends BlockNode {
 
             if (this.output) {
               this.document.setVariable(this.output, result.output)
+              this.result = {}
             } else {
               this.result = result
-              this.emit('changed')
             }
+            this.emit('changed')
           })
         } catch (error) {
           this.result = {
