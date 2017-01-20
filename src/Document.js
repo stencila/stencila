@@ -7,15 +7,15 @@ var DocumentMarkdownConverter = require('./DocumentMarkdownConverter')
  * @class Document
  */
 class Document {
-  constructor (options) {
+  constructor () {
     this.content = ''
   }
 
   /**
   * load content in a specified format
-  * @param {String} format
-  * @param {String} content
-  * @param {Object} options
+  * @param {String} format – format of the content
+  * @param {[type]} content – content of the document
+  * @param {Object} options – options that are passed to the converter
   **/
   load (format, content, options) {
     this.converter(format).load(this, content, options)
@@ -23,9 +23,9 @@ class Document {
 
   /**
   * dump content in a specified format
-  * @param {String} format
-  * @param {Object} options
-  * @return {String} Content of the document
+  * @param {String} format – format of the content
+  * @param {Object} options– options that are passed to the converter
+  * @returns {[type]} Content of the document
   **/
   dump (format, options) {
     return this.converter(format).dump(this, options)
@@ -34,8 +34,8 @@ class Document {
   /**
    * Get the `Document` converter for a format
    *
-   * @param {string} format The format needing conversion
-   * @return {Converter} A converter object
+   * @param {string} format – The format needing conversion
+   * @returns {Converter} A converter object
    */
   converter (format) {
     if (format === 'md') {

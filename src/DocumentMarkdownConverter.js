@@ -16,7 +16,6 @@ class DocumentMarkdownConverter {
    */
   load (doc, content, options) {
     doc.content = marked(content, options)
-    return doc
   }
 
   /**
@@ -26,7 +25,7 @@ class DocumentMarkdownConverter {
    *
    * @param  {Document} doc Document to dump
    * @param  {Object} options  Any options (see implementations for those available)
-   * @return {String}          Content of the document as Commonmark
+   * @returns {String}          Content of the document as Commonmark
    */
   dump (doc, options) {
     var html = doc.content
