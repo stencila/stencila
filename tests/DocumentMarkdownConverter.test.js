@@ -14,11 +14,19 @@ test('DocumentMarkdownConverter can be constructed with options', t => {
 test('load html from markdown with converter.load', function (t) {
   const doc = new Document()
   const converter = new DocumentMarkdownConverter()
-  converter.load(doc, 'md', '# markdown')
-  console.log(doc.dump('md'))
+  var content = '# markdown'
+  converter.load(doc, content)
+  t.equal(converter.dump(doc), content)
   t.end()
 })
 
-test('dump markdown from document html with converter.dump', function (t) {
+test('markdown code blocks', function (t) {
+  const doc = new Document()
+  const converter = new DocumentMarkdownConverter()
+
+  var content = '```\nvar hmm = \'wat\'\n```'
+
+  converter.load(doc, content)
+  t.ok(converter.dump(doc) === content)
   t.end()
 })

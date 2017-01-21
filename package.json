@@ -34,7 +34,10 @@
   "dependencies": {
     "buble": "^0.15.2",
     "d3": "^4.4.0",
-    "marked": "^0.3.6",
+    "gray-matter": "^2.1.0",
+    "markdown-it": "^8.2.2",
+    "markdown-it-deflist": "^2.0.1",
+    "markdown-it-implicit-figures": "^0.5.0",
     "to-markdown": "^3.0.3"
   },
   "devDependencies": {

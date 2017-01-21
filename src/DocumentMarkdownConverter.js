@@ -1,4 +1,4 @@
-const marked = require('marked')
+const markdown = require('./markdown')
 const toMarkdown = require('to-markdown')
 
 /**
@@ -15,7 +15,10 @@ class DocumentMarkdownConverter {
    * @param  {[type]} options  Any options (see implementations for those available)
    */
   load (doc, content, options) {
-    doc.content = marked(content, options)
+    const md = markdown(content, options)
+    doc.content = md.html
+    doc.markdown = md.content
+    doc.data = md.data
   }
 
   /**
@@ -28,8 +31,25 @@ class DocumentMarkdownConverter {
    * @returns {String}          Content of the document as Commonmark
    */
   dump (doc, options) {
-    var html = doc.content
-    return toMarkdown(html)
+    const html = doc.content
+    const highlightRegEx = /(?:highlight|language)-(\S+)/
+
+    return toMarkdown(html, { converters: [{
+      filter: function (node) {
+        return node.nodeName === 'PRE' &&
+        node.firstChild &&
+        node.firstChild.nodeName === 'CODE'
+      },
+      replacement: function (content, node) {
+        var firstChild = node.firstChild
+        if (firstChild.className && firstChild.className.match(highlightRegEx)[1]) {
+          var language = firstChild.className.match(highlightRegEx)[1]
+          return '\n\n```' + language + '\n' + node.firstChild.textContent.trim() + '\n```\n\n'
+        } else {
+          return '\n\n```\n' + node.firstChild.textContent.trim() + '\n```\n\n'
+        }
+      }
+    }] })
   }
 }
 
