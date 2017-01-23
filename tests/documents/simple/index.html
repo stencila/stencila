@@ -1,0 +1,74 @@
+<h1 id="a-simple-test-document">A simple test document</h1>
+<p>Limited to pretty much what can be represented with basic Markdown. It borrows text and examples from <a href="http://daringfireball.net/projects/markdown/syntax.text">http://daringfireball.net/projects/markdown/syntax.text</a>.</p>
+<h2 id="block-elements">Block elements</h2>
+<h3 id="paragraphs">Paragraphs</h3>
+<p>Like this one.</p>
+<p>And this one, which is longer. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<h3 id="headers">Headers</h3>
+<p>Atx-style headers are used as the default. They use 1-6 hash characters at the start of the line, corresponding to header levels 1-6</p>
+<h1 id="h1">H1</h1>
+<h2 id="h2">H2</h2>
+<h3 id="h3">H3</h3>
+<h4 id="h4">H4</h4>
+<h5 id="h5">H5</h5>
+<h6 id="h6">H6</h6>
+<h3 id="blockquotes">Blockquotes</h3>
+<p>Blockquotes use a <code>&gt;</code> before every line (not the &quot;lazy&quot; single <code>&gt;</code>):</p>
+<blockquote>
+  <p>This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,<br> consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.<br> Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.</p>
+  <p>Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse<br> id sem consectetuer libero luctus adipiscing.</p>
+</blockquote>
+<p>Blockquotes can contain other Markdown elements, including headers, lists, and code blocks:</p>
+<blockquote>
+  <h2 id="this-is-a-header.">This is a header.</h2>
+  <ol>
+    <li>This is the first list item.</li>
+    <li>This is the second list item.</li>
+  </ol>
+  <p>Here&apos;s some example code:</p>
+  <pre><code>return shell_exec(&quot;echo $input | $markdown_script&quot;);</code></pre>
+</blockquote>
+<h3 id="lists">Lists</h3>
+<p>Unordered lists use hyphens:</p>
+<ul>
+  <li>Red</li>
+  <li>Green</li>
+  <li>Blue</li>
+</ul>
+<p>Ordered lists use numbers followed by periods:</p>
+<ol>
+  <li>One</li>
+  <li>Two</li>
+  <li>Three</li>
+</ol>
+<p>List items may consist of multiple paragraphs. Each subsequent<br> paragraph in a list item is indented by 4 spaces:</p>
+<ol>
+  <li>
+    <p>This is a list item with two paragraphs. Lorem ipsum dolor<br> sit amet, consectetuer adipiscing elit. Aliquam hendrerit<br> mi posuere lectus.</p>
+    <p>Vestibulum enim wisi, viverra nec, fringilla in, laoreet<br> vitae, risus. Donec sit amet nisl. Aliquam semper ipsum<br> sit amet velit.</p>
+  </li>
+  <li>
+    <p>Suspendisse id sem consectetuer libero luctus adipiscing.</p>
+  </li>
+</ol>
+<h3 id="code-blocks">Code blocks</h3>
+<p>Fenced code blocks are used:</p>
+<pre><code>Some code</code></pre>
+<p>The language can be specified:</p>
+<pre class="r"><code>Some R code</code></pre>
+<h3 id="horizontal-rules">Horizontal rules</h3>
+<p>Three hyphens are used for a horizontal rule:</p>
+<hr>
+<h2 id="span-elements">Span elements</h2>
+<h3 id="links">Links</h3>
+<p>This is <a href="http://example.com/">an example link</a> and <a href="http://example.com/" title="Title">this one also has a title</a>.</p>
+<p>Autolinks are supported e.g. <a href="http://example.com">http://example.com</a></p>
+<h3 id="emphasis">Emphasis</h3>
+<p>Emphasis (HTML5 em) uses single underscore: <em>emphasized</em>.</p>
+<h3 id="importance">Importance</h3>
+<p>Importance (HTML5 strong) uses single asterisks: <em>important</em>.</p>
+<h3 id="code">Code</h3>
+<p>Inline code uses <code>backticks</code>.</p>
+<h3 id="images">Images</h3>
+<p>Inline image syntax looks like this: <img src="/path/to/img.jpg?raw" alt="Alt text"></p>
+<p>Optionally, you can include a title: <img src="/path/to/img.jpg?raw" title="Optional title" alt="Alt text"></p></div>
