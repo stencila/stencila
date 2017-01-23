@@ -12,7 +12,7 @@ test('Document can be constructed', t => {
 
 test('load html from markdown with converter.load', t => {
   const doc = new Document()
-  doc.load('md', '# markdown')
+  doc.load('# markdown', 'md')
   console.log(doc.dump('md'))
   t.end()
 })
