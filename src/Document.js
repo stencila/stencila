@@ -1,4 +1,5 @@
-var DocumentMarkdownConverter = require('./DocumentMarkdownConverter')
+const DocumentHtmlConverter = require('./DocumentHtmlConverter')
+const DocumentMarkdownConverter = require('./DocumentMarkdownConverter')
 
 /**
  * A document
@@ -13,11 +14,13 @@ class Document {
 
   /**
   * load content in a specified format
-  * @param {String} format – format of the content
   * @param {[type]} content – content of the document
+  * @param {String} format – format of the content
   * @param {Object} options – options that are passed to the converter
   **/
-  load (format, content, options) {
+  load (content, format, options) {
+    format = format || 'html'
+
     this.converter(format).load(this, content, options)
   }
 
@@ -28,6 +31,8 @@ class Document {
   * @returns {[type]} Content of the document
   **/
   dump (format, options) {
+    format = format || 'html'
+
     return this.converter(format).dump(this, options)
   }
 
@@ -38,7 +43,9 @@ class Document {
    * @returns {Converter} A converter object
    */
   converter (format) {
-    if (format === 'md') {
+    if (format === 'html') {
+      return new DocumentHtmlConverter()
+    } else if (format === 'md') {
       return new DocumentMarkdownConverter()
     }
   }

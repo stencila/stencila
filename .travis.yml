@@ -7,6 +7,10 @@ cache:
   directories:
     - node_modules
 
+install:
+  - git clone --depth=1 https://github.com/stencila/stencila
+  - ln -sT ../../stencila/tests/documents tests/documents
+
 script:
   - make lint
   - make cover
