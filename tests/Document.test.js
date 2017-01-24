@@ -10,13 +10,41 @@ test('Document can be constructed', t => {
   t.end()
 })
 
-test('load html from markdown with converter.load', t => {
-  const doc = new Document()
-  doc.load('# markdown', 'md')
-  console.log(doc.dump('md'))
+test('Document content is exposed as a full property', function (t) {
+  let d = new Document()
+
+  t.equal(d.content, '')
   t.end()
 })
 
-test('dump markdown from document html with converter.dump', t => {
+test('Document can be loaded/dumped from/to HTML', function (t) {
+  let d = new Document()
+
+  t.equal(d.html, '')
+
+  let html = '<p>Hello</p>'
+  d.html = html
+  t.equal(d.html, html)
+
+  t.end()
+})
+
+test('Document can be loaded/dumped from/to Markdown', function (t) {
+  let d = new Document()
+
+  t.equal(d.md, '', 'md property is empty')
+  t.equal(d.html, '', 'html property is empty')
+
+  let md = 'Hello from *Markdown*!'
+  let html = '<p>Hello from <em>Markdown</em>!</p>'
+
+  d.load(md, 'md')
+  t.equal(d.md, md, 'md content matches after loading markdown')
+  t.equal(d.html, html, 'html content matches after loading markdown')
+
+  d.load(html, 'html')
+  t.equal(d.html, html, 'html content matches after loading html')
+  t.equal(d.md, md, 'convert back to markdown')
+
   t.end()
 })

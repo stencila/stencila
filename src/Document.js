@@ -10,6 +10,8 @@ const DocumentMarkdownConverter = require('./DocumentMarkdownConverter')
 class Document {
   constructor () {
     this.content = ''
+    this.html = ''
+    this.md = ''
   }
 
   /**

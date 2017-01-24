@@ -16,8 +16,8 @@ class DocumentMarkdownConverter {
    */
   load (doc, content, options) {
     const md = markdown(content, options)
-    doc.content = md.html
-    doc.markdown = md.content
+    doc.content = doc.html = md.html.trim()
+    doc.md = content.trim()
     doc.data = md.data
   }
 
@@ -34,22 +34,24 @@ class DocumentMarkdownConverter {
     const html = doc.content
     const highlightRegEx = /(?:highlight|language)-(\S+)/
 
-    return toMarkdown(html, { converters: [{
-      filter: function (node) {
-        return node.nodeName === 'PRE' &&
-        node.firstChild &&
-        node.firstChild.nodeName === 'CODE'
-      },
-      replacement: function (content, node) {
-        var firstChild = node.firstChild
-        if (firstChild.className && firstChild.className.match(highlightRegEx)[1]) {
-          var language = firstChild.className.match(highlightRegEx)[1]
-          return '\n\n```' + language + '\n' + node.firstChild.textContent.trim() + '\n```\n\n'
-        } else {
-          return '\n\n```\n' + node.firstChild.textContent.trim() + '\n```\n\n'
+    return toMarkdown(html, {
+      converters: [{
+        filter: function (node) {
+          return node.nodeName === 'PRE' &&
+          node.firstChild &&
+          node.firstChild.nodeName === 'CODE'
+        },
+        replacement: function (content, node) {
+          var firstChild = node.firstChild
+          if (firstChild.className && firstChild.className.match(highlightRegEx)[1]) {
+            var language = firstChild.className.match(highlightRegEx)[1]
+            return '\n\n```' + language + '\n' + node.firstChild.textContent.trim() + '\n```\n\n'
+          } else {
+            return '\n\n```\n' + node.firstChild.textContent.trim() + '\n```\n\n'
+          }
         }
-      }
-    }] })
+      }]
+    })
   }
 }
 
