@@ -7,12 +7,9 @@ cache:
   directories:
     - node_modules
 
-install:
-  - git clone --depth=1 https://github.com/stencila/stencila ~/stencila
-  - ln -sT ~/stencila/tests/documents $TRAVIS_BUILD_DIR/tests/documents
-
 script:
   - make lint
+  - make test-documents
   - make cover
 
 after_success:
