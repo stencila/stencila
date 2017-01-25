@@ -39,7 +39,8 @@
     "markdown-it": "^8.2.2",
     "markdown-it-deflist": "^2.0.1",
     "markdown-it-implicit-figures": "^0.5.0",
-    "to-markdown": "^3.0.3"
+    "to-markdown": "^3.0.3",
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
     "documentation": "^4.0.0-beta16",
@@ -49,10 +50,8 @@
     "eslint-plugin-standard": "^2.0.1",
     "glob": "^7.1.1",
     "istanbul": "^0.4.5",
-    "stencila": "github:stencila/node",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.3",
-    "testling": "^1.7.1",
-    "xmlhttprequest": "^1.8.0"
+    "testling": "^1.7.1"
   }
 }
