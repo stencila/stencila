@@ -72,6 +72,7 @@ Task                                                    |`npm`                  
 ------------------------------------------------------- |-----------------------|-----------------|    
 Install and setup dependencies                          | `npm install`         | `make setup`
 Check code for lint                                     | `npm run lint`        | `make lint`
+Get test documents                                      | `npm run test-documents`| `make test-documents`
 Run tests                                               | `npm test`            | `make test`
 Run tests in the browser                                | `npm run test-browser`| `make test-browser`
 Run tests with coverage                                 | `npm run cover`       | `make cover`
@@ -79,4 +80,6 @@ Build documentation                                     | `npm run docs`        
 Serve and watch docs for updates                        | `npm run docs-serve`  | `make docs-serve`
 Clean                                                   |                       | `make clean`
 
-Tests live in the `tests` folder and are written using the [`tape`](https://github.com/substack/tape) test harness. And, in further breathtaking displays of naming logic, documentation lives in the `docs` folder and uses [documentation.js](http://documentation.js.org). Docs are published using Github Pages, so to update them after making changes run `make docs`, commit the updated docs and do a `git push`.
+Tests live in the `tests` folder and are written using the [`tape`](https://github.com/substack/tape) test harness. Some of the tests use test documents from the [`stencila/stencila`](https://github.com/stencila/stencila) repo which you can get using `make test-documents`.
+
+And, in further breathtaking displays of naming logic, documentation lives in the `docs` folder and uses [documentation.js](http://documentation.js.org). Docs are published using Github Pages, so to update them after making changes run `make docs`, commit the updated docs and do a `git push`.
