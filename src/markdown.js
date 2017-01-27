@@ -1,22 +1,21 @@
-const Markdown = require('markdown-it')
 const matter = require('gray-matter')
-const implicitFigures = require('markdown-it-implicit-figures')
-const deflist = require('markdown-it-deflist')
-
+const remark = require('remark')
+const remarkHtml = require('remark-html')
+const bracketedSpans = require('remark-bracketed-spans')
 /*
 
 Compatibility with pandoc converter:
 
-include directive – not yet available
-bracketed_spans – not yet available
-fenced_code_attributes – not yet available
+include directive
+fenced_code_attributes
+implicit_figures
+definition_lists
 
 markdown_github – enabled by default
 backtick_code_blocks – enabled by default
 
 yaml_metadata_block – https://www.npmjs.com/package/gray-matter
-implicit_figures – https://github.com/arve0/markdown-it-implicit-figures
-definition_lists – https://github.com/markdown-it/markdown-it-deflist
+bracketed_spans – https://github.com/sethvincent/remark-bracketed-spans
 */
 
 /**
@@ -26,15 +25,17 @@ definition_lists – https://github.com/markdown-it/markdown-it-deflist
 * @returns {Object} – returns object with `html`, `data`, and `md` properties
 **/
 module.exports = function markdownParser (content, options) {
-  const parsed = matter(content)
+  if (options.gfm !== false) options.gfm = true
+  if (options.commonmark !== false) options.commonmark = true
 
-  const md = new Markdown('commonmark', options)
-    .use(implicitFigures)
-    .use(deflist)
-    .disable('code')
+  const parsed = matter(content)
+  const html = remark()
+    .use(bracketedSpans)
+    .use(remarkHtml)
+    .process(content, options).contents
 
   return {
-    html: md.render(parsed.content),
+    html: html,
     md: parsed.content,
     data: parsed.content
   }
