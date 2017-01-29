@@ -22,6 +22,7 @@ class Document {
   **/
   load (content, format, options) {
     format = format || 'html'
+    options = options || {}
 
     this.converter(format).load(this, content, options)
   }
@@ -34,6 +35,7 @@ class Document {
   **/
   dump (format, options) {
     format = format || 'html'
+    options = options || {}
 
     return this.converter(format).dump(this, options)
   }
