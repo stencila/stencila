@@ -1,7 +1,7 @@
 const matter = require('gray-matter')
 const remark = require('remark')
 const remarkHtml = require('remark-html')
-//const bracketedSpans = require('remark-bracketed-spans')
+// const bracketedSpans = require('remark-bracketed-spans')
 /*
 
 Compatibility with pandoc converter:
@@ -30,7 +30,7 @@ module.exports = function markdownParser (content, options) {
 
   const parsed = matter(content)
   const html = remark()
-    //.use(bracketedSpans)
+    // .use(bracketedSpans)
     .use(remarkHtml)
     .process(content, options).contents
 
