@@ -1,5 +1,5 @@
 const markdown = require('./markdown')
-const toMarkdown = require('to-markdown')
+const toMarkdown = markdown.toMarkdown
 
 /**
  * Markdown converter for the `Document` class
@@ -36,26 +36,7 @@ class DocumentMarkdownConverter {
     options = options || {}
 
     const html = doc.content
-    const highlightRegEx = /(?:highlight|language)-(\S+)/
-
-    return toMarkdown(html, {
-      converters: [{
-        filter: function (node) {
-          return node.nodeName === 'PRE' &&
-          node.firstChild &&
-          node.firstChild.nodeName === 'CODE'
-        },
-        replacement: function (content, node) {
-          var firstChild = node.firstChild
-          if (firstChild.className && firstChild.className.match(highlightRegEx)[1]) {
-            var language = firstChild.className.match(highlightRegEx)[1]
-            return '\n\n```' + language + '\n' + node.firstChild.textContent.trim() + '\n```\n\n'
-          } else {
-            return '\n\n```\n' + node.firstChild.textContent.trim() + '\n```\n\n'
-          }
-        }
-      }]
-    })
+    return toMarkdown(html, options)
   }
 }
 

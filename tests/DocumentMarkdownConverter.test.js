@@ -14,7 +14,7 @@ test('DocumentMarkdownConverter can be constructed with options', t => {
 test('load html from markdown with converter.load', function (t) {
   const doc = new Document()
   const converter = new DocumentMarkdownConverter()
-  var content = '# markdown'
+  var content = '# markdown\n'
   converter.load(doc, content)
   t.equal(converter.dump(doc), content)
   t.end()
@@ -24,9 +24,9 @@ test('markdown code blocks', function (t) {
   const doc = new Document()
   const converter = new DocumentMarkdownConverter()
 
-  var content = '```\nvar hmm = \'wat\'\n```'
+  var content = '```\nvar hmm = \'wat\'\n\n```\n'
 
   converter.load(doc, content)
-  t.ok(converter.dump(doc) === content)
+  t.equal(converter.dump(doc), content)
   t.end()
 })
