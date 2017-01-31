@@ -1,4 +1,4 @@
-class ComponentClient {
+class ComponentDelegate {
 
   constructor (url) {
     this._url = url
@@ -35,10 +35,14 @@ class ComponentClient {
     return this.request('GET', this._url)
   }
 
+  get (name) {
+    return this.request('GET', this._url + '!' + name)
+  }
+
   call (name, args) {
     return this.request('POST', this._url + '!' + name, args)
   }
 
 }
 
-export default ComponentClient
+export default ComponentDelegate
