@@ -1,14 +1,14 @@
 import Component from 'substance/ui/Component'
 
-import FolderClient from './FolderClient'
+import ComponentDelegate from '../ComponentDelegate'
 
 class FolderApp extends Component {
 
   getInitialState () {
     let data = this.props.data
-    let client = new FolderClient(data ? data.url : this.props.url)
+    let delegate = new ComponentDelegate(data ? data.url : this.props.url)
     return {
-      client: client,
+      delegate: delegate,
       data: data,
       list: null
     }
@@ -58,8 +58,8 @@ class FolderApp extends Component {
   }
 
   refresh () {
-    this.state.client.show().then(data => {
-      this.state.client.call('list').then(list => {
+    this.state.delegate.show().then(data => {
+      this.state.delegate.call('list').then(list => {
         this.extendState({
           data: data,
           list: list
