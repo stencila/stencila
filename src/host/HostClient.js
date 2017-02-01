@@ -1,26 +1,33 @@
-import ComponentClient from '../component/ComponentClient'
+import ComponentDelegate from '../component/ComponentDelegate'
 import SessionClient from '../session/SessionClient'
 
-class HostClient extends ComponentClient {
+class HostClient extends ComponentDelegate {
 
   call (name, args) {
     return this.request('POST', this._url + '/!' + name, args)
   }
 
   open (address) {
-    return this.request('GET', this._url + '/' + address)
-  }
-
-  new (type) {
     return new Promise((resolve, reject) => {
-      this.request('GET', this._url + '/new://' + type)
+      this.request('GET', this._url + '/' + address)
         .then((data) => {
-          resolve(new SessionClient(data.url))
+          let component
+          if (data.type === 'document') {
+            component = new ComponentDelegate(data.url)
+          } else if (data.kind === 'session') {
+            component = new SessionClient(data.url)
+          }
+          resolve(component)
         })
         .catch((error) => {
           reject(error)
         })
     })
+  }
+
+  new (type) {
+    console.error('DEPRECIATED')
+    return this.open('+' + type)
   }
 
   discover () {

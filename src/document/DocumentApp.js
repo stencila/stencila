@@ -5,11 +5,11 @@ import CollabSession from 'substance/collab/CollabSession'
 import WebSocketConnection from 'substance/collab/WebSocketConnection'
 
 import HostClient from '../host/HostClient'
+import ComponentDelegate from '../component/ComponentDelegate'
 
 import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator()
 import {importJSON, importHTML} from './documentConversion'
-import DocumentClient from './DocumentClient'
 
 import VisualEditor from './editors/visual/VisualEditor'
 import CodeEditor from './editors/code/CodeEditor'
@@ -155,7 +155,7 @@ class DocumentApp extends Component {
     }
 
     doc.documentSession = documentSession
-    doc.client = new DocumentClient(this.props.url)
+    doc.delegate = new ComponentDelegate(this.props.url)
     doc.host = new HostClient('http://' + this.props.host)
 
     // Extend state to trigger rerendering

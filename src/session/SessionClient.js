@@ -1,6 +1,6 @@
-import ComponentClient from '../component/ComponentClient'
+import ComponentDelegate from '../component/ComponentDelegate'
 
-class SessionClient extends ComponentClient {
+class SessionClient extends ComponentDelegate {
 
   execute (code, inputs) {
     return this.call('execute', {

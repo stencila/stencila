@@ -1,6 +1,6 @@
 import stencilaJs from 'stencila-js'
 
-import ComponentClient from '../component/ComponentClient'
+import ComponentDelegate from '../component/ComponentDelegate'
 
 /**
  * A session client for a local Javascript session
@@ -9,7 +9,7 @@ import ComponentClient from '../component/ComponentClient'
  * are accessed via `SessionClient` (in particular, returning a `Promise` from
  * a call to `execute`)
  */
-class SessionClientJs extends ComponentClient {
+class SessionClientJs extends ComponentDelegate {
 
   constructor () {
     super()
