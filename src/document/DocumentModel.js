@@ -8,6 +8,9 @@ import Input from './nodes/input/Input'
 import Select from './nodes/select/Select'
 import Output from './nodes/output/Output'
 import Execute from './nodes/execute/Execute'
+import Include from './nodes/include/Include'
+
+import {exportHTML} from './documentConversion'
 
 /**
  * A Stencila Document data model
@@ -79,6 +82,14 @@ class DocumentModel extends Document {
         node.refresh()
       }
     }
+
+    // Refresh all include nodes
+    for (let id in this.getNodes()) {
+      let node = this.get(id)
+      if (node instanceof Include) {
+        node.refresh()
+      }
+    }
   }
 
   /**
@@ -126,23 +137,32 @@ class DocumentModel extends Document {
       if (language === 'js') {
         return Promise.resolve(new SessionClientJs())
       } else {
-        return new Promise((resolve, reject) => {
-          this.host.new(language + '-session').then(sessionClient => {
-            this.documentSession.transaction(tx => {
-              let sessionNode = tx.create({
-                type: 'session',
-                // TODO - populate with the session data e.g. language, url etc
-                url: sessionClient._url,
-                language: language
-              })
-              let sessions = tx.get('sessions')
-              sessions.show(sessionNode)
-              resolve(sessionClient)
+        return this.host.open(`+${language}-session`).then(sessionClient => {
+          this.documentSession.transaction(tx => {
+            let sessionNode = tx.create({
+              type: 'session',
+              // TODO - populate with the session data e.g. language, url etc
+              url: sessionClient._url,
+              language: language
             })
+            let sessions = tx.get('sessions')
+            sessions.show(sessionNode)
+            return sessionClient
           })
         })
       }
     }
+  }
+
+  get html () {
+    return exportHTML(this)
+  }
+
+  save () {
+    return this.delegate.call('save', {
+      content: this.html,
+      format: 'html'
+    })
   }
 
 }

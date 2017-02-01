@@ -21,6 +21,7 @@ import InputPackage from './nodes/input/InputPackage'
 import SelectPackage from './nodes/select/SelectPackage'
 import OutputPackage from './nodes/output/OutputPackage'
 import ExecutePackage from './nodes/execute/ExecutePackage'
+import IncludePackage from './nodes/include/IncludePackage'
 import PrintPackage from './nodes/print/PrintPackage'
 
 import MarkPackage from './nodes/mark/MarkPackage'
@@ -81,6 +82,7 @@ class DocumentConfigurator extends Configurator {
     this.import(SelectPackage)
     this.import(OutputPackage)
     this.import(ExecutePackage)
+    this.import(IncludePackage)
     this.import(PrintPackage)
 
     this.import(MarkPackage)
