@@ -17,6 +17,10 @@
 .sc-execute {
   display: none;
 
+  margin: 1em 0;
+  border: 1px solid black;
+  border-radius: 3px;
+
   &[data-show='true'],
   &.sm-show {
     display: block;
@@ -24,7 +28,6 @@
 
   .se-tools {
     background: #2f3129;
-    border-radius: 3px 3px 0 0;
 
     button {
       height: 2em;
@@ -48,14 +51,54 @@
       border: 0;
       width: 85%;
     }
-
   }
 
   .sc-code-editor pre {
     margin-top: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+    margin-bottom: 0;
+    border-radius: 0;
   }
+
+  &[data-status='error'] .se-tools button i {
+    color: #f00;
+  }
+
+}
+
+[data-errors],
+.sc-execute .se-errors {
+  margin: 0;
+  background: #fcfcfc;
+  color: #f00;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+[data-output],
+.sc-execute .se-output {
+  position: relative;
+  margin: 0;
+  background: #fcfcfc;
+  color: #444;
+  white-space: pre-wrap;
+  word-break: keep-all;
+
+  &[data-type='str'] {
+  }
+
+  .se-type {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #f8c22c;
+    padding: 0.5em;
+    opacity: 0;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
 }
 
 &.sm-reveal .sc-execute {

@@ -38,8 +38,11 @@ class ExecuteComponent extends Component {
       )
 
     var errors = node.result.errors
-    if (errors) {
-      let session = this.refs.editor.editor.getSession()
+    let session
+    if (this.refs.editor) session = this.refs.editor.editor.getSession()
+    if (errors && Object.keys(errors).length) {
+      el.attr('data-status', 'error')
+
       let annotations = Object.keys(errors).map((row, index) => {
         return {
           row: row,
@@ -49,10 +52,17 @@ class ExecuteComponent extends Component {
         }
       })
       session.setAnnotations(annotations)
+
+      let errorsEl = $$('pre').addClass('se-errors')
+      errorsEl.text(JSON.stringify(errors))
+      el.append(errorsEl)
+    } else {
+      if (session) session.clearAnnotations()
     }
 
     var output = node.result.output
     if (output) {
+      let type = output.type
       let format = output.format
       let value = output.value
       let outputEl
@@ -73,6 +83,12 @@ class ExecuteComponent extends Component {
       } else {
         outputEl = $$('pre').text(value || '')
       }
+      outputEl.addClass('se-output')
+              .attr('data-type', type)
+              .append(
+                $$('div').addClass('se-type')
+                         .text(type)
+              )
       el.append(outputEl)
     }
 
@@ -81,8 +97,19 @@ class ExecuteComponent extends Component {
 
   didMount () {
     let node = this.props.node
+
     node.on('changed', () => {
       this.rerender()
+    })
+
+    let editor = this.refs.editor.editor
+    editor.commands.addCommand({
+      name: 'reresh',
+      bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
+      exec: editor => {
+        node.refresh()
+      },
+      readOnly: true
     })
   }
 
