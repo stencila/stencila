@@ -34,6 +34,7 @@
   "homepage": "https://github.com/stencila/js#readme",
   "dependencies": {
     "buble": "^0.15.2",
+    "cheerio": "^0.22.0",
     "d3": "^4.4.0",
     "gray-matter": "^2.1.0",
     "remark": "^6.2.0",

@@ -17,7 +17,6 @@ class Component {
    * Get the converter for a format for this component class
    *
    * @param {string} format The format e.g. `'html'`, `'md'`
-   * @return {converter} A component converter
    */
   static converter (format) {
     throw error('Unhandled format', {format: format})
@@ -49,10 +48,10 @@ class Component {
 
   /**
   * dump content in a specified format
-  * 
+  *
   * @param {string} format - format of the content
   * @param {object} options - options that are passed to the converter
-  * @returns {} - Content of the document
+  * @returns {converter} - Content of the document
   **/
   dump (format, options) {
     format = format || this.constructor.default(format)
