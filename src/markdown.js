@@ -5,6 +5,8 @@ const remarkStringify = require('remark-stringify')
 const remarkHtml = require('remark-html')
 const rehypeParse = require('rehype-parse')
 const toMDAST = require('hast-util-to-mdast')
+const visit = require('unist-util-visit')
+const squeezeParagraphs = require('remark-squeeze-paragraphs')
 
 // const bracketedSpans = require('remark-bracketed-spans')
 /*
@@ -35,17 +37,20 @@ function toHTML (content, options) {
   if (options.commonmark !== false) options.commonmark = true
   options.fences = true
 
-  const parsed = matter(content)
-  const html = unified()
+  const parser = unified()
     .use(remarkParse, options)
+    .use(squeezeParagraphs)
+    .use(stripParagraphNewlines)
     .use(remarkStringify)
-    .use(remarkHtml)
-    .process(content, options).contents
+
+  const data = matter(content).data
+  const md = parser.process(content, options).contents
+  const html = parser.use(remarkHtml).process(content, options).contents
 
   return {
     html: html,
-    md: parsed.content,
-    data: parsed.content
+    md: md,
+    data: data
   }
 }
 
@@ -82,20 +87,34 @@ function rehype2remark (origin, destination, options) {
     destination = null
   }
 
+  /* Bridge-mode.  Runs the destination with the new MDAST
+   * tree. */
+  function bridge (destination, options) {
+    return function transformer (node, file, next) {
+      destination.run(toMDAST(node, options), file, next)
+    }
+  }
+
+  /* Mutate-mode.  Further transformers run on the MDAST tree. */
+  function mutate (options) {
+    return function transformer (node) {
+      return toMDAST(node, options)
+    }
+  }
+
   return destination ? bridge(destination, options) : mutate(options)
 }
 
-/* Bridge-mode.  Runs the destination with the new HAST
- * tree. */
-function bridge (destination, options) {
-  return function transformer (node, file, next) {
-    destination.run(toMDAST(node, options), file, next)
+function stripParagraphNewlines () {
+  return function (ast) {
+    return visit(ast, function (node) {
+      if (node.type === 'paragraph') {
+        node.children.forEach(function (child) {
+          if (child.type === 'text' && child.value) {
+            child.value = child.value.replace(/(\s?)(\r\n|\n|\r)+\s?/gm, ' ')
+          }
+        })
+      }
+    })
   }
-}
-
-/* Mutate-mode.  Further transformers run on the HAST tree. */
-function mutate (options) {
-  return function transformer (node) {
-    return toMDAST(node, options)
-  }
-}
+};

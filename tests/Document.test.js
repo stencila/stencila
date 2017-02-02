@@ -36,7 +36,7 @@ test('Document can be loaded/dumped from/to Markdown', function (t) {
   t.equal(d.html, '', 'html property is empty')
 
   let md = 'Hello from *Markdown*!'
-  let html = '<p>Hello from <em>Markdown</em>!</p>'
+  let html = '<p>Hello from <em>Markdown</em>!</p>\n'
 
   d.load(md, 'md')
   t.equal(d.md, md, 'md content matches after loading markdown')

@@ -18,8 +18,8 @@ class DocumentMarkdownConverter {
     options = options || {}
 
     const md = markdown(content, options)
-    doc.content = doc.html = md.html.trim()
-    doc.md = content.trim()
+    doc.content = doc.html = md.html
+    doc.md = content
     doc.data = md.data
   }
 
