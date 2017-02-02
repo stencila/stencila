@@ -1,3 +1,5 @@
+const url = require('url')
+const cheerio = require('cheerio')
 const beautify = require('js-beautify')
 
 /**
@@ -12,7 +14,7 @@ class DocumentHtmlConverter {
    * @param  {Object} options  Any options (see implementations for those available)
    */
   load (doc, content, options) {
-    doc.content = content
+    doc.content = cheerio.load(content)
   }
 
   /**
@@ -23,8 +25,29 @@ class DocumentHtmlConverter {
    * @returns {String}          Content of the document as HTML
    */
   dump (doc, options) {
+    options = options || {}
+
+    // Need to clone content befor modiying
+    // Couldn't get this to work with cheerio clone, so doing a (presumably
+    // inefficient) dump and then load
+    let dom = cheerio.load(doc.content.html())
+
+    // Append `?raw` to all image src URLs that are relative
+    // Why? Because otherwise the Stencila Host will serve up the file as a Component page
+    // instead of as a raw image.
+    dom('img[src]').toArray().forEach(el => {
+      el = cheerio(el)
+      let src = el.attr('src')
+      let q = url.parse(src).query
+      if (q) src += '&raw'
+      else src += '?raw'
+      el.attr('src', src)
+    })
+
+    let html = dom.html()
+
     // Beautification. See options at https://github.com/beautify-web/js-beautify/blob/master/js/lib/beautify-html.js
-    let html = beautify.html(doc.content, {
+    let beautifulHtml = beautify.html(html, {
       'indent_inner_html': false,
       'indent_size': 2,
       'indent_char': ' ',
@@ -35,7 +58,8 @@ class DocumentHtmlConverter {
       'indent_handlebars': false,
       'extra_liners': ['/html']
     })
-    return html
+
+    return beautifulHtml
   }
 }
 

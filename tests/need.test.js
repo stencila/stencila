@@ -2,7 +2,7 @@ const need = require('../src/need')
 
 const test = require('tape')
 
-test('need() can fetch a NPM module', t => {
+test.skip('need() can fetch a NPM module', t => {
   let isNumber = need('is-number')
 
   t.equal(isNumber(1), true)

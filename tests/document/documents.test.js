@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const test = require('tape')
 
-const Document = require('../src/Document')
+const Document = require('../../src/document/Document')
 
 /*
  * Test for successful convertion of test documents from

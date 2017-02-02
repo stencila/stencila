@@ -1,5 +1,5 @@
-const {pack} = require('../src/packing')
-const JsSession = require('../src/JsSession')
+const {pack} = require('../../src/packing')
+const JsSession = require('../../src/js-session/JsSession')
 
 const test = require('tape')
 

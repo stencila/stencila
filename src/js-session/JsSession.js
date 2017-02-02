@@ -1,7 +1,7 @@
 const buble = require('buble')
 
-const {pack, unpack} = require('./packing')
-const require_ = typeof window !== 'undefined' ? require('./need') : require
+const {pack, unpack} = require('../packing')
+const require_ = typeof window !== 'undefined' ? require('../need') : require
 
 /**
  * A Javascript session
