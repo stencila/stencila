@@ -1,5 +1,6 @@
-const markdown = require('./markdown')
-const toMarkdown = markdown.toMarkdown
+const cheerio = require('cheerio')
+
+const markdown = require('../utilities/markdown')
 
 /**
  * Markdown converter for the `Document` class
@@ -15,12 +16,8 @@ class DocumentMarkdownConverter {
    * @param  {[type]} options  Any options (see implementations for those available)
    */
   load (doc, content, options) {
-    options = options || {}
-
-    const md = markdown(content, options)
-    doc.content = doc.html = md.html
-    doc.md = content
-    doc.data = md.data
+    let html = markdown.md2html(content)
+    doc.content = cheerio.load(html)
   }
 
   /**
@@ -33,10 +30,8 @@ class DocumentMarkdownConverter {
    * @returns {String}          Content of the document as Commonmark
    */
   dump (doc, options) {
-    options = options || {}
-
-    const html = doc.content
-    return toMarkdown(html, options)
+    let html = doc.content.html()
+    return markdown.html2md(html)
   }
 }
 

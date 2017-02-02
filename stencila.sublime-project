@@ -8,7 +8,11 @@
 	"folders":
 	[
 		{
-			"path": "."
+			"path": ".",
+			"folder_exclude_patterns": [
+				"node_modules",
+				"coverage"
+			]
 		}
 	],
 

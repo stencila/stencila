@@ -1,4 +1,3 @@
-const matter = require('gray-matter')
 const unified = require('unified')
 const remarkParse = require('remark-parse')
 const remarkStringify = require('remark-stringify')
@@ -8,59 +7,36 @@ const toMDAST = require('hast-util-to-mdast')
 const visit = require('unist-util-visit')
 const squeezeParagraphs = require('remark-squeeze-paragraphs')
 
-// const bracketedSpans = require('remark-bracketed-spans')
-/*
-
-Compatibility with pandoc converter:
-
-include directive
-fenced_code_attributes
-implicit_figures
-definition_lists
-
-markdown_github – enabled by default
-backtick_code_blocks – enabled by default
-
-yaml_metadata_block – https://www.npmjs.com/package/gray-matter
-bracketed_spans – https://github.com/sethvincent/remark-bracketed-spans
-*/
-
 /**
-* Markdown parser based on markdown-it
-* @param {String} content – the markdown content to parse
+* Convert markdown to html
+* @param {String} md – the markdown content to parse
 * @param {Object} options – options to pass to markdown-it
-* @returns {Object} – returns object with `html`, `data`, and `md` properties
+* @returns {String} – returns string with html
 **/
-function toHTML (content, options) {
+function md2html (md, options) {
   options = options || {}
   if (options.gfm !== false) options.gfm = true
   if (options.commonmark !== false) options.commonmark = true
   options.fences = true
 
-  const parser = unified()
+  const html = unified()
     .use(remarkParse, options)
     .use(squeezeParagraphs)
     .use(stripParagraphNewlines)
     .use(remarkStringify)
+    .use(remarkHtml)
+    .process(md, options).contents.trim()
 
-  const data = matter(content).data
-  const md = parser.process(content, options).contents
-  const html = parser.use(remarkHtml).process(content, options).contents
-
-  return {
-    html: html,
-    md: md,
-    data: data
-  }
+    return html
 }
 
 /**
-* Markdown parser based on markdown-it
-* @param {String} content – the html content to stringify to markdown
+* Convert html to markdown
+* @param {String} html – the html content to stringify to markdown
 * @param {Object} options – options to pass to markdown-it
-* @returns {Object} – returns object with `html`, `data`, and `md` properties
+* @returns {String} – returns string with markdown
 **/
-function toMarkdown (content, options) {
+function html2md (html, options) {
   options = options || {}
   if (options.gfm !== false) options.gfm = true
   if (options.commonmark !== false) options.commonmark = true
@@ -70,15 +46,16 @@ function toMarkdown (content, options) {
   const md = unified()
     .use(rehypeParse)
     .use(rehype2remark)
-    // .use(bracketedSpans.stringify)
     .use(remarkStringify, options)
-    .process(content, options).contents
+    .process(html, options).contents.trim()
 
   return md
 }
 
-module.exports = module.exports.toHTML = toHTML
-module.exports.toMarkdown = toMarkdown
+module.exports = {
+  md2html: md2html,
+  html2md: html2md
+}
 
 // temporary function until rehype2remark module exists on npm
 function rehype2remark (origin, destination, options) {

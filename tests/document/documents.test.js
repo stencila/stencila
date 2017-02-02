@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const test = require('tape')
 
-const Document = require('../src/Document')
+const Document = require('../../src/document/Document')
 
 /*
  * Test for successful convertion of test documents from
@@ -10,9 +10,9 @@ const Document = require('../src/Document')
  * documents.
  */
 test('Document test documents', t => {
-  fs.readdir('tests/documents', (err, files) => {
+  fs.readdir('tests/document/documents', (err, files) => {
     if (err) {
-      t.skip('Folder tests/documents not found. Do you need to run `make test-documents`?')
+      t.skip('Folder tests/document/documents not found. Do you need to run `make test-documents`?')
       t.end()
       return
     }
@@ -29,7 +29,7 @@ test('Document test documents', t => {
         }
 
         // For each file for document...
-        fs.readdir(path.join('tests/documents', dir), (err, files) => {
+        fs.readdir(path.join('tests/document/documents', dir), (err, files) => {
           t.notOk(err)
 
           // Read in files
@@ -37,7 +37,8 @@ test('Document test documents', t => {
           for (let file of files) {
             let canon = file.substring(0, 7) === 'default'
             let format = path.extname(file).substring(1)
-            let content = fs.readFileSync(path.join('tests/documents', dir, file), {encoding: 'utf8'})
+            let content = fs.readFileSync(path.join('tests/document/documents', dir, file), {encoding: 'utf8'})
+            content = content.trim()
             // Load the document from the content
             let doc = new Document()
             doc.load(content, format)

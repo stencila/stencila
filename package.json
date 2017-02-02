@@ -8,7 +8,7 @@
     "test": "tape tests | tap-spec",
     "test-bundle": "browserify tests/*.test.js > tests/bundle.temp.js",
     "test-browser": "browserify tests/*.test.js | testling",
-    "test-documents": "rm -rf tmp && mkdir -p tmp && if [ ! -d 'tmp/stencila' ]; then git clone --depth=1 https://github.com/stencila/stencila tmp/stencila; fi && ln -sf `pwd`/tmp/stencila/tests/documents tests/documents",
+    "test-documents": "rm -rf tmp && mkdir -p tmp && if [ ! -d 'tmp/stencila' ]; then git clone --depth=1 https://github.com/stencila/stencila tmp/stencila; fi && ln -sf `pwd`/tmp/stencila/tests/documents tests/document/documents",
     "cover": "istanbul cover tests",
     "docs": "documentation build --config docs/docs.yml --output docs --format html",
     "docs-serve": "documentation serve --config docs/docs.yml --watch"
@@ -34,12 +34,14 @@
   "homepage": "https://github.com/stencila/js#readme",
   "dependencies": {
     "buble": "^0.15.2",
+    "cheerio": "^0.22.0",
     "d3": "^4.4.0",
     "gray-matter": "^2.1.0",
     "hast-util-to-mdast": "github:syntax-tree/hast-util-to-mdast",
     "rehype": "^3.0.0",
     "rehype-parse": "^2.0.1",
     "rehype-stringify": "^2.1.0",
+    "js-beautify": "^1.6.8",
     "remark": "^6.2.0",
     "remark-bracketed-spans": "^1.0.0",
     "remark-html": "^5.1.0",
