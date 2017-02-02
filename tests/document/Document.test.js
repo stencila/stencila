@@ -4,6 +4,7 @@ const Component = require('../../src/component/Component')
 const Document = require('../../src/document/Document')
 const DocumentHtmlConverter = require('../../src/document/DocumentHtmlConverter')
 const DocumentMarkdownConverter = require('../../src/document/DocumentMarkdownConverter')
+const DocumentJupyterNotebookConverter = require('../../src/document/DocumentJupyterNotebookConverter')
 
 test('Document', t => {
   let d = new Document()
@@ -24,6 +25,7 @@ test('Document.converter', t => {
   t.ok(Document.converter() instanceof DocumentHtmlConverter, 'default is a DocumentHtmlConverter')
   t.ok(Document.converter('html') instanceof DocumentHtmlConverter, 'is a DocumentHtmlConverter')
   t.ok(Document.converter('md') instanceof DocumentMarkdownConverter, 'is a DocumentMarkdownConverter')
+  t.ok(Document.converter('ipynb') instanceof DocumentJupyterNotebookConverter, 'is a DocumentJupyterNotebookConverter')
   t.end()
 })
 
@@ -34,7 +36,20 @@ test('Document.(html,md,ipynb)', t => {
 
   let html = '<h1>Hello world</h1>'
   let md = '# Hello world'
-  let ipynb = '{"cells":[{"cell_type":"markdown","source":"# Hello world"}]}'
+  let ipynb = `{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Hello world"
+      ]
+    }
+  ],
+  "metadata": {},
+  "nbformat": 4,
+  "nbformat_minor": 2
+}`
 
   d.html = html
   t.equal(d.html, html)
