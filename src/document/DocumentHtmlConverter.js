@@ -36,12 +36,14 @@ class DocumentHtmlConverter {
     // Why? Because otherwise the Stencila Host will serve up the file as a Component page
     // instead of as a raw image.
     dom('img[src]').toArray().forEach(el => {
-      el = cheerio(el)
-      let src = el.attr('src')
-      let q = url.parse(src).query
-      if (q) src += '&raw'
-      else src += '?raw'
-      el.attr('src', src)
+      let $el = cheerio(el)
+      let src = $el.attr('src')
+      if (src.substring(0, 5) !== 'data:') {
+        let q = url.parse(src).query
+        if (q) src += '&raw'
+        else src += '?raw'
+        $el.attr('src', src)
+      }
     })
 
     let html = dom.html()
