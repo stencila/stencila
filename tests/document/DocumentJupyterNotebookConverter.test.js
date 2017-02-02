@@ -21,6 +21,9 @@ test('DocumentJupyterNotebookConverter.load', t => {
   c.load(d, {cells: [{cell_type: 'markdown', source: ['# Heading 1']}]})
   t.equal(d.html, '<h1>Heading 1</h1>', 'load Object')
 
+  c.load(d, {cells: [{cell_type: 'markdown', source: ['```\n', 'let x = 56\n', 'x < 65\n', '```\n']}]})
+  t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65\n</code></pre>', 'load Object')
+
   c.load(d, {
     metadata: {
       language_info: {
@@ -57,7 +60,7 @@ test('DocumentJupyterNotebookConverter.dump', t => {
   "nbformat_minor": 2
 }`)
 
-  d.html = '<h1>Heading 1</h1>\n<pre data-execute="python">6*7</pre>'
+  d.html = '<h1>Heading 1</h1>\n<pre data-execute="py">6*7</pre>'
   t.equal(c.dump(d), `{
   "cells": [
     {

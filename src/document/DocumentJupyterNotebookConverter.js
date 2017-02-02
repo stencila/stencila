@@ -8,17 +8,12 @@ const markdown = require('../utilities/markdown')
  *
  * Converts a document from/to a Jupyter notebook based on
  * the documentation of the notebook format at https://github.com/jupyter/nbformat.
- * See there for JSOn schemas too e.g. https://github.com/jupyter/nbformat/blob/master/nbformat/v4/nbformat.v4.schema.json
+ * See there for JSON schemas too e.g. https://github.com/jupyter/nbformat/blob/master/nbformat/v4/nbformat.v4.schema.json
  */
 class DocumentJupyterNotebookConverter {
 
   /**
    * Load a document from a Jupyter notebook
-   *
-   * - `nbformat` and `nbformat_minor` are curretly ignored
-   * - `metadata.kernel_info` and `metadata.language_info` are used to determine the
-   *    language to be assumed for code cells when they are converted to execute directives
-   * - Markdown cells are converted to HTML and
    *
    * @param  {Document} doc - Document to load
    * @param  {String} content - Notebook content
@@ -59,7 +54,7 @@ class DocumentJupyterNotebookConverter {
 
     // Convert each cell
     for (let cell of cells) {
-      let source = cell.source.join('\n')
+      let source = cell.source.join('')
       if (cell.cell_type === 'markdown') {
         let html = markdown.md2html(source)
         $root.append(html)
@@ -68,6 +63,39 @@ class DocumentJupyterNotebookConverter {
                     .attr('data-execute', langCode)
                     .text(source)
         $root.append($pre)
+
+        let outputs = cell.outputs
+        if (outputs) {
+          for (let output of outputs) {
+            let type = output.output_type
+            if (type === 'execute_result' || type === 'display_data') {
+              let mimebundle = output.data
+              let type = Object.keys(mimebundle)[0]
+              let value = mimebundle[type]
+              let $el
+              if (type === 'image/png') {
+                $el = cheerio('<img>').attr('src', `data:${type};base64,${value}`)
+              } else {
+                $el = cheerio('<pre>').text(value)
+              }
+              $el.attr('data-output', true)
+              $root.append($el)
+            } else if (type === 'stream') {
+              let $el
+              if (output.name === 'stderr') {
+                $el = cheerio('<pre>').attr('data-errors', true)
+              } else {
+                $el = cheerio('<pre>').attr('data-output', true)
+              }
+              $el.text(output.text.join(''))
+              $root.append($el)
+            } else if (type === 'error') {
+              let $el = cheerio('<pre>').attr('data-errors', true)
+              $el.text(output.ename + ': ' + output.evalue + '\n\n' + output.traceback)
+              $root.append($el)
+            }
+          }
+        }
       }
     }
 
@@ -120,7 +148,7 @@ class DocumentJupyterNotebookConverter {
     // Notebooks are usually pretty printed so follow suit
     return JSON.stringify({
       cells: cells,
-      metadata: {}, // TODO
+      metadata: {}, // TODO lang from executes - ensure only one
       nbformat: 4,
       nbformat_minor: 2
     }, null, '  ')
