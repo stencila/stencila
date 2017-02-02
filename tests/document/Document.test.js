@@ -42,7 +42,7 @@ test('Document.(html,md,ipynb)', t => {
       "cell_type": "markdown",
       "metadata": {},
       "source": [
-        "# Hello world"
+        "# Hello world\\n"
       ]
     }
   ],

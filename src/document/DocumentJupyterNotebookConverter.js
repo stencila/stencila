@@ -78,6 +78,8 @@ class DocumentJupyterNotebookConverter {
               } else {
                 $el = cheerio('<pre>').text(value)
               }
+              // TODO : deal with other mime types
+              // For examples see https://raw.githubusercontent.com/SciRuby/sciruby-notebooks/master/getting_started.ipynb
               $el.attr('data-output', true)
               $root.append($el)
             } else if (type === 'stream') {
@@ -110,7 +112,16 @@ class DocumentJupyterNotebookConverter {
    * @returns {String} - Content of the document as HTML
    */
   dump (doc, options) {
-    let cells = []
+    options = options || {}
+    if (options.stringify !== false) options.stringify = true
+    if (options.pretty !== false) options.pretty = true
+
+    let nb = {
+      cells: [],
+      metadata: {}, // TODO lang from executes - ensure only one
+      nbformat: 4,
+      nbformat_minor: 2
+    }
 
     // We need to accumulate HTML elements which are then flushed
     // into a markdown cell when an execute directive is hit, or at end
@@ -118,10 +129,11 @@ class DocumentJupyterNotebookConverter {
     function flush () {
       if (html) {
         let md = markdown.html2md(html)
-        cells.push({
+        let lines = md.split('\n').map(line => `${line}\n`)
+        nb.cells.push({
           cell_type: 'markdown',
           metadata: {},
-          source: md.split('\n')
+          source: lines
         })
       }
       html = ''
@@ -132,10 +144,12 @@ class DocumentJupyterNotebookConverter {
       let $this = cheerio(this)
       if ($this.is('[data-execute]')) {
         flush()
-        cells.push({
+        let source = $this.text()
+        let lines = source.split('\n').map(line => `${line}\n`)
+        nb.cells.push({
           cell_type: 'code',
           metadata: {}, // TODO
-          source: $this.text().split('\n'),
+          source: lines,
           outputs: [], // TODO
           execution_count: null // TODO
         })
@@ -145,13 +159,11 @@ class DocumentJupyterNotebookConverter {
     })
     flush()
 
-    // Notebooks are usually pretty printed so follow suit
-    return JSON.stringify({
-      cells: cells,
-      metadata: {}, // TODO lang from executes - ensure only one
-      nbformat: 4,
-      nbformat_minor: 2
-    }, null, '  ')
+    if (options.stringify) {
+      return JSON.stringify(nb, null, options.pretty ? '  ' : null)
+    } else {
+      return nb
+    }
   }
 }
 

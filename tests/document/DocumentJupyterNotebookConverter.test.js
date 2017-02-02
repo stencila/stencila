@@ -45,13 +45,15 @@ test('DocumentJupyterNotebookConverter.dump', t => {
   let c = new DocumentJupyterNotebookConverter()
 
   d.html = '<h1>Heading 1</h1>'
-  t.equal(c.dump(d), `{
+  t.equal(
+    c.dump(d),
+`{
   "cells": [
     {
       "cell_type": "markdown",
       "metadata": {},
       "source": [
-        "# Heading 1"
+        "# Heading 1\\n"
       ]
     }
   ],
@@ -59,6 +61,14 @@ test('DocumentJupyterNotebookConverter.dump', t => {
   "nbformat": 4,
   "nbformat_minor": 2
 }`)
+  t.equal(
+    c.dump(d, {pretty: false}),
+    '{"cells":[{"cell_type":"markdown","metadata":{},"source":["# Heading 1\\n"]}],"metadata":{},"nbformat":4,"nbformat_minor":2}'
+  )
+  t.deepEqual(
+    c.dump(d, {stringify: false}),
+    {cells: [{cell_type: 'markdown', metadata: {}, source: ['# Heading 1\n']}], metadata: {}, nbformat: 4, nbformat_minor: 2}
+  )
 
   d.html = '<h1>Heading 1</h1>\n<pre data-execute="py">6*7</pre>'
   t.equal(c.dump(d), `{
@@ -67,14 +77,14 @@ test('DocumentJupyterNotebookConverter.dump', t => {
       "cell_type": "markdown",
       "metadata": {},
       "source": [
-        "# Heading 1"
+        "# Heading 1\\n"
       ]
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
-        "6*7"
+        "6*7\\n"
       ],
       "outputs": [],
       "execution_count": null
@@ -84,6 +94,52 @@ test('DocumentJupyterNotebookConverter.dump', t => {
   "nbformat": 4,
   "nbformat_minor": 2
 }`)
+
+  t.end()
+})
+
+test('DocumentJupyterNotebookConverter round trip', t => {
+  let d = new Document()
+  let c = new DocumentJupyterNotebookConverter()
+
+  // Function to do round trip conversion and checking.
+  // Takes an array of cells
+  function f (cells) {
+    let nb = {
+      cells: cells,
+      metadata: {},
+      nbformat: 4,
+      nbformat_minor: 2
+    }
+    c.load(d, nb)
+    t.deepEqual(c.dump(d, {
+      stringify: false
+    }), nb)
+  }
+
+  f([
+    {
+      cell_type: 'markdown',
+      metadata: {},
+      source: [
+        '# Heading 1\n'
+      ]
+    }
+  ])
+
+  f([
+    {
+      cell_type: 'markdown',
+      metadata: {},
+      source: [
+        '#Heading 1\n',
+        '\n',
+        'Paragraph one\n',
+        '\n',
+        'Paragraph two\n'
+      ]
+    }
+  ])
 
   t.end()
 })
