@@ -27,7 +27,7 @@ function md2html (md, options) {
     .use(remarkHtml)
     .process(md, options).contents.trim()
 
-    return html
+  return html
 }
 
 /**
