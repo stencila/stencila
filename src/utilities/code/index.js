@@ -11,6 +11,7 @@ if (typeof window !== 'undefined') {
   require('brace/mode/markdown')
   require('brace/mode/python')
   require('brace/mode/r')
+  require('brace/mode/ruby')
   require('brace/mode/sh')
 
   require('brace/theme/monokai')
@@ -34,7 +35,8 @@ var setAceEditorMode = function (editor, language) {
     'js': 'javascript',
     'md': 'markdown',
     'py': 'python',
-    'r': 'r'
+    'r': 'r',
+    'rb': 'ruby'
   }[language] || language
   editor.getSession().setMode('ace/mode/' + mode)
 }
