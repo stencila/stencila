@@ -66,10 +66,12 @@ export default {
     if (node.extra) el.attr('data-extra', node.extra)
 
     let $$ = converter.$$
-    el.append(
-      $$('code').text(node.code),
-      $$('errors').text(node.errors),
-      $$('result').text(node.result)
-    )
+    if (node.code) {
+      el.append(
+        $$('pre')
+          .attr('data-code', '')
+          .text(node.code)
+      )
+    }
   }
 }

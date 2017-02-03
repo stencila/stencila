@@ -13,12 +13,12 @@ test('ExecuteHTMLConverter', function (t) {
   let converter = new TestDocumentHTMLConverter(config)
 
   let input =
-    '<pre data-id="e1" data-execute="r"></pre>' +
-    '<pre data-id="e2" data-execute="py">x=1</pre>'
+    '<div data-id="e1" data-execute="r"></div>' +
+    '<div data-id="e2" data-execute="py"><pre data-code="">x=1</pre></div>'
 
   let output =
-    '<pre data-id="e1" data-execute="r"></pre>' +
-    '<pre data-id="e2" data-execute="py">x=1</pre>'
+    '<div data-id="e1" data-execute="r"></div>' +
+    '<div data-id="e2" data-execute="py"><pre data-code="">x=1</pre></div>'
 
   let doc = converter.import(input + '\n')
 
@@ -29,11 +29,11 @@ test('ExecuteHTMLConverter', function (t) {
 
   let e1 = doc.get('e1').toJSON()
   t.equal(e1.type, 'execute')
-  t.equal(e1.session, 'r')
+  t.equal(e1.context, 'r')
 
   let e2 = doc.get('e2').toJSON()
   t.equal(e2.type, 'execute')
-  t.equal(e2.session, 'py')
+  t.equal(e2.context, 'py')
   t.equal(e2.code, 'x=1')
 
   t.equal(converter.export(doc), output)
@@ -41,13 +41,13 @@ test('ExecuteHTMLConverter', function (t) {
   t.end()
 })
 
-test('Execute.exec()', function (t) {
+test('Execute.refresh', function (t) {
   let converter = new TestDocumentHTMLConverter(config)
 
-  let doc = converter.import('<pre data-id="e1" data-execute="js">x=1</pre>\n')
+  let doc = converter.import('<div data-id="e1" data-execute="js"><pre data-code="">x=1</pre></div>\n')
   let e1 = doc.get('e1')
   e1.refresh()
-  
+
   t.equal(e1.type, 'execute')
 
   t.end()
