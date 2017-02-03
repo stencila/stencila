@@ -3,7 +3,7 @@ import BlockNode from 'substance/model/BlockNode'
 class Execute extends BlockNode {
 
   getCall () {
-    let call = `${this.session}(${this.input})`
+    let call = `${this.context}(${this.input})`
     if (this.output) call = `${this.output} = ${call}`
     return call
   }
@@ -12,7 +12,7 @@ class Execute extends BlockNode {
     let match = call.match(/(([\w_]+) *= *)?(\w+)\(([^(]*)\)/)
     if (match) {
       this.output = match[2]
-      this.session = match[3]
+      this.context = match[3]
       this.input = match[4]
     } else {
       throw new Error('Invalid format for call')
@@ -26,8 +26,8 @@ class Execute extends BlockNode {
    */
   refresh () {
     if (this.code) {
-      // Get the session
-      this.document.getSession(this.session).then(session => {
+      // Get the context
+      this.document.getSession(this.context).then(context => {
         let timer = window.performance
         let t0 = timer.now()
         // Pack input for sending
@@ -36,24 +36,20 @@ class Execute extends BlockNode {
           let pack = this.document.variables[variable]
           if (pack) inputs[variable] = pack
         }
-        // Call `session.execute()` with code and inputs
-        session.execute(this.code, inputs).then(result => {
+        // Call `context.execute()` with code and inputs...
+        context.execute(this.code, inputs).then(returned => {
           this.duration = (timer.now() - t0) / 1000
-
-          if (this.output) {
-            this.document.setVariable(this.output, result.output)
-            this.result = {}
-          } else {
-            this.result = result
-          }
+          this.errors = returned.errors
+          this.results = [returned.output]
           this.emit('changed')
+          // If this execute has an output variable then set it
+          if (this.output) {
+            this.document.setVariable(this.output, returned.output)
+          }
         })
       }).catch(error => {
-        this.result = {
-          errors: {
-            '0': error.toString()
-          }
-        }
+        this.errors = error.toString()
+        this.results = null
         this.emit('changed')
         throw error
       })
@@ -65,14 +61,15 @@ class Execute extends BlockNode {
 Execute.define({
   type: 'execute',
 
-  session: { type: 'string', default: '' },
+  context: { type: 'string', default: '' },
   input: { type: 'string', default: '' },
   output: { type: 'string', default: '' },
   show: { type: 'bool', default: false },
   extra: { type: 'string', optional: true },
   code: { type: 'string', default: '' },
 
-  result: { type: 'object', default: {} },
+  errors: { type: 'object', optional: true },
+  results: { type: ['array', 'object'], optional: true },
   duration: { type: 'number', default: 0 }
 })
 

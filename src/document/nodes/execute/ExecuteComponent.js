@@ -1,6 +1,8 @@
 import Component from 'substance/ui/Component'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
+import math from '../../../utilities/math/index'
+
 class ExecuteComponent extends Component {
 
   render ($$) {
@@ -33,11 +35,11 @@ class ExecuteComponent extends Component {
         $$(ExecuteCodeEditorComponent, {
           node: node,
           codeProperty: 'code',
-          languageProperty: 'session'
+          languageProperty: 'context'
         }).ref('editor')
       )
 
-    var errors = node.result.errors
+    var errors = node.errors
     let session
     if (this.refs.editor) session = this.refs.editor.editor.getSession()
     if (errors && Object.keys(errors).length) {
@@ -51,45 +53,57 @@ class ExecuteComponent extends Component {
           type: 'error'
         }
       })
-      session.setAnnotations(annotations)
+      if (session) session.setAnnotations(annotations)
 
-      let errorsEl = $$('pre').addClass('se-errors')
-      errorsEl.text(JSON.stringify(errors))
-      el.append(errorsEl)
+      let $errors = $$('pre').addClass('se-errors')
+      $errors.text(JSON.stringify(errors))
+      el.append($errors)
     } else {
       if (session) session.clearAnnotations()
     }
 
-    var output = node.result.output
-    if (output) {
-      let type = output.type
-      let format = output.format
-      let value = output.value
-      let outputEl
-      if (format === 'png') {
-        outputEl = $$('img').attr({
-          src: value
-        })
-      } else if (format === 'csv') {
-        let table = ''
-        value.split('\n').forEach(function (row) {
-          table += '<tr>'
-          row.split(',').forEach(function (cell) {
-            table += '<td>' + cell + '</td>'
+    var results = node.results
+    if (!this.output && results) {
+      results.forEach(result => {
+        let type = result.type
+        let format = result.format
+        let value = result.value
+        let $result
+        if (type === 'img') {
+          if (format === 'svg') {
+            $result = $$('div').html(value)
+          } else {
+            $result = $$('img').attr({
+              src: value
+            })
+          }
+        } else if (type === 'tab' && format === 'csv') {
+          let table = ''
+          value.split('\n').forEach(function (row) {
+            table += '<tr>'
+            row.split(',').forEach(function (cell) {
+              table += '<td>' + cell + '</td>'
+            })
+            table += '</tr>'
           })
-          table += '</tr>'
-        })
-        outputEl = $$('table').html(table)
-      } else {
-        outputEl = $$('pre').text(value || '')
-      }
-      outputEl.addClass('se-output')
-              .attr('data-type', type)
-              .append(
-                $$('div').addClass('se-type')
-                         .text(type)
-              )
-      el.append(outputEl)
+          $result = $$('table').html(table)
+        } else if (type === 'dom' && format === 'html') {
+          $result = $$('div').html(value)
+        } else if (type === 'math') {
+          $result = $$('div')
+          try {
+            $result.html(math.render(value, format))
+          } catch (error) {
+            $result.text(error.message)
+          }
+        } else {
+          $result = $$('pre').text(value || '')
+        }
+        $result.addClass('se-result')
+                .attr('data-type', type)
+                .attr('data-format', format)
+        el.append($result)
+      })
     }
 
     return el
