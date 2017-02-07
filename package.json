@@ -37,7 +37,7 @@
     "cheerio": "^0.22.0",
     "d3": "^4.4.0",
     "gray-matter": "^2.1.0",
-    "hast-util-to-mdast": "github:syntax-tree/hast-util-to-mdast",
+    "hast-util-to-mdast": "github:syntax-tree/hast-util-to-mdast#handlers-files",
     "js-beautify": "^1.6.8",
     "rehype": "^3.0.0",
     "rehype-parse": "^2.0.1",
