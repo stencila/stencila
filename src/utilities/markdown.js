@@ -6,6 +6,7 @@ const rehypeParse = require('rehype-parse')
 const toMDAST = require('hast-util-to-mdast')
 const visit = require('unist-util-visit')
 const squeezeParagraphs = require('remark-squeeze-paragraphs')
+var slug = require('remark-slug')
 
 /**
 * Convert markdown to html
@@ -23,6 +24,7 @@ function md2html (md, options) {
     .use(remarkParse, options)
     .use(squeezeParagraphs)
     .use(stripParagraphNewlines)
+    .use(slug)
     .use(remarkStringify)
     .use(remarkHtml)
     .process(md, options).contents.trim()
@@ -41,6 +43,9 @@ function html2md (html, options) {
   if (options.gfm !== false) options.gfm = true
   if (options.commonmark !== false) options.commonmark = true
   if (options.fragment !== false) options.fragment = true
+  options.listItemIndent = '1'
+  options.strong = '*'
+  options.emphasis = '_'
   options.fences = true
 
   const md = unified()

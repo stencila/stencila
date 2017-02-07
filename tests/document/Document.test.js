@@ -34,7 +34,7 @@ test('Document.(html,md,ipynb)', t => {
   // (see other tests for that), just tests the converting getters and setter
   let d = new Document()
 
-  let html = '<h1>Hello world</h1>'
+  let html = '<h1 id="hello-world">Hello world</h1>'
   let md = '# Hello world'
   let ipynb = `{
   "cells": [

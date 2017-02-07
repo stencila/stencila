@@ -16,10 +16,10 @@ test('DocumentJupyterNotebookConverter.load', t => {
   let c = new DocumentJupyterNotebookConverter()
 
   c.load(d, '{"cells":[{"cell_type":"markdown","source":["# Heading 1"]}]}')
-  t.equal(d.html, '<h1>Heading 1</h1>', 'load JSON')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load JSON')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['# Heading 1']}]})
-  t.equal(d.html, '<h1>Heading 1</h1>', 'load Object')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load Object')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['```\n', 'let x = 56\n', 'x < 65\n', '```\n']}]})
   t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65\n</code></pre>', 'load Object')
@@ -35,7 +35,7 @@ test('DocumentJupyterNotebookConverter.load', t => {
       {cell_type: 'code', source: ['"Foo"']}
     ]
   })
-  t.equal(d.html, '<h1>Heading 1</h1>\n<pre data-execute="py">&quot;Foo&quot;</pre>')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>\n<pre data-execute="py">&quot;Foo&quot;</pre>')
 
   t.end()
 })
@@ -44,7 +44,7 @@ test('DocumentJupyterNotebookConverter.dump', t => {
   let d = new Document()
   let c = new DocumentJupyterNotebookConverter()
 
-  d.html = '<h1>Heading 1</h1>'
+  d.html = '<h1 id="heading-1">Heading 1</h1>'
   t.equal(
     c.dump(d),
 `{
@@ -70,7 +70,7 @@ test('DocumentJupyterNotebookConverter.dump', t => {
     {cells: [{cell_type: 'markdown', metadata: {}, source: ['# Heading 1\n']}], metadata: {}, nbformat: 4, nbformat_minor: 2}
   )
 
-  d.html = '<h1>Heading 1</h1>\n<pre data-execute="py">6*7</pre>'
+  d.html = '<h1 id="heading-1">Heading 1</h1>\n<pre data-execute="py">6*7</pre>'
   t.equal(c.dump(d), `{
   "cells": [
     {
