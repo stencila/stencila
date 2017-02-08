@@ -41,7 +41,8 @@ function md2html (md, options) {
 function html2md (html, options) {
   options = options || {}
   if (options.gfm !== false) options.gfm = true
-  if (options.commonmark !== false) options.commonmark = true
+  // commonmark collapses blockquotes, making the tests for blockquotes fail if enabled here
+  if (!options.commonmark) options.commonmark = false
   if (options.fragment !== false) options.fragment = true
   options.listItemIndent = '1'
   options.strong = '*'
@@ -51,7 +52,7 @@ function html2md (html, options) {
   const md = unified()
     .use(rehypeParse)
     .use(rehype2remark)
-    .use(remarkStringify, options)
+    .use(remarkStringify)
     .process(html, options).contents.trim()
 
   return md

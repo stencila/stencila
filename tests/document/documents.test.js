@@ -22,7 +22,7 @@ test('Document test documents', t => {
       // Start a subtest...
       t.test(dir, t => {
         // Failing tests that we will skip at present
-        if (['blockquote', 'input', 'output', 'execute', 'include', 'simple'].indexOf(dir) >= 0) {
+        if (['input', 'output', 'execute', 'include', 'simple'].indexOf(dir) >= 0) {
           t.skip('TODO Skipping')
           t.end()
           return
