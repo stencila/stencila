@@ -3,7 +3,7 @@ const remarkParse = require('remark-parse')
 const remarkStringify = require('remark-stringify')
 const remarkHtml = require('remark-html')
 const rehypeParse = require('rehype-parse')
-const toMDAST = require('hast-util-to-mdast')
+const rehype2remark = require('rehype-remark')
 const visit = require('unist-util-visit')
 const squeezeParagraphs = require('remark-squeeze-paragraphs')
 var slug = require('remark-slug')
@@ -61,31 +61,6 @@ function html2md (html, options) {
 module.exports = {
   md2html: md2html,
   html2md: html2md
-}
-
-// temporary function until rehype2remark module exists on npm
-function rehype2remark (origin, destination, options) {
-  if (destination && !destination.process) {
-    options = destination
-    destination = null
-  }
-
-  /* Bridge-mode.  Runs the destination with the new MDAST
-   * tree. */
-  function bridge (destination, options) {
-    return function transformer (node, file, next) {
-      destination.run(toMDAST(node, options), file, next)
-    }
-  }
-
-  /* Mutate-mode.  Further transformers run on the MDAST tree. */
-  function mutate (options) {
-    return function transformer (node) {
-      return toMDAST(node, options)
-    }
-  }
-
-  return destination ? bridge(destination, options) : mutate(options)
 }
 
 function stripParagraphNewlines () {
