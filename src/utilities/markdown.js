@@ -4,7 +4,6 @@ const remarkStringify = require('remark-stringify')
 const remarkHtml = require('remark-html')
 const rehypeParse = require('rehype-parse')
 const rehype2remark = require('rehype-remark')
-const visit = require('unist-util-visit')
 const squeezeParagraphs = require('remark-squeeze-paragraphs')
 var slug = require('remark-slug')
 
@@ -23,7 +22,6 @@ function md2html (md, options) {
   const html = unified()
     .use(remarkParse, options)
     .use(squeezeParagraphs)
-    .use(stripParagraphNewlines)
     .use(slug)
     .use(remarkStringify)
     .use(remarkHtml)
@@ -62,17 +60,3 @@ module.exports = {
   md2html: md2html,
   html2md: html2md
 }
-
-function stripParagraphNewlines () {
-  return function (ast) {
-    return visit(ast, function (node) {
-      if (node.type === 'paragraph') {
-        node.children.forEach(function (child) {
-          if (child.type === 'text' && child.value) {
-            child.value = child.value.replace(/(\s?)(\r\n|\n|\r)+\s?/gm, ' ')
-          }
-        })
-      }
-    })
-  }
-};
