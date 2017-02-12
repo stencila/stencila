@@ -19,17 +19,20 @@ test('Document test documents', t => {
 
     // For each test document...
     for (let dir of files) {
-      // Start a subtest...
-      t.test(dir, t => {
-        // Failing tests that we will skip at present
-        if (['input', 'output', 'execute', 'include', 'simple'].indexOf(dir) >= 0) {
-          t.skip('TODO Skipping')
-          t.end()
-          return
-        }
 
-        // For each file for document...
-        fs.readdir(path.join('tests/document/documents', dir), (err, files) => {
+      // Get list of files
+      fs.readdir(path.join('tests/document/documents', dir), (err, files) => {
+
+        // Start a subtest...
+        t.test(dir, t => {
+
+          // Failing tests that we will skip at present
+          if (['input', 'output', 'execute', 'include', 'simple'].indexOf(dir) >= 0) {
+            t.skip('TODO')
+            t.end()
+            return
+          }
+
           t.notOk(err)
 
           // Read in files
@@ -69,10 +72,10 @@ test('Document test documents', t => {
               t.equal(obtained, expected, dir + '/' + file + ' should be equivalent to ' + dir + '/default.md')
             }
           }
+
+          t.end()
         })
-        t.end()
       })
     }
-    t.end()
   })
 })
