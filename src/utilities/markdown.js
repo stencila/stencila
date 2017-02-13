@@ -5,7 +5,10 @@ const remarkHtml = require('remark-html')
 const rehypeParse = require('rehype-parse')
 const rehype2remark = require('rehype-remark')
 const squeezeParagraphs = require('remark-squeeze-paragraphs')
-var slug = require('remark-slug')
+const slug = require('remark-slug')
+const visit = require('unist-util-visit')
+
+const include = require('./include')
 
 /**
 * Convert markdown to html
@@ -20,9 +23,10 @@ function md2html (md, options) {
   options.fences = true
 
   const html = unified()
-    .use(remarkParse, options)
+    .use(remarkParse)
     .use(squeezeParagraphs)
     .use(slug)
+    .use(include.md2html)
     .use(remarkStringify)
     .use(remarkHtml)
     .process(md, options).contents.trim()
@@ -46,14 +50,95 @@ function html2md (html, options) {
   options.strong = '*'
   options.emphasis = '_'
   options.fences = true
+  options.entities = false
+  options.encode = false
 
-  const md = unified()
+  const handlers = {
+    div: function (h, node, parent) {
+      if (node.properties.dataInclude) {
+        return include.html2md(h, node, parent)
+      }
+    }
+  }
+
+  function stringifyVisitors (processor) {
+    var Compiler = processor.Compiler
+    var visitors = Compiler.prototype.visitors
+    var text = visitors.text
+
+    visitors.text = function (node, parent) {
+      if (node.value && node.value.indexOf('&lt;')) {
+        let result = text.apply(this, arguments).replace('&lt;', '<')
+        return result
+      }
+    }
+  }
+
+  const toMarkdown = unified()
     .use(rehypeParse)
-    .use(rehype2remark)
-    .use(remarkStringify)
-    .process(html, options).contents.trim()
+    .use(function () {
+      return function (tree) {
+        visit(tree, function (node, index, parent) {
+          const parentIndex = tree.children.indexOf(parent)
 
-  return md
+          if (node.tagName === 'div' &&
+          node.properties &&
+          node.properties.dataDelete) {
+            const selector = node.properties.dataDelete
+
+            tree.children.splice(parentIndex + 1, 0, {
+              type: 'element',
+              tagName: 'p',
+              children: [{
+                type: 'text',
+                value: `& delete ${selector ? ` ${selector}` : ''}`
+              }]
+            })
+          } else if (node.tagName === 'div' &&
+          node.properties &&
+          node.properties.dataChange) {
+            const selector = node.properties.dataChange
+
+            const children = [{
+              type: 'element',
+              tagName: 'p',
+              children: [
+                {
+                  type: 'text',
+                  value: `& change ${selector ? ` ${selector}` : ''}`
+                },
+                {
+                  type: 'element',
+                  tagName: 'br'
+                },
+                {
+                  type: 'text',
+                  value: ':    '
+                }
+              ]
+            }]
+
+            node.children.forEach(function (child) {
+              child.position.indent = [1]
+              if (child.children) {
+                child.children.forEach(function (subchild) {
+                  subchild.position.indent = [1]
+                })
+              }
+              children.push(child)
+            })
+
+            var args = [parentIndex + 2, 0].concat(children)
+            Array.prototype.splice.apply(tree.children, args)
+          }
+        })
+      }
+    })
+    .use(rehype2remark, { handlers: handlers })
+    .use(remarkStringify, { commonmark: true })
+    .use(stringifyVisitors)
+
+  return toMarkdown.process(html, options).contents.trim()
 }
 
 module.exports = {
