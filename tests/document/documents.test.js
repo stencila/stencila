@@ -5,7 +5,7 @@ const test = require('tape')
 const Document = require('../../src/document/Document')
 
 /*
- * Test for successful convertion of test documents from
+ * Test for successful conversion of test documents from
  * the stencila/stencila repo. Run `make test-documents` to get those
  * documents.
  */

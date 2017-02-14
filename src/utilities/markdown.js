@@ -38,14 +38,20 @@ function md2html (md, options) {
 **/
 function html2md (html, options) {
   options = options || {}
+
+  // See the `remark-stringify` options at https://github.com/wooorm/remark/tree/master/packages/remark-stringify#options
   if (options.gfm !== false) options.gfm = true
-  // commonmark collapses blockquotes, making the tests for blockquotes fail if enabled here
+  // If commonmark == true remark collapses adjacent blockquotes
+  // This is confusing because the remark README says that it will "Compile adjacent blockquotes separately"
   if (!options.commonmark) options.commonmark = false
   if (options.fragment !== false) options.fragment = true
   options.listItemIndent = '1'
   options.strong = '*'
   options.emphasis = '_'
   options.fences = true
+  options.rule = '-'
+  options.ruleRepetition = 3
+  options.ruleSpaces = false
 
   const md = unified()
     .use(rehypeParse)
