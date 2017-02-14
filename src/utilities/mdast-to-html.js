@@ -10,6 +10,7 @@ module.exports = function mdast2html (mdast, options) {
   if (options.gfm !== false) options.gfm = true
   if (options.commonmark !== false) options.commonmark = true
   options.fences = true
+  options.fragment = true
 
   const html = unified()
     .use(remarkParse)

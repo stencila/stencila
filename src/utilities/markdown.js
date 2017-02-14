@@ -55,66 +55,10 @@ function html2md (html, options) {
 
   const toMarkdown = unified()
     .use(rehypeParse)
-    .use(function () {
-      return function (tree) {
-        visit(tree, function (node, index, parent) {
-          const parentIndex = tree.children.indexOf(parent)
-
-          if (node.tagName === 'div' &&
-          node.properties &&
-          node.properties.dataDelete) {
-            const selector = node.properties.dataDelete
-
-            tree.children.splice(parentIndex + 1, 0, {
-              type: 'element',
-              tagName: 'p',
-              children: [{
-                type: 'text',
-                value: `& delete ${selector ? ` ${selector}` : ''}`
-              }]
-            })
-          } else if (node.tagName === 'div' &&
-          node.properties &&
-          node.properties.dataChange) {
-            const selector = node.properties.dataChange
-
-            const children = [{
-              type: 'element',
-              tagName: 'p',
-              children: [
-                {
-                  type: 'text',
-                  value: `& change ${selector ? ` ${selector}` : ''}`
-                },
-                {
-                  type: 'element',
-                  tagName: 'br'
-                },
-                {
-                  type: 'text',
-                  value: ':    '
-                }
-              ]
-            }]
-
-            node.children.forEach(function (child) {
-              child.position.indent = [1]
-              if (child.children) {
-                child.children.forEach(function (subchild) {
-                  subchild.position.indent = [1]
-                })
-              }
-              children.push(child)
-            })
-
-            var args = [parentIndex + 2, 0].concat(children)
-            Array.prototype.splice.apply(tree.children, args)
-          }
-        })
-      }
-    })
+    .use(include.html2md)
     .use(rehype2remark)
-    .use(remarkStringify, { commonmark: true })
+    .use(remarkStringify)
+    .use(include.mdVisitors)
 
   return toMarkdown.process(html, options).contents.trim()
 }

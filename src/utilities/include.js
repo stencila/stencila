@@ -93,7 +93,54 @@ function md2html () {
 
 function html2md () {
   return function (tree) {
-    visit(tree, function (node, i, parent) {})
+    visit(tree, function (node, i, parent) {
+      if (node.properties && node.properties.dataInclude) {
+        const filepath = node.properties.dataInclude
+        const selectors = node.properties.dataSelect
+        const input = node.properties.dataInput
+        const children = []
+        const modifiers = {
+          type: 'element',
+          tagName: 'ul',
+          children: []
+        }
+
+        node.children.forEach(function (child) {
+          if (child.properties && child.properties.dataDelete) {
+            modifiers.children.push({
+              type: 'element',
+              tagName: 'li',
+              children: [{
+                type: 'text',
+                value: 'delete ' + child.properties.dataDelete
+              }]
+            })
+          } else if (child.properties && child.properties.dataChange) {
+            const changeChildren = [{
+              type: 'element',
+              tagName: 'p',
+              children: [{
+                  type: 'text',
+                  value: 'change ' + child.properties.dataChange
+                }]
+            }].concat(child.children)
+
+            modifiers.children.push({
+              type: 'element',
+              tagName: 'li',
+              children: changeChildren
+            })
+          }
+        })
+
+        parent.children.splice(i + 1, 0, modifiers)
+        node.tagName = 'p'
+        node.children = [{
+          type: 'text',
+          value: `< ${filepath}${selectors ? ` ${selectors}` : ''}${input ? ` (${input})` : ''}`
+        }]
+      }
+    })
   }
 }
 
@@ -105,10 +152,6 @@ function mdVisitors (processor) {
   var visitors = Compiler.prototype.visitors
   var text = visitors.text
   var root = visitors.root
-
-  visitors.root = function (node) {
-    return root.apply(this, arguments)
-  }
 
   visitors.text = function (node, parent) {
     if (node.value && node.value.indexOf('&lt;')) {
