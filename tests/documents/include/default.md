@@ -28,10 +28,10 @@ Includes with modifiers
 
 < address/of/some/other/document.md
 
-& delete selector1
+- delete selector1
+- change selector2
 
-& change selector2
-:    This is the new *Markdown* content with block elements
-     
-     - One
-     - Two
+  This is the new _Markdown_ content with block elements
+
+  - One
+  - Two
