@@ -53,27 +53,6 @@ function html2md (html, options) {
   options.entities = false
   options.encode = false
 
-  const handlers = {
-    div: function (h, node, parent) {
-      if (node.properties.dataInclude) {
-        return include.html2md(h, node, parent)
-      }
-    }
-  }
-
-  function stringifyVisitors (processor) {
-    var Compiler = processor.Compiler
-    var visitors = Compiler.prototype.visitors
-    var text = visitors.text
-
-    visitors.text = function (node, parent) {
-      if (node.value && node.value.indexOf('&lt;')) {
-        let result = text.apply(this, arguments).replace('&lt;', '<')
-        return result
-      }
-    }
-  }
-
   const toMarkdown = unified()
     .use(rehypeParse)
     .use(function () {
@@ -134,9 +113,8 @@ function html2md (html, options) {
         })
       }
     })
-    .use(rehype2remark, { handlers: handlers })
+    .use(rehype2remark)
     .use(remarkStringify, { commonmark: true })
-    .use(stringifyVisitors)
 
   return toMarkdown.process(html, options).contents.trim()
 }

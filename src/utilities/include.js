@@ -1,97 +1,16 @@
 const visit = require('unist-util-visit')
-const unified = require('unified')
-const parse = require('remark-parse')
-const stringify = require('remark-stringify')
-const html = require('remark-html')
-const findAfter = require('unist-util-find-after')
 const remove = require('unist-util-remove')
 
-var toMarkdown = unified()
-  .use(parse)
-  .use(stringify)
-
-var toHTML = toMarkdown.use(html)
-
-var mdOptions = {
-  gfm: true,
-  listItemIndent: '1',
-  strong: '*',
-  emphasis: '_',
-  fences: true
-}
+const mdast2html = require('./mdast-to-html')
 
 function md2html () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
-      function nextNode (modifiers, index) {
-        const currentNode = findAfter(tree, index)
-        if (currentNode) {
-          getModifiers(modifiers, currentNode, index)
-        }
-      }
-
-      function getModifiers (modifiers, currentNode, index) {
-        const children = currentNode.children
-
-        if (children) {
-          let i = 0
-          let l = children.length
-
-          for (i; i < l; i++) {
-            let child = children[i]
-
-            if (i - index > 1 && child.value.indexOf('&') < 0) {
-              break
-            }
-
-            if (child && child.value && child.value.indexOf('&') === 0) {
-              const sections = child.value.split(' ')
-              const modifierType = sections[1]
-              let content = ''
-
-              if (modifierType === 'delete' && sections[2]) {
-                modifiers.delete.push({
-                  selector: sections[2]
-                })
-
-                remove(tree, currentNode)
-                nextNode(modifiers, index)
-              } else if (modifierType === 'change') {
-                content += child.value.split(':')[1].trim() + ' '
-                child.value = ''
-
-                if (currentNode.children) {
-                  currentNode.children.forEach(function (item, i) {
-                    if (item.position.indent && item.value) {
-                      if (item.value.indexOf('\n') > -1) {
-                        item.value = item.value.split('\n').map(function (val) {
-                          return val.trim() + '\n'
-                        }).join('')
-                      }
-                      content += item.value.trimLeft()
-                    } else if (item.children) {
-                      content += toMarkdown.stringify(item, mdOptions) + ' '
-                    }
-                  })
-                }
-
-                content = toHTML.process(content.trim(), mdOptions).contents.trim()
-
-                modifiers.change.push({
-                  selector: sections[2].split('\n')[0],
-                  content: content
-                })
-
-                remove(tree, currentNode)
-                nextNode(modifiers, index)
-              }
-            }
-          }
-        }
-      }
-
       if (node.type === 'paragraph') {
-        if (node.children && node.children[0].value && node.children[0].value.indexOf('<') === 0) {
+        if (node.children &&
+          node.children[0].value &&
+          node.children[0].value.indexOf('<') === 0
+        ) {
           const splitBySpacesOutsideParentheses = /\s(?=[^)]*(?:\(|$))/g
           let includeStatement = node.children[0].value
           let sections = includeStatement.split(splitBySpacesOutsideParentheses)
@@ -117,7 +36,38 @@ function md2html () {
             change: []
           }
 
-          nextNode(modifiers, i)
+          const modifierNodes = parent.children[i + 1]
+
+          if (modifierNodes &&
+            modifierNodes.type &&
+            modifierNodes.type === 'list'
+          ) {
+            remove(parent, parent.children[i + 1])
+            modifierNodes.children.forEach(function (modifier) {
+              modifier.children.forEach(function (child) {
+                if (child.type === 'paragraph') {
+                  const statement = child.children[0]
+                  const sections = statement.value.split(' ')
+                  const modifierType = sections[0]
+
+                  if (modifierType === 'delete' && sections[1]) {
+                    modifiers.delete.push({
+                      selector: sections[1]
+                    })
+                  } else if (modifierType === 'change') {
+                    modifier.children.splice(0, 1)
+                    modifiers.change.push({
+                      selector: sections[1],
+                      content: mdast2html({
+                        type: 'root',
+                        children: modifier.children
+                      }).trim()
+                    })
+                  }
+                }
+              })
+            })
+          }
 
           if (modifiers.delete.length) {
             modifiers.delete.forEach(function (modifier) {
@@ -141,6 +91,46 @@ function md2html () {
   }
 }
 
+function html2md () {
+  return function (tree) {
+    visit(tree, function (node, i, parent) {})
+  }
+}
+
+/*
+* Clean up markdown output of remark-stringify
+*/
+function mdVisitors (processor) {
+  var Compiler = processor.Compiler
+  var visitors = Compiler.prototype.visitors
+  var text = visitors.text
+  var root = visitors.root
+
+  visitors.root = function (node) {
+    return root.apply(this, arguments)
+  }
+
+  visitors.text = function (node, parent) {
+    if (node.value && node.value.indexOf('&lt;')) {
+      let result = text.apply(this, arguments).replace('&lt;', '<')
+      return result
+    }
+  }
+}
+
+/*
+* Override conversion handlers for HTML -> MD
+*/
+const mdHandlers = {}
+
+module.exports = {
+  md2html: md2html,
+  html2md: html2md,
+  mdVisitors: mdVisitors,
+  mdHandlers: mdHandlers
+}
+
+/*
 function html2md (h, node, parent) {
   if (node.properties.dataInclude) {
     const children = []
@@ -156,8 +146,4 @@ function html2md (h, node, parent) {
     return h(node, 'paragraph', children)
   }
 }
-
-module.exports = {
-  md2html: md2html,
-  html2md: html2md
-}
+*/
