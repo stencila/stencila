@@ -55,7 +55,13 @@ function md2html () {
                       selector: sections[1]
                     })
                   } else if (modifierType === 'change') {
-                    modifier.children.splice(0, 1)
+                    if (sections.length > 2) {
+                      const firstChildSegment = sections.slice(2).join(' ')
+                      modifier.children[0].children[0].value = firstChildSegment
+                    } else {
+                      modifier.children.splice(0, 1)
+                    }
+
                     modifiers.change.push({
                       selector: sections[1],
                       content: mdast2html({
@@ -98,12 +104,13 @@ function html2md () {
         const filepath = node.properties.dataInclude
         const selectors = node.properties.dataSelect
         const input = node.properties.dataInput
-        const children = []
-        const modifiers = {
+        let modifiers = {
           type: 'element',
           tagName: 'ul',
           children: []
         }
+
+        // console.log('tree.children', tree.children)
 
         node.children.forEach(function (child) {
           if (child.properties && child.properties.dataDelete) {
@@ -116,29 +123,36 @@ function html2md () {
               }]
             })
           } else if (child.properties && child.properties.dataChange) {
-            const changeChildren = [{
+            const changeModifier = [{
               type: 'element',
               tagName: 'p',
               children: [{
-                  type: 'text',
-                  value: 'change ' + child.properties.dataChange
-                }]
-            }].concat(child.children)
+                type: 'text',
+                value: 'change ' + child.properties.dataChange
+              }]
+            }]
+
+            child.children.forEach(function (subchild) {
+              changeModifier.push(subchild)
+            })
 
             modifiers.children.push({
               type: 'element',
               tagName: 'li',
-              children: changeChildren
+              children: changeModifier
             })
           }
         })
 
-        parent.children.splice(i + 1, 0, modifiers)
         node.tagName = 'p'
         node.children = [{
           type: 'text',
           value: `< ${filepath}${selectors ? ` ${selectors}` : ''}${input ? ` (${input})` : ''}`
         }]
+
+        if (modifiers.children.length) {
+          tree.children.splice(i + 1, 0, modifiers)
+        }
       }
     })
   }
@@ -151,7 +165,6 @@ function mdVisitors (processor) {
   var Compiler = processor.Compiler
   var visitors = Compiler.prototype.visitors
   var text = visitors.text
-  var root = visitors.root
 
   visitors.text = function (node, parent) {
     if (node.value && node.value.indexOf('&lt;')) {

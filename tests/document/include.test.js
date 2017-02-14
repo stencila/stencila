@@ -1,3 +1,5 @@
+const fs = require('fs')
+const path = require('path')
 const test = require('tape')
 
 const unified = require('unified')
@@ -6,18 +8,36 @@ const remarkStringify = require('remark-stringify')
 const remarkHtml = require('remark-html')
 const rehypeParse = require('rehype-parse')
 const rehype2remark = require('rehype-remark')
+const beautify = require('js-beautify')
 
 const include = require('../../src/utilities/include')
 const defaults = require('../../src/utilities/markdown-defaults')
+const markdown = require('../../src/utilities/markdown')
 
 test('include', t => {
+  function beautifyHTML (input) {
+    return beautify.html(input.trim(), {
+      'indent_inner_html': false,
+      'indent_size': 2,
+      'indent_char': ' ',
+      'wrap_line_length': 0, // disable wrapping
+      'brace_style': 'expand',
+      'preserve_newlines': true,
+      'max_preserve_newlines': 5,
+      'indent_handlebars': false,
+      'extra_liners': ['/html']
+    })
+  }
+
   function toHTML (input) {
-    return unified()
+    const output = unified()
       .use(remarkParse)
       .use(include.md2html)
       .use(remarkStringify)
       .use(remarkHtml)
       .process(input, defaults).contents.trim()
+
+    return beautifyHTML(output)
   }
 
   function toMD (input) {
@@ -90,11 +110,23 @@ test('include', t => {
   # Markdown
 `.trim()
 
-    const expectedHTML = `<div data-include="address/of/some/other/document.md"><div data-delete="selector1"></div><div data-change="selector2"><h1>Markdown</h1></div></div>`
+    const expectedHTML = `<div data-include="address/of/some/other/document.md">\n  <div data-delete="selector1"></div>\n  <div data-change="selector2">\n    <h1>Markdown</h1>\n  </div>\n</div>`
     const outputHTML = toHTML(input.trim())
     st.equal(outputHTML, expectedHTML.trim())
     const outputMD = toMD(expectedHTML)
     st.equal(outputMD, input)
+    st.end()
+  })
+
+  t.test('examples from files', st => {
+    const dir = path.join(__dirname, 'documents', 'include')
+    const input = fs.readFileSync(path.join(dir, 'default.md'), 'utf8')
+    const expectedHTML = fs.readFileSync(path.join(dir, 'default.html'), 'utf8').trim()
+    const outputHTML = beautifyHTML(markdown.md2html(input))
+    console.log('outputHTML', outputHTML)
+    const outputMD = markdown.html2md(expectedHTML)
+    st.equal(outputHTML, expectedHTML, 'output html should equal expected html')
+    st.equal(outputMD, input, 'output markdown should equal input')
     st.end()
   })
 

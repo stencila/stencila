@@ -25,6 +25,7 @@ function md2html (md, options) {
   const html = unified()
     .use(remarkParse)
     .use(squeezeParagraphs)
+    .use(stripNewlines)
     .use(slug)
     .use(include.md2html)
     .use(remarkStringify)
@@ -55,8 +56,12 @@ function html2md (html, options) {
 
   const toMarkdown = unified()
     .use(rehypeParse)
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
     .use(include.html2md)
     .use(rehype2remark)
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
     .use(remarkStringify)
     .use(include.mdVisitors)
 
@@ -67,3 +72,13 @@ module.exports = {
   md2html: md2html,
   html2md: html2md
 }
+
+function stripNewlines () {
+  return function (ast) {
+    return visit(ast, function (node) {
+      if (node.type === 'text' && node.value) {
+        node.value = node.value.replace(/(\s?)(\r\n|\n|\r)+\s?/gm, ' ')
+      }
+    })
+  }
+};
