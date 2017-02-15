@@ -5,7 +5,10 @@ const remarkHtml = require('remark-html')
 const rehypeParse = require('rehype-parse')
 const rehype2remark = require('rehype-remark')
 const squeezeParagraphs = require('remark-squeeze-paragraphs')
-var slug = require('remark-slug')
+const slug = require('remark-slug')
+const visit = require('unist-util-visit')
+
+const include = require('./include')
 
 /**
 * Convert markdown to html
@@ -20,9 +23,11 @@ function md2html (md, options) {
   options.fences = true
 
   const html = unified()
-    .use(remarkParse, options)
+    .use(remarkParse)
     .use(squeezeParagraphs)
+    .use(stripNewlines)
     .use(slug)
+    .use(include.md2html)
     .use(remarkStringify)
     .use(remarkHtml)
     .process(md, options).contents.trim()
@@ -52,17 +57,34 @@ function html2md (html, options) {
   options.rule = '-'
   options.ruleRepetition = 3
   options.ruleSpaces = false
+  options.entities = false
+  options.encode = false
 
-  const md = unified()
+  const toMarkdown = unified()
     .use(rehypeParse)
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
+    .use(include.html2md)
     .use(rehype2remark)
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
     .use(remarkStringify)
-    .process(html, options).contents.trim()
+    .use(include.mdVisitors)
 
-  return md
+  return toMarkdown.process(html, options).contents.trim()
 }
 
 module.exports = {
   md2html: md2html,
   html2md: html2md
 }
+
+function stripNewlines () {
+  return function (ast) {
+    return visit(ast, function (node) {
+      if (node.type === 'text' && node.value) {
+        node.value = node.value.replace(/(\s?)(\r\n|\n|\r)+\s?/gm, ' ')
+      }
+    })
+  }
+};
