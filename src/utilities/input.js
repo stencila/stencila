@@ -18,9 +18,9 @@ function html2md () {
             selected = child.properties.value
           }
 
-          const value = child.children[0].value.indexOf(' ') > -1 ? 
-            `"${child.children[0].value}"` :
-            child.children[0].value
+          const value = child.children[0].value.indexOf(' ') > -1
+            ? `"${child.children[0].value}"`
+            : child.children[0].value
 
           return `${child.properties.value}=${value}`
         }).join(' ')
@@ -38,9 +38,9 @@ function html2md () {
         delete node.properties.type
 
         const attr = Object.keys(node.properties).map(function (attrKey) {
-          const attrValue = node.properties[attrKey].indexOf(' ') > -1 ? 
-            `"${node.properties[attrKey]}"` :
-            node.properties[attrKey]
+          const attrValue = node.properties[attrKey].indexOf(' ') > -1
+          ? `"${node.properties[attrKey]}"`
+          : node.properties[attrKey]
 
           return `${attrKey}=${attrValue}`
         }).join(' ')

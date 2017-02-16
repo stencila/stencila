@@ -11,6 +11,7 @@ const visit = require('unist-util-visit')
 const include = require('./include')
 const bracketedSpans = require('./bracketed-spans')
 const input = require('./input')
+const output = require('./output')
 
 /**
 * Convert markdown to html
@@ -70,6 +71,7 @@ function html2md (html, options) {
     .use(stripNewlines)
     .use(bracketedSpans.html2md)
     .use(input.html2md)
+    .use(output.html2md)
     .use(include.html2md)
     .use(rehype2remark)
     .use(squeezeParagraphs)

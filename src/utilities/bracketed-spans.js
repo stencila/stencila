@@ -28,13 +28,20 @@ function md2html () {
             return `${key}="${attr[key]}"`
           }).join(' ')
 
-          html = `<input name="${name}"${inputType ? ` type="${inputType}"` : ''}${attr ? ` ${htmlattr}` : ''} value="${value}">`
+          html = `<input name="${name}"${inputType ? ` type="${inputType}"` : ''}${htmlattr ? ` ${htmlattr}` : ''} value="${value}">`
         }
       } else if (data.attr.value) {
-        // return console.log('\n\n\n\n\n', 'has value', data, '\n\n\n\n\n')
+        const forInput = data.attr.value
+        delete data.attr.value
+
+        const htmlattr = Object.keys(data.attr).map((key) => {
+          return `data-${key}="${data.attr[key]}"`
+        }).join(' ')
+
+        html = `<output for="${forInput}"${htmlattr ? ` ${htmlattr}` : ''}>${data.text ? data.text : ''}</option>`
       } else {
         html = data.html
-        text = data.trailingText
+        trailingText = data.trailingText
       }
 
       parent.children[i] = {
