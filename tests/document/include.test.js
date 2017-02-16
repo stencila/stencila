@@ -123,7 +123,6 @@ test('include', t => {
     const input = fs.readFileSync(path.join(dir, 'default.md'), 'utf8')
     const expectedHTML = fs.readFileSync(path.join(dir, 'default.html'), 'utf8').trim()
     const outputHTML = beautifyHTML(markdown.md2html(input))
-    console.log('outputHTML', outputHTML)
     const outputMD = markdown.html2md(expectedHTML)
     st.equal(outputHTML, expectedHTML, 'output html should equal expected html')
     st.equal(outputMD, input, 'output markdown should equal input')

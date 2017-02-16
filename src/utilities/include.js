@@ -110,8 +110,6 @@ function html2md () {
           children: []
         }
 
-        // console.log('tree.children', tree.children)
-
         node.children.forEach(function (child) {
           if (child.properties && child.properties.dataDelete) {
             modifiers.children.push({

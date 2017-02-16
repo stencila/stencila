@@ -9,6 +9,8 @@ const slug = require('remark-slug')
 const visit = require('unist-util-visit')
 
 const include = require('./include')
+const bracketedSpans = require('./bracketed-spans')
+const input = require('./input')
 
 /**
 * Convert markdown to html
@@ -28,7 +30,9 @@ function md2html (md, options) {
     .use(stripNewlines)
     .use(slug)
     .use(include.md2html)
+    .use(bracketedSpans.createLinkReferences)
     .use(remarkStringify)
+    .use(bracketedSpans.md2html)
     .use(remarkHtml)
     .process(md, options).contents.trim()
 
@@ -64,12 +68,15 @@ function html2md (html, options) {
     .use(rehypeParse)
     .use(squeezeParagraphs)
     .use(stripNewlines)
+    .use(bracketedSpans.html2md)
+    .use(input.html2md)
     .use(include.html2md)
     .use(rehype2remark)
     .use(squeezeParagraphs)
     .use(stripNewlines)
     .use(remarkStringify)
     .use(include.mdVisitors)
+    .use(bracketedSpans.mdVisitors)
 
   return toMarkdown.process(html, options).contents.trim()
 }
