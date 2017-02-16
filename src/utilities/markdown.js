@@ -12,6 +12,7 @@ const include = require('./include')
 const bracketedSpans = require('./bracketed-spans')
 const input = require('./input')
 const output = require('./output')
+const execute = require('./execute')
 
 /**
 * Convert markdown to html
@@ -30,6 +31,7 @@ function md2html (md, options) {
     .use(squeezeParagraphs)
     .use(stripNewlines)
     .use(slug)
+    .use(execute.md2html)
     .use(include.md2html)
     .use(bracketedSpans.createLinkReferences)
     .use(remarkStringify)
@@ -96,4 +98,4 @@ function stripNewlines () {
       }
     })
   }
-};
+}
