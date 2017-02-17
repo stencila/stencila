@@ -26,17 +26,20 @@ function md2html (md, options) {
   if (options.commonmark !== false) options.commonmark = true
   options.fences = true
 
+  const handlers = {
+    code: execute.code2preHandler
+  }
+
   const html = unified()
     .use(remarkParse)
     .use(squeezeParagraphs)
     .use(stripNewlines)
     .use(slug)
-    .use(execute.md2html)
     .use(include.md2html)
     .use(bracketedSpans.createLinkReferences)
     .use(remarkStringify)
     .use(bracketedSpans.md2html)
-    .use(remarkHtml)
+    .use(remarkHtml, { handlers: handlers })
     .process(md, options).contents.trim()
 
   return html
@@ -67,6 +70,10 @@ function html2md (html, options) {
   options.entities = false
   options.encode = false
 
+  const handlers = {
+    pre: execute.code2fenceHandler
+  }
+
   const toMarkdown = unified()
     .use(rehypeParse)
     .use(squeezeParagraphs)
@@ -75,7 +82,8 @@ function html2md (html, options) {
     .use(input.html2md)
     .use(output.html2md)
     .use(include.html2md)
-    .use(rehype2remark)
+    .use(execute.html2md)
+    .use(rehype2remark, {handlers: handlers})
     .use(squeezeParagraphs)
     .use(stripNewlines)
     .use(remarkStringify)

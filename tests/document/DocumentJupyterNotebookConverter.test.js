@@ -22,7 +22,7 @@ test('DocumentJupyterNotebookConverter.load', t => {
   t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load Object')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['```\n', 'let x = 56\n', 'x < 65\n', '```\n']}]})
-  t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65\n</code></pre>', 'load Object')
+  t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65</code></pre>', 'load Object')
 
   c.load(d, {
     metadata: {

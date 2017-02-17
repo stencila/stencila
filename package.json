@@ -44,7 +44,7 @@
     "rehype-stringify": "^2.1.0",
     "remark": "^6.2.0",
     "remark-bracketed-spans": "^1.0.0",
-    "remark-html": "^5.1.0",
+    "remark-html": "github:sethvincent/remark-html",
     "remark-parse": "^2.2.0",
     "remark-slug": "^4.2.2",
     "remark-squeeze-paragraphs": "^3.0.0",
