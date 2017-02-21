@@ -14,6 +14,8 @@ test('VegaLiteContext', t => {
 test('VegaLiteContext.execute', t => {
   let c = new VegaLiteContext()
 
+  t.plan(4)
+
   c.execute().then(result => {
     t.deepEqual(result, { errors: null, output: null })
   })
@@ -39,6 +41,24 @@ test('VegaLiteContext.execute', t => {
     t.equal(result.output.value.substring(0, 18), '<svg class="marks"')
   })
 
-  t.end()
+  c.execute(`
+  let data = [
+    {type: 'A', height: 28},
+    {type: 'B', height: 55},
+    {type: 'C', height: 43}
+  ]
+  return {
+    data: {
+      values: data
+    },
+    mark: 'bar',
+    encoding: {
+      x: {field: 'type', type: 'ordinal'},
+      y: {field: 'height', type: 'quantitative'}
+    }
+  }`).then(result => {
+    t.equal(result.output.value.substring(0, 18), '<svg class="marks"')
+  })
+
 })
 
