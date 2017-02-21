@@ -67,36 +67,24 @@ class JsContext {
       locals[name] = unpack(inputs[name])
     }
 
-    // Ignore trailing newline
-    // This is of importance because if the last line is empty then there will be
-    // no output. But often a trailing newline will be supplied by user interfaces.
-    if (code.slice(-1) === '\n') {
-      code = code.slice(0, -1)
-    }
+    // Generate a function body. The [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
+    // prevents errors during `buble.transform` associated with any return statements (must be within a func)
+    let body = '(function(){\n' + code + '\n})()'
 
     // Transform the code
     if (this.options.transform) {
       try {
-        code = buble.transform(code).code
+        body = buble.transform(body).code
       } catch (e) {
         // Catch a syntax error
         error = e
       }
     }
 
-    // Generate a function body
-    let body = 'with(globals){ with(locals){\n'
-    let lines = code.split('\n')
-    for (let index = 0; index < lines.length; index++) {
-      if ((index === lines.length - 1) && (lines[index].trim().length > 0)) body += 'return ' + lines[index] + '\n'
-      else body += lines[index] + '\n'
-    }
-    body += '}}\n'
-
     // Create a function to be executed with locals and globals
     let func = null
     try {
-      func = Function('require', 'locals', 'globals', body) // eslint-disable-line no-new-func
+      func = Function('require', 'locals', 'globals', 'with(globals){ with(locals){ return ' + body + '}}') // eslint-disable-line no-new-func
     } catch (e) {
       // Catch a syntax error (not caught above if no transformation)
       error = e
