@@ -28,7 +28,7 @@ test('Component.long', t => {
   t.equal(Component.long('github:/user/repo/report.md'), 'gh://user/repo/report.md')
   t.equal(Component.long('gh:/user/repo/report.md'), 'gh://user/repo/report.md')
 
-  t.equal(Component.long('stats/t-test'), 'st://stats/t-test')
+  t.equal(Component.long('stats/t-test'), 'lib://stats/t-test')
   t.end()
 })
 
@@ -44,7 +44,7 @@ test('Component.short', t => {
   t.equal(Component.short('file://report.docx'), 'file:report.docx')
   t.equal(Component.short('https://foo.com/report.md'), 'https:foo.com/report.md')
   t.equal(Component.short('gh://foo/bar/report.md'), 'gh:foo/bar/report.md')
-  t.equal(Component.short('st://stats/t-test'), 'stats/t-test')
+  t.equal(Component.short('lib://stats/t-test'), 'stats/t-test')
   t.end()
 })
 
@@ -83,14 +83,14 @@ test('Component.split', t => {
   })
 
   t.deepEqual(Component.split('stats/t-test'), {
-    scheme: 'st',
+    scheme: 'lib',
     path: 'stats/t-test',
     format: null,
     version: null
   })
 
   t.deepEqual(Component.split('stats/t-test@1.1.0'), {
-    scheme: 'st',
+    scheme: 'lib',
     path: 'stats/t-test',
     format: null,
     version: '1.1.0'

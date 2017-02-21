@@ -40,7 +40,7 @@ class Component {
    * 'file:///current/directory/report/intro.md'
    *
    * Component.long('stats/t-test.md')
-   * 'st://stats/t-test.md'
+   * 'lib://stats/t-test.md'
    *
    * Component.long()
    * 'id://fa4cf2c5cff5b576990feb96f25c98e6111990c873010855a53bcba979583836'
@@ -49,7 +49,7 @@ class Component {
    * @return {string} - The long form of the address
    */
   static long (address) {
-    if (address.match(/^(new|id|name|file|http|https|git|gh|st):\/\//)) {
+    if (address.match(/^(new|id|name|lib|file|http|https|git|gh):\/\//)) {
       return address
     } else if (address[0] === '+') {
       return 'new://' + address.substring(1)
@@ -75,7 +75,7 @@ class Component {
           throw new GeneralError('Unknown scheme alias.', {alias: alias})
         }
       } else {
-        return 'st://' + address
+        return 'lib://' + address
       }
     }
   }
@@ -122,7 +122,7 @@ class Component {
       return '*' + address.substring(7)
     } else if (address.substring(0, 7) === 'file://') {
       return 'file:' + address.substring(7)
-    } else if (address.substring(0, 5) === 'st://') {
+    } else if (address.substring(0, 5) === 'lib://') {
       return address.substring(5)
     } else if (address.substring(0, 5) === 'gh://') {
       return 'gh:' + address.substring(5)
