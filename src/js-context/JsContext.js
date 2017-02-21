@@ -113,7 +113,7 @@ class JsContext {
       }
     }
 
-    let errors = {}
+    let errors = null
     if (error) {
       // Parse the error stack to get message and line number
       let lines = error.stack.split('\n')
@@ -121,6 +121,7 @@ class JsContext {
       let match = lines[1].match(/<anonymous>:(\d+):\d+/)
       let line = 0
       if (match) line = parseInt(match[1]) - 3
+      errors = {}
       errors[line] = message
     }
 

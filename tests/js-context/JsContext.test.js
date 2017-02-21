@@ -18,9 +18,9 @@ test('JsContext can be constructed with options', t => {
 test('JsContext.execute with no inputs, no errors and no output', function (t) {
   let c = new JsContext()
 
-  t.deepEqual(c.execute('let x = 3\n\n'), {errors: {}, output: null}, 'assign')
+  t.deepEqual(c.execute('let x = 3\n\n'), {errors: null, output: null}, 'assign')
 
-  t.deepEqual(c.execute('// Multiple lines and comments\nlet x = {\na:1\n\n}\n\n'), {errors: {}, output: null}, 'assign')
+  t.deepEqual(c.execute('// Multiple lines and comments\nlet x = {\na:1\n\n}\n\n'), {errors: null, output: null}, 'assign')
 
   t.end()
 })
@@ -28,18 +28,18 @@ test('JsContext.execute with no inputs, no errors and no output', function (t) {
 test('JsContext.execute with no inputs, no errors', function (t) {
   let c = new JsContext()
 
-  t.deepEqual(c.execute('42'), {errors: {}, output: pack(42)}, 'just an evaluation')
-  t.deepEqual(c.execute('let x = 3\nx*3'), {errors: {}, output: pack(9)}, 'assign and return')
-  t.deepEqual(c.execute('let x = 3\nx\n\n'), {errors: {}, output: null}, 'empty last line so no output')
-  t.deepEqual(c.execute('42\n'), {errors: {}, output: pack(42)}, 'trailing newline ignores, so output')
+  t.deepEqual(c.execute('42'), {errors: null, output: pack(42)}, 'just an evaluation')
+  t.deepEqual(c.execute('let x = 3\nx*3'), {errors: null, output: pack(9)}, 'assign and return')
+  t.deepEqual(c.execute('let x = 3\nx\n\n'), {errors: null, output: null}, 'empty last line so no output')
+  t.deepEqual(c.execute('42\n'), {errors: null, output: pack(42)}, 'trailing newline ignores, so output')
   t.end()
 })
 
 test('JsContext.execute with inputs and outputs but no errors', function (t) {
   let c = new JsContext()
 
-  t.deepEqual(c.execute('a*6', {a: pack(7)}), {errors: {}, output: pack(42)})
-  t.deepEqual(c.execute('a*b[1]', {a: pack(17), b: pack([1, 2, 3])}), {errors: {}, output: pack(34)})
+  t.deepEqual(c.execute('a*6', {a: pack(7)}), {errors: null, output: pack(42)})
+  t.deepEqual(c.execute('a*b[1]', {a: pack(17), b: pack([1, 2, 3])}), {errors: null, output: pack(34)})
   t.end()
 })
 
@@ -58,11 +58,11 @@ test('JsContext has globals', function (t) {
   c.execute('globals.foo = 42')
   t.equal(c.globals.foo, 42, 'can assign from execute')
 
-  t.deepEqual(c.execute('globals.foo'), {errors: {}, output: pack(42)}, 'can access from execute')
+  t.deepEqual(c.execute('globals.foo'), {errors: null, output: pack(42)}, 'can access from execute')
 
   t.deepEqual(c.execute('foo'), c.execute('globals.foo'), 'can acess from execute directly (scoped within globals)')
 
-  t.deepEqual(c.execute('foo', {foo: pack('bar')}), {errors: {}, output: pack('bar')}, 'inputs (locals) mask globals')
+  t.deepEqual(c.execute('foo', {foo: pack('bar')}), {errors: null, output: pack('bar')}, 'inputs (locals) mask globals')
 
   t.deepEqual(c.execute('foo'), c.execute('globals.foo'), 'inputs only mask globals per call')
 
@@ -74,7 +74,7 @@ test('JsContext will transform code to ES2015(ES6)', function (t) {
     transform: true
   })
 
-  t.deepEqual(c.execute('Math.max(...[1,3,2])'), {errors: {}, output: pack(3)})
+  t.deepEqual(c.execute('Math.max(...[1,3,2])'), {errors: null, output: pack(3)})
 
   t.end()
 })
@@ -83,7 +83,7 @@ if (typeof window !== 'undefined') {
   test('JsContext can dynamically require NPM modules', t => {
     let c = new JsContext()
 
-    t.deepEqual(c.execute('let isNumber = require("is-number")\nisNumber(1)'), {errors: {}, output: pack(true)})
+    t.deepEqual(c.execute('let isNumber = require("is-number")\nisNumber(1)'), {errors: null, output: pack(true)})
 
     t.end()
   })
