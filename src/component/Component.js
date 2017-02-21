@@ -7,6 +7,7 @@ const ComponentStorerUnknown = require('./component-storer-errors').ComponentSto
 
 const ComponentGithubStorer = require('./ComponentGithubStorer')
 const ComponentHttpStorer = require('./ComponentHttpStorer')
+const ComponentLibraryStorer = require('./ComponentLibraryStorer')
 
 /**
  * The abstract base class for all Stencila components
@@ -285,7 +286,8 @@ class Component {
     let Storer = {
       'gh': ComponentGithubStorer,
       'http': ComponentHttpStorer,
-      'https': ComponentHttpStorer
+      'https': ComponentHttpStorer,
+      'lib': ComponentLibraryStorer
     }[scheme]
     if (!Storer) throw new ComponentStorerUnknown(scheme)
     return new Storer()

@@ -9,6 +9,8 @@ const ComponentStorerUnknown = require('../../src/component/component-storer-err
 
 const ComponentGithubStorer = require('../../src/component/ComponentGithubStorer')
 const ComponentHttpStorer = require('../../src/component/ComponentHttpStorer')
+const ComponentLibraryStorer = require('../../src/component/ComponentLibraryStorer')
+
 
 test('Component.long', t => {
   t.equal(Component.long('new://document'), 'new://document')
@@ -151,9 +153,10 @@ test('Component.converter', t => {
 })
 
 test('Component.storer', t => {
+  t.ok((new Component('gh://foo/bar')).storer() instanceof ComponentGithubStorer)
   t.ok((new Component('http://foo/bar')).storer() instanceof ComponentHttpStorer)
   t.ok((new Component('https://foo/bar')).storer() instanceof ComponentHttpStorer)
-  t.ok((new Component('gh://foo/bar')).storer() instanceof ComponentGithubStorer)
+  t.ok((new Component('lib://foo/bar')).storer() instanceof ComponentLibraryStorer)
   t.throws(() => {
     Component.storer('foo')
   }, ComponentStorerUnknown)
