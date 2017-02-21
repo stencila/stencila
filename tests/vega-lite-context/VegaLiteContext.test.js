@@ -15,11 +15,11 @@ test('VegaLiteContext.execute', t => {
   let c = new VegaLiteContext()
 
   c.execute().then(result => {
-    t.deepEqual(result, { errors: {}, output: null })
+    t.deepEqual(result, { errors: null, output: null })
   })
 
   c.execute('').then(result => {
-    t.deepEqual(result, { errors: {}, output: null })
+    t.deepEqual(result, { errors: null, output: null })
   })
 
   c.execute({
