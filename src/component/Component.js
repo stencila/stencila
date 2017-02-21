@@ -123,7 +123,7 @@ class Component {
     } else if (address.substring(0, 7) === 'file://') {
       return 'file:' + address.substring(7)
     } else if (address.substring(0, 6) === 'lib://') {
-      return address.substring(5)
+      return address.substring(6)
     } else if (address.substring(0, 5) === 'gh://') {
       return 'gh:' + address.substring(5)
     } else {
