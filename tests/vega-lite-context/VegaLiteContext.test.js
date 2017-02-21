@@ -14,8 +14,13 @@ test('VegaLiteContext', t => {
 test('VegaLiteContext.execute', t => {
   let c = new VegaLiteContext()
 
-  t.deepEqual(c.execute(), { errors: {}, output: null })
-  t.deepEqual(c.execute(''), { errors: {}, output: null })
+  c.execute().then(result => {
+    t.deepEqual(result, { errors: {}, output: null })
+  })
+
+  c.execute('').then(result => {
+    t.deepEqual(result, { errors: {}, output: null })
+  })
 
   c.execute({
     data: {
