@@ -20,9 +20,15 @@ class ComponentGithubStorer {
     return this
   }
 
+  /**
+   * Split an address into parts for Github API
+   *
+   * @param  {string} address - Address of the component
+   * @return {object} - Parts of the component address
+   */
   split (address) {
-    const Component = require('./Component') // Dynamic require to avoid circular dependence
-    let {scheme, path, version} = Component.split(address) // eslint-disable-line no-unused-vars
+    // Dynamic require here to avoid circular dependence
+    let {scheme, path, version} = require('./Component').split(address) // eslint-disable-line no-unused-vars
 
     let match = path.match(/^([^/]+)\/([^/]+)\/(.+)?/)
     if (!match) {
@@ -31,7 +37,7 @@ class ComponentGithubStorer {
 
     return {
       user: match[1],
-      name: match[2],
+      repo: match[2],
       file: match[3],
       ref: version || 'master'
     }
@@ -39,9 +45,9 @@ class ComponentGithubStorer {
 
   read (address) {
     return new Promise((resolve, reject) => {
-      let {user, name, file, ref} = this.split(address)
-      let repo = this.github.getRepo(user, name)
-      repo.getContents(ref, file, 'raw')
+      let {user, repo, file, ref} = this.split(address)
+      let repository = this.github.getRepo(user, repo)
+      repository.getContents(ref, file, 'raw')
         .then(response => {
           resolve(response.data)
         })
@@ -57,9 +63,9 @@ class ComponentGithubStorer {
 
   write (address, content) {
     return new Promise((resolve, reject) => {
-      let {user, name, file} = this.split(address)
-      let repo = this.github.getRepo(user, name)
-      repo.writeFile('master', file, content, 'Updated', {})
+      let {user, repo, file} = this.split(address)
+      let repository = this.github.getRepo(user, repo)
+      repository.writeFile('master', file, content, 'Updated', {})
         .then(response => {
           resolve()
         })
