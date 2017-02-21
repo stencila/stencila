@@ -28,9 +28,10 @@ class JsContext {
   /**
    * Execute a chunk of code
    *
-   * @param  {String} code   The code chunk
-   * @param  {Object} inputs An object with a data package for each input variable
-   * @return {Object}        An object with any `errors` (an object with line numbers as keys) and `outputs` (
+   * @param {string} code  The code chunk
+   * @param {object} inputs - An object with a data package for each input variable
+   * @param {object} options - Any execution options
+   * @return {object}        An object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
    *
    * @example
@@ -52,9 +53,11 @@ class JsContext {
    * context.execute('globals.foo = "bar"\n\n') // { errors: {}, output: null }
    * context.execute('foo') // { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }
    */
-  execute (code, inputs) {
+  execute (code, inputs, options) {
     code = code || ''
     inputs = inputs || {}
+    options = options || {}
+    if (options.pack !== false) options.pack = true
 
     let error = null
 
@@ -122,7 +125,7 @@ class JsContext {
     }
 
     if (output === undefined) output = null
-    else if (output) output = pack(output)
+    else if (output && options.pack) output = pack(output)
 
     return {
       errors: errors,
