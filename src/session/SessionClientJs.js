@@ -13,7 +13,7 @@ class SessionClientJs extends ComponentDelegate {
 
   constructor () {
     super()
-    this.impl = new stencilaJs.JsSession()
+    this.impl = new stencilaJs.JsContext()
   }
 
   execute (code, inputs) {
