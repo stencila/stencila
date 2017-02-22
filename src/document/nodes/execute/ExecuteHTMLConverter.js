@@ -14,7 +14,7 @@ export default {
     node.show = el.attr('data-show') || false
     node.extra = el.attr('data-extra')
 
-    let $code = el.find('[data-code]')
+    let $code = el.find('code, [data-code]')
     if ($code) {
       node.code = $code.text()
     }

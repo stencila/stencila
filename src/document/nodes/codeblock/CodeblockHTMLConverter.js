@@ -4,7 +4,7 @@ export default {
   tagName: 'pre',
 
   matchElement: function (el) {
-    if (el.is('pre') && el.children.length === 1) {
+    if (el.is('pre') && !el.attr('data-execute') && el.children.length === 1) {
       return el.children[0].is('code')
     }
     return false

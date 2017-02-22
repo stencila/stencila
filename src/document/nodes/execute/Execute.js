@@ -1,5 +1,7 @@
 import BlockNode from 'substance/model/BlockNode'
 
+const {pack, unpack} = require('stencila-js/src/packing')
+
 class Execute extends BlockNode {
 
   getCall () {
@@ -33,18 +35,22 @@ class Execute extends BlockNode {
         // Pack input for sending
         let inputs = {}
         for (let variable of this.input.split(',')) {
-          let pack = this.document.variables[variable]
-          if (pack) inputs[variable] = pack
+          let value = this.document.variables[variable.trim()]
+          if (value) inputs[variable] = pack(value)
         }
         // Call `context.execute()` with code and inputs...
         context.execute(this.code, inputs).then(returned => {
           this.duration = (timer.now() - t0) / 1000
           this.errors = returned.errors
-          this.results = [returned.output]
+          if (returned.output) {
+            this.results = [returned.output]
+          } else {
+            this.results = []
+          }
           this.emit('changed')
           // If this execute has an output variable then set it
           if (this.output) {
-            this.document.setVariable(this.output, returned.output)
+            this.document.setVariable(this.output, unpack(returned.output))
           }
         })
       }).catch(error => {
