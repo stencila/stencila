@@ -3,6 +3,7 @@ import Document from 'substance/model/Document'
 import DocumentConfigurator from './DocumentConfigurator'
 import SessionClient from '../session/SessionClient'
 import SessionClientJs from '../session/SessionClientJs'
+import VegaLiteContext from 'stencila-js/src/vega-lite-context/VegaLiteContext'
 
 import Input from './nodes/input/Input'
 import Select from './nodes/select/Select'
@@ -51,12 +52,11 @@ class DocumentModel extends Document {
    * and the dependency graph from any `Execute` directives
    */
   initialize () {
+    // CHECK Best way to iterate over nodes?
     for (let id in this.getNodes()) {
       let node = this.get(id)
       if (node instanceof Input || node instanceof Select) {
-        if (node.value) {
-          this.variables[node.name] = node.getPack()
-        }
+        this.variables[node.name] = node.getValue()
       }
     }
     this.refresh()
@@ -66,6 +66,7 @@ class DocumentModel extends Document {
    * Refresh the document
    */
   refresh (variable) {
+    return
     // TODO : This is a simple hack. Needs a dependency graph and a topological sort
     // for order of refresh and detection of circularities
     for (let id in this.getNodes()) {
@@ -136,6 +137,8 @@ class DocumentModel extends Document {
     } else {
       if (language === 'js') {
         return Promise.resolve(new SessionClientJs())
+      } else if (language === 'vegalite') {
+        return Promise.resolve(new VegaLiteContext())
       } else {
         return this.host.open(`+${language}-session`).then(sessionClient => {
           this.documentSession.transaction(tx => {
