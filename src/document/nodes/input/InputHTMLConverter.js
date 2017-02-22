@@ -3,13 +3,13 @@ export default {
   tagName: 'input',
 
   matchElement: function (el) {
-    return el.is('input')
+    return el.is('input, textarea') && el.attr('name')
   },
 
   import: function (el, node, converter) {
     node.name = el.attr('name')
-    node.type_ = el.attr('type') || 'text'
-    node.value = el.attr('value') || null
+    node.type_ = el.attr('type') || (el.is('textarea') ? 'text' : 'string')
+    node.value = el.attr('value') || el.text() || null
   },
 
   export: function (node, el, converter) {

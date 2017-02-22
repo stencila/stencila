@@ -6,40 +6,35 @@ import InlineNode from 'substance/model/InlineNode'
 class Input extends InlineNode {
 
   /**
-   * Convert the input into a data pack
-   *
-   * @return {Object} A data pack
-   */
-  getPack () {
-    // Convert the input type into a data type
-    let type = {
-      'checkbox': 'bool',
-      'number': 'flt',
-      'range': 'flt',
-      'text': 'str'
-    }[this.type_] || 'str'
-    // Return the data pack
-    return {
-      type: type,
-      format: 'text',
-      value: this.value
-    }
-  }
-
-  /**
    * Set the value of this input
    *
    * Changes to the value an input are considered to be local and so
    * this does not trigger a document transaction. Instead, via `document.setVariable`
    * it triggers a refresh of `Execute` nodes.
    *
-   * @param {String} value Value of input
+   * @param {string} string String value of input
    */
-  setValue (value) {
-    this.value = value
-    this.document.setVariable(this.name, this.getPack())
+  setValue (string) {
+    this.value = string
+    this.document.setVariable(this.name, this.getValue())
   }
 
+  getValue () {
+    // Convert to a Javascript value
+    /*
+    TODO conversion from more types
+    TODO validation
+
+      'checkbox': 'bool',
+      'number': 'flt',
+      'range': 'flt',
+      'string': 'str',
+      'text': 'str'
+    */
+    if (!this.value) return null
+    if (this.type_ === 'json') return JSON.parse(this.value)
+    return this.value
+  }
 }
 
 Input.define({

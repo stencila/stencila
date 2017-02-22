@@ -3,26 +3,22 @@ import InlineNode from 'substance/model/InlineNode'
 class Select extends InlineNode {
 
   /**
-   * Convert the select into a data pack
-   *
-   * @return {Object} A data pack
-   */
-  getPack () {
-    return {
-      type: 'str',
-      format: 'text',
-      value: this.value
-    }
-  }
-
-  /**
    * Set the value of this select
    *
    * @param {String} value Value of select
    */
   setValue (value) {
     this.value = value
-    this.document.setVariable(this.name, this.getPack())
+    this.document.setVariable(this.name, this.getValue())
+  }
+
+  /**
+   * Convert the select into a Javascript value
+   *
+   * @return {Object} A data pack
+   */
+  getValue () {
+    return this.value
   }
 
 }
