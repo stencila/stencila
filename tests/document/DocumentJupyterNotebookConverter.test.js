@@ -16,10 +16,10 @@ test('DocumentJupyterNotebookConverter.load', t => {
   let c = new DocumentJupyterNotebookConverter()
 
   c.load(d, '{"cells":[{"cell_type":"markdown","source":["# Heading 1\\n"]}]}')
-  t.equal(d.html, '<h1>Heading 1</h1>', 'load JSON')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load JSON')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['# Heading 1\n']}]})
-  t.equal(d.html, '<h1>Heading 1</h1>', 'load Object')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load Object')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['```\n', 'let x = 56\n', 'x < 65\n', '```\n']}]})
   t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65</code></pre>', 'load Object')
@@ -31,7 +31,7 @@ test('DocumentJupyterNotebookConverter.load', t => {
       {cell_type: 'code', source: ['"Foo"\n']}
     ]
   })
-  t.equal(d.html, '<h1>Heading 1</h1>\n<div data-execute="py">\n  <pre data-code="">&quot;Foo&quot;</pre>\n</div>')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>\n<div data-execute="py">\n  <pre data-code="">&quot;Foo&quot;</pre>\n</div>')
 
   c.load(d, {
     metadata: { language_info: { name: 'R' } },
