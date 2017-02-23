@@ -1,4 +1,12 @@
 toc:
+  - Component
+  - ComponentHttpStorer
+  - ComponentGithubStorer
+  - Document
+  - DocumentHtmlConverter
+  - DocumentMarkdownConverter
+  - DocumentJupyterNotebookConverter
   - JsSession
+  - need
   - pack
   - unpack

@@ -1,4 +1,4 @@
-const cheerio = require('cheerio')
+const $ = require('cheerio')
 
 const context = require('../context/context')
 const markdown = require('../utilities/markdown')
@@ -24,7 +24,7 @@ class DocumentJupyterNotebookConverter {
     let data = (typeof content === 'string') ? JSON.parse(content) : content
 
     // Create the DOM
-    let dom = cheerio.load('')
+    let dom = $.load('')
     let $root = dom.root()
 
     // Get metadata
@@ -55,49 +55,78 @@ class DocumentJupyterNotebookConverter {
     // Convert each cell
     for (let cell of cells) {
       let source = cell.source.join('')
+
+      // Remove the trailing newline, otherwise we get an extra line when dumping
+      if (source.slice(-1) === '\n') source = source.slice(0, -1)
+
       if (cell.cell_type === 'markdown') {
         let html = markdown.md2html(source)
         $root.append(html)
       } else if (cell.cell_type === 'code') {
-        let $pre = cheerio('<pre>')
-                    .attr('data-execute', langCode)
-                    .text(source)
-        $root.append($pre)
+        let $execute = $('<div>')
+        $execute.attr('data-execute', langCode)
+
+        $execute.append(
+          $('<pre>').attr('data-code', '').text(source)
+        )
 
         let outputs = cell.outputs
         if (outputs) {
           for (let output of outputs) {
+            let $result
             let type = output.output_type
             if (type === 'execute_result' || type === 'display_data') {
               let mimebundle = output.data
-              let type = Object.keys(mimebundle)[0]
-              let value = mimebundle[type]
-              let $el
-              if (type === 'image/png') {
-                $el = cheerio('<img>').attr('src', `data:${type};base64,${value}`)
+              // Currently just use the first mime type (there may be multiple
+              // formats for the output)
+              let mimetype = Object.keys(mimebundle)[0]
+              let value = mimebundle[mimetype]
+              if (value.constructor.name === 'Array') value = value.join('')
+
+              // TODO : security, sanitize?
+              let type
+              let format
+              if (mimetype === 'image/png') {
+                type = 'img'
+                let match = mimetype.match('^image/([a-z]+)$')
+                format = match ? match[1] : ''
+                $result = $('<img>').attr('src', `data:${mimetype};base64,${value}`)
+              } else if (mimetype === 'image/svg+xml') {
+                type = 'img'
+                format = 'svg'
+                $result = $('<div>').html(value)
+              } else if (mimetype === 'text/html') {
+                type = 'dom'
+                format = 'html'
+                $result = $('<div>').html(value)
+              } else if (mimetype === 'text/latex') {
+                type = 'math'
+                format = 'latex'
+                if (value.substring(0, 2) === '$$') value = value.substring(2)
+                if (value.slice(-2) === '$$') value = value.slice(0, -2)
+                $result = $('<pre>').text(value)
               } else {
-                $el = cheerio('<pre>').text(value)
+                type = 'str'
+                format = 'text'
+                $result = $('<pre>').text(value)
               }
-              // TODO : deal with other mime types
-              // For examples see https://raw.githubusercontent.com/SciRuby/sciruby-notebooks/master/getting_started.ipynb
-              $el.attr('data-output', true)
-              $root.append($el)
+              $result.attr('data-result', type)
+              $result.attr('data-format', format)
             } else if (type === 'stream') {
-              let $el
-              if (output.name === 'stderr') {
-                $el = cheerio('<pre>').attr('data-errors', true)
-              } else {
-                $el = cheerio('<pre>').attr('data-output', true)
-              }
-              $el.text(output.text.join(''))
-              $root.append($el)
+              $result = $('<pre>')
+              if (output.name === 'stderr') $result.attr('data-errors', true)
+              else $result.attr('data-result', 'str')
+              $result.text(output.text.join(''))
             } else if (type === 'error') {
-              let $el = cheerio('<pre>').attr('data-errors', true)
-              $el.text(output.ename + ': ' + output.evalue + '\n\n' + output.traceback)
-              $root.append($el)
+              $result = $('<pre>').attr('data-errors', true)
+              $result.text(output.ename + ': ' + output.evalue + '\n\n' + output.traceback)
             }
+
+            if ($result) $execute.append($result)
           }
         }
+
+        $root.append($execute)
       }
     }
 
@@ -141,7 +170,7 @@ class DocumentJupyterNotebookConverter {
 
     // Iterate over elements
     doc.content.root().children().each(function () {
-      let $this = cheerio(this)
+      let $this = $(this)
       if ($this.is('[data-execute]')) {
         flush()
         let source = $this.text()
@@ -154,7 +183,7 @@ class DocumentJupyterNotebookConverter {
           execution_count: null // TODO
         })
       } else {
-        html += cheerio.html($this)
+        html += $.html($this)
       }
     })
     flush()
