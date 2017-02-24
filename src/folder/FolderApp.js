@@ -1,6 +1,6 @@
 import Component from 'substance/ui/Component'
 
-import ComponentDelegate from '../ComponentDelegate'
+import ComponentDelegate from '../component/ComponentDelegate'
 
 class FolderApp extends Component {
 
