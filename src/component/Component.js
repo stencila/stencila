@@ -298,13 +298,25 @@ class Component {
     return this.constructor.storer(scheme)
   }
 
-  read () {
-    let {scheme, path, format, version} = this.split() // eslint-disable-line no-unused-vars
-    let content = this.storer(scheme).read(this.address)
-    this.load(content, format)
+  read (address) {
+    if (address) this.address = address
+    else address = this.address
+
+    let {scheme, format} = this.split()
+    return this.storer(scheme)
+      .read(address)
+      .then(content => {
+        this.load(content, format)
+      })
+      .then(() => {
+        return this
+      })
   }
 
-  write () {
+  write (address) {
+    if (address) this.address = address
+    else address = this.address
+
     let {scheme, path, format, version} = this.split() // eslint-disable-line no-unused-vars
     let content = this.dump(format)
     this.storer(scheme).write(this.address, content)
