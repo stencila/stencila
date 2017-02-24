@@ -13,10 +13,17 @@ class Document extends Component {
   /**
    * Construct a document
    */
-  constructor () {
-    super()
+  constructor (address) {
+    super(address)
 
     this.content = cheerio.load('')
+  }
+
+  /**
+   * Formats supported by this class
+   */
+  static get formats () {
+    return ['html', 'md']
   }
 
   static default (name) {
