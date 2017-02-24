@@ -16,13 +16,13 @@ test('DocumentJupyterNotebookConverter.load', t => {
   let c = new DocumentJupyterNotebookConverter()
 
   c.load(d, '{"cells":[{"cell_type":"markdown","source":["# Heading 1\\n"]}]}')
-  t.equal(d.html, '<h1>Heading 1</h1>', 'load JSON')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load JSON')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['# Heading 1\n']}]})
-  t.equal(d.html, '<h1>Heading 1</h1>', 'load Object')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>', 'load Object')
 
   c.load(d, {cells: [{cell_type: 'markdown', source: ['```\n', 'let x = 56\n', 'x < 65\n', '```\n']}]})
-  t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65\n</code></pre>', 'load Object')
+  t.equal(d.html, '<pre><code>let x = 56\nx &lt; 65</code></pre>', 'load Object')
 
   c.load(d, {
     metadata: { language_info: { name: 'python' } },
@@ -31,7 +31,7 @@ test('DocumentJupyterNotebookConverter.load', t => {
       {cell_type: 'code', source: ['"Foo"\n']}
     ]
   })
-  t.equal(d.html, '<h1>Heading 1</h1>\n<div data-execute="py">\n  <pre data-code="">&quot;Foo&quot;</pre>\n</div>')
+  t.equal(d.html, '<h1 id="heading-1">Heading 1</h1>\n<div data-execute="py">\n  <pre data-code="">&quot;Foo&quot;</pre>\n</div>')
 
   c.load(d, {
     metadata: { language_info: { name: 'R' } },
@@ -50,6 +50,7 @@ test('DocumentJupyterNotebookConverter.load', t => {
       }
     ]
   })
+
   t.equal(d.html, '<div data-execute="r">\n  <pre data-code="">plot(1,1)</pre><img src="data:image/png;base64,PNGdata" data-result="img" data-format="png"></div>')
 
   t.end()
@@ -59,7 +60,7 @@ test('DocumentJupyterNotebookConverter.dump', t => {
   let d = new Document()
   let c = new DocumentJupyterNotebookConverter()
 
-  d.html = '<h1>Heading 1</h1>'
+  d.html = '<h1 id="heading-1">Heading 1</h1>'
   t.equal(
     c.dump(d),
 `{
@@ -85,7 +86,7 @@ test('DocumentJupyterNotebookConverter.dump', t => {
     {cells: [{cell_type: 'markdown', metadata: {}, source: ['# Heading 1\n']}], metadata: {}, nbformat: 4, nbformat_minor: 2}
   )
 
-  d.html = '<h1>Heading 1</h1>\n<pre data-execute="py">6*7</pre>'
+  d.html = '<h1 id="heading-1">Heading 1</h1>\n<pre data-execute="py">6*7</pre>'
   t.equal(c.dump(d), `{
   "cells": [
     {
@@ -147,7 +148,7 @@ test('DocumentJupyterNotebookConverter round trip', t => {
       cell_type: 'markdown',
       metadata: {},
       source: [
-        '#Heading 1\n',
+        '# Heading 1\n',
         '\n',
         'Paragraph one\n',
         '\n',

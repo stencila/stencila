@@ -4,5 +4,5 @@
 /coverage
 /*.sublime-workspace
 /tests/bundle.temp.js
-/tests/documents
+/tests/document/documents
 /tmp

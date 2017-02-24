@@ -1,18 +1,109 @@
-const remark = require('remark')
+const unified = require('unified')
+const remarkParse = require('remark-parse')
+const remarkStringify = require('remark-stringify')
 const remarkHtml = require('remark-html')
-const toMarkdown = require('to-markdown')
+const rehypeParse = require('rehype-parse')
+const rehype2remark = require('rehype-remark')
+const squeezeParagraphs = require('remark-squeeze-paragraphs')
+const slug = require('remark-slug')
+const visit = require('unist-util-visit')
 
-function md2html (md) {
-  return remark()
-      .use(remarkHtml)
-      .process(md).contents
+const include = require('./include')
+const bracketedSpans = require('./bracketed-spans')
+const input = require('./input')
+const output = require('./output')
+const execute = require('./execute')
+
+/**
+* Convert markdown to html
+* @param {String} md – the markdown content to parse
+* @param {Object} options – options to pass to markdown-it
+* @returns {String} – returns string with html
+**/
+function md2html (md, options) {
+  options = options || {}
+  if (options.gfm !== false) options.gfm = true
+  if (options.commonmark !== false) options.commonmark = true
+  options.fences = true
+
+  const handlers = {
+    code: execute.code2preHandler
+  }
+
+  const html = unified()
+    .use(remarkParse)
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
+    .use(slug)
+    .use(include.md2html)
+    .use(bracketedSpans.createLinkReferences)
+    .use(remarkStringify)
+    .use(bracketedSpans.md2html)
+    .use(remarkHtml, { handlers: handlers })
+    .process(md, options).contents.trim()
+
+  return html
 }
 
-function html2md (html) {
-  return toMarkdown(html)
+/**
+* Convert html to markdown
+* @param {String} html – the html content to stringify to markdown
+* @param {Object} options – options to pass to markdown-it
+* @returns {String} – returns string with markdown
+**/
+function html2md (html, options) {
+  options = options || {}
+
+  // See the `remark-stringify` options at https://github.com/wooorm/remark/tree/master/packages/remark-stringify#options
+  if (options.gfm !== false) options.gfm = true
+  // If commonmark == true remark collapses adjacent blockquotes
+  // This is confusing because the remark README says that it will "Compile adjacent blockquotes separately"
+  if (!options.commonmark) options.commonmark = false
+  if (options.fragment !== false) options.fragment = true
+  options.listItemIndent = '1'
+  options.strong = '*'
+  options.emphasis = '_'
+  options.fences = true
+  options.rule = '-'
+  options.ruleRepetition = 3
+  options.ruleSpaces = false
+  options.entities = false
+  options.encode = false
+
+  const handlers = {
+    pre: execute.code2fenceHandler
+  }
+
+  const toMarkdown = unified()
+    .use(rehypeParse)
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
+    .use(bracketedSpans.html2md)
+    .use(input.html2md)
+    .use(output.html2md)
+    .use(include.html2md)
+    .use(execute.html2md)
+    .use(rehype2remark, {handlers: handlers})
+    .use(squeezeParagraphs)
+    .use(stripNewlines)
+    .use(remarkStringify)
+    .use(include.mdVisitors)
+    .use(bracketedSpans.mdVisitors)
+
+  return toMarkdown.process(html, options).contents.trim()
 }
 
 module.exports = {
   md2html: md2html,
   html2md: html2md
+}
+
+function stripNewlines () {
+  return function (ast) {
+    return visit(ast, function (node) {
+      if (node.type === 'text' && node.value) {
+        node.value = node.value.replace(/(\s?)(\r\n|\n|\r)+\s?/gm, ' ')
+      }
+    })
+  }
 }
