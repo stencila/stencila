@@ -25,7 +25,10 @@ class VegaLiteContext extends VegaContext {
    */
   execute (code, inputs) {
     // Prepare code into a Vega-Lite spec
-    let spec = this.prepare(code, inputs)
+    let result = this.prepare(code, inputs)
+    // If there were errors then just return results
+    if (result.errors) return Promise.resolve(result)
+    let spec = result.output
     // Compile Vega-Lite spec to Vega spec
     let vegaSpec
     if (spec) vegaSpec = vegaLite.compile(spec).spec

@@ -59,6 +59,4 @@ test('VegaLiteContext.execute', t => {
   }`).then(result => {
     t.equal(result.output.value.substring(0, 18), '<svg class="marks"')
   })
-
 })
-

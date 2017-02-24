@@ -27,6 +27,4 @@ test('VegaContext.execute', t => {
   c.execute({}).then(result => {
     t.equal(result.output.value.substring(0, 106), '<svg class="marks" width="0" height="0" viewBox="0 0 0 0" version="1.1" xmlns="http://www.w3.org/2000/svg"')
   })
-
 })
-

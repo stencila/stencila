@@ -21,16 +21,16 @@ class VegaContext extends JsContext {
     if (typeof code === 'object') {
       // If code is an object, assume that it is a Vega spec
       // (usually this will only be used internally e.g. in testing)
-      return code
+      return {
+        errors: null,
+        output: code
+      }
     } else {
       // Do `JsContext` execution of the code to get the spec object
       let result = super.execute(code, inputs, {
         pack: false
       })
-      if (result.errors) {
-        throw new Error(result.errors)
-      }
-      return result.output
+      return result
     }
   }
 
@@ -44,13 +44,12 @@ class VegaContext extends JsContext {
    */
   execute (code, inputs) {
     // Prepare code into a Vega spec
-    let spec = this.prepare(code, inputs)
-    if (!spec) {
-      return Promise.resolve({
-        errors: null,
-        output: null
-      })
-    }
+    let result = this.prepare(code, inputs)
+    // If there were errors then just return results
+    if (result.errors) return Promise.resolve(result)
+    let spec = result.output
+    // If no spec was produced then return no output
+    if (!spec) return Promise.resolve({ errors: null, output: null })
     // Create a Vega Runtime
     let runtime = vega.parse(spec)
     // Create a Vega View and render it to SVG (see API at https://github.com/vega/vega-view)
