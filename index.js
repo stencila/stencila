@@ -1,10 +1,18 @@
 const {pack, unpack} = require('./src/packing')
+
 const Document = require('./src/document/Document')
-const JsSession = require('./src/js-session/JsSession')
+
+const JsContext = require('./src/js-context/JsContext')
+const VegaContext = require('./src/vega-context/VegaContext')
+const VegaLiteContext = require('./src/vega-lite-context/VegaLiteContext')
 
 module.exports = {
   pack: pack,
   unpack: unpack,
+
   Document: Document,
-  JsSession: JsSession
+
+  JsContext: JsContext,
+  VegaContext: VegaContext,
+  VegaLiteContext: VegaLiteContext
 }
