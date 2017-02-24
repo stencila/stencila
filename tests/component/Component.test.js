@@ -11,7 +11,6 @@ const ComponentGithubStorer = require('../../src/component/ComponentGithubStorer
 const ComponentHttpStorer = require('../../src/component/ComponentHttpStorer')
 const ComponentLibraryStorer = require('../../src/component/ComponentLibraryStorer')
 
-
 test('Component.long', t => {
   t.equal(Component.long('new://document'), 'new://document')
   t.equal(Component.long('+document'), 'new://document')

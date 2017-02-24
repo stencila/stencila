@@ -12,6 +12,8 @@ class Document extends Component {
 
   /**
    * Construct a document
+   *
+   * @param {string} [address] - Address of the document
    */
   constructor (address) {
     super(address)
