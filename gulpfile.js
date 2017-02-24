@@ -19,7 +19,11 @@ var rm = require('gulp-rm')
 
 // Types of components
 var types = [
-  'datatable', 'document', 'folder', 'host', 'session'
+  'datatable',
+  'document',
+  'folder',
+  'host',
+  'session'
 ]
 
 function style (type, dev) {
@@ -162,7 +166,10 @@ gulp.task('styles', function () {
 })
 
 gulp.task('scripts', function () {
-  scripts()
+  // Currently , there are issues with uglify:
+  //   GulpUglifyError: unable to minify JavaScript
+  // so using dev = true here turns uglification off
+  scripts(true)
 })
 
 gulp.task('images', function () {

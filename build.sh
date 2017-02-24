@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # A build script to build and copy stuff to `build` 
-# Eventually this will probably get integrated innto `gulpfile.js`
+# Eventually this will probably get integrated into `gulpfile.js`
  
 mkdir -p build
 
