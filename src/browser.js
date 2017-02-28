@@ -1,7 +1,5 @@
 import extend from 'lodash/extend'
 import he from 'he'
-import Raven from 'raven-js'
-
 import location from './utilities/location'
 
 /**
