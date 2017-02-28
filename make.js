@@ -33,7 +33,7 @@ function _buildVendor() {
 }
 
 function _buildDocument(dev) {
-  b.css('src/document/document.scss', 'build/document.css', {
+  b.css('src/document/document.scss', 'build/stencila-document.css', {
     parser: postcssScss,
     // don't use predefined postcss plugins
     builtins: false,
@@ -48,10 +48,8 @@ function _buildDocument(dev) {
     ],
   })
   b.js('src/document/document.js', {
-    target: {
-      dest: 'build/stencila-document.js',
-      format: 'umd', moduleName: 'stencilaDocument'
-    },
+    dest: 'build/stencila-document.js',
+    format: 'umd', moduleName: 'stencilaDocument',
     // Ignoring stencila-js for now because
     // it needs to be re-designed to be really browser compatible
     alias: {
@@ -64,12 +62,31 @@ function _buildDocument(dev) {
   })
 }
 
+function _buildExamples() {
+  b.copy('./examples/*/*.html', './build/')
+  b.js('examples/document/app.js', {
+    dest: 'build/examples/document/app.js',
+    format: 'umd', moduleName: 'documentExample',
+    external: ['stencila-document']
+  })
+}
+
 b.task('vendor', _buildVendor)
+
+b.task('clean', () => {
+  b.rm('build')
+})
 
 b.task('dev:document', () => { _buildDocument('dev') })
 
 b.task('document', () => { _buildDocument() })
 
-b.task('dev', ['clean', 'dev:document'])
+b.task('examples', ['document'], () => { _buildExamples() })
 
-b.task('default', ['clean', 'document'])
+b.task('dev:examples', ['dev:document'], () => { _buildExamples('dev') })
+
+b.task('dev', ['clean', 'dev:document', 'dev:examples'])
+
+b.task('default', ['clean', 'document', 'examples'])
+
+b.serve({ static: true, route: '/', folder: 'build' })
