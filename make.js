@@ -1,6 +1,15 @@
 var b = require('substance-bundler')
 var path = require('path')
 
+// postcss extensions
+var postcssScss = require('postcss-scss')
+var postcssSassVariables = require('postcss-simple-vars')
+var postcssNested = require('postcss-nested')
+var postcssSassyImport = require('postcss-sassy-import')
+var postcssSassExtend = require('postcss-sass-extend')
+var postcssSassyMixins = require('postcss-sassy-mixins')
+var postcssReporter = require('postcss-reporter')
+
 function _buildVendor() {
   b.browserify('node_modules/sanitize-html/index.js', {
     dest: './vendor/sanitize-html.js',
@@ -24,6 +33,20 @@ function _buildVendor() {
 }
 
 function _buildDocument(dev) {
+  b.css('src/document/document.scss', 'build/document.css', {
+    parser: postcssScss,
+    // don't use predefined postcss plugins
+    builtins: false,
+    // ... but instead use these:
+    plugins: [
+      postcssSassyImport(),
+      postcssSassExtend(),
+      postcssSassyMixins(),
+      postcssNested(),
+      postcssSassVariables(),
+      postcssReporter()
+    ],
+  })
   b.js('src/document/document.js', {
     target: {
       dest: 'build/stencila-document.js',
