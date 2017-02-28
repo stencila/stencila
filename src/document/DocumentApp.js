@@ -1,11 +1,4 @@
-import Component from 'substance/ui/Component'
-import EditorSession from 'substance/model/EditorSession'
-import CollabClient from 'substance/collab/CollabClient'
-import CollabSession from 'substance/collab/CollabSession'
-import WebSocketConnection from 'substance/collab/WebSocketConnection'
-
-import HostClient from '../host/HostClient'
-import ComponentDelegate from '../component/ComponentDelegate'
+import { Component, EditorSession } from 'substance'
 
 import DocumentConfigurator from './DocumentConfigurator'
 var configurator = new DocumentConfigurator()
@@ -116,57 +109,31 @@ class DocumentApp extends Component {
     var doc
     var documentSession
 
+    // FIXME: we more code here establishing a CollabSession.
+    // We removed it as this should be provided by the integrating
+    // environment
     if (this.props.format === 'html') {
       // Import the HTML provided
       doc = importHTML(this.props.data)
-
-      // Create a new local document session
-      documentSession = new EditorSession(doc, {
-        configurator: configurator
-      })
-      // For code compatability with a `CollabSession` ...
-      documentSession.config = {
-        user: null,
-        rights: null
-      }
-    } else {
-      var user = this.props.data.user
-      var rights = this.props.data.rights
-      var collabUrl = this.props.data.collabUrl
-      var snapshot = this.props.data.snapshot
-
-      // Import the JSON provided
-      doc = importJSON(snapshot.data)
-
-      // Create a new collaborative document session
-      var collabConn = new WebSocketConnection({
-        wsUrl: collabUrl
-      })
-      var collabClient = new CollabClient({
-        connection: collabConn
-      })
-      documentSession = new CollabSession(doc, {
-        documentId: snapshot.documentId,
-        version: snapshot.version,
-        collabClient: collabClient,
-        user: user,
-        rights: rights
-      })
+    } else if (this.props.format === 'json') {
+      doc = importJSON(this.props.data)
     }
-
+    // Create a new local document session
+    documentSession = new EditorSession(doc, {
+      configurator: configurator
+    })
+    // For code compatability with a `CollabSession` ...
+    documentSession.config = {
+      user: null,
+      rights: null
+    }
+    // TODO: why is this necessary?
     doc.documentSession = documentSession
-    doc.delegate = new ComponentDelegate(this.props.url)
-    doc.host = new HostClient('http://' + this.props.host)
-
     // Extend state to trigger rerendering
     this.extendState({
       doc: doc,
       documentSession: documentSession
     })
-
-    // Initialise the document (for variables dependencies etc)
-    // CHECK : where is the best place to do this; here?
-    doc.initialize()
   }
 
   /**
