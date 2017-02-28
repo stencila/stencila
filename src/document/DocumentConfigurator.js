@@ -11,7 +11,7 @@ import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
 import MathPackage from './nodes/math/MathPackage'
-import EmojiPackage from './nodes/emoji/EmojiPackage'
+// import EmojiPackage from './nodes/emoji/EmojiPackage'
 
 import ImagePackage from './nodes/image/ImagePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
@@ -72,7 +72,7 @@ class DocumentConfigurator extends Configurator {
     this.import(CodePackage)
     this.import(LinkPackage)
     this.import(MathPackage)
-    this.import(EmojiPackage)
+    // this.import(EmojiPackage)
 
     this.import(ImagePackage)
     this.import(BlockquotePackage)

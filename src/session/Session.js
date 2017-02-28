@@ -1,28 +1,6 @@
-import Document from 'substance/model/Document'
+'use strict'
 
-import SessionConfigurator from './SessionConfigurator'
+import browser from '../browser'
+import SessionApp from './SessionApp'
 
-class Session extends Document {
-
-  constructor () {
-    let configurator = new SessionConfigurator()
-    let schema = configurator.getSchema()
-
-    super(schema)
-
-    this.create({
-      id: 'executions',
-      type: 'container',
-      nodes: []
-    })
-
-    this.create({
-      id: 'objects',
-      type: 'container',
-      nodes: []
-    })
-  }
-
-}
-
-export default Session
+browser(SessionApp)

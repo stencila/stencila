@@ -1,6 +1,6 @@
 import BlockNode from 'substance/model/BlockNode'
 
-const {pack, unpack} = require('stencila-js/src/packing')
+import { pack, unpack } from 'stencila-js'
 
 class Execute extends BlockNode {
 

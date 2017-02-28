@@ -1,4 +1,4 @@
-import stencilaJs from 'stencila-js'
+import { JsContext } from 'stencila-js'
 
 import ComponentDelegate from '../component/ComponentDelegate'
 

@@ -1,8 +1,4 @@
-import AbstractEditor from 'substance/ui/AbstractEditor'
-import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
-import ContainerEditor from 'substance/ui/ContainerEditor'
-
-import each from 'lodash/each'
+import { AbstractEditor, ScrollPane, ContainerEditor } from 'substance'
 
 import DocumentToolset from '../../DocumentToolset'
 import MacroManager from '../../ui/MacroManager'
@@ -49,7 +45,7 @@ class CodeEditor extends AbstractEditor {
     // replacing the "defult" component type with the component type
     // for this code editor's language (currently just Markdown)
     var componentRegistry = configurator.getComponentRegistry()
-    each(Object.keys(configurator.config.nodes), function (nodeType) {
+    Object.keys(configurator.config.nodes).forEach(function (nodeType) {
       var component = componentRegistry.get(nodeType + '-markdown')
       if (component) componentRegistry.add(nodeType, component)
     })
