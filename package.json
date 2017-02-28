@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "description": "Stencila in the browser",
   "main": "index.js",
-  "files": {
-    "build": "build"
-  },
+  "files": [
+    "build"
+  ],
   "scripts": {
     "lint": "gulp lint",
     "start": "node server.js",
