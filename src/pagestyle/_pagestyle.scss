@@ -11,6 +11,33 @@
 @import '../../node_modules/substance/dist/substance.css';
 
 
+body,
+input,
+textarea {
+  color: var(--default-text-color);
+  font-family: $sans-font-family;
+  font-size: var(--default-font-size);
+  min-height: 30px;
+  line-height: 1.5;
+}
+
+.strong,
+strong { font-weight: var(--strong-font-weight); }
+
+.emphasis, em { font-style: italic; }
+
+/* Links */
+a {
+  color: var(--link-color);
+  text-decoration:none;
+}
+a:focus {
+  outline: 1px solid var(--focus-outline-color);
+}
+button:focus {
+  outline: 1px solid var(--focus-outline-color);
+}
+
 // Document styles
 // %stencila-selected {
 //   background: hsla($stencila-green-hue, 100%, 85%, .5);

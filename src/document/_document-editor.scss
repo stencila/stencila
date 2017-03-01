@@ -6,7 +6,14 @@
 */
 
 .sc-document-editor {
+  font-family: $sans-font-family;
+  max-width: 800px;
+  padding: 20px;
+  margin: 0 auto;
+}
 
+.sc-document-editor .sc-container-editor > * {
+  margin: 10px 0;
 }
 
 // Import rendered math styling
