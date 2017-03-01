@@ -1,4 +1,4 @@
-import DocumentNode from 'substance/model/DocumentNode'
+import {DocumentNode} from 'substance'
 
 class Execution extends DocumentNode {}
 

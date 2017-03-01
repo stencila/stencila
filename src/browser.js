@@ -1,4 +1,3 @@
-import extend from 'lodash/extend'
 import he from 'he'
 import location from './utilities/location'
 
@@ -29,7 +28,7 @@ export default function browser (App) {
     }
     // Update with URL query parameters
     var params = location.params()
-    extend(props, params)
+    Object.assign(props, params)
     // Check if `static`
     if (props.static !== '1') {
       if (!App) return
@@ -44,19 +43,7 @@ export default function browser (App) {
         }
         data.style.display = 'none'
       }
-      // If not local then capture any errors
-      if (props.local) {
-        window.app = App.mount(props, document.querySelector('main'))
-      } else {
-        Raven
-          .config('https://6329017160394100b21be92165555d72@app.getsentry.com/37250')
-          .install()
-        try {
-          window.app = App.mount(props, document.querySelector('main'))
-        } catch (e) {
-          Raven.captureException(e)
-        }
-      }
+      window.app = App.mount(props, document.querySelector('main'))
     }
   }
 }

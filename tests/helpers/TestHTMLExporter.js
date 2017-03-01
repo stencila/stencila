@@ -1,4 +1,4 @@
-import HTMLExporter from 'substance/model/HTMLExporter'
+import {HTMLExporter} from 'substance'
 
 class TestHTMLExporter extends HTMLExporter {
 
