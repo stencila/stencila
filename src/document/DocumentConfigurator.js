@@ -10,6 +10,7 @@ import SubscriptPackage from './nodes/subscript/SubscriptPackage'
 import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
+import ListPackage from './nodes/list/ListPackage'
 // import MathPackage from './nodes/math/MathPackage'
 
 // import ImagePackage from './nodes/image/ImagePackage'
@@ -66,6 +67,8 @@ class DocumentConfigurator extends Configurator {
     this.import(SuperscriptPackage)
     this.import(CodePackage)
     this.import(LinkPackage)
+    this.import(ListPackage)
+    
     // this.import(MathPackage)
     // this.import(ImagePackage)
     this.import(BlockquotePackage)

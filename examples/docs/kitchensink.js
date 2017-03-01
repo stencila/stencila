@@ -17,13 +17,17 @@ ggplot(delay, aes(dist, delay)) +
   geom_point(aes(size = count), alpha = 1/2) +
   geom_smooth() +
   scale_size_area()</code></pre>
-<h1>Default</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+<h1>Lists</h1>
 <ol>
-    <li>First</li>
-    <li>Second</li>
-    <li>Third</li>
+  <li>First</li>
+  <li>Second</li>
+  <li>Third</li>
 </ol>
+<ul>
+  <li>First</li>
+  <li>Second</li>
+  <li>Third</li>
+</ul>
 <h1>Emphasis</h1>
 <p>Some <em>emphasized text</em></p>
 <h1>Heading</h1>
