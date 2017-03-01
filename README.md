@@ -1,9 +1,9 @@
-## `stencila/web` : Stencila in the browser
+## `stencila/ui` : Stencila in the browser
 
-[![NPM](http://img.shields.io/npm/v/stencila-web.svg?style=flat)](https://www.npmjs.com/package/stencila-web)
-[![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web)
-[![Code coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web)
-[![Dependency status](https://david-dm.org/stencila/web.svg)](https://david-dm.org/stencila/web)
+[![NPM](http://img.shields.io/npm/v/stencila-ui.svg?style=flat)](https://www.npmjs.com/package/stencila-ui)
+[![Build status](https://travis-ci.org/stencila/ui.svg?branch=master)](https://travis-ci.org/stencila/ui)
+[![Code coverage](https://codecov.io/gh/stencila/ui/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/ui)
+[![Dependency status](https://david-dm.org/stencila/ui.svg)](https://david-dm.org/stencila/ui)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
 This repository is part of the Stencila platform. See our umbrella repository [stencila/stencila](https://github.com/stencila/stencila) for more details.
@@ -21,10 +21,10 @@ This is very much a work in progress. See our [main repo](https://github.com/ste
 
 ### Install
 
-Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles from https://unpkg.com/stencila-web/. But, if you want to have a local copy...
+Actually, this package isn't mean't to be installed as such. Normally, your browser will simply fetch the prebuilt Javascript and CSS bundles from https://unpkg.com/stencila-ui/. But, if you want to have a local copy...
 
 ```
-npm install stencila-web
+npm install stencila-ui
 ```
 
 ### Use
@@ -42,7 +42,7 @@ The `view` method ensures the host is serving and then opens up a browser at the
 
 ### Discuss
 
-We love feedback. Create a [new issue](https://github.com/stencila/web/issues/new), add to [existing issues](https://github.com/stencila/web/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
+We love feedback. Create a [new issue](https://github.com/stencila/ui/issues/new), add to [existing issues](https://github.com/stencila/ui/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
 
 ### Develop
 
@@ -95,7 +95,7 @@ node tests/one collab/ChangeStore.test.js
 npm run test-one -- collab/ChangeStore.test.js
 ```
 
-Tests are automatically run on [Travis](https://travis-ci.org/stencila/web) with code coverage statistics available at [Codecov](https://codecov.io/gh/stencila/web).
+Tests are automatically run on [Travis](https://travis-ci.org/stencila/ui) with code coverage statistics available at [Codecov](https://codecov.io/gh/stencila/ui).
 
 ### Publish
 
