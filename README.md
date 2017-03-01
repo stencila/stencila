@@ -23,13 +23,13 @@ A cross platform desktop application is provided by the `electron` package:
 
 - [electron](https://github.com/stencila/electron) : Stencila on the desktop
 
-Browser-based user interfaces are provided by the `web` package: 
+Browser-based user interfaces are provided by the `ui` package: 
 
-- [web](https://github.com/stencila/web) : Stencila in the browser
+- [ui](https://github.com/stencila/ui) : Stencila in the browser
 
 Currently, five packages expose the platform in alternative host languages (packages for other languages, including Julia and Go, are planned)
 
-- [js](https://github.com/stencila/js) : Stencila for Javascript (code shared by the `node` and `web` packages)
+- [js](https://github.com/stencila/js) : Stencila for Javascript (code shared by the `node` and `ui` packages)
 - [node](https://github.com/stencila/node) : Stencila for Node.js
 - [py](https://github.com/stencila/py) : Stencila for Python
 - [r](https://github.com/stencila/r) : Stencila for R
@@ -47,9 +47,9 @@ Want to help out with development? Great, there's a lot to do! To get started, r
 
 #### Development status
 
-Stencila is made of of several `Component` classes. Examples of component classes include `Document`, `Sheet`, and `Folder`. These classes are implemented separately in each of the language packages (e.g. the `py` package). The long term aim is to have all component classes implemented in each of the language packages. That would allow each of those packages to be used standalone (in the meantime, because the packages can act as a [network of peers](http://blog.stenci.la/diverse-peers/), you can workaround this by installing one of the other packages). The `web` package is focused on user interfaces for each component class and delegate other functionality to implementations in the language packages.
+Stencila is made of of several `Component` classes. Examples of component classes include `Document`, `Sheet`, and `Folder`. These classes are implemented separately in each of the language packages (e.g. the `py` package). The long term aim is to have all component classes implemented in each of the language packages. That would allow each of those packages to be used standalone (in the meantime, because the packages can act as a [network of peers](http://blog.stenci.la/diverse-peers/), you can workaround this by installing one of the other packages). The `ui` package is focused on user interfaces for each component class and delegate other functionality to implementations in the language packages.
 
-                            | Description                                   | `node`       | `py`         | `r`          | `web`         
+                            | Description                                   | `node`       | `py`         | `r`          | `ui`         
 --------------              |--------------                                 |:------------:|:------------:|:------------:|:------------:
 `Component`                 | Base class for all components					| ✓            | ✓            | ✓            |
 `Host`                      | Serves and orchestrates other components      | ✓            | ✓            | ✓            | ✓            
@@ -77,7 +77,7 @@ Key: ✓ = implemented to some degree, - = will probably never be implemented, ^
 [node](https://github.com/stencila/node) | [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila) | [![Build status](https://travis-ci.org/stencila/node.svg?branch=master)](https://travis-ci.org/stencila/node) | [![Test coverage](https://codecov.io/gh/stencila/node/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/node) | [![Issues](http://img.shields.io/github/issues/stencila/node.svg)]( https://github.com/stencila/node/issues )
 [py](https://github.com/stencila/py) | | [![Build status](https://travis-ci.org/stencila/py.svg?branch=master)](https://travis-ci.org/stencila/py) | [![Test coverage](https://codecov.io/gh/stencila/py/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/py) | [![Issues](http://img.shields.io/github/issues/stencila/py.svg)]( https://github.com/stencila/py/issues )
 [r](https://github.com/stencila/r) | | [![Build status](https://travis-ci.org/stencila/r.svg?branch=master)](https://travis-ci.org/stencila/r) | [![Test coverage](https://codecov.io/gh/stencila/r/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/r) | [![Issues](http://img.shields.io/github/issues/stencila/r.svg)]( https://github.com/stencila/r/issues )
-[web](https://github.com/stencila/web) | [![NPM](http://img.shields.io/npm/v/stencila-web.svg?style=flat)](https://www.npmjs.com/package/stencila-web) | [![Build status](https://travis-ci.org/stencila/web.svg?branch=master)](https://travis-ci.org/stencila/web) | [![Test coverage](https://codecov.io/gh/stencila/web/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/web) | [![Issues](http://img.shields.io/github/issues/stencila/web.svg)]( https://github.com/stencila/web/issues )
+[ui](https://github.com/stencila/ui) | [![NPM](http://img.shields.io/npm/v/stencila-ui.svg?style=flat)](https://www.npmjs.com/package/stencila-ui) | [![Build status](https://travis-ci.org/stencila/ui.svg?branch=master)](https://travis-ci.org/stencila/ui) | [![Test coverage](https://codecov.io/gh/stencila/ui/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/ui) | [![Issues](http://img.shields.io/github/issues/stencila/ui.svg)]( https://github.com/stencila/ui/issues )
 
 #### Branches
 
