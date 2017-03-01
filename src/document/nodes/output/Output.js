@@ -1,7 +1,7 @@
+import { InlineNode } from 'substance'
 import {sprintf} from 'sprintf-js'
 import {unpack} from 'stencila-js'
 
-import InlineNode from 'substance/model/InlineNode'
 
 class Output extends InlineNode {
 

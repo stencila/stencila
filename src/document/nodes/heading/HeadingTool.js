@@ -1,5 +1,3 @@
-import map from 'lodash/map'
-
 import BlockTool from '../../ui/BlockTool'
 
 /**
@@ -20,7 +18,7 @@ class HeadingTool extends BlockTool {
           .append(
             $$('select')
               .ref('level')
-              .append(map([1, 2, 3, 4, 5, 6], function (level) {
+              .append([1, 2, 3, 4, 5, 6].map(function (level) {
                 var option = $$('option')
                   .val(level)
                   .html(level)

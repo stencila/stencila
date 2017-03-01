@@ -1,4 +1,4 @@
-import Command from 'substance/ui/Command'
+import { Command } from 'substance'
 
 class RefreshCommand extends Command {
 

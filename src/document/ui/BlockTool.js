@@ -1,4 +1,4 @@
-import Tool from 'substance/packages/tools/Tool'
+import { Tool } from 'substance'
 
 /**
  * A class of `Tool` which instead of running a command

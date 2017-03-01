@@ -1,9 +1,9 @@
-import Superscript from 'substance/packages/superscript/Superscript'
-import SuperscriptHTMLConverter from 'substance/packages/superscript/SuperscriptHTMLConverter'
-import SuperscriptXMLConverter from 'substance/packages/superscript/SuperscriptXMLConverter'
-import AnnotationCommand from 'substance/ui/AnnotationCommand'
-import AnnotationComponent from 'substance/ui/AnnotationComponent'
-import AnnotationTool from 'substance/ui/AnnotationTool'
+import {
+  AnnotationCommand, AnnotationComponent, AnnotationTool,
+  SuperscriptPackage
+} from 'substance'
+
+const { Superscript, SuperscriptHTMLConverter, SuperscriptXMLConverter } = SuperscriptPackage
 
 export default {
   name: 'superscript',

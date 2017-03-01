@@ -1,5 +1,4 @@
-import Overlay from 'substance/packages/overlay/Overlay'
-import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
+import {Overlay, getRelativeBoundingRect} from 'substance'
 
 import TextToolset from './TextToolset'
 import BlockToolset from './BlockToolset'

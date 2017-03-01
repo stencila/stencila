@@ -1,7 +1,6 @@
-import InlineNodeCommand from 'substance/packages/inline-node/InsertInlineNodeCommand'
-import documentHelpers from 'substance/model/documentHelpers'
+import { InsertInlineNodeCommand, documentHelpers } from 'substance'
 
-class EmojiCommand extends InlineNodeCommand {
+class EmojiCommand extends InsertInlineNodeCommand {
 
   constructor () {
     super({

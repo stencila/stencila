@@ -1,1 +1,1 @@
-export {default} from './TitleHTMLConverter'
+export { default } from './TitleHTMLConverter'

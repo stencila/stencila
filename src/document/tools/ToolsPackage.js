@@ -1,5 +1,4 @@
-import UndoCommand from 'substance/packages/base/UndoCommand'
-import RedoCommand from 'substance/packages/base/RedoCommand'
+import { BasePackage } from 'substance'
 
 import CommitCommand from './CommitCommand'
 import CommitTool from './CommitTool'
@@ -14,6 +13,8 @@ import SaveCommand from './SaveCommand'
 import SaveTool from './SaveTool'
 import SettingsCommand from './SettingsCommand'
 import SettingsTool from './SettingsTool'
+
+const { UndoCommand, RedoCommand } = BasePackage
 
 export default {
   name: 'tools',

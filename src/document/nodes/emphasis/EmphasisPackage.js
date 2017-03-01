@@ -1,10 +1,11 @@
-import Emphasis from 'substance/packages/emphasis/Emphasis'
-import EmphasisHTMLConverter from 'substance/packages/emphasis/EmphasisHTMLConverter'
-import EmphasisXMLConverter from 'substance/packages/emphasis/EmphasisXMLConverter'
-import AnnotationComponent from 'substance/ui/AnnotationComponent'
-import AnnotationCommand from 'substance/ui/AnnotationCommand'
-import AnnotationTool from 'substance/ui/AnnotationTool'
+import {
+  AnnotationCommand, AnnotationComponent, AnnotationTool,
+  EmphasisPackage
+} from 'substance'
+
 import EmphasisMacro from './EmphasisMacro'
+
+const { EmphasisHTMLConverter, EmphasisXMLConverter } = EmphasisPackage
 
 export default {
   name: 'emphasis',

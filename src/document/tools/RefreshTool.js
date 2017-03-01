@@ -1,4 +1,4 @@
-import Tool from 'substance/packages/tools/Tool'
+import { Tool } from 'substance'
 
 class RefreshTool extends Tool {
 

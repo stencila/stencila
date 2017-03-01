@@ -1,4 +1,4 @@
-import BlockNode from 'substance/model/BlockNode'
+import {BlockNode} from 'substance'
 
 class Default extends BlockNode {}
 

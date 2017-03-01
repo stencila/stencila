@@ -1,4 +1,6 @@
-import HeadingComponentBase from 'substance/packages/heading/HeadingComponent'
+import { HeadingPackage } from 'substance'
+
+const HeadingComponentBase = HeadingPackage.HeadingComponent
 
 /**
  * A component for `Heading` nodes

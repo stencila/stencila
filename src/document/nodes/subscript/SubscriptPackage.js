@@ -1,9 +1,8 @@
-import Subscript from 'substance/packages/subscript/Subscript'
-import SubscriptHTMLConverter from 'substance/packages/subscript/SubscriptHTMLConverter'
-import SubscriptXMLConverter from 'substance/packages/subscript/SubscriptXMLConverter'
-import AnnotationCommand from 'substance/ui/AnnotationCommand'
-import AnnotationComponent from 'substance/ui/AnnotationComponent'
-import AnnotationTool from 'substance/ui/AnnotationTool'
+import {
+  AnnotationCommand, AnnotationComponent, AnnotationTool,
+  SubscriptPackage
+} from 'substance'
+const { Subscript, SubscriptHTMLConverter, SubscriptXMLConverter } = SubscriptPackage
 
 export default {
   name: 'subscript',

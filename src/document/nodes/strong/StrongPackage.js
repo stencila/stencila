@@ -1,10 +1,12 @@
-import Strong from 'substance/packages/strong/Strong'
-import StrongHTMLConverter from 'substance/packages/strong/StrongHTMLConverter'
-import StrongXMLConverter from 'substance/packages/strong/StrongXMLConverter'
-import AnnotationComponent from 'substance/ui/AnnotationComponent'
-import AnnotationCommand from 'substance/ui/AnnotationCommand'
-import AnnotationTool from 'substance/ui/AnnotationTool'
+import {
+  AnnotationComponent, AnnotationCommand, AnnotationTool,
+  StrongPackage
+} from 'substance'
+
 import StrongMacro from './StrongMacro'
+
+const { Strong, StrongHTMLConverter, StrongXMLConverter } = StrongPackage
+
 
 export default {
   name: 'strong',

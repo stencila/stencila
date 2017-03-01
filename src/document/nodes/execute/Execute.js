@@ -1,5 +1,4 @@
-import BlockNode from 'substance/model/BlockNode'
-
+import { BlockNode } from 'substance'
 import { pack, unpack } from 'stencila-js'
 
 class Execute extends BlockNode {

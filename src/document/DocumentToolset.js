@@ -1,5 +1,4 @@
-import Component from 'substance/ui/Component'
-import Tool from 'substance/packages/tools/Tool'
+import {Component, Tool} from 'substance'
 
 import SizerTool from './tools/SizerTool'
 import ViewTool from './tools/ViewTool'

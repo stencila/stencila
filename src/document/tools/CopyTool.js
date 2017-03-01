@@ -1,4 +1,4 @@
-import Tool from 'substance/packages/tools/Tool'
+import { Tool } from 'substance'
 
 /**
  * Tool for viewing info on the current Stencila component copy

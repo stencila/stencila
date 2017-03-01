@@ -1,5 +1,4 @@
-import Component from 'substance/ui/Component'
-import TextPropertyEditor from 'substance/ui/TextPropertyEditor'
+import { Component, TextPropertyEditor } from 'substance'
 
 class ImageMarkdownComponent extends Component {
 

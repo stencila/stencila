@@ -5,12 +5,12 @@
  *  - provide a label for a plain old heading (ie. not numbered)
  */
 
-import Heading from 'substance/packages/heading/Heading'
+import {HeadingPackage} from 'substance'
 import HeadingComponent from './HeadingComponent'
 import HeadingMarkdownComponent from './HeadingMarkdownComponent'
-import HeadingHTMLConverter from 'substance/packages/heading/HeadingHTMLConverter'
-import HeadingXMLConverter from 'substance/packages/heading/HeadingXMLConverter'
 import HeadingMacro from './HeadingMacro'
+
+const {Heading, HeadingHTMLConverter, HeadingXMLConverter} = HeadingPackage
 
 export default {
   name: 'heading',

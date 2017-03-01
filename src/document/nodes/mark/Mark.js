@@ -1,4 +1,4 @@
-import PropertyAnnotation from 'substance/model/PropertyAnnotation'
+import { PropertyAnnotation } from 'substance'
 
 /**
  * <span data-mark="discuss-1">...</span>

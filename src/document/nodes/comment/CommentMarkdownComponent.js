@@ -1,4 +1,4 @@
-import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
+import {IsolatedNodeComponent} from 'substance'
 
 import CommentComponent from './CommentComponent'
 

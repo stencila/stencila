@@ -1,5 +1,5 @@
+import { Editing } from 'substance'
 import Macro from './Macro'
-import Editing from 'substance/model/Editing'
 
 class AnnotationMacro extends Macro {
 

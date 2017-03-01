@@ -1,4 +1,4 @@
-import TextBlock from 'substance/model/TextBlock'
+import { TextBlock } from 'substance'
 
 class Summary extends TextBlock {}
 

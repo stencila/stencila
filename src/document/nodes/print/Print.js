@@ -1,4 +1,4 @@
-import InlineNode from 'substance/model/InlineNode'
+import { InlineNode } from 'substance'
 
 class Print extends InlineNode {
 

@@ -8,4 +8,4 @@
  * @class      DocumentJSONConverter (name)
  */
 
-export {default} from 'substance/model/JSONConverter'
+export {JSONConverter as default} from 'substance'

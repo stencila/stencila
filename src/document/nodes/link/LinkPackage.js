@@ -1,10 +1,12 @@
-import Link from 'substance/packages/link/Link'
+import { LinkPackage } from 'substance'
 import LinkComponent from './LinkComponent'
 import LinkCommand from './LinkCommand'
 import LinkTool from './LinkTool'
 import LinkHTMLConverter from './LinkHTMLConverter'
 import LinkXMLConverter from './LinkXMLConverter'
 import LinkMacro from './LinkMacro'
+
+const Link = LinkPackage.Link
 
 export default {
   name: 'link',

@@ -1,8 +1,4 @@
-import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
-import ContainerEditor from 'substance/ui/ContainerEditor'
-import Editing from 'substance/model/Editing'
-import each from 'lodash/each'
-
+import {IsolatedNodeComponent, ContainerEditor, Editing, forEach} from 'substance'
 import moment from 'moment'
 
 class DiscussionComponent extends IsolatedNodeComponent {
@@ -198,7 +194,7 @@ class DiscussionComponent extends IsolatedNodeComponent {
       // Delete the discussion and associated mark
       let editing = new Editing()
       editing.deleteNode(tx, { nodeId: discussion.id })
-      each(session.doc.getNodes(), function (node) {
+      forEach(session.doc.getNodes(), function (node) {
         if (node.type === 'mark' && node.target === discussion.id) {
           editing.deleteNode(tx, { nodeId: node.id })
         }

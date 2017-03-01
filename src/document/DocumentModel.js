@@ -1,4 +1,4 @@
-import Document from 'substance/model/Document'
+import {Document} from 'substance'
 
 import DocumentConfigurator from './DocumentConfigurator'
 import SessionClient from '../session/SessionClient'

@@ -1,7 +1,4 @@
-import AnnotationCommand from 'substance/ui/AnnotationCommand'
-import uuid from 'substance/util/uuid'
-import getRelativeBoundingRect from 'substance/util/getRelativeBoundingRect'
-
+import { AnnotationCommand, uuid, getRelativeBoundingRect } from 'substance'
 import moment from 'moment'
 
 class MarkCommand extends AnnotationCommand {

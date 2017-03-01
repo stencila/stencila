@@ -1,4 +1,6 @@
-import LinkComponentBase from 'substance/packages/link/LinkComponent'
+import { LinkPackage } from 'substance'
+
+const LinkComponentBase = LinkPackage.LinkComponent
 
 /**
  * A component for `Link` nodes

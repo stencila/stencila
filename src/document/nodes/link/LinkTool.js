@@ -1,4 +1,4 @@
-import AnnotationTool from 'substance/ui/AnnotationTool'
+import { AnnotationTool } from 'substance'
 
 /**
  * A tool for editing `Print` nodes

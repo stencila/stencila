@@ -1,5 +1,4 @@
-import Component from 'substance/ui/Component'
-import Editing from 'substance/model/Editing'
+import {Component,Editing} from 'substance'
 
 import BlockTool from '../../ui/BlockTool'
 import HeadingTool from '../../nodes/heading/HeadingTool'

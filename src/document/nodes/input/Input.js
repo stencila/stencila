@@ -1,4 +1,4 @@
-import InlineNode from 'substance/model/InlineNode'
+import { InlineNode } from 'substance'
 
 /**
  * For a full list of HTML5 input types see https://developer.mozilla.org/en/docs/Web/HTML/Element/input

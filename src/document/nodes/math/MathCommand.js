@@ -1,7 +1,6 @@
-import InlineNodeCommand from 'substance/packages/inline-node/InsertInlineNodeCommand'
-import documentHelpers from 'substance/model/documentHelpers'
+import { InsertInlineNodeCommand, documentHelpers } from 'substance'
 
-class MathCommand extends InlineNodeCommand {
+class MathCommand extends InsertInlineNodeCommand {
 
   constructor () {
     super({

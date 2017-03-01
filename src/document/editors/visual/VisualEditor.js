@@ -1,6 +1,4 @@
-import AbstractEditor from 'substance/ui/AbstractEditor'
-import ScrollPane from 'substance/packages/scroll-pane/ScrollPane'
-import ContainerEditor from 'substance/ui/ContainerEditor'
+import {AbstractEditor, ScrollPane, ContainerEditor} from 'substance'
 
 import DocumentToolset from '../../DocumentToolset'
 import Overlayer from './Overlayer'

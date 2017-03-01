@@ -1,4 +1,4 @@
-import Component from 'substance/ui/Component'
+import { Component } from 'substance'
 
 import emojione from 'emojione'
 // Consistent with making everying served locally (for offline use etc)...

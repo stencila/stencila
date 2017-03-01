@@ -1,4 +1,4 @@
-import Configurator from 'substance/util/Configurator'
+import { Configurator, ButtonPackage } from 'substance'
 
 import TitlePackage from './nodes/title/TitlePackage'
 import SummaryPackage from './nodes/summary/SummaryPackage'
@@ -32,7 +32,6 @@ import DefaultPackage from './nodes/default/DefaultPackage'
 
 import SessionPackage from '../shared/nodes/session/SessionPackage'
 
-import ButtonPackage from 'substance/packages/button/ButtonPackage'
 import ToolsPackage from './tools/ToolsPackage'
 import VisualEditorPackage from './editors/visual/VisualEditorPackage'
 

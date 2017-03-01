@@ -1,6 +1,6 @@
-import Component from 'substance/ui/Component'
-import CodeEditorComponent from '../../ui/CodeEditorComponent'
+import { Component } from 'substance'
 
+import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import math from '../../../utilities/math/index'
 
 class ExecuteComponent extends Component {

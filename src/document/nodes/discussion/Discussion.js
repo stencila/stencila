@@ -1,4 +1,4 @@
-import Container from 'substance/model/Container'
+import {Container} from 'substance'
 
 class Discussion extends Container {}
 

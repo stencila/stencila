@@ -1,4 +1,4 @@
-import AnnotationCommand from 'substance/ui/AnnotationCommand'
+import { AnnotationCommand } from 'substance'
 
 /**
  * A link annotation command used instead of

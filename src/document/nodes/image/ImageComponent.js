@@ -1,4 +1,4 @@
-import NodeComponent from 'substance/ui/NodeComponent'
+import { NodeComponent } from 'substance'
 
 class ImageComponent extends NodeComponent {
 

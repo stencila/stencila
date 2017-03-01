@@ -1,4 +1,4 @@
-import uuid from 'substance/util/uuid'
+import {uuid} from 'substance'
 
 import sanitize from './sanitize'
 

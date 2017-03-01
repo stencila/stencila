@@ -1,4 +1,4 @@
-import AnnotationComponent from 'substance/ui/AnnotationComponent'
+import {AnnotationComponent} from 'substance'
 
 class CodeMarkdownComponent extends AnnotationComponent {
 

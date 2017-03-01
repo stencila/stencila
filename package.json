@@ -69,6 +69,6 @@
     "lodash": "^4.15.0",
     "moment": "^2.14.1",
     "semantic-ui-css": "^2.2.4",
-    "substance": "1.0.0-beta.6.4"
+    "substance": "substance/substance#beta-6-kaikoura"
   }
 }

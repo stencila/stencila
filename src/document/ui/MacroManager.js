@@ -1,4 +1,4 @@
-import MacroManagerBase from 'substance/ui/MacroManager'
+import { MacroManager as MacroManagerBase } from 'substance'
 
 /**
  * A custom `MacroManager` which excludes text in existing annotations

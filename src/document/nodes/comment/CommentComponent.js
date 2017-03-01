@@ -1,6 +1,4 @@
-import IsolatedNodeComponent from 'substance/packages/isolated-node/IsolatedNodeComponent'
-import ContainerEditor from 'substance/ui/ContainerEditor'
-
+import {IsolatedNodeComponent, ContainerEditor} from 'substance'
 import moment from 'moment'
 
 class CommentComponent extends IsolatedNodeComponent {

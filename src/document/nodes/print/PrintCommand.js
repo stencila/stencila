@@ -1,7 +1,6 @@
-import InlineNodeCommand from 'substance/packages/inline-node/InsertInlineNodeCommand'
-import documentHelpers from 'substance/model/documentHelpers'
+import { InsertInlineNodeCommand, documentHelpers } from 'substance'
 
-class PrintCommand extends InlineNodeCommand {
+class PrintCommand extends InsertInlineNodeCommand {
 
   constructor () {
     super({

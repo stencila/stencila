@@ -1,4 +1,4 @@
-import AnnotationTool from 'substance/ui/AnnotationTool'
+import { AnnotationTool } from 'substance'
 
 class MarkTool extends AnnotationTool {
 

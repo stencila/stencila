@@ -1,5 +1,4 @@
-import Component from 'substance/ui/Component'
-import documentHelpers from 'substance/model/documentHelpers'
+import {Component, documentHelpers} from 'substance'
 
 class TextToolset extends Component {
 
