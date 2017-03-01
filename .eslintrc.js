@@ -1,10 +1,7 @@
 module.exports = {
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 6,
-    "ecmaFeatures": {
-      "jsxnec": true,
-    },
+    "ecmaVersion": 6
   },
   "installedESLint": true,
   "extends": "eslint:recommended",
