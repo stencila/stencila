@@ -17,7 +17,7 @@ import TablePackage from './nodes/table/TablePackage'
 // import ImagePackage from './nodes/image/ImagePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
-
+import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
 // import InputPackage from './nodes/input/InputPackage'
 // import SelectPackage from './nodes/select/SelectPackage'
 // import OutputPackage from './nodes/output/OutputPackage'
@@ -88,7 +88,10 @@ class DocumentConfigurator extends Configurator {
     this.import(DefaultPackage)
 
     // Import UI packages
-    this.import(ToolsPackage)
+    // this.import(ToolsPackage)
+
+    this.import(MinimalSwitchTextTypePackage)
+
   }
 
   /**

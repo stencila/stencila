@@ -15,9 +15,6 @@ export default {
       data: {type: 'summary'}
     })
     config.addIcon('summary', { 'fontawesome': 'fa-circle-o' })
-    config.addLabel('summary', {
-      en: 'Summary',
-      de: 'Summary'
-    })
+    config.addLabel('summary', 'S')
   }
 }
