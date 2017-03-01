@@ -1,0 +1,56 @@
+.sc-function {
+	position: absolute;
+	min-width: 300px;
+  z-index: 10;
+  background: #FFFFFF;
+  top: 30px;
+  font-size: 12px;
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+  text-align: left;
+
+  .se-documentation {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+
+    .se-title {
+      font-weight: bold;
+    }
+
+    .se-signature {
+      font-size: 13px;
+      font-family: $mono-font-family;
+
+      .se-signature-param.sm-active {
+        color: #26CD00;
+      }
+    }
+
+    .se-parameters {
+      font-size: 11px;
+      .se-param {
+        .se-param-name {
+          font-family: $mono-font-family;
+          color: #888;
+          padding-right: 10px;
+        }
+
+        &.sm-active .se-param-name {
+          color: #26CD00;
+        }
+      }
+    }
+  }
+
+  .se-label {
+    color: #888;
+  }
+
+  .se-example {
+    padding: 10px;
+
+    .se-example-code {
+      font-size: 13px;
+      font-family: $mono-font-family;
+    }
+  }
+}

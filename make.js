@@ -55,10 +55,13 @@ function _buildSubstance() {
   }
 }
 
-function _buildDocument() {
+function _buildCss() {
   b.css('src/pagestyle/stencila.css', 'build/stencila.css', {
     variables: true
   })
+}
+
+function _buildDocument() {
   b.js('src/document/document.js', {
     dest: 'build/stencila-document.js',
     format: 'umd', moduleName: 'stencilaDocument',
@@ -72,6 +75,21 @@ function _buildDocument() {
     // TODO: here we need to apply different strategies for
     // different bundles (e.g. hosted without substance, but electron one with substance)
     external: ['substance', 'emojione', 'brace'],
+    commonjs: true,
+    json: true
+  })
+}
+
+function _buildSheet() {
+  b.js('src/sheet/sheet.js', {
+    dest: 'build/stencila-sheet.js',
+    format: 'umd', moduleName: 'stencilaSheet',
+    // Ignoring stencila-js for now because
+    // it needs to be re-designed to be really browser compatible
+    alias: {
+      'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js')
+    },
+    external: ['substance'],
     commonjs: true,
     json: true
   })
@@ -102,14 +120,22 @@ b.task('assets', ['substance'], () => {
   _copyAssets()
 })
 
-b.task('document', ['assets'], () => {
+b.task('css', ['substance'], () => {
+  _buildCss()
+})
+
+b.task('document', ['assets', 'css'], () => {
   _buildDocument()
 })
 
-b.task('examples', ['assets', 'document'], () => {
+b.task('sheet', ['assets', 'css'], () => {
+  _buildSheet()
+})
+
+b.task('examples', ['clean', 'assets', 'css', 'document', 'sheet'], () => {
   _buildExamples()
 })
 
-b.task('default', ['clean', 'assets', 'document', 'examples'])
+b.task('default', ['clean', 'assets', 'examples'])
 
 b.serve({ static: true, route: '/', folder: 'build' })
