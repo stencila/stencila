@@ -101,7 +101,7 @@ function _buildExamples() {
   b.js('examples/document/app.js', {
     dest: 'build/examples/document/app.js',
     format: 'umd', moduleName: 'documentExample',
-    external: ['stencila-document']
+    external: ['stencila-document', 'substance']
   })
 }
 
