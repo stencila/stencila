@@ -37,6 +37,7 @@
   "devDependencies": {
     "brace": "^0.9.1",
     "browserify": "^14.1.0",
+    "emojione": "^2.2.6",
     "eslint": "^3.5.0",
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-promise": "^2.0.1",
@@ -45,6 +46,7 @@
     "express-http-proxy": "^0.10.0",
     "istanbul": "^1.1.0-alpha.1",
     "mockery": "^1.7.0",
+    "moment": "^2.14.1",
     "nightmare": "^2.7.0",
     "nightmare-real-mouse": "^1.0.0",
     "postcss-nested": "^1.0.0",
@@ -62,12 +64,8 @@
     "uglify-js-harmony": "^2.7.5"
   },
   "dependencies": {
-    "emojione": "^2.2.6",
     "font-awesome": "^4.6.3",
-    "he": "^1.1.0",
     "katex": "^0.6.0",
-    "lodash": "^4.15.0",
-    "moment": "^2.14.1",
     "semantic-ui-css": "^2.2.4",
     "substance": "substance/substance#beta-6-kaikoura"
   }
