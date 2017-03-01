@@ -1,0 +1,12 @@
+// The Stencila style sheet.
+//
+// Includes Stencila page style and all component styles. In some integration
+// scenarios you may want to use a lighter configuration, which means you create
+// a custom style entry point and use that instead of stencila.css.
+
+@import './_native-imports';
+@import './_variables';
+@import './_reset';
+
+@import './_pagestyle';
+@import '../document/_document-editor';

@@ -1,8 +1,8 @@
-import { AbstractEditor, ScrollPane, ContainerEditor } from 'substance'
+import { AbstractEditor, ContainerEditor } from 'substance'
 import MacroManager from './ui/MacroManager'
 
 /**
- * A editor for a Stencila Document
+ * The Stencila Document Editor
  *
  * @class      VisualEditor (name)
  */
@@ -22,35 +22,26 @@ export default class DocumentEditor extends AbstractEditor {
    */
   render ($$) {
     var configurator = this.getConfigurator()
-    var el = $$('div').addClass('sc-visual-editor')
+    var el = $$('div').addClass('sc-document-editor')
+
+    let BodyScrollPane = this.componentRegistry.get('body-scroll-pane')
+    let Overlay = this.componentRegistry.get('overlay')
+    let Dropzones = this.componentRegistry.get('dropzones')
 
     // Toggle classes to match properties
     // ['naked', 'reveal', 'edit'].forEach(item => {
     //   if (this.props[item]) el.addClass('sm-' + item)
     // })
 
-    // Document toolset (becuase of the way in which
-    // tools and commands work, this has to go here, under an `AbstractEditor`,
-    // instead of under the `DocumentApp`)
-    // el.append(
-    //   $$(DocumentToolset, {
-    //     copy: this.props.copy,
-    //     view: this.props.view,
-    //     reveal: this.props.reveal,
-    //     comment: this.props.comment,
-    //     edit: this.props.edit
-    //   }).ref('documentToolset')
-    // )
-
     el.append(
       // A `ScrollPane` to manage overlays and other positioning
-      $$(ScrollPane, {
-        scrollbarType: 'native',
-        scrollbarPosition: 'right',
-        // overlay: Overlayer
-      })
+      $$(BodyScrollPane)
         .ref('scrollPane')
         .append(
+          $$(Overlay, {
+            toolGroups: ['annotations', 'text', 'overlay']
+          }),
+          $$(Dropzones),
           // A  ContainerEditor for the content of the document
           $$(ContainerEditor, {
             containerId: 'content',

@@ -39,6 +39,7 @@ function _buildVendor() {
 }
 
 function _copyAssets() {
+  b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./node_modules/substance/dist/substance.js', './build/substance/')
   b.copy('./node_modules/substance/dist/substance.js.map', './build/substance/')
 }
@@ -52,7 +53,7 @@ function _buildSubstance() {
 }
 
 function _buildDocument() {
-  b.css('src/document/document.scss', 'build/stencila-document.css', {
+  b.css('src/pagestyle/stencila.scss', 'build/stencila.css', {
     parser: postcssScss,
     // don't use predefined postcss plugins
     builtins: false,

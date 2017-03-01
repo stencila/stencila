@@ -1,0 +1,47 @@
+/*
+  Styles for the document editor.
+
+  NOTE: Only component styles should go here, everything else should live in
+  the pagestyle module
+*/
+
+.sc-document-editor {
+
+}
+
+// Import rendered math styling
+// @import '../utilities/math/index';
+
+// TODO: import individual node styles
+
+// @import 'nodes/title/title';
+// @import 'nodes/summary/summary';
+// @import 'nodes/heading/heading';
+// @import 'nodes/paragraph/paragraph';
+//
+// @import 'nodes/emphasis/emphasis';
+// @import 'nodes/strong/strong';
+// @import 'nodes/subscript/subscript';
+// @import 'nodes/superscript/superscript';
+// @import 'nodes/link/link';
+// @import 'nodes/code/code';
+// @import 'nodes/math/math';
+// @import 'nodes/emoji/emoji';
+//
+// @import 'nodes/list/list';
+// @import 'nodes/table/table';
+// @import 'nodes/image/image';
+// @import 'nodes/blockquote/blockquote';
+// @import 'nodes/codeblock/codeblock';
+//
+// @import 'nodes/input/input';
+// @import 'nodes/select/select';
+// @import 'nodes/output/output';
+// @import 'nodes/execute/execute';
+// @import 'nodes/print/print';
+//
+// @import 'nodes/mark/mark';
+// @import 'nodes/discussion/discussion';
+// @import 'nodes/comment/comment';
+//
+// @import 'nodes/default/default';

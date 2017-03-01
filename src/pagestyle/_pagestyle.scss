@@ -1,0 +1,18 @@
+// All page style goes here. This includes fonts, link colors etc. Everything
+// else should live in component scope.
+
+@import '../../fonts/lato';
+@import '../../fonts/source-code-pro';
+
+// Import all Substance component styles
+//
+// TODO: Instead of using all Substance styles we should pick only the ones
+// that should not have a custom Stencila style (e.g. ScrollPane)
+@import '../../node_modules/substance/dist/substance.css';
+
+
+// Document styles
+// %stencila-selected {
+//   background: hsla($stencila-green-hue, 100%, 85%, .5);
+//   outline: 2px solid hsla($stencila-green-hue, 100%, 70%, .5);
+// }
