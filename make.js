@@ -3,15 +3,6 @@ var b = require('substance-bundler')
 var path = require('path')
 var fs = require('fs')
 
-// postcss extensions
-var postcssScss = require('postcss-scss')
-var postcssSassVariables = require('postcss-simple-vars')
-var postcssNested = require('postcss-nested')
-var postcssSassyImport = require('postcss-sassy-import')
-var postcssSassExtend = require('postcss-sass-extend')
-var postcssSassyMixins = require('postcss-sassy-mixins')
-var postcssReporter = require('postcss-reporter')
-
 // this is not run all the time
 // we use it to pre-bundle vendor libraries,
 // to speed up bundling within this project
@@ -49,6 +40,7 @@ function _minifiedVendor(src, name, opts = {}) {
 
 function _copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
+  b.copy('./fonts', './build/fonts')
   b.copy('./vendor/brace.*', './build/web/')
   b.copy('./vendor/emojione.*', './build/web/')
   b.copy('./node_modules/emojione/assets/png', './build/web/emojione/png')
@@ -64,19 +56,8 @@ function _buildSubstance() {
 }
 
 function _buildDocument() {
-  b.css('src/pagestyle/stencila.scss', 'build/stencila.css', {
-    parser: postcssScss,
-    // don't use predefined postcss plugins
-    builtins: false,
-    // ... but instead use these:
-    plugins: [
-      postcssSassyImport(),
-      postcssSassExtend(),
-      postcssSassyMixins(),
-      postcssNested(),
-      postcssSassVariables(),
-      postcssReporter()
-    ],
+  b.css('src/pagestyle/stencila.css', 'build/stencila.css', {
+    variables: true
   })
   b.js('src/document/document.js', {
     dest: 'build/stencila-document.js',
