@@ -1,1 +1,1 @@
-export {default} from './CommentHTMLConverter'
+export { default } from './CommentHTMLConverter'

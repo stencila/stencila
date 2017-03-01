@@ -10,27 +10,23 @@ import SubscriptPackage from './nodes/subscript/SubscriptPackage'
 import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
-import MathPackage from './nodes/math/MathPackage'
-import EmojiPackage from './nodes/emoji/EmojiPackage'
+// import MathPackage from './nodes/math/MathPackage'
 
-import ImagePackage from './nodes/image/ImagePackage'
+// import ImagePackage from './nodes/image/ImagePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 
 // import InputPackage from './nodes/input/InputPackage'
-import SelectPackage from './nodes/select/SelectPackage'
-import OutputPackage from './nodes/output/OutputPackage'
-import ExecutePackage from './nodes/execute/ExecutePackage'
-import IncludePackage from './nodes/include/IncludePackage'
-import PrintPackage from './nodes/print/PrintPackage'
-
-import MarkPackage from './nodes/mark/MarkPackage'
-import DiscussionPackage from './nodes/discussion/DiscussionPackage'
-import CommentPackage from './nodes/comment/CommentPackage'
+// import SelectPackage from './nodes/select/SelectPackage'
+// import OutputPackage from './nodes/output/OutputPackage'
+// import ExecutePackage from './nodes/execute/ExecutePackage'
+// import IncludePackage from './nodes/include/IncludePackage'
+// import PrintPackage from './nodes/print/PrintPackage'
 
 import DefaultPackage from './nodes/default/DefaultPackage'
 
-import SessionPackage from '../shared/nodes/session/SessionPackage'
+// QUESTION: What does the SessionPackage do?
+// import SessionPackage from '../shared/nodes/session/SessionPackage'
 
 import ToolsPackage from './tools/ToolsPackage'
 
@@ -70,40 +66,24 @@ class DocumentConfigurator extends Configurator {
     this.import(SuperscriptPackage)
     this.import(CodePackage)
     this.import(LinkPackage)
-    this.import(MathPackage)
-    this.import(EmojiPackage)
-
-    this.import(ImagePackage)
+    // this.import(MathPackage)
+    // this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
 
     // TODO: this currently conflicts with Substance
     // input package, imported by the BasePackage.
     // this.import(InputPackage)
-    this.import(SelectPackage)
-    this.import(OutputPackage)
-    this.import(ExecutePackage)
-    this.import(IncludePackage)
-    this.import(PrintPackage)
-
-    this.import(MarkPackage)
-    this.import(DiscussionPackage)
-    this.import(CommentPackage)
-
-    this.import(SessionPackage)
-
+    // this.import(SelectPackage)
+    // this.import(OutputPackage)
+    // this.import(ExecutePackage)
+    // this.import(IncludePackage)
+    // this.import(PrintPackage)
+    // this.import(SessionPackage)
     this.import(DefaultPackage)
 
     // Import UI packages
     this.import(ToolsPackage)
-
-    // Icons, not defined in above packages but used in toolsets
-    this.addIcon('heading', { 'fontawesome': 'fa-header' })
-    this.addIcon('paragraph', { 'fontawesome': 'fa-paragraph' })
-    this.addIcon('list', { 'fontawesome': 'fa-list' })
-    this.addIcon('table', { 'fontawesome': 'fa-table' })
-    this.addIcon('blockquote', { 'fontawesome': 'fa-quote-right' })
-    this.addIcon('codeblock', { 'fontawesome': 'fa-code' })
   }
 
   /**
