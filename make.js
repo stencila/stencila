@@ -1,5 +1,7 @@
+/* globals __dirname */
 var b = require('substance-bundler')
 var path = require('path')
+var fs = require('fs')
 
 // postcss extensions
 var postcssScss = require('postcss-scss')
@@ -10,6 +12,10 @@ var postcssSassExtend = require('postcss-sass-extend')
 var postcssSassyMixins = require('postcss-sassy-mixins')
 var postcssReporter = require('postcss-reporter')
 
+// this is not run all the time
+// we use it to pre-bundle vendor libraries,
+// to speed up bundling within this project
+// and to work around problems with using rollup on these projects
 function _buildVendor() {
   b.browserify('node_modules/sanitize-html/index.js', {
     dest: './vendor/sanitize-html.js',
@@ -32,7 +38,20 @@ function _buildVendor() {
   b.rm('./vendor/brace.js')
 }
 
-function _buildDocument(dev) {
+function _copyAssets() {
+  b.copy('./node_modules/substance/dist/substance.js', './build/substance/')
+  b.copy('./node_modules/substance/dist/substance.js.map', './build/substance/')
+}
+
+// we need this only temporarily, or if we need to work on an
+// unpublished version of substance
+function _buildSubstance() {
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
+    b.make('substance', 'browser:pure')
+  }
+}
+
+function _buildDocument() {
   b.css('src/document/document.scss', 'build/stencila-document.css', {
     parser: postcssScss,
     // don't use predefined postcss plugins
@@ -57,6 +76,9 @@ function _buildDocument(dev) {
       'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
       'ace': path.join(__dirname, 'vendor/brace.min.js')
     },
+    // TODO: here we need to apply different strategies for
+    // different bundles (e.g. hosted without substance, but electron one with substance)
+    external: ['substance'],
     commonjs: true,
     json: true
   })
@@ -71,22 +93,30 @@ function _buildExamples() {
   })
 }
 
-b.task('vendor', _buildVendor)
-
 b.task('clean', () => {
   b.rm('build')
 })
 
-b.task('dev:document', () => { _buildDocument('dev') })
+// This is used to generate the files in ./vendor/
+b.task('vendor', _buildVendor)
 
-b.task('document', () => { _buildDocument() })
+// ATTENTION: this is not necessary after switching to a published version of substance
+b.task('substance', () => {
+  _buildSubstance()
+})
 
-b.task('examples', ['document'], () => { _buildExamples() })
+b.task('assets', ['substance'], () => {
+  _copyAssets()
+})
 
-b.task('dev:examples', ['dev:document'], () => { _buildExamples('dev') })
+b.task('document', ['assets'], () => {
+  _buildDocument()
+})
 
-b.task('dev', ['clean', 'dev:document', 'dev:examples'])
+b.task('examples', ['assets', 'document'], () => {
+  _buildExamples()
+})
 
-b.task('default', ['clean', 'document', 'examples'])
+b.task('default', ['clean', 'assets', 'document', 'examples'])
 
 b.serve({ static: true, route: '/', folder: 'build' })
