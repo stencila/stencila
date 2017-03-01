@@ -24,9 +24,6 @@ function _buildVendor() {
   _minifiedVendor('./node_modules/emojione/lib/js/emojione.js', 'emojione', {
     standalone: true
   })
-  _minifiedVendor('./node_modules/moment/moment.js', 'moment', {
-    exports: ['default']
-  })
 }
 
 function _minifiedVendor(src, name, opts = {}) {
@@ -89,7 +86,6 @@ function _buildDocument() {
     alias: {
       'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js'),
       'brace': path.join(__dirname, 'vendor/brace.min.js'),
-      'moment': path.join(__dirname, 'vendor/moment.min.js'),
       'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
     },
     // TODO: here we need to apply different strategies for
