@@ -1,4 +1,4 @@
-import { Configurator, ButtonPackage } from 'substance'
+import { Configurator, BasePackage } from 'substance'
 
 import TitlePackage from './nodes/title/TitlePackage'
 import SummaryPackage from './nodes/summary/SummaryPackage'
@@ -11,13 +11,12 @@ import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
 import MathPackage from './nodes/math/MathPackage'
-// import EmojiPackage from './nodes/emoji/EmojiPackage'
 
 import ImagePackage from './nodes/image/ImagePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 
-import InputPackage from './nodes/input/InputPackage'
+// import InputPackage from './nodes/input/InputPackage'
 import SelectPackage from './nodes/select/SelectPackage'
 import OutputPackage from './nodes/output/OutputPackage'
 import ExecutePackage from './nodes/execute/ExecutePackage'
@@ -33,7 +32,6 @@ import DefaultPackage from './nodes/default/DefaultPackage'
 import SessionPackage from '../shared/nodes/session/SessionPackage'
 
 import ToolsPackage from './tools/ToolsPackage'
-import VisualEditorPackage from './editors/visual/VisualEditorPackage'
 
 /**
  * A "configurator" for a document.
@@ -59,6 +57,7 @@ class DocumentConfigurator extends Configurator {
     // At present, need at least the 'default' tool group before adding tools via imports below
     this.addToolGroup('default')
 
+    this.import(BasePackage)
     // Import node packages, in "order of appearance"
     this.import(TitlePackage)
     this.import(SummaryPackage)
@@ -71,13 +70,14 @@ class DocumentConfigurator extends Configurator {
     this.import(CodePackage)
     this.import(LinkPackage)
     this.import(MathPackage)
-    // this.import(EmojiPackage)
 
     this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
 
-    this.import(InputPackage)
+    // TODO: this currently conflicts with Substance
+    // input package, imported by the BasePackage.
+    // this.import(InputPackage)
     this.import(SelectPackage)
     this.import(OutputPackage)
     this.import(ExecutePackage)
@@ -93,9 +93,7 @@ class DocumentConfigurator extends Configurator {
     this.import(DefaultPackage)
 
     // Import UI packages
-    this.import(ButtonPackage)
     this.import(ToolsPackage)
-    this.import(VisualEditorPackage)
 
     // Icons, not defined in above packages but used in toolsets
     this.addIcon('heading', { 'fontawesome': 'fa-header' })

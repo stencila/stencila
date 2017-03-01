@@ -3,71 +3,16 @@
 @import '../../fonts/source-code-pro';
 @import url('font-awesome/css/font-awesome.min.css');
 
-// Substance styles
-// Generally, we only using Substance styles that are
-// more related to implementing functionality (e.g. positioning) of
-// Substance components, not visual style
-$local-selection-color: hsla(93, 100%, 70%, .5);
-$collaborator-color-1: #a4e57a;
-$collaborator-color-2: #bc90ff;
-$collaborator-color-3: #d6bb4c;
-$collaborator-color-4: #baa6a0;
-$collaborator-color-5: #7bb5b3;
-$collaborator-color-6: #ff7b7b;
-$collaborator-color-7: #a0cc00;
-$collaborator-color-8: #89caff;
-$collaborator-color-9: #ff9fbf;
-$collaborator-color-10: #ffb533;
-
 // TextPropertyComponent styles (re-implemented here because SASS does not
 // like rgba call with CSS variable used in `../node_modules/substance/packages/css/text_property`)
 .sc-text-property {
   white-space: pre-wrap;
 }
 
-.sc-text-property .se-cursor {
-  position: relative;
-}
-
-.sc-text-property .se-cursor .se-cursor-inner {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 1px;
-  background: #999;
-}
-
-.sc-text-property .se-cursor.sm-collaborator-1  .se-cursor-inner { background: $collaborator-color-1; }
-.sc-text-property .se-cursor.sm-collaborator-2  .se-cursor-inner { background: $collaborator-color-2; }
-.sc-text-property .se-cursor.sm-collaborator-3  .se-cursor-inner { background: $collaborator-color-3; }
-.sc-text-property .se-cursor.sm-collaborator-4  .se-cursor-inner { background: $collaborator-color-4; }
-.sc-text-property .se-cursor.sm-collaborator-5  .se-cursor-inner { background: $collaborator-color-5; }
-.sc-text-property .se-cursor.sm-collaborator-6  .se-cursor-inner { background: $collaborator-color-6; }
-.sc-text-property .se-cursor.sm-collaborator-7  .se-cursor-inner { background: $collaborator-color-7; }
-.sc-text-property .se-cursor.sm-collaborator-8  .se-cursor-inner { background: $collaborator-color-8; }
-.sc-text-property .se-cursor.sm-collaborator-9  .se-cursor-inner { background: $collaborator-color-9; }
-.sc-text-property .se-cursor.sm-collaborator-10 .se-cursor-inner { background: $collaborator-color-10; }
-.sc-text-property .se-selection-fragment { background-color: #ddd; }
-.sc-text-property .se-selection-fragment.sm-collaborator-1  { background: rgba($collaborator-color-1, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-2  { background: rgba($collaborator-color-2, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-3  { background: rgba($collaborator-color-3, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-4  { background: rgba($collaborator-color-4, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-5  { background: rgba($collaborator-color-5, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-6  { background: rgba($collaborator-color-6, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-7  { background: rgba($collaborator-color-7, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-8  { background: rgba($collaborator-color-8, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-9  { background: rgba($collaborator-color-9, .3); }
-.sc-text-property .se-selection-fragment.sm-collaborator-10 { background: rgba($collaborator-color-10, .3); }
-.sc-text-property .se-container-annotation.se-anchor { position: relative; }
-.sc-text-property .sm-highlighted { background: #ddd; }
-
 @import '../../node_modules/substance/packages/inline-node/inline-node';
 @import '../../node_modules/substance/packages/isolated-node/isolated-node';
 @import '../../node_modules/substance/packages/scroll-pane/scroll-pane';
 @import '../../node_modules/substance/packages/overlay/overlay';
-
-
 
 $sans-font-family: Lato, Helvetica, Arial, Verdana, sans-serif;
 $mono-font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, 'Source Code Pro', monospace;
@@ -75,11 +20,6 @@ $stencila-green-hue: 93;
 $stencila-green-saturation: 90%;
 $stencila-green-lightness: 50%;
 $z-index-discussion: 100;
-
-// Application styles
-@import 'app';
-@import 'editors';
-@import 'toolsets';
 
 // Document styles
 %stencila-selected {
