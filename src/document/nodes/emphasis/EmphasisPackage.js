@@ -5,7 +5,7 @@ import {
 
 import EmphasisMacro from './EmphasisMacro'
 
-const { EmphasisHTMLConverter, EmphasisXMLConverter } = EmphasisPackage
+const { Emphasis, EmphasisHTMLConverter, EmphasisXMLConverter } = EmphasisPackage
 
 export default {
   name: 'emphasis',

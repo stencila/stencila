@@ -4,12 +4,14 @@ import {
 import CodeMarkdownComponent from './CodeMarkdownComponent'
 import CodeMacro from './CodeMacro'
 
+const { Code, CodeHTMLConverter, CodeXMLConverter } = CodePackage
+
 export default {
   name: 'code',
   configure: function (config) {
     config.addNode(Code)
-    config.addConverter('html', CodePackage.CodeHTMLConverter)
-    config.addConverter('xml', CodePackage.CodeXMLConverter)
+    config.addConverter('html', CodeHTMLConverter)
+    config.addConverter('xml', CodeXMLConverter)
     config.addComponent('code', AnnotationComponent)
     config.addComponent('code-markdown', CodeMarkdownComponent)
     config.addCommand('code', AnnotationCommand, { nodeType: Code.type })
