@@ -17,31 +17,42 @@ var postcssReporter = require('postcss-reporter')
 // to speed up bundling within this project
 // and to work around problems with using rollup on these projects
 function _buildVendor() {
-  b.browserify('node_modules/sanitize-html/index.js', {
-    dest: './vendor/sanitize-html.js',
-    exports: ['default'],
+  _minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
+    exports: ['default']
+  })
+  _minifiedVendor('./.make/brace.js', 'brace')
+  _minifiedVendor('./node_modules/emojione/lib/js/emojione.js', 'emojione', {
+    standalone: true
+  })
+}
+
+function _minifiedVendor(src, name, opts = {}) {
+  let tmp = `./vendor/${name}.js`
+  let _opts = Object.assign({
+    dest: tmp,
     debug: false
   })
-  b.minify('./vendor/sanitize-html.js', {
-    debug: false
-  })
-  b.rm('./vendor/sanitize-html.js')
-  // a custom brace bundle
-  b.browserify('.make/brace.js', {
-    dest: './vendor/brace.js',
-    exports: ['default'],
-    debug: false
-  })
-  b.minify('./vendor/brace.js', {
-    debug: false
-  })
-  b.rm('./vendor/brace.js')
+  if (opts.exports) {
+    _opts.exports = opts.exports
+  }
+  if (opts.standalone) {
+    _opts.browserify = { standalone: name }
+  }
+  b.browserify(src, _opts)
+  if (opts.minify !== false) {
+    b.minify(tmp, {
+      debug: false
+    })
+    b.rm(tmp)
+  }
 }
 
 function _copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
-  b.copy('./node_modules/substance/dist/substance.js', './build/substance/')
-  b.copy('./node_modules/substance/dist/substance.js.map', './build/substance/')
+  b.copy('./vendor/brace.*', './build/web/')
+  b.copy('./vendor/emojione.*', './build/web/')
+  b.copy('./node_modules/emojione/assets/png', './build/web/emojione/png')
+  b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
 }
 
 // we need this only temporarily, or if we need to work on an
@@ -75,11 +86,11 @@ function _buildDocument() {
     alias: {
       'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js'),
       'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
-      'ace': path.join(__dirname, 'vendor/brace.min.js')
+      'brace': path.join(__dirname, 'vendor/brace.min.js')
     },
     // TODO: here we need to apply different strategies for
     // different bundles (e.g. hosted without substance, but electron one with substance)
-    external: ['substance'],
+    external: ['substance', 'emojione', 'brace'],
     commonjs: true,
     json: true
   })
