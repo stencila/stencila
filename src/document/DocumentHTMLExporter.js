@@ -1,5 +1,4 @@
-import {HTMLExporter} from 'substance'
-
+import { HTMLExporter } from 'substance'
 import DocumentModel from './DocumentModel'
 import DocumentConfigurator from './DocumentConfigurator'
 

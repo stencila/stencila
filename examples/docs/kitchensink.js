@@ -28,6 +28,13 @@ ggplot(delay, aes(dist, delay)) +
   <li>Second</li>
   <li>Third</li>
 </ul>
+<h1>Table</h1>
+<table>
+  <tbody>
+    <tr><td>A1</td><td>B1</td><td>C1</td></tr>
+    <tr><td>A2</td><td>B2</td><td>C2</td></tr>
+  </tbody>
+</table>
 <h1>Emphasis</h1>
 <p>Some <em>emphasized text</em></p>
 <h1>Heading</h1>
