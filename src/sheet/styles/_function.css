@@ -1,0 +1,55 @@
+.sc-function {
+	position: absolute;
+	min-width: 300px;
+  z-index: 10;
+  background: #FFFFFF;
+  top: 30px;
+  font-size: 12px;
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+  text-align: left;
+}
+
+.sc-function .se-documentation {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.sc-function .se-documentation .se-title {
+  font-weight: bold;
+}
+
+.sc-function .se-documentation .se-signature {
+  font-size: 13px;
+  font-family: var(--mono-font-family);
+}
+
+.sc-function .se-documentation .se-signature .se-signature-param.sm-active {
+  color: #26CD00;
+}
+
+.sc-function .se-documentation .se-parameters {
+  font-size: 11px;
+}
+
+.sc-function .se-documentation .se-parameters .se-param .se-param-name {
+  font-family: var(--mono-font-family);
+  color: #888;
+  padding-right: 10px;
+}
+
+.sc-function .se-documentation .se-parameters .se-param.sm-active .se-param-name {
+  color: #26CD00;
+}
+
+.sc-function .se-label {
+  color: #888;
+}
+
+.sc-function .se-example {
+  padding: 10px;
+}
+
+.sc-function .se-example .se-example-code {
+  font-size: 13px;
+  font-family: var(--mono-font-family);
+}
