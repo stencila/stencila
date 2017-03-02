@@ -1,0 +1,21 @@
+.sc-primitive {
+  width: 100%;
+}
+
+.sc-primitive .se-name {
+  text-align: left;
+  font-size: 12px;
+  color: #ccc;
+  padding: var(--default-cell-padding);
+}
+
+.sc-primitive .se-loading {
+  font-size: 12px;
+  color: #ccc;
+  padding: var(--default-cell-padding);
+}
+
+.sc-primitive .se-value {
+  text-align: right;
+  padding: var(--default-cell-padding);
+}

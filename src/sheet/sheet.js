@@ -1,6 +1,11 @@
-'use strict'
+import SheetModel from './model/SheetModel'
+import SheetEditor from './SheetEditor'
+import SheetConfigurator from './SheetConfigurator'
 
-import browser from '../browser'
-import SheetApp from './SheetApp'
+export {
+  SheetModel,
+  SheetEditor,
+  SheetConfigurator
+}
 
-browser(SheetApp)
+export * from './sheetConversion'
