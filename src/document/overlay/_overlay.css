@@ -1,0 +1,28 @@
+.sc-overlay { z-index: 200; position: absolute; }
+.sc-overlay.sm-hidden { visibility: hidden; left: 0px; top: 0px; }
+.sc-overlay {}
+
+.sc-overlay::before {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 4px 8px 4px;
+  border-color: transparent transparent #1A2C0C transparent;
+}
+
+.sc-overlay > .se-active-tools {
+  border-radius: 5px;
+  background: #1A2C0C;
+  padding: 5px;
+}
+
+.sc-overlay > .se-active-tools > .sc-tool-group {
+  display: inline-block;
+}
+
+.sc-overlay > .se-active-tools > .sc-tool-group > .se-tool {
+  display: inline-block;
+}

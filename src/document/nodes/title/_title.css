@@ -1,0 +1,8 @@
+.sc-title {
+  /* On basis that title will usually be first, don't set a margin-top */
+  margin-bottom: 1em;
+  font-size: 1.5em;
+  line-height: 150%;
+  font-weight: bold;
+  color: #333;
+}

@@ -12,25 +12,15 @@ import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
 import ListPackage from './nodes/list/ListPackage'
 import TablePackage from './nodes/table/TablePackage'
-// import MathPackage from './nodes/math/MathPackage'
-
-// import ImagePackage from './nodes/image/ImagePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
-// import InputPackage from './nodes/input/InputPackage'
-// import SelectPackage from './nodes/select/SelectPackage'
-// import OutputPackage from './nodes/output/OutputPackage'
-// import ExecutePackage from './nodes/execute/ExecutePackage'
-// import IncludePackage from './nodes/include/IncludePackage'
-// import PrintPackage from './nodes/print/PrintPackage'
-
 import DefaultPackage from './nodes/default/DefaultPackage'
+// import MathPackage from './nodes/math/MathPackage'
+// import ImagePackage from './nodes/image/ImagePackage'
 
 // QUESTION: What does the SessionPackage do?
 // import SessionPackage from '../shared/nodes/session/SessionPackage'
-
-import ToolsPackage from './tools/ToolsPackage'
 
 /**
  * A "configurator" for a document.
@@ -79,16 +69,7 @@ class DocumentConfigurator extends Configurator {
     // TODO: this currently conflicts with Substance
     // input package, imported by the BasePackage.
     // this.import(InputPackage)
-    // this.import(SelectPackage)
-    // this.import(OutputPackage)
-    // this.import(ExecutePackage)
-    // this.import(IncludePackage)
-    // this.import(PrintPackage)
-    // this.import(SessionPackage)
     this.import(DefaultPackage)
-
-    // Import UI packages
-    // this.import(ToolsPackage)
 
     this.import(MinimalSwitchTextTypePackage)
 
