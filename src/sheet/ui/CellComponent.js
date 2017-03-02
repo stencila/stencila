@@ -6,8 +6,20 @@ import ConstantComponent from './ConstantComponent'
 export default
 class CellComponent extends Component {
 
+  didMount() {
+    this._connect()
+  }
+
   dispose() {
     this._disconnect()
+  }
+
+  willReceiveProps() {
+    this._disconnect()
+  }
+
+  didReceiveProps() {
+    this._connect()
   }
 
   render($$) {
@@ -37,12 +49,12 @@ class CellComponent extends Component {
       if (node) {
         var CellContentClass
         if (node.isConstant()) {
-          CellContentClass = Constant
+          CellContentClass = ConstantComponent
         } else if (node.valueType) {
-          CellContentClass = componentRegistry.get(node.valueType)
+          CellContentClass = componentRegistry.get('cell:'+node.valueType, 'strict')
         }
         if (!CellContentClass) {
-          CellContentClass = Expression
+          CellContentClass = ExpressionComponent
         }
         var cellContentEl = $$(CellContentClass, {node: node}).ref('content')
         el.append(cellContentEl)
@@ -52,22 +64,6 @@ class CellComponent extends Component {
       }
     }
     return el
-  }
-
-  didMount() {
-    this._connect()
-  }
-
-  dispose() {
-    this._disconnect()
-  }
-
-  willReceiveProps() {
-    this._disconnect()
-  }
-
-  didReceiveProps() {
-    this._connect()
   }
 
   getNode() {
@@ -103,10 +99,10 @@ class CellComponent extends Component {
         idx = idx%modes.length
       }
       var nextMode = modes[idx] || ''
-      var docSession = this.getDocumentSession()
-      docSession.transaction(function(tx) {
+      var editorSession = this.context.editorSession
+      editorSession.transaction(function(tx) {
         tx.set([node.id, 'displayMode'], nextMode)
-      }.bind(this))
+      })
     }
   }
 
@@ -173,14 +169,12 @@ class CellComponent extends Component {
   }
 
   _connect() {
-    var doc = this.getDocument()
-    var node = this.props.node
+    const doc = this.getDocument()
+    const node = this.props.node
     if (node) {
       doc.getEventProxy('path').connect(this, [node.id, 'content'], this.rerender)
       doc.getEventProxy('path').connect(this, [node.id, 'displayMode'], this.rerender)
-      node.connect(this, {
-        'cell:changed': this._onCellChange // this.rerender
-      })
+      node.on('cell:changed', this._onCellChange, this)
     }
   }
 
@@ -192,7 +186,7 @@ class CellComponent extends Component {
     var doc = this.getDocument()
     if (this.props.node) {
       doc.getEventProxy('path').disconnect(this)
-      this.props.node.disconnect(this)
+      this.props.node.off(this)
     }
   }
 

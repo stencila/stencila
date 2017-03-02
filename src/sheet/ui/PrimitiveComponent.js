@@ -5,7 +5,7 @@ import { Component } from 'substance'
  * have a `type` that is a primitive (e.g. number, integer, string).
  */
 export default
-class PrimitiveExpressionComponent() {
+class PrimitiveComponent extends Component {
 
   render($$) {
     var cell = this.props.node

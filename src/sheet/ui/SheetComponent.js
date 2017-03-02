@@ -1,5 +1,5 @@
 import { Component, forEach, DefaultDOMElement } from 'substance'
-import Sheet from '../model/Sheet'
+import { getColumnName } from '../model/sheetHelpers'
 import TableSelection from '../model/TableSelection'
 import CellComponent from './CellComponent'
 
@@ -32,6 +32,21 @@ class SheetComponent extends Component {
     this.onWindowResize = this.onWindowResize.bind(this)
   }
 
+  didMount() {
+    // FIXME: listen to document changes
+
+    // HACK: without contenteditables we don't receive keyboard events on this level
+    window.document.body.addEventListener('keydown', this.onGlobalKeydown, false)
+    window.document.body.addEventListener('keypress', this.onGlobalKeypress, false)
+    window.addEventListener('resize', this.onWindowResize, false)
+  }
+
+  dispose() {
+    window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
+    window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
+    window.removeEventListener('resize', this.onWindowResize)
+  }
+
   render($$) {
     var el = $$('div').addClass('sc-sheet-editor')
     el.append(
@@ -41,7 +56,7 @@ class SheetComponent extends Component {
       $$('div').addClass('selection').ref('selection')
     )
     // react only to mousedowns on cells in display mode
-    el.on('mousedown', 'td.sm-display', this.onMouseDown)
+    el.on('mousedown', this.onMouseDown)
     return el
   }
 
@@ -63,7 +78,7 @@ class SheetComponent extends Component {
     headerRow.append($$('th').addClass('se-cell'))
     for (j = 0; j < ncols; j++) {
       headerRow.append($$('th').text(
-        Sheet.static.getColumnName(j)
+        getColumnName(j)
       ).addClass('se-cell'))
     }
     thead.append(headerRow)
@@ -73,7 +88,9 @@ class SheetComponent extends Component {
     for (i = 0; i < nrows; i++) {
       var rowEl = $$('tr').attr('data-row', i).addClass('se-row')
       // first column is header
-      rowEl.append($$('th').text(i+1).addClass('se-cell'))
+      rowEl.append(
+        $$('th').text(String(i+1)).addClass('se-cell')
+      )
       // render all cells
       for (j = 0; j < ncols; j++) {
         var cell = sheet.getCellAt(i, j)
@@ -88,26 +105,6 @@ class SheetComponent extends Component {
     }
     tableEl.append(tbody)
     return tableEl
-  }
-
-  didMount() {
-    // ATTENTION: we need to override the hacky parent implementation
-    this.props.doc.connect(this, {
-      'document:changed': this.onDocumentChange
-    })
-
-    // HACK: without contenteditables we don't receive keyboard events on this level
-    window.document.body.addEventListener('keydown', this.onGlobalKeydown, false)
-    window.document.body.addEventListener('keypress', this.onGlobalKeypress, false)
-    window.addEventListener('resize', this.onWindowResize, false)
-  }
-
-  dispose() {
-    this.props.doc.disconnect(this)
-
-    window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
-    window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
-    window.removeEventListener('resize', this.onWindowResize)
   }
 
   getSelection() {
@@ -174,29 +171,37 @@ class SheetComponent extends Component {
   // DOM event handlers
 
   onMouseDown(event) {
-    this.isSelecting = true
-    this.$el.on('mouseenter', 'td', this.onMouseEnter.bind(this))
-    this.$el.one('mouseup', this.onMouseUp.bind(this))
-    this.startCellEl = event.target
-    if (!this.startCellEl.getAttribute('data-col')) {
-      throw new Error('mousedown on a non-cell element')
+    let target = DefaultDOMElement.wrap(event.target)
+    if (target.is('td.sm-display')) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.isSelecting = true
+      this.el.on('mouseenter', this.onMouseEnter, this)
+      this.el.on('mouseup', this.onMouseUp, this, { once: true })
+      this.startCellEl = event.target
+      if (!this.startCellEl.getAttribute('data-col')) {
+        throw new Error('mousedown on a non-cell element')
+      }
+      this.endCellEl = this.startCellEl
+      this._updateSelection()
     }
-    this.endCellEl = this.startCellEl
-    this._updateSelection()
   }
 
   onMouseEnter(event) {
     if (!this.isSelecting) return
-    var endCellEl = this._getCellForDragTarget(event.target)
-    if (this.endCellEl !== endCellEl) {
-      this.endCellEl = endCellEl
-      this._updateSelection()
+    let target = DefaultDOMElement.wrap(event.target)
+    if (target.is('td')) {
+      let endCellEl = this._getCellForDragTarget(event.target)
+      if (this.endCellEl !== endCellEl) {
+        this.endCellEl = endCellEl
+        this._updateSelection()
+      }
     }
   }
 
   onMouseUp() {
     this.isSelecting = false
-    this.$el.off('mouseenter')
+    this.el.off('mouseenter', this.onMouseEnter, this)
     this._updateSelection()
     this.startCellEl = null
     this.endCellEl = null

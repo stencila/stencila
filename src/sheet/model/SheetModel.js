@@ -1,7 +1,7 @@
-import { Document, isNumber, forEach } from 'substance'
+import { Document, forEach } from 'substance'
 
 export default
-class Sheet extends Document {
+class SheetModel extends Document {
 
   constructor(schema) {
     super(schema)
@@ -10,9 +10,7 @@ class Sheet extends Document {
     this._nrows = 0
     this._ncols = 0
 
-    this.connect(this, {
-      'document:changed': this._onChange
-    })
+    this.on('document:changed', this._onChange, this)
   }
 
   getCellAt(rowIdx, colIdx) {
@@ -74,43 +72,4 @@ class Sheet extends Document {
       this._updateCellMatrix(cell.row, cell.col, null)
     }.bind(this))
   }
-}
-
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-Sheet.getColumnName = function(col) {
-  if (!isNumber(col)) {
-    throw new Error('Illegal argument.')
-  }
-  var name = ""
-  while(col !== 0) {
-    var mod = col % ALPHABET.length
-    col = Math.floor(col/ALPHABET.length)
-    name = ALPHABET[mod] + name
-    if (col > 0) col--
-    else if (col === 0) break
-  }
-  return name
-}
-
-Sheet.getColumnIndex = function(col) {
-  var index = 0
-  var rank = 1
-  forEach(col, function(letter) {
-    index += rank * ALPHABET.indexOf(letter)
-    rank++
-  })
-  return index
-}
-
-Sheet.getCellId = function(row,col) {
-  return Sheet.getColumnName(col)+(row+1)
-}
-
-Sheet.getRowCol = function(id) {
-  var match = /^([A-Z]+)([1-9][0-9]*)$/.exec(id)
-  return [
-    parseInt(match[2], 10)-1,
-    Sheet.getColumnIndex(match[1])
-  ]
 }

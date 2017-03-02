@@ -2,7 +2,7 @@ import { Component } from 'substance'
 import CellTeaserComponent from './CellTeaserComponent'
 
 export default
-class Image extends Component {
+class ImageCellComponent extends Component {
 
   render($$) {
     var node = this.props.node

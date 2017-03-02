@@ -1,5 +1,7 @@
 import { DocumentNode } from 'substance'
+import { getCellId, kindToSymbol, symbolToKind } from './sheetHelpers'
 
+export default
 class Cell extends DocumentNode {
 
   isEmpty() {
@@ -29,7 +31,7 @@ class Cell extends DocumentNode {
   getPrefix() {
     var name = this.getName() || ''
     var kind = this.kind
-    var symbol = Cell.static.kindToSymbol(kind)
+    var symbol = kindToSymbol(kind)
     if (symbol) {
       if (name) return name + ' ' + symbol
       else return symbol
@@ -67,8 +69,7 @@ class Cell extends DocumentNode {
   }
 
   getCellId() {
-    var Sheet = require('./Sheet')
-    return Sheet.static.getCellId(this.row, this.col)
+    return getCellId(this.row, this.col)
   }
 
   _updateDerivedProperties() {
@@ -82,7 +83,7 @@ class Cell extends DocumentNode {
       }
 
       var symbol = match[2]
-      this.kind = Cell.static.symbolToKind(symbol)
+      this.kind = symbolToKind(symbol)
 
       this._expression = content.slice(match[0].length)
     } else {
@@ -117,29 +118,4 @@ Cell.schema = {
   // it in an interpreter
   value: { type: "string", optional: true }, // evaluated value
   valueType: { type: "string", optional: true },
-}
-
-Cell.kindToSymbol = function(kind) {
-  switch(kind) {
-    case 'exp': return '='
-    case 'req': return '^'
-    case 'man': return '|'
-    case 'tes': return '?'
-    case 'vis': return '~'
-    case 'cil': return '_'
-    default: return ''
-  }
-}
-
-Cell.symbolToKind = function(symbol) {
-  switch(symbol) {
-    case '=': return 'exp'
-    case ':': return 'map'
-    case '^': return 'req'
-    case '|': return 'man'
-    case '?': return 'tes'
-    case '~': return 'vis'
-    case '_': return 'cil'
-    default: return ''
-  }
 }

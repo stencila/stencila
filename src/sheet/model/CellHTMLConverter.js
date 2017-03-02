@@ -1,6 +1,7 @@
 import Cell from './Cell'
+import { kindToSymbol } from './sheetHelpers'
 
-export default = {
+export default {
 
   type: 'sheet-cell',
   tagName: 'td',
@@ -17,7 +18,7 @@ export default = {
     var valueType = el.attr('data-type')
     var value = el.textContent
 
-    var symbol = Cell.static.kindToSymbol(kind)
+    var symbol = kindToSymbol(kind)
     if (symbol) {
       if (name) {
         node.content = name + ' ' + symbol + ' ' + expr

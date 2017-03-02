@@ -5,7 +5,6 @@ import CellTeaserComponent from './CellTeaserComponent'
   Displays expression cells, such that start with '=' and are
   not handled by a specific component.
 */
-
 export default
 class ExpressionComponent extends Component {
   render($$) {

@@ -1,5 +1,5 @@
 import { HTMLExporter } from 'substance'
-import Sheet from './Sheet'
+import { getColumnName } from './sheetHelpers'
 
 export default
 class SheetHTMLExporter extends HTMLExporter {
@@ -17,7 +17,7 @@ class SheetHTMLExporter extends HTMLExporter {
     var headerRow = thead.firstChild
     headerRow.append($$('th'))
     for (j = 0; j < ncols; j++) {
-      headerRow.append($$('th').text(Sheet.static.getColumnName(j)))
+      headerRow.append($$('th').text(getColumnName(j)))
     }
     // create
     var tbody = $$('tbody')
