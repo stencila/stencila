@@ -74,7 +74,11 @@ function _buildDocument() {
     },
     // TODO: here we need to apply different strategies for
     // different bundles (e.g. hosted without substance, but electron one with substance)
-    external: ['substance', 'emojione', 'brace'],
+    external: {
+      'substance': 'substance',
+      'emojione': 'emojione',
+      'brace': 'brace'
+    },
     commonjs: true,
     json: true
   })
@@ -89,7 +93,9 @@ function _buildSheet() {
     alias: {
       'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js')
     },
-    external: ['substance'],
+    external: {
+      'substance': 'substance'
+    },
     commonjs: true,
     json: true
   })
@@ -100,7 +106,18 @@ function _buildExamples() {
   b.js('examples/document/app.js', {
     dest: 'build/examples/document/app.js',
     format: 'umd', moduleName: 'documentExample',
-    external: ['stencila-document', 'substance']
+    external: {
+      'substance': 'substance',
+      'stencila-document': 'stencilaDocument'
+    }
+  })
+  b.js('examples/sheet/app.js', {
+    dest: 'build/examples/sheet/app.js',
+    format: 'umd', moduleName: 'sheetExample',
+    external: {
+      'substance': 'substance',
+      'stencila-sheet': 'stencilaSheet'
+    }
   })
 }
 
