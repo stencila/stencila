@@ -1,10 +1,10 @@
-import { Document, forEach } from 'substance'
+import { DocumentNode, forEach } from 'substance'
 
 export default
-class SheetModel extends Document {
+class SheetNode extends DocumentNode {
 
-  constructor(schema) {
-    super(schema)
+  constructor(...args) {
+    super(...args)
 
     this._matrix = null
     this._nrows = 0
@@ -16,11 +16,12 @@ class SheetModel extends Document {
   getCellAt(rowIdx, colIdx) {
     if (!this._matrix) this._computeMatrix()
 
-    var row = this._matrix[rowIdx]
+    const doc = this.getDocument()
+    const row = this._matrix[rowIdx]
     if (row) {
-      var cellId = row[colIdx]
+      const cellId = row[colIdx]
       if (cellId) {
-        return this.get(cellId)
+        return doc.get(cellId)
       }
     }
     return null
@@ -40,11 +41,11 @@ class SheetModel extends Document {
     this._matrix = {}
     this._nrows = 0
     this._ncols = 0
-    forEach(this.getNodes(), function(node) {
-      if (node.type === "sheet-cell") {
-        this._updateCellMatrix(node.row, node.col, node.id)
-      }
-    }.bind(this))
+    const doc = this.getDocument()
+    this.cells.forEach((cellId) => {
+      const cell = doc.get(cellId)
+      this._updateCellMatrix(cell.row, cell.col, cell.id)
+    })
   }
 
   _updateCellMatrix(rowIdx, colIdx, cellId) {
@@ -65,11 +66,24 @@ class SheetModel extends Document {
   // updating the matrix whenever a cell has been created or deleted
   _onChange(change) {
     if (!this._matrix) return
-    forEach(change.created, function(cell) {
-      this._updateCellMatrix(cell.row, cell.col, cell.id)
-    }.bind(this))
-    forEach(change.deleted, function(cell) {
-      this._updateCellMatrix(cell.row, cell.col, null)
-    }.bind(this))
+    forEach(change.created, (node) => {
+      if (node.type === 'cell') {
+        const cell = node
+        this._updateCellMatrix(cell.row, cell.col, cell.id)
+      }
+    })
+    forEach(change.deleted, (node) => {
+      if (node.type === 'cell') {
+        const cell = node
+        this._updateCellMatrix(cell.row, cell.col, null)
+      }
+    })
   }
+}
+
+SheetNode.type = 'sheet'
+
+SheetNode.schema = {
+  name: 'string',
+  cells: { type: ['array', 'id'], owned:true, default: [] }
 }

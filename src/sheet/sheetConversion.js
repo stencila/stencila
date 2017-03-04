@@ -1,9 +1,9 @@
 import {JSONConverter} from 'substance'
 import SheetConfigurator from './SheetConfigurator'
-import SheetModel from './model/SheetModel'
+import SheetDocument from './model/SheetDocument'
 
 export function importJSON (content) {
-  let doc = new SheetModel()
+  let doc = new SheetDocument()
   let jsonConverter = new JSONConverter()
   jsonConverter.importDocument(doc, content)
   return doc

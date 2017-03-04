@@ -1,6 +1,6 @@
-import { Component, forEach, DefaultDOMElement } from 'substance'
-import { getColumnName } from '../model/sheetHelpers'
-import TableSelection from '../model/TableSelection'
+import {Component, DefaultDOMElement} from 'substance'
+import {findParentComponent} from '../../shared/substance/domHelpers'
+import {getColumnName} from '../model/sheetHelpers'
 import CellComponent from './CellComponent'
 
 export default
@@ -10,73 +10,81 @@ class SheetComponent extends Component {
     super(...args)
 
     this.handleActions({
+      'selectCell': this.selectCell,
+      // called after finishing editing a cell
       'commitCellChange': this.commitCellChange,
       'discardCellChange': this.discardCellChange,
-      'activateCurrentCell': this._activateCurrentCell
+      // called when double clicking on a cell
+      'activateCell': this.activateCell
     })
 
-    // Shouldn't it be null rather?
-    this.selection = new TableSelection({
-      startRow: 0,
-      startCol: 0,
-      endRow: 0,
-      endCol: 0
-    })
-
-    this.startCellEl = null
-    this.endCellEl = null
+    // internal state flags
+    // set when inside a cell
+    this._activeCellComp = null
+    // flag indicating that the selection is inside this sheet
+    this._hasSelection = false
+    // used while creating a selection
+    this._isSelecting = false
+    this._startCell = null
+    this._endCell = null
 
     // binding this, as these handlers are attached to global DOM elements
-    this.onGlobalKeydown = this.onGlobalKeydown.bind(this)
-    this.onGlobalKeypress = this.onGlobalKeypress.bind(this)
-    this.onWindowResize = this.onWindowResize.bind(this)
+    // this.onGlobalKeydown = this.onGlobalKeydown.bind(this)
+    // this.onGlobalKeypress = this.onGlobalKeypress.bind(this)
+    // this.onWindowResize = this.onWindowResize.bind(this)
   }
 
   didMount() {
+    const editorSession = this.context.editorSession
+    editorSession.on('render', this.onSelectionChange, this, {
+      resource: 'selection'
+    })
+
     // FIXME: listen to document changes
 
     // HACK: without contenteditables we don't receive keyboard events on this level
-    window.document.body.addEventListener('keydown', this.onGlobalKeydown, false)
-    window.document.body.addEventListener('keypress', this.onGlobalKeypress, false)
-    window.addEventListener('resize', this.onWindowResize, false)
+    // window.document.body.addEventListener('keydown', this.onGlobalKeydown, false)
+    // window.document.body.addEventListener('keypress', this.onGlobalKeypress, false)
+    // window.addEventListener('resize', this.onWindowResize, false)
   }
 
   dispose() {
-    window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
-    window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
-    window.removeEventListener('resize', this.onWindowResize)
+    const editorSession = this.context.editorSession
+    editorSession.off(this)
+    // window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
+    // window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
+    // window.removeEventListener('resize', this.onWindowResize)
   }
 
   render($$) {
-    var el = $$('div').addClass('sc-sheet-editor')
+    var el = $$('div').addClass('sc-sheet')
     el.append(
-      this._renderTable($$)
+      this.renderTable($$)
     )
     el.append(
-      $$('div').addClass('selection').ref('selection')
+      $$('div').addClass('se-selection').ref('selection')
     )
-    // react only to mousedowns on cells in display mode
     el.on('mousedown', this.onMouseDown)
+    el.on('mouseover', this.onMouseOver)
+
     return el
   }
 
-  _renderTable($$) {
+  renderTable($$) {
     // TODO: this code is almost identical to the exporter
     // we should try to share the code
-    var sheet = this.props.doc
+    const sheet = this.props.node
 
-    // TODO: make this configurable
-    var ncols = Math.max(52, sheet.getColumnCount())
-    var nrows = Math.max(100, sheet.getRowCount())
-    var tableEl = $$('table').addClass("sc-sheet")
-
-    var i,j
+    // 52 = 2*26 ~ A - AZ
+    const ncols = Math.max(52, sheet.getColumnCount())
+    const nrows = Math.max(100, sheet.getRowCount())
+    const tableEl = $$('table').addClass("sc-sheet")
 
     // create header row
-    var thead = $$('thead')
-    var headerRow = $$('tr').addClass('se-row')
+    const thead = $$('thead')
+    const headerRow = $$('tr').addClass('se-row')
     headerRow.append($$('th').addClass('se-cell'))
-    for (j = 0; j < ncols; j++) {
+    for (let j = 0; j < ncols; j++) {
       headerRow.append($$('th').text(
         getColumnName(j)
       ).addClass('se-cell'))
@@ -84,22 +92,22 @@ class SheetComponent extends Component {
     thead.append(headerRow)
     tableEl.append(thead)
 
-    var tbody = $$('tbody').ref('body')
-    for (i = 0; i < nrows; i++) {
-      var rowEl = $$('tr').attr('data-row', i).addClass('se-row')
+    const tbody = $$('tbody').ref('body')
+    for (let i = 0; i < nrows; i++) {
+      const rowEl = $$('tr').attr('data-row', i).addClass('se-row')
       // first column is header
       rowEl.append(
-        $$('th').text(String(i+1)).addClass('se-cell')
+        $$('th').addClass('se-cell').text(String(i+1))
       )
       // render all cells
-      for (j = 0; j < ncols; j++) {
-        var cell = sheet.getCellAt(i, j)
-
+      for (let j = 0; j < ncols; j++) {
+        const cell = sheet.getCellAt(i, j)
         // Render Cell content
-        var cellEl = $$(CellComponent, { node: cell })
-          .attr('data-row', i)
-          .attr('data-col', j)
-        rowEl.append(cellEl)
+        rowEl.append(
+          $$(CellComponent, { node: cell })
+            .attr('data-row', i)
+            .attr('data-col', j)
+        )
       }
       tbody.append(rowEl)
     }
@@ -108,7 +116,13 @@ class SheetComponent extends Component {
   }
 
   getSelection() {
-    return this.selection
+    let sel = this.context.editorSession.getSelection()
+    if (sel.isCustomSelection() &&
+      sel.customType === 'table' &&
+      sel.data.sheetId === this.props.node.id
+    ) {
+      return sel
+    }
   }
 
   getEditorSession() {
@@ -116,95 +130,115 @@ class SheetComponent extends Component {
   }
 
   getSheet() {
-    return this.props.doc
+    return this.props.node
   }
 
-  getController() {
-    return this.context.controller
+  setSelection(tableSel) {
+    if (this._activeCellComp) {
+      const cellComp = this._activeCellComp
+      this._activeCellComp = null
+      cellComp.commit()
+      // HACK: manipulating the element directly
+      // without using setState
+      // TODO: try to use extendState instead
+      this.el.removeClass('sm-edit')
+    }
+    this._setSelection(tableSel)
   }
 
-  setSelection(sel) {
-    if (this.activeCell) {
-      var cell = this.activeCell
-      this.activeCell = null
-      cell.commit()
-      this.removeClass('sm-edit')
-    }
-    this.selection = new TableSelection(sel)
-    if (this.props.onSelectionChanged) {
-      this.props.onSelectionChanged(this.selection)
-    }
-    this._rerenderSelection()
+  isEditing() {
+    const activateCell = this._activeCellComp
+    return (activateCell && activateCell.isEditing())
   }
 
   // Action handlers
 
-  selectCell(cell) {
-    this._ensureActiveCellIsCommited(cell)
-    this.removeClass('sm-edit')
-    this._rerenderSelection()
+  selectCell(cellComp) {
+    let row = cellComp.getRow()
+    let col = cellComp.getCol()
+    this.setSelection({
+      startRow: row,
+      startCol: col,
+      endRow: row,
+      endCol: col
+    })
+  }
+
+  activateCell(cellComp) {
+    this._ensureActiveCellIsCommited(cellComp)
+    this._activeCellComp = cellComp
+    cellComp.enableEditing()
   }
 
   commitCellChange(content, key) {
-    if (!this.activeCell) {
+    if (!this._activeCellComp) {
       console.warn('FIXME: expected to have an active cell.')
     } else {
-      var cell = this.activeCell
-      this.activeCell = null
-      cell.commit()
+      const cellComp = this._activeCellComp
+      this._activeCellComp = null
+      cellComp.commit()
     }
     if (key === 'enter') {
       this._selectNextCell(1, 0)
     }
-    this.removeClass('sm-edit')
-    this._rerenderSelection()
   }
 
   discardCellChange() {
-    var cell = this.activeCell
-    this.activeCell = null
+    var cell = this._activeCellComp
+    this._activeCellComp = null
     cell.discard()
-    this.removeClass('sm-edit')
-    this._rerenderSelection()
   }
 
-  // DOM event handlers
+  // Events
+
+  onSelectionChange(sel) {
+    if (sel.isCustomSelection() &&
+      sel.customType === 'table' &&
+      sel.data.sheetId === this.props.node.id)
+    {
+      this._hasSelection = true
+      this._rerenderSelection(sel)
+    } else {
+      this._hasSelection = false
+      this._hideSelection()
+    }
+  }
 
   onMouseDown(event) {
-    let target = DefaultDOMElement.wrap(event.target)
-    if (target.is('td.sm-display')) {
+    let target = findParentComponent(event.target)
+    let cell = target._isCellComponent ? target : target.context.cell
+    // happens when not on a cell, e.g. on the header
+    if (!cell) return
+    // only enable cell selection on cells which are not currently edited
+    if (!cell.isEditing()) {
       event.preventDefault()
       event.stopPropagation()
-      this.isSelecting = true
-      this.el.on('mouseenter', this.onMouseEnter, this)
-      this.el.on('mouseup', this.onMouseUp, this, { once: true })
-      this.startCellEl = event.target
-      if (!this.startCellEl.getAttribute('data-col')) {
-        throw new Error('mousedown on a non-cell element')
-      }
-      this.endCellEl = this.startCellEl
+      this._isSelecting = true
+      this.el.getOwnerDocument().on('mouseup', this.onMouseUp, this, { once: true })
+      this._startCell = cell
+      this._endCell = cell
       this._updateSelection()
     }
   }
 
-  onMouseEnter(event) {
-    if (!this.isSelecting) return
-    let target = DefaultDOMElement.wrap(event.target)
-    if (target.is('td')) {
-      let endCellEl = this._getCellForDragTarget(event.target)
-      if (this.endCellEl !== endCellEl) {
-        this.endCellEl = endCellEl
-        this._updateSelection()
-      }
+  onMouseOver(event) {
+    if (!this._isSelecting) return
+    let target = findParentComponent(event.target)
+    let cell = target._isCellComponent ? target : target.context.cell
+    if (this._endCell !== cell) {
+      console.log('new endCell', cell)
+      this._endCell = cell
+      this._updateSelection()
     }
   }
 
   onMouseUp() {
-    this.isSelecting = false
-    this.el.off('mouseenter', this.onMouseEnter, this)
-    this._updateSelection()
-    this.startCellEl = null
-    this.endCellEl = null
+    if (this._isSelecting) {
+      this._isSelecting = false
+      this._updateSelection()
+      this._startCell = null
+      this._endCell = null
+    }
   }
 
   /*
@@ -217,7 +251,7 @@ class SheetComponent extends Component {
     // console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
     var handled = false
 
-    if (!this._isEditing()) {
+    if (!this.isEditing()) {
       // LEFT
       if (event.keyCode === 37) {
         if (event.shiftKey) {
@@ -301,7 +335,7 @@ class SheetComponent extends Component {
     // console.log('onGlobalKeypress()', 'keyCode=', event.keyCode)
     var handled = false
 
-    if (!this._isEditing()) {
+    if (!this.isEditing()) {
       var character = String.fromCharCode(event.charCode)
       if (character) {
         this._activateCurrentCell(character)
@@ -319,84 +353,39 @@ class SheetComponent extends Component {
     this._rerenderSelection()
   }
 
-  onDocumentChange(change) {
-    var cells = []
-    var doc = this.props.doc
-    forEach(change.created, function(nodeData) {
-      if (nodeData.type === 'sheet-cell') {
-        cells.push(nodeData)
-      }
-    })
-    forEach(change.deleted, function(nodeData) {
-      if (nodeData.type === 'sheet-cell') {
-        cells.push(nodeData)
-      }
-    })
-    forEach(change.updated, function(props, id) {
-      var cell = doc.get(id)
-      if (cell && cell.type === 'sheet-cell') {
-        cells.push(cell)
-      }
-    })
-    if (cells.length > 0) {
-      this.send('updateCells', cells)
-    }
-
-    // We update the selection on each document change
-    // E.g. this solves the situation where we update the display
-    // mode using the DisplayMode tool where no selection update
-    // is triggered.
-    this._rerenderSelection()
-  }
-
   // private API
 
-  /**
-    Sometimes we get the content elements of a cell as a target
-    when we drag a selection. This method normalizes the target
-    and returns always the correct cell
-  */
-  _getCellForDragTarget(target) {
-    target = DefaultDOMElement.wrap(target)
-    var targetCell
-    if (target.hasClass('se-cell')) {
-      targetCell = target
-    } else {
-      targetCell = target.findParent('.se-cell')[0]
+  _setSelection(tableSel) {
+    const editorSession = this.context.editorSession
+    // TODO: Make it easier to use custom selections.
+    tableSel.sheetId = this.props.node.id
+    const selData = {
+      type: 'custom',
+      customType: 'table',
+      data: tableSel
     }
-    if (!targetCell) throw Error('target cell could not be determined')
-    return targetCell
+    if (this.context.surface) {
+      const surface = this.context.surface
+      selData.surfaceId = surface.id
+      if (surface.isContainerEditor()) {
+        selData.containerId = surface.getContainerId()
+      }
+    }
+    console.log('Setting selection', selData)
+    editorSession.setSelection(selData)
   }
 
-  _isEditing() {
-    return Boolean(this.activeCell)
-  }
-
-  _ensureActiveCellIsCommited(cell) {
-    if (this.activeCell && this.activeCell !== cell) {
-      this.activeCell.commit()
-    }
-  }
-
-  _getPosition(cellEl) {
-    var row, col
-    if (cellEl.hasAttribute('data-col')) {
-      col = cellEl.getAttribute('data-col')
-      row = cellEl.parentNode.getAttribute('data-row')
-    } else {
-      throw new Error('FIXME!')
-    }
-    return {
-      row: row,
-      col: col
+  _ensureActiveCellIsCommited(cellComp) {
+    if (this._activeCellComp && this._activeCellComp !== cellComp) {
+      this._activeCellComp.commit()
     }
   }
 
   _updateSelection() {
-    if (this.startCellEl) {
-      var startPos = this._getPosition(this.startCellEl)
-      var endPos = this._getPosition(this.endCellEl)
-      var newSel = {}
+    if (this._startCell) {
+      const startPos = this._startCell.getPos()
+      const endPos = this._endCell.getPos()
+      const newSel = {}
       newSel.startRow = Math.min(startPos.row, endPos.row)
       newSel.startCol = Math.min(startPos.col, endPos.col)
       newSel.endRow = Math.max(startPos.row, endPos.row)
@@ -406,40 +395,43 @@ class SheetComponent extends Component {
   }
 
   _selectNextCell(rowDiff, colDiff) {
-    var sel = this.getSelection().toJSON()
-
-    sel.startRow = sel.startRow + rowDiff
+    const sel = this.getSelection()
+    if (!sel) return
+    let data = Object.assign({}, sel.data)
+    data.startRow = data.startRow + rowDiff
     // TODO: also ensure upper bound
     if (rowDiff < 0) {
-      sel.startRow = Math.max(0, sel.startRow)
+      data.startRow = Math.max(0, data.startRow)
     }
-    sel.endRow = sel.startRow
-    sel.startCol = sel.startCol + colDiff
+    data.endRow = data.startRow
+    data.startCol = data.startCol + colDiff
     // TODO: also ensure upper bound
     if (colDiff < 0) {
-      sel.startCol = Math.max(0, sel.startCol)
+      data.startCol = Math.max(0, data.startCol)
     }
-    sel.endCol = sel.startCol
-    this.setSelection(sel)
+    data.endCol = data.startCol
+    this.setSelection(data)
   }
 
   _expandSelection(rowDiff, colDiff) {
-    var sel = this.getSelection().toJSON()
+    const sel = this.getSelection()
+    if (!sel) return
+    let data = Object.assign({}, sel.data)
 
-    sel.endRow = sel.endRow + rowDiff
+    data.endRow = data.endRow + rowDiff
     // TODO: also ensure upper bound
     if (rowDiff < 0) {
-      sel.endRow = Math.max(0, sel.endRow)
+      data.endRow = Math.max(0, data.endRow)
     }
 
-    sel.endCol = sel.endCol + colDiff
+    data.endCol = data.endCol + colDiff
     // TODO: also ensure upper bound
     if (colDiff < 0) {
-      sel.endCol = Math.max(0, sel.endCol)
+      data.endCol = Math.max(0, data.endCol)
     }
 
-    sel.startRow = sel.startRow
-    sel.endRow = sel.endRow
+    data.startRow = data.startRow
+    data.endRow = data.endRow
     this.setSelection(sel)
   }
 
@@ -447,90 +439,106 @@ class SheetComponent extends Component {
     var sel = this.getSelection()
     if (sel) {
       var rect = this._getRectangle(sel)
-      this.refs.selection.css(rect)
+      this.refs.selection.el.css(rect)
+      this.refs.selection.el.setStyle('display', 'block')
+    } else {
+      this._hideSelection()
     }
+  }
+
+  _hideSelection() {
+    this.refs.el.setStyle('display', 'none')
   }
 
   _toggleDisplayMode() {
-    var sel = this.getSelection()
-    var row = sel.startRow
-    var col = sel.startCol
-    var cellComp = this._getCellComponentAt(row, col)
-    if (cellComp) {
-      cellComp.toggleDisplayMode()
-      cellComp.rerender()
+    const sel = this.getSelection()
+    if (sel) {
+      const data = sel.data
+      const row = data.startRow
+      const col = data.startCol
+      const cellComp = this._getCellComponentAt(row, col)
+      if (cellComp) {
+        cellComp.toggleDisplayMode()
+      }
     }
-
-    // HACK: we need to emit an onSelectionChanged event so
-    // the DisplayModeTool reflects the updated displayMode
-    if (this.props.onSelectionChanged) {
-      this.props.onSelectionChanged(sel)
-    }
-    this._rerenderSelection()
   }
 
   _activateCurrentCell(initialContent) {
-    var sel = this.getSelection()
-    var row = sel.startRow
-    var col = sel.startCol
-    var cellComp = this._getCellComponentAt(row, col)
-    if (cellComp) {
-      this._ensureActiveCellIsCommited(cellComp)
-      this.activeCell = cellComp
-      this.addClass('sm-edit')
-      cellComp.enableEditing(initialContent)
-      this._rerenderSelection()
+    const sel = this.getSelection()
+    if (sel) {
+      const data = sel.data
+      const row = data.startRow
+      const col = data.startCol
+      const cellComp = this._getCellComponentAt(row, col)
+      if (cellComp) {
+        this._ensureActiveCellIsCommited(cellComp)
+        this._activeCellComp = cellComp
+        this.addClass('sm-edit')
+        cellComp.enableEditing(initialContent)
+      }
     }
   }
 
   _deleteSelection() {
-    var sel = this.getSelection()
-    var minRow = Math.min(sel.startRow, sel.endRow)
-    var maxRow = Math.max(sel.startRow, sel.endRow)
-    var minCol = Math.min(sel.startCol, sel.endCol)
-    var maxCol = Math.max(sel.startCol, sel.endCol)
-    var editorSession = this.editorSession()
-    var sheet = this.getSheet()
-    editorSession.transaction(function(tx) {
-      for (var row = minRow; row <= maxRow; row++) {
-        for (var col = minCol; col <= maxCol; col++) {
-          var cell = sheet.getCellAt(row, col)
-          if (cell) {
-            tx.set([cell.id, 'content'], '')
+    const sel = this.getSelection()
+    if (sel) {
+      const editorSession = this.getEditorSession()
+      const sheet = this.getSheet()
+      const data = sel.data
+      const minRow = Math.min(data.startRow, data.endRow)
+      const maxRow = Math.max(data.startRow, data.endRow)
+      const minCol = Math.min(data.startCol, data.endCol)
+      const maxCol = Math.max(data.startCol, data.endCol)
+      editorSession.transaction(function(tx) {
+        for (let row = minRow; row <= maxRow; row++) {
+          for (let col = minCol; col <= maxCol; col++) {
+            const cell = sheet.getCellAt(row, col)
+            if (cell) {
+              tx.set([cell.id, 'content'], '')
+            }
           }
         }
-      }
-    })
-    this._rerenderSelection()
+      })
+    }
   }
 
   _getCellComponentAt(row, col) {
-    var rows = this.refs.body.children
-    var rowComp = rows[row]
-    if (rowComp) {
-      var cells = rowComp.children
-      return cells[col+1]
+    // HACK: using the DOM directly
+    // TODO: this is a bit hacky, maybe we want to 'register' a matrix components?
+    const tbody = this.refs.body.getNativeElement()
+    const rowEls = tbody.children
+    const rowEl = rowEls[row]
+    if (rowEl) {
+      const cellEls = rowEl.children
+      // the first child is a th, thus col+1
+      const cellEl = cellEls[col+1]
+      return Component.unwrap(cellEl)
     }
   }
 
   _getRectangle(sel) {
-    var rows = this.refs.body.children
+    const data = sel.data
+    // HACK: using the DOM directly
+    const tbody = this.refs.body.getNativeElement()
+    const rowEls = tbody.children
     // FIXME: due to lack of API in DOMElement
     // we are using the native API here
-    var minRow = Math.min(sel.startRow, sel.endRow)
-    var maxRow = Math.max(sel.startRow, sel.endRow)
-    var minCol = Math.min(sel.startCol, sel.endCol)
-    var maxCol = Math.max(sel.startCol, sel.endCol)
+    const minRow = Math.min(data.startRow, data.endRow)
+    const maxRow = Math.max(data.startRow, data.endRow)
+    const minCol = Math.min(data.startCol, data.endCol)
+    const maxCol = Math.max(data.startCol, data.endCol)
 
-    var firstEl = rows[minRow].el.childNodes[minCol+1]
-    var lastEl = rows[maxRow].el.childNodes[maxCol+1]
-    // debugger
-    var $firstEl = DefaultDOMElement.wrap(firstEl)
-    var $lastEl = DefaultDOMElement(lastEl)
-    var pos1 = $firstEl.getPosition()
-    var pos2 = $lastEl.getPosition()
-    var rect2 = lastEl.getBoundingClientRect()
-    var rect = {
+    const firstEl = rowEls[minRow].children[minCol+1]
+    const lastEl = rowEls[maxRow].children[maxCol+1]
+
+    // Now we go back into DOMElement API land
+    // TODO: it would be better to have DefaultDOMElement.unwrap()
+    const $firstEl = DefaultDOMElement.wrap(firstEl)
+    const $lastEl = DefaultDOMElement.wrap(lastEl)
+    const pos1 = $firstEl.getPosition()
+    const pos2 = $lastEl.getPosition()
+    const rect2 = lastEl.getBoundingClientRect()
+    let rect = {
       top: pos1.top,
       left: pos1.left,
       height: pos2.top - pos1.top + rect2.height,

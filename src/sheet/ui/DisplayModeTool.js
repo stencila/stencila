@@ -1,10 +1,5 @@
-import { Component, forEach } from 'substance'
-
-const MODES = {
-  'cli': 'Clipped',
-  'exp': 'Expanded',
-  'ove': 'Overlay'
-}
+import {Component} from 'substance'
+import Cell from '../model/Cell'
 
 export default
 class DisplayModeTool extends Component {
@@ -33,10 +28,9 @@ class DisplayModeTool extends Component {
     var toggleButton = $$('button')
       .on('click', this._toggleOptions)
       .append(
-        //$$('span').addClass('se-label').append('Cell Mode: '),
         $$('span')
           .addClass('se-name')
-          .append(this._getMode()),
+          .append(this.getLabel(this._getMode())),
         $$('span').addClass('se-dropdown-icon')
           .append(
             this.context.iconProvider.renderIcon($$, 'dropdown')
@@ -46,15 +40,14 @@ class DisplayModeTool extends Component {
 
     if (this.state.expanded) {
       var availableModes = $$('div').addClass('se-available-display-modes')
-      forEach(MODES, function(modeName, key) {
+      Cell.DISPLAY_MODES.forEach((modeName, key) => {
         var opt = $$('div').addClass('se-display-mode')
           .on('click', this._selectDisplayMode)
           .attr({
             'data-id': key
-          }).append(modeName)
-
+          }).append(this.getLabel(modeName))
         availableModes.append(opt)
-      }.bind(this))
+      })
       el.append(availableModes)
     }
     return el
@@ -74,14 +67,7 @@ class DisplayModeTool extends Component {
   }
 
   _getMode() {
-    var mode = 'cli'
-    if (this.state.cell) {
-      mode = this.state.cell.displayMode
-    }
-
-    // We just 'Clipped' if mode is not found in availableNodes
-    var displayMode = this.availableModes[mode] || 'Clipped'
-    return displayMode
+    return this.state.cell ? this.state.cell.displayMode : 'cli'
   }
 
   _toggleOptions() {
