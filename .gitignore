@@ -1,8 +1,8 @@
-/.sandbox
 /node_modules
 /npm-debug.log
 /coverage
 /*.sublime-workspace
-/tests/bundle.temp.js
 /tests/document/documents
 /tmp
+/.sandbox
+/dist
