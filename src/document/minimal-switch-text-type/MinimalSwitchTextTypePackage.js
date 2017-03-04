@@ -1,13 +1,11 @@
-import { SwitchTextTypeCommand } from 'substance'
+import MinimalSwitchTextTypeCommand from './MinimalSwitchTextTypeCommand'
 import MinimalSwitchTextTypeTool from './MinimalSwitchTextTypeTool'
 
 export default {
   name: 'minimal-switch-text-type',
   configure: function(config) {
     config.addToolGroup('text')
-    config.addCommand('minimal-switch-text-type', SwitchTextTypeCommand, {
-      disableCollapsedCursor: true
-    })
+    config.addCommand('minimal-switch-text-type', MinimalSwitchTextTypeCommand)
     config.addTool('minimal-switch-text-type', MinimalSwitchTextTypeTool, {
       toolGroup: 'text'
     })

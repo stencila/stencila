@@ -12,10 +12,14 @@ import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
 import ListPackage from './nodes/list/ListPackage'
 import TablePackage from './nodes/table/TablePackage'
+import CellPackage from './nodes/cell/CellPackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
+import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
+
+
 // import MathPackage from './nodes/math/MathPackage'
 // import ImagePackage from './nodes/image/ImagePackage'
 
@@ -65,14 +69,14 @@ class DocumentConfigurator extends Configurator {
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
+    this.import(CellPackage)
 
     // TODO: this currently conflicts with Substance
     // input package, imported by the BasePackage.
     // this.import(InputPackage)
     this.import(DefaultPackage)
-
     this.import(MinimalSwitchTextTypePackage)
-
+    this.import(ToggleInsertPackage)
   }
 
   /**

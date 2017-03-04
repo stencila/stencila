@@ -9,6 +9,7 @@
 @import './overlay/_overlay.css';
 @import './button/_button.css';
 @import './input/_input.css';
+@import './toggle-insert/_toggle-insert.css';
 
 /* Nodes */
 @import './nodes/title/_title.css';
@@ -31,7 +32,7 @@
 /*@import '../utilities/math/index';*/
 
 .sc-document-editor {
-  max-width: 800px;
+  max-width: 600px;
   padding: 20px;
   margin: 0 auto;
 }
