@@ -1,21 +1,37 @@
 /* Sheet Component */
 .sc-sheet {
+  position: relative;
   font-family: var(--sans-font-family);
   font-size: 14px;
+}
 
-  /* deactivate native selections */
+/*
+.sc-sheet {
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
 }
+*/
 
-.sc-sheet thead th {
+.sc-sheet > thead > th {
   text-align: center;
   background: #EEE;
 }
 
-.sc-sheet .se-row > .se-cell:first-child {
+.sc-sheet > tbody > .se-row > .se-cell:first-child {
   text-align: center;
   min-width: 3em;
   background: #EEE;
+}
+
+.sc-sheet > .se-selection {
+  position: absolute;
+  pointer-events:none;
+  border: 2px solid #4285f4;
+  background: rgba(160, 195, 255, 0.15);
+  z-index: 1;
+}
+
+.sc-sheet.sm-edit .se-selection {
+  background: none;
 }

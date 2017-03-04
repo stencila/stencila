@@ -8,8 +8,8 @@ import CellTeaserComponent from './CellTeaserComponent'
 export default
 class ExpressionComponent extends Component {
   render($$) {
-    var node = this.props.node
-    var el = $$('div').addClass('sc-expression')
+    let node = this.props.node
+    const el = $$('div').addClass('sc-expression')
     // Display cell teaser
     el.append($$(CellTeaserComponent, {node: node}))
     if (node.value !== undefined && node.displayMode !== 'cli') {

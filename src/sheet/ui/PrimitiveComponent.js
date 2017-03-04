@@ -1,32 +1,26 @@
 import { Component } from 'substance'
 
 /**
- * Used for displaying cells which are not constant (i.e. `kind` != 'lit') and
- * have a `type` that is a primitive (e.g. number, integer, string).
+  Used for displaying cells which are not constant (i.e. `kind` != 'lit') and
+  have a `type` that is a primitive (e.g. number, integer, string).
  */
 export default
 class PrimitiveComponent extends Component {
 
   render($$) {
-    var cell = this.props.node
-
-    var el = $$('div').addClass('sc-primitive')
-
-    var prefix = cell.getPrefix()
-    el.append(
-      $$('span').addClass('se-name').text(prefix)
-    )
-
-    var value = cell.value
-    var className = 'se-value'
+    const cell = this.props.node
+    const el = $$('div').addClass('sc-primitive')
+    const prefix = cell.getPrefix()
+    let value = cell.value
     if (value === undefined) {
+      // TODO: use getLabel()
       value = 'Loading'
-      className = 'se-loading'
+      el.addClass('sm-loading')
     }
     el.append(
-      $$('span').addClass(className).text(value)
+      $$('span').addClass('se-name').text(prefix),
+      $$('span').addClass('se-value').text(value)
     )
-
     return el
   }
 

@@ -8,21 +8,12 @@ export default
 class HTMLCellComponent extends Component {
 
   render($$) {
-    var cell = this.props.node
-    var el = $$('div').addClass('sc-html-cell')
-
-    var value = cell.value
-    var className = ''
+    const cell = this.props.node
+    const el = $$('div').addClass('sc-html-cell')
     if (value === undefined) {
-      value = 'Loading'
-      className = 'sm-loading'
+      el.addClass('sm-loading')
     }
-    el.addClass(className).html(value)
-
-    if(window.MathJax && window.MathJax.Hub) {
-      MathJax.Hub.Queue(["Rerender", MathJax.Hub, cell.id])
-    }
-
+    el.html(value)
     return el
   }
 

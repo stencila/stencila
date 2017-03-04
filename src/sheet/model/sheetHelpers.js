@@ -7,7 +7,7 @@ export function getColumnName(col) {
     throw new Error('Illegal argument.')
   }
   var name = ""
-  while(col !== 0) {
+  while(true) { // eslint-disable-line
     var mod = col % ALPHABET.length
     col = Math.floor(col/ALPHABET.length)
     name = ALPHABET[mod] + name

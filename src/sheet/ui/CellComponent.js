@@ -1,69 +1,89 @@
-import { Component, isString, uuid } from 'substance'
+import { isString, uuid } from 'substance'
+import NodeComponent from '../../shared/NodeComponent'
+import Cell from '../model/Cell'
 import CellEditor from './CellEditor'
 import ExpressionComponent from './ExpressionComponent'
 import ConstantComponent from './ConstantComponent'
+import PrimitiveComponent from './PrimitiveComponent'
+import BooleanComponent from './BooleanComponent'
+import ErrorComponent from './ErrorComponent'
+import HTMLCellComponent from './HTMLCellComponent'
+import ImageCellComponent from './ImageCellComponent'
 
 export default
-class CellComponent extends Component {
+class CellComponent extends NodeComponent {
 
-  didMount() {
-    this._connect()
-  }
-
-  dispose() {
-    this._disconnect()
-  }
-
-  willReceiveProps() {
-    this._disconnect()
-  }
-
-  didReceiveProps() {
-    this._connect()
+  getChildContext() {
+    return {
+      cell: this
+    }
   }
 
   render($$) {
-    var node = this.props.node
-    var el = $$('td').addClass('se-cell')
-    var componentRegistry = this.context.componentRegistry
-    var isEditing = this.isEditing()
+    const isEditing = this.isEditing()
+
+    let el = $$('td').addClass('se-cell')
     el.addClass(isEditing ? 'sm-edit' : 'sm-display')
-
     if (isEditing) {
-      var content
-      if (isString(this.state.initialContent)) {
-        content = this.state.initialContent
-      } else if (node) {
-        content = node.content
-      } else {
-        content = ''
-      }
-      el.append($$(CellEditor, {
-        content: content,
-        select: this.state.initialContent ? 'last' : 'all'
-      }).ref('editor'))
+      el.append(this.renderEditor($$))
     } else {
-      el.on('dblclick', this.onDblClick)
-
-      // Display node content
-      if (node) {
-        var CellContentClass
-        if (node.isConstant()) {
-          CellContentClass = ConstantComponent
-        } else if (node.valueType) {
-          CellContentClass = componentRegistry.get('cell:'+node.valueType, 'strict')
-        }
-        if (!CellContentClass) {
-          CellContentClass = ExpressionComponent
-        }
-        var cellContentEl = $$(CellContentClass, {node: node}).ref('content')
-        el.append(cellContentEl)
-
-        el.addClass(node.getDisplayClass())
-
+      const node = this.getNode()
+      if (!node) {
+        el.addClass('sm-empty')
+      } else {
+        el.append(this.renderDisplay($$))
       }
+      el.on('click', this.onClick)
+      el.on('dblclick', this.onDblClick)
     }
     return el
+  }
+
+  renderEditor($$) {
+    const node = this.getNode()
+    let content
+    if (isString(this.state.initialContent)) {
+      content = this.state.initialContent
+    } else if (node) {
+      content = node.content
+    } else {
+      content = ''
+    }
+    return $$(CellEditor, {
+      content: content,
+      select: this.state.initialContent ? 'last' : 'all'
+    }).ref('editor')
+  }
+
+  renderDisplay($$) {
+    const node = this.getNode()
+    // Display node content
+    let CellContentClass
+    if (node.isConstant()) {
+      CellContentClass = ConstantComponent
+    } else if (node.valueType) {
+      switch (node.valueType) {
+        // TODO: rethink the value type system
+        case 'primitive':
+          CellContentClass = PrimitiveComponent
+          break
+        case 'boolean':
+          CellContentClass = BooleanComponent
+          break
+        case 'image':
+          CellContentClass = ImageCellComponent
+          break
+        case 'html':
+          CellContentClass = HTMLCellComponent
+          break
+        case 'error':
+          CellContentClass = ErrorComponent
+          break
+        default:
+          CellContentClass = ExpressionComponent
+      }
+    }
+    return $$(CellContentClass, {node: node}).ref('content')
   }
 
   getNode() {
@@ -71,11 +91,11 @@ class CellComponent extends Component {
   }
 
   getDocument() {
-    return this.context.doc
+    return this.context.editorSession.getDocument()
   }
 
-  getDocumentSession() {
-    return this.context.documentSession
+  getEditorSession() {
+    return this.context.editorSession
   }
 
   /**
@@ -86,20 +106,15 @@ class CellComponent extends Component {
     overlay: displays content in an overlay that covers other cells
   */
   toggleDisplayMode() {
-    var node = this.props.node
+    const node = this.props.node
     // empty cells do not have a node
     if (!node) return
 
-    var currentMode = node.displayMode
-    var content = this.refs.content
+    const currentMode = node.displayMode
+    const content = this.refs.content
     if (content) {
-      var modes = ['cli', 'exp', 'ove']
-      var idx = modes.indexOf(currentMode)+1
-      if (modes.length > 0) {
-        idx = idx%modes.length
-      }
-      var nextMode = modes[idx] || ''
-      var editorSession = this.context.editorSession
+      const nextMode = Cell.getNextDisplayMode(currentMode)
+      const editorSession = this.getEditorSession()
       editorSession.transaction(function(tx) {
         tx.set([node.id, 'displayMode'], nextMode)
       })
@@ -117,15 +132,14 @@ class CellComponent extends Component {
   }
 
   commit() {
-    var docSession = this.getDocumentSession()
-    var doc = this.getDocument()
-    var node = this.props.node
-    var newContent = this.getCellEditorContent() || ''
+    let editorSession = this.getEditorSession()
+    const node = this.props.node
+    const newContent = this.getCellEditorContent() || ''
     if (!node) {
-      var row = parseInt(this.attr('data-row'), 10)
-      var col = parseInt(this.attr('data-col'), 10)
-      var id = uuid()
-      docSession.transaction(function(tx) {
+      const row = this.getRow()
+      const col = this.getCol()
+      const id = uuid()
+      editorSession.transaction((tx) => {
         tx.create({
           type: "sheet-cell",
           id: id,
@@ -134,12 +148,18 @@ class CellComponent extends Component {
           content: newContent
         })
       })
-      node = doc.get(id)
-      this.extendProps({ node: node })
+      // TODO: is this really necessary?
+      // The new node should essiantly get propagated
+      // by the parent
+      // node = doc.get(id)
+      // this.extendProps({ node: node })
     } else if (newContent !== node.content) {
-      docSession.transaction(function(tx) {
-        tx.set([this.props.node.id, 'content'], newContent)
-      }.bind(this))
+      editorSession.transaction((tx) => {
+        tx.set([node.id, 'content'], newContent)
+      })
+      // TODO: do we need the cached value?
+      // if yes, it should not be managed here, but done
+      // by the node itself
       delete this.props.node.value
     }
     this.extendState({ edit: false })
@@ -161,33 +181,33 @@ class CellComponent extends Component {
     }
   }
 
+  getRow() {
+    return parseInt(this.getAttribute('data-row'), 10)
+  }
+
+  getCol() {
+    return parseInt(this.getAttribute('data-col'), 10)
+  }
+
+  getPos() {
+    return {
+      row: this.getRow(),
+      col: this.getCol()
+    }
+  }
+
+  onClick(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this.send('selectCell', this)
+  }
+
   onDblClick(e) {
     e.preventDefault()
     e.stopPropagation()
     this.enableEditing()
-    this.send('activateCurrentCell')
+    this.send('activateCell', this)
   }
-
-  _connect() {
-    const doc = this.getDocument()
-    const node = this.props.node
-    if (node) {
-      doc.getEventProxy('path').connect(this, [node.id, 'content'], this.rerender)
-      doc.getEventProxy('path').connect(this, [node.id, 'displayMode'], this.rerender)
-      node.on('cell:changed', this._onCellChange, this)
-    }
-  }
-
-  _onCellChange() {
-    this.rerender()
-  }
-
-  _disconnect() {
-    var doc = this.getDocument()
-    if (this.props.node) {
-      doc.getEventProxy('path').disconnect(this)
-      this.props.node.off(this)
-    }
-  }
-
 }
+
+CellComponent.prototype._isCellComponent = true

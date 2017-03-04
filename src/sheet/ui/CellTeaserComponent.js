@@ -1,5 +1,8 @@
 import { Component } from 'substance'
 
+/**
+  Displays a teaser, while the value of a cell is being evaluated.
+ */
 export default
 class CellTeaserComponent extends Component {
 

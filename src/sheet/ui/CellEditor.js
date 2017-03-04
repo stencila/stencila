@@ -52,7 +52,7 @@ class CellEditor extends Component {
   }
 
   _getTextArea() {
-    return this.el.querySelector('input')
+    return this.refs.editor.getNativeElement()
   }
 
   onKeydown(event) {
@@ -95,17 +95,16 @@ class CellEditor extends Component {
 
   /*
     Iterates over available function names and matches the current input string
-
-    TODO: @nokome: the _matcher needs to be improved! Also you may want to
-          limit the number of suggested function names
   */
   _matchFunctionNames(str) {
     if (!str) return []; // don't match anything for an empty string
-    var _matcher = new RegExp('\^'+regexpEscape(str), 'g')
 
-    var matches = []
-    var funcs = this._getAvailableFunctions()
-
+    // TODO: the _matcher needs to be improved!
+    // Also you may want to limit the number of suggested function names
+    // TODO: what exactly does regexpEscape?
+    const _matcher = new RegExp('^'+regexpEscape(str), 'g')
+    const matches = []
+    const funcs = this._getAvailableFunctions()
     funcs.forEach(function(funcName) {
       if (_matcher.exec('='+funcName)) {
         matches.push(funcName)
@@ -120,9 +119,11 @@ class CellEditor extends Component {
     return []
   }
 
+  // TODO: rework the function stuff
+  // I would extract it into a util to be developed independently
   _detectFunction() {
-    var _availableFuncs = this._getAvailableFunctions()
-    var _function_re_str = '\\b(' + _availableFuncs.map(regexpEscape).join('|') + ')[(]'
+    const _availableFuncs = this._getAvailableFunctions()
+    const _function_re_str = '\\b(' + _availableFuncs.map(regexpEscape).join('|') + ')[(]'
 
     setTimeout(function() {
       var el = this._getTextArea()
@@ -198,6 +199,7 @@ class CellEditor extends Component {
 
 }
 
+// TODO: what exactly does this?
 function regexpEscape(s) {
-  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') // eslint-disable-line no-useless-escape
 }

@@ -119,3 +119,11 @@ Cell.schema = {
   value: { type: "string", optional: true }, // evaluated value
   valueType: { type: "string", optional: true },
 }
+
+Cell.DISPLAY_MODES = ['cli', 'exp', 'ove']
+
+Cell.getNextDisplayMode = function(mode) {
+  let idx = Cell.DISPLAY_MODES.indexOf(currentMode)+1
+  idx = idx%Cell.DISPLAY_MODES.length
+  return Cell.DISPLAY_MODES[idx] || 'cli'
+}

@@ -1,6 +1,5 @@
 .se-cell {
 	position: relative;
-
   min-height: var(--cell-height);
   min-width: var(--cell-width);
   border: 1px solid #CCC;
@@ -38,18 +37,7 @@
 .se-cell.sm-edit {
   position: relative;
   text-align: left;
-  // deactivate native selections
   -webkit-user-select: default;
      -moz-user-select: default;
       -ms-user-select: default;
-}
-
-.se-cell > div {
-  border: 2px solid #4285f4;
-  // to cover the cell border
-  top: -1px;
-  left: -1px;
-  position: absolute;
-  width: 600px;
-  z-index: 3;
 }

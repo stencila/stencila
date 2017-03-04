@@ -11,9 +11,9 @@ import { Component } from 'substance'
 export default
 class SelectFunction extends Component {
   render($$) {
-    var el = $$('div').addClass('sc-select-function')
-
-    this.props.entries.forEach(function(entry) {
+    const entries = this.props.entries
+    const el = $$('div').addClass('sc-select-function')
+    entries.forEach(function(entry) {
       el.append($$('div').addClass('se-entry').append(entry))
     })
     return el
