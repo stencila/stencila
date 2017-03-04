@@ -1,11 +1,11 @@
-const unified = require('unified')
-const remarkParse = require('remark-parse')
-const remarkStringify = require('remark-stringify')
-const remarkHtml = require('remark-html')
-const squeezeParagraphs = require('remark-squeeze-paragraphs')
-const slug = require('remark-slug')
+import unified from 'unified'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
+import remarkHtml from 'remark-html'
+import squeezeParagraphs from 'remark-squeeze-paragraphs'
+import slug from 'remark-slug'
 
-module.exports = function mdast2html (mdast, options) {
+export default function mdast2html (mdast, options) {
   options = options || {}
   if (options.gfm !== false) options.gfm = true
   if (options.commonmark !== false) options.commonmark = true

@@ -1,9 +1,9 @@
-const cheerio = require('cheerio')
+import * as cheerio from 'cheerio'
 
-const Component = require('../component/Component')
-const DocumentHtmlConverter = require('./DocumentHtmlConverter')
-const DocumentMarkdownConverter = require('./DocumentMarkdownConverter')
-const DocumentJupyterNotebookConverter = require('./DocumentJupyterNotebookConverter')
+import Component from '../component/Component'
+import DocumentHtmlConverter from './DocumentHtmlConverter'
+import DocumentMarkdownConverter from './DocumentMarkdownConverter'
+import DocumentJupyterNotebookConverter from './DocumentJupyterNotebookConverter'
 
 /**
  * The Stencila Document class
@@ -80,4 +80,4 @@ class Document extends Component {
 
 }
 
-module.exports = Document
+export default Document

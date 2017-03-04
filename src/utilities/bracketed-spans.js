@@ -1,8 +1,8 @@
-const visit = require('unist-util-visit')
-const remove = require('unist-util-remove')
-const bracketedSpans = require('remark-bracketed-spans')
+import visit from 'unist-util-visit'
+import remove from 'unist-util-remove'
+import bracketedSpans from 'remark-bracketed-spans'
 
-function md2html () {
+export function md2html () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
       const data = bracketedSpans.parseMarkdown(node, i, parent, tree)
@@ -61,7 +61,10 @@ function md2html () {
   }
 }
 
-function createLinkReferences () {
+const html2md = bracketedSpans.html2md
+export {html2md}
+
+export function createLinkReferences () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
       if (node.value && node.value.indexOf('[]') > -1) {
@@ -83,10 +86,8 @@ function createLinkReferences () {
   }
 }
 
-module.exports = {
-  md2html: md2html,
-  html2md: bracketedSpans.html2md,
-  parseMarkdown: bracketedSpans.parseMarkdown,
-  mdVisitors: bracketedSpans.mdVisitors,
-  createLinkReferences: createLinkReferences
-}
+const parseMarkdown = bracketedSpans.parseMarkdown
+export {parseMarkdown}
+
+const mdVisitors = bracketedSpans.mdVisitors
+export {mdVisitors}

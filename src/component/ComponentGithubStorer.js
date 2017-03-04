@@ -1,6 +1,6 @@
-const GitHub = require('github-api')
+import * as GitHub from 'github-api'
 
-const errors = require('./component-storer-errors')
+import {ComponentStorerMalformed, ComponentStorerUnfound} from './component-storer-errors'
 
 class ComponentGithubStorer {
 
@@ -32,7 +32,7 @@ class ComponentGithubStorer {
 
     let match = path.match(/^([^/]+)\/([^/]+)\/(.+)?/)
     if (!match) {
-      throw new errors.ComponentStorerMalformed(this, address)
+      throw new ComponentStorerMalformed(this, address)
     }
 
     return {
@@ -53,7 +53,7 @@ class ComponentGithubStorer {
         })
         .catch(error => {
           if (error.response.status === 404) {
-            reject(new errors.ComponentStorerUnfound(this, address))
+            reject(new ComponentStorerUnfound(this, address))
           } else {
             reject(error)
           }
@@ -71,7 +71,7 @@ class ComponentGithubStorer {
         })
         .catch(error => {
           if (error.response.status === 404) {
-            reject(new errors.ComponentStorerUnfound(this, address))
+            reject(new ComponentStorerUnfound(this, address))
           } else {
             reject(error)
           }
@@ -81,4 +81,4 @@ class ComponentGithubStorer {
 
 }
 
-module.exports = ComponentGithubStorer
+export default ComponentGithubStorer

@@ -1,6 +1,6 @@
-const VegaContext = require('../../src/vega-context/VegaContext')
+import VegaContext from '../../src/vega-context/VegaContext'
 
-const test = require('tape')
+import test from 'tape'
 
 test('VegaContext', t => {
   let c = new VegaContext()

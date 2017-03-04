@@ -1,6 +1,6 @@
-const need = require('../src/need')
+import test from 'tape'
 
-const test = require('tape')
+import need from '../src/need'
 
 test('need() can fetch a NPM module', t => {
   let isNumber = need('is-number')

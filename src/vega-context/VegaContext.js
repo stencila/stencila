@@ -1,6 +1,6 @@
-const vega = require('vega')
+import vega from 'vega'
 
-const JsContext = require('../js-context/JsContext')
+import JsContext from '../js-context/JsContext'
 
 /**
  * A Vega context
@@ -72,4 +72,4 @@ class VegaContext extends JsContext {
 
 }
 
-module.exports = VegaContext
+export default VegaContext

@@ -1,18 +1,18 @@
-const unified = require('unified')
-const remarkParse = require('remark-parse')
-const remarkStringify = require('remark-stringify')
-const remarkHtml = require('remark-html')
-const rehypeParse = require('rehype-parse')
-const rehype2remark = require('rehype-remark')
-const squeezeParagraphs = require('remark-squeeze-paragraphs')
-const slug = require('remark-slug')
-const visit = require('unist-util-visit')
+import unified from 'unified'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
+import remarkHtml from 'remark-html'
+import rehypeParse from 'rehype-parse'
+import rehype2remark from 'rehype-remark'
+import squeezeParagraphs from 'remark-squeeze-paragraphs'
+import slug from 'remark-slug'
+import visit from 'unist-util-visit'
 
-const include = require('./include')
-const bracketedSpans = require('./bracketed-spans')
-const input = require('./input')
-const output = require('./output')
-const execute = require('./execute')
+import * as bracketedSpans from './bracketed-spans'
+import * as input from './input'
+import * as output from './output'
+import * as execute from './execute'
+import * as include from './include'
 
 /**
 * Convert markdown to html
@@ -20,7 +20,7 @@ const execute = require('./execute')
 * @param {Object} options – options to pass to markdown-it
 * @returns {String} – returns string with html
 **/
-function md2html (md, options) {
+export function md2html (md, options) {
   options = options || {}
   if (options.gfm !== false) options.gfm = true
   if (options.commonmark !== false) options.commonmark = true
@@ -51,7 +51,7 @@ function md2html (md, options) {
 * @param {Object} options – options to pass to markdown-it
 * @returns {String} – returns string with markdown
 **/
-function html2md (html, options) {
+export function html2md (html, options) {
   options = options || {}
 
   // See the `remark-stringify` options at https://github.com/wooorm/remark/tree/master/packages/remark-stringify#options
@@ -91,11 +91,6 @@ function html2md (html, options) {
     .use(bracketedSpans.mdVisitors)
 
   return toMarkdown.process(html, options).contents.trim()
-}
-
-module.exports = {
-  md2html: md2html,
-  html2md: html2md
 }
 
 function stripNewlines () {

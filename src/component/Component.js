@@ -1,13 +1,13 @@
-const path = require('path')
-const os = require('os')
+import path from 'path'
+import os from 'os'
 
-const GeneralError = require('../utilities/general-error')
-const ComponentConverterUnknown = require('./component-converter-errors').ComponentConverterUnknown
-const ComponentStorerUnknown = require('./component-storer-errors').ComponentStorerUnknown
+import GeneralError from '../utilities/general-error'
+import {ComponentConverterUnknown} from './component-converter-errors'
+import {ComponentStorerUnknown} from './component-storer-errors'
 
-const ComponentGithubStorer = require('./ComponentGithubStorer')
-const ComponentHttpStorer = require('./ComponentHttpStorer')
-const ComponentLibraryStorer = require('./ComponentLibraryStorer')
+import ComponentGithubStorer from './ComponentGithubStorer'
+import ComponentHttpStorer from './ComponentHttpStorer'
+import ComponentLibraryStorer from './ComponentLibraryStorer'
 
 /**
  * The abstract base class for all Stencila components
@@ -324,4 +324,4 @@ class Component {
 
 }
 
-module.exports = Component
+export default Component

@@ -1,6 +1,6 @@
-const {pack, unpack} = require('../src/packing')
+import test from 'tape'
 
-const test = require('tape')
+import {pack, unpack} from '../src/packing'
 
 function check (t, object, type, format, value) {
   let p = pack(object)

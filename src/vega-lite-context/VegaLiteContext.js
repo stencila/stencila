@@ -1,6 +1,6 @@
-const vegaLite = require('vega-lite')
+import vegaLite from 'vega-lite'
 
-const VegaContext = require('../vega-context/VegaContext')
+import VegaContext from '../vega-context/VegaContext'
 
 /**
  * A Vega-Lite context
@@ -39,4 +39,4 @@ class VegaLiteContext extends VegaContext {
 
 }
 
-module.exports = VegaLiteContext
+export default VegaLiteContext

@@ -1,6 +1,6 @@
-const request = require('request')
+//import request from 'request'
 
-const errors = require('./component-storer-errors')
+import {ComponentStorerUnfound, ComponentStorerUnwritable} from './component-storer-errors'
 
 class ComponentHttpStorer {
 
@@ -11,13 +11,13 @@ class ComponentHttpStorer {
           resolve(body)
         } else if (error) {
           if (error.code === 'ENOTFOUND') {
-            reject(new errors.ComponentStorerUnfound(this, address))
+            reject(new ComponentStorerUnfound(this, address))
           } else {
             reject(new Error(error.message))
           }
         } else {
           if (response.statusCode === 404) {
-            reject(new errors.ComponentStorerUnfound(this, address))
+            reject(new ComponentStorerUnfound(this, address))
           } else {
             reject(new Error(response.body))
           }
@@ -27,9 +27,9 @@ class ComponentHttpStorer {
   }
 
   write (address) {
-    return Promise.reject(new errors.ComponentStorerUnwritable(this, address))
+    return Promise.reject(new ComponentStorerUnwritable(this, address))
   }
 
 }
 
-module.exports = ComponentHttpStorer
+export default ComponentHttpStorer

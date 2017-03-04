@@ -1,7 +1,7 @@
-const {pack} = require('../../src/packing')
-const JsContext = require('../../src/js-context/JsContext')
+import {pack} from '../../src/packing'
+import JsContext from '../../src/js-context/JsContext'
 
-const test = require('tape')
+import test from 'tape'
 
 test('JsContext can be constructed with options', t => {
   let c1 = new JsContext()

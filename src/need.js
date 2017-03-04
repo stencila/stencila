@@ -35,7 +35,7 @@ function need (name, version) {
     request.open('GET', `https://wzrd.in/bundle/${id}/`, false)
     request.send(null)
     if (request.status === 200) {
-      eval(request.responseText) // eslint-disable-line no-eval
+      (new Function(request.responseText))() // eslint-disable-line no-new-func
       let module = require(name) // This `require` comes from the wzrd bundle
       cache[id] = module
       return module
@@ -45,4 +45,4 @@ function need (name, version) {
   }
 }
 
-module.exports = need
+export default need

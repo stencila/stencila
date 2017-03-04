@@ -1,7 +1,8 @@
-const $ = require('cheerio')
+import * as cheerio from 'cheerio'
+const $ = cheerio
 
-const context = require('../context/context')
-const markdown = require('../utilities/markdown')
+//import * as context from '../context/context'
+import * as markdown from '../utilities/markdown'
 
 /**
  * Jupyter notebook coonverter for the `Document` class
@@ -196,4 +197,4 @@ class DocumentJupyterNotebookConverter {
   }
 }
 
-module.exports = DocumentJupyterNotebookConverter
+export default DocumentJupyterNotebookConverter

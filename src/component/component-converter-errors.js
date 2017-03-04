@@ -1,9 +1,9 @@
-const GeneralError = require('../utilities/general-error')
+import GeneralError from '../utilities/general-error'
 
 /**
  * Base class for all component converter errors
  */
-class ComponentConverterError extends GeneralError {
+export class ComponentConverterError extends GeneralError {
 
   constructor (message, component, format) {
     super(message, {
@@ -17,14 +17,10 @@ class ComponentConverterError extends GeneralError {
 /**
  * Error thrown when there is no known converter for a format
  */
-class ComponentConverterUnknown extends ComponentConverterError {
+export class ComponentConverterUnknown extends ComponentConverterError {
 
   constructor (component, format) {
     super('Unknown format', component, format)
   }
 
-}
-
-module.exports = {
-  ComponentConverterUnknown: ComponentConverterUnknown
 }

@@ -1,6 +1,6 @@
-const test = require('tape')
+import test from 'tape'
 
-const ComponentLibraryStorer = require('../../src/component/ComponentLibraryStorer')
+import ComponentLibraryStorer from '../../src/component/ComponentLibraryStorer'
 
 test('ComponentLibraryStorer.split', t => {
   let s = new ComponentLibraryStorer()

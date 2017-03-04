@@ -1,4 +1,4 @@
-const buble = require('buble')
+import buble from 'buble'
 
 const {pack, unpack} = require('../packing')
 const require_ = typeof window !== 'undefined' ? require('../need') : require
@@ -124,4 +124,4 @@ class JsContext {
 
 }
 
-module.exports = JsContext
+export default JsContext

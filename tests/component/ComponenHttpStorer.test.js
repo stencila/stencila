@@ -1,7 +1,7 @@
-const test = require('tape')
+import test from 'tape'
 
-const ComponentHttpStorer = require('../../src/component/ComponentHttpStorer')
-const errors = require('../../src/component/component-storer-errors')
+import ComponentHttpStorer from '../../src/component/ComponentHttpStorer'
+import {ComponentStorerUnfound, ComponentStorerUnwritable} from '../../src/component/component-storer-errors'
 
 test('ComponentHttpStorer.read', t => {
   let s = new ComponentHttpStorer()
@@ -37,7 +37,7 @@ test('ComponentHttpStorer.read nonexistant domain', t => {
       t.end()
     })
     .catch(error => {
-      t.ok(error instanceof errors.ComponentStorerUnfound)
+      t.ok(error instanceof ComponentStorerUnfound)
       t.end()
     })
 })
@@ -50,7 +50,7 @@ test('ComponentHttpStorer.read nonexistant path', t => {
       t.end()
     })
     .catch(error => {
-      t.ok(error instanceof errors.ComponentStorerUnfound)
+      t.ok(error instanceof ComponentStorerUnfound)
       t.end()
     })
 })
@@ -63,7 +63,7 @@ test('ComponentHttpStorer.write', t => {
       t.end()
     })
     .catch(error => {
-      t.ok(error instanceof errors.ComponentStorerUnwritable)
+      t.ok(error instanceof ComponentStorerUnwritable)
       t.end()
     })
 })

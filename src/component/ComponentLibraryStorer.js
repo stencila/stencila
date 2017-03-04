@@ -1,4 +1,4 @@
-const ComponentGithubStorer = require('./ComponentGithubStorer')
+import ComponentGithubStorer from './ComponentGithubStorer'
 
 /**
  * A component storer for the Stencila component library
@@ -26,4 +26,4 @@ class ComponentLibraryStorer extends ComponentGithubStorer {
 
 }
 
-module.exports = ComponentLibraryStorer
+export default ComponentLibraryStorer

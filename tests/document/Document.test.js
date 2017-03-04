@@ -1,10 +1,10 @@
-const test = require('tape')
+import test from 'tape'
 
-const Component = require('../../src/component/Component')
-const Document = require('../../src/document/Document')
-const DocumentHtmlConverter = require('../../src/document/DocumentHtmlConverter')
-const DocumentMarkdownConverter = require('../../src/document/DocumentMarkdownConverter')
-const DocumentJupyterNotebookConverter = require('../../src/document/DocumentJupyterNotebookConverter')
+import Component from '../../src/component/Component'
+import Document from '../../src/document/Document'
+import DocumentHtmlConverter from '../../src/document/DocumentHtmlConverter'
+import DocumentMarkdownConverter from '../../src/document/DocumentMarkdownConverter'
+import DocumentJupyterNotebookConverter from '../../src/document/DocumentJupyterNotebookConverter'
 
 test('Document', t => {
   let d = new Document()

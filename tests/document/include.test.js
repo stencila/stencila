@@ -1,18 +1,18 @@
-const fs = require('fs')
-const path = require('path')
-const test = require('tape')
+import fs from 'fs'
+import path from 'path'
+import test from 'tape'
 
-const unified = require('unified')
-const remarkParse = require('remark-parse')
-const remarkStringify = require('remark-stringify')
-const remarkHtml = require('remark-html')
-const rehypeParse = require('rehype-parse')
-const rehype2remark = require('rehype-remark')
-const beautify = require('js-beautify')
+import unified from 'unified'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
+import remarkHtml from 'remark-html'
+import rehypeParse from 'rehype-parse'
+import rehype2remark from 'rehype-remark'
+import beautify from 'js-beautify'
 
-const include = require('../../src/utilities/include')
-const defaults = require('../../src/utilities/markdown-defaults')
-const markdown = require('../../src/utilities/markdown')
+import * as include from '../../src/utilities/include'
+import * as defaults from '../../src/utilities/markdown-defaults'
+import * as markdown from '../../src/utilities/markdown'
 
 test('include', t => {
   function beautifyHTML (input) {

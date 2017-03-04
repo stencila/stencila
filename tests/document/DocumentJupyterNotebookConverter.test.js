@@ -1,7 +1,7 @@
-const test = require('tape')
+import test from 'tape'
 
-const Document = require('../../src/document/Document')
-const DocumentJupyterNotebookConverter = require('../../src/document/DocumentJupyterNotebookConverter')
+import Document from '../../src/document/Document'
+import DocumentJupyterNotebookConverter from '../../src/document/DocumentJupyterNotebookConverter'
 
 test('DocumentJupyterNotebookConverter', t => {
   let c = new DocumentJupyterNotebookConverter()

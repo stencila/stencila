@@ -1,10 +1,10 @@
-const {pack, unpack} = require('./src/packing')
+import {pack, unpack} from './src/packing'
 
-const Document = require('./src/document/Document')
+import Document from './src/document/Document'
 
-const JsContext = require('./src/js-context/JsContext')
-const VegaContext = require('./src/vega-context/VegaContext')
-const VegaLiteContext = require('./src/vega-lite-context/VegaLiteContext')
+import JsContext from './src/js-context/JsContext'
+import VegaContext from './src/vega-context/VegaContext'
+import VegaLiteContext from './src/vega-lite-context/VegaLiteContext'
 
 module.exports = {
   pack: pack,

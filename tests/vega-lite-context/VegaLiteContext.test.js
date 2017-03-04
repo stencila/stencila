@@ -1,6 +1,6 @@
-const VegaLiteContext = require('../../src/vega-lite-context/VegaLiteContext')
+import VegaLiteContext from '../../src/vega-lite-context/VegaLiteContext'
 
-const test = require('tape')
+import test from 'tape'
 
 test('VegaLiteContext', t => {
   let c = new VegaLiteContext()

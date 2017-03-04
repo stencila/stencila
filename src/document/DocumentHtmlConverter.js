@@ -1,6 +1,6 @@
-const url = require('url')
-const cheerio = require('cheerio')
-const beautify = require('js-beautify')
+import url from 'url'
+import * as cheerio from 'cheerio'
+import * as beautify from 'js-beautify'
 
 /**
  * HTML converter for the `Document` class
@@ -36,7 +36,7 @@ class DocumentHtmlConverter {
     // Why? Because otherwise the Stencila Host will serve up the file as a Component page
     // instead of as a raw image.
     dom('img[src]').toArray().forEach(el => {
-      let $el = cheerio(el)
+      let $el = cheerio.load(el)
       let src = $el.attr('src')
       if (src.substring(0, 5) !== 'data:') {
         let q = url.parse(src).query
@@ -65,4 +65,4 @@ class DocumentHtmlConverter {
   }
 }
 
-module.exports = DocumentHtmlConverter
+export default DocumentHtmlConverter

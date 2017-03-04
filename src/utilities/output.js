@@ -1,12 +1,12 @@
-const visit = require('unist-util-visit')
+import visit from 'unist-util-visit'
 
-function md2html () {
+export function md2html () {
   return function (tree) {
     visit(tree, function (node, i, parent) {})
   }
 }
 
-function html2md () {
+export function html2md () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
       if (node.tagName && node.tagName === 'output') {
@@ -28,9 +28,4 @@ function html2md () {
       }
     })
   }
-}
-
-module.exports = {
-  md2html: md2html,
-  html2md: html2md
 }

@@ -1,4 +1,4 @@
-const test = require('tape')
+import test from 'tape'
 
 test.skip('output', t => {
   t.end()

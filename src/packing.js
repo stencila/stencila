@@ -1,4 +1,4 @@
-let d3 = require('d3')
+import d3 from 'd3'
 
 /**
  * Pack an object into a data package
@@ -101,7 +101,4 @@ function unpack (pkg) {
   }
 }
 
-module.exports = {
-  pack: pack,
-  unpack: unpack
-}
+export {pack, unpack}

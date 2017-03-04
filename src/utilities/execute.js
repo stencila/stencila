@@ -1,9 +1,9 @@
-const visit = require('unist-util-visit')
-const detab = require('detab')
-const u = require('unist-builder')
-var toString = require('hast-util-to-string')
+import visit from 'unist-util-visit'
+import detab from 'detab'
+import u from 'unist-builder'
+import toString from 'hast-util-to-string'
 
-function html2md () {
+export function html2md () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
       if (node.tagName === 'pre' && node.properties && node.properties.dataExecute) {
@@ -41,7 +41,7 @@ function html2md () {
 /*
 * Use this to transform markdown code blocks to the  `pre` elements we expect.
 */
-function code2preHandler (h, node, parent) {
+export function code2preHandler (h, node, parent) {
   let value = node.value ? detab(node.value + '\n') : ''
   let lang = node.lang && node.lang.match(/^[^ \t]+(?=[ \t]|$)/)[0]
   let props = {}
@@ -94,14 +94,8 @@ function code2preHandler (h, node, parent) {
   ])
 }
 
-function code2fenceHandler (h, node) {
+export function code2fenceHandler (h, node) {
   const code = node.children[0]
   const className = code.properties.className || node.properties.className
   return h(node, 'code', {lang: className || null}, toString(node))
-}
-
-module.exports = {
-  html2md: html2md,
-  code2preHandler: code2preHandler,
-  code2fenceHandler: code2fenceHandler
 }

@@ -1,8 +1,8 @@
-const fs = require('fs')
-const path = require('path')
-const test = require('tape')
+import fs from 'fs'
+import path from 'path'
+import test from 'tape'
 
-const Document = require('../../src/document/Document')
+import Document from '../../src/document/Document'
 
 /*
  * Test for successful conversion of test documents from

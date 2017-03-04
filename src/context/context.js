@@ -1,4 +1,4 @@
-module.exports = {
+const module = {
   language: {
     code: function (lang) {
       if (!lang) return null
@@ -13,3 +13,5 @@ module.exports = {
     }
   }
 }
+
+export {module}

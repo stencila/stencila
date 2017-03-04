@@ -1,9 +1,9 @@
-const visit = require('unist-util-visit')
-const remove = require('unist-util-remove')
+import visit from 'unist-util-visit'
+import remove from 'unist-util-remove'
 
-const mdast2html = require('./mdast-to-html')
+import mdast2html from './mdast-to-html'
 
-function md2html () {
+export function md2html () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
       if (node.type === 'paragraph') {
@@ -97,7 +97,7 @@ function md2html () {
   }
 }
 
-function html2md () {
+export function html2md () {
   return function (tree) {
     visit(tree, function (node, i, parent) {
       if (node.properties && node.properties.dataInclude) {
@@ -159,7 +159,7 @@ function html2md () {
 /*
 * Clean up markdown output of remark-stringify
 */
-function mdVisitors (processor) {
+export function mdVisitors (processor) {
   var Compiler = processor.Compiler
   var visitors = Compiler.prototype.visitors
   var text = visitors.text
@@ -175,14 +175,7 @@ function mdVisitors (processor) {
 /*
 * Override conversion handlers for HTML -> MD
 */
-const mdHandlers = {}
-
-module.exports = {
-  md2html: md2html,
-  html2md: html2md,
-  mdVisitors: mdVisitors,
-  mdHandlers: mdHandlers
-}
+export const mdHandlers = {}
 
 /*
 function html2md (h, node, parent) {

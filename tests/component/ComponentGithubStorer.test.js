@@ -1,7 +1,7 @@
-const test = require('tape')
+import test from 'tape'
 
-const ComponentGithubStorer = require('../../src/component/ComponentGithubStorer')
-const errors = require('../../src/component/component-storer-errors')
+import ComponentGithubStorer from '../../src/component/ComponentGithubStorer'
+import {ComponentStorerMalformed, ComponentStorerUnfound} from '../../src/component/component-storer-errors'
 
 test('ComponentGithubStorer.read', t => {
   let s = new ComponentGithubStorer()
@@ -37,7 +37,7 @@ test('ComponentGithubStorer.read malformed repo', t => {
       t.end()
     })
     .catch(error => {
-      t.ok(error instanceof errors.ComponentStorerMalformed)
+      t.ok(error instanceof ComponentStorerMalformed)
       t.end()
     })
 })
@@ -50,7 +50,7 @@ test('ComponentGithubStorer.read nonexistant repo', t => {
       t.end()
     })
     .catch(error => {
-      t.ok(error instanceof errors.ComponentStorerUnfound)
+      t.ok(error instanceof ComponentStorerUnfound)
       t.end()
     })
 })
@@ -78,7 +78,7 @@ test('ComponentGithubStorer.write unauthenticated', t => {
     })
     .catch(error => {
       // Github returns a 404 if not authenticated
-      t.ok(error instanceof errors.ComponentStorerUnfound)
+      t.ok(error instanceof ComponentStorerUnfound)
       t.end()
     })
 })

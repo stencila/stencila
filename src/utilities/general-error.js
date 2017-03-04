@@ -8,4 +8,4 @@ class GeneralError extends Error {
 
 }
 
-module.exports = GeneralError
+export default GeneralError

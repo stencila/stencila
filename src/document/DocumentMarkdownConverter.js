@@ -1,6 +1,6 @@
-const cheerio = require('cheerio')
+import * as cheerio from 'cheerio'
 
-const markdown = require('../utilities/markdown')
+import {md2html, html2md} from '../utilities/markdown'
 
 /**
  * Markdown converter for the `Document` class
@@ -16,7 +16,7 @@ class DocumentMarkdownConverter {
    * @param  {[type]} options  Any options (see implementations for those available)
    */
   load (doc, content, options) {
-    let html = markdown.md2html(content)
+    let html = md2html(content)
     doc.content = cheerio.load(html)
   }
 
@@ -31,8 +31,8 @@ class DocumentMarkdownConverter {
    */
   dump (doc, options) {
     let html = doc.content.html()
-    return markdown.html2md(html)
+    return html2md(html)
   }
 }
 
-module.exports = DocumentMarkdownConverter
+export default DocumentMarkdownConverter
