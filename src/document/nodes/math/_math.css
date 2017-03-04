@@ -1,0 +1,6 @@
+/**
+  CSS import of KaTeX CSS (which imports fonts too)
+
+  We be served from the `build` directory. See `make.js`.
+*/
+@import url('katex/katex.min.css');

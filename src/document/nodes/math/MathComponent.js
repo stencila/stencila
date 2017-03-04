@@ -4,16 +4,6 @@ import math from '../../../utilities/math/index'
 
 class MathComponent extends Component {
 
-  didMount () {
-    this.props.node.on('source:changed', this.rerender, this)
-    this.props.node.on('language:changed', this.rerender, this)
-    this.props.node.on('display:changed', this.rerender, this)
-  }
-
-  dispose () {
-    this.props.node.off(this)
-  }
-
   render ($$) {
     var node = this.props.node
 
@@ -28,10 +18,6 @@ class MathComponent extends Component {
     } catch (error) {
       el.addClass('sm-error')
         .text(error.message)
-    }
-
-    if (node.display === 'block') {
-      el.addClass('sm-block')
     }
 
     return el

@@ -18,9 +18,7 @@ import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
 import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
-
-
-// import MathPackage from './nodes/math/MathPackage'
+import MathPackage from './nodes/math/MathPackage'
 // import ImagePackage from './nodes/image/ImagePackage'
 
 // QUESTION: What does the SessionPackage do?
@@ -64,16 +62,12 @@ class DocumentConfigurator extends Configurator {
     this.import(LinkPackage)
     this.import(ListPackage)
     this.import(TablePackage)
-
     // this.import(MathPackage)
+
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
     this.import(CellPackage)
-
-    // TODO: this currently conflicts with Substance
-    // input package, imported by the BasePackage.
-    // this.import(InputPackage)
     this.import(DefaultPackage)
     this.import(MinimalSwitchTextTypePackage)
     this.import(ToggleInsertPackage)

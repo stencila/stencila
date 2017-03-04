@@ -2,12 +2,12 @@ import { InsertInlineNodeCommand, documentHelpers } from 'substance'
 
 class MathCommand extends InsertInlineNodeCommand {
 
-  constructor () {
-    super({
-      name: 'math',
-      nodeType: 'math'
-    })
-  }
+  // constructor () {
+  //   super({
+  //     name: 'math',
+  //     nodeType: 'math'
+  //   })
+  // }
 
   createNodeData (tx, args) {
     // Create math node with source set to current selection

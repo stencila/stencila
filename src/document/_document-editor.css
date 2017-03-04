@@ -29,7 +29,7 @@
 @import './nodes/default/_default.css';
 
 /*Import rendered math styling*/
-/*@import '../utilities/math/index';*/
+@import './nodes/math/_math.css';
 
 .sc-document-editor {
   max-width: 600px;

@@ -1,8 +1,8 @@
 // ATTENTION: this is actually importing a bundled version of brace
-import ace from 'brace'
+import brace from 'brace'
 
 var attachAceEditor = function (el, content, options, callback) {
-  var editor = ace.edit(el)
+  var editor = brace.edit(el)
   updateAceEditor(editor, options)
   if (content) editor.setValue(content, 1)
   if (callback) callback(editor)

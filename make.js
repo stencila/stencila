@@ -11,10 +11,9 @@ function _buildVendor() {
   _minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
     exports: ['default']
   })
+  // ATTENTION: brace is exposing window.ace,
+  // thus we need to use 'window.ace' when defining brace as 'external'
   _minifiedVendor('./.make/brace.js', 'brace')
-  _minifiedVendor('./node_modules/emojione/lib/js/emojione.js', 'emojione', {
-    standalone: true
-  })
 }
 
 function _minifiedVendor(src, name, opts = {}) {
@@ -42,8 +41,9 @@ function _copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./fonts', './build/fonts')
   b.copy('./vendor/brace.*', './build/web/')
-  b.copy('./vendor/emojione.*', './build/web/')
-  b.copy('./node_modules/emojione/assets/png', './build/web/emojione/png')
+  // We need to build to ROOT/katex because katex.min.js attempts to load
+  // katex.min.css from /katex/katex.min.css
+  b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
 }
 
@@ -69,15 +69,16 @@ function _buildDocument() {
     // it needs to be re-designed to be really browser compatible
     alias: {
       'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js'),
-      'brace': path.join(__dirname, 'vendor/brace.min.js'),
+      // 'brace': path.join(__dirname, 'vendor/brace.min.js'),
       'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
     },
     // TODO: here we need to apply different strategies for
     // different bundles (e.g. hosted without substance, but electron one with substance)
     external: {
-      'substance': 'substance',
-      'emojione': 'emojione',
-      'brace': 'brace'
+      'substance': 'window.substance',
+      // brace bundle is exposing window.ace
+      'brace': 'window.ace',
+      'katex': 'window.katex'
     },
     commonjs: true,
     json: true

@@ -37,7 +37,6 @@
   "devDependencies": {
     "brace": "^0.9.1",
     "browserify": "^14.1.0",
-    "emojione": "^2.2.6",
     "eslint": "^3.5.0",
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-promise": "^2.0.1",
