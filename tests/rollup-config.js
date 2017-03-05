@@ -29,12 +29,16 @@ export default {
     }),
     babel({
       // overriding babelrc
+      // CHECK : is this necessary
       babelrc: false,
       presets: [
         [ 'es2015', { 'modules': false } ]
       ],
       plugins: [
-        'external-helpers'
+        'external-helpers',
+        ['babel-plugin-transform-builtin-extend', {
+          globals: ['Error']
+        }]
       ]
     }),
     nodeResolve(),
