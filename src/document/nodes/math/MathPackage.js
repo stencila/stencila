@@ -12,7 +12,9 @@ export default {
     config.addNode(Math)
     config.addConverter('html', MathHTMLConverter)
     config.addComponent('math', MathComponent)
-    config.addCommand('math', MathCommand)
+    config.addCommand('math', MathCommand, {
+      nodeType: 'math'
+    })
     // config.addMacro(new MathMacro())
     config.addTool('math', Tool)
     // TODO: Choose/create a better math icon (this is a random temporary)

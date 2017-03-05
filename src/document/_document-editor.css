@@ -32,7 +32,7 @@
 @import './nodes/math/_math.css';
 
 .sc-document-editor {
-  max-width: 600px;
+  max-width: 660px;
   padding: 20px;
   margin: 0 auto;
 }

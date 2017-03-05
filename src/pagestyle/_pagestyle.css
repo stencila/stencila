@@ -22,9 +22,10 @@ strong { font-weight: var(--strong-font-weight); }
 
 .emphasis, em { font-style: italic; }
 
+
 /* Links */
 a {
-  color: var(--link-color);
+  color: var(--stencila-green);
   text-decoration:none;
 }
 a:focus {
@@ -33,3 +34,8 @@ a:focus {
 button:focus {
   outline: 1px solid var(--focus-outline-color);
 }
+
+/* Selection color */
+
+::-moz-selection { background: var(--stencila-green-transparent); }
+::selection { background: var(--stencila-green-transparent); }

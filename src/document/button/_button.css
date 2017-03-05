@@ -5,5 +5,5 @@
   color: rgba(255,255,255,0.5);
 }
 .sc-button.sm-style-plain-dark.sm-active {
-  color: #82EA2F;
+  color: var(--stencila-green);
 }

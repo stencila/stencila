@@ -2,7 +2,7 @@ export default `
 <div id="title">Test with all nodes</div>
 <p>A test Stencila document with at least one (well, that&apos;s the plan) of each node type (in alphabetical order). See additional node specific test documents in sibling folders e.g. <a href="/file://tests/document/nodes/image/index.html">image</a>.</p>
 <h1>Math</h1>
-<p>This is a <span data-math="asciimath">x+1</span></p>
+<p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
 <h1>Blockquote</h1>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
 <blockquote>Science is a way of thinking much more than it is a body of knowledge. <em>Carl Sagan</em></blockquote>

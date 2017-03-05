@@ -62,7 +62,7 @@ class DocumentConfigurator extends Configurator {
     this.import(LinkPackage)
     this.import(ListPackage)
     this.import(TablePackage)
-    // this.import(MathPackage)
+    this.import(MathPackage)
 
     // this.import(ImagePackage)
     this.import(BlockquotePackage)

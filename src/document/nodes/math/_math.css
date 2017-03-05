@@ -4,3 +4,35 @@
   We be served from the `build` directory. See `make.js`.
 */
 @import url('katex/katex.min.css');
+
+.sc-math {
+  position: relative;
+  display: inline-block;
+}
+
+.sc-math ::-moz-selection { background: none; }
+.sc-math ::selection { background: none; }
+.sc-math .se-rendered-math {
+  display: inline-block;
+}
+
+.sc-math .katex {
+  display: inline-block;
+}
+
+.sc-math .katex-mathml {
+  display: none;
+}
+
+.sc-math > .se-blocker {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+}
+
+.sc-math.sm-selected > .se-blocker,
+.sc-math.sm-co-selected > .se-blocker {
+  background: var(--stencila-green-transparent);
+}

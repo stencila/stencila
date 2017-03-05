@@ -6,12 +6,10 @@ class ToggleInsertCommand extends Command {
     const { selection } = params
     let editorSession = this._getEditorSession(params)
     let doc = editorSession.getDocument()
-
     let newState = {
       disabled: true,
       active: false
     }
-
     if (selection.isPropertySelection() && selection.start.offset === 0 && selection.end.offset === 0) {
       let content = doc.get(selection.getPath())
       let type = doc.get(selection.getPath()[0]).type
@@ -19,13 +17,9 @@ class ToggleInsertCommand extends Command {
         newState.disabled = false
       }
     }
-
     return newState
   }
 
-  execute(/*params, context*/) {
-    // TODO: implement
-  }
 }
 
 export default ToggleInsertCommand
