@@ -7,6 +7,10 @@
   cursor: default;
 }
 
+.se-cell.sm-edit {
+  outline: 2px solid var(--stencila-green);
+}
+
 .se-cell input {
   font-family: var(--mono-font-family);
   font-size: 12px;

@@ -12,8 +12,11 @@ class CellEditor extends Component {
   render($$) {
     var el = $$('div')
     el.append(
-      $$(TextInput).ref('editor')
+      $$(TextInput, {
+        content: this.props.content
+      }).ref('editor')
         .on('confirm', this.onConfirm)
+        .on('cancel', this.onCancel)
     )
     return el
   }

@@ -25,9 +25,16 @@ class TextInput extends AbstractEditor {
     el.append(
       $$(TextInputEditor, {
         path: ['input', 'content']
-      }).on('enter', this._onEnter)
+      }).ref('input')
+        .on('enter', this._onEnter)
+        .on('escape', this._onEscape)
     )
     return el
+  }
+
+  didMount() {
+    // set the cursor at the end of the content
+    this.refs.input.selectLast()
   }
 
   // this component manages itself
@@ -47,12 +54,14 @@ class TextInput extends AbstractEditor {
     return this.props.tagName || 'div'
   }
 
-  _onEnter() {
+  _onEnter(event) {
+    event.stopPropagation()
     this.el.emit('confirm')
   }
 
-  _onKeydown() {
-    this.el.emit('escape')
+  _onEscape(event) {
+    event.stopPropagation()
+    this.el.emit('cancel')
   }
 
 }
@@ -77,6 +86,9 @@ function _createEditorSession(props) {
     config.import(props.package)
   }
   let doc = config.createArticle()
+  if (props.content) {
+    doc.set(['input', 'content'], props.content)
+  }
   let editorSession = new EditorSession(doc, {
     configurator: config
   })
@@ -108,7 +120,6 @@ class TextInputDocument extends Document {
 class TextInputEditor extends TextPropertyEditor {
 
   onKeyDown(event) {
-    if (!this._shouldConsumeEvent(event)) return
     let handled = false
     if (event.keyCode === 27) {
       handled = true
@@ -120,6 +131,29 @@ class TextInputEditor extends TextPropertyEditor {
     } else {
       super.onKeyDown(event)
     }
+  }
+
+  selectLast() {
+    const doc = this.getDocument()
+    const input = doc.getContentNode()
+    this.editorSession.setSelection({
+      type: 'property',
+      path: input.getTextPath(),
+      startOffset: input.getLength(),
+      surfaceId: this.id
+    })
+  }
+
+  selectAll() {
+    const doc = this.getDocument()
+    const input = doc.getContentNode()
+    this.editorSession.setSelection({
+      type: 'property',
+      path: input.getTextPath(),
+      startOffset: 0,
+      endffset: input.getLength(),
+      surfaceId: this.id
+    })
   }
 
   _handleEnterKey(...args) {

@@ -5,14 +5,6 @@
   font-size: 14px;
 }
 
-/*
-.sc-sheet {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-}
-*/
-
 .sc-sheet > thead > th {
   text-align: center;
   background: #EEE;
@@ -27,11 +19,8 @@
 .sc-sheet > .se-selection {
   position: absolute;
   pointer-events:none;
-  border: 2px solid #4285f4;
-  background: rgba(160, 195, 255, 0.15);
+  border: 2px solid var(--stencila-green);
+  background: var(--stencila-green-transparent);
   z-index: 1;
 }
 
-.sc-sheet.sm-edit .se-selection {
-  background: none;
-}
