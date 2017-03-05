@@ -3,12 +3,12 @@
 import {
   AbstractEditor, BasePackage, TextNode,
   Document, Configurator, EditorSession,
-  TextPropertyEditor
+  TextPropertyEditor, platform
 } from 'substance'
 
 import '../BrowserDOMElementPatches'
 
-const {UndoCommand, RedoCommand} = BasePackage
+const {UndoCommand, RedoCommand, SelectAllCommand} = BasePackage
 
 // TODO: maybe AbstractEditor is too heavy?
 // still we need to do almost the same, so that nothing
@@ -73,6 +73,17 @@ function _createEditorSession(props) {
   config.addToolGroup('default')
   config.addCommand('undo', UndoCommand)
   config.addCommand('redo', RedoCommand)
+  config.addCommand('select-all', SelectAllCommand)
+  if (platform.isMac) {
+    config.addKeyboardShortcut('cmd+z', { command: 'undo' })
+    config.addKeyboardShortcut('cmd+shift+z', { command: 'redo' })
+    config.addKeyboardShortcut('cmd+a', { command: 'select-all' })
+  } else {
+    config.addKeyboardShortcut('ctrl+z', { command: 'undo' })
+    config.addKeyboardShortcut('ctrl+shift+z', { command: 'redo' })
+    config.addKeyboardShortcut('ctrl+a', { command: 'select-all' })
+  }
+
   config.defineSchema({
     name: 'text-input',
     // FIXME: this does not make sense here
