@@ -19,10 +19,7 @@ import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwit
 import DefaultPackage from './nodes/default/DefaultPackage'
 import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
-// import ImagePackage from './nodes/image/ImagePackage'
-
-// QUESTION: What does the SessionPackage do?
-// import SessionPackage from '../shared/nodes/session/SessionPackage'
+import ImagePackage from './nodes/image/ImagePackage'
 
 /**
  * A "configurator" for a document.
@@ -64,7 +61,7 @@ class DocumentConfigurator extends Configurator {
     this.import(TablePackage)
     this.import(MathPackage)
 
-    // this.import(ImagePackage)
+    this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
     this.import(CellPackage)
