@@ -1,4 +1,4 @@
-import * as GitHub from 'github-api'
+import GitHub from 'github-api'
 
 import {ComponentStorerMalformed, ComponentStorerUnfound} from './component-storer-errors'
 
