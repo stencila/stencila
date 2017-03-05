@@ -38,7 +38,7 @@
 			"name": "Test one: run one test file",
 			"cmd":
 			[
-				"node", "$file"
+				"./node_modules/.bin/tape", "--require", "babel-register", "$file"
 			],
 			"working_dir": "."
 		},
