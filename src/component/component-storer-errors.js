@@ -1,6 +1,20 @@
 import GeneralError from '../utilities/general-error'
 
 /**
+ * Error thrown when there is no known storer for a scheme
+ */
+export class ComponentStorerUnknown extends GeneralError {
+
+  constructor (scheme, address) {
+    super('Storer unknown', {
+      scheme: scheme,
+      address: address || null
+    })
+  }
+
+}
+
+/**
  * Base class for all component storer errors
  */
 export class ComponentStorerError extends GeneralError {
@@ -11,17 +25,6 @@ export class ComponentStorerError extends GeneralError {
       address: address
     })
   }
-}
-
-/**
- * Error thrown when there is no known storere for a scheme
- */
-export class ComponentStorerUnknown extends ComponentStorerError {
-
-  constructor (scheme, address) {
-    super('Unknown scheme', null, address)
-  }
-
 }
 
 /**

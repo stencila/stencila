@@ -5,9 +5,9 @@ import Component from '../../src/component/Component'
 import {ComponentConverterUnknown} from '../../src/component/component-converter-errors'
 import {ComponentStorerUnknown} from '../../src/component/component-storer-errors'
 
-import ComponentGithubStorer from '../../src/component/ComponentGithubStorer'
-import ComponentHttpStorer from '../../src/component/ComponentHttpStorer'
-import ComponentLibraryStorer from '../../src/component/ComponentLibraryStorer'
+//import ComponentGithubStorer from '../../src/component/ComponentGithubStorer'
+//import ComponentHttpStorer from '../../src/component/ComponentHttpStorer'
+//import ComponentLibraryStorer from '../../src/component/ComponentLibraryStorer'
 
 test('Component.long', t => {
   t.equal(Component.long('new://document'), 'new://document')
@@ -17,9 +17,9 @@ test('Component.long', t => {
   t.equal(Component.long('file:///report.md'), 'file:///report.md')
   t.equal(Component.long('file:/report.md'), 'file:///report.md')
   t.equal(Component.long('file:report.md'), 'file:///report.md')
-  t.equal(Component.long('./report.docx'), 'file://' + process.cwd() + '/report.docx')
+  t.equal(Component.long('./report.docx'), 'file://./report.docx')
   t.equal(Component.long('/some/dir/report.docx'), 'file:///some/dir/report.docx')
-  //t.equal(Component.long('~/report.docx'), 'file://' + os.homedir() + '/report.docx')
+  t.equal(Component.long('~/report.docx'), 'file://~/report.docx')
 
   t.equal(Component.long('http:foo.com/report.md'), 'http://foo.com/report.md')
   t.equal(Component.long('https://foo.com/report.md'), 'https://foo.com/report.md')
@@ -143,19 +143,28 @@ test('Component.default', t => {
 })
 
 test('Component.converter', t => {
-  t.throws(() => {
+  try {
     Component.converter('foo')
-  }, ComponentConverterUnknown)
+  } catch (error) {
+    t.ok(error instanceof ComponentConverterUnknown)
+    t.equal(error.details.type, 'Component')
+    t.equal(error.details.format, 'foo')
+  }
+
   t.end()
 })
 
 test('Component.storer', t => {
-  t.ok((new Component('gh://foo/bar')).storer() instanceof ComponentGithubStorer)
-  t.ok((new Component('http://foo/bar')).storer() instanceof ComponentHttpStorer)
-  t.ok((new Component('https://foo/bar')).storer() instanceof ComponentHttpStorer)
-  t.ok((new Component('lib://foo/bar')).storer() instanceof ComponentLibraryStorer)
-  t.throws(() => {
+  //t.ok((new Component('gh://foo/bar')).storer() instanceof ComponentGithubStorer)
+  //t.ok((new Component('http://foo/bar')).storer() instanceof ComponentHttpStorer)
+  //t.ok((new Component('https://foo/bar')).storer() instanceof ComponentHttpStorer)
+  //t.ok((new Component('lib://foo/bar')).storer() instanceof ComponentLibraryStorer)
+
+  try {
     Component.storer('foo')
-  }, ComponentStorerUnknown)
+  } catch (error) {
+    t.ok(error instanceof ComponentStorerUnknown)
+    t.equal(error.details.scheme, 'foo')
+  }
   t.end()
 })

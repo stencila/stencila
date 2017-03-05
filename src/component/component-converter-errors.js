@@ -5,9 +5,9 @@ import GeneralError from '../utilities/general-error'
  */
 export class ComponentConverterError extends GeneralError {
 
-  constructor (message, component, format) {
+  constructor (message, type, format) {
     super(message, {
-      component: component,
+      type: type,
       format: format
     })
   }
@@ -19,8 +19,8 @@ export class ComponentConverterError extends GeneralError {
  */
 export class ComponentConverterUnknown extends ComponentConverterError {
 
-  constructor (component, format) {
-    super('Unknown format', component, format)
+  constructor (type, format) {
+    super('Unknown format', type, format)
   }
 
 }

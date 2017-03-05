@@ -1,13 +1,10 @@
-import path from 'path'
-import os from 'os'
-
 import GeneralError from '../utilities/general-error'
 import {ComponentConverterUnknown} from './component-converter-errors'
 import {ComponentStorerUnknown} from './component-storer-errors'
 
-import ComponentGithubStorer from './ComponentGithubStorer'
-import ComponentHttpStorer from './ComponentHttpStorer'
-import ComponentLibraryStorer from './ComponentLibraryStorer'
+//import ComponentGithubStorer from './ComponentGithubStorer'
+//import ComponentHttpStorer from './ComponentHttpStorer'
+//import ComponentLibraryStorer from './ComponentLibraryStorer'
 
 /**
  * The abstract base class for all Stencila components
@@ -57,8 +54,7 @@ class Component {
     } else if (address[0] === '*') {
       return 'name://' + address.substring(1)
     } else if (address[0] === '.' || address[0] === '/' || address[0] === '~') {
-      if (address[0] === '~') address = os.homedir() + address.substring(1)
-      return 'file://' + path.resolve(address)
+      return 'file://' + address
     } else {
       let match = address.match(/^([a-z]+)(:\/?\/?)(.+)$/)
       if (match) {
@@ -152,12 +148,17 @@ class Component {
    */
   static split (address) {
     address = Component.long(address)
-    let matches = address.match(/([a-z]+):\/\/([\w\-\./]+)(@([\w\-\.]+))?/) // eslint-disable-line no-useless-escape
+    let matches = address.match(/([a-z]+):\/\/([\w\-./]+)(@([\w\-.]+))?/)
     if (matches) {
+      // Previously used Node's `path.extname` function to get any file extension.
+      // This simple reimplementation probably need robustification.
+      let ext = null
+      let parts = matches[2].split('.')
+      if (parts.length > 1) ext = parts[parts.length - 1]
       return {
         scheme: matches[1],
         path: matches[2],
-        format: path.extname(matches[2]).substring(1) || null,
+        format: ext,
         version: matches[4] || null
       }
     } else {
@@ -234,7 +235,7 @@ class Component {
    * @param {string} format The format e.g. `'html'`, `'md'`
    */
   static converter (format) {
-    throw new ComponentConverterUnknown(format)
+    throw new ComponentConverterUnknown(this.name, format)
   }
 
   /**
@@ -284,10 +285,10 @@ class Component {
    */
   static storer (scheme) {
     let Storer = {
-      'gh': ComponentGithubStorer,
-      'http': ComponentHttpStorer,
-      'https': ComponentHttpStorer,
-      'lib': ComponentLibraryStorer
+      //'gh': ComponentGithubStorer,
+      //'http': ComponentHttpStorer,
+      //'https': ComponentHttpStorer,
+      //'lib': ComponentLibraryStorer
     }[scheme]
     if (!Storer) throw new ComponentStorerUnknown(scheme)
     return new Storer()
