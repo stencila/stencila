@@ -1,4 +1,4 @@
-import {Component, DefaultDOMElement} from 'substance'
+import {Component, DefaultDOMElement, uuid} from 'substance'
 import {findParentComponent} from '../../shared/substance/domHelpers'
 import {getColumnName} from '../model/sheetHelpers'
 import CellComponent from './CellComponent'
@@ -8,6 +8,8 @@ class SheetComponent extends Component {
 
   constructor(...args) {
     super(...args)
+
+    this.id = uuid()
 
     this.handleActions({
       'selectCell': this.selectCell,
@@ -40,6 +42,9 @@ class SheetComponent extends Component {
       resource: 'selection'
     })
 
+    const globalEventHandler = this.context.globalEventHandler
+    globalEventHandler.on('keydown', this.onGlobalKeydown, this, { id: this.id })
+
     // FIXME: listen to document changes
 
     // HACK: without contenteditables we don't receive keyboard events on this level
@@ -51,6 +56,10 @@ class SheetComponent extends Component {
   dispose() {
     const editorSession = this.context.editorSession
     editorSession.off(this)
+
+    const globalEventHandler = this.context.globalEventHandler
+    globalEventHandler.off(this)
+
     // window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
     // window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
     // window.removeEventListener('resize', this.onWindowResize)
@@ -164,10 +173,13 @@ class SheetComponent extends Component {
     })
   }
 
-  activateCell(cellComp) {
+  activateCell(cellComp, initialContent) {
     this._ensureActiveCellIsCommited(cellComp)
     this._activeCellComp = cellComp
-    cellComp.enableEditing()
+    cellComp.enableEditing(initialContent)
+    // hiding the selection, as it is not good to have
+    // an overlay while the context is changed
+    this._hideSelection()
   }
 
   commitCellChange(content, key) {
@@ -226,7 +238,6 @@ class SheetComponent extends Component {
     let target = findParentComponent(event.target)
     let cell = target._isCellComponent ? target : target.context.cell
     if (this._endCell !== cell) {
-      console.log('new endCell', cell)
       this._endCell = cell
       this._updateSelection()
     }
@@ -248,7 +259,7 @@ class SheetComponent extends Component {
     behavior.
   */
   onGlobalKeydown(event) {
-    // console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
+    console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
     var handled = false
 
     if (!this.isEditing()) {
@@ -362,7 +373,8 @@ class SheetComponent extends Component {
     const selData = {
       type: 'custom',
       customType: 'table',
-      data: tableSel
+      data: tableSel,
+      surfaceId: this.id,
     }
     if (this.context.surface) {
       const surface = this.context.surface
@@ -371,7 +383,6 @@ class SheetComponent extends Component {
         selData.containerId = surface.getContainerId()
       }
     }
-    console.log('Setting selection', selData)
     editorSession.setSelection(selData)
   }
 
@@ -432,7 +443,7 @@ class SheetComponent extends Component {
 
     data.startRow = data.startRow
     data.endRow = data.endRow
-    this.setSelection(sel)
+    this.setSelection(data)
   }
 
   _rerenderSelection() {
@@ -447,7 +458,7 @@ class SheetComponent extends Component {
   }
 
   _hideSelection() {
-    this.refs.el.setStyle('display', 'none')
+    this.refs.selection.el.setStyle('display', 'none')
   }
 
   _toggleDisplayMode() {
@@ -471,10 +482,7 @@ class SheetComponent extends Component {
       const col = data.startCol
       const cellComp = this._getCellComponentAt(row, col)
       if (cellComp) {
-        this._ensureActiveCellIsCommited(cellComp)
-        this._activeCellComp = cellComp
-        this.addClass('sm-edit')
-        cellComp.enableEditing(initialContent)
+        this.activateCell(cellComp, initialContent)
       }
     }
   }
