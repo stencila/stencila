@@ -82,6 +82,8 @@ class CellComponent extends NodeComponent {
         default:
           CellContentClass = ExpressionComponent
       }
+    } else {
+      CellContentClass = ExpressionComponent
     }
     return $$(CellContentClass, {node: node}).ref('content')
   }
