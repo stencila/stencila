@@ -2,9 +2,9 @@ import GeneralError from '../utilities/general-error'
 import {ComponentConverterUnknown} from './component-converter-errors'
 import {ComponentStorerUnknown} from './component-storer-errors'
 
-//import ComponentGithubStorer from './ComponentGithubStorer'
-//import ComponentHttpStorer from './ComponentHttpStorer'
-//import ComponentLibraryStorer from './ComponentLibraryStorer'
+// import ComponentGithubStorer from './ComponentGithubStorer'
+// import ComponentHttpStorer from './ComponentHttpStorer'
+// import ComponentLibraryStorer from './ComponentLibraryStorer'
 
 /**
  * The abstract base class for all Stencila components
@@ -285,10 +285,10 @@ class Component {
    */
   static storer (scheme) {
     let Storer = {
-      //'gh': ComponentGithubStorer,
-      //'http': ComponentHttpStorer,
-      //'https': ComponentHttpStorer,
-      //'lib': ComponentLibraryStorer
+      // 'gh': ComponentGithubStorer,
+      // 'http': ComponentHttpStorer,
+      // 'https': ComponentHttpStorer,
+      // 'lib': ComponentLibraryStorer
     }[scheme]
     if (!Storer) throw new ComponentStorerUnknown(scheme)
     return new Storer()
@@ -318,7 +318,7 @@ class Component {
     if (address) this.address = address
     else address = this.address
 
-    let {scheme, path, format, version} = this.split() // eslint-disable-line no-unused-vars
+    let {scheme, format} = this.split()
     let content = this.dump(format)
     this.storer(scheme).write(this.address, content)
   }

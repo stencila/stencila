@@ -1,4 +1,4 @@
-//import request from 'request'
+import request from 'request'
 
 import {ComponentStorerUnfound, ComponentStorerUnwritable} from './component-storer-errors'
 

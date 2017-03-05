@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 const $ = cheerio
 
-//import * as context from '../context/context'
+import * as context from '../context/context'
 import * as markdown from '../utilities/markdown'
 
 /**
