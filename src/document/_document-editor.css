@@ -27,6 +27,7 @@
 @import './nodes/blockquote/_blockquote.css';
 @import './nodes/codeblock/_codeblock.css';
 @import './nodes/default/_default.css';
+@import './nodes/cell/_cell.css';
 
 /*Import rendered math styling*/
 @import './nodes/math/_math.css';

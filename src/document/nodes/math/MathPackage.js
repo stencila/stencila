@@ -25,7 +25,7 @@ export default {
 
     // config.addMacro(new MathMacro())
     // TODO: Choose/create a better math icon (this is a random temporary)
-    config.addIcon('insert-math', { 'fontawesome': 'fa-tree' })
+    config.addIcon('insert-math', { 'fontawesome': 'fa-dollar' })
     config.addLabel('insert-math', 'Math')
   }
 }

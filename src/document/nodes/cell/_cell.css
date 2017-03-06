@@ -1,0 +1,18 @@
+.sc-isolated-node .sc-cell .se-expression ::selection {
+  background: var(--stencila-green-less-transparent);
+}
+
+.sc-cell .se-expression {
+  font-family: var(--mono-font-family);
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  padding: 10px 20px;
+  font-weight: normal;
+  color: var(--stencila-green);
+  background: var(--dark-bg-color);
+}
+
+.sc-cell .se-output {
+  padding: 20px;
+  border: 1px solid #ddd;
+}
