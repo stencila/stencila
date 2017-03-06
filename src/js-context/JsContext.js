@@ -191,8 +191,9 @@ class JsContext {
    * Return a `null` if no error, or an object with line numbers
    * as keys and the error message as value
    *
-   * @param {string} error [description]
-   * @return {null|object} - A set of errors
+   * @param {object} error - Error object, if any
+   * @param {int} offset - Line number offset
+   * @return {null|object} - A set of errors by line number
    */
   _errors (error, offset) {
     let errors = null
