@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint *.js src tests",
-    "test": "tape --require babel-register tests/**/*.test.js | tap-spec",
+    "test": "tape --require babel-register 'tests/**/*.test.js' | tap-spec",
     "test-bundle": "rollup --watch --config tests/rollup-config.js",
     "test-documents": "rm -rf tmp && mkdir -p tmp && if [ ! -d 'tmp/stencila' ]; then git clone --depth=1 https://github.com/stencila/stencila tmp/stencila; fi && ln -sf `pwd`/tmp/stencila/tests/documents tests/document/documents",
     "cover": "istanbul cover tests",
