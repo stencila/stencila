@@ -20,9 +20,18 @@ export default {
     }
   },
 
-  export: function (node, el) {
-    el.attr('data-math', node.language)
-    el.text(node.source)
+  // TODO: This code has not yet been tested
+  export: function (node, el, converter) {
+    let $$ = converter.$$
+    el.attr('data-cell', node.expression)
+    el.attr('data-language', node.language)
+    el.append(
+      $$('pre').attr('data-source', '').text(node.sourceCode)
+    )
+    el.append(
+      $$('pre').attr('data-output', '').text(node.output)
+    )
+
   }
 
 }

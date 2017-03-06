@@ -27,6 +27,14 @@ export default `
     </div>
   </pre>
 </div>
+<p>Here is an external cell, implemented in Javascript:</p>
+<div data-cell="random_numbers = call(length)" data-language="js">
+<pre data-source>var randomNumbers = []
+for (var i = 0; i < length - 1; i++) {
+  randomNumbers.push(Math.floor(Math.random()*100))
+}
+randomNumbers</pre>
+</div>
 <h1>Blockquote</h1>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
 <blockquote>Science is a way of thinking much more than it is a body of knowledge. <em>Carl Sagan</em></blockquote>

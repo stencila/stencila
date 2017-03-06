@@ -1,5 +1,27 @@
 import { Component } from 'substance'
 import TextInput from '../../../shared/substance/text-input/TextInput'
+import CodeEditorComponent from '../../ui/CodeEditorComponent'
+
+
+let exampleOutput = `
+<style>
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+</style>
+<div class="chart">
+  <div style="width: 40px;">4</div>
+  <div style="width: 80px;">8</div>
+  <div style="width: 150px;">15</div>
+  <div style="width: 160px;">16</div>
+  <div style="width: 230px;">23</div>
+  <div style="width: 420px;">42</div>
+</div>`
 
 class CellComponent extends Component {
 
@@ -15,6 +37,21 @@ class CellComponent extends Component {
           .on('cancel', this.onCancel)
       )
     )
+    if (node.sourceCode) {
+      // props.codeProperty = 'source'
+      // props.languageProperty = 'language'
+
+      el.append(
+        $$(CodeEditorComponent, {
+          node: this.props.node,
+          codeProperty: 'sourceCode',
+          languageProperty: 'language'
+        })
+        // $$('pre').append(
+        //   node.sourceCode
+        // )
+      )
+    }
     if (node.output) {
       el.append(
         $$('div').addClass('se-output').html(node.output)
@@ -27,16 +64,19 @@ class CellComponent extends Component {
     return this.refs.expressionEditor.getContent()
   }
 
+  // HACK: this needs to be replaced with proper utilization of the
+  // expression evaluation engine.
   onConfirm() {
-    console.log('Yay')
     let newExpression = this.getExpression()
     this.context.editorSession.transaction((tx) => {
       tx.set([this.props.node.id, 'expression'], newExpression)
+      tx.set([this.props.node.id, 'output'], exampleOutput)
     })
+    this.rerender()
   }
 
   onCancel() {
-    console.log('cancelled')
+    this.rerender()
   }
 
 }

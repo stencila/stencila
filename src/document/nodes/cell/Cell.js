@@ -1,6 +1,7 @@
 import { BlockNode } from 'substance'
 
-class Cell extends BlockNode {}
+class Cell extends BlockNode {
+}
 
 Cell.schema = {
   type: 'cell',
