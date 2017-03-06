@@ -67,6 +67,6 @@
     "katex": "^0.6.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "substance/substance#beta-6-kaikoura",
-    "substance-expression": "substance/expression#master"
+    "substance-expression": "^0.1.0"
   }
 }
