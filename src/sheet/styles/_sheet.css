@@ -24,3 +24,22 @@
   z-index: 1;
 }
 
+.sc-sheet .se-expression-bar {
+  font-size: 12px;
+  font-family: var(--font-family-code);
+}
+
+.sc-sheet .se-expression-bar .se-label {
+  padding: 1px 5px;
+  text-align: right;
+  color: #ccc;
+  border-right: 1px solid #eee;
+}
+
+.sc-sheet .se-expression-bar .se-label sub {
+  vertical-align:sub;
+}
+
+.sc-sheet .se-header-row th {
+  text-align: center;
+}

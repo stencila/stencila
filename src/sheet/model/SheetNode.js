@@ -20,12 +20,14 @@ class SheetNode extends DocumentNode {
   }
 
   getCellAt(rowIdx, colIdx) {
-    if (!this._matrix) this._computeMatrix()
-    const row = this._matrix[rowIdx]
+    const doc = this.getDocument()
+    const row = this.cells[rowIdx]
     if (row) {
-      return row[colIdx]
+      const cellId = row[colIdx]
+      if (cellId) {
+        return doc.get(cellId)
+      }
     }
-    return null
   }
 
   getRowCount() {
@@ -44,6 +46,7 @@ class SheetNode extends DocumentNode {
   }
 
   _computeMatrix() {
+    // console.log('Caching matrix')
     let nrows = 0
     let ncols = 0
     let matrix = []
@@ -99,8 +102,7 @@ class SheetNode extends DocumentNode {
       doc.delete(cell.id)
     } else if (cell && content !== cell.content) {
       doc.set([cell.id, 'content'], content)
-      // HACK: setting the value to make easier to detect which cell
-      // has changed
+      // HACK: setting the value to make easier to detect which cell has changed
       doc.set([this.id, 'cells', row, col], cell.id)
     }
   }
@@ -109,6 +111,7 @@ class SheetNode extends DocumentNode {
   // the cells
   _onChange(change) {
     if (change.isAffected(this.id)) {
+      //console.log('Invalidating cached matrix')
       this._matrix = null
     }
   }

@@ -1,4 +1,4 @@
-import { Component } from 'substance'
+import {Component, isNil} from 'substance'
 import CellTeaserComponent from './CellTeaserComponent'
 
 /**
@@ -10,12 +10,11 @@ class ExpressionComponent extends Component {
   render($$) {
     let node = this.props.node
     const el = $$('div').addClass('sc-expression')
-    // Display cell teaser
-    el.append($$(CellTeaserComponent, {node: node}))
-    if (node.value !== undefined && node.displayMode !== 'cli') {
-      el.append(
-        $$('pre').append(node.value)
-      )
+    if (isNil(node.value)) {
+      el.append($$(CellTeaserComponent, {node: node}))
+    } else {
+      // TODO: specific rendering for different value types
+      el.append(node.value)
     }
     return el
   }

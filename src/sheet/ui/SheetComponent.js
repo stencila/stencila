@@ -1,8 +1,9 @@
-import {Component, DefaultDOMElement, uuid} from 'substance'
+import {Component, DefaultDOMElement, inBrowser, uuid} from 'substance'
 import {findParentComponent} from '../../shared/substance/domHelpers'
 import {getColumnName} from '../model/sheetHelpers'
 import SheetEngine from '../model/SheetEngine'
 import SheetCellComponent from './SheetCellComponent'
+import TextInput from '../../shared/substance/text-input/TextInput'
 
 export default
 class SheetComponent extends Component {
@@ -23,6 +24,9 @@ class SheetComponent extends Component {
 
     // internal state flags
     // set when inside a cell
+    // TODO: we should try to find a better way to derive
+    // this state more implicitly. ATM we need to invalidate
+    // _activeCellComp whenever the cell editor is 'blurred'
     this._activeCellComp = null
     // flag indicating that the selection is inside this sheet
     this._hasSelection = false
@@ -47,13 +51,11 @@ class SheetComponent extends Component {
 
     const globalEventHandler = this.context.globalEventHandler
     globalEventHandler.on('keydown', this.onGlobalKeydown, this, { id: this.id })
+    globalEventHandler.on('keypress', this.onGlobalKeypress, this, { id: this.id })
 
-    // FIXME: listen to document changes
-
-    // HACK: without contenteditables we don't receive keyboard events on this level
-    // window.document.body.addEventListener('keydown', this.onGlobalKeydown, false)
-    // window.document.body.addEventListener('keypress', this.onGlobalKeypress, false)
-    // window.addEventListener('resize', this.onWindowResize, false)
+    if (inBrowser) {
+      window.addEventListener('resize', this.onWindowResize, false)
+    }
   }
 
   dispose() {
@@ -63,9 +65,9 @@ class SheetComponent extends Component {
     const globalEventHandler = this.context.globalEventHandler
     globalEventHandler.off(this)
 
-    // window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
-    // window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
-    // window.removeEventListener('resize', this.onWindowResize)
+    if (inBrowser) {
+      window.removeEventListener('resize', this.onWindowResize)
+    }
   }
 
   render($$) {
@@ -94,7 +96,21 @@ class SheetComponent extends Component {
 
     // create header row
     const thead = $$('thead')
-    const headerRow = $$('tr').addClass('se-row')
+    const exprBar = $$('tr').addClass('se-expression-bar')
+    exprBar.append(
+      $$('th').addClass('se-label').html('f<sub>x</sub>'),
+      $$('td').addClass('se-expression-field').attr('colspan', ncols-1).append(
+        // TODO: add a TextInput, and think how we can 're-use'
+        // it within the cell, so that changes are visible at both places.
+        // $$(TextInput, {
+        //   content: this.props.content
+        // }).ref('expression')
+        //   .on('confirm', this.onConfirmExpression)
+        //   .on('cancel', this.onCancelExpression)
+      )
+    )
+    thead.append(exprBar)
+    const headerRow = $$('tr').addClass('se-header-row')
     headerRow.append($$('th').addClass('se-cell'))
     for (let j = 0; j < ncols; j++) {
       headerRow.append($$('th').text(
@@ -357,6 +373,14 @@ class SheetComponent extends Component {
 
   onWindowResize() {
     this._rerenderSelection()
+  }
+
+  onConfirmExpression() {
+    console.log('Confirmed expression change')
+  }
+
+  onCancelExpression() {
+    console.log('Canceled expression change')
   }
 
   // private API
