@@ -29,7 +29,6 @@ export default {
     }),
     babel({
       // overriding babelrc
-      // CHECK : is this necessary
       babelrc: false,
       presets: [
         [ 'es2015', { 'modules': false } ]

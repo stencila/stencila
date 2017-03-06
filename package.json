@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint *.js src tests",
-    "test": "tape --require babel-register 'tests/**/*.test.js' | tap-spec",
+    "test": "tape --require babel-register tests | tap-spec",
     "test-bundle": "rollup --watch --config tests/rollup-config.js",
     "test-documents": "rm -rf tmp && mkdir -p tmp && if [ ! -d 'tmp/stencila' ]; then git clone --depth=1 https://github.com/stencila/stencila tmp/stencila; fi && ln -sf `pwd`/tmp/stencila/tests/documents tests/document/documents",
-    "cover": "istanbul cover tests",
+    "cover": "babel-node ./node_modules/.bin/babel-istanbul cover tests",
     "docs": "documentation build --config docs/docs.yml --output docs --format html",
     "docs-serve": "documentation serve --config docs/docs.yml --watch"
   },
@@ -60,6 +60,8 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-istanbul": "^0.12.2",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-preset-es2015": "^6.22.0",
