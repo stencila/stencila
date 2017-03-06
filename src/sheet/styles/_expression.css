@@ -1,7 +1,4 @@
-.sc-expression pre {
-  font-family: var(--mono-font-family);
+.sc-expression {
   padding: var(--default-cell-padding);
-  font-size: 12px;
-  background: #eee;
-  text-align: left;
+  text-align: right;
 }

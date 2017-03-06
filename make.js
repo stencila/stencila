@@ -37,6 +37,17 @@ function _minifiedVendor(src, name, opts = {}) {
   }
 }
 
+// we need this only temporarily, or if we need to work on an
+// unpublished version of substance
+function _buildSubstance() {
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
+    b.make('substance', 'browser:pure')
+  }
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-expression/dist/substance-expression.js'))){
+    b.make('substance-expression')
+  }
+}
+
 function _copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./fonts', './build/fonts')
@@ -45,14 +56,7 @@ function _copyAssets() {
   // katex.min.css from /katex/katex.min.css
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
-}
-
-// we need this only temporarily, or if we need to work on an
-// unpublished version of substance
-function _buildSubstance() {
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
-    b.make('substance', 'browser:pure')
-  }
+  b.copy('./node_modules/substance-expression/dist/substance-expression.js*', './build/web/')
 }
 
 function _buildCss() {
@@ -95,7 +99,8 @@ function _buildSheet() {
       'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js')
     },
     external: {
-      'substance': 'substance'
+      'substance': 'substance',
+      'substance-expression': 'substanceExpression'
     },
     commonjs: true,
     json: true

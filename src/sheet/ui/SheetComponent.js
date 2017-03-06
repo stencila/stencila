@@ -1,7 +1,9 @@
-import {Component, DefaultDOMElement, uuid} from 'substance'
+import {Component, DefaultDOMElement, inBrowser, uuid} from 'substance'
 import {findParentComponent} from '../../shared/substance/domHelpers'
 import {getColumnName} from '../model/sheetHelpers'
-import CellComponent from './CellComponent'
+import SheetEngine from '../model/SheetEngine'
+import SheetCellComponent from './SheetCellComponent'
+import TextInput from '../../shared/substance/text-input/TextInput'
 
 export default
 class SheetComponent extends Component {
@@ -22,6 +24,9 @@ class SheetComponent extends Component {
 
     // internal state flags
     // set when inside a cell
+    // TODO: we should try to find a better way to derive
+    // this state more implicitly. ATM we need to invalidate
+    // _activeCellComp whenever the cell editor is 'blurred'
     this._activeCellComp = null
     // flag indicating that the selection is inside this sheet
     this._hasSelection = false
@@ -29,6 +34,8 @@ class SheetComponent extends Component {
     this._isSelecting = false
     this._startCell = null
     this._endCell = null
+
+    this._sheetEngine = new SheetEngine(this.context.editorSession, this.props.node)
 
     // binding this, as these handlers are attached to global DOM elements
     // this.onGlobalKeydown = this.onGlobalKeydown.bind(this)
@@ -44,13 +51,11 @@ class SheetComponent extends Component {
 
     const globalEventHandler = this.context.globalEventHandler
     globalEventHandler.on('keydown', this.onGlobalKeydown, this, { id: this.id })
+    globalEventHandler.on('keypress', this.onGlobalKeypress, this, { id: this.id })
 
-    // FIXME: listen to document changes
-
-    // HACK: without contenteditables we don't receive keyboard events on this level
-    // window.document.body.addEventListener('keydown', this.onGlobalKeydown, false)
-    // window.document.body.addEventListener('keypress', this.onGlobalKeypress, false)
-    // window.addEventListener('resize', this.onWindowResize, false)
+    if (inBrowser) {
+      window.addEventListener('resize', this.onWindowResize, false)
+    }
   }
 
   dispose() {
@@ -60,9 +65,9 @@ class SheetComponent extends Component {
     const globalEventHandler = this.context.globalEventHandler
     globalEventHandler.off(this)
 
-    // window.document.body.removeEventListener('keydown', this.onGlobalKeydown)
-    // window.document.body.removeEventListener('keypress', this.onGlobalKeypress)
-    // window.removeEventListener('resize', this.onWindowResize)
+    if (inBrowser) {
+      window.removeEventListener('resize', this.onWindowResize)
+    }
   }
 
   render($$) {
@@ -91,7 +96,21 @@ class SheetComponent extends Component {
 
     // create header row
     const thead = $$('thead')
-    const headerRow = $$('tr').addClass('se-row')
+    const exprBar = $$('tr').addClass('se-expression-bar')
+    exprBar.append(
+      $$('th').addClass('se-label').html('f<sub>x</sub>'),
+      $$('td').addClass('se-expression-field').attr('colspan', ncols-1).append(
+        // TODO: add a TextInput, and think how we can 're-use'
+        // it within the cell, so that changes are visible at both places.
+        // $$(TextInput, {
+        //   content: this.props.content
+        // }).ref('expression')
+        //   .on('confirm', this.onConfirmExpression)
+        //   .on('cancel', this.onCancelExpression)
+      )
+    )
+    thead.append(exprBar)
+    const headerRow = $$('tr').addClass('se-header-row')
     headerRow.append($$('th').addClass('se-cell'))
     for (let j = 0; j < ncols; j++) {
       headerRow.append($$('th').text(
@@ -113,7 +132,7 @@ class SheetComponent extends Component {
         const cell = sheet.getCellAt(i, j)
         // Render Cell content
         rowEl.append(
-          $$(CellComponent, { node: cell })
+          $$(SheetCellComponent, { node: cell })
             .attr('data-row', i)
             .attr('data-col', j)
         )
@@ -143,15 +162,8 @@ class SheetComponent extends Component {
   }
 
   setSelection(tableSel) {
-    if (this._activeCellComp) {
-      const cellComp = this._activeCellComp
-      this._activeCellComp = null
-      cellComp.commit()
-      // HACK: manipulating the element directly
-      // without using setState
-      // TODO: try to use extendState instead
-      this.el.removeClass('sm-edit')
-    }
+    // console.log('setSelection', tableSel)
+    this._ensureActiveCellIsCommited()
     this._setSelection(tableSel)
   }
 
@@ -163,14 +175,8 @@ class SheetComponent extends Component {
   // Action handlers
 
   selectCell(cellComp) {
-    let row = cellComp.getRow()
-    let col = cellComp.getCol()
-    this.setSelection({
-      startRow: row,
-      startCol: col,
-      endRow: row,
-      endCol: col
-    })
+    this._ensureActiveCellIsCommited()
+    this._selectCell(cellComp)
   }
 
   activateCell(cellComp, initialContent) {
@@ -188,7 +194,7 @@ class SheetComponent extends Component {
     } else {
       const cellComp = this._activeCellComp
       this._activeCellComp = null
-      cellComp.commit()
+      this._commitCell(cellComp)
     }
     if (key === 'enter') {
       this._selectNextCell(1, 0)
@@ -196,14 +202,16 @@ class SheetComponent extends Component {
   }
 
   discardCellChange() {
-    var cell = this._activeCellComp
+    const cellComp = this._activeCellComp
     this._activeCellComp = null
-    cell.discard()
+    cellComp.discard()
+    this._selectCell(cellComp)
   }
 
   // Events
 
   onSelectionChange(sel) {
+    // console.log('### ', sel)
     if (sel.isCustomSelection() &&
       sel.customType === 'table' &&
       sel.data.sheetId === this.props.node.id)
@@ -220,17 +228,23 @@ class SheetComponent extends Component {
     let target = findParentComponent(event.target)
     let cell = target._isCellComponent ? target : target.context.cell
     // happens when not on a cell, e.g. on the header
-    if (!cell) return
-    // only enable cell selection on cells which are not currently edited
-    if (!cell.isEditing()) {
-      event.preventDefault()
-      event.stopPropagation()
-      this._isSelecting = true
-      this.el.getOwnerDocument().on('mouseup', this.onMouseUp, this, { once: true })
-      this._startCell = cell
-      this._endCell = cell
-      this._updateSelection()
+    if (!cell) {
+      // console.log('not on a cell')
+      return
     }
+    if (cell.isEditing()) {
+      // console.log('cell is editing')
+      return
+    }
+    // only enable cell selection on cells which are not currently edited
+    event.preventDefault()
+    event.stopPropagation()
+    this._isSelecting = true
+    this.el.getOwnerDocument().on('mouseup', this.onMouseUp, this, { once: true })
+    this._startCell = cell
+    this._endCell = cell
+    // this._ensureActiveCellIsCommited()
+    this._updateSelection()
   }
 
   onMouseOver(event) {
@@ -245,10 +259,14 @@ class SheetComponent extends Component {
 
   onMouseUp() {
     if (this._isSelecting) {
+      const start = this._startCell
+      const end = this._endCell
       this._isSelecting = false
-      this._updateSelection()
       this._startCell = null
       this._endCell = null
+      if (start !== end) {
+        this._updateSelection()
+      }
     }
   }
 
@@ -259,7 +277,7 @@ class SheetComponent extends Component {
     behavior.
   */
   onGlobalKeydown(event) {
-    console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
+    // console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
     var handled = false
 
     if (!this.isEditing()) {
@@ -303,13 +321,6 @@ class SheetComponent extends Component {
       else if (event.keyCode === 13) {
         if (this.getSelection().isCollapsed()) {
           this._activateCurrentCell()
-        }
-        handled = true
-      }
-      // SPACE
-      else if (event.keyCode === 32) {
-        if (this.getSelection().isCollapsed()) {
-          this._toggleDisplayMode()
         }
         handled = true
       }
@@ -364,6 +375,14 @@ class SheetComponent extends Component {
     this._rerenderSelection()
   }
 
+  onConfirmExpression() {
+    console.log('Confirmed expression change')
+  }
+
+  onCancelExpression() {
+    console.log('Canceled expression change')
+  }
+
   // private API
 
   _setSelection(tableSel) {
@@ -383,13 +402,40 @@ class SheetComponent extends Component {
         selData.containerId = surface.getContainerId()
       }
     }
+    // console.log('_setSelection', selData)
     editorSession.setSelection(selData)
+  }
+
+  _selectCell(cellComp) {
+    let row = cellComp.getRow()
+    let col = cellComp.getCol()
+    this._setSelection({
+      startRow: row,
+      startCol: col,
+      endRow: row,
+      endCol: col
+    })
+  }
+
+  _commitCell(cellComp) {
+    const editorSession = this.getEditorSession()
+    const row = cellComp.getRow()
+    const col = cellComp.getCol()
+    const newContent = cellComp.getCellEditorContent()
+    editorSession.transaction((tx) => {
+      let sheet = tx.get(this.props.node.id)
+      sheet.updateCell(row, col, newContent)
+    })
+    let cell = this.props.node.getCellAt(row, col)
+    cellComp.disableEditing()
+    cellComp.setProps({ node: cell })
   }
 
   _ensureActiveCellIsCommited(cellComp) {
     if (this._activeCellComp && this._activeCellComp !== cellComp) {
-      this._activeCellComp.commit()
+      this._commitCell(this._activeCellComp)
     }
+    this._activeCellComp = null
   }
 
   _updateSelection() {
@@ -459,19 +505,6 @@ class SheetComponent extends Component {
 
   _hideSelection() {
     this.refs.selection.el.setStyle('display', 'none')
-  }
-
-  _toggleDisplayMode() {
-    const sel = this.getSelection()
-    if (sel) {
-      const data = sel.data
-      const row = data.startRow
-      const col = data.startCol
-      const cellComp = this._getCellComponentAt(row, col)
-      if (cellComp) {
-        cellComp.toggleDisplayMode()
-      }
-    }
   }
 
   _activateCurrentCell(initialContent) {

@@ -7,7 +7,7 @@ import TextInput from '../../shared/substance/text-input/TextInput'
   only at the end.
 */
 export default
-class CellEditor extends Component {
+class SheetCellEditor extends Component {
 
   render($$) {
     var el = $$('div')

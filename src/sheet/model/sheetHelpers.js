@@ -27,7 +27,7 @@ export function getColumnIndex(col) {
   return index
 }
 
-export function getCellId(row,col) {
+export function getCellName(row,col) {
   return getColumnName(col)+(row+1)
 }
 

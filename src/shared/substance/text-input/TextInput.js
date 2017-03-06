@@ -18,6 +18,8 @@ class TextInput extends AbstractEditor {
 
   constructor(parent, props = {}) {
     super(parent, _createEditorSession(props))
+
+    this.doc = this.editorSession.getDocument()
   }
 
   render($$) {
@@ -35,6 +37,13 @@ class TextInput extends AbstractEditor {
   didMount() {
     // set the cursor at the end of the content
     this.refs.input.selectLast()
+  }
+
+  dispose() {
+    super.dispose()
+
+    this.doc.dispose()
+    this.editorSession.dispose()
   }
 
   // this component manages itself

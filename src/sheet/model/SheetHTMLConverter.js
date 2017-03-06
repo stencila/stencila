@@ -22,15 +22,15 @@ export default {
     for (let i = 0; i < rowEls.length; i++) {
       const rowEl = rowEls[i]
       const cellEls = rowEl.children
+      const row = []
       for (let j = 1; j < cellEls.length; j++) {
         const cellEl = cellEls[j]
         if (cellEl.textContent) {
           const cell = converter.convertElement(cellEl)
-          cell.row = i
-          cell.col = j-1
-          node.cells.push(cell.id)
+          row.push(cell.id)
         }
       }
+      node.cells.push(row)
     }
   },
 
