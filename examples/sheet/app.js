@@ -15,6 +15,7 @@ let editorSession = new EditorSession(doc, {
 })
 
 window.addEventListener('load', () => {
+  window.doc = doc
   SheetEditor.mount({
     editorSession,
     edit: true

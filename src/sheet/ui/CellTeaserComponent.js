@@ -11,15 +11,14 @@ class CellTeaserComponent extends Component {
     var el = $$('table').addClass('sc-cell-teaser')
     var tr = $$('tr')
 
-    var prefix = cell.getPrefix()
-    if (prefix) {
+    let name = cell.getName()
+    if (name) {
       tr.append(
         $$('td').addClass('se-name').text(prefix)
       )
     }
-
-    var value = cell.value
-    var type = this.props.typeLabel || cell.valueType
+    let value = cell.value
+    let type = this.props.typeLabel || cell.valueType
     if (value === undefined) {
       tr.append(
         $$('td').addClass('se-loading').text('Loading...')

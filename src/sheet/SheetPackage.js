@@ -1,18 +1,18 @@
 import SheetNode from './model/SheetNode'
-import Cell from './model/Cell'
+import SheetCell from './model/SheetCell'
 import SheetHTMLConverter from './model/SheetHTMLConverter'
-import CellHTMLConverter from './model/CellHTMLConverter'
+import SheetCellHTMLConverter from './model/SheetCellHTMLConverter'
 import SheetComponent from './ui/SheetComponent'
-import CellComponent from './ui/CellComponent'
+import SheetCellComponent from './ui/SheetCellComponent'
 
 export default {
   name: 'sheet',
   configure: function(config) {
     config.addNode(SheetNode)
-    config.addNode(Cell)
+    config.addNode(SheetCell)
     config.addComponent('sheet', SheetComponent)
-    config.addComponent('cell', CellComponent)
+    config.addComponent('sheet-cell', SheetCellComponent)
     config.addConverter('html', SheetHTMLConverter)
-    config.addConverter('html', CellHTMLConverter)
+    config.addConverter('html', SheetCellHTMLConverter)
   }
 }

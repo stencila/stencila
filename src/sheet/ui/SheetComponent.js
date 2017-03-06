@@ -1,7 +1,8 @@
 import {Component, DefaultDOMElement, uuid} from 'substance'
 import {findParentComponent} from '../../shared/substance/domHelpers'
 import {getColumnName} from '../model/sheetHelpers'
-import CellComponent from './CellComponent'
+import SheetEngine from '../model/SheetEngine'
+import SheetCellComponent from './SheetCellComponent'
 
 export default
 class SheetComponent extends Component {
@@ -30,10 +31,18 @@ class SheetComponent extends Component {
     this._startCell = null
     this._endCell = null
 
+    this._sheetEngine = new SheetEngine(this.context.editorSession, this.props.node)
+
     // binding this, as these handlers are attached to global DOM elements
     // this.onGlobalKeydown = this.onGlobalKeydown.bind(this)
     // this.onGlobalKeypress = this.onGlobalKeypress.bind(this)
     // this.onWindowResize = this.onWindowResize.bind(this)
+  }
+
+  getChildContext() {
+    return {
+      sheetEngine: this._sheetEngine
+    }
   }
 
   didMount() {
@@ -113,7 +122,7 @@ class SheetComponent extends Component {
         const cell = sheet.getCellAt(i, j)
         // Render Cell content
         rowEl.append(
-          $$(CellComponent, { node: cell })
+          $$(SheetCellComponent, { node: cell })
             .attr('data-row', i)
             .attr('data-col', j)
         )
@@ -143,15 +152,7 @@ class SheetComponent extends Component {
   }
 
   setSelection(tableSel) {
-    if (this._activeCellComp) {
-      const cellComp = this._activeCellComp
-      this._activeCellComp = null
-      cellComp.commit()
-      // HACK: manipulating the element directly
-      // without using setState
-      // TODO: try to use extendState instead
-      this.el.removeClass('sm-edit')
-    }
+    this._ensureActiveCellIsCommited()
     this._setSelection(tableSel)
   }
 
@@ -188,7 +189,7 @@ class SheetComponent extends Component {
     } else {
       const cellComp = this._activeCellComp
       this._activeCellComp = null
-      cellComp.commit()
+      this._commitCell(cellComp)
     }
     if (key === 'enter') {
       this._selectNextCell(1, 0)
@@ -259,7 +260,7 @@ class SheetComponent extends Component {
     behavior.
   */
   onGlobalKeydown(event) {
-    console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
+    // console.log('onGlobalKeydown()', 'keyCode=', event.keyCode)
     var handled = false
 
     if (!this.isEditing()) {
@@ -386,9 +387,23 @@ class SheetComponent extends Component {
     editorSession.setSelection(selData)
   }
 
+  _commitCell(cellComp) {
+    const editorSession = this.getEditorSession()
+    const row = cellComp.getRow()
+    const col = cellComp.getCol()
+    const newContent = cellComp.getCellEditorContent()
+    editorSession.transaction((tx) => {
+      let sheet = tx.get(this.props.node.id)
+      sheet.updateCell(row, col, newContent)
+    })
+    let cell = this.props.node.getCellAt(row, col)
+    cellComp.disableEditing()
+    cellComp.setProps({ node: cell })
+  }
+
   _ensureActiveCellIsCommited(cellComp) {
     if (this._activeCellComp && this._activeCellComp !== cellComp) {
-      this._activeCellComp.commit()
+      this._commitCell(this._activeCellComp)
     }
   }
 
