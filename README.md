@@ -74,7 +74,7 @@ Install and setup dependencies                          | `npm install`         
 Check code for lint                                     | `npm run lint`        | `make lint`
 Get test documents                                      | `npm run test-documents`| `make test-documents`
 Run tests                                               | `npm test`            | `make test`
-Run tests in the browser                                | `npm run test-browser`| `make test-browser`
+Run tests in the browser                                | `npm run test-bundle` | `make test-bundle`
 Run tests with coverage                                 | `npm run cover`       | `make cover`
 Build documentation                                     | `npm run docs`        | `make docs`
 Serve and watch docs for updates                        | `npm run docs-serve`  | `make docs-serve`
