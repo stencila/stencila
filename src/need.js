@@ -24,7 +24,7 @@ let cache = {}
  * @param  {String} version Version needed, defaults to "latest"
  * @return {Object}         The module
  */
-function need (name, version) {
+export default function need (name, version) {
   version = version || 'latest'
 
   let id = `${name}@${version}`
@@ -44,5 +44,3 @@ function need (name, version) {
     }
   }
 }
-
-export default need
