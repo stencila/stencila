@@ -1,7 +1,6 @@
-import { EditorSession, EventListener } from 'substance'
+import { EditorSession, EventListener, forEach } from 'substance'
 
 const _off = EditorSession.prototype.off
-const __deregisterObserver = EditorSession.prototype._deregisterObserver
 
 /* eslint-disable no-invalid-this*/
 
@@ -38,7 +37,17 @@ function off() {
 function _deregisterObserver(stage, method, observer) {
   let self = this // eslint-disable-line no-invalid-this
   if (arguments.length === 1) {
-    __deregisterObserver.apply(self, arguments)
+    // TODO: we should optimize this, as ATM this needs to traverse
+    // a lot of registered listeners
+    forEach(self._observers, (observers) => {
+      for (let i = observers.length-1; i >=0 ; i--) {
+        const o = observers[i]
+        if (o.context === observer) {
+          observers.splice(i, 1)
+          o._deregistered = true
+        }
+      }
+    })
   } else {
     let observers = self._observers[stage]
     // if no observers are registered, then this might not
@@ -46,13 +55,12 @@ function _deregisterObserver(stage, method, observer) {
     if (!observers) {
       EventListener.prototype.off.apply(self, arguments)
     } else {
-      let L = observers.length
-      for (let i = L-1; i >= 0; i--) {
+      for (let i = observers.length-1; i >= 0; i--) {
         let o = observers[i]
         if (o.handler === method && o.context === observer) {
           observers.splice(i, 1)
+          o._deregistered = true
         }
-        o._deregistered = true
       }
     }
   }
