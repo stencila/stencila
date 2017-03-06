@@ -29,7 +29,7 @@ var updateAceEditor = function (editor, options) {
   options = options || {}
 
   // Stuff that is not yet actually an option
-  editor.setTheme('ace/theme/monokai')
+  // editor.setTheme('ace/theme/monokai')
   editor.setShowPrintMargin(false)
   // Add padding before first and after last lines
   editor.renderer.setScrollMargin(5, 5, 0, 0)

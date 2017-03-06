@@ -7,6 +7,7 @@
 
 @import './minimal-switch-text-type/_minimal-switch-text-type.css';
 @import './overlay/_overlay.css';
+@import './ui/_code-editor.css';
 @import './button/_button.css';
 @import './input/_input.css';
 @import './toggle-insert/_toggle-insert.css';

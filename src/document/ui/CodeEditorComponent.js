@@ -56,7 +56,7 @@ class CodeEditorComponent extends Component {
       node[this.props.codeProperty],
       {
         language: language,
-        fontSize: 15,
+        fontSize: 12,
         // FIXME
         // This does not update when the editor state is changed (e.g editing turned from off to on)
         // Probably needs a custom event like `_onContentChanged` below
