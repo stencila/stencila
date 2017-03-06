@@ -15,7 +15,7 @@ test('JsContext can be constructed with options', t => {
   t.end()
 })
 
-test('JsContext.call with no inputs, no errors and no output', function (t) {
+test('JsContext.call with no inputs, no errors and no output', t => {
   let c = new JsContext()
 
   t.deepEqual(c.call('let x = 3\n\n'), {errors: null, output: null}, 'assign')
@@ -25,7 +25,7 @@ test('JsContext.call with no inputs, no errors and no output', function (t) {
   t.end()
 })
 
-test('JsContext.call with no inputs, no errors', function (t) {
+test('JsContext.call with no inputs, no errors', t => {
   let c = new JsContext()
 
   t.deepEqual(c.call('return 42'), {errors: null, output: pack(42)}, 'just an evaluation')
@@ -34,7 +34,7 @@ test('JsContext.call with no inputs, no errors', function (t) {
   t.end()
 })
 
-test('JsContext.call with inputs and outputs but no errors', function (t) {
+test('JsContext.call with inputs and outputs but no errors', t => {
   let c = new JsContext()
 
   t.deepEqual(c.call('return a*6', {a: pack(7)}), {errors: null, output: pack(42)})
@@ -42,7 +42,7 @@ test('JsContext.call with inputs and outputs but no errors', function (t) {
   t.end()
 })
 
-test('JsContext.call output multiline', function (t) {
+test('JsContext.call output multiline', t => {
   let c = new JsContext()
 
   t.deepEqual(c.call(`return {
@@ -52,7 +52,7 @@ test('JsContext.call output multiline', function (t) {
   t.end()
 })
 
-test('JsContext.call with errors', function (t) {
+test('JsContext.call with errors', t => {
   let c = new JsContext()
 
   t.deepEqual(c.call('foo'), {errors: { 1: 'ReferenceError: foo is not defined' }, output: null})
@@ -61,7 +61,7 @@ test('JsContext.call with errors', function (t) {
   t.end()
 })
 
-test('JsContext.run', function (t) {
+test('JsContext.run', t => {
   let c = new JsContext()
 
   c.run('foo = "bar"')
@@ -75,7 +75,7 @@ test('JsContext.run', function (t) {
   t.end()
 })
 
-test('JsContext.run with errors', function (t) {
+test('JsContext.run with errors', t => {
   let c = new JsContext()
 
   t.deepEqual(c.run('foogazi'), {errors: { 1: 'ReferenceError: foogazi is not defined' }, output: null})
@@ -83,7 +83,16 @@ test('JsContext.run with errors', function (t) {
   t.end()
 })
 
-test('JsContext will transform code to ES2015(ES6)', function (t) {
+test('JsContext.depends', t => {
+  let c = new JsContext()
+
+  t.deepEqual(c.depends('foo'), ['foo'])
+  t.deepEqual(c.depends('let foo\n foo'), [])
+  t.deepEqual(c.depends('let foo'), [])
+  t.end()
+})
+
+test('JsContext will transform code to ES2015(ES6)', t => {
   let c = new JsContext({
     transform: true
   })

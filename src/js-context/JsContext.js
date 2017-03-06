@@ -1,5 +1,7 @@
 // Currently rollup bundling of buble is failing
 // import {transform} from 'buble'
+import {parse} from 'acorn'
+import * as walk from 'acorn/dist/walk'
 
 import {pack, unpack} from '../packing'
 import need from '../need'
@@ -157,11 +159,32 @@ class JsContext {
 
   /**
    * Determine the dependencies for a piece of Javascript code
-   * @param  {[type]} code [description]
-   * @return {[type]}      [description]
+   *
+   * Returns an array of all variable names not declared within
+   * the piece of code. This might include global functions.
+   *
+   * @param  {string} code - JavaScript code
+   * @return {array<string>} - A list of dependencies
    */
   depends (code) {
-
+    let names = {}
+    let ast = parse(code)
+    walk.simple(ast, {
+      Identifier: node => {
+        let name = node.name
+        names[name] = Object.assign(names[name] || {}, {used: true})
+      },
+      VariableDeclarator: node => {
+        let name = node.id.name
+        names[name] = Object.assign(names[name] || {}, {declared: true})
+      }
+    })
+    let depends = []
+    for (let name in names) {
+      let usage = names[name]
+      if (usage.used && !usage.declared) depends.push(name)
+    }
+    return depends
   }
 
   /**
