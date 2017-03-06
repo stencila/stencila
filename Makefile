@@ -1,4 +1,4 @@
-all: setup lint cover docs
+all: setup lint cover build docs
 
 setup:
 	npm install
@@ -20,6 +20,10 @@ test-browser:
 
 cover:
 	npm run cover
+
+build:
+	npm build
+.PHONY: build
 
 docs:
 	npm run docs

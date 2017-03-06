@@ -8,7 +8,7 @@ const START = '\0START'
 
 export default {
   entry: START,
-  dest: './dist/tests.js',
+  dest: './build/tests.js',
   format: 'umd',
   plugins: [
     {
@@ -47,12 +47,17 @@ export default {
       ]
     })
   ],
-  // let rollup skip tape
-  external: ['tape', 'd3'],
+  external: [
+    // Don't bundle tape...
+    'tape'
+  ],
   globals: {
-    // instead of using tape directly
-    // we want to use the one managed by the test suite
-    tape: 'substanceTest.test',
-    d3: 'd3'
+    // Instead, use substance-test
+    tape: 'substanceTest.test'
+  },
+  acorn: {
+    // Avoid error when bundling d3: "The keyword 'await' is reserved"
+    // See https://github.com/rollup/rollup/issues/564#issuecomment-225302878
+    allowReserved: true
   }
 }

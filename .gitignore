@@ -5,4 +5,4 @@
 /tests/document/documents
 /tmp
 /.sandbox
-/dist
+/build
