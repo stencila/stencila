@@ -1,5 +1,7 @@
 import * as d3 from 'd3'
 
+import {default as type_} from './functions/types/type'
+
 /**
  * Pack an object into a data package
  *
@@ -7,47 +9,24 @@ import * as d3 from 'd3'
  * @return {Object} A data package
  */
 function pack (thing) {
-  let type = typeof thing
+  // A data pack has a `type`, `format` (defaults to "text")
+  // and a `value` (the serialisation of the thing into the format)
+  let type = type_(thing)
   let format = 'text'
-  let value = thing
+  let value
 
-  if (thing === null) {
-    type = 'null'
+  if (type === 'null') {
     value = 'null'
-  } else if (type === 'boolean') {
-    type = 'bool'
+  } else if (type === 'bool' || type === 'int' || type === 'flt') {
     value = thing.toString()
-  } else if (type === 'number') {
-    let isInteger = false
-    if (thing.isInteger) isInteger = thing.isInteger()
-    else isInteger = (thing % 1) === 0
-    type = isInteger ? 'int' : 'flt'
-    value = thing.toString()
-  } else if (type === 'string') {
-    type = 'str'
-  } else if (type === 'object') {
-    type = thing.constructor === Array ? 'arr' : 'obj'
-    // Arrays of objects get converted to tabular data
-    if (type === 'arr') {
-      let onlyObjects = true
-      for (let item of thing) {
-        if (item.constructor !== Object) {
-          onlyObjects = false
-          break
-        }
-      }
-      if (onlyObjects && thing.length > 0) {
-        type = 'tab'
-        format = 'csv'
-        value = d3.csvFormat(thing) + '\n'
-      } else {
-        format = 'json'
-        value = JSON.stringify(thing)
-      }
-    } else {
-      format = 'json'
-      value = JSON.stringify(thing)
-    }
+  } else if (type === 'str') {
+    value = thing
+  } else if (type === 'obj' || type === 'arr') {
+    format = 'json'
+    value = JSON.stringify(thing)
+  } else if (type === 'tab') {
+    format = 'csv'
+    value = d3.csvFormat(thing) + '\n'
   } else {
     throw new Error('Unable to pack object\n  type: ' + type)
   }
