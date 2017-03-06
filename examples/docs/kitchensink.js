@@ -1,5 +1,5 @@
 export default `
-<div id="title">Test with all nodes</div>
+<div data-title>Test with all nodes</div>
 <p>A test Stencila document with at least one (well, that&apos;s the plan) of each node type (in alphabetical order). See additional node specific test documents in sibling folders e.g. <a href="/file://tests/document/nodes/image/index.html">image</a>.</p>
 <h1>Math</h1>
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>

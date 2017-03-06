@@ -1,9 +1,15 @@
-import { InsertNodeCommand } from 'substance'
+import { InsertNodeCommand, uuid } from 'substance'
 
 class InsertCellCommand extends InsertNodeCommand {
 
-  execute(params) {
-    console.error('TODO: Implement InsertCellCommand', params)
+  createNodeData() {
+
+    return {
+      id: uuid('cell'),
+      type: 'cell',
+      expression: '',
+    }
+
   }
 
 }

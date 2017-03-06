@@ -10,7 +10,7 @@ class CellComponent extends Component {
       $$('div').addClass('se-expression').append(
         $$(TextInput, {
           content: node.expression
-        }).ref('editor')
+        }).ref('expressionEditor')
           .on('confirm', this.onConfirm)
           .on('cancel', this.onCancel)
       )
@@ -23,8 +23,16 @@ class CellComponent extends Component {
     return el
   }
 
+  getExpression() {
+    return this.refs.expressionEditor.getContent()
+  }
+
   onConfirm() {
     console.log('Yay')
+    let newExpression = this.getExpression()
+    this.context.editorSession.transaction((tx) => {
+      tx.set([this.props.node.id, 'expression'], newExpression)
+    })
   }
 
   onCancel() {
