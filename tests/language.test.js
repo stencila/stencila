@@ -9,7 +9,7 @@ function check (t, lang, short, long) {
   t.equal(longname(long), long)
 }
 
-test('pack works for primitive types', function (t) {
+test('language.{shortname|longname}', function (t) {
   check(t, 'Javascript', 'js', 'JavaScript')
   check(t, 'Julia', 'jl', 'Julia')
   check(t, 'Python', 'py', 'Python')
