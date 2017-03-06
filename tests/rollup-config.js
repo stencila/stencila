@@ -27,6 +27,12 @@ export default {
     json({
       include: 'node_modules/**'
     }),
+    nodeResolve({
+      jsnext: true
+    }),
+    commonjs({
+      include: 'node_modules/**'
+    }),
     babel({
       // overriding babelrc
       babelrc: false,
@@ -39,10 +45,6 @@ export default {
           globals: ['Error']
         }]
       ]
-    }),
-    nodeResolve(),
-    commonjs({
-      include: 'node_modules/**'
     })
   ],
   // let rollup skip tape
