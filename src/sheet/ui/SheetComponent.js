@@ -39,12 +39,6 @@ class SheetComponent extends Component {
     // this.onWindowResize = this.onWindowResize.bind(this)
   }
 
-  getChildContext() {
-    return {
-      sheetEngine: this._sheetEngine
-    }
-  }
-
   didMount() {
     const editorSession = this.context.editorSession
     editorSession.on('render', this.onSelectionChange, this, {
@@ -152,6 +146,7 @@ class SheetComponent extends Component {
   }
 
   setSelection(tableSel) {
+    // console.log('setSelection', tableSel)
     this._ensureActiveCellIsCommited()
     this._setSelection(tableSel)
   }
@@ -164,14 +159,8 @@ class SheetComponent extends Component {
   // Action handlers
 
   selectCell(cellComp) {
-    let row = cellComp.getRow()
-    let col = cellComp.getCol()
-    this.setSelection({
-      startRow: row,
-      startCol: col,
-      endRow: row,
-      endCol: col
-    })
+    this._ensureActiveCellIsCommited()
+    this._selectCell(cellComp)
   }
 
   activateCell(cellComp, initialContent) {
@@ -197,14 +186,16 @@ class SheetComponent extends Component {
   }
 
   discardCellChange() {
-    var cell = this._activeCellComp
+    const cellComp = this._activeCellComp
     this._activeCellComp = null
-    cell.discard()
+    cellComp.discard()
+    this._selectCell(cellComp)
   }
 
   // Events
 
   onSelectionChange(sel) {
+    // console.log('### ', sel)
     if (sel.isCustomSelection() &&
       sel.customType === 'table' &&
       sel.data.sheetId === this.props.node.id)
@@ -221,17 +212,23 @@ class SheetComponent extends Component {
     let target = findParentComponent(event.target)
     let cell = target._isCellComponent ? target : target.context.cell
     // happens when not on a cell, e.g. on the header
-    if (!cell) return
-    // only enable cell selection on cells which are not currently edited
-    if (!cell.isEditing()) {
-      event.preventDefault()
-      event.stopPropagation()
-      this._isSelecting = true
-      this.el.getOwnerDocument().on('mouseup', this.onMouseUp, this, { once: true })
-      this._startCell = cell
-      this._endCell = cell
-      this._updateSelection()
+    if (!cell) {
+      // console.log('not on a cell')
+      return
     }
+    if (cell.isEditing()) {
+      // console.log('cell is editing')
+      return
+    }
+    // only enable cell selection on cells which are not currently edited
+    event.preventDefault()
+    event.stopPropagation()
+    this._isSelecting = true
+    this.el.getOwnerDocument().on('mouseup', this.onMouseUp, this, { once: true })
+    this._startCell = cell
+    this._endCell = cell
+    // this._ensureActiveCellIsCommited()
+    this._updateSelection()
   }
 
   onMouseOver(event) {
@@ -246,10 +243,14 @@ class SheetComponent extends Component {
 
   onMouseUp() {
     if (this._isSelecting) {
+      const start = this._startCell
+      const end = this._endCell
       this._isSelecting = false
-      this._updateSelection()
       this._startCell = null
       this._endCell = null
+      if (start !== end) {
+        this._updateSelection()
+      }
     }
   }
 
@@ -304,13 +305,6 @@ class SheetComponent extends Component {
       else if (event.keyCode === 13) {
         if (this.getSelection().isCollapsed()) {
           this._activateCurrentCell()
-        }
-        handled = true
-      }
-      // SPACE
-      else if (event.keyCode === 32) {
-        if (this.getSelection().isCollapsed()) {
-          this._toggleDisplayMode()
         }
         handled = true
       }
@@ -384,7 +378,19 @@ class SheetComponent extends Component {
         selData.containerId = surface.getContainerId()
       }
     }
+    // console.log('_setSelection', selData)
     editorSession.setSelection(selData)
+  }
+
+  _selectCell(cellComp) {
+    let row = cellComp.getRow()
+    let col = cellComp.getCol()
+    this._setSelection({
+      startRow: row,
+      startCol: col,
+      endRow: row,
+      endCol: col
+    })
   }
 
   _commitCell(cellComp) {
@@ -405,6 +411,7 @@ class SheetComponent extends Component {
     if (this._activeCellComp && this._activeCellComp !== cellComp) {
       this._commitCell(this._activeCellComp)
     }
+    this._activeCellComp = null
   }
 
   _updateSelection() {
@@ -474,19 +481,6 @@ class SheetComponent extends Component {
 
   _hideSelection() {
     this.refs.selection.el.setStyle('display', 'none')
-  }
-
-  _toggleDisplayMode() {
-    const sel = this.getSelection()
-    if (sel) {
-      const data = sel.data
-      const row = data.startRow
-      const col = data.startCol
-      const cellComp = this._getCellComponentAt(row, col)
-      if (cellComp) {
-        cellComp.toggleDisplayMode()
-      }
-    }
   }
 
   _activateCurrentCell(initialContent) {
