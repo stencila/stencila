@@ -5,15 +5,11 @@
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
   font-size: 12px;
-  /*-webkit-font-smoothing: antialiased;*/
   padding: 10px 20px;
   font-weight: normal;
-  /*color: var(--stencila-green);*/
-  /*background: #eee;*/
   border: 1px solid #ddd;
   background: #fafafa;
   color: #737373;
-  /*background: var(--dark-bg-color);*/
 }
 
 .sc-cell .se-output {

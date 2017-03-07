@@ -4,7 +4,7 @@ export default {
   tagName: 'div',
 
   matchElement: function (el) {
-    return el.is('[data-cell]')
+    return el.is('div[data-cell]')
   },
 
   import: function (el, node) {

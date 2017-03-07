@@ -4,9 +4,10 @@ export default `
 <h1>Math</h1>
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
 <h1>Select</h1>
-<p>If I eat 3 extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (71.6 calories each) every day for the next 52 weeks that will be 10186.60 extra calories total.</p>
+<p>If I eat 3 extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (71.6 calories each) every day for the next 52 weeks that will be <span data-cell="5*10*30">23012</span> extra calories total.</p>
 
 <h1>Minilang Cell</h1>
+
 <!-- Pure MiniLang cell -->
 <div data-cell="x = 2+5">
   <pre data-output>
