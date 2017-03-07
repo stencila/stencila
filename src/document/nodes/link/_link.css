@@ -1,5 +1,6 @@
 .sc-link {
-  color: var(--stencila-green);
+  color: var(--default-text-color);
+  text-decoration: underline;
 }
 
 .sc-edit-link-tool > * {

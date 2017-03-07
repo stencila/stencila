@@ -29,6 +29,7 @@
 @import './nodes/codeblock/_codeblock.css';
 @import './nodes/default/_default.css';
 @import './nodes/cell/_cell.css';
+@import './nodes/select/_select.css';
 
 /*Import rendered math styling*/
 @import './nodes/math/_math.css';

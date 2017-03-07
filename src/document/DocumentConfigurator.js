@@ -20,6 +20,7 @@ import DefaultPackage from './nodes/default/DefaultPackage'
 import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
 import ImagePackage from './nodes/image/ImagePackage'
+import SelectPackage from './nodes/select/SelectPackage'
 
 /**
  * A "configurator" for a document.
@@ -60,6 +61,7 @@ class DocumentConfigurator extends Configurator {
     this.import(ListPackage)
     this.import(TablePackage)
     this.import(MathPackage)
+    this.import(SelectPackage)
 
     this.import(ImagePackage)
     this.import(BlockquotePackage)

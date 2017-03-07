@@ -25,7 +25,7 @@ strong { font-weight: var(--strong-font-weight); }
 
 /* Links */
 a {
-  color: var(--stencila-green);
+  /*color: var(--stencila-green);*/
   text-decoration:none;
 }
 a:focus {

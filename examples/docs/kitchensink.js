@@ -3,6 +3,9 @@ export default `
 <p>A test Stencila document with at least one (well, that&apos;s the plan) of each node type (in alphabetical order). See additional node specific test documents in sibling folders e.g. <a href="/file://tests/document/nodes/image/index.html">image</a>.</p>
 <h1>Math</h1>
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
+<h1>Select</h1>
+<p>If I eat 3 extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (71.6 calories each) every day for the next 52 weeks that will be 10186.60 extra calories total.</p>
+
 <h1>Minilang Cell</h1>
 <!-- Pure MiniLang cell -->
 <div data-cell="x = 2+5">
