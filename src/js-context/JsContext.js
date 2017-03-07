@@ -1,7 +1,7 @@
 // Currently rollup bundling of buble is failing
-import buble from 'buble/dist/buble.deps'
+// import buble from 'buble/dist/buble.deps'
 import {parse} from 'acorn'
-import {simple, base} from 'acorn/dist/walk.es'
+import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../packing'
 import need from '../need'

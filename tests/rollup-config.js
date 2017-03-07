@@ -31,7 +31,8 @@ export default {
       jsnext: true
     }),
     commonjs({
-      include: 'node_modules/**'
+      include: 'node_modules/**',
+      namedExports: { 'acorn/dist/walk.js': ['simple', 'base' ] }
     }),
     babel({
       // overriding babelrc
