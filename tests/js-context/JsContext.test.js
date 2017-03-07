@@ -102,12 +102,3 @@ test('JsContext will transform code to ES2015(ES6)', t => {
   t.end()
 })
 
-if (typeof window !== 'undefined') {
-  test('JsContext can dynamically require NPM modules', t => {
-    let c = new JsContext()
-
-    t.deepEqual(c.call('let isNumber = require("is-number")\nisNumber(1)'), {errors: null, output: pack(true)})
-
-    t.end()
-  })
-}
