@@ -1,7 +1,7 @@
 // Currently rollup bundling of buble is failing
-// import {transform} from 'buble'
+import buble from 'buble/dist/buble.deps'
 import {parse} from 'acorn'
-import * as walk from 'acorn/dist/walk'
+import {simple, base} from 'acorn/dist/walk.es'
 
 import {pack, unpack} from '../packing'
 import need from '../need'
@@ -120,8 +120,9 @@ class JsContext {
     // Transform the code
     if (this.options.transform) {
       try {
+        // NOTE: on the modern browser we already 'good' ES6
         // FIXME: reactivate when buble bundling is resolved
-        // body = transform(body).code
+        // body = buble.transform(body).code
       } catch (e) {
         // Catch a syntax error
         error = e
@@ -169,7 +170,7 @@ class JsContext {
   depends (code) {
     let names = {}
     let ast = parse(code)
-    walk.simple(ast, {
+    simple(ast, {
       Identifier: node => {
         let name = node.name
         names[name] = Object.assign(names[name] || {}, {used: true})
@@ -178,7 +179,7 @@ class JsContext {
         let name = node.id.name
         names[name] = Object.assign(names[name] || {}, {declared: true})
       }
-    })
+    }, base)
     let depends = []
     for (let name in names) {
       let usage = names[name]
