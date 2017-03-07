@@ -4,7 +4,7 @@ export default `
 <h1>Math</h1>
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
 <h1>Select</h1>
-<p>If I eat 3 extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (71.6 calories each) every day for the next 52 weeks that will be <span data-cell="5*10*30">23012</span> extra calories total.</p>
+<p>If I eat <span data-cell="num_cookies=3">3</span> extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (<span data-cell="calories">71.6</span> calories each) every day for the next <span data-cell="num_weeks=52">52</span> weeks that will be <span data-cell="num_cookies*calories*num_weeks">11949.60</span> extra calories total.</p>
 
 <h1>Minilang Cell</h1>
 
