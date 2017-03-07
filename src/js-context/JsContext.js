@@ -1,5 +1,3 @@
-// Currently rollup bundling of buble is failing
-// import buble from 'buble/dist/buble.deps'
 import {parse} from 'acorn'
 import {simple, base} from 'acorn/dist/walk'
 
@@ -16,15 +14,6 @@ else require_ = require
  * Implements the Stencila `Context` API.
  */
 class JsContext {
-
-  constructor (options) {
-    this.options = options || {}
-
-    if (typeof this.options.transform === 'undefined') {
-      // By default transform code chunks when in the browser
-      this.options.transform = typeof window !== 'undefined'
-    }
-  }
 
   /**
    * Run JavaScript code within the global context scope (execute a code "chunk")
@@ -116,18 +105,6 @@ class JsContext {
     // Generate a function body. The [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
     // prevents errors during `buble.transform` associated with any return statements (which must be within a func)
     let body = '(function(){\n' + code + '\n})()'
-
-    // Transform the code
-    if (this.options.transform) {
-      try {
-        // NOTE: on the modern browser we already 'good' ES6
-        // FIXME: reactivate when buble bundling is resolved
-        // body = buble.transform(body).code
-      } catch (e) {
-        // Catch a syntax error
-        error = e
-      }
-    }
 
     // Create a function to be executed with locals
     let func = null

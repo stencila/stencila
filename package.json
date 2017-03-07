@@ -33,7 +33,6 @@
   },
   "homepage": "https://github.com/stencila/js#readme",
   "dependencies": {
-    "buble": "^0.15.2",
     "cheerio": "^0.22.0",
     "d3": "^4.4.0",
     "github-api": "^3.0.0",

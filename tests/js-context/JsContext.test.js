@@ -3,14 +3,11 @@ import JsContext from '../../src/js-context/JsContext'
 
 import test from 'tape'
 
-test('JsContext can be constructed with options', t => {
-  let c1 = new JsContext()
-  let c2 = new JsContext({
-    transform: true
-  })
+test('JsContext', t => {
+  let c = new JsContext()
 
-  t.equal(c1.options.transform, typeof window !== 'undefined', 'transform defaults to true in browser, false otherwise')
-  t.equal(c2.options.transform, true)
+  t.ok(c instanceof JsContext)
+  t.equal(c.constructor.name, 'JsContext')
 
   t.end()
 })
@@ -91,14 +88,3 @@ test('JsContext.depends', t => {
   t.deepEqual(c.depends('let foo'), [])
   t.end()
 })
-
-test('JsContext will transform code to ES2015(ES6)', t => {
-  let c = new JsContext({
-    transform: true
-  })
-
-  t.deepEqual(c.call('return Math.max(...[1,3,2])'), {errors: null, output: pack(3)})
-
-  t.end()
-})
-
