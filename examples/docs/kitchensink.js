@@ -5,7 +5,7 @@ export default `
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
 <h1>Minilang Cell</h1>
 <!-- Pure MiniLang cell -->
-<div data-cell="barchart([4,8,15,16,23,42])">
+<div data-cell="x = 2+5">
   <pre data-output>
     <style>
     .chart div {

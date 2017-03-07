@@ -80,6 +80,7 @@ function _buildDocument() {
     // different bundles (e.g. hosted without substance, but electron one with substance)
     external: {
       'substance': 'window.substance',
+      'substance-expression': 'window.substanceExpression',
       // brace bundle is exposing window.ace
       'brace': 'window.ace',
       'katex': 'window.katex'

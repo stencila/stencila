@@ -21,3 +21,7 @@
   border: 1px solid #ddd;
   border-top: none;
 }
+
+.sc-cell .se-error {
+  background: red;
+}

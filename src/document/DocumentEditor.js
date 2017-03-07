@@ -1,6 +1,5 @@
 import { AbstractEditor, ContainerEditor } from 'substance'
-import MacroManager from './ui/MacroManager'
-
+import CellEngine from './CellEngine'
 /**
  * The Stencila Document Editor
  *
@@ -10,11 +9,14 @@ export default class DocumentEditor extends AbstractEditor {
 
   constructor (...args) {
     super(...args)
-    let configurator = this.getConfigurator()
-    // Use custom MacroManager
-    this.macroManager.context.editorSession.off(this.macroManager)
-    delete this.macroManager
-    this.macroManager = new MacroManager(this.props.editorSession._context, configurator.getMacros())
+
+    this._cellEngine = new CellEngine(this.editorSession)
+  }
+
+  dispose() {
+    super.dispose()
+
+    this._cellEngine.dispose()
   }
 
   /**

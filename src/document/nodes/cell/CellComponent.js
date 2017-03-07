@@ -25,6 +25,20 @@ let exampleOutput = `
 
 class CellComponent extends Component {
 
+  didMount() {
+    const node = this.props.node
+    if (node) {
+      node.on('value:changed', this.rerender, this)
+    }
+  }
+
+  dispose() {
+    const node = this.props.node
+    if (node) {
+      node.off(this)
+    }
+  }
+
   render($$) {
     let node = this.props.node
     let el = $$('div').addClass('sc-cell')
@@ -52,9 +66,14 @@ class CellComponent extends Component {
         // )
       )
     }
-    if (node.output) {
+    if (node.value) {
       el.append(
-        $$('div').addClass('se-output').html(node.output)
+        $$('div').addClass('se-output').text(String(node.getValue()))
+      )
+    }
+    if (node.hasError()){
+      el.append(
+        $$('div').addClass('se-error').text(String(node.getError()))
       )
     }
     return el
@@ -67,10 +86,10 @@ class CellComponent extends Component {
   // HACK: this needs to be replaced with proper utilization of the
   // expression evaluation engine.
   onConfirm() {
+    const editorSession = this.context.editorSession
     let newExpression = this.getExpression()
-    this.context.editorSession.transaction((tx) => {
+    editorSession.transaction((tx) => {
       tx.set([this.props.node.id, 'expression'], newExpression)
-      tx.set([this.props.node.id, 'output'], exampleOutput)
     })
     this.rerender()
   }
