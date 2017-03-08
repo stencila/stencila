@@ -8,7 +8,7 @@ import {pack, unpack} from '../packing'
  *
  * Implements the Stencila `Context` API. All methods return a Promise.
  */
-class JsContext {
+export default class JsContext {
 
   /**
    * Run JavaScript code within the global context scope (execute a code "chunk")
@@ -55,7 +55,9 @@ class JsContext {
       }
     }
 
-    return this._result(error, 0, value, options.pack)
+    return Promise.resolve(
+      this._result(error, 0, value, options.pack)
+    )
   }
 
   /**
@@ -104,7 +106,9 @@ class JsContext {
       error = e
     }
 
-    return this._result(error, 2, value, options.pack)
+    return Promise.resolve(
+      this._result(error, 2, value, options.pack)
+    )
   }
 
   /**
@@ -161,26 +165,15 @@ class JsContext {
       errors[line] = message
     }
 
-    if (value === undefined) {
-      return Promise.resolve({
-        errors: errors,
-        output: null
-      })
-    } else if (packed) {
-      return Promise.resolve(pack(value)).then(pack => {
-        return {
-          errors: errors,
-          output: pack
-        }
-      })
-    } else {
-      return Promise.resolve({
-        errors: errors,
-        output: value
-      })
+    let output
+    if (value === undefined) output = null
+    else if (packed) output = pack(value)
+    else output = value
+
+    return {
+      errors: errors,
+      output: output
     }
   }
 
 }
-
-export default JsContext
