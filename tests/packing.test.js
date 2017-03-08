@@ -54,6 +54,31 @@ test('pack works for an array of objects', function (t) {
   t.end()
 })
 
+test('pack works for a VegaLite object', function (t) {
+  pack({
+    _vegalite: true,
+    data: {
+      values: [{'x': 1, 'y': 1}]
+    },
+    mark: 'point',
+    encoding: {
+      x: {
+        field: 'x',
+        type: 'quantitative'
+      },
+      y: {
+        field: 'y',
+        type: 'quantitative'
+      }
+    }
+  }).then(pack => {
+    t.equal(pack.type, 'img')
+    t.equal(pack.format, 'svg')
+    t.equal(pack.value.substr(0, 158), '<svg class="marks" width="255" height="248" viewBox="0 0 255 248" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">')
+    t.end()
+  })
+})
+
 test('unpack can take a list or a JSON string', function (t) {
   t.equal(unpack('{"type":"null","format":"text","value":"null"}'), null)
   t.equal(unpack({type: 'null', format: 'text', value: 'null'}), null)
