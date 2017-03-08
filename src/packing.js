@@ -1,6 +1,4 @@
 import * as d3 from 'd3'
-import * as vega from 'vega'
-import * as vegaLite from 'vega-lite'
 
 import {default as type_} from './functions/types/type'
 
@@ -17,7 +15,9 @@ function pack (thing) {
   let format = 'text'
   let value
 
-  if (type === 'null') {
+  if (type === 'unk') {
+    throw new Error('Unable to pack value of unknown type')
+  } else if (type === 'null') {
     value = 'null'
   } else if (type === 'bool' || type === 'int' || type === 'flt') {
     value = thing.toString()
@@ -29,28 +29,10 @@ function pack (thing) {
   } else if (type === 'tab') {
     format = 'csv'
     value = d3.csvFormat(thing) + '\n'
-  } else if (type === 'img') {
-    if (thing._vega) {
-      return renderVega(thing).then(svg => {
-        return {
-          type: 'img',
-          format: 'svg',
-          value: svg
-        }
-      })
-    } else if (thing._vegalite) {
-      return renderVegaLite(thing).then(svg => {
-        return {
-          type: 'img',
-          format: 'svg',
-          value: svg
-        }
-      })
-    }
   } else {
-    throw new Error('Unable to pack object\n  type: ' + type)
+    format = 'json'
+    value = JSON.stringify(thing)
   }
-
   return {type: type, format: format, value: value}
 }
 
@@ -96,29 +78,8 @@ function unpack (pkg) {
       throw new Error('Unable to unpack\n  type: ' + type + '\n  format: ' + format)
     }
   } else {
-    throw new Error('Unable to unpack\n  type: ' + type + '\n  format: ' + format)
+    return JSON.parse(value)
   }
-}
-
-/**
- * Render a Vega vizualisation specification into SVG
- * @param  {objec} spec - The Vega specification
- * @return {string} - A promise resolving to SVG
- */
-function renderVega (spec) {
-  return new vega.View(vega.parse(spec), {
-    renderer: 'svg'
-  }).run().toSVG()
-}
-
-/**
- * Render a Vega-Lite vizualisation specification into SVG
- * @param  {objec} spec - The Vega-Lite specification
- * @return {string} - A promise resolving to SVG
- */
-function renderVegaLite (spec) {
-  let vegaSpec = vegaLite.compile(spec).spec
-  return renderVega(vegaSpec)
 }
 
 export {pack, unpack}

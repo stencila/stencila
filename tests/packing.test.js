@@ -9,7 +9,7 @@ function check (t, object, type, format, value) {
   t.equal(p.value, value)
 }
 
-test('pack works for primitive types', function (t) {
+test('pack works for primitive types', t => {
   check(t, null, 'null', 'text', 'null')
 
   check(t, true, 'bool', 'text', 'true')
@@ -30,33 +30,33 @@ test('pack works for primitive types', function (t) {
   t.end()
 })
 
-test('pack errors for unhandled types', function (t) {
+test('pack errors for unhandled types', t => {
   t.throws(() => pack(function () {}))
   t.end()
 })
 
-test('pack works for Objects', function (t) {
+test('pack works for Objects', t => {
   check(t, {}, 'obj', 'json', '{}')
   check(t, {a: 1, b: 3.14, c: 'foo', d: {e: 1, f: 2}}, 'obj', 'json', '{"a":1,"b":3.14,"c":"foo","d":{"e":1,"f":2}}')
   t.end()
 })
 
-test('pack works for Arrays', function (t) {
+test('pack works for Arrays', t => {
   check(t, [], 'arr', 'json', '[]')
   check(t, [1, 2, 3, 4], 'arr', 'json', '[1,2,3,4]')
   check(t, [1.1, 2.1], 'arr', 'json', '[1.1,2.1]')
   t.end()
 })
 
-test('pack works for an array of objects', function (t) {
+test('pack works for an array of objects', t => {
   check(t, [{a: 1}, {a: 2}, {a: 3}], 'tab', 'csv', 'a\n1\n2\n3\n')
   check(t, [{a: 1, b: 'x'}, {a: 2, b: 'y'}, {a: 3, b: 'z'}], 'tab', 'csv', 'a,b\n1,x\n2,y\n3,z\n')
   t.end()
 })
 
-test('pack works for a VegaLite object', function (t) {
-  pack({
-    _vegalite: true,
+test('pack works for custom types', t => {
+  let p = pack({
+    type: 'vegalite',
     data: {
       values: [{'x': 1, 'y': 1}]
     },
@@ -71,21 +71,20 @@ test('pack works for a VegaLite object', function (t) {
         type: 'quantitative'
       }
     }
-  }).then(pack => {
-    t.equal(pack.type, 'img')
-    t.equal(pack.format, 'svg')
-    t.equal(pack.value.substr(0, 158), '<svg class="marks" width="255" height="248" viewBox="0 0 255 248" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">')
-    t.end()
   })
+  t.equal(p.type, 'vegalite')
+  t.equal(p.format, 'json')
+  t.equal(p.value, '{"type":"vegalite","data":{"values":[{"x":1,"y":1}]},"mark":"point","encoding":{"x":{"field":"x","type":"quantitative"},"y":{"field":"y","type":"quantitative"}}}')
+  t.end()
 })
 
-test('unpack can take a list or a JSON string', function (t) {
+test('unpack can take a list or a JSON string', t => {
   t.equal(unpack('{"type":"null","format":"text","value":"null"}'), null)
   t.equal(unpack({type: 'null', format: 'text', value: 'null'}), null)
   t.end()
 })
 
-test('unpack errors if package is malformed', function (t) {
+test('unpack errors if package is malformed', t => {
   t.throws(() => unpack(1), 'should be a list')
 
   t.throws(() => unpack({}), 'should have fields `type`, `format`, `value`')
@@ -98,7 +97,7 @@ test('unpack errors if package is malformed', function (t) {
   t.end()
 })
 
-test('unpack works for primitive types', function (t) {
+test('unpack works for primitive types', t => {
   t.equal(unpack({type: 'null', format: 'text', value: 'null'}), null)
 
   t.equal(unpack({type: 'bool', format: 'text', value: 'true'}), true)
@@ -115,22 +114,27 @@ test('unpack works for primitive types', function (t) {
   t.end()
 })
 
-test('unpack works for objects', function (t) {
+test('unpack works for objects', t => {
   t.deepEqual(unpack({type: 'obj', format: 'json', value: '{}'}), {})
   t.deepEqual(unpack({type: 'obj', format: 'json', value: '{"a":1,"b":"foo","c":[1,2,3]}'}), {a: 1, b: 'foo', c: [1, 2, 3]})
   t.end()
 })
 
-test('unpack works for arrays', function (t) {
+test('unpack works for arrays', t => {
   t.deepEqual(unpack({type: 'arr', format: 'json', value: '[]'}), [])
   t.deepEqual(unpack({type: 'arr', format: 'json', value: '[1,2,3,4,5]'}), [1, 2, 3, 4, 5])
   t.end()
 })
 
-test('unpack works for tabular data', function (t) {
+test('unpack works for tabular data', t => {
   let result = JSON.stringify([ { a: '1', b: 'x' }, { a: '2', b: 'y' }, { a: '3', b: 'z' } ])
   t.equal(JSON.stringify(unpack({type: 'tab', format: 'csv', value: 'a,b\n1,x\n2,y\n3,z\n'})), result)
   t.equal(JSON.stringify(unpack({type: 'tab', format: 'tsv', value: 'a\tb\n1\tx\n2\ty\n3\tz\n'})), result)
   t.throws(() => unpack({type: 'tab', format: 'foo', value: 'bar'}))
+  t.end()
+})
+
+test('unpack works for custom types', t => {
+  t.deepEqual(unpack({type: 'html', format: 'json', value: '{"type":"html", "content":"<img>"}'}), {type: 'html', content: '<img>'})
   t.end()
 })

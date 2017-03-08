@@ -29,5 +29,10 @@ test('type()', t => {
   t.equal(type([{a: 1, b: 2}]), 'tab')
   t.equal(type([{a: 1, b: 2}, 'non-an-object']), 'arr')
 
+  t.equal(type({type: 'html', content: '<img>'}), 'html')
+  t.equal(type({type: 'vegalite', data: null}), 'vegalite')
+
+  t.equal(type(function () {}), 'unk')
+
   t.end()
 })

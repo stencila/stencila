@@ -19,8 +19,7 @@ export default function type (value) {
   } else if (type === 'string') {
     return 'str'
   } else if (type === 'object') {
-    type = value.constructor === Array ? 'arr' : 'obj'
-    if (type === 'arr') {
+    if (value.constructor === Array) {
       let onlyObjects = true
       for (let item of value) {
         if (item.constructor !== Object) {
@@ -29,8 +28,11 @@ export default function type (value) {
         }
       }
       if (onlyObjects && value.length > 0) return 'tab'
+      else return 'arr'
     }
-    if (value._vega || value._vegalite) return 'img'
+    if (value.type) return value.type
+    else return 'obj'
+  } else {
+    return 'unk'
   }
-  return type
 }

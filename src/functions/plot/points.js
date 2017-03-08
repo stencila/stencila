@@ -3,7 +3,7 @@ export default function points (data, x, y) {
   y = y || 'y'
 
   return {
-    _vegalite: true,
+    type: 'vegalite',
     data: {
       values: data
     },

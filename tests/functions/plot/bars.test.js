@@ -5,7 +5,7 @@ import bars from '../../../src/functions/plot/bars'
 
 test('bars', t => {
   t.deepEqual(bars(table1), {
-    _vegalite: true,
+    type: 'vegalite',
     data: {
       values: table1
     },

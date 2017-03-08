@@ -5,7 +5,7 @@ import points from '../../../src/functions/plot/points'
 
 test('points', t => {
   t.deepEqual(points(table1), {
-    _vegalite: true,
+    type: 'vegalite',
     data: {
       values: table1
     },
