@@ -11,6 +11,11 @@ class CellEngine extends Engine {
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
 
+    // EXPERIMENTAL: dunno yet how we want to control
+    // function lookup
+    // ATM: we just iterate over the
+    this._contexts = editorSession.getContext().stencilaContexts || {}
+
     this._initialize()
 
     editorSession.on('render', this._onDocumentChange, this, {
