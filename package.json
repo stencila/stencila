@@ -56,8 +56,6 @@
     "unist-util-find-after": "^2.0.0",
     "unist-util-remove": "^0.2.1",
     "unist-util-visit": "^1.1.1",
-    "vega": "^3.0.0-beta.22",
-    "vega-lite": "^2.0.0-alpha.2",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {

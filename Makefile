@@ -22,7 +22,7 @@ cover:
 	npm run cover
 
 build:
-	npm build
+	npm run build
 .PHONY: build
 
 docs:

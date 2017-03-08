@@ -5,9 +5,7 @@ import json from 'rollup-plugin-json'
 import hypothetical from 'rollup-plugin-hypothetical'
 
 const STUBS = {
-  './src/document/Document': 'export default function() {}',
-  './src/vega-context/VegaContext': 'export default function() {}',
-  './src/vega-lite-context/VegaLiteContext': 'export default function() {}'
+  './src/document/Document': 'export default function() {}'
 }
 
 export default {
