@@ -3,13 +3,22 @@ language: node_js
 node_js:
   - 6
 
+addons:
+  apt:
+    packages:
+      # Dependencies for `canvas` (required by `d3`)
+      # See https://github.com/Automattic/node-canvas/blob/master/.travis.yml
+      - libcairo2-dev
+      - libjpeg8-dev
+      - libpango1.0-dev
+      - libgif-dev
+
 cache:
   directories:
     - node_modules
 
 script:
   - make lint
-  - make test-documents
   - make cover
   - make docs
 
