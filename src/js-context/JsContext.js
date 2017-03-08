@@ -2,11 +2,6 @@ import {parse} from 'acorn'
 import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../packing'
-import need from '../need'
-
-let require_
-if (typeof window !== 'undefined') require_ = need
-else require_ = require
 
 /**
  * A Javascript context
@@ -34,12 +29,13 @@ class JsContext {
   run (code, options) {
     code = code || ''
     options = options || {}
+    if (options.pack !== false) options.pack = true
 
     let error = null
 
     // Create a function and execute it
     try {
-      (new Function('require', code))(require_) // eslint-disable-line no-new-func
+      (new Function(code))() // eslint-disable-line no-new-func
     } catch (e) {
       // Catch any error
       error = e
@@ -53,19 +49,15 @@ class JsContext {
       let lines = code.split('\n')
       let last = lines[lines.length - 1]
       try {
-        value = (new Function('require', 'return ' + last))() // eslint-disable-line no-new-func
+        value = (new Function('return ' + last))() // eslint-disable-line no-new-func
       } catch (error) {
         value = undefined
       }
     }
 
-    let output
-    if (value === undefined) output = null
-    else output = pack(value)
-
     return {
       errors: this._errors(error, 0),
-      output: output
+      output: this._output(value, options.pack)
     }
   }
 
@@ -107,31 +99,17 @@ class JsContext {
     let body = '(function(){\n' + code + '\n})()'
 
     // Create a function to be executed with locals
-    let func = null
+    let value
     try {
-      func = new Function('require', 'locals', 'with(locals){ return ' + body + '}') // eslint-disable-line no-new-func
+      value = (new Function('locals', 'with(locals){ return ' + body + '}'))(locals) // eslint-disable-line no-new-func
     } catch (e) {
-      // Catch a syntax error (not caught above if no transformation)
+      // Catch any error
       error = e
     }
 
-    // Execute function capturing errors and any output
-    let value
-    if (func) {
-      try {
-        value = func(require_, locals)
-      } catch (e) {
-        error = e
-      }
-    }
-
-    let output
-    if (value === undefined) output = null
-    else output = options.pack ? pack(value) : value
-
     return {
-      errors: this._errors(error, 1),
-      output: output
+      errors: this._errors(error, 2),
+      output: this._output(value, options.pack)
     }
   }
 
@@ -166,6 +144,19 @@ class JsContext {
   }
 
   /**
+   * Return a value packaged (or not) as an output but `null` if undefined
+   *
+   * @param {object} value - The value to be packed
+   * @param {boolean} packed - Should the output be packed (or left unpacked for calls withing Javascript)
+   * @return {null|object} - The output value
+   */
+  _output (value, packed) {
+    if (packed !== false) packed = true
+    if (value === undefined) return null
+    else return packed ? pack(value) : value
+  }
+
+  /**
    * Return a `null` if no error, or an object with line numbers
    * as keys and the error message as value
    *
@@ -181,7 +172,7 @@ class JsContext {
       let message = lines[0]
       let match = lines[1].match(/<anonymous>:(\d+):\d+/)
       let line = 0
-      if (match) line = parseInt(match[1]) - 2 - offset
+      if (match) line = parseInt(match[1]) - 1 - offset
       errors = {}
       errors[line] = message
     }

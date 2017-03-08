@@ -76,6 +76,7 @@ test('JsContext.run with errors', t => {
   let c = new JsContext()
 
   t.deepEqual(c.run('foogazi'), {errors: { 1: 'ReferenceError: foogazi is not defined' }, output: null})
+  t.deepEqual(c.run('2*45\nfoogazi'), {errors: { 2: 'ReferenceError: foogazi is not defined' }, output: null})
   t.deepEqual(c.run('<>'), {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
   t.end()
 })
