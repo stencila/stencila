@@ -11,6 +11,7 @@
 @import './button/_button.css';
 @import './input/_input.css';
 @import './toggle-insert/_toggle-insert.css';
+@import './input-settings-bar/_input-settings-bar.css';
 
 /* Nodes */
 @import './nodes/title/_title.css';
@@ -31,6 +32,8 @@
 @import './nodes/cell/_cell.css';
 @import './nodes/inline-cell/_inline-cell.css';
 @import './nodes/select/_select.css';
+@import './nodes/html-input/_html-input.css';
+
 
 /*Import rendered math styling*/
 @import './nodes/math/_math.css';

@@ -1,27 +1,36 @@
-import { Tool } from 'substance'
+import { Tool, Component } from 'substance'
 
 class EditSelectTool extends Tool {
 
   render($$) {
-    let Button = this.getComponent('button')
-    let node = this.props.node
+    let InputSettingsBar = this.getComponent('input-settings-bar')
     let el = $$('div').addClass('sc-edit-select-tool')
 
-    // Render settings
-    let settingsEl = $$('div').addClass('se-settings')
-    settingsEl.append(
-      $$('input')
-        .ref('name')
-        .attr('placeholder', 'Enter variable name')
-        .val(node.name),
-      $$(Button, {
-        icon: 'select-settings',
-        style: 'plain-dark'
-      })
+    el.append(
+      $$(InputSettingsBar, this.props)
+        .on('toggle', this._onToggleSettings)
     )
-    el.append(settingsEl)
 
-    // Render options
+    if (this.state.showSettings) {
+      el.append($$(Settings, this.props))
+    } else {
+      el.append($$(Options, this.props))
+    }
+
+    // Render settings
+    return el
+  }
+
+  _onToggleSettings() {
+    this.setState({
+      showSettings: !this.state.showSettings
+    })
+  }
+}
+
+class Options extends Component {
+  render($$) {
+    let node = this.props.node
     let optionsEl = $$('div').addClass('se-options')
     node.options.forEach((option, optionIndex) => {
       let optionEl = $$('button').append(
@@ -35,9 +44,7 @@ class EditSelectTool extends Tool {
       }
       optionsEl.append(optionEl)
     })
-    el.append(optionsEl)
-
-    return el
+    return optionsEl
   }
 
   _onOptionClicked(selectedIndex) {
@@ -45,6 +52,12 @@ class EditSelectTool extends Tool {
       tx.set([this.props.node.id, 'selectedIndex'], selectedIndex)
     })
     this.rerender()
+  }
+}
+
+class Settings extends Component {
+  render($$) {
+    return $$('div').append('TODO: Implement')
   }
 }
 

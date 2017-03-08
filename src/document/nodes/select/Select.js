@@ -10,11 +10,11 @@ class Select extends InlineNode {
   }
 }
 
-Select.define({
+Select.schema = {
   type: 'select',
   name: { type: 'string' },
   options: { type: ['array', 'object'], default: [] },
   selectedIndex: { type: 'number', optional: true }
-})
+}
 
 export default Select

@@ -12,7 +12,5 @@ export default {
     config.addConverter('html', SelectHTMLConverter)
     config.addCommand('edit-select', EditInlineNodeCommand, { nodeType: 'select' })
     config.addTool('edit-select', EditSelectTool, { toolGroup: 'overlay' })
-    config.addIcon('select-settings', { 'fontawesome': 'fa-cog' })
-    config.addLabel('select-settings', 'Settings')
   }
 }

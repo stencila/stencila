@@ -17,11 +17,13 @@ import TablePackage from './nodes/table/TablePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
+import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
 import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
 import ImagePackage from './nodes/image/ImagePackage'
 import SelectPackage from './nodes/select/SelectPackage'
+import HTMLInputPackage from './nodes/html-input/HTMLInputPackage'
 
 /**
  * A "configurator" for a document.
@@ -63,6 +65,7 @@ class DocumentConfigurator extends Configurator {
     this.import(TablePackage)
     this.import(MathPackage)
     this.import(SelectPackage)
+    this.import(HTMLInputPackage)
 
     this.import(ImagePackage)
     this.import(BlockquotePackage)
@@ -72,6 +75,7 @@ class DocumentConfigurator extends Configurator {
     this.import(DefaultPackage)
     this.import(MinimalSwitchTextTypePackage)
     this.import(ToggleInsertPackage)
+    this.import(InputSettingsBarPackage)
   }
 
   /**
