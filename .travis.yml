@@ -11,6 +11,7 @@ script:
   - make lint
   - make test-documents
   - make cover
+  - make docs
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

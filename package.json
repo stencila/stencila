@@ -7,7 +7,6 @@
     "lint": "eslint *.js src tests",
     "test": "tape --require babel-register tests | tap-spec",
     "test-bundle": "rollup --watch --config rollup-config.tests.js",
-    "test-documents": "rm -rf tmp && mkdir -p tmp && if [ ! -d 'tmp/stencila' ]; then git clone --depth=1 https://github.com/stencila/stencila tmp/stencila; fi && ln -sf `pwd`/tmp/stencila/tests/documents tests/document/documents",
     "build": "node_modules/.bin/rollup --config rollup-config.browser.js",
     "watch": "node_modules/.bin/rollup --watch --config rollup-config.browser.js",
     "cover": "babel-node ./node_modules/.bin/babel-istanbul cover tests",
@@ -34,29 +33,7 @@
   },
   "homepage": "https://github.com/stencila/js#readme",
   "dependencies": {
-    "cheerio": "^0.22.0",
-    "d3": "^4.4.0",
-    "github-api": "^3.0.0",
-    "hast-util-to-string": "^1.0.0",
-    "js-beautify": "^1.6.8",
-    "rehype": "3.0.0",
-    "rehype-minify-whitespace": "^1.1.0",
-    "rehype-parse": "2.0.1",
-    "rehype-remark": "^1.1.0",
-    "rehype-stringify": "^2.1.0",
-    "remark-bracketed-spans": "^2.1.0",
-    "remark-html": "5.2.0",
-    "remark-parse": "2.2.0",
-    "remark-slug": "^4.2.2",
-    "remark-squeeze-paragraphs": "^3.0.0",
-    "remark-stringify": "2.4.0",
-    "request": "^2.79.0",
-    "unified": "5.1.0",
-    "unist-builder": "^1.0.2",
-    "unist-util-find-after": "^2.0.0",
-    "unist-util-remove": "^0.2.1",
-    "unist-util-visit": "^1.1.1",
-    "xmlhttprequest": "^1.8.0"
+    "d3": "^4.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
@@ -81,7 +58,6 @@
     "rollup-watch": "^3.2.2",
     "substance-test": "^0.6.3",
     "tap-spec": "^4.1.1",
-    "tape": "^4.6.3",
-    "testling": "^1.7.1"
+    "tape": "^4.6.3"
   }
 }

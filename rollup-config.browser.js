@@ -4,10 +4,6 @@ import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json'
 import hypothetical from 'rollup-plugin-hypothetical'
 
-const STUBS = {
-  './src/document/Document': 'export default function() {}'
-}
-
 export default {
   entry: './index.js',
   dest: './build/stencila-js.js',
@@ -20,7 +16,7 @@ export default {
     }),
     hypothetical({
       allowRealFiles: true,
-      files: STUBS
+      files: []
     }),
     nodeResolve({
       jsnext: true
