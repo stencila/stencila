@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint *.js src tests",
     "test": "tape --require babel-register tests | tap-spec",
-    "test-bundle": "rollup --watch --config tests/rollup-config.js",
+    "test-bundle": "rollup --watch --config rollup-config.tests.js",
     "test-documents": "rm -rf tmp && mkdir -p tmp && if [ ! -d 'tmp/stencila' ]; then git clone --depth=1 https://github.com/stencila/stencila tmp/stencila; fi && ln -sf `pwd`/tmp/stencila/tests/documents tests/document/documents",
     "build": "node_modules/.bin/rollup --config rollup-config.browser.js",
     "watch": "node_modules/.bin/rollup --watch --config rollup-config.browser.js",
