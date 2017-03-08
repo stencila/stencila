@@ -6,7 +6,7 @@ import JsContext from './src/js-context/JsContext'
 import VegaContext from './src/vega-context/VegaContext'
 import VegaLiteContext from './src/vega-lite-context/VegaLiteContext'
 
-module.exports = {
+export default {
   pack: pack,
   unpack: unpack,
 
