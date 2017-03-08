@@ -81,7 +81,7 @@ test('JsContext.call with errors', t => {
 
 test('JsContext.run', t => {
   let c = new JsContext()
-  t.plan(4)
+  t.plan(6)
 
   c.run('foo = "bar"')
   t.equal(foo, 'bar', 'can set global variable') // eslint-disable-line no-undef
@@ -94,6 +94,12 @@ test('JsContext.run', t => {
   })
   c.run('foo\n42\n"lisa"').then(result => {
     t.deepEqual(result, {errors: null, output: pack('lisa')}, 'last value is returned')
+  })
+  c.run('\n').then(result => {
+    t.deepEqual(result, {errors: null, output: null}, 'nothing returned when empty')
+  })
+  c.run('let x = 5').then(result => {
+    t.deepEqual(result, {errors: null, output: null}, 'nothing returned when last line is statement')
   })
 })
 
