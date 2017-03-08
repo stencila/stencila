@@ -14,78 +14,109 @@ test('JsContext', t => {
 
 test('JsContext.call with no inputs, no errors and no output', t => {
   let c = new JsContext()
+  t.plan(2)
 
-  t.deepEqual(c.call('let x = 3\n\n'), {errors: null, output: null}, 'assign')
+  c.call('let x = 3\n\n').then(result => {
+    t.deepEqual(result, {errors: null, output: null}, 'assign')
+  })
 
-  t.deepEqual(c.call('// Multiple lines and comments\nlet x = {\na:1\n\n}\n\n'), {errors: null, output: null}, 'assign')
-
-  t.end()
+  c.call('// Multiple lines and comments\nlet x = {\na:1\n\n}\n\n').then(result => {
+    t.deepEqual(result, {errors: null, output: null}, 'assign')
+  })
 })
 
 test('JsContext.call with no inputs, no errors', t => {
   let c = new JsContext()
+  t.plan(3)
 
-  t.deepEqual(c.call('return 42'), {errors: null, output: pack(42)}, 'just an evaluation')
-  t.deepEqual(c.call('let x = 3\nreturn x*3'), {errors: null, output: pack(9)}, 'assign and return')
-  t.deepEqual(c.call('let x = 3\nx*3\n'), {errors: null, output: null}, 'no return so no output')
-  t.end()
+  c.call('return 42').then(result => {
+    t.deepEqual(result, {errors: null, output: pack(42)}, 'just an evaluation')
+  })
+  c.call('let x = 3\nreturn x*3').then(result => {
+    t.deepEqual(result, {errors: null, output: pack(9)}, 'assign and return')
+  })
+  c.call('let x = 3\nx*3\n').then(result => {
+    t.deepEqual(result, {errors: null, output: null}, 'no return so no output')
+  })
 })
 
 test('JsContext.call with inputs and outputs but no errors', t => {
   let c = new JsContext()
+  t.plan(2)
 
-  t.deepEqual(c.call('return a*6', {a: pack(7)}), {errors: null, output: pack(42)})
-  t.deepEqual(c.call('return a*b[1]', {a: pack(17), b: pack([1, 2, 3])}), {errors: null, output: pack(34)})
-  t.end()
+  c.call('return a*6', {a: pack(7)}).then(result => {
+    t.deepEqual(result, {errors: null, output: pack(42)})
+  })
+  c.call('return a*b[1]', {a: pack(17), b: pack([1, 2, 3])}).then(result => {
+    t.deepEqual(result, {errors: null, output: pack(34)})
+  })
 })
 
 test('JsContext.call output multiline', t => {
   let c = new JsContext()
+  t.plan(1)
 
-  t.deepEqual(c.call(`return {
+  c.call(`return {
     jermaine: 'Hiphopopotamus',
     brett: 'Rhymnoceros'
-  }`, null, {pack: false}), {errors: null, output: { brett: 'Rhymnoceros', jermaine: 'Hiphopopotamus' }})
-  t.end()
+  }`, null, {pack: false}).then(result => {
+    t.deepEqual(result, {errors: null, output: { brett: 'Rhymnoceros', jermaine: 'Hiphopopotamus' }})
+  })
 })
 
 test('JsContext.call with errors', t => {
   let c = new JsContext()
+  t.plan(3)
 
-  t.deepEqual(c.call('foo'), {errors: { 1: 'ReferenceError: foo is not defined' }, output: null})
-  t.deepEqual(c.call('1\n2\nfoo\n4'), {errors: { 3: 'ReferenceError: foo is not defined' }, output: null})
-  t.deepEqual(c.call('<>'), {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
-  t.end()
+  c.call('foo').then(result => {
+    t.deepEqual(result, {errors: { 1: 'ReferenceError: foo is not defined' }, output: null})
+  })
+  c.call('1\n2\nfoo\n4').then(result => {
+    t.deepEqual(result, {errors: { 3: 'ReferenceError: foo is not defined' }, output: null})
+  })
+  c.call('<>').then(result => {
+    t.deepEqual(result, {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
+  })
 })
 
 test('JsContext.run', t => {
   let c = new JsContext()
+  t.plan(4)
 
   c.run('foo = "bar"')
   t.equal(foo, 'bar', 'can set global variable') // eslint-disable-line no-undef
 
-  t.deepEqual(c.run('foo'), {errors: null, output: pack('bar')}, 'can get global variable')
-  t.deepEqual(c.run('foo + "t_simpson"'), {errors: null, output: pack('bart_simpson')}, 'can get global variable expression')
-
-  t.deepEqual(c.run('foo\n42\n"lisa"'), {errors: null, output: pack('lisa')}, 'last value is returned')
-
-  t.end()
+  c.run('foo').then(result => {
+    t.deepEqual(result, {errors: null, output: pack('bar')}, 'can get global variable')
+  })
+  c.run('foo + "t_simpson"').then(result => {
+    t.deepEqual(result, {errors: null, output: pack('bart_simpson')}, 'can get global variable expression')
+  })
+  c.run('foo\n42\n"lisa"').then(result => {
+    t.deepEqual(result, {errors: null, output: pack('lisa')}, 'last value is returned')
+  })
 })
 
 test('JsContext.run with errors', t => {
   let c = new JsContext()
+  t.plan(3)
 
-  t.deepEqual(c.run('foogazi'), {errors: { 1: 'ReferenceError: foogazi is not defined' }, output: null})
-  t.deepEqual(c.run('2*45\nfoogazi'), {errors: { 2: 'ReferenceError: foogazi is not defined' }, output: null})
-  t.deepEqual(c.run('<>'), {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
-  t.end()
+  c.run('foogazi').then(result => {
+    t.deepEqual(result, {errors: { 1: 'ReferenceError: foogazi is not defined' }, output: null})
+  })
+  c.run('2*45\nfoogazi').then(result => {
+    t.deepEqual(result, {errors: { 2: 'ReferenceError: foogazi is not defined' }, output: null})
+  })
+  c.run('<>').then(result => {
+    t.deepEqual(result, {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
+  })
 })
 
 test('JsContext.depends', t => {
   let c = new JsContext()
+  t.plan(3)
 
-  t.deepEqual(c.depends('foo'), ['foo'])
-  t.deepEqual(c.depends('let foo\n foo'), [])
-  t.deepEqual(c.depends('let foo'), [])
-  t.end()
+  c.depends('foo').then(result => t.deepEqual(result, ['foo']))
+  c.depends('let foo\n foo').then(result => t.deepEqual(result, []))
+  c.depends('let foo').then(result => t.deepEqual(result, []))
 })

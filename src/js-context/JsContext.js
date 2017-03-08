@@ -6,7 +6,7 @@ import {pack, unpack} from '../packing'
 /**
  * A Javascript context
  *
- * Implements the Stencila `Context` API.
+ * Implements the Stencila `Context` API. All methods return a Promise.
  */
 class JsContext {
 
@@ -17,7 +17,7 @@ class JsContext {
    *
    * @param {string} code Javascript code
    * @param {object} options - Any execution options
-   * @return {object} - An object with any `errors` (an object with line numbers as keys) and `outputs` (
+   * @return {object} - A Promise resolving to object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
    *
    * @example
@@ -55,10 +55,7 @@ class JsContext {
       }
     }
 
-    return {
-      errors: this._errors(error, 0),
-      output: this._output(value, options.pack)
-    }
+    return this._result(error, 0, value, options.pack)
   }
 
   /**
@@ -67,7 +64,7 @@ class JsContext {
    * @param {string} code - Javascript code
    * @param {object} inputs - An object with a data pack for each input variable
    * @param {object} options - Any execution options
-   * @return {object} - An object with any `errors` (an object with line numbers as keys) and `outputs` (
+   * @return {object} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
    *
    * @example
@@ -107,10 +104,7 @@ class JsContext {
       error = e
     }
 
-    return {
-      errors: this._errors(error, 2),
-      output: this._output(value, options.pack)
-    }
+    return this._result(error, 2, value, options.pack)
   }
 
   /**
@@ -120,7 +114,7 @@ class JsContext {
    * the piece of code. This might include global functions.
    *
    * @param  {string} code - JavaScript code
-   * @return {array<string>} - A list of dependencies
+   * @return {array<string>} - A Promise resolving to a list of dependencies
    */
   depends (code) {
     let names = {}
@@ -140,31 +134,21 @@ class JsContext {
       let usage = names[name]
       if (usage.used && !usage.declared) depends.push(name)
     }
-    return depends
+    return Promise.resolve(depends)
   }
 
   /**
-   * Return a value packaged (or not) as an output but `null` if undefined
-   *
-   * @param {object} value - The value to be packed
-   * @param {boolean} packed - Should the output be packed (or left unpacked for calls withing Javascript)
-   * @return {null|object} - The output value
-   */
-  _output (value, packed) {
-    if (packed !== false) packed = true
-    if (value === undefined) return null
-    else return packed ? pack(value) : value
-  }
-
-  /**
-   * Return a `null` if no error, or an object with line numbers
-   * as keys and the error message as value
+   * Return a result promise
    *
    * @param {object} error - Error object, if any
    * @param {int} offset - Line number offset
+   * @param {object} value - The value to be packed
+   * @param {boolean} packed - Should the output be packed (or left unpacked for calls withing Javascript)
    * @return {null|object} - A set of errors by line number
    */
-  _errors (error, offset) {
+  _result (error, offset, value, packed) {
+    if (packed !== false) packed = true
+
     let errors = null
     if (error) {
       // Parse the error stack to get message and line number
@@ -176,7 +160,25 @@ class JsContext {
       errors = {}
       errors[line] = message
     }
-    return errors
+
+    if (value === undefined) {
+      return Promise.resolve({
+        errors: errors,
+        output: null
+      })
+    } else if (packed) {
+      return Promise.resolve(pack(value)).then(pack => {
+        return {
+          errors: errors,
+          output: pack
+        }
+      })
+    } else {
+      return Promise.resolve({
+        errors: errors,
+        output: value
+      })
+    }
   }
 
 }
