@@ -30,6 +30,7 @@ export default function type (value) {
       }
       if (onlyObjects && value.length > 0) return 'tab'
     }
+    if (value._vega || value._vegalite) return 'img'
   }
   return type
 }
