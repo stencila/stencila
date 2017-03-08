@@ -1,3 +1,11 @@
 .sc-html-input {
   color: var(--stencila-green);
 }
+
+.sc-edit-html-input-tool .se-value-preview {
+  position: relative;
+  top: -10px;
+  left: 20px;
+  font-size: 12px;
+  color: var(--stencila-green)
+}

@@ -26,8 +26,7 @@ export default class InputSettingsBar extends Component {
     this.context.editorSession.transaction((tx) => {
       tx.set([this.props.node.id, 'name'], name)
     })
-    console.log('changed variable name...')
-    this.rerender() // needed?
+    this.rerender()
   }
 
   _onToggleSettings() {
