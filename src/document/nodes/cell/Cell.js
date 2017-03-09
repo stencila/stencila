@@ -1,5 +1,6 @@
 import { BlockNode, isNil } from 'substance'
-import { parse } from 'substance-expression'
+import { parse } from 'substance-mini'
+import { type } from 'stencila-js'
 
 class Cell extends BlockNode {
 
@@ -40,6 +41,7 @@ class Cell extends BlockNode {
 
   setValue(val) {
     this.value = val
+    this.valueType = type(val)
     this.emit('value:changed')
   }
 
@@ -59,8 +61,10 @@ Cell.schema = {
   language: { type: 'string', optional: true },
   sourceCode: { type: 'string', optional: true },
   output: { type: 'string', optional: true },
-  // volatile property to store the evaluated expression
-  value: { type: 'object', default: null, optional: true }
+
+  // volatile properties for evaluated cell
+  value: { type: 'object', default: null, optional: true },
+  valueType: { type: 'string', default: null }
 }
 
 export default Cell

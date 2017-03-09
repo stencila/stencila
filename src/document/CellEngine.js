@@ -1,6 +1,5 @@
 import { forEach } from 'substance'
-import { Engine } from 'substance-expression'
-import '../shared/substance/EditorSessionPatches'
+import { Engine } from 'substance-mini'
 
 export default
 class CellEngine extends Engine {
@@ -25,6 +24,22 @@ class CellEngine extends Engine {
 
   dispose() {
     this.editorSession.off(this)
+  }
+
+  callFunction(name, args) {
+    let contexts = Object.values(this._contexts)
+    for (let i = 0; i < contexts.length; i++) {
+      const context = contexts[i]
+      if (context.hasFunction(name)) {
+        let res = context.callFunction(name, args)
+        if (res && res.then) {
+          return res
+        } else {
+          return Promise.resolve(res)
+        }
+      }
+    }
+    return Promise.reject(`Could not resolve function "${name}"`)
   }
 
   _onDocumentChange(change) {

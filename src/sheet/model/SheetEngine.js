@@ -1,4 +1,4 @@
-import { Expression, Engine, parse } from 'substance-expression'
+import { Expression, Engine, parse } from 'substance-mini'
 
 export default
 class SheetEngine extends Engine {

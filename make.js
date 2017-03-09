@@ -6,7 +6,7 @@ var fs = require('fs')
 const LIB_EXTERNAL = {
   'stencila-js': 'window.stencilaJs',
   'substance': 'window.substance',
-  'substance-expression': 'window.substanceExpression',
+  'substance-mini': 'window.substanceMini',
   // brace bundle is exposing window.ace
   'brace': 'window.ace',
   'katex': 'window.katex'
@@ -59,8 +59,8 @@ function _buildDeps() {
   if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
     b.make('substance', 'browser:pure')
   }
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-expression/dist/substance-expression.js'))){
-    b.make('substance-expression')
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-mini/dist/substance-mini.js'))){
+    b.make('substance-mini')
   }
   if (!fs.existsSync(path.join(__dirname, 'node_modules/stencila-js/build/stencila-js.js'))){
     b.exec('npm run build', {
@@ -77,7 +77,7 @@ function _copyAssets() {
   // katex.min.css from /katex/katex.min.css
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
-  b.copy('./node_modules/substance-expression/dist/substance-expression.js*', './build/web/')
+  b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/web/')
 
   b.copy('./node_modules/stencila-js/build/stencila-js.js*', './build/web/')
 }

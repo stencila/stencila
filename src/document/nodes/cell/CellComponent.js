@@ -48,7 +48,7 @@ class CellComponent extends Component {
     }
     if (node.value) {
       el.append(
-        $$('div').addClass('se-output').text(String(node.getValue()))
+        $$('div').addClass('se-output').text(String(node.value)+':'+String(node.valueType))
       )
     }
     if (node.hasError()){

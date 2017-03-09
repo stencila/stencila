@@ -1,5 +1,5 @@
 import { InlineNode, isNil } from 'substance'
-import { parse } from 'substance-expression'
+import { parse } from 'substance-mini'
 
 // TODO: Get rid of code duplication with Cell
 class InlineCell extends InlineNode {
