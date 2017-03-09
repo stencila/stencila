@@ -3,6 +3,8 @@ import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../value'
 
+import FUNCTIONS from '../functions/index'
+
 /**
  * A Javascript context
  *
@@ -168,6 +170,23 @@ export default class JsContext {
       errors: errors,
       output: output
     }
+  }
+
+  // EXPERIMENTAL
+  // TODO: every context should implement this lookup service
+  // so that we can:
+  // - get all available functions
+  // - check if a specific function is implemented
+  // - and call a function
+
+  hasFunction (name) {
+    return Boolean(FUNCTIONS[name])
+  }
+
+  callFunction (name, args) {
+    // args = args.map(unpack)
+    const f = FUNCTIONS[name]
+    return f(...args)
   }
 
 }
