@@ -9,6 +9,7 @@ export default class InputSettingsBar extends Component {
 
     el.append(
       $$('input')
+        .addClass('st-tiny-input')
         .attr('placeholder', 'Enter variable name')
         .val(node.name)
         .on('change', this._onNameChanged)

@@ -4,7 +4,9 @@ import { Tool, Component } from 'substance'
   TODO: support other types than 'range' and 'number'
 */
 class EditHTMLInputTool extends Tool {
-
+  constructor(...args) {
+    super(...args)
+  }
   render($$) {
     let InputSettingsBar = this.getComponent('input-settings-bar')
     let el = $$('div').addClass('sc-edit-html-input-tool')
@@ -46,6 +48,7 @@ class Settings extends Component {
     el.append(
       $$('label').append(label),
       $$('input')
+        .addClass('st-tiny-input')
         .attr('type', 'number')
         .val(this.props.node[name])
         .ref(name)
@@ -57,9 +60,13 @@ class Settings extends Component {
   _onParamChanged(name) {
     let newValue = this.refs[name].val()
     this.context.editorSession.transaction((tx) => {
-      tx.set([this.props.node.id, name], newValue)
+      tx.set([this.props.node.id, name], Number(newValue))
+    }, {
+      // TODO: it would be desirable to activate this, since
+      // currently the cursor disappears while editing and saving
+      // parameters
+      // skipSelectionRerender: true
     })
-    console.log('new value', newValue)
   }
 }
 
@@ -97,7 +104,9 @@ class Display extends Component {
   _onValueChanged() {
     let newValue = this.refs.value.val()
     this.context.editorSession.transaction((tx) => {
-      tx.set([this.props.node.id, 'value'], newValue)
+      tx.set([this.props.node.id, 'value'], Number(newValue))
+    }, {
+      // skipSelectionRerender: true
     })
   }
 }

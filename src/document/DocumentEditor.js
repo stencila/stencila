@@ -42,7 +42,7 @@ export default class DocumentEditor extends AbstractEditor {
         .append(
           $$(Overlay, {
             toolGroups: ['annotations', 'text', 'overlay']
-          }),
+          }).ref('overlay'),
           $$(Dropzones),
           // A  ContainerEditor for the content of the document
           $$(ContainerEditor, {

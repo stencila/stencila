@@ -3,18 +3,6 @@
   border-bottom: 1px solid rgba(255,255,255,0.1)
 }
 
-.sc-input-settings-bar > input {
-  font-size: 11px;
-  font-family: var(--mono-font-family);
-  min-height: 24px;
-  padding-left: 5px;
-  color: rgba(255,255,255,0.5);
-  border-radius: 3px;
-  display: inline-block;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.5);
-}
-
 .sc-input-settings-bar button {
   font-size: 10px;
   display: inline-block;
