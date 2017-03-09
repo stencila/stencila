@@ -88,21 +88,40 @@
               
                 
                 <li><a
-                  href='#pack'
-                  class="">
-                  pack
-                  
+                  href='#value'
+                  class=" toggle-sibling">
+                  value
+                  <span class='icon'>▸</span>
                 </a>
                 
-                </li>
-              
-                
-                <li><a
-                  href='#unpack'
-                  class="">
-                  unpack
+                <div class='toggle-target display-none'>
                   
-                </a>
+                  <ul class='list-reset py1-ul pl1'>
+                    <li class='h5'><span>Static members</span></li>
+                    
+                      <li><a
+                        href='#valuetype'
+                        class='regular pre-open'>
+                        .type
+                      </a></li>
+                    
+                      <li><a
+                        href='#valuepack'
+                        class='regular pre-open'>
+                        .pack
+                      </a></li>
+                    
+                      <li><a
+                        href='#valueunpack'
+                        class='regular pre-open'>
+                        .unpack
+                      </a></li>
+                    
+                    </ul>
+                  
+                  
+                  
+                </div>
                 
                 </li>
               
@@ -733,17 +752,16 @@ short()
 
   
   <div class='clearfix'>
-    <h3 class='fl m0' id='pack'>
-      pack
+    <h3 class='fl m0' id='value'>
+      value
     </h3>
     
   </div>
   
 
-  <p>Pack an object into a data package</p>
+  
 
-
-  <div class='pre p1 fill-light mt0'>pack(thing: anything): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></div>
+  <div class='pre p1 fill-light mt0'>value</div>
 
   
 
@@ -759,7 +777,58 @@ short()
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>thing</span> <code class='quiet'>(anything)</code> The Javascript object
+            <span class='code bold'>value</span> <code class='quiet'>(Any)</code> 
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Static Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='valuetype'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>type</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Get the type code for a value</p>
+
+
+  <div class='pre p1 fill-light mt0'>type</div>
+
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>value</span> <code class='quiet'>(whatever)</code> Value you want a type for
 
           </div>
           
@@ -773,8 +842,8 @@ short()
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></code>:
-        A data package
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>:
+        Type of value
 
       
     
@@ -791,24 +860,25 @@ short()
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='valuepack'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>pack</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
-  <div class='clearfix'>
-    <h3 class='fl m0' id='unpack'>
-      unpack
-    </h3>
-    
-  </div>
-  
 
-  <p>Unpack a data package into an object</p>
+  <p>Pack a value into a package</p>
 
 
-  <div class='pre p1 fill-light mt0'>unpack(pkg: (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>)): anything</div>
+  <div class='pre p1 fill-light mt0'>pack</div>
 
   
 
@@ -824,7 +894,73 @@ short()
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>pkg</span> <code class='quiet'>((<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a>))</code> The data package
+            <span class='code bold'>value</span> <code class='quiet'>(anything)</code> The Javascript value
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></code>:
+        A package as a Javascript object
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='valueunpack'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>unpack</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Unpack a data package into an value</p>
+
+
+  <div class='pre p1 fill-light mt0'>unpack</div>
+
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>pkg</span> <code class='quiet'>((<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>))</code> The package
 
           </div>
           
@@ -839,7 +975,7 @@ short()
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code>anything</code>:
-        A Javascript object
+        A Javascript value
 
       
     
@@ -848,6 +984,18 @@ short()
   
 
   
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 
@@ -1266,6 +1414,8 @@ the piece of code. This might include global functions.</p>
   
 
   <p>Get the type code for a value</p>
+<p>Exposes the internal <code>type</code> function so that uses can inspect the
+type of a function call or expression</p>
 
 
   <div class='pre p1 fill-light mt0'>type</div>

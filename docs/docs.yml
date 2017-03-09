@@ -1,5 +1,4 @@
 toc:
   - address
-  - pack
-  - unpack
+  - value
   - JsContext

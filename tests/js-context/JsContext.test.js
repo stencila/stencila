@@ -1,4 +1,4 @@
-import {pack} from '../../src/packing'
+import {pack} from '../../src/value'
 import JsContext from '../../src/js-context/JsContext'
 
 import test from 'tape'
