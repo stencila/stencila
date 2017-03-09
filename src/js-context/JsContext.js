@@ -62,7 +62,7 @@ export default class JsContext {
    * Execute JavaScript code within a local function scope (execute a code "cell")
    *
    * @param {string} code - Javascript code
-   * @param {object} inputs - An object with a data pack for each input variable
+   * @param {object} args - An object with a data pack for each argument
    * @param {object} options - Any execution options
    * @return {object} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
@@ -77,28 +77,24 @@ export default class JsContext {
    * context.call('return Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
    * context.call('return radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
    */
-  call (code, inputs, options) {
+  call (code, args, options) {
     code = code || ''
-    inputs = inputs || {}
+    args = args || {}
     options = options || {}
     if (options.pack !== false) options.pack = true
 
+    // Extract names and values of arguments
+    let names = Object.keys(args)
+    let values = names.map(name => unpack(args[name]))
+
+    // Generate a function with parameter names matching the names of the supplied inputs
+    let func = 'return (function(' + names.join(',') + '){\n' + code + '\n})(...values)'
+
+    // Execute the function with the unpacked arguments. Using `new Function` avoids call to eval
     let error = null
-
-    // Add inputs to `locals` i.e. the execution's local scope
-    let locals = {}
-    for (let name in inputs) {
-      locals[name] = unpack(inputs[name])
-    }
-
-    // Generate a function body. The [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
-    // prevents errors during `buble.transform` associated with any return statements (which must be within a func)
-    let body = '(function(){\n' + code + '\n})()'
-
-    // Create a function to be executed with locals
     let value
     try {
-      value = (new Function('locals', 'with(locals){ return ' + body + '}'))(locals) // eslint-disable-line no-new-func
+      value = (new Function('values', func))(values) // eslint-disable-line no-new-func
     } catch (e) {
       // Catch any error
       error = e
