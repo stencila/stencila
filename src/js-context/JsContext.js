@@ -13,8 +13,6 @@ export default class JsContext {
   /**
    * Run JavaScript code within the global context scope (execute a code "chunk")
    *
-   * In languages like R and Python it it straight forward to assign global variables
-   *
    * @param {string} code Javascript code
    * @param {object} options - Any execution options
    * @return {object} - A Promise resolving to object with any `errors` (an object with line numbers as keys) and `outputs` (
