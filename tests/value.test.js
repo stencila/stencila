@@ -62,11 +62,8 @@ test('value.pack works for primitive types', t => {
   check(t, '', 'str', 'text', '')
   check(t, 'Yo!', 'str', 'text', 'Yo!')
 
-  t.end()
-})
+  check(t, function () {}, 'unk', 'text', 'function () {}')
 
-test('value.pack errors for unhandled types', t => {
-  t.throws(() => pack(function () {}))
   t.end()
 })
 

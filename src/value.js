@@ -8,8 +8,8 @@ import * as d3 from 'd3'
  * Get the type code for a value
  *
  * @memberof value
- * @param {whatever} value - Value you want a type for
- * @return {string} - Type of value
+ * @param {whatever} value - A JavaScript value
+ * @return {string} - Type code for value
  */
 export function type (value) {
   let type = typeof value
@@ -58,9 +58,7 @@ export function pack (value) {
   let format = 'text'
   let content
 
-  if (type_ === 'unk') {
-    throw new Error('Unable to pack value of unknown type')
-  } else if (type_ === 'null') {
+  if (type_ === 'null') {
     content = 'null'
   } else if (type_ === 'bool' || type_ === 'int' || type_ === 'flt') {
     content = value.toString()
@@ -72,6 +70,8 @@ export function pack (value) {
   } else if (type_ === 'tab') {
     format = 'csv'
     content = d3.csvFormat(value) + '\n'
+  } else if (type_ === 'unk') {
+    content = value.toString()
   } else {
     format = 'json'
     content = JSON.stringify(value)
