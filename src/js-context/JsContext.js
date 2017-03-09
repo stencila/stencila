@@ -83,27 +83,30 @@ export default class JsContext {
     code = code || ''
     args = args || {}
     options = options || {}
-    if (options.pack !== false) options.pack = true
+    const pack = (options.pack !== false)
 
     // Extract names and values of arguments
     let names = Object.keys(args)
-    let values = names.map(name => unpack(args[name]))
-
-    // Generate a function with parameter names matching the names of the supplied inputs
-    let func = 'return (function(' + names.join(',') + '){\n' + code + '\n})(...values)'
+    let values
+    if (pack) {
+      values = names.map(name => unpack(args[name]))
+    } else {
+      values = names.map(name => args[name])
+    }
 
     // Execute the function with the unpacked arguments. Using `new Function` avoids call to eval
     let error = null
     let value
     try {
-      value = (new Function('values', func))(values) // eslint-disable-line no-new-func
+      const f = new Function(...names, code) // eslint-disable-line no-new-func
+      value = f(...values)
     } catch (e) {
       // Catch any error
       error = e
     }
 
     return Promise.resolve(
-      this._result(error, 2, value, options.pack)
+      this._result(error, 0, value, pack)
     )
   }
 
