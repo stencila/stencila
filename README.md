@@ -15,13 +15,13 @@
 
 ### Packages
 
-Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. For example, if you just want a quick way to get started, check out the [desktop application](https://github.com/stencila/electron); but if you're a Python coder, the [`py`](https://github.com/stencila/py) package, will probably be more your thing. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
+Stencila is implemented as an ecosystem of software packages, each exposing the platform to different types of users and use cases. For example, if you just want a quick way to get started, check out the [desktop application](https://github.com/stencila/desktop); but if you're a Python coder, the [`py`](https://github.com/stencila/py) package, will probably be more your thing. This repository doesn't contain any active code itself, it's just here as a central place for shared documentation and issues.
 
 We're currently undertaking a major rewrite of the platform, moving to a more modular and decoupled architecture. It's still a work in progress. So if you're confused or what more info [talk to us](https://gitter.im/stencila/stencila). (Really, do it! :smile:)
 
-A cross platform desktop application is provided by the `electron` package:
+A cross platform desktop application is provided by the `desktop` package:
 
-- [electron](https://github.com/stencila/electron) : Stencila on the desktop
+- [desktop](https://github.com/stencila/desktop) : Stencila on the desktop
 
 Browser-based user interfaces are provided by the `ui` package: 
 
@@ -35,7 +35,7 @@ Currently, five packages expose the platform in alternative host languages (pack
 - [r](https://github.com/stencila/r) : Stencila for R
 - [cpp](https://github.com/stencila/cpp): Stencila for C++
 
-These packages are in various stages of development. Together they act as an ecosystem of [peers with differing capabilities](http://blog.stenci.la/diverse-peers/). The `node` package is the current focus for implementation mainly because it can be easily integrated into the `electron` package and made available as a desktop application. But we aim to implement the same capabilities in the other language packages so that eventually, each can be used standalone.
+These packages are in various stages of development. Together they act as an ecosystem of [peers with differing capabilities](http://blog.stenci.la/diverse-peers/). The `node` package is the current focus for implementation mainly because it can be easily integrated into the `desktop` package and made available as a desktop application. But we aim to implement the same capabilities in the other language packages so that eventually, each can be used standalone.
 
 ### Discuss
 
@@ -72,7 +72,7 @@ Key: ✓ = implemented to some degree, - = will probably never be implemented, ^
                | Version      | Build status | Test coverage | Issues
 -------------- |:------------:|:------------:|:-------------:|:------:
 [cpp](https://github.com/stencila/cpp) | | [![Build status](https://travis-ci.org/stencila/cpp.svg?branch=master)](https://travis-ci.org/stencila/cpp) | [![Test coverage](https://codecov.io/gh/stencila/cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/cpp) | [![Issues](http://img.shields.io/github/issues/stencila/cpp.svg)]( https://github.com/stencila/cpp/issues )
-[electron](https://github.com/stencila/electron) | | [![Build status](https://travis-ci.org/stencila/electron.svg?branch=master)](https://travis-ci.org/stencila/electron) | - | [![Issues](http://img.shields.io/github/issues/stencila/electron.svg)]( https://github.com/stencila/electron/issues )
+[desktop](https://github.com/stencila/desktop) | | [![Build status](https://travis-ci.org/stencila/desktop.svg?branch=master)](https://travis-ci.org/stencila/desktop) | - | [![Issues](http://img.shields.io/github/issues/stencila/desktop.svg)]( https://github.com/stencila/desktop/issues )
 [js](https://github.com/stencila/js) | [![NPM](http://img.shields.io/npm/v/stencila-js.svg?style=flat)](https://www.npmjs.com/package/stencila-js) | [![Build status](https://travis-ci.org/stencila/js.svg?branch=master)](https://travis-ci.org/stencila/js) | [![Test coverage](https://codecov.io/gh/stencila/js/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/js) | [![Issues](http://img.shields.io/github/issues/stencila/js.svg)]( https://github.com/stencila/js/issues )
 [node](https://github.com/stencila/node) | [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila) | [![Build status](https://travis-ci.org/stencila/node.svg?branch=master)](https://travis-ci.org/stencila/node) | [![Test coverage](https://codecov.io/gh/stencila/node/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/node) | [![Issues](http://img.shields.io/github/issues/stencila/node.svg)]( https://github.com/stencila/node/issues )
 [py](https://github.com/stencila/py) | | [![Build status](https://travis-ci.org/stencila/py.svg?branch=master)](https://travis-ci.org/stencila/py) | [![Test coverage](https://codecov.io/gh/stencila/py/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/py) | [![Issues](http://img.shields.io/github/issues/stencila/py.svg)]( https://github.com/stencila/py/issues )
