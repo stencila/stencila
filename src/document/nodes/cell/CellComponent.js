@@ -1,4 +1,4 @@
-import { Component } from 'substance'
+import { Component, TextPropertyEditor, findParentComponent } from 'substance'
 import TextInput from '../../../shared/substance/text-input/TextInput'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
@@ -24,11 +24,9 @@ class CellComponent extends Component {
     let el = $$('div').addClass('sc-cell')
     el.append(
       $$('div').addClass('se-expression').append(
-        $$(TextInput, {
-          content: node.expression
+        $$(TextPropertyEditor, {
+          path: [node.id, 'expression']
         }).ref('expressionEditor')
-          .on('confirm', this.onConfirm)
-          .on('cancel', this.onCancel)
       )
     )
     if (node.sourceCode) {
@@ -52,6 +50,7 @@ class CellComponent extends Component {
         )
       })
     }
+    el.on('click', this._onClick)
     return el
   }
 
@@ -74,6 +73,15 @@ class CellComponent extends Component {
     this.rerender()
   }
 
+  _onClick(event) {
+    let target = findParentComponent(event.target)
+    if (target.context.surface) return
+    event.stopPropagation()
+    this.context.isolatedNodeComponent.selectNode()
+  }
+
 }
+
+CellComponent.noBlocker = true
 
 export default CellComponent
