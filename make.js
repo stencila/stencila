@@ -73,12 +73,9 @@ function _copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./fonts', './build/fonts')
   b.copy('./vendor/brace.*', './build/web/')
-  // We need to build to ROOT/katex because katex.min.js attempts to load
-  // katex.min.css from /katex/katex.min.css
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
   b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/web/')
-
   b.copy('./node_modules/stencila-js/build/stencila-js.js*', './build/web/')
 }
 
