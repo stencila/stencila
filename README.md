@@ -1,8 +1,6 @@
 ## `stencila/ui` : Stencila user interface components
 
-[![NPM](http://img.shields.io/npm/v/stencila-ui.svg?style=flat)](https://www.npmjs.com/package/stencila-ui)
-[![Build status](https://travis-ci.org/stencila/ui.svg?branch=master)](https://travis-ci.org/stencila/ui)
-[![Code coverage](https://codecov.io/gh/stencila/ui/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/ui)
+<!--[![NPM](http://img.shields.io/npm/v/stencila-ui.svg?style=flat)](https://www.npmjs.com/package/stencila-ui)-->
 [![Dependency status](https://david-dm.org/stencila/ui.svg)](https://david-dm.org/stencila/ui)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
