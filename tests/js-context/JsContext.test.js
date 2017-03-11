@@ -135,7 +135,6 @@ test('JsContext.hasFunction', t => {
   t.end()
 })
 
-
 test('JsContext.callFunction without function name', t => {
   let c = new JsContext()
   t.plan(1)
