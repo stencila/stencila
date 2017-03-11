@@ -1,0 +1,49 @@
+/*
+  Styles for the document editor.
+
+  NOTE: Only component styles should go here, everything else should live in
+  the pagestyle module
+*/
+
+@import './minimal-switch-text-type/_minimal-switch-text-type.css';
+@import './overlay/_overlay.css';
+@import './ui/_code-editor.css';
+@import './button/_button.css';
+@import './input/_input.css';
+@import './toggle-insert/_toggle-insert.css';
+@import './input-settings-bar/_input-settings-bar.css';
+
+/* Nodes */
+@import './nodes/title/_title.css';
+@import './nodes/summary/_summary.css';
+@import './nodes/heading/_heading.css';
+@import './nodes/paragraph/_paragraph.css';
+@import './nodes/emphasis/_emphasis.css';
+@import './nodes/strong/_strong.css';
+@import './nodes/subscript/_subscript.css';
+@import './nodes/superscript/_superscript.css';
+@import './nodes/link/_link.css';
+@import './nodes/code/_code.css';
+@import './nodes/table/_table.css';
+@import './nodes/image/_image.css';
+@import './nodes/blockquote/_blockquote.css';
+@import './nodes/codeblock/_codeblock.css';
+@import './nodes/default/_default.css';
+@import './nodes/cell/_cell.css';
+@import './nodes/inline-cell/_inline-cell.css';
+@import './nodes/select/_select.css';
+@import './nodes/html-input/_html-input.css';
+
+
+/*Import rendered math styling*/
+@import './nodes/math/_math.css';
+
+.sc-document-editor {
+  max-width: 660px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.sc-document-editor .sc-container-editor > * {
+  margin: 20px 0;
+}

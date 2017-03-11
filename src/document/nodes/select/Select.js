@@ -1,35 +1,20 @@
 import InlineNode from 'substance/model/InlineNode'
 
 class Select extends InlineNode {
-
-  /**
-   * Set the value of this select
-   *
-   * @param {String} value Value of select
-   */
-  setValue (value) {
-    this.value = value
-    this.document.setVariable(this.name, this.getValue())
+  getSelectedText() {
+    return this.options[this.selectedIndex].text
   }
 
-  /**
-   * Convert the select into a Javascript value
-   *
-   * @return {Object} A data pack
-   */
-  getValue () {
-    return this.value
+  getValue() {
+    return this.options[this.selectedIndex].value
   }
-
 }
 
-Select.define({
+Select.schema = {
   type: 'select',
-
   name: { type: 'string' },
-  options: { type: ['array', 'string'], default: [] },
-  value: { type: 'string', optional: true }
-})
+  options: { type: ['array', 'object'], default: [] },
+  selectedIndex: { type: 'number', optional: true }
+}
 
 export default Select
-

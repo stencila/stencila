@@ -1,4 +1,4 @@
-import Document from 'substance/model/Document'
+import {Document} from 'substance'
 
 import DatatableConfigurator from './DatatableConfigurator'
 

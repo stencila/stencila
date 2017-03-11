@@ -1,4 +1,4 @@
-import TextBlockComponent from 'substance/ui/TextBlockComponent'
+import { TextBlockComponent } from 'substance'
 
 class SummaryComponent extends TextBlockComponent {
 

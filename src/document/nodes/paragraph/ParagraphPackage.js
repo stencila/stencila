@@ -1,1 +1,1 @@
-export {default} from 'substance/packages/paragraph/ParagraphPackage'
+export { ParagraphPackage as default } from 'substance'

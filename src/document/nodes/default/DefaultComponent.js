@@ -1,4 +1,4 @@
-import Component from 'substance/ui/Component'
+import {Component} from 'substance'
 
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import sanitize from './sanitize'

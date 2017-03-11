@@ -1,5 +1,5 @@
-import Component from 'substance/ui/Component'
-
+import { Component } from 'substance'
+import ace from 'brace'
 import code from '../../utilities/code/index'
 
 /**
@@ -56,7 +56,7 @@ class CodeEditorComponent extends Component {
       node[this.props.codeProperty],
       {
         language: language,
-        fontSize: 15,
+        fontSize: 12,
         // FIXME
         // This does not update when the editor state is changed (e.g editing turned from off to on)
         // Probably needs a custom event like `_onContentChanged` below
@@ -210,7 +210,7 @@ class CodeEditorComponent extends Component {
           )
         } else if (diff.type === 'delete') {
           // FIXME Deletion is not working properly and triggers the `setValue` fallback below
-          var Range = window.ace.require('ace/range').Range
+          var Range = ace.require('ace/range').Range
           doc.remove(Range.fromPoints(
             offsetToPos(diff.pos),
             offsetToPos(diff.pos + diff.str.length)

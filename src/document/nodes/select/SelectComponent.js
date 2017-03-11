@@ -1,25 +1,15 @@
-import Component from 'substance/ui/Component'
+import { Component } from 'substance'
 
 class SelectComponent extends Component {
 
   render ($$) {
     let node = this.props.node
-    let el = $$('select')
+    let el = $$('span')
       .addClass('sc-select')
-      .attr('name', node.name)
-      .on('change', event => {
-        node.setValue(event.target.value)
-      })
-    for (let details of node.options) {
-      let parts = details.split('\t')
-      let option = $$('option')
-          .attr('value', parts[0])
-          .text(parts[1])
-      if (parts[0] === node.value) {
-        option.attr('selected', true)
-      }
-      el.append(option)
+    if (this.props.isolatedNodeState) {
+      el.addClass('sm-'+this.props.isolatedNodeState)
     }
+    el.append(node.getSelectedText())
     return el
   }
 

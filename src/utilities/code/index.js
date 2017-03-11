@@ -1,24 +1,8 @@
-// This module gets loaded as part of the collab code
-// run in Node.js. But `brace` needs `window` so fails there. Protect from that...
-let ace
-if (typeof window !== 'undefined') {
-  ace = require('brace')
-
-  require('brace/mode/c_cpp')
-  require('brace/mode/javascript')
-  require('brace/mode/json')
-  require('brace/mode/html')
-  require('brace/mode/markdown')
-  require('brace/mode/python')
-  require('brace/mode/r')
-  require('brace/mode/ruby')
-  require('brace/mode/sh')
-
-  require('brace/theme/monokai')
-}
+// ATTENTION: this is actually importing a bundled version of brace
+import brace from 'brace'
 
 var attachAceEditor = function (el, content, options, callback) {
-  var editor = ace.edit(el)
+  var editor = brace.edit(el)
   updateAceEditor(editor, options)
   if (content) editor.setValue(content, 1)
   if (callback) callback(editor)
@@ -45,7 +29,7 @@ var updateAceEditor = function (editor, options) {
   options = options || {}
 
   // Stuff that is not yet actually an option
-  editor.setTheme('ace/theme/monokai')
+  // editor.setTheme('ace/theme/monokai')
   editor.setShowPrintMargin(false)
   // Add padding before first and after last lines
   editor.renderer.setScrollMargin(5, 5, 0, 0)

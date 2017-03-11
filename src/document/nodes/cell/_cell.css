@@ -1,0 +1,23 @@
+.sc-isolated-node .sc-cell .se-expression ::selection {
+  background: var(--stencila-green-transparent);
+}
+
+.sc-cell .se-expression {
+  font-family: var(--mono-font-family);
+  font-size: 12px;
+  padding: 10px 20px;
+  font-weight: normal;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  color: #737373;
+}
+
+.sc-cell .se-output {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-top: none;
+}
+
+.sc-cell .se-error {
+  background: red;
+}

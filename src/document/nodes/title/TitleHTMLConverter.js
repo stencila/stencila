@@ -4,7 +4,7 @@ export default {
   tagName: 'div',
 
   matchElement: function (el) {
-    return el.is('#title')
+    return el.is('[data-title]')
   },
 
   import: function (el, node, converter) {
@@ -12,7 +12,7 @@ export default {
   },
 
   export: function (node, el, converter) {
-    el.attr('id', 'title')
+    el.attr('data-title', '')
       .append(converter.annotatedText([node.id, 'content']))
   }
 }

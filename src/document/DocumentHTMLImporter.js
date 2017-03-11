@@ -1,4 +1,4 @@
-import HTMLImporter from 'substance/model/HTMLImporter'
+import { isArray, HTMLImporter, DefaultDOMElement } from 'substance'
 
 import DocumentModel from './DocumentModel'
 import DocumentConfigurator from './DocumentConfigurator'
@@ -19,6 +19,30 @@ class DocumentHTMLImporter extends HTMLImporter {
       schema: configurator.getSchema(),
       converters: configurator.getConverterRegistry().get('html')
     })
+  }
+
+  importDocument (html) {
+    this.reset()
+    var htmlDoc = DefaultDOMElement.parseHTML(html)
+    // HACK: this must be fixed in Substance
+    // ATM parseHTML is very inconsistent regarding input
+    // the best way would be to always return the doc
+    if (isArray(htmlDoc)) {
+      if (htmlDoc.length > 0) {
+        htmlDoc = htmlDoc[0].getOwnerDocument()
+      } else {
+        htmlDoc = null
+      }
+    } else {
+      htmlDoc = htmlDoc.getOwnerDocument() || htmlDoc
+    }
+
+    // creating all nodes
+    if (htmlDoc) {
+      this.convertDocument(htmlDoc)
+    }
+    this.generateDocument()
+    return this.state.doc
   }
 
   /**

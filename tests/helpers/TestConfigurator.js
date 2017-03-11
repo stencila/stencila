@@ -1,4 +1,4 @@
-import Configurator from 'substance/util/Configurator'
+import {Configurator} from 'substance'
 
 /**
  * A "configurator" for loading individual packages during testing.

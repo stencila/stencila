@@ -15,9 +15,6 @@ export default {
       data: {type: 'title'}
     })
     config.addIcon('title', { 'fontawesome': 'fa-asterisk' })
-    config.addLabel('title', {
-      en: 'Title',
-      de: 'Title'
-    })
+    config.addLabel('title', 'T')
   }
 }

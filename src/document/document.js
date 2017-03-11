@@ -1,6 +1,3 @@
-'use strict'
-
-import browser from '../browser'
-import DocumentApp from './DocumentApp'
-
-browser(DocumentApp)
+export { default as DocumentEditor } from './DocumentEditor'
+export { default as DocumentConfigurator } from './DocumentConfigurator'
+export { importHTML, exportHTML, importJSON, exportJSON } from './documentConversion'

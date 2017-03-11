@@ -1,4 +1,4 @@
-import Component from 'substance/ui/Component'
+import {Component} from 'substance'
 
 import code from '../../../utilities/code/index'
 

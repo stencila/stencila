@@ -1,1 +1,1 @@
-export {default} from 'substance/packages/blockquote/BlockquotePackage'
+export { BlockquotePackage as default } from 'substance'

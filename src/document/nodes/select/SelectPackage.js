@@ -1,7 +1,9 @@
+import { EditInlineNodeCommand, Tool } from 'substance'
 import Select from './Select'
 import SelectComponent from './SelectComponent'
 import SelectHTMLConverter from './SelectHTMLConverter'
-import SelectXMLConverter from './SelectXMLConverter'
+import EditSelectTool from './EditSelectTool'
+import InsertSelectCommand from './InsertSelectCommand'
 
 export default {
   name: 'select',
@@ -9,13 +11,14 @@ export default {
     config.addNode(Select)
     config.addComponent('select', SelectComponent)
     config.addConverter('html', SelectHTMLConverter)
-    config.addConverter('xml', SelectXMLConverter)
-    config.addTextType({
-      name: 'select',
-      data: {type: 'select'}
+    config.addCommand('edit-select', EditInlineNodeCommand, { nodeType: 'select' })
+    config.addTool('edit-select', EditSelectTool, { toolGroup: 'overlay' })
+    config.addCommand('insert-select', InsertSelectCommand, {
+      nodeType: 'select',
+      disableCollapsedCursor: true
     })
-    config.addLabel('select', {
-      en: 'Select'
-    })
+    config.addTool('insert-select', Tool, { toolGroup: 'overlay' })
+    config.addIcon('insert-select', { 'fontawesome': 'fa-caret-down' })
+    config.addLabel('insert-select', 'Insert Select')
   }
 }

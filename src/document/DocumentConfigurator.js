@@ -1,4 +1,4 @@
-import Configurator from 'substance/util/Configurator'
+import { Configurator, BasePackage } from 'substance'
 
 import TitlePackage from './nodes/title/TitlePackage'
 import SummaryPackage from './nodes/summary/SummaryPackage'
@@ -10,31 +10,20 @@ import SubscriptPackage from './nodes/subscript/SubscriptPackage'
 import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 import CodePackage from './nodes/code/CodePackage'
 import LinkPackage from './nodes/link/LinkPackage'
-import MathPackage from './nodes/math/MathPackage'
-import EmojiPackage from './nodes/emoji/EmojiPackage'
-
-import ImagePackage from './nodes/image/ImagePackage'
+import ListPackage from './nodes/list/ListPackage'
+import CellPackage from './nodes/cell/CellPackage'
+import InlineCellPackage from './nodes/inline-cell/InlineCellPackage'
+import TablePackage from './nodes/table/TablePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
-
-import InputPackage from './nodes/input/InputPackage'
-import SelectPackage from './nodes/select/SelectPackage'
-import OutputPackage from './nodes/output/OutputPackage'
-import ExecutePackage from './nodes/execute/ExecutePackage'
-import IncludePackage from './nodes/include/IncludePackage'
-import PrintPackage from './nodes/print/PrintPackage'
-
-import MarkPackage from './nodes/mark/MarkPackage'
-import DiscussionPackage from './nodes/discussion/DiscussionPackage'
-import CommentPackage from './nodes/comment/CommentPackage'
-
+import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
+import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
-
-import SessionPackage from '../shared/nodes/session/SessionPackage'
-
-import ButtonPackage from 'substance/packages/button/ButtonPackage'
-import ToolsPackage from './tools/ToolsPackage'
-import VisualEditorPackage from './editors/visual/VisualEditorPackage'
+import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
+import MathPackage from './nodes/math/MathPackage'
+import ImagePackage from './nodes/image/ImagePackage'
+import SelectPackage from './nodes/select/SelectPackage'
+import HTMLInputPackage from './nodes/html-input/HTMLInputPackage'
 
 /**
  * A "configurator" for a document.
@@ -60,6 +49,7 @@ class DocumentConfigurator extends Configurator {
     // At present, need at least the 'default' tool group before adding tools via imports below
     this.addToolGroup('default')
 
+    this.import(BasePackage)
     // Import node packages, in "order of appearance"
     this.import(TitlePackage)
     this.import(SummaryPackage)
@@ -71,40 +61,21 @@ class DocumentConfigurator extends Configurator {
     this.import(SuperscriptPackage)
     this.import(CodePackage)
     this.import(LinkPackage)
+    this.import(ListPackage)
+    this.import(TablePackage)
     this.import(MathPackage)
-    this.import(EmojiPackage)
+    this.import(SelectPackage)
+    this.import(HTMLInputPackage)
 
     this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
-
-    this.import(InputPackage)
-    this.import(SelectPackage)
-    this.import(OutputPackage)
-    this.import(ExecutePackage)
-    this.import(IncludePackage)
-    this.import(PrintPackage)
-
-    this.import(MarkPackage)
-    this.import(DiscussionPackage)
-    this.import(CommentPackage)
-
-    this.import(SessionPackage)
-
+    this.import(CellPackage)
+    this.import(InlineCellPackage)
     this.import(DefaultPackage)
-
-    // Import UI packages
-    this.import(ButtonPackage)
-    this.import(ToolsPackage)
-    this.import(VisualEditorPackage)
-
-    // Icons, not defined in above packages but used in toolsets
-    this.addIcon('heading', { 'fontawesome': 'fa-header' })
-    this.addIcon('paragraph', { 'fontawesome': 'fa-paragraph' })
-    this.addIcon('list', { 'fontawesome': 'fa-list' })
-    this.addIcon('table', { 'fontawesome': 'fa-table' })
-    this.addIcon('blockquote', { 'fontawesome': 'fa-quote-right' })
-    this.addIcon('codeblock', { 'fontawesome': 'fa-code' })
+    this.import(MinimalSwitchTextTypePackage)
+    this.import(ToggleInsertPackage)
+    this.import(InputSettingsBarPackage)
   }
 
   /**

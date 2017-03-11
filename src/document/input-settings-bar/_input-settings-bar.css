@@ -1,0 +1,11 @@
+.sc-input-settings-bar {
+  padding: 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.1)
+}
+
+.sc-input-settings-bar button {
+  font-size: 10px;
+  display: inline-block;
+  /* HACK: just tweak alignment */
+  padding-left: 11px;
+}

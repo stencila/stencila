@@ -1,18 +1,8 @@
-import Component from 'substance/ui/Component'
+import { Component } from 'substance'
 
 import math from '../../../utilities/math/index'
 
 class MathComponent extends Component {
-
-  didMount () {
-    this.props.node.on('source:changed', this.rerender, this)
-    this.props.node.on('language:changed', this.rerender, this)
-    this.props.node.on('display:changed', this.rerender, this)
-  }
-
-  dispose () {
-    this.props.node.off(this)
-  }
 
   render ($$) {
     var node = this.props.node
@@ -21,19 +11,21 @@ class MathComponent extends Component {
       .addClass('sc-math sm-' + node.language)
       .ref('math')
 
+    if (this.props.isolatedNodeState) {
+      el.addClass('sm-'+this.props.isolatedNodeState)
+    }
     try {
-      el.html(
-        math.render(node.source, node.language, node.display)
+      el.append(
+        $$('span').addClass('se-rendered-math').html(
+          math.render(node.source, node.language, node.display)
+        )
       )
+      let blockerEl = $$('div').addClass('se-blocker')
+      el.append(blockerEl)
     } catch (error) {
       el.addClass('sm-error')
         .text(error.message)
     }
-
-    if (node.display === 'block') {
-      el.addClass('sm-block')
-    }
-
     return el
   }
 

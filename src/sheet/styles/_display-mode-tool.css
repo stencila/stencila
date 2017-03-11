@@ -1,0 +1,35 @@
+.se-display-mode-tool {
+  position: relative;
+  z-index: 2;
+}
+
+.se-display-mode-tool button:hover {
+  background: none !important;
+}
+
+.se-display-mode-tool .se-label {
+  color: #888;
+  font-size: 11px;
+}
+
+.se-display-mode-tool .se-dropdown-icon {
+  padding-left: 10px;
+  padding-right: 5px;
+  font-size: 11px;
+}
+
+.se-display-mode-tool .se-available-display-modes {
+  position: absolute;
+  right: 10px;
+  background: #fff;
+  box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.5);
+}
+
+.se-display-mode-tool .se-available-display-modes .se-display-mode {
+  cursor: pointer;
+  padding: 5px 30px;
+}
+
+.se-display-mode-tool .se-available-display-modes .se-display-mode:hover {
+  background: #eee;
+}
