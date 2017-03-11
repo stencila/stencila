@@ -10,6 +10,7 @@ export default {
   entry: START,
   dest: './build/tests.js',
   format: 'umd',
+  sourceMap: true,
   plugins: [
     {
       resolveId (id) {
