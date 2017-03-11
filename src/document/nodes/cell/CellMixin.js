@@ -24,7 +24,7 @@ export default {
     // then renew
     this._exprStr = exprStr
     this._expr = null
-    this._error = null
+    this.errors = []
     // TODO: as an optimization we could do this only if in the
     // real document not in a buffered one (e.g. TransactionDocument or ClipboardSnippets)
     if (exprStr) {
@@ -36,21 +36,24 @@ export default {
         this._expr = expr
         expr.on('value:updated', this._setValue, this)
       } catch (error) {
-        this._error = String(error)
+        this.errors = [String(error)]
       }
     }
     this.emit('expression:changed', this)
   },
 
   _setValue(val) {
-    console.log('Setting value', this.id, val)
-    if (this._value !== val) {
+    // console.log('Setting value', this.id, val)
+    if (this._value !== val || this._expr.errors.length) {
       this._value = val
       this.valueType = type(val)
+      if (this._expr) {
+        this.errors = this._expr.errors
+      }
       this.emit('value:updated')
     }
-  },
 
+  },
 
   _validateExpression(expr) {
     // check that if 'call()' or 'run()' is used

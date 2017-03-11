@@ -45,10 +45,12 @@ class CellComponent extends Component {
         $$('div').addClass('se-output').text(String(node.valueType)+':'+String(node.value))
       )
     }
-    if (node.hasError()){
-      el.append(
-        $$('div').addClass('se-error').text(String(node.getError()))
-      )
+    if (node.errors && node.errors.length){
+      node.errors.forEach((error) => {
+        el.append(
+          $$('div').addClass('se-error').text(String(error))
+        )
+      })
     }
     return el
   }

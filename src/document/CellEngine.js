@@ -42,45 +42,53 @@ class CellEngine extends Engine {
   */
   callFunction(funcNode) {
     const functionName = funcNode.name
-    if (functionName === 'call' || functionName === 'run') {
-      const expr = funcNode.expr
-      const cell = expr._cell
-      if (!cell) throw new Error('Internal error: no cell associated with expression.')
-      if(!cell.language) throw new Error('language is mandatory for "call"')
-      const lang = cell.language
-      const context = this._contexts[lang]
-      if (!context) throw new Error('No context for language ' + lang)
-      const sourceCode = cell.sourceCode || ''
-      const options = { pack: lang === 'js' ? false : true }
-      const args = {}
-      funcNode.forEach((arg) => {
-        const name = arg.name
-        if (!name) {
-          console.warn('Only variables can be used with chunks and external cells')
-          return
-        }
-        args[name] = arg.getValue()
-      })
-      return _unwrapResult(
-        context.call(sourceCode, args, options),
-        options
-      )
-    }
+    const expr = funcNode.expr
+    const cell = expr._cell
+    switch(functionName) {
+      // external cells
+      case 'call': {
+        if (!cell) throw new Error('Internal error: no cell associated with expression.')
+        if(!cell.language) throw new Error('language is mandatory for "call"')
+        const lang = cell.language
+        const context = this._contexts[lang]
+        if (!context) throw new Error('No context for language ' + lang)
+        const sourceCode = cell.sourceCode || ''
+        const options = { pack: lang === 'js' ? false : true }
+        const args = {}
+        funcNode.args.forEach((arg) => {
+          const name = arg.name
+          if (!name) {
+            console.warn('Only variables can be used with chunks and external cells')
+            return
+          }
+          args[name] = arg.getValue()
+        })
+        return _unwrapResult(
+          context.call(sourceCode, args, options),
+          options
+        )
+      }
+      // chunks
+      case 'run': {
 
-    // regular function calls: we need to lookup
-    const func = this._lookupFunction(functionName)
-    if (func) {
-      // TODO: if we had the functions signature
-      // we could support keyword arguments here
-      const args = funcNode.args.map(arg => arg.getValue())
-      const { context, contextName } = func
-      const options = { pack: contextName === 'js' ? false : true }
-      return _unwrapResult(
-        context.callFunction(functionName, args, options),
-        options
-      )
-    } else {
-      return Promise.reject(`Could not resolve function "${functionName}"`)
+      }
+      // all others are external functions
+      default:
+        // regular function calls: we need to lookup
+        const func = this._lookupFunction(functionName)
+        if (func) {
+          // TODO: if we had the functions signature
+          // we could support keyword arguments here
+          const args = funcNode.args.map(arg => arg.getValue())
+          const { context, contextName } = func
+          const options = { pack: contextName === 'js' ? false : true }
+          return _unwrapResult(
+            context.callFunction(functionName, args, options),
+            options
+          )
+        } else {
+          return Promise.reject(`Could not resolve function "${functionName}"`)
+        }
     }
   }
 
