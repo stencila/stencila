@@ -12,6 +12,10 @@ import FUNCTIONS from '../functions/index'
  */
 export default class JsContext {
 
+  constructor () {
+    this._functions = Object.assign({}, FUNCTIONS)
+  }
+
   /**
    * Run JavaScript code within the global context scope (execute a code "chunk")
    *
@@ -178,7 +182,7 @@ export default class JsContext {
 
   // used to look up a context for a given function name
   hasFunction (name) {
-    return Boolean(FUNCTIONS[name])
+    return Boolean(this._functions[name])
   }
 
   // used to call the function
@@ -193,7 +197,7 @@ export default class JsContext {
     }
     let error = null
     let value
-    const f = FUNCTIONS[name]
+    const f = this._functions[name]
     try {
       value = f(...values)
     } catch (e) {

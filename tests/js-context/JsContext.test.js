@@ -161,3 +161,14 @@ test('JsContext.callFunction with inputs and output', t => {
     t.deepEqual(result, {output: pack('int'), errors: null})
   })
 })
+
+test('JsContext.callFunction with error', t => {
+  let c = new JsContext()
+  t.plan(1)
+  c._functions['foo'] = () => {
+    throw new Error('nope')
+  }
+  c.callFunction('foo').then(result => {
+    t.deepEqual(result, {errors: { 0: 'Error: nope' }, output: null})
+  })
+})
