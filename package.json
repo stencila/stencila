@@ -1,5 +1,5 @@
 {
-  "name": "stencila-web",
+  "name": "stencila-ui",
   "version": "0.2.0",
   "description": "Stencila in the browser",
   "main": "index.js",
