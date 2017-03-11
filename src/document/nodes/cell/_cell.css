@@ -12,12 +12,12 @@
   color: #737373;
 }
 
-.sc-cell .se-output {
+.sc-cell-value .se-output {
   padding: 20px;
   border: 1px solid #ddd;
   border-top: none;
 }
 
-.sc-cell .se-error {
+.sc-cell-value .se-error {
   background: red;
 }

@@ -4,6 +4,7 @@
   "description": "Stencila UI components",
   "main": "index.js",
   "scripts": {
+    "prepublish": "node make",
     "lint": "eslint -c .eslintrc.js src/document; exit 0",
     "start": "node server.js",
     "watch": "node make -w -s",

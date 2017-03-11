@@ -1,23 +1,8 @@
 import { Component, TextPropertyEditor, findParentComponent } from 'substance'
-import TextInput from '../../../shared/substance/text-input/TextInput'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
-
+import CellValueComponent from './CellValueComponent'
 
 class CellComponent extends Component {
-
-  didMount() {
-    const node = this.props.node
-    if (node) {
-      node.on('value:updated', this.rerender, this)
-    }
-  }
-
-  dispose() {
-    const node = this.props.node
-    if (node) {
-      node.off(this)
-    }
-  }
 
   render($$) {
     let node = this.props.node
@@ -35,22 +20,16 @@ class CellComponent extends Component {
           node: this.props.node,
           codeProperty: 'sourceCode',
           languageProperty: 'language'
-        })
+        }).ref('sourceCodeEditor')
+          .on('escape', this.onEscapeFromCodeEditor)
       )
     }
-    if (node.value) {
+    if (node) {
       el.append(
-        $$('div').addClass('se-output').text(String(node.valueType)+':'+String(node.value))
+        $$(CellValueComponent, {node}).ref('value')
       )
     }
-    if (node.errors && node.errors.length){
-      node.errors.forEach((error) => {
-        el.append(
-          $$('div').addClass('se-error').text(String(error))
-        )
-      })
-    }
-    el.on('click', this._onClick)
+    el.on('click', this.onClick)
     return el
   }
 
@@ -58,26 +37,20 @@ class CellComponent extends Component {
     return this.refs.expressionEditor.getContent()
   }
 
-  // HACK: this needs to be replaced with proper utilization of the
-  // expression evaluation engine.
-  onConfirm() {
-    const editorSession = this.context.editorSession
-    let newExpression = this.getExpression()
-    editorSession.transaction((tx) => {
-      tx.set([this.props.node.id, 'expression'], newExpression)
-    })
-    this.rerender()
-  }
-
-  onCancel() {
-    this.rerender()
-  }
-
-  _onClick(event) {
+  onClick(event) {
     let target = findParentComponent(event.target)
-    if (target.context.surface) return
+    // console.log('###', target, target._owner)
+    if (target._owner === this.refs.expressionEditor || target._owner === this.refs.sourceCodeEditor) {
+      // console.log('### skipping')
+      return
+    }
     event.stopPropagation()
     this.context.isolatedNodeComponent.selectNode()
+  }
+
+  onEscapeFromCodeEditor(event) {
+    event.stopPropagation()
+    this.send('escape')
   }
 
 }
