@@ -151,11 +151,14 @@ class CellEngine extends Engine {
     return cell
   }
 
-  _deregisterCell(cell) {
-    cell.off(this)
-    cell._stopWatching()
-    delete this._cells[cell.id]
-    this._removeExpression(cell.id)
+  _deregisterCell(cellId) {
+    const cell = this._cells[cellId]
+    if (cell) {
+      cell.off(this)
+      cell._stopWatching()
+      delete this._cells[cell.id]
+      this._removeExpression(cell.id)
+    }
   }
 
   _updateCell(cell) {
