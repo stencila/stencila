@@ -9,13 +9,13 @@ export default {
 
   import: function (el, node) {
     node.expression = el.attr('data-cell')
-    node.output = el.innerHTML
+    node.value = el.innerHTML
   },
 
   // TODO: This code has not yet been tested
   export: function (node, el) {
     el.attr('data-cell', node.expression)
-    el.innerHTML = node.output
+    el.innerHTML = node.value
   }
 
 }

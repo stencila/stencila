@@ -63,7 +63,8 @@
     "font-awesome": "^4.6.3",
     "katex": "^0.6.0",
     "semantic-ui-css": "^2.2.4",
+    "stencila-js": "stencila/js#master",
     "substance": "substance/substance#kaikoura",
-    "substance-expression": "^0.2.0"
+    "substance-mini": "^0.2.1"
   }
 }

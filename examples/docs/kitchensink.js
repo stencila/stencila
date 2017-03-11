@@ -10,35 +10,15 @@ export default `
 <h1>Minilang Cell</h1>
 
 <!-- Pure MiniLang cell -->
-<div data-cell="x = 2+5">
-  <pre data-output>
-    <style>
-    .chart div {
-      font: 10px sans-serif;
-      background-color: steelblue;
-      text-align: right;
-      padding: 3px;
-      margin: 1px;
-      color: white;
-    }
-    </style>
-    <div class="chart">
-      <div style="width: 40px;">4</div>
-      <div style="width: 80px;">8</div>
-      <div style="width: 150px;">15</div>
-      <div style="width: 160px;">16</div>
-      <div style="width: 230px;">23</div>
-      <div style="width: 420px;">42</div>
-    </div>
-  </pre>
-</div>
+<div data-cell="x = type(1)"></div>
 <p>Here is an external cell, implemented in Javascript:</p>
+<div data-cell="length = 5"></div>
 <div data-cell="random_numbers = call(length)" data-language="js">
 <pre data-source>var randomNumbers = []
-for (var i = 0; i < length - 1; i++) {
+for (var i = 0; i < length; i++) {
   randomNumbers.push(Math.floor(Math.random()*100))
 }
-randomNumbers</pre>
+return randomNumbers</pre>
 </div>
 <h1>Blockquote</h1>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>

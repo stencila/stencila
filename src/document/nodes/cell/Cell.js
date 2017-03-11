@@ -1,66 +1,39 @@
-import { BlockNode, isNil } from 'substance'
-import { parse } from 'substance-expression'
+import { BlockNode } from 'substance'
+import CellMixin from './CellMixin'
 
 class Cell extends BlockNode {
-
-  // using an indirection for property 'expression'
-  // to be able to derive extra information and parse the expression on the fly
+  // NOTE: using indirection for all 'expression' relevant
+  // properties so that we can parse the expression on-the-fly
+  // and derive some extra information
   get expression() {
-    return this._expression
+    return this._exprStr
   }
-
-  set expression(expr) {
-    this._expression = expr
-    this._parsedExpression = null
-    this._error = null
-    // TODO: as an optimization we could do this only if in the
-    // real document not in a buffered one (e.g. TransactionDocument or ClipboardSnippets)
-    if (expr) {
-      try {
-        let parsedExpression = parse(expr)
-        parsedExpression.id = this.id
-        this._parsedExpression = parsedExpression
-      } catch (error) {
-        this._error = String(error)
-      }
-    }
+  set expression(expression) {
+    this._setExpression(expression)
   }
-
-  getParsedExpression() {
-    return this._parsedExpression
+  get value() {
+    return this._value
   }
-
-  hasValue() {
-    return !isNil(this.value)
+  set value(val) {
+    this._setValue(val)
   }
-
-  getValue() {
-    return this.value
+  get sourceCode() {
+    return this._sourceCode
   }
-
-  setValue(val) {
-    this.value = val
-    this.emit('value:changed')
+  set sourceCode(val) {
+    this._setSourceCode(val)
   }
-
-  hasError() {
-    return Boolean(this._error)
-  }
-
-  getError() {
-    return this._error
-  }
-
 }
+
+Object.assign(Cell.prototype, CellMixin)
 
 Cell.schema = {
   type: 'cell',
   expression: { type: 'string', default: '' },
   language: { type: 'string', optional: true },
   sourceCode: { type: 'string', optional: true },
-  output: { type: 'string', optional: true },
-  // volatile property to store the evaluated expression
-  value: { type: 'object', default: null, optional: true }
+  // volatile properties for evaluated cell
+  value: { type: 'any', default: null, optional: true },
 }
 
 export default Cell

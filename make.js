@@ -3,6 +3,22 @@ var b = require('substance-bundler')
 var path = require('path')
 var fs = require('fs')
 
+const LIB_EXTERNAL = {
+  'stencila-js': 'window.stencilaJs',
+  'substance': 'window.substance',
+  'substance-mini': 'window.substanceMini',
+  // brace bundle is exposing window.ace
+  'brace': 'window.ace',
+  'katex': 'window.katex'
+}
+
+const EXAMPLE_EXTERNAL = {
+  'substance': 'substance',
+  'stencila-js': 'stencilaJs',
+  'stencila-document': 'stencilaDocument',
+  'stencila-sheet': 'stencilaSheet',
+}
+
 // this is not run all the time
 // we use it to pre-bundle vendor libraries,
 // to speed up bundling within this project
@@ -39,12 +55,17 @@ function _minifiedVendor(src, name, opts = {}) {
 
 // we need this only temporarily, or if we need to work on an
 // unpublished version of substance
-function _buildSubstance() {
+function _buildDeps() {
   if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
     b.make('substance', 'browser:pure')
   }
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-expression/dist/substance-expression.js'))){
-    b.make('substance-expression')
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-mini/dist/substance-mini.js'))){
+    b.make('substance-mini')
+  }
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/stencila-js/build/stencila-js.js'))){
+    b.exec('npm run build', {
+      cwd: path.join(__dirname, 'node_modules/stencila-js')
+    })
   }
 }
 
@@ -56,7 +77,9 @@ function _copyAssets() {
   // katex.min.css from /katex/katex.min.css
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
-  b.copy('./node_modules/substance-expression/dist/substance-expression.js*', './build/web/')
+  b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/web/')
+
+  b.copy('./node_modules/stencila-js/build/stencila-js.js*', './build/web/')
 }
 
 function _buildCss() {
@@ -65,66 +88,33 @@ function _buildCss() {
   })
 }
 
-function _buildDocument() {
-  b.js('src/document/document.js', {
-    dest: 'build/stencila-document.js',
-    format: 'umd', moduleName: 'stencilaDocument',
-    // Ignoring stencila-js for now because
-    // it needs to be re-designed to be really browser compatible
+function _buildLib(src, dest, moduleName) {
+  b.js(src, {
+    dest: dest,
+    format: 'umd', moduleName: moduleName,
     alias: {
-      'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js'),
-      // 'brace': path.join(__dirname, 'vendor/brace.min.js'),
       'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
     },
-    // TODO: here we need to apply different strategies for
-    // different bundles (e.g. hosted without substance, but electron one with substance)
-    external: {
-      'substance': 'window.substance',
-      'substance-expression': 'window.substanceExpression',
-      // brace bundle is exposing window.ace
-      'brace': 'window.ace',
-      'katex': 'window.katex'
-    },
-    commonjs: true,
-    json: true
+    external: LIB_EXTERNAL
   })
 }
 
+function _buildDocument() {
+  _buildLib('src/document/document.js', 'build/stencila-document.js', 'stencilaDocument')
+}
+
 function _buildSheet() {
-  b.js('src/sheet/sheet.js', {
-    dest: 'build/stencila-sheet.js',
-    format: 'umd', moduleName: 'stencilaSheet',
-    // Ignoring stencila-js for now because
-    // it needs to be re-designed to be really browser compatible
-    alias: {
-      'stencila-js': path.join(__dirname, 'vendor/stencila-js.stub.js')
-    },
-    external: {
-      'substance': 'substance',
-      'substance-expression': 'substanceExpression'
-    },
-    commonjs: true,
-    json: true
-  })
+  _buildLib('src/sheet/sheet.js', 'build/stencila-sheet.js', 'stencilaSheet')
 }
 
 function _buildExamples() {
   b.copy('./examples/*/*.html', './build/')
-  b.js('examples/document/app.js', {
-    dest: 'build/examples/document/app.js',
-    format: 'umd', moduleName: 'documentExample',
-    external: {
-      'substance': 'substance',
-      'stencila-document': 'stencilaDocument'
-    }
-  })
-  b.js('examples/sheet/app.js', {
-    dest: 'build/examples/sheet/app.js',
-    format: 'umd', moduleName: 'sheetExample',
-    external: {
-      'substance': 'substance',
-      'stencila-sheet': 'stencilaSheet'
-    }
+  ;['document', 'sheet'].forEach((example) => {
+    b.js(`examples/${example}/app.js`, {
+      dest: `build/examples/${example}/app.js`,
+      format: 'umd', moduleName: `${example}Example`,
+      external: EXAMPLE_EXTERNAL
+    })
   })
 }
 
@@ -136,15 +126,15 @@ b.task('clean', () => {
 b.task('vendor', _buildVendor)
 
 // ATTENTION: this is not necessary after switching to a published version of substance
-b.task('substance', () => {
-  _buildSubstance()
+b.task('deps', () => {
+  _buildDeps()
 })
 
-b.task('assets', ['substance'], () => {
+b.task('assets', ['deps'], () => {
   _copyAssets()
 })
 
-b.task('css', ['substance'], () => {
+b.task('css', ['deps'], () => {
   _buildCss()
 })
 

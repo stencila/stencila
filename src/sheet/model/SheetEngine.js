@@ -1,4 +1,4 @@
-import { Expression, Engine, parse } from 'substance-expression'
+import { Expression, Engine, parse } from 'substance-mini'
 
 export default
 class SheetEngine extends Engine {
@@ -84,14 +84,11 @@ class SheetEngine extends Engine {
     if (cell.isLiteral()) {
       newVal = cell.content
     } else {
-      // TODO: we get 'mini' cells here, to follow our decisions
-      // this is a node containing the AST, which can be added
-      // to the engine
       let expr = parse(cell.getExpression())
       let entry = this._addExpression(expr)
       newVal = entry
       entry.on('value:updated', () => {
-        cell.setValue(entry.getValue())
+        cell.value = entry.getValue()
       })
     }
     // store the value in the scope

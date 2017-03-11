@@ -8,7 +8,7 @@ class CellComponent extends Component {
   didMount() {
     const node = this.props.node
     if (node) {
-      node.on('value:changed', this.rerender, this)
+      node.on('value:updated', this.rerender, this)
     }
   }
 
@@ -32,29 +32,25 @@ class CellComponent extends Component {
       )
     )
     if (node.sourceCode) {
-      // props.codeProperty = 'source'
-      // props.languageProperty = 'language'
-
       el.append(
         $$(CodeEditorComponent, {
           node: this.props.node,
           codeProperty: 'sourceCode',
           languageProperty: 'language'
         })
-        // $$('pre').append(
-        //   node.sourceCode
-        // )
       )
     }
     if (node.value) {
       el.append(
-        $$('div').addClass('se-output').text(String(node.getValue()))
+        $$('div').addClass('se-output').text(String(node.valueType)+':'+String(node.value))
       )
     }
-    if (node.hasError()){
-      el.append(
-        $$('div').addClass('se-error').text(String(node.getError()))
-      )
+    if (node.errors && node.errors.length){
+      node.errors.forEach((error) => {
+        el.append(
+          $$('div').addClass('se-error').text(String(error))
+        )
+      })
     }
     return el
   }
