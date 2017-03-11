@@ -3,12 +3,18 @@ import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../value'
 
+import FUNCTIONS from '../functions/index'
+
 /**
  * A Javascript context
  *
  * Implements the Stencila `Context` API. All methods return a Promise.
  */
 export default class JsContext {
+
+  constructor () {
+    this._functions = Object.assign({}, FUNCTIONS)
+  }
 
   /**
    * Run JavaScript code within the global context scope (execute a code "chunk")
@@ -77,31 +83,33 @@ export default class JsContext {
    * context.call('return Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
    * context.call('return radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
    */
-  call (code, args, options) {
+  call (code, args, options = {}) {
+    const pack = (options.pack !== false)
     code = code || ''
     args = args || {}
-    options = options || {}
-    if (options.pack !== false) options.pack = true
 
     // Extract names and values of arguments
     let names = Object.keys(args)
-    let values = names.map(name => unpack(args[name]))
-
-    // Generate a function with parameter names matching the names of the supplied inputs
-    let func = 'return (function(' + names.join(',') + '){\n' + code + '\n})(...values)'
+    let values
+    if (pack) {
+      values = names.map(name => unpack(args[name]))
+    } else {
+      values = names.map(name => args[name])
+    }
 
     // Execute the function with the unpacked arguments. Using `new Function` avoids call to eval
     let error = null
     let value
     try {
-      value = (new Function('values', func))(values) // eslint-disable-line no-new-func
+      const f = new Function(...names, code) // eslint-disable-line no-new-func
+      value = f(...values)
     } catch (e) {
       // Catch any error
       error = e
     }
 
     return Promise.resolve(
-      this._result(error, 2, value, options.pack)
+      this._result(error, 0, value, pack)
     )
   }
 
@@ -168,6 +176,36 @@ export default class JsContext {
       errors: errors,
       output: output
     }
+  }
+
+  // EXPERIMENTAL
+
+  // used to look up a context for a given function name
+  hasFunction (name) {
+    return Boolean(this._functions[name])
+  }
+
+  // used to call the function
+  // this is different to call(...) as calls to an existing function
+  callFunction (name, args, options = {}) {
+    if (!name) throw new Error("'name' is mandatory")
+    args = args || []
+    const pack = (options.pack !== false)
+    let values = args
+    if (pack) {
+      values = args.map(arg => unpack(arg))
+    }
+    let error = null
+    let value
+    const f = this._functions[name]
+    try {
+      value = f(...values)
+    } catch (e) {
+      error = e
+    }
+    return Promise.resolve(
+      this._result(error, 0, value, pack)
+    )
   }
 
 }

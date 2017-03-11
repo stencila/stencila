@@ -29,7 +29,7 @@ export function type (value) {
     if (value.constructor === Array) {
       let onlyObjects = true
       for (let item of value) {
-        if (item.constructor !== Object) {
+        if (!item || item.constructor !== Object) {
           onlyObjects = false
           break
         }
