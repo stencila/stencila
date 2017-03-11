@@ -5,7 +5,7 @@ class InlineCellComponent extends Component {
   didMount() {
     const node = this.props.node
     if (node) {
-      node.on('value:changed', this.rerender, this)
+      node.on('value:updated', this.rerender, this)
     }
   }
 
@@ -20,9 +20,7 @@ class InlineCellComponent extends Component {
     let node = this.props.node
     let el = $$('span').addClass('sc-inline-cell')
     if (node.value) {
-      el.text(String(node.getValue()))
-    } else if (node.output) {
-      el.text(node.output)
+      el.text(String(node.value))
     }
     if (node.hasError()){
       el.text(String(node.getError()))

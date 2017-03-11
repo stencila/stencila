@@ -202,6 +202,7 @@ class CodeEditorComponent extends Component {
 
       // Apply each change
       change.ops.forEach(function (op) {
+        if (op.type !== 'update') return
         var diff = op.diff
         if (diff.type === 'insert') {
           doc.insert(

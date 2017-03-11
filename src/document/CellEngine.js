@@ -1,5 +1,6 @@
 import { forEach } from 'substance'
 import { Engine } from 'substance-mini'
+import { unpack } from 'stencila-js'
 
 export default
 class CellEngine extends Engine {
@@ -10,11 +11,10 @@ class CellEngine extends Engine {
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
 
-    // EXPERIMENTAL: dunno yet how we want to control
-    // function lookup
-    // ATM: we just iterate over the
+    this._cells = {}
     this._contexts = editorSession.getContext().stencilaContexts || {}
 
+    console.log('INITIALIZING CELL ENGINE')
     this._initialize()
 
     editorSession.on('render', this._onDocumentChange, this, {
@@ -23,23 +23,77 @@ class CellEngine extends Engine {
   }
 
   dispose() {
+    super.dispos()
     this.editorSession.off(this)
   }
 
-  callFunction(name, args) {
-    let contexts = Object.values(this._contexts)
-    for (let i = 0; i < contexts.length; i++) {
-      const context = contexts[i]
-      if (context.hasFunction(name)) {
-        let res = context.callFunction(name, args)
-        if (res && res.then) {
-          return res
-        } else {
-          return Promise.resolve(res)
+  /*
+    Calling into the context.
+
+    There are different types of calls:
+    - function calls: the arguments are positional, and passed
+      to the external function
+    - external cells: arguments are provided as an object with
+      names taken from the signature. The context is used to
+      execute the sourceCode, using the arguments object.
+    - chunk: like with external cells, arguments are provided
+      as object. The source code is run in the same way as we know
+      it from notebook cells, such as in Jupyter.
+  */
+  callFunction(funcNode) {
+    const functionName = funcNode.name
+    if (functionName === 'call' || functionName === 'run') {
+      const expr = funcNode.expr
+      const cell = expr._cell
+      if (!cell) throw new Error('Internal error: no cell associated with expression.')
+      if(!cell.language) throw new Error('language is mandatory for "call"')
+      const lang = cell.language
+      const context = this._contexts[lang]
+      if (!context) throw new Error('No context for language ' + lang)
+      const sourceCode = cell.sourceCode || ''
+      const options = { pack: lang === 'js' ? false : true }
+      const args = {}
+      funcNode.forEach((arg) => {
+        const name = arg.name
+        if (!name) {
+          console.warn('Only variables can be used with chunks and external cells')
+          return
         }
+        args[name] = arg.getValue()
+      })
+      return _unwrapResult(
+        context.call(sourceCode, args, options),
+        options
+      )
+    }
+
+    // regular function calls: we need to lookup
+    const func = this._lookupFunction(functionName)
+    if (func) {
+      // TODO: if we had the functions signature
+      // we could support keyword arguments here
+      const args = funcNode.args.map(arg => arg.getValue())
+      const { context, contextName } = func
+      const options = { pack: contextName === 'js' ? false : true }
+      return _unwrapResult(
+        context.callFunction(functionName, args, options),
+        options
+      )
+    } else {
+      return Promise.reject(`Could not resolve function "${functionName}"`)
+    }
+  }
+
+  _lookupFunction(functionName) {
+    const contexts = this._contexts
+    let names = Object.keys(contexts)
+    for (let i = 0; i < names.length; i++) {
+      const contextName = names[i]
+      const context = contexts[contextName]
+      if (context.hasFunction(functionName)) {
+        return { contextName, context }
       }
     }
-    return Promise.reject(`Could not resolve function "${name}"`)
   }
 
   _onDocumentChange(change) {
@@ -49,18 +103,16 @@ class CellEngine extends Engine {
     // - create/delete of cells
     forEach(change.deleted, (node) => {
       if (node.type === 'cell') {
-        this._removeExpression(node.id)
+        this._deregisterCell(node.id)
         needsUpdate = true
       }
     })
-
     forEach(change.created, (node) => {
       if (node.type === 'cell') {
         this._updateCell(doc.get(node.id))
         needsUpdate = true
       }
     })
-
     // update cells where expression or sourceCode has changed
     change.ops.forEach((op) => {
       if (op.type === 'set') {
@@ -84,35 +136,58 @@ class CellEngine extends Engine {
         }
       }
     })
-
     if (needsUpdate) {
       super.update()
     }
   }
 
   _initialize() {
-    // TODO: go over all Cells and register them with this engine
     let cells = this.doc.getIndex('type').get('cell')
     forEach(cells, (cell) => {
-      this._updateCell(cell)
+      this._registerCell(cell)
     })
-    // this updates the dependency graph and
-    // triggers evaluation
+    // this updates the dependency graph and triggers evaluation
     super.update()
   }
 
-  _updateCell(cell) {
-    let oldEntry = this._entries[cell.id]
-    if (oldEntry) {
-      this._removeExpression(cell.id)
+  _registerCell(cell) {
+    this._cells[cell.id] = cell
+    if (cell._expr) {
+      this._addExpression(cell._expr)
+      cell.on('expression:changed', this._updateCell, this)
+    } else {
+      console.error(cell.error)
     }
-    let parsedExpression = cell.getParsedExpression()
-    if (!parsedExpression) return
-    let entry = this._addExpression(parsedExpression)
-    // adapter between expression node and stencila cell
-    entry.on('value:updated', () => {
-      cell.setValue(entry.getValue())
-    })
+    this.emit('engine:updated')
+    return cell
+  }
+
+  _deregisterCell(cell) {
+    cell.off(this)
+    delete this._cells[cell.id]
+    this._removeExpression(cell.id)
+  }
+
+  _updateCell(cell) {
+    this._removeExpression(cell.id)
+    if (cell._expr) {
+      this._addExpression(cell._expr)
+    }
   }
 
 }
+
+function _unwrapResult(p, options) {
+  const pack = options.pack !== false
+  return new Promise((resolve, reject) => {
+    p.then((res) => {
+      if (res.errors) {
+        reject(res.errors)
+      } else {
+        const output = pack ? unpack(res.output) : res.output
+        resolve(output)
+      }
+    })
+  })
+}
+
