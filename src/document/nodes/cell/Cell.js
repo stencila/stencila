@@ -27,8 +27,9 @@ class Cell extends BlockNode {
 
 Object.assign(Cell.prototype, CellMixin)
 
+Cell.type = 'cell'
+
 Cell.schema = {
-  type: 'cell',
   expression: { type: 'string', default: '' },
   language: { type: 'string', optional: true },
   sourceCode: { type: 'string', optional: true },

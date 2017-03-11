@@ -55,7 +55,7 @@
     "postcss-simple-vars": "^3.0.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
-    "substance-bundler": "^0.12.0",
+    "substance-bundler": "^0.12.1",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.0",
     "uglify-js-harmony": "^2.7.5"

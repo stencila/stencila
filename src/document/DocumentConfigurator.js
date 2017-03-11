@@ -76,6 +76,8 @@ class DocumentConfigurator extends Configurator {
     this.import(MinimalSwitchTextTypePackage)
     this.import(ToggleInsertPackage)
     this.import(InputSettingsBarPackage)
+
+    // this.addKeyboardShortcut('alt+ENTER', { command: 'insert-cell' })
   }
 
   /**

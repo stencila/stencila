@@ -16,6 +16,12 @@ export default {
     return this._error
   },
 
+  recompute() {
+    if (this._expr) {
+      this._expr.propagate()
+    }
+  },
+
   _startWatching() {
     this._isWatching = true
   },
@@ -56,7 +62,7 @@ export default {
   },
 
   _setValue(val) {
-    console.log('Setting value', this.id, val)
+    // console.log('Setting value', this.id, val)
     if (this._value !== val || this._expr.errors.length) {
       this._value = val
       this.valueType = type(val)
@@ -70,7 +76,7 @@ export default {
   },
 
   _setSourceCode(val) {
-    console.log('Setting sourceCode', this.id, val)
+    // console.log('Setting sourceCode', this.id, val)
     this._sourceCode = val
     if (this._isWatching && this._expr) {
       this._expr.propagate()
