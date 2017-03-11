@@ -110,38 +110,15 @@ class CellEngine extends Engine {
     // HACK: exploiting knowledge about ops used for manipulating cells
     // - create/delete of cells
     forEach(change.deleted, (node) => {
-      if (node.type === 'cell') {
+      if (node.type === 'cell' || node.type === 'inlince-cell') {
         this._deregisterCell(node.id)
         needsUpdate = true
       }
     })
     forEach(change.created, (node) => {
-      if (node.type === 'cell') {
-        this._updateCell(doc.get(node.id))
+      if (node.type === 'cell' || node.type === 'inlince-cell') {
+        this._registerCell(doc.get(node.id))
         needsUpdate = true
-      }
-    })
-    // update cells where expression or sourceCode has changed
-    change.ops.forEach((op) => {
-      if (op.type === 'set') {
-        const id = op.path[0]
-        const node = doc.get(id)
-        if (node.type !== 'cell') return
-        let prop = op.path[1]
-        switch(prop) {
-          case 'expression': {
-            this._updateCell(doc.get(id))
-            needsUpdate = true
-            break
-          }
-          case 'sourceCode': {
-            // TODO: we need to provide the expression with
-            // the updated sourceCode and then retrigger evaluation
-            break
-          }
-          default:
-            //
-        }
       }
     })
     if (needsUpdate) {
@@ -159,28 +136,35 @@ class CellEngine extends Engine {
   }
 
   _registerCell(cell) {
+    cell._startWatching()
+    cell._parse()
     this._cells[cell.id] = cell
-    if (cell._expr) {
-      this._addExpression(cell._expr)
-      cell.on('expression:changed', this._updateCell, this)
-    } else {
+    if (cell.errors && cell.errors.length) {
       console.error(cell.error)
+    } else {
+      if (cell._expr) {
+        this._addExpression(cell._expr)
+      }
+      cell.on('expression:updated', this._updateCell, this)
+      this.emit('engine:updated')
     }
-    this.emit('engine:updated')
     return cell
   }
 
   _deregisterCell(cell) {
     cell.off(this)
+    cell._stopWatching()
     delete this._cells[cell.id]
     this._removeExpression(cell.id)
   }
 
   _updateCell(cell) {
+    // console.log('### Updating cell', cell.id)
     this._removeExpression(cell.id)
     if (cell._expr) {
       this._addExpression(cell._expr)
     }
+    super.update()
   }
 
 }

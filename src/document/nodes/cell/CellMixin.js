@@ -16,6 +16,14 @@ export default {
     return this._error
   },
 
+  _startWatching() {
+    this._isWatching = true
+  },
+
+  _stopWatching() {
+    this._isWatching = false
+  },
+
   _setExpression(exprStr) {
     // dispose first
     if (this._expr) {
@@ -25,8 +33,14 @@ export default {
     this._exprStr = exprStr
     this._expr = null
     this.errors = []
-    // TODO: as an optimization we could do this only if in the
-    // real document not in a buffered one (e.g. TransactionDocument or ClipboardSnippets)
+    if (this._isWatching) {
+      this._parse()
+      this.emit('expression:updated', this)
+    }
+  },
+
+  _parse() {
+    const exprStr = this._exprStr
     if (exprStr) {
       try {
         let expr = parse(exprStr)
@@ -39,22 +53,32 @@ export default {
         this.errors = [String(error)]
       }
     }
-    this.emit('expression:changed', this)
   },
 
   _setValue(val) {
-    // console.log('Setting value', this.id, val)
+    console.log('Setting value', this.id, val)
     if (this._value !== val || this._expr.errors.length) {
       this._value = val
       this.valueType = type(val)
-      if (this._expr) {
-        this.errors = this._expr.errors
+      if (this._isWatching) {
+        if (this._expr) {
+          this.errors = this._expr.errors
+        }
+        this.emit('value:updated')
       }
-      this.emit('value:updated')
     }
-
   },
 
+  _setSourceCode(val) {
+    console.log('Setting sourceCode', this.id, val)
+    this._sourceCode = val
+    if (this._isWatching && this._expr) {
+      this._expr.propagate()
+    }
+  },
+
+
+  // TODO: also make sure that call()/run() only have arguments with name (var, or named arg)
   _validateExpression(expr) {
     // check that if 'call()' or 'run()' is used
     // that there is only one of them.

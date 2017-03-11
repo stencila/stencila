@@ -15,7 +15,7 @@ export default `
 <div data-cell="length = 5"></div>
 <div data-cell="random_numbers = call(length)" data-language="js">
 <pre data-source>var randomNumbers = []
-for (var i = 0; i < length - 1; i++) {
+for (var i = 0; i < length; i++) {
   randomNumbers.push(Math.floor(Math.random()*100))
 }
 return randomNumbers</pre>
