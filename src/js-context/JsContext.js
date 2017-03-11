@@ -79,11 +79,10 @@ export default class JsContext {
    * context.call('return Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
    * context.call('return radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
    */
-  call (code, args, options) {
+  call (code, args, options = {}) {
+    const pack = (options.pack !== false)
     code = code || ''
     args = args || {}
-    options = options || {}
-    const pack = (options.pack !== false)
 
     // Extract names and values of arguments
     let names = Object.keys(args)
@@ -176,20 +175,33 @@ export default class JsContext {
   }
 
   // EXPERIMENTAL
-  // TODO: every context should implement this lookup service
-  // so that we can:
-  // - get all available functions
-  // - check if a specific function is implemented
-  // - and call a function
 
+  // used to look up a context for a given function name
   hasFunction (name) {
     return Boolean(FUNCTIONS[name])
   }
 
-  callFunction (name, args) {
-    // args = args.map(unpack)
+  // used to call the function
+  // this is different to call(...) as calls to an existing function
+  callFunction (name, args, options = {}) {
+    if (!name) throw new Error("'name' is mandatory")
+    args = args || []
+    const pack = (options.pack !== false)
+    let values = args
+    if (pack) {
+      values = args.map(arg => unpack(arg))
+    }
+    let error = null
+    let value
     const f = FUNCTIONS[name]
-    return f(...args)
+    try {
+      value = f(...values)
+    } catch (e) {
+      error = e
+    }
+    return Promise.resolve(
+      this._result(error, 0, value, pack)
+    )
   }
 
 }
