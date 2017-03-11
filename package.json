@@ -4,6 +4,7 @@
   "description": "Stencila components for Javascript",
   "main": "index.js",
   "scripts": {
+    "prepublish": "node_modules/.bin/rollup --config rollup-config.browser.js",
     "lint": "eslint *.js src tests",
     "test": "tape --require babel-register tests | tap-spec",
     "test-bundle": "rollup --watch --config rollup-config.tests.js",
