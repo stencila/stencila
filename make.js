@@ -17,6 +17,7 @@ const EXAMPLE_EXTERNAL = {
   'stencila-js': 'stencilaJs',
   'stencila-document': 'stencilaDocument',
   'stencila-sheet': 'stencilaSheet',
+  'stencila': 'stencila'
 }
 
 // this is not run all the time
@@ -104,9 +105,16 @@ function _buildSheet() {
   _buildLib('src/sheet/sheet.js', 'build/stencila-sheet.js', 'stencilaSheet')
 }
 
+/*
+  Building a single Stencila lib bundle, that stuff like Dashboard, DocumentEditor, etc.
+*/
+function _buildStencila() {
+  _buildLib('index.es.js', 'build/stencila.js', 'stencila')
+}
+
 function _buildExamples() {
   b.copy('./examples/*/*.html', './build/')
-  ;['document', 'sheet'].forEach((example) => {
+  ;['document', 'sheet', 'dashboard'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
@@ -144,7 +152,10 @@ b.task('sheet', ['assets', 'css'], () => {
 })
 
 b.task('examples', ['clean', 'assets', 'css', 'document', 'sheet'], () => {
+  // TODO: Make all examples use the single stencila.js build, so we don't
+  // need individual builds
   _buildExamples()
+  _buildStencila()
 })
 
 b.task('default', ['clean', 'assets', 'examples'])
