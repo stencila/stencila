@@ -1,12 +1,6 @@
-## `stencila/ui` : Stencila user interface components
+## Stencila
 
-<!--[![NPM](http://img.shields.io/npm/v/stencila-ui.svg?style=flat)](https://www.npmjs.com/package/stencila-ui)-->
-[![Dependency status](https://david-dm.org/stencila/ui.svg)](https://david-dm.org/stencila/ui)
-[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
-
-This repository is part of the Stencila platform. See our umbrella repository [stencila/stencila](https://github.com/stencila/stencila) for more details.
-
-This repos provides in-browser, user interface components. It also offers a lightweight development environment with service dependencies stubbed out. That allows us iterate quickly on the UI and integrate later.
+Stencila is a platform for creating, collaborating on, and sharing data driven content. Content that is transparent and reproducible, like RMarkdown and Jupyter. Content that can be versioned and composed just like we do with open source software using tools like CRAN and NPM. And above all, content that is accessible to non-coders, like Google Docs and Microsoft Office.
 
 ### Development
 
