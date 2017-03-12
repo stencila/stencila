@@ -30,7 +30,7 @@
     "browserify": "^14.1.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
-    "substance-bundler": "^0.12.1",
+    "substance-bundler": "^0.12.2",
     "uglify-js-harmony": "^2.7.5"
   },
   "dependencies": {
