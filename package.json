@@ -38,6 +38,7 @@
     "katex": "^0.6.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "substance/substance#kaikoura",
+    "substance-mini": "0.2.2",
     "substance-expression": "^0.2.0"
   }
 }
