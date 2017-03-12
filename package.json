@@ -33,7 +33,12 @@
   },
   "homepage": "https://github.com/stencila/stencila#readme",
   "dependencies": {
-    "d3": "^4.4.0"
+    "d3": "^4.4.0",
+    "font-awesome": "^4.6.3",
+    "katex": "^0.6.0",
+    "semantic-ui-css": "^2.2.4",
+    "substance": "substance/substance#kaikoura",
+    "substance-mini": "0.2.3"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
@@ -42,6 +47,8 @@
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-preset-es2015": "^6.22.0",
     "babel-register": "^6.23.0",
+    "brace": "^0.9.1",
+    "browserify": "^14.1.0",
     "documentation": "^4.0.0-beta16",
     "eslint": "^3.12.2",
     "eslint-config-standard": "^6.2.1",
@@ -56,8 +63,12 @@
     "rollup-plugin-json": "^2.1.0",
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-watch": "^3.2.2",
+    "sanitize-html": "^1.13.0",
+    "sprintf-js": "^1.0.3",
+    "substance-bundler": "^0.12.2",
     "substance-test": "^0.8.0",
     "tap-spec": "^4.1.1",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "uglify-js-harmony": "^2.7.5"
   }
 }

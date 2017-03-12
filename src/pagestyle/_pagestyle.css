@@ -1,0 +1,37 @@
+/*
+  All page style goes here. This includes fonts, link colors etc. Everything
+  else should live in component scope.
+*/
+
+body,
+input,
+textarea {
+  color: var(--default-text-color);
+  font-family: var(--sans-font-family);
+  font-size: var(--default-font-size);
+  min-height: 30px;
+  line-height: 1.5;
+}
+
+.strong,
+strong { font-weight: var(--strong-font-weight); }
+
+.emphasis, em { font-style: italic; }
+
+
+/* Links */
+a {
+  /*color: var(--stencila-green);*/
+  text-decoration:none;
+}
+a:focus {
+  outline: 1px solid var(--focus-outline-color);
+}
+button:focus {
+  outline: 1px solid var(--focus-outline-color);
+}
+
+/* Selection color */
+
+::-moz-selection { background: var(--stencila-green-transparent); }
+::selection { background: var(--stencila-green-transparent); }
