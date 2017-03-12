@@ -1,0 +1,16 @@
+@import '../../node_modules/semantic-ui-css/semantic';
+
+@import url('https://fonts.googleapis.com/css?family=Dosis');
+
+
+// An inelegant approach to getting Dosis everywhere
+body,
+h1, h2, h3, h4, h5, h6,
+.ui.message .header,
+.ui.list .list > .item .header, 
+.ui.list > .item .header,
+.ui.button {
+  font-family: 'Dosis', 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+.clearfix:after {content:""; clear:both; display:block}

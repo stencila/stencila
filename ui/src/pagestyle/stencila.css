@@ -1,0 +1,17 @@
+/*
+  The Stencila style sheet.
+
+  Includes Stencila page style and all component styles. In some integration
+  scenarios you may want to use a lighter configuration, which means you create
+  a custom style entry point and use that instead of stencila.css.
+*/
+@import './_native-imports.css';
+@import './_substance-core.css';
+@import './_variables.css';
+@import './_reset.css';
+
+@import './_style-transforms';
+@import './_pagestyle.css';
+@import '../document/_document-editor.css';
+@import '../sheet/_sheet-editor.css';
+@import '../dashboard/_dashboard.css';

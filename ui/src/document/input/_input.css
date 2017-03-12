@@ -1,0 +1,14 @@
+.sc-input {
+  max-width: 500px;
+  min-width: 200px;
+  font-size: 12px;
+  height: 30px;
+  border-radius: 15px;
+  background: #fff;
+  border: none;
+  padding: 0 10px;
+}
+
+.sc-input.sm-centered {
+  text-align: center;
+}

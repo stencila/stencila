@@ -1,0 +1,6 @@
+.sc-sheet-image {
+	position: relative;
+}
+.sc-sheet-image img {
+	max-width: 500px;
+}

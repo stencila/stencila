@@ -1,0 +1,44 @@
+{
+  "name": "stencila-ui",
+  "version": "0.2.0",
+  "description": "Stencila UI components",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "node make",
+    "start": "node make examples -w -s"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/ui.git"
+  },
+  "keywords": [
+    "data",
+    "documents",
+    "sheets",
+    "sessions",
+    "reproducibility",
+    "science"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/ui/issues"
+  },
+  "homepage": "https://github.com/stencila/ui#readme",
+  "devDependencies": {
+    "brace": "^0.9.1",
+    "browserify": "^14.1.0",
+    "sanitize-html": "^1.13.0",
+    "sprintf-js": "^1.0.3",
+    "substance-bundler": "^0.12.2",
+    "uglify-js-harmony": "^2.7.5"
+  },
+  "dependencies": {
+    "font-awesome": "^4.6.3",
+    "katex": "^0.6.0",
+    "semantic-ui-css": "^2.2.4",
+    "substance": "substance/substance#kaikoura",
+    "substance-mini": "0.2.2",
+    "substance-expression": "^0.2.0"
+  }
+}

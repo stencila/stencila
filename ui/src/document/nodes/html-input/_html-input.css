@@ -1,0 +1,25 @@
+.sc-html-input {
+  color: var(--stencila-green);
+}
+
+.sc-edit-html-input-tool .se-value-preview {
+  position: relative;
+  top: -10px;
+  left: 20px;
+  font-size: 12px;
+  color: var(--stencila-green)
+}
+
+.sc-edit-html-input-tool .se-settings {
+  padding: 5px;
+}
+.sc-edit-html-input-tool .se-settings label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  display: inline-block;
+  width: 60px;
+}
+
+.sc-edit-html-input-tool .se-settings input {
+  width: 80px;
+}
