@@ -1,39 +1,24 @@
 /* globals __dirname */
-var b = require('substance-bundler')
-var path = require('path')
-var fs = require('fs')
+const b = require('substance-bundler')
+const fork = require('substance-bundler/extensions/fork')
+const path = require('path')
+const fs = require('fs')
 
-const LIB_EXTERNAL = {
-  'stencila-js': 'window.stencilaJs',
-  'substance': 'window.substance',
-  'substance-mini': 'window.substanceMini',
-  // brace bundle is exposing window.ace
-  'brace': 'window.ace',
-  'katex': 'window.katex'
-}
-
-const EXAMPLE_EXTERNAL = {
-  'substance': 'substance',
-  'stencila-js': 'stencilaJs',
-  'stencila-document': 'stencilaDocument',
-  'stencila-sheet': 'stencilaSheet',
-  'stencila': 'stencila'
-}
+// Helpers
+// -------
 
 // this is not run all the time
 // we use it to pre-bundle vendor libraries,
 // to speed up bundling within this project
 // and to work around problems with using rollup on these projects
-function _buildVendor() {
-  _minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
+function buildVendor() {
+  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
     exports: ['default']
   })
-  // ATTENTION: brace is exposing window.ace,
-  // thus we need to use 'window.ace' when defining brace as 'external'
-  _minifiedVendor('./.make/brace.js', 'brace')
+  minifiedVendor('./vendor/.brace.js', 'brace')
 }
 
-function _minifiedVendor(src, name, opts = {}) {
+function minifiedVendor(src, name, opts = {}) {
   let tmp = `./vendor/${name}.js`
   let _opts = Object.assign({
     dest: tmp,
@@ -56,13 +41,13 @@ function _minifiedVendor(src, name, opts = {}) {
 
 // we need this only temporarily, or if we need to work on an
 // unpublished version of substance
-function _buildDeps() {
+function buildDeps() {
   if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
     b.make('substance', 'browser:pure')
   }
 }
 
-function _copyAssets() {
+function copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./vendor/brace.*', './build/web/')
   b.copy('./node_modules/katex/dist/', './build/katex')
@@ -70,31 +55,56 @@ function _copyAssets() {
   b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/web/')
 }
 
-function _buildCss() {
+function buildCss() {
   b.css('src/pagestyle/stencila.css', 'build/stencila.css', {
     variables: true
   })
 }
 
 /*
-  Building a single Stencila lib bundle, that stuff like Dashboard, DocumentEditor, etc.
+  Building a single Stencila lib bundle
 */
-function _buildStencila() {
-  b.js('index.es.js', {
+function buildStencila(browserOnly) {
+  const browserTarget = {
     dest: 'build/stencila.js',
     format: 'umd', moduleName: 'stencila',
+    // we need to specify how the resolve external modules
+    globals: {
+      'substance': 'window.substance',
+      'substance-mini': 'window.substanceMini',
+      'brace': 'window.ace',
+      'katex': 'window.katex'
+    }
+  }
+  const nodejsTarget = {
+    dest : 'build/stencila.cjs.js',
+    format: 'cjs',
+  }
+  const targets = browserOnly ? [browserTarget] : [browserTarget, nodejsTarget]
+  b.js('index.es.js', {
+    targets: targets,
+    // Externals are not include into the bundle
+    external: ['substance', 'substance-mini', 'brace', 'katex'],
+    // for libraries that we want to include into the browser bundle
+    // but need to be pre-bundled (see buildVendor())
+    // we register a redirect to the the pre-bundled file
     alias: {
       'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
     },
-    external: LIB_EXTERNAL,
+    // paramaters that are passed to the rollup-commonjs-plugin
     commonjs: {
       namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
     }
   })
 }
 
-function _buildExamples() {
+function buildExamples() {
+  const EXAMPLE_EXTERNAL = {
+    'substance': 'window.substance',
+    'stencila': 'window.stencila'
+  }
   b.copy('./examples/*/*.html', './build/')
+
   ;['document', 'sheet', 'dashboard'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
@@ -104,36 +114,122 @@ function _buildExamples() {
   })
 }
 
+function buildTests(platform) {
+  if (platform === 'browser') {
+    b.js('tests/**/*.test.js', {
+      dest: 'tmp/tests.js',
+      format: 'umd',
+      moduleName: 'tests',
+      external: {
+        'substance': 'window.substance',
+        'tape': 'substanceTest.test'
+      },
+      // paramaters that are passed to the rollup-commonjs-plugin
+      commonjs: {
+        namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
+      }
+    })
+  } else {
+    b.js('tests/**/*.test.js', {
+      dest: 'tmp/tests.cjs.js',
+      format: 'cjs',
+      istanbul: {
+        include: ['src/**/*.js']
+      },
+      external: ['substance', 'tape'],
+      // paramaters that are passed to the rollup-commonjs-plugin
+      commonjs: {
+        namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
+      }
+    })
+  }
+}
+
+function buildSingleTest(testFile) {
+  const dest = path.join(__dirname, 'tmp', testFile)
+  b.js(testFile, {
+    dest: dest,
+    format: 'cjs',
+    external: ['substance', 'tape'],
+    // paramaters that are passed to the rollup-commonjs-plugin
+    commonjs: {
+      namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
+    }
+  })
+  return dest
+}
+
+// Tasks
+// -----
+
 b.task('clean', () => {
   b.rm('build')
+  b.rm('tmp')
+  b.rm('coverage')
 })
 
 // This is used to generate the files in ./vendor/
-b.task('vendor', _buildVendor)
+b.task('vendor', buildVendor)
+.describe('Creates pre-bundled files in vendor/.')
 
-// ATTENTION: this is not necessary after switching to a published version of substance
+// NOTE: this will not be necessary if we depend only on npm-published libraries
+// At the moment, we use substance from a git branch
 b.task('deps', () => {
-  _buildDeps()
+  buildDeps()
 })
 
 b.task('assets', ['deps'], () => {
-  _copyAssets()
+  copyAssets()
 })
+.describe('Copies assets into build folder.')
 
 b.task('css', ['deps'], () => {
-  _buildCss()
+  buildCss()
+})
+.describe('Creates a single CSS bundle.')
+
+b.task('stencila', ['clean', 'assets', 'css'], () => {
+  buildStencila()
+})
+.describe('Build the stencila library.')
+
+b.task('stencila:browser', ['clean', 'assets', 'css'], () => {
+  buildStencila('browserOnly')
 })
 
-b.task('stencila', ['assets', 'css'], () => {
-  _buildStencila()
-})
-
-b.task('examples', ['clean', 'assets', 'css', 'stencila'], () => {
+b.task('examples', ['stencila:browser'], () => {
   // TODO: Make all examples use the single stencila.js build, so we don't
   // need individual builds
-  _buildExamples()
+  buildExamples()
+})
+.describe('Build the examples.')
+
+b.task('test', ['clean'], () => {
+  buildTests('nodejs')
+  fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cjs.js')
+})
+.describe('Runs the tests and generates a coverage report.')
+
+b.task('test:browser', () => {
+  buildTests('browser')
 })
 
-b.task('default', ['clean', 'assets', 'examples'])
+b.task('test:one', () => {
+  let test = b.argv.f
+  if (!test) {
+    console.error("Usage: node make test:one -f <testfile>")
+    process.exit(-1)
+  }
+  let builtTestFile = buildSingleTest(test)
+  fork(b, 'node_modules/substance-test/bin/test', builtTestFile)
+})
+.describe('Runs the tests and generates a coverage report.')
+
+
+// ATM test already does what cover should
+b.task('cover', ['test'])
+
+b.task('default', ['stencila', 'examples'])
+.describe('[stencila, examples].')
 
 b.serve({ static: true, route: '/', folder: 'build' })
