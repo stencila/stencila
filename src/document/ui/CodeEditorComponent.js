@@ -29,21 +29,20 @@ class CodeEditorComponent extends Component {
   }
 
   render ($$) {
-    var node = this.props.node
     return $$('div')
       .addClass('sc-code-editor')
       .append(
         $$('pre')
           .ref('editor')
-          .text(node[this.props.codeProperty])
+          .text(this._getCode())
       )
   }
 
   didMount () {
-    var node = this.props.node
+    const node = this.props.node
 
     // Resolve the language for the code
-    var language
+    let language
     if (this.props.languageProperty) {
       language = node[this.props.languageProperty]
     } else {
@@ -53,16 +52,16 @@ class CodeEditorComponent extends Component {
     // Attach ACE editor (allows for asynchronous loading of ACE)
     code.attachAceEditor(
       this.refs.editor.getNativeElement(),
-      node[this.props.codeProperty],
+      this._getCode(),
       {
         language: language,
         fontSize: 12,
         // FIXME
         // This does not update when the editor state is changed (e.g editing turned from off to on)
         // Probably needs a custom event like `_onContentChanged` below
-        readOnly: false//! this.context.controller.state.edit
+        readOnly: false
       },
-      function (editor) {
+      (editor) => {
         // When editor has been created...
 
         // For consistency and simplicity use single character newlines
@@ -74,19 +73,28 @@ class CodeEditorComponent extends Component {
           name: 'escape',
           bindKey: {win: 'Escape', mac: 'Escape'},
           exec: function (editor) {
-            this.send('escape')
+            this.el.emit('escape')
             editor.blur()
           }.bind(this),
           readOnly: true
         })
 
+        editor.commands.addCommand({
+          name: 'update',
+          bindKey: {win: 'Shift+Enter', mac: 'Shift+Enter'},
+          exec: () => {
+            this._setSourceCode()
+          },
+          readOnly: true
+        })
+
         // The `_onEditorChange` method is better in that it allows for realtime collab
         // of code editors. But it is currently causing problems so using `_onEditorBlur` for now.
-        // editor.on('change', this._onEditorChange.bind(this))
-        editor.on('blur', this._onEditorBlur.bind(this))
+        editor.on('change', this._onEditorChange.bind(this))
+        // editor.on('blur', this._onEditorBlur.bind(this))
 
         this.editor = editor
-      }.bind(this)
+      }
     )
 
     node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this)
@@ -101,16 +109,15 @@ class CodeEditorComponent extends Component {
   dispose () {
     this.props.node.off(this)
     this.editor.destroy()
+    this.editor = null
   }
 
-  /**
-   * When the editor looses focus, set the code content to the editor content
-   *
-   * It is better to use `_onEditorChange` but at the time of writing that was not
-   * working properly.
-   */
-  _onEditorBlur () {
-    let editorSession = this.context.editorSession
+  _getCode() {
+    return this.props.node[this.props.codeProperty]
+  }
+
+  _setSourceCode() {
+    const editorSession = this.context.editorSession
     editorSession.transaction(tx => {
       tx.set([this.props.node.id, this.codeProperty], this.editor.getValue())
     })
@@ -120,49 +127,45 @@ class CodeEditorComponent extends Component {
    * When there is a change in the editor, convert the change into a Substance change
    */
   _onEditorChange (change) {
+    // this guard is enabled while we apply changes received
+    // from the editor session
     if (this.editorMute) return
 
-    // For determining the position of changes...
-    var length = function (lines) {
-      var chars = 0
-      for (var i = 0, l = lines.length; i < l; i++) {
-        chars += lines[i].length
-      }
-      return chars + (lines.length - 1)
-    }
-
     // Get the start position of the change
-    var start = 0
+    let start = 0
     if (change.start.row > 0) {
-      start = length(this.editor.getSession().getLines(0, change.start.row - 1)) + 1
+      const lines = this.editor.getSession().getLines(0, change.start.row-1)
+      start = countCharacters(lines)
     }
     start += change.start.column
 
     // Apply as a Substance update to the code property of the node
-    var editorSession = this.context.editorSession
-    var node = this.props.node
+    const editorSession = this.context.editorSession
+    const node = this.props.node
     var codeProperty = this.codeProperty
     if (change.action === 'insert') {
-      editorSession.transaction(function (tx) {
+      editorSession.transaction((tx) => {
         tx.update([node.id, codeProperty], {
           type: 'insert',
           start: start,
           text: change.lines.join('\n')
         })
       }, {
+        // leaving a trace here so we can skip the change in _onCodeChanged
         source: this,
-        skipSelection: true
+        // tell EditorSession not to rerender the selection
+        skipSelectionRerender: true
       })
     } else if (change.action === 'remove') {
       editorSession.transaction(function (tx) {
         tx.update([node.id, codeProperty], {
           type: 'delete',
           start: start,
-          end: start + length(change.lines)
+          end: start + countCharacters(change.lines)-1
         })
       }, {
         source: this,
-        skipSelection: true
+        skipSelectionRerender: true
       })
     } else {
       throw new Error('Unhandled change:' + JSON.stringify(change))
@@ -180,40 +183,24 @@ class CodeEditorComponent extends Component {
       // Ignore editor change events
       this.editorMute = true
 
-      var session = this.editor.getSession()
-      var doc = session.getDocument()
-
-      // Function to convert Substance offset to an Ace row/column position
-      var offsetToPos = function (offset) {
-        var row = 0
-        var col = offset
-        doc.getAllLines().forEach(function (line) {
-          if (col <= line.length) {
-            return
-          }
-          row += 1
-          col -= line.length + 1
-        })
-        return {
-          row: row,
-          column: col
-        }
-      }
+      const node = this.props.node
+      const session = this.editor.getSession()
+      const aceDoc = session.getDocument()
 
       // Apply each change
       change.ops.forEach(function (op) {
+        if (op.type !== 'update' || op.path[0] !== node.id) return
         var diff = op.diff
         if (diff.type === 'insert') {
-          doc.insert(
-            offsetToPos(diff.pos),
+          aceDoc.insert(
+            offsetToPos(aceDoc.getAllLines(), diff.pos),
             diff.str
           )
         } else if (diff.type === 'delete') {
-          // FIXME Deletion is not working properly and triggers the `setValue` fallback below
-          var Range = ace.require('ace/range').Range
-          doc.remove(Range.fromPoints(
-            offsetToPos(diff.pos),
-            offsetToPos(diff.pos + diff.str.length)
+          var Range = ace.acequire('ace/range').Range
+          aceDoc.remove(Range.fromPoints(
+            offsetToPos(aceDoc.getAllLines(), diff.pos),
+            offsetToPos(aceDoc.getAllLines(), diff.pos + diff.str.length)
           ))
         } else {
           throw new Error('Unhandled diff:' + JSON.stringify(diff))
@@ -221,8 +208,8 @@ class CodeEditorComponent extends Component {
       })
 
       // Check that editor text is what it should be
-      var editorText = this.editor.getValue()
-      var nodeText = this.props.node[codeProperty]
+      const editorText = this.editor.getValue()
+      const nodeText = this.props.node[codeProperty]
       if (editorText !== nodeText) {
         console.error('Code editor content does not match node code content. Falling back to `setValue`')
         this.editor.setValue(nodeText, -1)
@@ -246,5 +233,24 @@ class CodeEditorComponent extends Component {
 }
 
 CodeEditorComponent.fullWidth = true
+
+// For determining the position of changes...
+function countCharacters (lines) {
+  // number of characters is the length of each lines plus line-endings
+  return lines.reduce((sum, l) => { return sum + l.length }, 0)+lines.length
+}
+
+// Function to convert Substance offset to an Ace row/column position
+function offsetToPos (lines, offset) {
+  let row = 0
+  let col = offset
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (col <= line.length) break
+    row += 1
+    col -= line.length + 1
+  }
+  return { row, col }
+}
 
 export default CodeEditorComponent

@@ -16,7 +16,7 @@ export default {
     }
     let outputEl = el.find('pre[data-output]')
     if (outputEl) {
-      node.output = outputEl.innerHTML
+      node.value = outputEl.innerHTML
     }
   },
 
@@ -29,7 +29,7 @@ export default {
       $$('pre').attr('data-source', '').text(node.sourceCode)
     )
     el.append(
-      $$('pre').attr('data-output', '').text(node.output)
+      $$('pre').attr('data-output', '').text(node.value)
     )
 
   }

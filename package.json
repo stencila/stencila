@@ -4,14 +4,8 @@
   "description": "Stencila UI components",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint -c .eslintrc.js src/document; exit 0",
-    "start": "node server.js",
-    "watch": "node make -w -s",
-    "test": "tape tests | tap-spec",
-    "test-unit": "tape tests/unit.js | tap-spec",
-    "test-fun": "tape tests/functional.js | tap-spec",
-    "test-one": "node tests/one.js",
-    "cover": "istanbul cover tests"
+    "prepublish": "node make",
+    "start": "node make examples -w -s"
   },
   "repository": {
     "type": "git",
@@ -34,29 +28,9 @@
   "devDependencies": {
     "brace": "^0.9.1",
     "browserify": "^14.1.0",
-    "eslint": "^3.5.0",
-    "eslint-config-standard": "^6.0.0",
-    "eslint-plugin-promise": "^2.0.1",
-    "eslint-plugin-standard": "^2.0.0",
-    "express": "^4.14.0",
-    "express-http-proxy": "^0.10.0",
-    "istanbul": "^1.1.0-alpha.1",
-    "mockery": "^1.7.0",
-    "moment": "^2.14.1",
-    "nightmare": "^2.7.0",
-    "nightmare-real-mouse": "^1.0.0",
-    "postcss-nested": "^1.0.0",
-    "postcss-reporter": "^3.0.0",
-    "postcss-sass-extend": "0.0.1",
-    "postcss-sassy-import": "^1.2.3",
-    "postcss-sassy-mixins": "^2.0.0",
-    "postcss-scss": "^0.4.1",
-    "postcss-simple-vars": "^3.0.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
-    "substance-bundler": "^0.12.0",
-    "tap-spec": "^4.1.1",
-    "tape": "^4.6.0",
+    "substance-bundler": "^0.12.2",
     "uglify-js-harmony": "^2.7.5"
   },
   "dependencies": {
@@ -64,6 +38,7 @@
     "katex": "^0.6.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "substance/substance#kaikoura",
+    "substance-mini": "0.2.2",
     "substance-expression": "^0.2.0"
   }
 }

@@ -1,61 +1,36 @@
-import { Component } from 'substance'
-import TextInput from '../../../shared/substance/text-input/TextInput'
+import { Component, TextPropertyEditor, findParentComponent, parseKeyEvent } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
-
+import CellValueComponent from './CellValueComponent'
 
 class CellComponent extends Component {
-
-  didMount() {
-    const node = this.props.node
-    if (node) {
-      node.on('value:changed', this.rerender, this)
-    }
-  }
-
-  dispose() {
-    const node = this.props.node
-    if (node) {
-      node.off(this)
-    }
-  }
 
   render($$) {
     let node = this.props.node
     let el = $$('div').addClass('sc-cell')
     el.append(
       $$('div').addClass('se-expression').append(
-        $$(TextInput, {
-          content: node.expression
+        $$(TextPropertyEditor, {
+          path: [node.id, 'expression']
         }).ref('expressionEditor')
-          .on('confirm', this.onConfirm)
-          .on('cancel', this.onCancel)
+          .on('enter', this.onExpressionEnter)
       )
     )
     if (node.sourceCode) {
-      // props.codeProperty = 'source'
-      // props.languageProperty = 'language'
-
       el.append(
         $$(CodeEditorComponent, {
           node: this.props.node,
           codeProperty: 'sourceCode',
           languageProperty: 'language'
-        })
-        // $$('pre').append(
-        //   node.sourceCode
-        // )
+        }).ref('sourceCodeEditor')
+          .on('escape', this.onEscapeFromCodeEditor)
       )
     }
-    if (node.value) {
+    if (node) {
       el.append(
-        $$('div').addClass('se-output').text(String(node.getValue()))
+        $$(CellValueComponent, {node}).ref('value')
       )
     }
-    if (node.hasError()){
-      el.append(
-        $$('div').addClass('se-error').text(String(node.getError()))
-      )
-    }
+    el.on('click', this.onClick)
     return el
   }
 
@@ -63,21 +38,65 @@ class CellComponent extends Component {
     return this.refs.expressionEditor.getContent()
   }
 
-  // HACK: this needs to be replaced with proper utilization of the
-  // expression evaluation engine.
-  onConfirm() {
-    const editorSession = this.context.editorSession
-    let newExpression = this.getExpression()
-    editorSession.transaction((tx) => {
-      tx.set([this.props.node.id, 'expression'], newExpression)
-    })
-    this.rerender()
+  onClick(event) {
+    let target = findParentComponent(event.target)
+    // console.log('###', target, target._owner)
+    if (target._owner === this.refs.expressionEditor || target._owner === this.refs.sourceCodeEditor) {
+      // console.log('### skipping')
+      // console.log(this.context.editorSession.getSelection())
+      return
+    }
+    event.stopPropagation()
+    this.context.isolatedNodeComponent.selectNode()
   }
 
-  onCancel() {
-    this.rerender()
+  onEscapeFromCodeEditor(event) {
+    event.stopPropagation()
+    this.send('escape')
+  }
+
+  onExpressionEnter(event) {
+    // EXPERIMENTAL: we want an easy way to insert content after the
+    const data = event.detail
+    const editorSession = this.context.editorSession
+    const modifiers = parseKeyEvent(data, 'modifiers-only')
+    switch(modifiers) {
+      case 'ALT': {
+        editorSession.setSelection(this._afterNode())
+        editorSession.executeCommand('insert-cell')
+        break
+      }
+      case 'SHIFT': {
+        this.props.node.recompute()
+        break
+      }
+      case '': {
+        editorSession.setSelection(this._afterNode())
+        editorSession.executeCommand('insert-node', {type:'paragraph'})
+        break
+      }
+      default:
+        //
+    }
+  }
+
+  _afterNode() {
+    // HACK: not too happy about how difficult it is
+    // to set the selection
+    const node = this.props.node
+    const isolatedNode = this.context.isolatedNodeComponent
+    const parentSurface = isolatedNode.getParentSurface()
+    return {
+      type: 'node',
+      nodeId: node.id,
+      mode: 'after',
+      containerId: parentSurface.getContainerId(),
+      surfaceId: parentSurface.id
+    }
   }
 
 }
+
+CellComponent.noBlocker = true
 
 export default CellComponent
