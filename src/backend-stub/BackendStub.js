@@ -42,6 +42,7 @@ export default class BackendStub {
     let documentEntries = []
     forEach(LIBRARY_FIXTURE, (doc, address) => {
       documentEntries.push({
+        type: doc.type,
         address: address,
         title: doc.title,
         openedAt: doc.openedAt,
