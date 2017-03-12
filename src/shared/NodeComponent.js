@@ -1,5 +1,4 @@
 import { Component } from 'substance'
-import '../shared/substance/EditorSessionPatches'
 
 /*
   A component used to render a DocumentNode.

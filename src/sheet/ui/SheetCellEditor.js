@@ -1,5 +1,4 @@
-import { Component } from 'substance'
-import TextInput from '../../shared/substance/text-input/TextInput'
+import { Component, TextInput } from 'substance'
 
 /*
   The CellEditor is different to a regular TextPropertyEditor

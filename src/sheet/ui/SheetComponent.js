@@ -1,9 +1,7 @@
-import {Component, DefaultDOMElement, inBrowser, uuid} from 'substance'
-import {findParentComponent} from '../../shared/substance/domHelpers'
+import {Component, DefaultDOMElement, inBrowser, uuid, findParentComponent, TextInput} from 'substance'
 import {getColumnName} from '../model/sheetHelpers'
 import SheetEngine from '../model/SheetEngine'
 import SheetCellComponent from './SheetCellComponent'
-import TextInput from '../../shared/substance/text-input/TextInput'
 
 export default
 class SheetComponent extends Component {
