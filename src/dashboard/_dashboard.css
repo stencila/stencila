@@ -1,0 +1,21 @@
+.sc-dashboard {
+  max-width: 660px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.sc-dashboard .se-document-entry {
+  padding-bottom: 20px;
+}
+
+.sc-dashboard .se-document-entry a {
+  color: var(--default-text-color);
+  font-weight: 600;
+  font-size: 22px;
+}
+
+.sc-dashboard .se-document-entry .se-address {
+  color: #bbb;
+  font-size: 10px;
+  font-family: var(--mono-font-family);
+}

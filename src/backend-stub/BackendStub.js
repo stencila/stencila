@@ -1,4 +1,4 @@
-import forEach from 'substance'
+import { forEach } from 'substance'
 import wrapSnippet from '../../examples/docs/wrapSnippet'
 import kitchenSink from '../../examples/docs/kitchensink'
 import simpleSheet from '../../examples/docs/simple-sheet'
