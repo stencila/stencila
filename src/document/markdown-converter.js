@@ -9,8 +9,20 @@ import rehypeParse from 'rehype-parse'
 import rehype2remark from 'rehype-remark'
 import rehypeStringify from 'rehype-stringify'
 
+/**
+ * @namespace document/markdown-converter
+ */
 export default {
 
+  /**
+   * Import from a Markdown document to a Stencila Document
+   *
+   * @memberof document/markdown-converter
+   *
+   * @param {string} md - Markdown content
+   * @param {object} options - Conversion options
+   * @return {object|string} - Document archive (virtual filesystem folder) or HTML string
+   */
   import: function (md, options) {
     options = options || {}
 
@@ -38,6 +50,15 @@ export default {
     }
   },
 
+  /**
+   * Export to a Markdown document from a Stencila Document
+   *
+   * @memberof document/markdown-converter
+   *
+   * @param {string|object} doc - Document archive (virtual filesystem folder) or HTML string
+   * @param {object} options - Conversion options
+   * @return {object|string} - Markdown content
+   */
   export: function (doc, options) {
     options = options || {}
 

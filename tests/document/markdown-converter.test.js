@@ -5,8 +5,14 @@ import converter from '../../src/document/markdown-converter'
 test('import', t => {
   const i = converter.import
 
+  t.deepEqual(
+    i('Para 1'),
+    {'index.html': '<p>Para 1</p>'},
+    'by default returns an archive (virtual filesystem folder)'
+  )
+
   t.equal(
-    i('# Heading 1', {folder: false}),
+    i('# Heading 1', {archive: false}),
     '<h1 id="heading-1">Heading 1</h1>',
     'headings are slugged'
   )
