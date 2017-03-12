@@ -63,11 +63,6 @@ function _buildDeps() {
   if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-mini/dist/substance-mini.js'))){
     b.make('substance-mini')
   }
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/stencila-js/build/stencila-js.js'))){
-    b.exec('npm run build', {
-      cwd: path.join(__dirname, 'node_modules/stencila-js')
-    })
-  }
 }
 
 function _copyAssets() {
