@@ -1,8 +1,0 @@
-/node_modules
-/npm-debug.log
-/coverage
-/*.sublime-workspace
-/tests/document/documents
-/tmp
-/.sandbox
-/build
