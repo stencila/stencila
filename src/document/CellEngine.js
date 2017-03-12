@@ -6,7 +6,7 @@ export default
 class CellEngine extends Engine {
 
   constructor(editorSession) {
-    super()
+    super({waitForIdle: 500})
 
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
