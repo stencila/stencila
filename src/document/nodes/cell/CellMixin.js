@@ -1,6 +1,6 @@
 import { isNil } from 'substance'
 import { parse } from 'substance-mini'
-import { type } from 'stencila-js'
+import { type } from '../../../value'
 
 export default {
 

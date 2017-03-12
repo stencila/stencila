@@ -6,11 +6,10 @@
 import wrapSnippet from '../docs/wrapSnippet'
 import example from '../docs/kitchensink'
 import { EditorSession } from 'substance'
-import { DocumentEditor, DocumentConfigurator, importHTML } from 'stencila-document'
-import { JsContext } from 'stencila-js'
+import { DocumentEditor, DocumentConfigurator, documentConversion, JsContext } from 'stencila'
 
 let configurator = new DocumentConfigurator()
-let doc = importHTML(wrapSnippet(example))
+let doc = documentConversion.importHTML(wrapSnippet(example))
 let editorSession = new EditorSession(doc, {
   configurator: configurator,
   context: {

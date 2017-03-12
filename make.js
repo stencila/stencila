@@ -60,19 +60,14 @@ function _buildDeps() {
   if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
     b.make('substance', 'browser:pure')
   }
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance-mini/dist/substance-mini.js'))){
-    b.make('substance-mini')
-  }
 }
 
 function _copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
-  b.copy('./fonts', './build/fonts')
   b.copy('./vendor/brace.*', './build/web/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
   b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/web/')
-  b.copy('./node_modules/stencila-js/build/stencila-js.js*', './build/web/')
 }
 
 function _buildCss() {
@@ -81,30 +76,21 @@ function _buildCss() {
   })
 }
 
-function _buildLib(src, dest, moduleName) {
-  b.js(src, {
-    dest: dest,
-    format: 'umd', moduleName: moduleName,
-    alias: {
-      'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
-    },
-    external: LIB_EXTERNAL
-  })
-}
-
-function _buildDocument() {
-  _buildLib('src/document/document.js', 'build/stencila-document.js', 'stencilaDocument')
-}
-
-function _buildSheet() {
-  _buildLib('src/sheet/sheet.js', 'build/stencila-sheet.js', 'stencilaSheet')
-}
-
 /*
   Building a single Stencila lib bundle, that stuff like Dashboard, DocumentEditor, etc.
 */
 function _buildStencila() {
-  _buildLib('index.es.js', 'build/stencila.js', 'stencila')
+  b.js('index.es.js', {
+    dest: 'build/stencila.js',
+    format: 'umd', moduleName: 'stencila',
+    alias: {
+      'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
+    },
+    external: LIB_EXTERNAL,
+    commonjs: {
+      namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
+    }
+  })
 }
 
 function _buildExamples() {
@@ -138,19 +124,14 @@ b.task('css', ['deps'], () => {
   _buildCss()
 })
 
-b.task('document', ['assets', 'css'], () => {
-  _buildDocument()
+b.task('stencila', ['assets', 'css'], () => {
+  _buildStencila()
 })
 
-b.task('sheet', ['assets', 'css'], () => {
-  _buildSheet()
-})
-
-b.task('examples', ['clean', 'assets', 'css', 'document', 'sheet'], () => {
+b.task('examples', ['clean', 'assets', 'css', 'stencila'], () => {
   // TODO: Make all examples use the single stencila.js build, so we don't
   // need individual builds
   _buildExamples()
-  _buildStencila()
 })
 
 b.task('default', ['clean', 'assets', 'examples'])

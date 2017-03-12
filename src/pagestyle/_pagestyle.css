@@ -3,10 +3,6 @@
   else should live in component scope.
 */
 
-@import '../../fonts/lato.css';
-@import '../../fonts/source-code-pro.css';
-
-
 body,
 input,
 textarea {

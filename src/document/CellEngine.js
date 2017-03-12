@@ -1,6 +1,6 @@
 import { forEach } from 'substance'
 import { Engine } from 'substance-mini'
-import { unpack } from 'stencila-js'
+import { unpack } from '../value'
 
 export default
 class CellEngine extends Engine {

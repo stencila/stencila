@@ -6,10 +6,10 @@
 import wrapSnippet from '../docs/wrapSnippet'
 import example from '../docs/simple-sheet'
 import { EditorSession } from 'substance'
-import { SheetEditor, SheetConfigurator, importHTML } from 'stencila-sheet'
+import { SheetEditor, SheetConfigurator, sheetConversion } from 'stencila'
 
 let configurator = new SheetConfigurator()
-let doc = importHTML(wrapSnippet(example))
+let doc = sheetConversion.importHTML(wrapSnippet(example))
 let editorSession = new EditorSession(doc, {
   configurator: configurator
 })
