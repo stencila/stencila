@@ -1,7 +1,7 @@
 {
-  "name": "stencila-js",
+  "name": "stencila",
   "version": "0.25.0",
-  "description": "Stencila components for Javascript",
+  "description": "Documents powered by data",
   "main": "index.js",
   "scripts": {
     "prepublish": "node_modules/.bin/rollup --config rollup-config.browser.js",
@@ -16,23 +16,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stencila/js.git"
+    "url": "git+https://github.com/stencila/stencila.git"
   },
   "keywords": [
+    "reproducibility",
     "data",
+    "science"
     "documents",
     "sheets",
     "contexts",
-    "sessions",
-    "reproducibility",
-    "science"
   ],
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/stencila/js/issues"
+    "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/js#readme",
+  "homepage": "https://github.com/stencila/stencila#readme",
   "dependencies": {
     "d3": "^4.4.0"
   },
