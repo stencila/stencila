@@ -23,7 +23,7 @@ class CellEngine extends Engine {
   }
 
   dispose() {
-    super.dispos()
+    super.dispose()
     this.editorSession.off(this)
   }
 
@@ -112,27 +112,46 @@ class CellEngine extends Engine {
     // HACK: exploiting knowledge about ops used for manipulating cells
     // - create/delete of cells
     forEach(change.deleted, (node) => {
-      if (node.type === 'cell' || node.type === 'inlince-cell') {
-        this._deregisterCell(node.id)
-        needsUpdate = true
+      switch (node.type) {
+        case 'cell':
+        case 'inline-cell': {
+          this._deregisterCell(node.id)
+          needsUpdate = true
+          break
+        }
+        default:
+          //
       }
     })
     forEach(change.created, (node) => {
-      if (node.type === 'cell' || node.type === 'inlince-cell') {
-        this._registerCell(doc.get(node.id))
-        needsUpdate = true
+      switch (node.type) {
+        case 'cell':
+        case 'inline-cell': {
+          this._registerCell(doc.get(node.id))
+          needsUpdate = true
+          break
+        }
+        default:
+          //
       }
     })
-    if (needsUpdate) {
-      super.update()
-    }
+
+    if (needsUpdate) super.update()
   }
 
   _initialize() {
-    let cells = this.doc.getIndex('type').get('cell')
-    forEach(cells, (cell) => {
-      this._registerCell(cell)
+    forEach(this.doc.getNodes(), (node) => {
+      switch(node.type) {
+        case 'cell':
+        case 'inline-cell': {
+          this._registerCell(node)
+          break
+        }
+        default:
+          //
+      }
     })
+
     // this updates the dependency graph and triggers evaluation
     super.update()
   }
