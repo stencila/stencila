@@ -26,7 +26,10 @@ export default class Dashboard extends Component {
         el.append(
           $$('div').addClass('se-document-entry').append(
             $$('div').addClass('se-title').append(
-              $$('a').attr('href', resolveEditorURL(doc.type, doc.address)).append(
+              $$('a')
+              .attr('href', resolveEditorURL(doc.type, doc.address))
+              .attr('target', '_blank')
+              .append(
                 $$(FontAwesomeIcon, {icon: docTypeIcon }),
                 ' ',
                 doc.title
