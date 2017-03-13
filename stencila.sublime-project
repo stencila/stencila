@@ -38,9 +38,9 @@
 			"name": "Test one: run one test file",
 			"cmd":
 			[
-				"./node_modules/.bin/tape", "--require", "babel-register", "$file"
+				"make", "test-one", "$file"
 			],
 			"working_dir": "."
-		},
+		}
 	]
 }

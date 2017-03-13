@@ -27,7 +27,7 @@ class Macro {
    *
    * @param      {<type>}  match   The match
    */
-  performAction (match, props, context) {
+  performAction (match, props, context) { // eslint-disable-line no-unused-vars
     throw new Error('This method is abstract.')
   }
 
@@ -40,7 +40,7 @@ class Macro {
    *
    * @param      {<type>}  match   The match
    */
-  createNodeData (match) {
+  createNodeData (match) { // eslint-disable-line no-unused-vars
     throw new Error('This method is abstract.')
   }
 }

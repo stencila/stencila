@@ -9,8 +9,11 @@ lint:
 test:
 	npm test
 
-test-bundle:
-	npm run test-bundle
+test-browser:
+	npm run test-browser
+
+test-one:
+	npm run test-one
 
 cover:
 	npm run cover
@@ -27,4 +30,4 @@ docs-serve:
 	npm run docs-serve
 
 clean:
-	rm -rf node_modules build
+	rm -rf node_modules build tmp

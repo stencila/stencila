@@ -1,4 +1,7 @@
-import {Component, DefaultDOMElement, inBrowser, uuid, findParentComponent, TextInput} from 'substance'
+import {
+  Component, DefaultDOMElement,
+  inBrowser, uuid, findParentComponent
+} from 'substance'
 import {getColumnName} from '../model/sheetHelpers'
 import SheetEngine from '../model/SheetEngine'
 import SheetCellComponent from './SheetCellComponent'
@@ -374,11 +377,11 @@ class SheetComponent extends Component {
   }
 
   onConfirmExpression() {
-    console.log('Confirmed expression change')
+    console.info('Confirmed expression change')
   }
 
   onCancelExpression() {
-    console.log('Canceled expression change')
+    console.info('Canceled expression change')
   }
 
   // private API

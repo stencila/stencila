@@ -1,4 +1,4 @@
-.sandbox
 docs
 coverage
+tmp
 *.sublime-workspace

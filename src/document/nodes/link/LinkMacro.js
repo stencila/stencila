@@ -12,7 +12,7 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
 class LinkMacro extends AnnotationMacro {
 
   get regex () {
-    return /\[([^\]]+)\]\(([^\)]+)\)/
+    return /\[([^\]]+)\]\(([^)]+)\)/
   }
 
   createNodeData (match) {

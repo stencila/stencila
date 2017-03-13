@@ -8,7 +8,8 @@ export default
 class HTMLCellComponent extends Component {
 
   render($$) {
-    const cell = this.props.node
+    const node = this.props.node
+    const value = node.value
     const el = $$('div').addClass('sc-html-cell')
     if (value === undefined) {
       el.addClass('sm-loading')

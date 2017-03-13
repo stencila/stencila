@@ -1,5 +1,5 @@
 /*
-  This is used as an entry file to generate vendor/brace.js using browserify
+  Used as an entry file to generate vendor/brace.min.js
 */
 var brace = require('brace')
 

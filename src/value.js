@@ -104,7 +104,7 @@ export function unpack (pkg) {
   } else if (type === 'bool') {
     return content === 'true'
   } else if (type === 'int') {
-    return parseInt(content)
+    return parseInt(content, 10)
   } else if (type === 'flt') {
     return parseFloat(content)
   } else if (type === 'str') {

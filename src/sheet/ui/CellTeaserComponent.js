@@ -14,7 +14,7 @@ class CellTeaserComponent extends Component {
     let name = cell.getName()
     if (name) {
       tr.append(
-        $$('td').addClass('se-name').text(prefix)
+        $$('td').addClass('se-name').text(name)
       )
     }
     let value = cell.value

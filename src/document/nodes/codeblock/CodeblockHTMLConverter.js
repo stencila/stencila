@@ -10,7 +10,7 @@ export default {
     return false
   },
 
-  import: function (el, node, converter) {
+  import: function (el, node) {
     node.language = el.attr('class') || 'text'
     var code = el.find('code')
     node.source = code.text().trim()
