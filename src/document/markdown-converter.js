@@ -3,6 +3,7 @@ import unified from 'unified'
 import remarkParse from 'remark-parse'
 import remark2rehype from 'remark-rehype'
 import remarkSlug from 'remark-slug'
+import remarkSqueezeParagraphs from 'remark-squeeze-paragraphs'
 import remarkStringify from 'remark-stringify'
 
 import rehypeParse from 'rehype-parse'
@@ -36,6 +37,7 @@ export default {
 
     const html = unified()
       .use(remarkParse)
+      .use(remarkSqueezeParagraphs)
       .use(remarkSlug)
       .use(remark2rehype)
       .use(rehypeStringify)
