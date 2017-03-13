@@ -163,12 +163,12 @@ function buildDeps() {
 }
 
 function buildDocumentation() {
-  b.rm('docs')
-  fork(b, "node_modules/documentation/bin/documentation", "build --config docs/docs.yml --output docs --format html")
+  const config = require.resolve('./docs/docs.yml')
+  fork(b, "node_modules/documentation/bin/documentation", "build", "--config", config, "--output", "docs", "--format", "html")
 }
 
 function serveDocumentation() {
-  fork(b, "node_modules/documentation/bin/documentation", "serve --config docs/docs.yml --watch")
+  fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
 
 // Tasks
