@@ -167,7 +167,9 @@ function minifiedVendor(src, name, opts = {}) {
 // we need this only temporarily, or if we need to work on an
 // unpublished version of substance
 function buildDeps() {
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
+  const subsDist = path.join(__dirname, 'node_modules/substance/dist')
+  if (!fs.existsSync(path.join(subsDist,'substance.js')) ||
+      !fs.existsSync(path.join(subsDist, 'substance.cjs.js'))) {
     b.make('substance')
   }
 }
@@ -201,12 +203,12 @@ b.task('deps', () => {
   buildDeps()
 })
 
-b.task('assets', ['deps'], () => {
+b.task('assets', () => {
   copyAssets()
 })
 .describe('Copies assets into build folder.')
 
-b.task('css', ['deps'], () => {
+b.task('css', () => {
   buildCss()
 })
 .describe('Creates a single CSS bundle.')
@@ -223,13 +225,13 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test', ['clean', 'deps'], () => {
+b.task('test', ['clean'], () => {
   buildTests('nodejs')
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js')
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['clean', 'deps'], () => {
+b.task('cover', ['clean'], () => {
   buildTests('cover')
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
@@ -266,7 +268,7 @@ b.task('docs:serve', () => {
   }
 })
 
-b.task('default', ['stencila', 'examples'])
+b.task('default', ['deps', 'stencila', 'examples'])
 .describe('[stencila, examples].')
 
 b.serve({ static: true, route: '/', folder: 'build' })
