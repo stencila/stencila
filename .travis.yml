@@ -23,6 +23,9 @@ cache:
   directories:
     - node_modules
 
+before_script:
+  - npm install documentation
+
 script:
   - make lint
   - make cover

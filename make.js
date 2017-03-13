@@ -1,51 +1,13 @@
-/* globals __dirname */
+/* globals __dirname, process */
 const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
+const install = require('substance-bundler/extensions/install')
+const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
 const fs = require('fs')
 
 // Helpers
 // -------
-
-// this is not run all the time
-// we use it to pre-bundle vendor libraries,
-// to speed up bundling within this project
-// and to work around problems with using rollup on these projects
-function buildVendor() {
-  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
-    exports: ['default']
-  })
-  minifiedVendor('./vendor/.brace.js', 'brace')
-}
-
-function minifiedVendor(src, name, opts = {}) {
-  let tmp = `./vendor/${name}.js`
-  let _opts = Object.assign({
-    dest: tmp,
-    debug: false
-  })
-  if (opts.exports) {
-    _opts.exports = opts.exports
-  }
-  if (opts.standalone) {
-    _opts.browserify = { standalone: name }
-  }
-  b.browserify(src, _opts)
-  if (opts.minify !== false) {
-    b.minify(tmp, {
-      debug: false
-    })
-    b.rm(tmp)
-  }
-}
-
-// we need this only temporarily, or if we need to work on an
-// unpublished version of substance
-function buildDeps() {
-  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
-    b.make('substance', 'browser:pure')
-  }
-}
 
 function copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
@@ -64,7 +26,7 @@ function buildCss() {
 /*
   Building a single Stencila lib bundle
 */
-function buildStencila(browserOnly) {
+function buildStencila() {
   const browserTarget = {
     dest: 'build/stencila.js',
     format: 'umd', moduleName: 'stencila',
@@ -80,9 +42,8 @@ function buildStencila(browserOnly) {
     dest : 'build/stencila.cjs.js',
     format: 'cjs',
   }
-  const targets = browserOnly ? [browserTarget] : [browserTarget, nodejsTarget]
   b.js('index.es.js', {
-    targets: targets,
+    targets: [browserTarget, nodejsTarget],
     // Externals are not include into the bundle
     external: ['substance', 'substance-mini', 'brace', 'katex'],
     // for libraries that we want to include into the browser bundle
@@ -159,6 +120,57 @@ function buildSingleTest(testFile) {
   return dest
 }
 
+// this is not run all the time
+// we use it to pre-bundle vendor libraries,
+// to speed up bundling within this project
+// and to work around problems with using rollup on these projects
+function buildVendor() {
+  install(b, 'browserify', '^14.1.0')
+  install(b, 'uglify-js-harmony', '^2.7.5')
+  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
+    exports: ['default']
+  })
+  minifiedVendor('./vendor/.brace.js', 'brace')
+}
+
+function minifiedVendor(src, name, opts = {}) {
+  let tmp = `./vendor/${name}.js`
+  let _opts = Object.assign({
+    dest: tmp,
+    debug: false
+  })
+  if (opts.exports) {
+    _opts.exports = opts.exports
+  }
+  if (opts.standalone) {
+    _opts.browserify = { standalone: name }
+  }
+  b.browserify(src, _opts)
+  if (opts.minify !== false) {
+    b.minify(tmp, {
+      debug: false
+    })
+    b.rm(tmp)
+  }
+}
+
+// we need this only temporarily, or if we need to work on an
+// unpublished version of substance
+function buildDeps() {
+  if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
+    b.make('substance', 'browser:pure')
+  }
+}
+
+function buildDocumentation() {
+  b.rm('docs')
+  fork(b, "node_modules/documentation/bin/documentation", "build --config docs/docs.yml --output docs --format html")
+}
+
+function serveDocumentation() {
+  fork(b, "node_modules/documentation/bin/documentation", "serve --config docs/docs.yml --watch")
+}
+
 // Tasks
 // -----
 
@@ -193,11 +205,7 @@ b.task('stencila', ['clean', 'assets', 'css'], () => {
 })
 .describe('Build the stencila library.')
 
-b.task('stencila:browser', ['clean', 'assets', 'css'], () => {
-  buildStencila('browserOnly')
-})
-
-b.task('examples', ['stencila:browser'], () => {
+b.task('examples', ['stencila'], () => {
   // TODO: Make all examples use the single stencila.js build, so we don't
   // need individual builds
   buildExamples()
@@ -228,6 +236,22 @@ b.task('test:one', () => {
 
 // ATM test already does what cover should
 b.task('cover', ['test'])
+
+b.task('docs', () => {
+  if (isInstalled('documentation')) {
+    buildDocumentation()
+  } else {
+    console.error("Please run 'npm install documentation'.\nSkipping task.")
+  }
+})
+
+b.task('docs:serve', () => {
+  if (isInstalled('documentation')) {
+    serveDocumentation()
+  } else {
+    console.error("Please run 'npm install documentation'.\nSkipping task.")
+  }
+})
 
 b.task('default', ['stencila', 'examples'])
 .describe('[stencila, examples].')
