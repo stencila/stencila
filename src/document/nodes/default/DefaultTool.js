@@ -8,27 +8,29 @@ import BlockTool from '../../ui/BlockTool'
 class DefaultTool extends BlockTool {
 
   render ($$) {
-    var node = this.props.node
-    return super.render.call(this, $$)
-      .addClass('sc-default-tool')
-      .append(
-        $$('div')
-          .ref('details')
-          .addClass('se-details')
-          .append(
-            $$('button')
-              .ref('edit')
-              .addClass('se-edit')
-              .attr('title', 'Edit')
-              .append(
-                $$('i')
-                  .addClass('fa fa-pencil')
-              )
-              .on('click', function (event) {
-                node.emit('edit:toggle')
-              })
-          )
-      )
+    const el = super.render($$)
+    el.addClass('sc-default-tool')
+
+    const detail = $$('div').ref('details').addClass('se-details')
+    detail.append(
+      $$('button').ref('edit')
+        .addClass('se-edit')
+        .attr('title', 'Edit')
+        .append(
+          $$('i')
+            .addClass('fa fa-pencil')
+        )
+        .on('click', this.onEditClick)
+    )
+    el.append(detail)
+    return el
+  }
+
+  onEditClick(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    const node = this.props.node
+    node.emit('edit:toggle')
   }
 }
 

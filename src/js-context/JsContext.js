@@ -54,7 +54,7 @@ export default class JsContext {
       let last = lines[lines.length - 1]
       try {
         value = (new Function('return ' + last))() // eslint-disable-line no-new-func
-      } catch (error) {
+      } catch (err) {
         value = undefined
       }
     }
@@ -136,7 +136,7 @@ export default class JsContext {
       }
     }, base)
     let depends = []
-    for (let name in names) {
+    for (let name in names) { // eslint-disable-line guard-for-in
       let usage = names[name]
       if (usage.used && !usage.declared) depends.push(name)
     }
@@ -162,7 +162,7 @@ export default class JsContext {
       let message = lines[0]
       let match = lines[1].match(/<anonymous>:(\d+):\d+/)
       let line = 0
-      if (match) line = parseInt(match[1]) - 1 - offset
+      if (match) line = parseInt(match[1], 10) - 1 - offset
       errors = {}
       errors[line] = message
     }

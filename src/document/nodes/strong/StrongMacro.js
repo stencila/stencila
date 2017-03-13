@@ -13,7 +13,7 @@ import AnnotationMacro from '../../ui/AnnotationMacro'
 class StrongMacro extends AnnotationMacro {
 
   get regex () {
-    return /\*([^\*]+)\*/
+    return /\*([^*]+)\*/
   }
 
   createNodeData (match) {

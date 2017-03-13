@@ -1,6 +1,3 @@
-import SheetCell from './SheetCell'
-import { kindToSymbol } from './sheetHelpers'
-
 export default {
 
   type: 'sheet-cell',

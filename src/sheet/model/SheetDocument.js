@@ -1,4 +1,4 @@
-import { Document, forEach } from 'substance'
+import { Document } from 'substance'
 
 /*
   A SheetDocument is a document with a number of sheets.

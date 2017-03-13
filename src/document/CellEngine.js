@@ -14,7 +14,7 @@ class CellEngine extends Engine {
     this._cells = {}
     this._contexts = editorSession.getContext().stencilaContexts || {}
 
-    console.log('INITIALIZING CELL ENGINE')
+    // console.log('INITIALIZING CELL ENGINE')
     this._initialize()
 
     editorSession.on('render', this._onDocumentChange, this, {
@@ -70,10 +70,11 @@ class CellEngine extends Engine {
       }
       // chunks
       case 'run': {
-
+        // TODO
+        break
       }
       // all others are external functions
-      default:
+      default: {
         // regular function calls: we need to lookup
         const func = this._lookupFunction(functionName)
         if (func) {
@@ -89,6 +90,7 @@ class CellEngine extends Engine {
         } else {
           return Promise.reject(`Could not resolve function "${functionName}"`)
         }
+      }
     }
   }
 

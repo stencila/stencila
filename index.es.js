@@ -23,6 +23,6 @@ export { sheetConversion }
 
 export { default as functions } from './src/functions'
 export { default as type } from './src/functions/types/type'
-export  { default as JsContext } from './src/js-context/JsContext'
+export { default as JsContext } from './src/js-context/JsContext'
 export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'

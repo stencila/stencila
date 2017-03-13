@@ -12,7 +12,7 @@ function params () {
   var tokens
   var re = /[?&]?([^=]+)=([^&]*)/g
 
-  while (true) {
+  while (true) { // eslint-disable-line no-constant-condition
     tokens = re.exec(qs)
     if (!tokens) break
     params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2])
