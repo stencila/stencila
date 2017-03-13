@@ -49,6 +49,7 @@
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
     "substance-bundler": "^0.13.4",
-    "substance-test": "^0.8.2"
+    "substance-test": "^0.8.3",
+    "tape": "^4.6.3"
   }
 }

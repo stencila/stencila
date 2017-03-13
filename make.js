@@ -75,8 +75,8 @@ function buildExamples() {
   })
 }
 
-function buildTests(platform) {
-  if (platform === 'browser') {
+function buildTests(target) {
+  if (target === 'browser') {
     b.js('tests/**/*.test.js', {
       dest: 'tmp/tests.js',
       format: 'umd',
@@ -90,9 +90,22 @@ function buildTests(platform) {
         namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
       }
     })
-  } else {
+  } else if (target === 'nodejs') {
     b.js('tests/**/*.test.js', {
       dest: 'tmp/tests.cjs.js',
+      format: 'cjs',
+      external: ['substance', 'tape'],
+      // paramaters that are passed to the rollup-commonjs-plugin
+      commonjs: {
+        namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
+      }
+    })
+  } else if (target === 'cover') {
+    // TODO: we must include the whole source code to see the real coverage
+    // right now we only see the coverage on the files which
+    // are actually imported by tests.
+    b.js('tests/**/*.test.js', {
+      dest: 'tmp/tests.cov.js',
       format: 'cjs',
       istanbul: {
         include: ['src/**/*.js']
@@ -215,9 +228,14 @@ b.task('examples', ['stencila'], () => {
 
 b.task('test', ['clean'], () => {
   buildTests('nodejs')
-  fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cjs.js')
+  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js')
 })
 .describe('Runs the tests and generates a coverage report.')
+
+b.task('cover', ['clean'], () => {
+  buildTests('cover')
+  fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
+})
 
 b.task('test:browser', () => {
   buildTests('browser')
@@ -234,9 +252,6 @@ b.task('test:one', () => {
 })
 .describe('Runs the tests and generates a coverage report.')
 
-
-// ATM test already does what cover should
-b.task('cover', ['test'])
 
 b.task('docs', () => {
   if (isInstalled('documentation')) {
