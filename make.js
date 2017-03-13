@@ -168,6 +168,7 @@ function buildDocumentation() {
 }
 
 function serveDocumentation() {
+  const config = require.resolve('./docs/docs.yml')
   fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
 
