@@ -40,7 +40,7 @@
     "katex": "^0.6.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "substance/substance#kaikoura",
-    "substance-mini": "0.2.3"
+    "substance-mini": "^0.3.0"
   },
   "devDependencies": {
     "brace": "^0.9.1",
@@ -49,7 +49,7 @@
     "lodash.merge": "^4.6.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
-    "substance-bundler": "^0.14.0",
+    "substance-bundler": "^0.14.1",
     "substance-test": "^0.8.3",
     "tape": "^4.6.3"
   }
