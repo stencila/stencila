@@ -7,9 +7,11 @@ import * as sheetConversion from './src/sheet/sheetConversion'
 export { default as Dashboard } from './src/dashboard/Dashboard'
 
 // stubs (needed only by the examples)
-export { default as BackendStub } from './src/backend-stub/BackendStub'
+export { default as MemoryBackend } from './src/backend/MemoryBackend'
+export { default as MemoryArchive } from './src/backend/MemoryArchive'
 
 export { default as DocumentEditor } from './src/document/DocumentEditor'
+export { default as DocumentPage } from './src/document/DocumentPage'
 export { default as DocumentConfigurator } from './src/document/DocumentConfigurator'
 export { documentConversion }
 
