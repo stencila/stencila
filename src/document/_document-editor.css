@@ -32,7 +32,7 @@
 @import './nodes/cell/_cell.css';
 @import './nodes/inline-cell/_inline-cell.css';
 @import './nodes/select/_select.css';
-@import './nodes/html-input/_html-input.css';
+@import './nodes/range-input/_range-input.css';
 
 
 /*Import rendered math styling*/

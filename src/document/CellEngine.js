@@ -12,18 +12,44 @@ class CellEngine extends Engine {
     this.doc = editorSession.getDocument()
 
     this._cells = {}
+    this._inputs = {}
     this._contexts = editorSession.getContext().stencilaContexts || {}
 
     // console.log('INITIALIZING CELL ENGINE')
-    this._initialize()
+    forEach(this.doc.getNodes(), (node) => {
+      switch(node.type) {
+        case 'cell':
+        case 'inline-cell': {
+          this._registerCell(node)
+          break
+        }
+        case 'select':
+        case 'range-input': {
+          this._registerInput(node)
+          break
+        }
+        default:
+          //
+      }
+    })
 
     editorSession.on('render', this._onDocumentChange, this, {
       resource: 'document'
     })
+
+    // this updates the dependency graph and triggers evaluation
+    super.update()
   }
 
   dispose() {
     super.dispose()
+
+    forEach(this._cells, (cell) => {
+      cell.off(this)
+    })
+    forEach(this._inputs, (input) => {
+      input.off(this)
+    })
     this.editorSession.off(this)
   }
 
@@ -119,6 +145,12 @@ class CellEngine extends Engine {
           needsUpdate = true
           break
         }
+        case 'select':
+        case 'range-input': {
+          this._deregisterInput(node.id)
+          needsUpdate = true
+          break
+        }
         default:
           //
       }
@@ -131,20 +163,9 @@ class CellEngine extends Engine {
           needsUpdate = true
           break
         }
-        default:
-          //
-      }
-    })
-
-    if (needsUpdate) super.update()
-  }
-
-  _initialize() {
-    forEach(this.doc.getNodes(), (node) => {
-      switch(node.type) {
-        case 'cell':
-        case 'inline-cell': {
-          this._registerCell(node)
+        case 'select':
+        case 'range-input': {
+          this._registerInput(doc.get(node.id))
           break
         }
         default:
@@ -152,8 +173,7 @@ class CellEngine extends Engine {
       }
     })
 
-    // this updates the dependency graph and triggers evaluation
-    super.update()
+    if (needsUpdate) super.update()
   }
 
   _registerCell(cell) {
@@ -191,6 +211,44 @@ class CellEngine extends Engine {
     super.update()
   }
 
+  _registerInput(input) {
+    this._inputs[input.id] = input
+    const name = input.name
+    if (name) {
+      this.setValue(name, input.value)
+    }
+    input.on('name:updated', this._onInputNameChanged, this)
+    input.on('value:updated', this._onInputValueChanged, this)
+  }
+
+  _deregisterInput(inputId) {
+    const input = this._inputs[inputId]
+    if (input) {
+      input.off(this)
+      delete this._inputs[input.id]
+      const name = input.name
+      if (name) {
+        this.setValue(name, undefined)
+      }
+    }
+  }
+
+  _onInputNameChanged(input, oldName) {
+    const newName = input.name
+    if (oldName) {
+      this.setValue(oldName, undefined)
+    }
+    if (newName) {
+      this.setValue(newName, input.value, 'propagate-immediately')
+    }
+  }
+
+  _onInputValueChanged(input) {
+    const name = input.name
+    if (name) {
+      this.setValue(name, input.value, 'propagate-immediately')
+    }
+  }
 }
 
 function _unwrapResult(p, options) {

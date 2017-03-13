@@ -9,7 +9,7 @@ class SelectComponent extends Component {
     if (this.props.isolatedNodeState) {
       el.addClass('sm-'+this.props.isolatedNodeState)
     }
-    el.append(node.getSelectedText())
+    el.append(node.text)
     return el
   }
 
