@@ -12,7 +12,6 @@
 @import './styles/_cell-teaser.css';
 @import './styles/_toolbar.css';
 @import './styles/_display-mode-tool.css';
-@import './styles/_sheet-editor.css';
 
 .sc-sheet-editor {
   position: absolute;
