@@ -1,6 +1,7 @@
 import { forEach } from 'substance'
 import wrapSnippet from '../../examples/docs/wrapSnippet'
 import kitchenSink from '../../examples/docs/kitchensink'
+import stencilaIntro from '../../examples/docs/stencila-intro'
 import simpleSheet from '../../examples/docs/simple-sheet'
 import MemoryArchive from './MemoryArchive'
 
@@ -8,6 +9,9 @@ import MemoryArchive from './MemoryArchive'
   NOTE: We know that MemoryArchive interally works synchronously, so we don't
         wait for the promise for seeding.
 */
+let stencilaIntroArchive = new MemoryArchive()
+stencilaIntroArchive.writeFile('index.html', 'text/html', wrapSnippet(stencilaIntro))
+
 let kitchenSinkArchive = new MemoryArchive()
 kitchenSinkArchive.writeFile('index.html', 'text/html', wrapSnippet(kitchenSink))
 
@@ -20,6 +24,15 @@ simpleSheetArchive.writeFile('index.html', 'text/html', wrapSnippet(simpleSheet)
   stored in the database.
 */
 const LIBRARY_FIXTURE = {
+  '/examples/stencila-intro.md': {
+    type: 'document',
+    title: 'Welcome to Stencila',
+    createdAt: '2017-03-10T00:03:12.060Z',
+    modifiedAt: '2017-03-10T00:03:12.060Z',
+    openedAt: '2017-03-10T00:03:12.060Z',
+    // just there to simulate the virtual file system
+    __archive: stencilaIntroArchive
+  },
   '/examples/kitchen-sink': {
     type: 'document',
     title: 'Kitchen Sink Document',
@@ -64,6 +77,11 @@ export default class BackendStub {
     })
   }
 
+  /*
+    Returns an archive object.
+
+    Use MemoryArchive implementation as an API reference
+  */
   getArchive(archiveURL) {
     // Returns an in-memory archive
     return LIBRARY_FIXTURE[archiveURL].__archive

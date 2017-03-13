@@ -18,18 +18,15 @@ export default class Dashboard extends Component {
 
   render ($$) {
     let el = $$('div').addClass('sc-dashboard')
-
+    let resolveEditorURL = this.props.resolveEditorURL
     let documents = this.state.documents
     if (documents) {
       documents.forEach((doc) => {
         let docTypeIcon = doc.type === 'document' ? 'fa-file-text' : 'fa-table';
         el.append(
           $$('div').addClass('se-document-entry').append(
-            // $$('div').addClass('se-icon').append(
-            //
-            // ),
             $$('div').addClass('se-title').append(
-              $$('a').attr('href', '#').append(
+              $$('a').attr('href', resolveEditorURL(doc.type, doc.address)).append(
                 $$(FontAwesomeIcon, {icon: docTypeIcon }),
                 ' ',
                 doc.title
