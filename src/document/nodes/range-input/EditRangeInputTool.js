@@ -3,19 +3,17 @@ import { Tool, Component } from 'substance'
 /*
   TODO: support other types than 'range' and 'number'
 */
-class EditHTMLInputTool extends Tool {
+class EditRangeInputTool extends Tool {
   constructor(...args) {
     super(...args)
   }
   render($$) {
     let InputSettingsBar = this.getComponent('input-settings-bar')
-    let el = $$('div').addClass('sc-edit-html-input-tool')
-
+    let el = $$('div').addClass('sc-edit-range-input-tool')
     el.append(
       $$(InputSettingsBar, this.props)
         .on('toggle', this._onToggleSettings)
     )
-
     if (this.state.showSettings) {
       el.append($$(Settings, this.props))
     } else {
@@ -111,4 +109,4 @@ class Display extends Component {
   }
 }
 
-export default EditHTMLInputTool
+export default EditRangeInputTool

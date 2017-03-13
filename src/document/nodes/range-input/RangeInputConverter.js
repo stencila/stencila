@@ -1,13 +1,12 @@
 export default {
-  type: 'html-input',
+  type: 'range-input',
   tagName: 'input',
 
   matchElement: function (el) {
-    return el.is('input')
+    return el.is('input[type="range"]')
   },
 
   import: function (el, node) {
-    node.inputType = el.attr('type')
     node.name = el.attr('name')
     node.min = Number(el.attr('min'))
     node.max = Number(el.attr('max'))
@@ -16,7 +15,7 @@ export default {
   },
 
   export: function (node, el) {
-    el.attr('type', node.inputType)
+    el.attr('type', 'range')
     el.attr('name', node.name)
     el.attr('min', node.min)
     el.attr('max', node.max)

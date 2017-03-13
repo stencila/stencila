@@ -1,8 +1,8 @@
-.sc-html-input {
+.sc-range-input {
   color: var(--stencila-green);
 }
 
-.sc-edit-html-input-tool .se-value-preview {
+.sc-edit-range-input-tool .se-value-preview {
   position: relative;
   top: -10px;
   left: 20px;
@@ -10,16 +10,16 @@
   color: var(--stencila-green)
 }
 
-.sc-edit-html-input-tool .se-settings {
+.sc-edit-range-input-tool .se-settings {
   padding: 5px;
 }
-.sc-edit-html-input-tool .se-settings label {
+.sc-edit-range-input-tool .se-settings label {
   font-size: 12px;
   color: rgba(255,255,255,0.3);
   display: inline-block;
   width: 60px;
 }
 
-.sc-edit-html-input-tool .se-settings input {
+.sc-edit-range-input-tool .se-settings input {
   width: 80px;
 }

@@ -23,13 +23,13 @@ import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
 import ImagePackage from './nodes/image/ImagePackage'
 import SelectPackage from './nodes/select/SelectPackage'
-import HTMLInputPackage from './nodes/html-input/HTMLInputPackage'
+import RangeInputPackage from './nodes/range-input/RangeInputPackage'
 
 /**
  * A "configurator" for a document.
  *
  * Uses the Substance package mechanism to reduce repetition.
- * See `substance/util/AbstractConfigurator` for inherited methods
+ * See `substance.Configurator` for inherited methods
  * used by `DocumentHTMLImporter`, `DocumentEditor` etc
  *
  * @class      DocumentConfigurator (name)
@@ -65,7 +65,7 @@ class DocumentConfigurator extends Configurator {
     this.import(TablePackage)
     this.import(MathPackage)
     this.import(SelectPackage)
-    this.import(HTMLInputPackage)
+    this.import(RangeInputPackage)
 
     this.import(ImagePackage)
     this.import(BlockquotePackage)
@@ -76,6 +76,9 @@ class DocumentConfigurator extends Configurator {
     this.import(MinimalSwitchTextTypePackage)
     this.import(ToggleInsertPackage)
     this.import(InputSettingsBarPackage)
+
+    this.addIcon('settings', { 'fontawesome': 'fa-cog' })
+    this.addLabel('settings', 'Settings')
 
     // this.addKeyboardShortcut('alt+ENTER', { command: 'insert-cell' })
   }

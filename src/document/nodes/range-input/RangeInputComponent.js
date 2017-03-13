@@ -1,18 +1,18 @@
 import { Component } from 'substance'
 
-class HTMLInputComponent extends Component {
+class RangeInputComponent extends Component {
 
   render ($$) {
     let node = this.props.node
     let el = $$('span')
-      .addClass('sc-html-input')
+      .addClass('sc-range-input')
     if (this.props.isolatedNodeState) {
       el.addClass('sm-'+this.props.isolatedNodeState)
     }
-    el.append(node.getValue())
+    el.append(node.value)
     return el
   }
 
 }
 
-export default HTMLInputComponent
+export default RangeInputComponent

@@ -1,6 +1,6 @@
 import { InsertInlineNodeCommand, documentHelpers } from 'substance'
 
-class InsertHTMLInputCommand extends InsertInlineNodeCommand {
+class InsertRangeInputCommand extends InsertInlineNodeCommand {
 
   isDisabled (params) {
     let text = this._getText(params)
@@ -24,9 +24,8 @@ class InsertHTMLInputCommand extends InsertInlineNodeCommand {
     let text = this._getText(params)
     var number = Number(text)
     return {
-      type: 'html-input',
+      type: 'range-input',
       name: '',
-      inputType: 'range',
       min: number / 2,
       max: number + number / 2,
       step: 1,
@@ -36,4 +35,4 @@ class InsertHTMLInputCommand extends InsertInlineNodeCommand {
   }
 }
 
-export default InsertHTMLInputCommand
+export default InsertRangeInputCommand
