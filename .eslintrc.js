@@ -15,7 +15,7 @@ module.exports = {
     // EcmaScript 6
     "Promise", "Map", "Set", "WeakMap", "Symbol",
     // commonjs
-    "require", "module", "exports"
+    "require", "module", "exports", "__dirname", "process"
     //
   ].reduce((m, key)=>{m[key]=true;return m}, {}),
   "rules": {
@@ -135,4 +135,4 @@ module.exports = {
     "no-unused-vars": 2,
     "no-use-before-define": [2, { "functions": false, "classes": false }]
   }
-};
+}
