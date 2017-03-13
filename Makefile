@@ -12,6 +12,9 @@ test:
 test-browser:
 	npm run test-browser
 
+test-one:
+	npm run test-one
+
 cover:
 	npm run cover
 
