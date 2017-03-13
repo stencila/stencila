@@ -5,6 +5,7 @@ const install = require('substance-bundler/extensions/install')
 const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
 const fs = require('fs')
+const merge = require('lodash.merge')
 
 // Helpers
 // -------
@@ -22,6 +23,19 @@ function buildCss() {
     variables: true
   })
 }
+
+const COMMON_SETTINGS = (custom) => { return merge({
+  // paramaters that are passed to the rollup-commonjs-plugin
+  commonjs: {
+    namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
+  },
+  // for libraries that we want to include into the browser bundle
+  // but need to be pre-bundled (see buildVendor())
+  // we register a redirect to the the pre-bundled file
+  alias: {
+    'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
+  }
+}, custom)}
 
 /*
   Building a single Stencila lib bundle
@@ -42,21 +56,11 @@ function buildStencila() {
     dest : 'build/stencila.cjs.js',
     format: 'cjs',
   }
-  b.js('index.es.js', {
+  b.js('index.es.js', COMMON_SETTINGS({
     targets: [browserTarget, nodejsTarget],
     // Externals are not include into the bundle
     external: ['substance', 'substance-mini', 'brace', 'katex'],
-    // for libraries that we want to include into the browser bundle
-    // but need to be pre-bundled (see buildVendor())
-    // we register a redirect to the the pre-bundled file
-    alias: {
-      'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
-    },
-    // paramaters that are passed to the rollup-commonjs-plugin
-    commonjs: {
-      namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
-    }
-  })
+  }))
 }
 
 function buildExamples() {
@@ -77,51 +81,44 @@ function buildExamples() {
 
 function buildTests(target) {
   if (target === 'browser') {
-    b.js('tests/**/*.test.js', {
+    b.js('tests/**/*.test.js', COMMON_SETTINGS({
       dest: 'tmp/tests.js',
       format: 'umd',
       moduleName: 'tests',
       external: {
         'substance': 'window.substance',
         'tape': 'substanceTest.test'
-      },
-      // paramaters that are passed to the rollup-commonjs-plugin
-      commonjs: {
-        namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
       }
-    })
+    }))
   } else if (target === 'nodejs') {
-    b.js('tests/**/*.test.js', {
+    b.js('tests/**/*.test.js', COMMON_SETTINGS({
       dest: 'tmp/tests.cjs.js',
       format: 'cjs',
-      external: ['substance', 'tape'],
-      // paramaters that are passed to the rollup-commonjs-plugin
-      commonjs: {
-        namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
-      }
-    })
+      external: ['substance', 'tape']
+    }))
   } else if (target === 'cover') {
     // TODO: we must include the whole source code to see the real coverage
     // right now we only see the coverage on the files which
     // are actually imported by tests.
-    b.js('tests/**/*.test.js', {
+    b.js(['index.es.js', 'tests/**/*.test.js'], COMMON_SETTINGS({
       dest: 'tmp/tests.cov.js',
       format: 'cjs',
       istanbul: {
         include: ['src/**/*.js']
       },
-      external: ['substance', 'tape'],
-      // paramaters that are passed to the rollup-commonjs-plugin
-      commonjs: {
-        namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
-      }
-    })
+      // add all modules which can be stubbed out by an empty object
+      ignore: [ 'brace', 'katex' ],
+      // these should be used directly from nodejs, not bundled
+      external: [
+        'substance', 'substance-mini', 'tape', 'stream',
+      ]
+    }))
   }
 }
 
 function buildSingleTest(testFile) {
   const dest = path.join(__dirname, 'tmp', testFile)
-  b.js(testFile, {
+  b.js(testFile, COMMON_SETTINGS({
     dest: dest,
     format: 'cjs',
     external: ['substance', 'tape'],
@@ -129,7 +126,7 @@ function buildSingleTest(testFile) {
     commonjs: {
       namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
     }
-  })
+  }))
   return dest
 }
 
@@ -171,7 +168,7 @@ function minifiedVendor(src, name, opts = {}) {
 // unpublished version of substance
 function buildDeps() {
   if (!fs.existsSync(path.join(__dirname, 'node_modules/substance/dist/substance.js'))){
-    b.make('substance', 'browser:pure')
+    b.make('substance')
   }
 }
 
@@ -226,13 +223,13 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test', ['clean'], () => {
+b.task('test', ['clean', 'deps'], () => {
   buildTests('nodejs')
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js')
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['clean'], () => {
+b.task('cover', ['clean', 'deps'], () => {
   buildTests('cover')
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
