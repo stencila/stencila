@@ -1,4 +1,4 @@
-import { Component } from 'substance'
+import { Component, isNil } from 'substance'
 
 class InlineCellComponent extends Component {
 
@@ -19,8 +19,14 @@ class InlineCellComponent extends Component {
   render($$) {
     let node = this.props.node
     let el = $$('span').addClass('sc-inline-cell')
-    if (node.value) {
+    if (!isNil(node.value)) {
+      // NOTE: caching the old value, so that we can
+      // render it still while the engine is updating
+      this._oldValue = node.value
       el.text(String(node.value))
+    } else if (!isNil(this._oldValue)) {
+      el.addClass('sm-pending')
+      el.text(String(this._oldValue))
     }
     if (node.hasError()){
       el.text(String(node.getError()))
