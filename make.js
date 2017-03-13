@@ -65,7 +65,7 @@ const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat('tape')
 function copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./vendor/brace.*', './build/lib/')
-  b.copy('./node_modules/d3/build/', './build/lib/d3')
+  b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
   b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/lib/')
