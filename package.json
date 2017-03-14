@@ -49,7 +49,7 @@
     "lodash.merge": "^4.6.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
-    "substance-bundler": "^0.15.1",
+    "substance-bundler": "^0.15.2",
     "substance-test": "^0.8.3",
     "tape": "^4.6.3"
   }
