@@ -17,7 +17,8 @@ class DocumentHTMLImporter extends HTMLImporter {
       // Required configuration for an importer
       DocumentClass: DocumentModel,
       schema: configurator.getSchema(),
-      converters: configurator.getConverterRegistry().get('html')
+      converters: configurator.getConverterRegistry().get('html'),
+      idAttribute: 'id'
     })
   }
 

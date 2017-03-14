@@ -13,7 +13,8 @@ class DocumentHTMLExporter extends HTMLExporter {
     super({
       DocumentClass: DocumentModel,
       schema: configurator.getSchema(),
-      converters: configurator.getConverterRegistry().get('html')
+      converters: configurator.getConverterRegistry().get('html'),
+      idAttribute: 'id'
     })
   }
   /**
