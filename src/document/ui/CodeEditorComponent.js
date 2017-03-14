@@ -1,6 +1,6 @@
-import { Component } from 'substance'
+import { Component, inBrowser } from 'substance'
 import ace from 'brace'
-import code from '../../utilities/code/index'
+import {attachAceEditor, setAceEditorMode} from '../../utilities/aceHelpers'
 
 /**
  * A `Component` for editing a node's `source` code
@@ -28,6 +28,25 @@ class CodeEditorComponent extends Component {
     this.languageProperty = this.props.languageProperty
   }
 
+  didMount () {
+    const node = this.props.node
+
+    node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this)
+    if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this)
+
+    if (inBrowser) {
+      this._createAceEditor()
+    }
+  }
+
+  dispose () {
+    this.props.node.off(this)
+    if (this.editor) {
+      this.editor.destroy()
+      this.editor = null
+    }
+  }
+
   render ($$) {
     return $$('div')
       .addClass('sc-code-editor')
@@ -38,19 +57,22 @@ class CodeEditorComponent extends Component {
       )
   }
 
-  didMount () {
-    const node = this.props.node
+  shouldRerender () {
+    // Don't rerender as that would destroy editor
+    return false
+  }
 
+  _createAceEditor() {
     // Resolve the language for the code
     let language
     if (this.props.languageProperty) {
-      language = node[this.props.languageProperty]
+      language = this.props.node[this.props.languageProperty]
     } else {
       language = this.props.language
     }
 
     // Attach ACE editor (allows for asynchronous loading of ACE)
-    code.attachAceEditor(
+    attachAceEditor(
       this.refs.editor.getNativeElement(),
       this._getCode(),
       {
@@ -96,20 +118,6 @@ class CodeEditorComponent extends Component {
         this.editor = editor
       }
     )
-
-    node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this)
-    if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this)
-  }
-
-  shouldRerender () {
-    // Don't rerender as that would destroy editor
-    return false
-  }
-
-  dispose () {
-    this.props.node.off(this)
-    this.editor.destroy()
-    this.editor = null
   }
 
   _getCode() {
@@ -227,7 +235,7 @@ class CodeEditorComponent extends Component {
   _onLanguageChanged (change, info) {
     var languageProperty = this.languageProperty
     if (info.source !== this && this.editor) {
-      code.setAceEditorMode(this.editor, this.props.node[languageProperty])
+      setAceEditorMode(this.editor, this.props.node[languageProperty])
     }
   }
 }
