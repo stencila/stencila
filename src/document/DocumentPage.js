@@ -4,8 +4,6 @@ import DocumentConfigurator from './DocumentConfigurator'
 import { importHTML } from './documentConversion'
 import JsContext from '../js-context/JsContext'
 
-let configurator = new DocumentConfigurator()
-
 /*
   Usage:
 
@@ -17,6 +15,46 @@ let configurator = new DocumentConfigurator()
   ```
 */
 export default class DocumentPage extends Component {
+
+  didMount() {
+    this._loadArchive()
+  }
+
+  didUpdate(oldProps, oldState) {
+    // archiveUrl has changed
+    if (oldProps.archiveURL !== this.props.archiveURL) {
+      this._loadArchive()
+    }
+    // editor session has changed
+    if (oldState.editorSession !== this.state.editorSession) {
+      if (oldState.editorSession) {
+        this._unregisterEvents(oldState.editorSession)
+      }
+      if (this.state.editorSession) {
+        this._registerEvents(this.state.editorSession)
+      }
+    }
+  }
+
+  dispose() {
+    if (this.state.editorSession) {
+      this._unregisterEvents(this.state.editorSession)
+    }
+  }
+
+  render($$) {
+    let el = $$('div').addClass('sc-document-page')
+    let editorSession = this.state.editorSession
+    if (editorSession) {
+      el.append(
+        $$(DocumentEditor, {
+          editorSession: editorSession,
+          edit: true
+        }).ref('editor')
+      )
+    }
+    return el
+  }
 
   getBackend() {
     return this.props.backend
@@ -30,32 +68,26 @@ export default class DocumentPage extends Component {
     this.state.editorSession.executeCommand(commandName, params)
   }
 
-  didMount() {
-    let backend = this.getBackend()
-    let archive = backend.getArchive(this.props.archiveURL)
-    archive.readFile('index.html').then((docHTML) => {
-      let doc = importHTML(docHTML)
-      let editorSession = new EditorSession(doc, {
-        configurator: configurator,
-        context: {
-          stencilaContexts: {
-            'js': new JsContext()
+  _loadArchive() {
+    if (this.props.archiveURL) {
+      let configurator = new DocumentConfigurator()
+      let backend = this.getBackend()
+      let archive = backend.getArchive(this.props.archiveURL)
+      if (!archive) throw new Error('Could not find archive.')
+      archive.readFile('index.html').then((docHTML) => {
+        let doc = importHTML(docHTML)
+        let editorSession = new EditorSession(doc, {
+          configurator: configurator,
+          context: {
+            stencilaContexts: {
+              'js': new JsContext()
+            }
           }
-        }
+        })
+        this.setState({
+          editorSession: editorSession
+        })
       })
-
-      this.setState({
-        editorSession: editorSession
-      })
-    })
-  }
-
-  didUpdate(oldProps, oldState) {
-    if (oldState.editorSession) {
-      this._unregisterEvents(oldState.editorSession)
-    }
-    if (this.state.editorSession) {
-      this._registerEvents(this.state.editorSession)
     }
   }
 
@@ -80,20 +112,6 @@ export default class DocumentPage extends Component {
         hasPendingChanges: appState.hasPendingChanges
       })
     }
-  }
-
-  render($$) {
-    let el = $$('div').addClass('sc-document-page')
-    let editorSession = this.state.editorSession
-    if (editorSession) {
-      el.append(
-        $$(DocumentEditor, {
-          editorSession: editorSession,
-          edit: true
-        }).ref('editor')
-      )
-    }
-    return el
   }
 
 }
