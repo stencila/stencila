@@ -90,6 +90,8 @@ function buildStencila() {
   const nodejsTarget = {
     dest : 'build/stencila.cjs.js',
     format: 'cjs',
+    // brace is not nodejs compatible'
+    ignore: [ 'brace' ]
   }
   b.js('index.es.js', COMMON_SETTINGS({
     targets: [browserTarget, nodejsTarget],
