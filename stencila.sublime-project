@@ -13,6 +13,9 @@
 				"node_modules",
 				"coverage"
 			]
+		},
+		{
+			"path": "node_modules/substance"
 		}
 	],
 
@@ -38,7 +41,7 @@
 			"name": "Test one: run one test file",
 			"cmd":
 			[
-				"make", "test-one", "$file"
+				"make", "test-one", "FILE=$file"
 			],
 			"working_dir": "."
 		}

@@ -13,7 +13,7 @@ test-browser:
 	npm run test-browser
 
 test-one:
-	npm run test-one
+	npm run test-one -- $(FILE)
 
 cover:
 	npm run cover
