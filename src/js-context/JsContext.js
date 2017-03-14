@@ -2,6 +2,7 @@ import {parse} from 'acorn'
 import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../value'
+import Context from '../context/Context'
 
 import FUNCTIONS from './functions/index'
 
@@ -9,28 +10,22 @@ import FUNCTIONS from './functions/index'
  * A Javascript context
  *
  * Implements the Stencila `Context` API. All methods return a Promise.
+ *
+ * @extends Context
  */
-export default class JsContext {
+export default class JsContext extends Context {
 
   constructor () {
+    super()
     this._functions = Object.assign({}, FUNCTIONS)
   }
 
   /**
-   * Run JavaScript code within the global context scope (execute a code "chunk")
+   * Run JavaScript code
    *
-   * @param {string} code Javascript code
-   * @param {object} options - Any execution options
-   * @return {object} - A Promise resolving to object with any `errors` (an object with line numbers as keys) and `outputs` (
-   *                         a data package)
-   *
-   * @example
-   *
-   * // You can also assign global variables which are available in subsequent calls,
-   * context.call('foo = "bar"\n\n') // { errors: {}, output: null }
-   * context.call('foo') // { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }
+   * @override
    */
-  run (code, options) {
+  runCode (code, options) {
     code = code || ''
     options = options || {}
     if (options.pack !== false) options.pack = true
@@ -65,25 +60,11 @@ export default class JsContext {
   }
 
   /**
-   * Execute JavaScript code within a local function scope (execute a code "cell")
+   * Call JavaScript code
    *
-   * @param {string} code - Javascript code
-   * @param {object} args - An object with a data pack for each argument
-   * @param {object} options - Any execution options
-   * @return {object} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
-   *                         a data package)
-   *
-   * @example
-   *
-   * // Return statement must be used to return a value
-   * context.call('return 6*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
-   * context.call('let x = 6\nreturn x*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
-   *
-   * // You can specify input variables (that are local to that call),
-   * context.call('return Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
-   * context.call('return radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
+   * @override
    */
-  call (code, args, options = {}) {
+  callCode (code, args, options = {}) {
     const pack = (options.pack !== false)
     code = code || ''
     args = args || {}
@@ -114,15 +95,11 @@ export default class JsContext {
   }
 
   /**
-   * Determine the dependencies for a piece of Javascript code
+   * Get the dependencies for a piece of code
    *
-   * Returns an array of all variable names not declared within
-   * the piece of code. This might include global functions.
-   *
-   * @param  {string} code - JavaScript code
-   * @return {array<string>} - A Promise resolving to a list of dependencies
+   * @override
    */
-  depends (code) {
+  codeDependencies (code) {
     let names = {}
     let ast = parse(code)
     simple(ast, {
@@ -141,6 +118,42 @@ export default class JsContext {
       if (usage.used && !usage.declared) depends.push(name)
     }
     return Promise.resolve(depends)
+  }
+
+
+  /**
+   * Does the context provide a function?
+   *
+   * @override
+   */
+  hasFunction (name) {
+    return Boolean(this._functions[name])
+  }
+
+  /**
+   * Call a function
+   *
+   * @override
+   */
+  callFunction (name, args, options = {}) {
+    if (!name) throw new Error("'name' is mandatory")
+    args = args || []
+    const pack = (options.pack !== false)
+    let values = args
+    if (pack) {
+      values = args.map(arg => unpack(arg))
+    }
+    let error = null
+    let value
+    const f = this._functions[name]
+    try {
+      value = f(...values)
+    } catch (e) {
+      error = e
+    }
+    return Promise.resolve(
+      this._result(error, 0, value, pack)
+    )
   }
 
   /**
@@ -176,36 +189,6 @@ export default class JsContext {
       errors: errors,
       output: output
     }
-  }
-
-  // EXPERIMENTAL
-
-  // used to look up a context for a given function name
-  hasFunction (name) {
-    return Boolean(this._functions[name])
-  }
-
-  // used to call the function
-  // this is different to call(...) as calls to an existing function
-  callFunction (name, args, options = {}) {
-    if (!name) throw new Error("'name' is mandatory")
-    args = args || []
-    const pack = (options.pack !== false)
-    let values = args
-    if (pack) {
-      values = args.map(arg => unpack(arg))
-    }
-    let error = null
-    let value
-    const f = this._functions[name]
-    try {
-      value = f(...values)
-    } catch (e) {
-      error = e
-    }
-    return Promise.resolve(
-      this._result(error, 0, value, pack)
-    )
   }
 
 }
