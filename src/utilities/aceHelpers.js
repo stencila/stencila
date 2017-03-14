@@ -1,14 +1,14 @@
 // ATTENTION: this is actually importing a bundled version of brace
 import brace from 'brace'
 
-function attachAceEditor(el, content, options, callback) {
+export function attachAceEditor(el, content, options, callback) {
   var editor = brace.edit(el)
   updateAceEditor(editor, options)
   if (content) editor.setValue(content, 1)
   if (callback) callback(editor)
 }
 
-function setAceEditorMode(editor, language) {
+export function setAceEditorMode(editor, language) {
   // Convert language tag to ACE mode if necessary
   // If no language defined, default to plain text
   // If no conversion defined here will use mode = language
@@ -25,7 +25,7 @@ function setAceEditorMode(editor, language) {
   editor.getSession().setMode('ace/mode/' + mode)
 }
 
-function updateAceEditor(editor, options) {
+export function updateAceEditor(editor, options) {
   options = options || {}
 
   // Stuff that is not yet actually an option
@@ -70,10 +70,4 @@ function updateAceEditor(editor, options) {
     editor.renderer.$cursorLayer.element.style.opacity = 1
     editor.textInput.getElement().disabled = false
   }
-}
-
-export default {
-  attachAceEditor,
-  setAceEditorMode,
-  updateAceEditor
 }

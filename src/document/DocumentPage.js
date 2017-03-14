@@ -84,6 +84,8 @@ export default class DocumentPage extends Component {
             }
           }
         })
+        // enable this to make debugging easier
+        // editorSession._url = this.props.archiveURL
         this.setState({
           editorSession: editorSession
         })

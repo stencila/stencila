@@ -4,7 +4,7 @@ import { MemoryArchive } from '../../index.es'
 import testVFS from '../../tmp/test-vfs.js'
 
 let testLibrary = {}
-forEach(testVFS, (entry, address) => {
+forEach(testVFS, (content, address) => {
   if (/\.html$/.exec(address)) {
     testLibrary[address] = {
       type: 'document',
@@ -13,7 +13,7 @@ forEach(testVFS, (entry, address) => {
       createdAt: '2017-03-10T00:03:12.060Z',
       modifiedAt: '2017-03-10T00:03:12.060Z',
       openedAt: '2017-03-10T00:03:12.060Z',
-      _html: entry.data,
+      _html: content,
     }
   }
 })
