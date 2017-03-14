@@ -60,10 +60,11 @@
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",
     "lodash.merge": "^4.6.0",
+    "remark-html": "^6.0.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
     "substance-bundler": "^0.15.2",
-    "substance-test": "^0.8.3",
+    "substance-test": "^0.8.4",
     "tape": "^4.6.3"
   }
 }

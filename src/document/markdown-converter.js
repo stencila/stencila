@@ -1,14 +1,12 @@
 import unified from 'unified'
 import unistVisit from 'unist-util-visit'
 import unistFind from 'unist-util-find'
-import unistRemove from 'unist-util-remove'
 
 import remarkParse from 'remark-parse'
 import remarkSqueezeParagraphs from 'remark-squeeze-paragraphs'
 import remarkBracketedSpans from 'remark-bracketed-spans'
 import remarkSlug from 'remark-slug'
 import remarkHtml from 'remark-html'
-import remark2rehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
 
 import rehypeParse from 'rehype-parse'
@@ -187,7 +185,7 @@ function remarkBracketedSpansClean () {
  */
 function rehypeSpanToInputOutput () {
   return tree => {
-    unistVisit(tree, (node, i, parent) => {
+    unistVisit(tree, (node, i, parent) => { // eslint-disable-line no-unused-vars
       if (node.tagName === 'span' && node.properties) {
         if (node.properties.dataName) {
           // Set name attribute
@@ -252,7 +250,7 @@ function rehypeSpanToInputOutput () {
  */
 function rehypeInputOutputToMarkdown () {
   return tree => {
-    unistVisit(tree, (node, i, parent) => {
+    unistVisit(tree, (node, i, parent) => { // eslint-disable-line no-unused-vars
       if ((node.tagName === 'input' || node.tagName === 'select') && node.properties && node.properties.name) {
         var name = node.properties.name
         delete node.properties.name
@@ -369,7 +367,7 @@ function rehypeCodeblockToCell () {
  */
 function rehypeCellToCodeblock () {
   return tree => {
-    unistVisit(tree, (node, i, parent) => {
+    unistVisit(tree, (node, i, parent) => { // eslint-disable-line no-unused-vars
       if (node.type === 'element' && node.properties) {
         let expr = node.properties.dataCell // 'data-cell' is parsed to 'dataCell'
         if (expr) {

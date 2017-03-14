@@ -6,6 +6,7 @@ const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
 const fs = require('fs')
 const merge = require('lodash.merge')
+const { forEach } = require('substance')
 
 /*
   Guide: this is a bundler make file.
@@ -35,9 +36,24 @@ const COMMON_SETTINGS = (custom) => { return merge({
   // but need to be pre-bundled (see buildVendor())
   // we register a redirect to the the pre-bundled file
   alias: {
-    'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js'),
+    'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js')
   }
 }, custom)}
+
+const UNIFIED_MODULES = {
+  'unified': 'unified',
+  'unist-util-visit': 'unistVisit',
+  'unist-util-find': 'unistFind',
+  'remark-parse': 'remarkParse',
+  'remark-squeeze-paragraphs': 'remarkSqueezeParagraphs',
+  'remark-bracketed-spans': 'remarkBracketedSpans',
+  'remark-slug': 'remarkSlug',
+  'remark-html': 'remarkHtml',
+  'remark-stringify': 'remarkStringify',
+  'rehype-parse': 'rehypeParse',
+  'rehype-remark': 'rehype2remark',
+  'rehype-stringify': 'rehypeStringify'
+}
 
 const BROWSER_EXTERNALS = {
   'substance': 'window.substance',
@@ -46,6 +62,9 @@ const BROWSER_EXTERNALS = {
   'd3': 'window.d3',
   'katex': 'window.katex'
 }
+forEach(UNIFIED_MODULES, (alias, moduleName) => {
+  BROWSER_EXTERNALS[moduleName] = 'window.unifiedHtmlMarkdown.'+alias
+})
 
 const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
   'stencila': 'window.stencila'
@@ -55,9 +74,11 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
   'tape': 'substanceTest.test'
 })
 
-const NODEJS_EXTERNALS = Object.keys(BROWSER_EXTERNALS)
+const NODEJS_EXTERNALS = [
+  'substance', 'substance-mini', 'brace', 'd3', 'katex'
+].concat(Object.keys(UNIFIED_MODULES))
 
-const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat('tape')
+const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 
 // Functions
 // ---------
@@ -116,7 +137,8 @@ function buildTests(target) {
       dest: 'tmp/tests.js',
       format: 'umd',
       moduleName: 'tests',
-      external: BROWSER_TEST_EXTERNALS
+      external: BROWSER_TEST_EXTERNALS,
+      json: true
     }))
   } else if (target === 'nodejs') {
     b.js('tests/**/*.test.js', COMMON_SETTINGS({
@@ -137,7 +159,7 @@ function buildTests(target) {
       // brace is not nodejs compatible'
       ignore: [ 'brace' ],
       // these should be used directly from nodejs, not bundled
-      external: NODEJS_TEST_EXTERNALS.concat(['stream'])
+      external: NODEJS_TEST_EXTERNALS
     }))
   }
 }
@@ -159,11 +181,11 @@ function buildSingleTest(testFile) {
 function buildVendor() {
   install(b, 'browserify', '^14.1.0')
   install(b, 'uglify-js-harmony', '^2.7.5')
-  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
-    exports: ['default']
-  })
-  minifiedVendor('./vendor/.brace.js', 'brace')
-  minifiedVendor('./vendor/.unified.js', 'unified-html-md')
+  // minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
+  //   exports: ['default']
+  // })
+  // minifiedVendor('./vendor/_brace.js', 'brace')
+  minifiedVendor('./vendor/_unified.js', 'unified-html-markdown')
 }
 
 function minifiedVendor(src, name, opts = {}) {
