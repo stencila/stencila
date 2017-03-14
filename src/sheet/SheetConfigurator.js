@@ -8,7 +8,7 @@ import SheetPackage from './SheetPackage'
  * A "configurator" for a sheet.
  *
  * Uses the Substance package mechanism to reduce repetition.
- * See `substance/util/AbstractConfigurator` for inherited methods
+ * See `substance.Configurator` for inherited methods
  * used by `DocumentHTMLImporter`, `DocumentEditor` etc
  *
  * @class      DocumentConfigurator (name)

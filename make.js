@@ -7,22 +7,24 @@ const path = require('path')
 const fs = require('fs')
 const merge = require('lodash.merge')
 
-// Helpers
-// -------
+/*
+  Guide: this is a bundler make file.
+  It is similar to gulp in that you define tasks which
+  you can connect by adding dependencies.
 
-function copyAssets() {
-  b.copy('./node_modules/font-awesome', './build/font-awesome')
-  b.copy('./vendor/brace.*', './build/web/')
-  b.copy('./node_modules/katex/dist/', './build/katex')
-  b.copy('./node_modules/substance/dist/substance.js*', './build/web/')
-  b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/web/')
-}
+  This file has the following structure:
+  - Constants:
+    Put shared settings and literals here to avoid code duplication
+  - Functions:
+    All task implementations
+  - Tasks:
+    Task definitions
 
-function buildCss() {
-  b.css('src/pagestyle/stencila.css', 'build/stencila.css', {
-    variables: true
-  })
-}
+  Run `node make --help` to print usage information.
+*/
+
+// Constants
+// ---------
 
 const COMMON_SETTINGS = (custom) => { return merge({
   // paramaters that are passed to the rollup-commonjs-plugin
@@ -37,6 +39,44 @@ const COMMON_SETTINGS = (custom) => { return merge({
   }
 }, custom)}
 
+const BROWSER_EXTERNALS = {
+  'substance': 'window.substance',
+  'substance-mini': 'window.substanceMini',
+  'brace': 'window.ace',
+  'd3': 'window.d3',
+  'katex': 'window.katex'
+}
+
+const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
+  'stencila': 'window.stencila'
+})
+
+const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
+  'tape': 'substanceTest.test'
+})
+
+const NODEJS_EXTERNALS = Object.keys(BROWSER_EXTERNALS)
+
+const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat('tape')
+
+// Functions
+// ---------
+
+function copyAssets() {
+  b.copy('./node_modules/font-awesome', './build/font-awesome')
+  b.copy('./vendor/brace.*', './build/lib/')
+  b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
+  b.copy('./node_modules/katex/dist/', './build/katex')
+  b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
+  b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/lib/')
+}
+
+function buildCss() {
+  b.css('src/pagestyle/stencila.css', 'build/stencila.css', {
+    variables: true
+  })
+}
+
 /*
   Building a single Stencila lib bundle
 */
@@ -45,12 +85,7 @@ function buildStencila() {
     dest: 'build/stencila.js',
     format: 'umd', moduleName: 'stencila',
     // we need to specify how the resolve external modules
-    globals: {
-      'substance': 'window.substance',
-      'substance-mini': 'window.substanceMini',
-      'brace': 'window.ace',
-      'katex': 'window.katex'
-    }
+    globals: BROWSER_EXTERNALS
   }
   const nodejsTarget = {
     dest : 'build/stencila.cjs.js',
@@ -59,22 +94,18 @@ function buildStencila() {
   b.js('index.es.js', COMMON_SETTINGS({
     targets: [browserTarget, nodejsTarget],
     // Externals are not include into the bundle
-    external: ['substance', 'substance-mini', 'brace', 'katex'],
+    external: NODEJS_EXTERNALS,
   }))
 }
 
 function buildExamples() {
-  const EXAMPLE_EXTERNAL = {
-    'substance': 'window.substance',
-    'stencila': 'window.stencila'
-  }
   b.copy('./examples/*/*.html', './build/')
 
   ;['document', 'sheet', 'dashboard'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
-      external: EXAMPLE_EXTERNAL
+      external: EXAMPLE_EXTERNALS
     })
   })
 }
@@ -85,16 +116,13 @@ function buildTests(target) {
       dest: 'tmp/tests.js',
       format: 'umd',
       moduleName: 'tests',
-      external: {
-        'substance': 'window.substance',
-        'tape': 'substanceTest.test'
-      }
+      external: BROWSER_TEST_EXTERNALS
     }))
   } else if (target === 'nodejs') {
     b.js('tests/**/*.test.js', COMMON_SETTINGS({
       dest: 'tmp/tests.cjs.js',
       format: 'cjs',
-      external: ['substance', 'tape']
+      external: NODEJS_TEST_EXTERNALS
     }))
   } else if (target === 'cover') {
     // TODO: we must include the whole source code to see the real coverage
@@ -106,12 +134,10 @@ function buildTests(target) {
       istanbul: {
         include: ['src/**/*.js']
       },
-      // add all modules which can be stubbed out by an empty object
-      ignore: [ 'brace', 'katex' ],
+      // brace is not nodejs compatible'
+      ignore: [ 'brace' ],
       // these should be used directly from nodejs, not bundled
-      external: [
-        'substance', 'substance-mini', 'tape', 'stream',
-      ]
+      external: NODEJS_TEST_EXTERNALS.concat(['stream'])
     }))
   }
 }
@@ -121,11 +147,7 @@ function buildSingleTest(testFile) {
   b.js(testFile, COMMON_SETTINGS({
     dest: dest,
     format: 'cjs',
-    external: ['substance', 'tape'],
-    // paramaters that are passed to the rollup-commonjs-plugin
-    commonjs: {
-      namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
-    }
+    external: NODEJS_TEST_EXTERNALS
   }))
   return dest
 }
@@ -227,7 +249,7 @@ b.task('examples', ['stencila'], () => {
 
 b.task('test', ['clean'], () => {
   buildTests('nodejs')
-  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js')
+  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
@@ -247,7 +269,7 @@ b.task('test:one', () => {
     process.exit(-1)
   }
   let builtTestFile = buildSingleTest(test)
-  fork(b, 'node_modules/substance-test/bin/test', builtTestFile)
+  fork(b, 'node_modules/substance-test/bin/test', builtTestFile, { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 

@@ -28,6 +28,7 @@ before_script:
 
 script:
   - make lint
+  - make test
   - make cover
   - make docs
 
