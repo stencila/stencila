@@ -17,6 +17,37 @@ test('Document: mounting a DocumentPage', (t) => {
   t.end()
 })
 
+test('Document: switching documents', (t) => {
+  const sandbox = getSandbox(t)
+  const page = DocumentPage.mount({
+    backend: new TestBackend(),
+    archiveURL: '/tests/documents/simple/default.html'
+  }, sandbox)
+  t.plan(2)
+  Promise.resolve()
+  .then(() => {
+    page.extendProps({
+      archiveURL: '/tests/documents/simple/default.html'
+    })
+  })
+  .then(wait(10))
+  .then(() => {
+    let simple = page.find('[data-id=simple]')
+    t.notOk(isNil(simple), 'Element #simple should be on the page.')
+  })
+  .then(() => {
+    page.extendProps({
+      archiveURL: '/tests/documents/paragraph/default.html'
+    })
+  })
+  .then(wait(10))
+  .then(() => {
+    let paragraph = page.find('[data-id=paragraph]')
+    t.notOk(isNil(paragraph), 'Element #paragraph should be on the page.')
+  })
+})
+
+
 test('Document: open all test documents', (t) => {
   const testBackend = new TestBackend()
   const docUrls = testBackend._getDocumentUrls()
