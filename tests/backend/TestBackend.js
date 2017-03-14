@@ -1,10 +1,10 @@
 import { forEach, map } from 'substance'
 import wrapSnippet from '../../examples/docs/wrapSnippet'
 import { MemoryArchive } from '../../index.es'
-import testDocs from '../../tmp/test-docs.js'
+import testVFS from '../../tmp/test-vfs.js'
 
 let testLibrary = {}
-forEach(testDocs, (entry, address) => {
+forEach(testVFS, (entry, address) => {
   if (/\.html$/.exec(address)) {
     testLibrary[address] = {
       type: 'document',
@@ -18,6 +18,8 @@ forEach(testDocs, (entry, address) => {
   }
 })
 
+const SLASH = "/".charCodeAt(0)
+
 export default class TestBackend {
   listDocuments() {
     return new Promise(function(resolve) {
@@ -28,6 +30,9 @@ export default class TestBackend {
     })
   }
   getArchive(archiveURL) {
+    if (archiveURL.charCodeAt(0) === SLASH) {
+      archiveURL = archiveURL.slice(1)
+    }
     let entry = testLibrary[archiveURL]
     if (!entry) return
     let archive = new MemoryArchive()

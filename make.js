@@ -134,7 +134,7 @@ function buildExamples() {
 function buildTestBackend() {
   b.custom('Creating test backend...', {
     src: './tests/documents/**/*',
-    dest: './tmp/test-backend.js',
+    dest: './tmp/test-vfs.js',
     execute(files) {
       const rootDir = b.rootDir
       const vfs = {}
@@ -145,7 +145,7 @@ function buildTestBackend() {
         vfs[relPath] = content
       })
       const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeSync('tmp/test-backend.js', data)
+      b.writeSync('tmp/test-vfs.js', data)
     }
   })
 }
