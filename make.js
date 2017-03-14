@@ -101,19 +101,27 @@ function buildCss() {
 /*
   Building a single Stencila lib bundle
 */
-function buildStencila() {
+function buildStencilaBrowser() {
   const browserTarget = {
     dest: 'build/stencila.js',
     format: 'umd', moduleName: 'stencila',
-    // we need to specify how the resolve external modules
     globals: BROWSER_EXTERNALS
   }
+  b.js('index.es.js', COMMON_SETTINGS({
+    target: browserTarget,
+    external: NODEJS_EXTERNALS
+  }))
+}
+
+function buildStencilaNodeJS() {
   const nodejsTarget = {
     dest : 'build/stencila.cjs.js',
-    format: 'cjs',
+    format: 'cjs'
   }
   b.js('index.es.js', COMMON_SETTINGS({
-    targets: [browserTarget, nodejsTarget],
+    target: nodejsTarget,
+    // brace is not nodejs compatible'
+    ignore: [ 'brace' ],
     // Externals are not include into the bundle
     external: NODEJS_EXTERNALS,
   }))
@@ -259,7 +267,8 @@ b.task('css', () => {
 .describe('Creates a single CSS bundle.')
 
 b.task('stencila', ['clean', 'assets', 'css'], () => {
-  buildStencila()
+  buildStencilaBrowser()
+  buildStencilaNodeJS()
 })
 .describe('Build the stencila library.')
 

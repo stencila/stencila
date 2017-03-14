@@ -22,6 +22,14 @@ export default class DocumentPage extends Component {
     return this.props.backend
   }
 
+  getAppState() {
+    return this.props.appState
+  }
+
+  executeCommand(commandName, params) {
+    this.state.editorSession.executeCommand(commandName, params)
+  }
+
   didMount() {
     let backend = this.getBackend()
     let archive = backend.getArchive(this.props.archiveURL)
@@ -35,10 +43,43 @@ export default class DocumentPage extends Component {
           }
         }
       })
+
       this.setState({
         editorSession: editorSession
       })
     })
+  }
+
+  didUpdate(oldProps, oldState) {
+    if (oldState.editorSession) {
+      this._unregisterEvents(oldState.editorSession)
+    }
+    if (this.state.editorSession) {
+      this._registerEvents(this.state.editorSession)
+    }
+  }
+
+  _registerEvents(editorSession) {
+    editorSession.on('render', this._onSelectionChange, this, {
+      resource: 'selection'
+    })
+  }
+
+  _unregisterEvents(editorSession) {
+    editorSession.off(this)
+  }
+
+  _onSelectionChange() {
+    let toolGroups = this.refs.editor.toolGroups
+    let commandStates = this.state.editorSession.getCommandStates()
+    let appState = this.getAppState()
+    if (appState) {
+      appState.extend({
+        commandStates: commandStates,
+        toolGroups: toolGroups,
+        hasPendingChanges: appState.hasPendingChanges
+      })
+    }
   }
 
   render($$) {
@@ -49,7 +90,7 @@ export default class DocumentPage extends Component {
         $$(DocumentEditor, {
           editorSession: editorSession,
           edit: true
-        })
+        }).ref('editor')
       )
     }
     return el
