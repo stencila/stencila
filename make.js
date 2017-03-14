@@ -163,7 +163,9 @@ function buildNodeJSTests() {
   b.js('tests/**/*.test.js', COMMON_SETTINGS({
     dest: 'tmp/tests.cjs.js',
     format: 'cjs',
-    external: NODEJS_TEST_EXTERNALS
+    external: NODEJS_TEST_EXTERNALS,
+    // brace is not nodejs compatible'
+    ignore: [ 'brace' ],
   }))
 }
 

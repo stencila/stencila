@@ -1,4 +1,4 @@
-import { inBrowser, DefaultDOMElement } from 'substance'
+import { DefaultDOMElement } from 'substance'
 
 export default function getSandbox(t) {
   // when running with substance-test we get
