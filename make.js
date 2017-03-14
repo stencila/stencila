@@ -6,7 +6,6 @@ const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
 const fs = require('fs')
 const merge = require('lodash.merge')
-const { forEach } = require('substance')
 
 /*
   Guide: this is a bundler make file.
@@ -62,7 +61,8 @@ const BROWSER_EXTERNALS = {
   'd3': 'window.d3',
   'katex': 'window.katex'
 }
-forEach(UNIFIED_MODULES, (alias, moduleName) => {
+Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
+  const alias = UNIFIED_MODULES[moduleName]
   BROWSER_EXTERNALS[moduleName] = 'window.unifiedHtmlMarkdown.'+alias
 })
 
