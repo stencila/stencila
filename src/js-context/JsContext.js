@@ -2,6 +2,7 @@ import {parse} from 'acorn'
 import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../value'
+import Context from '../context/Context'
 
 import FUNCTIONS from './functions/index'
 
@@ -9,10 +10,13 @@ import FUNCTIONS from './functions/index'
  * A Javascript context
  *
  * Implements the Stencila `Context` API. All methods return a Promise.
+ *
+ * @extends Context
  */
-export default class JsContext {
+export default class JsContext extends Context {
 
   constructor () {
+    super()
     this._functions = Object.assign({}, FUNCTIONS)
   }
 
