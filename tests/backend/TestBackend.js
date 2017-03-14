@@ -39,4 +39,20 @@ export default class TestBackend {
     archive.writeFile('index.html', 'text/html', wrapSnippet(entry._html))
     return archive
   }
+
+  _getEntries() {
+    return map(testLibrary, (entry) => {
+      return Object.assign({}, entry)
+    })
+  }
+
+  _getDocumentUrls() {
+    const entries = this._getEntries()
+    const docUrls = entries.filter((entry) => {
+      return entry.type === 'document'
+    }).map((entry) => {
+      return entry.address
+    })
+    return docUrls
+  }
 }
