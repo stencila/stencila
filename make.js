@@ -98,28 +98,19 @@ function buildCss() {
   })
 }
 
-/*
-  Building a single Stencila lib bundle
-*/
 function buildStencilaBrowser() {
-  const browserTarget = {
+  b.js('index.es.js', COMMON_SETTINGS({
     dest: 'build/stencila.js',
     format: 'umd', moduleName: 'stencila',
-    globals: BROWSER_EXTERNALS
-  }
-  b.js('index.es.js', COMMON_SETTINGS({
-    target: browserTarget,
+    globals: BROWSER_EXTERNALS,
     external: NODEJS_EXTERNALS
   }))
 }
 
 function buildStencilaNodeJS() {
-  const nodejsTarget = {
-    dest : 'build/stencila.cjs.js',
-    format: 'cjs'
-  }
   b.js('index.es.js', COMMON_SETTINGS({
-    target: nodejsTarget,
+    dest : 'build/stencila.cjs.js',
+    format: 'cjs',
     // brace is not nodejs compatible'
     ignore: [ 'brace' ],
     // Externals are not include into the bundle
@@ -129,7 +120,7 @@ function buildStencilaNodeJS() {
 
 function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
-
+  //
   ;['document', 'sheet', 'dashboard'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
@@ -139,6 +130,7 @@ function buildExamples() {
   })
 }
 
+// reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
     src: './tests/documents/**/*',
@@ -158,37 +150,38 @@ function buildTestBackend() {
   })
 }
 
-function buildTests(target) {
-  if (target === 'browser') {
-    b.js('tests/**/*.test.js', COMMON_SETTINGS({
-      dest: 'tmp/tests.js',
-      format: 'umd',
-      moduleName: 'tests',
-      external: BROWSER_TEST_EXTERNALS,
-      json: true
-    }))
-  } else if (target === 'nodejs') {
-    b.js('tests/**/*.test.js', COMMON_SETTINGS({
-      dest: 'tmp/tests.cjs.js',
-      format: 'cjs',
-      external: NODEJS_TEST_EXTERNALS
-    }))
-  } else if (target === 'cover') {
-    // TODO: we must include the whole source code to see the real coverage
-    // right now we only see the coverage on the files which
-    // are actually imported by tests.
-    b.js(['index.es.js', 'tests/**/*.test.js'], COMMON_SETTINGS({
-      dest: 'tmp/tests.cov.js',
-      format: 'cjs',
-      istanbul: {
-        include: ['src/**/*.js']
-      },
-      // brace is not nodejs compatible'
-      ignore: [ 'brace' ],
-      // these should be used directly from nodejs, not bundled
-      external: NODEJS_TEST_EXTERNALS
-    }))
-  }
+function buildBrowserTests() {
+  b.js('tests/**/*.test.js', COMMON_SETTINGS({
+    dest: 'tmp/tests.js',
+    format: 'umd',
+    moduleName: 'tests',
+    external: BROWSER_TEST_EXTERNALS
+  }))
+}
+
+function buildNodeJSTests() {
+  b.js('tests/**/*.test.js', COMMON_SETTINGS({
+    dest: 'tmp/tests.cjs.js',
+    format: 'cjs',
+    external: NODEJS_TEST_EXTERNALS
+  }))
+}
+
+function buildInstrumentedTests() {
+  // TODO: we must include the whole source code to see the real coverage
+  // right now we only see the coverage on the files which
+  // are actually imported by tests.
+  b.js(['index.es.js', 'tests/**/*.test.js'], COMMON_SETTINGS({
+    dest: 'tmp/tests.cov.js',
+    format: 'cjs',
+    istanbul: {
+      include: ['src/**/*.js']
+    },
+    // brace is not nodejs compatible'
+    ignore: [ 'brace' ],
+    // these should be used directly from nodejs, not bundled
+    external: NODEJS_TEST_EXTERNALS.concat(['stream'])
+  }))
 }
 
 function buildSingleTest(testFile) {
@@ -298,26 +291,26 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('testbackend', () => {
+b.task('test:backend', () => {
   buildTestBackend()
 })
 
-b.task('test', ['clean', 'testbackend'], () => {
-  buildTests('nodejs')
+b.task('test', ['clean', 'test:backend'], () => {
+  buildNodeJSTests()
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['clean', 'testbackend'], () => {
-  buildTests('cover')
+b.task('cover', ['clean', 'test:backend'], () => {
+  buildInstrumentedTests()
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
 
-b.task('test:browser', ['testbackend'], () => {
-  buildTests('browser')
+b.task('test:browser', ['test:backend'], () => {
+  buildBrowserTests()
 })
 
-b.task('test:one', ['testbackend'], () => {
+b.task('test:one', ['test:backend'], () => {
   let test = b.argv.f
   if (!test) {
     console.error("Usage: node make test:one -f <testfile>")
