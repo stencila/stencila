@@ -139,6 +139,25 @@ function buildExamples() {
   })
 }
 
+function buildTestBackend() {
+  b.custom('Creating test backend...', {
+    src: './tests/documents/**/*',
+    dest: './tmp/test-backend.js',
+    execute(files) {
+      const rootDir = b.rootDir
+      const vfs = {}
+      files.forEach((f) => {
+        if (b.isDirectory(f)) return
+        let content = fs.readFileSync(f).toString()
+        let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
+        vfs[relPath] = content
+      })
+      const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
+      b.writeSync('tmp/test-backend.js', data)
+    }
+  })
+}
+
 function buildTests(target) {
   if (target === 'browser') {
     b.js('tests/**/*.test.js', COMMON_SETTINGS({
@@ -279,22 +298,26 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test', ['clean'], () => {
+b.task('testbackend', () => {
+  buildTestBackend()
+})
+
+b.task('test', ['clean', 'testbackend'], () => {
   buildTests('nodejs')
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['clean'], () => {
+b.task('cover', ['clean', 'testbackend'], () => {
   buildTests('cover')
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
 
-b.task('test:browser', () => {
+b.task('test:browser', ['testbackend'], () => {
   buildTests('browser')
 })
 
-b.task('test:one', () => {
+b.task('test:one', ['testbackend'], () => {
   let test = b.argv.f
   if (!test) {
     console.error("Usage: node make test:one -f <testfile>")
