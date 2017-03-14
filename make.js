@@ -249,7 +249,7 @@ b.task('examples', ['stencila'], () => {
 
 b.task('test', ['clean'], () => {
   buildTests('nodejs')
-  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js')
+  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
@@ -269,7 +269,7 @@ b.task('test:one', () => {
     process.exit(-1)
   }
   let builtTestFile = buildSingleTest(test)
-  fork(b, 'node_modules/substance-test/bin/test', builtTestFile)
+  fork(b, 'node_modules/substance-test/bin/test', builtTestFile, { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
