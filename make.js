@@ -134,8 +134,8 @@ function buildTests(target) {
       istanbul: {
         include: ['src/**/*.js']
       },
-      // add all modules which can be stubbed out by an empty object
-      ignore: [ 'brace', 'katex', 'd3' ],
+      // brace is not nodejs compatible'
+      ignore: [ 'brace' ],
       // these should be used directly from nodejs, not bundled
       external: NODEJS_TEST_EXTERNALS.concat(['stream'])
     }))
