@@ -163,6 +163,7 @@ function buildVendor() {
     exports: ['default']
   })
   minifiedVendor('./vendor/.brace.js', 'brace')
+  minifiedVendor('./vendor/.unified.js', 'unified-html-md')
 }
 
 function minifiedVendor(src, name, opts = {}) {
