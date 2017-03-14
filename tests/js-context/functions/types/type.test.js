@@ -1,7 +1,7 @@
 import test from 'tape'
 
-import type from '../../../src/functions/types/type'
-import {type as type_} from '../../../src/value'
+import type from '../../../../src/js-context/functions/types/type'
+import {type as type_} from '../../../../src/value'
 
 test('type', t => {
   t.equal(type(null), type_(null))

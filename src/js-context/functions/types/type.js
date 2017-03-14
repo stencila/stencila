@@ -1,4 +1,4 @@
-import {type} from '../../value'
+import {type} from '../../../value'
 
 /**
  * Get the type code for a value

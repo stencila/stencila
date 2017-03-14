@@ -1,6 +1,6 @@
 import test from 'tape'
 
-import csv from '../../../src/functions/formats/csv'
+import csv from '../../../../src/js-context/functions/formats/csv'
 
 test('csv', t => {
   t.deepEqual(csv('x,y\n1,2\n3,4'), [

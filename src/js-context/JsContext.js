@@ -3,7 +3,7 @@ import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../value'
 
-import FUNCTIONS from '../functions/index'
+import FUNCTIONS from './functions/index'
 
 /**
  * A Javascript context

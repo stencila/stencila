@@ -1,19 +1,19 @@
 import test from 'tape'
 
 import {table1} from '../fixtures'
-import points from '../../../src/functions/plot/points'
+import bars from '../../../../src/js-context/functions/plot/bars'
 
-test('points', t => {
-  t.deepEqual(points(table1), {
+test('bars', t => {
+  t.deepEqual(bars(table1), {
     type: 'vegalite',
     data: {
       values: table1
     },
-    mark: 'point',
+    mark: 'bar',
     encoding: {
       x: {
         field: 'x',
-        type: 'quantitative'
+        type: 'qualitative'
       },
       y: {
         field: 'y',
