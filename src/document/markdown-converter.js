@@ -7,6 +7,7 @@ import remarkParse from 'remark-parse'
 import remarkSqueezeParagraphs from 'remark-squeeze-paragraphs'
 import remarkBracketedSpans from 'remark-bracketed-spans'
 import remarkSlug from 'remark-slug'
+import remarkHtml from 'remark-html'
 import remark2rehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
 
@@ -39,25 +40,34 @@ export default {
     if (options.commonmark !== false) options.commonmark = true
     options.fences = true
 
-    const html = unified()
+    // First-pass conversion to HTML
+    const htmlInit = unified()
       // Parse Markdown into AST
       .use(remarkParse)
-      // Modify Markdown AST
-      //.use(look)
+      // Modify Markdown AST using standard plugins
       .use(remarkSqueezeParagraphs)
       .use(remarkSlug)
-      // Transformations for inputs and outputs (inline cells) which use Markdown bracketed spans
-      // Not clear on what is happening here, just refactored @sethvincent's orginal code
-      //.use(remarkBracketedSpansEmpty)
-      //.use(remarkBracketedSpans)
-      //.use(remarkStringify)
-      //.use(inputsOutputsMarkdownToHTML)
-      //.use(remarkHtml)
-      .use(remark2rehype)
+      // Convert inputs with no default to MDAST type:'linkReference' nodes
+      .use(remarkBracketedSpansEmptyTolinkReference)
+      // Convert bracketed spans in MDAST type:'html' nodes with <span> elements
+      .use(remarkBracketedSpansToHTML)
+      // Use `remark-html` to create a HTML string. This deals with the {type: `html`} nodes
+      // that `remarkBracketedSpansToHTML` introduces, whereas `remark-rehype` does not.
+      // This seems to an inefficient way to do it because we then have to parse the HTML
+      // But the alternative of tranforming the AST direcly MDAST -> HAST didn't work (escaped chars):
+      //   .use(remark2rehype, {
+      //     allowDangerousHTML: true
+      //  })
+      .use(remarkHtml)
+      .processSync(md, options)
+
+    // Second-pass tranformation of HTML
+    const html = unified()
+      .use(rehypeParse, {fragment: true})
       .use(rehypeCodeblockToCell)
+      .use(rehypeSpanToInputOutput)
       .use(rehypeStringify)
-      // Run it all
-      .processSync(md, options).contents.trim()
+      .processSync(htmlInit).contents.trim()
 
     if (options.archive) {
       return {
@@ -101,31 +111,25 @@ export default {
     const md = unified()
       .use(rehypeParse)
       .use(rehypeCellToCodeblock)
+      .use(rehypeInputOutputToMarkdown)
+      .use(rehypeBracketedSpansToMarkdown)
       .use(rehype2remark)
       .use(remarkStringify)
+      .use(remarkBracketedSpansClean())
       .processSync(html, options).contents.trim()
 
     return md
   }
 }
 
-function look () {
-  return tree => {
-    unistVisit(tree, 'paragraph', (node, i, parent) => {
-      console.log(node)
-    })
-  }
-}
-
-
-
 /**
  * Create `linkReference` for inputs with no default value
+ * so they don't get ignored
  *
- * @returns {function} Vistor function
+ * @returns {function} Transformer
  */
-function remarkEmptyBracketedSpans () {
-  return function (tree) {
+function remarkBracketedSpansEmptyTolinkReference () {
+  return tree => {
     unistVisit(tree, function (node, i, parent) {
       if (node.value && node.value.indexOf('[]') > -1) {
         var value = node.value.split('[]')
@@ -146,74 +150,173 @@ function remarkEmptyBracketedSpans () {
   }
 }
 
+// remark-bracketed-spans has several transformers, these function
+// are just wrappers to provide a naming consistency
+
 /**
- * Converts input and output Markdown to HTML
+ * Transform Pandoc style bracketed spans to MDAST type: 'html' nodes
+ *
+ * @returns {function} Transformer
+ */
+function remarkBracketedSpansToHTML () {
+  return remarkBracketedSpans() // this is the md2html() function of remark-bracketed-spans
+}
+
+/**
+ * Convert bracketed spans from MDAST to Markdown
+ *
+ * @returns {function} Transformer
+ */
+function rehypeBracketedSpansToMarkdown () {
+  return remarkBracketedSpans.html2md()
+}
+
+/**
+ * Cleans up Markdown created by `rehypeBracketedSpansToMarkdown`
+ *
+ * @returns {object} Visitors
+ */
+function remarkBracketedSpansClean () {
+  return remarkBracketedSpans.mdVisitors
+}
+
+/**
+ * Transform <span data-name=...> to <input> and <span data-value=...> to <output>
  *
  * @returns {function} Vistor function
  */
-function inputsOutputsMarkdownToHTML () {
-  return function (tree) {
-    unistVisit(tree, function (node, i, parent) {
-      const data = remarkBracketedSpans.parseMarkdown(node, i, parent, tree)
-      if (!data) return
-      let trailingText
-      let html
+function rehypeSpanToInputOutput () {
+  return tree => {
+    unistVisit(tree, (node, i, parent) => {
+      if (node.tagName === 'span' && node.properties) {
+        if (node.properties.dataName) {
+          // Set name attribute
+          node.properties.name = node.properties.dataName // create 'name' attribute
+          delete node.properties.dataName // remove 'data-name' attribute
+          // Get value
+          let value = node.children && node.children[0] && node.children[0].value // 'value' attribute is the content of the span
 
-      if (data.attr.name) {
-        const value = data.text || ''
-        const attr = data.attr
-        const inputType = attr.type
-        const name = attr.name
+          if (node.properties.dataType === 'select') {
+            node.tagName = 'select'
+            delete node.properties.dataType
+            node.children = []
+            for (let property in node.properties) {
+              if (property.substring(0, 4) === 'data') {
+                let key = property.substring(4).toLowerCase()
+                let label = node.properties[property]
+                node.children.push({
+                  type: 'element',
+                  tagName: 'option',
+                  properties: {
+                    value: key,
+                    selected: key === value ? 'true' : undefined
+                  },
+                  children: [{
+                    type: 'text',
+                    value: label
+                  }]
+                })
+                delete node.properties[property]
+              }
+            }
+          } else {
+            node.tagName = 'input'
 
-        delete attr.name
-        delete attr.type
+            // Primary attributes that inputs always or usually have
+            if (value !== 'undefined') node.properties.value = value
+            node.children = [] // inputs have no content
 
-        if (inputType === 'select') {
-          html = `<select name="${name}">${Object.keys(attr).map((key) => {
-            return `<option value="${key}"${value === key ? ` selected="true"` : ''}>${attr[key]}</option>`
-          }).join('')}</select>`
-        } else {
-          const htmlattr = Object.keys(attr).map((key) => {
-            return `${key}="${attr[key]}"`
-          }).join(' ')
-
-          html = `<input name="${name}"${inputType ? ` type="${inputType}"` : ''}${htmlattr ? ` ${htmlattr}` : ''} value="${value}">`
+            // Secondary attributes : just rename all 'data-x' properties
+            for (let property in node.properties) {
+              if (property.substring(0, 4) === 'data') {
+                node.properties[property.substring(4).toLowerCase()] = node.properties[property]
+                delete node.properties[property]
+              }
+            }
+          }
+        } else if (node.properties.dataExpr) {
+          node.tagName = 'output'
+          // Set for attribute
+          node.properties.for = node.properties.dataExpr // create 'for' attribute
+          delete node.properties.dataExpr // remove 'data-expr' attribute
         }
-      } else if (data.attr.value) {
-        const forInput = data.attr.value
-        delete data.attr.value
-
-        const htmlattr = Object.keys(data.attr).map((key) => {
-          return `data-${key}="${data.attr[key]}"`
-        }).join(' ')
-
-        html = `<output for="${forInput}"${htmlattr ? ` ${htmlattr}` : ''}>${data.text ? data.text : ''}</option>`
-      } else {
-        html = data.html
-        trailingText = data.trailingText
-      }
-
-      parent.children[i] = {
-        type: 'html',
-        value: html
-      }
-
-      if (data.trailingText) {
-        parent.children[i + 1] = {
-          type: 'text',
-          value: trailingText
-        }
-      } else {
-        unistRemove(parent, parent.children[i + 1])
       }
     })
   }
 }
 
 /**
- * Converts HTML codeblocks to HTML Stencila cells
+ * Transform <span data-name=...> to <input> and <span data-value=...> to <output>
  *
- * @return {function} Tranformer
+ * @returns {function} Vistor function
+ */
+function rehypeInputOutputToMarkdown () {
+  return tree => {
+    unistVisit(tree, (node, i, parent) => {
+      if ((node.tagName === 'input' || node.tagName === 'select') && node.properties && node.properties.name) {
+        var name = node.properties.name
+        delete node.properties.name
+
+        if (node.tagName === 'input') {
+          let value = node.properties.value
+          if (!value) value = ''
+          delete node.properties.value
+
+          const type = node.properties.type
+          delete node.properties.type
+
+          const attr = Object.keys(node.properties).map(function (attrKey) {
+            const attrValue = node.properties[attrKey].indexOf(' ') > -1
+            ? `"${node.properties[attrKey]}"`
+            : node.properties[attrKey]
+
+            return `${attrKey}=${attrValue}`
+          }).join(' ')
+
+          node.type = 'text'
+          node.value = `[${value}]{name=${name}${type ? ` type=${type}` : ''}${attr ? ` ${attr}` : ''}}`
+        } else if (node.tagName === 'select') {
+          let selected = ''
+          const attr = node.children.map(child => {
+            if (child.properties.selected) {
+              selected = child.properties.value
+            }
+            const value = child.children[0].value.indexOf(' ') > -1
+              ? `"${child.children[0].value}"`
+              : child.children[0].value
+            return `${child.properties.value}=${value}`
+          }).join(' ')
+
+          node.type = 'text'
+          node.value = `[${selected}]{name=${name} type=select${attr ? ` ${attr}` : ''}}`
+        }
+      } else if (node.tagName === 'output') {
+        const value = node.children && node.children[0] && node.children[0].value || ''
+        const htmlFor = node.properties && node.properties.htmlFor
+
+        delete node.properties.value
+        delete node.properties.htmlFor
+
+        const attr = Object.keys(node.properties).map(function (attrKey) {
+          const attrValue = node.properties[attrKey]
+          attrKey = attrKey.replace('data', '').toLowerCase()
+          return `${attrKey}="${attrValue}"`
+        }).join(' ')
+
+        node.type = 'text'
+        node.value = `[${value}]{expr=${htmlFor}${attr ? ` ${attr}` : ''}}`
+      }
+    })
+  }
+}
+
+/**
+ * Transform HTML codeblocks to Stencila cells
+ *
+ * Transforms HTML codeblocks i.e. `<pre><code class="language-...">` into Stencila cells
+ * i.e. `<div data-cell="...">`
+ *
+ * @return {function} Transformer
  */
 function rehypeCodeblockToCell () {
   return tree => {
@@ -245,6 +348,7 @@ function rehypeCodeblockToCell () {
               }]
             }
 
+            // Change this codeblock <pre><code class="language-..."> into cell <div data-cell="...">
             parent.tagName = 'div'
             parent.properties['data-cell'] = expr
             parent.children = children
@@ -255,6 +359,14 @@ function rehypeCodeblockToCell () {
   }
 }
 
+/**
+ * Transform Stencila cells to HTML codeblocks
+ *
+ * Transforms Stencila cells i.e. `<div data-cell="...">` into HTML codeblocks
+ * i.e. `<pre><code class="language-...">`
+ *
+ * @return {function} Transformer
+ */
 function rehypeCellToCodeblock () {
   return tree => {
     unistVisit(tree, (node, i, parent) => {
@@ -276,14 +388,16 @@ function rehypeCellToCodeblock () {
               type: 'element',
               tagName: 'code',
               properties: {},
-              children: {
+              children: [{
                 type: 'text',
                 value: expr
-              }
+              }]
             }
           }
+          // Set the 'class' of <code>
           code.properties.className = [className]
 
+          // Change this cell <div> into a codeblock <pre><code>
           node.tagName = 'pre'
           node.properties = {}
           node.children = [code]

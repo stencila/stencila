@@ -2,7 +2,7 @@ import test from 'tape'
 
 import converter from '../../src/document/markdown-converter'
 
-test.skip('import', t => {
+test('import', t => {
   const i = (md, options) => converter.import(md, options || {archive: false})
 
   t.equal(
@@ -18,15 +18,34 @@ test.skip('import', t => {
   )
 
   t.equal(
-    i('My para with [text in the span]{.class .other-class key=val another=example} and after'),
-    '<p>My para with <span class="class other-class" data-key="val" data-another="example">text in the span</span> and after</p>',
+    i('Para with [a bracketed span]{.class .other-class key=val another=example}.'),
+    '<p>Para with <span class="class other-class" data-key="val" data-another="example">a bracketed span</span>.</p>',
     'plain bracketed spans work'
   )
 
   t.equal(
-    i('My para with an input [3]{name=variable1} in it'),
-    '<p>My para with <span class="class other-class" data-key="val" data-another="example">text in the span</span> and after</p>',
-    'plain bracketed spans work'
+    i('An input [3]{name=variable1}'),
+    '<p>An input <input name="variable1" value="3"></p>'
+  )
+
+  t.equal(
+    i('An input []{name=variable1} with no current value'),
+    '<p>An input <input name="variable1"> with no current value</p>'
+  )
+
+  t.equal(
+    i('An input []{name=variable1 type=range min=1 max=100 step=1} with type specified'),
+    '<p>An input <input name="variable1" type="range" min="1" max="100" step="1"> with type specified</p>'
+  )
+
+  t.equal(
+    i('An input [nashi]{name=variable1 type=select pear=Pear nashi="Nashi pear"} of type select'),
+    '<p>An input <select name="variable1"><option value="pear">Pear</option><option value="nashi" selected>Nashi pear</option></select> of type select</p>'
+  )
+
+  t.equal(
+    i('An output [42]{expr="6*7"}'),
+    '<p>An output <output for="6*7">42</output></p>'
   )
 
   t.equal(
@@ -55,19 +74,19 @@ test.skip('import', t => {
 
   t.equal(
     i('```run{r}\nlibrary(myawesomepackage)\n```'),
-    '<div data-cell="run"><pre data-source="r"><code class="language-r">library(myawesomepackage)\n</code></pre></div>',
+    '<div data-cell="run"><pre><code class="language-r" data-source="r">library(myawesomepackage)\n</code></pre></div>',
     'chunk which runs some R code'
   )
 
   t.equal(
     i('```call{r}\nreturn(6*7)\n```'),
-    '<div data-cell="call"><pre data-source="r"><code class="language-r">return(6*7)\n</code></pre></div>',
+    '<div data-cell="call"><pre><code class="language-r" data-source="r">return(6*7)\n</code></pre></div>',
     'external cell which calls some R code'
   )
 
   t.equal(
     i('```out1=call(in1,y=in2){r}\nreturn(6*7)\n```'),
-    '<div data-cell="call"><pre data-source="r"><code class="language-r">return(6*7)\n</code></pre></div>',
+    '<div data-cell="call"><pre><code class="language-r" data-source="r">return(6*7)\n</code></pre></div>',
     'call with inputs and outputs'
   )
 
@@ -84,6 +103,37 @@ test('export', t => {
   const e = converter.export
 
   t.equal(
+    e('<p>Para with <span class="class other-class" data-key="val" data-another="example">a bracketed span</span>.</p>'),
+    'Para with [a bracketed span]{.class .other-class key=val another=example}.',
+    'plain bracketed spans work'
+  )
+
+  t.equal(
+    e('<p>An input <input name="variable1" value="3"></p>'),
+    'An input [3]{name=variable1}'
+  )
+
+  t.equal(
+    e('<p>An input <input name="variable1"> with no current value</p>'),
+    'An input []{name=variable1} with no current value'
+  )
+
+  t.equal(
+    e('<p>An input <input name="variable1" type="range" min="1" max="100" step="1"> with type specified</p>'),
+    'An input []{name=variable1 type=range min=1 max=100 step=1} with type specified'
+  )
+
+  t.equal(
+    e('<p>An input <select name="variable1"><option value="pear">Pear</option><option value="nashi" selected>Nashi pear</option></select> of type select</p>'),
+    'An input [nashi]{name=variable1 type=select pear=Pear nashi="Nashi pear"} of type select'
+  )
+
+  t.equal(
+    e('<p>An output <output for="6*7">42</output></p>'),
+    'An output [42]{expr=6*7}'
+  )
+
+  t.equal(
     e('<h1 id="heading-1">Heading 1</h1>'),
     '# Heading 1',
     'ATX style headers'
@@ -96,25 +146,25 @@ test('export', t => {
   )
 
   t.equal(
-    e('<div data-cell="var2=sum(var1)\n"></div>'),
+    e('<div data-cell="var2=sum(var1)"></div>'),
     '```.\nvar2=sum(var1)\n```',
     'internal cell using mini language'
   )
 
   t.equal(
-    e('<div data-cell="run"><pre data-source="r"><code class="language-r">library(myawesomepackage)\n</code></pre></div>'),
+    e('<div data-cell="run"><pre><code data-source="r" class="language-r">library(myawesomepackage)</code></pre></div>'),
     '```run{r}\nlibrary(myawesomepackage)\n```',
     'chunk which runs some R code'
   )
 
   t.equal(
-    e('<div data-cell="call"><pre data-source="r"><code class="language-r">return(6*7)\n</code></pre></div>'),
+    e('<div data-cell="call"><pre><code data-source="r" class="language-r">return(6*7)</code></pre></div>'),
     '```call{r}\nreturn(6*7)\n```',
     'external cell which calls some R code'
   )
 
   t.equal(
-    e('<div data-cell="call"><pre data-source="r"><code class="language-r">return(6*7)\n</code></pre></div>'),
+    e('<div data-cell="out1=call(in1,y=in2)"><pre><code data-source="r" class="language-r">return(6*7)</code></pre></div>'),
     '```out1=call(in1,y=in2){r}\nreturn(6*7)\n```',
     'call with inputs and outputs'
   )
@@ -136,6 +186,10 @@ test.skip('import+export', t => {
   ie('### Heading 3')
   ie('#### Heading 4')
   ie('##### Heading 5')
+
+  ie('[]{name=variable1}')
+  ie('[42]{name=variable1}')
+  ie('[42]{expr=6*7}')
 
   ie('```.\nvar2=sum(var1)\n```')
   ie('```run{r}\nlibrary(myawesomepackage)\n```')
