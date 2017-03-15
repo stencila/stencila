@@ -281,21 +281,23 @@ const TEST_FUNCTIONS = {
 function setupEditorSession(archiveURL) {
   let configurator = new DocumentConfigurator()
   let backend = new TestBackend()
-  let archive = backend.getArchive(archiveURL)
-  return new Promise((resolve, reject) => {
-    archive.readFile('index.html').then((docHTML) => {
-      let doc = documentConversion.importHTML(docHTML)
-      let editorSession = new EditorSession(doc, {
-        configurator: configurator,
-        context: {
-          stencilaContexts: {
-            'js': new JsContext(TEST_FUNCTIONS)
+  return backend.getArchive(archiveURL)
+  .then((archive) => {
+    return new Promise((resolve, reject) => {
+      archive.readFile('index.html').then((docHTML) => {
+        let doc = documentConversion.importHTML(docHTML)
+        let editorSession = new EditorSession(doc, {
+          configurator: configurator,
+          context: {
+            stencilaContexts: {
+              'js': new JsContext(TEST_FUNCTIONS)
+            }
           }
-        }
+        })
+        resolve({editorSession})
+      }).catch((err) => {
+        reject(err)
       })
-      resolve({editorSession})
-    }).catch((err) => {
-      reject(err)
     })
   })
 }

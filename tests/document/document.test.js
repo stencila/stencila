@@ -10,7 +10,7 @@ test('Document: mounting a DocumentPage', (t) => {
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: new TestBackend(),
-    archiveURL: '/tests/documents/simple/default.html'
+    documentId: '/tests/documents/simple/default.html'
   }, sandbox)
   t.ok(page.isMounted(), 'DocumentPage should be mounted')
   t.end()
@@ -20,13 +20,13 @@ test('Document: switching documents', (t) => {
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: new TestBackend(),
-    archiveURL: '/tests/documents/simple/default.html'
+    documentId: '/tests/documents/simple/default.html'
   }, sandbox)
   t.plan(2)
   Promise.resolve()
   .then(() => {
     page.extendProps({
-      archiveURL: '/tests/documents/simple/default.html'
+      documentId: '/tests/documents/simple/default.html'
     })
   })
   .then(wait(10))
@@ -36,7 +36,7 @@ test('Document: switching documents', (t) => {
   })
   .then(() => {
     page.extendProps({
-      archiveURL: '/tests/documents/paragraph/default.html'
+      documentId: '/tests/documents/paragraph/default.html'
     })
   })
   .then(wait(10))
@@ -56,7 +56,7 @@ test('Document: open all test documents', (t) => {
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: testBackend,
-    archiveURL: '/tests/documents/simple/default.html'
+    documentId: '/tests/documents/simple/default.html'
   }, sandbox)
 
   let p = Promise.resolve()
@@ -64,7 +64,7 @@ test('Document: open all test documents', (t) => {
     const url = docUrls[i]
     p = p.then(()=>{
       page.extendProps({
-        archiveURL: url
+        documentId: url
       })
     })
     .then(wait(10))
@@ -79,11 +79,14 @@ test('Document: saving archive', (t) => {
 
   const sandbox = getSandbox(t)
   const backend = new TestBackend()
-  const archiveURL = '/tests/documents/simple/default.html'
-  const page = DocumentPage.mount({ backend, archiveURL }, sandbox)
-  const archive = backend.getArchive(archiveURL)
-  const _writeFile = spy(archive, 'writeFile')
-  Promise.resolve()
+  const documentId = '/tests/documents/simple/default.html'
+  const page = DocumentPage.mount({ backend, documentId }, sandbox)
+  let archive, _writeFile
+  backend.getArchive(documentId)
+  .then((_archive) => {
+    archive = _archive
+    _writeFile = spy(archive, 'writeFile')
+  })
   .then(() => {
     page.save()
   })
