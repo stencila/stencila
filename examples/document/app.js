@@ -5,10 +5,10 @@
 
 import { DocumentPage, MemoryBackend, getQueryStringParam } from 'stencila'
 
-console.info('Loading...', getQueryStringParam('archiveURL'))
+console.info('Loading...', getQueryStringParam('documentId'))
 window.addEventListener('load', () => {
   DocumentPage.mount({
     backend: new MemoryBackend(),
-    archiveURL: getQueryStringParam('archiveURL') || '/examples/kitchen-sink'
+    documentId: getQueryStringParam('documentId') || 'kitchen-sink'
   }, window.document.body)
 })

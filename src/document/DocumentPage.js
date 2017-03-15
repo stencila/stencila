@@ -10,7 +10,7 @@ import JsContext from '../js-context/JsContext'
   ```js
   DocumentPage.mount({
     backend: myBackend,
-    archiveURL: 'https://github.com/stencila/stencila.md'
+    documentId: 'welcome-to-stencila'
   })
   ```
 */
@@ -21,8 +21,8 @@ export default class DocumentPage extends Component {
   }
 
   didUpdate(oldProps, oldState) {
-    // archiveUrl has changed
-    if (oldProps.archiveURL !== this.props.archiveURL) {
+    // documentId has changed
+    if (oldProps.documentId !== this.props.documentId) {
       this._loadArchive()
     }
     // editor session has changed
@@ -73,40 +73,41 @@ export default class DocumentPage extends Component {
   }
 
   _loadArchive() {
-    if (this.props.archiveURL) {
+    if (this.props.documentId) {
       let configurator = new DocumentConfigurator()
       let backend = this.getBackend()
-      let archive = backend.getArchive(this.props.archiveURL)
-      if (!archive) throw new Error('Could not find archive.')
-      archive.readFile('index.html', 'text/html').then((docHTML) => {
-        let doc = importHTML(docHTML)
-        let editorSession = new EditorSession(doc, {
-          configurator: configurator,
-          context: {
-            stencilaContexts: {
-              'js': new JsContext()
+
+      backend.getArchive(this.props.documentId).then((archive) => {
+        archive.readFile('index.html', 'text/html').then((docHTML) => {
+          let doc = importHTML(docHTML)
+          let editorSession = new EditorSession(doc, {
+            configurator: configurator,
+            context: {
+              stencilaContexts: {
+                'js': new JsContext()
+              }
             }
-          }
-        })
-        // enable this to make debugging easier
-        // editorSession._url = this.props.archiveURL
-        this.setState({
-          editorSession: editorSession
+          })
+          // enable this to make debugging easier
+          // editorSession._url = this.props.documentId
+          this.setState({
+            editorSession: editorSession
+          })
         })
       })
     }
   }
 
   _saveToArchive() {
-    if (this.props.archiveURL) {
+    if (this.props.documentId) {
       let backend = this.getBackend()
-      let archive = backend.getArchive(this.props.archiveURL)
+      let archive = backend.getArchive(this.props.documentId)
       if (!archive) throw new Error('Could not find archive.')
       const editorSession = this.state.editorSession
       if (!editorSession) return
       const doc = editorSession.getDocument()
       const html = exportHTML(doc)
-      // TODO at some point we would need to write everything, not just HTML
+      // TODO: at some point we would need to write everything, not just HTML
       archive.writeFile('index.html', 'text/html', html).then(() => {
         console.info('Archive saved.')
       })

@@ -9,14 +9,14 @@ let stubBackend = new MemoryBackend()
 window.addEventListener('load', () => {
   Dashboard.mount({
     backend: stubBackend,
-    resolveEditorURL: function(type, archiveURL) {
+    resolveEditorURL: function(type, documentId) {
       let editorURL
       if (type === 'document') {
         editorURL = "../document/"
       } else {
         editorURL = "../sheet/"
       }
-      editorURL += '?archiveURL='+encodeURIComponent(archiveURL)
+      editorURL += '?documentId='+encodeURIComponent(documentId)
       return editorURL
     }
   }, window.document.body)

@@ -24,7 +24,7 @@ simpleSheetArchive.writeFile('index.html', 'text/html', wrapSnippet(simpleSheet)
   stored in the database.
 */
 const LIBRARY_FIXTURE = {
-  '/examples/stencila-intro.md': {
+  'stencila-intro': {
     type: 'document',
     title: 'Welcome to Stencila',
     createdAt: '2017-03-10T00:03:12.060Z',
@@ -33,7 +33,7 @@ const LIBRARY_FIXTURE = {
     // just there to simulate the virtual file system
     __archive: stencilaIntroArchive
   },
-  '/examples/kitchen-sink': {
+  'kitchen-sink': {
     type: 'document',
     title: 'Kitchen Sink Document',
     createdAt: '2017-03-10T00:03:12.060Z',
@@ -42,7 +42,7 @@ const LIBRARY_FIXTURE = {
     // just there to simulate the virtual file system
     __archive: kitchenSinkArchive
   },
-  '/examples/simple-sheet': {
+  'simple-sheet': {
     type: 'sheet',
     source: 'source.html',
     title: 'Simple Sheet',
@@ -63,10 +63,11 @@ export default class BackendStub {
   listDocuments() {
     return new Promise(function(resolve) {
       let documentEntries = []
-      forEach(LIBRARY_FIXTURE, (doc, address) => {
+      forEach(LIBRARY_FIXTURE, (doc, documentId) => {
         documentEntries.push({
+          id: documentId,
           type: doc.type,
-          address: address,
+          address: documentId,
           title: doc.title,
           openedAt: doc.openedAt,
           createAt: doc.modifiedAt,
@@ -83,13 +84,9 @@ export default class BackendStub {
     Use MemoryArchive implementation as an API reference
   */
   getArchive(archiveURL) {
-    // Returns an in-memory archive
-    return LIBRARY_FIXTURE[archiveURL].__archive
-    // Ideas for real persistent archives:
-    // return new GithubArchive(archiveURL)
-    // return new DatArchive(archiveURL)
-    // return new LocalFolderArchive(archiveURL)
-    // return new PostgresArchive(this.db, archiveURL)
+    return new Promise(function(resolve) {
+      resolve(LIBRARY_FIXTURE[archiveURL].__archive)
+    })
   }
 
 }
