@@ -1,7 +1,7 @@
 import { Component, EditorSession } from 'substance'
 import DocumentEditor from './DocumentEditor'
 import DocumentConfigurator from './DocumentConfigurator'
-import { importHTML } from './documentConversion'
+import { importHTML, exportHTML } from './documentConversion'
 import JsContext from '../js-context/JsContext'
 
 /*
@@ -68,6 +68,10 @@ export default class DocumentPage extends Component {
     this.state.editorSession.executeCommand(commandName, params)
   }
 
+  save() {
+    this._saveToArchive()
+  }
+
   _loadArchive() {
     if (this.props.archiveURL) {
       let configurator = new DocumentConfigurator()
@@ -89,6 +93,22 @@ export default class DocumentPage extends Component {
         this.setState({
           editorSession: editorSession
         })
+      })
+    }
+  }
+
+  _saveToArchive() {
+    if (this.props.archiveURL) {
+      let backend = this.getBackend()
+      let archive = backend.getArchive(this.props.archiveURL)
+      if (!archive) throw new Error('Could not find archive.')
+      const editorSession = this.state.editorSession
+      if (!editorSession) return
+      const doc = editorSession.getDocument()
+      const html = exportHTML(doc)
+      // TODO at some point we would need to write everything, not just HTML
+      archive.writeFile('index.html', 'text/html', html).then(() => {
+        console.info('Archive saved.')
       })
     }
   }
