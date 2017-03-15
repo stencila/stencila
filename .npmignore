@@ -1,4 +1,4 @@
-docs
-coverage
-tmp
+/docs
+/coverage
+/tmp
 *.sublime-workspace
