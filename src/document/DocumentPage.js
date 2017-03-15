@@ -174,7 +174,7 @@ export default class DocumentPage extends Component {
 
   _onDocumentChange() {
     let appState = this.getAppState()
-    if (appState) {
+    if (appState) {
       appState.extend({
         hasPendingChanges: true
       })
