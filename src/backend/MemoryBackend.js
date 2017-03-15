@@ -83,9 +83,9 @@ export default class BackendStub {
 
     Use MemoryArchive implementation as an API reference
   */
-  getArchive(archiveURL) {
+  getArchive(documentId) {
     return new Promise(function(resolve) {
-      resolve(LIBRARY_FIXTURE[archiveURL].__archive)
+      resolve(LIBRARY_FIXTURE[documentId].__archive)
     })
   }
 
