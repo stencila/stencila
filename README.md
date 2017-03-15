@@ -9,7 +9,6 @@ Features                                                                    | St
 Documents                                                                   | ✓
 Spreadsheets                                                                | 0.26+
 Presentations                                                               | 0.26+
-                                                                            |
 **Static Content**                                                          |
 Paragraph                                                                   | ✓
 Heading                                                                     | ✓
@@ -24,41 +23,31 @@ Subscript                                                                   | �
 Superscript                                                                 | ✓
 Code                                                                        | ✓
 Math (AsciiMath and Tex)                                                    | ✓
-                                                                            |
 **Data-driven content**                                                     |
-                                                                            |
 Mini Cell (Expression)                                                      | ✓
 Internal Code Cell (`call`)                                                 | ✓
 External Code Cell (`run`)                                                  | 0.26+
 Number Input (range slider)                                                 | ✓
 Select Input (name value pairs)                                             | ✓
-                                                                            |
 **Execution Engines**                                                       |
-                                                                            |
 Javascript                                                                  | ✓
 Node.js                                                                     | 0.26+
 R                                                                           | 0.26+
 Python                                                                      | 0.26+
 Julia                                                                       | 0.26+
 Scala                                                                       | 0.26+
-                                                                            |
 **Functions**                                                               |
 Basic Statistics                                                            | 0.26+
 Tabular data manipulation (filter, aggregate, ...)                          | 0.26+
-                                                                            |
 **Plotting**                                                                |
-                                                                            |
 Base charts (Scatterplot, Lines, Bars, Pies, ...)                           | 0.26+
 Extended charts (time series, box plot, candle stick, ...)                  | 0.26+
-                                                                            |
 **Supported Formats**                                                       |
-                                                                            |
 HTML                                                                        | ✓
 JATS                                                                        | 0.26+
 Markdown                                                                    | 0.26+
 RMarkdown                                                                   | 0.26+
 Jupyter Notebook                                                            | 0.26+
-
 **Apps**                                                                    |
 Stencila Desktop (Windows, OSX, Linux)                                      | ✓
 Stencila Hub (web platform for collaboration)                               | 1.0
