@@ -33,6 +33,7 @@ export default class DocumentPage extends Component {
       if (this.state.editorSession) {
         this._registerEvents(this.state.editorSession)
       }
+      this.emit('loaded')
     }
   }
 
@@ -109,13 +110,15 @@ export default class DocumentPage extends Component {
         const doc = editorSession.getDocument()
         const html = exportHTML(doc)
         // TODO: at some point we would need to write everything, not just HTML
-        return archive.writeFile('index.html', 'text/html', html).then(() => {
-          console.info('Archive saved.')
-          if (appState) {
-            appState.extend({
-              hasPendingChanges: false,
-            })
-          }
+        archive.writeFile('index.html', 'text/html', html).then(() => {
+          archive.save().then(() => {
+            console.info('Archive (document) saved.')
+            if (appState) {
+              appState.extend({
+                hasPendingChanges: false,
+              })
+            }
+          })
         }).catch((err) => {
           if (appState) {
             appState.extend({
@@ -131,23 +134,49 @@ export default class DocumentPage extends Component {
     editorSession.on('render', this._onSelectionChange, this, {
       resource: 'selection'
     })
+    editorSession.on('render', this._onDocumentChange, this, {
+      resource: 'document'
+    })
   }
 
   _unregisterEvents(editorSession) {
     editorSession.off(this)
   }
 
+  /*
+    HACK: We inspect the document and try to use the first node as the title
+  */
+  getTitle() {
+    let editorSession = this.refs.editor.getEditorSession()
+    let doc = editorSession.getDocument()
+    let docNodes = doc.get('content').nodes
+    let firstNode = doc.get(docNodes[0])
+    if (firstNode && firstNode.content) {
+      return firstNode.content
+    } else {
+      return 'Untitled'
+    }
+  }
+
   _onSelectionChange() {
     let toolGroups = this.refs.editor.toolGroups
     let commandStates = this.state.editorSession.getCommandStates()
     let appState = this.getAppState()
+    let title = this.getTitle()
     if (appState) {
       appState.extend({
+        title: title,
         commandStates: commandStates,
-        toolGroups: toolGroups,
-        hasPendingChanges: appState.hasPendingChanges
+        toolGroups: toolGroups
       })
     }
+  }
+
+  _onDocumentChange() {
+    let appState = this.getAppState()
+    appState.extend({
+      hasPendingChanges: true
+    })
   }
 
 }

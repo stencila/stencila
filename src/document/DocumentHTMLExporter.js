@@ -1,6 +1,7 @@
 import { HTMLExporter } from 'substance'
 import DocumentModel from './DocumentModel'
 import DocumentConfigurator from './DocumentConfigurator'
+import wrapSnippet from '../util/wrapSnippet'
 
 /**
  * Exports a Stencila Document to HTML
@@ -23,7 +24,8 @@ class DocumentHTMLExporter extends HTMLExporter {
   exportDocument (doc) {
     var bodyNodes = this.convertContainer(doc.get('content'))
     var wrapper = this.$$('div').append(bodyNodes)
-    return wrapper.html()
+    let html = wrapper.html()
+    return wrapSnippet(html)
   }
 }
 
