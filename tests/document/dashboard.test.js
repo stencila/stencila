@@ -1,6 +1,6 @@
 import test from 'tape'
 
-import getSandbox from '../getSandbox'
+import { getSandbox } from '../testHelpers'
 import { Dashboard } from '../../index.es'
 import TestBackend from '../backend/TestBackend'
 
