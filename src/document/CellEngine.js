@@ -5,8 +5,10 @@ import { unpack } from '../value'
 export default
 class CellEngine extends Engine {
 
-  constructor(editorSession) {
-    super({waitForIdle: 500})
+  constructor(editorSession, options = {}) {
+    super(Object.assign({
+      waitForIdle: 500
+    }, options))
 
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
@@ -51,6 +53,9 @@ class CellEngine extends Engine {
       input.off(this)
     })
     this.editorSession.off(this)
+
+    this._cells = {}
+    this._inputs = {}
   }
 
   /*
@@ -72,7 +77,9 @@ class CellEngine extends Engine {
     const cell = expr._cell
     switch(functionName) {
       // external cells
-      case 'call': {
+      // and chunks
+      case 'call':
+      case 'run': {
         if (!cell) throw new Error('Internal error: no cell associated with expression.')
         if(!cell.language) throw new Error('language is mandatory for "call"')
         const lang = cell.language
@@ -80,24 +87,26 @@ class CellEngine extends Engine {
         if (!context) throw new Error('No context for language ' + lang)
         const sourceCode = cell.sourceCode || ''
         const options = { pack: lang === 'js' ? false : true }
-        const args = {}
-        funcNode.args.forEach((arg) => {
-          const name = arg.name
-          if (!name) {
-            console.warn('Only variables can be used with chunks and external cells')
-            return
-          }
-          args[name] = arg.getValue()
-        })
-        return _unwrapResult(
-          context.call(sourceCode, args, options),
-          options
-        )
-      }
-      // chunks
-      case 'run': {
-        // TODO
-        break
+        if (functionName === 'call') {
+          const args = {}
+          funcNode.args.forEach((arg) => {
+            const name = arg.name
+            if (!name) {
+              console.warn('Only variables can be used with chunks and external cells')
+              return
+            }
+            args[name] = arg.getValue()
+          })
+          return _unwrapResult(
+            context.callCode(sourceCode, args, options),
+            options
+          )
+        } else {
+          return _unwrapResult(
+            context.runCode(sourceCode, options),
+            options
+          )
+        }
       }
       // all others are external functions
       default: {
