@@ -101,15 +101,27 @@ export default class DocumentPage extends Component {
   _saveToArchive() {
     if (this.props.documentId) {
       let backend = this.getBackend()
-      let archive = backend.getArchive(this.props.documentId)
-      if (!archive) throw new Error('Could not find archive.')
-      const editorSession = this.state.editorSession
-      if (!editorSession) return
-      const doc = editorSession.getDocument()
-      const html = exportHTML(doc)
-      // TODO: at some point we would need to write everything, not just HTML
-      archive.writeFile('index.html', 'text/html', html).then(() => {
-        console.info('Archive saved.')
+      let appState = this.getAppState()
+      backend.getArchive(this.props.documentId).then((archive) => {
+        const editorSession = this.state.editorSession
+        if (!editorSession) return
+        const doc = editorSession.getDocument()
+        const html = exportHTML(doc)
+        // TODO: at some point we would need to write everything, not just HTML
+        archive.writeFile('index.html', 'text/html', html).then(() => {
+          console.info('Archive saved.')
+          if (appState) {
+            appState.extend({
+              hasPendingChanges: false,
+            })
+          }
+        }).catch((err) => {
+          if (appState) {
+            appState.extend({
+              error: err.message
+            })
+          }
+        })
       })
     }
   }
