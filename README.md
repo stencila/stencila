@@ -56,8 +56,8 @@ Stencila Hub (web platform for collaboration)                               | 1.
 ### Development
 
 ```
-git clone https://github.com/stencila/ui.git
-cd ui
+git clone https://github.com/stencila/stencila.git
+cd stencila
 npm install
 npm run start
 ```
@@ -73,8 +73,7 @@ Task                                                    | Command               
 ------------------------------------------------------- |-----------------------|
 Install and setup dependencies                          | `npm install`         |
 Run the development server                              | `npm start`           |
-Clean and rebuild                                       | `npm run build`       |
 
 ### Discuss
 
-We love feedback. Create a [new issue](https://github.com/stencila/ui/issues/new), add to [existing issues](https://github.com/stencila/ui/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
+We love feedback. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
