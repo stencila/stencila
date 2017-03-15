@@ -303,7 +303,7 @@ b.task('test', ['clean', 'test:backend'], () => {
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['clean', 'test:backend'], () => {
+b.task('cover', ['test:backend'], () => {
   buildInstrumentedTests()
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
