@@ -1,5 +1,5 @@
 import { forEach } from 'substance'
-import wrapSnippet from '../../examples/docs/wrapSnippet'
+import wrapSnippet from '../util/wrapSnippet'
 import kitchenSink from '../../examples/docs/kitchensink'
 import stencilaIntro from '../../examples/docs/stencila-intro'
 import simpleSheet from '../../examples/docs/simple-sheet'
