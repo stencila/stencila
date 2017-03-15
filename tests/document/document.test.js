@@ -1,9 +1,8 @@
 import test from 'tape'
-
-import getSandbox from '../getSandbox'
+import { isNil } from 'substance'
+import { spy, wait, getSandbox } from '../testHelpers'
 import { DocumentPage } from '../../index.es'
 import TestBackend from '../backend/TestBackend'
-import { isNil } from 'substance'
 
 // Integration tests for src/document
 
@@ -75,8 +74,21 @@ test('Document: open all test documents', (t) => {
   }
 })
 
-function wait(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
+test('Document: saving archive', (t) => {
+  t.plan(1)
+
+  const sandbox = getSandbox(t)
+  const backend = new TestBackend()
+  const archiveURL = '/tests/documents/simple/default.html'
+  const page = DocumentPage.mount({ backend, archiveURL }, sandbox)
+  const archive = backend.getArchive(archiveURL)
+  const _writeFile = spy(archive, 'writeFile')
+  Promise.resolve()
+  .then(() => {
+    page.save()
   })
-}
+  .then(wait(10))
+  .then(() => {
+    t.equal(_writeFile.callCount, 1, 'archive.writeFile should have been called.')
+  })
+})
