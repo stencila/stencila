@@ -12,6 +12,7 @@
     "test-one": "node make test:one -f",
     "build": "node make",
     "watch": "node make -w",
+    "start": "node make -w -s",
     "cover": "node make cover",
     "docs": "node make docs",
     "docs-serve": "node make docs:serve"
