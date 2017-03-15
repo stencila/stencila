@@ -4,7 +4,7 @@ import {simple, base} from 'acorn/dist/walk'
 import {pack, unpack} from '../value'
 import Context from '../context/Context'
 
-import FUNCTIONS from './functions/index'
+import BUILTIN_FUNCTIONS from './functions/index'
 
 /**
  * A Javascript context
@@ -15,9 +15,9 @@ import FUNCTIONS from './functions/index'
  */
 export default class JsContext extends Context {
 
-  constructor () {
+  constructor (customFunctions = {}) {
     super()
-    this._functions = Object.assign({}, FUNCTIONS)
+    this._functions = Object.assign({}, BUILTIN_FUNCTIONS, customFunctions)
   }
 
   /**
