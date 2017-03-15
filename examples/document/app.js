@@ -7,8 +7,19 @@ import { DocumentPage, MemoryBackend, getQueryStringParam } from 'stencila'
 
 console.info('Loading...', getQueryStringParam('documentId'))
 window.addEventListener('load', () => {
-  DocumentPage.mount({
+  window.documentPage = DocumentPage.mount({
     backend: new MemoryBackend(),
     documentId: getQueryStringParam('documentId') || 'kitchen-sink'
   }, window.document.body)
+
+
+  function onKeyDown(e) {
+    // CTRL+S
+    if (e.ctrlKey && e.keyCode === 83) {
+      console.log('saving')
+      window.documentPage.save()
+    }
+  }
+  document.addEventListener('keydown', onKeyDown, false);
+
 })
