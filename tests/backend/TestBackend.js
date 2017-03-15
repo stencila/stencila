@@ -38,8 +38,8 @@ export default class TestBackend {
     if (entry._archive) return entry._archive
     let archive = new MemoryArchive()
     archive.writeFile('index.html', 'text/html', wrapSnippet(entry._html))
-    entry._archive = archive
-    return archive
+    entry._archive = Promise.resolve(archive)
+    return entry._archive
   }
 
   _getEntries() {
