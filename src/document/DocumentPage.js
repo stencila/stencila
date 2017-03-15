@@ -78,7 +78,7 @@ export default class DocumentPage extends Component {
       let backend = this.getBackend()
       let archive = backend.getArchive(this.props.archiveURL)
       if (!archive) throw new Error('Could not find archive.')
-      archive.readFile('index.html').then((docHTML) => {
+      archive.readFile('index.html', 'text/html').then((docHTML) => {
         let doc = importHTML(docHTML)
         let editorSession = new EditorSession(doc, {
           configurator: configurator,
