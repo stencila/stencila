@@ -25,9 +25,8 @@ test('value.type', t => {
   t.equal(type({}), 'obj')
   t.equal(type({a: 1, b: 2}), 'obj')
 
-  t.equal(type([{}]), 'tab')
-  t.equal(type([{a: 1, b: 2}]), 'tab')
-  t.equal(type([{a: 1, b: 2}, 'non-an-object']), 'arr')
+  t.equal(type({type: 'tab'}), 'tab')
+  t.equal(type({type: 'tab', data: {a: 1, b: 2}}), 'tab')
 
   t.equal(type({type: 'html', content: '<img>'}), 'html')
   t.equal(type({type: 'vegalite', data: null}), 'vegalite')
@@ -77,12 +76,6 @@ test('value.pack works for Arrays', t => {
   check(t, [], 'arr', 'json', '[]')
   check(t, [1, 2, 3, 4], 'arr', 'json', '[1,2,3,4]')
   check(t, [1.1, 2.1], 'arr', 'json', '[1.1,2.1]')
-  t.end()
-})
-
-test('value.pack works for an array of objects', t => {
-  check(t, [{a: 1}, {a: 2}, {a: 3}], 'tab', 'csv', 'a\n1\n2\n3\n')
-  check(t, [{a: 1, b: 'x'}, {a: 2, b: 'y'}, {a: 3, b: 'z'}], 'tab', 'csv', 'a,b\n1,x\n2,y\n3,z\n')
   t.end()
 })
 
@@ -155,14 +148,6 @@ test('value.unpack works for objects', t => {
 test('value.unpack works for arrays', t => {
   t.deepEqual(unpack({type: 'arr', format: 'json', content: '[]'}), [])
   t.deepEqual(unpack({type: 'arr', format: 'json', content: '[1,2,3,4,5]'}), [1, 2, 3, 4, 5])
-  t.end()
-})
-
-test('value.unpack works for tabular data', t => {
-  let result = JSON.stringify([ { a: '1', b: 'x' }, { a: '2', b: 'y' }, { a: '3', b: 'z' } ])
-  t.equal(JSON.stringify(unpack({type: 'tab', format: 'csv', content: 'a,b\n1,x\n2,y\n3,z\n'})), result)
-  t.equal(JSON.stringify(unpack({type: 'tab', format: 'tsv', content: 'a\tb\n1\tx\n2\ty\n3\tz\n'})), result)
-  t.throws(() => unpack({type: 'tab', format: 'foo', content: 'bar'}))
   t.end()
 })
 

@@ -1,5 +1,3 @@
-import * as d3 from 'd3'
-
 /**
  * @namespace value
  */
@@ -27,15 +25,12 @@ export function type (value) {
     return 'str'
   } else if (type === 'object') {
     if (value.constructor === Array) {
-      let onlyObjects = true
-      for (let item of value) {
-        if (!item || item.constructor !== Object) {
-          onlyObjects = false
-          break
-        }
-      }
-      if (onlyObjects && value.length > 0) return 'tab'
-      else return 'arr'
+      return 'arr'
+    }
+    // NOTE: there is a built-in type 'tab'
+    // being an object of arrays with some meta data
+    if (value.type === 'tab') {
+      return 'tab'
     }
     if (value.type) return value.type
     else return 'obj'
@@ -64,12 +59,9 @@ export function pack (value) {
     content = value.toString()
   } else if (type_ === 'str') {
     content = value
-  } else if (type_ === 'obj' || type_ === 'arr') {
+  } else if (type_ === 'obj' || type_ === 'arr' || type_ === 'tab') {
     format = 'json'
     content = JSON.stringify(value)
-  } else if (type_ === 'tab') {
-    format = 'csv'
-    content = d3.csvFormat(value) + '\n'
   } else if (type_ === 'unk') {
     content = value.toString()
   } else {
@@ -113,14 +105,6 @@ export function unpack (pkg) {
     return JSON.parse(content)
   } else if (type === 'arr') {
     return JSON.parse(content)
-  } else if (type === 'tab') {
-    if (format === 'csv') {
-      return d3.csvParse(content)
-    } else if (format === 'tsv') {
-      return d3.tsvParse(content)
-    } else {
-      throw new Error('Unable to unpack\n  type: ' + type + '\n  format: ' + format)
-    }
   } else {
     return JSON.parse(content)
   }
