@@ -1,9 +1,7 @@
-let table1 = [
-  {x: 1, y: 1},
-  {x: 2, y: 2},
-  {x: 3, y: 3}
-]
-
-export {
-  table1
+export const table1 = {
+  type: 'tab',
+  data: {
+    x: [10, 11, 12],
+    y: [20, 21, 22]
+  }
 }
