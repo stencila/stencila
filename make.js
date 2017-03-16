@@ -178,8 +178,7 @@ function buildInstrumentedTests() {
     format: 'cjs',
     istanbul: {
       include: ['src/**/*.js'],
-      // TODO: I guess we would never add a test for these
-      exclude:['src/utilities/math/*']
+      exclude:[]
     },
     // brace is not nodejs compatible'
     ignore: [ 'brace' ],
