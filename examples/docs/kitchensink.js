@@ -10,6 +10,7 @@ export default `
 <h1>Minilang Cell</h1>
 
 <!-- Pure MiniLang cell -->
+<div data-cell='mytable = { type: "table", data: { x: [10,11,12], y: [20,21,22] } }'></div>
 <div data-cell="x = type(1)"></div>
 <p>Here is an external cell, implemented in Javascript:</p>
 <div data-cell="length = 5"></div>

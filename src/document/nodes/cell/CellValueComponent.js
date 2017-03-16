@@ -31,10 +31,18 @@ class CellValueComponent extends Component {
       pending = true
     }
     if (!isNil(value)) {
-      el.append(
-        $$('div').addClass('se-value')
-          .text(String(valueType)+':'+String(value))
-      )
+      const registry = this.context.componentRegistry
+      let ValueDisplay = registry.get('value:'+valueType)
+      if (ValueDisplay) {
+        el.append(
+          $$(ValueDisplay, {value})
+        )
+      } else {
+        el.append(
+          $$('div').addClass('se-value')
+            .text(String(valueType)+':'+String(value))
+        )
+      }
     }
     if (pending) el.addClass('sm-pending')
     if (node.errors && node.errors.length){
