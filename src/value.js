@@ -15,27 +15,22 @@ export function type (value) {
   if (value === null) {
     return 'null'
   } else if (type === 'boolean') {
-    return 'bool'
+    return 'boolean'
   } else if (type === 'number') {
     let isInteger = false
     if (value.isInteger) isInteger = value.isInteger()
     else isInteger = (value % 1) === 0
-    return isInteger ? 'int' : 'flt'
+    return isInteger ? 'integer' : 'float'
   } else if (type === 'string') {
-    return 'str'
+    return 'string'
   } else if (type === 'object') {
     if (value.constructor === Array) {
-      return 'arr'
-    }
-    // NOTE: there is a built-in type 'tab'
-    // being an object of arrays with some meta data
-    if (value.type === 'tab') {
-      return 'tab'
+      return 'array'
     }
     if (value.type) return value.type
-    else return 'obj'
+    else return 'object'
   } else {
-    return 'unk'
+    return 'unknown'
   }
 }
 
@@ -55,14 +50,14 @@ export function pack (value) {
 
   if (type_ === 'null') {
     content = 'null'
-  } else if (type_ === 'bool' || type_ === 'int' || type_ === 'flt') {
+  } else if (type_ === 'boolean' || type_ === 'integer' || type_ === 'float') {
     content = value.toString()
-  } else if (type_ === 'str') {
+  } else if (type_ === 'string') {
     content = value
-  } else if (type_ === 'obj' || type_ === 'arr' || type_ === 'tab') {
+  } else if (type_ === 'object' || type_ === 'array' || type_ === 'table') {
     format = 'json'
     content = JSON.stringify(value)
-  } else if (type_ === 'unk') {
+  } else if (type_ === 'unknown') {
     content = value.toString()
   } else {
     format = 'json'
@@ -89,21 +84,21 @@ export function unpack (pkg) {
     throw new Error('Package should have fields `type`, `format`, `content`')
   }
 
-  let {type, format, content} = pkg
+  let {type, content} = pkg
 
   if (type === 'null') {
     return null
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     return content === 'true'
-  } else if (type === 'int') {
+  } else if (type === 'integer') {
     return parseInt(content, 10)
-  } else if (type === 'flt') {
+  } else if (type === 'float') {
     return parseFloat(content)
-  } else if (type === 'str') {
+  } else if (type === 'string') {
     return content
-  } else if (type === 'obj') {
+  } else if (type === 'object') {
     return JSON.parse(content)
-  } else if (type === 'arr') {
+  } else if (type === 'array') {
     return JSON.parse(content)
   } else {
     return JSON.parse(content)

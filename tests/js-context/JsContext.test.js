@@ -149,7 +149,7 @@ test('JsContext.callFunction with no inputs', t => {
   t.plan(1)
 
   c.callFunction('type').then(result => {
-    t.deepEqual(result, {output: pack('unk'), errors: null})
+    t.deepEqual(result, {output: pack('unknown'), errors: null})
   })
 })
 
@@ -158,7 +158,7 @@ test('JsContext.callFunction with inputs and output', t => {
   t.plan(1)
 
   c.callFunction('type', [pack(1)]).then(result => {
-    t.deepEqual(result, {output: pack('int'), errors: null})
+    t.deepEqual(result, {output: pack('integer'), errors: null})
   })
 })
 
