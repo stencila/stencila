@@ -39,8 +39,13 @@ export default {
     this._exprStr = exprStr
     this._expr = null
     this.errors = []
+
+    this._parse()
+    if (this._deriveStateFromExpression) {
+      this._deriveStateFromExpression()
+    }
+
     if (this._isWatching) {
-      this._parse()
       this.emit('expression:updated', this)
     }
   },

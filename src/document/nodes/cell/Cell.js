@@ -23,6 +23,32 @@ class Cell extends BlockNode {
   set sourceCode(val) {
     this._setSourceCode(val)
   }
+  get isExternal() {
+    return Boolean(this._isExternal)
+  }
+  _deriveStateFromExpression() {
+    // check if it is an external cell or a chunk
+    const expr = this._expr
+    this._isExternal = false
+    if (expr) {
+      const nodes = expr.nodes
+      // check if there is a call() or run()
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i]
+        if (node.type === 'call') {
+          if (node.name === 'call' || node.name === 'run') {
+            this._isExternal = true
+            break
+          }
+        }
+      }
+    }
+    if (this._isExternal) {
+      if (!this.language) {
+        this.language = 'js'
+      }
+    }
+  }
 }
 
 Object.assign(Cell.prototype, CellMixin)
