@@ -5,7 +5,12 @@ export default `
 <p>If I eat <input type="range" min="1" max="20" step="1" name="num_cookies" value="3"/> extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (<span data-cell="calories">71.6</span> calories each) every day for the next <input type="range" min="1" max="100" step="1" name="num_weeks" value="52"/> weeks that will be <span data-cell="num_cookies*calories*num_weeks">11949.60</span> extra calories total.</p>
 <h1>Math</h1>
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
-
+<!-- Vegalite example -->
+<div data-cell="call()">
+<pre data-source>
+return {"type":"vegalite","data":{"values":[{"type":"A","height":28},{"type":"B","height":55},{"type":"C","height":43}]},"mark":"bar","encoding":{"x":{"field":"type","type":"ordinal"},"y":{"field":"height","type":"quantitative"}}}
+</pre>
+</div>
 
 <h1>Minilang Cell</h1>
 

@@ -24,6 +24,7 @@ import MathPackage from './nodes/math/MathPackage'
 import ImagePackage from './nodes/image/ImagePackage'
 import SelectPackage from './nodes/select/SelectPackage'
 import RangeInputPackage from './nodes/range-input/RangeInputPackage'
+import VegaLitePackage from './vega-lite/VegaLitePackage'
 
 /**
  * A "configurator" for a document.
@@ -76,6 +77,7 @@ class DocumentConfigurator extends Configurator {
     this.import(MinimalSwitchTextTypePackage)
     this.import(ToggleInsertPackage)
     this.import(InputSettingsBarPackage)
+    this.import(VegaLitePackage)
 
     this.addIcon('settings', { 'fontawesome': 'fa-cog' })
     this.addLabel('settings', 'Settings')
