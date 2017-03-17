@@ -59,7 +59,9 @@ const BROWSER_EXTERNALS = {
   'substance-mini': 'window.substanceMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
-  'katex': 'window.katex'
+  'katex': 'window.katex',
+  'vega': 'window.vega',
+  'vega-lite': 'window.vegaLite'
 }
 Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
   const alias = UNIFIED_MODULES[moduleName]
@@ -75,7 +77,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-mini', 'brace', 'd3', 'katex'
+  'substance', 'substance-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
