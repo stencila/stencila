@@ -59,7 +59,9 @@ const BROWSER_EXTERNALS = {
   'substance-mini': 'window.substanceMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
-  'katex': 'window.katex'
+  'katex': 'window.katex',
+  'vega': 'window.vega',
+  'vega-lite': 'window.vegaLite'
 }
 Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
   const alias = UNIFIED_MODULES[moduleName]
@@ -75,7 +77,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-mini', 'brace', 'd3', 'katex'
+  'substance', 'substance-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -86,6 +88,7 @@ const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 function copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./vendor/brace.*', './build/lib/')
+  b.copy('./vendor/vega*', './build/lib/')
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
@@ -178,8 +181,7 @@ function buildInstrumentedTests() {
     format: 'cjs',
     istanbul: {
       include: ['src/**/*.js'],
-      // TODO: I guess we would never add a test for these
-      exclude:['src/utilities/math/*']
+      exclude:[]
     },
     // brace is not nodejs compatible'
     ignore: [ 'brace' ],

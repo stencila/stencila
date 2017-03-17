@@ -25,3 +25,17 @@
 .sc-cell-value.sm-pending {
   opacity: 0.2;
 }
+
+.sc-table-value {
+  table-layout: fixed;
+  min-width: 100px;
+}
+
+.sc-table-value thead {
+  border-bottom: 1px solid #ccc;
+}
+
+.sc-table-value th,
+.sc-table-value td {
+  text-align: right;
+}

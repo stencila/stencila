@@ -4,6 +4,20 @@ import CellValueComponent from './CellValueComponent'
 
 class CellComponent extends Component {
 
+  didMount() {
+    const node = this.props.node
+    const editorSession = this.context.editorSession
+    editorSession.on('render', this.onCellChanged, this, {
+      resource: 'document',
+      path: [node.id]
+    })
+  }
+
+  dispose() {
+    const editorSession = this.context.editorSession
+    editorSession.off(this)
+  }
+
   render($$) {
     let node = this.props.node
     let el = $$('div').addClass('sc-cell')
@@ -15,7 +29,7 @@ class CellComponent extends Component {
           .on('enter', this.onExpressionEnter)
       )
     )
-    if (node.sourceCode) {
+    if (node.isExternal) {
       el.append(
         $$(CodeEditorComponent, {
           node: this.props.node,
@@ -66,8 +80,14 @@ class CellComponent extends Component {
         editorSession.executeCommand('insert-cell')
         break
       }
-      case 'SHIFT': {
+      case 'CTRL': {
         this.props.node.recompute()
+        break
+      }
+      case 'SHIFT': {
+        editorSession.transaction((tx) => {
+          tx.insertText('\n')
+        })
         break
       }
       case '': {
@@ -78,6 +98,10 @@ class CellComponent extends Component {
       default:
         //
     }
+  }
+
+  onCellChanged() {
+    this.rerender()
   }
 
   _afterNode() {

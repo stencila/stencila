@@ -1,5 +1,3 @@
-import * as d3 from 'd3'
-
 /**
  * @namespace value
  */
@@ -17,30 +15,22 @@ export function type (value) {
   if (value === null) {
     return 'null'
   } else if (type === 'boolean') {
-    return 'bool'
+    return 'boolean'
   } else if (type === 'number') {
     let isInteger = false
     if (value.isInteger) isInteger = value.isInteger()
     else isInteger = (value % 1) === 0
-    return isInteger ? 'int' : 'flt'
+    return isInteger ? 'integer' : 'float'
   } else if (type === 'string') {
-    return 'str'
+    return 'string'
   } else if (type === 'object') {
     if (value.constructor === Array) {
-      let onlyObjects = true
-      for (let item of value) {
-        if (!item || item.constructor !== Object) {
-          onlyObjects = false
-          break
-        }
-      }
-      if (onlyObjects && value.length > 0) return 'tab'
-      else return 'arr'
+      return 'array'
     }
     if (value.type) return value.type
-    else return 'obj'
+    else return 'object'
   } else {
-    return 'unk'
+    return 'unknown'
   }
 }
 
@@ -60,17 +50,14 @@ export function pack (value) {
 
   if (type_ === 'null') {
     content = 'null'
-  } else if (type_ === 'bool' || type_ === 'int' || type_ === 'flt') {
+  } else if (type_ === 'boolean' || type_ === 'integer' || type_ === 'float') {
     content = value.toString()
-  } else if (type_ === 'str') {
+  } else if (type_ === 'string') {
     content = value
-  } else if (type_ === 'obj' || type_ === 'arr') {
+  } else if (type_ === 'object' || type_ === 'array' || type_ === 'table') {
     format = 'json'
     content = JSON.stringify(value)
-  } else if (type_ === 'tab') {
-    format = 'csv'
-    content = d3.csvFormat(value) + '\n'
-  } else if (type_ === 'unk') {
+  } else if (type_ === 'unknown') {
     content = value.toString()
   } else {
     format = 'json'
@@ -97,30 +84,22 @@ export function unpack (pkg) {
     throw new Error('Package should have fields `type`, `format`, `content`')
   }
 
-  let {type, format, content} = pkg
+  let {type, content} = pkg
 
   if (type === 'null') {
     return null
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     return content === 'true'
-  } else if (type === 'int') {
+  } else if (type === 'integer') {
     return parseInt(content, 10)
-  } else if (type === 'flt') {
+  } else if (type === 'float') {
     return parseFloat(content)
-  } else if (type === 'str') {
+  } else if (type === 'string') {
     return content
-  } else if (type === 'obj') {
+  } else if (type === 'object') {
     return JSON.parse(content)
-  } else if (type === 'arr') {
+  } else if (type === 'array') {
     return JSON.parse(content)
-  } else if (type === 'tab') {
-    if (format === 'csv') {
-      return d3.csvParse(content)
-    } else if (format === 'tsv') {
-      return d3.tsvParse(content)
-    } else {
-      throw new Error('Unable to unpack\n  type: ' + type + '\n  format: ' + format)
-    }
   } else {
     return JSON.parse(content)
   }

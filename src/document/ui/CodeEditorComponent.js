@@ -1,4 +1,4 @@
-import { Component, inBrowser } from 'substance'
+import { Component, inBrowser, isNil } from 'substance'
 import ace from 'brace'
 import {attachAceEditor, setAceEditorMode} from '../../utilities/aceHelpers'
 
@@ -31,16 +31,22 @@ class CodeEditorComponent extends Component {
   didMount () {
     const node = this.props.node
 
-    node.on(this.props.codeProperty + ':changed', this._onCodeChanged, this)
-    if (this.props.languageProperty) node.on(this.props.languageProperty + ':changed', this._onLanguageChanged, this)
-
+    const editorSession = this.context.editorSession
+    editorSession.on('render', this._onCodeChanged, this, {
+      resource: 'document',
+      path: [node.id, this.props.codeProperty]
+    })
+    editorSession.on('render', this._onLanguageChanged, this, {
+      resource: 'document',
+      path: [node.id, this.props.languageProperty]
+    })
     if (inBrowser) {
       this._createAceEditor()
     }
   }
 
   dispose () {
-    this.props.node.off(this)
+    this.context.editorSession.off(this)
     if (this.editor) {
       this.editor.destroy()
       this.editor = null
@@ -153,11 +159,17 @@ class CodeEditorComponent extends Component {
     var codeProperty = this.codeProperty
     if (change.action === 'insert') {
       editorSession.transaction((tx) => {
-        tx.update([node.id, codeProperty], {
-          type: 'insert',
-          start: start,
-          text: change.lines.join('\n')
-        })
+        if (isNil(node[codeProperty])) {
+          tx.set([node.id, codeProperty],
+            change.lines.join('\n')
+          )
+        } else {
+          tx.update([node.id, codeProperty], {
+            type: 'insert',
+            start: start,
+            text: change.lines.join('\n')
+          })
+        }
       }, {
         // leaving a trace here so we can skip the change in _onCodeChanged
         source: this,
