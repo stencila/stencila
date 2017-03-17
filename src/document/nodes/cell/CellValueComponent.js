@@ -38,9 +38,14 @@ class CellValueComponent extends Component {
           $$(ValueDisplay, {value})
         )
       } else {
+        let valueStr = String(value)
+        if (valueStr.length > 10000) {
+          valueStr = valueStr.slice(0, 10000)+'...'
+        }
         el.append(
-          $$('div').addClass('se-value')
-            .text(String(valueType)+':'+String(value))
+          $$('div').addClass('se-value').append(
+            String(valueType), ':', valueStr
+          )
         )
       }
     }
