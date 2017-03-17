@@ -80,8 +80,14 @@ class CellComponent extends Component {
         editorSession.executeCommand('insert-cell')
         break
       }
-      case 'SHIFT': {
+      case 'CTRL': {
         this.props.node.recompute()
+        break
+      }
+      case 'SHIFT': {
+        editorSession.transaction((tx) => {
+          tx.insertText('\n')
+        })
         break
       }
       case '': {
