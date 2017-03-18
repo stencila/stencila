@@ -24,7 +24,8 @@ class CellComponent extends Component {
     el.append(
       $$('div').addClass('se-expression').append(
         $$(TextPropertyEditor, {
-          path: [node.id, 'expression']
+          path: [node.id, 'expression'],
+          commands: ['undo', 'redo', 'select-all']
         }).ref('expressionEditor')
           .on('enter', this.onExpressionEnter)
       )
@@ -40,7 +41,8 @@ class CellComponent extends Component {
     }
     if (node) {
       el.append(
-        $$(CellValueComponent, {node}).ref('value')
+        $$(CellValueComponent, {node})
+        .ref('value')
       )
     }
     el.on('click', this.onClick)
