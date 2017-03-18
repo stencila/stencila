@@ -1,6 +1,7 @@
 import { Component, TextPropertyEditor, findParentComponent, parseKeyEvent } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import CellValueComponent from './CellValueComponent'
+import MiniLangEditor from './MiniLangEditor'
 
 class CellComponent extends Component {
 
@@ -23,9 +24,10 @@ class CellComponent extends Component {
     let el = $$('div').addClass('sc-cell')
     el.append(
       $$('div').addClass('se-expression').append(
-        $$(TextPropertyEditor, {
+        $$(MiniLangEditor, {
           path: [node.id, 'expression'],
-          commands: ['undo', 'redo', 'select-all']
+          commands: ['undo', 'redo', 'select-all'],
+          expression: node._expr
         }).ref('expressionEditor')
           .on('enter', this.onExpressionEnter)
       )
@@ -45,7 +47,7 @@ class CellComponent extends Component {
         .ref('value')
       )
     }
-    el.on('click', this.onClick)
+    // el.on('click', this.onClick)
     return el
   }
 
@@ -53,17 +55,17 @@ class CellComponent extends Component {
     return this.refs.expressionEditor.getContent()
   }
 
-  onClick(event) {
-    let target = findParentComponent(event.target)
-    // console.log('###', target, target._owner)
-    if (target._owner === this.refs.expressionEditor || target._owner === this.refs.sourceCodeEditor) {
-      // console.log('### skipping')
-      // console.log(this.context.editorSession.getSelection())
-      return
-    }
-    event.stopPropagation()
-    this.context.isolatedNodeComponent.selectNode()
-  }
+  // onClick(event) {
+  //   let target = findParentComponent(event.target)
+  //   // console.log('###', target, target._owner)
+  //   if (target._owner === this.refs.expressionEditor || target._owner === this.refs.sourceCodeEditor) {
+  //     // console.log('### skipping')
+  //     // console.log(this.context.editorSession.getSelection())
+  //     return
+  //   }
+  //   event.stopPropagation()
+  //   this.context.isolatedNodeComponent.selectNode()
+  // }
 
   onEscapeFromCodeEditor(event) {
     event.stopPropagation()
