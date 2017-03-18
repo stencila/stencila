@@ -32,9 +32,8 @@ class CellComponent extends Component {
     if (node.isExternal) {
       el.append(
         $$(CodeEditorComponent, {
-          node: this.props.node,
-          codeProperty: 'sourceCode',
-          languageProperty: 'language'
+          path: [node.id, 'sourceCode'],
+          language: node.language
         }).ref('sourceCodeEditor')
           .on('escape', this.onEscapeFromCodeEditor)
       )
