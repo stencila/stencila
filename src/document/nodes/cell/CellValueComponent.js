@@ -35,7 +35,7 @@ class CellValueComponent extends Component {
       let ValueDisplay = registry.get('value:'+valueType)
       if (ValueDisplay) {
         el.append(
-          $$(ValueDisplay, {value})
+          $$(ValueDisplay, {value}).ref('value')
         )
       } else {
         let valueStr = String(value)
