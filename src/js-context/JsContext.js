@@ -55,7 +55,7 @@ export default class JsContext extends Context {
     }
 
     return Promise.resolve(
-      this._result(error, 0, value, options.pack)
+      this._result(error, value, options.pack)
     )
   }
 
@@ -90,7 +90,7 @@ export default class JsContext extends Context {
     }
 
     return Promise.resolve(
-      this._result(error, 0, value, pack)
+      this._result(error, value, pack)
     )
   }
 
@@ -152,7 +152,7 @@ export default class JsContext extends Context {
       error = e
     }
     return Promise.resolve(
-      this._result(error, 0, value, pack)
+      this._result(error, value, pack)
     )
   }
 
@@ -160,24 +160,31 @@ export default class JsContext extends Context {
    * Return a result promise
    *
    * @param {object} error - Error object, if any
-   * @param {int} offset - Line number offset
    * @param {object} value - The value to be packed
    * @param {boolean} packed - Should the output be packed (or left unpacked for calls withing Javascript)
    * @return {null|object} - A set of errors by line number
    */
-  _result (error, offset, value, packed) {
+  _result (error, value, packed) {
     if (packed !== false) packed = true
 
     let errors = null
     if (error) {
       // Parse the error stack to get message and line number
       let lines = error.stack.split('\n')
-      let message = lines[0]
-      let match = lines[1].match(/<anonymous>:(\d+):\d+/)
+      let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
       let line = 0
-      if (match) line = parseInt(match[1], 10) - 1 - offset
-      errors = {}
-      errors[line] = message
+      let column = 0
+      if (match) {
+        line = parseInt(match[1], 10) - 1
+        column = parseInt(match[2], 10)
+      }
+      let message = lines[0] || error.message
+      
+      errors = [{
+        line: line,
+        column: column,
+        message: message
+      }]
     }
 
     let output

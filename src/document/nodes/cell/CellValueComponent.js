@@ -3,31 +3,33 @@ import { Component, isNil } from 'substance'
 export default
 class CellValueComponent extends Component {
   didMount() {
-    const node = this.props.node
-    if (node) {
-      node.on('value:updated', this.rerender, this)
+    const cell = this.props.cell
+    if (cell) {
+      cell.on('value:updated', this.rerender, this)
     }
   }
   dispose() {
-    const node = this.props.node
-    if (node) {
-      node.off(this)
+    const cell = this.props.cell
+    if (cell) {
+      cell.off(this)
     }
   }
   render($$) {
-    const node = this.props.node
+    const cell = this.props.cell
     let el = $$('div').addClass('sc-cell-value')
     // EXPERIMENTAL: caching the value data so that
     // we can render something while the engine is updating
     // still, not sure yet if this is the right place to do
     let value, valueType
+    // TODO: Eventually, I want to have a state on the cell itself
+    // which is managed by the engine:
     let pending = false
-    if (!isNil(node.value)) {
-      value = this._oldValue = node.value
-      valueType = this._oldValueType = node.valueType
-    } else if (!isNil(this._oldValue)) {
-      value = this._oldValue
-      valueType = this._oldValueType
+    if (!isNil(cell.value)) {
+      value = cell.value
+      valueType = cell.valueType
+    } else if (!isNil(this._lastValidValue)) {
+      value = this._lastValidValue
+      valueType = this._lastValidValueType
       pending = true
     }
     if (!isNil(value)) {
@@ -35,7 +37,7 @@ class CellValueComponent extends Component {
       let ValueDisplay = registry.get('value:'+valueType)
       if (ValueDisplay) {
         el.append(
-          $$(ValueDisplay, {value})
+          $$(ValueDisplay, {value}).ref('value')
         )
       } else {
         let valueStr = String(value)
@@ -50,13 +52,6 @@ class CellValueComponent extends Component {
       }
     }
     if (pending) el.addClass('sm-pending')
-    if (node.errors && node.errors.length){
-      node.errors.forEach((error) => {
-        el.append(
-          $$('div').addClass('se-error').text(String(error))
-        )
-      })
-    }
     return el
   }
 }

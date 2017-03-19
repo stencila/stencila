@@ -8,12 +8,20 @@ export default {
     return !isNil(this.value)
   },
 
-  hasError() {
-    return Boolean(this._error)
+  hasRuntimeErrors() {
+    return this._expr && this._expr.runtimeErrors.length > 0
   },
 
-  getError() {
-    return this._error
+  getRuntimeErrors() {
+    return this._expr.runtimeErrors
+  },
+
+  hasSyntaxError() {
+    return this._expr && Boolean(this._expr.syntaxError)
+  },
+
+  getSyntaxError() {
+    return this._expr.syntaxError
   },
 
   recompute() {
@@ -38,7 +46,6 @@ export default {
     // then renew
     this._exprStr = exprStr
     this._expr = null
-    this.errors = []
 
     this._parse()
     if (this._deriveStateFromExpression) {
@@ -53,28 +60,27 @@ export default {
   _parse() {
     const exprStr = this._exprStr
     if (exprStr) {
-      try {
-        let expr = parse(exprStr)
-        this._validateExpression(expr)
-        expr.id = this.id
-        expr._cell = this
-        this._expr = expr
-        expr.on('value:updated', this._setValue, this)
-      } catch (error) {
-        this.errors = [String(error)]
-      }
+      let expr = parse(exprStr)
+      this._validateExpression(expr)
+      expr.id = this.id
+      expr._cell = this
+      this._expr = expr
+      expr.on('value:updated', this._setValue, this)
     }
   },
 
   _setValue(val) {
     // console.log('Setting value', this.id, val)
-    if (this._value !== val || this._expr.errors.length) {
+    if (this._value !== val) {
+      // always keep the last computed value
+      // so that UI can still render it even if
+      if (!isNil(this._value)) {
+        this._lastValidValue = this._value
+        this._lastValidValueType = this.valueType
+      }
       this._value = val
       this.valueType = type(val)
       if (this._isWatching) {
-        if (this._expr) {
-          this.errors = this._expr.errors
-        }
         this.emit('value:updated')
       }
     }

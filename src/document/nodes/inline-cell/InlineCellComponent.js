@@ -28,10 +28,6 @@ class InlineCellComponent extends Component {
       el.addClass('sm-pending')
       el.text(String(this._oldValue))
     }
-    if (node.hasError()){
-      el.text(String(node.getError()))
-      el.addClass('sm-error')
-    }
     return el
   }
 
