@@ -59,6 +59,7 @@
     "vega-lite": "2.0.0-alpha.2"
   },
   "devDependencies": {
+    "acorn": "^4.0.11",
     "brace": "^0.9.1",
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",
