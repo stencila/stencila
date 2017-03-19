@@ -1,4 +1,4 @@
-import {Component, TextPropertyEditor, forEach} from 'substance'
+import {Component, TextPropertyEditor} from 'substance'
 
 export default
 class MiniLangEditor extends Component {
