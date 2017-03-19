@@ -69,13 +69,13 @@ test('JsContext.callCode with errors', t => {
   t.plan(3)
 
   c.callCode('foo').then(result => {
-    t.deepEqual(result, {errors: { 1: 'ReferenceError: foo is not defined' }, output: null})
+    t.deepEqual(result, {errors: [{line: 1, column: 1, message: 'ReferenceError: foo is not defined'}], output: null})
   })
-  c.callCode('1\n2\nfoo\n4').then(result => {
-    t.deepEqual(result, {errors: { 3: 'ReferenceError: foo is not defined' }, output: null})
+  c.callCode('1\n2\n foo\n4').then(result => {
+    t.deepEqual(result, {errors: [{line: 3, column: 2, message: 'ReferenceError: foo is not defined'}], output: null})
   })
   c.callCode('<>').then(result => {
-    t.deepEqual(result, {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
+    t.deepEqual(result, {errors: [{line: 0, column: 0, message: 'SyntaxError: Unexpected token <'}], output: null})
   })
 })
 
@@ -108,13 +108,13 @@ test('JsContext.runCode with errors', t => {
   t.plan(3)
 
   c.runCode('foogazi').then(result => {
-    t.deepEqual(result, {errors: { 1: 'ReferenceError: foogazi is not defined' }, output: null})
+    t.deepEqual(result, { errors: [ { column: 1, line: 1, message: 'ReferenceError: foogazi is not defined' } ], output: null })
   })
   c.runCode('2*45\nfoogazi').then(result => {
-    t.deepEqual(result, {errors: { 2: 'ReferenceError: foogazi is not defined' }, output: null})
+    t.deepEqual(result, { errors: [ { column: 1, line: 2, message: 'ReferenceError: foogazi is not defined' } ], output: null })
   })
   c.runCode('<>').then(result => {
-    t.deepEqual(result, {errors: { 0: 'SyntaxError: Unexpected token <' }, output: null})
+    t.deepEqual(result, { errors: [ { column: 0, line: 0, message: 'SyntaxError: Unexpected token <' } ], output: null })
   })
 })
 
@@ -169,6 +169,6 @@ test('JsContext.callFunction with error', t => {
     throw new Error('nope')
   }
   c.callFunction('foo').then(result => {
-    t.deepEqual(result, {errors: { 0: 'Error: nope' }, output: null})
+    t.deepEqual(result, {errors: [ { column: 0, line: 0, message: 'Error: nope' } ], output: null})
   })
 })
