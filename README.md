@@ -1,4 +1,16 @@
-## Stencila
+<div align="center">
+  <a href="https://stenci.la/about">
+    <img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name-beta.svg" alt="Stencila">
+  </a>
+  <br>
+  <a href="#status">Status</a>&nbsp;|&nbsp;
+  <a href="#features">Features</a>&nbsp;|&nbsp;
+  <a href="#discuss">Discuss</a>&nbsp;|&nbsp;
+  <a href="#develop">Develop</a>
+  <br>
+</div>
+
+### Status
 
 [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
 [![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
@@ -6,62 +18,70 @@
 [![Dependency status](https://david-dm.org/stencila/stencila.svg)](https://david-dm.org/stencila/stencila)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
-Stencila is a platform for creating, collaborating on, and sharing data driven content. Content that is transparent and reproducible, like RMarkdown and Jupyter. Content that can be versioned and composed just like we do with open source software using tools like CRAN and NPM. And above all, content that is accessible to non-coders, like Google Docs and Microsoft Office.
-
 ### Features
+
+Stencila is a platform for creating, collaborating on, and sharing data driven content. Content that is **transparent** and **reproducible**, like [RMarkdown](https://github.com/rstudio/rmarkdown) and [Jupyter Notebooks](http://jupyter.org/). Content that can be **versioned** and **composed** just like we do with open source software using tools like [CRAN](https://cran.r-project.org/web/packages/available_packages_by_name.html) and [NPM](https://www.npmjs.com/). And above all, content that is **accessible** to non-coders, like [Google Docs](https://en.wikipedia.org/wiki/Google_Docs,_Sheets_and_Slides) and [Microsoft Office](https://en.wikipedia.org/wiki/Microsoft_Office).
+
+![](images/screenshot.png)
 
 Features                                                                    | State
 --------------------------------------------------------------------------- | :------------:
-Documents                                                                   | ✓
-Spreadsheets                                                                | 0.26+
-Presentations                                                               | 0.26+
-Transclusions                                                               | 0.26+
-**Static Content**                                                          |
+**Documents**                                                               | ✓
+**Sheets**                                                                  | 
+**Slides**                                                                  | 
+                                                                            |
+**Static content**                                                          |
 Paragraph                                                                   | ✓
-Heading                                                                     | ✓
+Headings                                                                    | ✓
 Blockquote                                                                  | ✓
-Image                                                                       | 0.26+
+Image                                                                       | 
 List                                                                        | ✓
 Table                                                                       | ✓
-Strong                                                                      | ✓
-Emphasis                                                                    | ✓
+Strong & emphasis                                                           | ✓
 Link                                                                        | ✓
-Subscript                                                                   | ✓
-Superscript                                                                 | ✓
-Code                                                                        | ✓
+Subscript & superscript                                                     | ✓
+Code block                                                                  | ✓
 Math (AsciiMath and Tex)                                                    | ✓
-**Data-driven content**                                                     |
-Mini Cell (Expression)                                                      | ✓
-Internal Code Cell (`call`)                                                 | ✓
-External Code Cell (`run`)                                                  | 0.26+
-Number Input (range slider)                                                 | ✓
-Select Input (name value pairs)                                             | ✓
-CSV                                                                         | 0.26+
-**Execution Engines**                                                       |
-Javascript                                                                  | ✓
-Node.js                                                                     | 0.26+
-R                                                                           | 0.26+
-Python                                                                      | 0.26+
-Julia                                                                       | 0.26+
-Scala                                                                       | 0.26+
+Discussions                                                                 | 
+**Reproducible content**                                                    |
+Number input (range slider)                                                 | ✓
+Select input (name value pairs)                                             | ✓
+File input (CSV etc)                                                        | 
+Code cell                                                                   | ✓
+Output (value display)                                                      | ✓
+**Execution contexts**                                                      |
+JavaScript                                                                  | ✓
+Node.js                                                                     | ✓
+R                                                                           | 0.26
+Python                                                                      | 0.26
+Julia                                                                       | 
+Jupyter kernels                                                             | 0.27
 **Functions**                                                               |
-Basic Statistics                                                            | 0.26+
-Tabular data manipulation (filter, aggregate, ...)                          | 0.26+
-**Plotting**                                                                |
-Base charts (Scatterplot, Lines, Bars, Pies, ...)                           | 0.26+
-Extended charts (time series, box plot, candle stick, ...)                  | 0.26+
-**Supported Formats**                                                       |
+Statistics (`sum`, `mean`, `variance`, ...)                                 | 0.26
+Data manipulation (`filter`, `sort`, `aggregate`, ...)                      | 0.26
+Data visualization (`plot`, `title`, `theme`, ...)                          | ✓
+Contribute more...                                                          | ✓
+**Formats**                                                                 |
 HTML                                                                        | ✓
-JATS                                                                        | 0.26+
-Markdown                                                                    | 0.26+
-RMarkdown                                                                   | 0.26+
-Jupyter Notebook                                                            | 0.26+
-**Apps**                                                                    |
-Stencila Desktop (Windows, OSX, Linux)                                      | ✓
-Stencila Hub (web platform for collaboration)                               | 1.0
+JATS                                                                        | 
+Markdown                                                                    | 0.26
+RMarkdown                                                                   | 0.26
+Jupyter Notebook                                                            | 
+Microsoft Office                                                            | 
+Open/Libre Office                                                           | 
+**Apps and packages**                                                       |
+[Stencila Desktop](https://github.com/stencila/desktop) (native apps for Windows, Mac OSX, Linux)               | ✓
+[Stencila for Python](https://github.com/stencila/python) (`pip install stencila`)                              | 0.26
+[Stencila for R](https://github.com/stencila/r) (`install.packages('stencila')`)                                | 0.26
+[Stencila for Node.js](https://github.com/stencila/node) (`npm install stencila-node`)                          | ✓
 
+Ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release that a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1 - 2 months.
 
-### Development
+### Discuss
+
+We love feedback. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
+
+### Develop
 
 ```
 git clone https://github.com/stencila/stencila.git
@@ -75,13 +95,20 @@ Now you can access the different interfaces in the browser:
 - [http://localhost:4000/examples/dashboard](http://localhost:4000/examples/dashboard)
 - [http://localhost:4000/examples/document](http://localhost:4000/examples/document)
 
-Most development tasks can be run directly using Javascript tooling (`npm`)
+Most development tasks can be run directly using JavaScript tooling (`npm`) or via `make`.
 
-Task                                                    | Command               |
-------------------------------------------------------- |-----------------------|
-Install and setup dependencies                          | `npm install`         |
-Run the development server                              | `npm start`           |
+Task                                                    |`npm`                  | `make`          |
+------------------------------------------------------- |-----------------------|-----------------|    
+Install and setup dependencies                          | `npm install`         | `make setup`
+Run the development server                              | `npm start`           | `make run`
+Check code for lint                                     | `npm run lint`        | `make lint`
+Run tests                                               | `npm test`            | `make test`
+Run tests in the browser                                | `npm run test-bundle` | `make test-bundle`
+Run tests with coverage                                 | `npm run cover`       | `make cover`
+Build documentation                                     | `npm run docs`        | `make docs`
+Serve and watch docs for updates                        | `npm run docs-serve`  | `make docs-serve`
+Clean                                                   |                       | `make clean`
 
-### Discuss
+To help out, [get in touch](https://gitter.im/stencila/stencila), checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1), or just send us a pull request! Please read our contributor [code of conduct](CONDUCT.md).
 
-We love feedback. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
+Docs are published using Github Pages, so to update them after making changes run make docs, commit the updated docs and do a git push.
