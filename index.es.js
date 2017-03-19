@@ -4,6 +4,7 @@ import * as documentConversion from './src/document/documentConversion'
 
 // ui components
 export { default as Dashboard } from './src/dashboard/Dashboard'
+export { default as uuid } from './src/util/uuid'
 
 // stubs (needed only by the examples)
 export { default as MemoryBackend } from './src/backend/MemoryBackend'
