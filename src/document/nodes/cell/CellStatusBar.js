@@ -54,8 +54,8 @@ class CellStatusBar extends Component {
 
   _renderRuntimeError($$, runtimeError) {
     let errorEl = $$('div').addClass('se-detailed-error')
-    forEach(runtimeError, (msg, line) => {
-      errorEl.append(`Error in line ${line}:`).append(msg)
+    forEach(runtimeError, (entry) => {
+      errorEl.append(`Error in ${entry.line}:${entry.column} -- `).append(entry.message)
     })
     return errorEl
   }
