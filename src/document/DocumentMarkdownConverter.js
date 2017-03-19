@@ -14,7 +14,7 @@ import rehype2remark from 'rehype-remark'
 import rehypeStringify from 'rehype-stringify'
 
 
-class DocumentMarkdownConverter {
+export default class DocumentMarkdownConverter {
 
   /**
    * Import from a Markdown document to a Stencila Document
