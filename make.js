@@ -207,10 +207,10 @@ function buildSingleTest(testFile) {
 function buildVendor() {
   install(b, 'browserify', '^14.1.0')
   install(b, 'uglify-js-harmony', '^2.7.5')
-  // minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
-  //   exports: ['default']
-  // })
-  // minifiedVendor('./vendor/_brace.js', 'brace')
+  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
+    exports: ['default']
+  })
+  minifiedVendor('./vendor/_brace.js', 'brace')
   minifiedVendor('./vendor/_unified.js', 'unified-html-markdown')
 }
 
