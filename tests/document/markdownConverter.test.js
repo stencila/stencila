@@ -1,6 +1,6 @@
 import test from 'tape'
 
-import converter from '../../src/document/markdown-converter'
+import converter from '../../src/document/markdownConverter'
 
 test('import', t => {
   const i = (md, options) => converter.import(md, options || {archive: false})
