@@ -10,7 +10,8 @@ class MiniLangEditor extends Component {
     // used for showing errors/warnings
     let gutter = $$('div').addClass('se-gutter').ref('gutter')
 
-    if (expression.errors && expression.errors.length>0) {
+    if (expression.syntaxError ||
+        expression.runtimeErrors.length>0) {
       gutter.append(
         this.context.iconProvider.renderIcon($$, 'error')
       )

@@ -2,12 +2,23 @@
   background: var(--stencila-green-transparent);
 }
 
+.sc-cell .se-cell-editor-container {
+  min-height: 30px;
+  position: relative;
+  border: 1px solid #ddd;
+}
+
+.sc-cell .se-ellipses {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
   font-size: 12px;
   /*padding: 10px 20px;*/
   font-weight: normal;
-  border: 1px solid #ddd;
   background: #fafafa;
   color: #737373;
 }

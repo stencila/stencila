@@ -12,6 +12,7 @@
 @import './input/_input.css';
 @import './toggle-insert/_toggle-insert.css';
 @import './input-settings-bar/_input-settings-bar.css';
+@import '../shared/_dropdown.css';
 
 /* Nodes */
 @import './nodes/title/_title.css';
