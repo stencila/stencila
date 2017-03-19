@@ -21,13 +21,15 @@ class CellValueComponent extends Component {
     // we can render something while the engine is updating
     // still, not sure yet if this is the right place to do
     let value, valueType
+    // TODO: Eventually, I want to have a state on the cell itself
+    // which is managed by the engine:
     let pending = false
     if (!isNil(cell.value)) {
-      value = this._oldValue = cell.value
-      valueType = this._oldValueType = cell.valueType
-    } else if (!isNil(this._oldValue)) {
-      value = this._oldValue
-      valueType = this._oldValueType
+      value = cell.value
+      valueType = cell.valueType
+    } else if (!isNil(this._lastValidValue)) {
+      value = this._lastValidValue
+      valueType = this._lastValidValueType
       pending = true
     }
     if (!isNil(value)) {

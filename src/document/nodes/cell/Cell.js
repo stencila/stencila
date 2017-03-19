@@ -58,7 +58,7 @@ class Cell extends BlockNode {
         }
       }
     }
-    if (this._isExternal) {
+    if (this._external) {
       if (!this.language) {
         this.language = 'js'
       }

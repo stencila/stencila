@@ -14,3 +14,7 @@
 .sc-mini-lang-editor .se-content {
   padding: 5px 10px;
 }
+
+.sc-mini-lang-editor .se-gutter .se-error-info {
+  color: red;
+}

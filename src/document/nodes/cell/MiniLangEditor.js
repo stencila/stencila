@@ -1,4 +1,4 @@
-import {Component, TextPropertyEditor} from 'substance'
+import {Component, TextPropertyEditor, forEach} from 'substance'
 
 export default
 class MiniLangEditor extends Component {
@@ -10,11 +10,15 @@ class MiniLangEditor extends Component {
     // used for showing errors/warnings
     let gutter = $$('div').addClass('se-gutter').ref('gutter')
 
-    if (expression.syntaxError ||
-        expression.runtimeErrors.length>0) {
-      gutter.append(
-        this.context.iconProvider.renderIcon($$, 'error')
-      )
+    if (expression.syntaxError) {
+      let errors = []
+      if (expression.syntaxError) {
+        errors.push(expression.syntaxError.msg)
+      }
+      let errorInfo = $$('div').addClass('se-error-info')
+      errorInfo.append(this.context.iconProvider.renderIcon($$, 'error'))
+      errorInfo.attr('title', errors.join('\n'))
+      gutter.append(errorInfo)
     }
 
     // the source code

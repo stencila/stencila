@@ -72,6 +72,12 @@ export default {
   _setValue(val) {
     // console.log('Setting value', this.id, val)
     if (this._value !== val) {
+      // always keep the last computed value
+      // so that UI can still render it even if
+      if (!isNil(this._value)) {
+        this._lastValidValue = this._value
+        this._lastValidValueType = this.valueType
+      }
       this._value = val
       this.valueType = type(val)
       if (this._isWatching) {
