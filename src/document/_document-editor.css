@@ -12,6 +12,7 @@
 @import './input/_input.css';
 @import './toggle-insert/_toggle-insert.css';
 @import './input-settings-bar/_input-settings-bar.css';
+@import '../shared/_dropdown.css';
 
 /* Nodes */
 @import './nodes/title/_title.css';
@@ -30,6 +31,9 @@
 @import './nodes/codeblock/_codeblock.css';
 @import './nodes/default/_default.css';
 @import './nodes/cell/_cell.css';
+@import './nodes/cell/_cell-status-bar.css';
+@import './nodes/cell/_mini-lang-editor.css';
+@import './nodes/cell/_code-highlight.css';
 @import './nodes/inline-cell/_inline-cell.css';
 @import './nodes/select/_select.css';
 @import './nodes/range-input/_range-input.css';

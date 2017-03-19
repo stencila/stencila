@@ -1,0 +1,20 @@
+.sc-mini-lang-editor table {
+  width: 100%;
+}
+
+.sc-mini-lang-editor .se-gutter-col {
+  width: 40px;
+  background: #ddd;
+}
+
+.sc-mini-lang-editor .se-gutter {
+  text-align: center;
+}
+
+.sc-mini-lang-editor .se-content {
+  padding: 5px 10px;
+}
+
+.sc-mini-lang-editor .se-gutter .se-error-info {
+  color: red;
+}

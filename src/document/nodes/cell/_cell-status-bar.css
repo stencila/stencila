@@ -1,0 +1,12 @@
+.sc-cell-status-bar .se-errors {
+  position: relative;
+  background: red;
+}
+
+/*.sc-cell-status-bar .se-errors .se-toggle-errors {*/
+.sc-cell-status-bar .se-errors > .sc-button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  border-radius: 2px;
+}

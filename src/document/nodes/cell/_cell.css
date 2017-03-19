@@ -2,12 +2,27 @@
   background: var(--stencila-green-transparent);
 }
 
+.sc-cell {
+  border: 1px solid #ddd;
+}
+
+.sc-cell .se-cell-editor-container {
+  min-height: 30px;
+  position: relative;
+  border: 1px solid #ddd;
+}
+
+.sc-cell .se-ellipses {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
   font-size: 12px;
-  padding: 10px 20px;
+  /*padding: 10px 20px;*/
   font-weight: normal;
-  border: 1px solid #ddd;
   background: #fafafa;
   color: #737373;
 }
@@ -16,10 +31,6 @@
   padding: 20px;
   border: 1px solid #ddd;
   border-top: none;
-}
-
-.sc-cell-value .se-error {
-  background: red;
 }
 
 .sc-cell-value.sm-pending {

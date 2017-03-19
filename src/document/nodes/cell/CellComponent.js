@@ -1,8 +1,17 @@
-import { Component, TextPropertyEditor, findParentComponent, parseKeyEvent } from 'substance'
+import { Component, parseKeyEvent } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import CellValueComponent from './CellValueComponent'
+import MiniLangEditor from './MiniLangEditor'
+import CellStatusBar from './CellStatusBar'
+import Dropdown from '../../../shared/Dropdown'
 
 class CellComponent extends Component {
+
+  getInitialState() {
+    return {
+      visibility: 'auto'
+    }
+  }
 
   didMount() {
     const node = this.props.node
@@ -19,49 +28,96 @@ class CellComponent extends Component {
   }
 
   render($$) {
-    let node = this.props.node
+    const cell = this.props.node
     let el = $$('div').addClass('sc-cell')
-    el.append(
+
+    let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
+    cellEditorContainer.append(
       $$('div').addClass('se-expression').append(
-        $$(TextPropertyEditor, {
-          path: [node.id, 'expression']
+        $$(MiniLangEditor, {
+          path: [cell.id, 'expression'],
+          commands: ['undo', 'redo', 'select-all'],
+          expression: cell.getExpressionNode()
         }).ref('expressionEditor')
           .on('enter', this.onExpressionEnter)
       )
     )
-    if (node.isExternal) {
+    cellEditorContainer.append(
+      this.renderEllipsesDropdown($$)
+    )
+
+    el.append(cellEditorContainer)
+
+    if (cell.isExternal()) {
       el.append(
         $$(CodeEditorComponent, {
-          node: this.props.node,
-          codeProperty: 'sourceCode',
-          languageProperty: 'language'
+          path: [cell.id, 'sourceCode'],
+          language: cell.language
         }).ref('sourceCodeEditor')
           .on('escape', this.onEscapeFromCodeEditor)
       )
     }
-    if (node) {
+
+    // TODO only show the node value if
+    // either the node is not assigning to a variable
+    // or the user has chosen to show the output
+    let showValue = false
+    switch(this.state.visibility) {
+      case 'hidden':
+        showValue = false
+        break
+      case 'show':
+        showValue = true
+        break
+      // 'auto' is the default
+      case 'auto': // eslint-disable-line no-fallthrough
+      default:
+        showValue = !cell.isDefinition()
+        break
+    }
+    if (showValue) {
       el.append(
-        $$(CellValueComponent, {node}).ref('value')
+        $$(CellValueComponent, {cell})
+        .ref('value')
       )
     }
-    el.on('click', this.onClick)
+
+    el.append(
+      $$(CellStatusBar, {cell})
+    )
+
+    return el
+  }
+
+  renderEllipsesDropdown($$) {
+    // TODO: please feel free to change anything of this mechanism
+    const el = $$(Dropdown, {
+      icon: 'ellipsis',
+      items: [
+        {
+          type: 'choice',
+          label: 'Visibility',
+          name: 'visibility',
+          value: this.state.visibility,
+          choices: [{
+            label: 'Auto',
+            value: 'auto'
+          }, {
+            label: 'Show',
+            value: 'show'
+          }, {
+            label: 'Hide',
+            value: 'hidden'
+          }]
+        }
+      ]
+    }).addClass('se-ellipses')
+      .on('select', this.onSelectEllipsesDropdown)
     return el
   }
 
   getExpression() {
     return this.refs.expressionEditor.getContent()
-  }
-
-  onClick(event) {
-    let target = findParentComponent(event.target)
-    // console.log('###', target, target._owner)
-    if (target._owner === this.refs.expressionEditor || target._owner === this.refs.sourceCodeEditor) {
-      // console.log('### skipping')
-      // console.log(this.context.editorSession.getSelection())
-      return
-    }
-    event.stopPropagation()
-    this.context.isolatedNodeComponent.selectNode()
   }
 
   onEscapeFromCodeEditor(event) {
@@ -102,6 +158,18 @@ class CellComponent extends Component {
 
   onCellChanged() {
     this.rerender()
+  }
+
+  onSelectEllipsesDropdown(event) {
+    const data = event.detail
+    const {name, value} = data
+    if (name) {
+      let newState = {}
+      newState[name] = value
+      this.extendState(newState)
+    } else {
+      console.error('FIXME: illegal event emitted by Dropdown')
+    }
   }
 
   _afterNode() {
