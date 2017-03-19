@@ -13,21 +13,17 @@ import rehypeParse from 'rehype-parse'
 import rehype2remark from 'rehype-remark'
 import rehypeStringify from 'rehype-stringify'
 
-/**
- * @namespace document/markdown-converter
- */
-export default {
+
+class DocumentMarkdownConverter {
 
   /**
    * Import from a Markdown document to a Stencila Document
-   *
-   * @memberof document/markdown-converter
    *
    * @param {string} md - Markdown content
    * @param {object} options - Conversion options
    * @return {object|string} - Document archive (virtual filesystem folder) or HTML string
    */
-  import: function (md, options) {
+  import (md, options) {
     options = options || {}
 
     // Output options
@@ -74,7 +70,7 @@ export default {
     } else {
       return html
     }
-  },
+  }
 
   /**
    * Export to a Markdown document from a Stencila Document
@@ -85,7 +81,7 @@ export default {
    * @param {object} options - Conversion options
    * @return {object|string} - Markdown content
    */
-  export: function (doc, options) {
+  export (doc, options) {
     options = options || {}
 
     let html = typeof doc === 'string' ? doc : doc['index.html']
