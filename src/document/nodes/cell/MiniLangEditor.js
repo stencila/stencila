@@ -56,14 +56,8 @@ class MiniLangEditor extends Component {
         return {
           type: 'code-highlight',
           name: t.type,
-          start: {
-            path,
-            offset: t.start
-          },
-          end: {
-            path,
-            offset: t.end
-          },
+          start: { path, offset: t.start },
+          end: { path, offset: t.end },
           on(){},
           off(){}
         }
