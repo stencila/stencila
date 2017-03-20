@@ -9,6 +9,21 @@ class CellStatusBar extends Component {
     }
   }
 
+  didMount() {
+    const cell = this.props.cell
+    if (cell) {
+      cell.on('evaluation:started', this.onEvaluationStarted, this)
+      cell.on('evaluation:finished', this.onEvaluationFinished, this)
+    }
+  }
+
+  dispose() {
+    const cell = this.props.cell
+    if (cell) {
+      cell.off(this)
+    }
+  }
+
   render($$) {
     const cell = this.props.cell
     let el = $$('div').addClass('sc-cell-status-bar')
@@ -67,6 +82,18 @@ class CellStatusBar extends Component {
   onToggleErrors() {
     this.extendState({
       expandErrors: !this.state.expandErrors
+    })
+  }
+
+  onEvaluationStarted() {
+    this.extendState({
+      pending: true
+    })
+  }
+
+  onEvaluationFinished() {
+    this.extendState({
+      pending: false
     })
   }
 

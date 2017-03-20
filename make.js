@@ -238,11 +238,11 @@ function minifiedVendor(src, name, opts = {}) {
 // we need this only temporarily, or if we need to work on an
 // unpublished version of substance
 function buildDeps() {
-  const subsDist = path.join(__dirname, 'node_modules/substance/dist')
-  if (!fs.existsSync(path.join(subsDist,'substance.js')) ||
-      !fs.existsSync(path.join(subsDist, 'substance.cjs.js'))) {
-    b.make('substance')
-  }
+  // const subsDist = path.join(__dirname, 'node_modules/substance/dist')
+  // if (!fs.existsSync(path.join(subsDist,'substance.js')) ||
+  //     !fs.existsSync(path.join(subsDist, 'substance.cjs.js'))) {
+  //   b.make('substance')
+  // }
 }
 
 function buildDocumentation() {

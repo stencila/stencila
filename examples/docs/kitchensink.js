@@ -6,9 +6,10 @@ export default `
 <h1>Math</h1>
 <p>Here is some math: <span data-math="asciimath">sum_(i=1)^n i^3=((n(n+1))/2)^2</span>.</p>
 <!-- Vegalite example -->
-<div data-cell="call()">
+<div data-cell="a_height = 15"></div>
+<div data-cell="call(a_height)">
 <pre data-source>
-return {"type":"vegalite","data":{"values":[{"type":"A","height":28},{"type":"B","height":55},{"type":"C","height":43}]},"mark":"bar","encoding":{"x":{"field":"type","type":"ordinal"},"y":{"field":"height","type":"quantitative"}}}
+return {"type":"vegalite","data":{"values":[{"type":"A","height":a_height},{"type":"B","height":55},{"type":"C","height":43}]},"mark":"bar","encoding":{"x":{"field":"type","type":"ordinal"},"y":{"field":"height","type":"quantitative"}}}
 </pre>
 </div>
 

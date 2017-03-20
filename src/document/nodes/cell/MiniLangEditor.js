@@ -10,7 +10,7 @@ class MiniLangEditor extends Component {
     // used for showing errors/warnings
     let gutter = $$('div').addClass('se-gutter').ref('gutter')
 
-    if (expression.syntaxError) {
+    if (expression && expression.syntaxError) {
       let errors = []
       if (expression.syntaxError) {
         errors.push(expression.syntaxError.msg)
