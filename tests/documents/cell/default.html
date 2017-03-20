@@ -1,0 +1,16 @@
+<p>If I eat <input type="range" min="1" max="20" step="1" name="num_cookies" value="3"/> extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (<span data-cell="calories">71.6</span> calories each) every day for the next <input type="range" min="1" max="100" step="1" name="num_weeks" value="52"/> weeks that will be <span data-cell="num_cookies*calories*num_weeks">11949.60</span> extra calories total.</p>
+<div data-cell="call()">
+<pre data-source>
+return {"type":"vegalite","data":{"values":[{"type":"A","height":28},{"type":"B","height":55},{"type":"C","height":43}]},"mark":"bar","encoding":{"x":{"field":"type","type":"ordinal"},"y":{"field":"height","type":"quantitative"}}}
+</pre>
+</div>
+<div data-cell='mytable = { type: "table", data: { x: [10,11,12], y: [20,21,22] } }'></div>
+<div data-cell="x = type(1)"></div>
+<div data-cell="length = 5"></div>
+<div data-cell="random_numbers = call(length)" data-language="js">
+<pre data-source>var randomNumbers = []
+for (var i = 0; i < length; i++) {
+  randomNumbers.push(Math.floor(Math.random()*100))
+}
+return randomNumbers</pre>
+</div>
