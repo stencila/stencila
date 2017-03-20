@@ -1,4 +1,4 @@
-import { isNil } from 'substance'
+import { isArray, isNil, map } from 'substance'
 import { parse } from 'substance-mini'
 import { type } from '../../../value'
 
@@ -9,11 +9,34 @@ export default {
   },
 
   hasRuntimeErrors() {
-    return this._expr && this._expr.runtimeErrors.length > 0
+    return this.runtimeErrors
   },
 
   getRuntimeErrors() {
-    return this._expr.runtimeErrors
+    return map(this.runtimeErrors)
+  },
+
+  addRuntimeError(key, error) {
+    if (!this.runtimeErrors) this.runtimeErrors = {}
+    if (isArray(error)) {
+      error = error.map(_normalize)
+    } else {
+      error = _normalize(error)
+    }
+    this.runtimeErrors[key] = error
+
+    function _normalize(error) {
+      const line = error.hasOwnProperty('line') ? error.line : -1
+      const column = error.hasOwnProperty('column') ? error.column : -1
+      const message = error.message || error.toString()
+      return {line, column, message}
+    }
+  },
+
+  clearRuntimeError(key) {
+    if (this.runtimeErrors) {
+      delete this.runtimeErrors[key]
+    }
   },
 
   hasSyntaxError() {
@@ -65,8 +88,21 @@ export default {
       expr.id = this.id
       expr._cell = this
       this._expr = expr
-      expr.on('value:updated', this._setValue, this)
+      expr.on('evaluation:started', this._onEvaluationStarted, this)
+      expr.on('evaluation:finished', this._onEvaluationFinished, this)
     }
+  },
+
+  _onEvaluationStarted() {
+    this.pending = true
+    this.runtimeErrors = null
+    this.emit('evaluation:started')
+  },
+
+  _onEvaluationFinished() {
+    this.pending = false
+    this._setValue(this._expr.getValue())
+    this.emit('evaluation:finished')
   },
 
   _setValue(val) {
@@ -80,9 +116,6 @@ export default {
       }
       this._value = val
       this.valueType = type(val)
-      if (this._isWatching) {
-        this.emit('value:updated')
-      }
     }
   },
 

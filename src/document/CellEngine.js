@@ -62,9 +62,8 @@ class CellEngine extends Engine {
     Calling into the context.
 
     There are different types of calls:
-    - function calls: the arguments are positional, and passed
-      to the external function
-    - external cells: arguments are provided as an object with
+    - function calls: the arguments are positional (ATM) and passed as array
+    - external cells: arguments are passed as object with
       names taken from the signature. The context is used to
       execute the sourceCode, using the arguments object.
     - chunk: like with external cells, arguments are provided
@@ -76,17 +75,25 @@ class CellEngine extends Engine {
     const expr = funcNode.expr
     const cell = expr._cell
     switch(functionName) {
-      // external cells
-      // and chunks
+      // external cells and chunks
       case 'call':
       case 'run': {
-        if (!cell) throw new Error('Internal error: no cell associated with expression.')
-        if(!cell.language) throw new Error('language is mandatory for "call"')
-        const lang = cell.language
-        const context = this._contexts[lang]
-        if (!context) throw new Error('No context for language ' + lang)
+        if(!cell.language) {
+          cell.addRuntimeError('runtime', {
+            message: 'Internal error: no cell associated with expression.'
+          })
+          return
+        }
+        const language = cell.language
+        const context = this._contexts[language]
+        if (!context) {
+          cell.addRuntimeError({
+            line: 0, column: 0,
+            message: `No context found for language ${language}`
+          })
+        }
         const sourceCode = cell.sourceCode || ''
-        const options = { pack: lang === 'js' ? false : true }
+        const options = { pack: language === 'js' ? false : true }
         if (functionName === 'call') {
           const args = {}
           funcNode.args.forEach((arg) => {
@@ -98,11 +105,13 @@ class CellEngine extends Engine {
             args[name] = arg.getValue()
           })
           return _unwrapResult(
+            cell,
             context.callCode(sourceCode, args, options),
             options
           )
         } else {
           return _unwrapResult(
+            cell,
             context.runCode(sourceCode, options),
             options
           )
@@ -119,6 +128,7 @@ class CellEngine extends Engine {
           const { context, contextName } = func
           const options = { pack: contextName === 'js' ? false : true }
           return _unwrapResult(
+            cell,
             context.callFunction(functionName, args, options),
             options
           )
@@ -260,17 +270,16 @@ class CellEngine extends Engine {
   }
 }
 
-function _unwrapResult(p, options) {
+function _unwrapResult(cell, p, options) {
   const pack = options.pack !== false
-  return new Promise((resolve, reject) => {
-    p.then((res) => {
-      if (res.errors) {
-        reject(res.errors)
-      } else {
-        const output = pack ? unpack(res.output) : res.output
-        resolve(output)
-      }
-    })
+  return p.then((res) => {
+    if (res.errors) {
+      cell.addRuntimeError('runtime', res.errors)
+      return undefined
+    } else {
+      const output = pack ? unpack(res.output) : res.output
+      return output
+    }
   })
 }
 

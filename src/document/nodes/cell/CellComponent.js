@@ -20,11 +20,15 @@ class CellComponent extends Component {
       resource: 'document',
       path: [node.id]
     })
+    node.on('evaluation:started', this.onEvaluationStarted, this)
+    node.on('evaluation:finished', this.onEvaluationFinished, this)
   }
 
   dispose() {
+    const node = this.props.node
     const editorSession = this.context.editorSession
     editorSession.off(this)
+    node.off(this)
   }
 
   render($$) {
@@ -158,6 +162,18 @@ class CellComponent extends Component {
 
   onCellChanged() {
     this.rerender()
+  }
+
+  onEvaluationStarted() {
+    this.extendState({
+      pending: true
+    })
+  }
+
+  onEvaluationFinished() {
+    this.extendState({
+      pending: false
+    })
   }
 
   onSelectEllipsesDropdown(event) {

@@ -12,6 +12,10 @@
   border: 1px solid #ddd;
 }
 
+.sc-cell .se-cell-editor-container .sc-dropdown button {
+  border: none;
+}
+
 .sc-cell .se-ellipses {
   position: absolute;
   top: 0px;
