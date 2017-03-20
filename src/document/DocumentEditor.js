@@ -48,7 +48,6 @@ export default class DocumentEditor extends AbstractEditor {
           $$(ContainerEditor, {
             containerId: 'content',
             disabled: !this.props.edit,
-            commands: configurator.getSurfaceCommandNames(),
             textTypes: configurator.getTextTypes()
           }).ref('containerEditor')
         )
