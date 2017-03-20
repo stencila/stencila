@@ -1,4 +1,4 @@
-import {Component, Button, forEach} from 'substance'
+import {isArray, Component, Button} from 'substance'
 
 export default
 class CellStatusBar extends Component {
@@ -22,8 +22,8 @@ class CellStatusBar extends Component {
 
   renderRuntimeErrors($$) {
     let runtimeErrors = this.props.cell.getRuntimeErrors()
+    // console.log('runtimeErrors', runtimeErrors)
     let errorsEl = $$('div').addClass('se-errors')
-
     if (runtimeErrors.length > 1) {
       let toggleErrors = $$(Button, {
         label: this.state.expandErrors ? "\u25C0": "\u25BC",
@@ -52,10 +52,14 @@ class CellStatusBar extends Component {
     return errorsEl
   }
 
-  _renderRuntimeError($$, runtimeError) {
+  _renderRuntimeError($$, runtimeErrors) {
     let errorEl = $$('div').addClass('se-detailed-error')
-    forEach(runtimeError, (entry) => {
-      errorEl.append(`Error in ${entry.line}:${entry.column} -- `).append(entry.message)
+    if (!isArray(runtimeErrors)) runtimeErrors = [runtimeErrors]
+    runtimeErrors.forEach((runtimeError) => {
+      if (errorEl.line >= 0) {
+        errorEl.append(`Error in ${runtimeError.line}:`)
+      }
+      errorEl.append(runtimeError.message)
     })
     return errorEl
   }

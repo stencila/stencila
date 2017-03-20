@@ -5,7 +5,8 @@ class CellValueComponent extends Component {
   didMount() {
     const cell = this.props.cell
     if (cell) {
-      cell.on('value:updated', this.rerender, this)
+      cell.on('evaluation:started', this.onEvaluationStarted, this)
+      cell.on('evaluation:finished', this.onEvaluationFinished, this)
     }
   }
   dispose() {
@@ -23,21 +24,19 @@ class CellValueComponent extends Component {
     let value, valueType
     // TODO: Eventually, I want to have a state on the cell itself
     // which is managed by the engine:
-    let pending = false
     if (!isNil(cell.value)) {
       value = cell.value
       valueType = cell.valueType
-    } else if (!isNil(this._lastValidValue)) {
-      value = this._lastValidValue
-      valueType = this._lastValidValueType
-      pending = true
+    } else if (!isNil(cell._lastValidValue)) {
+      value = cell._lastValidValue
+      valueType = cell._lastValidValueType
     }
     if (!isNil(value)) {
       const registry = this.context.componentRegistry
       let ValueDisplay = registry.get('value:'+valueType)
       if (ValueDisplay) {
         el.append(
-          $$(ValueDisplay, {value}).ref('value')
+          $$(ValueDisplay, {value, cell}).ref('value')
         )
       } else {
         let valueStr = String(value)
@@ -51,7 +50,19 @@ class CellValueComponent extends Component {
         )
       }
     }
-    if (pending) el.addClass('sm-pending')
+    if (this.state.pending) el.addClass('sm-pending')
     return el
+  }
+
+  onEvaluationStarted() {
+    this.extendState({
+      pending: true
+    })
+  }
+
+  onEvaluationFinished() {
+    this.extendState({
+      pending: false
+    })
   }
 }

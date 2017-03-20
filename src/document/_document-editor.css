@@ -37,6 +37,7 @@
 @import './nodes/inline-cell/_inline-cell.css';
 @import './nodes/select/_select.css';
 @import './nodes/range-input/_range-input.css';
+@import './vega-lite/_vega-lite.css';
 
 
 /*Import rendered math styling*/
