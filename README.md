@@ -9,11 +9,12 @@ Features                                                                    | St
 Documents                                                                   | ✓
 Spreadsheets                                                                | 0.26+
 Presentations                                                               | 0.26+
+Transclusions                                                               | 0.26+
 **Static Content**                                                          |
 Paragraph                                                                   | ✓
 Heading                                                                     | ✓
 Blockquote                                                                  | ✓
-Image                                                                       | ✓
+Image                                                                       | 0.26+
 List                                                                        | ✓
 Table                                                                       | ✓
 Strong                                                                      | ✓
@@ -29,6 +30,7 @@ Internal Code Cell (`call`)                                                 | �
 External Code Cell (`run`)                                                  | 0.26+
 Number Input (range slider)                                                 | ✓
 Select Input (name value pairs)                                             | ✓
+CSV                                                                         | 0.26+
 **Execution Engines**                                                       |
 Javascript                                                                  | ✓
 Node.js                                                                     | 0.26+
