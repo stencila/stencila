@@ -1,10 +1,10 @@
 import type from './type'
 
 /**
- * A factory function for creating multiple dispatch functions (aka. multimethods)
+ * A factory function for creating multiple dispatch functions (aka. "multifuncs")
  *
- * Multimethods are used in Mini to reduce the number of functions names and concepts while
- * maintaining the flexibility to operate of different data types. Wikipedia describes the
+ * Multifuncs are used in Mini to reduce the number of functions names and associated concepts while
+ * maintaining the flexibility to operate on different data types. Wikipedia describes the
  * usefulness of multiple dispatch, particularly in functional languages:
  *
  * "Function names are usually selected so as to be descriptive of the function's purpose. 
@@ -14,7 +14,9 @@ import type from './type'
  * the block of code to be executed. Instead, the number and type of the arguments to the 
  * function call are also used to select among several function implementations."
  * 
- * See https://en.wikipedia.org/wiki/Multiple_dispatch
+ * See https://en.wikipedia.org/wiki/Multiple_dispatch. Multiple dispatch functions are also
+ * known as "multimethods" but we use "multifuncs" instead to avoid introducing another term
+ * into the Mini vocabulary.
  *
  * This function is a convenience for function implementers
  * 
@@ -22,9 +24,9 @@ import type from './type'
  * @param  {object} lookup - An object with keys `type`, or `type1, type2` etc and function values
  * @param  {integer} arity - Number of arguments to dispatch upon
  * @param  {function} default_ - A default function
- * @return {function} - The multimethod
+ * @return {function} - The multifunc
  */
-export default function _multimethod (name, lookup, arity, default_) {
+export default function _multifunc (name, lookup, arity, default_) {
   if (typeof arity === 'function') {
     default_ = arity
     arity = undefined

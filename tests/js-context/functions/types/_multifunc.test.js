@@ -1,9 +1,9 @@
 import test from 'tape'
 
-import _multimethod from '../../../../src/js-context/functions/types/_multimethod'
+import _multifunc from '../../../../src/js-context/functions/types/_multifunc'
 
-test('_multimethod', t => {
-  let m1 = _multimethod('m1', {
+test('_multifunc', t => {
+  let m1 = _multifunc('m1', {
     null: () => 'dispatched to null',
     integer: () => 'dispatched to integer',
     foo: () => 'dispatched to foo'
@@ -13,7 +13,7 @@ test('_multimethod', t => {
   t.equal(m1({type: 'foo'}), 'dispatched to foo')
   t.equal(m1(3.14), 'dispatched to default')
 
-  let m2 = _multimethod('m2', {
+  let m2 = _multifunc('m2', {
     'null, null': () => 'dispatched to null, null',
     'integer, float': () => 'dispatched to integer, float',
     'foo, integer': () => 'dispatched to foo, integer'
