@@ -7,7 +7,6 @@ export default class Dashboard extends Component {
   }
 
   _fetchDocuments() {
-    console.log('fetching docs...')
     let backend = this.getBackend()
     backend.listDocuments().then((documents) => {
       this.setState({
