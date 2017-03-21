@@ -94,15 +94,23 @@ export default {
   },
 
   _onEvaluationStarted() {
+    // console.log('Started evaluation on', this)
     this.pending = true
     this.runtimeErrors = null
-    this.emit('evaluation:started')
+    if (this._isWatching) {
+      this.emit('evaluation:started')
+    }
   },
 
   _onEvaluationFinished() {
+    // console.log('Finished evaluation on', this)
     this.pending = false
-    this._setValue(this._expr.getValue())
-    this.emit('evaluation:finished')
+    const newValue = this._expr.getValue()
+    // console.log('setting value', newValue)
+    this._setValue(newValue)
+    if (this._isWatching) {
+      this.emit('evaluation:finished')
+    }
   },
 
   _setValue(val) {

@@ -104,6 +104,7 @@ class CellEngine extends Engine {
             }
             args[name] = arg.getValue()
           })
+          // console.log('Calling external code with', args)
           return _unwrapResult(
             cell,
             context.callCode(sourceCode, args, options),

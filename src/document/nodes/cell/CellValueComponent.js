@@ -2,6 +2,7 @@ import { Component, isNil } from 'substance'
 
 export default
 class CellValueComponent extends Component {
+
   didMount() {
     const cell = this.props.cell
     if (cell) {
@@ -9,12 +10,14 @@ class CellValueComponent extends Component {
       cell.on('evaluation:finished', this.onEvaluationFinished, this)
     }
   }
+
   dispose() {
     const cell = this.props.cell
     if (cell) {
       cell.off(this)
     }
   }
+
   render($$) {
     const cell = this.props.cell
     let el = $$('div').addClass('sc-cell-value')
@@ -27,10 +30,11 @@ class CellValueComponent extends Component {
     if (!isNil(cell.value)) {
       value = cell.value
       valueType = cell.valueType
-    } else if (!isNil(cell._lastValidValue)) {
-      value = cell._lastValidValue
-      valueType = cell._lastValidValueType
     }
+    //  else if (!isNil(cell._lastValidValue)) {
+    //   value = cell._lastValidValue
+    //   valueType = cell._lastValidValueType
+    // }
     if (!isNil(value)) {
       const registry = this.context.componentRegistry
       let ValueDisplay = registry.get('value:'+valueType)
@@ -50,19 +54,17 @@ class CellValueComponent extends Component {
         )
       }
     }
-    if (this.state.pending) el.addClass('sm-pending')
     return el
   }
 
   onEvaluationStarted() {
-    this.extendState({
-      pending: true
-    })
+    // console.log('### CellValueComponent.onEvaluationStarted')
+    this.el.addClass('sm-pending')
   }
 
   onEvaluationFinished() {
-    this.extendState({
-      pending: false
-    })
+    // console.log('### CellValueComponent.onEvaluationFinished')
+    this.el.removeClass('sm-pending')
+    this.rerender()
   }
 }
