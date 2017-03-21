@@ -5,7 +5,6 @@
 
 import { DocumentPage, MemoryBackend, getQueryStringParam } from 'stencila'
 
-console.info('Loading...', getQueryStringParam('documentId'))
 window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
     backend: new MemoryBackend(),
@@ -16,7 +15,7 @@ window.addEventListener('load', () => {
   function onKeyDown(e) {
     // CTRL+S
     if (e.ctrlKey && e.keyCode === 83) {
-      console.log('saving')
+      console.info('saving')
       window.documentPage.save()
     }
   }

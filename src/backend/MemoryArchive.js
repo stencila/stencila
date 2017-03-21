@@ -35,44 +35,5 @@ export default class MemoryArchive {
       }
     })
   }
-
-  /*
-    Returns true if archive has unsaved changes
-  */
-  isDirty() {
-
-  }
-
-  /*
-    IDEA: Back up the archive in order to recover unsaved changes later
-  */
-  backup() {
-
-  }
-
-  /*
-    IDEA: Recover archive: Use the backed up version that has the unsaved changes
-  */
-  recover() {
-
-  }
-
-  /*
-    IDEA: Returns true if there are recoverable (unsaved) files
-  */
-  canRecover() {
-
-  }
-
-  /*
-    Save the archive to the remote. For the MemoryArchive there is no Remotes
-    so we just simulate it.
-
-    In real world archives remotes can be: Github, SFTP, the local file system, ...
-  */
-  save() {
-    return new Promise((resolve) => {
-      resolve()
-    })
-  }
+  
 }

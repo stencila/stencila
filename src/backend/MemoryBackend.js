@@ -55,6 +55,7 @@ const LIBRARY_FIXTURE = {
 }
 
 export default class BackendStub {
+
   /*
     Returns a list of document entries to power the dashboard UI
 
@@ -87,6 +88,14 @@ export default class BackendStub {
     return new Promise(function(resolve) {
       resolve(LIBRARY_FIXTURE[documentId].__archive)
     })
+  }
+
+  storeArchive(/*archive*/) {
+    return Promise.resolve()
+  }
+
+  updateManifest(/* documentId, props */) {
+    return Promise.resolve()
   }
 
 }

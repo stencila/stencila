@@ -1,6 +1,7 @@
 import { forEach, map } from 'substance'
 import wrapSnippet from '../../examples/docs/wrapSnippet'
 import { MemoryArchive } from '../../index.es'
+import { MemoryBackend } from '../../index.es'
 import testVFS from '../../tmp/test-vfs.js'
 
 let testLibrary = {}
@@ -12,7 +13,6 @@ forEach(testVFS, (content, address) => {
       title: address,
       createdAt: '2017-03-10T00:03:12.060Z',
       modifiedAt: '2017-03-10T00:03:12.060Z',
-      openedAt: '2017-03-10T00:03:12.060Z',
       _html: content,
     }
   }
@@ -20,7 +20,7 @@ forEach(testVFS, (content, address) => {
 
 const SLASH = "/".charCodeAt(0)
 
-export default class TestBackend {
+export default class TestBackend extends MemoryBackend {
   listDocuments() {
     return new Promise(function(resolve) {
       let documentEntries = map(testLibrary, (entry) => {

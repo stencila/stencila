@@ -81,17 +81,16 @@ test('Document: saving archive', (t) => {
   const backend = new TestBackend()
   const documentId = '/tests/documents/simple/default.html'
   const page = DocumentPage.mount({ backend, documentId }, sandbox)
-  let archive, _writeFile
+  let _storeArchive
   backend.getArchive(documentId)
-  .then((_archive) => {
-    archive = _archive
-    _writeFile = spy(archive, 'writeFile')
+  .then(() => {
+    _storeArchive = spy(backend, 'storeArchive')
   })
   .then(() => {
     page.save()
   })
   .then(wait(10))
   .then(() => {
-    t.equal(_writeFile.callCount, 1, 'archive.writeFile should have been called.')
+    t.equal(_storeArchive.callCount, 1, 'backend._storeArchive should have been called.')
   })
 })

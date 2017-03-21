@@ -3,6 +3,7 @@ import DocumentEditor from './DocumentEditor'
 import DocumentConfigurator from './DocumentConfigurator'
 import { importHTML, exportHTML } from './documentConversion'
 import JsContext from '../js-context/JsContext'
+import debounce from 'lodash.debounce'
 
 /*
   Usage:
@@ -15,6 +16,12 @@ import JsContext from '../js-context/JsContext'
   ```
 */
 export default class DocumentPage extends Component {
+
+  constructor(...args) {
+    super(...args)
+    this._saveToBufferDebounced = debounce(this._saveToBuffer, 500)
+    this._saveToBufferDebounced.bind(this)
+  }
 
   didMount() {
     this._loadArchive()
@@ -70,7 +77,7 @@ export default class DocumentPage extends Component {
   }
 
   save() {
-    this._saveToArchive()
+    this._storeBuffer()
   }
 
   _loadArchive() {
@@ -78,8 +85,8 @@ export default class DocumentPage extends Component {
       let configurator = new DocumentConfigurator()
       let backend = this.getBackend()
 
-      backend.getArchive(this.props.documentId).then((archive) => {
-        archive.readFile('index.html', 'text/html').then((docHTML) => {
+      backend.getArchive(this.props.documentId).then((buffer) => {
+        buffer.readFile('index.html', 'text/html').then((docHTML) => {
           let doc = importHTML(docHTML)
           let editorSession = new EditorSession(doc, {
             configurator: configurator,
@@ -92,40 +99,36 @@ export default class DocumentPage extends Component {
           // enable this to make debugging easier
           // editorSession._url = this.props.documentId
           this.setState({
-            editorSession: editorSession
+            buffer,
+            editorSession
           })
         })
       })
     }
   }
 
-  _saveToArchive() {
+  /*
+    Saves the current buffer to the store backing the document.
+  */
+  _storeBuffer() {
     if (this.props.documentId) {
       let backend = this.getBackend()
       let appState = this.getAppState()
-      backend.getArchive(this.props.documentId).then((archive) => {
-        if (!archive) throw new Error('Could not find archive.')
-        const editorSession = this.state.editorSession
-        if (!editorSession) return
-        const doc = editorSession.getDocument()
-        const html = exportHTML(doc)
-        // TODO: at some point we would need to write everything, not just HTML
-        archive.writeFile('index.html', 'text/html', html).then(() => {
-          archive.save().then(() => {
-            console.info('Archive (document) saved.')
-            if (appState) {
-              appState.extend({
-                hasPendingChanges: false,
-              })
-            }
+      const buffer = this.state.buffer
+
+      backend.storeArchive(buffer).then(() => {
+        if (appState) {
+          appState.extend({
+            hasPendingChanges: false,
           })
-        }).catch((err) => {
-          if (appState) {
-            appState.extend({
-              error: err.message
-            })
-          }
-        })
+        }
+      }).catch((err) => {
+        console.error(err)
+        if (appState) {
+          appState.extend({
+            error: err.message
+          })
+        }
       })
     }
   }
@@ -174,11 +177,32 @@ export default class DocumentPage extends Component {
 
   _onDocumentChange() {
     let appState = this.getAppState()
-    if (appState) {
+    if (appState && !appState.get('hasPendingChanges')) {
       appState.extend({
         hasPendingChanges: true
       })
     }
+    this._saveToBufferDebounced()
   }
 
+  /*
+    Save current in-memory state of the document to buffer
+  */
+  _saveToBuffer() {
+    const editorSession = this.state.editorSession
+    const buffer = this.state.buffer
+    const doc = editorSession.getDocument()
+    const html = exportHTML(doc)
+    const documentId = this.props.documentId
+    const backend = this.getBackend()
+
+    buffer.writeFile('index.html', 'text/html', html).then(() => {
+      return backend.updateManifest(documentId, {
+        updatedAt: new Date(),
+        title: this.getTitle()
+      })
+    }).catch((err) => {
+      console.error(err)
+    })
+  }
 }
