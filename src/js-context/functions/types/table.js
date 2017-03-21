@@ -1,4 +1,6 @@
-export default function convertArrayToTable(array) {
+import _multifunc from './_multifunc'
+
+function table_array(array) {
   let tableData = {}
   array.forEach(row => {
     Object.keys(row).forEach(key => {
@@ -10,7 +12,13 @@ export default function convertArrayToTable(array) {
     })
   })
   return {
-    type: 'tab',
+    type: 'table',
     data: tableData
   }
 }
+
+const table = _multifunc('table', {
+  'array': table_array
+})
+
+export default table

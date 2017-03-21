@@ -1,4 +1,12 @@
-export default function convertTableToArray(table) {
+import _multifunc from './_multifunc'
+
+/**
+ * Create an array of objects from a table
+ *
+ * @param  {[type]} table [description]
+ * @return {[type]}       [description]
+ */
+function array_table(table) {
   let colNames = Object.keys(table.data)
   let rows = table.data[colNames[0]].length
   let array = []
@@ -11,3 +19,9 @@ export default function convertTableToArray(table) {
   }
   return array
 }
+
+const array = _multifunc('array', {
+  'table': array_table
+})
+
+export default array
