@@ -2,18 +2,29 @@ import { Component, FontAwesomeIcon, BrowserDOMElement } from 'substance'
 
 export default class Dashboard extends Component {
 
-  getBackend() {
-    return this.props.backend
+  didMount() {
+    this._fetchDocuments()
   }
 
-  didMount() {
+  _fetchDocuments() {
+    console.log('fetching docs...')
     let backend = this.getBackend()
-    // Retrieve document records from the backend
     backend.listDocuments().then((documents) => {
       this.setState({
         documents: documents
       })
     })
+  }
+
+  /*
+    Explicit reload of the dashboard
+  */
+  reload() {
+    this._fetchDocuments()
+  }
+
+  getBackend() {
+    return this.props.backend
   }
 
   render ($$) {
