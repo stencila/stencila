@@ -137,7 +137,7 @@ class CellEngine extends Engine {
         // with no keyword arguments. So, this is a kludge to deal with that...
         if (funcNode.type === 'call') {
           // Skip this call, will get called again below
-          if (funcNode.parent.type === 'pipe') return Promise.resolve()
+          if (funcNode.parent && funcNode.parent.type === 'pipe') return Promise.resolve()
         } else if (funcNode.expr && funcNode.expr.root.type === 'pipe') {
           // funcNode is a plain object with `name`, `expr` and `args` (with the pipe prepended)
           // but `namedArgs` are missing so get them from the root
