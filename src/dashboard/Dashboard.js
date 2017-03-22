@@ -1,4 +1,5 @@
 import { Component, FontAwesomeIcon, BrowserDOMElement } from 'substance'
+import timeago from 'timeago.js'
 
 export default class Dashboard extends Component {
 
@@ -45,23 +46,63 @@ export default class Dashboard extends Component {
                 doc.title
               )
             ),
-            $$('div').addClass('se-address').append(
-              doc.address
-            ),
+            this._renderMeta($$, doc),
             $$('div').addClass('se-actions-dropdown').append(
               $$('button').addClass('se-actions-toggle').append(
                 $$(FontAwesomeIcon, {icon: 'fa-ellipsis-v' })
               ).on('click', this._toggleActions),
-              $$('div').addClass('se-actions').append(
-                $$('button').addClass('se-action').append('Delete'),
-                $$('button').addClass('se-action').append('Open')
-              )
+              this._renderActions($$, doc)
             )
           )
         )
       })
     }
     return el
+  }
+
+  _renderMeta($$, doc) {
+    let el = $$('div').addClass('se-meta')
+    // Only display file path for docs with external storage
+    if (doc.storage.external) {
+      el.append(
+        $$('div').addClass('se-file-path').append(
+          [doc.storage.folderPath, doc.storage.fileName].join('/')
+        )
+      )
+    }
+    el.append(
+      $$('div').addClass('se-updated-at').append(
+        'updated ',
+        timeago().format(new Date(doc.updatedAt))
+      )
+    )
+    return el
+  }
+
+  _renderActions($$, doc) {
+    let el = $$('div').addClass('se-actions')
+
+    if (doc.storage.external) {
+      el.append(
+        $$('button').addClass('se-action')
+          .append('Unlink')
+          .on('click', this._deleteDocument.bind(this, doc.id))
+      )
+    } else {
+      el.append(
+        $$('button').addClass('se-action')
+          .append('Delete')
+          .on('click', this._deleteDocument.bind(this, doc.id))
+      )
+    }
+    return el
+  }
+
+  _deleteDocument(documentId) {
+    let backend = this.getBackend()
+    backend.deleteDocument(documentId).then(() => {
+      this.reload()
+    })
   }
 
   _toggleActions(e) {

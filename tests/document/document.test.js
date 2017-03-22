@@ -46,12 +46,11 @@ test('Document: switching documents', (t) => {
   })
 })
 
-
 test('Document: open all test documents', (t) => {
   const testBackend = new TestBackend()
-  const docUrls = testBackend._getDocumentUrls()
+  const docIds = testBackend._getDocumentIds()
   const CHECKS_PER_URL = 1
-  t.plan(docUrls.length*CHECKS_PER_URL)
+  t.plan(docIds.length*CHECKS_PER_URL)
 
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
@@ -60,37 +59,37 @@ test('Document: open all test documents', (t) => {
   }, sandbox)
 
   let p = Promise.resolve()
-  for (let i = 0; i < docUrls.length; i++) {
-    const url = docUrls[i]
-    p = p.then(()=>{
+  for (let i = 0; i < docIds.length; i++) {
+    const docId = docIds[i]
+    p = p.then(()=> {
       page.extendProps({
-        documentId: url
+        documentId: docId
       })
     })
     .then(wait(10))
     .then(() => {
-      t.notOk(isNil(page.state.editorSession), `Page should have opened ${url}`)
+      t.notOk(isNil(page.state.editorSession), `Page should have opened ${docId}`)
     })
   }
 })
 
-test('Document: saving archive', (t) => {
+test('Document: storing buffer', (t) => {
   t.plan(1)
 
   const sandbox = getSandbox(t)
   const backend = new TestBackend()
   const documentId = '/tests/documents/simple/default.html'
   const page = DocumentPage.mount({ backend, documentId }, sandbox)
-  let _storeArchive
-  backend.getArchive(documentId)
+  let _storeBuffer
+  backend.getBuffer(documentId)
   .then(() => {
-    _storeArchive = spy(backend, 'storeArchive')
+    _storeBuffer = spy(backend, 'storeBuffer')
   })
   .then(() => {
     page.save()
   })
   .then(wait(10))
   .then(() => {
-    t.equal(_storeArchive.callCount, 1, 'backend._storeArchive should have been called.')
+    t.equal(_storeBuffer.callCount, 1, 'backend._storeBuffer should have been called.')
   })
 })

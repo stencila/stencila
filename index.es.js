@@ -8,10 +8,11 @@ export { default as uuid } from './src/util/uuid'
 
 // stubs (needed only by the examples)
 export { default as MemoryBackend } from './src/backend/MemoryBackend'
-export { default as MemoryArchive } from './src/backend/MemoryArchive'
+export { default as MemoryBuffer } from './src/backend/MemoryBuffer'
 
 export { default as DocumentEditor } from './src/document/DocumentEditor'
 export { default as DocumentPage } from './src/document/DocumentPage'
+export { default as DocumentHTMLConverter } from './src/document/DocumentHTMLConverter'
 export { default as DocumentConfigurator } from './src/document/DocumentConfigurator'
 export { documentConversion }
 

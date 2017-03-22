@@ -19,10 +19,16 @@
   color: var(--stencila-green);
 }
 
-.sc-dashboard .se-document-entry .se-address {
+.sc-dashboard .se-document-entry .se-file-path {
   color: #bbb;
   font-size: 10px;
   font-family: var(--mono-font-family);
+  padding-bottom: 3px;
+}
+
+.sc-dashboard .se-document-entry .se-updated-at {
+  font-size: 12px;
+  font-style: italic;
 }
 
 /* Actions dropdown */

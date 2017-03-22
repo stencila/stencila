@@ -1,9 +1,10 @@
 /* globals Blob */
 
 /*
-  In-memory archive (cmp. mini filesytem) for representing Substance documents with assets
+  In-memory buffer (cmp. mini filesytem) for representing Substance together
+  with assets
 */
-export default class MemoryArchive {
+export default class MemoryBuffer {
   constructor() {
     this._files = {}
   }
@@ -35,5 +36,5 @@ export default class MemoryArchive {
       }
     })
   }
-  
+
 }

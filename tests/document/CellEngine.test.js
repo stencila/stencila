@@ -278,13 +278,13 @@ const TEST_FUNCTIONS = {
   }
 }
 
-function setupEditorSession(archiveURL) {
+function setupEditorSession(documentId) {
   let configurator = new DocumentConfigurator()
   let backend = new TestBackend()
-  return backend.getArchive(archiveURL)
-  .then((archive) => {
+  return backend.getBuffer(documentId)
+  .then((buffer) => {
     return new Promise((resolve, reject) => {
-      archive.readFile('index.html').then((docHTML) => {
+      buffer.readFile('index.html').then((docHTML) => {
         let doc = documentConversion.importHTML(docHTML)
         let editorSession = new EditorSession(doc, {
           configurator: configurator,

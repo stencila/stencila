@@ -8,7 +8,7 @@
     "prepublish": "node make",
     "lint": "eslint *.js src tests",
     "test": "node make test",
-    "test-browser": "node make test:browser -w -s",
+    "test-browser": "node make test:browser -w",
     "test-one": "node make test:one -f",
     "build": "node make",
     "watch": "node make -w",
@@ -56,7 +56,8 @@
     "unist-util-remove": "^0.2.1",
     "unist-util-visit": "^1.1.1",
     "vega": "3.0.0-beta.22",
-    "vega-lite": "2.0.0-alpha.2"
+    "vega-lite": "2.0.0-alpha.2",
+    "timeago.js": "3.0.0"
   },
   "devDependencies": {
     "acorn": "^4.0.11",
