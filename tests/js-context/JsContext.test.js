@@ -157,7 +157,7 @@ test('JsContext.callFunction with inputs and output', t => {
   let c = new JsContext()
   t.plan(1)
 
-  c.callFunction('type', [[undefined, pack(1)]]).then(result => {
+  c.callFunction('type', [pack(1)]).then(result => {
     t.deepEqual(result, {output: pack('integer'), errors: null})
   })
 })
@@ -169,22 +169,22 @@ test('JsContext.callFunction with named arguments', t => {
   // TODO this uses a stochatic function for testing! Use a deterministic function with
   // named parameters
 
-  c.callFunction('random_uniform', [[undefined, 10]], {pack: false}).then(result => {
+  c.callFunction('random_uniform', [10], {}, {pack: false}).then(result => {
     t.equal(type(result.output), 'array')
     t.equal(result.output.length, 10)
   })
 
-  c.callFunction('random_uniform', [['n', 10]], {pack: false}).then(result => {
+  c.callFunction('random_uniform', [], {n: 10}, {pack: false}).then(result => {
     t.equal(type(result.output), 'array')
     t.equal(result.output.length, 10)
   })
 
-  c.callFunction('random_uniform', [['min', 100],['n', 1]], {pack: false}).then(result => {
+  c.callFunction('random_uniform', [], {min: 100, n: 1}, {pack: false}).then(result => {
     t.equal(type(result.output), 'float')
     t.ok(result.output < 100)
   })
 
-  c.callFunction('random_uniform', [['foo', 'bar'],['n', 10]], {pack: false})
+  c.callFunction('random_uniform', [], {min: 100, foo: 1}, {pack: false})
     .then(() => {
       t.fail('should not resolve')
     })
