@@ -19,16 +19,23 @@ let simpleSheetBuffer = new MemoryBuffer()
 simpleSheetBuffer.writeFile('index.html', 'text/html', wrapSnippet(simpleSheet))
 
 /*
-  Same layout as the ~/.stencila/library.json file which is used to power
+  Same layout as the ~/Documents/Stencila/library.json file which is used to power
   Stencila Desktop. On the hub we may use a completely different layout
   stored in the database.
 */
-const LIBRARY_FIXTURE = {
+let LIBRARY_FIXTURE = {
   'stencila-intro': {
     type: 'document',
     title: 'Welcome to Stencila',
     createdAt: '2017-03-10T00:03:12.060Z',
-    modifiedAt: '2017-03-10T00:03:12.060Z',
+    updatedAt: '2017-03-10T00:03:12.060Z',
+    storage: {
+      storerType: "filesystem",
+      contentType: "html",
+      folderPath: "/Users/john/Desktop",
+      fileName: "welcome-to-stencila.html",
+      external: true
+    },
     // just there to simulate the virtual file system
     __buffer: stencilaIntroBuffer
   },
@@ -36,7 +43,13 @@ const LIBRARY_FIXTURE = {
     type: 'document',
     title: 'Kitchen Sink Document',
     createdAt: '2017-03-10T00:03:12.060Z',
-    modifiedAt: '2017-03-10T00:03:12.060Z',
+    updatedAt: '2017-03-10T00:03:12.060Z',
+    storage: {
+      storerType: "filesystem",
+      contentType: "html",
+      folderPath: "/Users/john/Documents/Stencila/e5bf2e06-914e-4396-9c3b-89f8b53e361f/storage",
+      fileName: "index.html"
+    },
     // just there to simulate the virtual file system
     __buffer: kitchenSinkBuffer
   },
@@ -44,8 +57,13 @@ const LIBRARY_FIXTURE = {
     type: 'sheet',
     title: 'Simple Sheet',
     createdAt: '2017-03-12T00:03:12.060Z',
-    modifiedAt: '2017-03-12T00:03:12.060Z',
-    openedAt: '2017-03-12T00:03:12.060Z',
+    updatedAt: '2017-03-12T00:03:12.060Z',
+    storage: {
+      storerType: "filesystem",
+      contentType: "html",
+      folderPath: "/Users/john/Documents/Stencila/a5bf2e06-914e-4396-9c3b-89f8b53e361f/storage",
+      fileName: "index.html"
+    },
     // just there to simulate an HTML file on the file system
     __buffer: simpleSheetBuffer
   }
@@ -62,18 +80,16 @@ export default class BackendStub {
     return new Promise(function(resolve) {
       let documentEntries = []
       forEach(LIBRARY_FIXTURE, (doc, documentId) => {
-        documentEntries.push({
-          id: documentId,
-          type: doc.type,
-          address: documentId,
-          title: doc.title,
-          openedAt: doc.openedAt,
-          createAt: doc.modifiedAt,
-          modifiedAt: doc.modifiedAt,
-        })
+        let entry = Object.assign({}, doc, {id: documentId})
+        documentEntries.push(entry)
       })
       resolve(documentEntries)
     })
+  }
+
+  deleteDocument(documentId) {
+    delete LIBRARY_FIXTURE[documentId]
+    return Promise.resolve(this)
   }
 
   /*
