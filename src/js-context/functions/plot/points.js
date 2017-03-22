@@ -1,8 +1,8 @@
-import marks from './marks'
+import plot from './plot'
 
-function points (data, x, y, color, size) {
-  return marks(data, 'point', x, y, color, size)
+function points (data, x, y, color, size, options) {
+  return plot(data, 'point', x, y, color, size, options)
 }
-points.pars = ['data', 'x', 'y', 'color', 'size']
+points.pars = ['data', 'x', 'y', 'color', 'size', 'options']
 
 export default points
