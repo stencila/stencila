@@ -1,6 +1,12 @@
 import test from 'tape'
 import MemoryBuffer from '../../src/backend/MemoryBuffer'
 import DocumentHTMLConverter from '../../src/document/DocumentHTMLConverter'
+import testVFS from '../../tmp/test-vfs.js'
+import wrapSnippet from '../../src/util/wrapSnippet'
+
+let kitchenSinkHTML = wrapSnippet(testVFS['tests/documents/kitchen-sink/default.html'])
+
+// console.log('test', kitchenSinkHTML)
 
 test('DocumentHTMLConverter:  Convert into internal buffer from an HTML file', function (t) {
   let converter = new DocumentHTMLConverter()
@@ -13,8 +19,9 @@ test('DocumentHTMLConverter:  Convert into internal buffer from an HTML file', f
     'hello.html'
   ).then((manifest) => {
     t.equal(manifest.type, 'document')
+    t.equal(manifest.title, 'Kitchen sink')
     archive.readFile('index.html', 'text/html').then((html) => {
-      t.equal(html, 'HELLO WORLD')
+      t.equal(html, kitchenSinkHTML)
       t.end()
     })
   })
@@ -30,7 +37,7 @@ test('DocumentHTMLConverter: Convert to named HTML file from buffer', function (
     'hello.html'
   ).then(() => {
     storer.readFile('hello.html', 'text/html').then((html) => {
-      t.equal(html, 'HELLO WORLD')
+      t.equal(html, kitchenSinkHTML)
       t.end()
     })
   })
@@ -48,12 +55,12 @@ test('DocumentHTMLConverter: Should match an HTML file name', function (t) {
 */
 function _createFileStorer() {
   let storer = new MemoryBuffer()
-  storer.writeFile('hello.html', 'text/html', 'HELLO WORLD')
+  storer.writeFile('hello.html', 'text/html', kitchenSinkHTML)
   return storer
 }
 
 function _createBuffer() {
   let buffer = new MemoryBuffer()
-  buffer.writeFile('index.html', 'text/html', 'HELLO WORLD')
+  buffer.writeFile('index.html', 'text/html', kitchenSinkHTML)
   return buffer
 }
