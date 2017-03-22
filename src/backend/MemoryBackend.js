@@ -3,20 +3,20 @@ import wrapSnippet from '../util/wrapSnippet'
 import kitchenSink from '../../examples/docs/kitchensink'
 import stencilaIntro from '../../examples/docs/stencila-intro'
 import simpleSheet from '../../examples/docs/simple-sheet'
-import MemoryArchive from './MemoryArchive'
+import MemoryBuffer from './MemoryBuffer'
 
 /*
-  NOTE: We know that MemoryArchive interally works synchronously, so we don't
+  NOTE: We know that MemoryBuffer interally works synchronously, so we don't
         wait for the promise for seeding.
 */
-let stencilaIntroArchive = new MemoryArchive()
-stencilaIntroArchive.writeFile('index.html', 'text/html', wrapSnippet(stencilaIntro))
+let stencilaIntroBuffer = new MemoryBuffer()
+stencilaIntroBuffer.writeFile('index.html', 'text/html', wrapSnippet(stencilaIntro))
 
-let kitchenSinkArchive = new MemoryArchive()
-kitchenSinkArchive.writeFile('index.html', 'text/html', wrapSnippet(kitchenSink))
+let kitchenSinkBuffer = new MemoryBuffer()
+kitchenSinkBuffer.writeFile('index.html', 'text/html', wrapSnippet(kitchenSink))
 
-let simpleSheetArchive = new MemoryArchive()
-simpleSheetArchive.writeFile('index.html', 'text/html', wrapSnippet(simpleSheet))
+let simpleSheetBuffer = new MemoryBuffer()
+simpleSheetBuffer.writeFile('index.html', 'text/html', wrapSnippet(simpleSheet))
 
 /*
   Same layout as the ~/.stencila/library.json file which is used to power
@@ -29,28 +29,25 @@ const LIBRARY_FIXTURE = {
     title: 'Welcome to Stencila',
     createdAt: '2017-03-10T00:03:12.060Z',
     modifiedAt: '2017-03-10T00:03:12.060Z',
-    openedAt: '2017-03-10T00:03:12.060Z',
     // just there to simulate the virtual file system
-    __archive: stencilaIntroArchive
+    __buffer: stencilaIntroBuffer
   },
   'kitchen-sink': {
     type: 'document',
     title: 'Kitchen Sink Document',
     createdAt: '2017-03-10T00:03:12.060Z',
     modifiedAt: '2017-03-10T00:03:12.060Z',
-    openedAt: '2017-03-10T00:03:12.060Z',
     // just there to simulate the virtual file system
-    __archive: kitchenSinkArchive
+    __buffer: kitchenSinkBuffer
   },
   'simple-sheet': {
     type: 'sheet',
-    source: 'source.html',
     title: 'Simple Sheet',
     createdAt: '2017-03-12T00:03:12.060Z',
     modifiedAt: '2017-03-12T00:03:12.060Z',
     openedAt: '2017-03-12T00:03:12.060Z',
     // just there to simulate an HTML file on the file system
-    __archive: simpleSheetArchive
+    __buffer: simpleSheetBuffer
   }
 }
 
@@ -80,17 +77,17 @@ export default class BackendStub {
   }
 
   /*
-    Returns an archive object.
+    Returns a buffer object.
 
-    Use MemoryArchive implementation as an API reference
+    Use MemoryBuffer implementation as an API reference
   */
-  getArchive(documentId) {
+  getBuffer(documentId) {
     return new Promise(function(resolve) {
-      resolve(LIBRARY_FIXTURE[documentId].__archive)
+      resolve(LIBRARY_FIXTURE[documentId].__buffer)
     })
   }
 
-  storeArchive(/*archive*/) {
+  storeBuffer(/*buffer*/) {
     return Promise.resolve()
   }
 

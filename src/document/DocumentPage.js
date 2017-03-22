@@ -24,13 +24,13 @@ export default class DocumentPage extends Component {
   }
 
   didMount() {
-    this._loadArchive()
+    this._loadBuffer()
   }
 
   didUpdate(oldProps, oldState) {
     // documentId has changed
     if (oldProps.documentId !== this.props.documentId) {
-      this._loadArchive()
+      this._loadBuffer()
     }
     // editor session has changed
     if (oldState.editorSession !== this.state.editorSession) {
@@ -80,12 +80,12 @@ export default class DocumentPage extends Component {
     this._storeBuffer()
   }
 
-  _loadArchive() {
+  _loadBuffer() {
     if (this.props.documentId) {
       let configurator = new DocumentConfigurator()
       let backend = this.getBackend()
 
-      backend.getArchive(this.props.documentId).then((buffer) => {
+      backend.getBuffer(this.props.documentId).then((buffer) => {
         buffer.readFile('index.html', 'text/html').then((docHTML) => {
           let doc = importHTML(docHTML)
           let editorSession = new EditorSession(doc, {
@@ -116,7 +116,7 @@ export default class DocumentPage extends Component {
       let appState = this.getAppState()
       const buffer = this.state.buffer
 
-      backend.storeArchive(buffer).then(() => {
+      backend.storeBuffer(buffer).then(() => {
         if (appState) {
           appState.extend({
             hasPendingChanges: false,
