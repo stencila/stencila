@@ -75,37 +75,46 @@ class CellEngine extends Engine {
     const expr = funcNode.expr
     const cell = expr._cell
     switch(functionName) {
-      // external cells and chunks
+      // `call` (a context function scope) or `run` (context's globals scope) external code
       case 'call':
       case 'run': {
-        if(!cell.language) {
+        const language = cell.language
+        if(!language) {
           cell.addRuntimeError('runtime', {
             message: 'Internal error: no cell associated with expression.'
           })
           return
         }
-        const language = cell.language
-        const context = this._contexts[language]
+        const {context, contextName} = this._lookupLanguage(language)
         if (!context) {
           cell.addRuntimeError({
             line: 0, column: 0,
             message: `No context found for language ${language}`
           })
         }
+        let packing = contextName === 'js' ? false : true
+        const options = { pack: packing }
         const sourceCode = cell.sourceCode || ''
-        const options = { pack: language === 'js' ? false : true }
         if (functionName === 'call') {
+          // Convert all arguments into an object
           const args = {}
+          // Unnamed argunents are expected to be variables and the variable name is
+          // used as the name of the argument
           funcNode.args.forEach((arg) => {
-            const name = arg.name
-            if (!name) {
-              console.warn('Only variables can be used with chunks and external cells')
+            if (arg.constructor.name !== 'Var') {
+              cell.addRuntimeError('runtime', {
+                message: 'Calls to external code must use variables or named arguments'
+              })
               return
             }
-            args[name] = arg.getValue()
+            let value = arg.getValue()
+            args[arg.name] = packing ? pack(value) : value
           })
-          // Turned back on this to check that named arguments are working
-          console.log('Calling external code with', args)
+          // For named arguments, just use the name and the value
+          funcNode.namedArgs.forEach((arg) => {
+            let value = arg.getValue()
+            args[arg.name] = packing ? pack(value) : value
+          })
           return _unwrapResult(
             cell,
             context.callCode(sourceCode, args, options),
@@ -119,30 +128,46 @@ class CellEngine extends Engine {
           )
         }
       }
-      // all others are external functions
+      // execute an external function
       default: {
         // regular function calls: we need to lookup
         const func = this._lookupFunction(functionName)
         if (func) {
           const { context, contextName } = func
           let packing = contextName === 'js' ? false : true
-          // Convert arguments to an array of [name,value] pairs to allow for
-          // argument naming and ordering
-          const args = funcNode.args.map(arg => {
-            let name = arg.name
-            if (name === '_pipe') name = undefined
-            let value = arg.getValue()
-            return [name, packing ? pack(value) : value]
-          })
           const options = { pack: packing }
+          // Unnamed arguments are expected to be variables and the variable name is
+          // used as the name of the argument
+          let args = funcNode.args.map((arg) => {
+            let value = arg.getValue()
+            return packing ? pack(value) : value
+          })
+          // For named arguments, just use the name and the value
+          let namedArgs = {}
+          funcNode.namedArgs.forEach((arg) => {
+            let value = arg.getValue()
+            namedArgs[arg.name] = packing ? pack(value) : value
+          })
           return _unwrapResult(
             cell,
-            context.callFunction(functionName, args, options),
+            context.callFunction(functionName, args, namedArgs, options),
             options
           )
         } else {
           return Promise.reject(`Could not resolve function "${functionName}"`)
         }
+      }
+    }
+  }
+
+  _lookupLanguage(languageName) {
+    const contexts = this._contexts
+    let names = Object.keys(contexts)
+    for (let i = 0; i < names.length; i++) {
+      const contextName = names[i]
+      const context = contexts[contextName]
+      if (context.supportsLanguage(languageName)) {
+        return { contextName, context }
       }
     }
   }
