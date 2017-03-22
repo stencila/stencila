@@ -101,7 +101,7 @@ class CellEngine extends Engine {
           // Unnamed argunents are expected to be variables and the variable name is
           // used as the name of the argument
           funcNode.args.forEach((arg) => {
-            if (arg.constructor.name !== 'Var') {
+            if (arg.type !== 'var') {
               cell.addRuntimeError('runtime', {
                 message: 'Calls to external code must use variables or named arguments'
               })
@@ -130,6 +130,23 @@ class CellEngine extends Engine {
       }
       // execute an external function
       default: {
+        // HACK
+        // Currently, when a `FunctionCall` is the right child of a Pipe of
+        // this gets called twice. 1. "by itself" and the 2. as a plain
+        // object with the piped value inserted into args[0] (as it should be) but
+        // with no keyword arguments. So, this is a kludge to deal with that...
+        if (funcNode.type === 'call') {
+          // Skip this call, will get called again below
+          if (funcNode.parent.type === 'pipe') return Promise.resolve()
+        } else if (funcNode.expr && funcNode.expr.root.type === 'pipe') {
+          // funcNode is a plain object with `name`, `expr` and `args` (with the pipe prepended)
+          // but `namedArgs` are missing so get them from the root
+          // This fails when multiple pipes in a cell expresssion, probably because having to use
+          // root here
+          funcNode.namedArgs = funcNode.expr.root.right.namedArgs
+        }
+
+
         // regular function calls: we need to lookup
         const func = this._lookupFunction(functionName)
         if (func) {
@@ -138,16 +155,21 @@ class CellEngine extends Engine {
           const options = { pack: packing }
           // Unnamed arguments are expected to be variables and the variable name is
           // used as the name of the argument
-          let args = funcNode.args.map((arg) => {
-            let value = arg.getValue()
-            return packing ? pack(value) : value
-          })
+          let args = []
+          if (funcNode.args) {
+            args = funcNode.args.map((arg) => {
+              let value = arg.getValue()
+              return packing ? pack(value) : value
+            })
+          }
           // For named arguments, just use the name and the value
           let namedArgs = {}
-          funcNode.namedArgs.forEach((arg) => {
-            let value = arg.getValue()
-            namedArgs[arg.name] = packing ? pack(value) : value
-          })
+          if (funcNode.namedArgs) {
+            for (let arg of funcNode.namedArgs) {
+              let value = arg.getValue()
+              namedArgs[arg.name] = packing ? pack(value) : value
+            }
+          }
           return _unwrapResult(
             cell,
             context.callFunction(functionName, args, namedArgs, options),
