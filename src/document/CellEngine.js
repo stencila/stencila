@@ -1,6 +1,6 @@
 import { forEach } from 'substance'
 import { Engine } from 'substance-mini'
-import { unpack } from '../value'
+import { pack, unpack } from '../value'
 
 export default
 class CellEngine extends Engine {
@@ -104,7 +104,8 @@ class CellEngine extends Engine {
             }
             args[name] = arg.getValue()
           })
-          // console.log('Calling external code with', args)
+          // Turned back on this to check that named arguments are working
+          console.log('Calling external code with', args)
           return _unwrapResult(
             cell,
             context.callCode(sourceCode, args, options),
@@ -123,11 +124,17 @@ class CellEngine extends Engine {
         // regular function calls: we need to lookup
         const func = this._lookupFunction(functionName)
         if (func) {
-          // TODO: if we had the functions signature
-          // we could support keyword arguments here
-          const args = funcNode.args.map(arg => arg.getValue())
           const { context, contextName } = func
-          const options = { pack: contextName === 'js' ? false : true }
+          let packing = contextName === 'js' ? false : true
+          // Convert arguments to an array of [name,value] pairs to allow for
+          // argument naming and ordering
+          const args = funcNode.args.map(arg => {
+            let name = arg.name
+            if (name === '_pipe') name = undefined
+            let value = arg.getValue()
+            return [name, packing ? pack(value) : value]
+          })
+          const options = { pack: packing }
           return _unwrapResult(
             cell,
             context.callFunction(functionName, args, options),

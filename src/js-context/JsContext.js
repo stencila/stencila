@@ -138,21 +138,59 @@ export default class JsContext extends Context {
   callFunction (name, args, options = {}) {
     if (!name) throw new Error("'name' is mandatory")
     args = args || []
-    const pack = (options.pack !== false)
-    let values = args
-    if (pack) {
-      values = args.map(arg => unpack(arg))
+    const packing = (options.pack !== false)
+
+    const func = this._functions[name]
+    
+    // Convert args into an array of values
+    let argValues = []
+    if (func.pars) {
+      // If the function has a `pars` property then map
+      // `args` onto `func.pars`
+      for (let par of func.pars) {
+        let value
+        let matched = false
+        let index = 0
+        for (let arg of args) {
+          let argName = arg[0]
+          let argValue = arg[1]
+          if (argName === par || argName === undefined) {
+            value = argValue
+            matched = true
+            args.splice(index, 1)
+            break
+          }
+          index += 1
+        }
+        if (!matched) value = undefined
+        argValues.push(packing ? unpack(value) : value)
+      }
+      // Append any unnamed arguments but error is still some unmatched named arguments
+      for (let arg of args) {
+        let name = arg[0]
+        let value = arg[1]
+        if (name) return Promise.reject(new Error(`Invalid named argument "${name}"; valid names are ${func.pars.map(name => '"' + name + '"').join(', ')}`))
+        else argValues.push(packing ? unpack(value) : value)
+      }
+    } else {
+      // There should be no named arguments since the function does not
+      // define any
+      argValues = args.map(arg => {
+        if (arg[0] !== undefined) return Promise.reject(new Error(`Invalid named argument "${arg[0]}" for function "${name}"`))
+        return arg[1]
+      })
     }
+
     let error = null
     let value
-    const f = this._functions[name]
     try {
-      value = f(...values)
+      value = func(...argValues)
     } catch (e) {
       error = e
     }
+    
     return Promise.resolve(
-      this._result(error, value, pack)
+      this._result(error, value, packing)
     )
   }
 
