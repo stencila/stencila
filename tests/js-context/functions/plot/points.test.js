@@ -1,13 +1,13 @@
 import test from 'tape'
 
 import {table1} from '../fixtures'
+import plot from '../../../../src/js-context/functions/plot/plot'
 import points from '../../../../src/js-context/functions/plot/points'
-import marks from '../../../../src/js-context/functions/plot/marks'
 
-test('points', t => {
+test('plot', t => {
   t.deepEqual(
-    points(table1), 
-    marks(table1, 'point')
+    plot(table1, 'point', 'x', 'y'), 
+    points(table1, 'x', 'y')
   )
 
   t.end()
