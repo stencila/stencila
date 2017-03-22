@@ -20,6 +20,18 @@ export default class JsContext extends Context {
     this._functions = Object.assign({}, BUILTIN_FUNCTIONS, customFunctions)
   }
 
+
+  /**
+   * Does the context support a programming language?
+   *
+   * @override
+   */
+  supportsLanguage (language) {
+    return Promise.resolve(
+      language === 'js'
+    )
+  }
+
   /**
    * Run JavaScript code
    *
@@ -135,9 +147,8 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  callFunction (name, args, options = {}) {
+  callFunction (name, args = [], namedArgs = {}, options = {}) {
     if (!name) throw new Error("'name' is mandatory")
-    args = args || []
     const packing = (options.pack !== false)
 
     const func = this._functions[name]
@@ -145,40 +156,23 @@ export default class JsContext extends Context {
     // Convert args into an array of values
     let argValues = []
     if (func.pars) {
-      // If the function has a `pars` property then map
-      // `args` onto `func.pars`
-      for (let par of func.pars) {
-        let value
-        let matched = false
-        let index = 0
-        for (let arg of args) {
-          let argName = arg[0]
-          let argValue = arg[1]
-          if (argName === par || argName === undefined) {
-            value = argValue
-            matched = true
-            args.splice(index, 1)
-            break
-          }
-          index += 1
+      // Unpack args if necessary
+      argValues = args.map(arg => packing ? unpack(arg) : arg)
+      // Put named arguments into the right place in the argument values array
+      for (let name of Object.keys(namedArgs)) {
+        let index = func.pars.indexOf(name)
+        if (index >-1) {
+          let value = namedArgs[name]
+          argValues[index] = packing ? unpack(value) : value
+        } else {
+          return Promise.reject(new Error(`Invalid named argument "${name}"; valid names are ${func.pars.map(name => '"' + name + '"').join(', ')}`))
         }
-        if (!matched) argValues.push(undefined)
-        else argValues.push(packing ? unpack(value) : value)
-      }
-      // Append any unnamed arguments but error is still some unmatched named arguments
-      for (let arg of args) {
-        let name = arg[0]
-        let value = arg[1]
-        if (name) return Promise.reject(new Error(`Invalid named argument "${name}"; valid names are ${func.pars.map(name => '"' + name + '"').join(', ')}`))
-        else argValues.push(packing ? unpack(value) : value)
       }
     } else {
-      // There should be no named arguments since the function does not
-      // define any
-      argValues = args.map(arg => {
-        if (arg[0] !== undefined) return Promise.reject(new Error(`Invalid named argument "${arg[0]}" for function "${name}"`))
-        return arg[1]
-      })
+      // Unpack args if necessary
+      argValues = args.map(arg => packing ? unpack(arg) : arg)
+      // There should be no named arguments since the function does not define any
+      if (Object.keys(namedArgs) > 0) return Promise.reject(new Error(`Named arguments supplied but function "${name}" does not support them`))
     }
 
     let error = null

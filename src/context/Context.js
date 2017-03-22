@@ -10,6 +10,15 @@
 export default class Context {
 
   /**
+   * Does the context support a programming language?
+   *
+   * @param {string} language - The language
+   */
+  supportsLanguage (language) { // eslint-disable-line no-unused-vars
+    return Promise.resolve(new Error('Not implemented'))
+  }
+
+  /**
    * Run code within the context's global scope (i.e. execute a code "chunk")
    *
    * @param {string} code - Code to run
@@ -65,12 +74,13 @@ export default class Context {
    *
    *
    * @param  {string} name - Function name e.g. 'sum'
-   * @param {object} args - An object with a data pack for each argument
+   * @param {array} args - An array of unnamed arguments
+   * @param {namedArgs} args - An object of named arguments
    * @param {object} options - Any execution options
    * @return {array<string>} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
    */
-  callFunction (name, args, options) {  // eslint-disable-line no-unused-vars
+  callFunction (name, args, namedArgs, options) {  // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
