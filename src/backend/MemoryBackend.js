@@ -3,6 +3,7 @@ import wrapSnippet from '../util/wrapSnippet'
 import kitchenSink from '../../examples/docs/kitchensink'
 import stencilaIntro from '../../examples/docs/stencila-intro'
 import simpleSheet from '../../examples/docs/simple-sheet'
+import guideMini from '../../docs/guide/mini.js'
 import MemoryBuffer from './MemoryBuffer'
 
 let stencilaIntroManifest = {
@@ -27,7 +28,7 @@ let kitchenSinkManifest = {
   storage: {
     storerType: "filesystem",
     contentType: "html",
-    archivePath: "/Users/john/Documents/Stencila/e5bf2e06-914e-4396-9c3b-89f8b53e361f/storage",
+    archivePath: "/Users/john/Documents/Stencila/kitchen-sink/storage",
     mainFilePath: "index.html"
   }
 }
@@ -40,7 +41,20 @@ let simpleSheetManifest = {
   storage: {
     storerType: "filesystem",
     contentType: "html",
-    archivePath: "/Users/john/Documents/Stencila/a5bf2e06-914e-4396-9c3b-89f8b53e361f/storage",
+    archivePath: "/Users/john/Documents/Stencila/simple-sheet/storage",
+    mainFilePath: "index.html"
+  }
+}
+
+let guideMiniManifest = {
+  type: 'document',
+  title: 'A guide to Mini',
+  createdAt: '2017-03-12T00:03:12.060Z',
+  updatedAt: '2017-03-12T00:03:12.060Z',
+  storage: {
+    storerType: "filesystem",
+    contentType: "html",
+    archivePath: "/Users/john/Documents/Stencila/guide-mini/storage",
     mainFilePath: "index.html"
   }
 }
@@ -61,6 +75,10 @@ let simpleSheetBuffer = new MemoryBuffer()
 simpleSheetBuffer.writeFile('index.html', 'text/html', wrapSnippet(simpleSheet))
 simpleSheetBuffer.writeFile('stencila-manifest.json', 'application/json', JSON.stringify(simpleSheetManifest, null, ' '))
 
+let guideMiniBuffer = new MemoryBuffer()
+guideMiniBuffer.writeFile('index.html', 'text/html', wrapSnippet(guideMini))
+guideMiniBuffer.writeFile('stencila-manifest.json', 'application/json', JSON.stringify(guideMiniManifest, null, ' '))
+
 /*
   Same layout as the ~/Documents/Stencila/library.json file which is used to power
   Stencila Desktop. On the hub we may use a completely different layout
@@ -70,13 +88,15 @@ simpleSheetBuffer.writeFile('stencila-manifest.json', 'application/json', JSON.s
 let LIBRARY_FIXTURE = {
   'stencila-intro': stencilaIntroManifest,
   'kitchen-sink': kitchenSinkManifest,
-  'simple-sheet': simpleSheetManifest
+  'simple-sheet': simpleSheetManifest,
+  'guide-mini': guideMiniManifest
 }
 
 let BUFFERS_FIXTURE = {
   'stencila-intro': stencilaIntroBuffer,
   'kitchen-sink': kitchenSinkBuffer,
-  'simple-sheet': simpleSheetBuffer
+  'simple-sheet': simpleSheetBuffer,
+  'guide-mini': guideMiniBuffer
 }
 
 
