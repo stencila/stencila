@@ -162,8 +162,8 @@ export default class JsContext extends Context {
           }
           index += 1
         }
-        if (!matched) value = undefined
-        argValues.push(packing ? unpack(value) : value)
+        if (!matched) argValues.push(undefined)
+        else argValues.push(packing ? unpack(value) : value)
       }
       // Append any unnamed arguments but error is still some unmatched named arguments
       for (let arg of args) {
