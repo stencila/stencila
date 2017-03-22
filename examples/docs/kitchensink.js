@@ -1,5 +1,5 @@
 export default `
-<div data-title>Test with all nodes</div>
+<div data-title>Test with all nodes 😃 🇳🇿</div>
 <p>A test Stencila document with at least one (well, that&apos;s the plan) of each node type (in alphabetical order). See additional node specific test documents in sibling folders e.g. <a href="/file://tests/document/nodes/image/index.html">image</a>.</p>
 <h1>Input</h1>
 <p>If I eat <input type="range" min="1" max="20" step="1" name="num_cookies" value="3"/> extra <select name="calories"><option value="30.2">Fortune</option><option value="71.6" selected="true">Peanut butter</option><option value="65.3">Oatmeal</option></select> (<span data-cell="calories">71.6</span> calories each) every day for the next <input type="range" min="1" max="100" step="1" name="num_weeks" value="52"/> weeks that will be <span data-cell="num_cookies*calories*num_weeks">11949.60</span> extra calories total.</p>
@@ -16,8 +16,8 @@ return {"type":"vegalite","data":{"values":[{"type":"A","height":a_height},{"typ
 <h1>Minilang Cell</h1>
 
 <!-- Pure MiniLang cell -->
-<div data-cell='mytable = { type: "table", data: { x: random(100), y: random(100), z: random(100) } }'></div>
-<div data-cell="points(mytable,'x','y',size='z')"></div>
+<div data-cell='mytable = { type: "table", data: { x: [10,11,12], y: [20,21,22] } }'></div>
+<div data-cell="x = type(1)"></div>
 <p>Here is an external cell, implemented in Javascript:</p>
 <div data-cell="length = 5"></div>
 <div data-cell="random_numbers = call(length)" data-language="js">
