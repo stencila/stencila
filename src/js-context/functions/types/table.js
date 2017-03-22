@@ -1,6 +1,8 @@
 import _multifunc from './_multifunc'
 
 function table_array(array) {
+  // TODO : check that array only has objects and that they have
+  // consistent keys
   let tableData = {}
   array.forEach(row => {
     Object.keys(row).forEach(key => {
@@ -17,8 +19,19 @@ function table_array(array) {
   }
 }
 
+function table_object(object) {
+  // TODO : check that the object has only array properties and that
+  // they are all of the same length
+  return {
+    type: 'table',
+    data: object
+  }
+}
+
 const table = _multifunc('table', {
-  'array': table_array
+  'table': table => table,
+  'array': table_array,
+  'object': table_object
 })
 
 export default table

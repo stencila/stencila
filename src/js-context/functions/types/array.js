@@ -8,12 +8,12 @@ import _multifunc from './_multifunc'
  */
 function array_table(table) {
   let colNames = Object.keys(table.data)
-  let rows = table.data[colNames[0]].length
+  let rows = table.data[colNames[0]].values.length
   let array = []
   for (var rowNumber = 0; rowNumber < rows; rowNumber++) {
     let rowData = {}
     for (let colName of colNames) {
-      rowData[colName] = table.data[colName][rowNumber]
+      rowData[colName] = table.data[colName].values[rowNumber]
     }
     array.push(rowData)
   }
