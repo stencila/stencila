@@ -51,7 +51,7 @@
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "beta-7-preview",
-    "substance-mini": "^0.5.4",
+    "substance-mini": "^0.6.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
     "unist-util-remove": "^0.2.1",
