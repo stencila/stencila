@@ -1,24 +1,8 @@
-import convertTableToArray from '../types/convertTableToArray'
+import marks from './marks'
 
-export default function points (data, x, y) {
-  x = x || 'x'
-  y = y || 'y'
-
-  return {
-    type: 'vegalite',
-    data: {
-      values: convertTableToArray(data)
-    },
-    mark: 'point',
-    encoding: {
-      x: {
-        field: x,
-        type: 'quantitative'
-      },
-      y: {
-        field: y,
-        type: 'quantitative'
-      }
-    }
-  }
+function points (data, x, y, color, size) {
+  return marks(data, 'point', x, y, color, size)
 }
+points.pars = ['data', 'x', 'y', 'color', 'size']
+
+export default points

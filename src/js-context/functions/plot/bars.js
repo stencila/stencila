@@ -1,24 +1,5 @@
-import convertTableToArray from '../types/convertTableToArray'
+import marks from './marks'
 
-export default function bars (data, x, y) {
-  x = x || 'x'
-  y = y || 'y'
-
-  return {
-    type: 'vegalite',
-    data: {
-      values: convertTableToArray(data)
-    },
-    mark: 'bar',
-    encoding: {
-      x: {
-        field: x,
-        type: 'qualitative'
-      },
-      y: {
-        field: y,
-        type: 'quantitative'
-      }
-    }
-  }
+export default function bars (data, ...encodings) {
+  return marks(data, 'bar', ...encodings)
 }

@@ -1,5 +1,6 @@
-import convertTableToArray from '../types/convertTableToArray'
-import convertArrayToTable from '../types/convertArrayToTable'
+import array from '../types/array'
+import table from '../types/table'
+
 /**
  *
  * data = {
@@ -14,12 +15,12 @@ import convertArrayToTable from '../types/convertArrayToTable'
  * 
  * @type {Function}
  */
-export default function filter(table, clause) {
+export default function filter(value, clause) {
   let matcher = new Function('row', `
     with(row) {
       return eval('${clause}')
     }
   `)
-  let rows = convertTableToArray(table)
-  return convertArrayToTable(rows.filter(matcher))
+  let rows = array(value)
+  return table(rows.filter(matcher))
 }

@@ -1,4 +1,4 @@
-import {type} from '../../../value'
+import {type as type_} from '../../../value'
 
 /**
  * Get the type code for a value
@@ -9,4 +9,9 @@ import {type} from '../../../value'
  * @param {whatever} value - Value you want a type for
  * @return {string} - Type of value
  */
+function type (value) {
+  return type_(value)
+}
+type.pars = ['value']
+
 export default type

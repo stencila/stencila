@@ -22,8 +22,8 @@ test('_multifunc', t => {
   t.equal(m2(null, null), 'dispatched to null, null')
   t.equal(m2(1, 3.14), 'dispatched to integer, float')
   t.equal(m2({type: 'foo'}, 42), 'dispatched to foo, integer')  
-  t.throws(() => m2(), /Unable to dispatch call to "m2" with type\(s\) ""/)
-  t.throws(() => m2(3.14), /Unable to dispatch call to "m2" with type\(s\) "float"/)
+  t.throws(() => m2(), /Unable to dispatch function call "m2\(\)"/)
+  t.throws(() => m2(3.14), /Unable to dispatch function call "m2\(float\)"/)
 
   t.end()
 })

@@ -9,5 +9,8 @@ test('type', t => {
   t.equal(type([]), type_([]))
   t.equal(type([{}]), type_([{}]))
 
+  t.equal(type({}), 'object')
+  t.equal(type({type:'table'}), 'table')
+
   t.end()
 })

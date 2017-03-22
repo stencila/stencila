@@ -40,7 +40,7 @@ export default function _multifunc (name, lookup, arity, default_) {
       if (default_) method = default_
       else {
         method = () => {
-          throw new Error(`Unable to dispatch call to "${name}" with type(s) "${key}"`)
+          throw new Error(`Unable to dispatch function call "${name}(${key})"`)
         }
       }
     }

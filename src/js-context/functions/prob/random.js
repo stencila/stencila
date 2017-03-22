@@ -28,11 +28,12 @@ import random_uniform from './random_uniform'
  * @param  {...[type]} args Parameters of the probability distribution (e.e. mean and standard deviation)
  * @return {[type]}         [description]
  */
-export default function random (n, dist, ...args) {
+function random (n, dist, ...args) {
   n = n || 1
   dist = dist || 'uniform'
 
   if (dist === 'uniform') return random_uniform(n, ...args)
   else throw(new Error(`Unknown distribution: ${dist}`))
 }
-
+random.args = ['n', 'dist']
+export default random
