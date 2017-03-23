@@ -12,6 +12,7 @@ forEach(testVFS, (content, documentId) => {
   // Only pick HTML documents
   if (/\.html$/.exec(documentId)) {
     testLibrary[documentId] = {
+      id: documentId,
       type: 'document',
       title: documentId,
       storage: {
@@ -71,7 +72,7 @@ export default class TestBackend extends MemoryBackend {
     const docUrls = entries.filter((entry) => {
       return entry.type === 'document'
     }).map((entry) => {
-      return entry.address
+      return entry.id
     })
     return docUrls
   }

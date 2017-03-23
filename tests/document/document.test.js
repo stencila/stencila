@@ -52,6 +52,7 @@ test('Document: open all test documents', (t) => {
   const CHECKS_PER_URL = 1
   t.plan(docIds.length*CHECKS_PER_URL)
 
+
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: testBackend,
