@@ -5,7 +5,7 @@ import InlineCellComponent from '../../src/document/nodes/inline-cell/InlineCell
 
 test('InlineCellComponent: Mounting a InlineCellComponent', (t) => {
   const sandbox = getSandbox(t)
-  const {editorSession, doc} = setupEditorSession()
+  const {doc} = setupEditorSession()
   doc.create({
     type: 'paragraph',
     id: 'p1',
