@@ -48,17 +48,16 @@ export default {
   },
 
   recompute() {
+    // we can only propagate if the expression has been parsed
+    // and the engine has been attached
     if (this._expr) {
       this._expr.propagate()
     }
   },
 
-  _startWatching() {
-    this._isWatching = true
-  },
-
-  _stopWatching() {
-    this._isWatching = false
+  _isInRealDocument() {
+    // NOTE: for now all cells are active which are part of a 'real' document
+    return (this.document && !this.document._isTransactionDocument)
   },
 
   _setExpression(exprStr) {
@@ -70,12 +69,8 @@ export default {
     this._exprStr = exprStr
     this._expr = null
 
-    this._parse()
-    if (this._deriveStateFromExpression) {
-      this._deriveStateFromExpression()
-    }
-
-    if (this._isWatching) {
+    if (this._isInRealDocument()) {
+      this._parse()
       this.emit('expression:updated', this)
     }
   },
@@ -90,6 +85,9 @@ export default {
       this._expr = expr
       expr.on('evaluation:started', this._onEvaluationStarted, this)
       expr.on('evaluation:finished', this._onEvaluationFinished, this)
+      if (this._deriveStateFromExpression) {
+        this._deriveStateFromExpression()
+      }
     }
   },
 
@@ -97,9 +95,7 @@ export default {
     // console.log('Started evaluation on', this)
     this.pending = true
     this.runtimeErrors = null
-    if (this._isWatching) {
-      this.emit('evaluation:started')
-    }
+    this.emit('evaluation:started')
   },
 
   _onEvaluationFinished() {
@@ -108,9 +104,7 @@ export default {
     const newValue = this._expr.getValue()
     // console.log('setting value', newValue)
     this._setValue(newValue)
-    if (this._isWatching) {
-      this.emit('evaluation:finished')
-    }
+    this.emit('evaluation:finished')
   },
 
   _setValue(val) {
@@ -130,9 +124,7 @@ export default {
   _setSourceCode(val) {
     // console.log('Setting sourceCode', this.id, val)
     this._sourceCode = val
-    if (this._isWatching && this._expr) {
-      this._expr.propagate()
-    }
+    this.recompute()
   },
 
 

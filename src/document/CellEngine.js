@@ -74,6 +74,9 @@ class CellEngine extends Engine {
     const functionName = funcNode.name
     const expr = funcNode.expr
     const cell = expr._cell
+    if (!cell) {
+      throw new Error('Internal error: no cell associated with expression.')
+    }
     switch(functionName) {
       // `call` (a context function scope) or `run` (context's globals scope) external code
       case 'call':
@@ -81,7 +84,7 @@ class CellEngine extends Engine {
         const language = cell.language
         if(!language) {
           cell.addRuntimeError('runtime', {
-            message: 'Internal error: no cell associated with expression.'
+            message: 'Calls to external code must have "language" set.'
           })
           return
         }
@@ -130,23 +133,6 @@ class CellEngine extends Engine {
       }
       // execute an external function
       default: {
-        // HACK
-        // Currently, when a `FunctionCall` is the right child of a Pipe of
-        // this gets called twice. 1. "by itself" and the 2. as a plain
-        // object with the piped value inserted into args[0] (as it should be) but
-        // with no keyword arguments. So, this is a kludge to deal with that...
-        // if (funcNode.type === 'call') {
-        //   // Skip this call, will get called again below
-        //   if (funcNode.parent && funcNode.parent.type === 'pipe') return Promise.resolve()
-        // } else if (funcNode.expr && funcNode.expr.root.type === 'pipe') {
-        //   // funcNode is a plain object with `name`, `expr` and `args` (with the pipe prepended)
-        //   // but `namedArgs` are missing so get them from the root
-        //   // This fails when multiple pipes in a cell expresssion, probably because having to use
-        //   // root here
-        //   funcNode.namedArgs = funcNode.expr.root.right.namedArgs
-        // }
-
-
         // regular function calls: we need to lookup
         const func = this._lookupFunction(functionName)
         if (func) {
@@ -251,8 +237,6 @@ class CellEngine extends Engine {
   }
 
   _registerCell(cell) {
-    cell._startWatching()
-    cell._parse()
     this._cells[cell.id] = cell
     if (cell.errors && cell.errors.length) {
       console.error(cell.error)
@@ -270,7 +254,6 @@ class CellEngine extends Engine {
     const cell = this._cells[cellId]
     if (cell) {
       cell.off(this)
-      cell._stopWatching()
       delete this._cells[cell.id]
       this._removeExpression(cell.id)
     }
