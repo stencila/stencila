@@ -1,4 +1,7 @@
-import { isFunction, DefaultDOMElement } from 'substance'
+import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
+import { DocumentConfigurator, documentConversion, JsContext } from '../index.es'
+import TestBackend from './backend/TestBackend'
+
 
 export function spy(self, name) {
   var f
@@ -51,4 +54,20 @@ export function getSandbox(t) {
   // otherwise we create our own DOM
   let htmlDoc = DefaultDOMElement.parseHTML('<html><body></body></html>')
   return htmlDoc.find('body')
+}
+
+export function setupEditorSession(documentId, options = {}) {
+  let configurator = new DocumentConfigurator()
+  let backend = new TestBackend()
+  const entry = backend._getEntry(documentId)
+  const docHTML = entry.content
+  let doc = documentConversion.importHTML(docHTML)
+  let jsContext = new JsContext(options.functions)
+  let editorSession = new EditorSession(doc, {
+    configurator: configurator,
+    context: {
+      stencilaContexts: { 'js': jsContext }
+    }
+  })
+  return {editorSession, doc, jsContext}
 }

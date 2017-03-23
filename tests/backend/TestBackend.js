@@ -67,6 +67,15 @@ export default class TestBackend extends MemoryBackend {
     })
   }
 
+  _getEntry(documentId) {
+    if (documentId.charCodeAt(0) === SLASH) documentId = documentId.slice(1)
+    const entry = testLibrary[documentId]
+    const content = htmls[documentId]
+    if (!entry) throw new Error('TestBackend does not contain '+documentId)
+    if (!content) throw new Error('No HTML content available for ', documentId)
+    return Object.assign({}, entry, {content})
+  }
+
   _getDocumentIds() {
     const entries = this._getEntries()
     const docUrls = entries.filter((entry) => {
