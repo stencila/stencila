@@ -16,12 +16,12 @@ class TableValueComponent extends Component {
     if (columnNames.length>0) {
       const tbody = $$('tbody')
       const data = table.data
-      const nrows = data[columnNames[0]].length
+      const nrows = data[columnNames[0]].values.length
       for (let i = 0; i < nrows; i++) {
         let tr = $$('tr')
         columnNames.forEach((name)=>{
           tr.append(
-            $$('td').text(data[name][i])
+            $$('td').text(data[name].values[i])
           )
         })
         tbody.append(tr)

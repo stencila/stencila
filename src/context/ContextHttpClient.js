@@ -17,6 +17,15 @@ export default class ContextHttpClient extends Context {
   }
 
   /**
+   * Does the context support a language?
+   * 
+   * @override
+   */
+  supportsLanguage (language) {
+    return PUT(this.url + '!supportsLanguage', {language: language})
+  }
+
+  /**
    * Run code
    * 
    * @override
@@ -49,8 +58,8 @@ export default class ContextHttpClient extends Context {
    *
    * @override
    */
-  callFunction (name, args, options) {
-    return PUT(this.url + '!callFunction', {name: name, args: args, options: options})
+  callFunction (name, args, namedArgs, options) {
+    return PUT(this.url + '!callFunction', {name: name, args: args, namedArgs: namedArgs, options: options})
   }
 
   /**

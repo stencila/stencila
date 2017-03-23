@@ -5,7 +5,7 @@ import {table1} from '../fixtures.js'
 
 test('filter', t => {
   t.deepEqual(filter(table1, 'x<=11'), {
-    type: 'tab',
+    type: 'table',
     data: {
       x: [10, 11],
       y: [20, 21]

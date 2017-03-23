@@ -20,6 +20,18 @@ export default class JsContext extends Context {
     this._functions = Object.assign({}, BUILTIN_FUNCTIONS, customFunctions)
   }
 
+
+  /**
+   * Does the context support a programming language?
+   *
+   * @override
+   */
+  supportsLanguage (language) {
+    return Promise.resolve(
+      language === 'js'
+    )
+  }
+
   /**
    * Run JavaScript code
    *
@@ -135,24 +147,44 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  callFunction (name, args, options = {}) {
+  callFunction (name, args = [], namedArgs = {}, options = {}) {
     if (!name) throw new Error("'name' is mandatory")
-    args = args || []
-    const pack = (options.pack !== false)
-    let values = args
-    if (pack) {
-      values = args.map(arg => unpack(arg))
+    const packing = (options.pack !== false)
+
+    const func = this._functions[name]
+    
+    // Convert args into an array of values
+    let argValues = []
+    if (func.pars) {
+      // Unpack args if necessary
+      argValues = args.map(arg => packing ? unpack(arg) : arg)
+      // Put named arguments into the right place in the argument values array
+      for (let name of Object.keys(namedArgs)) {
+        let index = func.pars.indexOf(name)
+        if (index >-1) {
+          let value = namedArgs[name]
+          argValues[index] = packing ? unpack(value) : value
+        } else {
+          return Promise.reject(new Error(`Invalid named argument "${name}"; valid names are ${func.pars.map(name => '"' + name + '"').join(', ')}`))
+        }
+      }
+    } else {
+      // Unpack args if necessary
+      argValues = args.map(arg => packing ? unpack(arg) : arg)
+      // There should be no named arguments since the function does not define any
+      if (Object.keys(namedArgs) > 0) return Promise.reject(new Error(`Named arguments supplied but function "${name}" does not support them`))
     }
+
     let error = null
     let value
-    const f = this._functions[name]
     try {
-      value = f(...values)
+      value = func(...argValues)
     } catch (e) {
       error = e
     }
+    
     return Promise.resolve(
-      this._result(error, value, pack)
+      this._result(error, value, packing)
     )
   }
 
