@@ -17,7 +17,7 @@ export default {
     config.addCommand('insert-cell', InsertCellCommand)
     config.addTool('insert-cell', Tool, { toolGroup: 'insert' })
     config.addIcon('insert-cell', { 'fontawesome': 'fa-caret-square-o-right' })
-    config.addLabel('insert-cell', 'Insert cell')
+    config.addLabel('insert-cell', 'Insert Cell')
 
     // TODO: some of these could go into a shared package
     config.addIcon('error', { 'fontawesome': 'fa-exclamation' })

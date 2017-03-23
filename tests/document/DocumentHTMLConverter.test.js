@@ -8,8 +8,6 @@ import wrapSnippet from '../../src/util/wrapSnippet'
 
 let kitchenSinkHTML = wrapSnippet(testVFS['tests/documents/kitchen-sink/default.html'])
 
-// console.log('test', kitchenSinkHTML)
-
 test('DocumentHTMLConverter:  Convert into internal buffer from an HTML file', function (t) {
   let converter = new DocumentHTMLConverter()
   let storer = _createFileStorer()

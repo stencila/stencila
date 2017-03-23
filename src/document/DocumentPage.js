@@ -144,7 +144,9 @@ export default class DocumentPage extends Component {
           })
         }
         return backend.updateManifest(documentId, {
-          hasPendingChanges: false
+          title: this.getTitle(),
+          hasPendingChanges: false,
+          updatedAt: new Date()
         })
       })
     }
@@ -180,12 +182,14 @@ export default class DocumentPage extends Component {
 
   _onSelectionChange() {
     let toolGroups = this.refs.editor.toolGroups
+    let labelProvider = this.refs.editor.labelProvider
     let commandStates = this.state.editorSession.getCommandStates()
     let title = this.getTitle()
 
     this._updateAppState({
       title: title,
       commandStates: commandStates,
+      labelProvider: labelProvider,
       toolGroups: toolGroups
     })
   }
@@ -217,8 +221,6 @@ export default class DocumentPage extends Component {
 
     return buffer.writeFile('index.html', 'text/html', html).then(() => {
       return backend.updateManifest(documentId, {
-        updatedAt: new Date(),
-        title: this.getTitle(),
         hasPendingChanges: true
       })
     }).catch((err) => {
