@@ -9,15 +9,25 @@ export default class DocumentHTMLConverter {
     Original fileName is needed because otherwise we don't know what to read
     from the storer.
 
-    TODO: The source archive could include binaries, which we should also
-          consider.
+    TODO: Binaries could be included, which we should also consider.
   */
-  importDocument(storer, buffer, fileName) {
+
+  importDocument(storer, buffer) {
+    let mainFilePath = storer.getMainFilePath()
     let manifest = {
-      "type": "document"
+      "type": "document",
+      "storage": {
+        "external": storer.isExternal(),
+        "storerType": storer.getType(),
+        "archivePath": storer.getArchivePath(),
+        "mainFilePath": mainFilePath,
+        "contentType": "html",
+      },
+      "createdAt": new Date(),
+      "updatedAt": new Date()
     }
     return storer.readFile(
-      fileName,
+      mainFilePath,
       'text/html'
     ).then((html) => {
       manifest.title = this._extractTitle(html)
@@ -40,9 +50,10 @@ export default class DocumentHTMLConverter {
   /*
     Takes a buffer and writes back to the storer
   */
-  exportDocument(buffer, storer, fileName) {
+  exportDocument(buffer, storer) {
+    let mainFilePath = storer.getMainFilePath()
     return buffer.readFile('index.html', 'text/html').then((htmlFile) => {
-      return storer.writeFile(fileName, 'text/html', htmlFile)
+      return storer.writeFile(mainFilePath, 'text/html', htmlFile)
     })
   }
 

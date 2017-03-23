@@ -40,7 +40,6 @@ export default class DocumentPage extends Component {
       if (this.state.editorSession) {
         this._registerEvents(this.state.editorSession)
       }
-      this.emit('loaded')
     }
   }
 
@@ -77,7 +76,11 @@ export default class DocumentPage extends Component {
   }
 
   save() {
-    this._storeBuffer()
+    return this._storeBuffer()
+  }
+
+  discard() {
+    return this._discardBuffer()
   }
 
   _loadBuffer() {
@@ -96,11 +99,20 @@ export default class DocumentPage extends Component {
               }
             }
           })
-          // enable this to make debugging easier
-          // editorSession._url = this.props.documentId
-          this.setState({
-            buffer,
-            editorSession
+
+          return buffer.readFile('stencila-manifest.json', 'application/json').then((manifest) => {
+            manifest = JSON.parse(manifest)
+            this._updateAppState({
+              hasPendingChanges: manifest.hasPendingChanges,
+              title: manifest.title
+            })
+
+            // enable this to make debugging easier
+            // editorSession._url = this.props.documentId
+            this.setState({
+              buffer,
+              editorSession
+            })
           })
         })
       })
@@ -108,27 +120,32 @@ export default class DocumentPage extends Component {
   }
 
   /*
+    Discard pending changes
+  */
+  _discardBuffer() {
+    const buffer = this.state.buffer
+    const backend = this.getBackend()
+    return backend.discardBuffer(buffer, this.props.documentId)
+  }
+
+  /*
     Saves the current buffer to the store backing the document.
   */
   _storeBuffer() {
-    if (this.props.documentId) {
+    let documentId = this.props.documentId
+    if (documentId) {
       let backend = this.getBackend()
       let appState = this.getAppState()
       const buffer = this.state.buffer
-
-      backend.storeBuffer(buffer).then(() => {
+      return backend.storeBuffer(buffer).then(() => {
         if (appState) {
-          appState.extend({
-            hasPendingChanges: false,
+          this._updateAppState({
+            hasPendingChanges: false
           })
         }
-      }).catch((err) => {
-        console.error(err)
-        if (appState) {
-          appState.extend({
-            error: err.message
-          })
-        }
+        return backend.updateManifest(documentId, {
+          hasPendingChanges: false
+        })
       })
     }
   }
@@ -164,25 +181,27 @@ export default class DocumentPage extends Component {
   _onSelectionChange() {
     let toolGroups = this.refs.editor.toolGroups
     let commandStates = this.state.editorSession.getCommandStates()
-    let appState = this.getAppState()
     let title = this.getTitle()
-    if (appState) {
-      appState.extend({
-        title: title,
-        commandStates: commandStates,
-        toolGroups: toolGroups
-      })
-    }
+
+    this._updateAppState({
+      title: title,
+      commandStates: commandStates,
+      toolGroups: toolGroups
+    })
   }
 
   _onDocumentChange() {
-    let appState = this.getAppState()
-    if (appState && !appState.get('hasPendingChanges')) {
-      appState.extend({
-        hasPendingChanges: true
-      })
-    }
+    this._updateAppState({
+      hasPendingChanges: true
+    })
     this._saveToBufferDebounced()
+  }
+
+  _updateAppState(props) {
+    let appState = this.getAppState()
+    if (appState) {
+      appState.extend(props)
+    }
   }
 
   /*
@@ -196,10 +215,11 @@ export default class DocumentPage extends Component {
     const documentId = this.props.documentId
     const backend = this.getBackend()
 
-    buffer.writeFile('index.html', 'text/html', html).then(() => {
+    return buffer.writeFile('index.html', 'text/html', html).then(() => {
       return backend.updateManifest(documentId, {
         updatedAt: new Date(),
-        title: this.getTitle()
+        title: this.getTitle(),
+        hasPendingChanges: true
       })
     }).catch((err) => {
       console.error(err)

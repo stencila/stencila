@@ -31,19 +31,22 @@ export default class Dashboard extends Component {
     let el = $$('div').addClass('sc-dashboard')
     let resolveEditorURL = this.props.resolveEditorURL
     let documents = this.state.documents
+
     if (documents) {
       documents.forEach((doc) => {
+        let asterisk = doc.hasPendingChanges ? ' *' : undefined
         let docTypeIcon = doc.type === 'document' ? 'fa-file-text' : 'fa-table';
         el.append(
           $$('div').addClass('se-document-entry').append(
             $$('div').addClass('se-title').append(
               $$('a')
-              .attr('href', resolveEditorURL(doc.type, doc.address))
+              .attr('href', resolveEditorURL(doc.type, doc.id))
               .attr('target', '_blank')
               .append(
                 $$(FontAwesomeIcon, {icon: docTypeIcon }),
                 ' ',
-                doc.title
+                doc.title,
+                asterisk
               )
             ),
             this._renderMeta($$, doc),
@@ -66,7 +69,7 @@ export default class Dashboard extends Component {
     if (doc.storage.external) {
       el.append(
         $$('div').addClass('se-file-path').append(
-          [doc.storage.folderPath, doc.storage.fileName].join('/')
+          [doc.storage.archivePath, doc.storage.mainFilePath].join('/')
         )
       )
     }

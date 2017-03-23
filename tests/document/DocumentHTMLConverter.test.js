@@ -1,5 +1,7 @@
 import test from 'tape'
 import MemoryBuffer from '../../src/backend/MemoryBuffer'
+import TestStorer from '../backend/TestStorer'
+
 import DocumentHTMLConverter from '../../src/document/DocumentHTMLConverter'
 import testVFS from '../../tmp/test-vfs.js'
 import wrapSnippet from '../../src/util/wrapSnippet'
@@ -15,8 +17,7 @@ test('DocumentHTMLConverter:  Convert into internal buffer from an HTML file', f
 
   converter.importDocument(
     storer,
-    archive,
-    'hello.html'
+    archive
   ).then((manifest) => {
     t.equal(manifest.type, 'document')
     t.equal(manifest.title, 'Kitchen sink')
@@ -30,11 +31,10 @@ test('DocumentHTMLConverter:  Convert into internal buffer from an HTML file', f
 test('DocumentHTMLConverter: Convert to named HTML file from buffer', function (t) {
   let converter = new DocumentHTMLConverter()
   let archive = _createBuffer()
-  let storer = new MemoryBuffer()
+  let storer = new TestStorer('/path/to/archive', 'hello.html')
   converter.exportDocument(
     archive,
-    storer,
-    'hello.html'
+    storer
   ).then(() => {
     storer.readFile('hello.html', 'text/html').then((html) => {
       t.equal(html, kitchenSinkHTML)
@@ -54,7 +54,7 @@ test('DocumentHTMLConverter: Should match an HTML file name', function (t) {
         wait for the promise.
 */
 function _createFileStorer() {
-  let storer = new MemoryBuffer()
+  let storer = new TestStorer('/path/to/archive', 'hello.html')
   storer.writeFile('hello.html', 'text/html', kitchenSinkHTML)
   return storer
 }

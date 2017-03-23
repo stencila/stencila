@@ -5,16 +5,25 @@ import { MemoryBackend } from '../../index.es'
 import testVFS from '../../tmp/test-vfs.js'
 
 let testLibrary = {}
+let htmls = {}
+let buffers = {}
+
 forEach(testVFS, (content, documentId) => {
   // Only pick HTML documents
   if (/\.html$/.exec(documentId)) {
     testLibrary[documentId] = {
       type: 'document',
       title: documentId,
+      storage: {
+        storerType: "filesystem",
+        contentType: "html",
+        archivePath: "/path/to/archive",
+        mainFilePath: "main.html"
+      },
       createdAt: '2017-03-10T00:03:12.060Z',
       updatedAt: '2017-03-10T00:03:12.060Z',
-      _html: content,
     }
+    htmls[documentId] = content
   }
 })
 
@@ -33,13 +42,22 @@ export default class TestBackend extends MemoryBackend {
     if (documentId.charCodeAt(0) === SLASH) {
       documentId = documentId.slice(1)
     }
-    let entry = testLibrary[documentId]
-    if (!entry) return
-    if (entry._buffer) return entry._buffer
+    let manifest = testLibrary[documentId]
+    let html = htmls[documentId]
+    if (!manifest) return
+
+    if (buffers[documentId]) return buffers[documentId]
     let buffer = new MemoryBuffer()
-    buffer.writeFile('index.html', 'text/html', wrapSnippet(entry._html))
-    entry._buffer = Promise.resolve(buffer)
-    return entry._buffer
+
+    // NOTE: We know MemoryBuffer.writeFile is implemented synchronously so we
+    // don't need to wait for the promise
+    buffer.writeFile('index.html', 'text/html', wrapSnippet(html))
+    buffer.writeFile(
+      'stencila-manifest.json',
+      'application/json',
+      JSON.stringify(manifest, null, '  ')
+    )
+    return Promise.resolve(buffer)
   }
 
   _getEntries() {
