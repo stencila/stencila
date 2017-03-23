@@ -8,7 +8,10 @@ export default {
   },
 
   import: function (el, node) {
-    node.language = el.attr('data-language')
+    const language = el.attr('data-language')
+    if (language) {
+      node.language = language
+    }
     node.expression = el.attr('data-cell')
     let sourceCodeEl = el.find('pre[data-source]')
     if (sourceCodeEl) {
@@ -24,10 +27,12 @@ export default {
   export: function (node, el, converter) {
     let $$ = converter.$$
     el.attr('data-cell', node.expression)
-    el.attr('data-language', node.language)
-    el.append(
-      $$('pre').attr('data-source', '').text(node.sourceCode)
-    )
+    if (node.sourceCode) {
+      el.attr('data-language', node.language)
+      el.append(
+        $$('pre').attr('data-source', '').text(node.sourceCode)
+      )
+    }
     el.append(
       $$('pre').attr('data-output', '').text(node.value)
     )
