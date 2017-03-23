@@ -5,7 +5,8 @@ class InlineCellComponent extends Component {
   didMount() {
     const node = this.props.node
     if (node) {
-      node.on('value:updated', this.rerender, this)
+      node.on('evaluation:started', this.onEvaluationStarted, this)
+      node.on('evaluation:finished', this.onEvaluationFinished, this)
     }
   }
 
@@ -29,6 +30,15 @@ class InlineCellComponent extends Component {
       el.text(String(this._oldValue))
     }
     return el
+  }
+
+  onEvaluationStarted() {
+    this.el.addClass('sm-pending')
+  }
+
+  onEvaluationFinished() {
+    this.el.removeClass('sm-pending')
+    this.rerender()
   }
 
 }
