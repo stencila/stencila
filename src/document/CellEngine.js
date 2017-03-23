@@ -135,16 +135,16 @@ class CellEngine extends Engine {
         // this gets called twice. 1. "by itself" and the 2. as a plain
         // object with the piped value inserted into args[0] (as it should be) but
         // with no keyword arguments. So, this is a kludge to deal with that...
-        if (funcNode.type === 'call') {
-          // Skip this call, will get called again below
-          if (funcNode.parent && funcNode.parent.type === 'pipe') return Promise.resolve()
-        } else if (funcNode.expr && funcNode.expr.root.type === 'pipe') {
-          // funcNode is a plain object with `name`, `expr` and `args` (with the pipe prepended)
-          // but `namedArgs` are missing so get them from the root
-          // This fails when multiple pipes in a cell expresssion, probably because having to use
-          // root here
-          funcNode.namedArgs = funcNode.expr.root.right.namedArgs
-        }
+        // if (funcNode.type === 'call') {
+        //   // Skip this call, will get called again below
+        //   if (funcNode.parent && funcNode.parent.type === 'pipe') return Promise.resolve()
+        // } else if (funcNode.expr && funcNode.expr.root.type === 'pipe') {
+        //   // funcNode is a plain object with `name`, `expr` and `args` (with the pipe prepended)
+        //   // but `namedArgs` are missing so get them from the root
+        //   // This fails when multiple pipes in a cell expresssion, probably because having to use
+        //   // root here
+        //   funcNode.namedArgs = funcNode.expr.root.right.namedArgs
+        // }
 
 
         // regular function calls: we need to lookup
@@ -337,4 +337,3 @@ function _unwrapResult(cell, p, options) {
     }
   })
 }
-
