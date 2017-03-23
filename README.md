@@ -1,5 +1,11 @@
 ## Stencila
 
+[![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
+[![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
+[![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
+[![Dependency status](https://david-dm.org/stencila/stencila.svg)](https://david-dm.org/stencila/stencila)
+[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
+
 Stencila is a platform for creating, collaborating on, and sharing data driven content. Content that is transparent and reproducible, like RMarkdown and Jupyter. Content that can be versioned and composed just like we do with open source software using tools like CRAN and NPM. And above all, content that is accessible to non-coders, like Google Docs and Microsoft Office.
 
 ### Features
