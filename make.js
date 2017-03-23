@@ -327,7 +327,6 @@ b.task('test:one', ['test:backend'], () => {
 })
 .describe('Runs the tests and generates a coverage report.')
 
-
 b.task('docs', () => {
   if (isInstalled('documentation')) {
     buildDocumentation()
