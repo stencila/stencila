@@ -58,9 +58,14 @@ export function getSandbox(t) {
 
 export function setupEditorSession(documentId, options = {}) {
   let configurator = new DocumentConfigurator()
-  let backend = new TestBackend()
-  const entry = backend._getEntry(documentId)
-  const docHTML = entry.content
+  let docHTML
+  if (!documentId) {
+    docHTML = ''
+  } else {
+    let backend = new TestBackend()
+    const entry = backend._getEntry(documentId)
+    docHTML = entry.content
+  }
   let doc = documentConversion.importHTML(docHTML)
   let jsContext = new JsContext(options.functions)
   let editorSession = new EditorSession(doc, {
