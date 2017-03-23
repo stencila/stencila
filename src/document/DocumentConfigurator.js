@@ -21,7 +21,7 @@ import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackag
 import DefaultPackage from './nodes/default/DefaultPackage'
 import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
-import ImagePackage from './nodes/image/ImagePackage'
+// import ImagePackage from './nodes/image/ImagePackage'
 import SelectPackage from './nodes/select/SelectPackage'
 import RangeInputPackage from './nodes/range-input/RangeInputPackage'
 import VegaLitePackage from './vega-lite/VegaLitePackage'
@@ -68,7 +68,7 @@ class DocumentConfigurator extends Configurator {
     this.import(SelectPackage)
     this.import(RangeInputPackage)
 
-    this.import(ImagePackage)
+    // this.import(ImagePackage)
     this.import(BlockquotePackage)
     this.import(CodeblockPackage)
     this.import(CellPackage)
