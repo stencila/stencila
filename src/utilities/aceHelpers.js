@@ -55,6 +55,7 @@ export function updateAceEditor(editor, options) {
     // Make readonly as per https://github.com/ajaxorg/ace/issues/266#issuecomment-16367687
     editor.setOptions({
       readOnly: true,
+      showGutter: false,
       highlightActiveLine: false,
       highlightGutterLine: false
     })
@@ -64,8 +65,9 @@ export function updateAceEditor(editor, options) {
   } else {
     editor.setOptions({
       readOnly: false,
-      highlightActiveLine: true,
-      highlightGutterLine: true
+      showGutter: false,
+      highlightActiveLine: false,
+      highlightGutterLine: false
     })
     editor.renderer.$cursorLayer.element.style.opacity = 1
     editor.textInput.getElement().disabled = false
