@@ -56,6 +56,9 @@ export default class DocumentHTMLConverter {
 
     let mainFilePath = storer.getMainFilePath()
     return buffer.readFile('index.html', 'text/html').then((html) => {
+      // Remove the `data-id` attribute that is added by the Substance exporter
+      // to each node element
+      html = html.replace(/ data-id=".+?"/g, '')
       if (options.beautify) {
         // Beautification. Because right now, some editing of HTML source is necessary
         // because the visual editor can't do everything e.g tables

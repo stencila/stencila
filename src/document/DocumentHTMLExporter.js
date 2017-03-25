@@ -15,7 +15,7 @@ class DocumentHTMLExporter extends HTMLExporter {
       DocumentClass: DocumentModel,
       schema: configurator.getSchema(),
       converters: configurator.getConverterRegistry().get('html'),
-      idAttribute: 'id'
+      idAttribute: 'data-id'
     })
   }
   /**
