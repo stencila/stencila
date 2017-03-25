@@ -24,6 +24,7 @@ class EditMathTool extends Tool {
 
     let sourcePath = this.getSourcePath()
     el.append(
+      'Edit Math ',
       $$(Input, {
         type: 'text',
         path: sourcePath,

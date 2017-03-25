@@ -28,6 +28,9 @@ class InlineCellComponent extends Component {
     } else if (!isNil(this._oldValue)) {
       el.addClass('sm-pending')
       el.text(String(this._oldValue))
+    } else {
+      el.text('...')
+      el.addClass('sm-pending')
     }
     return el
   }

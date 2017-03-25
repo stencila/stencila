@@ -2,8 +2,13 @@ import { Component, parseKeyEvent } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import CellValueComponent from './CellValueComponent'
 import MiniLangEditor from './MiniLangEditor'
-import CellStatusBar from './CellStatusBar'
+import CellErrorDisplay from './CellErrorDisplay'
 import Dropdown from '../../../shared/Dropdown'
+
+const LANGUAGE_LABELS = {
+  'js': 'JavaScript',
+  'javascript': 'JavaScript'
+}
 
 class CellComponent extends Component {
 
@@ -46,17 +51,23 @@ class CellComponent extends Component {
       this.renderEllipsesDropdown($$)
     )
 
-    el.append(cellEditorContainer)
-
     if (cell.isExternal()) {
-      el.append(
+      cellEditorContainer.append(
         $$(CodeEditorComponent, {
           path: [cell.id, 'sourceCode'],
           language: cell.language
         }).ref('sourceCodeEditor')
           .on('escape', this.onEscapeFromCodeEditor)
       )
+
+      el.append(
+        $$('div').addClass('se-language-label').append(
+          LANGUAGE_LABELS[cell.language]
+        )
+      )
     }
+
+    el.append(cellEditorContainer)
 
     // TODO only show the node value if
     // either the node is not assigning to a variable
@@ -81,11 +92,9 @@ class CellComponent extends Component {
         .ref('value')
       )
     }
-
     el.append(
-      $$(CellStatusBar, {cell})
+      $$(CellErrorDisplay, {cell})
     )
-
     return el
   }
 
@@ -162,7 +171,7 @@ class CellComponent extends Component {
 
   onSelectEllipsesDropdown(event) {
     const data = event.detail
-    const {name, value} = data
+    const { name, value } = data
     if (name) {
       let newState = {}
       newState[name] = value
@@ -186,7 +195,6 @@ class CellComponent extends Component {
       surfaceId: parentSurface.id
     }
   }
-
 }
 
 CellComponent.noBlocker = true

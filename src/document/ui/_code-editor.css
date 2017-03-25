@@ -1,4 +1,4 @@
 .sc-code-editor {
-  border: 1px solid #ddd;
-  border-top: none;
+  border-top: 1px solid #ddd;
+  padding: 2px 17px;
 }

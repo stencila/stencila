@@ -3,14 +3,20 @@
 }
 
 .sc-cell {
-  border: 1px solid #ddd;
+  position: relative;
 }
 
 .sc-cell .se-cell-editor-container {
-  min-height: 30px;
   position: relative;
-  border: 1px solid #ddd;
+  background: #F5F5F5;
+  border-radius: 5px;
 }
+
+/* HACK: Monkey-patch ace to use the same background color */
+pre.ace_editor.ace-tm {
+  background: #F5F5F5;
+}
+
 
 .sc-cell .se-cell-editor-container .sc-dropdown button {
   border: none;
@@ -22,35 +28,27 @@
   right: 0px;
 }
 
+.sc-cell .se-language-label {
+  position: absolute;
+  z-index: 2;
+  font-size: 12px;
+  top: 5px;
+  font-weight: 600;
+  right: 30px;
+}
+
+
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
-  font-size: 12px;
-  /*padding: 10px 20px;*/
+  font-size: 13px;
   font-weight: normal;
-  background: #fafafa;
   color: #737373;
 }
 
-.sc-cell-value .se-output {
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-top: none;
+
+.sc-cell-value {
 }
 
 .sc-cell-value.sm-pending {
   opacity: 0.2;
-}
-
-.sc-table-value {
-  table-layout: fixed;
-  min-width: 100px;
-}
-
-.sc-table-value thead {
-  border-bottom: 1px solid #ccc;
-}
-
-.sc-table-value th,
-.sc-table-value td {
-  text-align: right;
 }

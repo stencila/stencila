@@ -15,13 +15,13 @@ import CellPackage from './nodes/cell/CellPackage'
 import InlineCellPackage from './nodes/inline-cell/InlineCellPackage'
 import TablePackage from './nodes/table/TablePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
-import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
+// import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
 import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
 import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
-import ImagePackage from './nodes/image/ImagePackage'
+// import ImagePackage from './nodes/image/ImagePackage'
 import SelectPackage from './nodes/select/SelectPackage'
 import RangeInputPackage from './nodes/range-input/RangeInputPackage'
 import VegaLitePackage from './vega-lite/VegaLitePackage'
@@ -68,9 +68,9 @@ class DocumentConfigurator extends Configurator {
     this.import(SelectPackage)
     this.import(RangeInputPackage)
 
-    this.import(ImagePackage)
+    // this.import(ImagePackage)
     this.import(BlockquotePackage)
-    this.import(CodeblockPackage)
+    // this.import(CodeblockPackage)
     this.import(CellPackage)
     this.import(InlineCellPackage)
     this.import(DefaultPackage)

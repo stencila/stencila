@@ -36,3 +36,8 @@
 .sc-math.sm-co-selected > .se-blocker {
   background: var(--stencila-green-transparent);
 }
+
+.sc-edit-math-tool {
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+}

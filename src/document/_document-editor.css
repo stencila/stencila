@@ -8,6 +8,7 @@
 @import './minimal-switch-text-type/_minimal-switch-text-type.css';
 @import './overlay/_overlay.css';
 @import './ui/_code-editor.css';
+@import './ui/_isolated-node.css';
 @import './button/_button.css';
 @import './input/_input.css';
 @import './toggle-insert/_toggle-insert.css';
@@ -31,7 +32,8 @@
 @import './nodes/codeblock/_codeblock.css';
 @import './nodes/default/_default.css';
 @import './nodes/cell/_cell.css';
-@import './nodes/cell/_cell-status-bar.css';
+@import './nodes/cell/_cell-error-display.css';
+@import './nodes/cell/_core-values.css';
 @import './nodes/cell/_mini-lang-editor.css';
 @import './nodes/cell/_code-highlight.css';
 @import './nodes/inline-cell/_inline-cell.css';

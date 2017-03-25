@@ -1,25 +1,10 @@
-import {Component, TextPropertyEditor} from 'substance'
+import { Component, TextPropertyEditor } from 'substance'
 
 export default
 class MiniLangEditor extends Component {
 
   render($$) {
-    const expression = this.props.expression
-
     let el = $$('div').addClass('sc-mini-lang-editor')
-    // used for showing errors/warnings
-    let gutter = $$('div').addClass('se-gutter').ref('gutter')
-
-    if (expression && expression.syntaxError) {
-      let errors = []
-      if (expression.syntaxError) {
-        errors.push(expression.syntaxError.msg)
-      }
-      let errorInfo = $$('div').addClass('se-error-info')
-      errorInfo.append(this.context.iconProvider.renderIcon($$, 'error'))
-      errorInfo.attr('title', errors.join('\n'))
-      gutter.append(errorInfo)
-    }
 
     // the source code
     const path = this.props.path
@@ -31,20 +16,7 @@ class MiniLangEditor extends Component {
       markers
     }).ref('contentEditor')
     content.addClass('se-content')
-
-    // using a table for layout
-    let layout = $$('table').ref('layout')
-    layout.append($$('colgroup').append(
-      $$('col').addClass('se-gutter-col'),
-      $$('col').addClass('se-content-col')
-    ))
-    layout.append(
-      $$('tr').append(
-        $$('td').append(gutter),
-        $$('td').append(content)
-      )
-    )
-    el.append(layout)
+    el.append(content)
     return el
   }
 
@@ -58,8 +30,8 @@ class MiniLangEditor extends Component {
           name: t.type,
           start: { path, offset: t.start },
           end: { path, offset: t.end },
-          on(){},
-          off(){}
+          on() {},
+          off() {}
         }
       })
     } else {

@@ -24,7 +24,6 @@ class Dropdown extends Component {
     let btn = $$(Button, {
       label: this.props.name,
       icon: this.props.icon,
-      active: this.state.open,
       disabled: this.props.disabled,
       style: 'outline'
     }).on('click', this.onClickButton)
@@ -84,6 +83,7 @@ class Dropdown extends Component {
       input.on('change', this.onChangeChoice)
       let choiceEl = $$('div').append(
         input,
+        ' ',
         choice.label
       )
       group.append(choiceEl)

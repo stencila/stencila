@@ -14,10 +14,11 @@ class EditInlineCellTool extends Tool {
     let el = $$('div').addClass('sc-edit-inline-cell-tool')
     let expressionPath = this.getExpressionPath()
     el.append(
+      'Output ',
       $$(Input, {
         type: 'text',
         path: expressionPath,
-        placeholder: 'Type Minilang...'
+        placeholder: 'Type Mini Expression (e.g. 5 * 5)'
       })
     )
     return el
