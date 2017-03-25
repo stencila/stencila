@@ -1,5 +1,5 @@
 import { DefaultDOMElement } from 'substance'
-import * as beautify from 'js-beautify'
+import beautify from 'js-beautify'
 
 export default class DocumentHTMLConverter {
 
