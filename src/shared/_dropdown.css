@@ -1,14 +1,25 @@
 .sc-dropdown {
-  z-index: 10;
+  position: relative;
 }
 
 .sc-dropdown > .sc-button {
   border-radius: 2px;
 }
 
+.sc-dropdown .se-label {
+  color: rgba(255,255,255,0.5);
+  padding-bottom: 5px;
+}
+
 .sc-dropdown > .se-options {
-  border: solid 1px;
-  background: #fff;
+  /* in case we overlap with another .sc-dropdown */
+  z-index: 100;
+  width: 120px;
+  left: -20px;
+  position: absolute;
+  background: var(--dark-bg-color);
+  font-size: 12px;
+  color: white;
 }
 
 .sc-dropdown .se-choice {
