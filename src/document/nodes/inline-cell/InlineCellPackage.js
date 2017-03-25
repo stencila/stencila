@@ -20,6 +20,6 @@ export default {
     })
     config.addTool('insert-inline-cell', Tool, { toolGroup: 'overlay' })
     config.addIcon('insert-inline-cell', { 'fontawesome': 'fa-caret-square-o-right' })
-    config.addLabel('insert-inline-cell', 'Insert Inline Cell')
+    config.addLabel('insert-inline-cell', 'Insert Output')
   }
 }

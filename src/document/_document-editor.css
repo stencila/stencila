@@ -33,6 +33,7 @@
 @import './nodes/default/_default.css';
 @import './nodes/cell/_cell.css';
 @import './nodes/cell/_cell-error-display.css';
+@import './nodes/cell/_core-values.css';
 @import './nodes/cell/_mini-lang-editor.css';
 @import './nodes/cell/_code-highlight.css';
 @import './nodes/inline-cell/_inline-cell.css';

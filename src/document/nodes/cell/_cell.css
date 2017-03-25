@@ -35,26 +35,9 @@ pre.ace_editor.ace-tm {
   color: #737373;
 }
 
-.sc-cell-value .se-output {
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-top: none;
+.sc-cell-value {
 }
 
 .sc-cell-value.sm-pending {
   opacity: 0.2;
-}
-
-.sc-table-value {
-  table-layout: fixed;
-  min-width: 100px;
-}
-
-.sc-table-value thead {
-  border-bottom: 1px solid #ccc;
-}
-
-.sc-table-value th,
-.sc-table-value td {
-  text-align: right;
 }

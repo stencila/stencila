@@ -1,0 +1,79 @@
+/*
+  Styles for all core value types
+
+  TODO: move each value implementation + styles into separate packages
+*/
+
+
+/* Table Value */
+.sc-table-value {
+  padding-top: 20px;
+}
+
+.sc-table-value table {
+  height: 500px;
+  overflow: auto;
+  margin: 0 auto;
+  text-align: center;
+  display: table;
+  table-layout: fixed;
+  min-width: 100px;
+}
+
+.sc-table-value table thead {
+  font-weight: 600;
+}
+
+.sc-table-value table th,
+.sc-table-value table td {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: right;
+}
+
+.sc-table-value .se-more-records {
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* Integer Value */
+
+.sc-integer-value {
+  padding-top: 20px;
+  font-size: 30px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Float Value */
+
+.sc-float-value {
+  padding-top: 20px;
+  font-size: 20px;
+  text-align: center;
+}
+
+/* String Value */
+
+.sc-string-value {
+  padding-top: 20px;
+  font-size: 16px;
+  color: #ad0000;
+  text-align: center;
+}
+
+/* Array Value */
+
+.sc-array-value {
+  padding-top: 20px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.sc-array-value .se-array-item {
+  border: 1px solid #ddd;
+  display: inline-block;
+  padding: 2px 5px;
+  margin-right: 2px;
+}

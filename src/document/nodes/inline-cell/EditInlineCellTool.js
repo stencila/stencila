@@ -14,7 +14,7 @@ class EditInlineCellTool extends Tool {
     let el = $$('div').addClass('sc-edit-inline-cell-tool')
     let expressionPath = this.getExpressionPath()
     el.append(
-      'Edit Cell ',
+      'Output ',
       $$(Input, {
         type: 'text',
         path: expressionPath,
