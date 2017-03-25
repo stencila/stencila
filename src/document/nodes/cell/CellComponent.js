@@ -5,6 +5,11 @@ import MiniLangEditor from './MiniLangEditor'
 import CellErrorDisplay from './CellErrorDisplay'
 import Dropdown from '../../../shared/Dropdown'
 
+const LANGUAGE_LABELS = {
+  'js': 'JavaScript',
+  'javascript': 'JavaScript'
+}
+
 class CellComponent extends Component {
 
   getInitialState() {
@@ -53,6 +58,12 @@ class CellComponent extends Component {
           language: cell.language
         }).ref('sourceCodeEditor')
           .on('escape', this.onEscapeFromCodeEditor)
+      )
+
+      el.append(
+        $$('div').addClass('se-language-label').append(
+          LANGUAGE_LABELS[cell.language]
+        )
       )
     }
 
@@ -160,7 +171,7 @@ class CellComponent extends Component {
 
   onSelectEllipsesDropdown(event) {
     const data = event.detail
-    const {name, value} = data
+    const { name, value } = data
     if (name) {
       let newState = {}
       newState[name] = value

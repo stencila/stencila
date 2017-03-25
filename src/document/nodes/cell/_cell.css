@@ -28,12 +28,23 @@ pre.ace_editor.ace-tm {
   right: 0px;
 }
 
+.sc-cell .se-language-label {
+  position: absolute;
+  z-index: 2;
+  font-size: 12px;
+  top: 5px;
+  font-weight: 600;
+  right: 30px;
+}
+
+
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
   font-size: 13px;
   font-weight: normal;
   color: #737373;
 }
+
 
 .sc-cell-value {
 }
