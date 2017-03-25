@@ -72,7 +72,8 @@ export default class DocumentHTMLConverter {
           'preserve_newlines': true,
           'max_preserve_newlines': 5,
           'indent_handlebars': false,
-          'extra_liners': ['/html']
+          'extra_liners': [],
+          'end_with_newline': true
         })
       }
       return storer.writeFile(mainFilePath, 'text/html', html)
