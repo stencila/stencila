@@ -3,13 +3,13 @@
 }
 
 .sc-cell {
-  border: 1px solid #ddd;
+  position: relative;
 }
 
 .sc-cell .se-cell-editor-container {
-  min-height: 30px;
   position: relative;
-  border: 1px solid #ddd;
+  background: #F5F5F5;
+  border-radius: 5px;
 }
 
 .sc-cell .se-cell-editor-container .sc-dropdown button {
@@ -25,9 +25,7 @@
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
   font-size: 12px;
-  /*padding: 10px 20px;*/
   font-weight: normal;
-  background: #fafafa;
   color: #737373;
 }
 

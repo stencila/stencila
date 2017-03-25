@@ -8,6 +8,10 @@ export default {
     return !isNil(this.value)
   },
 
+  hasErrors() {
+    return this.hasRuntimeErrors() || this.hasSyntaxError()
+  },
+
   hasRuntimeErrors() {
     return this.runtimeErrors
   },
