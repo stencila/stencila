@@ -74,11 +74,11 @@ sepal_width: {values: [3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1,3.7,3.4,3,3,4,4.4,3
           <pre data-output="">[object Object]</pre>
         </div>
         <h2>Using other languages</h2>
-        <p>An important feature of Mini is it's ability to interoperate with other languages. Mini can act as a &amp;quot;glue&amp;quot; language - for those times when you need to combine the strengths of several languages. For example, you might want to extract some data from a database using Structured Query Language (SQL), then perform a specialised statistical analysis on the data using R, then visualise the results using Mini's built in plotting functions.</p>
-        <p>Mini makes this possible through alternative execution &amp;quot;contexts&amp;quot;. Each context knows how to convert values to and from the Mini value types and how to execute snippets of code in the context's native language. Currently, only two execution contexts are supported: the <code>JsContext</code> (for executing Javascript code in a browser or desktop window) and the <code>NodeContext</code> (for executing Javascript code within Node.js). The <code>RContext</code> and <code>PythonContexts</code> are planned for the 0.26 release with more language contexts following soon.</p>
+        <p>An important feature of Mini is it's ability to interoperate with other languages. Mini can act as a glue language - for those times when you need to combine the strengths of several languages. For example, you might want to extract some data from a database using Structured Query Language (SQL), then perform a specialised statistical analysis on the data using R, then visualise the results using Mini's built in plotting functions.</p>
+        <p>Mini makes this possible through alternative execution contexts. Each context knows how to convert values to and from the Mini value types and how to execute snippets of code in the context's native language. Currently, only two execution contexts are supported: the <code>JsContext</code> (for executing Javascript code in a browser or desktop window) and the <code>NodeContext</code> (for executing Javascript code within Node.js). The <code>RContext</code> and <code>PythonContexts</code> are planned for the 0.26 release with more language contexts following soon.</p>
         <p>There are two special functions in Mini for executing code in other languages: <code>call</code> and <code>run</code>. </p>
         <h3>The <code>call</code> function</h3>
-        <p>The <code>call</code> function executes code within a function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. So, when you type <code>call()</code> into a cell, your effectively saying to Mini &amp;quot;take this code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript,</p>
+        <p>The <code>call</code> function executes code within a function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. So, when you type <code>call()</code> into a cell, your effectively saying to Mini take this code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript,</p>
         <div data-cell="call()" data-language="js">
           <pre data-source="">let names = ['Hiphop', 'opotamus', ' v ', 'Rhyme', 'noceros']
 return names.join('')</pre>
@@ -90,7 +90,7 @@ return names.join('')</pre>
           <pre data-source="">return Math.PI</pre>
           <pre data-output="">3.141592653589793</pre>
         </div>
-        <p>A call to another language is not very useful unless you provide it with some data. This is where Mini's &amp;quot;glueing&amp;quot; comes in. Let's create an array in Mini,</p>
+        <p>A call to another language is not very useful unless you provide it with some data. This is where Mini's glueing comes in. Let's create an array in Mini,</p>
         <div data-cell="fruits = ['apple', 'pear', 'kiwi']">
           <pre data-output="">apple,pear,kiwi</pre>
         </div>
@@ -108,10 +108,10 @@ return names.join('')</pre>
           <pre data-output="">kiwi</pre>
         </div>
         <p>Here's an example, that puts this all together with an input, a Javascript call cell and an output to display the result...</p>
-        <p>The area of a circle can be calculated by <span data-math="asciimath">a = pi r^2</span>. So, if the radius of a circle is <input type="range" name="radius" min="0" max="100" step="1" value="36"></input> m, then it's area is: <span data-cell="area">10</span> m<sup>2</sup>.</p>
+        <p>The area of a circle can be calculated by <span data-math="asciimath">a = pi r^2</span> . So, if the radius of a circle is <input type="range" name="radius" min="0" max="100" step="1" value="56"></input> m, then it's area is: <span data-cell="area">9852.03456165759</span> m<sup>2</sup>.</p>
         <div data-cell="area = call(r=radius)" data-language="js">
-          <pre data-source="">return Math.PI*Math.pow(radius, 2)</pre>
-          <pre data-output=""></pre>
+          <pre data-source="">return Math.PI*Math.pow(r, 2)</pre>
+          <pre data-output="">9852.03456165759</pre>
         </div>
         <h3>The <code>run</code> function</h3>
         <p></p>
