@@ -15,7 +15,7 @@ import CellPackage from './nodes/cell/CellPackage'
 import InlineCellPackage from './nodes/inline-cell/InlineCellPackage'
 import TablePackage from './nodes/table/TablePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
-import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
+// import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
 import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
@@ -70,7 +70,7 @@ class DocumentConfigurator extends Configurator {
 
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
-    this.import(CodeblockPackage)
+    // this.import(CodeblockPackage)
     this.import(CellPackage)
     this.import(InlineCellPackage)
     this.import(DefaultPackage)

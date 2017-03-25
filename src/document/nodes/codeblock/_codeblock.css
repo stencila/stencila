@@ -1,34 +1,10 @@
-%codeblock {
-  margin: 1em 0;
-  background: #222;
-  border-radius: 3px;
-
-  font-family: $mono-font-family;
-  font-size: .9em;
-  color: #ccc;
+.sc-codeblock {
+  font-family: var(--font-family-code);
+  font-size: 15px;
 }
 
-pre {
-  @extend %codeblock;
-
-  padding: .5em 1em;
-  line-height: 100%;
-
-  code {
-    background: none;
-    border: 0;
-  }
-}
-
-.sc-isolated-node.sm-default-style.sm-codeblock {
-  @extend %codeblock;
-
-  & > .se-slug {
-    height: 1px;
-  }
-
-  // Remove the user agent margin on pre
-  pre {
-    margin: 0;
-  }
+// Toolbar styles
+.sc-switch-text-type .se-option.sm-codeblock {
+  font-family: var(--font-family-code);
+  font-size: 15px;
 }
