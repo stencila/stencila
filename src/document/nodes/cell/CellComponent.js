@@ -184,7 +184,6 @@ class CellComponent extends Component {
       surfaceId: parentSurface.id
     }
   }
-
 }
 
 CellComponent.noBlocker = true

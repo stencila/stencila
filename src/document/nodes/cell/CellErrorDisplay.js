@@ -35,7 +35,10 @@ class CellErrorDisplay extends Component {
 
     if (syntaxError) {
       errorsEl.append(
-        $$('div').addClass('se-error').append('Syntax Error!')
+        $$('div').addClass('se-error').append(
+          'Syntax Error: ',
+          syntaxError.msg
+        )
       )
     }
 
