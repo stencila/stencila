@@ -12,6 +12,12 @@
   border-radius: 5px;
 }
 
+/* HACK: Monkey-patch ace to use the same background color */
+pre.ace_editor.ace-tm {
+  background: #F5F5F5;
+}
+
+
 .sc-cell .se-cell-editor-container .sc-dropdown button {
   border: none;
 }
@@ -24,7 +30,7 @@
 
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
   color: #737373;
 }

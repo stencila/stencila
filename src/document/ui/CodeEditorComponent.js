@@ -68,7 +68,7 @@ class CodeEditorComponent extends Component {
       this._getCode(),
       {
         language: language,
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Source Code Pro", monospace',
         // FIXME
         // This does not update when the editor state is changed (e.g editing turned from off to on)
