@@ -1,4 +1,5 @@
 import { DefaultDOMElement } from 'substance'
+import * as beautify from 'js-beautify'
 
 export default class DocumentHTMLConverter {
 
@@ -50,10 +51,28 @@ export default class DocumentHTMLConverter {
   /*
     Takes a buffer and writes back to the storer
   */
-  exportDocument(buffer, storer) {
+  exportDocument(buffer, storer, options = {}) {
+    if (options.beautify !== false) options.beautify = true
+
     let mainFilePath = storer.getMainFilePath()
-    return buffer.readFile('index.html', 'text/html').then((htmlFile) => {
-      return storer.writeFile(mainFilePath, 'text/html', htmlFile)
+    return buffer.readFile('index.html', 'text/html').then((html) => {
+      if (options.beautify) {
+        // Beautification. Because right now, some editing of HTML source is necessary
+        // because the visual editor can't do everything e.g tables
+        // See options at https://github.com/beautify-web/js-beautify/blob/master/js/lib/beautify-html.js
+        html = beautify.html(html, {
+          'indent_inner_html': false,
+          'indent_size': 2,
+          'indent_char': ' ',
+          'wrap_line_length': 0, // disable wrapping
+          'brace_style': 'expand',
+          'preserve_newlines': true,
+          'max_preserve_newlines': 5,
+          'indent_handlebars': false,
+          'extra_liners': ['/html']
+        })
+      }
+      return storer.writeFile(mainFilePath, 'text/html', html)
     })
   }
 
