@@ -9,27 +9,6 @@
       <div class="content">
         <div data-title="">Mini</div>
         <p>Stencila has it's own language for reproducible, data-drive, research called <em>Mini</em>. An important aspect of reproducibility is readability. Mini aims to be as easy to read and understand as it is to write. Mini is meant to be only slightly more advanced that the expressions that your write in your calculator or into the cell of a spreadsheet</p>
-        <p>Mini is intended as a glue language. The <code>run</code> function....</p>
-        <div data-cell="run()" data-language="js">
-          <pre data-source="">context_variable = 42</pre>
-          <pre data-output="">42</pre>
-        </div>
-        <div data-cell="run()" data-language="js">
-          <pre data-source="">context_variable * 2</pre>
-          <pre data-output="">84</pre>
-        </div>
-        <p>Better to use <code>call</code>....</p>
-        <div data-cell="call()" data-language="js">
-          <pre data-source="">return Math.random()</pre>
-          <pre data-output="">0.8562881962758524</pre>
-        </div>
-        <p>Inputs and outputs and dependencies....</p>
-        <p>If the radius of a circle is: <input type="range" name="radius" min="0" max="100" step="1" value="50"></input> m.</p>
-        <div data-cell="area = call(radius)" data-language="js">
-          <pre data-source="">return 2*Math.PI*Math.pow(radius, 2)</pre>
-          <pre data-output="">15707.963267948966</pre>
-        </div>
-        <p>Then it's area is: <span data-cell="area">15707.963267948966</span> m<sup>2</sup>.</p>
         <h1>Types</h1>
         <p>Mini has a simple type system that is similar to most high level languages. Each type can be constructed using literals...</p>
         <table>
@@ -94,6 +73,48 @@ sepal_width: {values: [3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1,3.7,3.4,3,3,4,4.4,3
         <div data-cell="titles(points(data, 'sepal_length', 'sepal_width', color='species'), color='Species name')">
           <pre data-output="">[object Object]</pre>
         </div>
+        <h2>Using other languages</h2>
+        <p>An important feature of Mini is it's ability to interoperate with other languages. Mini can act as a &amp;quot;glue&amp;quot; language - for those times when you need to combine the strengths of several languages. For example, you might want to extract some data from a database using Structured Query Language (SQL), then perform a specialised statistical analysis on the data using R, then visualise the results using Mini's built in plotting functions.</p>
+        <p>Mini makes this possible through alternative execution &amp;quot;contexts&amp;quot;. Each context knows how to convert values to and from the Mini value types and how to execute snippets of code in the context's native language. Currently, only two execution contexts are supported: the <code>JsContext</code> (for executing Javascript code in a browser or desktop window) and the <code>NodeContext</code> (for executing Javascript code within Node.js). The <code>RContext</code> and <code>PythonContexts</code> are planned for the 0.26 release with more language contexts following soon.</p>
+        <p>There are two special functions in Mini for executing code in other languages: <code>call</code> and <code>run</code>. </p>
+        <h3>The <code>call</code> function</h3>
+        <p>The <code>call</code> function executes code within a function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. So, when you type <code>call()</code> into a cell, your effectively saying to Mini &amp;quot;take this code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript,</p>
+        <div data-cell="call()" data-language="js">
+          <pre data-source="">let names = ['Hiphop', 'opotamus', ' v ', 'Rhyme', 'noceros']
+return names.join('')</pre>
+          <pre data-output="">Hiphopopotamus v Rhymenoceros</pre>
+        </div>
+        <p>Notice that because we ended the JavaScript code, with a <code>return</code> statement that the cell has an output. When you <code>call()</code> some JavaScript <code>code</code> it's like executing <code>(function(){code})()</code>. The same is true for other external languages, it's just that the syntax differs.</p>
+        <p>Just like with other Mini cells, you can assign the output of a <code>call()</code> to a document variable,</p>
+        <div data-cell="javascript_pi = call()" data-language="js">
+          <pre data-source="">return Math.PI</pre>
+          <pre data-output="">3.141592653589793</pre>
+        </div>
+        <p>A call to another language is not very useful unless you provide it with some data. This is where Mini's &amp;quot;glueing&amp;quot; comes in. Let's create an array in Mini,</p>
+        <div data-cell="fruits = ['apple', 'pear', 'kiwi']">
+          <pre data-output="">apple,pear,kiwi</pre>
+        </div>
+        <p>and then use Javascript to join it together,</p>
+        <div data-cell="call(fruits)" data-language="js">
+          <pre data-source="">return 'My favourite fruits: ' + fruits.map((fruit,index) =&gt; {
+    return `${index + 1}. ${fruit}`
+}).join(', ')</pre>
+          <pre data-output="">My favourite fruits: 1. apple, 2. pear, 3. kiwi</pre>
+        </div>
+        <p>The nice thing about this is that Mini's dependency analysis still works, so you can change the fruits array and the output above will change - try it! </p>
+        <p>Notice that our Javascript function got supplied an argument called <code>fruits</code> - which is the same array of strings as in our documentent variable called <code>fruits</code>. You can also provide named arguments to <code>call,</code></p>
+        <div data-cell="call(my_favourite_fruits = fruits, index = 2)" data-language="js">
+          <pre data-source="">return my_favourite_fruits[index]</pre>
+          <pre data-output="">kiwi</pre>
+        </div>
+        <p>Here's an example, that puts this all together with an input, a Javascript call cell and an output to display the result...</p>
+        <p>The area of a circle can be calculated by <span data-math="asciimath">a = pi r^2</span>. So, if the radius of a circle is <input type="range" name="radius" min="0" max="100" step="1" value="36"></input> m, then it's area is: <span data-cell="area">10</span> m<sup>2</sup>.</p>
+        <div data-cell="area = call(r=radius)" data-language="js">
+          <pre data-source="">return Math.PI*Math.pow(radius, 2)</pre>
+          <pre data-output=""></pre>
+        </div>
+        <h3>The <code>run</code> function</h3>
+        <p></p>
       </div>
     </div>
   </main>
