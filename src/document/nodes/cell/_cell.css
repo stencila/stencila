@@ -37,14 +37,12 @@ pre.ace_editor.ace-tm {
   right: 30px;
 }
 
-
 .sc-cell .se-expression {
   font-family: var(--mono-font-family);
   font-size: 13px;
   font-weight: normal;
   color: #737373;
 }
-
 
 .sc-cell-value {
 }

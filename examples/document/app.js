@@ -7,10 +7,9 @@ import { DocumentPage, MemoryBackend, getQueryStringParam } from 'stencila'
 
 window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
-    backend: new MemoryBackend(),
-    documentId: getQueryStringParam('documentId') || 'kitchen-sink'
+    backend: new MemoryBackend(window.GUIDES),
+    documentId: getQueryStringParam('documentId') || 'welcome-to-stencila'
   }, window.document.body)
-
 
   function onKeyDown(e) {
     // CTRL+S

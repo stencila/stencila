@@ -4,7 +4,7 @@
 */
 
 import { MemoryBackend, Dashboard } from 'stencila'
-let stubBackend = new MemoryBackend()
+let stubBackend = new MemoryBackend(window.GUIDES)
 
 window.addEventListener('load', () => {
   Dashboard.mount({
