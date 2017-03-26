@@ -1,4 +1,4 @@
-import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
+import { isFunction, DefaultDOMElement, EditorSession, Component } from 'substance'
 import { DocumentConfigurator, documentConversion, JsContext } from '../index.es'
 import TestBackend from './backend/TestBackend'
 
@@ -75,4 +75,31 @@ export function setupEditorSession(documentId, options = {}) {
     }
   })
   return {editorSession, doc, jsContext}
+}
+
+// TODO: want to flesh this out
+export class TestEvent {
+  stopPropagation() {}
+  preventDefault() {}
+}
+
+export function ComponentWrapper(ComponentClass, {props, context}) {
+  class Wrapper extends Component {
+    getChildContext() {
+      return context
+    }
+    render($$) {
+      return $$('div').append($$(ComponentClass, props).ref('component'))
+    }
+  }
+  return Wrapper
+}
+
+// HACK: we must change this in Substance:
+// ATM Surface requires a DOMSelection instance via context
+// which is very browser specific, this we can not
+// test a Component using Surface's without the following
+// stub
+export class StubDomSelection {
+
 }
