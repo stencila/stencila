@@ -2,7 +2,8 @@ import { forEach } from 'substance'
 import MemoryBuffer from './MemoryBuffer'
 
 function _idToName(id) {
-  let str = id.charAt(0).toUpperCase() + id.slice(1)
+  let str = id.slice(3)
+  str = str.charAt(0).toUpperCase() + str.slice(1)
   return str.replace(/-/g, ' ')
 }
 
