@@ -58,6 +58,7 @@ class MiniLangEditor extends Component {
   _onTabKey() {
     const editorSession = this.context.editorSession
     const head = this._getCurrentLineHead()
+    // console.log('head', head)
     if (/^\s*$/.exec(head)) {
       editorSession.transaction((tx) => {
         tx.insertText('  ')
@@ -84,6 +85,6 @@ class MiniLangEditor extends Component {
     const exprStr = doc.get(this.props.path)
     const head = exprStr.slice(0, offset)
     const lastNL = Math.max(0, head.lastIndexOf('\n'))
-    return exprStr.slice(lastNL+1)
+    return head.slice(lastNL+1)
   }
 }
