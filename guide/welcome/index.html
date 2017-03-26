@@ -8,7 +8,30 @@
     <div id="data" data-format="html">
       <div class="content">
         <div data-title="">Welcome to Stencila</div>
-        <p>Thanks for trying out Stencila 0.25!</p>
+        <p>Thanks for trying out Stencila. We're still in <span data-math="asciimath">beta</span> eta development, so it's great having people like you testing things out! Please feel free to report any bugs, or make feature suggestions, on our <a href="https://github.com/stencila/stencila" title="undefined">Github repo</a>. Or, chat with us in our <a href="https://gitter.im/stencila/stencila" title="undefined">Gitter room</a>.</p>
+        <p>Stencila is the office suite for reproducible research. We're building tools for reproducible research that have the same intuitive, visual interfaces, that you and your colllegues are used to. Software that is as easy to use as Microsoft Office and Google Docs but built from the ground up to meet today's demands for data-intensive research to be transparent, reproducible and efficient.</p>
+        <p>This is a Stencila Document. It's the first platform component that we've developed - Stencila Sheets (spreadsheets) and other offce suite components will follow soon. So, lets look at what a Stencila Document can do and what makes it special.</p>
+        <p>You can edit this document just like in a traditional word processor like Microsoft Word. We've kept the interface minimal so you can focus on authoring great content. Select some text to bring up the text toolbar. Place the cursor at the start of a paragraph or other block to change it's type e.g. paragraph to heading. Press <code>enter</code> to start a new paragraph or insert a table or cell.</p>
+        <h1>Cells</h1>
+        <p>Cells are what makes a Stencila Document different from a traditional word processor and is what gives them there reprocibility. Cells allows you to create data-driven content in your document without the need for copy and paste from external software. Here's a cell that creates an array of numbers</p>
+        <div data-cell="data = csv('temp,sunny,sales
+18,n,23
+20,y,126
+24,y,118
+23,y,126
+26,y,280
+25,n,102
+20,n,93
+17,n,32
+18,y,103
+28,y,246
+')">
+          <pre data-output="">[object Object]</pre>
+        </div>
+        <p></p>
+        <div data-cell="plot(data, 'points', x='temp', y='sales', color='sunny')">
+          <pre data-output="">[object Object]</pre>
+        </div>
       </div>
     </div>
   </main>
