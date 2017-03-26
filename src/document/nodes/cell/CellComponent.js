@@ -25,6 +25,7 @@ class CellComponent extends Component {
       resource: 'document',
       path: [node.id]
     })
+    node.on('evaluation:awaiting', this.onAwaitingEvaluation, this)
   }
 
   dispose() {
@@ -181,6 +182,10 @@ class CellComponent extends Component {
     }
   }
 
+  onAwaitingEvaluation() {
+    // TODO: we could visualize this
+  }
+
   _afterNode() {
     // HACK: not too happy about how difficult it is
     // to set the selection
@@ -195,6 +200,7 @@ class CellComponent extends Component {
       surfaceId: parentSurface.id
     }
   }
+
 }
 
 CellComponent.noBlocker = true
