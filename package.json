@@ -73,7 +73,7 @@
     "sprintf-js": "^1.0.3",
     "substance-bundler": "^0.15.3",
     "substance-mini": "^0.8.0",
-    "substance-test": "^0.9.3",
+    "substance-test": "^0.10.0",
     "tape": "^4.6.3"
   }
 }
