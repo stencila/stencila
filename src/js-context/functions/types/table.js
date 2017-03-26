@@ -1,24 +1,35 @@
 import _multifunc from './_multifunc'
 
+/**
+ * Create a table from an array
+ */
 function table_array(array) {
   // TODO : check that array only has objects and that they have
   // consistent keys
-  let tableData = {}
-  array.forEach(row => {
-    Object.keys(row).forEach(key => {
-      if (tableData[key]) {
-        tableData[key].push(row[key])
-      } else {
-        tableData[key] = [row[key]]
-      }
-    })
-  })
+  let data = {}
+
+  let fields = Object.keys(array[0])
+  for (let field of fields) {
+    data[field] = {
+      values: []
+    }
+  }
+
+  for (let row of array) {
+    for (let field of fields) {
+      data[field].values.push(row[field])
+    }
+  }
+
   return {
     type: 'table',
-    data: tableData
+    data: data
   }
 }
 
+/**
+ * Create a table from an object
+ */
 function table_object(object) {
   // TODO : check that the object has only array properties and that
   // they are all of the same length

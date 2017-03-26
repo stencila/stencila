@@ -38,6 +38,7 @@
   "dependencies": {
     "d3": "^4.4.0",
     "font-awesome": "^4.6.3",
+    "js-beautify": "^1.6.12",
     "katex": "^0.6.0",
     "lodash": "^4.17.4",
     "rehype-parse": "^3.1.0",
@@ -52,13 +53,13 @@
     "semantic-ui-css": "^2.2.4",
     "substance": "1.0.0-beta.7.0-preview.3",
     "substance-mini": "^0.7.2",
+    "timeago.js": "3.0.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
     "unist-util-remove": "^0.2.1",
     "unist-util-visit": "^1.1.1",
     "vega": "3.0.0-beta.22",
-    "vega-lite": "2.0.0-alpha.2",
-    "timeago.js": "3.0.0"
+    "vega-lite": "2.0.0-alpha.2"
   },
   "devDependencies": {
     "acorn": "^4.0.11",

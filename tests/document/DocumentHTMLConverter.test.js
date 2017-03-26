@@ -32,7 +32,8 @@ test('DocumentHTMLConverter: Convert to named HTML file from buffer', function (
   let storer = new TestStorer('/path/to/archive', 'hello.html')
   converter.exportDocument(
     archive,
-    storer
+    storer,
+    { beautify: false }
   ).then(() => {
     storer.readFile('hello.html', 'text/html').then((html) => {
       t.equal(html, kitchenSinkHTML)

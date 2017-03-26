@@ -8,7 +8,7 @@ import { DocumentPage, MemoryBackend, getQueryStringParam } from 'stencila'
 window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
     backend: new MemoryBackend(window.GUIDES),
-    documentId: getQueryStringParam('documentId') || 'welcome-to-stencila'
+    documentId: getQueryStringParam('documentId') || 'welcome'
   }, window.document.body)
 
   function onKeyDown(e) {
