@@ -133,6 +133,25 @@ function buildExamples() {
   })
 }
 
+// reads all guide documents from ./guides and writes them into a script
+function buildGuides() {
+  b.custom('Creating test backend...', {
+    src: './guides/**/*.html',
+    dest: './build/guides.js',
+    execute(files) {
+      const vfs = {}
+      files.forEach((guideFilePath) => {
+        let dirPath = path.dirname(guideFilePath)
+        let content = fs.readFileSync(path.join(dirPath, 'index.html'), 'utf8')
+        let documentId = path.basename(dirPath)
+        vfs[documentId] = content
+      })
+      const data = ['window.GUIDES = ', JSON.stringify(vfs, null, '  ')].join('')
+      b.writeSync('build/guides.js', data, 'utf8')
+    }
+  })
+}
+
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
@@ -285,6 +304,7 @@ b.task('css', () => {
 .describe('Creates a single CSS bundle.')
 
 b.task('stencila', ['clean', 'assets', 'css'], () => {
+  buildGuides() // required by MemoryBackend
   buildStencilaBrowser()
   buildStencilaNodeJS()
 })
