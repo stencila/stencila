@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.25.0-preview.8",
+  "version": "0.25.2",
   "description": "Documents powered by data",
   "main": "build/stencila.cjs.js",
   "jsnext:main": "index.es.js",
@@ -51,7 +51,7 @@
     "remark-squeeze-paragraphs": "^3.0.0",
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
-    "substance": "1.0.0-beta.7.0-preview.3",
+    "substance": "1.0.0-beta.7.0-preview.5",
     "substance-mini": "^0.7.2",
     "timeago.js": "3.0.0",
     "unified": "^6.1.1",
