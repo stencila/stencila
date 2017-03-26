@@ -10,6 +10,8 @@ import csv from './formats/csv'
 import random from './prob/random'
 import random_uniform from './prob/random_uniform'
 
+import filter from './stats/filter'
+
 import plot from './plot/plot'
 import {points, circles, squares, ticks, bars, lines, areas} from './plot/plot_types'
 
@@ -28,6 +30,9 @@ export default {
 
   'random': random,
   'random_uniform': random_uniform,
+
+  // Statistical aggregators etc
+  'filter': filter,
 
   // Plot generators
   'plot': plot,
