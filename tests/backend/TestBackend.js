@@ -1,5 +1,5 @@
 import { forEach, map } from 'substance'
-import wrapSnippet from '../../examples/docs/wrapSnippet'
+import wrapSnippet from '../../src/util/wrapSnippet'
 import { MemoryBuffer } from '../../index.es'
 import { MemoryBackend } from '../../index.es'
 import testVFS from '../../tmp/test-vfs.js'
