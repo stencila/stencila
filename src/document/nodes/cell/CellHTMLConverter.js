@@ -17,10 +17,11 @@ export default {
     if (sourceCodeEl) {
       node.sourceCode = sourceCodeEl.textContent
     }
-    let outputEl = el.find('pre[data-output]')
-    if (outputEl) {
-      node.value = outputEl.innerHTML
-    }
+    // TODO: discuss how we want to do this now:
+    // let outputEl = el.find('pre[data-output]')
+    // if (outputEl) {
+    //   node.value = JSON.parseoutputEl.textContent
+    // }
   },
 
   // TODO: This code has not yet been tested
@@ -33,10 +34,11 @@ export default {
         $$('pre').attr('data-source', '').text(node.sourceCode)
       )
     }
-    el.append(
-      $$('pre').attr('data-output', '').text(node.value)
-    )
-
+    // TODO: discuss how we want to do this now:
+    // to render in the same way as we do it in CellValueComponent
+    // el.append(
+    //   $$('pre').attr('data-output', '').text(node.value)
+    // )
   }
 
 }

@@ -4,6 +4,18 @@ import { type } from '../../../value'
 
 export default {
 
+  isPending() {
+    if (this._expr) {
+      return this._expr.isPending()
+    }
+  },
+
+  isReady() {
+    if (this._expr) {
+      return this._expr.isReady()
+    }
+  },
+
   hasValue() {
     return !isNil(this.value)
   },
@@ -88,6 +100,7 @@ export default {
       expr._cell = this
       this._expr = expr
       expr.on('evaluation:started', this._onEvaluationStarted, this)
+      expr.on('evaluation:deferred', this._onEvaluationDeferred, this)
       expr.on('evaluation:finished', this._onEvaluationFinished, this)
       if (this._deriveStateFromExpression) {
         this._deriveStateFromExpression()
@@ -97,14 +110,18 @@ export default {
 
   _onEvaluationStarted() {
     // console.log('Started evaluation on', this)
-    this.pending = true
     this.runtimeErrors = null
     this.emit('evaluation:started')
   },
 
+  _onEvaluationDeferred() {
+    // This means that there is an evaluation coming up soon
+    // it could not be done right away because a dependency is pending
+    this.emit('evaluation:awaiting')
+  },
+
   _onEvaluationFinished() {
     // console.log('Finished evaluation on', this)
-    this.pending = false
     const newValue = this._expr.getValue()
     // console.log('setting value', newValue)
     this._setValue(newValue)

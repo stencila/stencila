@@ -52,7 +52,7 @@
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "1.0.0-beta.7.0-preview.5",
-    "substance-mini": "^0.7.2",
+    "substance-mini": "^0.8.0",
     "timeago.js": "3.0.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
@@ -66,12 +66,13 @@
     "brace": "^0.9.1",
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",
-    "lodash.merge": "4.6.0",
     "lodash.debounce": "4.0.8",
+    "lodash.merge": "4.6.0",
     "remark-html": "^6.0.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
     "substance-bundler": "^0.15.3",
+    "substance-mini": "^0.8.0",
     "substance-test": "^0.9.3",
     "tape": "^4.6.3"
   }
