@@ -1,35 +1,23 @@
 <div align="center">
-  <a href="https://stenci.la/about">
+  <a href="https://stenci.la">
     <img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name-beta.svg" alt="Stencila">
   </a>
   <br>
-  <a href="#status">Status</a>&nbsp;|&nbsp;
-  <a href="#features">Features</a>&nbsp;|&nbsp;
+  <a href="#download">Download</a>&nbsp;|&nbsp;
   <a href="#discuss">Discuss</a>&nbsp;|&nbsp;
   <a href="#develop">Develop</a>
   <br>
 </div>
 
-### Status
-
-[![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
-[![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
-[![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
-[![Dependency status](https://david-dm.org/stencila/stencila.svg)](https://david-dm.org/stencila/stencila)
-[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
-
-### Features
-
 Stencila is a platform for creating, collaborating on, and sharing data driven content. Content that is **transparent** and **reproducible**, like [RMarkdown](https://github.com/rstudio/rmarkdown) and [Jupyter Notebooks](http://jupyter.org/). Content that can be **versioned** and **composed** just like we do with open source software using tools like [CRAN](https://cran.r-project.org/web/packages/available_packages_by_name.html) and [NPM](https://www.npmjs.com/). And above all, content that is **accessible** to non-coders, like [Google Docs](https://en.wikipedia.org/wiki/Google_Docs,_Sheets_and_Slides) and [Microsoft Office](https://en.wikipedia.org/wiki/Microsoft_Office).
 
-![](images/screenshot.png)
+![](https://raw.githubusercontent.com/stencila/stencila/master/images/screenshot.png)
 
-Features                                                                    | State
+Feature                                                                     | Ready
 --------------------------------------------------------------------------- | :------------:
-**Documents**                                                               | ✓
-**Sheets**                                                                  | 
-**Slides**                                                                  | 
-                                                                            |
+Documents                                                                   | ✓
+Sheets                                                                      | 
+Slides                                                                      | 
 **Static content**                                                          |
 Paragraph                                                                   | ✓
 Headings                                                                    | ✓
@@ -69,13 +57,17 @@ RMarkdown                                                                   | 0.
 Jupyter Notebook                                                            | 
 Microsoft Office                                                            | 
 Open/Libre Office                                                           | 
-**Apps and packages**                                                       |
-[Stencila Desktop](https://github.com/stencila/desktop) (native apps for Windows, Mac OSX, Linux)               | ✓
+
+<small>Ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1 - 2 months.</small>
+
+### Download
+
+Application or package                                                                                          | Ready
+--------------------------------------------------------------------------------------------------------------- | :------------:
+[Stencila Desktop](https://github.com/stencila/desktop/releases) (native apps for Windows, Mac OSX, Linux)      | ✓
 [Stencila for Python](https://github.com/stencila/python) (`pip install stencila`)                              | 0.26
 [Stencila for R](https://github.com/stencila/r) (`install.packages('stencila')`)                                | 0.26
 [Stencila for Node.js](https://github.com/stencila/node) (`npm install stencila-node`)                          | ✓
-
-Ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release that a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1 - 2 months.
 
 ### Discuss
 
@@ -83,7 +75,12 @@ We love feedback. Create a [new issue](https://github.com/stencila/stencila/issu
 
 ### Develop
 
-```
+[![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
+[![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
+[![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
+[![Dependency status](https://david-dm.org/stencila/stencila.svg)](https://david-dm.org/stencila/stencila)
+
+```bash
 git clone https://github.com/stencila/stencila.git
 cd stencila
 npm install
@@ -103,12 +100,13 @@ Install and setup dependencies                          | `npm install`         
 Run the development server                              | `npm start`           | `make run`
 Check code for lint                                     | `npm run lint`        | `make lint`
 Run tests                                               | `npm test`            | `make test`
-Run tests in the browser                                | `npm run test-bundle` | `make test-bundle`
+Run tests in the browser                                | `npm run test-browser`| `make test-browser`
 Run tests with coverage                                 | `npm run cover`       | `make cover`
+Build bundles                                           | `npm build`           | `make build`
 Build documentation                                     | `npm run docs`        | `make docs`
-Serve and watch docs for updates                        | `npm run docs-serve`  | `make docs-serve`
+Run documentation [server](http://localhost:4001/)      | `npm run docs-serve`  | `make docs-serve`
 Clean                                                   |                       | `make clean`
 
 To help out, [get in touch](https://gitter.im/stencila/stencila), checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1), or just send us a pull request! Please read our contributor [code of conduct](CONDUCT.md).
 
-Docs are published using Github Pages, so to update them after making changes run make docs, commit the updated docs and do a git push.
+API documentation is at http://stencila.github.io/stencila/. These are published using Github Pages, so to update them after making changes: run `make docs`, commit the updates and do a `git push`.
