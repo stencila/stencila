@@ -2,16 +2,15 @@
   <a href="https://stenci.la">
     <img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name.png" alt="Stencila">
   </a>
-  <br>
-  <a href="#download">Download</a>&nbsp;|&nbsp;
-  <a href="#discuss">Discuss</a>&nbsp;|&nbsp;
-  <a href="#develop">Develop</a>
-  <br>
 </div>
 
 Stencila is a platform for creating, collaborating on, and sharing data driven content. Content that is **transparent** and **reproducible**, like [RMarkdown](https://github.com/rstudio/rmarkdown) and [Jupyter Notebooks](http://jupyter.org/). Content that can be **versioned** and **composed** just like we do with open source software using tools like [CRAN](https://cran.r-project.org/web/packages/available_packages_by_name.html) and [NPM](https://www.npmjs.com/). And above all, content that is **accessible** to non-coders, like [Google Docs](https://en.wikipedia.org/wiki/Google_Docs,_Sheets_and_Slides) and [Microsoft Office](https://en.wikipedia.org/wiki/Microsoft_Office).
 
 ![](https://raw.githubusercontent.com/stencila/stencila/master/images/screenshot.png)
+
+### Roadmap
+
+Stencila is still in beta: things are preliminary and there are one or two :bug:s! Below, ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1-2 months, towards a 1.0 release in early 2018. Checkout the current release [milestones](https://github.com/stencila/stencila/milestones).
 
 Feature                                                                     | Ready
 :-------------------------------------------------------------------------- | :------------:
@@ -58,8 +57,6 @@ Jupyter Notebook                                                            |
 Microsoft Office                                                            | 
 Open/Libre Office                                                           | 
 
-<small>Ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1 - 2 months.</small>
-
 ### Download
 
 Application or package                                                                                          | Ready
@@ -68,8 +65,6 @@ Application or package                                                          
 [Stencila for Python](https://github.com/stencila/python)  `pip install stencila`                               | 0.26
 [Stencila for R](https://github.com/stencila/r)  `install.packages('stencila')`                                 | 0.26
 [Stencila for Node.js](https://github.com/stencila/node)  `npm install stencila-node`                           | ✓
-
-### Discuss
 
 We love feedback. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
 
