@@ -14,7 +14,7 @@ Stencila is a platform for creating, collaborating on, and sharing data driven c
 ![](https://raw.githubusercontent.com/stencila/stencila/master/images/screenshot.png)
 
 Feature                                                                     | Ready
---------------------------------------------------------------------------- | :------------:
+:-------------------------------------------------------------------------- | :------------:
 Documents                                                                   | ✓
 Sheets                                                                      | 
 Slides                                                                      | 
@@ -63,11 +63,11 @@ Open/Libre Office                                                           |
 ### Download
 
 Application or package                                                                                          | Ready
---------------------------------------------------------------------------------------------------------------- | :------------:
+:-------------------------------------------------------------------------------------------------------------- | :------------:
 [Stencila Desktop](https://github.com/stencila/desktop/releases) (native apps for Windows, Mac OSX, Linux)      | ✓
-[Stencila for Python](https://github.com/stencila/python) (`pip install stencila`)                              | 0.26
-[Stencila for R](https://github.com/stencila/r) (`install.packages('stencila')`)                                | 0.26
-[Stencila for Node.js](https://github.com/stencila/node) (`npm install stencila-node`)                          | ✓
+[Stencila for Python](https://github.com/stencila/python)  `pip install stencila`                               | 0.26
+[Stencila for R](https://github.com/stencila/r)  `install.packages('stencila')`                                 | 0.26
+[Stencila for Node.js](https://github.com/stencila/node)  `npm install stencila-node`                           | ✓
 
 ### Discuss
 
@@ -107,6 +107,6 @@ Build documentation                                     | `npm run docs`        
 Run documentation [server](http://localhost:4001/)      | `npm run docs-serve`  | `make docs-serve`
 Clean                                                   |                       | `make clean`
 
-To help out, [get in touch](https://gitter.im/stencila/stencila), checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1), or just send us a pull request! Please read our contributor [code of conduct](CONDUCT.md).
+To contribute, [get in touch](https://gitter.im/stencila/stencila), checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1), or just send us a pull request! Please read our contributor [code of conduct](CONDUCT.md).
 
 API documentation is at http://stencila.github.io/stencila/. These are published using Github Pages, so to update them after making changes: run `make docs`, commit the updates and do a `git push`.
