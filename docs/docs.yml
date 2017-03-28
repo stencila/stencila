@@ -1,4 +1,14 @@
 toc:
-  - address
-  - value
+  - name: Document
+  - DocumentModel
+  - DocumentHTMLImporter
+  - DocumentHTMLExporter
+  - DocumentEditor
+  - DocumentConfigurator
+
+  - name: Contexts
+  - Context
+  - ContextHttpClient
   - JsContext
+
+  - name: Other

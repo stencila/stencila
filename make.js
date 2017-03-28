@@ -266,7 +266,7 @@ function buildDeps() {
 
 function buildDocumentation() {
   const config = require.resolve('./docs/docs.yml')
-  fork(b, "node_modules/documentation/bin/documentation", "build", "--config", config, "--output", "docs", "--format", "html")
+  fork(b, "node_modules/documentation/bin/documentation", "build", "index.es.js", "--config", config, "--output", "docs", "--format", "html")
 }
 
 function serveDocumentation() {
