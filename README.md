@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://stenci.la">
-    <img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name-beta.svg" alt="Stencila">
+    <img src="https://raw.githubusercontent.com/stencila/stencila/master/images/logo-name.png" alt="Stencila">
   </a>
   <br>
   <a href="#download">Download</a>&nbsp;|&nbsp;
