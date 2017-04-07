@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.25.6",
+  "version": "0.25.7",
   "description": "Documents powered by data",
   "main": "build/stencila.cjs.js",
   "jsnext:main": "index.es.js",
