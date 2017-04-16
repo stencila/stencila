@@ -37,37 +37,33 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  runCode (code, options) {
-    code = code || ''
-    options = options || {}
-    if (options.pack !== false) options.pack = true
+  runCode (code = '', options = {}) {
+    const pack = (options.pack !== false)
 
+    // Create a function from the code and execute it
     let error = null
-
-    // Create a function and execute it
     try {
       (new Function(code))() // eslint-disable-line no-new-func
-    } catch (e) {
-      // Catch any error
-      error = e
+    } catch (err) {
+      error = err
     }
 
-    let value
+    let output
     if (!error) {
-      // Evaluate the last line, and if any error then undefined result
+      // Evaluate the last line and if no error then make the value output
       // This is inefficient in the sense that the last line is evaluated twice
-      // but it anything else would appear to require some code parsing
+      // but alternative approaches would appear to require some code parsing
       let lines = code.split('\n')
       let last = lines[lines.length - 1]
       try {
-        value = (new Function('return ' + last))() // eslint-disable-line no-new-func
+        output = (new Function('return ' + last))() // eslint-disable-line no-new-func
       } catch (err) {
-        value = undefined
+        output = undefined
       }
     }
 
     return Promise.resolve(
-      this._result(error, value, options.pack)
+      this._result(error, output, pack)
     )
   }
 
@@ -76,33 +72,30 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  callCode (code, args, options = {}) {
+  callCode (code = '', inputs = {}, options = {}) {
     const pack = (options.pack !== false)
-    code = code || ''
-    args = args || {}
 
-    // Extract names and values of arguments
-    let names = Object.keys(args)
+    // Extract names and values of inputs
+    let names = Object.keys(inputs)
     let values
     if (pack) {
-      values = names.map(name => unpack(args[name]))
+      values = names.map(name => unpack(inputs[name]))
     } else {
-      values = names.map(name => args[name])
+      values = names.map(name => inputs[name])
     }
 
-    // Execute the function with the unpacked arguments. Using `new Function` avoids call to eval
+    // Execute the function with the unpacked inputs.
     let error = null
-    let value
+    let output
     try {
       const f = new Function(...names, code) // eslint-disable-line no-new-func
-      value = f(...values)
-    } catch (e) {
-      // Catch any error
-      error = e
+      output = f(...values)
+    } catch (err) {
+      error = err
     }
 
     return Promise.resolve(
-      this._result(error, value, pack)
+      this._result(error, output, pack)
     )
   }
 

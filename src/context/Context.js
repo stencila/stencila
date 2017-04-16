@@ -19,12 +19,11 @@ export default class Context {
   }
 
   /**
-   * Run code within the context's global scope (i.e. execute a code "chunk")
+   * Run code within the context's global scope
    *
    * @param {string} code - Code to run
    * @param {object} options - Any execution options
-   * @return {object} - A Promise resolving to object with any `errors` (an object with line numbers as keys) and `outputs` (
-   *                         a data package)
+   * @return {object} - A Promise resolving to object with any `errors` and `output`
    *
    * @example
    *
@@ -37,25 +36,24 @@ export default class Context {
   }
 
   /**
-   * Execute code within a local function scope (i.e. execute a code "cell")
+   * Execute code within a local function scope
    *
    * @param {string} code - Code to call
-   * @param {object} args - An object with a data pack for each argument
+   * @param {object} inputs - An object with a data pack for each argument
    * @param {object} options - Any execution options
-   * @return {object} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
-   *                         a data package)
+   * @return {object} - A Promise resolving to object with any `errors` and `output`
    *
    * @example
    *
-   * // Return statement must be used to return a value
+   * // Return statement must be used to return an output value
    * context.call('return 6*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
    * context.call('let x = 6\nreturn x*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
    *
-   * // You can specify input variables (that are local to that call),
+   * // You can specify inputs (that are local to that call),
    * context.call('return Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
    * context.call('return radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
    */
-  callCode (code, args, options) { // eslint-disable-line no-unused-vars
+  callCode (code, inputs, options) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
