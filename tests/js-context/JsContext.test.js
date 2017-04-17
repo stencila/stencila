@@ -59,7 +59,7 @@ test('JsContext.callCode output multiline', t => {
   c.callCode(`return {
     jermaine: 'Hiphopopotamus',
     brett: 'Rhymnoceros'
-  }`, null, {pack: false}).then(result => {
+  }`, {}, {pack: false}).then(result => {
     t.deepEqual(result, {errors: null, output: { brett: 'Rhymnoceros', jermaine: 'Hiphopopotamus' }})
   })
 })
