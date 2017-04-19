@@ -39,8 +39,8 @@ export default class ContextHttpClient extends Context {
    * 
    * @override
    */
-  callCode (code, args) {
-    return PUT(this.url + '!callCode', {code: code, args: args})
+  callCode (code, inputs) {
+    return PUT(this.url + '!callCode', {code: code, inputs: inputs})
   }
 
 
@@ -58,8 +58,8 @@ export default class ContextHttpClient extends Context {
    *
    * @override
    */
-  callFunction (name, args, namedArgs, options) {
-    return PUT(this.url + '!callFunction', {name: name, args: args, namedArgs: namedArgs, options: options})
+  callFunction (name, inputs, namedInputs, options) {
+    return PUT(this.url + '!callFunction', {name: name, inputs: inputs, namedInputs: namedInputs, options: options})
   }
 
   /**
