@@ -100,14 +100,14 @@ test('CellEngine: call function', (t) => {
     tx.create({
       id: 'cell1',
       type: 'cell',
-      expression: 'foo()'
+      expression: 'type(3.14)'
     })
   })
   const cell1 = doc.get('cell1')
   Promise.resolve()
   .then(wait(10))
   .then(() => {
-    t.equal(cell1.value, 5, 'cell should have been evaluated.')
+    t.equal(cell1.value, 'float', 'cell should have been evaluated.')
   })
 })
 
@@ -218,17 +218,8 @@ test('CellEngine: update an input', (t) => {
   })
 })
 
-const TEST_FUNCTIONS = {
-  foo() {
-    return 5
-  },
-  random() {
-    return Math.floor(Math.random()*100)
-  }
-}
-
 function setupCellEngine() {
-  const {editorSession, doc} = setupEditorSession('/tests/documents/simple/default.html', {functions: TEST_FUNCTIONS})
+  const {editorSession, doc} = setupEditorSession('/tests/documents/simple/default.html')
   const cellEngine =new CellEngine(editorSession, {waitForIdle: WAIT_FOR_IDLE})
   return {editorSession, doc, cellEngine}
 }
