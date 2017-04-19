@@ -5,10 +5,10 @@ import MiniLangEditor from './MiniLangEditor'
 import CellErrorDisplay from './CellErrorDisplay'
 import Dropdown from '../../../shared/Dropdown'
 
-const LANGUAGE_LABELS = {
-  'js': 'JavaScript',
-  'javascript': 'JavaScript'
-}
+//const LANGUAGE_LABELS = {
+//  'js': 'JavaScript',
+//  'javascript': 'JavaScript'
+//}
 
 class CellComponent extends Component {
 

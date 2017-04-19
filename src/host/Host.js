@@ -103,7 +103,7 @@ export default class Host {
    *                           e.g. `github://octocat/Hello-World/README@7629413`
    */
   ask (type, name) {
-    for (let url in this._peers) {
+    for (let url of Object.keys(this._peers)) {
       let manifest = this._peers[url]
       if (manifest.schemes && manifest.schemes.new) {
         // Only ask peer if the type is in the peer's `new` scheme
@@ -111,7 +111,7 @@ export default class Host {
         let spec = types[type]
         if (!spec) {
           // No matching type name found so search through aliases
-          for (let name in types) {
+          for (let name of Object.keys(types)) {
             let spec_ = types[name]
             for (let alias of spec_.aliases) {
               if (alias === type) {
