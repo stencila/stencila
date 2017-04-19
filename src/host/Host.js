@@ -1,5 +1,4 @@
 import { GET, POST } from '../util/requests'
-import { split } from '../address'
 import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
 
@@ -8,7 +7,8 @@ import ContextHttpClient from '../context/ContextHttpClient'
  */
 export default class Host {
 
-  constructor () {
+  constructor (options = {}) {
+    if (options.discover === undefined) options.discover = 10
 
     /**
      * Instances managed by this host
@@ -26,7 +26,7 @@ export default class Host {
     this._peers = {}
 
     // Begin peer discovery straight away
-    this.discoverPeers()
+    if (options.discover) this.discoverPeers(options.discover)
   }
 
   post (type, name) {

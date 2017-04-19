@@ -2,7 +2,6 @@ import { Component, EditorSession } from 'substance'
 import DocumentEditor from './DocumentEditor'
 import DocumentConfigurator from './DocumentConfigurator'
 import { importHTML, exportHTML } from './documentConversion'
-import JsContext from '../js-context/JsContext'
 import debounce from 'lodash.debounce'
 
 /*
