@@ -94,9 +94,7 @@ export default class DocumentPage extends Component {
           let editorSession = new EditorSession(doc, {
             configurator: configurator,
             context: {
-              stencilaContexts: {
-                'js': new JsContext()
-              }
+              host: this.props.host
             }
           })
 

@@ -63,7 +63,7 @@ class CellComponent extends Component {
 
       el.append(
         $$('div').addClass('se-language-label').append(
-          LANGUAGE_LABELS[cell.language]
+          cell.language
         )
       )
     }
