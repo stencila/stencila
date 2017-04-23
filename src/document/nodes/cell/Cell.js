@@ -59,8 +59,8 @@ class Cell extends BlockNode {
       }
     }
     if (this._external) {
-      if (!this.language) {
-        this.language = 'js'
+      if (!this.context) {
+        this.context = Cell.contextDefault
       }
     }
   }
@@ -72,10 +72,18 @@ Cell.type = 'cell'
 
 Cell.schema = {
   expression: { type: 'string', default: '' },
-  language: { type: 'string', optional: true },
+  context: { type: 'string', optional: true },
   sourceCode: { type: 'string', optional: true },
   // volatile properties for evaluated cell
   value: { type: 'any', default: null, optional: true },
 }
+
+/**
+ * The default context for new external cells.
+ * This value is updated whenever a user changes 
+ * the context for a cell
+ * @type {string}
+ */
+Cell.contextDefault = 'js'
 
 export default Cell

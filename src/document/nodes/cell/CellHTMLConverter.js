@@ -8,9 +8,9 @@ export default {
   },
 
   import: function (el, node) {
-    const language = el.attr('data-language')
-    if (language) {
-      node.language = language
+    const context = el.attr('data-language')
+    if (context) {
+      node.context = context
     }
     node.expression = el.attr('data-cell')
     let sourceCodeEl = el.find('pre[data-source]')
@@ -29,7 +29,7 @@ export default {
     let $$ = converter.$$
     el.attr('data-cell', node.expression)
     if (node.sourceCode) {
-      el.attr('data-language', node.language)
+      el.attr('data-language', node.context)
       el.append(
         $$('pre').attr('data-source', '').text(node.sourceCode)
       )

@@ -1,5 +1,6 @@
 import { Component, parseKeyEvent } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
+import Cell from './Cell'
 import CellValueComponent from './CellValueComponent'
 import MiniLangEditor from './MiniLangEditor'
 import CellErrorDisplay from './CellErrorDisplay'
@@ -56,15 +57,18 @@ class CellComponent extends Component {
       cellEditorContainer.append(
         $$(CodeEditorComponent, {
           path: [cell.id, 'sourceCode'],
-          language: cell.language
+          context: cell.context
         }).ref('sourceCodeEditor')
           .on('escape', this.onEscapeFromCodeEditor)
       )
 
       el.append(
-        $$('div').addClass('se-language-label').append(
-          cell.language
-        )
+        $$('input')
+          .addClass('se-context-input')
+          .ref('contextInput')
+          .attr('placeholder', 'Enter context')
+          .val(cell.context)
+          .on('change', this.onContextInputChanged)
       )
     }
 
@@ -164,6 +168,15 @@ class CellComponent extends Component {
       default:
         //
     }
+  }
+
+  onContextInputChanged(event) {
+    const context = event.target.value
+    const cell = this.props.node
+    cell.context = context
+    Cell.contextDefault = context
+    cell.recompute()
+    this.rerender()
   }
 
   onCellChanged() {

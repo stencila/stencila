@@ -87,18 +87,17 @@ class CellEngine extends Engine {
       // `call` (a context function scope) or `run` (context's globals scope) external code
       case 'call':
       case 'run': {
-        const language = cell.language
-        if(!language) {
+        if(!cell.context) {
           cell.addRuntimeError('runtime', {
-            message: 'Calls to external code must have "language" set.'
+            message: 'Calls to external code must have "context" set.'
           })
           return
         }
-        return this._getContext(language).then(context => {
+        return this._getContext(cell.context).then(context => {
           if (!context) {
             cell.addRuntimeError('runtime', {
               line: 0, column: 0,
-              message: `No context found matching "${language}"`
+              message: `No context found matching "${cell.context}"`
             })
           } else {
             let packing = !(context instanceof JsContext)
@@ -177,17 +176,23 @@ class CellEngine extends Engine {
   }
 
   _getContext(name) {
-    // Attempt to get context from existing instances
+    // Attempt to get context from those already known to this
+    // host using it's name
     return this.host.get(`name://${name}`).then(context => {
       if (context) return context
       else {
-        // Determine the type of context
-        let type = name // TODO
-        return this.host.post(type, name).then(context => {
-          return context
-        }).catch(() => {
+        // Determine the type of context from the context name
+        let match = name.match(/([a-zA-Z]+)([\d_].+)?/)
+        if (match) {
+          let type = match[1]
+          return this.host.post(type, name).then(context => {
+            return context
+          }).catch(() => {
+            return null
+          })
+        } else {
           return null
-        })
+        }
       }
     })
   }
