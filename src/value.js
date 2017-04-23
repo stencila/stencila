@@ -1,3 +1,5 @@
+/* globals Blob, atob, ArrayBuffer, Uint8Array */
+
 /**
  * @namespace value
  */
@@ -116,7 +118,7 @@ export function unpack (pkg) {
       blob: blob
     }
   } else {
-    if (format == 'json') return JSON.parse(content)
+    if (format === 'json') return JSON.parse(content)
     else return content
   }
 }
