@@ -57,7 +57,7 @@ class CellComponent extends Component {
       cellEditorContainer.append(
         $$(CodeEditorComponent, {
           path: [cell.id, 'sourceCode'],
-          context: cell.context
+          language: cell.context
         }).ref('sourceCodeEditor')
           .on('escape', this.onEscapeFromCodeEditor)
       )
