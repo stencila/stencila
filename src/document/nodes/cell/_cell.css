@@ -51,7 +51,8 @@ pre.ace_editor.ace-tm {
   color: #737373;
 }
 
-.sc-cell-value {
+.sc-cell-value img {
+  max-width: 100%;
 }
 
 .sc-cell-value.sm-pending {
