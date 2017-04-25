@@ -13,21 +13,70 @@ import rehypeParse from 'rehype-parse'
 import rehype2remark from 'rehype-remark'
 import rehypeStringify from 'rehype-stringify'
 
-
 export default class DocumentMarkdownConverter {
 
   /**
-   * Import from a Markdown document to a Stencila Document
+   * Is a file name to be converted using this converter? 
+   * 
+   * @param  {string} fileName - Name of file
+   * @return {boolean} - Is the file name matched?
+   */
+  static match (fileName) {
+    return fileName.slice(-3) === '.md'
+  }
+
+
+  importDocument(storer, buffer) {
+    let mainFilePath = storer.getMainFilePath()
+    let manifest = {
+      "type": "document",
+      "storage": {
+        "external": storer.isExternal(),
+        "storerType": storer.getType(),
+        "archivePath": storer.getArchivePath(),
+        "mainFilePath": mainFilePath,
+        "contentType": "md",
+      },
+      "createdAt": new Date(),
+      "updatedAt": new Date()
+    }
+    return storer.readFile(
+      mainFilePath,
+      'text/html'
+    ).then(md => {
+      let html = this.importContent(md)
+      return buffer.writeFile(
+        'index.html',
+        'text/html',
+        html
+      )
+    }).then(() => {
+      return buffer.writeFile(
+        'stencila-manifest.json',
+        'application/json',
+        JSON.stringify(manifest, null, '  ')
+      )
+    }).then(() => {
+      return manifest
+    })
+  }
+
+  exportDocument(buffer, storer) {
+    return buffer.readFile('index.html', 'text/html').then((html) => {
+      let md = this.exportContent(html)
+      return storer.writeFile(storer.getMainFilePath(), 'text/markdown', md)
+    })
+  }
+
+  /**
+   * Convert a Markdown document to a Stencila Document as HTML
    *
    * @param {string} md - Markdown content
    * @param {object} options - Conversion options
-   * @return {object|string} - Document archive (virtual filesystem folder) or HTML string
+   * @return {string} - HTML string
    */
-  import (md, options) {
+  importContent (md, options) {
     options = options || {}
-
-    // Output options
-    if (options.archive !== false) options.archive = true
 
     // Markdown parsing options
     if (options.gfm !== false) options.gfm = true
@@ -63,28 +112,18 @@ export default class DocumentMarkdownConverter {
       .use(rehypeStringify)
       .processSync(htmlInit).contents.trim()
 
-    if (options.archive) {
-      return {
-        'index.html': html
-      }
-    } else {
-      return html
-    }
+    return html
   }
 
   /**
-   * Export to a Markdown document from a Stencila Document
+   * Export Markdown content from a Stencila Document as HTML
    *
-   * @memberof document/markdown-converter
-   *
-   * @param {string|object} doc - Document archive (virtual filesystem folder) or HTML string
+   * @param {string|object} html - HTML string
    * @param {object} options - Conversion options
    * @return {object|string} - Markdown content
    */
-  export (doc, options) {
+  exportContent (html, options) {
     options = options || {}
-
-    let html = typeof doc === 'string' ? doc : doc['index.html']
 
     // See the `remark-stringify` options at https://github.com/wooorm/remark/tree/master/packages/remark-stringify#options
     if (options.gfm !== false) options.gfm = true

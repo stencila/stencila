@@ -1,10 +1,55 @@
 import test from 'tape'
+import MemoryBuffer from '../../src/backend/MemoryBuffer'
+import TestStorer from '../backend/TestStorer'
 
 import DocumentMarkdownConverter from '../../src/document/DocumentMarkdownConverter'
 const converter = new DocumentMarkdownConverter()
 
-test('import', t => {
-  const i = (md, options) => converter.import(md, options || {archive: false})
+
+test('DocumentMarkdownConverter.match', function (t) {
+  t.ok(DocumentMarkdownConverter.match('foo.md'))
+  t.notOk(DocumentMarkdownConverter.match('foo.html'))
+  t.end()
+})
+
+test('DocumentMarkdownConverter.importDocument', function (t) {
+  let converter = new DocumentMarkdownConverter()
+  let storer = new TestStorer('/path/to/storer', 'hello-world.md')
+  storer.writeFile('hello-world.md', 'text/markdown', 'Hello world')
+  let buffer = new MemoryBuffer()
+
+  converter.importDocument(
+    storer,
+    buffer
+  ).then((manifest) => {
+    t.equal(manifest.type, 'document')
+    buffer.readFile('index.html', 'text/html').then((html) => {
+      t.equal(html, '<p>Hello world</p>')
+      t.end()
+    })
+  })
+})
+
+test('DocumentMarkdownConverter.exportDocument', function (t) {
+  let converter = new DocumentMarkdownConverter()
+  let buffer = new MemoryBuffer()
+  buffer.writeFile('index.html', 'text/html', '<p>Hello world</p>')
+  let storer = new TestStorer('/path/to/storer', 'hello-world.md')
+
+  converter.exportDocument(
+    buffer,
+    storer
+  ).then(() => {
+    storer.readFile('hello-world.md', 'text/markdown').then((md) => {
+      t.equal(md, 'Hello world')
+      t.end()
+    })
+  })
+})
+
+
+test('DocumentMarkdownConverter.importContent', t => {
+  const i = (md, options) => converter.importContent(md, options)
 
   t.equal(
     i('Para 1\n\nPara 2'),
@@ -91,17 +136,11 @@ test('import', t => {
     'call with inputs and outputs'
   )
 
-  t.deepEqual(
-    i('Para 1', {archive: true}),
-    {'index.html': '<p>Para 1</p>'},
-    'can return an archive (virtual filesystem folder)'
-  )
-
   t.end()
 })
 
-test('export', t => {
-  const e = converter.export
+test('DocumentMarkdownConverter.exportContent', t => {
+  const e = converter.exportContent
 
   t.equal(
     e('<p>Para with <span class="class other-class" data-key="val" data-another="example">a bracketed span</span>.</p>'),
@@ -173,10 +212,10 @@ test('export', t => {
   t.end()
 })
 
-test.skip('import+export', t => {
+test('DocumentMarkdownConverter.importContent+exportContent', t => {
   const ie = mdIn => {
-    let html = converter.import(mdIn)
-    let mdOut = converter.export(html)
+    let html = converter.importContent(mdIn)
+    let mdOut = converter.exportContent(html)
     t.equal(mdOut, mdIn)
   }
 
