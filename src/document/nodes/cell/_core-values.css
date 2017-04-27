@@ -75,3 +75,10 @@
   padding: 2px 5px;
   margin-right: 2px;
 }
+
+.se-default-value {
+  padding-top: 20px;
+  font-size: 16px;
+  color: #444;
+  text-align: center;
+}
