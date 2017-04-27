@@ -114,25 +114,37 @@ test('DocumentMarkdownConverter.importContent', t => {
 
   t.equal(
     i('```.\nvar2=sum(var1)\n```'),
-    '<div data-cell="var2=sum(var1)\n"></div>',
+    '<div data-cell="var2=sum(var1)"></div>',
     'internal cell using mini language'
   )
 
   t.equal(
-    i('```run{r}\nlibrary(myawesomepackage)\n```'),
-    '<div data-cell="run"><pre><code class="language-r" data-source="r">library(myawesomepackage)\n</code></pre></div>',
-    'chunk which runs some R code'
+    i('```run(){r}\nlibrary(myawesomepackage)\n```'),
+    '<div data-cell="run()" data-language="r"><pre data-source="">library(myawesomepackage)</pre></div>',
+    'cell which runs some R code'
   )
 
   t.equal(
-    i('```call{r}\nreturn(6*7)\n```'),
-    '<div data-cell="call"><pre><code class="language-r" data-source="r">return(6*7)\n</code></pre></div>',
+    i('```run{r}\nlibrary(myawesomepackage)\n```'),
+    '<div data-cell="run()" data-language="r"><pre data-source="">library(myawesomepackage)</pre></div>',
+    'run has optional parentheses'
+  )
+
+  t.equal(
+    i('```call(){r}\nreturn(6*7)\n```'),
+    '<div data-cell="call()" data-language="r"><pre data-source="">return(6*7)</pre></div>',
     'external cell which calls some R code'
   )
 
   t.equal(
-    i('```out1=call(in1,y=in2){r}\nreturn(6*7)\n```'),
-    '<div data-cell="call"><pre><code class="language-r" data-source="r">return(6*7)\n</code></pre></div>',
+    i('```call{r}\nreturn(6*7)\n```'),
+    '<div data-cell="call()" data-language="r"><pre data-source="">return(6*7)</pre></div>',
+    'call has optional parentheses'
+  )
+
+  t.equal(
+    i('```out1=call(in1,y=in2){r}\nreturn(in1*y)\n```'),
+    '<div data-cell="out1=call(in1,y=in2)" data-language="r"><pre data-source="">return(in1*y)</pre></div>',
     'call with inputs and outputs'
   )
 
@@ -192,19 +204,19 @@ test('DocumentMarkdownConverter.exportContent', t => {
   )
 
   t.equal(
-    e('<div data-cell="run"><pre><code data-source="r" class="language-r">library(myawesomepackage)</code></pre></div>'),
-    '```run{r}\nlibrary(myawesomepackage)\n```',
+    e('<div data-cell="run()" data-language="r"><pre data-source="">library(myawesomepackage)</pre></div>'),
+    '```run(){r}\nlibrary(myawesomepackage)\n```',
     'chunk which runs some R code'
   )
 
   t.equal(
-    e('<div data-cell="call"><pre><code data-source="r" class="language-r">return(6*7)</code></pre></div>'),
-    '```call{r}\nreturn(6*7)\n```',
+    e('<div data-cell="call()" data-language="r"><pre data-source="">return(6*7)</pre></div>'),
+    '```call(){r}\nreturn(6*7)\n```',
     'external cell which calls some R code'
   )
 
   t.equal(
-    e('<div data-cell="out1=call(in1,y=in2)"><pre><code data-source="r" class="language-r">return(6*7)</code></pre></div>'),
+    e('<div data-cell="out1=call(in1,y=in2)" data-language="r"><pre data-source="">return(6*7)</pre></div>'),
     '```out1=call(in1,y=in2){r}\nreturn(6*7)\n```',
     'call with inputs and outputs'
   )
@@ -232,8 +244,8 @@ test('DocumentMarkdownConverter.importContent+exportContent', t => {
   ie('[42]{expr=6*7}')
 
   ie('```.\nvar2=sum(var1)\n```')
-  ie('```run{r}\nlibrary(myawesomepackage)\n```')
-  ie('```call{r}\nreturn(6*7)\n```')
+  ie('```run(){r}\nlibrary(myawesomepackage)\n```')
+  ie('```call(){r}\nreturn(6*7)\n```')
   ie('```out1=call(in1,y=in2){r}\nreturn(6*7)\n```')
 
   t.end()

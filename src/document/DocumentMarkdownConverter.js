@@ -357,33 +357,48 @@ function rehypeCodeblockToCell () {
       if (parent && node.tagName === 'code' && node.properties.className) {
         if (parent.tagName === 'pre' && node.properties.className.length) {
           let className = node.properties.className[0]
-          let match = className.match(/(language-(\.))|(run{([\w-]+)})|((\w+=)?call(\([^)]+\))?{([\w-]+)})/)
+          let match = className.match(/^language-(.+?)({(\w+)})?$/)
           if (match) {
-            let mini = match[1]
-            let run = match[3]
-            let call = match[5]
             let expr
+            let language
             let children
-            if (mini) {
-              expr = node.children[0].value
-            } else if (run || call) {
-              let language = run ? match[4] : match[8]
-              node.properties = {
-                className: [`language-${language}`],
-                'data-source': language
-              }
-              expr = run ? 'run' : 'call'
 
+            // rehype adds a trailing newline, remove it
+            let code = ''
+            if (node.children.length) {
+              code = node.children[0].value
+              if (code.slice(-1) === '\n') {
+                code = code.slice(0, -1)
+              }
+            }
+
+            let mini = match[1] === '.'
+            if (mini) {
+              expr = code
+            } else {
+              expr = match[1]
+              if (expr === 'run') expr = "run()"
+              if (expr === 'call') expr = "call()"
+              // If this is not a run or a call then just retain as a plain codeblock
+              if (expr.indexOf('(') < 0) return
+              language = match[3]
               children = [{
                 type: 'element',
                 tagName: 'pre',
-                children: [node]
+                properties: {
+                  'data-source': ''
+                },
+                children: [{
+                  type: 'text',
+                  value: code
+                }]
               }]
             }
 
             // Change this codeblock <pre><code class="language-..."> into cell <div data-cell="...">
             parent.tagName = 'div'
             parent.properties['data-cell'] = expr
+            if (language) parent.properties['data-language'] = language
             parent.children = children
           }
         }
@@ -406,34 +421,32 @@ function rehypeCellToCodeblock () {
       if (node.type === 'element' && node.properties) {
         let expr = node.properties.dataCell // 'data-cell' is parsed to 'dataCell'
         if (expr) {
-          // Get (for `run` and `call` cells) or create (for `mini` cells)
-          // a code element
-          let className
-          let code = unistFind(node, {tagName: 'code'})
-          if (code) {
-            // Must be a `run` or `call`
-            let lang = code.properties.dataSource
-            className = `language-${expr}{${lang}}`
-          } else {
-            // Must be a mini cell
-            className = 'language-.'
-            code = {
-              type: 'element',
-              tagName: 'code',
-              properties: {},
-              children: [{
-                type: 'text',
-                value: expr
-              }]
-            }
-          }
+          // Get (for `run` and `call` cells) source code
+          let code
+          let pre = unistFind(node, {tagName: 'pre'})
+          if (pre) code = pre.children[0].value
+          else code = expr
+
           // Set the 'class' of <code>
-          code.properties.className = [className]
+          let lang = node.properties.dataLanguage
+          let className
+          if (lang) className = `language-${expr}{${lang}}`
+          else className = 'language-.'
 
           // Change this cell <div> into a codeblock <pre><code>
           node.tagName = 'pre'
           node.properties = {}
-          node.children = [code]
+          node.children = [{
+            type: 'element',
+            tagName: 'code',
+            properties: {
+              className: [className]
+            },
+            children: [{
+              type: 'text',
+              value: code
+            }]
+          }]
         }
       }
     })
