@@ -28,13 +28,20 @@ pre.ace_editor.ace-tm {
   right: 0px;
 }
 
-.sc-cell .se-language-label {
+.sc-cell .se-context-input {
   position: absolute;
   z-index: 2;
   font-size: 12px;
   top: 5px;
   font-weight: 600;
   right: 30px;
+
+  line-height: 100%;
+  min-height: 20px;
+  width: 60px;
+  border: 1px solid #e7e7e7;
+  border-radius: 3px;
+  padding: 2px 2px 2px 5px;
 }
 
 .sc-cell .se-expression {
@@ -44,7 +51,8 @@ pre.ace_editor.ace-tm {
   color: #737373;
 }
 
-.sc-cell-value {
+.sc-cell-value img {
+  max-width: 100%;
 }
 
 .sc-cell-value.sm-pending {

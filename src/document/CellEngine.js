@@ -1,6 +1,7 @@
 import { forEach } from 'substance'
 import { Engine } from 'substance-mini'
 import { pack, unpack } from '../value'
+import JsContext from '../js-context/JsContext'
 
 export default
 class CellEngine extends Engine {
@@ -12,10 +13,15 @@ class CellEngine extends Engine {
 
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
+    this.host = editorSession.getContext().host
 
     this._cells = {}
     this._inputs = {}
-    this._contexts = editorSession.getContext().stencilaContexts || {}
+
+    // TODO : temporaray, remove!
+    this._contexts = {
+      'js': new JsContext()
+    }
 
     // console.log('INITIALIZING CELL ENGINE')
     forEach(this.doc.getNodes(), (node) => {
@@ -81,55 +87,56 @@ class CellEngine extends Engine {
       // `call` (a context function scope) or `run` (context's globals scope) external code
       case 'call':
       case 'run': {
-        const language = cell.language
-        if(!language) {
+        if(!cell.context) {
           cell.addRuntimeError('runtime', {
-            message: 'Calls to external code must have "language" set.'
+            message: 'Calls to external code must have "context" set.'
           })
           return
         }
-        const {context, contextName} = this._lookupLanguage(language)
-        if (!context) {
-          cell.addRuntimeError({
-            line: 0, column: 0,
-            message: `No context found for language ${language}`
-          })
-        }
-        let packing = contextName === 'js' ? false : true
-        const options = { pack: packing }
-        const sourceCode = cell.sourceCode || ''
-        if (functionName === 'call') {
-          // Convert all arguments into an object
-          const args = {}
-          // Unnamed argunents are expected to be variables and the variable name is
-          // used as the name of the argument
-          funcNode.args.forEach((arg) => {
-            if (arg.type !== 'var') {
-              cell.addRuntimeError('runtime', {
-                message: 'Calls to external code must use variables or named arguments'
+        return this._getContext(cell.context).then(context => {
+          if (!context) {
+            cell.addRuntimeError('runtime', {
+              line: 0, column: 0,
+              message: `No context found matching "${cell.context}"`
+            })
+          } else {
+            let packing = !(context instanceof JsContext)
+            const options = { pack: packing }
+            const sourceCode = cell.sourceCode || ''
+            if (functionName === 'call') {
+              // Convert all arguments into an object
+              const args = {}
+              // Unnamed argunents are expected to be variables and the variable name is
+              // used as the name of the argument
+              funcNode.args.forEach((arg) => {
+                if (arg.type !== 'var') {
+                  cell.addRuntimeError('runtime', {
+                    message: 'Calls to external code must use variables or named arguments'
+                  })
+                  return
+                }
+                let value = arg.getValue()
+                args[arg.name] = packing ? pack(value) : value
               })
-              return
+              // For named arguments, just use the name and the value
+              funcNode.namedArgs.forEach((arg) => {
+                let value = arg.getValue()
+                args[arg.name] = packing ? pack(value) : value
+              })
+              return _unwrapResult(
+                cell,
+                context.callCode(sourceCode, args, options),
+                options
+              )
+            } else {
+              return _unwrapResult(
+                cell,
+                context.runCode(sourceCode, options),
+                options
+              )
             }
-            let value = arg.getValue()
-            args[arg.name] = packing ? pack(value) : value
-          })
-          // For named arguments, just use the name and the value
-          funcNode.namedArgs.forEach((arg) => {
-            let value = arg.getValue()
-            args[arg.name] = packing ? pack(value) : value
-          })
-          return _unwrapResult(
-            cell,
-            context.callCode(sourceCode, args, options),
-            options
-          )
-        } else {
-          return _unwrapResult(
-            cell,
-            context.runCode(sourceCode, options),
-            options
-          )
-        }
+          }
+        })
       }
       // execute an external function
       default: {
@@ -168,16 +175,26 @@ class CellEngine extends Engine {
     }
   }
 
-  _lookupLanguage(languageName) {
-    const contexts = this._contexts
-    let names = Object.keys(contexts)
-    for (let i = 0; i < names.length; i++) {
-      const contextName = names[i]
-      const context = contexts[contextName]
-      if (context.supportsLanguage(languageName)) {
-        return { contextName, context }
+  _getContext(name) {
+    // Attempt to get context from those already known to this
+    // host using it's name
+    return this.host.get(`name://${name}`).then(context => {
+      if (context) return context
+      else {
+        // Determine the type of context from the context name
+        let match = name.match(/([a-zA-Z]+)([\d_].+)?/)
+        if (match) {
+          let type = match[1]
+          return this.host.post(type, name).then(context => {
+            return context
+          }).catch(() => {
+            return null
+          })
+        } else {
+          return null
+        }
       }
-    }
+    })
   }
 
   _lookupFunction(functionName) {
@@ -314,7 +331,8 @@ function _unwrapResult(cell, p, options) {
     if (res.errors) {
       cell.addRuntimeError('runtime', res.errors)
       return undefined
-    } else {
+    }
+    if (res.output) {
       const output = pack ? unpack(res.output) : res.output
       return output
     }

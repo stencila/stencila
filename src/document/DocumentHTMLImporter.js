@@ -54,8 +54,6 @@ class DocumentHTMLImporter extends HTMLImporter {
   convertDocument (el) {
     let content = el.find('.content')
     if (content) this.convertContainer(content.children, 'content')
-    let sessions = el.find('.sessions')
-    if (sessions) this.convertContainer(sessions.children, 'sessions')
   }
 
   /**

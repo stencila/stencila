@@ -24,13 +24,6 @@ class DocumentModel extends Document {
       nodes: []
     })
 
-    // Create a container node for the document's sessions
-    this.create({
-      type: 'container',
-      id: 'sessions',
-      nodes: []
-    })
-
     this.variables = {}
   }
 

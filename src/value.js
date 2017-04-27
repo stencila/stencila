@@ -1,3 +1,5 @@
+/* globals Blob, atob, ArrayBuffer, Uint8Array */
+
 /**
  * @namespace value
  */
@@ -84,7 +86,7 @@ export function unpack (pkg) {
     throw new Error('Package should have fields `type`, `format`, `content`')
   }
 
-  let {type, content} = pkg
+  let {type, format, content} = pkg
 
   if (type === 'null') {
     return null
@@ -100,7 +102,23 @@ export function unpack (pkg) {
     return JSON.parse(content)
   } else if (type === 'array') {
     return JSON.parse(content)
+  } else if (type === 'image') {
+    // Convert the base64 encoded image to a `Blob` and return 
+    // within an 'image' value
+    const byteString = atob(content)
+    var arrayBuffer = new ArrayBuffer(byteString.length);
+    var integerArray = new Uint8Array(arrayBuffer);
+    for (var i = 0; i < byteString.length; i++) {
+      integerArray[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([integerArray], {type: `image/${format}`})
+    return {
+      type: 'image',
+      format: format,
+      blob: blob
+    }
   } else {
-    return JSON.parse(content)
+    if (format === 'json') return JSON.parse(content)
+    else return content
   }
 }

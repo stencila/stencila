@@ -98,6 +98,23 @@ return names.join('')</pre>
         <div data-cell="area = call(r=radius)" data-language="js">
           <pre data-source="">return Math.PI*Math.pow(r, 2)</pre>
         </div>
+        <p>Node</p>
+        <div data-cell="call()" data-language="node">
+          <pre data-source="">return process.title + ' ' + process.version</pre>
+        </div>
+        <p>Python</p>
+        <div data-cell="run()" data-language="py">
+          <pre data-source="">import sys
+sys.version</pre>
+        </div>
+        <p>R</p>
+        <div data-cell="call()" data-language="r">
+          <pre data-source="">R.version.string</pre>
+        </div>
+        <p>SQLite</p>
+        <div data-cell="call()" data-language="sqlite">
+          <pre data-source="">SELECT sqlite_version();</pre>
+        </div>
       </div>
     </div>
   </main>

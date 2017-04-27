@@ -117,8 +117,6 @@ test('value.unpack errors if package is malformed', t => {
   t.throws(() => unpack({type: 'null'}))
   t.throws(() => unpack({type: 'null', format: 'text'}))
 
-  t.throws(() => unpack({type: 'foo', format: 'foo', content: 'bar'}))
-
   t.end()
 })
 
@@ -139,13 +137,13 @@ test('value.unpack works for primitive types', t => {
   t.end()
 })
 
-test('value.unpack works for objectects', t => {
+test('value.unpack works for objects', t => {
   t.deepEqual(unpack({type: 'object', format: 'json', content: '{}'}), {})
   t.deepEqual(unpack({type: 'object', format: 'json', content: '{"a":1,"b":"foo","c":[1,2,3]}'}), {a: 1, b: 'foo', c: [1, 2, 3]})
   t.end()
 })
 
-test('value.unpack works for arrayays', t => {
+test('value.unpack works for arrays', t => {
   t.deepEqual(unpack({type: 'array', format: 'json', content: '[]'}), [])
   t.deepEqual(unpack({type: 'array', format: 'json', content: '[1,2,3,4,5]'}), [1, 2, 3, 4, 5])
   t.end()

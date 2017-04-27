@@ -1,5 +1,5 @@
 import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
-import { DocumentConfigurator, documentConversion, JsContext } from '../index.es'
+import { DocumentConfigurator, documentConversion, Host } from '../index.es'
 import TestBackend from './backend/TestBackend'
 
 
@@ -56,7 +56,7 @@ export function getSandbox(t) {
   return htmlDoc.find('body')
 }
 
-export function setupEditorSession(documentId, options = {}) {
+export function setupEditorSession(documentId) {
   let configurator = new DocumentConfigurator()
   let docHTML
   if (!documentId) {
@@ -67,12 +67,11 @@ export function setupEditorSession(documentId, options = {}) {
     docHTML = entry.content
   }
   let doc = documentConversion.importHTML(docHTML)
-  let jsContext = new JsContext(options.functions)
   let editorSession = new EditorSession(doc, {
     configurator: configurator,
     context: {
-      stencilaContexts: { 'js': jsContext }
+      host: new Host({ discover: false })
     }
   })
-  return {editorSession, doc, jsContext}
+  return {editorSession, doc}
 }
