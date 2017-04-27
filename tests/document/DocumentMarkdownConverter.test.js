@@ -24,7 +24,19 @@ test('DocumentMarkdownConverter.importDocument', function (t) {
   ).then((manifest) => {
     t.equal(manifest.type, 'document')
     buffer.readFile('index.html', 'text/html').then((html) => {
-      t.equal(html, '<p>Hello world</p>')
+      t.equal(html, `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content"><p>Hello world</p></div>
+      </div>
+    </main>
+  </body>
+</html>`)
       t.end()
     })
   })
@@ -33,7 +45,19 @@ test('DocumentMarkdownConverter.importDocument', function (t) {
 test('DocumentMarkdownConverter.exportDocument', function (t) {
   let converter = new DocumentMarkdownConverter()
   let buffer = new MemoryBuffer()
-  buffer.writeFile('index.html', 'text/html', '<p>Hello world</p>')
+  buffer.writeFile('index.html', 'text/html', `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content"><p>Hello world</p></div>
+      </div>
+    </main>
+  </body>
+</html>`)
   let storer = new TestStorer('/path/to/storer', 'hello-world.md')
 
   converter.exportDocument(

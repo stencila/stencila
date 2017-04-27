@@ -13,6 +13,9 @@ import rehypeParse from 'rehype-parse'
 import rehype2remark from 'rehype-remark'
 import rehypeStringify from 'rehype-stringify'
 
+import {DefaultDOMElement} from 'substance'
+
+
 export default class DocumentMarkdownConverter {
 
   /**
@@ -44,7 +47,19 @@ export default class DocumentMarkdownConverter {
       mainFilePath,
       'text/html'
     ).then(md => {
-      let html = this.importContent(md)
+      let html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content">${this.importContent(md)}</div>
+      </div>
+    </main>
+  </body>
+</html>`
       return buffer.writeFile(
         'index.html',
         'text/html',
@@ -63,7 +78,9 @@ export default class DocumentMarkdownConverter {
 
   exportDocument(buffer, storer) {
     return buffer.readFile('index.html', 'text/html').then((html) => {
-      let md = this.exportContent(html)
+      let content = DefaultDOMElement.parseHTML(html).find('.content')
+      if (!content) throw new Error('No div.content element in HTML!')
+      let md = this.exportContent(content.getInnerHTML())
       return storer.writeFile(storer.getMainFilePath(), 'text/markdown', md)
     })
   }
