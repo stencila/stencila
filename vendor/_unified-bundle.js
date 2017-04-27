@@ -15,7 +15,7 @@ var rehypeParse = require('rehype-parse')
 var rehype2remark = require('rehype-remark')
 var rehypeStringify = require('rehype-stringify')
 
-global.unifiedHtmlMarkdown = {
+global.unifiedBundle = {
   unified: unified,
   unistVisit: unistVisit,
   unistFind: unistFind,

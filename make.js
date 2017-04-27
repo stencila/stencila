@@ -65,7 +65,7 @@ const BROWSER_EXTERNALS = {
 }
 Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
   const alias = UNIFIED_MODULES[moduleName]
-  BROWSER_EXTERNALS[moduleName] = 'window.unifiedHtmlMarkdown.'+alias
+  BROWSER_EXTERNALS[moduleName] = 'window.unifiedBundle.'+alias
 })
 
 const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
@@ -89,6 +89,7 @@ function copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
   b.copy('./vendor/brace.*', './build/lib/')
   b.copy('./vendor/vega*', './build/lib/')
+  b.copy('./vendor/unified*', './build/lib/')
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
@@ -230,7 +231,7 @@ function buildVendor() {
     exports: ['default']
   })
   minifiedVendor('./vendor/_brace.js', 'brace')
-  minifiedVendor('./vendor/_unified.js', 'unified-html-markdown')
+  minifiedVendor('./vendor/_unified-bundle.js', 'unified-bundle')
 }
 
 function minifiedVendor(src, name, opts = {}) {
