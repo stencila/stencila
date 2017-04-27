@@ -3,7 +3,8 @@ import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
 
 /**
- * The Host class
+ * Each Stencila process has a single instance of the `Host` class which
+ * orchestrates instances of other classes.
  */
 export default class Host {
 
@@ -29,6 +30,13 @@ export default class Host {
     if (options.discover) this.discoverPeers(options.discover)
   }
 
+  /**
+   * Create a new instance
+   * 
+   * @param  {string} type - Name of class of instance
+   * @param  {string} name - Name for new instance
+   * @return {Promise} Resolves to an instance
+   */
   post (type, name) {
     if (type === 'JsContext' || type === 'js') {
       let instance = new JsContext()
@@ -37,10 +45,49 @@ export default class Host {
       return Promise.resolve(instance)
     }
     else {
-      return this.ask(type, name)
+      for (let url of Object.keys(this._peers)) {
+        let manifest = this._peers[url]
+        if (manifest.schemes && manifest.schemes.new) {
+          // Only ask peer if the type is in the peer's `new` scheme
+          let types = manifest.schemes.new
+          let spec = types[type]
+          if (!spec) {
+            // No matching type name found so search through aliases
+            for (let name of Object.keys(types)) {
+              let spec_ = types[name]
+              for (let alias of spec_.aliases) {
+                if (alias === type) {
+                  spec = spec_
+                  break
+                }
+              }
+              if (spec) break
+            }
+          }
+
+          if (spec) {
+            return POST(url + '/' + spec.name, { name: name }).then(address => {
+              let instance
+              if (spec.base === 'Context') {
+                instance = new ContextHttpClient(url + '/' + address)
+              } else {
+                throw new Error(`Unsupported type: %{path}`)
+              }
+              this._instances[address] = instance
+              return instance
+            })
+          }
+        }
+      }
+      return Promise.reject(new Error(`No peers able to provide: ${type}`))
     }
   }
 
+  /**
+   * Get an instance
+   * @param  {string} address - Address of the instance
+   * @return {Promise} Resolves to an instance
+   */
   get (address) {
     return Promise.resolve(this._instances[address])
   }
@@ -92,52 +139,6 @@ export default class Host {
       })
     }
     if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
-  }
-
-  
-  /**
-   * Ask peers for a resource
-   *
-   * @param {string} address - Address of the resource 
-   *                           e.g. `new://PythonContext@py2`
-   *                           e.g. `github://octocat/Hello-World/README@7629413`
-   */
-  ask (type, name) {
-    for (let url of Object.keys(this._peers)) {
-      let manifest = this._peers[url]
-      if (manifest.schemes && manifest.schemes.new) {
-        // Only ask peer if the type is in the peer's `new` scheme
-        let types = manifest.schemes.new
-        let spec = types[type]
-        if (!spec) {
-          // No matching type name found so search through aliases
-          for (let name of Object.keys(types)) {
-            let spec_ = types[name]
-            for (let alias of spec_.aliases) {
-              if (alias === type) {
-                spec = spec_
-                break
-              }
-            }
-            if (spec) break
-          }
-        }
-
-        if (spec) {
-          return POST(url + '/' + spec.name, { name: name }).then(address => {
-            let instance
-            if (spec.base === 'Context') {
-              instance = new ContextHttpClient(url + '/' + address)
-            } else {
-              throw new Error(`Unsupported type: %{path}`)
-            }
-            this._instances[address] = instance
-            return instance
-          })
-        }
-      }
-    }
-    return Promise.reject(new Error(`No peers able to provide: ${type}`))
   }
 
 }
