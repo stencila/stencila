@@ -1,7 +1,7 @@
 {
   "name": "stencila",
-  "version": "0.25.7",
-  "description": "Documents powered by data",
+  "version": "0.26.0",
+  "description": "Stencila is the office suite for reproducible research. This package lets you create execution contexts for JavaScript, and other languages, to use in Stencila Desktop or your web browser.",
   "main": "build/stencila.cjs.js",
   "jsnext:main": "index.es.js",
   "scripts": {
