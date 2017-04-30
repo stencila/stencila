@@ -10,7 +10,7 @@ Stencila is a platform for creating, collaborating on, and sharing data driven c
 
 ### Roadmap
 
-Stencila is still in beta: things are preliminary and there are one or two :bug:s! Below, ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1-2 months, towards a 1.0 release in early 2018. Checkout the current release [milestones](https://github.com/stencila/stencila/milestones).
+Below, ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1-2 months, towards a 1.0 release in early 2018. Checkout the current release [milestones](https://github.com/stencila/stencila/milestones).
 
 Feature                                                                     | Ready
 :-------------------------------------------------------------------------- | :------------:
@@ -39,20 +39,20 @@ Output (value display)                                                      | �
 **Execution contexts**                                                      |
 JavaScript                                                                  | ✓
 Node.js                                                                     | ✓
-R                                                                           | 0.26
-Python                                                                      | 0.26
+R                                                                           | ✓
+Python                                                                      | ✓
 Julia                                                                       | 
 Jupyter kernels                                                             | 0.27
 **Functions**                                                               |
-Statistics (`sum`, `mean`, `variance`, ...)                                 | 0.26
-Data manipulation (`filter`, `sort`, `aggregate`, ...)                      | 0.26
+Statistics (`sum`, `mean`, `variance`, ...)                                 | 0.27
+Data manipulation (`filter`, `sort`, `aggregate`, ...)                      | 0.27
 Data visualization (`plot`, `title`, `theme`, ...)                          | ✓
 Contribute more...                                                          | ✓
 **Formats**                                                                 |
 HTML                                                                        | ✓
 JATS                                                                        | 
-Markdown                                                                    | 0.26
-RMarkdown                                                                   | 0.26
+Markdown                                                                    | ✓
+RMarkdown                                                                   | 0.27
 Jupyter Notebook                                                            | 
 Microsoft Office                                                            | 
 Open/Libre Office                                                           | 
@@ -61,12 +61,12 @@ Open/Libre Office                                                           |
 
 Application or package                                                                                          | Ready
 :-------------------------------------------------------------------------------------------------------------- | :------------:
-[Stencila Desktop](https://github.com/stencila/desktop/releases) (native apps for Windows, Mac OSX, Linux)      | ✓
-[Stencila for Python](https://github.com/stencila/python)  `pip install stencila`                               | 0.26
-[Stencila for R](https://github.com/stencila/r)  `install.packages('stencila')`                                 | 0.26
-[Stencila for Node.js](https://github.com/stencila/node)  `npm install stencila-node`                           | ✓
+[Stencila Desktop](https://github.com/stencila/desktop/releases)                                                | ✓
+[Stencila for Python](https://github.com/stencila/python)                                                       | ✓
+[Stencila for R](https://github.com/stencila/r)                                                                 | ✓
+[Stencila for Node.js](https://github.com/stencila/node)                                                        | ✓
 
-We love feedback. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
+Stencila is still at an early beta stage: there are likely to be missing features, bugs and API changes. But we would :heart: to get your suggestions and :bug: reports. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
 
 ### Develop
 
@@ -74,6 +74,8 @@ We love feedback. Create a [new issue](https://github.com/stencila/stencila/issu
 [![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
 [![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
 [![Dependency status](https://david-dm.org/stencila/stencila.svg)](https://david-dm.org/stencila/stencila)
+
+Quick start:
 
 ```bash
 git clone https://github.com/stencila/stencila.git
@@ -87,7 +89,7 @@ Now you can access the different interfaces in the browser:
 - [http://localhost:4000/examples/dashboard](http://localhost:4000/examples/dashboard)
 - [http://localhost:4000/examples/document](http://localhost:4000/examples/document)
 
-Most development tasks can be run directly using JavaScript tooling (`npm`) or via `make`.
+Most development tasks can be run  via `npm` or `make` shortcuts:
 
 Task                                                    |`npm`                  | `make`          |
 ------------------------------------------------------- |-----------------------|-----------------|    
