@@ -13,25 +13,87 @@ import rehypeParse from 'rehype-parse'
 import rehype2remark from 'rehype-remark'
 import rehypeStringify from 'rehype-stringify'
 
-/**
- * @namespace document/markdown-converter
- */
-export default {
+import {DefaultDOMElement} from 'substance'
+
+
+export default class DocumentMarkdownConverter {
 
   /**
-   * Import from a Markdown document to a Stencila Document
-   *
-   * @memberof document/markdown-converter
+   * Is a file name to be converted using this converter? 
+   * 
+   * @param  {string} fileName - Name of file
+   * @return {boolean} - Is the file name matched?
+   */
+  static match (fileName) {
+    return fileName.slice(-3) === '.md'
+  }
+
+
+  importDocument(storer, buffer) {
+    let mainFilePath = storer.getMainFilePath()
+    let manifest = {
+      "type": "document",
+      "storage": {
+        "external": storer.isExternal(),
+        "storerType": storer.getType(),
+        "archivePath": storer.getArchivePath(),
+        "mainFilePath": mainFilePath,
+        "contentType": "md",
+      },
+      "createdAt": new Date(),
+      "updatedAt": new Date()
+    }
+    return storer.readFile(
+      mainFilePath,
+      'text/html'
+    ).then(md => {
+      let html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content">${this.importContent(md)}</div>
+      </div>
+    </main>
+  </body>
+</html>`
+      return buffer.writeFile(
+        'index.html',
+        'text/html',
+        html
+      )
+    }).then(() => {
+      return buffer.writeFile(
+        'stencila-manifest.json',
+        'application/json',
+        JSON.stringify(manifest, null, '  ')
+      )
+    }).then(() => {
+      return manifest
+    })
+  }
+
+  exportDocument(buffer, storer) {
+    return buffer.readFile('index.html', 'text/html').then((html) => {
+      let content = DefaultDOMElement.parseHTML(html).find('.content')
+      if (!content) throw new Error('No div.content element in HTML!')
+      let md = this.exportContent(content.getInnerHTML())
+      return storer.writeFile(storer.getMainFilePath(), 'text/markdown', md)
+    })
+  }
+
+  /**
+   * Convert a Markdown document to a Stencila Document as HTML
    *
    * @param {string} md - Markdown content
    * @param {object} options - Conversion options
-   * @return {object|string} - Document archive (virtual filesystem folder) or HTML string
+   * @return {string} - HTML string
    */
-  import: function (md, options) {
+  importContent (md, options) {
     options = options || {}
-
-    // Output options
-    if (options.archive !== false) options.archive = true
 
     // Markdown parsing options
     if (options.gfm !== false) options.gfm = true
@@ -67,28 +129,18 @@ export default {
       .use(rehypeStringify)
       .processSync(htmlInit).contents.trim()
 
-    if (options.archive) {
-      return {
-        'index.html': html
-      }
-    } else {
-      return html
-    }
-  },
+    return html
+  }
 
   /**
-   * Export to a Markdown document from a Stencila Document
+   * Export Markdown content from a Stencila Document as HTML
    *
-   * @memberof document/markdown-converter
-   *
-   * @param {string|object} doc - Document archive (virtual filesystem folder) or HTML string
+   * @param {string|object} html - HTML string
    * @param {object} options - Conversion options
    * @return {object|string} - Markdown content
    */
-  export: function (doc, options) {
+  exportContent (html, options) {
     options = options || {}
-
-    let html = typeof doc === 'string' ? doc : doc['index.html']
 
     // See the `remark-stringify` options at https://github.com/wooorm/remark/tree/master/packages/remark-stringify#options
     if (options.gfm !== false) options.gfm = true
@@ -322,33 +374,48 @@ function rehypeCodeblockToCell () {
       if (parent && node.tagName === 'code' && node.properties.className) {
         if (parent.tagName === 'pre' && node.properties.className.length) {
           let className = node.properties.className[0]
-          let match = className.match(/(language-(\.))|(run{([\w-]+)})|((\w+=)?call(\([^)]+\))?{([\w-]+)})/)
+          let match = className.match(/^language-(.+?)({(\w+)})?$/)
           if (match) {
-            let mini = match[1]
-            let run = match[3]
-            let call = match[5]
             let expr
+            let language
             let children
-            if (mini) {
-              expr = node.children[0].value
-            } else if (run || call) {
-              let language = run ? match[4] : match[8]
-              node.properties = {
-                className: [`language-${language}`],
-                'data-source': language
-              }
-              expr = run ? 'run' : 'call'
 
+            // rehype adds a trailing newline, remove it
+            let code = ''
+            if (node.children.length) {
+              code = node.children[0].value
+              if (code.slice(-1) === '\n') {
+                code = code.slice(0, -1)
+              }
+            }
+
+            let mini = match[1] === '.'
+            if (mini) {
+              expr = code
+            } else {
+              expr = match[1]
+              if (expr === 'run') expr = "run()"
+              if (expr === 'call') expr = "call()"
+              // If this is not a run or a call then just retain as a plain codeblock
+              if (expr.indexOf('(') < 0) return
+              language = match[3]
               children = [{
                 type: 'element',
                 tagName: 'pre',
-                children: [node]
+                properties: {
+                  'data-source': ''
+                },
+                children: [{
+                  type: 'text',
+                  value: code
+                }]
               }]
             }
 
             // Change this codeblock <pre><code class="language-..."> into cell <div data-cell="...">
             parent.tagName = 'div'
             parent.properties['data-cell'] = expr
+            if (language) parent.properties['data-language'] = language
             parent.children = children
           }
         }
@@ -371,34 +438,32 @@ function rehypeCellToCodeblock () {
       if (node.type === 'element' && node.properties) {
         let expr = node.properties.dataCell // 'data-cell' is parsed to 'dataCell'
         if (expr) {
-          // Get (for `run` and `call` cells) or create (for `mini` cells)
-          // a code element
-          let className
-          let code = unistFind(node, {tagName: 'code'})
-          if (code) {
-            // Must be a `run` or `call`
-            let lang = code.properties.dataSource
-            className = `language-${expr}{${lang}}`
-          } else {
-            // Must be a mini cell
-            className = 'language-.'
-            code = {
-              type: 'element',
-              tagName: 'code',
-              properties: {},
-              children: [{
-                type: 'text',
-                value: expr
-              }]
-            }
-          }
+          // Get (for `run` and `call` cells) source code
+          let code
+          let pre = unistFind(node, {tagName: 'pre'})
+          if (pre) code = pre.children[0].value
+          else code = expr
+
           // Set the 'class' of <code>
-          code.properties.className = [className]
+          let lang = node.properties.dataLanguage
+          let className
+          if (lang) className = `language-${expr}{${lang}}`
+          else className = 'language-.'
 
           // Change this cell <div> into a codeblock <pre><code>
           node.tagName = 'pre'
           node.properties = {}
-          node.children = [code]
+          node.children = [{
+            type: 'element',
+            tagName: 'code',
+            properties: {
+              className: [className]
+            },
+            children: [{
+              type: 'text',
+              value: code
+            }]
+          }]
         }
       }
     })
