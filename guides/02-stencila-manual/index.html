@@ -10,11 +10,12 @@
         <div data-title="">Stencila Documents</div>
         <p><em>Stencila is still in early beta testing phase. Like the rest of the platform, this introductory manual, is a work in in progress. Please feel free to contribute via our </em><a href="https://github.com/stencila/stencila" title="undefined"><em>Github repo</em></a><em>. Or, chat with us in our </em><a href="https://gitter.im/stencila/stencila" title="undefined"><em>Gitter room</em></a><em>.</em> </p>
         <h1>Introduction</h1>
-        <p>Stencila aims to make it easier for researchers to do reproducible research. Stencila Documents are like Microsoft Word or Google Docs documents but built from the ground up to fit with reproducible workflows. They allow you to embed code, in various programming langauges, within the document so that you can rapidly update your tables and figures, and others can see how you produced them. Stencila Documents can be stored using plain text formats like Markdown that work well with version control systems like Git. They can also be exported easily to publishing formats such as HTML.</p>
+        <p>Stencila aims to make it easier for researchers to do reproducible research. Stencila Documents are like Microsoft Word or Google Docs documents but built from the ground up to fit with reproducible workflows. They allow you to embed code, in various programming langauges, within the document so that you can rapidly update your tables and figures - and so that others can see how you produced them. Stencila Documents can be stored using plain text formats like Markdown that work well with version control systems like Git. They can also be exported to publishing formats such as HTML (and in the future JATS and PDF).</p>
         <p>Compared to other popular tools for reproducible research such as Jupyter Notebooks and RMarkdown, Stencila Documents aim to have an interface that is more similar to the the familiar interface of a word processor and allow you to produce polished final documents.</p>
         <h1>Cells: embedding code</h1>
         <h2>Mini: a minimal language for data analysis and visualisation</h2>
-        <p>Code cells in Stencila Documents use a simple expression language called Mini. Mini is meant to be only slightly more advanced than the expressions that you write in your calculator or into the cell of a spreadsheet. </p>
+        <p>Code cells in Stencila Documents use a simple expression language called Mini. Mini is meant to be only slightly more advanced than the expressions that you write in your calculator or into the cell of a spreadsheet. It is intended to be easy to write and easy to understand. </p>
+        <p>Mini is implemented in JavaScript - so it can run in a browser without the need for external processes. But, as we'll see later, you can also extend it with other languages suchas R, Python and SQL.</p>
         <p>Mini has a simple type system that is similar to most high level languages. Each type can be constructed using literals...</p>
         <table>
           <tr>
@@ -50,19 +51,171 @@
             <td><code>{ type: 'my_custom_type', ...}</code></td>
           </tr>
         </table>
-        <p>Tabular data is an important part of data analysis.</p>
-        <div data-cell="data = table({
-species: {type: 'nominal', values: concat(repeat('setosa',50), repeat('versicolor',50), repeat('virginica',50))},
-sepal_length: {values: [5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9,5.4,4.8,4.8,4.3,5.8,5.7,5.4,5.1,5.7,5.1,5.4,5.1,4.6,5.1,4.8,5,5,5.2,5.2,4.7,4.8,5.4,5.2,5.5,4.9,5,5.5,4.9,4.4,5.1,5,4.5,4.4,5,5.1,4.8,5.1,4.6,5.3,5,7,6.4,6.9,5.5,6.5,5.7,6.3,4.9,6.6,5.2,5,5.9,6,6.1,5.6,6.7,5.6,5.8,6.2,5.6,5.9,6.1,6.3,6.1,6.4,6.6,6.8,6.7,6,5.7,5.5,5.5,5.8,6,5.4,6,6.7,6.3,5.6,5.5,5.5,6.1,5.8,5,5.6,5.7,5.7,6.2,5.1,5.7,6.3,5.8,7.1,6.3,6.5,7.6,4.9,7.3,6.7,7.2,6.5,6.4,6.8,5.7,5.8,6.4,6.5,7.7,7.7,6,6.9,5.6,7.7,6.3,6.7,7.2,6.2,6.1,6.4,7.2,7.4,7.9,6.4,6.3,6.1,7.7,6.3,6.4,6,6.9,6.7,6.9,5.8,6.8,6.7,6.7,6.3,6.5,6.2,5.9]},
-sepal_width: {values: [3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1,3.7,3.4,3,3,4,4.4,3.9,3.5,3.8,3.8,3.4,3.7,3.6,3.3,3.4,3,3.4,3.5,3.4,3.2,3.1,3.4,4.1,4.2,3.1,3.2,3.5,3.6,3,3.4,3.5,2.3,3.2,3.5,3.8,3,3.8,3.2,3.7,3.3,3.2,3.2,3.1,2.3,2.8,2.8,3.3,2.4,2.9,2.7,2,3,2.2,2.9,2.9,3.1,3,2.7,2.2,2.5,3.2,2.8,2.5,2.8,2.9,3,2.8,3,2.9,2.6,2.4,2.4,2.7,2.7,3,3.4,3.1,2.3,3,2.5,2.6,3,2.6,2.3,2.7,3,2.9,2.9,2.5,2.8,3.3,2.7,3,2.9,3,3,2.5,2.9,2.5,3.6,3.2,2.7,3,2.5,2.8,3.2,3,3.8,2.6,2.2,3.2,2.8,2.8,2.7,3.3,3.2,2.8,3,2.8,3,2.8,3.8,2.8,2.8,2.6,3,3.4,3.1,3,3.1,3.1,3.1,2.7,3.2,3.3,3,2.5,3,3.4,3]}
-})"></div>
+        <p>Custom types can be defined using an object with a <code>type</code> property e.g. <code>{ type: 'my_custom_type', ...}.</code></p>
+        <p>You can get the type string of a value using the <code>type</code> function e.g.</p>
+        <div data-cell="[type(1), type('foo'), type({})]"></div>
+        <h3>Loading data</h3>
+        <p>Tabular data is an essential part of data analysis, so there is a special type called a <code>table.</code> The easiest way to create a table is by using the <code>csv</code> function which parses a string of comma separate text (in the future you'll be able to embed or link to your data more concisely that this!)</p>
+        <div data-cell="data = csv('species,sepal_length,sepal_width,petal_length,petal_width
+setosa,5.1,3.5,1.4,0.2
+setosa,4.9,3,1.4,0.2
+setosa,4.7,3.2,1.3,0.2
+setosa,4.6,3.1,1.5,0.2
+setosa,5,3.6,1.4,0.2
+setosa,5.4,3.9,1.7,0.4
+setosa,4.6,3.4,1.4,0.3
+setosa,5,3.4,1.5,0.2
+setosa,4.4,2.9,1.4,0.2
+setosa,4.9,3.1,1.5,0.1
+setosa,5.4,3.7,1.5,0.2
+setosa,4.8,3.4,1.6,0.2
+setosa,4.8,3,1.4,0.1
+setosa,4.3,3,1.1,0.1
+setosa,5.8,4,1.2,0.2
+setosa,5.7,4.4,1.5,0.4
+setosa,5.4,3.9,1.3,0.4
+setosa,5.1,3.5,1.4,0.3
+setosa,5.7,3.8,1.7,0.3
+setosa,5.1,3.8,1.5,0.3
+setosa,5.4,3.4,1.7,0.2
+setosa,5.1,3.7,1.5,0.4
+setosa,4.6,3.6,1,0.2
+setosa,5.1,3.3,1.7,0.5
+setosa,4.8,3.4,1.9,0.2
+setosa,5,3,1.6,0.2
+setosa,5,3.4,1.6,0.4
+setosa,5.2,3.5,1.5,0.2
+setosa,5.2,3.4,1.4,0.2
+setosa,4.7,3.2,1.6,0.2
+setosa,4.8,3.1,1.6,0.2
+setosa,5.4,3.4,1.5,0.4
+setosa,5.2,4.1,1.5,0.1
+setosa,5.5,4.2,1.4,0.2
+setosa,4.9,3.1,1.5,0.2
+setosa,5,3.2,1.2,0.2
+setosa,5.5,3.5,1.3,0.2
+setosa,4.9,3.6,1.4,0.1
+setosa,4.4,3,1.3,0.2
+setosa,5.1,3.4,1.5,0.2
+setosa,5,3.5,1.3,0.3
+setosa,4.5,2.3,1.3,0.3
+setosa,4.4,3.2,1.3,0.2
+setosa,5,3.5,1.6,0.6
+setosa,5.1,3.8,1.9,0.4
+setosa,4.8,3,1.4,0.3
+setosa,5.1,3.8,1.6,0.2
+setosa,4.6,3.2,1.4,0.2
+setosa,5.3,3.7,1.5,0.2
+setosa,5,3.3,1.4,0.2
+versicolor,7,3.2,4.7,1.4
+versicolor,6.4,3.2,4.5,1.5
+versicolor,6.9,3.1,4.9,1.5
+versicolor,5.5,2.3,4,1.3
+versicolor,6.5,2.8,4.6,1.5
+versicolor,5.7,2.8,4.5,1.3
+versicolor,6.3,3.3,4.7,1.6
+versicolor,4.9,2.4,3.3,1
+versicolor,6.6,2.9,4.6,1.3
+versicolor,5.2,2.7,3.9,1.4
+versicolor,5,2,3.5,1
+versicolor,5.9,3,4.2,1.5
+versicolor,6,2.2,4,1
+versicolor,6.1,2.9,4.7,1.4
+versicolor,5.6,2.9,3.6,1.3
+versicolor,6.7,3.1,4.4,1.4
+versicolor,5.6,3,4.5,1.5
+versicolor,5.8,2.7,4.1,1
+versicolor,6.2,2.2,4.5,1.5
+versicolor,5.6,2.5,3.9,1.1
+versicolor,5.9,3.2,4.8,1.8
+versicolor,6.1,2.8,4,1.3
+versicolor,6.3,2.5,4.9,1.5
+versicolor,6.1,2.8,4.7,1.2
+versicolor,6.4,2.9,4.3,1.3
+versicolor,6.6,3,4.4,1.4
+versicolor,6.8,2.8,4.8,1.4
+versicolor,6.7,3,5,1.7
+versicolor,6,2.9,4.5,1.5
+versicolor,5.7,2.6,3.5,1
+versicolor,5.5,2.4,3.8,1.1
+versicolor,5.5,2.4,3.7,1
+versicolor,5.8,2.7,3.9,1.2
+versicolor,6,2.7,5.1,1.6
+versicolor,5.4,3,4.5,1.5
+versicolor,6,3.4,4.5,1.6
+versicolor,6.7,3.1,4.7,1.5
+versicolor,6.3,2.3,4.4,1.3
+versicolor,5.6,3,4.1,1.3
+versicolor,5.5,2.5,4,1.3
+versicolor,5.5,2.6,4.4,1.2
+versicolor,6.1,3,4.6,1.4
+versicolor,5.8,2.6,4,1.2
+versicolor,5,2.3,3.3,1
+versicolor,5.6,2.7,4.2,1.3
+versicolor,5.7,3,4.2,1.2
+versicolor,5.7,2.9,4.2,1.3
+versicolor,6.2,2.9,4.3,1.3
+versicolor,5.1,2.5,3,1.1
+versicolor,5.7,2.8,4.1,1.3
+virginica,6.3,3.3,6,2.5
+virginica,5.8,2.7,5.1,1.9
+virginica,7.1,3,5.9,2.1
+virginica,6.3,2.9,5.6,1.8
+virginica,6.5,3,5.8,2.2
+virginica,7.6,3,6.6,2.1
+virginica,4.9,2.5,4.5,1.7
+virginica,7.3,2.9,6.3,1.8
+virginica,6.7,2.5,5.8,1.8
+virginica,7.2,3.6,6.1,2.5
+virginica,6.5,3.2,5.1,2
+virginica,6.4,2.7,5.3,1.9
+virginica,6.8,3,5.5,2.1
+virginica,5.7,2.5,5,2
+virginica,5.8,2.8,5.1,2.4
+virginica,6.4,3.2,5.3,2.3
+virginica,6.5,3,5.5,1.8
+virginica,7.7,3.8,6.7,2.2
+virginica,7.7,2.6,6.9,2.3
+virginica,6,2.2,5,1.5
+virginica,6.9,3.2,5.7,2.3
+virginica,5.6,2.8,4.9,2
+virginica,7.7,2.8,6.7,2
+virginica,6.3,2.7,4.9,1.8
+virginica,6.7,3.3,5.7,2.1
+virginica,7.2,3.2,6,1.8
+virginica,6.2,2.8,4.8,1.8
+virginica,6.1,3,4.9,1.8
+virginica,6.4,2.8,5.6,2.1
+virginica,7.2,3,5.8,1.6
+virginica,7.4,2.8,6.1,1.9
+virginica,7.9,3.8,6.4,2
+virginica,6.4,2.8,5.6,2.2
+virginica,6.3,2.8,5.1,1.5
+virginica,6.1,2.6,5.6,1.4
+virginica,7.7,3,6.1,2.3
+virginica,6.3,3.4,5.6,2.4
+virginica,6.4,3.1,5.5,1.8
+virginica,6,3,4.8,1.8
+virginica,6.9,3.1,5.4,2.1
+virginica,6.7,3.1,5.6,2.4
+virginica,6.9,3.1,5.1,2.3
+virginica,5.8,2.7,5.1,1.9
+virginica,6.8,3.2,5.9,2.3
+virginica,6.7,3.3,5.7,2.5
+virginica,6.7,3,5.2,2.3
+virginica,6.3,2.5,5,1.9
+virginica,6.5,3,5.2,2
+virginica,6.2,3.4,5.4,2.3
+virginica,5.9,3,5.1,1.8
+')"></div>
         <h3>Summarizing data</h3>
-        <div data-cell="filter(data, 'sepal_length < 4.5')"></div>
+        <p>We're working on various functions for summarising and manipulating data (inspired by the approach of dplyr, the R package). But for now, there is just one function for that: <code>filter,</code> which takes as input a data table and an expression describing the filtering criteria (for now the expression is a string, but in the future it will be a Mini lambda expression).</p>
+        <div data-cell="filter(data, 'sepal_length < 4.5 &amp; petal_width >= 0.2')"></div>
         <h3>Plotting data</h3>
-        <p>At present, several functions are available for creating simple plots. The implementation of these is currently based on Vega-Lite a declarative syntax for plotting rendered using D3.js.</p>
+        <p>At present, a few functions are available for creating simple plots. The implementation of these is currently based on Vega-Lite, a high level grammar for visualization rendered using D3.js.</p>
         <p>The core <code>plot</code> function takes a data table, a mark name e.g. points, bars, and the names of columns in the data to encode into various plotting channels e.g. x, y, size, color. Let's create a simple scatterplot of our data:</p>
         <div data-cell="plot(data, 'points', x='sepal_length', y='sepal_width')"></div>
-        <p>There are also shortcut functions for using plotting marks directly. Here, we encode species name using point colors. We also use the options parameter (a Vega-Lite spec) to set the title of the legend:</p>
+        <p>There are also shortcut functions for using various plotting marks directly. Here, use the <code>points</code> function and encode species name using point colors. We also use the options parameter (a Vega-Lite spec) to set the title of the legend:</p>
         <div data-cell="points(data, 'sepal_length', 'sepal_width', color='species', options={
   encoding:{
     color:{
@@ -76,8 +229,8 @@ sepal_width: {values: [3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1,3.7,3.4,3,3,4,4.4,3
         <h2>Using other languages</h2>
         <p>An important feature of Mini is its ability to interoperate with other languages. Mini can act as a glue language - for those times when you need to combine the strengths of several languages. For example, you might want to extract some data from a database using Structured Query Language (SQL), then perform a specialised statistical analysis on the data using R, then visualise the results using Mini's built in plotting functions.</p>
         <p>Mini makes this possible through alternative execution contexts. Each context knows how to convert values to and from the Mini value types and how to execute snippets of code in the context's native language. The <code>JsContext</code> (for executing JavaScript code) comes embedded in the browser or desktop window of your Stencila Document.</p>
-        <p>Within the browser window of a Stencila Document there is a Stencila Host. A Host is responsible for finding, and talking to, other Hosts and orchestrating parts of the platform. Every few seconds your browser Host looks for other Hosts being served within other processes running on your computer. (In the future you'll also be able to manually register both local and remote peers.) When a peer Host is found, a handshake is performed and the hosts exchange manifests of their capabilities. One of those is capabilities is a list of the classes of Stencila Contexts that the Host supports.</p>
-        <p>Stencila Contexts share a common interface for executing code, whatever the language. They are very similar to Jupyter's &amp;amp;amp;amp;quot;kernels&amp;amp;amp;amp;quot; (a Stencila Context for bridging to Jupyter kernels is planned). The Stencila language packages each have one or more class of Context. The following subsections provide instructions on how to download those packages and start the Host so that you can start using those contexts.</p>
+        <p>Within the browser window of a Stencila Document there is a Stencila Host. A Host is responsible for finding, and talking to, other Hosts and orchestrating parts of the platform. Every few seconds, your browser-based Host looks for other Hosts being served within other processes running on your computer. (In the future you'll also be able to manually register both local and remote peers.) When a peer Host is found, a handshake is performed and the hosts exchange manifests of their capabilities. One of those is capabilities is a list of the classes of Stencila Contexts that the Host supports.</p>
+        <p>Stencila Contexts share a common interface for executing code, whatever the language. They are very similar to Jupyter's kernels (a Stencila Context for bridging to Jupyter kernels is planned). The Stencila language packages each have one or more class of Context. The following subsections provide instructions on how to download those packages and start the Host so that you can start using those contexts.</p>
         <h3>Node.js</h3>
         <p>Install the Stencila package for Node.js via NPM, <code>npm install -g stencila-node</code>, then start the host by running <code>stencila-node</code> in the system shell. If you've done that, this cell should show the Node.js version that you are running (if you need to, press <code>Ctrl+Enter</code> within the source of the cell to refesh it)</p>
         <div data-cell="run()" data-language="node">
@@ -91,7 +244,7 @@ sys.version</pre>
         </div>
         <p>The <code>PythonContext</code> supports autoconversion between data tables and <code>pandas.DataFrames.</code> So, for example, we can replicate the above plot using Pandas:</p>
         <div data-cell="call(data)" data-language="py">
-          <pre data-source="">return data.plot()</pre>
+          <pre data-source="">return data.plot.scatter(x='sepal_length', y='sepal_width')</pre>
         </div>
         <p>The Python package also has a <code>SQLiteContext</code> for executing code within SQLite. The <code>SQLiteContext</code> support autoconversion of data tables. So we can pass it some data and it will </p>
         <div data-cell="call(data)" data-language="sqlite">
@@ -103,15 +256,14 @@ GROUP BY species</pre>
         <p>Install the Stencila package for R using devtools, <code>devtools::install_github('stencila/r')</code>, then start the host by running <code>Rscript -e 'stencila::run()'</code> at the system shell or <code>stencila::host$start()</code> within your favorite R console. </p>
         <p>The <code>RContext</code> supports conversion of common types including R <code>data.frames</code> as well as base and <code>ggplot2</code> plots. So if you've got a R context running and have <code>ggplot2</code> installed this cell will output the equivalent of the previous plot:</p>
         <div data-cell="call(data)" data-language="r">
-          <pre data-source="">library(ggplot2)
-ggplot(data,aes(x=sepal_length, y=sepal_width, color=species)) + geom_point()</pre>
+          <pre data-source="">ggplot(data,aes(x=sepal_length, y=sepal_width, color=species)) + geom_point()</pre>
         </div>
         <p>As you will have seen above, there are two special functions in Mini for executing code in other languages: <code>run()</code> and <code>call()</code>. </p>
         <h3>The <code>run</code> function</h3>
-        <p>The <code>run</code> function executes code within the execution's global context. Using the <code>run</code> function is very similar to using code cells in Jupyter notebooks or code chunks in RMarkdown. When you assign a variable within the cell it is available to be used within a different cell later in the document. However, you need to take care of dependencies yourself, so if you change the source code of the first cell, you need to re-execute the second cell that depends on it.</p>
+        <p>The <code>run</code> function executes code within the context's global scope. Using the <code>run</code> function is very similar to using code cells in Jupyter notebooks or code chunks in RMarkdown. When you assign a variable within the cell it is available to be used within a different cell later in the document. However, you need to take care of dependencies yourself, so if you change the source code of the first cell, you need to re-execute the second cell that depends on it.</p>
         <p>Here's an example. Let's assign a global variable within a <code>JsContext</code> :</p>
         <div data-cell="run()" data-language="js">
-          <pre data-source="">myGlobal = 42
+          <pre data-source="">myGlobal = 45
 </pre>
         </div>
         <p>Now, <code>myGlobal</code> is a data/time object that is available to use in any cell. Let's look at it using another <code>run</code> cell:</p>
@@ -120,12 +272,12 @@ ggplot(data,aes(x=sepal_length, y=sepal_width, color=species)) + geom_point()</p
         </div>
         <p>Play around with those two cells and note that when you change the first, you need to re-execute the second to see the new value for <code>myGlobal</code>.</p>
         <h3>The <code>call</code> function</h3>
-        <p>The <code>call</code> function executes code within a function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. So, when you type <code>call()</code> into a cell, your effectively saying to Mini take this code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript:</p>
+        <p>The <code>call</code> function executes code within a function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. So, when you type <code>call()</code> into a cell, your effectively saying to Mini, take this code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript:</p>
         <div data-cell="call()" data-language="js">
           <pre data-source="">let names = ['Hiphop', 'opotamus', ' v ', 'Rhyme', 'noceros']
 return names.join('')</pre>
         </div>
-        <p>Notice that because we ended the JavaScript code, with a <code>return</code> statement that the cell has an output. When you <code>call()</code> some JavaScript <code>code</code> it's like executing <code>(function(){code})()</code>. The same is true for other external languages, it's just that the syntax differs.</p>
+        <p>Notice that because we ended the JavaScript code, with a <code>return</code> statement that the cell has an output.</p>
         <p>Just like with other Mini cells, you can assign the output of a <code>call()</code> to a document variable,</p>
         <div data-cell="javascript_pi = call()" data-language="js">
           <pre data-source="">return Math.PI</pre>
@@ -149,6 +301,29 @@ return names.join('')</pre>
         <div data-cell="area = call(r=radius)" data-language="js">
           <pre data-source="">return Math.PI*Math.pow(r, 2)</pre>
         </div>
+        <p>Now lets make thing interesting by manipulating, analysing and visualising the iris data using a combination of languages in a pipeline. This is a trivial, illustrative example, and it could all be done in one language but,..well, it's an illustration. It will only work if you have both the Python and R packages running as described above.</p>
+        <p>First, lets define some number range inputs that the user can use to alter and explore the analysis: Minimum petal length <input type="range" name="min_petal_length" min="0" max="3" step="0.1" value="0.9"></input> Smoothing span <input type="range" name="smooth" min="0.1" max="10" step="0.1" value="0.5"></input>
+        </p>
+        <p>As a first step in the pipeline, let's filter and aggregate the iris data using SQL and using the input variable <code>min_petal_length</code> we defined above:</p>
+        <div data-cell="data_summary = call(data, min_petal_length)" data-language="sqlite">
+          <pre data-source="">SELECT species, sepal_length, sum(sepal_width) AS sum_sepal_width, count(*) AS num
+FROM data
+WHERE petal_length &gt; ${min_petal_length}
+GROUP BY species, sepal_length</pre>
+        </div>
+        <p>Then let's visualise that data table in R using the <code>smooth</code> variable to control the span of the smoother applied:</p>
+        <div data-cell="call(data_summary, smooth)" data-language="r">
+          <pre data-source="">ggplot(data_summary, aes(
+    color=species, 
+    x=sepal_length, 
+    y=sum_sepal_width/num, 
+    size=num
+)) + 
+    geom_point() +
+    geom_smooth(span=smooth)</pre>
+        </div>
+        <p></p>
+        <p></p>
         <p></p>
       </div>
     </div>
