@@ -62,9 +62,9 @@ Open/Libre Office                                                           |
 Application or package                                                                                          | Ready
 :-------------------------------------------------------------------------------------------------------------- | :------------:
 [Stencila Desktop](https://github.com/stencila/desktop/releases)                                                | ✓
-[Stencila for Python](https://github.com/stencila/python)                                                       | ✓
-[Stencila for R](https://github.com/stencila/r)                                                                 | ✓
-[Stencila for Node.js](https://github.com/stencila/node)                                                        | ✓
+[Stencila for Python](https://github.com/stencila/py#readme)                                                    | ✓
+[Stencila for R](https://github.com/stencila/r#readme)                                                          | ✓
+[Stencila for Node.js](https://github.com/stencila/node#readme)                                                 | ✓
 
 Stencila is still at an early beta stage: there are likely to be missing features, bugs and API changes. But we would :heart: to get your suggestions and :bug: reports. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
 
