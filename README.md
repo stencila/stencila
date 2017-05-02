@@ -59,6 +59,8 @@ Open/Libre Office                                                           |
 
 ### Download
 
+See the [Getting Started](https://github.com/stencila/stencila/wiki/Getting-started) page on the wiki.
+
 Application or package                                                                                          | Ready
 :-------------------------------------------------------------------------------------------------------------- | :------------:
 [Stencila Desktop](https://github.com/stencila/desktop/releases)                                                | ✓
