@@ -182,13 +182,13 @@ class CellEngine extends Engine {
       if (context) return context
       else {
         // Determine the type of context from the context name
-        let match = name.match(/([a-zA-Z]+)([\d_].+)?/)
+        let match = name.match(/([a-zA-Z]+)([\d_].+)?(:(\w+))?/)
         if (match) {
           let type = match[1]
-          return this.host.post(type, name).then(context => {
+          let args = []
+          if (match[3]) args.push(match[4])
+          return this.host.post(type, name, args).then(context => {
             return context
-          }).catch(() => {
-            return null
           })
         } else {
           return null

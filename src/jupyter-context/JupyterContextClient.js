@@ -19,7 +19,7 @@ Then open the test file:
 
 `JupyterKernel` should be available globally 
 */
-
+import {GET} from '../util/requests'
 import {pack, unpack} from '../value'
 import Context from '../context/Context'
 
@@ -33,10 +33,53 @@ import Context from '../context/Context'
  */
 export default class JupyterContextClient extends Context {
 
-  constructor () {
+  constructor (url) {
     super()
-    
-    this.kernel = new JupyterKernel()
+
+    /**
+     * URL of the `JupyterContext`
+     * @type {string}
+     */
+    this.url = url
+
+    /**
+     * The kernel for this context
+     * @type {string}
+     */
+    this.kernel = null
+
+    /**
+     * The langauge for this context
+     */
+    this.language = null
+
+    /**
+     * Connection configuration
+     * @type {object}
+     */
+    this.config = null
+
+    /**
+     * The connection to the to the kernel
+     * @type {JupyterKernel}
+     */
+    this._connection = null
+  }
+
+  /**
+   * Start the Jupyter kernel
+   * @return {Promise}
+   */
+  start () {
+    if (this._connection) return Promise.resolve()
+    else {
+      return GET(this.url).then(data => {
+        this.kernel = data.kernel
+        this.language = data.spec && data.spec.language && data.spec.language.toLowerCase()
+        this.config = data.config
+        this._connection = true // new JupyterKernel(/* config parameters to go here */)
+      })
+    }
   }
 
   /**
@@ -44,13 +87,11 @@ export default class JupyterContextClient extends Context {
    *
    * @override
    */
-  runCode (code, options) {
-    // Ask the kernel to execute the code
-
-    // Get the `execute_result` or `display_data` and pack it
-    // from mimetype -> value -> pack
-
-    return Promise.resolve()
+  runCode (code) {
+    return this.start().then(() => {
+      // Run code
+      // Get the `execute_result` or `display_data`
+    })
   }
 
   /**
@@ -58,55 +99,23 @@ export default class JupyterContextClient extends Context {
    *
    * @override
    */
-  callCode (code, args, options) {
-    // Do we need to initialize the kernel with functions for pack/unpack/value for each language
-
-    // Wrap the code into a "self executing function"
-    let wrapper = callCodeWrappers[this.language]
-    let selfExecFunc = wrapper(code, args)
-
-    return this.runCode(selfExecFunc)
+  callCode (code, args) {
+    return this.start().then(() =>{
+      // Wrap the code into a "self executing function"
+      let wrapper = callCodeWrappers[this.language]
+      let selfExecFunc = wrapper(code, args)
+      // Execute the self executing function
+      return this.runCode(selfExecFunc)
+    })
   }
 
-  /**
-   * Does the context provide a function?
-   *
-   * @override
-   */
-  hasFunction (name) {
-    return Promise.reject(new Error('Not implemented'))
-  }
-
-  /**
-   * Call a function
-   *
-   * @override
-   */
-  callFunction (name, args, options) {
-    return Promise.reject(new Error('Not implemented'))
-  }
-
-  /**
-   * Get the dependencies for a piece of code
-   *
-   * @override
-   */
-  codeDependencies (code) {
-    return Promise.reject(new Error('Not implemented'))
-  }
-
-  /**
-   * Complete a piece of code
-   *
-   * @override
-   */
-  codeComplete (code) {
-    return Promise.reject(new Error('Not implemented'))
-  }
 }
 
 const callCodeWrappers = {
   r: (code, args) => {
-    return `(function(${Object.keys(args)}) { ${code} })()`
+    return `(function(${Object.keys(args)}) { ${code} })()`  // TODO
+  },
+  python: (code, args) => {
+    return code // TODO
   }
 }

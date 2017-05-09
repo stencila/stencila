@@ -1,6 +1,7 @@
 import { GET, POST } from '../util/requests'
-import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
+import JsContext from '../js-context/JsContext'
+import JupyterContextClient from '../jupyter-context/JupyterContextClient'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
@@ -35,11 +36,12 @@ export default class Host {
    * 
    * @param  {string} type - Name of class of instance
    * @param  {string} name - Name for new instance
+   * @param  {string} args - Any arguments for constructor
    * @return {Promise} Resolves to an instance
    */
-  post (type, name) {
+  post (type, name, args=[]) {
     if (type === 'JsContext' || type === 'js') {
-      let instance = new JsContext()
+      let instance = new JsContext(...args)
       let address = `name://${name || Math.floor((1 + Math.random()) * 1e6).toString(16)}`
       this._instances[address] = instance
       return Promise.resolve(instance)
@@ -66,12 +68,14 @@ export default class Host {
           }
 
           if (spec) {
-            return POST(url + '/' + spec.name, { name: name }).then(address => {
+            return POST(url + '/' + spec.name, { name: name, args: args }).then(address => {
               let instance
-              if (spec.base === 'Context') {
+              if (spec.client === 'JupyterContextClient') {
+                instance = new JupyterContextClient(url + '/' + address)
+              } else if (spec.base === 'Context' || spec.client === 'ContextHttpClient') {
                 instance = new ContextHttpClient(url + '/' + address)
               } else {
-                throw new Error(`Unsupported type: %{path}`)
+                throw new Error(`Unsupported type: ${spec.client}`)
               }
               this._instances[address] = instance
               return instance
