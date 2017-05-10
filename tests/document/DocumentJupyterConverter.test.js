@@ -1,6 +1,6 @@
 import test from 'tape'
 
-import converter from '../../src/document/jupyter-converter'
+import converter from '../../src/document/DocumentJupyterConverter'
 
 test('import', t => {
   const i = (json, options) => {

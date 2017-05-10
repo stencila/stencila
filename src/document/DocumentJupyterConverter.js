@@ -9,9 +9,10 @@ import * as he from 'he'
 import * as language from '../language'
 
 // Markdown <-> HTML conversion for Jupyter Markdown cells
-import markdownConverter from '../document/markdown-converter'
-const md2html = md => markdownConverter.import(md, {archive: false})
-const html2md = md => markdownConverter.export(md, {archive: false})
+import MarkdownConverter from '../document/DocumentMarkdownConverter'
+const markdownConverter = new MarkdownConverter()
+const md2html = md => markdownConverter.importContent(md)
+const html2md = html => markdownConverter.exportContent(html)
 
 // Cell value <-> HTML conversion for Jupyter code cell outputs
 import {fromHTML, toHTML, fromMime, toMime} from '../value'
