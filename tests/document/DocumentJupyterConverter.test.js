@@ -57,7 +57,7 @@ test('import', t => {
         }
       ]
     }),
-    '<div data-cell="run"><pre data-source="r">x &lt;- 6\nplot(1,x)</pre><img data-value="img" data-format="png" src="data:image/png;base64,PNGdata"></div>',
+    '<div data-cell="run"><pre data-source="r">x &lt;- 6\nplot(1,x)</pre><img data-value="image" data-format="png" src="data:image/png;base64,PNGdata"></div>',
     'cells with output'
   )
 
@@ -103,10 +103,10 @@ test('export', t => {
   t.deepEqual(
     e(`
       <h1 id="heading-1">Heading 1</h1>
-      <div data-cell="run">
-        <pre data-source="r">x &lt;- 6
+      <div data-cell="run()" data-language="r">
+        <pre data-source="">x &lt;- 6
 x*7</pre>
-        <img data-value="img" data-format="png" src="data:image/png;base64,PNGdata">
+        <img data-value="image" data-format="png" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8">
       </div>`, {stringify: false}
     ).cells[1],
     {
@@ -129,7 +129,7 @@ x*7</pre>
             {
               output_type: 'execute_result',
               data: {
-                'image/png': 'PNGdata'
+                'image/png': 'iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8'
               }
             }
           ],

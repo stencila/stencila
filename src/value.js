@@ -1,4 +1,5 @@
-/* globals Blob, atob, ArrayBuffer, Uint8Array */
+/* globals Blob, ArrayBuffer, Uint8Array */
+var base64 = require('base-64')
 
 /**
  * @namespace value
@@ -105,17 +106,18 @@ export function unpack (pkg) {
   } else if (type === 'image') {
     // Convert the base64 encoded image to a `Blob` and return 
     // within an 'image' value
-    const byteString = atob(content)
-    var arrayBuffer = new ArrayBuffer(byteString.length);
-    var integerArray = new Uint8Array(arrayBuffer);
-    for (var i = 0; i < byteString.length; i++) {
-      integerArray[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([integerArray], {type: `image/${format}`})
+    //const byteString = base64.decode(content)
+    //var arrayBuffer = new ArrayBuffer(byteString.length);
+    //var integerArray = new Uint8Array(arrayBuffer);
+    //for (var i = 0; i < byteString.length; i++) {
+    //  integerArray[i] = byteString.charCodeAt(i);
+    //}
+    //const blob = new Blob([integerArray], {type: `image/${format}`})
     return {
       type: 'image',
       format: format,
-      blob: blob
+      base64: content,
+      //blob: blob
     }
   } else {
     if (format === 'json') return JSON.parse(content)
@@ -135,7 +137,7 @@ export function fromHTML (elem) {
   let type = elem.attr('data-value')
   let format = elem.attr('data-format')
   let content
-  if (type === 'img') {
+  if (type === 'image') {
     let imageContent
     if (format === 'svg') {
       imageContent = elem.innerHTML
@@ -144,11 +146,7 @@ export function fromHTML (elem) {
       let match = data.match(/data:image\/([a-z]+);base64,([\w]+)/)
       imageContent = match[2]
     }
-    content = JSON.stringify({
-      type: 'img',
-      format: format,
-      content: imageContent
-    })
+    content = imageContent
   } else {
     content = elem.innerHTML
   }
@@ -169,11 +167,11 @@ export function fromHTML (elem) {
  */
 export function toHTML (value) {
   let type_ = type(value)
-  if (type_ === 'img') {
+  if (type_ === 'image') {
     if (value.format === 'svg') {
-      return `<div data-value="img" data-format="svg">${value.content}</div>`
+      return `<div data-value="image" data-format="svg">${value.content}</div>`
     } else {
-      return `<img data-value="img" data-format="${value.format}" src="data:image/${value.format};base64,${value.content}">`
+      return `<img data-value="image" data-format="${value.format}" src="data:image/${value.format};base64,${value.content}">`
     }
   } else {
     if (typeof value.content === 'undefined') {
@@ -200,13 +198,13 @@ export function fromMime (mimetype, content) {
   if (mimetype === 'image/png') {
     let match = mimetype.match('^image/([a-z]+)$')
     return {
-      type: 'img',
+      type: 'image',
       format: match ? match[1] : null,
       content: content
     }
   } else if (mimetype === 'image/svg+xml') {
     return {
-      type: 'img',
+      type: 'image',
       format: 'svg',
       content: content
     }
@@ -226,11 +224,7 @@ export function fromMime (mimetype, content) {
       content: content
     }
   } else {
-    return {
-      type: 'str',
-      format: 'text',
-      content: content
-    }
+    return content
   }
 }
 
@@ -244,10 +238,10 @@ export function fromMime (mimetype, content) {
  */
 export function toMime (value) {
   let type_ = type(value)
-  if (type_ === 'img') {
+  if (type_ === 'image') {
     return {
       mimetype: `image/${value.format}`,
-      content: value.content
+      content: value.base64
     }
   } else {
     let content

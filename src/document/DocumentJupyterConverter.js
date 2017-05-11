@@ -208,7 +208,6 @@ export default {
         let outputs = []
         child.findAll(['[data-value]']).forEach(elem => {
           let value = fromHTML(elem)
-          console.log(value)
           let mime = toMime(value)
           let mimebundle = {}
           mimebundle[mime.mimetype] = mime.content
