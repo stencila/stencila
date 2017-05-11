@@ -1,13 +1,16 @@
 import test from 'tape'
 
-import converter from '../../src/document/DocumentJupyterConverter'
+import DocumentJupyterConverter from '../../src/document/DocumentJupyterConverter'
 
-test('import', t => {
-  const i = (json, options) => {
-    options = options || {}
-    if (options.archive !== true) options.archive = false
-    return converter.import(json, options)
-  }
+test('DocumentJupyterConverter.match', function (t) {
+  t.ok(DocumentJupyterConverter.match('foo.ipynb'))
+  t.notOk(DocumentJupyterConverter.match('foo.html'))
+  t.end()
+})
+
+test('DocumentJupyterConverter.import', t => {
+  const converter = new DocumentJupyterConverter()
+  const i = json => converter.importContent(json)
 
   t.equal(
     i('{"cells":[{"cell_type":"markdown","source":["# Heading 1\\n"]}]}'),
@@ -64,11 +67,11 @@ test('import', t => {
   t.end()
 })
 
-test('export', t => {
+test('DocumentJupyterConverter.export', t => {
+  const converter = new DocumentJupyterConverter()
   const e = (html, options) => {
     options = options || {}
-    if (options.archive !== true) options.archive = false
-    return converter.export(html, options)
+    return converter.exportContent(html, options)
   }
 
   t.equal(
@@ -146,7 +149,8 @@ x*7</pre>
   t.end()
 })
 
-test('import-export', t => {
+test('DocumentJupyterConverter.import-export', t => {
+  const converter = new DocumentJupyterConverter()
   // Function to do round trip conversion and checking.
   // Takes an array of cells
   function f (cells) {
@@ -156,8 +160,8 @@ test('import-export', t => {
       nbformat: 4,
       nbformat_minor: 2
     }
-    let html = converter.import(nb, {archive: false})
-    let json = converter.export(html, {archive: false, stringify: false})
+    let html = converter.importContent(nb)
+    let json = converter.exportContent(html, {stringify: false})
     t.deepEqual(json, nb)
   }
 

@@ -29,26 +29,93 @@ import {fromHTML, toHTML, fromMime, toMime} from '../value'
  * See there for JSON schemas too
  *
  *   e.g. https://github.com/jupyter/nbformat/blob/master/nbformat/v4/nbformat.v4.schema.json
- *
- * @namespace document/jupyter
  */
-export default {
+export default class DocumentJupyterConverter {
+
+  /**
+   * Is a file name to be converted using this converter? 
+   * 
+   * @param  {string} fileName - Name of file
+   * @return {boolean} - Is the file name matched?
+   */
+  static match (fileName) {
+    return fileName.slice(-6) === '.ipynb'
+  }
+
+  // Import a document from storer to buffer
+  // This method is likely to be refactored into a base class method
+  // since it is very similar for all single-file based converters e.g. DocumentMarkdownConverter
+  importDocument(storer, buffer) {
+    let mainFilePath = storer.getMainFilePath()
+    let manifest = {
+      "type": "document",
+      "storage": {
+        "external": storer.isExternal(),
+        "storerType": storer.getType(),
+        "archivePath": storer.getArchivePath(),
+        "mainFilePath": mainFilePath,
+        "contentType": "ipynb",
+      },
+      "createdAt": new Date(),
+      "updatedAt": new Date()
+    }
+    return storer.readFile(
+      mainFilePath,
+      'text/html'
+    ).then(json => {
+      let html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content">${this.importContent(json)}</div>
+      </div>
+    </main>
+  </body>
+</html>`
+      return buffer.writeFile(
+        'index.html',
+        'text/html',
+        html
+      )
+    }).then(() => {
+      return buffer.writeFile(
+        'stencila-manifest.json',
+        'application/json',
+        JSON.stringify(manifest, null, '  ')
+      )
+    }).then(() => {
+      return manifest
+    })
+  }
+
+  // Export a document from buffer to storer
+  // This method is likely to be refactored into a base class method
+  // since it is very similar for all single-file based converters e.g. DocumentMarkdownConverter
+  exportDocument(buffer, storer) {
+    return buffer.readFile('index.html', 'text/html').then((html) => {
+      let content = DefaultDOMElement.parseHTML(html).find('.content')
+      if (!content) throw new Error('No div.content element in HTML!')
+      let ipynb = this.exportContent(content.getInnerHTML())
+      return storer.writeFile(storer.getMainFilePath(), 'text/json', ipynb)
+    })
+  }
+
 
   /**
    * Convert from a Jupyter Notebook to a Stencila Document
    *
    * @memberof document/jupyter
    *
-   * @param  {string} content - Content of Jupyter Notebook (JSON)
-   * @param {object} options - Conversion options
+   * @param  {string|object} json - Content of Jupyter Notebook (JSON string of Object)
    * @return {string} Content of Stencila Document (HTML)
    */
-  import: function (content, options) {
-    options = options || {}
-    if (options.archive !== false) options.archive = true
-
+  importContent (json) {
     // Get notebook data, by parsing JSON string if necessary
-    let data = (typeof content === 'string') ? JSON.parse(content) : content
+    let data = (typeof json === 'string') ? JSON.parse(json) : json
 
     let doc = DefaultDOMElement.createDocument('html')
     let $$ = doc.createElement.bind(doc)
@@ -142,29 +209,21 @@ export default {
     }
 
     let html = root.html()
-    if (options.archive) {
-      return {
-        'index.html': html
-      }
-    } else {
-      return html
-    }
-  },
+    return html
+  }
 
   /**
    * Convert to a Jupyter Notebook from a Stencila Document
    *
    * @memberof document/jupyter
    *
-   * @param {string|object} doc - Document archive (virtual filesystem folder) or HTML string
-   * @param {object} options - Conversion options
-   * @return {object|string} - Jupyter notebook
+   * @param {string} html - Document HTML string
+   * @return {string|object} - Jupyter notebook JSON or object
    */
-  export: function (doc, options) {
+  exportContent (html, options) {
     options = options || {}
     if (options.stringify !== false) options.stringify = true
     if (options.pretty !== false) options.pretty = true
-    if (options.archive !== false) options.archive = true
 
     // Initial, empty notebook object
     let nb = {
@@ -175,7 +234,6 @@ export default {
     }
 
     // Create a DOM document to iterate over
-    let html = typeof doc === 'string' ? doc : doc['index.html']
     let root = DefaultDOMElement.createDocument('html').setInnerHTML(html)
 
     // We need to accumulate HTML elements which are then flushed
@@ -240,13 +298,7 @@ export default {
       content = nb
     }
 
-    if (options.archive) {
-      return {
-        '.': content
-      }
-    } else {
-      return content
-    }
+    return content
   }
 
 }
