@@ -39,7 +39,6 @@
     "base-64": "^0.1.0",
     "d3": "^4.4.0",
     "font-awesome": "^4.6.3",
-    "html-entities": "^1.2.1",
     "js-beautify": "^1.6.12",
     "katex": "^0.6.0",
     "lodash": "^4.17.4",

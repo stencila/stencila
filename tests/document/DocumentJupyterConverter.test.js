@@ -38,8 +38,19 @@ test('DocumentJupyterConverter.import', t => {
         {cell_type: 'code', source: ['dict(foo="bar")\n']}
       ]
     }),
-    '<h1 id="heading-1">Heading 1</h1><div data-cell="run"><pre data-source="py">dict(foo=&quot;bar&quot;)</pre></div>',
+    '<h1 id="heading-1">Heading 1</h1><div data-cell="run()" data-language="py"><pre data-source="">dict(foo="bar")</pre></div>',
     'cells'
+  )
+
+  t.equal(
+    i({
+      metadata: { language_info: { name: 'python' } },
+      cells: [
+        {cell_type: 'code', source: ['dict(foo=\'bar\')\n']}
+      ]
+    }),
+    '<div data-cell="run()" data-language="py"><pre data-source="">dict(foo=\'bar\')</pre></div>',
+    'code cells with apostrophes'
   )
 
   t.equal(
@@ -60,7 +71,7 @@ test('DocumentJupyterConverter.import', t => {
         }
       ]
     }),
-    '<div data-cell="run"><pre data-source="r">x &lt;- 6\nplot(1,x)</pre><img data-value="image" data-format="png" src="data:image/png;base64,PNGdata"></div>',
+    '<div data-cell="run()" data-language="r"><pre data-source="">x &lt;- 6\nplot(1,x)</pre><img data-value="image" data-format="png" src="data:image/png;base64,PNGdata"></div>',
     'cells with output'
   )
 

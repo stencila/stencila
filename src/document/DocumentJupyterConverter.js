@@ -3,9 +3,6 @@
 // for the API
 import {DefaultDOMElement} from 'substance'
 
-import htmlEntities from 'html-entities'
-const he = htmlEntities.Html5Entities
-
 // Standard language codes
 import * as language from '../language'
 
@@ -156,15 +153,18 @@ export default class DocumentJupyterConverter {
       if (cell.cell_type === 'markdown') {
         // Convert Markdown to HTML and insert into the document
         let html = md2html(source)
-        root.append(html)
+        for (let child of $$('div').setInnerHTML(html).getChildren()) root.append(child)
       } else if (cell.cell_type === 'code') {
-        // Create a new chunk (ie. a cell with a `run` mini expression)
-        let chunk = $$('div').attr('data-cell', 'run')
+        // Create a new chunk (ie. a cell with a `run()` mini expression)
+        let chunk = $$('div')
+                      .attr('data-cell', 'run()')
+                      .attr('data-language', lang)
 
-        // Append source code escaped for &, <, >, ", ', and `
-        source = he.encode(source)
+        // Escape < chars
+        // CHECK do other characters need escaping?
+        source = source.replace(/</g, '&lt;')
         chunk.append(
-          $$('pre').attr('data-source', lang).text(source)
+          $$('pre').attr('data-source', '').text(source)
         )
 
         // Process outputs
@@ -259,7 +259,9 @@ export default class DocumentJupyterConverter {
 
         // Create source lines
         let source = child.find(['[data-source]']).text()
-        source = he.decode(source)
+        // Unescape < chars
+        // CHECK do other characters need unescaping?
+        source = source.replace(/&lt;/g, '<')
         let lines = source.split('\n').map(line => `${line}\n`)
 
         // Create outputs
