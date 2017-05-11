@@ -1,5 +1,5 @@
-/* globals Blob, ArrayBuffer, Uint8Array */
-var base64 = require('base-64')
+///* globals Blob, ArrayBuffer, Uint8Array */
+//var base64 = require('base-64')
 
 /**
  * @namespace value
