@@ -3,7 +3,8 @@
 // for the API
 import {DefaultDOMElement} from 'substance'
 
-import * as he from 'he'
+import htmlEntities from 'html-entities'
+const he = htmlEntities.Html5Entities
 
 // Standard language codes
 import * as language from '../language'
@@ -94,7 +95,7 @@ export default {
         let chunk = $$('div').attr('data-cell', 'run')
 
         // Append source code escaped for &, <, >, ", ', and `
-        source = he.escape(source)
+        source = he.encode(source)
         chunk.append(
           $$('pre').attr('data-source', lang).text(source)
         )
@@ -200,7 +201,7 @@ export default {
 
         // Create source lines
         let source = child.find(['[data-source]']).text()
-        source = he.unescape(source)
+        source = he.decode(source)
         let lines = source.split('\n').map(line => `${line}\n`)
 
         // Create outputs
