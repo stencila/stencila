@@ -36,26 +36,28 @@ Select input (name value pairs)                                             | �
 File input (CSV etc)                                                        | 
 Code cell                                                                   | ✓
 Output (value display)                                                      | ✓
-**Execution contexts**                                                      |
-JavaScript                                                                  | ✓
-Node.js                                                                     | ✓
-R                                                                           | ✓
-Python                                                                      | ✓
-Julia                                                                       | 
-Jupyter kernels                                                             | 0.27
-**Functions**                                                               |
-Statistics (`sum`, `mean`, `variance`, ...)                                 | 0.27
-Data manipulation (`filter`, `sort`, `aggregate`, ...)                      | 0.27
+**Embedded functions**                                                      |
+Statistics (`sum`, `mean`, `variance`, ...)                                 | 
+Data manipulation (`filter`, `sort`, `aggregate`, ...)                      | 
 Data visualization (`plot`, `title`, `theme`, ...)                          | ✓
 Contribute more...                                                          | ✓
-**Formats**                                                                 |
+**Execution contexts**                                                      |
+Bash                                                                        |
+JavaScript                                                                  | ✓
+Julia                                                                       | 
+Jupyter kernels                                                             | 0.27
+Node.js                                                                     | ✓
+Python                                                                      | ✓
+R                                                                           | ✓
+SQLite                                                                      | ✓
+**Supported formats**                                                       |
 HTML                                                                        | ✓
 JATS                                                                        | 
-Markdown                                                                    | ✓
-RMarkdown                                                                   | 0.27
-Jupyter Notebook                                                            | 
-Microsoft Office                                                            | 
-Open/Libre Office                                                           | 
+Markdown `.md`                                                              | ✓
+RMarkdown `.Rmd`                                                            | 0.27
+Jupyter Notebook `.ipynb`                                                   | 0.27
+Microsoft Office `.docx`                                                    | 0.28
+Open/Libre Office `.odt`                                                    | 0.28
 
 ### Download
 
