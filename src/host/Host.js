@@ -1,7 +1,7 @@
 import { GET, POST, PUT } from '../util/requests'
 import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
-import MemoryBuffer from './MemoryBuffer'
+import MemoryBuffer from '../backend/MemoryBuffer'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
