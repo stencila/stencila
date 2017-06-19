@@ -25,7 +25,10 @@ export default class Host {
      */
     this._peers = {}
 
-    // Begin peer discovery straight away
+    // Add the Host who served this file as a peer
+    if (window) this.pokePeer(window.location.origin)
+
+    // Discover other peers
     if (options.discover) this.discoverPeers(options.discover)
   }
 
@@ -46,38 +49,47 @@ export default class Host {
     else {
       for (let url of Object.keys(this._peers)) {
         let manifest = this._peers[url]
-        if (manifest.schemes && manifest.schemes.new) {
-          // Only ask peer if the type is in the peer's `new` scheme
-          let types = manifest.schemes.new
-          let spec = types[type]
-          if (!spec) {
-            // No matching type name found so search through aliases
-            for (let name of Object.keys(types)) {
-              let spec_ = types[name]
-              for (let alias of spec_.aliases) {
+        
+        // Gather an object of types from the peer and it's peers
+        let types = {}
+        let addTypes = function (manifest) {
+          if (manifest.schemes && manifest.schemes.new) types = Object.assign(types, manifest.schemes.new)
+        }
+        addTypes(manifest)
+        for (let peer of manifest.peers) addTypes(peer)
+
+        // If the type is available, use it, otherwise search through aliases
+        let spec = types[type]
+        if (!spec) {
+          for (let trialType of Object.keys(types)) {
+            let trialSpec = types[trialType]
+            if (trialSpec.aliases) {
+              for (let alias of trialSpec.aliases) {
                 if (alias === type) {
-                  spec = spec_
+                  spec = trialSpec
                   break
                 }
               }
               if (spec) break
             }
           }
+        }
 
-          if (spec) {
-            return POST(url + '/' + spec.name, { name: name }).then(address => {
-              let instance
-              if (spec.base === 'Context') {
-                instance = new ContextHttpClient(url + '/' + address)
-              } else {
-                throw new Error(`Unsupported type: %{path}`)
-              }
-              this._instances[address] = instance
-              return instance
-            })
-          }
+        // Type found so request a new one
+        if (spec) {
+          return POST(url + '/' + spec.name, { name: name }).then(address => {
+            let instance
+            if (spec.base === 'Context') {
+              instance = new ContextHttpClient(url + '/' + address)
+            } else {
+              throw new Error(`Unsupported type: %{path}`)
+            }
+            this._instances[address] = instance
+            return instance
+          })
         }
       }
+
       return Promise.reject(new Error(`No peers able to provide: ${type}`))
     }
   }
@@ -113,6 +125,18 @@ export default class Host {
   }
 
   /**
+   * Pokes a URL to see if it is a Stencila Host
+   * 
+   * @param {string} url - A URL for the peer
+   */
+  pokePeer (url) {
+    GET(url).then(manifest => {
+      // Register if this is a Stencila Host manifest
+      if (manifest.stencila) this.registerPeer(url, manifest)
+    })
+  }
+
+  /**
    * Discover peers
    *
    * Currently, this method just does a port scan on the localhost to find
@@ -131,11 +155,7 @@ export default class Host {
    */
   discoverPeers (interval=10) {
     for (let port=2000; port<=2100; port+=10) {
-      const url = `http://127.0.0.1:${port}`
-      GET(url).then(manifest => {
-        // Register if this is a Stencila Host manifest
-        if (manifest.stencila) this.registerPeer(url, manifest)
-      })
+      this.pokePeer(`http://127.0.0.1:${port}`)
     }
     if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
   }
