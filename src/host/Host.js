@@ -10,8 +10,6 @@ import MemoryBuffer from '../backend/MemoryBuffer'
 export default class Host {
 
   constructor (options = {}) {
-    if (options.discover === undefined) options.discover = 10
-
     /**
      * Instances managed by this host
      *  

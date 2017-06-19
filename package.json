@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/stencila/stencila#readme",
   "dependencies": {
+    "base-64": "^0.1.0",
     "d3": "^4.4.0",
     "font-awesome": "^4.6.3",
     "js-beautify": "^1.6.12",
