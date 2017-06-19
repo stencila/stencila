@@ -1,5 +1,4 @@
-///* globals Blob, ArrayBuffer, Uint8Array */
-//var base64 = require('base-64')
+/* globals Blob, ArrayBuffer, Uint8Array */
 
 /**
  * @namespace value
@@ -104,20 +103,21 @@ export function unpack (pkg) {
   } else if (type === 'array') {
     return JSON.parse(content)
   } else if (type === 'image') {
-    // Convert the base64 encoded image to a `Blob` and return 
-    // within an 'image' value
-    //const byteString = base64.decode(content)
-    //var arrayBuffer = new ArrayBuffer(byteString.length);
-    //var integerArray = new Uint8Array(arrayBuffer);
-    //for (var i = 0; i < byteString.length; i++) {
-    //  integerArray[i] = byteString.charCodeAt(i);
-    //}
-    //const blob = new Blob([integerArray], {type: `image/${format}`})
+    let blob
+    if (typeof window !== 'undefined' && window.atob) {
+      const byteString = window.atob(content)
+      var arrayBuffer = new ArrayBuffer(byteString.length);
+      var integerArray = new Uint8Array(arrayBuffer);
+      for (var i = 0; i < byteString.length; i++) {
+        integerArray[i] = byteString.charCodeAt(i);
+      }
+      blob = new Blob([integerArray], {type: `image/${format}`})
+    }
     return {
       type: 'image',
       format: format,
       base64: content,
-      //blob: blob
+      blob: blob
     }
   } else {
     if (format === 'json') return JSON.parse(content)
