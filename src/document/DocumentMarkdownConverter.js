@@ -374,7 +374,12 @@ function rehypeCodeblockToCell () {
       if (parent && node.tagName === 'code' && node.properties.className) {
         if (parent.tagName === 'pre' && node.properties.className.length) {
           let className = node.properties.className[0]
-          let match = className.match(/^language-(.+?)({(\w+)})?$/)
+
+          // Currently, our Markdown to HTML conversion does not support
+          // codeblock annotations with spaces. So, RMarkdown chunks with
+          // spaces e.g. ```{r fig-width=8}``` arrive here as `language-{r`
+          // That is why this regex allows for a no closing curly brace
+          let match = className.match(/^language-([^{]*)({(\w+)(.*)}?)?$/)
           if (match) {
             let expr
             let language
@@ -389,16 +394,17 @@ function rehypeCodeblockToCell () {
               }
             }
 
-            let mini = match[1] === '.'
-            if (mini) {
+            if (match[1] === '.') {
               expr = code
             } else {
-              expr = match[1]
-              if (expr === 'run') expr = "run()"
+              expr = match[1] 
+
+              if (!expr || expr === 'run') expr = "run()"
               if (expr === 'call') expr = "call()"
               // If this is not a run or a call then just retain as a plain codeblock
               if (expr.indexOf('(') < 0) return
               language = match[3]
+
               children = [{
                 type: 'element',
                 tagName: 'pre',
