@@ -1,4 +1,4 @@
-import { Component, parseKeyEvent } from 'substance'
+import { Component } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
 import Cell from './Cell'
 import CellValueComponent from './CellValueComponent'
