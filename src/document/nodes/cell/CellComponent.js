@@ -6,12 +6,17 @@ import MiniLangEditor from './MiniLangEditor'
 import CellErrorDisplay from './CellErrorDisplay'
 import Dropdown from '../../../shared/Dropdown'
 
-//const LANGUAGE_LABELS = {
-//  'js': 'JavaScript',
-//  'javascript': 'JavaScript'
-//}
-
 class CellComponent extends Component {
+
+  constructor(...args) {
+    super(...args)
+
+    this.handleActions({
+      // triggered by CodeEditorComponent and MiniLangEditor
+      'execute': this._onExecute,
+      'break': this._onBreak
+    })
+  }
 
   getInitialState() {
     return {
@@ -46,7 +51,6 @@ class CellComponent extends Component {
           commands: ['undo', 'redo', 'select-all'],
           expression: cell.getExpressionNode()
         }).ref('expressionEditor')
-          .on('enter', this.onExpressionEnter)
       )
     )
     cellEditorContainer.append(
@@ -139,37 +143,6 @@ class CellComponent extends Component {
     this.send('escape')
   }
 
-  onExpressionEnter(event) {
-    // EXPERIMENTAL: we want an easy way to insert content after the
-    const data = event.detail
-    const editorSession = this.context.editorSession
-    const modifiers = parseKeyEvent(data, 'modifiers-only')
-    switch(modifiers) {
-      case 'ALT': {
-        editorSession.setSelection(this._afterNode())
-        editorSession.executeCommand('insert-cell')
-        break
-      }
-      case 'CTRL': {
-        this.props.node.recompute()
-        break
-      }
-      case 'SHIFT': {
-        editorSession.transaction((tx) => {
-          tx.insertText('\n')
-        })
-        break
-      }
-      case '': {
-        editorSession.setSelection(this._afterNode())
-        editorSession.executeCommand('insert-node', {type:'paragraph'})
-        break
-      }
-      default:
-        //
-    }
-  }
-
   onContextInputChanged(event) {
     const context = event.target.value
     const cell = this.props.node
@@ -197,10 +170,25 @@ class CellComponent extends Component {
 
   onAwaitingEvaluation() {
     // TODO: we could visualize this
+    // TODO: we could freeze the editor so that no further evaluations
+    // are triggered by typing; this might as well depend on the
+  }
+
+  _onExecute() {
+    this.props.node.recompute()
+  }
+
+  _onBreak() {
+    this.context.editorSession.transaction((tx) => {
+      tx.selection = this._afterNode()
+      tx.insertBlockNode({
+        type: 'paragraph'
+      })
+    })
   }
 
   _afterNode() {
-    // HACK: not too happy about how difficult it is
+    // TODO: not too happy about how difficult it is
     // to set the selection
     const node = this.props.node
     const isolatedNode = this.context.isolatedNodeComponent

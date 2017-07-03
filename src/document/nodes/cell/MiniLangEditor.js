@@ -1,5 +1,5 @@
 import {
-  Component, TextPropertyEditor, isArrayEqual
+  Component, TextPropertyEditor, isArrayEqual, parseKeyEvent
 } from 'substance'
 
 export default
@@ -17,7 +17,6 @@ class MiniLangEditor extends Component {
       markers,
       handleTab: false
     }).ref('contentEditor')
-      // NOTE: disable these if these are causing troubles
       // EXPERIMENTAL: adding "\n" plus indent of current line
       .on('enter', this._onEnterKey)
       // EXPERIMENTAL: adding 2 spaces if at begin of line
@@ -46,10 +45,27 @@ class MiniLangEditor extends Component {
     }
   }
 
-  _onEnterKey() {
-    // find the indent of the current line
-    let indent = this._getCurrentIndent() || ''
+  _onEnterKey(event) {
+    const data = event.detail
+    const modifiers = parseKeyEvent(data, 'modifiers-only')
+    switch(modifiers) {
+      case 'ALT': {
+        this.send('break')
+        break
+      }
+      case 'CTRL': {
+        this.send('execute')
+        break
+      }
+      default:
+        //
+        this._insertNewLine()
+    }
+  }
+
+  _insertNewLine() {
     const editorSession = this.context.editorSession
+    const indent = this._getCurrentIndent() || ''
     editorSession.transaction((tx) => {
       tx.insertText('\n' + indent)
     })

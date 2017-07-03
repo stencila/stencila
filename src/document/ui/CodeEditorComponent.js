@@ -48,7 +48,7 @@ class CodeEditorComponent extends Component {
       )
   }
 
-  shouldRerender () {
+  shouldRerender() {
     // Don't rerender as that would destroy editor
     return false
   }
@@ -99,6 +99,22 @@ class CodeEditorComponent extends Component {
       bindKey: {win: 'Shift+Enter', mac: 'Shift+Enter'},
       exec: (aceEditor) => {
         this._onConfirm(aceEditor)
+      },
+      readOnly: true
+    })
+    aceEditor.commands.addCommand({
+      name: 'break',
+      bindKey: {win: 'Alt+Enter', mac: 'Alt+Enter'},
+      exec: () => {
+        this.send('break')
+      },
+      readOnly: true
+    })
+    aceEditor.commands.addCommand({
+      name: 'execute',
+      bindKey: {win: 'Ctrl+Enter', mac: 'Cmd+Enter'},
+      exec: (aceEditor) => {
+        this._onExecute(aceEditor)
       },
       readOnly: true
     })
@@ -168,7 +184,7 @@ class CodeEditorComponent extends Component {
         skipSelectionRerender: true
       })
     } else if (change.action === 'remove') {
-      editorSession.transaction(function (tx) {
+      editorSession.transaction((tx) => {
         tx.update(path, {
           type: 'delete',
           start: start,
@@ -250,6 +266,21 @@ class CodeEditorComponent extends Component {
     editorSession.transaction(tx => {
       tx.set(this.props.path, editor.getValue())
     })
+  }
+
+  _onExecute(editor) {
+    const editorSession = this.context.editorSession
+    const doc = editorSession.getDocument()
+    const src = doc.get(this.props.path)
+    const newSrc = editor.getValue()
+    if (src !== newSrc) {
+      // changing the source will also trigger re-evaluation
+      editorSession.transaction(tx => {
+        tx.set(this.props.path, newSrc)
+      })
+    } else {
+      this.send('execute')
+    }
   }
 
 }
