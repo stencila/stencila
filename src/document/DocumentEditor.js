@@ -41,14 +41,14 @@ export default class DocumentEditor extends AbstractEditor {
         .ref('scrollPane')
         .append(
           $$(Overlay, {
-            toolGroups: ['annotations', 'text', 'overlay']
+            toolPanel: configurator.getToolPanel('main-overlay'),
+            theme: 'dark'
           }).ref('overlay'),
           $$(Dropzones),
           // A  ContainerEditor for the content of the document
           $$(ContainerEditor, {
             containerId: 'content',
-            disabled: !this.props.edit,
-            textTypes: configurator.getTextTypes()
+            disabled: !this.props.edit
           }).ref('containerEditor')
         )
     )

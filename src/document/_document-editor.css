@@ -5,13 +5,10 @@
   the pagestyle module
 */
 
-@import './minimal-switch-text-type/_minimal-switch-text-type.css';
-@import './overlay/_overlay.css';
 @import './ui/_code-editor.css';
 @import './ui/_isolated-node.css';
 @import './button/_button.css';
 @import './input/_input.css';
-@import './toggle-insert/_toggle-insert.css';
 @import './input-settings-bar/_input-settings-bar.css';
 @import '../shared/_dropdown.css';
 
