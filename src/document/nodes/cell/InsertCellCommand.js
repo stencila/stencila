@@ -6,6 +6,11 @@ class InsertCellCommand extends InsertNodeCommand {
     return { type: 'cell' }
   }
 
+  getCommandState(params) {
+    let commandState = super.getCommandState(params)
+    return commandState
+  }
+
   setSelection(tx, node) {
     const containerId = tx.selection.containerId
     tx.selection = {

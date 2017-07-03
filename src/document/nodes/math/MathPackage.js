@@ -1,4 +1,3 @@
-import { Tool } from 'substance'
 import Math from './Math'
 import MathHTMLConverter from './MathHTMLConverter'
 import MathComponent from './MathComponent'
@@ -14,14 +13,17 @@ export default {
     config.addConverter('html', MathHTMLConverter)
     config.addComponent('math', MathComponent)
 
-    config.addCommand('edit-math', EditInlineNodeCommand, { nodeType: 'math' })
-    config.addTool('edit-math', EditMathTool, { toolGroup: 'overlay' })
+    config.addCommand('edit-math', EditInlineNodeCommand, {
+      nodeType: 'math',
+      commandGroup: 'prompt'
+    })
+    config.addTool('edit-math', EditMathTool)
 
     config.addCommand('insert-math', InsertMathCommand, {
       nodeType: 'math',
-      disableCollapsedCursor: true
+      disableCollapsedCursor: true,
+      commandGroup: 'insert'
     })
-    config.addTool('insert-math', Tool, { toolGroup: 'overlay' })
 
     // config.addMacro(new MathMacro())
     // TODO: Choose/create a better math icon (this is a random temporary)

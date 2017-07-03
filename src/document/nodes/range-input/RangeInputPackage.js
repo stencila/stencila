@@ -11,14 +11,17 @@ export default {
     config.addNode(RangeInput)
     config.addComponent('range-input', RangeInputComponent)
     config.addConverter('html', RangeInputConverter)
-    config.addCommand('edit-range-input', EditInlineNodeCommand, { nodeType: 'range-input' })
-    config.addTool('edit-range-input', EditRangeInputTool, { toolGroup: 'overlay' })
+    config.addCommand('edit-range-input', EditInlineNodeCommand, {
+      nodeType: 'range-input',
+      commandGroup: 'prompt'
+    })
+    config.addTool('edit-range-input', EditRangeInputTool)
     config.addCommand('insert-range-input', InsertRangeInputCommand, {
       nodeType: 'range-input',
-      disableCollapsedCursor: true
+      commandGroup: 'insert'
     })
     config.addTool('insert-range-input', Tool, { toolGroup: 'overlay' })
     config.addIcon('insert-range-input', { 'fontawesome': 'fa-sliders' })
-    config.addLabel('insert-range-input', 'Insert Number Input')
+    config.addLabel('insert-range-input', 'Range Input')
   }
 }

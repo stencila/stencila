@@ -6,7 +6,7 @@ import { Tool } from 'substance'
 class EditInlineCellTool extends Tool {
 
   getExpressionPath() {
-    return [ this.props.node.id ].concat('expression')
+    return [ this.props.commandState.nodeId ].concat('expression')
   }
 
   render($$) {

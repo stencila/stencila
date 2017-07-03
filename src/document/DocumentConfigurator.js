@@ -13,7 +13,6 @@ import LinkPackage from './nodes/link/LinkPackage'
 import ListPackage from './nodes/list/ListPackage'
 import CellPackage from './nodes/cell/CellPackage'
 import InlineCellPackage from './nodes/inline-cell/InlineCellPackage'
-import TablePackage from './nodes/table/TablePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
 import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
@@ -58,7 +57,6 @@ class DocumentConfigurator extends Configurator {
     this.import(CodePackage)
     this.import(LinkPackage)
     this.import(ListPackage)
-    this.import(TablePackage)
     this.import(MathPackage)
     this.import(SelectPackage)
     this.import(RangeInputPackage)
@@ -110,8 +108,6 @@ class DocumentConfigurator extends Configurator {
         commandGroups: ['insert']
       }
     ])
-
-    this.addKeyboardShortcut('ctrl+alt+c', { command: 'insert-cell' })
   }
 
   /**

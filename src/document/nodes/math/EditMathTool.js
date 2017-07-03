@@ -9,7 +9,7 @@ import { Tool } from 'substance'
 class EditMathTool extends Tool {
 
   getSourcePath() {
-    return [ this.props.node.id ].concat('source')
+    return [ this.props.commandState.nodeId ].concat('source')
   }
 
   render($$) {
