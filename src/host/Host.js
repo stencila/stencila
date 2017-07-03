@@ -26,7 +26,7 @@ export default class Host {
     this._peers = {}
 
     // Add the Host who served this file as a peer
-    if (typeof window !== 'undefined') this.pokePeer(window.location.origin)
+    if (options.mode !== 'dev' && typeof window !== 'undefined') this.pokePeer(window.location.origin)
 
     // Discover other peers
     if (options.discover) this.discoverPeers(options.discover)
