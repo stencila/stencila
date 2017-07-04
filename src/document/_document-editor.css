@@ -43,9 +43,14 @@
 @import './nodes/math/_math.css';
 
 .sc-document-editor {
-  max-width: 660px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  /*max-width: 660px;
   padding: 20px;
-  margin: 0 auto;
+  margin: 0 auto;*/
 }
 
 .sc-document-editor .sc-container-editor > * {

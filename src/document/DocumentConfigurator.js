@@ -1,4 +1,4 @@
-import { Configurator, BasePackage } from 'substance'
+import { Configurator, BasePackage, FindAndReplacePackage } from 'substance'
 
 import TitlePackage from './nodes/title/TitlePackage'
 import SummaryPackage from './nodes/summary/SummaryPackage'
@@ -60,6 +60,7 @@ class DocumentConfigurator extends Configurator {
     this.import(MathPackage)
     this.import(SelectPackage)
     this.import(RangeInputPackage)
+    this.import(FindAndReplacePackage)
 
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
@@ -106,6 +107,14 @@ class DocumentConfigurator extends Configurator {
         showDisabled: false,
         style: 'minimal',
         commandGroups: ['insert']
+      }
+    ])
+
+    this.addToolPanel('workflow', [
+      {
+        name: 'workflow',
+        type: 'tool-group',
+        commandGroups: ['workflows']
       }
     ])
   }
