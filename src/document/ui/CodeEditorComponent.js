@@ -1,9 +1,9 @@
-import { Component, inBrowser, isNil, isArrayEqual } from 'substance'
+import { CustomSurface, inBrowser, isNil, isArrayEqual } from 'substance'
 import ace from 'brace'
 import {attachAceEditor, setAceEditorMode} from '../../utilities/aceHelpers'
 
 /**
- * A `Component` for editing a node's `source` code
+ * A `CustomSurface` for editing a node's `source` code
  * attribute.
  *
  * This is based on ideas here:
@@ -14,7 +14,7 @@ import {attachAceEditor, setAceEditorMode} from '../../utilities/aceHelpers'
  *
  * @class      CodeEditorComponent (name)
  */
-class CodeEditorComponent extends Component {
+class CodeEditorComponent extends CustomSurface {
 
   constructor (...args) {
     super(...args)
@@ -24,12 +24,16 @@ class CodeEditorComponent extends Component {
   }
 
   didMount () {
+    super.didMount()
+
     if (inBrowser) {
       this._createAceEditor()
     }
   }
 
   dispose () {
+    super.dispose()
+
     const editorSession = this.context.editorSession
     editorSession.off(this)
     if (this.aceEditor) {
@@ -57,6 +61,17 @@ class CodeEditorComponent extends Component {
     if (this.aceEditor) {
       setAceEditorMode(this.aceEditor, language)
     }
+  }
+
+  _focus() {
+    if (this.aceEditor) {
+      this.aceEditor.focus()
+    }
+  }
+
+  // CustomSurface interface
+  _getCustomResourceId() {
+    return this.props.path.join('.')
   }
 
   _createAceEditor() {
@@ -177,11 +192,16 @@ class CodeEditorComponent extends Component {
             text: change.lines.join('\n')
           })
         }
+        // TODO: put ace selection data here, so that
+        // we can recover the selection
+        tx.selection = {
+          type: 'custom',
+          surfaceId: this.getId(),
+          customType: 'ace'
+        }
       }, {
         // leaving a trace here so we can skip the change in _onCodeChanged
-        source: this,
-        // tell EditorSession not to rerender the selection
-        skipSelectionRerender: true
+        source: this
       })
     } else if (change.action === 'remove') {
       editorSession.transaction((tx) => {
@@ -190,9 +210,15 @@ class CodeEditorComponent extends Component {
           start: start,
           end: start + countCharacters(change.lines)-1
         })
+        // TODO: put ace selection data here, so that
+        // we can recover the selection
+        tx.selection = {
+          type: 'custom',
+          surfaceId: this.getId(),
+          customType: 'ace'
+        }
       }, {
-        source: this,
-        skipSelectionRerender: true
+        source: this
       })
     } else {
       throw new Error('Unhandled change:' + JSON.stringify(change))
