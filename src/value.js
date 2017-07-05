@@ -103,34 +103,10 @@ export function unpack (pkg) {
   } else if (type === 'array') {
     return JSON.parse(content)
   } else if (type === 'image') {
-    if (format === 'url') {
-      return {
-        type: 'image',
-        src: content
-      }
-    } else if (format === 'base64') {
-      let src
-      try {
-        const byteString = window.atob(content)
-        var arrayBuffer = new ArrayBuffer(byteString.length);
-        var integerArray = new Uint8Array(arrayBuffer);
-        for (var i = 0; i < byteString.length; i++) {
-          integerArray[i] = byteString.charCodeAt(i);
-        }
-        let blob = new Blob([integerArray], {type: `image/${format}`})
-        src = window.URL.createObjectURL(blob)
-      } catch (error) {
-        src = `data:image/${format};base64,${content}`
-      }
-
-      return {
-        type: 'image',
-        src: src
-      }
-    } else {
-      throw new Error(`Format ${format} not supported.`)
+    return {
+      type: 'image',
+      src: content
     }
-
   } else {
     if (format === 'json') return JSON.parse(content)
     else return content
