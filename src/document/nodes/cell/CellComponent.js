@@ -81,15 +81,6 @@ class CellComponent extends Component {
           }).ref('sourceCodeEditor')
             .on('escape', this.onEscapeFromCodeEditor)
         )
-
-        el.append(
-          $$('input')
-            .addClass('se-context-input')
-            .ref('contextInput')
-            .attr('placeholder', 'Enter context')
-            .val(cell.context)
-            .on('change', this.onContextInputChanged)
-        )
       }
 
       el.append(cellEditorContainer)
@@ -100,8 +91,7 @@ class CellComponent extends Component {
 
     if (this._showOutput()) {
       el.append(
-        $$(CellValueComponent, {cell})
-        .ref('value')
+        $$(CellValueComponent, {cell}).ref('value')
       )
     }
     return el
@@ -121,6 +111,7 @@ class CellComponent extends Component {
     let isDefinition = this.props.node.isDefinition()
     // No toggling allowed if cell is not a definition
     if (!isDefinition) return
+    console.log('TOGGLING forceShowOutput')
     this.extendState({
       forceShowOutput: !this.state.forceShowOutput
     })
