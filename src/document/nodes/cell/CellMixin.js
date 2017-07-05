@@ -25,11 +25,15 @@ export default {
   },
 
   hasRuntimeErrors() {
-    return this.runtimeErrors
+    return this.runtimeErrors || (this._expr && this._expr.root && this._expr.root.errors)
   },
 
   getRuntimeErrors() {
-    return map(this.runtimeErrors)
+    let runtimeErrors = map(this.runtimeErrors)
+    if (this._expr && this._expr.root && this._expr.root.errors) {
+      runtimeErrors = runtimeErrors.concat(this._expr.root.errors)
+    }
+    return runtimeErrors
   },
 
   addRuntimeError(key, error) {

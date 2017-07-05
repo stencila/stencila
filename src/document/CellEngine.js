@@ -88,17 +88,17 @@ class CellEngine extends Engine {
       case 'call':
       case 'run': {
         if(!cell.context) {
-          cell.addRuntimeError('runtime', {
+          funcNode.addErrors([{
             message: 'Calls to external code must have "context" set.'
-          })
+          }])
           return
         }
         return this._getContext(cell.context).then(context => {
           if (!context) {
-            cell.addRuntimeError('runtime', {
+            funcNode.addErrors([{
               line: 0, column: 0,
               message: `No context found matching "${cell.context}"`
-            })
+            }])
           } else {
             let packing = !(context instanceof JsContext)
             const options = { pack: packing }
@@ -110,9 +110,9 @@ class CellEngine extends Engine {
               // used as the name of the argument
               funcNode.args.forEach((arg) => {
                 if (arg.type !== 'var') {
-                  cell.addRuntimeError('runtime', {
+                  funcNode.addErrors([{
                     message: 'Calls to external code must use variables or named arguments'
-                  })
+                  }])
                   return
                 }
                 let value = arg.getValue()
@@ -124,13 +124,13 @@ class CellEngine extends Engine {
                 args[arg.name] = packing ? pack(value) : value
               })
               return _unwrapResult(
-                cell,
+                funcNode,
                 context.callCode(sourceCode, args, options),
                 options
               )
             } else {
               return _unwrapResult(
-                cell,
+                funcNode,
                 context.runCode(sourceCode, options),
                 options
               )
@@ -164,16 +164,16 @@ class CellEngine extends Engine {
             }
           }
           return _unwrapResult(
-            cell,
+            funcNode,
             context.callFunction(functionName, args, namedArgs, options),
             options
           )
         } else {
           let msg = `Could not resolve function "${functionName}"`
           // Note: we just return undefined and add a runtime error
-          cell.addRuntimeError('runtime', {
+          funcNode.addErrors([{
             message: msg
-          })
+          }])
           return
         }
       }
@@ -330,11 +330,11 @@ class CellEngine extends Engine {
   }
 }
 
-function _unwrapResult(cell, p, options) {
+function _unwrapResult(funcNode, p, options) {
   const pack = options.pack !== false
   return p.then((res) => {
     if (res.errors) {
-      cell.addRuntimeError('runtime', res.errors)
+      funcNode.addErrors(res.errors)
       return undefined
     }
     if (res.output) {
