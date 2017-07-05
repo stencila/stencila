@@ -5,13 +5,15 @@
  * our RPC API:
  *   - send and receive JSON
  *   - return a Promise
- * 
+ *
  * @param  {string} method - Request method (a.k.a. verb)
  * @param  {string} url - Requested URL
  * @param  {object} data - Data to POST or PUT
  * @return {Promise}
  */
 export function request (method, url, data) {
+  if (typeof window === 'undefined') return Promise.resolve(null)
+
   return new Promise((resolve, reject) => {
     var request = new window.XMLHttpRequest()
     request.open(method, url, true)
