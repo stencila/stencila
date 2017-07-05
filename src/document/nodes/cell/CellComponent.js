@@ -4,7 +4,6 @@ import Cell from './Cell'
 import CellValueComponent from './CellValueComponent'
 import MiniLangEditor from './MiniLangEditor'
 import CellErrorDisplay from './CellErrorDisplay'
-import Dropdown from '../../../shared/Dropdown'
 
 class CellComponent extends Component {
 
@@ -20,8 +19,17 @@ class CellComponent extends Component {
 
   getInitialState() {
     return {
-      visibility: 'auto'
+      showCode: true,
+      forceShowOutput: false
     }
+  }
+
+  /*
+    Generally output is shown when cell is not a definition, however it can be
+    enforced
+  */
+  _showOutput() {
+    return !this.props.node.isDefinition() || this.state.forceShowOutput
   }
 
   didMount() {
@@ -44,103 +52,121 @@ class CellComponent extends Component {
     let el = $$('div').addClass('sc-cell')
 
     let toggleCell = $$('div').addClass('se-toggle-cell').append(
-      $$('div').addClass('se-toggle-cell-inner')
-    )
+      $$('div').addClass('se-toggle-cell-inner'),
+      this._renderMenu($$)
+    ).on('click', this._toggleShowCode)
+
     if (cell.hasErrors()) {
       toggleCell.addClass('sm-error')
     }
-    el.append(
-      toggleCell
-    )
+    el.append(toggleCell)
 
-    let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
-    cellEditorContainer.append(
-      $$('div').addClass('se-expression').append(
-        $$(MiniLangEditor, {
-          path: [cell.id, 'expression'],
-          commands: ['undo', 'redo', 'select-all'],
-          expression: cell.getExpressionNode()
-        }).ref('expressionEditor')
-      )
-    )
-    cellEditorContainer.append(
-      this.renderEllipsesDropdown($$)
-    )
-
-    if (cell.isExternal()) {
+    if (this.state.showCode) {
+      let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
-        $$(CodeEditorComponent, {
-          path: [cell.id, 'sourceCode'],
-          language: cell.context
-        }).ref('sourceCodeEditor')
-          .on('escape', this.onEscapeFromCodeEditor)
+        $$('div').addClass('se-expression').append(
+          $$(MiniLangEditor, {
+            path: [cell.id, 'expression'],
+            commands: ['undo', 'redo', 'select-all'],
+            expression: cell.getExpressionNode()
+          }).ref('expressionEditor')
+        )
       )
 
+      if (cell.isExternal()) {
+        cellEditorContainer.append(
+          $$(CodeEditorComponent, {
+            path: [cell.id, 'sourceCode'],
+            language: cell.context
+          }).ref('sourceCodeEditor')
+            .on('escape', this.onEscapeFromCodeEditor)
+        )
+
+        el.append(
+          $$('input')
+            .addClass('se-context-input')
+            .ref('contextInput')
+            .attr('placeholder', 'Enter context')
+            .val(cell.context)
+            .on('change', this.onContextInputChanged)
+        )
+      }
+
+      el.append(cellEditorContainer)
       el.append(
-        $$('input')
-          .addClass('se-context-input')
-          .ref('contextInput')
-          .attr('placeholder', 'Enter context')
-          .val(cell.context)
-          .on('change', this.onContextInputChanged)
+        $$(CellErrorDisplay, {cell})
       )
     }
 
-    el.append(cellEditorContainer)
-
-    // TODO only show the node value if
-    // either the node is not assigning to a variable
-    // or the user has chosen to show the output
-    let showValue = false
-    switch(this.state.visibility) {
-      case 'hidden':
-        showValue = false
-        break
-      case 'show':
-        showValue = true
-        break
-      // 'auto' is the default
-      case 'auto': // eslint-disable-line no-fallthrough
-      default:
-        showValue = !cell.isDefinition()
-        break
-    }
-    if (showValue) {
+    if (this._showOutput()) {
       el.append(
         $$(CellValueComponent, {cell})
         .ref('value')
       )
     }
-    el.append(
-      $$(CellErrorDisplay, {cell})
-    )
     return el
   }
 
-  renderEllipsesDropdown($$) {
-    // TODO: please feel free to change anything of this mechanism
-    const el = $$(Dropdown, {
-      icon: 'ellipsis',
-      items: [
-        {
-          type: 'choice',
-          label: 'Visibility',
-          name: 'visibility',
-          value: this.state.visibility,
-          choices: [{
-            label: 'Auto',
-            value: 'auto'
-          }, {
-            label: 'Show',
-            value: 'show'
-          }, {
-            label: 'Hide',
-            value: 'hidden'
-          }]
-        }
-      ]
-    }).addClass('se-ellipses')
-      .on('select', this.onSelectEllipsesDropdown)
+  _toggleShowCode(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    this.extendState({
+      showCode: !this.state.showCode
+    })
+  }
+
+  _toggleForceShowOutput(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let isDefinition = this.props.node.isDefinition()
+    // No toggling allowed if cell is not a definition
+    if (!isDefinition) return
+    this.extendState({
+      forceShowOutput: !this.state.forceShowOutput
+    })
+  }
+
+  _renderMenu($$) {
+    let menuEl = $$('div').addClass('se-menu')
+    menuEl.append(
+      this._renderToggleCode($$),
+      this._renderToggleOutput($$)
+    )
+    return menuEl
+  }
+
+  /*
+    Displays 'Show Code' or 'Hide Code' depending on the current state
+  */
+  _renderToggleCode($$) {
+    let el = $$('div')
+      .addClass('se-menu-item')
+      .on('click', this._toggleShowCode)
+
+    if (this.state.showCode) {
+      el.append('Hide Code')
+    } else {
+      el.append('Show Code')
+    }
+    return el
+  }
+
+  _renderToggleOutput($$) {
+    let el = $$('div')
+      .addClass('se-menu-item')
+      .on('click', this._toggleForceShowOutput)
+
+    // If cell is not a definition we ensure output is always shown
+    let isDefinition = this.props.node.isDefinition()
+    if (!isDefinition) {
+      el.addClass('sm-disabled')
+    }
+
+    if (this._showOutput()) {
+      el.append('Hide Output')
+    } else {
+      el.append('Show Output')
+    }
     return el
   }
 

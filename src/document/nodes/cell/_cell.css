@@ -12,6 +12,7 @@
   width: 20px;
   height: 20px;
   cursor: pointer;
+  position: relative;
 }
 
 .sc-cell .se-toggle-cell .se-toggle-cell-inner {
@@ -19,6 +20,33 @@
   border-radius: 5px;
   width: 10px;
   height: 10px;
+}
+
+.sc-cell .se-toggle-cell .se-menu {
+  border-radius: 3px;
+  position: absolute;
+  background: #2E2E2E;
+  color: white;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%);
+  z-index: 1000;
+  white-space: nowrap;
+  display: none;
+}
+
+.sc-cell .se-toggle-cell:hover .se-menu {
+  display: block;
+}
+
+.sc-cell .se-toggle-cell .se-menu .se-menu-item {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.sc-cell .se-toggle-cell .se-menu .se-menu-item.sm-disabled {
+  opacity: 0.2;
 }
 
 
