@@ -5,6 +5,8 @@
  * @return {String}       The param value
  */
 export default function getQueryStringParam(param, url) {
+  if (typeof window === 'undefined') return null
+
   let href = url ? url : window.location.href;
   let reg = new RegExp( '[?&]' + param + '=([^&#]*)', 'i' );
   let string = reg.exec(href);
