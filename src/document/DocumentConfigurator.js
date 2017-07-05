@@ -91,7 +91,7 @@ class DocumentConfigurator extends Configurator {
         contextual: true,
         style: 'minimal',
         commandGroups: ['text-types']
-      },
+      },*/
       {
         name: 'annotations',
         type: 'tool-group',
@@ -99,7 +99,7 @@ class DocumentConfigurator extends Configurator {
         showDisabled: false,
         style: 'minimal',
         commandGroups: ['annotations']
-      },
+      },/*
       {
         name: 'insert',
         type: 'tool-dropdown',
@@ -118,13 +118,13 @@ class DocumentConfigurator extends Configurator {
         style: 'descriptive',
         commandGroups: ['text-types']
       },
-      {
+      /*{
         name: 'annotations',
         type: 'tool-group',
         showDisabled: true,
         style: 'minimal',
         commandGroups: ['annotations']
-      },
+      },*/
       {
         name: 'insert',
         type: 'tool-dropdown',
