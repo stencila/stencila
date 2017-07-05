@@ -43,6 +43,16 @@ class CellComponent extends Component {
     const cell = this.props.node
     let el = $$('div').addClass('sc-cell')
 
+    let toggleCell = $$('div').addClass('se-toggle-cell').append(
+      $$('div').addClass('se-toggle-cell-inner')
+    )
+    if (cell.hasErrors()) {
+      toggleCell.addClass('sm-error')
+    }
+    el.append(
+      toggleCell
+    )
+
     let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
     cellEditorContainer.append(
       $$('div').addClass('se-expression').append(

@@ -6,6 +6,22 @@
   position: relative;
 }
 
+.sc-cell .se-toggle-cell {
+  margin: 10px auto;
+  padding: 5px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.sc-cell .se-toggle-cell .se-toggle-cell-inner {
+  background: #00FF00;
+  border-radius: 5px;
+  width: 10px;
+  height: 10px;
+}
+
+
 .sc-cell .se-cell-editor-container {
   position: relative;
   background: #F5F5F5;

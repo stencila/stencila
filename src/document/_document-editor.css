@@ -53,6 +53,13 @@
   margin: 0 auto;*/
 }
 
+.sc-document-editor .se-toolbar-wrapper {
+  z-index: 1000;
+  border-bottom: 1px solid #e1e4e8;
+  padding: 1px;
+  height: 35px;
+}
+
 .sc-document-editor .sc-container-editor > * {
   margin: 20px 0;
 }

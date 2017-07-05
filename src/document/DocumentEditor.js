@@ -1,4 +1,4 @@
-import { AbstractEditor, ContainerEditor, WorkflowPane, SplitPane } from 'substance'
+import { AbstractEditor, ContainerEditor, WorkflowPane, SplitPane, Toolbar } from 'substance'
 import CellEngine from './CellEngine'
 
 /**
@@ -34,32 +34,38 @@ export default class DocumentEditor extends AbstractEditor {
     // })
 
     el.append(
-
-      $$(SplitPane, {splitType: 'horizontal', sizeB: 'inherit'}).append(
-        $$(ScrollPane, {
-          scrollbarType: 'substance',
-          scrollbarPosition: 'right'
-        })
-          .ref('scrollPane')
-          .append(
-            $$(Overlay, {
-              toolPanel: configurator.getToolPanel('main-overlay'),
-              theme: 'dark'
-            }).ref('overlay'),
-            $$(Dropzones),
-            $$(Layout, {
-              width: 'large'
-            }).append(
-              // A  ContainerEditor for the content of the document
-              $$(ContainerEditor, {
-                containerId: 'content',
-                disabled: !this.props.edit
-              }).ref('containerEditor')
-            )
-          ),
-        $$(WorkflowPane, {
-          toolPanel: configurator.getToolPanel('workflow')
-        })
+      $$(SplitPane, { splitType: 'horizontal'}).append(
+        $$('div').addClass('se-toolbar-wrapper').append(
+          $$(Toolbar, {
+            toolPanel: configurator.getToolPanel('toolbar')
+          }).ref('toolbar')
+        ),
+        $$(SplitPane, { splitType: 'horizontal', sizeB: 'inherit' }).append(
+          $$(ScrollPane, {
+            scrollbarType: 'substance',
+            scrollbarPosition: 'right'
+          })
+            .ref('scrollPane')
+            .append(
+              $$(Overlay, {
+                toolPanel: configurator.getToolPanel('main-overlay'),
+                theme: 'dark'
+              }).ref('overlay'),
+              $$(Dropzones),
+              $$(Layout, {
+                width: 'large'
+              }).append(
+                // A  ContainerEditor for the content of the document
+                $$(ContainerEditor, {
+                  containerId: 'content',
+                  disabled: !this.props.edit
+                }).ref('containerEditor')
+              )
+            ),
+          $$(WorkflowPane, {
+            toolPanel: configurator.getToolPanel('workflow')
+          })
+        )
       )
       // A `ScrollPane` to manage overlays and other positioning
     )

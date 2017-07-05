@@ -83,7 +83,7 @@ class DocumentConfigurator extends Configurator {
         type: 'tool-prompt',
         commandGroups: ['prompt']
       },
-      {
+      /*{
         // used to resolve icons and labels
         name: 'text-types',
         type: 'tool-dropdown',
@@ -106,6 +106,30 @@ class DocumentConfigurator extends Configurator {
         contextual: true,
         showDisabled: false,
         style: 'minimal',
+        commandGroups: ['insert']
+      }*/
+    ])
+
+    this.addToolPanel('toolbar', [
+      {
+        name: 'text-types',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['text-types']
+      },
+      {
+        name: 'annotations',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'minimal',
+        commandGroups: ['annotations']
+      },
+      {
+        name: 'insert',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
         commandGroups: ['insert']
       }
     ])
