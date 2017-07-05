@@ -231,7 +231,7 @@ function remarkBracketedSpansClean () {
 }
 
 /**
- * Transform <span data-name=...> to <input> and <span data-value=...> to <output>
+ * Transform <span data-name=...> to <input> and <span data-expr=...> to <output>
  *
  * @returns {function} Vistor function
  */

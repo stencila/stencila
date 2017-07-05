@@ -12,10 +12,35 @@ test('DocumentMarkdownConverter.match', function (t) {
   t.end()
 })
 
+const testMd = `
+An input [42]{name=x type=range min=1 max=100 step=1} in a paragraph.
+
+\`\`\`.
+y = x/2
+\`\`\`
+
+An output [21]{expr=y} in a paragraph.`
+
+const testHtml = `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content"><p>An input <input name="x" value="42" type="range" min="1" max="100" step="1"> in a paragraph.</p>
+<div data-cell="y = x/2"></div>
+<p>An output <output for="y">21</output> in a paragraph.</p></div>
+      </div>
+    </main>
+  </body>
+</html>`
+
 test('DocumentMarkdownConverter.importDocument', function (t) {
   let converter = new DocumentMarkdownConverter()
   let storer = new TestStorer('/path/to/storer', 'hello-world.md')
-  storer.writeFile('hello-world.md', 'text/markdown', 'Hello world')
+  storer.writeFile('hello-world.md', 'text/markdown', testMd)
   let buffer = new MemoryBuffer()
 
   converter.importDocument(
@@ -24,19 +49,7 @@ test('DocumentMarkdownConverter.importDocument', function (t) {
   ).then((manifest) => {
     t.equal(manifest.type, 'document')
     buffer.readFile('index.html', 'text/html').then((html) => {
-      t.equal(html, `<!DOCTYPE html>
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <main>
-      <div id="data" data-format="html">
-        <div class="content"><p>Hello world</p></div>
-      </div>
-    </main>
-  </body>
-</html>`)
+      t.equal(html, testHtml)
       t.end()
     })
   })
@@ -45,19 +58,7 @@ test('DocumentMarkdownConverter.importDocument', function (t) {
 test('DocumentMarkdownConverter.exportDocument', function (t) {
   let converter = new DocumentMarkdownConverter()
   let buffer = new MemoryBuffer()
-  buffer.writeFile('index.html', 'text/html', `<!DOCTYPE html>
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <main>
-      <div id="data" data-format="html">
-        <div class="content"><p>Hello world</p></div>
-      </div>
-    </main>
-  </body>
-</html>`)
+  buffer.writeFile('index.html', 'text/html', testHtml)
   let storer = new TestStorer('/path/to/storer', 'hello-world.md')
 
   converter.exportDocument(
@@ -65,7 +66,7 @@ test('DocumentMarkdownConverter.exportDocument', function (t) {
     storer
   ).then(() => {
     storer.readFile('hello-world.md', 'text/markdown').then((md) => {
-      t.equal(md, 'Hello world')
+      t.equal(md, testMd)
       t.end()
     })
   })

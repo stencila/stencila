@@ -1,21 +1,18 @@
 export default {
-
   type: 'inline-cell',
-  tagName: 'span',
+  tagName: 'output',
 
   matchElement: function (el) {
-    return el.is('span[data-cell]')
+    return el.is('output[for]')
   },
 
   import: function (el, node) {
-    node.expression = el.attr('data-cell')
+    node.expression = el.attr('data-expr')
     node.value = el.innerHTML
   },
 
-  // TODO: This code has not yet been tested
   export: function (node, el) {
-    el.attr('data-cell', node.expression)
+    el.attr('data-expr', node.expression)
     el.innerHTML = node.value
   }
-
 }
