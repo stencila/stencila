@@ -3,22 +3,28 @@
  */
 
 /**
+ * A list of language (shortnames) that we currently
+ * support
+ * 
+ * @type {Array}
+ */
+export const LIST = [
+  'js', 'py', 'r', 'sql'
+]
+
+/**
  * Get the short name (code) for a language
  *
  * @param  {string} lang - Languge name
  * @return {string} - Short name of language
  */
 export function shortname (lang) {
+  lang = lang.toLowerCase()
   return {
     javascript: 'js',
-    js: 'js',
     julia: 'jl',
-    jl: 'jl',
-    python: 'py',
-    py: 'py',
-    r: 'r',
-    sql: 'sql'
-  }[lang.toLowerCase()] || null
+    python: 'py'
+  }[lang] || lang
 }
 
 /**
@@ -29,13 +35,23 @@ export function shortname (lang) {
  */
 export function longname (lang) {
   return {
-    javascript: 'JavaScript',
-    js: 'JavaScript',
-    julia: 'Julia',
     jl: 'Julia',
-    python: 'Python',
+    js: 'JavaScript',
     py: 'Python',
     r: 'R',
     sql: 'SQL'
-  }[lang.toLowerCase()] || null
+  }[shortname(lang)] || lang
+}
+
+/**
+ * Get the language comment character(s)
+ *
+ * @param  {string} lang - Languge name
+ * @return {string} - Single line comment character(s)
+ */
+export function comment (lang) {
+  return {
+    js: '//',
+    sql: '--'
+  }[shortname(lang)] || '#'
 }
