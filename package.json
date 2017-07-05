@@ -53,8 +53,8 @@
     "remark-squeeze-paragraphs": "^3.0.0",
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
-    "substance": "substance/substance#develop",
-    "substance-mini": "^0.8.1",
+    "substance": "1.0.0-beta.7-preview.9",
+    "substance-mini": "^0.9.0",
     "timeago.js": "3.0.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
@@ -74,7 +74,6 @@
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
     "substance-bundler": "^0.15.3",
-    "substance-mini": "^0.9.0",
     "substance-test": "^0.9.3",
     "tape": "^4.6.3"
   }
