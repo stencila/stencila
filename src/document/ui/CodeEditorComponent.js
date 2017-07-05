@@ -127,7 +127,7 @@ class CodeEditorComponent extends CustomSurface {
     })
     aceEditor.commands.addCommand({
       name: 'execute',
-      bindKey: {win: 'Ctrl+Enter', mac: 'Cmd+Enter'},
+      bindKey: {win: 'Ctrl+Enter', mac: 'Ctrl+Enter'},
       exec: (aceEditor) => {
         this._onExecute(aceEditor)
       },
