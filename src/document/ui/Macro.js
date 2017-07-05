@@ -9,16 +9,16 @@ class Macro {
   }
 
   execute (props, context) {
-    if (this.appliesTo.length > 0 && this.appliesTo.indexOf(props.node.type) === -1) {
+    if (this.appliesTo.length > 0 && props.node && this.appliesTo.indexOf(props.node.type) === -1) {
       return false
     }
-
-    var match = this.regex.exec(props.text)
-    if (match) {
-      this.performAction(match, props, context)
-      return true
+    if (props.text) {
+      let match = this.regex.exec(props.text)
+      if (match) {
+        this.performAction(match, props, context)
+        return true
+      }
     }
-
     return false
   }
 
