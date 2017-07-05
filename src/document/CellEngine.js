@@ -169,7 +169,12 @@ class CellEngine extends Engine {
             options
           )
         } else {
-          return Promise.reject(`Could not resolve function "${functionName}"`)
+          let msg = `Could not resolve function "${functionName}"`
+          // Note: we just return undefined and add a runtime error
+          cell.addRuntimeError('runtime', {
+            message: msg
+          })
+          return
         }
       }
     }
