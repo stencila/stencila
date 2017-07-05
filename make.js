@@ -215,6 +215,8 @@ function buildSingleTest(testFile) {
   b.js(testFile, COMMON_SETTINGS({
     dest: dest,
     format: 'cjs',
+    // brace is not nodejs compatible'
+    ignore: [ 'brace' ],
     external: NODEJS_TEST_EXTERNALS
   }))
   return dest
