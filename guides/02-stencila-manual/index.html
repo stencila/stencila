@@ -233,21 +233,21 @@ virginica,5.9,3,5.1,1.8
         <p>Stencila Contexts share a common interface for executing code, whatever the language. They are very similar to Jupyter's kernels (a Stencila Context for bridging to Jupyter kernels is planned). The Stencila language packages each have one or more class of Context. The following subsections provide instructions on how to download those packages and start the Host so that you can start using those contexts.</p>
         <h3>Node.js</h3>
         <p>Install the Stencila package for Node.js via NPM, <code>npm install -g stencila-node</code>, then start the host by running <code>stencila-node</code> in the system shell. If you've done that, this cell should show the Node.js version that you are running (if you need to, press <code>Ctrl+Enter</code> within the source of the cell to refesh it)</p>
-        <div data-cell="run()" data-language="node">
-          <pre data-source="">process.title + ' ' + process.version</pre>
+        <div data-cell="js()">
+          <pre data-source="">return process.title + ' ' + process.version</pre>
         </div>
         <h3>Python and SQL</h3>
         <p>Install the Stencila package for Python, <code>pip install --user https://github.com/stencila/py/archive/master.zip</code>, then start the host by running the package's main script, <code>python -m stencila</code> or within a Python console using <code>stencila.host.start()</code> . If you've done that, this cell should show the Python version that you are running:</p>
-        <div data-cell="run()" data-language="py">
+        <div data-cell="py()">
           <pre data-source="">import sys
-sys.version</pre>
+return sys.version</pre>
         </div>
         <p>The <code>PythonContext</code> supports autoconversion between data tables and <code>pandas.DataFrames.</code> So, for example, we can replicate the above plot using Pandas:</p>
-        <div data-cell="call(data)" data-language="py">
+        <div data-cell="py(data)">
           <pre data-source="">return data.plot.scatter(x='sepal_length', y='sepal_width')</pre>
         </div>
         <p>The Python package also has a <code>SQLiteContext</code> for executing code within SQLite. The <code>SQLiteContext</code> support autoconversion of data tables. So we can pass it some data and it will </p>
-        <div data-cell="call(data)" data-language="sqlite">
+        <div data-cell="sql(data)">
           <pre data-source="">SELECT species, round(sum(sepal_length)/count(*),2) AS mean_sepal_length 
 FROM data 
 GROUP BY species</pre>
@@ -255,64 +255,64 @@ GROUP BY species</pre>
         <h3>R</h3>
         <p>Install the Stencila package for R using devtools, <code>devtools::install_github('stencila/r')</code>, then start the host by running <code>Rscript -e 'stencila::run()'</code> at the system shell or <code>stencila::host$start()</code> within your favorite R console. </p>
         <p>The <code>RContext</code> supports conversion of common types including R <code>data.frames</code> as well as base and <code>ggplot2</code> plots. So if you've got a R context running and have <code>ggplot2</code> installed this cell will output the equivalent of the previous plot:</p>
-        <div data-cell="call(data)" data-language="r">
+        <div data-cell="r(data)">
           <pre data-source="">ggplot(data,aes(x=sepal_length, y=sepal_width, color=species)) + geom_point()</pre>
         </div>
         <p>As you will have seen above, there are two special functions in Mini for executing code in other languages: <code>run()</code> and <code>call()</code>. </p>
         <h3>The <code>run</code> function</h3>
         <p>The <code>run</code> function executes code within the context's global scope. Using the <code>run</code> function is very similar to using code cells in Jupyter notebooks or code chunks in RMarkdown. When you assign a variable within the cell it is available to be used within a different cell later in the document. However, you need to take care of dependencies yourself, so if you change the source code of the first cell, you need to re-execute the second cell that depends on it.</p>
         <p>Here's an example. Let's assign a global variable within a <code>JsContext</code> :</p>
-        <div data-cell="run()" data-language="js">
+        <div data-cell="global js()">
           <pre data-source="">myGlobal = 45
 </pre>
         </div>
         <p>Now, <code>myGlobal</code> is a data/time object that is available to use in any cell. Let's look at it using another <code>run</code> cell:</p>
-        <div data-cell="run()" data-language="js">
+        <div data-cell="global js()">
           <pre data-source="">myGlobal</pre>
         </div>
         <p>Play around with those two cells and note that when you change the first, you need to re-execute the second to see the new value for <code>myGlobal</code>.</p>
         <h3>The <code>call</code> function</h3>
         <p>The <code>call</code> function executes code within a function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. So, when you type <code>call()</code> into a cell, your effectively saying to Mini, take this code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript:</p>
-        <div data-cell="call()" data-language="js">
+        <div data-cell="js()">
           <pre data-source="">let names = ['Hiphop', 'opotamus', ' v ', 'Rhyme', 'noceros']
 return names.join('')</pre>
         </div>
         <p>Notice that because we ended the JavaScript code, with a <code>return</code> statement that the cell has an output.</p>
         <p>Just like with other Mini cells, you can assign the output of a <code>call()</code> to a document variable,</p>
-        <div data-cell="javascript_pi = call()" data-language="js">
+        <div data-cell="javascript_pi = js()">
           <pre data-source="">return Math.PI</pre>
         </div>
         <p>A call to another language is not very useful unless you provide it with some data. This is where Mini's glueing comes in. Let's create an array in Mini,</p>
         <div data-cell="fruits = ['apple', 'pear', 'kiwi']"></div>
         <p>and then use Javascript to join it together.</p>
-        <div data-cell="call(fruits)" data-language="js">
+        <div data-cell="js(fruits)">
           <pre data-source="">return 'My favourite fruits: ' + fruits.map((fruit,index) =&gt; {
     return `${index + 1}. ${fruit}`
 }).join(', ')</pre>
         </div>
         <p>The nice thing about this is that Mini's dependency analysis still works, so you can change the fruits array and the output above will change - try it! </p>
         <p>Notice that our Javascript function got supplied an argument called <code>fruits</code> - which is the same array of strings as in our document variable called <code>fruits</code>. You can also provide named arguments to <code>call</code>.</p>
-        <div data-cell="call(my_favourite_fruits = fruits, index = 2)" data-language="js">
+        <div data-cell="js(my_favourite_fruits = fruits, index = 2)">
           <pre data-source="">return my_favourite_fruits[index]</pre>
         </div>
         <h3>Putting it together</h3>
         <p>Here's an little example, that puts this all together with an input, a Javascript call cell and an output to display the result...</p>
-        <p>The area of a circle can be calculated by <span data-math="asciimath">a = pi r^2</span> . So, if the radius of a circle is <input type="range" name="radius" min="0" max="100" step="1" value="60"></input> m, then it's area is: <span data-cell="area">11309.733552923255</span> m<sup>2</sup>.</p>
-        <div data-cell="area = call(r=radius)" data-language="js">
+        <p>The area of a circle can be calculated by <span data-math="asciimath">a = pi r^2</span> . So, if the radius of a circle is <input type="range" name="radius" min="0" max="100" step="1" value="60"></input> m, then it's area is: <output for="area">11309.733552923255</output> m<sup>2</sup>.</p>
+        <div data-cell="area = js(r=radius)">
           <pre data-source="">return Math.PI*Math.pow(r, 2)</pre>
         </div>
         <p>Now lets make thing interesting by manipulating, analysing and visualising the iris data using a combination of languages in a pipeline. This is a trivial, illustrative example, and it could all be done in one language but,..well, it's an illustration. It will only work if you have both the Python and R packages running as described above.</p>
         <p>First, lets define some number range inputs that the user can use to alter and explore the analysis: Minimum petal length <input type="range" name="min_petal_length" min="0" max="3" step="0.1" value="0.9"></input> Smoothing span <input type="range" name="smooth" min="0.1" max="10" step="0.1" value="0.5"></input>
         </p>
         <p>As a first step in the pipeline, let's filter and aggregate the iris data using SQL and using the input variable <code>min_petal_length</code> we defined above:</p>
-        <div data-cell="data_summary = call(data, min_petal_length)" data-language="sqlite">
+        <div data-cell="data_summary = sql(data, min_petal_length)">
           <pre data-source="">SELECT species, sepal_length, sum(sepal_width) AS sum_sepal_width, count(*) AS num
 FROM data
 WHERE petal_length &gt; ${min_petal_length}
 GROUP BY species, sepal_length</pre>
         </div>
         <p>Then let's visualise that data table in R using the <code>smooth</code> variable to control the span of the smoother applied:</p>
-        <div data-cell="call(data_summary, smooth)" data-language="r">
+        <div data-cell="r(data_summary, smooth)">
           <pre data-source="">ggplot(data_summary, aes(
     color=species, 
     x=sepal_length, 
