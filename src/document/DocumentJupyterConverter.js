@@ -101,7 +101,6 @@ export default class DocumentJupyterConverter {
     })
   }
 
-
   /**
    * Convert from a Jupyter Notebook to a Stencila Document
    *
@@ -155,15 +154,9 @@ export default class DocumentJupyterConverter {
         let html = md2html(source)
         for (let child of $$('div').setInnerHTML(html).getChildren()) root.append(child)
       } else if (cell.cell_type === 'code') {
-        // Create a new chunk (ie. a cell with a `run()` mini expression)
-        let chunk = $$('div')
-                      .attr('data-cell', 'run()')
-                      .attr('data-language', lang)
-
-        // Escape < chars
-        // CHECK do other characters need escaping?
-        source = source.replace(/</g, '&lt;')
-        chunk.append(
+        // Create a Stencila global cell
+        let scell = $$('div').attr('data-cell', `global ${lang}()`)
+        scell.append(
           $$('pre').attr('data-source', '').text(source)
         )
 
@@ -180,13 +173,12 @@ export default class DocumentJupyterConverter {
               let mimetype = Object.keys(mimebundle)[0]
               let content = mimebundle[mimetype]
               if (content.constructor.name === 'Array') content = content.join('')
-
-              // Convert MIME type/content to HTML and append to chunk
+              // Convert MIME type/content to HTML and append to scell
               let value = fromMime(mimetype, content)
               let html = toHTML(value)
-              // Use a temporary wrapper div to load html
-              let el = $$('div').html(html).children[0]
-              chunk.append(el)
+              // Parse HTML into an element and append
+              let el = DefaultDOMElement.parseSnippet(html, 'html')
+              scell.append(el)
             } else if (type === 'stream') {
               let out = $$('pre')
               if (output.name === 'stderr') out.attr('data-error', '')
@@ -195,16 +187,16 @@ export default class DocumentJupyterConverter {
                 out.attr('data-format', 'text')
               }
               out.text(output.text.join(''))
-              chunk.append(out)
+              scell.append(out)
             } else if (type === 'error') {
               let error = $$('pre').attr('data-error', '')
               error.text(output.ename + ': ' + output.evalue + '\n\n' + output.traceback)
-              chunk.append(error)
+              scell.append(error)
             }
           }
         }
 
-        root.append(chunk)
+        root.append(scell)
       }
     }
 
@@ -234,7 +226,7 @@ export default class DocumentJupyterConverter {
     }
 
     // Create a DOM document to iterate over
-    let root = DefaultDOMElement.createDocument('html').setInnerHTML(html)
+    let root = DefaultDOMElement.parseSnippet(`<div>${html}</div>`, 'html')
 
     // We need to accumulate HTML elements which are then flushed
     // into a markdown cell when a Stencila cell is hit, or at end

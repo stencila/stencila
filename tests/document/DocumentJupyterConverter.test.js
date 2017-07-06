@@ -2,13 +2,13 @@ import test from 'tape'
 
 import DocumentJupyterConverter from '../../src/document/DocumentJupyterConverter'
 
-test('DocumentJupyterConverter.match', function (t) {
+test('DocumentJupyterConverter:match', function (t) {
   t.ok(DocumentJupyterConverter.match('foo.ipynb'))
   t.notOk(DocumentJupyterConverter.match('foo.html'))
   t.end()
 })
 
-test('DocumentJupyterConverter.import', t => {
+test('DocumentJupyterConverter:import', t => {
   const converter = new DocumentJupyterConverter()
   const i = json => converter.importContent(json)
 
@@ -26,7 +26,7 @@ test('DocumentJupyterConverter.import', t => {
 
   t.equal(
     i({cells: [{cell_type: 'markdown', source: ['```\n', 'let x = 56\n', 'x < 65\n', '```\n']}]}),
-    '<pre><code>let x = 56\nx &#x3C; 65\n</code></pre>',
+    '<pre><code>let x = 56\nx &lt; 65</code></pre>',
     'Markdown code block'
   )
 
@@ -38,7 +38,7 @@ test('DocumentJupyterConverter.import', t => {
         {cell_type: 'code', source: ['dict(foo="bar")\n']}
       ]
     }),
-    '<h1 id="heading-1">Heading 1</h1><div data-cell="run()" data-language="py"><pre data-source="">dict(foo="bar")</pre></div>',
+    '<h1 id="heading-1">Heading 1</h1><div data-cell="global py()"><pre data-source="">dict(foo="bar")</pre></div>',
     'cells'
   )
 
@@ -49,7 +49,7 @@ test('DocumentJupyterConverter.import', t => {
         {cell_type: 'code', source: ['dict(foo=\'bar\')\n']}
       ]
     }),
-    '<div data-cell="run()" data-language="py"><pre data-source="">dict(foo=\'bar\')</pre></div>',
+    '<div data-cell="global py()"><pre data-source="">dict(foo=\'bar\')</pre></div>',
     'code cells with apostrophes'
   )
 
@@ -71,14 +71,14 @@ test('DocumentJupyterConverter.import', t => {
         }
       ]
     }),
-    '<div data-cell="run()" data-language="r"><pre data-source="">x &lt;- 6\nplot(1,x)</pre><img data-value="image" data-format="png" src="data:image/png;base64,PNGdata"></div>',
+    '<div data-cell="global r()"><pre data-source="">x &lt;- 6\nplot(1,x)</pre><img data-value="image" data-format="src" src="data:image/png;base64,PNGdata"></div>',
     'cells with output'
   )
 
   t.end()
 })
 
-test('DocumentJupyterConverter.export', t => {
+test('DocumentJupyterConverter:export', t => {
   const converter = new DocumentJupyterConverter()
   const e = (html, options) => {
     options = options || {}
@@ -117,12 +117,12 @@ test('DocumentJupyterConverter.export', t => {
   t.deepEqual(
     e(`
       <h1 id="heading-1">Heading 1</h1>
-      <div data-cell="run()" data-language="r">
+      <div data-cell="global r()">
         <pre data-source="">x &lt;- 6
 x*7</pre>
-        <img data-value="image" data-format="png" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8">
+        <img data-value="image" data-format="src" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8">
       </div>`, {stringify: false}
-    ).cells[1],
+    ),
     {
       cells: [
         {
@@ -153,14 +153,14 @@ x*7</pre>
       metadata: {},
       nbformat: 4,
       nbformat_minor: 2
-    }.cells[1],
+    },
     'mix dom content and cells'
   )
 
   t.end()
 })
 
-test('DocumentJupyterConverter.import-export', t => {
+test('DocumentJupyterConverter:import+export', t => {
   const converter = new DocumentJupyterConverter()
   // Function to do round trip conversion and checking.
   // Takes an array of cells
