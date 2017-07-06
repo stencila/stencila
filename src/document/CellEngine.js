@@ -1,5 +1,5 @@
 import { forEach } from 'substance'
-import { Engine } from 'substance-mini'
+import { Engine } from 'stencila-mini'
 import { pack, unpack } from '../value'
 import JsContext from '../js-context/JsContext'
 

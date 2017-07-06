@@ -1,5 +1,5 @@
 import { isArray, isNil, map } from 'substance'
-import { parse } from 'substance-mini'
+import { parse } from 'stencila-mini'
 import { type } from '../../../value'
 import _getContextNameForExpression from '../../_getContextNameForExpression'
 
