@@ -123,7 +123,6 @@ class CellComponent extends Component {
         result = result.concat(commandGroups[name])
       }
     })
-    console.log("###", result)
     return result
   }
 

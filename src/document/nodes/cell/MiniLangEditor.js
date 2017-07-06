@@ -55,7 +55,7 @@ class MiniLangEditor extends Component {
     }
   }
 
-  _onEscapeKey(event) {
+  _onEscapeKey() {
     this.send('escape')
   }
 
