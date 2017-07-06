@@ -7,12 +7,12 @@ export default {
   },
 
   import: function (el, node) {
-    node.expression = el.attr('data-expr')
+    node.expression = el.attr('for')
     node.value = el.innerHTML
   },
 
   export: function (node, el) {
-    el.attr('data-expr', node.expression)
+    el.attr('for', node.expression)
     el.innerHTML = node.value
   }
 }
