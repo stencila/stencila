@@ -19,6 +19,7 @@ class CellComponent extends Component {
 
   getInitialState() {
     return {
+      showMenu: false,
       showCode: true,
       forceShowOutput: false
     }
@@ -30,6 +31,12 @@ class CellComponent extends Component {
   */
   _showOutput() {
     return !this.props.node.isDefinition() || this.state.forceShowOutput
+  }
+
+  _toggleMenu() {
+    this.extendState({
+      showMenu: !this.state.showMenu
+    })
   }
 
   didMount() {
@@ -52,12 +59,22 @@ class CellComponent extends Component {
     let el = $$('div').addClass('sc-cell')
 
     let toggleCell = $$('div').addClass('se-toggle-cell').append(
-      $$('div').addClass('se-toggle-cell-inner'),
-      this._renderMenu($$)
-    )
+      $$('div').addClass('se-toggle-cell-inner')
+    ).on('click', this._toggleMenu)
+
+    if (this.state.showMenu) {
+
+      toggleCell.append(
+        this._renderMenu($$)
+      )
+    }
+
+    if (this.state.showCode) {
+      toggleCell.addClass('sm-code-shown')
+    }
 
     if (cell.hasErrors()) {
-      toggleCell.addClass('sm-error')
+      toggleCell.addClass('sm-has-errors')
     }
     el.append(toggleCell)
 
@@ -111,7 +128,8 @@ class CellComponent extends Component {
     event.preventDefault()
     event.stopPropagation()
     this.extendState({
-      showCode: !this.state.showCode
+      showCode: !this.state.showCode,
+      showMenu: false
     })
   }
 
@@ -122,7 +140,8 @@ class CellComponent extends Component {
     // No toggling allowed if cell is not a definition
     if (!isDefinition) return
     this.extendState({
-      forceShowOutput: !this.state.forceShowOutput
+      forceShowOutput: !this.state.forceShowOutput,
+      showMenu: false
     })
   }
 
@@ -190,18 +209,6 @@ class CellComponent extends Component {
 
   onCellChanged() {
     this.rerender()
-  }
-
-  onSelectEllipsesDropdown(event) {
-    const data = event.detail
-    const { name, value } = data
-    if (name) {
-      let newState = {}
-      newState[name] = value
-      this.extendState(newState)
-    } else {
-      console.error('FIXME: illegal event emitted by Dropdown')
-    }
   }
 
   onAwaitingEvaluation() {
