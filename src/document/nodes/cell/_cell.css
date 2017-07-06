@@ -111,6 +111,8 @@ pre.ace_editor.ace-tm {
 
 .sc-cell-value img {
   max-width: 100%;
+  margin: 0 auto;
+  display: block;
 }
 
 .sc-cell-value.sm-pending {
