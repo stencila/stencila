@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.27.2",
+  "version": "0.27.3",
   "description": "Stencila is the office suite for reproducible research.",
   "main": "build/stencila.cjs.js",
   "jsnext:main": "index.es.js",
@@ -53,8 +53,8 @@
     "remark-squeeze-paragraphs": "^3.0.0",
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
-    "substance": "1.0.0-beta.7-preview.10",
-    "stencila-mini": "^0.11.0",
+    "substance": "1.0.0-beta.7-preview.11",
+    "stencila-mini": "^0.11.2",
     "timeago.js": "3.0.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
