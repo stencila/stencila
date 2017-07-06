@@ -38,11 +38,15 @@
 @import './nodes/range-input/_range-input.css';
 @import './vega-lite/_vega-lite.css';
 
-
 /*Import rendered math styling*/
 @import './nodes/math/_math.css';
 
 .sc-document-editor {
+  /*
+    We need to override this because VegaLite sets cursor: default on the
+    body element.
+  */
+  cursor: auto;
   position: absolute;
   top: 0px;
   left: 0px;
