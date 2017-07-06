@@ -111,7 +111,6 @@ class CellComponent extends Component {
     let isDefinition = this.props.node.isDefinition()
     // No toggling allowed if cell is not a definition
     if (!isDefinition) return
-    console.log('TOGGLING forceShowOutput')
     this.extendState({
       forceShowOutput: !this.state.forceShowOutput
     })
