@@ -1,4 +1,4 @@
-import { Configurator, BasePackage } from 'substance'
+import { Configurator, BasePackage, FindAndReplacePackage } from 'substance'
 
 import TitlePackage from './nodes/title/TitlePackage'
 import SummaryPackage from './nodes/summary/SummaryPackage'
@@ -13,18 +13,17 @@ import LinkPackage from './nodes/link/LinkPackage'
 import ListPackage from './nodes/list/ListPackage'
 import CellPackage from './nodes/cell/CellPackage'
 import InlineCellPackage from './nodes/inline-cell/InlineCellPackage'
-import TablePackage from './nodes/table/TablePackage'
 import BlockquotePackage from './nodes/blockquote/BlockquotePackage'
-// import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
-import MinimalSwitchTextTypePackage from './minimal-switch-text-type/MinimalSwitchTextTypePackage'
 import InputSettingsBarPackage from './input-settings-bar/InputSettingsBarPackage'
 import DefaultPackage from './nodes/default/DefaultPackage'
-import ToggleInsertPackage from './toggle-insert/ToggleInsertPackage'
 import MathPackage from './nodes/math/MathPackage'
-// import ImagePackage from './nodes/image/ImagePackage'
 import SelectPackage from './nodes/select/SelectPackage'
 import RangeInputPackage from './nodes/range-input/RangeInputPackage'
 import VegaLitePackage from './vega-lite/VegaLitePackage'
+import DocumentModel from './DocumentModel'
+
+import ToggleCodeCommand from './ToggleCodeCommand'
+
 
 /**
  * A "configurator" for a document.
@@ -43,12 +42,10 @@ class DocumentConfigurator extends Configurator {
     // Define the schema (used by `getSchema()` to generate a `DocumentSchema` based on this
     // and the nodes added below by imports)
     this.defineSchema({
+      DocumentClass: DocumentModel,
       name: 'stencila-document',
       defaultTextType: 'paragraph'
     })
-
-    // At present, need at least the 'default' tool group before adding tools via imports below
-    this.addToolGroup('default')
 
     this.import(BasePackage)
     // Import node packages, in "order of appearance"
@@ -63,10 +60,10 @@ class DocumentConfigurator extends Configurator {
     this.import(CodePackage)
     this.import(LinkPackage)
     this.import(ListPackage)
-    this.import(TablePackage)
     this.import(MathPackage)
     this.import(SelectPackage)
     this.import(RangeInputPackage)
+    this.import(FindAndReplacePackage)
 
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
@@ -74,15 +71,103 @@ class DocumentConfigurator extends Configurator {
     this.import(CellPackage)
     this.import(InlineCellPackage)
     this.import(DefaultPackage)
-    this.import(MinimalSwitchTextTypePackage)
-    this.import(ToggleInsertPackage)
     this.import(InputSettingsBarPackage)
     this.import(VegaLitePackage)
 
     this.addIcon('settings', { 'fontawesome': 'fa-cog' })
     this.addLabel('settings', 'Settings')
+    this.addLabel('view', 'View')
+    this.addLabel('show-all-code', 'Show All Code')
+    this.addLabel('hide-all-code', 'Hide All Code')
 
-    // this.addKeyboardShortcut('alt+ENTER', { command: 'insert-cell' })
+    // View Commands
+    this.addCommand('hide-all-code', ToggleCodeCommand, {
+      showCode: false,
+      commandGroup: 'view'
+    })
+    this.addCommand('show-all-code', ToggleCodeCommand, {
+      showCode: true,
+      commandGroup: 'view'
+    })
+    this.addKeyboardShortcut('CommandOrControl+Alt+L', { command: 'show-all-code' })
+    this.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-all-code' })
+
+    // Overlay configuration
+    this.addToolPanel('main-overlay', [
+      // Displays prompts such as EditLinkTool, which are exclusive
+      // so that's why we put them first
+      {
+        name: 'prompt',
+        type: 'tool-prompt',
+        commandGroups: ['prompt']
+      },
+      /*{
+        // used to resolve icons and labels
+        name: 'text-types',
+        type: 'tool-dropdown',
+        showDisabled: false,
+        contextual: true,
+        style: 'minimal',
+        commandGroups: ['text-types']
+      },*/
+      {
+        name: 'annotations',
+        type: 'tool-group',
+        contextual: true,
+        showDisabled: false,
+        style: 'minimal',
+        commandGroups: ['annotations']
+      },/*
+      {
+        name: 'insert',
+        type: 'tool-dropdown',
+        contextual: true,
+        showDisabled: false,
+        style: 'minimal',
+        commandGroups: ['insert']
+      }*/
+    ])
+
+    this.addToolPanel('toolbar', [
+      {
+        name: 'text-types',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['text-types']
+      },
+      /*{
+        name: 'annotations',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'minimal',
+        commandGroups: ['annotations']
+      },*/
+      {
+        name: 'insert',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['insert']
+      },
+      {
+        name: 'view',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['view']
+      }
+    ])
+
+    this.addToolPanel('workflow', [
+      {
+        name: 'workflow',
+        type: 'tool-group',
+        commandGroups: ['workflows']
+      }
+    ])
+
+
   }
 
   /**

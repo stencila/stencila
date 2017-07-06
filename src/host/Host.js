@@ -1,6 +1,7 @@
-import { GET, POST } from '../util/requests'
+import { GET, POST, PUT } from '../util/requests'
 import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
+import MemoryBuffer from '../backend/MemoryBuffer'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
@@ -9,8 +10,6 @@ import ContextHttpClient from '../context/ContextHttpClient'
 export default class Host {
 
   constructor (options = {}) {
-    if (options.discover === undefined) options.discover = 10
-
     /**
      * Instances managed by this host
      *  
@@ -26,7 +25,10 @@ export default class Host {
      */
     this._peers = {}
 
-    // Begin peer discovery straight away
+    // Add the Host who served this file as a peer
+    if (options.mode !== 'dev' && typeof window !== 'undefined') this.pokePeer(window.location.origin)
+
+    // Discover other peers
     if (options.discover) this.discoverPeers(options.discover)
   }
 
@@ -38,49 +40,70 @@ export default class Host {
    * @return {Promise} Resolves to an instance
    */
   post (type, name) {
+    // Search for the type amongst peers or peers-of-peers
+    let find = (peersOfPeers) => {
+      for (let url of Object.keys(this._peers)) {
+        let manifest = this._peers[url]
+        
+        // Gather an object of types from the peer and it's peers
+        let specs = []
+        let addSpecs = (manifest) => {
+          if (manifest.schemes && manifest.schemes.new) {
+            for (let type of Object.keys(manifest.schemes.new)) {
+              specs.push(manifest.schemes.new[type])
+            }
+          }
+        }
+        if (!peersOfPeers) {
+          addSpecs(manifest)
+        } else if (manifest.peers) {
+          for (let peer of manifest.peers) addSpecs(peer)
+        }
+
+        // Find a type that has a matching name or alias
+        for (let spec of specs) {
+          if (spec.name === type) {
+            return {url, spec}
+          } else if (spec.aliases) {
+            if (spec.aliases.indexOf(type) >= 0) {
+              return {url, spec}
+            }
+          }
+        }
+
+        return null
+      }
+    }
+
+    // Request a new instance from peer (or peer or peer)
+    let request = (url, spec) => {
+      return POST(url + '/' + spec.name, { name: name }).then(address => {
+        let instance
+        if (spec.base === 'Context') {
+          instance = new ContextHttpClient(url + '/' + address)
+        } else {
+          throw new Error(`Unsupported type: %{path}`)
+        }
+        this._instances[address] = instance
+        return instance
+      })
+    }
+
+    // Attempt to find type
+    let found = find(false)
+    if (!found) found = find(true)
+    if (found) return request(found.url, found.spec)
+
+    // Fallback to providing an in-browser Javascript context
+    // (if one is available in a Node.js peer then it will be used instead)
     if (type === 'JsContext' || type === 'js') {
       let instance = new JsContext()
       let address = `name://${name || Math.floor((1 + Math.random()) * 1e6).toString(16)}`
       this._instances[address] = instance
       return Promise.resolve(instance)
     }
-    else {
-      for (let url of Object.keys(this._peers)) {
-        let manifest = this._peers[url]
-        if (manifest.schemes && manifest.schemes.new) {
-          // Only ask peer if the type is in the peer's `new` scheme
-          let types = manifest.schemes.new
-          let spec = types[type]
-          if (!spec) {
-            // No matching type name found so search through aliases
-            for (let name of Object.keys(types)) {
-              let spec_ = types[name]
-              for (let alias of spec_.aliases) {
-                if (alias === type) {
-                  spec = spec_
-                  break
-                }
-              }
-              if (spec) break
-            }
-          }
 
-          if (spec) {
-            return POST(url + '/' + spec.name, { name: name }).then(address => {
-              let instance
-              if (spec.base === 'Context') {
-                instance = new ContextHttpClient(url + '/' + address)
-              } else {
-                throw new Error(`Unsupported type: %{path}`)
-              }
-              this._instances[address] = instance
-              return instance
-            })
-          }
-        }
-      }
-      return Promise.reject(new Error(`No peers able to provide: ${type}`))
-    }
+    return Promise.reject(new Error(`No peers able to provide: ${type}`))
   }
 
   /**
@@ -114,6 +137,18 @@ export default class Host {
   }
 
   /**
+   * Pokes a URL to see if it is a Stencila Host
+   * 
+   * @param {string} url - A URL for the peer
+   */
+  pokePeer (url) {
+    GET(url).then(manifest => {
+      // Register if this is a Stencila Host manifest
+      if (manifest.stencila) this.registerPeer(url, manifest)
+    })
+  }
+
+  /**
    * Discover peers
    *
    * Currently, this method just does a port scan on the localhost to find
@@ -132,13 +167,45 @@ export default class Host {
    */
   discoverPeers (interval=10) {
     for (let port=2000; port<=2100; port+=10) {
-      const url = `http://127.0.0.1:${port}`
-      GET(url).then(manifest => {
-        // Register if this is a Stencila Host manifest
-        if (manifest.stencila) this.registerPeer(url, manifest)
-      })
+      this.pokePeer(`http://127.0.0.1:${port}`)
     }
     if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
+  }
+
+  // Experimental
+  // Implements methods of `Backend` so that this `Host` can serve as a backend
+  // Towards merging these two classes
+
+  getBuffer(address) {
+    // TODO this PUTs to the current server but it could be some other peer
+    return PUT(`/${address}!buffer`).then(data => {
+      let buffer = new MemoryBuffer()
+
+      buffer.writeFile('stencila-manifest.json', 'application/json', JSON.stringify({
+        type: 'document',
+        title: 'Untitled',
+        createdAt: '2017-03-10T00:03:12.060Z',
+        updatedAt: '2017-03-10T00:03:12.060Z',
+        storage: {
+          storerType: "filesystem",
+          contentType: "html",
+          archivePath: "",
+          mainFilePath: "index.html"
+        }
+      }))
+
+      buffer.writeFile('index.html', 'text/html', data['index.html'])
+
+      return buffer
+    })
+  }
+
+  storeBuffer(/*buffer*/) {
+    return Promise.resolve()
+  }
+
+  updateManifest(/* documentId, props */) {
+    return Promise.resolve()
   }
 
 }

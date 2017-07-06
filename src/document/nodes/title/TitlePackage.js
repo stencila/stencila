@@ -10,10 +10,6 @@ export default {
     config.addComponent('title', TitleComponent)
     config.addConverter('html', TitleHTMLConverter)
     config.addConverter('xml', TitleXMLConverter)
-    config.addTextType({
-      name: 'title',
-      data: {type: 'title'}
-    })
     config.addIcon('title', { 'fontawesome': 'fa-asterisk' })
     config.addLabel('title', 'T')
   }

@@ -7,17 +7,19 @@ class EditRangeInputTool extends Tool {
   constructor(...args) {
     super(...args)
   }
+
   render($$) {
     let InputSettingsBar = this.getComponent('input-settings-bar')
     let el = $$('div').addClass('sc-edit-range-input-tool')
+    let node = this._getNode(this.props.commandState.nodeId)
     el.append(
-      $$(InputSettingsBar, this.props)
+      $$(InputSettingsBar, { node })
         .on('toggle', this._onToggleSettings)
     )
     if (this.state.showSettings) {
-      el.append($$(Settings, this.props))
+      el.append($$(Settings, { node }))
     } else {
-      el.append($$(Display, this.props))
+      el.append($$(Display, { node }))
     }
     return el
   }
@@ -26,6 +28,11 @@ class EditRangeInputTool extends Tool {
     this.setState({
       showSettings: !this.state.showSettings
     })
+  }
+
+  _getNode(nodeId) {
+    let doc = this.context.document
+    return doc.get(nodeId)
   }
 }
 

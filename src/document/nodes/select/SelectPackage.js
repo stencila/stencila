@@ -11,8 +11,11 @@ export default {
     config.addNode(Select)
     config.addComponent('select', SelectComponent)
     config.addConverter('html', SelectHTMLConverter)
-    config.addCommand('edit-select', EditInlineNodeCommand, { nodeType: 'select' })
-    config.addTool('edit-select', EditSelectTool, { toolGroup: 'overlay' })
+    config.addCommand('edit-select', EditInlineNodeCommand, {
+      nodeType: 'select',
+      commandGroup: 'prompt'
+    })
+    config.addTool('edit-select', EditSelectTool)
 
     // Disabled until we have good UX for it
     // config.addCommand('insert-select', InsertSelectCommand, {
@@ -23,4 +26,5 @@ export default {
     // config.addIcon('insert-select', { 'fontawesome': 'fa-caret-down' })
     // config.addLabel('insert-select', 'Insert Select')
   }
+
 }

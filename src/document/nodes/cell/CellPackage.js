@@ -1,4 +1,3 @@
-import { Tool } from 'substance'
 import InsertCellCommand from './InsertCellCommand'
 import Cell from './Cell'
 import CellComponent from './CellComponent'
@@ -28,10 +27,14 @@ export default {
 
     config.addComponent('code-highlight', CodeHighlightComponent)
     config.addConverter('html', CellHTMLConverter)
-    config.addCommand('insert-cell', InsertCellCommand)
-    config.addTool('insert-cell', Tool, { toolGroup: 'insert' })
+    config.addCommand('insert-cell', InsertCellCommand, {
+      commandGroup: 'insert',
+      nodeType: 'cell'
+    })
     config.addIcon('insert-cell', { 'fontawesome': 'fa-caret-square-o-right' })
-    config.addLabel('insert-cell', 'Insert Cell')
+    config.addLabel('insert-cell', 'Cell')
+
+    config.addKeyboardShortcut('ctrl+alt+c', { command: 'insert-cell' })
 
     // TODO: some of these could go into a shared package
     config.addIcon('error', { 'fontawesome': 'fa-exclamation' })

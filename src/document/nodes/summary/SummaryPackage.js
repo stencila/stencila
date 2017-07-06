@@ -10,10 +10,6 @@ export default {
     config.addComponent('summary', SummaryComponent)
     config.addConverter('html', SummaryHTMLConverter)
     config.addConverter('xml', SummaryXMLConverter)
-    config.addTextType({
-      name: 'summary',
-      data: {type: 'summary'}
-    })
     config.addIcon('summary', { 'fontawesome': 'fa-circle-o' })
     config.addLabel('summary', 'S')
   }

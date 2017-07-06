@@ -25,7 +25,7 @@ class Dropdown extends Component {
       label: this.props.name,
       icon: this.props.icon,
       disabled: this.props.disabled,
-      style: 'outline'
+      theme: 'light'
     }).on('click', this.onClickButton)
     return btn
   }

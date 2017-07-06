@@ -17,7 +17,7 @@ class DocumentHTMLImporter extends HTMLImporter {
       // Required configuration for an importer
       DocumentClass: DocumentModel,
       schema: configurator.getSchema(),
-      converters: configurator.getConverterRegistry().get('html'),
+      converters: _getConverters(configurator),
       idAttribute: 'data-id'
     })
   }
@@ -42,7 +42,6 @@ class DocumentHTMLImporter extends HTMLImporter {
     if (htmlDoc) {
       this.convertDocument(htmlDoc)
     }
-    this.generateDocument()
     return this.state.doc
   }
 
@@ -65,6 +64,12 @@ class DocumentHTMLImporter extends HTMLImporter {
     DefaultHTMLConverter.import(el, nodeData, converter)
     return nodeData
   }
+}
+
+function _getConverters(configurator) {
+  return configurator.getConverterRegistry().get('html').map((value) => {
+    return value
+  })
 }
 
 export default DocumentHTMLImporter

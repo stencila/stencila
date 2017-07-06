@@ -6,6 +6,64 @@
   position: relative;
 }
 
+.sc-cell .se-toggle-cell {
+  margin: 10px auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.sc-cell .se-toggle-cell.sm-has-errors.sm-code-shown {
+  border: 2px solid #B9003B;
+}
+
+.sc-cell .se-toggle-cell.sm-code-shown {
+  border: 2px solid #00FF00;
+}
+
+.sc-cell .se-toggle-cell .se-toggle-cell-inner {
+  margin: 3px;
+  background: #00FF00;
+  border-radius: 5px;
+  width: 10px;
+  height: 10px;
+}
+
+.sc-cell .se-toggle-cell.sm-has-errors .se-toggle-cell-inner {
+  background: #B9003B;
+}
+
+.sc-cell .se-toggle-cell .se-menu {
+  border-radius: 3px;
+  position: absolute;
+  background: #2E2E2E;
+  color: white;
+  top: 26px;
+  left: 50%;
+  transform: translate(-50%);
+  z-index: 1000;
+  white-space: nowrap;
+  /*display: none;*/
+}
+
+/*.sc-cell .se-toggle-cell:hover .se-menu {
+  display: block;
+}*/
+
+.sc-cell .se-toggle-cell .se-menu .se-menu-item {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.sc-cell .se-toggle-cell .se-menu .se-menu-item.sm-disabled {
+  opacity: 0.2;
+}
+
+
 .sc-cell .se-cell-editor-container {
   position: relative;
   background: #F5F5F5;
@@ -53,6 +111,8 @@ pre.ace_editor.ace-tm {
 
 .sc-cell-value img {
   max-width: 100%;
+  margin: 0 auto;
+  display: block;
 }
 
 .sc-cell-value.sm-pending {

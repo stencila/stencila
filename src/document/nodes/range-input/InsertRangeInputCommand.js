@@ -21,7 +21,7 @@ class InsertRangeInputCommand extends InsertInlineNodeCommand {
   }
 
   createNodeData (tx, params) {
-    let text = this._getText(params)
+    let text = this._getText(params) || '100'
     var number = Number(text)
     return {
       type: 'range-input',

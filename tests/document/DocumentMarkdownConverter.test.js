@@ -6,16 +6,68 @@ import DocumentMarkdownConverter from '../../src/document/DocumentMarkdownConver
 const converter = new DocumentMarkdownConverter()
 
 
-test('DocumentMarkdownConverter.match', function (t) {
+test('DocumentMarkdownConverter:match', function (t) {
   t.ok(DocumentMarkdownConverter.match('foo.md'))
   t.notOk(DocumentMarkdownConverter.match('foo.html'))
   t.end()
 })
 
-test('DocumentMarkdownConverter.importDocument', function (t) {
+test('DocumentMarkdownConverter:shebangToMini', function (t) {
+  let c = DocumentMarkdownConverter.shebangToMini
+
+  t.equal(c('#!', 'py'), 'py()')
+  t.equal(c('#! z=', 'r'), 'z = r()')
+  t.equal(c('//! z=(x,y)', 'js'), 'z = js(x,y)')
+  t.equal(c('//! z=()', 'js'), 'z = js()')
+
+  t.equal(c('#! global', 'r'), 'global r()')
+  t.equal(c('#! function (x:number, y:number)', 'r'), 'function r(x:number, y:number)')
+
+  t.end()
+})
+
+test('DocumentMarkdownConverter:miniToShebang', function (t) {
+  let c = DocumentMarkdownConverter.miniToShebang
+
+  t.deepEqual(c('py()'), {lang: 'py', shebang: '#!'})
+
+  t.end()
+})
+
+const testMd = `An input [42]{name=x type=range min=1 max=100 step=1} in a paragraph.
+
+\`\`\`mini
+y = x/2
+\`\`\`
+
+\`\`\`r
+#! z = (x,y)
+z = x + y
+\`\`\`
+
+An output [21]{expr=y} in a paragraph.`
+
+const testHtml = `<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content"><p>An input <input name="x" value="42" type="range" min="1" max="100" step="1"> in a paragraph.</p>
+<div data-cell="y = x/2"></div>
+<div data-cell="z = r(x,y)"><pre data-source="">z = x + y</pre></div>
+<p>An output <output for="y">21</output> in a paragraph.</p></div>
+      </div>
+    </main>
+  </body>
+</html>`
+
+test('DocumentMarkdownConverter:importDocument', function (t) {
   let converter = new DocumentMarkdownConverter()
   let storer = new TestStorer('/path/to/storer', 'hello-world.md')
-  storer.writeFile('hello-world.md', 'text/markdown', 'Hello world')
+  storer.writeFile('hello-world.md', 'text/markdown', testMd)
   let buffer = new MemoryBuffer()
 
   converter.importDocument(
@@ -24,40 +76,16 @@ test('DocumentMarkdownConverter.importDocument', function (t) {
   ).then((manifest) => {
     t.equal(manifest.type, 'document')
     buffer.readFile('index.html', 'text/html').then((html) => {
-      t.equal(html, `<!DOCTYPE html>
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <main>
-      <div id="data" data-format="html">
-        <div class="content"><p>Hello world</p></div>
-      </div>
-    </main>
-  </body>
-</html>`)
+      t.equal(html, testHtml)
       t.end()
     })
   })
 })
 
-test('DocumentMarkdownConverter.exportDocument', function (t) {
+test('DocumentMarkdownConverter:exportDocument', function (t) {
   let converter = new DocumentMarkdownConverter()
   let buffer = new MemoryBuffer()
-  buffer.writeFile('index.html', 'text/html', `<!DOCTYPE html>
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <main>
-      <div id="data" data-format="html">
-        <div class="content"><p>Hello world</p></div>
-      </div>
-    </main>
-  </body>
-</html>`)
+  buffer.writeFile('index.html', 'text/html', testHtml)
   let storer = new TestStorer('/path/to/storer', 'hello-world.md')
 
   converter.exportDocument(
@@ -65,14 +93,14 @@ test('DocumentMarkdownConverter.exportDocument', function (t) {
     storer
   ).then(() => {
     storer.readFile('hello-world.md', 'text/markdown').then((md) => {
-      t.equal(md, 'Hello world')
+      t.equal(md, testMd)
       t.end()
     })
   })
 })
 
 
-test('DocumentMarkdownConverter.importContent', t => {
+test('DocumentMarkdownConverter:importContent', t => {
   const i = (md, options) => converter.importContent(md, options)
 
   t.equal(
@@ -131,57 +159,50 @@ test('DocumentMarkdownConverter.importContent', t => {
   )
 
   t.equal(
-    i('```r\n```'),
-    '<pre><code class="language-r"></code></pre>',
+    i('```r\n# Some R code\n```'),
+    '<pre><code class="language-r"># Some R code</code></pre>',
     'codeblock with language'
   )
 
   t.equal(
-    i('```.\nvar2=sum(var1)\n```'),
+    i('```mini\nvar2=sum(var1)\n```'),
     '<div data-cell="var2=sum(var1)"></div>',
-    'internal cell using mini language'
+    'mini cell'
   )
 
   t.equal(
-    i('```run(){r}\nlibrary(myawesomepackage)\n```'),
-    '<div data-cell="run()" data-language="r"><pre data-source="">library(myawesomepackage)</pre></div>',
-    'cell which runs some R code'
+    i('```r\n#!\nruniform(100)\n```'),
+    '<div data-cell="r()"><pre data-source="">runiform(100)</pre></div>',
+    'R cell local'
   )
 
   t.equal(
-    i('```run{r}\nlibrary(myawesomepackage)\n```'),
-    '<div data-cell="run()" data-language="r"><pre data-source="">library(myawesomepackage)</pre></div>',
-    'run has optional parentheses'
+    i('```r\n#! global\nlibrary(myawesomepackage)\n```'),
+    '<div data-cell="global r()"><pre data-source="">library(myawesomepackage)</pre></div>',
+    'R cell global'
   )
 
   t.equal(
-    i('```call(){r}\nreturn(6*7)\n```'),
-    '<div data-cell="call()" data-language="r"><pre data-source="">return(6*7)</pre></div>',
-    'external cell which calls some R code'
-  )
-
-  t.equal(
-    i('```call{r}\nreturn(6*7)\n```'),
-    '<div data-cell="call()" data-language="r"><pre data-source="">return(6*7)</pre></div>',
-    'call has optional parentheses'
-  )
-
-  t.equal(
-    i('```out1=call(in1,y=in2){r}\nreturn(in1*y)\n```'),
-    '<div data-cell="out1=call(in1,y=in2)" data-language="r"><pre data-source="">return(in1*y)</pre></div>',
+    i('```js\n//! out1=(in1,y=in2)\nreturn(in1*y)\n```'),
+    '<div data-cell="out1 = js(in1,y=in2)"><pre data-source="">return(in1*y)</pre></div>',
     'call with inputs and outputs'
   )
 
   t.end()
 })
 
-test('DocumentMarkdownConverter.exportContent', t => {
+test('DocumentMarkdownConverter:exportContent', t => {
   const e = converter.exportContent
 
   t.equal(
     e('<p>Para with <span class="class other-class" data-key="val" data-another="example">a bracketed span</span>.</p>'),
     'Para with [a bracketed span]{.class .other-class key=val another=example}.',
     'plain bracketed spans work'
+  )
+
+  t.equal(
+    e('<p>Para with special chars &amp; &gt; &lt;</p>'),
+    'Para with special chars & > <'
   )
 
   t.equal(
@@ -216,39 +237,45 @@ test('DocumentMarkdownConverter.exportContent', t => {
   )
 
   t.equal(
-    e('<pre><code class="language-r"></code></pre>'),
-    '```r\n\n```',
+    e('<pre><code></code></pre>'),
+    '```\n\n```',
+    'empty codeblock'
+  )
+
+  t.equal(
+    e('<pre><code class="language-r"># Some example R code</code></pre>'),
+    '```r\n# Some example R code\n```',
     'codeblock with language'
   )
 
   t.equal(
     e('<div data-cell="var2=sum(var1)"></div>'),
-    '```.\nvar2=sum(var1)\n```',
-    'internal cell using mini language'
+    '```mini\nvar2=sum(var1)\n```',
+    'internal cell using mini'
   )
 
   t.equal(
-    e('<div data-cell="run()" data-language="r"><pre data-source="">library(myawesomepackage)</pre></div>'),
-    '```run(){r}\nlibrary(myawesomepackage)\n```',
-    'chunk which runs some R code'
+    e('<div data-cell="global r()"><pre data-source="">library(myawesomepackage)</pre></div>'),
+    '```r\n#! global\nlibrary(myawesomepackage)\n```',
+    'global R code'
   )
 
   t.equal(
-    e('<div data-cell="call()" data-language="r"><pre data-source="">return(6*7)</pre></div>'),
-    '```call(){r}\nreturn(6*7)\n```',
-    'external cell which calls some R code'
+    e('<div data-cell="r()"><pre data-source="">return(6*7)</pre></div>'),
+    '```r\n#!\nreturn(6*7)\n```',
+    'local R code'
   )
 
   t.equal(
-    e('<div data-cell="out1=call(in1,y=in2)" data-language="r"><pre data-source="">return(6*7)</pre></div>'),
-    '```out1=call(in1,y=in2){r}\nreturn(6*7)\n```',
+    e('<div data-cell="out1=js(in1,y=in2)" data-language="r"><pre data-source="">return(6*7)</pre></div>'),
+    '```js\n//! out1 = (in1,y=in2)\nreturn(6*7)\n```',
     'call with inputs and outputs'
   )
 
   t.end()
 })
 
-test('DocumentMarkdownConverter.importContent+exportContent', t => {
+test('DocumentMarkdownConverter:importContent+exportContent', t => {
   const ie = mdIn => {
     let html = converter.importContent(mdIn)
     let mdOut = converter.exportContent(html)
@@ -267,10 +294,13 @@ test('DocumentMarkdownConverter.importContent+exportContent', t => {
   ie('[42]{name=variable1}')
   ie('[42]{expr=6*7}')
 
-  ie('```.\nvar2=sum(var1)\n```')
-  ie('```run(){r}\nlibrary(myawesomepackage)\n```')
-  ie('```call(){r}\nreturn(6*7)\n```')
-  ie('```out1=call(in1,y=in2){r}\nreturn(6*7)\n```')
+  ie('```mini\nvar2=sum(var1)\n```')
+  ie('```r\n#! global\nlibrary(myawesomepackage)\n```')
+  ie('```r\n#!\nreturn(6*7)\n```')
+  ie('```js\n//! out1 = call(in1,y=in2)\nreturn(6*7)\n```')
+  ie('```sql\n--! (data)\nSELECT * FROM data\n```')
+
+  ie('```r\n# Some example R code\n```')
 
   t.end()
 })

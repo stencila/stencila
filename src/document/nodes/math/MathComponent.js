@@ -17,7 +17,7 @@ class MathComponent extends Component {
     try {
       el.append(
         $$('span').addClass('se-rendered-math').html(
-          math.render(node.source, node.language, node.display)
+          math.render(node.source || '???', node.language, node.display)
         )
       )
       let blockerEl = $$('div').addClass('se-blocker')

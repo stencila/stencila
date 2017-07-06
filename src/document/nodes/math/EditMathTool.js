@@ -2,14 +2,11 @@ import { Tool } from 'substance'
 
 /*
   Tool to edit math markup.
-
-  TODO: Consider auto-detecting whether Asciimath or Tex math has been entered.
-  That way we would not need to show another UI element.
 */
 class EditMathTool extends Tool {
 
   getSourcePath() {
-    return [ this.props.node.id ].concat('source')
+    return [ this.props.commandState.nodeId ].concat('source')
   }
 
   render($$) {
@@ -24,11 +21,11 @@ class EditMathTool extends Tool {
 
     let sourcePath = this.getSourcePath()
     el.append(
-      'Edit Math ',
+      'Math ',
       $$(Input, {
         type: 'text',
         path: sourcePath,
-        placeholder: 'Type Asciimath'
+        placeholder: 'Enter AsciiMath or TeX'
       })
     )
     return el

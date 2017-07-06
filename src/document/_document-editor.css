@@ -5,13 +5,10 @@
   the pagestyle module
 */
 
-@import './minimal-switch-text-type/_minimal-switch-text-type.css';
-@import './overlay/_overlay.css';
 @import './ui/_code-editor.css';
 @import './ui/_isolated-node.css';
 @import './button/_button.css';
 @import './input/_input.css';
-@import './toggle-insert/_toggle-insert.css';
 @import './input-settings-bar/_input-settings-bar.css';
 @import '../shared/_dropdown.css';
 
@@ -41,14 +38,30 @@
 @import './nodes/range-input/_range-input.css';
 @import './vega-lite/_vega-lite.css';
 
-
 /*Import rendered math styling*/
 @import './nodes/math/_math.css';
 
 .sc-document-editor {
-  max-width: 660px;
+  /*
+    We need to override this because VegaLite sets cursor: default on the
+    body element.
+  */
+  cursor: auto;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  /*max-width: 660px;
   padding: 20px;
-  margin: 0 auto;
+  margin: 0 auto;*/
+}
+
+.sc-document-editor .se-toolbar-wrapper {
+  z-index: 1000;
+  border-bottom: 1px solid #e1e4e8;
+  padding: 1px;
+  height: 35px;
 }
 
 .sc-document-editor .sc-container-editor > * {

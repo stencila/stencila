@@ -3,18 +3,19 @@ import { Tool, Component } from 'substance'
 class EditSelectTool extends Tool {
 
   render($$) {
+    let node = this._getNode(this.props.commandState.nodeId)
     let InputSettingsBar = this.getComponent('input-settings-bar')
     let el = $$('div').addClass('sc-edit-select-tool')
 
     el.append(
-      $$(InputSettingsBar, this.props)
+      $$(InputSettingsBar, { node })
         .on('toggle', this._onToggleSettings)
     )
 
     if (this.state.showSettings) {
-      el.append($$(Settings, this.props))
+      el.append($$(Settings, { node }))
     } else {
-      el.append($$(Options, this.props))
+      el.append($$(Options, { node }))
     }
 
     // Render settings
@@ -25,6 +26,11 @@ class EditSelectTool extends Tool {
     this.setState({
       showSettings: !this.state.showSettings
     })
+  }
+
+  _getNode(nodeId) {
+    let doc = this.context.document
+    return doc.get(nodeId)
   }
 }
 

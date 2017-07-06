@@ -1,4 +1,4 @@
-import { EditInlineNodeCommand, Tool } from 'substance'
+import { EditInlineNodeCommand } from 'substance'
 import InlineCell from './InlineCell'
 import InlineCellComponent from './InlineCellComponent'
 import InlineCellHTMLConverter from './InlineCellHTMLConverter'
@@ -11,15 +11,17 @@ export default {
     config.addNode(InlineCell)
     config.addComponent('inline-cell', InlineCellComponent)
     config.addConverter('html', InlineCellHTMLConverter)
-    config.addCommand('edit-inline-cell', EditInlineNodeCommand, { nodeType: 'inline-cell' })
-    config.addTool('edit-inline-cell', EditInlineCellTool, { toolGroup: 'overlay' })
+    config.addCommand('edit-inline-cell', EditInlineNodeCommand, {
+      nodeType: 'inline-cell' ,
+      commandGroup: 'prompt'
+    })
+    config.addTool('edit-inline-cell', EditInlineCellTool)
 
     config.addCommand('insert-inline-cell', InsertInlineCellCommand, {
       nodeType: 'inline-cell',
-      disableCollapsedCursor: true
+      commandGroup: 'insert'
     })
-    config.addTool('insert-inline-cell', Tool, { toolGroup: 'overlay' })
     config.addIcon('insert-inline-cell', { 'fontawesome': 'fa-caret-square-o-right' })
-    config.addLabel('insert-inline-cell', 'Insert Output')
+    config.addLabel('insert-inline-cell', 'Output')
   }
 }

@@ -1,7 +1,7 @@
 .sc-cell-error-display {
   display: none;
   position: absolute;
-  top: 10px;
+  top: 40px;
   left: 7px;
   width: 8px;
   height: 8px;
@@ -29,12 +29,3 @@
 .sc-cell-error-display:hover .se-errors {
   display: block;
 }
-
-/*.sc-cell-status-bar .se-errors .se-toggle-errors {*/
-/*.sc-cell-status-bar .se-errors > .sc-button {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  border: none;
-  height: 20px;
-}*/

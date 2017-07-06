@@ -15,6 +15,12 @@ import rehypeStringify from 'rehype-stringify'
 
 import {DefaultDOMElement} from 'substance'
 
+import {
+  LIST as languageLIST,
+  shortname as languageShortname, 
+  comment as languageComment
+} from '../language'
+
 
 export default class DocumentMarkdownConverter {
 
@@ -28,6 +34,53 @@ export default class DocumentMarkdownConverter {
     return fileName.slice(-3) === '.md'
   }
 
+  /**
+   * Convert a codeblock shebang line to a Mini expression
+   * 
+   * @param  {String} line     Line (usually first) of codeblock to covert
+   * @param  {String} language Name of language for codeblock
+   * @return {null|String}     Mini expression, or null if not a shebang line
+   */
+  static shebangToMini(line, lang = '') {
+    lang = languageShortname(lang)
+    let comment = languageComment(lang)
+    let match = line.match(`^${comment}!\\s*((\\w+)\\s*=\\s*)?(function|global)?\\s*(.*)`)
+    if (!match) return null
+    let mini = ''
+    if (match[2]) mini = match[2] + ' = '
+    if (match[3]) mini += match[3] + ' '
+    mini += lang
+    if (match[4]) mini += match[4]
+    else mini += '()'
+    return mini
+  }
+
+  /**
+   * Convert a Mini expression to a language code and a shebang line
+   * 
+   * @param  {String} mini     Mini expression
+   * @return {Object}          {lang, shebang}  
+   */
+  static miniToShebang(mini) {
+    let match = mini.match(`^\\s*((\\w+)\\s*=\\s*)?(function|global)?\\s*(${languageLIST.join('|')})+\\s*(.*)`)
+    if (!match) {
+      return {
+        lang: 'mini',
+        shebang: null
+      }
+    }
+
+    let lang = languageShortname(match[4])
+    let comment = languageComment(lang)
+    let shebang = comment + '!'
+    if (match[2]) shebang += ' ' + match[2] + ' ='
+    if (match[3]) shebang += ' ' + match[3]
+    if (match[5] && match[5] !== '()') shebang += ' ' + match[5]
+    return {
+      lang: lang,
+      shebang: shebang
+    }
+  }
 
   importDocument(storer, buffer) {
     let mainFilePath = storer.getMainFilePath()
@@ -155,10 +208,8 @@ export default class DocumentMarkdownConverter {
     options.rule = '-'
     options.ruleRepetition = 3
     options.ruleSpaces = false
-    options.entities = false
-    options.encode = false
 
-    const md = unified()
+    let md = unified()
       .use(rehypeParse)
       .use(rehypeCellToCodeblock)
       .use(rehypeInputOutputToMarkdown)
@@ -167,6 +218,10 @@ export default class DocumentMarkdownConverter {
       .use(remarkStringify)
       .use(remarkBracketedSpansClean())
       .processSync(html, options).contents.trim()
+
+    // Not clear why this is necessary and whether it is better
+    // dealt with by options to rehype/remark
+    md = md.replace(/&lt;/g, '<')
 
     return md
   }
@@ -231,7 +286,7 @@ function remarkBracketedSpansClean () {
 }
 
 /**
- * Transform <span data-name=...> to <input> and <span data-value=...> to <output>
+ * Transform <span data-name=...> to <input> and <span data-expr=...> to <output>
  *
  * @returns {function} Vistor function
  */
@@ -371,52 +426,59 @@ function rehypeInputOutputToMarkdown () {
 function rehypeCodeblockToCell () {
   return tree => {
     unistVisit(tree, (node, i, parent) => {
-      if (parent && node.tagName === 'code' && node.properties.className) {
-        if (parent.tagName === 'pre' && node.properties.className.length) {
-          let className = node.properties.className[0]
-          let match = className.match(/^language-(.+?)({(\w+)})?$/)
-          if (match) {
-            let expr
-            let language
-            let children
+      if (parent && node.tagName === 'code') {
+        if (parent.tagName === 'pre') {
+          // Rehype adds a trailing newline to the code, remove it
+          let code = ''
+          if (node.children.length) {
+            code = node.children[0].value
+            if (code.slice(-1) === '\n') {
+              code = code.slice(0, -1)
+            }
+            node.children[0].value = code
+          }
+          if (node.properties.className && node.properties.className.length) {
+            let className = node.properties.className[0]
+            let match = className.match(/^language-([^ ]+)$/)
+            if (match) {
+              let language = match[1]
 
-            // rehype adds a trailing newline, remove it
-            let code = ''
-            if (node.children.length) {
-              code = node.children[0].value
-              if (code.slice(-1) === '\n') {
-                code = code.slice(0, -1)
+              let mini
+              let children
+              if (language === 'mini') {
+                mini = code
+                children = []
+              } else {
+                // Convert first line to Mini
+                let lines = code.split('\n')
+                mini = DocumentMarkdownConverter.shebangToMini(lines[0], language)
+                // If the first line was a shebang then strip it
+                if (mini) {
+                  code = lines.slice(1).join('\n')
+                  // Create <pre> for code
+                  children = [{
+                    type: 'element',
+                    tagName: 'pre',
+                    properties: {
+                      'data-source': ''
+                    },
+                    children: [{
+                      type: 'text',
+                      value: code
+                    }]
+                  }]
+                }
               }
-            }
 
-            let mini = match[1] === '.'
-            if (mini) {
-              expr = code
-            } else {
-              expr = match[1]
-              if (expr === 'run') expr = "run()"
-              if (expr === 'call') expr = "call()"
-              // If this is not a run or a call then just retain as a plain codeblock
-              if (expr.indexOf('(') < 0) return
-              language = match[3]
-              children = [{
-                type: 'element',
-                tagName: 'pre',
-                properties: {
-                  'data-source': ''
-                },
-                children: [{
-                  type: 'text',
-                  value: code
-                }]
-              }]
-            }
+              // Not mini, or no shebang, don't change this codeblock to a cell
+              if (!mini) return
 
-            // Change this codeblock <pre><code class="language-..."> into cell <div data-cell="...">
-            parent.tagName = 'div'
-            parent.properties['data-cell'] = expr
-            if (language) parent.properties['data-language'] = language
-            parent.children = children
+              // Change this codeblock <pre><code class="language-..."> into 
+              // cell <div data-cell="..."><pre>
+              parent.tagName = 'div'
+              parent.properties['data-cell'] = mini
+              parent.children = children
+            }
           }
         }
       }
@@ -436,19 +498,20 @@ function rehypeCellToCodeblock () {
   return tree => {
     unistVisit(tree, (node, i, parent) => { // eslint-disable-line no-unused-vars
       if (node.type === 'element' && node.properties) {
-        let expr = node.properties.dataCell // 'data-cell' is parsed to 'dataCell'
-        if (expr) {
-          // Get (for `run` and `call` cells) source code
+        let mini = node.properties.dataCell // 'data-cell' is parsed to 'dataCell'
+        if (mini) {
+          // Get code
           let code
           let pre = unistFind(node, {tagName: 'pre'})
           if (pre) code = pre.children[0].value
-          else code = expr
+          else code = mini
 
-          // Set the 'class' of <code>
-          let lang = node.properties.dataLanguage
-          let className
-          if (lang) className = `language-${expr}{${lang}}`
-          else className = 'language-.'
+          // Get language
+          let {lang, shebang} = DocumentMarkdownConverter.miniToShebang(mini)
+          let className = `language-${lang}`
+          if (shebang) {
+            code = shebang + '\n' + code
+          }
 
           // Change this cell <div> into a codeblock <pre><code>
           node.tagName = 'pre'

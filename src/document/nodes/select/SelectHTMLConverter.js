@@ -8,6 +8,7 @@ export default {
 
   import: function (el, node) {
     node.name = el.attr('name')
+    node.options = []
     el.findAll('option').forEach(function (option, optionIndex) {
       node.options.push({
         text: option.text(),

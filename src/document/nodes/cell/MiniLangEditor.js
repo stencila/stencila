@@ -1,6 +1,8 @@
 import {
-  Component, TextPropertyEditor, isArrayEqual
+  Component, TextPropertyEditor, isArrayEqual, parseKeyEvent
 } from 'substance'
+
+import { getSyntaxTokens } from '../../expressionUtils'
 
 export default
 class MiniLangEditor extends Component {
@@ -10,18 +12,20 @@ class MiniLangEditor extends Component {
     // the source code
     const path = this.props.path
     const commands = this.props.commands
+    const excludedCommands = this.props.excludedCommands
     const markers = this._getMarkers()
     let content = $$(TextPropertyEditor, {
       path,
       commands,
+      excludedCommands,
       markers,
       handleTab: false
     }).ref('contentEditor')
-      // NOTE: disable these if these are causing troubles
       // EXPERIMENTAL: adding "\n" plus indent of current line
       .on('enter', this._onEnterKey)
       // EXPERIMENTAL: adding 2 spaces if at begin of line
       .on('tab', this._onTabKey)
+      .on('escape', this._onEscapeKey)
     content.addClass('se-content')
     el.append(content)
     return el
@@ -30,29 +34,29 @@ class MiniLangEditor extends Component {
   _getMarkers() {
     const expression = this.props.expression
     const path = this.props.path
-    if (expression) {
-      return expression.tokens.map((t) => {
-        return {
-          type: 'code-highlight',
-          name: t.type,
-          start: { path, offset: t.start },
-          end: { path, offset: t.end },
-          on() {},
-          off() {}
-        }
-      })
-    } else {
-      return []
+    return expression ? getSyntaxTokens(path, expression) : []
+  }
+
+  _onEnterKey(event) {
+    const data = event.detail
+    const modifiers = parseKeyEvent(data, 'modifiers-only')
+    switch(modifiers) {
+      case 'ALT': {
+        this.send('break')
+        break
+      }
+      case 'CTRL': {
+        this.send('execute')
+        break
+      }
+      default:
+        //
+        this._insertNewLine()
     }
   }
 
-  _onEnterKey() {
-    // find the indent of the current line
-    let indent = this._getCurrentIndent() || ''
-    const editorSession = this.context.editorSession
-    editorSession.transaction((tx) => {
-      tx.insertText('\n' + indent)
-    })
+  _onEscapeKey() {
+    this.send('escape')
   }
 
   _onTabKey() {
@@ -64,6 +68,14 @@ class MiniLangEditor extends Component {
         tx.insertText('  ')
       })
     }
+  }
+
+  _insertNewLine() {
+    const editorSession = this.context.editorSession
+    const indent = this._getCurrentIndent() || ''
+    editorSession.transaction((tx) => {
+      tx.insertText('\n' + indent)
+    })
   }
 
   _getCurrentIndent() {

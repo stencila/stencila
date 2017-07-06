@@ -16,7 +16,7 @@ export default class InputSettingsBar extends Component {
         .ref('nameInput'),
       $$(Button, {
         icon: 'toggle-settings',
-        style: 'plain-dark'
+        theme: 'dark'
       }).on('click', this._onToggleSettings)
     )
     return el
