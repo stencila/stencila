@@ -21,7 +21,6 @@ export default {
 
     config.addCommand('insert-math', InsertMathCommand, {
       nodeType: 'math',
-      disableCollapsedCursor: true,
       commandGroup: 'insert'
     })
 
