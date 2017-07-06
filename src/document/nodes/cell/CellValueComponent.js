@@ -44,7 +44,7 @@ class CellValueComponent extends Component {
         )
       } else {
         let valueStr = JSON.stringify(value)
-        if (valueStr.length > 10000) {
+        if (valueStr && valueStr.length > 10000) {
           valueStr = valueStr.slice(0, 10000)+'...'
         }
         el.append(

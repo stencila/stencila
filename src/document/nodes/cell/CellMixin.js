@@ -1,6 +1,7 @@
 import { isArray, isNil, map } from 'substance'
-import { parse } from 'substance-mini'
+import { parse } from 'stencila-mini'
 import { type } from '../../../value'
+import { getContextName } from '../../expressionUtils'
 
 export default {
 
@@ -152,21 +153,14 @@ export default {
     this.recompute()
   },
 
-
   // TODO: also make sure that call()/run() only have arguments with name (var, or named arg)
   _validateExpression(expr) {
-    // check that if 'call()' or 'run()' is used
-    // that there is only one of them.
-    const nodes = expr.nodes
-    let callCount = 0
-    for (let i = 0; i < nodes.length; i++) {
-      const node = expr.nodes[i]
-      if (node.type === 'call' && (node.name === 'call' || node.name === 'run')) {
-        callCount++
+    let context = getContextName(expr)
+    if (context) {
+      if ( (expr.isDefinition() && !expr.root.rhs.type === 'call')
+        || !expr.root.type === 'call') {
+        throw new Error('Incorrect syntax for an external cell.')
       }
-    }
-    if (callCount > 1) {
-      throw new Error("Only one 'call()' or 'run()' allowed per expression.")
     }
   }
 

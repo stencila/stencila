@@ -1,5 +1,6 @@
 import { BlockNode } from 'substance'
 import CellMixin from './CellMixin'
+import { getContextName } from '../../expressionUtils'
 
 class Cell extends BlockNode {
   // NOTE: using indirection for all 'expression' relevant
@@ -19,6 +20,10 @@ class Cell extends BlockNode {
 
   set value(val) {
     this._setValue(val)
+  }
+
+  get context() {
+    return this._context
   }
 
   get sourceCode() {
@@ -41,26 +46,20 @@ class Cell extends BlockNode {
     return this._expr && this._expr.isDefinition()
   }
 
+  isGlobal() {
+    return false
+  }
+
   _deriveStateFromExpression() {
     // check if it is an external cell or a chunk
     const expr = this._expr
     this._external = false
+    this._context = null
     if (expr) {
-      const nodes = expr.nodes
-      // check if there is a call() or run()
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i]
-        if (node.type === 'call') {
-          if (node.name === 'call' || node.name === 'run') {
-            this._external = true
-            break
-          }
-        }
-      }
-    }
-    if (this._external) {
-      if (!this.context) {
-        this.context = Cell.contextDefault
+      let context = getContextName(expr)
+      if (context) {
+        this._external = true
+        this._context = context
       }
     }
   }
@@ -72,7 +71,6 @@ Cell.type = 'cell'
 
 Cell.schema = {
   expression: { type: 'string', default: '' },
-  context: { type: 'string', optional: true },
   sourceCode: { type: 'string', optional: true },
   // volatile properties for evaluated cell
   value: { type: 'any', default: null, optional: true },
@@ -80,7 +78,7 @@ Cell.schema = {
 
 /**
  * The default context for new external cells.
- * This value is updated whenever a user changes 
+ * This value is updated whenever a user changes
  * the context for a cell
  * @type {string}
  */
