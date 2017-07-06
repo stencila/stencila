@@ -54,7 +54,7 @@
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
     "substance": "1.0.0-beta.7-preview.10",
-    "stencila-mini": "^0.10.0",
+    "stencila-mini": "^0.11.0",
     "timeago.js": "3.0.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
