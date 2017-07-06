@@ -119,7 +119,7 @@ test('CellEngine: call external cell', (t) => {
     tx.create({
       id: 'cell1',
       type: 'cell',
-      expression: 'call(x)',
+      expression: 'js(x)',
       language: 'js',
       sourceCode: 'return x*33'
     })
@@ -139,7 +139,7 @@ test('CellEngine: call external code', (t) => {
     tx.create({
       id: 'cell1',
       type: 'cell',
-      expression: 'run()',
+      expression: 'global js()',
       language: 'js',
       sourceCode: '99'
     })
