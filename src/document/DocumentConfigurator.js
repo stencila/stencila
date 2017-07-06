@@ -22,6 +22,9 @@ import RangeInputPackage from './nodes/range-input/RangeInputPackage'
 import VegaLitePackage from './vega-lite/VegaLitePackage'
 import DocumentModel from './DocumentModel'
 
+import ToggleCodeCommand from './ToggleCodeCommand'
+
+
 /**
  * A "configurator" for a document.
  *
@@ -73,6 +76,19 @@ class DocumentConfigurator extends Configurator {
 
     this.addIcon('settings', { 'fontawesome': 'fa-cog' })
     this.addLabel('settings', 'Settings')
+    this.addLabel('view', 'View')
+    this.addLabel('show-all-code', 'Show All Code')
+    this.addLabel('hide-all-code', 'Hide All Code')
+
+    // View Commands
+    this.addCommand('hide-all-code', ToggleCodeCommand, {
+      showCode: false,
+      commandGroup: 'view'
+    })
+    this.addCommand('show-all-code', ToggleCodeCommand, {
+      showCode: true,
+      commandGroup: 'view'
+    })
 
     // Overlay configuration
     this.addToolPanel('main-overlay', [
@@ -131,6 +147,13 @@ class DocumentConfigurator extends Configurator {
         showDisabled: true,
         style: 'descriptive',
         commandGroups: ['insert']
+      },
+      {
+        name: 'view',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['view']
       }
     ])
 
