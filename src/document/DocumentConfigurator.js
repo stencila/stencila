@@ -89,6 +89,8 @@ class DocumentConfigurator extends Configurator {
       showCode: true,
       commandGroup: 'view'
     })
+    this.addKeyboardShortcut('ctrl+alt+l', { command: 'show-all-code' })
+    this.addKeyboardShortcut('ctrl+alt+o', { command: 'hide-all-code' })
 
     // Overlay configuration
     this.addToolPanel('main-overlay', [
@@ -164,6 +166,8 @@ class DocumentConfigurator extends Configurator {
         commandGroups: ['workflows']
       }
     ])
+
+
   }
 
   /**
