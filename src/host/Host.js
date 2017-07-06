@@ -40,49 +40,59 @@ export default class Host {
    * @return {Promise} Resolves to an instance
    */
   post (type, name) {
-    for (let url of Object.keys(this._peers)) {
-      let manifest = this._peers[url]
-      
-      // Gather an object of types from the peer and it's peers
-      let types = []
-      let addTypes = function (manifest) {
-        if (manifest.schemes && manifest.schemes.new) {
-          for (let type of Object.keys(manifest.schemes.new)) {
-            types.push(manifest.schemes.new[type])
+    // Search for the type amongst peers or peers-of-peers
+    let find = (peersOfPeers) => {
+      for (let url of Object.keys(this._peers)) {
+        let manifest = this._peers[url]
+        
+        // Gather an object of types from the peer and it's peers
+        let specs = []
+        let addSpecs = (manifest) => {
+          if (manifest.schemes && manifest.schemes.new) {
+            for (let type of Object.keys(manifest.schemes.new)) {
+              specs.push(manifest.schemes.new[type])
+            }
           }
         }
-      }
-      addTypes(manifest)
-      for (let peer of manifest.peers) addTypes(peer)
+        if (!peersOfPeers) {
+          addSpecs(manifest)
+        } else if (manifest.peers) {
+          for (let peer of manifest.peers) addSpecs(peer)
+        }
 
-      // Find a type spec that has a matching name or alias
-      let spec
-      for (let trial of types) {
-        if (trial.name === type) {
-          spec = trial
-        } else if (trial.aliases) {
-          if (trial.aliases.indexOf(type) >= 0) {
-            spec = trial
-            break
+        // Find a type that has a matching name or alias
+        for (let spec of specs) {
+          if (spec.name === type) {
+            return {url, spec}
+          } else if (spec.aliases) {
+            if (spec.aliases.indexOf(type) >= 0) {
+              return {url, spec}
+            }
           }
         }
-        if (spec) break
-      }
 
-      // Type found so request a new one
-      if (spec) {
-        return POST(url + '/' + spec.name, { name: name }).then(address => {
-          let instance
-          if (spec.base === 'Context') {
-            instance = new ContextHttpClient(url + '/' + address)
-          } else {
-            throw new Error(`Unsupported type: %{path}`)
-          }
-          this._instances[address] = instance
-          return instance
-        })
+        return null
       }
     }
+
+    // Request a new instance from peer (or peer or peer)
+    let request = (url, spec) => {
+      return POST(url + '/' + spec.name, { name: name }).then(address => {
+        let instance
+        if (spec.base === 'Context') {
+          instance = new ContextHttpClient(url + '/' + address)
+        } else {
+          throw new Error(`Unsupported type: %{path}`)
+        }
+        this._instances[address] = instance
+        return instance
+      })
+    }
+
+    // Attempt to find type
+    let found = find(false)
+    if (!found) found = find(true)
+    if (found) return request(found.url, found.spec)
 
     // Fallback to providing an in-browser Javascript context
     // (if one is available in a Node.js peer then it will be used instead)
