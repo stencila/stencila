@@ -1,5 +1,3 @@
-/* globals Blob, ArrayBuffer, Uint8Array */
-
 /**
  * @namespace value
  */
@@ -126,15 +124,11 @@ export function fromHTML (elem) {
   let format = elem.attr('data-format')
   let content
   if (type === 'image') {
-    let imageContent
     if (format === 'svg') {
-      imageContent = elem.innerHTML
+      content = elem.innerHTML
     } else {
-      let data = elem.attr('src')
-      let match = data.match(/data:image\/([a-z]+);base64,([\w]+)/)
-      imageContent = match[2]
+      content = elem.attr('src')
     }
-    content = imageContent
   } else {
     content = elem.innerHTML
   }
@@ -158,9 +152,11 @@ export function toHTML (value) {
   if (type_ === 'image') {
     if (value.format === 'svg') {
       return `<div data-value="image" data-format="svg">${value.content}</div>`
-    } else {
-      return `<img data-value="image" data-format="${value.format}" src="data:image/${value.format};base64,${value.content}">`
     }
+    if (value.format === 'src') {
+      return `<img data-value="image" data-format="src" src="${value.content}">`
+    }
+    throw new Error(`Unhandled image format: ${value.format}`)
   } else {
     if (typeof value.content === 'undefined') {
       // Do a pack to get a text representation of the value
@@ -183,26 +179,32 @@ export function toHTML (value) {
  * @return {*} - The value
  */
 export function fromMime (mimetype, content) {
-  if (mimetype === 'image/png') {
-    let match = mimetype.match('^image/([a-z]+)$')
-    return {
-      type: 'image',
-      format: match ? match[1] : null,
-      content: content
-    }
-  } else if (mimetype === 'image/svg+xml') {
+  if (mimetype === 'image/svg+xml') {
     return {
       type: 'image',
       format: 'svg',
       content: content
     }
-  } else if (mimetype === 'text/html') {
+  }
+
+  let match = mimetype.match(/^image\/([a-z]+)$/)
+  if (match) {
+    return {
+      type: 'image',
+      format: 'src',
+      content: `data:${mimetype};base64,${content}`
+    }
+  }
+
+  if (mimetype === 'text/html') {
     return {
       type: 'dom',
       format: 'html',
       content: content
     }
-  } else if (mimetype === 'text/latex') {
+  }
+
+  if (mimetype === 'text/latex') {
     // Remove any preceding or trailing double dollars
     if (content.substring(0, 2) === '$$') content = content.substring(2)
     if (content.slice(-2) === '$$') content = content.slice(0, -2)
@@ -211,9 +213,9 @@ export function fromMime (mimetype, content) {
       format: 'latex',
       content: content
     }
-  } else {
-    return content
   }
+
+  return content
 }
 
 /**
@@ -227,10 +229,17 @@ export function fromMime (mimetype, content) {
 export function toMime (value) {
   let type_ = type(value)
   if (type_ === 'image') {
-    return {
-      mimetype: `image/${value.format}`,
-      content: value.base64
+    if (value.src) {
+      // Determine mimetype from src
+      let match = value.src.match(/^data:image\/([a-z]+);base64,(.*)/)
+      if (match) {
+        return {
+          mimetype: `image/${match[1]}`,
+          content: match[2]
+        }
+      }
     }
+    throw new Error('Unhandled image format')
   } else {
     let content
     if (typeof value.content === 'undefined') {
