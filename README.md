@@ -15,8 +15,8 @@ Below, ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) 
 Feature                                                                     | Ready
 :-------------------------------------------------------------------------- | :------------:
 Documents                                                                   | ✓
-Sheets                                                                      | 
-Slides                                                                      | 
+Data Tables                                                                 | 0.28
+Sheets                                                                      | 0.29
 **Static content**                                                          |
 Paragraph                                                                   | ✓
 Headings                                                                    | ✓
@@ -45,19 +45,19 @@ Contribute more...                                                          | �
 Bash                                                                        |
 JavaScript                                                                  | ✓
 Julia                                                                       | 
-Jupyter kernels                                                             | 0.27
+Jupyter kernels                                                             | 0.29
 Node.js                                                                     | ✓
 Python                                                                      | ✓
 R                                                                           | ✓
 SQLite                                                                      | ✓
 **Supported formats**                                                       |
 HTML                                                                        | ✓
-JATS                                                                        | 
+JATS                                                                        | 0.30
 Markdown `.md`                                                              | ✓
-RMarkdown `.Rmd`                                                            | 0.27
-Jupyter Notebook `.ipynb`                                                   | 0.27
-Microsoft Office `.docx`                                                    | 0.28
-Open/Libre Office `.odt`                                                    | 0.28
+RMarkdown `.Rmd`                                                            | ✓
+Jupyter Notebook `.ipynb`                                                   | ✓
+Microsoft Office `.docx`                                                    | 
+Open/Libre Office `.odt`                                                    | 
 
 ### Download
 
