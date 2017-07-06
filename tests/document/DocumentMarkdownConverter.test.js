@@ -201,6 +201,11 @@ test('DocumentMarkdownConverter:exportContent', t => {
   )
 
   t.equal(
+    e('<p>Para with special chars &amp; &gt; &lt;</p>'),
+    'Para with special chars & > <'
+  )
+
+  t.equal(
     e('<p>An input <input name="variable1" value="3"></p>'),
     'An input [3]{name=variable1}'
   )

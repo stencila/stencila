@@ -208,10 +208,8 @@ export default class DocumentMarkdownConverter {
     options.rule = '-'
     options.ruleRepetition = 3
     options.ruleSpaces = false
-    options.entities = false
-    options.encode = false
 
-    const md = unified()
+    let md = unified()
       .use(rehypeParse)
       .use(rehypeCellToCodeblock)
       .use(rehypeInputOutputToMarkdown)
@@ -220,6 +218,10 @@ export default class DocumentMarkdownConverter {
       .use(remarkStringify)
       .use(remarkBracketedSpansClean())
       .processSync(html, options).contents.trim()
+
+    // Not clear why this is necessary and whether it is better
+    // dealt with by options to rehype/remark
+    md = md.replace(/&lt;/g, '<')
 
     return md
   }
