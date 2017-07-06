@@ -54,7 +54,7 @@ class CellComponent extends Component {
     let toggleCell = $$('div').addClass('se-toggle-cell').append(
       $$('div').addClass('se-toggle-cell-inner'),
       this._renderMenu($$)
-    ).on('click', this._toggleShowCode)
+    )
 
     if (cell.hasErrors()) {
       toggleCell.addClass('sm-error')
