@@ -40,58 +40,60 @@ export default class Host {
    * @return {Promise} Resolves to an instance
    */
   post (type, name) {
+    for (let url of Object.keys(this._peers)) {
+      let manifest = this._peers[url]
+      
+      // Gather an object of types from the peer and it's peers
+      let types = []
+      let addTypes = function (manifest) {
+        if (manifest.schemes && manifest.schemes.new) {
+          for (let type of Object.keys(manifest.schemes.new)) {
+            types.push(manifest.schemes.new[type])
+          }
+        }
+      }
+      addTypes(manifest)
+      for (let peer of manifest.peers) addTypes(peer)
+
+      // Find a type spec that has a matching name or alias
+      let spec
+      for (let trial of types) {
+        if (trial.name === type) {
+          spec = trial
+        } else if (trial.aliases) {
+          if (trial.aliases.indexOf(type) >= 0) {
+            spec = trial
+            break
+          }
+        }
+        if (spec) break
+      }
+
+      // Type found so request a new one
+      if (spec) {
+        return POST(url + '/' + spec.name, { name: name }).then(address => {
+          let instance
+          if (spec.base === 'Context') {
+            instance = new ContextHttpClient(url + '/' + address)
+          } else {
+            throw new Error(`Unsupported type: %{path}`)
+          }
+          this._instances[address] = instance
+          return instance
+        })
+      }
+    }
+
+    // Fallback to providing an in-browser Javascript context
+    // (if one is available in a Node.js peer then it will be used instead)
     if (type === 'JsContext' || type === 'js') {
       let instance = new JsContext()
       let address = `name://${name || Math.floor((1 + Math.random()) * 1e6).toString(16)}`
       this._instances[address] = instance
       return Promise.resolve(instance)
     }
-    else {
-      for (let url of Object.keys(this._peers)) {
-        let manifest = this._peers[url]
-        
-        // Gather an object of types from the peer and it's peers
-        let types = {}
-        let addTypes = function (manifest) {
-          if (manifest.schemes && manifest.schemes.new) types = Object.assign(types, manifest.schemes.new)
-        }
-        addTypes(manifest)
-        for (let peer of manifest.peers) addTypes(peer)
 
-        // If the type is available, use it, otherwise search through aliases
-        let spec = types[type]
-        if (!spec) {
-          for (let trialType of Object.keys(types)) {
-            let trialSpec = types[trialType]
-            if (trialSpec.aliases) {
-              for (let alias of trialSpec.aliases) {
-                if (alias === type) {
-                  spec = trialSpec
-                  break
-                }
-              }
-              if (spec) break
-            }
-          }
-        }
-
-        // Type found so request a new one
-        if (spec) {
-          return POST(url + '/' + spec.name, { name: name }).then(address => {
-            let instance
-            if (spec.base === 'Context') {
-              instance = new ContextHttpClient(url + '/' + address)
-            } else {
-              throw new Error(`Unsupported type: %{path}`)
-            }
-            this._instances[address] = instance
-            return instance
-          })
-        }
-      }
-
-      return Promise.reject(new Error(`No peers able to provide: ${type}`))
-    }
+    return Promise.reject(new Error(`No peers able to provide: ${type}`))
   }
 
   /**
