@@ -7,7 +7,7 @@
 
 /* Table Value */
 .sc-table-value {
-  padding-top: 20px;
+  margin-top: 20px;
 }
 
 .sc-table-value table {
@@ -39,7 +39,7 @@
 /* Integer Value */
 
 .sc-integer-value {
-  padding-top: 20px;
+  margin-top: 20px;
   font-size: 20px;
   text-align: center;
 }
@@ -47,9 +47,17 @@
 /* Float Value */
 
 .sc-float-value {
-  padding-top: 20px;
+  margin-top: 20px;
   font-size: 20px;
   text-align: center;
+}
+
+.sc-float-value.sm-has-errors,
+.sc-string-value.sm-has-errors,
+.sc-table-value.sm-has-errors,
+.sc-integer-value.sm-has-errors,
+.sc-array-value.sm-has-errors {
+  opacity: 0.3;
 }
 
 /* String Value */
@@ -64,7 +72,7 @@
 /* Array Value */
 
 .sc-array-value {
-  padding-top: 20px;
+  margin-top: 20px;
   font-size: 16px;
   text-align: center;
 }
@@ -77,7 +85,7 @@
 }
 
 .se-default-value {
-  padding-top: 20px;
+  margin-top: 20px;
   font-size: 16px;
   color: #444;
   text-align: center;

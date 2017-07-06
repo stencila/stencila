@@ -28,11 +28,6 @@ export default class DocumentEditor extends AbstractEditor {
     let Layout = this.componentRegistry.get('layout')
     let Dropzones = this.componentRegistry.get('dropzones')
 
-    // Toggle classes to match properties
-    // ['naked', 'reveal', 'edit'].forEach(item => {
-    //   if (this.props[item]) el.addClass('sm-' + item)
-    // })
-
     el.append(
       $$(SplitPane, { splitType: 'horizontal'}).append(
         $$('div').addClass('se-toolbar-wrapper').append(
@@ -67,7 +62,6 @@ export default class DocumentEditor extends AbstractEditor {
           })
         )
       )
-      // A `ScrollPane` to manage overlays and other positioning
     )
     return el
   }

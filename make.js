@@ -56,7 +56,7 @@ const UNIFIED_MODULES = {
 
 const BROWSER_EXTERNALS = {
   'substance': 'window.substance',
-  'substance-mini': 'window.substanceMini',
+  'stencila-mini': 'window.stencilaMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
   'katex': 'window.katex',
@@ -77,7 +77,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
+  'substance', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -93,7 +93,7 @@ function copyAssets() {
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
-  b.copy('./node_modules/substance-mini/dist/substance-mini.js*', './build/lib/')
+  b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
 }
 
 function buildCss() {
