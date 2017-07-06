@@ -12,10 +12,12 @@ class MiniLangEditor extends Component {
     // the source code
     const path = this.props.path
     const commands = this.props.commands
+    const excludedCommands = this.props.excludedCommands
     const markers = this._getMarkers()
     let content = $$(TextPropertyEditor, {
       path,
       commands,
+      excludedCommands,
       markers,
       handleTab: false
     }).ref('contentEditor')
@@ -23,6 +25,7 @@ class MiniLangEditor extends Component {
       .on('enter', this._onEnterKey)
       // EXPERIMENTAL: adding 2 spaces if at begin of line
       .on('tab', this._onTabKey)
+      .on('escape', this._onEscapeKey)
     content.addClass('se-content')
     el.append(content)
     return el
@@ -52,12 +55,8 @@ class MiniLangEditor extends Component {
     }
   }
 
-  _insertNewLine() {
-    const editorSession = this.context.editorSession
-    const indent = this._getCurrentIndent() || ''
-    editorSession.transaction((tx) => {
-      tx.insertText('\n' + indent)
-    })
+  _onEscapeKey(event) {
+    this.send('escape')
   }
 
   _onTabKey() {
@@ -69,6 +68,14 @@ class MiniLangEditor extends Component {
         tx.insertText('  ')
       })
     }
+  }
+
+  _insertNewLine() {
+    const editorSession = this.context.editorSession
+    const indent = this._getCurrentIndent() || ''
+    editorSession.transaction((tx) => {
+      tx.insertText('\n' + indent)
+    })
   }
 
   _getCurrentIndent() {

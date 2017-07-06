@@ -84,9 +84,10 @@ class CellComponent extends Component {
         $$('div').addClass('se-expression').append(
           $$(MiniLangEditor, {
             path: [cell.id, 'expression'],
-            commands: ['undo', 'redo', 'select-all'],
+            excludedCommands: this._getBlackListedCommands(),
             expression: cell.getExpressionNode()
           }).ref('expressionEditor')
+            .on('escape', this.onEscapeFromCodeEditor)
         )
       )
 
@@ -112,6 +113,18 @@ class CellComponent extends Component {
       )
     }
     return el
+  }
+
+  _getBlackListedCommands() {
+    const commandGroups = this.context.commandGroups
+    let result = []
+    ;['annotations', 'insert', 'prompt', 'text-types'].forEach((name) => {
+      if (commandGroups[name]) {
+        result = result.concat(commandGroups[name])
+      }
+    })
+    console.log("###", result)
+    return result
   }
 
   _toggleShowCode(event) {
