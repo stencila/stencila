@@ -5,12 +5,21 @@
 /**
  * A list of language (shortnames) that we currently
  * support
- * 
+ *
  * @type {Array}
  */
 export const LIST = [
   'js', 'py', 'r', 'sql'
 ]
+
+const _MAP = LIST.reduce((m, n) => {
+  m[n] = true
+  return m
+}, {})
+
+export function isLanguage(str) {
+  return Boolean(_MAP[str])
+}
 
 /**
  * Get the short name (code) for a language

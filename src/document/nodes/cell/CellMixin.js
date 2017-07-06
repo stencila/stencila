@@ -1,7 +1,7 @@
 import { isArray, isNil, map } from 'substance'
 import { parse } from 'stencila-mini'
 import { type } from '../../../value'
-import _getContextNameForExpression from '../../_getContextNameForExpression'
+import { getContextName } from '../../expressionUtils'
 
 export default {
 
@@ -155,7 +155,7 @@ export default {
 
   // TODO: also make sure that call()/run() only have arguments with name (var, or named arg)
   _validateExpression(expr) {
-    let context = _getContextNameForExpression(expr)
+    let context = getContextName(expr)
     if (context) {
       if ( (expr.isDefinition() && !expr.root.rhs.type === 'call')
         || !expr.root.type === 'call') {

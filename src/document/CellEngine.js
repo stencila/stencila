@@ -144,7 +144,8 @@ class CellEngine extends Engine {
         const options = { pack: packing }
         const sourceCode = cell.sourceCode || ''
         // the former 'run()' cell
-        if (cell.isGlobal()) {
+        // TODO: maybe add a convenience method, such as cell.isGlobal()
+        if (funcNode.modifiers.indexOf('global')>=0) {
           return _unwrapResult(
             funcNode,
             context.runCode(sourceCode, options),

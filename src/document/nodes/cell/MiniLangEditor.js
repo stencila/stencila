@@ -2,6 +2,8 @@ import {
   Component, TextPropertyEditor, isArrayEqual, parseKeyEvent
 } from 'substance'
 
+import { getSyntaxTokens } from '../../expressionUtils'
+
 export default
 class MiniLangEditor extends Component {
 
@@ -29,20 +31,7 @@ class MiniLangEditor extends Component {
   _getMarkers() {
     const expression = this.props.expression
     const path = this.props.path
-    if (expression) {
-      return expression.tokens.map((t) => {
-        return {
-          type: 'code-highlight',
-          name: t.type,
-          start: { path, offset: t.start },
-          end: { path, offset: t.end },
-          on() {},
-          off() {}
-        }
-      })
-    } else {
-      return []
-    }
+    return expression ? getSyntaxTokens(path, expression) : []
   }
 
   _onEnterKey(event) {

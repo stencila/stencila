@@ -1,6 +1,6 @@
 import { BlockNode } from 'substance'
 import CellMixin from './CellMixin'
-import _getContextNameForExpression from '../../_getContextNameForExpression'
+import { getContextName } from '../../expressionUtils'
 
 class Cell extends BlockNode {
   // NOTE: using indirection for all 'expression' relevant
@@ -56,7 +56,7 @@ class Cell extends BlockNode {
     this._external = false
     this._context = null
     if (expr) {
-      let context = _getContextNameForExpression(expr)
+      let context = getContextName(expr)
       if (context) {
         this._external = true
         this._context = context
