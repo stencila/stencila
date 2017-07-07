@@ -21,6 +21,7 @@ import SelectPackage from './nodes/select/SelectPackage'
 import RangeInputPackage from './nodes/range-input/RangeInputPackage'
 import VegaLitePackage from './vega-lite/VegaLitePackage'
 import DocumentModel from './DocumentModel'
+import SwitchTypeDropdown from '../shared/SwitchTypeDropdown'
 
 import ToggleCodeCommand from './ToggleCodeCommand'
 
@@ -128,10 +129,14 @@ class DocumentConfigurator extends Configurator {
       }*/
     ])
 
+    // Using a customized dropdown, that renders the node type as label
+    // if not inside of a text node
+    this.addComponent('switch-text-dropdown', SwitchTypeDropdown)
+
     this.addToolPanel('toolbar', [
       {
         name: 'text-types',
-        type: 'tool-dropdown',
+        type: 'switch-text-dropdown',
         showDisabled: true,
         style: 'descriptive',
         commandGroups: ['text-types']

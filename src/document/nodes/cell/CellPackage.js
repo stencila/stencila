@@ -31,7 +31,10 @@ export default {
       commandGroup: 'insert',
       nodeType: 'cell'
     })
+
     config.addIcon('insert-cell', { 'fontawesome': 'fa-caret-square-o-right' })
+
+    config.addLabel('cell', 'Cell')
     config.addLabel('insert-cell', 'Cell')
 
     config.addKeyboardShortcut('ctrl+alt+c', { command: 'insert-cell' })
