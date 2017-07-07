@@ -10,9 +10,10 @@ import MemoryBuffer from '../backend/MemoryBuffer'
 export default class Host {
 
   constructor (options = {}) {
+
     /**
      * Instances managed by this host
-     *  
+     *
      * @type {object}
      */
     this._instances = {}
@@ -20,21 +21,26 @@ export default class Host {
     /**
      * Peer manifests which detail the capabilities
      * of each of this host's peers
-     * 
+     *
      * @type {object}
      */
     this._peers = {}
 
-    // Add the Host who served this file as a peer
-    if (options.mode !== 'dev' && typeof window !== 'undefined') this.pokePeer(window.location.origin)
-
+    // Peer seeding
+    let peers = options.peers
+    if (peers) {
+      // Add the initial peers
+      for (let url of peers) this.pokePeer(url)
+    }
     // Discover other peers
-    if (options.discover) this.discoverPeers(options.discover)
+    if (options.discover) {
+      this.discoverPeers(options.discover)
+    }
   }
 
   /**
    * Create a new instance
-   * 
+   *
    * @param  {string} type - Name of class of instance
    * @param  {string} name - Name for new instance
    * @return {Promise} Resolves to an instance
@@ -44,7 +50,7 @@ export default class Host {
     let find = (peersOfPeers) => {
       for (let url of Object.keys(this._peers)) {
         let manifest = this._peers[url]
-        
+
         // Gather an object of types from the peer and it's peers
         let specs = []
         let addSpecs = (manifest) => {
@@ -124,11 +130,11 @@ export default class Host {
 
   /**
    * Register a peer
-   * 
+   *
    * Peers may have several URLs (listed in the manifest's `urls` property; e.g. http://, ws://).
    * The URL used to register a peer is a unique identier used by this host and is
    * usually the URL that the peer was discoved on.
-   * 
+   *
    * @param {string} url - The identifying URL for the peer
    * @param {object} manifest - The peer's manifest
    */
@@ -138,7 +144,7 @@ export default class Host {
 
   /**
    * Pokes a URL to see if it is a Stencila Host
-   * 
+   *
    * @param {string} url - A URL for the peer
    */
   pokePeer (url) {
@@ -156,9 +162,9 @@ export default class Host {
    * will be implemented later.
    *
    * Unfortunately if a port is not open then you'll get a console error like
-   * `GET http://127.0.0.1:2040/ net::ERR_CONNECTION_REFUSED`. In Chrome, this can 
-   * not be avoided programatically (see http://stackoverflow.com/a/43056626/4625911). 
-   * The easiest approach is silence these errors in Chrome is to check the 
+   * `GET http://127.0.0.1:2040/ net::ERR_CONNECTION_REFUSED`. In Chrome, this can
+   * not be avoided programatically (see http://stackoverflow.com/a/43056626/4625911).
+   * The easiest approach is silence these errors in Chrome is to check the
    * 'Hide network' checkbox in the console filter.
    *
    * Set the `interval` parameter to trigger ongoing discovery.

@@ -136,6 +136,7 @@ class CodeEditorComponent extends CustomSurface {
     // The `_onEditorChange` method is better in that it allows for realtime collab
     // of code editors. But it is currently causing problems so using `_onEditorBlur` for now.
     aceEditor.on('change', this._onEditorChange.bind(this))
+    aceEditor.on('focus', this._onEditorFocus.bind(this))
 
     if (this.props.lineNumbers === false) {
       aceEditor.renderer.setOption('showLineNumbers', false);
@@ -223,6 +224,11 @@ class CodeEditorComponent extends CustomSurface {
     } else {
       throw new Error('Unhandled change:' + JSON.stringify(change))
     }
+  }
+
+  _onEditorFocus() {
+    // ATTENTION: already tried to set the selection on focus,
+    // but this is gets triggered in too many cases, causing troubles
   }
 
   /**

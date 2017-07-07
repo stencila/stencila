@@ -7,7 +7,12 @@ import { DocumentPage, Host, MemoryBackend, getQueryStringParam } from 'stencila
 
 window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
-    host: new Host({mode: 'dev'}),
+    host: new Host({
+      // Initial peers can be set in an environment variable
+      peers: window.STENCILA_PEERS ? window.STENCILA_PEERS.split(' ') : [],
+      // Don't do local peer discovery
+      discover: false
+    }),
     backend: new MemoryBackend(window.GUIDES),
     documentId: getQueryStringParam('documentId') || '01-welcome-to-stencila'
   }, window.document.body)
@@ -19,6 +24,5 @@ window.addEventListener('load', () => {
       window.documentPage.save()
     }
   }
-  document.addEventListener('keydown', onKeyDown, false);
-
+  document.addEventListener('keydown', onKeyDown, false)
 })
