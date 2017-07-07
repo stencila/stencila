@@ -29,17 +29,17 @@ Paragraph                              | ![prod](https://img.shields.io/badge/st
 Headings                               | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Blockquote                             | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Image                                  | 0.30
-List                                   | ![prod](https://img.shields.io/badge/status-prod-green.svg)
+List                                   | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Table                                  | 0.30
 Strong & emphasis                      | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Link                                   | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Subscript & superscript                | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Code block                             | 0.30
-Math (AsciiMath and Tex)               | ![prod](https://img.shields.io/badge/status-prod-green.svg)
+Math (AsciiMath and Tex)               | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Discussions                            | 0.31
 **Reproducible content**               |
 Number input (range slider)            | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
-Select input (name value pairs)        | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+Select input (name value pairs)        | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 Tabular data input                     | 0.30
 Code cell                              | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Output (value display)                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
