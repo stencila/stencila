@@ -10,52 +10,59 @@ Stencila is a platform for creating, collaborating on, and sharing data driven c
 
 ### Roadmap
 
-Below, ticks indicate a feature is in the latest release. Numbers (e.g. `0.27`) indicate the release a feature is planned for. We generally only plan one or two releases ahead. We aim to release every 1-2 months, towards a 1.0 release in early 2018. Checkout the current release [milestones](https://github.com/stencila/stencila/milestones).
+Stencila is still at an early beta stage: there are likely to be missing features, bugs and API changes. But we would :heart: to get your suggestions and :bug: reports. Get help from the [community](https://community.stenci.la), create a [new issue](https://github.com/stencila/stencila/issues/new), or join the [chat](https://gitter.im/stencila/stencila).
+
+- ![prod](https://img.shields.io/badge/status-prod-green.svg) = ready for production use
+- ![beta](https://img.shields.io/badge/status-beta-yellow.svg) = ready for beta user testing
+- ![alpha](https://img.shields.io/badge/status-alpha-red.svg) = ready for alpha testing; use with caution
+- numbers (e.g. `0.31`) = planned release
+
+We generally only plan one or two releases ahead. We aim to release every 1-2 months, towards a 1.0 release in early 2018. Checkout the current release [milestones](https://github.com/stencila/stencila/milestones).
 
 Feature                                | Ready
 :------------------------------------- | :------------:
-Documents                              | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
+Documents                              | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Datatables                             | 0.28
 Sheets                                 | 0.29
 **Static content**                     |
-Paragraph                              | ![prod](https://img.shields.io/badge/status-prod-green.svg])
-Headings                               | ![prod](https://img.shields.io/badge/status-prod-green.svg])
-Blockquote                             | ![prod](https://img.shields.io/badge/status-prod-green.svg])
+Paragraph                              | ![prod](https://img.shields.io/badge/status-prod-green.svg)
+Headings                               | ![prod](https://img.shields.io/badge/status-prod-green.svg)
+Blockquote                             | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Image                                  | 0.30
-List                                   | ![prod](https://img.shields.io/badge/status-prod-green.svg])
+List                                   | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Table                                  | 0.30
-Strong & emphasis                      | ![prod](https://img.shields.io/badge/status-prod-green.svg])
-Link                                   | ![prod](https://img.shields.io/badge/status-prod-green.svg])
-Subscript & superscript                | ![prod](https://img.shields.io/badge/status-prod-green.svg])
+Strong & emphasis                      | ![prod](https://img.shields.io/badge/status-prod-green.svg)
+Link                                   | ![prod](https://img.shields.io/badge/status-prod-green.svg)
+Subscript & superscript                | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Code block                             | 0.30
-Math (AsciiMath and Tex)               | ![prod](https://img.shields.io/badge/status-prod-green.svg])
+Math (AsciiMath and Tex)               | ![prod](https://img.shields.io/badge/status-prod-green.svg)
 Discussions                            | 0.31
 **Reproducible content**               |
-Number input (range slider)            | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
-Select input (name value pairs)        | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
+Number input (range slider)            | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+Select input (name value pairs)        | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Tabular data input                     | 0.30
-Code cell                              | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
-Output (value display)                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
+Code cell                              | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+Output (value display)                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 **Embedded functions**                                   |
 Statistics (`sum`, `mean`, `variance`, ...)              | 
-Data manipulation (`filter`, `sort`, `aggregate`, ...)   | ![alpha](https://img.shields.io/badge/status-alpha-red.svg])
-Data visualization (`plot`, `title`, `theme`, ...)       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg])
-Contribute more...                                       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg])
+Data manipulation (`filter`, `sort`, `aggregate`, ...)   | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
+Data visualization (`plot`, `title`, `theme`, ...)       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
+Contribute more...                                       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 **Execution contexts**                 |
 Bash                                   |
-JavaScript                             | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
+JavaScript                             | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Julia                                  | 
 Jupyter kernels                        | 0.29
-Node.js                                | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
-Python                                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
-R                                      | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
-SQLite                                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
+Node.js                                | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+Python                                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+R                                      | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+SQLite                                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 **Supported formats**                  |
-HTML                                   | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
+HTML                                   | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 JATS                                   | 0.30
-Markdown `.md`                         | ![beta](https://img.shields.io/badge/status-beta-yellow.svg])
-RMarkdown `.Rmd`                       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg])
-Jupyter Notebook `.ipynb`              | ![alpha](https://img.shields.io/badge/status-alpha-red.svg])
+Markdown `.md`                         | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
+RMarkdown `.Rmd`                       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
+Jupyter Notebook `.ipynb`              | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 Microsoft Office `.docx`               | 
 Open/Libre Office `.odt`               | 
 
@@ -69,8 +76,6 @@ Application or package                                                          
 [Stencila for Python](https://github.com/stencila/py#readme)                                                    | ✓
 [Stencila for R](https://github.com/stencila/r#readme)                                                          | ✓
 [Stencila for Node.js](https://github.com/stencila/node#readme)                                                 | ✓
-
-Stencila is still at an early beta stage: there are likely to be missing features, bugs and API changes. But we would :heart: to get your suggestions and :bug: reports. Create a [new issue](https://github.com/stencila/stencila/issues/new), add to [existing issues](https://github.com/stencila/stencila/issues) or [chat](https://gitter.im/stencila/stencila) with members of the community.
 
 ### Develop
 
