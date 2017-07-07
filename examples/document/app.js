@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
     host: new Host({
       // Initial peers can be set in an environment variable
-      peers: window.STENCILA_PEERS.split(' ') || [],
+      peers: window.STENCILA_PEERS ? window.STENCILA_PEERS.split(' ') : [],
       // Don't do local peer discovery
       discover: false
     }),
