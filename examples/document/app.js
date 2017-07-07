@@ -7,7 +7,12 @@ import { DocumentPage, Host, MemoryBackend, getQueryStringParam } from 'stencila
 
 window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
-    host: new Host({mode: 'dev'}),
+    host: new Host({
+      // Initial peer can be set in an environment variable
+      peers: [],
+      // Don't do local peer discovery
+      discover: false
+    }),
     backend: new MemoryBackend(window.GUIDES),
     documentId: getQueryStringParam('documentId') || '01-welcome-to-stencila'
   }, window.document.body)

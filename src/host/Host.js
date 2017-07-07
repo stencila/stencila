@@ -10,6 +10,7 @@ import MemoryBuffer from '../backend/MemoryBuffer'
 export default class Host {
 
   constructor (options = {}) {
+
     /**
      * Instances managed by this host
      *  
@@ -25,11 +26,16 @@ export default class Host {
      */
     this._peers = {}
 
-    // Add the Host who served this file as a peer
-    if (options.mode !== 'dev' && typeof window !== 'undefined') this.pokePeer(window.location.origin)
-
-    // Discover other peers
-    if (options.discover) this.discoverPeers(options.discover)
+    // Peer seeding
+    let peers = options.peers
+    if (peers) {
+      // Add the initial peers
+      if (peers && peers.initial){
+        for (let url of peers.initial) this.pokePeer(url)
+      }
+      // Discover other peers
+      if (peers.discover) this.discoverPeers(peers.discover)
+    }
   }
 
   /**
