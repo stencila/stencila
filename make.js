@@ -153,6 +153,23 @@ function buildGuides() {
   })
 }
 
+// This is used to expose certain environment variables to the js app
+function buildEnv() {
+  b.custom('Creating environment variables (env.js)...', {
+    dest: './build/env.js',
+    execute() {
+      // By default we don't have any peers attached, and no auto discovery is happening
+      const variables = []
+      if (process.env.STENCILA_PEERS) {
+        variables.push(
+          ['window.STENCILA_PEERS = ', JSON.stringify(process.env.STENCILA_PEERS)].join('')
+        )
+      }
+      b.writeSync('build/env.js', variables.join('\n'), 'utf8')
+    }
+  })
+}
+
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
@@ -308,6 +325,7 @@ b.task('css', () => {
 
 b.task('stencila', ['clean', 'assets', 'css'], () => {
   buildGuides() // required by MemoryBackend
+  buildEnv()
   buildStencilaBrowser()
   buildStencilaNodeJS()
 })

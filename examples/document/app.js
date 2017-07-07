@@ -8,8 +8,8 @@ import { DocumentPage, Host, MemoryBackend, getQueryStringParam } from 'stencila
 window.addEventListener('load', () => {
   window.documentPage = DocumentPage.mount({
     host: new Host({
-      // Initial peer can be set in an environment variable
-      peers: [],
+      // Initial peers can be set in an environment variable
+      peers: window.STENCILA_PEERS.split(' ') || [],
       // Don't do local peer discovery
       discover: false
     }),
@@ -24,6 +24,5 @@ window.addEventListener('load', () => {
       window.documentPage.save()
     }
   }
-  document.addEventListener('keydown', onKeyDown, false);
-
+  document.addEventListener('keydown', onKeyDown, false)
 })
