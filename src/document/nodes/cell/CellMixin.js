@@ -158,13 +158,13 @@ export default {
     let context = getContextName(expr)
     if (context) {
       if (expr.isDefinition()) {
-        if (expr.root.rhs.type !== 'call' || expr.nodes.length > 3) {
+        if (expr.root.rhs.type !== 'call') {
           // HACK: imitating a syntax error
           expr.syntaxError = {
             msg: `Try something like: ${expr.name} = ${context}(...)`
           }
         }
-      } else if (expr.root.type !== 'call' || expr.nodes.length > 1) {
+      } else if (expr.root.type !== 'call') {
         expr.syntaxError = {
           msg: `Try something like: ${context}(...)`
         }
