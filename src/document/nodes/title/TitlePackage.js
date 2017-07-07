@@ -1,3 +1,4 @@
+import { SwitchTextTypeCommand } from 'substance'
 import Title from './Title'
 import TitleComponent from './TitleComponent'
 import TitleHTMLConverter from './TitleHTMLConverter'
@@ -10,7 +11,11 @@ export default {
     config.addComponent('title', TitleComponent)
     config.addConverter('html', TitleHTMLConverter)
     config.addConverter('xml', TitleXMLConverter)
+    config.addCommand('title', SwitchTextTypeCommand, {
+      spec: { type: 'title' },
+      commandGroup: 'text-types'
+    })
     config.addIcon('title', { 'fontawesome': 'fa-asterisk' })
-    config.addLabel('title', 'T')
+    config.addLabel('title', 'Title')
   }
 }
