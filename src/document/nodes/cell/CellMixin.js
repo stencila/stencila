@@ -157,9 +157,17 @@ export default {
   _validateExpression(expr) {
     let context = getContextName(expr)
     if (context) {
-      if ( (expr.isDefinition() && !expr.root.rhs.type === 'call')
-        || !expr.root.type === 'call') {
-        throw new Error('Incorrect syntax for an external cell.')
+      if (expr.isDefinition()) {
+        if (expr.root.rhs.type !== 'call' || expr.nodes.length > 3) {
+          // HACK: imitating a syntax error
+          expr.syntaxError = {
+            msg: `Try something like: ${expr.name} = ${context}(...)`
+          }
+        }
+      } else if (expr.root.type !== 'call' || expr.nodes.length > 1) {
+        expr.syntaxError = {
+          msg: `Try something like: ${context}(...)`
+        }
       }
     }
   }
