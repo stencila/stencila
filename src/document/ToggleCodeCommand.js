@@ -22,12 +22,13 @@ export default class ToggleCodeCommand extends Command {
 
   execute(params) {
     let cellComponents = this._getCellComponents(params)
+    let sel = params.editorSession.getSelection()
     cellComponents.forEach((cellComponent) => {
       cellComponent.extendState({
         showMenu: false,
         showCode: this.config.showCode
       })
     })
-    params.editorSession.setSelection(null)
+    params.editorSession.setSelection(sel)
   }
 }
