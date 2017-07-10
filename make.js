@@ -124,6 +124,7 @@ function buildStencilaNodeJS() {
 
 function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
+  b.copy('index.html', './build/index.html')
   //
   ;['document', 'dashboard'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
