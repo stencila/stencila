@@ -62,16 +62,19 @@ class DocumentConfigurator extends Configurator {
     this.import(CodePackage)
     this.import(LinkPackage)
     this.import(ListPackage)
-    this.import(MathPackage)
-    this.import(SelectPackage)
-    this.import(RangeInputPackage)
+
+
+
     this.import(FindAndReplacePackage)
 
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
-    this.import(CodeblockPackage)
     this.import(CellPackage)
+    this.import(RangeInputPackage)
+    this.import(SelectPackage)
     this.import(InlineCellPackage)
+    this.import(CodeblockPackage)
+    this.import(MathPackage)
     this.import(DefaultPackage)
     this.import(InputSettingsBarPackage)
     this.import(VegaLitePackage)

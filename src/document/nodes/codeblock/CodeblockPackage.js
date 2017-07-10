@@ -13,7 +13,7 @@ export default {
       commandGroup: 'insert',
       nodeType: 'codeblock'
     })
-    config.addIcon('codeblock', { 'fontawesome': 'fa-quote-right' })
+    config.addIcon('codeblock', { 'fontawesome': 'fa-code' })
     config.addLabel('codeblock', {
       en: 'Codeblock',
       de: 'Codeblock'
