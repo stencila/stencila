@@ -3,6 +3,11 @@
   else should live in component scope.
 */
 
+body {
+  /* Since we use scrollpanes throughout the app, we disable any body overflow */
+  overflow: hidden;
+}
+
 body,
 input,
 textarea {
@@ -21,7 +26,6 @@ strong { font-weight: var(--strong-font-weight); }
 
 /* Links */
 a {
-  /*color: var(--stencila-green);*/
   text-decoration:none;
 }
 a:focus {
@@ -32,6 +36,5 @@ button:focus {
 }
 
 /* Selection color */
-
 ::-moz-selection { background: var(--stencila-green-transparent); }
 ::selection { background: var(--stencila-green-transparent); }
