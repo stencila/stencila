@@ -254,8 +254,8 @@ return sys.version</pre>
         </div>
         <p>The Python package also has a <code>SQLiteContext</code> for executing code within SQLite. The <code>SQLiteContext</code> support autoconversion of data tables. So we can pass it some data and it will </p>
         <div data-cell="sql(data)">
-          <pre data-source="">SELECT species, round(sum(sepal_length)/count(*),2) AS mean_sepal_length 
-FROM data 
+          <pre data-source="">SELECT species, round(sum(sepal_length)/count(*),2) AS mean_sepal_length
+FROM data
 GROUP BY species</pre>
         </div>
         <h3>R</h3>
@@ -268,14 +268,14 @@ GROUP BY species</pre>
           <pre data-source="">ggplot(data,aes(x=sepal_length, y=sepal_width, color=species)) + geom_point()</pre>
         </div>
         <p></p>
-        <h3>Calling external languages</h3>
-        <p>When you call an external language the code is executed within a local function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. For example, when you type py<code>()</code> into a cell, your effectively saying to Mini, take this Python code, make it into a function, execute the function, and give me back the value. Here's an example of a simple <code>call</code> to some Javascript:</p>
+        <h3>External languages</h3>
+        <p>When you run an external language the code is executed within a local function scope. That means that any variables that you declare within that function are local to the function and won't leak into the context's global scope. For example, when you type py<code>()</code> into a cell, your effectively saying to Mini, take this Python code, make it into a function, execute the function, and give me back the value. Here's an example of a simple Javascript cell:</p>
         <div data-cell="js()">
           <pre data-source="">let names = ['Hiphop', 'opotamus', ' v ', 'Rhyme', 'noceros']
 return names.join('')</pre>
         </div>
         <p>Notice that because we ended the JavaScript code, with a return statement that the cell has an output.</p>
-        <p>Just like with other Mini cells, you can assign the output of a call() to a document variable,</p>
+        <p>Just like with other Mini cells, you can assign the output of a Javascript cell to a document variable,</p>
         <div data-cell="javascript_pi = js()">
           <pre data-source="">return Math.PI</pre>
         </div>
@@ -288,7 +288,7 @@ return names.join('')</pre>
 }).join(', ')</pre>
         </div>
         <p>The nice thing about this is that Mini's dependency analysis still works, so you can change the fruits array and the output above will change - try it! </p>
-        <p>Notice that our Javascript function got supplied an argument called fruits - which is the same array of strings as in our document variable called fruits. You can also provide named arguments to call.</p>
+        <p>Notice that our Javascript function got supplied an argument called fruits - which is the same array of strings as in our document variable called fruits. You can also provide named arguments to the js function call.</p>
         <div data-cell="js(my_favourite_fruits = fruits, index = 2)">
           <pre data-source="">return my_favourite_fruits[index]</pre>
         </div>
@@ -298,13 +298,13 @@ return names.join('')</pre>
         <div data-cell="global js()">
           <pre data-source="">myGlobal = 45</pre>
         </div>
-        <p>Now, <code>myGlobal</code> is a data/time object that is available to use in any cell. Let's look at it using another <code>run</code> cell:</p>
+        <p>Now, <code>myGlobal</code> is a data/time object that is available to use in any cell. Let's look at it using another cell:</p>
         <div data-cell="global js()">
           <pre data-source="">myGlobal</pre>
         </div>
         <p>Play around with those two cells and note that when you change the first, you need to re-execute the second to see the new value for <code>myGlobal</code>.</p>
         <h3>Putting it together</h3>
-        <p>Here's an little example, that puts this all together with an input, a Javascript call cell and an output to display the result...</p>
+        <p>Here's an little example, that puts this all together with an input, a Javascript cell and an output to display the result...</p>
         <p>The area of a circle can be calculated by <span data-math="asciimath">a = pi r^2</span> . So, if the radius of a circle is <input type="range" name="radius" min="0" max="100" step="1" value="55"></input> m, then it's area is: <output for="area">9503.317777109125</output> m<sup>2</sup>.</p>
         <div data-cell="area = js(r=radius)">
           <pre data-source="">return Math.PI*Math.pow(r, 2)</pre>
@@ -319,8 +319,8 @@ GROUP BY species, sepal_length</pre>
         </div>
         <p>Then let's visualise that data table in R using the <code>smooth</code> variable (defined in the figure caption) to control the span of the smoother applied.</p>
         <div data-cell="r(data_summary, smooth) ">
-          <pre data-source="">ggplot(data_summary, aes(color=species, x=sepal_length, y=sum_sepal_width/num, size=num)) + 
-    geom_point() + geom_smooth(span=smooth) + 
+          <pre data-source="">ggplot(data_summary, aes(color=species, x=sepal_length, y=sum_sepal_width/num, size=num)) +
+    geom_point() + geom_smooth(span=smooth) +
     labs(x='Sepal length',  y='Sepal width')</pre>
         </div>
         <p><strong>Figure 1. Mean sepal width versus sepal length for each species when petal length is greater than or equal to <output for="min_petal_length">1.5</output>. Smoothing span <input type="range" name="smooth" min="0.1" max="10" step="0.1" value="1"></input> .</strong></p>
