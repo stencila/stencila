@@ -1,11 +1,10 @@
-import { Component } from 'substance'
 import CodeEditorComponent from '../../ui/CodeEditorComponent'
-import Cell from './Cell'
 import CellValueComponent from './CellValueComponent'
 import MiniLangEditor from './MiniLangEditor'
 import CellErrorDisplay from './CellErrorDisplay'
+import CodeblockComponent from '../codeblock/CodeblockComponent'
 
-class CellComponent extends Component {
+class CellComponent extends CodeblockComponent {
 
   constructor(...args) {
     super(...args)
@@ -23,35 +22,6 @@ class CellComponent extends Component {
       showCode: true,
       forceShowOutput: false
     }
-  }
-
-  /*
-    Generally output is shown when cell is not a definition, however it can be
-    enforced
-  */
-  _showOutput() {
-    return !this.props.node.isDefinition() || this.state.forceShowOutput
-  }
-
-  _toggleMenu() {
-    this.extendState({
-      showMenu: !this.state.showMenu
-    })
-  }
-
-  didMount() {
-    const node = this.props.node
-    const editorSession = this.context.editorSession
-    editorSession.on('render', this.onCellChanged, this, {
-      resource: 'document',
-      path: [node.id]
-    })
-    node.on('evaluation:awaiting', this.onAwaitingEvaluation, this)
-  }
-
-  dispose() {
-    const editorSession = this.context.editorSession
-    editorSession.off(this)
   }
 
   render($$) {
@@ -87,7 +57,7 @@ class CellComponent extends Component {
             excludedCommands: this._getBlackListedCommands(),
             expression: cell.getExpressionNode()
           }).ref('expressionEditor')
-            .on('escape', this.onEscapeFromCodeEditor)
+            .on('escape', this._onEscapeFromCodeEditor)
         )
       )
 
@@ -97,7 +67,7 @@ class CellComponent extends Component {
             path: [cell.id, 'sourceCode'],
             language: cell.context
           }).ref('sourceCodeEditor')
-            .on('escape', this.onEscapeFromCodeEditor)
+            .on('escape', this._onEscapeFromCodeEditor)
         )
       }
 
@@ -115,36 +85,8 @@ class CellComponent extends Component {
     return el
   }
 
-  _getBlackListedCommands() {
-    const commandGroups = this.context.commandGroups
-    let result = []
-    ;['annotations', 'insert', 'prompt', 'text-types'].forEach((name) => {
-      if (commandGroups[name]) {
-        result = result.concat(commandGroups[name])
-      }
-    })
-    return result
-  }
-
-  _toggleShowCode(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    this.extendState({
-      showCode: !this.state.showCode,
-      showMenu: false
-    })
-  }
-
-  _toggleForceShowOutput(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    let isDefinition = this.props.node.isDefinition()
-    // No toggling allowed if cell is not a definition
-    if (!isDefinition) return
-    this.extendState({
-      forceShowOutput: !this.state.forceShowOutput,
-      showMenu: false
-    })
+  getExpression() {
+    return this.refs.expressionEditor.getContent()
   }
 
   _renderMenu($$) {
@@ -191,60 +133,54 @@ class CellComponent extends Component {
     return el
   }
 
-  getExpression() {
-    return this.refs.expressionEditor.getContent()
+  _getBlackListedCommands() {
+    const commandGroups = this.context.commandGroups
+    let result = []
+    ;['annotations', 'insert', 'prompt', 'text-types'].forEach((name) => {
+      if (commandGroups[name]) {
+        result = result.concat(commandGroups[name])
+      }
+    })
+    return result
   }
 
-  onEscapeFromCodeEditor(event) {
+  _toggleShowCode(event) {
+    event.preventDefault()
     event.stopPropagation()
-    this.send('escape')
+    this.extendState({
+      showCode: !this.state.showCode,
+      showMenu: false
+    })
   }
 
-  onContextInputChanged(event) {
-    const context = event.target.value
-    const cell = this.props.node
-    cell.context = context
-    Cell.contextDefault = context
-    cell.recompute()
-    this.rerender()
+  _toggleForceShowOutput(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let isDefinition = this.props.node.isDefinition()
+    // No toggling allowed if cell is not a definition
+    if (!isDefinition) return
+    this.extendState({
+      forceShowOutput: !this.state.forceShowOutput,
+      showMenu: false
+    })
   }
 
-  onCellChanged() {
-    this.rerender()
+  /*
+    Generally output is shown when cell is not a definition, however it can be
+    enforced
+  */
+  _showOutput() {
+    return !this.props.node.isDefinition() || this.state.forceShowOutput
   }
 
-  onAwaitingEvaluation() {
-    // TODO: we could visualize this
-    // TODO: we could freeze the editor so that no further evaluations
-    // are triggered by typing; this might as well depend on the
+  _toggleMenu() {
+    this.extendState({
+      showMenu: !this.state.showMenu
+    })
   }
 
   _onExecute() {
     this.props.node.recompute()
-  }
-
-  _onBreak() {
-    this.context.editorSession.transaction((tx) => {
-      tx.selection = this._afterNode()
-      tx.insertBlockNode({
-        type: 'paragraph'
-      })
-    })
-  }
-
-  _afterNode() {
-    // TODO: not too happy about how difficult it is
-    // to set the selection
-    const node = this.props.node
-    const isolatedNode = this.context.isolatedNodeComponent
-    const parentSurface = isolatedNode.getParentSurface()
-    return {
-      type: 'node',
-      nodeId: node.id,
-      mode: 'after',
-      containerId: parentSurface.getContainerId(),
-      surfaceId: parentSurface.id
-    }
   }
 
 }

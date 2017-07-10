@@ -1,10 +1,12 @@
 .sc-codeblock {
   font-family: var(--font-family-code);
   font-size: 15px;
+  border-left: 2px solid #ccc;
 }
 
-// Toolbar styles
 .sc-switch-text-type .se-option.sm-codeblock {
   font-family: var(--font-family-code);
   font-size: 15px;
 }
+
+.sc-codeblock .se-editor {}
