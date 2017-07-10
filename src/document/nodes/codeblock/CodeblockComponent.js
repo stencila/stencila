@@ -3,6 +3,16 @@ import CodeEditorComponent from '../../ui/CodeEditorComponent'
 
 export default class CodeblockComponent extends Component {
 
+  constructor(...args) {
+    super(...args)
+
+    this.handleActions({
+      // triggered by CodeEditorComponent
+      'break': this._onBreak
+    })
+  }
+
+
   didMount() {
     const node = this.props.node
     const editorSession = this.context.editorSession
