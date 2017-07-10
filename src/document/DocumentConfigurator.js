@@ -9,6 +9,7 @@ import StrongPackage from './nodes/strong/StrongPackage'
 import SubscriptPackage from './nodes/subscript/SubscriptPackage'
 import SuperscriptPackage from './nodes/superscript/SuperscriptPackage'
 import CodePackage from './nodes/code/CodePackage'
+import CodeblockPackage from './nodes/codeblock/CodeblockPackage'
 import LinkPackage from './nodes/link/LinkPackage'
 import ListPackage from './nodes/list/ListPackage'
 import CellPackage from './nodes/cell/CellPackage'
@@ -68,7 +69,7 @@ class DocumentConfigurator extends Configurator {
 
     // this.import(ImagePackage)
     this.import(BlockquotePackage)
-    // this.import(CodeblockPackage)
+    this.import(CodeblockPackage)
     this.import(CellPackage)
     this.import(InlineCellPackage)
     this.import(DefaultPackage)
