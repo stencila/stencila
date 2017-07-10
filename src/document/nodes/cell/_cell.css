@@ -118,3 +118,7 @@ pre.ace_editor.ace-tm {
 .sc-cell-value.sm-pending {
   opacity: 0.2;
 }
+
+.sc-cell .sc-code-editor {
+  border-top: 1px solid #ddd;
+}
