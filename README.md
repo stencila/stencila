@@ -44,14 +44,14 @@ Tabular data input                     | 0.30
 Code cell                              | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Output (value display)                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 **Embedded functions**                                   |
-Statistics (`sum`, `mean`, `variance`, ...)              | 
+Statistics (`sum`, `mean`, `variance`, ...)              |
 Data manipulation (`filter`, `sort`, `aggregate`, ...)   | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 Data visualization (`plot`, `title`, `theme`, ...)       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 Contribute more...                                       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 **Execution contexts**                 |
 Bash                                   |
 JavaScript                             | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
-Julia                                  | 
+Julia                                  |
 Jupyter kernels                        | 0.29
 Node.js                                | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 Python                                 | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
@@ -63,8 +63,8 @@ JATS                                   | 0.30
 Markdown `.md`                         | ![beta](https://img.shields.io/badge/status-beta-yellow.svg)
 RMarkdown `.Rmd`                       | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
 Jupyter Notebook `.ipynb`              | ![alpha](https://img.shields.io/badge/status-alpha-red.svg)
-Microsoft Office `.docx`               | 
-Open/Libre Office `.odt`               | 
+Microsoft Office `.docx`               |
+Open/Libre Office `.odt`               |
 
 ### Download
 
@@ -93,10 +93,22 @@ npm install
 npm run start
 ```
 
-Now you can access the different interfaces in the browser:
+Now you can access the examples in the browser at [http://localhost:4000/](http://localhost:4000/).
 
-- [http://localhost:4000/examples/dashboard](http://localhost:4000/examples/dashboard)
-- [http://localhost:4000/examples/document](http://localhost:4000/examples/document)
+
+Use external contexts during development:
+
+Run the docker image first.
+
+```bash
+docker run -p 2100:2000 stencila/alpha
+```
+
+Now start the development environment and point `STENCILA_PEERS` to the new host.
+
+```bash
+STENCILA_PEERS=http://0.0.0.0:2100 npm start
+```
 
 Most development tasks can be run  via `npm` or `make` shortcuts:
 

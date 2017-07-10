@@ -25,6 +25,10 @@ export default class SwitchTypeDropdown extends ToolDropdown {
           if (isolatedNodeComp) {
             return _nodeLabel(isolatedNodeComp.props.node)
           }
+        } else if (sel.isNodeSelection()) {
+          let nodeId = sel.getNodeId()
+          const node = doc.get(nodeId)
+          return _nodeLabel(node)
         }
       }
     }
