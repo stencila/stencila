@@ -1,6 +1,7 @@
 import { Component, EditorSession } from 'substance'
 import DocumentEditor from './DocumentEditor'
 import DocumentConfigurator from './DocumentConfigurator'
+import CellEngine from './CellEngine'
 import { importHTML, exportHTML } from './documentConversion'
 import debounce from 'lodash.debounce'
 
@@ -96,6 +97,7 @@ export default class DocumentPage extends Component {
               host: this.props.host
             }
           })
+          let cellEngine = new CellEngine(editorSession)
 
           return buffer.readFile('stencila-manifest.json', 'application/json').then((manifest) => {
             manifest = JSON.parse(manifest)
@@ -108,7 +110,8 @@ export default class DocumentPage extends Component {
             // editorSession._url = this.props.documentId
             this.setState({
               buffer,
-              editorSession
+              editorSession,
+              cellEngine
             })
           })
         })
