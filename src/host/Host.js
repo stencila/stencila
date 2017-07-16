@@ -76,8 +76,6 @@ export default class Host {
             }
           }
         }
-
-        return null
       }
     }
 
