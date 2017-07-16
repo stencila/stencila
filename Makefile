@@ -20,8 +20,14 @@ test:
 test-browser:
 	npm run test-browser
 
+test-integration:
+	npm run build
+	./tests/integration.sh
+
 test-one:
 	npm run test-one -- $(FILE)
+
+test-all: test test-integration
 
 cover:
 	npm run cover
