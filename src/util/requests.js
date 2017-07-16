@@ -12,10 +12,12 @@
  * @return {Promise}
  */
 export function request (method, url, data) {
-  if (typeof window === 'undefined') return Promise.resolve(null)
+  var XMLHttpRequest
+  if (typeof window === 'undefined') XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
+  else XMLHttpRequest = window.XMLHttpRequest
 
   return new Promise((resolve, reject) => {
-    var request = new window.XMLHttpRequest()
+    var request = new XMLHttpRequest()
     request.open(method, url, true)
     request.setRequestHeader('Accept', 'application/json')
 
