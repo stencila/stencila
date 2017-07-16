@@ -4,6 +4,9 @@ node_js:
   - 7
   - 6
 
+services:
+  - docker
+
 # Dependencies for `canvas` (required by `d3`)
 # See https://github.com/Automattic/node-canvas/blob/master/.travis.yml
 addons:
