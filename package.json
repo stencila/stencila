@@ -53,15 +53,16 @@
     "remark-squeeze-paragraphs": "^3.0.0",
     "remark-stringify": "^3.0.0",
     "semantic-ui-css": "^2.2.4",
-    "substance": "1.0.0-beta.7-preview.16",
     "stencila-mini": "^0.11.3",
+    "substance": "1.0.0-beta.7-preview.16",
     "timeago.js": "3.0.0",
     "unified": "^6.1.1",
     "unist-util-find": "^1.0.1",
     "unist-util-remove": "^0.2.1",
     "unist-util-visit": "^1.1.1",
     "vega": "3.0.0-beta.22",
-    "vega-lite": "2.0.0-alpha.2"
+    "vega-lite": "2.0.0-alpha.2",
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
     "acorn": "^4.0.11",

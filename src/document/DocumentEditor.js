@@ -1,5 +1,4 @@
 import { AbstractEditor, ContainerEditor, WorkflowPane, SplitPane, Toolbar } from 'substance'
-import CellEngine from './CellEngine'
 
 /**
   The Stencila Document Editor
@@ -8,12 +7,10 @@ export default class DocumentEditor extends AbstractEditor {
 
   constructor (...args) {
     super(...args)
-    this._cellEngine = new CellEngine(this.editorSession)
   }
 
   dispose() {
     super.dispose()
-    this._cellEngine.dispose()
   }
 
   /**

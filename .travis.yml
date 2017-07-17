@@ -1,8 +1,10 @@
 language: node_js
 
 node_js:
-  - 7
   - 6
+
+services:
+  - docker
 
 # Dependencies for `canvas` (required by `d3`)
 # See https://github.com/Automattic/node-canvas/blob/master/.travis.yml
@@ -28,7 +30,7 @@ before_script:
 
 script:
   - make lint
-  - make test
+  - make test-all
   - make cover
   - make docs
 
