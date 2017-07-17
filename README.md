@@ -107,7 +107,7 @@ docker run -p 2100:2000 stencila/alpha
 Now start the development environment and point `STENCILA_PEERS` to the new host.
 
 ```bash
-STENCILA_PEERS=http://0.0.0.0:2100 npm start
+STENCILA_PEERS=http://localhost:2100 npm start
 ```
 
 Most development tasks can be run  via `npm` or `make` shortcuts:

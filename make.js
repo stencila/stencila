@@ -154,17 +154,16 @@ function buildGuides() {
   })
 }
 
-// This is used to expose certain environment variables to the js app
+// This is used to expose `STENCILA_XXXX` environment variables to the js app
 function buildEnv() {
   b.custom('Creating environment variables (env.js)...', {
     dest: './build/env.js',
     execute() {
-      // By default we don't have any peers attached, and no auto discovery is happening
       const variables = []
-      if (process.env.STENCILA_PEERS) {
-        variables.push(
-          ['window.STENCILA_PEERS = ', JSON.stringify(process.env.STENCILA_PEERS)].join('')
-        )
+      for (let name of Object.keys(process.env)) {
+        if (name.match(/^STENCILA_/)) {
+          variables.push(`window.${name} = "${process.env[name]}"`)
+        }
       }
       b.writeSync('build/env.js', variables.join('\n'), 'utf8')
     }

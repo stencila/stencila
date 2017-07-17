@@ -10,8 +10,8 @@ window.addEventListener('load', () => {
     host: new Host({
       // Initial peers can be set in an environment variable
       peers: window.STENCILA_PEERS ? window.STENCILA_PEERS.split(' ') : [],
-      // Don't do local peer discovery
-      discover: false
+      // Peer discovery defaults to false but its frequency (in seconds) can be set in an environment variable
+      discover: window.STENCILA_DISCOVER ? parseFloat(window.STENCILA_DISCOVER) : false,
     }),
     backend: new MemoryBackend(window.GUIDES),
     documentId: getQueryStringParam('documentId') || '01-welcome-to-stencila'
