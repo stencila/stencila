@@ -2,7 +2,6 @@
 
 Next:
 
-
 ## Tasks:
 
 - XML-data model close to HTML table
@@ -13,7 +12,7 @@ Next:
     - Backspace should clear selected cells
     - Pasted cells should be inserted at anchor cell
       - After paste the target selection is equal to the copied selection
-      - Google Docs does magic tiling/repeating expansion when targetselection bigger then copied selection
+      - Google Docs does magic tiling/repeating expansion when target selection bigger then copied selection
 - Interaction with Cells (select multiple cells, ENTER allows editing, ~same behaviour as Google Sheets)
 - Resize Columns/Rows
   - Questionable?
@@ -26,7 +25,7 @@ Next:
 - Visual clues when referencing cells
 - Click to Chart (like in Google Docs)
   - Range selection and click create chart
-  - Standard statistics are shown (min,max,sum)
+  - Standard statistics are shown (min, max, sum)
   - Edit Range manually (define how many header rows there are)
   - Suggest a set of standard plots according data selection
   - Drag suggest chart into Sheet
