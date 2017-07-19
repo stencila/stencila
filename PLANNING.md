@@ -1,62 +1,97 @@
 # Stencila Sheets
 
-Next:
-
-## Tasks:
+## Data Model
 
 - XML-data model close to HTML table
-- TableSelection
-  - Drag Multiselection
-    - Anchor cell should be highlighted
-    - Typing right into Anchor Cell
-    - Backspace should clear selected cells
-    - Pasted cells should be inserted at anchor cell
-      - After paste the target selection is equal to the copied selection
-      - Google Docs does magic tiling/repeating expansion when target selection bigger then copied selection
-- Interaction with Cells (select multiple cells, ENTER allows editing, ~same behaviour as Google Sheets)
-- Resize Columns/Rows
-  - Questionable?
-- Drag down sequences
-  - Detect increment (1,3,5..., 1,2,3,...)
-  - Otherwise we just repeat the selected pattern (better than GDocs)
-- Create/Remove Column/Row
-- Explicit setting of cell type (currency, float rounding etc.)
+- [?] Converters to other formats 
+
+## Sheet UI
+
+- [?] Start with smaller empty sheet (~Pages)
+- [?] vs: Start with a large empty sheet (~Excel, GSheet)
+- Show a row with column ids
+- Show a column with
+
+## Table Selection
+
+- Create a selection range via dragging
+- Anchor cell is highlighted
+- Typing with a range selection overwrites anchor cell
+- Backspace/Delete clears all selected cells
+- Pasting cells inserts content starting at the anchor cell
+  - After paste the target selection is equal to the copied 
+    selection
+  - [?] GSheets does magic tiling / repeating 
+    when target selection is bigger then the copied selection
+
+## Cell Interaction
+
+- Set type of a single cell (currency, float rounding etc.)
+
+## Row / Column Interaction
+
+- Set column type
+- Insert row / column before / after
+- Delete row / column
+
+## Cell Editing
+
+- ENTER allows editing (~same behavior as Google Sheets)
 - Autocompletion of function names (+parameter hints etc) and variables
 - Visual clues when referencing cells
-- Click to Chart (like in Google Docs)
+- Cell style for whole cell (semantically, e.g. heading, body)
+- Ability to set horizontal and vertical alignment (e.g. center, also vertically)
+- Borders
+  - left, top, right, bottom, 
+  - inner, outer
+  - double
+
+## Table Interaction
+
+- [?] Resize columns / rows. 
+  
+  This is kind of formatting. You would not do that in latex
+
+- Extending sequences
+  - Detect increment (1,3,5..., 1,2,3,...)
+  - Otherwise just repeat the selected pattern (better than GDocs)
+
+- Create / remove column / row
+
+## Charts
+
+- Charts for clickers (inspired by GSheets)
   - Range selection and click create chart
-  - Standard statistics are shown (min, max, sum)
-  - Edit Range manually (define how many header rows there are)
+  - [?] In GSheets standard statistics are shown (min, max, sum)
+  - Edit range manually 
+  - [?] Define how many header rows which are used as labels
   - Suggest a set of standard plots according data selection
-  - Drag suggest chart into Sheet
+  - Drag chart into Sheet
 - Chart anchoring
-  - Floating Cell: Not part of the sheet, but an extra overlay cell containing a formula and rendering at x,y relative to anchor cell
-  - Use anchors as a place for formulas
-- Visual chart editing/configuration (maybe plotly has something)
-  Looking at GSheets (minus styling related):
-  - Data:
-    - chart type
-    - stacking
-    - data range
-    - axis labels
-    - some transformations (transpose)
-    - 'Use Row 47 as headers'
-    - 'Use column D as labels'
-  - Customizations:
-    - Chart axis titles
-    - Error bars, Data labels for each series
-    - Axis: min, max, units (auto, or custom)
-    - ...
-- Cell formatting
-  - Styles on whole cell (semantically annotated: e.g. heading, body)
-  - Ability to set alignment (e.g. center, also vertically)
-  - Borders (Google Sheets allows speciying border-left,right,top for each cell separately)
-- Pivot Table
-  - This is some kind of data table interface that Excel/Google offer
-  - Ability to sort and filter
-  - Column names + types should be known
+  - Insert a formula into the anchor cell
+  - Position floating chart relative to anchor cell
+- Visual chart configuration (Inspired by GSheets)
+  - Change chart type
+  - Stacking of multiple graphs
+  - Edit the data range
+  - Change the axis labels
+  - Configure axis: min, max, units (auto, or custom)
+  - Switch x/y
+  - Option to toggle use headers from data
+    *"Use Row 47 as headers"*
+  - Option to use labels from data
+    *"Use column D as labels"*
+  - [?] Show error bars
+  - [?] Show data labels
 
-## Differences DataTable vs Sheet:
+## Data Tables / Pivot Tables
 
-- DataTable has explicit column_names (like CSV header row)
-- DataTable has one datatype per column as opposed to type per cell in Sheet
+This is some kind of data table interface that Excel/Google offer
+We don't like how Pivot Tables are embedded in Excel/Google Sheets,
+which is confusing.
+There must be a row with column names.
+Every column has a type, cells can not override the column type.
+
+- Ability to sort and filter
+- Change a column's name
+- Change a column's type
