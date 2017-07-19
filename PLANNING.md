@@ -9,13 +9,25 @@
 
 - [?] Start with smaller empty sheet (~Pages)
 - [?] vs: Start with a large empty sheet (~Excel, GSheet)
-- Show a row with column ids
-- Show a column with
+- Show first row with column ids and first column with row ids
+- Display a row / column menu on right click (what about keyboard?)
+- Select whole row / column when clicked on row / column label
+- Select multiple rows / columns using Shift+MouseLeft or Shift+Down/Up/Left/Right
+- [?] Append row / column (~Pages)
+- Show content of current anchor cell in an extra bar
+- Edit sheet title
+- Edit sheet name (used for referencing)
 
 ## Table Selection
 
-- Create a selection range via dragging
-- Anchor cell is highlighted
+The *Anchor Cell* is the cell where a range selection 
+was started. 
+
+- Select a single cell on mouse down
+- Create a range selection via dragging 
+- Create a range selection using Shift+LEFT/RIGHT/UP/DOWN
+- Navigate using LEFT/RIGHT/UP/DOWN, and TAB/Shift+TAB
+- Highlight the anchor cell
 - Typing with a range selection overwrites anchor cell
 - Backspace/Delete clears all selected cells
 - Pasting cells inserts content starting at the anchor cell
@@ -26,13 +38,23 @@
 
 ## Cell Interaction
 
-- Set type of a single cell (currency, float rounding etc.)
+- Display a cell context menu on right click (what about keyboard?)
+- Set type + formatting of a single cell (units, precision, etc.)
+- Go inside a cell on ENTER or DoubleClick 
+- Discard cell changes on ESC and step out selecting the cell
+- Conditional formatting
+- [?] Data validation
 
 ## Row / Column Interaction
 
-- Set column type
 - Insert row / column before / after
 - Delete row / column
+- Clear row / column
+- [?] Hide row / column
+- Set type + formatting (units, precision, etc.) for the whole row / column
+- [?] Drag a row / column to change the order
+- [?] Conditional formatting
+- [?] Data validation
 
 ## Cell Editing
 
