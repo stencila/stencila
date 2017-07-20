@@ -114,6 +114,15 @@ which is confusing.
 There must be a row with column names.
 Every column has a type, cells can not override the column type.
 
-- Ability to sort and filter
 - Change a column's name
 - Change a column's type
+- Add/remove new column
+- Compatibility with Data Packages (http://frictionlessdata.io/data-packages/)
+- Ability to sort and filter
+- Realtime collab should be possible
+- Pressing ENTER takes you to cell below, when on last row, a new row is created
+- Paging mechanism if there are many rows
+- Dialog for importer (e.g. to ask wether a CSV
+- [?] SQL backed filtering, sorting
+
+Similar projects: (https://airtable.com/, https://fieldbook.com/)
