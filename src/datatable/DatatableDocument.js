@@ -1,4 +1,4 @@
-import { Document, uuid } from 'substance'
+import { Document } from 'substance'
 import MemoryDatastore from './MemoryDatastore'
 
 /*
