@@ -21,12 +21,12 @@ test('Converter:export', t => {
 })
 
 test('Converter:parsePath', t => {
-  let f = Converter.parsePath
-  t.deepEqual(f('file.ext'), {dir: '', file: 'file.ext', ext: 'ext'})
-  t.deepEqual(f('./file.ext'), {dir: '.', file: 'file.ext', ext: 'ext'})
-  t.deepEqual(f('a/file.ext'), {dir: 'a', file: 'file.ext', ext: 'ext'})
-  t.deepEqual(f('/a/file.ext'), {dir: '/a', file: 'file.ext', ext: 'ext'})
-  t.deepEqual(f('a/b/c/file.ext'), {dir: 'a/b/c', file: 'file.ext', ext: 'ext'})
-  t.deepEqual(f('a/b/c'), {dir: 'a/b/c', file: null, ext: null})
+  let c = new Converter()
+  t.deepEqual(c._parsePath('file.ext'), {dir: '', file: 'file.ext', ext: 'ext'})
+  t.deepEqual(c._parsePath('./file.ext'), {dir: '.', file: 'file.ext', ext: 'ext'})
+  t.deepEqual(c._parsePath('a/file.ext'), {dir: 'a', file: 'file.ext', ext: 'ext'})
+  t.deepEqual(c._parsePath('/a/file.ext'), {dir: '/a', file: 'file.ext', ext: 'ext'})
+  t.deepEqual(c._parsePath('a/b/c/file.ext'), {dir: 'a/b/c', file: 'file.ext', ext: 'ext'})
+  t.deepEqual(c._parsePath('a/b/c'), {dir: 'a/b/c', file: null, ext: null})
   t.end()
 })

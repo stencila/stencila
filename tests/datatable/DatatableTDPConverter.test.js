@@ -34,14 +34,71 @@ test('DatatableTDPConverter:match', t => {
   }, 'no sibling datapackage.json')
 })
 
-test.skip('DatatableTDPConverter:import', t => {
+test('DatatableTDPConverter:import', t => {
+  let datapackage = {
+    resources: [{
+      path: 'data.csv',
+      name : 'data-name',
+      schema: {
+        fields: [
+          {
+            name: 'col1',
+            type: 'string'
+          },
+          {
+            name: 'col2',
+            type: 'integer'
+          }
+        ]
+      }
+    }]
+  }
+  let csv = `col1,col2
+"a",1
+"b",2
+"c",3
+`
+  let xml = `
+<datatable>
+  <name>data-name</name>
+  <fields>
+    <field name="col1" title="" description="" type="string" format="" rdfType=""/>
+    <field name="col2" title="" description="" type="integer" format="" rdfType=""/>
+  </fields>
+  <values>
+    <row>
+      <value>a</value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>b</value>
+      <value>2</value>
+    </row>
+    <row>
+      <value>c</value>
+      <value>3</value>
+    </row>
+  </values>
+</datatable>`.replace(/ {2}|\n/g,'')
+
   let c = new DatatableTDPConverter()
-  t.throws(c.import, 'DatatableTDPConverter.import() must be implemented in derived class')
-  t.end()
+  let storer = new MemoryStorer({
+    'datapackage.json': JSON.stringify(datapackage),
+    'data.csv': csv
+  })
+
+  let buffer = new MemoryStorer()
+
+  c.import('data.csv', storer, buffer).then(() => {
+    buffer.readFile('datatable.xml').then(data => {
+      t.equal(data, xml)
+      t.end()
+    })
+  })
 })
 
-test.skip('DatatableTDPConverter:export', t => {
+test('DatatableTDPConverter:export', t => {
   let c = new DatatableTDPConverter()
-  t.throws(c.export, 'DatatableTDPConverter.export() must be implemented in derived class')
+  t.throws(c.export, 'DatatableTDPConverter.export() not yet implemented')
   t.end()
 })

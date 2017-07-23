@@ -23,12 +23,12 @@ export default class Converter {
   }
 
   /**
-   * Parse a file path into elements directory, file, extension
+   * Helper function to parse a file path into elements directory, file, extension
    * 
    * @param  {string} path File path to parse
    * @return {object}      Object of elements
    */
-  static parsePath (path) {
+  _parsePath (path) {
     let match = path.match(/^(.*?)\/?([\w-]+\.([\w-]+))?$/)
     return {
       dir: match[1],

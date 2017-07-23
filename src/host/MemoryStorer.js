@@ -14,8 +14,8 @@ export default class MemoryStorer extends Storer {
   readFile (path) {
     return new Promise((resolve, reject) => {
       let file = this._files[path]
-      if (file) resolve(file)
-      else reject(new Error('File not found'))
+      if (typeof file === 'undefined') reject(new Error('File not found'))
+      else resolve(file)
     })
   }
   
