@@ -3,10 +3,10 @@ import MemoryBuffer from '../../src/backend/MemoryBuffer'
 import TestStorer from '../backend/TestStorer'
 
 import DocumentHTMLConverter from '../../src/document/DocumentHTMLConverter'
-import testVFS from '../../tmp/test-vfs.js'
+import fixtures from '../../tmp/test-fixtures.js'
 import wrapSnippet from '../../src/util/wrapSnippet'
 
-let kitchenSinkHTML = wrapSnippet(testVFS['tests/documents/kitchen-sink/default.html'])
+let kitchenSinkHTML = wrapSnippet(fixtures['tests/document/fixtures/kitchen-sink/default.html'])
 
 test('DocumentHTMLConverter:  Convert into internal buffer from an HTML file', function (t) {
   let converter = new DocumentHTMLConverter()

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grammar
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+>
+  
+  <start>
+    <element name="datatable">
+      <a:documentation>
+        A schema for Stencila Datatables.
+
+        Based on the Tabular Data Resource specification (https://specs.frictionlessdata.io/tabular-data-resource/) but with modifications to suit a DatatableEditor.
+      </a:documentation>
+      <ref name="datatable-meta"/>
+      <ref name="datatable-schema"/>
+      <ref name="datatable-fields"/>
+    </element>
+  </start>
+
+  <define name="datatable-meta">
+    <element name="meta">
+      <a:documentation>
+        Based on the metadata properties of the Data Resource specification (https://specs.frictionlessdata.io/data-resource/#metadata-properties).
+
+        Documentation below includes excerpts from there.
+
+        Currently, not all metadata properties are included
+      </a:documentation>
+
+      <element name="name">
+        <a:documentation>
+          A resource must contain a name property. The name is a simple name or identifier to be used for this resource. It must consist only of lowercase alphanumeric characters plus ".", "-" and "_".
+        </a:documentation>
+        <data type="string">
+          <param name="pattern">[a-z_\.\-]+</param>
+        </data>
+      </element>
+
+      <optional>
+        <element name="profile">
+          <a:documentation>
+            A string identifying the profile of this descriptor as per the https://specs.frictionlessdata.io/profiles/ specification
+          </a:documentation>
+          <text/>
+        </element>
+      </optional>
+
+      <optional>
+        <element name="title">
+          <a:documentation>
+            A title or label for the resource
+          </a:documentation>
+          <text/>
+        </element>
+      </optional>
+
+      <optional>
+        <element name="description">
+          <a:documentation>
+            A a description of the resource
+          </a:documentation>
+          <text/>
+        </element>
+      </optional>
+    </element>
+  </define>
+
+  <define name="datatable-schema">
+    <element name="schema">
+      <a:documentation>
+        Based on the Table Schema specification (https://specs.frictionlessdata.io/table-schema/) but with `fields` removed to a separate element with `datatable`.
+      </a:documentation>
+
+      <optional>
+        <attribute name="missingValues"/>
+      </optional>
+
+      <optional>
+        <element name="primaryKey">
+          <ref name="datatable-field-names"/>
+        </element>
+      </optional>
+
+      <optional>
+        <element name="foreignKeys">
+          <oneOrMore>
+            <element name="foreignKey">
+              <element name="fields">
+                <ref name="datatable-field-names"/>
+              </element>
+              <element name="reference">
+                <element name="resource">
+                  <text/>
+                </element>
+                <element name="fields">
+                  <ref name="datatable-field-names"/>
+                </element>
+              </element>
+            </element>
+          </oneOrMore>
+        </element>
+      </optional>
+
+    </element>
+  </define>
+
+  <define name="datatable-fields">
+    <element name="fields">
+      <zeroOrMore>
+        <ref name="datatable-field"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="datatable-field">
+    <element name="field">
+      <a:documentation>
+        Based on the Field Descriptor specification at (https://specs.frictionlessdata.io/table-schema/#field-descriptors). But with a additional `values` element to store
+        the actual values for the field.    
+
+        Note that the valid values of format depend upon type.
+      </a:documentation>
+
+      <attribute name="name"/>
+
+      <optional>
+        <attribute name="title"/>
+      </optional>
+
+      <optional>
+        <attribute name="description"/>
+      </optional>
+
+      <optional>
+        <attribute name="type">
+          <choice>
+            <value>string</value>
+            <value>number</value>
+            <value>integer</value>
+            <value>boolean</value>
+            <value>object</value>
+            <value>array</value>
+            <value>date</value>
+            <value>time</value>
+            <value>datetime</value>
+            <value>year</value>
+            <value>yearmonth</value>
+            <value>duration</value>
+            <value>geopoint</value>
+            <value>geojson</value>
+            <value>any</value>
+          </choice>
+        </attribute>
+      </optional>
+
+      <optional>
+        <attribute name="format"/>
+      </optional>
+
+      <optional>
+        <attribute name="rdfType"/>
+      </optional>
+
+      <optional>
+        <element name="contraints">
+          <oneOrMore>
+            <ref name="datatable-field-constraint"/>
+          </oneOrMore>
+        </element>
+      </optional>
+
+      <element name="values">
+        <zeroOrMore>
+          <element name="value">
+            <text/>
+          </element>
+        </zeroOrMore>
+      </element>
+
+    </element>
+  </define>
+
+  <define name="datatable-field-constraint">
+    <element name="meta">
+      <a:documentation>
+        Based on https://specs.frictionlessdata.io/table-schema/#constraints
+      </a:documentation>
+
+      <attribute name="required">
+        <data type="boolean"/>
+      </attribute>
+
+      <attribute name="unique">
+        <data type="boolean"/>
+      </attribute>
+
+      <attribute name="minLength">
+        <data type="integer"/>
+      </attribute>
+
+      <attribute name="maxLength">
+        <data type="integer"/>
+      </attribute>
+
+      <attribute name="minimum">
+      </attribute>
+
+      <attribute name="maximum">
+      </attribute>
+
+      <attribute name="pattern">
+        <data type="string"/>
+      </attribute>
+
+      <attribute name="enum">
+        <data type="array"/>
+      </attribute>
+
+    </element>
+  </define>
+
+  <define name="datatable-field-names">
+    <oneOrMore>
+      <element name="field">
+        <text/>
+      </element>
+    </oneOrMore>
+  </define>
+
+</grammar>

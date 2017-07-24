@@ -1,6 +1,6 @@
 import { DocumentNode } from 'substance'
 
-export default DataTransformation extends DocumentNode {}
+export default class DataTransformation extends DocumentNode {}
 
 DataTransformation.type = 'data-transformation'
 

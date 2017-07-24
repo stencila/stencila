@@ -1,4 +1,4 @@
-/* globals __dirname, process */
+/* globals __dirname, process, Buffer */
 const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
 const install = require('substance-bundler/extensions/install')
@@ -59,6 +59,7 @@ const BROWSER_EXTERNALS = {
   'stencila-mini': 'window.stencilaMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
+  'jszip': 'window.JSZip',
   'katex': 'window.katex',
   'vega': 'window.vega',
   'vega-lite': 'window.vegaLite'
@@ -77,7 +78,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
+  'substance', 'stencila-mini', 'brace', 'd3', 'jszip', 'katex', 'vega', 'vega-lite'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -91,6 +92,7 @@ function copyAssets() {
   b.copy('./vendor/vega*', './build/lib/')
   b.copy('./vendor/unified*', './build/lib/')
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
+  b.copy('./node_modules/jszip/dist/jszip.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
@@ -171,21 +173,27 @@ function buildEnv() {
 }
 
 // reads all fixtures from /tests/ and writes them into a script
-function buildTestBackend() {
-  b.custom('Creating test backend...', {
-    src: './tests/documents/**/*',
-    dest: './tmp/test-vfs.js',
+function buildTestFixtures() {
+  b.custom('Creating test fixtures...', {
+    src: './tests/**/fixtures/**/*',
+    dest: 'tmp/test-fixtures.js',
     execute(files) {
       const rootDir = b.rootDir
-      const vfs = {}
-      files.forEach((f) => {
-        if (b.isDirectory(f)) return
-        let content = fs.readFileSync(f).toString()
-        let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
-        vfs[relPath] = content
+      const fixtures = {}
+      files.forEach((file) => {
+        if (b.isDirectory(file)) return
+        let ext = path.extname(file)
+        let data = fs.readFileSync(file)
+        
+        // Base64 encode non-text files
+        let content
+        if (['.ipynb', '.html', '.md', '.Rmd'].indexOf(ext) >= 0) content = data.toString()
+        else content = new Buffer(data).toString('base64')
+        
+        let relPath = path.relative(rootDir, file).replace(/\\/g, '/')
+        fixtures[relPath] = content
       })
-      const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeSync('tmp/test-vfs.js', data)
+      b.writeSync('tmp/test-fixtures.js', `export default ${JSON.stringify(fixtures, null, 2)}`)
     }
   })
 }
@@ -246,9 +254,9 @@ function buildSingleTest(testFile) {
 function buildVendor() {
   install(b, 'browserify', '^14.1.0')
   install(b, 'uglify-js-harmony', '^2.7.5')
-  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
-    exports: ['default']
-  })
+
+  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', { exports: ['default'] })
+
   minifiedVendor('./vendor/_brace.js', 'brace')
   minifiedVendor('./vendor/_unified-bundle.js', 'unified-bundle')
 }
@@ -338,26 +346,26 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', () => {
-  buildTestBackend()
+b.task('test:fixtures', () => {
+  buildTestFixtures()
 })
 
-b.task('test', ['clean', 'test:backend'], () => {
+b.task('test', ['clean', 'test:fixtures'], () => {
   buildNodeJSTests()
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['test:backend'], () => {
+b.task('cover', ['test:fixtures'], () => {
   buildInstrumentedTests()
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
 
-b.task('test:browser', ['test:backend'], () => {
+b.task('test:browser', ['test:fixtures'], () => {
   buildBrowserTests()
 })
 
-b.task('test:one', ['test:backend'], () => {
+b.task('test:one', ['test:fixtures'], () => {
   let test = b.argv.f
   if (!test) {
     console.error("Usage: node make test:one -f <testfile>")
