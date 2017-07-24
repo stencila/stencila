@@ -1,6 +1,6 @@
-import Converter from '../shared/Converter'
-
 import { DefaultDOMElement } from 'substance'
+
+import Converter from '../shared/Converter'
 
 export default class DatatableConverter extends Converter {
 
