@@ -1,4 +1,5 @@
 import { DefaultDOMElement } from 'substance'
+import JSZip from 'jszip'
 
 import DatatableConverter from './DatatableConverter'
 
@@ -19,8 +20,15 @@ export default class DatatableODSConverter extends DatatableConverter {
   /**
    * @override
    */
-  import (path, storer, buffer) { // eslint-disable-line
-    throw new Error('DatatableODSConverter.import() not yet implemented')
+  import (path, storer, buffer) {
+    return storer.readFile(path).then(data => {
+      return JSZip.loadAsync(data)
+    }).then(zip => {
+      return zip.file('content.xml').async('string')
+    }).then(content => {
+      let $datatable = this._importDatatableFromContent(content)
+      return this._importWriteBuffer($datatable, buffer)
+    })
   }
 
   /**
@@ -35,13 +43,14 @@ export default class DatatableODSConverter extends DatatableConverter {
     let $fields = $$('fields')
     let $values = $$('values')
 
-    let $content = DefaultDOMElement.parseXML(content).getFirstChild()
+    let $content = DefaultDOMElement.parseXML(content)
 
     // Using a CSS selector here. e.g
     //    let $table = $content.find('office:body office:spreadsheet table:table')
     // does not work because namespaced tag names are not supported
     // Is there a better way to do this?
-    let $body = $content.getChildren().filter(node => node.name === "office:body")[0]
+    let $documentContent = $content.getChildren().filter(node => node.name === "office:document-content")[0]
+    let $body = $documentContent.getChildren().filter(node => node.name === "office:body")[0]
     let $spreadsheet = $body.getChildren().filter(node => node.name === "office:spreadsheet")[0]
     let $table = $spreadsheet.getChildren().filter(node => node.name === "table:table")[0]
 

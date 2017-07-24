@@ -1,4 +1,5 @@
 import { DefaultDOMElement } from 'substance'
+import JSZip from 'jszip'
 
 import DatatableConverter from './DatatableConverter'
 
@@ -19,8 +20,17 @@ export default class DatatableXLSXConverter extends DatatableConverter {
   /**
    * @override
    */
-  import (path, storer, buffer) { // eslint-disable-line
-    throw new Error('DatatableXLSXConverter.import() not yet implemented')
+  import (path, storer, buffer) {
+    return storer.readFile(path).then(data => {
+      return JSZip.loadAsync(data)
+    }).then(zip => {
+      return zip.file('xl/worksheets/sheet1.xml').async('string').then(worksheet => {
+        return zip.file('xl/sharedStrings.xml').async('string').then(sharedStrings => {
+          let $datatable = this._importDatatableFromWorksheet(worksheet, sharedStrings)
+          return this._importWriteBuffer($datatable, buffer)
+        })
+      })
+    })
   }
 
   /**

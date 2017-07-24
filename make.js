@@ -1,4 +1,4 @@
-/* globals __dirname, process */
+/* globals __dirname, process, Buffer */
 const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
 const install = require('substance-bundler/extensions/install')
@@ -59,6 +59,7 @@ const BROWSER_EXTERNALS = {
   'stencila-mini': 'window.stencilaMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
+  'jszip': 'window.jszip',
   'katex': 'window.katex',
   'vega': 'window.vega',
   'vega-lite': 'window.vegaLite'
@@ -77,7 +78,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
+  'substance', 'stencila-mini', 'brace', 'd3', 'jszip', 'katex', 'vega', 'vega-lite'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -178,10 +179,17 @@ function buildTestFixtures() {
     execute(files) {
       const rootDir = b.rootDir
       const fixtures = {}
-      files.forEach((f) => {
-        if (b.isDirectory(f)) return
-        let content = fs.readFileSync(f).toString()
-        let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
+      files.forEach((file) => {
+        if (b.isDirectory(file)) return
+        let ext = path.extname(file)
+        let data = fs.readFileSync(file)
+        
+        // Base64 encode non-text files
+        let content
+        if (['.ipynb', '.html', '.md', '.Rmd'].indexOf(ext) >= 0) content = data.toString()
+        else content = new Buffer(data).toString('base64')
+        
+        let relPath = path.relative(rootDir, file).replace(/\\/g, '/')
         fixtures[relPath] = content
       })
       b.writeSync('tmp/test-fixtures.js', `export default ${JSON.stringify(fixtures, null, 2)}`)
@@ -248,6 +256,7 @@ function buildVendor() {
   minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
     exports: ['default']
   })
+  minifiedVendor('./node_modules/jszip/dist/jszip.min.js', 'jszip')
   minifiedVendor('./vendor/_brace.js', 'brace')
   minifiedVendor('./vendor/_unified-bundle.js', 'unified-bundle')
 }

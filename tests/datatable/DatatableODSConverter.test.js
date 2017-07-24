@@ -3,6 +3,8 @@ import test from 'tape'
 import DatatableODSConverter from '../../src/datatable/DatatableODSConverter'
 import MemoryStorer from '../../src/host/MemoryStorer'
 
+import fixtures from '../../tmp/test-fixtures'
+
 test('DatatableODSConverter:match', t => {
   let c = new DatatableODSConverter()
 
@@ -19,9 +21,39 @@ test('DatatableODSConverter:match', t => {
 
 test('DatatableODSConverter:import', t => {
   let c = new DatatableODSConverter()
-  let storer = new MemoryStorer() // eslint-disable-line
-  t.throws(c.import, 'DatatableODSConverter.import() not yet implemented')
-  t.end()
+  let storer = new MemoryStorer(fixtures)
+  let buffer = new MemoryStorer()
+
+  let datatable = `<datatable>
+    <fields>
+        <field name="field1"/>
+        <field name="field2"/>
+    </fields>
+    <values>
+        <row>
+            <value>a</value>
+            <value>1</value>
+        </row>
+        <row>
+            <value>b</value>
+            <value>2</value>
+        </row>
+        <row>
+            <value>c</value>
+            <value>3</value>
+        </row>
+    </values>
+</datatable>`.replace(/ {2}|\n/g,'')
+
+  c.import('tests/datatable/fixtures/simple.ods', storer, buffer).then(() => {
+    buffer.readFile('datatable.xml').then(content => {
+      t.equal(content, datatable)
+      t.end()
+    })
+  }).catch(error => {
+    t.error(error)
+    t.end()
+  })
 })
 
 test('DatatableODSConverter:_importDatatableFromContent', t => {
