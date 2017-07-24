@@ -59,7 +59,7 @@ const BROWSER_EXTERNALS = {
   'stencila-mini': 'window.stencilaMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
-  'jszip': 'window.jszip',
+  'jszip': 'window.JSZip',
   'katex': 'window.katex',
   'vega': 'window.vega',
   'vega-lite': 'window.vegaLite'
@@ -92,6 +92,7 @@ function copyAssets() {
   b.copy('./vendor/vega*', './build/lib/')
   b.copy('./vendor/unified*', './build/lib/')
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
+  b.copy('./node_modules/jszip/dist/jszip.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
@@ -253,10 +254,9 @@ function buildSingleTest(testFile) {
 function buildVendor() {
   install(b, 'browserify', '^14.1.0')
   install(b, 'uglify-js-harmony', '^2.7.5')
-  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
-    exports: ['default']
-  })
-  minifiedVendor('./node_modules/jszip/dist/jszip.min.js', 'jszip')
+
+  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', { exports: ['default'] })
+
   minifiedVendor('./vendor/_brace.js', 'brace')
   minifiedVendor('./vendor/_unified-bundle.js', 'unified-bundle')
 }
