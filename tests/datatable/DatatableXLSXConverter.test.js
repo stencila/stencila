@@ -58,7 +58,8 @@ test('DatatableXLSXConverter:import', t => {
 
 test('DatatableXLSXConverter:_importWorksheetToDatatable', t => {
   // This XML was obtained from a .xlxs file produced by Open Office
-  let worksheet = `<worksheet>
+  let worksheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet>
   <sheetPr filterMode="false">
     <pageSetUpPr fitToPage="false" />
   </sheetPr>
