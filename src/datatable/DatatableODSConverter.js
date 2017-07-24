@@ -43,6 +43,8 @@ export default class DatatableODSConverter extends DatatableConverter {
     let $fields = $$('fields')
     let $values = $$('values')
 
+    // This suceeds in the Node.js but in the browser fails to parse
+    // maybe dure to namespaced tag names e.g. `office:document-content`
     let $content = DefaultDOMElement.parseXML(content)
 
     // Using a CSS selector here. e.g
