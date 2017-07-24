@@ -2,13 +2,13 @@ import { forEach, map } from 'substance'
 import wrapSnippet from '../../src/util/wrapSnippet'
 import { MemoryBuffer } from '../../index.es'
 import { MemoryBackend } from '../../index.es'
-import testVFS from '../../tmp/test-vfs.js'
+import fixtures from '../../tmp/test-fixtures.js'
 
 let testLibrary = {}
 let htmls = {}
 let buffers = {}
 
-forEach(testVFS, (content, documentId) => {
+forEach(fixtures, (content, documentId) => {
   // Only pick HTML documents
   if (/\.html$/.exec(documentId)) {
     testLibrary[documentId] = {

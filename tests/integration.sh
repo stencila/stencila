@@ -18,10 +18,10 @@ docker run --detach --publish 2100:2000 stencila/alpha
 sleep 5
 
 # Configured using one of the containers as only peer
-STENCILA_PEERS=http://localhost:2100 node tools/runner.js tests/documents/external-language-cells.html
+STENCILA_PEERS=http://localhost:2100 node tools/runner.js tests/document/fixtures/external-language-cells.html
 
 # Configured using peer dicovery (this is current configuration for Desktop)
-STENCILA_DISCOVER=30 node tools/runner.js tests/documents/external-language-cells.html
+STENCILA_DISCOVER=30 node tools/runner.js tests/document/fixtures/external-language-cells.html
 
 
 # Exit with number of errors

@@ -171,21 +171,20 @@ function buildEnv() {
 }
 
 // reads all fixtures from /tests/ and writes them into a script
-function buildTestBackend() {
-  b.custom('Creating test backend...', {
-    src: './tests/documents/**/*',
-    dest: './tmp/test-vfs.js',
+function buildTestFixtures() {
+  b.custom('Creating test fixtures...', {
+    src: './tests/**/fixtures/**/*',
+    dest: 'tmp/test-fixtures.js',
     execute(files) {
       const rootDir = b.rootDir
-      const vfs = {}
+      const fixtures = {}
       files.forEach((f) => {
         if (b.isDirectory(f)) return
         let content = fs.readFileSync(f).toString()
         let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
-        vfs[relPath] = content
+        fixtures[relPath] = content
       })
-      const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeSync('tmp/test-vfs.js', data)
+      b.writeSync('tmp/test-fixtures.js', `export default ${JSON.stringify(fixtures, null, 2)}`)
     }
   })
 }
@@ -338,26 +337,26 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', () => {
-  buildTestBackend()
+b.task('test:fixtures', () => {
+  buildTestFixtures()
 })
 
-b.task('test', ['clean', 'test:backend'], () => {
+b.task('test', ['clean', 'test:fixtures'], () => {
   buildNodeJSTests()
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['test:backend'], () => {
+b.task('cover', ['test:fixtures'], () => {
   buildInstrumentedTests()
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
 })
 
-b.task('test:browser', ['test:backend'], () => {
+b.task('test:browser', ['test:fixtures'], () => {
   buildBrowserTests()
 })
 
-b.task('test:one', ['test:backend'], () => {
+b.task('test:one', ['test:fixtures'], () => {
   let test = b.argv.f
   if (!test) {
     console.error("Usage: node make test:one -f <testfile>")
