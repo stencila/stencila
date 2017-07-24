@@ -111,8 +111,8 @@ test('DatatableXLSXConverter:_importWorksheetToDatatable', t => {
   <pageMargins left="0.7875" right="0.7875" top="1.05277777777778" bottom="1.05277777777778" header="0.7875" footer="0.7875" />
   <pageSetup paperSize="9" scale="100" firstPageNumber="1" fitToWidth="1" fitToHeight="1" pageOrder="downThenOver" orientation="portrait" usePrinterDefaults="false" blackAndWhite="false" draft="false" cellComments="none" useFirstPageNumber="true" horizontalDpi="300" verticalDpi="300" copies="1" />
   <headerFooter differentFirst="false" differentOddEven="false">
-    <oddHeader>&C&"Times New Roman,Regular"&12&A</oddHeader>
-    <oddFooter>&C&"Times New Roman,Regular"&12Page &P</oddFooter>
+    <oddHeader>"Times New Roman,Regular"</oddHeader>
+    <oddFooter>"Times New Roman,Regular"</oddFooter>
   </headerFooter>
 </worksheet>`.replace(/ {2}|\n/g,'')
 
