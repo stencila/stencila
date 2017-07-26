@@ -13,7 +13,6 @@
         Based on the Tabular Data Resource specification (https://specs.frictionlessdata.io/tabular-data-resource/) but with modifications to suit a DatatableEditor.
       </a:documentation>
       <ref name="datatable-meta"/>
-      <ref name="datatable-schema"/>
       <ref name="datatable-fields"/>
     </element>
   </start>
@@ -63,45 +62,6 @@
           <text/>
         </element>
       </optional>
-    </element>
-  </define>
-
-  <define name="datatable-schema">
-    <element name="schema">
-      <a:documentation>
-        Based on the Table Schema specification (https://specs.frictionlessdata.io/table-schema/) but with `fields` removed to a separate element with `datatable`.
-      </a:documentation>
-
-      <optional>
-        <attribute name="missingValues"/>
-      </optional>
-
-      <optional>
-        <element name="primaryKey">
-          <ref name="datatable-field-names"/>
-        </element>
-      </optional>
-
-      <optional>
-        <element name="foreignKeys">
-          <oneOrMore>
-            <element name="foreignKey">
-              <element name="fields">
-                <ref name="datatable-field-names"/>
-              </element>
-              <element name="reference">
-                <element name="resource">
-                  <text/>
-                </element>
-                <element name="fields">
-                  <ref name="datatable-field-names"/>
-                </element>
-              </element>
-            </element>
-          </oneOrMore>
-        </element>
-      </optional>
-
     </element>
   </define>
 
@@ -218,14 +178,6 @@
       </attribute>
 
     </element>
-  </define>
-
-  <define name="datatable-field-names">
-    <oneOrMore>
-      <element name="field">
-        <text/>
-      </element>
-    </oneOrMore>
   </define>
 
 </grammar>
