@@ -119,10 +119,6 @@
       </optional>
 
       <optional>
-        <attribute name="rdfType"/>
-      </optional>
-
-      <optional>
         <element name="contraints">
           <oneOrMore>
             <ref name="datatable-field-constraint"/>
