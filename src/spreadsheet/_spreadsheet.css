@@ -1,0 +1,38 @@
+.sc-spreadsheet-page {
+  width: 800px;
+  height: 800px;
+  margin: 0 auto;
+}
+
+.sc-spreadsheet {
+  position: relative;
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sc-spreadsheet > .se-content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.sc-spreadsheet table {
+  border-collapse: collapse;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.sc-spreadsheet th {
+  background: #ccc;
+}
+
+.sc-spreadsheet td {
+  width: 100px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  border: 1px solid #ddd;
+  position: relative;
+  padding: 10px;
+}
