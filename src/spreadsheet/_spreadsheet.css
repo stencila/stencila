@@ -1,6 +1,6 @@
 .sc-spreadsheet-page {
-  width: 800px;
-  height: 800px;
+  min-width: 800px;
+  min-height: 800px;
   margin: 0 auto;
 }
 
@@ -28,8 +28,17 @@
   background: #ccc;
 }
 
-.sc-spreadsheet td {
+/* default column width */
+.sc-spreadsheet thead th {
   width: 100px;
+}
+
+.sc-spreadsheet tr th:first-child {
+  width: 50px;
+}
+
+
+.sc-spreadsheet td {
   white-space: pre-wrap;
   overflow-wrap: break-word;
   border: 1px solid #ddd;

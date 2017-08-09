@@ -46,7 +46,8 @@ export default class SpreadsheetLayout {
     // TODO: we should have a default width
     // plus consider columns that have an overridden custom width
     let diff = Math.abs(endCol-startCol)
-    return diff*DEFAULT_COLUMN_WIDTH
+    // #number of cols + row-label column width
+    return (diff*DEFAULT_COLUMN_WIDTH)+50
   }
 
   _reset() {

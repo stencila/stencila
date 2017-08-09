@@ -78,9 +78,8 @@ export default class SpreadsheetComponent extends Component {
   _onWheel(e) {
     e.stopPropagation()
     e.preventDefault()
-    console.log('le wheeeeeel', e)
-    let deltaX = _sign(e.deltaX)
-    let deltaY = _sign(e.deltaY)
+    let deltaX = _step(e.deltaX)
+    let deltaY = _step(e.deltaY)
     if (deltaX || deltaY) {
       let newStartCol = this.state.startCol + deltaX
       let newStartRow = this.state.startRow + deltaY
@@ -92,10 +91,11 @@ export default class SpreadsheetComponent extends Component {
 
 // signum with epsilon
 const EPSILON = 1
-function _sign(x) {
+function _step(x) {
   let abs = Math.abs(x)
   if (abs > EPSILON) {
-    return Math.sign(x)
+    let sgn = Math.sign(x)
+    return sgn * Math.ceil(abs / 10)
   }
   return 0
 }
