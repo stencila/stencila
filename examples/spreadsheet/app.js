@@ -9,6 +9,7 @@ window.addEventListener('load', () => {
   const importer = configurator.createImporter(SpreadsheetSchema.getName())
   const sheet = importer.importDocument(xml)
   SpreadsheetPage.mount({
+    configurator,
     sheet,
     width: 1400,
     height: 1000

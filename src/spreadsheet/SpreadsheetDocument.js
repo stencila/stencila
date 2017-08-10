@@ -18,4 +18,8 @@ export default class SpreadsheetDocument extends XMLDocument {
     return this.root
   }
 
+  getName() {
+    return this.getRootNode().find('name').text()
+  }
+
 }
