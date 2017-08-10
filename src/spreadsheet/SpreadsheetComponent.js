@@ -66,7 +66,7 @@ export default class SpreadsheetComponent extends CustomSurface {
     // in Datatable we want
     let tr = $$('tr').ref('headRow')
     tr.append($$('th').addClass('se-corner').ref('corner'))
-    for (let i = this.state.startCol; i < this.state.endCol; i++) {
+    for (let i = this.state.startCol; i <= this.state.endCol; i++) {
       // TODO: map to ABC etc...
       tr.append($$('th').append(String(i)))
     }
@@ -79,12 +79,12 @@ export default class SpreadsheetComponent extends CustomSurface {
     const data = sheet.find('data')
     const rows = data.children
     let body = $$('tbody').ref('body')
-    for (let i = this.state.startRow; i < this.state.endRow; i++) {
+    for (let i = this.state.startRow; i <= this.state.endRow; i++) {
       const row = rows[i]
       let tr = $$('tr').ref(String(i))
       tr.append($$('th').text(String(i)))
       let cells = row.children
-      for (let j = this.state.startCol; j < this.state.endCol; j++) {
+      for (let j = this.state.startCol; j <= this.state.endCol; j++) {
         const cell = cells[j]
         tr.append(
           $$('td').append(
@@ -283,29 +283,33 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _getCellPositionForXY(clientX, clientY) {
+    const state = this.state
     let offset = this.el.getOffset()
     let x = clientX - offset.left
     let y = clientY - offset.top
     // for now we always search without any trickery
     // could be improved using caching or a tree datastructure to find positions more quickly
-    let rowIdx = this.state.startRow
+    let rowIdx = state.startRow
     let rowEls = this.refs.body.el.children
     let i = 0
-    while (rowIdx < this.state.endRow) {
+    while (rowIdx < state.endRow) {
       let rect = getRelativeBoundingRect(rowEls[i], this.el)
       if (rect.top+rect.height > y) break
       rowIdx++
       i++
     }
     let colEls = this.refs.headRow.el.children
-    let colIdx = this.state.startCol
+    let colIdx = state.startCol
     i = 1
-    while (colIdx < this.state.endCol) {
+    while (colIdx < state.endCol) {
       let rect = getRelativeBoundingRect(colEls[i], this.el)
       if (rect.left+rect.width > x) break
       colIdx++
       i++
     }
+    // make sure that we provide indexes within the current viewport
+    rowIdx = Math.max(state.startRow, Math.min(state.endRow, rowIdx))
+    colIdx = Math.max(state.startCol, Math.min(state.endCol, colIdx))
     return [rowIdx, colIdx]
   }
 
@@ -317,7 +321,7 @@ function _step(x) {
   let abs = Math.abs(x)
   if (abs > EPSILON) {
     let sgn = Math.sign(x)
-    return sgn * Math.ceil(abs / 10)
+    return sgn * Math.ceil(abs / 20)
   }
   return 0
 }
