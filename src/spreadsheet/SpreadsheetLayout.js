@@ -35,10 +35,10 @@ export default class SpreadsheetLayout {
     const ncols = this.getColumnCount()
     const rowWindow = 20
     const columnWindow = 10
-    let startRow = Math.max(0, Math.min(nrows-rowWindow, rowOffset))
-    let startCol = Math.max(0, Math.min(ncols-columnWindow, colOffset))
-    let endRow = Math.min(nrows, startRow+rowWindow)
-    let endCol = Math.min(ncols, startCol+columnWindow)
+    let startRow = Math.max(0, Math.min(nrows-rowWindow-1, rowOffset))
+    let startCol = Math.max(0, Math.min(ncols-columnWindow-1, colOffset))
+    let endRow = Math.min(nrows-1, startRow+rowWindow)
+    let endCol = Math.min(ncols-1, startCol+columnWindow)
     return { startRow, startCol, endRow, endCol }
   }
 
