@@ -41,8 +41,8 @@ after_success:
 
 before_deploy:
   - |
-  export BUILD_VERSION=build-$(date --utc --iso-8601)-$TRAVIS_COMMIT-$TRAVIS_BUILD_NUMBER
-  mv build $BUILD_VERSION
+    export BUILD_VERSION=build-$(date --utc --iso-8601)-$TRAVIS_COMMIT-$TRAVIS_BUILD_NUMBER
+    mv build $BUILD_VERSION
 
 deploy:
   branch: $TRAVIS_BRANCH
