@@ -42,9 +42,14 @@ after_success:
 
 before_deploy:
   - |
+    # Generate a unique build version
+    export BUILD_VERSION=$(TRAVIS_BRANCH)-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)-$TRAVIS_BUILD_NUMBER
+    # Create a versioned folder for the build
     mkdir -p deploy
-    export BUILD_VERSION=build-$(date --utc --iso-8601)-$TRAVIS_COMMIT-$TRAVIS_BUILD_NUMBER
     mv build deploy/$BUILD_VERSION
+    # Update the list of builds
+    curl -s http://test.stenci.la/builds.txt > deploy/builds.txt
+    echo $BUILD_VERSION >> builds.txt
 
 deploy:
   on:
