@@ -42,14 +42,15 @@ after_success:
 
 before_deploy:
   - |
+    mkdir -p deploy
     export BUILD_VERSION=build-$(date --utc --iso-8601)-$TRAVIS_COMMIT-$TRAVIS_BUILD_NUMBER
-    mv build $BUILD_VERSION
+    mv build deploy/$BUILD_VERSION
 
 deploy:
   on:
     all_branches: true
   skip_cleanup: true
-  local_dir: $BUILD_VERSION
+  local_dir: deploy
   provider: s3
   access_key_id: $AWS_ACCESS_KEY_ID
   secret_access_key: $AWS_SECRET_ACCESS_KEY
