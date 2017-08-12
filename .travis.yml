@@ -43,21 +43,21 @@ after_success:
 before_deploy:
   - |
     # Generate a unique build version
-    export BUILD_VERSION=$(TRAVIS_BRANCH)-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)-$TRAVIS_BUILD_NUMBER
+    export BUILD_NAME=$TRAVIS_BRANCH-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)
     # Create a versioned folder for the build
-    mkdir -p deploy
-    mv build deploy/$BUILD_VERSION
+    mkdir -p bucket/stencila
+    mv build bucket/stencila/$BUILD_NAME
     # Update the list of builds
-    curl -s http://test.stenci.la/builds.txt > deploy/builds.txt
-    echo $BUILD_VERSION >> builds.txt
+    curl -s http://builds.stenci.la.s3-website-us-west-2.amazonaws.com/stencila/builds.txt > bucket/stencila/builds.txt
+    echo $BUILD_NAME >> bucket/stencila/builds.txt
 
 deploy:
   on:
     all_branches: true
   skip_cleanup: true
-  local_dir: deploy
+  local_dir: bucket
   provider: s3
   access_key_id: $AWS_ACCESS_KEY_ID
   secret_access_key: $AWS_SECRET_ACCESS_KEY
   region: us-west-2
-  bucket: test.stenci.la
+  bucket: builds.stenci.la
