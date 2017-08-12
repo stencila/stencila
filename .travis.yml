@@ -45,8 +45,8 @@ before_deploy:
     mv build $BUILD_VERSION
 
 deploy:
-  branch: test-deploy
-  all_branches: true
+  on:
+    all_branches: true
   skip_cleanup: true
   local_dir: $BUILD_VERSION
   provider: s3
