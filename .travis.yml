@@ -39,10 +39,15 @@ cache:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+before_deploy:
+  - |
+  export BUILD_VERSION=build-$(date --utc --iso-8601)-$TRAVIS_COMMIT-$TRAVIS_BUILD_NUMBER
+  mv build $BUILD_VERSION
+
 deploy:
-  all_branches: true
+  branch: $TRAVIS_BRANCH
   skip_cleanup: true
-  local_dir: build
+  local_dir: $BUILD_VERSION
   provider: s3
   access_key_id: $AWS_ACCESS_KEY_ID
   secret_access_key: $AWS_SECRET_ACCESS_KEY
