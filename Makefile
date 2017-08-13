@@ -21,7 +21,6 @@ test-browser:
 	npm run test-browser
 
 test-integration:
-	npm run build
 	./tests/integration.sh
 
 test-one:
