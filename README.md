@@ -128,3 +128,5 @@ Clean                                                   |                       
 To contribute, [get in touch](https://gitter.im/stencila/stencila), checkout the [platform-wide, cross-repository kanban board](https://github.com/orgs/stencila/projects/1), or just send us a pull request! Please read our contributor [code of conduct](CONDUCT.md).
 
 API documentation is at http://stencila.github.io/stencila/. These are published using Github Pages, so to update them after making changes: run `make docs`, commit the updates and do a `git push`.
+
+Builds done on [Travis CI](https://travis-ci.org/stencila/stencila) are archived at http://builds.stenci.la/stencila/. That site can be useful for user acceptance testing without the need to download Stencila Desktop. Provide test users with a link to an work-in-progress user interface e.g http://builds.stenci.la/stencila/test-deploy-2017-08-13-54a67a6/examples/document/index.html?documentId=01-welcome-to-stencila.
