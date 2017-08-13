@@ -25,17 +25,15 @@ cache:
   directories:
     - node_modules
 
-# Temporarily skip to speed up debugging
-
-#before_script:
-#  - npm install documentation
+before_script:
+  - npm install documentation
 
 script:
-  #- make lint
+  - make lint
   - make build
-  #- make test-all
-  #- make cover
-  #- make docs
+  - make test-all
+  - make cover
+  - make docs
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
@@ -48,7 +46,7 @@ before_deploy:
     mkdir -p bucket/stencila
     mv build bucket/stencila/$BUILD_NAME
     # Update the list of builds
-    curl -s http://builds.stenci.la.s3-website-us-west-2.amazonaws.com/stencila/builds.txt > bucket/stencila/builds.txt
+    curl -s http://builds.stenci.la/stencila/builds.txt > bucket/stencila/builds.txt
     echo $BUILD_NAME >> bucket/stencila/builds.txt
 
 deploy:
