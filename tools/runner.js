@@ -6,7 +6,9 @@
  * exits with the number of cells with errors
  */
 
+const crypto = require('crypto')
 const fs = require('fs')
+const path = require('path')
 const stencila = require('..')
 const substance = require('substance')
 
@@ -16,6 +18,33 @@ if (!file) {
   process.exit(1)
 }
 
+let content = fs.readFileSync(file, {encoding: 'utf8'})
+
+// Convert content to internal HTML
+let {ext} = path.parse(file)
+let Converter = {
+  '.md': stencila.DocumentMarkdownConverter,
+  '.ipynb': stencila.DocumentJupyterConverter,
+  '.rmd': stencila.DocumentRMarkdownConverter
+}[ext.toLowerCase()]
+let html
+if (Converter) {
+  html = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <main>
+      <div id="data" data-format="html">
+        <div class="content">${new Converter().importContent(content)}</div>
+      </div>
+    </main>
+  </body>
+</html>`
+} else html = content
+
 // Host for getting external execution contexts
 const host = new stencila.Host({
   peers: process.env.STENCILA_PEERS ? process.env.STENCILA_PEERS.split(' ') : [],
@@ -24,7 +53,7 @@ const host = new stencila.Host({
 
 // Backend for getting document content
 const backend = new stencila.MemoryBackend({
-  'file': fs.readFileSync(file, {encoding: 'utf8'})
+  'file': html
 })
 
 // DOM for mounting
@@ -36,6 +65,24 @@ const documentPage = stencila.DocumentPage.mount({
   backend: backend,
   documentId: 'file'
 }, body)
+
+// Function for getting HTML version of document content
+function documentHtml () {
+  let doc = documentPage.state.editorSession.getDocument()
+  return stencila.documentConversion.exportHTML(doc)
+}
+
+// Function for getting a digest of document content
+function documentDigest () {
+  let sha256 = crypto.createHash('sha256')
+  sha256.update(documentHtml())
+  return sha256.digest('hex')
+}
+
+// Get digest before the document is updated
+// TODO: documentDigest() does not work here, needs to be triggered
+// in response to an event
+const digestPre = null 
 
 const start = process.hrtime()
 
@@ -80,7 +127,11 @@ setTimeout(() => {
     file,
     counts,
     duration,
-    errors
+    errors,
+    digests: {
+      pre: digestPre,
+      post: documentDigest()
+    }
   }))
 
   // Exit with the number of errors
