@@ -40,8 +40,12 @@ after_success:
 
 before_deploy:
   - |
+    # Get last line of commit message which, for a Github PR merge, is the PR title
+    COMMIT_LINE=$(echo $TRAVIS_COMMIT_MESSAGE | tail -n 1)
+    # Create a commit "slug"
+    COMMIT_SLUG=$(echo $COMMIT_LINE | cut -c 1-100 | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
     # Generate a unique build version
-    export BUILD_NAME=$TRAVIS_BRANCH-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)
+    BUILD_NAME=$COMMIT_SLUG-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)
     # Create a versioned folder for the build
     mkdir -p bucket/stencila
     mv build bucket/stencila/$BUILD_NAME
@@ -52,6 +56,7 @@ before_deploy:
 deploy:
   on:
     all_branches: true
+    condition: " (($TRAVIS_BRANCH == 'master') || ($TRAVIS_BRANCH == 'develop')) && ( $(echo $TRAVIS_COMMIT_MESSAGE | grep -c -E "^Merge pull request") == '1') "
   skip_cleanup: true
   local_dir: bucket
   provider: s3
