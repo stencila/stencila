@@ -22,4 +22,17 @@ export default class SpreadsheetDocument extends XMLDocument {
     return this.getRootNode().find('name').text()
   }
 
+  getCell(rowIdx, colIdx) {
+    const data = this._getData()
+    let row = data.getChildAt(rowIdx)
+    let cell = row.getChildAt(colIdx)
+    return cell
+  }
+
+  _getData() {
+    if (!this._dataNode) {
+      this._dataNode = this.getRootNode().find('data')
+    }
+    return this._dataNode
+  }
 }

@@ -93,19 +93,15 @@ export default class SpreadsheetComponent extends CustomSurface {
   _renderBody($$) {
     const state = this.state
     const sheet = this.props.sheet
-    const data = sheet.find('data')
-    const rows = data.children
     let body = $$('tbody').ref('body')
     for (let i = state.startRow; i <= state.endRow; i++) {
-      const row = rows[i]
       let tr = $$('tr').ref(String(i))
       tr.append(
         $$('th').text(String(i))
           .on('mousedown', this._onRowMousedown)
       )
-      let cells = row.children
       for (let j = state.startCol; j <= state.endCol; j++) {
-        const cell = cells[j]
+        const cell = sheet.getCell(i, j)
         let td = $$('td')
           .append($$(SpreadsheetCell, { node: cell }).ref(cell.id))
           .attr({
