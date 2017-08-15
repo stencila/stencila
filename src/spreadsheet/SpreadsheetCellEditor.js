@@ -29,8 +29,10 @@ export default class SpreadsheetCellEditor extends AbstractEditor {
       $$(TextPropertyEditor, {
         path: this.node.getTextPath()
       }).ref('editor')
+        .on('contextmenu', this._onContextMenu)
     )
     el.on('mousedown', this._onMousedown)
+
     return el
   }
 
@@ -50,6 +52,10 @@ export default class SpreadsheetCellEditor extends AbstractEditor {
 
   _onMousedown(e) {
     e.stopPropagation()
+  }
+
+  _onContextMenu(e) {
+    e.preventDefault()
   }
 
 }

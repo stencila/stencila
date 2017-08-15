@@ -53,12 +53,15 @@ export default class SpreadsheetComponent extends CustomSurface {
         this._renderTable($$)
       ),
       this._renderOverlay($$),
-      this._renderCellEditor($$)
+      this._renderCellEditor($$),
+      this._renderRowContextMenu($$),
+      this._renderColumnContextMenu($$)
     )
     el.on('wheel', this._onWheel, this, { passive: true })
       .on('mousedown', this._onMousedown)
       .on('mousemove', this._onMousemove)
       .on('dblclick', this._onDblclick)
+      .on('contextmenu', this._onContextMenu)
     return el
   }
 
@@ -83,7 +86,9 @@ export default class SpreadsheetComponent extends CustomSurface {
     for (let i = this.state.startCol; i <= this.state.endCol; i++) {
       // TODO: map to ABC etc...
       tr.append(
-        $$('th').append(String(i)).on('mousedown', this._onColumnMousedown)
+        $$('th').append(String(i))
+          .on('mousedown', this._onColumnMousedown)
+          .on('contextmenu', this._onColumnContextMenu)
       )
     }
     head.append(tr)
@@ -99,6 +104,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       tr.append(
         $$('th').text(String(i))
           .on('mousedown', this._onRowMousedown)
+          .on('mousedown', this._onRowContextMenu)
       )
       for (let j = state.startCol; j <= state.endCol; j++) {
         const cell = sheet.getCell(i, j)
@@ -133,6 +139,14 @@ export default class SpreadsheetComponent extends CustomSurface {
       $$('div').addClass('se-selection-rows').ref('selRows').css('visibility', 'hidden')
     )
     return el
+  }
+
+  _renderRowContextMenu($$) {
+
+  }
+
+  _renderColumnContextMenu($$) {
+
   }
 
     // called by SurfaceManager to render the selection plus setting the
@@ -300,7 +314,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onWheel(e) {
     e.stopPropagation()
-    // e.preventDefault()
+    e.preventDefault()
     let deltaX = _step(e.deltaX)
     let deltaY = _step(e.deltaY)
     if (deltaX || deltaY) {
@@ -317,6 +331,9 @@ export default class SpreadsheetComponent extends CustomSurface {
     if (this._isEditing) {
       this._closeCellEditor()
     }
+
+    // TODO: do not update the selection if right-clicked and already having a selection
+
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
         once: true
@@ -413,6 +430,40 @@ export default class SpreadsheetComponent extends CustomSurface {
       this._openCellEditor(rowIdx, colIdx)
     }
   }
+
+  _onCellEditorEnter() {
+    this._closeCellEditor()
+  }
+
+  _onCellEditorEscape() {
+    const cellEditor = this.refs.cellEditor
+    const cell = this._cell
+    cellEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
+    this._isEditing = false
+    this._cell = null
+  }
+
+  _onContextMenu(e) {
+    // console.log('_onCellContextMenu()', e)
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  _onRowContextMenu(e) {
+    // console.log('_onRowContextMenu()', e)
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  _onColumnContextMenu(e) {
+    // console.log('_onColumnContextMenu()', e)
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
 
   _getCustomResourceId() {
     return this.props.sheet.getName()
@@ -537,21 +588,6 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
     this.context.editorSession.transaction((tx) => {
       tx.set(cell.getTextPath(), cellEditor.getValue())
-    })
-    this._isEditing = false
-    this._cell = null
-  }
-
-  _onCellEditorEnter() {
-    this._closeCellEditor()
-  }
-
-  _onCellEditorEscape() {
-    const cellEditor = this.refs.cellEditor
-    const cell = this._cell
-    cellEditor.css({
-      display: 'none',
-      top: 0, left: 0
     })
     this._isEditing = false
     this._cell = null
