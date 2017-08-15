@@ -1,6 +1,6 @@
-import { Component } from 'substance'
+import { NodeComponent } from 'substance'
 
-export default class SpreadsheetCell extends Component {
+export default class SpreadsheetCell extends NodeComponent {
 
   render($$) {
     const cell = this.props.node
@@ -13,6 +13,10 @@ export default class SpreadsheetCell extends Component {
   _renderContent($$, cell) {
     // TODO: this should be delegated to components
     return $$('div').addClass('sc-text-content').text(cell.text())
+  }
+
+  getContent() {
+    return this.props.node.getText()
   }
 
 }

@@ -1,15 +1,28 @@
 import { CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement } from 'substance'
 import SpreadsheetLayout from './SpreadsheetLayout'
 import SpreadsheetCell from './SpreadsheetCell'
+import SpreadsheetCellEditor from './SpreadsheetCellEditor'
 
 export default class SpreadsheetComponent extends CustomSurface {
 
   getInitialState() {
     // internal state which does trigger rerender
     this._layout = new SpreadsheetLayout(this.props.sheet)
+
+    // TODO: this could be idiomatic states
+    // internal state used during cell editing
+    this._isEditing = false
+    this._cell = null
+
+    // internal state used during selection
     this._isSelecting = false
+    this._anchorRow = -1
+    this._anchorCol = -1
+    this._focusRow = -1
+    this._focusCol = -1
 
     const viewPort = this._layout.getViewport(0, 0)
+
     return Object.assign({}, viewPort)
   }
 
@@ -39,9 +52,10 @@ export default class SpreadsheetComponent extends CustomSurface {
       $$('div').addClass('se-content').append(
         this._renderTable($$)
       ),
-      this._renderOverlay($$)
+      this._renderOverlay($$),
+      this._renderCellEditor($$)
     )
-    el.on('wheel', this._onWheel)
+    el.on('wheel', this._onWheel, this, { passive: true })
       .on('mousedown', this._onMousedown)
       .on('mousemove', this._onMousemove)
       .on('dblclick', this._onDblclick)
@@ -77,11 +91,12 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _renderBody($$) {
+    const state = this.state
     const sheet = this.props.sheet
     const data = sheet.find('data')
     const rows = data.children
     let body = $$('tbody').ref('body')
-    for (let i = this.state.startRow; i <= this.state.endRow; i++) {
+    for (let i = state.startRow; i <= state.endRow; i++) {
       const row = rows[i]
       let tr = $$('tr').ref(String(i))
       tr.append(
@@ -89,20 +104,28 @@ export default class SpreadsheetComponent extends CustomSurface {
           .on('mousedown', this._onRowMousedown)
       )
       let cells = row.children
-      for (let j = this.state.startCol; j <= this.state.endCol; j++) {
+      for (let j = state.startCol; j <= state.endCol; j++) {
         const cell = cells[j]
-        tr.append(
-          $$('td').append(
-            $$(SpreadsheetCell, { node: cell }).ref(cell.id)
-          ).attr({
+        let td = $$('td')
+          .append($$(SpreadsheetCell, { node: cell }).ref(cell.id))
+          .attr({
             'data-row': i,
             'data-col': j
-          }).ref(`${i}_${j}`)
-        )
+          })
+          .ref(`${i}_${j}`)
+        tr.append(td)
       }
       body.append(tr)
     }
     return body
+  }
+
+  _renderCellEditor($$) {
+    return $$(SpreadsheetCellEditor, { sheet: this.props.sheet })
+      .ref('cellEditor')
+      .css('display', 'none')
+      .on('enter', this._onCellEditorEnter)
+      .on('escape', this._onCellEditorEscape)
   }
 
   _renderOverlay($$) {
@@ -169,7 +192,7 @@ export default class SpreadsheetComponent extends CustomSurface {
         let lr = this._getCell(lrRow, lrCol)
 
         Object.assign(styles, this._computeAnchorStyles(anchor))
-        Object.assign(styles, this._computeRangeStyles(ul, lr))
+        Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
         break
       }
       case 'columns': {
@@ -186,7 +209,7 @@ export default class SpreadsheetComponent extends CustomSurface {
         let lr = this._getCell(lrRow, lrCol)
 
         Object.assign(styles, this._computeAnchorStyles(anchor))
-        Object.assign(styles, this._computeRangeStyles(ul, lr))
+        Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
         break
       }
       case 'rows': {
@@ -203,7 +226,7 @@ export default class SpreadsheetComponent extends CustomSurface {
         let lr = this._getCell(lrRow, lrCol)
 
         Object.assign(styles, this._computeAnchorStyles(anchor))
-        Object.assign(styles, this._computeRangeStyles(ul, lr))
+        Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
         break
       }
       default:
@@ -226,7 +249,7 @@ export default class SpreadsheetComponent extends CustomSurface {
     return styles
   }
 
-  _computeRangeStyles(ul, lr) {
+  _computeRangeStyles(ul, lr, mode) {
     let styles = {
       range: { visibility: 'hidden' },
       columns: { visibility: 'hidden' },
@@ -248,17 +271,22 @@ export default class SpreadsheetComponent extends CustomSurface {
       styles.range.visibility = 'visible'
 
       let cornerRect = getRelativeBoundingRect(this.refs.corner.el, this.el)
-      styles.columns.left = ulRect.left
-      styles.columns.top = cornerRect.top
-      styles.columns.height = cornerRect.height
-      styles.columns.width = lrRect.left + lrRect.width - styles.columns.left
-      styles.columns.visibility = 'visible'
 
-      styles.rows.top = ulRect.top
-      styles.rows.left = cornerRect.left
-      styles.rows.width = cornerRect.width
-      styles.rows.height = lrRect.top + lrRect.height - styles.rows.top
-      styles.rows.visibility = 'visible'
+      if (mode === 'range' || mode === 'columns') {
+        styles.columns.left = ulRect.left
+        styles.columns.top = cornerRect.top
+        styles.columns.height = cornerRect.height
+        styles.columns.width = lrRect.left + lrRect.width - styles.columns.left
+        styles.columns.visibility = 'visible'
+      }
+
+      if (mode === 'range' || mode === 'rows') {
+        styles.rows.top = ulRect.top
+        styles.rows.left = cornerRect.left
+        styles.rows.width = cornerRect.width
+        styles.rows.height = lrRect.top + lrRect.height - styles.rows.top
+        styles.rows.visibility = 'visible'
+      }
     }
 
     return styles
@@ -276,7 +304,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onWheel(e) {
     e.stopPropagation()
-    e.preventDefault()
+    // e.preventDefault()
     let deltaX = _step(e.deltaX)
     let deltaY = _step(e.deltaY)
     if (deltaX || deltaY) {
@@ -290,6 +318,9 @@ export default class SpreadsheetComponent extends CustomSurface {
     // console.log('_onMousedown', e)
     e.stopPropagation()
     e.preventDefault()
+    if (this._isEditing) {
+      this._closeCellEditor()
+    }
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
         once: true
@@ -345,9 +376,12 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _onColumnMousedown(e) {
-    console.log('_onColumnMousedown', e)
+    // console.log('_onColumnMousedown', e)
     e.preventDefault()
     e.stopPropagation()
+    if (this._isEditing) {
+      this._closeCellEditor()
+    }
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
         once: true
@@ -360,9 +394,12 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _onRowMousedown(e) {
-    console.log('_onRowMousedown', e)
+    // console.log('_onRowMousedown', e)
     e.preventDefault()
     e.stopPropagation()
+    if (this._isEditing) {
+      this._closeCellEditor()
+    }
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
         once: true
@@ -375,7 +412,10 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _onDblclick(e) {
-    console.log('_onDblclick', e)
+    const [rowIdx, colIdx] = this._getCellPositionForXY(e.clientX, e.clientY, 'strict')
+    if (rowIdx > -1 && colIdx > -1) {
+      this._openCellEditor(rowIdx, colIdx)
+    }
   }
 
   _getCustomResourceId() {
@@ -420,21 +460,26 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
   }
 
-  _getCellPositionForXY(clientX, clientY) {
-    let rowIdx = this._getRowIndex(clientY)
-    let colIdx = this._getColumnIndex(clientX)
+  _getCellPositionForXY(clientX, clientY, strict) {
+    let rowIdx = this._getRowIndex(clientY, strict)
+    let colIdx = this._getColumnIndex(clientX, strict)
     return [rowIdx, colIdx]
   }
 
-  _getRowIndex(clientY) {
+  _getRowIndex(clientY, strict) {
     const state = this.state
     let offset = this.el.getOffset()
     let y = clientY - offset.top
     // for now we always search without any trickery
     // could be improved using caching or a tree datastructure to find positions more quickly
-    let rowIdx = state.startRow
-    let rowEls = this.refs.body.el.children
+    let bodyEl = this.refs.body.el
+    let rowEls = bodyEl.children
+    if (strict) {
+      let rect = getRelativeBoundingRect(bodyEl, this.el)
+      if (rect.top > y || rect.top + rect.height < y) return -1
+    }
     let i = 0
+    let rowIdx = state.startRow
     while (rowIdx < state.endRow) {
       let rect = getRelativeBoundingRect(rowEls[i], this.el)
       if (rect.top+rect.height > y) break
@@ -446,15 +491,19 @@ export default class SpreadsheetComponent extends CustomSurface {
     return rowIdx
   }
 
-  _getColumnIndex(clientX) {
+  _getColumnIndex(clientX, strict) {
     const state = this.state
     let offset = this.el.getOffset()
     let x = clientX - offset.left
     let colEls = this.refs.headRow.el.children
-    let colIdx = state.startCol
     let i = 1
+    let colIdx = state.startCol
     while (colIdx < state.endCol) {
       let rect = getRelativeBoundingRect(colEls[i], this.el)
+      if (strict) {
+        if (i === 1 && rect.left > x) return -1
+        if (i === state.endCol-1 && rect.left+rect.width < x) return -1
+      }
       if (rect.left+rect.width > x) break
       colIdx++
       i++
@@ -462,6 +511,54 @@ export default class SpreadsheetComponent extends CustomSurface {
     // make sure that we provide indexes within the current viewport
     colIdx = Math.max(state.startCol, Math.min(state.endCol, colIdx))
     return colIdx
+  }
+
+  _openCellEditor(rowIdx, colIdx) {
+    const cellEditor = this.refs.cellEditor
+    let td = this._getCell(rowIdx, colIdx)
+    let rect = getRelativeBoundingRect(td.el, this.el)
+    let cellComp = td.getChildAt(0)
+    let cell = cellComp.props.node
+    cellEditor.extendProps({ node: cell })
+    cellEditor.css({
+      display: 'block',
+      top: rect.top,
+      left: rect.left,
+      "min-width": rect.width+'px',
+      "min-height": rect.height+'px'
+    })
+    cellEditor.focus()
+    this._isEditing = true
+    this._cell = cell
+  }
+
+  _closeCellEditor() {
+    const cellEditor = this.refs.cellEditor
+    const cell = this._cell
+    cellEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
+    this.context.editorSession.transaction((tx) => {
+      tx.set(cell.getTextPath(), cellEditor.getValue())
+    })
+    this._isEditing = false
+    this._cell = null
+  }
+
+  _onCellEditorEnter() {
+    this._closeCellEditor()
+  }
+
+  _onCellEditorEscape() {
+    const cellEditor = this.refs.cellEditor
+    const cell = this._cell
+    cellEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
+    this._isEditing = false
+    this._cell = null
   }
 
 }
@@ -472,7 +569,8 @@ function _step(x) {
   let abs = Math.abs(x)
   if (abs > EPSILON) {
     let sgn = Math.sign(x)
-    return sgn * Math.ceil(abs / 20)
+    // return sgn * Math.ceil(abs / 20)
+    return sgn
   }
   return 0
 }

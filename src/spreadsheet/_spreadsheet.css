@@ -77,3 +77,13 @@
   position: absolute;
   background: rgba(0,0,0,0.3)
 }
+
+.sc-spreadsheet-cell-editor {
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: #fff;
+  border: 2px solid blue;
+  cursor: text;
+}
