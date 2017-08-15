@@ -51,7 +51,7 @@
   overflow-wrap: break-word;
   border: 1px solid #ddd;
   position: relative;
-  padding: 10px;
+  padding: 2px 5px;
 }
 
 .sc-spreadsheet > .se-overlay {
@@ -86,4 +86,5 @@
   background: #fff;
   border: 2px solid blue;
   cursor: text;
+  padding: 2px 5px;
 }
