@@ -499,8 +499,15 @@ export default class SpreadsheetComponent extends CustomSurface {
       case keys.DOWN:
         this._nav(1, 0, e.shiftKey)
         break
-      case keys.ENTER:
-        console.log('enter')
+      case keys.ENTER: {
+        let data = this._getSelection()
+        if (data.anchorRow === data.focusRow && data.anchorCol === data.focusCol) {
+          this._openCellEditor(data.anchorRow, data.anchorCol)
+        } else {
+          this._nav(1, 0)
+        }
+        break
+      }
         break
       default:
         //
