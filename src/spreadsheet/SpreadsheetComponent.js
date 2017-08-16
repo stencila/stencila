@@ -463,6 +463,10 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
     this._isEditing = false
     this._cell = null
+
+    // HACK: resetting the selection
+    const editorSession = this.context.editorSession
+    editorSession.setSelection(editorSession.getSelection())
   }
 
   _onContextMenu(e) {
