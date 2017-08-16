@@ -488,16 +488,16 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onKeyDown(e) {
     switch (e.keyCode) {
       case keys.LEFT:
-        console.log('left')
+        this._nav(0, -1, e.shiftKey)
         break
       case keys.RIGHT:
-        console.log('right')
+        this._nav(0, 1, e.shiftKey)
         break
       case keys.UP:
-        console.log('up')
+        this._nav(-1, 0, e.shiftKey)
         break
       case keys.DOWN:
-        console.log('down')
+        this._nav(1, 0, e.shiftKey)
         break
       case keys.ENTER:
         console.log('enter')
@@ -505,6 +505,30 @@ export default class SpreadsheetComponent extends CustomSurface {
       default:
         //
     }
+  }
+
+  _getSelection() {
+    return this.context.editorSession.getSelection().data
+  }
+
+  _nav(dr, dc, shift) {
+    let data = this._getSelection()
+    // TODO: move viewport if necessary
+    if (!shift) {
+      data.anchorRow += dr
+      data.anchorCol += dc
+      data.focusRow = data.anchorRow
+      data.focusCol = data.anchorCol
+    } else {
+      data.focusRow += dr
+      data.focusCol += dc
+    }
+    this.context.editorSession.setSelection({
+      type: 'custom',
+      customType: 'sheet',
+      data,
+      surfaceId: this.getId()
+    })
   }
 
   _getCustomResourceId() {
