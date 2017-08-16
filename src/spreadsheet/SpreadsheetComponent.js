@@ -1,4 +1,7 @@
-import { CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement, Component } from 'substance'
+import {
+  CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement,
+  Component, keys
+} from 'substance'
 import SpreadsheetLayout from './SpreadsheetLayout'
 import SpreadsheetCell from './SpreadsheetCell'
 import SpreadsheetCellEditor from './SpreadsheetCellEditor'
@@ -49,6 +52,9 @@ export default class SpreadsheetComponent extends CustomSurface {
   render($$) {
     let el = $$('div').addClass('sc-spreadsheet')
     el.append(
+      $$('textarea').addClass('se-box').ref('box')
+        .css({ position: 'absolute', width: 0, height: 0 })
+        .on('keydown', this._onKeyDown),
       $$('div').addClass('se-content').append(
         this._renderTable($$)
       ),
@@ -162,6 +168,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   rerenderDOMSelection() {
     // console.log('SpreadsheetComponent.rerenderDOMSelection()')
     this._positionSelection()
+    this.refs.box.el.focus()
   }
 
   _positionSelection() {
@@ -476,6 +483,28 @@ export default class SpreadsheetComponent extends CustomSurface {
     e.preventDefault()
     e.stopPropagation()
     this._showColumnMenu(e)
+  }
+
+  _onKeyDown(e) {
+    switch (e.keyCode) {
+      case keys.LEFT:
+        console.log('left')
+        break
+      case keys.RIGHT:
+        console.log('right')
+        break
+      case keys.UP:
+        console.log('up')
+        break
+      case keys.DOWN:
+        console.log('down')
+        break
+      case keys.ENTER:
+        console.log('enter')
+        break
+      default:
+        //
+    }
   }
 
   _getCustomResourceId() {
