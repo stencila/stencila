@@ -1,4 +1,4 @@
-import { CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement } from 'substance'
+import { CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement, Component } from 'substance'
 import SpreadsheetLayout from './SpreadsheetLayout'
 import SpreadsheetCell from './SpreadsheetCell'
 import SpreadsheetCellEditor from './SpreadsheetCellEditor'
@@ -104,7 +104,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       tr.append(
         $$('th').text(String(i))
           .on('mousedown', this._onRowMousedown)
-          .on('mousedown', this._onRowContextMenu)
+          .on('contextmenu', this._onRowContextMenu)
       )
       for (let j = state.startCol; j <= state.endCol; j++) {
         const cell = sheet.getCell(i, j)
@@ -142,11 +142,19 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _renderRowContextMenu($$) {
-
+    let rowMenu = $$(RowMenu).ref('rowMenu').addClass('se-context-menu')
+    rowMenu.css({
+      display: 'none'
+    })
+    return rowMenu
   }
 
   _renderColumnContextMenu($$) {
-
+    let colMenu = $$(ColumnMenu).ref('columnMenu').addClass('se-context-menu')
+    colMenu.css({
+      display: 'none'
+    })
+    return colMenu
   }
 
     // called by SurfaceManager to render the selection plus setting the
@@ -328,6 +336,9 @@ export default class SpreadsheetComponent extends CustomSurface {
     // console.log('_onMousedown', e)
     e.stopPropagation()
     e.preventDefault()
+
+    this._hideMenus()
+
     if (this._isEditing) {
       this._closeCellEditor()
     }
@@ -392,6 +403,7 @@ export default class SpreadsheetComponent extends CustomSurface {
     // console.log('_onColumnMousedown', e)
     e.preventDefault()
     e.stopPropagation()
+    this._hideMenus()
     if (this._isEditing) {
       this._closeCellEditor()
     }
@@ -410,6 +422,7 @@ export default class SpreadsheetComponent extends CustomSurface {
     // console.log('_onRowMousedown', e)
     e.preventDefault()
     e.stopPropagation()
+    this._hideMenus()
     if (this._isEditing) {
       this._closeCellEditor()
     }
@@ -437,7 +450,6 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onCellEditorEscape() {
     const cellEditor = this.refs.cellEditor
-    const cell = this._cell
     cellEditor.css({
       display: 'none',
       top: 0, left: 0
@@ -453,17 +465,18 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _onRowContextMenu(e) {
-    // console.log('_onRowContextMenu()', e)
+    console.log('_onRowContextMenu()', e)
     e.preventDefault()
     e.stopPropagation()
+    this._showRowMenu(e)
   }
 
   _onColumnContextMenu(e) {
     // console.log('_onColumnContextMenu()', e)
     e.preventDefault()
     e.stopPropagation()
+    this._showColumnMenu(e)
   }
-
 
   _getCustomResourceId() {
     return this.props.sheet.getName()
@@ -593,6 +606,86 @@ export default class SpreadsheetComponent extends CustomSurface {
     this._cell = null
   }
 
+  _showRowMenu(e) {
+    this._hideMenus()
+    const rowMenu = this.refs.rowMenu
+    let offset = this.el.getOffset()
+    rowMenu.css({
+      display: 'block',
+      top: e.clientY - offset.top,
+      left: e.clientX - offset.left
+    })
+  }
+
+  _showColumnMenu(e) {
+    this._hideMenus()
+    const columnMenu = this.refs.columnMenu
+    let offset = this.el.getOffset()
+    columnMenu.css({
+      display: 'block',
+      top: e.clientY - offset.top,
+      left: e.clientX - offset.left
+    })
+  }
+
+  _hideMenus() {
+    this.refs.rowMenu.css('display', 'none')
+    this.refs.columnMenu.css('display', 'none')
+  }
+
+}
+
+class RowMenu extends Component {
+
+  render($$) {
+    let el = $$('div').addClass('sc-spreadsheet-row-menu')
+    el.append($$('div').append('insert above').on('click', this._onInsertAbove))
+    el.append($$('div').append('insert below').on('click', this._onInsertBelow))
+    el.on('mousedown', _prevent)
+    return el
+  }
+
+  _onInsertAbove(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Insert above')
+  }
+
+  _onInsertBelow(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Insert below')
+  }
+
+}
+
+class ColumnMenu extends Component {
+
+  render($$) {
+    let el = $$('div').addClass('sc-spreadsheet-columnd-menu')
+    el.append($$('div').append('insert left').on('click', this._onInsertLeft))
+    el.append($$('div').append('insert right').on('click', this._onInsertRight))
+    el.on('mousedown', _prevent)
+    return el
+  }
+
+  _onInsertLeft(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Insert left')
+  }
+
+  _onInsertRight(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Insert right')
+  }
+
+}
+
+function _prevent(e) {
+  e.preventDefault()
+  e.stopPropagation()
 }
 
 // signum with epsilon
