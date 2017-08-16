@@ -12,10 +12,11 @@
   height: 100%;
   overflow: hidden;
   cursor: default;
+  font-size: 13px;
 }
 
 .sc-spreadsheet .se-corner {
-  background: #ccc;
+  background: #d2d2d2;
   border-right: 2px solid #aaa;
   border-bottom: 2px solid #aaa;
 }
@@ -32,8 +33,8 @@
 }
 
 .sc-spreadsheet th {
-  background: #ccc;
-  border: 1px solid #aaa
+  background: #dddddd;
+  border: 1px solid #C1C1C1
 }
 
 /* default column width */
@@ -49,7 +50,7 @@
 .sc-spreadsheet td {
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  border: 1px solid #ddd;
+  border: 1px solid #d5d5d5;
   position: relative;
   padding: 2px 5px;
 }
@@ -63,19 +64,19 @@
 
 .sc-spreadsheet > .se-overlay > .se-selection-anchor {
   position: absolute;
-  border: solid 2px blue;
+  border: solid 2px #2684FC;
 }
 
 .sc-spreadsheet > .se-overlay > .se-selection-range {
   position: absolute;
-  border: solid 1px blue;
-  background: rgba(0, 0, 255, 0.1)
+  border: solid 1px #2684FC;
+  background: rgba(38, 132, 252, 0.1)
 }
 
 .sc-spreadsheet > .se-overlay > .se-selection-columns,
 .sc-spreadsheet > .se-overlay > .se-selection-rows {
   position: absolute;
-  background: rgba(0,0,0,0.3)
+  background: rgba(0,0,0,0.05)
 }
 
 .sc-spreadsheet-cell-editor {
@@ -84,7 +85,7 @@
   top: 0px;
   left: 0px;
   background: #fff;
-  border: 2px solid blue;
+  border: 2px solid #2684FC;
   cursor: text;
   padding: 2px 5px;
 }
