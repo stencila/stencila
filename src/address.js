@@ -29,7 +29,7 @@
  * @return {string} - The long form of the address
  */
 export function long (address) {
-  if (address.match(/^(new|id|name|lib|file|http|https|git|gh):\/\//)) {
+  if (address.match(/^([a-z]+):\/\//)) {
     return address
   } else if (address[0] === '+') {
     return 'new://' + address.substring(1)
