@@ -23,7 +23,8 @@ export function request (method, url, data) {
 
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
-        resolve(JSON.parse(request.responseText))
+        let result = request.responseText ? JSON.parse(request.responseText) : null
+        resolve(result)
       } else {
         reject(`${request.status}:${request.responseText}`)
       }
