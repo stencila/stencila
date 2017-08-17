@@ -453,6 +453,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onCellEditorEnter() {
     this._closeCellEditor()
+    this._nav(1, 0)
   }
 
   _onCellEditorEscape() {
@@ -490,31 +491,36 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _onKeyDown(e) {
+    let handled = false
     switch (e.keyCode) {
       case keys.LEFT:
         this._nav(0, -1, e.shiftKey)
+        handled = true
         break
       case keys.RIGHT:
         this._nav(0, 1, e.shiftKey)
+        handled = true
         break
       case keys.UP:
         this._nav(-1, 0, e.shiftKey)
+        handled = true
         break
       case keys.DOWN:
         this._nav(1, 0, e.shiftKey)
+        handled = true
         break
       case keys.ENTER: {
         let data = this._getSelection()
-        if (data.anchorRow === data.focusRow && data.anchorCol === data.focusCol) {
-          this._openCellEditor(data.anchorRow, data.anchorCol)
-        } else {
-          this._nav(1, 0)
-        }
+        this._openCellEditor(data.anchorRow, data.anchorCol)
+        handled = true
         break
       }
-        break
       default:
         //
+    }
+    if (handled) {
+      e.preventDefault()
+      e.stopPropagation()
     }
   }
 

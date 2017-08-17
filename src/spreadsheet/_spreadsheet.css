@@ -1,9 +1,26 @@
 .sc-spreadsheet-page {
-  min-width: 800px;
-  min-height: 800px;
-  margin: 0 auto;
-  padding: 100px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
 }
+
+.sc-spreadsheet-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sc-spreadsheet-editor > .sc-spreadsheet {
+  flex: 1;
+}
+
+.sc-spreadsheet-editor > .se-status-bar {
+  width: 100%;
+  height: 32px;
+}
+
 
 .sc-spreadsheet {
   position: relative;
