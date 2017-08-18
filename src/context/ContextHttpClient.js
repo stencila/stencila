@@ -50,7 +50,9 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   hasFunction (name) {
-    return PUT(this.url + '!hasFunction', {name: name})
+    // Until implemented in all external contexts, skip this
+    // return PUT(this.url + '!hasFunction', {name: name})
+    return Promise.resolve(false)
   }
 
   /**
@@ -59,7 +61,9 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   callFunction (name, inputs, namedInputs, options) {
-    return PUT(this.url + '!callFunction', {name: name, inputs: inputs, namedInputs: namedInputs, options: options})
+    // Until implemented in all external contexts, skip this
+    // return PUT(this.url + '!callFunction', {name: name, inputs: inputs, namedInputs: namedInputs, options: options})
+    return Promise.resolve(null)
   }
 
   /**

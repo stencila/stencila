@@ -1,7 +1,9 @@
+import {split as addressSplit} from '../address'
 import { GET, POST, PUT } from '../util/requests'
 import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
-import MemoryBuffer from '../backend/MemoryBuffer'
+import StorerHttpClient from '../storers/StorerHttpClient'
+import MemoryStorer from '../storers/MemoryStorer'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
@@ -39,13 +41,13 @@ export default class Host {
   }
 
   /**
-   * Create a new instance
+   * Create a new instance of a resource
    *
    * @param  {string} type - Name of class of instance
    * @param  {string} name - Name for new instance
    * @return {Promise} Resolves to an instance
    */
-  post (type, name) {
+  create (type, args) {
     // Search for the type amongst peers or peers-of-peers
     let find = (peersOfPeers) => {
       for (let url of Object.keys(this._peers)) {
@@ -79,35 +81,51 @@ export default class Host {
       }
     }
 
-    // Request a new instance from peer (or peer or peer)
-    let request = (url, spec) => {
-      return POST(url + '/' + spec.name, { name: name }).then(address => {
-        let instance
-        if (spec.base === 'Context') {
-          instance = new ContextHttpClient(url + '/' + address)
-        } else {
-          throw new Error(`Unsupported type: %{path}`)
-        }
+    // Attempt to find resource type amongst...
+    let found = find(false) //...peers
+    if (!found) found = find(true) //...peers of peers
+    if (found) {
+      let {url, spec} = found
+      return POST(url + '/' + spec.name, args).then(address => {
+        let Client
+        if (spec.base === 'Context') Client = ContextHttpClient
+        else if (spec.base === 'Storer') Client = StorerHttpClient
+        else throw new Error(`Unsupported type: %{path}`)
+
+        let instance = new Client(url + '/' + address)
         this._instances[address] = instance
-        return instance
+        return {address, instance}
       })
     }
 
-    // Attempt to find type
-    let found = find(false)
-    if (!found) found = find(true)
-    if (found) return request(found.url, found.spec)
-
-    // Fallback to providing an in-browser Javascript context
-    // (if one is available in a Node.js peer then it will be used instead)
-    if (type === 'JsContext' || type === 'js') {
-      let instance = new JsContext()
-      let address = `name://${name || Math.floor((1 + Math.random()) * 1e6).toString(16)}`
+    // Fallback to providing an in-browser instances of resources where available
+    let Class
+    if (type === 'JsContext' || type === 'js') Class = JsContext
+    else if (type === 'MemoryStorer') Class = MemoryStorer
+    if (Class) {
+      let instance = new Class(args)
+      const name = () => {
+        let number = (this._counts[type] || 0) + 1
+        this._counts[type] = number
+        return `${type[0].toLowerCase()}${type.substring(1)}${number}`
+      }
+      let address = `local://${name(type)}`
       this._instances[address] = instance
-      return Promise.resolve(instance)
+      return Promise.resolve({address,instance})
     }
 
     return Promise.reject(new Error(`No peers able to provide: ${type}`))
+  }
+
+  createStorer (address) {
+    let {scheme, path, version} = addressSplit(address)
+    let storer = {
+      'memory': 'MemoryStorer',
+      'file': 'FileStorer',
+      'github': 'GithubStorer'
+    }[scheme]
+    if (!storer) return Promise.reject(new Error(`Unknown storer scheme: ${scheme}`))
+    else return this.create(storer, { path: path, version: version })
   }
 
   /**
@@ -175,41 +193,4 @@ export default class Host {
     }
     if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
   }
-
-  // Experimental
-  // Implements methods of `Backend` so that this `Host` can serve as a backend
-  // Towards merging these two classes
-
-  getBuffer(address) {
-    // TODO this PUTs to the current server but it could be some other peer
-    return PUT(`/${address}!buffer`).then(data => {
-      let buffer = new MemoryBuffer()
-
-      buffer.writeFile('stencila-manifest.json', 'application/json', JSON.stringify({
-        type: 'document',
-        title: 'Untitled',
-        createdAt: '2017-03-10T00:03:12.060Z',
-        updatedAt: '2017-03-10T00:03:12.060Z',
-        storage: {
-          storerType: "filesystem",
-          contentType: "html",
-          archivePath: "",
-          mainFilePath: "index.html"
-        }
-      }))
-
-      buffer.writeFile('index.html', 'text/html', data['index.html'])
-
-      return buffer
-    })
-  }
-
-  storeBuffer(/*buffer*/) {
-    return Promise.resolve()
-  }
-
-  updateManifest(/* documentId, props */) {
-    return Promise.resolve()
-  }
-
 }

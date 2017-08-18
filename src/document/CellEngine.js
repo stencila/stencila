@@ -18,10 +18,7 @@ class CellEngine extends Engine {
     this._cells = {}
     this._inputs = {}
 
-    // TODO : temporary, remove!
-    this._contexts = {
-      'js': new JsContext()
-    }
+    this._contexts = {}
 
     // console.log('INITIALIZING CELL ENGINE')
     forEach(this.doc.getNodes(), (node) => {
@@ -186,15 +183,18 @@ class CellEngine extends Engine {
   _getContext(name) {
     // Attempt to get context from those already known to this
     // host using it's name
-    return this.host.get(`name://${name}`).then(context => {
+    return Promise.resolve().then(() => {
+      let context = this._contexts[name]
       if (context) return context
       else {
         // Determine the type of context from the context name
         let match = name.match(/([a-zA-Z]+)([\d_].+)?/)
         if (match) {
           let type = match[1]
-          return this.host.post(type, name).then(context => {
-            return context
+          return this.host.create(type).then(result => {
+            let {instance} = result
+            this._contexts[name] = instance
+            return instance
           }).catch(() => {
             return null
           })
