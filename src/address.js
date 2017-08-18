@@ -20,10 +20,7 @@
  * 'file:///current/directory/report/intro.md'
  *
  * long('stats/t-test.md')
- * 'lib://stats/t-test.md'
- *
- * long()
- * 'id://fa4cf2c5cff5b576990feb96f25c98e6111990c873010855a53bcba979583836'
+ * 'local://stats/t-test.md'
  *
  * @param {string} address - The address to lengthen
  * @return {string} - The long form of the address
@@ -54,7 +51,7 @@ export function long (address) {
         throw new Error(`Unknown scheme alias "${alias}"`)
       }
     } else {
-      return 'lib://' + address
+      return 'local://' + address
     }
   }
 }
