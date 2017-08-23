@@ -32,7 +32,10 @@ export default class Host {
     let peers = options.peers
     if (peers) {
       // Add the initial peers
-      for (let url of peers) this.pokePeer(url)
+      for (let url of peers) {
+        if (url === 'origin') url = options.origin
+        this.pokePeer(url)
+      }
     }
     // Discover other peers
     if (options.discover) {
@@ -117,6 +120,12 @@ export default class Host {
     return Promise.reject(new Error(`No peers able to provide: ${type}`))
   }
 
+  /**
+   * Create a storer based on the address
+   * 
+   * @param  {String} address The address of the storer
+   * @return {Storer}         Storer instance
+   */
   createStorer (address) {
     let {scheme, path, version} = addressSplit(address)
     let storer = {
@@ -125,7 +134,19 @@ export default class Host {
       'github': 'GithubStorer'
     }[scheme]
     if (!storer) return Promise.reject(new Error(`Unknown storer scheme: ${scheme}`))
-    else return this.create(storer, { path: path, version: version })
+    else return this.create(storer, { path: path, version: version }).then(result => result.instance)
+  }
+
+  /**
+   * Create a buffer storer
+   *
+   * The type of storer to be used as a buffer may depend upon the 
+   * storer being used. Currently always use a `MemoryStorer`.
+   *
+   * @return {Storer} A storer to be used as a buffer
+   */
+  createBuffer(/*storer*/) {
+    return Promise.resolve(new MemoryStorer())
   }
 
   /**
