@@ -3,6 +3,16 @@ import beautify from 'js-beautify'
 
 export default class DocumentHTMLConverter {
 
+  /**
+   * Is a file name to be converted using this converter? 
+   * 
+   * @param  {string} path - Name of file
+   * @return {boolean} - Is the file name matched?
+   */
+  static match (path, storer) {
+    return path.slice(-5) === '.html'
+  }
+
   /*
     Read a storer (source file layout) and store to a buffer (internal Stencila
     file format)
@@ -13,49 +23,36 @@ export default class DocumentHTMLConverter {
     TODO: Binaries could be included, which we should also consider.
   */
 
-  importDocument(storer, buffer) {
-    let mainFilePath = storer.getMainFilePath()
-    let manifest = {
-      "type": "document",
-      "storage": {
-        "external": storer.isExternal(),
-        "storerType": storer.getType(),
-        "archivePath": storer.getArchivePath(),
-        "mainFilePath": mainFilePath,
-        "contentType": "html",
-      },
-      "createdAt": new Date(),
-      "updatedAt": new Date()
-    }
-    return storer.readFile(
-      mainFilePath,
-      'text/html'
-    ).then((html) => {
-      manifest.title = this._extractTitle(html)
-      return buffer.writeFile(
-        'index.html',
-        'text/html',
-        html
-      )
-    }).then(() => {
-      return buffer.writeFile(
-        'stencila-manifest.json',
-        'application/json',
-        JSON.stringify(manifest, null, '  ')
-      )
-    }).then(() => {
-      return manifest
+  import(path, storer, buffer) {
+    return storer.readFile(path).then((html) => {
+      html = html || `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title></title>
+          </head>
+          <body>
+            <main>
+              <div id="data" data-format="html">
+                <div class="content"><p>Start here!</p></div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `
+      return buffer.writeFile('index.html', html).then(() => {
+        return html
+      })
     })
   }
 
   /*
     Takes a buffer and writes back to the storer
   */
-  exportDocument(buffer, storer, options = {}) {
+  export(path, storer, buffer, options = {}) {
     if (options.beautify !== false) options.beautify = true
 
-    let mainFilePath = storer.getMainFilePath()
-    return buffer.readFile('index.html', 'text/html').then((html) => {
+    return buffer.readFile('index.html').then((html) => {
       // Remove the `data-id` attribute that is added by the Substance exporter
       // to each node element
       html = html.replace(/ data-id=".+?"/g, '')
@@ -76,17 +73,7 @@ export default class DocumentHTMLConverter {
           'end_with_newline': true
         })
       }
-      return storer.writeFile(mainFilePath, 'text/html', html)
+      return storer.writeFile(path, html)
     })
   }
-
-  _extractTitle(html) {
-    var htmlDoc = DefaultDOMElement.parseHTML(html)
-    let titleEl = htmlDoc.find('div[data-title]')
-    return titleEl ? titleEl.textContent : 'Untitled'
-  }
-}
-
-DocumentHTMLConverter.match = function(fileName) {
-  return fileName.indexOf('.html') >= 0
 }
