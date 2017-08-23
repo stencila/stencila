@@ -6,14 +6,15 @@ import JsContext from '../js-context/JsContext'
 export default
 class CellEngine extends Engine {
 
-  constructor(editorSession, options = {}) {
+  constructor(editorSession, host, dir, options = {}) {
     super(Object.assign({
       waitForIdle: 500
     }, options))
 
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
-    this.host = editorSession.getContext().host
+    this.host = host
+    this.dir = dir
 
     this._cells = {}
     this._inputs = {}
@@ -191,7 +192,7 @@ class CellEngine extends Engine {
         let match = name.match(/([a-zA-Z]+)([\d_].+)?/)
         if (match) {
           let type = match[1]
-          return this.host.create(type).then(result => {
+          return this.host.create(type, {dir: this.dir}).then(result => {
             let {instance} = result
             this._contexts[name] = instance
             return instance
