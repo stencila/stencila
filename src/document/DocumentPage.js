@@ -5,13 +5,25 @@ import CellEngine from './CellEngine'
 import { importHTML, exportHTML } from './documentConversion'
 import debounce from 'lodash.debounce'
 
+import DocumentHTMLConverter from './DocumentHTMLConverter'
+import DocumentMarkdownConverter from './DocumentMarkdownConverter'
+import DocumentRMarkdownConverter from './DocumentRMarkdownConverter'
+import DocumentJupyterConverter from './DocumentJupyterConverter'
+
+const CONVERTERS = [
+  DocumentHTMLConverter,
+  DocumentMarkdownConverter,
+  DocumentRMarkdownConverter,
+  DocumentJupyterConverter
+]
+
 /*
   Usage:
 
   ```js
   DocumentPage.mount({
-    backend: myBackend,
-    documentId: 'welcome-to-stencila'
+    address: 'memory://welcome-to-stencila',
+    host: new Host(...)
   })
   ```
 */
@@ -19,18 +31,18 @@ export default class DocumentPage extends Component {
 
   constructor(...args) {
     super(...args)
-    this._saveToBufferDebounced = debounce(this._saveToBuffer, 500)
-    this._saveToBufferDebounced.bind(this)
+    this._bufferDebounced = debounce(this._buffer, 500)
+    this._bufferDebounced.bind(this)
   }
 
   didMount() {
-    this._loadBuffer()
+    this._open()
   }
 
   didUpdate(oldProps, oldState) {
     // documentId has changed
     if (oldProps.documentId !== this.props.documentId) {
-      this._loadBuffer()
+      this._open()
     }
     // editor session has changed
     if (oldState.editorSession !== this.state.editorSession) {
@@ -63,10 +75,6 @@ export default class DocumentPage extends Component {
     return el
   }
 
-  getBackend() {
-    return this.props.backend
-  }
-
   getAppState() {
     return this.props.appState
   }
@@ -76,80 +84,121 @@ export default class DocumentPage extends Component {
   }
 
   save() {
-    return this._storeBuffer()
+    return this._save()
   }
 
   discard() {
-    return this._discardBuffer()
+    return this._discard()
   }
 
-  _loadBuffer() {
-    if (this.props.documentId) {
+  /**
+   * Open the document from a Storer
+   */
+  _open() {
+    let address = this.props.address
+    if (address) {
+      let host = this.props.host
       let configurator = new DocumentConfigurator()
-      let backend = this.getBackend()
+      // HACK: timout to allow host to connect to peers
+      // Instead of this could have a host initialize method which then mounts this document
+      setTimeout(() => {
+        host.createStorer(address).then((storer) => {
+          host.createBuffer(storer).then((buffer) => {
+            storer.getInfo().then((info) => {
+              // Get the directory, main file and file list from the storer
+              let {dir, main, files} = info
 
-      backend.getBuffer(this.props.documentId).then((buffer) => {
-        buffer.readFile('index.html', 'text/html').then((docHTML) => {
-          let doc = importHTML(docHTML)
-          let editorSession = new EditorSession(doc, {
-            configurator: configurator,
-            context: {
-              host: this.props.host
-            }
-          })
-          let cellEngine = new CellEngine(editorSession)
+              // If no main file is specified in the storer...
+              if (!main) {
+                // ...find a main file
+                for (let name of ['main', 'index', 'README']) {
+                  let regex = new RegExp('^' + name + '\\.')
+                  let matched = files.filter(item => item.match(regex))
+                  if (matched.length) {
+                    main = matched[0]
+                    break
+                  }
+                }
+                // ...fallback to the first file
+                if (!main) main = files[0]
+              }
 
-          return buffer.readFile('stencila-manifest.json', 'application/json').then((manifest) => {
-            manifest = JSON.parse(manifest)
-            this._updateAppState({
-              hasPendingChanges: manifest.hasPendingChanges,
-              title: manifest.title
-            })
+              // Find the converter for the main file
+              let Converter
+              for (Converter of CONVERTERS) {
+                if (Converter.match(main, storer)) break
+              }
+              if (!Converter) return Promise.reject(new Error(`No converter for main file "${main}"`))
 
-            // enable this to make debugging easier
-            // editorSession._url = this.props.documentId
-            this.setState({
-              buffer,
-              editorSession,
-              cellEngine
+              // Convert the main file...
+              let converter = new Converter()
+              converter.import(main, storer, buffer).then(html => {
+
+                // ...then, instantiate a document, editor and cell engine
+                let doc = importHTML(html)
+                let editorSession = new EditorSession(doc, {
+                  configurator: configurator
+                })
+                let cellEngine = new CellEngine(editorSession, host, dir)
+
+                //return storer.readBuffer('stencila-manifest.json', 'application/json').then((manifest) => {
+                //  manifest = JSON.parse(manifest)
+                //  this._updateAppState({
+                //    hasPendingChanges: manifest.hasPendingChanges,
+                //    title: manifest.title
+                //  })
+
+                  // enable this to make debugging easier
+                  // editorSession._url = this.props.documentId
+                  this.setState({
+                    host,
+                    main,
+                    storer,
+                    buffer,
+                    converter,
+                    editorSession,
+                    cellEngine
+                  })
+                //})
+              })
             })
           })
         })
-      })
+      }, 1000)
     }
+  }
+
+  /*
+    Save current in-memory state of the document to buffer
+  */
+  _buffer() {
+    const editorSession = this.state.editorSession
+    const doc = editorSession.getDocument()
+    const html = exportHTML(doc)
+    //const documentId = this.props.documentId
+
+    const buffer = this.state.buffer
+    return buffer.writeFile('index.html', html).then(() => {
+      //return backend.updateManifest(documentId, {
+      //  hasPendingChanges: true
+      //})
+    })
   }
 
   /*
     Discard pending changes
   */
-  _discardBuffer() {
+  _discard() {
     const buffer = this.state.buffer
-    const backend = this.getBackend()
-    return backend.discardBuffer(buffer, this.props.documentId)
+    return buffer.clear()
   }
 
   /*
     Saves the current buffer to the store backing the document.
   */
-  _storeBuffer() {
-    let documentId = this.props.documentId
-    if (documentId) {
-      let backend = this.getBackend()
-      let appState = this.getAppState()
-      const buffer = this.state.buffer
-      return backend.storeBuffer(buffer).then(() => {
-        if (appState) {
-          this._updateAppState({
-            hasPendingChanges: false
-          })
-        }
-        return backend.updateManifest(documentId, {
-          title: this.getTitle(),
-          hasPendingChanges: false,
-          updatedAt: new Date()
-        })
-      })
-    }
+  _save() {
+    const {converter, main, storer, buffer} = this.state
+    return converter.export(main, storer, buffer)
   }
 
   _registerEvents(editorSession) {
@@ -198,7 +247,7 @@ export default class DocumentPage extends Component {
     this._updateAppState({
       hasPendingChanges: true
     })
-    this._saveToBufferDebounced()
+    this._bufferDebounced()
   }
 
   _updateAppState(props) {
@@ -208,23 +257,4 @@ export default class DocumentPage extends Component {
     }
   }
 
-  /*
-    Save current in-memory state of the document to buffer
-  */
-  _saveToBuffer() {
-    const editorSession = this.state.editorSession
-    const buffer = this.state.buffer
-    const doc = editorSession.getDocument()
-    const html = exportHTML(doc)
-    const documentId = this.props.documentId
-    const backend = this.getBackend()
-
-    return buffer.writeFile('index.html', 'text/html', html).then(() => {
-      return backend.updateManifest(documentId, {
-        hasPendingChanges: true
-      })
-    }).catch((err) => {
-      console.error(err)
-    })
-  }
 }
