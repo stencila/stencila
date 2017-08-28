@@ -4,9 +4,13 @@
  */
 export default class MemoryStorer {
   
-  constructor(files = {}) {
+  constructor(options = {}) {
     this._dir = '/'
-    this._main = null
+    this._main = options.path
+
+    let files
+    if (typeof window !== 'undefined') files = window.STENCILA_MEMORY_STORER_FILES
+    if (!files) files = {}
     this._files = files
   }
 
@@ -20,17 +24,17 @@ export default class MemoryStorer {
 
   getFiles() {
     return new Promise((resolve) => {
-      resolve(this._files.keys())
+      resolve(Object.keys(this._files))
     })
   }
 
   getInfo() {
     return new Promise((resolve) => {
-      return {
+      resolve({
         dir: this._dir,
         main: this._main,
-        files: this._files.keys()
-      }
+        files: Object.keys(this._files)
+      })
     })  
   }
 
