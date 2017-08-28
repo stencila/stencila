@@ -12,6 +12,12 @@ import MemoryStorer from '../storers/MemoryStorer'
 export default class Host {
 
   constructor (options = {}) {
+    /**
+     * Options used to configure this host
+     *
+     * @type {object}
+     */
+    this._options = options
 
     /**
      * Instances managed by this host
@@ -21,26 +27,49 @@ export default class Host {
     this._instances = {}
 
     /**
+     * Counts of instances of each class.
+     * Used for consecutive naming of instances
+     *
+     * @type {object}
+     */
+    this._counts = {}
+
+    /**
      * Peer manifests which detail the capabilities
      * of each of this host's peers
      *
      * @type {object}
      */
     this._peers = {}
+  }
 
-    // Peer seeding
+  /**
+   * Initialize this host
+   *
+   * @return {Promise} Initialisation promise
+   */
+  initialize () {
+    const options = this._options
+
+    let promises = [Promise.resolve()]
+      
+    // Seed with specified peers
     let peers = options.peers
     if (peers) {
       // Add the initial peers
       for (let url of peers) {
         if (url === 'origin') url = options.origin
-        this.pokePeer(url)
+        let promise = this.pokePeer(url)
+        promises.push(promise)
       }
     }
-    // Discover other peers
+
+    // Start discovery of other peers
     if (options.discover) {
       this.discoverPeers(options.discover)
     }
+
+    return Promise.all(promises)
   }
 
   /**
@@ -185,7 +214,7 @@ export default class Host {
    * @param {string} url - A URL for the peer
    */
   pokePeer (url) {
-    GET(url).then(manifest => {
+    return GET(url).then(manifest => {
       // Register if this is a Stencila Host manifest
       if (manifest.stencila) {
         // Remove any query parameters from the peer URL

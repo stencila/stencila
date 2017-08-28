@@ -98,73 +98,61 @@ export default class DocumentPage extends Component {
     let address = this.props.address
     if (address) {
       let host = this.props.host
-      let configurator = new DocumentConfigurator()
-      // HACK: timout to allow host to connect to peers
-      // Instead of this could have a host initialize method which then mounts this document
-      setTimeout(() => {
-        host.createStorer(address).then((storer) => {
-          host.createBuffer(storer).then((buffer) => {
-            storer.getInfo().then((info) => {
-              // Get the directory, main file and file list from the storer
-              let {dir, main, files} = info
+      host.createStorer(address).then((storer) => {
+        host.createBuffer(storer).then((buffer) => {
+          storer.getInfo().then((info) => {
+            // Get the directory, main file and file list from the storer
+            let {dir, main, files} = info
 
-              // If no main file is specified in the storer...
-              if (!main) {
-                // ...find a main file
-                for (let name of ['main', 'index', 'README']) {
-                  let regex = new RegExp('^' + name + '\\.')
-                  let matched = files.filter(item => item.match(regex))
-                  if (matched.length) {
-                    main = matched[0]
-                    break
-                  }
+            // If no main file is specified in the storer...
+            if (!main) {
+              // ...find a main file
+              for (let name of ['main', 'index', 'README']) {
+                let regex = new RegExp('^' + name + '\\.')
+                let matched = files.filter(item => item.match(regex))
+                if (matched.length) {
+                  main = matched[0]
+                  break
                 }
-                // ...fallback to the first file
-                if (!main) main = files[0]
               }
+              // ...fallback to the first file
+              if (!main) main = files[0]
+            }
 
-              // Find the converter for the main file
-              let Converter
-              for (Converter of CONVERTERS) {
-                if (Converter.match(main, storer)) break
+            // Find the converter for the main file
+            let Converter
+            for (let converter of CONVERTERS) {
+              if (converter.match(main, storer)) {
+                Converter = converter
+                break
               }
-              if (!Converter) return Promise.reject(new Error(`No converter for main file "${main}"`))
+            }
+            if (!Converter) return Promise.reject(new Error(`No converter for main file "${main}"`))
 
-              // Convert the main file...
-              let converter = new Converter()
-              converter.import(main, storer, buffer).then(html => {
+            // Convert the main file...
+            let converter = new Converter()
+            converter.import(main, storer, buffer).then(html => {
 
-                // ...then, instantiate a document, editor and cell engine
-                let doc = importHTML(html)
-                let editorSession = new EditorSession(doc, {
-                  configurator: configurator
-                })
-                let cellEngine = new CellEngine(editorSession, host, dir)
+              // ...then, instantiate a document, editor and cell engine
+              let doc = importHTML(html)
+              let editorSession = new EditorSession(doc, {
+                configurator: new DocumentConfigurator()
+              })
+              let cellEngine = new CellEngine(editorSession, host, dir)
 
-                //return storer.readBuffer('stencila-manifest.json', 'application/json').then((manifest) => {
-                //  manifest = JSON.parse(manifest)
-                //  this._updateAppState({
-                //    hasPendingChanges: manifest.hasPendingChanges,
-                //    title: manifest.title
-                //  })
-
-                  // enable this to make debugging easier
-                  // editorSession._url = this.props.documentId
-                  this.setState({
-                    host,
-                    main,
-                    storer,
-                    buffer,
-                    converter,
-                    editorSession,
-                    cellEngine
-                  })
-                //})
+              this.setState({
+                host,
+                main,
+                storer,
+                buffer,
+                converter,
+                editorSession,
+                cellEngine
               })
             })
           })
         })
-      }, 1000)
+      })
     }
   }
 
