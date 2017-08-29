@@ -509,22 +509,32 @@ export default class SpreadsheetComponent extends CustomSurface {
         case 'cell': {
           this._isSelecting = true
           sel.type = 'range'
-          sel.anchorRow = sel.focusRow = target.rowIdx
-          sel.anchorCol = sel.focusCol = target.colIdx
+          sel.focusRow = target.rowIdx
+          sel.focusCol = target.colIdx
+          if (!e.shiftKey) {
+            sel.anchorRow = sel.focusRow
+            sel.anchorCol = sel.focusCol
+          }
           this._setSelection()
           break
         }
         case 'column': {
           this._isSelecting = true
           sel.type = 'columns'
-          sel.anchorCol = sel.focusCol = target.colIdx
+          sel.focusCol = target.colIdx
+          if (!e.shiftKey) {
+            sel.anchorCol = sel.focusCol
+          }
           this._setSelection()
           break
         }
         case 'row': {
           this._isSelecting = true
           sel.type = 'rows'
-          sel.anchorRow = sel.focusRow = target.rowIdx
+          sel.focusRow = target.rowIdx
+          if (!e.shiftKey) {
+            sel.anchorRow = sel.focusRow
+          }
           this._setSelection()
           break
         }
