@@ -7,9 +7,12 @@ class RowsCommand extends Command {
     if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
       let data = sel.data
       if (data.type === 'rows') {
+        let startRow = Math.min(data.anchorRow, data.focusRow)
+        let endRow = Math.max(data.anchorRow, data.focusRow)
+        let nrows = endRow-startRow+1
         return {
           disabled: false,
-          rows: Math.abs(data.anchorRow-data.focusRow)+1
+          startRow, endRow, nrows
         }
       }
     }
@@ -28,9 +31,12 @@ class ColsCommand extends Command {
     if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
       let data = sel.data
       if (data.type === 'columns') {
+        let startCol = Math.min(data.anchorCol, data.focusCol)
+        let endCol = Math.max(data.anchorCol, data.focusCol)
+        let ncolumns = endCol-startCol+1
         return {
           disabled: false,
-          columns: Math.abs(data.anchorCol-data.focusCol)+1
+          startCol, endCol, ncolumns
         }
       }
     }
@@ -45,9 +51,9 @@ class ColsCommand extends Command {
 function insertRows({editorSession, selection, commandState}, mode) {
   const sel = selection.data
   const refRow = mode === 'above' ?
-    Math.min(sel.anchorRow, sel.focusRow) :
-    Math.max(sel.anchorRow, sel.focusRow)+1
-  const nrows = commandState.rows
+    commandState.startRow :
+    commandState.endRow + 1
+  const nrows = commandState.nrows
   editorSession.transaction((tx) => {
     tx.getDocument().createRowsAt(refRow, nrows)
   })
@@ -56,11 +62,25 @@ function insertRows({editorSession, selection, commandState}, mode) {
 function insertCols({editorSession, selection, commandState}, mode) {
   const sel = selection.data
   const refCol = mode === 'left' ?
-    Math.min(sel.anchorCol, sel.focusCol) :
-    Math.max(sel.anchorCol, sel.focusCol)+1
-  const ncols = commandState.columns
+    commandState.startCol :
+    commandState.endCol + 1
+  const ncols = commandState.ncolumns
   editorSession.transaction((tx) => {
     tx.getDocument().createColumnsAt(refCol, ncols)
+  })
+}
+
+function deleteRows({editorSession, selection, commandState}) {
+  const sel = selection.data
+  editorSession.transaction((tx) => {
+    tx.getDocument().deleteRows(commandState.startRow, commandState.endRow)
+  })
+}
+
+function deleteColumns({editorSession, selection, commandState}) {
+  const sel = selection.data
+  editorSession.transaction((tx) => {
+    tx.getDocument().deleteColumns(commandState.startCol, commandState.endCol)
   })
 }
 
@@ -76,6 +96,12 @@ export class InsertRowsBelow extends RowsCommand {
   }
 }
 
+export class DeleteRows extends RowsCommand {
+  execute(params, context) {
+    deleteRows(params)
+  }
+}
+
 export class InsertColumnsLeft extends ColsCommand {
   execute(params, context) {
     insertCols(params, 'left')
@@ -85,5 +111,11 @@ export class InsertColumnsLeft extends ColsCommand {
 export class InsertColumnsRight extends ColsCommand {
   execute(params, context) {
     insertCols(params, 'right')
+  }
+}
+
+export class DeleteColumns extends ColsCommand {
+  execute(params, context) {
+    deleteColumns(params)
   }
 }

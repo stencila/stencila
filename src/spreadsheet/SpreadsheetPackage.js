@@ -3,14 +3,15 @@ import SpreadsheetDocument from './SpreadsheetDocument'
 import SpreadsheetSchema from './SpreadsheetSchema'
 
 import {
-  InsertRowsAbove, InsertRowsBelow,
-  InsertColumnsLeft, InsertColumnsRight
+  InsertRowsAbove, InsertRowsBelow, DeleteRows,
+  InsertColumnsLeft, InsertColumnsRight, DeleteColumns
 } from './SpreadsheetCommands'
 import {
-  InsertRowsAboveTool, InsertRowsBelowTool,
-  InsertColumnsLeftTool, InsertColumnsRightTool,
+  InsertRowsAboveTool, InsertRowsBelowTool, DeleteRowsTool,
+  InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool
  } from './SpreadsheetTools'
- import SpreadsheetDocumentImporter from './SpreadsheetDocumentImporter'
+
+import SpreadsheetDocumentImporter from './SpreadsheetDocumentImporter'
 
 export default {
   name: 'Spreadsheet',
@@ -75,6 +76,16 @@ export default {
     config.addLabel('insert-rows-below', {
       en: 'Insert ${n} below'
     })
+    config.addCommand('delete-rows', DeleteRows, {
+      commandGroup: 'table-row-commands'
+    })
+    config.addTool('delete-rows', DeleteRowsTool)
+    config.addLabel('delete-row', {
+      en: 'Delete row'
+    })
+    config.addLabel('delete-rows', {
+      en: 'Delete rows ${startRow} - ${endRow}'
+    })
 
     config.addCommand('insert-columns-left', InsertColumnsLeft, {
       commandGroup: 'table-column-commands'
@@ -90,6 +101,16 @@ export default {
     config.addTool('insert-columns-right', InsertColumnsRightTool)
     config.addLabel('insert-columns-right', {
       en: 'Insert ${n} right'
+    })
+    config.addCommand('delete-columns', DeleteColumns, {
+      commandGroup: 'table-column-commands'
+    })
+    config.addTool('delete-columns', DeleteColumnsTool)
+    config.addLabel('delete-column', {
+      en: 'Delete column'
+    })
+    config.addLabel('delete-columns', {
+      en: 'Delete columns ${startCol} - ${endCol}'
     })
 
   }

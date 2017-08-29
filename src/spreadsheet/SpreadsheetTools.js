@@ -43,19 +43,16 @@ class ContextMenuItem extends Tool {
   _getTooltipText() {
     return this.getButtonLabel()
   }
-
 }
 
 class InsertRowsTool extends ContextMenuItem {
-
   getButtonLabel() {
     let commandState = this.props.commandState
-    let n = commandState.rows || 1
+    let n = commandState.nrows || 1
     let pattern = this.getLabel(this.labelKey)
     let label = pattern.replace('${n}', n)
     return label
   }
-
 }
 
 export class InsertRowsAboveTool extends InsertRowsTool {
@@ -70,16 +67,29 @@ export class InsertRowsBelowTool extends InsertRowsTool {
   }
 }
 
-class InsertColumnsTool extends ContextMenuItem {
-
+export class DeleteRowsTool extends ContextMenuItem {
   getButtonLabel() {
     let commandState = this.props.commandState
-    let n = commandState.columns || 1
+    let label
+    if (commandState.nrows > 1) {
+      label = this.getLabel('delete-rows')
+        .replace('${startRow}', commandState.startRow)
+        .replace('${endRow}', commandState.endRow)
+    } else {
+      label = this.getLabel('delete-row')
+    }
+    return label
+  }
+}
+
+class InsertColumnsTool extends ContextMenuItem {
+  getButtonLabel() {
+    let commandState = this.props.commandState
+    let n = commandState.ncolumns || 1
     let pattern = this.getLabel(this.labelKey)
     let label = pattern.replace('${n}', n)
     return label
   }
-
 }
 
 export class InsertColumnsLeftTool extends InsertColumnsTool {
@@ -91,5 +101,20 @@ export class InsertColumnsLeftTool extends InsertColumnsTool {
 export class InsertColumnsRightTool extends InsertColumnsTool {
   get labelKey() {
     return 'insert-columns-right'
+  }
+}
+
+export class DeleteColumnsTool extends ContextMenuItem {
+  getButtonLabel() {
+    let commandState = this.props.commandState
+    let label
+    if (commandState.ncolumns > 1) {
+      label = this.getLabel('delete-columns')
+        .replace('${startCol}', commandState.startCol)
+        .replace('${endCol}', commandState.endCol)
+    } else {
+      label = this.getLabel('delete-column')
+    }
+    return label
   }
 }

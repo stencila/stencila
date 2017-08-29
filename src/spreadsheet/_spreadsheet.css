@@ -115,7 +115,6 @@
 
 .sc-spreadsheet .se-context-menu {
   position: absolute;
-  width: 200px;
   background: var(--dark-bg-color);
   border: 1px solid #999;
   padding: 2px 5px;
