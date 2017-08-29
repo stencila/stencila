@@ -1,32 +1,28 @@
 import {
   CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement,
-  Component, keys
+  keys, clone
 } from 'substance'
-import SpreadsheetLayout from './SpreadsheetLayout'
-import SpreadsheetCell from './SpreadsheetCell'
 import SpreadsheetCellEditor from './SpreadsheetCellEditor'
+import TableView from './TableView'
+import SpreadsheetContextMenu from './SpreadsheetContextMenu'
 
 export default class SpreadsheetComponent extends CustomSurface {
 
   getInitialState() {
-    // internal state which does trigger rerender
-    this._layout = new SpreadsheetLayout(this.props.sheet)
-
-    // TODO: this could be idiomatic states
     // internal state used during cell editing
     this._isEditing = false
     this._cell = null
-
     // internal state used during selection
     this._isSelecting = false
-    this._anchorRow = -1
-    this._anchorCol = -1
-    this._focusRow = -1
-    this._focusCol = -1
-
-    const viewPort = this._layout.getViewport(0, 0)
-
-    return Object.assign({}, viewPort)
+    this._selection = {
+      type: 'range',
+      anchorRow: -1,
+      anchorCol: -1,
+      focusRow: -1,
+      focusCol: -1
+    }
+    // TODO: we should think about using Component state instead
+    return {}
   }
 
   didMount() {
@@ -35,6 +31,10 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.context.editorSession.on('render', this._onSelectionChange, this, {
       resource: 'selection'
     })
+    this.context.editorSession.on('render', this._onDocumentChange, this, {
+      resource: 'document'
+    })
+
     // position initially, if the selection happens to be there from the beginning
     this._positionSelection()
   }
@@ -50,86 +50,39 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   render($$) {
+    const sheet = this._getSheet()
     let el = $$('div').addClass('sc-spreadsheet')
     el.append(
-      $$('textarea').addClass('se-box').ref('box')
+      $$('textarea').addClass('se-keytrap').ref('keytrap')
         .css({ position: 'absolute', width: 0, height: 0 })
         .on('keydown', this._onKeyDown),
       $$('div').addClass('se-content').append(
-        this._renderTable($$)
+        $$(TableView, {
+          sheet,
+          height: () => {
+            return this.el.getHeight()
+          },
+          width: () => {
+            return this.el.getWidth()
+          }
+        }).ref('tableView')
       ),
       this._renderOverlay($$),
       this._renderCellEditor($$),
       this._renderRowContextMenu($$),
       this._renderColumnContextMenu($$)
     )
-    el.on('wheel', this._onWheel, this, { passive: true })
+    el.on('wheel', this._onWheel, this)
       .on('mousedown', this._onMousedown)
       .on('mousemove', this._onMousemove)
       .on('dblclick', this._onDblclick)
       .on('contextmenu', this._onContextMenu)
+      .on('contextmenuitemclick', this._hideMenus)
     return el
   }
 
-  _renderTable($$) {
-    let table = $$('table').css({
-      width: this._layout.getWidth(this.state.startCol, this.state.endCol)
-    })
-    let nrows = this._layout.getRowCount()
-    if (nrows > 0) {
-      table.append(this._renderHeader($$))
-      table.append(this._renderBody($$))
-    }
-    return table
-  }
-
-  _renderHeader($$) {
-    let head = $$('thead')
-    // TODO: in Sheets we want the classical column labels
-    // in Datatable we want
-    let tr = $$('tr').ref('headRow')
-    tr.append($$('th').addClass('se-corner').ref('corner'))
-    for (let i = this.state.startCol; i <= this.state.endCol; i++) {
-      // TODO: map to ABC etc...
-      tr.append(
-        $$('th').append(String(i))
-          .on('mousedown', this._onColumnMousedown)
-          .on('contextmenu', this._onColumnContextMenu)
-      )
-    }
-    head.append(tr)
-    return head
-  }
-
-  _renderBody($$) {
-    const state = this.state
-    const sheet = this.props.sheet
-    let body = $$('tbody').ref('body')
-    for (let i = state.startRow; i <= state.endRow; i++) {
-      let tr = $$('tr').ref(String(i))
-      tr.append(
-        $$('th').text(String(i))
-          .on('mousedown', this._onRowMousedown)
-          .on('contextmenu', this._onRowContextMenu)
-      )
-      for (let j = state.startCol; j <= state.endCol; j++) {
-        const cell = sheet.getCell(i, j)
-        let td = $$('td')
-          .append($$(SpreadsheetCell, { node: cell }).ref(cell.id))
-          .attr({
-            'data-row': i,
-            'data-col': j
-          })
-          .ref(`${i}_${j}`)
-        tr.append(td)
-      }
-      body.append(tr)
-    }
-    return body
-  }
-
   _renderCellEditor($$) {
-    return $$(SpreadsheetCellEditor, { sheet: this.props.sheet })
+    return $$(SpreadsheetCellEditor, { sheet: this._getSheet() })
       .ref('cellEditor')
       .css('display', 'none')
       .on('enter', this._onCellEditorEnter)
@@ -148,19 +101,29 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _renderRowContextMenu($$) {
-    let rowMenu = $$(RowMenu).ref('rowMenu').addClass('se-context-menu')
-    rowMenu.css({
-      display: 'none'
-    })
+    const configurator = this.context.configurator
+    let rowMenu = $$(SpreadsheetContextMenu, {
+      toolPanel: configurator.getToolPanel('row-context-menu')
+    }).ref('rowMenu')
+      .addClass('se-context-menu')
+      .css({ display: 'none' })
     return rowMenu
   }
 
   _renderColumnContextMenu($$) {
-    let colMenu = $$(ColumnMenu).ref('columnMenu').addClass('se-context-menu')
-    colMenu.css({
-      display: 'none'
-    })
+    const configurator = this.context.configurator
+    let colMenu = $$(SpreadsheetContextMenu, {
+      toolPanel: configurator.getToolPanel('column-context-menu')
+    }).ref('columnMenu')
+      .addClass('se-context-menu')
+      .css({
+        display: 'none'
+      })
     return colMenu
+  }
+
+  _getCustomResourceId() {
+    return this._getSheet().getName()
   }
 
     // called by SurfaceManager to render the selection plus setting the
@@ -168,7 +131,11 @@ export default class SpreadsheetComponent extends CustomSurface {
   rerenderDOMSelection() {
     // console.log('SpreadsheetComponent.rerenderDOMSelection()')
     this._positionSelection()
-    this.refs.box.el.focus()
+    this.refs.keytrap.el.focus()
+  }
+
+  _getCell(rowIdx, colIdx) {
+    return this.refs.tableView.getCell(rowIdx, colIdx)
   }
 
   _positionSelection() {
@@ -182,12 +149,8 @@ export default class SpreadsheetComponent extends CustomSurface {
     }
   }
 
-  _getCell(rowIdx, colIdx) {
-    return this.refs[`${rowIdx}_${colIdx}`]
-  }
-
   _computeSelectionStyles(sel) {
-    const state = this.state
+    const viewport = this._getViewport()
     const data = sel.data
     let styles = {
       anchor: { visibility: 'hidden' },
@@ -205,12 +168,12 @@ export default class SpreadsheetComponent extends CustomSurface {
         if (startRow > endRow) [startRow, endRow] = [endRow, startRow]
         if (startCol > endCol) [startCol, endCol] = [endCol, startCol]
         // don't render the selection if it is completely outside of the viewport
-        if (endRow < state.startRow || startRow > state.endRow ||
-            endCol < state.startCol || startCol > state.endCol ) {
+        if (endRow < viewport.startRow || startRow > viewport.endRow ||
+            endCol < viewport.startCol || startCol > viewport.endCol ) {
           break
         }
-        let [ulRow, ulCol] = [Math.max(startRow, state.startRow), Math.max(startCol, state.startCol)]
-        let [lrRow, lrCol] = [Math.min(endRow, state.endRow), Math.min(endCol, state.endCol)]
+        let [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), Math.max(startCol, viewport.startCol)]
+        let [lrRow, lrCol] = [Math.min(endRow, viewport.endRow), Math.min(endCol, viewport.endCol)]
 
         let anchor = this._getCell(anchorRow, anchorCol)
         let ul = this._getCell(ulRow, ulCol)
@@ -226,10 +189,10 @@ export default class SpreadsheetComponent extends CustomSurface {
         let endCol = focusCol
         if (startCol > endCol) [startCol, endCol] = [endCol, startCol]
 
-        let [ulRow, ulCol] = [state.startRow, Math.max(startCol, state.startCol)]
-        let [lrRow, lrCol] = [state.endRow, Math.min(endCol, state.endCol)]
+        let [ulRow, ulCol] = [viewport.startRow, Math.max(startCol, viewport.startCol)]
+        let [lrRow, lrCol] = [viewport.endRow, Math.min(endCol, viewport.endCol)]
 
-        let anchor = this._getCell(state.startRow, anchorCol)
+        let anchor = this._getCell(viewport.startRow, anchorCol)
         let ul = this._getCell(ulRow, ulCol)
         let lr = this._getCell(lrRow, lrCol)
 
@@ -243,10 +206,10 @@ export default class SpreadsheetComponent extends CustomSurface {
         let endRow = focusRow
         if (startRow > endRow) [startRow, endRow] = [endRow, startRow]
 
-        let [ulRow, ulCol] = [Math.max(startRow, state.startRow), state.startCol]
-        let [lrRow, lrCol] = [Math.min(endRow, state.endRow), state.endCol]
+        let [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), viewport.startCol]
+        let [lrRow, lrCol] = [Math.min(endRow, viewport.endRow), viewport.endCol]
 
-        let anchor = this._getCell(anchorRow, state.startCol)
+        let anchor = this._getCell(anchorRow, viewport.startCol)
         let ul = this._getCell(ulRow, ulCol)
         let lr = this._getCell(lrRow, lrCol)
 
@@ -295,7 +258,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       styles.range.height = lrRect.top + lrRect.height - styles.range.top
       styles.range.visibility = 'visible'
 
-      let cornerRect = getRelativeBoundingRect(this.refs.corner.el, this.el)
+      let cornerRect = getRelativeBoundingRect(this.refs.tableView._getCorner().el, this.el)
 
       if (mode === 'range' || mode === 'columns') {
         styles.columns.left = ulRect.left
@@ -321,224 +284,40 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.refs.selection.css('visibility', 'hidden')
   }
 
-  _onSelectionChange(sel) {
-    if (sel.surfaceId !== this.getId()) {
-      this._hideSelection()
-    }
-  }
-
-  _onWheel(e) {
-    e.stopPropagation()
-    e.preventDefault()
-    let deltaX = _step(e.deltaX)
-    let deltaY = _step(e.deltaY)
-    if (deltaX || deltaY) {
-      let newStartCol = this.state.startCol + deltaX
-      let newStartRow = this.state.startRow + deltaY
-      this.extendState(this._layout.getViewport(newStartRow, newStartCol))
-    }
-  }
-
-  _onMousedown(e) {
-    // console.log('_onMousedown', e)
-    e.stopPropagation()
-    e.preventDefault()
-
-    this._hideMenus()
-
-    if (this._isEditing) {
-      this._closeCellEditor()
-    }
-
-    // TODO: do not update the selection if right-clicked and already having a selection
-
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
-        once: true
-      })
-    }
-    this._isSelecting = true
-    let [rowIdx, colIdx] = this._getCellPositionForXY(e.clientX, e.clientY)
-    this._selType = 'range'
-    this._anchorRow = this._focusRow = rowIdx
-    this._anchorCol = this._focusCol = colIdx
-    this._setSelection()
-  }
-
-  _onMouseup(e) {
-    e.stopPropagation()
-    e.preventDefault()
-    this._isSelecting = false
-  }
-
-  _onMousemove(e) {
-    if (this._isSelecting) {
-      // console.log('_onMousemove', e)
-      switch (this._selType) {
-        case 'range': {
-          let [rowIdx, colIdx] = this._getCellPositionForXY(e.clientX, e.clientY)
-          if (rowIdx !== this._focusRow || colIdx !== this._focusCol) {
-            this._focusRow = rowIdx
-            this._focusCol = colIdx
-            this._setSelection()
-          }
-          break
-        }
-        case 'columns': {
-          let colIdx = this._getColumnIndex(e.clientX)
-          if (colIdx !== this._focusCol) {
-            this._focusCol = colIdx
-            this._setSelection()
-          }
-          break
-        }
-        case 'rows': {
-          let rowIdx = this._getRowIndex(e.clientY)
-          if (rowIdx !== this._focusRow) {
-            this._focusRow = rowIdx
-            this._setSelection()
-          }
-          break
-        }
-        default:
-          // should not happen
-      }
-    }
-  }
-
-  _onColumnMousedown(e) {
-    // console.log('_onColumnMousedown', e)
-    e.preventDefault()
-    e.stopPropagation()
-    this._hideMenus()
-    if (this._isEditing) {
-      this._closeCellEditor()
-    }
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
-        once: true
-      })
-    }
-    this._isSelecting = true
-    this._selType = 'columns'
-    this._anchorCol = this._focusCol = this._getColumnIndex(e.clientX)
-    this._setSelection()
-  }
-
-  _onRowMousedown(e) {
-    // console.log('_onRowMousedown', e)
-    e.preventDefault()
-    e.stopPropagation()
-    this._hideMenus()
-    if (this._isEditing) {
-      this._closeCellEditor()
-    }
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
-        once: true
-      })
-    }
-    this._isSelecting = true
-    this._selType = 'rows'
-    this._anchorRow = this._focusRow = this._getRowIndex(e.clientY)
-    this._setSelection()
-  }
-
-  _onDblclick(e) {
-    const [rowIdx, colIdx] = this._getCellPositionForXY(e.clientX, e.clientY, 'strict')
-    if (rowIdx > -1 && colIdx > -1) {
-      this._openCellEditor(rowIdx, colIdx)
-    }
-  }
-
-  _onCellEditorEnter() {
-    this._closeCellEditor()
-    this._nav(1, 0)
-  }
-
-  _onCellEditorEscape() {
-    const cellEditor = this.refs.cellEditor
-    cellEditor.css({
-      display: 'none',
-      top: 0, left: 0
-    })
-    this._isEditing = false
-    this._cell = null
-
-    // HACK: resetting the selection
-    const editorSession = this.context.editorSession
-    editorSession.setSelection(editorSession.getSelection())
-  }
-
-  _onContextMenu(e) {
-    // console.log('_onCellContextMenu()', e)
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  _onRowContextMenu(e) {
-    console.log('_onRowContextMenu()', e)
-    e.preventDefault()
-    e.stopPropagation()
-    this._showRowMenu(e)
-  }
-
-  _onColumnContextMenu(e) {
-    // console.log('_onColumnContextMenu()', e)
-    e.preventDefault()
-    e.stopPropagation()
-    this._showColumnMenu(e)
-  }
-
-  _onKeyDown(e) {
-    let handled = false
-    switch (e.keyCode) {
-      case keys.LEFT:
-        this._nav(0, -1, e.shiftKey)
-        handled = true
-        break
-      case keys.RIGHT:
-        this._nav(0, 1, e.shiftKey)
-        handled = true
-        break
-      case keys.UP:
-        this._nav(-1, 0, e.shiftKey)
-        handled = true
-        break
-      case keys.DOWN:
-        this._nav(1, 0, e.shiftKey)
-        handled = true
-        break
-      case keys.ENTER: {
-        let data = this._getSelection()
-        this._openCellEditor(data.anchorRow, data.anchorCol)
-        handled = true
-        break
-      }
-      default:
-        //
-    }
-    if (handled) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-  }
-
   _getSelection() {
     return this.context.editorSession.getSelection().data
   }
 
   _nav(dr, dc, shift) {
+    const viewport = this._getViewport()
     let data = this._getSelection()
     // TODO: move viewport if necessary
+    let newFocusRow, newFocusCol
     if (!shift) {
-      data.anchorRow += dr
-      data.anchorCol += dc
-      data.focusRow = data.anchorRow
-      data.focusCol = data.anchorCol
+      [newFocusRow, newFocusCol] = this._clamped(data.anchorRow+dr, data.anchorCol+dc)
+      data.anchorRow = data.focusRow = newFocusRow
+      data.anchorCol = data.focusCol = newFocusCol
     } else {
-      data.focusRow += dr
-      data.focusCol += dc
+      [newFocusRow, newFocusCol] = this._clamped(data.focusRow+dr, data.focusCol+dc)
+      data.focusRow = newFocusRow
+      data.focusCol = newFocusCol
+    }
+    {
+      let dr = 0
+      let dc = 0
+      if (newFocusRow < viewport.startRow) {
+        dr = newFocusRow - viewport.startRow
+      } else if (newFocusRow > viewport.endRow) {
+        dr = newFocusRow - viewport.endRow
+      }
+      if(newFocusCol < viewport.startCol) {
+        dc = newFocusCol - viewport.startCol
+      } else if (newFocusCol > viewport.endCol) {
+        dc = newFocusCol - viewport.endCol
+      }
+      if (dr || dc) {
+        this.refs.tableView.scrollViewport(dr, dc)
+      }
     }
     this.context.editorSession.setSelection({
       type: 'custom',
@@ -548,40 +327,18 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
   }
 
-  _getCustomResourceId() {
-    return this.props.sheet.getName()
+  _clamped(rowIdx, colIdx) {
+    const sheet = this._getSheet()
+    const N = sheet.getRowCount()
+    const M = sheet.getColumnCount()
+    return [
+      Math.max(0, Math.min(N-1, rowIdx)),
+      Math.max(0, Math.min(M-1, colIdx)),
+    ]
   }
 
   _setSelection() {
-    let data
-    switch (this._selType) {
-      case 'range': {
-        data = {
-          type: 'range',
-          anchorRow: this._anchorRow, anchorCol: this._anchorCol,
-          focusRow: this._focusRow, focusCol: this._focusCol
-        }
-        break
-      }
-      case 'columns': {
-        data = {
-          type: 'columns',
-          anchorCol: this._anchorCol,
-          focusCol: this._focusCol
-        }
-        break
-      }
-      case 'rows': {
-        data = {
-          type: 'rows',
-          anchorRow: this._anchorRow,
-          focusRow: this._focusRow
-        }
-        break
-      }
-      default:
-        throw new Error('Invalid type.')
-    }
+    let data = clone(this._selection)
     this.context.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
@@ -590,57 +347,16 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
   }
 
-  _getCellPositionForXY(clientX, clientY, strict) {
-    let rowIdx = this._getRowIndex(clientY, strict)
-    let colIdx = this._getColumnIndex(clientX, strict)
-    return [rowIdx, colIdx]
+  _getSheet() {
+    return this.props.sheet
   }
 
-  _getRowIndex(clientY, strict) {
-    const state = this.state
-    let offset = this.el.getOffset()
-    let y = clientY - offset.top
-    // for now we always search without any trickery
-    // could be improved using caching or a tree datastructure to find positions more quickly
-    let bodyEl = this.refs.body.el
-    let rowEls = bodyEl.children
-    if (strict) {
-      let rect = getRelativeBoundingRect(bodyEl, this.el)
-      if (rect.top > y || rect.top + rect.height < y) return -1
-    }
-    let i = 0
-    let rowIdx = state.startRow
-    while (rowIdx < state.endRow) {
-      let rect = getRelativeBoundingRect(rowEls[i], this.el)
-      if (rect.top+rect.height > y) break
-      rowIdx++
-      i++
-    }
-    // make sure that we provide indexes within the current viewport
-    rowIdx = Math.max(state.startRow, Math.min(state.endRow, rowIdx))
-    return rowIdx
+  _getViewport() {
+    return this.refs.tableView._getViewport()
   }
 
-  _getColumnIndex(clientX, strict) {
-    const state = this.state
-    let offset = this.el.getOffset()
-    let x = clientX - offset.left
-    let colEls = this.refs.headRow.el.children
-    let i = 1
-    let colIdx = state.startCol
-    while (colIdx < state.endCol) {
-      let rect = getRelativeBoundingRect(colEls[i], this.el)
-      if (strict) {
-        if (i === 1 && rect.left > x) return -1
-        if (i === state.endCol-1 && rect.left+rect.width < x) return -1
-      }
-      if (rect.left+rect.width > x) break
-      colIdx++
-      i++
-    }
-    // make sure that we provide indexes within the current viewport
-    colIdx = Math.max(state.startCol, Math.min(state.endCol, colIdx))
-    return colIdx
+  _getTargetForEvent(e) {
+    return this.refs.tableView.getTargetForEvent(e)
   }
 
   _openCellEditor(rowIdx, colIdx) {
@@ -703,69 +419,230 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.refs.columnMenu.css('display', 'none')
   }
 
-}
+  /* Event Handlers */
 
-class RowMenu extends Component {
-
-  render($$) {
-    let el = $$('div').addClass('sc-spreadsheet-row-menu')
-    el.append($$('div').append('insert above').on('click', this._onInsertAbove))
-    el.append($$('div').append('insert below').on('click', this._onInsertBelow))
-    el.on('mousedown', _prevent)
-    return el
+  _onSelectionChange(sel) {
+    if (sel.surfaceId !== this.getId()) {
+      this._hideSelection()
+    }
   }
 
-  _onInsertAbove(e) {
+  /*
+    TODO we need hierarchical document mutation oberservers
+    how would that look like?
+
+    E.g. this node should be rerendered on different occasions:
+    - row added / removed
+    - column added / removed
+    - column meta changed
+
+    Idea:
+    Computing all affected nodes plus distance/level
+    change.isAffected('data') && change.getChange('data')
+    But maybe we should treat textual and structural changes
+    differently?
+
+    Textual Changes:
+    - text changed
+    - annotation changed
+
+    To be able to track hierarchical changes, we need
+  */
+  _onDocumentChange(change) {
+    if (change.hasUpdated('data')) {
+      this.refs.tableView.rerender()
+    }
+  }
+
+  _onWheel(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    this.refs.tableView.scroll(e.deltaX, e.deltaY)
+    this._positionSelection()
+  }
+
+  _onMousedown(e) {
+    // console.log('_onMousedown', e)
+    e.stopPropagation()
+    e.preventDefault()
+
+    // close context menus
+    this._hideMenus()
+
+    // if editing a cell save the content
+    if (this._isEditing) {
+      this._closeCellEditor()
+    }
+
+    // TODO: do not update the selection if right-clicked and already having a selection
+
+    if (platform.inBrowser) {
+      DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
+        once: true
+      })
+    }
+    const sel = this._selection
+
+    // console.log('_onMousedown', e)
+    let target = this._getTargetForEvent(e)
+    // console.log('... target', target)
+    switch(target.type) {
+      case 'cell': {
+        this._isSelecting = true
+        sel.type = 'range'
+        sel.anchorRow = sel.focusRow = target.rowIdx
+        sel.anchorCol = sel.focusCol = target.colIdx
+        this._setSelection()
+        break
+      }
+      case 'column': {
+        this._isSelecting = true
+        sel.type = 'columns'
+        sel.anchorCol = sel.focusCol = target.colIdx
+        this._setSelection()
+        break
+      }
+      case 'row': {
+        this._isSelecting = true
+        sel.type = 'rows'
+        sel.anchorRow = sel.focusRow = target.rowIdx
+        this._setSelection()
+        break
+      }
+      default:
+        //
+    }
+  }
+
+  _onMouseup(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    this._isSelecting = false
+  }
+
+  _onMousemove(e) {
+    if (this._isSelecting) {
+      // console.log('_onMousemove', e)
+      const tableView = this.refs.tableView
+      const sel = this._selection
+      switch (sel.type) {
+        case 'range': {
+          let rowIdx = tableView.getRowIndex(e.clientY)
+          let colIdx = tableView.getColumnIndex(e.clientX)
+          if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
+            sel.focusRow = rowIdx
+            sel.focusCol = colIdx
+            this._setSelection()
+          }
+          break
+        }
+        case 'columns': {
+          let colIdx = tableView.getColumnIndex(e.clientX)
+          if (colIdx !== sel.focusCol) {
+            sel.focusCol = colIdx
+            this._setSelection()
+          }
+          break
+        }
+        case 'rows': {
+          let rowIdx = tableView.getRowIndex(e.clientY)
+          if (rowIdx !== sel.focusRow) {
+            sel.focusRow = rowIdx
+            this._setSelection()
+          }
+          break
+        }
+        default:
+          // should not happen
+      }
+    }
+  }
+
+  _onDblclick(e) {
+    if (!this._isEditing) {
+      const tableView = this.refs.tableView
+      let rowIdx = tableView.getRowIndex(e.clientY)
+      let colIdx = tableView.getColumnIndex(e.clientX)
+      if (rowIdx > -1 && colIdx > -1) {
+        this._openCellEditor(rowIdx, colIdx)
+      }
+    }
+  }
+
+  _onCellEditorEnter() {
+    this._closeCellEditor()
+    this._nav(1, 0)
+  }
+
+  _onCellEditorEscape() {
+    const cellEditor = this.refs.cellEditor
+    cellEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
+    this._isEditing = false
+    this._cell = null
+
+    // HACK: resetting the selection
+    const editorSession = this.context.editorSession
+    editorSession.setSelection(editorSession.getSelection())
+  }
+
+  _onContextMenu(e) {
+    // console.log('_onContextMenu()', e)
     e.preventDefault()
     e.stopPropagation()
-    console.log('Insert above')
+
+    let target = this._getTargetForEvent(e)
+    switch(target.type) {
+      case 'cell': {
+        console.info('TODO: implement cell context menu?')
+        break
+      }
+      case 'row': {
+        this._showRowMenu(e)
+        break
+      }
+      case 'column': {
+        this._showColumnMenu(e)
+        break
+      }
+      default:
+        //
+    }
   }
 
-  _onInsertBelow(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Insert below')
+  _onKeyDown(e) {
+    let handled = false
+    switch (e.keyCode) {
+      case keys.LEFT:
+        this._nav(0, -1, e.shiftKey)
+        handled = true
+        break
+      case keys.RIGHT:
+        this._nav(0, 1, e.shiftKey)
+        handled = true
+        break
+      case keys.UP:
+        this._nav(-1, 0, e.shiftKey)
+        handled = true
+        break
+      case keys.DOWN:
+        this._nav(1, 0, e.shiftKey)
+        handled = true
+        break
+      case keys.ENTER: {
+        let data = this._getSelection()
+        this._openCellEditor(data.anchorRow, data.anchorCol)
+        handled = true
+        break
+      }
+      default:
+        //
+    }
+    if (handled) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
   }
-
-}
-
-class ColumnMenu extends Component {
-
-  render($$) {
-    let el = $$('div').addClass('sc-spreadsheet-columnd-menu')
-    el.append($$('div').append('insert left').on('click', this._onInsertLeft))
-    el.append($$('div').append('insert right').on('click', this._onInsertRight))
-    el.on('mousedown', _prevent)
-    return el
-  }
-
-  _onInsertLeft(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Insert left')
-  }
-
-  _onInsertRight(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Insert right')
-  }
-
-}
-
-function _prevent(e) {
-  e.preventDefault()
-  e.stopPropagation()
-}
-
-// signum with epsilon
-const EPSILON = 1
-function _step(x) {
-  let abs = Math.abs(x)
-  if (abs > EPSILON) {
-    let sgn = Math.sign(x)
-    // return sgn * Math.ceil(abs / 20)
-    return sgn
-  }
-  return 0
 }

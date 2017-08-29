@@ -1,36 +1,84 @@
-import { AbstractEditor, Toolbar } from 'substance'
+import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
 import SpreadsheetComponent from './SpreadsheetComponent'
 
 export default class SpreadsheetEditor extends AbstractEditor {
 
+  constructor(...args) {
+    super(...args)
+
+    this.__onResize = this.__onResize.bind(this)
+  }
+
+  didMount() {
+    // always render a second time to render for the real element dimensions
+    this.rerender()
+
+    super.didMount()
+    if (platform.inBrowser) {
+      DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
+    }
+  }
+
+  dispose() {
+    super.dispose()
+    if (platform.inBrowser) {
+      DefaultDOMElement.wrap(window).off(this)
+    }
+  }
+
+
   render($$) {
-    const configurator = this.getConfigurator()
-    const sheet = this.getDocument()
     let el = $$('div').addClass('sc-spreadsheet-editor')
     el.append(
-      $$(Toolbar, {
-        toolPanel: configurator.getToolPanel('toolbar')
-      }).ref('toolbar'),
-      $$(SpreadsheetComponent, { sheet }).css({
-        // We decided to pass down dimension, so that
-        // the viewport can be computed easily.
-        // Then we need some way of double-rendering so that we can retrieve
-        // the actual available size
-        // TODO: rethink this -- isn't it possible to compute this dynamically from within
-        // the SpreadsheetComponent?
-        // width: this.getWidth(),
-        // height: this.getHeight()
-      }).ref('spreadsheet'),
-      $$('div').addClass('se-status-bar').text('STATUS-BAR')
+      this._renderToolbar($$),
+      this._renderSpreadsheet($$),
+      this._renderStatusbar($$)
     )
     return el
+  }
+
+  _renderToolbar($$) {
+    const configurator = this.getConfigurator()
+    return $$(Toolbar, {
+      toolPanel: configurator.getToolPanel('toolbar')
+    }).ref('toolbar')
+  }
+
+  _renderSpreadsheet($$) {
+    const sheet = this.getDocument()
+    // only rendering the spreadsheet when mounted
+    // so that we have real width and height
+    if (this.isMounted()) {
+      return $$(SpreadsheetComponent, {
+        sheet
+      }).ref('spreadsheet')
+    } else {
+      return $$('div')
+    }
+  }
+
+  _renderStatusbar($$) {
+    return $$('div').addClass('se-statusbar').text('STATUSBAR')
+  }
+
+  _onResize() {
+    if (platform.inBrowser) {
+      if (!this._rafId) {
+        this._rafId = window.requestAnimationFrame(this.__onResize)
+      }
+    }
+  }
+
+  __onResize() {
+    this._rafId = null
+    this.rerender()
   }
 
   getWidth() {
     if (this.el) {
       return this.el.getWidth()
     } else {
-      return 0
+      return 1000
     }
   }
 
@@ -38,7 +86,7 @@ export default class SpreadsheetEditor extends AbstractEditor {
     if (this.el) {
       return this.el.getHeight()
     } else {
-      return 0
+      return 750
     }
   }
 

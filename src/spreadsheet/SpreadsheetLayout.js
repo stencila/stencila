@@ -1,34 +1,6 @@
 const DEFAULT_COLUMN_WIDTH = 100
 
-/*
- * Reflection of a Sheets visual dimensions.
- *
- * WIP
- */
 export default class SpreadsheetLayout {
-
-  constructor(sheet) {
-    this.data = sheet.find('data')
-  }
-
-  getColumnCount() {
-    if (!this._ncols) {
-      this._ncols = 0
-      const nrows = this.getRowCount()
-      if (nrows > 0) {
-        let firstRow = this.data.getFirstChild()
-        this._ncols = firstRow.getChildCount()
-      }
-    }
-    return this._ncols
-  }
-
-  getRowCount() {
-    if (!this._nrows) {
-      this._nrows = this.data.getChildCount()
-    }
-    return this._nrows
-  }
 
   getViewport(rowOffset, colOffset) {
     const nrows = this.getRowCount()
@@ -48,11 +20,6 @@ export default class SpreadsheetLayout {
     let diff = Math.abs(endCol-startCol)
     // #number of cols + row-label column width
     return (diff*DEFAULT_COLUMN_WIDTH)+50
-  }
-
-  _reset() {
-    this._ncols = null
-    this._nrows = null
   }
 
 }

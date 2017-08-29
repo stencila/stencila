@@ -32,6 +32,10 @@
   font-size: 13px;
 }
 
+.sc-spreadsheet .se-keytrap {
+  opacity: 0;
+}
+
 .sc-spreadsheet .se-corner {
   background: #d2d2d2;
   border-right: 2px solid #aaa;
@@ -42,9 +46,11 @@
   position: absolute;
   top: 0px;
   left: 0px;
+  overflow: hidden;
 }
 
 .sc-spreadsheet table {
+  position: relative;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -110,13 +116,7 @@
 .sc-spreadsheet .se-context-menu {
   position: absolute;
   width: 200px;
-  background: #fff;
+  background: var(--dark-bg-color);
   border: 1px solid #999;
   padding: 2px 5px;
-}
-
-.sc-spreadsheet .se-row-menu {
-}
-
-.sc-spreadsheet .se-column-menu {
 }
