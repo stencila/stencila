@@ -486,31 +486,45 @@ export default class SpreadsheetComponent extends CustomSurface {
     // console.log('_onMousedown', e)
     let target = this._getTargetForEvent(e)
     // console.log('... target', target)
-    switch(target.type) {
-      case 'cell': {
-        this._isSelecting = true
-        sel.type = 'range'
-        sel.anchorRow = sel.focusRow = target.rowIdx
-        sel.anchorCol = sel.focusCol = target.colIdx
-        this._setSelection()
-        break
+
+    // TODO: move this into substance helper
+    let isRightButton = false
+    if ("which" in e) {
+      isRightButton = (e.which === 3)
+    } else if ("button" in e) {
+      isRightButton = (e.button === 2)
+    }
+    if (isRightButton) {
+      // TODO: improve right click handling
+      // i.e. change the selection if target
+      // is not within current selection
+    } else {
+      switch(target.type) {
+        case 'cell': {
+          this._isSelecting = true
+          sel.type = 'range'
+          sel.anchorRow = sel.focusRow = target.rowIdx
+          sel.anchorCol = sel.focusCol = target.colIdx
+          this._setSelection()
+          break
+        }
+        case 'column': {
+          this._isSelecting = true
+          sel.type = 'columns'
+          sel.anchorCol = sel.focusCol = target.colIdx
+          this._setSelection()
+          break
+        }
+        case 'row': {
+          this._isSelecting = true
+          sel.type = 'rows'
+          sel.anchorRow = sel.focusRow = target.rowIdx
+          this._setSelection()
+          break
+        }
+        default:
+          //
       }
-      case 'column': {
-        this._isSelecting = true
-        sel.type = 'columns'
-        sel.anchorCol = sel.focusCol = target.colIdx
-        this._setSelection()
-        break
-      }
-      case 'row': {
-        this._isSelecting = true
-        sel.type = 'rows'
-        sel.anchorRow = sel.focusRow = target.rowIdx
-        this._setSelection()
-        break
-      }
-      default:
-        //
     }
   }
 
