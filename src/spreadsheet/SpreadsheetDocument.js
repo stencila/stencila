@@ -26,6 +26,41 @@ export default class SpreadsheetDocument extends XMLDocument {
     return cell
   }
 
+  getValues(startRow, startCol, endRow, endCol) {
+    let vals = []
+    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
+      let rowVals = []
+      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
+        let cell = this.getCell(rowIdx, colIdx)
+        rowVals.push(cell.textContent)
+      }
+      vals.push(rowVals)
+    }
+    return vals
+  }
+
+  setValues(startRow, startCol, vals) {
+    for (let i = 0; i < vals.length; i++) {
+      let row = vals[i]
+      for (let j = 0; j < row.length; j++) {
+        let val = row[j]
+        let cell = this.getCell(startRow+i, startCol+j)
+        if (cell) {
+          cell.textContent = val
+        }
+      }
+    }
+  }
+
+  clearRange(startRow, startCol, endRow, endCol) {
+    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
+      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
+        let cell = this.getCell(rowIdx, colIdx)
+        cell.textContent = ''
+      }
+    }
+  }
+
   getColumnCount() {
     const nrows = this.getRowCount()
     if (nrows > 0) {

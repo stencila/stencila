@@ -5,10 +5,13 @@ import {
 import SpreadsheetCellEditor from './SpreadsheetCellEditor'
 import TableView from './TableView'
 import SpreadsheetContextMenu from './SpreadsheetContextMenu'
+import SpreadsheetClipboard from './SpreadsheetClipboard'
 
 export default class SpreadsheetComponent extends CustomSurface {
 
   getInitialState() {
+    this._clipboard = new SpreadsheetClipboard(this.context.editorSession)
+
     // internal state used during cell editing
     this._isEditing = false
     this._cell = null
@@ -78,6 +81,9 @@ export default class SpreadsheetComponent extends CustomSurface {
       .on('dblclick', this._onDblclick)
       .on('contextmenu', this._onContextMenu)
       .on('contextmenuitemclick', this._hideMenus)
+      .on('copy', this._onCopy)
+      .on('paste', this._onPaste)
+      .on('cut', this._onCut)
     return el
   }
 
@@ -659,4 +665,17 @@ export default class SpreadsheetComponent extends CustomSurface {
       e.stopPropagation()
     }
   }
+
+  _onCopy(e) {
+    this._clipboard.onCopy(e)
+  }
+
+  _onPaste(e) {
+    this._clipboard.onPaste(e)
+  }
+
+  _onCut(e) {
+    this._clipboard.onCut(e)
+  }
+
 }
