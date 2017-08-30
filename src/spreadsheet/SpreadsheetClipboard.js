@@ -1,6 +1,7 @@
 import {
   DefaultDOMElement, platform
 } from 'substance'
+import { getSelection, getRange } from './spreadsheetUtils'
 
 export default class SpreadsheetClipboard {
 
@@ -111,32 +112,11 @@ export default class SpreadsheetClipboard {
   }
 
   _getSelection() {
-    let sel = this.editorSession.getSelection()
-    if (sel.isCustomSelection() && sel.customType === 'sheet') {
-      return sel.data
-    } else {
-      return null
-    }
+    return getSelection(this.editorSession)
   }
 
   _getRange() {
-    const sel = this._getSelection()
-    if (!sel) return null
-    const sheet = this.editorSession.getDocument()
-    let startRow = Math.min(sel.anchorRow, sel.focusRow)
-    let endRow = Math.max(sel.anchorRow, sel.focusRow)
-    let startCol = Math.min(sel.anchorCol, sel.focusCol)
-    let endCol = Math.max(sel.anchorCol, sel.focusCol)
-    if (sel.type === 'columns') {
-      startRow = 0
-      endRow = sheet.getRowCount()
-    } else if (sel.type === 'rows') {
-      startCol = 0
-      endRow = sheet.getColumnCount()
-    }
-    return {
-      startRow, endRow, startCol, endCol
-    }
+    return getRange(this.editorSession)
   }
 
   _copy() {

@@ -6,6 +6,7 @@ import SpreadsheetCellEditor from './SpreadsheetCellEditor'
 import TableView from './TableView'
 import SpreadsheetContextMenu from './SpreadsheetContextMenu'
 import SpreadsheetClipboard from './SpreadsheetClipboard'
+import { getRange } from './spreadsheetUtils'
 
 export default class SpreadsheetComponent extends CustomSurface {
 
@@ -425,6 +426,14 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.refs.columnMenu.css('display', 'none')
   }
 
+  _clearSelection() {
+    const editorSession = this.context.editorSession
+    let range = getRange(editorSession)
+    editorSession.transaction((tx) => {
+      tx.getDocument().clearRange(range.startRow, range.startCol, range.endRow, range.endCol)
+    })
+  }
+
   /* Event Handlers */
 
   _onSelectionChange(sel) {
@@ -667,6 +676,12 @@ export default class SpreadsheetComponent extends CustomSurface {
         handled = true
         break
       }
+      case keys.DELETE:
+      case keys.BACKSPACE: {
+        this._clearSelection()
+        handled = true
+        break
+      }
       default:
         //
     }
@@ -687,5 +702,4 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onCut(e) {
     this._clipboard.onCut(e)
   }
-
 }
