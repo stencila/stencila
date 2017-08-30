@@ -5,7 +5,7 @@ import {long, short, split, scheme, path, format, version} from '../src/address'
 test('address.long', t => {
   t.equal(long('new://document'), 'new://document')
   t.equal(long('+document'), 'new://document')
-  t.equal(long('*aaaaaaaa'), 'name://aaaaaaaa')
+  t.equal(long('*aaaaaaaa'), 'local://aaaaaaaa')
 
   t.equal(long('file:///report.md'), 'file:///report.md')
   t.equal(long('file:/report.md'), 'file:///report.md')
@@ -17,8 +17,12 @@ test('address.long', t => {
   t.equal(long('http:foo.com/report.md'), 'http://foo.com/report.md')
   t.equal(long('https://foo.com/report.md'), 'https://foo.com/report.md')
 
-  t.equal(long('github:/user/repo/report.md'), 'gh://user/repo/report.md')
-  t.equal(long('gh:/user/repo/report.md'), 'gh://user/repo/report.md')
+  t.equal(long('gh:user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('gh:/user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('gh://user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('github:user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('github:/user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('github://user/repo/report.md'), 'github://user/repo/report.md')
 
   t.equal(long('stats/t-test'), 'lib://stats/t-test')
 
@@ -29,10 +33,10 @@ test('address.long', t => {
 
 test('address.short', t => {
   t.equal(short('new://document'), '+document')
-  t.equal(short('name://aaaaaaaa'), '*aaaaaaaa')
+  t.equal(short('local://aaaaaaaa'), '*aaaaaaaa')
   t.equal(short('file://report.docx'), 'file:report.docx')
   t.equal(short('https://foo.com/report.md'), 'https:foo.com/report.md')
-  t.equal(short('gh://foo/bar/report.md'), 'gh:foo/bar/report.md')
+  t.equal(short('github://foo/bar/report.md'), 'gh:foo/bar/report.md')
   t.equal(short('lib://stats/t-test'), 'stats/t-test')
   t.end()
 })
@@ -42,7 +46,7 @@ test('address.short+long', t => {
   t.equal(f('+document'), '+document')
   t.equal(f('new://document'), '+document')
   t.equal(f('*aaaaaaaa'), '*aaaaaaaa')
-  t.equal(f('name://aaaaaaaa'), '*aaaaaaaa')
+  t.equal(f('local://aaaaaaaa'), '*aaaaaaaa')
   t.equal(f('gh:foo/bar/report.md'), 'gh:foo/bar/report.md')
   t.equal(f('gh:foo/bar/report.md@1.1.0'), 'gh:foo/bar/report.md@1.1.0')
   t.end()
@@ -57,7 +61,7 @@ test('address.split', t => {
   })
 
   t.deepEqual(split('*aaaaaaaa'), {
-    scheme: 'name',
+    scheme: 'local',
     path: 'aaaaaaaa',
     format: null,
     version: null
@@ -85,14 +89,14 @@ test('address.split', t => {
   })
 
   t.deepEqual(split('gh://foo/bar.md'), {
-    scheme: 'gh',
+    scheme: 'github',
     path: 'foo/bar.md',
     format: 'md',
     version: null
   })
 
   t.deepEqual(split('gh://foo/bar.md@1.1.0'), {
-    scheme: 'gh',
+    scheme: 'github',
     path: 'foo/bar.md',
     format: 'md',
     version: '1.1.0'
@@ -105,8 +109,8 @@ test('address.scheme', t => {
   t.equal(scheme('http://foo/bar'), 'http')
   t.equal(scheme('https://foo/bar'), 'https')
 
-  t.equal(scheme('github://foo/bar'), 'gh')
-  t.equal(scheme('gh://foo/bar'), 'gh')
+  t.equal(scheme('github://foo/bar'), 'github')
+  t.equal(scheme('gh://foo/bar'), 'github')
 
   t.end()
 })

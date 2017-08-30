@@ -14,24 +14,24 @@
  * 'new://document'
  *
  * long('gh:stencila/stencila/README.md')
- * 'gh://stencila/stencila/README.md'
+ * 'github://stencila/stencila/README.md'
  *
  * long('./report/intro.md')
  * 'file:///current/directory/report/intro.md'
  *
  * long('stats/t-test.md')
- * 'local://stats/t-test.md'
+ * 'lib://stats/t-test.md'
  *
  * @param {string} address - The address to lengthen
  * @return {string} - The long form of the address
  */
 export function long (address) {
-  if (address.match(/^([a-z]+):\/\//)) {
+  if (address.match(/^(new|local|file|lib|http|https|github):\/\//)) {
     return address
   } else if (address[0] === '+') {
     return 'new://' + address.substring(1)
   } else if (address[0] === '*') {
-    return 'name://' + address.substring(1)
+    return 'local://' + address.substring(1)
   } else if (address[0] === '.' || address[0] === '/' || address[0] === '~') {
     return 'file://' + address
   } else {
@@ -46,12 +46,12 @@ export function long (address) {
       } else if (alias === 'http' || alias === 'https') {
         return `${alias}://${path}`
       } else if (alias === 'gh' || alias === 'github') {
-        return `gh://${path}`
+        return `github://${path}`
       } else {
         throw new Error(`Unknown scheme alias "${alias}"`)
       }
     } else {
-      return 'local://' + address
+      return 'lib://' + address
     }
   }
 }
@@ -74,9 +74,6 @@ export function long (address) {
  * short('file:///some/directory/my-doc.md')
  * 'file:/some/directory/my-doc.md'
  *
- * short()
- * '*fa4cf2c5cff5b576990feb96f25c98e6111990c873010855a53bcba979583836'
- *
  * @param {string} address - The address to shorten
  * @return {string} - The short form of the address
  */
@@ -84,14 +81,14 @@ export function short (address) {
   address = long(address)
   if (address.substring(0, 6) === 'new://') {
     return '+' + address.substring(6)
-  } else if (address.substring(0, 7) === 'name://') {
-    return '*' + address.substring(7)
+  } else if (address.substring(0, 8) === 'local://') {
+    return '*' + address.substring(8)
   } else if (address.substring(0, 7) === 'file://') {
     return 'file:' + address.substring(7)
   } else if (address.substring(0, 6) === 'lib://') {
     return address.substring(6)
-  } else if (address.substring(0, 5) === 'gh://') {
-    return 'gh:' + address.substring(5)
+  } else if (address.substring(0, 9) === 'github://') {
+    return 'gh:' + address.substring(9)
   } else {
     let match = address.match(/([a-z]+):\/\/(.+)$/)
     return `${match[1]}:${match[2]}`
