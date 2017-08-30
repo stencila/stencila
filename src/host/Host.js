@@ -1,4 +1,4 @@
-import {split as addressSplit} from '../address'
+import {split as addressSplit, storer as addressStorer} from '../address'
 import { GET, POST, PUT } from '../util/requests'
 import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
@@ -157,13 +157,8 @@ export default class Host {
    */
   createStorer (address) {
     let {scheme, path, version} = addressSplit(address)
-    let storer = {
-      'memory': 'MemoryStorer',
-      'file': 'FileStorer',
-      'github': 'GithubStorer'
-    }[scheme]
-    if (!storer) return Promise.reject(new Error(`Unknown storer scheme: ${scheme}`))
-    else return this.create(storer, { path: path, version: version }).then(result => result.instance)
+    let storer = addressStorer(scheme)
+    return this.create(storer, { path: path, version: version }).then(result => result.instance)
   }
 
   /**

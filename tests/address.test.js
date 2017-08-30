@@ -1,6 +1,6 @@
 import test from 'tape'
 
-import {long, short, split, scheme, path, format, version} from '../src/address'
+import {long, short, split, scheme, storer, path, format, version} from '../src/address'
 
 test('address.long', t => {
   t.equal(long('new://document'), 'new://document')
@@ -111,6 +111,18 @@ test('address.scheme', t => {
 
   t.equal(scheme('github://foo/bar'), 'github')
   t.equal(scheme('gh://foo/bar'), 'github')
+
+  t.end()
+})
+
+test('address.storer', t => {
+  t.equal(storer('new'), null)
+  t.equal(storer('local'), null)
+  t.equal(storer('lib'), 'LibStorer')
+  t.equal(storer('file'), 'FileStorer')
+  t.equal(storer('http'), 'HttpStorer')
+  t.equal(storer('https'), 'HttpStorer')
+  t.equal(storer('github'), 'GithubStorer')
 
   t.end()
 })

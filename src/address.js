@@ -26,7 +26,7 @@
  * @return {string} - The long form of the address
  */
 export function long (address) {
-  if (address.match(/^(new|local|file|lib|http|https|github):\/\//)) {
+  if (address.match(/^(new|local|memory|file|lib|http|https|github):\/\//)) {
     return address
   } else if (address[0] === '+') {
     return 'new://' + address.substring(1)
@@ -48,7 +48,7 @@ export function long (address) {
       } else if (alias === 'gh' || alias === 'github') {
         return `github://${path}`
       } else {
-        throw new Error(`Unknown scheme alias "${alias}"`)
+        throw new Error(`Unknown scheme or scheme alias "${alias}"`)
       }
     } else {
       return 'lib://' + address
@@ -120,6 +120,24 @@ export function split (address) {
     }
   } else {
     throw new Error(`Unable to split address "${address}"`)
+  }
+}
+
+/**
+ * Get the `Storer` for an address scheme
+ * 
+ * @param  {string} scheme The address scheme (e.g. `github`)
+ * @return {string}        The name of the matching `Storer` class (e.g. `GithubStorer`)
+ */
+export function storer (scheme) {
+  switch (scheme) {
+    case 'new':
+    case 'local':
+      return null
+    case 'https':
+      return storer('http')
+    default:
+      return scheme[0].toUpperCase() + scheme.slice(1) + 'Storer'
   }
 }
 
