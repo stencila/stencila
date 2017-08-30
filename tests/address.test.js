@@ -26,7 +26,7 @@ test('address.long', t => {
 
   t.equal(long('stats/t-test'), 'lib://stats/t-test')
 
-  t.throws(() => long('foo:bar'), 'unknown scheme alias')
+  t.equal(long('foo:bar'), 'foo://bar')
 
   t.end()
 })
@@ -34,7 +34,7 @@ test('address.long', t => {
 test('address.short', t => {
   t.equal(short('new://document'), '+document')
   t.equal(short('local://aaaaaaaa'), '*aaaaaaaa')
-  t.equal(short('file://report.docx'), 'file:report.docx')
+  t.equal(short('file:///report.docx'), '/report.docx')
   t.equal(short('https://foo.com/report.md'), 'https:foo.com/report.md')
   t.equal(short('github://foo/bar/report.md'), 'gh:foo/bar/report.md')
   t.equal(short('lib://stats/t-test'), 'stats/t-test')

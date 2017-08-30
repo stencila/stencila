@@ -26,30 +26,29 @@
  * @return {string} - The long form of the address
  */
 export function long (address) {
-  if (address.match(/^(new|local|memory|file|lib|http|https|github):\/\//)) {
-    return address
-  } else if (address[0] === '+') {
+  const first = address[0]
+  if (first === '+') {
     return 'new://' + address.substring(1)
-  } else if (address[0] === '*') {
+  } else if (first === '*') {
     return 'local://' + address.substring(1)
-  } else if (address[0] === '.' || address[0] === '/' || address[0] === '~') {
+  } else if (first === '.' || first === '/' || first === '~') {
     return 'file://' + address
   } else {
     let match = address.match(/^([a-z]+)(:\/?\/?)(.+)$/)
     if (match) {
-      let alias = match[1]
-      let path = match[3]
-      if (alias === 'file') {
-        // Only arrive here with `file:/foo` since with
-        // `file:` with two or more slashes is already "long"
-        return `file:///${path}`
-      } else if (alias === 'http' || alias === 'https') {
-        return `${alias}://${path}`
-      } else if (alias === 'gh' || alias === 'github') {
-        return `github://${path}`
-      } else {
-        throw new Error(`Unknown scheme or scheme alias "${alias}"`)
+      let scheme = match[1]
+      let rest = match[3]
+      switch (scheme) {
+        case 'file':
+          if (rest[0] !== '/') rest = '/' + rest
+          break
+        case 'gh':
+          scheme = 'github'
+          break
+        default:
+          break
       }
+      return scheme + '://' + rest
     } else {
       return 'lib://' + address
     }
@@ -84,7 +83,7 @@ export function short (address) {
   } else if (address.substring(0, 8) === 'local://') {
     return '*' + address.substring(8)
   } else if (address.substring(0, 7) === 'file://') {
-    return 'file:' + address.substring(7)
+    return address.substring(7)
   } else if (address.substring(0, 6) === 'lib://') {
     return address.substring(6)
   } else if (address.substring(0, 9) === 'github://') {
