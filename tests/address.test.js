@@ -31,6 +31,18 @@ test('address.long', t => {
   t.end()
 })
 
+
+test('address.long HTTP aliases', t => {
+  t.equal(long('https://www.dropbox.com/sh/el77xzcpr9uqxb1/AABJIkDNXo_-sKnrUtQvCxC4a?dl=0'), 'dropbox://el77xzcpr9uqxb1/AABJIkDNXo_-sKnrUtQvCxC4a')
+
+  t.equal(long('https://github.com/stencila/examples'), 'github://stencila/examples')
+  t.equal(long('https://github.com/stencila/examples/tree/master/chinook'), 'github://stencila/examples/chinook')
+  t.equal(long('https://github.com/stencila/examples/blob/master/chinook/README.md'), 'github://stencila/examples/chinook/README.md')
+  t.equal(long('https://github.com/stencila/examples/blob/c1633019f03/chinook/README.md'), 'github://stencila/examples/chinook/README.md@c1633019f03')
+
+  t.end()
+})
+
 test('address.short', t => {
   t.equal(short('new://document'), '+document')
   t.equal(short('local://aaaaaaaa'), '*aaaaaaaa')

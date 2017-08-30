@@ -33,7 +33,38 @@ export function long (address) {
     return 'local://' + address.substring(1)
   } else if (first === '.' || first === '/' || first === '~') {
     return 'file://' + address
+  } else if (address.match(/^https?:\/\//)) {
+    // Translate HTTP/S aliases into long addresses
+    const match = address.match(/^https?:\/\/([^/]+)\/(.+)/)
+    if (match) {
+      const origin = match[1]
+      const path = match[2]
+      if (origin === 'www.dropbox.com') {
+        // Dropbox shared folder link e.g.
+        //   https://www.dropbox.com/sh/el77xzcpr9uqxb1/AABJIkDNXo_-sKnrUtQvCxC4a?dl=0
+        const match = path.match(/^sh\/([^?]+)/)
+        if (match) return 'dropbox://' + match[1]
+      } else if (origin === 'github.com') {
+        // Github repo pages e.g.
+        //   repo: https://github.com/stencila/examples
+        //   dir:  https://github.com/stencila/examples/tree/master/chinook
+        //   file: https://github.com/stencila/examples/blob/master/chinook/README.md
+        const match = path.match(/^([^/]+)\/([^/]+)(\/(tree|blob)\/([^/]+)\/(.+))?/)
+        if (match) {
+          const user = match[1]
+          const repo = match[2]
+          const ref = match[5]
+          const path = match[6]
+          let address = 'github://' + user + '/' + repo
+          if (path) address += '/' + path
+          if (ref && ref !== 'master') address += '@' + ref
+          return address
+        }      
+      }
+    }
+    return address
   } else {
+    // Other aliases
     let match = address.match(/^([a-z]+)(:\/?\/?)(.+)$/)
     if (match) {
       let scheme = match[1]
