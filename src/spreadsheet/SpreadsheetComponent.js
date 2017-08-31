@@ -38,7 +38,9 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.context.editorSession.on('render', this._onDocumentChange, this, {
       resource: 'document'
     })
-
+    // we need to rerender the table view once
+    // the real element height is known
+    this.refs.tableView.rerender()
     // position initially, if the selection happens to be there from the beginning
     this._positionSelection()
   }
@@ -63,11 +65,12 @@ export default class SpreadsheetComponent extends CustomSurface {
       $$('div').addClass('se-content').append(
         $$(TableView, {
           sheet,
+          // TODO: rethink sizing
           height: () => {
-            return this.el.getHeight()
+            return this.el ? this.el.getHeight() : 0
           },
           width: () => {
-            return this.el.getWidth()
+            return this.el ? this.el.getWidth() : 0
           }
         }).ref('tableView')
       ),

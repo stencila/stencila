@@ -1,6 +1,5 @@
 import {
-  RenderingEngine, Component,
-  isNumber, isFunction
+  Component, isNumber, isFunction
 } from 'substance'
 import SpreadsheetCell from './SpreadsheetCell'
 
@@ -27,36 +26,114 @@ export default class TableView extends Component {
     return {}
   }
 
-  shouldRerender() {
-    // TODO: only rerender when the surrounding dimensions have changed
-    return false
-  }
+  // shouldRerender() {
+  //   // TODO: only rerender when the surrounding dimensions have changed
+  //   return false
+  // }
 
   didMount() {
-    this._fill()
+    this._limitViewport()
   }
 
   didUpdate() {
-    this._fill()
+    this._limitViewport()
   }
 
   render($$) {
-    let table = $$('table')
-    table.append($$('thead').append($$('tr').ref('head')))
-    table.append($$('tbody').ref('body'))
-    return table
+    let el = $$('table')
+
+    const sheet = this._getSheet()
+    const N = sheet.getRowCount()
+    const M = sheet.getColumnCount()
+    const W = this._getWidth()
+    const H = this._getHeight()
+    const viewport = this._viewport
+    const startRow = viewport.startRow
+    const startCol = viewport.startCol
+
+    let head = $$('tr').ref('head')
+    // fill columns
+    head.append($$('th').addClass('se-corner').ref('corner'))
+    // HACK: 50px is currently the width of the label column
+    // should be computed dynamically
+    let width = 50
+    let endCol = startCol
+    for(let colIdx = startCol; colIdx < M; colIdx++, endCol++) {
+      let w = sheet.getColumnWidth(colIdx)
+      head.append(
+        $$('th').text(String(colIdx))
+          .css({ width: w })
+      )
+      width += w
+      if (width > W) break
+    }
+    el.append(head)
+      .css({ width })
+    // stay within table bounds
+    endCol = Math.min(M-1, endCol)
+
+    let body = $$('tbody').ref('body')
+    // HACK: 20px is currently the height of the header row
+    // should be computed dynamically
+    let height = 20
+    let endRow = startRow
+    for(let rowIdx = startRow; rowIdx < N; rowIdx++, endRow++) {
+      let h = sheet.getRowHeight(rowIdx)
+      body.append(
+        this._renderRow($$, rowIdx, startCol, endCol)
+      )
+      height += h
+      if (height > H) break
+    }
+    el.append(body)
+    // stay within table bounds
+    endRow = Math.min(N-1, endRow)
+    // Note: the viewport will be limited later
+    // considering the real row heights
+    this._viewport.endRow = endRow
+    this._viewport.endCol = endCol
+    return el
   }
 
-  _getRect() {
-    return getBoundingRect(this.el)
+  _renderRow($$, rowIdx, startCol, endCol) {
+    const sheet = this._getSheet()
+    let tr = $$('tr').ref(String(rowIdx))
+    tr.append(
+      $$('th').text(String(rowIdx))
+    )
+    for (let j = startCol; j <= endCol; j++) {
+      const cell = sheet.getCell(rowIdx, j)
+      let td = $$('td')
+        .append(
+          $$(SpreadsheetCell, { node: cell }).ref(cell.id)
+        ).attr({
+          'data-row': rowIdx,
+          'data-col': j
+        })
+      tr.append(td)
+    }
+    return tr
   }
 
-  _getRelativeRect(comp) {
-    let rect = this._getRect()
-    let compRect = getBoundingRect(comp)
-    compRect.top = compRect.top - rect.top
-    compRect.left = compRect.left - rect.left
-    return compRect
+  _limitViewport() {
+    const H = this._getHeight()
+    const bodyEl = this.refs.body.el
+    const headEl = this.refs.head.el
+
+    let viewport = this._viewport
+    let endRow = viewport.startRow
+    let it = bodyEl.getChildNodeIterator()
+    let height = headEl.getHeight()
+    while (it.hasNext()) {
+      let rowEl = it.next()
+      let h = rowEl.getHeight()
+      if (height + h > H) break
+      endRow++
+      height += h
+    }
+    console.log('Limiting viewport %s -> %s', viewport.endRow, endRow)
+    viewport.endRow = endRow
+
   }
 
   getTargetForEvent(e) {
@@ -116,6 +193,18 @@ export default class TableView extends Component {
     let rect = this._getRect()
     let x = clientX - rect.left
     return this._getColumnIndex(x)
+  }
+
+  _getRect() {
+    return getBoundingRect(this.el)
+  }
+
+  _getRelativeRect(comp) {
+    let rect = this._getRect()
+    let compRect = getBoundingRect(comp)
+    compRect.top = compRect.top - rect.top
+    compRect.left = compRect.left - rect.left
+    return compRect
   }
 
   _getRowIndex(y) {
@@ -184,7 +273,7 @@ export default class TableView extends Component {
     if (oldStartRow !== newStartRow || oldStartCol !== newStartCol) {
       viewport.startRow = newStartRow
       viewport.startCol = newStartCol
-      this._fill()
+      this.rerender()
     }
   }
 
@@ -200,7 +289,7 @@ export default class TableView extends Component {
     if (oldStartRow !== newStartRow || oldStartCol !== newStartCol) {
       viewport.startRow = newStartRow
       viewport.startCol = newStartCol
-      this._fill()
+      this.rerender()
     }
   }
 
@@ -217,79 +306,6 @@ export default class TableView extends Component {
 
   _getCorner() {
     return this.refs.corner
-  }
-
-  _fill() {
-    let renderContext = RenderingEngine.createContext(this)
-    const $$ = renderContext.$$
-    const sheet = this._getSheet()
-    const W = this._getWidth()
-    const H = this._getHeight()
-
-    // console.log('... filling table view', W, H)
-    const head = this.refs.head
-    const body = this.refs.body
-    const N = sheet.getRowCount()
-    const M = sheet.getColumnCount()
-    const viewport = this._getViewport()
-    const startRow = viewport.startRow
-    const startCol = viewport.startCol
-    // clear content
-    head.empty()
-    body.empty()
-
-    // fill columns
-    head.append($$('th').addClass('se-corner').ref('corner'))
-    // HACK: 50px is currently the width of the label column
-    // should be computed dynamically
-    let width = 50
-    for(let colIdx = startCol; colIdx < M; colIdx++) {
-      let w = sheet.getColumnWidth(colIdx)
-      head.append(
-        $$('th').text(String(colIdx))
-          .css({ width: w })
-      )
-      width += w
-      if (width > W) break
-    }
-    this.el.css({ width })
-    // first child is corner element
-    let endCol = startCol+head.el.getChildCount()-2
-
-    // fill rows
-    for(let i = startRow; i < N; i++) {
-      let tr = this._renderRow($$, i, startCol, endCol)
-      body.append(tr)
-      if (this.el.getHeight() > H) break
-    }
-    // as opposed to column header here is no extra element
-    let endRow = startRow+body.el.getChildCount()-1
-
-    Object.assign(this._viewport, {
-      startRow, startCol,
-      endRow, endCol
-    })
-    // console.log('... viewport', Object.assign({}, viewport))
-  }
-
-  _renderRow($$, rowIdx, startCol, endCol) {
-    const sheet = this._getSheet()
-    let tr = $$('tr').ref(String(rowIdx))
-    tr.append(
-      $$('th').text(String(rowIdx))
-    )
-    for (let j = startCol; j <= endCol; j++) {
-      const cell = sheet.getCell(rowIdx, j)
-      let td = $$('td')
-        .append(
-          $$(SpreadsheetCell, { node: cell }).ref(cell.id)
-        ).attr({
-          'data-row': rowIdx,
-          'data-col': j
-        })
-      tr.append(td)
-    }
-    return tr
   }
 
   _getSheet() {
