@@ -13,8 +13,8 @@ export default class TableView extends Component {
       // coordinates we apply a simple heuristic,
       // using a fixed height and width for every column
       // and a fictive position within this model
-      dx: 0,
-      dy: 0,
+      x: 0,
+      y: 0,
       // this is always the cell in the top-left corner
       startRow: 0,
       startCol: 0,
@@ -241,29 +241,29 @@ export default class TableView extends Component {
 
   // scrolling in a virtual grid of squares
   scroll(dx, dy) {
-    // console.log('TableView.scroll()', dx, dy)
-    let viewport = this._viewport
-    viewport.dx += dx
-    viewport.dy += dy
-    // console.log('...', viewport.dx, viewport.dy)
-    let dr = 0
-    let dc = 0
-    if (Math.abs(viewport.dy) > D) {
-      dr = Math.round(viewport.dy / D)
-      viewport.dy -= dr * D
-      // console.log('... scrolling rows', dr)
-    }
-    if (Math.abs(viewport.dx) > D) {
-      dc = Math.round(viewport.dx / D)
-      viewport.dx -= dc * D
-      // console.log('... scrolling cols', dc)
-    }
-    // stop if there is no change
-    if (!dr && !dc) return
-
     const sheet = this._getSheet()
     const N = sheet.getRowCount()
     const M = sheet.getColumnCount()
+    // console.log('TableView.scroll()', dx, dy)
+    let viewport = this._viewport
+    let oldX = viewport.x
+    let oldY = viewport.y
+    let oldC = Math.floor(oldX/D)
+    let oldR = Math.floor(oldY/D)
+
+    let newX = Math.max(0, Math.min(M*D, oldX+dx))
+    let newY = Math.max(0, Math.min(N*D, oldY+dy))
+
+    viewport.x = newX
+    viewport.y = newY
+
+    let newC = Math.floor(newX/D)
+    let newR = Math.floor(newY/D)
+    let dr = newR - oldR
+    let dc = newC - oldC
+
+    // stop if there is no change
+    if (!dr && !dc) return
 
     const oldStartRow = viewport.startRow
     const oldStartCol = viewport.startCol
@@ -278,19 +278,7 @@ export default class TableView extends Component {
   }
 
   scrollViewport(dr, dc) {
-    const sheet = this._getSheet()
-    const N = sheet.getRowCount()
-    const M = sheet.getColumnCount()
-    const viewport = this._getViewport()
-    const oldStartRow = viewport.startRow
-    const oldStartCol = viewport.startCol
-    const newStartRow = Math.max(0, Math.min(N-1, oldStartRow+dr))
-    const newStartCol = Math.max(0, Math.min(M-1, oldStartCol+dc))
-    if (oldStartRow !== newStartRow || oldStartCol !== newStartCol) {
-      viewport.startRow = newStartRow
-      viewport.startCol = newStartCol
-      this.rerender()
-    }
+    this.scroll(dr*D, dc*D)
   }
 
   getCell(rowIdx, colIdx) {
