@@ -144,8 +144,8 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.refs.keytrap.el.focus()
   }
 
-  _getCell(rowIdx, colIdx) {
-    return this.refs.tableView.getCell(rowIdx, colIdx)
+  _getCellComponent(rowIdx, colIdx) {
+    return this.refs.tableView.getCellComponent(rowIdx, colIdx)
   }
 
   _positionSelection() {
@@ -185,9 +185,9 @@ export default class SpreadsheetComponent extends CustomSurface {
         let [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), Math.max(startCol, viewport.startCol)]
         let [lrRow, lrCol] = [Math.min(endRow, viewport.endRow), Math.min(endCol, viewport.endCol)]
 
-        let anchor = this._getCell(anchorRow, anchorCol)
-        let ul = this._getCell(ulRow, ulCol)
-        let lr = this._getCell(lrRow, lrCol)
+        let anchor = this._getCellComponent(anchorRow, anchorCol)
+        let ul = this._getCellComponent(ulRow, ulCol)
+        let lr = this._getCellComponent(lrRow, lrCol)
 
         Object.assign(styles, this._computeAnchorStyles(anchor))
         Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
@@ -202,9 +202,9 @@ export default class SpreadsheetComponent extends CustomSurface {
         let [ulRow, ulCol] = [viewport.startRow, Math.max(startCol, viewport.startCol)]
         let [lrRow, lrCol] = [viewport.endRow, Math.min(endCol, viewport.endCol)]
 
-        let anchor = this._getCell(viewport.startRow, anchorCol)
-        let ul = this._getCell(ulRow, ulCol)
-        let lr = this._getCell(lrRow, lrCol)
+        let anchor = this._getCellComponent(viewport.startRow, anchorCol)
+        let ul = this._getCellComponent(ulRow, ulCol)
+        let lr = this._getCellComponent(lrRow, lrCol)
 
         Object.assign(styles, this._computeAnchorStyles(anchor))
         Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
@@ -219,9 +219,9 @@ export default class SpreadsheetComponent extends CustomSurface {
         let [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), viewport.startCol]
         let [lrRow, lrCol] = [Math.min(endRow, viewport.endRow), viewport.endCol]
 
-        let anchor = this._getCell(anchorRow, viewport.startCol)
-        let ul = this._getCell(ulRow, ulCol)
-        let lr = this._getCell(lrRow, lrCol)
+        let anchor = this._getCellComponent(anchorRow, viewport.startCol)
+        let ul = this._getCellComponent(ulRow, ulCol)
+        let lr = this._getCellComponent(lrRow, lrCol)
 
         Object.assign(styles, this._computeAnchorStyles(anchor))
         Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
@@ -268,7 +268,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       styles.range.height = lrRect.top + lrRect.height - styles.range.top
       styles.range.visibility = 'visible'
 
-      let cornerRect = getRelativeBoundingRect(this.refs.tableView._getCorner().el, this.el)
+      let cornerRect = getRelativeBoundingRect(this.refs.tableView.getCorner().el, this.el)
 
       if (mode === 'range' || mode === 'columns') {
         styles.columns.left = ulRect.left
@@ -371,7 +371,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _openCellEditor(rowIdx, colIdx) {
     const cellEditor = this.refs.cellEditor
-    let td = this._getCell(rowIdx, colIdx)
+    let td = this._getCellComponent(rowIdx, colIdx)
     let rect = getRelativeBoundingRect(td.el, this.el)
     let cellComp = td.getChildAt(0)
     let cell = cellComp.props.node
@@ -445,27 +445,6 @@ export default class SpreadsheetComponent extends CustomSurface {
     }
   }
 
-  /*
-    TODO we need hierarchical document mutation oberservers
-    how would that look like?
-
-    E.g. this node should be rerendered on different occasions:
-    - row added / removed
-    - column added / removed
-    - column meta changed
-
-    Idea:
-    Computing all affected nodes plus distance/level
-    change.isAffected('data') && change.getChange('data')
-    But maybe we should treat textual and structural changes
-    differently?
-
-    Textual Changes:
-    - text changed
-    - annotation changed
-
-    To be able to track hierarchical changes, we need
-  */
   _onDocumentChange(change) {
     if (change.hasUpdated('data')) {
       this.refs.tableView.rerender()
@@ -564,7 +543,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onMousemove(e) {
     if (this._isSelecting) {
-      // console.log('_onMousemove', e)
+      console.log('_onMousemove', e)
       const tableView = this.refs.tableView
       const sel = this._selection
       switch (sel.type) {

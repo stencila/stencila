@@ -32,6 +32,10 @@
   font-size: 13px;
 }
 
+.sc-spreadsheet .sm-hidden {
+  display: none;
+}
+
 .sc-spreadsheet .se-keytrap {
   opacity: 0;
 }
@@ -118,4 +122,8 @@
   background: var(--dark-bg-color);
   border: 1px solid #999;
   padding: 2px 5px;
+}
+
+.sc-table-page.sm-loading {
+  background: #ccc;
 }

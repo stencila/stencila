@@ -140,6 +140,12 @@ export default class SpreadsheetDocument extends XMLDocument {
     }
   }
 
+  fetchData(startRow, endRow) {
+    return new Promise((resolve, reject)=>{
+      resolve(true)
+    })
+  }
+
   _getData() {
     if (!this._dataNode) {
       this._dataNode = this.get('data')

@@ -5,7 +5,7 @@ import generateSampleSpreadsheet from './generateSampleSpreadsheet'
 window.addEventListener('load', () => {
   let configurator = new Configurator()
   configurator.import(SpreadsheetPackage)
-  let xml = generateSampleSpreadsheet(40, 20)
+  let xml = generateSampleSpreadsheet(1000, 20)
   const importer = configurator.createImporter(SpreadsheetSchema.getName())
   const sheet = importer.importDocument(xml)
   SpreadsheetPage.mount({ sheet }, window.document.body)
