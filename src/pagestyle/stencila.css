@@ -12,5 +12,6 @@
 
 @import './_style-transforms';
 @import './_pagestyle.css';
+@import './_print.css';
 @import '../document/_document-editor.css';
 @import '../dashboard/_dashboard.css';
