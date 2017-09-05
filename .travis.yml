@@ -41,7 +41,8 @@ after_success:
 before_deploy:
   - |
     # Get last line of commit message which, for a Github PR merge, is the PR title
-    COMMIT_LINE=$(echo $TRAVIS_COMMIT_MESSAGE | tail -n 1)
+    # Previously used $TRAVIS_COMMIT_MESSAGE here but it appears to be single line
+    COMMIT_LINE=$(git log -1 --pretty=%B | tail -n 1)
     # Create a commit "slug"
     COMMIT_SLUG=$(echo $COMMIT_LINE | cut -c 1-100 | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
     # Generate a unique build version
