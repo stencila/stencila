@@ -140,7 +140,7 @@ export default class SpreadsheetDocument extends XMLDocument {
     }
   }
 
-  fetchData(startRow, endRow) {
+  ensureRowAvailable(rowIdx) {
     return new Promise((resolve, reject)=>{
       resolve(true)
     })

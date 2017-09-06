@@ -3,7 +3,9 @@ import {
   keys, clone
 } from 'substance'
 import SpreadsheetCellEditor from './SpreadsheetCellEditor'
-import TableView from './TableView'
+import SheetView from './SheetView'
+import SheetViewport from './SheetViewport'
+import SheetScrollbar from './SheetScrollbar'
 import SpreadsheetContextMenu from './SpreadsheetContextMenu'
 import SpreadsheetClipboard from './SpreadsheetClipboard'
 import { getRange } from './spreadsheetUtils'
@@ -12,7 +14,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   getInitialState() {
     this._clipboard = new SpreadsheetClipboard(this.context.editorSession)
-
+    this._viewport = new SheetViewport(this)
     // internal state used during cell editing
     this._isEditing = false
     this._cell = null
@@ -57,27 +59,29 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   render($$) {
     const sheet = this._getSheet()
+    const viewport = this._viewport
     let el = $$('div').addClass('sc-spreadsheet')
     el.append(
       $$('textarea').addClass('se-keytrap').ref('keytrap')
         .css({ position: 'absolute', width: 0, height: 0 })
         .on('keydown', this._onKeyDown),
       $$('div').addClass('se-content').append(
-        $$(TableView, {
-          sheet,
-          // TODO: rethink sizing
-          height: () => {
-            return this.el ? this.el.getHeight() : 0
-          },
-          width: () => {
-            return this.el ? this.el.getWidth() : 0
-          }
+        $$(SheetView, {
+          sheet, viewport
         }).ref('tableView')
       ),
       this._renderOverlay($$),
       this._renderCellEditor($$),
       this._renderRowContextMenu($$),
-      this._renderColumnContextMenu($$)
+      this._renderColumnContextMenu($$),
+      $$(SheetScrollbar, {
+        axis: 'x',
+        sheet, viewport
+      }),
+      $$(SheetScrollbar, {
+        axis: 'y',
+        sheet, viewport
+      })
     )
     el.on('wheel', this._onWheel, this)
       .on('mousedown', this._onMousedown)
@@ -454,7 +458,9 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onWheel(e) {
     e.stopPropagation()
     e.preventDefault()
-    this.refs.tableView.scroll(e.deltaX, e.deltaY)
+    let dx = Math.round(e.deltaX)
+    let dy = Math.round(e.deltaY)
+    this.refs.tableView.scroll(dx, dy)
     this._positionSelection()
   }
 

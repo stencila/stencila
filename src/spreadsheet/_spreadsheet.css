@@ -127,3 +127,51 @@
 .sc-table-page.sm-loading {
   background: #ccc;
 }
+
+
+.sc-sheet-scrollbar {
+  position: absolute;
+  background: #FAFAFA;
+  box-shadow: inset -4px 0 4px 0 rgba(25,25,25,0.04);
+}
+
+.sc-sheet-scrollbar.sm-horizontal {
+  left: 0px;
+  right: 0px;
+  height: 20px;
+  bottom: 0px;
+}
+
+.sc-sheet-scrollbar.sm-vertical {
+  width: 20px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+
+.sc-sheet-scrollbar .se-thumb {
+  position: absolute;
+  background-color: rgba(0,0,0, 0.2);
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-thumb {
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  right: 0px;
+  height: 0px;
+  background-color: rgba(0,0,0, 0.2);
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-thumb {
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  right: 0px;
+  height: 0px;
+  background-color: rgba(0,0,0, 0.2);
+}
+
+.sc-scrollbar.sm-hide-thumb .se-thumb {
+  visibility: hidden;
+}
