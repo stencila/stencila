@@ -86,7 +86,6 @@ export default class SheetScrollbar extends Component {
       scrollFactor = viewport.startRow/sheet.getRowCount()
       scrollbarSize = this.refs.scrollArea.el.getHeight()
     }
-
     let thumbSize = factor * scrollbarSize
     let pos = scrollFactor * scrollbarSize
     if (horizontal) {
@@ -118,19 +117,13 @@ export default class SheetScrollbar extends Component {
       _window.on('mousemove', this._onMoveThumb, this)
       _window.on('mouseup', this._onMouseUp, this)
     }
-
-    if (this._isHorizontal()) {
-      this._startX = e.clientX
-    } else {
-      this._startY = e.clientY
-    }
   }
 
   _onMousedownScrollArea(e) {
-    e.stopPropagation()
-    e.preventDefault()
-    // TODO: jump to the position
-    console.log('_onMousedownScrollArea', e)
+    // same as when mousedowning in the thumb
+    this._onMousedownThumb(e)
+    // plus moving the thumb to the start position
+    this._onMoveThumb(e)
   }
 
   _onMousedownPrev(e) {
@@ -166,6 +159,8 @@ export default class SheetScrollbar extends Component {
     e.preventDefault()
     const viewport = this.props.viewport
     const rect = getBoundingRect(this.refs.scrollArea.el)
+    // TODO: we should consider at which position the user started
+    // dragging the thumb instead of always using 0.5
     if (this._isHorizontal()) {
       let thumbSize = this.refs.thumb.el.getWidth()
       let clientPos = e.clientX - 0.5*thumbSize
@@ -187,7 +182,6 @@ export default class SheetScrollbar extends Component {
 
   _relax() {
     if (platform.inBrowser) {
-      console.log('_relax')
       let _window = DefaultDOMElement.wrap(window)
       _window.off(this)
     }
