@@ -42,7 +42,7 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
     // we need to rerender the table view once
     // the real element height is known
-    this.refs.tableView.rerender()
+    this.refs.sheetView.rerender()
     // position initially, if the selection happens to be there from the beginning
     this._positionSelection()
   }
@@ -68,7 +68,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       $$('div').addClass('se-content').append(
         $$(SheetView, {
           sheet, viewport
-        }).ref('tableView')
+        }).ref('sheetView')
       ),
       this._renderOverlay($$),
       this._renderCellEditor($$),
@@ -96,7 +96,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   resize() {
-    this.refs.tableView.rerender()
+    this.refs.sheetView.rerender()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
   }
@@ -155,7 +155,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _getCellComponent(rowIdx, colIdx) {
-    return this.refs.tableView.getCellComponent(rowIdx, colIdx)
+    return this.refs.sheetView.getCellComponent(rowIdx, colIdx)
   }
 
   _positionSelection() {
@@ -278,7 +278,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       styles.range.height = lrRect.top + lrRect.height - styles.range.top
       styles.range.visibility = 'visible'
 
-      let cornerRect = getRelativeBoundingRect(this.refs.tableView.getCorner().el, this.el)
+      let cornerRect = getRelativeBoundingRect(this.refs.sheetView.getCorner().el, this.el)
 
       if (mode === 'range' || mode === 'columns') {
         styles.columns.left = ulRect.left
@@ -372,11 +372,11 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _getViewport() {
-    return this.refs.tableView._getViewport()
+    return this.refs.sheetView._getViewport()
   }
 
   _getTargetForEvent(e) {
-    return this.refs.tableView.getTargetForEvent(e)
+    return this.refs.sheetView.getTargetForEvent(e)
   }
 
   _openCellEditor(rowIdx, colIdx) {
@@ -457,7 +457,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onDocumentChange(change) {
     if (change.hasUpdated('data')) {
-      this.refs.tableView.rerender()
+      this.refs.sheetView.rerender()
     }
   }
 
@@ -554,12 +554,12 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onMousemove(e) {
     if (this._isSelecting) {
       console.log('_onMousemove', e)
-      const tableView = this.refs.tableView
+      const sheetView = this.refs.sheetView
       const sel = this._selection
       switch (sel.type) {
         case 'range': {
-          let rowIdx = tableView.getRowIndex(e.clientY)
-          let colIdx = tableView.getColumnIndex(e.clientX)
+          let rowIdx = sheetView.getRowIndex(e.clientY)
+          let colIdx = sheetView.getColumnIndex(e.clientX)
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
             sel.focusRow = rowIdx
             sel.focusCol = colIdx
@@ -568,7 +568,7 @@ export default class SpreadsheetComponent extends CustomSurface {
           break
         }
         case 'columns': {
-          let colIdx = tableView.getColumnIndex(e.clientX)
+          let colIdx = sheetView.getColumnIndex(e.clientX)
           if (colIdx !== sel.focusCol) {
             sel.focusCol = colIdx
             this._setSelection()
@@ -576,7 +576,7 @@ export default class SpreadsheetComponent extends CustomSurface {
           break
         }
         case 'rows': {
-          let rowIdx = tableView.getRowIndex(e.clientY)
+          let rowIdx = sheetView.getRowIndex(e.clientY)
           if (rowIdx !== sel.focusRow) {
             sel.focusRow = rowIdx
             this._setSelection()
@@ -591,9 +591,9 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onDblclick(e) {
     if (!this._isEditing) {
-      const tableView = this.refs.tableView
-      let rowIdx = tableView.getRowIndex(e.clientY)
-      let colIdx = tableView.getColumnIndex(e.clientX)
+      const sheetView = this.refs.sheetView
+      let rowIdx = sheetView.getRowIndex(e.clientY)
+      let colIdx = sheetView.getColumnIndex(e.clientX)
       if (rowIdx > -1 && colIdx > -1) {
         this._openCellEditor(rowIdx, colIdx)
       }
