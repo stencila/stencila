@@ -86,23 +86,19 @@ export default class SheetScrollbar extends Component {
       scrollFactor = viewport.startRow/sheet.getRowCount()
       scrollbarSize = this.refs.scrollArea.el.getHeight()
     }
-    if (factor < 1) {
-      this.el.removeClass('sm-hidden')
-      let thumbSize = factor * scrollbarSize
-      let pos = scrollFactor * scrollbarSize
-      if (horizontal) {
-        this.refs.thumb.css({
-          left: pos,
-          width: thumbSize
-        })
-      } else {
-        this.refs.thumb.css({
-          top: pos,
-          height: thumbSize
-        })
-      }
+
+    let thumbSize = factor * scrollbarSize
+    let pos = scrollFactor * scrollbarSize
+    if (horizontal) {
+      this.refs.thumb.css({
+        left: pos,
+        width: thumbSize
+      })
     } else {
-      this.el.addClass('sm-hidden')
+      this.refs.thumb.css({
+        top: pos,
+        height: thumbSize
+      })
     }
   }
 
@@ -114,12 +110,26 @@ export default class SheetScrollbar extends Component {
   _onMousedownThumb(e) {
     e.stopPropagation()
     e.preventDefault()
-    console.log('_onMouseDownThumb', e)
+    // console.log('_onMouseDownThumb', e)
+    if (platform.inBrowser) {
+      // temporarily, we bind to events on window level
+      // because could leave the this element's area while dragging
+      let _window = DefaultDOMElement.wrap(window)
+      _window.on('mousemove', this._onMoveThumb, this)
+      _window.on('mouseup', this._onMouseUp, this)
+    }
+
+    if (this._isHorizontal()) {
+      this._startX = e.clientX
+    } else {
+      this._startY = e.clientY
+    }
   }
 
   _onMousedownScrollArea(e) {
     e.stopPropagation()
     e.preventDefault()
+    // TODO: jump to the position
     console.log('_onMousedownScrollArea', e)
   }
 
@@ -145,65 +155,39 @@ export default class SheetScrollbar extends Component {
     }
   }
 
-  _onMouseDown(e) {
+  _onMouseUp(e) {
     e.stopPropagation()
     e.preventDefault()
-    this._mouseDown = true
-
-    if (e.target === this.refs.prev.getNativeElement()) {
-      console.log('PREV')
-    } else if (e.target === this.refs.next.getNativeElement()) {
-      console.log('NEXT')
-    } else {
-      if (platform.inBrowser) {
-        // temporarily, we bind to events on window level
-        // because could leave the this element's area while dragging
-        let _window = DefaultDOMElement.wrap(window)
-        _window.on('mousemove', this._onMouseMove, this)
-        _window.on('mouseup', this._onMouseUp, this)
-      }
-      // TODO: if clicked outside of the thumb
-      // directly scroll to the position
-      if (e.target !== this.refs.thumb.getNativeElement()) {
-        const sheet = this.props.sheet
-        const viewport = this.props.viewport
-        const horizontal = this._isHorizontal()
-        let rect = getBoundingRect(this.el)
-        if (horizontal) {
-          let x = e.clientX - rect.left
-          let factor = x / rect.width
-          let newStartCol = factor * sheet.getColumnCount()
-          if (viewport.startCol !== newStartCol) {
-            viewport.shift(0, newStartCol-viewport.startCol)
-          }
-        } else {
-          let y = e.clientY - rect.top
-          let factor = y / rect.height
-          let newStartRow = factor * sheet.getRowCount()
-          if (viewport.startRow !== newStartRow) {
-            viewport.shift(newStartRow-viewport.startRow, 0)
-          }
-        }
-      }
-    }
-
-  }
-
-  _onMouseUp() {
     this._relax()
   }
 
-  _onMouseMove(e) {
-    if (this._mouseDown) {
-      // TODO: update the scroll position
+  _onMoveThumb(e) {
+    e.stopPropagation()
+    e.preventDefault()
+    const viewport = this.props.viewport
+    const rect = getBoundingRect(this.refs.scrollArea.el)
+    if (this._isHorizontal()) {
+      let thumbSize = this.refs.thumb.el.getWidth()
+      let clientPos = e.clientX - 0.5*thumbSize
+      let size = rect.width
+      let pos = Math.max(0, Math.min(size, clientPos - rect.left))
+      let factor = pos / size
+      let newCol = Math.floor(factor*viewport.M)
+      viewport.shift(0, newCol-viewport.startCol)
     } else {
-      this._relax()
+      let thumbSize = this.refs.thumb.el.getHeight()
+      let clientPos = e.clientY - 0.5*thumbSize
+      let size = rect.height
+      let pos = Math.max(0, Math.min(size, clientPos - rect.top))
+      let factor = pos / size
+      let newRow = Math.floor(factor*viewport.N)
+      viewport.shift(newRow-viewport.startRow, 0)
     }
   }
 
   _relax() {
-    this._mouseDown = false
     if (platform.inBrowser) {
+      console.log('_relax')
       let _window = DefaultDOMElement.wrap(window)
       _window.off(this)
     }
@@ -212,4 +196,5 @@ export default class SheetScrollbar extends Component {
   _onScroll() {
     this._updatePositions()
   }
+
 }

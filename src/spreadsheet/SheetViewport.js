@@ -27,7 +27,6 @@ export default class SheetViewport extends EventEmitter {
     this.D = 30
     // number of rows to be rendered (regardless of actual container size)
     this.P = 20
-
   }
 
   getContainerWidth() {
@@ -47,9 +46,8 @@ export default class SheetViewport extends EventEmitter {
 
   // scrolling in a virtual grid of squares
   scroll(dx, dy) {
-    const sheet = this._sheet
-    const N = sheet.getRowCount()
-    const M = sheet.getColumnCount()
+    const N = this.N
+    const M = this.M
     let oldX = this.x
     let oldY = this.y
     let oldC = Math.floor(oldX/this.D)
@@ -99,6 +97,22 @@ export default class SheetViewport extends EventEmitter {
       this.y = newStartRow*this.D
       this.emit('scroll', dr, dc)
     }
+  }
+
+  getTotalHeight() {
+    return this.N*this.D
+  }
+
+  getTotalWidth() {
+    return this.M*this.D
+  }
+
+  get N() {
+    return this._sheet.getRowCount()
+  }
+
+  get M() {
+    return this._sheet.getColumnCount()
   }
 
 }
