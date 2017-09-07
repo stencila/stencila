@@ -71,7 +71,7 @@ export default class SpreadsheetEditor extends AbstractEditor {
 
   __onResize() {
     this._rafId = null
-    this.rerender()
+    this.refs.spreadsheet.resize()
   }
 
   getWidth() {

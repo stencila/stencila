@@ -77,11 +77,11 @@ export default class SpreadsheetComponent extends CustomSurface {
       $$(SheetScrollbar, {
         sheet, viewport,
         axis: 'x'
-      }),
+      }).ref('scrollX'),
       $$(SheetScrollbar, {
         sheet, viewport,
         axis: 'y'
-      })
+      }).ref('scrollY')
     )
     el.on('wheel', this._onWheel, this)
       .on('mousedown', this._onMousedown)
@@ -93,6 +93,12 @@ export default class SpreadsheetComponent extends CustomSurface {
       .on('paste', this._onPaste)
       .on('cut', this._onCut)
     return el
+  }
+
+  resize() {
+    this.refs.tableView.rerender()
+    this.refs.scrollX.rerender()
+    this.refs.scrollY.rerender()
   }
 
   _renderCellEditor($$) {

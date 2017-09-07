@@ -7,17 +7,11 @@ import getBoundingRect from '../util/getBoundingRect'
 export default class SheetScrollbar extends Component {
 
   didMount() {
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
-    }
     this._updatePositions()
     this.props.viewport.on('scroll', this._onScroll, this)
   }
 
   dispose() {
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window).off(this)
-    }
     this.props.viewport.off(this)
   }
 
