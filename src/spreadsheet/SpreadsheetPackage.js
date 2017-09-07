@@ -113,5 +113,10 @@ export default {
       en: 'Delete columns ${startCol} - ${endCol}'
     })
 
+    config.addIcon('sheet-scroll-left', { 'fontawesome': 'fa-angle-left' })
+    config.addIcon('sheet-scroll-right', { 'fontawesome': 'fa-angle-right' })
+    config.addIcon('sheet-scroll-up', { 'fontawesome': 'fa-angle-up' })
+    config.addIcon('sheet-scroll-down', { 'fontawesome': 'fa-angle-down' })
+
   }
 }

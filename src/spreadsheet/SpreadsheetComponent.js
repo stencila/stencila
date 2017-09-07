@@ -14,7 +14,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   getInitialState() {
     this._clipboard = new SpreadsheetClipboard(this.context.editorSession)
-    this._viewport = new SheetViewport(this)
+    this._viewport = new SheetViewport(this.props.sheet, this)
     // internal state used during cell editing
     this._isEditing = false
     this._cell = null
@@ -75,12 +75,12 @@ export default class SpreadsheetComponent extends CustomSurface {
       this._renderRowContextMenu($$),
       this._renderColumnContextMenu($$),
       $$(SheetScrollbar, {
-        axis: 'x',
-        sheet, viewport
+        sheet, viewport,
+        axis: 'x'
       }),
       $$(SheetScrollbar, {
-        axis: 'y',
-        sheet, viewport
+        sheet, viewport,
+        axis: 'y'
       })
     )
     el.on('wheel', this._onWheel, this)
@@ -330,7 +330,7 @@ export default class SpreadsheetComponent extends CustomSurface {
         dc = newFocusCol - viewport.endCol
       }
       if (dr || dc) {
-        this.refs.tableView.scrollViewport(dr, dc)
+        this._viewport.shift(dr, dc)
       }
     }
     this.context.editorSession.setSelection({
@@ -458,9 +458,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onWheel(e) {
     e.stopPropagation()
     e.preventDefault()
-    let dx = Math.round(e.deltaX)
-    let dy = Math.round(e.deltaY)
-    this.refs.tableView.scroll(dx, dy)
+    this._viewport.scroll(e.deltaX, e.deltaY)
     this._positionSelection()
   }
 
@@ -690,4 +688,5 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onCut(e) {
     this._clipboard.onCut(e)
   }
+
 }

@@ -1,5 +1,5 @@
 import {
-  Component, isNumber, isFunction
+  Component,
 } from 'substance'
 import SpreadsheetCell from './SpreadsheetCell'
 
@@ -11,19 +11,24 @@ export default class SheetView extends Component {
 
   didMount() {
     this._updateViewport()
+    this.props.viewport.on('scroll', this._onScroll, this)
   }
 
-  rerender(...args) {
-    console.log('### RENDERING table view')
-    super.rerender(...args)
+  dispose() {
+    this.props.viewport.off(this)
   }
+
+  // rerender(...args) {
+  //   console.log('### RENDERING sheet view')
+  //   super.rerender(...args)
+  // }
 
   render($$) {
     const sheet = this.props.sheet
     const viewport = this.props.viewport
     const M = sheet.getColumnCount()
     let el = $$('table').addClass('sc-table-view')
-    let head = $$('tr').ref('head')
+    let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
       .css({ width: 50})
     let width = 50
@@ -132,47 +137,17 @@ export default class SheetView extends Component {
     return this.refs.corner
   }
 
-  // scrolling in a virtual grid of squares
-  scroll(dx, dy) {
-    const sheet = this.props.sheet
-    const N = sheet.getRowCount()
-    const M = sheet.getColumnCount()
-    // console.log('TableView.scroll()', dx, dy)
-    let viewport = this.props.viewport
-    let oldX = viewport.x
-    let oldY = viewport.y
-    let oldC = Math.floor(oldX/viewport.D)
-    let oldR = Math.floor(oldY/viewport.D)
-    let newX = Math.max(0, Math.min(M*viewport.D, oldX+dx))
-    let newY = Math.max(0, Math.min(N*viewport.D, oldY+dy))
-    viewport.x = newX
-    viewport.y = newY
-    let newC = Math.floor(newX/viewport.D)
-    let newR = Math.floor(newY/viewport.D)
-    let dr = newR - oldR
-    let dc = newC - oldC
-    // stop if there is no change
-    if (!dr && !dc) return
-    const oldStartRow = viewport.startRow
-    const oldStartCol = viewport.startCol
-    const newStartRow = Math.max(0, Math.min(N-1, oldStartRow+dr))
-    const newStartCol = Math.max(0, Math.min(M-1, oldStartCol+dc))
-
-    if (oldStartRow === newStartRow && oldStartCol !== newStartCol) {
-      viewport.startCol = newStartCol
+  _onScroll(dr, dc) {
+    if (dc && !dr) {
       this._updateViewport()
-    } else if (oldStartRow !== newStartRow && oldStartCol === newStartCol) {
-      viewport.startRow = newStartRow
+    } else if (dr && !dc) {
       this.refs.body.update()
       this._updateBody()
     } else {
-      console.assert(false, 'Thought that it was not possible to scroll x and y at the same time.')
+      this._updateHeader()
+      this.refs.body.update()
+      this._updateBody()
     }
-  }
-
-  scrollViewport(dr, dc) {
-    const viewport = this.props.viewport
-    this.scroll(dr*viewport.D, dc*viewport.D)
   }
 
 }
@@ -285,3 +260,11 @@ class TableRow extends Component {
 //     width: _rect.width
 //   }
 // }
+
+const EPSILON = 0.1
+function _epsilon(x) {
+  if (Math.abs(x) < EPSILON) {
+    return 0
+  }
+  return x
+}

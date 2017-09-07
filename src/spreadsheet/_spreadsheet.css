@@ -1,3 +1,14 @@
+/* TODO: this should go into _variables.css */
+:root {
+  --sheet-header-width: 50px;
+  --sheet-header-height: 32px;
+  --sheet-header-height-plus-1: 33px;
+  --sheet-header-background: #dddddd;
+  --sheet-header-bordercolor: #C1C1C1;
+  --sheet-scrollbar-width: 16px;
+  --sheet-cell-bordercolor: #d5d5d5;
+}
+
 .sc-spreadsheet-page {
   position: absolute;
   top: 0px;
@@ -18,9 +29,8 @@
 
 .sc-spreadsheet-editor > .se-status-bar {
   width: 100%;
-  height: 32px;
+  height: var(--sheet-header-height);
 }
-
 
 .sc-spreadsheet {
   position: relative;
@@ -29,7 +39,7 @@
   height: 100%;
   overflow: hidden;
   cursor: default;
-  font-size: 13px;
+  font-size: var(small-font-size);
 }
 
 .sc-spreadsheet .sm-hidden {
@@ -59,31 +69,36 @@
   table-layout: fixed;
 }
 
-.sc-spreadsheet th {
-  background: #dddddd;
-  border: 1px solid #C1C1C1
+.sc-spreadsheet table > .se-head {
+  height: var(--sheet-header-height);
 }
 
-/* default column width */
-.sc-spreadsheet thead th {
-  width: 100px;
+.sc-spreadsheet th {
+  background: var(--sheet-header-background);
+  border: 1px solid var(--sheet-header-bordercolor);
 }
 
 .sc-spreadsheet tr th:first-child {
-  width: 50px;
+  width: var(--sheet-header-width);
 }
-
 
 .sc-spreadsheet td {
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--sheet-cell-bordercolor);
   position: relative;
   padding: 2px 5px;
 }
 
+/*
+  Note: the overlay is implemented as a container with
+  zero extent and no pointer events so that mouse events
+  can go through to the underlying cells by default.
+  Only elements with real dimensions such as buttons consume
+  the events.
+*/
 .sc-spreadsheet > .se-overlay {
-  height:0px;
+  height: 0px;
   overflow:visible;
   pointer-events:none;
   background:none !important;
@@ -128,25 +143,105 @@
   background: #ccc;
 }
 
-
 .sc-sheet-scrollbar {
   position: absolute;
+  display: flex;
   background: #FAFAFA;
   box-shadow: inset -4px 0 4px 0 rgba(25,25,25,0.04);
 }
 
 .sc-sheet-scrollbar.sm-horizontal {
+  flex-direction: row;
   left: 0px;
   right: 0px;
-  height: 20px;
   bottom: 0px;
+  height: var(--sheet-scrollbar-width);
+  width: 100%;
+}
+
+.sc-sheet-scrollbar .se-lspace {
+  background: #f0f0f0;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-lspace {
+  width: var(--sheet-header-width);
+  height: var(--sheet-scrollbar-width);
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-lspace {
+  width: var(--sheet-scrollbar-width);
+  height: var(--sheet-header-height-plus-1);
+  /*border: solid 1px var(--sheet-header-bordercolor);*/
+}
+
+
+.sc-sheet-scrollbar .se-rspace {
+  background: #f0f0f0;
+  border: 1px solid var(--sheet-cell-bordercolor);
+  width: var(--sheet-scrollbar-width);
+  height: var(--sheet-scrollbar-width);
 }
 
 .sc-sheet-scrollbar.sm-vertical {
-  width: 20px;
+  flex-direction: column;
   top: 0px;
   bottom: 0px;
   right: 0px;
+  width: var(--sheet-scrollbar-width);
+  height: 100%;
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-buttons {
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-buttons > * + * {
+  margin-top: 1px;
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-button {
+  padding-left: 3px;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-buttons {
+  display: flex;
+  flex-direction: row;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-buttons > * + * {
+  margin-left: 1px;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-button {
+  padding-left: 5px;
+}
+
+.sc-sheet-scrollbar .se-button {
+  width: var(--sheet-scrollbar-width);
+  height: var(--sheet-scrollbar-width);
+  line-height: var(--sheet-scrollbar-width);
+  background: var(--sheet-header-background);
+}
+
+.sc-sheet-scrollbar .se-button:hover {
+  outline: 1px solid #666;
+}
+
+.sc-sheet-scrollbar .se-prev {
+  /*background: blue;*/
+}
+
+.sc-sheet-scrollbar .se-next {
+  /*background: green;*/
+}
+
+.sc-sheet-scrollbar .se-scroll-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .sc-sheet-scrollbar .se-thumb {
@@ -155,23 +250,11 @@
 }
 
 .sc-sheet-scrollbar.sm-vertical .se-thumb {
-  position: absolute;
-  top: 40px;
-  left: 0px;
-  right: 0px;
-  height: 0px;
-  background-color: rgba(0,0,0, 0.2);
+  width: var(--sheet-scrollbar-width);
+  min-height: var(--sheet-scrollbar-width);
 }
 
 .sc-sheet-scrollbar.sm-horizontal .se-thumb {
-  position: absolute;
-  top: 40px;
-  left: 0px;
-  right: 0px;
-  height: 0px;
-  background-color: rgba(0,0,0, 0.2);
-}
-
-.sc-scrollbar.sm-hide-thumb .se-thumb {
-  visibility: hidden;
+  height: var(--sheet-scrollbar-width);
+  min-width: var(--sheet-scrollbar-width);
 }
