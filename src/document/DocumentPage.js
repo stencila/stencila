@@ -118,6 +118,7 @@ export default class DocumentPage extends Component {
               // ...fallback to the first file
               if (!main) main = files[0]
             }
+            if (!main) return Promise.reject(new Error(`No main file found for address "${address}"`))
 
             // Find the converter for the main file
             let Converter
