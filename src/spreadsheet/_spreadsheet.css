@@ -39,7 +39,7 @@
   height: 100%;
   overflow: hidden;
   cursor: default;
-  font-size: var(small-font-size);
+  font-size: var(--small-font-size);
 }
 
 .sc-spreadsheet .sm-hidden {

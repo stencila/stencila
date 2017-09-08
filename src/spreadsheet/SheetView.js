@@ -15,14 +15,17 @@ export default class SheetView extends Component {
     this.props.viewport.on('scroll', this._onScroll, this)
   }
 
+  didUpdate() {
+    this._updateViewport()
+  }
+
   dispose() {
     this.props.viewport.off(this)
   }
 
-  // rerender(...args) {
-  //   console.log('### RENDERING sheet view')
-  //   super.rerender(...args)
-  // }
+  update() {
+    this.rerender()
+  }
 
   render($$) {
     const sheet = this.props.sheet
@@ -33,12 +36,10 @@ export default class SheetView extends Component {
     let corner = $$('th').addClass('se-corner').ref('corner')
     // ATTENTION: we have a slight problem here.
     // <table> with fixed layout needs the exact width
-    // so that the column widths are respected
-    // To avoid that a rerender corrupts the layout we need
+    // so that the column widths are correct.
+    // To avoid that corrupting the layout we need
     // to make sure to set the correct value here
-    // (not only on didMount et al)
-    // Unfortunately this means that we need to control the
-    // width of the row headers (...the column widths come from the model)
+    // Unfortunately this means that we must set the corner width here
     corner.css({ width: 50 })
     let width = 50
     head.append(corner)
@@ -47,7 +48,11 @@ export default class SheetView extends Component {
       let th = $$('th').text(String(colIdx))
         .attr('data-col', colIdx)
         .css({ width: w })
-      width += w
+      if (colIdx < viewport.startCol) {
+        th.addClass('sm-hidden')
+      } else {
+        width += w
+      }
       head.append(th)
     }
     el.css({ width })
@@ -192,12 +197,6 @@ export default class SheetView extends Component {
     return { type, rowIdx, colIdx }
   }
 
-  // getColumnIndex(clientX) {
-  //   let rect = getBoundingRect(this.el)
-  //   let x = clientX - rect.left
-  //   return this._getColumnIndex(x)
-  // }
-
   getColumnIndex(x) {
     const headEl = this.refs.head.el
     const children = headEl.children
@@ -209,12 +208,6 @@ export default class SheetView extends Component {
     }
     return undefined
   }
-
-  // getRowIndex(clientY) {
-  //   let rect = getBoundingRect(this.el)
-  //   let y = clientY - rect.top
-  //   return this._getRowIndex(y)
-  // }
 
   getRowIndex(y) {
     const headEl = this.refs.head.el
@@ -237,11 +230,10 @@ export default class SheetView extends Component {
       this._updateViewport()
     } else if (dr && !dc) {
       this.refs.body.update()
-      this._updateBody()
+      this._updateViewport()
     } else {
-      this._updateHeader()
       this.refs.body.update()
-      this._updateBody()
+      this._updateViewport()
     }
   }
 

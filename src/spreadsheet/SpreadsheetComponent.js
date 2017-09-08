@@ -42,7 +42,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       resource: 'document'
     })
     // rerender the table view as soon the real element height is known
-    this.refs.sheetView.rerender()
+    this.refs.sheetView.update()
     // position selection overlays to reflect an initial selection
     this._positionSelection()
   }
@@ -96,7 +96,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   resize() {
-    this.refs.sheetView.rerender()
+    this.refs.sheetView.update()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
     this._positionSelection()
@@ -346,11 +346,17 @@ export default class SpreadsheetComponent extends CustomSurface {
           viewport.shift(dr, dc)
         }
       }
-      editorSession.setSelection({
-        type: 'custom',
-        customType: 'sheet',
-        data,
-        surfaceId: this.getId()
+      // HACK: Now that the rows get rendered asynchronously
+      // we need to wait with rendering the selection
+      // TODO: we could also show the selection only
+      // when the rows are ready
+      setTimeout(() => {
+        editorSession.setSelection({
+          type: 'custom',
+          customType: 'sheet',
+          data,
+          surfaceId: this.getId()
+        })
       })
     } finally {
       this._isNavigating = false
@@ -472,7 +478,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onDocumentChange(change) {
     if (change.hasUpdated('data')) {
-      this.refs.sheetView.rerender()
+      this.refs.sheetView.update()
     }
   }
 
