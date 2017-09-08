@@ -70,9 +70,6 @@ export function long (address) {
       let scheme = match[1]
       let rest = match[3]
       switch (scheme) {
-        case 'file':
-          if (rest[0] !== '/') rest = '/' + rest
-          break
         case 'gh':
           scheme = 'github'
           break
@@ -135,7 +132,7 @@ export function short (address) {
  */
 export function split (address) {
   address = long(address)
-  let matches = address.match(/([a-z]+):\/\/([\w\-.~/]+)(@([\w\-.]+))?/)
+  let matches = address.match(/([a-z]+):\/\/([^@]+)(@([\w\-.]+))?/)
   if (matches) {
     // Previously used Node's `path.extname` function to get any file extension.
     // This simple reimplementation probably need robustification.
