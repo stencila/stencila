@@ -34,16 +34,16 @@ export default class SpreadsheetComponent extends CustomSurface {
   didMount() {
     super.didMount()
 
-    this.context.editorSession.on('render', this._onSelectionChange, this, {
+    const editorSession = this.context.editorSession
+    editorSession.on('render', this._onSelectionChange, this, {
       resource: 'selection'
     })
-    this.context.editorSession.on('render', this._onDocumentChange, this, {
+    editorSession.on('render', this._onDocumentChange, this, {
       resource: 'document'
     })
-    // we need to rerender the table view once
-    // the real element height is known
+    // rerender the table view as soon the real element height is known
     this.refs.sheetView.rerender()
-    // position initially, if the selection happens to be there from the beginning
+    // position selection overlays to reflect an initial selection
     this._positionSelection()
   }
 
@@ -99,6 +99,7 @@ export default class SpreadsheetComponent extends CustomSurface {
     this.refs.sheetView.rerender()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
+    this._positionSelection()
   }
 
   _renderCellEditor($$) {
@@ -151,7 +152,13 @@ export default class SpreadsheetComponent extends CustomSurface {
   rerenderDOMSelection() {
     // console.log('SpreadsheetComponent.rerenderDOMSelection()')
     this._positionSelection()
+    // put the native focus into the keytrap so that we
+    // receive keyboard events
     this.refs.keytrap.el.focus()
+  }
+
+  _getBoundingRect(rowIdx, colIdx) {
+    return this.refs.sheetView.getBoundingRect(rowIdx, colIdx)
   }
 
   _getCellComponent(rowIdx, colIdx) {
@@ -178,76 +185,77 @@ export default class SpreadsheetComponent extends CustomSurface {
       columns: { visibility: 'hidden' },
       rows: { visibility: 'hidden' },
     }
+    let anchorRow, anchorCol
+    let ulRow, ulCol, lrRow, lrCol
     switch(data.type) {
       case 'range': {
-        let { anchorRow, anchorCol, focusRow, focusCol } = data
+        anchorRow = data.anchorRow
+        anchorCol = data.anchorCol
+        let focusRow = data.focusRow
+        let focusCol = data.focusCol
         let startRow = anchorRow
         let startCol = anchorCol
         let endRow = focusRow
         let endCol = focusCol
-        if (startRow > endRow) [startRow, endRow] = [endRow, startRow]
-        if (startCol > endCol) [startCol, endCol] = [endCol, startCol]
+        if (startRow > endRow) {
+          [startRow, endRow] = [endRow, startRow]
+        }
+        if (startCol > endCol) {
+          [startCol, endCol] = [endCol, startCol]
+        }
         // don't render the selection if it is completely outside of the viewport
         if (endRow < viewport.startRow || startRow > viewport.endRow ||
             endCol < viewport.startCol || startCol > viewport.endCol ) {
           break
         }
-        let [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), Math.max(startCol, viewport.startCol)]
-        let [lrRow, lrCol] = [Math.min(endRow, viewport.endRow), Math.min(endCol, viewport.endCol)]
-
-        let anchor = this._getCellComponent(anchorRow, anchorCol)
-        let ul = this._getCellComponent(ulRow, ulCol)
-        let lr = this._getCellComponent(lrRow, lrCol)
-
-        Object.assign(styles, this._computeAnchorStyles(anchor))
-        Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
+        [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), Math.max(startCol, viewport.startCol)]
+        ;[lrRow, lrCol] = [Math.min(endRow, viewport.endRow), Math.min(endCol, viewport.endCol)]
         break
       }
       case 'columns': {
-        let { anchorCol, focusCol } = data
+        anchorCol = data.anchorCol
+        anchorRow = viewport.startRow
+        let focusCol = data.focusCol
         let startCol = anchorCol
         let endCol = focusCol
-        if (startCol > endCol) [startCol, endCol] = [endCol, startCol]
-
-        let [ulRow, ulCol] = [viewport.startRow, Math.max(startCol, viewport.startCol)]
-        let [lrRow, lrCol] = [viewport.endRow, Math.min(endCol, viewport.endCol)]
-
-        let anchor = this._getCellComponent(viewport.startRow, anchorCol)
-        let ul = this._getCellComponent(ulRow, ulCol)
-        let lr = this._getCellComponent(lrRow, lrCol)
-
-        Object.assign(styles, this._computeAnchorStyles(anchor))
-        Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
+        if (startCol > endCol) {
+          [startCol, endCol] = [endCol, startCol]
+        }
+        [ulRow, ulCol] = [viewport.startRow, Math.max(startCol, viewport.startCol)]
+        ;[lrRow, lrCol] = [viewport.endRow, Math.min(endCol, viewport.endCol)]
         break
       }
       case 'rows': {
-        let { anchorRow, focusRow } = data
+        anchorRow = data.anchorRow
+        anchorCol = viewport.startCol
+        let focusRow = data.focusRow
         let startRow = anchorRow
         let endRow = focusRow
-        if (startRow > endRow) [startRow, endRow] = [endRow, startRow]
-
-        let [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), viewport.startCol]
-        let [lrRow, lrCol] = [Math.min(endRow, viewport.endRow), viewport.endCol]
-
-        let anchor = this._getCellComponent(anchorRow, viewport.startCol)
-        let ul = this._getCellComponent(ulRow, ulCol)
-        let lr = this._getCellComponent(lrRow, lrCol)
-
-        Object.assign(styles, this._computeAnchorStyles(anchor))
-        Object.assign(styles, this._computeRangeStyles(ul, lr, data.type))
+        if (startRow > endRow) {
+          [startRow, endRow] = [endRow, startRow]
+        }
+        [ulRow, ulCol] = [Math.max(startRow, viewport.startRow), viewport.startCol]
+        ;[lrRow, lrCol] = [Math.min(endRow, viewport.endRow), viewport.endCol]
         break
       }
       default:
-        // nothing
+        return styles
     }
-
+    // TODO: We need to improve rendering for range selections
+    // that are outside of the viewport
+    let anchorRect = this._getBoundingRect(anchorRow, anchorCol)
+    if (anchorRect.width && anchorRect.height) {
+      Object.assign(styles, this._computeAnchorStyles(anchorRect))
+    }
+    let ulRect = this._getBoundingRect(ulRow, ulCol)
+    let lrRect = this._getBoundingRect(lrRow, lrCol)
+    Object.assign(styles, this._computeRangeStyles(ulRect, lrRect, data.type))
     return styles
   }
 
-  _computeAnchorStyles(anchor) {
+  _computeAnchorStyles(anchorRect) {
     let styles = { anchor: { visibility: 'hidden' } }
-    if (anchor) {
-      let anchorRect = getRelativeBoundingRect(anchor.el, this.el)
+    if (anchorRect) {
       styles.anchor.top = anchorRect.top
       styles.anchor.left = anchorRect.left
       styles.anchor.width = anchorRect.width
@@ -257,44 +265,38 @@ export default class SpreadsheetComponent extends CustomSurface {
     return styles
   }
 
-  _computeRangeStyles(ul, lr, mode) {
+  _computeRangeStyles(ulRect, lrRect, mode) {
     let styles = {
       range: { visibility: 'hidden' },
       columns: { visibility: 'hidden' },
       rows: { visibility: 'hidden' }
     }
 
-    if (!ul || !lr) {
-      console.error('FIXME: there is an error in retrieving the selected cell elements')
-    } else {
-      // FIXME: in GDocs the background is only blue if the range is over multiple cells
-      // TODO: the API does not state that the elements must be native elements here.
-      //       IMO it should work with DOMElement in first place, and use native elements where necessary
-      let ulRect = getRelativeBoundingRect(ul.el, this.el)
-      let lrRect = getRelativeBoundingRect(lr.el, this.el)
-      styles.range.top = ulRect.top
-      styles.range.left = ulRect.left
-      styles.range.width = lrRect.left + lrRect.width - styles.range.left
-      styles.range.height = lrRect.top + lrRect.height - styles.range.top
-      styles.range.visibility = 'visible'
+    // FIXME: in GDocs the background is only blue if the range is over multiple cells
+    // TODO: the API does not state that the elements must be native elements here.
+    //       IMO it should work with DOMElement in first place, and use native elements where necessary
+    styles.range.top = ulRect.top
+    styles.range.left = ulRect.left
+    styles.range.width = lrRect.left + lrRect.width - styles.range.left
+    styles.range.height = lrRect.top + lrRect.height - styles.range.top
+    styles.range.visibility = 'visible'
 
-      let cornerRect = getRelativeBoundingRect(this.refs.sheetView.getCorner().el, this.el)
+    let cornerRect = getRelativeBoundingRect(this.refs.sheetView.getCornerComponent().el, this.el)
 
-      if (mode === 'range' || mode === 'columns') {
-        styles.columns.left = ulRect.left
-        styles.columns.top = cornerRect.top
-        styles.columns.height = cornerRect.height
-        styles.columns.width = lrRect.left + lrRect.width - styles.columns.left
-        styles.columns.visibility = 'visible'
-      }
+    if (mode === 'range' || mode === 'columns') {
+      styles.columns.left = ulRect.left
+      styles.columns.top = cornerRect.top
+      styles.columns.height = cornerRect.height
+      styles.columns.width = lrRect.left + lrRect.width - styles.columns.left
+      styles.columns.visibility = 'visible'
+    }
 
-      if (mode === 'range' || mode === 'rows') {
-        styles.rows.top = ulRect.top
-        styles.rows.left = cornerRect.left
-        styles.rows.width = cornerRect.width
-        styles.rows.height = lrRect.top + lrRect.height - styles.rows.top
-        styles.rows.visibility = 'visible'
-      }
+    if (mode === 'range' || mode === 'rows') {
+      styles.rows.top = ulRect.top
+      styles.rows.left = cornerRect.left
+      styles.rows.width = cornerRect.width
+      styles.rows.height = lrRect.top + lrRect.height - styles.rows.top
+      styles.rows.visibility = 'visible'
     }
 
     return styles
@@ -309,42 +311,50 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _nav(dr, dc, shift) {
-    const viewport = this._getViewport()
-    let data = this._getSelection()
-    // TODO: move viewport if necessary
-    let newFocusRow, newFocusCol
-    if (!shift) {
-      [newFocusRow, newFocusCol] = this._clamped(data.anchorRow+dr, data.anchorCol+dc)
-      data.anchorRow = data.focusRow = newFocusRow
-      data.anchorCol = data.focusCol = newFocusCol
-    } else {
-      [newFocusRow, newFocusCol] = this._clamped(data.focusRow+dr, data.focusCol+dc)
-      data.focusRow = newFocusRow
-      data.focusCol = newFocusCol
+    // throttle
+    if (this._isNavigating) return
+    this._isNavigating = true
+    try {
+      const editorSession = this.context.editorSession
+      const viewport = this._getViewport()
+      let data = this._getSelection()
+      // TODO: move viewport if necessary
+      let newFocusRow, newFocusCol
+      if (!shift) {
+        [newFocusRow, newFocusCol] = this._clamped(data.anchorRow+dr, data.anchorCol+dc)
+        data.anchorRow = data.focusRow = newFocusRow
+        data.anchorCol = data.focusCol = newFocusCol
+      } else {
+        [newFocusRow, newFocusCol] = this._clamped(data.focusRow+dr, data.focusCol+dc)
+        data.focusRow = newFocusRow
+        data.focusCol = newFocusCol
+      }
+      {
+        let dr = 0
+        let dc = 0
+        if (newFocusRow < viewport.startRow) {
+          dr = newFocusRow - viewport.startRow
+        } else if (newFocusRow > viewport.endRow) {
+          dr = newFocusRow - viewport.endRow
+        }
+        if(newFocusCol < viewport.startCol) {
+          dc = newFocusCol - viewport.startCol
+        } else if (newFocusCol > viewport.endCol) {
+          dc = newFocusCol - viewport.endCol
+        }
+        if (dr || dc) {
+          viewport.shift(dr, dc)
+        }
+      }
+      editorSession.setSelection({
+        type: 'custom',
+        customType: 'sheet',
+        data,
+        surfaceId: this.getId()
+      })
+    } finally {
+      this._isNavigating = false
     }
-    {
-      let dr = 0
-      let dc = 0
-      if (newFocusRow < viewport.startRow) {
-        dr = newFocusRow - viewport.startRow
-      } else if (newFocusRow > viewport.endRow) {
-        dr = newFocusRow - viewport.endRow
-      }
-      if(newFocusCol < viewport.startCol) {
-        dc = newFocusCol - viewport.startCol
-      } else if (newFocusCol > viewport.endCol) {
-        dc = newFocusCol - viewport.endCol
-      }
-      if (dr || dc) {
-        this._viewport.shift(dr, dc)
-      }
-    }
-    this.context.editorSession.setSelection({
-      type: 'custom',
-      customType: 'sheet',
-      data,
-      surfaceId: this.getId()
-    })
   }
 
   _clamped(rowIdx, colIdx) {
@@ -372,13 +382,18 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _getViewport() {
-    return this.refs.sheetView._getViewport()
+    return this._viewport
   }
 
   _getTargetForEvent(e) {
     return this.refs.sheetView.getTargetForEvent(e)
   }
 
+  /*
+    This gets called when the user enters a cell.
+    At this time it should be sure that the table cell
+    is already rendered.
+  */
   _openCellEditor(rowIdx, colIdx) {
     const cellEditor = this.refs.cellEditor
     let td = this._getCellComponent(rowIdx, colIdx)
@@ -553,7 +568,6 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _onMousemove(e) {
     if (this._isSelecting) {
-      console.log('_onMousemove', e)
       const sheetView = this.refs.sheetView
       const sel = this._selection
       switch (sel.type) {

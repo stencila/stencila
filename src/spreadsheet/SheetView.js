@@ -1,7 +1,8 @@
 import {
-  Component,
+  Component, getRelativeBoundingRect
 } from 'substance'
 import SpreadsheetCell from './SpreadsheetCell'
+import getBoundingRect from '../util/getBoundingRect'
 
 export default class SheetView extends Component {
 
@@ -30,7 +31,15 @@ export default class SheetView extends Component {
     let el = $$('table').addClass('sc-table-view')
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
-      .css({ width: 50})
+    // ATTENTION: we have a slight problem here.
+    // <table> with fixed layout needs the exact width
+    // so that the column widths are respected
+    // To avoid that a rerender corrupts the layout we need
+    // to make sure to set the correct value here
+    // (not only on didMount et al)
+    // Unfortunately this means that we need to control the
+    // width of the row headers (...the column widths come from the model)
+    corner.css({ width: 50 })
     let width = 50
     head.append(corner)
     for(let colIdx = 0; colIdx < M; colIdx++) {
@@ -49,8 +58,15 @@ export default class SheetView extends Component {
     return el
   }
 
+  _updateViewport() {
+    this._updateHeader()
+    this._updateBody()
+  }
+
   _updateHeader() {
     let viewport = this.props.viewport
+    // Note: in contrast to the render method
+    // we can use the real width here
     viewport.width = this.refs.corner.el.getWidth()
     viewport.endCol = viewport.startCol
 
@@ -78,11 +94,6 @@ export default class SheetView extends Component {
       th.addClass('sm-hidden')
     }
     this.el.css({ width: viewport.width })
-  }
-
-  _updateViewport() {
-    this._updateHeader()
-    this._updateBody()
   }
 
   _updateBody() {
@@ -116,25 +127,109 @@ export default class SheetView extends Component {
     }
   }
 
-  getTargetForEvent() {
-    // TODO
-    return { type: 'outside '}
+  getBoundingRect(rowIdx, colIdx) {
+    let top = 0, left = 0, height = 0, width = 0
+    // in header
+    let rowComp
+    if (rowIdx === -1) {
+      rowComp = this.refs.head
+    } else {
+      rowComp = this.refs.body.getRowComponent(rowIdx)
+    }
+    if (rowComp) {
+      let rect = getRelativeBoundingRect(rowComp.el, this.el)
+      top = rect.top
+      height = rect.height
+    }
+    let colComp
+    if (colIdx === -1) {
+      colComp = this.refs.corner
+    } else {
+      colComp = this.refs.head.getChildAt(colIdx+1)
+    }
+    if (colComp) {
+      let rect = getRelativeBoundingRect(colComp.el, this.el)
+      left = rect.left
+      width = rect.width
+    }
+    return { top, left, width, height }
   }
 
-  getRowIndex() {
-    return -1
-  }
-
-  getColumnIndex() {
-    return -1
-  }
-
-  getCellComponent() {
+  getCellComponent(rowIdx, colIdx) {
+    let tr = this.refs.body.getRowComponent(rowIdx)
+    if (tr) {
+      return tr.getCellComponent(colIdx)
+    }
+    // otherwise
     return null
   }
 
-  getCorner() {
+  getCornerComponent() {
     return this.refs.corner
+  }
+
+  /*
+   * Tries to resolve row and column index, and type of cell
+   * for a given event
+   */
+  getTargetForEvent(e) {
+    const clientX = e.clientX
+    const clientY = e.clientY
+    let colIdx = this.getColumnIndex(clientX)
+    let rowIdx = this.getRowIndex(clientY)
+    let type
+    if (colIdx >= 0 && rowIdx >= 0) {
+      type = 'cell'
+    } else if (colIdx === -1 && rowIdx >= 0) {
+      type = 'row'
+    } else if (colIdx >= 0 && rowIdx === -1) {
+      type = 'column'
+    } else if (colIdx === -1 && rowIdx === -1) {
+      type = 'corner'
+    } else {
+      type = 'outside'
+    }
+    return { type, rowIdx, colIdx }
+  }
+
+  // getColumnIndex(clientX) {
+  //   let rect = getBoundingRect(this.el)
+  //   let x = clientX - rect.left
+  //   return this._getColumnIndex(x)
+  // }
+
+  getColumnIndex(x) {
+    const headEl = this.refs.head.el
+    const children = headEl.children
+    for (let i = 0; i < children.length; i++) {
+      let child = children[i]
+      if (_isXInside(x, getBoundingRect(child))) {
+        return i-1
+      }
+    }
+    return undefined
+  }
+
+  // getRowIndex(clientY) {
+  //   let rect = getBoundingRect(this.el)
+  //   let y = clientY - rect.top
+  //   return this._getRowIndex(y)
+  // }
+
+  getRowIndex(y) {
+    const headEl = this.refs.head.el
+    if (_isYInside(y, getBoundingRect(headEl))) {
+      return -1
+    }
+    const bodyEl = this.refs.body.el
+    const children = bodyEl.children
+    for (let i = 0; i < children.length; i++) {
+      let child = children[i]
+      if (_isYInside(y, getBoundingRect(child))) {
+        return parseInt(child.getAttribute('data-row'), 10)
+      }
+    }
+    return undefined
   }
 
   _onScroll(dr, dc) {
@@ -150,6 +245,14 @@ export default class SheetView extends Component {
     }
   }
 
+}
+
+function _isXInside(x, rect) {
+  return x >= rect.left && x <= rect.left+rect.width
+}
+
+function _isYInside(y, rect) {
+  return y >= rect.top && y <= rect.top+rect.height
 }
 
 class TableBody extends Component {
@@ -172,11 +275,15 @@ class TableBody extends Component {
   }
 
   /*
-    TODO: we could optimize this for optimization
-    i.e.
+    TODO: this could be optimized my incrementally
+    adding rows and cols instead of relying on reactive rendering.
   */
   update() {
     this.rerender()
+  }
+
+  getRowComponent(rowIdx) {
+    return this.refs[rowIdx]
   }
 
 }
@@ -210,7 +317,7 @@ class TableRow extends Component {
         )
         for (let j = 0; j < M; j++) {
           const cell = sheet.getCell(rowIdx, j)
-          let td = $$('td')
+          let td = $$('td').ref(String(j))
             .append(
               $$(SpreadsheetCell, { node: cell }).ref(cell.id)
             ).attr({
@@ -239,6 +346,10 @@ class TableRow extends Component {
     this.setState('hidden')
   }
 
+  getCellComponent(colIdx) {
+    return this.refs[colIdx]
+  }
+
   _loadDataAndShow() {
     const sheet = this.props.sheet
     const rowIdx = this.props.rowIdx
@@ -249,22 +360,4 @@ class TableRow extends Component {
       }
     })
   }
-}
-
-// function getBoundingRect(el) {
-//   let _rect = el.getNativeElement().getBoundingClientRect()
-//   return {
-//     top: _rect.top,
-//     left: _rect.left,
-//     height: _rect.height,
-//     width: _rect.width
-//   }
-// }
-
-const EPSILON = 0.1
-function _epsilon(x) {
-  if (Math.abs(x) < EPSILON) {
-    return 0
-  }
-  return x
 }
