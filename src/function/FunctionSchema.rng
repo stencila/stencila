@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grammar
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+>
+  <start>
+    <ref name="function"/>
+  </start>
+
+  <define name="function">
+    <element name="function">
+      <ref name="function:name"/>
+      <ref name="function:title"/>
+      <ref name="function:description"/>
+      <ref name="function:params"/>
+      <ref name="function:return"/>
+      <ref name="function:source"/>
+    </element>
+  </define>
+
+  <define name="function:name">
+    <element name="name">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:title">
+    <element name="title">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:description">
+    <element name="description">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:params">
+    <element name="params">
+      <zeroOrMore>
+        <ref name="function:param"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:param">
+    <element name="param">
+      <ref name="function:param-attributes"/>
+      <ref name="function:description"/>
+    </element>
+    <empty />
+  </define>
+
+  <define name="function:param-attributes">
+    <ref name="function:param-name"/>
+    <ref name="function:type"/>
+  </define>
+
+  <define name="function:return">
+    <element name="return">
+      <ref name="function:return-attributes"/>
+      <ref name="function:description"/>
+    </element>
+    <empty />
+  </define>
+
+  <define name="function:return-attributes">
+    <ref name="function:type"/>
+  </define>
+
+  <define name="function:type">
+    <!-- There should be a shared types definition used in Functions, Sheets and elsewhere. See also value.js -->
+    <attribute name="type">
+      <choice>
+        <value>string</value>
+        <value>number</value>
+        <value>integer</value>
+        <value>boolean</value>
+        <value>object</value>
+        <value>array</value>
+        <value>date</value>
+        <value>time</value>
+        <value>datetime</value>
+        <value>year</value>
+        <value>yearmonth</value>
+        <value>duration</value>
+        <value>geopoint</value>
+        <value>geojson</value>
+        <value>any</value>
+      </choice>
+    </attribute>
+  </define>
+
+</grammar>
