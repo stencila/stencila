@@ -15,6 +15,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   getInitialState() {
     this._clipboard = new SpreadsheetClipboard(this.context.editorSession)
     this._viewport = new SheetViewport(this.props.sheet, this)
+    this._viewport.on('scroll', this._onViewportScroll, this)
     // internal state used during cell editing
     this._isEditing = false
     this._cell = null
@@ -303,64 +304,64 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _hideSelection() {
-    this.refs.selection.css('visibility', 'hidden')
+    this.refs.selAnchor.css('visibility', 'hidden')
+    this.refs.selRange.css('visibility', 'hidden')
+    this.refs.selColumns.css('visibility', 'hidden')
+    this.refs.selRows.css('visibility', 'hidden')
   }
 
   _getSelection() {
     return this.context.editorSession.getSelection().data
   }
 
+  _scroll(deltaX, deltaY) {
+    this._viewport.scroll(deltaX, deltaY)
+  }
+
   _nav(dr, dc, shift) {
-    // throttle
-    if (this._isNavigating) return
-    this._isNavigating = true
-    try {
-      const editorSession = this.context.editorSession
-      const viewport = this._getViewport()
-      let data = this._getSelection()
-      // TODO: move viewport if necessary
-      let newFocusRow, newFocusCol
-      if (!shift) {
-        [newFocusRow, newFocusCol] = this._clamped(data.anchorRow+dr, data.anchorCol+dc)
-        data.anchorRow = data.focusRow = newFocusRow
-        data.anchorCol = data.focusCol = newFocusCol
-      } else {
-        [newFocusRow, newFocusCol] = this._clamped(data.focusRow+dr, data.focusCol+dc)
-        data.focusRow = newFocusRow
-        data.focusCol = newFocusCol
-      }
-      {
-        let dr = 0
-        let dc = 0
-        if (newFocusRow < viewport.startRow) {
-          dr = newFocusRow - viewport.startRow
-        } else if (newFocusRow > viewport.endRow) {
-          dr = newFocusRow - viewport.endRow
-        }
-        if(newFocusCol < viewport.startCol) {
-          dc = newFocusCol - viewport.startCol
-        } else if (newFocusCol > viewport.endCol) {
-          dc = newFocusCol - viewport.endCol
-        }
-        if (dr || dc) {
-          viewport.shift(dr, dc)
-        }
-      }
-      // HACK: Now that the rows get rendered asynchronously
-      // we need to wait with rendering the selection
-      // TODO: we could also show the selection only
-      // when the rows are ready
-      setTimeout(() => {
-        editorSession.setSelection({
-          type: 'custom',
-          customType: 'sheet',
-          data,
-          surfaceId: this.getId()
-        })
-      })
-    } finally {
-      this._isNavigating = false
+    const editorSession = this.context.editorSession
+    const viewport = this._getViewport()
+    let data = this._getSelection()
+    // TODO: move viewport if necessary
+    let newFocusRow, newFocusCol
+    if (!shift) {
+      [newFocusRow, newFocusCol] = this._clamped(data.anchorRow+dr, data.anchorCol+dc)
+      data.anchorRow = data.focusRow = newFocusRow
+      data.anchorCol = data.focusCol = newFocusCol
+    } else {
+      [newFocusRow, newFocusCol] = this._clamped(data.focusRow+dr, data.focusCol+dc)
+      data.focusRow = newFocusRow
+      data.focusCol = newFocusCol
     }
+    {
+      let dr = 0
+      let dc = 0
+      if (newFocusRow < viewport.startRow) {
+        dr = newFocusRow - viewport.startRow
+      } else if (newFocusRow > viewport.endRow) {
+        dr = newFocusRow - viewport.endRow
+      }
+      if(newFocusCol < viewport.startCol) {
+        dc = newFocusCol - viewport.startCol
+      } else if (newFocusCol > viewport.endCol) {
+        dc = newFocusCol - viewport.endCol
+      }
+      if (dr || dc) {
+        viewport.shift(dr, dc)
+      }
+    }
+    // HACK: Now that the rows get rendered asynchronously
+    // we need to wait with rendering the selection
+    // TODO: we could also show the selection only
+    // when the rows are ready
+    setTimeout(() => {
+      editorSession.setSelection({
+        type: 'custom',
+        customType: 'sheet',
+        data,
+        surfaceId: this.getId()
+      })
+    }, 0)
   }
 
   _clamped(rowIdx, colIdx) {
@@ -470,6 +471,12 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   /* Event Handlers */
 
+  _onViewportScroll() {
+    setTimeout(() => {
+      this._positionSelection()
+    })
+  }
+
   _onSelectionChange(sel) {
     if (sel.surfaceId !== this.getId()) {
       this._hideSelection()
@@ -485,8 +492,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onWheel(e) {
     e.stopPropagation()
     e.preventDefault()
-    this._viewport.scroll(e.deltaX, e.deltaY)
-    this._positionSelection()
+    this._scroll(e.deltaX, e.deltaY)
   }
 
   _onMousedown(e) {
