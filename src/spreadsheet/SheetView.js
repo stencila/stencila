@@ -1,5 +1,5 @@
 import {
-  Component, getRelativeBoundingRect
+  Component, getRelativeBoundingRect, RenderingEngine
 } from 'substance'
 import SpreadsheetCell from './SpreadsheetCell'
 import getBoundingRect from '../util/getBoundingRect'
@@ -249,6 +249,10 @@ function _isYInside(y, rect) {
 
 class TableBody extends Component {
 
+  getInitialState() {
+    return {}
+  }
+
   render($$) {
     let el = $$('tbody')
     let sheet = this.props.sheet
@@ -263,19 +267,66 @@ class TableBody extends Component {
         }).ref(String(i))
       )
     }
+    this._startRow = viewport.startRow
+    this._nextRow = n
     return el
   }
 
   /*
-    TODO: this could be optimized my incrementally
+    TODO: this could be speeded-up by incrementally
     adding rows and cols instead of relying on reactive rendering.
   */
   update() {
-    this.rerender()
+    const viewport = this.props.viewport
+    let dr = viewport.startRow - this._startRow
+    if (dr > 0 && dr < viewport.P) {
+      this._append(dr)
+    } else if (dr < 0 && dr > -viewport.P) {
+      this._prepend(dr)
+    } else {
+      this.rerender()
+    }
   }
 
   getRowComponent(rowIdx) {
     return this.refs[rowIdx]
+  }
+
+  _append(dr) {
+    let renderContext = RenderingEngine.createContext(this)
+    let $$ = renderContext.$$
+    let sheet = this.props.sheet
+    let viewport = this.props.viewport
+    for(let i=0; i<dr; i++) {
+      let rowIndex = this._nextRow++
+      this.append(
+        $$(TableRow, {
+          sheet, viewport,
+          rowIdx: rowIndex
+        }).ref(String(rowIndex))
+      )
+      this.removeChild(this.getChildAt(0))
+      this._startRow++
+    }
+  }
+
+  _prepend(dr) {
+    let renderContext = RenderingEngine.createContext(this)
+    let $$ = renderContext.$$
+    let sheet = this.props.sheet
+    let viewport = this.props.viewport
+    for(let i=0; i>dr; i--) {
+      this._startRow--
+      let rowIndex = this._startRow
+      this.insertAt(0,
+        $$(TableRow, {
+          sheet, viewport,
+          rowIdx: rowIndex
+        }).ref(String(rowIndex))
+      )
+      this.removeChild(this.getChildAt(this.getChildCount()-1))
+      this._nextRow--
+    }
   }
 
 }
