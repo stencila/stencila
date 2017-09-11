@@ -152,7 +152,7 @@ function buildEnv() {
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
-    src: './tests/documents/**/*',
+    src: ['./tests/documents/**/*', './tests/function/fixtures/*'],
     dest: './tmp/test-vfs.js',
     execute(files) {
       const rootDir = b.rootDir
@@ -334,7 +334,7 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', () => {
+b.task('test:backend', ['schema'], () => {
   buildTestBackend()
 })
 

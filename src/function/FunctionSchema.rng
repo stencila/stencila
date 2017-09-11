@@ -15,7 +15,8 @@
       <ref name="function:description"/>
       <ref name="function:params"/>
       <ref name="function:return"/>
-      <ref name="function:source"/>
+      <ref name="function:implems"/>
+      <ref name="function:tests"/>
     </element>
   </define>
 
@@ -32,42 +33,10 @@
   </define>
 
   <define name="function:description">
+    <!-- This could be a "rich text" mini-document which could include math, lists etc-->
     <element name="description">
       <text/>
     </element>
-  </define>
-
-  <define name="function:params">
-    <element name="params">
-      <zeroOrMore>
-        <ref name="function:param"/>
-      </zeroOrMore>
-    </element>
-  </define>
-
-  <define name="function:param">
-    <element name="param">
-      <ref name="function:param-attributes"/>
-      <ref name="function:description"/>
-    </element>
-    <empty />
-  </define>
-
-  <define name="function:param-attributes">
-    <ref name="function:param-name"/>
-    <ref name="function:type"/>
-  </define>
-
-  <define name="function:return">
-    <element name="return">
-      <ref name="function:return-attributes"/>
-      <ref name="function:description"/>
-    </element>
-    <empty />
-  </define>
-
-  <define name="function:return-attributes">
-    <ref name="function:type"/>
   </define>
 
   <define name="function:type">
@@ -91,6 +60,106 @@
         <value>any</value>
       </choice>
     </attribute>
+  </define>
+
+  <define name="function:params">
+    <element name="params">
+      <zeroOrMore>
+        <ref name="function:param"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:param">
+    <element name="param">
+      <attribute name="name"></attribute>
+      <ref name="function:type"/>
+      <ref name="function:description"/>
+    </element>
+  </define>
+
+  <define name="function:return">
+    <element name="return">
+      <ref name="function:type"/>
+      <ref name="function:description"/>
+    </element>
+    <empty />
+  </define>
+
+  <define name="function:implems">
+    <element name="implems">
+      <zeroOrMore>
+        <ref name="function:implem"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:implem">
+    <element name="implem">
+      <attribute name="language"></attribute>
+      <optional>
+        <ref name="function:implem:requires"/>
+      </optional>
+      <ref name="function:implem:code"/>
+    </element>
+  </define>
+
+  <define name="function:implem:requires">
+    <element name="requires">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:implem:code">
+    <element name="code">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:tests">
+    <element name="tests">
+      <zeroOrMore>
+        <ref name="function:test"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:test">
+    <element name="test">
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+      <optional>
+        <ref name="function:test:args"/>
+      </optional>
+      <ref name="function:test:result"/>
+    </element>
+  </define>
+
+  <define name="function:test:args">
+    <element name="args">
+      <zeroOrMore>
+        <ref name="function:test:arg"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:test:arg">
+    <element name="arg">
+      <optional>
+        <attribute name="name"></attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:test:result">
+    <element name="result">
+      <optional>
+        <attribute name="name"></attribute>
+      </optional>
+      <text/>
+    </element>
   </define>
 
 </grammar>

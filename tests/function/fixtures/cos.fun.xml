@@ -1,0 +1,34 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>cos</name>
+  <title>Cosine</title>
+  <description>Returns the cosine of an angle</description>
+  <params>
+    <param name="angle" type="number">
+      <description>The angle in radians</description>
+    </param>
+  </params>
+  <return type="number">
+    <description>The cosine of the angle, a number between -1 and 1</description>
+  </return>
+  <implems>
+    <implem language="js">
+      <code>Math.cos</code>
+    </implem>
+    <implem language="py">
+      <requires>math</requires>
+      <code>math.cos</code>
+    </implem>
+    <implem language="r">
+      <code>cos</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <args>
+        <arg>{"type":"number","format":"text","content":"0"}</arg>
+      </args>
+      <result>{"type":"number","format":"text","content":"1"}</result>
+    </test>
+  </tests>
+</function>
