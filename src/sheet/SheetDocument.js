@@ -1,18 +1,18 @@
 import { XMLDocument } from 'substance'
-import SpreadsheetSchema from './SpreadsheetSchema'
+import SheetSchema from './SheetSchema'
 
-export default class SpreadsheetDocument extends XMLDocument {
+export default class SheetDocument extends XMLDocument {
 
   getDocTypeParams() {
-    return SpreadsheetSchema.getDocTypeParams()
+    return SheetSchema.getDocTypeParams()
   }
 
   getXMLSchema() {
-    return SpreadsheetSchema
+    return SheetSchema
   }
 
   getRootNode() {
-    return this.get('spreadsheet')
+    return this.get('sheet')
   }
 
   getName() {

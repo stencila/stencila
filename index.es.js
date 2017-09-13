@@ -29,4 +29,4 @@ export { default as functions } from './src/js-context/functions'
 export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'
 
-export * from './src/spreadsheet/index.js'
+export * from './src/sheet/index.js'

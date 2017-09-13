@@ -2,7 +2,7 @@
 @import './_sheet-scrollbar.css';
 @import './_sheet-dialogs.css';
 
-.sc-spreadsheet-page {
+.sc-sheet-page {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -10,22 +10,22 @@
   right: 0px;
 }
 
-.sc-spreadsheet-editor {
+.sc-sheet-editor {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.sc-spreadsheet-editor > .sc-spreadsheet {
+.sc-sheet-editor > .sc-sheet {
   flex: 1;
 }
 
-.sc-spreadsheet-editor > .se-status-bar {
+.sc-sheet-editor > .se-status-bar {
   width: 100%;
   height: var(--sheet-header-height);
 }
 
-.sc-spreadsheet {
+.sc-sheet {
   position: relative;
   background: #fff;
   width: 100%;
@@ -35,56 +35,56 @@
   font-size: var(--small-font-size);
 }
 
-.sc-spreadsheet .sm-hidden {
+.sc-sheet .sm-hidden {
   display: none;
 }
 
-.sc-spreadsheet .se-keytrap {
+.sc-sheet .se-keytrap {
   opacity: 0;
 }
 
-.sc-spreadsheet .se-corner {
+.sc-sheet .se-corner {
   background: #d2d2d2;
   border-right: 2px solid #aaa;
   border-bottom: 2px solid #aaa;
 }
 
-.sc-spreadsheet .se-corner > .se-column-label {
+.sc-sheet .se-corner > .se-column-label {
   visibility: hidden;
 }
 
-.sc-spreadsheet > .se-content {
+.sc-sheet > .se-content {
   position: absolute;
   top: 0px;
   left: 0px;
   overflow: hidden;
 }
 
-.sc-spreadsheet table {
+.sc-sheet table {
   position: relative;
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-.sc-spreadsheet table > .se-head {
+.sc-sheet table > .se-head {
   height: var(--sheet-header-height);
 }
 
-.sc-spreadsheet th {
+.sc-sheet th {
   background: var(--sheet-header-background);
   border: 1px solid var(--sheet-header-bordercolor);
 }
 
-.sc-spreadsheet tr th:first-child {
+.sc-sheet tr th:first-child {
   width: var(--sheet-header-width);
 }
 
-.sc-spreadsheet th > * {
+.sc-sheet th > * {
   width: 100%;
 }
 
 
-.sc-spreadsheet td {
+.sc-sheet td {
   white-space: pre-wrap;
   overflow-wrap: break-word;
   border: 1px solid var(--sheet-cell-bordercolor);
@@ -99,31 +99,31 @@
   Only elements with real dimensions such as buttons consume
   the events.
 */
-.sc-spreadsheet > .se-overlay {
+.sc-sheet > .se-overlay {
   height: 0px;
   overflow:visible;
   pointer-events:none;
   background:none !important;
 }
 
-.sc-spreadsheet > .se-overlay > .se-selection-anchor {
+.sc-sheet > .se-overlay > .se-selection-anchor {
   position: absolute;
   border: solid 2px #2684FC;
 }
 
-.sc-spreadsheet > .se-overlay > .se-selection-range {
+.sc-sheet > .se-overlay > .se-selection-range {
   position: absolute;
   border: solid 1px #2684FC;
   background: rgba(38, 132, 252, 0.1)
 }
 
-.sc-spreadsheet > .se-overlay > .se-selection-columns,
-.sc-spreadsheet > .se-overlay > .se-selection-rows {
+.sc-sheet > .se-overlay > .se-selection-columns,
+.sc-sheet > .se-overlay > .se-selection-rows {
   position: absolute;
   background: rgba(0,0,0,0.05)
 }
 
-.sc-spreadsheet-cell-editor {
+.sc-sheet-cell-editor {
   display: none;
   position: absolute;
   top: 0px;
@@ -134,7 +134,7 @@
   padding: 2px 5px;
 }
 
-.sc-spreadsheet .se-context-menu {
+.sc-sheet .se-context-menu {
   position: absolute;
   background: var(--dark-bg-color);
   border: 1px solid #999;

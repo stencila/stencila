@@ -1,9 +1,9 @@
 import {
   DefaultDOMElement, platform
 } from 'substance'
-import { getSelection, getRange } from './spreadsheetUtils'
+import { getSelection, getRange } from './sheetHelpers'
 
-export default class SpreadsheetClipboard {
+export default class SheetClipboard {
 
   constructor(editorSession) {
     this.editorSession = editorSession

@@ -1,7 +1,7 @@
 import { XMLDocumentImporter } from 'substance'
 
 export default
-class SpreadsheetDocumentImporter extends XMLDocumentImporter {
+class SheetDocumentImporter extends XMLDocumentImporter {
 
   /*
     overridden to enforce some ids for singular elements, such as
@@ -9,7 +9,7 @@ class SpreadsheetDocumentImporter extends XMLDocumentImporter {
   */
   _getIdForElement(el, type) {
     switch (type) {
-      case 'spreadsheet':
+      case 'sheet':
       case 'data':
       case 'columns':
         return type

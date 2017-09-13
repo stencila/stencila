@@ -1,11 +1,11 @@
 import { Component, EditorSession, Configurator } from 'substance'
-import SpreadsheetEditor from './SpreadsheetEditor'
-import SpreadsheetPackage from './SpreadsheetPackage'
+import SheetEditor from './SheetEditor'
+import SheetPackage from './SheetPackage'
 
-export default class SpreadsheetPage extends Component {
+export default class SheetPage extends Component {
 
   getInitialState() {
-    this._configurator = new Configurator().import(SpreadsheetPackage)
+    this._configurator = new Configurator().import(SheetPackage)
 
     return {
       editorSession: null,
@@ -43,11 +43,11 @@ export default class SpreadsheetPage extends Component {
 
   render($$) {
     const editorSession = this.getEditorSession()
-    let el = $$('div').addClass('sc-spreadsheet-page')
+    let el = $$('div').addClass('sc-sheet-page')
     if (!editorSession) {
       el.text('Loading...')
     } else {
-      el.append($$(SpreadsheetEditor, {
+      el.append($$(SheetEditor, {
         editorSession
       }))
     }

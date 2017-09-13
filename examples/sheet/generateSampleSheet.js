@@ -1,16 +1,16 @@
 import {DefaultDOMElement} from 'substance'
 
 const template = `<?xml version="1.0"?>
-<!DOCTYPE spreadsheet PUBLIC "StencilaSpreadsheet 1.0" "StencilaSpreadsheet.dtd">
-<spreadsheet>
+<!DOCTYPE sheet PUBLIC "StencilaSheet 1.0" "StencilaSheet.dtd">
+<sheet>
   <meta>
     <name>sample</name>
     <title>Untitled</title>
-    <description>A sample Spreadsheet</description>
+    <description>A sample Sheet</description>
     <columns></columns>
   </meta>
   <data></data>
-</spreadsheet>
+</sheet>
 `
 
 export default function generateSampleSheet(rows, cols) {

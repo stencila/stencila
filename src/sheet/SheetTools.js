@@ -1,4 +1,4 @@
-import { Tool, Button } from 'substance'
+import { ToggleTool, Button, stop } from 'substance'
 
 // Need this because we have dynamic labels
 class CustomButton extends Button {
@@ -9,14 +9,28 @@ class CustomButton extends Button {
   }
 }
 
-function _stopPropagation(e) {
-  e.stopPropagation()
-}
-
-class ContextMenuItem extends Tool {
+class ContextMenuItem extends ToggleTool {
 
   render($$) {
-    return super.render($$).on('mousedown', _stopPropagation)
+    let el = $$('div')
+      .addClass('sc-toggle-tool')
+
+    el.addClass(this.getClassNames())
+
+    el.append(
+      this.renderButton($$)
+    )
+
+    // tooltips are somewhat distracting here
+    // el.append(
+    //   $$(Tooltip, {
+    //     text: this._getTooltipText()
+    //   })
+    // )
+
+    el.on('mousedown', stop)
+
+    return el
   }
 
   renderButton($$) {
@@ -40,9 +54,6 @@ class ContextMenuItem extends Tool {
     this.el.emit('contextmenuitemclick')
   }
 
-  _getTooltipText() {
-    return this.getButtonLabel()
-  }
 }
 
 class InsertRowsTool extends ContextMenuItem {

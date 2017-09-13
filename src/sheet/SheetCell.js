@@ -1,11 +1,11 @@
 import { NodeComponent } from 'substance'
 
-export default class SpreadsheetCell extends NodeComponent {
+export default class SheetCell extends NodeComponent {
 
   render($$) {
     const cell = this.props.node
     // TODO: implement this fully
-    let el = $$('div').addClass('sc-spreadsheet-cell')
+    let el = $$('div').addClass('sc-sheet-cell')
     el.append(this._renderContent($$, cell))
     return el
   }

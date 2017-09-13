@@ -126,7 +126,7 @@ function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
   b.copy('index.html', './build/index.html')
   //
-  ;['document', 'dashboard', 'spreadsheet'].forEach((example) => {
+  ;['document', 'dashboard', 'sheet'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
@@ -284,7 +284,7 @@ function serveDocumentation() {
   fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
 
-const RNG_SEARCH_DIRS = ['src/spreadsheet']
+const RNG_SEARCH_DIRS = ['src/sheet']
 
 function _compileSchema(name, src, options = {} ) {
   const DEST = `tmp/${name}.data.js`
@@ -334,11 +334,11 @@ b.task('css', () => {
 .describe('Creates a single CSS bundle.')
 
 b.task('schema', () => {
-  _compileSchema('SpreadsheetSchema', './src/spreadsheet/SpreadsheetSchema.rng')
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
 })
 
 b.task('schema:debug', () => {
-  _compileSchema('SpreadsheetSchema', './src/spreadsheet/SpreadsheetSchema.rng', { debug: true})
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
 })
 
 b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {

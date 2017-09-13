@@ -1,6 +1,6 @@
 import { EditorSession, AbstractEditor, TextPropertyEditor } from 'substance'
 
-export default class SpreadsheetCellEditor extends AbstractEditor {
+export default class SheetCellEditor extends AbstractEditor {
 
   _initialize(props) {
     let doc = props.sheet.newInstance()
@@ -24,7 +24,7 @@ export default class SpreadsheetCellEditor extends AbstractEditor {
   }
 
   render($$) {
-    let el = $$('div').addClass('sc-spreadsheet-cell-editor')
+    let el = $$('div').addClass('sc-sheet-cell-editor')
     el.append(
       $$(TextPropertyEditor, {
         path: this.node.getTextPath()

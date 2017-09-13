@@ -1,7 +1,7 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
-import SpreadsheetComponent from './SpreadsheetComponent'
+import SheetComponent from './SheetComponent'
 
-export default class SpreadsheetEditor extends AbstractEditor {
+export default class SheetEditor extends AbstractEditor {
 
   constructor(...args) {
     super(...args)
@@ -28,10 +28,10 @@ export default class SpreadsheetEditor extends AbstractEditor {
 
 
   render($$) {
-    let el = $$('div').addClass('sc-spreadsheet-editor')
+    let el = $$('div').addClass('sc-sheet-editor')
     el.append(
       this._renderToolbar($$),
-      this._renderSpreadsheet($$),
+      this._renderSheet($$),
       this._renderStatusbar($$)
     )
     return el
@@ -44,14 +44,14 @@ export default class SpreadsheetEditor extends AbstractEditor {
     }).ref('toolbar')
   }
 
-  _renderSpreadsheet($$) {
+  _renderSheet($$) {
     const sheet = this.getDocument()
-    // only rendering the spreadsheet when mounted
+    // only rendering the sheet when mounted
     // so that we have real width and height
     if (this.isMounted()) {
-      return $$(SpreadsheetComponent, {
+      return $$(SheetComponent, {
         sheet
-      }).ref('spreadsheet')
+      }).ref('sheet')
     } else {
       return $$('div')
     }
@@ -71,7 +71,7 @@ export default class SpreadsheetEditor extends AbstractEditor {
 
   __onResize() {
     this._rafId = null
-    this.refs.spreadsheet.resize()
+    this.refs.sheet.resize()
   }
 
   getWidth() {

@@ -1,4 +1,4 @@
-# Stencila Spreadsheet schema
+# Stencila Sheet schema
 
 Documentation for the spreadsheet XML schema defined in `SpreadsheetSchema.rng`. Put here, instead of as `<a:documentation>` elements in the RNG, because it makes both the schema and the documentation, more readable.
 
@@ -7,7 +7,7 @@ Where appropriate we have re-used existing schema definitions for spreadsheets a
 - [metadata of the Frictionless Data Data Resource](https://specs.frictionlessdata.io/data-resource/#metadata-properties).
 - [field descriptors the Frictionless Data Table Schema](https://specs.frictionlessdata.io/table-schema/#field-descriptors)
 
-- `spreadsheet` element
+- `sheet` element
 
   Contains one each of `meta` and `data` elements.
 
@@ -18,7 +18,7 @@ Where appropriate we have re-used existing schema definitions for spreadsheets a
       - `name` element
 
         Text name for the spreadsheet.
-        
+
       - `title` element
 
         Text title for the spreadsheet.

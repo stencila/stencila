@@ -1,28 +1,28 @@
 import { registerSchema, BasePackage } from 'substance'
-import SpreadsheetDocument from './SpreadsheetDocument'
-import SpreadsheetSchema from './SpreadsheetSchema'
+import SheetDocument from './SheetDocument'
+import SheetSchema from './SheetSchema'
 
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings
-} from './SpreadsheetCommands'
+} from './SheetCommands'
 import {
   InsertRowsAboveTool, InsertRowsBelowTool, DeleteRowsTool,
   InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool,
   OpenColumnSettingsTool
- } from './SpreadsheetTools'
+ } from './SheetTools'
 
-import SpreadsheetDocumentImporter from './SpreadsheetDocumentImporter'
+import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 
 export default {
-  name: 'Spreadsheet',
+  name: 'Sheet',
 
   configure(config) {
     // registers model nodes and a converter
-    registerSchema(config, SpreadsheetSchema, SpreadsheetDocument, {
-      ImporterClass: SpreadsheetDocumentImporter
+    registerSchema(config, SheetSchema, SheetDocument, {
+      ImporterClass: SheetDocumentImporter
     })
 
     config.import(BasePackage)

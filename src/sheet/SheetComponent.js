@@ -3,19 +3,19 @@ import {
   getRelativeBoundingRect, platform, DefaultDOMElement,
   keys, clone
 } from 'substance'
-import SpreadsheetCellEditor from './SpreadsheetCellEditor'
+import SheetCellEditor from './SheetCellEditor'
 import SheetView from './SheetView'
 import SheetViewport from './SheetViewport'
 import SheetScrollbar from './SheetScrollbar'
-import SpreadsheetContextMenu from './SpreadsheetContextMenu'
-import SpreadsheetClipboard from './SpreadsheetClipboard'
-import { getRange } from './spreadsheetUtils'
+import SheetContextMenu from './SheetContextMenu'
+import SheetClipboard from './SheetClipboard'
+import { getRange } from './sheetHelpers'
 
-export default class SpreadsheetComponent extends CustomSurface {
+export default class SheetComponent extends CustomSurface {
 
   // TODO: we should think about using Component state instead
   getInitialState() {
-    this._clipboard = new SpreadsheetClipboard(this.context.editorSession)
+    this._clipboard = new SheetClipboard(this.context.editorSession)
     this._viewport = new SheetViewport(this.props.sheet, this)
     this._viewport.on('scroll', this._onViewportScroll, this)
     // internal state used during cell editing
@@ -64,7 +64,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   render($$) {
     const sheet = this._getSheet()
     const viewport = this._viewport
-    let el = $$('div').addClass('sc-spreadsheet')
+    let el = $$('div').addClass('sc-sheet')
     el.append(
       $$('textarea').addClass('se-keytrap').ref('keytrap')
         .css({ position: 'absolute', width: 0, height: 0 })
@@ -114,7 +114,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   // called by SurfaceManager to render the selection plus setting the
   // DOM selection into a proper state
   rerenderDOMSelection() {
-    // console.log('SpreadsheetComponent.rerenderDOMSelection()')
+    // console.log('SheetComponent.rerenderDOMSelection()')
     this._positionSelection()
     // put the native focus into the keytrap so that we
     // receive keyboard events
@@ -126,7 +126,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _renderCellEditor($$) {
-    return $$(SpreadsheetCellEditor, { sheet: this._getSheet() })
+    return $$(SheetCellEditor, { sheet: this._getSheet() })
       .ref('cellEditor')
       .css('display', 'none')
       .on('enter', this._onCellEditorEnter)
@@ -146,7 +146,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _renderRowContextMenu($$) {
     const configurator = this.context.configurator
-    let rowMenu = $$(SpreadsheetContextMenu, {
+    let rowMenu = $$(SheetContextMenu, {
       toolPanel: configurator.getToolPanel('row-context-menu')
     }).ref('rowMenu')
       .addClass('se-context-menu')
@@ -156,7 +156,7 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _renderColumnContextMenu($$) {
     const configurator = this.context.configurator
-    let colMenu = $$(SpreadsheetContextMenu, {
+    let colMenu = $$(SheetContextMenu, {
       toolPanel: configurator.getToolPanel('column-context-menu')
     }).ref('columnMenu')
       .addClass('se-context-menu')

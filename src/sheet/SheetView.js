@@ -1,7 +1,7 @@
 import {
   Component, NodeComponent, getRelativeBoundingRect, RenderingEngine
 } from 'substance'
-import SpreadsheetCell from './SpreadsheetCell'
+import SheetCell from './SheetCell'
 import getBoundingRect from '../util/getBoundingRect'
 import { getColumnLabel } from './sheetHelpers'
 
@@ -415,7 +415,7 @@ class TableRow extends Component {
           const cell = sheet.getCell(rowIdx, j)
           let td = $$('td').ref(String(j))
             .append(
-              $$(SpreadsheetCell, { node: cell }).ref(cell.id)
+              $$(SheetCell, { node: cell }).ref(cell.id)
             ).attr({
               'data-row': rowIdx,
               'data-col': j
