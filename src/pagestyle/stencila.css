@@ -12,6 +12,10 @@
 
 @import './_style-transforms';
 @import './_pagestyle.css';
-@import '../document/_document-editor.css';
+/*@import '../document/_document-editor.css';*/
+@import '../document/_document-page.css';
 @import '../dashboard/_dashboard.css';
 @import '../sheet/_sheet.css';
+
+/* Texture styles */
+@import '../../node_modules/substance-texture/texture.css';

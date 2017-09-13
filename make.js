@@ -6,6 +6,8 @@ const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
 const fs = require('fs')
 const merge = require('lodash.merge')
+// used to bundle example files for demo
+const vfs = require('substance-bundler/extensions/vfs')
 
 /*
   Guide: this is a bundler make file.
@@ -56,6 +58,7 @@ const UNIFIED_MODULES = {
 
 const BROWSER_EXTERNALS = {
   'substance': 'window.substance',
+  'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
   'brace': 'window.ace',
   'd3': 'window.d3',
@@ -93,6 +96,7 @@ function copyAssets() {
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
+  b.copy('./node_modules/substance-texture/dist/texture.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
 }
 
@@ -126,7 +130,7 @@ function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
   b.copy('index.html', './build/index.html')
   //
-  ;['document', 'dashboard', 'sheet'].forEach((example) => {
+  ;['publication', 'dashboard', 'sheet'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
@@ -135,24 +139,17 @@ function buildExamples() {
   })
 }
 
-// reads all guide documents from ./guides and writes them into a script
-function buildGuides() {
-  b.custom('Creating test backend...', {
-    src: './guides/**/*.html',
-    dest: './build/guides.js',
-    execute(files) {
-      const vfs = {}
-      files.forEach((guideFilePath) => {
-        let dirPath = path.dirname(guideFilePath)
-        let content = fs.readFileSync(path.join(dirPath, 'index.html'), 'utf8')
-        let documentId = path.basename(dirPath)
-        vfs[documentId] = content
-      })
-      const data = ['window.GUIDES = ', JSON.stringify(vfs, null, '  ')].join('')
-      b.writeSync('build/guides.js', data, 'utf8')
-    }
+// reads all test projects
+function buildData() {
+  // TODO: we should also be able to map images
+  vfs(b, {
+    src: ['./data/**/*.xml'],
+    dest: 'build/vfs.js',
+    format: 'umd', moduleName: 'vfs'
   })
+
 }
+
 
 // This is used to expose `STENCILA_XXXX` environment variables to the js app
 function buildEnv() {
@@ -342,7 +339,7 @@ b.task('schema:debug', () => {
 })
 
 b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
-  buildGuides() // required by MemoryBackend
+  buildData() // required by MemoryBackend
   buildEnv()
   buildStencilaBrowser()
   buildStencilaNodeJS()

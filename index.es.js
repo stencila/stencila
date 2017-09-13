@@ -13,6 +13,7 @@ export { default as MemoryBackend } from './src/backend/MemoryBackend'
 export { default as MemoryBuffer } from './src/backend/MemoryBuffer'
 
 export { default as DocumentEditor } from './src/document/DocumentEditor'
+export { default as Publication } from './src/publication/Publication'
 export { default as DocumentPage } from './src/document/DocumentPage'
 
 export { default as DocumentHTMLConverter } from './src/document/DocumentHTMLConverter'
