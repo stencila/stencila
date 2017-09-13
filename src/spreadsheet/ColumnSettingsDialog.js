@@ -27,20 +27,32 @@ export default class ColumnSettingsDialog extends Component {
 
   _renderBody($$) {
     const node = this._getNode()
+    const type = node.attr('type')
     let body = $$('div').addClass('se-body')
     body.append($$('div').append(
       $$('div').addClass('se-label').text(this.getLabel('name')),
       $$('input').ref('name')
-        .addClass('sm-name')
+        .addClass('se-input sm-name')
         .attr('type', 'text')
         .val(node.attr('name'))
     ))
+
+    let typeSelect = $$('select').ref('type')
+      .addClass('se-input sm-type')
+      .val(node.attr('type'))
+    // TODO: get types from schema
+    ;['any', 'number', 'string'].forEach((t) => {
+      let option = $$('option')
+        .attr('value', t)
+        .text(this.getLabel(t))
+      if (t === type) {
+        option.attr('selected', true)
+      }
+      typeSelect.append(option)
+    })
     body.append($$('div').append(
       $$('div').addClass('se-label').text(this.getLabel('type')),
-      $$('input').ref('type')
-        .addClass('sm-type')
-        .attr('type', 'text')
-        .val(node.attr('type'))
+      typeSelect
     ))
     return body
   }

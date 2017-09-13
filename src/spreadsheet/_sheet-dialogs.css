@@ -29,3 +29,21 @@
 .sc-dialog > .se-foot > * {
   flex: 1;
 }
+
+.sc-column-settings-dialog .se-input {
+  width: 100%;
+  margin: 0;
+  outline: none;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.sc-column-settings-dialog .se-input.sm-type {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
