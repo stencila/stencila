@@ -19,6 +19,11 @@ export default class SpreadsheetDocument extends XMLDocument {
     return this.getRootNode().find('name').text()
   }
 
+  getColumnMeta(colIdx) {
+    let columns = this.getRootNode().find('columns')
+    return columns.getChildAt(colIdx)
+  }
+
   getCell(rowIdx, colIdx) {
     const data = this._getData()
     let row = data.getChildAt(rowIdx)
@@ -119,6 +124,13 @@ export default class SpreadsheetDocument extends XMLDocument {
     // for each existing row insert new cells
     let data = this._getData()
     let it = data.getChildNodeIterator()
+    let columns = this.getRootNode().find('columns')
+    let colAfter = columns.getChildAt(colIdx)
+    for (let j = 0; j < n; j++) {
+      let col = this.createElement('col')
+      col.attr('type', 'any')
+      columns.insertBefore(col, colAfter)
+    }
     while(it.hasNext()) {
       let row = it.next()
       let cellAfter = row.getChildAt(colIdx)
@@ -132,6 +144,10 @@ export default class SpreadsheetDocument extends XMLDocument {
   deleteColumns(startCol, endCol) {
     let data = this._getData()
     let N = this.getRowCount()
+    let columns = this.getRootNode().find('columns')
+    for (let colIdx = endCol; colIdx >= startCol; colIdx--) {
+      columns.removeAt(colIdx)
+    }
     for (let rowIdx = N-1; rowIdx >= 0; rowIdx--) {
       let row = data.getChildAt(rowIdx)
       for (let colIdx = endCol; colIdx >= startCol; colIdx--) {
@@ -140,8 +156,8 @@ export default class SpreadsheetDocument extends XMLDocument {
     }
   }
 
-  ensureRowAvailable(rowIdx) {
-    return new Promise((resolve, reject)=>{
+  ensureRowAvailable() {
+    return new Promise((resolve)=>{
       resolve(true)
     })
   }

@@ -75,8 +75,6 @@ export default class SheetViewport extends EventEmitter {
     }
   }
 
-  // TODO: this should set x and y to plain values
-  // also: shouldn't we change start/end-row/col too?
   shift(dr, dc) {
     // just make sure that these are integers
     dr = Math.floor(dr)

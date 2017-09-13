@@ -118,3 +118,9 @@ export class DeleteColumnsTool extends ContextMenuItem {
     return label
   }
 }
+
+export class OpenColumnSettingsTool extends ContextMenuItem {
+  getButtonLabel() {
+    return this.getLabel('open-column-settings')
+  }
+}

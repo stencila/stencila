@@ -1,5 +1,6 @@
 import {
-  CustomSurface, getRelativeBoundingRect, platform, DefaultDOMElement,
+  CustomSurface, Component,
+  getRelativeBoundingRect, platform, DefaultDOMElement,
   keys, clone
 } from 'substance'
 import SpreadsheetCellEditor from './SpreadsheetCellEditor'
@@ -12,6 +13,7 @@ import { getRange } from './spreadsheetUtils'
 
 export default class SpreadsheetComponent extends CustomSurface {
 
+  // TODO: we should think about using Component state instead
   getInitialState() {
     this._clipboard = new SpreadsheetClipboard(this.context.editorSession)
     this._viewport = new SheetViewport(this.props.sheet, this)
@@ -21,14 +23,15 @@ export default class SpreadsheetComponent extends CustomSurface {
     this._cell = null
     // internal state used during selection
     this._isSelecting = false
-    this._selection = {
+    this._selectionData = {
       type: 'range',
       anchorRow: -1,
       anchorCol: -1,
       focusRow: -1,
       focusCol: -1
     }
-    // TODO: we should think about using Component state instead
+    // state used to ignore events when dialog is open
+    this._isShowingDialog = false
     return {}
   }
 
@@ -75,6 +78,7 @@ export default class SpreadsheetComponent extends CustomSurface {
       this._renderCellEditor($$),
       this._renderRowContextMenu($$),
       this._renderColumnContextMenu($$),
+      $$(DialogPanel).ref('dialog').addClass('sm-hidden'),
       $$(SheetScrollbar, {
         sheet, viewport,
         axis: 'x'
@@ -96,11 +100,29 @@ export default class SpreadsheetComponent extends CustomSurface {
     return el
   }
 
+  getSheet() {
+    return this.props.sheet
+  }
+
   resize() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
     this._positionSelection()
+  }
+
+  // called by SurfaceManager to render the selection plus setting the
+  // DOM selection into a proper state
+  rerenderDOMSelection() {
+    // console.log('SpreadsheetComponent.rerenderDOMSelection()')
+    this._positionSelection()
+    // put the native focus into the keytrap so that we
+    // receive keyboard events
+    this.refs.keytrap.el.focus()
+  }
+
+  openColumnSettings(params) {
+    this._showDialog('column-settings-dialog', params)
   }
 
   _renderCellEditor($$) {
@@ -146,16 +168,6 @@ export default class SpreadsheetComponent extends CustomSurface {
 
   _getCustomResourceId() {
     return this._getSheet().getName()
-  }
-
-    // called by SurfaceManager to render the selection plus setting the
-  // DOM selection into a proper state
-  rerenderDOMSelection() {
-    // console.log('SpreadsheetComponent.rerenderDOMSelection()')
-    this._positionSelection()
-    // put the native focus into the keytrap so that we
-    // receive keyboard events
-    this.refs.keytrap.el.focus()
   }
 
   _getBoundingRect(rowIdx, colIdx) {
@@ -311,11 +323,11 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _getSelection() {
-    return this.context.editorSession.getSelection().data
+    return this.context.editorSession.getSelection().data || {}
   }
 
   _scroll(deltaX, deltaY) {
-    this._viewport.scroll(deltaX, deltaY)
+    return this._viewport.scroll(deltaX, deltaY)
   }
 
   _nav(dr, dc, shift) {
@@ -375,7 +387,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   }
 
   _setSelection() {
-    let data = clone(this._selection)
+    let data = clone(this._selectionData)
     this.context.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
@@ -469,9 +481,24 @@ export default class SpreadsheetComponent extends CustomSurface {
     })
   }
 
+  _showDialog(dialogId, params) {
+    // TODO: as this component should potentially be embedded
+    // we need to be able to use a
+    this.refs.dialog.setProps({
+      dialogId, params
+    })
+    this.refs.dialog.removeClass('sm-hidden')
+  }
+
+  _hideDialog() {
+    this.refs.dialog.addClass('sm-hidden')
+  }
+
   /* Event Handlers */
 
   _onViewportScroll() {
+    this._hideMenus()
+    this._hideDialog()
     setTimeout(() => {
       this._positionSelection()
     })
@@ -515,7 +542,8 @@ export default class SpreadsheetComponent extends CustomSurface {
         once: true
       })
     }
-    const sel = this._selection
+    const sel = this._getSelection()
+    const selData = this._selectionData
 
     // console.log('_onMousedown', e)
     let target = this._getTargetForEvent(e)
@@ -529,39 +557,88 @@ export default class SpreadsheetComponent extends CustomSurface {
       isRightButton = (e.button === 2)
     }
     if (isRightButton) {
-      // TODO: improve right click handling
-      // i.e. change the selection if target
-      // is not within current selection
+      // update the selection if not right-clicking into
+      // an existing selection
+      if (target.type === 'column') {
+        let _needSetSelection = true
+        if (sel.type === 'columns') {
+          let startCol = Math.min(selData.anchorCol, selData.focusCol)
+          let endCol = Math.max(selData.anchorCol, selData.focusCol)
+          _needSetSelection = (target.colIdx < startCol || target.colIdx > endCol)
+        }
+        if (_needSetSelection) {
+          this._isSelecting = true
+          selData.type = 'columns'
+          selData.anchorCol = target.colIdx
+          selData.focusCol = target.colIdx
+          this._setSelection()
+        }
+      } else if (target.type === 'row') {
+        let _needSetSelection = true
+        if (sel.type === 'rows') {
+          let startRow = Math.min(selData.anchorRow, selData.focusRow)
+          let endRow = Math.max(selData.anchorRow, selData.focusRow)
+          _needSetSelection = (target.rowIdx < startRow || target.rowIdx > endRow)
+        }
+        if (_needSetSelection) {
+          this._isSelecting = true
+          selData.type = 'rows'
+          selData.anchorRow = target.rowIdx
+          selData.focusRow = target.rowIdx
+          this._setSelection()
+        }
+      } else if (target.type === 'cell') {
+        let _needSetSelection = true
+        if (sel.type === 'range') {
+          let startRow = Math.min(selData.anchorRow, selData.focusRow)
+          let endRow = Math.max(selData.anchorRow, selData.focusRow)
+          let startCol = Math.min(selData.anchorCol, selData.focusCol)
+          let endCol = Math.max(selData.anchorCol, selData.focusCol)
+          _needSetSelection = (
+            target.colIdx < startCol || target.colIdx > endCol ||
+            target.rowIdx < startRow || target.rowIdx > endRow
+          )
+        }
+        if (_needSetSelection) {
+          this._isSelecting = true
+          selData.type = 'range'
+          selData.anchorRow = target.rowIdx
+          selData.focusRow = target.rowIdx
+          selData.anchorCol = target.colIdx
+          selData.focusCol = target.colIdx
+          this._setSelection()
+        }
+      }
     } else {
       switch(target.type) {
         case 'cell': {
           this._isSelecting = true
-          sel.type = 'range'
-          sel.focusRow = target.rowIdx
-          sel.focusCol = target.colIdx
+          selData.type = 'range'
+          selData.focusRow = target.rowIdx
+          selData.focusCol = target.colIdx
           if (!e.shiftKey) {
-            sel.anchorRow = sel.focusRow
-            sel.anchorCol = sel.focusCol
+            selData.anchorRow = selData.focusRow
+            selData.anchorCol = selData.focusCol
           }
           this._setSelection()
           break
         }
         case 'column': {
           this._isSelecting = true
-          sel.type = 'columns'
-          sel.focusCol = target.colIdx
+          selData.type = 'columns'
+          selData.focusCol = target.colIdx
           if (!e.shiftKey) {
-            sel.anchorCol = sel.focusCol
+            selData.anchorCol = selData.focusCol
           }
           this._setSelection()
           break
         }
         case 'row': {
           this._isSelecting = true
-          sel.type = 'rows'
-          sel.focusRow = target.rowIdx
+          selData.type = 'rows'
+          selData.focusRow = target.rowIdx
           if (!e.shiftKey) {
-            sel.anchorRow = sel.focusRow
+            selData.anchorRow = selData.focusRow
           }
           this._setSelection()
           break
@@ -581,7 +658,7 @@ export default class SpreadsheetComponent extends CustomSurface {
   _onMousemove(e) {
     if (this._isSelecting) {
       const sheetView = this.refs.sheetView
-      const sel = this._selection
+      const sel = this._selectionData
       switch (sel.type) {
         case 'range': {
           let rowIdx = sheetView.getRowIndex(e.clientY)
@@ -721,4 +798,25 @@ export default class SpreadsheetComponent extends CustomSurface {
     this._clipboard.onCut(e)
   }
 
+}
+
+class DialogPanel extends Component {
+  render($$) {
+    let el = $$('div').addClass('sc-dialog-panel')
+    if (this.props.dialogId) {
+      let DialogClass = this.getComponent(this.props.dialogId)
+      el.append(
+        $$('div').addClass('se-wrapper').append(
+          $$(DialogClass, { params: this.props.params })
+            .addClass('se-dialog')
+        )
+      )
+    }
+    el.on('mousedown', this._onMousedown)
+    return el
+  }
+
+  _onMousedown(e) {
+    this.el.addClass('sm-hidden')
+  }
 }

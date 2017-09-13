@@ -1,0 +1,31 @@
+.sc-dialog-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.sc-dialog-panel > .se-wrapper {
+  position: relative;
+}
+
+.sc-dialog-panel > .se-wrapper > * {
+  position: absolute;
+  background: var(--fill-dark-color);
+  color: #fff;
+}
+
+.sc-dialog {
+  padding: 2px 5px;
+}
+
+.sc-dialog > .se-foot {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.sc-dialog > .se-foot > * {
+  flex: 1;
+}

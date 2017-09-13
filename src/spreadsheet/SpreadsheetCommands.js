@@ -48,6 +48,34 @@ class ColsCommand extends Command {
 
 }
 
+class ColumnMetaCommand extends Command {
+
+  getCommandState(params) {
+    const sel = params.selection
+    if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
+      let data = sel.data
+      if (data.type === 'columns') {
+        let startCol = Math.min(data.anchorCol, data.focusCol)
+        let endCol = Math.max(data.anchorCol, data.focusCol)
+        let ncolumns = endCol-startCol+1
+        if (ncolumns === 1) {
+          let colIdx = startCol
+          let node = params.surface.getSheet().getColumnMeta(colIdx)
+          return {
+            disabled: false,
+            colIdx, node
+          }
+        }
+      }
+    }
+    // otherwise
+    return {
+      disabled: true
+    }
+  }
+
+}
+
 function insertRows({editorSession, selection, commandState}, mode) {
   const sel = selection.data
   const refRow = mode === 'above' ?
@@ -117,5 +145,13 @@ export class InsertColumnsRight extends ColsCommand {
 export class DeleteColumns extends ColsCommand {
   execute(params, context) {
     deleteColumns(params)
+  }
+}
+
+export class OpenColumnSettings extends ColumnMetaCommand {
+  execute(params, context) {
+    // NOTE: when the OpenColumnSettings command is active
+    // params.surface is the corresponding SheetComponent
+    params.surface.openColumnSettings(params)
   }
 }

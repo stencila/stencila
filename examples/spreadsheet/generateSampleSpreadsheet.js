@@ -15,6 +15,14 @@ const template = `<?xml version="1.0"?>
 
 export default function generateSampleSheet(rows, cols) {
   let doc = DefaultDOMElement.parseXML(template)
+  // create column meta
+  let columns = doc.find('columns')
+  for (let j = 0; j < cols; j++) {
+    let col = doc.createElement('col')
+    col.setAttribute('name', `x${j+1}`)
+    col.setAttribute('type', 'number')
+    columns.append(col)
+  }
   let data = doc.find('data')
   for (let i = 0; i < rows; i++) {
     let row = doc.createElement('row')

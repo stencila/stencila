@@ -4,14 +4,17 @@ import SpreadsheetSchema from './SpreadsheetSchema'
 
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
-  InsertColumnsLeft, InsertColumnsRight, DeleteColumns
+  InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
+  OpenColumnSettings
 } from './SpreadsheetCommands'
 import {
   InsertRowsAboveTool, InsertRowsBelowTool, DeleteRowsTool,
-  InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool
+  InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool,
+  OpenColumnSettingsTool
  } from './SpreadsheetTools'
 
 import SpreadsheetDocumentImporter from './SpreadsheetDocumentImporter'
+import ColumnSettingsDialog from './ColumnSettingsDialog'
 
 export default {
   name: 'Spreadsheet',
@@ -87,6 +90,14 @@ export default {
       en: 'Delete rows ${startRow} - ${endRow}'
     })
 
+    config.addCommand('open-column-settings', OpenColumnSettings, {
+      commandGroup: 'table-column-commands'
+    })
+    config.addTool('open-column-settings', OpenColumnSettingsTool)
+    config.addLabel('open-column-settings', {
+      en: 'Column Settings...'
+    })
+
     config.addCommand('insert-columns-left', InsertColumnsLeft, {
       commandGroup: 'table-column-commands'
     })
@@ -117,6 +128,11 @@ export default {
     config.addIcon('sheet-scroll-right', { 'fontawesome': 'fa-angle-right' })
     config.addIcon('sheet-scroll-up', { 'fontawesome': 'fa-angle-up' })
     config.addIcon('sheet-scroll-down', { 'fontawesome': 'fa-angle-down' })
+
+    config.addComponent('column-settings-dialog', ColumnSettingsDialog)
+    config.addLabel('title:column-settings', {
+      en: 'Column Settings'
+    })
 
   }
 }

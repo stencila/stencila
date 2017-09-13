@@ -1,8 +1,11 @@
 import {
-  Component, getRelativeBoundingRect, RenderingEngine
+  Component, NodeComponent, getRelativeBoundingRect, RenderingEngine
 } from 'substance'
 import SpreadsheetCell from './SpreadsheetCell'
 import getBoundingRect from '../util/getBoundingRect'
+import { getColumnLabel } from './sheetHelpers'
+
+const DEFAULT_COLUMN_WIDTH = 100
 
 export default class SheetView extends Component {
 
@@ -31,9 +34,20 @@ export default class SheetView extends Component {
     const sheet = this.props.sheet
     const viewport = this.props.viewport
     const M = sheet.getColumnCount()
+
     let el = $$('table').addClass('sc-table-view')
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
+    corner.append(
+      $$('div').addClass('se-column-label').text('label')
+    )
+    corner.append(
+      $$('div').addClass('se-column-name').text('name')
+    )
+    corner.append(
+     $$('div').addClass('se-column-type').text('type')
+    )
+
     // ATTENTION: we have a slight problem here.
     // <table> with fixed layout needs the exact width
     // so that the column widths are correct.
@@ -44,10 +58,9 @@ export default class SheetView extends Component {
     let width = 50
     head.append(corner)
     for(let colIdx = 0; colIdx < M; colIdx++) {
-      let w = sheet.getColumnWidth(colIdx)
-      let th = $$('th').text(String(colIdx))
-        .attr('data-col', colIdx)
-        .css({ width: w })
+      let columnMeta = sheet.getColumnMeta(colIdx)
+      let th = $$(TableHeader, { node: columnMeta, colIdx })
+      let w = th.getWidth()
       if (colIdx < viewport.startCol) {
         th.addClass('sm-hidden')
       } else {
@@ -161,9 +174,14 @@ export default class SheetView extends Component {
   }
 
   getCellComponent(rowIdx, colIdx) {
-    let tr = this.refs.body.getRowComponent(rowIdx)
-    if (tr) {
-      return tr.getCellComponent(colIdx)
+    if (rowIdx === -1) {
+      // retrieve a header cell
+      return this.refs.head.getChildAt(colIdx+1)
+    } else {
+      let tr = this.refs.body.getRowComponent(rowIdx)
+      if (tr) {
+        return tr.getCellComponent(colIdx)
+      }
     }
     // otherwise
     return null
@@ -331,6 +349,41 @@ class TableBody extends Component {
 
 }
 
+class TableHeader extends NodeComponent {
+
+  render($$) {
+    const colIdx = this.props.colIdx
+    const node = this.props.node
+    let th = $$('th')
+      .attr('data-col', colIdx)
+    th.append(
+      $$('div').addClass('se-column-label').text(getColumnLabel(colIdx))
+    )
+    let name = node.attr('name') || "\u00A0"
+    th.append(
+      $$('div').addClass('se-column-name').text(String(name))
+    )
+    // TODO: here we should discuss how to deal with units
+    // we could introduce an extra type for different units
+    // but IMO it is semantically more appropriate to have units
+    // for number types, such as km, ms, MW
+    // In that case we could rather display the unit than the type
+    // 'km' instead of number
+    // alternatively, we could introduce an extra row with the units
+    let coltype = node.attr('type') || "\u00A0"
+    th.append(
+      $$('div').addClass('se-column-type').text(this.getLabel(coltype))
+    )
+    th.css({ width: this.getWidth() })
+    return th
+  }
+
+  getWidth() {
+    return this.props.node.attr('width') || DEFAULT_COLUMN_WIDTH
+  }
+
+}
+
 class TableRow extends Component {
 
   getInitialState() {
@@ -356,7 +409,7 @@ class TableRow extends Component {
       case 'visible': {
         let M = sheet.getColumnCount()
         el.append(
-          $$('th').text(String(rowIdx)).attr('data-row', rowIdx)
+          $$('th').ref(String(-1)).text(String(rowIdx+1)).attr('data-row', rowIdx)
         )
         for (let j = 0; j < M; j++) {
           const cell = sheet.getCell(rowIdx, j)
