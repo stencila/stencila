@@ -1,5 +1,7 @@
 import { Component, EditorSession, DefaultDOMElement } from 'substance'
-import { EditorPackage, JATSImporter, JATSExporter, TextureConfigurator } from 'substance-texture'
+import { JATSImporter, JATSExporter, TextureConfigurator } from 'substance-texture'
+import EditorPackage from './EditorPackage'
+
 
 export default class DocumentPage extends Component {
 

@@ -64,6 +64,7 @@ const BROWSER_EXTERNALS = {
   'd3': 'window.d3',
   'katex': 'window.katex',
   'vega': 'window.vega',
+  'plotly': 'window.Plotly',
   'vega-lite': 'window.vegaLite'
 }
 Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
@@ -80,7 +81,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-texture', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
+  'substance', 'substance-texture', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite', 'plotly'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -95,6 +96,7 @@ function copyAssets() {
   b.copy('./vendor/unified*', './build/lib/')
   b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
+  b.copy('./node_modules/plotly.js/dist/plotly*.js*', './build/lib/')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
   b.copy('./node_modules/substance-texture/dist/texture.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
@@ -147,7 +149,6 @@ function buildData() {
     dest: 'build/vfs.js',
     format: 'umd', moduleName: 'vfs'
   })
-
 }
 
 

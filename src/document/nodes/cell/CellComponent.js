@@ -43,37 +43,40 @@ class CellComponent extends CodeblockComponent {
       toggleCell.addClass('sm-code-shown')
     }
 
-    if (cell.hasErrors()) {
-      toggleCell.addClass('sm-has-errors')
-    }
+    // TODO: bring back, as soon as we have an API
+    // if (cell.hasErrors()) {
+    //   toggleCell.addClass('sm-has-errors')
+    // }
     el.append(toggleCell)
 
     if (this.state.showCode) {
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
         $$('div').addClass('se-expression').append(
-          $$(MiniLangEditor, {
-            path: [cell.id, 'expression'],
-            excludedCommands: this._getBlackListedCommands(),
-            expression: cell.getExpressionNode()
-          }).ref('expressionEditor')
-            .on('escape', this._onEscapeFromCodeEditor)
+          'TODO: bring back MiniLangEditor'
+          // $$(MiniLangEditor, {
+          //   path: [cell.id, 'expression'],
+          //   excludedCommands: this._getBlackListedCommands(),
+          //   expression: cell.getExpressionNode()
+          // }).ref('expressionEditor')
+          //   .on('escape', this._onEscapeFromCodeEditor)
         )
       )
 
-      if (cell.isExternal()) {
-        cellEditorContainer.append(
-          $$(CodeEditorComponent, {
-            path: [cell.id, 'sourceCode'],
-            language: cell.context
-          }).ref('sourceCodeEditor')
-            .on('escape', this._onEscapeFromCodeEditor)
-        )
-      }
+      // if (cell.isExternal()) {
+      //   cellEditorContainer.append(
+      //     $$(CodeEditorComponent, {
+      //       path: [cell.id, 'sourceCode'],
+      //       language: cell.context
+      //     }).ref('sourceCodeEditor')
+      //       .on('escape', this._onEscapeFromCodeEditor)
+      //   )
+      // }
 
       el.append(cellEditorContainer)
       el.append(
-        $$(CellErrorDisplay, {cell})
+        // TODO: bring back cell error display
+        // $$(CellErrorDisplay, {cell})
       )
     }
 
@@ -120,7 +123,7 @@ class CellComponent extends CodeblockComponent {
       .on('click', this._toggleForceShowOutput)
 
     // If cell is not a definition we ensure output is always shown
-    let isDefinition = this.props.node.isDefinition()
+    let isDefinition = this._isDefinition()
     if (!isDefinition) {
       el.addClass('sm-disabled')
     }
@@ -156,7 +159,7 @@ class CellComponent extends CodeblockComponent {
   _toggleForceShowOutput(event) {
     event.preventDefault()
     event.stopPropagation()
-    let isDefinition = this.props.node.isDefinition()
+    let isDefinition = this._isDefinition()
     // No toggling allowed if cell is not a definition
     if (!isDefinition) return
     this.extendState({
@@ -170,13 +173,18 @@ class CellComponent extends CodeblockComponent {
     enforced
   */
   _showOutput() {
-    return !this.props.node.isDefinition() || this.state.forceShowOutput
+    return !this._isDefinition() || this.state.forceShowOutput
   }
 
   _toggleMenu() {
     this.extendState({
       showMenu: !this.state.showMenu
     })
+  }
+
+  _isDefinition() {
+    // TODO: instead do return this.props.node.isDefinition()
+    return false
   }
 
   _onExecute() {
