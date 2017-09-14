@@ -27,8 +27,10 @@ export default class SheetDocument extends XMLDocument {
   getCell(rowIdx, colIdx) {
     const data = this._getData()
     let row = data.getChildAt(rowIdx)
-    let cell = row.getChildAt(colIdx)
-    return cell
+    if (row) {
+      let cell = row.getChildAt(colIdx)
+      return cell
+    }
   }
 
   getCellType(cell) {

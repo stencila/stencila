@@ -315,14 +315,20 @@ class TableBody extends Component {
     let $$ = renderContext.$$
     let sheet = this.props.sheet
     let viewport = this.props.viewport
+    const N = sheet.getRowCount()
     for(let i=0; i<dr; i++) {
+      // Note: to be able to scroll to the very end
+      // we stop appending rows when hitting the bottom of the sheet
+      // but still removing the first row
       let rowIndex = this._nextRow++
-      this.append(
-        $$(TableRow, {
-          sheet, viewport,
-          rowIdx: rowIndex
-        }).ref(String(rowIndex))
-      )
+      if (rowIndex < N) {
+        this.append(
+          $$(TableRow, {
+            sheet, viewport,
+            rowIdx: rowIndex
+          }).ref(String(rowIndex))
+        )
+      }
       this.removeChild(this.getChildAt(0))
       this._startRow++
     }
@@ -342,7 +348,11 @@ class TableBody extends Component {
           rowIdx: rowIndex
         }).ref(String(rowIndex))
       )
-      this.removeChild(this.getChildAt(this.getChildCount()-1))
+      // only remove the trailing row if there are enough
+      // rows present already
+      if (this.getChildCount() > viewport.P) {
+        this.removeChild(this.getChildAt(this.getChildCount()-1))
+      }
       this._nextRow--
     }
   }
