@@ -5,12 +5,12 @@ import SheetSchema from './SheetSchema'
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
-  OpenColumnSettings
+  OpenColumnSettings, OpenSheetIssues
 } from './SheetCommands'
 import {
   InsertRowsAboveTool, InsertRowsBelowTool, DeleteRowsTool,
   InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool,
-  OpenColumnSettingsTool
+  OpenColumnSettingsTool, OpenSheetIssuesTool
  } from './SheetTools'
 
 import SheetDocumentImporter from './SheetDocumentImporter'
@@ -41,6 +41,13 @@ export default {
         showDisabled: true,
         style: 'minimal',
         commandGroups: ['annotations']
+      },
+      {
+        name: 'sheet-inspector',
+        type: 'tool-group',
+        showDisabled: false,
+        style: 'minimal',
+        commandGroups: ['sheet-inspector']
       }
     ])
 
@@ -134,5 +141,22 @@ export default {
       en: 'Column Settings'
     })
 
+    config.addCommand('open-sheet-issues', OpenSheetIssues, {
+      commandGroup: 'sheet-inspector'
+    })
+    config.addTool('open-sheet-issues', OpenSheetIssuesTool)
+    config.addLabel('open-sheet-issues', {
+      en: 'Open Issues'
+    })
+    config.addIcon('open-sheet-issues', { 'fontawesome': 'fa-warning' })
+
+    // config.addCommand('open-sheet-inspector', OpenSheetInspector, {
+    //   commandGroup: 'sheet-inspector'
+    // })
+    // config.addTool('open-sheet-inspector', OpenSheetInspectorTool)
+    // config.addLabel('open-sheet-inspector', {
+    //   en: 'Open Sheet-Inspector'
+    // })
+    // config.addIcon('open-sheet-inspector', { 'fontawesome': 'fa-wrench' })
   }
 }

@@ -7,4 +7,6 @@
   --sheet-header-bordercolor: #C1C1C1;
   --sheet-scrollbar-width: 16px;
   --sheet-cell-bordercolor: #d5d5d5;
+  --sheet-error-color: #CC0000;
+  --sheet-warning-color: #CE9D07;
 }

@@ -20,7 +20,7 @@ export default class SheetDocument extends XMLDocument {
   }
 
   getColumnMeta(colIdx) {
-    let columns = this.getRootNode().find('columns')
+    let columns = this._getColumns()
     return columns.getChildAt(colIdx)
   }
 
@@ -29,6 +29,20 @@ export default class SheetDocument extends XMLDocument {
     let row = data.getChildAt(rowIdx)
     let cell = row.getChildAt(colIdx)
     return cell
+  }
+
+  getCellType(cell) {
+    // TODO: it might be necessary to optimize this
+    let row = cell.parentNode
+    // TODO: this does not work with merged cells
+    let colIdx = row._childNodes.indexOf(cell.id)
+    let columnMeta = this.getColumnMeta(colIdx)
+    return columnMeta.attr('type') || 'any'
+  }
+
+  getColumnIndex(col) {
+    let columns = this._getColumns()
+    return columns._childNodes.indexOf(col.id)
   }
 
   getValues(startRow, startCol, endRow, endCol) {
@@ -124,7 +138,7 @@ export default class SheetDocument extends XMLDocument {
     // for each existing row insert new cells
     let data = this._getData()
     let it = data.getChildNodeIterator()
-    let columns = this.getRootNode().find('columns')
+    let columns = this._getColumns()
     let colAfter = columns.getChildAt(colIdx)
     for (let j = 0; j < n; j++) {
       let col = this.createElement('col')
@@ -144,7 +158,7 @@ export default class SheetDocument extends XMLDocument {
   deleteColumns(startCol, endCol) {
     let data = this._getData()
     let N = this.getRowCount()
-    let columns = this.getRootNode().find('columns')
+    let columns = this._getColumns()
     for (let colIdx = endCol; colIdx >= startCol; colIdx--) {
       columns.removeAt(colIdx)
     }
@@ -167,6 +181,13 @@ export default class SheetDocument extends XMLDocument {
       this._dataNode = this.get('data')
     }
     return this._dataNode
+  }
+
+  _getColumns() {
+    if (!this._columnsNode) {
+      this._columnsNode = this.getRootNode().find('columns')
+    }
+    return this._columnsNode
   }
 
 }

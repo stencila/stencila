@@ -1,5 +1,6 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
 import SheetComponent from './SheetComponent'
+import SheetLinter from './SheetLinter'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -7,6 +8,9 @@ export default class SheetEditor extends AbstractEditor {
     super(...args)
 
     this.__onResize = this.__onResize.bind(this)
+
+    const sheet = this.getDocument()
+    this.linter = new SheetLinter(sheet, this.getEditorSession())
   }
 
   didMount() {
@@ -17,6 +21,8 @@ export default class SheetEditor extends AbstractEditor {
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
+
+    this.linter.start()
   }
 
   dispose() {
@@ -72,6 +78,10 @@ export default class SheetEditor extends AbstractEditor {
   __onResize() {
     this._rafId = null
     this.refs.sheet.resize()
+  }
+
+  getLinter() {
+    return this.linter
   }
 
   getWidth() {

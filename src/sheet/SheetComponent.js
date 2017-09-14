@@ -15,8 +15,9 @@ export default class SheetComponent extends CustomSurface {
 
   // TODO: we should think about using Component state instead
   getInitialState() {
+    const sheet = this.props.sheet
     this._clipboard = new SheetClipboard(this.context.editorSession)
-    this._viewport = new SheetViewport(this.props.sheet, this)
+    this._viewport = new SheetViewport(sheet, this)
     this._viewport.on('scroll', this._onViewportScroll, this)
     // internal state used during cell editing
     this._isEditing = false
@@ -32,6 +33,7 @@ export default class SheetComponent extends CustomSurface {
     }
     // state used to ignore events when dialog is open
     this._isShowingDialog = false
+
     return {}
   }
 

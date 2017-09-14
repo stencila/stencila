@@ -1,4 +1,4 @@
-import { ToggleTool, Button, stop } from 'substance'
+import { ToggleTool, Button, stop, Tooltip } from 'substance'
 
 // Need this because we have dynamic labels
 class CustomButton extends Button {
@@ -9,29 +9,32 @@ class CustomButton extends Button {
   }
 }
 
-class ContextMenuItem extends ToggleTool {
+class Tool extends ToggleTool {
 
   render($$) {
+    // TODO: use different class
     let el = $$('div')
       .addClass('sc-toggle-tool')
-
     el.addClass(this.getClassNames())
-
     el.append(
       this.renderButton($$)
     )
-
-    // tooltips are somewhat distracting here
-    // el.append(
-    //   $$(Tooltip, {
-    //     text: this._getTooltipText()
-    //   })
-    // )
-
+    el.append(
+      this.renderTooltip($$)
+    )
     el.on('mousedown', stop)
-
     return el
   }
+
+  renderTooltip($$) {
+    return $$(Tooltip, {
+      text: this._getTooltipText()
+    })
+  }
+
+}
+
+class ContextMenuItem extends Tool {
 
   renderButton($$) {
     let commandState = this.props.commandState
@@ -43,6 +46,10 @@ class ContextMenuItem extends ToggleTool {
     }
     let btn = $$(CustomButton, btnProps).on('click', this.onClick)
     return btn
+  }
+
+  renderTooltip() {
+    // Tooltips are a bit too noisy within a context menu
   }
 
   onClick(e) {
@@ -133,5 +140,27 @@ export class DeleteColumnsTool extends ContextMenuItem {
 export class OpenColumnSettingsTool extends ContextMenuItem {
   getButtonLabel() {
     return this.getLabel('open-column-settings')
+  }
+}
+
+export class OpenSheetInspectorTool extends Tool {
+  getIconName() {
+    return 'open-sheet-inspector'
+  }
+}
+
+export class OpenSheetIssuesTool extends Tool {
+
+  getClassNames() {
+    let classNames = ['sc-open-sheet-issues-tool']
+    const mode = this.props.commandState.mode
+    if (mode) {
+      classNames.push(`sm-${mode}`)
+    }
+    return classNames.join(' ')
+  }
+
+  getIconName() {
+    return 'open-sheet-issues'
   }
 }

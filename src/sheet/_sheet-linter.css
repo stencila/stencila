@@ -1,0 +1,7 @@
+.sc-open-sheet-issues-tool.sm-error {
+  color: var(--sheet-error-color);
+}
+
+.sc-open-sheet-issues-tool.sm-warning {
+  color: var(--sheet-warning-color);
+}

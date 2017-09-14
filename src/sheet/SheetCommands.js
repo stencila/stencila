@@ -155,3 +155,37 @@ export class OpenColumnSettings extends ColumnMetaCommand {
     params.surface.openColumnSettings(params)
   }
 }
+
+export class OpenSheetInspector extends Command {
+  getCommandState(params, context) {
+    // TODO: only enable this if the inspector is closed
+    return {
+      disabled: false
+    }
+  }
+  execute(params, context) {
+    console.log('TODO: open sheet inspector')
+  }
+}
+
+export class OpenSheetIssues extends Command {
+  getCommandState(params, context) {
+    let sheetEditor = context.app.getSheetEditor()
+    if (sheetEditor) {
+      let linter = sheetEditor.getLinter()
+      if (linter.hasIssues()) {
+        let mode = linter.hasErrors() ? 'error' : 'warning'
+        return {
+          disabled: false,
+          mode
+        }
+      }
+    }
+    return {
+      disabled: true
+    }
+  }
+  execute(params, context) {
+    console.log('TODO: open sheet issues', params, context)
+  }
+}

@@ -32,10 +32,12 @@ export default class SheetPage extends Component {
   }
 
   dispose() {
+    // nothing
   }
 
   getChildContext() {
     return {
+      app: this,
       editorSession: this.state.editorSession,
       configurator: this._configurator
     }
@@ -47,9 +49,7 @@ export default class SheetPage extends Component {
     if (!editorSession) {
       el.text('Loading...')
     } else {
-      el.append($$(SheetEditor, {
-        editorSession
-      }))
+      el.append($$(SheetEditor, { editorSession }).ref('editor'))
     }
     return el
   }
@@ -62,6 +62,10 @@ export default class SheetPage extends Component {
     return this.state.sheet
   }
 
+  getSheetEditor() {
+    return this.refs.editor
+  }
+
   _loadBuffer() {
     // TODO: implement this
   }
@@ -70,6 +74,7 @@ export default class SheetPage extends Component {
     let editorSession = new EditorSession(sheet, {
       configurator: this._configurator,
       context: {
+        app: this,
         host: this.props.host
       }
     })
