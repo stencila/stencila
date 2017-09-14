@@ -91,6 +91,14 @@ export default class SheetLinter extends EventEmitter {
     return this.issues.length > 0
   }
 
+  getIssues() {
+    return this.issues.slice()
+  }
+
+  getNumberOfIssues() {
+    return this.issues.length
+  }
+
   hasErrors() {
     for (let i = 0; i < this.issues.length; i++) {
       if (this.issues[i].isError()) return true
@@ -102,6 +110,7 @@ export default class SheetLinter extends EventEmitter {
     // console.log('Issue in cell', issue.cell, issue)
     this.issues.push(issue)
     this._updateCommandStates()
+    this.emit('issues:changed')
   }
 
   _updateCommandStates() {
@@ -145,16 +154,17 @@ export default class SheetLinter extends EventEmitter {
       }
     })
     if (needsUpdate) {
+      let newChecks = map(cells)
       // revalidate existing
-      let newActions = map(cells)
       let revalidations = []
       this.issues.forEach((issue) => {
-        if (issue.isCellIssue()) {
+        if (issue.isCellIssue() && !cells[issue.cell.id]) {
           revalidations.push(issue.cell)
         }
       })
-      this.queue = newActions.concat(revalidations).concat(this.queue)
+      this.queue = newChecks.concat(revalidations).concat(this.queue)
       this.issues = []
+      this.emit('issues:changed')
       this.start()
       // need to
       this.editorSession.postpone(() => {
@@ -268,6 +278,10 @@ class CellTypeError {
 
   isCellIssue() {
     return true
+  }
+
+  getMessage() {
+    return `Cell content is of wrong type. Expected a ${this.expected}, but it is a ${this.actual}`
   }
 
 }

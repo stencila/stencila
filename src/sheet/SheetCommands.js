@@ -156,28 +156,18 @@ export class OpenColumnSettings extends ColumnMetaCommand {
   }
 }
 
-export class OpenSheetInspector extends Command {
-  getCommandState(params, context) {
-    // TODO: only enable this if the inspector is closed
-    return {
-      disabled: false
-    }
-  }
-  execute(params, context) {
-    console.log('TODO: open sheet inspector')
-  }
-}
-
-export class OpenSheetIssues extends Command {
+export class ToggleSheetIssues extends Command {
   getCommandState(params, context) {
     let sheetEditor = context.app.getSheetEditor()
     if (sheetEditor) {
       let linter = sheetEditor.getLinter()
       if (linter.hasIssues()) {
-        let mode = linter.hasErrors() ? 'error' : 'warning'
+        let severity = linter.hasErrors() ? 'error' : 'warning'
+        let numberOfIssues = linter.getNumberOfIssues()
         return {
           disabled: false,
-          mode
+          severity,
+          numberOfIssues
         }
       }
     }
@@ -186,6 +176,9 @@ export class OpenSheetIssues extends Command {
     }
   }
   execute(params, context) {
-    console.log('TODO: open sheet issues', params, context)
+    let sheetEditor = context.app.getSheetEditor()
+    if (sheetEditor) {
+      sheetEditor.toggleConsole('sheet-issues')
+    }
   }
 }

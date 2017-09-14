@@ -143,24 +143,39 @@ export class OpenColumnSettingsTool extends ContextMenuItem {
   }
 }
 
-export class OpenSheetInspectorTool extends Tool {
-  getIconName() {
-    return 'open-sheet-inspector'
-  }
-}
+export class SheetIssuesStatusTool extends Tool {
 
-export class OpenSheetIssuesTool extends Tool {
+  render($$) {
+    // TODO: use different class
+    let el = $$('div')
+      // .addClass('sc-toggle-tool')
+      .addClass('sc-sheet-issues-status')
+    const commandState = this.props.commandState
+    if (commandState.severity) {
+      el.addClass(`sm-${commandState.severity}`)
+    }
+    el.append(
+      this.renderButton($$)
+    )
+    const numberOfIssues = commandState.numberOfIssues
+    if (numberOfIssues) {
+      el.append(
+        $$('div').addClass('se-number-of-issues')
+          // TODO: use this.getLabel()
+          .text(`${numberOfIssues} problems`)
+      )
+    }
+
+    el.on('mousedown', stop)
+    return el
+  }
 
   getClassNames() {
-    let classNames = ['sc-open-sheet-issues-tool']
-    const mode = this.props.commandState.mode
-    if (mode) {
-      classNames.push(`sm-${mode}`)
-    }
+    let classNames = ['']
     return classNames.join(' ')
   }
 
   getIconName() {
-    return 'open-sheet-issues'
+    return 'sheet-issues'
   }
 }

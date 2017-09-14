@@ -17,6 +17,12 @@
   height: 100%;
 }
 
+.sc-sheet-editor > .se-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .sc-sheet-editor > .sc-sheet {
   flex: 1;
 }

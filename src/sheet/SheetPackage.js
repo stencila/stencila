@@ -5,16 +5,17 @@ import SheetSchema from './SheetSchema'
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
-  OpenColumnSettings, OpenSheetIssues
+  OpenColumnSettings, ToggleSheetIssues
 } from './SheetCommands'
 import {
   InsertRowsAboveTool, InsertRowsBelowTool, DeleteRowsTool,
   InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool,
-  OpenColumnSettingsTool, OpenSheetIssuesTool
+  OpenColumnSettingsTool, SheetIssuesStatusTool
  } from './SheetTools'
 
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
+import SheetIssuesComponent from './SheetIssuesComponent'
 
 export default {
   name: 'Sheet',
@@ -50,6 +51,17 @@ export default {
         commandGroups: ['sheet-inspector']
       }
     ])
+
+    config.addToolPanel('statusbar', [
+      {
+        name: 'metrics',
+        type: 'tool-group',
+        showDisabled: false,
+        style: 'minimal',
+        commandGroups: ['sheet-issues']
+      }
+    ])
+
 
     config.addToolPanel('row-context-menu', [
       {
@@ -141,22 +153,22 @@ export default {
       en: 'Column Settings'
     })
 
-    config.addCommand('open-sheet-issues', OpenSheetIssues, {
-      commandGroup: 'sheet-inspector'
+    config.addCommand('toggle-sheet-issues', ToggleSheetIssues, {
+      commandGroup: 'sheet-issues'
     })
-    config.addTool('open-sheet-issues', OpenSheetIssuesTool)
-    config.addLabel('open-sheet-issues', {
-      en: 'Open Issues'
+    config.addTool('toggle-sheet-issues', SheetIssuesStatusTool)
+    config.addLabel('toggle-sheet-issues', {
+      en: 'Open Issues Panel'
     })
-    config.addIcon('open-sheet-issues', { 'fontawesome': 'fa-warning' })
+    config.addIcon('sheet-issues', { 'fontawesome': 'fa-warning' })
 
-    // config.addCommand('open-sheet-inspector', OpenSheetInspector, {
-    //   commandGroup: 'sheet-inspector'
-    // })
-    // config.addTool('open-sheet-inspector', OpenSheetInspectorTool)
-    // config.addLabel('open-sheet-inspector', {
-    //   en: 'Open Sheet-Inspector'
-    // })
-    // config.addIcon('open-sheet-inspector', { 'fontawesome': 'fa-wrench' })
+    config.addComponent('sheet-issues', SheetIssuesComponent)
+    config.addLabel('title:error', {
+      en: 'Error'
+    })
+    config.addLabel('title:warning', {
+      en: 'Warning'
+    })
+
   }
 }

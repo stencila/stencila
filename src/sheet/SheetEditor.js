@@ -13,6 +13,13 @@ export default class SheetEditor extends AbstractEditor {
     this.linter = new SheetLinter(sheet, this.getEditorSession())
   }
 
+  getInitialState() {
+    return {
+      showConsole: false,
+      consoleContent: null
+    }
+  }
+
   didMount() {
     // always render a second time to render for the real element dimensions
     this.rerender()
@@ -37,7 +44,7 @@ export default class SheetEditor extends AbstractEditor {
     let el = $$('div').addClass('sc-sheet-editor')
     el.append(
       this._renderToolbar($$),
-      this._renderSheet($$),
+      this._renderContent($$),
       this._renderStatusbar($$)
     )
     return el
@@ -48,6 +55,17 @@ export default class SheetEditor extends AbstractEditor {
     return $$(Toolbar, {
       toolPanel: configurator.getToolPanel('toolbar')
     }).ref('toolbar')
+  }
+
+  _renderContent($$) {
+    let el = $$('div').addClass('se-body')
+    el.append(
+      this._renderSheet($$)
+    )
+    el.append(
+      this._renderConsole($$)
+    )
+    return el
   }
 
   _renderSheet($$) {
@@ -63,25 +81,30 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _renderStatusbar($$) {
-    return $$('div').addClass('se-statusbar').text('STATUSBAR')
-  }
-
-  _onResize() {
-    if (platform.inBrowser) {
-      if (!this._rafId) {
-        this._rafId = window.requestAnimationFrame(this.__onResize)
-      }
+  _renderConsole($$) {
+    let el = $$('div').addClass('se-console')
+    if (this.state.showConsole) {
+      let ConsoleContent = this.getComponent(this.state.consoleContent)
+      el.append(
+        $$(ConsoleContent, { editor: this })
+      )
     }
+    return el
   }
 
-  __onResize() {
-    this._rafId = null
-    this.refs.sheet.resize()
+  _renderStatusbar($$) {
+    const configurator = this.getConfigurator()
+    return $$(Toolbar, {
+      toolPanel: configurator.getToolPanel('statusbar')
+    }).ref('statusbar').addClass('se-statusbar')
   }
 
   getLinter() {
     return this.linter
+  }
+
+  getIssues() {
+    return this.linter.getIssues()
   }
 
   getWidth() {
@@ -98,6 +121,32 @@ export default class SheetEditor extends AbstractEditor {
     } else {
       return 750
     }
+  }
+
+  toggleConsole(consoleContent) {
+    if (this.state.showConsole && this.state.consoleContent === consoleContent) {
+      this.setState({
+        showConsole: false
+      })
+    } else {
+      this.setState({
+        showConsole: true,
+        consoleContent
+      })
+    }
+  }
+
+  _onResize() {
+    if (platform.inBrowser) {
+      if (!this._rafId) {
+        this._rafId = window.requestAnimationFrame(this.__onResize)
+      }
+    }
+  }
+
+  __onResize() {
+    this._rafId = null
+    this.refs.sheet.resize()
   }
 
 }
