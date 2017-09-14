@@ -1,8 +1,5 @@
 import { Component, EditorSession, DefaultDOMElement } from 'substance'
-
-// HACK: we should use proper externals like:
-// import { EditorPackage, JATSImporter, JATSExporter, TextureConfigurator } from 'substance-texture'
-const { EditorPackage, JATSImporter, JATSExporter, TextureConfigurator } = window.texture
+import { EditorPackage, JATSImporter, JATSExporter, TextureConfigurator } from 'substance-texture'
 
 export default class DocumentPage extends Component {
 
@@ -36,7 +33,7 @@ export default class DocumentPage extends Component {
 
   dispose() {
     if (this.state.editorSession) {
-      this._unregisterEvents(this.state.editorSession)
+      // this._unregisterEvents(this.state.editorSession)
     }
   }
 

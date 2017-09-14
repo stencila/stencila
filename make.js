@@ -80,7 +80,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
+  'substance', 'substance-texture', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
 ].concat(Object.keys(UNIFIED_MODULES))
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
