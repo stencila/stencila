@@ -1,5 +1,4 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
-import SheetComponent from './SheetComponent'
 import SheetLinter from './SheetLinter'
 
 export default class SheetEditor extends AbstractEditor {
@@ -70,11 +69,13 @@ export default class SheetEditor extends AbstractEditor {
 
   _renderSheet($$) {
     const sheet = this.getDocument()
+    const linter = this.linter
     // only rendering the sheet when mounted
     // so that we have real width and height
     if (this.isMounted()) {
+      const SheetComponent = this.getComponent('sheet')
       return $$(SheetComponent, {
-        sheet
+        sheet, linter
       }).ref('sheet')
     } else {
       return $$('div')

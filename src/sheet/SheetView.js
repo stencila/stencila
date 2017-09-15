@@ -187,6 +187,11 @@ export default class SheetView extends Component {
     return null
   }
 
+  getCellComponentForCell(cell) {
+    // TODO: need to revisit this for a better implementation
+    return this.refs.body.find(`td[data-cell-id="${cell.id}"]`)
+  }
+
   getCornerComponent() {
     return this.refs.corner
   }
@@ -428,7 +433,8 @@ class TableRow extends Component {
               $$(SheetCell, { node: cell }).ref(cell.id)
             ).attr({
               'data-row': rowIdx,
-              'data-col': j
+              'data-col': j,
+              'data-cell-id': cell.id
             })
           if (j < viewport.startCol || j > viewport.endCol) {
             td.addClass('sm-hidden')

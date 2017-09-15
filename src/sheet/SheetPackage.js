@@ -1,6 +1,7 @@
 import { registerSchema, BasePackage } from 'substance'
 import SheetDocument from './SheetDocument'
 import SheetSchema from './SheetSchema'
+import SheetComponent from './SheetComponent'
 
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
@@ -16,6 +17,7 @@ import {
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 import SheetIssuesComponent from './SheetIssuesComponent'
+import SheetIssuesOverlay from './SheetIssuesOverlay'
 
 export default {
   name: 'Sheet',
@@ -82,6 +84,8 @@ export default {
         commandGroups: ['table-column-commands']
       }
     ])
+
+    config.addComponent('sheet', SheetComponent)
 
     config.addCommand('insert-rows-above', InsertRowsAbove, {
       commandGroup: 'table-row-commands'
@@ -163,6 +167,8 @@ export default {
     config.addIcon('sheet-issues', { 'fontawesome': 'fa-warning' })
 
     config.addComponent('sheet-issues', SheetIssuesComponent)
+    config.addComponent('sheet-issues-overlay', SheetIssuesOverlay)
+
     config.addLabel('title:error', {
       en: 'Error'
     })

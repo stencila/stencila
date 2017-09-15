@@ -113,19 +113,19 @@
   background:none !important;
 }
 
-.sc-sheet > .se-overlay > .se-selection-anchor {
+.sc-selection-overlay > .se-selection-anchor {
   position: absolute;
   border: solid 2px #2684FC;
 }
 
-.sc-sheet > .se-overlay > .se-selection-range {
+.sc-selection-overlay > .se-selection-range {
   position: absolute;
   border: solid 1px #2684FC;
   background: rgba(38, 132, 252, 0.1)
 }
 
-.sc-sheet > .se-overlay > .se-selection-columns,
-.sc-sheet > .se-overlay > .se-selection-rows {
+.sc-selection-overlay > .se-selection-columns,
+.sc-selection-overlay > .se-selection-rows {
   position: absolute;
   background: rgba(0,0,0,0.05)
 }

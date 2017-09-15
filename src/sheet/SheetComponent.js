@@ -50,7 +50,7 @@ export default class SheetComponent extends CustomSurface {
     // rerender the table view as soon the real element height is known
     this.refs.sheetView.update()
     // position selection overlays to reflect an initial selection
-    this._positionSelection()
+    this._positionOverlays()
   }
 
   dispose() {
@@ -60,7 +60,7 @@ export default class SheetComponent extends CustomSurface {
   }
 
   didUpdate() {
-    this._positionSelection()
+    this._positionOverlays()
   }
 
   render($$) {
@@ -106,11 +106,15 @@ export default class SheetComponent extends CustomSurface {
     return this.props.sheet
   }
 
+  getSheetView() {
+    return this.refs.sheetView
+  }
+
   resize() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
-    this._positionSelection()
+    this._positionOverlays()
   }
 
   // called by SurfaceManager to render the selection plus setting the
@@ -138,12 +142,33 @@ export default class SheetComponent extends CustomSurface {
   _renderOverlay($$) {
     let el = $$('div').addClass('se-overlay')
     el.append(
+      this._renderSelectionOverlay($$),
+      this._renderIssuesOverlay($$)
+    )
+    return el
+  }
+
+  _renderSelectionOverlay($$) {
+    let el = $$('div').addClass('sc-selection-overlay')
+    el.append(
       $$('div').addClass('se-selection-anchor').ref('selAnchor').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-range').ref('selRange').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-columns').ref('selColumns').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-rows').ref('selRows').css('visibility', 'hidden')
     )
     return el
+  }
+
+  _renderIssuesOverlay($$) {
+    const linter = this.props.linter
+    if (linter) {
+      const SheetIssuesOverlay = this.getComponent('sheet-issues-overlay')
+      return $$(SheetIssuesOverlay, {
+        sheet: this.getSheet(),
+        sheetComponent: this,
+        linter
+      }).ref('issuesOverlay')
+    }
   }
 
   _renderRowContextMenu($$) {
@@ -180,6 +205,11 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView.getCellComponent(rowIdx, colIdx)
   }
 
+  _positionOverlays() {
+    this._positionSelection()
+    this._positionCellIssues()
+  }
+
   _positionSelection() {
     const sel = this.context.editorSession.getSelection()
     if (sel.surfaceId === this.getId()) {
@@ -188,6 +218,13 @@ export default class SheetComponent extends CustomSurface {
       this.refs.selRange.css(styles.range)
       this.refs.selColumns.css(styles.columns)
       this.refs.selRows.css(styles.rows)
+    }
+  }
+
+  _positionCellIssues() {
+    let issuesOverlay = this.refs.issuesOverlay
+    if (issuesOverlay) {
+      issuesOverlay.rerender()
     }
   }
 
@@ -502,7 +539,7 @@ export default class SheetComponent extends CustomSurface {
     this._hideMenus()
     this._hideDialog()
     setTimeout(() => {
-      this._positionSelection()
+      this._positionOverlays()
     })
   }
 
