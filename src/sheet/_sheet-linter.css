@@ -1,0 +1,55 @@
+.sc-sheet-issues-status.sm-error {
+  color: var(--sheet-error-color);
+}
+
+.sc-sheet-issues-status.sm-warning {
+  color: var(--sheet-warning-color);
+}
+
+/* HACK: had troubles with the flex-box layout here */
+.sc-tool-group.sm-metrics {
+  flex: none !important;
+  font-size: var(--small-font-size);
+}
+
+.sc-sheet-issues-status {
+  display: inline-block;
+}
+
+.sc-sheet-issues-status > * {
+  display: inline;
+}
+
+.sc-cell-issue-overlay {
+  position: absolute;
+}
+
+.sc-cell-issue {
+  padding: 2px 5px;
+}
+
+.sc-sheet-issues-list > .sc-cell-issue + .sc-cell-issue {
+  margin-top: 5px;
+}
+
+.sc-cell-issue > * {
+  display: inline-block;
+}
+
+.sc-cell-issue > * + * {
+  margin-left: 10px;
+}
+
+.sc-cell-issue > .se-title::after {
+  content: ': ';
+}
+
+.sc-cell-issue.sm-error,
+.sc-cell-issue-overlay.sm-error {
+  background: var(--sheet-error-bgcolor);
+}
+
+.sc-cell-issue.sm-warning,
+.sc-cell-issue-overlay.sm-warning {
+  background: var(--sheet-warning-bgcolor);
+}

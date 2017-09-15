@@ -126,7 +126,7 @@ function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
   b.copy('index.html', './build/index.html')
   //
-  ;['document', 'dashboard'].forEach((example) => {
+  ;['document', 'dashboard', 'sheet'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
@@ -274,16 +274,6 @@ function minifiedVendor(src, name, opts = {}) {
   }
 }
 
-// we need this only temporarily, or if we need to work on an
-// unpublished version of substance
-function buildDeps() {
-  // const subsDist = path.join(__dirname, 'node_modules/substance/dist')
-  // if (!fs.existsSync(path.join(subsDist,'substance.js')) ||
-  //     !fs.existsSync(path.join(subsDist, 'substance.cjs.js'))) {
-  //   b.make('substance')
-  // }
-}
-
 function buildDocumentation() {
   const config = require.resolve('./docs/docs.yml')
   fork(b, "node_modules/documentation/bin/documentation", "build", "index.es.js", "--config", config, "--output", "docs", "--format", "html")
@@ -293,6 +283,32 @@ function serveDocumentation() {
   const config = require.resolve('./docs/docs.yml')
   fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
+
+const RNG_SEARCH_DIRS = ['src/sheet']
+
+function _compileSchema(name, src, options = {} ) {
+  const DEST = `tmp/${name}.data.js`
+  const ISSUES = `tmp/${name}.issues.txt`
+  const SCHEMA = `tmp/${name}.schema.md`
+  const entry = path.basename(src)
+  b.custom(`Compiling schema '${name}'...`, {
+    src: src,
+    dest: DEST,
+    execute() {
+      const { compileRNG, checkSchema } = require('substance')
+      const xmlSchema = compileRNG(fs, RNG_SEARCH_DIRS, entry)
+      b.writeSync(DEST, `export default ${JSON.stringify(xmlSchema)}`)
+      b.writeSync(SCHEMA, xmlSchema.toMD())
+      if (options.debug) {
+        const issues = checkSchema(xmlSchema)
+        const issuesData = [`${issues.length} issues:`, ''].concat(issues).join('\n')
+        b.writeSync(ISSUES, issuesData)
+      }
+    }
+  })
+}
+
+
 
 // Tasks
 // -----
@@ -307,12 +323,6 @@ b.task('clean', () => {
 b.task('vendor', buildVendor)
 .describe('Creates pre-bundled files in vendor/.')
 
-// NOTE: this will not be necessary if we depend only on npm-published libraries
-// At the moment, we use substance from a git branch
-b.task('deps', () => {
-  buildDeps()
-})
-
 b.task('assets', () => {
   copyAssets()
 })
@@ -323,7 +333,15 @@ b.task('css', () => {
 })
 .describe('Creates a single CSS bundle.')
 
-b.task('stencila', ['clean', 'assets', 'css'], () => {
+b.task('schema', () => {
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
+})
+
+b.task('schema:debug', () => {
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
+})
+
+b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
   buildGuides() // required by MemoryBackend
   buildEnv()
   buildStencilaBrowser()
@@ -385,7 +403,7 @@ b.task('docs:serve', () => {
   }
 })
 
-b.task('default', ['deps', 'stencila', 'examples'])
+b.task('default', ['stencila', 'examples'])
 .describe('[stencila, examples].')
 
 b.serve({ static: true, route: '/', folder: 'build' })
