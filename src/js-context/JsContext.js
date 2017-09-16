@@ -154,6 +154,7 @@ export default class JsContext extends Context {
     const packing = (options.pack !== false)
 
     const func = this._functions[name]
+    if (!func) throw new Error('No function with name: ' + name)
     
     // Convert args into an array of values
     let argValues = []
