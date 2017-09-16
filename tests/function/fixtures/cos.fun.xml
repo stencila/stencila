@@ -4,11 +4,13 @@
   <title>Cosine</title>
   <description>Returns the cosine of an angle</description>
   <params>
-    <param name="angle" type="number">
+    <param name="angle">
+      <type>number</type>
       <description>The angle in radians</description>
     </param>
   </params>
-  <return type="number">
+  <return>
+    <type>number</type>
     <description>The cosine of the angle, a number between -1 and 1</description>
   </return>
   <implems>
