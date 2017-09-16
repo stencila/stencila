@@ -18,16 +18,20 @@ function loadFunction (path) {
 function testFunction (path) {
   const func = loadFunction(path)
   let context = new JsContext()
-  return func.testImplem('js', context)
+  return func.testImplems('js', context)
 }
 
-testFunction('tests/function/fixtures/cos.fun.xml').then(results => {
-  test('function', t => {
-    for (let result of results) {
-      t.notOk(result.errors)
-      t.deepEqual(result.output, result.expected)
-      t.pass(result)
-    }
-    t.end()
-  })
-})
+for (let file of Object.keys(testVFS)) {
+  if (file.match(/tests\/function\/fixtures\/(\w)+\.fun\.xml/)) {
+    testFunction(file).then(results => {
+      test(file, t => {
+        for (let result of results) {
+          t.notOk(result.errors)
+          t.deepEqual(result.output, result.expected)
+        }
+        t.end()
+      })
+    })
+  }
+}
+

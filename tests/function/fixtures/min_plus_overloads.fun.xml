@@ -1,0 +1,44 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>min_plus_overloads</name>
+  <implems>
+    <implem language="js">
+      <types>
+        <type>integer</type>
+      </types>
+      <code>(function(){ return "integer" })</code>
+    </implem>
+    <implem language="js">
+      <types>
+        <type>float</type>
+      </types>
+      <code>(function(){ return "float" })</code>
+    </implem>
+    <implem language="js">
+      <types>
+        <type>string</type>
+      </types>
+      <code>(function(){ return "string" })</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <args>
+        <arg>{"type": "integer", "format": "text", "content": "42"}</arg>
+      </args>
+      <result>{"type": "string", "format": "text", "content": "integer"}</result>
+    </test>
+    <test>
+      <args>
+        <arg>{"type": "float", "format": "text", "content": "3.14"}</arg>
+      </args>
+      <result>{"type": "string", "format": "text", "content": "float"}</result>
+    </test>
+    <test>
+      <args>
+        <arg>{"type": "string", "format": "text", "content": "Hello world"}</arg>
+      </args>
+      <result>{"type": "string", "format": "text", "content": "string"}</result>
+    </test>
+  </tests>
+</function>

@@ -20,9 +20,13 @@
       <optional>
         <ref name="function:params"/>
       </optional>
-      <ref name="function:return"/>
+      <optional>
+        <ref name="function:return"/>
+      </optional>
       <ref name="function:implems"/>
-      <ref name="function:tests"/>
+      <optional>
+        <ref name="function:tests"/>
+      </optional>
     </element>
   </define>
 
@@ -63,16 +67,19 @@
     <element name="param">
       <attribute name="name"></attribute>
       <ref name="function:type"/>
-      <ref name="function:description"/>
+      <optional>
+        <ref name="function:description"/>
+      </optional>
     </element>
   </define>
 
   <define name="function:return">
     <element name="return">
       <ref name="function:type"/>
-      <ref name="function:description"/>
+      <optional>
+        <ref name="function:description"/>
+      </optional>
     </element>
-    <empty />
   </define>
 
   <define name="function:implems">
@@ -87,9 +94,18 @@
     <element name="implem">
       <attribute name="language"></attribute>
       <optional>
+        <ref name="function:implem:types"/>
+      </optional>
+      <optional>
         <ref name="function:implem:requires"/>
       </optional>
       <ref name="function:implem:code"/>
+    </element>
+  </define>
+
+  <define name="function:implem:types">
+    <element name="types">
+      <ref name="function:type"/>
     </element>
   </define>
 
@@ -144,9 +160,6 @@
 
   <define name="function:test:result">
     <element name="result">
-      <optional>
-        <attribute name="name"></attribute>
-      </optional>
       <text/>
     </element>
   </define>
