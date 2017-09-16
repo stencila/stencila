@@ -11,9 +11,15 @@
   <define name="function">
     <element name="function">
       <ref name="function:name"/>
-      <ref name="function:title"/>
-      <ref name="function:description"/>
-      <ref name="function:params"/>
+      <optional>
+        <ref name="function:title"/>
+      </optional>
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+      <optional>
+        <ref name="function:params"/>
+      </optional>
       <ref name="function:return"/>
       <ref name="function:implems"/>
       <ref name="function:tests"/>
@@ -40,26 +46,9 @@
   </define>
 
   <define name="function:type">
-    <!-- There should be a shared types definition used in Functions, Sheets and elsewhere. See also value.js -->
-    <attribute name="type">
-      <choice>
-        <value>string</value>
-        <value>number</value>
-        <value>integer</value>
-        <value>boolean</value>
-        <value>object</value>
-        <value>array</value>
-        <value>date</value>
-        <value>time</value>
-        <value>datetime</value>
-        <value>year</value>
-        <value>yearmonth</value>
-        <value>duration</value>
-        <value>geopoint</value>
-        <value>geojson</value>
-        <value>any</value>
-      </choice>
-    </attribute>
+    <element name="type">
+      <text/>
+    </element>    
   </define>
 
   <define name="function:params">
