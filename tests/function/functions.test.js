@@ -18,7 +18,7 @@ function loadFunction (path) {
 function testFunction (path) {
   const func = loadFunction(path)
   let context = new JsContext()
-  return func.testImplems('js', context)
+  return func.test('js', context)
 }
 
 for (let file of Object.keys(testVFS)) {

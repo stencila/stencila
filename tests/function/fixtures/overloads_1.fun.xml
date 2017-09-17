@@ -1,12 +1,12 @@
 <!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
 <function>
-  <name>min_plus_overloads</name>
+  <name>overloads_1</name>
   <implems>
     <implem language="js">
       <types>
-        <type>integer</type>
+        <type>number</type>
       </types>
-      <code>(function(){ return "integer" })</code>
+      <code>(function(){ return "number" })</code>
     </implem>
     <implem language="js">
       <types>
@@ -26,7 +26,7 @@
       <args>
         <arg>{"type": "integer", "format": "text", "content": "42"}</arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "integer"}</result>
+      <result>{"type": "string", "format": "text", "content": "number"}</result>
     </test>
     <test>
       <args>
