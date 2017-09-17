@@ -1,0 +1,50 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>overloads_2</name>
+  <implems>
+    <implem language="js">
+      <types>
+        <type>number</type>
+        <type>number</type>
+      </types>
+      <code>(function(){ return "number, number" })</code>
+    </implem>
+    <implem language="js">
+      <types>
+        <type>number</type>
+        <type>integer</type>
+      </types>
+      <code>(function(){ return "number, integer" })</code>
+    </implem>
+    <implem language="js">
+      <types>
+        <type>integer</type>
+        <type>any</type>
+      </types>
+      <code>(function(){ return "integer, any" })</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <args>
+        <arg>{"type": "number", "format": "text", "content": "1.0"}</arg>
+        <arg>{"type": "number", "format": "text", "content": "2.0"}</arg>
+      </args>
+      <result>{"type": "string", "format": "text", "content": "number, number"}</result>
+    </test>
+    <test>
+      <args>
+        <arg>{"type": "number", "format": "text", "content": "1.0"}</arg>
+        <arg>{"type": "integer", "format": "text", "content": "2"}</arg>
+      </args>
+      <result>{"type": "string", "format": "text", "content": "number, integer"}</result>
+    </test>
+    <test>
+      <args>
+        <arg>{"type": "integer", "format": "text", "content": "2"}</arg>
+        <arg>{"type": "string", "format": "text", "content": "Hello world"}</arg>
+      </args>
+      <result>{"type": "string", "format": "text", "content": "integer, any"}</result>
+    </test>
+  </tests>
+</function>

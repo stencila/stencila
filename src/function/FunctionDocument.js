@@ -1,7 +1,16 @@
 import { XMLDocument } from 'substance'
+
 import FunctionSchema from './FunctionSchema'
+import { descendantTypes } from '../types'
 
 export default class FunctionDocument extends XMLDocument {
+
+  constructor(...args) {
+    super(...args)
+
+    // A mapping of call type signatures to implemenation type signatures
+    this._implems = {}
+  }
 
   getDocTypeParams() {
     return FunctionSchema.getDocTypeParams()
@@ -27,62 +36,99 @@ export default class FunctionDocument extends XMLDocument {
    * a mangled name e.g.
    *
    *   myfunc = func r(arg1: number, arg2: string)
+   *   
    *     myfunc_number_string
    * 
    * @param  {[type]} language [description]
    * @param  {[type]} context  [description]
    * @return {Array<String>} Names of the functions defined for each implementation
    */
-  defineImplems(language, context) {
+  define(language, context) {
     const name = this.getName()
+    
+    const $params = this.getRoot().findAll('params param')
+
     const $implems = this.getRoot().findAll(`implem[language=${language}]`)
     let promises = []
-    let lookup = {}
+    let callSignats = {}
     for (let $implem of $implems) {
-      let $types = $implem.findAll('types type')
-      let implemName = name + $types.map($type => '_' + $type.text())
-      let code = $implem.find('code').text()
+      // Get the types for each parameter for this implementation
+      let $parTypes = $implem.findAll('types type')
+      let parTypes = $parTypes.map($type => $type.text())
+      // If the 
+      
+      // Generate the implementation signature
+      let implemSignat = parTypes.map(parType => '_' + parType).join('')
+      // Generate all possible combinations of call signatures for
+      // this implementation
+      let callCombos
+      for (let type of parTypes) {
+        let alts = [type]
+        let descendants = descendantTypes[type]
+        if (descendants) alts = alts.concat(descendants)
+
+        if (!callCombos) callCombos = alts
+        else {
+          let newTypeCombos = []
+          for (let alt of alts) {
+            for (let combo of callCombos) {
+              newTypeCombos.push(combo + '_' + alt)
+            }
+          }
+          callCombos = newTypeCombos
+        }
+      }
+      if (!callCombos) {
+        callSignats[name] = implemSignat
+      } else {
+        for (let combo of callCombos) {
+          callSignats[name + '_' + combo] = implemSignat
+        }
+      }
       // Define the function
-      let promise = context.defineFunction(implemName, code).then(() => {
-        // TODO Use type hierarchy to map between a possible function call signature
-        // and an implementation name
-        lookup[implemName] = implemName
-      })
+      let code = $implem.find('code').text()
+      let promise = context.defineFunction(implemSignat, code).then()
       promises.push(promise)
     }
     return Promise.all(promises).then(() => {
-      return lookup
+      this._implems = callSignats
     })
   }
 
-  testImplems(language, context) {
+  call(context, args, namedArgs) {
     const name = this.getName()
-    return this.defineImplems(language, context).then((implems) => {
+    
+    // Generate the type signature for the call
+    // TODO: currrently only using unamed arguments
+    let types = args.map(arg => arg.type)
+
+    // Find matching implem
+    let callSignat = name + types.map(type => '_' + type).join('')
+    let implem = this._implems[callSignat]
+    if (!implem) throw new Error('No implementation of function matching call signature:' + callSignat)
+    
+    // Call function and store result for checking elsewhere
+    return context.callFunction(implem, args, namedArgs)
+  }
+
+  test(language, context) {
+    return this.define(language, context).then(() => {
       const $tests = this.getRoot().findAll('test')
       let promises = []
       let results = []
       for (let $test of $tests) {
-        // Collate arguments into named and unnamed, recording
-        // types to allow matching between call signature and implementation signature 
+        // Collate arguments into named and unnamed
+        const $args = $test.findAll('arg')
         let args = []
         let namedArgs = {}
-        let types = []
-        const $args = $test.findAll('arg')
         for (let $arg of $args) {
           let name = $arg.attr('name')
           let value = JSON.parse($arg.text())
           if (name) namedArgs[name] = value
           else args.push(value)
-          types.push(value.type)
         }
-
-        // Find matching implem
-        let call = name + types.map(type => '_' + type)
-        let implem = implems[call]
-        if (!implem) throw new Error('No implementation of function matching call signature:' + call)
-        
-        // Call function and store result for checking elsewhere
-        let promise = context.callFunction(implem, args, namedArgs).then(result => {
+        // Call function and record result and expected
+        let promise = this.call(context, args, namedArgs).then(result => {
           let expected = JSON.parse($test.find('result').text())
           result.expected = expected
           results.push(result)
