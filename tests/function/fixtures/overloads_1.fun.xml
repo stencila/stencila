@@ -30,7 +30,7 @@
     <test>
       <args>
         <arg>
-          <integer>3.14</integer>
+          <number>3.14</number>
         </arg>
       </args>
       <result>
