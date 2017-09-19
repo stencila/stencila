@@ -61,17 +61,29 @@ export default class FunctionDocument extends XMLDocument {
     }
 
     // Extract and create implementations
+    // Note that currently any overloads involving type specialisation
+    // must follow the definition of the more general implementation
     let callSignats = {}
     let promises = []
     const $implems = this.getRoot().findAll(`implem[language=${language}]`)
+    let implemIndex = 0
     for (let $implem of $implems) {
+      implemIndex++
       // Get the types for each parameter for this implementation
       let types = $implem.findAll('types type').map($type => $type.text())
       if (types.length) {
-        // TODO check that the implementation types are comparable with
-        // the parameter types
         if (types.length !== this._params.length) {
-          throw new Error(`Function implementation for "${name}" defines a different number of types than there are parameters`)
+          throw new Error(`Function "${name}", implementation "${implemIndex}" defines a different number of types (${types.length}) than parameters (${this._params.length}) `)
+        } else {
+          for (let i = 0; i < this._params.length; i++) {
+            let paramType = this._params[i].type
+            let implemType = types[i]
+            if (implemType !== paramType) {
+              if (descendantTypes[paramType].indexOf(implemType) < 0) {
+                throw new Error(`Function "${name}", implementation "${implemIndex}" defines a type "${implemType}" which is inconsistent with parameter type "${paramType}"`)
+              }
+            }
+          }
         }
       } else {
         types = this._params.map(param => param.type)
