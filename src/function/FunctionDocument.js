@@ -61,9 +61,9 @@ export default class FunctionDocument extends XMLDocument {
     }
 
     // Extract and create implementations
-    const $implems = this.getRoot().findAll(`implem[language=${language}]`)
-    let promises = []
     let callSignats = {}
+    let promises = []
+    const $implems = this.getRoot().findAll(`implem[language=${language}]`)
     for (let $implem of $implems) {
       // Get the types for each parameter for this implementation
       let types = $implem.findAll('types type').map($type => $type.text())
@@ -99,6 +99,7 @@ export default class FunctionDocument extends XMLDocument {
           callCombos = newTypeCombos
         }
       }
+
       if (!callCombos) {
         callSignats[name] = implemSignat
       } else {
@@ -108,12 +109,12 @@ export default class FunctionDocument extends XMLDocument {
       }
       // Define the function
       let code = $implem.find('code').text()
-      let promise = context.defineFunction(implemSignat, code).then()
+      let promise = context.defineFunction(implemSignat, code)
       promises.push(promise)
     }
-    return Promise.all(promises).then(() => {
-      this._implems = callSignats
-    })
+    this._implems = callSignats
+
+    return Promise.all(promises)
   }
 
   call(context, args, namedArgs) {
@@ -131,11 +132,11 @@ export default class FunctionDocument extends XMLDocument {
 
     // Find matching implem
     let callSignat = name + values.map(value => '_' + value.type).join('')
-    let implem = this._implems[callSignat]
-    if (!implem) throw new Error('No implementation of function matching call signature:' + callSignat)
+    let implemSignat = this._implems[callSignat]
+    if (!implemSignat) throw new Error('No implementation of function matching call signature:' + callSignat)
     
     // Call function and store result for checking elsewhere
-    return context.callFunction(implem, values)
+    return context.callFunction(implemSignat, values)
   }
 
   test(language, context) {
