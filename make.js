@@ -262,7 +262,7 @@ function serveDocumentation() {
   fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
 
-const RNG_SEARCH_DIRS = ['src/sheet']
+const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
 
 function _compileSchema(name, src, options = {} ) {
   const DEST = `tmp/${name}.data.js`
@@ -313,10 +313,12 @@ b.task('css', () => {
 
 b.task('schema', () => {
   _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
+  _compileSchema('FunctionSchema', './src/sheet/FunctionSchema.rng')
 })
 
 b.task('schema:debug', () => {
   _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
+  _compileSchema('FunctionSchema', './src/sheet/FunctionSchema.rng', { debug: true})
 })
 
 b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
