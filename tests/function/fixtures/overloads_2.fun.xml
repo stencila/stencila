@@ -1,6 +1,14 @@
 <!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
 <function>
   <name>overloads_2</name>
+  <params>
+    <param name="param1">
+      <type>number</type>
+    </param>
+    <param name="param2">
+      <type>any</type>
+    </param>
+  </params>
   <implems>
     <implem language="js">
       <types>

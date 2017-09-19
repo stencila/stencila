@@ -43,7 +43,6 @@
   </define>
 
   <define name="function:description">
-    <!-- This could be a "rich text" mini-document which could include math, lists etc-->
     <element name="description">
       <text/>
     </element>
@@ -68,8 +67,17 @@
       <attribute name="name"></attribute>
       <ref name="function:type"/>
       <optional>
+        <ref name="function:param:default"/>
+      </optional>
+      <optional>
         <ref name="function:description"/>
       </optional>
+    </element>
+  </define>
+
+  <define name="function:param:default">
+    <element name="default">
+      <text/>
     </element>
   </define>
 
