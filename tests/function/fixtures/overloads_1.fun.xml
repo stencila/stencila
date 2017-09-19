@@ -3,7 +3,7 @@
   <name>overloads_1</name>
   <params>
     <param name="param1">
-      <type>number</type>
+      <type>any</type>
     </param>
   </params>
   <implems>
