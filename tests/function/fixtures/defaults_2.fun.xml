@@ -4,11 +4,15 @@
   <params>
     <param name="param1">
       <type>number</type>
-      <default>{"type": "integer", "format": "text", "content": "1"}</default>
+      <default>
+        <integer>1</integer>
+      </default>
     </param>
     <param name="param2">
       <type>number</type>
-      <default>{"type": "integer", "format": "text", "content": "3"}</default>
+      <default>
+        <integer>3</integer>
+      </default>
     </param>
   </params>
   <implems>
@@ -19,29 +23,45 @@
   <tests>
     <test>
       <description>Called with no arguments</description>
-      <result>{"type": "integer", "format": "text", "content": "4"}</result>
+      <result>
+        <integer>4</integer>
+      </result>
     </test>
     <test>
       <description>Called with first argument</description>
       <args>
-        <arg>{"type": "integer", "format": "text", "content": "2"}</arg>
+        <arg>
+          <integer>2</integer>
+        </arg>
       </args>
-      <result>{"type": "integer", "format": "text", "content": "5"}</result>
+      <result>
+        <integer>5</integer>
+      </result>
     </test>
     <test>
       <description>Called with second argument</description>
       <args>
-        <arg name="param2">{"type": "integer", "format": "text", "content": "1"}</arg>
+        <arg name="param2">
+          <integer>1</integer>
+        </arg>
       </args>
-      <result>{"type": "integer", "format": "text", "content": "2"}</result>
+      <result>
+        <integer>2</integer>
+      </result>
     </test>
     <test>
       <description>Called with both arguments</description>
       <args>
-        <arg>{"type": "integer", "format": "text", "content": "3"}</arg>
-        <arg>{"type": "integer", "format": "text", "content": "8"}</arg>
+        <arg>
+          <integer>3</integer>
+        </arg>
+        <arg>
+          <integer>8</integer>
+        </arg>
       </args>
-      <result>{"type": "integer", "format": "text", "content": "11"}</result>
+      <result>
+        <integer>11</integer>
+      </result>
     </test>
   </tests>
 </function>

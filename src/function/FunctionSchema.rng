@@ -51,7 +51,40 @@
   <define name="function:type">
     <element name="type">
       <text/>
-    </element>    
+    </element>
+  </define>
+
+  <define name="function:value">
+    <choice>
+      <ref name="function:boolean"/>
+      <ref name="function:number"/>
+      <ref name="function:integer"/>
+      <ref name="function:string"/>
+    </choice>
+  </define>
+
+  <define name="function:boolean">
+    <element name="boolean">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:number">
+    <element name="number">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:integer">
+    <element name="integer">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:string">
+    <element name="string">
+      <text/>
+    </element>
   </define>
 
   <define name="function:params">
@@ -77,7 +110,7 @@
 
   <define name="function:param:default">
     <element name="default">
-      <text/>
+      <ref name="function:value"/>
     </element>
   </define>
 
@@ -164,13 +197,13 @@
       <optional>
         <attribute name="name"></attribute>
       </optional>
-      <text/>
+      <ref name="function:value"/>
     </element>
   </define>
 
   <define name="function:test:result">
     <element name="result">
-      <text/>
+      <ref name="function:value"/>
     </element>
   </define>
 

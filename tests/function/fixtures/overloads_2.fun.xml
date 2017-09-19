@@ -35,24 +35,44 @@
   <tests>
     <test>
       <args>
-        <arg>{"type": "number", "format": "text", "content": "1.0"}</arg>
-        <arg>{"type": "number", "format": "text", "content": "2.0"}</arg>
+        <arg>
+          <number>1.0</number>
+        </arg>
+        <arg>
+          <number>2.0</number>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "number, number"}</result>
+      <result>
+        <string>number, number</string>
+      </result>
     </test>
     <test>
       <args>
-        <arg>{"type": "number", "format": "text", "content": "1.0"}</arg>
-        <arg>{"type": "integer", "format": "text", "content": "2"}</arg>
+        <arg>
+          <number>1.0</number>
+        </arg>
+        <arg>
+          <integer>2</integer>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "number, integer"}</result>
+      <result>
+        <string>number, integer</string>
+      </result>
     </test>
     <test>
       <args>
-        <arg>{"type": "integer", "format": "text", "content": "2"}</arg>
-        <arg>{"type": "string", "format": "text", "content": "Hello world"}</arg>
+        <arg>
+          <integer>2</integer>
+        </arg>
+        <arg>
+          <string>
+            Hello world
+          </string>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "integer, any"}</result>
+      <result>
+        <string>integer, any</string>
+      </result>
     </test>
   </tests>
 </function>

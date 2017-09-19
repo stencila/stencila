@@ -15,9 +15,9 @@
     </implem>
     <implem language="js">
       <types>
-        <type>float</type>
+        <type>integer</type>
       </types>
-      <code>(function(){ return "float" })</code>
+      <code>(function(){ return "integer" })</code>
     </implem>
     <implem language="js">
       <types>
@@ -29,21 +29,33 @@
   <tests>
     <test>
       <args>
-        <arg>{"type": "integer", "format": "text", "content": "42"}</arg>
+        <arg>
+          <integer>3.14</integer>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "number"}</result>
+      <result>
+        <string>number</string>
+      </result>
     </test>
     <test>
       <args>
-        <arg>{"type": "float", "format": "text", "content": "3.14"}</arg>
+        <arg>
+          <integer>42</integer>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "float"}</result>
+      <result>
+        <string>integer</string>
+      </result>
     </test>
     <test>
       <args>
-        <arg>{"type": "string", "format": "text", "content": "Hello world"}</arg>
+        <arg>
+          <string>Hello world</string>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "string"}</result>
+      <result>
+        <string>string</string>
+      </result>
     </test>
   </tests>
 </function>
