@@ -8,7 +8,9 @@
   </implems>
   <tests>
     <test>
-      <result>{"type": "integer", "format": "text", "content": "42"}</result>
+      <result>
+        <integer>42</integer>
+      </result>
     </test>
   </tests>
 </function>

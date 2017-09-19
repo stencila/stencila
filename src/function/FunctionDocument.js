@@ -52,7 +52,7 @@ export default class FunctionDocument extends XMLDocument {
       const name = $param.attr('name')
       const type = $param.find('type').text()
       let default_ = $param.find('default')
-      if (default_) default_ = JSON.parse(default_.text())
+      if (default_) default_ = createValueFromXML(default_)
       this._params.push({ 
         name: name,
         type: type,
@@ -111,7 +111,6 @@ export default class FunctionDocument extends XMLDocument {
       let promise = context.defineFunction(implemSignat, code).then()
       promises.push(promise)
     }
-    //console.log(callSignats)
     return Promise.all(promises).then(() => {
       this._implems = callSignats
     })
@@ -151,13 +150,13 @@ export default class FunctionDocument extends XMLDocument {
         let namedArgs = {}
         for (let $arg of $args) {
           let name = $arg.attr('name')
-          let value = JSON.parse($arg.text())
+          let value = createValueFromXML($arg)
           if (name) namedArgs[name] = value
           else args.push(value)
         }
         // Call function and record result and expected
         let promise = this.call(context, args, namedArgs).then(result => {
-          let expected = JSON.parse($test.find('result').text())
+          let expected = createValueFromXML($test.find('result'))
           result.expected = expected
           results.push(result)
         })
@@ -169,4 +168,18 @@ export default class FunctionDocument extends XMLDocument {
     })
   }
 
+}
+
+// Get a value from a XMLDocument node
+// A hacky implementation needing to be reworked
+// by @michael or @oliver.
+// Assumes the value is the first child of the node
+// e.g <arg><string>Foo</string><arg>
+function createValueFromXML($node) {
+  const $value = $node.getChildren()[0]
+  return {
+    type: $value.id.match(/(\w+)-.*/)[1],
+    format: 'text',
+    content: $value.text()
+  }
 }

@@ -4,7 +4,9 @@
   <params>
     <param name="param1">
       <type>string</type>
-      <default>{"type": "string", "format": "text", "content": "This is the default value for param1"}</default>
+      <default>
+        <string>This is the default value for param1</string>
+      </default>
     </param>
   </params>
   <implems>
@@ -15,14 +17,20 @@
   <tests>
     <test>
       <description>No arguments so get the default value back</description>
-      <result>{"type": "string", "format": "text", "content": "This is the default value for param1"}</result>
+      <result>
+        <string>This is the default value for param1</string>
+      </result>
     </test>
     <test>
       <description>Called with argument</description>
       <args>
-        <arg>{"type": "string", "format": "text", "content": "This is the supplied value for param1"}</arg>
+        <arg>
+          <string>This is the supplied value for param1</string>
+        </arg>
       </args>
-      <result>{"type": "string", "format": "text", "content": "This is the supplied value for param1"}</result>
+      <result>
+        <string>This is the supplied value for param1</string>
+      </result>
     </test>
   </tests>
 </function>
