@@ -8,6 +8,10 @@ export default class FunctionDocument extends XMLDocument {
   constructor(...args) {
     super(...args)
 
+    // A list of parameters stored more efficiently
+    // for faster lookup when called
+    this._params = []
+
     // A mapping of call type signatures to implemenation type signatures
     this._implems = {}
   }
@@ -29,40 +33,57 @@ export default class FunctionDocument extends XMLDocument {
   }
 
   /**
-   * Define the implementations of this function for a given context
+   * Define the implementations of this function within an execution Context
    *
-   * A function may have multiple implementations for a language for
-   * type overloading of parameters. This registered each implementation using
-   * a mangled name e.g.
-   *
-   *   myfunc = func r(arg1: number, arg2: string)
-   *   
-   *     myfunc_number_string
+   * A function may have multiple implementations for a language with each implementation
+   * overloading the function's parameters in alternative ways.
    * 
-   * @param  {[type]} language [description]
-   * @param  {[type]} context  [description]
-   * @return {Array<String>} Names of the functions defined for each implementation
+   * @param  {String} language The name of the language for the 
+   * @param  {Context} context  The context instance within which the function will be implemented
+   * @return {Promise} A Promise
    */
   define(language, context) {
     const name = this.getName()
     
-    const $params = this.getRoot().findAll('params param')
+    // Extract parameters from the document
+    this._params = []
+    let $params = this.getRoot().findAll('params param')
+    for (let $param of $params) {
+      const name = $param.attr('name')
+      const type = $param.find('type').text()
+      let default_ = $param.find('default')
+      if (default_) default_ = JSON.parse(default_.text())
+      this._params.push({ 
+        name: name,
+        type: type,
+        default: default_ 
+      })
+    }
 
+    // Extract and create implementations
     const $implems = this.getRoot().findAll(`implem[language=${language}]`)
     let promises = []
     let callSignats = {}
     for (let $implem of $implems) {
       // Get the types for each parameter for this implementation
-      let $parTypes = $implem.findAll('types type')
-      let parTypes = $parTypes.map($type => $type.text())
-      // If the 
+      let types = $implem.findAll('types type').map($type => $type.text())
+      if (types.length) {
+        // TODO check that the implementation types are comparable with
+        // the parameter types
+        if (types.length !== this._params.length) {
+          throw new Error(`Function implementation for "${name}" defines a different number of types than there are parameters`)
+        }
+      } else {
+        types = this._params.map(param => param.type)
+      }
       
-      // Generate the implementation signature
-      let implemSignat = parTypes.map(parType => '_' + parType).join('')
+      // Generate the implementation signature, the `mini_` prefix
+      // avoids name clashes with native functions in the execution context
+      let implemSignat = 'mini_' + name + types.map(type => '_' + type).join('')
       // Generate all possible combinations of call signatures for
       // this implementation
       let callCombos
-      for (let type of parTypes) {
+      for (let type of types) {
         let alts = [type]
         let descendants = descendantTypes[type]
         if (descendants) alts = alts.concat(descendants)
@@ -90,6 +111,7 @@ export default class FunctionDocument extends XMLDocument {
       let promise = context.defineFunction(implemSignat, code).then()
       promises.push(promise)
     }
+    //console.log(callSignats)
     return Promise.all(promises).then(() => {
       this._implems = callSignats
     })
@@ -97,18 +119,24 @@ export default class FunctionDocument extends XMLDocument {
 
   call(context, args, namedArgs) {
     const name = this.getName()
-    
-    // Generate the type signature for the call
-    // TODO: currrently only using unamed arguments
-    let types = args.map(arg => arg.type)
+
+    // Generate an array of argument values and a call type signature
+    let values = []
+    let index = 0
+    for (let param of this._params) {
+      const value = args[index] || namedArgs[param.name] || param.default
+      if (!value) throw new Error('Parameter not given and no default value available:' + param.name)
+      values.push(value)
+      index++
+    }
 
     // Find matching implem
-    let callSignat = name + types.map(type => '_' + type).join('')
+    let callSignat = name + values.map(value => '_' + value.type).join('')
     let implem = this._implems[callSignat]
     if (!implem) throw new Error('No implementation of function matching call signature:' + callSignat)
     
     // Call function and store result for checking elsewhere
-    return context.callFunction(implem, args, namedArgs)
+    return context.callFunction(implem, values)
   }
 
   test(language, context) {
