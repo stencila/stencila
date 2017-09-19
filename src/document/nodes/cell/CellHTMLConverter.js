@@ -1,3 +1,5 @@
+import {type} from '../../../value.js'
+
 export default {
 
   type: 'cell',
@@ -13,9 +15,15 @@ export default {
     if (sourceCodeEl) {
       node.sourceCode = sourceCodeEl.textContent
     }
-    let outputEl = el.find('pre[data-output]')
-    if (outputEl) {
-      node.value = JSON.parse(outputEl.textContent)
+    let $value = el.find('[data-value]')
+    if ($value) {
+      if ($value.tagName === 'img') {
+        node.value = {
+          type: 'image',
+          src: $value.attr('src')
+        }
+      }
+      else node.value = JSON.parse($value.textContent)
     }
   },
 
@@ -27,9 +35,14 @@ export default {
         $$('pre').attr('data-source', '').text(node.sourceCode)
       )
     }
-    el.append(
-      $$('pre').attr('data-output', '').text(JSON.stringify(node.value))
-    )
+    let $value
+    if (type(node.value) === 'image') {
+      $value = $$('img').attr('src', node.value.src)
+    } else {
+      $value = $$('pre').text(JSON.stringify(node.value))
+    }
+    $value.attr('data-value', '')
+    el.append($value)
   }
 
 }

@@ -1,7 +1,9 @@
+import {split as addressSplit, storer as addressStorer} from '../address'
 import { GET, POST, PUT } from '../util/requests'
 import JsContext from '../js-context/JsContext'
 import ContextHttpClient from '../context/ContextHttpClient'
-import MemoryBuffer from '../backend/MemoryBuffer'
+import StorerHttpClient from '../storers/StorerHttpClient'
+import MemoryStorer from '../storers/MemoryStorer'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
@@ -10,6 +12,12 @@ import MemoryBuffer from '../backend/MemoryBuffer'
 export default class Host {
 
   constructor (options = {}) {
+    /**
+     * Options used to configure this host
+     *
+     * @type {object}
+     */
+    this._options = options
 
     /**
      * Instances managed by this host
@@ -19,33 +27,59 @@ export default class Host {
     this._instances = {}
 
     /**
+     * Counts of instances of each class.
+     * Used for consecutive naming of instances
+     *
+     * @type {object}
+     */
+    this._counts = {}
+
+    /**
      * Peer manifests which detail the capabilities
      * of each of this host's peers
      *
      * @type {object}
      */
     this._peers = {}
-
-    // Peer seeding
-    let peers = options.peers
-    if (peers) {
-      // Add the initial peers
-      for (let url of peers) this.pokePeer(url)
-    }
-    // Discover other peers
-    if (options.discover) {
-      this.discoverPeers(options.discover)
-    }
   }
 
   /**
-   * Create a new instance
+   * Initialize this host
+   *
+   * @return {Promise} Initialisation promise
+   */
+  initialize () {
+    const options = this._options
+
+    let promises = [Promise.resolve()]
+      
+    // Seed with specified peers
+    let peers = options.peers
+    if (peers) {
+      // Add the initial peers
+      for (let url of peers) {
+        if (url === 'origin') url = options.origin
+        let promise = this.pokePeer(url)
+        promises.push(promise)
+      }
+    }
+
+    // Start discovery of other peers
+    if (options.discover) {
+      this.discoverPeers(options.discover)
+    }
+
+    return Promise.all(promises)
+  }
+
+  /**
+   * Create a new instance of a resource
    *
    * @param  {string} type - Name of class of instance
    * @param  {string} name - Name for new instance
    * @return {Promise} Resolves to an instance
    */
-  post (type, name) {
+  create (type, args) {
     // Search for the type amongst peers or peers-of-peers
     let find = (peersOfPeers) => {
       for (let url of Object.keys(this._peers)) {
@@ -79,35 +113,64 @@ export default class Host {
       }
     }
 
-    // Request a new instance from peer (or peer or peer)
-    let request = (url, spec) => {
-      return POST(url + '/' + spec.name, { name: name }).then(address => {
-        let instance
-        if (spec.base === 'Context') {
-          instance = new ContextHttpClient(url + '/' + address)
-        } else {
-          throw new Error(`Unsupported type: %{path}`)
-        }
+    // Attempt to find resource type amongst...
+    let found = find(false) //...peers
+    if (!found) found = find(true) //...peers of peers
+    if (found) {
+      let {url, spec} = found
+      return POST(url + '/' + spec.name, args).then(address => {
+        let Client
+        if (spec.base === 'Context') Client = ContextHttpClient
+        else if (spec.base === 'Storer') Client = StorerHttpClient
+        else throw new Error(`Unsupported type: %{path}`)
+
+        let instance = new Client(url + '/' + address)
         this._instances[address] = instance
-        return instance
+        return {address, instance}
       })
     }
 
-    // Attempt to find type
-    let found = find(false)
-    if (!found) found = find(true)
-    if (found) return request(found.url, found.spec)
-
-    // Fallback to providing an in-browser Javascript context
-    // (if one is available in a Node.js peer then it will be used instead)
-    if (type === 'JsContext' || type === 'js') {
-      let instance = new JsContext()
-      let address = `name://${name || Math.floor((1 + Math.random()) * 1e6).toString(16)}`
+    // Fallback to providing an in-browser instances of resources where available
+    let Class
+    if (type === 'JsContext' || type === 'js') Class = JsContext
+    else if (type === 'MemoryStorer') Class = MemoryStorer
+    if (Class) {
+      let instance = new Class(args)
+      const name = () => {
+        let number = (this._counts[type] || 0) + 1
+        this._counts[type] = number
+        return `${type[0].toLowerCase()}${type.substring(1)}${number}`
+      }
+      let address = `local://${name(type)}`
       this._instances[address] = instance
-      return Promise.resolve(instance)
+      return Promise.resolve({address,instance})
     }
 
     return Promise.reject(new Error(`No peers able to provide: ${type}`))
+  }
+
+  /**
+   * Create a storer based on the address
+   * 
+   * @param  {String} address The address of the storer
+   * @return {Storer}         Storer instance
+   */
+  createStorer (address) {
+    let {scheme, path, version} = addressSplit(address)
+    let storer = addressStorer(scheme)
+    return this.create(storer, { path: path, version: version }).then(result => result.instance)
+  }
+
+  /**
+   * Create a buffer storer
+   *
+   * The type of storer to be used as a buffer may depend upon the 
+   * storer being used. Currently always use a `MemoryStorer`.
+   *
+   * @return {Storer} A storer to be used as a buffer
+   */
+  createBuffer(/*storer*/) {
+    return Promise.resolve(new MemoryStorer())
   }
 
   /**
@@ -146,9 +209,16 @@ export default class Host {
    * @param {string} url - A URL for the peer
    */
   pokePeer (url) {
-    GET(url).then(manifest => {
+    return GET(url).then(manifest => {
       // Register if this is a Stencila Host manifest
-      if (manifest.stencila) this.registerPeer(url, manifest)
+      if (manifest.stencila) {
+        // Remove any query parameters from the peer URL
+        // e.g. authentication tokens. Necessary because we append strings to this
+        // URL for requests to peers
+        let match = url.match(/^https?:\/\/[\w-.]+(:\d+)?/)
+        if (match) url = match[0]
+        this.registerPeer(url, manifest)
+      }
     })
   }
 
@@ -175,41 +245,4 @@ export default class Host {
     }
     if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
   }
-
-  // Experimental
-  // Implements methods of `Backend` so that this `Host` can serve as a backend
-  // Towards merging these two classes
-
-  getBuffer(address) {
-    // TODO this PUTs to the current server but it could be some other peer
-    return PUT(`/${address}!buffer`).then(data => {
-      let buffer = new MemoryBuffer()
-
-      buffer.writeFile('stencila-manifest.json', 'application/json', JSON.stringify({
-        type: 'document',
-        title: 'Untitled',
-        createdAt: '2017-03-10T00:03:12.060Z',
-        updatedAt: '2017-03-10T00:03:12.060Z',
-        storage: {
-          storerType: "filesystem",
-          contentType: "html",
-          archivePath: "",
-          mainFilePath: "index.html"
-        }
-      }))
-
-      buffer.writeFile('index.html', 'text/html', data['index.html'])
-
-      return buffer
-    })
-  }
-
-  storeBuffer(/*buffer*/) {
-    return Promise.resolve()
-  }
-
-  updateManifest(/* documentId, props */) {
-    return Promise.resolve()
-  }
-
 }

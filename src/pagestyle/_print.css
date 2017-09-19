@@ -1,0 +1,40 @@
+/**
+ * A stylesheet for a printing a document using the browser's print dialog
+ */
+
+@media print {
+
+/* Allow whole of document to be printed */
+body,
+.sc-scroll-pane.sm-default-style > .se-scrollable {
+  overflow: visible;
+}
+
+/* Hide tool bar, scroll bar etc */
+.se-toolbar-wrapper,
+.sc-scrollbar,
+.se-toggle-cell {
+  display: none;
+}
+
+/* Avoid page break inside cells
+  (mainly to keep code next to output and tables and plots entire) 
+*/
+.sc-cell {
+  page-break-inside: avoid;
+}
+
+/* Put a border around cell expressions to distinguish them
+   (grey backgound does not appear in print rendering for some reason) 
+*/
+.sc-cell .se-cell-editor-container {
+  border: 1px solid #AAA;
+}
+
+/* Remove green color for inputs and outputs */
+.sc-range-input.se-content,
+.sc-inline-cell.se-content {
+  color: inherit;
+}
+
+}

@@ -27,11 +27,11 @@ export default class DocumentMarkdownConverter {
   /**
    * Is a file name to be converted using this converter? 
    * 
-   * @param  {string} fileName - Name of file
+   * @param  {string} path - Name of file
    * @return {boolean} - Is the file name matched?
    */
-  static match (fileName) {
-    return fileName.slice(-3) === '.md'
+  static match (path, storer) {
+    return path.slice(-3) === '.md'
   }
 
   /**
@@ -82,59 +82,35 @@ export default class DocumentMarkdownConverter {
     }
   }
 
-  importDocument(storer, buffer) {
-    let mainFilePath = storer.getMainFilePath()
-    let manifest = {
-      "type": "document",
-      "storage": {
-        "external": storer.isExternal(),
-        "storerType": storer.getType(),
-        "archivePath": storer.getArchivePath(),
-        "mainFilePath": mainFilePath,
-        "contentType": "md",
-      },
-      "createdAt": new Date(),
-      "updatedAt": new Date()
-    }
-    return storer.readFile(
-      mainFilePath,
-      'text/html'
-    ).then(md => {
-      let html = `<!DOCTYPE html>
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <main>
-      <div id="data" data-format="html">
-        <div class="content">${this.importContent(md)}</div>
-      </div>
-    </main>
-  </body>
-</html>`
-      return buffer.writeFile(
-        'index.html',
-        'text/html',
-        html
-      )
-    }).then(() => {
-      return buffer.writeFile(
-        'stencila-manifest.json',
-        'application/json',
-        JSON.stringify(manifest, null, '  ')
-      )
-    }).then(() => {
-      return manifest
+  import(path, storer, buffer) {
+    return storer.readFile(path).then(md => {
+      let html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title></title>
+          </head>
+          <body>
+            <main>
+              <div id="data" data-format="html">
+                <div class="content">${this.importContent(md)}</div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `
+      return buffer.writeFile('index.html', html).then(() => {
+        return html
+      })
     })
   }
 
-  exportDocument(buffer, storer) {
-    return buffer.readFile('index.html', 'text/html').then((html) => {
+  export(path, storer, buffer) {
+    return buffer.readFile('index.html').then((html) => {
       let content = DefaultDOMElement.parseHTML(html).find('.content')
       if (!content) throw new Error('No div.content element in HTML!')
       let md = this.exportContent(content.getInnerHTML())
-      return storer.writeFile(storer.getMainFilePath(), 'text/markdown', md)
+      return storer.writeFile(path, md)
     })
   }
 

@@ -19,11 +19,15 @@ export function request (method, url, data) {
   return new Promise((resolve, reject) => {
     var request = new XMLHttpRequest()
     request.open(method, url, true)
+    // Send any credentials (e.g. cookies) in request headers
+    // (necessary for remote peers)
+    request.withCredentials = true
     request.setRequestHeader('Accept', 'application/json')
 
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
-        resolve(JSON.parse(request.responseText))
+        let result = request.responseText ? JSON.parse(request.responseText) : null
+        resolve(result)
       } else {
         reject(`${request.status}:${request.responseText}`)
       }

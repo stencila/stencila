@@ -1,11 +1,11 @@
 import test from 'tape'
 
-import {long, short, split, scheme, path, format, version} from '../src/address'
+import {long, short, split, scheme, storer, path, format, version} from '../src/address'
 
 test('address.long', t => {
   t.equal(long('new://document'), 'new://document')
   t.equal(long('+document'), 'new://document')
-  t.equal(long('*aaaaaaaa'), 'name://aaaaaaaa')
+  t.equal(long('*aaaaaaaa'), 'local://aaaaaaaa')
 
   t.equal(long('file:///report.md'), 'file:///report.md')
   t.equal(long('file:/report.md'), 'file:///report.md')
@@ -17,22 +17,38 @@ test('address.long', t => {
   t.equal(long('http:foo.com/report.md'), 'http://foo.com/report.md')
   t.equal(long('https://foo.com/report.md'), 'https://foo.com/report.md')
 
-  t.equal(long('github:/user/repo/report.md'), 'gh://user/repo/report.md')
-  t.equal(long('gh:/user/repo/report.md'), 'gh://user/repo/report.md')
+  t.equal(long('gh:user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('gh:/user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('gh://user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('github:user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('github:/user/repo/report.md'), 'github://user/repo/report.md')
+  t.equal(long('github://user/repo/report.md'), 'github://user/repo/report.md')
 
   t.equal(long('stats/t-test'), 'lib://stats/t-test')
 
-  t.throws(() => long('foo:bar'), 'unknown scheme alias')
+  t.equal(long('foo:bar'), 'foo://bar')
+
+  t.end()
+})
+
+
+test('address.long HTTP aliases', t => {
+  t.equal(long('https://www.dropbox.com/sh/el77xzcpr9uqxb1/AABJIkDNXo_-sKnrUtQvCxC4a?dl=0'), 'dropbox://el77xzcpr9uqxb1/AABJIkDNXo_-sKnrUtQvCxC4a')
+
+  t.equal(long('https://github.com/stencila/examples'), 'github://stencila/examples')
+  t.equal(long('https://github.com/stencila/examples/tree/master/chinook'), 'github://stencila/examples/chinook')
+  t.equal(long('https://github.com/stencila/examples/blob/master/chinook/README.md'), 'github://stencila/examples/chinook/README.md')
+  t.equal(long('https://github.com/stencila/examples/blob/c1633019f03/chinook/README.md'), 'github://stencila/examples/chinook/README.md@c1633019f03')
 
   t.end()
 })
 
 test('address.short', t => {
   t.equal(short('new://document'), '+document')
-  t.equal(short('name://aaaaaaaa'), '*aaaaaaaa')
-  t.equal(short('file://report.docx'), 'file:report.docx')
+  t.equal(short('local://aaaaaaaa'), '*aaaaaaaa')
+  t.equal(short('file:///report.docx'), '/report.docx')
   t.equal(short('https://foo.com/report.md'), 'https:foo.com/report.md')
-  t.equal(short('gh://foo/bar/report.md'), 'gh:foo/bar/report.md')
+  t.equal(short('github://foo/bar/report.md'), 'gh:foo/bar/report.md')
   t.equal(short('lib://stats/t-test'), 'stats/t-test')
   t.end()
 })
@@ -42,7 +58,7 @@ test('address.short+long', t => {
   t.equal(f('+document'), '+document')
   t.equal(f('new://document'), '+document')
   t.equal(f('*aaaaaaaa'), '*aaaaaaaa')
-  t.equal(f('name://aaaaaaaa'), '*aaaaaaaa')
+  t.equal(f('local://aaaaaaaa'), '*aaaaaaaa')
   t.equal(f('gh:foo/bar/report.md'), 'gh:foo/bar/report.md')
   t.equal(f('gh:foo/bar/report.md@1.1.0'), 'gh:foo/bar/report.md@1.1.0')
   t.end()
@@ -57,7 +73,7 @@ test('address.split', t => {
   })
 
   t.deepEqual(split('*aaaaaaaa'), {
-    scheme: 'name',
+    scheme: 'local',
     path: 'aaaaaaaa',
     format: null,
     version: null
@@ -85,14 +101,14 @@ test('address.split', t => {
   })
 
   t.deepEqual(split('gh://foo/bar.md'), {
-    scheme: 'gh',
+    scheme: 'github',
     path: 'foo/bar.md',
     format: 'md',
     version: null
   })
 
   t.deepEqual(split('gh://foo/bar.md@1.1.0'), {
-    scheme: 'gh',
+    scheme: 'github',
     path: 'foo/bar.md',
     format: 'md',
     version: '1.1.0'
@@ -105,8 +121,20 @@ test('address.scheme', t => {
   t.equal(scheme('http://foo/bar'), 'http')
   t.equal(scheme('https://foo/bar'), 'https')
 
-  t.equal(scheme('github://foo/bar'), 'gh')
-  t.equal(scheme('gh://foo/bar'), 'gh')
+  t.equal(scheme('github://foo/bar'), 'github')
+  t.equal(scheme('gh://foo/bar'), 'github')
+
+  t.end()
+})
+
+test('address.storer', t => {
+  t.equal(storer('new'), null)
+  t.equal(storer('local'), null)
+  t.equal(storer('lib'), 'LibStorer')
+  t.equal(storer('file'), 'FileStorer')
+  t.equal(storer('http'), 'HttpStorer')
+  t.equal(storer('https'), 'HttpStorer')
+  t.equal(storer('github'), 'GithubStorer')
 
   t.end()
 })

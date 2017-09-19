@@ -135,21 +135,21 @@ function buildExamples() {
   })
 }
 
-// reads all guide documents from ./guides and writes them into a script
-function buildGuides() {
+// Reads all documents from ./guides and writes them into a script
+function buildMemoryStorerFiles() {
   b.custom('Creating test backend...', {
     src: './guides/**/*.html',
-    dest: './build/guides.js',
+    dest: './build/memoryStorerFiles.js',
     execute(files) {
       const vfs = {}
       files.forEach((guideFilePath) => {
         let dirPath = path.dirname(guideFilePath)
         let content = fs.readFileSync(path.join(dirPath, 'index.html'), 'utf8')
-        let documentId = path.basename(dirPath)
+        let documentId = path.basename(dirPath + '.html')
         vfs[documentId] = content
       })
-      const data = ['window.GUIDES = ', JSON.stringify(vfs, null, '  ')].join('')
-      b.writeSync('build/guides.js', data, 'utf8')
+      const data = ['window.STENCILA_MEMORY_STORER_FILES = ', JSON.stringify(vfs, null, '  ')].join('')
+      b.writeSync('build/memoryStorerFiles.js', data, 'utf8')
     }
   })
 }
@@ -324,7 +324,7 @@ b.task('css', () => {
 .describe('Creates a single CSS bundle.')
 
 b.task('stencila', ['clean', 'assets', 'css'], () => {
-  buildGuides() // required by MemoryBackend
+  buildMemoryStorerFiles()
   buildEnv()
   buildStencilaBrowser()
   buildStencilaNodeJS()

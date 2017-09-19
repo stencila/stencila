@@ -14,7 +14,7 @@
  * 'new://document'
  *
  * long('gh:stencila/stencila/README.md')
- * 'gh://stencila/stencila/README.md'
+ * 'github://stencila/stencila/README.md'
  *
  * long('./report/intro.md')
  * 'file:///current/directory/report/intro.md'
@@ -22,37 +22,61 @@
  * long('stats/t-test.md')
  * 'lib://stats/t-test.md'
  *
- * long()
- * 'id://fa4cf2c5cff5b576990feb96f25c98e6111990c873010855a53bcba979583836'
- *
  * @param {string} address - The address to lengthen
  * @return {string} - The long form of the address
  */
 export function long (address) {
-  if (address.match(/^(new|id|name|lib|file|http|https|git|gh):\/\//)) {
-    return address
-  } else if (address[0] === '+') {
+  const first = address[0]
+  if (first === '+') {
     return 'new://' + address.substring(1)
-  } else if (address[0] === '*') {
-    return 'name://' + address.substring(1)
-  } else if (address[0] === '.' || address[0] === '/' || address[0] === '~') {
+  } else if (first === '*') {
+    return 'local://' + address.substring(1)
+  } else if (first === '.' || first === '/' || first === '~') {
     return 'file://' + address
+  } else if (address.match(/^https?:\/\//)) {
+    // Translate HTTP/S aliases into long addresses
+    const match = address.match(/^https?:\/\/([^/]+)\/(.+)/)
+    if (match) {
+      const origin = match[1]
+      const path = match[2]
+      if (origin === 'www.dropbox.com') {
+        // Dropbox shared folder link e.g.
+        //   https://www.dropbox.com/sh/el77xzcpr9uqxb1/AABJIkDNXo_-sKnrUtQvCxC4a?dl=0
+        const match = path.match(/^sh\/([^?]+)/)
+        if (match) return 'dropbox://' + match[1]
+      } else if (origin === 'github.com') {
+        // Github repo pages e.g.
+        //   repo: https://github.com/stencila/examples
+        //   dir:  https://github.com/stencila/examples/tree/master/chinook
+        //   file: https://github.com/stencila/examples/blob/master/chinook/README.md
+        const match = path.match(/^([^/]+)\/([^/]+)(\/(tree|blob)\/([^/]+)\/(.+))?/)
+        if (match) {
+          const user = match[1]
+          const repo = match[2]
+          const ref = match[5]
+          const path = match[6]
+          let address = 'github://' + user + '/' + repo
+          if (path) address += '/' + path
+          if (ref && ref !== 'master') address += '@' + ref
+          return address
+        }      
+      }
+    }
+    return address
   } else {
+    // Other aliases
     let match = address.match(/^([a-z]+)(:\/?\/?)(.+)$/)
     if (match) {
-      let alias = match[1]
-      let path = match[3]
-      if (alias === 'file') {
-        // Only arrive here with `file:/foo` since with
-        // `file:` with two or more slashes is already "long"
-        return `file:///${path}`
-      } else if (alias === 'http' || alias === 'https') {
-        return `${alias}://${path}`
-      } else if (alias === 'gh' || alias === 'github') {
-        return `gh://${path}`
-      } else {
-        throw new Error(`Unknown scheme alias "${alias}"`)
+      let scheme = match[1]
+      let rest = match[3]
+      switch (scheme) {
+        case 'gh':
+          scheme = 'github'
+          break
+        default:
+          break
       }
+      return scheme + '://' + rest
     } else {
       return 'lib://' + address
     }
@@ -77,9 +101,6 @@ export function long (address) {
  * short('file:///some/directory/my-doc.md')
  * 'file:/some/directory/my-doc.md'
  *
- * short()
- * '*fa4cf2c5cff5b576990feb96f25c98e6111990c873010855a53bcba979583836'
- *
  * @param {string} address - The address to shorten
  * @return {string} - The short form of the address
  */
@@ -87,14 +108,14 @@ export function short (address) {
   address = long(address)
   if (address.substring(0, 6) === 'new://') {
     return '+' + address.substring(6)
-  } else if (address.substring(0, 7) === 'name://') {
-    return '*' + address.substring(7)
+  } else if (address.substring(0, 8) === 'local://') {
+    return '*' + address.substring(8)
   } else if (address.substring(0, 7) === 'file://') {
-    return 'file:' + address.substring(7)
+    return address.substring(7)
   } else if (address.substring(0, 6) === 'lib://') {
     return address.substring(6)
-  } else if (address.substring(0, 5) === 'gh://') {
-    return 'gh:' + address.substring(5)
+  } else if (address.substring(0, 9) === 'github://') {
+    return 'gh:' + address.substring(9)
   } else {
     let match = address.match(/([a-z]+):\/\/(.+)$/)
     return `${match[1]}:${match[2]}`
@@ -111,7 +132,7 @@ export function short (address) {
  */
 export function split (address) {
   address = long(address)
-  let matches = address.match(/([a-z]+):\/\/([\w\-.~/]+)(@([\w\-.]+))?/)
+  let matches = address.match(/([a-z]+):\/\/([^@]+)(@([\w\-.]+))?/)
   if (matches) {
     // Previously used Node's `path.extname` function to get any file extension.
     // This simple reimplementation probably need robustification.
@@ -126,6 +147,24 @@ export function split (address) {
     }
   } else {
     throw new Error(`Unable to split address "${address}"`)
+  }
+}
+
+/**
+ * Get the `Storer` for an address scheme
+ * 
+ * @param  {string} scheme The address scheme (e.g. `github`)
+ * @return {string}        The name of the matching `Storer` class (e.g. `GithubStorer`)
+ */
+export function storer (scheme) {
+  switch (scheme) {
+    case 'new':
+    case 'local':
+      return null
+    case 'https':
+      return storer('http')
+    default:
+      return scheme[0].toUpperCase() + scheme.slice(1) + 'Storer'
   }
 }
 
