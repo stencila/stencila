@@ -1,36 +1,31 @@
-/* globals Blob */
-
 /*
   In-memory buffer (cmp. mini filesytem) for representing Substance together
   with assets
+
+  TODO: This needs to be rethought
 */
 export default class MemoryBuffer {
-  constructor() {
-    this._files = {}
+  /*
+    Takes a vfs with multiple publications, each in a folder.
+    The publicationId is used as a scope
+  */
+  constructor(vfs, publicationId) {
+    this.publicationId = publicationId
+    this.vfs = vfs
   }
 
   /*
     File data must either be a utf8 string or a blob object
   */
-  writeFile(path, mimeType, data) {
-    return new Promise((resolve, reject) => {
-      if (typeof data === 'string' || data instanceof Blob) {
-        this._files[path] = {
-          mimeType: mimeType,
-          data: data
-        }
-        resolve()
-      } else {
-        reject(new Error('MemoryFileSystem only supports utf-8 strings and blobs'))
-      }
-    })
+  writeFile(/*path, mimeType, data*/) {
+    throw new Error('Not yet implemented.')
   }
 
   readFile(path) {
     return new Promise((resolve, reject) => {
-      let file = this._files[path]
+      let file = this.vfs.readFileSync(this.publicationId+"/"+path)
       if (file) {
-        resolve(file.data)
+        resolve(file)
       } else {
         reject(new Error('File not found'))
       }
