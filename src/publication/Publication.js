@@ -1,14 +1,31 @@
-import { Component } from 'substance'
-import DocumentPage from '../document/DocumentPage'
 import PublicationManifest from './PublicationManifest'
+import Engine from '../engine/Engine'
+import DocumentEditorPackage from '../document/DocumentEditorPackage'
+import { EditorSession, DefaultDOMElement, Component } from 'substance'
+import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
 
 /*
   TODO: Implement full life cycle (like when other publication gets loaded)
 */
 export default class Publication extends Component {
 
+  constructor(parent, props) {
+    super(parent, props)
+    this.documentConfigurator = new TextureConfigurator()
+    this.documentConfigurator.import(DocumentEditorPackage)
+    this.jatsImporter = new JATSImporter()
+    this.jatsExporter = new JATSExporter()
+    this.engine = new Engine(props.host)
+  }
+
+  getChildContext() {
+    return {
+      cellEngine: this.engine
+    }
+  }
+
   didMount() {
-    this._loadBufferAndManifest()
+    this._loadPublication()
   }
 
   _getPublicationName() {
@@ -37,10 +54,7 @@ export default class Publication extends Component {
     if (activeDocument && buffer) {
       if (activeDocument.type === 'document') {
         el.append(
-          $$(DocumentPage, {
-            buffer,
-            documentPath: activeDocument.path
-          })
+          this._renderDocumentEditor($$)
         )
       } else if (activeDocument.type === 'sheet') {
         el.append(
@@ -49,6 +63,26 @@ export default class Publication extends Component {
       }
     }
     return el
+  }
+
+  _renderDocumentEditor($$) {
+    // Loading error
+    if (this.state.loadingError) {
+      return $$('div').addClass('se-error').append(
+        this.state.loadingError
+      )
+    }
+
+    if (this.state.editorSession) {
+      return $$(TextureEditorPackage.Editor, {
+        editorSession: this.state.editorSession
+      }).addClass('sc-document-editor')
+    } else if (this.state.importerErrors) {
+      console.error('JATS Import Error', this.state.importerErrors)
+      // el.append(
+      //   $$(JATSImportDialog, { errors: this.state.importerErrors })
+      // )
+    }
   }
 
   /*
@@ -78,7 +112,7 @@ export default class Publication extends Component {
     return this.props.backend
   }
 
-  _loadBufferAndManifest() {
+  _loadPublication() {
     if (this.props.publicationId) {
       let backend = this.getBackend()
       let buffer
@@ -88,13 +122,50 @@ export default class Publication extends Component {
       }).then((manifestXML) => {
         let manifest = new PublicationManifest(manifestXML)
         let activeDocument = manifest.getDocuments()[0]
-        this.setState({
-          buffer,
-          manifest,
-          activeDocument
+
+        // TODO: we need to load all documents+sheets on start
+        this._loadDocument(activeDocument, buffer).then((editorSession) => {
+          this.setState({
+            buffer,
+            manifest,
+            activeDocument,
+            editorSession
+          })
         })
       })
     }
+  }
+
+  // TODO: we need to check for documentRecord.type (sheet|document)
+  _loadDocument(documentRecord, buffer) {
+    return new Promise((resolve, reject) => {
+      buffer.readFile(documentRecord.path).then((xmlString) => {
+        let editorSession
+        if (documentRecord.type === 'document') {
+          editorSession = this._importDocument(xmlString)
+        } else {
+          reject(new Error('Unsupported documentType '+ documentRecord.type))
+        }
+        resolve(editorSession)
+      })
+    })
+
+  }
+
+  _importDocument(xmlString) {
+    let dom = DefaultDOMElement.parseXML(xmlString)
+    dom = this.jatsImporter.import(dom)
+    if (this.jatsImporter.hasErrored()) {
+      // TODO: inspect this.jatsImporter.errors
+      throw new Error('Could not transform to TextureJATS')
+    }
+    const importer = this.documentConfigurator.createImporter('texture-jats')
+    const doc = importer.importDocument(dom)
+    window.doc = doc
+    // create editor session
+    return new EditorSession(doc, {
+      configurator: this.documentConfigurator
+    })
   }
 
 }

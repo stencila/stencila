@@ -1,4 +1,13 @@
-.sc-publication .sc-document-page {
+/* HACK: Ensure texture uses up all available space */
+.sc-publication .sc-document-editor {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.sc-publication .sc-editor {
   top: 50px;
   border-top: 1px solid #e1e4e8;
 }

@@ -60,7 +60,7 @@ class Engine extends BaseEngine {
 
   isDefinition(cellId) {
     const cell = this.getCell(cellId)
-    return cell._expr.isDefinition()
+    return cell && cell._expr.isDefinition()
   }
 
   hasValue(cellId) {

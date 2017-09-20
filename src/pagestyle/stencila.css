@@ -13,7 +13,6 @@
 @import './_style-transforms';
 @import './_pagestyle.css';
 @import '../publication/_publication.css';
-@import '../document/_document-page.css';
 @import '../dashboard/_dashboard.css';
 @import '../sheet/_sheet.css';
 
