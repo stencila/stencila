@@ -30,9 +30,38 @@ before_script:
 
 script:
   - make lint
+  - make build
   - make test-all
   - make cover
   - make docs
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+before_deploy:
+  - |
+    # Get last line of commit message which, for a Github PR merge, is the PR title
+    # Previously used $TRAVIS_COMMIT_MESSAGE here but it appears to be single line
+    COMMIT_LINE=$(git log -1 --pretty=%B | tail -n 1)
+    # Create a commit "slug"
+    COMMIT_SLUG=$(echo $COMMIT_LINE | cut -c 1-100 | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
+    # Generate a unique build version
+    BUILD_NAME=$COMMIT_SLUG-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)
+    # Create a versioned folder for the build
+    mkdir -p bucket/stencila
+    mv build bucket/stencila/$BUILD_NAME
+    # Update the list of builds
+    curl -s http://builds.stenci.la/stencila/builds.txt > bucket/stencila/builds.txt
+    echo $BUILD_NAME >> bucket/stencila/builds.txt
+
+deploy:
+  on:
+    all_branches: true
+    condition: "(($TRAVIS_BRANCH == 'master') || ($TRAVIS_BRANCH == 'develop')) && ( $(echo $TRAVIS_COMMIT_MESSAGE | grep -c -E '^Merge pull request') == '1')"
+  skip_cleanup: true
+  local_dir: bucket
+  provider: s3
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  region: us-west-2
+  bucket: builds.stenci.la

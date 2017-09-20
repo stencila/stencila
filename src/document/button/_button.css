@@ -1,9 +1,0 @@
-@import '../../../node_modules/substance/packages/button/_button.css';
-
-/* Override button colors */
-.sc-button.sm-style-plain-dark {
-  color: rgba(255,255,255,0.5);
-}
-.sc-button.sm-style-plain-dark.sm-active {
-  color: var(--stencila-green);
-}
