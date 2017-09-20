@@ -160,6 +160,9 @@
 
   <define name="function:implem:code">
     <element name="code">
+      <optional>
+        <attribute name="include"></attribute>
+      </optional>
       <text/>
     </element>
   </define>

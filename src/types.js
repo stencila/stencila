@@ -9,7 +9,11 @@ const parentTypes = {
   'number': 'any',
   'integer': 'number',
 
-  'string': 'any'
+  'string': 'any',
+
+  'object': 'any',
+
+  'array': 'any'
 }
 
 // Children of each type

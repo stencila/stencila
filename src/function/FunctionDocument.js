@@ -145,7 +145,7 @@ export default class FunctionDocument extends XMLDocument {
     // Find matching implem
     let callSignat = name + values.map(value => '_' + value.type).join('')
     let implemSignat = this._implems[callSignat]
-    if (!implemSignat) throw new Error('No implementation of function matching call signature:' + callSignat)
+    if (!implemSignat) throw new Error(`Function "${name}" does not have an implementation for call "${callSignat}". Available implementations are "${Object.keys(this._implems)}".`)
     
     // Call function and store result for checking elsewhere
     return context.callFunction(implemSignat, values)
