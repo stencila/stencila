@@ -73,7 +73,7 @@
     "remark-html": "^6.0.0",
     "sanitize-html": "^1.13.0",
     "sprintf-js": "^1.0.3",
-    "substance-bundler": "^0.15.3",
+    "substance-bundler": "^0.18.3",
     "substance-test": "^0.9.3",
     "tape": "^4.6.3"
   }

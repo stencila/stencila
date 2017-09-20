@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grammar
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+>
+  <start>
+    <ref name="function"/>
+  </start>
+
+  <define name="function">
+    <element name="function">
+      <ref name="function:name"/>
+      <optional>
+        <ref name="function:title"/>
+      </optional>
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+      <optional>
+        <ref name="function:params"/>
+      </optional>
+      <optional>
+        <ref name="function:return"/>
+      </optional>
+      <ref name="function:implems"/>
+      <optional>
+        <ref name="function:tests"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="function:name">
+    <element name="name">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:title">
+    <element name="title">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:description">
+    <element name="description">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:type">
+    <element name="type">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:value">
+    <choice>
+      <ref name="function:boolean"/>
+      <ref name="function:number"/>
+      <ref name="function:integer"/>
+      <ref name="function:string"/>
+    </choice>
+  </define>
+
+  <define name="function:boolean">
+    <element name="boolean">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:number">
+    <element name="number">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:integer">
+    <element name="integer">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:string">
+    <element name="string">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:params">
+    <element name="params">
+      <zeroOrMore>
+        <ref name="function:param"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:param">
+    <element name="param">
+      <attribute name="name"></attribute>
+      <ref name="function:type"/>
+      <optional>
+        <ref name="function:param:default"/>
+      </optional>
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="function:param:default">
+    <element name="default">
+      <ref name="function:value"/>
+    </element>
+  </define>
+
+  <define name="function:return">
+    <element name="return">
+      <ref name="function:type"/>
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="function:implems">
+    <element name="implems">
+      <zeroOrMore>
+        <ref name="function:implem"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:implem">
+    <element name="implem">
+      <attribute name="language"></attribute>
+      <optional>
+        <ref name="function:implem:types"/>
+      </optional>
+      <optional>
+        <ref name="function:implem:requires"/>
+      </optional>
+      <ref name="function:implem:code"/>
+    </element>
+  </define>
+
+  <define name="function:implem:types">
+    <element name="types">
+      <zeroOrMore>
+        <ref name="function:type"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:implem:requires">
+    <element name="requires">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:implem:code">
+    <element name="code">
+      <optional>
+        <attribute name="include"></attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:tests">
+    <element name="tests">
+      <zeroOrMore>
+        <ref name="function:test"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:test">
+    <element name="test">
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+      <optional>
+        <ref name="function:test:args"/>
+      </optional>
+      <ref name="function:test:result"/>
+    </element>
+  </define>
+
+  <define name="function:test:args">
+    <element name="args">
+      <zeroOrMore>
+        <ref name="function:test:arg"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:test:arg">
+    <element name="arg">
+      <optional>
+        <attribute name="name"></attribute>
+      </optional>
+      <ref name="function:value"/>
+    </element>
+  </define>
+
+  <define name="function:test:result">
+    <element name="result">
+      <ref name="function:value"/>
+    </element>
+  </define>
+
+</grammar>

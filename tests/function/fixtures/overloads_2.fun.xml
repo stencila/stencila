@@ -1,0 +1,78 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>overloads_2</name>
+  <params>
+    <param name="param1">
+      <type>number</type>
+    </param>
+    <param name="param2">
+      <type>any</type>
+    </param>
+  </params>
+  <implems>
+    <implem language="js">
+      <types>
+        <type>number</type>
+        <type>number</type>
+      </types>
+      <code>(function(){ return "number, number" })</code>
+    </implem>
+    <implem language="js">
+      <types>
+        <type>number</type>
+        <type>integer</type>
+      </types>
+      <code>(function(){ return "number, integer" })</code>
+    </implem>
+    <implem language="js">
+      <types>
+        <type>integer</type>
+        <type>any</type>
+      </types>
+      <code>(function(){ return "integer, any" })</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <args>
+        <arg>
+          <number>1.0</number>
+        </arg>
+        <arg>
+          <number>2.0</number>
+        </arg>
+      </args>
+      <result>
+        <string>number, number</string>
+      </result>
+    </test>
+    <test>
+      <args>
+        <arg>
+          <number>1.0</number>
+        </arg>
+        <arg>
+          <integer>2</integer>
+        </arg>
+      </args>
+      <result>
+        <string>number, integer</string>
+      </result>
+    </test>
+    <test>
+      <args>
+        <arg>
+          <integer>2</integer>
+        </arg>
+        <arg>
+          <string>
+            Hello world
+          </string>
+        </arg>
+      </args>
+      <result>
+        <string>integer, any</string>
+      </result>
+    </test>
+  </tests>
+</function>

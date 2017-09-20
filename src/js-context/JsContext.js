@@ -125,6 +125,15 @@ export default class JsContext extends Context {
     return Promise.resolve(depends)
   }
 
+  /**
+   * Define a function
+   *
+   * @override
+   */
+  defineFunction (name, code) {
+    this._functions[name] = eval(code) // eslint-disable-line no-eval
+    return Promise.resolve()
+  }
 
   /**
    * Does the context provide a function?
@@ -145,6 +154,7 @@ export default class JsContext extends Context {
     const packing = (options.pack !== false)
 
     const func = this._functions[name]
+    if (!func) throw new Error('No function with name: ' + name)
     
     // Convert args into an array of values
     let argValues = []
