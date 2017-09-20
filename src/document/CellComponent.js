@@ -4,6 +4,8 @@ import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
 
+import { findMini, findSource } from './cellHelpers'
+
 export default
 class CellComponent extends NodeComponent {
 
@@ -52,11 +54,13 @@ class CellComponent extends NodeComponent {
 
     if (this.state.showCode) {
       let expr = engine.getExpression(cellId)
+      let mini = findMini(cell)
+      let source = findSource(cell)
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
         $$('div').addClass('se-expression').append(
           $$(MiniLangEditor, {
-            path: [cellId, 'expression'],
+            path: mini.getTextPath(),
             excludedCommands: this._getBlackListedCommands(),
             expression: expr
           }).ref('expressionEditor')
@@ -66,7 +70,7 @@ class CellComponent extends NodeComponent {
       if (expr && expr.external) {
         cellEditorContainer.append(
           $$(CodeEditorComponent, {
-            path: [cellId, 'sourceCode'],
+            path: source.getTextPath(),
             language: expr.context
           }).ref('sourceCodeEditor')
             .on('escape', this._onEscapeFromCodeEditor)
