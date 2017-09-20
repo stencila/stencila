@@ -1,9 +1,0 @@
-.sc-link {
-  color: var(--default-text-color);
-  text-decoration: underline;
-}
-
-.sc-edit-link-tool > * {
-  display: inline-block;
-  margin-right: 5px;
-}

@@ -3,7 +3,7 @@ import {
 } from 'substance-texture'
 
 import ReproFigComponent from './ReproFigComponent'
-import CellComponent from './nodes/cell/CellComponent'
+import CellComponent from './CellComponent'
 
 export default {
   name: 'editor',
