@@ -1,0 +1,31 @@
+.sc-cell-error-display {
+  display: none;
+  position: absolute;
+  top: 40px;
+  left: 7px;
+  width: 8px;
+  height: 8px;
+  z-index: 100;
+  border-radius: 4px;
+  background: #B9003B;
+}
+
+.sc-cell-error-display.sm-has-errors {
+  display: block;
+}
+
+.sc-cell-error-display .se-errors {
+  display: none;
+  position: absolute;
+  top: 10px;
+  min-width: 200px;
+  background: #B9003B;
+  color: white;
+  font-size: 12px;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.sc-cell-error-display:hover .se-errors {
+  display: block;
+}
