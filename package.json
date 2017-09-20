@@ -54,7 +54,7 @@
     "remark-squeeze-paragraphs": "^3.0.0",
     "remark-stringify": "^4.0.0",
     "semantic-ui-css": "^2.2.4",
-    "stencila-mini": "^0.11.3",
+    "stencila-mini": "^0.11.4",
     "substance": "1.0.0-beta.7-preview.16",
     "substance-texture": "substance/texture#reproducible-jats",
     "timeago.js": "3.0.0",
