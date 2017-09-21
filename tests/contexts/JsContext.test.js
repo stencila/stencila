@@ -1,5 +1,5 @@
 import {type, pack} from '../../src/value'
-import JsContext from '../../src/js-context/JsContext'
+import JsContext from '../../src/contexts/JsContext'
 
 import test from 'tape'
 

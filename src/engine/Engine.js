@@ -1,7 +1,7 @@
 import { isArray, isNil, map } from 'substance'
 import { BaseEngine, parse as parseExpression } from 'stencila-mini'
 import { pack, unpack, type } from '../value'
-import JsContext from '../js-context/JsContext'
+import JsContext from '../contexts/JsContext'
 import { validateExpression, getContextName } from './expressionHelpers'
 
 export default

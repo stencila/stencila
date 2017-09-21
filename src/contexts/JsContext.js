@@ -2,7 +2,7 @@ import {parse} from 'acorn'
 import {simple, base} from 'acorn/dist/walk'
 
 import {pack, unpack} from '../value'
-import Context from '../context/Context'
+import Context from './Context'
 
 /**
  * A Javascript context

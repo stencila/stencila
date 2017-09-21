@@ -1,6 +1,6 @@
 import { GET, POST, PUT } from '../util/requests'
-import JsContext from '../js-context/JsContext'
-import ContextHttpClient from '../context/ContextHttpClient'
+import JsContext from '../contexts/JsContext'
+import ContextHttpClient from '../contexts/ContextHttpClient'
 import MemoryBuffer from '../backend/MemoryBuffer'
 
 /**
