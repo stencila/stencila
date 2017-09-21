@@ -2,26 +2,24 @@
 <function>
   <name>overloads_1</name>
   <params>
-    <param name="param1">
-      <type>any</type>
-    </param>
+    <param name="param1" type="any"/>
   </params>
   <implems>
     <implem language="js">
       <types>
-        <type>number</type>
+        <type type="number"/>
       </types>
       <code>(function(){ return "number" })</code>
     </implem>
     <implem language="js">
       <types>
-        <type>integer</type>
+        <type type="integer"/>
       </types>
       <code>(function(){ return "integer" })</code>
     </implem>
     <implem language="js">
       <types>
-        <type>string</type>
+        <type type="string"/>
       </types>
       <code>(function(){ return "string" })</code>
     </implem>
@@ -29,33 +27,21 @@
   <tests>
     <test>
       <args>
-        <arg>
-          <number>3.14</number>
-        </arg>
+        <arg type="number">3.14</arg>
       </args>
-      <result>
-        <string>number</string>
-      </result>
+      <result type="string">number</result>
     </test>
     <test>
       <args>
-        <arg>
-          <integer>42</integer>
-        </arg>
+        <arg type="integer">42</arg>
       </args>
-      <result>
-        <string>integer</string>
-      </result>
+      <result type="string">integer</result>
     </test>
     <test>
       <args>
-        <arg>
-          <string>Hello world</string>
-        </arg>
+        <arg type="string">Hello world</arg>
       </args>
-      <result>
-        <string>string</string>
-      </result>
+      <result type="string">string</result>
     </test>
   </tests>
 </function>

@@ -50,7 +50,7 @@ export default class FunctionDocument extends XMLDocument {
     let $params = this.getRoot().findAll('params param')
     for (let $param of $params) {
       const name = $param.attr('name')
-      const type = $param.find('type').text()
+      const type = $param.attr('type')
       let default_ = $param.find('default')
       if (default_) default_ = createValueFromXML(default_)
       this._params.push({ 
@@ -70,7 +70,7 @@ export default class FunctionDocument extends XMLDocument {
     for (let $implem of $implems) {
       implemIndex++
       // Get the types for each parameter for this implementation
-      let types = $implem.findAll('types type').map($type => $type.text())
+      let types = $implem.findAll('types type').map($type => $type.attr('type'))
       if (types.length) {
         if (types.length !== this._params.length) {
           throw new Error(`Function "${name}", implementation "${implemIndex}" defines a different number of types (${types.length}) than parameters (${this._params.length}) `)
@@ -184,15 +184,10 @@ export default class FunctionDocument extends XMLDocument {
 }
 
 // Get a value from a XMLDocument node
-// A hacky implementation needing to be reworked
-// by @michael or @oliver.
-// Assumes the value is the first child of the node
-// e.g <arg><string>Foo</string><arg>
-function createValueFromXML($node) {
-  const $value = $node.getChildren()[0]
+function createValueFromXML(node) {
   return {
-    type: $value.id.match(/(\w+)-.*/)[1],
+    type: node.attr('type'),
     format: 'text',
-    content: $value.text()
+    content: node.text()
   }
 }

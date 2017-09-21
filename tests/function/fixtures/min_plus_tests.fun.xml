@@ -8,9 +8,7 @@
   </implems>
   <tests>
     <test>
-      <result>
-        <integer>42</integer>
-      </result>
+      <result type="integer">42</result>
     </test>
   </tests>
 </function>

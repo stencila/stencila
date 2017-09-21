@@ -2,26 +2,24 @@
 <function>
   <name>code_include_1</name>
   <params>
-    <param name="param1">
-      <type>any</type>
-    </param>
+    <param name="param1" type="any"/>
   </params>
   <implems>
     <implem language="js">
       <types>
-        <type>any</type>
+        <type type="any"/>
       </types>
       <code include="code_include_1_any.js">Foo</code>
     </implem>
     <implem language="js">
       <types>
-        <type>integer</type>
+        <type type="integer"/>
       </types>
       <code include="code_include_1_integer.js" />
     </implem>
     <implem language="js">
       <types>
-        <type>string</type>
+        <type type="string"/>
       </types>
       <code include="code_include_1_string.js" />
     </implem>
@@ -29,33 +27,21 @@
   <tests>
     <test>
       <args>
-        <arg>
-          <number>3.14</number>
-        </arg>
+        <arg type="number">3.14</arg>
       </args>
-      <result>
-        <string>any</string>
-      </result>
+      <result type="string">any</result>
     </test>
     <test>
       <args>
-        <arg>
-          <integer>42</integer>
-        </arg>
+        <arg type="integer">42</arg>
       </args>
-      <result>
-        <string>integer</string>
-      </result>
+      <result type="string">integer</result>
     </test>
     <test>
       <args>
-        <arg>
-          <string>Hello world</string>
-        </arg>
+        <arg type="string">Hello world</arg>
       </args>
-      <result>
-        <string>string</string>
-      </result>
+      <result type="string">string</result>
     </test>
   </tests>
 </function>

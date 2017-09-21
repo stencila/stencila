@@ -48,45 +48,6 @@
     </element>
   </define>
 
-  <define name="function:type">
-    <element name="type">
-      <text/>
-    </element>
-  </define>
-
-  <define name="function:value">
-    <choice>
-      <ref name="function:boolean"/>
-      <ref name="function:number"/>
-      <ref name="function:integer"/>
-      <ref name="function:string"/>
-    </choice>
-  </define>
-
-  <define name="function:boolean">
-    <element name="boolean">
-      <text/>
-    </element>
-  </define>
-
-  <define name="function:number">
-    <element name="number">
-      <text/>
-    </element>
-  </define>
-
-  <define name="function:integer">
-    <element name="integer">
-      <text/>
-    </element>
-  </define>
-
-  <define name="function:string">
-    <element name="string">
-      <text/>
-    </element>
-  </define>
-
   <define name="function:params">
     <element name="params">
       <zeroOrMore>
@@ -97,10 +58,10 @@
 
   <define name="function:param">
     <element name="param">
-      <attribute name="name"></attribute>
-      <ref name="function:type"/>
+      <attribute name="name"/>
+      <attribute name="type"/>
       <optional>
-        <ref name="function:param:default"/>
+        <ref name="function:default"/>
       </optional>
       <optional>
         <ref name="function:description"/>
@@ -108,15 +69,16 @@
     </element>
   </define>
 
-  <define name="function:param:default">
+  <define name="function:default">
     <element name="default">
-      <ref name="function:value"/>
+      <attribute name="type"/>
+      <text/>
     </element>
   </define>
 
   <define name="function:return">
     <element name="return">
-      <ref name="function:type"/>
+      <attribute name="type"/>
       <optional>
         <ref name="function:description"/>
       </optional>
@@ -133,18 +95,18 @@
 
   <define name="function:implem">
     <element name="implem">
-      <attribute name="language"></attribute>
+      <attribute name="language"/>
       <optional>
-        <ref name="function:implem:types"/>
+        <ref name="function:types"/>
       </optional>
       <optional>
-        <ref name="function:implem:requires"/>
+        <ref name="function:requires"/>
       </optional>
-      <ref name="function:implem:code"/>
+      <ref name="function:code"/>
     </element>
   </define>
 
-  <define name="function:implem:types">
+  <define name="function:types">
     <element name="types">
       <zeroOrMore>
         <ref name="function:type"/>
@@ -152,16 +114,23 @@
     </element>
   </define>
 
-  <define name="function:implem:requires">
+  <define name="function:type">
+    <element name="type">
+      <attribute name="name"/>
+      <attribute name="type"/>
+    </element>
+  </define>
+
+  <define name="function:requires">
     <element name="requires">
       <text/>
     </element>
   </define>
 
-  <define name="function:implem:code">
+  <define name="function:code">
     <element name="code">
       <optional>
-        <attribute name="include"></attribute>
+        <attribute name="include"/>
       </optional>
       <text/>
     </element>
@@ -181,32 +150,34 @@
         <ref name="function:description"/>
       </optional>
       <optional>
-        <ref name="function:test:args"/>
+        <ref name="function:args"/>
       </optional>
-      <ref name="function:test:result"/>
+      <ref name="function:result"/>
     </element>
   </define>
 
-  <define name="function:test:args">
+  <define name="function:args">
     <element name="args">
       <zeroOrMore>
-        <ref name="function:test:arg"/>
+        <ref name="function:arg"/>
       </zeroOrMore>
     </element>
   </define>
 
-  <define name="function:test:arg">
+  <define name="function:arg">
     <element name="arg">
+      <attribute name="type"/>
       <optional>
-        <attribute name="name"></attribute>
+        <attribute name="name"/>
       </optional>
-      <ref name="function:value"/>
+      <text/>
     </element>
   </define>
 
-  <define name="function:test:result">
+  <define name="function:result">
     <element name="result">
-      <ref name="function:value"/>
+      <attribute name="type"/>
+      <text/>
     </element>
   </define>
 

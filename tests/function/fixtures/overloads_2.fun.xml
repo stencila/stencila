@@ -2,32 +2,28 @@
 <function>
   <name>overloads_2</name>
   <params>
-    <param name="param1">
-      <type>number</type>
-    </param>
-    <param name="param2">
-      <type>any</type>
-    </param>
+    <param name="param1" type="number"/>
+    <param name="param2" type="any"/>
   </params>
   <implems>
     <implem language="js">
       <types>
-        <type>number</type>
-        <type>number</type>
+        <type type="number"/>
+        <type type="number"/>
       </types>
       <code>(function(){ return "number, number" })</code>
     </implem>
     <implem language="js">
       <types>
-        <type>number</type>
-        <type>integer</type>
+        <type type="number"/>
+        <type type="integer"/>
       </types>
       <code>(function(){ return "number, integer" })</code>
     </implem>
     <implem language="js">
       <types>
-        <type>integer</type>
-        <type>any</type>
+        <type type="integer"/>
+        <type type="any"/>
       </types>
       <code>(function(){ return "integer, any" })</code>
     </implem>
@@ -35,44 +31,24 @@
   <tests>
     <test>
       <args>
-        <arg>
-          <number>1.0</number>
-        </arg>
-        <arg>
-          <number>2.0</number>
-        </arg>
+        <arg type="number">1.0</arg>
+        <arg type="number">2.0</arg>
       </args>
-      <result>
-        <string>number, number</string>
-      </result>
+      <result type="string">number, number</result>
     </test>
     <test>
       <args>
-        <arg>
-          <number>1.0</number>
-        </arg>
-        <arg>
-          <integer>2</integer>
-        </arg>
+        <arg type="number">1.0</arg>
+        <arg type="integer">2</arg>
       </args>
-      <result>
-        <string>number, integer</string>
-      </result>
+      <result type="string">number, integer</result>
     </test>
     <test>
       <args>
-        <arg>
-          <integer>2</integer>
-        </arg>
-        <arg>
-          <string>
-            Hello world
-          </string>
-        </arg>
+        <arg type="integer">2</arg>
+        <arg type="string">Hello world</arg>
       </args>
-      <result>
-        <string>integer, any</string>
-      </result>
+      <result type="string">integer, any</result>
     </test>
   </tests>
 </function>

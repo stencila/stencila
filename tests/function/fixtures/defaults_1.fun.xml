@@ -2,11 +2,8 @@
 <function>
   <name>defaults_1</name>
   <params>
-    <param name="param1">
-      <type>string</type>
-      <default>
-        <string>This is the default value for param1</string>
-      </default>
+    <param name="param1" type="string">
+      <default type="string">This is the default value for param1</default>
     </param>
   </params>
   <implems>
@@ -17,20 +14,14 @@
   <tests>
     <test>
       <description>No arguments so get the default value back</description>
-      <result>
-        <string>This is the default value for param1</string>
-      </result>
+      <result type="string">This is the default value for param1</result>
     </test>
     <test>
       <description>Called with argument</description>
       <args>
-        <arg>
-          <string>This is the supplied value for param1</string>
-        </arg>
+        <arg type="string">This is the supplied value for param1</arg>
       </args>
-      <result>
-        <string>This is the supplied value for param1</string>
-      </result>
+      <result type="string">This is the supplied value for param1</result>
     </test>
   </tests>
 </function>
