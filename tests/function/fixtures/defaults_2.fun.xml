@@ -1,0 +1,45 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>defaults_2</name>
+  <params>
+    <param name="param1" type="number">
+      <default type="integer">1</default>
+    </param>
+    <param name="param2" type="number">
+      <default type="integer">3</default>
+    </param>
+  </params>
+  <implems>
+    <implem language="js">
+      <code>(function(param1, param2){ return param1 + param2})</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <description>Called with no arguments</description>
+      <result type="integer">4</result>
+    </test>
+    <test>
+      <description>Called with first argument</description>
+      <args>
+        <arg type="integer">2</arg>
+      </args>
+      <result type="integer">5</result>
+    </test>
+    <test>
+      <description>Called with second argument</description>
+      <args>
+        <arg name="param2" type="integer">1</arg>
+      </args>
+      <result type="integer">2</result>
+    </test>
+    <test>
+      <description>Called with both arguments</description>
+      <args>
+        <arg type="integer">3</arg>
+        <arg type="integer">8</arg>
+      </args>
+      <result type="integer">11</result>
+    </test>
+  </tests>
+</function>

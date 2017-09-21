@@ -1,0 +1,14 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>min_plus_tests</name>
+  <implems>
+    <implem language="js">
+      <code>(function(){ return 42 })</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <result type="integer">42</result>
+    </test>
+  </tests>
+</function>

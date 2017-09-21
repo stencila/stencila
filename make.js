@@ -152,7 +152,7 @@ function buildEnv() {
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
-    src: './tests/documents/**/*',
+    src: ['./tests/documents/**/*', './tests/function/fixtures/*'],
     dest: './tmp/test-vfs.js',
     execute(files) {
       const rootDir = b.rootDir
@@ -262,7 +262,7 @@ function serveDocumentation() {
   fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
 
-const RNG_SEARCH_DIRS = ['src/sheet']
+const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
 
 function _compileSchema(name, src, options = {} ) {
   const DEST = `tmp/${name}.data.js`
@@ -313,10 +313,12 @@ b.task('css', () => {
 
 b.task('schema', () => {
   _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
+  _compileSchema('FunctionSchema', './src/sheet/FunctionSchema.rng')
 })
 
 b.task('schema:debug', () => {
   _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
+  _compileSchema('FunctionSchema', './src/sheet/FunctionSchema.rng', { debug: true})
 })
 
 b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
@@ -334,7 +336,7 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', () => {
+b.task('test:backend', ['schema'], () => {
   buildTestBackend()
 })
 
