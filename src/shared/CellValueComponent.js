@@ -24,7 +24,7 @@ class CellValueComponent extends Component {
     const cell = this.props.cell
     let el = $$('div').addClass('sc-cell-value')
     let value = engine.getValue(cell.id)
-    console.log('rendering %s -- value = ', cell.id, value)
+    // console.log('rendering %s -- value = ', cell.id, value)
     if (!isNil(value)) {
       let valueType = engine.getValueType(value)
       let ValueDisplay = registry.get('value:'+valueType)

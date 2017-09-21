@@ -90,22 +90,14 @@
       <code specific-use="cell">
         <named-content><alternatives>
           <code specific-use="source" language="mini"><![CDATA[x=5]]></code>
-          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "array", "value": 5 }]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "number", "value": 5 }]]></code>
         </alternatives></named-content>
       </code>
       <!-- Stencila Local Context Cell -->
       <code specific-use="cell">
         <named-content><alternatives>
-          <code specific-use="source" language="mini"><![CDATA[node(x)]]></code>
-          <code specific-use="source" language="node"><![CDATA[process.title + ' ' + process.version + ' x=' + x.toString() ]]></code>
-          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "string", "value": 'node v6.9.2 x=5' }]]></code>
-        </alternatives></named-content>
-      </code>
-      <!-- Jupyter Global Context Cell -->
-      <code specific-use="cell">
-        <named-content><alternatives>
-          <code specific-use="source" language="node"><![CDATA[process.title + ' ' + process.version ]]></code>
-          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "string", "value": 'node v6.9.2' }]]></code>
+          <code specific-use="source" language="mini"><![CDATA[y=x+2]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "number", "value": 7}]]></code>
         </alternatives></named-content>
       </code>
       <!-- Reproducible figure -->

@@ -1,8 +1,9 @@
+import { EditorSession, DefaultDOMElement, Component } from 'substance'
+import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
 import PublicationManifest from './PublicationManifest'
 import Engine from '../engine/Engine'
 import DocumentEditorPackage from '../document/DocumentEditorPackage'
-import { EditorSession, DefaultDOMElement, Component } from 'substance'
-import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
+import DocumentEngineAdapter from '../document/DocumentEngineAdapter'
 
 /*
   TODO: Implement full life cycle (like when other publication gets loaded)
@@ -125,6 +126,16 @@ export default class Publication extends Component {
 
         // TODO: we need to load all documents+sheets on start
         this._loadDocument(activeDocument, buffer).then((editorSession) => {
+          // WIP: connecting the document instance with
+          // the cell engine
+          let engineAdapter = new DocumentEngineAdapter(editorSession)
+          engineAdapter.connect(this.engine)
+          // TODO: we need to load all resources (docs and assets)
+          // as there might be cross references
+          // the engine should be updated once all resources have been
+          // registered
+          this.engine.update()
+
           this.setState({
             buffer,
             manifest,

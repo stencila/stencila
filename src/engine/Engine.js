@@ -2,7 +2,6 @@ import { isArray, isNil, map } from 'substance'
 import { BaseEngine, parse as parseExpression } from 'stencila-mini'
 import { pack, unpack, type } from '../value'
 import JsContext from '../contexts/JsContext'
-import { validateExpression, getContextName } from './expressionHelpers'
 
 export default
 class Engine extends BaseEngine {
@@ -60,7 +59,7 @@ class Engine extends BaseEngine {
 
   isDefinition(cellId) {
     const cell = this.getCell(cellId)
-    return cell && cell._expr.isDefinition()
+    return cell && cell._expr && cell._expr.isDefinition()
   }
 
   hasValue(cellId) {
@@ -142,7 +141,7 @@ class Engine extends BaseEngine {
   }
 
   recompute(cellId) {
-    console.log('Recomputing', cellId)
+    // console.log('Recomputing', cellId)
     const expr = this.getExpression(cellId)
     // we can only propagate if the expression has been parsed
     // and the engine has been attached
@@ -155,23 +154,13 @@ class Engine extends BaseEngine {
     let expr, error
     if (exprStr) {
       expr = parseExpression(exprStr)
-      // ATTENTION: this helper leaves information in expr
-      // TODO: let this call return errors, and register them here
-      validateExpression(expr)
       error = expr.syntaxError
-      let contextName = getContextName(expr)
-      // HACK: adding some derived information to
-      // the expression, to make our life easier later
-      if (contextName) {
-        expr._contextName = contextName
-        expr._isExternal = true
-      }
     }
     return { expr, error }
   }
 
   _onEvaluationStarted(expr) {
-    console.log('evaluation started: ', expr.getSource())
+    // console.log('evaluation started: ', expr.getSource())
     super._onEvaluationStarted(expr)
     const cell = expr._cell
     if (cell) {
@@ -181,7 +170,7 @@ class Engine extends BaseEngine {
   }
 
   _onEvaluationDeferred(expr) {
-    console.log('evaluation deferred: ', expr.getSource())
+    // console.log('evaluation deferred: ', expr.getSource())
     super._onEvaluationDeferred(expr)
     const cell = expr._cell
     if (cell) {
@@ -190,7 +179,7 @@ class Engine extends BaseEngine {
   }
 
   _onEvaluationFinished(val, expr) {
-    console.log('evaluation finished: %s = %s', expr.getSource(), val)
+    // console.log('evaluation finished: %s = %s', expr.getSource(), val)
     super._onEvaluationFinished(val, expr)
     const cell = expr._cell
     if (cell) {
@@ -212,109 +201,45 @@ class Engine extends BaseEngine {
   */
   callFunction(funcNode) {
     const functionName = funcNode.name
-    const expr = funcNode.expr
-    // TODO: we need to lookup the cell for this expression somehow
-    const cell = expr._cell
-    if (!cell) {
-      throw new Error('Internal error: no cell associated with expression.')
-    }
-    if (expr._isExternal) {
-      return this._callExternalFunction(funcNode, expr, cell.getSourceCode())
-    } else {
-      // regular function calls: we need to lookup
-      const func = this._lookupFunction(functionName)
-      if (func) {
-        const { context, contextName } = func
-        let packing = contextName === 'js' ? false : true
-        const options = { pack: packing }
-        // Unnamed arguments are expected to be variables and the variable name is
-        // used as the name of the argument
-        let args = []
-        if (funcNode.args) {
-          args = funcNode.args.map((arg) => {
-            let value = arg.getValue()
-            return packing ? pack(value) : value
-          })
-        }
-        // For named arguments, just use the name and the value
-        let namedArgs = {}
-        if (funcNode.namedArgs) {
-          for (let arg of funcNode.namedArgs) {
-            let value = arg.getValue()
-            namedArgs[arg.name] = packing ? pack(value) : value
-          }
-        }
-        return _unwrapResult(
-          funcNode,
-          context.callFunction(functionName, args, namedArgs, options),
-          options
-        )
-      } else {
-        let msg = `Could not resolve function "${functionName}"`
-        // Note: we just return undefined and add a runtime error
-        funcNode.addErrors([{
-          message: msg
-        }])
-        return
+    // ATTENTION: we removed support for 'external cells' (mini + external source code)
+    // as we want to evaluate how far we can get with just
+    // mini + external function definitions
+    // regular function calls: we need to lookup
+    const func = this._lookupFunction(functionName)
+    if (func) {
+      const { context, contextName } = func
+      let packing = contextName === 'js' ? false : true
+      const options = { pack: packing }
+      // Unnamed arguments are expected to be variables and the variable name is
+      // used as the name of the argument
+      let args = []
+      if (funcNode.args) {
+        args = funcNode.args.map((arg) => {
+          let value = arg.getValue()
+          return packing ? pack(value) : value
+        })
       }
-    }
-  }
-
-  _callExternalFunction(funcNode, expr, sourceCode) {
-    const contextName = expr._contextName
-    if(!contextName) {
+      // For named arguments, just use the name and the value
+      let namedArgs = {}
+      if (funcNode.namedArgs) {
+        for (let arg of funcNode.namedArgs) {
+          let value = arg.getValue()
+          namedArgs[arg.name] = packing ? pack(value) : value
+        }
+      }
+      return _unwrapResult(
+        funcNode,
+        context.callFunction(functionName, args, namedArgs, options),
+        options
+      )
+    } else {
+      let msg = `Could not resolve function "${functionName}"`
+      // Note: we just return undefined and add a runtime error
       funcNode.addErrors([{
-        message: 'Calls to external code must have "context" set.'
+        message: msg
       }])
       return
     }
-    return this._getContext(contextName).then(context => {
-      if (!context) {
-        funcNode.addErrors([{
-          line: 0, column: 0,
-          message: `No context found matching "${contextName}"`
-        }])
-      } else {
-        let packing = !(context instanceof JsContext)
-        const options = { pack: packing }
-        // the former 'run()' cell
-        // TODO: maybe add a convenience method, such as cell.isGlobal()
-        if (funcNode.modifiers.indexOf('global')>=0) {
-          return _unwrapResult(
-            funcNode,
-            context.runCode(sourceCode, options),
-            options
-          )
-        }
-        // the former 'call()' cell
-        else {
-          // Convert all arguments into an object
-          const args = {}
-          // Unnamed argunents are expected to be variables and the variable name is
-          // used as the name of the argument
-          funcNode.args.forEach((arg) => {
-            if (arg.type !== 'var') {
-              funcNode.addErrors([{
-                message: 'Calls to external code must use variables or named arguments'
-              }])
-              return
-            }
-            let value = arg.getValue()
-            args[arg.name] = packing ? pack(value) : value
-          })
-          // For named arguments, just use the name and the value
-          funcNode.namedArgs.forEach((arg) => {
-            let value = arg.getValue()
-            args[arg.name] = packing ? pack(value) : value
-          })
-          return _unwrapResult(
-            funcNode,
-            context.callCode(sourceCode, args, options),
-            options
-          )
-        }
-      }
-    })
   }
 
   _getContext(name) {
@@ -352,6 +277,7 @@ class Engine extends BaseEngine {
   }
 
   _registerCell(cell) {
+    // console.log('registering cell', cell)
     this._cells[cell.id] = cell
     if (cell.isInput()) {
       let input = cell
@@ -360,14 +286,18 @@ class Engine extends BaseEngine {
         this.setValue(name, input.getValue())
       }
     } else {
-      let { expr, error } = this._parse(cell.getExpressionString())
-      if (error) {
-        console.error(error)
+      if (cell.language === 'mini') {
+        let { expr, error } = this._parse(cell.source)
+        if (error) {
+          console.error(error)
+        } else {
+          cell._expr = expr
+          expr._cell = cell
+          this._addExpression(expr)
+          this.emit('engine:updated')
+        }
       } else {
-        cell._expr = expr
-        expr._cell = cell
-        this._addExpression(expr)
-        this.emit('engine:updated')
+        // TODO: support other languages
       }
     }
     return cell
@@ -376,7 +306,6 @@ class Engine extends BaseEngine {
   _deregisterCell(cellId) {
     const cell = this._cells[cellId]
     if (cell) {
-      cell.off(this)
       if (cell.isInput()) {
         const input = cell
         const name = input.getName()
@@ -395,25 +324,24 @@ class Engine extends BaseEngine {
   // has been manipulated
   _updateCell(cellId) {
     const cell = this.getCell(cellId)
-    const newExprStr = cell.getExpressionString()
     const oldExpr = this.getExpression(cellId)
-    let oldExprStr = oldExpr ? oldExpr.source || '' : ''
-    if (oldExprStr === newExprStr) return
     // dispose first
     if (oldExpr) {
       this._removeExpression(cellId)
     }
-    let { expr, error } = this._parse(newExprStr)
-    if (error) {
-      // what to do?
-    }
-    if (expr) {
-      this._addExpression(expr)
-      cell._expr = expr
-      expr._cell = cell
-      // legacy: was emitted by CellMixin before
-      // TODO: get rid of it if possible
-      cell.emit('expression:updated', expr, cell)
+    if (cell.language === 'mini') {
+      let { expr, error } = this._parse(cell.source)
+      if (error) {
+        // what to do?
+      }
+      if (expr) {
+        this._addExpression(expr)
+        cell._expr = expr
+        expr._cell = cell
+        // legacy: was emitted by CellMixin before
+        // TODO: get rid of it if possible
+        cell.emit('expression:updated', expr, cell)
+      }
     }
   }
 
