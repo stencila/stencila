@@ -15,7 +15,7 @@ test('CellEngine: setup engine without cells', (t) => {
 
 test('CellEngine: setup engine but with initial cells', (t) => {
   t.plan(1)
-  const {editorSession} = setupEditorSession('/tests/documents/simple/default.html')
+  const {editorSession} = setupEditorSession('/tests/document/fixtures/simple/default.html')
   const doc = editorSession.getDocument()
   doc.create({
     type: 'cell',
@@ -46,7 +46,7 @@ test('CellEngine: setup engine but with initial cells', (t) => {
 
 test('CellEngine: dispose', (t) => {
   t.plan(1)
-  const {editorSession} = setupEditorSession('/tests/documents/simple/default.html')
+  const {editorSession} = setupEditorSession('/tests/document/fixtures/simple/default.html')
   const doc = editorSession.getDocument()
   doc.create({
     type: 'cell',
@@ -219,7 +219,7 @@ test('CellEngine: update an input', (t) => {
 })
 
 function setupCellEngine() {
-  const {editorSession, doc} = setupEditorSession('/tests/documents/simple/default.html')
+  const {editorSession, doc} = setupEditorSession('/tests/document/fixtures/simple/default.html')
   const cellEngine =new CellEngine(editorSession, {waitForIdle: WAIT_FOR_IDLE})
   return {editorSession, doc, cellEngine}
 }
