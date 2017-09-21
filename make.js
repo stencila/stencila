@@ -41,21 +41,6 @@ const COMMON_SETTINGS = (custom) => { return merge({
   }
 }, custom)}
 
-const UNIFIED_MODULES = {
-  'unified': 'unified',
-  'unist-util-visit': 'unistVisit',
-  'unist-util-find': 'unistFind',
-  'remark-parse': 'remarkParse',
-  'remark-squeeze-paragraphs': 'remarkSqueezeParagraphs',
-  'remark-bracketed-spans': 'remarkBracketedSpans',
-  'remark-slug': 'remarkSlug',
-  'remark-html': 'remarkHtml',
-  'remark-stringify': 'remarkStringify',
-  'rehype-parse': 'rehypeParse',
-  'rehype-remark': 'rehype2remark',
-  'rehype-stringify': 'rehypeStringify'
-}
-
 const BROWSER_EXTERNALS = {
   'substance': 'window.substance',
   'substance-texture': 'window.texture',
@@ -67,10 +52,6 @@ const BROWSER_EXTERNALS = {
   'plotly': 'window.Plotly',
   'vega-lite': 'window.vegaLite'
 }
-Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
-  const alias = UNIFIED_MODULES[moduleName]
-  BROWSER_EXTERNALS[moduleName] = 'window.unifiedBundle.'+alias
-})
 
 const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
   'stencila': 'window.stencila'
@@ -82,7 +63,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 
 const NODEJS_EXTERNALS = [
   'substance', 'substance-texture', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite', 'plotly'
-].concat(Object.keys(UNIFIED_MODULES))
+]
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 
@@ -248,7 +229,6 @@ function buildVendor() {
     exports: ['default']
   })
   minifiedVendor('./vendor/_brace.js', 'brace')
-  minifiedVendor('./vendor/_unified-bundle.js', 'unified-bundle')
 }
 
 function minifiedVendor(src, name, opts = {}) {

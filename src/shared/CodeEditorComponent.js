@@ -1,6 +1,6 @@
 import { CustomSurface, inBrowser, isNil, isArrayEqual } from 'substance'
 import ace from 'brace'
-import { attachAceEditor, setAceEditorMode } from '../utilities/aceHelpers'
+import { attachAceEditor, setAceEditorMode } from '../util/aceHelpers'
 
 /**
  * A `CustomSurface` for editing a node's `source` code

@@ -12,8 +12,7 @@ export { default as MemoryBackend } from './src/backend/MemoryBackend'
 export { default as MemoryBuffer } from './src/backend/MemoryBuffer'
 
 export { default as Publication } from './src/publication/Publication'
-export { default as JsContext } from './src/js-context/JsContext'
-export { default as functions } from './src/js-context/functions'
+export { default as JsContext } from './src/contexts/JsContext'
 
 export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'

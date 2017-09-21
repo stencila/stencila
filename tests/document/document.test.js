@@ -10,7 +10,7 @@ test('Document: mounting a DocumentPage', (t) => {
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: new TestBackend(),
-    documentId: '/tests/documents/simple/default.html'
+    documentId: '/tests/document/fixtures/simple/default.html'
   }, sandbox)
   t.ok(page.isMounted(), 'DocumentPage should be mounted')
   t.end()
@@ -20,13 +20,13 @@ test('Document: switching documents', (t) => {
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: new TestBackend(),
-    documentId: '/tests/documents/simple/default.html'
+    documentId: '/tests/document/fixtures/simple/default.html'
   }, sandbox)
   t.plan(2)
   Promise.resolve()
   .then(() => {
     page.extendProps({
-      documentId: '/tests/documents/simple/default.html'
+      documentId: '/tests/document/fixtures/simple/default.html'
     })
   })
   .then(wait(10))
@@ -36,7 +36,7 @@ test('Document: switching documents', (t) => {
   })
   .then(() => {
     page.extendProps({
-      documentId: '/tests/documents/paragraph/default.html'
+      documentId: '/tests/document/fixtures/paragraph/default.html'
     })
   })
   .then(wait(10))
@@ -56,7 +56,7 @@ test('Document: open all test documents', (t) => {
   const sandbox = getSandbox(t)
   const page = DocumentPage.mount({
     backend: testBackend,
-    documentId: '/tests/documents/simple/default.html'
+    documentId: '/tests/document/fixtures/simple/default.html'
   }, sandbox)
 
   let p = Promise.resolve()
@@ -79,7 +79,7 @@ test('Document: storing buffer', (t) => {
 
   const sandbox = getSandbox(t)
   const backend = new TestBackend()
-  const documentId = '/tests/documents/simple/default.html'
+  const documentId = '/tests/document/fixtures/simple/default.html'
   const page = DocumentPage.mount({ backend, documentId }, sandbox)
   let _storeBuffer
   backend.getBuffer(documentId)
