@@ -8,11 +8,15 @@ export default class FunctionDocument extends XMLDocument {
   constructor(...args) {
     super(...args)
 
-    // A list of parameters stored more efficiently
-    // for faster lookup when called
+    // Parameters stored more efficiently for faster lookup when this 
+    // function is called
     this._params = []
 
-    // A mapping of call type signatures to implemenation type signatures
+    // Languages for which implementation/s exist
+    this._languages = []
+
+    // A mapping of call type signatures to implementation type signatures
+    // populated by `define()`
     this._implems = {}
   }
 
@@ -33,18 +37,9 @@ export default class FunctionDocument extends XMLDocument {
   }
 
   /**
-   * Define the implementations of this function within an execution Context
-   *
-   * A function may have multiple implementations for a language with each implementation
-   * overloading the function's parameters in alternative ways.
-   * 
-   * @param  {String} language The name of the language for the 
-   * @param  {Context} context  The context instance within which the function will be implemented
-   * @return {Promise} A Promise
+   * Initialise the function
    */
-  define(language, context) {
-    const name = this.getName()
-    
+  initialize() {
     // Extract parameters from the document
     this._params = []
     let $params = this.getRoot().findAll('params param')
@@ -59,13 +54,38 @@ export default class FunctionDocument extends XMLDocument {
         default: default_ 
       })
     }
+    // Extract supported languages from the document
+    this._languages = this.getRoot().findAll(`implems implem`)
+                                    .map(implem => implem.attr('language'))
+                                    .filter((v, i, a) => a.indexOf(v) === i)
+  }
+
+  /**
+   * Is this implemented in a particular language
+   */
+  implemented(language) {
+    return this._languages.indexOf(language) > -1
+  }
+
+  /**
+   * Define the implementations of this function within an execution Context
+   *
+   * A function may have multiple implementations for a language with each implementation
+   * overloading the function's parameters in alternative ways.
+   * 
+   * @param  {String} language The name of the language for the 
+   * @param  {Context} context  The context instance within which the function will be implemented
+   * @return {Promise} A Promise
+   */
+  define(language, context) {
+    const name = this.getName()
 
     // Extract and create implementations
     // Note that currently any overloads involving type specialisation
     // must follow the definition of the more general implementation
     let callSignats = {}
     let promises = []
-    const $implems = this.getRoot().findAll(`implem[language=${language}]`)
+    const $implems = this.getRoot().findAll(`implems implem[language=${language}]`)
     let implemIndex = 0
     for (let $implem of $implems) {
       implemIndex++
@@ -91,7 +111,7 @@ export default class FunctionDocument extends XMLDocument {
       
       // Generate the implementation signature, the `mini_` prefix
       // avoids name clashes with native functions in the execution context
-      let implemSignat = 'mini_' + name + types.map(type => '_' + type).join('')
+      let implemSignat = ['mini', name].concat(types).join('_')
       // Generate all possible combinations of call signatures for
       // this implementation
       let callCombos
@@ -113,10 +133,10 @@ export default class FunctionDocument extends XMLDocument {
       }
 
       if (!callCombos) {
-        callSignats[name] = implemSignat
+        callSignats[language] = implemSignat
       } else {
         for (let combo of callCombos) {
-          callSignats[name + '_' + combo] = implemSignat
+          callSignats[language + '_' + combo] = implemSignat
         }
       }
       // Define the function
@@ -129,7 +149,7 @@ export default class FunctionDocument extends XMLDocument {
     return Promise.all(promises)
   }
 
-  call(context, args, namedArgs) {
+  call(language, context, args, namedArgs) {
     const name = this.getName()
 
     // Generate an array of argument values and a call type signature
@@ -143,7 +163,7 @@ export default class FunctionDocument extends XMLDocument {
     }
 
     // Find matching implem
-    let callSignat = name + values.map(value => '_' + value.type).join('')
+    let callSignat = [language].concat(values.map(value => value.type)).join('_')
     let implemSignat = this._implems[callSignat]
     if (!implemSignat) throw new Error(`Function "${name}" does not have an implementation for call "${callSignat}". Available implementations are "${Object.keys(this._implems)}".`)
     
@@ -168,7 +188,7 @@ export default class FunctionDocument extends XMLDocument {
           else args.push(value)
         }
         // Call function and record result and expected
-        let promise = this.call(context, args, namedArgs).then(result => {
+        let promise = this.call(language, context, args, namedArgs).then(result => {
           let expected = createValueFromXML($test.find('result'))
           result.expected = expected
           results.push(result)

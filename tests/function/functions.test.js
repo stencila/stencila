@@ -2,7 +2,7 @@ import test from 'tape'
 import { Configurator } from 'substance'
 
 import { FunctionPackage, FunctionSchema } from '../../src/function'
-import JsContext from '../../src/js-context/JsContext'
+import JsContext from '../../src/contexts/JsContext'
 
 import testVFS from '../../tmp/test-vfs.js'
 
@@ -29,6 +29,7 @@ function loadFunction (path) {
 
 function testFunction (path) {
   const func = loadFunction(path)
+  func.initialize()
   let context = new JsContext()
   return func.test('js', context)
 }
