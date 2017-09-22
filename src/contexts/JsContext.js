@@ -35,9 +35,7 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  runCode (code = '', options = {}) {
-    const pack = (options.pack !== false)
-
+  runCode (code = '') {
     // Create a function from the code and execute it
     let error = null
     try {
@@ -61,7 +59,7 @@ export default class JsContext extends Context {
     }
 
     return Promise.resolve(
-      this._result(error, output, pack)
+      this._result(error, output)
     )
   }
 
@@ -70,17 +68,10 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  callCode (code = '', inputs = {}, options = {}) {
-    const pack = (options.pack !== false)
-
+  callCode (code = '', inputs = {}) {
     // Extract names and values of inputs
     let names = Object.keys(inputs)
-    let values
-    if (pack) {
-      values = names.map(name => unpack(inputs[name]))
-    } else {
-      values = names.map(name => inputs[name])
-    }
+    let values = names.map(name => unpack(inputs[name]))
 
     // Execute the function with the unpacked inputs.
     let error = null
@@ -93,7 +84,7 @@ export default class JsContext extends Context {
     }
 
     return Promise.resolve(
-      this._result(error, output, pack)
+      this._result(error, output)
     )
   }
 
@@ -147,45 +138,24 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  callFunction (name, args = [], namedArgs = {}, options = {}) {
+  callFunction (name, args = []) {
     if (!name) throw new Error("'name' is mandatory")
-    const packing = (options.pack !== false)
 
     const func = this._functions[name]
     if (!func) throw new Error('No function with name: ' + name)
-    
-    // Convert args into an array of values
-    let argValues = []
-    if (func.pars) {
-      // Unpack args if necessary
-      argValues = args.map(arg => packing ? unpack(arg) : arg)
-      // Put named arguments into the right place in the argument values array
-      for (let name of Object.keys(namedArgs)) {
-        let index = func.pars.indexOf(name)
-        if (index >-1) {
-          let value = namedArgs[name]
-          argValues[index] = packing ? unpack(value) : value
-        } else {
-          return Promise.reject(new Error(`Invalid named argument "${name}"; valid names are ${func.pars.map(name => '"' + name + '"').join(', ')}`))
-        }
-      }
-    } else {
-      // Unpack args if necessary
-      argValues = args.map(arg => packing ? unpack(arg) : arg)
-      // There should be no named arguments since the function does not define any
-      if (Object.keys(namedArgs) > 0) return Promise.reject(new Error(`Named arguments supplied but function "${name}" does not support them`))
-    }
 
+    let values = args.map(arg => unpack(arg))
+    
     let error = null
     let value
     try {
-      value = func(...argValues)
+      value = func(...values)
     } catch (e) {
       error = e
     }
     
     return Promise.resolve(
-      this._result(error, value, packing)
+      this._result(error, value)
     )
   }
 
@@ -194,12 +164,9 @@ export default class JsContext extends Context {
    *
    * @param {object} error - Error object, if any
    * @param {object} value - The value to be packed
-   * @param {boolean} packed - Should the output be packed (or left unpacked for calls withing Javascript)
    * @return {null|object} - A set of errors by line number
    */
-  _result (error, value, packed) {
-    if (packed !== false) packed = true
-
+  _result (error, value) {
     let errors = null
     if (error) {
       // Parse the error stack to get message and line number
@@ -222,8 +189,7 @@ export default class JsContext extends Context {
 
     let output
     if (value === undefined) output = null
-    else if (packed) output = pack(value)
-    else output = value
+    else output = pack(value)
 
     return {
       errors: errors,
