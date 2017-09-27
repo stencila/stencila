@@ -47,4 +47,3 @@ for (let file of Object.keys(testVFS)) {
     })
   }
 }
-

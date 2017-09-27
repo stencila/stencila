@@ -15,7 +15,13 @@
         <ref name="function:title"/>
       </optional>
       <optional>
+        <ref name="function:summary"/>
+      </optional>
+      <optional>
         <ref name="function:description"/>
+      </optional>
+      <optional>
+        <ref name="function:relateds"/>
       </optional>
       <optional>
         <ref name="function:params"/>
@@ -24,6 +30,9 @@
         <ref name="function:return"/>
       </optional>
       <ref name="function:implems"/>
+      <optional>
+        <ref name="function:examples"/>
+      </optional>
       <optional>
         <ref name="function:tests"/>
       </optional>
@@ -42,8 +51,28 @@
     </element>
   </define>
 
+  <define name="function:summary">
+    <element name="summary">
+      <text/>
+    </element>
+  </define>
+
   <define name="function:description">
     <element name="description">
+      <text/>
+    </element>
+  </define>
+
+  <define name="function:relateds">
+    <element name="relateds">
+      <zeroOrMore>
+        <ref name="function:related"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:related">
+    <element name="related">
       <text/>
     </element>
   </define>
@@ -134,6 +163,30 @@
       </optional>
       <text/>
     </element>
+  </define>
+
+  <define name="function:examples">
+    <element name="examples">
+      <zeroOrMore>
+        <ref name="function:example"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:example">
+    <element name="example">
+      <optional>
+        <ref name="function:description"/>
+      </optional>
+      <ref name="function:usage"/>
+      <optional>
+        <ref name="function:result"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="function:usage">
+    <text/>
   </define>
 
   <define name="function:tests">
