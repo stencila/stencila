@@ -16,9 +16,11 @@ const parentTypes = {
   'array': 'any',
   'array[boolean]': 'array',
   'array[number]': 'array',
-  'array[integer]': 'array',
+  'array[integer]': 'array[number]',
   'array[string]': 'array',
-  'array[object]': 'array'
+  'array[object]': 'array',
+
+  'table': 'any'
 }
 
 // Children of each type
