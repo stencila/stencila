@@ -8,7 +8,7 @@
   </params>
   <implems>
     <implem language="js">
-      <code>(function(param1){ return param1 })</code>
+      <code>function(param1){ return param1 }</code>
     </implem>
   </implems>
   <tests>

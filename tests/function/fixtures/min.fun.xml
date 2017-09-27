@@ -4,7 +4,7 @@
   <name>min</name>
   <implems>
     <implem language="js">
-      <code>(function(){ return 42 })</code>
+      <code>function(){ return 42 }</code>
     </implem>
   </implems>
 </function>

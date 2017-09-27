@@ -11,7 +11,7 @@
   </params>
   <implems>
     <implem language="js">
-      <code>(function(param1, param2){ return param1 + param2})</code>
+      <code>function(param1, param2){ return param1 + param2}</code>
     </implem>
   </implems>
   <tests>

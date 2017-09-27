@@ -120,7 +120,7 @@ export default class JsContext extends Context {
    * @override
    */
   defineFunction (name, code) {
-    this._functions[name] = eval(code) // eslint-disable-line no-eval
+    this._functions[name] = eval('(' + code + ')') // eslint-disable-line no-eval
     return Promise.resolve()
   }
 
