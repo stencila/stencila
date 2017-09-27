@@ -3,12 +3,11 @@
   Provides a Javascript API to create, update and lookup functions.
 
   Think of this as an in-memory function library. It does not parse or
-  run functions only
+  run functions, only the data is stored here for reflection.
 
-  It is used by the cell engine to lookup function calls, pick the best
-  available implementation and run it.
+  FunctionManager is used by the cell engine to lookup function calls, pick the
+  right implementation and runs it.
 */
-
 export default class FunctionManager {
 
   constructor() {
