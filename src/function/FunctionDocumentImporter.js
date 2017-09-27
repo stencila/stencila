@@ -11,11 +11,13 @@ export default class FunctionDocumentImporter extends XMLDocumentImporter {
    */
   compileDocument(xml, files) {
     let doc = DefaultDOMElement.parseXML(xml)
-    for (let $code of doc.findAll('code[include]')) {
-      let file = $code.attr('include')
-      let code = files[file]
-      if (!code) throw new Error(`File "${file}" to be included as in Function definition was not supplied`)
-      $code.text(code)
+    if (files) {
+      for (let $code of doc.findAll('code[include]')) {
+        let file = $code.attr('include')
+        let code = files[file]
+        if (!code) throw new Error(`File "${file}" to be included as in Function definition was not supplied`)
+        $code.text(code)
+      }
     }
     return doc
   }
