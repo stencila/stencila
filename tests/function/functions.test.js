@@ -1,16 +1,11 @@
 import test from 'tape'
-import { Configurator } from 'substance'
 
-import { FunctionPackage, FunctionSchema } from '../../src/function'
-import JsContext from '../../src/js-context/JsContext'
+import { importFunctionDocument } from '../../src/function'
+import JsContext from '../../src/contexts/JsContext'
 
 import testVFS from '../../tmp/test-vfs.js'
 
 function loadFunction (path) {
-  let configurator = new Configurator()
-  configurator.import(FunctionPackage)
-  const importer = configurator.createImporter(FunctionSchema.getName())
-
   // Main XML function definition
   let main = testVFS[path]
   // Source code for function implementations that are "included"
@@ -22,13 +17,12 @@ function loadFunction (path) {
     if (match) siblings[match[1]] = testVFS[path]
   }
 
-  const xml = importer.compileDocument(main, siblings)
-  const func = importer.importDocument(xml)
-  return func
+  return importFunctionDocument(main, siblings)
 }
 
 function testFunction (path) {
   const func = loadFunction(path)
+  func.initialize()
   let context = new JsContext()
   return func.test('js', context)
 }
@@ -46,4 +40,3 @@ for (let file of Object.keys(testVFS)) {
     })
   }
 }
-

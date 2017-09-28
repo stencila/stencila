@@ -9,19 +9,19 @@
       <types>
         <type type="number"/>
       </types>
-      <code>(function(){ return "number" })</code>
+      <code>function(){ return "number" }</code>
     </implem>
     <implem language="js">
       <types>
         <type type="integer"/>
       </types>
-      <code>(function(){ return "integer" })</code>
+      <code>function(){ return "integer" }</code>
     </implem>
     <implem language="js">
       <types>
         <type type="string"/>
       </types>
-      <code>(function(){ return "string" })</code>
+      <code>function(){ return "string" }</code>
     </implem>
   </implems>
   <tests>

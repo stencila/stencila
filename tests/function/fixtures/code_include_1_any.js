@@ -1,3 +1,3 @@
-(function () {
+function _() {
   return "any"
-})
+}

@@ -18,3 +18,4 @@ export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'
 
 export * from './src/sheet/index.js'
+export * from './src/function/index.js'

@@ -11,21 +11,21 @@
         <type type="number"/>
         <type type="number"/>
       </types>
-      <code>(function(){ return "number, number" })</code>
+      <code>function(){ return "number, number" }</code>
     </implem>
     <implem language="js">
       <types>
         <type type="number"/>
         <type type="integer"/>
       </types>
-      <code>(function(){ return "number, integer" })</code>
+      <code>function(){ return "number, integer" }</code>
     </implem>
     <implem language="js">
       <types>
         <type type="integer"/>
         <type type="any"/>
       </types>
-      <code>(function(){ return "integer, any" })</code>
+      <code>function(){ return "integer, any" }</code>
     </implem>
   </implems>
   <tests>
