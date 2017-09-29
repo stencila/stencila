@@ -3,9 +3,9 @@ import { XMLDocumentImporter, DefaultDOMElement } from 'substance'
 export default class FunctionDocumentImporter extends XMLDocumentImporter {
 
   /**
-   * Compile an XML document from the main XML files and any other 
-   * sibling files that are "include"ed. 
-   * 
+   * Compile an XML document from the main XML files and any other
+   * sibling files that are "include"ed.
+   *
    * @param  {String} xml A string of the XML of the main function definition file
    * @param  {Object} files A dictionary of sibling file names and content
    */
@@ -22,4 +22,21 @@ export default class FunctionDocumentImporter extends XMLDocumentImporter {
     return doc
   }
 
+  /*
+    overridden to enforce some ids for singular elements
+  */
+  _getIdForElement(el, type) {
+    switch (type) {
+      case 'function':
+      case 'name':
+      case 'title':
+      case 'description':
+      case 'params':
+      case 'return':
+      case 'implems':
+      case 'tests':
+        return type
+    }
+    return super._getIdForElement(el, type)
+  }
 }

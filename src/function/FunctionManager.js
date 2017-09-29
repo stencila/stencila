@@ -1,3 +1,5 @@
+import { Configurator, DefaultDOMElement } from 'substance'
+import FunctionPackage from './FunctionPackage'
 
 /*
   Provides a Javascript API to create, update and lookup functions.
@@ -12,7 +14,53 @@ export default class FunctionManager {
 
   constructor() {
     this.functions = {}
+
+    let configurator = new Configurator()
+    configurator.import(FunctionPackage)
+    this.configurator = configurator
   }
+
+  // Import / Export
+
+  /*
+    Import and register function based on the given XML serialized version. This can
+    be used for seeding the core function library.
+  */
+  importFunction(name, xmlString) {
+    // TODO: import from xmlString
+    let importer = this.configurator.createImporter('stencila-function')
+    let dom = DefaultDOMElement.parseXML(xmlString)
+    let functionDoc = importer.importDocument(dom)
+    this.functions[name] = functionDoc
+  }
+
+  exportFunction(name) {
+    // TODO: serialize as XML and return as string
+  }
+
+  getFunction(name) {
+    return this.functions[name]
+  }
+
+  // Reflection
+
+  /*
+    Get the function signature for inspection
+  */
+  getSignature(name) {
+    return this.functions[name].getSignature()
+  }
+
+  /*
+    fm.getImplementation('sum', 'javascript', ['number', 'number'])
+  */
+  getImplementation(name, language, args) { // eslint-disable-line
+    let { implementations } = this.functions[name]
+    return implementations[language]
+  }
+
+
+  // EXPERIMENTAL: API used by FunctionEditor
 
   /*
     Create a function record with a given signature
@@ -45,33 +93,6 @@ export default class FunctionManager {
 
   removeImplementation(funcName, language) {
     delete this.functions[funcName].implementations[language]
-  }
-
-  /*
-    Import and register function based on the given XML serialized version. This can
-    be used for seeding the core function library.
-  */
-  importFunction(name, xmlString) {
-    // TODO: import from xmlString
-  }
-
-  exportFunction(name) {
-    // TODO: serialize as XML and return as string
-  }
-
-  /*
-    Get the function signature for inspection
-  */
-  getSignature(name) {
-    return this.functions[name].signature
-  }
-
-  /*
-    fm.getImplementation('sum', 'javascript', ['number', 'number'])
-  */
-  getImplementation(name, language) {
-    let { implementations } = this.functions[name]
-    return implementations[language]
   }
 
 }
