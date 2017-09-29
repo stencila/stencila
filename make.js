@@ -132,7 +132,6 @@ function buildData() {
   })
 }
 
-
 // This is used to expose `STENCILA_XXXX` environment variables to the js app
 function buildEnv() {
   b.custom('Creating environment variables (env.js)...', {

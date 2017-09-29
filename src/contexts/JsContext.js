@@ -133,6 +133,35 @@ export default class JsContext extends Context {
     return Boolean(this._functions[name])
   }
 
+  /*
+    EXPERIMENTAL: new implementation
+    Takes an expression, and arguments
+    then evaluates the expression which should return a function instance
+    then calls the function
+  */
+  callFunction_next(source, args = [], options = {}) {
+    // source is an expression yielding a function
+    const packing = (options.pack !== false)
+    const _define = new Function(`
+      let fun = ${source}
+      return fun
+    `)
+    const func = _define()
+    if (!isFunction(func)) {
+      return Promise.reject(new Error('Function source must be an expression that evaluates to a function instance'))
+    }
+    let error = null
+    let value
+    try {
+      value = func(...args)
+    } catch (e) {
+      error = e
+    }
+    return Promise.resolve(
+      this._result(error, value, packing)
+    )
+  }
+
   /**
    * Call a function
    *

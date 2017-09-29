@@ -3,10 +3,10 @@
   using a stub backend.
 */
 
+import { forEach } from 'substance'
 import { Publication, Host, MemoryBackend, getQueryStringParam } from 'stencila'
 
 window.addEventListener('load', () => {
-
   window.pub = Publication.mount({
     host: new Host({
       // Initial peers can be set in an environment variable
