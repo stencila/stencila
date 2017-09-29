@@ -3,7 +3,6 @@
   using a stub backend.
 */
 
-import { forEach } from 'substance'
 import { Publication, Host, MemoryBackend, getQueryStringParam } from 'stencila'
 
 window.addEventListener('load', () => {
