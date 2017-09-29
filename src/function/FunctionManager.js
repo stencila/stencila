@@ -33,11 +33,11 @@ export default class FunctionManager {
     funcs.forEach((func) => {
       let functionName = func.find('name').textContent
       let functionDoc = importer.importDocument(func)
-      this.functions[libraryName] = {}
-      this.functions[libraryName][functionName] = functionDoc
       if (this.functionMap[functionName]) {
         throw new Error(`Function ${functionName} is already defined.`)
       }
+      this.functions[libraryName] = {}
+      this.functions[libraryName][functionName] = functionDoc
       this.functionMap[functionName] = libraryName
       this.implementations[libraryName] = implementations
     })
@@ -47,12 +47,8 @@ export default class FunctionManager {
     Get function instance by name
   */
   getFunction(functionName) {
-    let libraryName = this.getLibraryNameForFunction(functionName)
+    let libraryName = this.functionMap[functionName]
     return this.functions[libraryName][functionName]
-  }
-
-  getLibraryNameForFunction(functionName) {
-    return this.functionMap[functionName]
   }
 
   /*

@@ -46,6 +46,30 @@ export default class FunctionDocument extends XMLDocument {
     }
   }
 
+  // TODO: Specify available implementations in XML and expose as array of
+  //       language names
+  getImplementations() {
+    return ['javascript']
+  }
+
+  /*
+    Get most basic usage example (to be displayed in popover)
+
+    TODO: We just need to store a simple <usage-example> element here, more
+    complex usages could live in a separate rich documentation field (JATS body)
+  */
+  getUsageExample() {
+    return 'sum(1,5)'
+  }
+
+  /*
+    Returns a summary as plain text.
+  */
+  getSummary() {
+    let summary = this.find('summary')
+    return summary.textContent
+  }
+
   /*
     Extract a json representation.
 
