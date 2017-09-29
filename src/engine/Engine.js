@@ -211,78 +211,60 @@ class Engine extends BaseEngine {
       - call the function in the context
 
     */
+
+    // ATTENTION: we removed support for 'external cells' (mini + external source code)
+    // as we want to evaluate how far we can get with just
+    // mini + external function definitions
+    // regular function calls: we need to lookup
+    // TODO: find out which context to call by looking
+    // up the first implementation of the function
     let fun = this.functionManager.getFunction(functionName)
     if (!fun) {
+      let msg = `Could not resolve function "${functionName}"`
+      // Note: we just return undefined and add a runtime error
       funcNode.addErrors([{
-        message: `Could not resolve function "${functionName}"`
+        message: msg
       }])
       return
     }
+    let impls = fun.getImplementations()
+    let language = impls[0]
+    if (!language) {
+      let msg = `Could not find implementation for function "${functionName}"`
+      // Note: we just return undefined and add a runtime error
+      funcNode.addErrors([{
+        message: msg
+      }])
+      return
+    }
+    let libraryName = this.functionManager.getLibraryName(functionName)
+    let context = this._contexts[language]
+
     // TODO: implement this properly
     // - choose the right context
     // - support mulitfuncs by choosing the implementation by args
     // Note: source is an expression yielding a function
-    let contextName = 'js'
-    let context = this._contexts[contextName]
-    let source = fun.getImplementation(contextName)
-    if (!source) {
-      funcNode.addErrors([{
-        message: `Could not find implementation`
-      }])
-      return
-    }
+
     // TODO: we should get the signature here and bring the arguments into correct order
-    const packing = (contextName !== 'js')
-    const options = { pack: packing }
+    const options = { pack: true }
     let args = []
     if (funcNode.args) {
       args = funcNode.args.map((arg) => {
-        let value = arg.getValue()
-        return packing ? pack(value) : value
+        return pack(arg.getValue())
       })
     }
-    let result = context.callFunction_new(source, args, options)
-    return _unwrapResult(funcNode, result, options)
-
-    // // ATTENTION: we removed support for 'external cells' (mini + external source code)
-    // // as we want to evaluate how far we can get with just
-    // // mini + external function definitions
-    // // regular function calls: we need to lookup
-    // const func = this._lookupFunction(functionName)
-    // if (func) {
-    //   const { context, contextName } = func
-    //   let packing = contextName === 'js' ? false : true
-    //   const options = { pack: packing }
-    //   // Unnamed arguments are expected to be variables and the variable name is
-    //   // used as the name of the argument
-    //   let args = []
-    //   if (funcNode.args) {
-    //     args = funcNode.args.map((arg) => {
-    //       let value = arg.getValue()
-    //       return packing ? pack(value) : value
-    //     })
-    //   }
-    //   // For named arguments, just use the name and the value
-    //   let namedArgs = {}
-    //   if (funcNode.namedArgs) {
-    //     for (let arg of funcNode.namedArgs) {
-    //       let value = arg.getValue()
-    //       namedArgs[arg.name] = packing ? pack(value) : value
-    //     }
-    //   }
-    //   return _unwrapResult(
-    //     funcNode,
-    //     context.callFunction(functionName, args, namedArgs, options),
-    //     options
-    //   )
-    // } else {
-    //   let msg = `Could not resolve function "${functionName}"`
-    //   // Note: we just return undefined and add a runtime error
-    //   funcNode.addErrors([{
-    //     message: msg
-    //   }])
-    //   return
-    // }
+    // For named arguments, just use the name and the value
+    let namedArgs = {}
+    if (funcNode.namedArgs) {
+      for (let arg of funcNode.namedArgs) {
+        namedArgs[arg.name] = pack(arg.getValue())
+      }
+    }
+    return _unwrapResult(
+      funcNode,
+      context.callFunction(libraryName, functionName, args, namedArgs, options),
+      options
+    )
   }
 
   _getContext(name) {
