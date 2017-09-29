@@ -13,33 +13,53 @@ import FunctionPackage from './FunctionPackage'
 export default class FunctionManager {
 
   constructor() {
+    // Maps function names to the library in which they have been defined
+    this.functionMap = {}
+    // Holds function instances scoped by libraryName and functionName
     this.functions = {}
-
+    this.implementations = {}
     let configurator = new Configurator()
     configurator.import(FunctionPackage)
     this.configurator = configurator
   }
 
-  // Import / Export
+  /*
+    Import a function library (XML) and register function instances in the manager
+  */
+  importLibrary(libraryName, xmlString, implementations) {
+    let dom = DefaultDOMElement.parseXML(xmlString)
+    let importer = this.configurator.createImporter('stencila-function')
+    let funcs = dom.findAll('function')
+    funcs.forEach((func) => {
+      let functionName = func.find('name').textContent
+      let functionDoc = importer.importDocument(func)
+      this.functions[libraryName] = {}
+      this.functions[libraryName][functionName] = functionDoc
+      if (this.functionMap[functionName]) {
+        throw new Error(`Function ${functionName} is already defined.`)
+      }
+      this.functionMap[functionName] = libraryName
+      this.implementations[libraryName] = implementations
+    })
+  }
 
   /*
-    Import and register function based on the given XML serialized version. This can
-    be used for seeding the core function library.
+    Get function instance by name
   */
-  importFunction(name, xmlString) {
-    // TODO: import from xmlString
-    let importer = this.configurator.createImporter('stencila-function')
-    let dom = DefaultDOMElement.parseXML(xmlString)
-    let functionDoc = importer.importDocument(dom)
-    this.functions[name] = functionDoc
+  getFunction(functionName) {
+    let libraryName = this.getLibraryNameForFunction(functionName)
+    return this.functions[libraryName][functionName]
   }
 
-  exportFunction(name) {
-    // TODO: serialize as XML and return as string
+  getLibraryNameForFunction(functionName) {
+    return this.functionMap[functionName]
   }
 
-  getFunction(name) {
-    return this.functions[name]
+  /*
+    Get a list of available function names
+  */
+  getFunctionNames() {
+    return Object.keys(this.functionMap)
   }
 
   // Reflection
@@ -49,50 +69,6 @@ export default class FunctionManager {
   */
   getSignature(name) {
     return this.functions[name].getSignature()
-  }
-
-  /*
-    fm.getImplementation('sum', 'javascript', ['number', 'number'])
-  */
-  getImplementation(name, language, args) { // eslint-disable-line
-    let { implementations } = this.functions[name]
-    return implementations[language]
-  }
-
-
-  // EXPERIMENTAL: API used by FunctionEditor
-
-  /*
-    Create a function record with a given signature
-
-    fm.createFunction('sum,' {
-      params: [
-        { name: 'value1', type: 'number', description: 'The first number or range to add together.' },
-        { name: 'value2', type: 'number', repeatable: true, description: 'Additional numbers or ranges to add to `value1`.' }
-      ],
-      returns: { type: 'number', description: 'The sum of a series of numbers and/or cells.'}
-    })
-  */
-  createFunction(name, signature) {
-    // NOTE: function has no implementation at first
-    this.functions[name] = {
-      signature,
-      implementations: {}
-    }
-  }
-
-  /*
-    Adds a new implementation to a function. An existing implementation
-    will be overridden.
-
-    fm.addImplementation('sum', 'javascript', 'return value1 + value2')
-  */
-  addImplementation(funcName, language, sourceCode) {
-    this.functions[funcName].implementations[language] = sourceCode
-  }
-
-  removeImplementation(funcName, language) {
-    delete this.functions[funcName].implementations[language]
   }
 
 }
