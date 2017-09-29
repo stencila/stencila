@@ -49,7 +49,7 @@ export default class FunctionDocument extends XMLDocument {
   // TODO: Specify available implementations in XML and expose as array of
   //       language names
   getImplementations() {
-    return ['javascript']
+    return ['js']
   }
 
   /*

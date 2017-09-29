@@ -17,16 +17,14 @@ export default class FunctionManager {
     this.functionMap = {}
     // Holds function instances scoped by libraryName and functionName
     this.functions = {}
-    this.implementations = {}
-    let configurator = new Configurator()
-    configurator.import(FunctionPackage)
-    this.configurator = configurator
+
+    this.configurator = new Configurator().import(FunctionPackage)
   }
 
   /*
     Import a function library (XML) and register function instances in the manager
   */
-  importLibrary(libraryName, xmlString, implementations) {
+  importLibrary(libraryName, xmlString) {
     let dom = DefaultDOMElement.parseXML(xmlString)
     let importer = this.configurator.createImporter('stencila-function')
     let funcs = dom.findAll('function')
@@ -36,19 +34,26 @@ export default class FunctionManager {
       if (this.functionMap[functionName]) {
         throw new Error(`Function ${functionName} is already defined.`)
       }
-      this.functions[libraryName] = {}
+      if (!this.functions[libraryName]) {
+        this.functions[libraryName] = {}
+      }
       this.functions[libraryName][functionName] = functionDoc
       this.functionMap[functionName] = libraryName
-      this.implementations[libraryName] = implementations
     })
+  }
+
+  getLibraryName(functionName) {
+    return this.functionMap[functionName]
   }
 
   /*
     Get function instance by name
   */
   getFunction(functionName) {
-    let libraryName = this.functionMap[functionName]
-    return this.functions[libraryName][functionName]
+    let libraryName = this.getLibraryName(functionName)
+    if (libraryName) {
+      return this.functions[libraryName][functionName]
+    }
   }
 
   /*
