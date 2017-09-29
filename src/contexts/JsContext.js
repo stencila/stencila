@@ -1,8 +1,10 @@
 import {parse} from 'acorn'
 import {simple, base} from 'acorn/dist/walk'
+import { isFunction } from 'substance'
 
 import {pack, unpack} from '../value'
 import Context from './Context'
+import minicore from 'stencila-mini-core'
 
 /**
  * A Javascript context
@@ -13,9 +15,12 @@ import Context from './Context'
  */
 export default class JsContext extends Context {
 
-  constructor (customFunctions = {}) {
+  constructor () {
     super()
-    this._functions = Object.assign({}, customFunctions)
+
+    this._libs = {
+      core: minicore
+    }
   }
 
 
@@ -115,66 +120,23 @@ export default class JsContext extends Context {
   }
 
   /**
-   * Define a function
-   *
-   * @override
-   */
-  defineFunction (name, code) {
-    this._functions[name] = eval('(' + code + ')') // eslint-disable-line no-eval
-    return Promise.resolve()
-  }
-
-  /**
-   * Does the context provide a function?
-   *
-   * @override
-   */
-  hasFunction (name) {
-    return Boolean(this._functions[name])
-  }
-
-  /*
-    EXPERIMENTAL: new implementation
-    Takes an expression, and arguments
-    then evaluates the expression which should return a function instance
-    then calls the function
-  */
-  callFunction_next(source, args = [], options = {}) {
-    // source is an expression yielding a function
-    const packing = (options.pack !== false)
-    const _define = new Function(`
-      let fun = ${source}
-      return fun
-    `)
-    const func = _define()
-    if (!isFunction(func)) {
-      return Promise.reject(new Error('Function source must be an expression that evaluates to a function instance'))
-    }
-    let error = null
-    let value
-    try {
-      value = func(...args)
-    } catch (e) {
-      error = e
-    }
-    return Promise.resolve(
-      this._result(error, value, packing)
-    )
-  }
-
-  /**
    * Call a function
    *
    * @override
    */
-  callFunction (name, args = []) {
-    if (!name) throw new Error("'name' is mandatory")
+  callFunction (libName, functionName, args = []) {
+    if (!functionName) throw new Error("'name' is mandatory")
 
-    const func = this._functions[name]
-    if (!func) throw new Error('No function with name: ' + name)
+    const lib = this._libs[libName]
+    if (!lib) throw new Error('No library registered with name: ' + libName)
+
+    const func = lib[functionName]
+    if (!func) throw new Error('No function with name: ' + functionName)
+
+    if (!isFunction(func)) throw new Error(`Registered function with name ${functionName} is invalid!`)
 
     let values = args.map(arg => unpack(arg))
-    
+
     let error = null
     let value
     try {
@@ -182,7 +144,7 @@ export default class JsContext extends Context {
     } catch (e) {
       error = e
     }
-    
+
     return Promise.resolve(
       this._result(error, value)
     )
@@ -208,7 +170,7 @@ export default class JsContext extends Context {
         column = parseInt(match[2], 10)
       }
       let message = lines[0] || error.message
-      
+
       errors = [{
         line: line,
         column: column,
