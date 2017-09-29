@@ -20,9 +20,8 @@ export default class Publication extends Component {
 
     // EXPERIMENTAL: stub implementation of a FunctionManager
     let functionManager = new FunctionManager()
-    forEach(window.functions, (xml, name) => {
-      functionManager.importFunction(name, xml)
-    })
+    functionManager.importLibrary('core', window.STENCILA_MINI_CORE_LIBRARY)
+
     this.engine = new Engine(props.host, functionManager)
 
   }
