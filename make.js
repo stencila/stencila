@@ -314,12 +314,12 @@ b.task('css', () => {
 
 b.task('schema', () => {
   _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
-  _compileSchema('FunctionSchema', './src/sheet/FunctionSchema.rng')
+  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng')
 })
 
 b.task('schema:debug', () => {
   _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
-  _compileSchema('FunctionSchema', './src/sheet/FunctionSchema.rng', { debug: true})
+  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
 })
 
 b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
