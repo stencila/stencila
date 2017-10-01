@@ -43,7 +43,7 @@
     "lodash": "^4.17.4",
     "plotly.js": "^1.30.1",
     "stencila-mini": "^0.11.4",
-    "substance": "1.0.0-beta.7-preview.16",
+    "substance": "1.0.0-preview.2",
     "substance-texture": "substance/texture#reproducible-jats",
     "timeago.js": "3.0.0",
     "vega": "3.0.0-beta.22",
