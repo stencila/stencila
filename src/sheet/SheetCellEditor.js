@@ -27,7 +27,7 @@ export default class SheetCellEditor extends AbstractEditor {
     let el = $$('div').addClass('sc-sheet-cell-editor')
     el.append(
       $$(TextPropertyEditor, {
-        path: this.node.getTextPath()
+        path: this.node.getPath()
       }).ref('editor')
         .on('contextmenu', this._onContextMenu)
     )
@@ -44,7 +44,7 @@ export default class SheetCellEditor extends AbstractEditor {
     let cellStr = this.node.getText()
     this.editorSession.setSelection({
       type: 'property',
-      path: this.node.getTextPath(),
+      path: this.node.getPath(),
       startOffset: cellStr.length,
       surfaceId: this.refs.editor.getSurfaceId()
     })
