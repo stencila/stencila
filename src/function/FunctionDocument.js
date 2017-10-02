@@ -8,15 +8,11 @@ export default class FunctionDocument extends XMLDocument {
   constructor(...args) {
     super(...args)
 
-    // Parameters stored more efficiently for faster lookup when this 
-    // function is called
+    // A list of parameters stored more efficiently
+    // for faster lookup when called
     this._params = []
 
-    // Languages for which implementation/s exist
-    this._languages = []
-
-    // A mapping of call type signatures to implementation type signatures
-    // populated by `define()`
+    // A mapping of call type signatures to implemenation type signatures
     this._implems = {}
   }
 
@@ -29,17 +25,117 @@ export default class FunctionDocument extends XMLDocument {
   }
 
   getRoot() {
-    return this.get('function-1')
+    console.error('DEPRECATED: use doc.getRootNode() instead')
+    return this.getRootNode()
+  }
+
+  getRootNode() {
+    return this.get('function')
   }
 
   getName() {
-    return this.getRoot().find('name').text()
+    return this.get('name').text()
+  }
+
+  getImplementation(language) {
+    // TODO: find a proper implementation
+    let impl = this.getRoot().find(`implem[language=${language}]`)
+    let code = impl.find('code')
+    if (code) {
+      return code.textContent
+    }
+  }
+
+  // TODO: Specify available implementations in XML and expose as array of
+  //       language names
+  getImplementations() {
+    return ['js']
+  }
+
+  /*
+    Get most basic usage example (to be displayed in popover)
+
+    TODO: We just need to store a simple <usage-example> element here, more
+    complex usages could live in a separate rich documentation field (JATS body)
+  */
+  getUsageExample() {
+    return 'sum(1,5)'
+  }
+
+  /*
+    Returns a summary as plain text.
+  */
+  getSummary() {
+    let summary = this.find('summary')
+    return summary.textContent
+  }
+
+  /*
+    Extract a json representation.
+
+    @example
+    {
+      params: [
+        { name: 'value1', type: 'number', description: 'The first number or range to add together.' },
+        { name: 'value2', type: 'number', repeatable: true, description: 'Additional numbers or ranges to add to `value1`.' }
+      ],
+      returns: { type: 'number', description: 'The sum of a series of numbers and/or cells.'}
+    }
+  */
+  getSignature() {
+    let signature = {
+      params: [],
+      returns: undefined
+    }
+    const params = this.get('params')
+    if (params) {
+      params.children.forEach((paramEl) => {
+        let param = {}
+        param.name = paramEl.attr('name')
+        param.type = paramEl.attr('type')
+        const _descr = paramEl.find('description')
+        if (_descr) {
+          param.description = _descr.textContent
+        }
+        const _default = paramEl.find('default')
+        if (_default) {
+          param.default = {
+            type: _default.attr('type'),
+            // TODO: cast the value
+            value: _default.textContent
+          }
+        }
+        signature.params.push(param)
+      })
+    }
+    const ret = this.get('return')
+    if (ret) {
+      signature.returns = {
+        type: undefined,
+        description: ''
+      }
+      signature.returns.type = ret.attr('type')
+      let descr = ret.find('description')
+      if (descr) {
+        signature.returns.description = descr.textContent
+      }
+    }
+    return signature
   }
 
   /**
-   * Initialise the function
+   * Define the implementations of this function within an execution Context
+   *
+   * A function may have multiple implementations for a language with each implementation
+   * overloading the function's parameters in alternative ways.
+   *
+   * @param  {String} language The name of the language for the
+   * @param  {Context} context  The context instance within which the function will be implemented
+   * @return {Promise} A Promise
    */
-  initialize() {
+  define(language, context) {
+    const name = this.getName()
+
     // Extract parameters from the document
     this._params = []
     let $params = this.getRoot().findAll('params param')
@@ -48,44 +144,19 @@ export default class FunctionDocument extends XMLDocument {
       const type = $param.attr('type')
       let default_ = $param.find('default')
       if (default_) default_ = createValueFromXML(default_)
-      this._params.push({ 
+      this._params.push({
         name: name,
         type: type,
-        default: default_ 
+        default: default_
       })
     }
-    // Extract supported languages from the document
-    this._languages = this.getRoot().findAll(`implems implem`)
-                                    .map(implem => implem.attr('language'))
-                                    .filter((v, i, a) => a.indexOf(v) === i)
-  }
-
-  /**
-   * Is this implemented in a particular language
-   */
-  implemented(language) {
-    return this._languages.indexOf(language) > -1
-  }
-
-  /**
-   * Define the implementations of this function within an execution Context
-   *
-   * A function may have multiple implementations for a language with each implementation
-   * overloading the function's parameters in alternative ways.
-   * 
-   * @param  {String} language The name of the language for the 
-   * @param  {Context} context  The context instance within which the function will be implemented
-   * @return {Promise} A Promise
-   */
-  define(language, context) {
-    const name = this.getName()
 
     // Extract and create implementations
     // Note that currently any overloads involving type specialisation
     // must follow the definition of the more general implementation
     let callSignats = {}
     let promises = []
-    const $implems = this.getRoot().findAll(`implems implem[language=${language}]`)
+    const $implems = this.getRoot().findAll(`implem[language=${language}]`)
     let implemIndex = 0
     for (let $implem of $implems) {
       implemIndex++
@@ -108,10 +179,10 @@ export default class FunctionDocument extends XMLDocument {
       } else {
         types = this._params.map(param => param.type)
       }
-      
+
       // Generate the implementation signature, the `mini_` prefix
       // avoids name clashes with native functions in the execution context
-      let implemSignat = ['mini', name].concat(types).join('_')
+      let implemSignat = 'mini_' + name + types.map(type => '_' + type).join('')
       // Generate all possible combinations of call signatures for
       // this implementation
       let callCombos
@@ -133,10 +204,10 @@ export default class FunctionDocument extends XMLDocument {
       }
 
       if (!callCombos) {
-        callSignats[language] = implemSignat
+        callSignats[name] = implemSignat
       } else {
         for (let combo of callCombos) {
-          callSignats[language + '_' + combo] = implemSignat
+          callSignats[name + '_' + combo] = implemSignat
         }
       }
       // Define the function
@@ -149,7 +220,7 @@ export default class FunctionDocument extends XMLDocument {
     return Promise.all(promises)
   }
 
-  call(language, context, args, namedArgs) {
+  call(context, args, namedArgs) {
     const name = this.getName()
 
     // Generate an array of argument values and a call type signature
@@ -163,10 +234,10 @@ export default class FunctionDocument extends XMLDocument {
     }
 
     // Find matching implem
-    let callSignat = [language].concat(values.map(value => value.type)).join('_')
+    let callSignat = name + values.map(value => '_' + value.type).join('')
     let implemSignat = this._implems[callSignat]
     if (!implemSignat) throw new Error(`Function "${name}" does not have an implementation for call "${callSignat}". Available implementations are "${Object.keys(this._implems)}".`)
-    
+
     // Call function and store result for checking elsewhere
     return context.callFunction(implemSignat, values)
   }
@@ -188,7 +259,7 @@ export default class FunctionDocument extends XMLDocument {
           else args.push(value)
         }
         // Call function and record result and expected
-        let promise = this.call(language, context, args, namedArgs).then(result => {
+        let promise = this.call(context, args, namedArgs).then(result => {
           let expected = createValueFromXML($test.find('result'))
           result.expected = expected
           results.push(result)

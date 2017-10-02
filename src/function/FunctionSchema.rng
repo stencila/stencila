@@ -10,32 +10,34 @@
 
   <define name="function">
     <element name="function">
-      <ref name="function:name"/>
-      <optional>
-        <ref name="function:title"/>
-      </optional>
-      <optional>
-        <ref name="function:summary"/>
-      </optional>
-      <optional>
-        <ref name="function:description"/>
-      </optional>
-      <optional>
-        <ref name="function:relateds"/>
-      </optional>
-      <optional>
-        <ref name="function:params"/>
-      </optional>
-      <optional>
-        <ref name="function:return"/>
-      </optional>
-      <ref name="function:implems"/>
-      <optional>
-        <ref name="function:examples"/>
-      </optional>
-      <optional>
-        <ref name="function:tests"/>
-      </optional>
+      <interleave>
+        <ref name="function:name"/>
+        <optional>
+          <ref name="function:title"/>
+        </optional>
+        <optional>
+          <ref name="function:summary"/>
+        </optional>
+        <optional>
+          <ref name="function:description"/>
+        </optional>
+        <optional>
+          <ref name="function:relateds"/>
+        </optional>
+        <optional>
+          <ref name="function:params"/>
+        </optional>
+        <optional>
+          <ref name="function:return"/>
+        </optional>
+        <ref name="function:implems"/>
+        <optional>
+          <ref name="function:examples"/>
+        </optional>
+        <optional>
+          <ref name="function:tests"/>
+        </optional>
+      </interleave>
     </element>
   </define>
 
@@ -89,12 +91,14 @@
     <element name="param">
       <attribute name="name"/>
       <attribute name="type"/>
-      <optional>
-        <ref name="function:default"/>
-      </optional>
-      <optional>
-        <ref name="function:description"/>
-      </optional>
+      <interleave>
+        <optional>
+          <ref name="function:default"/>
+        </optional>
+        <optional>
+          <ref name="function:description"/>
+        </optional>
+      </interleave>
     </element>
   </define>
 
@@ -125,13 +129,15 @@
   <define name="function:implem">
     <element name="implem">
       <attribute name="language"/>
-      <optional>
-        <ref name="function:types"/>
-      </optional>
-      <optional>
-        <ref name="function:requires"/>
-      </optional>
-      <ref name="function:code"/>
+      <interleave>
+        <optional>
+          <ref name="function:types"/>
+        </optional>
+        <optional>
+          <ref name="function:requires"/>
+        </optional>
+        <ref name="function:code"/>
+      </interleave>
     </element>
   </define>
 
@@ -175,18 +181,24 @@
 
   <define name="function:example">
     <element name="example">
-      <optional>
-        <ref name="function:description"/>
-      </optional>
-      <ref name="function:usage"/>
-      <optional>
-        <ref name="function:result"/>
-      </optional>
+      <interleave>
+        <optional>
+          <ref name="function:description"/>
+        </optional>
+        <optional>
+          <ref name="function:usage"/>
+        </optional>
+        <optional>
+          <ref name="function:result"/>
+        </optional>
+      </interleave>
     </element>
   </define>
 
   <define name="function:usage">
-    <text/>
+    <element name="usage">
+      <text/>
+    </element>
   </define>
 
   <define name="function:tests">
@@ -199,13 +211,15 @@
 
   <define name="function:test">
     <element name="test">
-      <optional>
-        <ref name="function:description"/>
-      </optional>
-      <optional>
-        <ref name="function:args"/>
-      </optional>
-      <ref name="function:result"/>
+      <interleave>
+        <optional>
+          <ref name="function:description"/>
+        </optional>
+        <optional>
+          <ref name="function:args"/>
+        </optional>
+        <ref name="function:result"/>
+      </interleave>
     </element>
   </define>
 

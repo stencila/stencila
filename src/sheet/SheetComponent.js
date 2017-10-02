@@ -479,7 +479,7 @@ export default class SheetComponent extends CustomSurface {
       top: 0, left: 0
     })
     this.context.editorSession.transaction((tx) => {
-      tx.set(cell.getTextPath(), cellEditor.getValue())
+      tx.set(cell.getPath(), cellEditor.getValue())
     })
     this._isEditing = false
     this._cell = null

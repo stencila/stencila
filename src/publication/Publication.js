@@ -1,7 +1,8 @@
-import { EditorSession, DefaultDOMElement, Component } from 'substance'
+import { EditorSession, DefaultDOMElement, Component, forEach } from 'substance'
 import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
 import PublicationManifest from './PublicationManifest'
 import Engine from '../engine/Engine'
+import FunctionManager from '../function/FunctionManager'
 import DocumentEditorPackage from '../document/DocumentEditorPackage'
 import DocumentEngineAdapter from '../document/DocumentEngineAdapter'
 
@@ -16,7 +17,13 @@ export default class Publication extends Component {
     this.documentConfigurator.import(DocumentEditorPackage)
     this.jatsImporter = new JATSImporter()
     this.jatsExporter = new JATSExporter()
-    this.engine = new Engine(props.host)
+
+    // EXPERIMENTAL: stub implementation of a FunctionManager
+    let functionManager = new FunctionManager()
+    functionManager.importLibrary('core', window.STENCILA_MINI_CORE_LIBRARY)
+
+    this.engine = new Engine(props.host, functionManager)
+
   }
 
   getChildContext() {

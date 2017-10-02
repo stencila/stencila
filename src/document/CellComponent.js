@@ -60,7 +60,7 @@ class CellComponent extends NodeComponent {
       cellEditorContainer.append(
         $$('div').addClass('se-expression').append(
           $$(MiniLangEditor, {
-            path: mini.getTextPath(),
+            path: mini.getPath(),
             excludedCommands: this._getBlackListedCommands(),
             expression: expr
           }).ref('expressionEditor')
@@ -70,7 +70,7 @@ class CellComponent extends NodeComponent {
       if (expr && expr.external) {
         cellEditorContainer.append(
           $$(CodeEditorComponent, {
-            path: source.getTextPath(),
+            path: source.getPath(),
             language: expr.context
           }).ref('sourceCodeEditor')
             .on('escape', this._onEscapeFromCodeEditor)

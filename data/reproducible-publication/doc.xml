@@ -82,24 +82,61 @@
     </article-meta>
   </front>
   <body>
-    <!-- We use HTML-style headings instead of sections in the Texture format -->
     <sec>
       <title>Quisque malesuada</title>
       <p>Lorem ipsum dolor <ext-link ext-link-type="uri" xlink:href="http://substance.io">sit amet</ext-link>. Integer eget augue consequat, rhoncus velit nec, vehicula purus. Quisque malesuada feugiat tempus. Suspendisse massa neque, mollis at commodo vel, ornare vel felis. Nulla sit amet sodales erat. Suspendisse potenti. Suspendisse porttitor ullamcorper mollis. Sed tincidunt, leo nec egestas tincidunt, ipsum sapien efficitur magna, sit amet tempor sem urna vitae dui.</p>
-      <!-- Stencila Mini Cell -->
-      <code specific-use="cell">
-        <named-content><alternatives>
-          <code specific-use="source" language="mini"><![CDATA[x=5]]></code>
-          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "number", "value": 5 }]]></code>
-        </alternatives></named-content>
-      </code>
-      <!-- Stencila Local Context Cell -->
-      <code specific-use="cell">
-        <named-content><alternatives>
-          <code specific-use="source" language="mini"><![CDATA[y=x+2]]></code>
-          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "number", "value": 7}]]></code>
-        </alternatives></named-content>
-      </code>
+      <p>Stencila is the office suite for reproducible research. With Stencila you can produce rich computation-intensive publications without requiring programming knowledge.</p>
+      <p>Cells are the excutable (dynamic) bits of a document. They produce a result as you type. Try to modify the following cell:</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[3 * 0.25]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>Cells use a very simple expression language called <italic>Mini</italic> to allow you to perform common data analysis and visualisation tasks within the document.</p>
+      <p>You can edit this document just like in a traditional word processor. Press <monospace>enter</monospace> to start a new paragraph or insert a table or cell.</p>
+      <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the <monospace>csv</monospace> function.</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <!--
+        <code specific-use="source" language="mini"><![CDATA[data = data!A1:C10]]></code>
+        -->
+        <code specific-use="source" language="mini"><![CDATA[data = csv('temp,sunny,sales
+18,no,50
+20,yes,126
+24,yes,118
+23,yes,126
+26,yes,280
+25,no,102
+20,no,93
+17,no,32
+18,yes,103
+28,yes,246
+')]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>The variable <monospace>data</monospace> is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
+      <code specific-use="cell"><named-content><alternatives>
+            <code specific-use="source" language="mini"><![CDATA[filter(data,'temp < 20')]]></code>
+            <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>Notice that because we didn't assign the result of filter to a value the output gets displayed. You can change this behaviour by setting the cell's output visibility to <monospace>Hide</monospace>.</p>
+      <!--
+      <p>Cells can also be used to plot your data. The <monospace>plot</monospace> function is a generic function that allows you to visualize data using various visual encodings.</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[plot(data, 'points', x='temp', y='sales', color='sunny')]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>When you want to combine several functions in one cell the pipe operator can produce more readable expressions:</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[filtered_data = filter(data, 'temp<=20')]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[squares(filtered_data, x='temp',y='sales',color='sunny')
+| titles(x='Temperature', y='Ice Creams Sold', color='Sunny Day')
+| theme({square: {size: 120}})]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      -->
+
       <!-- Reproducible figure -->
       <fig id="f1" fig-type="repro-fig">
         <caption>
