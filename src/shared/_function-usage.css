@@ -1,0 +1,52 @@
+.sc-function-usage {
+	min-width: 300px;
+  font-size: 12px;
+  color: #fff;
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+  text-align: left;
+}
+
+.sc-function-usage .se-label {
+  color: #888;
+}
+
+.sc-function-usage .se-example {
+  padding: 10px;
+}
+
+.sc-function-usage .se-example .se-example-code {
+  font-size: 13px;
+  font-family: Monaco;
+}
+
+.sc-function-usage .se-documentation {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sc-function-usage .se-documentation .se-title {
+  font-weight: bold;
+}
+
+.sc-function-usage .se-documentation .se-signature {
+  font-size: 13px;
+  font-family: Monaco;
+}
+
+.sc-function-usage .se-documentation .se-signature .se-signature-param.sm-active {
+  text-decoration: underline;
+}
+
+.sc-function-usage .se-documentation .se-parameters {
+  font-size: 11px;
+}
+
+.sc-function-usage .se-documentation .se-parameters .se-param .se-param-name {
+  font-family: Monaco;
+  color: #888;
+  padding-right: 10px;
+}
+
+.sc-function-usage .se-documentation .se-parameters .se-param.sm-active .se-param-name {
+  text-decoration: underline;
+}

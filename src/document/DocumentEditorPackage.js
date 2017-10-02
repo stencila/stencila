@@ -4,6 +4,7 @@ import {
 
 import ReproFigComponent from './ReproFigComponent'
 import CellComponent from './CellComponent'
+import EditExtLinkToolMonkeyPatched from './EditExtLinkToolMonkeyPatched'
 import IntegerValueComponent from '../shared/IntegerValueComponent'
 import FloatValueComponent from '../shared/FloatValueComponent'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
@@ -25,5 +26,9 @@ export default {
     config.addComponent('value:array', ArrayValueComponent)
     config.addComponent('value:table', TableValueComponent)
     config.addComponent('value:image', ImageValueComponent)
+
+    // HACK: override
+
+    config.addTool('edit-ext-link', EditExtLinkToolMonkeyPatched)
   }
 }
