@@ -51,7 +51,7 @@ const BROWSER_EXTERNALS = {
   'vega': 'window.vega',
   'plotly': 'window.Plotly',
   'vega-lite': 'window.vegaLite',
-  'stencila-mini-core': 'window.stencilaMiniCore',
+  'stencila-libcore': 'window.stencilaLibCore',
 }
 
 const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
@@ -63,7 +63,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-texture', 'stencila-mini', 'stencila-mini-core', 'brace', 'd3', 'katex', 'vega', 'vega-lite', 'plotly'
+  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'brace', 'd3', 'katex', 'vega', 'vega-lite', 'plotly'
 ]
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -82,7 +82,7 @@ function copyAssets() {
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
   b.copy('./node_modules/substance-texture/dist/texture.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
-  b.copy('./node_modules/stencila-mini-core/build/stencila-mini-core.*', './build/lib/')
+  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', './build/lib/')
 }
 
 function buildCss() {

@@ -4,7 +4,7 @@ import { isFunction } from 'substance'
 
 import {pack, unpack} from '../value'
 import Context from './Context'
-import minicore from 'stencila-mini-core'
+import libcore from 'stencila-libcore'
 
 /**
  * A Javascript context
@@ -19,7 +19,7 @@ export default class JsContext extends Context {
     super()
 
     this._libs = {
-      core: minicore
+      core: libcore
     }
   }
 
