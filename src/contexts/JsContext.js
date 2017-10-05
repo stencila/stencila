@@ -1,5 +1,5 @@
-import {parse} from 'acorn'
-import {simple, base} from 'acorn/dist/walk'
+import { parse } from 'acorn'
+import { simple, base } from 'acorn/dist/walk'
 import { isFunction } from 'substance'
 
 import {pack, unpack} from '../value'
@@ -23,6 +23,16 @@ export default class JsContext extends Context {
     }
   }
 
+  /**
+   * Get the list of supported programming language?
+   *
+   * @override
+   */
+  supportedLanguages () {
+    return Promise.resolve(
+      ['js']
+    )
+  }
 
   /**
    * Does the context support a programming language?
@@ -30,9 +40,47 @@ export default class JsContext extends Context {
    * @override
    */
   supportsLanguage (language) {
-    return Promise.resolve(
-      language === 'js'
-    )
+    return this.supportedLanguages().then(languages => {
+      return languages.indexOf(language) > -1
+    })
+  }
+
+  /**
+   * Analyse code and return the names of inputs and output
+   *
+   * @override
+   */
+  analyseCode (code) {
+    // Parse the code
+    let ast = parse(code)
+    // Determine which names are declared and which are used
+    let inputs = []
+    let declared = []
+    simple(ast, {
+      VariableDeclarator: node => {
+        declared.push(node.id.name)
+      },
+      Identifier: node => {
+        if (declared.indexOf(node.name) < 0) inputs.push(node.name)
+      }
+    }, base)
+    // If the last top level node in the AST is a VariableDeclaration or Identifier then use
+    // the variable name as the output name
+    let output = null
+    let last = ast.body.pop()
+    if (last) {
+      if (last.type === 'VariableDeclaration') {
+        output = last.declarations[0].id.name
+      } else if (last.type === 'ExpressionStatement') {
+        if(last.expression.type === 'Identifier') {
+          output = last.expression.name
+        }
+      }
+    }
+    return Promise.resolve({
+      inputs,
+      output
+    })
   }
 
   /**
@@ -91,32 +139,6 @@ export default class JsContext extends Context {
     return Promise.resolve(
       this._result(error, output)
     )
-  }
-
-  /**
-   * Get the dependencies for a piece of code
-   *
-   * @override
-   */
-  codeDependencies (code) {
-    let names = {}
-    let ast = parse(code)
-    simple(ast, {
-      Identifier: node => {
-        let name = node.name
-        names[name] = Object.assign(names[name] || {}, {used: true})
-      },
-      VariableDeclarator: node => {
-        let name = node.id.name
-        names[name] = Object.assign(names[name] || {}, {declared: true})
-      }
-    }, base)
-    let depends = []
-    for (let name in names) { // eslint-disable-line guard-for-in
-      let usage = names[name]
-      if (usage.used && !usage.declared) depends.push(name)
-    }
-    return Promise.resolve(depends)
   }
 
   /**
