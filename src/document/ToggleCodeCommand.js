@@ -2,33 +2,33 @@ import { Command } from 'substance'
 
 export default class ToggleCodeCommand extends Command {
 
-  /*
-    Always enabled
-  */
-  getCommandState() {
-    return {
-      disabled: false,
-      active: false
+  _getNodeComponent(editorSession, nodeId) {
+    let editor = editorSession.getEditor()
+    return editor.find(`[data-id=${nodeId}]`)
+  }
+
+  getCommandState({ editorSession, selection}) {
+    let sel = selection
+    
+    let node = sel.getNode()
+    let state = { nodeId: node.id, disabled: false }
+    let comp = this._getNodeComponent(editorSession, node.id)
+
+    if (comp.state.hideCode && this.config.hideCode) {
+      state.disabled = true
     }
+    return state
   }
 
-  /*
-    Returns all cell components found in the document
-  */
-  _getCellComponents(params) {
-    let editor = params.editorSession.getEditor()
-    return editor.findAll('.sc-cell')
-  }
-
-  execute(params) {
-    let cellComponents = this._getCellComponents(params)
-    let sel = params.editorSession.getSelection()
-    cellComponents.forEach((cellComponent) => {
-      cellComponent.extendState({
-        showMenu: false,
-        showCode: this.config.showCode
-      })
-    })
-    params.editorSession.setSelection(sel)
+  execute({ commandState, editorSession }) {
+    const { nodeId, disabled } = commandState
+    if (!disabled) {
+      let comp = this._getNodeComponent(editorSession, nodeId)
+      if (this.config.hideCode && !comp.state.hideCode) {
+        comp.extendState({ hideCode: true})
+      } else if (!this.config.hideCode && comp.state.hideCode) {
+        comp.extendState({ hideCode: false}) // aka show code
+      }
+    }
   }
 }

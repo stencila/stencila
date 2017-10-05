@@ -1,19 +1,20 @@
-import { NodeComponent } from 'substance'
-import CodeEditorComponent from '../shared/CodeEditorComponent'
+import { NodeComponent, Menu } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
 
-import { findMini, findSource } from './cellHelpers'
 
-export default
-class CellComponent extends NodeComponent {
+export default class CellComponent extends NodeComponent {
+
+  getAppStateSlot() {
+    return this.props.node.id
+  }
 
   constructor(...args) {
     super(...args)
 
     this.handleActions({
-      // triggered by CodeEditorComponent and MiniLangEditor
+      // triggered by MiniLangEditor
       'execute': this._onExecute,
       'break': this._onBreak
     })
@@ -21,9 +22,8 @@ class CellComponent extends NodeComponent {
 
   getInitialState() {
     return {
-      showMenu: false,
-      showCode: true,
-      forceShowOutput: false
+      hideCode: false,
+      forceOutput: false
     }
   }
 
@@ -33,54 +33,34 @@ class CellComponent extends NodeComponent {
     const cellId = cell.id
     let el = $$('div').addClass('sc-cell')
 
-    let toggleCell = $$('div').addClass('se-toggle-cell').append(
-      $$('div').addClass('se-toggle-cell-inner')
-    ).on('click', this._toggleMenu)
-
-    if (this.state.showMenu) {
-      toggleCell.append(
-        this._renderMenu($$)
-      )
-    }
-
-    if (this.state.showCode) {
-      toggleCell.addClass('sm-code-shown')
-    }
-
-    if (engine.hasErrors(cellId)) {
-      toggleCell.addClass('sm-has-errors')
-    }
-    el.append(toggleCell)
-
-    if (this.state.showCode) {
+    if (!this.state.hideCode) {
       let expr = engine.getExpression(cellId)
-      let mini = findMini(cell)
-      let source = findSource(cell)
+      let source = cell.find('source-code')
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
         $$('div').addClass('se-expression').append(
           $$(MiniLangEditor, {
-            path: mini.getPath(),
+            path: source.getPath(),
             excludedCommands: this._getBlackListedCommands(),
             expression: expr
           }).ref('expressionEditor')
             .on('escape', this._onEscapeFromCodeEditor)
         )
       )
-      if (expr && expr.external) {
-        cellEditorContainer.append(
-          $$(CodeEditorComponent, {
-            path: source.getPath(),
-            language: expr.context
-          }).ref('sourceCodeEditor')
-            .on('escape', this._onEscapeFromCodeEditor)
-        )
-      }
       el.append(cellEditorContainer)
       el.append(
         $$(CellErrorDisplay, {cell})
       )
+    } else {
+      // TODO: Create proper visual style
+      el.append(
+        $$('button').append('Show Code')
+      )
     }
+
+    el.append(
+      this._renderEllipsis($$)
+    )
 
     if (this._showOutput()) {
       el.append(
@@ -94,45 +74,41 @@ class CellComponent extends NodeComponent {
     return this.refs.expressionEditor.getContent()
   }
 
-  _renderMenu($$) {
-    let menuEl = $$('div').addClass('se-menu')
-    menuEl.append(
-      this._renderToggleCode($$),
-      this._renderToggleOutput($$)
-    )
-    return menuEl
+  _toggleMenu() {
+    this.context.appState.set({
+      'activePopup':  this.refs.menu.props.id,
+      'popupType': 'cell-menu'
+    })
   }
 
   /*
-    Displays 'Show Code' or 'Hide Code' depending on the current state
+    Move this into an overlay, shown depending on app state
   */
-  _renderToggleCode($$) {
-    let el = $$('div')
-      .addClass('se-menu-item')
-      .on('click', this._toggleShowCode)
+  _renderEllipsis($$) {
+    let Button = this.getComponent('button')
+    let el = $$('div').addClass('se-ellipsis')
 
-    if (this.state.showCode) {
-      el.append('Hide Code')
-    } else {
-      el.append('Show Code')
-    }
-    return el
-  }
-
-  _renderToggleOutput($$) {
-    let el = $$('div')
-      .addClass('se-menu-item')
-      .on('click', this._toggleForceShowOutput)
-
-    // If cell is not a definition we ensure output is always shown
-    if (!this._isDefinition()) {
-      el.addClass('sm-disabled')
-    }
-    if (this._showOutput()) {
-      el.append('Hide Output')
-    } else {
-      el.append('Show Output')
-    }
+    let button = $$(Button, {
+      icon: 'ellipsis',
+      active: false,
+      theme: 'light'
+    }).on('click', this._toggleMenu)
+    el.append(button)
+    // TODO: show menu only when cell is selected (node selection)
+    el.append(
+      $$(Menu, {
+        items: [
+          { command: 'hide-cell-code' },
+          { command: 'show-cell-code' },
+          // { command: 'force-cell-output' },
+          // { command: 'unforce-cell-output' },
+          { command: 'set-mini' },
+          { command: 'set-js' },
+          { command: 'set-py' },
+          { command: 'set-r' }
+        ]
+      }).ref('menu')
+    )
     return el
   }
 
@@ -147,43 +123,18 @@ class CellComponent extends NodeComponent {
     return result
   }
 
-  _toggleShowCode(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    this.extendState({
-      showCode: !this.state.showCode,
-      showMenu: false
-    })
-  }
-
-  _toggleForceShowOutput(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    // No toggling allowed if cell is not a definition
-    if (!this._isDefinition()) return
-    this.extendState({
-      forceShowOutput: !this.state.forceShowOutput,
-      showMenu: false
-    })
-  }
-
   /*
     Generally output is shown when cell is not a definition, however it can be
     enforced
   */
   _showOutput() {
-    return !this._isDefinition() || this.state.forceShowOutput
+    return !this._isDefinition() || this.state.forceOutput
   }
 
   _isDefinition() {
     this.context.cellEngine.isDefinition(this.props.node.id)
   }
 
-  _toggleMenu() {
-    this.extendState({
-      showMenu: !this.state.showMenu
-    })
-  }
 
   _onExecute() {
     this.context.cellEngine.recompute(this.props.node.id)
