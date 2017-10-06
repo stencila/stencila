@@ -66,41 +66,53 @@ export default class JsContext extends Context {
    * @override
    */
   analyseCode (code) {
-    // Parse the code
-    let ast = parse(code)
-    // Determine which names are declared and which are used
     let inputs = []
-    let declared = []
-    simple(ast, {
-      VariableDeclarator: node => {
-        declared.push(node.id.name)
-      },
-      Identifier: node => {
-        let name = node.name
-        if (declared.indexOf(name) < 0 && this._globals.indexOf(name) < 0) inputs.push(name)
-      }
-    }, base)
-    // If the last top level node in the AST is a VariableDeclaration or Identifier then use
-    // the variable name as the output name
     let output = null
     let value = null
-    let last = ast.body.pop()
-    if (last) {
-      if (last.type === 'VariableDeclaration') {
-        output = last.declarations[0].id.name
-        value = output
-      } else if (last.type === 'ExpressionStatement') {
-        if(last.expression.type === 'Identifier') {
-          output = last.expression.name 
+    let errors = []
+    
+    // Parse the code
+    let ast
+    try {
+      ast = parse(code)
+    } catch (error) {
+      errors.push(error)
+    }
+
+    if (errors.length === 0) {
+      // Determine which names are declared and which are used
+      let declared = []
+      simple(ast, {
+        VariableDeclarator: node => {
+          declared.push(node.id.name)
+        },
+        Identifier: node => {
+          let name = node.name
+          if (declared.indexOf(name) < 0 && this._globals.indexOf(name) < 0) inputs.push(name)
         }
-        value = generate(last)
-        if (value.slice(-1) === ';') value = value.slice(0, -1)
+      }, base)
+      // If the last top level node in the AST is a VariableDeclaration or Identifier then use
+      // the variable name as the output name
+      let last = ast.body.pop()
+      if (last) {
+        if (last.type === 'VariableDeclaration') {
+          output = last.declarations[0].id.name
+          value = output
+        } else if (last.type === 'ExpressionStatement') {
+          if(last.expression.type === 'Identifier') {
+            output = last.expression.name 
+          }
+          value = generate(last)
+          if (value.slice(-1) === ';') value = value.slice(0, -1)
+        }
       }
     }
+
     return Promise.resolve({
       inputs,
       output,
-      value
+      value,
+      errors: this._packErrors(errors)
     })
   }
 
@@ -114,31 +126,33 @@ export default class JsContext extends Context {
       let inputNames = codeAnalysis.inputs
       let outputName = codeAnalysis.output
       let valueExpr = codeAnalysis.value
+      let value
+      let syntaxErrors = codeAnalysis.errors
 
       let errors = []
+      if (syntaxErrors.length === 0) {
+        // Extract names and values of inputs
+        let names = Object.keys(inputs)
+        let values = names.map(name => this._unpackValue(inputs[name]))
 
-      // Extract names and values of inputs
-      let names = Object.keys(inputs)
-      let values = names.map(name => this._unpackValue(inputs[name]))
+        // Add return value of function
+        // (i.e. simulate implicit return)
+        if (valueExpr) code += `;\nreturn ${valueExpr};`
 
-      // Add return value of function
-      // (i.e. simulate implicit return)
-      if (valueExpr) code += `;\nreturn ${valueExpr};`
-
-      // Execute the function with the unpacked inputs.
-      let value
-      try {
-        const func = new Function(...names, code) // eslint-disable-line no-new-func
-        value = func(...values)
-      } catch (error) {
-        errors.push(error)
+        // Execute the function with the unpacked inputs.
+        try {
+          const func = new Function(...names, code) // eslint-disable-line no-new-func
+          value = func(...values)
+        } catch (error) {
+          errors.push(error)
+        }
       }
 
       return {
         inputs: inputNames,
         output: outputName,
         value: this._packValue(value),
-        errors: this._packErrors(errors)
+        errors: syntaxErrors.concat(this._packErrors(errors))
       }
     })
   }
@@ -203,26 +217,35 @@ export default class JsContext extends Context {
    * @return {Array<Object>} - Error records
    */
   _packErrors (errors) {
-    let packed = []
-    for (let error of errors) {
-      // Parse the error stack to get message and line number
-      let lines = error.stack.split('\n')
-      let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
+    return errors.map(error => {
       let line = 0
       let column = 0
-      if (match) {
-        line = parseInt(match[1], 10) - 1
-        column = parseInt(match[2], 10)
-      }
-      let message = lines[0] || error.message
+      let message
 
-      packed.push({
+      if (error instanceof SyntaxError) {
+        // Get message, line and columns numbers
+        line = error.loc.line
+        column = error.loc.column
+        message = 'SyntaxError: ' + error.message
+      } else if (error.stack) {
+        // Parse the error stack to get message, line and columns numbers
+        let lines = error.stack.split('\n')
+        let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
+        if (match) {
+          line = parseInt(match[1], 10) - 1
+          column = parseInt(match[2], 10)
+        }
+        message = lines[0] || error.message
+      } else {
+        message = error.message
+      }
+
+      return {
         line: line,
         column: column,
         message: message
-      })
-    }
-    return packed
+      }
+    })
   }
 
 }

@@ -37,66 +37,97 @@ test('JsContext.supportsLanguage', t => {
 
 test('JsContext.analyseCode', t => {
   let c = new JsContext()
-  t.plan(9)
+  t.plan(10)
 
   c.analyseCode('Math.pi').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: 'Math.pi'
+    value: 'Math.pi',
+    errors: []
   }))
 
   c.analyseCode('foo').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
-    value: 'foo'
+    value: 'foo',
+    errors: []
   }))
 
   c.analyseCode('let foo\nfoo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
-    value: 'foo'
+    value: 'foo',
+    errors: []
   }))
 
 
   c.analyseCode('let foo\nfoo * 3').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: 'foo * 3'
+    value: 'foo * 3',
+    errors: []
   }))
 
   c.analyseCode('let foo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
-    value: 'foo'
+    value: 'foo',
+    errors: []
   }))
 
   // Last statement is a declaration (first identifier used)
   c.analyseCode('foo\nbar\nlet baz, urg\n\n').then(result => t.deepEqual(result, {
     inputs: ['foo','bar'],
     output: 'baz',
-    value: 'baz'
+    value: 'baz',
+    errors: []
   }))
 
   // Last statement is not a declaration or identifier
   c.analyseCode('let foo\n{bar\nlet baz}').then(result => t.deepEqual(result, {
     inputs: ['bar'],
     output: null,
-    value: null
+    value: null,
+    errors: []
   }))
 
   // Last statement is not a declaration or identifier
   c.analyseCode('let foo\nbar\nlet baz\ntrue').then(result => t.deepEqual(result, {
     inputs: ['bar'],
     output: null,
-    value: 'true'
+    value: 'true',
+    errors: []
   }))
 
   // Variable declaration after usage (this will be a runtime error but this tests static analysis of code regardless)
   c.analyseCode('foo\nlet foo\n').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
-    value: 'foo'
+    value: 'foo',
+    errors: []
   }))
+
+  // Syntax error
+  c.analyseCode('for(){').then(result => t.deepEqual(result, {
+    inputs: [],
+    output: null,
+    value: null,
+    errors: [ { line: 1, column: 4, message: 'SyntaxError: Unexpected token (1:4)'} ]
+  }))
+})
+
+test('JsContext.executeCode no value', t => {
+  let c = new JsContext()
+  t.plan(1)
+
+  c.executeCode('if(true){\n  let x = 4\n}\n').then(result => {
+    t.deepEqual(result, {
+      inputs: [],
+      output: null,
+      value: null,
+      errors: []
+    })
+  })
 })
 
 test('JsContext.executeCode with no inputs, no output, no errors', t => {
@@ -129,60 +160,65 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       errors: []
     })
   })
-
 })
 
-test.skip('JsContext.callCode with no inputs, no errors', t => {
-  let c = new JsContext()
-  t.plan(3)
-
-  c.callCode('return 42').then(result => {
-    t.deepEqual(result, {errors: null, output: pack(42)}, 'just an evaluation')
-  })
-  c.callCode('let x = 3\nreturn x*3').then(result => {
-    t.deepEqual(result, {errors: null, output: pack(9)}, 'assign and return')
-  })
-  c.callCode('let x = 3\nx*3\n').then(result => {
-    t.deepEqual(result, {errors: null, output: null}, 'no return so no output')
-  })
-})
-
-test.skip('JsContext.callCode with inputs and outputs but no errors', t => {
+test('JsContext.executeCode with inputs, outputs, no errors', t => {
   let c = new JsContext()
   t.plan(2)
 
-  c.callCode('return a*6', {a: pack(7)}).then(result => {
-    t.deepEqual(result, {errors: null, output: pack(42)})
+  c.executeCode('let b = a*6', {
+    a: {type: 'integer', data: 6}
+  }).then(result => {
+    t.deepEqual(result, {
+      inputs: ['a'],
+      output: 'b',
+      value: { type: 'integer', data: 36 },
+      errors: []
+    })
   })
-  c.callCode('return a*b[1]', {a: pack(17), b: pack([1, 2, 3])}).then(result => {
-    t.deepEqual(result, {errors: null, output: pack(34)})
+
+  c.executeCode('let c = a*b[1]\nc', {
+    a: {type: 'integer', data: 6},
+    b: {type: 'array[number]', data: [1, 2, 3]}
+  }).then(result => {
+    t.deepEqual(result, {
+      inputs: ['a', 'b'],
+      output: 'c',
+      value: { type: 'integer', data: 12 },
+      errors: []
+    })
   })
 })
 
-test.skip('JsContext.callCode output multiline', t => {
+test('JsContext.executeCode value is multiline', t => {
   let c = new JsContext()
   t.plan(1)
 
-  c.callCode(`return {
-    jermaine: 'Hiphopopotamus',
-    brett: 'Rhymnoceros'
-  }`, {}, {pack: false}).then(result => {
-    t.deepEqual(result, {errors: null, output: { brett: 'Rhymnoceros', jermaine: 'Hiphopopotamus' }})
+  c.executeCode(`let x = {
+    a: 1, 
+    b: "foo"
+  }`).then(result => {
+    t.deepEqual(result, {
+      inputs: [],
+      output: 'x',
+      value: { type: 'object', data: { a: 1, b: 'foo'} },
+      errors: []
+    })
   })
 })
 
-test.skip('JsContext.callCode with errors', t => {
+test('JsContext.executeCode with errors', t => {
   let c = new JsContext()
   t.plan(3)
 
-  c.callCode('foo').then(result => {
-    t.deepEqual(result, {errors: [{line: 1, column: 1, message: 'ReferenceError: foo is not defined'}], output: null})
+  c.executeCode('foo').then(result => {
+    t.deepEqual(result.errors, [{line: 1, column: 1, message: 'ReferenceError: foo is not defined'}])
   })
-  c.callCode('1\n2\n foo\n4').then(result => {
-    t.deepEqual(result, {errors: [{line: 3, column: 2, message: 'ReferenceError: foo is not defined'}], output: null})
+  c.executeCode('1\n2\n foo\n4').then(result => {
+    t.deepEqual(result.errors, [{line: 3, column: 2, message: 'ReferenceError: foo is not defined'}])
   })
-  c.callCode('<>').then(result => {
-    t.deepEqual(result, {errors: [{line: 0, column: 0, message: 'SyntaxError: Unexpected token <'}], output: null})
+  c.executeCode(' <>').then(result => {
+    t.deepEqual(result.errors, [{line: 1, column: 1, message: 'SyntaxError: Unexpected token (1:1)'}])
   })
 })
 
