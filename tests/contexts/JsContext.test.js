@@ -37,63 +37,99 @@ test('JsContext.supportsLanguage', t => {
 
 test('JsContext.analyseCode', t => {
   let c = new JsContext()
-  t.plan(7)
+  t.plan(9)
+
+  c.analyseCode('Math.pi').then(result => t.deepEqual(result, {
+    inputs: [],
+    output: null,
+    value: 'Math.pi'
+  }))
 
   c.analyseCode('foo').then(result => t.deepEqual(result, {
     inputs: ['foo'],
-    output: 'foo'
+    output: 'foo',
+    value: 'foo'
   }))
 
   c.analyseCode('let foo\nfoo').then(result => t.deepEqual(result, {
     inputs: [],
-    output: 'foo'
+    output: 'foo',
+    value: 'foo'
+  }))
+
+
+  c.analyseCode('let foo\nfoo * 3').then(result => t.deepEqual(result, {
+    inputs: [],
+    output: null,
+    value: 'foo * 3'
   }))
 
   c.analyseCode('let foo').then(result => t.deepEqual(result, {
     inputs: [],
-    output: 'foo'
+    output: 'foo',
+    value: 'foo'
   }))
 
   // Last statement is a declaration (first identifier used)
   c.analyseCode('foo\nbar\nlet baz, urg\n\n').then(result => t.deepEqual(result, {
     inputs: ['foo','bar'],
-    output: 'baz'
+    output: 'baz',
+    value: 'baz'
   }))
 
   // Last statement is not a declaration or identifier
   c.analyseCode('let foo\n{bar\nlet baz}').then(result => t.deepEqual(result, {
     inputs: ['bar'],
-    output: null
+    output: null,
+    value: null
   }))
 
   // Last statement is not a declaration or identifier
   c.analyseCode('let foo\nbar\nlet baz\ntrue').then(result => t.deepEqual(result, {
     inputs: ['bar'],
-    output: null
+    output: null,
+    value: 'true'
   }))
 
   // Variable declaration after usage (this will be a runtime error but this tests static analysis of code regardless)
   c.analyseCode('foo\nlet foo\n').then(result => t.deepEqual(result, {
     inputs: ['foo'],
-    output: 'foo'
+    output: 'foo',
+    value: 'foo'
   }))
 })
 
-test.skip('JsContext.runCode with no inputs, no errors and no output', t => {
+test('JsContext.executeCode with no inputs, no output, no errors', t => {
   let c = new JsContext()
-  t.plan(2)
+  t.plan(3)
 
-  c.runCode('let x = 3\n\n').then(result => {
-    t.deepEqual(result, {errors: null, output: null}, 'assign')
+  c.executeCode('1.1 * 2').then(result => {
+    t.deepEqual(result, {
+      inputs: [],
+      output: null,
+      value: { type: 'number', data: 2.2 },
+      errors: []
+    })
   })
 
-  c.runCode('// Multiple lines and comments\nlet x = {\na:1\n\n}\n\n').then(result => {
-    t.deepEqual(result, {errors: null, output: null}, 'assign')
+  c.executeCode('let x = 3\nMath.sqrt(x*3)').then(result => {
+    t.deepEqual(result, {
+      inputs: [],
+      output: null,
+      value: { type: 'integer', data: 3 },
+      errors: []
+    })
   })
 
-  c.runCode('this.x = 6\n').then(result => {
-    t.deepEqual(result, {errors: null, output: null}, 'assign')
+  c.executeCode('// Multiple lines and comments\nlet x = {}\nObject.assign(x, {a:1})\n').then(result => {
+    t.deepEqual(result, {
+      inputs: [],
+      output: null,
+      value: { type: 'object', data: { a: 1 } },
+      errors: []
+    })
   })
+
 })
 
 test.skip('JsContext.callCode with no inputs, no errors', t => {
