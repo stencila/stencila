@@ -65,7 +65,7 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  analyseCode (code) {
+  analyseCode (code, exprOnly = false) {
     let inputs = []
     let output = null
     let value = null
@@ -77,6 +77,27 @@ export default class JsContext extends Context {
       ast = parse(code)
     } catch (error) {
       errors.push(error)
+    }
+
+    if (errors.length === 0 && exprOnly) {
+      // Check for single expression only
+      let fail = false
+      if (ast.body.length > 1) fail = true
+      let first = ast.body[0]
+      if (!fail && first) {
+        let simpleExpr = false
+        if (first.type === 'ExpressionStatement') {
+          // Only allow simple expressions
+          // See http://esprima.readthedocs.io/en/latest/syntax-tree-format.html#expressions-and-patterns
+          // for a list of expression types
+          let dissallowed = ['AssignmentExpression', 'UpdateExpression', 'AwaitExpression', 'Super']
+          if (dissallowed.indexOf(first.expression.type) < 0) {
+            simpleExpr = true
+          }
+        }
+        fail = !simpleExpr
+      }
+      if (fail) errors.push(new Error ('Code is not a single, simple expression'))
     }
 
     if (errors.length === 0) {
@@ -91,6 +112,7 @@ export default class JsContext extends Context {
           if (declared.indexOf(name) < 0 && this._globals.indexOf(name) < 0) inputs.push(name)
         }
       }, base)
+
       // If the last top level node in the AST is a VariableDeclaration or Identifier then use
       // the variable name as the output name
       let last = ast.body.pop()
@@ -121,8 +143,8 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  executeCode (code = '', inputs = {}) {
-    return this.analyseCode(code).then(codeAnalysis => {
+  executeCode (code = '', inputs = {}, exprOnly = false) {
+    return this.analyseCode(code, exprOnly).then(codeAnalysis => {
       let inputNames = codeAnalysis.inputs
       let outputName = codeAnalysis.output
       let valueExpr = codeAnalysis.value

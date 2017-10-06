@@ -1,4 +1,3 @@
-import {type, pack} from '../../src/value'
 import JsContext from '../../src/contexts/JsContext'
 
 import test from 'tape'
@@ -114,6 +113,47 @@ test('JsContext.analyseCode', t => {
     value: null,
     errors: [ { line: 1, column: 4, message: 'SyntaxError: Unexpected token (1:4)'} ]
   }))
+})
+
+test('JsContext.analyseCode expression only', t => {
+  let c = new JsContext()
+  t.plan(6)
+
+  c.analyseCode('42', true).then(result => t.deepEqual(result, {
+    inputs: [],
+    output: null,
+    value: '42',
+    errors: []
+  }))
+
+  c.analyseCode('x * 3', true).then(result => t.deepEqual(result, {
+    inputs: ['x'],
+    output: null,
+    value: 'x * 3',
+    errors: []
+  }))
+
+  c.analyseCode('let y = x * 3', true).then(result => t.deepEqual(result, {
+    inputs: [],
+    output: null,
+    value: null,
+    errors: [{ line: 0, column: 0, message: 'Error: Code is not a single, simple expression' }]
+  }))
+
+  c.analyseCode('y = x * 3', true).then(result => t.equal(
+    result.errors[0].message,
+    'Error: Code is not a single, simple expression'
+  ))
+
+  c.analyseCode('x++', true).then(result => t.equal(
+    result.errors[0].message,
+    'Error: Code is not a single, simple expression'
+  ))
+
+  c.analyseCode('y--', true).then(result => t.equal(
+    result.errors[0].message,
+    'Error: Code is not a single, simple expression'
+  ))
 })
 
 test('JsContext.executeCode no value', t => {
