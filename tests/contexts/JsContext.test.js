@@ -118,7 +118,11 @@ test('JsContext.analyseCode', t => {
 
 test('JsContext.executeCode no value', t => {
   let c = new JsContext()
-  t.plan(1)
+  t.plan(2)
+
+  c.executeCode('\n').then(result => {
+    t.deepEqual(result.value, null, 'nothing returned when empty')
+  })
 
   c.executeCode('if(true){\n  let x = 4\n}\n').then(result => {
     t.deepEqual(result, {
@@ -222,42 +226,24 @@ test('JsContext.executeCode with errors', t => {
   })
 })
 
-test.skip('JsContext.runCode', t => {
-  let c = new JsContext()
-  t.plan(6)
-
-  c.runCode('foo = "bar"')
-  t.equal(foo, 'bar', 'can set global variable') // eslint-disable-line no-undef
-
-  c.runCode('foo').then(result => {
-    t.deepEqual(result, {errors: null, output: pack('bar')}, 'can get global variable')
-  })
-  c.runCode('foo + "t_simpson"').then(result => {
-    t.deepEqual(result, {errors: null, output: pack('bart_simpson')}, 'can get global variable expression')
-  })
-  c.runCode('foo\n42\n"lisa"').then(result => {
-    t.deepEqual(result, {errors: null, output: pack('lisa')}, 'last value is returned')
-  })
-  c.runCode('\n').then(result => {
-    t.deepEqual(result, {errors: null, output: null}, 'nothing returned when empty')
-  })
-  c.runCode('let x = 5').then(result => {
-    t.deepEqual(result, {errors: null, output: null}, 'nothing returned when last line is statement')
-  })
-})
-
-test.skip('JsContext.runCode with errors', t => {
+test('JsContext.executeCode with global variables', t => {
   let c = new JsContext()
   t.plan(3)
 
-  c.runCode('foogazi').then(result => {
-    t.deepEqual(result, { errors: [ { column: 1, line: 1, message: 'ReferenceError: foogazi is not defined' } ], output: null })
+  c.executeCode('foo = "bar"')
+
+  c.executeCode('foo').then(result => {
+    t.deepEqual(result.value, {type: 'string', data: 'bar'}, 'can get global variable')
   })
-  c.runCode('2*45\nfoogazi').then(result => {
-    t.deepEqual(result, { errors: [ { column: 1, line: 2, message: 'ReferenceError: foogazi is not defined' } ], output: null })
+
+  c.executeCode('foo + "t_simpson"').then(result => {
+    t.deepEqual(result.value, {type: 'string', data: 'bart_simpson'}, 'can get global variable expression')
   })
-  c.runCode('<>').then(result => {
-    t.deepEqual(result, { errors: [ { column: 0, line: 0, message: 'SyntaxError: Unexpected token <' } ], output: null })
+
+  c.executeCode('foo = 42')
+
+  c.executeCode('foo').then(result => {
+    t.deepEqual(result.value, {type: 'integer', data: 42}, 'can change global variable')
   })
 })
 
