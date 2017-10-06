@@ -247,80 +247,37 @@ test('JsContext.executeCode with global variables', t => {
   })
 })
 
-test.skip('JsContext.hasFunction', t => {
+test('JsContext.hasFunction', t => {
   let c = new JsContext()
+  t.plan(2)
 
-  t.ok(c.hasFunction('type'))
-  t.notOk(c.hasFunction('this_is_not_a_registered_function'))
-  t.end()
+  c.hasFunction('core', 'type').then(result => {
+    t.equal(result, true)
+  })
+
+  c.hasFunction('foo', 'this_is_not_a_registered_function').then(result => {
+    t.equal(result, false)
+  })
 })
 
-test.skip('JsContext.callFunction without function name', t => {
+test('JsContext.callFunction', t => {
   let c = new JsContext()
-  t.plan(1)
+  t.plan(3)
 
   t.throws(() => {
     c.callFunction()
   })
-})
 
-test.skip('JsContext.callFunction with no inputs', t => {
-  let c = new JsContext()
-  t.plan(1)
-
-  c.callFunction('type').then(result => {
-    t.deepEqual(result, {output: pack('unknown'), errors: null})
-  })
-})
-
-test.skip('JsContext.callFunction with inputs and output', t => {
-  let c = new JsContext()
-  t.plan(1)
-
-  c.callFunction('type', [pack(1)]).then(result => {
-    t.deepEqual(result, {output: pack('integer'), errors: null})
-  })
-})
-
-test.skip('JsContext.callFunction with named arguments', t => {
-  let c = new JsContext()
-  t.plan(7)
-
-  // TODO this uses a stochatic function for testing! Use a deterministic function with
-  // named parameters
-
-  c.callFunction('random_uniform', [10], {}, {pack: false}).then(result => {
-    t.equal(type(result.output), 'array')
-    t.equal(result.output.length, 10)
+  c.callFunction('core', 'type', [{type: 'integer', data: 42}]).then(result => {
+    t.deepEqual(result.value, {type: 'string', data: 'integer'})
   })
 
-  c.callFunction('random_uniform', [], {n: 10}, {pack: false}).then(result => {
-    t.equal(type(result.output), 'array')
-    t.equal(result.output.length, 10)
-  })
-
-  c.callFunction('random_uniform', [], {min: 100, n: 1}, {pack: false}).then(result => {
-    t.equal(type(result.output), 'float')
-    t.ok(result.output < 100)
-  })
-
-  c.callFunction('random_uniform', [], {min: 100, foo: 1}, {pack: false})
-    .then(() => {
-      t.fail('should not resolve')
-    })
-    .catch(error => {
-      t.equal(error.message, 'Invalid named argument "foo"; valid names are "n", "min", "max"')
-    })
-
-})
-
-test.skip('JsContext.callFunction with error', t => {
-  let c = new JsContext()
-  t.plan(1)
-  c._functions['foo'] = () => {
-    throw new Error('nope')
+  c._libs['foo'] = {
+    bar: function () {
+      throw new Error('nope')
+    }
   }
-  c.callFunction('foo').then(result => {
-    t.deepEqual(result, {errors: [ { column: 0, line: 0, message: 'Error: nope' } ], output: null})
+  c.callFunction('foo', 'bar').then(result => {
+    t.deepEqual(result.errors, [ { column: 0, line: 0, message: 'Error: nope' } ])
   })
 })

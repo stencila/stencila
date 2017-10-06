@@ -158,6 +158,20 @@ export default class JsContext extends Context {
   }
 
   /**
+   * Does the context provide a function?
+   *
+   * @override
+   */
+  hasFunction (libName, functionName) {
+    let has = false
+    const lib = this._libs[libName]
+    if (lib) {
+      if (lib[functionName]) has = true
+    }
+    return Promise.resolve(has)
+  }
+
+  /**
    * Call a function
    *
    * @override
