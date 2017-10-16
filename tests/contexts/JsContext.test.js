@@ -41,21 +41,18 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('Math.pi').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: 'Math.pi',
     messages: []
   }))
 
   c.analyseCode('foo').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
-    value: 'foo',
     messages: []
   }))
 
   c.analyseCode('let foo\nfoo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
-    value: 'foo',
     messages: []
   }))
 
@@ -63,14 +60,12 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('let foo\nfoo * 3').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: 'foo * 3',
     messages: []
   }))
 
   c.analyseCode('let foo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
-    value: 'foo',
     messages: []
   }))
 
@@ -78,7 +73,6 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('foo\nbar\nlet baz, urg\n\n').then(result => t.deepEqual(result, {
     inputs: ['foo','bar'],
     output: 'baz',
-    value: 'baz',
     messages: []
   }))
 
@@ -86,7 +80,6 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('let foo\n{bar\nlet baz}').then(result => t.deepEqual(result, {
     inputs: ['bar'],
     output: null,
-    value: null,
     messages: []
   }))
 
@@ -94,7 +87,6 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('let foo\nbar\nlet baz\ntrue').then(result => t.deepEqual(result, {
     inputs: ['bar'],
     output: null,
-    value: 'true',
     messages: []
   }))
 
@@ -102,7 +94,6 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('foo\nlet foo\n').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
-    value: 'foo',
     messages: []
   }))
 
@@ -110,7 +101,6 @@ test('JsContext.analyseCode', t => {
   c.analyseCode('for(){').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: null,
     messages: [ { line: 1, column: 4, type: 'error', message: 'SyntaxError: Unexpected token (1:4)'} ]
   }))
 })
@@ -122,21 +112,18 @@ test('JsContext.analyseCode expression only', t => {
   c.analyseCode('42', true).then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: '42',
     messages: []
   }))
 
   c.analyseCode('x * 3', true).then(result => t.deepEqual(result, {
     inputs: ['x'],
     output: null,
-    value: 'x * 3',
     messages: []
   }))
 
   c.analyseCode('let y = x * 3', true).then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
-    value: null,
     messages: [{ line: 0, column: 0, type: 'error', message: 'Error: Code is not a single, simple expression' }]
   }))
 

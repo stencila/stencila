@@ -65,7 +65,7 @@ export default class JsContext extends Context {
    *
    * @override
    */
-  analyseCode (code, exprOnly = false) {
+  analyseCode (code, exprOnly = false, valueExpr = false) {
     let inputs = []
     let output = null
     let value = null
@@ -130,12 +130,13 @@ export default class JsContext extends Context {
       }
     }
 
-    return Promise.resolve({
+    let result = {
       inputs,
       output,
-      value,
       messages
-    })
+    }
+    if (valueExpr) result.value = value
+    return Promise.resolve(result)
   }
 
   /**
@@ -144,7 +145,7 @@ export default class JsContext extends Context {
    * @override
    */
   executeCode (code = '', inputs = {}, exprOnly = false) {
-    return this.analyseCode(code, exprOnly).then(codeAnalysis => {
+    return this.analyseCode(code, exprOnly, true).then(codeAnalysis => {
       let inputNames = codeAnalysis.inputs
       let outputName = codeAnalysis.output
       let valueExpr = codeAnalysis.value
