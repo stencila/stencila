@@ -18,7 +18,7 @@ export default class JsContext extends Context {
   constructor () {
     super()
 
-    // Global variable names that should be ignored when determining code input during `codeAnalysis()`
+    // Global variable names that should be ignored when determining code input during `analyseCode()`
     this._globals = [
       // A list of ES6 globals obtained using:
       //   const globals = require('globals')
@@ -69,17 +69,17 @@ export default class JsContext extends Context {
     let inputs = []
     let output = null
     let value = null
-    let errors = []
+    let messages = []
     
     // Parse the code
     let ast
     try {
       ast = parse(code)
     } catch (error) {
-      errors.push(error)
+      messages.push(this._packError(error))
     }
 
-    if (errors.length === 0 && exprOnly) {
+    if (messages.length === 0 && exprOnly) {
       // Check for single expression only
       let fail = false
       if (ast.body.length > 1) fail = true
@@ -97,10 +97,10 @@ export default class JsContext extends Context {
         }
         fail = !simpleExpr
       }
-      if (fail) errors.push(new Error ('Code is not a single, simple expression'))
+      if (fail) messages.push(this._packError(new Error ('Code is not a single, simple expression')))
     }
 
-    if (errors.length === 0) {
+    if (messages.length === 0) {
       // Determine which names are declared and which are used
       let declared = []
       simple(ast, {
@@ -134,7 +134,7 @@ export default class JsContext extends Context {
       inputs,
       output,
       value,
-      errors: this._packErrors(errors)
+      messages
     })
   }
 
@@ -149,13 +149,29 @@ export default class JsContext extends Context {
       let outputName = codeAnalysis.output
       let valueExpr = codeAnalysis.value
       let value
-      let syntaxErrors = codeAnalysis.errors
+      let messages = codeAnalysis.messages
 
-      let errors = []
-      if (syntaxErrors.length === 0) {
-        // Extract names and values of inputs
-        let names = Object.keys(inputs)
-        let values = names.map(name => this._unpackValue(inputs[name]))
+      let errors = messages.filter(message => message.type === 'error').length
+      if (errors === 0) {
+        // Extract the names and values of inputs to be used as arguments
+        // (some inputs may be global and so their value in accessed directly from the function)
+        let argNames = []
+        let argValues = []
+        inputNames.forEach(name => {
+          let value = inputs[name]
+          if (typeof value === 'undefined') {
+            messages.push({
+              line: 0,
+              column: 0,
+              type: 'warn',
+              message: `Input variable "${name}" is not managed`
+            })
+          }
+          else {
+            argNames.push(name)
+            argValues.push(this._unpackValue(value))
+          }
+        })
 
         // Add return value of function
         // (i.e. simulate implicit return)
@@ -163,10 +179,10 @@ export default class JsContext extends Context {
 
         // Execute the function with the unpacked inputs.
         try {
-          const func = new Function(...names, code) // eslint-disable-line no-new-func
-          value = func(...values)
+          const func = new Function(...argNames, code) // eslint-disable-line no-new-func
+          value = func(...argValues)
         } catch (error) {
-          errors.push(error)
+          messages.push(this._packError(error))
         }
       }
 
@@ -174,7 +190,7 @@ export default class JsContext extends Context {
         inputs: inputNames,
         output: outputName,
         value: this._packValue(value),
-        errors: syntaxErrors.concat(this._packErrors(errors))
+        messages: messages
       }
     })
   }
@@ -211,16 +227,16 @@ export default class JsContext extends Context {
 
     let values = args.map(arg => this._unpackValue(arg))
 
-    let errors = []
+    let messages = []
     let value
     try {
       value = func(...values)
     } catch (error) {
-      errors.push(error)
+      messages.push(this._packError(error))
     }
 
     return Promise.resolve({
-      errors: this._packErrors(errors),
+      messages: messages,
       value: this._packValue(value)
     })
   }
@@ -247,41 +263,40 @@ export default class JsContext extends Context {
   }
 
   /**
-   * Pack errors into an array of {line, column, message} records
+   * Pack an error into a {line, column, type, message} record
    *
-   * @param {Array<Error>} errors - Error objects
-   * @return {Array<Object>} - Error records
+   * @param {Error} error - Error object
+   * @return {Object} - Error record
    */
-  _packErrors (errors) {
-    return errors.map(error => {
-      let line = 0
-      let column = 0
-      let message
+  _packError (error) {
+    let line = 0
+    let column = 0
+    let message
 
-      if (error instanceof SyntaxError) {
-        // Get message, line and columns numbers
-        line = error.loc.line
-        column = error.loc.column
-        message = 'SyntaxError: ' + error.message
-      } else if (error.stack) {
-        // Parse the error stack to get message, line and columns numbers
-        let lines = error.stack.split('\n')
-        let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
-        if (match) {
-          line = parseInt(match[1], 10) - 1
-          column = parseInt(match[2], 10)
-        }
-        message = lines[0] || error.message
-      } else {
-        message = error.message
+    if (error instanceof SyntaxError && error.loc) {
+      // Get message, line and columns numbers
+      line = error.loc.line
+      column = error.loc.column
+      message = 'SyntaxError: ' + error.message
+    } else if (error.stack) {
+      // Parse the error stack to get message, line and columns numbers
+      let lines = error.stack.split('\n')
+      let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
+      if (match) {
+        line = parseInt(match[1], 10) - 1
+        column = parseInt(match[2], 10)
       }
+      message = lines[0] || error.message
+    } else {
+      message = error.message
+    }
 
-      return {
-        line: line,
-        column: column,
-        message: message
-      }
-    })
+    return {
+      line: line,
+      column: column,
+      type: 'error',
+      message: message
+    }
   }
 
 }

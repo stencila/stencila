@@ -42,21 +42,21 @@ test('JsContext.analyseCode', t => {
     inputs: [],
     output: null,
     value: 'Math.pi',
-    errors: []
+    messages: []
   }))
 
   c.analyseCode('foo').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
     value: 'foo',
-    errors: []
+    messages: []
   }))
 
   c.analyseCode('let foo\nfoo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
     value: 'foo',
-    errors: []
+    messages: []
   }))
 
 
@@ -64,14 +64,14 @@ test('JsContext.analyseCode', t => {
     inputs: [],
     output: null,
     value: 'foo * 3',
-    errors: []
+    messages: []
   }))
 
   c.analyseCode('let foo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
     value: 'foo',
-    errors: []
+    messages: []
   }))
 
   // Last statement is a declaration (first identifier used)
@@ -79,7 +79,7 @@ test('JsContext.analyseCode', t => {
     inputs: ['foo','bar'],
     output: 'baz',
     value: 'baz',
-    errors: []
+    messages: []
   }))
 
   // Last statement is not a declaration or identifier
@@ -87,7 +87,7 @@ test('JsContext.analyseCode', t => {
     inputs: ['bar'],
     output: null,
     value: null,
-    errors: []
+    messages: []
   }))
 
   // Last statement is not a declaration or identifier
@@ -95,7 +95,7 @@ test('JsContext.analyseCode', t => {
     inputs: ['bar'],
     output: null,
     value: 'true',
-    errors: []
+    messages: []
   }))
 
   // Variable declaration after usage (this will be a runtime error but this tests static analysis of code regardless)
@@ -103,7 +103,7 @@ test('JsContext.analyseCode', t => {
     inputs: ['foo'],
     output: 'foo',
     value: 'foo',
-    errors: []
+    messages: []
   }))
 
   // Syntax error
@@ -111,7 +111,7 @@ test('JsContext.analyseCode', t => {
     inputs: [],
     output: null,
     value: null,
-    errors: [ { line: 1, column: 4, message: 'SyntaxError: Unexpected token (1:4)'} ]
+    messages: [ { line: 1, column: 4, type: 'error', message: 'SyntaxError: Unexpected token (1:4)'} ]
   }))
 })
 
@@ -123,35 +123,35 @@ test('JsContext.analyseCode expression only', t => {
     inputs: [],
     output: null,
     value: '42',
-    errors: []
+    messages: []
   }))
 
   c.analyseCode('x * 3', true).then(result => t.deepEqual(result, {
     inputs: ['x'],
     output: null,
     value: 'x * 3',
-    errors: []
+    messages: []
   }))
 
   c.analyseCode('let y = x * 3', true).then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
     value: null,
-    errors: [{ line: 0, column: 0, message: 'Error: Code is not a single, simple expression' }]
+    messages: [{ line: 0, column: 0, type: 'error', message: 'Error: Code is not a single, simple expression' }]
   }))
 
   c.analyseCode('y = x * 3', true).then(result => t.equal(
-    result.errors[0].message,
+    result.messages[0].message,
     'Error: Code is not a single, simple expression'
   ))
 
   c.analyseCode('x++', true).then(result => t.equal(
-    result.errors[0].message,
+    result.messages[0].message,
     'Error: Code is not a single, simple expression'
   ))
 
   c.analyseCode('y--', true).then(result => t.equal(
-    result.errors[0].message,
+    result.messages[0].message,
     'Error: Code is not a single, simple expression'
   ))
 })
@@ -169,7 +169,7 @@ test('JsContext.executeCode no value', t => {
       inputs: [],
       output: null,
       value: null,
-      errors: []
+      messages: []
     })
   })
 })
@@ -183,7 +183,7 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       inputs: [],
       output: null,
       value: { type: 'number', data: 2.2 },
-      errors: []
+      messages: []
     })
   })
 
@@ -192,7 +192,7 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       inputs: [],
       output: null,
       value: { type: 'integer', data: 3 },
-      errors: []
+      messages: []
     })
   })
 
@@ -201,7 +201,7 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       inputs: [],
       output: null,
       value: { type: 'object', data: { a: 1 } },
-      errors: []
+      messages: []
     })
   })
 })
@@ -217,7 +217,7 @@ test('JsContext.executeCode with inputs, outputs, no errors', t => {
       inputs: ['a'],
       output: 'b',
       value: { type: 'integer', data: 36 },
-      errors: []
+      messages: []
     })
   })
 
@@ -229,7 +229,7 @@ test('JsContext.executeCode with inputs, outputs, no errors', t => {
       inputs: ['a', 'b'],
       output: 'c',
       value: { type: 'integer', data: 12 },
-      errors: []
+      messages: []
     })
   })
 })
@@ -246,7 +246,7 @@ test('JsContext.executeCode value is multiline', t => {
       inputs: [],
       output: 'x',
       value: { type: 'object', data: { a: 1, b: 'foo'} },
-      errors: []
+      messages: []
     })
   })
 })
@@ -256,13 +256,21 @@ test('JsContext.executeCode with errors', t => {
   t.plan(3)
 
   c.executeCode('foo').then(result => {
-    t.deepEqual(result.errors, [{line: 1, column: 1, message: 'ReferenceError: foo is not defined'}])
+    t.deepEqual(result.messages, [
+      { line: 0, column: 0, type: 'warn', message: 'Input variable "foo" is not managed' },
+      { line: 1, column: 1, type: 'error', message: 'ReferenceError: foo is not defined' }
+    ])
   })
   c.executeCode('1\n2\n foo\n4').then(result => {
-    t.deepEqual(result.errors, [{line: 3, column: 2, message: 'ReferenceError: foo is not defined'}])
+    t.deepEqual(result.messages, [
+      { line: 0, column: 0, type: 'warn', message: 'Input variable "foo" is not managed' },
+      { line: 3, column: 2, type: 'error', message: 'ReferenceError: foo is not defined' }
+    ])
   })
   c.executeCode(' <>').then(result => {
-    t.deepEqual(result.errors, [{line: 1, column: 1, message: 'SyntaxError: Unexpected token (1:1)'}])
+    t.deepEqual(result.messages, [
+      { line: 1, column: 1, type: 'error', message: 'SyntaxError: Unexpected token (1:1)' }
+    ])
   })
 })
 
@@ -318,6 +326,6 @@ test('JsContext.callFunction', t => {
     }
   }
   c.callFunction('foo', 'bar').then(result => {
-    t.deepEqual(result.errors, [ { column: 0, line: 0, message: 'Error: nope' } ])
+    t.deepEqual(result.messages, [ { column: 0, line: 0, type: 'error', message: 'Error: nope' } ])
   })
 })
