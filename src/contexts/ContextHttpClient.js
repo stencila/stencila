@@ -17,30 +17,30 @@ export default class ContextHttpClient extends Context {
   }
 
   /**
-   * Does the context support a language?
+   * Get the list of supported programming languages
    * 
    * @override
    */
-  supportsLanguage (language) {
-    return PUT(this.url + '!supportsLanguage', {language: language})
+  supportedLanguages () {
+    return PUT(this.url + '!supportedLanguages')
   }
 
   /**
-   * Run code
+   * Analyse code
    * 
    * @override
    */
-  runCode (code) {
-    return PUT(this.url + '!runCode', {code: code})
+  analyseCode (code, exprOnly = false) {
+    return PUT(this.url + '!analyseCode', {code: code, exprOnly: exprOnly})
   }
 
   /**
-   * Call code
+   * Execute code
    * 
    * @override
    */
-  callCode (code, inputs) {
-    return PUT(this.url + '!callCode', {code: code, inputs: inputs})
+  executeCode (code, inputs, exprOnly = false) {
+    return PUT(this.url + '!executeCode', {code: code, inputs: inputs, exprOnly: exprOnly})
   }
 
 
@@ -60,23 +60,5 @@ export default class ContextHttpClient extends Context {
    */
   callFunction (name, inputs, namedInputs, options) {
     return PUT(this.url + '!callFunction', {name: name, inputs: inputs, namedInputs: namedInputs, options: options})
-  }
-
-  /**
-   * Get the dependencies for a piece of code
-   *
-   * @override
-   */
-  codeDependencies (code) {
-    return PUT(this.url + '!codeDependencies', {code: code})
-  }
-
-  /**
-   * Complete a piece of code
-   *
-   * @override
-   */
-  codeComplete (code) {
-    return PUT(this.url + '!codeComplete', {code: code})
   }
 }

@@ -10,50 +10,33 @@
 export default class Context {
 
   /**
-   * Does the context support a programming language?
+   * Get the list of supported programming languages
    *
-   * @param {string} language - The language
+   * @override
    */
-  supportsLanguage (language) { // eslint-disable-line no-unused-vars
+  supportedLanguages () {
     return Promise.resolve(new Error('Not implemented'))
   }
 
   /**
-   * Run code within the context's global scope
+   * Analyse code and return the names of inputs, output and 
+   * implicitly returned value expression
    *
-   * @param {string} code - Code to run
-   * @param {object} options - Any execution options
-   * @return {object} - A Promise resolving to object with any `errors` and `output`
-   *
-   * @example
-   *
-   * // You can also assign global variables which are available in subsequent calls,
-   * context.call('foo = "bar"\n\n') // { errors: {}, output: null }
-   * context.call('foo') // { errors: {}, output: { type: 'str', format: 'text', value: 'bar' } }
+   * @param {string} code - Code to execute
+   * @param {object} exprOnly - Check that code is a simple expression only?
    */
-  runCode (code, options) { // eslint-disable-line no-unused-vars
+  analyseCode (code, exprOnly = false) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
   /**
-   * Execute code within a local function scope
+   * Execute code within the context
    *
-   * @param {string} code - Code to call
-   * @param {object} inputs - An object with a data pack for each argument
-   * @param {object} options - Any execution options
-   * @return {object} - A Promise resolving to object with any `errors` and `output`
-   *
-   * @example
-   *
-   * // Return statement must be used to return an output value
-   * context.call('return 6*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
-   * context.call('let x = 6\nreturn x*7') // { errors: {}, output: { type: 'int', format: 'text', value: '42' } }
-   *
-   * // You can specify inputs (that are local to that call),
-   * context.call('return Math.PI*radius', {radius:{type:'flt', format:'text', value: '21.4'}}) // { errors: {}, output: { type: 'flt', format: 'text', value: '67.23008278682157' } }
-   * context.call('return radius') // { errors: { '1': 'ReferenceError: radius is not defined' }, output: null }
+   * @param {string} code - Code to execute
+   * @param {object} inputs - Value of input variables
+   * @param {object} exprOnly - Check that code is a simple expression only?
    */
-  callCode (code, inputs, options) { // eslint-disable-line no-unused-vars
+  executeCode (code = '', inputs = {}, exprOnly = false) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
@@ -82,26 +65,4 @@ export default class Context {
     return Promise.reject(new Error('Not implemented'))
   }
 
-  /**
-   * Get the dependencies for a piece of code
-   *
-   * Returns an array of all variable names not declared within
-   * the piece of code. This might include global functions.
-   *
-   * @param  {string} code - Piece of code
-   * @return {array<string>} - A Promise resolving to a list of dependencies
-   */
-  codeDependencies (code) {  // eslint-disable-line no-unused-vars
-    return Promise.reject(new Error('Not implemented'))
-  }
-
-  /**
-   * Complete a piece of code
-   *
-   * @param  {string} code - Piece of code
-   * @return {array<string>} - A Promise resolving to a completed piece of code
-   */
-  codeComplete (code) {  // eslint-disable-line no-unused-vars
-    return Promise.reject(new Error('Not implemented'))
-  }
 }

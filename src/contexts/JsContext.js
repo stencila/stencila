@@ -38,7 +38,7 @@ export default class JsContext extends Context {
   }
 
   /**
-   * Get the list of supported programming language?
+   * Get the list of supported programming languages
    *
    * @override
    */
@@ -46,17 +46,6 @@ export default class JsContext extends Context {
     return Promise.resolve(
       ['js']
     )
-  }
-
-  /**
-   * Does the context support a programming language?
-   *
-   * @override
-   */
-  supportsLanguage (language) {
-    return this.supportedLanguages().then(languages => {
-      return languages.indexOf(language) > -1
-    })
   }
 
   /**
