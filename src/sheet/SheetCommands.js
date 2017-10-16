@@ -182,3 +182,23 @@ export class ToggleSheetIssues extends Command {
     }
   }
 }
+
+export class SetLanguageCommand extends Command {
+
+  getCommandState({ selection }) {
+    // TODO: use selection to determine anchor cell and reason about it
+    // consider this.config.language
+    let state = { disabled: false }
+    return state
+  }
+
+  execute({ commandState, editorSession }) {
+    const { nodeId, disabled } = commandState
+    if (!disabled) {
+      editorSession.transaction((tx) => {
+        let node = tx.get(nodeId)
+        node.attr({language: this.config.langauge })
+      })
+    }
+  }
+}
