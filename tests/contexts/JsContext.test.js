@@ -169,7 +169,8 @@ test('JsContext.executeCode no value', t => {
       inputs: [],
       output: null,
       value: null,
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 })
@@ -183,7 +184,8 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       inputs: [],
       output: null,
       value: { type: 'number', data: 2.2 },
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 
@@ -192,7 +194,8 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       inputs: [],
       output: null,
       value: { type: 'integer', data: 3 },
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 
@@ -201,7 +204,8 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
       inputs: [],
       output: null,
       value: { type: 'object', data: { a: 1 } },
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 })
@@ -217,7 +221,8 @@ test('JsContext.executeCode with inputs, outputs, no errors', t => {
       inputs: ['a'],
       output: 'b',
       value: { type: 'integer', data: 36 },
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 
@@ -229,7 +234,8 @@ test('JsContext.executeCode with inputs, outputs, no errors', t => {
       inputs: ['a', 'b'],
       output: 'c',
       value: { type: 'integer', data: 12 },
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 })
@@ -246,7 +252,8 @@ test('JsContext.executeCode value is multiline', t => {
       inputs: [],
       output: 'x',
       value: { type: 'object', data: { a: 1, b: 'foo'} },
-      messages: []
+      messages: [],
+      streams: null
     })
   })
 })
@@ -292,6 +299,23 @@ test('JsContext.executeCode with global variables', t => {
 
   c.executeCode('foo').then(result => {
     t.deepEqual(result.value, {type: 'integer', data: 42}, 'can change global variable')
+  })
+})
+
+test('JsContext.executeCode with console output', t => {
+  let c = new JsContext()
+  t.plan(3)
+
+  c.executeCode('console.log("Hello!")').then(result => {
+    t.equal(result.streams.stdout, "Hello!")
+  })
+
+  c.executeCode('console.warn("Warning")').then(result => {
+    t.equal(result.streams.stdout, "Warning")
+  })
+
+  c.executeCode('console.error("Errrrr!")').then(result => {
+    t.equal(result.streams.stderr, "Errrrr!")
   })
 })
 

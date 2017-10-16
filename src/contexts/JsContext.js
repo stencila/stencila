@@ -150,6 +150,8 @@ export default class JsContext extends Context {
       let valueExpr = codeAnalysis.value
       let value
       let messages = codeAnalysis.messages
+      let stdout = ''
+      let stderr = ''
 
       let errors = messages.filter(message => message.type === 'error').length
       if (errors === 0) {
@@ -173,16 +175,39 @@ export default class JsContext extends Context {
           }
         })
 
-        // Add return value of function
+        // Capture console output functions
+        let captureConsole = {
+          log: function (txt) { stdout += txt },
+          info: function (txt) { stdout += txt },
+          warn: function (txt) { stdout += txt },
+          error: function (txt) { stderr += txt }
+        }
+        let nullConsole = {
+          log: function () {},
+          info: function () {},
+          warn: function () {},
+          error: function () {}
+        }
+
+        // Add the return value of function to the code
         // (i.e. simulate implicit return)
-        if (valueExpr) code += `;\nreturn ${valueExpr};`
+        // To prevent duplication of console output 
+        if (valueExpr) code += `;\nconsole=nullConsole;return ${valueExpr};`
 
         // Execute the function with the unpacked inputs.
         try {
-          const func = new Function(...argNames, code) // eslint-disable-line no-new-func
-          value = func(...argValues)
+          const func = new Function(...argNames, 'console', 'nullConsole', code) // eslint-disable-line no-new-func
+          value = func(...argValues, captureConsole, nullConsole)
         } catch (error) {
           messages.push(this._packError(error))
+        }
+      }
+
+      let streams = null
+      if (stdout.length || stderr.length) {
+        streams = {
+          stdout: stdout,
+          stderr: stderr
         }
       }
 
@@ -190,7 +215,8 @@ export default class JsContext extends Context {
         inputs: inputNames,
         output: outputName,
         value: this._packValue(value),
-        messages: messages
+        messages: messages,
+        streams: streams
       }
     })
   }
@@ -283,7 +309,7 @@ export default class JsContext extends Context {
       let lines = error.stack.split('\n')
       let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
       if (match) {
-        line = parseInt(match[1], 10) - 1
+        line = parseInt(match[1], 10) - 2
         column = parseInt(match[2], 10)
       }
       message = lines[0] || error.message
