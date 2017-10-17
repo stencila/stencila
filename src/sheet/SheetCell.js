@@ -13,11 +13,13 @@ export default class SheetCell extends NodeComponent {
 
   render($$) {
     const cell = this.props.node
+    const issueManager = this.context.issueManager
     // TODO: implement this fully
     let el = $$('div').addClass('sc-sheet-cell')
 
-    if(cell._issue) {
-      el.addClass('sm-error')
+    let cellIssues = issueManager.getCellIssues(cell.id)
+    if(cellIssues.length > 0) {
+      el.addClass('sm-issue sm-error')
     }
 
     el.append(this._renderContent($$, cell))
