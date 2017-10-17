@@ -14,7 +14,7 @@ export default class SheetLinter extends EventEmitter {
     this.issueManager = editorSession.issueManager
 
     this.queue = []
-    this.issues = []
+    //this.issues = []
     this.state = 'initial'
 
     // TODO: need to rethink this when we want to use this
@@ -164,6 +164,7 @@ export default class SheetLinter extends EventEmitter {
           revalidations.push(cell)
         }
       })
+
       this.queue = newChecks.concat(revalidations).concat(this.queue)
       this.issueManager.clear('linter')
       //this.issues = []
