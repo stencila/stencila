@@ -371,6 +371,7 @@ class TableHeader extends NodeComponent {
     const node = this.props.node
     let th = $$('th')
       .attr('data-col', colIdx)
+      .addClass('sc-column-header')
     th.append(
       $$('div').addClass('se-column-label').text(getColumnLabel(colIdx))
     )
