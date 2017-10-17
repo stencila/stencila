@@ -78,6 +78,9 @@ export default class SheetPage extends Component {
         host: this.props.host
       }
     })
+
+    editorSession.issueManager = editorSession.getManager('issue-manager')
+
     this.extendState({
       editorSession,
       sheet
