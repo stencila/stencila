@@ -7,6 +7,7 @@ import CellComponent from './CellComponent'
 import EditExtLinkToolMonkeyPatched from './EditExtLinkToolMonkeyPatched'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
+import BooleanValueComponent from '../shared/BooleanValueComponent'
 import NumberValueComponent from '../shared/NumberValueComponent'
 import IntegerValueComponent from '../shared/IntegerValueComponent'
 import StringValueComponent from '../shared/StringValueComponent'
@@ -22,6 +23,8 @@ export default {
     config.addComponent('repro-fig', ReproFigComponent)
     config.addComponent('cell', CellComponent)
     config.addComponent('code-highlight', CodeHighlightComponent)
+
+    config.addComponent('value:boolean', BooleanValueComponent)
     config.addComponent('value:integer', IntegerValueComponent)
     config.addComponent('value:number', NumberValueComponent)
     config.addComponent('value:string', StringValueComponent)
