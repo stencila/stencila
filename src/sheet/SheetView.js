@@ -2,6 +2,7 @@ import {
   Component, getRelativeBoundingRect, RenderingEngine
 } from 'substance'
 import SheetColumnHeader from './SheetColumnHeader'
+import SheetRowHeader from './SheetRowHeader'
 import SheetCell from './SheetCell'
 import getBoundingRect from '../util/getBoundingRect'
 
@@ -386,8 +387,9 @@ class TableRow extends Component {
       }
       case 'visible': {
         let M = sheet.getColumnCount()
+        let row = sheet.get('row-' + (rowIdx + 1))
         el.append(
-          $$('th').ref(String(-1)).text(String(rowIdx+1)).attr('data-row', rowIdx)
+          $$(SheetRowHeader, {node: row, rowIdx: rowIdx}).ref(String(-1))
         )
         for (let j = 0; j < M; j++) {
           const cell = sheet.getCell(rowIdx, j)
