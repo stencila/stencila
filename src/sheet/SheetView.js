@@ -57,7 +57,7 @@ export default class SheetView extends Component {
     head.append(corner)
     for(let colIdx = 0; colIdx < M; colIdx++) {
       let columnMeta = sheet.getColumnMeta(colIdx)
-      let th = $$(SheetColumnHeader, { node: columnMeta, colIdx })
+      let th = $$(SheetColumnHeader, { node: columnMeta, colIdx }).ref(columnMeta.id)
       let w = th.getWidth()
       if (colIdx < viewport.startCol) {
         th.addClass('sm-hidden')
