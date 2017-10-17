@@ -6,13 +6,8 @@ import SheetComponent from './SheetComponent'
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
-  OpenColumnSettings, ToggleSheetIssues
+  OpenColumnSettings, ToggleSheetIssues, SetLanguageCommand
 } from './SheetCommands'
-import {
-  InsertRowsAboveTool, InsertRowsBelowTool, DeleteRowsTool,
-  InsertColumnsLeftTool, InsertColumnsRightTool, DeleteColumnsTool,
-  OpenColumnSettingsTool, SheetIssuesStatusTool
- } from './SheetTools'
 
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
@@ -29,7 +24,6 @@ export default {
     })
 
     config.import(BasePackage)
-
     config.addToolPanel('toolbar', [
       {
         name: 'undo-redo',
@@ -64,7 +58,6 @@ export default {
       }
     ])
 
-
     config.addToolPanel('row-context-menu', [
       {
         name: 'row-context-menu',
@@ -85,27 +78,52 @@ export default {
       }
     ])
 
+    config.addToolPanel('cell-context-menu', [
+      {
+        name: 'cell-types',
+        type: 'tool-group',
+        style: 'descriptive',
+        showDisabled: true,
+        commandGroups: ['cell-types']
+      },
+      {
+        name: 'cell-languages',
+        type: 'tool-group',
+        style: 'descriptive',
+        showDisabled: true,
+        commandGroups: ['cell-languages']
+      }
+    ])
+
+    // Cell Languages
+    config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-languages' })
+    config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-languages' })
+    config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-languages' })
+    config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-languages' })
+
+    config.addLabel('set-mini', 'Mini')
+    config.addLabel('set-js', 'Javascript')
+    config.addLabel('set-py', 'Python')
+    config.addLabel('set-r', 'R')
+
     config.addComponent('sheet', SheetComponent)
 
     config.addCommand('insert-rows-above', InsertRowsAbove, {
       commandGroup: 'table-row-commands'
     })
-    config.addTool('insert-rows-above', InsertRowsAboveTool)
     config.addLabel('insert-rows-above', {
-      en: 'Insert ${n} above'
+      en: 'Insert ${nrows} above'
     })
 
     config.addCommand('insert-rows-below', InsertRowsBelow, {
       commandGroup: 'table-row-commands'
     })
-    config.addTool('insert-rows-below', InsertRowsBelowTool)
     config.addLabel('insert-rows-below', {
-      en: 'Insert ${n} below'
+      en: 'Insert ${nrows} below'
     })
     config.addCommand('delete-rows', DeleteRows, {
       commandGroup: 'table-row-commands'
     })
-    config.addTool('delete-rows', DeleteRowsTool)
     config.addLabel('delete-row', {
       en: 'Delete row'
     })
@@ -116,7 +134,6 @@ export default {
     config.addCommand('open-column-settings', OpenColumnSettings, {
       commandGroup: 'table-column-commands'
     })
-    config.addTool('open-column-settings', OpenColumnSettingsTool)
     config.addLabel('open-column-settings', {
       en: 'Column Settings...'
     })
@@ -124,22 +141,19 @@ export default {
     config.addCommand('insert-columns-left', InsertColumnsLeft, {
       commandGroup: 'table-column-commands'
     })
-    config.addTool('insert-columns-left', InsertColumnsLeftTool)
     config.addLabel('insert-columns-left', {
-      en: 'Insert ${n} left'
+      en: 'Insert ${ncolumns} left'
     })
 
     config.addCommand('insert-columns-right', InsertColumnsRight, {
       commandGroup: 'table-column-commands'
     })
-    config.addTool('insert-columns-right', InsertColumnsRightTool)
     config.addLabel('insert-columns-right', {
-      en: 'Insert ${n} right'
+      en: 'Insert ${ncolumns} right'
     })
     config.addCommand('delete-columns', DeleteColumns, {
       commandGroup: 'table-column-commands'
     })
-    config.addTool('delete-columns', DeleteColumnsTool)
     config.addLabel('delete-column', {
       en: 'Delete column'
     })
@@ -160,7 +174,6 @@ export default {
     config.addCommand('toggle-sheet-issues', ToggleSheetIssues, {
       commandGroup: 'sheet-issues'
     })
-    config.addTool('toggle-sheet-issues', SheetIssuesStatusTool)
     config.addLabel('toggle-sheet-issues', {
       en: 'Open Issues Panel'
     })

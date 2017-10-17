@@ -67,15 +67,27 @@ export default class SheetComponent extends CustomSurface {
     const sheet = this._getSheet()
     const viewport = this._viewport
     let el = $$('div').addClass('sc-sheet')
+
+    let contentEl = $$('div').addClass('se-content').append(
+      $$(SheetView, {
+        sheet, viewport
+      }).ref('sheetView')
+    )
+      .on('wheel', this._onWheel, this)
+      .on('mousedown', this._onMousedown)
+      .on('mousemove', this._onMousemove)
+      .on('dblclick', this._onDblclick)
+      .on('contextmenu', this._onContextMenu)
+      .on('contextmenuitemclick', this._hideMenus)
+      .on('copy', this._onCopy)
+      .on('paste', this._onPaste)
+      .on('cut', this._onCut)
+
     el.append(
       $$('textarea').addClass('se-keytrap').ref('keytrap')
         .css({ position: 'absolute', width: 0, height: 0 })
         .on('keydown', this._onKeyDown),
-      $$('div').addClass('se-content').append(
-        $$(SheetView, {
-          sheet, viewport
-        }).ref('sheetView')
-      ),
+      contentEl,
       this._renderOverlay($$),
       this._renderCellEditor($$),
       this._renderRowContextMenu($$),
@@ -90,15 +102,6 @@ export default class SheetComponent extends CustomSurface {
         axis: 'y'
       }).ref('scrollY')
     )
-    el.on('wheel', this._onWheel, this)
-      .on('mousedown', this._onMousedown)
-      .on('mousemove', this._onMousemove)
-      .on('dblclick', this._onDblclick)
-      .on('contextmenu', this._onContextMenu)
-      .on('contextmenuitemclick', this._hideMenus)
-      .on('copy', this._onCopy)
-      .on('paste', this._onPaste)
-      .on('cut', this._onCut)
     return el
   }
 
