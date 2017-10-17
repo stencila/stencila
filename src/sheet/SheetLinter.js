@@ -110,6 +110,12 @@ export default class SheetLinter extends EventEmitter {
     // console.log('Issue in cell', issue.cell, issue)
     this.issues.push(issue)
     this._updateCommandStates()
+    // send an issue to the node
+    if(issue.cell) {
+      let cell = issue.cell
+      cell._issue = issue
+      cell.emit('issue:changed')
+    }
     this.emit('issues:changed')
   }
 
