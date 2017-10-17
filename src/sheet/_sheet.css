@@ -2,6 +2,12 @@
 @import './_sheet-scrollbar.css';
 @import './_sheet-dialogs.css';
 @import './_sheet-linter.css';
+@import './_expression-bar.css';
+
+.sc-sheet-editor > .sc-toolbar {
+  background: #efefef;
+  z-index: 3;
+}
 
 .sc-sheet-page {
   position: absolute;

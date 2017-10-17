@@ -1,0 +1,13 @@
+.sc-expression-bar {
+  z-index: 2;
+  border-top: 1px solid #ddd;
+  display: flex;
+}
+
+.sc-expression-bar > .sc-expression-bar-editor {
+  flex: 1 1 0;
+}
+
+.sc-expression-bar > .sc-toolbar {
+  flex: 0 0 1;
+}

@@ -105,6 +105,23 @@ export default {
       }
     ])
 
+    config.addToolPanel('expression-bar-menu', [
+      {
+        name: 'cell-types',
+        type: 'tool-dropdown',
+        style: 'descriptive',
+        showDisabled: false,
+        commandGroups: ['cell-types']
+      },
+      {
+        name: 'cell-languages',
+        type: 'tool-dropdown',
+        style: 'descriptive',
+        showDisabled: false,
+        commandGroups: ['cell-languages']
+      }
+    ])
+
     // Cell Languages
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-languages' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-languages' })
