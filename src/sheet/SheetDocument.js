@@ -39,7 +39,7 @@ export default class SheetDocument extends XMLDocument {
     // TODO: this does not work with merged cells
     let colIdx = row._childNodes.indexOf(cell.id)
     let columnMeta = this.getColumnMeta(colIdx)
-    return columnMeta.attr('type') || 'any'
+    return cell.attr('type') || columnMeta.attr('type') || 'any'
   }
 
   getColumnIndex(col) {

@@ -1,6 +1,5 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
 import SheetLinter from './SheetLinter'
-import ExpressionBar from './ExpressionBar'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -41,7 +40,6 @@ export default class SheetEditor extends AbstractEditor {
     let el = $$('div').addClass('sc-sheet-editor')
     el.append(
       this._renderToolbar($$),
-      this._renderExpressionBar($$),
       this._renderContent($$),
       this._renderStatusbar($$)
     )
@@ -53,13 +51,6 @@ export default class SheetEditor extends AbstractEditor {
     return $$(Toolbar, {
       toolPanel: configurator.getToolPanel('toolbar')
     }).ref('toolbar')
-  }
-
-  _renderExpressionBar($$) {
-    const configurator = this.getConfigurator()
-    return $$(ExpressionBar, {
-      toolPanel: configurator.getToolPanel('expression-bar-menu')
-    }).ref('expressionBar')
   }
 
   _renderContent($$) {

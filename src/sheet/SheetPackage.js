@@ -6,9 +6,11 @@ import SheetComponent from './SheetComponent'
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
-  OpenColumnSettings, ToggleSheetIssues, SetLanguageCommand
+  OpenColumnSettings, ToggleSheetIssues, SetLanguageCommand,
+  SetTypeCommand, EditCellExpressionCommand
 } from './SheetCommands'
 
+import EditCellExpressionTool from './EditCellExpressionTool'
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 import SheetIssuesComponent from './SheetIssuesComponent'
@@ -36,6 +38,13 @@ export default {
     config.import(BasePackage)
     config.addToolPanel('toolbar', [
       {
+        name: 'edit-cell-expression',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['edit-cell-expression']
+      },
+      {
         name: 'undo-redo',
         type: 'tool-group',
         showDisabled: true,
@@ -55,6 +64,20 @@ export default {
         showDisabled: false,
         style: 'minimal',
         commandGroups: ['sheet-inspector']
+      },
+      {
+        name: 'cell-types',
+        type: 'tool-dropdown',
+        style: 'descriptive',
+        showDisabled: false,
+        commandGroups: ['cell-types']
+      },
+      {
+        name: 'cell-languages',
+        type: 'tool-dropdown',
+        style: 'descriptive',
+        showDisabled: false,
+        commandGroups: ['cell-languages']
       }
     ])
 
@@ -105,22 +128,9 @@ export default {
       }
     ])
 
-    config.addToolPanel('expression-bar-menu', [
-      {
-        name: 'cell-types',
-        type: 'tool-dropdown',
-        style: 'descriptive',
-        showDisabled: false,
-        commandGroups: ['cell-types']
-      },
-      {
-        name: 'cell-languages',
-        type: 'tool-dropdown',
-        style: 'descriptive',
-        showDisabled: false,
-        commandGroups: ['cell-languages']
-      }
-    ])
+    // Edit Expression Tool
+    config.addCommand('edit-cell-expression', EditCellExpressionCommand, { language: 'mini', commandGroup: 'edit-cell-expression' })
+    config.addTool('edit-cell-expression', EditCellExpressionTool)
 
     // Cell Languages
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-languages' })
@@ -132,6 +142,24 @@ export default {
     config.addLabel('set-js', 'Javascript')
     config.addLabel('set-py', 'Python')
     config.addLabel('set-r', 'R')
+
+    // Cell Types
+    config.addCommand('set-none', SetTypeCommand, { type: undefined, commandGroup: 'cell-types' })
+    config.addCommand('set-any', SetTypeCommand, { type: 'any', commandGroup: 'cell-types' })
+    config.addCommand('set-string', SetTypeCommand, { type: 'string', commandGroup: 'cell-types' })
+    config.addCommand('set-number', SetTypeCommand, { type: 'number', commandGroup: 'cell-types' })
+    config.addCommand('set-integer', SetTypeCommand, { type: 'integer', commandGroup: 'cell-types' })
+    config.addCommand('set-boolean', SetTypeCommand, { type: 'boolean', commandGroup: 'cell-types' })
+
+
+    config.addLabel('cell-types', 'Choose Cell Type')
+    config.addLabel('set-none', 'None')
+    config.addLabel('set-inherit', 'Inherit')
+    config.addLabel('set-any', 'Any')
+    config.addLabel('set-string', 'String')
+    config.addLabel('set-number', 'Number')
+    config.addLabel('set-integer', 'Integer')
+    config.addLabel('set-boolean', 'Boolean')
 
     // Cell values
     config.addComponent('value:boolean', BooleanValueComponent)
