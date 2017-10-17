@@ -2,10 +2,9 @@
 @import './_sheet-scrollbar.css';
 @import './_sheet-dialogs.css';
 @import './_sheet-linter.css';
-@import './_expression-bar.css';
+@import './_edit-cell-expression-tool.css';
 
 .sc-sheet-editor > .sc-toolbar {
-  background: #efefef;
   z-index: 3;
 }
 

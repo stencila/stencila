@@ -1,0 +1,13 @@
+.sc-edit-cell-expression-tool {
+  width: 100%;
+}
+
+/* HACK: Make this use up all available space */
+.sc-tool-group.sm-edit-cell-expression {
+  flex: 1 1 0 !important;
+}
+
+.sc-edit-cell-expression-tool input {
+  width: 100%;
+  border: none;
+}

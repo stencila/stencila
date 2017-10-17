@@ -87,6 +87,9 @@ function insertRows({editorSession, selection, commandState}, mode) {
   })
 }
 
+
+
+
 function insertCols({editorSession, selection, commandState}, mode) {
   const sel = selection.data
   const refCol = mode === 'left' ?
@@ -201,4 +204,53 @@ export class SetLanguageCommand extends Command {
       })
     }
   }
+}
+
+/*
+  NOTE: type 'inherit' maps to undefined in the model
+*/
+export class SetTypeCommand extends Command {
+
+  getCommandState({ selection, editorSession }) {
+    if (selection.isNull()) {
+      return { disabled: true }
+    }
+    let doc = editorSession.getDocument()
+    const { anchorRow, anchorCol } = selection.data
+    let anchorCell = doc.getCell(anchorRow, anchorCol)
+    let cellType = anchorCell.attr('type')
+    let state = {
+      cellId: anchorCell.id,
+      newType: this.config.type,
+      disabled: false,
+      active: this.config.type === cellType
+    }
+    return state
+  }
+
+  execute({ editorSession, commandState }) {
+    let { cellId, newType, disabled } = commandState
+    if (!disabled) {
+      editorSession.transaction((tx) => {
+        let cell = tx.get(cellId)
+        cell.attr({ type: newType })
+      })
+    }
+  }
+}
+
+
+/*
+  NOTE: type 'inherit' maps to undefined in the model
+*/
+export class EditCellExpressionCommand extends Command {
+
+  getCommandState(/*{ selection, editorSession }*/) {
+    return { disabled: false }
+  }
+
+  execute({ editorSession, commandState }) {
+    // TODO: implement
+  }
+
 }
