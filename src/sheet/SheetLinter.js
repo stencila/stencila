@@ -94,7 +94,7 @@ export default class SheetLinter extends EventEmitter {
   }
 
   getIssues() {
-    return this.issueManager.getIssues('linter')
+    return this.issueManager.getIssues('linter').slice()
   }
 
   getNumberOfIssues() {
