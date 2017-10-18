@@ -6,7 +6,7 @@ import JsContext from '../contexts/JsContext'
 export default
 class Engine {
 
-  constructor(host, functionManager, options = {}) {
+  constructor(host, functionManager) {
 
     this.host = host
     this.functionManager = functionManager
