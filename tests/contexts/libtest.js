@@ -12,7 +12,7 @@ const fooXML = `
 `
 
 function foo() {
-  return 'foo'
+  return 5
 }
 
 export const libtestXML = `
