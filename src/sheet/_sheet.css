@@ -2,6 +2,7 @@
 @import './_sheet-scrollbar.css';
 @import './_sheet-dialogs.css';
 @import './_sheet-linter.css';
+@import './_sheet-issues.css';
 @import './_edit-cell-expression-tool.css';
 
 .sc-sheet-editor > .sc-toolbar {

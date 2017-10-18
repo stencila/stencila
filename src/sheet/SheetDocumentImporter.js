@@ -13,6 +13,7 @@ class SheetDocumentImporter extends XMLDocumentImporter {
       case 'data':
       case 'columns':
         return type
+      default:
     }
     return super._getIdForElement(el, type)
   }

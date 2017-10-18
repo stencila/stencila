@@ -845,7 +845,7 @@ class DialogPanel extends Component {
     return el
   }
 
-  _onMousedown(e) {
+  _onMousedown() {
     this.el.addClass('sm-hidden')
   }
 }

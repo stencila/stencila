@@ -57,7 +57,7 @@ export function getSandbox(t) {
 }
 
 export function setupEditorSession(documentId) {
-  let configurator = new DocumentConfigurator()
+  let configurator = new DocumentConfigurator() // eslint-disable-line
   let docHTML
   if (!documentId) {
     docHTML = ''
@@ -66,7 +66,7 @@ export function setupEditorSession(documentId) {
     const entry = backend._getEntry(documentId)
     docHTML = entry.content
   }
-  let doc = documentConversion.importHTML(docHTML)
+  let doc = documentConversion.importHTML(docHTML) // eslint-disable-line
   let editorSession = new EditorSession(doc, {
     configurator: configurator,
     context: {

@@ -1,5 +1,6 @@
 import { XMLDocument } from 'substance'
 import SheetSchema from './SheetSchema'
+import { getCellLabel } from './sheetHelpers'
 
 export default class SheetDocument extends XMLDocument {
 
@@ -38,6 +39,15 @@ export default class SheetDocument extends XMLDocument {
       let cell = row.getChildAt(colIdx)
       return cell
     }
+  }
+
+  getCellLabel(cellId) {
+    let cell = this.get(cellId)
+    let row = cell.parentNode
+    let colIdx = row._childNodes.indexOf(cell.id)
+    let rowIdx = row.parentNode._childNodes.indexOf(row.id)
+    let cellLabel = getCellLabel(rowIdx, colIdx)
+    return cellLabel
   }
 
   getCellType(cell) {

@@ -1,8 +1,16 @@
-import { ArrayTree } from 'substance'
+import { ArrayTree, EventEmitter } from 'substance'
 import { clone } from 'lodash-es'
 
-class IssueManager {
+const SEVERITY_MAP = {
+  0: 'info',
+  1: 'warning',
+  2: 'error'
+}
+
+class IssueManager extends EventEmitter {
   constructor(context) {
+    super(context)
+
     if (!context.editorSession) {
       throw new Error('EditorSession required.')
     }
@@ -10,20 +18,22 @@ class IssueManager {
     this.editorSession = context.editorSession
     this.doc = this.editorSession.getDocument()
     this._byKey = new ArrayTree()
+    this._bySeverity = new ArrayTree()
     this._byCell = new ArrayTree()
     this._byColumn = new ArrayTree()
     this._byRow = new ArrayTree()
   }
 
   add(key, issue) {
-    let column = this.doc.getColumnForCell(issue.cellId)
-    let cell = this.doc.get(issue.cellId)
-    let rowId = cell.parentNode.id
-    this._byKey.add(key, issue)
-    this._byCell.add(issue.cellId, issue)
-    this._byColumn.add(column.id, issue)
-    this._byRow.add(rowId, issue)
-    this._notifyObservers(issue.cellId)
+    this._add(key, issue)
+    this.emit('issues:changed')
+  }
+
+  set(key, issues) {
+    issues.forEach(issue => {
+      this._add(key, issue)
+    })
+    this.emit('issues:changed')
   }
 
   remove(key, issue) {
@@ -34,6 +44,7 @@ class IssueManager {
     let rowId = cell.parentNode.id
     this._byColumn.remove(column.id, issue)
     this._byRow.remove(rowId, issue)
+    this._bySeverity.remove(SEVERITY_MAP[issue.severity], issue)
     this._notifyObservers(issue.cellId)
   }
 
@@ -47,6 +58,17 @@ class IssueManager {
 
   getIssues(key) {
     return this._byKey.get(key)
+  }
+
+  getAllIssues() {
+    let index = this._byKey
+    let scopes = Object.keys(index)
+    let issues = []
+    scopes.forEach(scope => {
+      issues = issues.concat(index[scope])
+    })
+
+    return issues
   }
 
   getCellIssues(cellId) {
@@ -66,9 +88,28 @@ class IssueManager {
     return issues.length
   }
 
+  getStats() {
+    let index = this._bySeverity
+    return {
+      errors: index.get('error').length,
+      warnings: index.get('warning').length,
+      info: index.get('info').length
+    }
+  }
+
   hasIssues(key) {
     let issues = this._byKey.get(key)
     return issues.length > 0
+  }
+
+  hasAnyIssues() {
+    let index = this._byKey
+    let scopes = Object.keys(index)
+    let hasIssues = scopes.find(scope => {
+      return index[scope].length > 0
+    })
+
+    return hasIssues
   }
 
   hasErrors(key) {
@@ -77,6 +118,18 @@ class IssueManager {
       if (issues[i].isError()) return true
     }
     return false
+  }
+
+  _add(key, issue) {
+    let column = this.doc.getColumnForCell(issue.cellId)
+    let cell = this.doc.get(issue.cellId)
+    let rowId = cell.parentNode.id
+    this._byKey.add(key, issue)
+    this._byCell.add(issue.cellId, issue)
+    this._byColumn.add(column.id, issue)
+    this._byRow.add(rowId, issue)
+    this._bySeverity.add(SEVERITY_MAP[issue.severity], issue)
+    this._notifyObservers(issue.cellId)
   }
 
   _notifyObservers(cellId) {

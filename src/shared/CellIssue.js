@@ -1,5 +1,5 @@
 class CellIssue {
-  constructor(cellId, type, msg, severety, data) {
+  constructor(cellId, type, msg, severity, data) {
     this.cellId = cellId
     this.type = type
     this.msg = msg
@@ -8,12 +8,12 @@ class CellIssue {
       return new Error('cellId, type and message are mandatory')
     }
 
-    if(severety !== null && typeof severety === 'object') {
-      data = severety
-      severety = 0
+    if(severity !== null && typeof severity === 'object') {
+      data = severity
+      severity = 0
     }
 
-    this.severety = severety || 0
+    this.severity = severity || 0
     this.data = data
   }
 
@@ -26,11 +26,11 @@ class CellIssue {
   }
 
   isError() {
-    return this.severety === 2
+    return this.severity === 2
   }
 
   isWarning() {
-    return this.severety === 1
+    return this.severity === 1
   }
 
   isCellIssue() {

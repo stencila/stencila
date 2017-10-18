@@ -14,7 +14,7 @@ export default class SheetLinter extends EventEmitter {
     this.issueManager = editorSession.issueManager
 
     this.queue = []
-    //this.issues = []
+    this.issues = []
     this.state = 'initial'
 
     // TODO: need to rethink this when we want to use this
@@ -51,6 +51,7 @@ export default class SheetLinter extends EventEmitter {
         this.queue.push(cell)
       }
     }
+    this.firstShot = true
     this._setState('stopped')
   }
 
@@ -64,6 +65,11 @@ export default class SheetLinter extends EventEmitter {
       }
     } else {
       this._setState('stopped')
+      if(!this.firstShot) {
+        this.issueManager.set('linter', this.issues)
+        this.issues = []
+      }
+      this.firstShot = false
     }
   }
 
@@ -89,28 +95,14 @@ export default class SheetLinter extends EventEmitter {
     checkType(cell, sheet, this)
   }
 
-  hasIssues() {
-    return this.issueManager.hasIssues('linter')
-  }
-
-  getIssues() {
-    return this.issueManager.getIssues('linter').slice()
-  }
-
-  getNumberOfIssues() {
-    return this.issueManager.getNumberOfIssues('linter')
-  }
-
-  hasErrors() {
-    return this.issueManager.hasErrors('linter')
-  }
-
   addIssue(issue) {
     // console.log('Issue in cell', issue.cell, issue)
-    //this.issues.push(issue)
-    this._updateCommandStates()
-    this.emit('issues:changed')
-    this.issueManager.add('linter', issue)
+    //this._updateCommandStates()
+    if(this.firstShot) {
+      this.issueManager.add('linter', issue)
+    } else {
+      this.issues.push(issue)
+    }
   }
 
   _updateCommandStates() {
@@ -161,6 +153,7 @@ export default class SheetLinter extends EventEmitter {
       issues.forEach((issue) => {
         if (issue.isCellIssue() && !cells[issue.cellId]) {
           let cell = this._doc.get(issue.cellId)
+          cells[issue.cellId] = cell
           revalidations.push(cell)
         }
       })
@@ -168,12 +161,12 @@ export default class SheetLinter extends EventEmitter {
       this.queue = newChecks.concat(revalidations).concat(this.queue)
       this.issueManager.clear('linter')
       //this.issues = []
-      this.emit('issues:changed')
+      //this.emit('issues:changed')
       this.start()
       // need to
-      this.editorSession.postpone(() => {
-        this._updateCommandStates()
-      })
+      // this.editorSession.postpone(() => {
+      //   this._updateCommandStates()
+      // })
     }
   }
 
