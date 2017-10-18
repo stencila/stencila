@@ -1,0 +1,19 @@
+/*
+Customisation of Plotly tool bar
+`.sc-plotly-value.js-plotly-plot` selector is necessary to override
+plotly defaults
+*/
+.sc-plotly-value.js-plotly-plot .plotly .modebar {
+  background: #000;
+  border-radius: 3px;
+  padding: 3px;
+}
+
+.sc-plotly-value.js-plotly-plot .plotly .modebar-btn path {
+  fill: #eee;
+}
+
+.sc-plotly-value.js-plotly-plot .plotly .modebar-btn.active path, 
+.sc-plotly-value.js-plotly-plot .plotly .modebar-btn:hover path {
+  fill: #777;
+}
