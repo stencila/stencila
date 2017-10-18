@@ -20,7 +20,6 @@ export default class SheetComponent extends CustomSurface {
     this._viewport = new SheetViewport(sheet, this)
     this._viewport.on('scroll', this._onViewportScroll, this)
     // internal state used during cell editing
-    this._isEditing = false
     this._cell = null
     // internal state used during selection
     this._isSelecting = false
@@ -33,13 +32,11 @@ export default class SheetComponent extends CustomSurface {
     }
     // state used to ignore events when dialog is open
     this._isShowingDialog = false
-
     return {}
   }
 
   didMount() {
     super.didMount()
-
     const editorSession = this.context.editorSession
     editorSession.on('render', this._onSelectionChange, this, {
       resource: 'selection'
@@ -51,12 +48,15 @@ export default class SheetComponent extends CustomSurface {
     this.refs.sheetView.update()
     // position selection overlays to reflect an initial selection
     this._positionOverlays()
+    this.context.cellEditorSession.on('editing:started', this._onCellEditingStarted, this)
+    this.context.cellEditorSession.on('editing:confirmed', this._onCellEditingConfirmed, this)
+    this.context.cellEditorSession.on('editing:cancelled', this._onCellEditingCancelled, this)
   }
 
   dispose() {
     super.dispose()
-
     this.context.editorSession.off(this)
+    this.context.cellEditorSession.off(this)
   }
 
   didUpdate() {
@@ -67,7 +67,6 @@ export default class SheetComponent extends CustomSurface {
     const sheet = this._getSheet()
     const viewport = this._viewport
     let el = $$('div').addClass('sc-sheet')
-
     let contentEl = $$('div').addClass('se-content').append(
       $$(SheetView, {
         sheet, viewport
@@ -135,11 +134,15 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _renderCellEditor($$) {
-    return $$(SheetCellEditor, { sheet: this._getSheet() })
+    return $$(SheetCellEditor, {
+      editorSession: this.context.cellEditorSession
+    })
       .ref('cellEditor')
-      .css('display', 'none')
-      .on('enter', this._onCellEditorEnter)
-      .on('escape', this._onCellEditorEscape)
+      .css({
+        position: 'absolute',
+        display: 'none',
+        top: 0, left: 0
+      })
   }
 
   _renderOverlay($$) {
@@ -437,12 +440,39 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView.getTargetForEvent(e)
   }
 
+  _onCellEditingStarted() {
+    let data = this._getSelection()
+    // Cell editing started somewhere else (ExpressionBar)
+    if (!this._cell) {
+      // We open the cell editor but without focussing it
+      this._openCellEditor(data.anchorRow, data.anchorCol)
+    }
+  }
+
+  _onCellEditingConfirmed() {
+    this._closeCellEditor()
+    this._nav(1, 0)
+  }
+
+  _onCellEditingCancelled() {
+    const cellEditor = this.refs.cellEditor
+    cellEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
+    this._cell = null
+
+    // HACK: resetting the selection
+    const editorSession = this.context.editorSession
+    editorSession.setSelection(editorSession.getSelection())
+  }
+
   /*
     This gets called when the user enters a cell.
     At this time it should be sure that the table cell
     is already rendered.
   */
-  _openCellEditor(rowIdx, colIdx) {
+  _openCellEditor(rowIdx, colIdx, withFocus) {
     const cellEditor = this.refs.cellEditor
     let td = this._getCellComponent(rowIdx, colIdx)
     let rect = getRelativeBoundingRect(td.el, this.el)
@@ -451,27 +481,34 @@ export default class SheetComponent extends CustomSurface {
     cellEditor.extendProps({ node: cell })
     cellEditor.css({
       display: 'block',
+      position: 'absolute',
       top: rect.top,
       left: rect.left,
       "min-width": rect.width+'px',
       "min-height": rect.height+'px'
     })
-    cellEditor.focus()
-    this._isEditing = true
+
+    if (withFocus) {
+      cellEditor.focus()
+    }
+
+    // this._isEditing = true
     this._cell = cell
   }
 
   _closeCellEditor() {
     const cellEditor = this.refs.cellEditor
     const cell = this._cell
+
+    let newVal = this.context.cellEditorSession.getValue()
     cellEditor.css({
       display: 'none',
       top: 0, left: 0
     })
     this.context.editorSession.transaction((tx) => {
-      tx.set(cell.getPath(), cellEditor.getValue())
+      tx.set(cell.getPath(), newVal)
     })
-    this._isEditing = false
+    // this._isEditing = false
     this._cell = null
   }
 
@@ -552,6 +589,7 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _onMousedown(e) {
+    let cellEditorSession = this.context.cellEditorSession
     // console.log('_onMousedown', e)
     e.stopPropagation()
     e.preventDefault()
@@ -560,12 +598,12 @@ export default class SheetComponent extends CustomSurface {
     this._hideMenus()
 
     // if editing a cell save the content
-    if (this._isEditing) {
+    if (cellEditorSession.isEditing) {
+      cellEditorSession.confirmEditing('silent')
       this._closeCellEditor()
     }
 
     // TODO: do not update the selection if right-clicked and already having a selection
-
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window.document).on('mouseup', this._onMouseup, this, {
         once: true
@@ -722,34 +760,17 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _onDblclick(e) {
-    if (!this._isEditing) {
+    if (!this.context.cellEditorSession.isEditing) {
       const sheetView = this.refs.sheetView
       let rowIdx = sheetView.getRowIndex(e.clientY)
       let colIdx = sheetView.getColumnIndex(e.clientX)
       if (rowIdx > -1 && colIdx > -1) {
-        this._openCellEditor(rowIdx, colIdx)
+        this._openCellEditor(rowIdx, colIdx, true)
       }
     }
   }
 
-  _onCellEditorEnter() {
-    this._closeCellEditor()
-    this._nav(1, 0)
-  }
 
-  _onCellEditorEscape() {
-    const cellEditor = this.refs.cellEditor
-    cellEditor.css({
-      display: 'none',
-      top: 0, left: 0
-    })
-    this._isEditing = false
-    this._cell = null
-
-    // HACK: resetting the selection
-    const editorSession = this.context.editorSession
-    editorSession.setSelection(editorSession.getSelection())
-  }
 
   _onContextMenu(e) {
     // console.log('_onContextMenu()', e)
@@ -796,7 +817,7 @@ export default class SheetComponent extends CustomSurface {
         break
       case keys.ENTER: {
         let data = this._getSelection()
-        this._openCellEditor(data.anchorRow, data.anchorCol)
+        this._openCellEditor(data.anchorRow, data.anchorCol, true)
         handled = true
         break
       }

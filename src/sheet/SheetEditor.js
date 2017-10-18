@@ -1,4 +1,4 @@
-import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
+import { platform, DefaultDOMElement, AbstractEditor, Toolbar, EditorSession, EventEmitter } from 'substance'
 import SheetLinter from './SheetLinter'
 import SheetStatusBar from './SheetStatusBar'
 
@@ -8,15 +8,25 @@ export default class SheetEditor extends AbstractEditor {
     super(...args)
 
     this.__onResize = this.__onResize.bind(this)
-
     const sheet = this.getDocument()
     this.linter = new SheetLinter(sheet, this.getEditorSession())
+    // _cellEditorDoc is used by cell editors (expression bar, or popover editor on enter)
+    this._cellEditorDoc = sheet.newInstance()
+    // Just adds one cell, used for text editing
+    this._cellEditorDoc._node = this._cellEditorDoc.createElement('cell')
+    this._cellEditorSession = new CellEditorSession(this._cellEditorDoc, {
+      // EXPERIMENTAL: trying to setup an editor session using the same CommandManager
+      // but working on a different doc
+      configurator: this.context.editorSession.configurator,
+      commandManager: this.context.editorSession.commandManager
+    })
   }
 
   getChildContext() {
     let editorSession = this.props.editorSession
     return Object.assign({}, super.getChildContext(), {
-      issueManager: editorSession.issueManager
+      issueManager: editorSession.issueManager,
+      cellEditorSession: this._cellEditorSession
     })
   }
 
@@ -152,6 +162,48 @@ export default class SheetEditor extends AbstractEditor {
   __onResize() {
     this._rafId = null
     this.refs.sheet.resize()
+  }
+
+}
+
+class CellEditorSession extends EditorSession {
+
+  /*
+    Triggered when a cell editor is focused
+  */
+  startEditing() {
+    if (!this.isEditing) {
+      this.isEditing = true
+      this.emit('editing:started')
+    }
+  }
+
+  /*
+    Triggered when cell editing is confirmed (e.g. enter is pressed in the cell editor)
+  */
+  confirmEditing(silent) {
+    if (this.isEditing) {
+      this.isEditing = false
+      if (!silent) this.emit('editing:confirmed')
+    }
+  }
+
+  /*
+    Triggered when cell editing is cancelled (e.g. escape is pressed in the cell editor)
+  */
+  cancelEditing() {
+    if (this.isEditing) {
+      this.isEditing = false
+      this.emit('editing:cancelled')
+    }
+  }
+
+  /*
+    Get the current value of the cell editor
+  */
+  getValue() {
+    let node = this.getDocument()._node
+    return node.getText()
   }
 
 }

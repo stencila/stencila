@@ -163,10 +163,6 @@
 }
 
 .sc-sheet-cell-editor {
-  display: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
   background: #fff;
   border: 2px solid #2684FC;
   cursor: text;

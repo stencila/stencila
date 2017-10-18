@@ -21,7 +21,6 @@ class RowsCommand extends Command {
       disabled: true
     }
   }
-
 }
 
 class ColsCommand extends Command {
@@ -223,17 +222,24 @@ export class SetTypeCommand extends Command {
 }
 
 
-/*
-  NOTE: type 'inherit' maps to undefined in the model
-*/
 export class EditCellExpressionCommand extends Command {
 
-  getCommandState(/*{ selection, editorSession }*/) {
-    return { disabled: false }
+  getCommandState({ selection, editorSession }) {
+    if (selection.isNull()) {
+      return { disabled: true }
+    }
+    let doc = editorSession.getDocument()
+    const { anchorRow, anchorCol } = selection.data
+    let anchorCell = doc.getCell(anchorRow, anchorCol)
+    let state = {
+      cellId: anchorCell.id,
+      disabled: false
+    }
+    return state
   }
 
   execute() {
-    // TODO: implement
+    // no execute
   }
 
 }
