@@ -491,8 +491,6 @@ export default class SheetComponent extends CustomSurface {
     if (withFocus) {
       cellEditor.focus()
     }
-
-    // this._isEditing = true
     this._cell = cell
   }
 
@@ -508,7 +506,6 @@ export default class SheetComponent extends CustomSurface {
     this.context.editorSession.transaction((tx) => {
       tx.set(cell.getPath(), newVal)
     })
-    // this._isEditing = false
     this._cell = null
   }
 
@@ -769,8 +766,6 @@ export default class SheetComponent extends CustomSurface {
       }
     }
   }
-
-
 
   _onContextMenu(e) {
     // console.log('_onContextMenu()', e)
