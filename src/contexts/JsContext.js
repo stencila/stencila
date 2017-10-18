@@ -1,8 +1,8 @@
-import {parse} from 'acorn'
-import {simple, base} from 'acorn/dist/walk'
+import { parse } from 'acorn'
+import { simple, base } from 'acorn/dist/walk'
+import { generate } from 'astring/src/astring'
 import { isFunction } from 'substance'
 
-import {pack, unpack} from '../value'
 import Context from './Context'
 import libcore from 'stencila-libcore'
 
@@ -18,105 +18,211 @@ export default class JsContext extends Context {
   constructor () {
     super()
 
+    // Global variable names that should be ignored when determining code input during `analyseCode()`
+    this._globals = [
+      // A list of ES6 globals obtained using:
+      //   const globals = require('globals')
+      //   JSON.stringify(Object.keys(globals.es6))
+      "Array","ArrayBuffer","Boolean","constructor","DataView","Date","decodeURI","decodeURIComponent",
+      "encodeURI","encodeURIComponent","Error","escape","eval","EvalError","Float32Array","Float64Array",
+      "Function","hasOwnProperty","Infinity","Int16Array","Int32Array","Int8Array","isFinite","isNaN",
+      "isPrototypeOf","JSON","Map","Math","NaN","Number","Object","parseFloat","parseInt","Promise",
+      "propertyIsEnumerable","Proxy","RangeError","ReferenceError","Reflect","RegExp","Set","String",
+      "Symbol","SyntaxError","System","toLocaleString","toString","TypeError","Uint16Array","Uint32Array",
+      "Uint8Array","Uint8ClampedArray","undefined","unescape","URIError","valueOf","WeakMap","WeakSet"
+    ]
+
     this._libs = {
       core: libcore
     }
   }
 
-
   /**
-   * Does the context support a programming language?
+   * Get the list of supported programming languages
    *
    * @override
    */
-  supportsLanguage (language) {
+  supportedLanguages () {
     return Promise.resolve(
-      language === 'js'
+      ['js']
     )
   }
 
   /**
-   * Run JavaScript code
+   * Analyse code and return the names of inputs, output and 
+   * implicitly returned value expression
    *
    * @override
    */
-  runCode (code = '') {
-    // Create a function from the code and execute it
-    let error = null
+  analyseCode (code, exprOnly = false, valueExpr = false) {
+    let inputs = []
+    let output = null
+    let value = null
+    let messages = []
+    
+    // Parse the code
+    let ast
     try {
-      (new Function(code))() // eslint-disable-line no-new-func
-    } catch (err) {
-      error = err
+      ast = parse(code)
+    } catch (error) {
+      messages.push(this._packError(error))
     }
 
-    let output
-    if (!error) {
-      // Evaluate the last line and if no error then make the value output
-      // This is inefficient in the sense that the last line is evaluated twice
-      // but alternative approaches would appear to require some code parsing
-      let lines = code.split('\n')
-      let last = lines[lines.length - 1]
-      try {
-        output = (new Function('return ' + last))() // eslint-disable-line no-new-func
-      } catch (err) {
-        output = undefined
+    if (messages.length === 0 && exprOnly) {
+      // Check for single expression only
+      let fail = false
+      if (ast.body.length > 1) fail = true
+      let first = ast.body[0]
+      if (!fail && first) {
+        let simpleExpr = false
+        if (first.type === 'ExpressionStatement') {
+          // Only allow simple expressions
+          // See http://esprima.readthedocs.io/en/latest/syntax-tree-format.html#expressions-and-patterns
+          // for a list of expression types
+          let dissallowed = ['AssignmentExpression', 'UpdateExpression', 'AwaitExpression', 'Super']
+          if (dissallowed.indexOf(first.expression.type) < 0) {
+            simpleExpr = true
+          }
+        }
+        fail = !simpleExpr
+      }
+      if (fail) messages.push(this._packError(new Error ('Code is not a single, simple expression')))
+    }
+
+    if (messages.length === 0) {
+      // Determine which names are declared and which are used
+      let declared = []
+      simple(ast, {
+        VariableDeclarator: node => {
+          declared.push(node.id.name)
+        },
+        Identifier: node => {
+          let name = node.name
+          if (declared.indexOf(name) < 0 && this._globals.indexOf(name) < 0) inputs.push(name)
+        }
+      }, base)
+
+      // If the last top level node in the AST is a VariableDeclaration or Identifier then use
+      // the variable name as the output name
+      let last = ast.body.pop()
+      if (last) {
+        if (last.type === 'VariableDeclaration') {
+          output = last.declarations[0].id.name
+          value = output
+        } else if (last.type === 'ExpressionStatement') {
+          if(last.expression.type === 'Identifier') {
+            output = last.expression.name 
+          }
+          value = generate(last)
+          if (value.slice(-1) === ';') value = value.slice(0, -1)
+        }
       }
     }
 
-    return Promise.resolve(
-      this._result(error, output)
-    )
-  }
-
-  /**
-   * Call JavaScript code
-   *
-   * @override
-   */
-  callCode (code = '', inputs = {}) {
-    // Extract names and values of inputs
-    let names = Object.keys(inputs)
-    let values = names.map(name => unpack(inputs[name]))
-
-    // Execute the function with the unpacked inputs.
-    let error = null
-    let output
-    try {
-      const f = new Function(...names, code) // eslint-disable-line no-new-func
-      output = f(...values)
-    } catch (err) {
-      error = err
+    let result = {
+      inputs,
+      output,
+      messages
     }
-
-    return Promise.resolve(
-      this._result(error, output)
-    )
+    if (valueExpr) result.value = value
+    return Promise.resolve(result)
   }
 
   /**
-   * Get the dependencies for a piece of code
+   * Execute JavaScript code
    *
    * @override
    */
-  codeDependencies (code) {
-    let names = {}
-    let ast = parse(code)
-    simple(ast, {
-      Identifier: node => {
-        let name = node.name
-        names[name] = Object.assign(names[name] || {}, {used: true})
-      },
-      VariableDeclarator: node => {
-        let name = node.id.name
-        names[name] = Object.assign(names[name] || {}, {declared: true})
+  executeCode (code = '', inputs = {}, exprOnly = false) {
+    return this.analyseCode(code, exprOnly, true).then(codeAnalysis => {
+      let inputNames = codeAnalysis.inputs
+      let outputName = codeAnalysis.output
+      let valueExpr = codeAnalysis.value
+      let value
+      let messages = codeAnalysis.messages
+      let stdout = ''
+      let stderr = ''
+
+      let errors = messages.filter(message => message.type === 'error').length
+      if (errors === 0) {
+        // Extract the names and values of inputs to be used as arguments
+        // (some inputs may be global and so their value in accessed directly from the function)
+        let argNames = []
+        let argValues = []
+        inputNames.forEach(name => {
+          let value = inputs[name]
+          if (typeof value === 'undefined') {
+            messages.push({
+              line: 0,
+              column: 0,
+              type: 'warn',
+              message: `Input variable "${name}" is not managed`
+            })
+          }
+          else {
+            argNames.push(name)
+            argValues.push(this._unpackValue(value))
+          }
+        })
+
+        // Capture console output functions
+        let captureConsole = {
+          log: function (txt) { stdout += txt },
+          info: function (txt) { stdout += txt },
+          warn: function (txt) { stdout += txt },
+          error: function (txt) { stderr += txt }
+        }
+        let nullConsole = {
+          log: function () {},
+          info: function () {},
+          warn: function () {},
+          error: function () {}
+        }
+
+        // Add the return value of function to the code
+        // (i.e. simulate implicit return)
+        // To prevent duplication of console output 
+        if (valueExpr) code += `;\nconsole=nullConsole;return ${valueExpr};`
+
+        // Execute the function with the unpacked inputs.
+        try {
+          const func = new Function(...argNames, 'console', 'nullConsole', code) // eslint-disable-line no-new-func
+          value = func(...argValues, captureConsole, nullConsole)
+        } catch (error) {
+          messages.push(this._packError(error))
+        }
       }
-    }, base)
-    let depends = []
-    for (let name in names) { // eslint-disable-line guard-for-in
-      let usage = names[name]
-      if (usage.used && !usage.declared) depends.push(name)
+
+      let streams = null
+      if (stdout.length || stderr.length) {
+        streams = {
+          stdout: stdout,
+          stderr: stderr
+        }
+      }
+
+      return {
+        inputs: inputNames,
+        output: outputName,
+        value: this._packValue(value),
+        messages: messages,
+        streams: streams
+      }
+    })
+  }
+
+  /**
+   * Does the context provide a function?
+   *
+   * @override
+   */
+  hasFunction (libName, functionName) {
+    let has = false
+    const lib = this._libs[libName]
+    if (lib) {
+      if (lib[functionName]) has = true
     }
-    return Promise.resolve(depends)
+    return Promise.resolve(has)
   }
 
   /**
@@ -135,56 +241,77 @@ export default class JsContext extends Context {
 
     if (!isFunction(func)) throw new Error(`Registered function with name ${functionName} is invalid!`)
 
-    let values = args.map(arg => unpack(arg))
+    let values = args.map(arg => this._unpackValue(arg))
 
-    let error = null
+    let messages = []
     let value
     try {
       value = func(...values)
-    } catch (e) {
-      error = e
+    } catch (error) {
+      messages.push(this._packError(error))
     }
 
-    return Promise.resolve(
-      this._result(error, value)
-    )
+    return Promise.resolve({
+      messages: messages,
+      value: this._packValue(value)
+    })
   }
 
   /**
-   * Return a result promise
-   *
-   * @param {object} error - Error object, if any
-   * @param {object} value - The value to be packed
-   * @return {null|object} - A set of errors by line number
+   * Unpack a value passed from the `Engine` or another `Context`
    */
-  _result (error, value) {
-    let errors = null
-    if (error) {
-      // Parse the error stack to get message and line number
+  _unpackValue (packed) {
+    let type = packed.type
+    return packed.data
+  }
+
+  /**
+   * Pack a value for passing to `Engine` or another `Context`
+   */
+  _packValue (value) {
+    if (value === undefined) return null
+    
+    let type = libcore.type(value)
+    return {
+      type: type,
+      data: value
+    }
+  }
+
+  /**
+   * Pack an error into a {line, column, type, message} record
+   *
+   * @param {Error} error - Error object
+   * @return {Object} - Error record
+   */
+  _packError (error) {
+    let line = 0
+    let column = 0
+    let message
+
+    if (error instanceof SyntaxError && error.loc) {
+      // Get message, line and columns numbers
+      line = error.loc.line
+      column = error.loc.column
+      message = 'SyntaxError: ' + error.message
+    } else if (error.stack) {
+      // Parse the error stack to get message, line and columns numbers
       let lines = error.stack.split('\n')
       let match = lines[1].match(/<anonymous>:(\d+):(\d+)/)
-      let line = 0
-      let column = 0
       if (match) {
-        line = parseInt(match[1], 10) - 1
+        line = parseInt(match[1], 10) - 2
         column = parseInt(match[2], 10)
       }
-      let message = lines[0] || error.message
-
-      errors = [{
-        line: line,
-        column: column,
-        message: message
-      }]
+      message = lines[0] || error.message
+    } else {
+      message = error.message
     }
 
-    let output
-    if (value === undefined) output = null
-    else output = pack(value)
-
     return {
-      errors: errors,
-      output: output
+      line: line,
+      column: column,
+      type: 'error',
+      message: message
     }
   }
 
