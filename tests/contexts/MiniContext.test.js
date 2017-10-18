@@ -50,7 +50,6 @@ test('MiniContext: foo()', t => {
   let c = setupContextWithFunctions()
   t.plan(1)
   c.executeCode('foo()').then((res) => {
-    let val = res
-    t.equal(val, 'foo', 'result should be correct')
+    t.equal(res.data, 'foo', 'result should be correct')
   })
 })

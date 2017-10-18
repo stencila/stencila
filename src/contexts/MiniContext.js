@@ -73,14 +73,14 @@ export default class MiniContext {
     let args = []
     if (funcNode.args) {
       args = funcNode.args.map((arg) => {
-        return pack(arg.getValue())
+        return arg.getValue()
       })
     }
     // For named arguments, just use the name and the value
     let namedArgs = {}
     if (funcNode.namedArgs) {
       for (let arg of funcNode.namedArgs) {
-        namedArgs[arg.name] = pack(arg.getValue())
+        namedArgs[arg.name] = arg.getValue()
       }
     }
     return _unwrapResult(
@@ -127,15 +127,11 @@ export default class MiniContext {
 
 
 function _unwrapResult(funcNode, p, options) {
-  const pack = options.pack !== false
   return p.then((res) => {
-    if (res.errors) {
-      funcNode.addErrors(res.errors)
+    if (res.messages && res.messages.length > 0) {
+      funcNode.addErrors(res.messages)
       return undefined
     }
-    if (res.output) {
-      const output = pack ? unpack(res.output) : res.output
-      return output
-    }
+    return res.value
   })
 }
