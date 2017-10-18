@@ -6,7 +6,7 @@
   "jsnext:main": "index.es.js",
   "scripts": {
     "prepublish": "node make",
-    "lint": "eslint *.js src tests",
+    "lint": "eslint src tests",
     "test": "node make test",
     "test-browser": "node make test:browser -w",
     "test-one": "node make test:one -f",
