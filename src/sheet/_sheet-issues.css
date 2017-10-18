@@ -1,0 +1,82 @@
+.sc-sheet-statusbar {
+  display: flex;
+  padding: 2px;
+  -webkit-box-shadow: 3px 3px 3px 3px #ccc;
+  -moz-box-shadow: 3px 3px 3px 3px #ccc;
+  box-shadow: 3px 3px 3px 3px #ccc;
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter {
+  display: flex;
+  flex: 1 1 0;
+}
+
+.sc-sheet-statusbar .sc-toolbar {
+  flex: 0 0 0;
+  display: flex;
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list {
+  margin: 2px;
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list.sm-active {
+  background: #dedede;
+  color: inherit;
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon {
+  margin-right: 5px;
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon.se-errors-counter.sm-highlighted {
+  color: var(--sheet-error-color);
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon.se-warnings-counter.sm-highlighted {
+  color: var(--sheet-warning-color);
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon .se-label {
+  margin-left: 3px;
+}
+
+.sc-sheet-issues-list {
+  padding: 4px 0px;
+  font-size: 14px;
+  border: 1px solid #ededed;
+}
+
+.sc-sheet-issues-list .sc-cell-issue {
+  padding: 2px 5px;
+}
+
+.sc-sheet-issues-list > .sc-cell-issue + .sc-cell-issue {
+  margin-top: 5px;
+}
+
+.sc-sheet-issues-list .sc-cell-issue > * {
+  display: inline-block;
+}
+
+.sc-sheet-issues-list .sc-cell-issue > * + * {
+  margin-left: 5px;
+}
+
+.sc-sheet-issues-list .sc-cell-issue > .se-cell-name {
+  padding: 0px 20px 0px 6px;
+}
+
+.sc-sheet-issues-list .sc-cell-issue > .se-title::after {
+  content: ': ';
+}
+
+.sc-sheet-issues-list .sc-cell-issue.sm-error,
+.sc-sheet-issues-list .sc-cell-issue-overlay.sm-error {
+  color: var(--sheet-error-color);
+}
+
+.sc-cell-issue.sm-warning,
+.sc-cell-issue-overlay.sm-warning {
+  color: var(--sheet-warning-color);
+}
