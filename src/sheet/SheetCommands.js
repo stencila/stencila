@@ -164,6 +164,9 @@ export class SetLanguageCommand extends Command {
     }
     let doc = editorSession.getDocument()
     const { anchorRow, anchorCol } = selection.data
+    if(anchorRow === -1 || anchorCol === -1) {
+      return { disabled: true }
+    }
     let anchorCell = doc.getCell(anchorRow, anchorCol)
     let language = anchorCell.attr('language')
     let state = {
@@ -196,6 +199,9 @@ export class SetTypeCommand extends Command {
     let labelProvider = editorSession.getConfigurator().getLabelProvider()
     let doc = editorSession.getDocument()
     const { anchorRow, anchorCol } = selection.data
+    if(anchorRow === -1 || anchorCol === -1) {
+      return { disabled: true }
+    }
     let anchorCell = doc.getCell(anchorRow, anchorCol)
     let columnMeta = doc.getColumnForCell(anchorCell.id)
     let columnType = columnMeta.attr('type')
@@ -230,6 +236,9 @@ export class EditCellExpressionCommand extends Command {
     }
     let doc = editorSession.getDocument()
     const { anchorRow, anchorCol } = selection.data
+    if(anchorRow === -1 || anchorCol === -1) {
+      return { disabled: true }
+    }
     let anchorCell = doc.getCell(anchorRow, anchorCol)
     let state = {
       cellId: anchorCell.id,
