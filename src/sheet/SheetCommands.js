@@ -77,7 +77,7 @@ class ColumnMetaCommand extends Command {
 }
 
 function insertRows({editorSession, selection, commandState}, mode) {
-  const sel = selection.data
+  //const sel = selection.data
   const refRow = mode === 'above' ?
     commandState.startRow :
     commandState.endRow + 1
@@ -91,7 +91,7 @@ function insertRows({editorSession, selection, commandState}, mode) {
 
 
 function insertCols({editorSession, selection, commandState}, mode) {
-  const sel = selection.data
+  //const sel = selection.data
   const refCol = mode === 'left' ?
     commandState.startCol :
     commandState.endCol + 1
@@ -101,58 +101,56 @@ function insertCols({editorSession, selection, commandState}, mode) {
   })
 }
 
-function deleteRows({editorSession, selection, commandState}) {
-  const sel = selection.data
+function deleteRows({editorSession, commandState}) {
   editorSession.transaction((tx) => {
     tx.getDocument().deleteRows(commandState.startRow, commandState.endRow)
   })
 }
 
-function deleteColumns({editorSession, selection, commandState}) {
-  const sel = selection.data
+function deleteColumns({editorSession, commandState}) {
   editorSession.transaction((tx) => {
     tx.getDocument().deleteColumns(commandState.startCol, commandState.endCol)
   })
 }
 
 export class InsertRowsAbove extends RowsCommand {
-  execute(params, context) {
+  execute(params) {
     insertRows(params, 'above')
   }
 }
 
 export class InsertRowsBelow extends RowsCommand {
-  execute(params, context) {
+  execute(params) {
     insertRows(params, 'below')
   }
 }
 
 export class DeleteRows extends RowsCommand {
-  execute(params, context) {
+  execute(params) {
     deleteRows(params)
   }
 }
 
 export class InsertColumnsLeft extends ColsCommand {
-  execute(params, context) {
+  execute(params) {
     insertCols(params, 'left')
   }
 }
 
 export class InsertColumnsRight extends ColsCommand {
-  execute(params, context) {
+  execute(params) {
     insertCols(params, 'right')
   }
 }
 
 export class DeleteColumns extends ColsCommand {
-  execute(params, context) {
+  execute(params) {
     deleteColumns(params)
   }
 }
 
 export class OpenColumnSettings extends ColumnMetaCommand {
-  execute(params, context) {
+  execute(params) {
     // NOTE: when the OpenColumnSettings command is active
     // params.surface is the corresponding SheetComponent
     params.surface.openColumnSettings(params)

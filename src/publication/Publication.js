@@ -1,4 +1,4 @@
-import { EditorSession, DefaultDOMElement, Component, forEach } from 'substance'
+import { EditorSession, DefaultDOMElement, Component } from 'substance'
 import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
 import PublicationManifest from './PublicationManifest'
 import Engine from '../engine/Engine'

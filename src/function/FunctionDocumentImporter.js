@@ -36,6 +36,7 @@ export default class FunctionDocumentImporter extends XMLDocumentImporter {
       case 'implems':
       case 'tests':
         return type
+      default:
     }
     return super._getIdForElement(el, type)
   }

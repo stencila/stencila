@@ -57,6 +57,6 @@ class CellIssueComponent extends Component {
 
   _onClick(e) {
     stopAndPrevent(e)
-    console.log('Clicked on issue', this.props.issue)
+    //console.log('Clicked on issue', this.props.issue)
   }
 }
