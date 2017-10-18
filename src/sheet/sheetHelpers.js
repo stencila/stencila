@@ -17,6 +17,12 @@ export function getColumnLabel(colIdx) {
   return label
 }
 
+export function getCellLabel(rowIdx, colIdx) {
+  let colLabel = getColumnLabel(colIdx)
+  let rowLabel = rowIdx + 1
+  return colLabel + rowLabel
+}
+
 export function getColumnIndex(colStr) {
   var index = 0
   var rank = 1
