@@ -97,6 +97,9 @@
       <ref name="sheet:data-type"/>
     </optional>
     <optional>
+      <ref name="sheet:data-language"/>
+    </optional>
+    <optional>
       <!-- some types, particularly number often have a unit -->
       <ref name="sheet:data-unit"/>
     </optional>
@@ -110,6 +113,16 @@
         <value>number</value>
         <value>integer</value>
         <value>boolean</value>
+      </choice>
+    </attribute>
+  </define>
+
+  <define name="sheet:data-language">
+    <attribute name="language">
+      <choice>
+        <value>js</value>
+        <value>py</value>
+        <value>r</value>
       </choice>
     </attribute>
   </define>

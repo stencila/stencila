@@ -50,13 +50,6 @@ export default {
         commandGroups: ['edit-cell-expression']
       },
       {
-        name: 'undo-redo',
-        type: 'tool-group',
-        showDisabled: true,
-        style: 'minimal',
-        commandGroups: ['undo-redo']
-      },
-      {
         name: 'annotations',
         type: 'tool-group',
         showDisabled: true,
@@ -83,7 +76,14 @@ export default {
         style: 'descriptive',
         showDisabled: false,
         commandGroups: ['cell-languages']
-      }
+      },
+      {
+        name: 'undo-redo',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'minimal',
+        commandGroups: ['undo-redo']
+      },
     ])
 
     config.addToolPanel('statusbar', [
@@ -138,33 +138,40 @@ export default {
     config.addTool('edit-cell-expression', EditCellExpressionTool)
 
     // Cell Languages
-    config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-languages' })
+    config.addCommand('set-mini', SetLanguageCommand, { language: undefined, commandGroup: 'cell-languages' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-languages' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-languages' })
     config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-languages' })
 
+    config.addLabel('cell-languages', 'Choose Language')
     config.addLabel('set-mini', 'Mini')
     config.addLabel('set-js', 'Javascript')
     config.addLabel('set-py', 'Python')
     config.addLabel('set-r', 'R')
 
     // Cell Types
-    config.addCommand('set-none', SetTypeCommand, { type: undefined, commandGroup: 'cell-types' })
+    config.addCommand('set-inherit', SetTypeCommand, { type: undefined, commandGroup: 'cell-types' })
     config.addCommand('set-any', SetTypeCommand, { type: 'any', commandGroup: 'cell-types' })
     config.addCommand('set-string', SetTypeCommand, { type: 'string', commandGroup: 'cell-types' })
     config.addCommand('set-number', SetTypeCommand, { type: 'number', commandGroup: 'cell-types' })
     config.addCommand('set-integer', SetTypeCommand, { type: 'integer', commandGroup: 'cell-types' })
     config.addCommand('set-boolean', SetTypeCommand, { type: 'boolean', commandGroup: 'cell-types' })
 
-
     config.addLabel('cell-types', 'Choose Cell Type')
-    config.addLabel('set-none', 'None')
-    config.addLabel('set-inherit', 'Inherit')
+    config.addLabel('set-inherit', 'Inherited (${columnType})')
     config.addLabel('set-any', 'Any')
     config.addLabel('set-string', 'String')
     config.addLabel('set-number', 'Number')
     config.addLabel('set-integer', 'Integer')
     config.addLabel('set-boolean', 'Boolean')
+
+    // Labels for types
+    config.addLabel('any', 'Any')
+    config.addLabel('string', 'String')
+    config.addLabel('number', 'Number')
+    config.addLabel('integer', 'Integer')
+    config.addLabel('boolean', 'Boolean')
+
 
     // Cell values
     config.addComponent('value:boolean', BooleanValueComponent)
