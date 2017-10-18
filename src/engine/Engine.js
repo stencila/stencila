@@ -1,15 +1,12 @@
 import { isArray, isNil, map } from 'substance'
-import { BaseEngine, parse as parseExpression } from 'stencila-mini'
+import { parse as parseExpression } from 'stencila-mini'
 import { pack, unpack, type } from '../value'
 import JsContext from '../contexts/JsContext'
 
 export default
-class Engine extends BaseEngine {
+class Engine {
 
   constructor(host, functionManager, options = {}) {
-    super(Object.assign({
-      waitForIdle: 500
-    }, options))
 
     this.host = host
     this.functionManager = functionManager
