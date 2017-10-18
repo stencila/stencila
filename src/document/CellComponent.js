@@ -1,5 +1,4 @@
 import { NodeComponent } from 'substance'
-import CodeEditorComponent from '../shared/CodeEditorComponent'
 import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
@@ -55,7 +54,6 @@ class CellComponent extends NodeComponent {
     if (this.state.showCode) {
       let expr = engine.getExpression(cellId)
       let mini = findMini(cell)
-      let source = findSource(cell)
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
         $$('div').addClass('se-expression').append(
@@ -67,15 +65,6 @@ class CellComponent extends NodeComponent {
             .on('escape', this._onEscapeFromCodeEditor)
         )
       )
-      if (expr && expr.external) {
-        cellEditorContainer.append(
-          $$(CodeEditorComponent, {
-            path: source.getPath(),
-            language: expr.context
-          }).ref('sourceCodeEditor')
-            .on('escape', this._onEscapeFromCodeEditor)
-        )
-      }
       el.append(cellEditorContainer)
       el.append(
         $$(CellErrorDisplay, {cell})
