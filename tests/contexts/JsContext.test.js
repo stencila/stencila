@@ -20,20 +20,6 @@ test('JsContext.supportedLanguages', t => {
   })
 })
 
-test('JsContext.supportsLanguage', t => {
-  let c = new JsContext()
-
-  t.plan(2)
-
-  c.supportsLanguage('js').then(result => {
-    t.equal(result, true)
-  })
-
-  c.supportsLanguage('py').then(result => {
-    t.equal(result, false)
-  })
-})
-
 test('JsContext.analyseCode', t => {
   let c = new JsContext()
   t.plan(10)
@@ -232,7 +218,7 @@ test('JsContext.executeCode value is multiline', t => {
   t.plan(1)
 
   c.executeCode(`let x = {
-    a: 1, 
+    a: 1,
     b: "foo"
   }`).then(result => {
     t.deepEqual(result, {
