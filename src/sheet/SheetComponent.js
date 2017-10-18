@@ -85,7 +85,8 @@ export default class SheetComponent extends CustomSurface {
     el.append(
       $$('textarea').addClass('se-keytrap').ref('keytrap')
         .css({ position: 'absolute', width: 0, height: 0 })
-        .on('keydown', this._onKeyDown),
+        .on('keydown', this._onKeyDown)
+        .on('input', this._onInput),
       contentEl,
       this._renderOverlay($$),
       this._renderCellEditor($$),
@@ -472,13 +473,13 @@ export default class SheetComponent extends CustomSurface {
     At this time it should be sure that the table cell
     is already rendered.
   */
-  _openCellEditor(rowIdx, colIdx, withFocus) {
+  _openCellEditor(rowIdx, colIdx, withFocus, initialVal) {
     const cellEditor = this.refs.cellEditor
     let td = this._getCellComponent(rowIdx, colIdx)
     let rect = getRelativeBoundingRect(td.el, this.el)
     let cellComp = td.getChildAt(0)
     let cell = cellComp.props.node
-    cellEditor.extendProps({ node: cell })
+    cellEditor.extendProps({ node: cell, initialVal })
     cellEditor.css({
       display: 'block',
       position: 'absolute',
@@ -488,10 +489,10 @@ export default class SheetComponent extends CustomSurface {
       "min-height": rect.height+'px'
     })
 
+    this._cell = cell
     if (withFocus) {
       cellEditor.focus()
     }
-    this._cell = cell
   }
 
   _closeCellEditor() {
@@ -789,6 +790,14 @@ export default class SheetComponent extends CustomSurface {
       default:
         //
     }
+  }
+
+  /*
+    Type into cell (replacing the existing content)
+  */
+  _onInput(e) {
+    let data = this._getSelection()
+    this._openCellEditor(data.anchorRow, data.anchorCol, true, e.data)
   }
 
   _onKeyDown(e) {
