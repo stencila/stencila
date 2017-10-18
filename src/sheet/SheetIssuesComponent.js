@@ -15,22 +15,24 @@ export default class SheetIssuesComponent extends Component {
   render($$) {
     const issueManager = this.context.issueManager
     const issues = issueManager.getAllIssues()
+    const cellId = this.props.cellId
     let el = $$('div').addClass('sc-sheet-issues-list')
     forEach(issues, (issue) => {
-      el.append(this._renderIssue($$, issue))
+      let highlighted = issue.cellId === cellId
+      el.append(this._renderIssue($$, issue, highlighted))
     })
     return el
   }
 
-  _renderIssue($$, issue) {
-    return $$(CellIssueComponent, { issue })
+  _renderIssue($$, issue, highlighted) {
+    return $$(CellIssueComponent, { issue, highlighted: highlighted })
   }
-
 }
 
 class CellIssueComponent extends Component {
   render($$) {
     const issue = this.props.issue
+    const highlighted = this.props.highlighted
     const doc = this.context.doc
     let el = $$('div').addClass('sc-cell-issue')
     let severity = 'info'
@@ -40,6 +42,9 @@ class CellIssueComponent extends Component {
       severity = 'error'
     }
     el.addClass(`sm-${severity}`)
+    if(highlighted) {
+      el.addClass('sm-highlighted')
+    }
     let cellName = $$('div').addClass('se-cell-name')
       .text(doc.getCellLabel(issue.cellId))
     let title = $$('div').addClass('se-title')
@@ -57,6 +62,8 @@ class CellIssueComponent extends Component {
 
   _onClick(e) {
     stopAndPrevent(e)
-    //console.log('Clicked on issue', this.props.issue)
+    let issue = this.props.issue
+    let editor = this.context.editor
+    editor.setSelectionOnCell(issue.cellId)
   }
 }

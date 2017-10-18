@@ -49,6 +49,7 @@
 
 .sc-sheet-issues-list .sc-cell-issue {
   padding: 2px 5px;
+  cursor: pointer;
 }
 
 .sc-sheet-issues-list > .sc-cell-issue + .sc-cell-issue {
@@ -65,6 +66,11 @@
 
 .sc-sheet-issues-list .sc-cell-issue > .se-cell-name {
   padding: 0px 20px 0px 6px;
+  width: 40px;
+}
+
+.sc-sheet-issues-list .sc-cell-issue.sm-highlighted > .se-cell-name {
+  border-left: 3px dashed var(--sheet-error-color);
 }
 
 .sc-sheet-issues-list .sc-cell-issue > .se-title::after {
