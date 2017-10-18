@@ -146,6 +146,9 @@ export default class Publication extends Component {
           // the cell engine
           let engineAdapter = new DocumentEngineAdapter(editorSession)
           engineAdapter.connect(this.engine)
+          // HACK: we use the editorSession to propagate
+          // pseudo DocumentChanges after node state changes
+          this.engine.editorSession = editorSession
           // TODO: we need to load all resources (docs and assets)
           // as there might be cross references
           // the engine should be updated once all resources have been

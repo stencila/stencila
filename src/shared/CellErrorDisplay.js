@@ -1,5 +1,5 @@
 import { Component } from 'substance'
-import { getCellState } from './cellHelpers'
+import { getCellState } from './cellHelpers'
 
 export default
 class CellErrorDisplay extends Component {
@@ -21,11 +21,10 @@ class CellErrorDisplay extends Component {
 
     let errorsEl = $$('div').addClass('se-errors')
     if (cellState.hasErrors()) {
-      cellState.errors.forEach((err) => {
-        errorsEl.append(
+      cellState.messages.forEach((err) => {errorsEl.append(
           $$('div').addClass('se-error').append(
             'Error: ',
-            err.msg
+            err.message
           )
         )
       })

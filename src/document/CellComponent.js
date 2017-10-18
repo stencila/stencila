@@ -57,6 +57,7 @@ class CellComponent extends NodeComponent {
           $$(MiniLangEditor, {
             path: source.getPath(),
             excludedCommands: this._getBlackListedCommands(),
+            tokens: cellState.tokens
           }).ref('expressionEditor')
             .on('escape', this._onEscapeFromCodeEditor)
         )

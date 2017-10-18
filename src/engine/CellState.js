@@ -4,12 +4,6 @@ const INITIAL = Symbol('initial')
 const ANALYSED = Symbol('analysed')
 const EVALUATED = Symbol('evaluated')
 
-const TRANSITIONS = {
-  INITIAL: { ANALYSED },
-  ANALYSED: { INITIAL, EVALUATED },
-  EVALUATED: { INITIAL, ANALYSED }
-}
-
 /*
   Managed by Engine.
 */
@@ -27,21 +21,8 @@ export default class CellState extends EventEmitter {
     this.value = null
   }
 
-  transitionTo(newState) {
-    const oldState = this.state
-    const T = TRANSITIONS[oldState]
-    if (!T) throw new Error(`Invalid State: ${oldState}`)
-    if (!T[newState]) throw new Error(`Invalid Transition: ${oldState} -> ${newState}`)
-    if (this.onchange) {
-      this.onchange(newState, oldState)
-    } else {
-      this.emit('change', newState, oldState)
-    }
-  }
-
   hasErrors() {
-    // TODO
-    return false
+    return this.messages && this.messages.length > 0
   }
 
   hasOutput() {
@@ -58,4 +39,4 @@ export default class CellState extends EventEmitter {
 
 }
 
-export { Cell, INITIAL, ANALYSED, EVALUATED }
+export { CellState, INITIAL, ANALYSED, EVALUATED }

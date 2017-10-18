@@ -1,6 +1,8 @@
 import { uuid } from 'substance'
 import { getCellState } from '../shared/cellHelpers'
 import { INITIAL, ANALYSED } from './CellState'
+// HACK: using DocumentChange to communicate node state changes
+import { DocumentChange } from 'substance'
 
 export default class Engine {
 
@@ -30,11 +32,12 @@ export default class Engine {
   }
 
   updateCell(cellId) {
-    console.log('updating cell', cellId)
+    // console.log('updating cell', cellId)
     let cell = this._getCell(cellId)
     let cellState = getCellState(cell)
     cellState.state = INITIAL
-    // TODO notify
+    this._notifyCell(cell)
+
     this._analyse(cell)
   }
 
@@ -53,18 +56,6 @@ export default class Engine {
     return cell
   }
 
-  _setCellState(cellId, newState) {
-    let cell = this._getCell(cellId)
-    let cellState = getCellState(cell)
-    if (cellState.state === newState) {
-      return
-    }
-    if (newState === INITIAL) {
-      cellState.state = INITIAL
-      this._analyse(cell)
-    }
-  }
-
   _analyse(cell) {
     let cellState = getCellState(cell)
     let lang = cell.language
@@ -73,21 +64,37 @@ export default class Engine {
       cellState.messages = [{
         message: `Context ${lang} is not available`
       }]
+      this._notifyCell(cell)
     } else {
       let token = uuid()
       this._tokens[cell.id] = token
       let source = cell.source || ''
       context.analyseCode(source).then((res) => {
         if (this._tokens[cell.id] !== token) return
+        // console.log('ANALYSED cell', cell, res)
 
         cellState.state = ANALYSED
         cellState.inputs = res.inputs
         cellState.output = res.output
         cellState.messages = res.messages
-
-        console.log('ANALYSED cell', cell, cellState)
+        cellState.tokens = res.tokens
+        this._notifyCell(cell)
       })
     }
+  }
+
+  _notifyCell(cell) {
+    setTimeout(() => {
+      const editorSession = this.editorSession
+      if (!editorSession) return
+      editorSession._setDirty('document')
+      let change = new DocumentChange([], {}, {})
+      change._extractInformation()
+      change.updated[cell.id] = true
+      editorSession._change = change
+      editorSession._info = {}
+      editorSession.startFlow()
+    })
   }
 
 }

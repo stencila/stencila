@@ -6,7 +6,7 @@ const READY = Symbol('ready')
 const ERROR = Symbol('error')
 
 const TRANSITIONS = {
-  INITIAL: { PENDING },
+  INITIAL: { PENDING },
   PENDING: { INITIAL, READY, ERROR },
   READY: { PENDING },
   ERROR: { PENDING }
@@ -18,6 +18,8 @@ const TRANSITIONS = {
 export default class Value extends EventEmitter {
 
   constructor() {
+    super()
+
     this.state = INITIAL
   }
 

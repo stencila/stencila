@@ -47,10 +47,9 @@ export default class DocumentEngineAdapter {
     - input value is changed
   */
   _onDocumentChange(change) {
-    const engine = this.engine
     const doc = this.doc
     const ops = change.ops
-    let needsUpdate = false
+    // let needsUpdate = false
     for (let i = 0; i < ops.length; i++) {
       const op = ops[i]
       switch (op.type) {
@@ -58,14 +57,14 @@ export default class DocumentEngineAdapter {
           let node = doc.get(op.path[0])
           if (node && this._onCreate(node)) {
             // console.log('detected cell creation')
-            needsUpdate = true
+            // needsUpdate = true
           }
           break
         }
         case 'delete': {
           if (this._onDelete(op.val)) {
             // console.log('detected cell deletion')
-            needsUpdate = true
+            // needsUpdate = true
           }
           break
         }
@@ -74,7 +73,7 @@ export default class DocumentEngineAdapter {
           let node = doc.get(op.path[0])
           if (this._onChange(node, op)) {
             // console.log('detected cell update')
-            needsUpdate = true
+            // needsUpdate = true
           }
           break
         }
@@ -109,7 +108,7 @@ export default class DocumentEngineAdapter {
     return false
   }
 
-  _onChange(node, op) {
+  _onChange(node) {
     const engine = this.engine
     if (node.type === 'source-code') {
       let cell = node.parentNode
