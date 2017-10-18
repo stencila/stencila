@@ -25,6 +25,7 @@ import ObjectValueComponent from '../shared/ObjectValueComponent'
 import TableValueComponent from '../shared/TableValueComponent'
 import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
+import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import IssueManager from './IssueManager'
 
@@ -183,6 +184,7 @@ export default {
     config.addComponent('value:table', TableValueComponent)
     config.addComponent('value:test', TestValueComponent)
     config.addComponent('value:image', ImageValueComponent)
+    config.addComponent('value:plotly', PlotlyValueComponent)
 
 
     config.addComponent('sheet', SheetComponent)
