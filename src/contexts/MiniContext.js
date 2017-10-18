@@ -90,6 +90,49 @@ export default class MiniContext {
     )
   }
 
+  // used to create Stencila Values
+  // such as { type: 'number', data: 5 }
+  marshal(type, val) {
+    return {
+      type, data: val
+    }
+  }
+
+  plus(left, right) {
+    return {
+      type: 'number',
+      data: left.data + right.data
+    }
+  }
+
+  minus(left, right) {
+    return {
+      type: 'number',
+      data: left.data - right.data
+    }
+  }
+
+  multiply(left, right) {
+    return {
+      type: 'number',
+      data: left.data * right.data
+    }
+  }
+
+  divide(left, right) {
+    return {
+      type: 'number',
+      data: left.data / right.data
+    }
+  }
+
+  pow(left, right) {
+    return {
+      type: 'number',
+      data: Math.pow(left.data, right.data)
+    }
+  }
+
   _analyseCode(code) {
     let expr = parse(code)
     let inputs, output
@@ -114,11 +157,8 @@ export default class MiniContext {
     return new Promise((resolve, reject) => {
       expr.on('evaluation:finished', (val) => {
         expr.off('evaluation:finished')
-        // TODO: pack result
         resolve(val)
       })
-      // TODO: we need an adapter which dispatches functions and resolves
-      // variables
       expr.context = this
       expr.propagate()
     })
