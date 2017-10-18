@@ -5,6 +5,7 @@ import { isFunction } from 'substance'
 
 import Context from './Context'
 import libcore from 'stencila-libcore'
+import { type as getType } from '../value'
 
 /**
  * A Javascript context
@@ -261,7 +262,6 @@ export default class JsContext extends Context {
    * Unpack a value passed from the `Engine` or another `Context`
    */
   _unpackValue(packed) {
-    //let type = packed.type
     return packed.data
   }
 
@@ -270,8 +270,7 @@ export default class JsContext extends Context {
    */
   _packValue (value) {
     if (value === undefined) return null
-
-    let type = libcore.type(value)
+    let type = getType(value)
     return {
       type: type,
       data: value
