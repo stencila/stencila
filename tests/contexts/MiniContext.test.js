@@ -46,16 +46,18 @@ test('MiniContext: 1+2+3', t => {
 
 test('MiniContext: foo()', t => {
   let c = setupContextWithFunctions()
-  t.plan(1)
+  t.plan(2)
   c.executeCode('foo()').then((res) => {
+    t.equal(res.type, 'integer', 'type should be correct')
     t.equal(res.data, 5, 'result should be correct')
   })
 })
 
 test('MiniContext: foo() + 1', t => {
   let c = setupContextWithFunctions()
-  t.plan(1)
+  t.plan(2)
   c.executeCode('foo() + 1').then((res) => {
+    t.equal(res.type, 'integer', 'type should be correct')
     t.equal(res.data, 6, 'result should be correct')
   })
 })

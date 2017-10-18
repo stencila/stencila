@@ -1,4 +1,5 @@
 import { parse } from 'stencila-mini'
+import libcore from 'stencila-libcore'
 
 export default class MiniContext {
 
@@ -91,45 +92,61 @@ export default class MiniContext {
 
   // used to create Stencila Values
   // such as { type: 'number', data: 5 }
-  marshal(type, val) {
+  marshal(type, value) {
+    // TODO: maybe there are more cases where we want to
+    // cast the type according to the value
+    if (type === 'number') {
+      type = libcore.type(value)
+    }
     return {
-      type, data: val
+      type,
+      data: value
     }
   }
 
   plus(left, right) {
     return {
-      type: 'number',
+      type: this._numericType(left, right),
       data: left.data + right.data
     }
   }
 
   minus(left, right) {
     return {
-      type: 'number',
+      type: this._numericType(left, right),
       data: left.data - right.data
     }
   }
 
   multiply(left, right) {
     return {
-      type: 'number',
+      type: this._numericType(left, right),
       data: left.data * right.data
     }
   }
 
   divide(left, right) {
     return {
-      type: 'number',
+      type: this._numericType(left, right),
       data: left.data / right.data
     }
   }
 
   pow(left, right) {
     return {
-      type: 'number',
+      type: this._numericType(left, right),
       data: Math.pow(left.data, right.data)
     }
+  }
+
+  _numericType(left, right) {
+    let type
+    if (left.type === 'integer' && right.type === 'integer') {
+      type = 'integer'
+    } else {
+      type = 'number'
+    }
+    return type
   }
 
   _analyseCode(code) {
