@@ -6,7 +6,7 @@ import SheetComponent from './SheetComponent'
 import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
-  OpenColumnSettings, ToggleSheetIssues, SetLanguageCommand,
+  OpenColumnSettings, SetLanguageCommand,
   SetTypeCommand, EditCellExpressionCommand
 } from './SheetCommands'
 
@@ -14,7 +14,6 @@ import EditCellExpressionTool from './EditCellExpressionTool'
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 import SheetIssuesComponent from './SheetIssuesComponent'
-import SheetIssuesOverlay from './SheetIssuesOverlay'
 
 import BooleanValueComponent from '../shared/BooleanValueComponent'
 import NumberValueComponent from '../shared/NumberValueComponent'
@@ -91,7 +90,7 @@ export default {
       {
         name: 'metrics',
         type: 'tool-group',
-        showDisabled: false,
+        showDisabled: true,
         style: 'minimal',
         commandGroups: ['sheet-issues']
       }
@@ -252,22 +251,20 @@ export default {
       en: 'Column Settings'
     })
 
-    config.addCommand('toggle-sheet-issues', ToggleSheetIssues, {
-      commandGroup: 'sheet-issues'
-    })
-    config.addLabel('toggle-sheet-issues', {
-      en: 'Open Issues Panel'
-    })
-    config.addIcon('sheet-issues', { 'fontawesome': 'fa-warning' })
+    config.addIcon('toggle-errors', {'fontawesome': 'fa-times-circle' })
+    config.addIcon('toggle-warnings', {'fontawesome': 'fa-warning' })
+    config.addIcon('toggle-info', {'fontawesome': 'fa-info-circle' })
 
     config.addComponent('sheet-issues', SheetIssuesComponent)
-    config.addComponent('sheet-issues-overlay', SheetIssuesOverlay)
 
     config.addLabel('title:error', {
       en: 'Error'
     })
     config.addLabel('title:warning', {
       en: 'Warning'
+    })
+    config.addLabel('title:info', {
+      en: 'Info'
     })
 
   }

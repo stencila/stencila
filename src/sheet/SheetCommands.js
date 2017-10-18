@@ -159,33 +159,6 @@ export class OpenColumnSettings extends ColumnMetaCommand {
   }
 }
 
-export class ToggleSheetIssues extends Command {
-  getCommandState(params, context) {
-    let sheetEditor = context.app.getSheetEditor()
-    if (sheetEditor) {
-      let linter = sheetEditor.getLinter()
-      if (linter.hasIssues()) {
-        let severity = linter.hasErrors() ? 'error' : 'warning'
-        let numberOfIssues = linter.getNumberOfIssues()
-        return {
-          disabled: false,
-          severity,
-          numberOfIssues
-        }
-      }
-    }
-    return {
-      disabled: true
-    }
-  }
-  execute(params, context) {
-    let sheetEditor = context.app.getSheetEditor()
-    if (sheetEditor) {
-      sheetEditor.toggleConsole('sheet-issues')
-    }
-  }
-}
-
 export class SetLanguageCommand extends Command {
 
   getCommandState({ selection, editorSession }) {
