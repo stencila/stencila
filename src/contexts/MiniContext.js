@@ -1,5 +1,4 @@
 import { parse } from 'stencila-mini'
-import { pack, unpack } from '../value'
 
 export default class MiniContext {
 
@@ -154,7 +153,7 @@ export default class MiniContext {
   }
 
   _evaluateExpression(expr) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       expr.on('evaluation:finished', (val) => {
         expr.off('evaluation:finished')
         resolve(val)
@@ -166,7 +165,7 @@ export default class MiniContext {
 }
 
 
-function _unwrapResult(funcNode, p, options) {
+function _unwrapResult(funcNode, p) {
   return p.then((res) => {
     if (res.messages && res.messages.length > 0) {
       funcNode.addErrors(res.messages)
