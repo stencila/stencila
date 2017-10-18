@@ -37,7 +37,7 @@ class CellIssueComponent extends Component {
     let title = $$('div').addClass('se-title')
       .text(this.getLabel(`title:${severity}`))
     let message = $$('div').addClass('se-message')
-      .text(issue.getMessage())
+      .text(issue.message)
     el.append(
       title,
       message

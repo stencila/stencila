@@ -1,4 +1,5 @@
 import { EventEmitter, forEach, map } from 'substance'
+import CellIssue from '../shared/CellIssue'
 
 // EXPERIMENTAL: a first shot for a linter running
 // in the 'background' checking every cell
@@ -10,9 +11,10 @@ export default class SheetLinter extends EventEmitter {
 
     this.sheet = sheet
     this.editorSession = editorSession
+    this.issueManager = editorSession.issueManager
 
     this.queue = []
-    this.issues = []
+    //this.issues = []
     this.state = 'initial'
 
     // TODO: need to rethink this when we want to use this
@@ -88,29 +90,27 @@ export default class SheetLinter extends EventEmitter {
   }
 
   hasIssues() {
-    return this.issues.length > 0
+    return this.issueManager.hasIssues('linter')
   }
 
   getIssues() {
-    return this.issues.slice()
+    return this.issueManager.getIssues('linter').slice()
   }
 
   getNumberOfIssues() {
-    return this.issues.length
+    return this.issueManager.getNumberOfIssues('linter')
   }
 
   hasErrors() {
-    for (let i = 0; i < this.issues.length; i++) {
-      if (this.issues[i].isError()) return true
-    }
-    return false
+    return this.issueManager.hasErrors('linter')
   }
 
   addIssue(issue) {
     // console.log('Issue in cell', issue.cell, issue)
-    this.issues.push(issue)
+    //this.issues.push(issue)
     this._updateCommandStates()
     this.emit('issues:changed')
+    this.issueManager.add('linter', issue)
   }
 
   _updateCommandStates() {
@@ -157,13 +157,17 @@ export default class SheetLinter extends EventEmitter {
       let newChecks = map(cells)
       // revalidate existing
       let revalidations = []
-      this.issues.forEach((issue) => {
-        if (issue.isCellIssue() && !cells[issue.cell.id]) {
-          revalidations.push(issue.cell)
+      let issues = this.issueManager.getIssues('linter')
+      issues.forEach((issue) => {
+        if (issue.isCellIssue() && !cells[issue.cellId]) {
+          let cell = this._doc.get(issue.cellId)
+          revalidations.push(cell)
         }
       })
+
       this.queue = newChecks.concat(revalidations).concat(this.queue)
-      this.issues = []
+      this.issueManager.clear('linter')
+      //this.issues = []
       this.emit('issues:changed')
       this.start()
       // need to
@@ -221,7 +225,9 @@ function checkType(cell, sheet, linter) {
   if (wrongType) {
     let expected = type
     let actual = autoDetectType(str)
-    linter.addIssue(new CellTypeError(cell, expected, actual))
+    let msg = `Cell content is of wrong type. Expected a ${expected}, but it is a ${actual}`
+    //linter.addIssue(new CellTypeError(cell, expected, actual))
+    linter.addIssue(new CellIssue(cell.id, 'linter', msg, 2))
   }
 }
 
@@ -253,35 +259,4 @@ function autoDetectType(str) {
   }
   // TODO: add more
   return 'string'
-}
-
-
-class CellTypeError {
-
-  constructor(cell, expected, actual) {
-    this.cell = cell
-    this.expected = expected
-    this.actual = actual
-  }
-
-  getKey() {
-    return `${this.type}#${this.cell.id}`
-  }
-
-  get type() {
-    return 'wrong-type'
-  }
-
-  isError() {
-    return true
-  }
-
-  isCellIssue() {
-    return true
-  }
-
-  getMessage() {
-    return `Cell content is of wrong type. Expected a ${this.expected}, but it is a ${this.actual}`
-  }
-
 }

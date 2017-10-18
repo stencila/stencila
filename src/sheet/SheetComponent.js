@@ -145,8 +145,7 @@ export default class SheetComponent extends CustomSurface {
   _renderOverlay($$) {
     let el = $$('div').addClass('se-overlay')
     el.append(
-      this._renderSelectionOverlay($$),
-      this._renderIssuesOverlay($$)
+      this._renderSelectionOverlay($$)
     )
     return el
   }
@@ -160,18 +159,6 @@ export default class SheetComponent extends CustomSurface {
       $$('div').addClass('se-selection-rows').ref('selRows').css('visibility', 'hidden')
     )
     return el
-  }
-
-  _renderIssuesOverlay($$) {
-    const linter = this.props.linter
-    if (linter) {
-      const SheetIssuesOverlay = this.getComponent('sheet-issues-overlay')
-      return $$(SheetIssuesOverlay, {
-        sheet: this.getSheet(),
-        sheetComponent: this,
-        linter
-      }).ref('issuesOverlay')
-    }
   }
 
   _renderRowContextMenu($$) {

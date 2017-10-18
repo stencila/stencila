@@ -26,6 +26,8 @@ import TableValueComponent from '../shared/TableValueComponent'
 import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 
+import IssueManager from './IssueManager'
+
 export default {
   name: 'Sheet',
 
@@ -36,6 +38,9 @@ export default {
     })
 
     config.import(BasePackage)
+
+    config.addManager('issue-manager', IssueManager)
+
     config.addToolPanel('toolbar', [
       {
         name: 'edit-cell-expression',

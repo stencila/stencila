@@ -12,6 +12,13 @@ export default class SheetEditor extends AbstractEditor {
     this.linter = new SheetLinter(sheet, this.getEditorSession())
   }
 
+  getChildContext() {
+    let editorSession = this.props.editorSession
+    return Object.assign({}, super.getChildContext(), {
+      issueManager: editorSession.issueManager
+    })
+  }
+
   getInitialState() {
     return {
       showConsole: false,

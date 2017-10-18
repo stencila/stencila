@@ -135,6 +135,32 @@
   background: rgba(0,0,0,0.05)
 }
 
+.sc-column-header {
+  position: relative;
+}
+
+.sc-column-header.sm-issue::after,
+.sc-sheet-cell.sm-issue::after {
+  content: "";
+  width: 0;
+	height: 0;
+	border-top: 7px solid transparent;
+	border-left: 7px solid transparent;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.sc-column-header.sm-issue.sm-error::after,
+.sc-sheet-cell.sm-issue.sm-error::after {
+  border-top: 7px solid var(--sheet-error-color);
+}
+
+.sc-column-header.sm-issue.sm-warning::after,
+.sc-sheet-cell.sm-issue.sm-warning::after {
+  border-top: 7px solid var(--sheet-warning-color);
+}
+
 .sc-sheet-cell-editor {
   display: none;
   position: absolute;

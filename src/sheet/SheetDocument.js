@@ -19,6 +19,13 @@ export default class SheetDocument extends XMLDocument {
     return this.getRootNode().find('name').text()
   }
 
+  getColumnForCell(cellId) {
+    let cell = this.get(cellId)
+    let row = cell.parentNode
+    let colIdx = row._childNodes.indexOf(cell.id)
+    return this.getColumnMeta(colIdx)
+  }
+
   getColumnMeta(colIdx) {
     let columns = this._getColumns()
     return columns.getChildAt(colIdx)
