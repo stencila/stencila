@@ -188,29 +188,6 @@ export class ToggleSheetIssues extends Command {
 
 export class SetLanguageCommand extends Command {
 
-  getCommandState({ selection }) {
-    // TODO: use selection to determine anchor cell and reason about it
-    // consider this.config.language
-    let state = { disabled: false }
-    return state
-  }
-
-  execute({ commandState, editorSession }) {
-    const { nodeId, disabled } = commandState
-    if (!disabled) {
-      editorSession.transaction((tx) => {
-        let node = tx.get(nodeId)
-        node.attr({language: this.config.langauge })
-      })
-    }
-  }
-}
-
-/*
-  NOTE: type 'inherit' maps to undefined in the model
-*/
-export class SetTypeCommand extends Command {
-
   getCommandState({ selection, editorSession }) {
     if (selection.isNull()) {
       return { disabled: true }
@@ -218,10 +195,45 @@ export class SetTypeCommand extends Command {
     let doc = editorSession.getDocument()
     const { anchorRow, anchorCol } = selection.data
     let anchorCell = doc.getCell(anchorRow, anchorCol)
+    let language = anchorCell.attr('language')
+    let state = {
+      cellId: anchorCell.id,
+      newLanguage: this.config.language,
+      disabled: false,
+      active: this.config.language === language
+    }
+    return state
+  }
+
+  execute({ editorSession, commandState }) {
+    let { cellId, newLanguage, disabled } = commandState
+    if (!disabled) {
+      editorSession.transaction((tx) => {
+        let cell = tx.get(cellId)
+        cell.attr({ language: newLanguage })
+      })
+    }
+  }
+}
+
+
+export class SetTypeCommand extends Command {
+
+  getCommandState({ selection, editorSession }) {
+    if (selection.isNull()) {
+      return { disabled: true }
+    }
+    let labelProvider = editorSession.getConfigurator().getLabelProvider()
+    let doc = editorSession.getDocument()
+    const { anchorRow, anchorCol } = selection.data
+    let anchorCell = doc.getCell(anchorRow, anchorCol)
+    let columnMeta = doc.getColumnForCell(anchorCell.id)
+    let columnType = columnMeta.attr('type')
     let cellType = anchorCell.attr('type')
     let state = {
       cellId: anchorCell.id,
       newType: this.config.type,
+      columnType: labelProvider.getLabel(columnType),
       disabled: false,
       active: this.config.type === cellType
     }
@@ -249,7 +261,7 @@ export class EditCellExpressionCommand extends Command {
     return { disabled: false }
   }
 
-  execute({ editorSession, commandState }) {
+  execute() {
     // TODO: implement
   }
 
