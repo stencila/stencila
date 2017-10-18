@@ -1,19 +1,14 @@
-import { EditorSession, AbstractEditor, TextPropertyEditor } from 'substance'
+import { AbstractEditor, TextPropertyEditor } from 'substance'
 
 export default class SheetCellEditor extends AbstractEditor {
 
   _initialize(props) {
-    let doc = props.sheet.newInstance()
-    let node = doc.createElement('cell')
-    let editorSession = new EditorSession(doc, {
-      // EXPERIMENTAL: trying to setup an editor session using the same CommandManager
-      // but working on a different doc
-      configurator: this.context.editorSession.configurator,
-      commandManager: this.context.commandManager
-    })
-
-    super._initialize({ editorSession })
-    this.node = node
+    super._initialize(props)
+    this.node = props.editorSession.getDocument()._node
+    // Initialize pseudo node when node is given on construction
+    if (props.node) {
+      this.node.setText(props.node.getText())
+    }
   }
 
   willReceiveProps(props) {
@@ -27,17 +22,28 @@ export default class SheetCellEditor extends AbstractEditor {
     let el = $$('div').addClass('sc-sheet-cell-editor')
     el.append(
       $$(TextPropertyEditor, {
+        name: this.props.name,
         path: this.node.getPath()
       }).ref('editor')
+        .on('focus', this._onFocus)
         .on('contextmenu', this._onContextMenu)
     )
     el.on('mousedown', this._onMousedown)
-
+      .on('enter', this._onEnter)
+      .on('escape', this._onEscape)
     return el
   }
 
-  getValue() {
-    return this.node.getText()
+  _onEnter() {
+    this.context.cellEditorSession.confirmEditing()
+  }
+
+  _onEscape() {
+    this.context.cellEditorSession.cancelEditing()
+  }
+
+  _onFocus() {
+    this.context.cellEditorSession.startEditing()
   }
 
   focus() {

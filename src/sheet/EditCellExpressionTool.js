@@ -1,11 +1,35 @@
 import { ToggleTool } from 'substance'
+import SheetCellEditor from './SheetCellEditor'
 
 export default class EditCellExpressionTool extends ToggleTool {
 
   render($$) {
+    let editorSession = this.context.editorSession
+    let doc = editorSession.getDocument()
+    let node = doc.get(this.props.commandState.cellId)
+
     let el = $$('div').addClass('sc-edit-cell-expression-tool').append(
-      $$('input').attr({type: 'text', placeholder: 'Enter Value or Expression'})
+      $$(SheetCellEditor, {
+        name: 'cell-expression-tool-editor',
+        node: node,
+        editorSession: this.context.cellEditorSession
+      })
+        .on('enter', this._onCellEditorEnter)
+        .on('escape', this._onCellEditorEscape)
+        .ref('cellEditor')
     )
     return el
+  }
+
+  _getSheet() {
+    return this.context.editorSession.getDocument()
+  }
+
+  _onCellEditorEnter() {
+    this.send('onCellEditorEnter')
+  }
+
+  _onCellEditorEscape() {
+    this.send('onCellEditorEscape')
   }
 }
