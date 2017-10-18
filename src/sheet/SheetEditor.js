@@ -1,5 +1,6 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar } from 'substance'
 import SheetLinter from './SheetLinter'
+import SheetStatusBar from './SheetStatusBar'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -98,10 +99,7 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   _renderStatusbar($$) {
-    const configurator = this.getConfigurator()
-    return $$(Toolbar, {
-      toolPanel: configurator.getToolPanel('statusbar')
-    }).ref('statusbar').addClass('se-statusbar')
+    return $$(SheetStatusBar, {}).ref('sheet-statusbar')
   }
 
   getLinter() {
@@ -109,7 +107,9 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   getIssues() {
-    return this.linter.getIssues()
+    let editorSession = this.props.editorSession
+    let issueManager = editorSession.issueManager
+    return issueManager.getIssues('linter')
   }
 
   getWidth() {
