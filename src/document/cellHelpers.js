@@ -1,13 +1,5 @@
 import { uuid } from 'substance'
 
-export function findMini(cell) {
-  return cell.find('source-code[language=mini]')
-}
-
-export function findSource(cell) {
-  return cell.find('source-code:not([language=mini])')
-}
-
 // this key is used to store data on the node instance
 const KEY = uuid()
 

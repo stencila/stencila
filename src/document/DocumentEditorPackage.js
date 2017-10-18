@@ -16,6 +16,8 @@ import ObjectValueComponent from '../shared/ObjectValueComponent'
 import TableValueComponent from '../shared/TableValueComponent'
 import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
+import ToggleCodeCommand from './ToggleCodeCommand'
+import SetLanguageCommand from './SetLanguageCommand'
 
 export default {
   name: 'editor',
@@ -35,8 +37,29 @@ export default {
     config.addComponent('value:test', TestValueComponent)
     config.addComponent('value:image', ImageValueComponent)
 
-    // HACK: override
-
+    // HACK: override for prototyping FunctionUsage component
     config.addTool('edit-ext-link', EditExtLinkToolMonkeyPatched)
+
+    config.addCommand('hide-cell-code', ToggleCodeCommand, { hideCode: true, commandGroup: 'cell-actions' })
+    config.addCommand('show-cell-code', ToggleCodeCommand, { hideCode: false, commandGroup: 'cell-actions' })
+    // config.addCommand('force-cell-output', ToggleCodeCommand, { forceOutput: true, commandGroup: 'cell-actions' })
+    // config.addCommand('unforce-cell-output', ToggleCodeCommand, { forceOutput: false, commandGroup: 'cell-actions' })
+    config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })
+    config.addCommand('set-mini', SetLanguageCommand, { language: 'js', commandGroup: 'cell-actions' })
+    config.addCommand('set-mini', SetLanguageCommand, { language: 'py', commandGroup: 'cell-actions' })
+    config.addCommand('set-mini', SetLanguageCommand, { language: 'r', commandGroup: 'cell-actions' })
+
+    // Labels and icons
+    config.addLabel('hide-cell-code', 'Hide code')
+    config.addLabel('force-cell-output', 'Show output')
+    config.addLabel('set-mini', 'Mini')
+    config.addLabel('set-js', 'Javascript')
+    config.addLabel('set-py', 'Python')
+    config.addLabel('set-r', 'R')
+
+    config.addKeyboardShortcut('CommandOrControl+Alt+H', { command: 'hide-cell-code' })
+    config.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-cell-code' })
+
+    config.addIcon('ellipsis', { 'fontawesome': 'fa-ellipsis-v' })
   }
 }
