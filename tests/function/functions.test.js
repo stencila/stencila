@@ -27,6 +27,12 @@ function testFunction (path) {
   return func.test('js', context)
 }
 
+/*
+
+FIXME:
+we have moved the logic for calling functions into MiniContext
+so these tests should be moved to MiniContext.test.js
+
 for (let file of Object.keys(testVFS)) {
   if (file.match(/tests\/function\/fixtures\/(\w)+\.fun\.xml/)) {
     testFunction(file).then(results => {
@@ -40,3 +46,5 @@ for (let file of Object.keys(testVFS)) {
     })
   }
 }
+
+*/

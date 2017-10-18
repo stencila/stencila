@@ -5,6 +5,7 @@ import { isFunction } from 'substance'
 
 import Context from './Context'
 import libcore from 'stencila-libcore'
+import { type as getType } from '../value'
 
 /**
  * A Javascript context
@@ -49,7 +50,7 @@ export default class JsContext extends Context {
   }
 
   /**
-   * Analyse code and return the names of inputs, output and 
+   * Analyse code and return the names of inputs, output and
    * implicitly returned value expression
    *
    * @override
@@ -59,7 +60,7 @@ export default class JsContext extends Context {
     let output = null
     let value = null
     let messages = []
-    
+
     // Parse the code
     let ast
     try {
@@ -111,7 +112,7 @@ export default class JsContext extends Context {
           value = output
         } else if (last.type === 'ExpressionStatement') {
           if(last.expression.type === 'Identifier') {
-            output = last.expression.name 
+            output = last.expression.name
           }
           value = generate(last)
           if (value.slice(-1) === ';') value = value.slice(0, -1)
@@ -181,7 +182,7 @@ export default class JsContext extends Context {
 
         // Add the return value of function to the code
         // (i.e. simulate implicit return)
-        // To prevent duplication of console output 
+        // To prevent duplication of console output
         if (valueExpr) code += `;\nconsole=nullConsole;return ${valueExpr};`
 
         // Execute the function with the unpacked inputs.
@@ -261,7 +262,7 @@ export default class JsContext extends Context {
    * Unpack a value passed from the `Engine` or another `Context`
    */
   _unpackValue (packed) {
-    let type = packed.type
+    // let type = packed.type
     return packed.data
   }
 
@@ -270,8 +271,8 @@ export default class JsContext extends Context {
    */
   _packValue (value) {
     if (value === undefined) return null
-    
-    let type = libcore.type(value)
+
+    let type = getType(value)
     return {
       type: type,
       data: value
