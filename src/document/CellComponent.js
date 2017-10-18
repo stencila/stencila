@@ -3,7 +3,7 @@ import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
 
-import { findMini, findSource } from './cellHelpers'
+import { findMini } from './cellHelpers'
 
 export default
 class CellComponent extends NodeComponent {
