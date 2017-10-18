@@ -13,7 +13,9 @@ export default class SheetCellEditor extends AbstractEditor {
 
   willReceiveProps(props) {
     const node = props.node
-    if (node) {
+    if (props.initialVal) {
+      this.node.setText(props.initialVal)
+    } else if (node) {
       this.node.setText(node.getText())
     }
   }

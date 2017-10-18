@@ -1,4 +1,4 @@
-import { platform, DefaultDOMElement, AbstractEditor, Toolbar, EditorSession, EventEmitter } from 'substance'
+import { platform, DefaultDOMElement, AbstractEditor, Toolbar, EditorSession } from 'substance'
 import SheetLinter from './SheetLinter'
 import SheetStatusBar from './SheetStatusBar'
 
