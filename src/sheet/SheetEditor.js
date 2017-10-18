@@ -33,7 +33,8 @@ export default class SheetEditor extends AbstractEditor {
   getInitialState() {
     return {
       showConsole: false,
-      consoleContent: null
+      consoleContent: null,
+      consoleCell: null
     }
   }
 
@@ -45,6 +46,9 @@ export default class SheetEditor extends AbstractEditor {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
     this.linter.start()
+    const editorSession = this.props.editorSession
+    const issueManager = editorSession.issueManager
+    issueManager.on('issue:focus', this._onIssueFocus, this)
   }
 
   dispose() {
@@ -52,6 +56,9 @@ export default class SheetEditor extends AbstractEditor {
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).off(this)
     }
+    const editorSession = this.props.editorSession
+    const issueManager = editorSession.issueManager
+    issueManager.off(this)
   }
 
   render($$) {
@@ -102,7 +109,7 @@ export default class SheetEditor extends AbstractEditor {
     if (this.state.showConsole) {
       let ConsoleContent = this.getComponent(this.state.consoleContent)
       el.append(
-        $$(ConsoleContent, { editor: this })
+        $$(ConsoleContent, { editor: this, cellId: this.state.consoleCell })
       )
     }
     return el
@@ -138,17 +145,44 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  toggleConsole(consoleContent) {
-    if (this.state.showConsole && this.state.consoleContent === consoleContent) {
+  setSelectionOnCell(cellId) {
+    const sheet = this.getDocument()
+    let cell = sheet.get(cellId)
+    let row = cell.parentNode
+    let colIdx = row._childNodes.indexOf(cell.id)
+    let rowIdx = row.parentNode._childNodes.indexOf(row.id)
+    let selData = {
+      type: 'range',
+      anchorRow: rowIdx,
+      focusRow: rowIdx,
+      anchorCol: colIdx,
+      focusCol: colIdx
+    }
+
+    this.context.editorSession.setSelection({
+      type: 'custom',
+      customType: 'sheet',
+      data: selData,
+      surfaceId: this.refs.sheet.getId()
+    })
+  }
+
+  toggleConsole(consoleContent, consoleCell) {
+    if (this.state.showConsole && this.state.consoleContent === consoleContent && consoleCell === undefined) {
       this.setState({
         showConsole: false
       })
     } else {
       this.setState({
         showConsole: true,
-        consoleContent
+        consoleContent,
+        consoleCell
       })
     }
+  }
+
+  _onIssueFocus(cellId) {
+    this.toggleConsole('sheet-issues', cellId)
   }
 
   _onResize() {

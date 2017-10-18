@@ -7,12 +7,6 @@ export default class SheetIssuesCounter extends Component {
     this.issueManager = this.context.issueManager
   }
 
-  getInitialState() {
-    return {
-      showConsole: false
-    }
-  }
-
   didMount() {
     this.issueManager.on('issues:changed', this.rerender, this)
   }
@@ -24,11 +18,10 @@ export default class SheetIssuesCounter extends Component {
   render($$) {
     let el = $$('div').addClass('sc-sheet-issues-counter')
     let hasIssues = this.issueManager.hasAnyIssues()
-    let isActive = this.state.showConsole
     let Button = this.getComponent('button')
 
     let btn = $$(Button, {
-      active: isActive,
+      active: false,
       disabled: !hasIssues,
       theme: 'light'
     }).addClass('se-toggle-issues-list')
@@ -70,8 +63,6 @@ export default class SheetIssuesCounter extends Component {
     let sheetEditor = this.context.app.getSheetEditor()
     if (sheetEditor) {
       sheetEditor.toggleConsole('sheet-issues')
-      let showConsole = this.state.showConsole
-      this.extendState({showConsole: !showConsole})
     }
   }
 }

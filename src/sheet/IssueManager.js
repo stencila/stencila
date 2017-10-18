@@ -17,6 +17,10 @@ class IssueManager extends EventEmitter {
 
     this.editorSession = context.editorSession
     this.doc = this.editorSession.getDocument()
+    this.selectedCell = null
+    this.editorSession.on('render', this._onSelectionChange, this, {
+      resource: 'selection'
+    })
     this._byKey = new ArrayTree()
     this._bySeverity = new ArrayTree()
     this._byCell = new ArrayTree()
@@ -112,6 +116,10 @@ class IssueManager extends EventEmitter {
     return hasIssues
   }
 
+  cellHasIssue(cellId) {
+    return this._byCell.get(cellId).length > 0 ? true : false
+  }
+
   hasErrors(key) {
     let issues = this._byKey.get(key)
     for (let i = 0; i < issues.length; i++) {
@@ -141,6 +149,29 @@ class IssueManager extends EventEmitter {
 
     let rowCell = this.doc.get(cell.parentNode.id)
     rowCell.emit('issue:changed')
+  }
+
+  _onSelectionChange(sel) {
+    if(sel.type === 'custom' && sel.customType === 'sheet') {
+      if(sel.data.type === 'range') {
+        const anchorCol = sel.data.anchorCol
+        const anchorRow = sel.data.anchorRow
+        let doc = this.doc
+        let cell = doc.getCell(anchorRow, anchorCol)
+        let cellId = cell.id
+
+        if(this.selectedCell !== cellId) {
+          const hasIssue = this.cellHasIssue(cellId)
+          if(hasIssue) {
+            this.emit('issue:focus', cellId)
+            this.selectedCell = cellId
+          } else if (this.selectedCell) {
+            this.emit('issue:focus', null)
+            this.selectedCell = null
+          }
+        }
+      }
+    }
   }
 }
 
