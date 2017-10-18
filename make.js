@@ -6,6 +6,8 @@ const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
 const fs = require('fs')
 const merge = require('lodash.merge')
+// used to bundle example files for demo
+const vfs = require('substance-bundler/extensions/vfs')
 
 /*
   Guide: this is a bundler make file.
@@ -30,43 +32,17 @@ const COMMON_SETTINGS = (custom) => { return merge({
   // paramaters that are passed to the rollup-commonjs-plugin
   commonjs: {
     namedExports: { 'acorn/dist/walk.js': [ 'simple', 'base' ] }
-  },
-  // for libraries that we want to include into the browser bundle
-  // but need to be pre-bundled (see buildVendor())
-  // we register a redirect to the the pre-bundled file
-  alias: {
-    'sanitize-html': path.join(__dirname, 'vendor/sanitize-html.min.js')
   }
 }, custom)}
 
-const UNIFIED_MODULES = {
-  'unified': 'unified',
-  'unist-util-visit': 'unistVisit',
-  'unist-util-find': 'unistFind',
-  'remark-parse': 'remarkParse',
-  'remark-squeeze-paragraphs': 'remarkSqueezeParagraphs',
-  'remark-bracketed-spans': 'remarkBracketedSpans',
-  'remark-slug': 'remarkSlug',
-  'remark-html': 'remarkHtml',
-  'remark-stringify': 'remarkStringify',
-  'rehype-parse': 'rehypeParse',
-  'rehype-remark': 'rehype2remark',
-  'rehype-stringify': 'rehypeStringify'
-}
-
 const BROWSER_EXTERNALS = {
   'substance': 'window.substance',
+  'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
-  'brace': 'window.ace',
-  'd3': 'window.d3',
+  'stencila-libcore': 'window.stencilaLibCore',
   'katex': 'window.katex',
-  'vega': 'window.vega',
-  'vega-lite': 'window.vegaLite'
+  'plotly': 'window.Plotly'
 }
-Object.keys(UNIFIED_MODULES).forEach((moduleName) => {
-  const alias = UNIFIED_MODULES[moduleName]
-  BROWSER_EXTERNALS[moduleName] = 'window.unifiedBundle.'+alias
-})
 
 const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
   'stencila': 'window.stencila'
@@ -77,8 +53,8 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'stencila-mini', 'brace', 'd3', 'katex', 'vega', 'vega-lite'
-].concat(Object.keys(UNIFIED_MODULES))
+  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly'
+]
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 
@@ -87,13 +63,12 @@ const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 
 function copyAssets() {
   b.copy('./node_modules/font-awesome', './build/font-awesome')
-  b.copy('./vendor/brace.*', './build/lib/')
-  b.copy('./vendor/vega*', './build/lib/')
-  b.copy('./vendor/unified*', './build/lib/')
-  b.copy('./node_modules/d3/build/d3.min.js', './build/lib/')
   b.copy('./node_modules/katex/dist/', './build/katex')
+  b.copy('./node_modules/plotly.js/dist/plotly*.js*', './build/lib/')
   b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
+  b.copy('./node_modules/substance-texture/dist/texture.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
+  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', './build/lib/')
 }
 
 function buildCss() {
@@ -115,8 +90,6 @@ function buildStencilaNodeJS() {
   b.js('index.es.js', COMMON_SETTINGS({
     dest : 'build/stencila.cjs.js',
     format: 'cjs',
-    // brace is not nodejs compatible'
-    ignore: [ 'brace' ],
     // Externals are not include into the bundle
     external: NODEJS_EXTERNALS,
   }))
@@ -126,7 +99,7 @@ function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
   b.copy('index.html', './build/index.html')
   //
-  ;['document', 'dashboard'].forEach((example) => {
+  ;['publication', 'dashboard', 'sheet'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
@@ -135,22 +108,13 @@ function buildExamples() {
   })
 }
 
-// reads all guide documents from ./guides and writes them into a script
-function buildGuides() {
-  b.custom('Creating test backend...', {
-    src: './guides/**/*.html',
-    dest: './build/guides.js',
-    execute(files) {
-      const vfs = {}
-      files.forEach((guideFilePath) => {
-        let dirPath = path.dirname(guideFilePath)
-        let content = fs.readFileSync(path.join(dirPath, 'index.html'), 'utf8')
-        let documentId = path.basename(dirPath)
-        vfs[documentId] = content
-      })
-      const data = ['window.GUIDES = ', JSON.stringify(vfs, null, '  ')].join('')
-      b.writeSync('build/guides.js', data, 'utf8')
-    }
+// reads all test projects
+function buildData() {
+  // TODO: we should also be able to map images
+  vfs(b, {
+    src: ['./data/**/*.xml'],
+    dest: 'build/vfs.js',
+    format: 'umd', moduleName: 'vfs'
   })
 }
 
@@ -173,7 +137,7 @@ function buildEnv() {
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
-    src: './tests/documents/**/*',
+    src: ['./tests/documents/**/*', './tests/function/fixtures/*'],
     dest: './tmp/test-vfs.js',
     execute(files) {
       const rootDir = b.rootDir
@@ -204,8 +168,6 @@ function buildNodeJSTests() {
     dest: 'tmp/tests.cjs.js',
     format: 'cjs',
     external: NODEJS_TEST_EXTERNALS,
-    // brace is not nodejs compatible'
-    ignore: [ 'brace' ],
   }))
 }
 
@@ -220,8 +182,6 @@ function buildInstrumentedTests() {
       include: ['src/**/*.js'],
       exclude:[]
     },
-    // brace is not nodejs compatible'
-    ignore: [ 'brace' ],
     // these should be used directly from nodejs, not bundled
     external: NODEJS_TEST_EXTERNALS.concat(['stream'])
   }))
@@ -232,8 +192,6 @@ function buildSingleTest(testFile) {
   b.js(testFile, COMMON_SETTINGS({
     dest: dest,
     format: 'cjs',
-    // brace is not nodejs compatible'
-    ignore: [ 'brace' ],
     external: NODEJS_TEST_EXTERNALS
   }))
   return dest
@@ -246,11 +204,6 @@ function buildSingleTest(testFile) {
 function buildVendor() {
   install(b, 'browserify', '^14.1.0')
   install(b, 'uglify-js-harmony', '^2.7.5')
-  minifiedVendor('./node_modules/sanitize-html/index.js', 'sanitize-html', {
-    exports: ['default']
-  })
-  minifiedVendor('./vendor/_brace.js', 'brace')
-  minifiedVendor('./vendor/_unified-bundle.js', 'unified-bundle')
 }
 
 function minifiedVendor(src, name, opts = {}) {
@@ -274,16 +227,6 @@ function minifiedVendor(src, name, opts = {}) {
   }
 }
 
-// we need this only temporarily, or if we need to work on an
-// unpublished version of substance
-function buildDeps() {
-  // const subsDist = path.join(__dirname, 'node_modules/substance/dist')
-  // if (!fs.existsSync(path.join(subsDist,'substance.js')) ||
-  //     !fs.existsSync(path.join(subsDist, 'substance.cjs.js'))) {
-  //   b.make('substance')
-  // }
-}
-
 function buildDocumentation() {
   const config = require.resolve('./docs/docs.yml')
   fork(b, "node_modules/documentation/bin/documentation", "build", "index.es.js", "--config", config, "--output", "docs", "--format", "html")
@@ -293,6 +236,32 @@ function serveDocumentation() {
   const config = require.resolve('./docs/docs.yml')
   fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
 }
+
+const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
+
+function _compileSchema(name, src, options = {} ) {
+  const DEST = `tmp/${name}.data.js`
+  const ISSUES = `tmp/${name}.issues.txt`
+  const SCHEMA = `tmp/${name}.schema.md`
+  const entry = path.basename(src)
+  b.custom(`Compiling schema '${name}'...`, {
+    src: src,
+    dest: DEST,
+    execute() {
+      const { compileRNG, checkSchema } = require('substance')
+      const xmlSchema = compileRNG(fs, RNG_SEARCH_DIRS, entry)
+      b.writeSync(DEST, `export default ${JSON.stringify(xmlSchema)}`)
+      b.writeSync(SCHEMA, xmlSchema.toMD())
+      if (options.debug) {
+        const issues = checkSchema(xmlSchema)
+        const issuesData = [`${issues.length} issues:`, ''].concat(issues).join('\n')
+        b.writeSync(ISSUES, issuesData)
+      }
+    }
+  })
+}
+
+
 
 // Tasks
 // -----
@@ -307,12 +276,6 @@ b.task('clean', () => {
 b.task('vendor', buildVendor)
 .describe('Creates pre-bundled files in vendor/.')
 
-// NOTE: this will not be necessary if we depend only on npm-published libraries
-// At the moment, we use substance from a git branch
-b.task('deps', () => {
-  buildDeps()
-})
-
 b.task('assets', () => {
   copyAssets()
 })
@@ -323,8 +286,18 @@ b.task('css', () => {
 })
 .describe('Creates a single CSS bundle.')
 
-b.task('stencila', ['clean', 'assets', 'css'], () => {
-  buildGuides() // required by MemoryBackend
+b.task('schema', () => {
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
+  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng')
+})
+
+b.task('schema:debug', () => {
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
+  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
+})
+
+b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
+  buildData() // required by MemoryBackend
   buildEnv()
   buildStencilaBrowser()
   buildStencilaNodeJS()
@@ -338,7 +311,7 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', () => {
+b.task('test:backend', ['schema'], () => {
   buildTestBackend()
 })
 
@@ -385,7 +358,7 @@ b.task('docs:serve', () => {
   }
 })
 
-b.task('default', ['deps', 'stencila', 'examples'])
+b.task('default', ['stencila', 'examples'])
 .describe('[stencila, examples].')
 
 b.serve({ static: true, route: '/', folder: 'build' })

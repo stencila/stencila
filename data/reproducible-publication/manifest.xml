@@ -1,0 +1,7 @@
+<manifest>
+  <name>Reproducible Publication</name>
+  <documents>
+    <document src="doc.xml" type="document">Manuscript</document>
+    <document src="data.xml" type="sheet">Data</document>
+  </documents>
+</manifest>

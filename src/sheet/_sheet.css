@@ -1,0 +1,184 @@
+@import './_sheet-variables.css';
+@import './_sheet-scrollbar.css';
+@import './_sheet-dialogs.css';
+@import './_sheet-linter.css';
+@import './_edit-cell-expression-tool.css';
+
+.sc-sheet-editor > .sc-toolbar {
+  z-index: 3;
+}
+
+.sc-sheet-page {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+
+.sc-sheet-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sc-sheet-editor > .se-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sc-sheet-editor > .sc-sheet {
+  flex: 1;
+}
+
+.sc-sheet-editor > .se-status-bar {
+  width: 100%;
+  height: var(--sheet-header-height);
+}
+
+.sc-sheet {
+  position: relative;
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: default;
+  font-size: var(--small-font-size);
+}
+
+.sc-sheet .sm-hidden {
+  display: none;
+}
+
+.sc-sheet .se-keytrap {
+  opacity: 0;
+}
+
+.sc-sheet .se-corner {
+  background: #d2d2d2;
+  border-right: 2px solid #aaa;
+  border-bottom: 2px solid #aaa;
+}
+
+.sc-sheet .se-corner > .se-column-label {
+  visibility: hidden;
+}
+
+.sc-sheet > .se-content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+
+.sc-sheet table {
+  position: relative;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.sc-sheet table > .se-head {
+  height: var(--sheet-header-height);
+}
+
+.sc-sheet th {
+  background: var(--sheet-header-background);
+  border: 1px solid var(--sheet-header-bordercolor);
+}
+
+.sc-sheet tr th:first-child {
+  width: var(--sheet-header-width);
+}
+
+.sc-sheet th > * {
+  width: 100%;
+}
+
+
+.sc-sheet td {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  border: 1px solid var(--sheet-cell-bordercolor);
+  position: relative;
+  padding: 2px 5px;
+}
+
+/*
+  Note: the overlay is implemented as a container with
+  zero extent and no pointer events so that mouse events
+  can go through to the underlying cells by default.
+  Only elements with real dimensions such as buttons consume
+  the events.
+*/
+.sc-sheet > .se-overlay {
+  height: 0px;
+  overflow:visible;
+  pointer-events:none;
+  background:none !important;
+}
+
+.sc-selection-overlay > .se-selection-anchor {
+  position: absolute;
+  border: solid 2px #2684FC;
+}
+
+.sc-selection-overlay > .se-selection-range {
+  position: absolute;
+  border: solid 1px #2684FC;
+  background: rgba(38, 132, 252, 0.1)
+}
+
+.sc-selection-overlay > .se-selection-columns,
+.sc-selection-overlay > .se-selection-rows {
+  position: absolute;
+  background: rgba(0,0,0,0.05)
+}
+
+.sc-column-header {
+  position: relative;
+}
+
+.sc-column-header.sm-issue::after,
+.sc-sheet-cell.sm-issue::after {
+  content: "";
+  width: 0;
+	height: 0;
+	border-top: 7px solid transparent;
+	border-left: 7px solid transparent;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.sc-column-header.sm-issue.sm-error::after,
+.sc-sheet-cell.sm-issue.sm-error::after {
+  border-top: 7px solid var(--sheet-error-color);
+}
+
+.sc-column-header.sm-issue.sm-warning::after,
+.sc-sheet-cell.sm-issue.sm-warning::after {
+  border-top: 7px solid var(--sheet-warning-color);
+}
+
+.sc-sheet-cell-editor {
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: #fff;
+  border: 2px solid #2684FC;
+  cursor: text;
+  padding: 2px 5px;
+}
+
+.sc-sheet .se-context-menu {
+  position: absolute;
+  background: var(--dark-bg-color);
+  border-radius: 3px;
+  padding: 2px 5px;
+}
+
+.sc-table-page.sm-loading {
+  background: #ccc;
+}

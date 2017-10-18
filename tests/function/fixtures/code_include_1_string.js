@@ -1,0 +1,3 @@
+function _() {
+  return "string"
+}

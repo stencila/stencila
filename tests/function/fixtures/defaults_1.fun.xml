@@ -1,0 +1,27 @@
+<!DOCTYPE function PUBLIC "StencilaFunction 1.0" "StencilaFunction.dtd">
+<function>
+  <name>defaults_1</name>
+  <params>
+    <param name="param1" type="string">
+      <default type="string">This is the default value for param1</default>
+    </param>
+  </params>
+  <implems>
+    <implem language="js">
+      <code>function(param1){ return param1 }</code>
+    </implem>
+  </implems>
+  <tests>
+    <test>
+      <description>No arguments so get the default value back</description>
+      <result type="string">This is the default value for param1</result>
+    </test>
+    <test>
+      <description>Called with argument</description>
+      <args>
+        <arg type="string">This is the supplied value for param1</arg>
+      </args>
+      <result type="string">This is the supplied value for param1</result>
+    </test>
+  </tests>
+</function>
