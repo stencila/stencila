@@ -27,7 +27,9 @@ test-integration:
 test-one:
 	npm run test-one -- $(FILE)
 
-test-all: test test-integration
+# TODO: bring back integration test
+# test-all: test test-integration
+test-all: test
 
 cover:
 	npm run cover
