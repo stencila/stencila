@@ -1,20 +1,37 @@
 import { uuid } from 'substance'
-
-export function findMini(cell) {
-  return cell.find('source-code[language=mini]')
-}
-
-export function findSource(cell) {
-  return cell.find('source-code:not([language=mini])')
-}
+import CellState from '../engine/CellState'
 
 // this key is used to store data on the node instance
 const KEY = uuid()
+
+export function getCellAdapter(cell) {
+  let adapter = cell[KEY]
+  if (!adapter) {
+    cell[KEY] = adapter = new CellAdapter(cell)
+  }
+  return adapter
+}
+
+export function getInputAdapter(input) {
+  let adapter = input[KEY]
+  if (!adapter) {
+    input[KEY] = adapter = new InputAdapter(input)
+  }
+  return adapter
+}
+
+export function getCellState(cell) {
+  return cell.state
+}
 
 class CellAdapter {
 
   constructor(cell) {
     this.node = cell
+
+    // TODO: would be good to have an API for that
+    this.state = new CellState()
+    cell.state = this.state
   }
 
   emit(...args) {
@@ -74,20 +91,4 @@ class InputAdapter {
     return this.node.getAttribute('value')
   }
 
-}
-
-export function getCellAdapter(cell) {
-  let adapter = cell[KEY]
-  if (!adapter) {
-    cell[KEY] = adapter = new CellAdapter(cell)
-  }
-  return adapter
-}
-
-export function getInputAdapter(input) {
-  let adapter = input[KEY]
-  if (!adapter) {
-    input[KEY] = adapter = new InputAdapter(input)
-  }
-  return adapter
 }

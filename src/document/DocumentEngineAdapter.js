@@ -1,5 +1,5 @@
 import { forEach } from 'substance'
-import { getCellAdapter, getInputAdapter } from './cellHelpers'
+import { getCellAdapter, getInputAdapter } from '../shared/cellHelpers'
 
 const CELL_TYPES = {
   'cell': true,
@@ -82,18 +82,19 @@ export default class DocumentEngineAdapter {
           //
       }
     }
-    if (needsUpdate) engine.update()
+    // TODO: let's see if we still gonna need this
+    // if (needsUpdate) engine.update()
   }
 
   _onCreate(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
       let adapter = getCellAdapter(node)
-      engine._registerCell(adapter)
+      engine.addCell(adapter)
       return true
     } else if (INPUT_TYPES[node.type]) {
       let adapter = getInputAdapter(node)
-      engine._registerCell(adapter)
+      engine.addCell(adapter)
       return true
     }
     return false
@@ -102,7 +103,7 @@ export default class DocumentEngineAdapter {
   _onDelete(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type] || INPUT_TYPES[node.type]) {
-      engine._deregisterCell(node.id)
+      engine.removeCell(node.id)
       return true
     }
     return false
@@ -112,19 +113,20 @@ export default class DocumentEngineAdapter {
     const engine = this.engine
     if (node.type === 'source-code') {
       let cell = node.parentNode
-      engine._updateCell(cell.id)
+      engine.updateCell(cell.id)
       return true
     } else if (INPUT_TYPES[node.type]) {
-      const propName = op.path[1]
-      if (propName === 'value') {
-        engine._updateInputValue(node.id)
-        return true
-      }
-      // ATTENTION: input name should only be changed via SET operation
-      else if (propName === 'name') {
-        engine._updateInputName(node.id, op.original)
-        return true
-      }
+      // TODO: this needs to be rethought
+      // const propName = op.path[1]
+      // if (propName === 'value') {
+      //   engine.updateInputValue(node.id)
+      //   return true
+      // }
+      // // ATTENTION: input name should only be changed via SET operation
+      // else if (propName === 'name') {
+      //   engine.updateInputName(node.id, op.original)
+      //   return true
+      // }
     }
     return false
   }

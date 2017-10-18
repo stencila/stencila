@@ -1,10 +1,13 @@
 import { EditorSession, DefaultDOMElement, Component } from 'substance'
 import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
 import PublicationManifest from './PublicationManifest'
-import Engine from '../engine/Engine'
+import Engine from '../engine/NewEngine'
 import FunctionManager from '../function/FunctionManager'
 import DocumentEditorPackage from '../document/DocumentEditorPackage'
 import DocumentEngineAdapter from '../document/DocumentEngineAdapter'
+
+import MiniContext from '../contexts/MiniContext'
+import JsContext from '../contexts/JsContext'
 
 /*
   TODO: Implement full life cycle (like when other publication gets loaded)
@@ -22,8 +25,14 @@ export default class Publication extends Component {
     let functionManager = new FunctionManager()
     functionManager.importLibrary('core', window.STENCILA_MINI_CORE_LIBRARY)
 
-    this.engine = new Engine(props.host, functionManager)
-
+    let jsContext = new JsContext()
+    let miniContext = new MiniContext(functionManager, {
+      js: jsContext
+    })
+    this.engine = new Engine({
+      mini: miniContext,
+      js: jsContext
+    })
   }
 
   getChildContext() {
@@ -141,7 +150,6 @@ export default class Publication extends Component {
           // as there might be cross references
           // the engine should be updated once all resources have been
           // registered
-          this.engine.update()
 
           this.setState({
             buffer,
