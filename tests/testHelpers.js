@@ -1,5 +1,5 @@
 import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
-import { DocumentConfigurator, documentConversion, Host } from '../index.es'
+import { Host } from '../index.es'
 import TestBackend from './backend/TestBackend'
 
 
