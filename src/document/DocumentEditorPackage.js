@@ -4,7 +4,6 @@ import {
 
 import ReproFigComponent from './ReproFigComponent'
 import CellComponent from './CellComponent'
-import EditExtLinkToolMonkeyPatched from './EditExtLinkToolMonkeyPatched'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
 import BooleanValueComponent from '../shared/BooleanValueComponent'
@@ -17,6 +16,9 @@ import TableValueComponent from '../shared/TableValueComponent'
 import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
+
+import FunctionUsageCommand from '../shared/FunctionUsageCommand'
+import FunctionUsageTool from '../shared/FunctionUsageTool'
 
 export default {
   name: 'editor',
@@ -38,7 +40,9 @@ export default {
     config.addComponent('value:plotly', PlotlyValueComponent)
 
     // HACK: override
-
-    config.addTool('edit-ext-link', EditExtLinkToolMonkeyPatched)
+    config.addCommand('function-usage', FunctionUsageCommand, {
+      commandGroup: 'prompt'
+    })
+    config.addTool('function-usage', FunctionUsageTool)
   }
 }

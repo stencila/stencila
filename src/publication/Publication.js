@@ -22,11 +22,11 @@ export default class Publication extends Component {
     this.jatsExporter = new JATSExporter()
 
     // EXPERIMENTAL: stub implementation of a FunctionManager
-    let functionManager = new FunctionManager()
-    functionManager.importLibrary('core', window.STENCILA_MINI_CORE_LIBRARY)
+    this.functionManager = new FunctionManager()
+    this.functionManager.importLibrary('core', window.STENCILA_LIBCORE)
 
     let jsContext = new JsContext()
-    let miniContext = new MiniContext(functionManager, {
+    let miniContext = new MiniContext(this.functionManager, {
       js: jsContext
     })
     this.engine = new Engine({
@@ -37,6 +37,7 @@ export default class Publication extends Component {
 
   getChildContext() {
     return {
+      functionManager: this.functionManager,
       cellEngine: this.engine
     }
   }
