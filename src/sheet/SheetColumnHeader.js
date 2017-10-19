@@ -73,7 +73,8 @@ class SheetColumnHeader extends NodeComponent {
     // alternatively, we could introduce an extra row with the units
     const node = this.props.node
     let coltype = node.attr('type')
-    if(!coltype) return
+
+    if(!coltype || coltype === 'any') return
 
     let el = $$('div').addClass('se-column-type').append(
       this.renderIcon($$, coltype + '-cell-type'),
