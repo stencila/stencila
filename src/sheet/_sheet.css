@@ -127,11 +127,18 @@
   line-height: 10px;
 }
 
-/*{
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}*/
+.sc-sheet .sc-column-header .se-resize-handle {
+  position: absolute;
+  height: 100%;
+  width: 3px;
+  top: 0px;
+  right: 0px;
+}
+
+.sc-sheet .sc-column-header .se-resize-handle:hover {
+  background: rgba(255, 0, 0, 0.35);
+  cursor: ew-resize;
+}
 
 .sc-sheet td {
   white-space: pre-wrap;
