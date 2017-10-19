@@ -1,4 +1,4 @@
-import { NodeComponent, Tooltip } from 'substance'
+import { DefaultDOMElement, NodeComponent, Tooltip } from 'substance'
 import { getColumnLabel } from './sheetHelpers'
 const DEFAULT_COLUMN_WIDTH = 100
 
@@ -37,8 +37,10 @@ class SheetColumnHeader extends NodeComponent {
     )
 
     th.append(
-      columnHeader
-    ).css({ width: this.getWidth() })
+      columnHeader,
+      $$('div').addClass('se-resize-handle')
+        .on('mousedown', this._onMouseDown)
+    ).css({ width: this.getWidth() }).ref('header')
 
     return th
   }
@@ -84,6 +86,41 @@ class SheetColumnHeader extends NodeComponent {
     )
 
     return el
+  }
+
+  _onMouseDown(e) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    this._mouseDown = true
+    this._startX = e.pageX
+    this._colWidth = this.refs.header.getWidth()
+    let _window = DefaultDOMElement.getBrowserWindow()
+    _window.on('mousemove', this._onMouseMove, this)
+    _window.on('mouseup', this._onMouseUp, this)
+  }
+
+  _onMouseMove(e) {
+    if (this._mouseDown) {
+      const width = this._colWidth + (e.pageX - this._startX)
+      this.refs.header.css({ width: width })
+    }
+  }
+
+  _onMouseUp(e) {
+    this._mouseDown = false
+    let _window = DefaultDOMElement.getBrowserWindow()
+    _window.off('mousemove', this._onMouseMove, this)
+    _window.off('mouseup', this._onMouseUp, this)
+
+    const node = this.props.node
+    const nodeId = node.id
+    const width = this._colWidth + (e.pageX - this._startX)
+    const editorSession = this.context.editorSession
+    editorSession.transaction((tx) => {
+      let node = tx.get(nodeId)
+      node.attr({width: width})
+    })
   }
 }
 
