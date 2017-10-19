@@ -104,6 +104,8 @@ class SheetColumnHeader extends NodeComponent {
     if (this._mouseDown) {
       const width = this._colWidth + (e.pageX - this._startX)
       this.refs.header.css({ width: width })
+      const editor = this.context.editor
+      editor.refs.sheet._positionSelection()
     }
   }
 
