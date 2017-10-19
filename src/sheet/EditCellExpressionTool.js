@@ -9,6 +9,12 @@ export default class EditCellExpressionTool extends ToggleTool {
     let node = doc.get(this.props.commandState.cellId)
 
     let el = $$('div').addClass('sc-edit-cell-expression-tool').append(
+      $$('div').addClass('se-function-icon').append(
+        $$('em').append(
+          'ƒ',
+          $$('sub').append('x')
+        )
+      ),
       $$(SheetCellEditor, {
         name: 'cell-expression-tool-editor',
         node: node,
