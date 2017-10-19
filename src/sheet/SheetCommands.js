@@ -159,7 +159,7 @@ export class OpenColumnSettings extends ColumnMetaCommand {
 export class SetLanguageCommand extends Command {
 
   getCommandState({ selection, editorSession }) {
-    if (selection.isNull()) {
+    if (selection.isNull() || !(selection.isCustomSelection() && selection.customType === 'sheet')) {
       return { disabled: true }
     }
     let doc = editorSession.getDocument()
@@ -193,7 +193,7 @@ export class SetLanguageCommand extends Command {
 export class SetTypeCommand extends Command {
 
   getCommandState({ selection, editorSession }) {
-    if (selection.isNull()) {
+    if (selection.isNull() || !(selection.isCustomSelection() && selection.customType === 'sheet')) {
       return { disabled: true }
     }
     let labelProvider = editorSession.getConfigurator().getLabelProvider()
@@ -231,7 +231,7 @@ export class SetTypeCommand extends Command {
 export class EditCellExpressionCommand extends Command {
 
   getCommandState({ selection, editorSession }) {
-    if (selection.isNull()) {
+    if (selection.isNull() || !(selection.isCustomSelection() && selection.customType === 'sheet')) {
       return { disabled: true }
     }
     let doc = editorSession.getDocument()

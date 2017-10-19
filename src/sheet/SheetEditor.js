@@ -15,10 +15,11 @@ export default class SheetEditor extends AbstractEditor {
     // Just adds one cell, used for text editing
     this._cellEditorDoc._node = this._cellEditorDoc.createElement('cell')
     this._cellEditorSession = new CellEditorSession(this._cellEditorDoc, {
+      configurator: this.context.editorSession.configurator,
       // EXPERIMENTAL: trying to setup an editor session using the same CommandManager
       // but working on a different doc
-      configurator: this.context.editorSession.configurator,
-      commandManager: this.context.editorSession.commandManager
+      // NOTE: Disabled this, as it was causing problems with SelectAllCommand
+      // commandManager: this.context.editorSession.commandManager
     })
   }
 
