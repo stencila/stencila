@@ -255,6 +255,11 @@ export default {
     config.addIcon('toggle-warnings', {'fontawesome': 'fa-warning' })
     config.addIcon('toggle-info', {'fontawesome': 'fa-info-circle' })
 
+    config.addIcon('string-cell-type', {'fontawesome': 'fa-align-left' })
+    config.addIcon('number-cell-type', {'fontawesome': 'fa-hashtag' })
+    config.addIcon('integer-cell-type', {'fontawesome': 'fa-hashtag' })
+    config.addIcon('boolean-cell-type', {'fontawesome': 'fa-check-square-o' })
+
     config.addComponent('sheet-issues', SheetIssuesComponent)
 
     config.addLabel('title:error', {

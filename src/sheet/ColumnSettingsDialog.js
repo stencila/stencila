@@ -41,7 +41,7 @@ export default class ColumnSettingsDialog extends Component {
       .addClass('se-input sm-type')
       .val(node.attr('type'))
     // TODO: get types from schema
-    ;['any', 'number', 'string'].forEach((t) => {
+    ;['any', 'number', 'integer', 'string', 'boolean'].forEach((t) => {
       let option = $$('option')
         .attr('value', t)
         .text(this.getLabel(t))
