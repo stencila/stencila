@@ -37,15 +37,6 @@ export default class SheetView extends Component {
     let el = $$('table').addClass('sc-table-view')
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
-    corner.append(
-      $$('div').addClass('se-column-label').text('label')
-    )
-    corner.append(
-      $$('div').addClass('se-column-name').text('name')
-    )
-    corner.append(
-     $$('div').addClass('se-column-type').text('type')
-    )
 
     // ATTENTION: we have a slight problem here.
     // <table> with fixed layout needs the exact width

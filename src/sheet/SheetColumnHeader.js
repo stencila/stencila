@@ -1,4 +1,4 @@
-import { NodeComponent } from 'substance'
+import { NodeComponent, Tooltip } from 'substance'
 import { getColumnLabel } from './sheetHelpers'
 const DEFAULT_COLUMN_WIDTH = 100
 
@@ -22,18 +22,46 @@ class SheetColumnHeader extends NodeComponent {
       .attr('data-col', colIdx)
       .addClass('sc-column-header')
 
+
     let cellIssues = issueManager.getColumnIssues(node.id)
     if(cellIssues.length > 0) {
       th.addClass('sm-issue sm-error')
     }
 
-    th.append(
-      $$('div').addClass('se-column-label').text(getColumnLabel(colIdx))
+    let columnHeader = $$('div').addClass('se-column-title').append(
+      $$('div').addClass('se-column-label').text(getColumnLabel(colIdx)),
+      this.renderColumnName($$),
+      this.renderColumnType($$)
     )
-    let name = node.attr('name') || "\u00A0"
+
     th.append(
-      $$('div').addClass('se-column-name').text(String(name))
-    )
+      columnHeader
+    ).css({ width: this.getWidth() })
+
+    return th
+  }
+
+  getWidth() {
+    return this.props.node.attr('width') || DEFAULT_COLUMN_WIDTH
+  }
+
+  renderIcon($$, icon) {
+    let iconEl = this.context.iconProvider.renderIcon($$, icon)
+    return iconEl
+  }
+
+  renderColumnName($$) {
+    const node = this.props.node
+    let name = node.attr('name')
+    if (!name) return
+
+    let el = $$('div').addClass('se-column-name')
+      .text(String(name))
+
+    return el
+  }
+
+  renderColumnType($$) {
     // TODO: here we should discuss how to deal with units
     // we could introduce an extra type for different units
     // but IMO it is semantically more appropriate to have units
@@ -41,16 +69,18 @@ class SheetColumnHeader extends NodeComponent {
     // In that case we could rather display the unit than the type
     // 'km' instead of number
     // alternatively, we could introduce an extra row with the units
-    let coltype = node.attr('type') || "\u00A0"
-    th.append(
-      $$('div').addClass('se-column-type').text(this.getLabel(coltype))
-    )
-    th.css({ width: this.getWidth() })
-    return th
-  }
+    const node = this.props.node
+    let coltype = node.attr('type')
+    if(!coltype) return
 
-  getWidth() {
-    return this.props.node.attr('width') || DEFAULT_COLUMN_WIDTH
+    let el = $$('div').addClass('se-column-type').append(
+      this.renderIcon($$, coltype + '-cell-type'),
+      $$(Tooltip, {
+        text: this.getLabel(coltype)
+      })
+    )
+
+    return el
   }
 }
 
