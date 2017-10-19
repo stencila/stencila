@@ -25,7 +25,7 @@
 
 .sc-sheet-scrollbar.sm-vertical .se-lspace {
   width: var(--sheet-scrollbar-width);
-  height: var(--sheet-header-height-plus-1);
+  /*height: var(--sheet-header-height-plus-1);*/
   /*border: solid 1px var(--sheet-header-bordercolor);*/
 }
 
