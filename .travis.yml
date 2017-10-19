@@ -30,9 +30,9 @@ before_script:
 
 script:
   - make lint
-  - make build
   - make test-all
   - make cover
+  - make build
   - make docs
 
 after_success:
