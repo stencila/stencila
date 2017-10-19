@@ -165,7 +165,11 @@ export default class MiniContext {
       output = expr.name
     }
     return {
-      expr, inputs, output, messages
+      expr,
+      inputs,
+      output,
+      messages,
+      tokens: expr.tokens
     }
   }
 

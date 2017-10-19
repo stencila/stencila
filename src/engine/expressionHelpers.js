@@ -1,5 +1,5 @@
-export function getSyntaxTokens(path, expr) {
-  return expr.tokens ? expr.tokens.map((t) => {
+export function getSyntaxTokens(path, tokens) {
+  return tokens ? tokens.map((t) => {
     return {
       type: 'code-highlight',
       name: _getTokenType(t),

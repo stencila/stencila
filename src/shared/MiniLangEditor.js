@@ -32,9 +32,8 @@ class MiniLangEditor extends Component {
   }
 
   _getMarkers() {
-    const expression = this.props.expression
     const path = this.props.path
-    return expression ? getSyntaxTokens(path, expression) : []
+    return getSyntaxTokens(path, this.props.tokens)
   }
 
   _onEnterKey(event) {

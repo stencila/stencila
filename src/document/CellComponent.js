@@ -2,8 +2,7 @@ import { NodeComponent } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
-
-import { findMini } from './cellHelpers'
+import { getCellState } from '../shared/cellHelpers'
 
 export default
 class CellComponent extends NodeComponent {
@@ -27,9 +26,8 @@ class CellComponent extends NodeComponent {
   }
 
   render($$) {
-    const engine = this.context.cellEngine
     const cell = this.props.node
-    const cellId = cell.id
+    const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
 
     let toggleCell = $$('div').addClass('se-toggle-cell').append(
@@ -46,21 +44,20 @@ class CellComponent extends NodeComponent {
       toggleCell.addClass('sm-code-shown')
     }
 
-    if (engine.hasErrors(cellId)) {
+    if (cellState && cellState.hasErrors()) {
       toggleCell.addClass('sm-has-errors')
     }
     el.append(toggleCell)
 
     if (this.state.showCode) {
-      let expr = engine.getExpression(cellId)
-      let mini = findMini(cell)
+      let source = cell.find('source-code')
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
         $$('div').addClass('se-expression').append(
           $$(MiniLangEditor, {
-            path: mini.getPath(),
+            path: source.getPath(),
             excludedCommands: this._getBlackListedCommands(),
-            expression: expr
+            tokens: cellState.tokens
           }).ref('expressionEditor')
             .on('escape', this._onEscapeFromCodeEditor)
         )
@@ -165,7 +162,8 @@ class CellComponent extends NodeComponent {
   }
 
   _isDefinition() {
-    this.context.cellEngine.isDefinition(this.props.node.id)
+    const cellState = getCellState(this.props.node)
+    return cellState && cellState.hasOutput()
   }
 
   _toggleMenu() {
