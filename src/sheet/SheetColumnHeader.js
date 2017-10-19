@@ -4,11 +4,13 @@ const DEFAULT_COLUMN_WIDTH = 100
 
 class SheetColumnHeader extends NodeComponent {
   didMount() {
+    super.didMount()
     const cell = this.props.node
     cell.on('issue:changed', this.rerender, this)
   }
 
   dispose() {
+    super.dispose()
     const cell = this.props.node
     cell.off(this)
   }
