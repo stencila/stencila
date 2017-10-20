@@ -42,6 +42,8 @@
 }
 
 .sc-sheet-issues-list {
+  position: relative;
+  height: 50px;
   padding: 4px 0px;
   font-size: 14px;
   border: 1px solid #ededed;

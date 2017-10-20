@@ -1,10 +1,14 @@
-import { Component, forEach, stopAndPrevent } from 'substance'
+import { Component, forEach, ScrollPane, stopAndPrevent } from 'substance'
 
 export default class SheetIssuesComponent extends Component {
 
   didMount() {
     const issueManager = this.context.issueManager
     issueManager.on('issues:changed', this.rerender, this)
+    const cellId = this.props.cellId
+    if(cellId) {
+      this.refs.scrollPane.scrollTo('[data-key="' + cellId + '"]')
+    }
   }
 
   dispose() {
@@ -17,10 +21,13 @@ export default class SheetIssuesComponent extends Component {
     const issues = issueManager.getAllIssues()
     const cellId = this.props.cellId
     let el = $$('div').addClass('sc-sheet-issues-list')
+    let scrollPane = $$(ScrollPane).ref('scrollPane')
     forEach(issues, (issue) => {
       let highlighted = issue.cellId === cellId
-      el.append(this._renderIssue($$, issue, highlighted))
+      scrollPane.append(this._renderIssue($$, issue, highlighted))
     })
+    el.append(scrollPane)
+
     return el
   }
 
@@ -35,6 +42,7 @@ class CellIssueComponent extends Component {
     const highlighted = this.props.highlighted
     const doc = this.context.doc
     let el = $$('div').addClass('sc-cell-issue')
+      .attr('data-key', issue.cellId)
     let severity = 'info'
     if(issue.severity === 1) {
       severity = 'warning'

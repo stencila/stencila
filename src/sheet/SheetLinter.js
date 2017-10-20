@@ -25,6 +25,11 @@ export default class SheetLinter extends EventEmitter {
     editorSession.onRender('document', this._onDocumentChange, this, { path: [this._sheetNode.id]})
   }
 
+  dispose() {
+    super.dispose()
+    this.editorSession.off(this)
+  }
+
   start() {
     if (this._isInitial()) {
       this.warmup()
@@ -96,21 +101,11 @@ export default class SheetLinter extends EventEmitter {
   }
 
   addIssue(issue) {
-    // console.log('Issue in cell', issue.cell, issue)
-    //this._updateCommandStates()
     if(this.firstShot) {
       this.issueManager.add('linter', issue)
     } else {
       this.issues.push(issue)
     }
-  }
-
-  _updateCommandStates() {
-    // HACK: need to re-flow the editor session, as the command states
-    // should be re-evaluated and toolbars rerendered
-    const editorSession = this.editorSession
-    editorSession._setDirty('commandStates')
-    editorSession.performFlow()
   }
 
   _onDocumentChange(change) {
@@ -160,13 +155,12 @@ export default class SheetLinter extends EventEmitter {
 
       this.queue = newChecks.concat(revalidations).concat(this.queue)
       this.issueManager.clear('linter')
-      //this.issues = []
-      //this.emit('issues:changed')
-      this.start()
-      // need to
-      // this.editorSession.postpone(() => {
-      //   this._updateCommandStates()
-      // })
+
+      if(this.firstShot) {
+        this.restart()
+      } else {
+        this.start()
+      }
     }
   }
 
@@ -183,7 +177,6 @@ export default class SheetLinter extends EventEmitter {
   }
 
   _setState(state) {
-    // console.log(`SheetLinter: ${this.state} -> ${state}`)
     this.state = state
     this.emit(state)
   }
