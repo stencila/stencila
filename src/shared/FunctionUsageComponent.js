@@ -51,7 +51,6 @@ export default class FunctionUsageComponent extends Component {
   }
 }
 
-
 class FunctionSignature extends Component {
   render($$) {
     var spec = this.props.spec
