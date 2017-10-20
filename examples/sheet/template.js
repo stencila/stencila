@@ -17,24 +17,26 @@ export default function template(colSpecs = {}, cells = {}, cols = 20, rows = 10
   let columnsEl = doc.find('columns')
   for (let col = 0; col < cols; col++) {
     let colEl = doc.createElement('col')
-    let colSpec = colSpecs[col]
+    let colId = String.fromCharCode(65 + col)
+    let colSpec = colSpecs[colId]
     if (colSpec) {
       colEl.setAttribute('name', colSpec.name)
-      colEl.setAttribute('type', colSpec.number)
+      colEl.setAttribute('type', colSpec.type)
     }
     columnsEl.append(colEl)
   }
 
   let data = doc.find('data')
-  for (let col = 0; col < rows; col++) {
-    let row = doc.createElement('row')
+  for (let row = 1; row <= rows; row++) {
+    let rowEl = doc.createElement('row')
     for (let col = 0; col < cols; col++) {
-      let cell = doc.createElement('cell')
-      let content = ''
-      cell.append(content)
-      row.append(cell)
+      let cellEl = doc.createElement('cell')
+      let cellId = String.fromCharCode(65 + col) + row
+      let content = cells[cellId] || ''
+      cellEl.append(content)
+      rowEl.append(cellEl)
     }
-    data.append(row)
+    data.append(rowEl)
   }
 
   return doc

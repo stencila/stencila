@@ -13,7 +13,7 @@ const template = `<?xml version="1.0"?>
 </sheet>
 `
 
-export default function fullup(rows = 100, cols = 30) {
+export default function (rows = 100, cols = 30) {
   let doc = DefaultDOMElement.parseXML(template)
   // create column meta
   let columns = doc.find('columns')

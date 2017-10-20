@@ -2,6 +2,7 @@ import { Configurator } from 'substance'
 import { SheetPackage, SheetPage, SheetSchema, Host, getQueryStringParam} from 'stencila'
 
 import blank from './blank'
+import dataClean from './dataClean'
 import fullup from './fullup'
 
 window.addEventListener('load', () => {
@@ -22,13 +23,16 @@ window.addEventListener('load', () => {
     const importer = configurator.createImporter(SheetSchema.getName())
     
     let generator = {
-      blank: blank,
-      fullup: fullup
+      'blank': blank,
+      'data-clean': dataClean,
+      'fullup': fullup
     }[example]
     if (!generator) console.error('No such example: ' + example)
     const xml = generator()
 
     const sheet = importer.importDocument(xml)
     SheetPage.mount({ sheet, host }, window.document.body)
+
+    window.stencila = { host, sheet }
   })
 })

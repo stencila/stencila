@@ -1,5 +1,5 @@
 import template from './template'
 
-export default function blank() {
+export default function () {
   return template()
 }
