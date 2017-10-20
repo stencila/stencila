@@ -184,7 +184,9 @@ export default class SheetDocument extends XMLDocument {
     for (let rowIdx = N-1; rowIdx >= 0; rowIdx--) {
       let row = data.getChildAt(rowIdx)
       for (let colIdx = endCol; colIdx >= startCol; colIdx--) {
+        const cellId = row.getChildAt(colIdx).id
         row.removeAt(colIdx)
+        this.delete(cellId)
       }
     }
   }
