@@ -1,5 +1,6 @@
 import { GET, POST, PUT } from '../util/requests'
 import JsContext from '../contexts/JsContext'
+import MiniContext from '../contexts/MiniContext'
 import ContextHttpClient from '../contexts/ContextHttpClient'
 import MemoryBuffer from '../backend/MemoryBuffer'
 
@@ -10,6 +11,12 @@ import MemoryBuffer from '../backend/MemoryBuffer'
 export default class Host {
 
   constructor (options = {}) {
+    /**
+     * Options used to configure this host
+     *
+     * @type {object}
+     */
+    this._options = options
 
     /**
      * Instances managed by this host
@@ -19,33 +26,67 @@ export default class Host {
     this._instances = {}
 
     /**
+     * Execution contexts are currently managed separately to 
+     * ensure that there is only one for each language
+     *
+     * @type {object}
+     */
+    this._contexts = {}
+
+    /**
+     * Counts of instances of each class.
+     * Used for consecutive naming of instances
+     *
+     * @type {object}
+     */
+    this._counts = {}
+
+    /**
      * Peer manifests which detail the capabilities
      * of each of this host's peers
      *
      * @type {object}
      */
     this._peers = {}
-
-    // Peer seeding
-    let peers = options.peers
-    if (peers) {
-      // Add the initial peers
-      for (let url of peers) this.pokePeer(url)
-    }
-    // Discover other peers
-    if (options.discover) {
-      this.discoverPeers(options.discover)
-    }
   }
 
   /**
-   * Create a new instance
+   * Initialize this host
+   *
+   * @return {Promise} Initialisation promise
+   */
+  initialize () {
+    const options = this._options
+
+    let promises = [Promise.resolve()]
+      
+    // Seed with specified peers
+    let peers = options.peers
+    if (peers) {
+      // Add the initial peers
+      for (let url of peers) {
+        if (url === 'origin') url = options.origin
+        let promise = this.pokePeer(url)
+        promises.push(promise)
+      }
+    }
+
+    // Start discovery of other peers
+    if (options.discover) {
+      this.discoverPeers(options.discover)
+    }
+
+    return Promise.all(promises)
+  }
+
+  /**
+   * Create a new instance of a resource
    *
    * @param  {string} type - Name of class of instance
    * @param  {string} name - Name for new instance
    * @return {Promise} Resolves to an instance
    */
-  post (type, name) {
+  create (type, args) {
     // Search for the type amongst peers or peers-of-peers
     let find = (peersOfPeers) => {
       for (let url of Object.keys(this._peers)) {
@@ -79,44 +120,69 @@ export default class Host {
       }
     }
 
-    // Request a new instance from peer (or peer or peer)
-    let request = (url, spec) => {
-      return POST(url + '/' + spec.name, { name: name }).then(address => {
-        let instance
-        if (spec.base === 'Context') {
-          instance = new ContextHttpClient(url + '/' + address)
-        } else {
-          throw new Error(`Unsupported type: %{path}`)
-        }
-        this._instances[address] = instance
-        return instance
+    // Attempt to find resource type amongst...
+    let found = find(false) //...peers
+    if (!found) found = find(true) //...peers of peers
+    if (found) {
+      let {url, spec} = found
+      return POST(url + '/' + spec.name, args).then(id => {
+        let Client
+        if (spec.base === 'Context') Client = ContextHttpClient
+        else throw new Error(`Unsupported type: %{path}`)
+
+        let instance = new Client(url + '/' + id)
+        this._instances[id] = instance
+        return {id, instance}
       })
     }
 
-    // Attempt to find type
-    let found = find(false)
-    if (!found) found = find(true)
-    if (found) return request(found.url, found.spec)
-
-    // Fallback to providing an in-browser Javascript context
-    // (if one is available in a Node.js peer then it will be used instead)
-    if (type === 'JsContext' || type === 'js') {
-      let instance = new JsContext()
-      let address = `name://${name || Math.floor((1 + Math.random()) * 1e6).toString(16)}`
-      this._instances[address] = instance
-      return Promise.resolve(instance)
+    // Fallback to providing an in-browser instances of resources where available
+    let instance
+    if (type === 'JsContext') {
+      instance = JsContext()
+    } else if (type === 'MiniContext') {
+      // MiniContext requires a pointer to this host so that
+      // it can obtain other contexts for executing functions
+      instance = MiniContext(this)
+    } else {
+      return Promise.reject(new Error(`No peers able to provide: ${type}`))
     }
 
-    return Promise.reject(new Error(`No peers able to provide: ${type}`))
+    // Generate an id for the instance
+    let number = (this._counts[type] || 0) + 1
+    this._counts[type] = number
+    let id = type[0].toLowerCase() + type.substring(1) + number
+    this._instances[id] = instance
+
+    return Promise.resolve({id, instance})
   }
 
   /**
-   * Get an instance
-   * @param  {string} address - Address of the instance
-   * @return {Promise} Resolves to an instance
+   * Create an execution context for a particular language
    */
-  get (address) {
-    return Promise.resolve(this._instances[address])
+  createContext(language) {
+    return new Promise((resolve, reject) => {
+      const context = this._contexts[language]
+      if (context) return context
+      else {
+        const type = {
+          'js': 'JsContext',
+          'mini': 'Context',
+          'py': 'PyContext',
+          'r': 'RContext',
+          'sql': 'SqliteContext'
+        }[language]
+        if (!type) {
+          return reject(new Error(`Unable to create an execution context for language ${language}`))
+        } else {
+          return this.create(type).then(result => {
+            let {instance} = result
+            this._contexts[language] = instance
+            return instance
+          })
+        }
+      }
+    })
   }
 
   /**

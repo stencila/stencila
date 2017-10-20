@@ -5,11 +5,9 @@ import { descendantTypes } from '../types'
 
 export default class MiniContext {
 
-  // TODO: to be able to evaluate functions from mini
-  // we need available contexts to dipatch to
-  constructor(functionManager, contexts) {
+  constructor(host, functionManager) {
+    this._host = host
     this._functionManager = functionManager
-    this._contexts = contexts
   }
 
   supportsLanguage(language) {
@@ -35,28 +33,25 @@ export default class MiniContext {
   */
   callFunction(funcCall) {
     const functionName = funcCall.name
-    /* new approach using FunctionManager
 
-      - get the function document via name
-      - find the best implementation (using preferred language plus args)
-      - define the function in the context
-      - call the function in the context
-
-    */
+    // Ensure the function exists
     let funcDoc = this._functionManager.getFunction(functionName)
     if (!funcDoc) {
-      return _error(`Could not resolve function "${functionName}"`)
+      return _error(`Could not find function "${functionName}"`)
     }
-    let impls = funcDoc.getImplementations()
-    let language = impls[0]
-    if (!language) {
+
+    // Ensure there is an implementation
+    let implems = funcDoc.getImplementations()
+    if (implems.length === 0) {
       return _error(`Could not find implementation for function "${functionName}"`)
     }
-    let libraryName = this._functionManager.getLibraryName(functionName)
-    let context = this._contexts[language]
 
-    // TODO: implement this properly
-    // - choose the right context
+    // TODO: Determine the best implementation language to use based on 
+    // where arguments reside etc
+    let language = implems[0]
+    
+    // Get a context for the implementation language
+    let context = this._host.createContext(language)
 
     // Generate a correctly ordered array of argument values taking into account
     // named arguments and default values and check for:
@@ -109,6 +104,7 @@ export default class MiniContext {
 
     // Cal the function implementation in the context, capturing any 
     // messages or returning the value
+    let libraryName = this._functionManager.getLibraryName(functionName)
     return context.callFunction(libraryName, functionName, argValues).then((res) => {
       if (res.messages && res.messages.length > 0) {
         funcCall.addErrors(res.messages)

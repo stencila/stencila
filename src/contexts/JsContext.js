@@ -211,6 +211,10 @@ export default class JsContext extends Context {
     })
   }
 
+  importLibrary(libraryName, functions) {
+    this._libs[libraryName] = functions
+  }
+
   /**
    * Does the context provide a function?
    *

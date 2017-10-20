@@ -1,15 +1,25 @@
 import test from 'tape'
 import MiniContext from '../../src/contexts/MiniContext'
-import FunctionManager from '../../src/function/FunctionManager'
 import JsContext from '../../src/contexts/JsContext'
+import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from './libtest'
 
 function setupContextWithFunctions() {
+  // A JsContext with the test function library
+  let jsContext = new JsContext()
+  jsContext.importLibrary('test', libtest)
+  // A mock Host that provides the JsContext when requested
+  let host = {
+    createContext: function(language) {
+      if (language !== 'js') throw new Error('This stub only creates JsContexts')
+      return jsContext
+    }
+  }
+  // Function manager for getting function specs
   let functionManager = new FunctionManager()
   functionManager.importLibrary('test', libtestXML)
-  let jsContext = new JsContext()
-  jsContext._libs['test'] = libtest
-  return new MiniContext(functionManager, { js: jsContext })
+  
+  return new MiniContext(host, functionManager)
 }
 
 test('MiniContext: analyseCode(x=5)', t => {
