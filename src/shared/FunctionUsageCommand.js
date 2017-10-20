@@ -11,7 +11,6 @@ export default class FunctionUsageCommand extends Command {
       if (node.type === 'source-code') {
         let cellNode = node.parentNode
         let cellState = getCellState(cellNode)
-        console.log('cellState.nodes', cellState.nodes)
         let cursorPos = selection.start.offset
         let match = this._findFunction(cellState, cursorPos)
         if (match) {
