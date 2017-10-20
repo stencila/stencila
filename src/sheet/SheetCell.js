@@ -28,11 +28,32 @@ export default class SheetCell extends NodeComponent {
 
   _renderContent($$, cell) {
     // TODO: this should be delegated to components
-    return $$('div').addClass('sc-text-content').text(cell.text())
+    let textValue = cell.text()
+    const isTextCell = textValue.charAt(0) !== '='
+    if(this.props.mode === 'maximum') {
+      const value = isTextCell ? textValue : this.getResponse()
+      let valueEl = $$('div').addClass('sc-cell-value').append(value)
+      if(!isTextCell) valueEl.addClass('sm-response-value')
+
+      const source = !isTextCell ? textValue : ' '
+      return $$('div').addClass('se-function-cell').append(
+        valueEl,
+        $$('div').addClass('sc-equation').append(source)
+      )
+    } else if (this.props.mode === 'minimum') {
+      if(!isTextCell) textValue = this.getResponse() || ' '
+      return $$('div').addClass('sc-text-content').text(textValue)
+    } else {
+      return $$('div').addClass('sc-text-content').text(textValue)
+    }
   }
 
   getContent() {
     return this.props.node.getText()
+  }
+
+  getResponse() {
+    return '24.2324'
   }
 
 }
