@@ -30,11 +30,12 @@ export default class FunctionDocumentImporter extends XMLDocumentImporter {
       case 'function':
       case 'name':
       case 'title':
-      case 'description':
+      case 'summary':
       case 'params':
       case 'return':
       case 'implems':
       case 'tests':
+      case 'examples':
         return type
       default:
     }

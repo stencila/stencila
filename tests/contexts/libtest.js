@@ -1,27 +1,64 @@
-const fooXML = `
+const no_paramsXML = `
 <function>
-  <name>foo</name>
+  <name>no_params</name>
+  <implems>
+    <implem language="js" />
+  </implems>
+</function>
+`
+
+function no_params() {
+  return 5
+}
+
+
+const one_paramXML = `
+<function>
+  <name>one_param</name>
   <params>
+    <param name="param1" type="number" />
   </params>
   <implems>
     <implem language="js" />
   </implems>
-  <tests>
-  </tests>
 </function>
 `
 
-function foo() {
-  return 5
+function one_param(param1) {
+  return param1 * 1.1
 }
+
+
+const one_param_with_defaultXML = `
+<function>
+  <name>one_param_with_default</name>
+  <params>
+    <param name="param1" type="string">
+      <default type="string">Hello!</default>
+    </param>
+  </params>
+  <implems>
+    <implem language="js" />
+  </implems>
+</function>
+`
+
+function one_param_with_default(param1) {
+  return param1
+}
+
 
 export const libtestXML = `
 <!DOCTYPE function PUBLIC "StencilaFunctionLibrary 1.0" "StencilaFunctionLibrary.dtd">
 <library name="test">
-${fooXML}
+${no_paramsXML}
+${one_paramXML}
+${one_param_with_defaultXML}
 </library>
 `
 
 export const libtest = {
-  foo
+  no_params,
+  one_param,
+  one_param_with_default
 }

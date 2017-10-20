@@ -1,6 +1,8 @@
 import { parse } from 'stencila-mini'
 import libcore from 'stencila-libcore'
 
+import { descendantTypes } from '../types'
+
 export default class MiniContext {
 
   // TODO: to be able to evaluate functions from mini
@@ -27,12 +29,12 @@ export default class MiniContext {
   }
 
   /*
-    Calling into the context.
+    Call a Mini function
 
-    This gets called when evaluating a Mini expression with function call statements.
+    This gets called when evaluating a function call node within a Mini expression
   */
-  callFunction(funcNode) {
-    const functionName = funcNode.name
+  callFunction(funcCall) {
+    const functionName = funcCall.name
     /* new approach using FunctionManager
 
       - get the function document via name
@@ -41,53 +43,79 @@ export default class MiniContext {
       - call the function in the context
 
     */
-    let fun = this._functionManager.getFunction(functionName)
-    if (!fun) {
-      let msg = `Could not resolve function "${functionName}"`
-      // Note: we just return undefined and add a runtime error
-      funcNode.addErrors([{
-        message: msg
-      }])
-      return
+    let funcDoc = this._functionManager.getFunction(functionName)
+    if (!funcDoc) {
+      return _error(`Could not resolve function "${functionName}"`)
     }
-    let impls = fun.getImplementations()
+    let impls = funcDoc.getImplementations()
     let language = impls[0]
     if (!language) {
-      let msg = `Could not find implementation for function "${functionName}"`
-      // Note: we just return undefined and add a runtime error
-      funcNode.addErrors([{
-        message: msg
-      }])
-      return
+      return _error(`Could not find implementation for function "${functionName}"`)
     }
     let libraryName = this._functionManager.getLibraryName(functionName)
     let context = this._contexts[language]
 
     // TODO: implement this properly
     // - choose the right context
-    // - support mulitfuncs by choosing the implementation by args
-    // Note: source is an expression yielding a function
 
-    // TODO: we should get the signature here and bring the arguments into correct order
-    const options = { pack: true }
-    let args = []
-    if (funcNode.args) {
-      args = funcNode.args.map((arg) => {
-        return arg.getValue()
-      })
+    // Generate a correctly ordered array of argument values taking into account
+    // named arguments and default values and check for:
+    //  - missing parameters
+    //  - superfluous arguments
+    //  - arguments of wrong type
+    let params = funcDoc.getParams()
+    let args = funcCall.args || []
+    if (args.length > params.length) {
+      return _error(`Too many parameters supplied (${args.length}), expected ${params.length} at most`)
     }
-    // For named arguments, just use the name and the value
-    let namedArgs = {}
-    if (funcNode.namedArgs) {
-      for (let arg of funcNode.namedArgs) {
-        namedArgs[arg.name] = arg.getValue()
+    let namedArgs = funcCall.namedArgs || []
+    let namedArgsMap = {}
+    for (let namedArg of namedArgs) {
+      let found = false
+      for (let param of params) {
+        if (param.name === namedArg.name) {
+          found = true
+          break
+        }
       }
+      if (!found) {
+        return _error(`"${namedArg.name}" is not a valid parameter names for function "${functionName}"`)
+      }
+      namedArgsMap[namedArg.name] = namedArg
     }
-    return _unwrapResult(
-      funcNode,
-      context.callFunction(libraryName, functionName, args, namedArgs, options),
-      options
-    )
+    let argValues = []
+    let index = 0
+    for (let param of params) {
+      const arg = args[index] || namedArgsMap[param.name]
+      const value = arg ? arg.getValue() : param.default
+      if (!value) {
+        return _error(`Required parameter "${param.name}" was not supplied`)
+      }
+      if (value.type !== param.type) {
+        if (descendantTypes[param.type].indexOf(value.type) < 0) {
+          return _error(`Parameter "${param.name}" must be of type "${param.type}"`)
+        }
+      }
+      argValues.push(value)
+      index++
+    }
+    
+    function _error(msg) {
+      funcCall.addErrors([{
+        message: msg
+      }])
+      return new Error(msg)
+    }
+
+    // Cal the function implementation in the context, capturing any 
+    // messages or returning the value
+    return context.callFunction(libraryName, functionName, argValues).then((res) => {
+      if (res.messages && res.messages.length > 0) {
+        funcCall.addErrors(res.messages)
+        return undefined
+      }
+      return res.value
+    })
   }
 
   // used to create Stencila Values
@@ -151,25 +179,64 @@ export default class MiniContext {
 
   _analyseCode(code) {
     let expr = parse(code)
-    let inputs, output
+    let inputs, output, tokens, nodes
     let messages = []
     if (expr.syntaxError) {
       messages.push({
         type: 'error',
         message: expr.syntaxError.msg
       })
-    } else {
+    }
+    if (expr.inputs) {
+      // extract input names
+      // TODO: we probably need something different, considering different
+      // input types: var, cell, range
       inputs = expr.inputs.map((node)=>{
         return node.name
       })
+    }
+    if (expr.name) {
       output = expr.name
     }
+    if (expr.tokens) {
+      // some tokens are used for code highlighting
+      // some for function documentation
+      tokens = expr.tokens
+    }
+
+    nodes = []
+    expr.nodes.forEach((n) => {
+      if (n.type === 'call') {
+        let args = n.args.map((a) => {
+          return {
+            start: a.start,
+            end: a.end
+          }
+        }).concat(n.namedArgs.map((a) => {
+          return {
+            start: a.start,
+            end: a.end,
+            name: a.name
+          }
+        }))
+        let node = {
+          type: 'function',
+          name: n.name,
+          start: n.start,
+          end: n.end,
+          args
+        }
+        nodes.push(node)
+      }
+    })
+
     return {
       expr,
       inputs,
       output,
       messages,
-      tokens: expr.tokens
+      tokens,
+      nodes
     }
   }
 
@@ -183,15 +250,5 @@ export default class MiniContext {
       expr.propagate()
     })
   }
-}
 
-
-function _unwrapResult(funcNode, p) {
-  return p.then((res) => {
-    if (res.messages && res.messages.length > 0) {
-      funcNode.addErrors(res.messages)
-      return undefined
-    }
-    return res.value
-  })
 }
