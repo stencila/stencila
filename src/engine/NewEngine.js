@@ -78,6 +78,7 @@ export default class Engine {
         cellState.output = res.output
         cellState.messages = res.messages
         cellState.tokens = res.tokens
+        cellState.nodes = res.nodes
         this._notifyCell(cell)
       })
     }
