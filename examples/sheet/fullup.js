@@ -13,7 +13,7 @@ const template = `<?xml version="1.0"?>
 </sheet>
 `
 
-export default function generateSampleSheet(rows, cols) {
+export default function fullup(rows = 100, cols = 30) {
   let doc = DefaultDOMElement.parseXML(template)
   // create column meta
   let columns = doc.find('columns')
@@ -28,7 +28,7 @@ export default function generateSampleSheet(rows, cols) {
     let row = doc.createElement('row')
     for (let j = 0; j < cols; j++) {
       let cell = doc.createElement('cell')
-      cell.append(String(Math.random()))
+      cell.append(String(Math.random()).substr(0, 8))
       row.append(cell)
     }
     data.append(row)
