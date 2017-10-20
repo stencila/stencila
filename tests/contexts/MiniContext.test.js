@@ -62,6 +62,24 @@ test('MiniContext: no_params() + 1', t => {
   })
 })
 
+test('MiniContext: no_params(4)', t => {
+  let c = setupContextWithFunctions()
+  c.executeCode('no_params(4)').then((res) => {
+    t.ok(res instanceof Error, 'should error')
+    t.equal(res.message, 'Too many parameters supplied (1), expected 0 at most', 'error message should be correct')
+    t.end()
+  })
+})
+
+test('MiniContext: no_params(param_foo=4)', t => {
+  let c = setupContextWithFunctions()
+  c.executeCode('no_params(param_foo=4)').then((res) => {
+    t.ok(res instanceof Error, 'should error')
+    t.equal(res.message, '"param_foo" is not a valid parameter names for function "no_params"', 'error message should be correct')
+    t.end()
+  })
+})
+
 test('MiniContext: one_param(2)', t => {
   let c = setupContextWithFunctions()
   c.executeCode('one_param(2)').then((res) => {
@@ -85,6 +103,23 @@ test('MiniContext: one_param(1, 2, 3)', t => {
   c.executeCode('one_param(1, 2, 3)').then((res) => {
     t.ok(res instanceof Error, 'should error')
     t.equal(res.message, 'Too many parameters supplied (3), expected 1 at most', 'error message should be correct')
+    t.end()
+  })
+})
+
+test('MiniContext: one_param(param1=4)', t => {
+  let c = setupContextWithFunctions()
+  c.executeCode('one_param(param1=4)').then((res) => {
+    t.equal(res.data, 4.4, 'result should be correct')
+    t.end()
+  })
+})
+
+test('MiniContext: one_param(param_foo=4)', t => {
+  let c = setupContextWithFunctions()
+  c.executeCode('one_param(param_foo=4)').then((res) => {
+    t.ok(res instanceof Error, 'should error')
+    t.equal(res.message, '"param_foo" is not a valid parameter names for function "one_param"', 'error message should be correct')
     t.end()
   })
 })

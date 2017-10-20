@@ -66,11 +66,25 @@ export default class MiniContext {
     if (args.length > params.length) {
       return _error(`Too many parameters supplied (${args.length}), expected ${params.length} at most`)
     }
-    let namedArgs = funcCall.namedArgs || {}
+    let namedArgs = funcCall.namedArgs || []
+    let namedArgsMap = {}
+    for (let namedArg of namedArgs) {
+      let found = false
+      for (let param of params) {
+        if (param.name === namedArg.name) {
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        return _error(`"${namedArg.name}" is not a valid parameter names for function "${functionName}"`)
+      }
+      namedArgsMap[namedArg.name] = namedArg
+    }
     let argValues = []
     let index = 0
     for (let param of params) {
-      const arg = args[index] || namedArgs[param.name]
+      const arg = args[index] || namedArgsMap[param.name]
       const value = arg ? arg.getValue() : param.default
       if (!value) {
         return _error(`Required parameter "${param.name}" was not supplied`)
