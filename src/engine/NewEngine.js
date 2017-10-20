@@ -90,6 +90,7 @@ export default class Engine {
       const editorSession = this.editorSession
       if (!editorSession) return
       editorSession._setDirty('document')
+      editorSession._setDirty('commandStates')
       let change = new DocumentChange([], {}, {})
       change._extractInformation()
       change.updated[cell.id] = true
