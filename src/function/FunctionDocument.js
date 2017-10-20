@@ -101,14 +101,14 @@ export default class FunctionDocument extends XMLDocument {
    * Get a list of languages that this function is implemented in
    */
   getImplementations() {
-    return this.getRoot().findAll(`implem`).map((implem) => implem.language)
+    return this.getRootNode().findAll(`implem`).map((implem) => implem.language)
   }
 
   /**
    * Get the implementation for a language
    */
   getImplementation(language) {
-    let implem = this.getRoot().find(`implem[language=${language}]`)
+    let implem = this.getRootNode().find(`implem[language=${language}]`)
     if (implem) {
       let code = implem.find('code')
       if (code) return code.textContent
