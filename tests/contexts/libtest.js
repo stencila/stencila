@@ -33,7 +33,7 @@ const one_param_with_defaultXML = `
 <function>
   <name>one_param_with_default</name>
   <params>
-    <param name="param1" type="number">
+    <param name="param1" type="string">
       <default type="string">Hello!</default>
     </param>
   </params>

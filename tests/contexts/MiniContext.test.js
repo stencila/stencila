@@ -124,6 +124,15 @@ test('MiniContext: one_param(param_foo=4)', t => {
   })
 })
 
+test('MiniContext: one_param("wrong type")', t => {
+  let c = setupContextWithFunctions()
+  c.executeCode('one_param("wrong type")').then((res) => {
+    t.ok(res instanceof Error, 'should error')
+    t.equal(res.message, 'Parameter "param1" must be of type "number"', 'error message should be correct')
+    t.end()
+  })
+})
+
 test('MiniContext: one_param_with_default("Howdy!")', t => {
   let c = setupContextWithFunctions()
   c.executeCode('one_param_with_default("Howdy!")').then((res) => {

@@ -1,6 +1,8 @@
 import { parse } from 'stencila-mini'
 import libcore from 'stencila-libcore'
 
+import { descendantTypes } from '../types'
+
 export default class MiniContext {
 
   // TODO: to be able to evaluate functions from mini
@@ -88,6 +90,11 @@ export default class MiniContext {
       const value = arg ? arg.getValue() : param.default
       if (!value) {
         return _error(`Required parameter "${param.name}" was not supplied`)
+      }
+      if (value.type !== param.type) {
+        if (descendantTypes[param.type].indexOf(value.type) < 0) {
+          return _error(`Parameter "${param.name}" must be of type "${param.type}"`)
+        }
       }
       argValues.push(value)
       index++
