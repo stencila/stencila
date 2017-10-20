@@ -26,7 +26,7 @@ export default class Host {
     this._instances = {}
 
     /**
-     * Execution contexts are currently managed separately to 
+     * Execution contexts are currently managed separately to
      * ensure that there is only one for each language
      *
      * @type {object}
@@ -48,6 +48,13 @@ export default class Host {
      * @type {object}
      */
     this._peers = {}
+
+    this._functionManager = options.functionManager
+
+    if (!this._functionManager) {
+      throw new Error('FunctionManager is required.')
+    }
+
   }
 
   /**
@@ -59,7 +66,7 @@ export default class Host {
     const options = this._options
 
     let promises = [Promise.resolve()]
-      
+
     // Seed with specified peers
     let peers = options.peers
     if (peers) {
@@ -139,11 +146,11 @@ export default class Host {
     // Fallback to providing an in-browser instances of resources where available
     let instance
     if (type === 'JsContext') {
-      instance = JsContext()
+      instance = new JsContext()
     } else if (type === 'MiniContext') {
       // MiniContext requires a pointer to this host so that
       // it can obtain other contexts for executing functions
-      instance = MiniContext(this)
+      instance = new MiniContext(this)
     } else {
       return Promise.reject(new Error(`No peers able to provide: ${type}`))
     }
@@ -161,28 +168,30 @@ export default class Host {
    * Create an execution context for a particular language
    */
   createContext(language) {
-    return new Promise((resolve, reject) => {
-      const context = this._contexts[language]
-      if (context) return context
-      else {
-        const type = {
-          'js': 'JsContext',
-          'mini': 'Context',
-          'py': 'PyContext',
-          'r': 'RContext',
-          'sql': 'SqliteContext'
-        }[language]
-        if (!type) {
-          return reject(new Error(`Unable to create an execution context for language ${language}`))
-        } else {
-          return this.create(type).then(result => {
-            let {instance} = result
-            this._contexts[language] = instance
-            return instance
-          })
-        }
+    const context = this._contexts[language]
+    if (context) return context
+    else {
+      const type = {
+        'js': 'JsContext',
+        'mini': 'MiniContext',
+        'py': 'PyContext',
+        'r': 'RContext',
+        'sql': 'SqliteContext'
+      }[language]
+      if (!type) {
+        return Promise.reject(new Error(`Unable to create an execution context for language ${language}`))
+      } else {
+        let p = this.create(type).then((res) => {
+          return res.instance
+        })
+        this._contexts[language] = p
+        return p
       }
-    })
+    }
+  }
+
+  get functionManager() {
+    return this._functionManager
   }
 
   /**

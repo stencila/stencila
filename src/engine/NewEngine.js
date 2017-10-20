@@ -6,7 +6,9 @@ import { DocumentChange } from 'substance'
 
 export default class Engine {
 
-  constructor(contexts) {
+  constructor(host) {
+    this._host = host
+
     this._cells = {}
 
     // dependency graph
@@ -16,7 +18,6 @@ export default class Engine {
     // cell id -> token
     this._tokens = {}
 
-    this._contexts = contexts
   }
 
   addCell(cell) {
@@ -27,7 +28,8 @@ export default class Engine {
 
     let cellState = getCellState(cell)
     cellState.state = INITIAL
-    // TODO notify
+    this._notifyCell(cell)
+
     this._analyse(cell)
   }
 
@@ -47,7 +49,7 @@ export default class Engine {
   }
 
   _getContext(lang) {
-    return this._contexts[lang]
+    return this._host.createContext(lang)
   }
 
   _getCell(cellId) {
@@ -59,17 +61,12 @@ export default class Engine {
   _analyse(cell) {
     let cellState = getCellState(cell)
     let lang = cell.language
-    let context = this._getContext(lang)
-    if (!context) {
-      cellState.messages = [{
-        message: `Context ${lang} is not available`
-      }]
-      this._notifyCell(cell)
-    } else {
+    this._getContext(lang)
+    .then((context) => {
       let token = uuid()
       this._tokens[cell.id] = token
       let source = cell.source || ''
-      context.analyseCode(source).then((res) => {
+      return context.analyseCode(source).then((res) => {
         if (this._tokens[cell.id] !== token) return
         // console.log('ANALYSED cell', cell, res)
 
@@ -81,7 +78,11 @@ export default class Engine {
         cellState.nodes = res.nodes
         this._notifyCell(cell)
       })
-    }
+    })
+    .catch((err) => {
+      cellState.messages = [err]
+      this._notifyCell(cell)
+    })
   }
 
   _notifyCell(cell) {

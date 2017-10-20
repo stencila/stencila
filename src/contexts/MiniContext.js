@@ -5,9 +5,9 @@ import { descendantTypes } from '../types'
 
 export default class MiniContext {
 
-  constructor(host, functionManager) {
+  constructor(host) {
     this._host = host
-    this._functionManager = functionManager
+    this._functionManager = host.functionManager
   }
 
   supportsLanguage(language) {
@@ -21,7 +21,7 @@ export default class MiniContext {
   executeCode(code = '', inputs = {}, exprOnly = false) {
     let codeAnalysis = this._analyseCode(code, exprOnly)
     if (codeAnalysis.expr) {
-      return this._evaluateExpression(codeAnalysis.expr)
+      return this._evaluateExpression(codeAnalysis, inputs)
     }
     return Promise.resolve(codeAnalysis)
   }
@@ -30,8 +30,10 @@ export default class MiniContext {
     Call a Mini function
 
     This gets called when evaluating a function call node within a Mini expression
+
   */
   callFunction(funcCall) {
+    // TODO: change the signature of this by doing all mini AST related preparations before-hand
     const functionName = funcCall.name
 
     // Ensure the function exists
@@ -46,131 +48,72 @@ export default class MiniContext {
       return _error(`Could not find implementation for function "${functionName}"`)
     }
 
-    // TODO: Determine the best implementation language to use based on 
+    // TODO: Determine the best implementation language to use based on
     // where arguments reside etc
     let language = implems[0]
-    
-    // Get a context for the implementation language
-    let context = this._host.createContext(language)
 
-    // Generate a correctly ordered array of argument values taking into account
-    // named arguments and default values and check for:
-    //  - missing parameters
-    //  - superfluous arguments
-    //  - arguments of wrong type
-    let params = funcDoc.getParams()
-    let args = funcCall.args || []
-    if (args.length > params.length) {
-      return _error(`Too many parameters supplied (${args.length}), expected ${params.length} at most`)
-    }
-    let namedArgs = funcCall.namedArgs || []
-    let namedArgsMap = {}
-    for (let namedArg of namedArgs) {
-      let found = false
+    // Get a context for the implementation language
+    return this._host.createContext(language)
+    .then((context) => {
+      // Generate a correctly ordered array of argument values taking into account
+      // named arguments and default values and check for:
+      //  - missing parameters
+      //  - superfluous arguments
+      //  - arguments of wrong type
+      let params = funcDoc.getParams()
+      let args = funcCall.args || []
+      if (args.length > params.length) {
+        return _error(`Too many parameters supplied (${args.length}), expected ${params.length} at most`)
+      }
+      let namedArgs = funcCall.namedArgs || []
+      let namedArgsMap = {}
+      for (let namedArg of namedArgs) {
+        let found = false
+        for (let param of params) {
+          if (param.name === namedArg.name) {
+            found = true
+            break
+          }
+        }
+        if (!found) {
+          return _error(`"${namedArg.name}" is not a valid parameter names for function "${functionName}"`)
+        }
+        namedArgsMap[namedArg.name] = namedArg
+      }
+      let argValues = []
+      let index = 0
       for (let param of params) {
-        if (param.name === namedArg.name) {
-          found = true
-          break
+        const arg = args[index] || namedArgsMap[param.name]
+        const value = arg ? arg.getValue() : param.default
+        if (!value) {
+          return _error(`Required parameter "${param.name}" was not supplied`)
         }
-      }
-      if (!found) {
-        return _error(`"${namedArg.name}" is not a valid parameter names for function "${functionName}"`)
-      }
-      namedArgsMap[namedArg.name] = namedArg
-    }
-    let argValues = []
-    let index = 0
-    for (let param of params) {
-      const arg = args[index] || namedArgsMap[param.name]
-      const value = arg ? arg.getValue() : param.default
-      if (!value) {
-        return _error(`Required parameter "${param.name}" was not supplied`)
-      }
-      if (value.type !== param.type) {
-        if (descendantTypes[param.type].indexOf(value.type) < 0) {
-          return _error(`Parameter "${param.name}" must be of type "${param.type}"`)
+        if (value.type !== param.type) {
+          if (descendantTypes[param.type].indexOf(value.type) < 0) {
+            return _error(`Parameter "${param.name}" must be of type "${param.type}"`)
+          }
         }
+        argValues.push(value)
+        index++
       }
-      argValues.push(value)
-      index++
-    }
-    
+      // Call the function implementation in the context, capturing any
+      // messages or returning the value
+      let libraryName = this._functionManager.getLibraryName(functionName)
+      return context.callFunction(libraryName, functionName, argValues).then((res) => {
+        if (res.messages && res.messages.length > 0) {
+          funcCall.addErrors(res.messages)
+          return undefined
+        }
+        return res.value
+      })
+    })
+
     function _error(msg) {
       funcCall.addErrors([{
         message: msg
       }])
       return new Error(msg)
     }
-
-    // Cal the function implementation in the context, capturing any 
-    // messages or returning the value
-    let libraryName = this._functionManager.getLibraryName(functionName)
-    return context.callFunction(libraryName, functionName, argValues).then((res) => {
-      if (res.messages && res.messages.length > 0) {
-        funcCall.addErrors(res.messages)
-        return undefined
-      }
-      return res.value
-    })
-  }
-
-  // used to create Stencila Values
-  // such as { type: 'number', data: 5 }
-  marshal(type, value) {
-    // TODO: maybe there are more cases where we want to
-    // cast the type according to the value
-    if (type === 'number') {
-      type = libcore.type(value)
-    }
-    return {
-      type,
-      data: value
-    }
-  }
-
-  plus(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data + right.data
-    }
-  }
-
-  minus(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data - right.data
-    }
-  }
-
-  multiply(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data * right.data
-    }
-  }
-
-  divide(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data / right.data
-    }
-  }
-
-  pow(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: Math.pow(left.data, right.data)
-    }
-  }
-
-  _numericType(left, right) {
-    let type
-    if (left.type === 'integer' && right.type === 'integer') {
-      type = 'integer'
-    } else {
-      type = 'number'
-    }
-    return type
   }
 
   _analyseCode(code) {
@@ -236,15 +179,109 @@ export default class MiniContext {
     }
   }
 
-  _evaluateExpression(expr) {
+  _evaluateExpression(res, values) {
+    let expr = res.expr
     return new Promise((resolve) => {
       expr.on('evaluation:finished', (val) => {
         expr.off('evaluation:finished')
-        resolve(val)
+        let errors = expr.root.errors
+        if (errors && errors.length > 0) {
+          res.messages = errors
+          res.value = undefined
+        } else {
+          res.value = val
+        }
+        resolve(res)
       })
-      expr.context = this
+      expr.context = new ExprContext(this, values)
       expr.propagate()
     })
+  }
+
+}
+
+/*
+  This is passed as a context to a MiniExpression to resolve external symbols
+  and for marshalling.
+*/
+class ExprContext {
+
+  constructor(parentContext, values) {
+    this.parentContext = parentContext
+    this.values = values
+  }
+
+  lookup(symbol) {
+    switch(symbol.type) {
+      case 'var': {
+        return this.values[symbol.name]
+      }
+      default:
+        console.error('FIXME: lookup symbol', symbol)
+    }
+  }
+
+  // used to create Stencila Values
+  // such as { type: 'number', data: 5 }
+  marshal(type, value) {
+    // TODO: maybe there are more cases where we want to
+    // cast the type according to the value
+    if (type === 'number') {
+      type = libcore.type(value)
+    }
+    return {
+      type,
+      data: value
+    }
+  }
+
+  plus(left, right) {
+    return {
+      type: this._numericType(left, right),
+      data: left.data + right.data
+    }
+  }
+
+  minus(left, right) {
+    return {
+      type: this._numericType(left, right),
+      data: left.data - right.data
+    }
+  }
+
+  multiply(left, right) {
+    return {
+      type: this._numericType(left, right),
+      data: left.data * right.data
+    }
+  }
+
+  divide(left, right) {
+    return {
+      type: this._numericType(left, right),
+      data: left.data / right.data
+    }
+  }
+
+  pow(left, right) {
+    return {
+      type: this._numericType(left, right),
+      data: Math.pow(left.data, right.data)
+    }
+  }
+
+  callFunction(funcCall) {
+    return this.parentContext.callFunction(funcCall)
+  }
+
+  _numericType(left, right) {
+    let type
+    if (left.type === 'integer' && right.type === 'integer') {
+      type = 'integer'
+    } else {
+      type = 'number'
+    }
+    return type
   }
 
 }
