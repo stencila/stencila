@@ -8,7 +8,8 @@ import getBoundingRect from '../util/getBoundingRect'
 
 export default class SheetView extends Component {
 
-  shouldRerender() {
+  shouldRerender(newProps) {
+    if(newProps.mode !== this.props.mode) return true
     return false
   }
 
@@ -31,10 +32,11 @@ export default class SheetView extends Component {
 
   render($$) {
     const sheet = this.props.sheet
+    const mode = this.props.mode
     const viewport = this.props.viewport
     const M = sheet.getColumnCount()
 
-    let el = $$('table').addClass('sc-table-view')
+    let el = $$('table').addClass('sc-table-view sm-mode-' + mode)
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
 
@@ -61,7 +63,7 @@ export default class SheetView extends Component {
     el.css({ width })
     el.append(head)
     el.append(
-      $$(TableBody, { sheet, viewport }).ref('body')
+      $$(TableBody, { sheet, viewport, mode }).ref('body')
     )
     return el
   }
@@ -270,13 +272,15 @@ class TableBody extends Component {
     let el = $$('tbody')
     let sheet = this.props.sheet
     let viewport = this.props.viewport
+    const mode = this.props.mode
     let N = sheet.getRowCount()
     let n = Math.min(viewport.startRow+viewport.P, N)
     for (let i = viewport.startRow; i < n; i++) {
       el.append(
         $$(TableRow, {
           sheet, viewport,
-          rowIdx: i
+          rowIdx: i,
+          mode
         }).ref(String(i))
       )
     }
@@ -368,6 +372,7 @@ class TableRow extends Component {
     let sheet = this.props.sheet
     let rowIdx = this.props.rowIdx
     let viewport = this.props.viewport
+    const mode = this.props.mode
     let height = sheet.getRowHeight(rowIdx)
     let el = $$('tr')
     switch (this.state) {
@@ -386,7 +391,7 @@ class TableRow extends Component {
           const cell = sheet.getCell(rowIdx, j)
           let td = $$('td').ref(String(j))
             .append(
-              $$(SheetCell, { node: cell }).ref(cell.id)
+              $$(SheetCell, { node: cell, mode }).ref(cell.id)
             ).attr({
               'data-row': rowIdx,
               'data-col': j,

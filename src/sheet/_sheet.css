@@ -238,3 +238,26 @@
 .sc-table-page.sm-loading {
   background: #ccc;
 }
+
+/* Sheet View Modes */
+
+.sc-sheet .sc-table-view.sm-mode-minimum td {
+  border: none;
+}
+
+.sc-sheet .sc-table-view.sm-mode-minimum .sc-column-header,
+.sc-sheet .sc-table-view.sm-mode-minimum .se-corner {
+  visibility: hidden;
+}
+
+.sc-sheet-cell .se-function-cell .sc-cell-value {
+  font-size: 10px;
+}
+
+.sc-sheet-cell .se-function-cell .sc-cell-value.sm-response-value {
+  color: #b8b8b8;
+}
+
+.sc-sheet-cell .se-function-cell .sc-equation {
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+}

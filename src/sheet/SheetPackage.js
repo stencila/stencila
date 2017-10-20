@@ -7,7 +7,7 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand, EditCellExpressionCommand
+  SetTypeCommand, EditCellExpressionCommand, ChangeModeCommand
 } from './SheetCommands'
 
 import EditCellExpressionTool from './EditCellExpressionTool'
@@ -84,6 +84,13 @@ export default {
         style: 'minimal',
         commandGroups: ['undo-redo']
       },
+      {
+        name: 'view-mode',
+        type: 'tool-dropdown',
+        style: 'descriptive',
+        showDisabled: true,
+        commandGroups: ['sheet-view-mode']
+      }
     ])
 
     config.addToolPanel('statusbar', [
@@ -185,6 +192,15 @@ export default {
     config.addComponent('value:image', ImageValueComponent)
     config.addComponent('value:plotly', PlotlyValueComponent)
 
+    // Sheet modes
+    config.addCommand('normal-mode', ChangeModeCommand, { mode: 'normal', commandGroup: 'sheet-view-mode' })
+    config.addCommand('minimum-mode', ChangeModeCommand, { mode: 'minimum', commandGroup: 'sheet-view-mode' })
+    config.addCommand('maximum-mode', ChangeModeCommand, { mode: 'maximum', commandGroup: 'sheet-view-mode' })
+
+    config.addLabel('view-mode', 'View Mode')
+    config.addLabel('normal-mode', 'Normal Mode')
+    config.addLabel('maximum-mode', 'Maximum Mode')
+    config.addLabel('minimum-mode', 'Minimum Mode')
 
     config.addComponent('sheet', SheetComponent)
 
