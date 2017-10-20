@@ -1,4 +1,5 @@
 import { Command } from 'substance'
+import { getRange } from './sheetHelpers'
 
 class RowsCommand extends Command {
 
@@ -206,6 +207,7 @@ export class SetTypeCommand extends Command {
     let columnMeta = doc.getColumnForCell(anchorCell.id)
     let columnType = columnMeta.attr('type')
     let cellType = anchorCell.attr('type')
+
     let state = {
       cellId: anchorCell.id,
       newType: this.config.type,
@@ -216,13 +218,24 @@ export class SetTypeCommand extends Command {
     return state
   }
 
-  execute({ editorSession, commandState }) {
-    let { cellId, newType, disabled } = commandState
+  execute({ editorSession, commandState, selection }) {
+    let { newType, disabled } = commandState
+    const selectionType = selection.data.type
     if (!disabled) {
-      editorSession.transaction((tx) => {
-        let cell = tx.get(cellId)
-        cell.attr({ type: newType })
-      })
+      if(selectionType === 'range') {
+        const range = getRange(editorSession)
+        editorSession.transaction((tx) => {
+          tx.getDocument().setTypeForRange(range.startRow, range.startCol, range.endRow, range.endCol, newType)
+        })
+      } else if (selectionType === 'columns') {
+        const range = getRange(editorSession)
+        editorSession.transaction((tx) => {
+          for (let colIdx = range.startCol; colIdx <= range.endCol; colIdx++) {
+            let cell = tx.getDocument().getColumnMeta(colIdx)
+            cell.attr({type: newType})
+          }
+        })
+      }
     }
   }
 }
