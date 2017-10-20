@@ -158,25 +158,64 @@ export default class MiniContext {
 
   _analyseCode(code) {
     let expr = parse(code)
-    let inputs, output
+    let inputs, output, tokens, nodes
     let messages = []
     if (expr.syntaxError) {
       messages.push({
         type: 'error',
         message: expr.syntaxError.msg
       })
-    } else {
+    }
+    if (expr.inputs) {
+      // extract input names
+      // TODO: we probably need something different, considering different
+      // input types: var, cell, range
       inputs = expr.inputs.map((node)=>{
         return node.name
       })
+    }
+    if (expr.name) {
       output = expr.name
     }
+    if (expr.tokens) {
+      // some tokens are used for code highlighting
+      // some for function documentation
+      tokens = expr.tokens
+    }
+
+    nodes = []
+    expr.nodes.forEach((n) => {
+      if (n.type === 'call') {
+        let args = n.args.map((a) => {
+          return {
+            start: a.start,
+            end: a.end
+          }
+        }).concat(n.namedArgs.map((a) => {
+          return {
+            start: a.start,
+            end: a.end,
+            name: a.name
+          }
+        }))
+        let node = {
+          type: 'function',
+          name: n.name,
+          start: n.start,
+          end: n.end,
+          args
+        }
+        nodes.push(node)
+      }
+    })
+
     return {
       expr,
       inputs,
       output,
       messages,
-      tokens: expr.tokens
+      tokens,
+      nodes
     }
   }
 

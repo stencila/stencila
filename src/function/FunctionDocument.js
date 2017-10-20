@@ -124,6 +124,35 @@ export default class FunctionDocument extends XMLDocument {
   }
 
   /*
+    NOTE: Used to populate FunctionUsage Component
+
+    {
+      name: 'sum',
+      summary: 'Returns the sum of a range',
+      examples: [
+        'sum(A1:A5)'
+      ],
+      params: [
+        { name: 'range', type: 'range', description: 'A range (array of numbers) to be summed up' }
+      ],
+      returns: { type: 'number', description: 'The sum of numbers in the given range'}
+    }
+  */
+  getSpec() {
+    return {
+      name: this.getName(),
+      summary: this.getSummary(),
+      examples: this.getUsageExamples(),
+      // STUB!
+      params: [
+        { name: 'range', type: 'range', description: 'A range (array of numbers) to be summed up' }
+      ],
+      // STUB!
+      returns: { type: 'number', description: 'The sum of numbers in the given range'}
+    }
+  }
+
+  /*
     Extract a json representation.
 
     @example

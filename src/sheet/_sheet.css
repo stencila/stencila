@@ -90,12 +90,55 @@
 
 .sc-sheet tr th:first-child {
   width: var(--sheet-header-width);
+  vertical-align: middle;
 }
 
-.sc-sheet th > * {
-  width: 100%;
+
+
+.sc-sheet .sc-column-header .se-column-title {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
 }
 
+.sc-sheet .sc-column-header .se-column-title > * {
+  flex-grow: 1;
+  justify-content: space-around;
+  margin: 0px 5px;
+}
+
+.sc-sheet .sc-column-header .se-column-title .se-column-name {
+  flex-grow: 3;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #b8b8b8;
+  margin: 0px 2px;
+}
+
+.sc-sheet .sc-column-header .se-column-title .se-column-label {
+  color: #616161;
+}
+
+.sc-sheet .sc-column-header .se-column-title .se-column-type {
+  position: relative;
+  color: #616161;
+  font-size: 10px;
+  line-height: 10px;
+}
+
+.sc-sheet .sc-column-header .se-resize-handle {
+  position: absolute;
+  height: 100%;
+  width: 3px;
+  top: 0px;
+  right: 0px;
+}
+
+.sc-sheet .sc-column-header .se-resize-handle:hover {
+  background: rgba(255, 0, 0, 0.35);
+  cursor: ew-resize;
+}
 
 .sc-sheet td {
   white-space: pre-wrap;
@@ -138,6 +181,21 @@
 
 .sc-column-header {
   position: relative;
+  height: 100%;
+  padding: 5px 0px;
+}
+
+.sc-column-header .se-column-type > .sc-tooltip {
+  display: none;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%);
+  z-index: 10;
+}
+
+.sc-column-header .se-column-type:hover > .sc-tooltip {
+  display: block;
 }
 
 .sc-column-header.sm-issue::after,
