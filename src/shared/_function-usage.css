@@ -50,3 +50,9 @@
 .sc-function-usage .se-documentation .se-parameters .se-param.sm-active .se-param-name {
   text-decoration: underline;
 }
+
+.sc-function-usage-tool > .se-function-not-found {
+	color: #fff;
+	font-size: 12px;
+	padding: 5px;
+}
