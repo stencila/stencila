@@ -4,13 +4,6 @@ import FunctionSchema from './FunctionSchema'
 
 export default class FunctionDocument extends XMLDocument {
 
-  constructor(...args) {
-    super(...args)
-
-    // A mapping of call type signatures to implemenation type signatures
-    this._implems = {}
-  }
-
   getDocTypeParams() {
     return FunctionSchema.getDocTypeParams()
   }
@@ -23,36 +16,48 @@ export default class FunctionDocument extends XMLDocument {
     return this.get('function')
   }
 
+  // Getter functions for retreiving function specifications
+  // as plain old data (e.g. strings or objects). Using naming
+  // and order as in FunctionSchema.rng for consisitency
+
+  /**
+   * Get the function's name
+   */
   getName() {
     return this.get('name').text()
   }
 
-  getImplementation(language) {
-    // TODO: find a proper implementation
-    let impl = this.getRoot().find(`implem[language=${language}]`)
-    let code = impl.find('code')
-    if (code) {
-      return code.textContent
-    }
+  /**
+   * Get the function's summary
+   */
+  getSummary() {
+    let summaryEl = this.find('summary')
+    return summaryEl ? summaryEl.textContent : ''
   }
 
-  // TODO: Specify available implementations in XML and expose as array of
-  //       language names
-  getImplementations() {
-    return ['js']
-  }
-
-  /*
-    Get parameters 
+  /**
+   * Get the function's parameters as an object
+   *
+   * e.g. params: [{
+   *   name: 'value', 
+   *   type: 'number', 
+   *   description: 'The value', 
+   *   default: {type: 'number', data: 42}
+   * }]
    */
   getParams() {
     if (!this._params) {
+      // Parameters are cached so that this does not need to be
+      // done for every call of this function
       this._params = []
       let paramEls = this.getRootNode().findAll('param')
       for (let paramEl of paramEls) {
         const name = paramEl.attr('name')
         const type = paramEl.attr('type')
-        
+
+        const descriptionEl = paramEl.find('description')
+        let description = descriptionEl ? descriptionEl.text() : ''
+
         let defaultValue
         const defaultEl = paramEl.find('default')
         if (defaultEl) {
@@ -65,11 +70,51 @@ export default class FunctionDocument extends XMLDocument {
         this._params.push({
           name: name,
           type: type,
+          description: description,
           default: defaultValue
         })
       }
     }
     return this._params
+  }
+
+  /**
+   * Get the function's return type and description
+   */
+  getReturn() {
+    let returnEl = this.getRootNode().find('return')
+    if (returnEl) {
+      let descriptionEl = returnEl.find('description')
+      return {
+        type: returnEl.attr('type'),
+        description: descriptionEl ? descriptionEl.text() : ''
+      }
+    } else {
+      return {
+        type: 'any',
+        description: ''
+      }
+    }
+  }
+
+  /**
+   * Get a list of languages that this function is implemented in
+   */
+  getImplementations() {
+    return this.getRoot().findAll(`implem`).map((implem) => implem.language)
+  }
+
+  /**
+   * Get the implementation for a language
+   */
+  getImplementation(language) {
+    let implem = this.getRoot().find(`implem[language=${language}]`)
+    if (implem) {
+      let code = implem.find('code')
+      if (code) return code.textContent
+    } else {
+      throw new Error(`An implementation is not available for language ${language}`)
+    }
   }
 
   /*
@@ -78,21 +123,12 @@ export default class FunctionDocument extends XMLDocument {
     TODO: We just need to store a simple <usage-example> element here, more
     complex usages could live in a separate rich documentation field (JATS body)
   */
-  getUsageExamples() {
+  getExamples() {
     return [
       'sum(A1:A5)',
       'sum(1,4)'
     ]
   }
-
-  /*
-    Returns a summary as plain text.
-  */
-  getSummary() {
-    let summary = this.find('summary')
-    return summary.textContent
-  }
-
 
   /*
     NOTE: Used to populate FunctionUsage Component
@@ -106,74 +142,17 @@ export default class FunctionDocument extends XMLDocument {
       params: [
         { name: 'range', type: 'range', description: 'A range (array of numbers) to be summed up' }
       ],
-      returns: { type: 'number', description: 'The sum of numbers in the given range'}
+      return: { type: 'number', description: 'The sum of numbers in the given range'}
     }
   */
   getSpec() {
     return {
       name: this.getName(),
       summary: this.getSummary(),
-      examples: this.getUsageExamples(),
-      // STUB!
-      params: [
-        { name: 'range', type: 'range', description: 'A range (array of numbers) to be summed up' }
-      ],
-      // STUB!
-      returns: { type: 'number', description: 'The sum of numbers in the given range'}
+      examples: this.getExamples(),
+      params: this.getParameters(),
+      return: this.getReturn()
     }
-  }
-
-  /*
-    Extract a json representation.
-
-    @example
-    {
-      params: [
-        { name: 'value1', type: 'number', description: 'The first number or range to add together.' },
-        { name: 'value2', type: 'number', repeatable: true, description: 'Additional numbers or ranges to add to `value1`.' }
-      ],
-      returns: { type: 'number', description: 'The sum of a series of numbers and/or cells.'}
-    }
-  */
-  getSignature() {
-    let signature = {
-      params: [],
-      returns: undefined
-    }
-    const params = this.get('params')
-    if (params) {
-      params.children.forEach((paramEl) => {
-        let param = {}
-        param.name = paramEl.attr('name')
-        param.type = paramEl.attr('type')
-        const _descr = paramEl.find('description')
-        if (_descr) {
-          param.description = _descr.textContent
-        }
-        const _default = paramEl.find('default')
-        if (_default) {
-          param.default = {
-            type: _default.attr('type'),
-            // TODO: cast the value
-            value: _default.textContent
-          }
-        }
-        signature.params.push(param)
-      })
-    }
-    const ret = this.get('return')
-    if (ret) {
-      signature.returns = {
-        type: undefined,
-        description: ''
-      }
-      signature.returns.type = ret.attr('type')
-      let descr = ret.find('description')
-      if (descr) {
-        signature.returns.description = descr.textContent
-      }
-    }
-    return signature
   }
 
 }
